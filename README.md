@@ -1,77 +1,75 @@
 # Elden Ring for Archipelago
 
-**Vanilla game + an apworld + an MIT-licensed Rust runtime client.** This project
-makes Elden Ring a first-class [Archipelago](https://archipelago.gg) multiworld
-game: every meaningful item pickup in the Lands Between is a *check*, the items
-you find go out to the multiworld, and your own items arrive in your inventory
-mid-session. It works solo too.
+Vanilla game, an apworld, and an MIT-licensed Rust client. Every meaningful item
+pickup in the Lands Between is a check, what you find goes out to the multiworld,
+and your items show up in your inventory mid-session. Works solo too.
 
-**Build your yaml at <https://peliarch.ca/er/>** -- a web page, nothing to install, that walks
-every option and tells you how big your seed will be before you generate it.
+**Build your yaml at <https://peliarch.ca/er/>**. It's a web page, nothing to
+install. It walks every option and tells you how big your seed is before you
+generate it.
 
-It is **pure runtime**: the game stays completely vanilla on disk. No game files
-are patched, no `regulation.bin` is modified, nothing is baked per seed. The
-runtime client is a Rust DLL loaded by the ModEngine3 (me3) mod loader; it reads
-the seed's layout from the Archipelago server at connect time and does everything
-live -- detecting checks, granting items, lighting graces, and enforcing region
-locks. This tree ships **no game assets** and contains **no code or data from any
-other randomizer project**: the world is derived from scratch against vanilla
-game data (see **`PROVENANCE.md`** for the derivation, the foreign-list rule, and credits).
+Nothing gets patched. The game on disk stays completely vanilla: no game files
+touched, no `regulation.bin` edits, nothing baked per seed. The client is a Rust
+DLL that ModEngine3 loads. It reads the seed layout off the Archipelago server
+when you connect, then does everything live: spotting checks, granting items,
+lighting graces, enforcing region locks.
+
+This tree ships no game assets and contains no code or data from any other
+randomizer project. The world is derived from scratch against vanilla game data.
+`PROVENANCE.md` has the derivation, the foreign-list rule, and credits.
 
 ---
 
-## How progression works (the part everyone gets wrong)
+## How progression works
 
-The world is **Shattered**: carved into major regions -- **17 in the base game,
-28 with the DLC** -- and each region is sealed behind an Archipelago item called
-a **Region Lock** ("Limgrave Lock", "Caelid Lock", ...). You start at Roundtable
-Hold with one region already open. When a region's Lock arrives from the
-multiworld, that region opens: **all of its graces light up on your map, and you
-warp in.** Walk into a region whose Lock you do not hold and the client warps
-you back to Roundtable Hold.
+The world is carved into major regions, 17 in the base game and 28 with the DLC,
+and each one is sealed behind an Archipelago item called a Region Lock. Limgrave
+Lock, Caelid Lock, and so on. You start at Roundtable Hold with one region
+already open. When a region's Lock comes in from the multiworld that region
+opens, all its graces light up on your map, and you warp in. Walk into a region
+you don't hold the Lock for and the client warps you back to Roundtable.
 
-**The Lock is the only way into a region.** Vanilla routes and vanilla key items
-gate *nothing* in Archipelago logic. You never need the Rold Medallion to reach
-the Mountaintops of the Giants; you never fight Mohg to enter the Land of
-Shadow. The Lock arrives, the graces light, you warp in.
+The Lock is the only way into a region. Vanilla routes and vanilla key items gate
+nothing in Archipelago logic. You never need the Rold Medallion to reach the
+Mountaintops, you never fight Mohg to get into the Land of Shadow. The Lock
+arrives, the graces light, you warp in.
 
-There are two vanilla-flavored exceptions, and they are layered **on top of** a
-region's own Lock, never in place of it:
+Two exceptions, and both sit on top of a region's Lock rather than replacing it:
 
-- **Raya Lucaria Academy** additionally needs the **Academy Glintstone Key**
-  (shuffled into the pool like any other item);
-- **Leyndell** additionally needs **Great Runes** (default 2, echoing the
-  vanilla capital gate; auto-clamped to what is reachable this seed).
+- Raya Lucaria also needs the Academy Glintstone Key, which gets shuffled into
+  the pool like anything else.
+- Leyndell also needs Great Runes, 2 by default, echoing the vanilla capital
+  gate. Auto-clamped to whatever's actually reachable that seed.
 
-The headline dials, all documented inline in the shipped
+The options worth knowing about, all documented inline in the shipped
 `release/EldenRing.yaml`:
 
-- **`num_regions`** -- how many regions are in play. `0` = the full Shattering;
-  `N > 0` seals the rest for a shorter run. This is the marquee mode: it turns
-  the open world into an Archipelago progression graph.
-- **`ending_condition`** -- `region_locks` (hold every Lock in play; the goal
-  region, Leyndell, is always kept) or `great_runes` (also collect
-  `goal_great_runes` Great Runes).
-- **`enable_dlc` / `dlc_only`** -- bring the 11 Shadow of the Erdtree regions
-  into the pool, or play only them.
+- `num_regions`: how many regions are in play. `0` is all of them, `N > 0` seals
+  the rest off for a shorter run. This is the mode that turns the open world into
+  an actual progression graph.
+- `ending_condition`: `region_locks` (hold every Lock in play, and the goal
+  region Leyndell is always kept) or `great_runes` (also collect
+  `goal_great_runes` of them).
+- `enable_dlc` / `dlc_only`: bring the 11 Shadow of the Erdtree regions in, or
+  play only those.
 
 ---
 
 ## Playing it
 
-Start with **`release/SETUP.md`** -- nothing to a running seed in about 15
-minutes (Archipelago 0.6.7 + the apworld + the client DLL + ModEngine3). Then
-read **`Elden-Ring-Archipelago-Player-Guide.md`** for how a run actually plays.
-Every real option is explained in a comment next to it in
-`release/EldenRing.yaml`; rough edges live in `release/KNOWN-ISSUES.md`.
+Start with `release/SETUP.md`. It's about 15 minutes to a running seed:
+Archipelago 0.6.7, the apworld, the client DLL, ModEngine3. Then
+`Elden-Ring-Archipelago-Player-Guide.md` covers how a run actually plays. Every
+real option has a comment next to it in `release/EldenRing.yaml`, and the rough
+edges are in `release/KNOWN-ISSUES.md`.
 
-You need Elden Ring on PC (Steam). The DLC is only needed if you enable the DLC
+You need Elden Ring on PC (Steam). The DLC only matters if you turn on the DLC
 regions.
 
-One rule worth repeating from the setup guide: the apworld and the client DLL
-are a **hash-matched pair** -- the client checks a contract hash on connect and
-loudly reports a mismatched apworld in its log. Always install both halves from
-the same release (`release/DISTRIBUTION.md` explains why).
+One thing worth repeating from the setup guide: the apworld and the client DLL
+are a hash-matched pair. The client checks a contract hash on connect and will
+loudly report a mismatched apworld in its log. Install both halves from the same
+release. `release/DISTRIBUTION.md` explains why.
 
 ---
 
