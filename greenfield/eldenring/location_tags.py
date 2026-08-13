@@ -982,9 +982,91 @@ LOCATION_TAGS = {
     7900002: ['Boss', 'KeyItem', 'LegacyBoss'],
     7900003: ['Boss', 'Seedtree'],
     7900004: ['Boss', 'GreatRune', 'MajorBoss', 'LegacyBoss'],
+    7900015: ['Legendary'],
+    7900016: ['Legendary'],
+    7900017: ['Legendary'],
+    7900041: ['Legendary'],
+    7900042: ['Legendary'],
+    7900043: ['Legendary'],
+    7900092: ['Legendary'],
+    7900093: ['Legendary'],
+    7900094: ['Legendary'],
+    7900095: ['Legendary'],
+    7900113: ['Boss', 'LegacyBoss'],
+    7900114: ['Boss', 'LegacyBoss'],
+    7900115: ['Boss', 'LegacyBoss'],
+    7900116: ['Boss', 'LegacyBoss'],
+    7900117: ['Boss', 'LegacyBoss'],
+    7900118: ['Boss', 'LegacyBoss'],
+    7900119: ['Boss', 'LegacyBoss'],
+    7900120: ['Boss', 'LegacyBoss'],
+    7900121: ['Boss', 'LegacyBoss'],
+    7900122: ['Boss', 'MajorBoss'],
+    7900123: ['Boss', 'LegacyBoss'],
+    7900124: ['Boss'],
+    7900125: ['Boss'],
+    7900126: ['Boss'],
+    7900127: ['Boss', 'FieldBoss'],
+    7900128: ['Boss', 'FieldBoss'],
+    7900129: ['Boss', 'Legendary'],
+    7900130: ['Boss', 'Legendary'],
+    7900131: ['Boss', 'Legendary'],
+    7900132: ['Boss', 'Legendary'],
+    7900133: ['Boss'],
+    7900134: ['Boss'],
+    7900135: ['Boss'],
+    7900136: ['Boss'],
+    7900137: ['Boss'],
+    7900138: ['Boss'],
+    7900139: ['Boss'],
+    7900140: ['Boss'],
+    7900141: ['Boss', 'Legendary'],
+    7900142: ['Boss'],
+    7900143: ['Boss'],
+    7900144: ['Boss', 'Legendary', 'FieldBoss'],
+    7900145: ['Boss', 'FieldBoss'],
+    7900146: ['Boss', 'FieldBoss'],
+    7900147: ['Boss', 'Legendary', 'FieldBoss'],
+    7900148: ['Boss', 'FieldBoss'],
+    7900149: ['Boss', 'FieldBoss'],
+    7900150: ['Boss', 'FieldBoss'],
+    7900151: ['Boss', 'FieldBoss'],
+    7900152: ['Boss', 'FieldBoss'],
+    7900153: ['Boss', 'FieldBoss'],
+    7900154: ['Boss', 'FieldBoss'],
+    7900155: ['MajorBoss', 'Boss'],
+    7900156: ['MajorBoss', 'Boss'],
+    7900157: ['MajorBoss', 'Boss'],
+    7900158: ['MajorBoss', 'Boss'],
+    7900159: ['MajorBoss', 'Boss'],
+    7900160: ['MajorBoss', 'Boss'],
+    7900161: ['MajorBoss', 'Boss'],
+    7900162: ['MajorBoss', 'Boss'],
+    7900175: ['Legendary'],
+    7900176: ['Legendary'],
+    7900177: ['Legendary'],
+    7900182: ['Legendary'],
+    7900183: ['Legendary'],
+    7900184: ['Legendary'],
+    7900191: ['Legendary'],
+    7900192: ['Legendary'],
+    7900193: ['Legendary'],
+    7900206: ['Legendary'],
+    7900207: ['Legendary'],
+    7900208: ['Legendary'],
+    7900209: ['Legendary'],
+    7900222: ['Legendary'],
+    7900223: ['Legendary'],
+    7900224: ['Legendary'],
+    7900233: ['Boss', 'FieldBoss'],
+    7900253: ['Legendary'],
+    7900254: ['Legendary'],
+    7900255: ['Legendary'],
+    7900257: ['Boss', 'FieldBoss'],
+    7900280: ['Legendary'],
 }
 
-TAG_COUNTS = {'Basin': 15, 'Boss': 214, 'Church': 13, 'EniaShop': 28, 'FieldBoss': 95, 'Fragment': 46, 'GreatRune': 7, 'KeyItem': 19, 'LegacyBoss': 42, 'Legendary': 93, 'MajorBoss': 43, 'Remembrance': 25, 'Revered': 23, 'Seedtree': 43, 'Shop': 562, 'ShopNonSpell': 442, 'ShopSlot': 12}
+TAG_COUNTS = {'Basin': 15, 'Boss': 266, 'Church': 13, 'EniaShop': 28, 'FieldBoss': 110, 'Fragment': 46, 'GreatRune': 7, 'KeyItem': 19, 'LegacyBoss': 52, 'Legendary': 130, 'MajorBoss': 52, 'Remembrance': 25, 'Revered': 23, 'Seedtree': 43, 'Shop': 562, 'ShopNonSpell': 442, 'ShopSlot': 12}
 
 # Region DEFAULTED to the hub (unknown real region) -> BARRED from progression.
 # A guessed region may not carry progression: see gen_data._region_is_derived().
@@ -996,12 +1078,12 @@ DEFAULTED_REGION_APS = frozenset([7770015, 7770028, 7770029, 7770030, 7770031, 7
 # Leyndell is still sealed, so the player can burn it with these still uncollected.
 # They stay CHECKS (collect them before you burn and you keep them) but may never carry
 # PROGRESSION: a check the player can put permanently out of reach cannot be required.
-ERDTREE_BURN_APS = frozenset([7770043, 7770056, 7770071, 7770868, 7770869, 7770899, 7771015, 7771016, 7771017, 7771018, 7771019, 7771020, 7771021, 7771022, 7771023, 7771024, 7771025, 7771026, 7771027, 7771028, 7771029, 7771030, 7771031, 7771032, 7771033, 7771034, 7771035, 7771036, 7771037, 7771038, 7771039, 7771040, 7771041, 7771042, 7771043, 7771044, 7771045, 7771046, 7771047, 7771048, 7771049, 7771050, 7771051, 7771052, 7771053, 7771054, 7771055, 7771056, 7771057, 7771058, 7771059, 7771060, 7771061, 7771062, 7771063, 7771064, 7771065, 7771066, 7771067, 7771068, 7771069, 7771070, 7771071, 7771072, 7771073, 7771074, 7771075, 7771076, 7771077, 7771078, 7771079, 7771080, 7771081, 7771082, 7771083, 7771084, 7771085, 7771086, 7771087, 7771088, 7771089, 7771090, 7771091, 7771092, 7771093, 7771094, 7771095, 7771096, 7771097, 7771098, 7771099, 7771100, 7771101, 7771102, 7771103, 7771104, 7771105, 7771106, 7771107, 7771108, 7771109, 7771110, 7771111, 7771112, 7771113, 7771114, 7771115, 7771116, 7771117, 7771118, 7771119, 7771120, 7771121, 7771122, 7771123, 7771124, 7771125, 7771126, 7771127, 7771128, 7771129, 7771130, 7771131, 7774042, 7774043, 7774044, 7774045, 7774046, 7774047, 7774048, 7774049, 7774050, 7774051, 7774052, 7774053, 7774054, 7774055, 7774056, 7774057, 7774058, 7774898, 7774909, 7774915, 7774920, 7774925])
+ERDTREE_BURN_APS = frozenset([7770043, 7770056, 7770071, 7770868, 7770869, 7770899, 7771015, 7771016, 7771017, 7771018, 7771019, 7771020, 7771021, 7771022, 7771023, 7771024, 7771025, 7771026, 7771027, 7771028, 7771029, 7771030, 7771031, 7771032, 7771033, 7771034, 7771035, 7771036, 7771037, 7771038, 7771039, 7771040, 7771041, 7771042, 7771043, 7771044, 7771045, 7771046, 7771047, 7771048, 7771049, 7771050, 7771051, 7771052, 7771053, 7771054, 7771055, 7771056, 7771057, 7771058, 7771059, 7771060, 7771061, 7771062, 7771063, 7771064, 7771065, 7771066, 7771067, 7771068, 7771069, 7771070, 7771071, 7771072, 7771073, 7771074, 7771075, 7771076, 7771077, 7771078, 7771079, 7771080, 7771081, 7771082, 7771083, 7771084, 7771085, 7771086, 7771087, 7771088, 7771089, 7771090, 7771091, 7771092, 7771093, 7771094, 7771095, 7771096, 7771097, 7771098, 7771099, 7771100, 7771101, 7771102, 7771103, 7771104, 7771105, 7771106, 7771107, 7771108, 7771109, 7771110, 7771111, 7771112, 7771113, 7771114, 7771115, 7771116, 7771117, 7771118, 7771119, 7771120, 7771121, 7771122, 7771123, 7771124, 7771125, 7771126, 7771127, 7771128, 7771129, 7771130, 7771131, 7774042, 7774043, 7774044, 7774045, 7774046, 7774047, 7774048, 7774049, 7774050, 7774051, 7774052, 7774053, 7774054, 7774055, 7774056, 7774057, 7774058, 7774898, 7774909, 7774915, 7774920, 7774925, 7900172, 7900173, 7900174, 7900175, 7900176, 7900177, 7900178, 7900179, 7900180])
 
 # Surface-tagged checks HAND-EXCLUDED from the progression surface (_SURFACE_EXCLUDE_FLAGS
 # in gen_data; Alaric's call). They stay ordinary checks but never host this world's
 # progression -- barred exactly like DEFAULTED_REGION_APS in features/progression_surface.
-SURFACE_EXCLUDE_APS = frozenset([7771411, 7771881, 7771911, 7772079, 7773360, 7773472, 7773476, 7773499, 7773618, 7773704, 7773735, 7773739, 7773913, 7774273, 7774820, 7774843, 7774844])
+SURFACE_EXCLUDE_APS = frozenset([7771411, 7771881, 7771911, 7772079, 7773360, 7773472, 7773476, 7773499, 7773618, 7773704, 7773735, 7773739, 7773913, 7774273, 7774820, 7774843, 7774844, 7900113])
 
 # The tile-guess bar's ONLY exception: _REGION_CONFIRMED_FLAGS in gen_data -- a check on a
 # graceless tile that a HUMAN stood in front of and confirmed the region of, in game. It keeps
@@ -1040,4 +1122,4 @@ SHOP_SLOT_PINS = {'801136000': 7770185, '801146000': 7770050, '801186000': 77700
 SHOP_SLOT_CANDIDATES = {'801136000': [7770185, 7770361, 7770362, 7770363, 7770364, 7770365, 7770366, 7770367, 7770368], '801146000': [7770050, 7770184, 7770369, 7770370, 7770371, 7770372, 7770373, 7770374, 7770439, 7770440, 7770441, 7770442, 7770443, 7770444, 7774850, 7774851], '801186000': [7770088, 7770401, 7770402, 7770403, 7770404, 7770405, 7770406, 7770407, 7770408], '801196000': [7770073, 7770193, 7770409, 7770410, 7770411, 7770412, 7770413, 7770414, 7770415, 7770416, 7770417], '801206000': [7770131, 7770178, 7770182, 7770418, 7770419, 7770420, 7770421, 7770422, 7770423, 7770424], '801216000': [7770097, 7770425, 7770426, 7770427, 7770428, 7770429, 7770430], '801226000': [7770431, 7770432], '801236000': [7770061, 7770127, 7770186, 7770433, 7770434, 7770435, 7770436, 7770437, 7770438], '801256000': [7770066, 7770177, 7770189, 7770445, 7770446, 7770447, 7770448, 7770449, 7770450, 7770451, 7770452, 7770453, 7770454, 7774857], '801271202': [7770090, 7770100, 7770465, 7770466, 7770467, 7770468, 7770469, 7770470], '801281201': [7770102, 7770129, 7770471, 7770472, 7770473, 7770474, 7770475, 7770476, 7770477], '801291205': [7770478, 7770479, 7770480, 7770481, 7770482]}
 SHOP_SLOT_SKIPS = {'224006000': 'not reachable ungated: every ESD path onto this shop is gated (1034499206, 3765), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302001000': 'not reachable ungated: every ESD path onto this shop is gated (10009356, 10009517, 3269), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302011000': 'not reachable ungated: every ESD path onto this shop is gated (10009356), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302021000': 'not reachable ungated: every ESD path onto this shop is gated (10009356), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302031000': 'not reachable ungated: every ESD path onto this shop is gated (10009356), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302041000': 'not reachable ungated: every ESD path onto this shop is gated (10009356), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302051000': 'not reachable ungated: every ESD path onto this shop is gated (10009356, 10009517, 3269), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302061000': 'not reachable ungated: every ESD path onto this shop is gated (10009356, 10009517), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '307006000': 'dedicated spell vendor: 10 of its 14 check(s) are sorceries/incantations, so none of its slots may carry progression', '307036000': 'alt-currency merchant (Dragon Communion altar): its wares are paid in a limited consumable, so ALL 4 of its slots are missable and none may carry progression', '307106000': 'not reachable ungated: every ESD path onto this shop is gated (1035509205), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '309001600': 'not reachable ungated: every ESD path onto this shop is gated (16009356, 16009359, 3686, 3687, 3692), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '309003100': 'not reachable ungated: every ESD path onto this shop is gated (16009356, 16009359, 3686, 3687, 3692), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '309006000': 'not reachable ungated: every ESD path onto this shop is gated (16009356, 16009359, 3686, 3687, 3692), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '316006000': 'dedicated spell vendor: 13 of its 13 check(s) are sorceries/incantations, so none of its slots may carry progression', '316206000': 'dedicated spell vendor: 13 of its 13 check(s) are sorceries/incantations, so none of its slots may carry progression', '316211400': 'dedicated spell vendor: 13 of its 13 check(s) are sorceries/incantations, so none of its slots may carry progression', '316301400': 'dedicated spell vendor: 13 of its 13 check(s) are sorceries/incantations, so none of its slots may carry progression', '319006000': 'dedicated spell vendor: 2 of its 2 check(s) are sorceries/incantations, so none of its slots may carry progression', '325001000': 'not reachable ungated: every ESD path onto this shop is gated (10009606, 10009616, 11109505, 11109530), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '326001600': 'not reachable ungated: every ESD path onto this shop is gated (16009457, 3885), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '326006000': 'not reachable ungated: every ESD path onto this shop is gated (16009457, 3885), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '326101600': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '330006000': 'dedicated spell vendor: 26 of its 26 check(s) are sorceries/incantations, so none of its slots may carry progression', '331006000': 'not reachable ungated: every ESD path onto this shop is gated (1036439205, 1036439210, 4146), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '333006000': 'dedicated spell vendor: 3 of its 3 check(s) are sorceries/incantations, so none of its slots may carry progression', '349006000': 'dedicated spell vendor: 4 of its 4 check(s) are sorceries/incantations, so none of its slots may carry progression', '351001100': 'dedicated spell vendor: 29 of its 29 check(s) are sorceries/incantations, so none of its slots may carry progression', '351001105': 'dedicated spell vendor: 29 of its 29 check(s) are sorceries/incantations, so none of its slots may carry progression', '351006000': 'dedicated spell vendor: 29 of its 29 check(s) are sorceries/incantations, so none of its slots may carry progression', '415006100': 'not reachable ungated: every ESD path onto this shop is gated (4385), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '419002200': 'not reachable ungated: every ESD path onto this shop is gated (2048439206, 2048439225, 2048439228, 2048439235), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '419006100': 'not reachable ungated: every ESD path onto this shop is gated (2048439206, 2048439207, 2048439225, 2048439228), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '420006100': 'dedicated spell vendor: 9 of its 9 check(s) are sorceries/incantations, so none of its slots may carry progression', '601006000': 'dedicated spell vendor: 3 of its 3 check(s) are sorceries/incantations, so none of its slots may carry progression', '601016000': 'dedicated spell vendor: 13 of its 13 check(s) are sorceries/incantations, so none of its slots may carry progression', '630006100': 'dedicated spell vendor: 3 of its 3 check(s) are sorceries/incantations, so none of its slots may carry progression', '800001100': 'no exclusive ware: every one of its 37 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800003500': 'no exclusive ware: every one of its 37 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800006000': 'no exclusive ware: every one of its 37 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800026000': 'not reachable ungated: every ESD path onto this shop is gated (4980, 4982), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '800046000': 'not reachable ungated: every ESD path onto this shop is gated (4980, 4982), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '801116000': 'no exclusive ware: every one of its 8 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801126000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801156000': 'no exclusive ware: every one of its 11 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801166000': 'no exclusive ware: every one of its 11 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801176000': "region MISMATCH: merchant stands in ['Liurnia'] but its 16 candidate row(s) are filed ['Raya Lucaria Academy'] -- a pin fill would believe is reachable early", '801266000': 'dedicated spell vendor: 1 of its 8 check(s) are sorceries/incantations, so none of its slots may carry progression', '801516000': 'no exclusive ware: every one of its 8 check(s) is also sold by another FIELD merchant (hub mirror ignored)'}
 
-_GEN_STAMP = {'inputs_hash': 'sha256:b15f46b2affe3d85f6f099a846036970acc4b25592d999fb3802baa4257ab5e3', 'module': 'location_tags.py', 'body_sha256': 'sha256:c3e0d68328f140619b6df1224d27b8ba5b22d4d97aead9c1593748adf97d4208'}
+_GEN_STAMP = {'inputs_hash': 'sha256:a57ff140eaf29576d45ed5178d90ac6a7a3d3173f78353d2efac6f5061377d95', 'module': 'location_tags.py', 'body_sha256': 'sha256:bb2361d6d81a8bc431248dc9b6aef31112508e96bd7ca9b1746534bb39e9a19d'}
