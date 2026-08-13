@@ -8409,6 +8409,31 @@ LOCATION_UNITS = {
 # same game item, riding slot_data itemCounts. core.stacked_vanilla_name promotes a
 # multi-copy location to one of these when the name is present. See gen_data for scope.
 LOT_STACK_GRANTS = {
+    'Bone Dart x8': (1073743534, 8),
+    'Crystal Dart x10': (1073743564, 10),
+    'Crystal Dart x3': (1073743564, 3),
+    'Crystal Dart x4': (1073743564, 4),
+    'Crystal Dart x5': (1073743564, 5),
+    'Crystal Dart x8': (1073743564, 8),
+    'Fan Daggers x4': (1073743574, 4),
+    'Fan Daggers x5': (1073743574, 5),
+    'Fan Daggers x6': (1073743574, 6),
+    'Fan Daggers x8': (1073743574, 8),
+    'Gravity Stone Chunk x2': (1073744894, 2),
+    'Gravity Stone Fan x3': (1073744884, 3),
+    'Gravity Stone Fan x4': (1073744884, 4),
+    'Gravity Stone Fan x6': (1073744884, 6),
+    'Kukri x4': (1073743554, 4),
+    'Kukri x5': (1073743554, 5),
+    'Kukri x6': (1073743554, 6),
+    'Kukri x8': (1073743554, 8),
+    'Large Glintstone Scrap x2': (1073744875, 2),
+    'Large Glintstone Scrap x3': (1073744875, 3),
+    'Large Glintstone Scrap x5': (1073744875, 5),
+    'Poisonbone Dart x10': (1073743544, 10),
+    'Poisonbone Dart x5': (1073743544, 5),
+    'Poisonbone Dart x6': (1073743544, 6),
+    'Poisonbone Dart x8': (1073743544, 8),
     'Revered Spirit Ash x2': (1075751924, 2),
     'Scadutree Fragment x2': (1075751824, 2),
     'Smithing Stone [1] x2': (1073751924, 2),
@@ -8450,6 +8475,10 @@ LOT_STACK_GRANTS = {
     'Somber Smithing Stone [1] x2': (1073751984, 2),
     'Somber Smithing Stone [2] x2': (1073751985, 2),
     'Somber Smithing Stone [5] x3': (1073751988, 3),
+    'Throwing Dagger x3': (1073743524, 3),
+    'Throwing Dagger x5': (1073743524, 5),
+    'Throwing Dagger x6': (1073743524, 6),
+    'Throwing Dagger x8': (1073743524, 8),
 }
 
 DLC_ITEM_NAMES = {
@@ -11042,4 +11071,4 @@ JUNK_GEAR_NAMES = [
     'Zamor Mask',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:7386a2362808310ac5bf7f4b8c1ad9f8b77a4ded4bdb0ab2564e9445d5e321dc', 'module': 'item_ids.py', 'body_sha256': 'sha256:09a9dfbf7d44bf01916b58395fbcf50b4a97c90ef6393012f85a5f39fbf70670'}
+_GEN_STAMP = {'inputs_hash': 'sha256:a22de8e99b9f265a4d7a49f3c873b460789bc8ee4523b648e004996e44c87907', 'module': 'item_ids.py', 'body_sha256': 'sha256:340a93f713cbf156e114314b8e226f029d1c9bee17b1f473d31d65ff2cd68705'}

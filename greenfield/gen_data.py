@@ -6853,10 +6853,41 @@ for _apu, (_fullu, _flagu, _bindu) in _LOC_FULL.items():
 _STACK_MINT_STONES = lambda _n: ("Smithing Stone [" in _n) or ("Somber Smithing Stone [" in _n)
 _STACK_MINT_COLLECT = lambda _n: _n in ("Golden Seed", "Sacred Tear", "Scadutree Fragment",
                                         "Revered Spirit Ash")
+# THROWABLES (Alaric's ruling 2026-08-13): the category stack is a FLOOR, not an exact quantity.
+# features/filler_curation grants throwables x5 via STACK_QTY_BY_CATEGORY -- a USABILITY decision
+# ("a found throwable is a usable handful"), which is why an x1 lot still hands over five. 28 vanilla
+# lots grant MORE than five, up to ten, and paying five there loses 68 copies for no reason. So mint
+# every throwable multi-copy pair and let features/lot_stacks apply `max(lot, constant)`.
+#
+# 🛑 THE FLOOR COMPARISON DOES NOT LIVE HERE. STACK_QTY_BY_CATEGORY is the feature's constant and
+# mirroring it into the generator is exactly the drift this repo gates elsewhere. gen_data emits the
+# DATA (every throwable pair above 1); lot_stacks owns the RULE and registers only the pairs that
+# beat the category stack. A pair it declines is simply never registered, and
+# core.stacked_vanilla_name only promotes to a REGISTERED name -- so a sub-floor lot keeps paying the
+# base item and its x5, exactly as before.
+#
+# ammunition / pots / greases are NOT here and need nothing: measured 2026-08-13, ammunition's 71
+# multi-copy lots top out at exactly its x20 constant, and pots/greases have no multi-copy lot at
+# all. Minting for them could only ever pay LESS than they already do.
+_STACK_MINT_THROWABLE = lambda _n: _n in _THROWABLE_NAMES
+# Read the throwable roster from the FEATURE that owns it (same reason the policy import in the
+# co-check widening reads datamine_flag_lots): one definition, no second copy to fall out of date.
+_THROWABLE_NAMES = frozenset()
+try:
+    import ast as _ast_t
+    _fc_src = open(os.path.join(HERE, "eldenring", "features", "filler_curation.py"),
+                   encoding="utf-8").read()
+    _cat_blk = re.search(r"^CATEGORIES = \{(.*?)^\}", _fc_src, re.M | re.S).group(1)
+    _THROWABLE_NAMES = frozenset(
+        _ast_t.literal_eval(re.search(r'"throwables":\s*(\[.*?\])', _cat_blk, re.S).group(1)))
+except Exception as _e:
+    print("[gen_data] WARNING: could not read the throwables roster (%r) -- throwable stacks inert" % (_e,))
+
 LOT_STACK_GRANTS = {}
 for _apk, _nk in LOCATION_ITEM.items():
     _qk = LOCATION_UNITS.get(_apk, 1)
-    if _qk <= 1 or not (_STACK_MINT_STONES(_nk) or _STACK_MINT_COLLECT(_nk)):
+    if _qk <= 1 or not (_STACK_MINT_STONES(_nk) or _STACK_MINT_COLLECT(_nk)
+                        or _STACK_MINT_THROWABLE(_nk)):
         continue
     _fk = ITEM_CATALOG.get(_nk)
     if _fk is None:                      # unresolvable base name -> nothing to point the stack at

@@ -70,7 +70,30 @@ def _class_for(name):
     return cls if isinstance(cls, ItemClassification) else ItemClassification.filler
 
 
-MINTED = {n: v for n, v in LOT_STACK_GRANTS.items() if n != FRAGMENT_X2}
+try:
+    # The CATEGORY stack (throwables x5, ammunition x20, ...). Alaric's ruling 2026-08-13: it is a
+    # FLOOR, not an exact quantity -- it exists so a found throwable is a usable handful, which is
+    # why an x1 lot still hands over five. So a lot only earns a stacked name when it beats the
+    # floor; below it the base item already pays more and promoting would LOSE copies.
+    from .filler_curation import stack_qty_by_name
+except Exception:
+    stack_qty_by_name = None
+
+
+def _beats_the_category_floor(name, qty):
+    """A stacked name is worth registering only if its lot out-pays the category stack.
+
+    Measured 2026-08-13: ammunition's 71 multi-copy lots top out at exactly its x20 constant and
+    pots/greases have no multi-copy lot at all, so this declines every one of them and only
+    throwables (28 lots, up to x10) are promoted. It is a RULE, not a list -- if a category constant
+    or a lot quantity ever moves, the answer moves with it."""
+    if stack_qty_by_name is None:
+        return True                       # feature not importable (unit load) -> do not silently drop
+    return qty > stack_qty_by_name().get(_base_of(name), 0)
+
+
+MINTED = {n: v for n, v in LOT_STACK_GRANTS.items()
+          if n != FRAGMENT_X2 and _beats_the_category_floor(n, v[1])}
 
 
 @register
