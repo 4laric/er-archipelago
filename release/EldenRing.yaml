@@ -224,6 +224,24 @@ Elden Ring:
 
   # ---- Item pool ------------------------------------------------------------
 
+  # Want the vanilla item spread instead of a curated one? This is the switch,
+  # and it is the ONLY thing you need to set -- it does both halves.
+  #   false (default) the pool is curated: the recipe below spends the filler
+  #                   tail, and a guaranteed set of physick tears and smithing
+  #                   bell bearings is added to the pool
+  #   true            every check pays what it pays in vanilla Elden Ring, and
+  #                   nothing is added
+  # Emptying `curated_filler` below does only the FIRST half. The tears and bell
+  # bearings come from a separate feature, so a seed built that way still hands
+  # you up to 18 tears vanilla never placed -- which is exactly the confusion
+  # this option exists to end. Setting this OVERRIDES the recipe below (the
+  # generation log says so); you do not have to clear it as well.
+  # 🛑 It costs you the whole economy: no gear injection, no smithing-stone or
+  # rune supply, and no guarantee a physick tear or bell bearing exists at all
+  # in a seed that seals their home regions. If you only wanted LESS gear,
+  # lower `juice` below instead.
+  vanilla_pool: false
+
   # Recipe for the junk-consumable filler tail: {category: weight}.
   # Leave it alone unless you know what you want. Raising `juice` gives you more
   # genuinely useful drops; raising `stones` keeps upgrade materials flowing.

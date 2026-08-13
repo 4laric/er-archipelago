@@ -164,7 +164,17 @@ def absent_roster(world) -> List[str]:
     (deterministic). Dropping DLC-excluded names is what keeps a DLC-off seed clean: two roster physick
     tears (Bloodsucking Cracked Tear, Deflecting Hardtear) are DLC-only GOODS, so injecting them with
     DLC off would leak DLC content into the pool (the exact class test_gf_dlc_pool_leak guards). With
-    DLC off they are simply not part of the floor; with DLC on the exclusion set is empty."""
+    DLC off they are simply not part of the floor; with DLC on the exclusion set is empty.
+
+    🛑 #618 -- `vanilla_pool` STANDS THIS FLOOR DOWN ENTIRELY. Until then this feature had no option
+    and was not frozen: it was unconditional, and that is precisely why `curated_filler: {}` did not
+    give anyone a vanilla pool. It looked like it had, and 18 tears still arrived. Gated HERE rather
+    than in create_items so that both callers see the same answer -- the tests read this function,
+    and a floor that is off for the pool but on for the predicate is the kind of split that gets
+    asserted green while the seed disagrees."""
+    from . import vanilla_pool as _vp
+    if _vp.is_on(world):
+        return []
     present = present_roster(world)
     excl = getattr(world, "gf_dlc_excluded", frozenset())
     dropped = _toggle_dropped(world)

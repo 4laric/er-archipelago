@@ -5,6 +5,21 @@ moment anyone remembers why it mattered._
 
 ## What is in it so far
 
+**You can turn the curated item pool off.** `vanilla_pool: true` and your checks pay what they pay
+in vanilla Elden Ring — no recipe rewriting the junk end of your pool, and no guaranteed set of
+physick tears and bell bearings added on top. Off by default.
+
+Half of this was already possible and that turned out to be the problem: emptying `curated_filler`
+gave you a vanilla filler tail, but the tears and bell bearings came from a second feature that no
+yaml could reach, so a seed built that way still handed you up to 18 tears vanilla never placed. It
+looked like it had worked. The playtest report behind this was somebody counting 19 tears against a
+catalog of 37 and concluding items were missing — 19 being the 18 guaranteed ones plus the one his
+seed actually kept. One option now does both halves.
+
+It is a real trade, so know what you are buying: no gear injection, no smithing-stone or rune
+economy, and no promise that a physick tear exists at all in a seed that seals its home region.
+That is what the curation was for. If you only wanted *less* gear, turn `juice` down instead.
+
 **The new front page can actually be deployed now.** v0.4.0 shipped the deploy step for it
 pointing at a path the site does not serve: `peliarch.ca/` is not a static directory, it is an
 application route, so the file would have been written, reported as installed, and never appear.
