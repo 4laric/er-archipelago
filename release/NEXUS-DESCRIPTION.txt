@@ -27,7 +27,7 @@ That's the whole trick: Elden Ring's famously go-anywhere map becomes an Archipe
 
 [size=4][b]Size the run to your evening[/b][/size]
 [list]
-[*][b]num_regions[/b] — how many regions are in play. 0 is the full Shattering; 4 is a tight ~4-hour run. The goal region is always kept, so every seed is winnable.
+[*][b]num_regions[/b] — how many regions are in play. The shipped YAML sets [b]6[/b], which targets a 3-4 hour run; 0 is the full Shattering, and something like 4 is a tight evening. The goal region is always kept, so every seed is winnable.
 [*][b]ending_condition[/b] — hold every Region Lock in play (default), or chase a set number of Great Runes instead.
 [*][b]num_regions_order[/b] — draw the kept regions at random (default), or take them in spine order deterministically. Neither decides where you START: the opening region is always its own draw, weighted by region size.
 [/list]
@@ -66,7 +66,11 @@ Install is a two-file drop plus the shipped YAML — nothing to a running seed i
 
 [size=4][b]Beta honesty[/b][/size]
 
-This is v0.4.0 and in active development. Nothing on the known-issues list can strand a run on the base game — the headline issue is that a small class of enemy-drop checks can currently pay out the vanilla item instead of the Archipelago one (those spots never hold progression, so the worst case is a missed filler item). DLC seeds work but have rough edges. The full, honest list — including the by-design behaviors that get reported as bugs — is in [url=https://github.com/4laric/er-archipelago/blob/main/release/KNOWN-ISSUES.md]Known Issues[/url]. If something looks wrong and isn't on that list, we want to hear about it: bring your YAML and the spoiler log.
+This is v0.4.0 and in active development. Nothing on the known-issues list can strand a run on the base game — the headline issue is that a small class of enemy-drop checks can currently pay out the vanilla item instead of the Archipelago one (those spots never hold progression, so the worst case is a missed filler item). DLC seeds work but have rough edges. The full, honest list — including the by-design behaviors that get reported as bugs — is in [url=https://github.com/4laric/er-archipelago/blob/main/release/KNOWN-ISSUES.md]Known Issues[/url]. If something looks wrong and isn't on that list, I want to hear about it — [url=https://github.com/4laric/er-archipelago/issues/new/choose]open an issue[/url] and bring your YAML and the spoiler log.
+
+[size=4][b]Built with AI[/b][/size]
+
+Most of this project's code was written with LLM assistance. My policy is to assume the LLM code is broken until something proves it works: there's [b]1466 apworld tests and 1193 client tests[/b] running in CI, plus a meta-test layer that lints new tests to check they aren't vacuous. CI is red on PRs the AI opens more often than not, and all of that gets fixed before anything merges. [url=https://github.com/4laric/er-archipelago/blob/main/CONTRIBUTING.md]CONTRIBUTING.md[/url] has the rules, and every one of them came out of a real bug.
 
 [size=4][b]Credits & provenance[/b][/size]
 
@@ -77,7 +81,7 @@ With thanks to:
 [*][b]nex3[/b] — for the Archipelago Rust ecosystem (archipelago_rs) the runtime client builds on.
 [*][b]vswarte[/b] — for the FromSoftware reverse-engineering and tooling groundwork the client's live-game integration relies on.
 [*][b]The Archipelago project and community[/b] — for the multiworld framework, the MIT-licensed core, and the ecosystem conventions this release follows.
-[*][b]thefifthmatt[/b] — whose excellent randomizer we recommend alongside this one (and deliberately do not bundle, mirror, or redistribute — get it from [url=https://www.nexusmods.com/eldenring/mods/428]his page[/url], per his terms).
+[*][b]thefifthmatt[/b] — whose excellent randomizer I recommend alongside this one (and deliberately do not bundle, mirror, or redistribute — get it from [url=https://www.nexusmods.com/eldenring/mods/428]his page[/url], per his terms).
 [/list]
 
 Everything shipped here is MIT-licensed.
