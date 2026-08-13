@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.4.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "41d43d1525f7a61d1e6a9571cfa9d08ef25ec1dc1e79e45308d1da4b9b028974",
+ "source_sha256": "12dfc897c3d8d836fe9e35f9ca2ab8eb156cf327f424118ebb8687c62c8cb1b5",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -16,7 +16,6 @@
   "capital_reconciler",
   "auto_equip",
   "no_equip_load",
-  "no_fall_damage",
   "dungeon_sweep",
   "death_link",
   "reroll_enemy_drops",
@@ -61,7 +60,8 @@
   "traps",
   "trap_count",
   "spawn_traps",
-  "vanilla_pool"
+  "vanilla_pool",
+  "no_weapon_requirements"
  ],
  "groups": [
   {
@@ -99,7 +99,6 @@
     "minimum_enemy_difficulty",
     "maximum_enemy_difficulty",
     "difficulty_ramp_speed",
-    "no_fall_damage",
     "traps",
     "spawn_traps",
     "trap_count"
@@ -157,6 +156,7 @@
    "collapsed": false,
    "options": [
     "auto_equip",
+    "no_weapon_requirements",
     "no_equip_load",
     "start_with_whetblades",
     "progressive_flasks",
@@ -394,22 +394,6 @@
      "value": 2
     }
    ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": null,
-   "group_collapsed": false,
-   "special_values": null
-  },
-  {
-   "key": "no_fall_damage",
-   "class": "NoFallDamage",
-   "display_name": "No Fall Damage",
-   "description": "You take no damage from falling. Does not save you from a bottomless pit -- the game still\nkills you for leaving the map -- but ordinary drops, cliffs and shortcuts stop hurting.\nOff by default.",
-   "kind": "toggle",
-   "base": "Toggle",
-   "default": false,
-   "choices": null,
    "range": null,
    "valid_keys": null,
    "casefold": false,
@@ -1939,7 +1923,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "free_text": true
   },
   {
    "key": "vanilla_pool",
@@ -1949,6 +1934,22 @@
    "kind": "toggle",
    "base": "Toggle",
    "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "no_weapon_requirements",
+   "class": "NoWeaponRequirements",
+   "display_name": "No Weapon Requirements",
+   "description": "Remove the stat requirements on weapons, shields, and catalysts (and spell requirements) so\nanything the multiworld hands you is usable regardless of your build.\n\nOn by default -- a randomizer hands you gear no build was made for, and this is what has always\nhappened. Turn it off if you want your stats to decide what you can hold; the seed is generated\nthe same either way, so nothing becomes unwinnable, it just becomes a fight you have to build for.\n\nThe client zeroes the live params at runtime and only ever LOWERS a requirement, so it is\nreconnect-safe.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": true,
    "choices": null,
    "range": null,
    "valid_keys": null,

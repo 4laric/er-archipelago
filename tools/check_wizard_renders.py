@@ -170,11 +170,75 @@ if (P.state && P.contributionCard){
   for (const k of Object.keys(P.state.values)) delete P.state.values[k];
 }
 
+// ---- THIRD AUDIT: a free-text set control must REFUSE what the option refuses ----------------
+// A `free_text` option renders as one text box instead of one checkbox per valid_key, which hands
+// the player something no other control does: the ability to type a value the option does not
+// accept. `valid_keys` is the whole validation for spawn_traps -- it is what turns `[9999]` into a
+// yaml error instead of an item that arrives in-game and never fires -- so a box that passes an
+// unknown token through has moved the failure from the builder, where it is a sentence, to
+// generation, after the download. That is #571's shape (a control that writes something the world
+// cannot take), and the checkbox grid was immune to it by construction.
+const ancestorOpt = n => { let p = n;
+  while (p && !String(p.className || "").split(" ").includes("opt")) p = p.parent;
+  return p; };
+const descByClass = (n, cls) => { const out = [];
+  (function go(x){ if (!x) return;
+    if (String(x.className || "").split(" ").includes(cls)) out.push(x);
+    for (const k of (x.kids || [])) go(k); })(n);
+  return out; };
+/* 🛑 THE LAST MATCH, NOT THE FIRST, and `from` exists for the same reason. The shim models
+   `innerHTML = ""` by emptying a node's `kids`, but the discarded children keep their `.parent`, so
+   `attached()` still says yes to every control the page has EVER rendered. Taking the first match
+   therefore reads the box from before the edit -- which reports the state the control was in when
+   it was drawn, i.e. exactly the message this audit is trying to check changed. `from` narrows the
+   search to nodes created after a mark taken before the event fired. */
+const boxFor = (key, from) => NODES.slice(from || 0)
+  .filter(n => n.className === "freeset" && attached(n))
+  .filter(n => { const row = ancestorOpt(n);
+                 return row && descByClass(row, "key").some(s => text(s).trim() === key); })
+  .pop();
+const freetext = {};
+for (const o of ((P.meta && P.state) ? P.meta.options : [])){
+  if (!o.free_text) continue;
+  const rec = { rendered: false };
+  freetext[o.key] = rec;
+  for (const k of Object.keys(P.state.values)) delete P.state.values[k];
+  for (let i = 0; i < railButtons().length && !rec.rendered; i++){
+    railButtons()[i].fire("click");
+    const box = boxFor(o.key);
+    if (!box) continue;
+    rec.rendered = true;
+    const good = (o.valid_keys || []).slice(0, 3);
+    rec.accepted = good;
+    // OUT OF ORDER, with a DUPLICATE, an UNKNOWN token, and two different separators -- every one
+    // of those is something a player pasting ids actually does, and each has its own way to be
+    // silently wrong (yaml order churn, a doubled entry, a value the world rejects).
+    rec.typed = good[2] + " " + good[0] + ", __nope__, " + good[1] + " " + good[1];
+    const input = (box.kids || []).find(k => k.tagName === "INPUT");
+    if (!input){ rec.error = "the freeset carries no text input"; break; }
+    input.value = rec.typed;
+    const mark = NODES.length;
+    input.fire("change");
+    rec.committed = P.state.values[o.key];
+    rec.normalised = input.value;
+    // `refresh()` does NOT rebuild controls today, so the box repaints ITSELF and `box` is still
+    // the live one. Prefer a newer box if one appeared anyway: a future change that does rebuild
+    // on commit would otherwise leave this reading the pre-edit message forever, and a probe that
+    // silently reads the wrong node is the failure this whole file is about.
+    const after = boxFor(o.key, mark) || box;
+    const note = after && (after.kids || []).find(k => String(k.className || "").split(" ")[0] === "fsnote");
+    rec.note = note ? text(note).trim() : "";
+    rec.noteIsBad = !!(note && String(note.className || "").split(" ").includes("bad"));
+  }
+  for (const k of Object.keys(P.state.values)) delete P.state.values[k];
+}
+
 // The side rail's live readout lives OUTSIDE #main, so the step walk above never sees it -- and it
 // is the copy that is on screen on every step, i.e. the one a player actually watches.
 const side = text(doc.querySelector("#contrib") || {}).replace(/\s+/g, " ").trim();
 
-console.log(JSON.stringify({ titles, react, side, steps: out.map(s => ({ title: s.title, len: s.text.length,
+console.log(JSON.stringify({ titles, react, side, freetext,
+                             steps: out.map(s => ({ title: s.title, len: s.text.length,
                                                             text: s.text })) }));
 """
 
@@ -295,6 +359,59 @@ def main(argv):
             problems.append("%s changes NOTHING the card says. It cannot be counted, but it must "
                             "not be silent." % key)
 
+    # THIRD AUDIT: free-text set controls. See the harness for why a text box is the one control
+    # that can write something the option rejects. Nothing here names an option: the flag is opt-in
+    # on the class, so this covers whichever options carry it, including ones added later.
+    ft = data.get("freetext")
+    if ft is None:
+        problems.append("the free-text probe returned nothing -- the harness no longer matches the "
+                        "page, so this audit is checking nothing.")
+    elif not ft:
+        problems.append("no option in the shipped metadata carries `free_text`, so this audit ran "
+                        "vacuously. If the flag was retired, delete this block and the harness "
+                        "section with it rather than leaving a check that asserts over an empty set.")
+    for key, r in sorted((ft or {}).items()):
+        if not r.get("rendered"):
+            problems.append("%s declares free_text but no .freeset control was found on any step. "
+                            "It is falling back to the checkbox grid the flag exists to replace, "
+                            "which renders fine and is a silently reverted decision." % key)
+            continue
+        if r.get("error"):
+            problems.append("%s: %s" % (key, r["error"]))
+            continue
+        want = list(r["accepted"])
+        got = r.get("committed")
+        # WITNESS. Everything below compares against `want`; if the option shipped with fewer than
+        # three valid_keys the comparison would be trivially satisfiable, and "the box works" would
+        # be a statement about nothing.
+        if len(want) < 3:
+            problems.append("%s has only %d valid_key(s), so the typed sample cannot exercise "
+                            "ordering or duplicates. Widen the sample or drop the flag." % (key, len(want)))
+        if got != want:
+            problems.append("%s: typed %r and the control committed %r, want %r. The commit must be "
+                            "in valid_keys order with duplicates collapsed -- the order a player "
+                            "types is presentation and must not reach the yaml."
+                            % (key, r["typed"], got, want))
+        if "__nope__" in (got or []):
+            problems.append("%s: the control saved `__nope__`, which is not one of its %d accepted "
+                            "values. AP raises on it at generation, i.e. after the download -- the "
+                            "builder is the place that failure is a sentence instead of a crash."
+                            % (key, len(want)))
+        if "__nope__" not in (r.get("note") or ""):
+            problems.append("%s: an unrecognised id was dropped and the control did not NAME it "
+                            "(note: %r). Silently discarding part of what someone pasted is worse "
+                            "than refusing all of it." % (key, (r.get("note") or "")[:120]))
+        if not r.get("noteIsBad"):
+            problems.append("%s: something was refused but the note is not in its `bad` state, so "
+                            "the message reads like an ordinary status line." % key)
+        # WHAT IS ON SCREEN MUST BE WHAT WAS SAVED. The box keeps whatever was typed unless the
+        # control writes the accepted list back into it, and a text box still showing `__nope__`
+        # after dropping it says the opposite of what happened.
+        if r.get("normalised") != ", ".join(want):
+            problems.append("%s: the box still reads %r after committing %r. A control that shows "
+                            "something other than what it saved is telling the player their edit "
+                            "landed when part of it did not." % (key, r.get("normalised"), want))
+
     bad = selftest()
     if bad:
         problems.append("SELF-TEST: " + bad)
@@ -305,10 +422,11 @@ def main(argv):
             print("   ", p)
         return 1
     print("[ok] all %d wizard steps render (%d..%d chars); the side readout is live; the "
-          "contribution card answers %d option(s) with a number and %d more in prose; the shim "
-          "fails the detached-paint mutation"
+          "contribution card answers %d option(s) with a number and %d more in prose; %d free-text "
+          "control(s) sorted what was typed and refused what the option refuses; the shim fails the "
+          "detached-paint mutation"
           % (len(steps), min(s["len"] for s in steps), max(s["len"] for s in steps),
-             len(NUMBERS_MOVE), len(TEXT_MOVES)))
+             len(NUMBERS_MOVE), len(TEXT_MOVES), len(ft or {})))
     return 0
 
 
