@@ -211,5 +211,85 @@ class WizardDeploy(unittest.TestCase):
             self.assertNotIn(edit, text, f"the deploy script edits the page ({edit!r})")
 
 
+
+
+@unittest.skipUnless(REPO is not None, REPO_ONLY)
+class SiteChannel(unittest.TestCase):
+    """`deploy_wizard.sh --site` ships pages from MAIN, skipping the stable-tag pin. That is safe
+    for exactly one kind of page and catastrophic for the others, so the membership is DERIVED
+    from the files rather than maintained by hand.
+
+    THE HAZARD, and it is the one SPEC-publishing-pipeline.md was written about (section 2.1,
+    measured not assumed): Archipelago does NOT error on an option the installed apworld has never
+    heard of. It prints one line among ~50 loader errors and generates the seed WITHOUT it. So a
+    wizard shipped ahead of the released apworld does not break -- it silently ignores the setting
+    a player chose, which is the worst failure this pipeline can produce.
+
+    A page is COUPLED if it carries either marker:
+        er-options-metadata   an option surface  -> must match the released apworld
+        inputs_hash           a corpus join      -> describes a build's data
+    A page is FREE if it carries neither: it asserts nothing about any build, so no ref can make it
+    disagree with one.
+
+    Asserted in BOTH directions on purpose. Forwards stops a coupled page being added to the fast
+    path. Backwards stops a free page being silently left off it -- and, more usefully, means that
+    the day landing.html grows a version stamp, THIS test fails rather than the deploy quietly
+    shipping a stamped page from main forever.
+    """
+
+    def _script(self):
+        return open(os.path.join(TOOLS, "deploy_wizard.sh"), encoding="utf-8").read()
+
+    def _site_pages(self):
+        """The src paths in SITE_PAGES="src:name:sentinel ..."."""
+        m = re.search(r'^SITE_PAGES="([^"]*)"', self._script(), re.M)
+        self.assertIsNotNone(m, "SITE_PAGES is gone from deploy_wizard.sh -- this gate now checks "
+                                "nothing, which is worse than the drift it was written for.")
+        return sorted(e.split(":")[0] for e in m.group(1).split() if e)
+
+    def _installed_sources(self):
+        """Every artifact the script installs, from its *_SRC assignments -- so a new page joins
+        this gate by existing, not by anyone remembering to list it here."""
+        srcs = set(re.findall(r'^[A-Z]+_SRC="([^"]+)"', self._script(), re.M))
+        srcs |= set(self._site_pages())
+        return sorted(srcs)
+
+    @staticmethod
+    def _markers(path):
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            text = fh.read()
+        return ("er-options-metadata" in text), ("inputs_hash" in text)
+
+    def test_every_site_page_is_free_of_version_and_data_stamps(self):
+        for src in self._site_pages():
+            path = os.path.join(REPO, src)
+            self.assertTrue(os.path.isfile(path), f"SITE_PAGES names {src}, which does not exist")
+            opts, data = self._markers(path)
+            self.assertFalse(
+                opts, f"{src} carries an OPTION SURFACE and is on the --site fast path. A wizard "
+                      f"shipped from main can offer an option the released apworld has never heard "
+                      f"of -- Archipelago drops it silently and the player's setting does nothing.")
+            self.assertFalse(
+                data, f"{src} carries a DATA STAMP (inputs_hash) and is on the --site fast path. "
+                      f"It is a join over generator output, so a copy from main describes a corpus "
+                      f"the released build does not have.")
+
+    def test_every_stamp_free_page_is_on_the_site_channel(self):
+        """The backwards half. Without it the set only ever shrinks by accident."""
+        free = []
+        for src in self._installed_sources():
+            path = os.path.join(REPO, src)
+            if not os.path.isfile(path):
+                continue
+            opts, data = self._markers(path)
+            if not opts and not data:
+                free.append(src)
+        self.assertEqual(
+            sorted(free), self._site_pages(),
+            "SITE_PAGES disagrees with the files. Every page carrying neither an option surface "
+            "nor a data stamp belongs on --site, and only those do. If a page just gained a stamp, "
+            "take it OFF --site; if one just lost the last of its stamps, it can go on.")
+
+
 if __name__ == "__main__":
     unittest.main()

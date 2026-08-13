@@ -60,6 +60,30 @@ green every time I reported them green, and they are not the same set: `generato
 repo-only suites via `gf_suite_ledger.py --generators-list`. Reporting "gates green" after running
 a hand-picked four is how a red reaches main with a green summary attached to it.
 
+### A stream for website-only updates: `deploy_wizard.sh --site`
+
+A typo on the landing page needed a tag, a `CHANNELS` promotion and a full deploy, because every
+artifact here is pinned to the stable tag. That is right for the wizard and wrong for a page that
+describes nothing. `--site` ships `landing.html` and `report.html` **from main**, in seconds,
+touching nothing else.
+
+🛑 **It is deliberately not "all the static pages", and the split is DERIVED rather than a list
+someone maintains.** A page is COUPLED if it carries an option surface (`er-options-metadata`) or a
+data stamp (`inputs_hash`); FREE if it carries neither. Today that is exactly wizard/checks/
+questlines coupled, landing/report free.
+
+The hazard is the one `SPEC-publishing-pipeline.md` measured in section 2.1: Archipelago does not
+error on an option the installed apworld has never heard of -- it prints one line among fifty and
+generates the seed **without it**. A wizard shipped ahead of the release does not break, it silently
+ignores the setting a player chose. That is the worst failure this pipeline can produce, and it is
+why the fast path may never touch the wizard.
+
+`test_gf_publish_channels.SiteChannel` asserts the membership **in both directions**. Forwards stops
+a coupled page joining the fast path. Backwards stops a free page being quietly left off it -- and
+more usefully, means the day `landing.html` grows a version stamp, the TEST fails rather than the
+deploy shipping a stamped page from main forever. Seen to fail before being trusted: adding
+`wizard.html` to the set reddens it with the option-surface message.
+
 ### A bug report you can file without a GitHub account
 
 `.github/ISSUE_TEMPLATE/bug_report.yml` asks the right questions and lands in the right place --
