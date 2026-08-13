@@ -354,8 +354,8 @@ def test_keep_out_of_shops_combinations_fill_clean(label, opts):
     skipped everything, every time."""
     from Fill import distribute_items_restrictive
     from worlds.eldenring.shop_data import SHOP_ROW_FLAGS
-    from worlds.eldenring.features.keep_out_of_shops import plan
-    from worlds.eldenring.item_categories import category_of, expand, names_in
+    from worlds.eldenring.features.keep_out_of_shops import plan, _PROGRESSIVE_NAMES
+    from worlds.eldenring.item_categories import expand, names_in
 
     class _T(WorldTestBase):
         game = GAME
@@ -369,7 +369,7 @@ def test_keep_out_of_shops_combinations_fill_clean(label, opts):
     # Recompute the gate's own decision from the pre-fill pool, so the assertion below tracks what
     # the feature actually armed instead of assuming it armed everything.
     cats = expand(opts["keep_out_of_shops"])
-    by_cat = {c: set(names_in([c])) for c in cats}
+    by_cat = {c: set(names_in([c], _PROGRESSIVE_NAMES)) for c in cats}
     own = [i for i in t.multiworld.itempool if i.player == player]
     capacity = sum(1 for l in t.multiworld.get_locations(player)
                    if getattr(l, "address", None) is not None
@@ -384,18 +384,26 @@ def test_keep_out_of_shops_combinations_fill_clean(label, opts):
     distribute_items_restrictive(t.multiworld)
 
     armed = set(enforced)
+    # THE ORACLE IS THE BAN SET, NOT `category_of`. `category_of` answers `progressive` for every
+    # name outside ITEM_CATALOG -- the region Locks and the `Rune` sentinel -- which the feature
+    # deliberately leaves OUTSIDE the ban, because forbidding them from all 562 shop rows is a
+    # guaranteed FillError on a solo seed (keep_out_of_shops's docstring; pinned by
+    # test_gf_keep_out_of_shops.test_region_locks_and_the_rune_sentinel_are_not_forbidden).
+    # Asking `category_of` here asserted the OPPOSITE of the design, and stayed green only while
+    # fill happened not to route a Lock onto a shop row.
+    banned = set().union(*(by_cat[c] for c in armed))
     offenders = [l for l in t.multiworld.get_locations(player)
                  if getattr(l, "address", None) is not None
                  and str(l.address) in SHOP_ROW_FLAGS
                  and l.item is not None and l.item.player == player
-                 and category_of(l.item.name) in armed]
+                 and l.item.name in banned]
     # WITNESS: the enforced categories still exist in the seed, out in the world. Without this the
     # assertion below would pass just as happily on a pool that never held one of those items.
     displaced = sum(1 for l in t.multiworld.get_locations(player)
                     if getattr(l, "address", None) is not None
                     and str(l.address) not in SHOP_ROW_FLAGS
                     and l.item is not None and l.item.player == player
-                    and category_of(l.item.name) in armed)
+                    and l.item.name in banned)
     assert displaced > 0, (
         "%s: no item of an enforced category (%s) is anywhere in the seed post-fill -- the option "
         "would 'pass' by the pool being empty rather than by the ban working"
