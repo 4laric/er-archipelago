@@ -30,6 +30,26 @@
 #
 #   ER_STATIC_DIR=/srv/er ./tools/deploy_wizard.sh --landing
 #
+# ---- --site : ship a page fix WITHOUT cutting a release ----------------------------------------
+#
+#   ./tools/deploy_wizard.sh --site        # landing.html + report.html, from MAIN, in seconds
+#
+# THE PROBLEM IT SOLVES. A typo on the landing page needed a tag, a CHANNELS promotion and a full
+# deploy, because every artifact here is pinned to the STABLE tag. That is right for the wizard and
+# wrong for a page that describes nothing.
+#
+# !! IT IS DELIBERATELY NOT "all the static pages". The wizard MUST NOT get ahead of the released
+# apworld: Archipelago does not error on an option the installed apworld has never heard of, it
+# prints one line among fifty and generates the seed WITHOUT it (SPEC-publishing-pipeline.md 2.1).
+# The check browser and the questline DAG are joins over committed generator output, so a newer
+# copy describes a corpus the released build does not have. All three stay on stable, always.
+#
+# THE SPLIT IS DERIVED, NOT A LIST SOMEONE MAINTAINS. A page is COUPLED if it carries an option
+# surface (`er-options-metadata`) or a data stamp (`inputs_hash`); it is FREE if it carries
+# neither. test_gf_publish_channels asserts SITE_PAGES below is EXACTLY the free set, in BOTH
+# directions -- so a page that gains a stamp stops being shippable this way on the commit that
+# gives it one, and a new page with no stamp cannot be silently left out.
+#
 # !! --landing FAILS UNTIL v0.4.0 IS TAGGED, and that is correct. It fetches from the STABLE tag,
 # and wizard/landing.html does not exist at v0.3.10. The failure is loud ("fetch failed: landing
 # stable (v0.3.10)") rather than a page silently not appearing. Promote stable first.
@@ -70,12 +90,14 @@ DRY=0
 STABLE_ONLY=0
 NO_CHECKS=0
 LANDING=0
+SITE_ONLY=0
 for a in "$@"; do
   case "$a" in
     --dry-run) DRY=1 ;;
     --stable-only) STABLE_ONLY=1 ;;
     --no-checks) NO_CHECKS=1 ;;
     --landing) LANDING=1 ;;
+    --site) SITE_ONLY=1 ;;
     -h|--help) sed -n '2,30p' "$0"; exit 0 ;;
     *) echo "unknown argument: $a" >&2; exit 2 ;;
   esac
@@ -147,6 +169,7 @@ install_one() {  # ref, source path in repo, destination path, sentinel, label
 }
 
 [ "$DRY" = "1" ] || [ -d "$DEST" ] || die "ER_STATIC_DIR does not exist: ${DEST}"
+
 # The landing page needs no separate target any more -- it lands in DEST beside the other two,
 # and DEST is already checked above.
 
@@ -155,6 +178,11 @@ WIZ_SENTINEL='id="er-options-metadata"'
 CHK_SRC="er-archipelago-check-browser.html"
 # The check browser's own map container -- structural, and nothing a 200-with-a-login-page has.
 CHK_SENTINEL='id="mapslot"'
+# !! THE FREE SET: src:name:sentinel, space-separated. Pages carrying NEITHER an option surface
+# NOR a data stamp, so they cannot skew against a released apworld and may ship from main at any
+# time. Asserted against the files themselves by test_gf_publish_channels -- do not edit without
+# reading that test.
+SITE_PAGES="wizard/landing.html:landing.html:er-landing wizard/report.html:report.html:er-report"
 RPT_SRC="wizard/report.html"
 # The report builder's own form root. It is small and cheap, so it is NOT behind --no-checks:
 # the one page a stuck player needs should never be the one a fast cron skipped.
@@ -163,6 +191,20 @@ QDAG_SRC="er-archipelago-questline-dag.html"
 # Likewise: the DAG page's own graph pane. Its `id="q"` search box would NOT do -- one letter is a
 # string a login page can plausibly contain, and a sentinel that can pass by accident is not one.
 QDAG_SENTINEL='id="mer"'
+
+# ---- --site: the free pages only, from main, then stop. ----------------------------------------
+if [ "$SITE_ONLY" = "1" ]; then
+  say "site-only: the pages that carry no option surface and no data stamp, from main"
+  for entry in $SITE_PAGES; do
+    src="${entry%%:*}"; rest="${entry#*:}"; name="${rest%%:*}"; sentinel="${rest##*:}"
+    install_one "main" "$src" "${DEST}/${name}" "id=\"${sentinel}\"" "site    ${name} (main)"
+  done
+  say ""
+  say "The wizard, the check browser and the questline DAG were NOT touched: they are pinned to the"
+  say "stable tag on purpose, and a copy ahead of the released apworld is the failure this whole"
+  say "script exists to prevent. Run without --site to move those."
+  exit 0
+fi
 
 install_one "$stable_tag" "$WIZ_SRC" "${DEST}/wizard.html" "$WIZ_SENTINEL" "wizard  stable (${stable_tag})"
 install_one "$stable_tag" "$RPT_SRC" "${DEST}/report.html" "$RPT_SENTINEL" "report  stable (${stable_tag})"
