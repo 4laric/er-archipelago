@@ -114,9 +114,15 @@ JUICE_ORDER = juice_order_for_floor(JUICE_MIN_RARITY)
 
 
 class PoolBuilder(Removed):
-    """Retired 2026-07-28. There is no separate pool builder to switch off -- gear
-    injection is the `juice` weight in `curated_filler`. Set `juice: 0` (or omit it) for no gear; the
-    generator warns on a recipe with no juice, so it cannot happen silently."""
+    """Retired 2026-07-28. If you wanted a VANILLA ITEM POOL, set `vanilla_pool: true` -- that is the
+    one switch for it. There is no separate pool builder to switch off: gear injection is the `juice`
+    weight in `curated_filler`, so `juice: 0` (or omitting it) gets you no gear, and the generator
+    warns on a recipe with no juice so it cannot happen silently. But `juice: 0` is NOT a vanilla
+    pool -- the guaranteed physick-tear and bell-bearing set is added by a different feature and
+    `vanilla_pool` is what stands that down too (#618).
+
+    (This docstring is where a player who typed `pool_builder: false` actually lands, which is why it
+    leads with the thing they were probably reaching for rather than with the retirement.)"""
 
 
 class PoolBuilderIntensity(Choice):

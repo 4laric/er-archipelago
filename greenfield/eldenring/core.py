@@ -460,6 +460,10 @@ _OPTION_GROUPS = [
         "difficulty_ramp_speed", "no_fall_damage", "traps", "spawn_traps", "trap_count"]),
     ("Checks & Item Pool", [
         "vanilla_placement", "natural_progression", "dungeon_sweep", "reroll_enemy_drops",
+        # vanilla_pool sits directly before curated_filler because it OVERRIDES it (#618): the
+        # wizard renders a group in this order, and a player reading the recipe first would edit
+        # weights that the switch above them makes moot.
+        "vanilla_pool",
         "curated_filler", "pool_builder_intensity", "pool_builder_pct_weapons",
         "pool_builder_pct_armor", "pool_builder_pct_spells", "pool_builder_pct_talismans",
         "pool_builder_pct_ashes_of_war"]),

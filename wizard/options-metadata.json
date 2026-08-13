@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.4.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "61623ccb7ab5488ca80471bf54e6c6c286a5c7a3d9772fa752b31ecc2210468a",
+ "source_sha256": "41d43d1525f7a61d1e6a9571cfa9d08ef25ec1dc1e79e45308d1da4b9b028974",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -60,7 +60,8 @@
   "start_with_whetblades",
   "traps",
   "trap_count",
-  "spawn_traps"
+  "spawn_traps",
+  "vanilla_pool"
  ],
  "groups": [
   {
@@ -112,6 +113,7 @@
     "natural_progression",
     "dungeon_sweep",
     "reroll_enemy_drops",
+    "vanilla_pool",
     "curated_filler",
     "pool_builder_intensity",
     "pool_builder_pct_weapons",
@@ -1934,6 +1936,22 @@
     "8100",
     "8110"
    ],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "vanilla_pool",
+   "class": "VanillaPool",
+   "display_name": "Vanilla Item Pool",
+   "description": "Turn item-pool curation off: your checks pay what they pay in vanilla Elden Ring. Off by\ndefault, and it is the ONE switch you need -- it replaces the whole `curated_filler` recipe with\n\"keep what the check already paid\" AND stops the guaranteed physick-tear / bell-bearing set\nbeing added to the pool. Those are the two separate things that make a seed's item spread differ\nfrom vanilla's, which is why emptying `curated_filler` on its own is not enough: it does the\nfirst only, and such a seed still hands you up to 18 crystal tears vanilla never placed.\n\n(Items are still SHUFFLED between checks -- this decides which items exist, not where they sit.\n`vanilla_placement` is the option for that.)\n\nYou give up a lot: no gear injection, no smithing-stone economy, no rune economy, and no\nguarantee that a physick tear or a bell bearing exists at all in a seed that seals their home\nregions. That is what vanilla means here -- the curation is what was buying those. If what you\nwanted was less gear rather than none, weight `curated_filler` down instead of setting this.\n\nOverrides `curated_filler` rather than conflicting with it: the recipe has a real default, so a\nyaml that never mentions it still has one, and rejecting the combination would reject the\nshipped template. The generation log names the override when it happens.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
    "casefold": false,
    "group": null,
    "group_collapsed": false,

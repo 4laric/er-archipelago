@@ -9,6 +9,37 @@ Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose
 already landed past it. `CONTRACT_HASH` is unmoved at `5c2b9bf2` -- version-lockstep, so a v0.4.0
 client still handshakes with a v0.4.1 seed.
 
+### New: `vanilla_pool` — one switch for the vanilla item spread
+
+`vanilla_pool: true` turns pool curation off. Your checks pay what they pay in vanilla Elden Ring:
+the `curated_filler` recipe is overridden with "keep what the check already paid", and the
+guaranteed set of physick tears and smithing bell bearings is no longer added to the pool. Off by
+default; nothing about an existing seed changes.
+
+**Why it is one option and not two.** Half of this was already possible -- an empty `curated_filler`
+has returned a junk-only recipe for months -- and it was worse than not having it, because it looks
+like it worked. `presence_floor` had no option at all and was not frozen: it was unconditional. So a
+player who found the empty recipe, typed it, and went counting still got up to 18 crystal tears
+vanilla never placed, from a feature no yaml could reach.
+
+That is not hypothetical, it is the report this came from: a playtester counted 19 tears in his seed
+against a catalog that is complete at 37/37 and reported items missing. Nineteen is the 18-item
+floor roster plus the one his seed kept. The floor was working exactly as designed and made a
+complete catalog look half-empty. One option now means one thing.
+
+It **overrides** `curated_filler` rather than refusing to run alongside it, and says so in the
+generation log. It has to: the recipe has a real default, so every yaml carries one whether or not
+its author typed it, and rejecting the combination would reject the shipped template.
+
+Worth knowing before you set it: you give up gear injection, the smithing-stone and rune economy,
+and any guarantee that a physick tear or bell bearing exists at all in a seed that seals their home
+regions. The curation is what was buying those. Items are still shuffled between checks — this
+decides which items exist, not where they sit; `vanilla_placement` is the option for that. Also
+retired-option housekeeping: `pool_builder: false` still raises, but its message now points at
+`vanilla_pool` by name, since that is where someone typing it was trying to get to.
+
+World-only: no client half, `CONTRACT_HASH` unmoved.
+
 ### Hosting is back, as one tab, with the defect that killed it fixed
 
 peliarch.ca hosts rooms again, and generates seeds again from the builder's **Generate & host**
