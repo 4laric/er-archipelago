@@ -108,7 +108,17 @@ FROZEN_OPTIONS = {
     "start_with_whetstone": (1, None), # unique-grant path: flag 60130 latch, skip-if-owned
     "start_with_region_lock": (1, None),
     "reveal_all_maps": (1, None),
-    "no_weapon_requirements": (1, None),
+    # UNFROZEN 2026-08-13 at Alaric's call. It was frozen ON in the v0.2 slim because the flagship
+    # playtest yaml always turned it on, which made it the behaviour -- but "any gear the multiworld
+    # hands you is usable" is a real difficulty choice, not plumbing, and a player who wants build
+    # requirements to mean something had no way to say so.
+    #
+    # 🛑 THE CLASS DEFAULT MOVED WITH IT, to 1. A bare `Toggle` defaults to 0, so unfreezing alone
+    # would have flipped every seed that does not name the option from "requirements removed" to
+    # "requirements enforced" -- silently, inside a release, which is exactly what
+    # [[er-unfreezing-an-option-needs-the-class-default]] and the PoolBuilderIntensity revert were
+    # about. `test_gf_weapon_reqs.test_the_unfrozen_default_matches_the_freeze_value` pins it.
+    #   "no_weapon_requirements": (1, None),
     "early_leveling": (1, None),
     "buyable_stonesword_keys": (1, None),
     "protect_missable_locations": (1, None),
@@ -185,6 +195,16 @@ FROZEN_OPTIONS = {
     # the client parses an HP MULTIPLIER, so any value above 3 pinned the whole game to the top
     # scaling tier. Fixed in the same change (features/scaling.floor_multiplier); do NOT re-freeze
     # this without also deciding what happens to that conversion.
+
+    # ---- complete and shipped, but off the yaml surface by choice ---------------------------------
+    # Not half-built like the block above: the capability works, the client implements it, and the
+    # key keeps being emitted. It is frozen because the option surface is a budget and this one did
+    # not earn its row -- unfreezing is deleting the line below, nothing more.
+    #
+    # 🛑 FROZEN AT THE CLASS DEFAULT (Toggle -> 0), so no seed moves in either direction: freezing it
+    # today changes nothing for a player who never set it, and unfreezing it later changes nothing
+    # either. That is the property the block above had to be repaired to get.
+    "no_fall_damage": (0, None),  # features/body_tuning.NoFallDamage; shipped in v0.4.0, frozen 08-13
 }
 
 

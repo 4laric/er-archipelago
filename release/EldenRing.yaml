@@ -275,8 +275,13 @@ Elden Ring:
   #             about 50 across the map. Uneven on purpose: it follows the menu,
   #             not region size, so a few regions have one sub-area
   #   entrance  only the way in; you walk to and touch the rest, the vanilla way
-  # Cannot strand you and moves no item: unlocks are still the only progression
-  # and every check stays put. Purely pacing.
+  # Moves no item: unlocks are still the only progression and every check stays
+  # put, so nothing here changes what is in your seed or where it sits.
+  # NOT the same as safe. The idea is that a grace you were not handed is still
+  # reachable on foot -- but the bundles have not been walked region by region,
+  # so which ones can leave you stuck is not known. `all` is the setting that
+  # has actually been played; treat the other two as experimental, and report
+  # anything that strands you.
   region_grace_unlock: all
 
   # How good a piece of gear has to be to count as `juice`.
@@ -524,6 +529,17 @@ Elden Ring:
   # the STRONGER setting you did not ask for. `off` and `light` work on any
   # client, as they always have.
   no_equip_load: off
+
+  # Remove the stat requirements on weapons, shields and catalysts (and the
+  # requirements on spells), so anything the multiworld hands you is usable
+  # whatever your build is.
+  # ON by default, and it always has been -- this was fixed behaviour until
+  # v0.4.1 rather than a setting, so leaving it alone keeps the game you have
+  # been playing. Set it false if you want your stats to decide what you can
+  # hold; the seed generates identically either way, so nothing becomes
+  # unwinnable -- it just becomes a fight you have to build for.
+  # The client only ever LOWERS a requirement, so it is reconnect-safe.
+  no_weapon_requirements: true
 
   # ---- Standard Archipelago options -----------------------------------------
 

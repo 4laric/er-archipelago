@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.4.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "41d43d1525f7a61d1e6a9571cfa9d08ef25ec1dc1e79e45308d1da4b9b028974",
+ "source_sha256": "12dfc897c3d8d836fe9e35f9ca2ab8eb156cf327f424118ebb8687c62c8cb1b5",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -16,7 +16,6 @@
   "capital_reconciler",
   "auto_equip",
   "no_equip_load",
-  "no_fall_damage",
   "dungeon_sweep",
   "death_link",
   "reroll_enemy_drops",
@@ -61,7 +60,8 @@
   "traps",
   "trap_count",
   "spawn_traps",
-  "vanilla_pool"
+  "vanilla_pool",
+  "no_weapon_requirements"
  ],
  "groups": [
   {
@@ -99,7 +99,6 @@
     "minimum_enemy_difficulty",
     "maximum_enemy_difficulty",
     "difficulty_ramp_speed",
-    "no_fall_damage",
     "traps",
     "spawn_traps",
     "trap_count"
@@ -157,6 +156,7 @@
    "collapsed": false,
    "options": [
     "auto_equip",
+    "no_weapon_requirements",
     "no_equip_load",
     "start_with_whetblades",
     "progressive_flasks",
@@ -394,22 +394,6 @@
      "value": 2
     }
    ],
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": null,
-   "group_collapsed": false,
-   "special_values": null
-  },
-  {
-   "key": "no_fall_damage",
-   "class": "NoFallDamage",
-   "display_name": "No Fall Damage",
-   "description": "You take no damage from falling. Does not save you from a bottomless pit -- the game still\nkills you for leaving the map -- but ordinary drops, cliffs and shortcuts stop hurting.\nOff by default.",
-   "kind": "toggle",
-   "base": "Toggle",
-   "default": false,
-   "choices": null,
    "range": null,
    "valid_keys": null,
    "casefold": false,
@@ -688,7 +672,7 @@
    "key": "region_grace_unlock",
    "class": "RegionGraceUnlock",
    "display_name": "Region Grace Unlock",
-   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nLiurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never\nwalked read as already-explored.\nlandmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to\nLake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across\nthe map. A middle setting: you can still cross a big region in a couple of hops.\nentrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.\n\n🛑 This cannot make a seed unwinnable and does not move an item: Region Locks remain the only\nprogression, every check stays exactly where it was, and a grace you have not been handed is\nstill reachable on foot and still unlocks by touching it. It is a convenience/pacing setting.\nA region whose bundle is WITHHELD (a gated child behind an armed wall) grants nothing under\neither value -- entrance mode must never become a way past a wall.",
+   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nLiurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never\nwalked read as already-explored.\nlandmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to\nLake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across\nthe map. A middle setting: you can still cross a big region in a couple of hops.\nentrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.\n\nIt moves no item. Region Locks remain the only progression and every check stays exactly where\nit was, so nothing here changes what your seed contains or where any of it sits. A region whose\nbundle is WITHHELD (a gated child behind an armed wall) grants nothing at any value -- no\nsetting here is a way past a wall.\n\n🛑 THAT IS NOT THE SAME AS SAFE. The intent is that a grace you were not handed is still\nreachable on foot and still lights when you touch it. The bundles have not been walked region\nby region, though, so which ones can leave you somewhere you cannot get out of is genuinely not\nknown. `all` is the setting that has been played. Treat the other two as experimental, and\nplease report anything that strands you.",
    "kind": "choice",
    "base": "Choice",
    "default": "all",
@@ -717,7 +701,7 @@
    "key": "grace_attunement",
    "class": "GraceAttunement",
    "display_name": "Grace Attunement",
-   "description": "Warp points arrive by exploring, not all at once. Unlocking a region lights ONE of its Sites\nof Grace; touch this many more and the rest light. 0 (default) keeps the current behaviour --\na region Lock lights every grace it has.\n\nRegions with too few graces to reach the number are left alone entirely, so a two-grace region\nnever ends up with warps it can never open. Requires a client that supports grace attunement;\na seed using it refuses an older one rather than connecting and silently ignoring it.",
+   "description": "Warp points arrive by exploring, not all at once. Unlocking a region lights ONE of its Sites\nof Grace; touch this many more and the rest light. 0 (default) keeps the current behaviour --\na region Lock lights every grace it has.\n\nRegions with too few graces to reach the number are left alone entirely, so a two-grace region\nnever ends up with warps it can never open. Requires a client that supports grace attunement;\na seed using it refuses an older one rather than connecting and silently ignoring it.\n\n🛑 EXPERIMENTAL, and not for the reason a version number would tell you. Holding warps back\nmeans you walk more of the world on foot, and the grace bundles have not been walked region by\nregion -- so which regions can leave you somewhere you cannot get out of is not known. It moves\nno item and no check, so your seed still contains everything it did; what is untested is\nwhether you can always get to it. 0 is the setting that has been played. Please report anything\nthat strands you.",
    "kind": "range",
    "base": "Range",
    "default": 0,
@@ -1939,7 +1923,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "free_text": true
   },
   {
    "key": "vanilla_pool",
@@ -1949,6 +1934,22 @@
    "kind": "toggle",
    "base": "Toggle",
    "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "no_weapon_requirements",
+   "class": "NoWeaponRequirements",
+   "display_name": "No Weapon Requirements",
+   "description": "Remove the stat requirements on weapons, shields, and catalysts (and spell requirements) so\nanything the multiworld hands you is usable regardless of your build.\n\nOn by default -- a randomizer hands you gear no build was made for, and this is what has always\nhappened. Turn it off if you want your stats to decide what you can hold; the seed is generated\nthe same either way, so nothing becomes unwinnable, it just becomes a fight you have to build for.\n\nThe client zeroes the live params at runtime and only ever LOWERS a requirement, so it is\nreconnect-safe.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": true,
    "choices": null,
    "range": null,
    "valid_keys": null,

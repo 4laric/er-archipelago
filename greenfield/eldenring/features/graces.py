@@ -153,12 +153,25 @@ class RegionGraceUnlock(Choice):
     the map. A middle setting: you can still cross a big region in a couple of hops.
     entrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.
 
-    🛑 This cannot make a seed unwinnable and does not move an item: Region Locks remain the only
-    progression, every check stays exactly where it was, and a grace you have not been handed is
-    still reachable on foot and still unlocks by touching it. It is a convenience/pacing setting.
-    A region whose bundle is WITHHELD (a gated child behind an armed wall) grants nothing under
-    either value -- entrance mode must never become a way past a wall.
+    It moves no item. Region Locks remain the only progression and every check stays exactly where
+    it was, so nothing here changes what your seed contains or where any of it sits. A region whose
+    bundle is WITHHELD (a gated child behind an armed wall) grants nothing at any value -- no
+    setting here is a way past a wall.
+
+    🛑 THAT IS NOT THE SAME AS SAFE. The intent is that a grace you were not handed is still
+    reachable on foot and still lights when you touch it. The bundles have not been walked region
+    by region, though, so which ones can leave you somewhere you cannot get out of is genuinely not
+    known. `all` is the setting that has been played. Treat the other two as experimental, and
+    please report anything that strands you.
     """
+    # WHY THE OLD "cannot make a seed unwinnable" LINE CAME DOWN (Alaric, 2026-08-13): nobody ever
+    # measured it. The half about items and checks is STRUCTURAL and stays -- nothing in this option
+    # touches placement, and that is readable off the code. The half about walkability was an
+    # INFERENCE from "the grace is still physically there", and it was doing the work of a tested
+    # claim: an unverified assertion of safety is worse in a docstring than an admission, because
+    # this docstring IS the wizard tooltip, AP's own option help, and the comment in the generated
+    # yaml -- three places a player reads BEFORE choosing. Restore the strong wording when someone
+    # has walked the bundles, not before.
     display_name = "Region Grace Unlock"
     option_all = 0
     option_landmarks = 1
@@ -173,7 +186,14 @@ class GraceAttunement(Range):
 
     Regions with too few graces to reach the number are left alone entirely, so a two-grace region
     never ends up with warps it can never open. Requires a client that supports grace attunement;
-    a seed using it refuses an older one rather than connecting and silently ignoring it."""
+    a seed using it refuses an older one rather than connecting and silently ignoring it.
+
+    🛑 EXPERIMENTAL, and not for the reason a version number would tell you. Holding warps back
+    means you walk more of the world on foot, and the grace bundles have not been walked region by
+    region -- so which regions can leave you somewhere you cannot get out of is not known. It moves
+    no item and no check, so your seed still contains everything it did; what is untested is
+    whether you can always get to it. 0 is the setting that has been played. Please report anything
+    that strands you."""
     display_name = "Grace Attunement"
     range_start = 0
     range_end = 10

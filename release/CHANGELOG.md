@@ -9,6 +9,52 @@ Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose
 already landed past it. `CONTRACT_HASH` is unmoved at `5c2b9bf2` -- version-lockstep, so a v0.4.0
 client still handshakes with a v0.4.1 seed.
 
+### `no_weapon_requirements` is a setting again
+
+Weapon, shield, catalyst and spell requirements have been zeroed in every seed anyone has ever
+rolled. It was frozen ON in the v0.2 option slim, so no yaml could say otherwise -- "any gear the
+multiworld hands you is usable" stopped being a choice and became the game. It is a yaml option
+again.
+
+**It is still on by default, so a seed you generate today is unchanged.** Set
+`no_weapon_requirements: false` if you want your stats to decide what you can hold. Generation is
+identical either way and nothing becomes unwinnable; it decides whether the greatsword that arrives
+at level 12 is usable now or after you have built for it.
+
+The default being 1 rather than the bare `Toggle` 0 is deliberate and is the whole risk in this
+change. Unfreezing an option at its class default is exactly how `pool_builder_intensity` moved
+every seed from the 1013-item juice catalog to the 536-item one inside a release whose changelog
+said nothing about a default seed had changed. `test_gf_weapon_reqs` pins the freeze value as the
+default so that cannot happen here quietly.
+
+World-only: no client half, `CONTRACT_HASH` unmoved.
+
+### `no_fall_damage` is off the yaml surface
+
+It shipped in v0.4.0 and is frozen off one release later. The option surface is a budget and this
+one did not earn a row.
+
+Nothing about the client moves: `no_fall_damage.rs` still implements it, the slot_data key is still
+emitted at 0, and the ContractKey stays declared -- freezing is not deleting. A yaml naming it is
+ignored rather than rejected, and unfreezing it later is deleting one line. The freeze value matches
+the option class default, so no seed moves in either direction.
+
+### Spawn Traps is a text field in the builder
+
+`spawn_traps` takes any of the 390 spawnable character-model ids, and the builder drew a checkbox
+for every one of them, in numeric order, with no names on them. It is a text box now. Type or paste
+the ids, separated by commas or spaces or anything else, in any order.
+
+Ids it does not recognise are named back to you and **not** saved, so `9999` is refused in the
+builder rather than failing generation after you have downloaded the yaml. The 390 accepted values
+have not changed and neither has what gets written: the list is still sorted into the yaml, so the
+file does not change shape depending on the order you typed.
+
+The flag lives on the option class (`wizard_free_text`), so the next set-valued option whose keys
+are a catalogue rather than a menu gets the same control by setting one attribute.
+`tools/check_wizard_kind_controls.py` now fails if the page stops reading it -- a presentation flag
+nothing honours is a silently reverted decision that leaves a working page behind it.
+
 ### New: `vanilla_pool` — one switch for the vanilla item spread
 
 `vanilla_pool: true` turns pool curation off. Your checks pay what they pay in vanilla Elden Ring:

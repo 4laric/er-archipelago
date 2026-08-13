@@ -236,6 +236,16 @@ def describe(key, cls):
     key_meta = getattr(cls, "wizard_key_meta", None)
     if callable(key_meta):
         d["key_meta"] = key_meta()
+
+    # THE SAME OPT-IN, for the other presentation question a set-valued option can have an opinion
+    # about: is this list of `valid_keys` a MENU (draw it) or a CATALOGUE (let them type)? Same
+    # rule as above -- the flag lives on the class and this function never learns an option's name,
+    # because the moment it does, the second option that wants a text box grows a divergent path.
+    #
+    # ⚠️ ADDITIVE AND OPTIONAL. The key is absent for every class that says nothing, so turning the
+    # flag on is the only thing that can move this file -- and `--check` will notice when it does.
+    if getattr(cls, "wizard_free_text", False):
+        d["free_text"] = True
     return d
 
 
