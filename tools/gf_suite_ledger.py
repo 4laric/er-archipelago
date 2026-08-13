@@ -100,6 +100,12 @@ TESTS_JOB = {
     "data": "client tables read from the gitlink checkout the tests job now makes",
     "finale": "committed data only",
     "gen_inputs_diff": "reads the committed gen_inputs.db + repo tree found by walk-up",
+    "location_units": "committed greenfield/flag_lots.tsv, reached by the same find_repo_root "
+                      "walk-up as goods_hold_cap, against the installed world's item_ids/data. "
+                      "The tsv is a generator INPUT and is not shipped beside the package, so the "
+                      "sentinel is real -- but the tests job checks out the repo tree, so it runs "
+                      "there and must not be allowed to skip: the whole point of the suite is that "
+                      "the world's per-check quantities equal what the lot table says (#616)",
     "goods_hold_cap": "committed item_ids/hold_cap tables; its find_repo_root sentinel walks up "
                       "to the repo tree the tests job checks out. NOT a GENERATORS suite despite "
                       "its own 'deliberately AP-free' note: run as `python x.py` it dies on its "

@@ -192,7 +192,13 @@ def pins(world):
     locations. None = no inventory good to pin (gestures and the unnamed `check -` rows: 67 of 4916
     on main), which takes the same Rune fallback item_shuffle already gives it.
 
-    Pure over LOCATION_ITEM + the walk order, so it unit-tests without a live fill."""
+    Pure over LOCATION_ITEM + the walk order, so it unit-tests without a live fill.
+
+    🛑 THE ORDER, NOT THE RESOLVED NAMES. This is a RAW LOCATION_ITEM lookup and does not apply DLC
+    exclusion, flask substitution, the goods hold ceiling, or (since #616) the multi-copy promotion
+    to `<name> x<n>` -- so on a DLC-off seed, or on the four `Scadutree Fragment` lots that grant
+    two, it disagrees with the pool by design. `core.create_items` publishes the RESOLVED pairing as
+    `world.gf_vanilla_pins` and `apply()` reads that; nothing in the shipped path calls this."""
     from ..data import LOCATIONS
     from ..core import HUB
     out = []

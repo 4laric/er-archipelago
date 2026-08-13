@@ -6484,6 +6484,7 @@ print("missable_locations: %d checks -- %s" % (len(_MISSABLE), repr(dict(sorted(
 # augmentation below -- a second copy here is exactly how the DLC name tables get forgotten by one
 # of them).
 ITEM_CATALOG = {}; LOCATION_ITEM = {}
+_LOC_FULL = {}      # ap_id -> (FullID, flag, (table, lot) bind or None) -- the LOCATION_UNITS join below
 for _i, _r in enumerate(rows):
     if _r.get("method") == "gesture":
         # DETECT-ONLY class: the ware is the GESTURE, which only EMEVD's AwardGesture grants; the
@@ -6497,6 +6498,7 @@ for _i, _r in enumerate(rows):
         continue
     ITEM_CATALOG[_base] = _full                  # catalog keyed by canonical base name
     LOCATION_ITEM[BASE_AP + _i] = _base          # annotated locations -> base catalog name
+    _LOC_FULL[BASE_AP + _i] = (_full, _r.get("flag"), None)
 # CO-CHECK siblings: each projected sibling location vanilla-holds ITS OWN lot's item (the FMG name
 # resolved at projection). COUNT-NEUTRALITY: every co-check location must contribute exactly one
 # pooled item, same as any positional row -- items grow by len(CO_CHECK_EMITTED) alongside
@@ -6513,9 +6515,84 @@ for _ap9, (_cfl9, _tb9x, _lot9x, _full9x, _snm9x) in sorted(CO_CHECK_EMITTED.ite
                          f"(cross-category name clash?); model this family before allowlisting")
     ITEM_CATALOG[_rbase9] = _rfull9
     LOCATION_ITEM[_ap9] = _rbase9
+    # BOUND TO THE SIBLING'S OWN LOT. A co-check family shares one flag, so an unbound join would
+    # read the whole family; the sibling's quantity is its own lot's (10441 pays 2, its primary
+    # 10440 pays 1). This is the path ap 7900001 -- the Hippo's fragment -- takes, and a fix that
+    # only walked `rows` above would miss exactly it.
+    _LOC_FULL[_ap9] = (_rfull9, _cfl9, (_tb9x, _lot9x))
 if CO_CHECK_EMITTED and not all(_ap9 in LOCATION_ITEM for _ap9 in CO_CHECK_EMITTED):
     raise SystemExit("FATAL: a co-check location has no pooled item -- items==locations "
                      "count-neutrality broken")
+
+# ---- LOCATION_UNITS: HOW MANY copies a location's vanilla lot slot hands over (#616) -------------
+# `flag_lots.tsv` has carried a `num` column since the faithful capture landed, `_load_flag_lots`
+# has parsed it into FLAG_LOTS all along -- and NOTHING EVER READ IT. Every check paid exactly one
+# of its vanilla item, so the four ItemLotParam slots that drop `Scadutree Fragment` x2 paid 1: a
+# seed keeping all 46 fragment checks carried 46 units where the base game gives 50. The Scadutree
+# blessing is a pure function of that number (SCADU_CUM), so the DLC's whole damage curve sat one
+# rung low and features/scadu_supply had to document the gap as a "known bounded overshoot".
+#
+# 🛑 THE JOIN IS ON FullID, NEVER ON THE `name` COLUMN. tools/datamine_flag_lots.py says the name is
+# "legibility, not load-bearing", and it resolves an id WITHOUT the lotItemCategory nibble -- so it
+# is wrong wherever a goods id collides with a weapon/armour id. Exactly one row does today: flag
+# 12017460 / map lot 12010460 is lotItemCategory 3 (ARMOUR, nibble 1) = the Mushroom Crown, and the
+# column calls it "Scadutree Fragment" because GOODS 2010000 is one. A name join therefore counts 47
+# fragment lots for 51 units; the FullID join counts the true 46 for 50 -- which is the number
+# features/scadu_supply.SCADU_INJECTION_TARGET was derived from.
+#
+# ONLY QUANTITIES > 1 ARE EMITTED. x1 is the default every consumer already assumes, and 4900
+# entries of `1` would bury the ones that mean something.
+#
+# WHAT CONSUMES IT: core.create_items promotes `<name>` to `<name> x<n>` when that stacked name is a
+# registered AP item. Today exactly one is -- features/scadu_supply's `Scadutree Fragment x2`, a
+# second AP id on the same goods row riding slot_data itemCounts = 2 -- so this table is a general
+# capture with one live consumer, not a hard-coded fix for one item. A location whose quantity has
+# no minted stack keeps paying x1, exactly as before.
+def _lot_units(_fullid, _flag, _bind):
+    """Copies the lot slot(s) granting `_fullid` under `_flag` hand over. `_bind` restricts to one
+    (table, lot) for a co-check sibling. Returns (units, ambiguous).
+
+    1 when the family names that FullID at more than one quantity: an ambiguous join must not invent
+    a number, and the tally below reports any such row rather than swallowing it."""
+    try:
+        _fl = int(_flag)
+    except (TypeError, ValueError):
+        return 1, False
+    _ns = set()
+    for _e in FLAG_LOTS.get(_fl, ()):
+        if _bind is not None and (_e[0], _e[1]) != _bind:
+            continue
+        _nib = _LOT_CAT.get(str(_e[3]))
+        if _nib is None or ((_nib << 28) | _e[4]) != _fullid:
+            continue
+        _ns.add(_e[5])
+    if len(_ns) != 1:
+        return 1, len(_ns) > 1
+    return max(1, _ns.pop()), False
+
+LOCATION_UNITS = {}
+_units_ambig = []
+for _apu, (_fullu, _flagu, _bindu) in _LOC_FULL.items():
+    _nu, _ambu = _lot_units(_fullu, _flagu, _bindu)
+    if _ambu:
+        _units_ambig.append(_apu)
+    if _nu > 1:
+        LOCATION_UNITS[_apu] = _nu
+_units_frag = sum(LOCATION_UNITS.get(_a, 1) for _a, _n in LOCATION_ITEM.items()
+                  if _n == "Scadutree Fragment")
+print("location_units: %d location(s) grant more than one copy (%d extra unit(s) over a flat x1); "
+      "Scadutree Fragment = %d check(s) paying %d unit(s); %d ambiguous join(s) held at x1"
+      % (len(LOCATION_UNITS), sum(LOCATION_UNITS.values()) - len(LOCATION_UNITS),
+         sum(1 for _n in LOCATION_ITEM.values() if _n == "Scadutree Fragment"), _units_frag,
+         len(_units_ambig)))
+if _units_frag != 50:
+    # The datamined vanilla supply is 46 fragment lots for 50 units, and SCADU_INJECTION_TARGET is
+    # SCADU_CUM[20] = 50 *because* of it. If this stops being 50 the two have drifted and the
+    # blessing budget is reasoning about a supply that no longer exists -- say so at the regen.
+    raise SystemExit("FATAL: Scadutree Fragment checks pay %d unit(s), expected 50 (46 lots, four "
+                     "of them x2). Either a fragment check was gained/lost or the flag_lots join "
+                     "broke -- re-derive features/scadu_supply.SCADU_INJECTION_TARGET before "
+                     "changing this number." % _units_frag)
 # Finished throwing pots: crafted (never LOOTED), so absent from the placed-item catalog above -- but
 # they are valid grantable GOODS (EquipParamGoods ids verified against GoodsName.fmg.xml). Added
 # explicitly so the curated-consumables filler (features/filler_curation.py) can hand them out; the
@@ -6592,6 +6669,11 @@ with open(OUT_ITEMS, "w", newline="\n", encoding="utf-8") as f:
     f.write("}\n\nLOCATION_ITEM = {\n")
     for _aid in sorted(LOCATION_ITEM):
         f.write(f"    {_aid}: {ascii(LOCATION_ITEM[_aid])},\n")
+    f.write("}\n\n# ap_id -> copies the vanilla lot slot grants, for the locations that grant more\n")
+    f.write("# than one (#616; flag_lots.tsv `num`, joined on FullID). Absent = 1.\n")
+    f.write("LOCATION_UNITS = {\n")
+    for _aid in sorted(LOCATION_UNITS):
+        f.write(f"    {_aid}: {LOCATION_UNITS[_aid]},\n")
     f.write("}\n\nDLC_ITEM_NAMES = {\n")
     for _nm in sorted(DLC_ITEM_NAMES):
         f.write(f"    {ascii(_nm)},\n")
