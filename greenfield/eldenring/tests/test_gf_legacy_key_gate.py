@@ -41,7 +41,11 @@ class LegacyKeyGateOn(WorldTestBase):
         # 69 -> 68: dropped the phantom 2nd Academy Glintstone Key f14007930 (Alaric 2026-07-17).
         # 68 -> 69 (2026-08-06): the Great Rune of the Unborn co-check (flag 197 lot 10181, #426): a co-check is the SAME physical acquisition as its primary and inherits its tags. Rennala sits behind the
         # Academy Glintstone Key, so her second check is gated exactly like her first.
-        assert len(gated) == 69 and all(v == KEY for v in gated.values())
+        # 69 -> 70 (2026-08-13, #191): the widened co-check allowlist mints one more sibling
+        # inside the m14 range. Same rule as the flag-197 entry above -- a co-check is the same
+        # physical acquisition as its primary, so it sits behind the Academy Glintstone Key exactly
+        # as its primary does. The `all(v == KEY)` half is what proves that, and it is unchanged.
+        assert len(gated) == 70 and all(v == KEY for v in gated.values())
         st = CollectionState(self.multiworld)
         for it in world_items(self):
             if it.name != KEY and (it.classification & IC.progression):

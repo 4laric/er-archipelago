@@ -256,3 +256,149 @@ class StartRegionsClampIsLoud(WorldTestBase):
         msg = str(cm.exception)
         self.assertIn("start_regions", msg)
         self.assertIn("num_regions", msg)
+
+
+# ---- start_region_pool: WHICH region opens the run --------------------------------------------
+class StartRegionPoolWired(WorldTestBase):
+    """MOTIVATING CASE (rule 11). boblerrr, 2026-08-13: he wanted to choose the starting region, to
+    test one region at a time. `start_regions` answers "how many", and there was no answer to
+    "which" -- the anchor was a size-weighted draw with no way in.
+
+    The one that matters is `test_the_named_region_opens_the_run`: everything else here guards a
+    refusal, and a refusal that fires on a seed nobody asked for is cheap. Opening where the player
+    said is the feature.
+    """
+    game = GAME
+    options = {"num_regions": 4, "start_region_pool": ["Caelid"]}
+    SEEDS = (1, 7, 13, 22222, 5551212)
+
+    def test_the_named_region_opens_the_run(self):
+        for seed in self.SEEDS:
+            self.world_setup(seed=seed)
+            self.assertEqual(_precollected_locks(self), ["Caelid"],
+                             f"seed {seed}: start_region_pool named Caelid and the run opened "
+                             f"elsewhere")
+
+    def test_the_named_region_is_force_kept(self):
+        """The pool NAMES a region, so the region has to be in the seed. num_regions is a draw size
+        and this rides the same force-keep seam a named goal does -- if that seam ever stops being
+        additive, the anchor above would still pass by opening in a region the draw happened to
+        take, and this is the assertion that would not."""
+        for seed in self.SEEDS:
+            self.world_setup(seed=seed)
+            self.assertIn("Caelid", list(self.world._kept()), f"seed {seed}")
+
+
+class StartRegionPoolDrawsFromThePool(WorldTestBase):
+    """Several names = a POOL, not a list to open all of. With start_regions 1 exactly one of them
+    opens the run, and it is one of THOSE, not any kept region."""
+    game = GAME
+    options = {"num_regions": 6, "start_region_pool": ["Caelid", "Liurnia"]}
+
+    def test_exactly_one_of_the_named_regions_opens(self):
+        seen = set()
+        for seed in (1, 7, 13, 22222, 5551212, 31337, 424242):
+            self.world_setup(seed=seed)
+            locks = _precollected_locks(self)
+            self.assertEqual(len(locks), 1, f"seed {seed}: {locks}")
+            self.assertIn(locks[0], {"Caelid", "Liurnia"}, f"seed {seed}: opened in {locks[0]}")
+            seen.add(locks[0])
+        # Not an assertion about fairness -- just that the pool is a POOL. If one name could never
+        # win, "draw from these" would be a lie and a single-name test would never notice.
+        self.assertEqual(seen, {"Caelid", "Liurnia"},
+                         "over 7 seeds only %s ever opened the run, so the second name is dead"
+                         % sorted(seen))
+
+
+class StartRegionPoolComposesWithStartRegions(WorldTestBase):
+    """`start_regions: 2` + two names = both open. The pool constrains WHICH; the count says HOW
+    MANY, and neither had to learn about the other."""
+    game = GAME
+    options = {"num_regions": 8, "start_regions": 2,
+               "start_region_pool": ["Caelid", "Liurnia"]}
+
+    def test_both_named_regions_open(self):
+        for seed in (1, 13, 22222):
+            self.world_setup(seed=seed)
+            self.assertEqual(sorted(_precollected_locks(self)), ["Caelid", "Liurnia"],
+                             f"seed {seed}")
+
+
+class StartRegionPoolRefusalsNameTheRegion(WorldTestBase):
+    """Three ways a named region cannot open a run, and they are invisible to each other: your DLC
+    toggles sealed it, your goal needs it, or it is a child reached through its parent. A single
+    "not available" would send the player to the wrong one, so each refusal names the region AND
+    which of the three it is. These assert the REASON, not just that something raised."""
+    game = GAME
+    auto_construct = False
+
+    def _raises_with(self, options, *fragments):
+        self.options = dict(options)
+        with self.assertRaises(OptionError) as cm:
+            self.world_setup(seed=7)
+        msg = str(cm.exception)
+        for f in fragments:
+            self.assertIn(f, msg, "the refusal did not say %r -- it said: %s" % (f, msg))
+
+    def test_a_dlc_region_with_the_dlc_off_says_so(self):
+        self._raises_with({"num_regions": 4, "enable_dlc": False,
+                           "start_region_pool": ["Belurat"]},
+                          "start_region_pool", "Belurat", "enable_dlc")
+
+    def test_a_base_region_under_dlc_only_says_so(self):
+        self._raises_with({"num_regions": 4, "enable_dlc": True, "dlc_only": True,
+                           "start_region_pool": ["Caelid"]},
+                          "start_region_pool", "Caelid", "dlc_only")
+
+    def test_a_gated_child_says_which_parent_to_name_instead(self):
+        # Sewer is reached through Leyndell; its grace bundle is withheld, so the player could not
+        # warp into it even if the Lock were in hand.
+        self._raises_with({"num_regions": 4, "start_region_pool": ["Sewer"]},
+                          "start_region_pool", "Sewer", "Leyndell")
+
+    def test_the_goal_region_says_the_goal(self):
+        # Enir Ilim, not Leyndell: the default goal's region is ALSO a gated child, so it trips the
+        # gated rule first and the goal rule would never be reached through it. Two rules, and only
+        # a non-gated goal region can tell them apart -- the same distinction
+        # test_the_goal_region_is_barred_by_the_GATED_rule_not_by_never_extra draws above.
+        self._raises_with({"num_regions": 6, "enable_dlc": True, "goal": "promised_consort",
+                           "start_region_pool": ["Enir Ilim"]},
+                          "start_region_pool", "Enir Ilim", "promised_consort")
+
+
+class StartRegionPoolIsInertWhereThereIsNoAnchor(WorldTestBase):
+    """natural_progression mints no Lock items, so there is no anchor to constrain. The option must
+    do NOTHING rather than refuse: failing a seed over a setting that cannot apply to it is the
+    failure mode `start_regions` already avoids, decided in the same place for the same reason.
+
+    🛑 A no-op is the hardest thing to test and the easiest to fake -- asserting "it did not raise"
+    would pass over an option that had silently stopped working everywhere. So this also asserts the
+    seed really is the no-anchor case, via `kept_lock_names()`, which its own docstring calls THE
+    single source for the locks completion requires and which is empty under natural progression.
+
+    🛑 NOT a scan for items whose name ends in " Lock". That was the first version and it FAILED,
+    reporting 28 of them: `_util.world_pool_items` counts items PRE-PLACED on locations as well as
+    the itempool, and under natural progression the Locks exist there while none is minted into the
+    pool and none is precollected. Two different questions, one substring."""
+    game = GAME
+    options = {"num_regions": 4, "natural_progression": True,
+               "start_region_pool": ["Caelid"]}
+
+    def test_it_generates_and_has_no_anchor_to_constrain(self):
+        self.world_setup(seed=7)
+        # WITNESSES FIRST (test_gf_vacuous_pass' ratchet, and it is the right rule here): both
+        # assertions below are "this collection is empty", and an empty world would satisfy them
+        # for the wrong reason. So: a real seed, with regions that COULD have minted locks and
+        # locations that could have hosted them.
+        #
+        # 🛑 The obvious witness -- "precollected_items is non-empty, and no Lock is among them" --
+        # is FALSE here and cost a red: under natural progression this world precollects NOTHING at
+        # all, so that assertion fails on a seed that is behaving exactly as intended. The witness
+        # has to be something the no-anchor case still has.
+        self.assertGreater(len(list(self.world._kept())), 1)
+        self.assertGreater(len(self.multiworld.get_locations(self.player)), 0)
+        self.assertEqual(self.world.kept_lock_names(), [],
+                         "natural_progression minted Region Locks, so this seed is not the "
+                         "no-anchor case this test claims to cover")
+        self.assertEqual(_precollected_locks(self), [],
+                         "natural_progression precollected a Region Lock")

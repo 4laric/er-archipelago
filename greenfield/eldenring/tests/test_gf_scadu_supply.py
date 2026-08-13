@@ -47,8 +47,9 @@ class TestFragmentsToInject:
         assert ss.fragments_to_inject(2, 12, 3, 2090, False) == 23
 
     def test_a_full_dlc_seed_injects_none(self):
-        # 46 natural >= 26 needed: the spec's "a DLC seed injects none" as a CONSEQUENCE.
-        assert ss.fragments_to_inject(2, 12, 46, 4000, False) == 0
+        # 50 natural UNITS (46 lot slots, four of them x2 -- see tests/test_gf_location_units.py)
+        # >= 26 needed: the spec's "a DLC seed injects none" as a CONSEQUENCE.
+        assert ss.fragments_to_inject(2, 12, 50, 4000, False) == 0
 
     def test_dlc_excluded_injects_nothing(self):
         # Injecting a DLC good into a DLC-off pool is the test_gf_dlc_pool_leak class.
@@ -119,7 +120,7 @@ def test_every_one_region_draw_clears_the_original_cap_under_the_clamp():
     number to relax."""
     from worlds.eldenring import region_spine as rspine
     from worlds.eldenring.data import HUB, LOCATIONS, REGIONS
-    from worlds.eldenring.item_ids import LOCATION_ITEM
+    from worlds.eldenring.item_ids import LOCATION_ITEM, LOCATION_UNITS
 
     hub = len(LOCATIONS.get(HUB, []))
     target = ss.SCADU_INJECTION_TARGET
@@ -128,7 +129,11 @@ def test_every_one_region_draw_clears_the_original_cap_under_the_clamp():
     for region in REGIONS:
         kept = [region] + rspine.parent_chain(region)
         total = hub + sum(len(LOCATIONS.get(r, [])) for r in kept)
-        natural = sum(1 for r in kept for (_n, ap_id, _f) in LOCATIONS.get(r, [])
+        # UNITS, not placements (#616): four vanilla lot slots grant two fragments and
+        # `natural_fragments` counts what they hand over, so a sweep that counted locations would
+        # be measuring a supply the feature no longer reasons about.
+        natural = sum(LOCATION_UNITS.get(ap_id, 1) for r in kept
+                      for (_n, ap_id, _f) in LOCATIONS.get(r, [])
                       if LOCATION_ITEM.get(ap_id) == ss.FRAGMENT)
         want = max(0, ss.SCADU_CUM[target] - natural)
         for mode in (1, 2):

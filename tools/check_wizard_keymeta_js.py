@@ -120,8 +120,13 @@ def _tsv_eligible():
     return out, hosting
 
 
-def py_marginals(census, selected, enable_dlc=True, dlc_only=False):
-    """Reference implementation of ERW.surfaceMarginals. Exact set arithmetic over tag COMBINATIONS."""
+def py_marginals(census, selected, enable_dlc=True, dlc_only=False, rung="bosses"):
+    """Reference implementation of ERW.surfaceMarginals. Exact set arithmetic over tag COMBINATIONS,
+    plus the DERIVED classes, which are not combinations at all.
+
+    `rung` is dungeon_sweep. SweepSlot contributes one check per sweep the seed RUNS, so its worth
+    is 0 / 64 / 138 / 215 corpus-wide across none / minidungeons / all / bosses. Defaulting to
+    "bosses" mirrors the JS, which defaults to the shipped `dungeon_sweep`."""
     R = census["regions"]
     in_play = [n for n, r in R.items() if (r["dlc"] if dlc_only else (enable_dlc or not r["dlc"]))]
 
@@ -132,6 +137,8 @@ def py_marginals(census, selected, enable_dlc=True, dlc_only=False):
             for combo, cnt in R[name]["combos"].items():
                 if sel & set(combo.split("|")):
                     n += cnt
+            if "SweepSlot" in sel:
+                n += (R[name].get("sweep_slots") or {}).get(rung, 0)
         return n
 
     cur = set(selected or ())
@@ -331,8 +338,23 @@ def main(argv=None):
             singles = _run_node_marginals(
                 _core(html), census,
                 [{"selected": [c], "enableDlc": True, "dlcOnly": False} for c in classes])
+            # 🛑 A DERIVED class is deliberately in the census and deliberately NOT in the tsv: the
+            # tsv is a corpus-wide TAG count and SweepSlot has no tag (contract.SURFACE_DERIVED_
+            # CLASSES). Skipping it would weaken the chain, so it is cross-checked the other way
+            # below -- against the census's own per-rung totals, which is the only other place the
+            # number exists.
+            derived = set(census.get("derived_classes") or ())
+            sweep_total = sum((r.get("sweep_slots") or {}).get("bosses", 0)
+                              for r in census["regions"].values())
             for cl, g in zip(classes, singles):
-                if cl not in elig:
+                if cl in derived:
+                    if cl in elig:
+                        bad.append("%s is DERIVED but surface_confidence.tsv prices it -- one of the "
+                                   "two is wrong about what the class is" % cl)
+                    elif g["total"] != sweep_total:
+                        bad.append("%s alone: the wizard would show %d, the census's own sweep_slots "
+                                   "sum to %d" % (cl, g["total"], sweep_total))
+                elif cl not in elig:
                     bad.append("%s is in the census but not priced in surface_confidence.tsv" % cl)
                 elif g["total"] != elig[cl]:
                     bad.append("%s: the wizard would show %d hosting locations, surface_confidence"
@@ -342,9 +364,15 @@ def main(argv=None):
                 dflt = _run_node_marginals(
                     _core(html), census,
                     [{"selected": default, "enableDlc": True, "dlcOnly": False}])[0]
-                if dflt["total"] != hosting:
+                # The tsv headline prices the TAGGED half of the default surface only (it says so,
+                # and test_gf_surface_confidence pins the disclosure). So the identity is not
+                # equality any more -- it is equality once the derived half is added, which is a
+                # STRONGER statement than the old one: it pins the size of that half too.
+                dflt_derived = sweep_total if (set(default) & derived) else 0
+                if dflt["total"] != hosting + dflt_derived:
                     bad.append("default surface: wizard %d vs surface_confidence.tsv headline "
-                               "hosting %d" % (dflt["total"], hosting))
+                               "hosting %d + %d derived (SweepSlot) = %d"
+                               % (dflt["total"], hosting, dflt_derived, hosting + dflt_derived))
 
     if bad:
         print("[FAIL] " + "\n       ".join(bad))

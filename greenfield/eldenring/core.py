@@ -79,9 +79,44 @@ try:
     from .item_ids import DLC_ITEM_NAMES  # DLC-only catalog names (generated); excluded when DLC off
 except Exception:
     DLC_ITEM_NAMES = set()
+try:
+    from .item_ids import LOCATION_UNITS  # generated (#616): ap_id -> copies its lot grants; absent = 1
+except Exception:
+    LOCATION_UNITS = {}
 
 GAME = "Elden Ring"
 FILLER = "Rune"
+
+
+def stacked_vanilla_name(nm, ap_id, name_to_id):
+    """`nm` -> the STACKED item name for a location whose vanilla lot grants more than one copy.
+
+    ItemLotParam slots carry a quantity, and `LOCATION_UNITS` (generated, #616) is the ones that are
+    not 1. A check that vanilla-drops two of something has always paid ONE here, because the number
+    was captured at regen and never read: four `Scadutree Fragment` lots drop x2, so a seed that
+    kept all 46 fragment checks carried 46 units against the base game's 50, and the Scadutree
+    blessing -- which is a pure function of that count -- sat a rung low all the way through.
+
+    THE STACK IS A SECOND AP ITEM, NOT A COUNT ON THE FIRST. `itemCounts` is keyed by AP item id and
+    every copy of a name shares one, so stacking there would double the x1 placements too. So the
+    promotion is to a NAME: `Scadutree Fragment` -> `Scadutree Fragment x2`, minted by
+    features/scadu_supply with its own id, the same game FullID and itemCounts = 2.
+
+    GENERAL, WITH ONE LIVE CONSUMER. The promotion fires only when the stacked name is a REGISTERED
+    AP item, and today exactly one is. Every other multi-copy location keeps paying x1, unchanged --
+    minting 900-odd stack names would renumber the item id space and change the pool for items whose
+    quantity nobody has ruled on. A future stack costs one entry in a feature's ITEMS/ITEM_GRANTS.
+
+    Returns (name, units). `units` is 1 whenever the name did not move, so a caller can charge a
+    budget by what was actually handed over without re-deriving it.
+    """
+    if not nm:
+        return nm, 1
+    n = LOCATION_UNITS.get(ap_id, 1)
+    if n <= 1:
+        return nm, 1
+    stacked = "%s x%d" % (nm, n)
+    return (stacked, n) if stacked in name_to_id else (nm, 1)
 
 
 _GOODS_NIBBLE = 0x40000000  # ER FullID category nibble for GOODS
@@ -414,7 +449,8 @@ class GFLocation(Location):
 # one option at a time. tests/test_gf_option_groups.py fails on any ungrouped visible key.
 _OPTION_GROUPS = [
     ("Goal & Regions", [
-        "num_regions", "num_regions_order", "start_regions", "goal", "ending_condition",
+        "num_regions", "num_regions_order", "start_regions", "start_region_pool", "goal",
+        "ending_condition",
         "goal_great_runes", "leyndell_runes_required", "region_grace_unlock",
         "grace_attunement", "grace_attunement_anchor"]),
     ("DLC & Blessings", [
@@ -422,9 +458,13 @@ _OPTION_GROUPS = [
         "global_scadutree_blessing"]),
     ("Difficulty & Scaling", [
         "enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
-        "difficulty_ramp_speed", "no_fall_damage", "traps", "spawn_traps", "trap_count"]),
+        "difficulty_ramp_speed", "traps", "spawn_traps", "trap_count"]),
     ("Checks & Item Pool", [
         "vanilla_placement", "natural_progression", "dungeon_sweep", "reroll_enemy_drops",
+        # vanilla_pool sits directly before curated_filler because it OVERRIDES it (#618): the
+        # wizard renders a group in this order, and a player reading the recipe first would edit
+        # weights that the switch above them makes moot.
+        "vanilla_pool",
         "curated_filler", "pool_builder_intensity", "pool_builder_pct_weapons",
         "pool_builder_pct_armor", "pool_builder_pct_spells", "pool_builder_pct_talismans",
         "pool_builder_pct_ashes_of_war"]),
@@ -437,8 +477,11 @@ _OPTION_GROUPS = [
         "merchant_bell_logic", "reroll_infinite_shop_stock", "infinite_hub_wares",
         "progressive_stone_bells"]),
     ("Quality of Life", [
-        "auto_equip", "no_equip_load", "start_with_whetblades", "progressive_flasks",
-        "capital_reconciler"]),
+        # no_weapon_requirements sits beside no_equip_load because they are the same kind of knob --
+        # both remove a constraint the game puts between you and gear the multiworld handed you, one
+        # on stats and one on weight -- and a player deciding about one is deciding about the other.
+        "auto_equip", "no_weapon_requirements", "no_equip_load", "start_with_whetblades",
+        "progressive_flasks", "capital_reconciler"]),
 ]
 
 
@@ -490,6 +533,52 @@ class GreenfieldEldenRingWorld(World):
         enable_dlc = bool(getattr(self.options, "enable_dlc", None) is None
                           or self.options.enable_dlc.value)
         return dlc_only or enable_dlc
+
+    def _resolve_start_region_pool(self) -> frozenset:
+        """The regions `start_region_pool` allows the run to open in, validated. Empty = no constraint.
+
+        Empty ALSO when no Lock is minted (natural_progression / vanilla_placement) or
+        `start_with_region_lock` is off -- there is no anchor to constrain, and raising over an
+        option that cannot apply would fail a seed for a setting that does nothing in it. Same
+        inertness `start_regions` already has, decided in the same place.
+
+        🛑 EVERY REFUSAL NAMES THE REGION AND THE REASON. The three ways a named region cannot open
+        a run are invisible to each other -- your DLC toggles sealed it, your goal needs it, or it
+        is a child region reached through its parent -- and a single "that region is not available"
+        would send the player to the wrong one of the three."""
+        opt = getattr(self.options, "start_region_pool", None)
+        named = frozenset(str(r) for r in (opt.value if opt is not None else ()) or ())
+        if not named:
+            return frozenset()
+        _slr = getattr(self.options, "start_with_region_lock", None)
+        if _np.is_on(self) or _vp.is_on(self) or not (_slr is not None and _slr.value):
+            return frozenset()
+        eligible = set(self.gf_eligible)
+        sealed = sorted(named - eligible)
+        if sealed:
+            dlc_only = bool(getattr(self.options, "dlc_only", None)
+                            and self.options.dlc_only.value)
+            raise OptionError(
+                "[eldenring] start_region_pool names %s, which this seed cannot contain: %s. Drop "
+                "the name or change the toggle." % (", ".join(sealed),
+                "dlc_only is on, so only the DLC's regions are in play" if dlc_only
+                else "enable_dlc is off, so the DLC's regions are sealed"))
+        goal_needs = sorted(named & set(self.gf_goal_forced))
+        if goal_needs:
+            raise OptionError(
+                "[eldenring] start_region_pool names %s, but this seed's goal (%s) needs %s -- a "
+                "run that opens in the region it ends in is over before it starts. Name a different "
+                "starting region or a different goal."
+                % (", ".join(goal_needs), self.gf_goal_choice, "them" if len(goal_needs) > 1
+                   else "it"))
+        gated = sorted(named & set(REGION_PARENT))
+        if gated:
+            raise OptionError(
+                "[eldenring] start_region_pool names %s, which is reached THROUGH another region "
+                "(%s) rather than opened directly, so it can never be where a run starts. Name its "
+                "parent instead." % (", ".join(gated),
+                                     ", ".join(REGION_PARENT[g] for g in gated)))
+        return frozenset(named)
 
     def _eligible_regions(self) -> List[str]:
         """The region pool num_regions draws from this seed, after the DLC toggles.
@@ -586,6 +675,15 @@ class GreenfieldEldenRingWorld(World):
         _forced = tuple(dict.fromkeys(
             tuple(_gl.forced_regions(self.gf_goal_choice)) + tuple(_auto_forced)))
         self.gf_goal_forced: tuple = _forced
+        # START REGION POOL (features/start_grace.StartRegionPool). The player named the regions the
+        # run may open in, so those regions have to BE here -- force-kept on the same seam the goal
+        # uses, and additive to num_regions for the same reason (it is a DRAW SIZE, #409). Validated
+        # HERE and not at the anchor pick, because this is the only place the DLC toggles, the goal's
+        # own force-keeps and the gated children are all resolved: an error raised later could only
+        # say "no region can open this run" without being able to say WHICH name was the problem.
+        self.gf_start_pool: frozenset = self._resolve_start_region_pool()
+        if self.gf_start_pool:
+            _forced = tuple(dict.fromkeys(_forced + tuple(sorted(self.gf_start_pool))))
         self.gf_kept: List[str] = compute_kept(
             _nr,
             self.random,
@@ -836,6 +934,10 @@ class GreenfieldEldenRingWorld(World):
                 # sits one seed off its floor -- went red on the shift. Narrow instrument.
                 major=regions_with_major_boss(
                     kept, barred=_ps_missable(self)) if _strict else None,
+                # The player's own sentence, already validated in generate_early. A HARD filter --
+                # see pick_anchor_regions' docstring for why this one does not degrade the way the
+                # MajorBoss bias beside it does.
+                only=getattr(self, "gf_start_pool", frozenset()),
                 gated=frozenset(REGION_PARENT),
                 # The goal region never rides in as an EXTRA: a run that opens on the region it
                 # ends in is not a run (Alaric, 2026-08-06), and at start_regions 3 that would stop
@@ -973,6 +1075,22 @@ class GreenfieldEldenRingWorld(World):
                             nm = None
                         else:
                             _hold_left[nm] -= 1
+                    # LAST, and the order is the point (#616). A lot that grants two copies pays the
+                    # stacked item -- but DLC exclusion, flask substitution and the hold ceiling all
+                    # key on the BASE name, and `Scadutree Fragment x2` is a feature-minted name that
+                    # is in none of their tables. Promoting before them would leak a DLC item into a
+                    # DLC-off seed through a name DLC_ITEM_NAMES cannot see. Promoting here, the base
+                    # name is what every one of those rules judged, exactly as before.
+                    _base_nm = nm
+                    nm, _units = stacked_vanilla_name(nm, ap_id, item_name_to_id)
+                    if _units > 1 and _base_nm in _hold_left:
+                        # The stack hands over `_units` copies against the ONE ceiling slot charged
+                        # above; charge the rest, against the BASE name -- the ceiling is a property
+                        # of the game's goods row, which both names resolve to, and `_hold_left` is
+                        # keyed by the base name only. No capped good has a minted stack today
+                        # (measured: GOODS_HOLD_CAP has no `Scadutree Fragment` entry), so this is a
+                        # guard against the next one, not a live path.
+                        _hold_left[_base_nm] -= _units - 1
                     _pin_aps.append(ap_id)
                     extras.append(nm if nm and nm in item_name_to_id else FILLER)
             if _vanilla:
@@ -984,6 +1102,7 @@ class GreenfieldEldenRingWorld(World):
                     _nm2 = LOCATION_ITEM.get(_ap2)
                     if _nm2 and _excl and _nm2 in _excl:
                         _nm2 = None
+                    _nm2, _ = stacked_vanilla_name(_nm2, _ap2, item_name_to_id)
                     _pin_aps.append(_ap2)
                     extras.append(_nm2 if _nm2 and _nm2 in item_name_to_id else FILLER)
             # keep real items first; among reals, keep required Great Runes ahead of everything so

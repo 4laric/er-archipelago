@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.4.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "61623ccb7ab5488ca80471bf54e6c6c286a5c7a3d9772fa752b31ecc2210468a",
+ "source_sha256": "8921f22dd21e1b076ef06ddcfc7519e6ac7ecc80574cd919ce2b451edd23ec54",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -16,7 +16,6 @@
   "capital_reconciler",
   "auto_equip",
   "no_equip_load",
-  "no_fall_damage",
   "dungeon_sweep",
   "death_link",
   "reroll_enemy_drops",
@@ -57,10 +56,13 @@
   "infinite_hub_wares",
   "merchant_bell_logic",
   "start_regions",
+  "start_region_pool",
   "start_with_whetblades",
   "traps",
   "trap_count",
-  "spawn_traps"
+  "spawn_traps",
+  "vanilla_pool",
+  "no_weapon_requirements"
  ],
  "groups": [
   {
@@ -70,6 +72,7 @@
     "num_regions",
     "num_regions_order",
     "start_regions",
+    "start_region_pool",
     "goal",
     "ending_condition",
     "goal_great_runes",
@@ -98,7 +101,6 @@
     "minimum_enemy_difficulty",
     "maximum_enemy_difficulty",
     "difficulty_ramp_speed",
-    "no_fall_damage",
     "traps",
     "spawn_traps",
     "trap_count"
@@ -112,6 +114,7 @@
     "natural_progression",
     "dungeon_sweep",
     "reroll_enemy_drops",
+    "vanilla_pool",
     "curated_filler",
     "pool_builder_intensity",
     "pool_builder_pct_weapons",
@@ -155,6 +158,7 @@
    "collapsed": false,
    "options": [
     "auto_equip",
+    "no_weapon_requirements",
     "no_equip_load",
     "start_with_whetblades",
     "progressive_flasks",
@@ -400,26 +404,10 @@
    "special_values": null
   },
   {
-   "key": "no_fall_damage",
-   "class": "NoFallDamage",
-   "display_name": "No Fall Damage",
-   "description": "You take no damage from falling. Does not save you from a bottomless pit -- the game still\nkills you for leaving the map -- but ordinary drops, cliffs and shortcuts stop hurting.\nOff by default.",
-   "kind": "toggle",
-   "base": "Toggle",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": null,
-   "group_collapsed": false,
-   "special_values": null
-  },
-  {
    "key": "dungeon_sweep",
    "class": "DungeonSweep",
    "display_name": "Dungeon Sweep",
-   "description": "Which bosses hand you their area's loot in a sweep when you kill them.\n\nnone -- no sweeps; every check is picked up where it lies.\nminidungeons -- catacombs, caves, tunnels and minor dungeons only (~510 checks).\nall -- those plus legacy dungeons and castles (~2614).\nbosses (default) -- those plus FIELD bosses, i.e. everything (~3876).\n\nThose are the BAKED pools. What a seed grants is that minus its Progression Surface cut below;\nat the default surface, ~3782 at the widest rung.\n\n🛑 UNTIL 2026-07-29 THESE THREE WERE THE SAME THING. The emit gated on `value != 0` and never\nfiltered by class, so minidungeons/all/bosses each granted the full 3197 -- the ladder in this\ndocstring described behaviour that had never been implemented, and the player guide and the\nv0.2.15 release notes repeated it. The rungs are real now.\n\nThe DEFAULT moved 'all' -> 'bosses' at the same time, and that is not a behaviour change: the\nfull set is what every non-none value already granted, so 'bosses' IS what shipped. Leaving the\ndefault at 'all' would have quietly dropped field sweeps (1213 checks, 38%) from every seed\nunder the banner of a bug fix.\n\nA sweep never hands you another boss's reward, a Remembrance, a Great Rune, a key item or a\nmerchant's stock: those are cut when the sweep is built and no option restores them.\n\nEverything else in the area is yours, INCLUDING the good stuff -- Golden Seeds, Sacred Tears,\nScadutree Fragments, Revered Spirit Ashes, Crystal Tears and the legendaries (2026-08-13; it was\nfiller-only before, +145 checks corpus-wide). The exception is the classes YOU put on the\nProgression Surface: those are where this seed places its Locks, so they are taken back out of\nthe sweep, per seed. At the default surface that means Golden Seeds, Sacred Tears, Scadutree\nFragments and Revered Ashes stay where they lie and the legendaries and Crystal Tears sweep;\nuntick a collectathon line on the surface and the sweep picks it up instead.\n\n🛑 With an EMPTY Progression Surface there is no confinement at all, so progression scatters\nwherever AP's fill puts it -- including onto ordinary sweep members, as it always could. The cut\ncan only act on a surface that says something.\n\nA group is only sent to a seed that can actually FIRE it (issue #445): the trigger boss's ARENA\nregion has to be kept too, not just the region its members live in. Six groups are fought\nsomewhere other than where their loot lies -- the Golden Hippopotamus hands over 104 Shadow Keep\nchecks from Scadu Altus ground -- and a seed that keeps one region without the other used to\nship a sweep whose boss the region lock would not let the player reach. Those groups are dropped\ninstead. The checks are unaffected: every member is an ordinary pickup in its own region, so what\nis lost is the convenience, not the loot.",
+   "description": "Which bosses hand you their area's loot in a sweep when you kill them.\n\nnone -- no sweeps; every check is picked up where it lies.\nminidungeons -- catacombs, caves, tunnels and minor dungeons only (~510 checks).\nall -- those plus legacy dungeons and castles (~2614).\nbosses (default) -- those plus FIELD bosses, i.e. everything (~3876).\n\nThose are the BAKED pools. What a seed grants is that minus its Progression Surface cut below;\nat the default surface, ~3782 at the widest rung.\n\n🛑 UNTIL 2026-07-29 THESE THREE WERE THE SAME THING. The emit gated on `value != 0` and never\nfiltered by class, so minidungeons/all/bosses each granted the full 3197 -- the ladder in this\ndocstring described behaviour that had never been implemented, and the player guide and the\nv0.2.15 release notes repeated it. The rungs are real now.\n\nThe DEFAULT moved 'all' -> 'bosses' at the same time, and that is not a behaviour change: the\nfull set is what every non-none value already granted, so 'bosses' IS what shipped. Leaving the\ndefault at 'all' would have quietly dropped field sweeps (1213 checks, 38%) from every seed\nunder the banner of a bug fix.\n\nA sweep never hands you another boss's reward, a Remembrance, a Great Rune, a key item or a\nmerchant's stock: those are cut when the sweep is built and no option restores them.\n\nEverything else in the area is yours, INCLUDING the good stuff -- Golden Seeds, Sacred Tears,\nScadutree Fragments, Revered Spirit Ashes, Crystal Tears and the legendaries (2026-08-13; it was\nfiller-only before, +145 checks corpus-wide). The exception is the classes YOU put on the\nProgression Surface: those are where this seed places its Locks, so they are taken back out of\nthe sweep, per seed. At the default surface that means Golden Seeds, Sacred Tears, Scadutree\nFragments and Revered Ashes stay where they lie and the legendaries and Crystal Tears sweep;\nuntick a collectathon line on the surface and the sweep picks it up instead.\n\n🛑 ONE SWEEP MEMBER PER TRIGGER CAN NOW HOLD PROGRESSION, in a default seed (2026-08-13). The\ndefault Progression Surface includes `SweepSlot`, which nominates a single member of every sweep\nyou run as somewhere a key item may be placed -- so killing a boss can hand you one. That is the\nonly class the surface does NOT take back out of the sweep, and deliberately: taking it back\nwould delete the check it just nominated. Drop `SweepSlot` from progression_surface if you would\nrather a sweep never pay out progression; the cost is that at the default\n`confine_foreign_progression` another player's key items have only ~30 checks of yours to land\non, and most of them stop arriving (er-archipelago#631).\n\n🛑 With an EMPTY Progression Surface there is no confinement at all, so progression scatters\nwherever AP's fill puts it -- including onto ordinary sweep members, as it always could. The cut\ncan only act on a surface that says something.\n\nA group is only sent to a seed that can actually FIRE it (issue #445): the trigger boss's ARENA\nregion has to be kept too, not just the region its members live in. Six groups are fought\nsomewhere other than where their loot lies -- the Golden Hippopotamus hands over 104 Shadow Keep\nchecks from Scadu Altus ground -- and a seed that keeps one region without the other used to\nship a sweep whose boss the region lock would not let the player reach. Those groups are dropped\ninstead. The checks are unaffected: every member is an ordinary pickup in its own region, so what\nis lost is the convenience, not the loot.",
    "kind": "choice",
    "base": "Choice",
    "default": "bosses",
@@ -484,7 +472,7 @@
    "key": "curated_filler",
    "class": "CuratedFiller",
    "display_name": "Curated Filler recipe (category -> weight)",
-   "description": "Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the\ncategories in proportion to their weights -- they are relative, not percentages, and need not sum\nto anything. Categories: juice, stones, somber_stones, runes, throwables, pots, firepots, greases,\nammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to keep that share as\nwhatever the check already paid. Stacks: throwables x5, pots x2, firepots x2, greases x2,\nammunition x20.\nNOT off by default. The shipped recipe is juice 42 / stones 29 / somber_stones 6 / runes 10 /\nthrowables 6 / pots 4 / greases 3 / foods 2 / boluses 1, so roughly two fifths of a default seed's\nfiller tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --\nit warns loudly rather than silently reverting to vanilla junk.\n'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier\nfrom ~1013 qualifying items). It competes on the same budget as everything else; raising it past\nwhat the catalog can supply spills the surplus to junk, with a warning naming the shortfall.\n'stones', 'somber_stones' and 'runes' are an upgrade-economy RESERVATION taken off the top\nproportionally. A tail too small for that reservation to buy a useful number of stones warns by\nname; it does not refuse to generate.\n'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace\nGolems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample (a consumable-leaning run that still keeps its economy): {juice: 20, stones: 29,\nsomber_stones: 6, runes: 10, throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5,\nperfumes: 8, rare: 1}. Copying an example WITHOUT `juice` and the stone weights is what the\nempty-recipe warning is about.",
+   "description": "Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the\ncategories in proportion to their weights -- they are relative, not percentages, and need not sum\nto anything. Categories: juice, junk_gear, stones, somber_stones, runes, throwables, pots,\nfirepots, greases, ammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to\nkeep that share as whatever the check already paid. Stacks: throwables x5, pots x2, firepots x2, greases x2,\nammunition x20.\nNOT off by default. The shipped recipe is juice 42 / stones 29 / somber_stones 6 / runes 10 /\nthrowables 6 / pots 4 / greases 3 / foods 2 / boluses 1, so roughly two fifths of a default seed's\nfiller tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --\nit warns loudly rather than silently reverting to vanilla junk.\n'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier\nfrom ~1013 qualifying items). Its opposite number is 'junk_gear': the ~368 equippables the game\nitself rates trivial, which juice will never hand you at any intensity because its floor starts\nabove them. Weight junk_gear if you want the low end of the armoury in your filler -- it is the\nonly path to the ~96 pieces (the Celebrant's weapons among them) that have no check at all,\nbecause their only source is a random enemy drop the game never flags. It competes on the same budget as everything else; raising it past\nwhat the catalog can supply spills the surplus to junk, with a warning naming the shortfall.\n'stones', 'somber_stones' and 'runes' are an upgrade-economy RESERVATION taken off the top\nproportionally. A tail too small for that reservation to buy a useful number of stones warns by\nname; it does not refuse to generate.\n'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace\nGolems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample (a consumable-leaning run that still keeps its economy): {juice: 20, stones: 29,\nsomber_stones: 6, runes: 10, throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5,\nperfumes: 8, rare: 1}. Copying an example WITHOUT `juice` and the stone weights is what the\nempty-recipe warning is about.",
    "kind": "dict",
    "base": "OptionDict",
    "default": {
@@ -509,6 +497,7 @@
     "greases",
     "juice",
     "junk",
+    "junk_gear",
     "perfumes",
     "pots",
     "rare",
@@ -686,7 +675,7 @@
    "key": "region_grace_unlock",
    "class": "RegionGraceUnlock",
    "display_name": "Region Grace Unlock",
-   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nLiurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never\nwalked read as already-explored.\nlandmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to\nLake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across\nthe map. A middle setting: you can still cross a big region in a couple of hops.\nentrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.\n\n🛑 This cannot make a seed unwinnable and does not move an item: Region Locks remain the only\nprogression, every check stays exactly where it was, and a grace you have not been handed is\nstill reachable on foot and still unlocks by touching it. It is a convenience/pacing setting.\nA region whose bundle is WITHHELD (a gated child behind an armed wall) grants nothing under\neither value -- entrance mode must never become a way past a wall.",
+   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nLiurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never\nwalked read as already-explored.\nlandmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to\nLake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across\nthe map. A middle setting: you can still cross a big region in a couple of hops.\nentrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.\n\nIt moves no item. Region Locks remain the only progression and every check stays exactly where\nit was, so nothing here changes what your seed contains or where any of it sits. A region whose\nbundle is WITHHELD (a gated child behind an armed wall) grants nothing at any value -- no\nsetting here is a way past a wall.\n\n🛑 THAT IS NOT THE SAME AS SAFE. The intent is that a grace you were not handed is still\nreachable on foot and still lights when you touch it. The bundles have not been walked region\nby region, though, so which ones can leave you somewhere you cannot get out of is genuinely not\nknown. `all` is the setting that has been played. Treat the other two as experimental, and\nplease report anything that strands you.",
    "kind": "choice",
    "base": "Choice",
    "default": "all",
@@ -715,7 +704,7 @@
    "key": "grace_attunement",
    "class": "GraceAttunement",
    "display_name": "Grace Attunement",
-   "description": "Warp points arrive by exploring, not all at once. Unlocking a region lights ONE of its Sites\nof Grace; touch this many more and the rest light. 0 (default) keeps the current behaviour --\na region Lock lights every grace it has.\n\nRegions with too few graces to reach the number are left alone entirely, so a two-grace region\nnever ends up with warps it can never open. Requires a client that supports grace attunement;\na seed using it refuses an older one rather than connecting and silently ignoring it.",
+   "description": "Warp points arrive by exploring, not all at once. Unlocking a region lights ONE of its Sites\nof Grace; touch this many more and the rest light. 0 (default) keeps the current behaviour --\na region Lock lights every grace it has.\n\nRegions with too few graces to reach the number are left alone entirely, so a two-grace region\nnever ends up with warps it can never open. Requires a client that supports grace attunement;\na seed using it refuses an older one rather than connecting and silently ignoring it.\n\n🛑 EXPERIMENTAL, and not for the reason a version number would tell you. Holding warps back\nmeans you walk more of the world on foot, and the grace bundles have not been walked region by\nregion -- so which regions can leave you somewhere you cannot get out of is not known. It moves\nno item and no check, so your seed still contains everything it did; what is untested is\nwhether you can always get to it. 0 is the setting that has been played. Please report anything\nthat strands you.",
    "kind": "range",
    "base": "Range",
    "default": 0,
@@ -1016,7 +1005,8 @@
     "Remembrance",
     "Revered",
     "Seedtree",
-    "ShopSlot"
+    "ShopSlot",
+    "SweepSlot"
    ],
    "choices": null,
    "range": null,
@@ -1036,7 +1026,8 @@
     "Seedtree",
     "Shop",
     "ShopNonSpell",
-    "ShopSlot"
+    "ShopSlot",
+    "SweepSlot"
    ],
    "casefold": false,
    "group": null,
@@ -1155,6 +1146,13 @@
       "hint": "Everything the params rank rarity 3. Enia's buy-only remembrance store is excluded from the surface whatever you pick here.",
       "family": "items",
       "family_label": "Items"
+     },
+     {
+      "key": "SweepSlot",
+      "label": "One check per dungeon sweep",
+      "hint": "Not a kind of check -- ONE member of every sweep your seed runs, so clearing an area can pay out progression. Adds about as many slots as you have sweeps (55 in a 4-region seed, ~170 on the full map) and needs Dungeon Sweep on.",
+      "family": "sweeps",
+      "family_label": "Dungeon sweeps"
      }
     ],
     "families": [
@@ -1173,6 +1171,10 @@
      {
       "id": "items",
       "label": "Items"
+     },
+     {
+      "id": "sweeps",
+      "label": "Dungeon sweeps"
      }
     ],
     "contains": {
@@ -1471,6 +1473,51 @@
     "end": 10
    },
    "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "start_region_pool",
+   "class": "StartRegionPool",
+   "display_name": "Starting Region Pool",
+   "description": "WHICH regions the run may open in, by name. Empty (default) = any kept region, drawn the way\nit always was. Name one and the run opens there; name several and the opening region is drawn\nfrom just those.\n\nRegion names are the ones the spoiler and the client use: Limgrave, Liurnia, Caelid, Altus,\nStormveil, Raya Lucaria Academy, Leyndell, Mt. Gelmir, Mountaintops of the Giants, Weeping,\nDeeproot Depths, Siofra River, Ainsel River, Mohgwyn, Farum Azula, Sewer, and the DLC's\nGravesite, Belurat, Ensis, Scadu Altus, Shadow Keep, Rauh Base, Ancient Ruins, Cerulean,\nAbyssal, Jagged Peak, Enir Ilim.\n\n🛑 EVERY REGION YOU NAME IS FORCE-KEPT, so this can make a seed BIGGER than `num_regions` asked\nfor -- that number is a DRAW SIZE, and force-keeps are additive (the same seam a named `goal`\nuses). The generation log names the contribution. Naming three regions and asking for one is\ntherefore a three-region seed, not a one-region seed with a choice; if you want \"just play\nCaelid\", name one.\n\nThe alternative -- draw the opening region from your pool FIRST and force-keep only the winner --\nwas considered and rejected: it needs a second draw before the kept set exists, and two draws\nthat must agree about the same region is precisely the shape that has produced drift here before.\nOne mechanism, stated, beats two that have to be kept in step.\n\nIgnored when Start With A Region Lock is off and under Natural Progression / Vanilla Placement,\nwhich mint no Lock items -- exactly like Starting Regions above. Naming a region this seed\ncannot open in (sealed by your DLC toggles, needed by your goal, or a child region that is\nreached through its parent) fails generation and says which and why, rather than quietly\ndropping it.",
+   "kind": "set",
+   "base": "OptionSet",
+   "default": [],
+   "choices": null,
+   "range": null,
+   "valid_keys": [
+    "Abyssal",
+    "Ainsel River",
+    "Altus",
+    "Ancient Ruins",
+    "Belurat",
+    "Caelid",
+    "Cerulean",
+    "Deeproot Depths",
+    "Enir Ilim",
+    "Ensis",
+    "Farum Azula",
+    "Gravesite",
+    "Haligtree",
+    "Jagged Peak",
+    "Leyndell",
+    "Limgrave",
+    "Liurnia",
+    "Mohgwyn",
+    "Mountaintops of the Giants",
+    "Mt. Gelmir",
+    "Rauh Base",
+    "Raya Lucaria Academy",
+    "Scadu Altus",
+    "Sewer",
+    "Shadow Keep",
+    "Siofra River",
+    "Stormveil",
+    "Weeping"
+   ],
    "casefold": false,
    "group": null,
    "group_collapsed": false,
@@ -1934,6 +1981,39 @@
     "8100",
     "8110"
    ],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "free_text": true
+  },
+  {
+   "key": "vanilla_pool",
+   "class": "VanillaPool",
+   "display_name": "Vanilla Item Pool",
+   "description": "Turn item-pool curation off: your checks pay what they pay in vanilla Elden Ring. Off by\ndefault, and it is the ONE switch you need -- it replaces the whole `curated_filler` recipe with\n\"keep what the check already paid\" AND stops the guaranteed physick-tear / bell-bearing set\nbeing added to the pool. Those are the two separate things that make a seed's item spread differ\nfrom vanilla's, which is why emptying `curated_filler` on its own is not enough: it does the\nfirst only, and such a seed still hands you up to 18 crystal tears vanilla never placed.\n\n(Items are still SHUFFLED between checks -- this decides which items exist, not where they sit.\n`vanilla_placement` is the option for that.)\n\nYou give up a lot: no gear injection, no smithing-stone economy, no rune economy, and no\nguarantee that a physick tear or a bell bearing exists at all in a seed that seals their home\nregions. That is what vanilla means here -- the curation is what was buying those. If what you\nwanted was less gear rather than none, weight `curated_filler` down instead of setting this.\n\nOverrides `curated_filler` rather than conflicting with it: the recipe has a real default, so a\nyaml that never mentions it still has one, and rejecting the combination would reject the\nshipped template. The generation log names the override when it happens.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "no_weapon_requirements",
+   "class": "NoWeaponRequirements",
+   "display_name": "No Weapon Requirements",
+   "description": "Remove the stat requirements on weapons, shields, and catalysts (and spell requirements) so\nanything the multiworld hands you is usable regardless of your build.\n\nOn by default -- a randomizer hands you gear no build was made for, and this is what has always\nhappened. Turn it off if you want your stats to decide what you can hold; the seed is generated\nthe same either way, so nothing becomes unwinnable, it just becomes a fight you have to build for.\n\nThe client zeroes the live params at runtime and only ever LOWERS a requirement, so it is\nreconnect-safe.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": true,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
    "casefold": false,
    "group": null,
    "group_collapsed": false,

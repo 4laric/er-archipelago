@@ -18,9 +18,22 @@ class ItemShuffleOn(WorldTestBase):
         # "Progressive Flask Upgrade" (features/progressive.py), which is how the ladder stays
         # count-exact. Excluded by NAME from the feature module, so this list cannot silently rot.
         from worlds.eldenring.features.progressive import PROG_FLASK
+        # Same shape, second instance (#616): a check whose vanilla lot slot grants TWO copies pays
+        # the STACKED item, and the only minted stack today is features/scadu_supply's
+        # `Scadutree Fragment x2` -- one AP item, the same game FullID, itemCounts 2. It resolves
+        # through ITEM_GRANTS rather than ITEM_CATALOG, so it is not a catalog name and never will
+        # be. Four vanilla Scadutree Fragment lots are x2, so a DLC-on seed carries four of these
+        # with the blessing switched off entirely.
+        # GENERALISED for #624: every STACKED name (`<item> x<n>`) is a second AP id on the same
+        # game item, minted from the lot's quantity. They resolve through ITEM_GRANTS, not
+        # ITEM_CATALOG, so they are never catalog names and never will be. Read the whole mint list
+        # rather than naming them -- a hand list here rots the next time the mint scope moves, and
+        # FRAGMENT_X2 (owned by scadu_supply, which needs it for its injection) is IN that list.
+        from worlds.eldenring.item_ids import LOT_STACK_GRANTS
+        from worlds.eldenring.features.scadu_supply import FRAGMENT_X2
 
         self.assertTrue(ITEM_CATALOG, "item_ids.py must be generated")
-        _not_vanilla = {"Rune", PROG_FLASK}
+        _not_vanilla = {"Rune", PROG_FLASK, FRAGMENT_X2} | set(LOT_STACK_GRANTS)
         names = [i.name for i in self.multiworld.itempool
                  if not i.name.endswith(" Lock") and i.name not in _not_vanilla]
         self.assertTrue(names, "item shuffle should place real vanilla items")

@@ -275,7 +275,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7000273,69610,shop,Note: Imp Shades,PENDING,Multiple merchants (various regions),shop_multi
 7000274,69620,shop,Note: Flask of Wondrous Physick,PENDING,Multiple merchants (various regions),shop_multi
 7000275,69630,shop,Note: Stonedigger Trolls,PENDING,Multiple merchants (various regions),shop_multi
-7000276,69640,shop,Note: Walking Mausoleum,PENDING,Weeping Peninsula,shop_merchant
+7000276,69640,shop,Note: Wandering Mausoleum,PENDING,Weeping Peninsula,shop_merchant
 7000277,69650,shop,Note: Unseen Assassins,PENDING,Liurnia of the Lakes,shop_merchant
 7000278,69670,shop,Note: Flame Chariots,PENDING,Limgrave,shop_merchant
 7000279,69680,shop,Note: Demi-human Mobs,PENDING,Weeping Peninsula,shop_merchant
@@ -289,7 +289,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7000287,69760,map_lot,Note: The Lord of Frenzied Flame,m60_38_48_00,Overworld m60_38_48_00,treasure
 7000288,69770,shop,Note: Below the Capital,PENDING,Liurnia of the Lakes,shop_merchant
 7000289,69900,shop,Weathered Map,m60_35_50_00,Overworld m60_35_50_00,emevd
-7000290,69910,shop,Note: The Preceptor's Secrets,PENDING,Weeping Peninsula,shop_merchant
+7000290,69910,shop,Note: The Preceptor's Secret,PENDING,Weeping Peninsula,shop_merchant
 7000291,100000,shop,Festering Bloody Finger,PENDING,Multiple merchants (various regions),shop_multi
 7000292,100020,shop,Ruin Fragment,PENDING,Multiple merchants (various regions),shop_multi
 7000293,100040,shop,Buckler,PENDING,Multiple merchants (various regions),shop_multi
@@ -449,7 +449,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7000447,150140,synthetic,LG/(CE): Nomadic Warrior's Cookbook [1] - Kalé Shop,PENDING,Limgrave,synthetic_areacode
 7000448,150150,shop,Chain Coif,PENDING,Limgrave,shop_merchant
 7000449,150160,shop,Chain Armor,PENDING,Limgrave,shop_merchant
-7000450,150170,shop,Chain Gauntlets,PENDING,Limgrave,shop_merchant
+7000450,150170,shop,Gauntlets,PENDING,Limgrave,shop_merchant
 7000451,150180,shop,Chain Leggings,PENDING,Limgrave,shop_merchant
 7000452,150210,synthetic,LG/(CE): Telescope - Kalé Shop,PENDING,Limgrave,synthetic_areacode
 7000453,150220,synthetic,LG/(CE): Nomadic Warrior's Cookbook [2] - Kalé Shop,PENDING,Limgrave,synthetic_areacode
@@ -756,7 +756,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7000754,290220,shop,Giant's Red Braid,PENDING,Roundtable Hold,shop_merchant
 7000755,290230,shop,"[Incantation] Burn, O Flame!",PENDING,Roundtable Hold,shop_merchant
 7000756,290240,shop,Winged Greathorn,PENDING,Roundtable Hold,shop_merchant
-7000757,290250,shop,Ancestral Spirit's Horne,PENDING,Roundtable Hold,shop_merchant
+7000757,290250,shop,Ancestral Spirit's Horn,PENDING,Roundtable Hold,shop_merchant
 7000758,290260,shop,Marika's Hammer,PENDING,Roundtable Hold,shop_merchant
 7000759,290270,shop,Sacred Relic Sword,PENDING,Roundtable Hold,shop_merchant
 7000760,290280,shop,Bastard's Stars,PENDING,Roundtable Hold,shop_merchant
@@ -2237,7 +2237,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7002235,14007880,map_lot,[Sorcery] Comet,m14_00_00_00,Raya Lucaria Academy,treasure
 7002236,14007890,map_lot,Graven-School Talisman,m14_00_00_00,Raya Lucaria Academy,treasure
 7002237,14007910,map_lot,Glintstone Scarab,m14_00_00_00,Raya Lucaria Academy,treasure
-7002238,14007920,map_lot,[Sorcery] Terra Magicus,m14_00_00_00,Raya Lucaria Academy,treasure
+7002238,14007920,map_lot,[Sorcery] Terra Magica,m14_00_00_00,Raya Lucaria Academy,treasure
 7002239,14007930,map_lot,Academy Glintstone Key,m14_00_00_00,Raya Lucaria Academy,treasure
 7002240,14007940,map_lot,Radagon Icon,m14_00_00_00,Raya Lucaria Academy,treasure
 7002241,14007970,map_lot,Full Moon Crossbow,m14_00_00_00,Raya Lucaria Academy,treasure

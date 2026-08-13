@@ -160,13 +160,24 @@ class BossSweepScoping(unittest.TestCase):
         # DIRECT, not getattr-with-default: a defaulted read makes this parity gate pass
         # VACUOUSLY (empty == empty) the moment the contract renames the constant, which is
         # exactly what it is here to prevent. Let it raise.
-        want = set(ct.SURFACE_CLASSES)
+        # DERIVED classes (contract.SURFACE_DERIVED_CLASSES -- SweepSlot) are in NEITHER half on
+        # purpose: they name no location TAG, so gen_data cannot bake them and the per-seed cut
+        # cannot remove them without deleting the class. Read DIRECTLY, for the reason the comment
+        # above gives: a getattr-with-default would let a renamed constant widen `want` silently and
+        # pass this gate vacuously.
+        want = set(ct.SURFACE_CLASSES) - set(ct.SURFACE_DERIVED_CLASSES)
         got = set(FIELD_EXCLUDE) | set(SURFACE_CUTTABLE)
         self.assertEqual(
             got, want,
             "the sweep cut no longer PARTITIONS contract.SURFACE_CLASSES; every class must be "
-            "filed as never-sweepable (FIELD_EXCLUDE) or surface-cuttable (SURFACE_CUTTABLE). "
-            "got=%s want=%s" % (sorted(got), sorted(want)))
+            "filed as never-sweepable (FIELD_EXCLUDE), surface-cuttable (SURFACE_CUTTABLE) or "
+            "DERIVED (contract.SURFACE_DERIVED_CLASSES). got=%s want=%s"
+            % (sorted(got), sorted(want)))
+        self.assertEqual(
+            set(ct.SURFACE_DERIVED_CLASSES) & got, set(),
+            "a DERIVED surface class is also cut by the sweep. A derived class IS a sweep member by "
+            "definition, so cutting it deletes the class it just nominated: %s"
+            % sorted(set(ct.SURFACE_DERIVED_CLASSES) & got))
         self.assertEqual(
             set(FIELD_EXCLUDE) & set(SURFACE_CUTTABLE), set(),
             "a class is in BOTH halves of the sweep cut -- it would read as permanently excluded "
@@ -829,7 +840,13 @@ class BossSweepScoping(unittest.TestCase):
                     # geometry reason -- only because `_swept` keyed its dungeon branch on
                     # method == flag_prefix. The pool GREW; nothing left it, and the split stays 7/7.
                     "m30_13": ((30130800, 30130810), 14),
-                    "m31_00": ((31000800, 31000850), 4),
+                    # 4 -> 5 (2026-08-13, #191). WHY, as this gate demands: the map gained a
+                    # real fifth check -- the Sage Robe/Trousers family (flag 31047060) projects a
+                    # sibling co-check, and a sibling inherits its primary's sweep membership
+                    # (gen_data mirrors it; a sibling is the same physical pickup, so a sweep that
+                    # pays the primary has already paid this). The pool GREW; nothing was lost, which
+                    # is what the partition invariant is actually protecting.
+                    "m31_00": ((31000800, 31000850), 5),
                     "m31_19": ((31190800, 31190850), 14)}
         for bmap, (heads, total) in sorted(EXPECTED.items()):
             slices = [sorted(self.DS.get(h, [])) for h in heads]
@@ -892,3 +909,58 @@ class BossSweepScoping(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class SweepSlotIsInTheDefaultSurface(unittest.TestCase):
+    """The 2026-08-13 default change (#631), pinned where it can be read.
+
+    RULE 11 MOTIVATING CASE. `SweepSlot` joining SURFACE_DEFAULT_CLASSES changes every seed: a sweep
+    can now pay out progression, which under a non-empty surface it never did. The failure this
+    guards is not someone deleting the class -- that reddens loudly. It is the class staying in the
+    VOCABULARY while quietly leaving the DEFAULT, or the shipped template's explicit
+    `progression_surface:` list not carrying it. Either one silently restores the old behaviour for
+    every player while `SweepSlot` still appears in the wizard, which is the exact shape of
+    [[er-unfreezing-an-option-needs-the-class-default]]: a default that moved without anybody saying
+    so.
+
+    🛑 THE TEMPLATE IS HALF THE ASSERTION, and it is the half that would have been missed. The class
+    default reaches only a yaml that does NOT name `progression_surface`. The shipped template names
+    it explicitly, as a list, so a player generating from the shipped file gets the LIST, not the
+    default -- and adding the class to `contract.py` alone would have shipped a default change that
+    reached nobody who used the template.
+    """
+
+    def test_class_is_in_the_default_and_is_derived(self):
+        ct = _mod("contract")
+        if not ct:
+            self.skipTest("contract.py not importable")
+        self.assertIn("SweepSlot", ct.SURFACE_DEFAULT_CLASSES,
+                      "SweepSlot left the DEFAULT progression surface. That silently reverts every "
+                      "seed to ~30 surface checks and takes foreign-progression intake back to a "
+                      "tenth of what it should be (er-archipelago#631). If it is deliberate, the "
+                      "changelog entry has to move with it.")
+        self.assertIn("SweepSlot", ct.SURFACE_DERIVED_CLASSES,
+                      "SweepSlot is in the default but is no longer declared DERIVED, so every "
+                      "reader of SURFACE_CLASSES will treat it as a location tag and find nothing.")
+
+    def test_the_shipped_template_names_it(self):
+        # Resolve from either layout, first existing wins -- same pattern as REGION_MAP_CSV above.
+        # In an INSTALLED world the repo root is not reachable, so this SKIPS there rather than
+        # asserting against a path that cannot exist; the repo-side CI job is where it bites.
+        path = next((p for p in (os.path.join(os.path.dirname(GREENFIELD), "release", "EldenRing.yaml"),
+                                 os.path.join(GF_PKG, "EldenRing.yaml"))
+                     if os.path.isfile(p)), None)
+        if path is None:
+            self.skipTest("release/EldenRing.yaml not reachable from this layout")
+        with open(path, encoding="utf-8") as fh:
+            text = fh.read()
+        block = re.search(r"^  progression_surface:\s*\n((?:\s+- .*\n)+)", text, re.M)
+        self.assertIsNotNone(
+            block, "release/EldenRing.yaml no longer carries a list-form `progression_surface:`. If "
+                   "it now omits the key entirely the class default applies and this test should be "
+                   "deleted -- but say so, because it is the opposite of the assumption below.")
+        listed = re.findall(r"-\s*(\S+)", block.group(1))
+        self.assertIn("SweepSlot", listed,
+                      "the shipped template lists progression_surface explicitly and does NOT list "
+                      "SweepSlot, so every player generating from it gets the pre-#631 surface no "
+                      "matter what contract.SURFACE_DEFAULT_CLASSES says. Listed: %s" % listed)

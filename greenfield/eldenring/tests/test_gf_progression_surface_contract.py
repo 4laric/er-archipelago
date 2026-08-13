@@ -149,8 +149,11 @@ class SurfaceContract(WorldTestBase):
         # read (capital reconciler ON lifts the ERDTREE_BURN bar -- SPEC-capital-reconciler.md);
         # recomputing the surface here must go through it too, or this test would re-create the
         # very second-list drift it exists to forbid.
-        placement_surface = ps.allowed_ap_ids(LOCATION_TAGS, classes,
-                                              defaulted=ps._world_barred_aps(world))
+        # 🛑 THROUGH THE CHOKEPOINT, not allowed_ap_ids. `surface_ap_ids` is the tagged half PLUS
+        # the derived half (SweepSlot), and calling the tag half alone here is precisely the
+        # second-list drift this test forbids -- it caught exactly that when the derived half was
+        # added, reporting ~50 ids the wire had and this recomputation did not.
+        placement_surface = ps.surface_ap_ids(world, classes)
         own = {loc.address for loc in self.multiworld.get_locations(world.player)
                if loc.address is not None}
         expected = {i for i in placement_surface if i in own}

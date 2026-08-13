@@ -722,6 +722,40 @@ def _build_lot_items():
 LOT_ITEMS = _build_lot_items()
 
 
+def _build_unflagged_lot_fulls():
+    """FullIDs granted by lots that carry NO acquisition flag at all -- the population that can never
+    be a check, and therefore can only ever reach a player as INJECTED pool content.
+
+    Deliberately the complement of `_build_lot_items` above, which skips exactly these rows. A lot
+    with `getItemFlagId == 0` fires on every kill/spawn, so there is no one-shot event to poll: the
+    client's flag poll is keyed by AP location id and a location with no flag is unrepresentable, not
+    merely unimplemented. That is WHY these items are missing from a check-derived catalog, and why
+    widening the catalog (rather than the check table) is the only thing that can reach them."""
+    _out = set()
+    _dir = os.path.join(AR, "vanilla_er", "vanilla_er")
+    for _fn in ("ItemLotParam_map.csv", "ItemLotParam_enemy.csv"):
+        _p = os.path.join(_dir, _fn)
+        if not os.path.isfile(_p):
+            return set()                      # no params -> augmentation degrades to a no-op
+        with open(_p, newline="", encoding="utf-8-sig") as _fh:
+            for _r in csv.DictReader(_fh):
+                if any((_r.get(_c, "0") or "0").lstrip("-").isdigit()
+                       and int(_r.get(_c, "0") or 0) > 0
+                       for _c in ("getItemFlagId",) + tuple("getItemFlagId%02d" % _i
+                                                            for _i in range(1, 9))):
+                    continue                  # flagged -> LOT_ITEMS' half
+                for _i in range(1, 9):
+                    _iid = _r.get("lotItemId%02d" % _i, "0")
+                    _cat = _r.get("lotItemCategory%02d" % _i, "0")
+                    if not _iid.lstrip("-").isdigit() or int(_iid) <= 0:
+                        continue
+                    _top = _LOT_CAT.get(_cat)
+                    if _top is not None:
+                        _out.add(int(_iid) | (_top << 28))
+    return _out
+UNFLAGGED_LOT_FULLS = _build_unflagged_lot_fulls()
+
+
 # flag -> ItemLotParam_MAP lot id(s). A MAP lot's ID self-encodes the map it is PLACED in, so a 5-digit
 # acquisition flag that doesn't self-encode a tile (cookbooks, some globals) can still be regioned from
 # its lot: 10-digit 20XXYY.... -> m61_XX_YY (DLC overworld tile); 8-digit AABBxxxx -> mAA_BB (dungeon).
@@ -1067,7 +1101,7 @@ for _rowfix in _ALLROWS:
 # report marks meaningful (policy constants live in datamine_flag_lots.MEANINGFUL_GOODS_TYPES /
 # MEANINGFUL_CATEGORIES), then append the new sibling rows to co_check_ids.tsv (the regen FATALs
 # with the exact lines to add). Seeded with the four hand-verified families (Alaric 2026-07-24):
-CO_CHECK_FLAGS = frozenset({
+CO_CHECK_HAND = frozenset({
     510460,   # Messmer: lot 10460 Remembrance of the Impaler (primary) + 10461 Messmer's Kindling
               #          (KEY ITEM, goods 2008021; natural_progression gates Enir-Ilim on it)
     510440,   # Golden Hippopotamus: 10440 Aspects of the Crucible: Thorns (primary; nat-prog Shadow
@@ -1114,6 +1148,54 @@ def _load_flag_lots():
     return _out
 
 FLAG_LOTS = _load_flag_lots()
+
+# ---- POLICY WIDENING (#191) ----------------------------------------------------------------------
+# The hand allowlist above was phase one: five families, shipped to find out whether co-firing checks
+# survive a real seed. bobler's playthroughs answered that, so the policy in
+# tools/datamine_flag_lots.py (MEANINGFUL_GOODS_TYPES / MEANINGFUL_CATEGORIES -- the ONE place it
+# lives) now selects families too.
+#
+# 🛑🛑 UNION, NEVER REPLACE. Two of the five hand families do NOT survive the policy: flag 510440
+# (the Hippo's Scadutree Fragment, ap 7900001) and 520160 (the War-Dead Golden Seed) hang their
+# sibling on goods_type 14, which is the reinforcement-material bucket the policy deliberately calls
+# junk -- it holds somber stones as well as Seeds and Fragments, so the two meaningful cases were
+# always going to ride the hand list. A pure derivation silently DELETES both, and 510440 is the
+# check #616 had just finished repairing. `test_gf_co_checks` pins this.
+#
+# DEDUP-ONLY families are excluded here exactly as the report excludes them: every extra lot awards
+# an item the family already awards, and the committed tables cannot tell a genuine second copy from
+# the same pickup in another map version -- where the second reading makes the co-check unreachable.
+# That is a refusal to decide, not an oversight; it wants a human or an MSB pass (see #621).
+def _policy_co_check_flags():
+    """Shared flags the widening policy selects. Liveness is NOT checked here -- `rows` does not
+    exist yet at this point in the module, so the projection filters and REPORTS it instead."""
+    import sys as _sysp
+    _tools = os.path.join(REPO, "tools")           # runs BEFORE the item_naming path insert below
+    if _tools not in _sysp.path:
+        _sysp.path.insert(0, _tools)
+    try:
+        import datamine_flag_lots as _dfl
+    except Exception as _e:
+        raise SystemExit(f"FATAL: co-check widening needs tools/datamine_flag_lots.py for the "
+                         f"policy constants ({_e!r}) -- the policy must not be re-typed here")
+    _out = set()
+    for _fl, _fam in FLAG_LOTS.items():
+        _rows = [{"table": _e[0], "lot": _e[1], "slot": _e[2], "category": str(_e[3]),
+                  "item_id": _e[4], "num": _e[5], "goods_type": str(_e[6])} for _e in _fam]
+        if len({(_r["table"], _r["lot"]) for _r in _rows}) < 2:
+            continue
+        _items = _dfl.dedup_items(_rows)
+        if len(_items) < 2:                        # DUP-ONLY -- see the note above
+            continue
+        if any(_dfl.sibling_meaningful(_r["category"], _r["goods_type"]) for _r in _items[1:]):
+            _out.add(_fl)
+    return frozenset(_out)
+
+CO_CHECK_POLICY = _policy_co_check_flags() if FLAG_LOTS else frozenset()
+CO_CHECK_FLAGS = CO_CHECK_HAND | CO_CHECK_POLICY
+print("co-checks: hand %d + policy %d -> %d candidate flag(s) (%d hand-only, i.e. would be LOST by "
+      "a policy-only derivation)" % (len(CO_CHECK_HAND), len(CO_CHECK_POLICY), len(CO_CHECK_FLAGS),
+                                     len(CO_CHECK_HAND - CO_CHECK_POLICY)))
 
 # ---- DERIVED ITEM NAMES for the rows region_map leaves blank -------------------------------------
 # 🛑 A CHECK CALLED `check`. 38 live locations across 29 flags shipped with no item name -- and the
@@ -4589,6 +4671,7 @@ assert len(_all_names)==len(set(_all_names)), "FATAL: duplicate location names a
 # projection only ever runs at a real regen (gen_data cannot run without artifacts at all), and a
 # half-projected family is worse than a loud death.
 CO_CHECK_EMITTED = {}        # sibling ap_id -> (flag, table, lot, FullID, fmg_base_name)
+CO_CHECK_SIBLINGS = {}       # primary ap_id -> [sibling ap_id, ...] (sweep membership mirrors this)
 CO_CHECK_LOCATION_LOT = {}   # member ap_id (primary + siblings) -> (table, lot)
 if CO_CHECK_FLAGS:
     if not FLAG_LOTS:
@@ -4599,6 +4682,16 @@ if CO_CHECK_FLAGS:
         raise SystemExit("FATAL: co-check projection needs the FMG name tables (msg/) -- a sibling "
                          "check must be named after its own lot's item, and guessing names is how "
                          "the shared-flag class shipped wrong the first time")
+    try:
+        from datamine_flag_lots import sibling_meaningful as _dfl_meaningful
+    except Exception as _e:
+        raise SystemExit(f"FATAL: co-check projection needs tools/datamine_flag_lots.py for the "
+                         f"sibling policy ({_e!r}) -- never re-type the policy here")
+    _co_not_live, _co_dup_sib, _co_junk_sib = [], 0, 0
+    _co_need_ids = []
+    _co_unnamed = []
+    _co_borrowed = []
+    _co_second_src = []
     _flag_apid = {}
     for (_rg9, _b9, _ap9, _fl9) in _name_pending:
         _flag_apid.setdefault(_fl9, _ap9)
@@ -4607,6 +4700,32 @@ if CO_CHECK_FLAGS:
     _full2name = {}
     for _nm9, _fu9 in _name2full.items():        # insertion order = FMG priority (base before DLC)
         _full2name.setdefault(_fu9, _nm9)
+    # ---- SECOND-SOURCE GUARD (#191) ------------------------------------------------------------
+    # A sibling may only be minted if its item has no OTHER copy that we can never neutralise.
+    #
+    # WHY. features/check_item_flags drops an armed FullID only when EVERY backing flag is in
+    # CHECK_LOT_FLAGS ("neutralised at its own lot"). A LOT-LESS check -- an EMEVD award or a shop
+    # row, i.e. a flag with no flag_lots.tsv family -- can never be lot-covered, so an item with one
+    # keeps its id armed AND drags this family's shared flag into checkItemFlags with it. Every
+    # member of the family then maps the same flag, and the client's flag-set disarm releases the id
+    # the moment the family fires -- un-suppressing the OTHER copy, which then hands out a vanilla
+    # item where a check should have been. That is the Traveler's Clothes leak (item 0x100f90c4 /
+    # flag 15007980, playtest 2026-07-03) that forced collected-set keying, and
+    # test_gf_check_item_flags_lot_covered.test_no_emitted_flag_is_mapped_by_two_ids is its gate.
+    #
+    # MEASURED 2026-08-13 on the full widening: exactly two families trip it -- 14007850 (Carian
+    # Knight, 3 pieces, each also at lot-less 230080/230100/230110) and 1036437010 (Confessor, 4
+    # pieces, each also at lot-less 170940-170970). This is a RULE rather than a two-flag exclusion
+    # list because #218 will make more families live and the list would rot silently.
+    _full_flags9 = defaultdict(set)
+    for _r9f in rows:
+        _fu9f, _ = _resolve_item(_r9f.get("item_name"))
+        if _fu9f is None:
+            continue
+        try:
+            _full_flags9[_fu9f].add(int(_r9f["flag"]))
+        except (KeyError, TypeError, ValueError):
+            pass
     _row_of_flag = {}
     for _r9 in rows:
         try: _row_of_flag.setdefault(int(_r9["flag"]), _r9)
@@ -4617,9 +4736,18 @@ if CO_CHECK_FLAGS:
             raise SystemExit(f"FATAL: co-check flag {_cfl} has no flag_lots.tsv family -- allowlist "
                              f"and capture disagree (re-run tools/datamine_flag_lots.py)")
         if _cfl not in _flag_apid:
-            raise SystemExit(f"FATAL: co-check flag {_cfl} was not emitted as a check (dropped by a "
-                             f"guard/exclusion upstream) -- an allowlisted flag must be live; fix "
-                             f"the exclusion or remove it from CO_CHECK_FLAGS")
+            # A HAND flag that is not live is a broken allowlist and still dies loudly. A POLICY
+            # flag that is not live is the #218 population -- its region_map row is method=global /
+            # global_filler / shop_reference, so the SKIP set drops it before the catalog exists and
+            # there is no primary to hang a sibling on. That is a real, countable backlog, not an
+            # error, so it is SKIPPED and REPORTED. Absence in a log is a prompt, not a proof:
+            # the tally below is what makes the blocked half visible at every regen.
+            if _cfl in CO_CHECK_HAND:
+                raise SystemExit(f"FATAL: co-check flag {_cfl} was not emitted as a check (dropped "
+                                 f"by a guard/exclusion upstream) -- a HAND-allowlisted flag must "
+                                 f"be live; fix the exclusion or remove it from CO_CHECK_HAND")
+            _co_not_live.append(_cfl)
+            continue
         _lots9 = []
         for _e9 in _fam:                          # ordered: map before enemy, then lot, slot
             if (_e9[0], _e9[1]) not in _lots9:
@@ -4627,18 +4755,63 @@ if CO_CHECK_FLAGS:
         if len(_lots9) < 2:
             raise SystemExit(f"FATAL: co-check flag {_cfl} has a single lot ({_lots9}) -- nothing "
                              f"to project; remove it from CO_CHECK_FLAGS")
+        # POLICY FILTER (#191). tools/datamine_flag_lots.widen_list counts MEANINGFUL siblings;
+        # this loop used to emit EVERY sibling lot, so widening the flag set without widening this
+        # would have shipped 49 extra checks paying exactly the consumables/materials/spirit-ashes
+        # the policy exists to exclude. A HAND family is exempt: two of the five hang their sibling
+        # on goods_type 14, which the policy calls junk (see CO_CHECK_HAND).
+        # Duplicate-item sibling lots are dropped the same way dedup_items drops them -- a sibling
+        # awarding an item the family already awards is not a new check.
+        if _cfl not in CO_CHECK_HAND:
+            _seen9 = set(); _keep9 = []
+            for (_tb8, _lot8) in _lots9:
+                _its8 = {(_e8[3], _e8[4]) for _e8 in _fam if _e8[0] == _tb8 and _e8[1] == _lot8}
+                _gts8 = {str(_e8[6]) for _e8 in _fam if _e8[0] == _tb8 and _e8[1] == _lot8}
+                _new8 = _its8 - _seen9
+                _seen9 |= _its8
+                if not _keep9:                                  # the primary always stays
+                    _keep9.append((_tb8, _lot8)); continue
+                if not _new8:
+                    _co_dup_sib += 1; continue
+                _cat8 = str(next(iter(_its8))[0])
+                if not any(_dfl_meaningful(_cat8, _g8) for _g8 in _gts8):
+                    _co_junk_sib += 1; continue
+                _keep9.append((_tb8, _lot8))
+            _lots9 = _keep9
+            if len(_lots9) < 2:
+                continue
         _prim9 = _lots9[0]
+        # 🛑 THE PRIMARY MUST BE NAMEABLE FROM ITS OWN LOT. gen_data's naming pass names a multi-lot
+        # flag after "the first slot WE CAN NAME, not the first slot" -- so when the primary's own
+        # item does not resolve, the check silently wears a SIBLING's name. Project that sibling and
+        # the two collide (flag 400281: primary lot 102810 is item 8178, which resolves only in the
+        # Accessory table under a Goods category -- the tool's own "WRONG FAMILY, the category map
+        # is the open question" -- so the check is displayed as lot 102860's "Scepter of the
+        # All-Knowing", which is exactly the sibling being minted). A borrowed name means the family
+        # is not modelled, not that the name needs disambiguating: skip and report.
+        _pit9 = {(_e8[3], _e8[4]) for _e8 in _fam if (_e8[0], _e8[1]) == _prim9}
+        _pnm9 = None
+        if len(_pit9) == 1:
+            _pc9, _pi9 = next(iter(_pit9))
+            _pn9 = _LOT_CAT.get(str(_pc9))
+            if _pn9 is not None:
+                _pnm9 = _full2name.get((_pn9 << 28) | _pi9)
+        if not _pnm9:
+            if _cfl in CO_CHECK_HAND:
+                raise SystemExit(f"FATAL: co-check primary lot {_prim9} (flag {_cfl}) is not "
+                                 f"nameable from its own item -- the check is wearing a sibling's "
+                                 f"name; model this family before hand-allowlisting it")
+            _co_borrowed.append((_cfl, _prim9))
+            continue
         _prow9 = _row_of_flag[_cfl]
         _papid9 = _flag_apid[_cfl]
         CO_CHECK_LOCATION_LOT[_papid9] = _prim9
         _preg9 = region_of(_prow9)
         for (_tb9, _lot9) in _lots9[1:]:
-            _apid9 = CO_CHECK_IDS.get((_cfl, _tb9, _lot9))
-            if _apid9 is None:
-                raise SystemExit(
-                    f"FATAL: co-check sibling (flag {_cfl}, {_tb9} lot {_lot9}) has no ap_id in "
-                    f"co_check_ids.tsv -- APPEND (never insert) a row with the next free id >= "
-                    f"{COCHECK_BASE}:\n    {_cfl}\t{_tb9}\t{_lot9}\t<next-free-id>")
+            # NAMEABILITY IS RESOLVED BEFORE THE ID LOOKUP (#191). GF_COCHECK_ALLOCATE hands
+            # out an id at the first missing row, so with the old order a sibling that can
+            # never project -- unnameable, cut -- still burned a registry id, and the
+            # registry is append-only so that orphan would be permanent.
             _sl_items9 = {( _e9[3], _e9[4]) for _e9 in _fam if _e9[0] == _tb9 and _e9[1] == _lot9}
             if len(_sl_items9) != 1:
                 raise SystemExit(f"FATAL: co-check sibling lot {_lot9} (flag {_cfl}) grants "
@@ -4653,9 +4826,44 @@ if CO_CHECK_FLAGS:
             _full9 = (_nib9 << 28) | _iid9
             _snm9 = _full2name.get(_full9)
             if not _snm9:
-                raise SystemExit(f"FATAL: co-check sibling item FullID 0x{_full9:08x} (flag {_cfl}, "
-                                 f"lot {_lot9}) has no FMG name -- cannot mint a check for an "
-                                 f"unnameable item (the item-existence doctrine)")
+                # The item-existence doctrine: a check for an item the game cannot name is a check
+                # for nothing. For a HAND family that is a modelling error and still dies loudly --
+                # you chose that flag, so model it. For a POLICY family it is data reality the
+                # policy cannot see (cut/unnamed rows live in ItemLotParam like any other), so it is
+                # SKIPPED and REPORTED rather than blocking every other family behind it.
+                if _cfl in CO_CHECK_HAND:
+                    raise SystemExit(f"FATAL: co-check sibling item FullID 0x{_full9:08x} (flag "
+                                     f"{_cfl}, lot {_lot9}) has no FMG name -- cannot mint a check "
+                                     f"for an unnameable item (the item-existence doctrine)")
+                _co_unnamed.append((_cfl, _tb9, _lot9, _full9))
+                continue
+            _lotless9 = sorted(f9 for f9 in _full_flags9.get(_full9, ()) 
+                               if f9 != _cfl and f9 not in FLAG_LOTS)
+            if _lotless9:
+                if _cfl in CO_CHECK_HAND:
+                    raise SystemExit(
+                        f"FATAL: co-check sibling {_snm9!r} (flag {_cfl}, lot {_lot9}) also has a "
+                        f"LOT-LESS copy at flag(s) {_lotless9} -- that copy can never be neutralised "
+                        f"at its source, so this family's shared flag makes the client's flag-set "
+                        f"disarm unsound. Model the second source before hand-allowlisting it.")
+                _co_second_src.append((_cfl, _lot9, _snm9, _lotless9))
+                continue
+            _apid9 = CO_CHECK_IDS.get((_cfl, _tb9, _lot9))
+            if _apid9 is None:
+                # GF_COCHECK_ALLOCATE=1 collects EVERY missing row and prints the whole block at the
+                # end instead of dying on the first -- widening the policy needs ~200 ids and one
+                # FATAL per id is not a workflow. It still EXITS NON-ZERO afterwards: this mode can
+                # only ever produce a paste-able registry block, never a real regen. Allocating ids
+                # automatically into the committed file is deliberately NOT offered; the registry is
+                # append-only and a human appends it.
+                if os.environ.get("GF_COCHECK_ALLOCATE"):
+                    _co_need_ids.append((_cfl, _tb9, _lot9))
+                    continue
+                raise SystemExit(
+                    f"FATAL: co-check sibling (flag {_cfl}, {_tb9} lot {_lot9}) has no ap_id in "
+                    f"co_check_ids.tsv -- APPEND (never insert) a row with the next free id >= "
+                    f"{COCHECK_BASE}:\n    {_cfl}\t{_tb9}\t{_lot9}\t<next-free-id>\n"
+                    f"    (many missing? re-run with GF_COCHECK_ALLOCATE=1 for the whole block)")
             _srow9 = dict(_prow9); _srow9["item_name"] = _snm9
             _t9 = _loc_tags(_srow9)
             _mtile9 = _prow9.get("map", "") or ""
@@ -4669,14 +4877,24 @@ if CO_CHECK_FLAGS:
             _bnm9 = (f"{_preg9} :: {_snm9} - {_desc9}" if _desc9 else f"{_preg9} :: {_snm9}")
             # A co-check sibling is the SAME physical acquisition as its primary, so it inherits the
             # primary's region confidence -- mark it the same way (the bar below mirrors it too).
-            if _apid9 in _def_ap_running or (_preg9 == HUB and not _region_is_derived(_prow9)):
+            # 🛑 THE PRIMARY'S id, not the sibling's. `_apid9` is minted in this loop, so it can
+            # NEVER be in `_def_ap_running` (a snapshot taken before the loop) -- the test was
+            # always false and a sibling of a defaulted primary silently came back CONFIRMED.
+            # Latent since the first five families; #191 made it visible at scale, as
+            # test_gf_defaulted_region_guard's graceless-tile bar (siblings 7900148/7900150 leaked
+            # progression-eligible). A sibling is the same physical acquisition as its primary, so
+            # it inherits the primary's region CONFIDENCE the same way it inherits the region.
+            if _papid9 in _def_ap_running or (_preg9 == HUB and not _region_is_derived(_prow9)):
                 _bnm9 += REGION_UNCONFIRMED
             _lnm9 = f"{_bnm9} [f{_cfl}]"
             buckets.setdefault(_preg9, []).append((_lnm9, _apid9, _cfl))
             if _t9:
                 loc_tags[_apid9] = _t9
             # progression-bar class membership mirrors the primary (same physical acquisition):
-            if _preg9 == HUB and not _region_is_derived(_prow9):
+            # Same inheritance on the LIST, not just the name suffix: `defaulted_aps` is what
+            # DEFAULTED_REGION_APS -- and therefore the progression bar -- is built from. Mirror the
+            # primary; never re-derive a narrower condition, or the two answers drift.
+            if _papid9 in _def_ap_running or (_preg9 == HUB and not _region_is_derived(_prow9)):
                 defaulted_aps.append(_apid9)
             if str(_prow9.get("map", "")).startswith("m11_00"):
                 erdtree_burn_aps.append(_apid9)
@@ -4685,14 +4903,17 @@ if CO_CHECK_FLAGS:
             if _cfl in _SURFACE_EXCLUDE_FLAGS:
                 surface_excluded_aps.append(_apid9)
             CO_CHECK_EMITTED[_apid9] = (_cfl, _tb9, _lot9, _full9, _snm9)
+            CO_CHECK_SIBLINGS.setdefault(_papid9, []).append(_apid9)
             CO_CHECK_LOCATION_LOT[_apid9] = (_tb9, _lot9)
     # invariants: names still globally unique; ap_ids unique and band-disjoint; every family's
     # emitted members bind DISTINCT lots (the coverage gate re-checks this from the shipped data).
     _all_names = [_x[0] for _v in buckets.values() for _x in _v]
     if len(_all_names) != len(set(_all_names)):
-        raise SystemExit("FATAL: co-check projection produced a duplicate location name -- a "
-                         "sibling's item name collided; rename via the descriptor or drop the "
-                         "flag from CO_CHECK_FLAGS")
+        from collections import Counter as _C9
+        _dups9 = sorted(n for n, c in _C9(_all_names).items() if c > 1)
+        raise SystemExit("FATAL: co-check projection produced %d duplicate location name(s) -- a "
+                         "sibling's item name collided; rename via the descriptor or drop the flag "
+                         "from CO_CHECK_FLAGS.\n  %s" % (len(_dups9), "\n  ".join(_dups9[:25])))
     _all_aps = [_x[1] for _v in buckets.values() for _x in _v]
     if len(_all_aps) != len(set(_all_aps)):
         raise SystemExit("FATAL: duplicate ap_id after co-check projection (registry/positional "
@@ -4700,6 +4921,29 @@ if CO_CHECK_FLAGS:
     for _apid9, (_cfl, _tb9, _lot9, _full9, _snm9) in CO_CHECK_EMITTED.items():
         if not (_apid9 >= COCHECK_BASE):
             raise SystemExit(f"FATAL: co-check ap_id {_apid9} outside the COCHECK band")
+    print("co-checks: %d policy flag(s) SKIPPED as not-live (their region_map row is "
+          "method=global/global_filler/shop_reference -- blocked on #218, not lost): %s"
+          % (len(_co_not_live), sorted(_co_not_live)))
+    print("co-checks: sibling lots dropped -- %d duplicate-item, %d policy-junk"
+          % (_co_dup_sib, _co_junk_sib))
+    print("co-checks: %d policy sibling(s) dropped -- the item ALSO has a lot-less copy elsewhere, "
+          "which would arm its id and make the shared-flag disarm unsound (see the second-source "
+          "guard): %s" % (len(_co_second_src), _co_second_src))
+    print("co-checks: %d policy family(ies) dropped -- the PRIMARY is not nameable from its own "
+          "lot, so the check already wears a sibling's name (unmodelled family, not a name clash): "
+          "%s" % (len(_co_borrowed), _co_borrowed))
+    print("co-checks: %d policy sibling lot(s) dropped as UNNAMEABLE (no FMG name -- cut/unused "
+          "rows; a check for an item the game cannot name is a check for nothing): %s"
+          % (len(_co_unnamed), [(f, t, l, hex(u)) for (f, t, l, u) in _co_unnamed]))
+    if _co_need_ids:
+        _next = max([COCHECK_BASE - 1] + list(CO_CHECK_IDS.values())) + 1
+        print("\n# ---- APPEND these rows to greenfield/co_check_ids.tsv (%d), then re-run ----"
+              % len(_co_need_ids))
+        for (_f7, _t7, _l7) in _co_need_ids:
+            print("%d\t%s\t%d\t%d" % (_f7, _t7, _l7, _next)); _next += 1
+        raise SystemExit("GF_COCHECK_ALLOCATE: %d id(s) missing -- block printed above. This mode "
+                         "never completes a regen; append the rows and run again without it."
+                         % len(_co_need_ids))
     print(f"co-checks: projected {len(CO_CHECK_EMITTED)} sibling check(s) across "
           f"{len(CO_CHECK_FLAGS)} shared flag(s): "
           + ", ".join(f"{_v[0]}/{_v[1]}:{_v[2]}={_v[4]!r}->{_k}"
@@ -6484,6 +6728,8 @@ print("missable_locations: %d checks -- %s" % (len(_MISSABLE), repr(dict(sorted(
 # augmentation below -- a second copy here is exactly how the DLC name tables get forgotten by one
 # of them).
 ITEM_CATALOG = {}; LOCATION_ITEM = {}
+_unresolved_named = []
+_LOC_FULL = {}      # ap_id -> (FullID, flag, (table, lot) bind or None) -- the LOCATION_UNITS join below
 for _i, _r in enumerate(rows):
     if _r.get("method") == "gesture":
         # DETECT-ONLY class: the ware is the GESTURE, which only EMEVD's AwardGesture grants; the
@@ -6494,9 +6740,29 @@ for _i, _r in enumerate(rows):
         continue
     _full, _base = _resolve_item(_r.get("item_name"))
     if _full is None:
+        # #619: a row with a NON-BLANK name that does not resolve is a SILENT LOSS. The check keeps
+        # its flag and its location, falls through to Rune filler, and the item never enters
+        # ITEM_CATALOG -- no error, no count, no gate. That is how `Ancestral Spirit's Horne` (a
+        # typo) and `[Sorcery] Terra Magicus` (a rename) sat in the table until a player counted
+        # items in game. A BLANK name is a different, larger problem (the scan never read one) and
+        # is tallied separately, not fataled here.
+        if (_r.get("item_name") or "").strip():
+            _unresolved_named.append((_r.get("flag"), _r.get("item_name")))
         continue
     ITEM_CATALOG[_base] = _full                  # catalog keyed by canonical base name
     LOCATION_ITEM[BASE_AP + _i] = _base          # annotated locations -> base catalog name
+    _LOC_FULL[BASE_AP + _i] = (_full, _r.get("flag"), None)
+if _unresolved_named:
+    print("item names: %d row(s) carry a NON-BLANK item_name that does not resolve:" % len(_unresolved_named))
+    for _fl6, _nm6 in _unresolved_named:
+        print("    flag %-12s %r" % (_fl6, _nm6))
+    raise SystemExit(
+        "FATAL: %d region_map.csv row(s) name an item the FMG tables cannot resolve (listed above). "
+        "The flag and the location are LIVE, so each one silently pays Rune and drops its item from "
+        "ITEM_CATALOG. Fix the SPELLING in region_map.csv -- it is an INPUT, not a verdict -- or, if "
+        "the row genuinely has no item, blank the name so it is counted as unscanned instead of "
+        "misnamed." % len(_unresolved_named))
+
 # CO-CHECK siblings: each projected sibling location vanilla-holds ITS OWN lot's item (the FMG name
 # resolved at projection). COUNT-NEUTRALITY: every co-check location must contribute exactly one
 # pooled item, same as any positional row -- items grow by len(CO_CHECK_EMITTED) alongside
@@ -6513,9 +6779,162 @@ for _ap9, (_cfl9, _tb9x, _lot9x, _full9x, _snm9x) in sorted(CO_CHECK_EMITTED.ite
                          f"(cross-category name clash?); model this family before allowlisting")
     ITEM_CATALOG[_rbase9] = _rfull9
     LOCATION_ITEM[_ap9] = _rbase9
+    # BOUND TO THE SIBLING'S OWN LOT. A co-check family shares one flag, so an unbound join would
+    # read the whole family; the sibling's quantity is its own lot's (10441 pays 2, its primary
+    # 10440 pays 1). This is the path ap 7900001 -- the Hippo's fragment -- takes, and a fix that
+    # only walked `rows` above would miss exactly it.
+    _LOC_FULL[_ap9] = (_rfull9, _cfl9, (_tb9x, _lot9x))
 if CO_CHECK_EMITTED and not all(_ap9 in LOCATION_ITEM for _ap9 in CO_CHECK_EMITTED):
     raise SystemExit("FATAL: a co-check location has no pooled item -- items==locations "
                      "count-neutrality broken")
+
+# ---- LOCATION_UNITS: HOW MANY copies a location's vanilla lot slot hands over (#616) -------------
+# `flag_lots.tsv` has carried a `num` column since the faithful capture landed, `_load_flag_lots`
+# has parsed it into FLAG_LOTS all along -- and NOTHING EVER READ IT. Every check paid exactly one
+# of its vanilla item, so the four ItemLotParam slots that drop `Scadutree Fragment` x2 paid 1: a
+# seed keeping all 46 fragment checks carried 46 units where the base game gives 50. The Scadutree
+# blessing is a pure function of that number (SCADU_CUM), so the DLC's whole damage curve sat one
+# rung low and features/scadu_supply had to document the gap as a "known bounded overshoot".
+#
+# 🛑 THE JOIN IS ON FullID, NEVER ON THE `name` COLUMN. tools/datamine_flag_lots.py says the name is
+# "legibility, not load-bearing", and it resolves an id WITHOUT the lotItemCategory nibble -- so it
+# is wrong wherever a goods id collides with a weapon/armour id. Exactly one row does today: flag
+# 12017460 / map lot 12010460 is lotItemCategory 3 (ARMOUR, nibble 1) = the Mushroom Crown, and the
+# column calls it "Scadutree Fragment" because GOODS 2010000 is one. A name join therefore counts 47
+# fragment lots for 51 units; the FullID join counts the true 46 for 50 -- which is the number
+# features/scadu_supply.SCADU_INJECTION_TARGET was derived from.
+#
+# ONLY QUANTITIES > 1 ARE EMITTED. x1 is the default every consumer already assumes, and 4900
+# entries of `1` would bury the ones that mean something.
+#
+# WHAT CONSUMES IT: core.create_items promotes `<name>` to `<name> x<n>` when that stacked name is a
+# registered AP item. Today exactly one is -- features/scadu_supply's `Scadutree Fragment x2`, a
+# second AP id on the same goods row riding slot_data itemCounts = 2 -- so this table is a general
+# capture with one live consumer, not a hard-coded fix for one item. A location whose quantity has
+# no minted stack keeps paying x1, exactly as before.
+def _lot_units(_fullid, _flag, _bind):
+    """Copies the lot slot(s) granting `_fullid` under `_flag` hand over. `_bind` restricts to one
+    (table, lot) for a co-check sibling. Returns (units, ambiguous).
+
+    1 when the family names that FullID at more than one quantity: an ambiguous join must not invent
+    a number, and the tally below reports any such row rather than swallowing it."""
+    try:
+        _fl = int(_flag)
+    except (TypeError, ValueError):
+        return 1, False
+    _ns = set()
+    for _e in FLAG_LOTS.get(_fl, ()):
+        if _bind is not None and (_e[0], _e[1]) != _bind:
+            continue
+        _nib = _LOT_CAT.get(str(_e[3]))
+        if _nib is None or ((_nib << 28) | _e[4]) != _fullid:
+            continue
+        _ns.add(_e[5])
+    if len(_ns) != 1:
+        return 1, len(_ns) > 1
+    return max(1, _ns.pop()), False
+
+LOCATION_UNITS = {}
+_units_ambig = []
+for _apu, (_fullu, _flagu, _bindu) in _LOC_FULL.items():
+    _nu, _ambu = _lot_units(_fullu, _flagu, _bindu)
+    if _ambu:
+        _units_ambig.append(_apu)
+    if _nu > 1:
+        LOCATION_UNITS[_apu] = _nu
+# ---- LOT_STACK_GRANTS: the stacked AP items worth minting (#624) --------------------------------
+# LOCATION_UNITS says how many copies a lot hands over; core.stacked_vanilla_name promotes a location
+# to `<name> x<n>` ONLY when that stacked name is a registered AP item. This table is the mint list.
+#
+# 🛑 IT IS AP ITEM IDS, NOT FLAGS OR LOTS. A stacked name is a SECOND AP id pointing at the SAME game
+# FullID, riding slot_data itemCounts. No acquisition flag is minted, no ItemLotParam row is touched,
+# and the client needs nothing new -- it already resolves through apIdsToItemIds and multiplies by
+# itemCounts. The id space is ours, so the only real cost is one name per (item, quantity) PAIR.
+#
+# WHY NOT ALL 926 MULTI-COPY LOCATIONS. Honouring everything means 455 pairs across 202 items, and
+# 315 of those names are junk consumables (Smoldering Butterfly, Mushroom, Old Fang) where the count
+# changes nothing a player would notice. Phase 1 mints the slice with a MEASURABLE consequence:
+#
+#   * stones      -- 39 names / 121 lots / 288 copies. features/filler_budget reserves an upgrade
+#                    economy off the top and tests/test_gf_filler_economy_floor tunes the `stones`
+#                    weight to the smallest value clearing a stated player-facing bar. That bar was
+#                    measured against a world paying 288 fewer stones than vanilla, so the shipped
+#                    weight is partly compensating for this bug.
+#   * collectathon -- 2 names / 6 lots / 6 copies. Golden Seed / Sacred Tear / Revered Spirit Ash get
+#                    the same treatment #616 gave Scadutree Fragment; leaving them behind would mean
+#                    one collectathon line is honest and the others are not.
+#
+# DELIBERATELY NOT phase 1: ammunition (35 names) and throwables/pots (64). features/filler_curation
+# ALREADY stacks those by CATEGORY (STACK_QTY_BY_CATEGORY: throwables 5, pots 2, greases 2,
+# ammunition 20) through the same itemCounts field -- a per-item constant, not the lot's quantity. Two
+# systems would be answering "how many" for one item and the winner would be decided by whichever
+# path ran last. That needs a ruling first (#624). Stones and somber_stones are NOT in
+# STACK_QTY_BY_CATEGORY, which is exactly why this slice is safe to do without it.
+_STACK_MINT_STONES = lambda _n: ("Smithing Stone [" in _n) or ("Somber Smithing Stone [" in _n)
+_STACK_MINT_COLLECT = lambda _n: _n in ("Golden Seed", "Sacred Tear", "Scadutree Fragment",
+                                        "Revered Spirit Ash")
+# THROWABLES (Alaric's ruling 2026-08-13): the category stack is a FLOOR, not an exact quantity.
+# features/filler_curation grants throwables x5 via STACK_QTY_BY_CATEGORY -- a USABILITY decision
+# ("a found throwable is a usable handful"), which is why an x1 lot still hands over five. 28 vanilla
+# lots grant MORE than five, up to ten, and paying five there loses 68 copies for no reason. So mint
+# every throwable multi-copy pair and let features/lot_stacks apply `max(lot, constant)`.
+#
+# 🛑 THE FLOOR COMPARISON DOES NOT LIVE HERE. STACK_QTY_BY_CATEGORY is the feature's constant and
+# mirroring it into the generator is exactly the drift this repo gates elsewhere. gen_data emits the
+# DATA (every throwable pair above 1); lot_stacks owns the RULE and registers only the pairs that
+# beat the category stack. A pair it declines is simply never registered, and
+# core.stacked_vanilla_name only promotes to a REGISTERED name -- so a sub-floor lot keeps paying the
+# base item and its x5, exactly as before.
+#
+# ammunition / pots / greases are NOT here and need nothing: measured 2026-08-13, ammunition's 71
+# multi-copy lots top out at exactly its x20 constant, and pots/greases have no multi-copy lot at
+# all. Minting for them could only ever pay LESS than they already do.
+_STACK_MINT_THROWABLE = lambda _n: _n in _THROWABLE_NAMES
+# Read the throwable roster from the FEATURE that owns it (same reason the policy import in the
+# co-check widening reads datamine_flag_lots): one definition, no second copy to fall out of date.
+_THROWABLE_NAMES = frozenset()
+try:
+    import ast as _ast_t
+    _fc_src = open(os.path.join(HERE, "eldenring", "features", "filler_curation.py"),
+                   encoding="utf-8").read()
+    _cat_blk = re.search(r"^CATEGORIES = \{(.*?)^\}", _fc_src, re.M | re.S).group(1)
+    _THROWABLE_NAMES = frozenset(
+        _ast_t.literal_eval(re.search(r'"throwables":\s*(\[.*?\])', _cat_blk, re.S).group(1)))
+except Exception as _e:
+    print("[gen_data] WARNING: could not read the throwables roster (%r) -- throwable stacks inert" % (_e,))
+
+LOT_STACK_GRANTS = {}
+for _apk, _nk in LOCATION_ITEM.items():
+    _qk = LOCATION_UNITS.get(_apk, 1)
+    if _qk <= 1 or not (_STACK_MINT_STONES(_nk) or _STACK_MINT_COLLECT(_nk)
+                        or _STACK_MINT_THROWABLE(_nk)):
+        continue
+    _fk = ITEM_CATALOG.get(_nk)
+    if _fk is None:                      # unresolvable base name -> nothing to point the stack at
+        continue
+    LOT_STACK_GRANTS["%s x%d" % (_nk, _qk)] = (_fk, _qk)
+print("lot_stacks: %d stacked name(s) minted over %d location(s), recovering %d copy(ies)"
+      % (len(LOT_STACK_GRANTS),
+         sum(1 for _a, _n in LOCATION_ITEM.items()
+             if LOCATION_UNITS.get(_a, 1) > 1 and "%s x%d" % (_n, LOCATION_UNITS[_a]) in LOT_STACK_GRANTS),
+         sum((LOCATION_UNITS[_a] - 1) for _a, _n in LOCATION_ITEM.items()
+             if LOCATION_UNITS.get(_a, 1) > 1 and "%s x%d" % (_n, LOCATION_UNITS[_a]) in LOT_STACK_GRANTS)))
+
+_units_frag = sum(LOCATION_UNITS.get(_a, 1) for _a, _n in LOCATION_ITEM.items()
+                  if _n == "Scadutree Fragment")
+print("location_units: %d location(s) grant more than one copy (%d extra unit(s) over a flat x1); "
+      "Scadutree Fragment = %d check(s) paying %d unit(s); %d ambiguous join(s) held at x1"
+      % (len(LOCATION_UNITS), sum(LOCATION_UNITS.values()) - len(LOCATION_UNITS),
+         sum(1 for _n in LOCATION_ITEM.values() if _n == "Scadutree Fragment"), _units_frag,
+         len(_units_ambig)))
+if _units_frag != 50:
+    # The datamined vanilla supply is 46 fragment lots for 50 units, and SCADU_INJECTION_TARGET is
+    # SCADU_CUM[20] = 50 *because* of it. If this stops being 50 the two have drifted and the
+    # blessing budget is reasoning about a supply that no longer exists -- say so at the regen.
+    raise SystemExit("FATAL: Scadutree Fragment checks pay %d unit(s), expected 50 (46 lots, four "
+                     "of them x2). Either a fragment check was gained/lost or the flag_lots join "
+                     "broke -- re-derive features/scadu_supply.SCADU_INJECTION_TARGET before "
+                     "changing this number." % _units_frag)
 # Finished throwing pots: crafted (never LOOTED), so absent from the placed-item catalog above -- but
 # they are valid grantable GOODS (EquipParamGoods ids verified against GoodsName.fmg.xml). Added
 # explicitly so the curated-consumables filler (features/filler_curation.py) can hand them out; the
@@ -6563,6 +6982,46 @@ if os.path.isfile(_tier_tsv):
             ITEM_CATALOG[_base] = _full; _aug_added += 1
     print(f"item_ids: tier-list catalog augmentation +{_aug_added} gear items "
           f"({len(_aug_unresolved)} unresolved names skipped)")
+# ---- UNFLAGGED-LOT catalog augmentation (Alaric 2026-08-13). The tier-list pass above widens the
+# catalog by what a community list RATES; this one widens it by what the GAME DROPS but can never
+# hand us a check for.
+#
+# THE MECHANISM, stated once. A lot with `getItemFlagId == 0` -- a random enemy drop -- fires on every
+# kill, so there is no one-shot observable event and it cannot back an AP location. The catalog is
+# CHECK-derived, so an item whose ONLY sources are unflagged lots never enters it, and pool_builder
+# (which juices names present in ITEM_CATALOG) can never inject it either. It is unreachable twice
+# over. Registering the name fixes the second half: it stays uncheckable, but it becomes something a
+# seed can hand you. Celebrant's Cleaver / Rib-Rake / Sickle are the reported case -- absent from the
+# catalog ENTIRELY, so unlike Meteorite Staff they could not even arrive as juice.
+#
+# EQUIPPABLES ONLY (nibbles 0x0 weapon / 0x1 armor / 0x2 talisman). Those are the three the param
+# `rarity` join tiers, so an added name gets a tier for free and becomes juice-eligible with no
+# curation. GOODS from unflagged lots are excluded: pool_builder omits goods by construction, and
+# features/filler_curation draws its categories from explicit name lists, so a goods name added here
+# would sit in the catalog reachable by nobody -- catalog bloat with no consumer.
+#
+# `[ERROR]`-prefixed and unnamed ids are dropped by _name2full itself (it skips them at load), which
+# is the item-existence doctrine: a name the game cannot render is not an item.
+#
+# COUNT-NEUTRAL, like its sibling. LOCATION_ITEM is untouched -- no check changes what it pays. This
+# only widens the juice CANDIDATE set, and juice is bounded by the filler budget. The DLC pass below
+# marks any DLC-only name so a DLC-off seed still excludes them.
+_full2name_aug = {}
+for _nm_a, _fu_a in _name2full.items():      # insertion order = FMG priority (base before DLC)
+    _full2name_aug.setdefault(_fu_a, _nm_a)
+_unf_added = 0; _unf_names = []
+for _fu_a in sorted(UNFLAGGED_LOT_FULLS):
+    if (_fu_a >> 28) not in (0x0, 0x1, 0x2):
+        continue
+    if _fu_a in ITEM_CATALOG.values():
+        continue
+    _nm_a = _full2name_aug.get(_fu_a)
+    if not _nm_a or _nm_a in ITEM_CATALOG:
+        continue
+    ITEM_CATALOG[_nm_a] = _fu_a; _unf_added += 1; _unf_names.append(_nm_a)
+print("item_ids: unflagged-lot catalog augmentation +%d equippable(s) that can never be a check "
+      "(%d unflagged FullIDs seen); sample: %s"
+      % (_unf_added, len(UNFLAGGED_LOT_FULLS), sorted(_unf_names)[:6]))
 # ---- DLC provenance: catalog names that come ONLY from the DLC FMG tables. gen_data reads the
 # base tables (_MSG) and the DLC tables (_MSG_D1/_MSG_D2) into ITEM_CATALOG with no marker; core
 # excludes these from pool augmentation (juice/filler) when a seed has DLC off. Matt-free: pure
@@ -6592,6 +7051,17 @@ with open(OUT_ITEMS, "w", newline="\n", encoding="utf-8") as f:
     f.write("}\n\nLOCATION_ITEM = {\n")
     for _aid in sorted(LOCATION_ITEM):
         f.write(f"    {_aid}: {ascii(LOCATION_ITEM[_aid])},\n")
+    f.write("}\n\n# ap_id -> copies the vanilla lot slot grants, for the locations that grant more\n")
+    f.write("# than one (#616; flag_lots.tsv `num`, joined on FullID). Absent = 1.\n")
+    f.write("LOCATION_UNITS = {\n")
+    for _aid in sorted(LOCATION_UNITS):
+        f.write(f"    {_aid}: {LOCATION_UNITS[_aid]},\n")
+    f.write("}\n\n# name -> (FullID, copies) for the STACKED items #624 mints: a second AP id on the\n")
+    f.write("# same game item, riding slot_data itemCounts. core.stacked_vanilla_name promotes a\n")
+    f.write("# multi-copy location to one of these when the name is present. See gen_data for scope.\n")
+    f.write("LOT_STACK_GRANTS = {\n")
+    for _nm in sorted(LOT_STACK_GRANTS):
+        f.write(f"    {ascii(_nm)}: {LOT_STACK_GRANTS[_nm]!r},\n")
     f.write("}\n\nDLC_ITEM_NAMES = {\n")
     for _nm in sorted(DLC_ITEM_NAMES):
         f.write(f"    {ascii(_nm)},\n")
@@ -6978,6 +7448,47 @@ if os.path.isfile(_TSV_PATH):
         if _t is not None and _nm in ITEM_CATALOG:
             _tsv_tier[_nm] = _t
 ITEM_TIERS = dict(_param_tier); ITEM_TIERS.update(_tsv_tier)   # TSV precedence; param fills the gaps
+
+# 🛑 REACHABILITY, SAID OUT LOUD. Registering a name is necessary, not sufficient: pool_builder
+# juices names whose tier clears a FLOOR, and the lowest floor any intensity offers is 1. An added
+# name the param rates `rarity 0` (the game's own "trivial") is therefore in the catalog and reachable
+# by NOBODY. That is most of this set, and it includes the reported case (Celebrant's Cleaver /
+# Rib-Rake / Sickle are all rarity 0), so the count above on its own would be a number that looks
+# like a fix. Print the split -- an augmentation that is mostly inert must announce itself.
+_unf_live = [_n for _n in _unf_names if ITEM_TIERS.get(_n, 0) >= 1]
+print("item_ids: of those, %d clear the juice floor (tier >= 1) and %d are INERT (rarity 0 -- in the "
+      "catalog, injectable by no current path). Inert sample: %s"
+      % (len(_unf_live), _unf_added - len(_unf_live),
+         sorted(_n for _n in _unf_names if _n not in set(_unf_live))[:6]))
+
+# ---- JUNK_GEAR_NAMES: catalog equippables the GAME ITSELF rates trivial (#624/#191 follow-up) -----
+# param `rarity == 0`. features/pool_builder's juice floor starts at tier 1 by design -- juice means
+# GOOD gear -- so every one of these is invisible to it at any intensity. That is correct for juice
+# and wrong as a final answer: 96 of them have no check either (their only sources are unflagged
+# lots), which made them unreachable by ANY path. This list gives them one, as a weighted
+# curated_filler category, which is where junk-tier gear belongs: it competes on the filler budget
+# instead of arguing with juice's quality bar.
+#
+# DERIVED, not curated: "tier 0 equippable in the catalog" is a pure function of the param and the
+# catalog, so it cannot drift from either. Includes gear that IS placed elsewhere -- a player who
+# weights `junk_gear` is asking for low-tier gear, and whether a given piece also sits on some check
+# is not what they asked about (the pool already carries deliberate duplicates for pool quality).
+JUNK_GEAR_NAMES = sorted(
+    _nm for _nm, _fu in ITEM_CATALOG.items()
+    if (_fu >> 28) in (0x0, 0x1, 0x2) and ITEM_TIERS.get(_nm, 0) == 0)
+print("junk_gear: %d catalog equippable(s) at param rarity 0 (%d of them have no check at all)"
+      % (len(JUNK_GEAR_NAMES),
+         sum(1 for _n in JUNK_GEAR_NAMES if _n not in set(LOCATION_ITEM.values()))))
+with open(OUT_ITEMS, "a", newline="\n", encoding="utf-8") as f:
+    f.write("\n# Junk-tier gear: catalog equippables at param `rarity == 0`, i.e. the game's own\n")
+    f.write("# 'trivial'. features/pool_builder's juice floor starts at tier 1 (juice means GOOD gear),\n")
+    f.write("# so these are invisible to it at every intensity -- and 96 of them have no check either,\n")
+    f.write("# because their only sources are unflagged lots. features/filler_curation offers them as\n")
+    f.write("# the weighted `junk_gear` recipe category, which is the path that can reach them.\n")
+    f.write("JUNK_GEAR_NAMES = [\n")
+    for _nm in JUNK_GEAR_NAMES:
+        f.write(f"    {ascii(_nm)},\n")
+    f.write("]\n")
 # ---- Per-item CATEGORY (Alaric 2026-07-09) so features/pool_builder can allocate the juice budget
 # across gear categories with per-category percents. From item_tiers.tsv where present (WEAPON / ARMOR
 # / SPELL[+incantations] / TALISMAN / ASHOFWAR); a param-only tiered item (in _param_tier, not in the
@@ -8018,6 +8529,33 @@ for _i, _r in enumerate(rows):
     _mt = re.match(r"(m6[01]_\d\d_\d\d)", _r["map"] or "")
     if _mt:
         _mem_tile[_mt.group(1)].append(_ap)
+
+# ---- CO-CHECK SIBLINGS INHERIT THEIR PRIMARY'S SWEEP MEMBERSHIP (#191) ----------------------------
+# The member loop above walks `rows` POSITIONALLY (`_ap = BASE_AP + _i`), so a registry ap_id in the
+# COCHECK band is structurally invisible to it -- which is why no co-check has ever been a sweep
+# member, including the original five. A sibling is the SAME PHYSICAL ACQUISITION as its primary:
+# if killing the boss sweeps the primary, the player has already picked the sibling up off the same
+# corpse, so leaving it out means a check that is provably in hand still reads as unfound.
+# Alaric's ruling, 2026-08-13: all co-checks are swept with their primary.
+#
+# MIRROR, never re-derive. The sibling is appended exactly where the primary landed -- same region,
+# same map, same tile bucket -- so it cannot be swept into a region its primary was not (the
+# #445/#598 class), and the map-region VOTE is deliberately not re-cast: one physical pickup should
+# vote once, and the primary already voted for it.
+_co_swept = 0
+if CO_CHECK_SIBLINGS:
+    for _pap, _sibs in CO_CHECK_SIBLINGS.items():
+        if _pap in _ap_region:
+            for _s in _sibs:
+                _ap_region[_s] = _ap_region[_pap]
+        for _d in (_mem_region, _mem_map, _mem_tile):
+            for _k, _v in list(_d.items()):
+                if _pap in _v:
+                    for _s in _sibs:
+                        if _s not in _v:
+                            _v.append(_s); _co_swept += 1
+print("co-checks: %d sibling membership(s) mirrored onto their primary's sweeps across %d primary"
+      "(ies) with siblings" % (_co_swept, len(CO_CHECK_SIBLINGS)))
 # Rule 4 ("a filter with no tally is a lie") + Rule 2 ("an empty result is a FAILURE"): say out loud
 # how many recovered-global rows joined the field-neighborhood pass and WHY each of the rest did not.
 # A count that moves between regens must be explainable as "the input got better" or "the predicate

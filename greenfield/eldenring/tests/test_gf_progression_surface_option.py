@@ -30,8 +30,13 @@ from worlds.eldenring.features.progression_surface import (             # noqa: 
 )
 from worlds.eldenring.location_tags import LOCATION_TAGS                # noqa: E402
 
-V0_2_DEFAULT = {"KeyItem", "MajorBoss", "Remembrance", "GreatRune",
-                "Church", "Seedtree", "Fragment", "Revered", "ShopSlot"}
+# The nine TAGGED classes audited for v0.2. Still the whole tag half of the default surface.
+V0_2_TAGGED_DEFAULT = {"KeyItem", "MajorBoss", "Remembrance", "GreatRune",
+                       "Church", "Seedtree", "Fragment", "Revered", "ShopSlot"}
+# ...plus the DERIVED half, added 2026-08-13 (#631). Kept as two names rather than one updated set
+# because the split is the point: everything below that reasons about TAGS must use the tagged half,
+# and it would silently measure nothing if SweepSlot were folded in.
+V0_2_DEFAULT = V0_2_TAGGED_DEFAULT | {"SweepSlot"}
 
 
 class ProgressionSurfaceOption(unittest.TestCase):
@@ -45,6 +50,17 @@ class ProgressionSurfaceOption(unittest.TestCase):
 
     def test_default_is_the_audited_v0_2_surface(self):
         self.assertEqual(set(ProgressionSurface.default), V0_2_DEFAULT)
+        # The default moved on 2026-08-13 and this line is where that is legible. SweepSlot is not a
+        # tag: it nominates one member of every enabled dungeon sweep, so a sweep can pay out
+        # progression in a default seed. The reason is #631 -- at the default confine_foreign_
+        # progression a slot was receiving 7 of the 60 foreign key items it should. Sibling
+        # assertions live in test_gf_boss_sweeps.SweepSlotIsInTheDefaultSurface, including the one
+        # that matters more: the SHIPPED TEMPLATE lists the classes explicitly, so the class default
+        # alone would have reached nobody who generates from it.
+        self.assertEqual(set(ProgressionSurface.default) - set(contract.SURFACE_DERIVED_CLASSES),
+                         V0_2_TAGGED_DEFAULT,
+                         "the TAGGED half of the default surface moved; that is a different and "
+                         "much bigger change than adding a derived class")
         # 🛑 THIS IS A TAG COUNT, NOT A HOSTING COUNT, and the variable used to be called `hosts`
         # with a comment claiming "~193 locations" -- the exact conflation that also lived in the
         # ProgressionSurface docstring. This union applies NO bars (guessed region, missable,
@@ -53,7 +69,7 @@ class ProgressionSurfaceOption(unittest.TestCase):
         # Keep this as the cheap floor it is; the real figure is priced, per class, in
         # greenfield/surface_confidence.tsv and asserted against the live allowed_ap_ids in
         # test_gf_surface_confidence.py.
-        tagged = {ap for ap, tags in LOCATION_TAGS.items() if V0_2_DEFAULT & set(tags)}
+        tagged = {ap for ap, tags in LOCATION_TAGS.items() if V0_2_TAGGED_DEFAULT & set(tags)}
         self.assertGreater(len(tagged), 150,
                            "the default surface's TAG union collapsed (~197 expected); a real drop "
                            "here means classes stopped being derived, not that the surface shrank")

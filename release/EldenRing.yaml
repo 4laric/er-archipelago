@@ -55,9 +55,28 @@ Elden Ring:
   # breakdown for your seed either way.
   num_regions: 6
 
+  # WHICH region the run OPENS IN, by name. Empty (default) = any kept region,
+  # drawn the way it always was. Name one and you start there; name several and
+  # the opening region is drawn from just those.
+  #
+  # 🛑 Every region you name is FORCE-KEPT, so this can make a seed bigger than
+  # `num_regions` asked for -- that number is a draw size and force-keeps are
+  # additive (the generation log names the contribution). Naming three regions
+  # and asking for one is a three-region seed, not a one-region seed with a
+  # choice. For "just play Caelid", name one and set num_regions: 1.
+  #
+  # Names: Limgrave, Liurnia, Caelid, Altus, Stormveil, Raya Lucaria Academy,
+  # Mt. Gelmir, Mountaintops of the Giants, Weeping, Deeproot Depths, Siofra
+  # River, Ainsel River, Mohgwyn, Farum Azula, Haligtree -- and with the DLC on:
+  # Gravesite, Belurat, Ensis, Scadu Altus, Shadow Keep, Rauh Base, Ancient
+  # Ruins, Cerulean, Abyssal, Jagged Peak. Naming a region this seed cannot open
+  # in -- sealed by your DLC toggles, needed by your goal, or reached through a
+  # parent region -- fails generation and says which and why.
+  start_region_pool: []
+
   # How the kept regions are chosen when num_regions > 0. It picks WHICH
-  # regions you keep -- not where you START, which is always a separate draw
-  # weighted by region size over whatever was kept.
+  # regions you keep -- not where you START, which is a separate draw weighted
+  # by region size over whatever was kept, unless start_region_pool names it.
   #   rolled        -- a random N (the default). Wilder; every base region
   #                    turns up in roughly a third of seeds.
   #   vanilla_order -- the first N of the game's own progression path
@@ -224,6 +243,24 @@ Elden Ring:
 
   # ---- Item pool ------------------------------------------------------------
 
+  # Want the vanilla item spread instead of a curated one? This is the switch,
+  # and it is the ONLY thing you need to set -- it does both halves.
+  #   false (default) the pool is curated: the recipe below spends the filler
+  #                   tail, and a guaranteed set of physick tears and smithing
+  #                   bell bearings is added to the pool
+  #   true            every check pays what it pays in vanilla Elden Ring, and
+  #                   nothing is added
+  # Emptying `curated_filler` below does only the FIRST half. The tears and bell
+  # bearings come from a separate feature, so a seed built that way still hands
+  # you up to 18 tears vanilla never placed -- which is exactly the confusion
+  # this option exists to end. Setting this OVERRIDES the recipe below (the
+  # generation log says so); you do not have to clear it as well.
+  # 🛑 It costs you the whole economy: no gear injection, no smithing-stone or
+  # rune supply, and no guarantee a physick tear or bell bearing exists at all
+  # in a seed that seals their home regions. If you only wanted LESS gear,
+  # lower `juice` below instead.
+  vanilla_pool: false
+
   # Recipe for the junk-consumable filler tail: {category: weight}.
   # Leave it alone unless you know what you want. Raising `juice` gives you more
   # genuinely useful drops; raising `stones` keeps upgrade materials flowing.
@@ -257,8 +294,13 @@ Elden Ring:
   #             about 50 across the map. Uneven on purpose: it follows the menu,
   #             not region size, so a few regions have one sub-area
   #   entrance  only the way in; you walk to and touch the rest, the vanilla way
-  # Cannot strand you and moves no item: unlocks are still the only progression
-  # and every check stays put. Purely pacing.
+  # Moves no item: unlocks are still the only progression and every check stays
+  # put, so nothing here changes what is in your seed or where it sits.
+  # NOT the same as safe. The idea is that a grace you were not handed is still
+  # reachable on foot -- but the bundles have not been walked region by region,
+  # so which ones can leave you stuck is not known. `all` is the setting that
+  # has actually been played; treat the other two as experimental, and report
+  # anything that strands you.
   region_grace_unlock: all
 
   # How good a piece of gear has to be to count as `juice`.
@@ -353,6 +395,15 @@ Elden Ring:
 
   # WHICH LOCATIONS MAY HOLD PROGRESSION. Shrinking this makes the run tighter
   # and more predictable; widening it scatters key items further afield.
+  #
+  # Every entry below names a KIND of check. `SweepSlot` is the one that does not:
+  # it adds ONE member of every dungeon sweep your seed runs, so clearing an area
+  # can pay out progression. It needs Dungeon Sweep on (it is, by default), and it
+  # is ON by default because the rest of this list is SMALL -- about 30 checks on a
+  # four-region seed -- and at the shipped `confine_foreign_progression: 100` it is
+  # the only place another player's key items may land. Without it a slot receives
+  # roughly a tenth of the foreign progression it otherwise would. Remove it if you
+  # would rather a sweep never hand you a key.
   progression_surface:
     - MajorBoss
     - Remembrance
@@ -363,6 +414,7 @@ Elden Ring:
     - Fragment
     - Revered
     - ShopSlot
+    - SweepSlot
 
   # In a MULTIWORLD, what PERCENT of other players' progression is confined to your
   # progression_surface, the way your own is. 100 confines all of it, so a foreign
@@ -506,6 +558,17 @@ Elden Ring:
   # the STRONGER setting you did not ask for. `off` and `light` work on any
   # client, as they always have.
   no_equip_load: off
+
+  # Remove the stat requirements on weapons, shields and catalysts (and the
+  # requirements on spells), so anything the multiworld hands you is usable
+  # whatever your build is.
+  # ON by default, and it always has been -- this was fixed behaviour until
+  # v0.4.1 rather than a setting, so leaving it alone keeps the game you have
+  # been playing. Set it false if you want your stats to decide what you can
+  # hold; the seed generates identically either way, so nothing becomes
+  # unwinnable -- it just becomes a fight you have to build for.
+  # The client only ever LOWERS a requirement, so it is reconnect-safe.
+  no_weapon_requirements: true
 
   # ---- Standard Archipelago options -----------------------------------------
 

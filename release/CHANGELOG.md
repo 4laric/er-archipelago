@@ -9,6 +9,139 @@ Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose
 already landed past it. `CONTRACT_HASH` is unmoved at `5c2b9bf2` -- version-lockstep, so a v0.4.0
 client still handshakes with a v0.4.1 seed.
 
+### `no_weapon_requirements` is a setting again
+
+Weapon, shield, catalyst and spell requirements have been zeroed in every seed anyone has ever
+rolled. It was frozen ON in the v0.2 option slim, so no yaml could say otherwise -- "any gear the
+multiworld hands you is usable" stopped being a choice and became the game. It is a yaml option
+again.
+
+**It is still on by default, so a seed you generate today is unchanged.** Set
+`no_weapon_requirements: false` if you want your stats to decide what you can hold. Generation is
+identical either way and nothing becomes unwinnable; it decides whether the greatsword that arrives
+at level 12 is usable now or after you have built for it.
+
+The default being 1 rather than the bare `Toggle` 0 is deliberate and is the whole risk in this
+change. Unfreezing an option at its class default is exactly how `pool_builder_intensity` moved
+every seed from the 1013-item juice catalog to the 536-item one inside a release whose changelog
+said nothing about a default seed had changed. `test_gf_weapon_reqs` pins the freeze value as the
+default so that cannot happen here quietly.
+
+World-only: no client half, `CONTRACT_HASH` unmoved.
+
+### `no_fall_damage` is off the yaml surface
+
+It shipped in v0.4.0 and is frozen off one release later. The option surface is a budget and this
+one did not earn a row.
+
+Nothing about the client moves: `no_fall_damage.rs` still implements it, the slot_data key is still
+emitted at 0, and the ContractKey stays declared -- freezing is not deleting. A yaml naming it is
+ignored rather than rejected, and unfreezing it later is deleting one line. The freeze value matches
+the option class default, so no seed moves in either direction.
+
+### Spawn Traps is a text field in the builder
+
+`spawn_traps` takes any of the 390 spawnable character-model ids, and the builder drew a checkbox
+for every one of them, in numeric order, with no names on them. It is a text box now. Type or paste
+the ids, separated by commas or spaces or anything else, in any order.
+
+Ids it does not recognise are named back to you and **not** saved, so `9999` is refused in the
+builder rather than failing generation after you have downloaded the yaml. The 390 accepted values
+have not changed and neither has what gets written: the list is still sorted into the yaml, so the
+file does not change shape depending on the order you typed.
+
+The flag lives on the option class (`wizard_free_text`), so the next set-valued option whose keys
+are a catalogue rather than a menu gets the same control by setting one attribute.
+`tools/check_wizard_kind_controls.py` now fails if the page stops reading it -- a presentation flag
+nothing honours is a silently reverted decision that leaves a working page behind it.
+
+### New: `start_region_pool` — choose where the run opens
+
+`start_region_pool: [Caelid]` and the run starts in Caelid. Name several and the opening region is
+drawn from just those; leave it empty (the default) and nothing changes — the opening region is the
+size-weighted draw it has always been.
+
+This is boblerrr's ask, and it is a testing tool as much as a play option: `num_regions: 1` plus one
+name is "just play Caelid", the same seed every time, which is what you want when you are checking
+one region's checks rather than playing a run.
+
+It composes with `start_regions` rather than duplicating it — that one says how MANY regions open,
+this one says WHICH they may be. `start_regions: 2` with two names opens both.
+
+🛑 **Every region you name is force-kept**, so this can make a seed larger than `num_regions` asked
+for. That number is a draw size and force-keeps are additive — the same seam a named `goal` already
+uses, and the generation log names the contribution. Naming three regions and asking for one is a
+three-region seed, not a one-region seed with a choice.
+
+Naming a region the seed cannot open in fails generation and says which and why, because the three
+ways that happens are invisible to each other: your DLC toggles sealed it, your goal needs it (a run
+that opens where it ends is over before it starts), or it is a child region reached through its
+parent. Ignored under Natural Progression and Vanilla Placement, which mint no Region Locks — there
+is no opening Lock to constrain.
+
+### Changed default: your dungeon sweeps can now hand you progression
+
+**This changes every seed.** The Progression Surface — the set of checks a key item may be placed on
+— gains a new class, `SweepSlot`, and it is **on by default**. It nominates ONE member of every
+dungeon sweep your seed runs as somewhere progression may go, so killing a sweep boss can now hand
+you a region Lock, a required Great Rune, or another player's key item along with the area loot.
+Remove `SweepSlot` from `progression_surface` in your yaml if you would rather it never did.
+
+**Why.** The surface was tiny and nobody had measured what that cost. On a four-region seed it is
+about **30 checks out of 1500**, and `confine_foreign_progression` — default 100 — lets another
+player's progression land *only* there. Measured beside three partner games: a slot received **7 of
+the 60** foreign key items it would have received with confinement off. The other 53 did not go
+somewhere worse; they never arrived at all, and those checks were backfilled with the slot's own
+items. Beside Hollow Knight it was 15 of 110.
+
+One check per sweep roughly triples the surface and takes that intake to **18, 44 and 28** against
+the same three partners, while `confine`'s promise stays exactly as strict — nothing foreign lands
+off the surface. It also fixes a smaller thing nobody had reported: on a `num_regions: 1` seed with a
+narrow surface the fill was already spilling the seed's OWN Locks off it, and the extra room takes
+that spill to zero.
+
+**What it costs.** A sweep can pay out progression, which it previously never did under a non-empty
+surface. That was already true at `confine_foreign_progression: 0` or an empty surface — 63% of
+foreign progression landed on sweep members there, exactly their share of the map — and it is not a
+logic hazard, because a sweep member's access rule is its own region: the sweep only makes the check
+*earlier*, never reachable only that way. It is a texture change, and it is deliberate.
+
+Everything else about sweeps is unchanged. A sweep still never hands over another boss's reward, a
+Remembrance, a Great Rune, a key item or a merchant's stock, and the per-seed cut still takes back
+whichever collectathon lines you put on the surface. `SweepSlot` is the one class the cut does not
+take back — taking it back would delete the check it just nominated.
+
+### New: `vanilla_pool` — one switch for the vanilla item spread
+
+`vanilla_pool: true` turns pool curation off. Your checks pay what they pay in vanilla Elden Ring:
+the `curated_filler` recipe is overridden with "keep what the check already paid", and the
+guaranteed set of physick tears and smithing bell bearings is no longer added to the pool. Off by
+default; nothing about an existing seed changes.
+
+**Why it is one option and not two.** Half of this was already possible -- an empty `curated_filler`
+has returned a junk-only recipe for months -- and it was worse than not having it, because it looks
+like it worked. `presence_floor` had no option at all and was not frozen: it was unconditional. So a
+player who found the empty recipe, typed it, and went counting still got up to 18 crystal tears
+vanilla never placed, from a feature no yaml could reach.
+
+That is not hypothetical, it is the report this came from: a playtester counted 19 tears in his seed
+against a catalog that is complete at 37/37 and reported items missing. Nineteen is the 18-item
+floor roster plus the one his seed kept. The floor was working exactly as designed and made a
+complete catalog look half-empty. One option now means one thing.
+
+It **overrides** `curated_filler` rather than refusing to run alongside it, and says so in the
+generation log. It has to: the recipe has a real default, so every yaml carries one whether or not
+its author typed it, and rejecting the combination would reject the shipped template.
+
+Worth knowing before you set it: you give up gear injection, the smithing-stone and rune economy,
+and any guarantee that a physick tear or bell bearing exists at all in a seed that seals their home
+regions. The curation is what was buying those. Items are still shuffled between checks — this
+decides which items exist, not where they sit; `vanilla_placement` is the option for that. Also
+retired-option housekeeping: `pool_builder: false` still raises, but its message now points at
+`vanilla_pool` by name, since that is where someone typing it was trying to get to.
+
+World-only: no client half, `CONTRACT_HASH` unmoved.
+
 ### Hosting is back, as one tab, with the defect that killed it fixed
 
 peliarch.ca hosts rooms again, and generates seeds again from the builder's **Generate & host**
@@ -50,6 +183,23 @@ plaintext `ws://`; a copied `wss://` address earned `SSLError: WRONG_VERSION_NUM
 
 🛑 archipelago.gg is still the right answer for a long game with people you do not share a Discord
 with. This is one small box, and it has neither the uptime nor the room history.
+
+### Four Scadutree Fragment checks were paying half what the game gives you
+
+The base game hands out **50** Scadutree Fragments across 46 pickups -- four of those pickups are
+worth two. This world paid one at every single check, so a seed that let you find all 46 gave you
+46 units, and the Scadutree blessing (which is a pure function of that number) topped out a rung
+below vanilla no matter how thoroughly you swept the Realm of Shadow.
+
+The number was in our own data the whole time: `flag_lots.tsv` has carried a `num` column since the
+lot capture landed, and nothing had ever read it. It does now, for **every** item -- 921 locations
+in the game grant more than one copy -- and a check whose lot grants two pays the stacked item where
+one exists. Today that is `Scadutree Fragment x2`, which the DLC blessing feature already minted for
+its own injection; everything else is unchanged, so no other item's pool count moves.
+
+The most visible case was the Hippo's fragment in Scadu Altus. It was already split out as its own
+check and still paid one, because the quantity lives on the lot slot and no amount of check-splitting
+reads it.
 
 ### Dungeon sweeps pay out the good stuff now, unless your seed said otherwise
 

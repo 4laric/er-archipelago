@@ -60,13 +60,28 @@ def main():
     floor = _members(GEN, "_SWEEP_NEVER_TAGS", r"frozenset\(\{", r"\}\)")
     cut_gen = _members(GEN, "_SWEEP_SURFACE_CUTTABLE", r"frozenset\(\{", r"\}\)")
     cut_feat = _members(FEATURE, "_SWEEP_SURFACE_CUTTABLE", r"frozenset\(\{", r"\}\)")
+    # The THIRD bucket, added with SweepSlot. Every other vocabulary member names a location TAG, so
+    # the question "is a check of this class sweepable?" has an answer gen_data can bake. A DERIVED
+    # class has no tag at all -- it IS a sweep member, chosen per seed -- so it belongs to neither
+    # half, and the "unfiled" check below would otherwise demand it be filed in one of them and be
+    # wrong either way. It still has to be declared, in contract, on purpose: falling through the
+    # crack silently is exactly what this gate exists to stop.
+    derived = _members(CONTRACT, "SURFACE_DERIVED_CLASSES", r"frozenset\(\{", r"\}\)")
 
     fails = []
+    both_derived = derived & (floor | cut_gen)
+    if both_derived:
+        fails.append("%s is declared DERIVED but is also cut by the sweep. A derived class is a "
+                     "sweep member by definition; cutting it deletes the class." % sorted(both_derived))
+    stray = derived - vocab
+    if stray:
+        fails.append("%s is in contract.SURFACE_DERIVED_CLASSES but not in SURFACE_CLASSES, so no "
+                     "player can select it and nothing evaluates it." % sorted(stray))
     both = floor & cut_gen
     if both:
         fails.append("%s is in BOTH halves: it reads as permanently excluded while its per-seed "
                      "cut silently does nothing." % sorted(both))
-    unfiled = vocab - floor - cut_gen
+    unfiled = vocab - floor - cut_gen - derived
     if unfiled:
         fails.append("%s is in contract.SURFACE_CLASSES but in NEITHER half, so it is baked into "
                      "every sweep and cut by nobody. File it in gen_data._SWEEP_NEVER_TAGS (never "
@@ -86,8 +101,8 @@ def main():
             print("check_sweep_cut_partition: FAIL " + f)
         return 1
     print("check_sweep_cut_partition: OK -- %d classes partition into %d never-sweepable + %d "
-          "surface-cuttable, and the feature cuts all %d."
-          % (len(vocab), len(floor), len(cut_gen), len(cut_feat)))
+          "surface-cuttable + %d derived, and the feature cuts all %d."
+          % (len(vocab), len(floor), len(cut_gen), len(derived), len(cut_feat)))
     return 0
 
 

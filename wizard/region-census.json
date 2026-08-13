@@ -15,7 +15,8 @@
   "KeyItem",
   "MajorBoss",
   "LegacyBoss",
-  "FieldBoss"
+  "FieldBoss",
+  "SweepSlot"
  ],
  "default_classes": [
   "Remembrance",
@@ -26,7 +27,11 @@
   "ShopSlot",
   "GreatRune",
   "KeyItem",
-  "MajorBoss"
+  "MajorBoss",
+  "SweepSlot"
+ ],
+ "derived_classes": [
+  "SweepSlot"
  ],
  "finale": {
   "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
@@ -48,7 +53,11 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Ainsel River": {
    "checks": 122,
@@ -62,24 +71,34 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 3,
+    "bosses": 3
+   }
   },
   "Altus": {
-   "checks": 354,
+   "checks": 373,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss": 12,
-    "Boss|FieldBoss": 5,
+    "Boss|FieldBoss": 8,
     "Boss|FieldBoss|Legendary": 1,
+    "Boss|Legendary": 4,
     "Church": 2,
-    "Legendary": 1,
+    "Legendary": 5,
     "Seedtree": 9,
     "Shop|ShopNonSpell": 19,
     "Shop|ShopNonSpell|ShopSlot": 2
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 13,
+    "bosses": 28,
+    "minidungeons": 13
+   }
   },
   "Ancient Ruins": {
    "checks": 60,
@@ -92,18 +111,26 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Ashen Capital": {
-   "checks": 12,
+   "checks": 18,
    "combos": {
-    "Boss|LegacyBoss": 1,
+    "Boss|LegacyBoss": 5,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 2,
     "Legendary": 1
    },
    "dlc": false,
    "parent": null,
-   "rollable": false
+   "rollable": false,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Belurat": {
    "checks": 93,
@@ -115,18 +142,23 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 1,
+    "bosses": 1
+   }
   },
   "Caelid": {
-   "checks": 346,
+   "checks": 358,
    "combos": {
     "Basin": 1,
     "Basin|Boss|FieldBoss": 1,
-    "Boss": 12,
-    "Boss|FieldBoss": 11,
+    "Boss": 16,
+    "Boss|FieldBoss": 12,
     "Boss|FieldBoss|Legendary": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 1,
     "Boss|GreatRune|MajorBoss": 1,
+    "Boss|Legendary": 1,
     "Boss|Seedtree": 1,
     "Church": 1,
     "KeyItem": 1,
@@ -138,34 +170,48 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 10,
+    "bosses": 25,
+    "minidungeons": 10
+   }
   },
   "Cerulean": {
-   "checks": 96,
+   "checks": 100,
    "combos": {
     "Boss|FieldBoss": 2,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Boss|Legendary|MajorBoss": 1,
-    "Boss|MajorBoss": 1,
+    "Boss|MajorBoss": 5,
     "Fragment": 4,
     "KeyItem": 2
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 5,
+    "bosses": 5,
+    "minidungeons": 1
+   }
   },
   "Deeproot Depths": {
-   "checks": 79,
+   "checks": 87,
    "combos": {
     "Boss|LegacyBoss": 2,
-    "Legendary": 1
+    "Legendary": 4
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 7,
+    "bosses": 7
+   }
   },
   "Enir Ilim": {
-   "checks": 85,
+   "checks": 110,
    "combos": {
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Fragment": 3,
@@ -174,7 +220,11 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 4,
+    "bosses": 4
+   }
   },
   "Ensis": {
    "checks": 42,
@@ -185,28 +235,37 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 1,
+    "bosses": 1
+   }
   },
   "Farum Azula": {
-   "checks": 97,
+   "checks": 105,
    "combos": {
-    "Boss|LegacyBoss": 1,
+    "Boss|LegacyBoss": 2,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 2,
-    "Legendary": 1,
+    "Legendary": 4,
     "Seedtree": 2
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 3,
+    "bosses": 3
+   }
   },
   "Gravesite": {
-   "checks": 207,
+   "checks": 215,
    "combos": {
     "Basin": 1,
-    "Boss": 3,
+    "Boss": 4,
     "Boss|FieldBoss": 3,
     "Boss|Legendary": 1,
     "Boss|Legendary|MajorBoss": 1,
+    "Boss|MajorBoss": 4,
     "Fragment": 5,
     "Legendary": 3,
     "Revered": 4,
@@ -214,22 +273,32 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 8,
+    "bosses": 8,
+    "minidungeons": 4
+   }
   },
   "Haligtree": {
-   "checks": 121,
+   "checks": 124,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
+    "Boss|LegacyBoss": 1,
     "Boss|LegacyBoss|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Seedtree": 1
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Jagged Peak": {
-   "checks": 38,
+   "checks": 49,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss": 1,
@@ -237,10 +306,14 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Leyndell": {
-   "checks": 150,
+   "checks": 161,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss": 1,
@@ -249,10 +322,14 @@
    },
    "dlc": false,
    "parent": "Altus",
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 1,
+    "bosses": 1
+   }
   },
   "Limgrave": {
-   "checks": 327,
+   "checks": 332,
    "combos": {
     "Basin": 3,
     "Boss": 7,
@@ -269,20 +346,26 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 11,
+    "bosses": 20,
+    "minidungeons": 9
+   }
   },
   "Liurnia": {
-   "checks": 578,
+   "checks": 610,
    "combos": {
     "Basin": 2,
     "Basin|Boss|FieldBoss": 1,
-    "Boss": 8,
-    "Boss|FieldBoss": 13,
+    "Boss": 9,
+    "Boss|FieldBoss": 15,
+    "Boss|FieldBoss|Legendary": 1,
     "Boss|Legendary": 1,
-    "Boss|MajorBoss": 1,
+    "Boss|MajorBoss": 2,
     "Church": 3,
     "KeyItem": 2,
-    "Legendary": 3,
+    "Legendary": 6,
     "Seedtree": 3,
     "Shop": 64,
     "Shop|ShopNonSpell": 33,
@@ -290,10 +373,15 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 10,
+    "bosses": 28,
+    "minidungeons": 10
+   }
   },
   "Mohgwyn": {
-   "checks": 89,
+   "checks": 92,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
@@ -302,33 +390,42 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 1,
+    "bosses": 1
+   }
   },
   "Mountaintops of the Giants": {
-   "checks": 308,
+   "checks": 344,
    "combos": {
-    "Boss": 5,
-    "Boss|FieldBoss": 6,
+    "Boss": 12,
+    "Boss|FieldBoss": 10,
     "Boss|Legendary": 1,
     "Boss|Seedtree": 1,
     "Church": 2,
     "KeyItem": 1,
-    "Legendary": 1,
+    "Legendary": 4,
     "Seedtree": 4,
     "Shop": 6
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 7,
+    "bosses": 17,
+    "minidungeons": 7
+   }
   },
   "Mt. Gelmir": {
-   "checks": 222,
+   "checks": 244,
    "combos": {
     "Boss": 3,
     "Boss|FieldBoss": 4,
-    "Boss|FieldBoss|Legendary": 1,
+    "Boss|FieldBoss|Legendary": 2,
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss": 2,
+    "Boss|LegacyBoss": 3,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "KeyItem": 1,
     "Legendary": 3,
@@ -338,21 +435,31 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 7,
+    "bosses": 11,
+    "minidungeons": 3
+   }
   },
   "Rauh Base": {
-   "checks": 83,
+   "checks": 91,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss|MajorBoss": 1,
-    "Legendary": 2
+    "Legendary": 3
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 3,
+    "bosses": 3,
+    "minidungeons": 1
+   }
   },
   "Raya Lucaria Academy": {
-   "checks": 100,
+   "checks": 104,
    "combos": {
     "Boss|GreatRune|LegacyBoss|MajorBoss": 1,
     "Boss|LegacyBoss": 1,
@@ -363,19 +470,24 @@
    },
    "dlc": false,
    "parent": "Liurnia",
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Roundtable Hold": {
-   "checks": 224,
+   "checks": 239,
    "combos": {
-    "Shop|ShopNonSpell": 121
+    "Shop|ShopNonSpell": 120
    },
    "dlc": false,
    "parent": null,
-   "rollable": false
+   "rollable": false,
+   "sweep_slots": {}
   },
   "Scadu Altus": {
-   "checks": 231,
+   "checks": 252,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 4,
@@ -390,10 +502,15 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 8,
+    "bosses": 8,
+    "minidungeons": 1
+   }
   },
   "Sewer": {
-   "checks": 88,
+   "checks": 94,
    "combos": {
     "Boss|LegacyBoss|Legendary": 1,
     "Boss|LegacyBoss|MajorBoss": 1,
@@ -401,10 +518,14 @@
    },
    "dlc": false,
    "parent": "Leyndell",
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Shadow Keep": {
-   "checks": 297,
+   "checks": 307,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 2,
@@ -416,12 +537,16 @@
    },
    "dlc": true,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 9,
+    "bosses": 9
+   }
   },
   "Siofra River": {
-   "checks": 178,
+   "checks": 180,
    "combos": {
-    "Boss|LegacyBoss": 4,
+    "Boss|LegacyBoss": 6,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Legendary": 1,
     "Seedtree": 1,
@@ -430,7 +555,11 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 5,
+    "bosses": 5
+   }
   },
   "Stormveil": {
    "checks": 133,
@@ -443,10 +572,14 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   }
   },
   "Weeping": {
-   "checks": 152,
+   "checks": 154,
    "combos": {
     "Basin": 1,
     "Boss": 4,
@@ -459,10 +592,15 @@
    },
    "dlc": false,
    "parent": null,
-   "rollable": true
+   "rollable": true,
+   "sweep_slots": {
+    "all": 5,
+    "bosses": 11,
+    "minidungeons": 5
+   }
   }
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "3bce9cd2986ee74276038222c81789c22b8734a8219e61dedd9549cd93250156"
+ "source_sha256": "586309e34b979bc5ef2fc8ed5b4330d1b1304ae7f7a3ed69a486a475e410a4d2"
 }

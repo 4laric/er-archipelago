@@ -169,6 +169,20 @@ class SpawnTraps(OptionSet):
     # instead of a filler item that arrives in-game and does nothing forever.
     valid_keys = frozenset(str(c) for c in SPAWN_TRAPS)
     default = frozenset()
+    #: WIZARD PRESENTATION: a text field, not 390 checkboxes.
+    #:
+    #: The wizard draws an OptionSet as one checkbox per `valid_keys` member, which is the right
+    #: control when the keys are a MENU -- `traps` has four, `progression_surface` has a labelled
+    #: grid. These keys are a CATALOGUE: 390 bare model ids with no names on them, in numeric order,
+    #: none of which means anything to a player until they have looked it up somewhere else. There
+    #: is nothing to scan and nothing to compare, so the grid costs 390 rows of scrolling to express
+    #: the one thing anyone does with this option, which is paste the two or three ids they already
+    #: found. A text box is the smaller lie: it is shaped like the yaml and like the lookup.
+    #:
+    #: 🛑 THIS IS PRESENTATION ONLY -- `valid_keys` above is still the validation, and the wizard
+    #: refuses an unrecognised id in the box rather than writing it into the yaml for Archipelago to
+    #: reject after the download. An option that renders as free text does not become free-form.
+    wizard_free_text = True
 
 
 class TrapCount(Range):
