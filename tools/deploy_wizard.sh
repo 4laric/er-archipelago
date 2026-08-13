@@ -17,7 +17,7 @@
 #     /er/beta/questlines.html <- er-archipelago-questline-dag.html at main
 #     /er/landing.html       <- wizard/landing.html at the STABLE tag       (--landing only)
 #
-# 🛑 THE LANDING PAGE GOES IN ER_STATIC_DIR, NOT AT THE FILESYSTEM ROOT, AND THAT WAS A BUG.
+# !! THE LANDING PAGE GOES IN ER_STATIC_DIR, NOT AT THE FILESYSTEM ROOT, AND THAT WAS A BUG.
 # It first shipped writing ${ER_ROOT_DIR}/index.html on the assumption that peliarch served `/`
 # from a static directory. It does not: `/` is a Flask route (webgui/app.py), and Caddy does
 # `reverse_proxy web:8080` for everything -- so that file would have been written and never
@@ -39,7 +39,7 @@
 # wizard, one file over. Together they are ~3.2 MB, so `--no-checks` exists for a cron that runs
 # oftener than the data moves; it skips both.
 #
-# 🛑 THE QUESTLINE DAG IS HERE BECAUSE IT WAS ONLY EVER ON THE BOX BY ACCIDENT. Until 2026-08-13 the
+# !! THE QUESTLINE DAG IS HERE BECAUSE IT WAS ONLY EVER ON THE BOX BY ACCIDENT. Until 2026-08-13 the
 # host served it because the Dockerfile's `ertools` stage BAKED it into the image at build time --
 # so it existed, unpinned to any tag, and would have vanished the moment /er-static became a bind
 # mount fed by this script. It was found by listing the container's directory before mounting over

@@ -46,6 +46,20 @@ That was not cosmetic. `deploy_wizard.sh --landing` fetches from the **stable ta
 has no `wizard/landing.html` -- so for as long as stable sat there, the new front page could not be
 deployed at all. `stable -> v0.4.0` is the row that unblocks it.
 
+### `deploy_wizard.sh` must be ASCII, and I put two 🛑 in it
+
+`test_gf_publish_channels.WizardDeploy.test_it_is_ascii_and_executable` -- "non-ASCII in a shell
+script that runs on a strange box" -- went red on the two comment headers added for `--landing`
+and the questline DAG. The file uses `!!` for exactly this reason and has since it was written;
+the emoji convention is for Python, Markdown and Rust, not for the one file that gets `scp`'d onto
+someone else's server and run under whatever locale it finds.
+
+🛑 **This ran in the `generators` job and I never ran that job locally.** The release gates
+(`check_release_notes`, `check_contract_version`, `check_version_sites`, `check_channels`) were
+green every time I reported them green, and they are not the same set: `generators` also runs 18
+repo-only suites via `gf_suite_ledger.py --generators-list`. Reporting "gates green" after running
+a hand-picked four is how a red reaches main with a green summary attached to it.
+
 ### The questline DAG was on the host by accident, and is now deployed on purpose
 
 Listing `/er-static` inside the container before mounting over it turned up a file nobody had
