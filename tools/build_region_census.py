@@ -134,6 +134,42 @@ def measure(sc=None):
     hub = data.HUB
     finale_region = getattr(data, "FINALE_REGION", None)
 
+    # ---- SweepSlot, the DERIVED class -----------------------------------------------------------
+    # It carries no tag, so `combos` cannot see it and the wizard's marginal box would read 0 -- next
+    # to a comment promising that "0 always means carrying nothing". It is in the DEFAULT surface, so
+    # that zero would be the first thing a player reads about a class that is on.
+    #
+    # Priced per RUNG, because which sweeps run is `dungeon_sweep`'s answer and the wizard knows it.
+    # The nomination itself is contract.nominate_sweep_slots -- the SAME function the world calls, not
+    # a copy (see its docstring).
+    sweeps_mod = mods.get("boss_sweeps")
+    bars_mod = mods.get("boss_healthbars")
+    slots_by_region = {}
+    if sweeps_mod is not None and bars_mod is not None:
+        ap_region = {}
+        for rname, rows_ in data.LOCATIONS.items():
+            for _n, ap, _f in rows_:
+                ap_region[ap] = rname
+        hb = bars_mod.BOSS_HEALTHBARS
+        for rung, allowed in sorted(contract.SWEEP_RUNGS.items()):
+            at_rung = {}
+            for fl, members in sweeps_mod.DUNGEON_SWEEPS.items():
+                info = hb.get(fl)
+                # Same tolerance as features/boss_locks.rung_sweeps: an unclassifiable sweep is kept
+                # only at the widest rung. A copy of the RULE, not of the selection -- the selection
+                # (which member) is the single-sourced part.
+                if info is None:
+                    if rung != "bosses":
+                        continue
+                elif info[2] not in allowed:
+                    continue
+                at_rung[fl] = members
+            for ap in contract.nominate_sweep_slots(at_rung, barred=barred):
+                r = ap_region.get(ap)
+                if r:
+                    slots_by_region.setdefault(r, {}).setdefault(rung, 0)
+                    slots_by_region[r][rung] += 1
+
     regions = {}
     for name in sorted(data.LOCATIONS):
         combos = {}
@@ -153,6 +189,10 @@ def measure(sc=None):
             "dlc": name in dlc,
             "parent": parent.get(name),
             "combos": dict(sorted(combos.items())),
+            # {rung: how many SweepSlot checks this region contributes at that dungeon_sweep value}.
+            # Absent rungs are zero. Kept separate from `combos` because it is not a tag combination
+            # and must never be summed into one.
+            "sweep_slots": dict(sorted((slots_by_region.get(name) or {}).items())),
         }
 
     census = {
@@ -166,6 +206,10 @@ def measure(sc=None):
             "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
         },
         "classes": vocab,
+        # Which of `classes` are DERIVED (contract.SURFACE_DERIVED_CLASSES). Emitted so the wizard
+        # gate can tell "absent from surface_confidence.tsv because it is unpriceable there" from
+        # "absent because somebody forgot", which are the same shape from the outside.
+        "derived_classes": [c for c in vocab if c in set(contract.SURFACE_DERIVED_CLASSES)],
         "default_classes": default_classes,
         "parent": dict(sorted(parent.items())),
         "regions": regions,

@@ -263,7 +263,14 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # this constant is ever renamed again, they must break.
 SURFACE_CLASSES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                    "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
-                   "KeyItem", "MajorBoss", "LegacyBoss", "FieldBoss"]
+                   "KeyItem", "MajorBoss", "LegacyBoss", "FieldBoss", "SweepSlot"]
+# 🛑 SweepSlot is NOT A LOCATION TAG. Every other member of this list names a tag that gen_data
+# writes onto a check; SweepSlot is DERIVED at world-build time from that seed's own enabled sweeps
+# (features/progression_surface.sweep_slot_aps) -- at most one member per sweep trigger, the way
+# ShopSlot is at most one row per merchant. It is therefore in NEITHER half of the sweep partition:
+# a class that IS a sweep member by definition cannot be "cut from the sweep" without deleting
+# itself. See SURFACE_DERIVED_CLASSES below and tools/check_sweep_cut_partition.py, which reads it.
+SURFACE_DERIVED_CLASSES = frozenset({"SweepSlot"})
 # LegacyBoss / FieldBoss (2026-08-02) split the 134-strong `Boss` class by WHERE the boss stands:
 # 30 legacy-dungeon drops, 84 overworld. Both are SUBSETS of Boss, so selecting Boss still selects
 # everything. There is no `Underground`: 81 catacomb/cave/tunnel/minor-dungeon bosses exist but only
@@ -328,7 +335,69 @@ SURFACE_EXCLUDE_TAGS = frozenset({"EniaShop"})
 SURFACE_DEFAULT_CLASSES = frozenset({
     "KeyItem", "MajorBoss", "Remembrance", "GreatRune",
     "Church", "Seedtree", "Fragment", "Revered", "ShopSlot",
+    # 🛑 SweepSlot JOINED THE DEFAULT 2026-08-13 (Alaric's ruling on #631). THIS CHANGES EVERY SEED,
+    # deliberately, and it is stated here rather than left to be discovered.
+    #
+    # WHY. The surface is ~30 locations on a 4-region seed against ~1500 checks, and
+    # `confine_foreign_progression` (default 100) may place another world's progression ONLY there.
+    # Measured: a slot received 7 of the 60 foreign key items it would have received at confine 0 --
+    # the other 53 stayed in their own world and the checks were backfilled with our own items. One
+    # member per enabled sweep roughly TRIPLES the surface and takes intake to 18 (DOOM), 44 (Hollow
+    # Knight), 28 (Bumper Stickers), while `confine`'s promise stays exactly kept (nothing foreign
+    # lands off-surface). It also relieves the small-surface case: at num_regions 1 with a
+    # [MajorBoss] surface the feasibility ladder was spilling our OWN Locks off a two-location
+    # surface, and this takes that spill to zero.
+    #
+    # WHAT IT COSTS. A sweep can now pay out progression in a default seed -- kill the boss, and one
+    # of the checks it hands over may hold a key. That was already true at `confine 0` or an empty
+    # surface (63% of foreign progression landed on sweep members, exactly the base rate), and it is
+    # not a logic hazard: a member's access rule is its REGION, so the sweep only makes the check
+    # earlier, never reachable-only-that-way. It IS a texture change, and it is the ruling.
+    "SweepSlot",
 })
+
+
+# Which boss CLASSES each dungeon_sweep rung sweeps. boss_healthbars classifies every boss as one of
+# catacomb/cave/tunnel/dungeon (the minidungeons), legacy (legacy dungeons + castles) or field.
+# LIVES HERE, not in features/boss_locks, for the reason SURFACE_DEFAULT_CLASSES lives here: two
+# AP-FREE readers need it -- tools/build_region_census.py has to price a SweepSlot box the wizard
+# draws, and it cannot import a module that imports Options.
+SWEEP_MINI_CLASSES = frozenset({"catacomb", "cave", "tunnel", "dungeon"})
+SWEEP_RUNGS = {
+    "none": frozenset(),
+    "minidungeons": SWEEP_MINI_CLASSES,
+    "all": SWEEP_MINI_CLASSES | {"legacy"},
+    "bosses": SWEEP_MINI_CLASSES | {"legacy", "field"},
+}
+
+
+def nominate_sweep_slots(sweeps, barred=(), prefer_not_in=()):
+    """{trigger flag: [member ap ids]} -> the set of ap-ids SweepSlot puts on the surface: AT MOST
+    ONE per trigger. Pure, AP-free, and THE definition -- both the world
+    (features/progression_surface.sweep_slot_aps) and the wizard's census tool call this.
+
+    🛑 SINGLE-SOURCED ON PURPOSE. The second caller is tools/build_region_census.py, which prices the
+    SweepSlot checkbox the wizard draws. A re-implementation there would be a number the player reads
+    that disagrees with the seed they get -- and this repo has already paid for that class of bug
+    twice (the tracker's static surface column, gen_location_regions re-inventing the selection).
+
+    THE RULE: the lowest ap-id that is not barred and, where possible, not already on the tag surface
+    (`prefer_not_in`). Lowest rather than random because `world.random` is consumed a different
+    number of times depending on how hard fill works, so drawing here would move the seed for
+    everything downstream; and because the pick must be reproducible outside a generation at all --
+    the census does exactly that. Skipping the tag surface matters because the six SURFACE-CUTTABLE
+    classes are still in the pre-cut member lists, so a naive minimum can nominate a check the
+    surface already had, adding a name and no breadth."""
+    barred = frozenset(barred)
+    prefer_not_in = frozenset(prefer_not_in)
+    out = set()
+    for _flag, members in sorted((sweeps or {}).items()):
+        eligible = sorted(ap for ap in members if ap not in barred)
+        if not eligible:
+            continue
+        fresh = [ap for ap in eligible if ap not in prefer_not_in]
+        out.add(fresh[0] if fresh else eligible[0])
+    return frozenset(out)
 
 
 def has_class(tags, selected) -> bool:

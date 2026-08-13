@@ -53,6 +53,19 @@ CASES = [
     {"numRegions": 6, "enableDlc": True, "dlcOnly": False, "surfaceClasses": ["MajorBoss"]},
     {"numRegions": 6, "enableDlc": True, "dlcOnly": False,
      "surfaceClasses": ["MajorBoss", "Remembrance", "GreatRune", "Boss", "Legendary"]},
+    # The SweepSlot axis. It is not a tag, so it moves the surface band without touching `combos`,
+    # and it moves DIFFERENTLY per dungeon_sweep value -- three rungs and the off switch, because a
+    # single case would pass with the rung ignored on either side.
+    {"numRegions": 6, "enableDlc": True, "dlcOnly": False,
+     "surfaceClasses": ["MajorBoss", "SweepSlot"], "dungeonSweep": "bosses"},
+    {"numRegions": 6, "enableDlc": True, "dlcOnly": False,
+     "surfaceClasses": ["MajorBoss", "SweepSlot"], "dungeonSweep": "all"},
+    {"numRegions": 6, "enableDlc": True, "dlcOnly": False,
+     "surfaceClasses": ["MajorBoss", "SweepSlot"], "dungeonSweep": "minidungeons"},
+    {"numRegions": 6, "enableDlc": True, "dlcOnly": False,
+     "surfaceClasses": ["MajorBoss", "SweepSlot"], "dungeonSweep": "none"},
+    # ...and the DEFAULT surface, which now contains SweepSlot: the case a player actually gets.
+    {"numRegions": 6, "enableDlc": True, "dlcOnly": False, "dungeonSweep": "bosses"},
 ]
 
 
@@ -100,17 +113,24 @@ def _mulberry32(a):
     return nxt
 
 
-def _combo_hits(region, sel):
+def _combo_hits(region, sel, rung="bosses"):
     n = 0
     for combo, count in region["combos"].items():
         if sel & set(combo.split("|")):
             n += count
+    # SweepSlot is DERIVED: it carries no tag, so it is not in `combos` and its size depends on
+    # dungeon_sweep (64 checks corpus-wide at `minidungeons`, 215 at `bosses`, 0 at `none`). This
+    # differential exists precisely to catch a JS/Python split like this one, and the first run after
+    # the JS learned about it reported surface 394 vs 179 -- a gap of exactly the 215 sweep slots.
+    if "SweepSlot" in sel:
+        n += (region.get("sweep_slots") or {}).get(rung or "bosses", 0)
     return n
 
 
 def seed_size(census, opts):
     """The reference implementation. Mirrors ERW.seedSize step for step, including draw order."""
     sel = set(opts.get("surfaceClasses") or census["default_classes"])
+    rung = opts.get("dungeonSweep") or "bosses"
     R = census["regions"]
     eligible = [n for n in sorted(R)
                 if R[n]["rollable"] and (R[n]["dlc"] if opts["dlcOnly"]
@@ -122,7 +142,8 @@ def seed_size(census, opts):
     finale_on = bool(fin and fin in R) and any(not R[n]["dlc"] for n in eligible)
     hub = census["hub_region"]
     base = R[hub]["checks"] + (R[fin]["checks"] if finale_on else 0)
-    base_surf = _combo_hits(R[hub], sel) + (_combo_hits(R[fin], sel) if finale_on else 0)
+    base_surf = (_combo_hits(R[hub], sel, rung)
+                 + (_combo_hits(R[fin], sel, rung) if finale_on else 0))
 
     n = int(opts["numRegions"])
     whole = (n <= 0 or n >= len(eligible))
@@ -148,7 +169,7 @@ def seed_size(census, opts):
         c, s = base, base_surf
         for r in kept_set:
             c += R[r]["checks"]
-            s += _combo_hits(R[r], sel)
+            s += _combo_hits(R[r], sel, rung)
         checks.append(c)
         surf.append(s)
         kept.append(len(kept_set))
