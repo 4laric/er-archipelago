@@ -457,7 +457,7 @@ _OPTION_GROUPS = [
         "global_scadutree_blessing"]),
     ("Difficulty & Scaling", [
         "enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
-        "difficulty_ramp_speed", "no_fall_damage", "traps", "spawn_traps", "trap_count"]),
+        "difficulty_ramp_speed", "traps", "spawn_traps", "trap_count"]),
     ("Checks & Item Pool", [
         "vanilla_placement", "natural_progression", "dungeon_sweep", "reroll_enemy_drops",
         # vanilla_pool sits directly before curated_filler because it OVERRIDES it (#618): the
@@ -476,8 +476,11 @@ _OPTION_GROUPS = [
         "merchant_bell_logic", "reroll_infinite_shop_stock", "infinite_hub_wares",
         "progressive_stone_bells"]),
     ("Quality of Life", [
-        "auto_equip", "no_equip_load", "start_with_whetblades", "progressive_flasks",
-        "capital_reconciler"]),
+        # no_weapon_requirements sits beside no_equip_load because they are the same kind of knob --
+        # both remove a constraint the game puts between you and gear the multiworld handed you, one
+        # on stats and one on weight -- and a player deciding about one is deciding about the other.
+        "auto_equip", "no_weapon_requirements", "no_equip_load", "start_with_whetblades",
+        "progressive_flasks", "capital_reconciler"]),
 ]
 
 
