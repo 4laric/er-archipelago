@@ -192,9 +192,24 @@ You also need, separately:
 
    `Tester_A2 (Team #1) playing Elden Ring has joined.`
 
-   Note the game name in that line: **`Elden Ring`**, with the space. If you see
-   a refused connection instead, the two usual causes are a slot name that does
-   not match the one in your yaml, and the wrong port.
+   Note the game name in that line: **`Elden Ring`**, with the space.
+
+   **If you get "Connection refused" instead**, note what it is *not*: a wrong
+   slot name, a wrong password, the wrong game or a seed mismatch all produce a
+   different, more specific error. Refused means the client never reached a
+   server it could talk to. In order:
+
+   1. Check the room is actually awake -- open its page on the website and look
+      for the port. A room that has been idle goes to sleep and the port stops
+      answering.
+   2. Re-copy the address and port from that page. The port changes every time
+      the room wakes up.
+   3. Try `wss://` if you are on a hosted room, and plain `ws://` if you are
+      hosting locally.
+   4. If all three are right and it still refuses, say so in the bug report and
+      attach your client log -- the message is currently also printed for a
+      connection that timed out, which is a different fault with different
+      causes, and we cannot tell them apart from the text alone.
 
 4. **Play.** In The Shattering you begin at Roundtable Hold with one region
    already open. Find a region's Lock, fast-travel in, clear its checks, and

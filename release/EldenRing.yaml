@@ -188,6 +188,10 @@ Elden Ring:
   #   great_runes   -- ALSO collect goal_great_runes Great Runes. You must HOLD the
   #                    runes; killing the boss that vanilla-drops one is NOT enough
   #                    (they are shuffled -- the rune is not at its boss).
+  #                    🛑 It is a SPECIFIC SET, not any N. The seed picks which
+  #                    runes count and the others do not complete the goal, so
+  #                    holding the right number of the wrong ones sends no
+  #                    victory. Check your spoiler for which ones your seed chose.
   ending_condition: region_locks
 
   # Only used when ending_condition is great_runes. Clamped down to the
@@ -196,10 +200,19 @@ Elden Ring:
   goal_great_runes: 2
 
   # Great Runes needed to get into Leyndell, ON TOP of the Leyndell Lock --
-  # echoing the vanilla "two Great Runes to enter the capital". The capital's
-  # graces light once this many Great Runes have arrived. 0 disables the
-  # gate. Clamped down to the runes actually in the pool, so it can never
-  # make a seed unbeatable.
+  # echoing the vanilla "two Great Runes to enter the capital".
+  #
+  # This does NOT light the capital's graces. Leyndell sits behind a wall the
+  # game itself enforces, so its grace bundle is withheld while this gate is
+  # armed: the Lock arrives and nothing visibly happens. You walk in from Altus
+  # through the game's own main gate holding this many Great Runes, and touch
+  # the graces yourself. 0 disables the gate, and is the one setting that hands
+  # you the capital's grace bundle on the Leyndell Lock instead.
+  #
+  # FLOORED at the vanilla 2, not clamped down: the game's gate is a fixed
+  # two-rune wall that does not clamp with us, so a lower number would seal the
+  # capital behind a door logic thinks is open. When the seed cannot supply
+  # that many, the pool is topped up rather than the gate disarmed.
   leyndell_runes_required: 2
 
   # ---- DLC ------------------------------------------------------------------

@@ -35,12 +35,19 @@ whose Lock you don't hold, by any route, and the client warps you back out.
 Two exceptions echo vanilla, both on by default, and both are IN ADDITION to
 the region's own Lock -- never instead of it:
 
-- **Raya Lucaria Academy** also needs the **Academy Glintstone Key**. The key
-  is shuffled into the item pool like everything else, and the Academy's
-  graces light when the key arrives.
+- **Raya Lucaria Academy** also needs the **Academy Glintstone Key**, shuffled
+  into the item pool like everything else.
 - **Leyndell** also needs **Great Runes** -- two by default
-  (`leyndell_runes_required`). The capital's graces light once enough Great
-  Runes have arrived.
+  (`leyndell_runes_required`).
+
+🛑 **Neither of these lights its graces for you, and this is the single most
+common "the Lock is broken" report.** Both regions sit behind a wall the *game*
+enforces, so their grace bundle is withheld for as long as that wall is armed --
+you get the Lock and nothing visibly happens. You open them the vanilla way:
+walk to the Academy seal with the key, or to the capital's main gate from Altus
+holding your Great Runes, and touch the graces yourself. A grace you touch is
+the warp unlock, and it sticks. Setting `leyndell_runes_required: 0` is the one
+case where the capital's bundle rides its Lock instead.
 
 Neither exception can make a seed unbeatable: the key is always placed
 somewhere you can reach, and the rune requirement shrinks automatically if
@@ -134,10 +141,23 @@ Royal Capital, so this is easy to trip by accident.
 You have not lost it. `capital_reconciler` is on by default and keeps that
 switch matched to where you are standing, so the Royal Capital comes back. What
 the burn *does* take is Leyndell's grace warp points, which means right after it
-you cannot fast-travel in even holding the Leyndell Lock. Walk in from Altus
-through the main gate -- the Great Rune wall works exactly as before -- and
-touch a grace to get the warp back. Warping to an Ashen grace returns you to the
-finale whenever you want it.
+you cannot fast-travel in even holding the Leyndell Lock.
+
+**Fast-travel somewhere first, then walk in.** The reconciler decides which
+capital exists from where you WARP to, so warping anywhere that is not the Ashen
+Capital or the Elden Throne is what puts the Royal Capital back -- Roundtable or
+any Altus grace. Standing in Altus is not enough on its own; the switch is only
+reconsidered on a warp. Then walk to the main gate -- the Great Rune wall works
+exactly as before -- and touch a grace to get the warp back. Warping to an Ashen
+grace returns you to the finale whenever you want it.
+
+🛑 **Known bug: sometimes one warp is not enough.** The switch is written during
+the warp and the write can lose a race with the map load, and nothing retries it
+unless you are already inside the capital. If you get to the main gate and it is
+still the Ashen Capital, warp again -- each warp is a fresh attempt. If several
+warps in a row will not shift it, that is worth a bug report with your client
+log attached; grep it for `capital warp intercept` and tell us whether the line
+says `STUCK` or `PENDING`.
 
 **A pickup showed someone else's item name.** That chest held "Progressive
 Sword" for a Hollow Knight player three worlds over. You sent it; something of
@@ -460,7 +480,9 @@ Three ways to change the mix:
   curated list holds about 1013 items good enough to qualify and the default
   already draws 858 of them; past that the extra slots become junk and the log
   says so. More upgrade materials: raise `stones`. Want your junk to stay junk? Weight `junk`, which means
-  "keep whatever the check already paid". An empty recipe is honoured -- and
+  "keep whatever the check already paid" -- though if what you actually want is
+  the vanilla item spread back, `vanilla_pool: true` is the one switch that does
+  all of it, floor included. An empty recipe is honoured -- and
   warns loudly, because it means no gear and no upgrade economy at all.
 - **Steer the gear with `pool_builder_pct_*`.** These decide WHICH gear. They
   are proportions relative to each other, so `{weapons: 3, spells: 1}` and

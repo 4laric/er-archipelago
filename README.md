@@ -58,12 +58,15 @@ The options worth knowing about, all documented inline in the shipped
   an actual progression graph.
 - `ending_condition`: `region_locks` (hold every Lock in play, and the goal
   region Leyndell is always kept) or `great_runes` (also collect
-  `goal_great_runes` of them).
+  `goal_great_runes` of them -- a specific set the seed picks, not any N).
 - `enable_dlc` / `dlc_only`: bring the 11 Shadow of the Erdtree regions in, or
   play only those.
 - `curated_filler`: the recipe that spends the junk end of the pool. Ships
   pre-filled and active -- reweight it, or weight `junk` to keep whatever each
   check already paid.
+- `vanilla_pool`: one switch for the whole vanilla item spread. Weighting
+  `junk` above is only half the job -- it leaves the presence floor standing.
+  This is the lever you want if you came for a vanilla-ish pool.
 
 ---
 
