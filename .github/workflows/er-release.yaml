@@ -135,16 +135,30 @@ jobs:
       - name: The packed apworld generates a seed
         run: python tools/gf_zip_gen_smoke.py --apworld dist/eldenring.apworld
 
-      # Identity of the pair. Structural here (see the header) but the tool also checks the SHA
-      # baked into the .dll, which is the half a gitlink cannot assert.
-      - name: The tag's record of what pairs with what
-        run: python tools/check_release_pairing.py --repo from-software-archipelago-clients
-        continue-on-error: ${{ github.event.inputs.unofficial == 'true' }}
-
       - uses: actions/download-artifact@v4
         with:
           name: client-dll
           path: me3
+
+      # Identity of the pair. Structural here (see the header) but the tool also checks the SHA
+      # baked into the .dll, which is the half a gitlink cannot assert.
+      #
+      # 🛑 THIS STEP HAD TWO DEFECTS AND HAD NEVER ONCE RUN, so neither could be seen. On the only
+      # tag this workflow has ever fired on, the zip smoke above it failed and every step from here
+      # down was skipped; the first workflow_dispatch that got past the smoke went red HERE.
+      #
+      #   1. `--repo` is the WORLD repo root -- it is where the tool runs `git ls-tree HEAD
+      #      from-software-archipelago-clients` to read the gitlink. It was being handed the CLIENT
+      #      directory, so the tool looked for a gitlink to the client INSIDE the client and
+      #      correctly reported "this tree does not record a client at all". Its default is already
+      #      the right answer, which is why release.yaml, which passes no --repo, has always been
+      #      fine. Reproduced verbatim in a sandbox clone with the pin correct.
+      #   2. It sat ABOVE download-artifact, so the .dll half the comment promises could not run --
+      #      there was no .dll on disk yet, and no --dll was passed either. Moving the step below
+      #      the download is what makes the comment true.
+      - name: The tag's record of what pairs with what
+        run: python tools/check_release_pairing.py --dll me3/eldenring_archipelago.dll
+        continue-on-error: ${{ github.event.inputs.unofficial == 'true' }}
 
       # 🛑 The one input that cannot live in this repo. See docs/AP-ICON-PIPELINE.md.
       - name: Fetch the AP icon override

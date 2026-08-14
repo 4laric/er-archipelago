@@ -140,5 +140,89 @@ class TestReleasePairing(unittest.TestCase):
         self.assertEqual(code, _MOD.STALE_ALLOWED, out)
 
 
+
+class CallersPassTheWorldRoot(unittest.TestCase):
+    """🛑 THE CALLER CAN BE WRONG WHILE THE TOOL IS RIGHT, and every case above tests the tool.
+
+    MOTIVATING CASE (rule 11): er-release.yaml called this gate as
+    `check_release_pairing.py --repo from-software-archipelago-clients`. `--repo` is the WORLD
+    repo root -- it is the directory the tool runs `git ls-tree HEAD <CLIENT_DIR>` in to read the
+    gitlink. Handed the client directory, the tool looked for a gitlink to the client INSIDE the
+    client, found none, and said so correctly. Every assertion in this file passed the whole time,
+    because the defect was in the invocation.
+
+    It survived because the step had never executed: on the only tag er-release.yaml has ever
+    fired on, the zip smoke above it failed and every step below was skipped. The first
+    workflow_dispatch that got past the smoke went red here.
+    """
+
+    def setUp(self):
+        if not RUNNING_FROM_REPO:
+            self.skipTest(REPO_ONLY_REASON)
+        self.wf = os.path.join(_FOUND, ".github", "workflows")
+        if not os.path.isdir(self.wf):
+            self.skipTest("no .github/workflows in this checkout")
+
+    def _invocations(self):
+        """[(workflow, line)] for every line invoking the pairing tool."""
+        out = []
+        for name in sorted(os.listdir(self.wf)):
+            if not name.endswith((".yaml", ".yml")):
+                continue
+            with open(os.path.join(self.wf, name), encoding="utf-8") as fh:
+                for line in fh:
+                    if "check_release_pairing.py" in line and not line.lstrip().startswith("#"):
+                        out.append((name, line.strip()))
+        return out
+
+    def test_the_sweep_sees_the_callers(self):
+        """Rule 2: an empty result is a failure. Both release workflows call this gate; if the
+        sweep finds none, the assertion below is green over nothing."""
+        found = self._invocations()
+        self.assertGreaterEqual(
+            len(found), 2,
+            "only %d workflow invocation(s) of check_release_pairing.py found -- release.yaml and "
+            "er-release.yaml both call it: %r" % (len(found), found))
+
+    def test_no_caller_passes_the_client_dir_as_the_world_root(self):
+        """HARD gate, and the exact defect. `--repo` names the world repo; the client directory is
+        never a valid value for it."""
+        found = self._invocations()
+        # THE WITNESS (test_gf_vacuous_pass). The assertion below is green whether the callers are
+        # right or the sweep stopped finding them, and a renamed workflow makes the second far more
+        # likely than the first.
+        self.assertNotEqual(
+            [], found,
+            "no workflow invocation of check_release_pairing.py was found, so the emptiness below "
+            "is the sweep's, not the repo's")
+        bad = [(w, l) for w, l in found if "--repo" in l and _MOD.CLIENT_DIR in l.split("--repo", 1)[1]]
+        self.assertEqual(
+            [], bad,
+            "these hand --repo the CLIENT directory. --repo is the WORLD repo root -- where the "
+            "tool reads `git ls-tree HEAD %s` to find the gitlink -- so this makes it look for a "
+            "gitlink to the client inside the client and report 'this tree does not record a "
+            "client at all'. Its default is already the world root; drop the flag:\n  %r"
+            % (_MOD.CLIENT_DIR, bad))
+
+    def test_a_dll_argument_comes_after_the_artifact_is_on_disk(self):
+        """The .dll half cannot run before the download. A `--dll` above the step that fetches it
+        reads as a check and asserts nothing -- the tool prints `(MISSING)` and fails, or, if the
+        submodule is absent too, skips the half entirely and stays green."""
+        for name in sorted(os.listdir(self.wf)):
+            if not name.endswith((".yaml", ".yml")):
+                continue
+            with open(os.path.join(self.wf, name), encoding="utf-8") as fh:
+                text = fh.read()
+            if "--dll" not in text:
+                continue
+            dll_at = text.index("--dll")
+            dl_at = text.find("download-artifact")
+            self.assertNotEqual(-1, dl_at,
+                               "%s passes --dll but never downloads the client artifact" % name)
+            self.assertLess(dl_at, dll_at,
+                            "%s runs the pairing gate with --dll ABOVE the download-artifact step, "
+                            "so the file it names does not exist yet" % name)
+
+
 if __name__ == "__main__":
     unittest.main()
