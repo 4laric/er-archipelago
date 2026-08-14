@@ -39,19 +39,23 @@ the region's own Lock -- never instead of it:
   into the item pool like everything else.
 - **Leyndell** also needs **Great Runes** -- two by default
   (`leyndell_runes_required`).
+- **The Sewer** is entered down a well inside Leyndell, so it needs the capital
+  opened first.
 
-🛑 **Neither of these lights its graces for you, and this is the single most
-common "the Lock is broken" report.** Both regions sit behind a wall the *game*
-enforces, so their grace bundle is withheld for as long as that wall is armed --
-you get the Lock and nothing visibly happens. You open them the vanilla way:
-walk to the Academy seal with the key, or to the capital's main gate from Altus
-holding your Great Runes, and touch the graces yourself. A grace you touch is
-the warp unlock, and it sticks. Setting `leyndell_runes_required: 0` is the one
-case where the capital's bundle rides its Lock instead.
+🛑 **None of these three lights its graces for you, and this is the single most
+common "my Lock is broken" report.** They sit behind a wall the *game* enforces,
+so their grace bundle is withheld while that wall is armed -- the Lock arrives
+and nothing visibly happens. You open them the vanilla way and touch the graces
+yourself: the Academy seal with the key, the capital's main gate walking in from
+Altus with your Great Runes, the Sewer down the well once you are inside. A
+grace you touch is the warp unlock, and it sticks.
 
-Neither exception can make a seed unbeatable: the key is always placed
-somewhere you can reach, and the rune requirement shrinks automatically if
-your seed holds fewer Great Runes.
+`leyndell_runes_required: 0` is the only setting that changes any of this, and
+only for the capital. **The Sewer's graces never ride its Lock, in any seed.**
+
+None of the three can make a seed unbeatable: the key is always placed somewhere
+you can reach, and the capital's rune requirement is floored at the vanilla two
+with the pool topped up when a seed cannot supply them.
 
 That second idea is the whole trick: Elden Ring's famously go-anywhere map
 becomes a progression puzzle, one region at a time. The `num_regions` option

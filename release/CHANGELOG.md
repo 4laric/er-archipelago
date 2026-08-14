@@ -29,6 +29,10 @@ All five were load-bearing -- each one sent a real player somewhere wrong this w
   followed. Both regions are gated children whose grace bundle is withheld while the wall is armed:
   you walk in the vanilla way and touch the graces yourself. Reported from Discord by a player
   holding the Leyndell Lock with nowhere to use it. (#657)
+- **And there are THREE gated regions, not two.** The template said "two vanilla-flavored
+  exceptions" and never mentioned the Sewer, whose graces are withheld *unconditionally* --
+  `WALL_ARMED["Sewer"]` is `lambda world: True`, so no setting lights them in any seed. Found by
+  #658, the first report through the new form, who hit it and Leyndell in the same save.
 - **`leyndell_runes_required` is FLOORED at the vanilla 2, not "clamped down".** The clamp was the
   #589 bug; the text describing it outlived the fix.
 - **`ending_condition: great_runes` needs a SPECIFIC set of runes, not any N.** The template
