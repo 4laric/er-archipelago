@@ -6,7 +6,5 @@ game: "Elden Ring"
 "Elden Ring":
   num_regions: 5
   item_shuffle: true
-  grace_rando: true
   dungeon_sweep: all
-  start_with_torch: true
   accessibility: minimal

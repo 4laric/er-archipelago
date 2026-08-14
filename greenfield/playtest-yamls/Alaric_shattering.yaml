@@ -29,11 +29,8 @@ game: "Elden Ring"
 
   # ---- Real item randomizer -----------------------------------------------
   item_shuffle: true             # each check pays its real vanilla ER item, shuffled (~98.9%; the rest give Rune).
-  pool_builder: true             # scrub the Rune tail, inject rare/legendary juice.
   pool_builder_intensity: max    # normal | high (default) | max -- rarity floor: legendary-only | +rare | +B-tier.
-  pool_builder_juice_cap: 0      # 0..400; 0 = auto-size to the whole Rune tail (default 120).
   # pool_builder_juice_pct: 100  # 0..100; share of the cap actually spent (default 100).
-  curated_fill: true             # concentrate the region Locks onto big-ticket checks instead of random pickups.
   # big_ticket_locations: [Boss, Remembrance, Legendary, GreatRune, KeyItem]  # what "big-ticket" means (default shown).
 
   # ---- Filler curation (replace vanilla junk consumables) -----------------
@@ -76,8 +73,6 @@ game: "Elden Ring"
   # mode-A's scope.
 
   # ---- Warp-in ------------------------------------------------------------
-  grace_rando: false             # BUNDLE: a region lock lights ALL of that region's graces (no scatter items).
-                                 # true (default) = freebie+scatter: one front-door grace + the rest become item drops.
 
   # ---- Upgrade curve ------------------------------------------------------
   stone_ramp: true               # AUTO-SIZE smithing stones along the fill spheres to track the smoothstep target.
@@ -88,7 +83,6 @@ game: "Elden Ring"
   # filler_upgrade_weight: 1     # 1..40; weight of upgrade stones in the Rune-fallback tail (inert under item_shuffle).
 
   # ---- QoL / difficulty ---------------------------------------------------
-  start_with_torch: true         # begin holding a Torch (dark caves navigable before your first grace).
   start_with_flasks: true        # (default) start with the vanilla flask set.
   start_with_steed: true         # (default) start with Torrent's whistle (Spectral Steed).
   reveal_all_maps: true          # (default) whole overworld + underground map revealed.
@@ -96,7 +90,6 @@ game: "Elden Ring"
   early_leveling: true           # (default) early access to leveling at Roundtable.
   buyable_stonesword_keys: true  # (default) infinite Stonesword Key vendor -> imp-statue checks are never missable.
   protect_missable_locations: true  # (default) keep missable checks logically reachable.
-  completion_scaling_floor: 0    # 0..50; raise to lift the early-region difficulty floor.
   global_scadutree_blessing: off # off | player_only | scaled. DLC-only power curve; inert while enable_dlc is false.
 
   # ---- DLC / multiplayer --------------------------------------------------

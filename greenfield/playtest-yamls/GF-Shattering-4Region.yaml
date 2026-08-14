@@ -26,8 +26,6 @@ game: "Elden Ring"
 
   # ---- Real item randomizer -----------------------------------------------
   item_shuffle: true           # each check pays out its real vanilla ER item, shuffled (98.9%; the rest give Rune)
-  pool_builder: true           # scrub the Rune tail, inject rare/legendary juice
-  pool_builder_juice_cap: 0    # 0..400; 0 = auto-size to the whole Rune tail
   pool_builder_intensity: max  # normal | high (default) | max -- rarity floor legendary-only | +rare | +B-tier
 
   # ---- Boss locks / dungeon sweeps ----------------------------------------
@@ -40,13 +38,10 @@ game: "Elden Ring"
   # enable_dlc:false below keeps this base-only, which matches mode A's scope.
 
   # ---- Warp-in ------------------------------------------------------------
-  grace_rando: false           # bundle: a region lock lights ALL its graces. true = freebie (one grace + scatter items)
 
   # ---- QoL / difficulty ---------------------------------------------------
-  start_with_torch: true       # begin holding a Torch (dark caves navigable before your first grace)
   no_weapon_requirements: true # any received gear usable on any build
   start_with_region_lock: true # start at Roundtable with one random region already unlocked
-  completion_scaling_floor: 0  # 0..50; raise to lift the early-region difficulty floor
   global_scadutree_blessing: off  # off | player_only | scaled (DLC blessing scope)
   flatten_regular_upgrades: 3  # 0 = vanilla stone cost (2/4/6); 1..4 = graduated stones/level (3 = tuned curve).
                                # (Replaces the invalid 'flatten_smithing_stones'. 'auto_upgrade' is not a

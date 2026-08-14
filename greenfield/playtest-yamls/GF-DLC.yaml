@@ -10,6 +10,4 @@ game: "Elden Ring"
   enable_dlc: true
   dlc_only: true
   dungeon_sweep: all
-  grace_rando: false
-  start_with_torch: true
   accessibility: minimal
