@@ -45,7 +45,10 @@ TIERS = {"in_game", "datamine", "assumed"}
 # possession-gated, then -6 when it settled all six Great Runes as flag-gated on 191-196. 26 -> 19 in
 # one afternoon, which is what the ratchet is FOR. LOWER THIS when you measure something. Never raise
 # it -- a new gate arrives UNVERIFIED and pushes the count over the ceiling, which is the whole point.
-UNVERIFIED_CEILING = 19
+# 19 -> 18 on 2026-08-14: the Hole-Laden Necklace settled as POSSESSION off the bell events. Both
+# Finger Ruins bell ObjActs are disabled unless PlayerHasItem(ItemType.Goods, 2008008) --
+# m61_53_46 $Event(2053462600), m61_50_40 $Event(2050402600) -- so the row is measured, not assumed.
+UNVERIFIED_CEILING = 18
 
 # Measured 2026-08-01 (tools/probe_vanilla_gate_predicates.py, 589 files / 4893 events). Pinned here
 # because it is the answer to the report that produced this file, and a silent change to it would

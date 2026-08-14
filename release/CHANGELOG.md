@@ -19,6 +19,30 @@ Two things went red at the tag and this window pays one of them:
   window where this row was written late. The row is paid here; the fix named at v0.3.10 -- derive
   the fixture from `git tag` instead of typing it -- is still not taken.
 
+### Metyr is reachable again — the run rings the Finger Ruins bells, not the flag they derive
+
+Metyr, Mother of Fingers sits behind Count Ymir's questline: you ring the bell at the Finger Ruins
+of Rhia and again at the Finger Ruins of Dheo, and only then does the throne in the Cathedral of
+Manus Metyr open. Those two ruins are in **different regions** — Rhia in Scadu Altus, Dheo in
+Jagged Peak — so a seed that kept one and sealed the other could never open the throne, and Metyr's
+Remembrance sat unreachable while the fill believed her region was open.
+
+Since v0.2 the run papered over that by forcing `9440`, the flag the game DERIVES from the two
+bells. That opens the throne and nothing else: Ymir reads the bell flags themselves, so he stayed on
+his throne, his dialogue never exhausted, and the questline did not move. The run now sets the bell
+flags and lets the game derive `9440` from them, which is what the rest of the questline is
+watching.
+
+The Dheo bell is set in every seed, because it is the one that crosses a region boundary. The Rhia
+bell is set only when Scadu Altus is sealed — when it is kept, you ring that one yourself with the
+Hole-Laden Necklace and its check stays yours to earn. One consequence worth knowing: in a seed that
+keeps Jagged Peak, the Crimson Seed Talisman +1 at the Finger Ruins of Dheo now collects itself when
+you first walk in, because the game awards it for a bell that is already rung.
+
+Also recorded: the Hole-Laden Necklace's gate is measured rather than assumed. Both bell
+interactions are disabled unless you are holding it — plain inventory possession, not an "obtained"
+flag, so a client grant does trip it.
+
 ### Documentation: five player-facing claims that were false
 
 All five were load-bearing -- each one sent a real player somewhere wrong this week.
