@@ -55,6 +55,12 @@
       "why": "test_gf_filler_economy_floor.py: the shipped playtest recipe reserves no somber_stones, so the reservation assertion has nothing to hold -- content-dependent, not layout-dependent.",
       "pattern": "playtest recipe reserves no somber_stones",
       "count": 1
+    },
+    {
+      "family": "contract-versions-needs-tags",
+      "why": "test_gf_contract_versions.py derives the ledger history from `git tag` (2026-08-14, replacing a typed SHIPPED fixture). This job's checkout is SHALLOW -- fetch-tags is set on `generators` only, which is where these four actually run. They loud-skip here rather than iterating an empty derivation, which would pass vacuously and is the exact failure the derivation was meant to end. If this count reaches 0, either the tests job started fetching tags (good -- lower it deliberately) or the guard was deleted and the ratchet is now green over nothing.",
+      "pattern": "^no v\\* tags in this checkout",
+      "count": 4
     }
   ]
 }
