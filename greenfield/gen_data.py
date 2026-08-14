@@ -1818,6 +1818,35 @@ _REGION_CONFIRMED_FLAGS = frozenset({
                   # seed and the auto-descriptor had read "near Altus Highway Junction"; Alaric
                   # re-confirmed it. Recorded here so the next reader sees the question was ASKED,
                   # not overlooked.
+    # --- 2026-08-13, Alaric, CONFIRMED IN GAME from the in-client check feed: a screenshot of five
+    # consecutive "Player found their ..." lines, four of them reading "Liurnia :: ... (region
+    # unconfirmed)", with "i can confirm these are all Liurnia". Same standard as the 2026-08-01
+    # pair above -- the feed names the region we derived and a human standing there agrees with it.
+    #
+    # ⭐ THE TILE VOTE WAS ALREADY RIGHT for all four; every one of them already reads `Liurnia ::`
+    # and the hedge was costing us four progression slots for nothing. Same shape as the Weeping
+    # Golden Seed (1044327020) above.
+    #
+    # 🛑 PER-FLAG, and this batch is where that matters most so far. THREE of the four sit on ONE
+    # tile, m60_35_44 -- which carries 14 checks. Confirming the tile would clear all 14, including
+    # eleven Golden Runes and a Smoldering Butterfly nobody has stood in front of. They stay hedged.
+    67060,        # Liurnia :: Nomadic Warrior's Cookbook [12] -- "near Fallen Ruins of the Lake".
+                  # 🛑 A 5-DIGIT EVENT FLAG, not a lot id, so it does not self-decode: its tile comes
+                  # from region_map.csv's `map` column (m60_35_44_00, method treasure, ap 7000173).
+                  # Verified against data.py by ap id, because a short flag beside three ten-digit
+                  # ones is exactly the misread this file warned about at 1046367500.
+    1035447000,   # Liurnia :: Smithing Stone [3] -- "near South Raya Lucaria Gate" (m60_35_44).
+    1035447110,   # Liurnia :: Smithing Stone [2] -- same tile, same landmark. The descriptors differ
+                  # ("Fallen Ruins of the Lake" vs "South Raya Lucaria Gate") only because each is
+                  # anchored to its own nearest landmark; all three are m60_35_44.
+    1036447060,   # Liurnia :: Glintstone Firefly -- "near South Raya Lucaria Gate" (m60_36_44).
+                  # ⭐ Corroborated by an EARLIER walk as well as this one: 1036447300 (Golden Seed,
+                  # "near Academy Gate Town") sits on this same tile and was confirmed on 2026-08-02.
+                  # m60_35_44 has no such prior -- those three rest on this session alone.
+    # 🛑 NOT ADDED, and it is in the same screenshot: 1034447010 (Liurnia :: Smithing Stone [2] --
+    # "Lake statue") reads WITHOUT the hedge already, so it is not in this set and does not need to
+    # be. Checking each flag against data.py rather than adding every line in the picture is the
+    # whole discipline here.
 })
 
 _SURFACE_EXCLUDE_FLAGS = frozenset({
