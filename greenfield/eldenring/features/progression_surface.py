@@ -501,7 +501,18 @@ def sweep_slot_aps(world, classes, tag_ids=frozenset()):
     except Exception:
         _sx = frozenset()
     barred = (frozenset(_world_barred_aps(world)) | _roundtable_merchant_aps() | frozenset(_sx))
-    return contract.nominate_sweep_slots(rung_sweeps(world), barred=barred, prefer_not_in=tag_ids)
+    # 🛑 PASS THE HEALTHBARS EXPLICITLY. `contract.sweep_slot_skips()` can resolve them itself, but
+    # only via a package-relative import, and on failure it degrades to the DECLARED skips alone --
+    # which would quietly put the unfireable triggers back on the surface and reopen #672. The
+    # production path must not depend on an import that is allowed to fail; the census tool, which
+    # has no world, keeps the lazy default.
+    try:
+        from ..boss_healthbars import BOSS_HEALTHBARS  # noqa: PLC0415 -- data leaf
+        skips = contract.sweep_slot_skips(healthbars=BOSS_HEALTHBARS)
+    except Exception:
+        skips = contract.sweep_slot_skips()
+    return contract.nominate_sweep_slots(rung_sweeps(world), barred=barred,
+                                         prefer_not_in=tag_ids, skips=skips)
 
 
 def surface_ap_ids(world, classes):
