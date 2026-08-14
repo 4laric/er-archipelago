@@ -107,6 +107,26 @@ jobs:
           v="${{ github.event.inputs.version || github.ref_name }}"
           echo "version=${v#v}" >> "$GITHUB_OUTPUT"
 
+      # 🛑 AP'S OWN REQUIREMENTS ARE THE WORKFLOW'S JOB, AND THIS FILE DID NOT DO IT.
+      # `gf_zip_gen_smoke.py` bootstraps the pinned Archipelago checkout for itself, which reads
+      # like it bootstraps everything -- it does not pip-install, and never claimed to. Both other
+      # callers install: tests.yaml from `_ap/requirements.txt`, release.yaml as an inline list
+      # beside its own copy of this gate. This one installed nothing, so on v0.4.1 -- the FIRST tag
+      # this workflow ever ran on -- the gate died at `ModuleNotFoundError: No module named 'yaml'`
+      # before Generate.py could load any world at all, and the bundle steps below it never ran.
+      #
+      # Cloning here rather than letting the tool do it is what makes the requirements file
+      # reachable at pip time; the tool then finds `.ap-test/worlds` present and skips its own
+      # bootstrap. Same pin, same upstream, one source of truth in `.ap-version`.
+      - name: Archipelago, at the pin, with its requirements
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch "$(cat .ap-version)" \
+            https://github.com/ArchipelagoMW/Archipelago.git .ap-test
+          python -m pip install --upgrade pip
+          pip install "setuptools<80"          # AP 0.6.x: pkg_resources removal
+          pip install -r .ap-test/requirements.txt
+
       - name: Pack the apworld
         run: python tools/build_apworld.py -o dist/eldenring.apworld
 
