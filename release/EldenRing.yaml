@@ -753,6 +753,19 @@ Elden Ring:
   # pool regardless.
   start_with_whetblades: false
 
+  # Open the catacombs' boss doors from the start, so you walk in and fight instead of
+  # hunting the lever first. Off by default.
+  #
+  # Covers the 18 minor dungeons whose boss door is a real LEVER puzzle. It deliberately
+  # leaves the four that are not: Sainted and Giant-Conquering Hero's Graves open when you
+  # kill the Gladiator and the Shadow Troll, and skipping a FIGHT is not what this is for;
+  # Gelmir and Auriza Hero's Graves have no lever to skip.
+  #
+  # Nothing is granted and no check is skipped -- the door is only a prerequisite to
+  # reaching the boss, and the boss and its dungeon sweep still have to be earned.
+  # Applied at connect, so a dungeon you are already standing in needs a reload.
+  open_boss_doors: false
+
   # ---- Standard Archipelago options -----------------------------------------
 
   # region_lock seeds want `minimal`, not `full`.

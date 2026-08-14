@@ -178,7 +178,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.2",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "b9f5246263d8fbd270bfcb12d21610ac61bf13fab8fe33d4a8459432b570c85a",
+ "source_sha256": "ebc7a8d872a705753f296f310d369b6dc5c5e2d2cb24832109090f0c6c77fb53",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -192,6 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "auto_equip",
   "no_equip_load",
   "dungeon_sweep",
+  "open_boss_doors",
   "death_link",
   "reroll_enemy_drops",
   "curated_filler",
@@ -333,7 +334,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "no_equip_load",
     "start_with_whetblades",
     "progressive_flasks",
-    "capital_reconciler"
+    "capital_reconciler",
+    "open_boss_doors"
    ]
   }
  ],
@@ -600,6 +602,22 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "value": 3
     }
    ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "open_boss_doors",
+   "class": "OpenBossDoors",
+   "display_name": "Open Catacomb Boss Doors",
+   "description": "Open the catacombs' boss doors from the start, so you can walk in and fight instead of\nhunting the lever first. Off by default.\n\nCovers the 18 minor dungeons whose boss door is a genuine LEVER puzzle. It deliberately does not\ntouch the four that are not: Sainted and Giant-Conquering Hero's Graves open when you kill the\nGladiator and the Shadow Troll respectively, and skipping a fight is not what this option is\nfor; Gelmir and Auriza Hero's Graves have no lever to skip.\n\nNothing is granted and no check is skipped -- the door is a prerequisite to REACHING the boss,\nand the boss and its dungeon sweep still have to be earned. Set at connect, so a dungeon you are\nalready standing in needs a reload before its door moves.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
    "range": null,
    "valid_keys": null,
    "casefold": false,

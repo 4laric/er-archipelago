@@ -16,6 +16,7 @@ client's clobber read-back sentinel. All ids are from prior in-game-verified wor
 """
 from Options import DefaultOnToggle, OptionSet, Range, Toggle
 from ..registry import Feature, register
+from . import catacomb_doors as _doors
 from .. import contract
 from ..data import HUB
 from ..region_spine import REGIONS
@@ -384,6 +385,10 @@ class StartGrace(Feature):
         graces.append(_FINGERSLAYER_CHEST_GATE)   # open the Ranni-gated Nokron chest (check 12027080)
         graces.append(_RADAHN_FESTIVAL)           # start the Radahn Festival so Radahn is fightable
         graces += bells_to_force(world._kept())   # Metyr's bells -- see the block above
+        # 🛑 TAIL ONLY. `start_graces.first()` is the clobber read-back sentinel (core.rs) and what
+        # fast_travel::prime_known_good picks, so anything appended here is invisible to both --
+        # which is exactly why the catacomb doors can ride this key instead of cutting a new one.
+        graces += _doors.doors_to_force(world)     # features/catacomb_doors -- off by default
         return {
             contract.START_REGION: HUB,
             contract.START_GRACES: graces,
