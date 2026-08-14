@@ -143,11 +143,35 @@ finale whenever you want it.
 Sword" for a Hollow Knight player three worlds over. You sent it; something of
 yours is out there in return. That's the multiworld doing its thing.
 
+**A vanilla item you went looking for is nowhere in the seed.** Count the
+crystal tears, the sorceries, the Ashes of War, and you will come up short of
+vanilla. **The item pool is curated, and that is not a setting you turned on.**
+Three separate things are doing it, and none of them is a bug:
+
+- **The junk end of the pool is spent by a recipe.** Every check that would
+  have paid a Rune or a junk consumable goes into one pool, and `curated_filler`
+  spends the whole thing -- by default about two fifths of it on real gear. The
+  vanilla consumable spread is what got traded away to buy that. Full writeup
+  in **"What fills your junk checks"** below; that section is where to go before
+  you conclude something is missing.
+- **Farmable enemy drops were never checks to begin with.** A drop with no
+  one-time flag on it cannot be a check in any randomizer, so those slots stay
+  outside the pool -- and we reroll their contents per seed. Vanilla rates,
+  different consumables.
+- **A curated set of tears and bell bearings is force-fed in.** The presence
+  floor guarantees those specific ones exist even when their home region is
+  sealed. It is a floor, not a promise about everything else.
+
+If an item you want is not in your seed, that is the system working. Bring a
+report when a *check* misbehaves, not when the pool is smaller than vanilla's.
+
 **A check gave you a Rune instead of an item.** About 1% of checks pay out a
 Rune by design. Separately -- honesty time -- a small class of enemy-drop checks
 can currently still hand you the *vanilla* Elden Ring item instead of the
 Archipelago one. It cannot strand your run (those spots never hold progression),
-but you might miss a filler item. Details in `KNOWN-ISSUES.md`.
+but you might miss a filler item. Details in `KNOWN-ISSUES.md`. Note this is a
+real defect and the entry above is not -- a wrong item *in a check* is worth
+reporting; an item absent from the pool is the curation doing its job.
 
 **Where do I even stand with my checks?** Press **F6**. The in-game tracker
 lists checks by region with done/total counts, dims locked regions, and names

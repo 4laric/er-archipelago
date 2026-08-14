@@ -233,7 +233,17 @@ class TestDefaultedRegionGuard(unittest.TestCase):
         # BAD MAP JOIN (region_map.csv ties f400300 to lot m30_09_00_00, Gelmir Hero's Grave), and
         # the item is handed over at Boilprawn Shack by the Blackguard the check's own name already
         # cites. Paired with FLAG_REGION_OVERRIDE[400300] in gen_data.
-        self.assertLessEqual(len(REGION_CONFIRMED_APS), 17,
+        # 2026-08-13: 17 -> 21. Alaric, from a screenshot of the in-client check feed -- five
+        # consecutive "Player found their ..." lines, four of them reading "Liurnia :: ... (region
+        # unconfirmed)": "i can confirm these are all Liurnia". Flags 67060, 1035447000, 1035447110
+        # (all m60_35_44) and 1036447060 (m60_36_44).
+        # ⭐ THE TILE VOTE WAS ALREADY RIGHT for all four -- each already read `Liurnia ::`, so the
+        # hedge was buying nothing. This is the guard working as intended rather than being
+        # negotiated away: it fired, and the price of clearing it was writing down who looked.
+        # 🛑 Three of the four share ONE tile that carries FOURTEEN checks. Only the three he named
+        # moved; the other eleven Golden Runes and a Smoldering Butterfly are still hedged, which is
+        # the per-flag arity this exception exists to preserve.
+        self.assertLessEqual(len(REGION_CONFIRMED_APS), 21,
                              "REGION_CONFIRMED_APS is growing -- each entry un-bars a check on ground "
                              "the derivation cannot see. If these are real in-game confirmations, "
                              "raise the pin WITH who confirmed them and when (gen_data "

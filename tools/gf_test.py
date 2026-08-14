@@ -110,6 +110,15 @@ def install_world(ap):
     guide = REPO / "Elden-Ring-Archipelago-Player-Guide.md"
     if guide.is_file():
         shutil.copy2(guide, dst / guide.name)
+    # release/KNOWN-ISSUES.md, for the same reason and under its own `release/` so the test's
+    # two-place resolve finds it unchanged. Without it `test_known_issues_lists_the_curated_pool_
+    # as_by_design` SKIPS in the installed-world run -- and an unledgered skip fails the skip
+    # census, which is how PR #621 went red with 2225 tests PASSING. A doc gate that can only skip
+    # in the run CI does is the "green tick over nothing" this project already named once.
+    known = REPO / "release" / "KNOWN-ISSUES.md"
+    if known.is_file():
+        (dst / "release").mkdir(exist_ok=True)
+        shutil.copy2(known, dst / "release" / known.name)
 
     missing = [n for n in REQUIRED_INPUTS if not (dst / n).is_file()]
     if missing:

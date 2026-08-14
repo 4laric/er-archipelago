@@ -47,6 +47,12 @@ _GUIDE = next((p for p in (os.path.join(_GF_PKG, "Elden-Ring-Archipelago-Player-
                            os.path.join(_REPO, "Elden-Ring-Archipelago-Player-Guide.md"))
                if os.path.isfile(p)), "")
 
+# Same two-place resolve, for the file NEXUS-DESCRIPTION.txt sends a confused player to. It ships
+# from release/ rather than beside the package, so the installed-world leg looks under <repo>.
+_KNOWN_ISSUES = next((p for p in (os.path.join(_GF_PKG, "release", "KNOWN-ISSUES.md"),
+                                  os.path.join(_REPO, "release", "KNOWN-ISSUES.md"))
+                      if os.path.isfile(p)), "")
+
 # Backticked snake_case words that are ENGLISH, not options. Keep this list SHORT and justified --
 # every entry is a place the gate cannot help, so a long list means the gate is decorative.
 _NOT_OPTIONS = {
@@ -200,3 +206,88 @@ def test_the_dlc_region_count_the_guide_states_is_the_real_one():
     assert all(n == len(REGIONS) for n in claims), (
         f"the shipped guide claims {claims} regions with the DLC on; there are {len(REGIONS)}. A "
         f"player who types the documented maximum gets a generation failure.")
+
+
+_CONFUSE_HEADING = "## Things that will confuse you the first time"
+_CURATION_SECTION = "## What fills your junk checks"
+
+
+def _section(text, heading):
+    """The body of one `## ` section: heading to the next `## ` at column 0, or EOF."""
+    start = text.find(heading)
+    if start < 0:
+        return ""
+    body = text[start + len(heading):]
+    nxt = re.search(r"^## ", body, re.M)
+    return body[:nxt.start()] if nxt else body
+
+
+def test_the_curated_pool_is_disclosed_where_a_confused_player_looks():
+    """#617, CONTRIBUTING rule 11, and the reporter was the most experienced player we have.
+
+    > 2026-08-12, boblerrr in the playtest thread: a session spent counting vanilla items he could
+    > not find -- tears, staffs, sorceries, incantations, talismans, Ashes of War -- posted as a
+    > list of "missing items". Almost none of it was a defect. The filler tail is spent by
+    > `curated_filler`, farmable enemy drops carry no flag and can never be checks, and the presence
+    > floor injects a fixed roster. **He was surprised the pool was curated at all.**
+
+    The writeup existed and was accurate -- section 8 of 9, around line 400 of 560, reachable only
+    by someone already looking for it. `## Things that will confuse you the first time` is the
+    section written for exactly this failure mode and had eight entries, none about the pool. The
+    closest one framed pool anomalies as the vanilla-item-leak BUG, which is the opposite of the
+    answer and sends the player to file a report.
+
+    So the gate is on the SECTION, not the document: an accurate paragraph 250 lines below the place
+    a confused player stops reading is how this shipped. It must name the curation and it must point
+    at the section that explains it, so the entry stays a signpost rather than becoming a second,
+    drifting copy of the recipe.
+    """
+    text = _guide_text()
+    section = _section(text, _CONFUSE_HEADING)
+    assert section, (
+        f"`{_CONFUSE_HEADING}` is gone from the shipped guide. If it was renamed, this gate must "
+        f"move with it rather than pass vacuously -- vacuous doc gates are this file's whole "
+        f"origin story.")
+    assert "curated_filler" in section or "curated" in section.lower(), (
+        f"`{_CONFUSE_HEADING}` says nothing about the item pool being curated. It is the section a "
+        f"first-time player reads to tell odd-but-intended from broken, and the single most "
+        f"common non-bug report we get is vanilla items missing from the pool (#617).")
+    title = _CURATION_SECTION[len("## "):]
+    assert _CURATION_SECTION in text, (
+        f"the entry above points at `{_CURATION_SECTION}` and that section is not in the guide. A "
+        f"signpost to a section that has been renamed or deleted is worse than no signpost.")
+    assert title in section, (
+        f"`{_CONFUSE_HEADING}` raises the curated pool without pointing at `{_CURATION_SECTION}`, "
+        f"which is where the recipe, the defaults and the dials actually live. Name that section "
+        f"verbatim: a player who is told the pool is curated and not told where to read about it "
+        f"is left exactly as suspicious as before, and an entry that re-explains the recipe inline "
+        f"is a second copy that will drift.")
+
+
+def test_known_issues_lists_the_curated_pool_as_by_design():
+    """#617's second half, and it is a routing bug rather than a documentation one.
+
+    release/NEXUS-DESCRIPTION.txt sends every confused player to this exact file, in these words:
+    *"The full, honest list -- including the by-design behaviors that get reported as bugs."* Its
+    `## By-design behaviours` list had six entries and none of them was the pool. A player doing
+    precisely what we told him to do could not find the answer, which is worse than not being told
+    where to look.
+
+    Gated in this file rather than a new one because it is the same failure as every gate above it:
+    the writeup existed, on a surface the affected player never reaches.
+    """
+    if not _KNOWN_ISSUES:
+        pytest.skip("release/KNOWN-ISSUES.md not found beside the package or at the repo root")
+    with open(_KNOWN_ISSUES, encoding="utf-8") as fh:
+        text = fh.read()
+
+    section = _section(text, "## By-design behaviours")
+    assert section, (
+        "`## By-design behaviours` is gone from release/KNOWN-ISSUES.md. NEXUS-DESCRIPTION.txt "
+        "advertises it by name as the way to tell by-design from bugs, so if it was renamed both "
+        "that file and this gate must move with it.")
+    assert "curated_filler" in section, (
+        "the by-design list does not name `curated_filler`. It is the recipe that spends the whole "
+        "filler tail, on by default, and the reason vanilla items are missing from a seed -- the "
+        "most-reported non-bug this project has (#617). A player routed here from the Nexus page "
+        "to check whether something is by design must find it here.")

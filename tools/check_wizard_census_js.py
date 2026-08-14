@@ -78,7 +78,10 @@ def _metadata(html):
 
 
 def _extract():
-    html = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read()
+    # `newline=""` is the INJECTOR's convention (a rewrite must not churn the file's endings) and
+    # this gate inherited it by copy. It only READS, and every pattern below is written with \n,
+    # so on a Windows checkout each one missed and the gate blamed the page. Normalise on read.
+    html = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read().replace("\r\n", "\n")
     core = re.search(r'<script id="wizard-core">(.*?)</script>', html, re.S)
     if not core:
         sys.exit("[FAIL] wizard-core block not found in wizard.html")
@@ -225,7 +228,10 @@ def main():
     if not shutil.which("node"):
         print("[SKIP] node not on PATH -- the wizard's JS seed-size math is NOT gated on this box.")
         return 4
-    html = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read()
+    # `newline=""` is the INJECTOR's convention (a rewrite must not churn the file's endings) and
+    # this gate inherited it by copy. It only READS, and every pattern below is written with \n,
+    # so on a Windows checkout each one missed and the gate blamed the page. Normalise on read.
+    html = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read().replace("\r\n", "\n")
     core, census = _extract()
     cases = [dict(c) for c in CASES]
     js = _run_node(core, census, cases)

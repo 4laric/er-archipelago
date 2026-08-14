@@ -11086,4 +11086,4 @@ JUNK_GEAR_NAMES = [
     'Zamor Mask',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:3f0352a1c584e2fc76311120b689d9991084f10702cee3016805d97f31b8ea73', 'module': 'item_ids.py', 'body_sha256': 'sha256:814735a6de5382970564c475986a3a869005cbf249796b7d8790ac4293eb23ce'}
+_GEN_STAMP = {'inputs_hash': 'sha256:1203c555bf851c87ce74af2cb640a3c90c3f499fc5edf16745b5ed1629109f47', 'module': 'item_ids.py', 'body_sha256': 'sha256:814735a6de5382970564c475986a3a869005cbf249796b7d8790ac4293eb23ce'}

@@ -78,7 +78,8 @@ FIX = ("fix: update or delete the rule in ERW.findings (wizard/wizard.html). A r
 
 
 def _wizard():
-    return open(WIZARD_HTML, "r", encoding="utf-8", newline="").read()
+    # Read-only gate: normalise CRLF so the \n-written patterns below match a Windows checkout.
+    return open(WIZARD_HTML, "r", encoding="utf-8", newline="").read().replace("\r\n", "\n")
 
 
 def _metadata(html):
@@ -149,7 +150,7 @@ def _frozen_keys():
     """
     if not os.path.isfile(DEFAULTS_PY):
         return None
-    src = open(DEFAULTS_PY, "r", encoding="utf-8", newline="").read()
+    src = open(DEFAULTS_PY, "r", encoding="utf-8", newline="").read().replace("\r\n", "\n")
     m = re.search(r"^FROZEN_OPTIONS\s*=\s*\{(.*?)^\}", src, re.S | re.M)
     if not m:
         sys.exit("[FAIL] FROZEN_OPTIONS not found in %s -- this half of the gate is checking "
