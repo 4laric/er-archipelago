@@ -4000,7 +4000,16 @@ if (typeof module !== "undefined") module.exports = ERW;
       const lab = el("label", "toggle");
       const cb = Object.assign(document.createElement("input"), {type:"checkbox", checked:!!v});
       const tv = el("span", "tv", v ? "on" : "off");
-      cb.addEventListener("change", () => commit(cb.checked));
+      /* 🛑 THE WORD IS NOT THE CHECKBOX, and nothing was moving it. `refresh()` repaints the yaml,
+         the banners, the cards and the findings -- it does NOT rebuild the option rows (only
+         `renderStep` does), so anything in a row that is DERIVED from the value and is not the
+         native input itself keeps its first-render text forever. The knob slid because the browser
+         slid it; "on"/"off" was set once and never again. Reported off the live page 2026-08-13:
+         `enable_dlc` switched off, knob left, yaml correct, word still reading "on". */
+      cb.addEventListener("change", () => {
+        tv.textContent = cb.checked ? "on" : "off";
+        commit(cb.checked);
+      });
       lab.append(cb, tv);
       wrap.append(lab);
     } else if (o.kind === "range"){
@@ -4248,7 +4257,17 @@ if (typeof module !== "undefined") module.exports = ERW;
     if (mod){
       head.append(el("span", "modbadge", "changed"));
       const rb = el("button", "reset", "reset to default");
-      rb.addEventListener("click", () => { delete state.values[o.key]; refresh(); });
+      /* 🛑 THE SAME ROOT AS THE TOGGLE LABEL, one step worse. Because `refresh()` does not rebuild
+         rows, reset moved the YAML while the CONTROL kept the old value on screen -- the checkbox
+         still checked, the radio still on the old choice, the slider still where it was dragged --
+         and this badge still said "changed" about a key that no longer deviates. Rebuild this one
+         row: it is the only node whose value moved, so no other control loses focus and no open
+         `more…` block closes. */
+      rb.addEventListener("click", () => {
+        delete state.values[o.key];
+        refresh();
+        row.replaceWith(optRow(o));
+      });
       head.append(rb);
     }
     row.append(head);

@@ -237,7 +237,37 @@ for (const o of ((P.meta && P.state) ? P.meta.options : [])){
 // is the copy that is on screen on every step, i.e. the one a player actually watches.
 const side = text(doc.querySelector("#contrib") || {}).replace(/\s+/g, " ").trim();
 
-console.log(JSON.stringify({ titles, react, side, freetext,
+// ---- FOURTH AUDIT: a control's own readout must follow its own input ------------------------
+// `refresh()` repaints the yaml, the banners, the cards and the findings. It does NOT rebuild the
+// option rows -- only `renderStep` does -- so anything inside a row that is DERIVED from the value
+// and is not the native input itself keeps whatever it said when the row was built. The toggle's
+// "on"/"off" word was set once at render and updated by nothing: the knob slid (the browser slides
+// it), the yaml changed, and the word sat there. Reported off the live page 2026-08-13 as
+// `enable_dlc` reading "on" while it was off. Nothing here could see it -- every other audit reads
+// the page after a REBUILD, and this is the one class of defect that only exists between rebuilds.
+const toggles = {};
+if (P.state) for (const k of Object.keys(P.state.values)) delete P.state.values[k];
+for (let i = 0; i < railButtons().length; i++){
+  railButtons()[i].fire("click");
+  for (const lab of descByClass(main, "toggle")){
+    const row = ancestorOpt(lab);
+    const keyNode = row ? descByClass(row, "key")[0] : null;
+    const key = keyNode ? text(keyNode).trim() : "";
+    if (!key || toggles[key]) continue;
+    const input = (lab.kids || []).find(k => k.tagName === "INPUT");
+    const tv = (lab.kids || []).find(k => String(k.className || "").split(" ").includes("tv"));
+    if (!input || !tv){ toggles[key] = { error: "the toggle has no input or no readout" }; continue; }
+    const rec = { before: text(tv).trim() };
+    input.checked = !input.checked;
+    input.fire("change");
+    rec.checked = !!input.checked;
+    rec.after = text(tv).trim();
+    toggles[key] = rec;
+  }
+}
+if (P.state) for (const k of Object.keys(P.state.values)) delete P.state.values[k];
+
+console.log(JSON.stringify({ titles, react, side, freetext, toggles,
                              steps: out.map(s => ({ title: s.title, len: s.text.length,
                                                             text: s.text })) }));
 """
@@ -336,6 +366,23 @@ def main(argv):
                         "that is on screen on EVERY step, so it going quiet is the failure a player "
                         "sees first." % (data.get("side") or "")[:120])
 
+    toggles = data.get("toggles") or {}
+    if len(toggles) < 5:
+        problems.append("the toggle readout probe found only %d toggle(s) -- it is no longer "
+                        "reaching the controls, so a word that stops following its own switch "
+                        "would go unseen again." % len(toggles))
+    for key, rec in sorted(toggles.items()):
+        if rec.get("error"):
+            problems.append("%s: %s" % (key, rec["error"]))
+            continue
+        want = "on" if rec["checked"] else "off"
+        if rec["after"] != want:
+            problems.append("%s: the switch was flipped to %s and its own word still reads %r "
+                            "(it read %r before the click). The knob, the yaml and the label are "
+                            "three renderings of one value and the label is the one nothing "
+                            "updates -- a player reads the word." % (key, want, rec["after"],
+                                                                    rec["before"]))
+
     react = data.get("react") or {}
     if not react:
         problems.append("the reactivity probe returned nothing -- the page's IIFE export spliced in "
@@ -423,10 +470,10 @@ def main(argv):
         return 1
     print("[ok] all %d wizard steps render (%d..%d chars); the side readout is live; the "
           "contribution card answers %d option(s) with a number and %d more in prose; %d free-text "
-          "control(s) sorted what was typed and refused what the option refuses; the shim fails the "
-          "detached-paint mutation"
+          "control(s) sorted what was typed and refused what the option refuses; %d toggle(s) say "
+          "what they are set to; the shim fails the detached-paint mutation"
           % (len(steps), min(s["len"] for s in steps), max(s["len"] for s in steps),
-             len(NUMBERS_MOVE), len(TEXT_MOVES), len(ft or {})))
+             len(NUMBERS_MOVE), len(TEXT_MOVES), len(ft or {}), len(toggles)))
     return 0
 
 
