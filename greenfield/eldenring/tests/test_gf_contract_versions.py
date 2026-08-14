@@ -3,13 +3,19 @@
 `tools/check_contract_version.py` is the gate that fires in CI. This file guards the
 gate's one bypass: the ledger is a plain tsv, and the cheapest way to turn the gate
 green is to edit the row for the current version instead of bumping. That edit would
-erase the only record that two builds differ, so the historical rows are pinned here
-as a literal fixture -- changing one in the tsv reddens the suite as well.
+erase the only record that two builds differ.
+
+⭐⭐⭐ THE HISTORY IS NOW DERIVED FROM `git tag`, not typed here as a fixture (2026-08-14).
+contract.py is EXECUTED at every tag and its CONTRACT_HASH compared to that version's
+ledger row, so an edited row reddens this suite without anybody having remembered to
+write the version down first. The literal it replaces was late in nine consecutive
+windows and invisible in the last two -- see the block above _REPEATED_VERSION_ERA for
+why that is a mechanism rather than a run of forgetfulness, and for what the change
+gives up.
 
 Rule 8 ("guard the right thing"), applied to this file: what would make these tests
-pass while the bug is present? Only a change that edits BOTH the ledger and this
-fixture in the same commit -- which is no longer a slip, it is a decision with a diff
-a reviewer can see.
+pass while the bug is present? Editing the ledger row AND moving the tag it disagrees
+with -- which is not a slip, it is a rewrite of published history.
 
 🛑 REPO-ONLY. These need `tools/` and `release/`, which `gf_test.py` does NOT copy
 into the AP world dir, so under the `tests` job they skip (`find_repo_root` returns None).
@@ -46,167 +52,76 @@ LEDGER = os.path.join(_ROOT or "", "release", "CONTRACT-VERSIONS.tsv")
 GATE = os.path.join(_ROOT or "", "tools", "check_contract_version.py")
 CONTRACT_PY = os.path.join(_ROOT or "", "greenfield", "eldenring", "contract.py")
 
-# Derived 2026-08-03 by loading contract.py at every tag:
-#     python3 tools/check_contract_version.py --derive-history
-# 🛑 A record of what SHIPPED. Do not "fix" a row to make something pass.
-SHIPPED = {
-    "0.2.0": "b3739fdf",
-    "0.2.12": "8550ab05",
-    "0.2.13": "8550ab05",
-    "0.2.15": "d970dd88",
-    "0.2.16": "d970dd88",
-    "0.2.17": "d970dd88",
-    "0.2.18": "d970dd88",
-    "0.3.0": "5e8b11c9",
-    "0.3.1": "5e8b11c9",
-    "0.3.2": "5e8b11c9",
-    # Added 2026-08-04, LATE: v0.3.3 was tagged on 08-03 and this row was not written, which is
-    # the same missed release step as APWORLD_VERSION not moving off it. Both are now gated --
-    # see test_every_tagged_version_is_recorded_as_shipped below and
-    # check_release_notes.check_version_is_still_open.
-    "0.3.3": "5e8b11c9",
-    # Added 2026-08-04 when the v0.3.5 window was opened. v0.3.4 was tagged the same day and this
-    # row was missed AGAIN -- the second time running. 🛑 CI CANNOT SEE THIS: the test asks the git
-    # TAGS, and the workflow's checkout does not fetch them, so it silently finds no tags and
-    # passes. It only went red in a local/sandbox clone that has them. Fetch-depth/tags is the
-    # real fix; until then this row is written by hand at window-open, not at tag time.
-    "0.3.4": "5e8b11c9",
-    # Added 2026-08-06 at window-open, ON TIME for the first time -- and not by anyone
-    # remembering. tests.yaml now sets fetch-tags/fetch-depth 0, so the test below finally
-    # sees the tags it asks about; it went RED on the first PR to land past the v0.3.5 tag,
-    # which is exactly what it was written to do. The gate, not a person, caught this one.
-    "0.3.5": "5e8b11c9",
-    # 0.3.6 was MISSED here when its window opened on 2026-08-06 -- the ledger row was written and
-    # this fixture was not, so the two drifted by one row. Backfilled 2026-08-06 alongside 0.3.7.
-    # The subset assertion in test_shipped_contract_hashes_are_never_rewritten is why nothing went
-    # red: a row missing from HERE is invisible, only a row missing from the LEDGER fails. That
-    # asymmetry is worth knowing before trusting this fixture as a count of anything.
-    "0.3.6": "5e8b11c9",
-    # 0.3.7 IS BACK, AT TAG TIME, EXACTLY AS THE NOTE THAT USED TO SIT HERE SAID IT WOULD BE.
-    #
-    # That note (2026-08-06, SPEC-ashen-capital-lock) removed this row because it had been written
-    # at WINDOW-OPEN, and window-open is not shipping: guarding the hash of a version nobody had
-    # received made the window's own first contract change go red claiming history had been
-    # rewritten. It ended "the row goes back at TAG time, carrying whatever hash it actually ships
-    # with (d7d3a58e as things stand)". v0.3.7 was tagged 2026-08-07 21:01Z at 0c05811b and shipped
-    # d7d3a58e. So: back, unchanged, as predicted.
-    #
-    # 🛑 AND THE GATE FOUND IT, not a person. `test_every_tagged_version_is_recorded_as_shipped`
-    # asks `git tag`, so it went red on the FIRST PR to land past the tag -- which happened to be
-    # the v0.3.8 window-open. Worth stating plainly because that window's changelog claims it was
-    # opened deliberately rather than by a red gate: the OPEN was, this row was not.
-    #
-    "0.3.7": "d7d3a58e",
-    # v0.3.8 TAGGED 2026-08-08 at 0fc20b0, shipping d7d3a58e -- contract unmoved from 0.3.7, so the
-    # bump was version-lockstep for the pool-locality/wizard-channels window.
-    #
-    # 🛑 THE COMMENT THIS REPLACES SAID IT WOULD HAPPEN AND IT DID, AGAIN: "0.3.8 does not belong
-    # here. Its row goes in when v0.3.8 is tagged, and this test is what will say so." The row is
-    # owed the moment the tag exists, and `test_every_tagged_version_is_recorded_as_shipped` asks
-    # `git tag` -- so it reddens the FIRST job to run past the tag, whatever that job is about. The
-    # `tests` job cannot catch it (shallow checkout, no tags); `generators` can and does.
-    #
-    # 🛑 AND THE NEXT ONE IS ALREADY WRITTEN: 0.3.9 does NOT belong here while its window is open.
-    # Its row goes in when v0.3.9 is tagged. Adding an open version here is what 0.3.7's row was
-    # removed for.
-    "0.3.8": "d7d3a58e",
-    # v0.3.9 TAGGED 2026-08-09 00:31Z at 500656d, shipping 5c2b9bf2 -- the FIRST 0.3.x row whose hash
-    # differs from the window it opened on. 0.3.9 opened version-lockstep on d7d3a58e and then took
-    # `graceAttunement` under the open window, which the ledger's own row for it explains and which
-    # test_shipped_contract_hashes_are_never_rewritten permits precisely because SHIPPED had no row
-    # for it yet.
-    #
-    # 🛑 AND IT WAS OWED AT THE MOMENT OF THE TAG, NOT AT WINDOW-OPEN. Between the v0.3.9 tag and
-    # this commit, `test_every_tagged_version_is_recorded_as_shipped` was RED on main: 0.3.9 was
-    # tagged, carried a ledger row, and had no entry here. That is the FOURTH window in a row where
-    # this row is the last thing anybody remembers -- 0.3.3, 0.3.4, 0.3.6 and now 0.3.9 -- and the
-    # only reason the streak is visible is that the test asks the tags instead of asking a person.
-    "0.3.9": "5c2b9bf2",
-    # v0.3.10 TAGGED 2026-08-09 at 8e3eb52, shipping 5c2b9bf2 -- contract unmoved from 0.3.9, so the
-    # bump was version-lockstep for the sweep-remainder / DLC-terminus window.
-    #
-    # 🛑 FIFTH IN A ROW. 0.3.3, 0.3.4, 0.3.6, 0.3.9 and now 0.3.10: this row is the last thing anybody
-    # remembers, and every single time it has been the GATE that noticed rather than a person. Written
-    # here at WINDOW-OPEN for v0.3.11 rather than at tag time, which is late by one window and is why
-    # `test_every_tagged_version_is_recorded_as_shipped` was red on main between the v0.3.10 tag and
-    # this commit -- masked, because `generators` aborts at check_release_notes several steps earlier.
-    # The streak is the finding: a step that five consecutive windows have missed is not a memory
-    # problem, and the honest fix is to derive this fixture from the tags instead of writing it.
-    #
-    # 🛑 AND THE NEXT ONE IS ALREADY WRITTEN: 0.3.11 does NOT belong here while its window is open.
-    # Its row goes in when v0.3.11 is tagged. Adding an open version here is what 0.3.7's row was
-    # removed for.
-    "0.3.10": "5c2b9bf2",
-    # v0.3.11 TAGGED 2026-08-11 at 8132cb8, shipping 5c2b9bf2 -- contract unmoved from 0.3.9 again.
-    #
-    # 🛑 SIXTH IN A ROW, and the comment two lines above this one PREDICTED it in writing: "its row
-    # goes in when v0.3.11 is tagged". It did not. main was red on
-    # test_every_tagged_version_is_recorded_as_shipped from the moment the tag was cut until this
-    # window-open commit, exactly as it was between the v0.3.10 tag and the v0.3.11 open. A note
-    # that correctly predicts the next failure and does not prevent it is not a fix, and this row
-    # is now the sixth piece of evidence that the tag step -- not the window-open step -- is where
-    # it belongs. The gate cannot pay it: SHIPPED is a fixture, and a fixture that writes itself
-    # asserts nothing.
-    "0.3.11": "5c2b9bf2",
-    # v0.3.12 TAGGED 2026-08-12 20:42Z at 7d9be271, shipping 5c2b9bf2 -- contract unmoved from 0.3.9
-    # for the fourth window running.
-    #
-    # 🛑 SEVENTH IN A ROW, AND THIS TIME NOBODY EVEN SAW IT GO RED. Between the v0.3.12 tag and this
-    # commit, main was red on `check_release_notes` -- rule 14, "release notes exist for the open
-    # version" -- which runs EARLIER in the `generators` job than the loop that executes this file.
-    # An aborting step skips every step below it, so `test_every_tagged_version_is_recorded_as_shipped`
-    # never ran to say the row was owed. Confirmed from the jobs API on run 31639475006: the rule-14
-    # step is `failure` and every step after it, including `Generators run`, is `skipped`.
-    #
-    # That is the finding worth keeping. Six windows of evidence said this row is remembered late;
-    # the seventh says the gate that would tell us can itself be hidden by a gate above it. Two
-    # independent failures now have to line up before anyone notices, and on this window they did.
-    # Deriving this fixture from `git tag` -- the fix named at 0.3.10 and not taken -- would close
-    # both, because a derived fixture cannot be forgotten and does not need a job to run to be right.
-    #
-    # 🛑 AND THE NEXT ONE IS ALREADY WRITTEN: 0.4.0 does NOT belong here while its window is open.
-    # Its row goes in when v0.4.0 is tagged. Adding an open version here is what 0.3.7's row was
-    # removed for.
-    "0.3.12": "5c2b9bf2",
-    # v0.4.0 TAGGED 2026-08-13 00:02Z at d9cdeafc, shipping 5c2b9bf2 -- contract unmoved from
-    # 0.3.9 for the fifth window running. Derived by loading contract.py AT THE TAG, not recalled.
-    #
-    # ✅ AND THIS ONE IS ON TIME. Eight windows -- 0.3.3, 0.3.4, 0.3.6, 0.3.9, 0.3.10, 0.3.11,
-    # 0.3.12 -- have written this row LATE, at the following window-open rather than at the tag.
-    # The comment above 0.3.12 predicted this one in writing, the same way 0.3.10's predicted
-    # 0.3.11's and was ignored. It is being written in the same change that opens the v0.4.1
-    # window, minutes after the tag, which is the earliest anyone has managed.
-    #
-    # 🛑 THAT IS NOT A FIX, IT IS A GOOD DAY. A row a person remembers is a row a person can
-    # forget, and seven for seven says which way that goes. The fix named at 0.3.10 and still not
-    # taken is to DERIVE this fixture from `git tag` -- then it cannot be late, and it does not
-    # need a job to run to be right (0.3.12's row was owed and invisible because check_release_notes
-    # aborts the job above this one).
-    #
-    # 🛑 AND THE NEXT ONE IS ALREADY WRITTEN: 0.4.1 does NOT belong here while its window is open.
-    "0.4.0": "5c2b9bf2",
-    # v0.4.1 TAGGED 2026-08-14 02:20Z at 07dea8d0, shipping 5c2b9bf2 -- contract unmoved from 0.3.9
-    # for the sixth window running. Derived by loading contract.py at the tag (main and v0.4.1 are
-    # the SAME commit, so the tag's tree is the tree this was read from), not recalled.
-    #
-    # 🛑 NINTH IN A ROW, AND THE SECOND ONE NOBODY COULD HAVE SEEN. The comment above 0.4.0 said
-    # this row would be owed the moment v0.4.1 was tagged, and it was -- but between the tag and
-    # this commit the only job that asks never ran. `check_release_notes` (rule 14) fails at step 9
-    # of `generators`, and an aborting step skips every step below it, so steps 10-12 -- including
-    # the loop that executes this file -- were SKIPPED. Confirmed from the jobs API on job
-    # 94654518657 (PR #647): step 9 `failure`, steps 10, 11 and 12 `skipped`.
-    #
-    # That is exactly the v0.3.12 finding, repeated. It is no longer "the gate can be hidden by a
-    # gate above it" as a possibility; it is the second observation of the same pair lining up, and
-    # the two failures are not independent -- BOTH are caused by the same event, a tag being cut.
-    # Cutting a tag reddens rule 14 and owes this row in the same instant, so the gate that would
-    # report the second is guaranteed to be behind the one reporting the first. It will happen every
-    # window until this fixture is DERIVED from `git tag`, which is the fix named at 0.3.10, named
-    # again at 0.3.12, and still not taken.
-    #
-    # 🛑 AND THE NEXT ONE IS ALREADY WRITTEN: 0.4.2 does NOT belong here while its window is open.
-    "0.4.1": "5c2b9bf2",
+# ---------------------------------------------------------------------------------------------
+# WHAT THE TAGS ACTUALLY SHIPPED -- DERIVED, never typed.
+#
+# 🛑 THIS REPLACES A LITERAL `SHIPPED` DICT, and the reason is a mechanism, not tidiness. Cutting a
+# tag does TWO things in the same instant: it leaves APWORLD_VERSION naming a version that has now
+# shipped (check_release_notes, rule 14, goes red at step 9 of `generators`) and it owes that
+# version a row here (this file, in the loop at step 11). An aborting step skips every step below
+# it, so the gate that reports the second is STRUCTURALLY behind the one that aborts on the first.
+# Nine consecutive windows wrote the row late -- 0.3.3, 0.3.4, 0.3.6, 0.3.9, 0.3.10, 0.3.11,
+# 0.3.12, 0.4.0(on time), 0.4.1 -- and the last two were not even visible while they were owed.
+# A fixture that has to be remembered will be forgotten; the fix named at 0.3.10 and again at
+# 0.3.12 is to ask git. This is that.
+#
+# 🛑 WHAT WAS TRADED, stated plainly rather than left for someone to discover. The literal was
+# frozen INDEPENDENTLY of git: a moved or force-pushed tag could not change it. The derivation
+# moves with the tags. That is a real reduction in what this file can catch, accepted because
+# moving a published tag is a far larger event than this suite -- and because a fixture nine
+# windows out of date protects nothing at all.
+#
+# 🛑 KEYED ON THE TREE'S APWORLD_VERSION, NOT THE TAG NAME, and that is not pedantry: tags
+# v0.3.3, v0.3.4, v0.3.5 and v0.3.6 all carry `APWORLD_VERSION = "0.3.2"` -- in those windows the
+# tag was cut BEFORE the bump commit, so the apworld players received reported itself as 0.3.2.
+# Reading the version off the tag name would compare the wrong two things and call it history.
+_REPEATED_VERSION_ERA = {
+    # 0.2.0 names FIVE distinct contracts across v0.2 .. v0.2.11, which is the whole reason
+    # rule 15 and this ledger exist. One tsv row cannot record five shapes, so the hash
+    # comparison is waived HERE -- and test_the_waiver_is_earned asserts the split is real, so
+    # this cannot quietly cover a version that has since become consistent.
+    "0.2.0",
 }
+
+
+def _tags():
+    """Every `v*` tag in THIS checkout, or [] when there are none (shallow clone)."""
+    if not _ROOT:
+        return []
+    try:
+        out = subprocess.run(["git", "tag", "--list", "v*"], cwd=_ROOT,
+                             capture_output=True, text=True, timeout=20)
+    except (OSError, subprocess.SubprocessError):
+        return []
+    return [t.strip() for t in out.stdout.splitlines() if t.strip()]
+
+
+def _shipped_by_tag():
+    """{APWORLD_VERSION: {tag: contract_hash8}} -- contract.py EXECUTED at each tag.
+
+    Executed, not parsed: CONTRACT_HASH is computed from the contract keys, so a textual guess
+    would be a different number that looks like the right one. Tags with no contract.py (v0.1.x,
+    before the file existed) are skipped rather than reported as a failure -- absence there is
+    history, not breakage.
+    """
+    by = {}
+    with tempfile.TemporaryDirectory() as td:
+        for i, tag in enumerate(_tags()):
+            blob = subprocess.run(["git", "show", "%s:greenfield/eldenring/contract.py" % tag],
+                                  cwd=_ROOT, capture_output=True, text=True, timeout=30)
+            if blob.returncode != 0 or len(blob.stdout) < 100:
+                continue
+            path = os.path.join(td, "c_%d.py" % i)
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(blob.stdout)
+            spec = importlib.util.spec_from_file_location("_er_tag_contract_%d" % i, path)
+            mod = importlib.util.module_from_spec(spec)
+            try:
+                spec.loader.exec_module(mod)
+            except Exception:                                     # noqa: BLE001
+                continue
+            by.setdefault(mod.APWORLD_VERSION, {})[tag] = mod.CONTRACT_HASH[:8]
+    return by
 
 
 def _ledger():
@@ -231,18 +146,134 @@ def _contract(path=None):
 @unittest.skipUnless(_ROOT is not None, REPO_ONLY_REASON)
 class ContractVersionLedger(unittest.TestCase):
 
-    def test_shipped_contract_hashes_are_never_rewritten(self):
-        """Every version that has shipped keeps the hash it shipped with."""
+    _CACHE = None
+
+    def _by_version(self):
+        """{version: {tag: hash8}}, computed once -- ~30 contract.py executions, ~0.2 s.
+
+        🛑 WARNS AND SKIPS when the checkout has no tags, and every caller goes through here so
+        none of them can forget. This is not defensive padding: the `tests` job checks out
+        shallow (fetch-tags is set on `generators` only), so without the skip the derivation
+        returns {} there -- which makes the ratchet iterate an empty dict and pass, and makes the
+        waiver test fail for a reason that has nothing to do with the waiver. One vacuous green
+        and one false red, from the same missing guard.
+        """
+        import warnings
+        if not _ROOT:
+            self.skipTest(REPO_ONLY_REASON)
+        if not _tags():
+            warnings.warn("[contract-versions] UNCHECKED: no v* tags in this checkout (shallow "
+                          "clone?) -- the tag-derived ledger screen did NOT run")
+            self.skipTest("no v* tags in this checkout -- see the warning above")
+        if ContractVersionLedger._CACHE is None:
+            ContractVersionLedger._CACHE = _shipped_by_tag()
+        return ContractVersionLedger._CACHE
+
+    def test_the_ledger_records_the_hash_the_tag_actually_shipped(self):
+        """THE RATCHET. For every version a tag really shipped, the ledger row must be the hash
+        that version had AT that tag -- so editing a row to make check_contract_version green
+        reddens this instead, which is the one bypass rule 15 has.
+
+        Stronger than the literal fixture it replaces: that one could only catch an edit to a row
+        somebody had remembered to write down, and nine windows running, nobody had."""
+        by = self._by_version()
         rows = _ledger()
-        for version, want in sorted(SHIPPED.items()):
-            self.assertIn(version, rows,
-                "version %s vanished from the ledger. Rows are append-only history; a version "
-                "that shipped cannot stop having shipped." % version)
-            self.assertEqual(rows[version], want,
-                "the ledger row for %s was CHANGED from %s to %s.\n"
-                "That row records the contract shape players actually received. Rewriting it does "
-                "not make two builds compatible -- it deletes the evidence that they differ, which "
-                "is the exact failure rule 15 exists to prevent." % (version, want, rows[version]))
+        wrong, missing, checked = [], [], []
+        for version, per_tag in sorted(by.items()):
+            if version in _REPEATED_VERSION_ERA:
+                continue
+            hashes = set(per_tag.values())
+            if len(hashes) != 1:
+                continue                                  # covered by test_the_waiver_is_earned
+            want = hashes.pop()
+            checked.append(version)
+            if version not in rows:
+                missing.append((version, want, sorted(per_tag)))
+            elif rows[version] != want:
+                wrong.append((version, rows[version], want, sorted(per_tag)))
+        # THE WITNESS (test_gf_vacuous_pass). Both emptiness assertions below are green whether
+        # the ledger is honest or the derivation stopped returning anything, and the second is by
+        # far the likelier way this file rots -- a renamed contract.py, a tag scheme change, a git
+        # invocation that starts erroring. Say out loud that comparisons happened.
+        self.assertGreater(
+            len(checked), 5,
+            "only %d version(s) could be compared against their tags (%r). The ratchet below is "
+            "now green over almost nothing -- fix the derivation, do not lower this."
+            % (len(checked), checked))
+        self.assertEqual(
+            [], wrong,
+            "the ledger disagrees with what the tag actually shipped -- (version, ledger says, "
+            "tag shipped, tags): %r\n"
+            "That row records the contract shape players received. Rewriting it does not make two "
+            "builds compatible; it deletes the evidence that they differ." % (wrong,))
+        self.assertEqual(
+            [], missing,
+            "these versions were SHIPPED under a tag and have no ledger row -- (version, hash, "
+            "tags): %r\n"
+            "Append the row; it is append-only history." % (missing,))
+
+    def test_every_version_a_tag_shipped_has_a_ledger_row(self):
+        """History is written by the TAGS, so ask them.
+
+        ⚠️ LOUD SKIP. A shallow checkout has no tags and a check that cannot answer must say so
+        rather than pass quietly (rule 2). The `tests` job's checkout is shallow; `generators`
+        fetches tags, and that is where this actually runs.
+        """
+        by = self._by_version()          # loud-skips when the checkout has no tags
+        rows = _ledger()
+        # THE WITNESS: an empty derivation would make the assertion below pass for the wrong
+        # reason, which is the failure this whole file was rewritten to stop repeating.
+        self.assertGreater(len(by), 5,
+                           "only %d version(s) were found on tags -- the derivation, not the "
+                           "ledger, is what this would be measuring: %r" % (len(by), sorted(by)))
+        missing = sorted(v for v in by if v not in rows)
+        self.assertEqual([], missing,
+                         "these versions are on a TAG (so they shipped) and have no row in "
+                         "release/CONTRACT-VERSIONS.tsv: %s" % missing)
+
+    def test_the_derivation_saw_the_tags(self):
+        """Rule 2 again, pointed at the derivation itself. An empty result would make every
+        assertion above vacuously green -- which is precisely the failure mode this file is
+        replacing, in a new costume."""
+        by = self._by_version()          # loud-skips when the checkout has no tags
+        self.assertGreaterEqual(
+            len(by), 10,
+            "contract.py was executed at only %d distinct version(s) across %d tag(s). The "
+            "derivation has stopped seeing history and every ledger assertion here is now "
+            "vacuous: %r" % (len(by), len(_tags()), sorted(by)))
+        newest = max(_ledger(), key=lambda v: [int(x) for x in v.split(".")])
+        self.assertNotIn(newest, by,
+                         "the newest ledger version %s is already on a tag, so its window is not "
+                         "open -- either the ledger row was added late or a tag was cut without a "
+                         "new window being opened" % newest)
+
+    def test_the_waiver_is_earned(self):
+        """A waiver must assert its own premise, or it is a hole with a comment next to it.
+        _REPEATED_VERSION_ERA exists because 0.2.0 names five contracts; if that ever stopped
+        being true, the waiver would be silently excusing a version this gate could check."""
+        by = self._by_version()
+        for version in sorted(_REPEATED_VERSION_ERA):
+            self.assertIn(version, by,
+                          "%s is waived from the hash check but no tag ships it -- the waiver is "
+                          "covering nothing and should be deleted" % version)
+            hashes = set(by[version].values())
+            self.assertGreater(
+                len(hashes), 1,
+                "%s is waived from the hash check on the grounds that its tags disagree, and they "
+                "do not: every tag shipping it computes %s. Remove it from "
+                "_REPEATED_VERSION_ERA so the row is actually checked." % (version, hashes))
+
+    def test_the_derived_ratchet_goes_red_on_a_rewritten_row(self):
+        """Rule 7: a passing gate proves nothing until you have seen it fail. Drive the same
+        comparison over an injected history whose ledger row has been 'fixed'."""
+        by = {"9.9.9": {"v9.9.9": "aaaaaaaa"}}
+        rows = {"9.9.9": "bbbbbbbb"}                     # the row somebody edited to go green
+        wrong = [(v, rows.get(v), set(t.values()).pop())
+                 for v, t in by.items()
+                 if len(set(t.values())) == 1 and rows.get(v) != set(t.values()).copy().pop()]
+        self.assertEqual(1, len(wrong),
+                         "the comparison this file's ratchet performs did not flag a ledger row "
+                         "that disagrees with its tag -- the ratchet is inert")
 
     def test_current_version_owns_its_contract_hash(self):
         """The working tree's contract must match the row for the working tree's version."""
@@ -310,39 +341,6 @@ class ContractVersionLedger(unittest.TestCase):
         with open(GATE, encoding="utf-8") as fh:
             self.assertIn("OPTIONS_SUBKEYS is deliberately NOT folded", fh.read(),
                           "the gate stopped documenting its own blind spot")
-
-    def test_every_tagged_version_is_recorded_as_shipped(self):
-        """SHIPPED is a record of history, and history is written by the TAGS -- so ask them.
-
-        v0.3.3 was tagged on 2026-08-03 and nobody added its row; it was noticed a day later only
-        because someone happened to read this file. A ledger that depends on remembering to append
-        to it is the thing rule 13 is about: it is a to-do list until something checks it.
-
-        ⚠️ LOUD SKIP. Tags are not present in a shallow checkout, and a check that cannot answer must
-        say so rather than pass quietly (rule 2). It warns; it never asserts on evidence it does not
-        have.
-        """
-        import warnings
-        if not _ROOT:
-            self.skipTest(REPO_ONLY_REASON)
-        try:
-            out = subprocess.run(["git", "tag", "--list", "v*"], cwd=_ROOT,
-                                 capture_output=True, text=True, timeout=20)
-        except (OSError, subprocess.SubprocessError) as exc:
-            warnings.warn("[contract-versions] UNCHECKED: git unavailable (%s)" % exc)
-            return
-        tags = [t.strip().lstrip("v") for t in out.stdout.splitlines() if t.strip()]
-        if not tags:
-            warnings.warn("[contract-versions] UNCHECKED: no v* tags in this checkout (shallow "
-                          "clone?) -- the tagged-version screen did NOT run")
-            return
-        ledger = _ledger()
-        missing = sorted(t for t in tags if t in ledger and t not in SHIPPED)
-        self.assertEqual([], missing,
-                         "these versions are TAGGED (so they shipped) and carry a ledger row, but "
-                         "have no SHIPPED entry: %s. Add each with the hash its ledger row records "
-                         "-- that is what makes the ledger un-rewritable." % missing)
-
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

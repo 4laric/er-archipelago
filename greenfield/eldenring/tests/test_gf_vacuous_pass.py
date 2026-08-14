@@ -238,7 +238,10 @@ def _suite_files():
 # number. That is the intended response to a red here.
 # GOING DOWN IS ALWAYS FINE -- lower it whenever you add a witness. Going UP means a new test was
 # written that passes without looking at anything, which is the whole point of this file.
-_WITNESSLESS_CEILING = 154
+# 2026-08-14: 154 -> 153. test_gf_contract_versions' tag-derived rewrite retired one
+# witnessless test (test_every_tagged_version_is_recorded_as_shipped) and added two that
+# DO carry witnesses -- net -1. Lowered here in the same PR, per the line above.
+_WITNESSLESS_CEILING = 153
 
 
 def test_no_new_witnessless_empty_assertions():
