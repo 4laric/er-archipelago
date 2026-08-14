@@ -43,6 +43,39 @@ Also recorded: the Hole-Laden Necklace's gate is measured rather than assumed. B
 interactions are disabled unless you are holding it — plain inventory possession, not an "obtained"
 flag, so a client grant does trip it.
 
+### Documentation: five player-facing claims that were false
+
+All five were load-bearing -- each one sent a real player somewhere wrong this week.
+
+- **The Academy's and the capital's graces do NOT light when their key item arrives.** Both guides
+  and the yaml template said they did. The mechanism that would have done it (`runeGatedGraces` /
+  `greatRuneItemIds`) was retired because its client half was never built, and the docs never
+  followed. Both regions are gated children whose grace bundle is withheld while the wall is armed:
+  you walk in the vanilla way and touch the graces yourself. Reported from Discord by a player
+  holding the Leyndell Lock with nowhere to use it. (#657)
+- **And there are THREE gated regions, not two.** The template said "two vanilla-flavored
+  exceptions" and never mentioned the Sewer, whose graces are withheld *unconditionally* --
+  `WALL_ARMED["Sewer"]` is `lambda world: True`, so no setting lights them in any seed. Found by
+  #658, the first report through the new form, who hit it and Leyndell in the same save.
+- **`leyndell_runes_required` is FLOORED at the vanilla 2, not "clamped down".** The clamp was the
+  #589 bug; the text describing it outlived the fix.
+- **`ending_condition: great_runes` needs a SPECIFIC set of runes, not any N.** The template
+  promised a count. A player held four Great Runes, got no victory, and had to read the spoiler to
+  work out why. (#656, #640)
+- **`vanilla_pool` now appears where players read.** The guide, the README and KNOWN-ISSUES all
+  still routed you to weighting `junk`, which #629 measured as half a job -- it leaves the presence
+  floor standing. (#617, #618)
+- **"Connection refused" has a troubleshooting ladder**, and it no longer names the two causes it
+  is not. The old text blamed a wrong slot name and a wrong port, both of which produce a different
+  error. (#613, and clients#181 for why the message itself is still ambiguous)
+
+Also corrected: the post-burn route into the Royal Capital. The reconciler decides which capital
+exists from where you **warp**, so "walk in from Altus" was wrong on its own -- you fast-travel
+somewhere non-Ashen first, then walk in. The guide now also carries the known failure: the write
+can lose a race with the map load, and the per-tick latch the log line promises as a fallback is
+scoped to the capital buckets, so it cannot converge anywhere else. Warping again is a fresh
+attempt. (clients#200)
+
 ## v0.4.1 — 2026-08-13
 
 Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose: commits had

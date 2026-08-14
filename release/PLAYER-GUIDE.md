@@ -79,14 +79,21 @@ Two vanilla-flavored gates survive, and both are layered **on top of** the
 region's own Lock, never in place of it:
 
 - **Raya Lucaria Academy** also needs the **Academy Glintstone Key**, shuffled
-  into the item pool like anything else. The Academy's graces light when the
-  key arrives.
+  into the item pool like anything else.
 - **Leyndell** also needs **Great Runes** -- 2 by default
-  (`leyndell_runes_required`), echoing the vanilla capital gate. The capital's
-  graces light once enough have arrived.
+  (`leyndell_runes_required`), echoing the vanilla capital gate.
 
-Neither can strand a seed: the key is always placed reachably, and the rune
-requirement is auto-clamped to the Great Runes actually in your seed.
+🛑 **Neither of these lights its graces for you, and nor does the Sewer** (a
+third gated region, entered down a well inside the capital). They sit behind a
+wall the *game* enforces, so the grace bundle is withheld while that wall is
+armed -- the Lock arrives and nothing visibly happens. Open them the vanilla
+way: the Academy seal with the key, the capital's main gate from Altus with the
+runes in hand, the Sewer down the well once inside; then touch the graces
+yourself.
+
+Neither can strand a seed: the key is always placed reachably, and the capital's
+rune requirement is FLOORED at the vanilla 2 -- when the seed cannot supply that
+many, the pool is topped up rather than the gate lowered.
 
 ### Reading the tracker
 

@@ -154,8 +154,9 @@ real thing. No report needed for anything below.
   you. (3) The presence floor force-injects a curated set of physick tears and
   smithing bell bearings when their home regions are sealed -- a floor, not a
   promise about the rest. What to do: nothing. If you want the vanilla-ish
-  spread back, weight `junk` in `curated_filler` ("keep whatever the check
-  already paid"). The player guide's **"What fills your junk checks"** has the
+  spread back, set `vanilla_pool: true` -- that is the whole switch. Weighting
+  `junk` in `curated_filler` ("keep whatever the check already paid") only does
+  the first half and leaves the presence floor standing. The player guide's **"What fills your junk checks"** has the
   shipped recipe and every dial. 🛑 Sort it by where the fault is: an item
   absent from the POOL is this entry and needs no report. A CHECK that hands
   you the wrong thing -- the vanilla item, or nothing -- is a real defect, and
