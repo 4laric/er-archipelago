@@ -371,7 +371,80 @@ SWEEP_RUNGS = {
 }
 
 
-def nominate_sweep_slots(sweeps, barred=(), prefer_not_in=()):
+# Sweeps that may NOT contribute a SweepSlot surface entry, {trigger flag: reason}.
+#
+# 🛑 THE RULE, borrowed verbatim from ShopSlot, whose SHOP_SLOT_SKIPS reason strings already say it:
+# "a slot we cannot ASSERT is reachable may not be REQUIRED." A sweep is the same shape one step
+# over -- **a member we cannot assert is SWEPT may not be required.** SweepSlot's whole premise is
+# that progression only lands where a trigger will hand it over; a trigger we cannot vouch for
+# turns that promise into a coincidence.
+#
+# MOTIVATING CASE (bobler, 2026-08-14, er-archipelago#672). Progression restricted to boss sweeps.
+# He cleared 19/19 Limgrave bosses and finished with two progression checks still open:
+#   * `Limgrave :: Warming Stone - near Limgrave Tower Bridge [f34107000]`, swept by 34100800 --
+#     BOSS_HEALTHBARS records ('m34_10', 'm34_10', 'dungeon', ''), an EMPTY name. The Divine Tower
+#     of Limgrave has no boss; arena_graces.tsv's own header already lists 34100800 under
+#     `# unresolved_bosses`. There was never anything to kill.
+#   * `Limgrave :: Mushroom - treasure - Murkwater Cave [f31007000]`, swept by 31000850 -- Patches,
+#     who YIELDS rather than dying, so the defeat flag is not reached in normal play.
+#
+# 🛑🛑 Patches is the reason this cannot be derived from the data alone, and the reason his case is
+# listed by hand. His tracker entry read "Patches ✅" the whole time -- but that is the check his
+# ENCOUNTER grants, not the sweep's defeat flag. The usual rule (a boss's identity is the check its
+# death grants) is exactly what comes apart here, so no join over the shipped tables can see it.
+# The non-lethal class needs enumerating rather than special-casing; this is the one confirmed member.
+_SWEEP_SLOT_SKIP_REASONS = {
+    31000800: "non-lethal trigger: Patches yields instead of dying, so his defeat flag is not "
+              "reached in normal play -- the sweep cannot fire (bobler 2026-08-14, #672)",
+    31000850: "non-lethal trigger: Patches yields instead of dying, so his defeat flag is not "
+              "reached in normal play -- the sweep cannot fire (bobler 2026-08-14, #672)",
+}
+
+_UNNAMED_TRIGGER_REASON = (
+    "unnamed trigger: BOSS_HEALTHBARS records no boss name for this sweep, so we cannot name a "
+    "boss to kill and cannot assert the sweep can ever fire"
+)
+
+
+def sweep_slot_skips(healthbars=None):
+    """{trigger flag: reason} -- the sweeps SweepSlot must not nominate from. ShopSlot's
+    `location_tags.SHOP_SLOT_SKIPS`, one feature over, and deliberately the same shape: a dict
+    keyed by the thing excluded, valued by WHY, so the exclusion is auditable rather than a silent
+    filter.
+
+    Two sources, and the split is the point:
+
+    * DERIVED -- a trigger `BOSS_HEALTHBARS` cannot name (absent, or a blank name field). This is
+      the honest gate: it does not claim the dungeon has no boss, only that we cannot vouch for one,
+      which is the same standard ShopSlot holds a merchant to.
+    * DECLARED -- `_SWEEP_SLOT_SKIP_REASONS`, for triggers that ARE named and still cannot fire.
+      Patches is the confirmed case and cannot be derived; see that dict's comment.
+
+    `healthbars` is injectable so the gate is testable without the data module, and so
+    tools/build_region_census.py can price the wizard's SweepSlot checkbox off the same expression
+    the seed uses -- the single-source rule `nominate_sweep_slots` already documents.
+
+    🛑 If the healthbar table is unavailable we skip only the DECLARED set. Skipping on absence
+    would silently empty the surface, and a feature that disables itself when a lookup fails is
+    worse than one that stays on: the ladder would widen and nobody would know why.
+    """
+    skips = dict(_SWEEP_SLOT_SKIP_REASONS)
+    if healthbars is None:
+        try:
+            from .boss_healthbars import BOSS_HEALTHBARS as _bh  # noqa: PLC0415 -- data leaf
+            healthbars = _bh
+        except Exception:
+            healthbars = None
+    if not healthbars:
+        return skips
+    for flag, info in healthbars.items():
+        name = (info[3] if isinstance(info, (tuple, list)) and len(info) > 3 else "") or ""
+        if not str(name).strip():
+            skips.setdefault(flag, _UNNAMED_TRIGGER_REASON)
+    return skips
+
+
+def nominate_sweep_slots(sweeps, barred=(), prefer_not_in=(), skips=None):
     """{trigger flag: [member ap ids]} -> the set of ap-ids SweepSlot puts on the surface: AT MOST
     ONE per trigger. Pure, AP-free, and THE definition -- both the world
     (features/progression_surface.sweep_slot_aps) and the wizard's census tool call this.
@@ -380,6 +453,11 @@ def nominate_sweep_slots(sweeps, barred=(), prefer_not_in=()):
     SweepSlot checkbox the wizard draws. A re-implementation there would be a number the player reads
     that disagrees with the seed they get -- and this repo has already paid for that class of bug
     twice (the tracker's static surface column, gen_location_regions re-inventing the selection).
+
+    🛑 Triggers in [`sweep_slot_skips`] nominate NOTHING. SweepSlot's premise is that progression
+    only lands where a sweep hands it over, so a sweep that cannot fire must not put a check on the
+    surface -- bobler cleared 19/19 Limgrave bosses in a boss-sweeps-only seed and still had two
+    progression checks open behind triggers that do not exist (#672).
 
     THE RULE: the lowest ap-id that is not barred and, where possible, not already on the tag surface
     (`prefer_not_in`). Lowest rather than random because `world.random` is consumed a different
@@ -390,8 +468,12 @@ def nominate_sweep_slots(sweeps, barred=(), prefer_not_in=()):
     surface already had, adding a name and no breadth."""
     barred = frozenset(barred)
     prefer_not_in = frozenset(prefer_not_in)
+    skips = sweep_slot_skips() if skips is None else dict(skips)
     out = set()
     for _flag, members in sorted((sweeps or {}).items()):
+        if _flag in skips:
+            # A trigger we cannot assert will fire cannot justify a placement -- see sweep_slot_skips.
+            continue
         eligible = sorted(ap for ap in members if ap not in barred)
         if not eligible:
             continue
