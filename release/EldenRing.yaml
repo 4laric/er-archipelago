@@ -756,6 +756,9 @@ Elden Ring:
   # Open the catacombs' boss doors from the start, so you walk in and fight instead of
   # hunting the lever first. Off by default.
   #
+  # It also lights both ancestor altars in Siofra River, so the Ancestor Spirit and the
+  # Regal Ancestor Spirit are reachable without riding around lighting urns.
+  #
   # Covers the 18 minor dungeons whose boss door is a real LEVER puzzle. It deliberately
   # leaves the four that are not: Sainted and Giant-Conquering Hero's Graves open when you
   # kill the Gladiator and the Shadow Troll, and skipping a FIGHT is not what this is for;

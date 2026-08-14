@@ -101,6 +101,36 @@ LEVER_DOORS = (
     ("m35_00", 35000640),   # Underground Roadside (Shunning-Grounds)
 )
 
+# ---- the ancestor altars ----------------------------------------------------------------------
+# NOT doors, and included anyway: same promise ("walk in and fight the boss"), same shape, and the
+# option would be lying by omission if it opened every catacomb and left you riding Torrent around
+# Siofra lighting eight urns. #677 argues for widening the option's NAME to match; that is a rename
+# with a Removed stub and is deliberately not in this change.
+#
+# BOTH altars live in m12_02 (Siofra River Bank), the parent overworld tile. m12_08 and m12_09 hold
+# only the fights and contain no ObjActs at all -- the arena-is-not-the-tile split again.
+#
+# ⭐ ONE FLAG EACH, not sixteen. Each altar is a counter event over its per-urn flags that sets a
+# single aggregate, and the WARP reads the aggregate directly (m12_02:323):
+#
+#     $Event(12022609, Default, ...):
+#         if (EventFlag(12020609)) {                      # <- the aggregate, all we set
+#             WaitFor(... ActionButtonInArea(9525, 12021609));
+#             ... WarpCharacterAndCopyFloorWithFadeout(20000, Area, 12082400, ...)
+#
+# 🛑 WE DO NOT SET THE INDIVIDUAL URN FLAGS (12020600-07, 12020620-27), and a test pins that. The
+# counter's own already-done branch lights the altar SFX from the aggregate at map load, so setting
+# the eight would be redundant; and the urns are a plausible future check family, which is exactly
+# the kind of thing you do not want a QoL toggle silently pre-satisfying.
+#
+# ⭐ The upper counter waits on SIX of its eight urns (12020620-12020625) while eight are
+# instantiated. Two are decorative as far as the gate is concerned. Irrelevant here -- we set the
+# aggregate -- but it is the sort of asymmetry that bites whoever models the urns later.
+ANCESTOR_ALTARS = (
+    ("m12_02 lower", 12020609),   # -> m12_08 Ancestor Spirit
+    ("m12_02 upper", 12020629),   # -> m12_09 Regal Ancestor Spirit
+)
+
 # The four excluded doors, kept as data rather than prose so a test can assert they stay out.
 # 90005652 = opens on a mini-boss death, not a lever. 27041 = ObjAct on the door itself.
 NOT_LEVERS = {
@@ -114,6 +144,9 @@ NOT_LEVERS = {
 class OpenBossDoors(Toggle):
     """Open the catacombs' boss doors from the start, so you can walk in and fight instead of
     hunting the lever first. Off by default.
+
+    Also lights both ancestor altars in Siofra River, so the Ancestor Spirit and the Regal Ancestor
+    Spirit are reachable without riding around lighting urns. Not a door; same promise.
 
     Covers the 18 minor dungeons whose boss door is a genuine LEVER puzzle. It deliberately does not
     touch the four that are not: Sainted and Giant-Conquering Hero's Graves open when you kill the
@@ -134,7 +167,7 @@ def doors_to_force(world) -> list:
     opt = getattr(world.options, "open_boss_doors", None)
     if not (opt is not None and opt.value):
         return []
-    return [flag for _tile, flag in LEVER_DOORS]
+    return [flag for _tile, flag in LEVER_DOORS] + [flag for _where, flag in ANCESTOR_ALTARS]
 
 
 @register
