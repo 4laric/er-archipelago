@@ -2668,7 +2668,7 @@ LOCATIONS = {
         ('Liurnia :: Ritual Pot - near Jarburg (1) [f66430]', 7770063, 66430),
         ('Liurnia :: Ritual Pot - near Jarburg (2) [f66440]', 7770064, 66440),
         ('Liurnia :: Ritual Pot - from Pidia, Carian Servant [f66450]', 7770065, 66450),
-        ("Liurnia :: Nomadic Warrior's Cookbook [12] - near Fallen Ruins of the Lake (region unconfirmed) [f67060]", 7770086, 67060),
+        ("Liurnia :: Nomadic Warrior's Cookbook [12] - near Fallen Ruins of the Lake [f67060]", 7770086, 67060),
         ("Liurnia :: Nomadic Warrior's Cookbook [13] - from Nomadic Merchant [f67080]", 7770088, 67080),
         ("Liurnia :: Nomadic Warrior's Cookbook [11] - from Merchant Kalé or Nomadic Merchant [f67220]", 7770096, 67220),
         ("Liurnia :: Glintstone Craftsman's Cookbook [4] - near Academy Gate Town [f67400]", 7770105, 67400),
@@ -2949,7 +2949,7 @@ LOCATIONS = {
         ('Liurnia :: Starlight Shards - near Cathedral of Manus Celes (11) [f1035427200]', 7772670, 1035427200),
         ('Liurnia :: Somber Smithing Stone [1] - near Folly on the Lake [f1035437010]', 7772671, 1035437010),
         ('Liurnia :: Larval Tear - around Folly on the Lake [f1035437100]', 7772672, 1035437100),
-        ('Liurnia :: Smithing Stone [3] - near South Raya Lucaria Gate (region unconfirmed) [f1035447000]', 7772673, 1035447000),
+        ('Liurnia :: Smithing Stone [3] - near South Raya Lucaria Gate [f1035447000]', 7772673, 1035447000),
         ('Liurnia :: Golden Rune [1] - near South Raya Lucaria Gate (region unconfirmed) (1) [f1035447010]', 7772674, 1035447010),
         ('Liurnia :: Golden Rune [4] - near South Raya Lucaria Gate (region unconfirmed) (1) [f1035447020]', 7772675, 1035447020),
         ('Liurnia :: Golden Rune [3] - near South Raya Lucaria Gate (region unconfirmed) (1) [f1035447030]', 7772676, 1035447030),
@@ -2960,7 +2960,7 @@ LOCATIONS = {
         ('Liurnia :: Golden Rune [5] - near South Raya Lucaria Gate (region unconfirmed) [f1035447080]', 7772681, 1035447080),
         ('Liurnia :: Golden Rune [2] - near South Raya Lucaria Gate (region unconfirmed) (3) [f1035447090]', 7772682, 1035447090),
         ('Liurnia :: Golden Rune [3] - near South Raya Lucaria Gate (region unconfirmed) (2) [f1035447100]', 7772683, 1035447100),
-        ('Liurnia :: Smithing Stone [2] - near South Raya Lucaria Gate (region unconfirmed) [f1035447110]', 7772684, 1035447110),
+        ('Liurnia :: Smithing Stone [2] - near South Raya Lucaria Gate [f1035447110]', 7772684, 1035447110),
         ('Liurnia :: Blue-White Wooden Shield - near South Raya Lucaria Gate (region unconfirmed) [f1035447120]', 7772685, 1035447120),
         ('Liurnia :: Celestial Dew - near South Raya Lucaria Gate [f1035457000]', 7772686, 1035457000),
         ('Liurnia :: Meeting Place Map - near South Raya Lucaria Gate [f1035457100]', 7772687, 1035457100),
@@ -3191,7 +3191,7 @@ LOCATIONS = {
         ('Liurnia :: Arteria Leaf - near Academy Gate Town (region unconfirmed) [f1036447010]', 7774457, 1036447010),
         ('Liurnia :: Smithing Stone [2] - near Fallen Ruins of the Lake (region unconfirmed) [f1036447040]', 7774458, 1036447040),
         ('Liurnia :: Shattershard Arrow (Fletched) - near South Raya Lucaria Gate (region unconfirmed) [f1036447050]', 7774459, 1036447050),
-        ('Liurnia :: Glintstone Firefly - near South Raya Lucaria Gate (region unconfirmed) [f1036447060]', 7774460, 1036447060),
+        ('Liurnia :: Glintstone Firefly - near South Raya Lucaria Gate [f1036447060]', 7774460, 1036447060),
         ('Liurnia :: Golden Seed - near Academy Gate Town [f1036447300]', 7774461, 1036447300),
         ('Liurnia :: Crystal Cave Moss - near South Raya Lucaria Gate [f1036457020]', 7774462, 1036457020),
         ('Liurnia :: Stonesword Key - near South Raya Lucaria Gate [f1036457110]', 7774463, 1036457110),
@@ -5531,4 +5531,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:bd2a6e01883ab438ba76c0b699107cffe1fc89d1701005f47e1b881f594ddfa8', 'module': 'data.py', 'body_sha256': 'sha256:ee13a200eeaf435e21366272e3e7796f63b0288f0e13969e79461d4a8d8c16a2'}
+_GEN_STAMP = {'inputs_hash': 'sha256:59e01ef84f75b83a0c4ec15421f1a2469dbe9aba67b1c54569b663980320865a', 'module': 'data.py', 'body_sha256': 'sha256:70c169cc1a496d70a947778677feaeeafcab2f275d38d34858945fbb9d0f44a3'}

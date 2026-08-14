@@ -250,7 +250,8 @@ def _run_node(core, cases):
 
 
 def main(argv=None):
-    html = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read()
+    # Read-only gate: normalise CRLF so the \n-written patterns below match a Windows checkout.
+    html = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read().replace("\r\n", "\n")
     meta = _metadata(html)
     opts = _keymeta_options(meta)
     if not opts:

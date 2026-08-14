@@ -4,6 +4,15 @@ Vanilla game, an apworld, and an MIT-licensed Rust client. Every meaningful item
 pickup in the Lands Between is a check, what you find goes out to the multiworld,
 and your items show up in your inventory mid-session. Works solo too.
 
+**The pool is not a vanilla shuffle.** By default a recipe called
+`curated_filler` spends the whole junk end of the pool -- every check that would
+have paid a Rune or a junk consumable -- and puts roughly two fifths of it back
+as real weapons, armor, spells, talismans and Ashes of War. That means vanilla
+items *will* be missing from your seed, and that is the design rather than a
+defect. You do not turn this on; you reweight it. "What fills
+your junk checks" in `Elden-Ring-Archipelago-Player-Guide.md` is the full
+writeup.
+
 **Build your yaml at <https://peliarch.ca/er/>**. It's a web page, nothing to
 install. It walks every option and tells you how big your seed is before you
 generate it.
@@ -52,6 +61,9 @@ The options worth knowing about, all documented inline in the shipped
   `goal_great_runes` of them).
 - `enable_dlc` / `dlc_only`: bring the 11 Shadow of the Erdtree regions in, or
   play only those.
+- `curated_filler`: the recipe that spends the junk end of the pool. Ships
+  pre-filled and active -- reweight it, or weight `junk` to keep whatever each
+  check already paid.
 
 ---
 

@@ -201,6 +201,85 @@ plaintext `ws://`; a copied `wss://` address earned `SSLError: WRONG_VERSION_NUM
 🛑 archipelago.gg is still the right answer for a long game with people you do not share a Discord
 with. This is one small box, and it has neither the uptime nor the room history.
 
+### +286 checks: the co-check policy replaces a five-family allowlist
+
+A "co-check" is a second check that fires off the same event flag as another — the sibling item a
+single pickup grants. Five families were hand-verified and allowlisted; boblerrr regression-tested
+them across two full runs, so the policy that selects them is now the one the datamine already used
+everywhere else.
+
+**286 sibling checks across 147 families, +5.7% locations.** The catalog goes 2084 -> 2190 and the
+number of item names with at least one check goes 1750 -> 1990. That recovers twelve of the items
+in bobler's missing list by itself, Maternal Staff, Beloved Stardust, Stargazer Heirloom, Crystal
+Burst, Unseen Form and Scouring Black Flame among them.
+
+It is a UNION with the old hand list, not a replacement: two flags hang their sibling on a goods
+type the policy calls junk, and a pure derivation would have deleted both — one of them the check
+the Scadutree fix below had just repaired.
+
+Two latent defects fell out of doing it. A sibling of a check whose region was a GUESS was coming
+back region-confirmed and progression-eligible, because the test asked about the sibling's own id
+against a snapshot taken before that id existed — it could never match. And the vanilla bell-bearing
+list was eight names on a false premise (Somberstone Miner Bell Bearing [1] is a looted item, on a
+shared flag nothing had ever named), which let a vanilla copy stay pool-eligible under
+`progressive_stone_bells`. Nine now, and the presence floor's roster is complete for the first time.
+
+### Stacked checks pay the lot quantity: 41 names, 294 copies
+
+926 locations grant more than one copy of their vanilla item and we were paying exactly one of each.
+This mints the first slice: **41 stacked names over 127 locations, recovering 294 copies** — 39
+smithing/somber stone names across 121 lots, plus Revered Spirit Ash and Scadutree Fragment.
+
+A stack is an AP item ID, not a flag and not a lot: the stacked name is a second id pointing at the
+same game item, carrying its count in slot_data. No acquisition flag is minted, no item lot is
+touched, and the client already multiplies through — so the contract does not move and there is no
+client half.
+
+Ammunition, throwables and pots are deliberately NOT in this slice. `curated_filler` already stacks
+those by CATEGORY through the same field, so two systems would answer "how many" for one item and
+the winner would be whichever ran last. That wants a ruling first; stones are not in that table,
+which is exactly why this slice is safe without one.
+
+### Five checks were paying Rune filler because their item name resolved to nothing
+
+Five rows named an item the game's own text tables cannot resolve. Each was a live check with a live
+flag, so it kept its location, silently fell through to Rune filler, and dropped its item out of the
+catalog entirely. No error, no count, no gate — which is how two of them reached a player counting
+items in game.
+
+```
+Note: Walking Mausoleum       -> Note: Wandering Mausoleum
+Note: The Preceptors Secrets  -> Note: The Preceptors Secret
+Chain Gauntlets               -> Gauntlets
+Ancestral Spirits Horne       -> Ancestral Spirits Horn
+[Sorcery] Terra Magicus       -> [Sorcery] Terra Magica
+```
+
+⭐ **None of these was guessed, and the repo already knew.** Three are shop rows, and
+`shop_rows.tsv` — derived from the game's own shop tables — has carried the correct name all along.
+Two derived tables, one of them right, and nothing cross-checked them. Generation now collects every
+name that fails to resolve, prints the flag and the name, and refuses to finish.
+
+### +135 items a seed could never hand you, and `junk_gear` to put them in
+
+An item lot with no acquisition flag is a random enemy drop: it fires on every kill, so there is no
+one-shot event and it can never back a check. The catalog is check-derived, so an item whose only
+source is a lot like that never entered it — and gear injection draws from the catalog, so it could
+not arrive that way either. Unreachable twice over. Celebrant's Cleaver, Rib-Rake and Sickle are the
+reported case.
+
+The catalog goes **2195 -> 2325**, count-neutral: no check changes what it pays.
+
+🛑 **Registering a name is necessary, not sufficient**, and the generator now says so out loud. Of
+the 135, only 39 clear the gear-injection tier floor; **96 are rarity 0** — the game's own marker for
+trivia — including all three Celebrant's weapons. Shipping the number alone would have read like a
+fix while the motivating case stayed unreachable.
+
+So they get somewhere to go instead: **`junk_gear`**, a new `curated_filler` category of the
+equippables the game itself rates trivial. Weight it if you want the low end of the armoury in your
+filler; it is the only path to the pieces whose only source is an unflagged drop. Zero by default,
+so nothing changes unless you ask.
+
 ### Four Scadutree Fragment checks were paying half what the game gives you
 
 The base game hands out **50** Scadutree Fragments across 46 pickups -- four of those pickups are
