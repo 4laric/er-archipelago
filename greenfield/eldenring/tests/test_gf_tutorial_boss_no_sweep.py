@@ -572,8 +572,24 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     SWEEP_REGION: all 774 read the same region before and after, so not one check changed hands
     across a region boundary -- the pacing moved, the geography did not.
     🛑 A churn this size is exactly when to distrust the total: 145 added and 3876 - 3731 = 145 agree
-    only because REMOVED is 0, and the digest is what proves that rather than 900 in and 755 out."""
+    only because REMOVED is 0, and the digest is what proves that rather than 900 in and 755 out.
+
+    2026-08-13 (76916 Castle Watering Hole reversed to Scadu Altus, #645): digest 328ce8d0 ->
+    d049e865, n 4045 -> 4045. **ADDED 0, REMOVED 0, 59 RE-OWNED -- and 24 of them DID cross a region
+    boundary.**
+
+    🛑 THE FIRST ENTRY HERE WITH REGION CROSSINGS, and they are the change rather than a side effect:
+    the 24 are exactly the Castle Watering Hole checks moving Shadow Keep -> Scadu Altus, which is
+    what #645 is. Every previous paragraph could say "zero crossings" because it was re-phasing;
+    this one cannot, and saying so is the point of the pin. The check to make when it moves again is
+    unchanged -- ask WHICH checks crossed and whether their crossing was the intent.
+
+    The other 35 are ordinary re-phasing on both sides of the move (30 now in Scadu Altus, 29 in
+    Shadow Keep): taking 24 members out of one region's round-robin pool and putting them in
+    another re-phases `_ents[_j % len(_ents)]` for both, the same stable-modulus effect as the
+    paragraph above. Zero added and zero removed is what proves it is a permutation and not a
+    silent 24-in/24-out."""
     digest, n = _sweep_digest()
-    assert (digest, n) == ("328ce8d0a1ad9d23", 4045), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (328ce8d0a1ad9d23, 4045). The total alone will "
+    assert (digest, n) == ("d049e8657104e323", 4045), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (d049e8657104e323, 4045). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

@@ -2485,10 +2485,15 @@ FLAG_REGION_OVERRIDE = {
     #
     # 🛑 MAJORITY IS A JUDGEMENT, NOT A MEASUREMENT, and #534 tracks validating it in game.
     # Seven of the nine REVERT part of a ruling (grace evidence winning where it is in the
-    # majority, which is the safe direction). ONE extends: 76916 Castle Watering Hole, where 20
-    # checks are Shadow Keep and 4 were Scadu Altus -- that one deliberately overrides first-hand
-    # grace evidence, the only place a verdict is allowed to. 76861 Divided Falls is a 1/1 TIE and
+    # majority, which is the safe direction). ONE extended: 76916 Castle Watering Hole, where 20
+    # checks were Shadow Keep and 4 were Scadu Altus -- that one deliberately overrode first-hand
+    # grace evidence, the only place a verdict was allowed to. 76861 Divided Falls is a 1/1 TIE and
     # is left alone; no majority to appeal to.
+    #
+    # ✅ 2026-08-13: THE 76916 EXTENSION WAS THE ONE THAT WAS WRONG, and it is reversed below --
+    # Alaric validated it in game, which is what #534 asked for. So all nine now run in the safe
+    # direction and NOTHING in this table overrides grace evidence any more. If a future straddle
+    # resolution wants to, that is the sentence it has to earn back.
     # 76239 Frenzied Flame Village Outskirts -> Liurnia
     1038497030: 'Liurnia',
     1038497040: 'Liurnia',
@@ -2509,11 +2514,51 @@ FLAG_REGION_OVERRIDE = {
     2050467800: 'Scadu Altus',
     2050477010: 'Scadu Altus',
     2050477020: 'Scadu Altus',
-    # 76916 Castle Watering Hole -> Shadow Keep
-    2048467030: 'Shadow Keep',
-    2049477000: 'Shadow Keep',
-    2049477500: 'Shadow Keep',
-    2049477510: 'Shadow Keep',
+    # 76916 Castle Watering Hole -> SCADU ALTUS (2026-08-13, REVERSED -- see below)
+    #
+    # 🛑 THIS IS THE #534 VALIDATION, AND THE VERDICT IT VALIDATES FAILED. The block above says the
+    # straddle resolution "deliberately overrides first-hand grace evidence, the only place a verdict
+    # is allowed to" -- 76916 split 20 Shadow Keep / 4 Scadu Altus and was resolved to the majority,
+    # moving those 4 INTO Shadow Keep. Alaric then played a seed that kept Scadu Altus and NOT Shadow
+    # Keep, walked to Castle Watering Hole on his own grace, and picked up a VANILLA Furnace Visage:
+    # the checks were excluded as Shadow Keep while the player was legitimately standing on them.
+    # His words: "Castle Watering Hole in Scadu Altus grace bundle / Checks in Shadow Keep", and
+    # "these checks are definitely scadu altus". That is first-hand evidence beating a majority vote,
+    # which is the direction this table's own comment says is the safe one.
+    #
+    # ALL 24 checks whose descriptor names the grace, not just the 4 the verdict moved: the other 20
+    # derived Shadow Keep independently, and leaving them would keep 20 of his own checks out of his
+    # seed while the grace that anchors them is his. The GRACE is the unit the straddle screen works
+    # in, and this grace is Scadu Altus (region_graces.py, play region 6900).
+    #
+    # 🛑 PER-DESCRIPTOR, NOT PER-TILE, and Alaric drew that line himself ("not sure about the whole
+    # tile but these checks are definitely scadu altus"). The 24 span FOUR tiles -- m61_48_46 (1),
+    # m61_49_46 (12), m61_49_47 (3), m61_50_46 (8) -- and every other check on those tiles keeps
+    # whatever it had. Same arity rule as _REGION_CONFIRMED_FLAGS.
+    2048467030: 'Scadu Altus',
+    2049467010: 'Scadu Altus',
+    2049467510: 'Scadu Altus',
+    2049467520: 'Scadu Altus',
+    2049467530: 'Scadu Altus',
+    2049467540: 'Scadu Altus',
+    2049467550: 'Scadu Altus',
+    2049467560: 'Scadu Altus',
+    2049467570: 'Scadu Altus',
+    2049467580: 'Scadu Altus',
+    2049467590: 'Scadu Altus',
+    2049467600: 'Scadu Altus',
+    2049467900: 'Scadu Altus',
+    2049477000: 'Scadu Altus',
+    2049477500: 'Scadu Altus',
+    2049477510: 'Scadu Altus',
+    2050467000: 'Scadu Altus',
+    2050467020: 'Scadu Altus',
+    2050467030: 'Scadu Altus',
+    2050467710: 'Scadu Altus',
+    2050467720: 'Scadu Altus',
+    2050467730: 'Scadu Altus',
+    2050467900: 'Scadu Altus',
+    2050467910: 'Scadu Altus',
     # 76917 Recluses' River Upstream -> Scadu Altus
     2050467040: 'Scadu Altus',
     2050467700: 'Scadu Altus',
