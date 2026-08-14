@@ -9,9 +9,6 @@ game: "Elden Ring"
   item_shuffle: true
   ending_condition: great_runes
   goal_great_runes: 2
-  pool_builder: true
   dungeon_sweep: all
-  grace_rando: false
-  start_with_torch: true
   accessibility: minimal
   progression_balancing: 50

@@ -8,7 +8,5 @@ game: "Elden Ring"
 "Elden Ring":
   num_regions: 3
   item_shuffle: false
-  grace_rando: false
   dungeon_sweep: none
-  start_with_torch: true
   accessibility: minimal

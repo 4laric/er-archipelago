@@ -40,9 +40,7 @@ game: "Elden Ring"
 
   # ---- Real item randomizer -----------------------------------------------
   item_shuffle: true
-  pool_builder: true
   pool_builder_intensity: max
-  pool_builder_juice_cap: 0
 
   # ---- Boss features OFF (isolate DLC as the variable this run) ------------
   boss_keys: false
@@ -50,15 +48,12 @@ game: "Elden Ring"
   boss_lock_placement: own_region   # inert without boss_keys.
 
   # ---- Warp-in / maps -----------------------------------------------------
-  grace_rando: false           # bundle: a region lock lights ALL its graces.
   reveal_all_maps: true        # sets the base + DLC map-reveal flags so fast-travel works (incl. DLC).
 
   # ---- QoL / difficulty ---------------------------------------------------
-  start_with_torch: true
   no_weapon_requirements: true
   start_with_region_lock: true # start at Roundtable with one random region already unlocked.
   early_leveling: true
-  completion_scaling_floor: 0
   flatten_regular_upgrades: 3
 
   # ---- Multiplayer --------------------------------------------------------

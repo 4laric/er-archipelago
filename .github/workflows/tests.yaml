@@ -374,6 +374,23 @@ jobs:
       - name: Install PyYAML (the shipping-yaml gate reads the template)
         run: pip install pyyaml
 
+      # er_yaml_lint is AP-free (PyYAML only) and runs in milliseconds, which is why it belongs
+      # here rather than in regen-and-fill. Until now NO workflow ran it at all -- it was reachable
+      # only from pregen.py and a PowerShell script, so a rule could rot for weeks and nothing
+      # noticed. Rule 0 (unknown keys + the REMOVED migration table) HAD rotted: its loader looked
+      # for an `EROptions` class at two paths that stopped existing at the greenfield port, and the
+      # `if VALID_KEYS:` guard turned that into silence instead of a failure.
+      #
+      # --self-check runs FIRST and on its own, because a linter whose key list failed to load
+      # reports zero errors on everything -- indistinguishable from clean. It asserts the surface
+      # loaded, is plausibly sized, and includes the FROZEN options (the half whose absence produces
+      # false "unknown option" errors on real yamls, which is how a linter gets switched off).
+      - name: er_yaml_lint is armed, and the shipped yamls pass it
+        run: |
+          python er_yaml_lint.py --self-check
+          python er_yaml_lint.py --strict \
+            release/EldenRing.yaml presets/*.yaml greenfield/playtest-yamls/*.yaml
+
       # infinite_shop_rows re-derives the 14 shelves from the vanilla ShopLineupParam, and
       # elden_ring_artifacts/ is gitignored -- so without this the test would skip here and gate
       # nothing. It can extract the bundle itself, but doing it as its own step keeps the ~60 MB

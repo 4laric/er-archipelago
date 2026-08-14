@@ -107,6 +107,42 @@ still handshakes with a v0.4.2 seed.
 
 Closes #512, #634, #635.
 
+### `er_yaml_lint` was dead in two ways, and nothing ran it
+
+It is now armed, and a CI step runs it over the shipped template, the presets and the playtest
+fixtures. Two independent failures had to be fixed before that meant anything:
+
+- **Rule 0 never ran.** `load_valid_keys()` looked for an `EROptions` class at two paths that
+  stopped existing at the greenfield port, and `if VALID_KEYS:` turned the empty result into
+  silence. That rule is the typo check, the stranded-option check AND the delivery mechanism for
+  the whole `REMOVED` migration table. The key list now comes from the generated wizard metadata
+  PLUS `defaults.FROZEN_OPTIONS` plus AP's common keys -- all three, because metadata alone reports
+  every frozen option as unknown and a linter that cries wolf gets switched off.
+- 🛑 **`lint_file` looked for a `EldenRing:` block -- the v0.1 game id, without the space.** Every
+  yaml written since the v0.2 rename says `Elden Ring`, so the function found nothing and returned
+  zero findings, which is indistinguishable from a clean file. Not just rule 0: **all fifteen rules
+  had never run on any yaml anyone plays.** Found by injecting a retired key into a preset and
+  watching the linter report OK.
+
+What ran once it worked: **29 dead keys across 8 playtest fixtures**, three of them
+(`pool_builder`, `pool_builder_juice_cap`, `completion_scaling_floor`) now `Options.Removed`, which
+means those fixtures would RAISE at generation rather than be quietly ignored. All cleaned.
+
+`--self-check` is new and runs first in CI, because a linter whose key list failed to load reports
+zero errors on everything. It asserts the surface loaded, is plausibly sized, and includes the
+frozen options.
+
+**Two of the linter's own rules were quarantined as v0.1 rot** rather than guessed at: 17 of 21
+`CHOICE` entries and 16 of 22 `DEFAULT` entries name options that no longer exist, so rules keyed on
+them are now structurally unable to fire and `--self-check` prints the count. Two that were firing
+on the SHIPPED TEMPLATE are deleted outright -- both claimed `num_regions` was conditional on an
+`ending_condition: capital` and a `world_logic` that have not existed for two releases.
+
+`presets/Alaric.yaml` moved to `docs/history/`: it declares `game: EldenRing`, which Archipelago
+rejects outright, and nothing referenced it.
+
+Closes #538.
+
 ## v0.4.1 — 2026-08-13
 
 Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose: commits had
