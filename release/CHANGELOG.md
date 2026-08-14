@@ -55,6 +55,23 @@ are a catalogue rather than a menu gets the same control by setting one attribut
 `tools/check_wizard_kind_controls.py` now fails if the page stops reading it -- a presentation flag
 nothing honours is a silently reverted decision that leaves a working page behind it.
 
+### Castle Watering Hole's 24 checks belong to Scadu Altus, not Shadow Keep
+
+If your seed kept Scadu Altus but not Shadow Keep, you could walk to Castle Watering Hole — on a
+grace your own region granted you — and pick up **vanilla items**. Twenty-four checks there were
+filed under Shadow Keep, so they were not in your seed at all, and the game happily handed you the
+real thing.
+
+The cause was a judgement call the code had already flagged as one. A screen that finds graces whose
+checks straddle two regions resolved this one to its majority side (20 Shadow Keep against 4 Scadu
+Altus) and, in doing so, deliberately overrode the grace's own evidence — the only place that was
+ever allowed. The note beside it said the call needed validating in game. It has been, and it was
+wrong: all 24 are Scadu Altus.
+
+Reversing it makes the straddle screen better on every measure rather than trading against it — 51
+straddling graces down to 50, and the share of checks sitting on a minority side from 4.23% to
+4.10%.
+
 ### New: `start_region_pool` — choose where the run opens
 
 `start_region_pool: [Caelid]` and the run starts in Caelid. Name several and the opening region is

@@ -487,7 +487,7 @@
    "sweep_slots": {}
   },
   "Scadu Altus": {
-   "checks": 252,
+   "checks": 276,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 4,
@@ -525,7 +525,7 @@
    }
   },
   "Shadow Keep": {
-   "checks": 307,
+   "checks": 283,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 2,
@@ -602,5 +602,5 @@
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "586309e34b979bc5ef2fc8ed5b4330d1b1304ae7f7a3ed69a486a475e410a4d2"
+ "source_sha256": "374840ab12f23bac1b76b404dd15f6281c7207ab50d94f46985d2871500c2bee"
 }
