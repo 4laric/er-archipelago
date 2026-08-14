@@ -81,6 +81,32 @@ Elden Ring:
   # parent region -- fails generation and says which and why.
   start_region_pool: []
 
+  # How the kept regions are CHOSEN when num_regions > 0. This picks WHICH
+  # regions you keep; it does not pick where you start (that is always a
+  # separate size-weighted draw over whatever ends up kept, unless
+  # start_region_pool names it).
+  #   rolled        -- N drawn at random (default). Every base region turns up
+  #                    in roughly a third of seeds.
+  #   vanilla_order -- the first N along the game's own path: Limgrave,
+  #                    Weeping, Stormveil, Liurnia, and so on. Fully
+  #                    deterministic -- the same num_regions always keeps the
+  #                    same regions, and the later ones can never appear at
+  #                    small N. Pick it for a predictable early-game run.
+  num_regions_order: rolled
+
+  # How many regions are OPEN at run start. 1 (default) is the classic single
+  # opening region; higher values precollect that many Region Locks, so you
+  # begin with more of the map reachable and fewer locks left to find.
+  #
+  # It must stay BELOW the number of regions the seed actually kept -- holding
+  # every kept Lock at connect would complete the goal before you play -- and
+  # generation fails loudly, naming both numbers, if it does not. Remember
+  # num_regions is a DRAW SIZE: a seed can keep more than you asked for.
+  # The goal region is never one of the extras.
+  #
+  # Ignored under natural_progression, which mints no Lock items at all.
+  start_regions: 1
+
   # How the kept regions are chosen when num_regions > 0. It picks WHICH
   # regions you keep -- not where you START, which is a separate draw weighted
   # by region size over whatever was kept, unless start_region_pool names it.
@@ -235,6 +261,29 @@ Elden Ring:
   # game is sealed, and the goal becomes holding every kept DLC Lock.
   dlc_only: false
 
+  # WHERE the Scadutree blessing applies.
+  #   dlc_only -- vanilla (default). It is a Land of Shadow mechanic and does
+  #               nothing in Limgrave, exactly as FromSoft shipped it.
+  #   anywhere -- the blessing becomes a GAME-WIDE power curve driven by the
+  #               fragments the multiworld sends you. Enemies are untouched,
+  #               so this is explicitly a power fantasy.
+  # (Vanilla rungs last 50ms and are re-applied by a loop that only runs in
+  # the DLC; the client clones the rung onto a row with no expiry to make
+  # `anywhere` possible at all.)
+  scadutree_blessing_scope: dlc_only
+
+  # Guarantee each DLC region's expected Scadutree Blessing WHILE YOU STAND IN
+  # IT. DLC enemies are tuned around a per-area blessing level, but here the
+  # fragments that raise blessing are scattered multiworld checks -- so the
+  # fill can hand you Shadow Keep at blessing 0 through no decision of yours.
+  # This lifts you to that area's floor; fragments you collect still buy
+  # visible power above it.
+  #
+  # 🛑 SCOPED TO WHERE YOU STAND, not to what you unlocked. The client re-reads
+  # your play_region every tick and the floor leaves with you. Nothing is
+  # granted. Inert outside the DLC.
+  dlc_blessing_catchup: false
+
   # ---- PLAYING WITH THE DLC -------------------------------------------------
   #
   #  Uncomment this block AS A SET and delete the two `false` lines above. It is
@@ -281,6 +330,28 @@ Elden Ring:
   # lower `juice` below instead.
   vanilla_pool: false
 
+  # WHERE THE ITEMS ARE. `off` (default) is the randomizer: every check's
+  # vanilla item is shuffled across the multiworld.
+  #
+  # `all` puts every item back exactly where the base game keeps it -- the
+  # Dectus halves in their forts, the Academy Glintstone Key on its corpse,
+  # every Golden Seed on its sapling. Checks still fire, the tracker still
+  # works, Death Link still works. Nothing is sent to or received from other
+  # worlds: the seed is self-contained by design. This is the setting for a
+  # group who want to play the base game together and share deaths.
+  #
+  # Progression is gated the way the base game gates it, so the region locks
+  # are not used and num_regions is ignored -- the whole map is in play from
+  # the start, and the Leyndell wall and Rold Medallion work as they always
+  # did. THE START IS VANILLA TOO: no lantern, no extra flasks, no Torrent, no
+  # Spirit Calling Bell, no revealed maps, no levelling until you meet Melina.
+  #
+  # 🛑 Vanilla PLACEMENT and a vanilla START, not vanilla BALANCE -- weapons
+  # still upgrade automatically and still ignore stat requirements. It also
+  # inherits the base game's own missables: burning the Erdtree still strands
+  # Leyndell's checks.
+  vanilla_placement: off
+
   # Recipe for the junk-consumable filler tail: {category: weight}.
   # Leave it alone unless you know what you want. Raising `juice` gives you more
   # genuinely useful drops; raising `stones` keeps upgrade materials flowing.
@@ -322,6 +393,31 @@ Elden Ring:
   # has actually been played; treat the other two as experimental, and report
   # anything that strands you.
   region_grace_unlock: all
+
+  # Warp points arrive by EXPLORING rather than all at once. Unlocking a region
+  # lights ONE of its graces; touch this many more and the rest light. 0
+  # (default) keeps the behaviour above -- a Lock lights every grace it has.
+  # Regions with too few graces to reach the number are left alone entirely.
+  # Requires a client that supports it; a seed using it refuses an older one
+  # rather than connecting and silently ignoring it.
+  #
+  # 🛑 EXPERIMENTAL, and not for the reason a version number would tell you.
+  # Holding warps back means walking more of the world on foot, and the grace
+  # bundles have NOT been walked region by region -- so which regions can leave
+  # you somewhere you cannot get out of is genuinely not known. It moves no
+  # item and no check, so your seed still contains everything it did; what is
+  # untested is whether you can always reach it. 0 is the setting that has been
+  # played. Please report anything that strands you.
+  grace_attunement: 0
+
+  # Which grace a region hands you when it unlocks, when grace_attunement is on.
+  #   front_door    -- the region's own entrance (default). You always arrive
+  #                    somewhere sensible.
+  #   random_grace  -- any one of the region's graces, which can drop you
+  #                    deeper in and cuts more traversal. Every candidate is a
+  #                    real warp point, so it cannot strand you in a sealed
+  #                    arena.
+  grace_attunement_anchor: front_door
 
   # How good a piece of gear has to be to count as `juice`.
   #   max (default) -- legendary, rare and B-tier: about 1013 items
@@ -410,6 +506,51 @@ Elden Ring:
 
   # On: every real vanilla item this seed produces stays in YOUR world.
   local_item_only: false
+
+  # Categories of item to hold in YOUR OWN world, one per line. This is the
+  # knob for "keep my consumables and crafting mats, send the gear out"
+  # without reaching for local_item_only (which keeps everything) or
+  # filler_foreign_pct (which picks at random and cannot be aimed).
+  #
+  # Valid: armor, ashes, bell_bearings, consumables, cookbooks, crafting,
+  # crystal_tears, everything, goods, key_items, merchant_bells, other,
+  # progressive, runes
+  #
+  # It only ever ADDS to what is already held local; it never releases
+  # anything. Example:
+  #   keep_local: [consumables, crafting, runes]
+  # 🛑 Bell bearings are `key_items`, not crafting -- that example still sends
+  # them out.
+  keep_local: []
+
+  # Hold back rune items worth this many runes or fewer; larger ones may still
+  # travel. 0 (default) is OFF. The payout is a number the game publishes, so
+  # it is not guessed from the item name: Golden Rune [1] 200, [4] 1,600,
+  # [8] 3,800, [10] 6,250, [13] 12,500, Hero's Rune [1] 15,000, Lord's Rune
+  # 50,000, the DLC's largest 80,000. A cap of 3,000 keeps the small change and
+  # lets the big ones go. Independent of keep_local: naming `runes` there keeps
+  # every rune home whatever this says.
+  keep_local_rune_cap: 0
+
+  # How hard your Region Locks are pulled toward YOUR OWN world. 0 (default) is
+  # no pull at all -- every Lock is an ordinary multiworld item and can end up
+  # in someone else's game, so you may be waiting on another player to find
+  # your way into Liurnia. That is Archipelago working as intended, and it is
+  # the default on purpose. 100 pins every Lock at home.
+  #
+  # It is a share, not a mood: at 40, about 40% of your Locks are reserved for
+  # your own progression surface and the other 60% go into the pool.
+  #
+  # 🛑 A LOCK IN THE POOL IS STILL CURATED -- it is held to the same surface
+  # everyone else's progression is, it just lands on SOMEBODY'S boss rather
+  # than necessarily yours. The knob that trades curation itself is
+  # confine_foreign_progression, deliberately separate.
+  #
+  # Measured at 0 over 740 generations: in a two-slot Elden Ring multiworld
+  # about 45% of Locks leave their own world and ~90% of placed Locks sit on a
+  # surface check; four slots pushes travel to 60-70%. No effect in a solo
+  # seed, nor in the modes that mint no Locks.
+  progression_bias: 0
 
   # ---- Where progression may hide -------------------------------------------
 
@@ -510,6 +651,14 @@ Elden Ring:
   # by how much. Full-world seeds have room to spare.
   keep_out_of_shops: []
 
+  # Keep your own money runes (Golden / Hero's / Lord's / Numen's and the DLC
+  # runes) out of your merchants' stock: no shop check pays out one of your own
+  # runes, and the rerolled infinite shelves never stock one. This is an escape
+  # hatch for rune shop rows failing to render in the purchase menu -- the runes
+  # still exist, they are just never behind a merchant. Other players' items at
+  # your shops are unaffected.
+  no_runes_in_shops: false
+
   # ---- Difficulty -----------------------------------------------------------
 
   # Enemies get stronger the FURTHER INTO YOUR RUN a region is -- not by where it
@@ -589,6 +738,21 @@ Elden Ring:
   # unwinnable -- it just becomes a fight you have to build for.
   # The client only ever LOWERS a requirement, so it is reconnect-safe.
   no_weapon_requirements: true
+
+  # Wear whatever the multiworld sends you. A weapon or armour piece goes on the
+  # moment it lands in your bag, replacing whatever was in that slot.
+  # 🛑 Including mid-boss-fight, and including a weapon your build cannot use --
+  # you do not choose your kit, the item order does. Off by default. A seed with
+  # this on requires a client that supports it and says so rather than
+  # connecting and quietly ignoring it.
+  auto_equip: false
+
+  # Start with all five whetblades (Iron, Red-Hot, Sanctified, Glintstone,
+  # Black), so every Ash-of-War affinity is selectable at any grace from the
+  # opening instead of hunting the vanilla pickups. Grants the ITEMS only --
+  # the grace menu keys on possession -- and the whetblade CHECKS stay in the
+  # pool regardless.
+  start_with_whetblades: false
 
   # ---- Standard Archipelago options -----------------------------------------
 
