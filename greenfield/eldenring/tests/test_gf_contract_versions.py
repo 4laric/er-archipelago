@@ -185,6 +185,27 @@ SHIPPED = {
     #
     # 🛑 AND THE NEXT ONE IS ALREADY WRITTEN: 0.4.1 does NOT belong here while its window is open.
     "0.4.0": "5c2b9bf2",
+    # v0.4.1 TAGGED 2026-08-14 02:20Z at 07dea8d0, shipping 5c2b9bf2 -- contract unmoved from 0.3.9
+    # for the sixth window running. Derived by loading contract.py at the tag (main and v0.4.1 are
+    # the SAME commit, so the tag's tree is the tree this was read from), not recalled.
+    #
+    # 🛑 NINTH IN A ROW, AND THE SECOND ONE NOBODY COULD HAVE SEEN. The comment above 0.4.0 said
+    # this row would be owed the moment v0.4.1 was tagged, and it was -- but between the tag and
+    # this commit the only job that asks never ran. `check_release_notes` (rule 14) fails at step 9
+    # of `generators`, and an aborting step skips every step below it, so steps 10-12 -- including
+    # the loop that executes this file -- were SKIPPED. Confirmed from the jobs API on job
+    # 94654518657 (PR #647): step 9 `failure`, steps 10, 11 and 12 `skipped`.
+    #
+    # That is exactly the v0.3.12 finding, repeated. It is no longer "the gate can be hidden by a
+    # gate above it" as a possibility; it is the second observation of the same pair lining up, and
+    # the two failures are not independent -- BOTH are caused by the same event, a tag being cut.
+    # Cutting a tag reddens rule 14 and owes this row in the same instant, so the gate that would
+    # report the second is guaranteed to be behind the one reporting the first. It will happen every
+    # window until this fixture is DERIVED from `git tag`, which is the fix named at 0.3.10, named
+    # again at 0.3.12, and still not taken.
+    #
+    # 🛑 AND THE NEXT ONE IS ALREADY WRITTEN: 0.4.2 does NOT belong here while its window is open.
+    "0.4.1": "5c2b9bf2",
 }
 
 
