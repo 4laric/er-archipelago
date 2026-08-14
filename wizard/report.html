@@ -125,9 +125,14 @@ footer{color:var(--dim);font-size:13.5px;border-top:1px solid #2a261e;margin-top
 
 <div class="field">
   <label for="log">Client log</label>
-  <p class="hint">Paste the whole thing. &#128721; <b>The log is appended across sessions</b>, so an
-  older session's errors sitting above the current one send triage down a dead end &mdash; this page
-  trims to the last <code>SESSION START</code> for you and tells you if it did.</p>
+  <p class="hint">The file is <code>&lt;your Elden Ring install&gt;\log\archipelago-&lt;today&gt;.log</code>
+  &mdash; one per day, and every launch starts a line reading <code>SESSION START</code>.
+  &#128721; <b>This is NOT ModEngine's log and NOT the Archipelago client console.</b> Those two get
+  sent often and neither contains a single line from this mod, so triage stalls on a follow-up.
+  If what you are about to paste has no <code>SESSION START</code> in it, it is the wrong file.</p>
+  <p class="hint">Paste the whole thing. <b>The log is appended across sessions</b>, so an older
+  session's errors sitting above the current one send triage down a dead end &mdash; this page trims
+  to the last <code>SESSION START</code> for you and tells you if it did.</p>
   <textarea id="log" style="min-height:130px"></textarea>
 </div>
 
@@ -237,7 +242,8 @@ function build(){
   L.push(fence($("yaml").value.trim() || "(not given)"));
   if (log){
     L.push("");
-    L.push("### Client log" + (trimmed ? " (trimmed to the last SESSION START)" : ""));
+    L.push("### Client log" + (trimmed ? " (trimmed to the last SESSION START)"
+                                        : " \u26a0\ufe0f no SESSION START line -- this may not be the mod's log"));
     L.push(fence(log));
   }
   L.push("");
@@ -260,7 +266,9 @@ $("copy").addEventListener("click", function(){
   var r = build();
   var done = function(){
     say("Copied. Paste it into Discord, or into a GitHub issue."
-        + (r.trimmed ? " Your log was trimmed to the last SESSION START." : "")
+        + (r.trimmed ? " Your log was trimmed to the last SESSION START."
+                      : ($("log").value.trim() ? " \u26a0\ufe0f That log has no SESSION START line -- check it is "
+                                               + "archipelago-<date>.log and not ModEngine's." : ""))
         + (m.length ? "  Still missing: " + m.join(", ") + "." : ""),
         m.length ? "warn" : "ok");
   };
@@ -290,7 +298,10 @@ $("gh").addEventListener("click", function(){
   var title = "[" + ($("ver").value.trim()) + "] " + $("what").value.trim().split("\n")[0].slice(0, 70);
   var full = GH + "?labels=bug&title=" + encodeURIComponent(title) + "&body=" + encodeURIComponent(r.body);
   if (full.length <= LIMIT){
-    say("Opening GitHub with the report filled in." + (r.trimmed ? " Your log was trimmed to the last SESSION START." : ""), "ok");
+    say("Opening GitHub with the report filled in."
+        + (r.trimmed ? " Your log was trimmed to the last SESSION START."
+                     : ($("log").value.trim() ? " Heads up: that log has no SESSION START line, so it may not be the mod's."
+                                              : "")), "ok");
     window.open(full, "_blank", "noopener");
     return;
   }
