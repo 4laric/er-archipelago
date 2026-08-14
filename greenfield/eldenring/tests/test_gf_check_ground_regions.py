@@ -64,7 +64,13 @@ REPO = find_repo_root(HERE)
 # components exchange ids, name the SPACE in the type, the key, or the comment -- and assert it.")
 KNOWN_MISMATCHES = {
     (400175, "Farum Azula", "Caelid"),
-    (66930, "Limgrave", "Scadu Altus"),
+    # REMOVED 2026-08-14, and the reason is the ATTRIBUTION being fixed, not an input moving under
+    # it. This row was pinned as a tolerated mismatch and it was never only a mismatch: flag 66930's
+    # only lot is 41010000 (m41_01 Bonny Gaol), so a LIVE Limgrave check pointed at ground inside a
+    # DLC gaol. On an enable_dlc:false seed it shipped, sat on the progression surface, and could
+    # have taken a Region Lock the player could never reach (#680, off Alaric's own tracker).
+    # gen_data._REGION_CONFIRMED_FLAGS now sends it to Scadu Altus beside every other m41_01 check,
+    # which is where the grace join said it belonged all along.
     (400036, "Mohgwyn", "Limgrave"),
     (400401, "Raya Lucaria Academy", "Caelid"),
 }

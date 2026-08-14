@@ -2756,6 +2756,20 @@ FLAG_REGION_OVERRIDE = {
     40017000: "Rauh Base",           # m40_01 Scorpion River Catacombs (grace bucket 6950 = Rauh Base)
     40027000: "Scadu Altus",                 # m40_02 Darklight Catacombs
     41007000: "Gravesite",             # m41_00 Belurat Gaol
+    # 🛑 66930 IS THE SAME CLASS AS ITS NEIGHBOURS ABOVE AND WAS MISSED, because it does not share
+    # their X0SS7000 flag shape -- it is a 669xx common-event pot flag whose ONLY lot is 41010000,
+    # i.e. m41_01 Bonny Gaol. Same m18 fallback, same "Stormveil (assoc.)" landing, and from there
+    # it ended up a LIVE LIMGRAVE CHECK: `Limgrave :: Hefty Cracked Pot - near Bonny Gaol [f66930]`
+    # (data.py, ap 7770078) -- reported by Alaric off his own tracker on an enable_dlc:false seed,
+    # where its pickup sits in a DLC gaol he cannot reach and the fill may put progression on it.
+    #
+    # Scadu Altus is the authoritative answer, not a guess: every other m41_01 check is already
+    # there (`Scadu Altus :: ... - near Bonny Gaol [f41017xxx]`), and nearest_grace puts 66930 at
+    # grace 74101, which grace_flags puts in m41_01.
+    #
+    # Its four siblings (66900/66920/66940/66950, lots in m41_00/m41_02/m20_47) never escaped the
+    # unplaced bucket, which is why this went unnoticed: the family looked handled.
+    66930: "Scadu Altus",              # m41_01 Bonny Gaol -- Hefty Cracked Pot
     41027000: "Cerulean",              # m41_02 Lamenter's Gaol (grace bucket 6840, merged 2026-08-10)
     42007000: "Gravesite",             # m42_00 Ruined Forge (Lava Intake)
     42037000: "Rauh Base",           # m42_03 Taylew's Ruined Forge (grace bucket 6950 = Rauh Base)
