@@ -93,10 +93,20 @@ const staticIds = [...new Set([...head.matchAll(/\bid="([\w-]+)"/g)].map(m => m[
 const doc = makeDocument(staticIds);
 
 // the JSON blobs are read via getElementById(...).textContent
+// 🛑 `\r?\n`, and the miss is FATAL. This regex demanded a bare LF after the open tag, so on a
+// Windows working tree -- where wizard.html is checked out CRLF -- every blob missed, the `if`
+// below skipped silently, the node kept "" and the page died inside its own `JSON.parse("")`.
+// The gate then reported "[FAIL] the wizard threw while rendering under the DOM shim", which is
+// a true sentence about the wrong subject: it named the page for a defect in the harness, and it
+// did so ONLY off CI, i.e. exactly where someone is trying to check a change before pushing it.
+// A blob this file cannot find is a broken harness and must say so in those words.
 for (const id of ["er-options-metadata", "er-region-census", "er-pool-composition"]){
-  const m = html.match(new RegExp('<script id="' + id + '" type="application/json">\\n([\\s\\S]*?)</script>'));
+  const m = html.match(new RegExp('<script id="' + id + '" type="application/json">\\r?\\n([\\s\\S]*?)</script>'));
   const node = doc.getElementById(id);
-  if (m && node) node.textContent = m[1];
+  if (!m) throw new Error("harness: no <script id=\"" + id + "\" type=\"application/json\"> blob in " +
+                          process.argv[3] + " -- the page is not at fault, this extractor is");
+  if (!node) throw new Error("harness: #" + id + " is not in the static markup");
+  node.textContent = m[1];
 }
 
 let scripts = [...html.matchAll(/<script(?![^>]*type="application\/json")[^>]*>([\s\S]*?)<\/script>/g)]
@@ -294,7 +304,7 @@ def selftest():
     one is a shim, i.e. entirely my own model of a browser, so "it passes" is worth nothing on its
     own. The mutation is the exact line from 9566a4d.
     """
-    src = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read()
+    src = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read().replace("\r\n", "\n")
     hit = re.search(r'\n( *)paintSeedSize\(\);\s*// AFTER the append[^\n]*\n', src)
     if not hit:
         return ("could not find the post-append paintSeedSize() call to mutate -- the self-test "
@@ -350,7 +360,9 @@ def main(argv):
         if not any(needle.lower() in st["text"].lower() for st in hits):
             problems.append("step %r does not contain %r." % (hits[0]["title"], needle))
 
-    html = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read()
+    # Read-only from here: normalise CRLF, or `rail.index("</div>\n  </div>")` below raises
+    # ValueError on a Windows checkout and the step-rail audit dies before it audits anything.
+    html = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read().replace("\r\n", "\n")
     static = re.sub(r'<script id="[a-z-]+" type="application/json">.*?</script>', "",
                     html.split('<script id="wizard-core">')[0], flags=re.S)
     rail = static[static.index('<div class="side">'):]
