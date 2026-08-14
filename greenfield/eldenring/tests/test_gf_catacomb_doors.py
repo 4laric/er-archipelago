@@ -23,6 +23,9 @@ def test_the_table_is_the_state_flag_band_not_the_objact_band():
     silently wrong -- it is the ObjAct subsystem's own space, only readable via ObjActEventFlag().
     Every entry must have 0 as its 5th digit."""
     assert cd.LEVER_DOORS, "the door table is empty -- every assertion below would pass vacuously"
+    # Scoped to LEVER_DOORS on purpose. The m30/m35 5th-digit rule is a catacombs convention and
+    # says nothing about the m12 altars, which have their own aggregate/per-urn split -- asserting
+    # it over both tables would be a coincidence dressed as an invariant.
     for tile, flag in cd.LEVER_DOORS:
         digit = (flag // 1000) % 10
         assert digit == 0, (
@@ -64,8 +67,9 @@ def test_doors_to_force_fails_closed_and_can_open():
 
     # the witness: the ON arm returns the whole table, so the OFF arm below is a real zero
     on = cd.doors_to_force(_world(open_boss_doors=1))
-    assert on == [f for _, f in cd.LEVER_DOORS], "the ON arm must force every lever door"
-    assert len(on) == 18
+    expected = [f for _, f in cd.LEVER_DOORS] + [f for _, f in cd.ANCESTOR_ALTARS]
+    assert on == expected, "the ON arm must force every lever door and both ancestor altars"
+    assert len(on) == 20
 
     assert cd.doors_to_force(_world(open_boss_doors=0)) == [], "the toggle must gate it"
     assert cd.doors_to_force(_world()) == [], "an ABSENT option must read as OFF -- fail closed"
@@ -92,13 +96,28 @@ class DoorsOn(WorldTestBase):
     game = GAME
     options = {"num_regions": 0, "open_boss_doors": True}
 
-    def test_every_door_reaches_the_wire(self):
+    def test_every_door_and_altar_reaches_the_wire(self):
         graces = self.world.fill_slot_data()[contract.START_GRACES]
         # WITNESS: an empty `missing` is also what an empty TABLE produces, so say how many were
-        # looked for. 18 is the count the table test pins independently.
+        # looked for. Both counts are pinned independently by the table tests.
         assert len(cd.LEVER_DOORS) == 18, "the table emptied -- `missing` would be empty for free"
-        missing = [f for _, f in cd.LEVER_DOORS if f not in graces]
-        assert not missing, f"{len(missing)} door flag(s) never reached startGraces: {missing[:3]}"
+        assert len(cd.ANCESTOR_ALTARS) == 2, "likewise the altars"
+        want = [f for _, f in cd.LEVER_DOORS] + [f for _, f in cd.ANCESTOR_ALTARS]
+        missing = [f for f in want if f not in graces]
+        assert not missing, f"{len(missing)} flag(s) never reached startGraces: {missing[:3]}"
+
+    def test_the_individual_urn_flags_are_NOT_set(self):
+        """🛑 We set the two aggregates and nothing else. The counter's own already-done branch
+        lights the altar from the aggregate at map load, so the eight-per-altar urn flags are
+        redundant -- and they are a plausible future check family, which is exactly what a QoL
+        toggle must not quietly pre-satisfy."""
+        graces = set(self.world.fill_slot_data()[contract.START_GRACES])
+        urns = list(range(12020600, 12020608)) + list(range(12020620, 12020628))
+        assert len(urns) == 16, "the urn range is wrong -- the assertion below would be vacuous"
+        assert 12020609 in graces and 12020629 in graces, (
+            "the aggregates are not on the wire, so 'no urns' below would be true for free")
+        leaked = sorted(set(urns) & graces)
+        assert not leaked, f"individual urn flag(s) reached startGraces: {leaked}"
 
     def test_the_doors_are_on_the_TAIL_and_never_the_head(self):
         """🛑 start_graces.first() is read twice for something else entirely: it is the clobber

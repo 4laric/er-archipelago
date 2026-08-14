@@ -180,6 +180,34 @@ target.
 
 Closes #669.
 
+### `open_boss_doors` also lights the ancestor altars
+
+The Ancestor Spirit and the Regal Ancestor Spirit are reachable without riding around Siofra
+lighting urns. Not doors; same promise, and the option would be lying by omission if it opened every
+catacomb and left those two.
+
+**Two flags, not sixteen.** Both altars are in `m12_02` (Siofra River Bank) -- the arena tiles
+`m12_08`/`m12_09` hold only the fights and carry no ObjActs at all. Each altar is a counter over its
+per-urn flags that sets one aggregate, and the WARP reads the aggregate directly, so `12020609`
+(Ancestor) and `12020629` (Regal) are the whole feature.
+
+🛑 **The individual urn flags are NOT set, and a test pins that.** The counter's own already-done
+branch lights the altar from the aggregate at map load, so the sixteen are redundant -- and they are
+a plausible future check family, which is exactly what a QoL toggle must not quietly pre-satisfy.
+
+Same load-time rule as the doors: applied at connect, visible on entering the tile.
+
+The award check came back clean, and the near-miss is worth recording: a plain grep of
+`flag_lots.tsv` HITS on `12020600` and `12020620`, which looks exactly like the #647 shape. Those are
+**column 3 -- lot ids, not flag ids** (`lot 12020600` belongs to flag `12027600`, Hefty Beast Bone).
+Urn flags are `120206xx`; that tile's lot flags are `12027xxx`. Disjoint, same separation the
+catacombs have between `300X0` and `300X7`.
+
+The option's NAME is now doing some work -- an urn is not a door. #677 argues for widening it while
+it is still a day old and off by default; that rename is deliberately not in this change.
+
+Refs #677.
+
 ## v0.4.1 — 2026-08-13
 
 Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose: commits had
