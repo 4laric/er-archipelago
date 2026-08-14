@@ -143,6 +143,43 @@ rejects outright, and nothing referenced it.
 
 Closes #538.
 
+### `open_boss_doors` -- walk into the catacombs and fight
+
+New Quality-of-Life toggle, OFF by default. It opens the boss door in the **18** minor dungeons
+whose door is a real lever puzzle, so you fight the boss instead of hunting the lever first.
+
+Vanilla drives nearly all of them from one common event, `90005650`: pulling the lever sets a door
+STATE flag and the portcullis rises. The option sets that flag at connect. Nothing is granted and no
+check is skipped -- the door is only a prerequisite to REACHING the boss, and the boss and its whole
+dungeon sweep still have to be earned.
+
+**Four doors are deliberately left alone.** Sainted and Giant-Conquering Hero's Graves have no lever
+at all: their doors open when you kill the Gladiator and the Shadow Troll, so forcing them would
+skip a FIGHT. Gelmir and Auriza Hero's Graves have no lever puzzle either -- you walk up and open
+the door.
+
+🛑 **Applied at connect, and the door only moves at map load.** A dungeon you are already standing
+in needs a reload before its door opens; the event is parked waiting on the lever and never re-reads
+the state flag.
+
+Two things checked before this was written, both of which could have made it a bad idea:
+
+- **It spends nothing.** The #647/#662 hazard is a flag that doubles as a lot award, where forcing
+  it hands over the item and burns its AP check. Ran that protocol over all 42 ids: every door flag
+  occurs once or twice in the entire 589-file EMEVD corpus and only inside its own map's
+  constructor, there are ZERO `AwardItemsIncludingClients` in any `m30_*` file, and zero hits in
+  `flag_lots.tsv` (disjoint bands -- lots are `300X7xxx`, doors `300X0xxx`) or anywhere in
+  `greenfield/` or the client.
+- **It cannot strand a seed.** Because no door flag appears anywhere in `greenfield/`, the logic
+  never modelled the lever -- fill has always assumed the boss was reachable once its region opened.
+  Forcing the door CLOSES that latent gap rather than opening one.
+
+Rides `startGraces`, on the tail, so no new contract key and no client change. A test pins that the
+doors never reach the head of that list, which is the clobber sentinel and the fast-travel prime
+target.
+
+Closes #669.
+
 ## v0.4.1 — 2026-08-13
 
 Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose: commits had

@@ -481,7 +481,7 @@ _OPTION_GROUPS = [
         # both remove a constraint the game puts between you and gear the multiworld handed you, one
         # on stats and one on weight -- and a player deciding about one is deciding about the other.
         "auto_equip", "no_weapon_requirements", "no_equip_load", "start_with_whetblades",
-        "progressive_flasks", "capital_reconciler"]),
+        "progressive_flasks", "capital_reconciler", "open_boss_doors"]),
 ]
 
 
