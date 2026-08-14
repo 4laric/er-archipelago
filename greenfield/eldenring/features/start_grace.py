@@ -45,8 +45,12 @@ _RADAHN_FESTIVAL = 9410
 # METYR'S DOOR. Metyr (boss 25000800, m25_00) is reached through an ObjAct on the Cathedral of Manus
 # Metyr's overworld tile, and m61_51_45 event 2051452600 only enables it once BOTH halves are on:
 #     WaitFor(EventFlag(9440) && EventFlag(2051450180));
-#     EnableObjAct(2051451600, 52407);          -- then using it warps you to 25002600 in m25
-# and common.emevd turns 9440 on only after a conjunction of two OTHER tiles' flags:
+#     EnableObjAct(2051451600, 52407);          -- the throne; using it sets ObjActEventFlag(2051453600),
+#                                                  on which the same event warps you to 25002600 in m25
+# (2051451600 and 2051453600 are the SAME throne -- ObjAct ENTITY id vs its ObjAct EVENT FLAG, the
+# standard +2000 pairing, e.g. m10_00's 10001501/10003501. Do not read them as two objects; a
+# session on 2026-08-13 briefly "corrected" this comment on exactly that misreading.)
+# common.emevd turns 9440 on only after a conjunction of two OTHER tiles' flags:
 #     $Event(9440): WaitFor(EventFlag(2053460600) && EventFlag(2050400600));
 #                   SetNetworkconnectedEventFlagID(9440, ON);
 # 🛑 THOSE TWO TILES ARE IN DIFFERENT REGIONS -- 2053460600 is m61_53_46 (Scadu Altus) and
@@ -56,10 +60,21 @@ _RADAHN_FESTIVAL = 9410
 # it. Identical shape to the Radahn festival above, except the dependency crosses a REGION boundary
 # rather than sitting outside one, which is if anything easier to hit.
 # Force it on at spawn, the same NPC/questline-prereq bypass as the three flags above.
-# 🛑 ONLY 9440. The other half, 2051450180, is Ymir's own state on the CATHEDRAL'S OWN TILE
-# (m61_51_45 -- it is the chrEntityId threaded through that map's 90005790..93 NPC lifecycle events),
-# so any seed that can reach the door at all sets it naturally. Forcing an NPC-lifecycle flag would
-# risk his presence and his shop for no reachability gain; the cross-region half is the whole defect.
+# 🛑 ONLY 9440. The other half, 2051450180, sits on the CATHEDRAL'S OWN TILE, so any seed that can
+# reach the door at all sets it by ordinary play; the cross-region half is the whole defect.
+# It is NOT "Ymir's own state", and it is not a chrEntityId. m61_51_45 runs
+#     $InitializeCommonEvent(0, 90005791, 2051450180, 2051452181, 2051452182, 2051450730);
+# and 90005791's signature is (eventFlagId, eventFlagId2, eventFlagId3, chrEntityId): the CHARACTER
+# is 2051450730 and 2051450180 is the flag that holds it disabled. Ymir is a different chr, driven
+# by his own talk flags -- nothing in this module moves him off the throne, and nothing needs to:
+# $Event(2051452600) never checks his presence.
+# 🛑🛑 AND NEVER ADD 2051450180 TO startGraces. The same tile also runs
+#     $InitializeCommonEvent(0, 90005774, 2051450180, 106720, 400672);
+# whose body is WaitFor(ElapsedSeconds(2) && EventFlag(eventFlagId)); AwardItemsIncludingClients(
+# itemLotId). Setting the flag therefore AWARDS LOT 106720 -- check 400672, "Claws of Night - near
+# Cathedral of Manus Metyr", AP id 7773893 -- free, at spawn, in every seed. Witnessed in game
+# 2026-08-13 (playtest save, flag set by hand from the client console): the check popped on the
+# spot. That, not any risk to Ymir's shop, is why the bypass forces only the cross-region half.
 _METYR_DOOR = 9440
 # (60100, the Spectral Steed Whistle obtained-flag, used to be appended here unconditionally with
 # start_with_steed. It moved to features/start_items.py uniqueStartGrants: the flag is now set AS
