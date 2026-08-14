@@ -59,7 +59,12 @@ _RADAHN_FESTIVAL = 9410
 # MajorBoss) is UNREACHABLE while AP believes her region is open -- fill can strand a region Lock on
 # it. Identical shape to the Radahn festival above, except the dependency crosses a REGION boundary
 # rather than sitting outside one, which is if anything easier to hit.
-# Force it on at spawn, the same NPC/questline-prereq bypass as the three flags above.
+# 🛑🛑 BUT 9440 IS DERIVED, AND FORCING IT IS NOT ENOUGH (playtest 2026-08-14). 9440 opens the
+# THRONE; it does not advance YMIR, whose talk ESD reads the two BELL flags directly. With 9440
+# forced and the bells unrung he stays seated, his dialogue never exhausts, and the questline does
+# not move. Force the BELLS instead and let common.emevd derive 9440 from them -- a derived flag we
+# also set by hand is the redundant manual override CONTRIBUTING warns about, and here the override
+# was hiding the fact that the real prerequisite was never met.
 # 🛑 ONLY 9440. The other half, 2051450180, sits on the CATHEDRAL'S OWN TILE, so any seed that can
 # reach the door at all sets it by ordinary play; the cross-region half is the whole defect.
 # It is NOT "Ymir's own state", and it is not a chrEntityId. m61_51_45 runs
@@ -75,7 +80,42 @@ _RADAHN_FESTIVAL = 9410
 # Cathedral of Manus Metyr", AP id 7773893 -- free, at spawn, in every seed. Witnessed in game
 # 2026-08-13 (playtest save, flag set by hand from the client console): the check popped on the
 # spot. That, not any risk to Ymir's shop, is why the bypass forces only the cross-region half.
-_METYR_DOOR = 9440
+# 🛑 RINGING A BELL NEEDS AN ITEM, AND FORCING ITS FLAG AWARDS A LOT. Both bell tiles run the same
+# shape (m61_53_46 $Event(2053462600), m61_50_40 $Event(2050402600)):
+#     if (EventFlag(BELL)) { DisableObjAct(..); AwardItemsIncludingClients(LOT); EndEvent(); }
+#     if (PlayerHasItem(ItemType.Goods, 2008008)) { .. SetNetworkconnectedEventFlagID(BELL, ON); .. }
+#     L10: DisableObjAct(..); WaitFor(PlayerHasItem(ItemType.Goods, 2008008)); EnableObjAct(..);
+# Goods 2008008 is the HOLE-LADEN NECKLACE (flag_lots lot 106600, check flag 400660): the bell
+# ObjAct is DISABLED until you hold it, on BOTH tiles. That is the measured predicate behind
+# key_item_gates.tsv's "Hole-Laden Necklace -> Metyr, UNVERIFIED, predicate unmeasured" row.
+# And the preamble means a PRESET flag awards the lot when the tile loads:
+#     Rhia  2053460600 -> lot 2053460600 -> check flag 2053467600, "Cerulean Seed Talisman +1" (7773806)
+#     Dheo  2050400600 -> lot 2050400000 -> check flag 2050407000, "Crimson Seed Talisman +1"  (7773730)
+# So a forced bell SPENDS its check. Force the fewest that close the reachability hole:
+#   * DHEO is forced ALWAYS. It is the only CROSS-REGION conjunct -- Metyr's checks region to Scadu
+#     Altus, Dheo's tile is Jagged Peak -- so forcing it keeps Metyr independent of Jagged Peak and
+#     preserves today's logic shape exactly. Cost: 7773730 self-collects in seeds that keep Jagged
+#     Peak and visit that tile. Not forcing it would make Metyr require the Jagged Peak Lock, which
+#     is a fill-shape change, not a bypass; see the note in the PR.
+#   * RHIA is forced ONLY when Scadu Altus is sealed. When it is kept, Metyr's checks are in the
+#     pool and so is 7773806, the player rings it with the necklace, and the necklace keeps its
+#     meaning. When it is sealed, Metyr's checks are not in the pool and the award costs nothing.
+_BELL_RHIA = 2053460600         # m61_53_46, Scadu Altus
+_BELL_DHEO = 2050400600         # m61_50_40, Jagged Peak
+_BELL_RHIA_REGION = "Scadu Altus"
+
+
+def bells_to_force(kept):
+    """The bell flags this seed must set at spawn, given its KEPT region list.
+
+    Pure on purpose (CONTRIBUTING: separate decision from I/O) so both branches are testable
+    without standing up a seed that happens to seal Scadu Altus. See the block above for why
+    Dheo is unconditional and Rhia is not.
+    """
+    bells = [_BELL_DHEO]
+    if _BELL_RHIA_REGION not in set(kept or ()):
+        bells.append(_BELL_RHIA)
+    return bells
 # (60100, the Spectral Steed Whistle obtained-flag, used to be appended here unconditionally with
 # start_with_steed. It moved to features/start_items.py uniqueStartGrants: the flag is now set AS
 # PART OF the whistle grant and doubles as its idempotency latch -- see start_items module doc.)
@@ -343,7 +383,7 @@ class StartGrace(Feature):
             graces += [_LEVEL_UP_FLAG, _MELINA_SUPPRESS_FLAG]
         graces.append(_FINGERSLAYER_CHEST_GATE)   # open the Ranni-gated Nokron chest (check 12027080)
         graces.append(_RADAHN_FESTIVAL)           # start the Radahn Festival so Radahn is fightable
-        graces.append(_METYR_DOOR)                # open Metyr's door (its prereqs cross into Jagged Peak)
+        graces += bells_to_force(world._kept())   # Metyr's bells -- see the block above
         return {
             contract.START_REGION: HUB,
             contract.START_GRACES: graces,
