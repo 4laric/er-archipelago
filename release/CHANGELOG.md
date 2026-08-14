@@ -3,6 +3,22 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.2 — 2026-08-14
+
+Window opened AT THE TAG of v0.4.1, with zero commits past it -- so this section starts empty of
+changes on purpose and fills as they arrive (rule 14). `CONTRACT_HASH` is unmoved at `5c2b9bf2`, so
+the bump is version-lockstep and a v0.4.1 client still handshakes with a v0.4.2 seed.
+
+Two things went red at the tag and this window pays one of them:
+
+- `check_release_notes` (rule 14) failed on every PR opened past the tag, because `APWORLD_VERSION`
+  still named the version that had just shipped. That is this commit.
+- `test_every_tagged_version_is_recorded_as_shipped` was owed v0.4.1's `SHIPPED` row and **never
+  ran to say so** -- rule 14 aborts at step 9 of `generators` and steps 10-12 are skipped. That is
+  the second time this exact masking has happened (v0.3.12 was the first), and it is now the ninth
+  window where this row was written late. The row is paid here; the fix named at v0.3.10 -- derive
+  the fixture from `git tag` instead of typing it -- is still not taken.
+
 ## v0.4.1 — 2026-08-13
 
 Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose: commits had
