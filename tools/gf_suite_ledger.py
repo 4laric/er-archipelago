@@ -128,6 +128,7 @@ TESTS_JOB = {
     "location_regions_slotdata": "committed data only",
     "no_phantom_flags": "event flag corpus ships in the bundle",
     "noninteractive_guard": "committed data only",
+    "workflow_ap_deps": "committed .github/workflows text only, reached by the find_repo_root walk-up. TESTS_JOB rather than GENERATORS because it is a pytest suite; it must run SOMEWHERE in CI because what it guards -- a release workflow that generates without installing AP's requirements -- last failed where nothing was watching, on the v0.4.1 tag, in the one workflow run that is not attached to a PR",
     "progression_surface": "gen_data.py found by walk-up in every CI checkout",
     "release_pairing": "pure-stdlib: imports tools/check_release_pairing.py by path via the "
                        "find_repo_root walk-up and drives its pure `check()` over injected Facts, "

@@ -30,6 +30,7 @@ Exits 0 on a clean generation, non-zero on any failure (so run_ci.ps1 / package_
 """
 import argparse
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -149,6 +150,31 @@ def main() -> int:
         if "Done. Enjoy" in out and r.returncode == 0:
             print("zip-smoke: OK -- generation from the zipped apworld completed cleanly.")
             return 0
+        # 🛑 NOT EVERY RED HERE IS THIS TOOL'S FAILURE CLASS, AND SAYING SO COSTS AN HOUR.
+        # A missing Archipelago dependency kills Generate.py before it loads ANY world, so the
+        # artifact is never even opened -- yet the verdict below blamed "a bundled-resource read
+        # that is not zip-safe", which sends the reader hunting through our own file handling.
+        # It did exactly that on the v0.4.1 tag: er-release.yaml installed no requirements, this
+        # printed the crash-class sentence over `ModuleNotFoundError: No module named 'yaml'`, and
+        # the artifact it accused had already passed the same gate under package_release.ps1.
+        #
+        # The filter matters. Other worlds' optional deps (_NOISE) go missing on a minimal
+        # checkout all the time and AP just skips those worlds -- those are not the environment
+        # failing, and neither is our own package failing to import from the zip, which IS the
+        # crash class. Only what is left says the runner was never provisioned.
+        missing = sorted({m.split(".")[0] for m in re.findall(r"No module named '([^']+)'", out)}
+                         - {"eldenring"} - set(_NOISE))
+        if missing:
+            print("zip-smoke: FAILED (exit %s) -- THE ENVIRONMENT, not the artifact. Generate.py "
+                  "could not import: %s\n"
+                  "  This tool bootstraps the pinned AP checkout but does NOT pip-install; "
+                  "Archipelago's own requirements are the caller's job.\n"
+                  "  Install them before calling it -- `pip install -r <ap>/requirements.txt`, as "
+                  ".github/workflows/tests.yaml does. Relevant lines:\n" % (r.returncode, ", ".join(missing)))
+            for line in out.splitlines():
+                if "ModuleNotFoundError" in line or "Traceback" in line:
+                    print("  " + line)
+            return 1
         print("zip-smoke: FAILED -- generation from the zipped apworld did not complete "
               "(exit %s). This is the custom_worlds crash class: a bundled-resource read that is not "
               "zip-safe. Relevant lines:\n" % r.returncode)
