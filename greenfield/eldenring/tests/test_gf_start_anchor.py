@@ -17,7 +17,7 @@ hand-pinned region sizes to rot when a re-tag moves checks):
     expectation AND above a merely-base-uniform pick (so DLC-exclusion alone can't pass it);
   * dlc_only degrades to a size-weighted DLC draw: deterministic, never a crash, and the smallest
     kept region is rare instead of 1-in-N;
-  * strict surface (progression_surface_mode == 2) intersects; an empty intersection degrades
+  * strict surface (the only regime since 2026-08-14) intersects; an empty intersection degrades
     (rule says so) instead of raising;
   * count-neutrality holds across the sweep (the precollected lock leaves the pool; items == locations);
   * production CALLS the pure fn: the WorldTestBase sweep + the telemetry log line prove the wired
@@ -289,12 +289,14 @@ class AnchorDlcOnly(WorldTestBase):
 
 
 class AnchorStrictSurfaceIntersect(WorldTestBase):
-    """progression_surface_mode=2 (strict): the MajorBoss bias must INTERSECT base eligibility --
-    anchor in majors-cap-base when that set is non-empty, else still a base region (degrade, no
-    throw). Note mode 2 is also the DEFAULT, so the other sweeps exercise it too; this class pins it
-    explicitly so a default flip can't silently drop the coverage."""
+    """Strict surface: the MajorBoss bias must INTERSECT base eligibility -- anchor in
+    majors-cap-base when that set is non-empty, else still a base region (degrade, no throw).
+
+    Used to pin `progression_surface_mode: 2` explicitly against a default flip. That option was
+    RETIRED 2026-08-14 and strict is now the only regime, written into core rather than selected, so
+    there is no default left to flip and no key to name -- naming it now would raise."""
     game = GAME
-    options = {"progression_surface_mode": 2, "num_regions": 6}
+    options = {"num_regions": 6}
     SEEDS = (1, 4, 9, 16, 25)
 
     def test_anchor_in_major_cap_base_when_nonempty(self):

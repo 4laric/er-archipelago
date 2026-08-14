@@ -151,7 +151,7 @@ item_shuffle OFF and dungeon_sweep none to isolate boot):
 **T4.1 — Deathlink (needs 2 players).** `death_link: true` on both. **PASS:** one player's death kills
 the other. (Confirm it respects the toggle: off = no propagation.)
 
-**T4.2 — Local items (needs 2 players).** `local_item_only: true` + `item_shuffle: true`. **PASS:**
+**T4.2 — Local items (needs 2 players).** `keep_local: [everything]` + `item_shuffle: true`. **PASS:**
 your shuffled ER items stay in YOUR world; other players' pools only see your Region Locks (+ Rune).
 
 **T4.3 — DLC enable/only.**

@@ -76,6 +76,37 @@ can lose a race with the map load, and the per-tick latch the log line promises 
 scoped to the capital buckets, so it cannot converge anywhere else. Warping again is a fresh
 attempt. (clients#200)
 
+### Three options retired: `local_item_only`, `exclude_local_item_only`, `progression_surface_mode`
+
+All three are now `Options.Removed`, so a yaml naming one fails loudly with the replacement in the
+error rather than generating something you did not ask for. **No contract change** -- none of the
+three ever reached slot_data, and the client has no consumer for any of them, so a v0.4.1 client
+still handshakes with a v0.4.2 seed.
+
+- **`local_item_only` -> `keep_local: [everything]`.** Not a judgement call: the two are identical
+  by construction, not merely in measurement. `local_item_only` localized
+  `sorted(ITEM_CATALOG) + progressives`; `keep_local: [everything]` expands to every category in
+  `CATEGORIES`, and `category_of` is TOTAL, so the two name sets are equal and both feed the same
+  `local_items.value.update()`. One knob to learn instead of two, and the surviving one is the one
+  that can also keep just your crafting mats.
+- **`exclude_local_item_only`** dies with its parent -- it was only ever "everything MINUS these",
+  and it was inert whenever `local_item_only` was off. Name what you keep, not what you release.
+  This also drains the last `_TEMPLATE_DEBT` entry, so **every player-facing option is now in the
+  shipped template** and the set is empty.
+- **`progression_surface_mode`** had been frozen at `strict` since the v0.2 slim-down, so `off` and
+  `soft` were unreachable from any yaml -- while four branches here and three in core still carried
+  them. That gap is how #635 happened: a live docstring citing "when Progression Surface Mode is
+  off", a state no seed could be in.
+
+  🛑 **The off-branches were DELETED, not just the option.** Every read site used
+  `getattr(..., None)` and treated absent as mode 0, so removing the option alone would have
+  silently switched the progression surface OFF -- `apply()` and `audit_reachable()` skipped,
+  `confine_foreign_progression` barring nothing, and an empty `progressionSurfaceLocations` shipped
+  to a client that genuinely reads it, leaving the tracker starring nothing. A world-only edit with
+  a client-visible regression. Strict is now written into core rather than selected.
+
+Closes #512, #634, #635.
+
 ## v0.4.1 — 2026-08-13
 
 Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose: commits had

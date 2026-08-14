@@ -35,7 +35,7 @@ WHAT IT ASSERTS, and none of it is "it generated". Every item runs ONCE PER PART
 
   1. CROSS-WORLD FLOW HAPPENS, BOTH WAYS. ER items reach foreign locations AND foreign items reach
      ER locations. A regression that quietly confined everything to its own world -- which is what a
-     mis-set `local_item_only` or a broken `filler_foreign_pct` looks like -- generates perfectly and
+     mis-set `keep_local` or a broken `filler_foreign_pct` looks like -- generates perfectly and
      passes every single-player gate we have.
   2. ER REACHES A NON-ER GAME specifically. ER-to-ER traffic alone would satisfy (1) while the world
      was in fact unable to place into a foreign game.
@@ -441,7 +441,7 @@ def check(rows, natural, report, partner):
     # 1 + 2. Floors are deliberately low: this asserts the PATH works, not a distribution.
     if not out_of_er:
         bad.append("NO Elden Ring item reached another player's world. Every ER item stayed home -- "
-                   "which is what a broken filler_foreign_pct or a stuck local_item_only looks like, "
+                   "which is what a broken filler_foreign_pct or an over-broad keep_local looks like, "
                    "and it generates and passes every single-world gate we have.")
     if not into_er:
         bad.append("NO foreign item was placed on an Elden Ring location. ER accepted nothing from "

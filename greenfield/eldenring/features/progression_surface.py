@@ -29,7 +29,7 @@ region Lock) counts as available, and a Boss-Key-gated boss check doesn't look f
 Placed locks are collected (lock=True) so multiworld progression-balancing can't later move them off the
 surface. Runs from core.pre_fill; supersedes curated_fill when the mode is soft/strict.
 """
-from Options import OptionSet, Choice, NamedRange, Range
+from Options import Choice, NamedRange, OptionSet, Range, Removed
 import hashlib
 
 from ..registry import Feature, register
@@ -117,16 +117,19 @@ class ProgressionSurface(OptionSet):
         }
 
 
-class ProgressionSurfaceMode(Choice):
-    """How the Progression Surface is enforced. off = v0.1 behavior (curated_fill toggle honored).
-    soft = mark-and-spill over the surface (old curated_fill semantics: first crack, leftovers scatter).
-    strict = CONFINE this world's progression to the surface, widening only via the feasibility ladder
-    when the surface can't host every lock. Default strict."""
-    display_name = "Progression Surface Mode"
-    option_off = 0
-    option_soft = 1
-    option_strict = 2
-    default = 2
+class ProgressionSurfaceMode(Removed):
+    """Retired 2026-08-14. It had been frozen at `strict` since the v0.2 slim-down, so `off` and
+    `soft` were unreachable from any yaml -- and both branches were still carried in four places
+    here plus three in core, which is how #635 happened (a live docstring citing "when Progression
+    Surface Mode is off", a state no seed could be in).
+
+    Strict is now the only regime and is written as such rather than selected. What you probably
+    want instead: `progression_surface` chooses WHICH classes may hold progression, and
+    `confine_foreign_progression` decides whether other players' progression is held to it too.
+
+    🛑 This is not a Frozen option turned Removed by paperwork -- the off-branches were DELETED. A
+    build where the option is merely absent behaves as `off`, which silently disarms the surface and
+    ships an empty progressionSurfaceLocations to a client that reads it."""
 
 
 class ProgressionBias(Range):
@@ -748,11 +751,6 @@ def _selection(world):
     return opt.value if opt is not None else None
 
 
-def _mode(world):
-    o = getattr(world.options, "progression_surface_mode", None)
-    return int(o.value) if o is not None else 0
-
-
 def confined_surface_ids(world):
     """The ap-ids of THIS world that MAY host foreign progression, when confine_foreign_progression is
     on -- i.e. the selected surface. Core bars other players' advancement on every own location whose
@@ -760,7 +758,7 @@ def confined_surface_ids(world):
     Returns None when the feature is inactive (option off, surface mode off, empty surface, or tags not
     generated), meaning 'apply no foreign bar'. Uses the SAME surface resolution as apply()/slot_data(),
     so where foreign progression may land and where own progression is placed can never disagree."""
-    if confine_pct(world) <= 0 or _mode(world) == 0 or not LOCATION_TAGS:
+    if confine_pct(world) <= 0 or not LOCATION_TAGS:
         return None
     classes = selected_surface(_selection(world))
     if not classes:
@@ -886,10 +884,12 @@ def _place(world, allowed, to_place, lock):
 
 
 def apply(world) -> None:
-    """core.pre_fill hook (mode soft/strict). Confine this world's own progression to the selected
-    surface; widen via the ladder; return the remainder to the pool. Never FillErrors."""
-    mode = _mode(world)
-    if mode == 0 or not LOCATION_TAGS:
+    """core.pre_fill hook. Confine this world's own progression to the selected surface; widen via
+    the ladder; return the remainder to the pool. Never FillErrors.
+
+    Always strict since progression_surface_mode was retired -- the soft (mark-and-spill) and off
+    regimes were unreachable from any yaml for two releases before they were deleted."""
+    if not LOCATION_TAGS:
         return
     surface = selected_surface(_selection(world))
     if not surface:
@@ -923,8 +923,8 @@ def apply(world) -> None:
     n0 = len(to_place)
     for it in to_place:
         mw.itempool.remove(it)
-    strict = (mode == 2)
-    rungs = build_ladder(surface) if strict else [list(surface)]
+    strict = True   # the only regime; see ProgressionSurfaceMode's retirement note
+    rungs = build_ladder(surface)
     resolved = rungs[0] if rungs else list(surface)
     for classes in rungs:
         if not to_place:
@@ -1019,9 +1019,7 @@ def audit_reachable(world) -> None:
     locked, or no reachable filler slot remains) -- so a salvageable seed ships instead of dying, and a
     genuinely unwinnable one fails loudly at generation instead of hours into a playthrough. Catches
     any residual boss-key/region-lock cycle or stranded rune/legacy key, whatever minted it. FAIL-OPEN
-    on an internal audit error (never block gen on an audit bug). Only guards the surface regime."""
-    if _mode(world) == 0:
-        return
+    on an internal audit error (never block gen on an audit bug)."""
     try:
         from BaseClasses import CollectionState
         from Fill import FillError, swap_location_item
@@ -1122,8 +1120,6 @@ class ProgressionSurfaceFeature(Feature):
         Emitting the surface itself makes that drift unrepresentable -- "where progression may be"
         and "what the client stars" are now one expression, evaluated once.
         """
-        if _mode(world) == 0:
-            return {contract.PROGRESSION_SURFACE_LOCATIONS: []}
         classes = selected_surface(_selection(world))
         ids = surface_ap_ids(world, classes)
         own = {loc.address for loc in world.multiworld.get_locations(world.player)

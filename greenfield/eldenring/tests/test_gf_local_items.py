@@ -1,10 +1,17 @@
-"""Phase 7 tests -- Local Items convenience toggle (WorldTestBase).
+"""Local Items -- the `keep_local` category control (WorldTestBase).
 
-local_item_only ON + item_shuffle ON  -> every real vanilla item name (ITEM_CATALOG) is in
-                                          world.options.local_items.value.
-local_item_only OFF                   -> those names are NOT force-added.
-item_shuffle OFF                      -> no-op even with the toggle on (no real items exist).
-exclude_local_item_only               -> a released category is left free to travel.
+`local_item_only` and `exclude_local_item_only` were RETIRED 2026-08-14 and are `Options.Removed`,
+so naming either one here would raise rather than skip. `keep_local: [everything]` is their
+replacement and these tests are the proof it is a true replacement, not a near one:
+
+keep_local [everything] + item_shuffle ON -> every real vanilla item name (ITEM_CATALOG) is in
+                                             world.options.local_items.value -- the exact assertion
+                                             the retired toggle used to satisfy.
+keep_local empty                          -> those names are NOT force-added.
+keep_local a SUBSET                       -> only that category is held; the rest travel. This is
+                                             what replaces exclude_local_item_only, inverted: name
+                                             what you keep instead of what you release.
+
 Base WorldTestBase.test_fill runs for each subclass and proves winnability either way (Region Locks
 stay the sole progression; local_items only restricts WHERE non-progression items may land).
 """
@@ -23,8 +30,10 @@ def _local_set(tb):
 
 
 class LocalItemsOn(WorldTestBase):
+    """`keep_local: [everything]` must localize exactly what `local_item_only: true` did. This class
+    is the retirement's acceptance test -- it is the OLD assertion against the NEW spelling."""
     game = GAME
-    options = {"num_regions": 0, "local_item_only": True, "item_shuffle": True}
+    options = {"num_regions": 0, "keep_local": {"everything"}, "item_shuffle": True}
 
     def test_catalog_items_forced_local(self):
         self.assertTrue(ITEM_CATALOG, "item_ids.py must be generated for this test to be meaningful")
@@ -46,32 +55,35 @@ class LocalItemsOn(WorldTestBase):
 
 class LocalItemsOff(WorldTestBase):
     game = GAME
-    options = {"num_regions": 0, "local_item_only": False, "item_shuffle": True}
+    options = {"num_regions": 0, "keep_local": set(), "item_shuffle": True}
 
     def test_catalog_items_not_force_added(self):
-        # toggle off -> feature leaves local_items alone. With no hand-authored local_items in the
-        # test yaml, the catalog names must NOT appear.
+        # nothing named -> feature leaves local_items alone. With no hand-authored local_items in
+        # the test yaml, the catalog names must NOT appear.
         local = _local_set(self)
         present = [n for n in ITEM_CATALOG if n in local]
         self.assertFalse(present, f"toggle off must not force items local (found {present[:3]})")
 
 
-class LocalItemsWithExclusion(WorldTestBase):
+class LocalItemsPartial(WorldTestBase):
+    """What replaces `exclude_local_item_only`, inverted. The retired pair said "everything MINUS
+    goods"; `keep_local` says "goods" -- so this asserts the mirror image of the old test, and that
+    is the whole ergonomic difference the retirement costs."""
     game = GAME
-    options = {"num_regions": 0, 
-        "local_item_only": True,
+    options = {"num_regions": 0,
         "item_shuffle": True,
-        "exclude_local_item_only": {"goods"},
+        "keep_local": {"goods"},
     }
 
-    def test_excluded_category_left_foreign(self):
-        # goods (FullID high nibble 0x40000000) are released -> must NOT be forced local, while a
-        # non-excluded category (e.g. weapons, nibble 0x0) still is.
+    def test_named_category_held_and_the_rest_travel(self):
+        # goods (FullID high nibble 0x40000000) are NAMED -> forced local. Weapons (nibble 0x0) are
+        # not named -> must stay foreign-eligible. Both directions, because a keep_local that held
+        # everything would satisfy the first assertion alone.
         local = _local_set(self)
         goods = [n for n, full in ITEM_CATALOG.items() if (full & 0xF0000000) == 0x40000000]
         weapons = [n for n, full in ITEM_CATALOG.items() if (full & 0xF0000000) == 0x00000000]
         self.assertTrue(goods and weapons, "catalog should contain both goods and weapons")
-        self.assertTrue(all(n not in local for n in goods),
-                        "excluded 'goods' category must stay foreign-eligible")
-        self.assertTrue(all(n in local for n in weapons),
-                        "non-excluded 'weapons' category must still be forced local")
+        self.assertTrue(all(n in local for n in goods),
+                        "the named 'goods' category must be held local")
+        self.assertTrue(all(n not in local for n in weapons),
+                        "an unnamed category must stay foreign-eligible")

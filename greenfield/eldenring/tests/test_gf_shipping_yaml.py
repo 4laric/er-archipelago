@@ -67,16 +67,11 @@ _YAML = next((p for p in (os.path.join(_GF_PKG, "EldenRing.yaml"),
 # The sixteen options that were already missing from the shipped template when this gate landed
 # (2026-08-10). `capital_reconciler` was the seventeenth and is fixed in the same commit, because a
 # gate that quarantines its own motivating case documents nothing. Drain this list; do not add to it.
-_TEMPLATE_DEBT = {
-    # The last entry. `exclude_local_item_only` is a subtractive knob on
-    # `local_item_only`, and both are being retired -- `local_item_only` is
-    # measurably identical to `keep_local: [everything]` (item_categories.
-    # category_of is TOTAL, so the two name sets are equal by construction).
-    # Documenting a knob days before removing it would advertise it to exactly
-    # the players who then have to unlearn it, so it stays quarantined until
-    # the retirement lands and this set goes empty.
-    "exclude_local_item_only",
-}
+# EMPTY, and that is the point: every player-facing option is in the shipped template. Paid down
+# over #666 (13 of them) and the local_item_only retirement (the 14th, which was removed instead of
+# documented). Do not add an entry here to make a red go away -- the red means a player cannot find
+# an option, which is the whole defect this set was created to bound.
+_TEMPLATE_DEBT = set()
 
 class TestShippingYaml(unittest.TestCase):
 
