@@ -161,7 +161,6 @@ FROZEN_OPTIONS = {
     # its expected blessing without collecting a single Scadutree Fragment. off = the game grants
     # blessing ONLY from fragments you actually hold, exactly as vanilla.
     # "global_scadutree_blessing": (0, "off"),
-    "progression_surface_mode": (2, "strict"),
     # NB: `progression_surface` is deliberately NOT frozen -- it is the one genuinely interesting
     # player-facing lever (WHICH locations may hold progression), it is finished, and its categories are
     # ground-truth audited. It lives in features/progression_surface.py as an OptionSet with the v0.2

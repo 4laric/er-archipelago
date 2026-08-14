@@ -510,23 +510,7 @@ Elden Ring:
     'false': 0
     'true': 50
 
-  local_item_only:
-    # Off (default). On: force every real vanilla item this seed produces -- all the shuffled
-    # weapons, armor, talismans, goods and ashes from Shuffle Vanilla Items, plus any Progressive
-    # upgrade items -- to stay in YOUR OWN world (adds them to Archipelago's local_items). Only the
-    # region Locks (progression) and Rune (generic filler) can then land in other players' games,
-    # which is usually what you want since ER items are only useful in an ER game. Has no effect when
-    # Shuffle Vanilla Items is off (there are no real items -- every check pays a Rune). This never
-    # changes winnability: Region Locks stay the sole progression and are unaffected.
-    'false': 50
-    'true': 0
 
-  exclude_local_item_only:
-    # When Local Items Only is on, categories listed here are STILL allowed to travel to other
-    # players' worlds (i.e. NOT forced local). Use it to share some of your ER loot while keeping the
-    # rest. Valid categories: weapons, armor, talismans, goods, ashes, progressive. Empty (default) =
-    # keep everything local. Ignored unless Local Items Only is on.
-    []
 
   no_runes_in_shops:
     # Keep your own money runes (Golden/Hero's/Lord's/Numen's and the DLC runes) out of your

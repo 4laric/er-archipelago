@@ -470,7 +470,7 @@ _OPTION_GROUPS = [
         "pool_builder_pct_ashes_of_war"]),
     ("Multiworld & Placement", [
         "death_link", "filler_foreign_pct", "progression_surface", "progression_bias",
-        "confine_foreign_progression", "local_item_only", "exclude_local_item_only",
+        "confine_foreign_progression",
         "keep_local", "keep_local_rune_cap"]),
     ("Shops & Merchants", [
         "keep_out_of_shops", "no_runes_in_shops", "rune_shop_pricing", "merchant_bells_on_talk",
@@ -891,8 +891,7 @@ class GreenfieldEldenRingWorld(World):
             from .features.progression_surface import (regions_with_major_boss, lock_region_name,
                                                        missable_barred_aps as _ps_missable)
             from .features.start_grace import pick_anchor_regions
-            _psm = getattr(self.options, "progression_surface_mode", None)
-            _strict = _psm is not None and int(_psm.value) == 2
+            _strict = True   # progression_surface_mode retired 2026-08-14; strict is the regime
             _counts = {r: len(LOCATIONS.get(r, [])) for r in kept}
             _n_start = 1
             _sr = getattr(self.options, "start_regions", None)
@@ -1203,16 +1202,13 @@ class GreenfieldEldenRingWorld(World):
         # gate runes + legacy keys) to a small high-confidence surface -- default MajorBoss -- via
         # fill_restrictive over the selected classes, with a feasibility ladder that widens (then spills
         # to the pool) so it never FillErrors. Runs before the general fill (locations exist,
-        # get_all_state valid). Supersedes the legacy curated_fill toggle when the mode is soft/strict;
-        # when the mode is off, the old curated_fill toggle is still honored for backward compatibility.
-        _psm = getattr(self.options, "progression_surface_mode", None)
-        if _psm is not None and int(_psm.value) != 0:
-            from .features import progression_surface as _ps
-            _ps.apply(self)
+        # get_all_state valid).
+        from .features import progression_surface as _ps
+        _ps.apply(self)
         # The legacy curated_fill fallback is GONE: it only ran when progression_surface_mode was OFF,
-        # and that has been FROZEN to `strict` since v0.2 -- so it was dead code, and it carried the
+        # which was FROZEN out of reach at v0.2 and RETIRED 2026-08-14 -- dead code carrying the
         # retired big-ticket concept (a SECOND list of "important checks" that disagreed with the
-        # surface). One surface, one definition.
+        # surface). One surface, one definition, and now only one code path to it.
 
     @classmethod
     def stage_pre_fill(cls, multiworld) -> None:
@@ -1264,8 +1260,7 @@ class GreenfieldEldenRingWorld(World):
         # actually reachable from a real CollectionState; raise FillError on any stranding (an in-game
         # soft-lock under accessibility:minimal, which AP does not self-check). Runs first so a doomed
         # seed dies before the cosmetic stone-ramp work below. Fail-open on internal audit error.
-        _psm = getattr(self.options, "progression_surface_mode", None)
-        if _psm is not None and int(_psm.value) != 0 and not _vp.is_on(self):
+        if not _vp.is_on(self):
             from .features import progression_surface as _ps
             _ps.audit_reachable(self)
 

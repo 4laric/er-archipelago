@@ -178,7 +178,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.2",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "8921f22dd21e1b076ef06ddcfc7519e6ac7ecc80574cd919ce2b451edd23ec54",
+ "source_sha256": "b9f5246263d8fbd270bfcb12d21610ac61bf13fab8fe33d4a8459432b570c85a",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -210,8 +210,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "progressive_stone_bells",
   "keep_out_of_shops",
   "leyndell_runes_required",
-  "local_item_only",
-  "exclude_local_item_only",
   "keep_local",
   "keep_local_rune_cap",
   "merchant_bells_on_talk",
@@ -308,8 +306,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "progression_surface",
     "progression_bias",
     "confine_foreign_progression",
-    "local_item_only",
-    "exclude_local_item_only",
     "keep_local",
     "keep_local_rune_cap"
    ]
@@ -1002,59 +998,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "end": 6
    },
    "valid_keys": null,
-   "casefold": false,
-   "group": null,
-   "group_collapsed": false,
-   "special_values": null
-  },
-  {
-   "key": "local_item_only",
-   "class": "LocalItemOnly",
-   "display_name": "Local Items Only",
-   "description": "Off (default). On: force every real vanilla item this seed produces -- all the shuffled\nweapons, armor, talismans, goods and ashes from Shuffle Vanilla Items, plus any Progressive\nupgrade items -- to stay in YOUR OWN world (adds them to Archipelago's local_items). Only the\nregion Locks (progression) and Rune (generic filler) can then land in other players' games,\nwhich is usually what you want since ER items are only useful in an ER game. Has no effect when\nShuffle Vanilla Items is off (there are no real items -- every check pays a Rune). This never\nchanges winnability: Region Locks stay the sole progression and are unaffected.",
-   "kind": "toggle",
-   "base": "Toggle",
-   "default": false,
-   "choices": null,
-   "range": null,
-   "valid_keys": null,
-   "casefold": false,
-   "group": null,
-   "group_collapsed": false,
-   "special_values": null
-  },
-  {
-   "key": "exclude_local_item_only",
-   "class": "ExcludeLocalItemOnly",
-   "display_name": "Exclude From Local Items Only",
-   "description": "When Local Items Only is on, categories listed here are STILL allowed to travel to other\nplayers' worlds (i.e. NOT forced local). Use it to share some of your ER loot while keeping the\nrest. Empty (default) = keep everything local. Ignored unless Local Items Only is on.\n\nCategories: weapons, armor, talismans, ashes (ashes of WAR), spells, spirit_ashes, consumables,\ncrafting, cookbooks, upgrade_materials, upgrade_bells, merchant_bells, runes, crystal_tears,\nkey_items, other, progressive -- plus the umbrellas `goods` (every goods category at once, which\nis what this key meant before the split), `key_items` (the whole inventory tab: the key items\nAND the cookbooks AND both kinds of bell bearing, which is what THAT key meant before its own\nsplits), `bell_bearings` (both bell categories) and `everything`.\neldenring/item_categories.py holds the table and the argument for it.",
-   "kind": "set",
-   "base": "OptionSet",
-   "default": [],
-   "choices": null,
-   "range": null,
-   "valid_keys": [
-    "armor",
-    "ashes",
-    "bell_bearings",
-    "consumables",
-    "cookbooks",
-    "crafting",
-    "crystal_tears",
-    "everything",
-    "goods",
-    "key_items",
-    "merchant_bells",
-    "other",
-    "progressive",
-    "runes",
-    "spells",
-    "spirit_ashes",
-    "talismans",
-    "upgrade_bells",
-    "upgrade_materials",
-    "weapons"
-   ],
    "casefold": false,
    "group": null,
    "group_collapsed": false,
@@ -3719,17 +3662,13 @@ const ERW = (() => {
       warn("ending_condition", "Under DLC Only no Great Rune region survives, so this collapses to " +
            "region_locks. The seed still generates and is still winnable.");
 
-    // features/filler_foreign.py: it only ADDS names to local_items, so once Local Items Only has
-    // localized everything this is "a further no-op".
-    if (has("local_item_only") && v("local_item_only") &&
+    // features/filler_foreign.py: it only ADDS names to local_items, so once everything is held
+    // local this is "a further no-op". Keyed on keep_local since local_item_only was retired
+    // 2026-08-14 -- `keep_local: [everything]` is the same sweep under the name that survived.
+    if (has("keep_local") && (v("keep_local") || []).includes("everything") &&
         has("filler_foreign_pct") && set("filler_foreign_pct") &&
         v("filler_foreign_pct") !== meta.byKey["filler_foreign_pct"].default)
-      info("filler_foreign_pct", "Local Items Only already keeps your items home, so this is a no-op.");
-
-    // ExcludeLocalItemOnly's docstring: "Ignored unless Local Items Only is on."
-    if (has("exclude_local_item_only") && (v("exclude_local_item_only") || []).length &&
-        has("local_item_only") && !v("local_item_only"))
-      warn("exclude_local_item_only", "Ignored unless Local Items Only is on.");
+      info("filler_foreign_pct", "keep_local: everything already keeps your items home, so this is a no-op.");
 
     // ProgressionSurface's docstring: "an EMPTY set turns the confinement off entirely
     // (progression scatters as vanilla AP fill decides)."
@@ -4322,11 +4261,12 @@ if (typeof module !== "undefined") module.exports = ERW;
   const SEED_SIZE_OPTIONS = ["num_regions", "progression_surface", "confine_foreign_progression",
                              "enable_dlc", "dlc_only",
                              // the locality knobs -- they move the "what you send out" card below
-                             "keep_local", "keep_local_rune_cap", "local_item_only",
+                             "keep_local", "keep_local_rune_cap",
                              // 🛑 NOT item_shuffle: it is frozen ON and off the yaml surface, so it
                              // rendered no row here while still counting toward the "N options"
-                             // heading above the list.
-                             "exclude_local_item_only", "filler_foreign_pct"];
+                             // heading above the list. local_item_only and exclude_local_item_only
+                             // were RETIRED 2026-08-14 and are gone from the surface entirely.
+                             "filler_foreign_pct"];
 
   function renderSeedSizeTab(){
     const wrap = el("div", "");
@@ -4410,11 +4350,9 @@ if (typeof module !== "undefined") module.exports = ERW;
       }
       return out;
     };
+    // `keep_local` is the only source since local_item_only was retired 2026-08-14; the
+    // `everything` umbrella below covers what that toggle used to sweep.
     for (const c of catsOf(v("keep_local"))) note(c, "keep_local");
-    if (v("local_item_only")){
-      const excl = new Set(catsOf(v("exclude_local_item_only")));
-      for (const c of ALL_CATS) if (!excl.has(c)) note(c, "local_item_only");
-    }
     return { held, why };
   }
 

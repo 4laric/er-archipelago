@@ -74,7 +74,7 @@ REQUIRED = [
 # a later edit reshuffles without noticing, and nothing else in the tree records the reason.
 SIDE_ORDER = ["Your yaml", "Into the multiworld", "Seed size", "Checks", "Generate &amp; host"]
 
-NUMBERS_MOVE = ["filler_foreign_pct", "keep_local", "local_item_only",
+NUMBERS_MOVE = ["filler_foreign_pct", "keep_local",
                 "confine_foreign_progression", "num_regions", "progression_surface"]
 # Real effects the card cannot COUNT (the rune cap's share of the runes category depends on which
 # rune items a seed contains). They must still change what the card SAYS -- silence is the failure

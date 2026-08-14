@@ -505,7 +505,6 @@ Elden Ring:
   filler_foreign_pct: 100
 
   # On: every real vanilla item this seed produces stays in YOUR world.
-  local_item_only: false
 
   # Categories of item to hold in YOUR OWN world, one per line. This is the
   # knob for "keep my consumables and crafting mats, send the gear out"
