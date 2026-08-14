@@ -68,20 +68,14 @@ _YAML = next((p for p in (os.path.join(_GF_PKG, "EldenRing.yaml"),
 # (2026-08-10). `capital_reconciler` was the seventeenth and is fixed in the same commit, because a
 # gate that quarantines its own motivating case documents nothing. Drain this list; do not add to it.
 _TEMPLATE_DEBT = {
-    "auto_equip",
-    "dlc_blessing_catchup",
+    # The last entry. `exclude_local_item_only` is a subtractive knob on
+    # `local_item_only`, and both are being retired -- `local_item_only` is
+    # measurably identical to `keep_local: [everything]` (item_categories.
+    # category_of is TOTAL, so the two name sets are equal by construction).
+    # Documenting a knob days before removing it would advertise it to exactly
+    # the players who then have to unlearn it, so it stays quarantined until
+    # the retirement lands and this set goes empty.
     "exclude_local_item_only",
-    "grace_attunement",
-    "grace_attunement_anchor",
-    "keep_local",
-    "keep_local_rune_cap",
-    "no_runes_in_shops",
-    "num_regions_order",
-    "progression_bias",
-    "scadutree_blessing_scope",
-    "start_regions",
-    "start_with_whetblades",
-    "vanilla_placement",
 }
 
 class TestShippingYaml(unittest.TestCase):
