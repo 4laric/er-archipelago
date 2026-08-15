@@ -479,7 +479,7 @@
   "Roundtable Hold": {
    "checks": 239,
    "combos": {
-    "Shop|ShopNonSpell": 120
+    "Shop|ShopNonSpell": 104
    },
    "dlc": false,
    "parent": null,
@@ -602,5 +602,5 @@
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "a4c558fcb9331f9b6dc902762f353605ca1d45a8586fa3d323c8603ff6b4b07a"
+ "source_sha256": "478c2ba2dae6c7414f0e98773bff8d74ba1161d206350bca53f63d472c537b90"
 }

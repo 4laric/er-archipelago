@@ -37,6 +37,21 @@ what it is looking at, and nothing vanilla placed in Roundtable Hold carries the
 Being on the list is what gets the room looked at at all; whether the invader himself comes down is
 the next thing to measure, and it will be measured in a game rather than argued in a file.
 
+**Nineteen Roundtable Hold checks can no longer be the thing your seed is waiting on.** Sixteen of
+them are Patches and Thiollier's stock and three are the Dragon Communion incantations. None of those
+sellers actually stands in the Roundtable -- they are filed there because they turn up in more than
+one region and the run could not pick one. The side effect was that the run treated all nineteen as
+reachable the moment you spawned, so a key item could be placed on them for a player who had no route
+to Patches at all. One tester watched it happen: his friend's spoiler put a region unlock on
+Furlcalling Finger Remedy "from Patches or Thiollier" in a seed holding none of the three regions
+either of them lives in.
+
+Those nineteen checks still exist, still show up in your tracker and still hand you something -- they
+simply can no longer hold anything the seed requires. You will see `(region unconfirmed)` on their
+names now, which is the run being straight with you: it knows the check is real and does not know
+which region it is in. Everything else in the Hold is unaffected; Enia, the Twin Maiden Husks and the
+Table of Lost Grace are genuinely there and are untouched.
+
 Every change that lands from here writes its own line while somebody still knows what it was for,
 rather than being reconstructed from a commit log at release time.
 
