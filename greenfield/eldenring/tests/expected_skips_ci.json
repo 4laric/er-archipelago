@@ -61,6 +61,12 @@
       "why": "test_gf_contract_versions.py derives the ledger history from `git tag` (2026-08-14, replacing a typed SHIPPED fixture). This job's checkout is SHALLOW -- fetch-tags is set on `generators` only, which is where these four actually run. They loud-skip here rather than iterating an empty derivation, which would pass vacuously and is the exact failure the derivation was meant to end. If this count reaches 0, either the tests job started fetching tags (good -- lower it deliberately) or the guard was deleted and the ratchet is now green over nothing.",
       "pattern": "^no v\\* tags in this checkout",
       "count": 4
+    },
+    {
+      "family": "sweep-anchor-tool-repo-only",
+      "why": "test_gf_sweep_anchor_coords is a GENERATORS suite (ledgered there) and gates tools/derive_sweep_anchor_coords.py, which the installed world does not carry -- so all 5 cases skip in THIS job and run in the generators job instead. The count is 5 and must move with the suite: a case added or retired there is a reviewed diff here.",
+      "pattern": "^repo-only tool not present \\(installed world\\)",
+      "count": 5
     }
   ]
 }

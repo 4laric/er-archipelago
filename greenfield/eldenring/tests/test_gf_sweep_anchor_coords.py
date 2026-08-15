@@ -120,6 +120,9 @@ class SweepAnchorCoords(unittest.TestCase):
     def test_every_row_is_labelled_weak(self):
         rows = [l.rstrip("\n").split("\t") for l in open(OUT, encoding="utf-8")
                 if not l.startswith("#") and not l.startswith("ap_location_id")]
+        # WITNESS (test_gf_vacuous_pass): without this, a parse that matched nothing would pass
+        # for the same reason a correct table does.
+        self.assertTrue(rows, "scanned no rows -- an empty result is a failure, not a clean run")
         bad = [r[0] for r in rows if r[-1] != "sweep_arena"]
         self.assertEqual(bad, [], "rows missing the anchor=sweep_arena label: %s" % bad[:5])
 
