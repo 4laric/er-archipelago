@@ -184,34 +184,19 @@ if ($Greenfield) {
         throw ("Client submodule missing at {0} -- the generated tracker/contract tables cannot be " +
                "refreshed and would ship STALE against renumbered ap-ids. Run: git submodule update --init" -f $RustDir)
     }
-    Step "  regenerate the client's generated tables (contract_gen.rs, region_locks.rs)"
-    & python (Join-Path $Repo "greenfield\gen_contract.py")
-    if ($LASTEXITCODE -ne 0) { throw "gen_contract.py FAILED -- contract_gen.rs not regenerated (see output above)." }
-    # region_locks.rs is the THIRD cross-repo generated table (baked from region_play_ids.py /
-    # region_open_flags.py -- i.e. the region_groups spine). It was omitted here, so a region_groups
-    # change shipped a stale client table until the drift gate (test_gf_data / gen_region_locks
-    # --check) failed. Regenerate it alongside the other two so `-All` never leaves it behind.
-    & python (Join-Path $Repo "tools\gen_region_locks.py")
-    if ($LASTEXITCODE -ne 0) { throw "gen_region_locks.py FAILED -- region_locks.rs not regenerated (see output above)." }
-
-    # The two OFFLINE HTML pages are generated artifacts too, and CI diffs them exactly like the
-    # client tables -- `test_gf_check_browser` / `test_gf_desc_triage` fail on a non-empty diff. They
-    # were not wired here, so every regen left them stale and the red arrived from a runner minutes
-    # later -- for a change of ONE line, because both pages embed the gen-input stamp and a gen_data.py
-    # edit alone re-hashes them even when no check changed. That is not a thing to remember; it is a
-    # thing to run. (AP-free, seconds, no artifacts -- they join committed greenfield data only.)
-    Step "  regenerate the offline pages (check browser, description triage) + the questline DAG"
-    & python (Join-Path $Repo "tools\build_check_browser.py")
-    if ($LASTEXITCODE -ne 0) { throw "build_check_browser.py FAILED -- er-archipelago-check-browser.html not regenerated (see output above)." }
-    & python (Join-Path $Repo "tools\build_desc_triage.py")
-    if ($LASTEXITCODE -ne 0) { throw "build_desc_triage.py FAILED -- er-archipelago-desc-triage.html not regenerated (see output above)." }
-    # greenfield/questline_dag.tsv rides here for the same reason: it is a pure join over committed
-    # greenfield data + the generated modules, so a gen_data.py edit alone can change it and the CI
-    # diff gate would arrive red minutes later. Nothing in the world reads it yet (SPEC tier 1).
-    & python (Join-Path $Repo "tools\build_questline_dag.py")
-    if ($LASTEXITCODE -ne 0) { throw "build_questline_dag.py FAILED -- greenfield/questline_dag.tsv not regenerated (see output above)." }
-    & python (Join-Path $Repo "tools\build_questline_dag_page.py")
-    if ($LASTEXITCODE -ne 0) { throw "build_questline_dag_page.py FAILED -- er-archipelago-questline-dag.html not regenerated (see output above)." }
+    # THE LIST IS NOT HERE ANY MORE (issue #699, 2026-08-15). The cross-repo tables and the three
+    # stamp-embedding offline pages used to be enumerated inline, and that enumeration disagreed
+    # with the CI `generators` job (it was missing gen_area_tiers --check) and with AGENTS.md
+    # section 5a (which named no page builder at all). Three lists, one of them the one agents are
+    # told to follow, and PR #698 went red on ONE line -- a page's inputs_hash stamp -- because of
+    # it. tools/regen_all.py is now the single list; this script, tests.yaml and AGENTS.md all
+    # invoke it, so there is nothing left to keep in sync.
+    #
+    # The pages are AP-free and take seconds; they join committed greenfield data only. The order
+    # (stamp first, pages after) is enforced inside the entrypoint, which is where it belongs.
+    Step "  regenerate the cross-repo tables + the offline pages (tools\regen_all.py)"
+    & python (Join-Path $Repo "tools\regen_all.py") --phases "tables,pages"
+    if ($LASTEXITCODE -ne 0) { throw "regen_all.py FAILED -- the generated tables/pages are NOT current (see output above)." }
 
     # A regen that lands only in your working tree is HALF a fix: the apworld's CI checks the client
     # out at its DEFAULT BRANCH (main) and diffs, so the gate passes only when the regen is committed
@@ -356,14 +341,12 @@ if ($Generate) {
 if ($Rust) {
     Step "Rust client: cargo test + cdylib build"
     if (-not (Test-Path (Join-Path $RustDir "Cargo.toml"))) { throw "Rust submodule not found at $RustDir -- run: git submodule update --init" }
-    Step "  regenerate greenfield data (datamine boss drops + gen_data) so the tables match region_map"
-    & python (Join-Path $Repo "tools\datamine_boss_drops.py")
-    if ($LASTEXITCODE -ne 0) { throw "datamine_boss_drops.py FAILED (see output above)." }
-    & python (Join-Path $Repo "greenfield\gen_data.py")
-    if ($LASTEXITCODE -ne 0) { throw "gen_data.py FAILED (see output above)." }
-    Step "  regenerate generated tables (region_locks.rs) from greenfield data"
-    & python (Join-Path $Repo "tools\gen_region_locks.py")
-    if ($LASTEXITCODE -ne 0) { throw "gen_region_locks.py FAILED -- region_locks.rs not regenerated (see output above)." }
+    # Was a FOURTH partial list (datamine_boss_drops + gen_data + gen_region_locks): it skipped the
+    # healthbar datamine, the stamp verify and all three pages, so a standalone `-Rust` left them
+    # stale exactly the way issue #699 describes. One entrypoint here too.
+    Step "  regenerate greenfield data + the generated tables/pages (tools\regen_all.py)"
+    & python (Join-Path $Repo "tools\regen_all.py") --phases "modules,tables,pages"
+    if ($LASTEXITCODE -ne 0) { throw "regen_all.py FAILED -- greenfield data / generated tables are NOT current (see output above)." }
     if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
         throw "cargo not found on PATH. Install rustup from https://rustup.rs, then re-open the shell."
     }

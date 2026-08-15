@@ -440,10 +440,19 @@ because `-All` ran `gen_data` against the **stale** tsv. Others hand-edited a `-
 the fix, desyncing it from its tool. **CI catches neither** (the tsvs are tracked; the artifacts/MSBs
 are absent in CI). Know which tier your change is in:
 
-- **Tier 1 — automated by `build.ps1 -All`/`-Greenfield`.** `gen-greenfield.ps1` runs exactly
-  `datamine_boss_drops.py` → `datamine_boss_healthbars.py` → `gen_data.py`, which rewrites the
-  `eldenring/*.py` modules from the committed tsvs + params. A change in `gen_data.py`, `region_groups.py`,
-  a boss-drop/healthbar input, or any `eldenring/*.py` consumer → **`-All` covers it. Say it once.**
+- **Tier 1 — automated by `build.ps1 -All`/`-Greenfield`, and by `tools/regen_all.py`.** The chain
+  is `datamine_boss_drops.py` → `datamine_boss_healthbars.py` → `gen_data.py` (rewrites the
+  `eldenring/*.py` modules **and writes `_GEN_STAMP`**) → the cross-repo tables (`gen_region_locks`,
+  `gen_contract`, `gen_area_tiers --check`) → **the three offline pages + `questline_dag.tsv`**.
+  A change in `gen_data.py`, `region_groups.py`, a boss-drop/healthbar input, or any
+  `eldenring/*.py` consumer → **`-All` covers it. Say it once.**
+
+  🛑 **THE PAGES ARE PART OF TIER 1, and this doc used to omit them** (issue #699, 2026-08-15).
+  `er-archipelago-check-browser.html`, `-desc-triage.html` and `-questline-dag.html` EMBED
+  `inputs_hash`, so **any** change that moves the stamp — including a comment edit to `gen_data.py`,
+  which is `FILE_INPUTS[0]` — re-stales all three, and the only thing that notices is CI's byte
+  diff (`apworld generated output is STALE`). PR #698 went red for exactly one such line. That is
+  why the recipe below is a single command and not a list.
 
   🛑🛑🛑 **AGENTS: THE TIER-1 REGEN IS A PRECONDITION OF YOUR PR, NOT A HANDOFF.** §5 above says the
   regen runs in the sandbox off the committed `gen_inputs.db`; this is the rule that follows from it.
@@ -453,11 +462,23 @@ are absent in CI). Know which tier your change is in:
   convenience wrapper, not a platform requirement:
 
   ```bash
-  python3 tools/gen_inputs.py --extract elden_ring_artifacts
-  python3 tools/datamine_boss_drops.py && python3 tools/datamine_boss_healthbars.py
-  python3 greenfield/gen_data.py
-  python3 tools/gen_manifest.py --verify greenfield/eldenring/_gen_stamp.json
+  python3 tools/regen_all.py     # THE regen. inputs -> datamines -> gen_data (+stamp) -> tables -> pages
+  git status --short             # everything it lists is generated output that belongs in THIS commit
   ```
+
+  **One command on purpose.** `tools/regen_all.py` holds the step list; `build.ps1` and the CI
+  `generators` job invoke the same file, so this block cannot drift from what CI checks — which it
+  had, silently, for as long as the pages have been stamped. `python3 tools/regen_all.py --list`
+  prints the steps and runs nothing. Sandbox-safe: the client-dependent steps SKIP loudly when the
+  submodule is absent, and `--phases modules,pages` narrows it if you know what you are doing.
+  `greenfield/eldenring/tests/test_gf_regen_all.py` is the gate that keeps the list complete — it
+  goes red if a stamp-bearing artifact, or a `tools/build_*.py` that writes a root page, is not
+  reachable from the entrypoint.
+
+  🛑 **Order, not taste: the stamp is written and THEN read.** Finish every source edit first
+  (`gen_data.py` is a declared input — a *comment* re-stales it), then run the entrypoint once.
+  Rebuilding a page before the stamp leaves it carrying the previous hash, which is a red CI diff
+  with no visible cause; it cost six rounds on world PR #481.
 
   **Why this is a rule and not advice (PR #526, 2026-08-10).** A region merge shipped as a source
   half, merged, and left `main` unable to regen. The regen was the only thing that would have found
@@ -502,7 +523,8 @@ are absent in CI). Know which tier your change is in:
   artifacts). One offline page over all checks — full-text search plus facets for region, tag,
   map tile, and *property* (`missable`, `has lot gate`, `no map position`, `no nearest grace`,
   `shop row`), with per-check item lots, shop rows, gates, maps and nearest grace. Regenerate with
-  `python tools/build_check_browser.py` after any `gen_data.py` run; it is AP-free and joins only
+  **`python3 tools/regen_all.py`** (§5a) after any `gen_data.py` run — not the builder alone, which
+  is how three stamped pages ended up with three different owners; it is AP-free and joins only
   committed greenfield data, so it can be rebuilt in the sandbox. CI regenerates it and fails on a
   non-empty diff, and `tests/test_gf_check_browser.py` gates totality/agreement/determinism.
   It is a **reader**, not an oracle: it shows what the world already declares, and any number it
@@ -538,15 +560,29 @@ are absent in CI). Know which tier your change is in:
   an old link against a newer build re-derives the number; if a filter term no longer matches
   anything the page shows a red banner saying so, rather than a quiet zero.
 
+### QUESTLINE DAG — `er-archipelago-questline-dag.html`
+
+The third stamped page, and until issue #699 it was named in **no** doc — not here, not in
+CONTRIBUTING — which is precisely how PR #698 shipped it stale. `tools/build_questline_dag.py`
+emits `greenfield/questline_dag.tsv` (SPEC-questline-dag tier 1: *emit the graph, assert nothing*)
+and `tools/build_questline_dag_page.py` renders it as one mermaid graph per connected component —
+the unit of browsing is the CLUSTER, because the graph is 136 mostly-disjoint components, not one
+DAG. Mermaid is fetched from a CDN at VIEW time, so the build is offline-safe and byte-deterministic.
+Both ride `tools/regen_all.py`. `tests/test_gf_questline_dag.py` gates the **tsv** (corroboration,
+the SPEC §7 acceptance cases, freshness); `test_gf_regen_all.py` is what keeps the **page** from
+falling out of the chain. 🛑 An edge is co-occurrence plus a polarity rule, not proof;
+`sense=unknown` (108 of 280) must not be reasoned with, and absence is not evidence of safety.
+
 ### DESC-TRIAGE — authoring `location_descriptions.tsv`
 
-`er-archipelago-desc-triage.html` (root, `python tools/build_desc_triage.py`) ranks checks by how
+`er-archipelago-desc-triage.html` (root, rebuilt by `python3 tools/regen_all.py` — §5a) ranks checks by how
 badly they need a hand description and puts them **on the committed overworld maps**, because the
 question you have to answer when writing one is "which of these four is this?" — MEASURED, 986
 checks carry a `collision_ordinals()` "(N)" suffix across 306 families, meaning the waterfall could
 not tell them apart. Pick a row, see it and its indistinguishable siblings plotted together, type
 what makes it different, export a `flag<TAB>description` TSV to paste into
-`greenfield/location_descriptions.tsv` (layer 1, always wins), then regenerate.
+`greenfield/location_descriptions.tsv` (layer 1, always wins), then regenerate
+(`python3 tools/regen_all.py`).
 
 The need score is a **triage heuristic, not a truth claim**, and is rendered decomposed so you can
 disagree per row: no item name +100, indistinguishable sibling +50, bare +25, machine locale +20,
