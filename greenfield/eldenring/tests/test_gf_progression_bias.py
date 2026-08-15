@@ -28,6 +28,7 @@ pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring.features.progression_surface import (  # noqa: E402
     ProgressionBias, released_locks, lock_region_name, place_released_locks,
+    CrossGameProgression, cross_game_share, _foreign_open_locations,
 )
 
 
@@ -200,6 +201,143 @@ class TestThePlacerContract(unittest.TestCase):
         self.assertTrue(mw.itempool)
         place_released_locks(mw, [_Bare()])
         self.assertEqual(mw.itempool, ["someone else's item"])
+
+
+class _Loc:
+    """The four fields `_foreign_open_locations` reads. `progress_type` defaults to the sentinel the
+    helper treats as "fine", so a test only sets it when EXCLUDED is the point."""
+
+    def __init__(self, name, player, item=None, locked=False, progress_type=None):
+        self.name = name
+        self.player = player
+        self.item = item
+        self.locked = locked
+        self.progress_type = progress_type
+
+    def __repr__(self):
+        return f"_Loc({self.name!r}, p{self.player})"
+
+
+class TestCrossGameShare(unittest.TestCase):
+    """`cross_game_share` -- Alaric's ruling, 2026-08-15: "yaml knob but 1/N is good. 2 games, 50% of
+    locks in hk". The function is pure over the option value and the GAME count, which is the whole
+    reason it is testable without Archipelago."""
+
+    class _W:
+        def __init__(self, value):
+            self.options = type("_O", (), {
+                "cross_game_progression": type("_V", (), {"value": value})()})()
+
+    def test_auto_is_one_over_n_games(self):
+        """THE RULING, literally. Two games is half."""
+        self.assertEqual(cross_game_share(self._W(-1), 2), 50)
+        self.assertEqual(cross_game_share(self._W(-1), 3), 33)
+        self.assertEqual(cross_game_share(self._W(-1), 4), 25)
+        self.assertEqual(cross_game_share(self._W(-1), 8), 13)
+
+    def test_auto_rounds_half_up_not_to_even(self):
+        """🛑 `round(100/8)` is 12, not 13, because Python rounds halves TO EVEN. The export-volume
+        half of #703 caps at 1/N by integer arithmetic, so `round` here would put the two halves one
+        point apart on any seed where 100/N lands on a half -- silently, and only sometimes."""
+        self.assertEqual(cross_game_share(self._W(-1), 8), 13)
+        self.assertNotEqual(cross_game_share(self._W(-1), 8), round(100.0 / 8))
+        for n in (2, 3, 4, 5, 6, 8, 10):
+            self.assertEqual(cross_game_share(self._W(-1), n), (100 + n // 2) // n)
+
+    def test_never_and_zero_are_the_escape_hatch(self):
+        """🛑 The one that matters operationally: a partner apworld that objects to being filled
+        during pre_fill has to be switchable off, and off must mean OFF."""
+        # WITNESS: the identical stub at `auto` returns 50, so a 0 here is the VALUE being read
+        # and honoured -- not the option plumbing failing and everything returning 0.
+        self.assertEqual(cross_game_share(self._W(-1), 2), 50)
+        self.assertEqual(cross_game_share(self._W(0), 2), 0)
+        self.assertEqual(CrossGameProgression.special_range_names["never"], 0)
+
+    def test_an_explicit_percentage_is_taken_literally(self):
+        self.assertEqual(cross_game_share(self._W(30), 2), 30)
+        self.assertEqual(cross_game_share(self._W(100), 4), 100)
+
+    def test_a_solo_or_single_game_seed_gets_zero_because_there_is_nowhere_to_send(self):
+        """Not a policy, an arithmetic fact: 1/1 would say 100% and there is no partner to receive
+        it. An all-Elden-Ring multiworld is ONE game however many slots it has."""
+        # WITNESS: both stubs return something at TWO games, so the zeros below are the game count
+        # being consulted rather than the function having stopped working.
+        self.assertEqual(cross_game_share(self._W(-1), 2), 50)
+        self.assertEqual(cross_game_share(self._W(100), 2), 100)
+        self.assertEqual(cross_game_share(self._W(-1), 1), 0)
+        self.assertEqual(cross_game_share(self._W(100), 1), 0)
+
+    def test_an_older_yaml_without_the_option_behaves_as_it_did_before_the_option(self):
+        """`getattr` default, and it is load-bearing: every test suite in this repo that builds a
+        world stub without options would otherwise start crashing in a stage hook."""
+        class _Bare:
+            pass
+        # WITNESS: same call, same game count, a world that HAS the option -- non-zero. So the 0 is
+        # the missing attribute being defaulted, not the whole helper being inert.
+        self.assertEqual(cross_game_share(self._W(-1), 2), 50)
+        self.assertEqual(cross_game_share(_Bare(), 2), 0)
+
+
+class TestForeignOpenLocations(unittest.TestCase):
+    """`_foreign_open_locations` -- which of a PARTNER's locations we may honestly offer a Lock."""
+
+    class _MW:
+        def __init__(self, locs):
+            self._locs = locs
+
+        def get_locations(self):
+            return self._locs
+
+    def _all(self):
+        return [
+            _Loc("ours", 1),
+            _Loc("theirs open", 2),
+            _Loc("theirs filled", 2, item=object()),
+            _Loc("theirs locked", 2, locked=True),
+        ]
+
+    def test_only_a_partners_empty_unlocked_locations_are_offered(self):
+        locs = self._all()
+        out = _foreign_open_locations(self._MW(locs), {1})
+        self.assertEqual([loc.name for loc in out], ["theirs open"])
+
+    def test_our_own_locations_are_the_other_passs_business(self):
+        """The Elden Ring surface pass runs after this one over exactly these. Offering them twice
+        would let the cross-game share eat the curated surface it is supposed to leave alone."""
+        locs = self._all()
+        out = _foreign_open_locations(self._MW(locs), {1})
+        self.assertFalse([loc for loc in out if loc.player == 1])
+        # WITNESS: player 1 really had a location in the scan, so "none of ours" is a filter doing
+        # work and not an empty input.
+        self.assertTrue([loc for loc in locs if loc.player == 1])
+
+    def test_a_location_another_world_already_filled_is_never_overwritten(self):
+        """A partner's own `pre_fill` runs BEFORE this stage hook. Its placements are decisions."""
+        locs = self._all()
+        out = _foreign_open_locations(self._MW(locs), {1})
+        self.assertFalse([loc for loc in out if loc.item is not None])
+        self.assertTrue([loc for loc in locs if loc.item is not None])
+
+    def test_excluded_locations_never_receive_a_lock(self):
+        """🛑 THE ONE NOBODY ELSE CHECKS. `exclude_locations` is a player's promise that nothing
+        REQUIRED sits there, and a released Lock is progression. `fill_restrictive` does not consult
+        `progress_type` -- `distribute_items_restrictive` filters before calling it -- so if this
+        helper does not filter, the promise is broken silently."""
+        from BaseClasses import LocationProgressType
+        excluded = _Loc("theirs excluded", 2, progress_type=LocationProgressType.EXCLUDED)
+        allowed = _Loc("theirs default", 2, progress_type=LocationProgressType.DEFAULT)
+        out = _foreign_open_locations(self._MW([excluded, allowed]), {1})
+        self.assertEqual([loc.name for loc in out], ["theirs default"])
+
+    def test_no_partner_means_no_offer_rather_than_an_error(self):
+        # WITNESS: the same scan over the same location plus one partner location DOES return it,
+        # so the empty result below is "there is no partner here" and not a broken walk.
+        self.assertEqual(
+            [loc.name for loc in
+             _foreign_open_locations(self._MW([_Loc("ours", 1), _Loc("theirs", 2)]), {1})],
+            ["theirs"])
+        out = _foreign_open_locations(self._MW([_Loc("ours", 1)]), {1})
+        self.assertEqual(out, [])
 
 
 if __name__ == "__main__":

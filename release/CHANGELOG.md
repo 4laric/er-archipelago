@@ -75,6 +75,34 @@ untouched for the same reason.
 The wizard's SweepSlot count is now a RANGE, because how many checks the class contributes depends
 on a partner count that does not exist yet when you are filling in your yaml -- the same reason
 `num_regions` is shown as a draw size rather than a final number.
+### Your Region Locks can finally reach a non-Elden-Ring player, and by default half of them do
+
+`progression_bias` has released Locks into the multiworld pool since 0.4.0, and in a multi-slot
+Elden Ring seed they travel: about 45% leave their own world. Beside a DIFFERENT game they did not
+travel at all. Not rarely -- **not once**. Four configurations were measured against a Hollow Knight
+slot and every one returned 0 Locks placed in it, including a two-Elden-Ring-plus-Hollow-Knight seed
+where 15 of 28 Locks travelled and all 15 went to the other Elden Ring world.
+
+The cause was structural rather than a bug in the fill. The pass that places released Locks only ever
+saw Elden Ring worlds, so a Lock reached a partner solely by being one the pass could not place --
+the spill -- and there is no spill: our surfaces host roughly 170 checks against at most ~36 Locks.
+Four times the room the pass needs means it always finds room, and the only route out of Elden Ring
+was a valve that structurally never opened.
+
+The new `cross_game_progression` offers a share of the released Locks at partner locations FIRST,
+before the Elden Ring surfaces get their look. It defaults to `auto`, which is `1 / number of games`
+-- half in a two-game seed, a quarter in a four-game one, and nothing at all in a seed that is all
+Elden Ring however many slots it has. On the measured 1xER + 1xHK pair that moves Locks landing in
+Hollow Knight from 0% to **50.0%**. Set it to a number for that percent, or to `never` for the old
+behaviour exactly.
+
+Two things worth knowing before you turn it up. It places items in another game's locations, which
+is a thing an apworld may legitimately object to during `pre_fill` -- only empty, unlocked,
+non-excluded locations are ever offered, nothing is forced, and a partner that raises makes the
+Locks fall back to Elden Ring surfaces rather than failing your seed, but `never` is the escape
+hatch if a partner game generates badly beside us. And a travelling Lock is a Lock somebody else is
+holding: this is the same trade `progression_bias` already asks you to make, now actually available
+across games.
 
 ### `start_region_pool` with fewer regions than `start_regions` now says so, in your yaml's words
 

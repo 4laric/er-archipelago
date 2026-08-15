@@ -565,6 +565,31 @@ Elden Ring:
   # seed, nor in the modes that mint no Locks.
   progression_bias: 0
 
+  # WHAT SHARE OF YOUR TRAVELLING LOCKS MAY LAND IN A NON-ELDEN-RING GAME.
+  # `auto`, the default, is 1 / number of games -- half of them in a two-game
+  # seed, a quarter in a four-game one. A number is that percent directly, and
+  # `never` (or 0) keeps every Lock inside Elden Ring worlds.
+  #
+  # This exists because the answer used to be ZERO, always, and not on purpose.
+  # Locks were offered to Elden Ring surfaces only; a Lock bound elsewhere was
+  # simply one this pass did not place, and the general fill would take it
+  # anywhere. But our surfaces have about 170 checks for at most ~36 Locks, so
+  # nothing was ever left over. Measured: 0 Locks reached a Hollow Knight slot
+  # across four configurations, including a two-Elden-Ring-plus-Hollow-Knight
+  # seed where 15 of 28 Locks travelled and every one went to the OTHER Elden
+  # Ring world. With `auto` on that same shape, 50% land in Hollow Knight.
+  #
+  # 🛑 THIS PLACES ITEMS IN ANOTHER GAME'S LOCATIONS. Only empty, non-excluded,
+  # unlocked ones, never forced, and if the attempt raises, the Locks fall back
+  # to Elden Ring surfaces rather than failing your seed. But an apworld is
+  # within its rights to object to being filled during pre_fill -- TUNIC says so
+  # outright. If a partner game generates badly beside Elden Ring, set this to
+  # `never` first; it restores the pre-0.4.3 behaviour exactly.
+  #
+  # No effect in a solo seed, in a seed with only Elden Ring players, or in the
+  # modes that mint no Locks.
+  cross_game_progression: auto
+
   # ---- Where progression may hide -------------------------------------------
 
   # WHICH LOCATIONS MAY HOLD PROGRESSION. Shrinking this makes the run tighter
