@@ -38,8 +38,11 @@ try:
     _bspec = _ilu.spec_from_file_location("_boss_drops", os.path.join(HERE, "eldenring", "boss_drops.py"))
     _bmod = _ilu.module_from_spec(_bspec); _bspec.loader.exec_module(_bmod)
     _BOSS_DROP_FLAGS = frozenset(_bmod.BOSS_DROP_FLAGS)
+    # ...and the flag -> boss ENTITY map beside it, for the descriptor's boss layer (see _BOSS_NAMES).
+    _BOSS_DROP_ENTITY = dict(getattr(_bmod, "BOSS_DROP_ENTITY", {}) or {})
 except Exception as _e:
     _BOSS_DROP_FLAGS = frozenset()
+    _BOSS_DROP_ENTITY = {}
     print(f"[gen_data] boss_drops.py unavailable ({_e!r}); Boss tag empty -- run tools/datamine_boss_drops.py")
 # Mini-dungeon / scripted BOSS-REWARD lots (tools/datamine_boss_reward_lots.py). common.emevd awards
 # these off a reward flag the MAP emevd flips -- neither NpcParam (itemLotId_enemy is -1 on these
@@ -916,7 +919,29 @@ if _bad_pins:
         % (len(_bad_pins), _lines))
 print(f"location desc: multi-merchant shop rows guarded = {len(_MULTI_MERCHANT)} "
       f"(no single-seller hand pin permitted on any of them)")
-_BOSS_NAMES    = {}                                                # 2. TODO drop-flag -> boss name join
+# 2. drop-flag -> boss name. WAS `{}` WITH A TODO, and the TODO was load-bearing: desc_sources'
+#    layer 2 ("boss / remembrance drop -> boss name") has been handed an EMPTY MAP since it was
+#    written, so it never fired and every boss drop fell through to the grace/locale layer and got
+#    described by a PLACE. Measured before the fix: of the 88 checks in BOSS_DROP_ENTITY, 2 named
+#    their boss and 71 did not (13 have no name for their entity; those are left alone).
+#
+#    Alaric, 2026-08-14: `Limgrave :: Bloodhound's Fang - Table of Lost Grace [f530130]`. That check
+#    IS tagged Boss, and BOSS_DROP_ENTITY has it at 1044350800 = Bloodhound Knight Darriwil -- the
+#    layer simply had nothing to look him up in, so layer 4 picked the nearest grace and produced
+#    the Roundtable Hold's table for a Limgrave evergaol drop.
+#
+#    The join is the two tables gen_data already loads: the drop flag names its boss ENTITY, and
+#    BOSS_HEALTHBARS names the entity. An entity with a blank name contributes nothing rather than
+#    an empty descriptor -- same rule the sweep clause uses, and for the same reason: a name we
+#    cannot vouch for is worse than the locator we already had.
+_BOSS_NAMES = {}
+for _bdf, _bde in _BOSS_DROP_ENTITY.items():
+    _bdi = BOSS_HEALTHBARS.get(_bde)
+    _bdn = (_bdi[3] if _bdi and len(_bdi) > 3 else "") or ""
+    if str(_bdn).strip():
+        _BOSS_NAMES[int(_bdf)] = str(_bdn).strip()
+print("location desc: boss-drop names joined = %d of %d drop flag(s) (%d entity/entities unnamed)"
+      % (len(_BOSS_NAMES), len(_BOSS_DROP_ENTITY), len(_BOSS_DROP_ENTITY) - len(_BOSS_NAMES)))
 _SPOT_EN       = _load_flag_str_tsv("treasure_name_en.tsv")        # 3. curated place phrases (EN)
 _NEAREST_GRACE = _load_flag_str_tsv("nearest_grace.tsv")           # 4. per-check nearest grace (Windows)
 def _load_shop_sellers():
