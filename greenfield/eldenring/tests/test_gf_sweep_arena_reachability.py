@@ -127,7 +127,14 @@ BOBLERRR_KEPT = frozenset({"Ancient Ruins", "Belurat", "Cerulean", "Jagged Peak"
 # 41e8fe7), which until now were consumed ONLY to re-region ambiguous checks and never for the
 # arena question they literally answer. Coverage improving is exactly the case this comment says to
 # raise for -- leaving the floor at 112 would let all 58 silently disappear again.
-ARENA_COVERAGE_FLOOR = 170
+# 2026-08-15 (second raise, same day): 170 -> 190. Again not a new datamine. 20 triggers whose ARENA
+# MAP carries a first-hand region of its own (dungeon_regions.tsv, source grace/connect) are now
+# derived, ranked below both PlayRegionParam and the human rulings.
+# 🛑 ALL 20 AGREE with their members' region -- zero new #445 screens, so this is coverage without a
+# behaviour change. And tile decode is deliberately excluded: an overworld arena would be regioned by
+# the same nearest-neighbour machinery as its members, so the two would agree BY CONSTRUCTION and
+# this floor would be measuring a tautology. 26 of the remaining 28 are exactly that case.
+ARENA_COVERAGE_FLOOR = 190
 
 
 class SweepArenaTable(unittest.TestCase):
