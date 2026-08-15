@@ -151,6 +151,46 @@ which is the honest label rather than a rename: we do not know which of the thre
 is really in. Deciding that -- option B in #701, regioning each row to its earliest site -- is a
 separate change and is deliberately not in this one.
 
+### ...and now they are filed where their seller stands, instead of nowhere
+
+The entry above is #701 option C: the nineteen rows stopped being able to hold progression at all.
+This is option B, the other half -- give the row a real region so it can hold progression again,
+honestly this time.
+
+The rule: a collapsed row is regioned to the EARLIEST of its OWN sites that your seed kept, in the
+same spine order the rest of the world means by "earliest", and the check is then gated on reaching
+that region. Patches / Thiollier resolve over {Limgrave, Mt. Gelmir, Cerulean}; the three Dragon
+Communion incantations resolve over their own pair, {Caelid, Limgrave} -- they are not along for the
+Patches ride, they get the same rule applied to their own altars.
+
+**Requiring one site is STRICTER than the truth, which is why it is safe.** The honest rule is a
+disjunction -- reachable if you hold ANY of the seller's regions -- and the region-lock world still
+cannot express one (#320 / #502; that is #701 option 1 and it is not this change). Naming a single
+kept site can only ever refuse a placement you could have reached, never assert one you could not,
+and it is exact when your seed kept just one of them.
+
+**If your seed keeps none of the sites, option C's bar stays exactly as it was.** That is the
+fallback, not an edge case: a `num_regions` draw that holds none of Patches' three regions is a
+legitimate seed and must still generate, so B narrows C's bar to precisely the case where C is still
+true rather than removing it. Both halves are tested, in both directions and against real seeds.
+
+**Which sites count, and one that does not.** A site is a map where a merchant instance is placed and
+placed only there. Patches' `npc_param` 523090020 is ALSO placed on three overworld tiles -- Scenic
+Isle in Liurnia, Seethewater in Mt. Gelmir, the Road of Iniquity in Altus -- and one npc_param is one
+character the game shows in at most one place at a time, on a quest condition the generator does not
+model. Counting those would have handed these rows **Altus, which every base seed keeps** (it is the
+capital's only parent), so the bar would have lifted on essentially every seed on the weakest
+evidence in the table. Dropping ambiguous placements leaves exactly the three regions #557's
+hand-reviewed table names -- a derived rule landing on a reviewed list -- and leaves the Communion
+pair alone.
+
+Nothing static moved: same ap ids, same names, same `Roundtable Hold ::` prefix (renaming is what
+#701 forbids), same `(region unconfirmed)` tail, same nineteen rows still taking items. The regioning
+is a per-seed decision, so it lives on the location's access rule and on the same `item_rule` bar
+option C used -- and one bar at a time: the two rows that are also shop-release-gated (the second Great
+Arrow and Ballista Bolt, `f110200` and `f110210`, which the merchant does not stock until an unlock
+fires) stay barred, because the region being open says nothing about the shelf.
+
 ## v0.4.2 — 2026-08-14
 
 Window opened AT THE TAG of v0.4.1, with zero commits past it -- so this section starts empty of

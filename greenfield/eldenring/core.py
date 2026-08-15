@@ -1346,12 +1346,41 @@ class GreenfieldEldenRingWorld(World):
         _barred = _NO_PROGRESSION_APS
         if getattr(self, "gf_capital_reconciler", False):
             _barred = _barred - frozenset(ERDTREE_BURN_APS)
+        # #701 OPTION B -- A COLLAPSED MERCHANT ROW GETS ITS REAL REGION BACK.
+        # A row whose seller stands in several regions (Patches/Thiollier, the Dragon Communion
+        # altars) is pinned nowhere, sits in the always-open hub and is barred by option C (#706).
+        # If THIS seed kept one of the merchant's real regions, the row stops being a guess: it is
+        # regioned to the EARLIEST kept one in SPINE order and gated on reaching it below, so it can
+        # carry progression again -- honestly this time. Requiring one named site is STRICTER than the
+        # true disjunction ("any site"), so it can never assert reachability the player lacks.
+        # 🛑 C IS THE FALLBACK, NOT A THING B REMOVED: a row with NO kept site is absent from this map
+        # and keeps its bar. B narrows C to exactly the case where C is still true; a seed keeping none
+        # of {Limgrave, Mt. Gelmir, Cerulean} is legitimate and must still generate.
+        try:
+            from .features.progression_surface import (collapsed_site_regions as _csr,
+                                                       collapsed_lift_aps as _cla)
+            _sites = _csr(self)
+            _barred = _barred - _cla(self)
+        except Exception:
+            _sites = {}
         # confine_foreign_progression (progression_surface): the surface ap-ids that MAY host another
         # player's advancement. None => feature off. Non-surface locations get a foreign-advancement bar
         # below. Computed once in create_regions (self._foreign_confine_surface).
         _fsurf = getattr(self, "_foreign_confine_surface", None)
         for (name, ap_id, _flag) in LOCATIONS.get(region_name, []):
             _loc = GFLocation(self.player, name, ap_id, region)
+            _site = _sites.get(ap_id)
+            if _site is not None:
+                # THE GATE IS ON THE LOCATION, NOT THE REGION KEY. The row keeps its `Roundtable Hold`
+                # name and its hub parent on purpose -- #701 forbids fixing this by renaming (#557 rules
+                # the prefix intended, the tracker and the client's kick geometry group on it) -- while
+                # its REACHABILITY becomes the truth: you can get this ware once you can reach the
+                # region its seller stands in. can_reach(region), not has("<R> Lock"), so a site with a
+                # parent chain (REGION_PARENT) needs the whole chain, and natural_progression /
+                # vanilla_placement -- which mint no Lock items -- gate it correctly too.
+                _prev_a = _loc.access_rule
+                _loc.access_rule = lambda state, _p=_prev_a, _r=_site, _pl=self.player: (
+                    state.can_reach(_r, "Region", _pl) and _p(state))
             if ap_id in _barred:
                 # Bar ADVANCEMENT only, via item_rule -- do NOT use LocationProgressType.EXCLUDED.
                 # EXCLUDED puts the location in AP's dedicated "Remaining Excluded" filler-only pass
