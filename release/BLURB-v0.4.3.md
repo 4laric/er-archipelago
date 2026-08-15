@@ -5,6 +5,23 @@ anyone remembers why it mattered._
 
 ## What is in it so far
 
+**You can get BK'ed now, and that is the point.** Until this release your Region Locks could not
+leave Elden Ring for another game. Not rarely -- *not once*: four measured configurations against a
+Hollow Knight slot returned zero Locks placed in it, including a seed where fifteen of twenty-eight
+Locks travelled and every single one went to the *other* Elden Ring world. The valve existed and
+structurally never opened, so Elden Ring sat in your multiworld as a game that could send things but
+never actually needed anybody -- which is a strange way to play together.
+
+`cross_game_progression` now offers a share of your released Locks to your partners FIRST, before
+Elden Ring's own surfaces get their look. It defaults to `auto`: one over the number of games, so
+half in a two-game seed, a quarter in a four-game one, and nothing at all when everyone is playing
+Elden Ring however many slots there are.
+
+What that means at the table is that a region you need can be sitting in somebody else's game, and
+you may have to stop and wait for them. Being stuck is a complaint; the *risk* of being stuck is the
+whole shape of a multiworld, and Elden Ring has not been carrying its share of it. **If you would
+rather it did not, set `cross_game_progression: 0`** -- nothing else changes.
+
 **A bad `start_region_pool` now fails like a yaml problem instead of a crash.** If you name fewer
 regions in `start_region_pool` than you ask for in `start_regions` -- one region, two starting
 regions -- generation used to stop on a Python traceback. Worse, the message buried in it told you
@@ -75,6 +92,67 @@ requirement, so the spoiler is no longer the only route to it. Do not guess the 
 today it is the alphabetically first N of the runes your kept regions can reach, which looks like a
 rule and is not one to bet a run on. The names are still not shown IN GAME; putting them in the
 connect banner is client work and is not in this release.
+
+**Your partners stop receiving four hundred Golden Runes and start receiving gear.** If you have
+played Elden Ring beside a smaller game, you have probably sent them a great deal of nothing: our
+exports to a non-Elden-Ring world were overwhelmingly runes and smithing stones, which that player
+cannot use for anything at all. A Golden Rune in Hollow Knight is not a small prize, it is an inert
+one.
+
+Two changes move it. SweepSlot -- the option that lets a boss hand over a progression item -- now
+scales with how many people you are playing with, opening more room for a partner's items to live in
+your world, which in turn frees room in theirs. The export mix follows: measured on a two-game seed,
+the useful share of what reaches your partner goes from **4%** to **35%**, while the amount of plain
+filler you send them barely moves. They are not getting more from you. They are getting better things
+from you.
+
+**Traps that promised three of something now deliver three.** `Trap: Basilisk x3` had been arriving
+as one basilisk, which is the failure the option's own description warns about -- one is a joke,
+three is the overlapping Death Blight mist that actually threatens you. The count was never lost; the
+game's debug spawner writes into a single shared slot, so three requests fired in the same instant
+overwrote one another and only the last survived. They are spaced out now. The client also used to
+log the number it *asked* for, which is why this survived so long -- the only way to catch it was to
+stand in a room and count. It now counts what actually appeared.
+
+**A trap could spend itself on a lie.** If Rune Thief reached you while you held no runes, it
+announced that half your runes were gone, took nothing, and was consumed -- and because the server
+had already marked it received, it never came back. It now waits until you have something to lose. If
+you have been playing at zero runes for a while, which is more common than it sounds, that was a real
+item quietly wasted.
+
+**Items reported delivered but never received are now counted.** When a delivery hit the game's own
+cap on how many of a consumable you may hold, it was announced as delivered and then not placed --
+and further losses on the same item were silent, so there was no way to tell whether it had happened
+once or twenty times. The client now tallies them per item and reports the total when you change
+worlds. This does not get the items back; it makes the loss visible, which had to come first.
+
+**The hint list counts what is still outstanding.** Hints for checks you had already collected stayed
+in the tracker and kept counting toward the total, so `Hints (9)` could mean two things worth doing.
+Collected hints now grey out and stop counting. They stay on the list, because a found hint is still
+a record of where something was.
+
+**A Great-Rune goal tells you which runes, in the game.** A `great_runes` seed requires a SPECIFIC
+set, not any N of them -- and the only place that said so was the spoiler log. One player finished
+holding four Great Runes, sent no victory, and worked out why by reading the spoiler himself. The
+required names are now printed at connect, where you are actually looking.
+
+**You get a warning before an ending that will not count.** If you reach the final arena while Region
+Locks are still outstanding, the client tells you how many, once. Nothing stops you going in -- but
+the ending is irreversible, and finding out afterwards from a spoiler log is the worst possible
+moment.
+
+**When connecting fails, the message is about your actual problem.** "Connection refused" and
+"connection timed out" are opposite diagnoses -- nothing listening versus something eating the
+packets -- and they used to share one line that told you to check your URL, which by that point had
+already been proven fine. They are separate now, and the connection breadcrumbs are readable in a
+normal log, so a failed connect can be diagnosed from the file you send rather than from a follow-up
+conversation.
+
+**Shop checks are filed where their seller stands.** Nineteen checks sold by Patches and at the
+Dragon Communion altars were labelled as Roundtable Hold -- the hub, open from your first minute --
+while the merchant who actually sells them is somewhere you may not have unlocked. The logic believed
+they were reachable immediately; a player in one of our test seeds drew a Scadu Altus Lock onto one
+of them and could not go and get it. They now say where their seller is.
 
 ## What v0.4.3 does not change
 
