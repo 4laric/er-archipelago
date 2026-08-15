@@ -444,10 +444,70 @@ def sweep_slot_skips(healthbars=None):
     return skips
 
 
-def nominate_sweep_slots(sweeps, barred=(), prefer_not_in=(), skips=None):
-    """{trigger flag: [member ap ids]} -> the set of ap-ids SweepSlot puts on the surface: AT MOST
-    ONE per trigger. Pure, AP-free, and THE definition -- both the world
-    (features/progression_surface.sweep_slot_aps) and the wizard's census tool call this.
+#: The most SweepSlot members one trigger may nominate, reached at a single foreign partner.
+#:
+#: Measured on #703 (1xER + 1xHK, apworld 0.4.3, 2 seeds per cell, only this knob varying):
+#:
+#:   N=1  9.6% useful to the partner, 212 nominations, 87 foreign progression absorbed
+#:   N=2 14.8%                        422                107
+#:   N=4 25.5%                        827                147
+#:   N=8 34.3%                       1503                175
+#:
+#: ⭐ THE FILLER RATE IS FLAT ACROSS THAT SWEEP (10.8 -> 11.4) while useful goes 1.4% -> 7.5%. This
+#: is the useful tier being unblocked, not simply more traffic -- and ON-SURFACE STAYS 100% AT EVERY
+#: N, so the recovery costs no curation. That is the whole argument for this knob over lowering
+#: `confine_foreign_progression`: N=8/confine=100 gives the same useful recovery as N=1/confine=50
+#: at FOUR TIMES the curation (34.3% at 100% on-surface vs 35.1% at 23.9%).
+#:
+#: 🛑 NO PLATEAU BY N=8, so this ceiling is a judgement and not a measured optimum. It is 8 because
+#: the curve was measured to 8 and Alaric ruled on that range; raising it further is a new
+#: measurement, not a tuning change. The knob also self-saturates -- N=8 yields 1503 nominations
+#: rather than 8x212, because many sweeps have fewer than 8 eligible members.
+MAX_SLOTS_PER_SWEEP = 8
+
+
+def slots_per_sweep(n_foreign_players: int) -> int:
+    """How many members one sweep may nominate, given how many OTHER players are in the multiworld.
+
+    More slots when there are few partners, exactly one when there are many (#703).
+
+    # The problem this solves
+
+    In a 2-game world the partner holds ~269 progression items and has nowhere to put them but its
+    own ~404 locations, so they saturate during `fill_restrictive` and the useful tier is exhausted
+    before the scan reaches a partner slot. Our surface is player-agnostic already
+    (`foreign_advancement_barred` asks only "is this someone else's progression?"), so the lever is
+    not permission -- it is HOW MANY SLOTS EXIST. In an 8-game world that pressure is spread and
+    one-per-sweep is right.
+
+    🛑 PURE, AND DELIBERATELY NOT RANDOM. `nominate_sweep_slots`'s own docstring forbids drawing
+    here: `world.random` is consumed a different number of times depending on how hard fill works, so
+    a draw would move the seed for everything downstream -- and the census must reproduce the
+    selection outside a generation at all. This is arithmetic on a count, nothing else.
+
+    🛑 SOLO IS ONE. A lone player has nowhere to send anything, so widening the surface buys nothing
+    and would change a solo seed for no reason. `n_foreign_players <= 0` is that case, and it also
+    keeps the expression away from a division by zero.
+
+    ⭐ AND MANY-PLAYER SEEDS ARE BYTE-UNCHANGED BY CONSTRUCTION. At `n >= MAX_SLOTS_PER_SWEEP` this
+    returns exactly 1, which is the shipped value, so `nominate_sweep_slots` takes the identical
+    branch it always did. That is asserted directly rather than left to a seed diff.
+    """
+    if n_foreign_players <= 0:
+        return 1
+    return max(1, min(MAX_SLOTS_PER_SWEEP, MAX_SLOTS_PER_SWEEP // n_foreign_players))
+
+
+def nominate_sweep_slots(sweeps, barred=(), prefer_not_in=(), skips=None, slots=1):
+    """{trigger flag: [member ap ids]} -> the set of ap-ids SweepSlot puts on the surface: at most
+    `slots` per trigger (1 by default, the shipped behaviour). Pure, AP-free, and THE definition --
+    both the world (features/progression_surface.sweep_slot_aps) and the wizard's census tool call
+    this.
+
+    `slots` comes from [`slots_per_sweep`] at the world call site (#703). The census cannot know the
+    partner count -- it prices the checkbox BEFORE a multiworld exists -- so it asks for both ends
+    and the wizard shows the range, the same way it already treats `num_regions` as a draw size
+    rather than a final count.
 
     🛑 SINGLE-SOURCED ON PURPOSE. The second caller is tools/build_region_census.py, which prices the
     SweepSlot checkbox the wizard draws. A re-implementation there would be a number the player reads
@@ -478,7 +538,16 @@ def nominate_sweep_slots(sweeps, barred=(), prefer_not_in=(), skips=None):
         if not eligible:
             continue
         fresh = [ap for ap in eligible if ap not in prefer_not_in]
-        out.add(fresh[0] if fresh else eligible[0])
+        # Fresh first, then top up from `eligible` -- the tag surface is skipped where possible for
+        # the same reason as before (a naive minimum adds a name and no breadth), but a sweep with
+        # fewer fresh members than slots still fills them rather than silently under-nominating.
+        # Both lists are sorted, so the pick stays lowest-first and reproducible.
+        want = max(1, int(slots))
+        picked = fresh[:want]
+        if len(picked) < want:
+            seen = set(picked)
+            picked += [ap for ap in eligible if ap not in seen][: want - len(picked)]
+        out.update(picked)
     return frozenset(out)
 
 
