@@ -230,11 +230,15 @@ class TheChapelOfAnticipationFoldIsStillHalfApplied(unittest.TestCase):
     Chapel is being paid out more, which is the reported bug pointing the other way.
     """
 
-    KNOWN_LEAK = ("Stormveil :: Stormhawk Deenh - m10_01 [f10017900]",)
+    # 🛑 PINNED BY FLAG, NOT BY NAME. This used to hold the whole location string
+    # ("Stormveil :: Stormhawk Deenh - m10_01 [f10017900]") and broke the moment #670 appended a
+    # sweep clause to every member's description -- a prose edit reddening a test about WHICH check
+    # leaks. The flag is the stable identity; the descriptor is presentation and is allowed to move.
+    KNOWN_LEAK = (10017900,)
 
     def test_exactly_the_known_chapel_member_leaks(self):
         leaked = tuple(sorted(
-            name for region in HOSTED_REGIONS
+            int(f) for region in HOSTED_REGIONS
             for (name, ap, f) in data.LOCATIONS.get(region, ())
             if _map_of(f) == "m10_01" and ap in SWEPT))
         self.assertEqual(leaked, self.KNOWN_LEAK,
