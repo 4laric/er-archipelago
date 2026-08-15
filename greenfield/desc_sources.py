@@ -199,6 +199,54 @@ def _grace_in_region(grace_name, check_region, grace_region, hub_region):
     return True                        # adjacent / same-place overworld cross-region -> keep
 
 
+def sweep_clause(boss_name, tile=None):
+    """The ", also granted by X" tail a sweep MEMBER's description carries, or None.
+
+    Appended to whatever the waterfall resolved rather than being another layer of it: the sweep is
+    an ADDITIONAL route to the check, not a better description of where it sits. `describe()` is
+    first-hit-wins, so a sweep layer would have had to either lose to the grace layer (invisible) or
+    beat it, and throw away the location the player actually walks to.
+
+    # WHY THIS EXISTS (er-archipelago#670)
+
+    bobler, 2026-08-14, hinted `Mt. Gelmir :: Perfume Bottle - near Craftsman's Shack [f66740]` for
+    his Altus Lock: *"also how can my lock be a perfume bottle? is that a boss fight location"* ...
+    *"so idk what boss to kill?"* Under SweepSlot the answer is that a boss hands it over, and the
+    name -- which is all an AP hint has to work with -- never said so.
+
+    # 🛑 "ALSO GRANTED BY", NEVER "KILL"
+
+    The member is an ordinary pickup and stays a valid route, and 106 of 218 sweep triggers have no
+    audited region (#671), so we cannot promise the boss is reachable this seed. This states a fact
+    about the world; an imperative would be a promise we cannot keep.
+
+    # 🛑 THE TILE IS NOT DECORATION
+
+    Trigger names are NOT unique -- `Night's Cavalry` names EIGHT different sweeps, `Death Rite Bird`
+    five, `Erdtree Burial Watchdog` / `Black Knife Assassin` / `Deathbird` / `Bell Bearing Hunter` /
+    `Tree Sentinel` four each. "Also granted by Night's Cavalry" sends the player to any of eight
+    encounters, so `tile` disambiguates when given.
+    """
+    name = _clean(boss_name)
+    if not name:
+        return None
+    tile = _clean(tile)
+    return f"also granted by {name} ({tile})" if tile else f"also granted by {name}"
+
+
+def with_sweep(desc, boss_name, tile=None):
+    """`desc` with the sweep clause appended; unchanged when there is no clause.
+
+    Returns the clause alone when there was no description to append to -- a check with no locator is
+    exactly the one that most needs telling the player a boss hands it over.
+    """
+    clause = sweep_clause(boss_name, tile)
+    if not clause:
+        return desc
+    base = _clean(desc)
+    return f"{base}, {clause}" if base else clause
+
+
 def describe(flag, method, map_id, *, is_boss=False, is_remembrance=False,
              overrides=None, boss_names=None, spot_names=None, sellers=None,
              nearest_grace=None, tile_grace=None, map_names=None,
