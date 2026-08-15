@@ -51,6 +51,7 @@ SENTINELS = re.compile(
 # The 12 names the workflow loop used to hand-type, in the same order. `--generators-list` is now
 # the only place they are written down.
 GENERATORS = [
+    "sweep_anchor_coords",
     "region_selection",
     "check_browser",
     "desc_triage",
