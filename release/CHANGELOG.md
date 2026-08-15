@@ -235,6 +235,113 @@ digits, and did so while this was being measured.
 
 Closes #680.
 
+### Great Runes were the wrong item — the capital gate never counted them
+
+Two goods rows in Elden Ring share each Great Rune's name. `191` is Godrick's Great Rune, and so is
+`8148`. The catalog we build from the game's own name tables is keyed by name, walks ids in
+ascending order, and kept the first of each pair — so every seed since the item pool existed has
+been handing out the row **the bosses do not drop**:
+
+```
+lot 10010     -> goods 8148   flag 171     <- what Godrick actually drops
+lot 34100500  -> goods 191    flag 191     <- what the Divine Tower restore awards
+```
+
+Only `8148` carries `enable_ActiveBigRune`. So a player could hold two Great Runes, see them listed
+and equippable in the blessing menu, have their "restored" flags set, and stand at the capital gate
+watching it stay shut — which is exactly how this was found. Four separate things all looked right:
+the menu accepts the row we gave (it is a valid rune item, just not the countable one), the client
+sets its restore flag, and the `great_runes` ending matches on item NAMES, so victory could still
+fire for runes that never opened a door.
+
+The fix is a rule rather than a rune carve-out: **a check pays what its own lot awards.** The name
+only chooses when the lot cannot. 🛑 A global "prefer the row some lot awards" tie-break was tried
+first and cannot work — **both** rows are awarded by a real lot, so it has nothing to choose
+between; measured across the 2330-entry catalog it moved one unrelated mapping and left all six
+runes wrong.
+
+**Fourteen items were pointing at the wrong row**, all the same shape — a name shared by two rows:
+
+| | |
+|---|---|
+| the six shardbearer Great Runes | `191`–`196` → `8148`–`8153` |
+| Cerulean / Ruptured Crystal Tear | `11004` → `11005`, `11016` → `11017` |
+| Golden Vow | `6600` → `2003170` (its three locations are all DLC) |
+| Unalloyed Gold Needle | `8196` → `8976` |
+| Scorpion Stew / Gourmet Scorpion Stew | `2001200` → `2001202`, `2001201` → `2001203` |
+| Letter from Volcano Manor | `8127` → `8132` |
+| Lord of Blood's Favor | `8154` → `8155` |
+
+⭐ `Great Rune of the Unborn` is the control: it has no duplicate-named row, so it always resolved
+correctly, and a regression test now pins it there — if that one ever moves, the fix has become a
+carve-out.
+
+**What is NOT settled.** A player who restores a rune at a Divine Tower ends up holding `191` and
+can still enter the capital in vanilla, so the gate cannot be counting only the `8148` band. This
+change makes the run hand over what the boss hands over, which is right on its own terms; whether it
+is *sufficient* to open that door is an in-game check still owed.
+
+Closes #682.
+
+### Hints name the boss that sweeps a check
+
+A player's region Lock was hinted at `Mt. Gelmir :: Perfume Bottle - near Craftsman's Shack`, and the
+reasonable next question was "so which boss do I kill?" Under `SweepSlot` the answer is that a boss
+hands that check over — and the name, which is all an Archipelago hint has to work with, never said
+so.
+
+Sweep members now carry their trigger:
+
+```
+Mt. Gelmir :: Perfume Bottle - near Volcano Manor, also granted by Godskin Noble (m16_00) [f66700]
+```
+
+**"also granted by", never "kill".** The check is still an ordinary pickup and walking to it is
+still a valid route, and 106 of 218 sweep triggers have no audited region, so the run cannot promise
+the boss is reachable in your seed. The tile travels with the name because the names are not unique
+— `Night's Cavalry` alone names eight different sweeps.
+
+4000 of 5212 location names gained a clause. A member whose trigger cannot fire gets none.
+
+Closes #670.
+
+### Progression no longer lands on a sweep that cannot fire
+
+`SweepSlot`'s promise is that progression only lands where a boss will hand it over. A player
+restricted progression to boss sweeps, cleared **19 of 19 Limgrave bosses**, and finished with two
+progression checks still open:
+
+- `Limgrave :: Warming Stone - near Limgrave Tower Bridge` — swept by `34100800`, the Divine Tower
+  of Limgrave, which **has no boss at all**. The repo's own data already listed that trigger under
+  `unresolved_bosses` and nothing consumed the note.
+- `Limgrave :: Mushroom - Murkwater Cave` — swept by **Patches**, who yields rather than dying, so
+  his defeat flag is never reached in normal play.
+
+Both now refuse to host progression, through a skip list shaped exactly like the one `ShopSlot`
+already uses — keyed by what is excluded, valued by *why*, so an exclusion cannot outlive its
+reason. The governing sentence was already written in a `SHOP_SLOT_SKIPS` entry: *a slot we cannot
+ASSERT is reachable may not be REQUIRED.* One feature over: a member we cannot assert is swept may
+not be required.
+
+🛑 Patches is why this cannot be derived from the data. He **has** a name, so no join over the
+shipped tables excludes him — the tracker even showed his check ticked, because that is the check
+his *encounter* grants, not the sweep's defeat flag.
+
+Nominations drop 218 → 212. The surface only shrinks, and the feasibility ladder widens rather than
+failing to generate. **106 of 218 triggers still have no audited region** — that is a larger claim
+than "cannot fire" and is tracked separately in #671.
+
+Closes #672.
+
+### Housekeeping
+
+- The filler-economy floor gate was flaking. It asserted against **one arbitrary region draw** with
+  no seed pinned, and flipped on an identical tree — green on a branch head, red on that branch's
+  own merge, `git diff` between them empty. It now samples six fixed seeds. It was also comparing an
+  integer item count against a float threshold, so a documented 50% floor silently demanded 51%: it
+  failed a run that had delivered 26 stones of a required 26.239 and reported it as *"bought
+  nothing"*. Floors to whole items now. Second recorded member of the draw-flake species. (#684)
+
 ## v0.4.1 — 2026-08-13
 
 Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose: commits had
