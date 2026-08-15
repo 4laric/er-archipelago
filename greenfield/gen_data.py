@@ -625,6 +625,29 @@ def _region_is_derived(r):
     reg=r['region']; meth=r['method']
     try: _srfl = int(r.get('flag'))
     except (TypeError, ValueError): _srfl = None
+    # 🛑 THE HUB COLLAPSE IS A GUESS, AND UNTIL 2026-08-15 IT WAS THE ONLY GUESS THAT SAID "DERIVED"
+    # (#701). merchant_shops.tsv's own header states the contract: *a row with >1 distinct map region
+    # -> gen_data collapses to HUB + DEFAULTED*. Only the first half was implemented.
+    # MERCHANT_SHOP_REGION deliberately re-pins nothing for a flag whose physical merchants resolve to
+    # SEVERAL regions ("disjunctive reachability the region-lock world can't express yet"), so the row
+    # fell through to SHOP_ROW_REGION -- whose block label for these merchants is literally
+    # 'Roundtable Hold' -- and this branch then called that HUB answer DERIVED. Result: 19 checks in
+    # logic at spawn while the item spawns behind Patches / Thiollier / a Dragon Communion altar.
+    # Cokeman5, 2026-08-15, spoiler log: a Scadu Altus Lock on `Roundtable Hold :: Furlcalling Finger
+    # Remedy - from Patches or Thiollier [f110030]` for a finder holding none of {Limgrave, Mt. Gelmir,
+    # Cerulean}. The collapse does not weaken the disjunction, it DELETES it -- "any of three regions"
+    # became "no requirement at all", strictly weaker than the weakest branch.
+    # This is the DEFAULTED bar and NOT _SURFACE_EXCLUDE_FLAGS on purpose: SURFACE_EXCLUDE_APS is
+    # absent from core._NO_PROGRESSION_APS, so it trims the ADVERTISED surface while fill stays free to
+    # place our own Locks -- measured 2026-08-04 on the isolated-merchant 16 (#350), see the note at
+    # FLAG_REGION_OVERRIDE 68220. Ordered ABOVE the SHOP_ROW_REGION branch because that branch is the
+    # one handing out the false DERIVED. Naming is untouched by design (#557 rules the
+    # `Roundtable Hold ::` prefix intended); the honest-label suffix rides the defaulted list as it
+    # does for every other guess. Regioning these rows to their earliest site is #701 option B, a
+    # SEPARATE change -- this is option C, the surface half, only.
+    if (_srfl is not None and r.get('flag_source') == 'shop'
+            and _srfl in MERCHANT_SHOP_MULTI_REGION):
+        return False                           # merchant stands in >1 region -> HUB is a COLLAPSE
     if _srfl is not None and r.get('flag_source') == 'shop' and _srfl in SHOP_ROW_REGION:
         return True                            # merchant-block region (SHOP_ROW_REGION) = DERIVED
     if reg.startswith('Overworld m60'):
@@ -3661,7 +3684,7 @@ def _build_merchant_shop_region():
     _mpath = os.path.join(HERE, "merchant_shops.tsv")
     _spath = os.path.join(HERE, "shop_rows.tsv")
     if not os.path.isfile(_spath):
-        return {}                                    # no shop data at all -> inert (partial source tree)
+        return {}, frozenset()                       # no shop data at all -> inert (partial source tree)
     # FAIL LOUD, don't silently revert. The Hermit hand-pins were RETIRED (commit 2331115) because this
     # derivation reproduces them, so if shop_rows.tsv is present (a real gen) but merchant_shops.tsv is
     # gone, all 100+ corrections silently revert to their pre-fix regions -- the exact shipped bug --
@@ -3812,8 +3835,16 @@ def _build_merchant_shop_region():
               f"contributes nothing and the row reverts to the legacy block guess -- silently, until "
               f"now. Add the tile(s) to dungeon_regions.tsv. Tiles: "
               f"{sorted(_unresolved_tiles)}; flags: {_dark[:30]}{' …' if len(_dark) > 30 else ''}")
-    return _out
-MERCHANT_SHOP_REGION = _build_merchant_shop_region()
+    # RETURN THE MULTI SET, do not just print it. `_multi` is the population of #701: the flags whose
+    # merchants resolve to >1 region, which this derivation refuses to pin and which therefore fall
+    # through to the block guess. It was a diagnostic string; _region_is_derived needs it as data, and
+    # deriving it HERE (rather than hand-listing 19 ap ids) means a regen that splits another merchant
+    # across regions is covered on the same rule -- including the 3 Dragon Communion rows #557 missed.
+    return _out, frozenset(_multi)
+# Flags with a single physical merchant region (the re-pins) and, separately, the flags whose merchants
+# span SEVERAL regions -- the latter are pinned to nothing, collapse to the HUB, and may not carry
+# progression (#701). See _region_is_derived().
+MERCHANT_SHOP_REGION, MERCHANT_SHOP_MULTI_REGION = _build_merchant_shop_region()
 
 # A REDUNDANT SHOP PIN IS A FAILURE (same rule as _BOSS_DROP_EXTRAS up top): a FLAG_REGION_OVERRIDE entry
 # that the merchant-ESD derivation already reproduces hides which path is load-bearing and silently rots

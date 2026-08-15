@@ -129,6 +129,14 @@ TESTS_JOB = {
                          "REPO was what kept it dark). Woken 2026-08-04 with the #244 world-data "
                          "fix -- the 12 overworld 9005810 flags are now in gen's skip set and "
                          "76412 is withheld, so it runs GREEN, permanently, in CI.",
+    "hub_collapsed_merchant_rows": "committed merchant_shops.tsv + shop_rows.tsv, reached by the "
+                                   "same find_repo_root walk-up progression_surface uses. The "
+                                   "sentinel guards ONLY the derivation class (#701's population "
+                                   "is a rule about merchants standing in >1 region, not a list of "
+                                   "19 ap ids); the table assertions above it carry no sentinel and "
+                                   "run everywhere. It must not be allowed to skip in CI -- a "
+                                   "hand-list quietly replacing the rule is exactly how #557 "
+                                   "shipped 16 of these 19",
     "input_completeness": "reads the committed bundle manifest",
     "item_exists": "msg/ FMGs + vanilla_er params ship in the bundle (2026-07-27)",
     "location_desc": "committed data; FMG-dependent parts covered by the bundle",

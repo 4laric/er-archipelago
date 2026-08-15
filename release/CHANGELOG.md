@@ -115,6 +115,41 @@ is not one to bet a run on.
 
 **Still not fixed:** the names are not shown anywhere IN GAME. The connect banner is the obvious
 place for them and that is a client change, tracked on #656; this release is the world's half.
+### Nineteen Roundtable checks were in logic from turn one, behind NPCs you might never reach
+
+Cokeman5 read it out of his own spoiler log on 2026-08-15: `Roundtable Hold :: Furlcalling Finger
+Remedy - from Patches or Thiollier [f110030]` held a **Scadu Altus Lock**, placed as though his
+friend could take it on the first move -- and his friend held none of the regions Patches or
+Thiollier stand in.
+
+The cause is one table doing two jobs. `merchant_shops.tsv` records which physical merchant opens
+each shop row; when a row's merchants resolve to SEVERAL regions the generator refuses to pin it and
+files the check under Roundtable Hold. That is the right answer to "what do we call this check?" and
+#557 documented it as intended. It is not an answer to "when is this check in logic?", and nothing
+was asking that question separately -- Roundtable Hold is the hub, the hub is always kept, so the
+collapse quietly said "reachable at spawn". Patches is reachable from Limgrave, Mt. Gelmir or
+Cerulean; "any of those three" became no requirement at all, which is weaker than the weakest of
+them. Same shape as #688, where the kick exemption turned out to be a scaling exemption too.
+
+`merchant_shops.tsv`'s own header already promised the fix -- *a row with >1 distinct map region ->
+gen_data collapses to HUB + DEFAULTED* -- and only the first half of that sentence was ever
+implemented. The second half is now written: a shop flag whose merchants span more than one region
+is DEFAULTED, so it joins every other guessed region on the list that may hold filler and may never
+hold anything the seed requires. The bar lands on the location's `item_rule`, which is what fill
+obeys; the surface bar alone does not, and that distinction cost a fix once already (#350).
+
+**Exactly 19 checks move**, and the set is derived rather than typed: the 16 Patches / Thiollier rows
+plus the three Dragon Communion incantations (`f290500` Dragonfire, `f290750` Dragonclaw, `f290760`
+Dragonmaw) that #557's count of 16 left out. Nothing else in Roundtable Hold changes -- Enia's 99,
+the Twin Maiden Husks' 25 and the 31 Table of Lost Grace checks are genuinely in the hub and are
+untouched. Because the rule reads the merchant table, the next merchant a regen splits across regions
+is covered without anyone remembering to add it.
+
+All 19 keep their ap ids, keep their `Roundtable Hold ::` region prefix and keep taking items. They
+pick up the same `(region unconfirmed)` suffix every other guessed-region check already carries,
+which is the honest label rather than a rename: we do not know which of the three regions the item
+is really in. Deciding that -- option B in #701, regioning each row to its earliest site -- is a
+separate change and is deliberately not in this one.
 
 ## v0.4.2 — 2026-08-14
 
