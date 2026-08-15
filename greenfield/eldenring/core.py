@@ -1796,7 +1796,7 @@ class GreenfieldEldenRingWorld(World):
         else:
             triples = _sc.sphere_target_ranges(kept)
             pid_target = {lo: t for (lo, _hi, t) in triples}
-            region_target = {r: max((pid_target.get(pp, 0) for pp in _sc.REGION_PLAY_IDS.get(r, [])), default=0)
+            region_target = {r: max((pid_target.get(pp, 0) for pp in _sc.SCALING_PLAY_IDS.get(r, [])), default=0)
                              for r in kept}
             basis = "spine-order FALLBACK (fill spheres unavailable)"
         if region_target:

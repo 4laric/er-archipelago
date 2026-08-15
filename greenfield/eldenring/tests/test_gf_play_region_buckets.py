@@ -158,6 +158,87 @@ class TestPlayRegionBuckets(unittest.TestCase):
                                  "UNASSIGNED_BUCKETS: %r" % double)
         self.assertFalse(reasonless, "UNASSIGNED_BUCKETS entries without a reason: %r" % reasonless)
 
+    # ---- #688/#346: the kick exempts three buckets; the scaling wire exempts NOTHING -----------
+    def test_the_scaling_wire_exempts_no_bucket_the_kick_exempts(self):
+        """Every play_region bucket the game knows reaches regionSphereTargetRanges. No exceptions.
+
+        THE BUG (bobler playtest 2026-08-15, #688). features/scaling.py took its geometry from the
+        KICK table, so every bucket on KICK_EXCLUDED_PLAY_IDS was also absent from
+        regionSphereTargetRanges -- and an unwired bucket falls to the client's FLOOR tier, which
+        with completion_scaling_floor frozen at 0 means it ships VANILLA. Measured on one npc_id
+        (4910): 7,141 HP unwired against 3,386 HP in a wired region = 2.109x, which is
+        SCALING_HP_LADDER[6]/SCALING_HP_LADDER[0] exactly.
+
+        THE FIRST FIX WAS HALF A FIX. It put 18000 and 10010 back on the wire and left the HUB off,
+        on the reasoning "the Roundtable has no combat". bobler, same day: "this npc fight was
+        almost harder than every boss in the run bc roundtable was unscaled". Ensha invades the hub;
+        BOSS_HEALTHBARS has no 11100 entry because an NPC invader carries no healthbar, so the boss
+        probe was structurally unable to see the fight and its silence was never evidence.
+
+        So the two lists no longer differ by ANY exemption: the kick's three exclusions are all
+        PINNED (SCALING_FLOOR_PLAY_IDS, target 0 in every seed), never dropped. Asserted on the
+        source functions AND on the generated tables the world imports, because either half can rot
+        alone. What the next kick exemption must now do is say out loud which of the two it is.
+        """
+        def buckets(table):
+            return {int(b) for pids in table.values() for b in pids}
+
+        universe = {int(b) for pids in self.rg.PLAY_REGION_GROUPS.values() for b in pids}
+        self.assertTrue(universe, "precondition: PLAY_REGION_GROUPS is empty")
+
+        kick_src = buckets(self.rg.region_play_ids())
+        ramp_src = buckets(self.rg.scaling_play_ids())
+        pins_src = {int(b) for b in self.rg.SCALING_FLOOR_PLAY_IDS}
+        scaled_src = ramp_src | pins_src
+        self.assertTrue(kick_src and ramp_src and pins_src, "precondition: a table came back empty")
+
+        # 1. THE HEADLINE. Scaling exempts nothing at all.
+        self.assertEqual(
+            universe - scaled_src, set(),
+            "region_groups: play_region bucket(s) reach neither the ramp table nor the pin list, so "
+            "regionSphereTargetRanges never names them and the client leaves them VANILLA.")
+
+        # 2. ...and in particular nothing the KICK drops is also dropped here. The two exemption
+        #    sets now differ by nothing, because scaling's is empty.
+        kick_exempt = universe - kick_src
+        scaling_exempt = universe - scaled_src
+        self.assertEqual(
+            kick_exempt, {11100, 18000, 10010},
+            "the kick's exemption set moved; this guard names its members literally")
+        self.assertEqual(scaling_exempt, set(), "the scaling wire must exempt nothing")
+        self.assertEqual(
+            kick_exempt - scaling_exempt, kick_exempt,
+            "a bucket is exempt from BOTH the kick and scaling -- kick-exempt means 'do not eject "
+            "the player', it has never meant 'leave the enemies at vanilla strength' (#688).")
+
+        # 3. A pinned bucket is pinned, not double-emitted: it must not also ride a region's ramp.
+        self.assertEqual(
+            pins_src & ramp_src, set(),
+            "a floor-pinned bucket is also in the ramp table -- it would be emitted twice, at two "
+            "different targets, and the client would take whichever it read last.")
+        self.assertEqual(
+            pins_src, {11100, 18000, 10010},
+            "SCALING_FLOOR_PLAY_IDS: the hub, the tutorial cliff and the intro. Adding a fourth is "
+            "a difficulty decision -- say why here.")
+        hub_bucket = {int(b) for b in self.rg.PLAY_REGION_GROUPS[self.rg.HUB]}
+        self.assertEqual(hub_bucket, {11100}, "the HUB bucket moved; this guard names it literally")
+        self.assertIn(11100, pins_src,
+                      "the Roundtable HUB is in no kept region, so if it is not PINNED it is on no "
+                      "wire at all -- which is exactly how it shipped vanilla (bobler, 2026-08-15).")
+
+        # 4. The generated tables the world actually imports say the same thing.
+        gen = _load(os.path.join(GF_PKG, "region_play_ids.py"), "gf_region_play_ids_under_test")
+        self.assertEqual(buckets(gen.REGION_PLAY_IDS), kick_src,
+                         "generated REGION_PLAY_IDS is stale -- regenerate")
+        self.assertEqual(buckets(gen.SCALING_PLAY_IDS), ramp_src,
+                         "generated SCALING_PLAY_IDS is stale -- regenerate")
+        self.assertEqual({int(b) for b in gen.SCALING_FLOOR_PLAY_IDS}, pins_src,
+                         "generated SCALING_FLOOR_PLAY_IDS is stale -- regenerate")
+        for b in sorted(pins_src):
+            self.assertNotIn(b, buckets(gen.REGION_PLAY_IDS),
+                             "bucket %d must stay KICK-exempt (#688 is not a licence to kick the "
+                             "player out of the intro, or out of the hub)" % b)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -2,9 +2,12 @@
 
 Every fact of the form "play_region X belongs to region R" lives HERE and only here. Consumers:
   * greenfield/gen_data.py           -- check regioning (PLAY2AP), grace bundles, open flags, and
-                                        the generated eldenring/region_play_ids.py (the inverse,
-                                        which features/area_locks.py and the client's baked
-                                        region_locks.rs are built from);
+                                        the generated eldenring/region_play_ids.py, which carries
+                                        TWO inversions of this table: REGION_PLAY_IDS (kick
+                                        geometry -> features/area_locks.py and the client's baked
+                                        region_locks.rs) and SCALING_PLAY_IDS (difficulty geometry
+                                        -> features/scaling.py). They are NOT the same table; see
+                                        KICK_EXCLUDED_PLAY_IDS vs SCALING_FLOOR_PLAY_IDS;
   * tools/datamine_dungeon_regions.py -- interior map -> region (grace join);
   * tools/map_region_oracle.py        -- the provenance-oracle fold table.
 The repo was repeatedly bitten by hand copies of this map drifting apart (area_locks.REGION_PLAY_IDS
@@ -146,8 +149,10 @@ PLAY2AP = {str(pid): region for region, pids in REGION_GROUPS.items() for pid in
 #   18000 -- m18_00, the OVERWORLD Stranded Graveyard cliff / Fringefolk Hero's Grave. Rides Limgrave
 #            for CHECK regioning and grace bundles; kept kick-exempt as a tutorial-adjacent bucket.
 #   10010 -- m10_01, the fresh-character SPAWN (the ruined Chapel-of-Anticipation intro, where you
-#            fight/flee the Grafted Scion). It has no checks and no graces of its own, but the game
-#            buckets it under Stormveil (m10) -- so a fresh start with Stormveil sealed (the norm)
+#            fight/flee the Grafted Scion). It has no GRACE of its own, but it does carry checks --
+#            4 check_maps.tsv rows on m10_01 (5 generated locations, regioned to Limgrave, Liurnia
+#            and Stormveil), which is why it must be SCALED even while it stays kick-exempt (#688).
+#            The game buckets it under Stormveil (m10) -- so a fresh start with Stormveil sealed (the norm)
 #            USED to kick the player out mid-intro, on a still-settling start-item inventory, and CTD
 #            (Alaric, playtest 2026-07-16). The old exclusion named 18000 as "the spawn"; the MEASURED
 #            spawn play_region is 10010 (client kick-watch log). Excluding it lets the intro play out
@@ -162,17 +167,84 @@ PLAY2AP = {str(pid): region for region, pids in REGION_GROUPS.items() for pid in
 KICK_EXCLUDED_PLAY_IDS = frozenset({11100, 18000, 10010})
 
 
-def region_play_ids():
-    """region -> [play_region ids] for kick geometry: spoke regions only (no HUB), minus the
-    kick-excluded buckets. This is what gen_data bakes into eldenring/region_play_ids.py."""
+# Buckets PINNED TO THE FLOOR OF THE SEED'S RAMP -- emitted target 0, in every seed, instead of
+# their host region's order position. NOT an exclusion: every one of them IS on the scaling wire.
+#
+# 🛑 NOTHING IS SCALING-EXEMPT ANY MORE. The predecessor of this constant was
+# SCALING_EXCLUDED_PLAY_IDS = {11100}, justified as "the Roundtable has no combat". That is
+# FALSIFIED (bobler playtest 2026-08-15, #688): "this npc fight was almost harder than every boss in
+# the run bc roundtable was unscaled". The Roundtable is the HUB -- in every seed by definition, and
+# 239 checks, second only to Limgrave's 331 -- and Ensha of the Royal Remains invades it. The boss
+# probe could never have seen that fight, because BOSS_HEALTHBARS has no 11100 entry (an NPC invader
+# carries no healthbar), so its absence from the 39-fight table was never evidence of no combat.
+#
+# WHY THE FLOOR AND NOT THE HOST REGION'S TIER. All three are ground the player reaches in the first
+# minutes and revisits all game long, on whatever build they happen to have:
+#   11100 -- the HUB. Reachable turn one (the client warps you in), and the run's only safe room. It
+#            is in no kept region, so it has no order position to inherit in the first place.
+#   18000 -- m18_00, tutorial-adjacent: the Stranded Graveyard cliff and Fringefolk Hero's Grave.
+#   10010 -- m10_01, the fresh-character intro (the Chapel of Anticipation, and the Grafted Scion).
+# Their HOST regions' positions would be the wrong answer: 18000 rides Limgrave and 10010 rides
+# Stormveil in PLAY_REGION_GROUPS, and features/scaling._order_from_spheres linearises the lock
+# chain with a seed-deterministic tie-break -- so Limgrave sat at target 0 in bobler's seed and sits
+# nowhere near it in most. Pinning to 0 says the thing actually meant -- these three must never
+# outpace the player -- in EVERY seed, not in the seeds where the geography happens to agree.
+#
+# 🛑 THIS IS NOT KICK_EXCLUDED_PLAY_IDS AND MUST NEVER BE ALIASED TO IT, even though the two
+# frozensets are equal today. They answer different questions -- "where must the player never be
+# ejected from" and "how hard is this ground allowed to be" -- and for years one list answered both,
+# because features/scaling.py took its geometry from the kick table. That made every KICK exemption
+# a silent DIFFICULTY exemption: a bucket absent from regionSphereTargetRanges falls to the client's
+# floor tier, and completion_scaling_floor is frozen at 0, so it ships VANILLA. Measured, same
+# npc_id 4910: 7,141 HP in bucket 18000 against 3,386 HP in a wired region = 2.109x, which is
+# SCALING_HP_LADDER[6]/SCALING_HP_LADDER[0] exactly; one bucket-18000 boss read 31,518 HP in a seed
+# whose every wired region sat at tier 0.
+#
+# 🛑 A PIN IS NOT A PROMISE THAT THE ENEMY MOVES (#346). The client cannot scale DOWN what it cannot
+# place: er-logic `scale_action` needs a carried ladder rung, a `native_tier` off the npc's rune
+# reward, or a baked AREA_TIERS entry for the bucket. greenfield/area_tiers.tsv reads
+# `11100  <no tier>  base  sample=0  parts=29  unrunged=29` -- the Roundtable has ZERO runged parts,
+# makes no area claim, and 11100 is absent from the client's AREA_TIERS. Target 0 is therefore
+# NECESSARY there (an unwired bucket is not swept at all) and not, by itself, SUFFICIENT. 18000 is
+# the opposite case and the one certain to move: tier 5, 25 of 44 parts runged.
+#
+# Guarded by test_gf_play_region_buckets.test_the_scaling_wire_exempts_no_bucket_the_kick_exempts
+# and test_gf_scaling_sphere.test_the_floor_pinned_buckets_sit_at_target_zero_in_every_seed.
+SCALING_FLOOR_PLAY_IDS = frozenset({11100, 18000, 10010})
+
+
+def _grouped_play_ids(excluded):
+    """The shared body of the two accessors below: PLAY_REGION_GROUPS inverted, spoke regions only
+    (no HUB), minus `excluded`. One body so the two tables can differ ONLY by their exclusion set."""
     out = {}
     for region, pids in PLAY_REGION_GROUPS.items():   # MEASURED play_region buckets, not warp ids
         if region == HUB:
             continue
-        kept = [p for p in pids if p not in KICK_EXCLUDED_PLAY_IDS]
+        kept = [p for p in pids if p not in excluded]
         if kept:
             out[region] = kept
     return out
+
+
+def region_play_ids():
+    """region -> [play_region ids] for KICK geometry: spoke regions only (no HUB), minus the
+    kick-excluded buckets. This is what gen_data bakes into eldenring/region_play_ids.py as
+    REGION_PLAY_IDS, and what features/area_locks.py turns into areaLockFlags."""
+    return _grouped_play_ids(KICK_EXCLUDED_PLAY_IDS)
+
+
+def scaling_play_ids():
+    """region -> [play_region ids] for RAMPED scaling geometry: spoke regions only (no HUB), minus
+    the floor-pinned buckets, which do not take their region's order position -- see
+    SCALING_FLOOR_PLAY_IDS, and features/scaling._floor_triples, which puts them back on the wire at
+    target 0. Baked by gen_data into eldenring/region_play_ids.py as SCALING_PLAY_IDS;
+    features/scaling.py wires it into regionSphereTargetRanges (and the DLC blessing floors /
+    dlcRegionBuckets, which read the same geometry).
+
+    🛑 Missing from BOTH this table and SCALING_FLOOR_PLAY_IDS is not a permissive hole, it is
+    vanilla difficulty -- the client's fallback for an unnamed bucket is its floor tier and an INFO
+    line. gen_data asserts the two together cover the whole bucket universe."""
+    return _grouped_play_ids(SCALING_FLOOR_PLAY_IDS)
 
 
 def assert_covers(play_region_ids):

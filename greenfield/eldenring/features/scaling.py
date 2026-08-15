@@ -7,8 +7,11 @@ surface, the legacy top-level echoes, and -- as of I2 (2026-07-06) -- the LIVE s
   regionSphereTargetRanges = [[lo, hi, target], ...]   (er-logic/scaling.rs:150-165, SCALING_WIRE)
 
 with lo == hi == a region's 5-digit play_region bucket (runtime play_region_id / 100 -- the SAME
-bucket space areaLockFlags speaks; geometry reused from features/area_locks.REGION_PLAY_IDS, itself
-REGION_ID_MAP.md-derived, matt-free). target = the region's position in a TOTAL topological order
+bucket space areaLockFlags speaks, but NOT the same table -- geometry comes from the generated
+region_play_ids.SCALING_PLAY_IDS plus region_play_ids.SCALING_FLOOR_PLAY_IDS, while the kick's
+REGION_PLAY_IDS drops the kick-exempt buckets 11100/18000/10010 outright. Both REGION_ID_MAP.md-
+derived and matt-free; see #688 for why sharing one table left three combat buckets at vanilla
+difficulty). target = the region's position in a TOTAL topological order
 of the seed's lock chain, normalized to 0..TARGET_MAX (the client re-normalizes by the max emitted
 target, tier_for_target).
 
@@ -24,8 +27,12 @@ strictly below every strictly-later-sphere region's target (asserted at gen). Sa
 order -> same scaling (the tie-break RNG is keyed on (multiworld.seed, player), NOT the shared
 world.random stream -- see _order_rng). FALLBACK when the fill spheres are uncomputable: SPINE-order
 depth (sphere_target_ranges) -- pure + deterministic, independent of num_regions_order roll order,
-and already a total order. A bucket absent from the wire (hub, tutorial, unmapped sub-areas) falls
-back to the client's floor tier -- unknown = don't scale up. The flat map (regionSphereTargets) is emitted transitionally as {} by core.py;
+and already a total order. A bucket absent from the wire (unmapped sub-areas only, now) falls
+back to the client's floor tier -- unknown = don't scale up, which is why WHICH buckets are
+absent is a difficulty decision and not a bookkeeping one (#688). The floor-pinned buckets
+(SCALING_FLOOR_PLAY_IDS: the hub 11100, the tutorial cliff 18000, the intro 10010) are the
+inverse of absence -- they are NAMED, at target 0, in every seed, so the client sweeps them and
+brings them DOWN rather than leaving them at whatever vanilla shipped. The flat map (regionSphereTargets) is emitted transitionally as {} by core.py;
 ranges are the live wire, so this feature deliberately does NOT emit the flat key (merge_slot_data
 raises on duplicate keys).
 """
@@ -40,7 +47,21 @@ from ..scaling_ladder import (AUTO_CEILING, SCALING_HP_LADDER, ceiling_multiplie
                               floor_multiplier, ramped_target,
                               resolve_max_difficulty_pct,
                               tier_for_ceiling_multiplier, tier_for_floor_multiplier)
-from .area_locks import REGION_PLAY_IDS
+# GEOMETRY: the SCALING tables, which are NOT the kick table (#688, bobler playtest 2026-08-15).
+# All of it is generated into eldenring/region_play_ids.py from the one grouping in
+# greenfield/region_groups.py. This module read features/area_locks.REGION_PLAY_IDS -- the KICK
+# table -- until #688, so every bucket the kick was exempted from (18000 Fringefolk Hero's Grave /
+# Stranded Graveyard, 10010 the Chapel intro, 11100 the Roundtable) was also absent from
+# regionSphereTargetRanges, and an unwired bucket takes the client's FLOOR tier
+# (completion_scaling_floor is frozen at 0) -- i.e. it ships VANILLA. Measured on npc_id 4910:
+# 7,141 HP unwired vs 3,386 HP wired = 2.109x, exactly SCALING_HP_LADDER[6]/SCALING_HP_LADDER[0].
+#   SCALING_PLAY_IDS       region -> buckets that take their region's RAMP position;
+#   SCALING_FLOOR_PLAY_IDS buckets PINNED at target 0 in every seed (_floor_triples below).
+# Nothing is scaling-exempt: the two together cover the whole bucket universe, asserted at gen.
+try:
+    from ..region_play_ids import SCALING_FLOOR_PLAY_IDS, SCALING_PLAY_IDS
+except Exception:  # not yet generated -> no geometry -> no wire (client leaves everything vanilla)
+    SCALING_PLAY_IDS, SCALING_FLOOR_PLAY_IDS = {}, frozenset()
 
 # Wire normalization ceiling. The client normalizes by the max emitted target (scaling.rs
 # tier_for_target), so the exact ceiling only needs enough integer resolution over er-logic's
@@ -85,6 +106,34 @@ def _apply_bucket_delta(triples):
     return out
 
 
+def _floor_triples():
+    """[[pid, pid, 0], ...] for every bucket pinned to the FLOOR of the seed's ramp.
+
+    THE RULING (Alaric, 2026-08-15, on bobler's "this npc fight was almost harder than every boss in
+    the run bc roundtable was unscaled"): the hub 11100, the tutorial-adjacent 18000 and the intro
+    10010 take the LOWEST scaling in the run -- emitted target 0 -- and not their host region's
+    order position. They are reachable turn one and revisited all game; nothing standing on them may
+    outpace the player. See region_groups.SCALING_FLOOR_PLAY_IDS for the full reasoning.
+
+    ⭐ WHY 0 AND NOT "their region's tier". 18000 rides Limgrave and 10010 rides Stormveil in
+    PLAY_REGION_GROUPS, and _order_from_spheres linearises the lock chain with a seed-deterministic
+    tie-break -- so those regions land wherever the fill puts them. Limgrave happened to sit at
+    target 0 in bobler's seed; in most seeds it does not. 11100 is not in any kept region at all, so
+    it has no position to inherit even in principle.
+
+    ⭐ THIS CANNOT BREAK EITHER RAMP INVARIANT, which is the whole reason the floor is expressible:
+      * "strictly below every later region" -- 0 is the minimum of the target space, and
+        ramped_target(0, ...) is already 0, so the emitted MINIMUM does not move;
+      * "never inflates the max the client normalizes by" (scaling.rs tier_for_target divides by the
+        max emitted target) -- appending 0s cannot raise a maximum.
+    Both are asserted rather than trusted, in test_gf_scaling_sphere.
+
+    🛑 The intra-fold delta is applied to the RAMPED triples only and never to these: a pinned
+    bucket is pinned. (No floor bucket is in _SCALING_BUCKET_DELTA today; this keeps it that way.)
+    """
+    return [[pid, pid, 0] for pid in sorted(SCALING_FLOOR_PLAY_IDS)]
+
+
 def sphere_target_ranges(kept, ramp_pct=100, finale=None):
     """[[lo, hi, target], ...] triples for `kept` region names (pure; unit-testable without AP).
 
@@ -106,9 +155,9 @@ def sphere_target_ranges(kept, ramp_pct=100, finale=None):
     triples = []
     for i, region in enumerate(ordered):
         target = ramped_target(i, span, TARGET_MAX, ramp_pct)
-        for pid in REGION_PLAY_IDS.get(region, []):
+        for pid in SCALING_PLAY_IDS.get(region, []):
             triples.append([pid, pid, target])
-    return _apply_bucket_delta(triples)
+    return _apply_bucket_delta(triples) + _floor_triples()
 
 
 # ---- THE FINALE IS NOT KEPT (2026-08-10, bobler playtest) ---------------------------------------
@@ -139,7 +188,7 @@ def _finale_for_wire(world):
     sealed, the finale does not exist, and this correctly returns None."""
     if not getattr(world, "gf_finale_active", False):
         return None
-    return FINALE_REGION if REGION_PLAY_IDS.get(FINALE_REGION) else None
+    return FINALE_REGION if SCALING_PLAY_IDS.get(FINALE_REGION) else None
 
 
 def _assert_wire_covers(ranges, world):
@@ -155,14 +204,30 @@ def _assert_wire_covers(ranges, world):
     that cannot witness its own subject is not a guard. Read `gf_finale_active` here, the way
     core.py and features/area_locks.py do, so the two answers can disagree and be caught."""
     owed_regions = list(world._kept())
-    if getattr(world, "gf_finale_active", False) and REGION_PLAY_IDS.get(FINALE_REGION):
+    if getattr(world, "gf_finale_active", False) and SCALING_PLAY_IDS.get(FINALE_REGION):
         owed_regions.append(FINALE_REGION)
     wired = {lo for lo, _hi, _t in ranges}
     missing = {}
     for region in owed_regions:
-        gap = [p for p in REGION_PLAY_IDS.get(region, []) if p not in wired]
+        gap = [p for p in SCALING_PLAY_IDS.get(region, []) if p not in wired]
         if gap:
             missing[region] = gap
+    # THE FLOOR-PINNED BUCKETS ARE OWED IN EVERY SEED, unconditionally -- they belong to no kept
+    # region (11100 belongs to no region at all), so the loop above can never demand them. Read the
+    # constant, not the wire, for the same reason the finale is read off `gf_finale_active`: a
+    # demand derived from the supply cannot witness the supply going missing. #688/#346.
+    floor_gap = sorted(p for p in SCALING_FLOOR_PLAY_IDS if p not in wired)
+    if floor_gap:
+        missing["<floor-pinned>"] = floor_gap
+    # ...and being NAMED is not enough: named at the wrong target is the bug this replaced.
+    at = {lo: t for lo, _hi, t in ranges}
+    mistiered = {p: at[p] for p in sorted(SCALING_FLOOR_PLAY_IDS) if at.get(p, 0) != 0}
+    if mistiered:
+        raise contract.ContractError(
+            "scaling: floor-pinned play_region bucket(s) emitted above the ramp floor "
+            + ", ".join(f"{p} -> target {t}" for p, t in mistiered.items())
+            + " -- the hub, the tutorial cliff and the intro must never outpace the player "
+              "(region_groups.SCALING_FLOOR_PLAY_IDS).")
     if missing:
         raise contract.ContractError(
             "scaling: region(s) in play have play_region bucket(s) absent from "
@@ -249,9 +314,9 @@ def _ranges_from_targets(region_target):
     function of the fill result. (Caught by test_gf_world::test_slot_data_is_deterministic.)"""
     triples = []
     for region, target in region_target.items():
-        for pid in REGION_PLAY_IDS.get(region, []):
+        for pid in SCALING_PLAY_IDS.get(region, []):
             triples.append([pid, pid, target])
-    return sorted(_apply_bucket_delta(triples))
+    return sorted(_apply_bucket_delta(triples) + _floor_triples())
 
 
 # ---- DLC Scadutree-blessing floors (global_scadutree_blessing == 2 "scaled") --------------------
@@ -312,7 +377,7 @@ def dlc_region_buckets(kept):
     """
     keptset = set(kept)
     return sorted({pid for region in DLC_REGIONS if region in keptset
-                   for pid in REGION_PLAY_IDS.get(region, [])})
+                   for pid in SCALING_PLAY_IDS.get(region, [])})
 
 
 def blessing_floor_ranges(kept):
@@ -325,7 +390,7 @@ def blessing_floor_ranges(kept):
         if region not in keptset:
             continue
         base = DLC_BLESSING_FLOORS.get(region, 0)
-        for pid in REGION_PLAY_IDS.get(region, []):
+        for pid in SCALING_PLAY_IDS.get(region, []):
             triples.append([pid, pid, _DLC_BLESSING_BUCKET_OVERRIDE.get(pid, base)])
     return triples
 
