@@ -161,6 +161,43 @@ class ProgressionBias(Range):
     default = 0
 
 
+class CrossGameProgression(NamedRange):
+    """What share of your travelling Region Locks may land in a NON-Elden-Ring player's world.
+
+    `auto` (the default) is **1 / number of games**: in a two-game multiworld half your travelling
+    Locks go to the partner, in a four-game one a quarter each. That is the same 1/N rule the export
+    volume is judged by, and it means the answer scales with the table instead of being a number
+    someone has to re-pick per seed. `0` keeps every Lock inside Elden Ring, which is the behaviour
+    every seed had before this option existed. A number is that share explicitly.
+
+    # Why this option exists at all
+
+    `progression_bias` already releases Locks into the multiworld, and between Elden Ring worlds it
+    works -- MEASURED 50-54% travel on 2xER seeds. But `place_released_locks` only ever offered them
+    ELDEN RING surfaces, and our surfaces host ~170 checks against at most ~36 Locks, so the spill
+    valve that was supposed to feed a partner never had anything to spill. MEASURED across four
+    configurations: **0 Locks reached a Hollow Knight slot, ever** -- including a 2xER + 1xHK seed
+    where 15 of 28 Locks travelled and all 15 went to the other Elden Ring world.
+
+    `ProgressionBias`'s own docstring promised the opposite ("expect most of your travelling Locks to
+    land in the partner game"), so this is the option that makes that sentence true.
+
+    ⚠️ IT PLACES INTO ANOTHER GAME'S LOCATIONS, which is the one thing `place_released_locks` used to
+    refuse to do, and the refusal was not arbitrary -- TUNIC's own `stage_pre_fill` raises
+    "caused by another world filling TUNIC locations during pre_fill... we cannot recover from this
+    issue." We only ever offer locations that are still EMPTY, never force a placement, and put back
+    anything unplaced -- but a partner game that objects to being filled at all is a real failure
+    mode, and `0` is the escape hatch. Set it to 0 if a seed will not generate.
+
+    No effect in a solo seed, in an all-Elden-Ring multiworld (there is no non-ER world to send to),
+    or in the modes that mint no Lock items."""
+    display_name = "Cross Game Progression"
+    range_start = 0
+    range_end = 100
+    default = -1
+    special_range_names = {"auto": -1, "never": 0}
+
+
 class ConfineForeignProgression(NamedRange):
     """What share of OTHER players' progression is confined to your Progression Surface, the way
     your own is. A percentage, not a switch.
@@ -546,6 +583,39 @@ def is_restricted_progression(item, player):
     return not str(getattr(item, "name", "")).startswith(_BOSS_KEY_PREFIX)
 
 
+def _foreign_open_locations(multiworld, er_players):
+    """Every location in a NON-Elden-Ring player's world that we may honestly offer a Lock.
+
+    Four filters, and each one is load-bearing:
+
+    * **not ours** -- `er_players` is every slot this hook is running for. An Elden Ring location is
+      the other pass's business.
+    * **empty** -- `loc.item is None`. A location another world already filled during its own
+      `pre_fill` is spoken for; overwriting it is how you corrupt a partner's plando.
+    * **not `locked`** -- AP's flag for "this location's content is decided". Event locations carry
+      it, and so does anything a world nailed down deliberately.
+    * 🛑 **not EXCLUDED** -- `exclude_locations` is the player's promise that nothing REQUIRED will
+      be there, and a released Lock is progression. `fill_restrictive` does NOT check
+      `progress_type` (`distribute_items_restrictive` filters before calling it), so if we do not
+      filter here, nobody does, and a partner's excluded check quietly becomes mandatory.
+
+    Reachability is NOT filtered: `fill_restrictive` walks its own sphere order and that is the one
+    judgement it makes better than a predicate can.
+    """
+    try:
+        from BaseClasses import LocationProgressType
+        excluded = LocationProgressType.EXCLUDED
+    except Exception:      # a BaseClasses without the enum: filter nothing rather than crash
+        excluded = object()
+    return [
+        loc for loc in multiworld.get_locations()
+        if loc.player not in er_players
+        and loc.item is None
+        and not getattr(loc, "locked", False)
+        and getattr(loc, "progress_type", None) is not excluded
+    ]
+
+
 def place_released_locks(multiworld, worlds) -> None:
     """`stage_pre_fill`: place every Elden Ring world's RELEASED Locks across every Elden Ring
     world's surface, in ONE pass, and spill whatever does not fit back into the pool.
@@ -574,9 +644,24 @@ def place_released_locks(multiworld, worlds) -> None:
     🛑 Unlike TUNIC's, our items are PROGRESSION, not filler, so this cannot be a `place_locked_item`
     loop: it needs `fill_restrictive` with a real state, the way `_place` already does.
 
-    Cross-game is deliberately untouched. This hook only sees Elden Ring worlds, so a Lock bound for
-    a Hollow Knight slot is simply one this pass did not place -- it spills, and the general fill
-    takes it anywhere. Curated among ourselves, ordinary everywhere else.
+    # Cross-game (#703)
+
+    Cross-game USED to be deliberately untouched: this hook saw only Elden Ring worlds, and a Lock
+    bound for a partner was one it did not place -- it spilled to the general fill. That was the
+    design, and the measurement says the valve never opened: our surfaces host ~170 checks against
+    at most ~36 Locks, so nothing ever spilled. **0 Locks reached a Hollow Knight slot across four
+    configurations**, including a 2xER + 1xHK seed where 15 of 28 Locks travelled and every one went
+    to the other Elden Ring world.
+
+    So `cross_game_progression` routes a share of them at partner locations FIRST, before the ER
+    surfaces get a look. `auto` is 1/n_games -- half of them in a two-game seed.
+
+    ⚠️ THIS FILLS ANOTHER GAME'S LOCATIONS, which is exactly what the note above warns about: TUNIC
+    raises "caused by another world filling TUNIC locations during pre_fill" and cannot recover.
+    Three things keep that as narrow as possible -- only EMPTY, unlocked locations are offered, the
+    fill is partial so nothing is forced, and the whole pass is caught so our failure can never be
+    the thing that breaks a generation. It is still a real risk with a game that objects on
+    principle, and `cross_game_progression: 0` is the escape hatch.
     """
     import inspect
     import logging
@@ -598,11 +683,47 @@ def place_released_locks(multiworld, worlds) -> None:
     for it in items:
         multiworld.itempool.remove(it)
     n0 = len(items)
-    multiworld.random.shuffle(locations)
-    state = multiworld.get_all_state(False)
     kwargs = {"lock": True}
     if "allow_partial" in inspect.signature(fill_restrictive).parameters:
         kwargs["allow_partial"] = True
+
+    # ---- CROSS-GAME FIRST (#703) --------------------------------------------------------------
+    # Offered BEFORE the Elden Ring surfaces, because our surfaces have four times the room they
+    # need and would otherwise absorb every Lock -- which is the measured defect, not a risk.
+    cross_offered = cross_placed = 0
+    er_players = {w.player for w in worlds}
+    n_games = len({w.game for w in getattr(multiworld, "worlds", {}).values()}) or 1
+    share = max((cross_game_share(w, n_games) for w in participants), default=0)
+    if share > 0:
+        foreign = _foreign_open_locations(multiworld, er_players)
+        k = (n0 * share + 50) // 100
+        if foreign and k > 0:
+            batch, rest = items[:k], items[k:]
+            cross_offered = len(batch)
+            multiworld.random.shuffle(foreign)
+            try:
+                fill_restrictive(multiworld, multiworld.get_all_state(False), foreign, batch,
+                                 **kwargs)
+            except Exception:  # noqa: BLE001 -- see below
+                # 🛑 DELIBERATELY BROAD. This pass reaches into another game's locations, so the set
+                # of things it can raise is the set of things every OTHER apworld can raise, which is
+                # not enumerable from here. Curation is a nice-to-have; a failed generation is not.
+                # Swallowing leaves `batch` unplaced, and unplaced Locks fall through to the Elden
+                # Ring pass below exactly as they did before #703 existed.
+                logging.getLogger("Greenfield").warning(
+                    "[greenfield] progression surface: the cross-game Lock pass raised and was "
+                    "abandoned; its %d Lock(s) fall back to the Elden Ring surfaces, which is the "
+                    "pre-#703 behaviour. Set cross_game_progression: 0 if this recurs",
+                    len(batch), exc_info=True)
+            cross_placed = cross_offered - len(batch)
+            items = batch + rest          # whatever it could not place rejoins the ER pass
+            logging.getLogger("Greenfield").info(
+                "[greenfield] progression surface: cross-game pass placed %d of %d offered "
+                "(%d%% share of %d released, %d game(s), %d open foreign location(s))",
+                cross_placed, cross_offered, share, n0, n_games, len(foreign))
+
+    multiworld.random.shuffle(locations)
+    state = multiworld.get_all_state(False)
     # Same access-check override `_place` documents at length: under accessibility:minimal
     # fill_restrictive stops verifying reachability, which would lock a Lock behind its own gate.
     # Forced on for every participating world, restored in `finally` so a raise cannot leak it.
@@ -621,9 +742,9 @@ def place_released_locks(multiworld, worlds) -> None:
     for it in items:
         multiworld.itempool.append(it)
     logging.getLogger("Greenfield").info(
-        "[greenfield] progression surface: placed %d/%d RELEASED Lock(s) across %d Elden Ring "
-        "world(s); %d SPILLED to the general fill%s",
-        n0 - len(items), n0, len(participants), len(items),
+        "[greenfield] progression surface: placed %d/%d RELEASED Lock(s) (%d abroad) across %d "
+        "Elden Ring world(s); %d SPILLED to the general fill%s",
+        n0 - len(items), n0, cross_placed, len(participants), len(items),
         (" (curation only -- they still travel, just not onto a curated check): "
          + ", ".join(sorted(it.name for it in items))) if items else "")
 
@@ -785,6 +906,29 @@ def confined_surface_ids(world):
     if not classes:
         return None
     return surface_ap_ids(world, classes)
+
+
+def cross_game_share(world, n_games: int) -> int:
+    """Percent of a world's travelling Locks that may land in a non-ER game. Pure over the option
+    value and the game count.
+
+    `auto` (-1) resolves to **1/n_games** as a percentage -- 2 games is 50, 4 is 25 -- which is the
+    same 1/N rule the export-volume side is judged by. Absent option, solo, or a single game means
+    0: there is nowhere else to send.
+    """
+    if n_games <= 1:
+        return 0
+    opt = getattr(getattr(world, "options", None), "cross_game_progression", None)
+    if opt is None:
+        return 0                      # older yaml -> behave as before this option existed
+    v = int(opt.value)
+    if v < 0:
+        # auto. HALF-UP, not `round`: Python rounds .5 to even, so a four-game seed would get
+        # 100/8 = 12.5 -> 12 while the export-volume side's 1/N cap says 13. A silent one-point
+        # disagreement between the two halves of #703 is exactly the class of bug this repo has
+        # paid for twice, and `released_locks` already rounds half-up for the same reason.
+        return max(0, min(100, (100 + n_games // 2) // n_games))
+    return max(0, min(100, v))
 
 
 def _released_pct(world) -> int:
@@ -1187,7 +1331,8 @@ class ProgressionSurfaceFeature(Feature):
     OPTIONS = {"progression_surface": ProgressionSurface,
                "progression_surface_mode": ProgressionSurfaceMode,
                "progression_bias": ProgressionBias,
-               "confine_foreign_progression": ConfineForeignProgression}
+               "confine_foreign_progression": ConfineForeignProgression,
+               "cross_game_progression": CrossGameProgression}
     # Placement runs centrally from core.pre_fill via apply() (locations exist + get_all_state valid).
     # The foreign-progression bar is set in core._add_locations (item_rule), using confined_surface_ids.
 

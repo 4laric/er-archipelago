@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.4.3",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "ebc7a8d872a705753f296f310d369b6dc5c5e2d2cb24832109090f0c6c77fb53",
+ "source_sha256": "d1662f0cc5139545a9d66015be332b273ccd0f0b91ae4c624cb39c44da2cc6ca",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -44,6 +44,7 @@
   "progression_surface",
   "progression_bias",
   "confine_foreign_progression",
+  "cross_game_progression",
   "enemy_scaling",
   "minimum_enemy_difficulty",
   "maximum_enemy_difficulty",
@@ -131,6 +132,7 @@
     "filler_foreign_pct",
     "progression_surface",
     "progression_bias",
+    "cross_game_progression",
     "confine_foreign_progression",
     "keep_local",
     "keep_local_rune_cap"
@@ -1212,6 +1214,34 @@
     {
      "name": "true",
      "value": 100
+    }
+   ]
+  },
+  {
+   "key": "cross_game_progression",
+   "class": "CrossGameProgression",
+   "display_name": "Cross Game Progression",
+   "description": "What share of your travelling Region Locks may land in a NON-Elden-Ring player's world.\n\n`auto` (the default) is **1 / number of games**: in a two-game multiworld half your travelling\nLocks go to the partner, in a four-game one a quarter each. That is the same 1/N rule the export\nvolume is judged by, and it means the answer scales with the table instead of being a number\nsomeone has to re-pick per seed. `0` keeps every Lock inside Elden Ring, which is the behaviour\nevery seed had before this option existed. A number is that share explicitly.\n\n# Why this option exists at all\n\n`progression_bias` already releases Locks into the multiworld, and between Elden Ring worlds it\nworks -- MEASURED 50-54% travel on 2xER seeds. But `place_released_locks` only ever offered them\nELDEN RING surfaces, and our surfaces host ~170 checks against at most ~36 Locks, so the spill\nvalve that was supposed to feed a partner never had anything to spill. MEASURED across four\nconfigurations: **0 Locks reached a Hollow Knight slot, ever** -- including a 2xER + 1xHK seed\nwhere 15 of 28 Locks travelled and all 15 went to the other Elden Ring world.\n\n`ProgressionBias`'s own docstring promised the opposite (\"expect most of your travelling Locks to\nland in the partner game\"), so this is the option that makes that sentence true.\n\n⚠️ IT PLACES INTO ANOTHER GAME'S LOCATIONS, which is the one thing `place_released_locks` used to\nrefuse to do, and the refusal was not arbitrary -- TUNIC's own `stage_pre_fill` raises\n\"caused by another world filling TUNIC locations during pre_fill... we cannot recover from this\nissue.\" We only ever offer locations that are still EMPTY, never force a placement, and put back\nanything unplaced -- but a partner game that objects to being filled at all is a real failure\nmode, and `0` is the escape hatch. Set it to 0 if a seed will not generate.\n\nNo effect in a solo seed, in an all-Elden-Ring multiworld (there is no non-ER world to send to),\nor in the modes that mint no Lock items.",
+   "kind": "range",
+   "base": "NamedRange",
+   "default": -1,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 100
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": [
+    {
+     "name": "auto",
+     "value": -1
+    },
+    {
+     "name": "never",
+     "value": 0
     }
    ]
   },
