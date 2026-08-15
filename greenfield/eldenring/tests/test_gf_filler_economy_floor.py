@@ -40,6 +40,7 @@ Nothing here hardcodes an observed count (that would pin the symptom rather than
 Both oracles are re-derived per seed, so they follow num_regions / the recipe / the flatten setting
 instead of drifting away from them.
 """
+import math
 import re
 from collections import Counter, defaultdict
 
@@ -67,6 +68,19 @@ PLAYTEST_RECIPE = {
 # Generous on purpose: the pipeline legitimately rounds, DLC-filters members, and pays real vanilla
 # items at most checks. This gate is not tuning -- it fires only when a pass has been eaten whole.
 SHARE_FLOOR = 0.50
+
+
+def _whole_items(share):
+    """`share` as a count of WHOLE items -- floor, because you cannot deliver a third of a stone.
+
+    🛑 COMPARING AN INT COUNT TO A FLOAT THRESHOLD SILENTLY RAISES THE BAR BY UP TO ONE ITEM. On
+    2026-08-15 this gate demanded `66 >= 66.239` and reported "the recipe's `stones: 20` weight
+    bought nothing" -- of a 52.478-item entitlement it had delivered 26 against a 50% floor of
+    26.239, i.e. 99.1% of the stated bar. A gate that asks for 51% while its own comment promises
+    50% will find a boundary eventually, and its failure text will describe a starvation that did
+    not happen.
+    """
+    return math.floor(share)
 
 # Fraction of the checks open to them that a player has actually cleared when they are "in sphere N".
 # Fill spheres are a 100%-COLLECTION artifact: sphere 0 of a 4-region seed is ~40% of the entire seed.
@@ -233,44 +247,64 @@ class FillerEconomyFloor(WorldTestBase):
     options = {"num_regions": 4, "enable_dlc": True,
                "curated_filler": PLAYTEST_RECIPE}
 
+    # 🛑 SAMPLED, NOT SINGLE-DRAWN. `num_regions: 4` draws WHICH four regions are kept, so the
+    # larder, the vanilla-stone floor and the entitlement all move per seed -- and with no seed
+    # pinned, this class asserted against one arbitrary draw. It flipped on an IDENTICAL TREE:
+    # d44c50e (branch head) green, 22585d7c (its own merge, same tree) red. A gate that disagrees
+    # with itself cannot tell "starved" from "unlucky".
+    #
+    # Fixed seeds, sampled: deterministic AND still exercising different draws, which is the shape
+    # test_gf_region_diversity already uses. Every sampled draw must clear the floor -- this is a
+    # starvation gate, so one starved draw is a finding, not noise.
+    SEEDS = (1, 2, 7, 13, 101, 5551212)
+
     # ---- entitlement: the recipe must actually receive its share of the larder ------------------
     def test_curated_recipe_receives_its_share_of_the_filler_budget(self):
-        counts = Counter(i.name for i in world_pool_items(self))
-        larder = _junk_larder(self.world)
-        self.assertGreater(larder, 0, "seed has no junk-consumable larder -- oracle is broken, not the code")
-        total_w = sum(PLAYTEST_RECIPE.values())
+        for seed in self.SEEDS:
+            with self.subTest(seed=seed):
+                self.world_setup(seed=seed)
+                counts = Counter(i.name for i in world_pool_items(self))
+                larder = _junk_larder(self.world)
+                self.assertGreater(larder, 0,
+                                   "seed has no junk-consumable larder -- oracle is broken, not the code")
+                total_w = sum(PLAYTEST_RECIPE.values())
 
-        # The consumable roster is the recipe's most visible output and is drawn ONLY by curate() --
-        # no other pass creates a Fire Pot. If pool_builder has eaten the larder, this is ~zero.
-        roster_cats = ("throwables", "pots", "greases", "foods", "boluses", "perfumes")
-        roster_w = sum(PLAYTEST_RECIPE[c] for c in roster_cats)
-        entitled = larder * (roster_w / total_w)
-        got = _delivered(counts, roster_cats)
-        self.assertGreaterEqual(
-            got, SHARE_FLOOR * entitled,
-            f"curated roster starved: recipe weights it {roster_w}/{total_w} of a {larder}-item junk "
-            f"larder (entitled ~{entitled:.0f}), delivered {got}. Some OTHER pass consumed the filler "
-            f"tail before curate() ran. The filler tail needs a single owner that takes the recipe as "
-            f"a reservation off the top.")
+                # The consumable roster is the recipe's most visible output and is drawn ONLY by
+                # curate() -- no other pass creates a Fire Pot. If pool_builder has eaten the
+                # larder, this is ~zero.
+                roster_cats = ("throwables", "pots", "greases", "foods", "boluses", "perfumes")
+                roster_w = sum(PLAYTEST_RECIPE[c] for c in roster_cats)
+                entitled = larder * (roster_w / total_w)
+                got = _delivered(counts, roster_cats)
+                self.assertGreaterEqual(
+                    got, _whole_items(SHARE_FLOOR * entitled),
+                    f"seed {seed}: curated roster starved: recipe weights it {roster_w}/{total_w} of "
+                    f"a {larder}-item junk larder (entitled ~{entitled:.0f}), delivered {got}. Some "
+                    f"OTHER pass consumed the filler tail before curate() ran. The filler tail needs "
+                    f"a single owner that takes the recipe as a reservation off the top.")
 
     def test_recipe_stones_reach_the_pool(self):
-        counts = Counter(i.name for i in world_pool_items(self))
-        larder = _junk_larder(self.world)
-        total_w = sum(PLAYTEST_RECIPE.values())
-        entitled = larder * (PLAYTEST_RECIPE["stones"] / total_w)
+        for seed in self.SEEDS:
+            with self.subTest(seed=seed):
+                self.world_setup(seed=seed)
+                counts = Counter(i.name for i in world_pool_items(self))
+                larder = _junk_larder(self.world)
+                total_w = sum(PLAYTEST_RECIPE.values())
+                entitled = larder * (PLAYTEST_RECIPE["stones"] / total_w)
 
-        # Vanilla stones are protected from displacement (_ECONOMY_SUBSTR), so they are a FLOOR the
-        # recipe adds on top of -- the recipe's contribution is what we are checking for.
-        vanilla_stones = sum(
-            1 for rn in [HUB] + list(self.world._kept())
-            for (_n, ap_id, _f) in LOCATIONS.get(rn, [])
-            if (LOCATION_ITEM.get(ap_id) or "").startswith("Smithing Stone [")
-        )
-        got = sum(c for n, c in counts.items() if _STONE_RE.match(n))
-        self.assertGreaterEqual(
-            got, vanilla_stones + SHARE_FLOOR * entitled,
-            f"the recipe's `stones: {PLAYTEST_RECIPE['stones']}` weight bought nothing: entitled to "
-            f"~{entitled:.0f} stones on top of the {vanilla_stones} vanilla ones, pool holds {got}.")
+                # Vanilla stones are protected from displacement (_ECONOMY_SUBSTR), so they are a
+                # FLOOR the recipe adds on top of -- the recipe's contribution is what we check.
+                vanilla_stones = sum(
+                    1 for rn in [HUB] + list(self.world._kept())
+                    for (_n, ap_id, _f) in LOCATIONS.get(rn, [])
+                    if (LOCATION_ITEM.get(ap_id) or "").startswith("Smithing Stone [")
+                )
+                got = sum(c for n, c in counts.items() if _STONE_RE.match(n))
+                self.assertGreaterEqual(
+                    got, vanilla_stones + _whole_items(SHARE_FLOOR * entitled),
+                    f"seed {seed}: the recipe's `stones: {PLAYTEST_RECIPE['stones']}` weight bought "
+                    f"nothing: entitled to ~{entitled:.0f} stones on top of the {vanilla_stones} "
+                    f"vanilla ones, pool holds {got}.")
 
     # ---- affordability: the felt bug, stated in the player's terms ------------------------------
     def test_early_weapon_upgrade_is_affordable(self):
