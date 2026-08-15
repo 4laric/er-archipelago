@@ -290,6 +290,83 @@ option C used -- and one bar at a time: the two rows that are also shop-release-
 Arrow and Ballista Bolt, `f110200` and `f110210`, which the merchant does not stock until an unlock
 fires) stay barred, because the region being open says nothing about the shelf.
 
+### Multi-count spawn traps now spawn what they promise
+
+`Trap: Basilisk x3` arrived as one basilisk. The count reached the client intact and the loop ran
+three times -- but `spawn_debug_character` does not spawn anything: it writes a single SHARED slot
+and raises one flag, so three requests in one tick overwrote each other and the engine acted on the
+last. They are staggered one per tick now. The option's own docstring is the acceptance test --
+"one is a joke; three is the Death Blight mist" -- and three is what arrives. (client#211)
+
+### The spawn count reports what appeared, not what was asked for
+
+The collapse above was found by a human standing in an arena counting basilisks, because the only
+number the client had ever logged was its own request. The burst now counts the room BEFORE it
+issues and reports the delta, so a trap that spawned nothing can no longer read as a clean
+`3 standing` in a room that already had three. (client#214)
+
+### Rune Thief no longer spends itself announcing a loss that did not happen
+
+At zero runes the arithmetic was right -- halving nothing is nothing -- but the no-op write counted
+as success, so the trap announced "half your runes are gone", was consumed, and the server will
+never resend it. It defers now. Zero is not an edge case: one reporter sat at `runes: 0 held at
+world edge` for eight consecutive epochs. (client#227)
+
+### The pot cap says how much it ate, per row, at the world edge
+
+An AP delivery that hit the game's own hold cap was reported delivered and then not placed, and
+further caps on the same row were silent -- so the loss could be noticed but not measured. A per-row
+tally now flushes at the world edge, in the same `{:#x}` id shape the existing cap warning uses, so
+the two lines join on a grep. A quiet world edge logs nothing, which is what makes a line that does
+appear worth reading. (client#213)
+
+### Found hints stop counting, and stay in the list dimmed
+
+The `found` flag has been on the wire for months and the client dropped it, so the tracker's
+`Hints (N)` counted collected and live hints alike. Found hints now render dimmed and leave the
+header count, so the number means "how much is still outstanding". They stay on the list, because a
+found hint still records where something was. (client#226)
+
+### A `great_runes` goal names its runes at connect, in the game
+
+The apworld emitted the required names, the contract declared them, and the client already parsed
+and logged them. Every half worked and a player still had to open the spoiler log, because
+`log::info!` goes to a file we only read AFTER someone reports a problem. The same string is now
+printed through the client message channel at connect -- the channel a player is actually looking
+at. (client#222)
+
+### A warning before an ending that will not count
+
+Arriving at the goal arena with Region Locks outstanding now prints, once per arrival:
+`N Region Lock(s) outstanding -- the ending will not count yet.` The count and not the region names,
+because the count is the actionable number and the names are a hint a multiworld player may not have
+paid for. Nothing is blocked -- the notice has no authority over anything, so it has no way to fail
+closed. (client#224)
+
+### "Connection refused" and "connection timed out" are different problems and now say so
+
+Both shared one sentence, and the sentence advised checking the URL -- which that code path has
+already ruled out, because by the time it runs the name resolved and the socket still never opened.
+A refused SYN means nothing is listening (wrong port, paused room); a dropped one means something ate
+it (firewall, AV, per-app VPN). They are named separately now. This cost one reporter four rounds of
+triage on hypotheses the code could already exclude. (client#216)
+
+### Connect-stage breadcrumbs are readable in a shipped build
+
+"Did the TCP connect fail, or did it succeed and TLS fail?" was unanswerable from any log we ship:
+the breadcrumbs were `debug!` and the file sink is pinned to `Info` with no toggle. They are `info!`
+now -- deliberately NOT by adding a log-level switch, because raising the sink to `Debug` to reach
+eight bounded lines also turns on the entire Archipelago wire stream in every log a player then
+uploads. (client#219)
+
+### The capital reconciler names every decline
+
+Three different declines -- not armed, unresolvable, already correct -- all returned one silent
+`None`, which is why 66 warps across two sessions produced not one intercept line, and why that
+silence read as "the reconciler is inert". It was "already correct", all 66 times. Each decline is
+named now, and inferring a burnt world requires corroboration. This does NOT close the underlying
+issue; the upstream cause is untouched. (client#220)
+
 ## v0.4.2 — 2026-08-14
 
 Window opened AT THE TAG of v0.4.1, with zero commits past it -- so this section starts empty of
