@@ -33,6 +33,32 @@ Still outstanding at the open, neither of them this window's work:
 - `stable` in `CHANNELS.tsv` still points at v0.4.1, so `deploy_wizard.sh --landing` is serving
   v0.4.1's wizard. Promotion is a separate row and a separate decision.
 
+### SweepSlot now scales with how many people you are playing with
+
+In a two-game multiworld your partner's progression has almost nowhere to go but their own world.
+Measured on a 1xER + 1xHK seed: **9.6%** of what reached Hollow Knight was useful, and useful items
+left our world at **1.4%** against filler's **10.8%** -- suppressed nearly 8x, from a pool that is
+about 40% useful. The cause is not curation, it is surface: one SweepSlot check per boss sweep is
+not enough room, so the partner's items saturate their own locations before the fill reaches ours.
+
+SweepSlot now nominates several members per sweep when you have few partners, and exactly one when
+you have many. At a single partner that takes useful items reaching them from 9.6% to **34.3%**, and
+takes the share of their progression our world can absorb from 87 items to 175.
+
+**Curation is unchanged.** Every foreign progression item that lands here is still on a curated
+check -- on-surface stayed at 100% across the whole measured range, and the filler rate stayed flat
+while useful rose, so this is the useful tier being unblocked rather than simply more traffic. It is
+also why `confine_foreign_progression` stays at 100: lowering it to 50 buys the same recovery and
+spends three quarters of the curation to do it.
+
+**Seeds with many players are unchanged**, by construction rather than by measurement -- at eight or
+more partners the count is exactly the one this always used, and so is the selection. Solo seeds are
+untouched for the same reason.
+
+The wizard's SweepSlot count is now a RANGE, because how many checks the class contributes depends
+on a partner count that does not exist yet when you are filling in your yaml -- the same reason
+`num_regions` is shown as a draw size rather than a final number.
+
 ### `start_region_pool` with fewer regions than `start_regions` now says so, in your yaml's words
 
 Naming one region in `start_region_pool` while asking for two `start_regions` used to end the

@@ -68,6 +68,68 @@ class TestSweepSlotSkips(unittest.TestCase):
         self.assertNotIn(WARMING_STONE_AP, nominated,
                          "Divine Tower warming stone is swept by a trigger with no boss")
 
+    # ---- #703: slots scale with the FOREIGN PLAYER COUNT ---------------------------------------
+
+    def test_many_player_seeds_are_byte_unchanged(self):
+        """⭐ THE CONTROL #703 ASKS FOR, asserted structurally rather than by diffing two seeds.
+
+        `f(n) == 1` for every n at or above MAX_SLOTS_PER_SWEEP, and `slots=1` takes the identical
+        branch the shipped code took -- so an 8-player seed cannot move. A fix that quietly reshaped
+        many-player seeds is a different feature, and this is the assertion that says it did not."""
+        skips = CONTRACT.sweep_slot_skips(healthbars=HEALTHBARS)
+        shipped = CONTRACT.nominate_sweep_slots(SWEEPS, skips=skips)
+        for n in range(CONTRACT.MAX_SLOTS_PER_SWEEP, CONTRACT.MAX_SLOTS_PER_SWEEP + 4):
+            self.assertEqual(CONTRACT.slots_per_sweep(n), 1, f"{n} foreign players must stay at 1")
+            self.assertEqual(
+                CONTRACT.nominate_sweep_slots(SWEEPS, skips=skips,
+                                              slots=CONTRACT.slots_per_sweep(n)),
+                shipped,
+                f"{n} foreign players must nominate exactly what today's build nominates")
+
+    def test_solo_is_one_slot(self):
+        """🛑 A solo seed has nowhere to send anything, so widening buys nothing -- and 0 partners
+        must not reach the division."""
+        self.assertEqual(CONTRACT.slots_per_sweep(0), 1)
+        self.assertEqual(CONTRACT.slots_per_sweep(-1), 1, "a negative count is still solo")
+
+    def test_the_shape_of_f_is_the_ruling(self):
+        """The ruled shape: clamp(8 // n, 1, 8). Pinned because it is a JUDGEMENT, not a measured
+        optimum -- the curve had no plateau by N=8 -- so a later change to it should be a decision
+        someone makes on purpose and not a refactor."""
+        self.assertEqual(
+            [CONTRACT.slots_per_sweep(n) for n in range(1, 10)],
+            [8, 4, 2, 2, 1, 1, 1, 1, 1])
+
+    def test_more_slots_nominate_strictly_more(self):
+        """The knob does something, and it only ever ADDS: a wider nomination is a superset, so no
+        check that was on the surface at one slot falls off it at eight."""
+        skips = CONTRACT.sweep_slot_skips(healthbars=HEALTHBARS)
+        one = CONTRACT.nominate_sweep_slots(SWEEPS, skips=skips, slots=1)
+        many = CONTRACT.nominate_sweep_slots(SWEEPS, skips=skips,
+                                             slots=CONTRACT.MAX_SLOTS_PER_SWEEP)
+        self.assertTrue(one, "witness: the one-slot nomination is not empty")
+        self.assertGreater(len(many), len(one), "eight slots must nominate more than one")
+        self.assertTrue(one <= many, "widening must never drop a check off the surface")
+
+    def test_skips_still_nominate_nothing_at_every_width(self):
+        """🛑 THE #672 GATE SURVIVES THE KNOB. A sweep that cannot fire must not put a check on the
+        surface -- at ANY slot count. This is the constraint most likely to be lost by a widening,
+        because the skip filter and the pick both live in the same loop."""
+        skips = CONTRACT.sweep_slot_skips(healthbars=HEALTHBARS)
+        for slots in (1, 2, 4, CONTRACT.MAX_SLOTS_PER_SWEEP):
+            nominated = CONTRACT.nominate_sweep_slots(SWEEPS, skips=skips, slots=slots)
+            self.assertNotIn(MUSHROOM_AP, nominated, f"slots={slots} reopened #672")
+            self.assertNotIn(WARMING_STONE_AP, nominated, f"slots={slots} reopened #672")
+
+    def test_the_pick_is_deterministic_and_draws_nothing(self):
+        """🛑 PURE. `nominate_sweep_slots`'s docstring forbids drawing here -- `world.random` is
+        consumed a different number of times depending on how hard fill works, so a draw would move
+        the seed for everything downstream, and the census must reproduce the pick outside a
+        generation at all. Repeated calls must be identical."""
+        skips = CONTRACT.sweep_slot_skips(healthbars=HEALTHBARS)
+        runs = [CONTRACT.nominate_sweep_slots(SWEEPS, skips=skips, slots=4) for _ in range(5)]
+        self.assertEqual(len(set(runs)), 1, "the pick moved between identical calls")
+
     def test_the_fix_is_load_bearing(self):
         """🛑 The same call WITHOUT the gate nominates both -- so the assertions above are a real
         witness of the defect, not a restatement of whatever the code happens to do."""

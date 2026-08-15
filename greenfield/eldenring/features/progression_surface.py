@@ -511,8 +511,18 @@ def sweep_slot_aps(world, classes, tag_ids=frozenset()):
         skips = contract.sweep_slot_skips(healthbars=BOSS_HEALTHBARS)
     except Exception:
         skips = contract.sweep_slot_skips()
+    # #703: more members per sweep when there are FEW partners, exactly one when there are many.
+    # In a 2-game world the partner's progression saturates its own ~404 locations during
+    # fill_restrictive and the useful tier is exhausted before the scan reaches a partner slot; the
+    # fix is more slots, not weaker curation -- on-surface stayed 100% across the whole measured
+    # curve, which is why this beats lowering `confine_foreign_progression`.
+    #
+    # 🛑 `players - 1`, i.e. FOREIGN players. A solo seed has nothing to send, `slots_per_sweep`
+    # returns 1 there, and a solo generation is byte-unchanged.
+    foreign = getattr(getattr(world, "multiworld", None), "players", 1) - 1
     return contract.nominate_sweep_slots(rung_sweeps(world), barred=barred,
-                                         prefer_not_in=tag_ids, skips=skips)
+                                         prefer_not_in=tag_ids, skips=skips,
+                                         slots=contract.slots_per_sweep(foreign))
 
 
 def surface_ap_ids(world, classes):

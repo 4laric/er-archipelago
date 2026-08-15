@@ -145,6 +145,7 @@ def measure(sc=None):
     sweeps_mod = mods.get("boss_sweeps")
     bars_mod = mods.get("boss_healthbars")
     slots_by_region = {}
+    slots_max_by_region = {}
     if sweeps_mod is not None and bars_mod is not None:
         ap_region = {}
         for rname, rows_ in data.LOCATIONS.items():
@@ -164,11 +165,20 @@ def measure(sc=None):
                 elif info[2] not in allowed:
                     continue
                 at_rung[fl] = members
-            for ap in contract.nominate_sweep_slots(at_rung, barred=barred):
-                r = ap_region.get(ap)
-                if r:
-                    slots_by_region.setdefault(r, {}).setdefault(rung, 0)
-                    slots_by_region[r][rung] += 1
+            # ⭐ BOTH ENDS OF THE RANGE (#703). SweepSlot's per-sweep count is now a function of
+            # the FOREIGN PLAYER COUNT, and this tool prices the checkbox BEFORE a multiworld
+            # exists -- there is no partner count to read here and there never can be. So it emits
+            # the floor (many partners, one slot: today's number, unchanged) and the ceiling (a
+            # single partner), and the wizard shows the spread.
+            #
+            # That is the same shape this tool already takes for `num_regions`, and for the same
+            # reason its header gives: "A wizard that printed one number would be lying."
+            for slots, bucket in ((1, slots_by_region), (contract.MAX_SLOTS_PER_SWEEP, slots_max_by_region)):
+                for ap in contract.nominate_sweep_slots(at_rung, barred=barred, slots=slots):
+                    r = ap_region.get(ap)
+                    if r:
+                        bucket.setdefault(r, {}).setdefault(rung, 0)
+                        bucket[r][rung] += 1
 
     regions = {}
     for name in sorted(data.LOCATIONS):
@@ -193,6 +203,11 @@ def measure(sc=None):
             # Absent rungs are zero. Kept separate from `combos` because it is not a tag combination
             # and must never be summed into one.
             "sweep_slots": dict(sorted((slots_by_region.get(name) or {}).items())),
+            # The SAME per-rung shape at the other end of the range: what this region contributes
+            # when there is a single foreign partner (contract.MAX_SLOTS_PER_SWEEP per sweep). Added
+            # rather than replacing `sweep_slots` so every existing consumer keeps reading the floor
+            # it already read, and a range-aware one can show both (#703).
+            "sweep_slots_max": dict(sorted((slots_max_by_region.get(name) or {}).items())),
         }
 
     census = {
