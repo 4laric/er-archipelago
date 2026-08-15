@@ -33,6 +33,18 @@ Still outstanding at the open, neither of them this window's work:
 - `stable` in `CHANNELS.tsv` still points at v0.4.1, so `deploy_wizard.sh --landing` is serving
   v0.4.1's wizard. Promotion is a separate row and a separate decision.
 
+### `start_region_pool` with fewer regions than `start_regions` now says so, in your yaml's words
+
+Naming one region in `start_region_pool` while asking for two `start_regions` used to end the
+generation in a Python traceback rather than an option error -- and the message inside it told you
+to raise `num_regions`, which cannot help. `start_region_pool` narrows the pool BEFORE the starting
+regions are drawn, so a bigger seed only adds regions the option removes again; bobler tried it at
+`num_regions: 9` and got the identical crash.
+
+You now get a refusal that names both options, both numbers and the regions you listed, and tells
+you the two things that actually work: name more regions, or ask for fewer. The old error survives
+as a backstop for the cases this check cannot see, minus the advice that was a dead end.
+
 ## v0.4.2 — 2026-08-14
 
 Window opened AT THE TAG of v0.4.1, with zero commits past it -- so this section starts empty of

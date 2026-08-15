@@ -328,9 +328,10 @@ def pick_anchor_regions(kept, rng, check_counts, dlc_regions, n=1, major=None,
     🛑 IT IS A HARD FILTER, unlike `major`, and that difference is the point. `major` is a BIAS the
     world chose and degrades when it cannot be satisfied; `only` is a sentence the player typed, and
     silently opening somewhere they did not name would be worse than refusing. Core validates the
-    named set against the DLC toggles, the goal and the gated children BEFORE it gets here and dies
-    with an OptionError naming the region; reaching the ValueError below means the pool survived all
-    of that and still could not seat `n` regions.
+    named set against the DLC toggles, the goal and the gated children BEFORE it gets here -- and,
+    since #690, against `start_regions` itself -- and dies with an OptionError naming the region or
+    both option keys; reaching the ValueError below means the pool survived all of that and still
+    could not seat `n` regions, which today leaves only the zero-emitted-checks case.
 
     Returns (regions, rules, eligible_count) -- `regions[0]` and `rules[0]` are exactly what
     `pick_anchor_region` would have returned alone.
@@ -353,11 +354,18 @@ def pick_anchor_regions(kept, rng, check_counts, dlc_regions, n=1, major=None,
             and r not in never_anchor
             and int(check_counts.get(r, 0)) > 0]
     if len(pool) < n - 1:
+        # THE ADVICE IS CONDITIONAL BECAUSE ONE HALF OF IT IS A DEAD END UNDER `only` (#690).
+        # `only` narrowed `kept` at the top of this function, BEFORE the draw, so raising
+        # num_regions adds regions the filter has already removed -- bobler tried exactly that on
+        # 2026-08-15 (9 regions, start_regions 2, a one-name pool) and died identically. Telling a
+        # player to turn a knob that provably cannot help is worse than saying nothing: it costs
+        # them a generation to learn the message was wrong.
+        _fix = ("name more regions in start_region_pool or lower start_regions"
+                if only else "lower start_regions or raise num_regions")
         raise ValueError(
             "start anchors: asked for %d starting regions, but only %d region(s) can open a run "
             "in this seed (the goal region and gated children are excluded as extras, and a "
-            "region with zero emitted checks can never anchor) -- lower start_regions or raise "
-            "num_regions" % (n, len(pool) + 1))
+            "region with zero emitted checks can never anchor) -- %s" % (n, len(pool) + 1, _fix))
     while len(picks) < n:
         r, rule_r, _ = pick_anchor_region(pool, rng, check_counts, dlc_regions, gated=gated,
                                           never_anchor=never_anchor)
