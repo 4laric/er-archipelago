@@ -5,7 +5,14 @@ BonfireWarpParam warp-menu ids that REGION_GROUPS is keyed by (they are differen
 for the same places; conflating them left the kick permissive on most of the map). Minus
 the kick-excluded buckets (Roundtable HUB 11100; the intro/tutorial spawn buckets 18000
 and 10010 -- see region_groups.KICK_EXCLUDED_PLAY_IDS). Consumed by
-features/area_locks.py (areaLockFlags) and baked into the client (tools/gen_region_locks.py)."""
+features/area_locks.py (areaLockFlags) and baked into the client (tools/gen_region_locks.py).
+
+SCALING_PLAY_IDS below is the OTHER inversion -- the DIFFICULTY geometry read by
+features/scaling.py (regionSphereTargetRanges). It carries the buckets that take their
+region's RAMP position; SCALING_FLOOR_PLAY_IDS carries the ones PINNED at target 0 in
+every seed. Together they cover every measured bucket -- nothing is scaling-exempt.
+Do NOT merge these with the kick table: a bucket missing from the kick table is merely
+unenforced, but a bucket missing from the scaling wire ships VANILLA (#688)."""
 REGION_PLAY_IDS = {
     'Abyssal': [68600],
     'Ainsel River': [12010],
@@ -43,4 +50,47 @@ REGION_PLAY_IDS = {
 # shipping a lock that does nothing is the bug the measured table exists to end.
 REGIONS_PENDING_BUCKET = frozenset([])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:eb5adc59d3e28088a951d62cb7f4771b493edf33df8e62286dede99419514b09', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:69957cdcac53e19832cdaae8388d66949729cecd137b6c2d768e1138a5d6ca80'}
+# Region -> play_region ids that take their REGION'S RAMP POSITION for scaling
+# (features/scaling.py). Equal to REGION_PLAY_IDS today, and deliberately a separate
+# table anyway: the kick's exclusions and scaling's pins answer different questions,
+# and sharing one table is what shipped three combat buckets at vanilla difficulty.
+SCALING_PLAY_IDS = {
+    'Abyssal': [68600],
+    'Ainsel River': [12010],
+    'Altus': [30070, 30080, 30100, 30120, 30130, 31180, 31190, 32040, 32050, 34120, 34140, 63000, 63010],
+    'Ancient Ruins': [69400, 69410],
+    'Ashen Capital': [11050, 19000],
+    'Belurat': [20000],
+    'Caelid': [30140, 30150, 30160, 31100, 31110, 31200, 31210, 32070, 32080, 34130, 64000, 64010, 64020],
+    'Cerulean': [22000, 41020, 68300, 68400],
+    'Deeproot Depths': [12030],
+    'Enir Ilim': [20010],
+    'Ensis': [68200],
+    'Farum Azula': [13000],
+    'Gravesite': [40000, 41000, 42000, 43000, 43010, 68000, 68100],
+    'Haligtree': [15000],
+    'Jagged Peak': [68410, 68500],
+    'Leyndell': [11000],
+    'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 34100, 61000, 61010],
+    'Liurnia': [30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110, 39200, 62000, 62010, 62020],
+    'Mohgwyn': [12050],
+    'Mountaintops of the Giants': [30170, 30180, 30190, 30200, 31120, 31220, 32110, 65000, 65010, 65020, 65030],
+    'Mt. Gelmir': [16000, 30090, 31070, 31090, 63020],
+    'Rauh Base': [40010, 42030, 69010],
+    'Raya Lucaria Academy': [14000],
+    'Scadu Altus': [40020, 41010, 42020, 69000, 69020, 69030],
+    'Sewer': [35000],
+    'Shadow Keep': [21000, 21010, 21020, 69300],
+    'Siofra River': [12020, 12070],
+    'Stormveil': [10000],
+    'Weeping': [30000, 30010, 31010, 31020, 32000, 61020],
+}
+# Buckets PINNED to the FLOOR of the seed's ramp -- emitted as [pid, pid, 0] in every
+# seed rather than inheriting a host region's order position (which is a fill result,
+# not a design fact). The hub, the tutorial cliff and the intro: reachable turn one,
+# revisited all game, must never outpace the player. See
+# region_groups.SCALING_FLOOR_PLAY_IDS -- and #346 for why a pin is necessary but not
+# always sufficient (the client cannot scale DOWN an enemy it cannot place).
+SCALING_FLOOR_PLAY_IDS = frozenset([10010, 11100, 18000])
+
+_GEN_STAMP = {'inputs_hash': 'sha256:1fc6ef8cbd51b56cf16e578a3d241f6690aa986ebaaa5a4e4fb4869c6b6d69be', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:62dfe20157c3260a6f91e218526c10d34e84f062908eed36e59a5ca0978a1a75'}

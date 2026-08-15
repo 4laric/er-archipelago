@@ -45,6 +45,50 @@ You now get a refusal that names both options, both numbers and the regions you 
 you the two things that actually work: name more regions, or ask for fewer. The old error survives
 as a backstop for the cases this check cannot see, minus the advice that was a dead end.
 
+### The Roundtable, Fringefolk Hero's Grave and the Chapel intro were shipping VANILLA enemies
+
+Completion scaling took its geometry from the KICK table. Three play_region buckets are deliberately
+exempt from the kick -- 11100 (Roundtable Hold), 18000 (the Stranded Graveyard cliff and Fringefolk
+Hero's Grave) and 10010 (the Chapel of Anticipation intro) -- because the hub is home and because
+ejecting a player from the intro crashed the game. Scaling imported that same table, so none of the
+three ever reached `regionSphereTargetRanges`, and the client's fallback for a bucket it was never
+told about is the FLOOR tier. With `completion_scaling_floor` frozen at 0, "floor tier" means vanilla
+HP and vanilla damage.
+
+Measured in bobler's 0.3.12 log, on a seed whose every wired region sat at tier 0: the same
+`npc_id 4910` read 7,141 HP in bucket 18000 against 3,386 HP in a wired region. That ratio, 2.109x,
+is `SCALING_HP_LADDER[6] / SCALING_HP_LADDER[0]` exactly -- the unwired ground was not merely
+mis-tuned, it was the untouched game. One boss in that bucket read 31,518 HP while the largest boss
+in any wired region read 6,564. And bobler on the hub, the same day: "this npc fight was almost
+harder than every boss in the run bc roundtable was unscaled." The boss probe could not have caught
+that one -- `BOSS_HEALTHBARS` has no 11100 row, because Ensha is an NPC invader and carries no
+healthbar, so the hub's absence from the 39-fight table was never evidence that nothing fights there.
+
+All three are now on the wire, PINNED at target 0 -- the floor of whatever ramp the seed rolls -- and
+not at their host region's tier. That distinction is the fix, not a detail: 18000 rides Limgrave and
+10010 rides Stormveil in the region grouping, the order is a linearization of the seed's own lock
+chain with a seed-deterministic tie-break, and 11100 is in no rolled region at all. Limgrave sat at
+target 0 in bobler's seed by coincidence. Ground you reach in the first five minutes and walk back
+through all game must never outpace the player, in every seed rather than the lucky ones. Emitting 0
+cannot disturb the curve: it is the minimum of the target space, the ramp already starts there, and
+the client normalizes by the MAXIMUM emitted target, which appending zeroes cannot move. Both are
+asserted, not assumed.
+
+The generator bakes the one region grouping into three tables -- `REGION_PLAY_IDS` (kick geometry,
+byte-identical; the intro and the hub are still kick-exempt), `SCALING_PLAY_IDS` (buckets that take
+their region's ramp position) and `SCALING_FLOOR_PLAY_IDS` (the pins) -- and asserts that the last
+two together cover every measured bucket. Nothing is scaling-exempt any more, so the next kick
+exemption cannot become a silent difficulty exemption.
+
+⚠️ **A pin is necessary, not sufficient, and the hub is the case where that matters (#346).** The
+client cannot scale an enemy DOWN unless it can place it: a carried ladder rung, a `native_tier` off
+the npc's rune reward, or a baked `AREA_TIERS` entry for the bucket. `greenfield/area_tiers.tsv`
+records bucket 11100 as `sample=0, parts=29, unrunged=29` -- zero of the 29 enemy Parts vanilla put
+in Roundtable Hold carry a rung -- so the bucket makes no area claim and is absent from the client's
+`AREA_TIERS`. Being on the wire is what gets the hub swept at all; whether Ensha himself moves
+depends on whether his `NpcParam` row carries a rune reward, which needs the m11_10 MSB to resolve
+and is not answerable from this repo. Bucket 18000 has no such doubt: tier 5, 25 of 44 parts runged.
+
 ## v0.4.2 — 2026-08-14
 
 Window opened AT THE TAG of v0.4.1, with zero commits past it -- so this section starts empty of

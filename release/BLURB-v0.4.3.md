@@ -16,6 +16,30 @@ The refusal now names both options, both numbers and the regions you actually li
 two fixes that work: list more regions, or start in fewer. Nothing about a yaml that already
 generated changes -- if your pool is big enough for your count, this is invisible to you.
 
+**Roundtable Hold, Fringefolk Hero's Grave, the Stranded Graveyard cliff and the Chapel of
+Anticipation intro now scale.** They never did. Those places sit in three play_region buckets the
+run deliberately never kicks you out of -- the Hold is home, and being ejected mid-intro used to
+crash the game -- and difficulty scaling was reading that same exemption list, so it left them at
+full vanilla strength. The result was quiet and easy to misread: everything else in a fresh seed sat
+at the lowest difficulty tier, and the Grave was the untouched game. The same enemy measured 7,141
+HP there against 3,386 HP one region over, and one boss in that bucket had 31,518 HP in a seed where
+the biggest boss anywhere else had 6,564. The Hold was the same bug wearing a friendlier face: the
+invader who turns up in the one room you always come back to was fighting at endgame strength in a
+seed you had barely started.
+
+All four now take the LOWEST difficulty in your seed, not the tier of the region they happen to sit
+next to. That is deliberate: they are the ground you reach in the first five minutes and keep
+walking back through, so they should never be the hardest thing you have met. You are still not
+kicked out of the intro, and the Hold is still safe.
+
+One honest caveat about the Hold. The scaling client can only bring an enemy down if it recognises
+what it is looking at, and nothing vanilla placed in Roundtable Hold carries the marking it reads.
+Being on the list is what gets the room looked at at all; whether the invader himself comes down is
+the next thing to measure, and it will be measured in a game rather than argued in a file.
+
+Every change that lands from here writes its own line while somebody still knows what it was for,
+rather than being reconstructed from a commit log at release time.
+
 ## What v0.4.3 does not change
 
 `CONTRACT_HASH` is unmoved at `5c2b9bf2`, the same shape the contract has had since v0.3.9. The

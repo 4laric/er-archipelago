@@ -85,6 +85,46 @@ def test_dlc_buckets_are_derived_from_the_region_set_not_the_blessing_option():
         "them is wrong, and only the bucket wire is emitted unconditionally")
 
 
+def test_the_kick_exempt_combat_buckets_are_on_the_scaling_wire():
+    """#688 (bobler playtest 2026-08-15) -- THE MOTIVATING CASE, as a test.
+
+    Buckets 18000 (m18_00: Stranded Graveyard cliff + Fringefolk Hero's Grave, 12 Limgrave checks,
+    Ulcerated Tree Spirit 18000800 and Soldier of Godrick 18000850) and 10010 (m10_01, the Chapel
+    intro and the Grafted Scion) are KICK-exempt on purpose -- kicking a player out of the intro
+    crashed the game. Scaling borrowed the kick's table, so those two buckets never reached
+    regionSphereTargetRanges either, and an unwired bucket takes the client's FLOOR tier
+    (completion_scaling_floor is frozen at 0) -- i.e. it ships VANILLA. In bobler's tier-0 seed the
+    same npc_id 4910 read 7,141 HP in bucket 18000 against 3,386 HP in a wired region: 2.109x,
+    exactly SCALING_HP_LADDER[6]/SCALING_HP_LADDER[0]. A bucket-18000 boss read 31,518 HP while the
+    largest boss in any wired region read 6,564.
+
+    AND THE HUB, 11100 -- the half the first fix got wrong. It was left off the wire as "the
+    Roundtable has no combat"; bobler, the same day: "this npc fight was almost harder than every
+    boss in the run bc roundtable was unscaled". Ensha invades the hub, and BOSS_HEALTHBARS has no
+    11100 entry because an NPC invader carries no healthbar -- so the boss probe could not have seen
+    that fight and its silence was never evidence. The hub is in EVERY seed and holds 239 checks.
+
+    Pure: the wire producer, not a rolled seed, so the failure names the geometry and not the fill.
+    """
+    wire = sc.sphere_target_ranges(["Limgrave", "Stormveil"])
+    at = {lo: t for lo, _hi, t in wire}
+    assert at, "precondition: the wire is non-empty"
+    assert 18000 in at, (
+        "bucket 18000 (Fringefolk Hero's Grave / Stranded Graveyard) is absent from the scaling "
+        "wire, so the client leaves it VANILLA -- 2.109x the HP of the same enemy in a wired "
+        "region. Kick-exempt is not scaling-exempt (region_groups.SCALING_FLOOR_PLAY_IDS).")
+    assert 10010 in at, (
+        "bucket 10010 (Chapel of Anticipation intro) is absent from the scaling wire -- see #688.")
+    assert 11100 in at, (
+        "bucket 11100 (Roundtable Hold) is absent from the scaling wire, so the hub -- the one "
+        "place every seed sends you and where Ensha invades -- ships at vanilla difficulty. "
+        "'No combat there' was the reasoning and it is false (#688).")
+    for pid in (11100, 18000, 10010):
+        assert at[pid] == 0, (
+            "bucket %d is on the wire at target %d; it is pinned to the FLOOR of the ramp (0) so "
+            "that ground reachable turn one can never outpace the player." % (pid, at[pid]))
+
+
 def test_intra_fold_scaling_delta_bumps_clamps_and_never_inflates(monkeypatch):
     # Pure mechanism test (SPEC-intra-fold-scaling-delta-20260722.md). Uses a CONTROLLED delta so it
     # is robust to future tuning of the shipped _SCALING_BUCKET_DELTA values. Synthetic wire: three
@@ -111,7 +151,7 @@ def test_intra_fold_scaling_delta_bumps_clamps_and_never_inflates(monkeypatch):
 def _region_targets(world, wire):
     """region -> emitted target, resolved through the play_region buckets."""
     pid_t = {lo: t for lo, _hi, t in wire}
-    return {r: max((pid_t.get(p, 0) for p in sc.REGION_PLAY_IDS.get(r, [])), default=0)
+    return {r: max((pid_t.get(p, 0) for p in sc.SCALING_PLAY_IDS.get(r, [])), default=0)
             for r in world._kept()}
 
 
@@ -260,7 +300,7 @@ class FinaleIsOnTheScalingWire(WorldTestBase):
         wire = world.fill_slot_data()[contract.REGION_SPHERE_TARGET_RANGES]
         by_pid = {lo: t for lo, _hi, t in wire}
 
-        owed = sc.REGION_PLAY_IDS[_FINALE_REGION]
+        owed = sc.SCALING_PLAY_IDS[_FINALE_REGION]
         self.assertEqual(
             [p for p in owed if p not in by_pid], [],
             f"the finale's play_region buckets {owed} are absent from regionSphereTargetRanges "
@@ -303,7 +343,7 @@ class FinaleWireCoverageAcrossSeeds(WorldTestBase):
             self.assertTrue(wired, f"seed={seed}: the scaling wire is EMPTY.")
             self.assertTrue(owed, f"seed={seed}: no regions in play to check.")
 
-            missing = {r: [p for p in sc.REGION_PLAY_IDS.get(r, []) if p not in wired]
+            missing = {r: [p for p in sc.SCALING_PLAY_IDS.get(r, []) if p not in wired]
                        for r in owed}
             missing = {r: p for r, p in missing.items() if p}
             self.assertEqual(
@@ -315,3 +355,123 @@ class FinaleWireCoverageAcrossSeeds(WorldTestBase):
             saw_finale,
             "no seed in the sweep built a finale, so the branch this guard exists for never ran -- "
             "the coverage assertion passed without ever looking at the Ashen Capital.")
+
+
+# ---------------------------------------------------------------------------------------------
+# THE FLOOR PINS (2026-08-15, Alaric's ruling on bobler's Roundtable report; #688).
+#
+# 11100 (hub), 18000 (Stranded Graveyard cliff / Fringefolk Hero's Grave) and 10010 (the Chapel
+# intro) take the LOWEST scaling in the run -- emitted target 0 -- in EVERY seed. Not their host
+# region's tier: 18000 rides Limgrave and 10010 rides Stormveil in PLAY_REGION_GROUPS, and
+# _order_from_spheres linearises the lock chain with a seed-deterministic tie-break, so those
+# regions sit wherever the fill puts them. Limgrave happened to be at target 0 in bobler's seed.
+# That is a coincidence, and a coincidence is not a design.
+#
+# 🛑 THE CASE A ONE-SEED TEST MISSES is the one where the host region is NOT KEPT AT ALL -- then
+# there is no order position to inherit even in principle, and the naive fix emits nothing. Both
+# halves below cover it: the pure half by choosing kept sets without Limgrave/Stormveil, the world
+# half by requiring the sweep to have SEEN such a draw.
+# ---------------------------------------------------------------------------------------------
+_PINS = (11100, 18000, 10010)
+
+
+def test_the_floor_pinned_buckets_sit_at_target_zero_in_every_seed():
+    """Pure, over kept-sets chosen to include the two cases the old design got wrong."""
+    assert sorted(sc.SCALING_FLOOR_PLAY_IDS) == sorted(_PINS), (
+        "SCALING_FLOOR_PLAY_IDS is %r; this guard names its members literally, so a change here is "
+        "a change to the ruling and must be argued." % sorted(sc.SCALING_FLOOR_PLAY_IDS))
+
+    cases = {
+        "both hosts kept":     ["Limgrave", "Stormveil", "Liurnia", "Altus"],
+        "NO Limgrave":         ["Stormveil", "Liurnia", "Caelid"],       # 18000's host is absent
+        "NO Stormveil":        ["Limgrave", "Liurnia", "Altus"],         # 10010's host is absent
+        "neither host kept":   ["Liurnia", "Caelid", "Altus"],
+        "one region only":     ["Caelid"],
+        "with the finale":     ["Liurnia", "Caelid"],
+    }
+    for label, kept in cases.items():
+        finale = "Ashen Capital" if label == "with the finale" else None
+        for ramp in (100, 50, 25):
+            wire = sc.sphere_target_ranges(kept, ramp_pct=ramp, finale=finale)
+            at = {lo: t for lo, _hi, t in wire}
+            assert at, f"{label} @ ramp {ramp}: the wire is EMPTY"
+            for pid in _PINS:
+                assert pid in at, (
+                    f"{label} @ ramp {ramp}: pinned bucket {pid} is absent from the wire, so the "
+                    f"client leaves it VANILLA. A pin whose host region is not in the seed still "
+                    f"has to be emitted -- that is the whole reason it is a pin.")
+                assert at[pid] == 0, (
+                    f"{label} @ ramp {ramp}: pinned bucket {pid} emitted at target {at[pid]}, not "
+                    f"0. It must never inherit a host region's order position.")
+            # THE TWO INVARIANTS THE PINS COULD HAVE BROKEN, checked rather than assumed:
+            targets = [t for _lo, _hi, t in wire]
+            assert min(targets) == 0, (
+                f"{label} @ ramp {ramp}: the minimum emitted target is {min(targets)}, so the pins "
+                f"are no longer the floor of the ramp.")
+            ramped = [t for lo, _hi, t in wire if lo not in sc.SCALING_FLOOR_PLAY_IDS]
+            assert ramped, f"{label} @ ramp {ramp}: no RAMPED buckets -- the wire is all pins"
+            assert max(targets) == max(ramped), (
+                f"{label} @ ramp {ramp}: the pins moved the maximum emitted target from "
+                f"{max(ramped)} to {max(targets)}. The client normalizes by that maximum "
+                f"(scaling.rs tier_for_target), so a pin must never touch it -- and 0 cannot.")
+
+
+class FloorPinsAcrossRolledSeeds(WorldTestBase):
+    """The same claim on REAL rolled worlds, through the LIVE order-ramp path.
+
+    The pure test above exercises `sphere_target_ranges` (the SPINE-order fallback). Seeds normally
+    take `_ranges_from_targets(_targets_from_order(...))` instead, which is a different producer
+    over a different order, so it needs its own witness. `num_regions` is small on purpose: it makes
+    a draw WITHOUT Limgrave or Stormveil the common case rather than a lucky one.
+    """
+    game = GAME
+    options = {"num_regions": 3}
+
+    def test_every_seed_pins_the_three_buckets_to_the_ramp_floor(self):
+        from Fill import distribute_items_restrictive
+        seeds = (11, 12, 13, 14, 15, 16, 17, 18)
+        saw_without_limgrave = saw_without_stormveil = 0
+        checked = 0
+        for seed in seeds:
+            self.world_setup(seed)
+            distribute_items_restrictive(self.multiworld)
+            world = self.world
+            wire = world.fill_slot_data()[contract.REGION_SPHERE_TARGET_RANGES]
+            at = {lo: t for lo, _hi, t in wire}
+            kept = set(world._kept())
+            self.assertTrue(at, f"seed={seed}: the scaling wire is EMPTY")
+            saw_without_limgrave += "Limgrave" not in kept
+            saw_without_stormveil += "Stormveil" not in kept
+            checked += 1
+            for pid in _PINS:
+                self.assertIn(pid, at,
+                              f"seed={seed} (kept={sorted(kept)}): pinned bucket {pid} never "
+                              f"reached regionSphereTargetRanges -- the client leaves it VANILLA.")
+                self.assertEqual(
+                    at[pid], 0,
+                    f"seed={seed} (kept={sorted(kept)}): pinned bucket {pid} emitted at target "
+                    f"{at[pid]}. The hub, the tutorial cliff and the intro take the LOWEST scaling "
+                    f"in the run, in every seed -- not their host region's order position.")
+            targets = [t for _lo, _hi, t in wire]
+            self.assertEqual(min(targets), 0, f"seed={seed}: 0 is not the minimum emitted target")
+            ramped = [t for lo, _hi, t in wire if lo not in sc.SCALING_FLOOR_PLAY_IDS]
+            self.assertTrue(ramped, f"seed={seed}: the wire is all pins and no ramp")
+            self.assertEqual(
+                max(targets), max(ramped),
+                f"seed={seed}: the pins raised the maximum emitted target, which the client "
+                f"normalizes by. 0 cannot do that, so something else is in the pin list.")
+
+        # WITNESSES (test_gf_vacuous_pass shape 2). "Every seed passed" is also what zero seeds and
+        # an empty wire say, and the specific draw this fix exists for is the one where the pinned
+        # bucket's HOST REGION is not in the seed at all.
+        self.assertEqual(checked, len(seeds), "the sweep did not run every seed")
+        self.assertGreater(
+            saw_without_limgrave, 0,
+            "no seed in the sweep left Limgrave OUT, so bucket 18000's host region was present "
+            "every time and the case the pin exists for never ran. Widen the sweep or drop "
+            "num_regions.")
+        self.assertGreater(
+            saw_without_stormveil, 0,
+            "no seed in the sweep left Stormveil OUT, so bucket 10010's host region was present "
+            "every time and the case the pin exists for never ran. Widen the sweep or drop "
+            "num_regions.")
