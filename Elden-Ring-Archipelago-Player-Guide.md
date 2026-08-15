@@ -86,7 +86,16 @@ in a normal playthrough, and that's the fun of it.
 (`ending_condition: region_locks`). Open every kept region and you've won.
 The goal region -- Leyndell -- is always among the kept ones, so a seed is
 always winnable. The alternative, `ending_condition: great_runes`, asks you
-to collect a set number of Great Runes instead.
+to hold Great Runes as well -- and it is a **specific set**, not any N of
+them. The seed picks which runes count; holding the right *number* of the
+wrong ones sends no victory and the run simply never ends. **Your client
+names the required runes at connect** -- in the client log, the line
+
+    goal: N item(s) must be HELD, not merely their boss killed: <names>
+
+is the requirement, so you never need the spoiler to find out. (The set is
+currently the alphabetically first N of the Great Runes your kept regions can
+reach. That is a fact about today's picker, not a promise -- read the line.)
 
 **Which boss actually ends it** is a separate knob, `goal`. Left on `auto` it
 works itself out: if your seed keeps both Farum Azula and Leyndell you finish
@@ -232,8 +241,10 @@ run rather than tune it.
   `promised_consort` ends on PCR and forces Enir Ilim kept. A goal your other
   options make unreachable fails generation instead of silently downgrading.
 - **`ending_condition`** -- hold every kept Region Lock (default), or chase
-  `goal_great_runes` Great Runes instead. Composes with `goal`: you would need
-  the runes AND the boss.
+  Great Runes as well. `goal_great_runes` is the COUNT; the seed picks WHICH
+  runes, and only those complete the goal. The client names them at connect
+  (see "The goal" above). Composes with `goal`: you would need the runes AND
+  the boss.
 - **`progression_surface`** -- which categories of location are allowed to
   hold progression items. Your in-game tracker stars these, and a star means
   "a progression item can be here" -- yours or another player's -- not "your

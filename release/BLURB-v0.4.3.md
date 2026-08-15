@@ -40,6 +40,18 @@ the next thing to measure, and it will be measured in a game rather than argued 
 Every change that lands from here writes its own line while somebody still knows what it was for,
 rather than being reconstructed from a commit log at release time.
 
+**A Great-Rune goal wants SPECIFIC runes, and now every document says so.** `goal_great_runes: 4`
+never meant "any four". The seed names four, only those count, and the yaml said "collect
+`goal_great_runes` Great Runes" -- which reads as any four. Someone finished a run holding four
+Great Runes, got no victory, and had to open his spoiler log to find out why. The yaml, the player
+guide, the README, KNOWN-ISSUES and the wizard's own option text now all say "a specific set, not
+any N", and all point at the same place for the answer: your client prints the required names the
+moment you connect, on the line beginning `goal: N item(s) must be HELD`. That line is the
+requirement, so the spoiler is no longer the only route to it. Do not guess the set from a pattern --
+today it is the alphabetically first N of the runes your kept regions can reach, which looks like a
+rule and is not one to bet a run on. The names are still not shown IN GAME; putting them in the
+connect banner is client work and is not in this release.
+
 ## What v0.4.3 does not change
 
 `CONTRACT_HASH` is unmoved at `5c2b9bf2`, the same shape the contract has had since v0.3.9. The

@@ -141,6 +141,21 @@ Erdtree, say `enable_dlc: false` explicitly rather than relying on a default.
 These are deliberate, not bugs -- listed so you can tell them apart from the
 real thing. No report needed for anything below.
 
+- **A `great_runes` goal requires a SPECIFIC set of Great Runes, not any N of
+  them** (#656, #640). `goal_great_runes` is a count, but the seed picks which
+  runes satisfy it, and only those do. Hold four Great Runes that are not the
+  four your seed named and nothing happens: no victory is sent and the run
+  just does not end. This has cost at least one finished run. What to do: read
+  the names off your client log at connect --
+
+      goal: N item(s) must be HELD, not merely their boss killed: <names>
+
+  -- that line is the requirement, and it is printed every time you connect,
+  so you do not need the spoiler log. Do not infer the set from a pattern:
+  today it is the alphabetically first N of the Great Runes your kept regions
+  can reach, which looks like a rule and is not one to bet a run on. The names
+  are not yet shown in game -- the log line is the only in-client route.
+
 - **The item pool is CURATED, so vanilla items will be missing from your seed
   -- by design, and on the default settings.** This is the most-reported
   non-bug we have, and it is not something you switched on. Three causes:

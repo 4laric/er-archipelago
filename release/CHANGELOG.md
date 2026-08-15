@@ -89,6 +89,33 @@ in Roundtable Hold carry a rung -- so the bucket makes no area claim and is abse
 depends on whether his `NpcParam` row carries a rune reward, which needs the m11_10 MSB to resolve
 and is not answerable from this repo. Bucket 18000 has no such doubt: tier 5, 25 of 44 parts runged.
 
+### A `great_runes` seed requires SPECIFIC runes, and every document now says so
+
+`goal_great_runes: 4` never meant "any four Great Runes". The seed resolves four particular ones and
+only those complete the goal, and the shipped yaml said "collect `goal_great_runes` Great Runes",
+which reads as any four. A player finished a v0.4.0 seed holding four Great Runes, got no victory,
+and worked out why by reading his spoiler log. The comment above that line had already been written
+to head off the *lesser* misreading -- that killing a rune's boss counts -- while leaving the one
+that ends runs.
+
+Nothing about the goal changes. What changes is that four player-facing surfaces now say the same
+true thing and point at the same answer: the shipping `release/EldenRing.yaml`, the player guide,
+the README and `release/KNOWN-ISSUES.md`. The wizard's own description of `ending_condition` and
+`goal_great_runes` says it too, because those come from the option docstrings, which are also fixed.
+
+**Where to read WHICH runes your seed wants.** Your client already prints them the moment you
+connect:
+
+    goal: N item(s) must be HELD, not merely their boss killed: <the rune names>
+
+That line IS the requirement -- it is printed from the same list the goal is checked against -- so
+the spoiler log is no longer the only route. Do not infer the set from a pattern: today it is the
+alphabetically first N of the Great Runes your kept regions can reach, which looks like a rule and
+is not one to bet a run on.
+
+**Still not fixed:** the names are not shown anywhere IN GAME. The connect banner is the obvious
+place for them and that is a client change, tracked on #656; this release is the world's half.
+
 ## v0.4.2 — 2026-08-14
 
 Window opened AT THE TAG of v0.4.1, with zero commits past it -- so this section starts empty of
