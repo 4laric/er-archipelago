@@ -9550,7 +9550,43 @@ else:
 # UNAUDITED, not clean. The count is printed on every regen and ratcheted by
 # test_gf_boss_sweeps.py::test_sweep_arena_coverage_floor -- a self-reported coverage number is not
 # a safeguard unless something acts on it (CONTRIBUTING rule 11).
+# ---- the HUMAN half of the same question (boss_arena_rulings.tsv) -----------------------------
+# PlayRegionParam only ties a boss-area row to a DEFEAT flag for some bosses, so the table above is a
+# lower bound BY CONSTRUCTION -- and 106 of 218 triggers had no row. But the answer already existed:
+# Alaric ruled the PLACE 76 of 83 bosses stand in, in boss_region_worksheet.tsv's arena_region column
+# (2026-08-10, commit 41e8fe7 -- "arena_region IS the ruling column"). Until now nothing read it for
+# THIS question: --expand consumed those rulings only to re-region ambiguous CHECKS
+# (boss_verdict_tiles.tsv), which is a different question -- #523 is precisely the case where "which
+# region owns its checks" and "where is it fought" disagree.
+#
+# 🛑 RANKED BELOW MEASURED EVIDENCE, exactly like boss_verdict_tiles: a ruling fills an ABSENT and can
+# never overrule a PlayRegionParam row. A wrong ruling costs an unaudited trigger, never a measured one.
+_BOSS_ARENA_RULING = {}
+_bar_path = os.path.join(HERE, "boss_arena_rulings.tsv")
+if os.path.isfile(_bar_path):
+    with open(_bar_path, encoding="utf-8") as _rfh:
+        for _rl in _rfh:
+            if _rl[:1] == "#" or _rl.startswith("boss_entity"):
+                continue
+            _rp = _rl.rstrip("\n").split("\t")
+            if len(_rp) >= 3 and _rp[0].isdigit() and _rp[2]:
+                _BOSS_ARENA_RULING[int(_rp[0])] = _rp[2]
+    _bad_a = sorted({_r for _r in _BOSS_ARENA_RULING.values() if _r not in REGION_GROUPS and _r != HUB})
+    if _bad_a:
+        raise SystemExit(
+            "gen_data: boss_arena_rulings.tsv names region(s) %r that do not exist. A ruling must "
+            "resolve to a real region -- add the in-game place name to PLACE_TO_REGION in "
+            "tools/build_boss_region_worksheet.py rather than writing a phantom region here."
+            % _bad_a)
+
 SWEEP_ARENA_REGION = {_t: BOSS_AREA_REGION[_t] for _t in DUNGEON_SWEEPS if _t in BOSS_AREA_REGION}
+_sweep_arena_ruled = sorted(_t for _t in DUNGEON_SWEEPS
+                            if _t not in SWEEP_ARENA_REGION and _t in _BOSS_ARENA_RULING)
+for _t in _sweep_arena_ruled:
+    SWEEP_ARENA_REGION[_t] = _BOSS_ARENA_RULING[_t]
+print("boss_sweeps: %d trigger(s) filled from a HUMAN RULING where PlayRegionParam had no row "
+      "(boss_arena_rulings.tsv), holding %d member link(s)"
+      % (len(_sweep_arena_ruled), sum(len(DUNGEON_SWEEPS[_t]) for _t in _sweep_arena_ruled)))
 _sweep_arena_split = {_t: (SWEEP_REGION[_t], SWEEP_ARENA_REGION[_t])
                       for _t in SWEEP_ARENA_REGION if SWEEP_ARENA_REGION[_t] != SWEEP_REGION.get(_t)}
 _sweep_arena_unaudited = sorted(set(DUNGEON_SWEEPS) - set(SWEEP_ARENA_REGION))

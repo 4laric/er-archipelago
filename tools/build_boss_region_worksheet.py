@@ -54,6 +54,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GF = os.path.join(ROOT, "greenfield")
 OUT = os.path.join(GF, "boss_region_worksheet.tsv")
 EXPAND = os.path.join(GF, "boss_verdict_tiles.tsv")
+ARENA = os.path.join(GF, "boss_arena_rulings.tsv")
 
 
 # In-game PLACE names Alaric used, mapped to our REGION names. He rules by writing the place he
@@ -297,6 +298,60 @@ def main():
                              if trig.get(int(x["ap_id"])) == b and x["how"] == "GUESSED"}):
                 by_tile.setdefault(t, (verdict, b, r[1], r[13] or
                                        "Alaric, worksheet arena_region pass 2026-08-10: %s" % ruled))
+        # ---- the ARENA half of the same rulings ------------------------------------------------
+        # boss_verdict_tiles answers "which region OWNS this boss's checks". SWEEP_ARENA_REGION asks
+        # a DIFFERENT question -- "where is this boss FOUGHT" (#445 sendability) -- and #523 is the
+        # case where the two differ. Alaric's arena_region column answers the second one directly.
+        #
+        # 🛑 CONFIRMATIONS COUNT HERE, AND THAT IS THE DIFFERENCE FROM THE TILE PASS. Above, a ruling
+        # equal to derived_region is skipped because it moves no check. For the arena question a
+        # confirmation is a full answer: it says where the boss stands, and SWEEP_ARENA_REGION is
+        # ABSENT for it regardless. Skipping them here would throw away most of the audit.
+        #
+        # 🛑 UNION, for the reason the tile pass unions: applying a ruling can change sweep
+        # membership and drop a boss off this worksheet (Marigga, 2026-08-10). A re-derived file
+        # would then forget her ruling. This is a DECISION, not a view -- it only ever grows.
+        arena = {}
+        if os.path.isfile(ARENA):
+            with open(ARENA, encoding="utf-8") as _af:
+                for _r in csv.DictReader((l for l in _af if not l.startswith("#")), delimiter="\t"):
+                    arena[int(_r["boss_entity"])] = (_r["region"], _r["boss_name"], _r["ruled_as"])
+        # 🛑 READ THE COMMITTED WORKSHEET, NOT `rows`. `rows` is re-derived every run, and a boss
+        # whose ruling CHANGED SWEEP MEMBERSHIP can fall off it (Marigga, 2026-08-10; boss 22000800
+        # on the 2026-08-15 run). Deriving from `rows` would silently forget exactly the rulings
+        # that worked. The file on disk is the decision record; the derivation is only a view of it.
+        _ws_rows = []
+        if os.path.isfile(OUT):
+            with open(OUT, encoding="utf-8") as _wf:
+                _ws_rows = list(csv.DictReader((l for l in _wf if not l.startswith("#")),
+                                               delimiter="\t"))
+        if not _ws_rows:
+            raise SystemExit("FATAL: %s is missing or empty -- refusing to emit an arena-rulings "
+                             "file from nothing. An empty result would read as 'nobody has ruled'."
+                             % OUT)
+        for _w in _ws_rows:
+            ruled = (_w.get("arena_region") or "").strip()
+            if not ruled or ruled == "ABSENT":
+                continue
+            arena.setdefault(int(_w["boss_entity"]),
+                             (PLACE_TO_REGION.get(ruled, ruled), _w["boss_name"], ruled))
+        with open(ARENA, "w", encoding="utf-8", newline="\n") as f:
+            f.write("# AUTO-EXPANDED from boss_region_worksheet.tsv by "
+                    "tools/build_boss_region_worksheet.py --expand -- DO NOT EDIT.\n")
+            f.write("# WHERE THE BOSS IS FOUGHT, as ruled by a human in the arena_region column.\n")
+            f.write("# gen_data fills SWEEP_ARENA_REGION from this ONLY where PlayRegionParam has no\n")
+            f.write("#   boss-area row -- ranked BELOW measured evidence, so a ruling can replace an\n")
+            f.write("#   ABSENT and never a measurement.\n")
+            f.write("# `ruled_as` is the in-game PLACE name as written; `region` is it mapped through\n")
+            f.write("#   PLACE_TO_REGION. Both are kept so a reader can audit the mapping.\n")
+            f.write("# Unlike boss_verdict_tiles.tsv this KEEPS confirmations: a ruling that agrees\n")
+            f.write("#   with derived_region still answers where the boss stands.\n")
+            f.write("boss_entity\tboss_name\tregion\truled_as\n")
+            for b in sorted(arena):
+                reg, nm, raw = arena[b]
+                f.write("%d\t%s\t%s\t%s\n" % (b, nm, reg, raw))
+        print("-> %s (%d ruling(s))" % (ARENA, len(arena)))
+
         with open(EXPAND, "w", encoding="utf-8", newline="\n") as f:
             f.write("# AUTO-EXPANDED from boss_region_worksheet.tsv by "
                     "tools/build_boss_region_worksheet.py --expand -- DO NOT EDIT.\n")
