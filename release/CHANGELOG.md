@@ -3,6 +3,36 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.3 — 2026-08-15
+
+Window opened AT THE TAG of v0.4.2 at `33c85f7`, with zero commits past it, so this section starts
+empty of changes on purpose and fills as they arrive (rule 14). `CONTRACT_HASH` is unmoved at
+`5c2b9bf2` -- the same shape the contract has had since 0.3.9 -- so the bump is version-lockstep and
+a v0.4.2 client still handshakes with a v0.4.3 seed.
+
+**This is the first window opened while every gate was still GREEN.** Every previous one was opened
+either by a red `check_release_notes` or minutes after a tag had already reddened it: v0.4.0 and
+v0.4.2 both say so in their own ledger rows. `check_release_notes` passes at this commit's parent
+because `HEAD is at the tag -- nothing has landed since`; it would have gone red on the first commit
+past it, and that commit is now this one instead of somebody's feature PR.
+
+Two things that could not be owed this time, and both are recent fixes doing their job:
+
+- The `SHIPPED` fixture is DERIVED from `git tag` since #651, so v0.4.2's row cannot be owed and
+  cannot be hidden behind rule 14's abort. That masking was recorded twice (v0.3.12 and v0.4.2) and
+  this is the first window where the mechanism that caused it is gone rather than paid.
+- The gitlink rides in this branch rather than after it. #648 merged without it and reddened main on
+  the cross-side gate, which #650 then had to repair.
+
+Still outstanding at the open, neither of them this window's work:
+
+- `er-release` has now failed at `Fetch the AP icon override` on both v0.4.1 and v0.4.2. `ICON_REPO`
+  and `ICON_REPO_TOKEN` are unset -- the repo has zero Actions variables -- so Assemble and Attach
+  are skipped every tag, and `pack_release.py` has still never run in CI. The 124 MB player bundle
+  on all three v0.4.x releases was uploaded by hand.
+- `stable` in `CHANNELS.tsv` still points at v0.4.1, so `deploy_wizard.sh --landing` is serving
+  v0.4.1's wizard. Promotion is a separate row and a separate decision.
+
 ## v0.4.2 — 2026-08-14
 
 Window opened AT THE TAG of v0.4.1, with zero commits past it -- so this section starts empty of
