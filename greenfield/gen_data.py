@@ -2036,7 +2036,58 @@ def _norm(_s):                                   # collapse internal whitespace
 def _fold(_s):                                   # accent-insensitive, case-insensitive key
     _s = _UD.normalize("NFKD", _norm(_s))
     return "".join(_c for _c in _s if not _UD.combining(_c)).casefold()
-_name2full = {}        # exact display name -> FullID (first/higher-priority category wins)
+# ---- WHICH ROW A CHECK REALLY PAYS, WHEN TWO GOODS SHARE A NAME (er-archipelago#682) -----------
+# 🛑 NAME RESOLUTION IS NOT ENOUGH, and the gap shipped a P0. The FMG tables are walked in ascending
+# id order and `if _nn not in _norm2full` hands a duplicated name to the LOWEST id. Both Great Rune
+# rows are real, and BOTH are awarded by a lot -- so no global tie-break can separate them:
+#
+#     lot 10010     grants goods 8148  flag 171   <- Godrick DROPS this one
+#     lot 34100500  grants goods 191   flag 191   <- the DIVINE TOWER restore awards this one
+#
+# We shipped 191 for the check at flag 171. The rows are not interchangeable: 8148 carries
+# `enable_ActiveBigRune = 1` (FromSoft's internal name for Great Rune), 191 does not, and the capital
+# gate would not open for a player holding two of ours (Alaric, 2026-08-14). It was invisible because
+# the blessing menu accepts 191 (`goodsType 15`) so the rune lists and equips, keyitems sets its
+# restored flag, and goal.rs matches the great_runes ending on item NAMES.
+#
+# THE RULE, general rather than a rune carve-out: **a check pays what ITS OWN LOT awards.** The name
+# only has to pick the right row when the lot cannot -- so ask the lot first, by the row's own flag,
+# and fall back to the name. `Great Rune of the Unborn` is the control: one row, always correct.
+# 🛑 NAME IT UNIQUELY. A LOCAL `_full2name` is rebound further down (the co-check section builds its
+# own, narrower map under the same name at module scope), so a plainly-named map here is silently
+# replaced before the catalog loop reads it -- which is exactly why the first cut of this fix
+# measured as a no-op.
+_FULL2NAME_ALL = {}   # FullID -> canonical display name, EVERY FMG row (filled by the walk below)
+_LOT_FULLS_BY_FLAG = {}
+for _lfl, _lits in (LOT_ITEMS_BY_FLAG or {}).items():
+    for _liid, _lcat in _lits:
+        _lnib = _LOTCAT_NIBBLE.get(_lcat)
+        if _lnib is not None:
+            _LOT_FULLS_BY_FLAG.setdefault(_lfl, []).append(_liid | _lnib)
+
+
+def _lot_scoped_full(_flag, _full, _base):
+    """The FullID this check's own lot awards for `_base`, or `_full` unchanged.
+
+    Fires ONLY when the lot grants a DIFFERENT id under the SAME canonical name -- i.e. exactly the
+    duplicate-name case. Anything else (no lot, no flag, lot agrees, lot grants something else
+    entirely) is left alone, so this cannot quietly re-point a check whose name was already right.
+    """
+    try:
+        _fl = int(_flag)
+    except (TypeError, ValueError):
+        return _full
+    _cands = _LOT_FULLS_BY_FLAG.get(_fl)
+    if not _cands or _full in _cands:
+        return _full
+    _want = _norm(_base or "")
+    for _c in _cands:
+        if _c != _full and _norm(_FULL2NAME_ALL.get(_c, "")) == _want:
+            return _c
+    return _full
+
+
+_name2full = {}        # exact display name -> FullID (awarded row wins; else first seen)
 _norm2full = {}; _norm2name = {}    # normalized name -> FullID / canonical display name
 _fold2full = {}; _fold2name = {}    # folded name     -> FullID / canonical display name
 for _fn, _nib, _dir in _NAME_FMGS:
@@ -2048,6 +2099,7 @@ for _fn, _nib, _dir in _NAME_FMGS:
         if not _nm or _nm in ("[ERROR]", "%null%") or not _iid:
             continue
         _full = int(_iid) | _nib
+        _FULL2NAME_ALL.setdefault(_full, _nm)
         if _nm not in _name2full:
             _name2full[_nm] = _full
         _nn = _norm(_nm)
@@ -6827,6 +6879,9 @@ for _i, _r in enumerate(rows):
         # the ware for coverage/report honesty instead.
         continue
     _full, _base = _resolve_item(_r.get("item_name"))
+    # #682: the name picked A row; the row's own lot picks THE row. See _lot_scoped_full.
+    if _full is not None:
+        _full = _lot_scoped_full(_r.get("flag"), _full, _base)
     if _full is None:
         # #619: a row with a NON-BLANK name that does not resolve is a SILENT LOSS. The check keeps
         # its flag and its location, falls through to Rune filler, and the item never enters
