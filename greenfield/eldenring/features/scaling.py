@@ -880,4 +880,32 @@ class Scaling(Feature):
             len(_targets), _tiers[0] if _tiers else 0, _tiers[-1] if _tiers else 0, _n - 1,
             _floor_t, _ceil_t, sum(1 for t in _tiers if t == _ceil_t),
             _tiers[len(_tiers) // 2] if _tiers else 0, ramp)
+
+        # ---- BLESSING-FLOOR WARNING (#663) ------------------------------------------------------
+        # A DLC-region seed with no blessing floor is balanced against a Scadutree level the player
+        # has no floor for, and the seed does not say so anywhere. bobler's 67703505917608922744
+        # kept Scadu Altus and Rauh Base at `global_scadutree_blessing: 0`: EIGHT boss fights, all
+        # PLAYER DOWN, two of them under 2.5s, in the DLC's OPENING field.
+        #
+        # 🛑 THE MACHINERY TO PREVENT IT ALREADY EXISTS AND WAS NOT ASKED. `blessing_floor_ranges`
+        # computes exactly the floors the DLC ladder is balanced against; it is only consulted for
+        # modes 2 and 3, and the shipped default resolves to 0. So the floors were never computed,
+        # and nothing anywhere said they had not been.
+        #
+        # WARN-ONLY, deliberately: whether the default should flip, gain an `auto` sentinel, or stay
+        # is a balance ruling and this is not the place to take it (#663 is `needs-playtest` and the
+        # floors are per-bucket values nobody has played against). What is NOT a ruling is that a
+        # seed which cannot be played as generated should say so at generation time. This line is
+        # what turns bobler's eight losses into one grep.
+        _dlc_kept = sorted(set(kept_regions) & DLC_REGIONS)
+        if _dlc_kept and blessing not in (2, 3):
+            logging.getLogger("Greenfield").warning(
+                "[greenfield] enemy scaling: %d DLC region(s) kept (%s) with NO Scadutree blessing "
+                "floor (scadutree_blessing_scope/dlc_blessing_catchup resolve to mode %d). DLC "
+                "enemies carry the DLC ladder, whose rungs assume a blessing the player has no "
+                "floor for -- e.g. speffect 20007110 is maxHpRate 14.09 against the base game's "
+                "7090 at 3.25. The fragments that would raise it are scattered multiworld checks, "
+                "so this seed can hand the player a DLC region at blessing 0. Set "
+                "dlc_blessing_catchup if that is not intended (#663)",
+                len(_dlc_kept), ", ".join(_dlc_kept), blessing)
         return out
