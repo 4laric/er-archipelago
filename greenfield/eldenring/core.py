@@ -251,7 +251,14 @@ class EndingCondition(Choice):
     kept Region Lock (the classic Shattering goal). 'great_runes': ALSO collect Great Runes. Great
     Runes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off this falls
     back to the region_locks goal. The requirement is auto-clamped to the number of Great Runes
-    actually reachable this seed, so it can never make a seed unbeatable."""
+    actually reachable this seed, so it can never make a seed unbeatable.
+
+    'great_runes' names a SPECIFIC SET, not any N. The seed resolves which runes count
+    (core._resolve_required_runes) and only those complete the goal -- holding the right NUMBER of
+    the wrong runes sends no victory, which has already cost a finished run (#656). The names ride
+    slot_data as `great_rune_items` and the client prints them at connect ("goal: N item(s) must be
+    HELD, not merely their boss killed: ..."), so a player can read the set off the client log
+    without opening the spoiler."""
     display_name = "Ending Condition"
     option_region_locks = 0
     option_great_runes = 1
@@ -271,7 +278,11 @@ class GreatRunesRequired(Range):
     sealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.
 
     The maximum is six, not seven: Elden Ring has seven Great Runes in the fiction, but the Great
-    Rune of the Unborn is not an item you can be given, so no seed can require it.""" 
+    Rune of the Unborn is not an item you can be given, so no seed can require it.
+
+    A COUNT OF A NAMED SET. This picks how many, never which: the seed picks which, and any other
+    Great Rune completes nothing (#656). See Ending Condition for where the client prints the
+    names.""" 
     display_name = "Great Runes Required"
     range_start = 1
     # DERIVED, not typed (#405). Was the literal 7, against six Great Rune items -- GREAT_RUNES is
