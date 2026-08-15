@@ -117,7 +117,12 @@ class KeepLocalIsTheDiscordAsk(WorldTestBase):
 
 class KeepLocalRuneCapHoldsTheSmallOnes(WorldTestBase):
     game = GAME
-    options = {"num_regions": 0, "item_shuffle": True, "keep_local_rune_cap": 3000}
+    # 🛑 `keep_local: []` IS LOAD-BEARING, and it is not the default (#703 ships the goods umbrella
+    # minus runes). This class isolates the RUNE CAP: `test_nothing_else_is_swept_in` asserts the cap
+    # holds nothing but runes, and inheriting the shipped default would hand it ~700 held goods to
+    # trip over -- the cap would look like it was over-reaching when the categories did it.
+    options = {"num_regions": 0, "item_shuffle": True, "keep_local_rune_cap": 3000,
+               "keep_local": []}
 
     def test_cheap_runes_held_expensive_runes_free(self):
         local = _local(self)
@@ -139,24 +144,79 @@ class KeepLocalRuneCapHoldsTheSmallOnes(WorldTestBase):
                          f"the rune cap held non-rune items: {non_rune_held[:5]}")
 
 
-class RuneCapOffByDefault(WorldTestBase):
+class DefaultsAimAtTheOneToOneMix(WorldTestBase):
+    """The shipped locality defaults (#703). This class REPLACED `RuneCapOffByDefault`, whose
+    objection was: "a default that quietly localized the whole rune ladder would change every
+    existing seed's multiworld shape without anyone asking."
+
+    Alaric asked, 2026-08-15 -- aim the export composition at 1:1 useful:filler -- so the default is
+    now deliberate rather than absent. The objection is not discarded, it is SPLIT: the half about
+    changing seeds without being asked is answered by the ruling, and the half about localizing the
+    WHOLE ladder is still enforced below, because 6250 is a cap and not a switch."""
+
     game = GAME
     options = {"num_regions": 1, "item_shuffle": True}
 
-    def test_default_holds_nothing(self):
-        # 0 is OFF, not "a cap of zero runes". A default that quietly localized the whole rune
-        # ladder would change every existing seed's multiworld shape without anyone asking.
-        # WITNESS: an empty pool would make "nothing is held local" true for the wrong reason.
-        pool = [i for i in self.world.multiworld.itempool if i.player == self.world.player]
-        self.assertTrue(pool, "the seed produced no items -- 'nothing held' would be vacuous")
-        self.assertEqual(self.world.options.keep_local_rune_cap.value, 0)
-        self.assertFalse(_local(self))
+    def test_the_shipped_defaults_are_the_measured_recipe(self):
+        self.assertEqual(self.world.options.keep_local_rune_cap.value, 12500)
+        self.assertEqual(
+            set(self.world.options.keep_local.value),
+            {"consumables", "cookbooks", "crafting", "crystal_tears",
+             "merchant_bells", "other", "upgrade_bells", "upgrade_materials"})
 
-    def test_report_counts_the_whole_pool_as_free(self):
+    def test_the_default_set_is_goods_minus_the_three_we_release(self):
+        """Pinned against the LIVE umbrella rather than a second copy of the list. `goods` is derived
+        from the catalog nibble, so a new goods category tomorrow lands here as a red test asking
+        whether it should be held or released -- which is the reviewed diff we want, instead of the
+        default silently meaning something new."""
+        released = {"runes", "key_items", "spells", "spirit_ashes"}
+        self.assertEqual(set(self.world.options.keep_local.value),
+                         set(ic.UMBRELLAS["goods"]) - released)
+        # WITNESS: the umbrella really does contain what we claim to be subtracting, so the equality
+        # above is a subtraction that happened rather than two empty-ish sets agreeing.
+        self.assertTrue(released <= set(ic.UMBRELLAS["goods"]))
+
+    def test_the_rune_ladder_is_capped_not_localized(self):
+        """🛑 The surviving half of the old objection. Runes are the one large filler category left
+        open, which is what makes the cap the fine adjustment on the mix -- if the default held every
+        rune, that dial would be dead and the export mix would sit at 2.7:1 instead of 1:1."""
+        local = _local(self)
+        big = [n for n in ITEM_CATALOG
+               if (p := ic.rune_payout(n)) is not None and p > 12500]
+        self.assertTrue(big, "no rune pays more than the cap -- the split below proves nothing")
+        self.assertFalse([n for n in big if n in local],
+                         "runes above the cap must still be free to travel")
+
+    def test_key_items_are_released_or_natural_progression_dies(self):
+        """🛑 THE ONE THAT COST A RED SMOKE RUN. `key_items` reads like an obvious thing to hold --
+        a Hollow Knight player cannot spend a Stonesword Key -- but the category also carries the
+        Great Runes, both Dectus medallions and every Remembrance. Holding it took
+        tools/gf_multiworld_smoke.py's natural_progression count from 12 cross-world placements to
+        ZERO. Asserted directly, because the next person to read the export table will see key_items
+        at 32.3% of everything we send and want to add the line back."""
+        self.assertNotIn("key_items", set(self.world.options.keep_local.value))
+        local = _local(self)
+        runes = [n for n in ic.names_in(["key_items"]) if n.endswith("Great Rune")]
+        self.assertTrue(runes, "no Great Runes in key_items -- nothing to protect")
+        self.assertFalse([n for n in runes if n in local],
+                         "Great Runes must stay free to travel (natural_progression)")
+
+    def test_gear_still_travels(self):
+        """The point of the recipe is that weapons, armour and talismans go OUT. If a future edit
+        widened the default to `goods` or `everything`, every one of them would be held and the
+        partner would receive nothing usable -- the exact defect #703 opened on."""
+        local = _local(self)
+        for cat in ("weapons", "armor", "talismans"):
+            names = ic.names_in([cat])
+            self.assertTrue(names, f"{cat} resolved to no items -- nothing to prove")
+            self.assertFalse([n for n in names if n in local],
+                             f"{cat} must stay free to travel")
+
+    def test_report_counts_the_held_half(self):
         est = pool_report.estimate(self.world)
-        self.assertEqual(est["held"], 0)
-        self.assertEqual(est["free"], est["pool"])
         self.assertGreater(est["pool"], 0)
+        self.assertGreater(est["held"], 0, "the shipped default holds nothing -- it used to be OFF")
+        self.assertEqual(est["free"], est["pool"] - est["held"])
         self.assertEqual(est["free"], est["free_filler"] + est["free_useful"] + est["free_progression"])
 
 

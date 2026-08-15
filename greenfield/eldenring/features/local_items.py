@@ -108,9 +108,46 @@ class KeepLocal(OptionSet):
         keep_local: [consumables, crafting, upgrade_materials, runes]
     -- crafting materials, smithing stones and ghost gloveworts, every consumable and every rune
     stay yours; weapons, armour, talismans, spells, spirit ashes and ashes of war still travel.
-    Bell bearings are `key_items`, not `upgrade_materials`, so that example still sends them out."""
+    Bell bearings are `key_items`, not `upgrade_materials`, so that example still sends them out.
+
+    # Why the default is not empty (#703)
+
+    🛑 THIS SHIPS NON-EMPTY, and it is the only locality option that does. The default is the `goods`
+    umbrella MINUS `runes`, `key_items`, `spells` and `spirit_ashes` -- i.e. hold back the
+    consumables, crafting materials, smithing stones, cookbooks and bell bearings, and let every
+    rune, key item, weapon, piece of armour, talisman, ash, spell and spirit ash travel.
+
+    🛑 `key_items` IS EXCLUDED ON EVIDENCE, not taste. It belongs on the "a partner cannot use this"
+    list and holding it was the obvious call, but the category covers Great Runes, both Dectus
+    medallions and every Remembrance -- so keeping it home took natural_progression's cross-world
+    placements from 12 to ZERO in tools/gf_multiworld_smoke.py. Those are the items a multiworld
+    exists to trade. The smoke is the gate that catches this; re-run it before adding the line back.
+
+    The measurement it answers: at the shipped settings, **two thirds of everything Elden Ring sent
+    a non-ER partner was mechanically inert there** -- upgrade_materials 23.7% and runes 24.0% of a
+    312-item export, against a partner who cannot spend either. The export budget is SLOT-limited,
+    not willingness-limited, so those items were not extra: they were occupying slots that gear
+    would otherwise have taken.
+
+    🛑 NAMING ONE CATEGORY DOES ALMOST NOTHING, and that is the finding that shaped this list.
+    Holding `runes` alone moved exported filler by ZERO (202 -> 202): whichever large pool stays open
+    expands to fill every available slot, so filler must be closed close to as a CLASS before the mix
+    moves. Measured useful:filler across the lattice -- shipped 0.53:1, `runes` 0.54:1,
+    `runes + upgrade_materials` 0.60:1, `goods` minus `consumables` 0.73:1, whole `goods` 2.69:1.
+    There is no category subset that lands near 1:1, which is why the rune cap below carries the
+    fine adjustment rather than this list.
+
+    Alaric's ruling, 2026-08-15: aim the composition at 1:1 useful:filler."""
     display_name = "Keep Local"
     valid_keys = frozenset(SELECTABLE)
+    # The `goods` umbrella minus runes/spells/spirit_ashes. Written out rather than computed: a
+    # default a player reads in their yaml has to be a literal list they can edit and shorten, and
+    # deriving it would make `keep_local:` mean something different after a catalog change with
+    # nothing in the diff to say so. test_gf_local_defaults pins it against the live umbrella.
+    default = frozenset({
+        "consumables", "cookbooks", "crafting", "crystal_tears",
+        "merchant_bells", "other", "upgrade_bells", "upgrade_materials",
+    })
 
 
 class KeepLocalRuneCap(Range):
@@ -123,11 +160,36 @@ class KeepLocalRuneCap(Range):
     [13] 12,500, Hero's Rune [1] 15,000, Lord's Rune 50,000, and the DLC's largest 80,000. A cap of
     3,000 keeps the small change and lets the big ones go.
 
-    Independent of Keep Local: setting `runes` there keeps every rune home whatever this says."""
+    Independent of Keep Local: setting `runes` there keeps every rune home whatever this says.
+
+    # Why the default is 6250 (#703)
+
+    Runes are the only large filler category `keep_local` leaves open by default, which makes this
+    the FINE ADJUSTMENT on the export mix -- and unlike a percentage it is aimable, because the
+    threshold is a quantity the game publishes rather than a share of a pool nobody can picture.
+    6250 is exactly Golden Rune [10]: the small change stays home, [10] and up travel.
+
+    Measured on 1xER + 1xHK (the adverse config) over 4 seeds, with the shipped `keep_local` above
+    and everything else identical: cap 0 -> 0.57:1, cap 6250 -> 0.68:1, **cap 12500 -> 0.72:1**,
+    cap 80000 (every rune home) -> 0.73:1. Against the PRE-#703 defaults (`keep_local` empty, cap 0)
+    the pair moves 0.55:1 -> 0.72:1 -- and note what moved: exported useful is FLAT at 228 -> 231,
+    while filler falls 412 -> 320. The partner does not receive less that they can use; they receive
+    92 fewer Golden Runes and smithing stones. Foreign progression absorbed on-surface stays 100%
+    throughout. 12500 is Golden Rune [13]; Hero's and Lord's Runes still travel.
+
+    🛑 THE TARGET WAS 1:1 AND THIS DOES NOT REACH IT -- it gets from the old 0.53:1 to 0.72:1, and
+    the curve is flat past here (80000 buys 0.01 more). The binding constraint is `key_items`, which
+    has to stay released because it carries the Great Runes, the Dectus medallions and every
+    Remembrance -- holding it took natural_progression's cross-world placements to zero. It also
+    carries 52 Stonesword Keys per 4 seeds, and at 32.3% of everything exported it is the largest
+    single category. 1:1 needs that category split, the way `cookbooks` was peeled off it; until
+    then this is the honest ceiling.
+
+    Alaric's ruling, 2026-08-15: aim the composition at 1:1 useful:filler."""
     display_name = "Keep Local: Rune Cap"
     range_start = 0
     range_end = 80000
-    default = 0
+    default = 12500
 
 
 @register
