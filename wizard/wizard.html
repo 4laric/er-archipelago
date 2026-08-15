@@ -178,7 +178,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.3",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "d1662f0cc5139545a9d66015be332b273ccd0f0b91ae4c624cb39c44da2cc6ca",
+ "source_sha256": "94cbe3400916b45f22922b60400d5f3c3f3a889038404576b1b835c579262612",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -1027,10 +1027,19 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "keep_local",
    "class": "KeepLocal",
    "display_name": "Keep Local",
-   "description": "Categories of item to hold in YOUR OWN world, listed one per line. Nothing else is affected,\nso this is the knob for \"keep my consumables and crafting mats, send the gear out\" without\nreaching for Local Items Only (which keeps everything) or Filler Open to Foreign (which picks\nwhich of your filler stays home at random and cannot be aimed at a category).\n\nSame categories as Exclude From Local Items Only, and they compose: this adds to whatever that\npair already localized, it never releases anything.\n\nExample, and the one this was written for:\n    keep_local: [consumables, crafting, upgrade_materials, runes]\n-- crafting materials, smithing stones and ghost gloveworts, every consumable and every rune\nstay yours; weapons, armour, talismans, spells, spirit ashes and ashes of war still travel.\nBell bearings are `key_items`, not `upgrade_materials`, so that example still sends them out.",
+   "description": "Categories of item to hold in YOUR OWN world, listed one per line. Nothing else is affected,\nso this is the knob for \"keep my consumables and crafting mats, send the gear out\" without\nreaching for Local Items Only (which keeps everything) or Filler Open to Foreign (which picks\nwhich of your filler stays home at random and cannot be aimed at a category).\n\nSame categories as Exclude From Local Items Only, and they compose: this adds to whatever that\npair already localized, it never releases anything.\n\nExample, and the one this was written for:\n    keep_local: [consumables, crafting, upgrade_materials, runes]\n-- crafting materials, smithing stones and ghost gloveworts, every consumable and every rune\nstay yours; weapons, armour, talismans, spells, spirit ashes and ashes of war still travel.\nBell bearings are `key_items`, not `upgrade_materials`, so that example still sends them out.\n\n# Why the default is not empty (#703)\n\n🛑 THIS SHIPS NON-EMPTY, and it is the only locality option that does. The default is the `goods`\numbrella MINUS `runes`, `key_items`, `spells` and `spirit_ashes` -- i.e. hold back the\nconsumables, crafting materials, smithing stones, cookbooks and bell bearings, and let every\nrune, key item, weapon, piece of armour, talisman, ash, spell and spirit ash travel.\n\n🛑 `key_items` IS EXCLUDED ON EVIDENCE, not taste. It belongs on the \"a partner cannot use this\"\nlist and holding it was the obvious call, but the category covers Great Runes, both Dectus\nmedallions and every Remembrance -- so keeping it home took natural_progression's cross-world\nplacements from 12 to ZERO in tools/gf_multiworld_smoke.py. Those are the items a multiworld\nexists to trade. The smoke is the gate that catches this; re-run it before adding the line back.\n\nThe measurement it answers: at the shipped settings, **two thirds of everything Elden Ring sent\na non-ER partner was mechanically inert there** -- upgrade_materials 23.7% and runes 24.0% of a\n312-item export, against a partner who cannot spend either. The export budget is SLOT-limited,\nnot willingness-limited, so those items were not extra: they were occupying slots that gear\nwould otherwise have taken.\n\n🛑 NAMING ONE CATEGORY DOES ALMOST NOTHING, and that is the finding that shaped this list.\nHolding `runes` alone moved exported filler by ZERO (202 -> 202): whichever large pool stays open\nexpands to fill every available slot, so filler must be closed close to as a CLASS before the mix\nmoves. Measured useful:filler across the lattice -- shipped 0.53:1, `runes` 0.54:1,\n`runes + upgrade_materials` 0.60:1, `goods` minus `consumables` 0.73:1, whole `goods` 2.69:1.\nThere is no category subset that lands near 1:1, which is why the rune cap below carries the\nfine adjustment rather than this list.\n\nAlaric's ruling, 2026-08-15: aim the composition at 1:1 useful:filler.",
    "kind": "set",
    "base": "OptionSet",
-   "default": [],
+   "default": [
+    "consumables",
+    "cookbooks",
+    "crafting",
+    "crystal_tears",
+    "merchant_bells",
+    "other",
+    "upgrade_bells",
+    "upgrade_materials"
+   ],
    "choices": null,
    "range": null,
    "valid_keys": [
@@ -1064,10 +1073,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "keep_local_rune_cap",
    "class": "KeepLocalRuneCap",
    "display_name": "Keep Local: Rune Cap",
-   "description": "Hold back rune items worth this many runes or fewer; larger ones may still travel. 0\n(default) is OFF -- no rune is held back by this option.\n\n\"Small rune amounts should not be sent out\" is the ask this answers, and the payout is a number\nthe game publishes (EquipParamGoods.refId_default -> SpEffectParam.soul), so it does not have to\nbe guessed from the item name. The ladder: Golden Rune [1] 200, [4] 1,600, [8] 3,800, [10] 6,250,\n[13] 12,500, Hero's Rune [1] 15,000, Lord's Rune 50,000, and the DLC's largest 80,000. A cap of\n3,000 keeps the small change and lets the big ones go.\n\nIndependent of Keep Local: setting `runes` there keeps every rune home whatever this says.",
+   "description": "Hold back rune items worth this many runes or fewer; larger ones may still travel. 0\n(default) is OFF -- no rune is held back by this option.\n\n\"Small rune amounts should not be sent out\" is the ask this answers, and the payout is a number\nthe game publishes (EquipParamGoods.refId_default -> SpEffectParam.soul), so it does not have to\nbe guessed from the item name. The ladder: Golden Rune [1] 200, [4] 1,600, [8] 3,800, [10] 6,250,\n[13] 12,500, Hero's Rune [1] 15,000, Lord's Rune 50,000, and the DLC's largest 80,000. A cap of\n3,000 keeps the small change and lets the big ones go.\n\nIndependent of Keep Local: setting `runes` there keeps every rune home whatever this says.\n\n# Why the default is 6250 (#703)\n\nRunes are the only large filler category `keep_local` leaves open by default, which makes this\nthe FINE ADJUSTMENT on the export mix -- and unlike a percentage it is aimable, because the\nthreshold is a quantity the game publishes rather than a share of a pool nobody can picture.\n6250 is exactly Golden Rune [10]: the small change stays home, [10] and up travel.\n\nMeasured on 1xER + 1xHK (the adverse config) over 4 seeds, with the shipped `keep_local` above\nand everything else identical: cap 0 -> 0.57:1, cap 6250 -> 0.68:1, **cap 12500 -> 0.72:1**,\ncap 80000 (every rune home) -> 0.73:1. Against the PRE-#703 defaults (`keep_local` empty, cap 0)\nthe pair moves 0.55:1 -> 0.72:1 -- and note what moved: exported useful is FLAT at 228 -> 231,\nwhile filler falls 412 -> 320. The partner does not receive less that they can use; they receive\n92 fewer Golden Runes and smithing stones. Foreign progression absorbed on-surface stays 100%\nthroughout. 12500 is Golden Rune [13]; Hero's and Lord's Runes still travel.\n\n🛑 THE TARGET WAS 1:1 AND THIS DOES NOT REACH IT -- it gets from the old 0.53:1 to 0.72:1, and\nthe curve is flat past here (80000 buys 0.01 more). The binding constraint is `key_items`, which\nhas to stay released because it carries the Great Runes, the Dectus medallions and every\nRemembrance -- holding it took natural_progression's cross-world placements to zero. It also\ncarries 52 Stonesword Keys per 4 seeds, and at 32.3% of everything exported it is the largest\nsingle category. 1:1 needs that category split, the way `cookbooks` was peeled off it; until\nthen this is the honest ceiling.\n\nAlaric's ruling, 2026-08-15: aim the composition at 1:1 useful:filler.",
    "kind": "range",
    "base": "Range",
-   "default": 0,
+   "default": 12500,
    "choices": null,
    "range": {
     "start": 0,

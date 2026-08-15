@@ -534,16 +534,56 @@ Elden Ring:
   #   keep_local: [consumables, crafting, runes]
   # 🛑 Bell bearings are `key_items`, not crafting -- that example still sends
   # them out.
-  keep_local: []
+  #
+  # WHY THIS SHIPS NON-EMPTY. The list below is the `goods` umbrella minus
+  # runes, spells and spirit ashes: hold back the consumables, crafting
+  # materials, smithing stones, cookbooks, bell bearings and key items, and let
+  # every rune, weapon, armour piece, talisman, ash, spell and spirit ash
+  # travel. Measured beside a Hollow Knight slot, two thirds of everything we
+  # sent was mechanically inert there -- smithing stones 23.7% and runes 24.0%
+  # of a 312-item export, to a player who cannot spend either. Those were not
+  # bonus items: the export budget is slot-limited, so they were occupying room
+  # that weapons and armour would otherwise have taken.
+  #
+  # 🛑 SHORTENING THIS LIST BY ONE LINE DOES ALMOST NOTHING. Releasing `runes`
+  # alone moved exported filler by ZERO (202 -> 202) -- whichever large pool is
+  # open expands to fill every slot, so filler has to be closed close to as a
+  # class before the mix moves at all. If you want MORE of your junk to travel,
+  # empty this list; if you want to fine-tune, use the rune cap below, which is
+  # the one graded dial.
+  #
+  # 🛑 `key_items` IS DELIBERATELY ABSENT. Holding it looks right -- they are ER
+  # items a partner cannot use -- but key_items covers Great Runes, the Dectus
+  # medallions and every Remembrance, so keeping them home took
+  # natural_progression's cross-world placements from 12 to ZERO in the
+  # multiworld smoke. Those are the items worth trading. Do not add it back
+  # without re-running tools/gf_multiworld_smoke.py.
+  #
+  # Written on ONE line on purpose: tools/gf_export_profile.py's --extra sweeps
+  # this knob by rewriting a single yaml line, and a block list would leave its
+  # entries orphaned behind the rewrite.
+  keep_local: [consumables, cookbooks, crafting, crystal_tears, merchant_bells, other, upgrade_bells, upgrade_materials]
 
   # Hold back rune items worth this many runes or fewer; larger ones may still
   # travel. 0 (default) is OFF. The payout is a number the game publishes, so
   # it is not guessed from the item name: Golden Rune [1] 200, [4] 1,600,
   # [8] 3,800, [10] 6,250, [13] 12,500, Hero's Rune [1] 15,000, Lord's Rune
-  # 50,000, the DLC's largest 80,000. A cap of 3,000 keeps the small change and
-  # lets the big ones go. Independent of keep_local: naming `runes` there keeps
-  # every rune home whatever this says.
-  keep_local_rune_cap: 0
+  # 50,000, the DLC's largest 80,000. Independent of keep_local: naming `runes`
+  # there keeps every rune home whatever this says.
+  #
+  # WHY 6,250 (Golden Rune [10]). Runes are the only large filler category the
+  # default keep_local leaves open, which makes this the fine adjustment on what
+  # your partners receive -- and unlike a percentage it can be AIMED, because
+  # the threshold is a number the game publishes rather than a share of a pool
+  # nobody can picture. Measured useful:filler in what we export, everything
+  # else identical: cap 0 -> 0.57:1, 6,250 -> 0.68:1, 12,500 -> 0.72:1, and
+  # 80,000 (every rune home) only 0.73:1. Against the old defaults the pair
+  # moves 0.55:1 -> 0.72:1: exported USEFUL is flat (228 -> 231) while filler
+  # falls 412 -> 320, so your partners lose 92 Golden Runes, not 92 items they
+  # wanted. 12,500 is Golden Rune [13]; Hero'''s and
+  # Lord'''s Runes still travel. Raise it to send less junk and keep more runes;
+  # set it to 0 to send every rune you find.
+  keep_local_rune_cap: 12500
 
   # How hard your Region Locks are pulled toward YOUR OWN world. 0 (default) is
   # no pull at all -- every Lock is an ordinary multiworld item and can end up

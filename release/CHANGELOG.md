@@ -5,6 +5,34 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.4.3 — 2026-08-15
 
+### Your partners stop receiving 400 Golden Runes, and start receiving gear
+
+Two locality options now ship non-empty: `keep_local` holds the consumables, crafting materials,
+smithing stones, cookbooks and bell bearings in your own world, and `keep_local_rune_cap` is 12,500
+(Golden Rune [13]) instead of 0.
+
+The measurement behind it, on one Elden Ring slot beside Hollow Knight over four seeds: **two thirds
+of everything we sent was mechanically inert in their game.** Smithing stones and runes alone were
+47.7% of a 654-item export, to a player who cannot spend either. Those items were not a bonus on top
+of the gear -- the export budget is slot-limited, so every Golden Rune we sent was occupying a slot a
+weapon would otherwise have taken.
+
+What actually changed: exported **useful items are flat, 228 to 231.** Exported filler falls **412 to
+320**. Your partners lose 92 Golden Runes, not 92 things they wanted. The useful:filler mix goes
+0.55:1 to 0.72:1.
+
+🛑 **`key_items` is deliberately NOT held**, and that is the interesting part. It reads like the most
+obvious thing on the list -- nobody in Hollow Knight can spend a Stonesword Key, and the category is
+32.3% of everything we export -- but it also carries the Great Runes, both Dectus medallions and every
+Remembrance. Holding it took `natural_progression`'s cross-world placements from 12 to **zero** in the
+multiworld smoke. Those are the items a multiworld exists to trade, so the junk rides along with them.
+
+That is also why the mix stops at 0.72:1 rather than the 1:1 it was aimed at, and why raising the rune
+cap further does almost nothing (80,000 -- every rune kept home -- buys 0.01 more). Getting to 1:1
+needs `key_items` split the way `cookbooks` was peeled off it, which is its own change.
+
+If you preferred the old behaviour, `keep_local: []` and `keep_local_rune_cap: 0` restore it exactly.
+
 ### Twenty-two more boss sweeps can now be screened for reachability
 
 A sweep is only sent to a seed that can actually reach the boss that fires it (#445). That screen
