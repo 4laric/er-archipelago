@@ -166,7 +166,7 @@ class RegenEntrypointIsComplete(unittest.TestCase):
     def test_every_root_page_builder_is_a_step(self):
         scripted = {s.script for s in self.steps}
         page_re = re.compile(r"er-[a-z0-9-]+\.html")
-        missing = []
+        seen, missing = [], []
         tools = os.path.join(REPO, "tools")
         for fn in sorted(os.listdir(tools)):
             if not (fn.startswith("build_") and fn.endswith(".py")):
@@ -175,8 +175,19 @@ class RegenEntrypointIsComplete(unittest.TestCase):
                 text = fh.read()
             pages = {p for p in page_re.findall(text)
                      if os.path.isfile(os.path.join(REPO, p))}
-            if pages and "tools/%s" % fn not in scripted:
+            if not pages:
+                continue
+            seen.append(fn)
+            if "tools/%s" % fn not in scripted:
                 missing.append("%s -> %s" % (fn, ", ".join(sorted(pages))))
+        # THE WITNESS. An empty `missing` is also what a scan that matched NOTHING produces -- a
+        # renamed prefix, a moved tools/ dir, or a page written through a variable would all make
+        # this test pass while seeing zero builders. MEASURED 2026-08-15: exactly three tools write
+        # a committed root page. Assert the scan found them before believing it found no orphan.
+        self.assertGreaterEqual(len(seen), 3,
+                                "the page-builder scan matched only %d tool(s) (%s) -- it has "
+                                "stopped seeing the corpus, and a blind scan reports no orphans"
+                                % (len(seen), ", ".join(seen)))
         self.assertEqual([], missing,
                          "these tools write a committed root page but are not reachable from "
                          "tools/regen_all.py -- exactly how build_questline_dag_page.py went "
