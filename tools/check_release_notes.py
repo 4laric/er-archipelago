@@ -97,7 +97,13 @@ def changelog_section(version):
     """Return (heading_line, body) for `## v<version> ...`, or (None, None)."""
     with open(CHANGELOG, encoding="utf-8") as fh:
         text = fh.read()
-    parts = re.split(r"(?m)^(##[^\n]*)$", text)
+    # 🛑 `## ` WITH THE SPACE. `^##[^\n]*$` also matches `###`, so the body of a section was
+    # only the text ABOVE its first subheading -- and a section whose first line is a `###`
+    # entry measured as EMPTY and failed this gate. Found 2026-08-15 by writing a changelog
+    # entry directly under the heading, which is the natural place to put the newest one.
+    # Every earlier section passed only because prose happened to sit above its entries, so
+    # the 120-char floor has been applied to a preamble rather than to the notes.
+    parts = re.split(r"(?m)^(## [^\n]*)$", text)
     for i in range(1, len(parts), 2):
         head = parts[i]
         if re.match(r"^##\s+v%s(\s|$)" % re.escape(version), head):

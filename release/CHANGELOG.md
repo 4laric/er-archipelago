@@ -5,6 +5,23 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.4.3 — 2026-08-15
 
+### Twenty-two more boss sweeps can now be screened for reachability
+
+A sweep is only sent to a seed that can actually reach the boss that fires it (#445). That screen
+needs to know where the boss is fought, and for 48 of 218 triggers nobody did -- so they shipped
+unscreened, on the permissive side. Twenty-two of those are settled here from evidence that was already
+in the repo: where the boss's ARENA sits in a map whose own region is first-hand (a grace join), the
+map answers the question.
+
+All twenty-two agree with the region their checks are in, so no seed changes -- what changes is that
+twenty-two groups can now be screened instead of assumed. The last two came from Alaric directly
+(Ancestor Spirit and Regal Ancestor Spirit, both Siofra River), which is what a ruling is for when no
+table has the answer.
+
+Twenty-six remain and are deliberately left alone: their arenas are overworld tiles, and a tile's
+region comes from the same nearest-neighbour guess that regions the checks, so "deriving" them would
+make the screen agree with itself and inflate a coverage number that is supposed to be able to fail.
+
 Window opened AT THE TAG of v0.4.2 at `33c85f7`, with zero commits past it, so this section starts
 empty of changes on purpose and fills as they arrive (rule 14). `CONTRACT_HASH` is unmoved at
 `5c2b9bf2` -- the same shape the contract has had since 0.3.9 -- so the bump is version-lockstep and

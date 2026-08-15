@@ -9715,6 +9715,49 @@ _sweep_arena_ruled = sorted(_t for _t in DUNGEON_SWEEPS
                             if _t not in SWEEP_ARENA_REGION and _t in _BOSS_ARENA_RULING)
 for _t in _sweep_arena_ruled:
     SWEEP_ARENA_REGION[_t] = _BOSS_ARENA_RULING[_t]
+# ---- THIRD source: the arena MAP's own first-hand region (dungeon_regions.tsv) ---------------
+# Ranked below both of the above. A trigger with no PlayRegionParam row and no human ruling can still
+# be settled when the map its ARENA sits in has a first-hand region of its own -- `dungeon_regions`
+# records `source` per map, and a `grace`/`connect` row is evidence, not a guess.
+#
+# 🛑 TILE DECODE IS DELIBERATELY EXCLUDED, and that is the whole design of this block. An overworld
+# arena's region would come from the same nearest-neighbour tile machinery that regions its MEMBERS,
+# so arena and members would agree BY CONSTRUCTION and the #445 screen would be a tautology for every
+# such group. Writing them would take coverage from 170 to 196 while adding no evidence -- a coverage
+# number that cannot fail is the thing test_sweep_arena_coverage_floor exists to prevent, aimed at
+# itself. `boss_region_worksheet.py`'s header states the same circularity: "a boss's region today is
+# DERIVED from the same tile machinery that regions the checks, so using it as evidence is circular
+# exactly when it would help."
+_FIRST_HAND_MAP_SOURCES = ("grace", "connect")
+_DUNGEON_MAP_REGION = {}
+_dr_path = os.path.join(HERE, "dungeon_regions.tsv")
+if os.path.isfile(_dr_path):
+    with open(_dr_path, encoding="utf-8") as _dfh:
+        for _dl in _dfh:
+            if _dl[:1] == "#" or _dl.startswith("map_id"):
+                continue
+            _dp = _dl.rstrip("\n").split("\t")
+            if len(_dp) >= 3 and _dp[2] in _FIRST_HAND_MAP_SOURCES:
+                _DUNGEON_MAP_REGION[_dp[0]] = _dp[1]
+
+_sweep_arena_by_map = []
+for _t in sorted(DUNGEON_SWEEPS):
+    if _t in SWEEP_ARENA_REGION:
+        continue
+    _hb = BOSS_HEALTHBARS.get(_t)
+    _amap = _hb[1] if isinstance(_hb, (tuple, list)) and len(_hb) > 1 else None
+    _reg = _DUNGEON_MAP_REGION.get(_amap) if _amap else None
+    if _reg and (_reg in REGION_GROUPS or _reg == HUB):
+        SWEEP_ARENA_REGION[_t] = _reg
+        _sweep_arena_by_map.append(_t)
+print("boss_sweeps: %d trigger(s) filled from the ARENA MAP's first-hand region (dungeon_regions.tsv, "
+      "source in %r; tile decode deliberately NOT used), holding %d member link(s)"
+      % (len(_sweep_arena_by_map), list(_FIRST_HAND_MAP_SOURCES),
+         sum(len(DUNGEON_SWEEPS[_t]) for _t in _sweep_arena_by_map)))
+_arena_map_moves = [(_t, SWEEP_REGION.get(_t), SWEEP_ARENA_REGION[_t])
+                    for _t in _sweep_arena_by_map if SWEEP_ARENA_REGION[_t] != SWEEP_REGION.get(_t)]
+print("boss_sweeps: of those, %d disagree with their members' region (each becomes a #445 screen): %r"
+      % (len(_arena_map_moves), _arena_map_moves))
 print("boss_sweeps: %d trigger(s) filled from a HUMAN RULING where PlayRegionParam had no row "
       "(boss_arena_rulings.tsv), holding %d member link(s)"
       % (len(_sweep_arena_ruled), sum(len(DUNGEON_SWEEPS[_t]) for _t in _sweep_arena_ruled)))
