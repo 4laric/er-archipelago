@@ -116,13 +116,18 @@ HIPPO_ARENA_REGION = "Scadu Altus"
 BOBLERRR_KEPT = frozenset({"Ancient Ruins", "Belurat", "Cerulean", "Jagged Peak",
                            "Shadow Keep"})
 
-# Ratchet for the AUDIT, not for the defect. 112 of 225 triggers have a boss_area_regions.tsv row;
-# the other 113 are UNAUDITED and the predicate is permissive about them on purpose (refusing them
-# would delete 1686 member links on missing evidence). This floor is what stops that permissiveness
-# from quietly widening: a regen that drops arena rows fails here instead of silently arming more
-# unverifiable groups. RAISE it when a re-emit of boss_area_regions.tsv covers more bosses; never
-# lower it without saying which rows went away and why.
-ARENA_COVERAGE_FLOOR = 112
+# Ratchet for the AUDIT, not for the defect. The predicate is permissive about an unknown arena on
+# purpose (refusing them would delete member links on missing evidence). This floor is what stops
+# that permissiveness from quietly widening: a regen that drops arena rows fails here instead of
+# silently arming more unverifiable groups. RAISE it whenever coverage improves; never lower it
+# without saying which rows went away and why.
+#
+# 2026-08-15: 112 -> 170. Not a new datamine -- boss_area_regions.tsv is unchanged. 58 triggers were
+# filled from boss_arena_rulings.tsv, Alaric's own arena_region rulings from 2026-08-10 (commit
+# 41e8fe7), which until now were consumed ONLY to re-region ambiguous checks and never for the
+# arena question they literally answer. Coverage improving is exactly the case this comment says to
+# raise for -- leaving the floor at 112 would let all 58 silently disappear again.
+ARENA_COVERAGE_FLOOR = 170
 
 
 class SweepArenaTable(unittest.TestCase):
@@ -187,7 +192,7 @@ class SweepTriggerReachable(unittest.TestCase):
             "the filter is deleting groups rather than screening them")
 
     def test_an_unknown_arena_is_permissive_and_that_is_deliberate(self):
-        """113 triggers have no arena row. They stay armed, because refusing on missing evidence
+        """48 triggers have no arena row (was 113 before the rulings landed). They stay armed, because refusing on missing evidence
         would delete 1686 member links. test_sweep_arena_coverage_floor is what keeps that honest."""
         unaudited = sorted(set(DS) - set(AR))
         self.assertTrue(unaudited, "no unaudited triggers left -- delete this test and the floor")

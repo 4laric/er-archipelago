@@ -36,4 +36,4 @@ REGION_OPEN_FLAGS = {
 REGION_OPEN_PENDING = [
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:1fc6ef8cbd51b56cf16e578a3d241f6690aa986ebaaa5a4e4fb4869c6b6d69be', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:e578ed7958e74bafc78ef41eefe5a5a44836f859c231d2ac240168708ce81687'}
+_GEN_STAMP = {'inputs_hash': 'sha256:023cc187d3c4931a5a510dac292bba77c6432b1361c17e5eda165576b5278d41', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:e578ed7958e74bafc78ef41eefe5a5a44836f859c231d2ac240168708ce81687'}

@@ -1,0 +1,83 @@
+# AUTO-EXPANDED from boss_region_worksheet.tsv by tools/build_boss_region_worksheet.py --expand -- DO NOT EDIT.
+# WHERE THE BOSS IS FOUGHT, as ruled by a human in the arena_region column.
+# gen_data fills SWEEP_ARENA_REGION from this ONLY where PlayRegionParam has no
+#   boss-area row -- ranked BELOW measured evidence, so a ruling can replace an
+#   ABSENT and never a measurement.
+# `ruled_as` is the in-game PLACE name as written; `region` is it mapped through
+#   PLACE_TO_REGION. Both are kept so a reader can audit the mapping.
+# Unlike boss_verdict_tiles.tsv this KEEPS confirmations: a ruling that agrees
+#   with derived_region still answers where the boss stands.
+boss_entity	boss_name	region	ruled_as
+22000800	Putrescent Knight	Cerulean	Cerulean
+1033420800	Alecto, Black Knife Ringleader	Liurnia	Liurnia
+1033450800	Bols, Carian Knight	Liurnia	Liurnia
+1034420800	Glintstone Dragon Adula	Liurnia	Lirunia
+1034450800	Glintstone Dragon Smarag	Liurnia	Liurnia
+1034500800	Glintstone Dragon Adula	Liurnia	Liurnia
+1035500800	Royal Knight Loretta	Liurnia	Liurnia
+1035530800	Magma Wyrm	Mt. Gelmir	Mt. Gelmir
+1036450800	Death Rite Bird	Liurnia	Liurnia
+1036500800	Onyx Lord	Liurnia	Liurnia
+1036540800	Full-Grown Fallingstar Beast	Mt. Gelmir	Mt. Gelmir
+1037420800	Deathbird	Liurnia	Liurnia
+1037460800	Bell Bearing Hunter	Liurnia	Liurnia
+1037540810	Ulcerated Tree Spirit	Mt. Gelmir	Mt. Gelmir
+1038410800	Adan, Thief of Fire	Liurnia	Liurnia
+1038480800	Erdtree Avatar	Liurnia	Liurnia
+1038520800	Tibia Mariner	Altus	Altus
+1039430800	?	Liurnia	Liurnia
+1039440800	Tibia Mariner	Liurnia	Liurnia
+1039500800	Godefroy the Grafted	Altus	Altus
+1039540800	Elemer of the Briar	Altus	Altus
+1040520800	Black Knife Assassin	Altus	Altus
+1040530800	Sanguine Noble	Altus	Altus
+1041500800	Fallingstar Beast	Altus	Altus
+1041510800	Tree Sentinel	Altus	Altus
+1041530800	Wormface	Altus	Altus
+1042330800	Ancient Hero of Zamor	Weeping	Weeping
+1042360800	Tree Sentinel	Limgrave	Limgrave
+1042380800	Deathbird	Limgrave	Limgrave
+1042380850	Bell Bearing Hunter	Limgrave	Limgrave
+1042550800	Godskin Apostle	Altus	Altus
+1043300800	Leonine Misbegotten	Weeping	Weeping
+1043330800	Erdtree Avatar	Weeping	Weeping
+1043360800	Flying Dragon Agheel	Limgrave	Limgrave
+1043530800	Bell Bearing Hunter	Altus	Altus
+1044320800	Deathbird	Weeping	Weeping
+1044350800	Bloodhound Knight Darriwil	Limgrave	Limgrave
+1044360800	Mad Pumpkin Head	Limgrave	Limgrave
+1044530800	Deathbird	Altus	Altus
+1045390800	Tibia Mariner	Limgrave	Limgrave
+1048370800	Decaying Ekzykes	Caelid	Caelid
+1048400800	Mad Pumpkin Head (Hammer)	Caelid	Caelid
+1048410800	Bell Bearing Hunter	Caelid	Caelid
+1048570800	Death Rite Bird	Mountaintops of the Giants	Mountaintops of the Giants
+1049370850	Death Rite Bird	Caelid	Caelid
+1049390800	Nox Monk	Caelid	Caelid
+1049390850	Battlemage Hugues	Caelid	Caelid
+1049520800	Black Blade Kindred	Mountaintops of the Giants	Mountaintops of the Giants
+1050560800	Great Wyrm Theodorix	Mountaintops of the Giants	Mountaintops of the Giants
+1050570800	Death Rite Bird	Mountaintops of the Giants	Mountaintops of the Giants
+1050570850	Putrid Avatar	Mountaintops of the Giants	Mountaintops of the Giants
+1051360800	Crucible Knight	Caelid	Caelid
+1051400800	Putrid Avatar	Caelid	Caelid
+1051430800	Black Blade Kindred	Caelid	Caelid
+1051570800	Commander Niall	Mountaintops of the Giants	Mountaintops of the Giants
+1052410800	Flying Dragon Greyll	Caelid	Caelid
+1053560800	Roundtable Knight Vyke	Mountaintops of the Giants	Mountaintops of the Giants
+1252520800	Fire Giant	Mountaintops of the Giants	Mountaintops of the Giants
+2044470800	Rugalea the Great Red Bear	Rauh Base	Rauh Base
+2045440800	Ghostflame Dragon	Gravesite	Gravesite
+2046380800	Dancer of Ranah	Cerulean	Cerulean
+2046410800	Knight of the Solitary Gaol	Gravesite	Gravesite
+2046460800	Divine Beast Dancing Lion	Ancient Ruins	Ancient Ruins of Rauh
+2047390800	Death Rite Bird	Cerulean	Cerulean
+2047450800	Black Knight Garrew	Scadu Altus	Scadu Altus
+2048380850	Ghostflame Dragon	Cerulean	Cerulean
+2049450800	Ralva the Great Red Bear	Scadu Altus	Scadu Altus
+2050470800	Tree Sentinel	Shadow Keep	Hinterland
+2050480811	Scadutree Avatar	Shadow Keep	Shadow Keep
+2051440800	Rakshasa	Scadu Altus	Scadu Altus
+2052480800	Fallingstar Beast	Shadow Keep	Scaduview
+2054390800	Bayle the Dread	Jagged Peak	Jagged Peak
+2054390850	Ancient Dragon Senessax	Jagged Peak	Jagged Peak
