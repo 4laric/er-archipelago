@@ -137,6 +137,14 @@ TESTS_JOB = {
                                    "run everywhere. It must not be allowed to skip in CI -- a "
                                    "hand-list quietly replacing the rule is exactly how #557 "
                                    "shipped 16 of these 19",
+    "hub_collapsed_merchant_sites": "same two committed tables as its sibling above, same walk-up. "
+                                    "This is #701 option B's half: the sentinel guards only the "
+                                    "FILTER 3 re-derivation (a merchant instance placed in several "
+                                    "maps is not a site we can assert), and that guard is the one "
+                                    "keeping ALTUS -- kept by every base seed -- out of the site "
+                                    "list, so it must not be allowed to go dark. The generated-table "
+                                    "and pure-SPINE assertions above it carry no sentinel and run "
+                                    "everywhere, including without Archipelago",
     "input_completeness": "reads the committed bundle manifest",
     "item_exists": "msg/ FMGs + vanilla_er params ship in the bundle (2026-07-27)",
     "location_desc": "committed data; FMG-dependent parts covered by the bundle",

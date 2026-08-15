@@ -3786,6 +3786,32 @@ def _build_merchant_shop_region():
     for (_tk, _npc, _nm, _mp), _rs in _claims.items():
         for _rid in _rs:
             _row2tiles.setdefault(_rid, set()).add(_mp)
+    # 🛑 FILTER 3, AND IT NARROWS THE SITES ONLY -- NEVER THE COLLAPSE. A merchant INSTANCE (one
+    # npc_param) placed in SEVERAL maps is one character the game shows in AT MOST ONE of them at a
+    # time; which one is a quest-state question this pipeline does not model. So such a placement is
+    # not a place we can ASSERT the merchant is -- the repo's standing rule, "a check we cannot ASSERT
+    # is reachable may not be REQUIRED". Patches is the case that matters: npc 523090020 is placed on
+    # three overworld tiles (Scenic Isle/Liurnia, Seethewater/Mt. Gelmir, Road of Iniquity/Altus) while
+    # 523090010 sits in Murkwater (m31_00) and 523090038 in Volcano Manor (m16_00). Counting the
+    # ambiguous three would hand these rows ALTUS -- which is force-kept in EVERY base seed (it is the
+    # capital's only parent) -- so #701 option B would lift its bar on essentially every seed, on the
+    # weakest evidence in the table. Dropping them leaves exactly {Limgrave, Mt. Gelmir, Cerulean},
+    # which is #557's independently HUMAN-REVIEWED table, and the Dragon Communion pair (two altars,
+    # two npc_params, one placement each) is untouched -- a derived rule reproducing a reviewed list,
+    # the same warrant that retired the Hermit hand-pins.
+    # It CANNOT widen anything: _flag2regs below (which decides what collapses to the hub, i.e. option
+    # C's population) still sees every claim. Only the option-B SITE list is narrowed, and a narrower
+    # site list means FEWER bar lifts and more fallback to C -- the safe direction.
+    _inst_tiles = defaultdict(set)                   # (talk, npc, name) -> the maps it is placed in
+    for (_tk, _npc, _nm, _mp), _rs in _claims.items():
+        if _rs:
+            _inst_tiles[(_tk, _npc, _nm)].add(_mp)
+    _row2sites = {}                                  # shop row id -> tiles we can ASSERT (unambiguous)
+    for (_tk, _npc, _nm, _mp), _rs in _claims.items():
+        if len(_inst_tiles[(_tk, _npc, _nm)]) > 1:
+            continue
+        for _rid in _rs:
+            _row2sites.setdefault(_rid, set()).add(_mp)
     # stock flag -> set of RESOLVED AP regions; separately track flags with an UNRESOLVED physical tile.
     # A flag whose ONLY resolved region is 1 but which ALSO has an unresolved tile is SUSPECT: dropping
     # the None and pinning the lone survivor conflates "resolves to one region" with "stands in one
@@ -3810,6 +3836,24 @@ def _build_merchant_shop_region():
                 _unresolved_tiles[_t].add(_fl)
     _out = {_fl: next(iter(_rs)) for _fl, _rs in _flag2regs.items() if len(_rs) == 1}
     _multi = sorted(_fl for _fl, _rs in _flag2regs.items() if len(_rs) > 1)
+    # ...AND THE ASSERTABLE SITES THEMSELVES, not just the flag. #701 option B regions a collapsed row
+    # to the EARLIEST KEPT one of these, so they have to survive this function. Built from _row2sites
+    # (FILTER 3) and not from _flag2regs: the collapse asks "is this more than one region?", option B
+    # asks "which region can I stand behind?", and only the second needs the claim to be assertable.
+    # Sorted for a stable generated artifact; the ORDER that matters is region_spine.SPINE's and is
+    # applied at SEED time, where the kept set is known -- gen_data does not own progression order and
+    # must not restate it.
+    _flag2sites = {}
+    for _rid, _tiles in _row2sites.items():
+        _fl = _row2flag.get(_rid)
+        if _fl is None:
+            continue
+        for _t in _tiles:
+            _rr = _gt_region(_t)
+            if _rr:
+                _flag2sites.setdefault(_fl, set()).add(_rr)
+    _multi_sites = {_fl: tuple(sorted(_flag2sites[_fl])) for _fl in _multi if _flag2sites.get(_fl)}
+    _no_site = [_fl for _fl in _multi if not _flag2sites.get(_fl)]
     _suspect = sorted(_fl for _fl in _out if _fl in _flag_unresolved)   # pinned, but has an unplaced tile
     # ⭐⭐⭐ A DIAGNOSTIC THAT ITERATES THE SUCCESS SET CANNOT SEE A TOTAL FAILURE. `_suspect` iterates
     # `_out`, and `_multi` iterates `_flag2regs` -- a flag whose tiles ALL fail _gt_region is in
@@ -3823,6 +3867,9 @@ def _build_merchant_shop_region():
     print(f"  claimants dropped: {_no_msb} line(s) with no MSB placement (map_source=binder), "
           f"{_dropped} row claim(s) from {len(_overreach)} merchant(s) whose ESD range over-ran their "
           f"own bell block")
+    print(f"  option-B sites: {len(_multi_sites)} of {len(_multi)} multi-region flag(s) have at least "
+          f"one ASSERTABLE site (a merchant instance placed in exactly one map); {len(_no_site)} have "
+          f"none and keep the #701 option-C bar unconditionally")
     if _multi:
         print(f"  multi-region flags (disjunctive reachability the region-lock world can't express yet): "
               f"{_multi[:30]}{' …' if len(_multi) > 30 else ''}")
@@ -3840,10 +3887,13 @@ def _build_merchant_shop_region():
     # through to the block guess. It was a diagnostic string; _region_is_derived needs it as data, and
     # deriving it HERE (rather than hand-listing 19 ap ids) means a regen that splits another merchant
     # across regions is covered on the same rule -- including the 3 Dragon Communion rows #557 missed.
-    return _out, frozenset(_multi)
+    return _out, _multi_sites
 # Flags with a single physical merchant region (the re-pins) and, separately, the flags whose merchants
-# span SEVERAL regions -- the latter are pinned to nothing, collapse to the HUB, and may not carry
-# progression (#701). See _region_is_derived().
+# span SEVERAL regions -- the latter are pinned to nothing and collapse to the HUB (#701). The second
+# value was a frozenset of flags under option C, which only had to answer "is this one of them?"; it is
+# now flag -> the tuple of regions the merchant really stands in, because option B has to answer "which
+# one?" as well. Membership (`in`) reads the same on a dict, so _region_is_derived is unchanged.
+# See _region_is_derived() and location_tags.HUB_COLLAPSED_SITE_APS.
 MERCHANT_SHOP_REGION, MERCHANT_SHOP_MULTI_REGION = _build_merchant_shop_region()
 
 # A REDUNDANT SHOP PIN IS A FAILURE (same rule as _BOSS_DROP_EXTRAS up top): a FLAG_REGION_OVERRIDE entry
@@ -4714,6 +4764,25 @@ erdtree_burn_aps=[]     # m11_00 -- destroyed when Maliketh dies -> may never ca
 shop_gated_aps=[]       # shop row not STOCKED until an unlock event fires -> may never carry progression
 surface_excluded_aps=[] # _SURFACE_EXCLUDE_FLAGS -> surface-tagged but BARRED from progression (Alaric's call)
 region_confirmed_aps=[]  # flag in _REGION_CONFIRMED_FLAGS -> a tile guess a HUMAN cleared in game
+collapsed_site_aps={}   # HUB-collapsed merchant row -> the REAL regions its merchant stands in (#701 B)
+
+
+def _collapsed_sites_of(_row):
+    """The real regions of a HUB-COLLAPSED merchant row, or () -- #701 option B's input.
+
+    A shop flag whose physical merchants resolve to MORE than one region is pinned to nothing by
+    _build_merchant_shop_region, collapses to the always-open hub, and is barred from progression by
+    option C (see _region_is_derived). Option B needs the discarded half of that answer: WHICH regions.
+    Derived here from the same table, per ROW, so a co-check sibling inherits its primary's sites the
+    way it already inherits its region and its bar -- never a hand-list of ap ids, which is how #557
+    shipped 16 of the 19."""
+    try:
+        _f = int(_row.get('flag'))
+    except (TypeError, ValueError):
+        return ()
+    if _row.get('flag_source') != 'shop':
+        return ()
+    return MERCHANT_SHOP_MULTI_REGION.get(_f, ())
 # HONEST LABEL for a GUESSED region. A check whose region we defaulted or tile-guessed is already
 # barred from progression (DEFAULTED_REGION_APS), but its NAME still asserted the region flatly --
 # "Caelid :: Deathroot - m60_45_39" reads as a fact when internally we do not believe it. Alaric hit
@@ -4762,6 +4831,12 @@ for r in rows:
     # guess, and only the latter is barred from progression. See _region_is_derived().
     if reg == HUB and not _region_is_derived(r):
         defaulted_aps.append(apid)
+        # #701 OPTION B RIDES OPTION C's OWN POPULATION, it does not re-derive a second one. Everything
+        # recorded here is ALSO in defaulted_aps above, so a seed that cannot resolve a site keeps
+        # exactly C's bar; the sites are the extra information a seed needs to LIFT it honestly.
+        _sites = _collapsed_sites_of(r)
+        if _sites:
+            collapsed_site_aps[apid] = _sites
     # ---- THE THIRD STATE: known / GUESSED / unknown -------------------------------------------
     # tile_pr() nearest-neighbours an overworld tile onto the closest tile that CONTAINS A GRACE.
     # It has no failure branch, so a GRACELESS tile always gets a confident answer about ground it
@@ -5093,6 +5168,13 @@ if CO_CHECK_FLAGS:
             # primary; never re-derive a narrower condition, or the two answers drift.
             if _papid9 in _def_ap_running or (_preg9 == HUB and not _region_is_derived(_prow9)):
                 defaulted_aps.append(_apid9)
+                # ...and the SITES with the bar (#701 B). Same physical acquisition as the primary, so
+                # the same real regions; a sibling that inherited the bar but not the way to lift it
+                # would be barred forever in a seed that holds the region -- the drift this file's own
+                # note warns about two lines up.
+                _sites9 = _collapsed_sites_of(_prow9)
+                if _sites9:
+                    collapsed_site_aps[_apid9] = _sites9
             if str(_prow9.get("map", "")).startswith("m11_00"):
                 erdtree_burn_aps.append(_apid9)
             if _cfl in SHOP_RELEASE_GATED_FLAGS:
@@ -8403,6 +8485,24 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('\n# Region DEFAULTED to the hub (unknown real region) -> BARRED from progression.\n')
     f.write('# A guessed region may not carry progression: see gen_data._region_is_derived().\n')
     f.write('DEFAULTED_REGION_APS = frozenset(' + repr(_defaulted) + ')\n')
+    # HUB_COLLAPSED_SITE_APS -- the SUBSET of the above whose region is not merely unknown but
+    # DISJUNCTIVE: the merchant selling the row stands in several regions, so the row collapsed to the
+    # hub (merchant_shops.tsv's "HUB + DEFAULTED" contract). #701 option C bars them like any other
+    # guess; option B hands the seed the real sites so it can region the row to the EARLIEST KEPT one
+    # (region_spine order) and let it carry progression again -- honestly gated behind that region.
+    # A row whose sites are ALL sealed in this seed keeps option C's bar; that is the fallback, and it
+    # is why these ap ids stay in DEFAULTED_REGION_APS above rather than being moved out of it.
+    _collapsed = {int(_ap): list(_sites) for _ap, _sites in sorted(collapsed_site_aps.items())}
+    _cbad = sorted(_ap for _ap in _collapsed if _ap not in set(_defaulted))
+    if _cbad:
+        raise AssertionError(
+            f"hub-collapsed rows {_cbad} are not in DEFAULTED_REGION_APS -- option B's lift is only "
+            f"sound as a NARROWING of option C's bar; a row outside the bar has nothing to lift")
+    f.write('\n# Hub-COLLAPSED merchant rows: ap id -> the regions its merchant physically stands in\n')
+    f.write('# (>1, or it would have been pinned). A subset of DEFAULTED_REGION_APS. The seed regions\n')
+    f.write('# each row to the EARLIEST KEPT of these in region_spine.SPINE order and lifts the bar;\n')
+    f.write('# with none of them kept the bar stays. See features/progression_surface.collapsed_sites.\n')
+    f.write('HUB_COLLAPSED_SITE_APS = ' + repr(_collapsed) + '\n')
     _burn = sorted(set(erdtree_burn_aps))
     f.write('\n# m11_00 (normal Leyndell) -- DESTROYED when Maliketh dies (common.emevd $Event(900):\n')
     f.write('# the Erdtree burns, Leyndell\'s graces 71100-71110 are switched OFF, and you are warped\n')

@@ -819,6 +819,76 @@ def missable_barred_aps(world):
     return frozenset(MISSABLE_LOCATIONS)
 
 
+def collapsed_site_regions(world):
+    """#701 OPTION B -- {ap_id: region} for every hub-COLLAPSED merchant row THIS SEED CAN PLACE.
+
+    A row whose seller stands in more than one region (Patches/Thiollier: Limgrave, Mt. Gelmir,
+    Cerulean; the Dragon Communion altars: Caelid, Limgrave) is pinned to no region by gen_data, falls
+    onto the always-open hub, and option C (PR #706) bars it from carrying progression for exactly the
+    reason Cokeman5 hit: the hub is always kept, so "any of three regions" had become "no requirement
+    at all". Option B gives the row a real region instead -- the EARLIEST of its own sites that this
+    seed KEPT, in region_spine.SPINE order -- so it can carry progression again, gated behind that
+    region's Lock (core._add_locations puts the gate on the location's access_rule).
+
+    ⭐ WHY EARLIEST-KEPT IS SAFE AND NOT MERELY CONVENIENT. The honest rule is a DISJUNCTION: reachable
+    if the player holds ANY site. Requiring one NAMED site is STRICTER than that disjunction, so the
+    approximation can only ever refuse a placement the player could have reached -- never the reverse,
+    which is the direction that strands a seed. It is EXACT when the seed kept exactly one site. The
+    real disjunction is #701 option 1 and still needs #320/#502's machinery; it is not this.
+
+    🛑 OPTION B COMPOSES WITH OPTION C, IT DOES NOT REPLACE IT. A row with NO kept site is absent from
+    this map, stays in DEFAULTED_REGION_APS, and keeps C's bar -- C's behaviour is B's FALLBACK. A
+    `num_regions` draw that keeps none of {Limgrave, Mt. Gelmir, Cerulean} is a legitimate seed, so
+    refusing to generate it would be the regression; B NARROWS C's bar to the case where it is still
+    true. Both halves are asserted in tests/test_gf_hub_collapsed_merchant_sites.py.
+
+    Cached on the world: called from core._add_locations (once per region) and from the surface math,
+    which must give the same answer or the item_rule and the advertised surface drift apart."""
+    cached = getattr(world, "_gf_collapsed_site_regions", None)
+    if cached is not None:
+        return cached
+    try:
+        from ..location_tags import HUB_COLLAPSED_SITE_APS as _sites
+    except Exception:                                   # pre-regen data -> feature inert, C's bar stands
+        _sites = {}
+    out = {}
+    if _sites:
+        from ..region_spine import earliest_kept_site
+        kept = set(getattr(world, "gf_kept", ()) or ())
+        for ap, sites in _sites.items():
+            site = earliest_kept_site(sites, kept)
+            if site is not None:
+                out[int(ap)] = site
+    try:
+        world._gf_collapsed_site_regions = out
+    except Exception:                                   # not a real world (pure callers) -> no cache
+        pass
+    return out
+
+
+def collapsed_lift_aps(world):
+    """The ap ids whose DEFAULTED bar option B lifts in this seed -- and ONLY that bar.
+
+    🛑 ONE CAUSE AT A TIME. `core._NO_PROGRESSION_APS` is a UNION of three independent reasons, and a
+    row can hold more than one: two of the 16 Patches rows (7774847/7774848) are ALSO
+    SHOP_RELEASE_GATED (the merchant does not stock them until an unlock fires), and the region being
+    open says nothing about the shelf. Subtracting an ap from the union would lift every reason at
+    once, so the ones another rule still bars are removed here -- in the ONE place both the item_rule
+    and the surface math read, so the two cannot disagree about which rows moved."""
+    ids = frozenset(collapsed_site_regions(world))
+    if not ids:
+        return frozenset()
+    try:
+        from ..location_tags import ERDTREE_BURN_APS as _b
+    except Exception:
+        _b = frozenset()
+    try:
+        from ..location_tags import SHOP_RELEASE_GATED_APS as _g
+    except Exception:
+        _g = frozenset()
+    return ids - frozenset(_b) - frozenset(_g)
+
+
 def _world_barred_aps(world):
     """The per-world no-progression set for surface math: DEFAULTED_REGION_APS always; the missable
     set while its guard is armed (missable_barred_aps); the ERDTREE_BURN_APS burn-strand bar only
@@ -830,6 +900,12 @@ def _world_barred_aps(world):
         from ..location_tags import DEFAULTED_REGION_APS as _d
     except Exception:
         _d = frozenset()
+    # #701 option B: a hub-collapsed merchant row THIS SEED could region to a kept site is no longer a
+    # guess -- it is gated behind that region (core._add_locations' access_rule), so it comes OFF the
+    # defaulted bar here as well. Subtracted from `_d` alone and never from the union below: the lift
+    # answers the GUESSED-REGION cause only, and `collapsed_lift_aps` has already dropped the rows some
+    # other rule still bars. Rows with no kept site are not in the lift and keep option C's bar.
+    _d = frozenset(_d) - collapsed_lift_aps(world)
     _m = missable_barred_aps(world)
     if getattr(world, "gf_capital_reconciler", False):
         return frozenset(_d) | _m

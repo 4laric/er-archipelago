@@ -46,11 +46,20 @@ to Patches at all. One tester watched it happen: his friend's spoiler put a regi
 Furlcalling Finger Remedy "from Patches or Thiollier" in a seed holding none of the three regions
 either of them lives in.
 
-Those nineteen checks still exist, still show up in your tracker and still hand you something -- they
-simply can no longer hold anything the seed requires. You will see `(region unconfirmed)` on their
-names now, which is the run being straight with you: it knows the check is real and does not know
-which region it is in. Everything else in the Hold is unaffected; Enia, the Twin Maiden Husks and the
-Table of Lost Grace are genuinely there and are untouched.
+Now they are filed where their seller actually stands. If your seed keeps one of the regions that
+merchant lives in, the check is gated on reaching THAT region -- the earliest one your seed kept, so
+Limgrave if you have it, otherwise Mt. Gelmir, otherwise the Cerulean Coast -- and it can hold
+something the seed needs again, because now the run knows what you have to do first. If your seed
+keeps none of them, the check goes back to holding filler only: there is no region to put it behind,
+so it may not be the thing you are waiting on.
+
+Being strict about it is the point. Patches is reachable from any of his regions, and the run can
+only require one at a time, so it requires the earliest one you have -- which is never easier than
+the truth, only sometimes harder. All nineteen still exist, still show up in your tracker and still
+hand you something. They keep the `(region unconfirmed)` tail on their names, which is still honest:
+the check is real, and which of the seller's regions your copy is sitting in is not something the run
+can tell you. Everything else in the Hold is unaffected; Enia, the Twin Maiden Husks and the Table of
+Lost Grace are genuinely there and are untouched.
 
 Every change that lands from here writes its own line while somebody still knows what it was for,
 rather than being reconstructed from a commit log at release time.

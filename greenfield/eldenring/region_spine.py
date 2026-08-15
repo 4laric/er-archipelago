@@ -96,6 +96,30 @@ def dlc_regions():
     return [r for r in REGIONS if r in DLC_REGIONS]
 
 
+def earliest_kept_site(sites, kept):
+    """The EARLIEST of `sites` (in SPINE order) that this seed actually KEPT, or None.
+
+    #701 option B. A check whose seller stands in SEVERAL regions is reachable from ANY of them -- a
+    disjunction the region-lock world cannot express (#320/#502), which is why gen_data collapses the
+    row onto the hub and option C bars it from carrying progression. Requiring ONE of the sites is
+    STRICTER than the disjunction, so it can never claim reachability the player does not have; it is
+    a conservative approximation, and an EXACT one when the seed kept only one of the sites.
+
+    SPINE, not the tsv order and not alphabetical: it is the order the rest of the world already means
+    by "earliest", so the chosen site is the one the player is likeliest to hold soonest. A site that
+    is not in SPINE at all is IGNORED rather than guessed at -- an unknown region name is a data bug,
+    and picking it would gate the row on a lock that does not exist.
+
+    Returns None when the seed keeps none of them: the caller must then keep option C's bar. That
+    fallback is the whole reason option B does not replace option C -- a `num_regions` draw holding
+    none of a merchant's regions is a legitimate seed, not a generation failure."""
+    keep = set(kept)
+    for r in SPINE:
+        if r in sites and r in keep:
+            return r
+    return None
+
+
 def compute_kept(n, rng, eligible=None, forced=(), parts=None, bar_from_draw=(), order="rolled"):
     """Kept-region list, drawn from `eligible` (defaults to all of REGIONS).
 
