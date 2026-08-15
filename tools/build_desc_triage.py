@@ -56,6 +56,15 @@ DEFAULT_OUT = "er-archipelago-desc-triage.html"
 
 NAME_RE = re.compile(r"^(?P<region>.*?) :: (?P<rest>.*?) \[f(?P<flag>\d+)\]$")
 ORD_RE = re.compile(r"\s\((\d+)\)$")
+# The sweep clause a member carries (er-archipelago#670): ", also granted by <boss> (<tile>)".
+# 🛑 STRIPPED BEFORE ANYTHING ELSE READS THE NAME, and it must be. It is an ANNOTATION, not a
+# descriptor -- this tool exists to judge whether a descriptor distinguishes a check from its
+# siblings, and two checks can be equally indistinguishable while being swept by different bosses.
+# Leaving it in did two things at once: it sat AFTER the ordinal so `ORD_RE` (anchored at `$`) no
+# longer matched, and it split the (region, item, desc) family key -- so a sibling pair became one
+# check with a lone ordinal and one with none, which is exactly what
+# `test_collision_ordinals_come_in_families` calls "a parse bug". It was right.
+SWEEP_CLAUSE_RE = re.compile(r",\s*also granted by .*$")
 LOCALE_RE = re.compile(r"^(?:world drop|treasure|enemy drop|shop|event|gesture)\s·\s|^m\d\d")
 
 IMPORTANT = {"Boss", "MajorBoss", "GreatRune", "Remembrance", "KeyItem", "Legendary",
@@ -67,11 +76,14 @@ FILLER_RE = re.compile(
 
 
 def split_name(name):
-    """'Region :: Item - desc (2) [f123]' -> (region, item, desc, ordinal, flag)."""
+    """'Region :: Item - desc (2) [f123]' -> (region, item, desc, ordinal, flag).
+
+    The #670 sweep clause is stripped first -- see SWEEP_CLAUSE_RE for why it cannot be part of
+    `desc`."""
     m = NAME_RE.match(name)
     if not m:
         return None
-    rest = m.group("rest")
+    rest = SWEEP_CLAUSE_RE.sub("", m.group("rest"))
     o = ORD_RE.search(rest)
     ordinal = int(o.group(1)) if o else None
     if o:
