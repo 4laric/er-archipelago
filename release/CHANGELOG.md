@@ -208,6 +208,33 @@ it is still a day old and off by default; that rename is deliberately not in thi
 
 Refs #677.
 
+### A Bonny Gaol pickup was a live Limgrave check
+
+Spotted by Alaric on his own tracker, on an `enable_dlc: false` seed:
+`Limgrave :: Hefty Cracked Pot - near Bonny Gaol [f66930]`. Bonny Gaol is Shadow of the Erdtree.
+
+Flag 66930's only lot is 41010000 -- m41_01, Bonny Gaol -- but the EMEVD provenance chain gave it an
+m18 fallback, which resolved to "Stormveil (assoc.)" and from there to a live Limgrave check on the
+progression surface. In a base-game seed it shipped pointing at ground the player cannot reach, so
+the fill was free to put a Region Lock on it and make the seed unwinnable with no warning.
+
+`gen_data._REGION_CONFIRMED_FLAGS` already carried this exact fix for m41_00 (Belurat Gaol) and
+m41_02 (Lamenter's Gaol). **m41_01 was missed** because 66930 does not share their `X0SS7000` flag
+shape -- it is a `669xx` common-event pot flag, and its four siblings all stayed safely unplaced, so
+the family looked handled. It now goes to Scadu Altus beside every other m41_01 check.
+
+**The repo already knew and had ledgered it.** `(66930, "Limgrave", "Scadu Altus")` was a pinned
+tolerated mismatch in `test_gf_check_ground_regions`. Nothing connected "known attribution mismatch"
+to "live check pointing into unreachable DLC ground", which is the actual lesson.
+
+A new gate stops the class recurring: **no base-game region may hold a check whose nearest grace is
+in a DLC map.** It fails before this fix naming exactly this row and passes after. The predicate is
+a two-hop join over committed derived tables (`nearest_grace` -> `grace_flags`) rather than
+arithmetic on a lot id -- slicing digits off a lot invents map names for any lot that is not eight
+digits, and did so while this was being measured.
+
+Closes #680.
+
 ## v0.4.1 — 2026-08-13
 
 Window opened minutes after the v0.4.0 tag at `d9cdeafc`, and **not** on purpose: commits had

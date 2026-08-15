@@ -590,6 +590,10 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     paragraph above. Zero added and zero removed is what proves it is a permutation and not a
     silent 24-in/24-out."""
     digest, n = _sweep_digest()
-    assert (digest, n) == ("d049e8657104e323", 4045), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (d049e8657104e323, 4045). The total alone will "
+    # 2026-08-14: d049e865 -> 28f04fe4, count UNCHANGED at 4045. Pure membership movement, and it is
+    # the #680 fix: flag 66930 (Hefty Cracked Pot, lot m41_01 Bonny Gaol) moved Limgrave -> Scadu
+    # Altus, so one member left Limgrave's sweep and joined Scadu Altus's. A churn with the SAME
+    # total is exactly what a one-check re-region looks like; a real regression would move the count.
+    assert (digest, n) == ("28f04fe447dccee7", 4045), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (28f04fe447dccee7, 4045). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

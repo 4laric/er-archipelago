@@ -2329,7 +2329,6 @@ LOCATIONS = {
         ("Limgrave :: Duelist's Furled Finger - near Warmaster's Shack (region unconfirmed) [f60240]", 7770015, 60240),
         ('Limgrave :: Cracked Pot - from Merchant Kalé [f66030]', 7770048, 66030),
         ('Limgrave :: Cracked Pot - from Nomadic Merchant [f66060]', 7770049, 66060),
-        ('Limgrave :: Hefty Cracked Pot - near Bonny Gaol [f66930]', 7770078, 66930),
         ("Limgrave :: Nomadic Warrior's Cookbook [1] - from Merchant Kalé [f67000]", 7770081, 67000),
         ("Limgrave :: Nomadic Warrior's Cookbook [3] - from Nomadic Merchant [f67010]", 7770082, 67010),
         ("Limgrave :: Nomadic Warrior's Cookbook [6] - near Fort Haight West (region unconfirmed) [f67020]", 7770083, 67020),
@@ -4153,6 +4152,7 @@ LOCATIONS = {
         ('Raya Lucaria Academy :: Carian Knight Armor - near Church of the Cuckoo [f14007850]', 7900194, 14007850),
     ],
     'Scadu Altus': [
+        ('Scadu Altus :: Hefty Cracked Pot - near Bonny Gaol [f66930]', 7770078, 66930),
         ('Scadu Altus :: Hefty Cracked Pot - near Bonny Village [f66960]', 7770079, 66960),
         ("Scadu Altus :: Hefty Cracked Pot - near Recluses' River Downstream [f66970]", 7770080, 66970),
         ("Scadu Altus :: Finger-Weaver's Cookbook [2] - near Cathedral of Manus Metyr [f68580]", 7770141, 68580),
@@ -5531,4 +5531,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:59e01ef84f75b83a0c4ec15421f1a2469dbe9aba67b1c54569b663980320865a', 'module': 'data.py', 'body_sha256': 'sha256:70c169cc1a496d70a947778677feaeeafcab2f275d38d34858945fbb9d0f44a3'}
+_GEN_STAMP = {'inputs_hash': 'sha256:80a798056114e60f208e3abcfc1707b735e5037bad65673218e3cfbf65be2e4f', 'module': 'data.py', 'body_sha256': 'sha256:af7ec06c6958e431670e83b269d25834e96a5de7cd5e874d2cc1b6af7edb9dc2'}
