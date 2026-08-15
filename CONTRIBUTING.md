@@ -320,6 +320,11 @@ Run through this before a change lands (PR or direct):
       same commit as the regenerated artifact** -- `git ls-tree HEAD | grep 160000` names it. CI
       regenerates into a checkout of the PIN, so a bump deferred to a follow-up commit is a window in
       which main is red and a tag cut from it ships an apworld against a DLL that disagrees with it.
+- [ ] Touched a generator or a `gen_manifest.FILE_INPUTS` entry? **`python3 tools/regen_all.py`**
+      (AGENTS.md section 5a) was run and its output is in THIS commit -- including the three
+      stamp-bearing root pages, which re-stale on ANY `inputs_hash` move even when no check changed.
+      One entrypoint, deliberately: the recipe used to be three lists and the one this doc pointed
+      at was the incomplete one (issue #699).
 - [ ] No game data or build outputs staged; `git diff --cached --stat` reviewed.
 - [ ] Item-pool changes are count-neutral.
 - [ ] No fix re-ranks, prioritises, or special-cases the item/class that happened to break: if the

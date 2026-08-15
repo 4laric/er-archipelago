@@ -89,6 +89,12 @@ GENERATORS = [
     # release/CHANNELS.tsv gate. Reads build.ps1 and release/, neither of which is installed beside
     # the world, so it can only run from a repo checkout.
     "publish_channels",
+    # The regen entrypoint is COMPLETE (issue #699). Walks the repo tree for stamp-bearing
+    # artifacts, reads tools/, build.ps1 and .github/ -- none of which gf_test.py installs beside
+    # the world. AP-free, no artifacts, no client. It belongs in THIS job specifically: this is
+    # the job whose byte-diff went red on PR #698 for an unregenerated page, so this is where the
+    # gate that prevents the next one has to run.
+    "regen_all",
 ]
 
 # Suites that run in the `tests` job (installed world + ensured artifacts + client at the gitlink).

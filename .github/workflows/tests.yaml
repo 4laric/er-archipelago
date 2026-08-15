@@ -433,27 +433,31 @@ jobs:
 
       - name: Generators run, and their committed output is not stale
         run: |
-          python tools/gen_region_locks.py
-          python greenfield/gen_contract.py
-          # The baked area-tier table (client PR #126). Its DATA half needs the MSBs and so lives
-          # on Alaric's box (tools/datamine_area_tiers.py, tier-2); this half is a pure read of the
-          # committed greenfield/area_tiers.tsv, so CI can hold the client's bytes to it. Without
-          # this step area_tiers.rs would be a hand-maintained file in another repo, which is the
-          # exact shape gen_region_locks.py exists to prevent -- and client-main-drift would NOT
-          # catch it, since that job only re-runs gen_region_locks and gen_contract.
-          python tools/gen_area_tiers.py --check
-          # Pure join over committed greenfield data -> er-archipelago-check-browser.html.
-          # It is stamped with data.py's inputs_hash (NOT the commit) and writes LF, so a
-          # regen here is byte-identical to a Windows regen and the diff below is meaningful.
-          python tools/build_check_browser.py
-          python tools/build_desc_triage.py
-          # Same shape, same reason: a pure join over committed greenfield data ->
-          # greenfield/questline_dag.tsv (SPEC-questline-dag tier 1). Nothing in the world reads
-          # it yet; the diff below is what stops it going stale while it is being read by humans.
-          python tools/build_questline_dag.py
-          # ...and its reading surface. Mermaid is fetched from a CDN at VIEW time, never at
-          # build time, so this step is offline-safe and byte-deterministic like the others.
-          python tools/build_questline_dag_page.py
+          # ONE ENTRYPOINT, NOT A LIST (issue #699, 2026-08-15). These steps used to be enumerated
+          # here, again in build.ps1, and a THIRD time -- incompletely -- in AGENTS.md section 5a,
+          # which is the copy humans and agents are told to follow. It named no page builder at
+          # all, so PR #698 followed it exactly and this job went red on ONE line: a page's
+          # inputs_hash stamp. tools/regen_all.py is now the single list and all three consumers
+          # call it, so the doc cannot drift from CI -- there is nothing left to enumerate.
+          #
+          # What `--phases tables,pages` covers, and why each is here rather than remembered:
+          #   * region_locks.rs / contract_gen.rs -- generated FROM greenfield data, living in the
+          #     client repo, checked out at the gitlink. The second diff below is what reads them.
+          #   * gen_area_tiers.py --check -- the baked area-tier table (client PR #126). Its DATA
+          #     half needs the MSBs and lives on Alaric's box (tier-2); this half is a pure read of
+          #     the committed greenfield/area_tiers.tsv, so CI can hold the client's bytes to it.
+          #     client-main-drift would NOT catch a stale one: that job only re-runs
+          #     gen_region_locks and gen_contract. 🛑 This step was in THIS list and missing from
+          #     build.ps1 -- the disagreement issue #699 found. regen_all.py keeps it.
+          #   * the three offline pages + greenfield/questline_dag.tsv -- pure joins over committed
+          #     greenfield data. Each page is stamped with data.py's inputs_hash (NOT the commit)
+          #     and written LF, so a regen here is byte-identical to a Windows one and the diff
+          #     below is meaningful. Mermaid is fetched from a CDN at VIEW time, never at build
+          #     time, so the questline page is offline-safe and byte-deterministic like the rest.
+          #
+          # gen_data.py is deliberately NOT re-run here (the `regen-and-fill` job owns that, with
+          # Archipelago installed); this job holds the committed modules' READERS to them.
+          python tools/regen_all.py --phases tables,pages
 
           # These suites test REPO TOOLING (tools/ + the committed pages), so they only run
           # from a repo checkout -- gf_test.py installs the world into _ap/worlds/eldenring with no
