@@ -545,7 +545,11 @@ class GreenfieldEldenRingWorld(World):
         🛑 EVERY REFUSAL NAMES THE REGION AND THE REASON. The three ways a named region cannot open
         a run are invisible to each other -- your DLC toggles sealed it, your goal needs it, or it
         is a child region reached through its parent -- and a single "that region is not available"
-        would send the player to the wrong one of the three."""
+        would send the player to the wrong one of the three.
+
+        A FOURTH refusal is about the SET, not a region: a pool smaller than `start_regions` cannot
+        seat the anchors (#690). It names both yaml keys because either one can be the one you meant
+        to change."""
         opt = getattr(self.options, "start_region_pool", None)
         named = frozenset(str(r) for r in (opt.value if opt is not None else ()) or ())
         if not named:
@@ -578,6 +582,36 @@ class GreenfieldEldenRingWorld(World):
                 "(%s) rather than opened directly, so it can never be where a run starts. Name its "
                 "parent instead." % (", ".join(gated),
                                      ", ".join(REGION_PARENT[g] for g in gated)))
+        # FOURTH REFUSAL: the pool must be able to SEAT the count (#690). Everything above asks
+        # "can this name open a run?"; this asks "are there enough names left to open the run the
+        # yaml asked for?" -- `only` NARROWS the kept set to exactly these names before the anchor
+        # draw (features/start_grace.pick_anchor_regions), so a pool of 1 can never seat
+        # start_regions 2 no matter what else the seed does.
+        #
+        # 🛑 IT HAS TO DIE HERE. Reached the anchor pick instead, this is a bare ValueError out of
+        # start_grace -- a traceback, not a yaml diagnosis -- and its text used to advise "raise
+        # num_regions", which is the one thing that CANNOT help: the narrow happens before the
+        # draw, so a bigger draw adds regions the filter immediately removes. bobler hit exactly
+        # that on 2026-08-15 (num_regions 9, start_regions 2, start_region_pool [Caelid]), tried
+        # the advice, and died identically.
+        #
+        # The bound is EXACT in the direction it is used, and only that direction. By the time the
+        # three checks above have passed, every named region is force-kept (generate_early adds the
+        # pool to `_forced`), so `kept` CONTAINS `named` and the narrowed set is exactly `named`;
+        # asking for more anchors than that set holds is therefore unsatisfiable, and this never
+        # refuses a seed that would have generated. The CONVERSE does not hold -- a named region
+        # with zero emitted checks still cannot anchor, and this cannot see that -- which is why
+        # the ValueError in start_grace stays as the backstop rather than being replaced by this.
+        _sr = getattr(self.options, "start_regions", None)
+        n_start = max(1, int(_sr.value)) if _sr is not None else 1
+        if n_start > len(named):
+            raise OptionError(
+                "[eldenring] start_regions asks for %d starting regions, but start_region_pool "
+                "names only %d region(s) (%s) and the run may open ONLY in the regions you named. "
+                "Raising num_regions cannot fix this -- start_region_pool narrows the pool before "
+                "the anchors are drawn, so a bigger seed just adds regions this option removes "
+                "again. Name at least %d region(s) in start_region_pool, or lower start_regions "
+                "to %d." % (n_start, len(named), ", ".join(sorted(named)), n_start, len(named)))
         return frozenset(named)
 
     def _eligible_regions(self) -> List[str]:

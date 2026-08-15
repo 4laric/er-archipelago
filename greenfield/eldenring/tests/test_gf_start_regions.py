@@ -164,6 +164,30 @@ class PickAnchorRegionsPure(unittest.TestCase):
             pick_anchor_regions(small, random.Random(1), COUNTS, DLC_REGIONS, n=3,
                                 gated=self.GATED, never_extra=self.NEVER)
         self.assertIn("start_regions", str(cm.exception))
+        # Without `only`, raising num_regions IS a real road out -- a bigger draw really can bring
+        # another anchorable region in. The advice belongs here and nowhere else.
+        self.assertIn("raise num_regions", str(cm.exception))
+
+    def test_the_backstop_does_not_advise_raising_num_regions_under_a_pool(self):
+        """#690. `only` NARROWS `kept` at the top of pick_anchor_regions, before the draw, so a
+        bigger num_regions adds regions the filter immediately removes. The message used to say
+        "lower start_regions or raise num_regions" unconditionally; bobler (2026-08-15) followed the
+        second half at num_regions 9 and died identically.
+
+        🛑 This is not "the wording changed". Advice a player can ACT ON and that provably cannot
+        work costs them a generation to disprove, and the fix above (core's fourth refusal) means
+        almost nobody reaches this text -- so the one player who does is the one who needs it right.
+        """
+        pool = [r for r in BASE_KEPT if r != GOAL_REGION][:2]
+        only = frozenset(pool[:1])
+        with self.assertRaises(ValueError) as cm:
+            pick_anchor_regions(pool, random.Random(1), COUNTS, DLC_REGIONS, n=2,
+                                gated=self.GATED, never_extra=self.NEVER, only=only)
+        msg = str(cm.exception)
+        self.assertNotIn("raise num_regions", msg,
+                         "the backstop still offers the road start_region_pool closed: " + msg)
+        self.assertIn("start_region_pool", msg, msg)
+        self.assertIn("start_regions", msg, msg)
 
     def test_major_boss_bias_binds_the_first_anchor_only(self):
         """Intersecting all n with the MajorBoss set can empty the pool outright. The bias is a
@@ -402,3 +426,68 @@ class StartRegionPoolIsInertWhereThereIsNoAnchor(WorldTestBase):
                          "no-anchor case this test claims to cover")
         self.assertEqual(_precollected_locks(self), [],
                          "natural_progression precollected a Region Lock")
+
+
+class StartRegionPoolMustSeatStartRegions(WorldTestBase):
+    """MOTIVATING CASE (rule 11), issue #690. bobler, 2026-08-15:
+
+        num_regions: 9
+        start_regions: 2
+        start_region_pool: ["Caelid"]
+
+    Two anchors asked for, one region allowed to host them. Before this fix that was an unhandled
+    ValueError out of features/start_grace -- a TRACEBACK, not a yaml diagnosis -- and the text it
+    carried told him to raise num_regions, which cannot work: `only` narrows the kept set before the
+    anchors are drawn, so a bigger seed just grows a set this option shrinks again. He tried it at 9
+    and died identically.
+
+    So the assertions are not "it raises". They are: the right EXCEPTION TYPE (OptionError is what
+    AP renders as a yaml problem; ValueError is what it renders as a crash), and both option names
+    in the text, because either one of the two is the knob the player meant to turn."""
+    game = GAME
+    auto_construct = False
+
+    def test_a_one_name_pool_refuses_two_starting_regions_as_an_option_error(self):
+        self.options = {"num_regions": 9, "start_regions": 2,
+                        "start_region_pool": ["Caelid"]}
+        with self.assertRaises(OptionError) as cm:
+            self.world_setup(seed=7)
+        msg = str(cm.exception)
+        self.assertIn("start_region_pool", msg, msg)
+        self.assertIn("start_regions", msg, msg)
+        # The numbers, both of them -- "the pool is too small" without them is a riddle.
+        self.assertIn("2", msg, msg)
+        self.assertIn("Caelid", msg, msg)
+        # And the dead road is named DEAD rather than left for him to try.
+        self.assertIn("num_regions cannot fix this", msg, msg)
+
+    def test_it_is_not_the_num_regions_value_that_decides(self):
+        """It failed at the default 6 too. If the refusal ever starts depending on num_regions,
+        that is the old confusion coming back through the front door."""
+        for nr in (6, 9, 12):
+            self.options = {"num_regions": nr, "start_regions": 2,
+                            "start_region_pool": ["Caelid"]}
+            with self.assertRaises(OptionError):
+                self.world_setup(seed=7)
+
+
+class StartRegionPoolBigEnoughStillGenerates(WorldTestBase):
+    """THE CONTROL for the refusal above, and the reason it is a separate class: a guard that
+    refuses everything would satisfy every assertion in StartRegionPoolMustSeatStartRegions. The
+    same yaml with the pool one name longer must still generate AND still open in both named
+    regions -- refusing the unsatisfiable case must not cost the satisfiable one."""
+    game = GAME
+    options = {"num_regions": 9, "start_regions": 2,
+               "start_region_pool": ["Caelid", "Limgrave"]}
+
+    def test_two_names_seat_two_starting_regions(self):
+        for seed in (1, 7, 22222):
+            self.world_setup(seed=seed)
+            self.assertEqual(sorted(_precollected_locks(self)), ["Caelid", "Limgrave"],
+                             f"seed {seed}")
+
+    def test_a_pool_equal_to_the_count_is_allowed_not_merely_larger(self):
+        """The bound is `start_regions > len(pool)`, not `>=`. Off by one here and the control
+        above is the only case that survives, which is exactly the case nobody would file."""
+        self.world_setup(seed=13)
+        self.assertEqual(len(_precollected_locks(self)), 2)

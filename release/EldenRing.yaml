@@ -78,7 +78,11 @@ Elden Ring:
   # Gravesite, Belurat, Ensis, Scadu Altus, Shadow Keep, Rauh Base, Ancient
   # Ruins, Cerulean, Abyssal, Jagged Peak. Naming a region this seed cannot open
   # in -- sealed by your DLC toggles, needed by your goal, or reached through a
-  # parent region -- fails generation and says which and why.
+  # parent region -- fails generation and says which and why. So does naming
+  # FEWER regions than start_regions asks for: the run can only open in the
+  # regions you list, so a one-name pool cannot seat two starting regions, and
+  # raising num_regions will not help (this option narrows the pool before the
+  # starting regions are drawn).
   start_region_pool: []
 
   # How the kept regions are CHOSEN when num_regions > 0. This picks WHICH

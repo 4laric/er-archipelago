@@ -5,13 +5,16 @@ anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing yet. This window was opened the morning after v0.4.2 shipped, with no commits past the tag,
-so there is genuinely nothing here to describe. That is the point of opening it early: every change
-that lands from here writes its own line while somebody still knows what it was for, rather than
-being reconstructed from a commit log at release time.
+**A bad `start_region_pool` now fails like a yaml problem instead of a crash.** If you name fewer
+regions in `start_region_pool` than you ask for in `start_regions` -- one region, two starting
+regions -- generation used to stop on a Python traceback. Worse, the message buried in it told you
+to raise `num_regions`, and that road is closed: `start_region_pool` cuts the pool down to the
+regions you named before the starting regions are drawn, so a bigger seed just grows a set the
+option shrinks again. A tester followed that advice at `num_regions: 9` and got the same crash back.
 
-If you are reading this at the tag and it still says "nothing yet", the window shipped as pure
-version-lockstep and a v0.4.2 seed behaves identically.
+The refusal now names both options, both numbers and the regions you actually listed, and offers the
+two fixes that work: list more regions, or start in fewer. Nothing about a yaml that already
+generated changes -- if your pool is big enough for your count, this is invisible to you.
 
 ## What v0.4.3 does not change
 
