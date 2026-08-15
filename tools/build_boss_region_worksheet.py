@@ -337,7 +337,12 @@ def main():
                              (PLACE_TO_REGION.get(ruled, ruled), _w["boss_name"], ruled))
         with open(ARENA, "w", encoding="utf-8", newline="\n") as f:
             f.write("# AUTO-EXPANDED from boss_region_worksheet.tsv by "
-                    "tools/build_boss_region_worksheet.py --expand -- DO NOT EDIT.\n")
+                    "tools/build_boss_region_worksheet.py --expand.\n")
+            f.write("# ⭐ HAND ROWS ARE PRESERVED -- this emit UNIONS with what is already here, so a\n")
+            f.write("#   ruling for a boss the worksheet does not cover can be added by hand and will\n")
+            f.write("#   survive every re-emit. The worksheet only carries bosses that own AMBIGUOUS\n")
+            f.write("#   CHECKS; a sweep trigger with none has no row there and would otherwise have\n")
+            f.write("#   nowhere for a human to write down where it is fought.\n")
             f.write("# WHERE THE BOSS IS FOUGHT, as ruled by a human in the arena_region column.\n")
             f.write("# gen_data fills SWEEP_ARENA_REGION from this ONLY where PlayRegionParam has no\n")
             f.write("#   boss-area row -- ranked BELOW measured evidence, so a ruling can replace an\n")
