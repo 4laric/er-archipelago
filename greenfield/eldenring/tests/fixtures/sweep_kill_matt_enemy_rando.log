@@ -1,0 +1,13 @@
+09:14:02 [INFO] === SESSION START 2026-08-12 09:14:02 | pid 7788 | this file is APPENDED across launches: everything above belongs to an earlier run ===
+09:14:02 [INFO] Logger initialized.
+09:14:02 [INFO] mod stack: loader = ModEngine2
+09:14:02 [INFO] mod stack: mod directory = C:\games\ELDEN RING\Game\me3\randomizer\archipelago
+09:14:02 [INFO] mod stack: THIRD-PARTY DATA MOD at 1 level(s) up (C:\games\ELDEN RING\Game\me3\randomizer) -- event/, map/, msg/, regulation.bin, script/, sfx/.
+09:14:02 [INFO] mod stack: a co-loaded data mod is SUPPORTED (matt's enemy rando is the expected case), but treat this session as NON-VANILLA: enemy/arena bindings, params, ESD talk scripts and FMG strings may not be the game's own. Do not use this session as an oracle for vanilla ids.
+09:14:02 [INFO] mod stack: fingerprinted randomizer(s): thefifthmatt ER Randomizer
+09:14:09 [INFO] boss-fight probe: ON (default). Samples player and boss HP ~2 Hz while a boss healthbar is up.
+09:14:10 [INFO] sweep-watch: census -- 2 group(s), 0 already set: [1034420800(21), 1034500800(19)]
+09:22:30 [INFO] boss-fight START: t=0.0s npc_param 40000110 npc_id 4000 region 1034420 boss 3820/3820 (100%) player 980/980 (100%)
+09:23:44 [INFO] boss-fight END: npc_param 40000110 outcome=BOSS DOWN t=74.2s unseen=0.0s last boss 0/3820 (0%) player 741/980 (75%)
+09:23:46 [INFO] sweep-watch: trigger flag 1034420800 -> SET (21 member(s) in its group)
+09:31:15 [INFO] sweep-watch: trigger flag 1034500800 -> SET (19 member(s) in its group)

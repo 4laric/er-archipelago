@@ -1,0 +1,11 @@
+14:02:00 [INFO] === SESSION START 2026-08-14 14:02:00 | pid 9930 | this file is APPENDED across launches: everything above belongs to an earlier run ===
+14:02:00 [INFO] Logger initialized.
+14:02:09 [INFO] boss-fight probe: ON (default). Samples player and boss HP ~2 Hz while a boss healthbar is up.
+14:02:10 [INFO] sweep-watch: census -- 3 group(s), 0 already set: [31220800(12), 31220801(12), 31220802(12)]
+14:08:44 [INFO] boss-fight START: t=0.0s npc_param 41402920 npc_id 4140 region 31220 boss 4780/4780 (100%) player 1420/1420 (100%)
+14:09:20 [INFO] boss-fight SAMPLE: t=36.1s npc_param 35600950 npc_id 3560 region 31220 boss  7100/12400 ( 57%) player 1180/1420  ( 83%)
+14:10:03 [INFO] boss-fight END: npc_param 41402920 outcome=BOSS DOWN t=79.4s unseen=0.0s last boss 0/4780 (0%) player 1102/1420 (77%)
+14:10:05 [INFO] sweep-watch: trigger flag 31220801 -> SET (12 member(s) in its group)
+14:10:05 [INFO] sweep-watch: trigger flag 31220800 -> SET (12 member(s) in its group)
+14:10:05 [INFO] sweep-watch: trigger flag 31220802 -> SET (12 member(s) in its group)
+14:10:07 [INFO] Received item: Boss sweep (Liurnia of the Lakes)

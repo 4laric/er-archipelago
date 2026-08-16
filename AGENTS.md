@@ -553,6 +553,7 @@ are absent in CI). Know which tier your change is in:
   | `nearest_grace.tsv`, `tile_grace.tsv` | `tools/build_nearest_grace.py --extra-coords greenfield/boss_reward_coords.tsv`, `tools/build_tile_grace.py` | committed grace tsvs (sandbox-runnable) |
   | `shop_rows.tsv` | `tools/datamine_shop_rows.py` | params |
   | `synthetic_flag_recovery.tsv` | `tools/recover_synthetic_flags.py` | committed tsvs |
+  | `sweep_trigger_npcs.tsv` | `tools/datamine_sweep_trigger_npcs.py` | event js + msg FMG + params (#713) |
 
   If you **can't** run the MSB-gated tool in-sandbox (no unpacked MSBs here), say so plainly and hand
   Alaric the exact `--emit` command **and** the emit → `-All` order — never imply `-All` covers it.
