@@ -206,11 +206,22 @@ choices. The containment was already computed — it was just small text beside 
 - `rune_shop_pricing` is frozen OFF at 0. The roll never ran; a rune shop slot keeps the price of the
   ware it used to sell.
 
-### Foreign exports are a dial now, not a switch
+### Foreign exports thin instead of vanishing, and the default moved
 
-`filler_foreign` spends a **copy budget per category** instead of sampling names, so every category
-stays eligible to travel and the composition target is hit on a percentage basis. Shipped at 70,
-which is the measured 1:1 export composition. Previously the lever behaved as on/off.
+`filler_foreign_pct` has always been a percentage. What changed is how it is SPENT: a **copy budget
+within each category**, rather than a sample over names. A name sample could miss a whole category by
+chance, so lowering the lever silently stopped exporting some kinds of thing; the budget never takes
+a category's last item, so lowering it now thins what you export instead. Barring a category outright
+is `keep_local`'s job and should stay the only way to do it.
+
+🛑 **The default moved 100 → 70, so this option now ships NON-DEFAULT.** 100 is still the no-op
+sentinel `_select` short-circuits on; it is just no longer what you get. 70 is the measured 1:1
+useful:filler mix in what your partner actually receives — Hollow Knight over 5 seeds: `100 → 0.79:1`,
+`70 → 1.00:1`; Bumper Stickers over 3: `100 → 0.77:1`, `70 → 0.97:1`.
+
+⚠️ **That number assumes the shipped `keep_local`.** The two levers compose hard: against
+`keep_local: []` the same sweep put 1:1 at pct **6-12**, an order of magnitude away. If you empty or
+extend `keep_local`, re-measure rather than reason about it.
 
 ### Merchant checks that were never really on the surface
 
