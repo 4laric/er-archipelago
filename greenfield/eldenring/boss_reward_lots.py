@@ -11,6 +11,7 @@ BOSS_REWARD_HANDLERS = {1100: 'ボス撃破_アイテム取得_XX -- Defeat boss
 BOSS_REWARD_TILE = {
     197: 'm14_00',   # lot 10180, reward flag 9118, handler 1100
     60440: 'm14_00',   # lot 10170, reward flag 9117, handler 1100
+    60510: 'm10_00',   # lot 10000, reward flag 9100, handler 1100
     60520: 'm11_00',   # lot 10050, reward flag 9105, handler 1100
     510010: 'm10_00',   # lot 10010, reward flag 9101, handler 1100
     510030: 'm10_01',   # lot 10030, reward flag 9103, handler 1100
@@ -122,6 +123,7 @@ BOSS_REWARD_TILE = {
 BOSS_REWARD_LOT = {
     197: 10180,
     60440: 10170,
+    60510: 10000,
     60520: 10050,
     510010: 10010,
     510030: 10030,
@@ -235,6 +237,7 @@ BOSS_REWARD_LOT = {
 BOSS_REWARD_DEFEAT = {
     197: 14000800,   # defeat flag (boss-area key)
     60440: 14000850,   # defeat flag (boss-area key)
+    60510: 10000850,   # defeat flag (boss-area key)
     60520: 11000850,   # defeat flag (boss-area key)
     510010: 10000800,   # defeat flag (boss-area key)
     510030: 10010800,   # defeat flag (boss-area key)

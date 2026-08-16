@@ -60,9 +60,8 @@ boss_data = _load("eldenring.boss_data", "boss_data.py")
 ps = _load("eldenring.features.progression_surface", "features/progression_surface.py")
 
 
-def _major_boss_extras():
-    """Extract the MAJOR_BOSS_EXTRAS literal from gen_data.py WITHOUT importing it (importing would run
-    the whole data pipeline / need elden_ring_artifacts)."""
+def _gen_data_path():
+    """greenfield/gen_data.py, resolved for BOTH layouts."""
     _gd = os.path.join(GREENFIELD, "gen_data.py")
     if not os.path.isfile(_gd):
         # Installed world (_ap/worlds/eldenring): greenfield/ is not installed, but the repo
@@ -82,21 +81,70 @@ def _major_boss_extras():
             d = nd
     if not os.path.isfile(_gd):
         import pytest
-        pytest.skip("greenfield/gen_data.py not found in any parent -- this MAJOR_BOSS_EXTRAS oracle "
-                    "needs a repo checkout somewhere above the tests dir (every CI job has one; a "
+        pytest.skip("greenfield/gen_data.py not found in any parent -- the gen_data source oracles "
+                    "need a repo checkout somewhere above the tests dir (every CI job has one; a "
                     "bare world install outside a repo genuinely cannot run it).")
-    src = open(_gd, encoding="utf-8").read()
-    tree = ast.parse(src)
+    return _gd
+
+
+def _gen_data_literal(name):
+    """A module-level literal out of gen_data.py WITHOUT importing it (importing would run the whole
+    data pipeline / need elden_ring_artifacts)."""
+    tree = ast.parse(open(_gen_data_path(), encoding="utf-8").read())
     for node in ast.walk(tree):
         if isinstance(node, ast.Assign):
             for t in node.targets:
-                if isinstance(t, ast.Name) and t.id == "MAJOR_BOSS_EXTRAS":
+                if isinstance(t, ast.Name) and t.id == name:
                     return ast.literal_eval(node.value)
-    raise AssertionError("MAJOR_BOSS_EXTRAS not found in gen_data.py")
+    raise AssertionError("%s not found in gen_data.py" % name)
+
+
+def _major_boss_extras():
+    return _gen_data_literal("MAJOR_BOSS_EXTRAS")
 
 
 def _apid_region():
     return {aid: reg for reg, locs in data.LOCATIONS.items() for (_nm, aid, _fl) in locs}
+
+
+def _achievement_bosses():
+    """greenfield/achievement_bosses.tsv -> [(achievement_id, defeat_flag, boss_name)] for the
+    kind=boss rows. THE GAME'S OWN major-boss roster: every call site of common.emevd's trophy event,
+    joined to the boss whose defeat flag it fires on (tools/datamine_achievement_bosses.py).
+
+    Resolved beside the installed package first -- gf_test copies greenfield/*.tsv INTO the world --
+    then in the repo, so this oracle runs in both layouts instead of skipping in the one CI uses."""
+    for cand in (os.path.join(GF, "achievement_bosses.tsv"),
+                 os.path.join(GREENFIELD, "achievement_bosses.tsv")):
+        if os.path.isfile(cand):
+            out = []
+            with open(cand, encoding="utf-8-sig") as fh:
+                for ln in fh:
+                    if not ln.strip() or ln.lstrip().startswith("#") \
+                            or ln.startswith("achievement_id\t"):
+                        continue
+                    pv = ln.rstrip("\n").split("\t")
+                    if len(pv) >= 7 and pv[2] == "boss":
+                        out.append((int(pv[0]), int(pv[1]), pv[6]))
+            assert out, "%s has no kind=boss rows -- an empty roster is a failure, not a pass" % cand
+            return out
+    import pytest
+    pytest.skip("achievement_bosses.tsv not found beside the world or in greenfield/ -- the roster "
+                "oracle cannot run (every CI layout has it; a bare install outside a repo may not).")
+
+
+def _reward_flags_of(defeat_flag):
+    """The acquisition flag(s) a boss's DEATH grants. BOSS_REWARD_DEFEAT is {reward: defeat}, so
+    this is its inverse -- the same hop gen_data makes, and the reason the roster can be keyed on a
+    defeat flag while the tags are keyed on an acquisition flag."""
+    rl = _load("eldenring.boss_reward_lots", "boss_reward_lots.py")
+    return [rf for rf, df in rl.BOSS_REWARD_DEFEAT.items() if df == defeat_flag]
+
+
+def _ach_no_check():
+    """gen_data._ACH_NO_CHECK -- the ledger of achievement bosses that have NO check in our data
+    (Margit, and only Margit today)."""
+    return _gen_data_literal("_ACH_NO_CHECK")
 
 
 # ---- vocabulary ---------------------------------------------------------------------------------
@@ -263,7 +311,6 @@ def test_one_major_boss_check_per_roster_entry():
     a failure too -- a roster member that resolves to nothing has dropped silently out of the surface,
     which is the direction no count would ever have shown.
     """
-    extras = _major_boss_extras()
     tags = location_tags.LOCATION_TAGS
     flag_majors = {}
     for reg, locs in data.LOCATIONS.items():
@@ -276,17 +323,42 @@ def test_one_major_boss_check_per_roster_entry():
     assert len(flag_majors) >= 30, (
         "only %d flag(s) carry a MajorBoss check -- the tag join has stopped matching, so the "
         "arity assertion below would pass vacuously" % len(flag_majors))
-    bad, checked = [], 0
-    for region, lst in extras.items():
-        for (flag, boss, _drop, _conf) in lst:
-            checked += 1
-            hits = sorted(flag_majors.get(flag, []))
-            if len(hits) != 1:
-                bad.append("%s (flag %s, %s): %d MajorBoss check(s) %s"
-                           % (boss, flag, region, len(hits), [n for (_a, n) in hits]))
-    assert checked >= 10, "the extras roster shrank to %d entries -- check that first" % checked
-    assert not bad, ("a MAJOR_BOSS_EXTRAS entry must resolve to exactly one MajorBoss check "
-                     "-- one boss, one check:\n  " + "\n  ".join(bad))
+
+    # Both halves of the roster, each keyed on the flag it is keyed on in gen_data: the ANCHORS by
+    # acquisition flag, the ACHIEVEMENT bosses by defeat flag resolved through BOSS_REWARD_DEFEAT.
+    entries = [(boss, flag, region) for region, lst in _major_boss_extras().items()
+               for (flag, boss, _d, _c) in lst]
+    ledger = _ach_no_check()
+    for (ach_id, defeat_flag, name) in _achievement_bosses():
+        if defeat_flag in ledger:
+            continue
+        for reward_flag in _reward_flags_of(defeat_flag):
+            entries.append((name or ("achievement %d" % ach_id), reward_flag, None))
+
+    # 🛑 "ONE CHECK" MEANS ONE PRIMARY, AND RENNALA IS WHY THE DISTINCTION IS REAL. Flag 197 pays
+    # BOTH the Remembrance of the Full Moon Queen and the Great Rune of the Unborn -- one death, two
+    # checks, and both are majors by definition (CLOSURE 1: only a demigod drops either). That is not
+    # the armour-set shape at all. So the rule is: exactly one PRIMARY check per roster entry, and
+    # any further MajorBoss check on the same flag must be a sibling co-check that earns the tag on
+    # its own as a Remembrance or Great Rune -- never merely by sharing the flag.
+    tags_of = {aid: tuple(t) for aid, t in location_tags.LOCATION_TAGS.items()}
+    bad = []
+    for (boss, flag, region) in entries:
+        hits = sorted(flag_majors.get(flag, []))
+        where = ", %s" % region if region else ""
+        primary = [(a, n) for (a, n) in hits if a < 7900000]
+        if len(primary) != 1:
+            bad.append("%s (flag %s%s): %d PRIMARY MajorBoss check(s) %s"
+                       % (boss, flag, where, len(primary), [n for (_a, n) in primary]))
+        for (a, n) in hits:
+            if a >= 7900000 and not {"Remembrance", "GreatRune"} & set(tags_of.get(a, ())):
+                bad.append("%s (flag %s%s): sibling co-check %d %r is MajorBoss only because it "
+                           "shares the flag -- one boss is one roster member, not one per lot"
+                           % (boss, flag, where, a, n))
+    assert len(entries) >= 25, ("the roster shrank to %d entries -- check that before reading the "
+                                "assertion below, which would pass on an empty one" % len(entries))
+    assert not bad, ("a roster entry must resolve to exactly one MajorBoss check -- one boss, one "
+                     "check:\n  " + "\n  ".join(bad))
 
 
 def test_remembrance_and_great_rune_stay_inside_major_boss():
@@ -306,16 +378,99 @@ def test_remembrance_and_great_rune_stay_inside_major_boss():
     assert maj <= {a for a, t in tags.items() if "Boss" in t}, "MajorBoss is not a subset of Boss"
 
 
-def test_extras_cover_the_zero_major_regions():
-    """Every region with no boss_arena major must be covered by an active MAJOR_BOSS_EXTRAS entry.
-    (Consecrated Snowfield used to be the exception; it is now folded into Mountaintops of the Giants,
-    whose Fire Giant is a boss_arena major, so there are no uncovered zero-major regions left.)"""
-    extras = _major_boss_extras()
-    arena_regions = {r for r, l in boss_data.REGION_BOSSES.items() if l}
-    zero = [r for r in data.LOCATIONS if r != data.HUB and r not in arena_regions]
-    covered = set(extras)
-    for r in zero:
-        assert r in covered, f"zero-major region {r!r} is not covered by an active MAJOR_BOSS_EXTRAS entry"
+def test_every_region_has_at_least_one_major():
+    """The property the whole arrangement exists for: strict "locks only on major bosses" has to be
+    FEASIBLE in every region, which needs at least one MajorBoss check in each. The old form of this
+    test asserted the weaker, more fragile thing -- that MAJOR_BOSS_EXTRAS covers every region with
+    no boss_arena major -- which stopped being true the moment the roster was derived (#737): Altus
+    is covered by Elemer of the Briar now, not by a hand entry, and the anchor for it was deleted.
+    Assert the invariant, not the mechanism that currently supplies it."""
+    tags = location_tags.LOCATION_TAGS
+    per_region = {}
+    for reg, locs in data.LOCATIONS.items():
+        if reg == data.HUB:
+            continue
+        per_region[reg] = sum(1 for (_nm, aid, _fl) in locs if "MajorBoss" in tags.get(aid, ()))
+    assert per_region, "no regions found -- this assertion would pass vacuously"
+    empty = sorted(r for r, n in per_region.items() if not n)
+    assert not empty, ("region(s) with NO MajorBoss check: %s. Strict progression_surface is "
+                       "infeasible there, so the feasibility ladder has to widen the surface for "
+                       "the whole seed -- either the roster reaches them or MAJOR_BOSS_EXTRAS needs "
+                       "an anchor." % empty)
+
+
+def test_every_region_anchor_is_load_bearing():
+    """The host-side mirror of gen_data's redundancy hard error, and of CONTRIBUTING's rule that a
+    redundant manual override is a FAILURE rather than harmless belt-and-braces.
+
+    MAJOR_BOSS_EXTRAS has exactly one job left: a region the DERIVED roster does not reach still
+    needs one high-confidence check. So an entry whose region already has a derived major has no
+    justification -- and unlike the gen-time check, this one runs without the artifacts, which is the
+    layout most people edit that list in. Six entries were deleted under this rule on 2026-08-16;
+    three of them were the very checks the achievement roster derives."""
+    tags = location_tags.LOCATION_TAGS
+    ledger = _ach_no_check()
+    derived = {aid for reg, locs in data.LOCATIONS.items() for (_nm, aid, _fl) in locs
+               if {"Remembrance", "GreatRune"} & set(tags.get(aid, ()))}
+    for (_ach, defeat_flag, _nm) in _achievement_bosses():
+        if defeat_flag in ledger:
+            continue
+        for rf in _reward_flags_of(defeat_flag):
+            derived |= {aid for reg, locs in data.LOCATIONS.items() for (_n2, aid, fl) in locs
+                        if fl == rf and aid < 7900000}
+    assert len(derived) >= 40, ("the derived roster resolved to only %d check(s) -- too few for the "
+                                "redundancy question below to mean anything" % len(derived))
+    apid_region = _apid_region()
+    derived_regions = {apid_region[a] for a in derived if a in apid_region}
+    redundant = []
+    for region, lst in _major_boss_extras().items():
+        for (flag, boss, _d, _c) in lst:
+            if region in derived_regions:
+                redundant.append("%s (%s, flag %s): %s already has a derived major"
+                                 % (boss, region, flag, region))
+    assert not redundant, ("MAJOR_BOSS_EXTRAS entr(y/ies) with nothing left to anchor -- delete "
+                           "them, do not keep a hand override the derivation already covers:\n  "
+                           + "\n  ".join(redundant))
+
+
+def test_every_achievement_boss_is_tagged_or_ledgered():
+    """The roster's own completeness gate, on the side of it a count cannot see.
+
+    MajorBoss growing is easy to notice. A boss quietly LEAVING the roster -- a defeat flag re-keyed,
+    a reward-lot capture re-mined, a rename upstream -- shrinks the default progression surface and
+    reports a clean run, because nothing downstream knows how many achievement bosses there are
+    supposed to be. So every kind=boss row in the game's own trophy table must end up tagged, or be
+    named in gen_data's _ACH_NO_CHECK ledger with a reason.
+
+    🛑 THE LEDGER IS EMPTY AND THAT IS ASSERTED, because it briefly was not and the entry was WRONG.
+    It held Margit, on the reasoning that no boss-drop row for him exists in our data. His drop is
+    the Stormveil Talisman Pouch; what was missing was a join, not a check (m10_00's `Defeat Margit`
+    event flips reward flag 9100, and datamine_boss_reward_lots was discarding that row because
+    Morgott's event back-fills the same flag behind a guard). A waiver is the one place a wrong
+    belief can sit and look like diligence -- it turns "our derivation is missing something" into a
+    documented fact about the game, and nothing downstream asks again. So the bound is zero, and
+    adding an entry has to be a reviewed diff that cites the EMEVD awarding nothing."""
+    tags = location_tags.LOCATION_TAGS
+    ledger = _ach_no_check()
+    roster = _achievement_bosses()
+    assert len(roster) >= 25, ("the achievement roster has only %d boss row(s) -- re-emit "
+                               "achievement_bosses.tsv before trusting anything below" % len(roster))
+    assert not ledger, (
+        "the no-check ledger is no longer empty: %r. Each entry is an achievement boss the "
+        "progression surface cannot use -- a data gap to FIX, not a waiver to add, and the last one "
+        "of these turned out to be a missing join rather than a missing check. Before adding one, "
+        "find the EMEVD event that awards nothing." % sorted(ledger))
+    missing = []
+    for (ach, defeat_flag, name) in roster:
+        if defeat_flag in ledger:
+            continue
+        tagged = [aid for rf in _reward_flags_of(defeat_flag)
+                  for reg, locs in data.LOCATIONS.items() for (_nm, aid, fl) in locs
+                  if fl == rf and "MajorBoss" in tags.get(aid, ())]
+        if not tagged:
+            missing.append("%s (achievement %d, defeat flag %d)" % (name or "?", ach, defeat_flag))
+    assert not missing, ("achievement boss(es) carrying no MajorBoss check and not in the "
+                         "_ACH_NO_CHECK ledger:\n  " + "\n  ".join(missing))
 
 
 # ---- synthetic ladder-placement model (documents the confinement/spill intent; no fill_restrictive)

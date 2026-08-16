@@ -123,7 +123,16 @@ class TagDataTests(unittest.TestCase):
         # physical acquisition as its primary and inherits its tags. Alaric confirmed the
         # reading 2026-08-13. NOT a rebaseline -- the tag definition is unchanged, the
         # population of checks grew.
-        self.assertEqual(TAG_COUNTS["Boss"], 266)
+        # 266 -> 267 (2026-08-16, #737): MARGIT. `Stormveil :: Talisman Pouch` (flag 60510) carried
+        # NO tags at all -- not Boss, not anything -- because datamine_boss_reward_lots discarded its
+        # row as "reward flag flipped by 2 maps". Margit's defeat event sets reward flag 9100
+        # unconditionally; Morgott's ALSO sets it, behind `if (!EventFlag(9100))`, because they are
+        # the same character and killing Morgott implies Margit. A guarded back-fill is not an
+        # ownership claim, and the tool now says so. One check that always existed in the game gains
+        # the tag it always deserved; the predicate did not move. (It also re-homes to Limgrave --
+        # Stormhill is where you stand to fight him -- and its name loses a wrong "also granted by
+        # Godrick the Grafted" attribution that came from the same missing join.)
+        self.assertEqual(TAG_COUNTS["Boss"], 267)
 
     def test_majorboss_is_a_subset_of_boss(self):
         """A major boss is a boss. Definitional, so this is a gate, not a preference (Alaric,
@@ -295,9 +304,35 @@ class TagDataTests(unittest.TestCase):
         # comment still said 43). The arity is now gated at regen (gen_data: one primary per roster
         # entry, never zero, never two) and asserted host-side by
         # test_gf_progression_surface.test_one_major_boss_check_per_roster_entry, so it cannot come
-        # back by accident. Direction 2 of #737 -- the ten of matt's majors we are MISSING -- is not
-        # in this number yet and will move it up.
-        self.assertEqual(TAG_COUNTS["MajorBoss"], 43)
+        # back by accident.
+        # ⭐⭐⭐ 43 -> 51 (2026-08-16, #737 direction 2): THE ROSTER IS DERIVED NOW. It was a hand
+        # list -- MAJOR_BOSS_EXTRAS, "hand-picked field/evergaol/dragon bosses" -- and it was wrong
+        # in both directions against matt's published roster. His UI says "Major bosses, INCLUDING
+        # ALL ACHIEVEMENT BOSSES", and that phrase is the derivation: common.emevd's trophy event
+        # fires AwardAchievement on a boss's DEFEAT FLAG, so "is this an achievement boss" is a join,
+        # not an opinion (greenfield/achievement_bosses.tsv, 29 boss rows of 32 call sites).
+        #   +11  the achievement bosses we had no MajorBoss check for: Red Wolf of Radagon, Godskin
+        #        Noble, Godskin Duo, Valiant Gargoyles, Mimic Tear, Dragonkin Soldier of Nokstella,
+        #        Royal Knight Loretta, Elemer of the Briar, Commander Niall, Ancestor Spirit, and
+        #        Godfrey's Talisman Pouch. Nine of these are on matt's missing-ten list.
+        #    -3  hand anchors with nothing left to anchor: Dancer of Ranah and Lamenter (Cerulean has
+        #        its own Remembrance boss) and Godefroy (Altus has Elemer). Godefroy is one matt
+        #        explicitly does not count, so the derivation and his roster agree here.
+        # ⭐ MARGIT IS THE TENTH OF MATT'S TEN AND HE IS IN THIS NUMBER, after a correction worth
+        # recording. He was first written off as "no boss-drop row exists in our data" and ledgered
+        # as unresolvable -- Alaric: "margit's boss drop is stormveil talisman pouch". It is: m10_00's
+        # `Defeat Margit` event flips reward flag 9100, which pays lot 10000 = `Talisman Pouch`.
+        # datamine_boss_reward_lots had been discarding that row because Morgott's event ALSO sets
+        # 9100, behind an `if (!EventFlag(...))` back-fill (same character, so killing Morgott implies
+        # Margit). The fix is in the derivation, not here, and it nets to zero on this count: +Margit,
+        # and -Agheel, whose Limgrave anchor became redundant the moment Margit's check re-homed
+        # there. Agheel is the other entry matt does not count, so both are now gone -- neither for a
+        # reason that had anything to do with matt. All 29 achievement bosses resolve; the
+        # _ACH_NO_CHECK ledger is EMPTY and the test asserts it stays that way.
+        # `Boss` does NOT move (266): Dancer of Ranah and Godefroy reached it only through CLOSURE 2
+        # while they were wrongly major, and they are now in _BOSS_DROP_EXTRAS on their own evidence
+        # (both have BOSS_HEALTHBARS rows; neither defeat flag is in the reward capture).
+        self.assertEqual(TAG_COUNTS["MajorBoss"], 51)
 
     def test_boss_geography_counts(self):
         """LegacyBoss / FieldBoss split `Boss` by WHERE the boss stands. Drift guard on both."""
@@ -311,7 +346,11 @@ class TagDataTests(unittest.TestCase):
         # physical acquisition as its primary and inherits its tags. Alaric confirmed the
         # reading 2026-08-13. NOT a rebaseline -- the tag definition is unchanged, the
         # population of checks grew.
-        self.assertEqual(TAG_COUNTS["LegacyBoss"], 52)
+        # 52 -> 53 (2026-08-16, #737): Margit's Talisman Pouch, the one check the catch-up fix
+        # recovered (see TAG_COUNTS["Boss"] above). m10_00 is a legacy dungeon, so the geography pass
+        # classes it the moment the reward join exists -- it followed the Boss tag with no further
+        # change, which is the evidence the two halves are one.
+        self.assertEqual(TAG_COUNTS["LegacyBoss"], 53)
 
         # 2026-08-04 (#249): +3. Placing the unplaced common-event rows gave THREE field
         # bosses a check for the first time -- their unique drop had no tile, so it was never a

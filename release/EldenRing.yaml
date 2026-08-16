@@ -719,15 +719,6 @@ Elden Ring:
   # observe a purchase on them -- so nothing is lost by rerolling.)
   reroll_infinite_shop_stock: true
 
-  # A shop check keeps the price of the ware it USED to sell. That is right for
-  # gear -- a randomised item at this merchant's price -- and wrong when the
-  # reward is a RUNE, because a rune is just money: a 3500-rune slot selling a
-  # Golden Rune [1] worth 2000 is a slot nobody will ever press, and the check
-  # behind it goes uncollected. On, the price is rolled into [0, 2x the rune's
-  # own worth] per seed, per slot: sometimes free, sometimes a bad trade.
-  # Off (default) keeps the original price.
-  rune_shop_pricing: false
-
   # Wares the HUB merchant always stocks, unlimited, instead of leaving those
   # shelves to the reroll above. Up to FOUR -- that is how many unlimited
   # shelves the hub has, and asking for more is rejected with a message rather
