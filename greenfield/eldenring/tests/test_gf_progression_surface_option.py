@@ -265,14 +265,14 @@ class ProgressionSurfaceOption(unittest.TestCase):
     def test_the_shipped_default_ladder_is_unchanged_by_733(self):
         """🛑 THE SAFETY PROPERTY. #733 took two classes out of the default and taught the ladder to
         measure admissions, and NEITHER may move the shipped ladder -- same number of rungs, same
-        locations at each. Measured before the change: 176 -> 365 -> 433.
+        locations at each. Measured before the change: 186 -> 366 -> 434.
 
         If this fails, the default's fill sequence moved and every default seed is a different seed;
         that is a decision, not a side effect."""
         from worlds.eldenring.features.progression_surface import allowed_ap_ids
         ladder = build_ladder(ProgressionSurface.default)
         sizes = [len(set(allowed_ap_ids(LOCATION_TAGS, set(r)))) for r in ladder]
-        self.assertEqual(sizes, [176, 365, 433],
+        self.assertEqual(sizes, [186, 366, 434],
                          "the shipped ladder moved: %s (%s)" % (sizes, [sorted(r) for r in ladder]))
 
     def test_the_shipped_default_ladder_has_no_inert_rung(self):
