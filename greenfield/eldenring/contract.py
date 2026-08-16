@@ -288,22 +288,32 @@ SURFACE_DERIVED_CLASSES = frozenset({"SweepSlot"})
 # are SKIPPED, loudly, at regen (location_tags.SHOP_SLOT_PINS / SHOP_SLOT_SKIPS carry the pins and the
 # per-block skip reasons). Prefer this over ShopNonSpell if shops are ever put in the progression
 # surface.
-# MajorBoss = the ~24 REGION_BOSSES (method=boss_arena remembrance/great-rune arena bosses) UNION a
-# curated MAJOR_BOSS_EXTRAS set of hand-picked field/evergaol/dragon bosses that cover the otherwise
-# major-less regions (gen_data.py). These are the highest-confidence physical locations (boss-arena /
-# boss-defeat flags the client already ships as bossLocations), so the v0.2 progression_surface
-# restriction confines this world's own progression (region Locks + required/gate runes + legacy keys)
-# to them by default.
+# MajorBoss = THE GAME'S OWN ROSTER (#737): the 29 achievement bosses -- every call site of
+# common.emevd's trophy event $Event(9300), joined to the boss whose DEFEAT FLAG it fires on
+# (greenfield/achievement_bosses.tsv) -- UNION Remembrance/GreatRune, UNION the boss_arena
+# REGION_BOSSES, UNION four MAJOR_BOSS_EXTRAS region anchors for the regions the roster does not
+# reach at all (Limgrave, Gravesite, Jagged Peak, Rauh Base). It was a hand-curated list until
+# 2026-08-16 and was wrong in both directions against matt's published roster; the achievement table
+# is the same set he means and nobody has to vote on it. These are the highest-confidence physical
+# locations (boss-arena / boss-defeat flags the client already ships as bossLocations), so the v0.2
+# progression_surface restriction confines this world's own progression (region Locks +
+# required/gate runes + legacy keys) to them by default.
 # 🛑 CONTAINMENT, CORRECTED 2026-08-08 -- this comment had it BACKWARDS. It read "MajorBoss is a
 # SUBSET of Remembrance/GreatRune"; measured over LOCATION_TAGS the relation is the REVERSE, and it
 # matters for what the wizard can tell a player:
-#   Remembrance (25) and GreatRune (7) are SUBSETS of MajorBoss (43)  <- not the other way round
-#   MajorBoss is itself a SUBSET of Boss (258), as are LegacyBoss (52) and FieldBoss (110)
-#   MajorBoss n Legendary = 2 (the curated extras); neither contains the other
-# Counts re-measured over LOCATION_TAGS 2026-08-16. MajorBoss read 52 between the lot-stack co-checks
-# landing and #737: a roster entry is keyed on a boss's acquisition FLAG, and the sibling lots that
-# flag also drives -- two DLC bosses' entire ARMOUR SETS -- were inheriting the tag. It is one check
-# per boss again, which is what 43 was and is the number every other line here was written against.
+#   Remembrance (25) and GreatRune (7) are SUBSETS of MajorBoss (51)  <- not the other way round
+#   MajorBoss is itself a SUBSET of Boss (266), as are LegacyBoss (52) and FieldBoss (110)
+#   MajorBoss n Legendary = 2; neither contains the other
+# Counts re-measured over LOCATION_TAGS 2026-08-16, and MajorBoss moved TWICE that day for two
+# unrelated reasons, which is worth keeping straight:
+#   52 -> 43  (#737 direction 1) a roster entry is keyed on a boss's acquisition FLAG, and the
+#             sibling lots that flag also drives -- two DLC bosses' entire ARMOUR SETS -- were
+#             inheriting the tag. One check per boss.
+#   43 -> 51  (#737 direction 2) the roster stopped being a hand list and became the game's own
+#             achievement table: +11 achievement bosses that had no MajorBoss check, -3 hand anchors
+#             whose regions the roster now covers.
+# `Boss` did not move on either (266). Margit is an achievement boss with NO check anywhere in our
+# data and is ledgered as such in gen_data._ACH_NO_CHECK rather than counted here.
 # So ticking MajorBoss in the default surface already covers every Remembrance and GreatRune check:
 # those two boxes select NOTHING further, and ticking Boss makes all three redundant. The lattice is
 # DERIVED at wizard-build time (features/progression_surface.class_containment) rather than typed

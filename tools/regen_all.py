@@ -112,6 +112,12 @@ STEPS = [
     Step(MODULES, "tools/datamine_boss_healthbars.py",
          emits=["greenfield/eldenring/boss_healthbars.py"],
          why="same: FILE_INPUTS entry, consumed by gen_data."),
+    Step(MODULES, "tools/datamine_achievement_bosses.py",
+         emits=["greenfield/achievement_bosses.tsv"],
+         why="the MajorBoss roster (#737), read by gen_data. AFTER the two datamines above and "
+             "never before them: its classifier IS boss_healthbars + boss_reward_lots, so run out "
+             "of order it would emit a roster of mostly kind=collection rows -- a SMALLER default "
+             "progression surface, written to a committed table, reported as a clean run."),
     Step(MODULES, "greenfield/gen_data.py",
          emits=["greenfield/eldenring/*.py", "greenfield/eldenring/_gen_stamp.json"],
          why="WRITES THE STAMP. Everything below reads it; nothing below may precede it."),
@@ -130,6 +136,13 @@ STEPS = [
     Step(TABLES, "tools/gen_area_tiers.py", ["--check"], needs_client=True,
          why="THE STEP build.ps1 WAS MISSING (issue #699). Its DATA half is tier-2 (needs the "
              "MSBs), so this half only CHECKS: red means re-run without --check and commit."),
+    Step(TABLES, "tools/derive_sweep_anchor_coords.py",
+         emits=["greenfield/sweep_anchor_coords.tsv"],
+         why="reads boss_sweeps.py, so ANY change to sweep membership re-stales it -- and it was "
+             "outside this entrypoint, which is how #737 shipped a red CI on a table nobody had "
+             "been told to regenerate. Its staleness gate lives in a repo-only suite that SKIPS in "
+             "the installed-world layout, so a local `gf_test.py` run cannot see it and only the "
+             "generators job can. AFTER gen_data (MODULES), which writes the sweeps it reads."),
 
     Step(PAGES, "tools/build_check_browser.py",
          emits=["er-archipelago-check-browser.html"],

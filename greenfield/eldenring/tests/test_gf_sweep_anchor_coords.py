@@ -70,7 +70,25 @@ class SweepAnchorCoords(unittest.TestCase):
                     pass
         pair = [f for f in sw if f in arena_flags][:2]
         self.assertEqual(len(pair), 2, "need two arena-bearing sweeps to build the case")
-        victim = sw[pair[0]][0]
+        # 🛑 THE VICTIM MUST BE A CHECK THE TOOL WOULD ACTUALLY ANCHOR. This used to be
+        # `sw[pair[0]][0]` -- whichever member happened to sort first -- and that is not the same
+        # thing: a check the tool skips (it already has a real position, or its trigger has no
+        # arena) cannot be AMBIGUOUSLY anchored, so injecting it produces zero refusals and this
+        # test reports the guard as INERT when the guard is fine.
+        #
+        # It went red exactly that way on 2026-08-16 (#737): Margit's reward left the sweep corpus,
+        # the m10_00 pair re-partitioned its members, and `[0]` landed on an already-positioned
+        # check. The fixture was asserting on data ORDER. Now it names what it needs -- a member of
+        # pair[0] that appears in the emitted anchor table -- and asserts that PREMISE separately,
+        # so a future data shift fails saying "no anchorable victim" instead of libelling the guard.
+        anchored = {l.split("\t")[0] for l in open(OUT, encoding="utf-8") if not l.startswith("#")}
+        victims = [m for m in sw[pair[0]] if m in anchored]
+        self.assertTrue(victims,
+                        "no member of sweep %s is in the emitted anchor table, so there is no check "
+                        "whose double-claim the tool could refuse -- this fixture cannot build its "
+                        "case from this data, which is a fixture problem, NOT evidence about the "
+                        "guard" % pair[0])
+        victim = victims[0]
 
         with tempfile.TemporaryDirectory() as td:
             os.makedirs(os.path.join(td, "tools"))
