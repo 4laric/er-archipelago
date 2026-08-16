@@ -288,7 +288,8 @@ class ConfineForeignProgression(NamedRange):
 # DISPLAY ORDER LIVES HERE, not in contract.SURFACE_CLASSES -- that list's order is a determinism
 # handle for the ladder and must never be rearranged (see the comment on it).
 SURFACE_CLASS_FAMILIES = (
-    ("bosses", "Bosses", ("Boss", "MajorBoss", "LegacyBoss", "FieldBoss", "Remembrance", "GreatRune")),
+    ("bosses", "Bosses", ("Boss", "MajorBoss", "LegacyBoss", "FieldBoss", "MinorDungeonBoss",
+                          "Remembrance", "GreatRune")),
     ("collectathon", "Collectathon lines",
      ("Seedtree", "Church", "Basin", "Fragment", "Revered")),
     ("merchants", "Merchants", ("ShopSlot", "ShopNonSpell", "Shop")),
@@ -311,6 +312,10 @@ SURFACE_CLASS_LABELS = {
                      "that have none. Contains Remembrances and Great Runes."),
     "LegacyBoss":   ("Legacy dungeon bosses",
                      "Bosses standing inside a legacy dungeon."),
+    "MinorDungeonBoss": ("Minor dungeon bosses",
+                     "Catacomb, cave, tunnel, gaol and Divine Tower bosses -- the minidungeons. "
+                     "NOT the underground REGIONS: Nokron, Nokstella, Siofra and Ainsel are "
+                     "overworld-sized and their bosses are elsewhere in this list."),
     "FieldBoss":    ("Overworld bosses",
                      "Field, evergaol and dragon bosses out in the open world. The least "
                      "region-confident boss class -- 22 of them sit on a guessed region."),
