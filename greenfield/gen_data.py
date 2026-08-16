@@ -3287,6 +3287,20 @@ QUEST_GATED_FLAGS = {
     400602, 400630, 400632, 400634, 400636, 400644, 400664, 400666, 400670,
     400671, 400672, 400692, 400700, 400702, 400704, 400710, 400711, 400732,
     400740, 510030, 510420, 520400,
+    # DRYLEAF DANE (Alaric, 2026-08-16, bobler playtest): "some questline shit, i think there are
+    # multiple places you can fight him. should all go missable for now."
+    # boss_healthbars carries him TWICE -- 2049440710 (m61_49_44) and 2050430710 (m61_50_43) -- and
+    # both triggers are among the 26 with no SWEEP_ARENA_REGION row (#445), which is the same fact
+    # from the other side: an NPC you meet at more than one site has no single arena to be filed in.
+    # 🛑 THE SIBLINGS WERE ALREADY SPLIT AND NOBODY NOTICED. Three Enir Ilim pickups carry the same
+    # descriptor tail, "also granted by Dryleaf Dane (m20_01)" -- 400624 Furious Blade of Ansbach,
+    # 400634 Thiollier's Trousers, 400645 Verdigris Greaves -- and only the middle one was tagged.
+    # A rule that catches two of three identical cases is a rule nobody has stated; tag all three
+    # explicitly rather than leave the odd one out to be re-derived by the next reader.
+    400624,   # Furious Blade of Ansbach -- Enir Ilim, also granted by Dryleaf Dane
+    400645,   # Verdigris Greaves -- Enir Ilim, also granted by Dryleaf Dane (already covered;
+              # named here so the trio reads as a trio)
+    400730,   # Dryleaf Arts w/ Ash of War: Palm Blast -- Scadu Altus, Dane's own drop
 }
 # NPC-STATE-GATED checks -- a SECOND, independent derivation (2026-07-26). These are not gated at an
 # award site at all, so `datamine_lot_gates.py` structurally cannot see them: an NPC state-machine
