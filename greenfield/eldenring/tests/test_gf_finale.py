@@ -172,34 +172,61 @@ class FinaleActiveSeed(WorldTestBase):
         free = {i.name for i in self.multiworld.precollected_items[self.player]}
         assert ASHEN_LOCK_ITEM not in free
 
-    def test_entrance_is_exactly_the_ashen_lock(self):
-        """Held or not-held, and nothing else: the finale's reachability is one item now.
+    def test_the_entrance_is_every_OTHER_goal_item(self):
+        """⭐ REWRITTEN 2026-08-16 (#768). Was `test_entrance_is_exactly_the_ashen_lock`, and it
+        asserted the finale opened on ONE item: the Ashen Capital Lock, held or not-held, nothing
+        else.
 
-        Checked against a state stripped of the start anchor's free lock, so the answer is
-        seed-independent -- the old two-lock matrix flaked at the anchor's draw rate because one
-        leg asserted "closed without X" on ~3% of seeds where X was precollected."""
+        That Lock is no longer in the pool. It is withheld and granted by the CLIENT once every
+        other goal item is held (client#245, `er_logic::goal_gate`) -- the enforcement world#694
+        spent three mechanisms failing to find, none of which were needed once we noticed the key
+        being withheld could be one of ours.
+
+        So the entrance requirement is now what the client waits for, stated in AP logic. The two
+        must agree or fill and the client would disagree about when the arena opens; THAT is what
+        this guards, rather than the identity of any one item.
+        """
         from BaseClasses import CollectionState
         entrances = self._finale_entrances()
+        world = self.world
+        needed = list(world.kept_lock_names()) + list(world._required_runes())
+        assert needed, "fixture check: a finale seed must require SOMETHING to open the arena"
+
         mw, saved = self.multiworld, list(self.multiworld.precollected_items[self.player])
         mw.precollected_items[self.player] = [i for i in saved if not i.name.endswith(" Lock")]
         try:
             closed = CollectionState(mw)
             assert not any(e.access_rule(closed) for e in entrances), \
-                "finale entrance open while holding no locks at all"
+                "finale entrance open while holding nothing at all"
+
+            # One short must STILL be shut, or "every other goal item" is not what is being tested
+            # and a partial run could walk into the ending.
+            if len(needed) > 1:
+                partial = CollectionState(mw)
+                for name in needed[:-1]:
+                    partial.collect(world.create_item(name), prevent_sweep=True)
+                assert not any(e.access_rule(partial) for e in entrances), \
+                    f"finale entrance open while {needed[-1]!r} is still outstanding"
+
             open_ = CollectionState(mw)
-            open_.collect(self.world.create_item(ASHEN_LOCK_ITEM), prevent_sweep=True)
+            for name in needed:
+                open_.collect(world.create_item(name), prevent_sweep=True)
             assert all(e.access_rule(open_) for e in entrances), \
-                f"finale entrance must open on {ASHEN_LOCK_ITEM} alone"
-            # ...and no OTHER lock opens it. This is the half that would catch a silent revert to
-            # the region-prerequisite rule: under that rule holding Leyndell + Farum Azula opened
-            # the door, and holding them now must not.
-            others = CollectionState(mw)
-            for r in (FINALE_BURN_REGION, FINALE_KICK_OWNER):
-                others.collect(self.world.create_item(f"{r} Lock"), prevent_sweep=True)
-            assert not any(e.access_rule(others) for e in entrances), \
-                "the OLD prerequisite pair still opens the finale -- the burn is an item now"
+                "finale entrance shut while holding every goal item"
         finally:
             mw.precollected_items[self.player] = saved
+
+    def test_the_ashen_lock_is_not_minted_at_all(self):
+        """The other half of #768, asserted directly rather than through reachability.
+
+        It used to be an ordinary progression item, so fill could place it in sphere 1 and a player
+        could stand in the endgame region before doing anything -- which is where #694's "the ending
+        plays and the run does not end" came from."""
+        from ._util import world_items
+        assert not [i for i in world_items(self) if i.name == ASHEN_LOCK_ITEM], \
+            "the Ashen Capital Lock is withheld (#768); the client grants the region's flags"
+        assert ASHEN_LOCK_ITEM not in self.world.kept_lock_names(), \
+            "a requirement list must never name an item that is never sent"
 
 
 class FinaleUnconditionalOnASmallDraw(WorldTestBase):
@@ -236,10 +263,12 @@ class FinaleUnconditionalOnASmallDraw(WorldTestBase):
         assert {n for (n, _a, _f) in finale_entries()} <= names
         sd = self.world.fill_slot_data()
         assert set(sd["goalLocations"]) == set(_major_boss_ids(FINALE_REGION))
-        # ...and the lock that opens it was minted exactly once, as progression. Counted across
-        # the pool AND the already-placed locations: pre_fill (progression_surface) may already
-        # have placed it, and a test that only looked at `itempool` would read that as "never
-        # minted" -- a false red that invites someone to relax the real assertion.
+        # ⭐ ...and the lock that opens it is minted ZERO times (#768). This asserted "exactly one,
+        # as progression" and was right for the design it was written against: the burn was an item
+        # fill placed like any other. It is withheld now -- the client grants the region's flags
+        # once every other goal item is held (client#245) -- so the correct count is none, and the
+        # pool/placed/precollected split below is kept because all three had to be checked to prove
+        # it USED to be exactly one, and all three have to be checked to prove it is now zero.
         minted = [i for i in self.multiworld.itempool
                   if i.player == self.player and i.name == ASHEN_LOCK_ITEM]
         placed = [l.item for l in self.multiworld.get_locations(self.player)
@@ -247,10 +276,10 @@ class FinaleUnconditionalOnASmallDraw(WorldTestBase):
         free = [i for i in self.multiworld.precollected_items[self.player]
                 if i.name == ASHEN_LOCK_ITEM]
         assert not free, "the Ashen Capital Lock may never be precollected -- it ends the run at connect"
-        both = minted + placed
-        assert len(both) == 1, ("expected exactly one %s: %d in pool + %d placed"
-                                % (ASHEN_LOCK_ITEM, len(minted), len(placed)))
-        assert both[0].advancement, "the burn item must be progression"
+        assert not minted + placed, (
+            "%s exists as an item (%d in pool + %d placed) -- it is withheld since #768, and an "
+            "item nobody can receive must not be minted"
+            % (ASHEN_LOCK_ITEM, len(minted), len(placed)))
 
     def test_count_neutral_on_that_draw(self):
         self._setup_draw_without_the_old_prerequisites()

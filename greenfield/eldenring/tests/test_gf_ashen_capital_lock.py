@@ -165,7 +165,42 @@ class OneRegionSeed(WorldTestBase):
     opt out of the clamp either."""
     game = GAME
     run_default_tests = False
-    options = {"num_regions": 1}
+    # ⭐ `ending_condition: great_runes` JOINED THIS FIXTURE ON 2026-08-16 (#768), and the reason is
+    # the ruling rather than a workaround. The Ashen Capital Lock used to be minted into the pool,
+    # and `core.create_items`' clamp counted it -- its comment said so outright: "the Ashen Capital
+    # Lock is one, so it counts". It is withheld now (the client grants the region's flags), so a
+    # one-region seed mints exactly ONE progression item the goal needs, `start_with_region_lock` is
+    # FROZEN ON, the anchor takes it, and nothing is left to find.
+    #
+    # Alaric ruled that outcome correct -- "one region seed is trivial i think that's legit" -- so
+    # the clamp now counts the REQUIRED GREAT RUNES too, and a rune goal is what gives a one-region
+    # seed something to do. `test_a_one_region_region_locks_seed_is_refused` below pins the other
+    # half: the region_locks variant is SUPPOSED to fail, loudly, naming both numbers.
+    options = {"num_regions": 1, "ending_condition": "great_runes"}
+
+    def test_a_one_region_region_locks_seed_is_refused_and_says_why(self):
+        """THE OTHER HALF OF THE RULING (#768). A one-region seed whose goal is region_locks has
+        its only Lock taken by the frozen start anchor, so the goal is complete at connect. That
+        is not a bug to route around -- it is a trivial seed, and generation should say so.
+
+        Pinned because the failure is an OptionError about `start_regions`, an option the player
+        may never have touched, so the MESSAGE is the whole user experience: it must name both
+        numbers and the levers, including the rune goal this class's own fixture uses."""
+        import pytest
+        from Options import OptionError
+        from test.bases import WorldTestBase as _B
+        opts = {"num_regions": 1, "ending_condition": "region_locks"}
+        with pytest.raises(OptionError) as ei:
+            probe = type(self)("test_a_one_region_region_locks_seed_is_refused_and_says_why")
+            probe.options = opts
+            probe.game = GAME
+            probe.run_default_tests = False
+            _B.world_setup(probe)
+        msg = str(ei.value)
+        assert "start_regions" in msg and "num_regions" in msg, msg
+        assert "great_runes" in msg, (
+            "the error must name the rune goal as a way out, or a player on a one-region seed is "
+            "told only to make their seed bigger: %s" % msg)
 
     def test_one_region_is_kept_and_the_seed_generates(self):
         """🛑 THE CLAIM IS "NOTHING IS FORCE-KEPT", AND `len(kept) == 1` IS NOT THAT.
@@ -191,24 +226,50 @@ class OneRegionSeed(WorldTestBase):
             "kept %s is not the one drawn region plus its ancestors -- something entered the kept "
             "set by a third route" % (sorted(kept),))
 
-    def test_the_ashen_lock_is_the_lock_that_stays_in_the_pool(self):
-        """The clamp's real invariant: at least one progression lock is still findable. With one
-        kept region its lock IS the start anchor, so the Ashen Capital Lock is the only thing
-        standing between the player and a seed that is complete at connect."""
+    def test_something_progression_is_still_findable(self):
+        """⭐ THE CLAMP'S REAL INVARIANT, RE-POINTED (#768). This was
+        `test_the_ashen_lock_is_the_lock_that_stays_in_the_pool`, and it named the mechanism: with
+        one kept region whose lock IS the start anchor, the Ashen Capital Lock was "the only thing
+        standing between the player and a seed that is complete at connect".
+
+        That mechanism is gone -- the Lock is withheld and granted by the client -- but the
+        invariant it protected is not, so it is asserted directly instead of through the item that
+        used to supply it. On this fixture the required Great Runes are what keep the seed
+        findable, which is exactly the substitution the clamp now makes."""
         free = {i.name for i in self.multiworld.precollected_items[self.player]}
         assert ASHEN_LOCK_ITEM not in free
-        findable = [i for i in self.multiworld.itempool
-                    if i.player == self.player and i.name.endswith(" Lock")]
+        findable = [i for i in self.multiworld.itempool if i.player == self.player]
         placed = [l.item for l in self.multiworld.get_locations(self.player)
-                  if l.item is not None and l.item.name.endswith(" Lock")]
-        assert ASHEN_LOCK_ITEM in {i.name for i in findable + placed}
+                  if l.item is not None and l.item.player == self.player]
+        progression = {i.name for i in findable + placed if i.advancement}
+        assert progression, (
+            "no progression item is findable on this seed -- the goal is complete at connect, "
+            "which is what core.create_items' clamp exists to refuse")
+        assert ASHEN_LOCK_ITEM not in progression, (
+            "the Ashen Capital Lock is withheld since #768 and must not be minted")
 
-    def test_the_goal_is_the_elden_beast_and_the_lock_is_required_for_it(self):
+    def test_the_goal_is_the_elden_beast_and_the_requirement_is_on_the_wire(self):
+        """🛑 `goalRequiredItems` MAY BE ABSENT HERE, AND THAT IS NOT THE 2026-07-30 DRIFT.
+
+        This used to assert `ASHEN_LOCK_ITEM in sd["goalRequiredItems"]`, citing the alignment that
+        made both terminal conditions read one list. Two things changed underneath it (#768):
+
+        * the Ashen Lock is not in that list any more -- it is never SENT, and the wire may only
+          name items the player can receive (`goal_required_lock_names`' own rule for the
+          precollected anchor, now applying to a second item for the same reason);
+        * on THIS fixture the seed's one region lock IS the precollected anchor, so the list is
+          legitimately empty and the key is omitted.
+
+        What must still hold is that the goal is stated SOMEWHERE the client can read it. Here that
+        is `great_rune_items`, which is why this fixture asks for a rune goal at all."""
         sd = self.world.fill_slot_data()
         assert sd["goalLocations"], "goalLocations may never be empty"
-        assert ASHEN_LOCK_ITEM in sd["goalRequiredItems"], (
-            "the two terminal conditions read one list; a lock missing from goalRequiredItems is "
-            "the 2026-07-30 drift returning")
+        assert ASHEN_LOCK_ITEM not in sd.get("goalRequiredItems", []), (
+            "goalRequiredItems names an item that is never sent -- the client would wait forever")
+        assert sd.get("great_rune_items"), (
+            "this fixture's goal is great_runes, so the required runes are the seed's whole "
+            "requirement and must be on the wire")
+        assert sd["great_runes_required"] == len(sd["great_rune_items"])
 
     def test_the_client_can_gate_the_finale_space(self):
         """coarse key + open flag + grace bundle, the three things the client needs to enforce a

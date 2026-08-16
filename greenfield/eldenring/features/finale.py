@@ -118,7 +118,22 @@ def finale_requirement_locks(world) -> tuple:
     # granted, so requiring it would be requiring the output as an input, and neither AP's fill nor
     # the client could ever satisfy it. `kept_lock_names` still lists it for the client's
     # region_open_flags lookup; `goal_required_lock_names` is what must not.
-    return tuple(world.goal_required_lock_names()) + tuple(world._required_runes())
+    # 🛑 `kept_lock_names`, NOT `goal_required_lock_names`, AND THE DIFFERENCE IS AN ORDERING BUG
+    # WAITING TO HAPPEN. This runs from `create_regions`, which AP calls BEFORE `create_items` --
+    # and the start anchor is precollected inside `create_items`. So at the moment this rule is
+    # built, `precollected_items` is still EMPTY and `goal_required_lock_names` (whose whole job is
+    # "minus the precollected anchor") returns every kept lock anyway. Using it here captures a
+    # list that then disagrees with the same call made later, which is exactly how the first draft
+    # of this failed: "finale entrance shut while holding every other goal item".
+    #
+    # `kept_lock_names` is the honest list at this point and stays correct afterwards. Requiring
+    # the anchor costs nothing -- AP's state holds precollected items from sphere 0 -- so the two
+    # readings are satisfied identically in play.
+    #
+    # ⚠️ The WIRE still excludes it (`goal_required_lock_names` -> goalRequiredItems), because the
+    # client waits on items it RECEIVES and the anchor is never sent. Same requirement, two honest
+    # spellings of it, and that asymmetry is documented in goal_required_lock_names' own docstring.
+    return tuple(world.kept_lock_names()) + tuple(world._required_runes())
 
 
 def finale_active(regions, natural=False) -> bool:

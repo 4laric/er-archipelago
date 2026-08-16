@@ -1045,17 +1045,33 @@ class GreenfieldEldenRingWorld(World):
             # ("num_regions 1 rolls Mountaintops, you just play Mountaintops") -- and
             # `start_with_region_lock` is FROZEN ON, so counting kept regions would have killed
             # that seed at generation with an OptionError about an option the player never set.
-            # What the clamp actually protects is "at least one progression lock stays in the
-            # pool", and the Ashen Capital Lock is one, so it counts.
-            _minted = len(lock_items) + len(_ashen_lock)
+            # What the clamp actually protects is "at least one PROGRESSION item the goal needs
+            # stays in the pool", and until 2026-08-16 the Ashen Capital Lock was one, so it
+            # counted.
+            #
+            # ⭐ IT IS NOT ONE ANY MORE (#768) -- withheld from the pool and granted by the client
+            # once every other goal item is held -- so this counts the REQUIRED GREAT RUNES
+            # instead (Alaric's ruling). They are progression, they are in the pool, and the goal
+            # cannot be met without them, which is exactly the property the clamp is testing for.
+            # Since #765 all seven runes are in every seed's pool, so a `great_runes` seed always
+            # has something left to find however small the draw.
+            #
+            # 🛑 AND A ONE-REGION `region_locks` SEED STILL DIES HERE, DELIBERATELY. Its only Lock
+            # goes to the frozen start anchor, no rune is required, and the goal really IS complete
+            # at connect -- "one region seed is trivial, i think that's legit" (Alaric, 2026-08-16).
+            # The error names both numbers so the player can see which lever to move.
+            _required_runes = list(self._required_runes())
+            _minted = len(lock_items) + len(_ashen_lock) + len(_required_runes)
             if _n_start >= _minted:
                 raise OptionError(
                     "[eldenring] start_regions: %d starting regions were asked for, but this seed "
-                    "minted only %d progression lock(s) (%d kept region(s)%s) and at least one "
-                    "must stay in the pool or the goal is already complete at connect. Lower "
-                    "start_regions or raise num_regions."
+                    "minted only %d progression item(s) the goal needs (%d kept region(s)%s) and at "
+                    "least one must stay in the pool or the goal is already complete at connect. "
+                    "Lower start_regions, raise num_regions, or set ending_condition: great_runes "
+                    "so the required runes give the seed something to find."
                     % (_n_start, _minted, len(kept),
-                       " + the Ashen Capital Lock" if _ashen_lock else ""))
+                       " + %d required Great Rune(s)" % len(_required_runes)
+                       if _required_runes else ""))
             _regions, _rules, _pool_n = pick_anchor_regions(
                 kept, self.random, _counts, DLC_REGIONS, n=_n_start,
                 # `barred` = the MISSABLE set only, not the whole surface bar. A region whose
