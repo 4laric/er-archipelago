@@ -29,16 +29,19 @@ import sys
 import unittest
 
 try:
-    from ._util import find_repo_root
+    from ._util import find_repo_root, REPO_ONLY_REASON
 except ImportError:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from _util import find_repo_root
+    from _util import find_repo_root, REPO_ONLY_REASON
 
+# 🛑 None-SAFE, and the class is SKIPPED rather than run -- see the twin note in
+# test_gf_arena_grace_exclusions.py. Joining `find_repo_root`'s None at module scope turns "this
+# suite does not apply here" into a collection-time TypeError that takes the whole run with it.
 ROOT = find_repo_root(os.path.abspath(__file__))
-GEN = os.path.join(ROOT, "greenfield", "gen_data.py")
-TOOL = os.path.join(ROOT, "tools", "datamine_arena_graces.py")
-GRACE_FLAGS = os.path.join(ROOT, "greenfield", "grace_flags.tsv")
-HEALTHBARS = os.path.join(ROOT, "greenfield", "eldenring", "boss_healthbars.py")
+GEN = os.path.join(ROOT, "greenfield", "gen_data.py") if ROOT else ""
+TOOL = os.path.join(ROOT, "tools", "datamine_arena_graces.py") if ROOT else ""
+GRACE_FLAGS = os.path.join(ROOT, "greenfield", "grace_flags.tsv") if ROOT else ""
+HEALTHBARS = os.path.join(ROOT, "greenfield", "eldenring", "boss_healthbars.py") if ROOT else ""
 
 # The motivating case, spelled out rather than read from the table it guards -- a pin that sources
 # itself from its subject cannot fail when the subject is deleted.
@@ -65,6 +68,7 @@ def _load_bearing(src):
     return {int(k): int(v[0]) for k, v in ast.literal_eval(m.group(1)).items()}
 
 
+@unittest.skipUnless(ROOT is not None, REPO_ONLY_REASON)
 class ArenaGraceRetirementGate(unittest.TestCase):
 
     def test_every_load_bearing_entry_is_still_in_the_hand_list(self):

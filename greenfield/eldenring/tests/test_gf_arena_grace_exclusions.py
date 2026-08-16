@@ -26,14 +26,21 @@ import sys
 import unittest
 
 try:
-    from ._util import find_repo_root
+    from ._util import find_repo_root, REPO_ONLY_REASON
 except ImportError:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from _util import find_repo_root
+    from _util import find_repo_root, REPO_ONLY_REASON
 
+# 🛑 None-SAFE, and the class is SKIPPED rather than run. `find_repo_root` returns None when we are
+# not under a repo checkout, and its docstring says "callers skip on None" -- this module did not.
+# It joined the None at MODULE scope, so instead of skipping it raised `TypeError: expected str,
+# bytes or os.PathLike object, not NoneType` during COLLECTION, which aborts the entire pytest run
+# with an error and zero results. A test that cannot run should skip; one that takes the suite down
+# with it is worse than absent. (Found 2026-08-16 running the suite with the AP checkout OUTSIDE the
+# repo -- `gf_test.py --ap-dir` accepts any path, and every path but one reproduces this.)
 ROOT = find_repo_root(os.path.abspath(__file__))
-TSV = os.path.join(ROOT, "greenfield", "arena_graces.tsv")
-GRACES = os.path.join(ROOT, "greenfield", "eldenring", "region_graces.py")
+TSV = os.path.join(ROOT, "greenfield", "arena_graces.tsv") if ROOT else ""
+GRACES = os.path.join(ROOT, "greenfield", "eldenring", "region_graces.py") if ROOT else ""
 
 RULED_NOT_AN_ARENA = {
     76118: "Warmaster's Shack (Bell Bearing Hunter, night-only)",
@@ -45,6 +52,7 @@ RULED_NOT_AN_ARENA = {
 STILL_WITHHELD = 76313   # Windmill Heights, 4.0m from the Godskin Apostle -- the control
 
 
+@unittest.skipUnless(ROOT is not None, REPO_ONLY_REASON)
 class ArenaGraceExclusions(unittest.TestCase):
 
     def _derived(self):
