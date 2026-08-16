@@ -138,6 +138,18 @@ def _leyndell_location_ids():
     return out
 
 
+
+def _vanilla_placement_on(world) -> bool:
+    """Is every item pinned to its base-game location this seed?
+
+    Read off the OPTION, not off `world.gf_vanilla_pins`: the pins are published later in the
+    pipeline and this runs in `generate_early`, so keying on them silently reads empty and the wall
+    arms anyway. (That is not hypothetical -- it is how the first attempt at #769 failed, and it
+    failed QUIETLY, which is the whole reason this note is here.)
+    """
+    opt = getattr(getattr(world, "options", None), "vanilla_placement", None)
+    return bool(opt is not None and opt.value)
+
 class LeyndellRunesRequired(Range):
     """Great Runes needed to access Leyndell (m11 Royal/Ashen + Fractured Marika), on top of the
     Leyndell Lock. 0 disables the gate.
@@ -177,6 +189,33 @@ class LeyndellGate(Feature):
             # runes only enter the pool when vanilla items are shuffled
             _log.info("leyndell_gate: item_shuffle is off, so no Great Runes enter the pool -- no "
                       "rune wall; the capital grace bundle rides the Leyndell Lock.")
+            return
+        # 🛑 VANILLA PLACEMENT DISARMS THIS WALL, and it is the mode's own promise (#769).
+        # `VanillaPlacement`'s docstring: "Progression is gated the way the base game gates it, so
+        # the region locks are not used at all ... and the Leyndell wall, the Rold Medallion and
+        # every other door work as they always did." Our synthetic wall is not "the Leyndell wall" --
+        # the GAME's fixed two-rune gate is, and it is still there. Arming ours on top asks for runes
+        # we chose on a map where we did not choose where anything is.
+        #
+        # ⭐ WHAT IT ACTUALLY COST, measured: seed 60255596019398880819 armed on
+        # ["Godrick's Great Rune", "Morgott's Great Rune"] -- and Morgott drops HIS rune INSIDE
+        # Leyndell, so the capital gated on a key kept behind it. `can_beat_game()` False, and
+        # test_gf_vanilla_placement red with the whole of Leyndell and the Ashen Capital unreachable.
+        #
+        # ⭐ THE SELF-GATE IS OLD; ONLY ITS VISIBILITY IS NEW. Selection used to be
+        # `sorted(avail)[:want]` and Morgott's is FIFTH of seven alphabetically -- a two-rune wall
+        # could never reach him. #640 replaced the prefix with a seeded sample, correctly, and the
+        # sample can draw him. Fixing a real defect exposed a latent one; #640 is not the mistake.
+        #
+        # 🛑 DISARMING THIS WALL IS NORMALLY A SOFTLOCK (#589) -- our wall is what stops fill putting
+        # something needed behind the game's fixed 2-rune gate. That argument does not reach here:
+        # under vanilla_placement fill puts every item exactly where the base game puts it, and the
+        # base game is winnable. The hazard is about FILL's freedom, and this mode has none.
+        if _vanilla_placement_on(world):
+            _log.info("leyndell_gate: vanilla_placement is on, so the base game's own two-rune "
+                      "capital gate is the wall -- ours would arm on runes we did not place "
+                      "(#769). No synthetic rune wall; the capital grace bundle rides the "
+                      "Leyndell Lock.")
             return
         if GOAL_REGION not in world._kept():
             _log.info("leyndell_gate: %s is not kept this seed (DLC Only or a sealed goal region) "
