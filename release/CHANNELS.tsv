@@ -27,3 +27,4 @@ stable	v0.4.1	2026-08-14	the SweepSlot / confine-surface window. Promoted the mo
 beta	main	2026-08-14	the open v0.4.2 window
 beta	main	2026-08-15	the open v0.4.3 window
 beta	main	2026-08-16	the open v0.4.4 window
+stable	v0.4.3	2026-08-16	the hub-collapse + cross-game-locks window. Paid the morning after the tag, not at the next window-open. 🛑 stable had sat on v0.4.1 through TWO tags (v0.4.2, v0.4.3) while check_channels stayed green, because that gate verifies the pointer RESOLVES, not that it is current -- the same way it sat on v0.3.10 in August. deploy_wizard.sh --landing fetches from THIS row, so until now the public landing page was serving v0.4.1's wizard against a v0.4.3 build.
