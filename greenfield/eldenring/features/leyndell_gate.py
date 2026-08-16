@@ -73,6 +73,24 @@ GREAT_RUNES = list(_ic.GREAT_RUNES)
 # not scale with our options, so it is the FLOOR on any armed rune wall (see the module docstring).
 VANILLA_CAPITAL_GATE_RUNES = 2
 
+# ⭐ ALL SEVEN COUNT AT THE GATE -- and the claim that they do not was never sourced.
+#
+# `test_the_unborn_rune_is_never_injected` asserted, with no citation, that "Great Rune of the
+# Unborn is not a capital-gate rune; the game does not count it toward its two", and this file
+# briefly grew a `CAPITAL_COUNTABLE_RUNES` exclusion on the strength of it (2026-08-16). Alaric:
+# *"what vanilla gate doesn't count Unborn? i believe they all do"* -- and the data agrees with him:
+#
+#     common.emevd $Event(6905) "救済対応_伍 / Relief response_5" maps every remembrance flag to a
+#     CONTIGUOUS held-rune slot -- 510010->171, 510300->172, 510040->173, 510220->174, 510120->175,
+#     510200->176, and 197->177. SEVEN slots, one per Great Rune, the Unborn rune among them.
+#
+# A game that did not count it would not give it a slot in that block. Nothing in the 589-file EMEVD
+# corpus READS 171-177, so the gate's actual count is engine-side and not decidable from here -- but
+# an uncited exclusion is the wrong way to resolve that, and shipping one would have removed a rune
+# the player legitimately holds from the wall it legitimately opens.
+#
+# So: no exclusion. If the engine ever proves otherwise, the fix is a cited constant, not a docstring.
+
 # Capital map prefixes: m11 = Leyndell Royal + Ashen Capital, m19 = Fractured Marika / final
 # arena. The acquisition flag encodes the map (mAA -> AA......), so an m11/m19 flag in the goal
 # region is a capital check. Restricting to GOAL_REGION keeps HUB-overridden m11_10 Roundtable
@@ -167,7 +185,7 @@ class LeyndellGate(Feature):
         # FLOOR, not clamp. The vanilla wall is fixed at 2 and the capital bundle is withheld while
         # ours is armed, so an armed wall must be at least as strict as the game's.
         want = max(want, VANILLA_CAPITAL_GATE_RUNES)
-        avail = world._available_runes()             # Great Runes actually in the pool this seed
+        avail = world._available_runes()   # all seven now (#764) -- every one counts at the gate
         # 🛑 REPAIR THE SUPPLY. DO NOT DISARM. (2026-08-12, issue #589.)
         #
         # This used to `return` on a shortfall, leaving gf_leyndell_runes empty so WALL_ARMED reads
@@ -185,8 +203,19 @@ class LeyndellGate(Feature):
         # existing seed that did NOT need repair rolls byte-identically. Injected runes go into
         # gf_leyndell_runes so core._class_for marks them PROGRESSION and fill places them outside
         # the capital, exactly like the runes that were already there.
-        shortfall = max(0, want - len(avail))
-        inject = sorted(set(GREAT_RUNES) - set(avail))[:shortfall]
+        # ⭐ THE TOP-UP MOVED OUT, 2026-08-16 (#764). This block used to compute
+        #     shortfall = max(0, want - len(avail)); inject = sorted(GREAT_RUNES - avail)[:shortfall]
+        # and mint the difference itself. The repair was right -- it is #589's fix and it stays --
+        # but it was conditioned on THIS FEATURE running, i.e. on the capital being in the draw. A
+        # seed without Leyndell got no top-up at all (bobler, seed 75791261719639771134: three
+        # regions, one rune in the whole multiworld, nothing injected because there was no wall to
+        # inject for). A supply floor that exists only when one particular consumer is present is
+        # not a floor.
+        #
+        # `features/great_runes` now mints every rune the draw did not supply, on every seed, so
+        # `_available_runes()` is all seven by the time this runs. The wall READS the supply and no
+        # longer CREATES it, which is the separation the move was for.
+        inject: list = []
         if len(avail) + len(inject) < want:
             # The CATALOG itself cannot supply the wall. Unreachable while the game has six Great
             # Runes and the floor is two; here so that a future catalog change fails loudly at
@@ -198,17 +227,17 @@ class LeyndellGate(Feature):
                 f"goal would be unreachable. Set leyndell_runes_required: 0 to hand the capital "
                 f"bundle to the Leyndell Lock instead.")
         world.gf_leyndell_injected = inject
-        if inject:
-            # All of avail PLUS the injected runes: length is exactly `want`, and every armed rune
-            # is one fill can actually place.
-            world.gf_leyndell_runes = sorted(list(avail) + inject)
-            _log.warning(
-                "leyndell_gate: the kept regions supplied %d of %d Great Runes (%s); injected %s "
-                "into the pool so the capital's fixed %d-rune gate can open. Wall ARMED at %d.",
-                len(avail), want, ", ".join(sorted(avail)) or "none", ", ".join(inject),
-                VANILLA_CAPITAL_GATE_RUNES, len(world.gf_leyndell_runes))
-        else:
-            world.gf_leyndell_runes = sorted(avail)[:want]
+        # 🛑 SEEDED SAMPLE, NOT AN ALPHABETICAL PREFIX (#640, same seam as core._resolve_required_runes).
+        # This was `sorted(avail)[:want]`. `GREAT_RUNES` is sorted and `avail` is now ALL SEVEN on
+        # every seed (#764), so the prefix became totally fixed -- every capital in every seed would
+        # arm on Godrick's + the Unborn rune, and Rykard's (last alphabetically) could only ever arm
+        # a wall asking for all seven. `world.random` is the seeded multiworld stream, so this stays
+        # reproducible from the seed while being a real choice; sorted on the way out so the armed
+        # set reads stably in logs and slot_data.
+        world.gf_leyndell_runes = sorted(world.random.sample(sorted(avail), want))
+        _log.info("leyndell_gate: wall ARMED at %d of %d pooled Great Rune(s) -- %s",
+                  len(world.gf_leyndell_runes), len(avail),
+                  ", ".join(world.gf_leyndell_runes))
 
     def create_items(self, world):
         """Mint the runes generate_early had to inject.

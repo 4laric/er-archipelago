@@ -320,9 +320,13 @@ class DLCOnly(Toggle):
     the Shadow of the Erdtree DLC regions are eligible; every base-game region is sealed. Implies
     Enable DLC (turning this on forces the DLC in even if Enable DLC is off). The goal becomes "hold
     every kept DLC lock"; the base-game goal region (Leyndell) is sealed but is not required, so the
-    seed stays winnable. Under DLC Only no Great Rune region survives, so a great_runes ending
-    collapses to region_locks (the requirement shrinks to 0) rather than becoming unwinnable; a
-    standalone Great Runes goal under DLC Only (runes in Land of Shadow) is scoped out of v0.2."""
+    seed stays winnable.
+
+    A great_runes ending WORKS here (changed 2026-08-16, #764). It used to collapse to region_locks,
+    because no Great Rune boss stands in the Land of Shadow and the requirement was clamped to the
+    runes the draw supplied -- under DLC Only that was zero. All seven Great Runes are now injected
+    into every seed's pool regardless of draw, so a DLC-only seed has seven runes to find; they come
+    from the multiworld and from DLC checks rather than from demigods who are not in your run."""
     display_name = "DLC Only"
 
 
@@ -842,9 +846,12 @@ class GreenfieldEldenRingWorld(World):
     def _shuffle_on(self) -> bool:
         return bool(getattr(self.options, "item_shuffle", None) and self.options.item_shuffle.value)
 
-    def _available_runes(self) -> List[str]:
-        """Great Rune item NAMES that actually appear on a kept region's locations this seed --
-        i.e. the ones that will be in the pool. Only meaningful when item_shuffle is on."""
+    def _runes_on_kept_regions(self) -> List[str]:
+        """Great Rune NAMES sitting on a kept region's own boss this seed -- what the DRAW supplies.
+
+        This is what `_available_runes` used to be and no longer is. Renamed rather than kept as an
+        alias, because the two questions gave the same answer for months and the moment they stopped
+        (#764) every caller had to be re-read to see which one it actually wanted."""
         if not self._shuffle_on() or not GREAT_RUNES:
             return []
         seen: Dict[str, None] = {}
@@ -854,6 +861,25 @@ class GreenfieldEldenRingWorld(World):
                 if nm in GREAT_RUNES and nm not in seen:
                     seen[nm] = None
         return list(seen)
+
+    def _available_runes(self) -> List[str]:
+        """Great Rune NAMES that will be IN THE POOL this seed -- which is now ALL SEVEN (#764).
+
+        🛑 IT USED TO MEAN "the ones the draw kept", and that is the defect, not the wording.
+        A Great Rune sits on exactly one region's boss, so the count was whatever the draw happened
+        to keep -- and every consumer clamped to it silently. bobler's seed 75791261719639771134:
+        three regions, ONE rune in the whole multiworld, `goal_great_runes: 2` resolved to a
+        one-item requirement, nothing said so.
+
+        `features/great_runes` now mints every rune the draw did not supply, so the pool always
+        holds seven and this returns seven. The clamp in `_resolve_required_runes` therefore cannot
+        bite (#504), and `goal_great_runes`'s 1-7 range means what it says on every seed.
+
+        Still empty when shuffle is off: with no real-item pool there is nothing to place, and the
+        goal is not a rune goal either."""
+        if not self._shuffle_on() or not GREAT_RUNES:
+            return []
+        return sorted(GREAT_RUNES)
 
     def _resolve_required_runes(self) -> List[str]:
         """The concrete set of Great Rune names completion will require. Empty unless the goal is
@@ -867,8 +893,26 @@ class GreenfieldEldenRingWorld(World):
         want = int(getattr(self.options, "goal_great_runes").value)
         avail = self._available_runes()
         want = min(max(want, 0), len(avail))
-        # Deterministic pick of `want` reachable runes (sorted for reproducibility).
-        return sorted(avail)[:want]
+        # 🛑 A SEEDED SAMPLE, NOT AN ALPHABETICAL PREFIX (#640).
+        #
+        # This was `sorted(avail)[:want]`, and `GREAT_RUNES` is itself sorted, so the required set
+        # was a fixed prefix of one fixed list:
+        #
+        #     Godrick's, Great Rune of the Unborn, Malenia's, Mohg's, Morgott's, Radahn's, Rykard's
+        #
+        # At the default of 2 that is Godrick's and the Unborn rune, on every seed, forever --
+        # Rykard's sorts LAST and could only ever be required by a seed asking for all seven. That
+        # is what AHHHREPTAR reported: "Rykard's Great Rune considered filler despite setting goal
+        # to Great Runes", and it was not seed luck.
+        #
+        # It was survivable while `avail` varied with the draw, because the prefix was taken over a
+        # different list each seed. Injecting all seven (#764) removes that accidental variety and
+        # makes the prefix TOTALLY fixed -- so this had to be fixed in the same change or the goal
+        # would name the same two runes in every seed this world ever rolls.
+        #
+        # `world.random` is the seeded multiworld stream, so this stays reproducible from the seed
+        # while being a real choice. Sorted on the way out for a stable spoiler/slot_data ordering.
+        return sorted(self.random.sample(sorted(avail), want)) if want else []
 
     def _required_runes(self) -> List[str]:
         return getattr(self, "gf_required_runes", [])
@@ -885,6 +929,15 @@ class GreenfieldEldenRingWorld(World):
                 or name in getattr(self, "gf_legacy_keys", [])
                 or name in getattr(self, "gf_natural_keys", [])):
             return ItemClassification.progression
+        # 🛑 AND A GREAT RUNE IS NEVER FILLER, EVEN WHEN THIS SEED'S GOAL DOES NOT WANT IT (#640).
+        # Great Runes are GOODS, so `_item_class` defaults them to filler, and the branch above only
+        # rescues the ones some gate happens to name. That was survivable while the pool held only
+        # the runes the draw kept; now that all seven are always present (#764) it would put up to
+        # seven runes in the pool labelled junk -- eligible for the filler tail, and read by every
+        # consumer that treats filler as "safe to discard".
+        # Raise only from filler: never DOWNgrade something a category rule already called useful.
+        if name in GREAT_RUNES and base == ItemClassification.filler:
+            return ItemClassification.useful
         return base
 
     def create_item(self, name: str) -> GFItem:

@@ -227,15 +227,29 @@ class DLCOnlyGreatRunesGoal(WorldTestBase):
         "goal_great_runes": 2,
     }
 
-    def test_runes_collapse_to_region_locks_under_dlc_only(self):
-        # v0.2: no Great Rune region survives DLC Only, so the great_runes goal collapses -- the
-        # requirement shrinks to 0 (region_locks-only) instead of becoming unwinnable. Winnability
-        # itself is asserted by test_beatable below.
+    def test_great_runes_goal_survives_dlc_only(self):
+        """REPLACES test_runes_collapse_to_region_locks_under_dlc_only (2026-08-16, #764).
+
+        The old test asserted the collapse: no Great Rune boss stands in the Land of Shadow, so
+        `_available_runes()` was empty under DLC Only and the requirement clamped to 0, turning a
+        great_runes goal into a region_locks one. That was the honest behaviour while the pool held
+        only the runes the draw kept.
+
+        All seven are now injected into every seed (`features/great_runes`), so the supply no longer
+        depends on which demigods are in the draw and a DLC-only seed can have a real rune goal --
+        the runes arrive from the multiworld and from DLC checks. Alaric ruled to let it change
+        rather than exempt DLC Only, because an invariant with one exception is the kind that rots.
+
+        Kept as a NAMED test rather than deleted: the collapse was documented behaviour in the
+        DLCOnly docstring and in the wizard's warning panel, so a future reader needs to find out
+        here that it went away on purpose."""
         world = self.multiworld.worlds[self.player]
-        self.assertEqual(world._available_runes(), [],
-                         "no Great Rune sits in a DLC region -> none available under DLC Only")
-        self.assertEqual(len(world._required_runes()), 0,
-                         "DLC Only collapses great_runes to region_locks (required shrinks to 0)")
+        self.assertEqual(len(world._available_runes()), 7,
+                         "all seven Great Runes are in the pool, DLC Only included (#764)")
+        want = int(world.options.goal_great_runes.value)
+        self.assertEqual(len(world._required_runes()), want,
+                         "the requirement is the number the player asked for -- no clamp, because "
+                         "the supply no longer depends on the draw")
 
     def test_beatable(self):
         state = self.multiworld.get_all_state(False)
