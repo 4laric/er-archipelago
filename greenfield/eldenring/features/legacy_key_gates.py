@@ -5,6 +5,10 @@ the key item IN ADDITION to the parent Lock, mirroring the vanilla "you can't ge
 key" gate, so AP fill can never strand required progression (a region Lock, a required Great Rune)
 behind a key it never proved reachable.
 
+🛑 RAYA LUCARIA IS NO LONGER ONE OF THEM (2026-08-16). The Academy Glintstone Key gate was removed;
+the Raya Lucaria Academy Lock is now the only thing standing between a player and the Academy, and
+it grants the region's full grace bundle. See the note above _LEGACY_KEYS.
+
 Data-driven table _LEGACY_KEYS: {key item name: (parent region, (flag_lo, flag_hi))}. A map-lot
 acquisition flag encodes its map (mAA -> AA......), so a flag in [flag_lo, flag_hi) that lives in the
 parent region is a check inside that dungeon. Winnability by construction: the key is marked
@@ -16,8 +20,6 @@ Multi-key gates (features/legacy_key_gates._MULTI_KEY_GATES) handle a sub-dungeo
 MORE THAN ONE key ANDed -- DLC Lamenter's Gaol needs BOTH the Gaol Upper and Lower Level Keys.
 
 Currently gated:
-  Academy Glintstone Key  ->  Raya Lucaria Academy (its own region since region-spine v2; the key
-                              is required IN ADDITION to the region's Lock, like the vanilla fog);
   Gaol U+L Level Keys      ->  Lamenter's Gaol (m41_02, Charo's) -- BOTH keys, check-level, incl.
                               the Lamenter boss reward (f520770). See _MULTI_KEY_GATES;
   Hole-Laden Necklace     ->  Metyr's remembrance check. NB: the Cathedral surface bucket 6920 (the
@@ -38,18 +40,37 @@ except Exception:  # pragma: no cover
     LOCATIONS = {}
 try:
     from ..item_ids import ITEM_CATALOG
-except Exception:
+    from .. import item_categories as _ic
+except Exception:  # pre-regen / standalone import
     ITEM_CATALOG = {}
+
+    class _ic:  # type: ignore[no-redef]  # no catalog -> no runes
+        GREAT_RUNES: list = []
 
 # {key item name: (region whose checks are gated, (flag_lo, flag_hi))}. flag_hi exclusive. m14
 # map-lot flags are 14000000..14999999 (Raya Lucaria Academy); the spare key on the LIURNIA
 # overworld (flag 1034457100) is outside both the range and the region, so fill can always place a
 # key there or anywhere else reachable.
+# 🛑 THE ACADEMY GLINTSTONE KEY WAS REMOVED 2026-08-16 -- bobler's playtest, Alaric's ruling:
+# "just neutralize the academy glintstone key altogether, have the minted Academy Lock be the thing
+# that grants all the graces." bobler had received the Raya Lucaria Academy Lock and been told
+# "walk in, the Academy Glintstone Key opens it (no grace warp)" -- a Lock that grants nothing you
+# can act on is a Lock that reads as broken, and the key was buying a wall the region Lock already
+# is.
+#
+# ⭐ REMOVING IT HERE IS THE WHOLE CHANGE, and that is on purpose rather than lucky.
+# `graces.WALL_ARMED["Raya Lucaria Academy"]` asks whether "Academy Glintstone Key" is in
+# `world.gf_legacy_keys`, which is published from THIS table. Drop the entry and the predicate is
+# False in every seed, `bundle_withheld` returns False, and the Lock grants the full bundle through
+# regionGraces -- exactly where gen_data's gated-child note says the warp belongs when the wall is
+# disarmed. The pairing is deliberately left in place rather than deleted: an unpaired REGION_PARENT
+# child withholds UNCONDITIONALLY (graces.bundle_withheld fails closed), so deleting the entry would
+# do the precise opposite of this ruling. It also means re-adding the key gate here re-arms the wall
+# by itself.
 _LEGACY_KEYS = {
-    "Academy Glintstone Key": ("Raya Lucaria Academy", (14000000, 15000000)),
     "Hole-Laden Necklace": ("Scadu Altus", (0, 0)),   # Metyr arena m25_00 -> bucket 6900 (see above)
 }
-_LEGACY_EXTRA = {"Academy Glintstone Key": frozenset({197, 60440}), "Hole-Laden Necklace": frozenset({510550})}
+_LEGACY_EXTRA = {"Hole-Laden Necklace": frozenset({510550})}
 
 # MULTI-KEY gates: a dungeon whose checks need MORE THAN ONE key ANDed (nested cells). DLC Lamenter's
 # Gaol (m41_02, in Charo's): the Gaol Upper + Lower Level Keys open its nested cells, the Lamenter
@@ -72,7 +93,8 @@ _MULTI_KEYS = frozenset(k for g in _MULTI_KEY_GATES for k in g["keys"])
 # otherwise form an unsolvable cycle (the necklace lands on a Leyndell rune-gated check while a Great
 # Rune lands on the necklace-gated Metyr check -> deadlock; FillError seen 2026-07-10). Forbid ALL of
 # them on every gated location (supersedes the old "!= own key" self-gate rule).
-_GREAT_RUNES = frozenset(nm for nm in ITEM_CATALOG if nm.endswith("Great Rune"))
+# SEVEN, from the one definition in item_categories -- see its GREAT_RUNE_GOODS_IDS block.
+_GREAT_RUNES = frozenset(_ic.GREAT_RUNES)
 _GATING_ITEMS = _GREAT_RUNES | frozenset(_LEGACY_KEYS) | _MULTI_KEYS
 
 
@@ -109,10 +131,11 @@ def _multi_gated_location_ids(gates):
 
 
 class LegacyDungeonKeys(DefaultOnToggle):
-    """Gate legacy dungeons behind their vanilla key item in logic (e.g. Raya Lucaria Academy needs
-    the Academy Glintstone Key on top of its region Lock). Keeps fill from placing required
-    progression behind a key it hasn't proven reachable. On by default; off restores the
-    region-Lock-only model."""
+    """Gate legacy dungeons behind their vanilla key item in logic (e.g. Metyr's remembrance needs
+    the Hole-Laden Necklace, and Lamenter's Gaol needs both Gaol keys, on top of the region Lock).
+    Keeps fill from placing required progression behind a key it hasn't proven reachable. On by
+    default; off restores the region-Lock-only model. Raya Lucaria Academy is NOT gated -- its
+    region Lock is the only key it has."""
     display_name = "Legacy Dungeon Key Gates"
 
 

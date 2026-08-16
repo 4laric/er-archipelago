@@ -243,6 +243,65 @@ def test_region_bosses_in_region_now():
                 f"REGION_BOSSES {region!r} ap {aid} filed under {apid_region.get(aid)!r}")
 
 
+def test_one_major_boss_check_per_roster_entry():
+    """#737, direction 1. A roster entry is ONE boss, so it must be ONE MajorBoss check.
+
+    MAJOR_BOSS_EXTRAS is keyed on the boss's acquisition FLAG -- correctly, because ap-ids drift and
+    flags do not. But a flag resolves to a FAMILY: the primary row plus every sibling lot the same
+    getItemFlagId drives, each its own co-check. Tagging the family made two DLC field bosses' entire
+    ARMOUR SETS into major bosses -- Dancer of Ranah's Hood/Dress/Bracer/Trousers and Blackgaol
+    Knight's Helm/Armor/Gauntlets/Greaves -- and `MajorBoss` is in SURFACE_DEFAULT_CLASSES, so four
+    pairs of trousers sat on the default progression surface. It also made every count derived from
+    the tag read 52 where the entity count is 43.
+
+    Asserted on the COUNT PER FLAG rather than on a list of the eight offenders: a hand-list would
+    have to be edited every time a boss gains a drop, which is the failure mode, not the fix. Zero is
+    a failure too -- a roster member that resolves to nothing has dropped silently out of the surface,
+    which is the direction no count would ever have shown.
+    """
+    extras = _major_boss_extras()
+    tags = location_tags.LOCATION_TAGS
+    flag_majors = {}
+    for reg, locs in data.LOCATIONS.items():
+        for (_nm, aid, fl) in locs:
+            if "MajorBoss" in tags.get(aid, ()):
+                flag_majors.setdefault(fl, []).append((aid, _nm))
+    # WITNESS (test_gf_vacuous_pass): the scan below asserts a collection is EMPTY, so it has to say
+    # first that it saw anything at all. A join that silently stops matching -- a renamed tag, an
+    # emptied roster -- would otherwise pass for the same reason a correct one does.
+    assert len(flag_majors) >= 30, (
+        "only %d flag(s) carry a MajorBoss check -- the tag join has stopped matching, so the "
+        "arity assertion below would pass vacuously" % len(flag_majors))
+    bad, checked = [], 0
+    for region, lst in extras.items():
+        for (flag, boss, _drop, _conf) in lst:
+            checked += 1
+            hits = sorted(flag_majors.get(flag, []))
+            if len(hits) != 1:
+                bad.append("%s (flag %s, %s): %d MajorBoss check(s) %s"
+                           % (boss, flag, region, len(hits), [n for (_a, n) in hits]))
+    assert checked >= 10, "the extras roster shrank to %d entries -- check that first" % checked
+    assert not bad, ("a MAJOR_BOSS_EXTRAS entry must resolve to exactly one MajorBoss check "
+                     "-- one boss, one check:\n  " + "\n  ".join(bad))
+
+
+def test_remembrance_and_great_rune_stay_inside_major_boss():
+    """The containment the surface is built on, asserted rather than assumed.
+
+    Only demigods and shardbearers drop a Remembrance or a Great Rune, so both sets are subsets of
+    MajorBoss by definition -- gen_data closes them in explicitly (CLOSURE 1). Ticking MajorBoss in
+    the progression surface therefore already covers both, which is what lets the wizard tell a
+    player those two boxes select nothing further. If a change to the roster ever broke it, the
+    wizard would be quietly wrong rather than loudly broken, so it is asserted here and not left to
+    the derivation that happens to establish it today."""
+    tags = location_tags.LOCATION_TAGS
+    maj = {a for a, t in tags.items() if "MajorBoss" in t}
+    for cls in ("Remembrance", "GreatRune"):
+        outside = sorted(a for a, t in tags.items() if cls in t and a not in maj)
+        assert not outside, f"{cls} check(s) outside MajorBoss: {outside}"
+    assert maj <= {a for a, t in tags.items() if "Boss" in t}, "MajorBoss is not a subset of Boss"
+
+
 def test_extras_cover_the_zero_major_regions():
     """Every region with no boss_arena major must be covered by an active MAJOR_BOSS_EXTRAS entry.
     (Consecrated Snowfield used to be the exception; it is now folded into Mountaintops of the Giants,

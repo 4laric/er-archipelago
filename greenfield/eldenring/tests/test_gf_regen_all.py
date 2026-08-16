@@ -61,9 +61,16 @@ ENTRYPOINT = os.path.join(REPO, "tools", "regen_all.py")
 STAMP = os.path.join(REPO, "greenfield", "eldenring", "_gen_stamp.json")
 
 # Not part of the tree the entrypoint owns: the artifact bundle is gitignored, the client is
-# another repo, `_ap` is a CI checkout, and `.git` is not source.
-SKIP_DIRS = {".git", ".github", "_ap", "__pycache__", "node_modules", "elden_ring_artifacts",
-             "from-software-archipelago-clients", ".pytest_cache", ".venv"}
+# another repo, `_ap` / `.ap-test` are AP checkouts, and `.git` is not source.
+#
+# 🛑 `.ap-test` IS `tools/gf_test.py`'S DEFAULT, and it was missing here until 2026-08-16. This list
+# had `_ap` -- the name CI passes via `--ap-dir _ap` -- and nothing else, so the walk descended into
+# the INSTALLED COPY of the world that gf_test.py had just written and reported its generated
+# modules as artifacts no `regen_all` step emits. That is a spurious red reading exactly like the
+# real thing this test is for (#699), on the default local harness, for anyone who ran gf_test.py
+# without `--ap-dir`. Both names, and any new AP-checkout convention belongs here too.
+SKIP_DIRS = {".git", ".github", "_ap", ".ap-test", "__pycache__", "node_modules",
+             "elden_ring_artifacts", "from-software-archipelago-clients", ".pytest_cache", ".venv"}
 # A stamped file is only interesting if it is TEXT we ship. 8 MB of html is fine to read; a param
 # blob is not, and cannot embed the hash as text anyway.
 SCAN_EXT = {".html", ".py", ".json", ".tsv", ".csv", ".md", ".rs", ".yaml", ".yml", ".ps1"}

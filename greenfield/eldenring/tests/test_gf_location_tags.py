@@ -279,7 +279,25 @@ class TagDataTests(unittest.TestCase):
         # physical acquisition as its primary and inherits its tags. Alaric confirmed the
         # reading 2026-08-13. NOT a rebaseline -- the tag definition is unchanged, the
         # population of checks grew.
-        self.assertEqual(TAG_COUNTS["MajorBoss"], 52)
+        # ⭐⭐⭐ 52 -> 43 (2026-08-16, #737): THE ENTRY ABOVE APPLIED THE INHERITANCE RULE TO A TAG
+        # THAT IS NOT ABOUT ACQUISITION, and this reverses that half of it. `Boss` and `Legendary`
+        # answer HOW THIS CHECK WAS ACQUIRED, so a sibling lot on the same death flag inherits them
+        # correctly -- that reading stands and `Boss` does not move here (266, unchanged; gen_data
+        # CLOSURE 2b keeps it deliberately). `MajorBoss` answers IS THIS BOSS ON THE ROSTER, which is
+        # a claim about an ENTITY, and inheritance turned two DLC field bosses' ARMOUR SETS into
+        # major bosses: Dancer of Ranah's Hood/Dress/Bracer/Trousers (f530810) and Blackgaol Knight's
+        # Helm/Armor/Gauntlets/Greaves (f530820), plus Magma Wyrm Makar's Dragon Heart (f510260).
+        # Nine checks, three bosses. `MajorBoss` is in SURFACE_DEFAULT_CLASSES, so four pairs of
+        # trousers were on the DEFAULT progression surface as major-boss checks.
+        # NOT a rebaseline in the "ground truth got better" sense and not a looser predicate: it is
+        # the same 43 entities the number read before the co-check allowlist widened, which is what
+        # every other count derived from this tag was written against (contract.py's containment
+        # comment still said 43). The arity is now gated at regen (gen_data: one primary per roster
+        # entry, never zero, never two) and asserted host-side by
+        # test_gf_progression_surface.test_one_major_boss_check_per_roster_entry, so it cannot come
+        # back by accident. Direction 2 of #737 -- the ten of matt's majors we are MISSING -- is not
+        # in this number yet and will move it up.
+        self.assertEqual(TAG_COUNTS["MajorBoss"], 43)
 
     def test_boss_geography_counts(self):
         """LegacyBoss / FieldBoss split `Boss` by WHERE the boss stands. Drift guard on both."""
