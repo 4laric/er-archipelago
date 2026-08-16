@@ -19,13 +19,9 @@ THE RULING (2026-08-16), and each half of it is a test below:
 
 Run:  python -m pytest greenfield/eldenring/tests/test_gf_sweep_slot_split.py
 """
-import os
-import sys
-
 import pytest
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(
-    os.path.abspath(__file__))))))
+pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring import contract  # noqa: E402
 from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, MAJOR_SWEEP_TRIGGERS  # noqa: E402
