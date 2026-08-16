@@ -152,7 +152,8 @@ class DefaultsAimAtTheOneToOneMix(WorldTestBase):
     Alaric asked, 2026-08-15 -- aim the export composition at 1:1 useful:filler -- so the default is
     now deliberate rather than absent. The objection is not discarded, it is SPLIT: the half about
     changing seeds without being asked is answered by the ruling, and the half about localizing the
-    WHOLE ladder is still enforced below, because 6250 is a cap and not a switch."""
+    WHOLE ladder is still enforced below, because 12,500 is a cap and not a switch (this line said
+    6250 until 2026-08-16 -- the same stale number the option's own docstring carried)."""
 
     game = GAME
     options = {"num_regions": 1, "item_shuffle": True}

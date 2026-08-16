@@ -56,7 +56,8 @@ class LocalItemsOn(WorldTestBase):
 class LocalItemsOff(WorldTestBase):
     game = GAME
     # 🛑 BOTH knobs have to be turned off to reach "off". `keep_local: set()` alone stopped being
-    # enough at #703, which gave `keep_local_rune_cap` a default of 6250 -- the runes it holds are
+    # enough at #703, which gave `keep_local_rune_cap` a default of 12,500 (this comment said 6,250
+    # until 2026-08-16 -- the same stale number the option's own docstring carried) -- the runes it holds are
     # catalog names, so this class would fail reporting Golden Runes as "force added" when nothing
     # had forced anything. Naming both is the isolation the test always meant.
     options = {"num_regions": 0, "keep_local": set(), "keep_local_rune_cap": 0,
