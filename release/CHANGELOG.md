@@ -57,6 +57,41 @@ This is **direction 1 of #737 only.** The roster still carries entries matt's li
 Godefroy) and still misses ten it has — Margit, Red Wolf, Royal Knight Loretta, Godskin Duo, Godskin
 Noble, Commander Niall, Mimic Tear, Valiant Gargoyles, Elemer, Dragonkin Soldier of Nokstella.
 Re-deriving membership from the game's own achievement bosses is direction 2 and lands separately.
+### The wizard's yaml stops being empty
+
+Take the wizard's advice, change nothing, hit Download, and the file you got was:
+
+    Elden Ring: {}   # all options at their defaults
+
+That generates a perfectly correct seed. It is also the only documentation most players ever read,
+and it says nothing — after eleven steps explaining 58 options, the artifact handed over mentioned
+none of them. `buildYaml` wrote the DEVIATIONS only, so the more the wizard's defaults were worth
+trusting, the emptier its output got.
+
+Every option is now written out, defaults included, in the metadata's own field order and with its
+display name beside it. The `(default: …)` comment is now the **change marker**: it appears only
+where you moved something, so the diff from stock is still readable at a glance.
+
+Two things this buys beyond legibility:
+
+- **A default is not a promise.** `minimum_enemy_difficulty` moved 0 → 25 → 0 inside a single day
+  (2026-08-05). Anyone holding a `{}` yaml across a change like that silently rolls a different seed
+  from the one they configured. Written-out values pin what was chosen.
+- **"Post your yaml" now answers something.** It answered nothing when the yaml was `{}`.
+
+🛑 **The landmine, recorded because it is the interesting half.** `cross_game_progression` and
+`maximum_enemy_difficulty` are NamedRanges whose *default* sits outside their own declared `0..100`:
+`-1`, reachable only as the name `auto`. While the wizard emitted deviations only, a default was
+never written down, so its illegal spelling was never written down either. Writing every option down
+puts both into every file, `Range.from_any(-1)` raises, and a cosmetic change becomes a yaml that
+does not generate at all. Out-of-range values are now emitted as their special name; in-range ones
+stay numbers (`confine_foreign_progression: 100`, not `all` — the number is the legible spelling).
+
+Two new assertions in `test_gf_wizard_yaml_generates.py`, because generation could not have caught
+either direction: `{}` is the most generatable yaml there is, and a needless special name generates
+fine and is merely less readable. Both were confirmed red against the code they gate.
+
+Fixes #732.
 
 ## v0.4.3 — 2026-08-15
 
