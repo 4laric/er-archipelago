@@ -14,6 +14,10 @@ records the contrast: it opened one commit late, on the red that #718 caused.
 version-lockstep and a v0.4.4 client still handshakes with a v0.4.5 seed. Verified by loading
 `contract.py` after the bump and reading the value, not by assuming the shape did not move.
 
+🛑 A version bump still needs a client half even when the hash does not move: `contract_gen.rs`
+is generated from the contract and embeds the version string. Every window row since 0.4.2 said
+"no client half was needed" and every one of them had one.
+
 `release/CHANNELS.tsv` promotes `stable` to v0.4.4 in this same commit rather than the next morning.
 That row had lagged its tag every time so far -- two tags in August, two more in July -- and
 `check_channels` stayed green through all of it, because it asks whether the pointer RESOLVES and
