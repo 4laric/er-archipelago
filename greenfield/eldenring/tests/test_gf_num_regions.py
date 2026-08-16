@@ -132,7 +132,18 @@ class NumRegions1(WorldTestBase):
 def test_the_gen_log_states_the_breakdown_when_the_draw_grows(caplog):
     class _T(WorldTestBase):
         game = GAME
-        options = {"num_regions": 1, "goal": "promised_consort"}
+        # 🛑 THE RUNE GOAL IS HERE TO STOP A 1-IN-10 FLAKE, AND THE FLAKE WAS REAL (#768).
+        # `goal: promised_consort` force-keeps Enir Ilim, and `num_regions: 1` draws one more
+        # region -- usually. Measured over 40 fresh `setUp()`s (each takes a fresh random
+        # multiworld seed): 32 drew 2 regions, 4 drew 3-4, and 2 kept ONLY Enir Ilim. That last
+        # shape mints a single Lock, which since #768 leaves nothing for the goal to want, so
+        # generation refuses it and this test died on an OptionError from a draw it would have
+        # skipped anyway. It passed locally and failed in CI for no reason but the seed.
+        #
+        # The rune goal makes every draw generable without touching what is measured: the three
+        # clauses of the gen-log line come from `goal`, which is untouched, not from the ending.
+        options = {"num_regions": 1, "goal": "promised_consort",
+                   "ending_condition": "great_runes"}
 
     t = _T()
     t.setUp()
