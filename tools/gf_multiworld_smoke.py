@@ -15,13 +15,17 @@ ship with Archipelago, are pure Python with no ROM and no extra pip dependency, 
 rather than stubs -- a test world would not exercise a real foreign item pool.
 
 WHY MORE THAN ONE PARTNER (2026-08-09). With a single partner, "ER reaches a foreign GAME" and "ER
-reaches Hollow Knight" are the same sentence, and the difference is not academic: a sweep of
-`region_locks_anywhere` measured the share of released region Locks that reach the partner at
-0.30% (Terraria, 63 locations/slot), 0.46% (Hollow Knight, 203), 1.18% (TUNIC, 302), 1.80%
-(DOOM 1993, 348) and 3.50% (Stardew Valley, 472) -- monotone in the partner's SIZE, over 24 seeds a
-cell. Every cross-world number this apworld reports is therefore a number about the partner as much
-as about us, and one partner cannot show that. The list is deliberately spread: ~100, ~200 and ~350
-locations per slot.
+reaches Hollow Knight" are the same sentence, and the difference is not academic: cross-world share
+is monotone in the partner's SIZE, so every cross-world number this apworld reports is a number
+about the partner as much as about us, and one partner cannot show that. The list is deliberately
+spread: ~100, ~200 and ~350 locations per slot.
+
+🛑 THE FIGURES THAT USED TO BE CITED HERE WERE RETIRED, 2026-08-15. This paragraph quoted a sweep of
+`region_locks_anywhere` putting released Locks in the partner at 0.30%-3.50% by partner size. That
+option no longer exists anywhere in the repo: those numbers describe the ORIGINAL item_rule design
+that #491 replaced with `stage_pre_fill`, under which the measured answer was not a small share but
+ZERO -- see #703. Left in place they read as evidence that Locks already travel cross-game, which is
+the precise belief #703 had to disprove. Check 2c below now asserts the thing they appeared to.
 
 🛑 TWO PARTNERS WERE TRIED AND REJECTED, and not for generating badly. Meritous (104 locations, 9
 advancement) and Terraria (63 / 10) both generate clean and fast, but their advancement pools are so
@@ -45,6 +49,14 @@ WHAT IT ASSERTS, and none of it is "it generated". Every item runs ONCE PER PART
      three seeds of which ZERO were useful: no weapon, no armour, no talisman, pure filler. A
      player reported it before any gate did. The slot configuration exists to make this testable --
      ER slot 2 runs PARTIAL_CONFINE so the lever is pulled somewhere in the seed.
+  2c. AND THE REGION LOCKS DO TOO -- at least one RELEASED Lock lands in the partner's world.
+     Added 2026-08-15 for #703, and it is a third thing 2 cannot see: 2 counts items, 2b reads
+     classification and asks for one `useful`, and neither can notice that the PROGRESSION Elden
+     Ring exports never left. It never did. Measured zero across four configurations, including a
+     2xER + 1xHK seed where 15 of 28 Locks travelled and all 15 went to the other Elden Ring world,
+     because the placement pass saw only ER surfaces and they have 4.7x the room they need, so the
+     spill that was meant to carry Locks abroad never once opened. `cross_game_progression` opened
+     it; this notices if it shuts. Default config only -- see the call site for why.
   3. THE MOTIVATING CASE, BY NAME (CONTRIBUTING rule 11): under `natural_progression`, real vanilla
      keys land in OTHER players' worlds. Measured 2026-07-28: 42 placed, 12 foreign, including a
      Cursemark of Death in a Hollow Knight slot; re-measured 2026-08-03 on the same pinned seed:
@@ -139,8 +151,10 @@ PARTNERS = (
     _Partner("bumpstik", "Bumper Stickers", "Bumpstik", """  progression_balancing: 0
   accessibility: minimal
 """),
-    # ~348 locations/slot, the large end. Measured 1.80% of released region Locks reaching it
-    # against 0.46% for Hollow Knight on the same ER options -- the spread this list exists for.
+    # ~348 locations/slot, the large end -- the size spread this list exists for. (Two Lock-travel
+    # percentages that used to justify this entry were removed 2026-08-15 with the module
+    # docstring's: same retired `region_locks_anywhere` sweep, same pre-#491 design. The size
+    # argument stands on its own; the numbers did not.)
     _Partner("doom_1993", "DOOM 1993", "Doomguy", """  progression_balancing: 0
   accessibility: minimal
 """),
@@ -422,6 +436,57 @@ def placements(zip_path):
     return rows
 
 
+def check_locks_reach_a_partner(rows, er, foreign_slots, partner_game, report):
+    """2c. RELEASED REGION LOCKS REACH A NON-ELDEN-RING GAME (#703, added 2026-08-15).
+
+    🛑 WHY THIS IS NOT COVERED BY CHECK 2. Check 2 counts ITEMS reaching the partner and never reads
+    what they are; 2b reads classification and asks for one USEFUL. Neither can see a progression
+    item, and Region Locks are the progression Elden Ring exports. The whole of #703 is that this
+    number was ZERO -- not rarely, not once across four measured configurations, including a
+    2xER + 1xHK seed where 15 of 28 Locks travelled and every one went to the OTHER Elden Ring world.
+
+    It was zero for a structural reason that no gate could see: `place_released_locks` offered Locks
+    to Elden Ring surfaces only, so the sole route to a partner was the spill -- a Lock the pass
+    could not place -- and with ~170 surface checks against at most ~36 Locks there was never a
+    spill. `cross_game_progression` opened that valve. THIS is the guard that notices if it shuts
+    again, and without it the fix regresses exactly the way the original defect survived: silently,
+    with every check green.
+
+    🛑 IT IS CALLED ONLY WHEN natural_progression IS OFF. That mode mints no Lock items at all, yet
+    the spoiler still shows one "<Region> Lock" per kept region because the region graph asks
+    `has('<R> Lock')` and those are EVENT placements -- 34 of them, all with holder == owner, none
+    of which can move. Widening this to every config would make the guard permanently red on a fact
+    about bookkeeping.
+
+    The floor is `> 0`, deliberately, and not the measured share. At the smoke's 2 games `auto`
+    resolves to 50%, so a healthy run puts roughly half the released Locks in the partner and the
+    margin here is large -- but the promise being asserted is that they CAN travel, the same shape
+    as check 3's floor. A share assertion would go red on fill noise and teach people to ignore it.
+    """
+    bad = []
+    locks = [(l, lp, i, ip) for l, lp, i, ip in rows if ip in er and i.endswith(" Lock")]
+    abroad = [r for r in locks if r[1] in foreign_slots]
+    report("region Locks: %d released, %d in %s" % (len(locks), len(abroad), partner_game))
+    if not locks:
+        # WITNESS, and it has to be a failure rather than a skip: "no Lock reached the partner" is
+        # trivially true of a seed that minted none, which is the vacuous pass this file exists to
+        # refuse. The shipped yaml releases every Lock (progression_bias 0).
+        bad.append(
+            "the seed minted NO region Locks at all, so 'Locks reach the partner' cannot be tested. "
+            "At the shipped progression_bias every Lock is released -- if none exist, either the "
+            "mode changed or the item names did, and this guard is now inert.")
+    elif not abroad:
+        bad.append(
+            "NOT ONE of %d released region Lock(s) reached %s -- every one stayed inside an Elden "
+            "Ring world. This is er-archipelago#703 exactly: measured at 0 across four "
+            "configurations before cross_game_progression existed, because the placement pass only "
+            "ever saw Elden Ring surfaces and they have four times the room they need, so the "
+            "spill that was supposed to carry Locks abroad never once opened. Check the option's "
+            "default is still `auto` and that place_released_locks still runs its partner pass."
+            % (len(locks), partner_game))
+    return bad
+
+
 def check(rows, natural, report, partner):
     """-> list of failure strings. Every check names what a green would have hidden."""
     bad = []
@@ -450,6 +515,19 @@ def check(rows, natural, report, partner):
         bad.append("ER items reached other ER slots but NOT %s. ER-to-ER traffic alone would satisfy "
                    "a naive cross-world check while the world was unable to place into a foreign "
                    "GAME." % partner.game)
+
+    # 2c. Locks specifically -- see check_locks_reach_a_partner for why 2 and 2b cannot see this.
+    #
+    # 🛑 DEFAULT CONFIG ONLY, and the first run of this guard is what taught us why. Under
+    # natural_progression `create_items` mints ZERO Lock items -- regions open on their real vanilla
+    # keys -- but the region graph still asks `has('<R> Lock')`, so the spoiler still carries one
+    # "<Region> Lock" placement per kept region as EVENT bookkeeping. Those are not multiworld items
+    # and cannot travel by construction: measured 34 of them, every single one with holder == owner.
+    # Asserting on them is a category error, and a guard that fires on a thing that cannot be fixed
+    # is a guard people learn to disable. The cross-world promise for that mode is check 3's, which
+    # tests the real keys instead -- which is exactly the right instrument for it.
+    if not natural:
+        bad += check_locks_reach_a_partner(rows, er, foreign_slots, partner.game, report)
 
     # 3. THE MOTIVATING CASE.
     if natural:
@@ -540,6 +618,47 @@ def self_test():
         else:
             print("  ok    %-52s fails as designed" % name)
 
+    # 2c IS A ROW-LEVEL GUARD, so it gets its own fixtures rather than a slot_data fault. Same rule
+    # applies to it as to the three above -- #703's whole lesson is that a cross-game number can sit
+    # at zero for months with every gate green, so the guard that watches it must be provably able
+    # to go red.
+    er_p, hk_p = {"ErdtreeOne", "ErdtreeTwo"}, {"HollowOne", "HollowTwo"}
+
+    def rows_for(*triples):
+        # (holder, item, owner)
+        return [("some check", holder, item, owner) for holder, item, owner in triples]
+
+    lock_cases = [
+        ("a Lock in the partner's world",
+         rows_for(("HollowOne", "Limgrave Lock", "ErdtreeOne"),
+                  ("ErdtreeOne", "Caelid Lock", "ErdtreeOne")),
+         None),
+        ("every Lock stayed in an ER world",
+         rows_for(("ErdtreeTwo", "Limgrave Lock", "ErdtreeOne"),
+                  ("ErdtreeOne", "Caelid Lock", "ErdtreeOne")),
+         "NOT ONE"),
+        ("the seed minted no Locks at all",
+         rows_for(("HollowOne", "Golden Rune [1]", "ErdtreeOne")),
+         "NO region Locks at all"),
+        ("a PARTNER's own item that ends in Lock is not ours",
+         rows_for(("HollowOne", "Some Hollow Lock", "HollowOne")),
+         "NO region Locks at all"),
+    ]
+    for name, rws, want in lock_cases:
+        got = check_locks_reach_a_partner(rws, er_p, hk_p, "Hollow Knight", lambda _m: None)
+        if want is None:
+            if got:
+                problems.append("%-52s expected PASS, got: %s" % (name, got[0][:90]))
+            else:
+                print("  ok    %-52s passes" % name)
+        elif not got:
+            problems.append("%-52s expected a FAILURE, got a clean pass -- this guard is INERT"
+                            % name)
+        elif not any(want in f for f in got):
+            problems.append("%-52s failed for the WRONG reason: %s" % (name, got[0][:90]))
+        else:
+            print("  ok    %-52s fails as designed" % name)
+
     # THE PARTNER LIST ITSELF IS DATA, and a typo in it degrades this whole file to a SKIP rather
     # than a failure -- so it is checked here, where no Archipelago is needed. Duplicate slot
     # prefixes are the sharp one: `check()` selects the partner's slots by name prefix, so two
@@ -560,7 +679,8 @@ def self_test():
         for pr in problems:
             print("  * %s" % pr)
         return 1
-    print("SELF-TEST: PASS -- %d guard(s) proven able to go red\n" % (len(cases) - 1))
+    print("SELF-TEST: PASS -- %d guard(s) proven able to go red\n"
+          % (len(cases) - 1 + len(lock_cases) - 1))
     return 0
 
 
