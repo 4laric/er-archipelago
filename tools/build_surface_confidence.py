@@ -39,7 +39,7 @@ THE BARS, and why each one disqualifies a check from hosting progression:
                     capital reconciler is armed, so this tool reports it as a SEPARATE column rather
                     than folding it in: it is conditional, the others are not.
   surface_excluded  SURFACE_EXCLUDE_APS -- hand-excluded surface-tagged checks (Alaric's call).
-  hub_merchant      Roundtable-Hold ShopSlots -- reachable at spawn, so progression there is trivial.
+  hub_merchant      Roundtable-Hold MERCHANT rows -- reachable at spawn, so progression is trivial.
 
 🛑 THIS TOOL SETS NO POLICY. It does not decide that a class is too uncertain to offer; it prints the
 number a human decides on. `--check` asserts only that the committed table matches a fresh emit, so a
@@ -104,9 +104,15 @@ def _bars(mods):
     tags = mods["location_tags"]
     data = mods["data"]
     lt = tags.LOCATION_TAGS
+    # 🛑 `Shop`, NOT `ShopSlot` -- this is #707, and it was wrong HERE too. Both this
+    # re-implementation and the feature filtered on a tag no hub row carries, so the
+    # `hub_merchant` column read 0 for three weeks and agreed with the feature's 0. Two
+    # identical wrong answers pin as cleanly as two right ones, which is why
+    # test_eligible_matches_allowed_ap_ids did not catch it. Keep this in step with
+    # features/progression_surface._HUB_MERCHANT_TAGS.
     hub_merchant = frozenset(
         ap for (_n, ap, _f) in data.LOCATIONS.get(data.HUB, ())
-        if "ShopSlot" in (lt.get(ap) or ()))
+        if "Shop" in (lt.get(ap) or ()))
     return {
         "guessed_region": frozenset(getattr(tags, "DEFAULTED_REGION_APS", ())),
         "missable": frozenset(mods["missable_locations"].MISSABLE_LOCATIONS),
@@ -217,7 +223,7 @@ def emit(rows, totals):
     a("#   erdtree_burn      m11_00 destroyed when Maliketh dies (CONDITIONAL: not barred when the")
     a("#                     capital reconciler is armed -- see the two default_hosting_* lines)")
     a("#   surface_excluded  hand-excluded surface-tagged checks (gen_data _SURFACE_EXCLUDE_FLAGS)")
-    a("#   hub_merchant      Roundtable-Hold ShopSlots -- reachable at spawn, so trivial")
+    a("#   hub_merchant      Roundtable-Hold MERCHANT rows -- reachable at spawn, so trivial")
     a("# Bar columns OVERLAP (one check can be both guessed and missable), so they do not sum to")
     a("# total - eligible. 'eligible' is computed from the UNION, never by subtracting the columns.")
     a("#")
