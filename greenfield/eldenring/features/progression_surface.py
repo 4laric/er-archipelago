@@ -1078,6 +1078,10 @@ def _world_barred_aps(world):
         from ..location_tags import DEFAULTED_REGION_APS as _d
     except Exception:
         _d = frozenset()
+    try:
+        from ..location_tags import SHOP_RELEASE_GATED_APS as _s
+    except Exception:
+        _s = frozenset()
     # #701 option B: a hub-collapsed merchant row THIS SEED could region to a kept site is no longer a
     # guess -- it is gated behind that region (core._add_locations' access_rule), so it comes OFF the
     # defaulted bar here as well. Subtracted from `_d` alone and never from the union below: the lift
@@ -1086,12 +1090,12 @@ def _world_barred_aps(world):
     _d = frozenset(_d) - collapsed_lift_aps(world)
     _m = missable_barred_aps(world)
     if getattr(world, "gf_capital_reconciler", False):
-        return frozenset(_d) | _m
+        return frozenset(_d) | frozenset(_s) | _m
     try:
         from ..location_tags import ERDTREE_BURN_APS as _b
     except Exception:
         _b = frozenset()
-    return frozenset(_d) | frozenset(_b) | _m
+    return frozenset(_d) | frozenset(_b) | frozenset(_s) | _m
 
 
 def _open_allowed(world, classes):
