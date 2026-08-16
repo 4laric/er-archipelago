@@ -137,7 +137,6 @@ def _leyndell_location_ids():
                 out.add(ap_id)
     return out
 
-
 def _vanilla_placement_on(world) -> bool:
     """Is every item pinned to its base-game location this seed?
 
@@ -148,7 +147,6 @@ def _vanilla_placement_on(world) -> bool:
     """
     opt = getattr(getattr(world, "options", None), "vanilla_placement", None)
     return bool(opt is not None and opt.value)
-
 
 class LeyndellRunesRequired(Range):
     """Great Runes needed to access Leyndell (m11 Royal/Ashen + Fractured Marika), on top of the

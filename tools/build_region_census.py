@@ -77,7 +77,7 @@ WIZARD_HTML = os.path.join(ROOT, "wizard", "wizard.html")
 SCRIPT_ID = "er-region-census"
 SIBLING = os.path.join(ROOT, "tools", "build_surface_confidence.py")
 
-SCHEMA = 1
+SCHEMA = 2
 
 
 def _sibling():
@@ -146,12 +146,15 @@ def measure(sc=None):
     bars_mod = mods.get("boss_healthbars")
     slots_by_region = {}
     slots_max_by_region = {}
+    slots_by_class_region = {}
+    slots_max_by_class_region = {}
     if sweeps_mod is not None and bars_mod is not None:
         ap_region = {}
         for rname, rows_ in data.LOCATIONS.items():
             for _n, ap, _f in rows_:
                 ap_region[ap] = rname
         hb = bars_mod.BOSS_HEALTHBARS
+        sweep_classes = [c for c in contract.SWEEP_SLOT_CLASS_WANTS if c in set(contract.SURFACE_CLASSES)]
         for rung, allowed in sorted(contract.SWEEP_RUNGS.items()):
             at_rung = {}
             for fl, members in sweeps_mod.DUNGEON_SWEEPS.items():
@@ -173,12 +176,20 @@ def measure(sc=None):
             #
             # That is the same shape this tool already takes for `num_regions`, and for the same
             # reason its header gives: "A wizard that printed one number would be lying."
-            for slots, bucket in ((1, slots_by_region), (contract.MAX_SLOTS_PER_SWEEP, slots_max_by_region)):
-                for ap in contract.nominate_sweep_slots(at_rung, barred=barred, slots=slots):
-                    r = ap_region.get(ap)
-                    if r:
-                        bucket.setdefault(r, {}).setdefault(rung, 0)
-                        bucket[r][rung] += 1
+            for slots, bucket, by_class in (
+                    (1, slots_by_region, slots_by_class_region),
+                    (contract.MAX_SLOTS_PER_SWEEP, slots_max_by_region, slots_max_by_class_region)):
+                for cls in sweep_classes:
+                    part = contract.sweeps_for_surface_class(
+                        at_rung, cls, sweeps_mod.MAJOR_SWEEP_TRIGGERS)
+                    for ap in contract.nominate_sweep_slots(part, barred=barred, slots=slots):
+                        r = ap_region.get(ap)
+                        if r:
+                            by_class.setdefault(r, {}).setdefault(cls, {}).setdefault(rung, 0)
+                            by_class[r][cls][rung] += 1
+                            if cls == "SweepSlot":
+                                bucket.setdefault(r, {}).setdefault(rung, 0)
+                                bucket[r][rung] += 1
 
     regions = {}
     for name in sorted(data.LOCATIONS):
@@ -203,11 +214,22 @@ def measure(sc=None):
             # Absent rungs are zero. Kept separate from `combos` because it is not a tag combination
             # and must never be summed into one.
             "sweep_slots": dict(sorted((slots_by_region.get(name) or {}).items())),
+            # {class: {rung: how many checks this region contributes for that DERIVED sweep class}}.
+            # SweepSlot is the union; SweepSlotMajor / Minor are its partition and price the extra
+            # checkboxes the same wizard tab ships.
+            "sweep_slots_by_class": {
+                cls: dict(sorted(rungs.items()))
+                for cls, rungs in sorted((slots_by_class_region.get(name) or {}).items())
+            },
             # The SAME per-rung shape at the other end of the range: what this region contributes
             # when there is a single foreign partner (contract.MAX_SLOTS_PER_SWEEP per sweep). Added
             # rather than replacing `sweep_slots` so every existing consumer keeps reading the floor
             # it already read, and a range-aware one can show both (#703).
             "sweep_slots_max": dict(sorted((slots_max_by_region.get(name) or {}).items())),
+            "sweep_slots_max_by_class": {
+                cls: dict(sorted(rungs.items()))
+                for cls, rungs in sorted((slots_max_by_class_region.get(name) or {}).items())
+            },
         }
 
     census = {

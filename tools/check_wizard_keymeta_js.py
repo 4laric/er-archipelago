@@ -120,6 +120,20 @@ def _tsv_eligible():
     return out, hosting
 
 
+def _derived_eligible(census):
+    """{derived class: eligible} for the full DLC-on corpus, from the shipped sweep partition."""
+    out = {}
+    for cls in census.get("derived_classes") or ():
+        if cls == "SweepSlot":
+            out[cls] = sum((r.get("sweep_slots") or {}).get("bosses", 0)
+                           for r in census["regions"].values())
+        else:
+            out[cls] = sum(
+                ((r.get("sweep_slots_by_class") or {}).get(cls) or {}).get("bosses", 0)
+                for r in census["regions"].values())
+    return out
+
+
 def py_marginals(census, selected, enable_dlc=True, dlc_only=False, rung="bosses"):
     """Reference implementation of ERW.surfaceMarginals. Exact set arithmetic over tag COMBINATIONS,
     plus the DERIVED classes, which are not combinations at all.
@@ -137,8 +151,13 @@ def py_marginals(census, selected, enable_dlc=True, dlc_only=False, rung="bosses
             for combo, cnt in R[name]["combos"].items():
                 if sel & set(combo.split("|")):
                     n += cnt
+            sweep_by_class = R[name].get("sweep_slots_by_class") or {}
             if "SweepSlot" in sel:
-                n += (R[name].get("sweep_slots") or {}).get(rung, 0)
+                n += (sweep_by_class.get("SweepSlot") or R[name].get("sweep_slots") or {}).get(rung, 0)
+            else:
+                for cls in ("SweepSlotMajor", "SweepSlotMinor"):
+                    if cls in sel:
+                        n += (sweep_by_class.get(cls) or {}).get(rung, 0)
         return n
 
     cur = set(selected or ())
@@ -426,16 +445,16 @@ def main(argv=None):
             # below -- against the census's own per-rung totals, which is the only other place the
             # number exists.
             derived = set(census.get("derived_classes") or ())
-            sweep_total = sum((r.get("sweep_slots") or {}).get("bosses", 0)
-                              for r in census["regions"].values())
+            derived_eligible = _derived_eligible(census)
             for cl, g in zip(classes, singles):
                 if cl in derived:
                     if cl in elig:
                         bad.append("%s is DERIVED but surface_confidence.tsv prices it -- one of the "
                                    "two is wrong about what the class is" % cl)
-                    elif g["total"] != sweep_total:
+                    elif g["total"] != derived_eligible.get(cl):
                         bad.append("%s alone: the wizard would show %d, the census's own sweep_slots "
-                                   "sum to %d" % (cl, g["total"], sweep_total))
+                                   "partition prices it at %d" % (cl, g["total"],
+                                                                  derived_eligible.get(cl)))
                 elif cl not in elig:
                     bad.append("%s is in the census but not priced in surface_confidence.tsv" % cl)
                 elif g["total"] != elig[cl]:
@@ -450,7 +469,7 @@ def main(argv=None):
                 # and test_gf_surface_confidence pins the disclosure). So the identity is not
                 # equality any more -- it is equality once the derived half is added, which is a
                 # STRONGER statement than the old one: it pins the size of that half too.
-                dflt_derived = sweep_total if (set(default) & derived) else 0
+                dflt_derived = sum(derived_eligible[c] for c in set(default) & derived)
                 if dflt["total"] != hosting + dflt_derived:
                     bad.append("default surface: wizard %d vs surface_confidence.tsv headline "
                                "hosting %d + %d derived (SweepSlot) = %d"
