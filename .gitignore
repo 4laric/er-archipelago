@@ -38,6 +38,11 @@ genfuzz_ci_*.md
 apconfig.json
 preflight_*.log
 *.log
+# 🛑 EXCEPT the sweep/kill correlator's fixtures (#713). They are hand-built CLIENT LOGS and are
+# the acceptance for tools/check_sweep_kill_correlation.py -- ignored, they would vanish from the
+# commit and the gate would go green on nothing. Named .log deliberately: the tool's whole job is
+# parsing this grammar, and a fixture renamed to dodge an ignore rule stops being the real shape.
+!greenfield/eldenring/tests/fixtures/*.log
 # per-gen compact diagnostic (dlcdiag.py output; raw .log already ignored)
 gendiag_*.txt
 

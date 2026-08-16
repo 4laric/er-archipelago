@@ -1,0 +1,15 @@
+12:05:00 [INFO] === SESSION START 2026-08-15 12:05:00 | pid 18244 | this file is APPENDED across launches: everything above belongs to an earlier run ===
+12:05:00 [INFO] Logger initialized.
+12:05:04 [INFO] flag-poll table: 1483 location flags
+12:05:11 [INFO] boss-fight probe: ON (default). Samples player and boss HP ~2 Hz while a boss healthbar is up.
+12:05:12 [INFO] sweep-watch: census -- 3 group(s), 0 already set: [1034420800(21), 1034500800(19), 1035500800(14)]
+12:17:48 [INFO] boss-fight START: t=0.0s npc_param 45020920 npc_id 5240 region 1034420 boss 19200/19200 (100%) player 652/652 (100%)
+12:17:48 [INFO] boss-fight START carried: npc_param 45020920 npc_id 5240 speffects [7010] (scaling rungs + down-states only, the same filter the enemy-scaling census uses)
+12:18:31 [INFO] boss-fight SAMPLE: t=43.2s npc_param 45020920 npc_id 5240 region 1034420 boss  9663/19200 ( 50%) player 501/652  ( 76%)
+12:19:42 [INFO] boss-fight END: npc_param 45020920 outcome=BOSS DOWN t=114.0s unseen=0.0s last boss 0/19200 (0%) player 412/652 (63%)
+12:19:42 [INFO] sweep-watch: trigger flag 1034420800 -> SET (21 member(s) in its group)
+12:23:45 [INFO] sweep-watch: trigger flag 1034500800 -> SET (19 member(s) in its group)
+12:26:30 [INFO] boss-fight START: t=0.0s npc_param 32520921 npc_id 3252 region 1035500 boss 6960/6960 (100%) player 652/652 (100%)
+12:27:56 [INFO] boss-fight END: npc_param 32520921 outcome=BOSS DOWN t=86.0s unseen=0.0s last boss 0/6960 (0%) player 388/652 (59%)
+12:27:56 [INFO] sweep-watch: trigger flag 1035500800 -> SET (14 member(s) in its group)
+12:31:02 [INFO] Received item: Boss sweep (Liurnia of the Lakes)

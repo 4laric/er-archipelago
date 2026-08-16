@@ -107,6 +107,13 @@ TESTS_JOB = {
     "data": "client tables read from the gitlink checkout the tests job now makes",
     "finale": "committed data only",
     "gen_inputs_diff": "reads the committed gen_inputs.db + repo tree found by walk-up",
+    "sweep_kill_correlation": "the #713 correlator's acceptance -- committed "
+                              "greenfield/sweep_trigger_npcs.tsv + boss_arena_pairs.tsv + the "
+                              "fixture logs in tests/fixtures/, all reached through find_repo_root. "
+                              "NOT a GENERATORS suite: the TOOL is AP-free, but the TEST is not -- "
+                              "it lives in the eldenring package, whose __init__ chain pulls "
+                              "BaseClasses under pytest, and it has no __main__ block to run "
+                              "standalone. Same trap as goods_hold_cap",
     "location_units": "committed greenfield/flag_lots.tsv, reached by the same find_repo_root "
                       "walk-up as goods_hold_cap, against the installed world's item_ids/data. "
                       "The tsv is a generator INPUT and is not shipped beside the package, so the "

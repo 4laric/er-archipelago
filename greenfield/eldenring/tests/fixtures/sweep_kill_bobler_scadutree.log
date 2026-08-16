@@ -1,0 +1,9 @@
+12:58:11 [INFO] === SESSION START 2026-08-07 12:58:11 | pid 4412 | this file is APPENDED across launches: everything above belongs to an earlier run ===
+12:58:11 [INFO] Logger initialized.
+12:58:19 [INFO] boss-fight probe: ON (default). Samples player and boss HP ~2 Hz while a boss healthbar is up.
+12:58:20 [INFO] sweep-watch: census -- 1 group(s), 0 already set: [2050480810(49)]
+12:59:38 [INFO] boss-fight START: t=0.0s npc_param 52300096 npc_id 5230 region 2050480 boss 14710/14710 (100%) player 1655/1655 (100%)
+13:00:24 [INFO] boss-fight SAMPLE: t=46.3s npc_param 52300096 npc_id 5230 region 2050480 boss  6221/14710 ( 42%) player 1204/1655  ( 72%)
+13:01:02 [INFO] boss-fight END: npc_param 52300096 outcome=BOSS DOWN t=84.1s unseen=0.0s last boss 0/14710 (0%) player 1204/1655 (72%)
+13:03:47 [INFO] sweep-watch: trigger flag 2050480810 -> SET (49 member(s) in its group)
+13:03:47 [INFO] Received item: Boss sweep (Scadu Altus)
