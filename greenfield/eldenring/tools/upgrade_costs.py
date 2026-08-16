@@ -30,15 +30,47 @@ except ImportError:  # minimal fallbacks so the module imports without the gener
     REVERED_ASH_COST = [1, 1, 1, 2, 2, 3, 3, 3, 4, 5]
 
 # ---------------------------------------------------------------------------------------------
-# KNOWN constants (no source file). Golden/Shadow rune item -> runes granted.
-RUNE_VALUE: Dict[str, int] = {
-    'Golden Rune [1]': 200, 'Golden Rune [2]': 400, 'Golden Rune [3]': 800, 'Golden Rune [4]': 1200,
-    'Golden Rune [5]': 1600, 'Golden Rune [6]': 2000, 'Golden Rune [7]': 2500, 'Golden Rune [8]': 3000,
-    'Golden Rune [9]': 3800, 'Golden Rune [10]': 5000, 'Golden Rune [11]': 6250, 'Golden Rune [12]': 7500,
-    'Golden Rune [13]': 10000, "Lord's Rune": 50000, "Hero's Rune [1]": 2500, "Hero's Rune [2]": 3800,
-    "Hero's Rune [3]": 5000, "Hero's Rune [4]": 6250, "Hero's Rune [5]": 7500, "Numen's Rune": 12500,
-    'Shadow Realm Rune [1]': 1000, 'Shadow Realm Rune [2]': 1600,
-}
+# Rune item -> runes granted. DERIVED, and it was a hand-list until 2026-08-16.
+#
+# 🛑 THE HAND-LIST WAS WRONG ON 7 OF ITS 22 ROWS (#749), and its own header said "KNOWN constants
+# (no source file)" while the source file existed. Hero's Rune [1]-[5] read
+# 2,500 / 3,800 / 5,000 / 6,250 / 7,500 against the params' 15,000-35,000 -- and those five numbers
+# are Golden Rune [7]/[9]/[10]/[11]/[12]'s payouts, so whatever wrote it was reading down the wrong
+# column. Shadow Realm Rune [1]/[2] read 1,000/1,600 against 7,500/10,000. It also omitted nine
+# catalog runes outright (Broken, Leda's, Marika's, Rune of an Unsung Hero, Shadow Realm [3]-[7]).
+# The other 15 rows were right, which is exactly why nobody noticed.
+#
+# Retyping the seven would reproduce the defect class rather than the defect, so this DERIVES:
+# `shop_stock_data.RUNE_PAYOUT` is generated from EquipParamGoods.refId_default ->
+# SpEffectParam.soul, and is already the source `item_categories.rune_payout()` reads. One datum,
+# one source. `test_gf_upgrade_costs_runes` asserts the equality and types no payouts.
+#
+# ⚠️ THE FALLBACK IS DELIBERATELY EMPTY, not a smaller hand-list. This module degrades rather than
+# raising when the generated data is absent (see the try/except above), and that property has to
+# survive -- but a partial rune table is worse than none here: the solvers below spend a multiset
+# against a cost, so an item silently worth 0 under-counts, while a MISSING item is a KeyError the
+# caller can see. Nothing in the world imports RUNE_VALUE today; the analyzer is its only consumer.
+def _derive_rune_values() -> Dict[str, int]:
+    _GOODS_NIBBLE, _ROW_MASK = 0x40000000, 0x0FFFFFFF
+    try:
+        _here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        sys.path.insert(0, _here)
+        from shop_stock_data import RUNE_PAYOUT   # noqa: PLC0415 -- generated leaf
+        from item_ids import ITEM_CATALOG         # noqa: PLC0415 -- generated leaf
+    except ImportError:
+        return {}
+    out: Dict[str, int] = {}
+    for name, full in ITEM_CATALOG.items():
+        if (full & 0xF0000000) != _GOODS_NIBBLE:
+            continue
+        payout = RUNE_PAYOUT.get(full & _ROW_MASK)
+        if payout is not None:
+            out[name] = int(payout)
+    return out
+
+
+RUNE_VALUE: Dict[str, int] = _derive_rune_values()
+
 # KNOWN: Sacred Tears upgrade flask potency, one per level (~12 in base game). No source file.
 FLASK_POTENCY_TEAR_COST: List[int] = [1] * 12
 
