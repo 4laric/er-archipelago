@@ -91,6 +91,7 @@ class WeaponSlotsAcceptAnything(WorldTestBase):
         # Foreign rewards were never blocked, but they are the population the repoint now flowers,
         # so pin that nothing on the weapon-slot path filters them either.
         slots = self._weapon_slots_in_play()
+        self.assertGreater(len(slots), 0, "expected weapon shop slots in play with the real-item pool")
         foreign = self.world.create_item(self.world.get_filler_item_name())
         foreign.player = self.world.player + 1
         rejecting = [l for l in slots if not l.item_rule(foreign)]

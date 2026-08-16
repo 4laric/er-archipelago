@@ -444,6 +444,52 @@ SWEEP_REGION = {
 
 # Arena region per trigger -- the region the player must be able to REACH for this
 # group to ever fire. Absent key = no boss_area_regions.tsv row = UNAUDITED (issue #445).
+
+# Sweeps whose trigger boss is a MajorBoss (issue #734). Roster (achievement_bosses,
+# keyed by defeat flag) UNION tag (trigger -> the check its death grants -> MajorBoss).
+# 🛑 A trigger ABSENT here is MINOR, not unknown: every trigger was adjudicated.
+MAJOR_SWEEP_TRIGGERS = frozenset({
+    10000800,
+    10000850,
+    11000800,
+    11000850,
+    11050800,
+    12010800,
+    12020800,
+    12020850,
+    12030850,
+    12040800,
+    12050800,
+    12080800,
+    12090800,
+    13000800,
+    13000830,
+    13000850,
+    14000800,
+    14000850,
+    15000800,
+    15000850,
+    16000800,
+    16000850,
+    20000800,
+    20010800,
+    21010800,
+    22000800,
+    25000800,
+    28000800,
+    35000800,
+    39200800,
+    1035500800,
+    1039540800,
+    1043300800,
+    1051570800,
+    1252380800,
+    1252520800,
+    2044450800,
+    2048440800,
+    2049480800,
+    2054390800,
+})
 SWEEP_ARENA_REGION = {
     10000800: 'Stormveil',
     10000850: 'Limgrave',
@@ -653,4 +699,4 @@ SWEEP_UNSPAWNED_OPEN = {
     1041330800: "unnamed m60_41_33 (Fourth Church of Marika, Weeping) -- the same shape and NOT yet falsified in game, so its 10 members keep their trigger. FALSIFIER: warp to the Fourth Church of Marika and look, by day and at night (the tile's other candidate reading is a night-conditional spawn). Absent -> move it to 'unspawned' here and regen; present -> the datamine owes it a GameAreaParam binding and an MSB position. Issue #540.",
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:0c583395852b4143465e3f05c497b1c307f914e4be4d49b9a34e7e6666ea6937', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:ffc109e503a8be405d3a59af450e5b4f4391dd70633900e68cd482fb6bbdc718'}
+_GEN_STAMP = {'inputs_hash': 'sha256:43ff35e38467b1e94db01a118c89caf32759b8c6383e445fcc5519bac8fcde2b', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:451c116c2ba70a2e3b82830fed130358d414cb691606957849dba1d89494a5d7'}

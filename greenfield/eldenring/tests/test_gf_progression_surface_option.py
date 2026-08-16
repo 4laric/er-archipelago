@@ -168,15 +168,20 @@ class ProgressionSurfaceOption(unittest.TestCase):
         COMMENT, inverted, for months -- so it is asserted from the data, in the direction that
         matters, rather than against a table that could be wrong the same way twice."""
         cont = class_containment()
+        tagged = [c for c in contract.SURFACE_CLASSES if c not in contract.SURFACE_DERIVED_CLASSES]
         members = {c: {ap for ap, ts in LOCATION_TAGS.items() if c in (ts or ())}
-                   for c in contract.SURFACE_CLASSES}
+                   for c in tagged}
         for parent, kids in cont.items():
+            if parent not in members:
+                continue
             for kid in kids:
+                if kid not in members:
+                    continue
                 self.assertTrue(members[kid] < members[parent],
                                 "%s does not strictly contain %s" % (parent, kid))
         # ...and nothing strictly contained is MISSING from the answer.
-        for a in contract.SURFACE_CLASSES:
-            for b in contract.SURFACE_CLASSES:
+        for a in tagged:
+            for b in tagged:
                 if a != b and members[b] and members[b] < members[a]:
                     self.assertIn(b, cont.get(a, []),
                                   "%s contains %s but the lattice does not say so" % (a, b))

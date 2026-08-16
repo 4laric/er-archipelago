@@ -137,8 +137,6 @@ def _leyndell_location_ids():
                 out.add(ap_id)
     return out
 
-
-
 def _vanilla_placement_on(world) -> bool:
     """Is every item pinned to its base-game location this seed?
 

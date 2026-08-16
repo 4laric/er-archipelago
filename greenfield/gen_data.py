@@ -9965,6 +9965,93 @@ if os.path.isfile(_bar_path):
             "tools/build_boss_region_worksheet.py rather than writing a phantom region here."
             % _bad_a)
 
+# ---- MAJOR_SWEEP_TRIGGERS: which sweeps are a MAJOR boss's (issue #734) ---------------------------
+# `SweepSlotMajor` / `SweepSlotMinor` split the derived SweepSlot class, and Alaric's ruling
+# (2026-08-16) is that "major" here means EXACTLY the `MajorBoss` progression-surface class -- not
+# `legacy`, and not a fresh definition. So this is emitted from the same four sources `_MAJOR_AIDS`
+# is built from, a few thousand lines up, rather than re-derived one module over.
+#
+# 🛑 IT HAS TO BE EMITTED HERE, and that is the whole point of the block. Reconstructing it
+# world-side from `location_tags` + `boss_reward_lots` is the obvious cheap route and it is WRONG:
+# `BOSS_REWARD_DEFEAT` reaches only ~103 of the 212 live triggers, and the casualties are not
+# obscure -- Promised Consort Radahn, Starscourge Radahn and the Fire Giant all come back "not
+# major". `MajorBoss` is decided HERE, from the achievement roster + Remembrance + GreatRune + the
+# arena majors + MAJOR_BOSS_EXTRAS; anything else is a weaker copy of it wearing the same name.
+#
+# TWO derivations, unioned, because the sources are keyed differently and neither covers the other:
+#
+#   A. THE ROSTER, DIRECTLY. `_ACH_BOSSES` is keyed by DEFEAT FLAG, which is the same key
+#      DUNGEON_SWEEPS uses -- 28 of its 29 rows ARE sweep triggers, no join to write.
+#   B. THE CHECK'S TAG. Every other source (Remembrance, GreatRune, the arena majors, the extras)
+#      is keyed by an ap-id, so go trigger -> the check that death grants -> `_MAJOR_AIDS`. Two
+#      hops, both flags: the trigger flag may itself be the acquisition flag (Margit's Stormveil
+#      Talisman Pouch is flag 10000850, the defeat flag), or it reaches one through
+#      `_BOSS_REWARD_DEFEAT`.
+#
+# 🛑 NEVER ON THE NAME -- the same rule the achievement roster block states, for the same reason.
+#
+# ⭐ THE FESTIVAL RE-KEY, and it is the only special case. Three field bosses have a defeat flag
+# whose persistent form carries a `12` prefix while the entity -- and therefore the achievement's
+# eventFlagId -- carries `10` (datamine_boss_healthbars: Radahn 1052380800 -> 1252380800, Fire Giant
+# 1052520800 -> 1252520800, Borealis 1054560800 -> 1254560800). An achievement flag that is not a
+# trigger is therefore retried in its 12-form, GUARDED by a second derivation: the 12-form must
+# itself be a live trigger. Without this the Fire Giant -- the case achievement_bosses.tsv's own
+# header calls out as the reason it carries a `source` column -- is a minor boss.
+def _festival_alias(_fl):
+    """The OTHER persistent form of a festival/scripted field boss's defeat flag, or None.
+
+    `10XXYYLLLL` <-> `12XXYYLLLL` over the same tile. Everything upstream of the sweep build keys on
+    the form it happened to meet -- the achievement's `eventFlagId` and `BOSS_REWARD_DEFEAT` carry
+    the 10-form ENTITY flag, while `datamine_boss_healthbars` re-keys the trigger to the 12-form
+    PERSISTENT flag (Radahn 1052380800 -> 1252380800, Fire Giant 1052520800 -> 1252520800, Borealis
+    1054560800 -> 1254560800). Three bosses, and two of them are demigods.
+    """
+    _s = str(_fl)
+    if len(_s) != 10:
+        return None
+    if _s[:2] == "10":
+        return int("12" + _s[2:])
+    if _s[:2] == "12":
+        return int("10" + _s[2:])
+    return None
+
+
+# 🛑 EVERY LOOKUP GOES THROUGH THE ALIAS, in BOTH halves. The bridge was written for the roster half
+# first and the tag half was left keyed on the trigger alone -- which left STARSCOURGE RADAHN a minor
+# boss, because his Remembrance and Great Rune hang off the 10-form while his sweep is the 12-form.
+# A one-sided bridge is worse than none: it fixes the case you tested and hides the one you did not.
+_MAJOR_SWEEP_ROSTER = set()
+for _afl in _ACH_BOSSES:
+    for _cand in (_afl, _festival_alias(_afl)):
+        if _cand in DUNGEON_SWEEPS:
+            _MAJOR_SWEEP_ROSTER.add(_cand)
+            break
+
+_MAJOR_SWEEP_TAGGED = set()
+_defeat_to_reward = defaultdict(list)
+for _rf, _df in _BOSS_REWARD_DEFEAT.items():
+    _defeat_to_reward[_df].append(_rf)
+for _t in DUNGEON_SWEEPS:
+    _keys = [_t] + [_k for _k in (_festival_alias(_t),) if _k]
+    _aids = [_a for _k in _keys for (_a, _r) in _flag_locs.get(_k, ())]
+    for _k in _keys:
+        for _rf in _defeat_to_reward.get(_k, ()):
+            _aids += [_a for (_a, _r) in _flag_locs.get(_rf, ())]
+    if any(_a in _MAJOR_AIDS for _a in _aids):
+        _MAJOR_SWEEP_TAGGED.add(_t)
+
+MAJOR_SWEEP_TRIGGERS = _MAJOR_SWEEP_ROSTER | _MAJOR_SWEEP_TAGGED
+# The roster is the game's own answer, so a roster boss that the tag half misses is expected (its
+# drop may be a check we do not carry); a roster boss that is not a TRIGGER at all after the
+# festival bridge is not -- it means a major boss lost its sweep, which is #540's shape.
+_major_unreached = sorted(set(_ACH_BOSSES) - _MAJOR_SWEEP_ROSTER)
+if _major_unreached:
+    print("boss_sweeps: WARNING %d achievement boss(es) have no sweep trigger: %s"
+          % (len(_major_unreached), _major_unreached))
+print("boss_sweeps: MAJOR_SWEEP_TRIGGERS %d of %d (roster %d, tagged %d, both %d)"
+      % (len(MAJOR_SWEEP_TRIGGERS), len(DUNGEON_SWEEPS), len(_MAJOR_SWEEP_ROSTER),
+         len(_MAJOR_SWEEP_TAGGED), len(_MAJOR_SWEEP_ROSTER & _MAJOR_SWEEP_TAGGED)))
+
 SWEEP_ARENA_REGION = {_t: BOSS_AREA_REGION[_t] for _t in DUNGEON_SWEEPS if _t in BOSS_AREA_REGION}
 _sweep_arena_ruled = sorted(_t for _t in DUNGEON_SWEEPS
                             if _t not in SWEEP_ARENA_REGION and _t in _BOSS_ARENA_RULING)
@@ -10117,6 +10204,17 @@ with open(OUT_SWEEP, "w", newline="\n", encoding="utf-8") as f:
     # boss_area_regions.tsv has a row; an ABSENT key means UNAUDITED, never "same as SWEEP_REGION".
     f.write("\n# Arena region per trigger -- the region the player must be able to REACH for this\n")
     f.write("# group to ever fire. Absent key = no boss_area_regions.tsv row = UNAUDITED (issue #445).\n")
+    # Issue #734. WHICH SWEEPS ARE A MAJOR BOSS'S -- the flag-space half of `MajorBoss`, emitted
+    # because the world cannot re-derive it: BOSS_REWARD_DEFEAT reaches half the triggers and drops
+    # Promised Consort Radahn, Starscourge Radahn and the Fire Giant. Read by
+    # contract.sweep_slot_class_of / features.progression_surface for SweepSlotMajor.
+    f.write("\n# Sweeps whose trigger boss is a MajorBoss (issue #734). Roster (achievement_bosses,\n")
+    f.write("# keyed by defeat flag) UNION tag (trigger -> the check its death grants -> MajorBoss).\n")
+    f.write("# 🛑 A trigger ABSENT here is MINOR, not unknown: every trigger was adjudicated.\n")
+    f.write("MAJOR_SWEEP_TRIGGERS = frozenset({\n")
+    for _fl in sorted(MAJOR_SWEEP_TRIGGERS):
+        f.write(f"    {_fl},\n")
+    f.write("})\n")
     f.write("SWEEP_ARENA_REGION = {\n")
     for _fl in sorted(SWEEP_ARENA_REGION):
         f.write(f"    {_fl}: {SWEEP_ARENA_REGION[_fl]!r},\n")

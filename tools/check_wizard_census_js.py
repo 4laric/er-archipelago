@@ -64,6 +64,10 @@ CASES = [
      "surfaceClasses": ["MajorBoss", "SweepSlot"], "dungeonSweep": "minidungeons"},
     {"numRegions": 6, "enableDlc": True, "dlcOnly": False,
      "surfaceClasses": ["MajorBoss", "SweepSlot"], "dungeonSweep": "none"},
+    {"numRegions": 6, "enableDlc": True, "dlcOnly": False,
+     "surfaceClasses": ["MajorBoss", "SweepSlotMajor"], "dungeonSweep": "bosses"},
+    {"numRegions": 6, "enableDlc": True, "dlcOnly": False,
+     "surfaceClasses": ["MajorBoss", "SweepSlotMinor"], "dungeonSweep": "bosses"},
     # ...and the DEFAULT surface, which now contains SweepSlot: the case a player actually gets.
     {"numRegions": 6, "enableDlc": True, "dlcOnly": False, "dungeonSweep": "bosses"},
 ]
@@ -125,8 +129,13 @@ def _combo_hits(region, sel, rung="bosses"):
     # dungeon_sweep (64 checks corpus-wide at `minidungeons`, 215 at `bosses`, 0 at `none`). This
     # differential exists precisely to catch a JS/Python split like this one, and the first run after
     # the JS learned about it reported surface 394 vs 179 -- a gap of exactly the 215 sweep slots.
+    sweep_by_class = region.get("sweep_slots_by_class") or {}
     if "SweepSlot" in sel:
-        n += (region.get("sweep_slots") or {}).get(rung or "bosses", 0)
+        n += (sweep_by_class.get("SweepSlot") or region.get("sweep_slots") or {}).get(rung or "bosses", 0)
+    else:
+        for cls in ("SweepSlotMajor", "SweepSlotMinor"):
+            if cls in sel:
+                n += (sweep_by_class.get(cls) or {}).get(rung or "bosses", 0)
     return n
 
 
