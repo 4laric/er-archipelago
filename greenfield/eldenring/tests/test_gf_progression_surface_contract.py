@@ -37,6 +37,80 @@ GAME = "Elden Ring"
 KEY = contract.PROGRESSION_SURFACE_LOCATIONS
 
 
+
+def test_the_default_surface_admits_nothing_it_does_not_need():
+    """#733. `Remembrance` and `GreatRune` sat in SURFACE_DEFAULT_CLASSES doing nothing at all.
+
+    Both are STRICT SUBSETS of `MajorBoss`, so while that class is in the default set the two entries
+    cannot admit a location of their own -- yet the wizard drew them as two live knobs beside the
+    fifteen that are real, and a player has no way to tell a knob that does nothing from one that
+    does.
+
+    🛑 ASSERTED AS AN IDENTITY, NOT A MEMBERSHIP. `assert "Remembrance" not in DEFAULTS` would pass
+    the day someone removes `MajorBoss` and makes the entry load-bearing again -- exactly backwards.
+    What must stay true is that the shipped default and the default-plus-the-two select the SAME
+    LOCATIONS; if that ever stops holding, the two belong back in the set and this test says so.
+    """
+    from worlds.eldenring import contract
+    from worlds.eldenring.location_tags import LOCATION_TAGS
+
+    defaults = set(contract.SURFACE_DEFAULT_CLASSES)
+    with_both = defaults | {"Remembrance", "GreatRune"}
+
+    def admitted(classes):
+        return {ap for ap, tags in LOCATION_TAGS.items() if contract.has_class(tags, classes)}
+
+    shipped, widened = admitted(defaults), admitted(with_both)
+    assert shipped, "the default surface admits nothing -- this test is measuring an empty world"
+    assert shipped == widened, (
+        "adding Remembrance/GreatRune to the shipped default changes the surface by "
+        f"{len(widened - shipped)} location(s): {sorted(widened - shipped)[:5]}. They are no longer "
+        "redundant, so they belong back in SURFACE_DEFAULT_CLASSES (#733)."
+    )
+
+
+def test_both_retired_defaults_are_still_selectable():
+    """The other half of #733's ruling, and the one that would break players.
+
+    `OptionSet` raises on an unknown key, so a yaml naming `Remembrance` must still validate --
+    every seed shared before today names it. `Options.Removed` is per-OPTION, not per-KEY, so there
+    is no migration available: the keys have to stay.
+    """
+    from worlds.eldenring import contract
+
+    for name in ("Remembrance", "GreatRune"):
+        assert name in contract.SURFACE_CLASSES, (
+            f"{name} left SURFACE_CLASSES -- every existing yaml that names it now fails to load, "
+            "and OptionSet gives no migration path (#733)"
+        )
+
+
+def test_a_class_that_contains_another_is_the_reason_this_can_happen():
+    """The general shape, so the next redundant default is caught by the rule.
+
+    Containment among surface classes is what makes a default entry inert, and it is not visible
+    from the class list -- only from the tags. Every strict subset of another DEFAULT class is dead
+    weight in the default set by construction.
+    """
+    from worlds.eldenring import contract
+    from worlds.eldenring.location_tags import LOCATION_TAGS
+
+    sets = {c: {ap for ap, t in LOCATION_TAGS.items() if c in t}
+            for c in contract.SURFACE_DEFAULT_CLASSES}
+    sets = {c: v for c, v in sets.items() if v}
+    # WITNESS: with an empty LOCATION_TAGS every class maps to an empty set, they are filtered out
+    # above, and `inert` is empty for the wrong reason.
+    assert len(sets) >= 5, (
+        f"only {len(sets)} default surface class(es) match any location -- LOCATION_TAGS is empty or "
+        "the class names moved, and the containment check below is measuring nothing")
+    inert = [(a, b) for a, av in sets.items() for b, bv in sets.items()
+             if a != b and av <= bv]
+    assert not inert, (
+        "these default surface classes are subsets of another default class, so they admit nothing "
+        f"and read as live knobs: {inert}. Drop them from SURFACE_DEFAULT_CLASSES (keep them in "
+        "SURFACE_CLASSES) the way #733 did for Remembrance/GreatRune."
+    )
+
 def test_big_ticket_is_gone():
     """The retired concept must not creep back as a third list. If someone re-adds a second selection
     over the same tags, it will drift from the surface again -- that is not a hypothetical, it is what

@@ -19,13 +19,11 @@
   "SweepSlot"
  ],
  "default_classes": [
-  "Remembrance",
   "Seedtree",
   "Church",
   "Fragment",
   "Revered",
   "ShopSlot",
-  "GreatRune",
   "KeyItem",
   "MajorBoss",
   "SweepSlot"
@@ -733,5 +731,5 @@
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "01d421e1309115ed02c1e59f472781628cc2538886dbe4d07a21a09ac4d41e24"
+ "source_sha256": "204f9c82cbcae4a5e9ae78ee87a3ff2e13af058a16470e28969d4801f07ef5a8"
 }

@@ -30,7 +30,7 @@
 #    and the one the surface depends on. See the Seedtree row.
 #
 # MEASURED THIS RUN (recomputed on every emit):
-#   vocabulary 16 class(es) | default surface 9 TAGGED class(es)
+#   vocabulary 16 class(es) | default surface 7 TAGGED class(es)
 #   PLUS SweepSlot -- DERIVED, not priced here: one check per enabled dungeon sweep, decided per
 #   seed (55 on a 4-region seed, ~170 on the full map). So the DEFAULT SURFACE hosting
 #   number below is the TAGGED half only.
@@ -38,7 +38,7 @@
 #   DEFAULT SURFACE: tag union 207 | hosting 179 | hosting w/ reconciler armed 181 | hosting if missable guard OFF 186
 #
 class	total	tag_excluded	guessed_region	missable	erdtree_burn	surface_excluded	hub_merchant	eligible	eligible_pct	in_default
-Remembrance	25	0	1	1	0	0	0	23	92	yes
+Remembrance	25	0	1	1	0	0	0	23	92	
 Seedtree	43	0	2	1	2	1	0	37	86	yes
 Church	13	0	0	0	0	1	0	12	92	yes
 Boss	267	0	30	5	0	2	0	232	87	
@@ -49,7 +49,7 @@ Shop	533	29	60	28	0	0	161	347	65
 ShopNonSpell	419	23	56	10	0	0	158	252	60	
 ShopSlot	12	0	0	0	0	0	0	12	100	yes
 Legendary	102	29	11	18	6	0	0	71	70	
-GreatRune	7	0	0	0	0	0	0	7	100	yes
+GreatRune	7	0	0	0	0	0	0	7	100	
 KeyItem	19	0	0	4	0	2	0	13	68	yes
 MajorBoss	51	0	1	2	0	0	0	48	94	yes
 LegacyBoss	53	0	0	4	0	2	0	49	92	

@@ -165,11 +165,15 @@ def test_has_class_majorboss():
 def test_build_ladder_from_majorboss():
     rungs = ps.build_ladder(["MajorBoss"])
     assert rungs[0] == ["MajorBoss"]
-    assert rungs[1] == ["MajorBoss", "Remembrance", "GreatRune"]
+    # 🛑 NO ["MajorBoss", "Remembrance", "GreatRune"] RUNG (#733). Both are strict subsets of
+    # MajorBoss, so that group admits ZERO locations over this base and `build_ladder` no longer
+    # spends a STRICT retry on it -- it folds into the next group that does work. The classes are
+    # still carried, because a base WITHOUT MajorBoss (see the Church ladder in
+    # test_gf_progression_surface_option) is widened by them for real.
+    assert rungs[1] == ["MajorBoss", "Remembrance", "GreatRune", "KeyItem"]
     # KeyItem (small, hand-reviewable) is promoted AHEAD of Legendary (large, scattered); Boss between.
-    assert rungs[2] == ["MajorBoss", "Remembrance", "GreatRune", "KeyItem"]
-    assert rungs[3] == ["MajorBoss", "Remembrance", "GreatRune", "KeyItem", "Boss"]
-    assert rungs[4] == ["MajorBoss", "Remembrance", "GreatRune", "KeyItem", "Boss", "Legendary"]
+    assert rungs[2] == ["MajorBoss", "Remembrance", "GreatRune", "KeyItem", "Boss"]
+    assert rungs[3] == ["MajorBoss", "Remembrance", "GreatRune", "KeyItem", "Boss", "Legendary"]
     assert rungs[-1][-2:] == ["Seedtree", "Church"]
     # monotonic widening + no Shop auto-added
     for a, b in zip(rungs, rungs[1:]):

@@ -668,10 +668,13 @@ Elden Ring:
   # the only place another player's key items may land. Without it a slot receives
   # roughly a tenth of the foreign progression it otherwise would. Remove it if you
   # would rather a sweep never hand you a key.
+  # Remembrance and GreatRune are NOT here, and their absence changes nothing: both
+  # are strict subsets of MajorBoss, so while that line is present they admit no
+  # location of their own (measured 199 == 199 checks either way, #733). They are
+  # still selectable -- add either line back and it is accepted -- they are just no
+  # longer on by default, because being on implied they did something.
   progression_surface:
     - MajorBoss
-    - Remembrance
-    - GreatRune
     - KeyItem
     - Church
     - Seedtree

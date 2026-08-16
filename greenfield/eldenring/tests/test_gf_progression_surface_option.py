@@ -30,8 +30,14 @@ from worlds.eldenring.features.progression_surface import (             # noqa: 
 )
 from worlds.eldenring.location_tags import LOCATION_TAGS                # noqa: E402
 
-# The nine TAGGED classes audited for v0.2. Still the whole tag half of the default surface.
-V0_2_TAGGED_DEFAULT = {"KeyItem", "MajorBoss", "Remembrance", "GreatRune",
+# The TAGGED classes audited for v0.2. Still the whole tag half of the default surface.
+#
+# 🛑 `Remembrance` and `GreatRune` LEFT ON 2026-08-16 (#733) and the surface did not move: both are
+# strict subsets of `MajorBoss`, so while that is present they admit nothing. They are still
+# SELECTABLE -- only the default changed. The identity that makes this safe is asserted in
+# test_gf_progression_surface_contract, by MEANING rather than by this name list, because a name list
+# cannot tell a removal that changes the surface from one that does not.
+V0_2_TAGGED_DEFAULT = {"KeyItem", "MajorBoss",
                        "Church", "Seedtree", "Fragment", "Revered", "ShopSlot"}
 # ...plus the DERIVED half, added 2026-08-13 (#631). Kept as two names rather than one updated set
 # because the split is the point: everything below that reasons about TAGS must use the tagged half,
@@ -50,6 +56,16 @@ class ProgressionSurfaceOption(unittest.TestCase):
 
     def test_default_is_the_audited_v0_2_surface(self):
         self.assertEqual(set(ProgressionSurface.default), V0_2_DEFAULT)
+        # 🛑 AND THE NAME LIST IS NOT THE POINT. What must hold is that the shipped default admits
+        # the same LOCATIONS the audited surface did; the two retired names are a subset of MajorBoss
+        # and prove nothing by their presence or absence. Asserted here too so this file cannot be
+        # "fixed" by editing the constant above (#733).
+        from worlds.eldenring.features.progression_surface import allowed_ap_ids
+        audited = set(allowed_ap_ids(LOCATION_TAGS, V0_2_DEFAULT | {"Remembrance", "GreatRune"}))
+        shipped = set(allowed_ap_ids(LOCATION_TAGS, set(ProgressionSurface.default)))
+        self.assertTrue(shipped, "the shipped default admits nothing -- this test measures nothing")
+        self.assertEqual(shipped, audited,
+                         "the shipped default no longer admits what the v0.2 audit approved")
         # The default moved on 2026-08-13 and this line is where that is legible. SweepSlot is not a
         # tag: it nominates one member of every enabled dungeon sweep, so a sweep can pay out
         # progression in a default seed. The reason is #631 -- at the default confine_foreign_
@@ -207,36 +223,57 @@ class ProgressionSurfaceOption(unittest.TestCase):
         self.assertTrue(km["contains"], "the containment lattice is empty -- the redundancy hint "
                                        "would never fire")
 
-    # ---- a consequence of the corrected direction, recorded rather than silently changed ---------
-    def test_the_remembrance_greatrune_ladder_rung_is_INERT_over_a_majorboss_base(self):
-        """🛑 NOT a claim that this is WRONG -- a pin so it cannot be rediscovered a third time.
+    # ---- the consequence, now FIXED rather than pinned ------------------------------------------
+    def test_the_remembrance_greatrune_rung_is_skipped_rather_than_spent(self):
+        """This replaces `test_the_remembrance_greatrune_ladder_rung_is_INERT_over_a_majorboss_base`,
+        which pinned the defect and said in its own docstring: *"If it IS made, delete this test in
+        the same commit and say so in the notes."* It is made (#733), and this is that.
 
-        `_WIDEN_GROUPS` opens with ["Remembrance", "GreatRune"], and the feature docstring gives the
-        ladder as `MajorBoss -> +Remembrance,GreatRune -> +KeyItem -> ...`. Both classes are SUBSETS
-        of MajorBoss, so over a MajorBoss base that first rung adds **zero** locations: a seed that
-        cannot host its locks spends a whole widening step standing still before +KeyItem does any
-        work. This was unfindable while contract.py described the containment backwards.
+        `_WIDEN_GROUPS` opens with `["Remembrance", "GreatRune"]` and both are strict SUBSETS of
+        `MajorBoss`, so over a MajorBoss base that group admits zero locations. `build_ladder` used
+        to skip a group only when every NAME in it was already accumulated, so it spent a whole
+        STRICT retry standing still. It now measures what a rung ADMITS.
 
-        MEASURED, and deliberately narrow -- the SHIPPED DEFAULT is NOT affected: `build_ladder`
-        only appends a rung when it has something to add, and the default already contains
-        Remembrance, GreatRune and KeyItem, so its ladder goes straight to +Boss. The inert step
-        only exists for a base that has MajorBoss and lacks its two children, which is exactly the
-        docstring's own example.
-
-        Fixing it changes which locations a lock can reach, i.e. it changes generated seeds. That is
-        a decision, not a tidy-up, and it is not made here. If it IS made, delete this test in the
-        same commit and say so in the notes."""
+        🛑 The classes must still ACCUMULATE. Skipping the rung is not the same as dropping the
+        classes: a later group combines with them, and on a base without MajorBoss they do real work
+        (asserted below)."""
         from worlds.eldenring.features.progression_surface import allowed_ap_ids
         ladder = build_ladder({"MajorBoss"})
-        self.assertEqual(ladder[1], ["MajorBoss", "Remembrance", "GreatRune"],
-                         "the ladder's shape moved; re-read this test before trusting it")
-        rung0 = set(allowed_ap_ids(LOCATION_TAGS, set(ladder[0])))
+        sizes = [len(set(allowed_ap_ids(LOCATION_TAGS, set(r)))) for r in ladder]
+        for i in range(1, len(sizes)):
+            self.assertGreater(sizes[i], sizes[i - 1],
+                               "rung %d (%s) admits nothing new" % (i, ladder[i]))
+        self.assertIn("Remembrance", ladder[1],
+                      "the classes must still be carried even though they earned no rung of their "
+                      "own -- dropping them would change what LATER rungs admit")
+        self.assertIn("KeyItem", ladder[1],
+                      "the skipped group folds into the next one that does work")
+
+    def test_the_two_still_widen_a_base_that_lacks_major_bosses(self):
+        """The other side, and the reason they stay in `_WIDEN_GROUPS` at all. Containment is a fact
+        about a PAIR of classes, not about a class: over a `{Church}` base, `+Remembrance,GreatRune`
+        admits 31 locations it could not reach before. A fix that removed them from the widen order
+        would have quietly cost that."""
+        from worlds.eldenring.features.progression_surface import allowed_ap_ids
+        ladder = build_ladder({"Church"})
+        base = set(allowed_ap_ids(LOCATION_TAGS, set(ladder[0])))
         rung1 = set(allowed_ap_ids(LOCATION_TAGS, set(ladder[1])))
-        self.assertEqual(rung0, rung1,
-                         "+Remembrance,GreatRune now widens a MajorBoss base -- if that was done on "
-                         "purpose, delete this test in the same commit")
-        # ...and the rung AFTER it does real work, so the ladder is not simply broken.
-        self.assertGreater(len(set(allowed_ap_ids(LOCATION_TAGS, set(ladder[2])))), len(rung1))
+        self.assertIn("Remembrance", ladder[1])
+        self.assertGreater(len(rung1), len(base),
+                           "+Remembrance,GreatRune must still widen a base with no MajorBoss")
+
+    def test_the_shipped_default_ladder_is_unchanged_by_733(self):
+        """🛑 THE SAFETY PROPERTY. #733 took two classes out of the default and taught the ladder to
+        measure admissions, and NEITHER may move the shipped ladder -- same number of rungs, same
+        locations at each. Measured before the change: 176 -> 365 -> 433.
+
+        If this fails, the default's fill sequence moved and every default seed is a different seed;
+        that is a decision, not a side effect."""
+        from worlds.eldenring.features.progression_surface import allowed_ap_ids
+        ladder = build_ladder(ProgressionSurface.default)
+        sizes = [len(set(allowed_ap_ids(LOCATION_TAGS, set(r)))) for r in ladder]
+        self.assertEqual(sizes, [176, 365, 433],
+                         "the shipped ladder moved: %s (%s)" % (sizes, [sorted(r) for r in ladder]))
 
     def test_the_shipped_default_ladder_has_no_inert_rung(self):
         """The counterpart to the test above: every rung of the DEFAULT ladder must add locations.
