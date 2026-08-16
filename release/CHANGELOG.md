@@ -17,8 +17,145 @@ accumulating notes that were never in the release.
 version-lockstep and a v0.4.3 client still handshakes with a v0.4.4 seed. Verified by loading
 `contract.py` and reading the value, not by assuming the shape did not move.
 
-Nothing has landed in this window yet. Entries arrive below as they merge (rule 14: the release
-notes are part of the change, not part of the release).
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
+the release).
+
+### Four pairs of trousers are no longer major bosses
+
+`MajorBoss` is one of the classes the default progression surface confines this world's own
+progression to — region Locks, required runes, legacy keys. It read **52 checks. The entity count is
+43.**
+
+The roster is keyed on each boss's acquisition flag, which is right. But a flag resolves to a
+*family* of checks — the primary drop plus every sibling lot the same flag drives, each minted as its
+own co-check — and the whole family was inheriting the tag. For two DLC field bosses that family is
+an armour set:
+
+```
+530810  Dancer of Ranah    Dancing Blade  + Hood / Dress / Bracer / Trousers
+530820  Blackgaol Knight   Greatsword     + Helm / Armor / Gauntlets / Greaves
+510260  Magma Wyrm Makar   Scalesword     + the Dragon Heart
+```
+
+Nine checks, three bosses, and Dancer of Ranah's Trousers sat on the default progression surface as a
+major-boss check. It is one check per boss again: the default surface's hosting count goes 179 → 170,
+and the nine it loses were never a boss's *death*, only the rest of its loot.
+
+🛑 **The half that is NOT reversed.** When co-checks landed (#191, 2026-08-13) the ruling was "a
+co-check is the same physical acquisition as its primary and inherits its tags", and for `Boss` and
+`Legendary` that is exactly right — those answer *how was this check acquired*, and Dancer of Ranah's
+Trousers is a boss drop, plainly. `MajorBoss` answers *is this boss on the roster*, which is a claim
+about an **entity**, and there ten sibling lots are ten votes for one boss. So the family keeps
+inheriting the acquisition tag — `Boss` is unmoved at 266, deliberately, by its own closure — and
+stops inheriting the roster tag. That distinction is the whole change.
+
+Gated two ways so it cannot come back quietly: at regen a roster entry must resolve to exactly one
+primary check, never zero and never two; host-side an oracle names the offending bosses instead of
+reporting a count.
+
+This is **direction 1 of #737 only.** The roster still carries entries matt's list would not (Agheel,
+Godefroy) and still misses ten it has — Margit, Red Wolf, Royal Knight Loretta, Godskin Duo, Godskin
+Noble, Commander Niall, Mimic Tear, Valiant Gargoyles, Elemer, Dragonkin Soldier of Nokstella.
+Re-deriving membership from the game's own achievement bosses is direction 2 and lands separately.
+### The wizard's yaml stops being empty
+
+Take the wizard's advice, change nothing, hit Download, and the file you got was:
+
+    Elden Ring: {}   # all options at their defaults
+
+That generates a perfectly correct seed. It is also the only documentation most players ever read,
+and it says nothing — after eleven steps explaining 58 options, the artifact handed over mentioned
+none of them. `buildYaml` wrote the DEVIATIONS only, so the more the wizard's defaults were worth
+trusting, the emptier its output got.
+
+Every option is now written out, defaults included, in the metadata's own field order and with its
+display name beside it. The `(default: …)` comment is now the **change marker**: it appears only
+where you moved something, so the diff from stock is still readable at a glance.
+
+Two things this buys beyond legibility:
+
+- **A default is not a promise.** `minimum_enemy_difficulty` moved 0 → 25 → 0 inside a single day
+  (2026-08-05). Anyone holding a `{}` yaml across a change like that silently rolls a different seed
+  from the one they configured. Written-out values pin what was chosen.
+- **"Post your yaml" now answers something.** It answered nothing when the yaml was `{}`.
+
+🛑 **The landmine, recorded because it is the interesting half.** `cross_game_progression` and
+`maximum_enemy_difficulty` are NamedRanges whose *default* sits outside their own declared `0..100`:
+`-1`, reachable only as the name `auto`. While the wizard emitted deviations only, a default was
+never written down, so its illegal spelling was never written down either. Writing every option down
+puts both into every file, `Range.from_any(-1)` raises, and a cosmetic change becomes a yaml that
+does not generate at all. Out-of-range values are now emitted as their special name; in-range ones
+stay numbers (`confine_foreign_progression: 100`, not `all` — the number is the legible spelling).
+
+Two new assertions in `test_gf_wizard_yaml_generates.py`, because generation could not have caught
+either direction: `{}` is the most generatable yaml there is, and a needless special name generates
+fine and is merely less readable. Both were confirmed red against the code they gate.
+
+Fixes #732.
+
+### The major-boss roster is the game's, not ours
+
+Red Wolf of Radagon was not a major boss. Neither were Godskin Noble, Godskin Duo, the Valiant
+Gargoyles, Mimic Tear, the Dragonkin Soldier of Nokstella, Royal Knight Loretta, Elemer of the Briar,
+Commander Niall or the Ancestor Spirit — so a region Lock could never be placed on any of them, and
+the default progression surface was that much smaller and that much stranger.
+
+`MajorBoss` was a **hand-curated list**, and matt's roster showed it wrong in both directions. His UI
+describes his set as "Major bosses — 30 checks, **including all achievement bosses**", and that
+phrase turned out to be the whole derivation: we do not need his list, because the game ships its
+own. `common.emevd` registers one trophy event and every achievement is a call site of it —
+
+```
+$Event(9300, Restart, function(achievementId, eventFlagId, timeSeconds) { … AwardAchievement(…) });
+$InitializeEvent(26, 9300, 26, 14000850, 0);      // achievement 26 = Red Wolf of Radagon's defeat flag
+```
+
+— so "is this a major boss" stopped being an opinion and became a join. 32 call sites, **29 of them
+on a boss defeat flag**, and the hop from a defeat flag to the check that death grants is a table we
+already had.
+
+**MajorBoss 43 → 51.** Twelve bosses gained a major-boss check; four hand anchors were deleted
+because the derived roster covers their regions. Default-surface hosting goes 170 → 179, and the
+roster is *better evidenced* than the list it replaced: the share of MajorBoss checks whose region we
+are confident about rises 91% → 94%.
+
+**All 29 achievement bosses resolve — including Margit**, and how he got there is the most useful
+thing in this entry. He was first written off: *"no boss-drop row exists in our data; his only item
+is the Roundtable's Margit's Shackle, which is not a death reward."* Researched, plausible, wrong.
+His drop is the **Stormveil Talisman Pouch**, and the game says so plainly —
+
+```
+m10_00   // マルギット撃破 -- Defeat Margit
+         HandleBossDefeatAndDisplayBanner(10000850, GreatEnemyFelled);
+         SetEventFlagID(9100, ON);
+common   $InitializeEvent(0, 1100, 9100, 10000, 0, 60510);   →  lot 10000 = Talisman Pouch
+```
+
+— a check sitting in the location table the whole time carrying **no tags at all**. What hid it: our
+reward datamine discarded the row as *"reward flag flipped by 2 maps"*, because Morgott's defeat
+event also sets flag 9100 — behind `if (!EventFlag(9100))`, since Margit and Morgott are the same
+character and killing Morgott implies Margit. **A guarded back-fill is not an ownership claim.** The
+tool now distinguishes the two; the "never guess which boss a shared reward belongs to" rule is
+untouched, and the two genuinely-shared reward flags in that table are still refused.
+
+That one fix cascaded pleasingly. Margit's check re-homes to Limgrave (Stormhill is where you
+*stand* to fight him), which made the Agheel anchor redundant, and the redundancy gate deleted it.
+**Agheel and Godefroy are the two entries matt's roster explicitly does not count, and both are now
+gone for reasons that had nothing to do with matt.** The check also sheds a wrong *"also granted by
+Godrick the Grafted"* attribution it had picked up from the same missing join, and `Boss` /
+`LegacyBoss` each gain it (267 / 53) — a check that always existed in the game finally carrying the
+tags it deserved.
+
+⭐ **The hand list had been rediscovering the trophy table by accident.** Three of the seven deleted
+entries — Leonine Misbegotten, Magma Wyrm Makar, Mohg the Omen — are the *same checks* the
+achievement roster derives. They were added by hand, one at a time, for regions that looked bare.
+`MAJOR_BOSS_EXTRAS` is down to three entries, and a new hard error fails the build if a fourth ever
+becomes redundant.
+
+🛑 **The no-check ledger is empty, and asserted empty.** It held Margit for about an hour, and the
+lesson is about ledgers rather than about Margit: a waiver is the one place a wrong belief can sit
+and look like diligence, because it converts "our derivation is missing something" into a documented
+fact about the game that nothing downstream ever questions again.
 
 ## v0.4.3 — 2026-08-15
 

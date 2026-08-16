@@ -288,18 +288,32 @@ SURFACE_DERIVED_CLASSES = frozenset({"SweepSlot"})
 # are SKIPPED, loudly, at regen (location_tags.SHOP_SLOT_PINS / SHOP_SLOT_SKIPS carry the pins and the
 # per-block skip reasons). Prefer this over ShopNonSpell if shops are ever put in the progression
 # surface.
-# MajorBoss = the ~24 REGION_BOSSES (method=boss_arena remembrance/great-rune arena bosses) UNION a
-# curated MAJOR_BOSS_EXTRAS set of hand-picked field/evergaol/dragon bosses that cover the otherwise
-# major-less regions (gen_data.py). These are the highest-confidence physical locations (boss-arena /
-# boss-defeat flags the client already ships as bossLocations), so the v0.2 progression_surface
-# restriction confines this world's own progression (region Locks + required/gate runes + legacy keys)
-# to them by default.
+# MajorBoss = THE GAME'S OWN ROSTER (#737): the 29 achievement bosses -- every call site of
+# common.emevd's trophy event $Event(9300), joined to the boss whose DEFEAT FLAG it fires on
+# (greenfield/achievement_bosses.tsv) -- UNION Remembrance/GreatRune, UNION the boss_arena
+# REGION_BOSSES, UNION four MAJOR_BOSS_EXTRAS region anchors for the regions the roster does not
+# reach at all (Limgrave, Gravesite, Jagged Peak, Rauh Base). It was a hand-curated list until
+# 2026-08-16 and was wrong in both directions against matt's published roster; the achievement table
+# is the same set he means and nobody has to vote on it. These are the highest-confidence physical
+# locations (boss-arena / boss-defeat flags the client already ships as bossLocations), so the v0.2
+# progression_surface restriction confines this world's own progression (region Locks +
+# required/gate runes + legacy keys) to them by default.
 # 🛑 CONTAINMENT, CORRECTED 2026-08-08 -- this comment had it BACKWARDS. It read "MajorBoss is a
 # SUBSET of Remembrance/GreatRune"; measured over LOCATION_TAGS the relation is the REVERSE, and it
 # matters for what the wizard can tell a player:
-#   Remembrance (25) and GreatRune (7) are SUBSETS of MajorBoss (43)  <- not the other way round
-#   MajorBoss is itself a SUBSET of Boss (143), as are LegacyBoss (31) and FieldBoss (92)
-#   MajorBoss n Legendary = 2 (the curated extras); neither contains the other
+#   Remembrance (25) and GreatRune (7) are SUBSETS of MajorBoss (51)  <- not the other way round
+#   MajorBoss is itself a SUBSET of Boss (266), as are LegacyBoss (52) and FieldBoss (110)
+#   MajorBoss n Legendary = 2; neither contains the other
+# Counts re-measured over LOCATION_TAGS 2026-08-16, and MajorBoss moved TWICE that day for two
+# unrelated reasons, which is worth keeping straight:
+#   52 -> 43  (#737 direction 1) a roster entry is keyed on a boss's acquisition FLAG, and the
+#             sibling lots that flag also drives -- two DLC bosses' entire ARMOUR SETS -- were
+#             inheriting the tag. One check per boss.
+#   43 -> 51  (#737 direction 2) the roster stopped being a hand list and became the game's own
+#             achievement table: +11 achievement bosses that had no MajorBoss check, -3 hand anchors
+#             whose regions the roster now covers.
+# `Boss` did not move on either (266). Margit is an achievement boss with NO check anywhere in our
+# data and is ledgered as such in gen_data._ACH_NO_CHECK rather than counted here.
 # So ticking MajorBoss in the default surface already covers every Remembrance and GreatRune check:
 # those two boxes select NOTHING further, and ticking Boss makes all three redundant. The lattice is
 # DERIVED at wizard-build time (features/progression_surface.class_containment) rather than typed
@@ -332,8 +346,26 @@ SURFACE_EXCLUDE_TAGS = frozenset({"EniaShop"})
 # class, where the AP-free generator could not reach it. So the generator kept calling the old name and
 # the Windows build died at the tracker-table step. Single-sourcing a predicate is only half the job:
 # the SELECTION it is applied to must be single-source too, or the second caller re-invents it.
+# 🛑 `Remembrance` AND `GreatRune` LEFT THIS SET 2026-08-16 (#733) AND THE SURFACE DID NOT MOVE.
+# Both are STRICT SUBSETS of `MajorBoss`, measured over the generated LOCATION_TAGS:
+#
+#     Remembrance 25 | GreatRune 7 | MajorBoss 43
+#     Remembrance ⊂ MajorBoss   GreatRune ⊂ MajorBoss   Remembrance ∩ GreatRune = 0
+#     allowed_ap_ids(defaults) == allowed_ap_ids(defaults - {Remembrance, GreatRune})  -- 199 == 199
+#
+# So while `MajorBoss` is in this set the two entries admit not one location, and the wizard drew them
+# as two live knobs a player could reason about. They are not MERGEABLE either (disjoint: a demigod
+# arena yields two separate checks, the Remembrance by method tag and the Great Rune by item name), so
+# the redundancy is real and the tidy-up is not.
+#
+# 🛑 THEY STAY IN `SURFACE_CLASSES` AND IN `valid_keys`. `OptionSet` raises on an unknown key, so
+# dropping them would make every existing yaml that names one fail outright, and `Options.Removed` is
+# per-OPTION, not per-KEY -- there is no migration. A player who selects them still gets exactly what
+# they ask for; they are simply no longer ON by default, because on-by-default implied they did
+# something. Pinned by test_gf_progression_surface_contract, which asserts the identity above rather
+# than the membership, so re-adding them is caught by MEANING and not by a name list.
 SURFACE_DEFAULT_CLASSES = frozenset({
-    "KeyItem", "MajorBoss", "Remembrance", "GreatRune",
+    "KeyItem", "MajorBoss",
     "Church", "Seedtree", "Fragment", "Revered", "ShopSlot",
     # 🛑 SweepSlot JOINED THE DEFAULT 2026-08-13 (Alaric's ruling on #631). THIS CHANGES EVERY SEED,
     # deliberately, and it is stated here rather than left to be discovered.

@@ -19,13 +19,11 @@
   "SweepSlot"
  ],
  "default_classes": [
-  "Remembrance",
   "Seedtree",
   "Church",
   "Fragment",
   "Revered",
   "ShopSlot",
-  "GreatRune",
   "KeyItem",
   "MajorBoss",
   "SweepSlot"
@@ -66,7 +64,8 @@
   "Ainsel River": {
    "checks": 122,
    "combos": {
-    "Boss|LegacyBoss": 2,
+    "Boss|LegacyBoss": 1,
+    "Boss|LegacyBoss|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Legendary": 2,
     "Seedtree": 2,
@@ -91,7 +90,7 @@
     "Basin|Boss|FieldBoss": 1,
     "Boss": 12,
     "Boss|FieldBoss": 8,
-    "Boss|FieldBoss|Legendary": 1,
+    "Boss|FieldBoss|Legendary|MajorBoss": 1,
     "Boss|Legendary": 4,
     "Church": 2,
     "Legendary": 5,
@@ -210,10 +209,10 @@
   "Cerulean": {
    "checks": 100,
    "combos": {
+    "Boss": 5,
     "Boss|FieldBoss": 2,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
-    "Boss|Legendary|MajorBoss": 1,
-    "Boss|MajorBoss": 5,
+    "Boss|Legendary": 1,
     "Fragment": 4,
     "KeyItem": 2
    },
@@ -291,7 +290,8 @@
   "Farum Azula": {
    "checks": 105,
    "combos": {
-    "Boss|LegacyBoss": 2,
+    "Boss|LegacyBoss": 1,
+    "Boss|LegacyBoss|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 2,
     "Legendary": 4,
     "Seedtree": 2
@@ -312,11 +312,10 @@
    "checks": 215,
    "combos": {
     "Basin": 1,
-    "Boss": 4,
+    "Boss": 8,
     "Boss|FieldBoss": 3,
     "Boss|Legendary": 1,
     "Boss|Legendary|MajorBoss": 1,
-    "Boss|MajorBoss": 4,
     "Fragment": 5,
     "Legendary": 3,
     "Revered": 4,
@@ -380,7 +379,7 @@
    "checks": 161,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss": 1,
+    "Boss|LegacyBoss|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "KeyItem": 1
    },
@@ -397,7 +396,7 @@
    }
   },
   "Limgrave": {
-   "checks": 331,
+   "checks": 332,
    "combos": {
     "Basin": 3,
     "Boss": 7,
@@ -430,11 +429,12 @@
    "checks": 610,
    "combos": {
     "Basin": 2,
-    "Boss": 9,
-    "Boss|FieldBoss": 16,
+    "Boss": 10,
+    "Boss|FieldBoss": 15,
     "Boss|FieldBoss|Legendary": 1,
+    "Boss|FieldBoss|MajorBoss": 1,
     "Boss|Legendary": 1,
-    "Boss|MajorBoss": 2,
+    "Boss|MajorBoss": 1,
     "Church": 3,
     "KeyItem": 2,
     "Legendary": 6,
@@ -482,7 +482,8 @@
    "combos": {
     "Basin|Boss|FieldBoss": 2,
     "Boss": 12,
-    "Boss|FieldBoss": 8,
+    "Boss|FieldBoss": 7,
+    "Boss|FieldBoss|MajorBoss": 1,
     "Boss|Legendary": 1,
     "Boss|Seedtree": 1,
     "Church": 2,
@@ -512,7 +513,8 @@
     "Boss|FieldBoss": 4,
     "Boss|FieldBoss|Legendary": 2,
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss": 3,
+    "Boss|LegacyBoss": 2,
+    "Boss|LegacyBoss|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "KeyItem": 1,
     "Legendary": 3,
@@ -559,7 +561,7 @@
    "checks": 104,
    "combos": {
     "Boss|GreatRune|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss": 1,
+    "Boss|LegacyBoss|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Legendary": 3,
     "Seedtree": 2,
@@ -659,7 +661,8 @@
   "Siofra River": {
    "checks": 180,
    "combos": {
-    "Boss|LegacyBoss": 6,
+    "Boss|LegacyBoss": 3,
+    "Boss|LegacyBoss|MajorBoss": 3,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Legendary": 1,
     "Seedtree": 1,
@@ -679,7 +682,7 @@
    }
   },
   "Stormveil": {
-   "checks": 133,
+   "checks": 132,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
@@ -728,5 +731,5 @@
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "14c75cba3ef5de0216358e92cdbe121144c007521e9f4f4574e9da3e91b72dd1"
+ "source_sha256": "204f9c82cbcae4a5e9ae78ee87a3ff2e13af058a16470e28969d4801f07ef5a8"
 }

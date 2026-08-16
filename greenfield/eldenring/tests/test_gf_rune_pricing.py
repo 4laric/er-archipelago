@@ -149,14 +149,32 @@ class RunePricingRolls(WorldTestBase):
     """Driven with stubbed placements: in a solo WorldTestBase world almost nothing is placed at
     fill_slot_data time, so a seed-driven assertion here would pass without entering the branch.
 
-    🛑 `rune_shop_pricing: 1` IS LOAD-BEARING HERE and was not needed before 2026-08-12: the option
-    was FROZEN ON, so every world had it whether it asked or not. Unfreezing it turned this suite
+    🛑 THE OPTION IS FROZEN AT 0 AGAIN (2026-08-16), so a yaml value cannot turn it on -- `core`
+    builds its option surface from the keys NOT in FROZEN_OPTIONS, and `apply_frozen` overwrites
+    whatever the test asked for. `options = {"rune_shop_pricing": 1}` therefore stopped working, and
+    this class went red the moment the freeze landed. It is lifted in `setUp` instead.
+
+    WHY THE SUITE STAYS ALIVE FOR A FEATURE NO PLAYER CAN REACH. Freezing keeps the code so it can
+    be unfrozen; the 2026-08-12 unfreeze is proof that happens. Untested frozen code is what rots
+    between the two, and the roll is the part with real arithmetic in it. So the freeze is lifted
+    HERE, in the one place, and nowhere else -- `test_rune_shop_pricing_is_frozen_at_zero` is what
+    asserts the shipped state.
+
+    (The 2026-08-12 note this replaces recorded the mirror hazard: while the option was FROZEN ON,
+    every world had it whether it asked or not, and unfreezing turned this suite
     green-for-the-wrong-reason overnight -- `slot_data` short-circuits to an empty dict when the
-    option is off, so every assertion below would have been made about `{}`. It failed loudly
-    instead, which is only because the assertions are about CONTENT rather than absence."""
+    option is off, so every assertion below would have been made about `{}`. Both directions of the
+    same trap, six weeks apart.)"""
 
     game = GAME
-    options = {"num_regions": 6, "rune_shop_pricing": 1}
+    options = {"num_regions": 6}
+
+    def setUp(self):
+        super().setUp()
+        # Lift the freeze for THIS world only. `Frozen` mimics an AP option by exposing `.value`,
+        # so a stand-in with value 1 is all `slot_data` reads.
+        self.world.options.rune_shop_pricing = type(
+            "_Unfrozen", (), {"value": 1, "current_key": None, "visibility": 0})()
 
     def _emit(self, placements):
         w = self.world
@@ -229,21 +247,35 @@ def test_rune_shop_pricing_is_off_unless_the_player_asks():
     assert RuneShopPricing.default == 0
 
 
-def test_rune_shop_pricing_is_no_longer_frozen():
-    """A frozen option is not yaml-settable at all -- `core` builds the option surface from the keys
-    NOT in FROZEN_OPTIONS. Leaving it frozen while shipping a template key and a wizard control
-    would give the player three surfaces that all describe a knob they do not have."""
+def test_rune_shop_pricing_is_frozen_at_zero():
+    """RE-FROZEN 2026-08-16, AT 0. This test previously asserted the opposite (`not in
+    FROZEN_OPTIONS`, from the 2026-08-12 unfreeze); the direction is the change, so it is inverted
+    rather than deleted -- a reader landing here should see that this line has moved three times.
+
+    🛑 THE VALUE MATTERS AS MUCH AS THE MEMBERSHIP. Frozen at 1 is what shipped before 2026-08-12
+    and it made the roll run for everyone. Freezing at 0 pins the value RuneShopPricing.default
+    already states, which is what makes this seed-neutral and what
+    [[er-unfreezing-an-option-needs-the-class-default]] asks for. If someone re-freezes at 1 to
+    reproduce an old seed, they have changed every default seed, not fixed one."""
     from worlds.eldenring.defaults import FROZEN_OPTIONS
-    assert "rune_shop_pricing" not in FROZEN_OPTIONS
-    # WITNESS: the table is still populated, so the assertion above is not passing because
-    # FROZEN_OPTIONS became empty.
-    assert FROZEN_OPTIONS
+    from worlds.eldenring.features.rune_pricing import RuneShopPricing
+    assert FROZEN_OPTIONS.get("rune_shop_pricing") == (0, None), (
+        "expected rune_shop_pricing frozen at 0, got %r" % (FROZEN_OPTIONS.get("rune_shop_pricing"),))
+    assert RuneShopPricing.default == 0, (
+        "the frozen value must equal the class default, or unfreezing silently reverts every seed")
+    # WITNESS: the table is populated, so the lookup above is not passing over an empty dict.
+    assert len(FROZEN_OPTIONS) > 3
 
 
 def test_rune_shop_pricing_is_filed_under_a_wizard_tab():
-    """A newly visible option in no `_OPTION_GROUPS` entry falls into `ungrouped` and renders inside
-    Advanced -- the failure `core`'s own comment warns about, and the one that reddened CI on the
-    spawn-trap option hours earlier the same day."""
+    """Kept filed even while frozen, and that is deliberate.
+
+    A frozen option has no yaml key and no wizard control, so this assertion guards nothing TODAY.
+    It guards the unfreeze: the 2026-08-12 one had to add this entry, and an option that becomes
+    visible with no `_OPTION_GROUPS` home falls into `ungrouped` and renders inside Advanced -- the
+    failure `core`'s own comment warns about, and the one that reddened CI on the spawn-trap option
+    hours earlier that same day. Deleting the entry because it is currently unreachable is how the
+    next unfreeze re-earns that red."""
     from worlds.eldenring import core
     grouped = {k for _name, keys in core._OPTION_GROUPS for k in keys}
     assert "rune_shop_pricing" in grouped

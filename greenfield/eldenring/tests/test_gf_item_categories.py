@@ -25,7 +25,20 @@ GAME = "Elden Ring"
 
 
 def _local(tb):
+    """The UNION of every locality contributor, which is what AP's locality_rules reads."""
     return set(tb.world.options.local_items.value)
+
+
+def _local_from_keep_local(tb):
+    """Only what the keep_local / rune-cap lever holds.
+
+    ⚠️ `local_items.value` stopped being one feature's output on 2026-08-16, when
+    `filler_foreign_pct` began shipping at 70 and writing into the same set. A test about what the
+    CAP holds must read the CAP, or it fails on names it has no opinion about -- and, worse, would
+    pass for the wrong reason if the cap ever stopped working while filler_foreign happened to
+    localize the same name."""
+    from worlds.eldenring.features.local_items import LocalItemsFeature  # noqa: PLC0415
+    return set(LocalItemsFeature().all_names_to_localize(tb.world))
 
 
 class TaxonomyIsAPartition(WorldTestBase):
@@ -121,8 +134,13 @@ class KeepLocalRuneCapHoldsTheSmallOnes(WorldTestBase):
     # minus runes). This class isolates the RUNE CAP: `test_nothing_else_is_swept_in` asserts the cap
     # holds nothing but runes, and inheriting the shipped default would hand it ~700 held goods to
     # trip over -- the cap would look like it was over-reaching when the categories did it.
+    # 🛑 A THIRD CONTRIBUTOR SINCE 2026-08-16. `filler_foreign_pct` now SHIPS AT 70, so it writes
+    # into the same `local_items` set these assertions read, and every one of them started
+    # failing with names it had no opinion about. Pinning it to 100 (the no-op sentinel) is the
+    # same isolation the two knobs above already needed -- this class tests ONE lever, and
+    # `local_items.value` is a union that three features write to.
     options = {"num_regions": 0, "item_shuffle": True, "keep_local_rune_cap": 3000,
-               "keep_local": []}
+               "keep_local": [], "filler_foreign_pct": 100}
 
     def test_cheap_runes_held_expensive_runes_free(self):
         local = _local(self)
@@ -152,7 +170,8 @@ class DefaultsAimAtTheOneToOneMix(WorldTestBase):
     Alaric asked, 2026-08-15 -- aim the export composition at 1:1 useful:filler -- so the default is
     now deliberate rather than absent. The objection is not discarded, it is SPLIT: the half about
     changing seeds without being asked is answered by the ruling, and the half about localizing the
-    WHOLE ladder is still enforced below, because 6250 is a cap and not a switch."""
+    WHOLE ladder is still enforced below, because 12,500 is a cap and not a switch (this line said
+    6250 until 2026-08-16 -- the same stale number the option's own docstring carried)."""
 
     game = GAME
     options = {"num_regions": 1, "item_shuffle": True}
@@ -180,12 +199,17 @@ class DefaultsAimAtTheOneToOneMix(WorldTestBase):
         """🛑 The surviving half of the old objection. Runes are the one large filler category left
         open, which is what makes the cap the fine adjustment on the mix -- if the default held every
         rune, that dial would be dead and the export mix would sit at 2.7:1 instead of 1:1."""
-        local = _local(self)
+        held_by_cap = _local_from_keep_local(self)
         big = [n for n in ITEM_CATALOG
                if (p := ic.rune_payout(n)) is not None and p > 12500]
         self.assertTrue(big, "no rune pays more than the cap -- the split below proves nothing")
-        self.assertFalse([n for n in big if n in local],
+        self.assertFalse([n for n in big if n in held_by_cap],
                          "runes above the cap must still be free to travel")
+        # ⚠️ THE UNION IS A WEAKER CLAIM NOW, deliberately. At the shipped defaults
+        # `filler_foreign_pct: 70` also holds back ~30% of filler COPIES, runes included, so some
+        # above-cap runes ARE in local_items -- by a different lever, spending a different budget,
+        # for a different reason. What this test owns is that the CAP is not the thing holding them,
+        # which is what keeps the cap usable as the fine adjustment.
 
     def test_key_items_are_released_or_natural_progression_dies(self):
         """🛑 THE ONE THAT COST A RED SMOKE RUN. `key_items` reads like an obvious thing to hold --

@@ -1,8 +1,18 @@
-"""features/legacy_key_gates: the Academy Glintstone Key gates the folded Raya Lucaria (m14) checks.
+"""features/legacy_key_gates -- the remaining key gates, and the one that was RETIRED.
 
-Verifies the gate is winnable-by-construction: the key is upgraded to PROGRESSION, all 67 m14 checks
-require it in logic (unreachable without, reachable with), fill keeps at least one key OUTSIDE the m14
-gate, and a full seed stays beatable. Off -> key stays filler and nothing is gated.
+🛑 THE ACADEMY GLINTSTONE KEY IS NO LONGER A GATE (2026-08-16, bobler + Alaric: "just neutralize the
+academy glintstone key altogether, have the minted Academy Lock be the thing that grants all the
+graces"). The class below used to prove the gate WORKED -- 70 m14 checks unreachable without the key,
+the key upgraded to PROGRESSION, fill keeping one copy outside the gate. It now proves the gate is
+GONE, which is the same test doing the same job pointed at the current ruling: it fails just as loudly
+if the entry creeps back into _LEGACY_KEYS, and it is the only thing that would notice.
+
+⭐ THE ASSERTION THAT MATTERS MOST is `bundle_withheld` -- removing the key from _LEGACY_KEYS is what
+disarms graces.WALL_ARMED["Raya Lucaria Academy"], and that is the whole point of the change. A future
+edit that keeps the key out of _LEGACY_KEYS but re-withholds the bundle some other way would satisfy
+every other assertion here and still ship bobler's original complaint.
+
+The Hole-Laden Necklace and the Lamenter's Gaol multi-key gate are UNCHANGED and still tested below.
 """
 import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
@@ -10,7 +20,7 @@ pytest.importorskip("worlds.eldenring")
 from BaseClasses import ItemClassification as IC, CollectionState  # noqa: E402
 from Fill import distribute_items_restrictive  # noqa: E402
 from worlds.eldenring.features.legacy_key_gates import (  # noqa: E402
-    _gated_location_ids, _multi_gated_location_ids, _MULTI_KEY_GATES)
+    _gated_location_ids, _multi_gated_location_ids, _MULTI_KEY_GATES, _LEGACY_KEYS)
 from worlds.eldenring.data import LOCATIONS  # noqa: E402
 from ._util import world_items  # noqa: E402
 
@@ -27,47 +37,52 @@ class LegacyKeyGateOn(WorldTestBase):
     options = {"item_shuffle": True, "num_regions": 0, "legacy_dungeon_keys": True,
                "leyndell_runes_required": 0, "accessibility": "minimal"}
 
-    def test_key_is_progression(self):
+    def test_the_academy_key_is_not_a_gate_and_not_progression(self):
+        """The ruling, from three directions at once."""
+        from worlds.eldenring.features import legacy_key_gates as lkg
+        # 1. It is not in the table, which is what publishes gf_legacy_keys.
+        assert KEY not in lkg._LEGACY_KEYS, \
+            "the Academy Glintstone Key gate was retired 2026-08-16 -- see the module docstring"
+        assert KEY not in lkg._LEGACY_EXTRA
+        # 2. So it is not a GATING item either, i.e. fill may place it anywhere.
+        assert KEY not in lkg._GATING_ITEMS
+        # 3. And it classifies as ordinary loot, not progression.
         keys = [it for it in world_items(self) if it.name == KEY]
-        assert keys, "Academy Glintstone Key must be created (pool or pre-placed) under item_shuffle + Liurnia kept"
-        assert all(it.classification & IC.progression for it in keys)
+        assert keys, "the key must still EXIST as an item -- neutralised, not deleted"
+        assert not any(it.classification & IC.progression for it in keys), \
+            "the key is filler now; nothing in logic may require it"
 
-    def test_all_67_m14_checks_gated_by_key(self):
-        # 67 after the matt-free GLOBAL-recovery change (gen_data _recover_tile full coverage) surfaced
-        # one more real Raya Lucaria academy drop -- Living Jar Shard, flag 14007997 (m14 -> Liurnia),
-        # previously a SKIPped `global` row -- as a check. It is inside the m14 range, so it is correctly
-        # gated by the Academy Glintstone Key (was 66 before recovery).
-        gated = _gated_location_ids([KEY])
-        # 69 -> 68: dropped the phantom 2nd Academy Glintstone Key f14007930 (Alaric 2026-07-17).
-        # 68 -> 69 (2026-08-06): the Great Rune of the Unborn co-check (flag 197 lot 10181, #426): a co-check is the SAME physical acquisition as its primary and inherits its tags. Rennala sits behind the
-        # Academy Glintstone Key, so her second check is gated exactly like her first.
-        # 69 -> 70 (2026-08-13, #191): the widened co-check allowlist mints one more sibling
-        # inside the m14 range. Same rule as the flag-197 entry above -- a co-check is the same
-        # physical acquisition as its primary, so it sits behind the Academy Glintstone Key exactly
-        # as its primary does. The `all(v == KEY)` half is what proves that, and it is unchanged.
-        assert len(gated) == 70 and all(v == KEY for v in gated.values())
-        st = CollectionState(self.multiworld)
-        for it in world_items(self):
-            if it.name != KEY and (it.classification & IC.progression):
-                st.collect(it, prevent_sweep=True)
-        locs = {l.address: l for l in self.multiworld.get_locations(1)}
-        sample = [locs[a] for a in gated if a in locs][:10]
-        assert sample
-        for l in sample:
-            assert not l.can_reach(st), f"{l.name} reachable WITHOUT the key"
-        st.collect(next(it for it in world_items(self) if it.name == KEY), prevent_sweep=True)
-        for l in sample:
-            assert l.can_reach(st), f"{l.name} blocked WITH the key"
+    def test_the_academy_lock_grants_its_graces(self):
+        """⭐ The player-visible half, and the reason the change was made.
 
-    def test_fill_keeps_key_reachable_and_seed_winnable(self):
+        bobler received the Raya Lucaria Academy Lock and the client told him "walk in, the Academy
+        Glintstone Key opens it (no grace warp)". `bundle_withheld` is the function that decided that.
+        """
+        from worlds.eldenring.features.graces import bundle_withheld, WALL_ARMED
+        from worlds.eldenring.region_spine import REGION_PARENT
+        w = self.multiworld.worlds[1]
+        assert "Raya Lucaria Academy" in REGION_PARENT, \
+            "still a gated child structurally -- only its WALL is gone"
+        assert "Raya Lucaria Academy" in WALL_ARMED, \
+            "the pairing must STAY: bundle_withheld fails CLOSED for an unpaired child, so deleting " \
+            "this entry would withhold the bundle unconditionally -- the exact opposite of the ruling"
+        assert not bundle_withheld(w, "Raya Lucaria Academy"), \
+            "the Academy Lock must grant its full grace bundle"
+
+    def test_the_m14_checks_need_only_the_region_lock(self):
+        """The 70 checks the gate used to hold are now reachable on the Lock alone."""
+        gated = _gated_location_ids(list(_LEGACY_KEYS))
+        assert not any(v == KEY for v in gated.values()), "no check may still name the Academy key"
+        m14 = [ap for (_n, ap, fl) in LOCATIONS.get("Raya Lucaria Academy", ())
+               if isinstance(fl, int) and 14000000 <= fl < 15000000]
+        assert m14, "sanity: Raya Lucaria still holds m14 checks"
+        assert not (set(m14) & set(gated)), "m14 checks must be ungated"
+
+    def test_the_seed_is_still_winnable_without_the_gate(self):
+        """The half of the retired test that still means something: a full fill still beats."""
         mw = self.multiworld
         distribute_items_restrictive(mw)
-        gated = set(_gated_location_ids([KEY]))
-        keylocs = [l for l in mw.get_locations(1) if l.item and l.item.name == KEY]
-        assert keylocs, "keys must be placed"
-        assert any(l.address not in gated for l in keylocs), \
-            "at least one Academy Glintstone Key must be placed OUTSIDE the m14 gate"
-        assert mw.can_beat_game(), "seed with the gate active must be beatable"
+        assert mw.can_beat_game(), "seed must be beatable with the Academy gate retired"
 
 
 # ---- multi-key gate: DLC Lamenter's Gaol needs BOTH Gaol keys -------------------------------------

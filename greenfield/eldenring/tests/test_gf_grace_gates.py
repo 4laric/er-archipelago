@@ -45,6 +45,15 @@ class GatesArmed(WorldTestBase):
     def test_gated_child_bundles_are_withheld(self):
         rg = self._rg()
         for child in REGION_PARENT:
+            if child == "Raya Lucaria Academy":
+                # 🛑 NO LONGER WALLED (2026-08-16). The Academy Glintstone Key gate was retired, so
+                # this child keeps its containment and its synthetic open flag but has no wall left
+                # to withhold for. Named rather than skipped: an unpaired child fails CLOSED, so
+                # "Raya's bundle is empty again" is a real regression this line must still catch.
+                self.assertTrue(rg.get(f"{child} Lock"),
+                                "the Academy Lock must grant its bundle -- see features/graces "
+                                "WALL_ARMED and issue #740")
+                continue
             self.assertEqual(rg.get(f"{child} Lock"), [],
                              f"{child}'s bundle must be withheld while its wall is armed")
 
@@ -54,6 +63,12 @@ class GatesArmed(WorldTestBase):
         # _ASHEN_BUNDLE note at the top for why 71122-71125 is not such a grace.
         rg = self._rg()
         for key, fs in rg.items():
+            # ⭐ RAYA'S OWN LOCK IS NOW ENTITLED TO RAYA'S GRACES (2026-08-16, #740). The invariant
+            # this test exists for is "no key smuggles a grace past a wall it does not OWN" -- and
+            # with the Academy wall retired, the Academy Lock owns them outright. Every OTHER key
+            # carrying a _RAYA grace is still the fold bug and still fails here.
+            if key == "Raya Lucaria Academy Lock":
+                continue
             leaked = [g for g in fs if g in _RAYA
                       or (g in _LEYN and g != _ROUNDTABLE and g not in _ASHEN_BUNDLE)]
             self.assertFalse(leaked, f"{key} carries walled graces {leaked}")

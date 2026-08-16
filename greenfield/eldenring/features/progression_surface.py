@@ -431,11 +431,38 @@ def build_ladder(selection):
         return []
     rungs = [list(base)]
     acc = list(base)
+    # 🛑 A RUNG IS JUDGED BY WHAT IT ADMITS, NOT BY WHETHER IT SPELLS A NEW CLASS NAME (#733).
+    #
+    # This used to skip a group only when every class in it was already accumulated. That is the same
+    # confusion the default surface had: `Remembrance` and `GreatRune` are strict SUBSETS of
+    # `MajorBoss`, so on any surface carrying `MajorBoss` the first widen group adds two names and
+    # ZERO locations. While the two also sat in the default the two tests coincided by accident and
+    # nothing showed; taking them out of the default made the ladder grow an inert rung, and
+    # `test_the_shipped_default_ladder_has_no_inert_rung` caught it.
+    #
+    # An inert rung is not free: STRICT retries the whole fill on it, on seeds that are already
+    # struggling to place their locks. The classes still ACCUMULATE (a later group may combine with
+    # them; carrying them costs nothing), we simply do not spend a rung on a set that admits nothing
+    # new.
+    #
+    # Falls back to the old name test when LOCATION_TAGS is absent (pre-regen), so the feature still
+    # builds a ladder on an ungenerated tree.
+    def _admits(classes):
+        if not LOCATION_TAGS:
+            return None
+        return len(allowed_ap_ids(LOCATION_TAGS, set(classes)))
+
+    seen = _admits(acc)
     for grp in _WIDEN_GROUPS:
         add = [c for c in grp if c not in acc]
-        if add:
-            acc = acc + add
-            rungs.append(list(acc))
+        if not add:
+            continue
+        acc = acc + add
+        grew = _admits(acc)
+        if seen is not None and grew is not None and grew <= seen:
+            continue
+        rungs.append(list(acc))
+        seen = grew
     return rungs
 
 

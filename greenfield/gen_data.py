@@ -86,6 +86,19 @@ _BOSS_DROP_EXTRAS = frozenset({
     510840,       # Commander Niall -> Veteran's Prosthesis
     # Achievement major-boss drops recovered via GLOBAL_RECOVER above -> Boss-tag them too:
     60440, 510090, 510140, 510260, 510320, 510440,
+    # 2026-08-16 (#737 direction 2). Two bosses whose HEALTHBAR is captured but whose reward LINK is
+    # not: BOSS_HEALTHBARS has Dancer of Ranah at defeat flag 2046380800 (m61_46_38) and Godefroy the
+    # Grafted at 1039500800 (m60_39_50), and neither defeat flag appears in BOSS_DROP_FLAGS or
+    # BOSS_REWARD_DEFEAT -- so the derivation knows the boss exists and cannot join it to its drop.
+    # That is the exact gap this list is for.
+    #
+    # They surfaced because they used to reach `Boss` through CLOSURE 2 (major => boss) while they
+    # were wrongly tagged MajorBoss. Taking the wrong tag away took a RIGHT one with it: a DLC field
+    # boss and an evergaol boss are bosses whatever roster they are or are not on, and `Boss` is a
+    # player-selectable class. Entered here on their own evidence rather than left to ride on a
+    # mislabel -- and the overlap guard below deletes them the day the reward capture catches up.
+    530810,       # Dancer of Ranah -> Dancing Blade of Ranah (+ her armour set, by co-check)
+    1039507100,   # Godefroy the Grafted -> Godfrey Icon
 })
 # ---- A REDUNDANT MANUAL OVERRIDE IS A FAILURE, NOT A HARMLESS BELT-AND-BRACES ----------------------
 # A hand entry the derivation already covers is a LIE about why the code works: the next reader cannot
@@ -3287,6 +3300,20 @@ QUEST_GATED_FLAGS = {
     400602, 400630, 400632, 400634, 400636, 400644, 400664, 400666, 400670,
     400671, 400672, 400692, 400700, 400702, 400704, 400710, 400711, 400732,
     400740, 510030, 510420, 520400,
+    # DRYLEAF DANE (Alaric, 2026-08-16, bobler playtest): "some questline shit, i think there are
+    # multiple places you can fight him. should all go missable for now."
+    # boss_healthbars carries him TWICE -- 2049440710 (m61_49_44) and 2050430710 (m61_50_43) -- and
+    # both triggers are among the 26 with no SWEEP_ARENA_REGION row (#445), which is the same fact
+    # from the other side: an NPC you meet at more than one site has no single arena to be filed in.
+    # 🛑 THE SIBLINGS WERE ALREADY SPLIT AND NOBODY NOTICED. Three Enir Ilim pickups carry the same
+    # descriptor tail, "also granted by Dryleaf Dane (m20_01)" -- 400624 Furious Blade of Ansbach,
+    # 400634 Thiollier's Trousers, 400645 Verdigris Greaves -- and only the middle one was tagged.
+    # A rule that catches two of three identical cases is a rule nobody has stated; tag all three
+    # explicitly rather than leave the odd one out to be re-derived by the next reader.
+    400624,   # Furious Blade of Ansbach -- Enir Ilim, also granted by Dryleaf Dane
+    400645,   # Verdigris Greaves -- Enir Ilim, also granted by Dryleaf Dane (already covered;
+              # named here so the trio reads as a trio)
+    400730,   # Dryleaf Arts w/ Ash of War: Palm Blast -- Scadu Altus, Dane's own drop
 }
 # NPC-STATE-GATED checks -- a SECOND, independent derivation (2026-07-26). These are not gated at an
 # award site at all, so `datamine_lot_gates.py` structurally cannot see them: an NPC state-machine
@@ -6114,17 +6141,35 @@ with open(OUT_BOSS, "w", newline="\n", encoding="utf-8") as f:
 print(f"boss_data: {sum(len(v) for v in _region_bosses.values())} region bosses across {len(_region_bosses)} regions -> {sorted(_region_bosses)}")
 
 
-# ---- MAJOR_BOSS_EXTRAS: hand-picked field/evergaol/dragon bosses (curated, matt-free) ----------
-# The boss_arena capture (REGION_BOSSES above) only labels remembrance/great-rune ARENA majors, so 3
-# regions end up with ZERO major: Limgrave, Weeping Peninsula, Jagged Peak. (Consecrated Snowfield was
-# folded into Mountaintops of the Giants, whose Fire Giant is already a boss_arena major -- no extra.)
-# The v0.2 progression_surface restriction (features/progression_surface.py) wants a high-confidence
-# MajorBoss check in EVERY region so strict "locks only on major bosses" is feasible without widening.
-# This table adds ONE reliable primary per major-less region (with commented alternates the maintainer
-# can swap in). Each is a real greenfield check (ap-id + acquisition flag verified against data.py /
-# region_map.csv / location_tags.py at author time); they are field/evergaol/dragon bosses whose drop
-# is already a check. The gen-time invariant assertion below re-validates every ap-id lands in
-# LOCATIONS under its stated region on regen (loud failure if a re-region/flag drifts).
+# ---- MAJOR_BOSS_EXTRAS: the REGION ANCHORS the derivation structurally cannot reach ---------------
+# 🛑 THIS LIST IS NOT THE MAJOR-BOSS ROSTER AND MUST NOT GROW BACK INTO ONE (#737). The roster is
+# DERIVED -- Remembrance u GreatRune u the game's own achievement bosses (achievement_bosses.tsv,
+# from common.emevd's trophy event). What is left for a hand list is exactly one job: a region the
+# roster does not reach AT ALL still needs one high-confidence check, or strict "locks only on major
+# bosses" is infeasible there and the feasibility ladder has to widen the whole surface.
+#
+# ⭐ SIX OF THE TEN ENTRIES THAT USED TO LIVE HERE WERE DELETED 2026-08-16, and CONTRIBUTING's
+# "A REDUNDANT MANUAL OVERRIDE IS A FAILURE" is why -- the gen-time hard error below now fires on any
+# overlap between this list and the derived roster, so leaving them in would fail the build. THREE of
+# them were the SAME CHECK the achievement roster derives, which is the satisfying half: the hand
+# list had been independently rediscovering the game's own trophy table.
+#
+#     Weeping   510800  Leonine Misbegotten  == achievement 34 (defeat 1043300800)
+#     Liurnia   510260  Magma Wyrm Makar     == achievement 28 (defeat 39200800)
+#     Sewer     510250  Mohg, the Omen       == achievement 30 (defeat 35000800)
+#
+# The other three were anchors whose REGION the roster now covers, so their justification -- and it
+# was only ever "this region has nothing" -- had expired:
+#
+#     Cerulean  530810  Dancer of Ranah      region covered by its Remembrance boss
+#     Cerulean  520770  Lamenter             ditto. Cerulean goes 3 majors -> 1, which is what 13
+#                                            other shipped regions already have.
+#     Altus     1039507100  Godefroy         region covered by Elemer of the Briar (achievement 36),
+#                                            who matt counts and Godefroy is one matt does not.
+#
+# The four below are load-bearing: their regions have NO roster major at all. Each is a real
+# greenfield check whose acquisition flag is verified against data.py / region_map.csv at author
+# time; the gen-time invariant re-validates region membership on every regen.
 #
 # {region: [(flag, boss_name, drop_item, confidence)]}. confidence: HIGH = verified in-region in
 # current data; MEDIUM = depends on a FLAG_REGION_OVERRIDE re-pin landing on regen (verify in-game);
@@ -6144,16 +6189,14 @@ MAJOR_BOSS_EXTRAS = {
         (530905, "Rugalea the Great Red Bear", "[Incantation] Roar of Rugalea", "HIGH"),
         # m61_44. Already 'Boss'-tagged; promoted so Rauh Base has a progression surface.
     ],
-    "Cerulean": [
-        (530810, "Dancer of Ranah", "Dancing Blade of Ranah", "HIGH"),
-        # Lamenter (m41_02) moved here from "Charo's" 2026-08-10 when Charo's merged into Cerulean.
-        # It stays a SEPARATE anchor rather than being dropped: it is the only tagged check the old
-        # Charo's had, and the merged region's surface is better for holding both ends of the coast.
-        (520770, "Lamenter", "Lamenter's Mask", "HIGH"),
-        # Alaric's call. NOT Putrescent Knight: that is m22_00 = STONE COFFIN FISSURE, whose
-        # Remembrance of Putrescence (510480) is ALREADY Remembrance+MajorBoss. Stone Coffin needs
-        # nothing; proposing Putrescent for Cerulean would have hard-failed the in-region invariant.
-    ],
+    # "Cerulean" carried TWO anchors -- Dancer of Ranah (530810) and Lamenter (520770) -- until
+    # 2026-08-16. Both deleted: the region has its own Remembrance boss, so neither anchor had a
+    # region-with-nothing to justify it, and the derived roster does not name either. Cerulean goes
+    # from 3 majors to 1, which is what Abyssal, Altus, Belurat, Deeproot, Enir Ilim, Ensis and seven
+    # more already ship. (The Lamenter note used to argue it "holds both ends of the coast" -- that
+    # is a nice-to-have, and a nice-to-have is not a reason to keep a hand entry the gate now
+    # refuses. NOT Putrescent Knight either, for the record: m22_00 is STONE COFFIN FISSURE, whose
+    # Remembrance of Putrescence 510480 is already Remembrance+MajorBoss in its own region.)
     # "Scaduview" was anchored here by Gaius's Greaves (2049490900) -- REMOVED 2026-07-17 (Alaric):
     # Gaius does NOT drop his greaves, so entering it as his boss drop was simply WRONG -- it is not a
     # boss reward at all and has no business on the progression surface. No extras entry is needed now:
@@ -6161,46 +6204,29 @@ MAJOR_BOSS_EXTRAS = {
     # (Shadow Sunflower 510620, Wild Boar Rider = Commander Gaius 510640) are Shadow Keep's now, on top
     # of the Keep's own Messmer (510460) -- so the Keep's surface is well covered. Gaius's Greaves still
     # decodes to m61_49_49 (now Shadow Keep) as a normal world check via the DLC-overworld flag path.
-    "Limgrave": [
-        (530110, "Flying Dragon Agheel", "Dragon Heart", "HIGH"),
-        # Already carries the 'Boss' tag (Dragon Heart drop flag 530110 in BOSS_DROP_FLAGS); the
-        # Dragon-Burnt Ruins field dragon, obtained tile m60_43_36 -> Limgrave (region_map.csv).
-        # Alternates (uncomment ONE to swap; drop Agheel above if so):
-        #   Tibia Mariner -> Deathroot (no clean single drop-check in Limgrave data; skipped).
-        #   Margit, the Fell Omen -> currently NO boss-drop row exists (only 'Margit's Shackle' shop
-        #     item, ap 7770249, in Roundtable Hold). Re-regioning "Margit" is NOT actionable in the
-        #     current data -- there is no Margit reward check to move -- so Agheel is the primary.
-    ],
-    "Weeping": [
-        (510800, "Leonine Misbegotten", "Grafted Blade Greatsword", "HIGH"),
-        # Castle Morne boss; drops the Grafted Blade Greatsword (flag 510800, rarity-3 -> already
-        # 'Legendary'-tagged, ap 7773928), pinned to Weeping Peninsula (commit 6be2f1a). In-region,
-        # verified against data.py (7773927 is Fia's Mist in Altus -- off-by-one caught by the
-        # extras-structure test).
-        # Alternates: Erdtree Avatar; Demi-Human Queen (Demi-Human Queen's Staff, ap 7773077, f1043347400).
-    ],
+    # ⭐ "Limgrave" was anchored by Flying Dragon Agheel (530110) -- DELETED 2026-08-16, and the way
+    # it went is the point. Its own comment listed the alternate it wished it could use: "Margit, the
+    # Fell Omen -> currently NO boss-drop row exists ... there is no Margit reward check to move --
+    # so Agheel is the primary." That was true of our TABLE and false of the GAME. Margit's death
+    # flips reward flag 9100, which pays `Stormveil :: Talisman Pouch`; the reward-lot datamine had
+    # been discarding the row because Morgott's event back-fills the same flag behind a guard.
+    # With that fixed the check resolves, re-homes to Limgrave (Stormhill is where you STAND to
+    # fight him -- boss_area_regions), and this anchor's region is covered by a real major. The
+    # redundancy hard error below is what found it: it fired on Agheel the moment Margit resolved.
+    # Agheel is also one of the two entries matt's roster explicitly does not count, and both are now
+    # gone for reasons that had nothing to do with matt.
+    # "Weeping" (510800 Leonine Misbegotten), "Liurnia" (510260 Magma Wyrm Makar) and "Sewer"
+    # (510250 Mohg, the Omen) were deleted 2026-08-16. All three are the SAME CHECK the achievement
+    # roster derives -- achievements 34, 28 and 30 respectively -- so under the overlap hard error
+    # below they would fail the build, and CONTRIBUTING is explicit that a redundant override is a
+    # lie about why the code works. Their regions keep exactly the majors they had; the checks are
+    # tagged by derivation now instead of by hand. Nothing moved but the reason.
+    #
     # ---- Region-spine v2 (2026-07-12): the un-collapse moved four regions' arena majors into the
     # sub-regions that split out of them (Rennala -> Raya Lucaria Academy, Morgott -> Leyndell,
-    # Rellana -> Ensis, Putrescent Knight -> Stone Coffin), so the PARENTS need extras again. Each
-    # entry below is an existing in-region check pinned by GLOBAL_RECOVER / FLAG_REGION_OVERRIDE;
-    # the regen invariant validates region membership. Three regions remain WITHOUT any major --
-    # Cerulean, Charo's, Rauh Base -- because no reliable in-region major-boss drop check exists in
-    # current data (SPEC-region-spine-v2.md; the progression_surface ladder covers them). (Scaduview
-    # was a fourth until 2026-07-19, when it folded into Shadow Keep and brought its two majors along.)
-    "Liurnia": [
-        (510260, "Magma Wyrm Makar", "Magma Wyrm's Scalesword", "HIGH"),
-        # Ruin-Strewn Precipice (bucket 39200, a Liurnia span); recovered via GLOBAL_RECOVER 510260
-        # and already Boss-tagged (_BOSS_DROP_EXTRAS). Rennala moved to Raya Lucaria Academy.
-    ],
-    "Altus": [
-        (1039507100, "Godefroy the Grafted", "Godfrey Icon", "HIGH"),
-        # Golden Lineage Evergaol (NW Altus); FLAG_REGION_OVERRIDE re-pin, playtest-verified
-        # 2026-07-08. Morgott moved to Leyndell with the capital split.
-    ],
-    "Sewer": [
-        (510250, "Mohg, the Omen", "Bloodflame Talons", "HIGH"),
-        # Subterranean Shunning-Grounds' own major; GLOBAL_RECOVER 510250 pins the drop here.
-    ],
+    # Rellana -> Ensis, Putrescent Knight -> Stone Coffin), so the PARENTS needed extras. The
+    # achievement roster covers three of those parents directly, which is why only the two DLC-entry
+    # regions below survive from that generation of this list.
     "Gravesite": [
         (530820, "Blackgaol Knight", "Greatsword of Solitude", "MEDIUM"),
         # Western Nameless Mausoleum (Gravesite Plain); GLOBAL_RECOVER 530820. Rellana moved to
@@ -8315,21 +8341,74 @@ print(f"ShopNonSpell: {_nonspell} of {len(_ap_blk)} shop checks; {len(_SPELL_VEN
       f"spell-vendor merchant(s) excluded ({_SPELL_SHOP_CHECKS} checks). Merchants with stock: {len(_talk_stock)}")
 
 
-# ---- MajorBoss tag: the REGION_BOSSES (boss_arena majors) UNION MAJOR_BOSS_EXTRAS (hand-picked) ----
-# This is the high-confidence surface the v0.2 progression_surface restriction confines locks to.
-# Union so every kept region that HAS a major (arena or curated extra) carries a MajorBoss check.
+# ---- MajorBoss tag: THE GAME'S OWN ROSTER, plus what the roster structurally cannot cover --------
+# This is the high-confidence surface the v0.2 progression_surface restriction confines locks to, and
+# until #737 its membership was a HAND-CURATED list. It is now four sources, in descending order of
+# how much anyone had to decide:
+#
+#   ACHIEVEMENT   greenfield/achievement_bosses.tsv -- every call site of common.emevd's trophy event
+#                 $Event(9300), joined to the boss whose DEFEAT FLAG it fires on. This is the game
+#                 telling us which bosses are major; nobody voted. 29 bosses.
+#   Remembrance   CLOSURE 1 below: only demigods and shardbearers drop one.
+#   GreatRune     likewise.
+#   REGION_BOSSES the boss_arena majors, kept because they are the same claim reached another way.
+#   MAJOR_BOSS_EXTRAS  the residue: a region the roster does not reach at all still needs ONE
+#                 high-confidence check or strict "locks only on majors" is infeasible there. Four
+#                 entries survive (#737); see the hard error below for why there are not more.
 _MAJOR_ARENA = {aid for _lst in _region_bosses.values() for (aid, _fl, _nm) in _lst}
 # MAJOR_BOSS_EXTRAS are keyed by acquisition FLAG (stable across regens). There is no stored ap-id to
 # trust or distrust any more -- dense ap-ids DRIFT whenever a row is added or dropped earlier in the
 # list, so the field could only ever be wrong. Resolve each extra's LIVE ap-id(s) from its flag via
 # the freshly-built buckets.
 _flag_locs = defaultdict(list)                       # flag -> [(live_ap_id, region)]
+_apid_region_pre = {}                                # live_ap_id -> region (this run's buckets)
 for _reg, _locs in buckets.items():
     for (_nm, _aid, _fl) in _locs:
         _flag_locs[_fl].append((_aid, _reg))
+        _apid_region_pre[_aid] = _reg
+# 🛑 ONE ROSTER ENTRY IS ONE CHECK. A flag resolves to a FAMILY of checks, not to one: the primary
+# row from region_map.csv plus every SIBLING LOT the same getItemFlagId drives, each minted as its
+# own co-check with a registry ap_id in the COCHECK band (SPEC-flag-lot-item-model §2.2). Taking the
+# whole family made a boss's entire loot table "major bosses" -- and for two DLC field bosses that is
+# an ARMOUR SET (#737):
+#     530810 Dancer of Ranah   -> Dancing Blade + Hood/Dress/Bracer/Trousers   5 checks, 5 votes
+#     530820 Blackgaol Knight  -> Greatsword of Solitude + Helm/Armor/Gauntlets/Greaves
+#     510260 Magma Wyrm Makar  -> Magma Wyrm's Scalesword + the Dragon Heart
+# `MajorBoss` is in contract.SURFACE_DEFAULT_CLASSES, so four pairs of trousers were sitting on the
+# DEFAULT progression surface as major-boss checks, and every count derived from the tag -- the
+# surface size, the wizard's tree, the sweep cut -- was reading 52 where the entity count is 43.
+#
+# The discriminator is a DATUM, not a name: a sibling co-check's ap_id is allocated from the reserved
+# COCHECK band and a primary's never is (`_load_co_check_ids` FATALs if that is ever violated), so
+# the primary is exactly the sub-COCHECK_BASE member of the family. Filtering on the ITEM NAME -- on
+# the `drop_item` field beside each roster entry, say -- would have been the same class of mistake
+# this table already refuses for ap-ids: an id that resolves is not a table match.
+#
+# This is DIRECTION 1 of #737 only. The roster is still MAJOR_BOSS_EXTRAS and still carries entries
+# matt's roster would not (Agheel, Godefroy) and still misses ten it would; re-deriving membership
+# from the game's own achievement bosses is direction 2 and is deliberately not this change.
 _MAJOR_EXTRA = {ra for _lst in MAJOR_BOSS_EXTRAS.values()
                 for (_fl, _bn, _di, _cf) in _lst
-                for (ra, _rr) in _flag_locs.get(_fl, [])}
+                for (ra, _rr) in _flag_locs.get(_fl, [])
+                if ra < COCHECK_BASE}
+# GATE: one roster entry resolves to exactly one live check -- never zero, never two. Zero means a
+# renamed or re-flagged boss dropped silently out of the surface; two means the family filter above
+# stopped discriminating (a second primary, or the COCHECK band being reused). Both are the same
+# defect the armour sets were, caught at the arity rather than after the fact.
+_major_arity = []
+for _reg, _lst in MAJOR_BOSS_EXTRAS.items():
+    for (_fl, _bn, _di, _cf) in _lst:
+        _prim = sorted(ra for (ra, _rr) in _flag_locs.get(_fl, []) if ra < COCHECK_BASE)
+        if len(_prim) != 1:
+            _major_arity.append((_bn, _fl, _reg, _prim,
+                                 sorted(ra for (ra, _rr) in _flag_locs.get(_fl, []))))
+if _major_arity:
+    raise AssertionError(
+        "MAJOR_BOSS_EXTRAS entry does not resolve to exactly one primary check -- a roster member is "
+        "one boss and one check (#737): "
+        + "; ".join("%s (flag %s, %s): %d primary %s out of family %s"
+                    % (bn, fl, reg, len(pr), pr, fam)
+                    for (bn, fl, reg, pr, fam) in _major_arity))
 # CLOSURE 1 -- a Remembrance or Great Rune drop IS a major-boss drop, definitionally. Only demigods
 # and shardbearers drop them; there is no remembrance without a major boss behind it. Before this, the
 # MajorBoss set was keyed on method=="boss_arena", and `method` records HOW WE RECOVERED THE ROW, not
@@ -8346,7 +8425,141 @@ _MAJOR_EXTRA = {ra for _lst in MAJOR_BOSS_EXTRAS.values()
 # changes when the data contradicts it.)
 _MAJOR_DERIVED = {_ap for _ap, _tg in loc_tags.items()
                   if "Remembrance" in _tg or "GreatRune" in _tg}
-_MAJOR_AIDS = _MAJOR_ARENA | _MAJOR_EXTRA | _MAJOR_DERIVED
+
+# ---- THE ACHIEVEMENT ROSTER (#737 direction 2) ---------------------------------------------------
+# matt's UI calls his set "Major bosses -- 30 checks, INCLUDING ALL ACHIEVEMENT BOSSES", and that
+# phrase is the derivation: we do not need his list, because the game ships its own and it is not a
+# judgement call. common.emevd's trophy event fires `AwardAchievement(id)` on `EventFlag(flag)`, and
+# for a boss achievement that flag IS the boss's defeat flag.
+# tools/datamine_achievement_bosses.py emits the roster; the join from a DEFEAT flag to the CHECK
+# that death grants is _BOSS_REWARD_DEFEAT's, which is why the tool does not do it -- "which bosses
+# are major" and "which check does a boss pay" are two questions and one function answering both is
+# how the boss_arena keying split five bosses down the middle (CLOSURE 1 above).
+#
+# 🛑 NEVER ON THE NAME. Every hop here is a flag: achievement -> defeat flag -> reward flag -> live
+# ap-id. `boss_name` in the tsv is documentation, and a join on it would be the same mistake this
+# file already refuses for ap-ids -- an id that resolves is not a table match.
+_ACHIEVEMENT_TSV = os.path.join(HERE, "achievement_bosses.tsv")
+_ACH_BOSSES = {}                                     # defeat_flag -> (achievement_id, boss_name)
+if os.path.isfile(_ACHIEVEMENT_TSV):
+    with open(_ACHIEVEMENT_TSV, encoding="utf-8-sig", newline="") as _fh:
+        for _ln in _fh:
+            if not _ln.strip() or _ln.lstrip().startswith("#") or _ln.startswith("achievement_id\t"):
+                continue
+            _pv = _ln.rstrip("\n").split("\t")
+            if len(_pv) < 7:
+                raise SystemExit("FATAL: achievement_bosses.tsv malformed row: %r" % _ln)
+            if _pv[2] != "boss":
+                continue                             # a collection achievement; see the tsv header
+            _ACH_BOSSES[int(_pv[1])] = (int(_pv[0]), _pv[6])
+if not _ACH_BOSSES:
+    raise SystemExit(
+        "FATAL: greenfield/achievement_bosses.tsv is missing or has no kind=boss rows. MajorBoss "
+        "would silently fall back to Remembrance + the four region anchors -- a SMALLER default "
+        "progression surface, reported as a clean run. Re-emit it: python3 "
+        "tools/datamine_achievement_bosses.py (needs the artifacts).")
+
+# ---- ACHIEVEMENT BOSSES WITH NO CHECK: the ledger, and it is EMPTY -------------------------------
+# 🛑 IT HELD MARGIT FOR ABOUT AN HOUR AND THE ENTRY WAS SIMPLY FALSE. It read "no boss-drop row
+# exists in region_map.csv or the reward-lot family ... matt lists his drop as the Talisman Pouch;
+# ours is Godfrey's (11000850), a different flag." Alaric, reading it: "margit's boss drop is
+# stormveil talisman pouch". He is right, and the game says so in its own words --
+#
+#     m10_00   // マルギット撃破 -- Defeat Margit
+#              HandleBossDefeatAndDisplayBanner(10000850, GreatEnemyFelled);
+#              SetEventFlagID(10000850, ON);
+#              SetEventFlagID(9100, ON);
+#     common   $InitializeEvent(0, 1100, 9100, 10000, 0, 60510);   -> lot 10000 -> `Stormveil ::
+#                                                                     Talisman Pouch`, ap 7770026
+#
+# -- which was sitting in LOCATIONS the whole time, carrying no tags at all.
+#
+# WHY IT LOOKED ABSENT, because it is a shape rather than a one-off: datamine_boss_reward_lots threw
+# the row away as "reward flag flipped by 2 maps". Morgott's defeat event also sets 9100, behind
+# `if (!EventFlag(9100))`, because Margit and Morgott are the same character and killing Morgott
+# implies Margit. A guarded BACK-FILL is not an ownership claim; the tool now distinguishes the two
+# and the ambiguity rule is otherwise untouched (the two genuinely-shared reward flags in that table
+# are still refused).
+#
+# ⭐⭐⭐ THE LESSON IS ABOUT LEDGERS, NOT ABOUT MARGIT. A waiver is the one place a wrong belief can
+# sit and look like diligence: it converts "our derivation is missing something" into a documented
+# fact about the game, and nothing downstream ever asks again. The entry even had a corroborating
+# detail -- Margit's Shackle really is a shop row -- which is what made it read as researched. So
+# this ledger is gated in BOTH directions now: an entry whose boss stops being an achievement boss is
+# stale, and an entry whose boss RESOLVES is a redundant override that fails the build.
+_ACH_NO_CHECK = {
+    # EMPTY, and kept as a named structure rather than deleted: the gates below are what make an
+    # unresolvable achievement boss loud instead of invisible, and they need a legitimate place for
+    # one to be written down. An entry here is a claim about the GAME's data, so it must cite the
+    # EMEVD that awards nothing -- never merely the absence of a row in ours.
+}
+_BOSS_REWARD_DEFEAT_BY_DEFEAT = defaultdict(list)    # defeat flag -> [reward flag, ...]
+for _rf9, _df9 in _BOSS_REWARD_DEFEAT.items():
+    _BOSS_REWARD_DEFEAT_BY_DEFEAT[_df9].append(_rf9)
+_MAJOR_ACHIEVEMENT, _ach_bad, _ach_waived_but_live = set(), [], []
+for _dfl, (_aid_ach, _bname) in sorted(_ACH_BOSSES.items()):
+    _prim = sorted({ra for _rf in _BOSS_REWARD_DEFEAT_BY_DEFEAT.get(_dfl, ())
+                    for (ra, _rr) in _flag_locs.get(_rf, []) if ra < COCHECK_BASE})
+    if len(_prim) == 1:
+        _MAJOR_ACHIEVEMENT.add(_prim[0])
+        if _dfl in _ACH_NO_CHECK:
+            _ach_waived_but_live.append((_bname or "?", _dfl, _prim[0]))
+    elif not (len(_prim) == 0 and _dfl in _ACH_NO_CHECK):
+        _ach_bad.append((_bname or "?", _aid_ach, _dfl, _prim))
+if _ach_waived_but_live:
+    raise AssertionError(
+        "the _ACH_NO_CHECK ledger waives achievement boss(es) that DO resolve to a check -- and a "
+        "waiver outliving what it waives is worse than no waiver, because it reads as a documented "
+        "fact about the game rather than as a gap in our derivation. Delete the entr(y/ies): "
+        + "; ".join("%s (defeat flag %d) resolves to ap %d" % r for r in _ach_waived_but_live))
+if _ach_bad:
+    raise AssertionError(
+        "achievement boss does not resolve to exactly one primary check, and is not in the "
+        "_ACH_NO_CHECK ledger (#737). ZERO means the defeat->reward->check join stopped matching and "
+        "the boss dropped silently off the progression surface; TWO means one death is being counted "
+        "as two majors: "
+        + "; ".join("%s (achievement %d, defeat flag %d): %d primary %s"
+                    % (bn, ach, dfl, len(pr), pr) for (bn, ach, dfl, pr) in _ach_bad))
+_ach_stale = sorted(set(_ACH_NO_CHECK) - set(_ACH_BOSSES))
+if _ach_stale:
+    raise AssertionError(
+        "the _ACH_NO_CHECK ledger names flag(s) %s that are no longer achievement bosses -- a "
+        "waiver outliving what it waives is scar tissue; delete the entry." % _ach_stale)
+
+# ---- A REDUNDANT MANUAL OVERRIDE IS A FAILURE (CONTRIBUTING, and it is a HARD ERROR because that
+# is the only thing that reliably gets a hand entry deleted once the derivation catches up).
+#
+# The achievement derivation is COMPLETE in CONTRIBUTING's sense: it reads the whole trophy table
+# common.emevd ships, not a sample of it, so there is no lower-bound hazard here and no safety net to
+# keep. That is what licenses a hard error rather than a warning -- contrast the arena-grace floor,
+# where the derivation is a lower bound and the hand list is real protection.
+#
+# TWO shapes of redundancy, because MAJOR_BOSS_EXTRAS has two ways of being pointless:
+#   1. the entry IS a derived check (Leonine, Makar, Sewer Mohg were all three of these);
+#   2. the entry's REGION already has a derived major, so "this region has nothing" -- the only
+#      justification this list has ever had -- is no longer true of it (Dancer, Lamenter, Godefroy).
+_derived_majors = _MAJOR_DERIVED | _MAJOR_ACHIEVEMENT
+_derived_regions = {_apid_region_pre.get(_ap) for _ap in _derived_majors} - {None}
+_extras_redundant = []
+for _reg, _lst in MAJOR_BOSS_EXTRAS.items():
+    for (_fl, _bn, _di, _cf) in _lst:
+        _prim = {ra for (ra, _rr) in _flag_locs.get(_fl, []) if ra < COCHECK_BASE}
+        if _prim & _derived_majors:
+            _extras_redundant.append(
+                "%s (%s, flag %s): the derivation already tags this exact check" % (_bn, _reg, _fl))
+        elif _reg in _derived_regions:
+            _extras_redundant.append(
+                "%s (%s, flag %s): %s already has a derived major, so this anchor has nothing left "
+                "to anchor" % (_bn, _reg, _fl, _reg))
+if _extras_redundant:
+    raise AssertionError(
+        "MAJOR_BOSS_EXTRAS carries %d REDUNDANT entr(y/ies). A hand list is allowed only where the "
+        "derivation cannot reach; the moment it catches up the entry must be DELETED, because a "
+        "redundant override is a lie about why the code works -- the next reader cannot tell which "
+        "entries are load-bearing (CONTRIBUTING). Delete these:\n  %s"
+        % (len(_extras_redundant), "\n  ".join(_extras_redundant)))
+
+_MAJOR_AIDS = _MAJOR_ARENA | _MAJOR_EXTRA | _MAJOR_DERIVED | _MAJOR_ACHIEVEMENT
 for _ap in sorted(_MAJOR_AIDS):
     _cur = loc_tags.setdefault(_ap, [])
     if "MajorBoss" not in _cur:
@@ -8366,6 +8579,25 @@ for _ap in sorted(_MAJOR_AIDS):
     _cur = loc_tags.setdefault(_ap, [])
     if "Boss" not in _cur:
         _cur.append("Boss")
+
+# CLOSURE 2b -- and so is the REST of that boss's drop. This is the half of the co-check inheritance
+# rule (#191, Alaric 2026-08-13: "a co-check is the SAME physical acquisition as its primary and
+# inherits its tags") that #737 does NOT withdraw, and the distinction is the whole point of that
+# issue: `Boss` answers HOW THIS CHECK WAS ACQUIRED, and a sibling lot on the boss's own death flag
+# was acquired by killing that boss -- Dancer of Ranah's Trousers is a boss drop, plainly.
+# `MajorBoss` answers IS THIS BOSS ON THE ROSTER, which is a claim about an ENTITY, and there ten
+# sibling lots are ten votes for one boss. So the family keeps inheriting the acquisition tag and
+# stops inheriting the roster tag. Without this, killing MajorBoss on the siblings would have taken
+# `Boss` -- a PLAYER-SELECTABLE class -- from 266 to 258 as a side effect nobody asked for, because
+# these two bosses reach `Boss` ONLY through CLOSURE 2 (neither is in the datamined boss-drop
+# geography at all; their primaries carry no FieldBoss either, which is a separate gap worth its own
+# look).
+_apid_flag = {aid: fl for _reg, _locs in buckets.items() for (_nm, aid, fl) in _locs}
+for _fl in sorted({_apid_flag[_ap] for _ap in _MAJOR_AIDS if _ap in _apid_flag}):
+    for (_ra, _rr) in _flag_locs.get(_fl, []):
+        _cur = loc_tags.setdefault(_ra, [])
+        if "Boss" not in _cur:
+            _cur.append("Boss")
 
 # ---- LegacyBoss / FieldBoss: WHERE the boss stands -------------------------------------------
 # Derived from the boss's GEOGRAPHY (datamine_boss_healthbars._geography), joined to the check two
@@ -8463,8 +8695,14 @@ if _major_bad:
     raise AssertionError(
         "MajorBoss not filed under its stated region (fix the flag/join/override): "
         + "; ".join(f"{k} expected={want} key={key} got={got}" for (k, want, key, got) in _major_bad))
-print(f"MajorBoss: {len(_MAJOR_AIDS)} tagged ({len(_MAJOR_ARENA)} arena + {len(_MAJOR_EXTRA)} extras) "
-      f"across {len(_region_bosses) + len(MAJOR_BOSS_EXTRAS)} region-entries; invariant OK")
+_major_siblings = sum(1 for _lst in MAJOR_BOSS_EXTRAS.values() for (_fl, _bn, _di, _cf) in _lst
+                      for (ra, _rr) in _flag_locs.get(_fl, []) if ra >= COCHECK_BASE)
+print(f"MajorBoss: {len(_MAJOR_AIDS)} tagged -- {len(_MAJOR_ACHIEVEMENT)} achievement boss(es) of "
+      f"{len(_ACH_BOSSES)} on the roster ({len(_ACH_NO_CHECK)} ledgered with no check), "
+      f"{len(_MAJOR_DERIVED)} Remembrance/GreatRune, {len(_MAJOR_ARENA)} arena, "
+      f"{len(_MAJOR_EXTRA)} region anchor(s); across "
+      f"{len(_region_bosses) + len(MAJOR_BOSS_EXTRAS)} region-entries; invariant OK; "
+      f"{_major_siblings} sibling co-check(s) on roster flags NOT tagged (one check per boss, #737)")
 
 import collections as _c
 _tagcount = _c.Counter(tg for tags in loc_tags.values() for tg in tags)
@@ -8472,7 +8710,10 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Location TYPE tags for important_locations, matt-free:\n')
     f.write('name/method tags (Boss/Remembrance/Church/Seedtree/Basin/Fragment/Revered/Shop) from\n')
     f.write('_loc_tags; GreatRune/KeyItem from LOCATION_ITEM name; Legendary from ITEM_TIERS rarity==3;\n')
-    f.write('MajorBoss = REGION_BOSSES (boss_arena majors) UNION MAJOR_BOSS_EXTRAS (hand-picked field bosses).\n')
+    f.write('MajorBoss = the game\'s own achievement bosses (achievement_bosses.tsv, from common.emevd\'s\n')
+    f.write('trophy event) UNION Remembrance/GreatRune UNION REGION_BOSSES UNION the four MAJOR_BOSS_EXTRAS\n')
+    f.write('region anchors the roster does not reach. ONE check per boss: a roster entry resolves to its\n')
+    f.write('flag family\'s PRIMARY lot only, never the sibling co-checks that flag also drives (#737).\n')
     f.write('LOCATION_TAGS = {ap_id: [type,...]}."""\n')
     f.write('LOCATION_TAGS = {\n')
     for _aid in sorted(loc_tags):

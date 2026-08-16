@@ -153,6 +153,19 @@ TESTS_JOB = {
     "noninteractive_guard": "committed data only",
     "workflow_ap_deps": "committed .github/workflows text only, reached by the find_repo_root walk-up. TESTS_JOB rather than GENERATORS because it is a pytest suite; it must run SOMEWHERE in CI because what it guards -- a release workflow that generates without installing AP's requirements -- last failed where nothing was watching, on the v0.4.1 tag, in the one workflow run that is not attached to a PR",
     "progression_surface": "gen_data.py found by walk-up in every CI checkout",
+    "rune_ladder_docs": "TESTS_JOB, and it must run SOMEWHERE: what it guards is the rune ladder "
+                        "printed in KeepLocalRuneCap's OPTION HELP, which is what a player reads in "
+                        "the wizard and -- copied verbatim -- in their own release/EldenRing.yaml. "
+                        "It shipped four wrong claims at once (a default advertised as OFF while it "
+                        "held 18 items, a heading arguing for a superseded value, a ladder off by "
+                        "one from [4] up, and the wrong item named for the cap), and none of it "
+                        "could fail. Two halves: the docstring cases need only the installed world, "
+                        "and the yaml cases carry a find_repo_root sentinel because release/ is not "
+                        "installed beside the package -- but the tests job checks out the repo tree, "
+                        "so they run there and must not be allowed to skip. NOT GENERATORS: it is a "
+                        "pytest suite, not a __main__ script, and it imports "
+                        "worlds.eldenring.item_categories for rune_payout, which is the ground truth "
+                        "it checks the prose against",
     "upgrade_costs_runes": "TESTS_JOB, and it does NOT skip. Its `tools/upgrade_costs` mention is "
                            "what the sentinel scan sees, but that path is inside the PACKAGE "
                            "(greenfield/eldenring/tools/), so gf_test.py installs it beside the "

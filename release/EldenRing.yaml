@@ -514,16 +514,32 @@ Elden Ring:
   # enabled above. Inert while both `traps` and `spawn_traps` are empty.
   trap_count: 8
 
-  # Share of YOUR filler that other players' worlds may draw from, in a
+  # Share of YOUR filler COPIES that other players' worlds may draw from, in a
   # multiworld. 100 = fully shared. 0 = keep your filler to yourself.
-  filler_foreign_pct: 100
+  #
+  # Every category keeps something eligible: the share is spent WITHIN each
+  # category and never takes a category's last item, so lowering this thins
+  # what you export rather than silently barring a whole category. `keep_local`
+  # below is the knob for barring one, and it stays the only one. (0 is exempt
+  # -- you asked for all of it home.)
+  #
+  # WHY THIS SHIPS AT 70 AND NOT 100. The goal is a 1:1 useful:filler mix in
+  # what your partners receive, and 70 is where that lands with the keep_local
+  # default below. Measured cross-game, one ER slot, pooled over seeds:
+  #   Hollow Knight, 5 seeds:    100 -> 0.79:1     70 -> 1.00:1
+  #   Bumper Stickers, 3 seeds:  100 -> 0.77:1     70 -> 0.97:1
+  # Both partner sizes land on it. Raise it toward 100 to send more of your
+  # junk out; lower it to send less. Exported USEFUL barely moves either way --
+  # what changes is how much filler rides along with it.
+  filler_foreign_pct: 70
 
   # On: every real vanilla item this seed produces stays in YOUR world.
 
   # Categories of item to hold in YOUR OWN world, one per line. This is the
   # knob for "keep my consumables and crafting mats, send the gear out"
   # without reaching for local_item_only (which keeps everything) or
-  # filler_foreign_pct (which picks at random and cannot be aimed).
+  # filler_foreign_pct (which thins every category evenly rather than naming
+  # one).
   #
   # Valid: armor, ashes, bell_bearings, consumables, cookbooks, crafting,
   # crystal_tears, everything, goods, key_items, merchant_bells, other,
@@ -565,24 +581,33 @@ Elden Ring:
   keep_local: [consumables, cookbooks, crafting, crystal_tears, merchant_bells, other, upgrade_bells, upgrade_materials]
 
   # Hold back rune items worth this many runes or fewer; larger ones may still
-  # travel. 0 (default) is OFF. The payout is a number the game publishes, so
-  # it is not guessed from the item name: Golden Rune [1] 200, [4] 1,600,
-  # [8] 3,800, [10] 6,250, [13] 12,500, Hero's Rune [1] 15,000, Lord's Rune
-  # 50,000, the DLC's largest 80,000. Independent of keep_local: naming `runes`
-  # there keeps every rune home whatever this says.
+  # travel. DEFAULTS TO 12,500, which holds 18 of the 31 rune items. Set it to
+  # 0 to turn it off and send every rune you find.
   #
-  # WHY 6,250 (Golden Rune [10]). Runes are the only large filler category the
+  # The payout is a number the game publishes, so it is not guessed from the
+  # item name:
+  #   Golden Rune [1]    200     Golden Rune [10]   5,000
+  #   Golden Rune [4]  1,200     Golden Rune [11]   6,250
+  #   Golden Rune [8]  3,000     Golden Rune [13]  10,000
+  #   Golden Rune [9]  3,800     Numen's Rune      12,500  <- the default cap
+  #                              Hero's Rune [1]   15,000
+  #                              Lord's Rune       50,000
+  #                              Marika's Rune     80,000  <- the largest
+  # Independent of keep_local: naming `runes` there keeps every rune home
+  # whatever this says.
+  #
+  # WHY 12,500 (Numen's Rune). Runes are the only large filler category the
   # default keep_local leaves open, which makes this the fine adjustment on what
   # your partners receive -- and unlike a percentage it can be AIMED, because
   # the threshold is a number the game publishes rather than a share of a pool
-  # nobody can picture. Measured useful:filler in what we export, everything
+  # nobody can picture.
   # else identical: cap 0 -> 0.57:1, 6,250 -> 0.68:1, 12,500 -> 0.72:1, and
   # 80,000 (every rune home) only 0.73:1. Against the old defaults the pair
   # moves 0.55:1 -> 0.72:1: exported USEFUL is flat (228 -> 231) while filler
   # falls 412 -> 320, so your partners lose 92 Golden Runes, not 92 items they
-  # wanted. 12,500 is Golden Rune [13]; Hero'''s and
-  # Lord'''s Runes still travel. Raise it to send less junk and keep more runes;
-  # set it to 0 to send every rune you find.
+  # wanted. 12,500 is Numen's Rune -- Golden Rune [13] is 10,000. Hero's,
+  # Leda's, Lord's and Marika's Runes still travel. Raise it to send less junk
+  # and keep more runes; set it to 0 to send every rune you find.
   keep_local_rune_cap: 12500
 
   # How hard your Region Locks are pulled toward YOUR OWN world. 0 (default) is
@@ -643,10 +668,13 @@ Elden Ring:
   # the only place another player's key items may land. Without it a slot receives
   # roughly a tenth of the foreign progression it otherwise would. Remove it if you
   # would rather a sweep never hand you a key.
+  # Remembrance and GreatRune are NOT here, and their absence changes nothing: both
+  # are strict subsets of MajorBoss, so while that line is present they admit no
+  # location of their own (measured 199 == 199 checks either way, #733). They are
+  # still selectable -- add either line back and it is accepted -- they are just no
+  # longer on by default, because being on implied they did something.
   progression_surface:
     - MajorBoss
-    - Remembrance
-    - GreatRune
     - KeyItem
     - Church
     - Seedtree
@@ -690,15 +718,6 @@ Elden Ring:
   # of Arrows. (Unlimited slots can never be checks -- there is no way to
   # observe a purchase on them -- so nothing is lost by rerolling.)
   reroll_infinite_shop_stock: true
-
-  # A shop check keeps the price of the ware it USED to sell. That is right for
-  # gear -- a randomised item at this merchant's price -- and wrong when the
-  # reward is a RUNE, because a rune is just money: a 3500-rune slot selling a
-  # Golden Rune [1] worth 2000 is a slot nobody will ever press, and the check
-  # behind it goes uncollected. On, the price is rolled into [0, 2x the rune's
-  # own worth] per seed, per slot: sometimes free, sometimes a bad trade.
-  # Off (default) keeps the original price.
-  rune_shop_pricing: false
 
   # Wares the HUB merchant always stocks, unlimited, instead of leaving those
   # shelves to the reroll above. Up to FOUR -- that is how many unlimited
