@@ -162,6 +162,14 @@ class WizardYamlGenerates(unittest.TestCase):
         day it is dumped and this does not become a number somebody bumps."""
         yaml_text = _build_yaml(self.core, self.meta, None)
         emitted = set(re.findall(r"^  ([a-z_][a-z0-9_]*):", yaml_text, re.M))
+        # WITNESS. `missing` is empty in two very different worlds: every option was emitted, or
+        # the metadata is empty / this regex stopped matching the builder's output. Only one of
+        # those is the pass this test means, so say out loud that the scan saw something. No pinned
+        # count -- these are floors on "anything at all", not on how many options exist.
+        self.assertTrue(self.meta["options"],
+                        "options metadata carries no options; every assertion below is vacuous")
+        self.assertTrue(emitted,
+                        "the yaml emitted no option lines at all -- the builder or this regex moved")
         missing = [o["key"] for o in self.meta["options"] if o["key"] not in emitted]
         self.assertFalse(missing,
                          "the wizard's yaml is silent about %d live option(s) it configures: %s"
@@ -182,6 +190,7 @@ class WizardYamlGenerates(unittest.TestCase):
         yaml_text = _build_yaml(self.core, self.meta, None)
         by_key = {o["key"]: o for o in self.meta["options"]}
         bad = []
+        examined = 0
         for line in yaml_text.splitlines():
             m = re.match(r'^  ([a-z_][a-z0-9_]*): (-?\d+|"[^"]*")\s*(?:#.*)?$', line)
             if not m:
@@ -191,6 +200,7 @@ class WizardYamlGenerates(unittest.TestCase):
             rng = (o or {}).get("range")
             if not rng:
                 continue
+            examined += 1
             names = {s["name"]: s["value"] for s in (o.get("special_values") or [])}
             if raw.startswith('"'):
                 # The quiet direction: a name where a plain number would do.
@@ -206,6 +216,12 @@ class WizardYamlGenerates(unittest.TestCase):
                 bad.append("%s: %s is outside its declared range %d..%d -- it has to be emitted as "
                            "one of its special names %s"
                            % (key, raw, rng["start"], rng["end"], sorted(names)))
+        # WITNESS. Every `continue` above is a silent skip, so `bad` stays empty whether the values
+        # are legal or the line regex simply stopped matching -- and the second is the more likely
+        # of the two, because the emitted shape is exactly what this PR changed.
+        self.assertTrue(examined,
+                        "no ranged option line was examined: the line regex matched nothing, so "
+                        "this test proves nothing about the values the wizard writes")
         self.assertFalse(bad, "the wizard emitted %d unusable value(s):\n  %s"
                               % (len(bad), "\n  ".join(bad)))
 
