@@ -290,6 +290,35 @@ copying the client `Cargo.lock` does not fix it because the root package differs
 every field and method name you use (cheap, and strictly better than guessing), then let the Windows
 CI be the compile gate, and **say which of the two you did.**
 
+⭐ **BUT NOT EVERYTHING NEEDS WINDOWS, AND THE SANDBOX HAD BEEN SKIPPING WORK IT COULD DO.**
+Measured 2026-08-16 while building the world#768 client half. Install the toolchain first —
+`sh <(curl -sSf https://sh.rustup.rs) -y --profile minimal --no-modify-path`, then
+`rustup component add rustfmt clippy` — and from a client clone:
+
+| command | Linux sandbox | why |
+|---|---|---|
+| `cargo fmt -- --check` (**whole workspace**) | ✅ | rustfmt only PARSES. It never resolves a dependency, so the Windows crates format fine. |
+| `cargo test -p er-logic` | ✅ | pure decision crate, 1188 tests |
+| `cargo clippy -p er-logic` / `-p er-codec` / `-p er-semver` | ✅ | no `windows` dependency |
+| `cargo clippy -p shared` / `-p archipelago-rs` | ❌ | pull the Windows tree in |
+| anything touching `eldenring-archipelago` | ❌ | see above |
+
+**`cargo fmt` is the one that matters**, because **CI's first gate is `cargo fmt -- --check` and it
+runs BEFORE the compile.** A formatting slip therefore costs a full CI round-trip and tells you
+nothing about whether your code compiles — which is exactly what happened on client PR #245. Run
+`cargo fmt` before every client push; it is seconds, it needs no Windows, and it converts the most
+common red run into a no-op.
+
+So the honest split is three ways now, not two: **formatted** (local, free), **host-tested** (local,
+for anything you can push into `er-logic` — and pushing the decision half down there is the point of
+the `GameHook` seam), and **compiled** (Windows CI only). Say which of the three you did.
+
+⚠️ **Disk.** A full `cargo` fetch of the Windows dependency tree exhausted the 9.8 GB sandbox volume
+mid-resolve (`error: No space left on device`), so the `eldenring-archipelago` row above is "did not
+complete here" rather than a confirmation of the `windows-future` diagnosis two paragraphs up — that
+claim predates this table and was not re-verified. `cargo clean` and dropping
+`~/.cargo/registry/cache` reclaims most of it.
+
 **3b. Only if the name genuinely is not in the pinned source, ASK rather than guess.** Guessing is what
 burned the three round-trips. Known-settled naming also lives in the module doc comments of
 `check_lots.rs` / `enemy_drops.rs`:
