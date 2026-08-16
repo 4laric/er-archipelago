@@ -235,6 +235,65 @@ def _run_node_marginals(core, census, cases):
     return json.loads(out.stdout.strip().splitlines()[-1])
 
 
+def _run_node_tree(core, fams):
+    """`ERW.surfaceTree` for one family at a time, as the page calls it."""
+    harness = (core + "\nconst __f = " + json.dumps(fams) + ";\n"
+               + "console.log(JSON.stringify(__f.map(f => "
+                 "ERW.surfaceTree(f.keys, f.contains))));\n")
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "tree.js")
+        with open(path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(harness)
+        out = subprocess.run(["node", path], capture_output=True, text=True)
+    if out.returncode != 0:
+        sys.exit("[FAIL] node tree harness failed:\n" + (out.stderr or "")[-4000:])
+    return json.loads(out.stdout.strip().splitlines()[-1])
+
+
+def tree_faults(km, fam_id, rows):
+    """What the nesting must be true of, whatever the lattice says (#733).
+
+    Deliberately NOT "the bosses family looks like <this picture>": the tree is derived from
+    `contains`, so a picture would pin today's data and go red on an unrelated roster change --
+    which is exactly how #748's ladder literal broke main hours after it merged. These are the
+    properties that make the drawing trustworthy at any shape.
+    """
+    faults = []
+    keys = [k["key"] for k in km["keys"] if k.get("family") == fam_id]
+    contains = km.get("contains") or {}
+    got = [r["key"] for r in rows]
+
+    # 1. TOTALITY. The renderer draws exactly these rows, so anything missing is a class the player
+    #    cannot select, and anything duplicated is a checkbox that fights itself.
+    if sorted(got) != sorted(keys):
+        faults.append("family %r: the tree is not a permutation of its keys -- drawn %s, family has %s"
+                      % (fam_id, got, keys))
+        return faults
+    if len(set(got)) != len(got):
+        faults.append("family %r: a key is drawn twice: %s" % (fam_id, got))
+
+    at = {r["key"]: i for i, r in enumerate(rows)}
+    depth = {r["key"]: r["depth"] for r in rows}
+    infam = set(keys)
+
+    for r in rows:
+        parents = [p for p in keys if p != r["key"] and r["key"] in (contains.get(p) or [])]
+        # 2. A CONTAINED CLASS IS DRAWN INSIDE SOMETHING, and after it. Flat-and-covered is the
+        #    reading this issue exists to end.
+        if parents and depth[r["key"]] == 0:
+            faults.append("family %r: %s is contained by %s but is drawn at the top level"
+                          % (fam_id, r["key"], parents))
+        # 3. NEAREST parent, not any parent. Both Boss and MajorBoss contain Remembrance; hanging it
+        #    off Boss is true and useless.
+        if parents:
+            size = {p: len(set(contains.get(p) or []) & infam) for p in parents}
+            nearest = min(parents, key=lambda p: (size[p], keys.index(p)))
+            if at[nearest] > at[r["key"]] or depth[r["key"]] != depth[nearest] + 1:
+                faults.append("family %r: %s should sit one level inside %s (its nearest container)"
+                              % (fam_id, r["key"], nearest))
+    return faults
+
+
 def _run_node(core, cases):
     harness = (core + "\nconst __cases = " + json.dumps(cases) + ";\n"
                + "console.log(JSON.stringify(__cases.map(c => "
@@ -295,6 +354,28 @@ def main(argv=None):
         if got != want:
             bad.append("%s selection %s: JS coverage %s != Python %s"
                        % (case["key"], case["selected"], got, want))
+
+    # THE NESTING (#733). Same shape of check as the coverage half: run the shipped JS, assert the
+    # properties rather than a picture of today's lattice.
+    fams = []
+    for o in opts:
+        km = o["key_meta"]
+        for fam in (km.get("families") or []):
+            keys = [k for k in km["keys"] if k.get("family") == fam["id"]]
+            if keys:
+                fams.append({"opt": o["key"], "fam": fam["id"], "keys": keys,
+                             "contains": km.get("contains") or {}})
+    if fams:
+        trees = _run_node_tree(_core(html), fams)
+        for f, rows in zip(fams, trees):
+            km = next(o["key_meta"] for o in opts if o["key"] == f["opt"])
+            for fault in tree_faults(km, f["fam"], rows):
+                bad.append("%s: %s" % (f["opt"], fault))
+        # ...and SOMETHING must actually nest, or the tree is a flat list with extra steps.
+        nested = [f["fam"] for f, rows in zip(fams, trees) if any(r["depth"] for r in rows)]
+        if not nested:
+            bad.append("no family nests at all -- key_meta.contains describes a lattice the page is "
+                       "drawing flat, which is the whole of #733")
 
     # ...and the inversion must actually FIRE somewhere, or agreement is agreement about nothing.
     fired = [c for c, g in zip(cases, js) if g]
