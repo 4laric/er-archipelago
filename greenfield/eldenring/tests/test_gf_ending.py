@@ -17,6 +17,7 @@ Run (from the Archipelago dir, world installed):
     python -m pytest worlds/eldenring/tests/test_gf_ending.py
 """
 import pytest
+import unittest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
@@ -137,6 +138,123 @@ class GreatRunesGoalHeavilySealed(WorldTestBase):
         expected = "great_runes" if world._required_runes() else "region_locks"
         self.assertEqual(sd["ending_condition"], expected)
 
+
+
+
+class RuneClassificationInARealMultiworld(unittest.TestCase):
+    """🛑 THE ORDERING QUESTION, POSED WHERE IT CAN ACTUALLY GO WRONG (Alaric, 2026-08-16).
+
+    A Great Rune is `filler` in the catalog and is PROMOTED to progression per seed, by name, in
+    `core._class_for` -- from `gf_required_runes`, `gf_leyndell_runes`, `gf_legacy_keys` and
+    `gf_natural_keys`. All four are resolved in `generate_early`, and `create_items` runs after it,
+    so the promotion is decided before any rune item exists.
+
+    That is a claim about the AP LIFECYCLE ACROSS WORLDS -- "every world's generate_early runs before
+    any world's create_items" -- and `WorldTestBase` cannot pose it, because it builds a ONE-PLAYER
+    multiworld. `test_required_runes_resolved_and_progression` above therefore verifies the property
+    in the only configuration where the ordering is trivially safe.
+
+    This builds a real two-player multiworld and asks the same question. If the promotion ever moves
+    later than `generate_early` -- into `create_items`, or a feature hook that runs per-world after
+    another world has already minted items -- a required rune ships as FILLER, AP places it anywhere,
+    and the goal becomes unreachable in a way no solo test can see.
+
+    Two Elden Ring slots rather than ER + a partner: the property under test is OUR classification
+    under multi-player generation, not cross-world flow, which `tools/gf_multiworld_smoke.py` owns
+    with real foreign partners.
+    """
+
+    # 🛑 `leyndell_runes_required: 0` IS THE WHOLE POINT OF THIS FIXTURE, and I wrote it without and
+    # shipped a vacuous test for ten minutes. `_class_for` promotes on
+    # `_required_runes() or gf_leyndell_runes or ...`, and BOTH sets are `sorted(avail)[:n]` -- the
+    # same alphabetical draw. At the shipped `leyndell_runes_required: 2` they are IDENTICAL
+    # (measured: both ["Godrick's Great Rune", "Great Rune of the Unborn"]), so the Leyndell arm
+    # promotes the runes and the GOAL arm is masked. Disabling the goal arm entirely still left the
+    # test green.
+    #
+    # Disarming the wall makes the goal the ONLY promoter, which is the arm this class exists to
+    # cover -- and it is a configuration a player can set.
+    OPTS = {
+        "num_regions": 0,
+        "item_shuffle": True,
+        "ending_condition": "great_runes",
+        "goal_great_runes": 2,
+        "leyndell_runes_required": 0,
+    }
+
+    @classmethod
+    def setUpClass(cls):
+        try:
+            from test.general import setup_multiworld  # noqa: PLC0415
+            from worlds.AutoWorld import AutoWorldRegister  # noqa: PLC0415
+        except Exception as e:  # pragma: no cover -- source tree without AP
+            raise unittest.SkipTest("needs Archipelago (%r)" % (e,))
+        world_type = AutoWorldRegister.world_types[GAME]
+        # Both slots on the rune goal: the second is not scenery, it is the world whose
+        # `create_items` must not have run before the first world's `generate_early`.
+        cls.mw = setup_multiworld([world_type, world_type], options=[cls.OPTS, cls.OPTS])
+
+    def _items_of(self, player):
+        mw = self.mw
+        out = [i for i in mw.itempool if i.player == player]
+        out += list(mw.precollected_items[player])
+        out += [loc.item for loc in mw.get_locations(player)
+                if loc.item is not None and loc.item.player == player]
+        return out
+
+    def test_both_slots_resolved_their_own_required_runes(self):
+        """A witness before the assertion below: two slots, each with its own non-empty set. If the
+        goal collapsed (item_shuffle off, no rune in a kept region) the required set is EMPTY and
+        every classification assertion after it passes over nothing."""
+        for player in (1, 2):
+            req = self.mw.worlds[player]._required_runes()
+            self.assertEqual(len(req), 2,
+                             "slot %d resolved %r, expected 2 required runes" % (player, req))
+            for name in req:
+                self.assertIn(name, GREAT_RUNES)
+
+    def test_every_required_rune_is_advancement_in_both_slots(self):
+        """THE POINT. Not `classification == progression` on a world object, but `advancement` on the
+        item AP actually holds -- that is the bit fill reads."""
+        for player in (1, 2):
+            req = set(self.mw.worlds[player]._required_runes())
+            mine = [i for i in self._items_of(player) if i.name in req]
+            self.assertTrue(mine, "slot %d created none of its required runes %r" % (player, req))
+            found = {i.name for i in mine}
+            self.assertEqual(found, req,
+                             "slot %d is missing required rune(s) %r from its pool"
+                             % (player, sorted(req - found)))
+            for i in mine:
+                self.assertTrue(
+                    i.advancement,
+                    "slot %d's required Great Rune %r is NOT advancement in a two-player "
+                    "multiworld. It is filler in the catalog and promoted per seed in "
+                    "core._class_for from sets built in generate_early -- if that promotion moved "
+                    "after another world's create_items, this is what it looks like, and fill will "
+                    "place it anywhere." % (player, i.name))
+
+    def test_a_rune_no_seed_requires_stays_filler(self):
+        """The other half, so the test above cannot pass by promoting everything. A rune outside the
+        required set (and outside the Leyndell gate's) carries nothing and must stay filler --
+        otherwise `confine_foreign_progression` reserves surface slots for junk."""
+        for player in (1, 2):
+            world = self.mw.worlds[player]
+            promoted = set(world._required_runes()) | set(getattr(world, "gf_leyndell_runes", []))
+            self.assertFalse(getattr(world, "gf_leyndell_runes", []),
+                             "fixture drifted: the wall is armed, so the goal arm is masked again")
+            spare = [i for i in self._items_of(player)
+                     if i.name in set(GREAT_RUNES) and i.name not in promoted]
+            # WITNESS: with 7 runes, 2 required and the wall disarmed there are 5 spares. An empty
+            # `spare` means the scan saw no rune at all, and the loop below would pass over nothing
+            # -- which is the same vacuity that let the first draft of the class above stay green.
+            self.assertTrue(spare,
+                            "slot %d created no un-required Great Rune, so this test asserts "
+                            "nothing about the ones a seed does not need" % player)
+            for i in spare:
+                self.assertFalse(
+                    i.advancement,
+                    "slot %d promoted %r, which no gate and no goal in this seed requires"
+                    % (player, i.name))
 
 
 def _rune_sets():
