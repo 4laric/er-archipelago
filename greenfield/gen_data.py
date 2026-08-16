@@ -8327,9 +8327,49 @@ _flag_locs = defaultdict(list)                       # flag -> [(live_ap_id, reg
 for _reg, _locs in buckets.items():
     for (_nm, _aid, _fl) in _locs:
         _flag_locs[_fl].append((_aid, _reg))
+# 🛑 ONE ROSTER ENTRY IS ONE CHECK. A flag resolves to a FAMILY of checks, not to one: the primary
+# row from region_map.csv plus every SIBLING LOT the same getItemFlagId drives, each minted as its
+# own co-check with a registry ap_id in the COCHECK band (SPEC-flag-lot-item-model §2.2). Taking the
+# whole family made a boss's entire loot table "major bosses" -- and for two DLC field bosses that is
+# an ARMOUR SET (#737):
+#     530810 Dancer of Ranah   -> Dancing Blade + Hood/Dress/Bracer/Trousers   5 checks, 5 votes
+#     530820 Blackgaol Knight  -> Greatsword of Solitude + Helm/Armor/Gauntlets/Greaves
+#     510260 Magma Wyrm Makar  -> Magma Wyrm's Scalesword + the Dragon Heart
+# `MajorBoss` is in contract.SURFACE_DEFAULT_CLASSES, so four pairs of trousers were sitting on the
+# DEFAULT progression surface as major-boss checks, and every count derived from the tag -- the
+# surface size, the wizard's tree, the sweep cut -- was reading 52 where the entity count is 43.
+#
+# The discriminator is a DATUM, not a name: a sibling co-check's ap_id is allocated from the reserved
+# COCHECK band and a primary's never is (`_load_co_check_ids` FATALs if that is ever violated), so
+# the primary is exactly the sub-COCHECK_BASE member of the family. Filtering on the ITEM NAME -- on
+# the `drop_item` field beside each roster entry, say -- would have been the same class of mistake
+# this table already refuses for ap-ids: an id that resolves is not a table match.
+#
+# This is DIRECTION 1 of #737 only. The roster is still MAJOR_BOSS_EXTRAS and still carries entries
+# matt's roster would not (Agheel, Godefroy) and still misses ten it would; re-deriving membership
+# from the game's own achievement bosses is direction 2 and is deliberately not this change.
 _MAJOR_EXTRA = {ra for _lst in MAJOR_BOSS_EXTRAS.values()
                 for (_fl, _bn, _di, _cf) in _lst
-                for (ra, _rr) in _flag_locs.get(_fl, [])}
+                for (ra, _rr) in _flag_locs.get(_fl, [])
+                if ra < COCHECK_BASE}
+# GATE: one roster entry resolves to exactly one live check -- never zero, never two. Zero means a
+# renamed or re-flagged boss dropped silently out of the surface; two means the family filter above
+# stopped discriminating (a second primary, or the COCHECK band being reused). Both are the same
+# defect the armour sets were, caught at the arity rather than after the fact.
+_major_arity = []
+for _reg, _lst in MAJOR_BOSS_EXTRAS.items():
+    for (_fl, _bn, _di, _cf) in _lst:
+        _prim = sorted(ra for (ra, _rr) in _flag_locs.get(_fl, []) if ra < COCHECK_BASE)
+        if len(_prim) != 1:
+            _major_arity.append((_bn, _fl, _reg, _prim,
+                                 sorted(ra for (ra, _rr) in _flag_locs.get(_fl, []))))
+if _major_arity:
+    raise AssertionError(
+        "MAJOR_BOSS_EXTRAS entry does not resolve to exactly one primary check -- a roster member is "
+        "one boss and one check (#737): "
+        + "; ".join("%s (flag %s, %s): %d primary %s out of family %s"
+                    % (bn, fl, reg, len(pr), pr, fam)
+                    for (bn, fl, reg, pr, fam) in _major_arity))
 # CLOSURE 1 -- a Remembrance or Great Rune drop IS a major-boss drop, definitionally. Only demigods
 # and shardbearers drop them; there is no remembrance without a major boss behind it. Before this, the
 # MajorBoss set was keyed on method=="boss_arena", and `method` records HOW WE RECOVERED THE ROW, not
@@ -8366,6 +8406,25 @@ for _ap in sorted(_MAJOR_AIDS):
     _cur = loc_tags.setdefault(_ap, [])
     if "Boss" not in _cur:
         _cur.append("Boss")
+
+# CLOSURE 2b -- and so is the REST of that boss's drop. This is the half of the co-check inheritance
+# rule (#191, Alaric 2026-08-13: "a co-check is the SAME physical acquisition as its primary and
+# inherits its tags") that #737 does NOT withdraw, and the distinction is the whole point of that
+# issue: `Boss` answers HOW THIS CHECK WAS ACQUIRED, and a sibling lot on the boss's own death flag
+# was acquired by killing that boss -- Dancer of Ranah's Trousers is a boss drop, plainly.
+# `MajorBoss` answers IS THIS BOSS ON THE ROSTER, which is a claim about an ENTITY, and there ten
+# sibling lots are ten votes for one boss. So the family keeps inheriting the acquisition tag and
+# stops inheriting the roster tag. Without this, killing MajorBoss on the siblings would have taken
+# `Boss` -- a PLAYER-SELECTABLE class -- from 266 to 258 as a side effect nobody asked for, because
+# these two bosses reach `Boss` ONLY through CLOSURE 2 (neither is in the datamined boss-drop
+# geography at all; their primaries carry no FieldBoss either, which is a separate gap worth its own
+# look).
+_apid_flag = {aid: fl for _reg, _locs in buckets.items() for (_nm, aid, fl) in _locs}
+for _fl in sorted({_apid_flag[_ap] for _ap in _MAJOR_AIDS if _ap in _apid_flag}):
+    for (_ra, _rr) in _flag_locs.get(_fl, []):
+        _cur = loc_tags.setdefault(_ra, [])
+        if "Boss" not in _cur:
+            _cur.append("Boss")
 
 # ---- LegacyBoss / FieldBoss: WHERE the boss stands -------------------------------------------
 # Derived from the boss's GEOGRAPHY (datamine_boss_healthbars._geography), joined to the check two
@@ -8463,8 +8522,11 @@ if _major_bad:
     raise AssertionError(
         "MajorBoss not filed under its stated region (fix the flag/join/override): "
         + "; ".join(f"{k} expected={want} key={key} got={got}" for (k, want, key, got) in _major_bad))
+_major_siblings = sum(1 for _lst in MAJOR_BOSS_EXTRAS.values() for (_fl, _bn, _di, _cf) in _lst
+                      for (ra, _rr) in _flag_locs.get(_fl, []) if ra >= COCHECK_BASE)
 print(f"MajorBoss: {len(_MAJOR_AIDS)} tagged ({len(_MAJOR_ARENA)} arena + {len(_MAJOR_EXTRA)} extras) "
-      f"across {len(_region_bosses) + len(MAJOR_BOSS_EXTRAS)} region-entries; invariant OK")
+      f"across {len(_region_bosses) + len(MAJOR_BOSS_EXTRAS)} region-entries; invariant OK; "
+      f"{_major_siblings} sibling co-check(s) on roster flags NOT tagged (one check per boss, #737)")
 
 import collections as _c
 _tagcount = _c.Counter(tg for tags in loc_tags.values() for tg in tags)
@@ -8472,7 +8534,9 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Location TYPE tags for important_locations, matt-free:\n')
     f.write('name/method tags (Boss/Remembrance/Church/Seedtree/Basin/Fragment/Revered/Shop) from\n')
     f.write('_loc_tags; GreatRune/KeyItem from LOCATION_ITEM name; Legendary from ITEM_TIERS rarity==3;\n')
-    f.write('MajorBoss = REGION_BOSSES (boss_arena majors) UNION MAJOR_BOSS_EXTRAS (hand-picked field bosses).\n')
+    f.write('MajorBoss = REGION_BOSSES (boss_arena majors) UNION MAJOR_BOSS_EXTRAS (hand-picked field bosses),\n')
+    f.write('ONE check per boss: an extra resolves to its flag family\'s PRIMARY lot only, never the\n')
+    f.write('sibling co-checks that flag also drives (#737 -- two DLC armour sets used to ride in).\n')
     f.write('LOCATION_TAGS = {ap_id: [type,...]}."""\n')
     f.write('LOCATION_TAGS = {\n')
     for _aid in sorted(loc_tags):
