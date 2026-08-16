@@ -188,7 +188,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.5",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "a31b4662b638b198e9526f1e76a4146b49ef95df0d14f8664b06389af2a41875",
+ "source_sha256": "6f88f40e580f8e98dc816ca4aa373561a7e0b94129b7114fdf49ce367cb3793f",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -1165,7 +1165,9 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Shop",
     "ShopNonSpell",
     "ShopSlot",
-    "SweepSlot"
+    "SweepSlot",
+    "SweepSlotMajor",
+    "SweepSlotMinor"
    ],
    "casefold": false,
    "group": null,
@@ -1298,6 +1300,20 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
       "hint": "Not a kind of check -- ONE member of every sweep your seed runs, so clearing an area can pay out progression. Adds about as many slots as you have sweeps (55 in a 4-region seed, ~170 on the full map) and needs Dungeon Sweep on.",
       "family": "sweeps",
       "family_label": "Dungeon sweeps"
+     },
+     {
+      "key": "SweepSlotMajor",
+      "label": "One check per MAJOR boss sweep",
+      "hint": "The SweepSlot half whose trigger is a major boss -- the same roster the MajorBoss class uses, so a demigod's sweep and a cave's are priced apart. 40 of 218 triggers. A subset of SweepSlot: ticking both adds nothing.",
+      "family": "sweeps",
+      "family_label": "Dungeon sweeps"
+     },
+     {
+      "key": "SweepSlotMinor",
+      "label": "One check per MINOR boss sweep",
+      "hint": "The other half -- every sweep whose trigger is not on the major roster. 178 of 218 triggers, and the breadth is the point: these are the caves, catacombs, tunnels and field bosses. A subset of SweepSlot.",
+      "family": "sweeps",
+      "family_label": "Dungeon sweeps"
      }
     ],
     "families": [
@@ -1341,6 +1357,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "MajorBoss": [
       "Remembrance",
       "GreatRune"
+     ],
+     "SweepSlot": [
+      "SweepSlotMajor",
+      "SweepSlotMinor"
      ]
     }
    }
