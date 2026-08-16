@@ -3,6 +3,25 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.5 — 2026-08-16
+
+Window opened AT the v0.4.4 tag (`1ffac04`), with zero commits past it. `check_release_notes` was
+reporting `HEAD is at the tag -- nothing has landed since` rather than failing, so this open
+pre-empts the red the next commit would have produced instead of paying one. v0.4.4's own section
+records the contrast: it opened one commit late, on the red that #718 caused.
+
+`CONTRACT_HASH` is unmoved at `5c2b9bf2` -- the shape the contract has had since 0.3.9 -- so this is
+version-lockstep and a v0.4.4 client still handshakes with a v0.4.5 seed. Verified by loading
+`contract.py` after the bump and reading the value, not by assuming the shape did not move.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.4 in this same commit rather than the next morning.
+That row had lagged its tag every time so far -- two tags in August, two more in July -- and
+`check_channels` stayed green through all of it, because it asks whether the pointer RESOLVES and
+never whether it is CURRENT.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
+the release).
+
 ## v0.4.4 — 2026-08-16
 
 Window opened one commit past the v0.4.3 tag at `c891d04`, which is where `check_release_notes`
