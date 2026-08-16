@@ -117,17 +117,23 @@ class KeepLocal(OptionSet):
     consumables, crafting materials, smithing stones, cookbooks and bell bearings, and let every
     rune, key item, weapon, piece of armour, talisman, ash, spell and spirit ash travel.
 
-    🛑 `key_items` IS EXCLUDED ON EVIDENCE, not taste. It belongs on the "a partner cannot use this"
-    list and holding it was the obvious call, but the category covers Great Runes, both Dectus
+    🛑 `key_items` IS EXCLUDED ON EVIDENCE, not taste. Holding it was the obvious call, but the
+    category covers Great Runes -- which `great_runes_required` makes a GOAL condition -- both Dectus
     medallions and every Remembrance -- so keeping it home took natural_progression's cross-world
     placements from 12 to ZERO in tools/gf_multiworld_smoke.py. Those are the items a multiworld
     exists to trade. The smoke is the gate that catches this; re-run it before adding the line back.
 
-    The measurement it answers: at the shipped settings, **two thirds of everything Elden Ring sent
-    a non-ER partner was mechanically inert there** -- upgrade_materials 23.7% and runes 24.0% of a
-    312-item export, against a partner who cannot spend either. The export budget is SLOT-limited,
-    not willingness-limited, so those items were not extra: they were occupying slots that gear
-    would otherwise have taken.
+    The measurement it answers: at the shipped settings, upgrade_materials 23.7% and runes 24.0% of
+    a 312-item export -- two thirds of what we placed abroad was junk. The export budget is
+    SLOT-limited, not willingness-limited, so those items were not extra: they were occupying
+    foreign locations that YOUR OWN gear would otherwise have taken.
+
+    🛑 THE COST IS NOT THAT THE PARTNER CANNOT USE THEM -- they were never theirs to use. An item
+    Elden Ring "sends abroad" is still YOUR item; what moves is the TRIGGER, into their world, so
+    that their progress is what hands it to you. That is the whole point of a multiworld and it is
+    why bobler asked for gear to travel in the first place ("you need to send your friends items to
+    auto equip to int them"). A foreign location holding your Smithing Stone [1] instead of your
+    Moonveil is a worse trade for YOU, not a discourtesy to them.
 
     🛑 NAMING ONE CATEGORY DOES ALMOST NOTHING, and that is the finding that shaped this list.
     Holding `runes` alone moved exported filler by ZERO (202 -> 202): whichever large pool stays open
