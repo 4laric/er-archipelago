@@ -303,8 +303,13 @@ def test_shop_is_the_umbrella_so_the_key_cannot_be_out_flanked():
     """Why the fix keys on `Shop` and not on a list of shop tags: every narrower member implies it.
     If a regen ever breaks that, the bar goes partial and this fires -- which is exactly how #707
     happened, a key that named a strictly narrower set than the thing it meant."""
-    orphans = [ap for ap, tags in location_tags.LOCATION_TAGS.items()
-               if ("ShopNonSpell" in tags or "ShopSlot" in tags) and "Shop" not in tags]
+    members = [ap for ap, tags in location_tags.LOCATION_TAGS.items()
+               if "ShopNonSpell" in tags or "ShopSlot" in tags]
+    # WITNESS: an empty scan would find zero orphans and pass for the wrong reason. 442 + 12 today.
+    assert len(members) > 400, (
+        f"the scan saw only {len(members)} shop sub-tagged rows -- LOCATION_TAGS is empty or the tag "
+        f"names moved, and this assertion is measuring nothing")
+    orphans = [ap for ap in members if "Shop" not in location_tags.LOCATION_TAGS[ap]]
     assert not orphans, f"{len(orphans)} rows carry a shop sub-tag without `Shop`: {orphans[:5]}"
 
 
