@@ -3,6 +3,23 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.4 — 2026-08-16
+
+Window opened one commit past the v0.4.3 tag at `c891d04`, which is where `check_release_notes`
+went red -- on PR #718 (`tools/`-only, no player-visible change and so no rule-14 entry of its own).
+That is worth writing down plainly, because v0.4.3's row claimed a first: it was opened AT the tag
+with zero commits past it, while every gate was still green. This one is not that. It is the
+ordinary case the gate exists for -- the red arrived on the very next commit, exactly as v0.4.3's
+own note predicted it would, and the cost was one PR's CI rather than a shipped section quietly
+accumulating notes that were never in the release.
+
+`CONTRACT_HASH` is unmoved at `5c2b9bf2` -- the shape the contract has had since 0.3.9 -- so this is
+version-lockstep and a v0.4.3 client still handshakes with a v0.4.4 seed. Verified by loading
+`contract.py` and reading the value, not by assuming the shape did not move.
+
+Nothing has landed in this window yet. Entries arrive below as they merge (rule 14: the release
+notes are part of the change, not part of the release).
+
 ## v0.4.3 — 2026-08-15
 
 ### Your partners stop receiving 400 Golden Runes, and start receiving gear
