@@ -6,10 +6,10 @@
     "regions": 28,
     "sweeps": 218
   },
-  "inputs_hash": "sha256:0c583395852b4143465e3f05c497b1c307f914e4be4d49b9a34e7e6666ea6937",
+  "inputs_hash": "sha256:43ff35e38467b1e94db01a118c89caf32759b8c6383e445fcc5519bac8fcde2b",
   "modules": {
     "boss_data.py": "sha256:6cf8277dbf62e8eaff7ccfa429272b8e06bfd331c25c4412cf77bf2873584cd8",
-    "boss_sweeps.py": "sha256:ffc109e503a8be405d3a59af450e5b4f4391dd70633900e68cd482fb6bbdc718",
+    "boss_sweeps.py": "sha256:451c116c2ba70a2e3b82830fed130358d414cb691606957849dba1d89494a5d7",
     "data.py": "sha256:140ed1794e0b2431da3e88fab8368266f481d08e4d514d027f98b5358adc2d12",
     "item_ids.py": "sha256:44307f71eef6bf243c0998e463442d367c50cdcc0c4f6ea0e30f8b5198c4de3c",
     "item_tiers.py": "sha256:0dcbee81c78a75bc74ab4dc1bf3eab8abd92a5d37c96891e3b584c38d377c308",

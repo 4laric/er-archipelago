@@ -294,12 +294,20 @@ SURFACE_CLASS_FAMILIES = (
      ("Seedtree", "Church", "Basin", "Fragment", "Revered")),
     ("merchants", "Merchants", ("ShopSlot", "ShopNonSpell", "Shop")),
     ("items", "Items", ("KeyItem", "Legendary")),
-    ("sweeps", "Dungeon sweeps", ("SweepSlot",)),
+    ("sweeps", "Dungeon sweeps", ("SweepSlot", "SweepSlotMajor", "SweepSlotMinor")),
 )
 
 # key -> (label, hint). The label says what the class IS in the words the game uses; the hint says
 # what it costs you to pick it. Kept short on purpose: the option's own docstring carries the essay.
 SURFACE_CLASS_LABELS = {
+    "SweepSlotMajor": ("One check per MAJOR boss sweep",
+                     "The SweepSlot half whose trigger is a major boss -- the same roster the "
+                     "MajorBoss class uses, so a demigod's sweep and a cave's are priced apart. "
+                     "40 of 218 triggers. A subset of SweepSlot: ticking both adds nothing."),
+    "SweepSlotMinor": ("One check per MINOR boss sweep",
+                     "The other half -- every sweep whose trigger is not on the major roster. "
+                     "178 of 218 triggers, and the breadth is the point: these are the caves, "
+                     "catacombs, tunnels and field bosses. A subset of SweepSlot."),
     "SweepSlot":    ("One check per dungeon sweep",
                      "Not a kind of check -- ONE member of every sweep your seed runs, so clearing "
                      "an area can pay out progression. Adds about as many slots as you have sweeps "
@@ -411,6 +419,14 @@ def class_containment(tags_map=None, classes=None):
                  if c != outer and members[c] and members[c] < members[outer]]
         if inner:
             out[outer] = inner
+    # ⭐ THE DERIVED CLASSES HAVE NO TAGS, so the loop above cannot see them and the wizard would
+    # tell a player that ticking SweepSlot and SweepSlotMajor together buys something. It does not.
+    # Still not a typed table: the relation is read off contract.SWEEP_SLOT_CLASS_WANTS -- the same
+    # structure the filter uses -- so it cannot disagree with what the surface actually does.
+    subs = [c for c, want in contract.SWEEP_SLOT_CLASS_WANTS.items()
+            if want is not None and c in vocab]
+    if subs and "SweepSlot" in vocab:
+        out.setdefault("SweepSlot", []).extend(sorted(subs))
     return out
 
 
@@ -583,7 +599,9 @@ def sweep_slot_aps(world, classes, tag_ids=frozenset()):
     cut, which reads the surface, which is this function -- a cycle. `rung_sweeps` reads only
     `dungeon_sweep`.
     """
-    if "SweepSlot" not in set(classes or ()):
+    chosen = [c for c in contract.SURFACE_CLASSES
+              if c in set(classes or ()) and c in contract.SWEEP_SLOT_CLASS_WANTS]
+    if not chosen:
         return frozenset()
     try:
         from .boss_locks import rung_sweeps  # noqa: PLC0415 -- import cycle at module scope
@@ -613,9 +631,27 @@ def sweep_slot_aps(world, classes, tag_ids=frozenset()):
     # 🛑 `players - 1`, i.e. FOREIGN players. A solo seed has nothing to send, `slots_per_sweep`
     # returns 1 there, and a solo generation is byte-unchanged.
     foreign = getattr(getattr(world, "multiworld", None), "players", 1) - 1
-    return contract.nominate_sweep_slots(rung_sweeps(world), barred=barred,
-                                         prefer_not_in=tag_ids, skips=skips,
-                                         slots=contract.slots_per_sweep(foreign))
+    # #734: the class decides WHICH sweeps, `nominate_sweep_slots` still decides which MEMBER. The
+    # split is a filter on the trigger set and nothing else -- so a seed selecting plain `SweepSlot`
+    # nominates exactly what it did before, byte for byte, and one selecting both subclasses gets
+    # the same set by a different route (they partition it; there is no third bucket).
+    try:
+        from ..boss_sweeps import MAJOR_SWEEP_TRIGGERS  # noqa: PLC0415 -- data leaf
+    except Exception:
+        # 🛑 DEGRADE TO THE WHOLE SET, NOT TO EMPTY. Without the table the split cannot be honoured;
+        # nominating nothing would silently shrink a surface the player asked to widen, and an
+        # empty surface is the failure this feature exists to prevent (#631).
+        MAJOR_SWEEP_TRIGGERS = frozenset()
+        chosen = ["SweepSlot"] if set(chosen) else []
+    sweeps = rung_sweeps(world)
+    out = set()
+    for cls in chosen:
+        part = contract.sweeps_for_surface_class(sweeps, cls, MAJOR_SWEEP_TRIGGERS)
+        if not part:
+            continue
+        out |= contract.nominate_sweep_slots(part, barred=barred, prefer_not_in=tag_ids,
+                                             skips=skips, slots=contract.slots_per_sweep(foreign))
+    return frozenset(out)
 
 
 def surface_ap_ids(world, classes):

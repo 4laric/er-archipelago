@@ -264,14 +264,57 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 SURFACE_CLASSES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                    "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
                    "KeyItem", "MajorBoss", "LegacyBoss", "FieldBoss", "MinorDungeonBoss",
-                   "SweepSlot"]
+                   "SweepSlot", "SweepSlotMajor", "SweepSlotMinor"]
 # 🛑 SweepSlot is NOT A LOCATION TAG. Every other member of this list names a tag that gen_data
 # writes onto a check; SweepSlot is DERIVED at world-build time from that seed's own enabled sweeps
 # (features/progression_surface.sweep_slot_aps) -- at most one member per sweep trigger, the way
 # ShopSlot is at most one row per merchant. It is therefore in NEITHER half of the sweep partition:
 # a class that IS a sweep member by definition cannot be "cut from the sweep" without deleting
 # itself. See SURFACE_DERIVED_CLASSES below and tools/check_sweep_cut_partition.py, which reads it.
-SURFACE_DERIVED_CLASSES = frozenset({"SweepSlot"})
+SURFACE_DERIVED_CLASSES = frozenset({"SweepSlot", "SweepSlotMajor", "SweepSlotMinor"})
+
+# ---- The SweepSlot split (#734) ------------------------------------------------------------------
+# Alaric, 2026-08-16: "we should maybe be drawing a distinction between major boss sweep slot and
+# minor/all boss sweep slot." A sweep payout off a legacy-dungeon boss and one off a cave boss are
+# different bargains and plain `SweepSlot` prices them the same.
+#
+# 🛑 "MAJOR" MEANS THE `MajorBoss` CLASS, NOT `legacy`. That is the ruling, and the two are not close:
+# measured over the 218 triggers, 41 legacy triggers are NOT major (both Tree Sentinels, all three
+# Scadutree Avatar heads, Esgar) and 5 majors are not legacy (Magma Wyrm Makar, Commander Niall,
+# Elemer of the Briar, Leonine Misbegotten, Royal Knight Loretta). `legacy` was the cheap answer and
+# it disagrees with the class it is standing in for 46 ways.
+#
+# The membership itself is NOT decided here -- `boss_sweeps.MAJOR_SWEEP_TRIGGERS` is emitted by
+# gen_data, where `MajorBoss` is derived from all four of its sources. Re-deriving it world-side from
+# location_tags + boss_reward_lots reaches half the triggers and drops Promised Consort Radahn,
+# Starscourge Radahn and the Fire Giant. This file only says which CLASS asks for which half.
+#
+# ⭐ PER-TRIGGER, NOT PER-ARENA, and that is measured rather than assumed. #363's worry is that a
+# dungeon with two triggers could land its heads in different subclasses and pay out a player only
+# half a dungeon. Of the 16 maps whose triggers straddle major/minor, ZERO are map-local classes
+# (catacomb/cave/tunnel/dungeon) -- every one is a legacy or field map, whose sweeps are region-divvy
+# or per-tile and never promised a whole map anyway. There is no partial dungeon to prevent.
+SWEEP_SLOT_CLASS_WANTS = {
+    "SweepSlot": None,          # every enabled sweep -- unchanged, and still the default
+    "SweepSlotMajor": True,     # only those whose trigger boss is a MajorBoss
+    "SweepSlotMinor": False,    # only those whose trigger boss is NOT
+}
+
+
+def sweeps_for_surface_class(sweeps, cls, majors):
+    """`{trigger: members}` narrowed to the half `cls` asks for. Pure; `majors` is the emitted set.
+
+    🛑 AN UNKNOWN CLASS RETURNS NOTHING, loudly-empty rather than everything. The alternative --
+    falling back to the whole map -- would make a typo in the vocabulary silently select every sweep,
+    which is the direction that puts foreign progression somewhere the player did not agree to.
+    """
+    want = SWEEP_SLOT_CLASS_WANTS.get(cls, "unknown")
+    if want == "unknown":
+        return {}
+    if want is None:
+        return dict(sweeps or {})
+    majors = frozenset(majors or ())
+    return {t: m for t, m in (sweeps or {}).items() if (t in majors) is want}
 # LegacyBoss / FieldBoss (2026-08-02) split the 134-strong `Boss` class by WHERE the boss stands:
 # 30 legacy-dungeon drops, 84 overworld. Both are SUBSETS of Boss, so selecting Boss still selects
 # everything. There is no `Underground`: 81 catacomb/cave/tunnel/minor-dungeon bosses exist but only
