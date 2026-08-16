@@ -142,8 +142,9 @@ def _reward_flags_of(defeat_flag):
 
 
 def _ach_no_check():
-    """gen_data._ACH_NO_CHECK -- the ledger of achievement bosses that have NO check in our data
-    (Margit, and only Margit today)."""
+    """gen_data._ACH_NO_CHECK -- the ledger of achievement bosses that have NO check in our data.
+    EMPTY, and asserted empty by test_every_achievement_boss_is_tagged_or_ledgered; this parenthetical
+    said "Margit, and only Margit today" until the ledger's one entry turned out to be wrong."""
     return _gen_data_literal("_ACH_NO_CHECK")
 
 

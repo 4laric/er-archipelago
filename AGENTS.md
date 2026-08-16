@@ -714,6 +714,16 @@ The sandbox mount can silently truncate/NUL-pad large writes. Tools guard agains
 
 ## 7. Commit + push checklist
 
+- **CLAIM THE ISSUE BEFORE YOU BUILD.** Self-assign it on GitHub *before* the branch exists, and
+  check first that it has no assignee and no open PR referencing it. You are usually not the only
+  one working this tracker: on 2026-08-16 issue #749 was taken twice inside fourteen minutes — an
+  outside contributor's #750 and a second fix in #752 — and the contributor was then reviewed and
+  told to build what #752 had already built. Every one of the 202 open issues had zero assignees, so
+  there was nothing to check even for someone who thought to look. Full rule in CONTRIBUTING,
+  *"Claim the issue before you build"*.
+  🛑 The claim goes on the ISSUE. An unpushed branch is invisible and a pushed branch with no PR is
+  nearly so; the issue is where everyone already looks. If you stop, unassign — a stale claim blocks
+  someone else.
 - Edit in the sandbox clone; regen if you touched a generator; run the tests.
 - Stage explicitly — **never `git add -A`** (the repo is public and game-data-purged; don't
   leak the artifacts symlink). `git diff --cached --stat` before committing.

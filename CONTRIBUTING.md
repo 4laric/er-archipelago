@@ -257,6 +257,43 @@ host-tested **replay harness** in `er-logic`:
 This is the correspondence half of *Runtime visibility*: the arming logs tell
 you a feature is present; the replay tier tells you it is *correct*.
 
+## Claim the issue before you build
+
+**Self-assign the issue on GitHub before you open a branch.** One click, and it is the only signal
+anyone has that the work is taken.
+
+This is not bureaucracy, it is the cheapest fix for a failure that has already cost real work:
+
+> **2026-08-16.** #749 was picked up twice inside fourteen minutes. An outside contributor opened
+> #750 at 15:54; a second, better fix for the same issue opened as #752 at 16:08; and at 16:09 the
+> contributor was sent a review asking them to go build the thing #752 had already built. Three
+> people, one issue, a quarter of an hour, and **nobody could have known** — every one of the 202
+> open issues had zero assignees, so there was nothing to check even for someone who thought to look.
+
+Neither PR was at fault and neither author did anything wrong. The tracker simply had no way to
+answer *"is anyone already on this?"*, so nobody asked it.
+
+So:
+
+- **Before branching**, assign yourself. If you cannot self-assign, say so in a comment — that
+  counts, and a maintainer will assign you.
+- **Before starting**, check the issue for an assignee *and for an open PR that references it*. The
+  `Development` sidebar and a search for the issue number both show linked PRs.
+- **If it is already claimed**, comment before duplicating. The claimant may be stuck, may want to
+  split it, or may have abandoned it — all three are better outcomes than two silent parallel
+  branches.
+- **Unassign yourself if you stop.** A stale claim is worse than no claim, because it stops someone
+  else from starting. Nobody minds you dropping something; people mind a name sitting on an issue
+  for a month.
+
+Maintainers and agents are held to this identically. An agent taking an issue self-assigns first,
+and an agent that finds an issue assigned to someone else does not start on it.
+
+🛑 **The claim is on the ISSUE, not the branch.** A branch nobody has pushed yet is invisible, and a
+pushed branch with no PR is nearly so. The issue is the one place everyone already looks.
+
+---
+
 ## Repo hygiene
 
 - **Never commit game data or build outputs.** No provisioned game assets, no
@@ -274,6 +311,8 @@ you a feature is present; the replay tier tells you it is *correct*.
 
 Run through this before a change lands (PR or direct):
 
+- [ ] The issue was **self-assigned before the branch existed**, and no other open PR already
+      references it. Two people took #749 fourteen minutes apart because neither could check.
 - [ ] New/changed options live in `core.py` (listed in `_CORE_OPTION_FIELDS`) or in the
       owning `features/<name>.py` (listed in its `OPTIONS`) -- never a third place --
       default to no-change, and have accurate docstrings.
