@@ -514,16 +514,32 @@ Elden Ring:
   # enabled above. Inert while both `traps` and `spawn_traps` are empty.
   trap_count: 8
 
-  # Share of YOUR filler that other players' worlds may draw from, in a
+  # Share of YOUR filler COPIES that other players' worlds may draw from, in a
   # multiworld. 100 = fully shared. 0 = keep your filler to yourself.
-  filler_foreign_pct: 100
+  #
+  # Every category keeps something eligible: the share is spent WITHIN each
+  # category and never takes a category's last item, so lowering this thins
+  # what you export rather than silently barring a whole category. `keep_local`
+  # below is the knob for barring one, and it stays the only one. (0 is exempt
+  # -- you asked for all of it home.)
+  #
+  # WHY THIS SHIPS AT 70 AND NOT 100. The goal is a 1:1 useful:filler mix in
+  # what your partners receive, and 70 is where that lands with the keep_local
+  # default below. Measured cross-game, one ER slot, pooled over seeds:
+  #   Hollow Knight, 5 seeds:    100 -> 0.79:1     70 -> 1.00:1
+  #   Bumper Stickers, 3 seeds:  100 -> 0.77:1     70 -> 0.97:1
+  # Both partner sizes land on it. Raise it toward 100 to send more of your
+  # junk out; lower it to send less. Exported USEFUL barely moves either way --
+  # what changes is how much filler rides along with it.
+  filler_foreign_pct: 70
 
   # On: every real vanilla item this seed produces stays in YOUR world.
 
   # Categories of item to hold in YOUR OWN world, one per line. This is the
   # knob for "keep my consumables and crafting mats, send the gear out"
   # without reaching for local_item_only (which keeps everything) or
-  # filler_foreign_pct (which picks at random and cannot be aimed).
+  # filler_foreign_pct (which thins every category evenly rather than naming
+  # one).
   #
   # Valid: armor, ashes, bell_bearings, consumables, cookbooks, crafting,
   # crystal_tears, everything, goods, key_items, merchant_bells, other,

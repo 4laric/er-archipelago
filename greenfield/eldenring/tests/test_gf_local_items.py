@@ -59,8 +59,11 @@ class LocalItemsOff(WorldTestBase):
     # enough at #703, which gave `keep_local_rune_cap` a default of 6250 -- the runes it holds are
     # catalog names, so this class would fail reporting Golden Runes as "force added" when nothing
     # had forced anything. Naming both is the isolation the test always meant.
+    # ⚠️ THREE knobs now. `filler_foreign_pct` began shipping at 70 on 2026-08-16 and writes into
+    # the same set, so "off" needs it pinned to its 100 no-op too -- the same lesson this comment
+    # already records for the rune cap, arriving a third time.
     options = {"num_regions": 0, "keep_local": set(), "keep_local_rune_cap": 0,
-               "item_shuffle": True}
+               "item_shuffle": True, "filler_foreign_pct": 100}
 
     def test_catalog_items_not_force_added(self):
         # nothing named -> feature leaves local_items alone. With no hand-authored local_items in

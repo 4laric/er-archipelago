@@ -25,9 +25,21 @@ from worlds.eldenring.item_categories import (                          # noqa: 
 GAME = "Elden Ring"
 
 
-def test_filler_foreign_default_is_no_change():
-    """Default pct == NO_CHANGE_PCT (100): fully open, nothing localized -> unchanged."""
-    assert FillerForeignPct.default == NO_CHANGE_PCT == 100
+def test_filler_foreign_ships_at_the_measured_target():
+    """🛑 THIS OPTION SHIPS NON-DEFAULT (70), and the number is measured, not chosen.
+
+    It asserted `default == NO_CHANGE_PCT == 100` until 2026-08-16. 100 is still the no-op sentinel
+    `_select` short-circuits on; it is no longer the default. 70 is where the export composition
+    lands on Alaric's 1:1 useful:filler target WITH THE SHIPPED `keep_local` -- pooled over seeds,
+    Hollow Knight 5 seeds 0.79:1 -> 1.00:1 and Bumper Stickers 3 seeds 0.77:1 -> 0.97:1.
+
+    ⚠️ Only valid with the shipped keep_local: against `keep_local: []` the same sweep put 1:1 at
+    pct 6-12. If either default moves, BOTH need re-measuring -- see the comment on the option."""
+    assert FillerForeignPct.default == 70, (
+        "the shipped filler_foreign_pct moved. It is a MEASURED value (1:1 export composition with "
+        "the shipped keep_local); re-run the multiworld sweep before changing it, and change the "
+        "comment on the option in the same commit.")
+    assert NO_CHANGE_PCT == 100, "100 remains the no-op sentinel even though it is not the default"
     assert FillerForeignPct.range_start == 0 and FillerForeignPct.range_end == 100
 
 
@@ -54,13 +66,26 @@ def test_candidate_names_carry_no_useful_gear():
                        "holding back gear" % (len(wrong), wrong[:5]))
 
 
-class FillerForeignDefault(WorldTestBase):
+class FillerForeignNoOp(WorldTestBase):
     game = GAME
-    options = {"num_regions": 4, "item_shuffle": True}
+    # The SENTINEL, no longer the default -- see test_filler_foreign_ships_at_the_measured_target.
+    options = {"num_regions": 4, "item_shuffle": True, "filler_foreign_pct": 100}
 
-    def test_default_localizes_nothing(self):
+    def test_the_sentinel_localizes_nothing(self):
         self.assertEqual(FillerForeignFeature().names_to_localize(self.world), [],
-                         "default filler_foreign_pct (100) localizes nothing (no change)")
+                         "pct 100 is the no-op sentinel and must localize nothing")
+
+
+class FillerForeignShippedDefault(WorldTestBase):
+    game = GAME
+    options = {"num_regions": 4, "item_shuffle": True}   # no pct -> the shipped 70
+
+    def test_the_shipped_default_actually_holds_something(self):
+        """An option that ships non-default and does nothing is worse than one that ships inert."""
+        held = FillerForeignFeature().names_to_localize(self.world)
+        self.assertTrue(held, "the shipped default (70) must localize something")
+        self.assertTrue(set(held).issubset(self.world.options.local_items.value),
+                        "set_rules must have pushed the draw into local_items")
 
 
 class FillerForeignAllLocal(WorldTestBase):

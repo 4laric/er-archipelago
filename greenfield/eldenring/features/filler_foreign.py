@@ -102,7 +102,27 @@ class FillerForeignPct(Range):
     display_name = "Filler Open to Foreign (%)"
     range_start = 0
     range_end = 100
-    default = 100  # NO_CHANGE_PCT: 100 -> localize 0% -> unchanged fully-open filler routing
+    # 🛑 70, NOT 100, SINCE 2026-08-16 -- this option now SHIPS NON-DEFAULT, and the number is the
+    # answer to "what does the composition target actually need", measured rather than chosen.
+    #
+    # `NO_CHANGE_PCT` (100) is still the no-op sentinel and still what `_select` short-circuits on;
+    # it is no longer the default. Alaric's ruling 2026-08-15 was to aim the export composition at
+    # 1:1 useful:filler, and 70 is where that lands with the SHIPPED `keep_local` in place. Measured
+    # cross-game, one ER slot, num_regions 4, POOLED over seeds (sum of useful / sum of filler,
+    # which is what a partner actually receives -- a mean of per-seed ratios flatters the tail):
+    #
+    #   Hollow Knight, 5 seeds:     pct 100 -> 0.79:1     pct 70 -> 1.00:1  (272 useful / 272 filler)
+    #   Bumper Stickers, 3 seeds:   pct 100 -> 0.77:1     pct 70 -> 0.97:1  ( 96 useful /  99 filler)
+    #
+    # Both partner sizes land on the target, which is what makes 70 a DEFAULT rather than a number
+    # tuned to one partner. Per-seed spread at 70 is 0.79-1.27 (HK) -- centred, not tight; a fixed
+    # percentage cannot be tight, which is the argument for a target-ratio option instead.
+    #
+    # ⚠️ THIS NUMBER IS ONLY VALID WITH THE SHIPPED `keep_local`. Against `keep_local: []` the same
+    # sweep put 1:1 at pct 6-12 -- an order of magnitude away. The two levers compose, so re-measure
+    # BOTH if either default moves; a pct read off the wrong keep_local is the failure this comment
+    # exists to prevent.
+    default = 70
 
 
 @register
