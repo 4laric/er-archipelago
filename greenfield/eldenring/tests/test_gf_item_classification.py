@@ -43,7 +43,7 @@ def _retired_nibble_rule(name):
 
 class TheTableIsTotalAndMintsTwoClasses(WorldTestBase):
     game = GAME
-    options = {"num_regions": 1}
+    options = {"num_regions": 1, "ending_condition": "great_runes"}
 
     def test_generated_inputs_are_present(self):
         # Every scan below is vacuous on a pre-regen tree. Say so loudly rather than pass.
@@ -93,7 +93,7 @@ _MIN_ROSTER = {"spells": 100, "spirit_ashes": 50, "crystal_tears": 30, "upgrade_
 
 class TheDifferenceFromTheNibbleIsDeclared(WorldTestBase):
     game = GAME
-    options = {"num_regions": 1}
+    options = {"num_regions": 1, "ending_condition": "great_runes"}
 
     def test_the_difference_from_the_retired_rule_is_exactly_the_declared_flip(self):
         """THE PIN, in its post-flip shape. Every departure from the nibble must be declared."""
@@ -176,7 +176,7 @@ class GearThatCarriesTheGoodsNibbleIsUsefulNow(WorldTestBase):
     the thing it measured is the thing that got fixed.
     """
     game = GAME
-    options = {"num_regions": 1}
+    options = {"num_regions": 1, "ending_condition": "great_runes"}
 
     def test_every_declared_category_is_useful(self):
         counts = {c: 0 for c in FLIPPED_TO_USEFUL}

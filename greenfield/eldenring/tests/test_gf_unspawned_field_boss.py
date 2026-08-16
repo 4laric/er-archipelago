@@ -343,7 +343,7 @@ class _MtGelmirOnlySeed:
     Mt. Gelmir the premise is UNEXERCISED and this fails loudly instead of passing vacuously."""
 
     game = "Elden Ring"
-    options = {"num_regions": 1}
+    options = {"num_regions": 1, "ending_condition": "great_runes"}
     SEEDS = tuple(range(64))
 
     def _setup_a_gelmir_seed(self):

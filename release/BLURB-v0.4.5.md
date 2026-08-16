@@ -5,6 +5,20 @@ anyone remembers why it mattered._
 
 ## What is in it so far
 
+### You cannot walk into the ending early any more
+
+Reach Radagon one Region Lock short and the game let you do it: you fought him, watched the ending,
+took the credits, and then found out from a spoiler log that nothing had counted. Working as
+designed, and a miserable way to spend the one part of a run you cannot repeat.
+
+The Ashen Capital now opens when you hold everything the goal asked for, and not before. There is no
+wall and no getting yanked out of the arena — the place simply is not reachable yet, the same way
+every other region you have not unlocked is not reachable yet.
+
+⚠️ One consequence worth knowing: a one-region seed on the plain region-locks goal is now refused
+when you generate it, because your only Lock is the region you start in and there would be nothing
+left to find. Ask for more regions, or set the goal to Great Runes and go get those instead.
+
 ### Rykard's Great Rune can finally be the one you need
 
 If your goal is Great Runes, the runes it asked for were the alphabetically first ones — every seed,

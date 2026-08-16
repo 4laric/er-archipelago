@@ -167,7 +167,13 @@ def test_the_gen_log_states_the_breakdown_when_the_draw_grows(caplog):
 def test_the_motivating_case_keeps_exactly_what_it_drew(caplog):
     class _T(WorldTestBase):
         game = GAME
-        options = {"num_regions": 1, "goal": "elden_beast"}
+        # #768: bobler's literal yaml now needs a rune goal to generate -- the Ashen Lock
+        # left the pool, so a one-region region_locks seed is refused (deliberately:
+        # "one region seed is trivial i think that's legit"). The assertion below is
+        # untouched, because what this test guards -- that the GOAL force-keeps nothing --
+        # has nothing to do with the ending condition.
+        options = {"num_regions": 1, "goal": "elden_beast",
+                   "ending_condition": "great_runes"}
 
     t = _T()
     with caplog.at_level(logging.INFO, logger="Greenfield"):
