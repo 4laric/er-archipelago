@@ -336,8 +336,26 @@ SURFACE_EXCLUDE_TAGS = frozenset({"EniaShop"})
 # class, where the AP-free generator could not reach it. So the generator kept calling the old name and
 # the Windows build died at the tracker-table step. Single-sourcing a predicate is only half the job:
 # the SELECTION it is applied to must be single-source too, or the second caller re-invents it.
+# 🛑 `Remembrance` AND `GreatRune` LEFT THIS SET 2026-08-16 (#733) AND THE SURFACE DID NOT MOVE.
+# Both are STRICT SUBSETS of `MajorBoss`, measured over the generated LOCATION_TAGS:
+#
+#     Remembrance 25 | GreatRune 7 | MajorBoss 43
+#     Remembrance ⊂ MajorBoss   GreatRune ⊂ MajorBoss   Remembrance ∩ GreatRune = 0
+#     allowed_ap_ids(defaults) == allowed_ap_ids(defaults - {Remembrance, GreatRune})  -- 199 == 199
+#
+# So while `MajorBoss` is in this set the two entries admit not one location, and the wizard drew them
+# as two live knobs a player could reason about. They are not MERGEABLE either (disjoint: a demigod
+# arena yields two separate checks, the Remembrance by method tag and the Great Rune by item name), so
+# the redundancy is real and the tidy-up is not.
+#
+# 🛑 THEY STAY IN `SURFACE_CLASSES` AND IN `valid_keys`. `OptionSet` raises on an unknown key, so
+# dropping them would make every existing yaml that names one fail outright, and `Options.Removed` is
+# per-OPTION, not per-KEY -- there is no migration. A player who selects them still gets exactly what
+# they ask for; they are simply no longer ON by default, because on-by-default implied they did
+# something. Pinned by test_gf_progression_surface_contract, which asserts the identity above rather
+# than the membership, so re-adding them is caught by MEANING and not by a name list.
 SURFACE_DEFAULT_CLASSES = frozenset({
-    "KeyItem", "MajorBoss", "Remembrance", "GreatRune",
+    "KeyItem", "MajorBoss",
     "Church", "Seedtree", "Fragment", "Revered", "ShopSlot",
     # 🛑 SweepSlot JOINED THE DEFAULT 2026-08-13 (Alaric's ruling on #631). THIS CHANGES EVERY SEED,
     # deliberately, and it is stated here rather than left to be discovered.
