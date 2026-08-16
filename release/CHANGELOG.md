@@ -17,6 +17,46 @@ accumulating notes that were never in the release.
 version-lockstep and a v0.4.3 client still handshakes with a v0.4.4 seed. Verified by loading
 `contract.py` and reading the value, not by assuming the shape did not move.
 
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
+the release).
+
+### Four pairs of trousers are no longer major bosses
+
+`MajorBoss` is one of the classes the default progression surface confines this world's own
+progression to — region Locks, required runes, legacy keys. It read **52 checks. The entity count is
+43.**
+
+The roster is keyed on each boss's acquisition flag, which is right. But a flag resolves to a
+*family* of checks — the primary drop plus every sibling lot the same flag drives, each minted as its
+own co-check — and the whole family was inheriting the tag. For two DLC field bosses that family is
+an armour set:
+
+```
+530810  Dancer of Ranah    Dancing Blade  + Hood / Dress / Bracer / Trousers
+530820  Blackgaol Knight   Greatsword     + Helm / Armor / Gauntlets / Greaves
+510260  Magma Wyrm Makar   Scalesword     + the Dragon Heart
+```
+
+Nine checks, three bosses, and Dancer of Ranah's Trousers sat on the default progression surface as a
+major-boss check. It is one check per boss again: the default surface's hosting count goes 179 → 170,
+and the nine it loses were never a boss's *death*, only the rest of its loot.
+
+🛑 **The half that is NOT reversed.** When co-checks landed (#191, 2026-08-13) the ruling was "a
+co-check is the same physical acquisition as its primary and inherits its tags", and for `Boss` and
+`Legendary` that is exactly right — those answer *how was this check acquired*, and Dancer of Ranah's
+Trousers is a boss drop, plainly. `MajorBoss` answers *is this boss on the roster*, which is a claim
+about an **entity**, and there ten sibling lots are ten votes for one boss. So the family keeps
+inheriting the acquisition tag — `Boss` is unmoved at 266, deliberately, by its own closure — and
+stops inheriting the roster tag. That distinction is the whole change.
+
+Gated two ways so it cannot come back quietly: at regen a roster entry must resolve to exactly one
+primary check, never zero and never two; host-side an oracle names the offending bosses instead of
+reporting a count.
+
+This is **direction 1 of #737 only.** The roster still carries entries matt's list would not (Agheel,
+Godefroy) and still misses ten it has — Margit, Red Wolf, Royal Knight Loretta, Godskin Duo, Godskin
+Noble, Commander Niall, Mimic Tear, Valiant Gargoyles, Elemer, Dragonkin Soldier of Nokstella.
+Re-deriving membership from the game's own achievement bosses is direction 2 and lands separately.
 ### The wizard's yaml stops being empty
 
 Take the wizard's advice, change nothing, hit Download, and the file you got was:

@@ -5,6 +5,24 @@ anyone remembers why it mattered._
 
 ## What is in it so far
 
+### Your region Locks stop hiding in a boss's trousers
+
+The default progression surface puts this world's own key items — region Locks, required runes,
+legacy keys — on major-boss checks, on the reasoning that a major boss is a thing you will find.
+Four of the checks it counted as major bosses were Dancer of Ranah's Hood, Dress, Bracer and
+Trousers, and four more were Blackgaol Knight's armour set.
+
+The tag is keyed on a boss's death flag, which is right; the trouble is that a death flag pays out a
+whole loot table, and every piece of it was being counted as another major boss. Nine checks, three
+bosses. Now it is one check per boss — the one the death actually grants.
+
+If you have been wondering why a Lock occasionally turned up on a piece of DLC armour rather than on
+the boss who dropped it: that.
+
+_(For whoever writes the real one: the interesting part is not the fix, it is the line it draws.
+`Boss` and `Legendary` describe how a check was acquired, so a sibling lot inherits them and that
+reading stands untouched. `MajorBoss` describes an entity, and ten lots are not ten bosses. The
+changelog has it, with the two gates.)_
 ### Your yaml is no longer a shrug
 
 If you used the wizard and trusted its defaults, the file it handed you said `Elden Ring: {}`. Every
