@@ -103,8 +103,18 @@ class GreenfieldWorldTest(WorldTestBase):
     # WHICH slots hold a lock / a foreign item is a per-seed FILL outcome, so the preview map varies by
     # seed by construction (it was invariant only while the repoint loop was dead -- str/int key bug,
     # fixed 2026-07-23). Still DETERMINISTIC per seed (test_slot_data_is_deterministic guards that).
+    # filler_foreign_localized: the COUNT of distinct filler names held home this seed. It was
+    # constant at 0 while `filler_foreign_pct` defaulted to the 100 no-op; from 2026-08-16 it ships
+    # at 70, and the draw is a per-seed copy budget spent over a per-seed pool, so the count moves
+    # with the seed by construction. Still deterministic per seed -- the draw is cached on the world
+    # and test_slot_data_is_deterministic above is what guards that, which is the property that
+    # actually matters on the wire.
+    # ⚠️ THIS ESCAPED A FULL LOCAL RUN AND FAILED IN CI. The key is an int count, so two seeds
+    # agreeing on it is ordinary luck rather than evidence -- the suite passed locally and went red
+    # on the same commit in CI. A varying-count key cannot be witnessed by one comparison; if
+    # another lands here, do not conclude it is invariant because one pair matched.
     _SEED_VARYING = {"regionSphereTargetRanges", "shopInfiniteStock", "enemyDropRoll",
-                     "progressiveGrants", "shopPreviewGoods"}
+                     "progressiveGrants", "shopPreviewGoods", "filler_foreign_localized"}
 
     def test_slot_data_is_deterministic(self):
         """Same seed -> byte-identical slot_data (no set-iteration order leaking into the wire)."""

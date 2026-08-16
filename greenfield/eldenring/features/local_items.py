@@ -151,23 +151,42 @@ class KeepLocal(OptionSet):
 
 
 class KeepLocalRuneCap(Range):
-    """Hold back rune items worth this many runes or fewer; larger ones may still travel. 0
-    (default) is OFF -- no rune is held back by this option.
+    """Hold back rune items worth this many runes or fewer; larger ones may still travel.
+    **Defaults to 12,500**, which holds 18 of the 31 rune items -- everything from Golden Rune [1]
+    up to and including Numen's Rune. Set it to 0 to turn this off and send every rune you find.
+
+    ⚠️ CORRECTED 2026-08-16, and every corrected line was player-facing. This docstring opened
+    "0 (default) is OFF -- no rune is held back by this option" while the default was 12,500 and it
+    held 18 items; it was headed "Why the default is 6250" and argued for 6250 in the body, while
+    the measurement paragraph below it bolded 12,500 and the code said 12,500; and its ladder was
+    off by one from [4] up. The same text is in `release/EldenRing.yaml`, so a player reading their
+    own options file was told the default was off. This is the #707 failure -- prose that stopped
+    describing the code -- in the help text rather than in a guard, and the ladder below is now
+    pinned by test_the_documented_rune_ladder_matches_the_params so it cannot drift again.
 
     "Small rune amounts should not be sent out" is the ask this answers, and the payout is a number
     the game publishes (EquipParamGoods.refId_default -> SpEffectParam.soul), so it does not have to
-    be guessed from the item name. The ladder: Golden Rune [1] 200, [4] 1,600, [8] 3,800, [10] 6,250,
-    [13] 12,500, Hero's Rune [1] 15,000, Lord's Rune 50,000, and the DLC's largest 80,000. A cap of
-    3,000 keeps the small change and lets the big ones go.
+    be guessed from the item name. The ladder, MEASURED:
+
+        Golden Rune [1]     200        Golden Rune [10]    5,000
+        Golden Rune [4]   1,200        Golden Rune [11]    6,250
+        Golden Rune [8]   3,000        Golden Rune [13]   10,000
+        Golden Rune [9]   3,800        Numen's Rune       12,500   <- the default cap
+                                       Hero's Rune [1]    15,000
+                                       Lord's Rune        50,000
+                                       Marika's Rune      80,000   <- the largest
+
+    A cap of 3,000 keeps the small change (Golden Rune [1]-[8]) and lets the rest go.
 
     Independent of Keep Local: setting `runes` there keeps every rune home whatever this says.
 
-    # Why the default is 6250 (#703)
+    # Why the default is 12,500 (#703)
 
     Runes are the only large filler category `keep_local` leaves open by default, which makes this
     the FINE ADJUSTMENT on the export mix -- and unlike a percentage it is aimable, because the
     threshold is a quantity the game publishes rather than a share of a pool nobody can picture.
-    6250 is exactly Golden Rune [10]: the small change stays home, [10] and up travel.
+    12,500 is Numen's Rune: Golden Rune [13] and everything cheaper stays home, Hero's, Leda's,
+    Lord's and Marika's Runes travel.
 
     Measured on 1xER + 1xHK (the adverse config) over 4 seeds, with the shipped `keep_local` above
     and everything else identical: cap 0 -> 0.57:1, cap 6250 -> 0.68:1, **cap 12500 -> 0.72:1**,
@@ -175,7 +194,8 @@ class KeepLocalRuneCap(Range):
     the pair moves 0.55:1 -> 0.72:1 -- and note what moved: exported useful is FLAT at 228 -> 231,
     while filler falls 412 -> 320. The partner does not receive less that they can use; they receive
     92 fewer Golden Runes and smithing stones. Foreign progression absorbed on-surface stays 100%
-    throughout. 12500 is Golden Rune [13]; Hero's and Lord's Runes still travel.
+    throughout. 12,500 is NUMEN'S RUNE (Golden Rune [13] is 10,000 -- see the ladder above); Hero's,
+    Leda's, Lord's and Marika's Runes still travel.
 
     🛑 THE TARGET WAS 1:1 AND THIS DOES NOT REACH IT -- it gets from the old 0.53:1 to 0.72:1, and
     the curve is flat past here (80000 buys 0.01 more). The binding constraint is `key_items`, which
