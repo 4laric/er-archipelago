@@ -65,15 +65,32 @@ class Frozen:
 FROZEN_OPTIONS = {
     # ---- always-on in the playtest yaml -> now the behaviour -------------------------------------
     "item_shuffle": (1, None),                 # every check pays its real vanilla item. THE randomizer.
-    # UNFROZEN 2026-08-12 at Alaric's call, taking the invitation the old comment left here
-    # ("unfreeze here if it ever needs to be player-visible"). It is a knob again, and it is OFF.
+    # RE-FROZEN 2026-08-16 at Alaric's call, AT 0 -- not at the 1 it carried before 2026-08-12.
+    # The roll never runs and the option leaves the player surface; a rune shop slot keeps the price
+    # of the ware it used to sell.
     #
-    # 🛑 THIS CHANGES DEFAULT SEEDS, DELIBERATELY. While frozen at 1 the roll ran for everyone; the
-    # class default is 0, so a yaml that does not name it now keeps each shop slot at the price of
-    # the ware it used to sell. That is the whole point of the request, but it is exactly the silent
-    # revert [[er-unfreezing-an-option-needs-the-class-default]] was written about, so it is stated
-    # here, pinned by a test, and called out in the changelog rather than left to be discovered.
-    #   "rune_shop_pricing": (1, None),
+    # History, because this line has now moved three times and the direction matters each time:
+    # frozen at 1 (the roll ran for everyone) -> UNFROZEN 2026-08-12 with an explicit `default = 0`
+    # -> frozen at 0 today. The 08-12 unfreeze is why this is safe to do: RuneShopPricing.default is
+    # written down as 0 in its own class, so freezing at 0 pins the value the class already states.
+    # That is exactly what [[er-unfreezing-an-option-needs-the-class-default]] asks for, and the
+    # reason PoolBuilderIntensity's freeze was a trap (frozen at `max` over an unreachable
+    # `default = high`, so unfreezing silently reverted every seed).
+    #
+    # 🛑 SEED-NEUTRAL, unlike the 08-12 move. Default seeds already ran with the roll OFF, because
+    # the class default has been 0 since then. This removes the player's ability to turn it ON; it
+    # does not change what a default yaml generates.
+    #
+    # ⚠️ IT DOES NOT STOP THE CLIENT LOWERING `sellValue`, and that is not an oversight.
+    # `shop_value::render_guard` (client) exists because the ER purchase menu EXCLUDES any
+    # ShopLineupParam row whose `value` is below the ware's own `sellValue` -- so a rewritten row
+    # whose reward is worth more than the slot's price is not merely mispriced, it is INVISIBLE and
+    # its check uncollectable. It is called from three places and only one of them,
+    # `shop_prices.rs`, is downstream of this option; `shop_sell.rs` and `shop_stock.rs` call it
+    # unconditionally. Its own header says so: "It is NOT a rune bug ... it predates rune_pricing;
+    # runes were merely the 100% case." Freezing this option is not a way to stop those writes, and
+    # stopping them would re-hide the `Veteran's Helm` class of check.
+    "rune_shop_pricing": (0, None),
     # The pool_builder_* knobs are now CONSTANTS of features/filler_budget, which is the single owner
     # of the filler tail. `scope` is meaningless (there is one budget: rune tail + displaceable junk),
     # `intensity` is the allocator's JUICE_FLOOR, and `juice_cap` is gone -- juice is a recipe weight
