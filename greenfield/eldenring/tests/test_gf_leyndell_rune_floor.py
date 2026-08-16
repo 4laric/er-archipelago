@@ -44,6 +44,7 @@ from worlds.eldenring.features.leyndell_gate import (  # noqa: E402
 from worlds.eldenring.features.graces import WALL_ARMED  # noqa: E402
 
 GAME = "Elden Ring"
+UNBORN = "Great Rune of the Unborn"
 
 
 def _assert_never_armed_below_vanilla(world):
@@ -131,49 +132,66 @@ class TestScarceRunePoolIsRepairedNotDisarmed(WorldTestBase):
                 out.append((seed, list(self.world._available_runes())))
         return out
 
-    def test_a_short_pool_is_topped_up_and_the_wall_arms(self):
-        repaired = kept = 0
+    def test_the_pool_is_never_short_and_the_wall_arms(self):
+        """🛑 REWRITTEN 2026-08-16 (#764): THE SHORT POOL THIS CLASS WAS BUILT ON CANNOT HAPPEN NOW.
+
+        It used to require the spread to contain a seed with fewer than two runes on kept
+        locations, drive the repair through `leyndell_gate`, and FAIL if no such seed turned up --
+        `"the repair path never ran and this test is vacuous"`. That refusal was right, and it is
+        what fired the moment all seven runes started being injected on every seed: there is no
+        short pool left to find.
+
+        The repair did not disappear, it MOVED and became unconditional (`features/great_runes`),
+        for the reason the old one could not cover: it only ran when Leyndell was in the draw, so a
+        seed without the capital got no top-up at all (bobler, seed 75791261719639771134 -- three
+        regions, one rune in the whole multiworld).
+
+        So this asserts the INVARIANT the seeds must satisfy rather than the mechanism that used to
+        supply it -- the same correction #737 made to the region-major test. The wall's own rule
+        (empty, or at least the vanilla floor -- never one) is unchanged and still checked here.
+        """
+        kept = 0
         for seed, avail in self._goal_kept_seeds():
             self.world_setup(seed)
             w = self.world
             kept += 1
             _assert_never_armed_below_vanilla(w)
             armed = list(w.gf_leyndell_runes)
-            injected = list(getattr(w, "gf_leyndell_injected", []))
             assert armed, (
                 f"seed {seed}: the capital is kept, so the wall must be ARMED. Disarming it does "
                 f"not disarm the game's fixed {VANILLA_CAPITAL_GATE_RUNES}-rune gate -- it just "
                 f"seals Leyndell, the Sewer and Ashen Capital behind a door nothing opens (#589)")
             assert len(armed) >= VANILLA_CAPITAL_GATE_RUNES
-            assert set(avail) <= set(armed) or len(avail) >= len(armed), (
-                f"seed {seed}: runes the seed already had were dropped from the armed set")
-            # Every armed rune must be one fill can actually place.
-            assert set(armed) <= set(avail) | set(injected), (
-                f"seed {seed}: armed {armed} names runes that are neither available nor injected")
             assert len(set(armed)) == len(armed), f"seed {seed}: duplicates in {armed}"
-            if len(avail) < VANILLA_CAPITAL_GATE_RUNES:
-                repaired += 1
-                assert injected, (
-                    f"seed {seed}: only {len(avail)} Great Rune(s) on kept locations -- the "
-                    f"shortfall must be injected, not disarmed")
-                assert len(armed) == VANILLA_CAPITAL_GATE_RUNES
+            # THE NEW INVARIANT: the supply no longer depends on the draw, so the pool is never
+            # short and every armed rune is one fill can place without any repair at all.
+            assert len(avail) == len(GREAT_RUNES), (
+                f"seed {seed}: the pool holds {len(avail)} Great Rune(s), expected all "
+                f"{len(GREAT_RUNES)} -- features/great_runes did not inject (#764)")
+            assert set(armed) <= set(avail), (
+                f"seed {seed}: armed {armed} names runes that are not in the pool")
+            # The gate must no longer mint anything itself; that is great_runes' job now.
+            assert not getattr(w, "gf_leyndell_injected", []), (
+                f"seed {seed}: leyndell_gate injected {w.gf_leyndell_injected} -- the top-up moved "
+                f"to features/great_runes and the wall must only READ the supply")
         assert kept, "no seed in the spread kept the capital -- this fixture proves nothing"
-        assert repaired, (
-            "no seed in the spread had a short rune pool, so the repair path never ran and this "
-            "test is vacuous -- widen SEEDS rather than leaving it green")
 
-    def test_injection_is_deterministic(self):
-        """`sorted`, never world.random. A seed that needed no repair must roll byte-identically to
-        before #589, and one that did must repair the same way twice."""
-        short = [(s, a) for s, a in self._goal_kept_seeds() if len(a) < VANILLA_CAPITAL_GATE_RUNES]
-        assert short, "no short-pool seed to check determinism against"
-        seed = short[0][0]
-        runs = []
-        for _ in range(2):
+    def test_every_seed_holds_all_seven_capital_or_not(self):
+        """The half the class above cannot see: a seed with NO capital.
+
+        That is precisely the hole the old arrangement had -- the top-up lived in the capital's own
+        feature, so a draw without Leyndell got none. This walks the whole spread, unfiltered."""
+        checked = 0
+        for seed in self.SEEDS:
             self.world_setup(seed)
-            runs.append((list(self.world.gf_leyndell_runes),
-                         list(getattr(self.world, "gf_leyndell_injected", []))))
-        assert runs[0] == runs[1]
+            if not self.world._shuffle_on():
+                continue
+            checked += 1
+            avail = list(self.world._available_runes())
+            assert len(avail) == len(GREAT_RUNES), (
+                f"seed {seed} (capital kept: {GOAL_REGION in self.world._kept()}): pool holds "
+                f"{len(avail)} Great Rune(s), expected {len(GREAT_RUNES)}")
+        assert checked, "no shuffle-on seed in the spread -- this test proves nothing"
 
 
 class TestTheCapitalIsReachableOnAShortPool(WorldTestBase):
@@ -195,19 +213,35 @@ class TestTheCapitalIsReachableOnAShortPool(WorldTestBase):
     auto_construct = False
 
     def _short_supply_seed(self):
+        """🛑 THE QUALIFIER CHANGED 2026-08-16 (#764) AND THE CLASS NAME IS NOW HISTORY.
+
+        This used to demand `len(_available_runes()) < VANILLA_CAPITAL_GATE_RUNES` -- a seed whose
+        kept regions could not supply the capital's two. All seven runes are injected on every seed
+        now, so no such seed exists and this helper returned `None` on all sixteen, failing four
+        acceptance tests with *"no default-settings seed in the spread keeps the capital on a short
+        rune pool"*.
+
+        The right response is NOT to widen the range (nothing wider will find one) and NOT to delete
+        the tests: what they assert -- an armed rune exists as progression, is never placed behind
+        the wall it opens, and the pool stays count-exact -- is the winnability property LordChungle's
+        seed violated, and it must hold on EVERY capital seed, not just a scarce one. Scarcity was
+        the trigger for the bug, never the subject of the assertion.
+
+        So the qualifier is now simply "the capital is kept". The class keeps its name and this note
+        so the #589 lineage stays findable.
+        """
         for seed in range(16):
             self.world_setup(seed)
             w = self.world
-            if (GOAL_REGION in w._kept() and w._shuffle_on()
-                    and len(w._available_runes()) < VANILLA_CAPITAL_GATE_RUNES):
+            if GOAL_REGION in w._kept() and w._shuffle_on():
                 return seed
         return None
 
     def _setup_short(self):
         seed = self._short_supply_seed()
         assert seed is not None, (
-            "no default-settings seed in the spread keeps the capital on a short rune pool, so "
-            "this acceptance test would assert nothing -- widen the range rather than skipping")
+            "no default-settings seed in the spread keeps the capital at all, so this acceptance "
+            "test would assert nothing -- widen the range rather than skipping")
         self.world_setup(seed)
         return seed
 
@@ -277,8 +311,28 @@ class TestTheCapitalIsReachableOnAShortPool(WorldTestBase):
             f"seed {seed}: {len(items)} items for {len(locations)} locations -- the injection was "
             f"not count-neutral")
 
-    def test_the_unborn_rune_is_never_injected(self):
-        """Great Rune of the Unborn is not a capital-gate rune; injecting it would arm the wall
-        with something the game does not count toward its two."""
+    def test_the_unborn_rune_is_a_capital_rune_like_any_other(self):
+        """🛑 DELETED CLAIM, 2026-08-16. This test used to assert the Unborn rune is never injected,
+        on the stated ground that *"Great Rune of the Unborn is not a capital-gate rune; the game
+        does not count it toward its two."* **That claim had no source and is probably false.**
+
+        Alaric: *"what vanilla gate doesn't count Unborn? i believe they all do"* -- and the EMEVD
+        agrees. `common.emevd $Event(6905)` maps every remembrance flag to a contiguous held-rune
+        slot, `510010->171 ... 510200->176`, and `197->177`: SEVEN slots, one per Great Rune, the
+        Unborn rune among them. A game that did not count it would not give it a slot in that block.
+        (Nothing in the corpus READS 171-177, so the gate's count is engine-side and not decidable
+        from the artifacts -- which is exactly why an uncited exclusion was the wrong response.)
+
+        The old assertion was also about to become false on its own terms: all seven runes are
+        injected on every seed now (#764), so "never injected" is simply not true of any of them.
+
+        What is asserted instead is the invariant that survives: the Unborn rune is an ordinary
+        member of the pool and of the armed set. Kept as a named test so the retracted claim leaves
+        a trail rather than quietly vanishing from the suite."""
         self._setup_short()
-        assert "Great Rune of the Unborn" not in getattr(self.world, "gf_leyndell_injected", [])
+        w = self.world
+        assert UNBORN in w._available_runes(), (
+            "the Unborn rune must be in the pool like the other six (#764)")
+        armed = list(getattr(w, "gf_leyndell_runes", []))
+        assert set(armed) <= set(w._available_runes()), (
+            f"armed set {armed} names a rune that is not in the pool")

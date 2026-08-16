@@ -113,8 +113,19 @@ class GreenfieldWorldTest(WorldTestBase):
     # agreeing on it is ordinary luck rather than evidence -- the suite passed locally and went red
     # on the same commit in CI. A varying-count key cannot be witnessed by one comparison; if
     # another lands here, do not conclude it is invariant because one pair matched.
+    # `goalRequiredItems` joined this set on 2026-08-16 (#640), and it is a DELIBERATE widening of
+    # the wire's variance, not a leak. The required Great Runes used to be `sorted(avail)[:N]` -- an
+    # alphabetical prefix, so the key was identical on every seed by construction, which is why it
+    # sat outside this set for months without anyone noticing it could not vary. That constancy WAS
+    # the bug: at the default of 2 the goal named Godrick's and the Unborn rune forever, and
+    # Rykard's (last alphabetically) could only ever be required by a seed asking for all seven
+    # ("Rykard's Great Rune considered filler despite setting goal to Great Runes", AHHHREPTAR).
+    # The selector is a seeded `world.random` sample now, so the key varies across seeds and is
+    # still byte-identical for the SAME seed -- which test_slot_data_is_deterministic above proves
+    # and is the property that actually matters on the wire.
     _SEED_VARYING = {"regionSphereTargetRanges", "shopInfiniteStock", "enemyDropRoll",
-                     "progressiveGrants", "shopPreviewGoods", "filler_foreign_localized"}
+                     "progressiveGrants", "shopPreviewGoods", "filler_foreign_localized",
+                     "goalRequiredItems"}
 
     def test_slot_data_is_deterministic(self):
         """Same seed -> byte-identical slot_data (no set-iteration order leaking into the wire)."""

@@ -22,6 +22,58 @@ never whether it is CURRENT.
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
+### Every seed has all seven Great Runes, and the goal can ask for any of them
+
+A Great Rune sits on exactly one region's boss. So the number of Great Runes in your seed was
+whatever your region draw happened to keep — seven on a full Shattering, **one** on a three-region
+seed — and every consumer downstream silently clamped to that number.
+
+bobler's seed is the case. Three regions, `ending_condition: great_runes`, `goal_great_runes: 2`,
+and exactly one Great Rune in the entire multiworld:
+
+```
+Number of Regions:    3
+Great Runes Required: 2
+  great_rune_items = ["Godrick's Great Rune"]
+```
+
+He asked for two. The seed gave him one, and printed `Great Runes Required: 2` four lines above the
+resolved set containing a single item. His run was still winnable — the clamp exists precisely so it
+would be — just shorter than he configured, which is the failure that is hard to notice.
+
+**All seven are now injected into every seed's pool, whatever you drew.** `goal_great_runes`'s
+1–7 range means what it says on every seed, the requirement is never silently reduced, and a Great
+Rune arriving for a demigod your run does not contain is now a documented rule rather than a
+surprise.
+
+⭐ **And the required set stopped being alphabetical.** It was `sorted(available)[:N]`, and
+`GREAT_RUNES` is itself sorted — so at the default of 2 the goal named **Godrick's and the Great Rune
+of the Unborn, on every seed, forever**. Rykard's sorts last and could only ever be required by a
+seed asking for all seven. That is exactly what AHHHREPTAR reported ("Rykard's Great Rune considered
+filler despite setting goal to Great Runes") and it was never seed luck. It is a seeded draw now, so
+any rune can be the one you need — still reproducible from the seed, just not from the alphabet.
+
+Injecting all seven made that urgent rather than optional: with the pool fixed, an alphabetical
+prefix is a *constant*, and the goal would have named the same two runes in every seed this world
+ever rolled.
+
+🛑 **DLC Only changes.** A `great_runes` ending used to collapse to `region_locks` there, because no
+Great Rune boss stands in the Land of Shadow and the requirement was clamped to what the draw
+supplied — under DLC Only, zero. The supply no longer depends on the draw, so the goal works: seven
+runes, arriving from the multiworld and from DLC checks. The option help, the player guide and
+`KNOWN-ISSUES` all said the old thing and now say this one.
+
+Also: a Great Rune is never `filler` any more. They are GOODS, so they defaulted to junk unless some
+gate happened to name one — survivable when the pool held two, not when it holds seven.
+
+The top-up moved out of `features/leyndell_gate`. It was there because the capital wall needed it
+(#589 — a one-rune seed sealed Leyndell, the Sewer and Ashen Capital behind a door nothing could
+open), and it only ran when Leyndell was in the draw. bobler's seed had no capital, so nothing
+topped anything up. A supply floor that exists only when one particular consumer is present is not
+a floor; the wall reads the supply now and no longer creates it.
+
+Closes #764, #640. Fixes the clamp half of #504.
+
 ## v0.4.4 — 2026-08-16
 
 Window opened one commit past the v0.4.3 tag at `c891d04`, which is where `check_release_notes`

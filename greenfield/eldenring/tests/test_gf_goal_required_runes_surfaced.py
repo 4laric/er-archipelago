@@ -137,10 +137,36 @@ class RequiredRunesAreNamedInSlotData(WorldTestBase):
                          "victory -- this is the reported failure (#656), and it is why 'collect N "
                          "Great Runes' was a lie" % (len(held), len(req)))
 
-    def test_the_set_is_the_alphabetical_prefix_the_docs_describe(self):
-        """release/EldenRing.yaml, the player guide and KNOWN-ISSUES all say the set is currently
-        'the alphabetically first N of the Great Runes your kept regions can reach'. If #640 rerolls
-        the selector, this fails -- rewrite those three surfaces in the same commit."""
+    def test_the_set_is_a_seeded_draw_not_an_alphabetical_prefix(self):
+        """⭐ THIS TEST DID ITS JOB AND THEN TOLD US WHAT TO DO. It used to assert the set WAS the
+        alphabetical prefix, and its docstring ended: *"If #640 rerolls the selector, this fails --
+        rewrite those three surfaces in the same commit."* It failed, and the three surfaces
+        (release/EldenRing.yaml, the player guide, KNOWN-ISSUES.md) were rewritten in this commit.
+
+        Why the prefix had to go (#640): `GREAT_RUNES` is sorted and `_available_runes()` is now all
+        seven of them (#764), so `sorted(avail)[:want]` was a FIXED answer -- Godrick's and the
+        Unborn rune, at the default of 2, in every seed this world would ever roll. Rykard's sorts
+        last and could only ever be required by a seed asking for all seven, which is exactly what
+        AHHHREPTAR reported ("Rykard's Great Rune considered filler despite setting goal to Great
+        Runes"). It was survivable only while `avail` varied with the draw.
+
+        What replaces it is a `world.random` sample: reproducible from the seed, not from the
+        alphabet. Asserted as PROPERTIES rather than as a pinned list, because pinning the new
+        answer would just be the old mistake with different names in it."""
         world = self._world()
-        self.assertEqual(list(world._required_runes()),
-                         sorted(world._available_runes())[:2])
+        required = list(world._required_runes())
+        avail = list(world._available_runes())
+        self.assertEqual(len(required), 2, "the player asked for 2 and must get 2")
+        self.assertTrue(set(required) <= set(avail), "required runes must be in the pool")
+        self.assertEqual(len(set(required)), len(required), "no duplicates")
+        self.assertEqual(required, sorted(required), "emitted in a stable sorted order")
+        # The property that matters: the selector must be ABLE to choose runes the alphabet would
+        # never reach. Over a spread of seeds the union has to exceed the first two names.
+        prefix = set(sorted(avail)[:2])
+        seen = set()
+        for seed in range(24):
+            self.world_setup(seed)
+            seen |= set(self.world._required_runes())
+        self.assertTrue(seen - prefix, (
+            "across 24 seeds the required set never named a rune outside the alphabetical prefix "
+            "%s -- the selector is still a prefix in disguise (#640)" % sorted(prefix)))

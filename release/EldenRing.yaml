@@ -234,10 +234,10 @@ Elden Ring:
   #                      goal: N item(s) must be HELD, not merely their boss
   #                      killed: <the rune names>
   #                    That list IS the requirement; you do not need the spoiler.
-  #                    Do not guess from a pattern: the set is currently the
-  #                    alphabetically first N of the Great Runes reachable in
-  #                    your kept regions, which looks like a rule and is not one
-  #                    you should rely on (#640).
+  #                    The set is drawn at random from ALL SEVEN Great Runes,
+  #                    every one of which is in every seed's pool -- so any rune
+  #                    can be required, including Rykard's, and the draw does not
+  #                    change which ones are available (#640, #764).
   ending_condition: region_locks
 
   # Only used when ending_condition is great_runes. Clamped down to the

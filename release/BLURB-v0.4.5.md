@@ -5,8 +5,29 @@ anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing yet. This window was opened AT the v0.4.4 tag with zero commits past it, so this file exists
-before its first entry does, which is the point of it.
+### Rykard's Great Rune can finally be the one you need
+
+If your goal is Great Runes, the runes it asked for were the alphabetically first ones — every seed,
+forever. At the default of two that meant Godrick's and the Great Rune of the Unborn, and Rykard's,
+last in the alphabet, could only ever be required by someone asking for all seven. A player reported
+his Rykard's Great Rune sitting in the pool as junk on a Great Runes run and assumed it was bad luck.
+It wasn't luck; it was the sort order.
+
+The set is drawn properly now, so any rune can be the one you go looking for.
+
+### And all seven are in every seed
+
+Each Great Rune lives on one region's boss, so how many existed depended entirely on which regions
+you drew. A three-region seed could hold exactly one — and if you'd asked for two, you got one
+anyway, with nothing to tell you the number had moved. Your run was still winnable, just quietly
+shorter than the one you set up.
+
+Every seed has all seven now, whatever you drew. Ask for six and you get six. A rune turning up for a
+demigod who isn't in your run is normal, not a glitch — it came from the multiworld, like everything
+else does.
+
+That also makes a Great Runes goal work under **DLC Only**, where it used to quietly turn into a
+region-locks goal because no Great Rune boss stands in the Land of Shadow.
 
 ## What carried over from v0.4.4
 
