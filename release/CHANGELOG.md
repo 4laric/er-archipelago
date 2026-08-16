@@ -40,9 +40,12 @@ holding the Lock back holds the arena back.
 
 ⚠️ **A one-region `region_locks` seed is now refused at generation.** Its only Lock goes to your
 starting region, nothing is left to find, and the goal is complete the moment you connect. That was
-previously papered over by the Ashen Lock being a second item in the pool. Generation says so and
-names the ways out — more regions, or a Great Runes ending, which is exactly what the required runes
-are for.
+previously papered over by the Ashen Lock being a second item in the pool — with it withheld, the
+seed is genuinely empty rather than merely small, so it is refused rather than shipped.
+
+The refusal is a **yaml lint**: it happens the moment your options are read, before a draw or a pool
+is built, and the message names both numbers and every lever that gets you out — fewer starting
+regions, more regions, or a Great Runes ending, which is exactly what the required runes are for.
 
 Needs the matching client (#245).
 

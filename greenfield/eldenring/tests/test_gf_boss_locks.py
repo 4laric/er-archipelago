@@ -29,7 +29,10 @@ class BossLocationsAll(WorldTestBase):
 
 class BossLocationsSealed(WorldTestBase):
     game = GAME
-    options = {"num_regions": 1}
+    # #768 withheld the Ashen Lock, so a 1-region `region_locks` seed has no findable goal item
+    # and is refused at gen. The rune goal restores one WITHOUT changing the seed size this
+    # class is about -- the sealing claim below is measured on one region, as before.
+    options = {"num_regions": 1, "ending_condition": "great_runes"}
     # SEEDS: `num_regions: 1` really keeps ONE region since SPEC-ashen-capital-lock removed the
     # `auto` goal force-keep, and not every region has bosses -- so the fixture's own premise
     # ("a kept region with bosses") is now a property of the draw. Verified per run by walking a

@@ -144,7 +144,8 @@ class TheDifferenceFromTheNibbleIsDeclared(WorldTestBase):
 
 class DeclaredClassesWinOverTheTable(WorldTestBase):
     game = GAME
-    options = {"num_regions": 1}
+    # As above: the rune goal keeps a 1-region seed generable after #768.
+    options = {"num_regions": 1, "ending_condition": "great_runes"}
 
     def test_the_table_has_no_opinion_outside_the_catalog(self):
         # `category_of` folds every feature-minted name into `progressive`, which holds FOUR AP

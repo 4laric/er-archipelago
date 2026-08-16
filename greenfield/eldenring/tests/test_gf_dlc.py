@@ -30,18 +30,23 @@ from worlds.eldenring.region_spine import (  # noqa: E402
 from worlds.eldenring.features.goal_locations import DLC_TERMINUS_REGION  # noqa: E402
 from worlds.eldenring.core import GREAT_RUNES  # noqa: E402
 from worlds.eldenring.data import FINALE_REGION  # noqa: E402
+from ._util import assert_goal_reachable  # noqa: E402
 
 GAME = "Elden Ring"
 DLC = set(DLC_REGIONS)
 
-# ⭐ "<R> Lock exists" STOPPED meaning "R was kept" on 2026-08-06 (SPEC-ashen-capital-lock).
-# The Erdtree burn became a synthetic progression item, `Ashen Capital Lock`, minted on every seed
-# with the base game in play -- while the Ashen Capital itself stays NEVER-ROLLABLE (not in
-# REGIONS, never drawn by num_regions, never the start anchor, never in the kept set). So the
-# lock-side view of a seed is `kept | {FINALE_REGION}` on a base-game seed and `kept` under
-# dlc_only. These tests subtract that ONE name by hand and then assert the same exact equalities
-# as before -- rather than relaxing an equality to a subset test, which would stop noticing a
-# second stray lock.
+# ⭐ "<R> Lock exists" STOPPED meaning "R was kept" on 2026-08-06 (SPEC-ashen-capital-lock), and
+# STARTED MEANING IT AGAIN on 2026-08-16 (#768). For those ten days the Erdtree burn was a
+# synthetic progression item, `Ashen Capital Lock`, minted on every seed with the base game in
+# play, so the lock-side view of a seed was `kept | {FINALE_REGION}` and these tests subtracted
+# that ONE name by hand before asserting their equalities.
+#
+# #768 withholds that Lock from the pool entirely -- the client grants the goal region once every
+# other goal item is held (client#245) -- so the lock-side view is plain `kept` again and the
+# hand-subtraction is gone. The equalities below stay EXACT rather than becoming subset tests: a
+# stray lock, in either direction, still has to be noticed. What the subtraction used to protect
+# ("this seed has a goal it can finish") is now `assert_goal_reachable`, which checks the goal
+# region's entrance requirement is satisfiable instead of checking one item exists.
 
 
 def _kept_region_names(mw, player):
@@ -86,14 +91,11 @@ class DLCDisabled(WorldTestBase):
 
     def test_no_dlc_region_kept(self):
         locks = _lock_region_names(self.multiworld, self.player)
-        kept = locks - {FINALE_REGION}   # see the FINALE_REGION note at the top of this file
+        kept = locks   # see the FINALE_REGION note at the top of this file
         self.assertEqual(kept & DLC, set(), "Enable DLC off must seal every DLC region")
         self.assertEqual(kept, set(base_regions()),
                          "Enable DLC off, full seed -> exactly the base-game regions")
-        self.assertIn(FINALE_REGION, locks,
-                      "the burn item is minted on every base-game seed -- if it is missing here "
-                      "the subtraction above is silently hiding nothing and the equality is weaker "
-                      "than it looks")
+        assert_goal_reachable(self, label="enable_dlc off, full seed")
         self.assertIn(GOAL_REGION, kept, "base-game goal region must remain kept")
 
     def test_no_dlc_region_instantiated(self):
@@ -154,7 +156,7 @@ class DLCDisabledNumRegions3(WorldTestBase):
     def test_kept_is_base_only_and_counts(self):
         from worlds.eldenring.region_spine import parent_chain
         locks = _lock_region_names(self.multiworld, self.player)
-        kept = locks - {FINALE_REGION}   # see the FINALE_REGION note at the top of this file
+        kept = locks   # see the FINALE_REGION note at the top of this file
         # SCOPING is this test's claim, and scoping is unaffected by the draw becoming random
         # (2026-08-05). It used to also assert WHICH three regions -- first-3 of SPINE -- which was
         # never what "Enable DLC off" is about, and is now unassertable.
@@ -167,9 +169,7 @@ class DLCDisabledNumRegions3(WorldTestBase):
         # `auto` now resolves to the Elden Beast on every base-game seed and the Ashen Capital is
         # reached from the HUB behind its own lock, not by being kept. The protection is the same
         # one -- "this seed has a goal it can actually finish" -- restated at its new carrier.
-        self.assertIn(FINALE_REGION, locks,
-                      "base game in play -> the finale is built and its lock is minted, which is "
-                      "what makes the goal achievable now that no region is force-kept for it")
+        assert_goal_reachable(self, label="enable_dlc off, num_regions 3")
         # The COUNT survives identity removal: 3 drawn, plus the parent closure of whatever was
         # drawn. (It used to read "+ the goal" too; that term went with the force-keep above, and
         # the floor is unchanged because the draw itself was never the term that moved.)

@@ -43,7 +43,9 @@ def _local_from_keep_local(tb):
 
 class TaxonomyIsAPartition(WorldTestBase):
     game = GAME
-    options = {"num_regions": 1}
+    # 1-region seed kept (the taxonomy claim is size-independent); the rune goal is what makes a
+    # 1-region seed legal at all since #768 withheld the Ashen Lock.
+    options = {"num_regions": 1, "ending_condition": "great_runes"}
 
     def test_generated_inputs_are_present(self):
         # Every assertion below is vacuous on a pre-regen tree, so say so loudly rather than pass.

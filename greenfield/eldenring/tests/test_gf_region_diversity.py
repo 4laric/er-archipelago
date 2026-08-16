@@ -23,7 +23,7 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.region_spine import GOAL_REGION, parent_chain  # noqa: E402
 from worlds.eldenring.data import FINALE_REGION  # noqa: E402
-from ._util import world_item_names  # noqa: E402
+from ._util import assert_goal_reachable, world_item_names  # noqa: E402
 
 GAME = "Elden Ring"
 # The synthetic Erdtree burn (SPEC-ashen-capital-lock): minted on every base-game seed, for a
@@ -49,11 +49,11 @@ class RolledDiversity(WorldTestBase):
             # force-kept under `auto` so the goal derivation had a terminus; SPEC-ashen-capital-lock
             # (2026-08-06) deleted that force-keep and moved the terminus to the Ashen Capital,
             # which exists on every base-game seed and is entered from the HUB with its own lock.
-            # Winnability is the same claim at its new carrier: the item that opens the goal is in
-            # this seed's pool.
-            self.assertIn(_FINALE_LOCK, world_item_names(self),
-                          f"rolled seed {seed}: the finale's lock is the only way into the goal "
-                          f"region -- without it the seed is unwinnable")
+            # ...and #768 moved it AGAIN: the Lock is withheld from the pool and granted by the
+            # client, so "the item that opens the goal is in the pool" is now false by design. The
+            # claim lands on the entrance requirement, which is what has to be satisfiable for the
+            # seed to be winnable at all.
+            assert_goal_reachable(self, label=f"rolled seed {seed}")
             without_goal += GOAL_REGION not in kept
             # rolled keeps N random regions plus the REGION_PARENT closure, and every kept child
             # must have its ancestors kept (the invariant that replaces the exact count). The

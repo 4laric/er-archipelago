@@ -394,7 +394,10 @@ class LeanSeedWarnsRatherThanShipsQuietly(WorldTestBase):
     """
 
     game = GAME
-    options = {"num_regions": 1, "curated_filler": {"stones": 2, "juice": 98}}
+    # SIZE IS THE POINT HERE (a seed too small for its recipe) and it does not change; only the
+    # ending does, because #768 made a 1-region `region_locks` seed illegal at gen.
+    options = {"num_regions": 1, "curated_filler": {"stones": 2, "juice": 98},
+               "ending_condition": "great_runes"}
 
     def test_thin_stone_reservation_is_warned(self):
         import logging
@@ -540,7 +543,10 @@ class SomberTierPresenceFloor(WorldTestBase):
     """
 
     game = GAME
-    options = {"num_regions": 1, "enable_dlc": True}
+    # 🛑 CONTRIBUTING RULE 11: the reported size was ONE REGION and it stays one region. #768
+    # made that seed illegal under the default ending, so the rune goal carries it -- changing
+    # num_regions instead would have retired the motivating case to make a test pass.
+    options = {"num_regions": 1, "enable_dlc": True, "ending_condition": "great_runes"}
 
     def _vanilla_somber(self):
         """{tier} of somber stone the kept vanilla checks already pay -- derived, not imported."""

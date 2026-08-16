@@ -116,16 +116,21 @@ class Phase7RegionLockOn(WorldTestBase):
                          "the Ashen Capital Lock may NEVER be the precollected anchor -- it is not "
                          "a place you play, and starting holding it would open the game's ending "
                          "at connect (SPEC-ashen-capital-lock decision 2)")
-        from ._util import world_item_names
+        from ._util import assert_goal_reachable, world_item_names
         pool_locks = [n for n in world_item_names(self)
                       if n.endswith(" Lock") and n not in pre]
         kept = self.world._kept()
-        # ...+ the finale's lock, which is minted on every base-game seed and belongs to no kept
-        # region (SPEC-ashen-capital-lock, 2026-08-06: the Erdtree burn IS an item now). Named
-        # rather than filtered, so it has to be present -- an absent burn item is a seed with an
-        # unreachable goal.
+        # ⭐ THE FINALE'S LOCK LEFT THIS EXPECTATION ON 2026-08-16 (#768). It used to be named here
+        # rather than filtered out, on the reasoning that "an absent burn item is a seed with an
+        # unreachable goal" -- true while the Lock was the only way in, false now that the client
+        # grants the region once every other goal item is held (client#245).
+        #
+        # 🛑 THE EQUALITY STAYS EXACT, which is the point: with the finale's lock dropped from the
+        # expected list this now FAILS if it is minted. The claim inverted; it was not weakened.
         self.assertEqual(sorted(pool_locks + pre),
-                         sorted([f"{r} Lock" for r in kept] + [f"{FINALE_REGION} Lock"]))
+                         sorted(f"{r} Lock" for r in kept))
+        # ...and the winnability half the old line was carrying, at its new carrier.
+        assert_goal_reachable(self)
 
 
 class Phase7Whetblades(WorldTestBase):
