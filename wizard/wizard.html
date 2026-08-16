@@ -129,6 +129,16 @@ header.top .sub{color:var(--dim);font-size:13px}
 .ctl label.kchoice .kn{font:12px var(--mono);margin-left:auto;padding-left:8px;white-space:nowrap}
 .ctl label.kchoice .kn.kadds{color:var(--gold)}
 .ctl label.kchoice .kn.knil{color:var(--dim)}
+/* A family whose classes CONTAIN one another is drawn as a TREE, one column, indented (#733). The
+   responsive grid above puts a child BESIDE its parent, which says the opposite of what the nesting
+   means. Families with no containment keep the grid -- there is nothing to nest and one wide column
+   of five equals reads worse than two. */
+.famtree{display:flex;flex-direction:column;gap:4px}
+.ctl label.kchoice.kd1{margin-left:20px}
+.ctl label.kchoice.kd2{margin-left:40px}
+.ctl label.kchoice.kd3{margin-left:60px}
+.ctl label.kchoice.kd1,.ctl label.kchoice.kd2,.ctl label.kchoice.kd3{
+  border-left:2px solid var(--gold-dim)}
 .surftot{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;
   border:1px solid var(--gold-dim);border-radius:6px;padding:6px 10px;margin-bottom:8px}
 .surftot b{font:15px var(--mono);color:var(--gold);font-weight:400}
@@ -4043,6 +4053,65 @@ const ERW = (() => {
      only inverts the relation; it must never grow its own idea of what contains what. When two
      selected parents both cover a child, the FIRST in key_meta order wins -- deterministic, and
      the message names one parent rather than a list nobody reads. */
+  /* NEST THE CLASSES THAT CONTAIN ONE ANOTHER (#733).
+     Returns [{key, depth}] for ONE family, parent before child, so the grid can be drawn as the
+     lattice actually is instead of as a flat row of equals. A player does not have to learn that
+     Remembrances live inside Major bosses if the page simply draws them inside it.
+
+     PARENT = THE NEAREST CONTAINER, not the first one found: `Boss` and `MajorBoss` both contain
+     `Remembrance`, and hanging it off `Boss` would say something true and useless. Nearest = the
+     container with the fewest members of this family; ties go to key_meta order, the same rule
+     `coveredBy` uses, so the drawing is deterministic.
+
+     🛑 TOTAL BY CONSTRUCTION. Anything the walk does not reach is appended flat at the end. A class
+     the page does not draw is a class the player cannot select, and check_wizard_keymeta_js exists
+     precisely because that failure is invisible on screen -- a malformed `contains` must cost a
+     little indentation, never a checkbox. The `seen` guard also makes a cycle unhangable; a subset
+     relation cannot have one, but this runs in a browser and the metadata is generated. */
+  function surfaceTree(keys, contains){
+    const kms = keys || [];
+    const cont = contains || {};
+    const inFam = new Set(kms.map(k => k.key));
+    const rank = new Map(kms.map((k, i) => [k.key, i]));
+    const size = {};
+    for (const km of kms){
+      size[km.key] = (cont[km.key] || []).filter(c => inFam.has(c)).length;
+    }
+    const parent = {};
+    for (const km of kms){
+      let best = null;
+      for (const cand of kms){
+        if (cand.key === km.key) continue;
+        if (!(cont[cand.key] || []).includes(km.key)) continue;
+        if (best === null || size[cand.key] < size[best]
+            || (size[cand.key] === size[best] && rank.get(cand.key) < rank.get(best))){
+          best = cand.key;
+        }
+      }
+      parent[km.key] = best;
+    }
+    const kids = new Map();
+    for (const km of kms){
+      const p = parent[km.key];
+      if (!kids.has(p)) kids.set(p, []);
+      kids.get(p).push(km);
+    }
+    const out = [], seen = new Set();
+    const walk = (key, depth) => {
+      for (const km of (kids.get(key) || [])){
+        if (seen.has(km.key)) continue;
+        seen.add(km.key);
+        out.push({ key: km.key, depth });
+        walk(km.key, depth + 1);
+      }
+    };
+    walk(null, 0);
+    for (const km of kms){
+      if (!seen.has(km.key)){ seen.add(km.key); out.push({ key: km.key, depth: 0 }); }
+    }
+    return out;
+  }
+
   function surfaceCoverage(keyMeta, selected){
     const out = {};
     if (!keyMeta || !keyMeta.keys) return out;
@@ -4059,7 +4128,7 @@ const ERW = (() => {
 
   return { loadMeta, newState, applyPreset, getVal, setVal, isDefault, deviations,
            buildYaml, findings, pretty, sanitizeName, seedSize, surfaceCoverage,
-           surfaceMarginals, isPlainObject, fmtDefault, AP_CORE };
+           surfaceTree, surfaceMarginals, isPlainObject, fmtDefault, AP_CORE };
 })();
 if (typeof module !== "undefined") module.exports = ERW;
 </script>
@@ -4287,10 +4356,18 @@ if (typeof module !== "undefined") module.exports = ERW;
           if (!kms.length) continue;
           const box = el("div", "fam");
           box.append(el("div", "famlab", fam.label));
-          const grid = el("div", "famgrid");
-          for (const km of kms){
+          /* Tree when this family's classes nest, grid when they do not. `surfaceTree` is total,
+             so `rows` is always a permutation of `kms` and no class can fall out of the page. */
+          const rows = ERW.surfaceTree(kms, contains);
+          const nested = rows.some(r => r.depth > 0);
+          const grid = el("div", nested ? "famtree" : "famgrid");
+          const byKey = {};
+          for (const km of kms) byKey[km.key] = km;
+          for (const row of rows){
+            const km = byKey[row.key];
             const cov = coveredBy[km.key];
-            const lab = el("label", "kchoice" + (cov ? " covered" : ""));
+            const lab = el("label", "kchoice" + (cov ? " covered" : "")
+                                  + (row.depth ? " kd" + Math.min(row.depth, 3) : ""));
             const cb = Object.assign(document.createElement("input"),
               {type:"checkbox", checked:sel.has(km.key)});
             onToggle(cb, km.key);
