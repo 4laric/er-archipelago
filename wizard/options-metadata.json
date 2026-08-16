@@ -1,7 +1,7 @@
 {
  "schema": 1,
  "game": "Elden Ring",
- "apworld_version": "0.4.3",
+ "apworld_version": "0.4.4",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
  "source_sha256": "94cbe3400916b45f22922b60400d5f3c3f3a889038404576b1b835c579262612",
  "field_order": [
