@@ -438,8 +438,18 @@ def test_the_sweep_corpus_did_not_shrink():
     # it, so a sibling cannot be swept into a region its primary was not (the #445/#598 class), and
     # the map-region vote is deliberately NOT re-cast -- one physical pickup votes once.
     # Alaric's ruling, 2026-08-13: all co-checks are swept with their primary.
-    assert total == 4045, (
-        "sweep corpus is %d, expected 4045. If a sweep was legitimately added or removed, say WHY "
+    # -1 (2026-08-16, #737) 4045 -> 4044. WHY: flag 60510, `Talisman Pouch`, stopped being SWEPT
+    # FILLER and became the check Margit's death GRANTS. It had no boss attribution at all until now
+    # -- datamine_boss_reward_lots discarded its row as "reward flag flipped by 2 maps", because
+    # Morgott's defeat event back-fills the same reward flag behind `if (!EventFlag(9100))` (Margit
+    # and Morgott are one character, so killing Morgott implies Margit). With the back-fill
+    # distinguished from an ownership claim, the check resolves to Margit's own trigger 10000850 --
+    # and a boss's REWARD cannot also be one of the members its own defeat sweeps, so it leaves the
+    # corpus. Exactly one check, and it is the one the fix was about. The reshuffle between
+    # 10000800 and 10000850 in the same regen is the m10_00 pair re-partitioning 111 members instead
+    # of 112 (the DIVVIED path), not membership crossing a region boundary.
+    assert total == 4044, (
+        "sweep corpus is %d, expected 4044. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -594,6 +604,11 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # the #680 fix: flag 66930 (Hefty Cracked Pot, lot m41_01 Bonny Gaol) moved Limgrave -> Scadu
     # Altus, so one member left Limgrave's sweep and joined Scadu Altus's. A churn with the SAME
     # total is exactly what a one-check re-region looks like; a real regression would move the count.
-    assert (digest, n) == ("28f04fe447dccee7", 4045), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (28f04fe447dccee7, 4045). The total alone will "
+    # 2026-08-16 (#737): 28f04fe4 -> 03b7fb99, count 4045 -> 4044. The count moving is the tell that
+    # this one is NOT a permutation, and it should not be: flag 60510 LEFT the corpus because it
+    # became Margit's reward instead of his filler (see the +/- note in the corpus test above). The
+    # rest of the digest change is m10_00's two triggers re-partitioning 111 members where they had
+    # 112 -- the DIVVIED path re-phases both sides whenever the pool size moves.
+    assert (digest, n) == ("03b7fb990ee4274c", 4044), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (03b7fb990ee4274c, 4044). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

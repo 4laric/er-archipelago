@@ -93,6 +93,70 @@ fine and is merely less readable. Both were confirmed red against the code they 
 
 Fixes #732.
 
+### The major-boss roster is the game's, not ours
+
+Red Wolf of Radagon was not a major boss. Neither were Godskin Noble, Godskin Duo, the Valiant
+Gargoyles, Mimic Tear, the Dragonkin Soldier of Nokstella, Royal Knight Loretta, Elemer of the Briar,
+Commander Niall or the Ancestor Spirit — so a region Lock could never be placed on any of them, and
+the default progression surface was that much smaller and that much stranger.
+
+`MajorBoss` was a **hand-curated list**, and matt's roster showed it wrong in both directions. His UI
+describes his set as "Major bosses — 30 checks, **including all achievement bosses**", and that
+phrase turned out to be the whole derivation: we do not need his list, because the game ships its
+own. `common.emevd` registers one trophy event and every achievement is a call site of it —
+
+```
+$Event(9300, Restart, function(achievementId, eventFlagId, timeSeconds) { … AwardAchievement(…) });
+$InitializeEvent(26, 9300, 26, 14000850, 0);      // achievement 26 = Red Wolf of Radagon's defeat flag
+```
+
+— so "is this a major boss" stopped being an opinion and became a join. 32 call sites, **29 of them
+on a boss defeat flag**, and the hop from a defeat flag to the check that death grants is a table we
+already had.
+
+**MajorBoss 43 → 51.** Twelve bosses gained a major-boss check; four hand anchors were deleted
+because the derived roster covers their regions. Default-surface hosting goes 170 → 179, and the
+roster is *better evidenced* than the list it replaced: the share of MajorBoss checks whose region we
+are confident about rises 91% → 94%.
+
+**All 29 achievement bosses resolve — including Margit**, and how he got there is the most useful
+thing in this entry. He was first written off: *"no boss-drop row exists in our data; his only item
+is the Roundtable's Margit's Shackle, which is not a death reward."* Researched, plausible, wrong.
+His drop is the **Stormveil Talisman Pouch**, and the game says so plainly —
+
+```
+m10_00   // マルギット撃破 -- Defeat Margit
+         HandleBossDefeatAndDisplayBanner(10000850, GreatEnemyFelled);
+         SetEventFlagID(9100, ON);
+common   $InitializeEvent(0, 1100, 9100, 10000, 0, 60510);   →  lot 10000 = Talisman Pouch
+```
+
+— a check sitting in the location table the whole time carrying **no tags at all**. What hid it: our
+reward datamine discarded the row as *"reward flag flipped by 2 maps"*, because Morgott's defeat
+event also sets flag 9100 — behind `if (!EventFlag(9100))`, since Margit and Morgott are the same
+character and killing Morgott implies Margit. **A guarded back-fill is not an ownership claim.** The
+tool now distinguishes the two; the "never guess which boss a shared reward belongs to" rule is
+untouched, and the two genuinely-shared reward flags in that table are still refused.
+
+That one fix cascaded pleasingly. Margit's check re-homes to Limgrave (Stormhill is where you
+*stand* to fight him), which made the Agheel anchor redundant, and the redundancy gate deleted it.
+**Agheel and Godefroy are the two entries matt's roster explicitly does not count, and both are now
+gone for reasons that had nothing to do with matt.** The check also sheds a wrong *"also granted by
+Godrick the Grafted"* attribution it had picked up from the same missing join, and `Boss` /
+`LegacyBoss` each gain it (267 / 53) — a check that always existed in the game finally carrying the
+tags it deserved.
+
+⭐ **The hand list had been rediscovering the trophy table by accident.** Three of the seven deleted
+entries — Leonine Misbegotten, Magma Wyrm Makar, Mohg the Omen — are the *same checks* the
+achievement roster derives. They were added by hand, one at a time, for regions that looked bare.
+`MAJOR_BOSS_EXTRAS` is down to three entries, and a new hard error fails the build if a fourth ever
+becomes redundant.
+
+🛑 **The no-check ledger is empty, and asserted empty.** It held Margit for about an hour, and the
+lesson is about ledgers rather than about Margit: a waiver is the one place a wrong belief can sit
+and look like diligence, because it converts "our derivation is missing something" into a documented
+fact about the game that nothing downstream ever questions again.
+
 ## v0.4.3 — 2026-08-15
 
 ### Your partners stop receiving 400 Golden Runes, and start receiving gear

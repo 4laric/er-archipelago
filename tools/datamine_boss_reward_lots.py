@@ -92,8 +92,54 @@ def registrations(common_src, handlers):
     return out
 
 
-def flag_to_map():
-    """{rewardFlag: {map_prefix}} -- every map EMEVD that flips a 4-digit reward flag ON."""
+# 🛑 A CATCH-UP IS NOT AN OWNERSHIP CLAIM (2026-08-16, Alaric: "margit's boss drop is stormveil
+# talisman pouch"). Some bosses RETROACTIVELY grant another boss's reward, and the game writes that
+# in one idiom -- a set guarded by "has this not happened yet":
+#
+#     m10_00, // マルギット撃破 -- Defeat Margit
+#         HandleBossDefeatAndDisplayBanner(10000850, GreatEnemyFelled);
+#         SetEventFlagID(10000850, ON);
+#         SetEventFlagID(9100, ON);                 <- MARGIT OWNS reward flag 9100, unconditionally
+#
+#     m11_00, Morgott's defeat event
+#         SetEventFlagID(11000800, ON);
+#         if (!EventFlag(10000850)) { SetEventFlagID(10000850, ON); }
+#         if (!EventFlag(9100))     { SetEventFlagID(9100, ON); }    <- CATCH-UP: Margit and Morgott
+#                                                                      are the same character, so
+#                                                                      killing Morgott implies Margit
+#
+# Read as two equal setters, that is "flipped by 2 maps" and the whole row was DISCARDED -- which is
+# why Margit's Talisman Pouch (getFlag 60510) had no boss attribution at all, and why the achievement
+# roster (#737) could not find a check for one of the most famous bosses in the game.
+#
+# The ambiguity rule itself was right and stays: never guess which boss a shared reward belongs to.
+# What was wrong is the model of "shared" -- an unconditional set and a guarded back-fill are not the
+# same act. So the tie-break is EVIDENCE, not preference: it applies ONLY where the guarded/unguarded
+# split leaves exactly one unconditional setter. The other two ambiguous rows in this table (9161
+# across m40_02/m61_52_43, 9280 across m34_10/m43_00) are set unconditionally in BOTH places, so they
+# remain unattributed exactly as before -- verified, not assumed.
+_CATCHUP_RE = re.compile(r"if\s*\(\s*!\s*EventFlag\(\s*\d+\s*\)\s*\)\s*\{\s*"
+                         r"SetEventFlagID\(\s*(\d+)\s*,\s*ON\s*\)\s*;?\s*\}")
+
+
+def _unconditional(text):
+    """The flags `text` sets ON at least once OUTSIDE the catch-up idiom.
+
+    Counted rather than set-subtracted: a body that back-fills a flag AND owns it (nothing does
+    today, but the parse should not depend on that) still counts as an owner."""
+    every, guarded = {}, {}
+    for f in re.findall(r"SetEventFlagID\(\s*(\d+)\s*,\s*ON\s*\)", text):
+        every[int(f)] = every.get(int(f), 0) + 1
+    for f in _CATCHUP_RE.findall(text):
+        guarded[int(f)] = guarded.get(int(f), 0) + 1
+    return {f for f, n in every.items() if n > guarded.get(f, 0)}
+
+
+def flag_to_map(unconditional_only=False):
+    """{rewardFlag: {map_prefix}} -- every map EMEVD that flips a 4-digit reward flag ON.
+
+    With `unconditional_only`, a map that ONLY back-fills the flag behind an `if (!EventFlag(...))`
+    guard does not count as flipping it -- see the catch-up note above."""
     out = {}
     for fp in glob.glob(os.path.join(EVT, "m*.emevd.dcx.js")):
         mp = os.path.basename(fp).split(".")[0]          # m30_12_00_00 / m60_43_37_00
@@ -101,8 +147,12 @@ def flag_to_map():
         # region_of would then nearest-neighbour it to the wrong tile. Interiors really are 2 (m30_12).
         _p = mp.split("_")
         tile = "_".join(_p[:3]) if _p[0] in ("m60", "m61") else "_".join(_p[:2])
-        for f in set(re.findall(r"SetEventFlagID\((\d{4}),\s*ON\)", _read(fp))):
-            out.setdefault(int(f), set()).add(tile)
+        src = _read(fp)
+        flags = ({int(f) for f in re.findall(r"SetEventFlagID\((\d{4}),\s*ON\)", src)}
+                 if not unconditional_only
+                 else {f for f in _unconditional(src) if 1000 <= f <= 9999})
+        for f in flags:
+            out.setdefault(f, set()).add(tile)
     return out
 
 
@@ -120,10 +170,13 @@ _BANNER_RE = re.compile(r"HandleBossDefeatAndDisplayBanner\(\s*(\d+)")
 _SETON_RE  = re.compile(r"SetEventFlagID\(\s*(\d+)\s*,\s*ON\s*\)")
 
 
-def flag_to_defeat():
+def flag_to_defeat(unconditional_only=False):
     """{rewardFlag: {defeatFlag}} -- across every map EMEVD, the boss defeat flag that shares a defeat
     event with a reward-flag flip. A reward flag reached from two different defeat flags is left with
-    a >1 set (derive() then declines to join it -- never guess which boss a shared reward belongs to)."""
+    a >1 set (derive() then declines to join it -- never guess which boss a shared reward belongs to).
+
+    With `unconditional_only`, a defeat event that merely BACK-FILLS the reward flag does not claim
+    it -- see the catch-up note above flag_to_map."""
     out = {}
     for fp in glob.glob(os.path.join(EVT, "m*.emevd.dcx.js")):
         src = _read(fp)
@@ -134,7 +187,9 @@ def flag_to_defeat():
             if not banners:
                 continue
             defeat = int(banners[0])                       # the banner arg = the boss defeat flag
-            for rf in {int(x) for x in _SETON_RE.findall(body)}:
+            sets = (_unconditional(body) if unconditional_only
+                    else {int(x) for x in _SETON_RE.findall(body)})
+            for rf in sets:
                 if 9000 <= rf <= 9999:                     # the common-award reward-trigger band
                     out.setdefault(rf, set()).add(defeat)
     return out
@@ -144,20 +199,32 @@ def derive():
     """[(getFlag, tile, lot, rewardFlag, handler, note)] -- note is '' when the join is unambiguous."""
     common = _read(os.path.join(EVT, "common.emevd.dcx.js"))
     handlers = award_handlers(common)
-    f2m = flag_to_map()
-    f2d = flag_to_defeat()
+    f2m, f2d = flag_to_map(), flag_to_defeat()
+    # The catch-up-aware pass. Used ONLY to break a tie the plain pass already refused, never to
+    # override an attribution it made: this can add resolutions, it cannot change one.
+    f2m_own, f2d_own = flag_to_map(True), flag_to_defeat(True)
     rows, skipped = [], []
     for h, rf, lot, lot2, gf in registrations(common, handlers):
         maps = sorted(f2m.get(rf, ()))
         defeats = f2d.get(rf, set())
         defeat = next(iter(defeats)) if len(defeats) == 1 else 0   # 0 = no unambiguous boss defeat flag
+        note = ""
+        if len(maps) > 1:
+            owners, own_defeats = sorted(f2m_own.get(rf, ())), f2d_own.get(rf, set())
+            if len(owners) == 1:
+                note = ("catch-up: %s back-fill this behind `if (!EventFlag(...))`, %s sets it "
+                        "unconditionally" % (",".join(m for m in maps if m != owners[0]), owners[0]))
+                maps = owners
+                if len(own_defeats) == 1:
+                    defeat = next(iter(own_defeats))
         if len(maps) == 1:
-            rows.append((gf, maps[0], lot, rf, h, defeat, ""))
+            rows.append((gf, maps[0], lot, rf, h, defeat, note))
         elif not maps:
             skipped.append((gf, lot, rf, h, "no map EMEVD flips this reward flag"))
         else:
-            # Ambiguous: more than one map flips it. Do NOT guess -- an invented attribution is how a
-            # check lands in the wrong region and a progression item strands there.
+            # Ambiguous: more than one map flips it UNCONDITIONALLY. Do NOT guess -- an invented
+            # attribution is how a check lands in the wrong region and a progression item strands
+            # there. (A guarded back-fill is not one of these; see the catch-up note above.)
             skipped.append((gf, lot, rf, h, "reward flag flipped by %d maps: %s" % (len(maps), ",".join(maps))))
     return handlers, sorted(rows), sorted(skipped)
 
