@@ -30,14 +30,17 @@ except ImportError:  # minimal fallbacks so the module imports without the gener
     REVERED_ASH_COST = [1, 1, 1, 2, 2, 3, 3, 3, 4, 5]
 
 # ---------------------------------------------------------------------------------------------
-# KNOWN constants (no source file). Golden/Shadow rune item -> runes granted.
+# KNOWN constants (derived from shop_stock_data.RUNE_PAYOUT). Golden/Shadow rune item -> runes granted.
 RUNE_VALUE: Dict[str, int] = {
     'Golden Rune [1]': 200, 'Golden Rune [2]': 400, 'Golden Rune [3]': 800, 'Golden Rune [4]': 1200,
     'Golden Rune [5]': 1600, 'Golden Rune [6]': 2000, 'Golden Rune [7]': 2500, 'Golden Rune [8]': 3000,
     'Golden Rune [9]': 3800, 'Golden Rune [10]': 5000, 'Golden Rune [11]': 6250, 'Golden Rune [12]': 7500,
-    'Golden Rune [13]': 10000, "Lord's Rune": 50000, "Hero's Rune [1]": 2500, "Hero's Rune [2]": 3800,
-    "Hero's Rune [3]": 5000, "Hero's Rune [4]": 6250, "Hero's Rune [5]": 7500, "Numen's Rune": 12500,
-    'Shadow Realm Rune [1]': 1000, 'Shadow Realm Rune [2]': 1600,
+    'Golden Rune [13]': 10000, "Numen's Rune": 12500, "Hero's Rune [1]": 15000, "Hero's Rune [2]": 20000,
+    "Hero's Rune [3]": 25000, "Hero's Rune [4]": 30000, "Hero's Rune [5]": 35000, "Lord's Rune": 50000,
+    'Broken Rune': 500, 'Shadow Realm Rune [1]': 7500, 'Shadow Realm Rune [2]': 10000,
+    'Shadow Realm Rune [3]': 12500, 'Shadow Realm Rune [4]': 15000, 'Shadow Realm Rune [5]': 17500,
+    'Shadow Realm Rune [6]': 22500, 'Shadow Realm Rune [7]': 30000, "Leda's Rune": 40000,
+    'Rune of an Unsung Hero': 50000, "Marika's Rune": 80000,
 }
 # KNOWN: Sacred Tears upgrade flask potency, one per level (~12 in base game). No source file.
 FLASK_POTENCY_TEAR_COST: List[int] = [1] * 12
