@@ -289,7 +289,7 @@ class FinaleIsOnTheScalingWire(WorldTestBase):
     the degenerate case: one rolled region plus the always-locked finale. Before the fix this seed
     emitted five buckets, all Mt. Gelmir, all target 0, and nothing for the capital at all."""
     game = GAME
-    options = {"num_regions": 1, "enable_dlc": False}
+    options = {"num_regions": 1, "enable_dlc": False, "ending_condition": "great_runes"}
 
     def test_finale_buckets_are_wired_and_deepest(self):
         world = self.world
