@@ -91,12 +91,17 @@ class FillerForeignPct(Range):
     whole category -- `keep_local` is the knob for barring one, and it should stay the only one.
     (`pct: 0` is exempt: you asked for all of it home.)
 
-    ⚠️ THE USEFUL RANGE IS THE BOTTOM OF THE SLIDER. Measured cross-game beside Hollow Knight, one
-    ER slot, useful:filler in what the partner receives: 100 -> 0.47:1, 50 -> 0.52:1, 25 -> 0.61:1,
-    12 -> 0.82:1, 0 -> 1.87:1. The 1:1 composition target lands around 6-12, and the exact crossing
-    moves by seed. Above ~50 you are adjusting almost nothing. Exported USEFUL rises the whole way
-    (43 -> 58 items), so holding filler back buys your partner gear rather than shrinking the
-    export.
+    The default (70) is the measured 1:1 useful:filler mix, WITH the shipped `keep_local` below.
+    Measured cross-game, one ER slot, pooled over seeds -- Hollow Knight 5 seeds: 100 -> 0.79:1,
+    70 -> 1.00:1; Bumper Stickers 3 seeds: 100 -> 0.77:1, 70 -> 0.97:1. Raise it toward 100 to send
+    more of your junk out, lower it to send less. Exported USEFUL barely moves either way; what
+    changes is how much filler rides along.
+
+    ⚠️ THOSE NUMBERS ASSUME THE SHIPPED `keep_local`. The two levers compose, and hard: against
+    `keep_local: []` the same sweep put 1:1 at pct 6-12 rather than 70 -- an order of magnitude
+    away (100 -> 0.47:1, 50 -> 0.52:1, 25 -> 0.61:1, 12 -> 0.82:1). If you empty or extend
+    `keep_local`, this number means something different and you should re-measure rather than
+    reason about it.
 
     Inert in a solo seed (no other worlds) and composes with keep_local."""
     display_name = "Filler Open to Foreign (%)"

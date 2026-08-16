@@ -178,7 +178,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.4",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "ad086ef71ab2b834f510960381ee97af63fc5c5898939565f7217c0cc1ca1ac7",
+ "source_sha256": "24fb13dc4e76899800ae97764b43946d55eb3f8ac9911f8f067454c6654dbb12",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -831,10 +831,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "filler_foreign_pct",
    "class": "FillerForeignPct",
    "display_name": "Filler Open to Foreign (%)",
-   "description": "Percent of THIS slot's filler (the generic Rune, plus vanilla GOODS when Shuffle Vanilla\nItems is on) that MAY travel to other players' worlds in a multiworld. 100 (default) = fully\nopen, greenfield's current behavior (no change). Lower values keep more of your filler in your\nown world: at pct we force (100 - pct)% of the distinct filler item names local. 0 = keep all\nfiller home. A propensity by distinct item name, not a hard per-copy rule. Inert in a solo seed\n(no other worlds) and composes with Local Items Only.",
+   "description": "Percent of THIS slot's filler COPIES that may travel to other players' worlds. 100\n(default) = fully open, no change. Lower keeps more of your filler home: at pct we hold back\n(100 - pct)% of your filler copies. 0 = keep all filler home.\n\nEvery category keeps something eligible. The share is spent WITHIN each category and never takes\na category's last item, so lowering this thins what you export rather than silently barring a\nwhole category -- `keep_local` is the knob for barring one, and it should stay the only one.\n(`pct: 0` is exempt: you asked for all of it home.)\n\nThe default (70) is the measured 1:1 useful:filler mix, WITH the shipped `keep_local` below.\nMeasured cross-game, one ER slot, pooled over seeds -- Hollow Knight 5 seeds: 100 -> 0.79:1,\n70 -> 1.00:1; Bumper Stickers 3 seeds: 100 -> 0.77:1, 70 -> 0.97:1. Raise it toward 100 to send\nmore of your junk out, lower it to send less. Exported USEFUL barely moves either way; what\nchanges is how much filler rides along.\n\n⚠️ THOSE NUMBERS ASSUME THE SHIPPED `keep_local`. The two levers compose, and hard: against\n`keep_local: []` the same sweep put 1:1 at pct 6-12 rather than 70 -- an order of magnitude\naway (100 -> 0.47:1, 50 -> 0.52:1, 25 -> 0.61:1, 12 -> 0.82:1). If you empty or extend\n`keep_local`, this number means something different and you should re-measure rather than\nreason about it.\n\nInert in a solo seed (no other worlds) and composes with keep_local.",
    "kind": "range",
    "base": "Range",
-   "default": 100,
+   "default": 70,
    "choices": null,
    "range": {
     "start": 0,
