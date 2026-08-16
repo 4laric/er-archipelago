@@ -93,4 +93,4 @@ SCALING_PLAY_IDS = {
 # always sufficient (the client cannot scale DOWN an enemy it cannot place).
 SCALING_FLOOR_PLAY_IDS = frozenset([10010, 11100, 18000])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:cae7af8eeeca7ddb4da86931e4c8ca4accbcfe8738db8554026eb2dbe9e4c266', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:62dfe20157c3260a6f91e218526c10d34e84f062908eed36e59a5ca0978a1a75'}
+_GEN_STAMP = {'inputs_hash': 'sha256:0c583395852b4143465e3f05c497b1c307f914e4be4d49b9a34e7e6666ea6937', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:62dfe20157c3260a6f91e218526c10d34e84f062908eed36e59a5ca0978a1a75'}

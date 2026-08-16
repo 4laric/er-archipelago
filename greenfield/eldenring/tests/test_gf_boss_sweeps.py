@@ -49,13 +49,15 @@ DUNGEON_LOT_PREFIXES = ("30", "31", "32", "34", "39", "40", "41", "42", "43")
 # may contain one of these: another boss's reward is not this boss's area loot, a key item is a
 # gate, and merchant stock is bought rather than picked up.
 FIELD_EXCLUDE = frozenset({"Remembrance", "Boss", "GreatRune", "KeyItem", "Shop", "ShopNonSpell",
-                           "ShopSlot", "MajorBoss", "LegacyBoss", "FieldBoss"})
+                           "ShopSlot", "MajorBoss", "LegacyBoss", "FieldBoss",
+                           "MinorDungeonBoss"})
 # ...and the half that IS admitted, cut per seed instead (gen_data._SWEEP_SURFACE_CUTTABLE /
 # features/boss_locks._SWEEP_SURFACE_CUTTABLE). The collectathon and rarity lines hold loot unless
 # the seed's Progression Surface claimed the class.
 SURFACE_CUTTABLE = frozenset({"Seedtree", "Church", "Fragment", "Revered", "Basin", "Legendary"})
-# LegacyBoss/FieldBoss (2026-08-02) are SUBSETS of Boss, which is already in the floor, so adding
-# them cuts nothing new -- every check they name was excluded already. They are listed because the
+# LegacyBoss/FieldBoss (2026-08-02) and MinorDungeonBoss (2026-08-16) are SUBSETS of Boss, which is
+# already in the floor, so adding them cuts nothing new -- every check they name was excluded
+# already. They are listed because the
 # UNION of the two sets above is a deliberate mirror of contract.SURFACE_CLASSES and
 # test_field_exclude_matches_contract demands that PARTITION: the guard exists so a new premium
 # class cannot be added to the vocabulary while quietly staying eligible for a sweep -- it has to be
