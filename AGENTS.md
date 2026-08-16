@@ -36,6 +36,23 @@ They are different filesystems. `Edit` writes the mount; `bash` sees the sandbox
 > Reading is also unsafe: **the mount can serve a TRUNCATED view of a file.** A size/content diff
 > against a mount path will invent corruption that isn't there (see §6). Read git blobs instead:
 > `git show origin/main:<path>`.
+>
+> 🛑 **THE TRUNCATION IS A WINDOWS-MOUNT PROPERTY. THE BAN IS NOT** (Alaric, 2026-08-16). The
+> silent-truncation/NUL-pad failure above belongs to the mount of the **Windows** checkout. When the
+> mounted tree is the macOS one, the mount serves whole files and reading it is not the
+> silent-wrong-answer machine §6 describes — so do not go hunting a truncation bug that cannot
+> happen on that host, and do not cite it as evidence in a review of a file that read fine.
+>
+> **Reasons 1-3 above are the load-bearing ones and they are host-independent:** anything you author
+> in the mount lands in Alaric's *working tree* and collides with his next pull on any OS. "It's a
+> Windows thing" is not a licence to work in the mount — it is the same ban for the other reason.
+>
+> Corollary, same day: **a stale `.git/index.lock` in the mount means a CONCURRENT AGENT, not mount
+> rot.** Two sessions on one checkout is enough; git leaves the lock behind and every later git call
+> in that tree dies with *"remove the file manually to continue"*. Before you clear one, establish
+> that no other session is live — deleting a lock a running process still owns is how an index gets
+> corrupted. (In Cowork the `rm` may itself come back `Operation not permitted` until file deletion
+> is enabled for the folder; that prompt is not a symptom of anything, it is just the permission.)
 
 > ### 🛑 SUBAGENTS DO NOT INHERIT THIS BAN. Restate it in every brief.
 >
@@ -710,7 +727,9 @@ The sandbox mount can silently truncate/NUL-pad large writes. Tools guard agains
   pre-commit hook (`git commit --no-verify` to bypass).
 - `tools/safe_publish.sh SRC DST` — atomic same-FS rename publish with byte+sha verify.
 - Run `check_integrity` against **git blobs / the real clone**, not sandbox *mount* paths
-  (the mount can serve a truncated view and false-alarm).
+  (the mount can serve a truncated view and false-alarm). 🛑 That false alarm is a **Windows**-mount
+  property (Alaric, 2026-08-16) — a macOS mount does not truncate. Run against blobs regardless, so
+  the habit does not depend on which machine is hosting.
 
 ## 7. Commit + push checklist
 
