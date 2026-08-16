@@ -53,7 +53,15 @@ UNVERIFIED_CEILING = 18
 # Measured 2026-08-01 (tools/probe_vanilla_gate_predicates.py, 589 files / 4893 events). Pinned here
 # because it is the answer to the report that produced this file, and a silent change to it would
 # mean somebody edited the table without re-measuring.
-GREAT_RUNE_FLAGS = {191, 192, 193, 194, 195, 196}
+#
+# 197 joined on 2026-08-16 (Alaric's ruling: seven runes, the Unborn one is a full citizen). It is NOT
+# a Divine-Tower restore flag like 191-196 -- there is no tower for the Unborn rune. It is Rennala's
+# ACQUISITION flag, and it counts for the same reason the others do: the capital reads
+# `CountEventFlags(EventFlag, 190, 199)`, and 197 is inside 190-199. Which is also why the band
+# membership below is the assertion that actually matters -- an id outside 190-199 is silently
+# uncounted, and the count is the whole gate.
+GREAT_RUNE_BAND = range(190, 200)
+GREAT_RUNE_FLAGS = {191, 192, 193, 194, 195, 196, 197}
 
 
 def _table_path():
@@ -234,9 +242,11 @@ class TestTheKnownCasesAreRecorded:
         assert set(GREAT_RUNES) <= rows, sorted(set(GREAT_RUNES) - rows)
 
     def test_great_runes_are_flag_gated_on_the_measured_band(self):
-        """The capital gate is `CountEventFlags(EventFlag, 190, 199) >= 2` (common $Event(720)), and
-        the six flags come from the Divine-Tower altar initializers. Nothing gates on possession of
-        a rune's goods. If this row set ever drifts, the client's writes stop matching the count."""
+        """The capital gate is `CountEventFlags(EventFlag, 190, 199) >= 2` (common $Event(720)).
+        Six of the seven flags come from the Divine-Tower altar initializers; the seventh (197) is
+        Rennala's acquisition flag and counts because it lands in the same band. Nothing gates on
+        possession of a rune's goods. If this row set ever drifts, the client's writes stop matching
+        the count."""
         from worlds.eldenring.features.leyndell_gate import GREAT_RUNES
         seen = set()
         for name in GREAT_RUNES:
@@ -246,6 +256,13 @@ class TestTheKnownCasesAreRecorded:
             flags = {int(f) for f in r["flags"].split(",") if f.strip()}
             assert len(flags) == 1, f"{name}: expected exactly one restored flag, got {flags}"
             seen |= flags
+        # The BAND is the load-bearing property: the gate is a count over 190-199, so an id outside
+        # it contributes nothing and no amount of writing it opens the door. Asserted separately
+        # from the exact set so a future rune is caught by the rule, not only by the ledger.
+        stray = sorted(f for f in seen if f not in GREAT_RUNE_BAND)
+        assert not stray, (
+            f"rune flags {stray} fall outside the counted band {GREAT_RUNE_BAND} -- the capital "
+            f"counts 190-199, so these are written and silently uncounted.")
         assert seen == GREAT_RUNE_FLAGS, (
-            f"the six rune flags must be exactly {sorted(GREAT_RUNE_FLAGS)} -- got {sorted(seen)}. "
-            f"They are counted as a BAND (190-199), so a stray id outside it is silently uncounted.")
+            f"the rune flags must be exactly {sorted(GREAT_RUNE_FLAGS)} -- got {sorted(seen)}. "
+            f"Do not edit this table without re-measuring.")

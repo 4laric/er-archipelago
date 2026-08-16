@@ -38,8 +38,12 @@ except Exception:  # pragma: no cover
     LOCATIONS = {}
 try:
     from ..item_ids import ITEM_CATALOG
-except Exception:
+    from .. import item_categories as _ic
+except Exception:  # pre-regen / standalone import
     ITEM_CATALOG = {}
+
+    class _ic:  # type: ignore[no-redef]  # no catalog -> no runes
+        GREAT_RUNES: list = []
 
 # {key item name: (region whose checks are gated, (flag_lo, flag_hi))}. flag_hi exclusive. m14
 # map-lot flags are 14000000..14999999 (Raya Lucaria Academy); the spare key on the LIURNIA
@@ -72,7 +76,8 @@ _MULTI_KEYS = frozenset(k for g in _MULTI_KEY_GATES for k in g["keys"])
 # otherwise form an unsolvable cycle (the necklace lands on a Leyndell rune-gated check while a Great
 # Rune lands on the necklace-gated Metyr check -> deadlock; FillError seen 2026-07-10). Forbid ALL of
 # them on every gated location (supersedes the old "!= own key" self-gate rule).
-_GREAT_RUNES = frozenset(nm for nm in ITEM_CATALOG if nm.endswith("Great Rune"))
+# SEVEN, from the one definition in item_categories -- see its GREAT_RUNE_GOODS_IDS block.
+_GREAT_RUNES = frozenset(_ic.GREAT_RUNES)
 _GATING_ITEMS = _GREAT_RUNES | frozenset(_LEGACY_KEYS) | _MULTI_KEYS
 
 
