@@ -440,19 +440,41 @@ def build_ladder(selection):
 
 
 def _roundtable_merchant_aps():
-    """Roundtable Hold (the always-open hub) MERCHANT ShopSlots -- Enia (remembrance weapons/armor)
-    and the Twin Maiden Husks. BARRED from the progression surface (Alaric 2026-07-18): the hub is
-    reachable at spawn, so a Lock / key item placed on a hub merchant slot is 'progression' you already
-    hold on turn one -- trivial. This rule touches ONLY hub ShopSlots; the hub's Golden Seed checks
-    (Seedtree, physical pickups) are left to the normal surface/defaulted logic. Derived from the
-    generated data, so a regen that adds or moves a hub ShopSlot is covered without a hand-list."""
+    """Roundtable Hold (the always-open hub) MERCHANT rows -- Enia, the Twin Maiden Husks, and every
+    other vendor standing in the hub. BARRED from the progression surface (Alaric 2026-07-18): the hub
+    is reachable at spawn, so a Lock / key item placed on a hub merchant row is 'progression' you
+    already hold on turn one -- trivial. This rule touches ONLY hub SHOP rows; the hub's Golden Seed
+    checks (Seedtree, physical pickups) are left to the normal surface/defaulted logic. Derived from
+    the generated data, so a regen that adds or moves a hub shop row is covered without a hand-list.
+
+    🛑 #707: this keyed on `ShopSlot` and therefore **barred nothing at all** from the day it was
+    written. `ShopSlot` is a real tag, but it is the ONE-PIN-PER-MERCHANT tag (12 aps repo-wide, the
+    lowest ap of each merchant's stock -- see location_tags' "ShopSlot pins" block), and **no hub ap
+    carries it**: the hub's vendors have no pin. So the comprehension asked a question the data can
+    never answer yes to, `frozenset()` came back, and `allowed_ap_ids`/`sweep_slot_aps` merged an
+    empty bar into `barred` with no complaint. Measured on main at 4c23d83d: the hub holds 239 rows,
+    of which 184 carry `Shop`, and selecting the "merchants" surface group put **162 of them on the
+    progression surface** -- Enia 79, Twin Maiden Husks 26, and 57 more, including the 16
+    Patches/Thiollier rows a player hit on 2026-08-15 ("it looks like it was expecting my friend to be
+    able to get this check from the get-go ... but he didn't have either of the regions").
+
+    ⭐ Key on `Shop`, the umbrella. VERIFIED against the generated data: zero rows carry
+    `ShopNonSpell` or `ShopSlot` without also carrying `Shop`, so one tag covers the whole family and
+    cannot be out-flanked by a narrower member the way the old predicate was. It leaves exactly one
+    hub row on the surface -- the Golden Seed (`Seedtree`) -- which is what the paragraph above
+    promises.
+
+    🛑 The bar being EMPTY is indistinguishable from the bar WORKING at default settings, because
+    `Shop`/`ShopNonSpell` are not in SURFACE_DEFAULT_CLASSES: only the Golden Seed is hub-eligible
+    there either way. It is visible only under a Shop-inclusive selection. Hence the guard in
+    tests/test_gf_progression_surface.py that asserts this returns something."""
     try:
         from ..data import LOCATIONS, HUB
         from ..location_tags import LOCATION_TAGS as _lt
     except Exception:
         return frozenset()
     return frozenset(ap for (_n, ap, _f) in LOCATIONS.get(HUB, ())
-                     if "ShopSlot" in _lt.get(ap, ()))
+                     if "Shop" in _lt.get(ap, ()))
 
 
 def allowed_ap_ids(tags_map, classes, defaulted=None):

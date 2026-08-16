@@ -255,6 +255,77 @@ def test_extras_cover_the_zero_major_regions():
         assert r in covered, f"zero-major region {r!r} is not covered by an active MAJOR_BOSS_EXTRAS entry"
 
 
+# ---- #707: the hub-merchant bar --------------------------------------------------------------
+def _hub_rows():
+    return list(data.LOCATIONS.get(data.HUB, ()))
+
+
+def _tags(ap):
+    return tuple(location_tags.LOCATION_TAGS.get(ap, ()))
+
+
+def test_the_hub_merchant_bar_bars_something():
+    """#707's whole content, and the guard the original never had.
+
+    `_roundtable_merchant_aps()` keyed on `ShopSlot` -- the one-pin-per-merchant tag, which NO hub ap
+    carries -- so it returned `frozenset()` and barred nothing from the day it was written. An empty
+    bar is a silent no-op: it merges into `barred` and every caller carries on. Assert it is
+    non-empty, because that is the single fact that distinguishes the fix from the bug."""
+    barred = ps._roundtable_merchant_aps()
+    assert barred, "the hub-merchant bar is EMPTY -- it is keyed on a tag no hub location carries (#707)"
+    assert len(barred) > 100, f"the hub holds 184 Shop rows; barring only {len(barred)} means the key narrowed"
+
+
+def test_the_hub_merchant_bar_covers_enia_and_the_twin_maidens():
+    """The two vendors the rule is actually named after. Identified by name so the assertion survives
+    an ap-id renumber (#249 renumbered them once already)."""
+    barred = ps._roundtable_merchant_aps()
+    for vendor in ("Finger Reader Enia", "Twin Maiden Husks"):
+        rows = [ap for (n, ap, _f) in _hub_rows() if vendor in n]
+        assert rows, f"no hub row mentions {vendor!r} -- the data moved, re-derive this test"
+        missed = [ap for ap in rows if ap not in barred]
+        assert not missed, f"{len(missed)} {vendor} rows escape the bar: {missed[:5]}"
+
+
+def test_the_hub_merchant_bar_leaves_the_golden_seed_alone():
+    """The docstring's promise: hub SHOP rows are barred, the hub's physical pickups are left to the
+    normal surface/defaulted logic. The Golden Seed is the one hub row on the surface at DEFAULT
+    classes, so barring it would silently remove the ladder's hub bootstrap rung -- which
+    test_synthetic_star_graph_confinement_model depends on."""
+    barred = ps._roundtable_merchant_aps()
+    seeds = [ap for (_n, ap, _f) in _hub_rows() if "Seedtree" in _tags(ap)]
+    assert seeds, "no Seedtree row in the hub -- the data moved, re-derive this test"
+    for ap in seeds:
+        assert ap not in barred, f"hub Seedtree {ap} must NOT be barred (it is not a shop row)"
+
+
+def test_shop_is_the_umbrella_so_the_key_cannot_be_out_flanked():
+    """Why the fix keys on `Shop` and not on a list of shop tags: every narrower member implies it.
+    If a regen ever breaks that, the bar goes partial and this fires -- which is exactly how #707
+    happened, a key that named a strictly narrower set than the thing it meant."""
+    orphans = [ap for ap, tags in location_tags.LOCATION_TAGS.items()
+               if ("ShopNonSpell" in tags or "ShopSlot" in tags) and "Shop" not in tags]
+    assert not orphans, f"{len(orphans)} rows carry a shop sub-tag without `Shop`: {orphans[:5]}"
+
+
+def test_a_merchant_surface_selection_puts_no_hub_shop_row_on_the_surface():
+    """The end-to-end consequence, through the real chokepoint.
+
+    `defaulted` is passed EMPTY on purpose: the hub-defaulted bar would mask this one, and a guard
+    its subject cannot fail is not a guard. With only the merchant bar in play, selecting the
+    merchants group must leave the hub holding exactly its non-shop rows."""
+    classes = set(contract.SURFACE_DEFAULT_CLASSES) | {"ShopSlot", "ShopNonSpell", "Shop"}
+    allowed = ps.allowed_ap_ids(location_tags.LOCATION_TAGS, classes, defaulted=frozenset())
+    hub_on_surface = {ap for (_n, ap, _f) in _hub_rows() if ap in allowed}
+    shop_rows = {ap for (_n, ap, _f) in _hub_rows() if "Shop" in _tags(ap)}
+    leaked = hub_on_surface & shop_rows
+    assert not leaked, (
+        f"{len(leaked)} hub SHOP rows reached the progression surface (#707). "
+        f"Every one is reachable at spawn, so a Lock placed there is held on turn one: {sorted(leaked)[:5]}"
+    )
+    assert hub_on_surface, "the hub should still contribute its Golden Seed -- the bar over-reached"
+
+
 # ---- synthetic ladder-placement model (documents the confinement/spill intent; no fill_restrictive)
 def test_synthetic_star_graph_confinement_model():
     """Model the region-lock star graph: Menu->Hub free; region R reachable iff its Lock is held.

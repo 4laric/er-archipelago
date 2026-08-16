@@ -39,7 +39,7 @@ THE BARS, and why each one disqualifies a check from hosting progression:
                     capital reconciler is armed, so this tool reports it as a SEPARATE column rather
                     than folding it in: it is conditional, the others are not.
   surface_excluded  SURFACE_EXCLUDE_APS -- hand-excluded surface-tagged checks (Alaric's call).
-  hub_merchant      Roundtable-Hold ShopSlots -- reachable at spawn, so progression there is trivial.
+  hub_merchant      Roundtable-Hold SHOP rows -- reachable at spawn, so progression there is trivial.
 
 🛑 THIS TOOL SETS NO POLICY. It does not decide that a class is too uncertain to offer; it prints the
 number a human decides on. `--check` asserts only that the committed table matches a fresh emit, so a
@@ -104,9 +104,15 @@ def _bars(mods):
     tags = mods["location_tags"]
     data = mods["data"]
     lt = tags.LOCATION_TAGS
+    # 🛑 KEY ON `Shop`, THE UMBRELLA -- and keep it identical to
+    # features/progression_surface._roundtable_merchant_aps. This mirror read `ShopSlot` and so did
+    # the feature, and BOTH barred nothing: `ShopSlot` is the one-pin-per-merchant tag and no hub ap
+    # carries it (#707). The two agreed, which is why `test_eligible_matches_allowed_ap_ids` stayed
+    # green through the whole defect -- a drift gate cannot see a shared wrong answer. It caught the
+    # FIX, correctly, and that is what a mirror is for.
     hub_merchant = frozenset(
         ap for (_n, ap, _f) in data.LOCATIONS.get(data.HUB, ())
-        if "ShopSlot" in (lt.get(ap) or ()))
+        if "Shop" in (lt.get(ap) or ()))
     return {
         "guessed_region": frozenset(getattr(tags, "DEFAULTED_REGION_APS", ())),
         "missable": frozenset(mods["missable_locations"].MISSABLE_LOCATIONS),
@@ -217,7 +223,7 @@ def emit(rows, totals):
     a("#   erdtree_burn      m11_00 destroyed when Maliketh dies (CONDITIONAL: not barred when the")
     a("#                     capital reconciler is armed -- see the two default_hosting_* lines)")
     a("#   surface_excluded  hand-excluded surface-tagged checks (gen_data _SURFACE_EXCLUDE_FLAGS)")
-    a("#   hub_merchant      Roundtable-Hold ShopSlots -- reachable at spawn, so trivial")
+    a("#   hub_merchant      Roundtable-Hold SHOP rows -- reachable at spawn, so trivial")
     a("# Bar columns OVERLAP (one check can be both guessed and missable), so they do not sum to")
     a("# total - eligible. 'eligible' is computed from the UNION, never by subtracting the columns.")
     a("#")

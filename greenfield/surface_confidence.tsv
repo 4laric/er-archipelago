@@ -20,7 +20,7 @@
 #   erdtree_burn      m11_00 destroyed when Maliketh dies (CONDITIONAL: not barred when the
 #                     capital reconciler is armed -- see the two default_hosting_* lines)
 #   surface_excluded  hand-excluded surface-tagged checks (gen_data _SURFACE_EXCLUDE_FLAGS)
-#   hub_merchant      Roundtable-Hold ShopSlots -- reachable at spawn, so trivial
+#   hub_merchant      Roundtable-Hold SHOP rows -- reachable at spawn, so trivial
 # Bar columns OVERLAP (one check can be both guessed and missable), so they do not sum to
 # total - eligible. 'eligible' is computed from the UNION, never by subtracting the columns.
 #
@@ -45,8 +45,8 @@ Boss	266	0	30	4	0	2	0	232	87
 Fragment	46	0	0	0	0	7	0	39	85	yes
 Revered	23	0	0	0	0	5	0	18	78	yes
 Basin	15	0	3	0	0	0	0	12	80	
-Shop	533	29	60	28	0	0	0	451	85	
-ShopNonSpell	419	23	56	10	0	0	0	356	85	
+Shop	533	29	60	28	0	0	161	347	65	
+ShopNonSpell	419	23	56	10	0	0	158	252	60	
 ShopSlot	12	0	0	0	0	0	0	12	100	yes
 Legendary	102	29	11	18	6	0	0	71	70	
 GreatRune	7	0	0	0	0	0	0	7	100	yes
