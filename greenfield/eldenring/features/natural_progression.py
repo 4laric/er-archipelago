@@ -78,15 +78,20 @@ except Exception:  # pragma: no cover -- pre-regen data
     REGIONS, LOCATIONS = [], {}
 try:
     from ..item_ids import ITEM_CATALOG, LOCATION_ITEM
-except Exception:
+    from .. import item_categories as _ic
+except Exception:  # pre-regen / standalone import
     ITEM_CATALOG, LOCATION_ITEM = {}, {}
+
+    class _ic:  # type: ignore[no-redef]  # no catalog -> no runes
+        GREAT_RUNES: list = []
 try:
     from ..region_open_flags import REGION_OPEN_FLAGS
 except Exception:
     REGION_OPEN_FLAGS = {}
 
 # Great Runes + Remembrances read from the catalog (matt-free, same rule as core.GREAT_RUNES).
-GREAT_RUNES = frozenset(n for n in ITEM_CATALOG if n.endswith("Great Rune"))
+# SEVEN, from the one definition in item_categories -- see its GREAT_RUNE_GOODS_IDS block.
+GREAT_RUNES = frozenset(_ic.GREAT_RUNES)
 REMEMBRANCES = frozenset(n for n in ITEM_CATALOG
                          if n.startswith("Remembrance of") or n.startswith("Remembrance "))
 

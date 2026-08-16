@@ -59,11 +59,16 @@ except Exception:
     LOCATIONS = {}
 try:
     from ..item_ids import ITEM_CATALOG
-except Exception:
+    from .. import item_categories as _ic
+except Exception:  # pre-regen / standalone import
     ITEM_CATALOG = {}
 
+    class _ic:  # type: ignore[no-redef]  # no catalog -> no runes
+        GREAT_RUNES: list = []
+
 # Great Rune item names (matt-free: read from the greenfield catalog, same rule as core.GREAT_RUNES).
-GREAT_RUNES = sorted(nm for nm in ITEM_CATALOG if nm.endswith("Great Rune"))
+# SEVEN, from the one definition in item_categories -- see its GREAT_RUNE_GOODS_IDS block.
+GREAT_RUNES = list(_ic.GREAT_RUNES)
 # The VANILLA capital main gate is a fixed two-Great-Rune possession wall. It is not ours and it does
 # not scale with our options, so it is the FLOOR on any armed rune wall (see the module docstring).
 VANILLA_CAPITAL_GATE_RUNES = 2

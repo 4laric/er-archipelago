@@ -138,6 +138,82 @@ class GreatRunesGoalHeavilySealed(WorldTestBase):
         self.assertEqual(sd["ending_condition"], expected)
 
 
+
+def _rune_sets():
+    """The Great Rune set as each consumer sees it. One entry per module that used to carry its own
+    `endswith("Great Rune")` copy."""
+    from worlds.eldenring import item_categories
+    from worlds.eldenring.core import GREAT_RUNES as core_runes
+    from worlds.eldenring.features.leyndell_gate import GREAT_RUNES as gate_runes
+    from worlds.eldenring.features.natural_progression import GREAT_RUNES as np_runes
+    from worlds.eldenring.features.legacy_key_gates import _GREAT_RUNES as key_runes
+    return {
+        "item_categories": frozenset(item_categories.GREAT_RUNES),
+        "core": frozenset(core_runes),
+        "features/leyndell_gate": frozenset(gate_runes),
+        "features/natural_progression": frozenset(np_runes),
+        "features/legacy_key_gates": frozenset(key_runes),
+    }
+
+
+def test_there_are_seven_great_runes_and_every_goods_id_resolves():
+    """Alaric's ruling, 2026-08-16: seven everywhere, the Unborn rune is a full citizen.
+
+    Asserted through `GREAT_RUNES_MISSING` as well as the count, because those fail differently: a
+    count of six tells you the set is wrong, the missing list tells you WHICH goods row stopped
+    resolving. The old bug had no such signal -- the set just quietly answered a smaller question.
+    """
+    from worlds.eldenring import item_categories
+
+    assert item_categories.GREAT_RUNES_MISSING == (), (
+        f"goods rows {item_categories.GREAT_RUNES_MISSING} are declared Great Runes but resolve to "
+        f"no catalog name. Either gen_data dropped them or their ids moved -- do NOT shrink the set "
+        f"to match, that is exactly how it went from seven to six unnoticed.")
+    assert len(item_categories.GREAT_RUNES) == 7, (
+        f"expected seven Great Runes, found {len(item_categories.GREAT_RUNES)}: "
+        f"{item_categories.GREAT_RUNES}")
+    assert "Great Rune of the Unborn" in item_categories.GREAT_RUNES, (
+        "the Unborn rune is a full citizen (Alaric, 2026-08-16) -- Rennala drops it on flag 197 and "
+        "the game counts it toward the Leyndell wall")
+
+
+def test_every_consumer_sees_the_same_seven():
+    """THE ANTI-DRIFT GUARD, and the one this bug actually needed.
+
+    Four modules each carried their own `endswith("Great Rune")` over ITEM_CATALOG. They AGREED, so
+    no drift gate could see anything wrong -- they were four copies of one predicate that was wrong
+    in one place. Pinning them to each other is not enough on its own; pinning them to
+    item_categories, which is now the only definition, is what makes a fifth copy impossible to add
+    quietly.
+    """
+    sets = _rune_sets()
+    canonical = sets["item_categories"]
+    assert len(canonical) == 7, f"canonical set is not seven: {sorted(canonical)}"
+    for who, got in sets.items():
+        assert got == canonical, (
+            f"{who} sees a different Great Rune set than item_categories.\n"
+            f"  only in {who}: {sorted(got - canonical)}\n"
+            f"  missing from {who}: {sorted(canonical - got)}")
+
+
+def test_every_great_rune_is_reachable_as_a_check():
+    """The #405 failure mode from the other side: a cap of seven is only honest if seven runes can
+    actually be in the pool. Each rune must sit on exactly one location, or `great_runes_required:
+    7` advertises a goal no seed can satisfy -- which is the reporter's original complaint."""
+    from worlds.eldenring import item_categories
+    from worlds.eldenring.item_ids import LOCATION_ITEM
+
+    placed = {}
+    for ap_id, name in LOCATION_ITEM.items():
+        if name in set(item_categories.GREAT_RUNES):
+            placed.setdefault(name, []).append(ap_id)
+    assert len(placed) == 7, (
+        f"only {len(placed)} of 7 Great Runes are on a location; "
+        f"unplaced: {sorted(set(item_categories.GREAT_RUNES) - set(placed))}")
+    multi = {n: aps for n, aps in placed.items() if len(aps) != 1}
+    assert not multi, f"a Great Rune on more than one location double-counts in the pool: {multi}"
+
+
 def test_the_great_rune_cap_is_derived_not_typed():
     """CONTRIBUTING rule 11: the reporter's case is the acceptance test.
 
@@ -146,9 +222,14 @@ def test_the_great_rune_cap_is_derived_not_typed():
     > rune of the Unborn' as a great rune."*
 
     He set the option to its own advertised maximum and it was unreachable. `range_end` was the
-    literal 7; `GREAT_RUNES` is a name-suffix match over ITEM_CATALOG and yields six. Gated as an
-    EQUALITY against the collection rather than `== 6`, so adding the Unborn rune (or removing one)
-    moves the cap by itself instead of re-opening this bug from the other side.
+    literal 7 while `GREAT_RUNES` yielded six, so #405 lowered the cap to `len(GREAT_RUNES)` --
+    which made the option HONEST but conceded his point rather than answering it.
+
+    🛑 2026-08-16: he was right and the cap is SEVEN again. Rennala's flag-197 co-check put goods
+    10080 in the catalog and on a location on 2026-08-06; the derivation could not see it because
+    it was a name-suffix match and "Great Rune of the Unborn" does not carry the suffix. It is now
+    keyed on the goods row. Still an EQUALITY against the collection, never `== 7`, so the cap keeps
+    moving with the data instead of re-opening this bug from either side.
     """
     from worlds.eldenring.core import GreatRunesRequired
 

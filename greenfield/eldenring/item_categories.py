@@ -171,6 +171,60 @@ def _goods_category(name: str) -> str:
     return GOODS_TYPE_CATEGORY.get(GOODS_TYPE.get(name), "consumables")
 
 
+# ---- THE GREAT RUNES: SEVEN, and keyed on the PARAM ROW, not the name ---------------------------
+#
+# 🛑 THE ONE DEFINITION. `core`, `features/leyndell_gate`, `features/natural_progression` and
+# `features/legacy_key_gates` each used to carry their own `endswith("Great Rune")` over
+# ITEM_CATALOG. Four copies of one predicate, and all four were WRONG in the same way:
+# **"Great Rune of the Unborn" puts the words in the other order**, so a pure name-suffix match
+# dropped it and every consumer counted six. That is the same species as joining `flag_lots` on a
+# name -- a lexical test standing in for an identity.
+#
+# It went unnoticed because the miss looked like an absence. `core.GreatRunesRequired`'s docstring
+# asserted the rune "is not an item you can be given" and "is not in the catalog at all"; by
+# 2026-08-06 both were false. Rennala's flag 197 co-check (gen_data `_COCHECK_FLAGS`) put goods
+# 10080 in the catalog AND on a location that day -- ap 7900004, "Raya Lucaria Academy :: Great Rune
+# of the Unborn - Rennala [f197]" -- on Alaric's ruling that the GAME counts it toward the Leyndell
+# wall: flag 197 sits inside the counted 190-199 band beside the six restored-rune flags 191-196.
+# The item became a full citizen and the derivation never noticed.
+#
+# ⭐ ALARIC'S RULING, 2026-08-16: **there are seven Great Runes everywhere, and the Unborn rune is a
+# full citizen.** Goal, capital wall, natural-progression count gate, legacy-key gate -- all seven.
+#
+# Keyed on the goods row id, which is the item's identity in the params and survives any FMG
+# rename. `GREAT_RUNES_MISSING` is the loud half: an id that stops resolving is a data change we
+# must see, so a test asserts it is empty rather than the set silently shrinking again.
+GREAT_RUNE_GOODS_IDS: frozenset = frozenset({
+    8148,   # Godrick's Great Rune
+    8149,   # Radahn's Great Rune
+    8150,   # Morgott's Great Rune
+    8151,   # Rykard's Great Rune
+    8152,   # Mohg's Great Rune
+    8153,   # Malenia's Great Rune
+    10080,  # Great Rune of the Unborn -- Rennala, flag 197, ap 7900004
+})
+
+
+def _resolve_great_runes() -> Dict[int, str]:
+    """{goods id: catalog name} for the Great Runes present in this tree's ITEM_CATALOG."""
+    out: Dict[int, str] = {}
+    for name, full in ITEM_CATALOG.items():
+        if (full & 0xF0000000) != GOODS_NIBBLE:
+            continue
+        gid = full & 0x0FFFFFFF
+        if gid in GREAT_RUNE_GOODS_IDS:
+            out[gid] = name
+    return out
+
+
+GREAT_RUNE_BY_GOODS: Dict[int, str] = _resolve_great_runes()
+#: Sorted Great Rune item NAMES. Seven on a generated tree, empty pre-regen.
+GREAT_RUNES: List[str] = sorted(GREAT_RUNE_BY_GOODS.values())
+#: Goods ids we expect and did NOT find. Empty on a generated tree; pinned by the test suite rather
+#: than asserted at import, because a player should never eat an ImportError over a data drift.
+GREAT_RUNES_MISSING = tuple(sorted(GREAT_RUNE_GOODS_IDS - set(GREAT_RUNE_BY_GOODS))) if ITEM_CATALOG else ()
+
+
 def category_of(name: str) -> str:
     """The one category `name` belongs to. Names outside ITEM_CATALOG are the Progressive X items
     (features/progressive.py registers them and they carry no FullID) -> `progressive`."""

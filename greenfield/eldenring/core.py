@@ -129,7 +129,11 @@ _FEATURES = registry.features()
 # vanilla drops of the Great-Rune boss locations). Identified purely by name from ITEM_CATALOG, so
 # this stays data-derived + matt-free. There are 6 in vanilla ER (Godrick's, Radahn's, Morgott's,
 # Rykard's, Mohg's, Malenia's). The great_runes ending goal can require up to this many.
-GREAT_RUNES: List[str] = sorted(nm for nm in ITEM_CATALOG if nm.endswith("Great Rune"))
+# SEVEN, and defined ONCE in item_categories (keyed on the goods row, not the item NAME --
+# "Great Rune of the Unborn" does not carry the suffix, which is how four separate copies of
+# this predicate all counted six). Alaric ruled 2026-08-16 that the Unborn rune is a full
+# citizen everywhere.
+GREAT_RUNES: List[str] = item_categories.GREAT_RUNES
 
 
 # ---- core options ----------------------------------------------------------------------------
@@ -277,21 +281,27 @@ class GreatRunesRequired(Range):
     The effective requirement is clamped down to the Great Runes reachable in the kept regions, so
     sealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.
 
-    The maximum is six, not seven: Elden Ring has seven Great Runes in the fiction, but the Great
-    Rune of the Unborn is not an item you can be given, so no seed can require it.
+    The maximum is SEVEN. The Great Rune of the Unborn counts: Rennala drops it (flag 197, ap
+    7900004 in Raya Lucaria Academy), the game counts it toward the Leyndell wall, and this world
+    can hand it to you like any other rune.
 
     A COUNT OF A NAMED SET. This picks how many, never which: the seed picks which, and any other
     Great Rune completes nothing (#656). See Ending Condition for where the client prints the
     names.""" 
     display_name = "Great Runes Required"
     range_start = 1
-    # DERIVED, not typed (#405). Was the literal 7, against six Great Rune items -- GREAT_RUNES is
-    # a name-suffix match over ITEM_CATALOG and "Great Rune of the Unborn" carries no such suffix
-    # (it is not in the catalog at all). The option therefore advertised a maximum no seed could
-    # satisfy; _resolve_required_runes clamps the effective value, so nothing BROKE, but a player
-    # who set the advertised max got an unreachable goal and a hint for an item that does not
-    # exist. Derived the way NumRegions.range_end is len(REGIONS): add the Unborn rune to the
-    # catalog and the cap moves by itself.
+    # DERIVED, not typed (#405), and it is SEVEN again -- by derivation this time, not by typing.
+    #
+    # The history is worth keeping because the two halves cancelled and hid each other. #405 cut a
+    # literal 7 down to len(GREAT_RUNES) because the derivation only yielded six, and the reasoning
+    # written down here -- "the Unborn rune is not in the catalog at all" -- was TRUE when it was
+    # written and FALSE from 2026-08-06, when Rennala's flag-197 co-check put goods 10080 in the
+    # catalog and on a location. The cap did not move, because GREAT_RUNES was a name-suffix match
+    # and "Great Rune of the Unborn" does not carry the suffix. A derived constant is only as
+    # derived as its predicate: this one silently kept answering the old question.
+    #
+    # It is now keyed on the goods row (item_categories.GREAT_RUNE_GOODS_IDS), so the cap moves with
+    # the data and a rune that stops resolving reddens a test instead of shrinking the set.
     range_end = len(GREAT_RUNES)
     default = 2
 

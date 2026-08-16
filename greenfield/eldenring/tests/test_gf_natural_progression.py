@@ -175,6 +175,10 @@ class NaturalProgressionTest(WorldTestBase):
             self.assertEqual(c.get("count"), len(runes),
                              f"{region} opens on the clamped rune count")
             count_items = c.get("countItems", [])
-            self.assertTrue(count_items and all(n.endswith("Great Rune") for n in count_items),
+            # 🛑 Membership in the canonical set, NOT `endswith("Great Rune")`. The name-suffix test
+            # is the bug this file's subject had for ten days: "Great Rune of the Unborn" puts the
+            # words in the other order and drops straight out of it.
+            from worlds.eldenring.item_categories import GREAT_RUNES as _ALL_RUNES
+            self.assertTrue(count_items and set(count_items) <= set(_ALL_RUNES),
                             f"{region}'s count set must be Great Runes")
             self.assertGreaterEqual(len(count_items), len(runes))
