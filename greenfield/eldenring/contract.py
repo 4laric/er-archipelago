@@ -298,8 +298,12 @@ SURFACE_DERIVED_CLASSES = frozenset({"SweepSlot"})
 # SUBSET of Remembrance/GreatRune"; measured over LOCATION_TAGS the relation is the REVERSE, and it
 # matters for what the wizard can tell a player:
 #   Remembrance (25) and GreatRune (7) are SUBSETS of MajorBoss (43)  <- not the other way round
-#   MajorBoss is itself a SUBSET of Boss (143), as are LegacyBoss (31) and FieldBoss (92)
+#   MajorBoss is itself a SUBSET of Boss (258), as are LegacyBoss (52) and FieldBoss (110)
 #   MajorBoss n Legendary = 2 (the curated extras); neither contains the other
+# Counts re-measured over LOCATION_TAGS 2026-08-16. MajorBoss read 52 between the lot-stack co-checks
+# landing and #737: a roster entry is keyed on a boss's acquisition FLAG, and the sibling lots that
+# flag also drives -- two DLC bosses' entire ARMOUR SETS -- were inheriting the tag. It is one check
+# per boss again, which is what 43 was and is the number every other line here was written against.
 # So ticking MajorBoss in the default surface already covers every Remembrance and GreatRune check:
 # those two boxes select NOTHING further, and ticking Boss makes all three redundant. The lattice is
 # DERIVED at wizard-build time (features/progression_surface.class_containment) rather than typed

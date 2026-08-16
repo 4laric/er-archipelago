@@ -178,7 +178,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.4",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "cf9ee6a5b912101e0260c699159baaa4f2066a4f451e037a88b17677837e6680",
+ "source_sha256": "ba4ad6f0385c519a0a2228a3208730db0b727a1a698bf1405f07c93c155b315c",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -829,10 +829,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "filler_foreign_pct",
    "class": "FillerForeignPct",
    "display_name": "Filler Open to Foreign (%)",
-   "description": "Percent of THIS slot's filler (the generic Rune, plus vanilla GOODS when Shuffle Vanilla\nItems is on) that MAY travel to other players' worlds in a multiworld. 100 (default) = fully\nopen, greenfield's current behavior (no change). Lower values keep more of your filler in your\nown world: at pct we force (100 - pct)% of the distinct filler item names local. 0 = keep all\nfiller home. A propensity by distinct item name, not a hard per-copy rule. Inert in a solo seed\n(no other worlds) and composes with Local Items Only.",
+   "description": "Percent of THIS slot's filler COPIES that may travel to other players' worlds. 100\n(default) = fully open, no change. Lower keeps more of your filler home: at pct we hold back\n(100 - pct)% of your filler copies. 0 = keep all filler home.\n\nEvery category keeps something eligible. The share is spent WITHIN each category and never takes\na category's last item, so lowering this thins what you export rather than silently barring a\nwhole category -- `keep_local` is the knob for barring one, and it should stay the only one.\n(`pct: 0` is exempt: you asked for all of it home.)\n\nThe default (70) is the measured 1:1 useful:filler mix, WITH the shipped `keep_local` below.\nMeasured cross-game, one ER slot, pooled over seeds -- Hollow Knight 5 seeds: 100 -> 0.79:1,\n70 -> 1.00:1; Bumper Stickers 3 seeds: 100 -> 0.77:1, 70 -> 0.97:1. Raise it toward 100 to send\nmore of your junk out, lower it to send less. Exported USEFUL barely moves either way; what\nchanges is how much filler rides along.\n\n⚠️ THOSE NUMBERS ASSUME THE SHIPPED `keep_local`. The two levers compose, and hard: against\n`keep_local: []` the same sweep put 1:1 at pct 6-12 rather than 70 -- an order of magnitude\naway (100 -> 0.47:1, 50 -> 0.52:1, 25 -> 0.61:1, 12 -> 0.82:1). If you empty or extend\n`keep_local`, this number means something different and you should re-measure rather than\nreason about it.\n\nInert in a solo seed (no other worlds) and composes with keep_local.",
    "kind": "range",
    "base": "Range",
-   "default": 100,
+   "default": 70,
    "choices": null,
    "range": {
     "start": 0,
@@ -1071,7 +1071,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "keep_local_rune_cap",
    "class": "KeepLocalRuneCap",
    "display_name": "Keep Local: Rune Cap",
-   "description": "Hold back rune items worth this many runes or fewer; larger ones may still travel. 0\n(default) is OFF -- no rune is held back by this option.\n\n\"Small rune amounts should not be sent out\" is the ask this answers, and the payout is a number\nthe game publishes (EquipParamGoods.refId_default -> SpEffectParam.soul), so it does not have to\nbe guessed from the item name. The ladder: Golden Rune [1] 200, [4] 1,600, [8] 3,800, [10] 6,250,\n[13] 12,500, Hero's Rune [1] 15,000, Lord's Rune 50,000, and the DLC's largest 80,000. A cap of\n3,000 keeps the small change and lets the big ones go.\n\nIndependent of Keep Local: setting `runes` there keeps every rune home whatever this says.\n\n# Why the default is 6250 (#703)\n\nRunes are the only large filler category `keep_local` leaves open by default, which makes this\nthe FINE ADJUSTMENT on the export mix -- and unlike a percentage it is aimable, because the\nthreshold is a quantity the game publishes rather than a share of a pool nobody can picture.\n6250 is exactly Golden Rune [10]: the small change stays home, [10] and up travel.\n\nMeasured on 1xER + 1xHK (the adverse config) over 4 seeds, with the shipped `keep_local` above\nand everything else identical: cap 0 -> 0.57:1, cap 6250 -> 0.68:1, **cap 12500 -> 0.72:1**,\ncap 80000 (every rune home) -> 0.73:1. Against the PRE-#703 defaults (`keep_local` empty, cap 0)\nthe pair moves 0.55:1 -> 0.72:1 -- and note what moved: exported useful is FLAT at 228 -> 231,\nwhile filler falls 412 -> 320. The partner does not receive less that they can use; they receive\n92 fewer Golden Runes and smithing stones. Foreign progression absorbed on-surface stays 100%\nthroughout. 12500 is Golden Rune [13]; Hero's and Lord's Runes still travel.\n\n🛑 THE TARGET WAS 1:1 AND THIS DOES NOT REACH IT -- it gets from the old 0.53:1 to 0.72:1, and\nthe curve is flat past here (80000 buys 0.01 more). The binding constraint is `key_items`, which\nhas to stay released because it carries the Great Runes, the Dectus medallions and every\nRemembrance -- holding it took natural_progression's cross-world placements to zero. It also\ncarries 52 Stonesword Keys per 4 seeds, and at 32.3% of everything exported it is the largest\nsingle category. 1:1 needs that category split, the way `cookbooks` was peeled off it; until\nthen this is the honest ceiling.\n\nAlaric's ruling, 2026-08-15: aim the composition at 1:1 useful:filler.",
+   "description": "Hold back rune items worth this many runes or fewer; larger ones may still travel.\n**Defaults to 12,500**, which holds 18 of the 31 rune items -- everything from Golden Rune [1]\nup to and including Numen's Rune. Set it to 0 to turn this off and send every rune you find.\n\n⚠️ CORRECTED 2026-08-16, and every corrected line was player-facing. This docstring opened\n\"0 (default) is OFF -- no rune is held back by this option\" while the default was 12,500 and it\nheld 18 items; it was headed \"Why the default is 6250\" and argued for 6250 in the body, while\nthe measurement paragraph below it bolded 12,500 and the code said 12,500; and its ladder was\noff by one from [4] up. The same text is in `release/EldenRing.yaml`, so a player reading their\nown options file was told the default was off. This is the #707 failure -- prose that stopped\ndescribing the code -- in the help text rather than in a guard, and the ladder below is now\npinned by test_the_documented_rune_ladder_matches_the_params so it cannot drift again.\n\n\"Small rune amounts should not be sent out\" is the ask this answers, and the payout is a number\nthe game publishes (EquipParamGoods.refId_default -> SpEffectParam.soul), so it does not have to\nbe guessed from the item name. The ladder, MEASURED:\n\n    Golden Rune [1]     200        Golden Rune [10]    5,000\n    Golden Rune [4]   1,200        Golden Rune [11]    6,250\n    Golden Rune [8]   3,000        Golden Rune [13]   10,000\n    Golden Rune [9]   3,800        Numen's Rune       12,500   <- the default cap\n                                   Hero's Rune [1]    15,000\n                                   Lord's Rune        50,000\n                                   Marika's Rune      80,000   <- the largest\n\nA cap of 3,000 keeps the small change (Golden Rune [1]-[8]) and lets the rest go.\n\nIndependent of Keep Local: setting `runes` there keeps every rune home whatever this says.\n\n# Why the default is 12,500 (#703)\n\nRunes are the only large filler category `keep_local` leaves open by default, which makes this\nthe FINE ADJUSTMENT on the export mix -- and unlike a percentage it is aimable, because the\nthreshold is a quantity the game publishes rather than a share of a pool nobody can picture.\n12,500 is Numen's Rune: Golden Rune [13] and everything cheaper stays home, Hero's, Leda's,\nLord's and Marika's Runes travel.\n\nMeasured on 1xER + 1xHK (the adverse config) over 4 seeds, with the shipped `keep_local` above\nand everything else identical: cap 0 -> 0.57:1, cap 6250 -> 0.68:1, **cap 12500 -> 0.72:1**,\ncap 80000 (every rune home) -> 0.73:1. Against the PRE-#703 defaults (`keep_local` empty, cap 0)\nthe pair moves 0.55:1 -> 0.72:1 -- and note what moved: exported useful is FLAT at 228 -> 231,\nwhile filler falls 412 -> 320. The partner does not receive less that they can use; they receive\n92 fewer Golden Runes and smithing stones. Foreign progression absorbed on-surface stays 100%\nthroughout. 12,500 is NUMEN'S RUNE (Golden Rune [13] is 10,000 -- see the ladder above); Hero's,\nLeda's, Lord's and Marika's Runes still travel.\n\n🛑 THE TARGET WAS 1:1 AND THIS DOES NOT REACH IT -- it gets from the old 0.53:1 to 0.72:1, and\nthe curve is flat past here (80000 buys 0.01 more). The binding constraint is `key_items`, which\nhas to stay released because it carries the Great Runes, the Dectus medallions and every\nRemembrance -- holding it took natural_progression's cross-world placements to zero. It also\ncarries 52 Stonesword Keys per 4 seeds, and at 32.3% of everything exported it is the largest\nsingle category. 1:1 needs that category split, the way `cookbooks` was peeled off it; until\nthen this is the honest ceiling.\n\nAlaric's ruling, 2026-08-15: aim the composition at 1:1 useful:filler.",
    "kind": "range",
    "base": "Range",
    "default": 12500,
@@ -3071,10 +3071,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "Cerulean": {
    "checks": 100,
    "combos": {
+    "Boss": 4,
     "Boss|FieldBoss": 2,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Boss|Legendary|MajorBoss": 1,
-    "Boss|MajorBoss": 5,
+    "Boss|MajorBoss": 1,
     "Fragment": 4,
     "KeyItem": 2
    },
@@ -3173,11 +3174,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "checks": 215,
    "combos": {
     "Basin": 1,
-    "Boss": 4,
+    "Boss": 8,
     "Boss|FieldBoss": 3,
     "Boss|Legendary": 1,
     "Boss|Legendary|MajorBoss": 1,
-    "Boss|MajorBoss": 4,
     "Fragment": 5,
     "Legendary": 3,
     "Revered": 4,
@@ -3291,11 +3291,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "checks": 610,
    "combos": {
     "Basin": 2,
-    "Boss": 9,
+    "Boss": 10,
     "Boss|FieldBoss": 16,
     "Boss|FieldBoss|Legendary": 1,
     "Boss|Legendary": 1,
-    "Boss|MajorBoss": 2,
+    "Boss|MajorBoss": 1,
     "Church": 3,
     "KeyItem": 2,
     "Legendary": 6,
@@ -3589,7 +3589,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "14c75cba3ef5de0216358e92cdbe121144c007521e9f4f4574e9da3e91b72dd1"
+ "source_sha256": "bb39ee4e3173722241a67521050c84e0b85662a888153b5bcd749426d8eb6741"
 }
 </script>
 <div class="wrap">
@@ -3716,16 +3716,40 @@ const ERW = (() => {
   }
   function deviations(meta, state){
     const out = [];
-    const order = meta.field_order.concat(meta.apCore.map(o => o.key));
-    for (const k of order)
+    for (const k of emitOrder(meta))
       if (k in state.values && !isDefault(meta, state, k)) out.push(k);
     return out;
+  }
+  /* The one order both the deviation list and the yaml are written in: the metadata's declared
+     field order, then AP core. Filtered through `byKey` so a key that is in `field_order` but has
+     no option behind it cannot reach the emitter as `undefined`. */
+  function emitOrder(meta){
+    return meta.field_order.concat(meta.apCore.map(o => o.key)).filter(k => meta.byKey[k]);
   }
 
   function yamlScalar(v){
     if (typeof v === "boolean") return v ? "true" : "false";
     if (typeof v === "number") return String(v);
     return '"' + String(v).replace(/\\/g,"\\\\").replace(/"/g,'\\"') + '"';
+  }
+  /* 🛑 A NAMEDRANGE'S DEFAULT CAN SIT OUTSIDE ITS OWN DECLARED RANGE, AND THE NUMBER IS THEN NOT A
+     LEGAL VALUE. `cross_game_progression` and `maximum_enemy_difficulty` both default to `-1`
+     against a declared `0..100`; `-1` is only reachable through `special_range_names` ("auto"), so
+     `Range.from_any(-1)` raises and the seed does not generate. This never mattered while the
+     wizard emitted deviations ONLY -- a default was never written down, so its illegal spelling was
+     never written down either. Emitting every option (#732) puts both of them in every file, which
+     is exactly how a "cosmetic" change becomes a generation failure.
+
+     Name-vs-number is decided by the RANGE, not by the presence of a special name:
+     `confine_foreign_progression` defaults to 100, which is in range AND has the name "all", and
+     `100` is the clearer of the two. Only an out-of-range value has to be spelled. */
+  function yamlOptionValue(o, v){
+    if (typeof v === "number" && o && o.range &&
+        (v < o.range.start || v > o.range.end)){
+      const hit = (o.special_values || []).find(sv => sv.value === v);
+      if (hit) return yamlScalar(hit.name);
+    }
+    return yamlScalar(v);
   }
   function sanitizeName(n){
     n = (n || "").trim().replace(/[{}]/g, "");
@@ -3759,32 +3783,46 @@ const ERW = (() => {
     const GAME = meta.game;
     L.push("game: " + GAME);
     L.push("");
-    if (!devs.length){
-      L.push(GAME + ": {}   # all options at their defaults");
-    } else {
-      L.push(GAME + ":");
-      for (const k of devs){
-        const o = meta.byKey[k];
-        const v = getVal(meta, state, k);
-        const cmt = "   # " + o.display_name + " (default: " + fmtDefault(o.default) + ")";
-        /* A MAPPING CANNOT CARRY ITS COMMENT ON THE VALUE, so it rides the parent key and the
-           members go out as an indented block. Before #571 this branch did not exist and a dict
-           went through yamlScalar, which quotes -- so a player who touched Curated Filler
-           downloaded `curated_filler: "[object Object]"`, a string where the world wants a table. */
-        if (isPlainObject(v)){
-          const ks = Object.keys(v);
-          if (!ks.length){ L.push("  " + k + ": {}" + cmt); }
-          else {
-            L.push("  " + k + ":" + cmt);
-            for (const ck of ks) L.push("    " + ck + ": " + yamlScalar(v[ck]));
-          }
-          continue;
+    /* 🛑 EVERY OPTION IS WRITTEN OUT, INCLUDING THE ONES AT THEIR DEFAULTS (#732). This block used
+       to emit the DEVIATIONS only, so a player who took the wizard's advice and changed nothing
+       downloaded `Elden Ring: {}` -- a file that generates a correct seed and tells them nothing.
+       Three costs, and the first is the one that made this a P1:
+
+       1. THE FILE IS THE ONLY DOCUMENTATION MOST PLAYERS EVER READ. `{}` is the first thing a new
+          player sees after clicking through a wizard that just explained 58 options to them.
+       2. A DEFAULT IS NOT A PROMISE. `minimum_enemy_difficulty`'s default moved 0 -> 25 -> 0 inside
+          one day (2026-08-05); anyone holding a `{}` yaml across that would have silently rolled a
+          different seed from the one they configured. Written-out values pin what they chose.
+       3. IT IS THE SUPPORT ARTIFACT. "Post your yaml" answers nothing when the yaml is `{}`.
+
+       The `(default: ...)` comment is now the CHANGE MARKER: an option carries it only where the
+       player moved it, so the diff from stock is still readable at a glance without a second file
+       to compare against. */
+    const devSet = new Set(devs);
+    L.push(GAME + ":");
+    for (const k of emitOrder(meta)){
+      const o = meta.byKey[k];
+      const v = getVal(meta, state, k);
+      if (v === undefined) continue;   // an option with no default and no value has nothing to say
+      const cmt = "   # " + o.display_name +
+                  (devSet.has(k) ? " (default: " + fmtDefault(o.default) + ")" : "");
+      /* A MAPPING CANNOT CARRY ITS COMMENT ON THE VALUE, so it rides the parent key and the
+         members go out as an indented block. Before #571 this branch did not exist and a dict
+         went through yamlScalar, which quotes -- so a player who touched Curated Filler
+         downloaded `curated_filler: "[object Object]"`, a string where the world wants a table. */
+      if (isPlainObject(v)){
+        const ks = Object.keys(v);
+        if (!ks.length){ L.push("  " + k + ": {}" + cmt); }
+        else {
+          L.push("  " + k + ":" + cmt);
+          for (const ck of ks) L.push("    " + ck + ": " + yamlScalar(v[ck]));
         }
-        const line = Array.isArray(v)
-          ? "  " + k + ": [" + v.map(yamlScalar).join(", ") + "]"
-          : "  " + k + ": " + yamlScalar(v);
-        L.push(line + cmt);
+        continue;
       }
+      const line = Array.isArray(v)
+        ? "  " + k + ": [" + v.map(yamlScalar).join(", ") + "]"
+        : "  " + k + ": " + yamlOptionValue(o, v);
+      L.push(line + cmt);
     }
     L.push("");
     return L.join("\n");
