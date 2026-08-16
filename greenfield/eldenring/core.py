@@ -778,14 +778,24 @@ class GreenfieldEldenRingWorld(World):
         Lock items."""
         if _np.is_on(self) or _vp.is_on(self):
             return []
-        # SPEC-ashen-capital-lock item 8: the Ashen lock rides this list too. Strictly REDUNDANT --
-        # you cannot kill either goal boss without it, because its entrance is the only way in --
-        # but the two terminal conditions (AP's completion_condition and the client's
-        # goalRequiredItems) are supposed to read ONE list, and a lock missing from that list is
-        # exactly the drift the 2026-07-30 alignment fixed.
+        # ⭐ THE ASHEN LOCK LEFT THIS LIST ON 2026-08-16 (#768), and the comment it replaces had
+        # already called it "strictly REDUNDANT -- you cannot kill either goal boss without it,
+        # because its entrance is the only way in". It rode along anyway so that AP's
+        # completion_condition and the client's goalRequiredItems would read ONE list.
+        #
+        # It is now not merely redundant but UNSATISFIABLE: the Lock is no longer minted into the
+        # pool at all. The client grants the goal region's flags itself once every other goal item
+        # is held (client#245, er_logic::goal_gate), so the item is never sent -- and an item that
+        # is never sent cannot be required of the player by either terminal condition. Leaving it
+        # here would have made `has_all` false forever: an unwinnable seed, and a FillError before
+        # that.
+        #
+        # 🛑 ONE LIST, STILL. Removing it HERE rather than filtering it in one of the two consumers
+        # is the whole point -- the 2026-07-30 alignment exists because those two drifted once, and
+        # a filter in one of them is how they would drift again. `region_open_flags` still carries
+        # `Ashen Capital Lock -> open flag` (built separately, below), because that mapping is how
+        # the client resolves WHICH flag to set; it is a name->flag lookup, not a requirement.
         out = [f"{r} Lock" for r in self._kept()]
-        if getattr(self, "gf_finale_active", False):
-            out.append(ASHEN_LOCK)
         return out
 
     def goal_required_lock_names(self) -> List[str]:
@@ -983,9 +993,21 @@ class GreenfieldEldenRingWorld(World):
         # construction (the builder fills whatever remains). It is progression. It is deliberately
         # NOT in `lock_items`: that list is what the start-anchor picker draws from, and the Ashen
         # Capital may never be the precollected anchor (it is not a place you play).
-        _ashen_lock: List[Item] = ([self.create_item(ASHEN_LOCK)]
-                                   if getattr(self, "gf_finale_active", False) and not _nolocks
-                                   else [])
+        # 🛑 THE ASHEN LOCK IS NO LONGER MINTED (#768). This used to be
+        #       [self.create_item(ASHEN_LOCK)] if gf_finale_active and not _nolocks else []
+        #   -- a real progression item fill could place anywhere, INCLUDING sphere 1, which is how
+        #   a player could stand in the endgame region before doing anything and burn the ending
+        #   early (#694: "the ending plays and the run does not end").
+        #
+        #   The client grants the goal region's open flag and grace bundle itself, once every OTHER
+        #   goal item is held (client#245, er_logic::goal_gate). So the region opens exactly when
+        #   the run is finished rather than whenever fill felt like it -- which is the enforcement
+        #   #694 spent three mechanisms failing to find, and it needs no wall, no kick and no fog.
+        #
+        #   Kept as an empty list rather than deleted so the count arithmetic below reads
+        #   unchanged: one fewer item here is one more filler slot, and `items == locations` is
+        #   still true by construction.
+        _ashen_lock: List[Item] = []
         # Start holding a region's lock (precollected) so a region is open from Roundtable at run
         # start -- `start_regions` many of them, default 1.
         # start. Count-neutral -- the precollected lock leaves the pool (its freed slot becomes filler),

@@ -104,7 +104,21 @@ def finale_requirement_locks(world) -> tuple:
     exactly "both regions are reachable"."""
     if _np.is_on(world) or _vp.is_on(world):
         return (f"{FINALE_BURN_REGION} Lock", f"{FINALE_KICK_OWNER} Lock")
-    return (ASHEN_LOCK_ITEM,)
+    # ⭐ THE ASHEN LOCK IS NO LONGER AN ITEM (#768). It used to be minted into the pool and this
+    # returned it, so the finale's entrance read `has("Ashen Capital Lock")` and fill could place
+    # that Lock in sphere 1 -- a player could stand in the endgame region before doing anything,
+    # and #694's "the ending plays and the run does not end" followed from exactly that.
+    #
+    # It is withheld now and GRANTED BY THE CLIENT once every other goal item is held
+    # (client#245, `er_logic::goal_gate`). So the entrance requirement becomes what the client
+    # waits for, stated in AP logic: every kept region's Lock, plus any required Great Runes.
+    # The two halves must agree or fill and the client would disagree about when the arena opens.
+    #
+    # 🛑 THE GOAL REGION'S OWN LOCK IS EXCLUDED, and that is not a detail -- it is the thing being
+    # granted, so requiring it would be requiring the output as an input, and neither AP's fill nor
+    # the client could ever satisfy it. `kept_lock_names` still lists it for the client's
+    # region_open_flags lookup; `goal_required_lock_names` is what must not.
+    return tuple(world.goal_required_lock_names()) + tuple(world._required_runes())
 
 
 def finale_active(regions, natural=False) -> bool:
