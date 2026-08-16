@@ -88,3 +88,9 @@ def test_analyze_aggregates_across_seeds():
 if __name__ == "__main__":
     import pytest
     raise SystemExit(pytest.main([os.path.abspath(__file__), "-q"]))
+
+def test_rune_values_match_game_params():
+    assert uc.RUNE_VALUE["Hero's Rune [1]"] == 15000
+    assert uc.RUNE_VALUE["Hero's Rune [5]"] == 35000
+    assert uc.RUNE_VALUE["Shadow Realm Rune [1]"] == 7500
+    assert uc.RUNE_VALUE["Marika's Rune"] == 80000
