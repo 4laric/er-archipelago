@@ -157,6 +157,78 @@ lesson is about ledgers rather than about Margit: a waiver is the one place a wr
 and look like diligence, because it converts "our derivation is missing something" into a documented
 fact about the game that nothing downstream ever questions again.
 
+### There are seven Great Runes
+
+`GREAT_RUNES` was `endswith("Great Rune")` over the item catalog, in four separate copies, and the
+Great Rune of the Unborn does not end in "Great Rune". So Rennala's rune was a rune everywhere the
+game says it is one and nowhere our code said so: it could not satisfy `great_runes_required`, could
+not arm the capital gate, could not be minted to repair a short seed. Seven now, in one place, with
+the Unborn rune a full citizen of all three.
+
+### The Academy Glintstone Key stops being a second lock
+
+bobler received the Raya Lucaria Academy Lock and the client told him *"walk in, the Academy
+Glintstone Key opens it (no grace warp)"*. A Lock that lights nothing reads as broken, and the key
+was buying a wall the region Lock already is. The key gate is gone: **the Academy Lock alone grants
+the region's full grace bundle**, like every ungated region's does.
+
+The Academy Glintstone Key is now ordinary loot — it is not progression, nothing in logic requires
+it, and fill may place it anywhere. Rennala's Great Rune of the Unborn was gated behind it too and is
+now reachable on the Lock alone.
+
+🛑 Raya Lucaria stays a contained child structurally — it keeps its synthetic open flag, so setting
+it disarms the kick without lighting a warp target. It is a gated child with **no wall**, a state the
+code supported and had never been in.
+
+### Two of the ten default surface classes admitted nothing, and a third could not be spelled
+
+`Remembrance` (25) and `GreatRune` (7) are both strict subsets of `MajorBoss`, so shipping all three
+in the default progression surface contributed exactly zero locations. They stay selectable and leave
+the default.
+
+`MinorDungeonBoss` is new, and it closes a gap that was not expressible before: **96 of the 267
+`Boss` checks carried no sub-class at all** — catacomb, cave, tunnel, gaol and Divine Tower drops a
+player could only reach by ticking `Boss`, which drags every field and legacy boss in with it.
+*"Exclude the catacombs"* is now a thing you can say.
+
+And the wizard draws the surface as the lattice it is. The classes contain one another; the page drew
+them as a flat row of equals, so *"Remembrances"* and *"Major bosses"* looked like two independent
+choices. The containment was already computed — it was just small text beside a checkbox.
+
+### The rune numbers were wrong in three different places
+
+- `KeepLocalRuneCap`'s help text — what you read in the options UI and in your own yaml — carried
+  **four** wrong claims at once, including a default that was off by a factor of two and a ladder off
+  by one rung from `[4]` up. None of them could fail, because prose does not run.
+- `RUNE_VALUE` was headed *"KNOWN constants (no source file)"* while the source file sat two
+  directories up, and **7 of its 22 rows disagreed with the params** — Hero's Rune [1]-[5] were listed
+  at 2,500-7,500 against a real 15,000-35,000. Derived from the params now, 31 values, no hand list.
+- `rune_shop_pricing` is frozen OFF at 0. The roll never ran; a rune shop slot keeps the price of the
+  ware it used to sell.
+
+### Foreign exports are a dial now, not a switch
+
+`filler_foreign` spends a **copy budget per category** instead of sampling names, so every category
+stays eligible to travel and the composition target is hit on a percentage basis. Shipped at 70,
+which is the measured 1:1 export composition. Previously the lever behaved as on/off.
+
+### Merchant checks that were never really on the surface
+
+- `_roundtable_merchant_aps()` filtered hub rows on a `ShopSlot` tag the hub does not carry, so it
+  barred the **empty set** — Enia's 99 checks and the Twin Maidens' 25 were on the progression
+  surface the whole time.
+- Release-gated merchant checks were counted as hostable by the surface while the item rules forbade
+  them. Thanks to **@emre155** for that one.
+
+### Dryleaf Dane goes missable
+
+He is questline-gated and fightable at more than one site — the boss table carries him twice, and both
+of his sweep triggers are among the ones with no arena region, which is the same fact from the other
+side. His checks stay in the pool and stop being allowed to host required progression.
+
+While tagging him: three Enir Ilim pickups carry the identical descriptor *"also granted by Dryleaf
+Dane"* and only the middle one had ever been tagged.
+
 ## v0.4.3 — 2026-08-15
 
 ### Your partners stop receiving 400 Golden Runes, and start receiving gear

@@ -73,6 +73,39 @@ one region at a time. The other good line is that fixing Margit deleted the Aghe
 Agheel and Godefroy were the two bosses matt's roster pointedly excludes, and neither was removed for
 that reason.)_
 
+### The Academy Glintstone Key is not a second lock any more
+
+You get the Raya Lucaria Academy Lock, and until now the client told you *"walk in, the Academy
+Glintstone Key opens it (no grace warp)"* — a Lock that unlocked nothing you could act on, and then
+a key hunt on top of it. The key was buying a wall the Lock already is.
+
+The Lock grants the Academy's graces now, same as every other region. The Glintstone Key is just an
+item you might find. Rennala's Great Rune of the Unborn was sitting behind that key too, and isn't.
+
+### The Unborn rune counts
+
+Rennala's Great Rune of the Unborn is the one Great Rune whose name doesn't end in "Great Rune", and
+our code checked for that ending in four different places. So the game called it a Great Rune and we
+didn't: it couldn't count toward `great_runes_required`, couldn't open the capital, couldn't be
+handed to you to repair a seed that was short. Seven runes now, everywhere.
+
+### You can exclude the catacombs
+
+96 of the 267 boss checks had no sub-class — every catacomb, cave, tunnel, gaol and Divine Tower
+boss. If you wanted them on your progression surface you ticked `Boss`, and that dragged in every
+field boss and every legacy boss with it. `MinorDungeonBoss` is its own thing now, so "the little
+dungeons, not Margit" is a sentence you can say to the wizard.
+
+The wizard also draws the classes as the tree they actually are. Remembrances and Great Runes sit
+*inside* major bosses, which is why ticking them changed nothing — the page said so in small text
+beside a checkbox and now it says it in the shape.
+
+### Foreign exports have a dial
+
+`filler_foreign` used to behave like an on/off switch. It spends a copy budget per category now, so
+every category can still travel, and it ships at 70 — the measured even split in what your partner
+actually receives.
+
 ## What carried over from v0.4.3
 
 Nothing is owed. v0.4.3 shipped complete -- its changelog section and its blurb were both written
