@@ -439,20 +439,44 @@ def build_ladder(selection):
     return rungs
 
 
+# The tag the hub-merchant bar reads. Pinned by test_gf_hub_merchant_bar against the tag names the
+# generated data actually supplies (#707).
+#
+# 🛑 `Shop`, NOT `ShopSlot`. The guard was written 2026-07-18 against `ShopSlot`; the 2026-07-24
+# ShopSlot rework redefined that tag as "at most ONE progression slot per MERCHANT, pinned to a
+# merchant-unique ware" (gen_data.py) and stopped emitting it for hub rows. From that day the guard
+# read a tag the hub does not carry and barred ZERO rows -- silently, because a derivation that reads
+# a tag the data does not supply looks exactly like a derivation with nothing to do. That is what made
+# the docstring's "derived from the generated data ... without a hand-list" a false comfort rather
+# than a claim anyone could check. `Shop` is what hub merchant rows carry, and it is a strict SUPERSET
+# of `ShopNonSpell`, `EniaShop` and `ShopSlot`, so it needs no companion tag.
+_HUB_MERCHANT_TAGS = ("Shop",)
+
+
 def _roundtable_merchant_aps():
-    """Roundtable Hold (the always-open hub) MERCHANT ShopSlots -- Enia (remembrance weapons/armor)
-    and the Twin Maiden Husks. BARRED from the progression surface (Alaric 2026-07-18): the hub is
-    reachable at spawn, so a Lock / key item placed on a hub merchant slot is 'progression' you already
-    hold on turn one -- trivial. This rule touches ONLY hub ShopSlots; the hub's Golden Seed checks
-    (Seedtree, physical pickups) are left to the normal surface/defaulted logic. Derived from the
-    generated data, so a regen that adds or moves a hub ShopSlot is covered without a hand-list."""
+    """Roundtable Hold (the always-open hub) MERCHANT rows -- Enia (remembrance weapons/armor) and
+    the Twin Maiden Husks. BARRED from the progression surface (Alaric 2026-07-18): the hub is
+    reachable at spawn, so a Lock / key item placed on a hub merchant slot is 'progression' you
+    already hold on turn one -- trivial. This rule touches ONLY hub MERCHANT rows; the hub's Golden
+    Seed checks (Seedtree, physical pickups) are left to the normal surface/defaulted logic.
+
+    Derived from the generated data, so a regen that adds or moves a hub merchant row is covered
+    without a hand-list -- but "derived" is only as good as the tag name being one the data still
+    emits, which is the whole of #707. See `_HUB_MERCHANT_TAGS`.
+
+    ONE CAUSE; the union happens at the chokepoint. This returns EVERY hub merchant row, not the
+    subset no other bar covers -- of the 184 it returns, 95 are ALSO SHOP_RELEASE_GATED and 58 are
+    ALSO DEFAULTED. Subtracting those here would make this bar's answer
+    depend on tables that answer different questions, and move it whenever they regenerate (the
+    failure `collapsed_lift_aps` documents as "ONE CAUSE AT A TIME"). `allowed_ap_ids` unions the
+    bars and is the only place that should mix them."""
     try:
         from ..data import LOCATIONS, HUB
         from ..location_tags import LOCATION_TAGS as _lt
     except Exception:
         return frozenset()
     return frozenset(ap for (_n, ap, _f) in LOCATIONS.get(HUB, ())
-                     if "ShopSlot" in _lt.get(ap, ()))
+                     if any(t in _lt.get(ap, ()) for t in _HUB_MERCHANT_TAGS))
 
 
 def allowed_ap_ids(tags_map, classes, defaulted=None):

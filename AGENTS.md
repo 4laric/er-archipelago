@@ -384,30 +384,75 @@ else, so here is the working sequence and the trap behind each step. (Derived 20
 with `16 passed, 9766 subtests` on the AP-dependent half, so the whole pytest suite -- not just the
 AP-free tier -- runs in-sandbox.)
 
+⚠️ **Rewritten 2026-08-16.** The recipe below used to pin an **x86_64** tarball and stage everything
+on `$O=/sessions/<session>/mnt/outputs`. Both were true of the sandbox it was derived in (2026-07-27)
+and neither is portable: a Cowork session on an Apple-Silicon host gets an **aarch64** sandbox, where
+the pinned tarball installs cleanly and then dies with `cannot execute binary file: Exec format
+error` — which reads like a corrupt download, not a wrong architecture. Derive the arch; do not type
+it.
+
 ```bash
-O=/sessions/<session>/mnt/outputs          # the ONLY volume with room; / and /sessions run 100% full
+W=~/work                                   # NOT the outputs mount -- see the traps below
+ARCH=$(uname -m)                           # x86_64 | aarch64 -- DERIVE IT, the URL differs
 # 1. Python 3.11 -- 3.10 IS NOT ENOUGH (AP 0.6.7 uses typing.Self in worlds/AutoWorld.py)
-curl -sSL -C - -o $O/py311.tar.gz \
-  "https://releases.astral.sh/github/python-build-standalone/releases/download/20260602/cpython-3.11.15%2B20260602-x86_64-unknown-linux-gnu-install_only_stripped.tar.gz"
-mkdir -p $O/py311 && tar -xzf $O/py311.tar.gz -C $O/py311 --skip-old-files   # RE-RUN until complete
-PY=$O/py311/python/bin/python3.11
-# 2. deps, in CHUNKS (the harness caps a bash call at 45s and pip is slow on the mount)
-$PY -m pip install -q --no-cache-dir pyyaml typing-extensions platformdirs certifi colorama
-$PY -m pip install -q --no-cache-dir schema jsonschema pathspec pytest
-# 3. Archipelago at the pin, SPARSE (a full checkout will not finish inside one call)
+mkdir -p $W/py311 && curl -sSL -o $W/py311.tgz \
+  "https://releases.astral.sh/github/python-build-standalone/releases/download/20260602/cpython-3.11.15%2B20260602-${ARCH}-unknown-linux-gnu-install_only_stripped.tar.gz"
+tar -xzf $W/py311.tgz -C $W/py311
+PY=$W/py311/python/bin/python3.11 && $PY -V     # CHECK IT RUNS before building on it
+# 2. deps (jinja2 is NOT optional -- test_gf_option_template_yaml imports it through Options.py)
+$PY -m pip install -q --no-cache-dir pyyaml typing-extensions platformdirs certifi colorama \
+    schema jsonschema pathspec pytest jinja2
+# 3. Archipelago at the pin, SPARSE (a full checkout will not finish inside one call).
+#    INTO THE REPO, named `_ap` -- both parts matter, see the traps.
 git clone --depth 1 --branch "$(tr -d '[:space:]' < .ap-version)" --single-branch \
-  https://github.com/ArchipelagoMW/Archipelago.git $O/gfci/ap
-cd $O/gfci/ap && git sparse-checkout set --no-cone \
+  https://github.com/ArchipelagoMW/Archipelago.git <repo>/_ap
+cd <repo>/_ap && git sparse-checkout set --no-cone \
   '/*.py' '/worlds/*.py' '/worlds/generic/**' '/test/**' '/data/**' '/rule_builder/**'
-# 4. install the world (AGENTS §5) and run
-rm -rf worlds/eldenring && cp -r <repo>/greenfield/eldenring worlds/eldenring
-cp <repo>/greenfield/region_map.csv worlds/eldenring/region_map.csv
-TMPDIR=/tmp AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
-  $PY -m pytest -q -p no:cacheprovider worlds/eldenring/tests/
+# 4. install the world -- USE gf_test.py, do not hand-roll the copy (trap 5)
+cd <repo> && TMPDIR=/tmp AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
+  $PY tools/gf_test.py --ap-dir _ap -q -p no:cacheprovider
 ```
 
-**The four traps, each of which reads as a different problem than it is:**
+**The traps, each of which reads as a different problem than it is:**
 
+- 🛑 **Do NOT stage the toolchain on `$O=/sessions/<session>/mnt/outputs`.** Files written there
+  become **un-removable and un-overwritable within the same session**: `rm -rf` returns `Operation
+  not permitted` per file and a re-run of `tar` returns `Cannot open: Permission denied`. So a
+  partial or wrong extract cannot be cleaned up or retried — and the old advice to extract with
+  `--skip-old-files` "so re-running is resumable" makes it worse, because you cannot clear the bad
+  tree it resumes onto. `~/work` is on the same `/sessions` volume, had 3.6 GB free, and behaves
+  normally. (Observed 2026-08-16 while replacing an x86_64 extract with an aarch64 one.) Related:
+  `/tmp` can hold files from a PREVIOUS session owned by `nobody` — a heredoc onto a name like
+  `/tmp/pr.md` fails with `Permission denied` while a subsequent read of that path silently returns
+  the **stale** contents. Write scratch files under `~/work/scratch`, not `/tmp`.
+- 🛑 **Background jobs are REAPED when the launching bash call returns.** `nohup ... &` and
+  `setsid ... &` both survive a `sleep` in the same call and are gone by the next one, leaving a
+  truncated log and no process — which reads like a crash in the thing you launched. There is no
+  "start the suite and poll it" here. The per-call ceiling is ~178 s, and the full world suite takes
+  ~150 s of pytest plus install, so **split it**: `ls worlds/eldenring/tests/test_*.py >
+  ~/work/scratch/all && split -n l/4 ~/work/scratch/all ~/work/scratch/batch_` and run the four
+  batches in four calls (~40 s each). A green full run is 2421 passed / 97 skipped / ~439k subtests
+  (2026-08-16, `main` @ `4c23d83d` + #723).
+- 🛑 **`--ap-dir` must be INSIDE the repo, and should be `_ap`.** Two separate failures, one for each
+  half:
+  * **Outside the repo**, `tests/_util.find_repo_root` returns `None` — and while its docstring says
+    "callers skip on None", `test_gf_arena_grace_exclusions` and `test_gf_arena_grace_load_bearing`
+    do not: they `os.path.join(ROOT, ...)` at module scope and raise `TypeError: expected str, bytes
+    or os.PathLike object, not NoneType` **during collection**, which aborts the whole run with 2
+    errors and zero results.
+  * **At `.ap-test`** — `gf_test.py`'s own default — `test_gf_regen_all.SKIP_DIRS` does not list it
+    (it lists `_ap`, the CI name), so the walk scans the *installed copy* of the world and reports
+    its generated modules as un-emitted orphans. One spurious red that reads exactly like #699/#708.
+- 🛑 **Let `gf_test.py` install the world. A hand-rolled `cp` produces ~43 phantom failures.** The
+  install copies every `greenfield/*.csv` and `*.tsv`, `region_groups.py`, `release/EldenRing.yaml`,
+  the repo-root player guide and `release/KNOWN-ISSUES.md` — not just `REQUIRED_INPUTS`. Copy only
+  the four `REQUIRED_INPUTS` and `bell_handins`, `key_item_gate_classification`, `shipping_yaml` and
+  `player_guide` all go red with `FileNotFoundError` on ground-truth tables, which looks like real
+  data corruption and is a missing `cp`. (Cost an hour on 2026-08-16, and produced a confidently
+  wrong "43 pre-existing failures" claim in a PR body before it was caught.)
+- ⚠️ **Clear `__pycache__` after moving or renaming the AP directory.** Cached `.pyc` files carry
+  absolute paths, so a test that resolves a sibling module keeps loading the OLD location and fails
+  citing a directory that no longer exists — `find . -name __pycache__ -prune -exec rm -rf {} +`.
 - 🛑 **`TMPDIR` must be `/tmp` for pytest, and NOT on the outputs mount.** pytest's capture tmpfile
   vanishes there and you get `FileNotFoundError ... _pytest/capture.py:592 res = self.tmpfile.read()`
   at the END of a run -- which reads like a broken test, not a broken environment. (`HOME` and the
@@ -415,9 +460,10 @@ TMPDIR=/tmp AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 \
   as the rustup `TMPDIR` note in §4. The two want opposite volumes; set them separately.)
 - 🛑 **`uv python install 3.11` will not finish.** It downloads fine but then unpacks ~120 MB of
   small files onto the slow mount, and the per-call timeout kills it mid-extract leaving nothing
-  behind. This looks like a network failure and is not one. Fetch the tarball with `curl -C -`
-  (resumable across calls) and extract it yourself with `--skip-old-files`, which makes re-running
-  effectively resumable too.
+  behind. This looks like a network failure and is not one. Fetch the tarball with `curl` and
+  extract it yourself. (The `-C -` / `--skip-old-files` "resumable" advice that used to live here
+  applied to the outputs mount; off that mount the download is a few seconds and a clean
+  `rm -rf && tar -xzf` is strictly better than resuming onto a tree you cannot inspect.)
 - 🛑 **A full AP checkout will not finish either** (~3500 files). Sparse-checkout it — but use
   `--no-cone` with the pattern list above. ⚠️ **`init --cone` does NOT keep the root `.py` files**,
   whatever this doc used to say: it leaves you with `test/` and `worlds/` only, and you then chase
