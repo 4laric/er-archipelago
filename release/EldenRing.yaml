@@ -565,24 +565,33 @@ Elden Ring:
   keep_local: [consumables, cookbooks, crafting, crystal_tears, merchant_bells, other, upgrade_bells, upgrade_materials]
 
   # Hold back rune items worth this many runes or fewer; larger ones may still
-  # travel. 0 (default) is OFF. The payout is a number the game publishes, so
-  # it is not guessed from the item name: Golden Rune [1] 200, [4] 1,600,
-  # [8] 3,800, [10] 6,250, [13] 12,500, Hero's Rune [1] 15,000, Lord's Rune
-  # 50,000, the DLC's largest 80,000. Independent of keep_local: naming `runes`
-  # there keeps every rune home whatever this says.
+  # travel. DEFAULTS TO 12,500, which holds 18 of the 31 rune items. Set it to
+  # 0 to turn it off and send every rune you find.
   #
-  # WHY 6,250 (Golden Rune [10]). Runes are the only large filler category the
+  # The payout is a number the game publishes, so it is not guessed from the
+  # item name:
+  #   Golden Rune [1]    200     Golden Rune [10]   5,000
+  #   Golden Rune [4]  1,200     Golden Rune [11]   6,250
+  #   Golden Rune [8]  3,000     Golden Rune [13]  10,000
+  #   Golden Rune [9]  3,800     Numen's Rune      12,500  <- the default cap
+  #                              Hero's Rune [1]   15,000
+  #                              Lord's Rune       50,000
+  #                              Marika's Rune     80,000  <- the largest
+  # Independent of keep_local: naming `runes` there keeps every rune home
+  # whatever this says.
+  #
+  # WHY 12,500 (Numen's Rune). Runes are the only large filler category the
   # default keep_local leaves open, which makes this the fine adjustment on what
   # your partners receive -- and unlike a percentage it can be AIMED, because
   # the threshold is a number the game publishes rather than a share of a pool
-  # nobody can picture. Measured useful:filler in what we export, everything
+  # nobody can picture.
   # else identical: cap 0 -> 0.57:1, 6,250 -> 0.68:1, 12,500 -> 0.72:1, and
   # 80,000 (every rune home) only 0.73:1. Against the old defaults the pair
   # moves 0.55:1 -> 0.72:1: exported USEFUL is flat (228 -> 231) while filler
   # falls 412 -> 320, so your partners lose 92 Golden Runes, not 92 items they
-  # wanted. 12,500 is Golden Rune [13]; Hero'''s and
-  # Lord'''s Runes still travel. Raise it to send less junk and keep more runes;
-  # set it to 0 to send every rune you find.
+  # wanted. 12,500 is Numen's Rune -- Golden Rune [13] is 10,000. Hero's,
+  # Leda's, Lord's and Marika's Runes still travel. Raise it to send less junk
+  # and keep more runes; set it to 0 to send every rune you find.
   keep_local_rune_cap: 12500
 
   # How hard your Region Locks are pulled toward YOUR OWN world. 0 (default) is
