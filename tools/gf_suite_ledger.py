@@ -166,6 +166,14 @@ TESTS_JOB = {
                         "pytest suite, not a __main__ script, and it imports "
                         "worlds.eldenring.item_categories for rune_payout, which is the ground truth "
                         "it checks the prose against",
+    "upgrade_costs_runes": "TESTS_JOB, and it does NOT skip. Its `tools/upgrade_costs` mention is "
+                           "what the sentinel scan sees, but that path is inside the PACKAGE "
+                           "(greenfield/eldenring/tools/), so gf_test.py installs it beside the "
+                           "world and the suite runs like any other -- it asserts so directly "
+                           "rather than skipping, because the thing it guards is a table that was "
+                           "wrong on 7 of 22 rows for months while nothing read it (#749). It "
+                           "compares RUNE_VALUE against shop_stock_data.RUNE_PAYOUT, both of which "
+                           "are installed generated leaves, so it needs no repo tree at all",
     "release_pairing": "pure-stdlib: imports tools/check_release_pairing.py by path via the "
                        "find_repo_root walk-up and drives its pure `check()` over injected Facts, "
                        "so it needs no AP, no network, no submodule and no dll. It sits in "
