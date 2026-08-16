@@ -38,6 +38,67 @@ KEY = contract.PROGRESSION_SURFACE_LOCATIONS
 
 
 
+
+def test_every_boss_check_is_reachable_by_a_class_narrower_than_Boss():
+    """Alaric's ruling, 2026-08-16: the minidungeon bosses get a class of their own.
+
+    Before it, 96 of the 267 `Boss` checks carried no sub-class at all -- catacomb, cave, tunnel,
+    gaol and Divine Tower drops that a player could only reach by ticking `Boss`, which drags in
+    every field and legacy boss with it. "Exclude the catacombs" was unexpressible, and the tree
+    view makes the gap plain: a parent whose children do not add up.
+
+    🛑 NOT asserted as "the residue is zero". 18 checks carry `Boss` and have no reward tile, so
+    geography cannot place them and no honest class can claim them -- pretending otherwise would be
+    a tag that means "we do not know". What IS asserted is that the residue is SMALL and that the
+    named classes are disjoint from each other, so the tree's parent/child counts can be trusted.
+    """
+    from worlds.eldenring import contract
+    from worlds.eldenring.location_tags import LOCATION_TAGS
+
+    def tagged(t):
+        return {ap for ap, tags in LOCATION_TAGS.items() if t in tags}
+
+    boss = tagged("Boss")
+    assert boss, "no Boss-tagged checks -- this test is measuring an empty world"
+    subs = {c: tagged(c) for c in ("MajorBoss", "LegacyBoss", "FieldBoss", "MinorDungeonBoss")}
+    for name, aps in subs.items():
+        assert aps, f"{name} tags nothing"
+        assert aps <= boss, f"{name} has {len(aps - boss)} check(s) outside Boss"
+        assert name in contract.SURFACE_CLASSES, f"{name} is not selectable"
+
+    covered = set().union(*subs.values())
+    residue = boss - covered
+    assert len(residue) < len(boss) * 0.10, (
+        f"{len(residue)} of {len(boss)} Boss checks carry no sub-class ({len(residue)/len(boss):.0%}) "
+        f"-- a player can only reach them by ticking Boss, which is what MinorDungeonBoss was added "
+        f"to fix. Sample: {sorted(residue)[:5]}")
+
+    # The four are WHERE the boss stands, so they cannot overlap -- the tree draws them as siblings
+    # and a check in two of them would be counted twice under one parent.
+    for a in subs:
+        for b in subs:
+            if a < b and a != "MajorBoss" and b != "MajorBoss":
+                assert not (subs[a] & subs[b]), (
+                    f"{a} and {b} share {len(subs[a] & subs[b])} check(s); geography classes must "
+                    f"partition")
+
+
+def test_the_minidungeon_class_is_not_named_after_a_region():
+    """🛑 `MinorDungeonBoss`, never `Underground`. "Underground" is what a player calls Nokron,
+    Nokstella, Siofra and the Ainsel river -- REGIONS, none of which this class contains. It holds
+    catacombs, caves, tunnels, gaols and Divine Towers, which the sweep vocabulary already calls the
+    minidungeons. One word for one thing, in both places a player meets it."""
+    from worlds.eldenring import contract
+    from worlds.eldenring.features.progression_surface import SURFACE_CLASS_LABELS
+
+    assert "Underground" not in contract.SURFACE_CLASSES
+    label, hint = SURFACE_CLASS_LABELS["MinorDungeonBoss"]
+    assert "Minor dungeon" in label, label
+    for region in ("Nokron", "Nokstella", "Siofra", "Ainsel"):
+        assert region in hint, (
+            f"the hint must say this class is NOT {region} -- that conflation is the reason it is "
+            f"not called Underground")
+
 def test_the_default_surface_admits_nothing_it_does_not_need():
     """#733. `Remembrance` and `GreatRune` sat in SURFACE_DEFAULT_CLASSES doing nothing at all.
 

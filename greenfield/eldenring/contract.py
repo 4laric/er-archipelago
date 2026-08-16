@@ -263,7 +263,8 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # this constant is ever renamed again, they must break.
 SURFACE_CLASSES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                    "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
-                   "KeyItem", "MajorBoss", "LegacyBoss", "FieldBoss", "SweepSlot"]
+                   "KeyItem", "MajorBoss", "LegacyBoss", "FieldBoss", "MinorDungeonBoss",
+                   "SweepSlot"]
 # 🛑 SweepSlot is NOT A LOCATION TAG. Every other member of this list names a tag that gen_data
 # writes onto a check; SweepSlot is DERIVED at world-build time from that seed's own enabled sweeps
 # (features/progression_surface.sweep_slot_aps) -- at most one member per sweep trigger, the way

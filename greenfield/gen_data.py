@@ -8609,17 +8609,25 @@ for _fl in sorted({_apid_flag[_ap] for _ap in _MAJOR_AIDS if _ap in _apid_flag})
 # triggers). Tagging off it labelled 15 DLC OVERWORLD boss checks -- Ghostflame Dragon, Dancer of
 # Ranah, Rugalea -- as legacy-DUNGEON checks, which is just false. One question per function.
 #
-# 🛑 `Underground` HAS NO TAG, AND ITS JUSTIFICATION IS NOW FALSE. This comment used to read: "81
-# catacomb/cave/tunnel/minor-dungeon BOSSES exist, but only THREE of them drop an AP-tracked check
-# ... a 3-member player-facing class is noise, and 'exclude the catacombs' is not a thing this data
-# can express." That was true while `Boss` read only the handler-drop mechanism. Reading the
-# scripted-reward mechanism too (see _BOSS_TAG_FLAGS) took it from **3 to 60**, because
-# BOSS_REWARD_DEFEAT is precisely the MINI-DUNGEON reward family the old note was dismissing.
+# ⭐ THE THIRD GEOGRAPHY TAG, TAKEN 2026-08-16 (Alaric's ruling). This block used to end "whether to
+# offer an `Underground` class is a PLAYER-FACING decision ... deliberately NOT taken here"; it is
+# taken now, and the history is worth keeping because the reason it was refused stopped being true
+# without anyone noticing.
 #
-# So 60 underground boss checks now carry `Boss` and NO geography sub-class -- they are the bulk of
-# the 66 Boss-only checks. "Exclude the catacombs" IS expressible now. Whether to offer an
-# `Underground` class is a PLAYER-FACING decision (it would be the 17th, and every one of them costs
-# a wizard row and a surface-confidence row), so it is deliberately NOT taken here. What is taken
+# The refusal read: "81 catacomb/cave/tunnel/minor-dungeon BOSSES exist, but only THREE of them drop
+# an AP-tracked check ... a 3-member player-facing class is noise, and 'exclude the catacombs' is not
+# a thing this data can express." True while `Boss` read only the handler-drop mechanism. Reading the
+# scripted-reward mechanism too (see _BOSS_TAG_FLAGS) took it from 3 to 60, because
+# BOSS_REWARD_DEFEAT is precisely the MINI-DUNGEON reward family the old note dismissed. Measured
+# 2026-08-16 it is **78** -- of 96 checks carrying `Boss` and no sub-class, 78 resolve to
+# `underground` and 18 have no reward tile at all, so they stay Boss-only and are visible as the
+# gap between the parent's count and its children's.
+#
+# 🛑 NAMED `MinorDungeonBoss`, NOT `Underground` (Alaric, 2026-08-16): "underground" is what a player
+# calls Nokron, Nokstella, Siofra and the Ainsel river -- REGIONS, none of which this class contains.
+# The tag is about catacombs, caves, tunnels, gaols and the Divine Towers, which the sweep vocabulary
+# already calls the minidungeons (contract.SWEEP_MINI_CLASSES = catacomb/cave/tunnel/dungeon). One
+# word for one thing, in both places a player meets it. What is taken
 # here is deleting the dead reason: nobody should re-derive "only three" from this file again.
 try:
     _BOSS_GEO = dict(_bmod.BOSS_DROP_GEOGRAPHY)
@@ -8642,7 +8650,8 @@ def _geography_of_map(_m):
         return "underground"
     return "legacy" if _m else None
 
-_GEO_TAG = {"legacy": "LegacyBoss", "field": "FieldBoss"}
+_GEO_TAG = {"legacy": "LegacyBoss", "field": "FieldBoss",
+            "underground": "MinorDungeonBoss"}
 _geo_counts = Counter(); _geo_unresolved = 0
 for _ap, _tg in sorted(loc_tags.items()):
     if "Boss" not in _tg:
@@ -8665,7 +8674,7 @@ if not _geo_counts:
 # Regen-time HARD GATE on both closures. These are definitional, so a violation means someone edited
 # the tagging above -- fail the regen rather than ship a silently narrower player-facing "Boss".
 _sub_bad = sorted(_ap for _ap, _tg in loc_tags.items()
-                  if "MajorBoss" in _tg and "Boss" not in _tg)
+                  if ("MajorBoss" in _tg or "MinorDungeonBoss" in _tg) and "Boss" not in _tg)
 _maj_bad = sorted(_ap for _ap, _tg in loc_tags.items()
                   if ("Remembrance" in _tg or "GreatRune" in _tg) and "MajorBoss" not in _tg)
 if _sub_bad or _maj_bad:
@@ -8921,7 +8930,12 @@ def _is_dungeon(_mp):
 # DEFAULT surface the per-seed cut takes back 94 of those (Church/Seedtree/Fragment/Revered are all
 # in SURFACE_DEFAULT_CLASSES), so a default seed gains 51 and an empty-surface seed gains all 145.
 _SWEEP_NEVER_TAGS = frozenset({"Remembrance", "Boss", "GreatRune", "KeyItem", "Shop",
-                               "ShopNonSpell", "ShopSlot", "MajorBoss", "LegacyBoss", "FieldBoss"})
+                               "ShopNonSpell", "ShopSlot", "MajorBoss", "LegacyBoss", "FieldBoss",
+                               # Cuts NOTHING new -- every one of these already carries `Boss`,
+                               # which is in this set. Listed so the boss classes stay a complete
+                               # enumeration: the next reader must not have to prove the closure to
+                               # know a boss reward is never sweep loot.
+                               "MinorDungeonBoss"})
 _SWEEP_SURFACE_CUTTABLE = frozenset({"Seedtree", "Church", "Fragment", "Revered", "Basin",
                                      "Legendary"})
 _FIELD_EXCLUDE_TAGS = _SWEEP_NEVER_TAGS

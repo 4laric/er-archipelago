@@ -30,7 +30,7 @@
 #    and the one the surface depends on. See the Seedtree row.
 #
 # MEASURED THIS RUN (recomputed on every emit):
-#   vocabulary 16 class(es) | default surface 7 TAGGED class(es)
+#   vocabulary 17 class(es) | default surface 7 TAGGED class(es)
 #   PLUS SweepSlot -- DERIVED, not priced here: one check per enabled dungeon sweep, decided per
 #   seed (55 on a 4-region seed, ~170 on the full map). So the DEFAULT SURFACE hosting
 #   number below is the TAGGED half only.
@@ -54,3 +54,4 @@ KeyItem	19	0	0	4	0	2	0	13	68	yes
 MajorBoss	51	0	1	2	0	0	0	48	94	yes
 LegacyBoss	53	0	0	4	0	2	0	49	92	
 FieldBoss	110	0	25	0	0	0	0	85	77	
+MinorDungeonBoss	79	0	1	1	0	0	0	77	97	

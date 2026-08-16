@@ -265,15 +265,35 @@ class ProgressionSurfaceOption(unittest.TestCase):
     def test_the_shipped_default_ladder_is_unchanged_by_733(self):
         """🛑 THE SAFETY PROPERTY. #733 took two classes out of the default and taught the ladder to
         measure admissions, and NEITHER may move the shipped ladder -- same number of rungs, same
-        locations at each. Measured before the change: 186 -> 366 -> 434.
+        locations at each. If that ever stops holding, the default's fill sequence moved and every
+        default seed is a different seed; that is a decision, not a side effect.
 
-        If this fails, the default's fill sequence moved and every default seed is a different seed;
-        that is a decision, not a side effect."""
+        🛑 ASSERTED AS AN IDENTITY AGAINST THE PRE-#733 SELECTION, NOT AS LITERAL SIZES. It shipped
+        as `assertEqual(sizes, [176, 365, 433])` and that was wrong within the hour: #746 re-derived
+        the MajorBoss roster from the game's own data, the base rung became 186, and a test about
+        #733 went red over a change that had nothing to do with it. Worse, its own PR was green --
+        CI runs on the branch HEAD, not on the merge, and #746 landed in between.
+
+        The question is whether the two RETIRED classes change the ladder, so ask exactly that: build
+        the ladder from the shipped default and from the shipped default plus the two, and require
+        them to admit the same locations rung for rung. That survives any roster change and still
+        fails the moment #733's premise stops being true."""
         from worlds.eldenring.features.progression_surface import allowed_ap_ids
-        ladder = build_ladder(ProgressionSurface.default)
-        sizes = [len(set(allowed_ap_ids(LOCATION_TAGS, set(r)))) for r in ladder]
-        self.assertEqual(sizes, [186, 366, 434],
-                         "the shipped ladder moved: %s (%s)" % (sizes, [sorted(r) for r in ladder]))
+        shipped = build_ladder(ProgressionSurface.default)
+        pre733 = build_ladder(set(ProgressionSurface.default) | {"Remembrance", "GreatRune"})
+
+        def sizes(ladder):
+            return [len(set(allowed_ap_ids(LOCATION_TAGS, set(r)))) for r in ladder]
+
+        got, want = sizes(shipped), sizes(pre733)
+        self.assertTrue(got, "the shipped ladder is empty -- this test is measuring nothing")
+        self.assertEqual(got, want,
+                         "retiring Remembrance/GreatRune moved the shipped ladder: %s vs %s "
+                         "(%s)" % (got, want, [sorted(r) for r in shipped]))
+        # ...and it must still be a LADDER: every rung strictly wider than the last.
+        for i in range(1, len(got)):
+            self.assertGreater(got[i], got[i - 1],
+                               "rung %d admits nothing new: %s" % (i, sorted(shipped[i])))
 
     def test_the_shipped_default_ladder_has_no_inert_rung(self):
         """The counterpart to the test above: every rung of the DEFAULT ladder must add locations.

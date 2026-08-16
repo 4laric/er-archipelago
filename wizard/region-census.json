@@ -16,6 +16,7 @@
   "MajorBoss",
   "LegacyBoss",
   "FieldBoss",
+  "MinorDungeonBoss",
   "SweepSlot"
  ],
  "default_classes": [
@@ -88,10 +89,10 @@
    "checks": 373,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
-    "Boss": 12,
     "Boss|FieldBoss": 8,
     "Boss|FieldBoss|Legendary|MajorBoss": 1,
-    "Boss|Legendary": 4,
+    "Boss|Legendary|MinorDungeonBoss": 4,
+    "Boss|MinorDungeonBoss": 12,
     "Church": 2,
     "Legendary": 5,
     "Seedtree": 9,
@@ -177,13 +178,14 @@
    "combos": {
     "Basin": 1,
     "Basin|Boss|FieldBoss": 1,
-    "Boss": 16,
+    "Boss": 2,
     "Boss|FieldBoss": 12,
     "Boss|FieldBoss|Legendary": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 1,
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|Legendary": 1,
-    "Boss|Seedtree": 1,
+    "Boss|Legendary|MinorDungeonBoss": 1,
+    "Boss|MinorDungeonBoss": 14,
+    "Boss|MinorDungeonBoss|Seedtree": 1,
     "Church": 1,
     "KeyItem": 1,
     "Legendary": 4,
@@ -209,10 +211,11 @@
   "Cerulean": {
    "checks": 100,
    "combos": {
-    "Boss": 5,
+    "Boss": 4,
     "Boss|FieldBoss": 2,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Boss|Legendary": 1,
+    "Boss|MinorDungeonBoss": 1,
     "Fragment": 4,
     "KeyItem": 2
    },
@@ -312,10 +315,11 @@
    "checks": 215,
    "combos": {
     "Basin": 1,
-    "Boss": 8,
+    "Boss": 5,
     "Boss|FieldBoss": 3,
-    "Boss|Legendary": 1,
     "Boss|Legendary|MajorBoss": 1,
+    "Boss|Legendary|MinorDungeonBoss": 1,
+    "Boss|MinorDungeonBoss": 3,
     "Fragment": 5,
     "Legendary": 3,
     "Revered": 4,
@@ -399,10 +403,10 @@
    "checks": 332,
    "combos": {
     "Basin": 3,
-    "Boss": 7,
     "Boss|FieldBoss": 5,
     "Boss|FieldBoss|Legendary": 1,
     "Boss|LegacyBoss|Seedtree": 1,
+    "Boss|MinorDungeonBoss": 7,
     "Church": 1,
     "KeyItem": 1,
     "Legendary": 5,
@@ -429,12 +433,13 @@
    "checks": 610,
    "combos": {
     "Basin": 2,
-    "Boss": 10,
+    "Boss": 1,
     "Boss|FieldBoss": 15,
     "Boss|FieldBoss|Legendary": 1,
     "Boss|FieldBoss|MajorBoss": 1,
-    "Boss|Legendary": 1,
-    "Boss|MajorBoss": 1,
+    "Boss|Legendary|MinorDungeonBoss": 1,
+    "Boss|MajorBoss|MinorDungeonBoss": 1,
+    "Boss|MinorDungeonBoss": 9,
     "Church": 3,
     "KeyItem": 2,
     "Legendary": 6,
@@ -481,11 +486,11 @@
    "checks": 344,
    "combos": {
     "Basin|Boss|FieldBoss": 2,
-    "Boss": 12,
     "Boss|FieldBoss": 7,
     "Boss|FieldBoss|MajorBoss": 1,
-    "Boss|Legendary": 1,
-    "Boss|Seedtree": 1,
+    "Boss|Legendary|MinorDungeonBoss": 1,
+    "Boss|MinorDungeonBoss": 12,
+    "Boss|MinorDungeonBoss|Seedtree": 1,
     "Church": 2,
     "KeyItem": 1,
     "Legendary": 4,
@@ -509,13 +514,14 @@
   "Mt. Gelmir": {
    "checks": 244,
    "combos": {
-    "Boss": 3,
+    "Boss": 1,
     "Boss|FieldBoss": 4,
     "Boss|FieldBoss|Legendary": 2,
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss": 2,
     "Boss|LegacyBoss|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MinorDungeonBoss": 2,
     "KeyItem": 1,
     "Legendary": 3,
     "Seedtree": 2,
@@ -539,8 +545,8 @@
   "Rauh Base": {
    "checks": 91,
    "combos": {
-    "Boss": 1,
     "Boss|FieldBoss|MajorBoss": 1,
+    "Boss|MinorDungeonBoss": 1,
     "Legendary": 3
    },
    "dlc": true,
@@ -591,11 +597,11 @@
   "Scadu Altus": {
    "checks": 277,
    "combos": {
-    "Boss": 1,
     "Boss|FieldBoss": 4,
     "Boss|Fragment|LegacyBoss": 1,
     "Boss|LegacyBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MinorDungeonBoss": 1,
     "Fragment": 8,
     "KeyItem": 1,
     "Legendary": 1,
@@ -706,9 +712,9 @@
    "checks": 154,
    "combos": {
     "Basin": 1,
-    "Boss": 4,
     "Boss|FieldBoss": 2,
     "Boss|FieldBoss|MajorBoss": 1,
+    "Boss|MinorDungeonBoss": 4,
     "Church": 3,
     "Seedtree": 1,
     "Shop|ShopNonSpell": 26,
@@ -731,5 +737,5 @@
  },
  "schema": 1,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "204f9c82cbcae4a5e9ae78ee87a3ff2e13af058a16470e28969d4801f07ef5a8"
+ "source_sha256": "1761170d5123fd3cd10f41ed38b89fe969eee163faed9239f37ab254276f08bd"
 }
