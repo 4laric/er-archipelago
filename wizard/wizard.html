@@ -3734,16 +3734,40 @@ const ERW = (() => {
   }
   function deviations(meta, state){
     const out = [];
-    const order = meta.field_order.concat(meta.apCore.map(o => o.key));
-    for (const k of order)
+    for (const k of emitOrder(meta))
       if (k in state.values && !isDefault(meta, state, k)) out.push(k);
     return out;
+  }
+  /* The one order both the deviation list and the yaml are written in: the metadata's declared
+     field order, then AP core. Filtered through `byKey` so a key that is in `field_order` but has
+     no option behind it cannot reach the emitter as `undefined`. */
+  function emitOrder(meta){
+    return meta.field_order.concat(meta.apCore.map(o => o.key)).filter(k => meta.byKey[k]);
   }
 
   function yamlScalar(v){
     if (typeof v === "boolean") return v ? "true" : "false";
     if (typeof v === "number") return String(v);
     return '"' + String(v).replace(/\\/g,"\\\\").replace(/"/g,'\\"') + '"';
+  }
+  /* 🛑 A NAMEDRANGE'S DEFAULT CAN SIT OUTSIDE ITS OWN DECLARED RANGE, AND THE NUMBER IS THEN NOT A
+     LEGAL VALUE. `cross_game_progression` and `maximum_enemy_difficulty` both default to `-1`
+     against a declared `0..100`; `-1` is only reachable through `special_range_names` ("auto"), so
+     `Range.from_any(-1)` raises and the seed does not generate. This never mattered while the
+     wizard emitted deviations ONLY -- a default was never written down, so its illegal spelling was
+     never written down either. Emitting every option (#732) puts both of them in every file, which
+     is exactly how a "cosmetic" change becomes a generation failure.
+
+     Name-vs-number is decided by the RANGE, not by the presence of a special name:
+     `confine_foreign_progression` defaults to 100, which is in range AND has the name "all", and
+     `100` is the clearer of the two. Only an out-of-range value has to be spelled. */
+  function yamlOptionValue(o, v){
+    if (typeof v === "number" && o && o.range &&
+        (v < o.range.start || v > o.range.end)){
+      const hit = (o.special_values || []).find(sv => sv.value === v);
+      if (hit) return yamlScalar(hit.name);
+    }
+    return yamlScalar(v);
   }
   function sanitizeName(n){
     n = (n || "").trim().replace(/[{}]/g, "");
@@ -3777,32 +3801,46 @@ const ERW = (() => {
     const GAME = meta.game;
     L.push("game: " + GAME);
     L.push("");
-    if (!devs.length){
-      L.push(GAME + ": {}   # all options at their defaults");
-    } else {
-      L.push(GAME + ":");
-      for (const k of devs){
-        const o = meta.byKey[k];
-        const v = getVal(meta, state, k);
-        const cmt = "   # " + o.display_name + " (default: " + fmtDefault(o.default) + ")";
-        /* A MAPPING CANNOT CARRY ITS COMMENT ON THE VALUE, so it rides the parent key and the
-           members go out as an indented block. Before #571 this branch did not exist and a dict
-           went through yamlScalar, which quotes -- so a player who touched Curated Filler
-           downloaded `curated_filler: "[object Object]"`, a string where the world wants a table. */
-        if (isPlainObject(v)){
-          const ks = Object.keys(v);
-          if (!ks.length){ L.push("  " + k + ": {}" + cmt); }
-          else {
-            L.push("  " + k + ":" + cmt);
-            for (const ck of ks) L.push("    " + ck + ": " + yamlScalar(v[ck]));
-          }
-          continue;
+    /* 🛑 EVERY OPTION IS WRITTEN OUT, INCLUDING THE ONES AT THEIR DEFAULTS (#732). This block used
+       to emit the DEVIATIONS only, so a player who took the wizard's advice and changed nothing
+       downloaded `Elden Ring: {}` -- a file that generates a correct seed and tells them nothing.
+       Three costs, and the first is the one that made this a P1:
+
+       1. THE FILE IS THE ONLY DOCUMENTATION MOST PLAYERS EVER READ. `{}` is the first thing a new
+          player sees after clicking through a wizard that just explained 58 options to them.
+       2. A DEFAULT IS NOT A PROMISE. `minimum_enemy_difficulty`'s default moved 0 -> 25 -> 0 inside
+          one day (2026-08-05); anyone holding a `{}` yaml across that would have silently rolled a
+          different seed from the one they configured. Written-out values pin what they chose.
+       3. IT IS THE SUPPORT ARTIFACT. "Post your yaml" answers nothing when the yaml is `{}`.
+
+       The `(default: ...)` comment is now the CHANGE MARKER: an option carries it only where the
+       player moved it, so the diff from stock is still readable at a glance without a second file
+       to compare against. */
+    const devSet = new Set(devs);
+    L.push(GAME + ":");
+    for (const k of emitOrder(meta)){
+      const o = meta.byKey[k];
+      const v = getVal(meta, state, k);
+      if (v === undefined) continue;   // an option with no default and no value has nothing to say
+      const cmt = "   # " + o.display_name +
+                  (devSet.has(k) ? " (default: " + fmtDefault(o.default) + ")" : "");
+      /* A MAPPING CANNOT CARRY ITS COMMENT ON THE VALUE, so it rides the parent key and the
+         members go out as an indented block. Before #571 this branch did not exist and a dict
+         went through yamlScalar, which quotes -- so a player who touched Curated Filler
+         downloaded `curated_filler: "[object Object]"`, a string where the world wants a table. */
+      if (isPlainObject(v)){
+        const ks = Object.keys(v);
+        if (!ks.length){ L.push("  " + k + ": {}" + cmt); }
+        else {
+          L.push("  " + k + ":" + cmt);
+          for (const ck of ks) L.push("    " + ck + ": " + yamlScalar(v[ck]));
         }
-        const line = Array.isArray(v)
-          ? "  " + k + ": [" + v.map(yamlScalar).join(", ") + "]"
-          : "  " + k + ": " + yamlScalar(v);
-        L.push(line + cmt);
+        continue;
       }
+      const line = Array.isArray(v)
+        ? "  " + k + ": [" + v.map(yamlScalar).join(", ") + "]"
+        : "  " + k + ": " + yamlOptionValue(o, v);
+      L.push(line + cmt);
     }
     L.push("");
     return L.join("\n");

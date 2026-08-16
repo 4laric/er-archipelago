@@ -152,6 +152,63 @@ class WizardYamlGenerates(unittest.TestCase):
                               "the emitted yaml does not name the metadata's game")
                 self._generate(yaml_text, label)
 
+    def test_the_yaml_writes_every_option_down(self):
+        """#732. The wizard emitted the DEVIATIONS only, so an untouched run produced
+        `Elden Ring: {}` -- a file that generates a correct seed and documents nothing. Generation
+        cannot see this: `{}` is the most generatable yaml there is, so the test above was green
+        throughout. This is the assertion that names it.
+
+        Held on the METADATA's key list rather than a pinned count, so a new option is covered the
+        day it is dumped and this does not become a number somebody bumps."""
+        yaml_text = _build_yaml(self.core, self.meta, None)
+        emitted = set(re.findall(r"^  ([a-z_][a-z0-9_]*):", yaml_text, re.M))
+        missing = [o["key"] for o in self.meta["options"] if o["key"] not in emitted]
+        self.assertFalse(missing,
+                         "the wizard's yaml is silent about %d live option(s) it configures: %s"
+                         % (len(missing), ", ".join(missing)))
+
+    def test_every_value_the_yaml_writes_is_legal_for_its_option(self):
+        """The landmine under the test above, and the reason it is a separate assertion.
+
+        `cross_game_progression` and `maximum_enemy_difficulty` are NamedRanges whose DEFAULT sits
+        outside their own declared `0..100` -- `-1`, reachable only as the name `auto`. While the
+        wizard emitted deviations only, a default was never written down and so its illegal
+        spelling was never written down either. Writing every option down puts both in every file,
+        and `Range.from_any(-1)` raises: the yaml stops generating at all.
+
+        Generation catches that one, loudly. It would NOT catch the quiet direction -- a special
+        name emitted for a value that is in range, e.g. `all` for `confine_foreign_progression: 100`
+        -- which generates fine and is simply less legible. So this reads the numbers directly."""
+        yaml_text = _build_yaml(self.core, self.meta, None)
+        by_key = {o["key"]: o for o in self.meta["options"]}
+        bad = []
+        for line in yaml_text.splitlines():
+            m = re.match(r'^  ([a-z_][a-z0-9_]*): (-?\d+|"[^"]*")\s*(?:#.*)?$', line)
+            if not m:
+                continue
+            key, raw = m.group(1), m.group(2)
+            o = by_key.get(key)
+            rng = (o or {}).get("range")
+            if not rng:
+                continue
+            names = {s["name"]: s["value"] for s in (o.get("special_values") or [])}
+            if raw.startswith('"'):
+                # The quiet direction: a name where a plain number would do.
+                nm = raw.strip('"')
+                if nm not in names:
+                    bad.append("%s: %s is not one of this range's special names %s"
+                               % (key, raw, sorted(names)))
+                elif rng["start"] <= names[nm] <= rng["end"]:
+                    bad.append("%s: emitted as the name %s for %d, which is in range %d..%d -- the "
+                               "number is the legible spelling and the name is only needed when it "
+                               "is not" % (key, raw, names[nm], rng["start"], rng["end"]))
+            elif not (rng["start"] <= int(raw) <= rng["end"]):
+                bad.append("%s: %s is outside its declared range %d..%d -- it has to be emitted as "
+                           "one of its special names %s"
+                           % (key, raw, rng["start"], rng["end"], sorted(names)))
+        self.assertFalse(bad, "the wizard emitted %d unusable value(s):\n  %s"
+                              % (len(bad), "\n  ".join(bad)))
+
 
 if __name__ == "__main__":
     unittest.main()

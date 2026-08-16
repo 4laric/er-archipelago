@@ -5,13 +5,23 @@ anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing yet. This window was opened on its own, one commit past the v0.4.3 tag, so that the next
-change to land has a section to write itself into rather than quietly appending to notes that
-already shipped.
+### Your yaml is no longer a shrug
 
-That is the whole content of this file today, and saying so is better than leaving it empty: an
-empty blurb and an unopened window look identical in a green run, and telling those two apart is
-what `check_release_notes` exists for.
+If you used the wizard and trusted its defaults, the file it handed you said `Elden Ring: {}`. Every
+option you had just been walked through — all 58 of them — went unmentioned, because the emitter
+only ever wrote down what you had *changed*. The better the defaults got, the less the file said.
+
+Now it writes all of them, in order, each with its name beside it. What you changed is still obvious
+at a glance: those lines, and only those, carry a `(default: …)` note.
+
+This matters twice over. A default is not a promise — `minimum_enemy_difficulty` moved 0 → 25 → 0
+inside one day this month, and anyone holding an empty yaml across that would have rolled a seed
+they never asked for. And "post your yaml" is the first thing anyone says in a support thread, which
+is not a useful thing to say when the yaml is two braces.
+
+_(The unglamorous half, for whoever writes the real notes: two options default to a value that is
+illegal to write down — `-1`, which only exists as the name `auto` — so filling the file in nearly
+made it un-generatable. That is in the changelog, with the tests.)_
 
 ## What carried over from v0.4.3
 
