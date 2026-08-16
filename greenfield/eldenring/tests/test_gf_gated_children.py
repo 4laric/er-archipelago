@@ -178,8 +178,18 @@ class GatedChildrenLiveSeed(WorldTestBase):
         # fourth, DLC, child here; it was FOLDED into Shadow Keep 2026-07-19 -- ScaduviewFoldedIntoKeep
         # below now asserts the post-fold state on an enable_dlc seed.)
         assert {"Raya Lucaria Academy", "Leyndell", "Sewer"} <= kept & set(REGION_PARENT)
+        # 🛑 RAYA LUCARIA IS A GATED CHILD WITH NO WALL SINCE 2026-08-16. Its Academy Glintstone Key
+        # gate was retired (bobler + Alaric: "have the minted Academy Lock be the thing that grants
+        # all the graces"), so WALL_ARMED's predicate is False in every seed and the bundle SHIPS.
+        # It stays in REGION_PARENT -- the structural containment and the synthetic 7698x open flag
+        # are unchanged -- which is exactly why this loop has to name it rather than iterate blindly.
         for child in REGION_PARENT:
             if child not in kept:
+                continue
+            if child == "Raya Lucaria Academy":
+                assert rg.get(f"{child} Lock"), (
+                    "the Academy Lock must GRANT its bundle -- a Lock that lights nothing is "
+                    "bobler's original report (2026-08-16)")
                 continue
             assert rg.get(f"{child} Lock") == [], (
                 f"{child} bundle must be withheld (armed wall), got {rg.get(f'{child} Lock')}")
@@ -394,7 +404,8 @@ class LeyndellWallDisarmed(WorldTestBase):
         assert rg.get("Leyndell Lock") == list(REGION_GRACE_POINTS["Leyndell"]), (
             "disarmed rune gate must grant the capital bundle or the capital is unwinnable")
         assert rg.get("Sewer Lock") == []
-        assert rg.get("Raya Lucaria Academy Lock") == []
+        # Raya's wall is gone entirely (2026-08-16) -- it grants regardless of the capital's state.
+        assert rg.get("Raya Lucaria Academy Lock")
 
     def test_open_flag_stays_synthetic_even_when_the_wall_is_disarmed(self):
         """#278 is UNCONDITIONAL. Disarming the wall restores the bundle, so the warp arrives

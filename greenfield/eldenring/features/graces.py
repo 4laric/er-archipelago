@@ -42,6 +42,13 @@ This RETIRES the two half-shipped grace gates that used to live here:
   * the Academy-key re-key (Raya graces lighting on "Academy Glintstone Key" receipt) is gone the
     same way -- the key opens the Academy's own seal in-game; warping in for free was the same
     past-the-wall grant one wall shallower.
+    🛑 SUPERSEDED 2026-08-16, and the retirement argument does NOT carry to what replaced it. That
+    re-key fired on the KEY ALONE, so it granted a warp to a player who might not hold the region
+    Lock: genuinely past the wall. The ruling now is that there is no wall -- the Academy Glintstone
+    Key gate was removed from features/legacy_key_gates entirely (bobler + Alaric, "have the minted
+    Academy Lock be the thing that grants all the graces"), so WALL_ARMED's Raya predicate is False
+    in every seed and the bundle rides the Lock like any ungated region's. Nothing is granted on a
+    key receipt; the Lock is the only permission, and holding it is the whole entitlement.
 
 Client contract: regionGraces (region.rs) {item_name: [grace_flag,...]} -- light on receipt of ANY
 keyed item. Keys are region Locks; a gated child's Lock maps to [] while its wall is armed.
@@ -68,6 +75,11 @@ except ImportError:      # table predates the landmarks tier -- see _bundle_for(
 # in generate_early (leyndell_gate.gf_leyndell_runes, legacy_key_gates.gf_legacy_keys), so the
 # bundle decision and the fill rules can never disagree. Sewer: containment wall, always armed.
 WALL_ARMED = {
+    # 🛑 FALSE IN EVERY SEED SINCE 2026-08-16, and deliberately expressed this way rather than as
+    # `lambda world: False`. The Academy Glintstone Key was removed from legacy_key_gates._LEGACY_KEYS,
+    # so it can never be in gf_legacy_keys and this wall can never arm -- but the pairing has to STAY,
+    # because bundle_withheld withholds UNCONDITIONALLY for a REGION_PARENT child with no entry.
+    # Written as the live predicate so that restoring the key gate restores the wall in one edit.
     "Raya Lucaria Academy":
         lambda world: "Academy Glintstone Key" in getattr(world, "gf_legacy_keys", ()),
     "Leyndell":
