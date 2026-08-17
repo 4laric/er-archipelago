@@ -109,6 +109,10 @@ header.top .sub{color:var(--dim);font-size:13px}
 /* Labelled/grouped variant of .setgrid, used when an option ships key_meta (see
    features/progression_surface.wizard_key_meta). Wider cells: these carry a label AND a hint. */
 .famwrap{flex:1 1 100%;display:flex;flex-direction:column;gap:10px}
+.kpresetbar{display:flex;flex-wrap:wrap;gap:5px}
+.kpresetbar button{background:var(--panel2);color:var(--text);border:1px solid var(--line);
+  border-radius:5px;padding:5px 9px;cursor:pointer;font:12px var(--sans,inherit)}
+.kpresetbar button:hover{border-color:var(--gold-dim);color:var(--gold)}
 .fam{display:flex;flex-direction:column;gap:4px}
 .fam>.famlab{color:var(--gold-dim);font:12.5px var(--mono);text-transform:uppercase;
   letter-spacing:.06em;border-bottom:1px solid #3a342a;padding-bottom:2px}
@@ -1362,7 +1366,58 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
       "SweepSlotMajor",
       "SweepSlotMinor"
      ]
-    }
+    },
+    "presets": [
+     {
+      "label": "Recommended",
+      "keys": [
+       "Church",
+       "Fragment",
+       "KeyItem",
+       "MajorBoss",
+       "Revered",
+       "Seedtree",
+       "ShopSlot",
+       "SweepSlot"
+      ]
+     },
+     {
+      "label": "Major bosses only",
+      "keys": [
+       "MajorBoss"
+      ]
+     },
+     {
+      "label": "No sweep payouts",
+      "keys": [
+       "Church",
+       "Fragment",
+       "KeyItem",
+       "MajorBoss",
+       "Revered",
+       "Seedtree",
+       "ShopSlot"
+      ]
+     },
+     {
+      "label": "Buy your progression",
+      "keys": [
+       "Church",
+       "Fragment",
+       "KeyItem",
+       "MajorBoss",
+       "Revered",
+       "Seedtree",
+       "ShopNonSpell",
+       "ShopSlot",
+       "SweepSlot"
+      ]
+     },
+     {
+      "label": "Off",
+      "keys": []
+     }
+    ]
    }
   },
   {
@@ -5159,6 +5214,25 @@ if (typeof module !== "undefined") module.exports = ERW;
         const byFam = {};
         for (const km of meta_.keys) (byFam[km.family] = byFam[km.family] || []).push(km);
         const famwrap = el("div", "famwrap");
+        if (meta_.presets && meta_.presets.length){
+          const bar = el("div", "kpresetbar");
+          for (const preset of meta_.presets){
+            const b = el("button", null, esc(preset.label));
+            b.type = "button";
+            b.addEventListener("click", () => {
+              /* A preset changes several native inputs AND every derived marginal beside them.
+                 refresh() deliberately does not rebuild controls, so rebuild this step after the
+                 atomic state change; otherwise the yaml would be right while the grid stayed old. */
+              ERW.setVal(meta, state, o.key,
+                o.valid_keys.filter(k => new Set(preset.keys).has(k)));
+              touched.add(o.key);
+              renderStep();
+              refresh();
+            });
+            bar.append(b);
+          }
+          famwrap.append(bar);
+        }
         if (mg){
           const tot = el("div", "surftot");
           tot.append(el("span", "lab", "Locations that can host progression:"),
