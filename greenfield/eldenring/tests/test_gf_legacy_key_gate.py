@@ -12,7 +12,8 @@ disarms graces.WALL_ARMED["Raya Lucaria Academy"], and that is the whole point o
 edit that keeps the key out of _LEGACY_KEYS but re-withholds the bundle some other way would satisfy
 every other assertion here and still ship bobler's original complaint.
 
-The Hole-Laden Necklace and the Lamenter's Gaol multi-key gate are UNCHANGED and still tested below.
+The Hole-Laden Necklace now also gates Rhia's bell reward (#664); the Lamenter's Gaol multi-key gate
+is unchanged and still tested below.
 """
 import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase

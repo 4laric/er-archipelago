@@ -282,14 +282,18 @@ class ProgressiveStoneBellsOn(_BellsOnAssertions, WorldTestBase):
         grants = self.world.fill_slot_data()["progressiveGrants"]
         for nm in (PROG_SMITHING_BELL, PROG_SOMBER_BELL):
             self.assertIn(nm, grants)
-            _assert_grant_shape(self, grants[nm])
+            self.assertIsInstance(grants[nm], list)
+            self.assertTrue(grants[nm])
             # ladder length matches the declared tier grant table
             self.assertEqual(len(grants[nm]), len(_BELL_GRANTS[nm]))
-            # unlike flasks/keys, stone bells MUST carry non-empty shop-unlock flags per rung
+            # #804: the stock flags ARE the handed-in bearing. A physical good after these flags
+            # are set is rejected by Elden Ring as already held/at capacity, then retried forever.
             for step in grants[nm]:
+                self.assertIsInstance(step, dict)
+                self.assertNotIn("goods", step, f"{nm} rung must not grant a physical bearing")
+                self.assertEqual(set(step), {"flags"})
+                self.assertIsInstance(step["flags"], list)
                 self.assertTrue(step["flags"], f"{nm} rung missing shop-unlock flags")
-            # first Smithing rung grants the [1] bell good (8951) GOODS-packed
-            self.assertEqual(grants[PROG_SMITHING_BELL][0]["goods"], 8951 | _GOODS_NIBBLE)
         # keys not active under this toggle
         self.assertNotIn(PROG_STONESWORD_KEY, grants)
 

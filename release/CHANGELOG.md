@@ -42,6 +42,17 @@ with a specific option error instead of silently switching the protection off.
 
 Closes #582.
 
+### Rakshasa no longer rings a Finger Ruins bell for you
+
+Killing Rakshasa could grant the Cerulean Seed Talisman +1 check from the Finger Ruins of Rhia.
+Both checks happened to share the broad Scadu Altus sweep pool, even though the bell is unrelated
+to Rakshasa and requires the Hole-Laden Necklace.
+
+That reward is no longer in Rakshasa's sweep, and logic now requires the necklace at the Rhia bell
+itself. This also clears the concrete bypass that blocked the ruled Metyr logic model in #665.
+
+Closes #664.
+
 ### The CI test suite uses both runner cores
 
 The world pytest step was the workflow's critical path: **413 seconds** in the measured green run,
@@ -74,6 +85,31 @@ component hooking WinSock. Wrong slot, password, game and seed mismatches are ex
 they produce later, specific errors and are not reasons to re-read a refusal form.
 
 Closes #613.
+
+### Three playtest probes graduated into decisions
+
+Bobler's 2026-08-17 log closed three client investigations that were still running as default-on
+diagnostics.
+
+Enemy scaling now distinguishes the write from the engine's HP reconstruction. An unloaded enemy
+accepted rung `7010` while retaining its old `6577` max HP, then loaded at `2792` with no second
+write — exactly `NpcParam.hp 2447 * 1.141`. Loading reconstructs HP from the carried rung. The
+opposite experiment was just as decisive: three `ready` enemies stayed stale after three
+remove/re-apply cycles, so `ready` is not sufficient and repeating the same write is not a
+recompute primitive. The client no longer churns those retries; it reports a stale loaded write
+once and lets an unloaded write take effect when the character is constructed.
+
+The AP item scout returned all **1,760/1,760** requested locations, and the downstream shop pass
+reported **zero missing scout entries**. The cache is production infrastructure now, not a proof:
+its request/result/failure telemetry remains, while the 1,760-line dump of every seed item is gone.
+
+The AP-flower seam probe found the game's `oo2core_6_win64.dll` loaded and confirmed that the
+mip-0 flower is a **25,600-byte** block-aligned splice inside the **8,388,608-byte** shipped atlas.
+No lower mip is block-aligned. That census is retired; the remaining work is visual rather than
+another player log — test whether the loader accepts a non-KRAK DCX, and whether a mip-0-only flower
+stays correct at every UI scale.
+
+Client: `cac7bf3`, with the retired icon probe removed in `40b6ffc`.
 
 ## v0.4.5 — 2026-08-16
 

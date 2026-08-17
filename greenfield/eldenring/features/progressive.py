@@ -42,9 +42,10 @@ Ships three independent toggles (progressive_flasks default ON; the others defau
     Stonesword Key; the player spends it on an Imp Statue seal.
   - Progressive Stone Bells -> "Progressive Smithing-Stone Miner's Bell Bearing" (4 tiers) and
     "Progressive Somberstone Miner's Bell Bearing" (5 tiers). Ported from the matt-based apworld
-    (SPEC-PARITY: ProgressiveItems stone_bells). The Kth copy grants that tier's real bell bearing
-    good (8951-8954 Smithing / 8955-8959 Somber) AND sets the Twin Maiden ShopLineupParam
-    eventFlag_forStock values for that rung -- setting the flag IS the shop unlock, no hand-in.
+    (SPEC-PARITY: ProgressiveItems stone_bells). The Kth copy sets the Twin Maiden ShopLineupParam
+    eventFlag_forStock values for that rung -- setting the flag IS the shop unlock, no hand-in and
+    no physical bearing grant. Granting both representations makes the game reject the bearing as
+    already handed in (live playtest 2026-08-17, #804).
     Flags verified against vanilla_er/ShopLineupParam.csv (Twin Maiden shop 1018xx: item 10100 ->
     flag 280080, etc.). 1 copy of each is forced to sphere 0 (generate_early -> early_items) so the
     upgrade ramp opens at the start; the rest distribute normally. Copies past the last tier are
@@ -346,26 +347,25 @@ def vanilla_substitutions(world) -> Dict[str, str]:
         subs.update(VANILLA_BELL_ITEMS)
     return subs
 
-# ---- progressive stone-bell grant ladders (goods + shop-unlock flags) -------------------------
-# Each entry = {"goods": bell-bearing EquipParamGoods id, "flags": [Twin Maiden ShopLineupParam
-# eventFlag_forStock values]}. Setting the flag(s) IS the shop unlock (no hand-over to the Twin
-# Maidens needed). Goods 8951-8954 = Smithing-Stone Miner's Bell Bearing [1]-[4]; 8955-8959 =
-# Somberstone [1]-[5]. Flags verified against vanilla_er/ShopLineupParam.csv (each stone bell tier
-# unlocks two stone material tiers, except Somber [5] which unlocks one). Ported verbatim from the
-# matt-based apworld's stone_bells.py -- same game version, same vanilla_er data.
+# ---- progressive stone-bell grant ladders (shop-unlock flags only) ----------------------------
+# Setting the flag(s) IS the shop unlock (no hand-over to the Twin Maidens needed). Do not also
+# grant the corresponding physical bearing: once its stock flags are set, Elden Ring treats the
+# bearing as already handed in and refuses it as over-capacity (#804). Flags verified against
+# vanilla_er/ShopLineupParam.csv (each stone bell tier unlocks two stone material tiers, except
+# Somber [5] which unlocks one).
 _BELL_GRANTS: Dict[str, List[Dict[str, Any]]] = {
     PROG_SMITHING_BELL: [
-        {"goods": 8951, "flags": [280080, 280090]},  # Smithing Stone [1],[2]
-        {"goods": 8952, "flags": [280110, 280120]},  # Smithing Stone [3],[4]
-        {"goods": 8953, "flags": [280140, 280150]},  # Smithing Stone [5],[6]
-        {"goods": 8954, "flags": [280160, 280170]},  # Smithing Stone [7],[8]
+        {"flags": [280080, 280090]},  # Smithing Stone [1],[2]
+        {"flags": [280110, 280120]},  # Smithing Stone [3],[4]
+        {"flags": [280140, 280150]},  # Smithing Stone [5],[6]
+        {"flags": [280160, 280170]},  # Smithing Stone [7],[8]
     ],
     PROG_SOMBER_BELL: [
-        {"goods": 8955, "flags": [280180, 280190]},  # Somber [1],[2]
-        {"goods": 8956, "flags": [280200, 280210]},  # Somber [3],[4]
-        {"goods": 8957, "flags": [280230, 280240]},  # Somber [5],[6]
-        {"goods": 8958, "flags": [280250, 280260]},  # Somber [7],[8]
-        {"goods": 8959, "flags": [280280]},          # Somber [9]
+        {"flags": [280180, 280190]},  # Somber [1],[2]
+        {"flags": [280200, 280210]},  # Somber [3],[4]
+        {"flags": [280230, 280240]},  # Somber [5],[6]
+        {"flags": [280250, 280260]},  # Somber [7],[8]
+        {"flags": [280280]},          # Somber [9]
     ],
 }
 
@@ -499,8 +499,8 @@ class Progressive(Feature):
     def _grant_ladder(self, world, name: str) -> List[Dict[str, Any]]:
         """Client `progressiveGrants` ladder for one progressive item: an ordered list of
         {"goods": GOODS-packed FullID, "flags": [event flags], "consumed": bool}. Fungible/keyed items
-        (flasks, stonesword keys) repeat a single good with no flags; stone bells carry a per-tier good
-        AND the shop-unlock flags for that rung."""
+        (flasks, stonesword keys) repeat a single good with no flags; stone bells carry only the
+        shop-unlock flags for that rung."""
         # `consumed`: the rung's goods are SPENT by the player, so the client must grant them exactly
         # ONCE (ledgered by the copy's stream index) rather than treating them as something the player
         # should OWN. Absent/false = owned = the client's self-healing `unique_goods` path.
@@ -509,9 +509,7 @@ class Progressive(Feature):
         # at a Site of Grace. Shipped as OWNED, the reconciler saw the spent tear missing from the
         # inventory and handed it straight back -- upgrade, re-grant, upgrade, re-grant, unbounded,
         # until the flask ran past its cap and the game CTD'd. (Alaric, live playtest 2026-07-12.) So
-        # the flask tears MUST be consumed=True. Bell bearings are the opposite: a key item you keep
-        # forever, and self-healing is exactly what you want if one is ever lost. Same ladder machinery,
-        # opposite grant semantics -- so the semantics have to be stated, not assumed.
+        # the flask tears MUST be consumed=True.
         #
         # The flask rides progressiveGrants for its POTENCY axis ONLY: one consumed Sacred Tear per
         # copy, so the player upgrades potency at a grace the vanilla way (which updates every flask
@@ -525,7 +523,7 @@ class Progressive(Feature):
             return [{"goods": _GOOD_SACRED_TEAR | _GOODS_NIBBLE, "flags": [], "consumed": True}
                     for _ in range(FLASK_POTENCY_MAX)]
         if name in _BELL_GRANTS:
-            return [{"goods": e["goods"] | _GOODS_NIBBLE, "flags": list(e["flags"]), "consumed": False}
+            return [{"flags": list(e["flags"])}
                     for e in _BELL_GRANTS[name]]
         # Stonesword Keys are spent on Imp Statue seals -> consumed.
         return [{"goods": good | _GOODS_NIBBLE, "flags": [], "consumed": True}

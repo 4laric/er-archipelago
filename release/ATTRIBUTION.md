@@ -23,6 +23,17 @@ your own copy of Elden Ring; this release ships **no FromSoftware game assets**.
 - **The Archipelago project and community** -- for the multiworld framework, the
   MIT-licensed core, and the ecosystem conventions this release follows.
 
+## Elden Ring Wiki quest evidence
+
+`greenfield/questline_cc_wiki.tsv`, the CC-wiki rows in
+`greenfield/questline_model.tsv`, and their rendered section in
+`er-archipelago-questline-dag.html` adapt quest ordering facts from the
+[Elden Ring Wiki](https://eldenring.wiki.gg/), licensed under the
+[Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/).
+Every evidence row names the source page, exact revision id and timestamp, and links to that pinned
+revision. The adapted claims and the generated compilation are distributed under CC BY-SA 4.0;
+the rest of the project's original code remains MIT-licensed.
+
 ## Provenance -- why v0.2 is a clean rebuild
 
 The whole point of the v0.2 rebuild is **provenance cleanliness**. Unlike the
@@ -38,6 +49,9 @@ game data**, and ships **none** of the following:
   from any other randomizer or apworld. Every rule keys off the world's **own**
   data columns -- region / map-id / event-flag / item-name pulled from vanilla
   params (`ItemLotParam`, `ShopLineupParam`), MSB, and EMEVD.
+
+The separately licensed wiki evidence above is documentation and corroboration only: no world
+module imports it, and it creates no access rule.
 
 This is a hard architectural constraint, not a claim after the fact. It is spelled
 out in full — the five non-negotiables and how CI enforces them — in

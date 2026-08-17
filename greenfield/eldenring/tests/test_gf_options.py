@@ -194,9 +194,11 @@ def test_region_grace_unlock_combinations_generate_clean(label, mode, extra):
         assert rg, "%s: no regionGraces emitted at all" % label
         if mode == "entrance":
             over = {k: len(v) for k, v in rg.items() if len(v) > 1}
-            assert not over, (
-                "%s: entrance mode granted more than one grace for %s -- the bundle is supposed to "
-                "be exactly the region's front door." % (label, over))
+            expected = ({"Ainsel River Lock": 2} if "Ainsel River Lock" in rg else {})
+            assert over == expected, (
+                "%s: multi-component entrance bundles changed: got %s, expected %s. Entrance "
+                "normally means one front door, but #806 requires two for Ainsel's disconnected "
+                "lower-well and Lake of Rot/Astel halves." % (label, over, expected))
         elif mode == "landmarks":
             from worlds.eldenring.region_graces import (
                 REGION_GRACE_LANDMARKS, REGION_GRACE_POINTS)

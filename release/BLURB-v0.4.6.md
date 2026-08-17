@@ -21,6 +21,9 @@ the room/network or `eldenring.exe` specifically. The guide then separates immed
 timeout and points at the process-specific firewall, antivirus, VPN and mod-hook cases that used to
 take several rounds of chat to rediscover.
 
+Rakshasa no longer pays out the Finger Ruins of Rhia bell reward. The bell now properly requires
+the Hole-Laden Necklace instead of being claimable through an unrelated Scadu Altus boss sweep.
+
 ## What carried over from v0.4.5
 
 Nothing is owed. v0.4.5 shipped complete: its changelog section and its blurb were both finished

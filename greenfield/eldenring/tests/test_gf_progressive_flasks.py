@@ -222,11 +222,11 @@ def test_option_is_a_real_toggle_default_on():
 
 
 # ---- the CTD, as a contract invariant (consumed vs owned) ---------------------------------------
-def test_flask_potency_grants_consumed_tears_bells_stay_owned():
+def test_flask_potency_grants_consumed_tears_bells_are_flags_only():
     """The flask's POTENCY axis rides progressiveGrants as 12 CONSUMED Sacred Tears (spent at a grace;
-    shipping them OWNED re-granted spent tears unbounded and CTD'd, playtest 2026-07-12). The bell
-    bearings ride the same wire but must stay OWNED (self-healing) -- a key item you keep forever.
-    Same ladder machinery, opposite grant semantics."""
+    shipping them OWNED re-granted spent tears unbounded and CTD'd, playtest 2026-07-12). Bell rungs
+    ride the same wire as flags only: the stock flags already represent a handed-in bearing, so a
+    physical good is rejected as over-capacity (#804)."""
     from worlds.eldenring.features import progressive as pgg
 
     class _W:
@@ -252,8 +252,8 @@ def test_flask_potency_grants_consumed_tears_bells_stay_owned():
 
     bell = feat._grant_ladder(_W, pgg.PROG_SMITHING_BELL)
     assert bell, "bell ladder is empty"
-    assert all(r["consumed"] is False for r in bell), (
-        "a bell bearing is a KEY ITEM the player keeps -- it must stay self-healing (owned)")
+    assert all(set(r) == {"flags"} and r["flags"] for r in bell), (
+        "bell rungs must carry only their non-empty stock flags, never a physical bearing")
 
 
 def test_contract_rejects_a_rung_that_forgets_to_declare():
@@ -262,6 +262,11 @@ def test_contract_rejects_a_rung_that_forgets_to_declare():
     bad = {"Progressive Smithing-Stone Miner's Bell Bearing": [{"goods": 1073751844, "flags": []}]}
     err = contract._chk_nested_grants(bad)
     assert err and "consumed" in err, f"validator accepted a rung with no `consumed`: {err!r}"
+
+
+def test_contract_accepts_flags_only_bell_rung_but_not_an_empty_rung():
+    assert contract._chk_nested_grants({"Bell": [{"flags": [280080]}]}) is None
+    assert contract._chk_nested_grants({"Bell": [{"flags": []}]}) is not None
 
     good = {"Progressive Smithing-Stone Miner's Bell Bearing":
             [{"goods": 1073751844, "flags": [280080], "consumed": False}]}
