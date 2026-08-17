@@ -39,7 +39,14 @@ import re
 import subprocess
 import sys
 
-import pytest
+try:
+    import pytest
+except ImportError:  # 🛑 THE `generators` RUNNER HAS NO PYTEST. It runs this bucket as scripts on a
+    # checkout with Archipelago's requirements installed and nothing else, so a module-level
+    # `import pytest` is a hard failure there -- which is exactly how this file first went red in
+    # CI while passing both ways locally. "AP-free" was the claim in the ledger; "pytest-free" is
+    # the other half of it, and the two are not the same promise.
+    pytest = None
 
 # 🛑 REPO IS SEARCHED FOR, NOT COUNTED TO. gf_test.py copies this package into a pinned
 # Archipelago checkout and copies NO tools/, so walking up a fixed number of directories resolves
@@ -64,13 +71,21 @@ def _find_repo_root(start, marker=os.path.join("tools", "check_integrity.py")):
     return None
 
 
+def _unavailable(reason):
+    """Skip under pytest; say so and stop when run as a script. Never pass silently."""
+    if pytest is not None:
+        pytest.skip(reason, allow_module_level=True)
+    raise SystemExit("test_gf_version_sites: " + reason)
+
+
 REPO = _find_repo_root(os.path.dirname(os.path.abspath(__file__)))
 if REPO is None:
-    pytest.skip("needs the repo checkout (tools/ is not installed beside the world by gf_test.py); "
-                "the `generators` CI job runs this suite", allow_module_level=True)
+    _unavailable("needs the repo checkout (tools/ is not installed beside the world by "
+                 "gf_test.py); the `generators` CI job runs this suite")
 sys.path.insert(0, os.path.join(REPO, "tools"))
 
-check_version_sites = pytest.importorskip("check_version_sites")
+import check_version_sites  # noqa: E402  -- THE list. A plain import: it lives in the repo we
+# just located, so a failure here is a real breakage and not a reason to skip.
 
 # The identifier, then an optional closing quote (JSON writes `"world_version":`), then the
 # separator, then Rust's `&str =`, then the value.
@@ -95,7 +110,7 @@ def _current_version():
 def _tracked_files():
     p = subprocess.run(["git", "ls-files"], cwd=REPO, capture_output=True, text=True)
     if p.returncode != 0:
-        pytest.skip("not a git checkout")
+        _unavailable("not a git checkout, so the tracked-file scan cannot run")
     return [f for f in p.stdout.split("\n") if f]
 
 
