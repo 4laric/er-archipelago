@@ -18,7 +18,7 @@
     "region_graces.py": "sha256:781f81605aa3eeee3b5ee2c329a37b1905880f6fbd6a2f5d9400484a52625eb6",
     "region_open_flags.py": "sha256:e578ed7958e74bafc78ef41eefe5a5a44836f859c231d2ac240168708ce81687",
     "region_play_ids.py": "sha256:62dfe20157c3260a6f91e218526c10d34e84f062908eed36e59a5ca0978a1a75",
-    "shop_data.py": "sha256:34870e5180785e2c8b1e21aebf54008159c5684db1c1e7c04cb9d726fe32182e",
+    "shop_data.py": "sha256:2dea2784430d0d1702a10dcbf7962e1d260649e644fd4e7694b51484428622b6",
     "spawn_trap_data.py": "sha256:0596c56d4c6dfa1ee20c524feebece696b65b976aeb98e2dda2d7a7a27105e53"
   }
 }
