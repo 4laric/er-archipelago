@@ -23,10 +23,11 @@ Currently gated:
   Carian Inverted Statue ->  inverted Study Hall, Tower Bridge and Divine Tower checks, Liurnia;
   Gaol U+L Level Keys      ->  Lamenter's Gaol (m41_02, Charo's) -- BOTH keys, check-level, incl.
                               the Lamenter boss reward (f520770). See _MULTI_KEY_GATES;
-  Hole-Laden Necklace     ->  Metyr's remembrance check. NB: the Cathedral surface bucket 6920 (the
-                              old Scaduview, folded into Shadow Keep 2026-07-19), but Metyr's ARENA is
-                              m25_00, whose own grace the game buckets 6900 = Scadu Altus (MSB truth,
-                              measured 2026-07-12) -- so the gated check lives in Scadu Altus.
+  Hole-Laden Necklace     ->  both Finger Ruins bell checks and Metyr's remembrance check. NB: the
+                              Cathedral surface bucket 6920 (the old Scaduview, folded into Shadow
+                              Keep 2026-07-19), but Metyr's ARENA is m25_00, whose own grace the game
+                              buckets 6900 = Scadu Altus (MSB truth, measured 2026-07-12) -- so the
+                              gated checks live in Scadu Altus.
 
 Toggle `legacy_dungeon_keys` (DefaultOnToggle). Off -> no gate; the key stays filler and default fill
 is unchanged. LOGIC-only for now (no client hard-gate / kick), same status as features/leyndell_gate.
@@ -83,7 +84,9 @@ _LEGACY_EXTRA = {
         34117400, 34117401, 34117402, 34117403,
         34117500, 34117710,
     }),
-    "Hole-Laden Necklace": frozenset({510550}),
+    # Metyr's remembrance plus the Finger Ruins of Rhia bell reward. Dheo's bell reward lives in
+    # Jagged Peak and is added by the Metyr-region model rather than this Scadu Altus-local table.
+    "Hole-Laden Necklace": frozenset({510550, 2053467600}),
 }
 
 # MULTI-KEY gates: a dungeon whose checks need MORE THAN ONE key ANDed (nested cells). DLC Lamenter's

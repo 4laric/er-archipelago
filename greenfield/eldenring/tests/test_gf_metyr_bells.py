@@ -24,6 +24,9 @@ from worlds.eldenring.features.start_grace import (  # noqa: E402
 
 _DERIVED_9440 = 9440
 _FREE_CHECK_TRAP = 2051450180
+_RAKSHASA_SWEEP = 2051440800
+_RHIA_REWARD_FLAG = 2053467600
+_RHIA_REWARD_AP = 7773806
 
 
 def test_dheo_is_forced_always():
@@ -49,6 +52,15 @@ def test_the_derived_flag_and_the_free_check_trap_are_never_forced():
         forced = bells_to_force(kept)
         assert _DERIVED_9440 not in forced, kept
         assert _FREE_CHECK_TRAP not in forced, kept
+
+
+def test_rakshasa_cannot_pay_the_necklace_gated_rhia_reward():
+    """The #664 bypass: a broad regional sweep used to grant Rhia's reward for killing Rakshasa."""
+    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+    from worlds.eldenring.features.legacy_key_gates import _LEGACY_EXTRA
+
+    assert _RHIA_REWARD_AP not in DUNGEON_SWEEPS[_RAKSHASA_SWEEP]
+    assert _RHIA_REWARD_FLAG in _LEGACY_EXTRA["Hole-Laden Necklace"]
 
 
 def test_the_forced_set_reaches_slot_data():
