@@ -20,7 +20,7 @@ pytest.importorskip("worlds.eldenring")
 from BaseClasses import ItemClassification as IC, CollectionState  # noqa: E402
 from Fill import distribute_items_restrictive  # noqa: E402
 from worlds.eldenring.features.legacy_key_gates import (  # noqa: E402
-    _gated_location_ids, _multi_gated_location_ids, _MULTI_KEY_GATES, _LEGACY_KEYS)
+    _gated_location_ids, _multi_gated_location_ids, _MULTI_KEY_GATES, _LEGACY_KEYS, _LEGACY_EXTRA)
 from worlds.eldenring.data import LOCATIONS  # noqa: E402
 from ._util import world_items  # noqa: E402
 
@@ -83,6 +83,43 @@ class LegacyKeyGateOn(WorldTestBase):
         mw = self.multiworld
         distribute_items_restrictive(mw)
         assert mw.can_beat_game(), "seed must be beatable with the Academy gate retired"
+
+    def test_carian_statue_gates_the_inverted_route_and_not_the_standard_hall(self):
+        statue = "Carian Inverted Statue"
+        inverted_flags = {
+            34117100, 34117110, 34117120,              # Mask, liver, fireflies
+            34117400, 34117401, 34117402, 34117403,    # Tower Bridge Godskin set
+            34117500,                                  # Cursemark + Stargazer Heirloom
+            34117710,                                  # inverted Miriam: Lucidity
+        }
+        standard_flags = {34117010, 34117060, 34117080, 34117200, 34117700}
+        expected = {ap for (_name, ap, flag) in LOCATIONS["Liurnia"] if flag in inverted_flags}
+        standard = {ap for (_name, ap, flag) in LOCATIONS["Liurnia"] if flag in standard_flags}
+        assert len(expected) == 10, "nine inverted flags must identify ten checks (two share f34117500)"
+        assert len(standard) == 5, "the standard-side witness set drifted"
+        assert _LEGACY_EXTRA[statue] == inverted_flags
+        gated = _gated_location_ids(list(_LEGACY_KEYS))
+        assert {ap for ap, key in gated.items() if key == statue} == expected
+        assert not (standard & {ap for ap, key in gated.items() if key == statue}), \
+            "standard Study Hall loot must not require the statue"
+
+        items = [it for it in world_items(self) if it.name == statue]
+        assert items and (items[0].classification & IC.progression), \
+            "the statue is a physical gate and must classify as progression"
+
+        locs = {loc.address: loc for loc in self.multiworld.get_locations(1)}
+        checks = [locs[ap] for ap in expected]
+        without = CollectionState(self.multiworld)
+        with_statue = CollectionState(self.multiworld)
+        for item in world_items(self):
+            if not (item.classification & IC.progression) or item.name == statue:
+                continue
+            without.collect(item, prevent_sweep=True)
+            with_statue.collect(item, prevent_sweep=True)
+        with_statue.collect(items[0], prevent_sweep=True)
+        for loc in checks:
+            assert not loc.can_reach(without), f"{loc.name} reachable without the statue"
+            assert loc.can_reach(with_statue), f"{loc.name} blocked with the statue"
 
 
 # ---- multi-key gate: DLC Lamenter's Gaol needs BOTH Gaol keys -------------------------------------
@@ -150,5 +187,3 @@ class LamentersGaolGateOn(WorldTestBase):
             assert all(l.address not in gated for l in keylocs), \
                 f"{kn} must be placed OUTSIDE the gaol it gates"
         assert mw.can_beat_game(), "a DLC seed with the gaol gate active must be beatable"
-
-

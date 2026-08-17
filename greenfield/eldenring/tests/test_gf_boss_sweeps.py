@@ -69,6 +69,16 @@ SURFACE_CUTTABLE = frozenset({"Seedtree", "Church", "Fragment", "Revered", "Basi
 # never shared a list in the first place.
 DUNGEON_CLASSES = ("catacomb", "cave", "tunnel", "dungeon")
 
+# A map-local check can deliberately stay outside its boss sweep when a key changes the map state
+# and the sweep trigger is reachable before that key.  This mirrors gen_data's narrow carve-out;
+# test_gf_dungeon_sweep_rungs proves every member here is actually key-gated, so this cannot become
+# a generic escape hatch from the map-completeness invariant.
+KEY_GATED_SWEEP_EXCLUDE_FLAGS = frozenset({
+    34117100, 34117110, 34117120,
+    34117400, 34117401, 34117402, 34117403,
+    34117500, 34117710,
+})
+
 
 def _mod(name):
     path = os.path.join(GF_PKG, name + ".py")
@@ -478,6 +488,8 @@ class BossSweepScoping(unittest.TestCase):
                 continue
             for (_name, ap, flag) in locs:
                 if ap in swept:
+                    continue
+                if int(flag) in KEY_GATED_SWEEP_EXCLUDE_FLAGS:
                     continue
                 if FIELD_EXCLUDE & set(self.lt.get(ap, ())):
                     continue
