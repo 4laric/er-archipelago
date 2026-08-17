@@ -5773,9 +5773,30 @@ else:
     print("arena-grace hand list: arena_graces.tsv carries NO `unresolved_bosses:` header (pre-"
           "2026-08-10 tsv) -- per-boss adjudication is UNKNOWN, so every hand entry stays.")
 
+# ROUTE-GATED GRACES: physically stand in one region but are reached only through another
+# region's progression route. A Region Lock must never force-light one: doing so turns the map tile
+# into a shortcut around the route that owns access to it.
+#
+# 76250 Moonlight Altar physically stands on Liurnia tile m60_34_41, so the play-region join
+# correctly classifies its LOCATION as Liurnia. But the plateau is reached from Ainsel only after
+# Lake of Rot / Astel; putting this warp in Liurnia's bundle skips that chain. It belongs to NO
+# automatic bundle -- the player reaches the plateau and touches it normally. Do not move its
+# physical checks out of Liurnia, and do not grant it with the Ainsel Lock (that would still skip
+# Astel). Reported by bobler 2026-08-17; #792.
+_ROUTE_GATED_GRACE_FLAGS = frozenset({76250})
+for _fl in _ROUTE_GATED_GRACE_FLAGS:
+    if str(_fl) not in gf:
+        raise SystemExit(f"gen_data: route-gated grace {_fl} is absent from grace_flags.tsv -- "
+                         "stale exception, re-derive or remove it")
+    if _fl == 76250 and (gf[str(_fl)] != "m60_34_41" or gname.get(_fl) != "Moonlight Altar"):
+        raise SystemExit("gen_data: Moonlight Altar route-gate identity drifted -- expected "
+                         "76250 @ m60_34_41, got %r @ %r"
+                         % (gname.get(_fl), gf[str(_fl)]))
+
 _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
                      | _DERIVED_ARENA_GRACE_FLAGS
-                     | _STATE_GATED_GRACE_FLAGS)
+                     | _STATE_GATED_GRACE_FLAGS
+                     | _ROUTE_GATED_GRACE_FLAGS)
 print(f"arena-grace oracle: {len(_DERIVED_ARENA_GRACE_FLAGS)} derived; "
       f"{len(_DERIVED_ARENA_GRACE_FLAGS - _BOSS_GATED_GRACE_FLAGS - _ARENA_GRACE_FLAGS)} NOT in the hand lists; "
       f"{len(_SKIP_GRACE_FLAGS)} total skipped")
@@ -9447,12 +9468,16 @@ _SWEEP_UNSPAWNED = {_e: _r for _e, (_v, _r) in _UNSPAWNED_VERDICTS.items() if _v
 _SWEEP_UNSPAWNED_OPEN = {_e: _r for _e, (_v, _r) in _UNSPAWNED_VERDICTS.items() if _v != "unspawned"}
 
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
-# Map-local filler normally belongs to the map's boss sweep.  A key-gated sub-map is the exception:
-# Study Hall's defeat trigger is on the ordinary layout, while these flags exist only after the
-# Carian Inverted Statue changes the map.  Sweeping them from the ordinary-layout fight would award
-# inaccessible checks and bypass the key gate.  Keep this flag-shaped (rather than AP-shaped) so
-# co-checks such as f34117500 are excluded together.
+# Map-local filler normally belongs to the map's boss sweep. A key-gated check is the exception:
+# sweeping it from an unrelated fight would award an inaccessible check and bypass the key gate.
+# Keep this flag-shaped (rather than AP-shaped) so co-checks such as f34117500 are excluded together.
 _SWEEP_EXCLUDED_FLAGS = {
+    # Rakshasa's defeat shares the broad Scadu Altus legacy pool with the Finger Ruins of Rhia, but
+    # the bell reward cannot be earned until the player has the Hole-Laden Necklace. Rakshasa is
+    # unrelated to that route and must not pay the reward early (#664).
+    2051440800: {2053467600},
+    # Study Hall's defeat trigger is on the ordinary layout, while these flags exist only after the
+    # Carian Inverted Statue changes the map.
     34110800: {
         34117100, 34117110, 34117120,
         34117400, 34117401, 34117402, 34117403,
@@ -9593,8 +9618,6 @@ if BOSS_HEALTHBARS:
                   if _ap_region.get(_a) is not None and _ap_region[_a] != HUB]
         _sreg = (Counter(_known).most_common(1)[0][0] if _known else _mreg.get(_bmap, HUB))
         _members = [_a for _a in _members if _ap_region.get(_a) == _sreg]
-        _cut_flags = _SWEEP_EXCLUDED_FLAGS.get(_ent, set())
-        _members = [_a for _a in _members if _apid_flag.get(_a) not in _cut_flags]
         if not _members:
             continue
         DUNGEON_SWEEPS[_ent] = _members
@@ -9856,6 +9879,25 @@ if BOSS_HEALTHBARS:
     for _reg, _donor, _starved, _n in _clawed:
         print("boss_sweeps: clawback in %s -- %d re-dealt from %d to %s (a region major may not "
               "grant nothing)" % (_reg, _n, _donor, _starved))
+
+    # Apply key-gate exclusions AFTER every construction and redistribution pass. Rakshasa reaches
+    # DUNGEON_SWEEPS through the legacy region divvy below the first map-local pass; filtering only
+    # while `_members` is first assembled therefore looked correct but never touched its final list.
+    # These members intentionally do not re-home: another unrelated sweep would be the same bypass.
+    for _trigger, _flags in _SWEEP_EXCLUDED_FLAGS.items():
+        assert _trigger in DUNGEON_SWEEPS, (
+            "sweep exclusion trigger %d no longer exists -- re-derive the ruling rather than "
+            "leaving a guard that protects nothing" % _trigger)
+        _members = DUNGEON_SWEEPS[_trigger]
+        _hit_flags = {_apid_flag.get(_ap) for _ap in _members} & set(_flags)
+        assert _hit_flags == set(_flags), (
+            "sweep exclusion for %d matched flags %s, expected %s -- the member pool drifted and "
+            "this guard no longer proves what its comment claims"
+            % (_trigger, sorted(_hit_flags), sorted(_flags)))
+        DUNGEON_SWEEPS[_trigger] = [
+            _ap for _ap in _members if _apid_flag.get(_ap) not in _flags]
+        print("boss_sweeps: trigger %d excluded %d key-gated flag(s): %s" % (
+            _trigger, len(_flags), sorted(_flags)))
 
     # An exclusion that matches nothing is a lie -- it reads as protection while protecting
     # nothing (the boss_healthbars map string could drift and this would silently stop applying).

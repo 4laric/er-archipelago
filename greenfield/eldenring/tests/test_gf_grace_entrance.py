@@ -1,4 +1,4 @@
-"""`region_grace_unlock: entrance` -- one grace per region, and it is the RIGHT one.
+"""`region_grace_unlock: entrance` -- one grace per connected component, and it is the RIGHT one.
 
 MOTIVATING CASE (CONTRIBUTING rule 11), from a Nexus report by **dafranky67**, 2026-07-29:
 "is it supposed to unlock every grace for a region, wouldn't it make more sense to only have the
@@ -17,7 +17,7 @@ import pytest
 
 pytest.importorskip("worlds.eldenring")
 
-from worlds.eldenring.features.graces import entrance_grace  # noqa: E402
+from worlds.eldenring.features.graces import _bundle_for, entrance_grace  # noqa: E402
 from worlds.eldenring.region_graces import REGION_GRACE_POINTS  # noqa: E402
 
 # flag -> the PlaceName the game shows for that warp point. Derived (BonfireWarpParam.textId1 ->
@@ -40,6 +40,28 @@ def test_every_region_resolves_to_exactly_one_entrance():
             continue
         f = entrance_grace(flags, region)
         assert f in flags, "%s: entrance %s is not one of the region's graces" % (region, f)
+
+
+def test_ainsel_entrance_covers_both_disconnected_halves():
+    """#806 live witness: 71211 (Well Depths) cannot reach the Lake of Rot/Astel component.
+
+    Replacing it with a grace in the upper half would merely strand lower Ainsel instead. The
+    entrance tier therefore needs one anchor per disconnected component: Well Depths for lower
+    Ainsel and Grand Cloister beside the coffin route into Astel. Lake of Rot Shoreside (71216) was
+    proposed first and rejected by the live map witness: it is not the requested Astel handoff.
+    This is deliberately the only multi-grace entrance until another region has equivalent
+    traversal evidence."""
+    ainsel = _bundle_for("Ainsel River", REGION_GRACE_POINTS["Ainsel River"], "entrance")
+    assert ainsel == [71211, 71218]
+    multi = {region: _bundle_for(region, flags, "entrance")
+             for region, flags in REGION_GRACE_POINTS.items() if flags
+             if len(_bundle_for(region, flags, "entrance")) > 1}
+    assert multi == {"Ainsel River": [71211, 71218]}
+
+
+def test_component_entrance_override_fails_if_generated_data_loses_an_anchor():
+    with pytest.raises(ValueError, match="component entrance grace"):
+        _bundle_for("Ainsel River", [71211], "entrance")
 
 
 def test_the_named_exemplars_are_still_what_the_pipeline_picks():

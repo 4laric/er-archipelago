@@ -16,9 +16,9 @@ is part of the spirit of archipelago." So the default releases every Lock, and l
 buys curation back.
 
 WHAT THESE TESTS GUARD. `released_locks` is pure, which is the point: the endpoints must be EXACT
-(not a rounding artifact), the draw must come from the world's own rng, and it must never touch an
-item that is not a Lock -- required Great Runes and legacy keys keep the surface whatever the
-percentage says.
+(not a rounding artifact), the draw must come from the world's own rng, and `progression_bias` must
+never touch an item that is not a Lock. `travelling_progression` is the separate #811 join: when
+cross-game progression is armed, required Great Runes and legacy keys join those released Locks.
 """
 import unittest
 
@@ -28,7 +28,7 @@ pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring.features.progression_surface import (  # noqa: E402
     ProgressionBias, released_locks, lock_region_name, place_released_locks,
-    CrossGameProgression, cross_game_share, _foreign_open_locations,
+    CrossGameProgression, cross_game_share, travelling_progression, _foreign_open_locations,
 )
 
 
@@ -201,6 +201,30 @@ class TestThePlacerContract(unittest.TestCase):
         self.assertTrue(mw.itempool)
         place_released_locks(mw, [_Bare()])
         self.assertEqual(mw.itempool, ["someone else's item"])
+
+
+class TestTravellingProgression(unittest.TestCase):
+    """#811: `cross_game_progression` is a progression pass, not a Lock-only pass."""
+
+    def test_required_great_runes_join_the_cross_game_candidate_pool(self):
+        pool = _pool()
+        released = released_locks(pool, 100, _Rng())
+        out = travelling_progression(pool, released, 50)
+        self.assertEqual({it.name for it in out}, {it.name for it in pool})
+        self.assertIn("Godrick's Great Rune", {it.name for it in out})
+
+    def test_zero_cross_game_share_preserves_non_lock_locality(self):
+        pool = _pool()
+        released = released_locks(pool, 100, _Rng())
+        out = travelling_progression(pool, released, 0)
+        self.assertEqual({it.name for it in out},
+                         {"Limgrave Lock", "Liurnia Lock", "Caelid Lock", "Altus Lock"})
+
+    def test_the_stage_receives_the_original_objects_not_copies(self):
+        pool = _pool()
+        out = travelling_progression(pool, released_locks(pool, 50, _Rng()), 50)
+        self.assertTrue(out)
+        self.assertTrue(all(any(it is original for original in pool) for it in out))
 
 
 class _Loc:
