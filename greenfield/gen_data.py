@@ -5773,9 +5773,30 @@ else:
     print("arena-grace hand list: arena_graces.tsv carries NO `unresolved_bosses:` header (pre-"
           "2026-08-10 tsv) -- per-boss adjudication is UNKNOWN, so every hand entry stays.")
 
+# ROUTE-GATED GRACES: physically stand in one region but are reached only through another
+# region's progression route. A Region Lock must never force-light one: doing so turns the map tile
+# into a shortcut around the route that owns access to it.
+#
+# 76250 Moonlight Altar physically stands on Liurnia tile m60_34_41, so the play-region join
+# correctly classifies its LOCATION as Liurnia. But the plateau is reached from Ainsel only after
+# Lake of Rot / Astel; putting this warp in Liurnia's bundle skips that chain. It belongs to NO
+# automatic bundle -- the player reaches the plateau and touches it normally. Do not move its
+# physical checks out of Liurnia, and do not grant it with the Ainsel Lock (that would still skip
+# Astel). Reported by bobler 2026-08-17; #792.
+_ROUTE_GATED_GRACE_FLAGS = frozenset({76250})
+for _fl in _ROUTE_GATED_GRACE_FLAGS:
+    if str(_fl) not in gf:
+        raise SystemExit(f"gen_data: route-gated grace {_fl} is absent from grace_flags.tsv -- "
+                         "stale exception, re-derive or remove it")
+    if _fl == 76250 and (gf[str(_fl)] != "m60_34_41" or gname.get(_fl) != "Moonlight Altar"):
+        raise SystemExit("gen_data: Moonlight Altar route-gate identity drifted -- expected "
+                         "76250 @ m60_34_41, got %r @ %r"
+                         % (gname.get(_fl), gf[str(_fl)]))
+
 _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
                      | _DERIVED_ARENA_GRACE_FLAGS
-                     | _STATE_GATED_GRACE_FLAGS)
+                     | _STATE_GATED_GRACE_FLAGS
+                     | _ROUTE_GATED_GRACE_FLAGS)
 print(f"arena-grace oracle: {len(_DERIVED_ARENA_GRACE_FLAGS)} derived; "
       f"{len(_DERIVED_ARENA_GRACE_FLAGS - _BOSS_GATED_GRACE_FLAGS - _ARENA_GRACE_FLAGS)} NOT in the hand lists; "
       f"{len(_SKIP_GRACE_FLAGS)} total skipped")
