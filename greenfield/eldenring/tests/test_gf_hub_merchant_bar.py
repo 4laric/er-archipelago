@@ -31,14 +31,15 @@ from ..data import HUB, LOCATIONS
 from ..features.progression_surface import (_HUB_MERCHANT_TAGS, _roundtable_merchant_aps,
                                             allowed_ap_ids)
 from ..location_tags import (DEFAULTED_REGION_APS, ERDTREE_BURN_APS, LOCATION_TAGS,
-                             SURFACE_EXCLUDE_APS)
+                             SHOP_RELEASE_GATED_APS, SURFACE_EXCLUDE_APS)
 
 # Every hub row carrying a merchant tag. 184 = 158 Shop+ShopNonSpell, 23 EniaShop(+Legendary), 3 Shop.
 _PINNED_BAR = 184
 # Of those, the ones a `Shop`-selecting seed would put on the surface before this bar fires: 184 minus
 # the 58 already DEFAULTED (region guessed) minus the 21 EniaShop rows (EniaShop is itself a
-# contract.SURFACE_EXCLUDE_TAGS member, so has_class rejects them on tags alone).
-_PINNED_ON_SURFACE = 105
+# contract.SURFACE_EXCLUDE_TAGS member, so has_class rejects them on tags alone) minus the 47 that
+# are also in SHOP_RELEASE_GATED_APS (barred unconditionally by allowed_ap_ids).
+_PINNED_ON_SURFACE = 58
 
 _HUB_APS = frozenset(ap for (_n, ap, _f) in LOCATIONS.get(HUB, ()))
 
@@ -92,7 +93,7 @@ class TestHubMerchantBar(unittest.TestCase):
         written for. Measured through the real chokepoint with the real bars."""
         classes = set(contract.SURFACE_DEFAULT_CLASSES) | {"Shop"}
         other_bars = (frozenset(DEFAULTED_REGION_APS) | frozenset(ERDTREE_BURN_APS)
-                      | frozenset(SURFACE_EXCLUDE_APS))
+                      | frozenset(SURFACE_EXCLUDE_APS) | frozenset(SHOP_RELEASE_GATED_APS))
 
         # What the surface would be if this bar contributed nothing -- i.e. what shipped.
         unguarded = {ap for ap, tags in LOCATION_TAGS.items()
