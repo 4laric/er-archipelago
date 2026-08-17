@@ -273,9 +273,8 @@ class OneRegionSeed(WorldTestBase):
         assert ASHEN_LOCK_ITEM not in sd.get("goalRequiredItems", []), (
             "goalRequiredItems names an item that is never sent -- the client would wait forever")
         assert sd.get("great_rune_items"), (
-            "this fixture's goal is great_runes, so the required runes are the seed's whole "
-            "requirement and must be on the wire")
-        assert sd["great_runes_required"] == len(sd["great_rune_items"])
+            "this fixture's goal is great_runes, so the eligible rune set must be on the wire")
+        assert 0 < sd["great_runes_required"] <= len(sd["great_rune_items"])
 
     def test_the_client_can_gate_the_finale_space(self):
         """coarse key + open flag + grace bundle, the three things the client needs to enforce a

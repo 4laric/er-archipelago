@@ -225,26 +225,14 @@ Elden Ring:
   #   great_runes   -- ALSO collect goal_great_runes Great Runes. You must HOLD the
   #                    runes; killing the boss that vanilla-drops one is NOT enough
   #                    (they are shuffled -- the rune is not at its boss).
-  #                    It is a SPECIFIC SET, not any N. The seed picks which
-  #                    runes count and the others do not complete the goal, so
-  #                    holding the right NUMBER of the wrong runes sends no
-  #                    victory -- the run just never ends.
-  #                    WHICH ONES: the client NAMES them at connect. In the
-  #                    client log, look for the line
-  #                      goal: N item(s) must be HELD, not merely their boss
-  #                      killed: <the rune names>
-  #                    That list IS the requirement; you do not need the spoiler.
-  #                    The set is drawn at random from ALL SEVEN Great Runes,
-  #                    every one of which is in every seed's pool -- so any rune
-  #                    can be required, including Rykard's, and the draw does not
-  #                    change which ones are available (#640, #764).
+  #                    Any distinct Great Runes count. By default this means any
+  #                    four of all seven; no particular named rune is mandatory.
   ending_condition: region_locks
 
   # Only used when ending_condition is great_runes. Clamped down to the
   # Great Runes actually reachable this seed, so it can never make a seed
-  # unbeatable. This is a COUNT of a NAMED SET, not a free choice of any N --
-  # see ending_condition above for where the client prints the names.
-  goal_great_runes: 2
+  # unbeatable. This is a count over all seven eligible Great Runes.
+  goal_great_runes: 4
 
   # Great Runes needed to get into Leyndell, ON TOP of the Leyndell Lock --
   # echoing the vanilla "two Great Runes to enter the capital".

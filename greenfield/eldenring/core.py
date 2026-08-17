@@ -257,12 +257,9 @@ class EndingCondition(Choice):
     back to the region_locks goal. The requirement is auto-clamped to the number of Great Runes
     actually reachable this seed, so it can never make a seed unbeatable.
 
-    'great_runes' names a SPECIFIC SET, not any N. The seed resolves which runes count
-    (core._resolve_required_runes) and only those complete the goal -- holding the right NUMBER of
-    the wrong runes sends no victory, which has already cost a finished run (#656). The names ride
-    slot_data as `great_rune_items` and the client prints them at connect ("goal: N item(s) must be
-    HELD, not merely their boss killed: ..."), so a player can read the set off the client log
-    without opening the spoiler."""
+    'great_runes' means ANY N of the seven Great Runes. The full eligible set rides slot_data as
+    `great_rune_items`, alongside `great_runes_required`; both the AP completion rule and client
+    count distinct held names from that set (#813)."""
     display_name = "Ending Condition"
     option_region_locks = 0
     option_great_runes = 1
@@ -285,9 +282,8 @@ class GreatRunesRequired(Range):
     7900004 in Raya Lucaria Academy), the game counts it toward the Leyndell wall, and this world
     can hand it to you like any other rune.
 
-    A COUNT OF A NAMED SET. This picks how many, never which: the seed picks which, and any other
-    Great Rune completes nothing (#656). See Ending Condition for where the client prints the
-    names.""" 
+    A COUNT OF THE FULL SEVEN-RUNE SET. Any distinct runes count; no particular named rune is
+    mandatory (#813)."""
     display_name = "Great Runes Required"
     range_start = 1
     # DERIVED, not typed (#405), and it is SEVEN again -- by derivation this time, not by typing.
@@ -303,7 +299,7 @@ class GreatRunesRequired(Range):
     # It is now keyed on the goods row (item_categories.GREAT_RUNE_GOODS_IDS), so the cap moves with
     # the data and a rune that stops resolving reddens a test instead of shrinking the set.
     range_end = len(GREAT_RUNES)
-    default = 2
+    default = 4
 
 
 class EnableDLC(DefaultOnToggle):
@@ -988,40 +984,24 @@ class GreenfieldEldenRingWorld(World):
         return sorted(GREAT_RUNES)
 
     def _resolve_required_runes(self) -> List[str]:
-        """The concrete set of Great Rune names completion will require. Empty unless the goal is
-        great_runes AND shuffle is on. Clamped to what's reachable (available), so the requirement
-        can never exceed the runes in the pool -> never makes the seed unbeatable. When regions are
-        sealed so that fewer than N runes are available, the requirement simply shrinks (to 0 if no
-        Great-Rune region survives, collapsing the goal to region_locks-only)."""
+        """The full set of Great Rune names eligible for the ending. Empty unless the goal is
+        great_runes AND shuffle is on. Completion requires the configured COUNT from this set; it
+        never requires a seed-selected named subset (#813)."""
         ec = getattr(self.options, "ending_condition", None)
         if ec is None or ec.current_key != "great_runes":
             return []
-        want = int(getattr(self.options, "goal_great_runes").value)
-        avail = self._available_runes()
-        want = min(max(want, 0), len(avail))
-        # 🛑 A SEEDED SAMPLE, NOT AN ALPHABETICAL PREFIX (#640).
-        #
-        # This was `sorted(avail)[:want]`, and `GREAT_RUNES` is itself sorted, so the required set
-        # was a fixed prefix of one fixed list:
-        #
-        #     Godrick's, Great Rune of the Unborn, Malenia's, Mohg's, Morgott's, Radahn's, Rykard's
-        #
-        # At the default of 2 that is Godrick's and the Unborn rune, on every seed, forever --
-        # Rykard's sorts LAST and could only ever be required by a seed asking for all seven. That
-        # is what AHHHREPTAR reported: "Rykard's Great Rune considered filler despite setting goal
-        # to Great Runes", and it was not seed luck.
-        #
-        # It was survivable while `avail` varied with the draw, because the prefix was taken over a
-        # different list each seed. Injecting all seven (#764) removes that accidental variety and
-        # makes the prefix TOTALLY fixed -- so this had to be fixed in the same change or the goal
-        # would name the same two runes in every seed this world ever rolls.
-        #
-        # `world.random` is the seeded multiworld stream, so this stays reproducible from the seed
-        # while being a real choice. Sorted on the way out for a stable spoiler/slot_data ordering.
-        return sorted(self.random.sample(sorted(avail), want)) if want else []
+        return sorted(self._available_runes())
 
     def _required_runes(self) -> List[str]:
         return getattr(self, "gf_required_runes", [])
+
+    def _great_runes_required_count(self) -> int:
+        """Effective number of distinct eligible Great Runes needed for completion."""
+        eligible = self._required_runes()
+        if not eligible:
+            return 0
+        want = int(getattr(self.options, "goal_great_runes").value)
+        return min(max(want, 0), len(eligible))
 
     # ---- items ----------------------------------------------------------------
     def _class_for(self, name: str) -> ItemClassification:
@@ -1714,7 +1694,7 @@ class GreenfieldEldenRingWorld(World):
                     "[greenfield] %s is not in this seed's kept regions; natural-progression goal "
                     "derived from the kept set instead: %s", GOAL_REGION, goal)
             if required:
-                need = len(required)
+                need = self._great_runes_required_count()
                 self.multiworld.completion_condition[player] = \
                     lambda state, g=goal, rn=required, n=need, p=player: (
                         state.can_reach(g, "Region", p)
@@ -1725,7 +1705,7 @@ class GreenfieldEldenRingWorld(World):
         else:
             locks = self.kept_lock_names()
             if required:
-                need = len(required)
+                need = self._great_runes_required_count()
                 self.multiworld.completion_condition[player] = \
                     lambda state, lk=locks, rn=required, n=need: (
                         state.has_all(lk, player)
@@ -1961,6 +1941,7 @@ class GreenfieldEldenRingWorld(World):
                     f"or a host.")
         versions = contract.version_string(self._data_inputs_hash())
         required = self._required_runes()
+        required_count = self._great_runes_required_count()
         return {
             contract.VERSIONS: versions,           # apworld/contract/data identity -- the skew gate
             contract.WORLD_LOGIC: "region_lock",
@@ -1984,8 +1965,8 @@ class GreenfieldEldenRingWorld(World):
             # ending goal contract (client shows/validates the goal). great_runes_required is the
             # EFFECTIVE (clamped) count; ending_condition reflects the resolved goal, which is
             # region_locks whenever no Great Rune is actually required this seed.
-            "ending_condition": "great_runes" if required else "region_locks",
-            "great_runes_required": len(required),
+            "ending_condition": "great_runes" if required_count else "region_locks",
+            "great_runes_required": required_count,
             "great_rune_items": list(required),
         }
 
