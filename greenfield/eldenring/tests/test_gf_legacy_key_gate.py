@@ -20,7 +20,7 @@ pytest.importorskip("worlds.eldenring")
 from BaseClasses import ItemClassification as IC, CollectionState  # noqa: E402
 from Fill import distribute_items_restrictive  # noqa: E402
 from worlds.eldenring.features.legacy_key_gates import (  # noqa: E402
-    _gated_location_ids, _multi_gated_location_ids, _MULTI_KEY_GATES, _LEGACY_KEYS)
+    _gated_location_ids, _multi_gated_location_ids, _MULTI_KEY_GATES, _LEGACY_KEYS, _LEGACY_EXTRA)
 from worlds.eldenring.data import LOCATIONS  # noqa: E402
 from ._util import world_items  # noqa: E402
 
@@ -83,6 +83,32 @@ class LegacyKeyGateOn(WorldTestBase):
         mw = self.multiworld
         distribute_items_restrictive(mw)
         assert mw.can_beat_game(), "seed must be beatable with the Academy gate retired"
+
+    def test_carian_statue_gates_the_two_evidenced_tower_checks(self):
+        statue = "Carian Inverted Statue"
+        expected = {ap for (_name, ap, flag) in LOCATIONS["Liurnia"] if flag == 34117500}
+        assert len(expected) == 2, "the shared Divine Tower acquisition flag must identify two checks"
+        assert _LEGACY_EXTRA[statue] == {34117500}
+        gated = _gated_location_ids(list(_LEGACY_KEYS))
+        assert {ap for ap, key in gated.items() if key == statue} == expected
+
+        items = [it for it in world_items(self) if it.name == statue]
+        assert items and (items[0].classification & IC.progression), \
+            "the statue is a physical gate and must classify as progression"
+
+        locs = {loc.address: loc for loc in self.multiworld.get_locations(1)}
+        checks = [locs[ap] for ap in expected]
+        without = CollectionState(self.multiworld)
+        with_statue = CollectionState(self.multiworld)
+        for item in world_items(self):
+            if not (item.classification & IC.progression) or item.name == statue:
+                continue
+            without.collect(item, prevent_sweep=True)
+            with_statue.collect(item, prevent_sweep=True)
+        with_statue.collect(items[0], prevent_sweep=True)
+        for loc in checks:
+            assert not loc.can_reach(without), f"{loc.name} reachable without the statue"
+            assert loc.can_reach(with_statue), f"{loc.name} blocked with the statue"
 
 
 # ---- multi-key gate: DLC Lamenter's Gaol needs BOTH Gaol keys -------------------------------------
@@ -150,5 +176,4 @@ class LamentersGaolGateOn(WorldTestBase):
             assert all(l.address not in gated for l in keylocs), \
                 f"{kn} must be placed OUTSIDE the gaol it gates"
         assert mw.can_beat_game(), "a DLC seed with the gaol gate active must be beatable"
-
 

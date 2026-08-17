@@ -20,6 +20,7 @@ Multi-key gates (features/legacy_key_gates._MULTI_KEY_GATES) handle a sub-dungeo
 MORE THAN ONE key ANDed -- DLC Lamenter's Gaol needs BOTH the Gaol Upper and Lower Level Keys.
 
 Currently gated:
+  Carian Inverted Statue ->  the two evidenced inverted Divine Tower checks (f34117500), Liurnia;
   Gaol U+L Level Keys      ->  Lamenter's Gaol (m41_02, Charo's) -- BOTH keys, check-level, incl.
                               the Lamenter boss reward (f520770). See _MULTI_KEY_GATES;
   Hole-Laden Necklace     ->  Metyr's remembrance check. NB: the Cathedral surface bucket 6920 (the
@@ -68,9 +69,13 @@ except Exception:  # pre-regen / standalone import
 # do the precise opposite of this ruling. It also means re-adding the key gate here re-arms the wall
 # by itself.
 _LEGACY_KEYS = {
+    "Carian Inverted Statue": ("Liurnia", (0, 0)),  # inverted Divine Tower checks; exact flag below
     "Hole-Laden Necklace": ("Scadu Altus", (0, 0)),   # Metyr arena m25_00 -> bucket 6900 (see above)
 }
-_LEGACY_EXTRA = {"Hole-Laden Necklace": frozenset({510550})}
+_LEGACY_EXTRA = {
+    "Carian Inverted Statue": frozenset({34117500}),
+    "Hole-Laden Necklace": frozenset({510550}),
+}
 
 # MULTI-KEY gates: a dungeon whose checks need MORE THAN ONE key ANDed (nested cells). DLC Lamenter's
 # Gaol (m41_02, in Charo's): the Gaol Upper + Lower Level Keys open its nested cells, the Lamenter
@@ -131,8 +136,8 @@ def _multi_gated_location_ids(gates):
 
 
 class LegacyDungeonKeys(DefaultOnToggle):
-    """Gate legacy dungeons behind their vanilla key item in logic (e.g. Metyr's remembrance needs
-    the Hole-Laden Necklace, and Lamenter's Gaol needs both Gaol keys, on top of the region Lock).
+    """Gate legacy dungeons behind their vanilla key item in logic (e.g. the inverted Divine Tower
+    checks need the Carian Inverted Statue, and Lamenter's Gaol needs both Gaol keys).
     Keeps fill from placing required progression behind a key it hasn't proven reachable. On by
     default; off restores the region-Lock-only model. Raya Lucaria Academy is NOT gated -- its
     region Lock is the only key it has."""
