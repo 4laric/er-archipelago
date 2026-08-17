@@ -816,7 +816,7 @@
    }
   },
   "Limgrave": {
-   "checks": 332,
+   "checks": 325,
    "combos": {
     "Basin": 3,
     "Boss|FieldBoss": 5,
@@ -1406,7 +1406,7 @@
    }
   },
   "Stormveil": {
-   "checks": 132,
+   "checks": 139,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
@@ -1505,5 +1505,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "dd94247578d7f7d49b4e9df8474325a7e65b5284fa4e58049c282269d1990af5"
+ "source_sha256": "13caadc9b29dd4713ee40cf68bc574966c6f223a279d2e5c4aefcbca56a37ddb"
 }

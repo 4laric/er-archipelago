@@ -44,6 +44,8 @@ ARTIFACT = _first(os.path.join(GF_PKG, "play_region_buckets.tsv"),
 SPINE = _first(os.path.join(GF_PKG, "region_groups.py"),
                os.path.join(GREENFIELD, "region_groups.py"))
 DATA = os.path.join(GF_PKG, "data.py")
+DUNGEONS = _first(os.path.join(GF_PKG, "dungeon_regions.tsv"),
+                  os.path.join(GREENFIELD, "dungeon_regions.tsv"))
 
 
 class TestPlayRegionBuckets(unittest.TestCase):
@@ -106,11 +108,17 @@ class TestPlayRegionBuckets(unittest.TestCase):
             "(region, buckets claimed): %r" % (bad,))
 
     def test_divine_tower_of_limgrave_runtime_ground_is_stormveil(self):
-        """The tower keeps Limgrave warp/check geography, but Stormveil owns its lock boundary."""
+        """Stormveil owns the tower map's checks, graces, and runtime lock boundary (#202)."""
         self.assertIn(34100, self.rg.PLAY_REGION_GROUPS["Stormveil"])
         self.assertNotIn(34100, self.rg.PLAY_REGION_GROUPS["Limgrave"])
         self.assertIn(61001, self.rg.REGION_GROUPS["Limgrave"],
-                      "the Divine Tower's warp/check geography must remain Limgrave")
+                      "ordinary Stormhill geography remains Limgrave")
+        self.assertIsNotNone(DUNGEONS, "dungeon_regions.tsv must ship beside the region spine")
+        with open(DUNGEONS, encoding="utf-8") as fh:
+            tower = [ln.rstrip("\n").split("\t") for ln in fh
+                     if ln.startswith("m34_10\t")]
+        self.assertEqual([["m34_10", "Stormveil", "curated",
+                           "Alaric ruling #202: Divine Tower belongs to Stormveil"]], tower)
 
     def test_pending_regions_are_declared_not_discovered(self):
         """REGIONS_PENDING_BUCKET is the ONLY sanctioned way to have a region without kick geometry,

@@ -2465,13 +2465,6 @@ LOCATIONS = {
         ('Limgrave :: Large Glintstone Scrap - treasure · Limgrave Tunnels, also granted by Stonedigger Troll (m32_01) [f32017020]', 7772391, 32017020),
         ('Limgrave :: Golden Rune [1] - treasure · Limgrave Tunnels, also granted by Stonedigger Troll (m32_01) [f32017030]', 7772392, 32017030),
         ('Limgrave :: Glintstone Scrap - treasure · Limgrave Tunnels, also granted by Stonedigger Troll (m32_01) [f32017040]', 7772393, 32017040),
-        ('Limgrave :: Warming Stone - near Limgrave Tower Bridge [f34107000]', 7772439, 34107000),
-        ('Limgrave :: Soft Cotton - near Limgrave Tower Bridge [f34107010]', 7772440, 34107010),
-        ('Limgrave :: Stormhawk Feather - near Divine Tower of Limgrave [f34107070]', 7772441, 34107070),
-        ('Limgrave :: Silver-Pickled Fowl Foot - near Divine Tower of Limgrave [f34107080]', 7772442, 34107080),
-        ('Limgrave :: Golden Rune [2] - near Divine Tower of Limgrave [f34107090]', 7772443, 34107090),
-        ('Limgrave :: Boltdrake Talisman - near Limgrave Tower Bridge [f34107100]', 7772444, 34107100),
-        ('Limgrave :: Ash-of-War Scarab - near Limgrave Tower Bridge [f34107110]', 7772445, 34107110),
         ('Limgrave :: Smithing Stone [1] - near Stormhill Shack (region unconfirmed), also granted by Deathbird (m60_42_38) [f1040387000]', 7772898, 1040387000),
         ('Limgrave :: Great Dragonfly Head - near Church of Dragon Communion, also granted by Tree Sentinel (m60_42_36) [f1041357000]', 7772925, 1041357000),
         ('Limgrave :: Lump of Flesh - near Seaside Ruins (region unconfirmed), also granted by Tree Sentinel (m60_42_36) [f1042357000]', 7772948, 1042357000),
@@ -5123,6 +5116,13 @@ LOCATIONS = {
         ('Stormveil :: Godskin Prayerbook - near Rampart Tower, also granted by Margit, the Fell Omen (m10_00) [f10007990]', 7771012, 10007990),
         ('Stormveil :: The Stormhawk King - m10_01 [f10017010]', 7771013, 10017010),
         ('Stormveil :: Stormhawk Deenh - m10_01, also granted by Godrick the Grafted (m10_00) [f10017900]', 7771014, 10017900),
+        ('Stormveil :: Warming Stone - near Limgrave Tower Bridge [f34107000]', 7772439, 34107000),
+        ('Stormveil :: Soft Cotton - near Limgrave Tower Bridge [f34107010]', 7772440, 34107010),
+        ('Stormveil :: Stormhawk Feather - near Divine Tower of Limgrave [f34107070]', 7772441, 34107070),
+        ('Stormveil :: Silver-Pickled Fowl Foot - near Divine Tower of Limgrave [f34107080]', 7772442, 34107080),
+        ('Stormveil :: Golden Rune [2] - near Divine Tower of Limgrave [f34107090]', 7772443, 34107090),
+        ('Stormveil :: Boltdrake Talisman - near Limgrave Tower Bridge [f34107100]', 7772444, 34107100),
+        ('Stormveil :: Ash-of-War Scarab - near Limgrave Tower Bridge [f34107110]', 7772445, 34107110),
         ("Stormveil :: Gostoc's Bell Bearing - near Gateside Chamber [f400051]", 7773843, 400051),
         ('Stormveil :: Erdsteel Dagger - around Castleward Tunnel, also granted by Godrick the Grafted (m10_00) [f400221]', 7773854, 400221),
         ('Stormveil :: Living Jar Shard - around Castleward Tunnel, also granted by Margit, the Fell Omen (m10_00) [f10007082]', 7774041, 10007082),
@@ -5531,4 +5531,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:38849a3d6f5cd00ad2b3fff8642102cdd83a7ce4b145a42cca2ef313ccd0c464', 'module': 'data.py', 'body_sha256': 'sha256:2102115d2043ca74322a63b4089882c868b51966cd8736d21175c7dbee1910bc'}
+_GEN_STAMP = {'inputs_hash': 'sha256:0181ce2b10c398eff59d301186d4348f776f2c82747b6c44223ec0d725386ce0', 'module': 'data.py', 'body_sha256': 'sha256:874e3e5af9db09491cee91853af86e34ec9a38b39d791122de300f7685a527de'}
