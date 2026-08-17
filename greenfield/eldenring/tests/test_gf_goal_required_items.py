@@ -119,16 +119,52 @@ class GoalRequiredItemsUnderNaturalProgression(WorldTestBase):
 
 
 class GoalRequiredItemsWithAnExplicitGoal(WorldTestBase):
-    """The force-kept region of an explicit `goal` choice must also be required, or the choice would
-    hand the player a shorter run than `auto`."""
+    """The explicit `goal` choice must not hand the player a SHORTER run than `auto`.
+
+    ⭐ THE CLAIM IS THE SAME; ITS CARRIER INVERTED. This used to read "the force-kept region's Lock
+    must also be REQUIRED" -- Enir Ilim's Lock was an ordinary kept region's Lock, so requiring it
+    was how the goal choice stayed as long as `auto`. Withholding that Lock makes requiring it
+    impossible (nothing mints it), so the length guarantee moves to where it now lives: the goal
+    region's ENTRANCE, which asks for every other goal item.
+
+    That is a stronger guarantee than the old one, and the test says so below by taking an item
+    away: with any single required Lock missing, the goal region must be UNREACHABLE. The previous
+    spelling only checked a name appeared in a list."""
     game = GAME
     run_default_tests = False
     options = {"num_regions": 6, "goal": "promised_consort"}
 
-    def test_the_forced_region_lock_is_required(self):
+    def test_the_goal_regions_own_lock_is_withheld(self):
         sd = self.world.fill_slot_data()
         free = {i.name for i in self.multiworld.precollected_items[self.player]}
-        assert "Enir Ilim" in self.world._kept()
-        if "Enir Ilim Lock" not in free:
-            assert "Enir Ilim Lock" in sd[KEY]
+        assert "Enir Ilim" in self.world._kept(), "test basis: the goal must force-keep its region"
+        assert self.world.withheld_goal_lock() == "Enir Ilim Lock", (
+            "the goal region's Lock is what gets withheld -- if this resolves to something else "
+            "the rest of this class is testing the wrong item")
+        pool = {i.name for i in self.multiworld.itempool if i.player == self.player}
+        assert "Enir Ilim Lock" not in pool and "Enir Ilim Lock" not in free, (
+            "the goal region's Lock is in the pool: fill can place it in sphere 1 and the ending "
+            "is reachable before the run (world#694)")
+        assert "Enir Ilim Lock" not in sd[KEY], (
+            "an item that is never minted cannot be required of the player -- goalRequiredItems "
+            "would never be satisfiable and the seed would be unwinnable")
         assert sd[KEY] == sorted(n for n in self.world.kept_lock_names() if n not in free)
+
+    def test_the_run_is_not_shortened_by_choosing_the_goal(self):
+        """The half that matters: take ONE required item away and the goal region shuts."""
+        from BaseClasses import CollectionState
+        sd = self.world.fill_slot_data()
+        assert sd[KEY], "test basis: nothing is required, so nothing can be withheld to prove this"
+        full = self.multiworld.get_all_state(False)
+        assert full.can_reach("Enir Ilim", "Region", self.player), (
+            "holding everything does not open the goal region -- it can never be entered")
+        for missing in sd[KEY]:
+            st = CollectionState(self.multiworld)
+            for item in list(self.multiworld.itempool) + list(
+                    self.multiworld.precollected_items[self.player]):
+                if item.player == self.player and item.name == missing:
+                    continue
+                st.collect(item, prevent_sweep=True)
+            assert not st.can_reach("Enir Ilim", "Region", self.player), (
+                f"the goal region opens while {missing!r} is still outstanding -- choosing this "
+                f"goal is a shorter run than `auto`, which is what this class exists to forbid")
