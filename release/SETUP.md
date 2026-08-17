@@ -195,22 +195,38 @@ You also need, separately:
 
    Note the game name in that line: **`Elden Ring`**, with the space.
 
-   **If you get "Connection refused" instead**, note what it is *not*: a wrong
-   slot name, a wrong password, the wrong game or a seed mismatch all produce a
-   different, more specific error. Refused means the client never reached a
-   server it could talk to. In order:
+   **If you get "Connection refused" instead**, do this in order. A wrong slot
+   name, wrong password, wrong game or seed mismatch produces a different,
+   more specific error; re-reading those fields will not fix a refusal.
 
-   1. Check the room is actually awake -- open its page on the website and look
-      for the port. A room that has been idle goes to sleep and the port stops
-      answering.
-   2. Re-copy the address and port from that page. The port changes every time
-      the room wakes up.
-   3. Try `wss://` if you are on a hosted room, and plain `ws://` if you are
-      hosting locally.
-   4. If all three are right and it still refuses, say so in the bug report and
-      attach your client log -- the message is currently also printed for a
-      connection that timed out, which is a different fault with different
-      causes, and we cannot tell them apart from the text alone.
+   1. Open Archipelago's stock **Text Client** and enter
+      `/connect <host>:<port>`. Use the exact address from the Elden Ring form.
+      This is the useful split: if it also fails, investigate the room or
+      network. If it connects, the address and network path work and the fault
+      is specific to `eldenring.exe`; skip to step 4.
+   2. Refresh the hosted room page. archipelago.gg pauses an inactive room
+      after two hours, and loading the page wakes it. Re-copy the displayed
+      port after it wakes -- a restarted room may have a different one.
+   3. Note how long failure takes. An immediate red line is a refusal; a hang
+      of roughly 20 seconds is a timeout. The Elden Ring client currently uses
+      the same sentence for both, so include the timing and client log in a bug
+      report.
+   4. If the Text Client connects but Elden Ring does not, check filters that
+      can treat one process differently: an outbound firewall rule for
+      `eldenring.exe`, third-party antivirus network protection, VPN split
+      tunnelling, and other mods in the active Mod Engine 3 profile that hook
+      WinSock. Elden Ring modding guides commonly recommend blocking the game
+      executable to keep it off FromSoftware's servers; that same rule also
+      blocks Archipelago. In Windows Defender, match the program path rather
+      than the rule name:
+
+      ```powershell
+      Get-NetFirewallApplicationFilter -All |
+        Where-Object { $_.Program -like "*eldenring*" } |
+        Get-NetFirewallRule
+      ```
+
+      Antivirus rules do not necessarily appear in Defender's list.
 
 4. **Play.** In The Shattering you begin at Roundtable Hold with one region
    already open. Find a region's Lock, fast-travel in, clear its checks, and

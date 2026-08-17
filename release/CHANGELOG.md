@@ -47,6 +47,21 @@ It now writes only from the controller under xdist, with a red-case test for bot
 
 Closes #778.
 
+### A refused connection has a troubleshooting path that actually narrows the fault
+
+The setup guide used to send a player back through the room page, address and protocol before it
+asked the one question that divides the problem cleanly. It now starts with Archipelago's stock
+Text Client against the same host and port: if that also fails, investigate the room or network; if
+it connects, the address is exonerated and the fault is specific to `eldenring.exe`.
+
+The next steps distinguish an immediate refusal from the roughly 20-second timeout that currently
+prints the same message, then name the per-process filters worth checking: a forgotten outbound
+firewall block, antivirus network protection, VPN split tunnelling, or another Mod Engine profile
+component hooking WinSock. Wrong slot, password, game and seed mismatches are explicitly ruled out;
+they produce later, specific errors and are not reasons to re-read a refusal form.
+
+Closes #613.
+
 ## v0.4.5 — 2026-08-16
 
 Window opened AT the v0.4.4 tag (`1ffac04`), with zero commits past it. `check_release_notes` was
