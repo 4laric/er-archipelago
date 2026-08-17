@@ -63,6 +63,8 @@ class AnyFourGreatRunesAreSurfaced(WorldTestBase):
         for item in items:
             if item.name in set(GREAT_RUNES):
                 by_name.setdefault(item.name, item)
+        self.assertEqual(set(by_name), set(GREAT_RUNES),
+                         'the boundary test must see every eligible rune')
         for name in sorted(by_name)[:3]:
             state.collect(by_name[name], prevent_sweep=True)
         self.assertFalse(cond(state))
