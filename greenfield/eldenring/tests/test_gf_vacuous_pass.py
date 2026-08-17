@@ -26,6 +26,7 @@ import ast
 import glob
 import importlib.util
 import os
+from types import SimpleNamespace
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -37,6 +38,30 @@ def _conftest():
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
     return m
+
+
+def test_skip_census_records_once_under_xdist(tmp_path, monkeypatch):
+    """RED CASE (#778): xdist runs the report hook in a worker and again in the controller.
+
+    Recording both makes an unchanged skip inventory look exactly twice as large. The controller
+    owns the complete report stream, so the worker copy must be inert while the controller copy
+    still writes the one real skip.
+    """
+    m = _conftest()
+    out = tmp_path / "skips.jsonl"
+    monkeypatch.setenv("GF_SKIP_CENSUS_OUT", str(out))
+    report = SimpleNamespace(skipped=True, context=None,
+                             longrepr=("test_x.py", 1, "Skipped: deliberate"),
+                             nodeid="test_x.py::test_x", when="setup")
+
+    monkeypatch.setenv("PYTEST_XDIST_WORKER", "gw0")
+    m.pytest_runtest_logreport(report)
+    assert not out.exists(), "the worker wrote the duplicate skip report"
+
+    monkeypatch.delenv("PYTEST_XDIST_WORKER")
+    m.pytest_runtest_logreport(report)
+    rows = out.read_text(encoding="utf-8").splitlines()
+    assert len(rows) == 1 and '"reason": "deliberate"' in rows[0], rows
 
 
 def test_the_spy_records_an_empty_quantifier():

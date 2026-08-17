@@ -61,7 +61,10 @@ jobs:
           # AP 0.6.x is not compatible with setuptools >= 80 (pkg_resources removal).
           pip install "setuptools<80"
           pip install -r _ap/requirements.txt
-          pip install pytest
+          # The world suite is CPU-bound generation work. GitHub's hosted Ubuntu runner has two
+          # cores, so run one worker per core; --dist loadfile keeps every test module together,
+          # preserving its collection/order assumptions while independent modules run in parallel.
+          pip install pytest pytest-xdist
 
       # THE BUNDLE, EXPLICITLY (2026-08-04, inert-test audit finding #3). Everything the
       # item-existence oracle and gen_stamp's freshness gate (test_D) read has shipped in the
@@ -119,7 +122,7 @@ jobs:
       # "dark by accident" look identical in a green run; the census is the instrument that can
       # tell them apart, and it turns any skip-family or count change into a reviewed diff.
       - name: pytest (tools/gf_test.py -- pinned upstream AP)
-        run: python tools/gf_test.py --ap-dir _ap --quantifier-spy --skip-census greenfield/eldenring/tests/expected_skips_ci.json
+        run: python tools/gf_test.py --ap-dir _ap --quantifier-spy --skip-census greenfield/eldenring/tests/expected_skips_ci.json -n 2 --dist loadfile
 
       # Wizard metadata drift, against the LIVE GFOptions -- the only instrument that can tell the
       # three committed artifacts (wizard/options-metadata.json, the blob inlined in
