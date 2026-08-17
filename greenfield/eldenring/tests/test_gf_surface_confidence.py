@@ -23,8 +23,8 @@ things hold, and this file is both of them.
 
        tool.eligible(cls)  ==  allowed_ap_ids(LOCATION_TAGS, {cls})  -  MISSABLE_LOCATIONS
 
-   `allowed_ap_ids` bars guessed-region / erdtree-burn / surface-excluded / hub-merchant itself; the
-   missable bar lives in `_world_barred_aps` because it is world-conditional
+   `allowed_ap_ids` bars guessed-region / erdtree-burn / surface-excluded / release-gated /
+   hub-merchant itself; the missable bar lives in `_world_barred_aps` because it is world-conditional
    (`protect_missable_locations`), and the tool applies it unconditionally because that option is
    frozen ON. If it is ever unfrozen, THIS ASSERTION is the thing that should be made conditional --
    not the tool's column, which must keep reporting the cost either way.
@@ -245,6 +245,45 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
                 "%s: build_surface_confidence says %d eligible, the REAL "
                 "progression_surface.allowed_ap_ids says %d. The tool's bar stack has drifted from "
                 "the feature's -- fix the tool, not this test." % (cls, by_class[cls], len(real)))
+
+    def test_world_bar_asymmetries_are_exactly_the_documented_ones(self):
+        """A new item-rule bar may not silently miss the surface again (#724).
+
+        `_world_barred_aps` mirrors core's fill bar, except for the two documented per-world
+        operations: lift a collapsed row whose kept merchant site is now known, and add missable
+        rows while their option is armed. The capital reconciler additionally removes the burn bar.
+        SURFACE_EXCLUDE_APS is deliberately surface-only -- it is a display/selection ruling, not a
+        fill bar -- and is pinned separately so this invariant does not invite that old mistake.
+        """
+        from types import SimpleNamespace
+        from ..core import _NO_PROGRESSION_APS
+        from ..features.progression_surface import (
+            _world_barred_aps, collapsed_lift_aps, missable_barred_aps)
+        from ..location_tags import ERDTREE_BURN_APS, SURFACE_EXCLUDE_APS
+
+        world = SimpleNamespace(
+            gf_kept=(), gf_capital_reconciler=False,
+            options=SimpleNamespace(protect_missable_locations=SimpleNamespace(value=1)))
+        lift = collapsed_lift_aps(world)
+        missable = missable_barred_aps(world)
+        self.assertEqual(
+            _world_barred_aps(world),
+            (frozenset(_NO_PROGRESSION_APS) - lift) | missable,
+            "the surface/world bar differs from core's fill bar by an undocumented cause")
+
+        world.gf_capital_reconciler = True
+        self.assertEqual(
+            _world_barred_aps(world),
+            ((frozenset(_NO_PROGRESSION_APS) - lift) - frozenset(ERDTREE_BURN_APS)) | missable,
+            "the reconciler may lift only the burn-strand cause")
+
+        surface_only = frozenset(SURFACE_EXCLUDE_APS) - frozenset(_NO_PROGRESSION_APS)
+        self.assertTrue(surface_only,
+                        "no surface-only exclusions remain; this witness stopped pinning the "
+                        "intentional display-vs-fill asymmetry")
+        self.assertTrue(surface_only.isdisjoint(self.allowed_ap_ids(self.LT, self.VOCAB)),
+                        "SURFACE_EXCLUDE_APS must stay excluded from surface selection without "
+                        "being folded into core._NO_PROGRESSION_APS")
 
     def test_default_surface_hosting_number_matches(self):
         """The headline number people quote. `default_hosting` must equal what the feature would

@@ -6,7 +6,8 @@ WHAT THIS IS. One table, `greenfield/surface_confidence.tsv`: for every class in
 progression-surface vocabulary (`contract.SURFACE_CLASSES`), how many checks carry the tag
 and how many of those may actually HOST progression once the bars are applied.
 
-    class  total  guessed_region  missable  erdtree_burn  surface_excluded  hub_merchant  eligible
+    class  total  guessed_region  missable  erdtree_burn  surface_excluded  release_gated
+    hub_merchant  eligible
 
 WHY. The rule for opening the surface vocabulary up to players is: *before we add something to the
 possible progression surface we have to be absolutely sure where it is.* That rule is only
@@ -118,11 +119,13 @@ def _bars(mods):
         "missable": frozenset(mods["missable_locations"].MISSABLE_LOCATIONS),
         "erdtree_burn": frozenset(getattr(tags, "ERDTREE_BURN_APS", ())),
         "surface_excluded": frozenset(getattr(tags, "SURFACE_EXCLUDE_APS", ())),
+        "release_gated": frozenset(getattr(tags, "SHOP_RELEASE_GATED_APS", ())),
         "hub_merchant": hub_merchant,
     }
 
 
-BAR_ORDER = ("guessed_region", "missable", "erdtree_burn", "surface_excluded", "hub_merchant")
+BAR_ORDER = ("guessed_region", "missable", "erdtree_burn", "surface_excluded",
+             "release_gated", "hub_merchant")
 
 
 def measure(mods=None):
@@ -179,7 +182,8 @@ def measure(mods=None):
     dflt = tagged(default)
     # erdtree_burn is CONDITIONAL (capital reconciler armed -> not barred), so the headline hosting
     # number is reported both ways rather than picking one and hiding the other.
-    hosting_bars = bars["guessed_region"] | bars["surface_excluded"] | bars["hub_merchant"]
+    hosting_bars = (bars["guessed_region"] | bars["surface_excluded"]
+                    | bars["release_gated"] | bars["hub_merchant"])
     totals = {
         "vocabulary": len(vocab),
         "default_classes": len(default),
@@ -223,6 +227,7 @@ def emit(rows, totals):
     a("#   erdtree_burn      m11_00 destroyed when Maliketh dies (CONDITIONAL: not barred when the")
     a("#                     capital reconciler is armed -- see the two default_hosting_* lines)")
     a("#   surface_excluded  hand-excluded surface-tagged checks (gen_data _SURFACE_EXCLUDE_FLAGS)")
+    a("#   release_gated     merchant row absent until its own shop-release event fires")
     a("#   hub_merchant      Roundtable-Hold MERCHANT rows -- reachable at spawn, so trivial")
     a("# Bar columns OVERLAP (one check can be both guessed and missable), so they do not sum to")
     a("# total - eligible. 'eligible' is computed from the UNION, never by subtracting the columns.")
@@ -252,24 +257,27 @@ def emit(rows, totals):
     a("\t".join(_COLS))
     for r in rows:
         pct = (100.0 * r["eligible"] / r["total"]) if r["total"] else 0.0
+        # `in_default` is deliberately blank for most classes. Do not serialize that final blank as
+        # trailing whitespace: integrity hooks correctly reject generated whitespace too.
         a("\t".join([r["class"], str(r["total"]), str(r["tag_excluded"])]
                     + [str(r[b]) for b in BAR_ORDER]
-                    + [str(r["eligible"]), "%.0f" % pct, r["in_default"]]))
+                    + [str(r["eligible"]), "%.0f" % pct, r["in_default"]]).rstrip())
     return "\n".join(L) + "\n"
 
 
 def summarise(rows, totals):
     w = max(len(r["class"]) for r in rows)
-    head = ("%-*s %6s %6s %7s %7s %6s %6s %6s %9s %5s  %s"
-            % (w, "class", "total", "tagxc", "guessed", "missbl", "burn", "sxcl", "hub",
-               "ELIGIBLE", "%", "default"))
+    head = ("%-*s %6s %6s %7s %7s %6s %6s %7s %6s %9s %5s  %s"
+            % (w, "class", "total", "tagxc", "guessed", "missbl", "burn", "sxcl", "release",
+               "hub", "ELIGIBLE", "%", "default"))
     out = [head, "-" * len(head)]
     for r in rows:
         pct = (100.0 * r["eligible"] / r["total"]) if r["total"] else 0.0
-        out.append("%-*s %6d %6d %7d %7d %6d %6d %6d %9d %4.0f%%  %s"
+        out.append("%-*s %6d %6d %7d %7d %6d %6d %7d %6d %9d %4.0f%%  %s"
                    % (w, r["class"], r["total"], r["tag_excluded"],
                       r["guessed_region"], r["missable"],
-                      r["erdtree_burn"], r["surface_excluded"], r["hub_merchant"],
+                      r["erdtree_burn"], r["surface_excluded"], r["release_gated"],
+                      r["hub_merchant"],
                       r["eligible"], pct, r["in_default"]))
     out.append("")
     if totals["default_derived"]:
