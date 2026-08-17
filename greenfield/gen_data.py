@@ -9434,6 +9434,12 @@ _SWEEP_UNSPAWNED = {_e: _r for _e, (_v, _r) in _UNSPAWNED_VERDICTS.items() if _v
 _SWEEP_UNSPAWNED_OPEN = {_e: _r for _e, (_v, _r) in _UNSPAWNED_VERDICTS.items() if _v != "unspawned"}
 
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
+# Sweep-specific check exclusions. The Carian Inverted Statue now gates the two f34117500 co-checks,
+# but the Study Hall sweep trigger 34110800 is not behind that key in logic; leaving those checks in
+# the sweep would hand them out on the boss kill and punch straight through the new gate.
+_SWEEP_EXCLUDED_FLAGS = {
+    34110800: {34117500},
+}
 _sweep_excluded_hits = []
 _sweep_unspawned_hits = []
 _sweep_secondary_hits = []
@@ -9568,6 +9574,9 @@ if BOSS_HEALTHBARS:
                   if _ap_region.get(_a) is not None and _ap_region[_a] != HUB]
         _sreg = (Counter(_known).most_common(1)[0][0] if _known else _mreg.get(_bmap, HUB))
         _members = [_a for _a in _members if _ap_region.get(_a) == _sreg]
+        _cut_flags = _SWEEP_EXCLUDED_FLAGS.get(_ent)
+        if _cut_flags:
+            _members = [_a for _a in _members if _apid_flag.get(_a) not in _cut_flags]
         if not _members:
             continue
         DUNGEON_SWEEPS[_ent] = _members
