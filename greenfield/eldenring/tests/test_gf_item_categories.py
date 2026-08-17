@@ -43,7 +43,9 @@ def _local_from_keep_local(tb):
 
 class TaxonomyIsAPartition(WorldTestBase):
     game = GAME
-    options = {"num_regions": 1}
+    # 1-region seed kept (the taxonomy claim is size-independent); the rune goal is what makes a
+    # 1-region seed legal at all since #768 withheld the Ashen Lock.
+    options = {"num_regions": 1, "ending_condition": "great_runes"}
 
     def test_generated_inputs_are_present(self):
         # Every assertion below is vacuous on a pre-regen tree, so say so loudly rather than pass.
@@ -174,7 +176,7 @@ class DefaultsAimAtTheOneToOneMix(WorldTestBase):
     6250 until 2026-08-16 -- the same stale number the option's own docstring carried)."""
 
     game = GAME
-    options = {"num_regions": 1, "item_shuffle": True}
+    options = {"num_regions": 1, "item_shuffle": True, "ending_condition": "great_runes"}
 
     def test_the_shipped_defaults_are_the_measured_recipe(self):
         self.assertEqual(self.world.options.keep_local_rune_cap.value, 12500)
@@ -357,7 +359,7 @@ class CookbooksAreTheirOwnCategory(WorldTestBase):
     from drifting apart, which is the failure this project keeps having.
     """
     game = GAME
-    options = {"num_regions": 1}
+    options = {"num_regions": 1, "ending_condition": "great_runes"}
 
     def test_cookbooks_are_exactly_what_the_generated_key_item_list_dropped(self):
         self.assertTrue(KEY_ITEM_GOODS, "item_ids.py must carry KEY_ITEM_GOODS (gen_data.py regen)")
@@ -422,7 +424,7 @@ class BellBearingsSplitByWhatTheyUnlock(WorldTestBase):
     different file, and it must agree.
     """
     game = GAME
-    options = {"num_regions": 1}
+    options = {"num_regions": 1, "ending_condition": "great_runes"}
 
     def test_the_two_bell_categories_partition_the_bells(self):
         bells = {n for n in ITEM_CATALOG if "Bell Bearing" in n}

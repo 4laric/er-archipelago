@@ -101,7 +101,8 @@ def test_a_default_all_regions_seed_spans_the_WHOLE_ladder():
 _FLOORS = (0, 25, 100)
 _COMBOS = (
     ("base_all_regions", {}),
-    ("one_region", {"num_regions": 1}),
+    # the rune goal keeps 1-region legal after #768 (core._lint_goal_reachability)
+    ("one_region", {"num_regions": 1, "ending_condition": "great_runes"}),
     ("small_rolled", {"num_regions": 4}),
     ("dlc", {"enable_dlc": True}),
     ("dlc_only", {"dlc_only": True}),
@@ -294,7 +295,7 @@ def test_landmarks_is_the_middle_setting_where_it_matters():
 # ---------------------------------------------------------------------------------------------
 _NRIS_COMBOS = (
     ("on_base",         {"no_runes_in_shops": True}),
-    ("on_one_region",   {"no_runes_in_shops": True, "num_regions": 1}),
+    ("on_one_region",   {"no_runes_in_shops": True, "num_regions": 1, "ending_condition": "great_runes"}),
     ("on_small_rolled", {"no_runes_in_shops": True, "num_regions": 4}),
     ("on_dlc",          {"no_runes_in_shops": True, "enable_dlc": True}),
     ("on_dlc_only",     {"no_runes_in_shops": True, "dlc_only": True}),
@@ -338,7 +339,8 @@ def test_no_runes_in_shops_combinations_fill_clean(label, opts):
 # ---------------------------------------------------------------------------------------------
 _KOS_COMBOS = (
     ("gear_full_world",   {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 0}),
-    ("gear_one_region",   {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 1}),
+    ("gear_one_region",   {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 1,
+                           "ending_condition": "great_runes"}),
     ("gear_small_rolled", {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 4}),
     ("goods_umbrella",    {"keep_out_of_shops": {"goods"}, "num_regions": 4}),
     ("everything",        {"keep_out_of_shops": {"everything"}, "num_regions": 4}),
@@ -499,7 +501,7 @@ _SCADU_SHAPES = (
     ("rolled_default_dlc", {"num_regions": 6, "enable_dlc": True}),
     ("all_regions_dlc", {"enable_dlc": True}),
     ("dlc_off", {"enable_dlc": False}),
-    ("one_region_dlc", {"num_regions": 1, "enable_dlc": True}),
+    ("one_region_dlc", {"num_regions": 1, "enable_dlc": True, "ending_condition": "great_runes"}),
 )
 
 
@@ -625,7 +627,7 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
 _AUTO_EQUIP_COMBOS = (
     ("off_default",       {}),
     ("on_all_regions",    {"auto_equip": True}),
-    ("on_one_region",     {"auto_equip": True, "num_regions": 1}),
+    ("on_one_region",     {"auto_equip": True, "num_regions": 1, "ending_condition": "great_runes"}),
     # The seed shape that already emits requiresClientFeatures for its OWN reason. Both on -> the
     # union; only the ceiling on -> auto_equip must be absent from the list, not just falsey.
     ("on_with_ceiling",   {"auto_equip": True, "maximum_enemy_difficulty": 50}),

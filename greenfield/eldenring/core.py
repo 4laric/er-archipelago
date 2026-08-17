@@ -766,8 +766,72 @@ class GreenfieldEldenRingWorld(World):
             describe_kept(_nr, _draw_parts, self.gf_kept, self.gf_goal_choice))
         # Resolve the Great-Rune goal now (once), so create_item/set_rules/slot_data agree.
         self.gf_required_runes: List[str] = self._resolve_required_runes()
+        self._lint_goal_reachability()
         for f in _FEATURES:
             f.generate_early(self)
+
+    def _lint_goal_reachability(self) -> None:
+        """Refuse, AT GENERATION, a seed whose goal is already complete when the player connects.
+
+        🛑 THIS IS A YAML LINT AND IT BELONGS HERE, NOT IN `create_items`. It lived there until
+        2026-08-16 and fired halfway through minting a pool -- after the draw, the parent closure,
+        the anchor pick and every feature's `generate_early`, all of which is work thrown away to
+        report a yaml the player could have been told about immediately. Every input it reads (the
+        kept set, the required runes, `start_regions`) is final at this point in `generate_early`,
+        so the combination can be judged before any of that runs. Alaric, 2026-08-16: "yaml lint
+        it, fail at gen".
+
+        THE PROPERTY: at least one progression item the goal needs must stay in the pool. The goal
+        is `has_all(kept locks)` plus a rune count; precollect every one of them and the seed is
+        already won at connect, having been played zero times.
+
+        It is checked against the KEPT COUNT, NOT the yaml's `num_regions`. num_regions is a DRAW
+        SIZE (#409) -- each kept region pulls its parents in -- so a seed can hold more regions
+        than were asked for, never fewer. An unsatisfiable yaml dies naming both numbers.
+
+        ⭐ WHAT COUNTS CHANGED ON 2026-08-16 (#768). The Ashen Capital Lock used to be minted into
+        the pool, and counted here. It is now withheld and granted by the client once every other
+        goal item is held (client#245, `er_logic::goal_gate`), so it is no longer something the
+        seed can offer a player to find. The REQUIRED GREAT RUNES count in its place: they are
+        progression, they are in the pool, and the goal cannot be met without them -- exactly the
+        property this is testing for. Since #765 all seven are in every seed, so a `great_runes`
+        seed always has something left to find however small the draw.
+
+        🛑 AND THAT COSTS `num_regions: 1` ITS DEFAULT ENDING, WHICH IS A REAL BEHAVIOUR CHANGE,
+        NOT A TEST DETAIL. Such a seed keeps one region, its single Lock is the frozen start
+        anchor, and with the Ashen Lock withheld there is nothing else the goal wants -- so it is
+        refused where it used to generate. It used to generate because the Ashen Lock WAS the
+        hunt: one item to find, in the one region you kept. Losing it makes the seed genuinely
+        empty rather than merely small, which is why refusing is right -- "one region seed is
+        trivial i think that's legit" (Alaric, 2026-08-16) -- but the seed did not become trivial
+        on its own, #768 made it so, and the error has to name the levers that get the player out.
+        """
+        # natural_progression and vanilla_placement mint no synthetic locks at all: the base
+        # game's own doors gate those seeds, so there is no precollected key to complete anything.
+        if _np.is_on(self) or _vp.is_on(self):
+            return
+        _slr = getattr(self.options, "start_with_region_lock", None)
+        if _slr is None or not _slr.value:
+            return                      # nothing is precollected, so nothing is held at connect
+        locks = self.kept_lock_names()
+        if not locks:
+            return
+        runes = list(self._required_runes())
+        n_start = 1
+        _sr = getattr(self.options, "start_regions", None)
+        if _sr is not None:
+            n_start = max(1, int(_sr.value))
+        minted = len(locks) + len(runes)
+        if n_start < minted:
+            return
+        raise OptionError(
+            "[eldenring] start_regions: %d starting regions were asked for, but this seed "
+            "minted only %d progression item(s) the goal needs (%d kept region(s)%s) and at "
+            "least one must stay in the pool or the goal is already complete at connect. "
+            "Lower start_regions, raise num_regions, or set ending_condition: great_runes "
+            "so the required runes give the seed something to find."
+            % (n_start, minted, len(locks),
+               " + %d required Great Rune(s)" % len(runes) if runes else ""))
 
     def kept_lock_names(self) -> List[str]:
         """The Region Lock item names this seed's completion requires -- THE single source.
@@ -778,14 +842,24 @@ class GreenfieldEldenRingWorld(World):
         Lock items."""
         if _np.is_on(self) or _vp.is_on(self):
             return []
-        # SPEC-ashen-capital-lock item 8: the Ashen lock rides this list too. Strictly REDUNDANT --
-        # you cannot kill either goal boss without it, because its entrance is the only way in --
-        # but the two terminal conditions (AP's completion_condition and the client's
-        # goalRequiredItems) are supposed to read ONE list, and a lock missing from that list is
-        # exactly the drift the 2026-07-30 alignment fixed.
+        # ⭐ THE ASHEN LOCK LEFT THIS LIST ON 2026-08-16 (#768), and the comment it replaces had
+        # already called it "strictly REDUNDANT -- you cannot kill either goal boss without it,
+        # because its entrance is the only way in". It rode along anyway so that AP's
+        # completion_condition and the client's goalRequiredItems would read ONE list.
+        #
+        # It is now not merely redundant but UNSATISFIABLE: the Lock is no longer minted into the
+        # pool at all. The client grants the goal region's flags itself once every other goal item
+        # is held (client#245, er_logic::goal_gate), so the item is never sent -- and an item that
+        # is never sent cannot be required of the player by either terminal condition. Leaving it
+        # here would have made `has_all` false forever: an unwinnable seed, and a FillError before
+        # that.
+        #
+        # 🛑 ONE LIST, STILL. Removing it HERE rather than filtering it in one of the two consumers
+        # is the whole point -- the 2026-07-30 alignment exists because those two drifted once, and
+        # a filter in one of them is how they would drift again. `region_open_flags` still carries
+        # `Ashen Capital Lock -> open flag` (built separately, below), because that mapping is how
+        # the client resolves WHICH flag to set; it is a name->flag lookup, not a requirement.
         out = [f"{r} Lock" for r in self._kept()]
-        if getattr(self, "gf_finale_active", False):
-            out.append(ASHEN_LOCK)
         return out
 
     def goal_required_lock_names(self) -> List[str]:
@@ -983,9 +1057,21 @@ class GreenfieldEldenRingWorld(World):
         # construction (the builder fills whatever remains). It is progression. It is deliberately
         # NOT in `lock_items`: that list is what the start-anchor picker draws from, and the Ashen
         # Capital may never be the precollected anchor (it is not a place you play).
-        _ashen_lock: List[Item] = ([self.create_item(ASHEN_LOCK)]
-                                   if getattr(self, "gf_finale_active", False) and not _nolocks
-                                   else [])
+        # 🛑 THE ASHEN LOCK IS NO LONGER MINTED (#768). This used to be
+        #       [self.create_item(ASHEN_LOCK)] if gf_finale_active and not _nolocks else []
+        #   -- a real progression item fill could place anywhere, INCLUDING sphere 1, which is how
+        #   a player could stand in the endgame region before doing anything and burn the ending
+        #   early (#694: "the ending plays and the run does not end").
+        #
+        #   The client grants the goal region's open flag and grace bundle itself, once every OTHER
+        #   goal item is held (client#245, er_logic::goal_gate). So the region opens exactly when
+        #   the run is finished rather than whenever fill felt like it -- which is the enforcement
+        #   #694 spent three mechanisms failing to find, and it needs no wall, no kick and no fog.
+        #
+        #   Kept as an empty list rather than deleted so the count arithmetic below reads
+        #   unchanged: one fewer item here is one more filler slot, and `items == locations` is
+        #   still true by construction.
+        _ashen_lock: List[Item] = []
         # Start holding a region's lock (precollected) so a region is open from Roundtable at run
         # start -- `start_regions` many of them, default 1.
         # start. Count-neutral -- the precollected lock leaves the pool (its freed slot becomes filler),
@@ -1009,31 +1095,11 @@ class GreenfieldEldenRingWorld(World):
             _sr = getattr(self.options, "start_regions", None)
             if _sr is not None:
                 _n_start = max(1, int(_sr.value))
-            # THE CLAMP IS LOUD, AND IT IS CHECKED AGAINST THE KEPT COUNT, NOT THE YAML'S
-            # num_regions. The goal is has_all(kept locks); precollect every one and the seed is
-            # complete at connect, having been played zero times. num_regions is a DRAW SIZE
-            # (#409), so the ceiling is whatever this seed actually kept -- which can be higher
-            # than the yaml asked for, never lower. An unsatisfiable yaml dies here naming both
-            # numbers, the same way a goal its DLC toggles removed does.
-            # 🛑 THE CLAMP COUNTS MINTED LOCKS, NOT KEPT REGIONS (SPEC-ashen-capital-lock item 6).
-            # It read `len(kept)` until 2026-08-06 and had never been wrong, because `kept == 1`
-            # was UNREACHABLE: `goal: auto` force-kept Leyndell and its parent closure dragged
-            # Altus in, so the floor was 2. This spec removes those force-keeps and makes
-            # `num_regions: 1` really keep one region -- which is Alaric's own motivating case
-            # ("num_regions 1 rolls Mountaintops, you just play Mountaintops") -- and
-            # `start_with_region_lock` is FROZEN ON, so counting kept regions would have killed
-            # that seed at generation with an OptionError about an option the player never set.
-            # What the clamp actually protects is "at least one progression lock stays in the
-            # pool", and the Ashen Capital Lock is one, so it counts.
-            _minted = len(lock_items) + len(_ashen_lock)
-            if _n_start >= _minted:
-                raise OptionError(
-                    "[eldenring] start_regions: %d starting regions were asked for, but this seed "
-                    "minted only %d progression lock(s) (%d kept region(s)%s) and at least one "
-                    "must stay in the pool or the goal is already complete at connect. Lower "
-                    "start_regions or raise num_regions."
-                    % (_n_start, _minted, len(kept),
-                       " + the Ashen Capital Lock" if _ashen_lock else ""))
+            # 🛑 THE 'already complete at connect' CLAMP IS NOT HERE ANY MORE. It moved to
+            # `_lint_goal_reachability`, called from `generate_early` (2026-08-16): every input it
+            # reads is final by then, so an unsatisfiable yaml is refused BEFORE the draw, the
+            # closure, this anchor pick and a whole pool are built and thrown away. One check, one
+            # home -- a copy left behind here is the redundancy the repo treats as a failure.
             _regions, _rules, _pool_n = pick_anchor_regions(
                 kept, self.random, _counts, DLC_REGIONS, n=_n_start,
                 # `barred` = the MISSABLE set only, not the whole surface bar. A region whose

@@ -22,6 +22,33 @@ never whether it is CURRENT.
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
+### The ending stops being reachable before you have earned it
+
+You could walk into Radagon one Region Lock deep, watch the ending, take the credits, and land in a
+post-ending save with no victory sent. Expected, documented, and still the worst possible time for
+the one irreversible thing in a run to happen.
+
+The Ashen Capital's Lock is no longer an item in the pool. The client grants that region's graces
+itself, the moment you hold every other goal item — so the arena simply is not there until the run
+is done, and there is nothing to walk into early.
+
+No wall was built for this. The fog plane is walk-through by design, the vanilla capital gate reads
+*possession* of a key item rather than a flag we could withhold, and ejecting the player is this
+project's known way to make a seed unwinnable. What was left was the observation that the key worth
+withholding was one of ours all along: you reach the Ashen Capital by warping to its own graces, so
+holding the Lock back holds the arena back.
+
+⚠️ **A one-region `region_locks` seed is now refused at generation.** Its only Lock goes to your
+starting region, nothing is left to find, and the goal is complete the moment you connect. That was
+previously papered over by the Ashen Lock being a second item in the pool — with it withheld, the
+seed is genuinely empty rather than merely small, so it is refused rather than shipped.
+
+The refusal is a **yaml lint**: it happens the moment your options are read, before a draw or a pool
+is built, and the message names both numbers and every lever that gets you out — fewer starting
+regions, more regions, or a Great Runes ending, which is exactly what the required runes are for.
+
+Needs the matching client (#245).
+
 ### Every seed has all seven Great Runes, and the goal can ask for any of them
 
 A Great Rune sits on exactly one region's boss. So the number of Great Runes in your seed was

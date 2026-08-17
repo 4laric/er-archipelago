@@ -20,7 +20,7 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.region_spine import GOAL_REGION, REGIONS, parent_chain  # noqa: E402
 from worlds.eldenring.data import FINALE_REGION  # noqa: E402
-from ._util import world_item_names  # noqa: E402
+from ._util import assert_goal_reachable, world_item_names  # noqa: E402
 
 GAME = "Elden Ring"
 
@@ -44,17 +44,22 @@ def _assert_views_agree(tc, n):
     # it moved: an `auto` seed with the base game in play ends on the Ashen Capital, which exists
     # unconditionally and is entered from the HUB with this lock. So the same sentence, at its new
     # carrier: this seed has a goal, and the item that opens it is in the pool.
-    tc.assertIn(_FINALE_LOCK, world_item_names(tc),
-                "an `auto`-goal seed must be able to reach its goal -- the finale is the goal now, "
-                "and its lock is the only way in (winnability)")
+    # ...and #768 moved it once more, off the Lock and onto the entrance requirement, because the
+    # Lock is no longer in the pool to be found. `assert_goal_reachable` carries the full history
+    # and checks the STRONGER thing: that the whole requirement is satisfiable, not that one item
+    # exists.
+    assert_goal_reachable(tc, label=f"num_regions {n}")
     tc.assertNotIn(FINALE_REGION, kept,
                    "the Ashen Capital must never be KEPT -- it is not a rollable region, and a "
                    "draw that could hand it to you would also count it against num_regions")
 
-    # (1) the ITEM side: one Lock per kept region, plus the finale's, and no Lock for anything else.
+    # (1) the ITEM side: one Lock per kept region and no Lock for anything else.
+    # 🛑 THE `+ [_FINALE_LOCK]` TERM WENT AWAY WITH #768, AND THE EQUALITY IS STILL EXACT -- which
+    # is what keeps this honest. Dropping the finale's lock from the EXPECTED side does not weaken
+    # the check; it inverts it, so this now fails if the withheld Lock is ever minted again.
     locks = sorted(name for name in world_item_names(tc) if name.endswith(" Lock"))
-    tc.assertEqual(locks, sorted([f"{r} Lock" for r in kept] + [_FINALE_LOCK]),
-                   "the Lock items and the kept set must be the same list (plus the finale's) -- a "
+    tc.assertEqual(locks, sorted(f"{r} Lock" for r in kept),
+                   "the Lock items and the kept set must be the same list -- a "
                    "Lock for a sealed region is unobtainable, a kept region with no Lock is an "
                    "unlockable gate")
 
@@ -95,7 +100,10 @@ class NumRegions1(WorldTestBase):
     """The MINIMUM draw. Worth its own fixture: N=1 is where a seed that mis-scopes progression has
     the least room to hide it, and it is the corner the closure has to carry on its own."""
     game = GAME
-    options = {"num_regions": 1}
+    # 🛑 num_regions 1 IS this class's subject, so the size does not move. What moved is the
+    # ending: since #768 a 1-region `region_locks` seed mints nothing the goal can want and is
+    # refused at gen (core._lint_goal_reachability). The rune goal gives it something to find.
+    options = {"num_regions": 1, "ending_condition": "great_runes"}
 
     def test_every_view_of_the_kept_set_agrees(self):
         _assert_views_agree(self, 1)
@@ -124,7 +132,18 @@ class NumRegions1(WorldTestBase):
 def test_the_gen_log_states_the_breakdown_when_the_draw_grows(caplog):
     class _T(WorldTestBase):
         game = GAME
-        options = {"num_regions": 1, "goal": "promised_consort"}
+        # 🛑 THE RUNE GOAL IS HERE TO STOP A 1-IN-10 FLAKE, AND THE FLAKE WAS REAL (#768).
+        # `goal: promised_consort` force-keeps Enir Ilim, and `num_regions: 1` draws one more
+        # region -- usually. Measured over 40 fresh `setUp()`s (each takes a fresh random
+        # multiworld seed): 32 drew 2 regions, 4 drew 3-4, and 2 kept ONLY Enir Ilim. That last
+        # shape mints a single Lock, which since #768 leaves nothing for the goal to want, so
+        # generation refuses it and this test died on an OptionError from a draw it would have
+        # skipped anyway. It passed locally and failed in CI for no reason but the seed.
+        #
+        # The rune goal makes every draw generable without touching what is measured: the three
+        # clauses of the gen-log line come from `goal`, which is untouched, not from the ending.
+        options = {"num_regions": 1, "goal": "promised_consort",
+                   "ending_condition": "great_runes"}
 
     t = _T()
     t.setUp()
@@ -167,7 +186,13 @@ def test_the_gen_log_states_the_breakdown_when_the_draw_grows(caplog):
 def test_the_motivating_case_keeps_exactly_what_it_drew(caplog):
     class _T(WorldTestBase):
         game = GAME
-        options = {"num_regions": 1, "goal": "elden_beast"}
+        # #768: bobler's literal yaml now needs a rune goal to generate -- the Ashen Lock
+        # left the pool, so a one-region region_locks seed is refused (deliberately:
+        # "one region seed is trivial i think that's legit"). The assertion below is
+        # untouched, because what this test guards -- that the GOAL force-keeps nothing --
+        # has nothing to do with the ending condition.
+        options = {"num_regions": 1, "goal": "elden_beast",
+                   "ending_condition": "great_runes"}
 
     t = _T()
     with caplog.at_level(logging.INFO, logger="Greenfield"):

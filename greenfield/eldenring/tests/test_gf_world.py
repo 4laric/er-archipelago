@@ -35,14 +35,13 @@ class GreenfieldWorldTest(WorldTestBase):
     # --- item pool -----------------------------------------------------------------
     def test_one_progression_lock_per_region(self):
         locks = [i for i in world_items(self) if i.name.endswith(" Lock")]
-        # One lock per region, PLUS the Ashen Capital's (SPEC-ashen-capital-lock, 2026-08-06: the
-        # Erdtree burn became a synthetic progression item on every base-game seed, for a region
-        # that is deliberately NOT in REGIONS because it can never be rolled). Named in the
-        # expected list rather than filtered out of the observed one, so an absent burn item --
-        # a seed whose goal has no way in -- still fails here.
+        # One lock per region. The Ashen Capital Lock is NOT in the AP item pool: since #768 the
+        # client grants that region's open flag itself the moment every other goal item is held,
+        # so the arena is unreachable until the run is done. The finale region stays out of REGIONS
+        # (never rolled, never counted by num_regions) -- assertNotIn below guards that.
         self.assertEqual(sorted(i.name for i in locks),
-                         sorted([f"{r} Lock" for r in REGIONS] + [f"{FINALE_REGION} Lock"]),
-                         "expected exactly one lock item per region, plus the finale's")
+                         sorted([f"{r} Lock" for r in REGIONS]),
+                         "expected exactly one lock item per region")
         self.assertNotIn(FINALE_REGION, REGIONS,
                          "the finale must stay unrollable, or the line above double-counts it")
         for i in locks:
