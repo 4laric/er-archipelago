@@ -36,10 +36,10 @@ which is an exact union for any selection. There are 27 distinct combinations, s
 and removes a whole class of wrong answer.
 
 BARS ARE NOT REIMPLEMENTED HERE. `tools/build_surface_confidence.py` already prices every class
-against the five bars that stop a check hosting progression (guessed_region, missable, erdtree_burn,
-surface_excluded, hub_merchant) and its `ProgressionSurface` docstring says outright: quote that
-file, never a number in prose. This tool IMPORTS that one by path and reuses `_load()` and `_bars()`,
-adding only the region axis -- so there is exactly one definition of "can host" in the repo.
+against the six bars that stop a check hosting progression (guessed_region, missable, erdtree_burn,
+surface_excluded, release_gated, hub_merchant) and its `ProgressionSurface` docstring says outright:
+quote that file, never a number in prose. This tool IMPORTS that one by path and reuses `_load()` and
+`_bars()`, adding only the region axis -- so there is exactly one definition of "can host" in the repo.
 `test_gf_region_census` pins the union of this table over the default classes to that tool's own
 `default_hosting` total, so the two cannot drift apart silently.
 

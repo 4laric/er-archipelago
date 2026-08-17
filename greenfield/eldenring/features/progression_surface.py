@@ -561,12 +561,19 @@ def allowed_ap_ids(tags_map, classes, defaulted=None):
     # Hub merchant slots are barred in EVERY path (own + foreign), regardless of how `defaulted` was
     # computed/passed -- this is the single surface chokepoint both confinements funnel through.
     # SURFACE_EXCLUDE_APS (hand-excluded surface-tagged checks, e.g. Secret Rite Scroll -- gen_data
-    # _SURFACE_EXCLUDE_FLAGS) are barred here too, always, for the same reason.
+    # _SURFACE_EXCLUDE_FLAGS) are barred here too, always, for the same reason. Release-gated shop
+    # rows are likewise unconditional: a row absent from the shelf cannot host progression even
+    # when its region is known and open (#724).
     try:
         from ..location_tags import SURFACE_EXCLUDE_APS as _sx
     except Exception:
         _sx = frozenset()
-    barred = frozenset(defaulted) | _roundtable_merchant_aps() | frozenset(_sx)
+    try:
+        from ..location_tags import SHOP_RELEASE_GATED_APS as _sg
+    except Exception:
+        _sg = frozenset()
+    barred = (frozenset(defaulted) | _roundtable_merchant_aps()
+              | frozenset(_sx) | frozenset(_sg))
     return {ap for ap, tags in tags_map.items()
             if contract.has_class(tags, sel) and ap not in barred}
 
