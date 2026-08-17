@@ -16,7 +16,7 @@ REGION_GRACE_POINTS = {
     'Jagged Peak': [76840, 76850, 76851],
     'Leyndell': [71102, 71103, 71104, 71105, 71108, 71109],
     'Limgrave': [73100, 71800, 71801, 73002, 73004, 73011, 73103, 73115, 73117, 73201, 76100, 76101, 76102, 76103, 76104, 76105, 76106, 76108, 76110, 76111, 76113, 76114, 76116, 76117, 76118, 76119],
-    'Liurnia': [73202, 73003, 73005, 73006, 73104, 73105, 73106, 73420, 73421, 73422, 73901, 73902, 76200, 76201, 76202, 76203, 76204, 76205, 76207, 76208, 76209, 76210, 76211, 76212, 76213, 76214, 76215, 76216, 76217, 76218, 76219, 76220, 76221, 76222, 76223, 76224, 76225, 76226, 76227, 76228, 76229, 76230, 76231, 76233, 76234, 76235, 76236, 76237, 76238, 76239, 76240, 76241, 76242, 76243, 76244, 76245, 76250, 76251, 76252],
+    'Liurnia': [73202, 73003, 73005, 73006, 73104, 73105, 73106, 73420, 73421, 73422, 73901, 73902, 76200, 76201, 76202, 76203, 76204, 76205, 76207, 76208, 76209, 76210, 76211, 76212, 76213, 76214, 76215, 76216, 76217, 76218, 76219, 76220, 76221, 76222, 76223, 76224, 76225, 76226, 76227, 76228, 76229, 76230, 76231, 76233, 76234, 76235, 76236, 76237, 76238, 76239, 76240, 76241, 76242, 76243, 76244, 76245, 76251, 76252],
     'Mohgwyn': [71251, 71252, 71253],
     'Mountaintops of the Giants': [73017, 73018, 73019, 73112, 73122, 73211, 76501, 76503, 76504, 76505, 76506, 76507, 76510, 76520, 76521, 76522, 76523, 76550, 76551, 76652, 76653],
     'Mt. Gelmir': [76350, 71602, 71603, 71604, 71605, 71607, 73009, 73107, 76351, 76352, 76353, 76354, 76355, 76356, 76357],
@@ -50,7 +50,7 @@ REGION_GRACE_LANDMARKS = {
     'Jagged Peak': [76840, 76851],  # Grand Altar of Dragon Communion, Jagged Peak Mountainside
     'Leyndell': [71102],  # East Capital Rampart
     'Limgrave': [71800, 76100, 76102],  # Cave of Knowledge, Church of Elleh, Stormhill Shack
-    'Liurnia': [73901, 76200, 76207, 76250],  # Ruin-Strewn Precipice, Lake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar
+    'Liurnia': [73901, 76200, 76207, 76251],  # Ruin-Strewn Precipice, Lake-Facing Cliffs, East Raya Lucaria Gate, Cathedral of Manus Celes
     'Mohgwyn': [71251],  # Palace Approach Ledge-Road
     'Mountaintops of the Giants': [76501, 76506, 76550],  # Zamor Ruins, Giants' Gravepost, Consecrated Snowfield
     'Mt. Gelmir': [71602, 76350],  # Volcano Manor, Bridge of Iniquity
@@ -64,4 +64,4 @@ REGION_GRACE_LANDMARKS = {
     'Weeping': [76150],  # Church of Pilgrimage
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:6bd503eed12db2b23294834600eba7e47ada8d2d8b6f9be13ee19f5f7dc61d2e', 'module': 'region_graces.py', 'body_sha256': 'sha256:ff5e564f6d3a1cd9ccc9e174cca995f787acc465768795307d6e4aa941eb2d91'}
+_GEN_STAMP = {'inputs_hash': 'sha256:38849a3d6f5cd00ad2b3fff8642102cdd83a7ce4b145a42cca2ef313ccd0c464', 'module': 'region_graces.py', 'body_sha256': 'sha256:68b0424246cb0571ae79f1dc360eb3b13bec4eb02183689fd37c90285c70b471'}

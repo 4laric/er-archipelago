@@ -4,7 +4,8 @@ This is the single, external-facing statement of where the Elden Ring Archipelag
 world comes from. The short version: **the shipped `eldenring.apworld` is built from
 scratch against vanilla Elden Ring game data, and the runtime client is original MIT
 code.** The release carries no FromSoftware game assets and no code or data from any
-other randomizer project. This is a hard architectural constraint, enforced in CI —
+other randomizer project. A separately licensed, evidence-only questline table adapts concise
+claims from Elden Ring Wiki under CC BY-SA 4.0; no world module consumes it. This is a hard architectural constraint, enforced in CI —
 not a claim made after the fact.
 
 ## The five non-negotiables
@@ -26,6 +27,10 @@ These are the rules the build holds itself to (formerly tracked internally as th
 5. **CI gates it.** The generated data carries a freshness stamp, and the test suite
    plus a clean-room region-correctness oracle run on every push and PR, so a
    provenance regression cannot land silently.
+
+The questline evidence exception is deliberately narrower than world data: its rows are typed,
+revision-pinned, attributed in `ATTRIBUTION.md`, and rejected if a runtime module imports the
+generated model. It corroborates the vanilla-data DAG without becoming its source of truth.
 
 ## What the apworld does **not** ship
 
