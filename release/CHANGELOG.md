@@ -110,6 +110,63 @@ a floor; the wall reads the supply now and no longer creates it.
 
 Closes #764, #640. Fixes the clamp half of #504.
 
+### `vanilla_placement` stops building a wall the base game never had
+
+A `vanilla_placement` seed puts every item exactly where Elden Ring puts it, and the mode's own
+docstring promises that "the region locks are not used at all ... and the Leyndell wall, the Rold
+Medallion and every other door work as they always did". Our *synthetic* two-rune capital wall was
+still arming on top of that, on runes it picked itself — and on seed
+`60255596019398880819` it picked **Morgott's, whose rune drops inside Leyndell**. The wall gated the
+capital on a key kept behind it: `can_beat_game()` false, Leyndell and the Ashen Capital unreachable.
+
+⭐ **The self-gate is old; only its visibility is new.** Selection used to be `sorted(avail)[:want]`
+and Morgott's sorts fifth of seven, so a two-rune wall could never reach him. #640 replaced that
+prefix with a seeded draw — correctly — and the draw can reach him. Fixing a real defect exposed a
+latent one; #640 is not the mistake.
+
+The synthetic wall disarms under `vanilla_placement` now, beside the three conditions that already
+disarm it, and says so in the log. 🛑 Disarming it is normally a softlock risk (#589 — it is what
+stops fill placing something needed behind the game's fixed gate), but that argument does not reach
+this mode: fill has no freedom here, and the base game is winnable.
+
+Bisected rather than guessed — 6 runs per ref: v0.4.4 tag 0/6 red, #762 0/6, #761 0/6, `694d437` 2/6,
+`main` 4/6.
+
+Closes #769.
+
+### Sweep slots can be priced by how big the boss was
+
+A sweep payout off a legacy boss and one off a cave boss are different bargains, and `SweepSlot`
+priced them the same. `SweepSlotMajor` and `SweepSlotMinor` are subsets of it, **off by default** —
+a seed that does not ask for them is byte-unchanged, the same way `Boss` / `LegacyBoss` / `FieldBoss`
+already work.
+
+"Major" means exactly the `MajorBoss` progression-surface class. Measured, that is not `legacy`: the
+two disagree **46 ways** — 41 legacy triggers are not major (both Tree Sentinels, all three Scadutree
+Avatar heads, Esgar) and 5 majors are not legacy (Magma Wyrm Makar, Commander Niall, Elemer of the
+Briar, Leonine Misbegotten, Royal Knight Loretta). The achievement roster alone is worse: base-game
+only, 0 of 29 rows DLC, so it would have called Messmer and Consort Radahn minor bosses.
+
+Closes #734.
+
+### A sweep trigger now has to correspond to a kill
+
+Nothing checked that a sweep trigger flag meant a *kill*. #697 — a sweep that fired with no boss
+fight anywhere near it — was found by a human reading two kinds of log line side by side. That
+comparison is a gate now: `sweep_watch.rs` logs the flag, `boss_fight_probe.rs` logs the npc_param,
+both to the same timeline, and `tools/check_sweep_kill_correlation.py` finally looks at both.
+
+The join had to be invented — there is no flag→npc table — so it takes two hops through committed
+params and yields a **candidate set** rather than an id. That makes it lenient by construction: it
+can miss a defect, it cannot invent one. Window is 300s back / 60s forward, generous on purpose,
+because `sweep_watch.rs`'s own motivating case is a legitimate 2m45s gap and a tight window would cry
+wolf on the case that module exists to explain. One kill cleans one sweep, by maximum matching rather
+than a greedy grab.
+
+Offline and forensic: it runs over logs already uploaded, not as a live client warning.
+
+Closes #713.
+
 ## v0.4.4 — 2026-08-16
 
 Window opened one commit past the v0.4.3 tag at `c891d04`, which is where `check_release_notes`
