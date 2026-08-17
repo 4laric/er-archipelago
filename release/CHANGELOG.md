@@ -19,6 +19,13 @@ contains, and it still moved no contract key -- the client was already told whic
 `release/CHANNELS.tsv` promotes `stable` to v0.4.5 in this same commit. That is the second window
 running it has not lagged its tag; before v0.4.4 it lagged every time.
 
+🛑 A client half IS needed, and the last two windows' notes said it was not. `contract_gen.rs` is
+generated into the client repo and embeds the version string, so a version-only bump moves it even
+when the hash does not — the `generators` gate goes red until the gitlink follows. The v0.4.5 client
+commit caught this, wrote *"a version bump always needs this half"*, and promised to correct the row
+it came from; the correction never landed, so the next window-opener read the old sentence and
+repeated it. Client half: clients#246, gitlink bumped in the same commit (AGENTS §7).
+
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
