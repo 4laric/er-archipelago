@@ -50,7 +50,7 @@ REGION_GRACE_LANDMARKS = {
     'Jagged Peak': [76840, 76851],  # Grand Altar of Dragon Communion, Jagged Peak Mountainside
     'Leyndell': [71102],  # East Capital Rampart
     'Limgrave': [71800, 76100, 76102],  # Cave of Knowledge, Church of Elleh, Stormhill Shack
-    'Liurnia': [73901, 76200, 76207],  # Ruin-Strewn Precipice, Lake-Facing Cliffs, East Raya Lucaria Gate
+    'Liurnia': [73901, 76200, 76207, 76251],  # Ruin-Strewn Precipice, Lake-Facing Cliffs, East Raya Lucaria Gate, Cathedral of Manus Celes
     'Mohgwyn': [71251],  # Palace Approach Ledge-Road
     'Mountaintops of the Giants': [76501, 76506, 76550],  # Zamor Ruins, Giants' Gravepost, Consecrated Snowfield
     'Mt. Gelmir': [71602, 76350],  # Volcano Manor, Bridge of Iniquity
@@ -64,4 +64,4 @@ REGION_GRACE_LANDMARKS = {
     'Weeping': [76150],  # Church of Pilgrimage
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:bee4552775429b906a28717480f30835bbadfa88e86f5a2bf2dd59f6e4182e2c', 'module': 'region_graces.py', 'body_sha256': 'sha256:781f81605aa3eeee3b5ee2c329a37b1905880f6fbd6a2f5d9400484a52625eb6'}
+_GEN_STAMP = {'inputs_hash': 'sha256:c1892f9766a4f39d4408b98043e153203f729c51351ce867f9b14bae0db077a9', 'module': 'region_graces.py', 'body_sha256': 'sha256:c05213ab42c305477c073b36bddd8abeed32724cc76ba67ad6fd84c25318243c'}
