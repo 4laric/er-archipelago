@@ -486,6 +486,7 @@ _OPTION_GROUPS = [
         "difficulty_ramp_speed", "traps", "spawn_traps", "trap_count"]),
     ("Checks & Item Pool", [
         "vanilla_placement", "natural_progression", "dungeon_sweep", "reroll_enemy_drops",
+        "protect_missable_locations",
         # vanilla_pool sits directly before curated_filler because it OVERRIDES it (#618): the
         # wizard renders a group in this order, and a player reading the recipe first would edit
         # weights that the switch above them makes moot.
