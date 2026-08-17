@@ -10,6 +10,11 @@ The measured CI-equivalent run fell from 224.7 seconds to 130.4 without dropping
 the suite's guards against silently inert tests. That makes the green-or-red answer arrive
 substantially sooner on every future change.
 
+Missable rewards no longer eat the good stuff by default. The 285 checks that can vanish behind a
+spent currency, a dead NPC, or quest progress are now filler-only, so losing one cannot take a useful
+weapon, spell, summon, or tear with it. The old progression-only protection remains available as the
+middle setting, and the protection can still be turned off for guaranteed-access play.
+
 A failed connection now has a short diagnostic ladder in the setup guide. The first test is the
 stock Archipelago Text Client against the same room: one attempt tells you whether to investigate
 the room/network or `eldenring.exe` specifically. The guide then separates immediate refusal from
@@ -18,6 +23,11 @@ take several rounds of chat to rediscover.
 
 Rakshasa no longer pays out the Finger Ruins of Rhia bell reward. The bell now properly requires
 the Hole-Laden Necklace instead of being claimable through an unrelated Scadu Altus boss sweep.
+
+Metyr's route now follows that logic all the way through: both Finger Ruins bells require the
+necklace, and when both regions are in play, reaching Metyr requires both Scadu Altus and Jagged
+Peak. Dheo is no longer silently rung in a seed where its check exists; a sealed Jagged Peak still
+gets the flag because there is then no Dheo check to auto-award.
 
 ## What carried over from v0.4.5
 

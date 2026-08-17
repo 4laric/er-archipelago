@@ -301,7 +301,10 @@ PLAY_REGION_GROUPS = {
     # overworld was fictional. Vote counts below are checks-per-bucket from the derivation.
 
     # --- base overworld ---
-    "Limgrave": (61000, 61010, 18000, 30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 34100),
+    # 34100 is the Divine Tower of Limgrave's runtime ground, but its approach is the Stormhill /
+    # Stormveil side of the lock boundary (Alaric ruling, #202). Keep the TOWER'S warp/check
+    # geography in REGION_GROUPS["Limgrave"]; only its runtime kick/scaling bucket moves below.
+    "Limgrave": (61000, 61010, 18000, 30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010),
     "Weeping": (61020, 30000, 30010, 31010, 31020, 32000),
     "Liurnia": (62000, 62010, 62020, 39200, 30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110),
     "Altus": (63000, 63010, 30070, 30080, 30100, 30120, 30130, 31180, 31190, 32040, 32050, 34120, 34140),
@@ -314,7 +317,7 @@ PLAY_REGION_GROUPS = {
     "Mountaintops of the Giants": (65000, 65010, 65020, 65030, 30170, 30180, 30190, 30200, 31120, 31220, 32110),
 
     # --- base interiors / legacy ---
-    "Stormveil": (10000, 10010),
+    "Stormveil": (10000, 10010, 34100),
     "Leyndell": (11000,),
     # SPEC-ashen-capital-lock: the finale maps' MEASURED kick buckets. Split out of Leyndell
     # 2026-08-06 so the kick enforces the Ashen Capital Lock in its own right instead of
@@ -414,4 +417,3 @@ UNASSIGNED_BUCKETS = {
            "grounds, got real geometry evidence 2026-07-15 -- named 'dragon-mountain foot' volumes "
            "-- and moved to Jagged Peak.) Still permissive, not guessed",
 }
-

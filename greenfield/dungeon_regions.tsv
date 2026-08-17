@@ -70,7 +70,7 @@ m32_05	Altus	grace	grace join (map_region_oracle)
 m32_07	Caelid	grace	grace join (map_region_oracle)
 m32_08	Caelid	grace	grace join (map_region_oracle)
 m32_11	Mountaintops of the Giants	connect	ConnectCollision -> m60_47_55 (x4)
-m34_10	Limgrave	grace	grace join (map_region_oracle)
+m34_10	Stormveil	curated	Alaric ruling #202: Divine Tower belongs to Stormveil
 m34_11	Liurnia	grace	grace join (map_region_oracle)
 m34_12	Altus	grace	grace join (map_region_oracle)
 m34_13	Caelid	grace	grace join (map_region_oracle)

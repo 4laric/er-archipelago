@@ -44,18 +44,23 @@ def test_the_tutorial_boss_grants_no_sweep():
 
 
 def test_no_stormveil_sweep_is_keyed_on_a_non_stormveil_boss():
-    """The general form: a sweep may only be paid by a boss that lives where the checks live."""
+    """The general form: a sweep may only be paid by a boss that lives where the checks live.
+
+    m34_10 is the deliberate exception: its Divine Tower runtime bucket is Stormveil even though
+    its grace geography is Limgrave (#202, Alaric ruling 2026-08-17). m10_01 remains the bad fold
+    this test was created to catch.
+    """
     from worlds.eldenring.boss_healthbars import BOSS_HEALTHBARS
     wrong = []
     for flag, region in SWEEP_REGION.items():
         if region != "Stormveil":
             continue
         info = BOSS_HEALTHBARS.get(flag)
-        if info and not info[0].startswith("m10_00"):
+        if info and info[0] not in ("m10_00", "m34_10"):
             wrong.append((flag, info[0], info[3]))
     assert not wrong, (
-        "a Stormveil sweep is keyed on a boss outside m10_00: %s. m10_01 is the intro map and rides "
-        "Stormveil's bucket; it is not IN Stormveil." % wrong)
+        "a Stormveil sweep is keyed outside Stormveil's approved m10_00/m34_10 maps: %s. m10_01 "
+        "is the intro map and rides Stormveil's bucket; it is not IN Stormveil." % wrong)
 
 
 def test_the_scions_own_drop_is_untouched():
@@ -458,8 +463,12 @@ def test_the_sweep_corpus_did_not_shrink():
     # legacy pool with Rakshasa (trigger 2051440800), an unrelated fight reachable without the
     # necklace. The check stays obtainable at the bell; only the gate-bypassing convenience award
     # is gone. ADDED 0, RE-OWNED 0.
-    assert total == 4033, (
-        "sweep corpus is %d, expected 4033. If a sweep was legitimately added or removed, say WHY "
+    # -1 (2026-08-17, #665): 4033 -> 4032. Retagging BOTH bell interactions as KeyItem generalises
+    # #664's Rhia exclusion and also removes Dheo (flag 2050407000) from Bayle's filler sweep. The
+    # two removals are now the same policy: a necklace-gated quest action is not filler an unrelated
+    # boss may grant. Rhia was already absent, so this stack removes only Dheo. ADDED 0, RE-OWNED 0.
+    assert total == 4032, (
+        "sweep corpus is %d, expected 4032. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -624,6 +633,8 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 34110800. No member was added or re-owned, so this is the narrow gate-bypass correction.
     # 2026-08-17 (#664): 1755ba16 -> 1f01b69f, 4034 -> 4033. REMOVED only: Rhia bell reward
     # 2053467600 left Rakshasa's sweep. No member was added or re-owned.
-    assert (digest, n) == ("1f01b69f616530ea", 4033), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (1f01b69f616530ea, 4033). The total alone will "
+    # 2026-08-17 (#665): 1f01b69f -> 79ccf39c, 4033 -> 4032. REMOVED only: Dheo bell reward
+    # 2050407000 left Bayle's sweep when both bell interactions became KeyItem checks.
+    assert (digest, n) == ("79ccf39c8e3be6aa", 4032), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (79ccf39c8e3be6aa, 4032). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

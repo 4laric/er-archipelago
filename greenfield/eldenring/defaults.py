@@ -138,7 +138,8 @@ FROZEN_OPTIONS = {
     #   "no_weapon_requirements": (1, None),
     "early_leveling": (1, None),
     "buyable_stonesword_keys": (1, None),
-    "protect_missable_locations": (1, None),
+    # UNFROZEN 2026-08-17 by ruling #582: this is now a three-level Choice whose default protects
+    # both progression and useful items. The old frozen value remains expressible as `progression`.
     "legacy_dungeon_keys": (1, None),
     "varied_filler": (1, None),
     # NB curated_filler is deliberately NOT frozen. It is now THE recipe for the entire filler tail

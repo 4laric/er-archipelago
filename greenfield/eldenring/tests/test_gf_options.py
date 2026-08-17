@@ -360,6 +360,7 @@ def test_keep_out_of_shops_combinations_fill_clean(label, opts):
     from worlds.eldenring.shop_data import SHOP_ROW_FLAGS
     from worlds.eldenring.features.keep_out_of_shops import plan, _PROGRESSIVE_NAMES
     from worlds.eldenring.item_categories import expand, names_in
+    from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS
 
     class _T(WorldTestBase):
         game = GAME
@@ -374,10 +375,18 @@ def test_keep_out_of_shops_combinations_fill_clean(label, opts):
     # the feature actually armed instead of assuming it armed everything.
     cats = expand(opts["keep_out_of_shops"])
     by_cat = {c: set(names_in([c], _PROGRESSIVE_NAMES)) for c in cats}
-    own = [i for i in t.multiworld.itempool if i.player == player]
+    # #582 reserves compatible filler onto missable checks in pre_fill. Reconstruct the pool and
+    # non-shop capacity as keep_out_of_shops saw them in set_rules, before that reservation, or this
+    # oracle can disagree with the feature about which final category fit.
+    reserved = [l for l in t.multiworld.get_locations(player)
+                if getattr(l, "address", None) in MISSABLE_LOCATIONS
+                and l.locked and l.item is not None and l.item.player == player]
+    own = ([i for i in t.multiworld.itempool if i.player == player]
+           + [l.item for l in reserved])
     capacity = sum(1 for l in t.multiworld.get_locations(player)
                    if getattr(l, "address", None) is not None
-                   and str(l.address) not in SHOP_ROW_FLAGS and l.item is None)
+                   and str(l.address) not in SHOP_ROW_FLAGS
+                   and (l.item is None or l in reserved))
     enforced, _dropped = plan({c: sum(1 for i in own if i.name in ns)
                                for c, ns in by_cat.items()}, capacity)
 
@@ -525,7 +534,10 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
 
     class _T(WorldTestBase):
         game = GAME
-        options = dict(extra, global_scadutree_blessing=mode)
+        # This matrix measures Scadutree supply, including deliberately tiny one-region pools.
+        # Keep the unrelated missable-location capacity guard from rejecting those fixtures first.
+        options = dict(extra, global_scadutree_blessing=mode,
+                       protect_missable_locations="off")
 
     # Log capture BEFORE setUp: generation happens inside it, and the clamped-injection arm below
     # must see the WARNING scadu_supply emits while the pool is being built.

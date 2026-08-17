@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.6",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "6f88f40e580f8e98dc816ca4aa373561a7e0b94129b7114fdf49ce367cb3793f",
+ "source_sha256": "424de515dc687e164953411b410306f214ed4760a354e47f4bb73c837d14b003",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -228,6 +228,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "keep_local",
   "keep_local_rune_cap",
   "merchant_bells_on_talk",
+  "protect_missable_locations",
   "no_runes_in_shops",
   "progression_surface",
   "progression_bias",
@@ -302,6 +303,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "natural_progression",
     "dungeon_sweep",
     "reroll_enemy_drops",
+    "protect_missable_locations",
     "vanilla_pool",
     "curated_filler",
     "pool_builder_intensity",
@@ -1109,6 +1111,35 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "base": "Toggle",
    "default": false,
    "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "protect_missable_locations",
+   "class": "ProtectMissableLocations",
+   "display_name": "Protect Missable Locations",
+   "description": "What may be placed at checks that can be lost behind a limited consumable, a killable NPC,\nor NPC-questline progress. ``progression and useful`` (default) leaves only filler there;\n``progression`` protects winnability but may lose useful gear; ``off`` permits either and accepts\nthat a seed can require a missable questline step. Legacy ``true`` selects the new default and\n``false`` selects off.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "progression_and_useful",
+   "choices": [
+    {
+     "name": "off",
+     "value": 0
+    },
+    {
+     "name": "progression",
+     "value": 1
+    },
+    {
+     "name": "progression_and_useful",
+     "value": 2
+    }
+   ],
    "range": null,
    "valid_keys": null,
    "casefold": false,
@@ -3686,7 +3717,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss": 1,
-    "Fragment": 1
+    "Fragment": 1,
+    "KeyItem": 1
    },
    "dlc": true,
    "parent": null,
@@ -3769,7 +3801,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Limgrave": {
-   "checks": 332,
+   "checks": 325,
    "combos": {
     "Basin": 3,
     "Boss|FieldBoss": 5,
@@ -4158,7 +4190,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Boss|MinorDungeonBoss": 1,
     "Fragment": 8,
-    "KeyItem": 1,
+    "KeyItem": 2,
     "Legendary": 1,
     "Revered": 2,
     "Shop": 5
@@ -4359,7 +4391,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Stormveil": {
-   "checks": 132,
+   "checks": 139,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
@@ -4458,7 +4490,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "dd94247578d7f7d49b4e9df8474325a7e65b5284fa4e58049c282269d1990af5"
+ "source_sha256": "559503d74db63ccd839b6b205ac494e1e73cab4274f292e8fc60838fbc7a02df"
 }
 </script>
 <div class="wrap">
