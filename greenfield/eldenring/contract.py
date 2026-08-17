@@ -1493,7 +1493,7 @@ pub fn validate(sd: &Value) -> Vec<String> {
 # forget; a derived one cannot go stale. (Same doctrine as the gen-input stamp.)
 import hashlib as _hashlib
 
-APWORLD_VERSION = "0.4.5"
+APWORLD_VERSION = "0.4.6"
 
 def _contract_hash() -> str:
     _mat = "\n".join(
