@@ -13,6 +13,8 @@
 # newest tag rather than a slow-moving one, and why the skew this file exists to bound is ~1 day.
 #
 # channel  tag      promoted_on  note
+# Website label: `beta -> main` is the Development channel. CI publishes that moving pointer as
+# the GitHub prerelease tag `dev`; stable continues to name an immutable vX.Y.Z tag from this ledger.
 stable	v0.3.7	2026-08-07	newest tag at the time this ledger was created
 beta	main	2026-08-08	the open v0.3.8 window; keep_local, the sent-out count, the version stamp
 stable	v0.3.8	2026-08-08	the pool-locality + wizard-channels window; the first promotion this ledger records
