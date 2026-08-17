@@ -40,6 +40,21 @@ itself. This also clears the concrete bypass that blocked the ruled Metyr logic 
 
 Closes #664.
 
+### Cross-game progression now includes required Great Runes
+
+`cross_game_progression` previously routed only released Region Locks. Required Great Runes and
+legacy keys were progression too, but the strict surface prefill removed them first and locked them
+into their owner's world; Archipelago's later balancing pass can only move advancement that is
+already foreign. Bobler's seven local Great Runes exposed the gap: five were useful and could be
+local by chance, but the two required by his goal were local by construction.
+
+With a non-zero cross-game share, non-Lock advancement now joins released Locks in the stage-wide
+placement pass. The candidate order is shuffled before the foreign quota is sliced so leading Locks
+cannot consume the entire share merely because they were constructed first. A zero share preserves
+the old local-surface treatment for runes and keys.
+
+Closes #811. Corrects the diagnosis, but not the underlying observation, in #808.
+
 ### The CI test suite uses both runner cores
 
 The world pytest step was the workflow's critical path: **413 seconds** in the measured green run,
