@@ -84,10 +84,16 @@ _LEGACY_EXTRA = {
         34117400, 34117401, 34117402, 34117403,
         34117500, 34117710,
     }),
-    # Metyr's remembrance plus the Finger Ruins of Rhia bell reward. Dheo's bell reward lives in
-    # Jagged Peak and is added by the Metyr-region model rather than this Scadu Altus-local table.
-    "Hole-Laden Necklace": frozenset({510550, 2053467600}),
+    # Metyr's remembrance plus BOTH Finger Ruins bell rewards. Extras are looked up globally rather
+    # than only in the key's parent region because Dheo lives in Jagged Peak (#665).
+    "Hole-Laden Necklace": frozenset({510550, 2050407000, 2053467600}),
 }
+
+# Additional region Locks required by an explicit check. Metyr lives in Scadu Altus (so that Lock is
+# already implied by ordinary region reachability), but her throne also needs Dheo rung in Jagged Peak.
+_EXTRA_CHECK_LOCKS = {510550: ("Jagged Peak Lock",)}
+_FLAG_BY_AP = {ap_id: int(flag) for locations in LOCATIONS.values()
+               for (_name, ap_id, flag) in locations}
 
 # MULTI-KEY gates: a dungeon whose checks need MORE THAN ONE key ANDed (nested cells). DLC Lamenter's
 # Gaol (m41_02, in Charo's): the Gaol Upper + Lower Level Keys open its nested cells, the Lamenter
@@ -122,13 +128,14 @@ def _gated_location_ids(active):
     for key in active:
         parent, (lo, hi) = _LEGACY_KEYS[key]
         extra = _LEGACY_EXTRA.get(key, frozenset())
-        for (_name, ap_id, flag) in LOCATIONS.get(parent, ()):
-            try:
-                fl = int(flag)
-            except (TypeError, ValueError):
-                continue
-            if lo <= fl < hi or fl in extra:
-                out[ap_id] = key
+        for region, locations in LOCATIONS.items():
+            for (_name, ap_id, flag) in locations:
+                try:
+                    fl = int(flag)
+                except (TypeError, ValueError):
+                    continue
+                if (region == parent and lo <= fl < hi) or fl in extra:
+                    out[ap_id] = key
     return out
 
 
@@ -239,11 +246,16 @@ class LegacyKeyGates(Feature):
             mk = mgate.get(ap)
             if mk is not None:
                 keys = keys + tuple(mk)
-            if not keys:
+            extra_locks = _EXTRA_CHECK_LOCKS.get(_FLAG_BY_AP.get(ap, -1), ())
+            # A sealed Jagged Peak has no Lock and no Dheo check; start_grace conditionally supplies
+            # that otherwise-impossible conjunct. Require the Lock only when the region is live.
+            if "Jagged Peak" not in set(world._kept()):
+                extra_locks = tuple(k for k in extra_locks if k != "Jagged Peak Lock")
+            if not keys and not extra_locks:
                 continue
             prev = loc.access_rule
-            loc.access_rule = (lambda state, p=prev, ks=keys:
-                               p(state) and all(state.has(k, player) for k in ks))
+            loc.access_rule = (lambda state, p=prev, ks=keys, ls=extra_locks:
+                               p(state) and all(state.has(k, player) for k in ks + ls))
             prev_item = loc.item_rule
             loc.item_rule = lambda item, pv=prev_item: pv(item) and item.name not in _GATING_ITEMS
 

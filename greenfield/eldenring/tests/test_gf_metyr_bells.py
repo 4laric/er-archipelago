@@ -19,7 +19,7 @@ import pytest
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring.features.start_grace import (  # noqa: E402
-    bells_to_force, _BELL_RHIA, _BELL_DHEO, _BELL_RHIA_REGION,
+    _METYR_BELL_FLAGS, _BELL_DHEO, metyr_bells_to_force,
 )
 
 _DERIVED_9440 = 9440
@@ -29,29 +29,10 @@ _RHIA_REWARD_FLAG = 2053467600
 _RHIA_REWARD_AP = 7773806
 
 
-def test_dheo_is_forced_always():
-    """Dheo is the CROSS-REGION conjunct: Metyr's checks region to Scadu Altus, its tile is Jagged
-    Peak. Forcing it unconditionally is what keeps Metyr independent of the Jagged Peak Lock, i.e.
-    what preserves the logic shape the 9440 force used to provide."""
-    for kept in ([], ["Scadu Altus"], ["Scadu Altus", "Jagged Peak"], ["Limgrave"]):
-        assert _BELL_DHEO in bells_to_force(kept), kept
-
-
-def test_rhia_is_forced_only_when_its_own_region_is_sealed():
-    """Kept -> the player rings it with the Hole-Laden Necklace and 7773806 stays earnable.
-    Sealed -> Metyr's checks are not in the pool either, so the award costs nothing."""
-    assert _BELL_RHIA not in bells_to_force([_BELL_RHIA_REGION, "Limgrave"])
-    assert _BELL_RHIA in bells_to_force(["Limgrave"])
-    assert _BELL_RHIA in bells_to_force([])
-
-
-def test_the_derived_flag_and_the_free_check_trap_are_never_forced():
-    """9440 is derived from the pair -- setting it too is a redundant manual override. 2051450180
-    awards lot 106720 and would hand every seed check 7773893 for free."""
-    for kept in ([], ["Scadu Altus"], ["Scadu Altus", "Jagged Peak"]):
-        forced = bells_to_force(kept)
-        assert _DERIVED_9440 not in forced, kept
-        assert _FREE_CHECK_TRAP not in forced, kept
+def test_only_a_sealed_regions_bell_is_forced():
+    """Dheo is real logic when Jagged Peak exists, and a cost-free bypass only when it does not."""
+    assert metyr_bells_to_force(["Scadu Altus", "Jagged Peak"]) == []
+    assert metyr_bells_to_force(["Scadu Altus"]) == [_BELL_DHEO]
 
 
 def test_rakshasa_cannot_pay_the_necklace_gated_rhia_reward():
@@ -63,9 +44,22 @@ def test_rakshasa_cannot_pay_the_necklace_gated_rhia_reward():
     assert _RHIA_REWARD_FLAG in _LEGACY_EXTRA["Hole-Laden Necklace"]
 
 
-def test_the_forced_set_reaches_slot_data():
-    """A pure predicate nobody calls is a spec, not a fix: the flags must actually be in the
-    startGraces the world emits."""
+def test_bell_checks_are_named_and_tagged_as_the_actions():
+    from worlds.eldenring.data import LOCATIONS
+    from worlds.eldenring.location_tags import LOCATION_TAGS
+
+    by_flag = {int(flag): (name, ap) for locations in LOCATIONS.values()
+               for (name, ap, flag) in locations}
+    expected = {2053467600: "Finger Ruins of Rhia", 2050407000: "Finger Ruins of Dheo"}
+    for flag, ruins in expected.items():
+        name, ap = by_flag[flag]
+        assert f"Ring the {ruins} bell" in name
+        assert "Seed Talisman" not in name
+        assert "KeyItem" in LOCATION_TAGS[ap]
+
+
+def test_no_live_bell_or_lot_trap_reaches_slot_data():
+    """With both regions live, startGraces contains neither bell nor either unsafe helper flag."""
     WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
     from worlds.eldenring import contract
 
@@ -78,7 +72,28 @@ def test_the_forced_set_reaches_slot_data():
     t.setUp()
     sd = t.world.fill_slot_data()
     graces = list(sd[contract.START_GRACES])
-    expected = bells_to_force(t.world._kept())
-    assert set(expected) <= set(graces), (expected, graces)
-    assert _DERIVED_9440 not in graces
-    assert _FREE_CHECK_TRAP not in graces
+    assert {"Scadu Altus", "Jagged Peak"} <= set(t.world._kept())
+    forbidden = set(_METYR_BELL_FLAGS) | {_DERIVED_9440, _FREE_CHECK_TRAP}
+    assert not (forbidden & set(graces)), forbidden & set(graces)
+
+
+def test_fill_with_both_bell_regions_and_with_jagged_peak_sealed():
+    """Acceptance fixtures: the extra conjunct must not turn either region draw into a FillError."""
+    WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
+    from Fill import distribute_items_restrictive
+
+    class _T(WorldTestBase):
+        game = "Elden Ring"
+        run_default_tests = False
+        options = {"num_regions": 12, "enable_dlc": True, "item_shuffle": True,
+                   "legacy_dungeon_keys": True, "accessibility": "minimal",
+                   "leyndell_runes_required": 0}
+
+    for seed, jagged_expected in ((63, True), (67, False)):
+        t = _T("runTest")
+        t.options = dict(_T.options)
+        t.world_setup(seed)
+        kept = set(t.world.gf_kept)
+        assert "Scadu Altus" in kept and ("Jagged Peak" in kept) is jagged_expected, (seed, kept)
+        distribute_items_restrictive(t.multiworld)
+        assert t.multiworld.can_beat_game(), (seed, kept)
