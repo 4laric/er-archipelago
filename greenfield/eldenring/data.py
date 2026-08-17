@@ -4341,7 +4341,7 @@ LOCATIONS = {
         ('Scadu Altus :: [Incantation] Minor Erdtree - near Hinterland Bridge, also granted by Ralva the Great Red Bear (m61_49_45) [f2051477500]', 7773793, 2051477500),
         ('Scadu Altus :: Golden Braid - near Church District Highroad, also granted by Ralva the Great Red Bear (m61_49_45) [f2051477510]', 7773794, 2051477510),
         ('Scadu Altus :: Madding Hand - m61_52_42, also granted by Dryleaf Dane (m61_50_43) [f2052427500]', 7773798, 2052427500),
-        ('Scadu Altus :: Cerulean Seed Talisman +1 - m61_53_46, also granted by Rakshasa (m61_51_44) [f2053467600]', 7773806, 2053467600),
+        ('Scadu Altus :: Cerulean Seed Talisman +1 - m61_53_46 [f2053467600]', 7773806, 2053467600),
         ('Scadu Altus :: Crimsonburst Dried Tear [f65410]', 7773832, 65410),
         ('Scadu Altus :: Crimson-Sapping Cracked Tear [f65420]', 7773833, 65420),
         ('Scadu Altus :: Cerulean-Sapping Cracked Tear [f65430]', 7773834, 65430),
@@ -5531,4 +5531,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:c1892f9766a4f39d4408b98043e153203f729c51351ce867f9b14bae0db077a9', 'module': 'data.py', 'body_sha256': 'sha256:140ed1794e0b2431da3e88fab8368266f481d08e4d514d027f98b5358adc2d12'}
+_GEN_STAMP = {'inputs_hash': 'sha256:75b40281956c1f26eb8c8bffb983c90994e7d3ebccd151b0ecb2735f2438224e', 'module': 'data.py', 'body_sha256': 'sha256:2102115d2043ca74322a63b4089882c868b51966cd8736d21175c7dbee1910bc'}

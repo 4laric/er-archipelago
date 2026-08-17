@@ -453,8 +453,13 @@ def test_the_sweep_corpus_did_not_shrink():
     # Trigger 34110800 is reachable on the ordinary layout, before the Carian Inverted Statue changes
     # the map, so sweeping those checks from it bypassed the new key gate. The five ordinary-layout
     # checks stay on that trigger. ADDED 0, RE-OWNED 0; physical pickup remains their only award path.
-    assert total == 4034, (
-        "sweep corpus is %d, expected 4034. If a sweep was legitimately added or removed, say WHY "
+    # -1 (2026-08-17, #664): 4034 -> 4033. REMOVED only: flag 2053467600 / ap 7773806 is the
+    # Finger Ruins of Rhia bell reward, gated by the Hole-Laden Necklace. It shared the Scadu Altus
+    # legacy pool with Rakshasa (trigger 2051440800), an unrelated fight reachable without the
+    # necklace. The check stays obtainable at the bell; only the gate-bypassing convenience award
+    # is gone. ADDED 0, RE-OWNED 0.
+    assert total == 4033, (
+        "sweep corpus is %d, expected 4033. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -617,6 +622,8 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 2026-08-17 (#653): 03b7fb99 -> 1755ba16, count 4044 -> 4034. REMOVED only: the ten
     # Carian-Inverted-Statue checks named in the corpus ratchet above left ordinary-layout trigger
     # 34110800. No member was added or re-owned, so this is the narrow gate-bypass correction.
-    assert (digest, n) == ("1755ba166686cee8", 4034), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (1755ba166686cee8, 4034). The total alone will "
+    # 2026-08-17 (#664): 1755ba16 -> 1f01b69f, 4034 -> 4033. REMOVED only: Rhia bell reward
+    # 2053467600 left Rakshasa's sweep. No member was added or re-owned.
+    assert (digest, n) == ("1f01b69f616530ea", 4033), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (1f01b69f616530ea, 4033). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

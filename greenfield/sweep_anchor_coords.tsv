@@ -6,7 +6,7 @@
 # an AREA, never with the wording used for an item_grace_coords position.
 # Positions are MAP-LOCAL, the same space as item_grace_coords.
 #
-# EMITTED 581.
+# EMITTED 580.
 # REFUSED 0 AMBIGUOUS SWEEP
 # REFUSED 74 NO ARENA:
 #    7771403 (trigger 12030390)
@@ -415,7 +415,6 @@ ap_location_id	check_flag	trigger_defeat_flag	boss_map	local_x	local_y	local_z	a
 7773766	2050467510	2050470800	m61_50_47_00	14.86	559.44	106.53	sweep_arena
 7773778	2051417710	2049430850	m61_49_43_00	68.88	396.48	-95.66	sweep_arena
 7773786	2051457700	2051440800	m61_51_44_00	5.08	162.59	94.24	sweep_arena
-7773806	2053467600	2051440800	m61_51_44_00	5.08	162.59	94.24	sweep_arena
 7773846	400101	14000850	m14_00_00_00	151.24	110.57	-222.99	sweep_arena
 7773847	400103	14000800	m14_00_00_00	70.4	-838.71	-23.42	sweep_arena
 7773854	400221	10000800	m10_00_00_00	-233.64	73.69	349.6	sweep_arena

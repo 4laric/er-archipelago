@@ -29,6 +29,17 @@ repeated it. Client half: clients#246, gitlink bumped in the same commit (AGENTS
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
+### Rakshasa no longer rings a Finger Ruins bell for you
+
+Killing Rakshasa could grant the Cerulean Seed Talisman +1 check from the Finger Ruins of Rhia.
+Both checks happened to share the broad Scadu Altus sweep pool, even though the bell is unrelated
+to Rakshasa and requires the Hole-Laden Necklace.
+
+That reward is no longer in Rakshasa's sweep, and logic now requires the necklace at the Rhia bell
+itself. This also clears the concrete bypass that blocked the ruled Metyr logic model in #665.
+
+Closes #664.
+
 ### The CI test suite uses both runner cores
 
 The world pytest step was the workflow's critical path: **413 seconds** in the measured green run,
