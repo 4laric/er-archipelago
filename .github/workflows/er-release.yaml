@@ -1,4 +1,4 @@
-# er-release.yaml -- build the player bundle in CI, from a tag, on machines nobody owns.
+# er-release.yaml -- build stable tags and the moving development channel in CI.
 #
 # WHY. `package_release.ps1` is 687 lines of PowerShell that has only ever run on one Windows box.
 # `release.yaml` beside this file states the consequence as settled fact -- "the bundle stays a
@@ -17,7 +17,8 @@
 # repainted -- game data, PROVENANCE.md rule 1, and docs/AP-ICON-PIPELINE.md rules it out of this
 # repo in as many words. It comes from a PRIVATE repo (`ICON_REPO`), so the public tree stays clean
 # and the provenance docs stay true as written. Without it `pack_release.py` HARD FAILS rather than
-# shipping a bundle that renders a Telescope on every check.
+# shipping a stable bundle that renders a Telescope on every check. Development builds explicitly
+# omit it for now and carry a warning file; that opt-out is unavailable to stable packaging.
 #
 # 🛑 THIS DOES NOT REPLACE release.yaml. That one attaches the bare apworld and the wizard and is
 # deliberately not gated on the pin. This one produces the player bundle. They attach to the same
@@ -26,6 +27,7 @@ name: er-release
 
 on:
   push:
+    branches: [main]
     tags: ["v*"]
   workflow_dispatch:
     inputs:
@@ -44,6 +46,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: er-release-${{ github.ref == 'refs/heads/main' && 'dev' || github.ref }}
+  cancel-in-progress: ${{ github.ref == 'refs/heads/main' }}
+
 jobs:
   # -----------------------------------------------------------------------------------------------
   # The .dll, built from the submodule at this tag's gitlink. windows-latest because the target is
@@ -56,6 +62,15 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
+
+      # A version tag is an immutable pair and uses its gitlink. The development channel is a
+      # moving pair: world main plus client main, with both exact SHAs written into the bundle.
+      - name: Use client main for a development build
+        if: github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          git -C from-software-archipelago-clients fetch origin main
+          git -C from-software-archipelago-clients checkout --detach origin/main
 
       - id: pin
         shell: bash
@@ -98,13 +113,23 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - name: Use the exact client commit built by the first job
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git -C from-software-archipelago-clients fetch origin "${{ needs.client-dll.outputs.client_sha }}"
+          git -C from-software-archipelago-clients checkout --detach "${{ needs.client-dll.outputs.client_sha }}"
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - id: ver
         run: |
-          v="${{ github.event.inputs.version || github.ref_name }}"
+          if [ "${{ github.ref }}" = refs/heads/main ]; then
+            v=$(python -c 'import json; print(json.load(open("greenfield/eldenring/archipelago.json"))["world_version"])')
+          else
+            v="${{ github.event.inputs.version || github.ref_name }}"
+          fi
           echo "version=${v#v}" >> "$GITHUB_OUTPUT"
 
       # 🛑 AP'S OWN REQUIREMENTS ARE THE WORKFLOW'S JOB, AND THIS FILE DID NOT DO IT.
@@ -158,28 +183,36 @@ jobs:
       #      the download is what makes the comment true.
       - name: The tag's record of what pairs with what
         run: python tools/check_release_pairing.py --dll me3/eldenring_archipelago.dll
-        continue-on-error: ${{ github.event.inputs.unofficial == 'true' }}
+        continue-on-error: ${{ github.ref == 'refs/heads/main' || github.event.inputs.unofficial == 'true' }}
 
       # 🛑 The one input that cannot live in this repo. See docs/AP-ICON-PIPELINE.md.
       - name: Fetch the AP icon override
+        if: github.ref != 'refs/heads/main'
         uses: actions/checkout@v4
         with:
           repository: ${{ vars.ICON_REPO }}
           token: ${{ secrets.ICON_REPO_TOKEN }}
           path: .icon
-      - run: cp -r .icon/ap-package me3/ap-package
+      - if: github.ref != 'refs/heads/main'
+        run: cp -r .icon/ap-package me3/ap-package
 
       - name: Assemble
         env:
           CLIENT_SHA: ${{ needs.client-dll.outputs.client_sha }}
         run: |
           set +e
+          extra=()
+          if [ "${{ github.ref }}" = refs/heads/main ]; then
+            extra=(--unofficial --stamp "dev-${GITHUB_SHA::7}" --allow-missing-ap-icon)
+          elif [ "${{ github.event.inputs.unofficial }}" = true ]; then
+            extra=(--unofficial --stamp "${{ github.event.inputs.stamp }}")
+          fi
           python tools/pack_release.py \
             --version "${{ steps.ver.outputs.version }}" \
             --apworld dist/eldenring.apworld \
             --client-dir from-software-archipelago-clients \
             --out dist \
-            ${{ github.event.inputs.unofficial == 'true' && format('--unofficial --stamp {0}', github.event.inputs.stamp) || '' }}
+            "${extra[@]}"
           rc=$?
           # 🛑 2 IS "STAGED WITH WARNINGS", NOT FAILURE, and it must not collapse into 0 or 1. It is
           # how an unofficial build says it is not a release.
@@ -187,7 +220,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: er-archipelago-bundle
+          name: ${{ github.ref == 'refs/heads/main' && 'er-archipelago-dev' || 'er-archipelago-bundle' }}
           path: |
             dist/*.zip
             dist/*.apworld
@@ -202,3 +235,31 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: dist/*.zip
           fail_on_unmatched_files: true
+
+      - name: Publish the moving development channel
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          bundle=$(find dist -maxdepth 1 -name '*-UNOFFICIAL-dev-*.zip' -print -quit)
+          apworld=$(find dist -maxdepth 1 -name '*-UNOFFICIAL-dev-*.apworld' -print -quit)
+          test -n "$bundle" && test -n "$apworld"
+          cp "$bundle" dist/ER-Archipelago-dev.zip
+          cp "$apworld" dist/eldenring-dev.apworld
+
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git tag -f dev "$GITHUB_SHA"
+          git push --force origin refs/tags/dev
+
+          if gh release view dev >/dev/null 2>&1; then
+            gh release edit dev --prerelease --latest=false \
+              --title "Development build ${GITHUB_SHA::7}" \
+              --notes "Automated development build from world main and client main. Not a stable release. The AP flower icon override is intentionally omitted; AP items use the Telescope icon. Exact world and client SHAs are inside the bundle."
+          else
+            gh release create dev --prerelease --latest=false \
+              --title "Development build ${GITHUB_SHA::7}" \
+              --notes "Automated development build from world main and client main. Not a stable release. The AP flower icon override is intentionally omitted; AP items use the Telescope icon. Exact world and client SHAs are inside the bundle."
+          fi
+          gh release upload dev dist/ER-Archipelago-dev.zip dist/eldenring-dev.apworld --clobber

@@ -208,7 +208,7 @@ def stage(args, stage_dir: str) -> None:
             die(f"missing required file: {rel}")
 
 
-def gate_stage(stage_dir: str, unofficial: bool) -> None:
+def gate_stage(stage_dir: str, unofficial: bool, allow_missing_ap_icon: bool = False) -> None:
     """Everything below is a CORRECTNESS gate and stays hard even for --unofficial."""
     me3 = os.path.join(stage_dir, "me3")
 
@@ -229,10 +229,19 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
     for root, _dirs, files in os.walk(menu):
         sheets += [os.path.join(root, f) for f in files if f.lower() == "01_common.tpf.dcx"]
     if not sheets:
-        die("no 01_common.tpf.dcx under me3/ap-package/menu/ -- the AP icon override is missing, and "
-            "the client writes iconId 92 unconditionally, so every check and AP shop slot would "
-            "render as a Telescope. See docs/AP-ICON-PIPELINE.md.")
-    info(f"ap-package: {len(sheets)} icon sheet(s)")
+        if not (unofficial and allow_missing_ap_icon):
+            die("no 01_common.tpf.dcx under me3/ap-package/menu/ -- the AP icon override is missing, and "
+                "the client writes iconId 92 unconditionally, so every check and AP shop slot would "
+                "render as a Telescope. See docs/AP-ICON-PIPELINE.md.")
+        warning = ("AP icon override intentionally omitted from this development build; checks and "
+                   "AP shop slots use the vanilla Telescope icon")
+        warn(warning)
+        with open(os.path.join(stage_dir, "DEVELOPMENT-BUILD-NO-AP-ICON.txt"), "w",
+                  encoding="ascii", newline="\n") as f:
+            f.write(warning + ".\nStable releases still require the flower icon override.\n")
+        info("ap-package: omitted by explicit development-build opt-out")
+    else:
+        info(f"ap-package: {len(sheets)} icon sheet(s)")
 
     # Walk once for the remaining two content gates.
     leaked, foreign = [], []
@@ -260,6 +269,8 @@ def main() -> int:
     ap.add_argument("--client-dir", default=None, help="client repo tree, for the version site")
     ap.add_argument("--out", default=os.path.join(REPO, "dist"))
     ap.add_argument("--unofficial", action="store_true")
+    ap.add_argument("--allow-missing-ap-icon", action="store_true",
+                    help="development builds only: ship without the private flower-icon override")
     ap.add_argument("--stamp", default="")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
@@ -268,6 +279,9 @@ def main() -> int:
     if args.unofficial and not args.stamp:
         die("--stamp is REQUIRED with --unofficial: the label is the whole point, so a bug report "
             "against a preview build can be tied back to a build")
+    if args.allow_missing_ap_icon and not args.unofficial:
+        die("--allow-missing-ap-icon is only valid with --unofficial; stable releases must carry "
+            "the flower icon override")
     stamp = re.sub(r"[^A-Za-z0-9._-]", "-", args.stamp)
     name = f"ER-Archipelago-v{version}" + (f"-UNOFFICIAL-{stamp}" if args.unofficial else "")
 
@@ -283,7 +297,7 @@ def main() -> int:
     stage(args, stage_dir)
 
     print("== correctness gates ==")
-    gate_stage(stage_dir, args.unofficial)
+    gate_stage(stage_dir, args.unofficial, args.allow_missing_ap_icon)
 
     if args.unofficial:
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ")
