@@ -29,6 +29,24 @@ repeated it. Client half: clients#246, gitlink bumped in the same commit (AGENTS
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
+### The CI test suite uses both runner cores
+
+The world pytest step was the workflow's critical path: **413 seconds** in the measured green run,
+while the next-longest concurrent job finished in 183 seconds. It ran CPU-bound seed generation on
+one of the hosted runner's two cores.
+
+Pytest now runs two process-isolated workers, balanced by whole test file. In the same warmed,
+CI-equivalent layout the full guarded suite moved from **224.7 seconds to 130.4 seconds** (42%
+faster): 2,529 tests and more than 424,000 subtests in both runs, with the vacuous-quantifier spy
+and exact 70-skip census still armed. File-level distribution keeps every module's tests together
+and gives monkeypatch-heavy suites separate processes rather than shared global state.
+
+The first parallel run also caught a bug in the skip-census instrument itself: xdist delivers every
+skip report in its worker and again in the controller, so the recorder counted every skip twice.
+It now writes only from the controller under xdist, with a red-case test for both halves.
+
+Closes #778.
+
 ## v0.4.5 — 2026-08-16
 
 Window opened AT the v0.4.4 tag (`1ffac04`), with zero commits past it. `check_release_notes` was

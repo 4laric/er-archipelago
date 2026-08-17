@@ -24,6 +24,12 @@ def pytest_runtest_logreport(report):
     out = os.environ.get("GF_SKIP_CENSUS_OUT")
     if not out or not report.skipped:
         return
+    # pytest-xdist sends every worker report back through this hook on the controller. Recording
+    # in BOTH processes doubles the census while pytest itself still (correctly) reports one skip.
+    # The controller has the complete stream and no PYTEST_XDIST_WORKER marker, so it is the sole
+    # writer under xdist. A normal one-process run has no marker either and remains unchanged.
+    if os.environ.get("PYTEST_XDIST_WORKER"):
+        return
     if hasattr(report, "wasxfail"):        # xfail is a different ledger, not a skip
         return
     if getattr(report, "context", None):   # pytest-subtests sub-reports shadow their parent nodeid

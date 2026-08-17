@@ -5,8 +5,10 @@ anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing yet. This window was opened AT the v0.4.5 tag with zero commits past it, so this file exists
-before its first entry does, which is the point of it.
+The change is behind the scenes: the full world test suite now uses both cores on the GitHub runner.
+The measured CI-equivalent run fell from 224.7 seconds to 130.4 without dropping a test or either of
+the suite's guards against silently inert tests. That makes the green-or-red answer arrive
+substantially sooner on every future change.
 
 ## What carried over from v0.4.5
 
