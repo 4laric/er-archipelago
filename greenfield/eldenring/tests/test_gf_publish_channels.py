@@ -306,13 +306,16 @@ class SiteTabs(unittest.TestCase):
     🛑 THE STRIP THEREFORE EXISTS TWICE ACROSS TWO REPOS, and that is a deliberate trade rather
     than an oversight: a templated page whose only navigation came from a script that 404s on a box
     with no ER tooling deployed would have no navigation at all. peliarch's
-    webgui/test_app.py::TestTabStrip pins the other copy, with the same five hrefs in the same
+    webgui/test_app.py::TestTabStrip pins the other copy, with the same six hrefs in the same
     order. If you change a tab, BOTH tests fail -- which is the point of writing the list twice.
     """
 
     # href order is load-bearing: the BUILDER IS FIRST because it is the only surface anyone can
     # use before deciding whether to install a DLL. Hosting is a tab, not the front page.
-    HREFS = ["/er/", "/downloads", "/hosting", "/er/checks.html", "/er/report.html"]
+    HREFS = [
+        "/er/", "/downloads", "/hosting", "/er/questlines.html", "/er/checks.html",
+        "/er/report.html",
+    ]
     # src path -> the data-tab value that page must declare
     PAGES = {
         "wizard/wizard.html": "builder",
@@ -328,7 +331,7 @@ class SiteTabs(unittest.TestCase):
         self.assertTrue(os.path.isfile(path), f"{rel} is missing")
         return open(path, encoding="utf-8", errors="replace").read()
 
-    def test_tabs_js_lists_exactly_the_five_tabs_in_order(self):
+    def test_tabs_js_lists_exactly_the_six_tabs_in_order(self):
         js = self._read("wizard/tabs.js")
         found = re.findall(r'\["[a-z]+",\s*"([^"]+)",\s*"[^"]+"\]', js)
         self.assertEqual(found, self.HREFS,
