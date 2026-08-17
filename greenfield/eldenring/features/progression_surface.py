@@ -724,8 +724,8 @@ def _foreign_open_locations(multiworld, er_players):
 
 
 def place_released_locks(multiworld, worlds) -> None:
-    """`stage_pre_fill`: place every Elden Ring world's RELEASED Locks across every Elden Ring
-    world's surface, in ONE pass, and spill whatever does not fit back into the pool.
+    """`stage_pre_fill`: place every Elden Ring world's travelling progression across every Elden
+    Ring world's surface, in ONE pass, and spill whatever does not fit back into the pool.
 
     # Why this is not an item_rule (er-archipelago#491)
 
@@ -760,8 +760,15 @@ def place_released_locks(multiworld, worlds) -> None:
     configurations**, including a 2xER + 1xHK seed where 15 of 28 Locks travelled and every one went
     to the other Elden Ring world.
 
-    So `cross_game_progression` routes a share of them at partner locations FIRST, before the ER
-    surfaces get a look. `auto` is 1/n_games -- half of them in a two-game seed.
+    So `cross_game_progression` routes a share of the eligible progression at partner locations
+    FIRST, before the ER surfaces get a look. `auto` is 1/n_games -- half in a two-game seed.
+
+    #811: that set used to be `gf_released_lock_items`, so despite the option's name the pass could
+    see Region Locks and NOTHING ELSE. Required Great Runes were advancement, but `apply()` removed
+    them first and locked them onto their owner's surface. The pass now reads
+    `gf_released_progression_items`: released Locks plus every non-Lock advancement item whenever
+    this world has a non-zero cross-game share. The remainder still falls through to the same ER
+    surface pass, preserving curation and reachability.
 
     ⚠️ THIS FILLS ANOTHER GAME'S LOCATIONS, which is exactly what the note above warns about: TUNIC
     raises "caused by another world filling TUNIC locations during pre_fill" and cannot recover.
@@ -776,7 +783,8 @@ def place_released_locks(multiworld, worlds) -> None:
 
     items, locations, participants = [], [], []
     for w in worlds:
-        pending = list(getattr(w, "gf_released_lock_items", ()) or ())
+        pending = list(getattr(w, "gf_released_progression_items",
+                               getattr(w, "gf_released_lock_items", ())) or ())
         if not pending:
             continue
         participants.append(w)
@@ -796,7 +804,7 @@ def place_released_locks(multiworld, worlds) -> None:
 
     # ---- CROSS-GAME FIRST (#703) --------------------------------------------------------------
     # Offered BEFORE the Elden Ring surfaces, because our surfaces have four times the room they
-    # need and would otherwise absorb every Lock -- which is the measured defect, not a risk.
+    # need and would otherwise absorb every progression item -- which is the measured defect.
     cross_offered = cross_placed = 0
     er_players = {w.player for w in worlds}
     n_games = len({w.game for w in getattr(multiworld, "worlds", {}).values()}) or 1
@@ -805,6 +813,10 @@ def place_released_locks(multiworld, worlds) -> None:
         foreign = _foreign_open_locations(multiworld, er_players)
         k = (n0 * share + 50) // 100
         if foreign and k > 0:
+            # The old list was all Locks, so its stable construction order did not matter. Once
+            # required Great Runes joined it, slicing before shuffling would let the leading Locks
+            # consume the entire cross-game quota and recreate #811 under a different name.
+            multiworld.random.shuffle(items)
             batch, rest = items[:k], items[k:]
             cross_offered = len(batch)
             multiworld.random.shuffle(foreign)
@@ -818,15 +830,15 @@ def place_released_locks(multiworld, worlds) -> None:
                 # Swallowing leaves `batch` unplaced, and unplaced Locks fall through to the Elden
                 # Ring pass below exactly as they did before #703 existed.
                 logging.getLogger("Greenfield").warning(
-                    "[greenfield] progression surface: the cross-game Lock pass raised and was "
-                    "abandoned; its %d Lock(s) fall back to the Elden Ring surfaces, which is the "
+                    "[greenfield] progression surface: the cross-game progression pass raised and "
+                    "was abandoned; its %d item(s) fall back to the Elden Ring surfaces, which is the "
                     "pre-#703 behaviour. Set cross_game_progression: 0 if this recurs",
                     len(batch), exc_info=True)
             cross_placed = cross_offered - len(batch)
             items = batch + rest          # whatever it could not place rejoins the ER pass
             logging.getLogger("Greenfield").info(
                 "[greenfield] progression surface: cross-game pass placed %d of %d offered "
-                "(%d%% share of %d released, %d game(s), %d open foreign location(s))",
+                "(%d%% share of %d eligible progression, %d game(s), %d open foreign location(s))",
                 cross_placed, cross_offered, share, n0, n_games, len(foreign))
 
     multiworld.random.shuffle(locations)
@@ -1051,6 +1063,22 @@ def _released_pct(world) -> int:
     return 100 - int(opt.value)
 
 
+def travelling_progression(items, released, cross_share):
+    """The exact item objects handed from `apply()` to the stage-wide placement pass.
+
+    Released Region Locks always travel, preserving `progression_bias`. With a non-zero
+    `cross_game_progression` share, every other restricted advancement item travels too so required
+    Great Runes and legacy keys are actually candidates for that share (#811). At zero, non-Locks
+    keep the pre-#811 local-surface behaviour.
+    """
+    out = list(released)
+    if cross_share <= 0:
+        return out
+    seen = {id(it) for it in out}
+    out.extend(it for it in items if id(it) not in seen)
+    return out
+
+
 def _restricted_items(world):
     return [it for it in world.multiworld.itempool
             if is_restricted_progression(it, world.player)]
@@ -1263,15 +1291,18 @@ def apply(world) -> None:
     # 🛑 The draw happens BEFORE the removal loop and ONCE, recorded on `world`. Drawing it later
     # would mean re-deciding per caller, and an inline rng draw that runs a different number of times
     # in different code paths splits the seed.
-    _restricted = list(to_place)   # before the split -- the valve counts EVERY Lock, not the released ones
     released = released_locks(to_place, _released_pct(world), world.random)
-    if released:
-        _rel = {id(it) for it in released}
+    n_games = len({w.game for w in getattr(mw, "worlds", {}).values()}) or 1
+    travelling = travelling_progression(
+        to_place, released, cross_game_share(world, n_games))
+    if travelling:
+        _rel = {id(it) for it in travelling}
         to_place = [it for it in to_place if id(it) not in _rel]
     world.gf_locks_released = sorted(it.name for it in released)
     # The handle `stage_pre_fill` reads. The ITEMS, not the names: it has to remove these exact
     # objects from the pool and hand them to fill_restrictive.
     world.gf_released_lock_items = list(released)
+    world.gf_released_progression_items = list(travelling)
     n0 = len(to_place)
     for it in to_place:
         mw.itempool.remove(it)
