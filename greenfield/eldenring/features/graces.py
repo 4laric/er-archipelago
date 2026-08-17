@@ -117,13 +117,13 @@ def _bundle_for(region, flags, tier):
             if missing:
                 raise ValueError(f"{region}: component entrance grace(s) absent from bundle: {missing}")
             return list(component_graces)
-        return [entrance_grace(flags)]
+        return [entrance_grace(flags, region)]
     if tier == "landmarks":
         picks = [f for f in REGION_GRACE_LANDMARKS.get(region, ()) if f in flags]
         # An absent/stale landmarks table must not silently degrade to a thinner OR fatter bundle:
         # fall back to the entrance (the one answer we can always derive here) and say so.
         if not picks:
-            return [entrance_grace(flags)]
+            return [entrance_grace(flags, region)]
         return sorted(picks)
     return list(flags)
 
@@ -161,12 +161,21 @@ def bundle_withheld(world, region):
 # Liurnia -> Lake-Facing Cliffs, Weeping -> Church of Pilgrimage, Limgrave -> Church of Elleh,
 # Stormveil -> Gateside Chamber, Leyndell -> East Capital Rampart. test_gf_grace_entrance pins them.
 _OVERWORLD_LO, _OVERWORLD_HI = 76000, 77000
+# Human rulings where designer order is not traversal order. A pin must remain in the region's
+# emitted grace set; entrance_grace fails loudly if it goes stale.
+_ENTRANCE_GRACE_PIN = {"Altus": 76301}  # Altus Plateau, at the Grand Lift; #641
 
 
-def entrance_grace(flags):
+def entrance_grace(flags, region=None):
     """The one warp grace that IS the way into a region. `flags` must be non-empty."""
     if not flags:
         raise ValueError("entrance_grace() on an empty grace set -- callers must skip empty regions")
+    if region in _ENTRANCE_GRACE_PIN:
+        pin = _ENTRANCE_GRACE_PIN[region]
+        if pin not in flags:
+            raise ValueError("entrance grace pin %s for %s is absent from its grace set" %
+                             (pin, region))
+        return pin
     overworld = [f for f in flags if _OVERWORLD_LO <= f < _OVERWORLD_HI]
     return min(overworld) if overworld else min(flags)
 

@@ -29,6 +29,18 @@ repeated it. Client half: clients#246, gitlink bumped in the same commit (AGENTS
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
+### Altus opens at the lift, not inside two unrelated side entrances
+
+With `region_grace_unlock: entrance`, receiving the Altus Lock lit **Old Altus Tunnel** as the
+region-open flag and **Abandoned Coffin** as the entrance bundle. Bobler's playtest saw both. The
+two derivations independently chose their lowest numeric candidate, and neither candidate is the
+way into Altus from the Grand Lift.
+
+Both now resolve to **Altus Plateau** (`76301`), the lift-side grace. The same ruling is carried
+through the landmarks tier so the three grace tiers remain nested: moving from landmarks to
+entrance removes warp points and never swaps one for a different one.
+
+Refs #641.
 ### Metyr's quest is logic now, not a free bell at spawn
 
 The run used to force the Finger Ruins of Dheo bell flag at spawn to make Metyr reachable without
@@ -169,6 +181,18 @@ never whether it is CURRENT.
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
+### Altus opens at the lift, not inside two unrelated side entrances
+
+With `region_grace_unlock: entrance`, receiving the Altus Lock lit **Old Altus Tunnel** as the
+region-open flag and **Abandoned Coffin** as the entrance bundle. Bobler's playtest saw both. The
+two derivations independently chose their lowest numeric candidate, and neither candidate is the
+way into Altus from the Grand Lift.
+
+Both now resolve to **Altus Plateau** (`76301`), the lift-side grace. The same ruling is carried
+through the landmarks tier so the three grace tiers remain nested: moving from landmarks to
+entrance removes warp points and never swaps one for a different one.
+
+Refs #641.
 ### The ending stops being reachable before you have earned it
 
 You could walk into Radagon one Region Lock deep, watch the ending, take the credits, and land in a
@@ -331,6 +355,18 @@ version-lockstep and a v0.4.3 client still handshakes with a v0.4.4 seed. Verifi
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
+### Altus opens at the lift, not inside two unrelated side entrances
+
+With `region_grace_unlock: entrance`, receiving the Altus Lock lit **Old Altus Tunnel** as the
+region-open flag and **Abandoned Coffin** as the entrance bundle. Bobler's playtest saw both. The
+two derivations independently chose their lowest numeric candidate, and neither candidate is the
+way into Altus from the Grand Lift.
+
+Both now resolve to **Altus Plateau** (`76301`), the lift-side grace. The same ruling is carried
+through the landmarks tier so the three grace tiers remain nested: moving from landmarks to
+entrance removes warp points and never swaps one for a different one.
+
+Refs #641.
 ### Four pairs of trousers are no longer major bosses
 
 `MajorBoss` is one of the classes the default progression surface confines this world's own

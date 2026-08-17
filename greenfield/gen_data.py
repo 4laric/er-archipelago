@@ -5932,7 +5932,13 @@ for _reg in sorted(_gg_regions_hit):
 # be a real, non-foreign candidate of the region (asserted below), so a pin can never paper over a
 # foreign-ground front door.
 #
-# EMPTY since 2026-07-21. It briefly pinned Shadow Keep -> 72102 (the Main Gate) to keep the Keep's
+# Altus 76301 is the lift-side "Altus Plateau" grace. The lower 76300 "Abandoned Coffin" is the
+# Ruin-Strewn Precipice exit, while the numerically-lowest candidate 73204 is the Old Altus Tunnel
+# dungeon interior. Bobler's 2026-08-17 entrance-tier seed received both wrong answers: 73204 as
+# the region-open flag and 76300 as the separately-derived entrance bundle (#641).
+#
+# This table was empty from 2026-07-21 until that ruling. It briefly pinned Shadow Keep -> 72102
+# (the Main Gate) to keep the Keep's
 # front door at the gate rather than the folded-in Hinterland grace 76935. But 72102 does NOT stand
 # on the Keep's ground: it sits at the gate threshold, inside no 21000 Keep volume and 3.6 m outside
 # the Scadu Altus 6900000 approach column, so datamine_grace_ground.py now derives 72102 -> 69000
@@ -5943,7 +5949,7 @@ for _reg in sorted(_gg_regions_hit):
 # the Hinterland, which DOES stand on the Keep's own ground (bucket 21000, measured) -- a walk-in
 # Keep entrance, no kick. The Main Gate still lights on foot when the player reaches it through
 # Scadu Altus. (The pin machinery is kept for the next interior-entrance region that needs it.)
-_FRONT_DOOR_PIN = {}
+_FRONT_DOOR_PIN = {"Altus": 76301}
 def _front_door(r):
     if r in _FRONT_DOOR_PIN:
         _pin = _FRONT_DOOR_PIN[r]
@@ -6303,16 +6309,23 @@ with open(OUT_GRACES, "w", newline="\n", encoding="utf-8") as f:
     # 🛑 Derived, never transcribed. Another project's curated grace set may be READ to cross-check
     # this (PROVENANCE.md: "let the other project be the bug report; keep our datamine as the
     # source") but never ingested -- a copied flag cannot be regenerated or stamped.
-    def _landmarks(_fs):
+    def _landmarks(_r, _fs):
         _by = {}
         for _f in _fs:
             _by.setdefault(gsub.get(_f, -1), []).append(_f)
         _out = []
+        # Only an explicit human front-door ruling overrides the warp-menu group's own ordering.
+        # Using _front_door unconditionally here promotes cave-style REGION_OPEN_FLAGS (Caelid's
+        # 73207) over the real entrance and breaks entrance ⊆ landmarks.
+        _fd = _FRONT_DOOR_PIN.get(_r)
         for _grp in _by.values():
-            _ow = [x for x in _grp if 76000 <= x < 77000]
-            _out.append(min(_ow) if _ow else min(_grp))
+            if _fd in _grp:
+                _out.append(_fd)
+            else:
+                _ow = [x for x in _grp if 76000 <= x < 77000]
+                _out.append(min(_ow) if _ow else min(_grp))
         return sorted(_out)
-    REGION_GRACE_LANDMARKS = {r: _landmarks(v) for r, v in REGION_GRACE_POINTS.items()}
+    REGION_GRACE_LANDMARKS = {r: _landmarks(r, v) for r, v in REGION_GRACE_POINTS.items()}
     _lm = sum(len(v) for v in REGION_GRACE_LANDMARKS.values())
     assert _lm >= len(REGION_GRACE_LANDMARKS), (
         "landmarks tier derived %d graces for %d regions -- the subCategory column is missing from "
