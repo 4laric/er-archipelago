@@ -189,7 +189,10 @@ class OneRegionSeed(WorldTestBase):
         import pytest
         from Options import OptionError
         from test.bases import WorldTestBase as _B
-        opts = {"num_regions": 1, "ending_condition": "region_locks"}
+        # Pin the draw to Limgrave. Under rolled order a gated child can legitimately pull its
+        # parents in, producing several kept locks; that seed is not trivial and must not raise.
+        opts = {"num_regions": 1, "num_regions_order": "vanilla_order",
+                "ending_condition": "region_locks"}
         with pytest.raises(OptionError) as ei:
             # WorldTestBase reads fixture configuration from the class during world_setup.
             # Assigning ``probe.options`` on an instance silently left this class's

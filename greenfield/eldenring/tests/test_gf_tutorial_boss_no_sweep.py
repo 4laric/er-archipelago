@@ -44,18 +44,23 @@ def test_the_tutorial_boss_grants_no_sweep():
 
 
 def test_no_stormveil_sweep_is_keyed_on_a_non_stormveil_boss():
-    """The general form: a sweep may only be paid by a boss that lives where the checks live."""
+    """The general form: a sweep may only be paid by a boss that lives where the checks live.
+
+    m34_10 is the deliberate exception: its Divine Tower runtime bucket is Stormveil even though
+    its grace geography is Limgrave (#202, Alaric ruling 2026-08-17). m10_01 remains the bad fold
+    this test was created to catch.
+    """
     from worlds.eldenring.boss_healthbars import BOSS_HEALTHBARS
     wrong = []
     for flag, region in SWEEP_REGION.items():
         if region != "Stormveil":
             continue
         info = BOSS_HEALTHBARS.get(flag)
-        if info and not info[0].startswith("m10_00"):
+        if info and info[0] not in ("m10_00", "m34_10"):
             wrong.append((flag, info[0], info[3]))
     assert not wrong, (
-        "a Stormveil sweep is keyed on a boss outside m10_00: %s. m10_01 is the intro map and rides "
-        "Stormveil's bucket; it is not IN Stormveil." % wrong)
+        "a Stormveil sweep is keyed outside Stormveil's approved m10_00/m34_10 maps: %s. m10_01 "
+        "is the intro map and rides Stormveil's bucket; it is not IN Stormveil." % wrong)
 
 
 def test_the_scions_own_drop_is_untouched():

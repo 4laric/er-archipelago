@@ -319,7 +319,7 @@ SWEEP_REGION = {
     32070800: 'Caelid',
     32080800: 'Caelid',
     32110800: 'Mountaintops of the Giants',
-    34100800: 'Limgrave',
+    34100800: 'Stormveil',
     34110800: 'Liurnia',
     34120800: 'Altus',
     34130800: 'Caelid',
@@ -699,4 +699,4 @@ SWEEP_UNSPAWNED_OPEN = {
     1041330800: "unnamed m60_41_33 (Fourth Church of Marika, Weeping) -- the same shape and NOT yet falsified in game, so its 10 members keep their trigger. FALSIFIER: warp to the Fourth Church of Marika and look, by day and at night (the tile's other candidate reading is a night-conditional spawn). Absent -> move it to 'unspawned' here and regen; present -> the datamine owes it a GameAreaParam binding and an MSB position. Issue #540.",
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:fbdfbda2f92dc30ff05a2addf5054735b0398eb6a75d0fa16b8ca21cb75a6626', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:f6c285e7c2d642f90fa2f3bffca1cc7850efa00f29f9a09fcb0fa649da24eb60'}
+_GEN_STAMP = {'inputs_hash': 'sha256:fce8e6086d1b846cba635d85ab5f69597fd201468abd98e748d1b92032b0042e', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:0a8825d9287bcfa63ccd32f78f5d118c6883dd3cc99c7a3aa389aa6d1df862c0'}
