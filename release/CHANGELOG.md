@@ -41,6 +41,19 @@ through the landmarks tier so the three grace tiers remain nested: moving from l
 entrance removes warp points and never swaps one for a different one.
 
 Refs #641.
+
+### Ainsel and Stormveil open at their real front doors
+
+The entrance tier now grants **Ainsel River Main** for the Ainsel River component instead of
+requiring a grace already present in generated region data. Stormveil now owns Margit, his tunnel
+entrance, and the Divine Tower approach, keeping boss sweeps in the same region as the boss that
+fires them. The generated client region table follows the same boundaries.
+
+The first client integration lost Stormveil's Divine Tower runtime bucket during a merge; a focused
+follow-up restored it before release.
+
+World: #803, #807. Client: clients#253, clients#257.
+
 ### Metyr's quest is logic now, not a free bell at spawn
 
 The run used to force the Finger Ruins of Dheo bell flag at spawn to make Metyr reachable without
@@ -77,6 +90,29 @@ no particular rune is mandatory. The slot contract exposes the full eligible set
 count separately so the client reports and enforces the same rule.
 
 Fixes #813.
+
+### The client enforces the same Great Rune and capital rules
+
+Great Runes received through Archipelago now count toward Leyndell's two-rune seal, and the ending
+counter counts any required number of distinct runes from the full eligible set rather than a named
+prefix. Divine Tower altar flags are disarmed before an AP rune is delivered, preventing the game
+from granting a duplicate vanilla rune when its tower later loads.
+
+The capital reconciler now applies the complete world state: it selects Ashen Capital, sets the
+world-burn state, clears the pre-burn state, and preserves that choice while an asynchronous warp
+still reports the stale source capital. This fixes both the capital warp race and front-door grace
+state that could otherwise regress on reconnect.
+
+Client: clients#248, clients#254, clients#255, clients#256, clients#258.
+
+### Grace rescue commands are pasteable and data-independent
+
+`!grace` now resolves names against the live `BonfireWarpParam`, including valid graces absent from
+the generated seed tables, and prints a pasteable `!warp <entity>` command. Parser aliases, console
+help, and the overlay all use the same command registry, so the documented rescue syntax cannot
+drift from what the client accepts.
+
+Client: clients#247.
 
 ### Rakshasa no longer rings a Finger Ruins bell for you
 
@@ -181,18 +217,6 @@ never whether it is CURRENT.
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
-### Altus opens at the lift, not inside two unrelated side entrances
-
-With `region_grace_unlock: entrance`, receiving the Altus Lock lit **Old Altus Tunnel** as the
-region-open flag and **Abandoned Coffin** as the entrance bundle. Bobler's playtest saw both. The
-two derivations independently chose their lowest numeric candidate, and neither candidate is the
-way into Altus from the Grand Lift.
-
-Both now resolve to **Altus Plateau** (`76301`), the lift-side grace. The same ruling is carried
-through the landmarks tier so the three grace tiers remain nested: moving from landmarks to
-entrance removes warp points and never swaps one for a different one.
-
-Refs #641.
 ### The ending stops being reachable before you have earned it
 
 You could walk into Radagon one Region Lock deep, watch the ending, take the credits, and land in a
