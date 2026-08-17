@@ -180,11 +180,11 @@ def _er_yaml(name, natural, confine=None):
     s = open(src, encoding="utf-8").read()
     s = re.sub(r"^name:.*$", "name: %s" % name, s, count=1, flags=re.M)
     if confine is not None:
-        s2 = re.sub(r"^(\s*)confine_foreign_progression:.*$",
-                    r"\g<1>confine_foreign_progression: %d" % confine, s, count=1, flags=re.M)
-        if s2 == s:
+        if not re.search(r"^\s*confine_foreign_progression:.*$", s, flags=re.M):
             sys.exit("FAIL: release/EldenRing.yaml no longer carries a confine_foreign_progression "
                      "line, so this test silently stopped setting the share it claims to test.")
+        s2 = re.sub(r"^(\s*)confine_foreign_progression:.*$",
+                    r"\g<1>confine_foreign_progression: %d" % confine, s, count=1, flags=re.M)
         s = s2
     # Small map: the cross-world properties do not need 31 regions, and CI time is not free.
     s = re.sub(r"^(\s*)num_regions:\s*\d+\s*$", r"\g<1>num_regions: 4", s, count=1, flags=re.M)
@@ -563,6 +563,16 @@ def self_test():
     Costs no generation and no Archipelago -- runs in milliseconds, so CI can run it before the
     expensive half and fail fast.
     """
+    # The shipped default is a legal explicit matrix endpoint. A change detector based on whether
+    # substitution changes the text rejects that endpoint, even though the option line exists.
+    # Exercise the exact value from the template so this guard cannot regress to that shape.
+    template = open(os.path.join(ROOT, "release", "EldenRing.yaml"), encoding="utf-8").read()
+    match = re.search(r"^\s*confine_foreign_progression:\s*(\d+)\s*$", template, flags=re.M)
+    if not match:
+        raise AssertionError("release template has no numeric confine_foreign_progression default")
+    rendered = _er_yaml("SelfTest", False, int(match.group(1)))
+    if "confine_foreign_progression: %s" % match.group(1) not in rendered:
+        raise AssertionError("_er_yaml did not preserve an explicitly requested shipped default")
     class _Info:
         def __init__(self, game):
             self.game = game
