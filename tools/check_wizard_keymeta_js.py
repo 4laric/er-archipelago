@@ -212,6 +212,20 @@ def structural_faults(o):
     for f in km["families"]:
         if not any(e["family"] == f["id"] for e in km["keys"]):
             faults.append("family %r claims no keys -- an empty heading" % f["id"])
+    presets = km.get("presets") or []
+    labels = [p.get("label") for p in presets]
+    if len(labels) != len(set(labels)):
+        faults.append("preset labels are not unique: %s" % labels)
+    for p in presets:
+        unknown_preset = sorted(set(p.get("keys") or ()) - valid)
+        if not (p.get("label") or "").strip():
+            faults.append("a preset has an empty label")
+        if unknown_preset:
+            faults.append("preset %r names keys AP would reject: %s"
+                          % (p.get("label"), unknown_preset))
+    recommended = [p for p in presets if p.get("label") == "Recommended"]
+    if len(recommended) != 1 or set(recommended[0].get("keys") or ()) != set(o["default"]):
+        faults.append("Recommended preset does not equal the option default")
     # Containment must point at real keys in both directions, or the hint names something invisible.
     for parent, kids in (km.get("contains") or {}).items():
         if parent not in valid:

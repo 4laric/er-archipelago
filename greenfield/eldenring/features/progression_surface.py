@@ -110,10 +110,18 @@ class ProgressionSurface(OptionSet):
         it to say "you already have these" -- and the one time this lattice was written down by hand
         (a comment in contract.py) it sat INVERTED for months.
         """
+        default = contract.SURFACE_DEFAULT_CLASSES
         return {
             "keys": surface_class_meta(),
             "families": [{"id": fid, "label": lab} for fid, lab, _ in SURFACE_CLASS_FAMILIES],
             "contains": class_containment(),
+            "presets": [
+                {"label": "Recommended", "keys": sorted(default)},
+                {"label": "Major bosses only", "keys": ["MajorBoss"]},
+                {"label": "No sweep payouts", "keys": sorted(default - {"SweepSlot"})},
+                {"label": "Buy your progression", "keys": sorted(default | {"ShopNonSpell"})},
+                {"label": "Off", "keys": []},
+            ],
         }
 
 

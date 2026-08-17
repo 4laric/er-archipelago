@@ -1177,7 +1177,58 @@
       "SweepSlotMajor",
       "SweepSlotMinor"
      ]
-    }
+    },
+    "presets": [
+     {
+      "label": "Recommended",
+      "keys": [
+       "Church",
+       "Fragment",
+       "KeyItem",
+       "MajorBoss",
+       "Revered",
+       "Seedtree",
+       "ShopSlot",
+       "SweepSlot"
+      ]
+     },
+     {
+      "label": "Major bosses only",
+      "keys": [
+       "MajorBoss"
+      ]
+     },
+     {
+      "label": "No sweep payouts",
+      "keys": [
+       "Church",
+       "Fragment",
+       "KeyItem",
+       "MajorBoss",
+       "Revered",
+       "Seedtree",
+       "ShopSlot"
+      ]
+     },
+     {
+      "label": "Buy your progression",
+      "keys": [
+       "Church",
+       "Fragment",
+       "KeyItem",
+       "MajorBoss",
+       "Revered",
+       "Seedtree",
+       "ShopNonSpell",
+       "ShopSlot",
+       "SweepSlot"
+      ]
+     },
+     {
+      "label": "Off",
+      "keys": []
+     }
+    ]
    }
   },
   {
