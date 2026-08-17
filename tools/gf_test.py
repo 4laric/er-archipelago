@@ -119,6 +119,12 @@ def install_world(ap):
     if known.is_file():
         (dst / "release").mkdir(exist_ok=True)
         shutil.copy2(known, dst / "release" / known.name)
+    # The rescue guide is another shipped, player-facing contract. Install it beside KNOWN-ISSUES
+    # so test_gf_player_guide exercises the same bytes package_release.ps1 sends to players.
+    unstuck = REPO / "release" / "GETTING-UNSTUCK.md"
+    if unstuck.is_file():
+        (dst / "release").mkdir(exist_ok=True)
+        shutil.copy2(unstuck, dst / "release" / unstuck.name)
 
     missing = [n for n in REQUIRED_INPUTS if not (dst / n).is_file()]
     if missing:

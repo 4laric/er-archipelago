@@ -527,6 +527,7 @@ $Docs = @(
     @{ src = (Join-Path $Rel  "RELEASE-NOTES-v0.2.md");                    required = $true  },
     @{ src = (Join-Path $Rel  "CHANGELOG.md");                             required = $true  },
     @{ src = (Join-Path $Rel  "KNOWN-ISSUES.md");                          required = $true  },
+    @{ src = (Join-Path $Rel  "GETTING-UNSTUCK.md");                       required = $true  },
     @{ src = (Join-Path $Rel  "ATTRIBUTION.md");                           required = $true  },
     @{ src = (Join-Path $Rel  "PROVENANCE.md");                            required = $true  },
     @{ src = (Join-Path $Rel  "ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md"); required = $true  },

@@ -53,6 +53,10 @@ _KNOWN_ISSUES = next((p for p in (os.path.join(_GF_PKG, "release", "KNOWN-ISSUES
                                   os.path.join(_REPO, "release", "KNOWN-ISSUES.md"))
                       if os.path.isfile(p)), "")
 
+_GETTING_UNSTUCK = next((p for p in (os.path.join(_GF_PKG, "release", "GETTING-UNSTUCK.md"),
+                                     os.path.join(_REPO, "release", "GETTING-UNSTUCK.md"))
+                         if os.path.isfile(p)), "")
+
 # Backticked snake_case words that are ENGLISH, not options. Keep this list SHORT and justified --
 # every entry is a place the gate cannot help, so a long list means the gate is decorative.
 _NOT_OPTIONS = {
@@ -89,6 +93,45 @@ def _guide_text():
         pytest.skip("player guide not found beside the package or at the repo root")
     with open(_GUIDE, encoding="utf-8") as fh:
         return fh.read()
+
+
+def _unstuck_text():
+    assert _GETTING_UNSTUCK, (
+        "the shipped GETTING-UNSTUCK.md was not installed beside the world; a rescue guide that "
+        "package_release.ps1 or tools/gf_test.py omits does not reach players or CI")
+    with open(_GETTING_UNSTUCK, encoding="utf-8") as fh:
+        return fh.read()
+
+
+def test_the_rescue_guide_is_linked_and_covers_the_reported_dead_ends():
+    """#722's actual support cases, not a generic documentation-exists assertion."""
+    guide = _guide_text()
+    rescue = _unstuck_text()
+    assert "GETTING-UNSTUCK.md" in guide, (
+        "the shipped player guide does not lead a trapped player to the rescue guide")
+    for witness in (
+        "!warp 11102950",
+        "!grace liurnia",
+        "!setflag 71102 1",
+        "!setflag 71105 1",
+        "pick up any item",
+        r"%LocalAppData%\Programs\garyttierney\me3\log",
+        "beside that DLL",
+    ):
+        assert witness.lower() in rescue.lower(), (
+            f"GETTING-UNSTUCK.md lost #722's motivating recovery detail: {witness!r}")
+
+
+def test_rescue_commands_are_explicitly_scoped_to_the_client_console():
+    """A typoed command is worse than no guide: it sends an already-stuck player to a dead end.
+
+    This gate pins the recovery subset rather than duplicating the client's whole help list. The
+    client owns that list; the guide says `!help` is the exhaustive source and documents only the
+    commands its recovery procedures actually invoke.
+    """
+    rescue = _unstuck_text()
+    commands = set(re.findall(r"!(?:[a-z]+)", rescue))
+    assert commands == {"!flag", "!grace", "!help", "!setflag", "!warp"}
 
 
 def _live_option_names():

@@ -63,6 +63,7 @@ rush.
 | `CHANGELOG.md` | The per-release delta, newest first. |
 | `KNOWN-ISSUES.md` | Current known issues and by-design non-features -- read it before filing a report. |
 | `Elden-Ring-Archipelago-Player-Guide.md` | How a run actually plays once you press New Game. |
+| `GETTING-UNSTUCK.md` | Rescue-console commands for a bad warp, missing grace, or goal that did not fire. |
 | `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` | Stacking matt's randomizer for enemies and starting class (with items OFF). |
 | `ATTRIBUTION.md` | Credits, licensing, and provenance. |
 | `PROVENANCE.md` | Why this is a clean rebuild -- the five provenance non-negotiables and how CI enforces them. |

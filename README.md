@@ -77,7 +77,8 @@ Start with `release/SETUP.md`. It's about 15 minutes to a running seed:
 Archipelago 0.6.7, the apworld, the client DLL, ModEngine3. Then
 `Elden-Ring-Archipelago-Player-Guide.md` covers how a run actually plays. Every
 real option has a comment next to it in `release/EldenRing.yaml`, and the rough
-edges are in `release/KNOWN-ISSUES.md`.
+edges are in `release/KNOWN-ISSUES.md`. If a run is already stuck, start with
+`release/GETTING-UNSTUCK.md` for the client's built-in rescue console.
 
 You need Elden Ring on PC (Steam). The DLC only matters if you turn on the DLC
 regions.
