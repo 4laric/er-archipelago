@@ -20,7 +20,7 @@ Multi-key gates (features/legacy_key_gates._MULTI_KEY_GATES) handle a sub-dungeo
 MORE THAN ONE key ANDed -- DLC Lamenter's Gaol needs BOTH the Gaol Upper and Lower Level Keys.
 
 Currently gated:
-  Carian Inverted Statue ->  the two evidenced inverted Divine Tower checks (f34117500), Liurnia;
+  Carian Inverted Statue ->  inverted Study Hall, Tower Bridge and Divine Tower checks, Liurnia;
   Gaol U+L Level Keys      ->  Lamenter's Gaol (m41_02, Charo's) -- BOTH keys, check-level, incl.
                               the Lamenter boss reward (f520770). See _MULTI_KEY_GATES;
   Hole-Laden Necklace     ->  Metyr's remembrance check. NB: the Cathedral surface bucket 6920 (the
@@ -69,11 +69,20 @@ except Exception:  # pre-regen / standalone import
 # do the precise opposite of this ruling. It also means re-adding the key gate here re-arms the wall
 # by itself.
 _LEGACY_KEYS = {
-    "Carian Inverted Statue": ("Liurnia", (0, 0)),  # inverted Divine Tower checks; exact flag below
+    "Carian Inverted Statue": ("Liurnia", (0, 0)),  # inverted route; exact flags below
     "Hole-Laden Necklace": ("Scadu Altus", (0, 0)),   # Metyr arena m25_00 -> bucket 6900 (see above)
 }
 _LEGACY_EXTRA = {
-    "Carian Inverted Statue": frozenset({34117500}),
+    # Standard side stays open: f34117010/060 Golden Runes, f34117080 Cerulean Seed Talisman,
+    # f34117200 Carian Glintstone Staff, f34117700 Magic Downpour. The inverted side is the Mask,
+    # two rafter pickups, second Miriam reward, bridge Godskin set, and both tower-top checks (the
+    # latter share f34117500). Orientation cross-checked against the wiki.gg walkthrough and the
+    # player's Fextra capture in #653; flags are the committed m34_11 rows in LOCATIONS.
+    "Carian Inverted Statue": frozenset({
+        34117100, 34117110, 34117120,
+        34117400, 34117401, 34117402, 34117403,
+        34117500, 34117710,
+    }),
     "Hole-Laden Necklace": frozenset({510550}),
 }
 

@@ -84,13 +84,24 @@ class LegacyKeyGateOn(WorldTestBase):
         distribute_items_restrictive(mw)
         assert mw.can_beat_game(), "seed must be beatable with the Academy gate retired"
 
-    def test_carian_statue_gates_the_two_evidenced_tower_checks(self):
+    def test_carian_statue_gates_the_inverted_route_and_not_the_standard_hall(self):
         statue = "Carian Inverted Statue"
-        expected = {ap for (_name, ap, flag) in LOCATIONS["Liurnia"] if flag == 34117500}
-        assert len(expected) == 2, "the shared Divine Tower acquisition flag must identify two checks"
-        assert _LEGACY_EXTRA[statue] == {34117500}
+        inverted_flags = {
+            34117100, 34117110, 34117120,              # Mask, liver, fireflies
+            34117400, 34117401, 34117402, 34117403,    # Tower Bridge Godskin set
+            34117500,                                  # Cursemark + Stargazer Heirloom
+            34117710,                                  # inverted Miriam: Lucidity
+        }
+        standard_flags = {34117010, 34117060, 34117080, 34117200, 34117700}
+        expected = {ap for (_name, ap, flag) in LOCATIONS["Liurnia"] if flag in inverted_flags}
+        standard = {ap for (_name, ap, flag) in LOCATIONS["Liurnia"] if flag in standard_flags}
+        assert len(expected) == 10, "nine inverted flags must identify ten checks (two share f34117500)"
+        assert len(standard) == 5, "the standard-side witness set drifted"
+        assert _LEGACY_EXTRA[statue] == inverted_flags
         gated = _gated_location_ids(list(_LEGACY_KEYS))
         assert {ap for ap, key in gated.items() if key == statue} == expected
+        assert not (standard & {ap for ap, key in gated.items() if key == statue}), \
+            "standard Study Hall loot must not require the statue"
 
         items = [it for it in world_items(self) if it.name == statue]
         assert items and (items[0].classification & IC.progression), \
@@ -176,4 +187,3 @@ class LamentersGaolGateOn(WorldTestBase):
             assert all(l.address not in gated for l in keylocs), \
                 f"{kn} must be placed OUTSIDE the gaol it gates"
         assert mw.can_beat_game(), "a DLC seed with the gaol gate active must be beatable"
-
