@@ -57,6 +57,7 @@ GENERATORS = [
     "desc_triage",
     "provenance_gate",
     "questline_dag",
+    "questline_model",
     "shipping_yaml_recipe",
     "scaling_ladder_mirror",
     "client_contract_paths",
@@ -69,6 +70,12 @@ GENERATORS = [
     # wizard/ and presets/, neither of which gf_test.py installs beside the world, so both
     # skip in the `tests` job. AP-free, no artifacts, no client.
     "option_groups",
+    # Cross-checks the same committed wizard metadata against the player-facing release yaml.
+    # Both live at repo root and are not installed with the world; AP-free and artifact-free.
+    "shipped_option_template",
+    # Compares the committed boss worksheet through its repo-only builder helper. AP-free; the
+    # builder and worksheet are not installed beside the world.
+    "boss_region_worksheet",
     "infinite_shop_rows_are_browsable_shelves",
     # PlayRegion ground audit (#445): joins data.LOCATIONS x item_grace_coords.tsv x
     # play_region_buckets.tsv x region_groups.PLAY_REGION_GROUPS. Every input is committed and

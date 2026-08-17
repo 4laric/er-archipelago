@@ -6,7 +6,7 @@
 # tile_has_grace no = the boss's own region is a guess too, so its derived value
 #   is NOT independent evidence -- those are the rows where a human is load-bearing.
 boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	arena_region	has_arena	arena_vs_members	claimed_regions	tile_has_grace	verdict	reason
-2050470800	Tree Sentinel	m61_50_47	legacy	25	30	Shadow Keep	Hinterland	yes	MISMATCH	Scadu Altus	no		
+2050470800	Tree Sentinel	m61_50_47	legacy	25	30	Shadow Keep	Hinterland	yes	ok	Scadu Altus	no		
 1045390800	Tibia Mariner	m60_45_39	field	21	24	Limgrave	Limgrave	yes	ok	Limgrave	no		
 1048370800	Decaying Ekzykes	m60_48_37	field	21	26	Caelid	Caelid	yes	ok	Caelid	yes		
 1248550800	?	m60_48_55	?	14	30	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
@@ -36,7 +36,7 @@ boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	a
 1043330800	Erdtree Avatar	m60_43_33	field	5	20	Weeping	Weeping	yes	ok	Weeping	no		
 1044320850	?	m60_44_32	?	5	16	Weeping	ABSENT	no		Weeping	no		
 1051400800	Putrid Avatar	m60_51_40	field	5	9	Caelid	Caelid	yes	ok	Caelid	no		
-2046460800	Divine Beast Dancing Lion	m61_46_46	legacy	5	33	Ancient Ruins	Ancient Ruins of Rauh	yes	MISMATCH	Ancient Ruins;Rauh Base	no		
+2046460800	Divine Beast Dancing Lion	m61_46_46	legacy	5	33	Ancient Ruins	Ancient Ruins of Rauh	yes	ok	Ancient Ruins;Rauh Base	no		
 2048380850	Ghostflame Dragon	m61_48_38	legacy	5	18	Cerulean	Cerulean	yes	ok	Cerulean	no		
 2046410800	Knight of the Solitary Gaol	m61_46_41	legacy	5	24	Gravesite	Gravesite	yes	ok	Gravesite	no		
 2049450800	Ralva the Great Red Bear	m61_49_45	legacy	5	26	Scadu Altus	Scadu Altus	yes	ok	Scadu Altus	no		
@@ -52,7 +52,7 @@ boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	a
 1049380800	?	m60_49_38	?	3	14	Caelid	ABSENT	no		Caelid	yes		
 1051570800	Commander Niall	m60_51_57	field	3	38	Mountaintops of the Giants	Mountaintops of the Giants	yes	ok	Mountaintops of the Giants	yes		
 2049430850	Black Knight Edredd	m61_49_43	legacy	3	48	Scadu Altus	ABSENT	no		Abyssal	yes		
-1034420800	Glintstone Dragon Adula	m60_34_42	field	2	17	Liurnia	Lirunia	yes	MISMATCH	Liurnia	yes		
+1034420800	Glintstone Dragon Adula	m60_34_42	field	2	17	Liurnia	Lirunia	yes	ok	Liurnia	yes		
 1033450800	Bols, Carian Knight	m60_33_45	field	2	7	Liurnia	Liurnia	yes	ok	Liurnia	no		
 1036480800	?	m60_36_48	?	2	18	Liurnia	ABSENT	no		Liurnia	yes		
 1037460800	Bell Bearing Hunter	m60_37_46	field	2	12	Liurnia	Liurnia	yes	ok	Liurnia	yes		
@@ -69,7 +69,7 @@ boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	a
 1051360800	Crucible Knight	m60_51_36	field	2	20	Caelid	Caelid	yes	ok	Caelid	yes		
 1252520800	Fire Giant	m60_52_52	field	2	17	Mountaintops of the Giants	Mountaintops of the Giants	yes	ok	Mountaintops of the Giants	no		
 2050430710	Dryleaf Dane	m61_50_43	legacy	2	12	Scadu Altus	ABSENT	no		Abyssal	yes		
-2052480800	Fallingstar Beast	m61_52_48	legacy	2	6	Shadow Keep	Scaduview	yes	MISMATCH	Shadow Keep	no		
+2052480800	Fallingstar Beast	m61_52_48	legacy	2	6	Shadow Keep	Scaduview	yes	ok	Shadow Keep	no		
 1033420800	Alecto, Black Knife Ringleader	m60_33_42	field	1	2	Liurnia	Liurnia	yes	ok	Liurnia	no		
 1034500800	Glintstone Dragon Adula	m60_34_50	field	1	14	Liurnia	Liurnia	yes	ok	Liurnia	yes		
 1035500800	Royal Knight Loretta	m60_35_50	field	1	54	Liurnia	Liurnia	yes	ok	Liurnia	yes		

@@ -143,12 +143,13 @@ def _chk_str(v):
 def _chk_nested_grants(v):
     """progressiveGrants : {name: [{"goods": int, "flags": [int], "consumed": bool}, ...]}
 
-    `consumed` is REQUIRED, and it is required for a reason worth a paragraph.
+    A rung must carry non-empty goods and/or flags. When goods are present, `consumed` is REQUIRED,
+    and it is required for a reason worth a paragraph. A flags-only rung has nothing to reconcile
+    in inventory, so `consumed` is neither meaningful nor emitted (#804 stone-bell fix).
 
     The client folds a rung's goods one of two ways: OWNED goods go to `unique_goods`, a SELF-HEALING
-    set meaning "the player should have this; if it is missing, grant it" (correct for a stone bell
-    bearing -- a key item you keep forever, and one lost to a save-scum should come back). CONSUMED
-    goods are ledgered by the copy's stream index and granted exactly ONCE.
+    set meaning "the player should have this; if it is missing, grant it". CONSUMED goods are
+    ledgered by the copy's stream index and granted exactly ONCE.
 
     Ship a consumable as OWNED and the game eats itself: a Golden Seed is SPENT at a Site of Grace, so
     the reconciler sees it leave the inventory and hands it straight back -- upgrade, re-grant,
@@ -159,19 +160,25 @@ def _chk_nested_grants(v):
     So it is not optional and it does not default. A rung must SAY which it is.
     """
     if not isinstance(v, dict):
-        return "expected {name: [{goods:int, flags:[int], consumed:bool}]}"
+        return "expected {name: [{goods?:int, flags:[int], consumed?:bool}]}"
     for k, lst in v.items():
         if not isinstance(lst, (list, tuple)):
             return f"{k!r} must map to a list"
         for e in lst:
-            if not isinstance(e, dict) or not _is_int(e.get("goods")) or \
-               not (isinstance(e.get("flags"), (list, tuple)) and all(_is_int(i) for i in e["flags"])):
-                return f"{k!r} entry must be {{goods:int, flags:[int], consumed:bool}}, got {e!r}"
-            if not isinstance(e.get("consumed"), bool):
+            flags_ok = (isinstance(e, dict) and isinstance(e.get("flags"), (list, tuple))
+                        and all(_is_int(i) for i in e["flags"]))
+            goods_present = isinstance(e, dict) and "goods" in e
+            if not flags_ok or (goods_present and not _is_int(e.get("goods"))) or \
+               (not goods_present and (not isinstance(e, dict) or not e.get("flags"))):
+                return (f"{k!r} entry must carry goods:int and/or non-empty flags:[int], "
+                        f"got {e!r}")
+            if goods_present and not isinstance(e.get("consumed"), bool):
                 return (f"{k!r} rung is missing `consumed` (bool): {e!r}. A rung must declare whether "
                         f"its goods are SPENT by the player (consumed=true -> granted once, ledgered) "
                         f"or KEPT (consumed=false -> self-healing). Shipping a consumable as kept "
                         f"re-grants it every time the player spends it, and CTDs the game.")
+            if not goods_present and "consumed" in e:
+                return f"{k!r} flags-only rung must not declare meaningless `consumed`: {e!r}"
     return None
 
 
