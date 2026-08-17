@@ -10,6 +10,12 @@ The measured CI-equivalent run fell from 224.7 seconds to 130.4 without dropping
 the suite's guards against silently inert tests. That makes the green-or-red answer arrive
 substantially sooner on every future change.
 
+A failed connection now has a short diagnostic ladder in the setup guide. The first test is the
+stock Archipelago Text Client against the same room: one attempt tells you whether to investigate
+the room/network or `eldenring.exe` specifically. The guide then separates immediate refusal from
+timeout and points at the process-specific firewall, antivirus, VPN and mod-hook cases that used to
+take several rounds of chat to rediscover.
+
 ## What carried over from v0.4.5
 
 Nothing is owed. v0.4.5 shipped complete: its changelog section and its blurb were both finished
