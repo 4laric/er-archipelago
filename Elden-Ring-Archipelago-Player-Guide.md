@@ -549,6 +549,11 @@ the option you thought you set simply would not exist.
 
 ## When something looks wrong
 
+**You are trapped, a grace did not light, or the map cannot get you out.** Open
+`GETTING-UNSTUCK.md`. It walks through the built-in rescue console, including the guaranteed
+Roundtable escape, finding a grace by name, restoring a missing grace flag, and locating the right
+client log for either me3 or thefifthmatt's randomizer.
+
 **Your checks send, but you never receive anything.** Sending works -- your
 friends get your checks, the server shows them arriving -- and yet nothing ever
 comes back to you. That one-directional shape is a fingerprint, not a
