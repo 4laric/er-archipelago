@@ -4,7 +4,7 @@ the region audit (SPEC-PARITY.md 14.4); client treats an absent open flag as unl
 REGION_OPEN_FLAGS = {
     'Abyssal': 76860,
     'Ainsel River': 71211,
-    'Altus': 73204,
+    'Altus': 76301,
     'Ancient Ruins': 76940,
     'Belurat': 72001,
     'Caelid': 73207,
@@ -36,4 +36,4 @@ REGION_OPEN_FLAGS = {
 REGION_OPEN_PENDING = [
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:bee4552775429b906a28717480f30835bbadfa88e86f5a2bf2dd59f6e4182e2c', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:e578ed7958e74bafc78ef41eefe5a5a44836f859c231d2ac240168708ce81687'}
+_GEN_STAMP = {'inputs_hash': 'sha256:6419da0b426f56515b5d93ddbed9ed3a7999a5b8addb21f0bfb0cac80257c6b0', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:bbaaddda4746590f632b53381a889abdf957bdc37664e8635b593828677b3e08'}

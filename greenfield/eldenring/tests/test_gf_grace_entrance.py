@@ -26,7 +26,7 @@ EXEMPLARS = {
     "Liurnia": (76200, "Lake-Facing Cliffs"),      # the literal way in from Stormveil
     "Limgrave": (76100, "Church of Elleh"),
     "Weeping": (76150, "Church of Pilgrimage"),
-    "Altus": (76300, "Abandoned Coffin"),
+    "Altus": (76301, "Altus Plateau"),         # lift-side entrance; #641
     "Gravesite": (76800, "Gravesite Plain"),       # where the DLC starts
     "Stormveil": (71003, "Gateside Chamber"),      # interior region: no 76xxx member at all
     "Leyndell": (71102, "East Capital Rampart"),   # interior
@@ -38,7 +38,7 @@ def test_every_region_resolves_to_exactly_one_entrance():
     for region, flags in REGION_GRACE_POINTS.items():
         if not flags:
             continue
-        f = entrance_grace(flags)
+        f = entrance_grace(flags, region)
         assert f in flags, "%s: entrance %s is not one of the region's graces" % (region, f)
 
 
@@ -49,7 +49,7 @@ def test_the_named_exemplars_are_still_what_the_pipeline_picks():
         if region not in REGION_GRACE_POINTS:
             wrong.append("%s: region is gone from REGION_GRACE_POINTS" % region)
             continue
-        got = entrance_grace(REGION_GRACE_POINTS[region])
+        got = entrance_grace(REGION_GRACE_POINTS[region], region)
         if got != flag:
             wrong.append("%s: expected %s (%s), got %s" % (region, flag, name, got))
     assert not wrong, (
@@ -59,8 +59,8 @@ def test_the_named_exemplars_are_still_what_the_pipeline_picks():
         "numbers, which is how a regression gets laundered into a test." % wrong)
 
 
-def test_an_entrance_is_never_a_catacomb_anchor():
-    """The rejected REGION_OPEN_FLAGS table, asserted as rejected.
+def test_only_the_ruled_altus_entrance_matches_its_open_anchor():
+    """The rejected REGION_OPEN_FLAGS table stays rejected except for the explicit Altus ruling.
 
     If someone swaps the derivation for `REGION_GRACE_POINTS[r][0]` (which IS REGION_OPEN_FLAGS, and
     is one line shorter) every test above would still need to fail loudly. It does: for the
@@ -68,10 +68,11 @@ def test_an_entrance_is_never_a_catacomb_anchor():
     from worlds.eldenring.region_open_flags import REGION_OPEN_FLAGS
     differing = [r for r in ("Limgrave", "Liurnia", "Caelid", "Altus", "Weeping")
                  if r in REGION_GRACE_POINTS
-                 and entrance_grace(REGION_GRACE_POINTS[r]) != REGION_OPEN_FLAGS.get(r)]
-    assert len(differing) == 5, (
+                 and entrance_grace(REGION_GRACE_POINTS[r], r) != REGION_OPEN_FLAGS.get(r)]
+    assert set(differing) == {"Limgrave", "Liurnia", "Caelid", "Weeping"}, (
         "the entrance rule has collapsed onto REGION_OPEN_FLAGS for %s. That table is a region-open "
         "detection anchor, not a front door -- it grants Murkwater Cave for Limgrave." % differing)
+    assert entrance_grace(REGION_GRACE_POINTS["Altus"], "Altus") == REGION_OPEN_FLAGS["Altus"] == 76301
 
 
 def test_empty_input_fails_rather_than_inventing_an_answer():

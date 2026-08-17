@@ -2,7 +2,7 @@
 REGION_GRACE_POINTS = {
     'Abyssal': [76860, 72801, 72802, 72803, 76861, 76863, 76864],
     'Ainsel River': [71211, 71212, 71213, 71214, 71215, 71216, 71218, 71219],
-    'Altus': [73204, 73008, 73010, 73012, 73013, 73118, 73205, 73430, 73431, 73432, 73450, 73451, 76300, 76301, 76302, 76303, 76304, 76305, 76306, 76307, 76308, 76309, 76310, 76311, 76312, 76320, 76500],
+    'Altus': [76301, 73008, 73010, 73012, 73013, 73118, 73204, 73205, 73430, 73431, 73432, 73450, 73451, 76300, 76302, 76303, 76304, 76305, 76306, 76307, 76308, 76309, 76310, 76311, 76312, 76320, 76500],
     'Ancient Ruins': [76940, 76941, 76942, 76943, 76944],
     'Belurat': [72001, 72002, 72003],
     'Caelid': [73207, 73014, 73015, 73016, 73110, 73111, 73120, 73121, 73208, 73257, 73440, 73441, 73460, 76400, 76401, 76402, 76403, 76404, 76405, 76406, 76407, 76409, 76410, 76411, 76413, 76414, 76416, 76417, 76418, 76420, 76450, 76451, 76452, 76453, 76454, 76455, 76456],
@@ -36,7 +36,7 @@ REGION_GRACE_POINTS = {
 REGION_GRACE_LANDMARKS = {
     'Abyssal': [72801, 76860],  # Manse Hall, Abyssal Woods
     'Ainsel River': [71211, 71214, 71216],  # Ainsel River Well Depths, Ainsel River Main, Lake of Rot Shoreside
-    'Altus': [76300, 76309, 76500],  # Abandoned Coffin, Outer Wall Phantom Tree, Forbidden Lands
+    'Altus': [76301, 76309, 76500],  # Altus Plateau, Outer Wall Phantom Tree, Forbidden Lands
     'Ancient Ruins': [76940],  # Viaduct Minor Tower
     'Belurat': [72001],  # Belurat, Tower Settlement
     'Caelid': [76400, 76406, 76450],  # Smoldering Church, Aeonia Swamp Shore, Dragonbarrow West
@@ -64,4 +64,4 @@ REGION_GRACE_LANDMARKS = {
     'Weeping': [76150],  # Church of Pilgrimage
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:bee4552775429b906a28717480f30835bbadfa88e86f5a2bf2dd59f6e4182e2c', 'module': 'region_graces.py', 'body_sha256': 'sha256:781f81605aa3eeee3b5ee2c329a37b1905880f6fbd6a2f5d9400484a52625eb6'}
+_GEN_STAMP = {'inputs_hash': 'sha256:6419da0b426f56515b5d93ddbed9ed3a7999a5b8addb21f0bfb0cac80257c6b0', 'module': 'region_graces.py', 'body_sha256': 'sha256:5684fc771383c38e64b0843831e417c7e9a58558ac6a467a84645d6176709eae'}

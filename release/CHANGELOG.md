@@ -29,6 +29,19 @@ repeated it. Client half: clients#246, gitlink bumped in the same commit (AGENTS
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
+### Altus opens at the lift, not inside two unrelated side entrances
+
+With `region_grace_unlock: entrance`, receiving the Altus Lock lit **Old Altus Tunnel** as the
+region-open flag and **Abandoned Coffin** as the entrance bundle. Bobler's playtest saw both. The
+two derivations independently chose their lowest numeric candidate, and neither candidate is the
+way into Altus from the Grand Lift.
+
+Both now resolve to **Altus Plateau** (`76301`), the lift-side grace. The same ruling is carried
+through the landmarks tier so the three grace tiers remain nested: moving from landmarks to
+entrance removes warp points and never swaps one for a different one.
+
+Refs #641.
+
 ### The CI test suite uses both runner cores
 
 The world pytest step was the workflow's critical path: **413 seconds** in the measured green run,

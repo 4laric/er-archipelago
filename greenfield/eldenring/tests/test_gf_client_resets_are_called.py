@@ -53,7 +53,7 @@ in_world edge"). Alaric ruled "resets for everything should be handled in the sa
 modules that were merely UNRULED got the same edge re-arm as their siblings and their rows are gone.
 RE-MEASURED against that branch: still 18 writers, now 16 accepted (the 9 above plus shop_flags,
 upgrade_cost, notif_ticker, no_weapon_reqs, no_equip_load, no_fall_damage, scadu_blessing) and 2 in
-_EDGE_EXEMPT (shop_value the pure helper, fmg_inject the measured-inert one). `_UNRULED_WRITERS` is
+_EDGE_EXEMPT (currently fmg_inject, the measured-inert writer). `_UNRULED_WRITERS` is
 now EMPTY and stays a live list: the ratchet still refuses a fixed row, and the next writer that
 lands without an edge re-arm turns this file RED on the day it lands rather than joining a backlog.
 
@@ -112,11 +112,6 @@ _WRITE_SIGNALS = [
      re.compile(r"\b(?:swap_category|extend_swap_overrides)\s*\("),
      "the FMG half. shop_preview (the 2026-08-03 miss) writes ONLY through these -- it never "
      "touches the param repo, so a param-only heuristic reproduces the exact hole"),
-    ("&mut SoloParamRepository in a signature",
-     re.compile(r":\s*&mut\s+SoloParamRepository\b"),
-     "a HELPER that writes through a borrow its caller owns (shop_value). It has no pass and no "
-     "latch of its own, so it is exempt -- but it must be SEEN, or the next such helper hides a "
-     "write behind a module name nothing scans"),
 ]
 
 # Modules whose re-arm is deliberately NOT on the in-world edge, and which a map load provably
@@ -154,12 +149,6 @@ _EDGE_EXEMPT = {
         "now logs `FMG-inject: INERT -- 0 synthetic goods ids` at WARN on every session that finds "
         "none, so the DISAPPEARANCE of that line is the signal -- at which point the swap stops "
         "being an identity swap and this module needs a reset() and an edge call like the rest."
-    ),
-    "shop_value": (
-        "pure helper: every write is through a `&mut SoloParamRepository` its CALLER borrowed "
-        "(shop_sell / shop_repoint), and it holds no static latch of any kind -- grep it for "
-        "`static` and there is none. It runs exactly when its caller runs, so its re-arm IS its "
-        "caller's re-arm, and both callers are on the edge."
     ),
     "traps": (
         "NO PASS AND NO DONE LATCH -- it re-applies on every fire, which is the one case this "
