@@ -1168,11 +1168,12 @@ CONTRACT = (
                 "core._base_slot_data", "(diagnostic -- no client read)",
                 "resolved goal tag: 'region_locks' | 'great_runes'."),
     ContractKey("great_runes_required", "ANY", False, (GREENFIELD,),
-                "core._base_slot_data", "(diagnostic -- no client read)",
+                "core._base_slot_data", "goal.rs parse",
                 "EFFECTIVE (clamped) Great Rune requirement for the great_runes ending."),
     ContractKey("great_rune_items", "STR_LIST", False, (GREENFIELD,),
                 "core._base_slot_data", "goal.rs parse",
-                "Item NAMES the player must HOLD before Goal can fire (the great_runes ending). WAS a "
+                "Eligible Great Rune item NAMES; goal.rs requires great_runes_required distinct names "
+                "from this set before Goal can fire. WAS a "
                 "diagnostic with no client read, which is exactly how the bug survived: the client's "
                 "goal was the LOCATION of each rune's boss drop -- i.e. KILL Godrick -- while AP's "
                 "victory rule was state.has(rune). item_shuffle is frozen ON, so the rune is NOT at the "

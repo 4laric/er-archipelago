@@ -246,9 +246,11 @@ class DLCOnlyGreatRunesGoal(WorldTestBase):
         world = self.multiworld.worlds[self.player]
         self.assertEqual(len(world._available_runes()), 7,
                          "all seven Great Runes are in the pool, DLC Only included (#764)")
-        want = int(world.options.goal_great_runes.value)
-        self.assertEqual(len(world._required_runes()), want,
-                         "the requirement is the number the player asked for -- no clamp, because "
+        self.assertEqual(set(world._required_runes()), set(GREAT_RUNES),
+                         "all seven Great Runes are eligible, DLC Only included")
+        self.assertEqual(world._great_runes_required_count(),
+                         int(world.options.goal_great_runes.value),
+                         "the threshold is the number the player asked for -- no clamp, because "
                          "the supply no longer depends on the draw")
 
     def test_beatable(self):

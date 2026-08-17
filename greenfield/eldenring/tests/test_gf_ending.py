@@ -2,8 +2,8 @@
 
 Covers the greenfield EndingCondition / GreatRunesRequired goal wired into core.py:
   * region_locks (default): goal unchanged -- completion needs every kept lock, no runes.
-  * great_runes + item_shuffle on: seed still fills/beatable AND the goal actually requires the
-    Great Runes (dropping a required rune breaks completion; the required runes are progression).
+  * great_runes + item_shuffle on: seed still fills/beatable AND the goal requires any configured
+    number from the full seven-rune set (all eligible runes are progression).
   * heavily-sealed seed (num_regions=1) + great_runes: the requirement auto-drops to what's
     reachable (here 0 -- only Limgrave survives, which has no Great Rune), so the seed collapses to
     the region_locks goal and stays beatable. This is the winnability guard: under-require, never
@@ -54,19 +54,19 @@ class RegionLocksGoalDefault(WorldTestBase):
 
 
 class GreatRunesGoalShuffleOn(WorldTestBase):
-    """great_runes goal with item_shuffle on: beatable (base test_fill) AND the runes gate it."""
+    """great_runes goal: beatable and any four of the seven runes satisfy it."""
     game = GAME
     options = {"num_regions": 0, 
         "item_shuffle": True,
         "ending_condition": "great_runes",
-        "goal_great_runes": 2,
+        "goal_great_runes": 4,
     }
 
     def test_required_runes_resolved_and_progression(self):
         world = self.multiworld.worlds[self.player]
         req = world._required_runes()
-        # full-region seed with shuffle on: at least the requested 2 runes must be reachable.
-        self.assertEqual(len(req), 2, "full seed should honor great_runes_required=2")
+        self.assertEqual(set(req), set(GREAT_RUNES),
+                         "every Great Rune must be eligible for an any-four goal")
         for name in req:
             self.assertIn(name, GREAT_RUNES)
         # the required runes are placed as progression items (so fill guarantees reachability).
@@ -84,20 +84,26 @@ class GreatRunesGoalShuffleOn(WorldTestBase):
         # full state beats it.
         full = self.multiworld.get_all_state(False)
         self.assertTrue(cond(full))
-        # removing a required rune from an otherwise-complete state breaks completion.
-        # remove ALL copies of a required rune (Land of Shadow duplicates the runes, so state.has
-        # stays true until every copy is gone) -> completion must then break.
-        one = req[0]
-        for victim in [i for i in world_items(self) if i.name == one]:
+        # Strip every rune from an otherwise-complete state, then prove the 3/4 boundary with an
+        # arbitrary four names. Land of Shadow can duplicate runes, so remove every copy first.
+        for victim in [i for i in world_items(self) if i.name in set(GREAT_RUNES)]:
             full.remove(victim)
-        self.assertFalse(cond(full),
-                         "dropping every copy of a required Great Rune must break the great_runes goal")
+        by_name = {}
+        for item in world_items(self):
+            if item.name in set(GREAT_RUNES):
+                by_name.setdefault(item.name, item)
+        chosen = [by_name[name] for name in sorted(by_name)[:4]]
+        for item in chosen[:3]:
+            full.collect(item, prevent_sweep=True)
+        self.assertFalse(cond(full), "any three Great Runes must be insufficient")
+        full.collect(chosen[3], prevent_sweep=True)
+        self.assertTrue(cond(full), "any four Great Runes must satisfy the rune requirement")
 
     def test_slot_data_reports_great_runes(self):
         sd = self.multiworld.worlds[self.player].fill_slot_data()
         self.assertEqual(sd["ending_condition"], "great_runes")
-        self.assertEqual(sd["great_runes_required"], 2)
-        self.assertEqual(len(sd["great_rune_items"]), 2)
+        self.assertEqual(sd["great_runes_required"], 4)
+        self.assertEqual(set(sd["great_rune_items"]), set(GREAT_RUNES))
 
 
 class GreatRunesGoalHeavilySealed(WorldTestBase):
@@ -118,8 +124,7 @@ class GreatRunesGoalHeavilySealed(WorldTestBase):
         world = self.multiworld.worlds[self.player]
         avail = world._available_runes()
         req = world._required_runes()
-        self.assertEqual(len(req), len(avail),
-                         "requirement must clamp to reachable Great Runes")
+        self.assertEqual(set(req), set(avail), "every available rune must be eligible")
         self.assertLessEqual(len(req), 7)
         # if no Great Rune region survived, the goal must collapse to locks-only (req == []).
         if not avail:
@@ -134,8 +139,8 @@ class GreatRunesGoalHeavilySealed(WorldTestBase):
     def test_slot_data_matches_effective_requirement(self):
         world = self.multiworld.worlds[self.player]
         sd = world.fill_slot_data()
-        self.assertEqual(sd["great_runes_required"], len(world._required_runes()))
-        expected = "great_runes" if world._required_runes() else "region_locks"
+        self.assertEqual(sd["great_runes_required"], world._great_runes_required_count())
+        expected = "great_runes" if world._great_runes_required_count() else "region_locks"
         self.assertEqual(sd["ending_condition"], expected)
 
 
@@ -178,7 +183,7 @@ class RuneClassificationInARealMultiworld(unittest.TestCase):
         "num_regions": 0,
         "item_shuffle": True,
         "ending_condition": "great_runes",
-        "goal_great_runes": 2,
+        "goal_great_runes": 4,
         "leyndell_runes_required": 0,
     }
 
@@ -208,8 +213,8 @@ class RuneClassificationInARealMultiworld(unittest.TestCase):
         every classification assertion after it passes over nothing."""
         for player in (1, 2):
             req = self.mw.worlds[player]._required_runes()
-            self.assertEqual(len(req), 2,
-                             "slot %d resolved %r, expected 2 required runes" % (player, req))
+            self.assertEqual(set(req), set(GREAT_RUNES),
+                             "slot %d did not expose all eligible runes: %r" % (player, req))
             for name in req:
                 self.assertIn(name, GREAT_RUNES)
 
@@ -233,28 +238,18 @@ class RuneClassificationInARealMultiworld(unittest.TestCase):
                     "after another world's create_items, this is what it looks like, and fill will "
                     "place it anywhere." % (player, i.name))
 
-    def test_a_rune_no_seed_requires_stays_filler(self):
-        """The other half, so the test above cannot pass by promoting everything. A rune outside the
-        required set (and outside the Leyndell gate's) carries nothing and must stay filler --
-        otherwise `confine_foreign_progression` reserves surface slots for junk."""
+    def test_every_eligible_rune_is_advancement(self):
+        """Any four can satisfy the goal, so no eligible rune may be treated as junk."""
         for player in (1, 2):
             world = self.mw.worlds[player]
-            promoted = set(world._required_runes()) | set(getattr(world, "gf_leyndell_runes", []))
             self.assertFalse(getattr(world, "gf_leyndell_runes", []),
-                             "fixture drifted: the wall is armed, so the goal arm is masked again")
-            spare = [i for i in self._items_of(player)
-                     if i.name in set(GREAT_RUNES) and i.name not in promoted]
-            # WITNESS: with 7 runes, 2 required and the wall disarmed there are 5 spares. An empty
-            # `spare` means the scan saw no rune at all, and the loop below would pass over nothing
-            # -- which is the same vacuity that let the first draft of the class above stay green.
-            self.assertTrue(spare,
-                            "slot %d created no un-required Great Rune, so this test asserts "
-                            "nothing about the ones a seed does not need" % player)
-            for i in spare:
-                self.assertFalse(
-                    i.advancement,
-                    "slot %d promoted %r, which no gate and no goal in this seed requires"
-                    % (player, i.name))
+                             "fixture drifted: the Leyndell wall would mask the goal classification")
+            runes = [i for i in self._items_of(player) if i.name in set(GREAT_RUNES)]
+            self.assertEqual({i.name for i in runes}, set(GREAT_RUNES))
+            for item in runes:
+                self.assertTrue(item.advancement,
+                                "slot %d left eligible rune %r non-progression"
+                                % (player, item.name))
 
 
 def _rune_sets():

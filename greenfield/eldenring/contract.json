@@ -894,7 +894,7 @@
         "greenfield"
       ],
       "producer": "core._base_slot_data",
-      "consumer": "(diagnostic -- no client read)",
+      "consumer": "goal.rs parse",
       "doc": "EFFECTIVE (clamped) Great Rune requirement for the great_runes ending."
     },
     {
@@ -906,7 +906,7 @@
       ],
       "producer": "core._base_slot_data",
       "consumer": "goal.rs parse",
-      "doc": "Item NAMES the player must HOLD before Goal can fire (the great_runes ending). WAS a diagnostic with no client read, which is exactly how the bug survived: the client's goal was the LOCATION of each rune's boss drop -- i.e. KILL Godrick -- while AP's victory rule was state.has(rune). item_shuffle is frozen ON, so the rune is NOT at the boss: you could kill every rune boss, hold no rune, and the run would end. A kill is not a collection. The client now READS this key. Absent/empty adds no requirement."
+      "doc": "Eligible Great Rune item NAMES; goal.rs requires great_runes_required distinct names from this set before Goal can fire. WAS a diagnostic with no client read, which is exactly how the bug survived: the client's goal was the LOCATION of each rune's boss drop -- i.e. KILL Godrick -- while AP's victory rule was state.has(rune). item_shuffle is frozen ON, so the rune is NOT at the boss: you could kill every rune boss, hold no rune, and the run would end. A kill is not a collection. The client now READS this key. Absent/empty adds no requirement."
     },
     {
       "name": "bossLocations",

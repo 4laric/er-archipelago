@@ -86,17 +86,9 @@ in a normal playthrough, and that's the fun of it.
 (`ending_condition: region_locks`). Open every kept region and you've won.
 The goal region -- Leyndell -- is always among the kept ones, so a seed is
 always winnable. The alternative, `ending_condition: great_runes`, asks you
-to hold Great Runes as well -- and it is a **specific set**, not any N of
-them. The seed picks which runes count; holding the right *number* of the
-wrong ones sends no victory and the run simply never ends. **Your client
-names the required runes at connect** -- in the client log, the line
-
-    goal: N item(s) must be HELD, not merely their boss killed: <names>
-
-is the requirement, so you never need the spoiler to find out. (The set is
-drawn at random from all seven Great Runes. All seven are in every seed's pool
-whatever regions you drew, so any of them can be the one you need -- read the
-line rather than guessing from which bosses your seed kept.)
+to hold Great Runes as well. **Any distinct Great Runes count**: the default
+is any four of all seven, and no particular named rune is mandatory. The
+client reports the count and the full eligible set when you connect.
 
 **Which boss actually ends it** is a separate knob, `goal`. Left on `auto` it
 works itself out: if your seed keeps both Farum Azula and Leyndell you finish

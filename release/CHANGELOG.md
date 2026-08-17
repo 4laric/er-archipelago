@@ -56,6 +56,16 @@ with a specific option error instead of silently switching the protection off.
 
 Closes #582.
 
+### Great Rune goals now mean any four of seven
+
+The Great Rune ending previously defaulted to two and turned the option into a seed-selected named
+checklist. Holding the requested number of different Great Runes could therefore fail to finish the
+run. It now defaults to four and counts any four distinct Great Runes from the full seven-rune pool;
+no particular rune is mandatory. The slot contract exposes the full eligible set and the required
+count separately so the client reports and enforces the same rule.
+
+Fixes #813.
+
 ### Rakshasa no longer rings a Finger Ruins bell for you
 
 Killing Rakshasa could grant the Cerulean Seed Talisman +1 check from the Finger Ruins of Rhia.
