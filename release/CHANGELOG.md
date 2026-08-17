@@ -29,6 +29,19 @@ repeated it. Client half: clients#246, gitlink bumped in the same commit (AGENTS
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
+### Missable checks stop eating useful gear by default
+
+The 285 checks that can disappear behind a spent currency, a killable NPC, or questline state used
+to protect only required progression. They could still consume useful weapons, spells, spirit ashes,
+crystal tears, and other build-defining rewards. The default now leaves only filler at those checks.
+
+The setting is now an explicit three-level choice: `off`, `progression` (the previous behaviour), or
+`progression and useful` (the new default). Existing YAML booleans remain meaningful: `false` is off
+and `true` selects the new default. A seed whose pool cannot supply enough eligible filler is refused
+with a specific option error instead of silently switching the protection off.
+
+Closes #582.
+
 ### Rakshasa no longer rings a Finger Ruins bell for you
 
 Killing Rakshasa could grant the Cerulean Seed Talisman +1 check from the Finger Ruins of Rhia.

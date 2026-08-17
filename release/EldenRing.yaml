@@ -366,6 +366,17 @@ Elden Ring:
   # Leyndell's checks.
   vanilla_placement: off
 
+  # What may be placed at the 285 checks that can be lost behind a spent
+  # currency, a killable NPC, or questline state.
+  #   progression_and_useful -- filler only (default): losing the check cannot
+  #                             take required progression or useful gear
+  #   progression            -- the old behaviour: protects winnability, but a
+  #                             useful weapon, spell, summon, or tear may be lost
+  #   off                    -- no protection; for guaranteed-access play
+  # Legacy booleans remain valid: true selects the new default, false selects off.
+  # The spelling `progression+useful` is also accepted.
+  protect_missable_locations: progression_and_useful
+
   # Recipe for the junk-consumable filler tail: {category: weight}.
   # Leave it alone unless you know what you want. Raising `juice` gives you more
   # genuinely useful drops; raising `stones` keeps upgrade materials flowing.

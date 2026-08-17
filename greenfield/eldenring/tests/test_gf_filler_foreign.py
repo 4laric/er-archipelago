@@ -21,8 +21,18 @@ from worlds.eldenring.features.filler_foreign import (                  # noqa: 
     FillerForeignFeature, FillerForeignPct, filler_names, FILLER_NAME, NO_CHANGE_PCT)
 from worlds.eldenring.item_categories import (                          # noqa: E402
     FILLER as FILLER_CLASS, category_of, class_of)
+from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS      # noqa: E402
 
 GAME = "Elden Ring"
+
+
+def _pre_reservation_filler_counts(world):
+    """Reconstruct the filler pool filler_foreign saw before #582's pre-fill reservation."""
+    items = [i for i in world.multiworld.itempool if i.player == world.player]
+    items += [l.item for l in world.multiworld.get_locations(world.player)
+              if getattr(l, "address", None) in MISSABLE_LOCATIONS
+              and l.locked and l.item is not None and l.item.player == world.player]
+    return collections.Counter(i.name for i in items if i.classification == IC.filler)
 
 
 def test_filler_foreign_ships_at_the_measured_target():
@@ -97,8 +107,7 @@ class FillerForeignAllLocal(WorldTestBase):
         scrap of filler to stay home; a safeguard that overrides an explicit request is a bug."""
         feat = FillerForeignFeature()
         localized = set(feat.names_to_localize(self.world))
-        pool = {i.name for i in self.world.multiworld.itempool
-                if i.player == self.world.player and i.classification == IC.filler}
+        pool = set(_pre_reservation_filler_counts(self.world))
         self.assertTrue(pool, "no filler in the pool -- this test has lost its subject")
         self.assertEqual(localized, pool, "pct 0 forces every filler name in the pool local")
         self.assertTrue(pool.issubset(self.world.options.local_items.value),
@@ -110,11 +119,7 @@ class FillerForeignPartial(WorldTestBase):
     options = {"num_regions": 4, "item_shuffle": True, "filler_foreign_pct": 12}
 
     def _counts(self):
-        c = collections.Counter()
-        for i in self.world.multiworld.itempool:
-            if i.player == self.world.player and i.classification == IC.filler:
-                c[i.name] += 1
-        return c
+        return _pre_reservation_filler_counts(self.world)
 
     def test_it_spends_a_COPY_budget_not_a_name_budget(self):
         """The whole point. At pct 12 roughly 88% of COPIES go home -- while the NAME share is a

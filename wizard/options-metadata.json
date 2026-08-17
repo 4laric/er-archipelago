@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.4.6",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "6f88f40e580f8e98dc816ca4aa373561a7e0b94129b7114fdf49ce367cb3793f",
+ "source_sha256": "424de515dc687e164953411b410306f214ed4760a354e47f4bb73c837d14b003",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -39,6 +39,7 @@
   "keep_local",
   "keep_local_rune_cap",
   "merchant_bells_on_talk",
+  "protect_missable_locations",
   "no_runes_in_shops",
   "progression_surface",
   "progression_bias",
@@ -113,6 +114,7 @@
     "natural_progression",
     "dungeon_sweep",
     "reroll_enemy_drops",
+    "protect_missable_locations",
     "vanilla_pool",
     "curated_filler",
     "pool_builder_intensity",
@@ -920,6 +922,35 @@
    "base": "Toggle",
    "default": false,
    "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "protect_missable_locations",
+   "class": "ProtectMissableLocations",
+   "display_name": "Protect Missable Locations",
+   "description": "What may be placed at checks that can be lost behind a limited consumable, a killable NPC,\nor NPC-questline progress. ``progression and useful`` (default) leaves only filler there;\n``progression`` protects winnability but may lose useful gear; ``off`` permits either and accepts\nthat a seed can require a missable questline step. Legacy ``true`` selects the new default and\n``false`` selects off.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "progression_and_useful",
+   "choices": [
+    {
+     "name": "off",
+     "value": 0
+    },
+    {
+     "name": "progression",
+     "value": 1
+    },
+    {
+     "name": "progression_and_useful",
+     "value": 2
+    }
+   ],
    "range": null,
    "valid_keys": null,
    "casefold": false,
