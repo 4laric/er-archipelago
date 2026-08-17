@@ -66,7 +66,11 @@ class DefaultIsEmptyAndInstallsNoRule(WorldTestBase):
         assert gear is not None, "no own weapon/armour in a default pool -- the probe is broken"
         shops = _shop_locs(self.world, self.multiworld)
         assert shops, "no shop-row locations in a default seed -- scope table missing?"
-        refusing = [l for l in shops if not l.item_rule(gear)]
+        from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS
+        # #582 deliberately makes the missable subset filler-only by default. This test owns the
+        # keep_out_of_shops default, so probe only rows outside that independent protection.
+        ordinary_shops = [l for l in shops if l.address not in MISSABLE_LOCATIONS]
+        refusing = [l for l in ordinary_shops if not l.item_rule(gear)]
         assert not refusing, (
             "%d shop checks reject %r with the option unset -- the default is not no-change "
             "(first: %s)" % (len(refusing), gear.name, refusing[0].name))

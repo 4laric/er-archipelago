@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.4.6",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "6f88f40e580f8e98dc816ca4aa373561a7e0b94129b7114fdf49ce367cb3793f",
+ "source_sha256": "424de515dc687e164953411b410306f214ed4760a354e47f4bb73c837d14b003",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -39,6 +39,7 @@
   "keep_local",
   "keep_local_rune_cap",
   "merchant_bells_on_talk",
+  "protect_missable_locations",
   "no_runes_in_shops",
   "progression_surface",
   "progression_bias",
@@ -113,6 +114,7 @@
     "natural_progression",
     "dungeon_sweep",
     "reroll_enemy_drops",
+    "protect_missable_locations",
     "vanilla_pool",
     "curated_filler",
     "pool_builder_intensity",
@@ -689,7 +691,7 @@
    "key": "region_grace_unlock",
    "class": "RegionGraceUnlock",
    "display_name": "Region Grace Unlock",
-   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nLiurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never\nwalked read as already-explored.\nlandmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to\nLake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across\nthe map. A middle setting: you can still cross a big region in a couple of hops.\nentrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.\n\nIt moves no item. Region Locks remain the only progression and every check stays exactly where\nit was, so nothing here changes what your seed contains or where any of it sits. A region whose\nbundle is WITHHELD (a gated child behind an armed wall) grants nothing at any value -- no\nsetting here is a way past a wall.\n\n🛑 THAT IS NOT THE SAME AS SAFE. The intent is that a grace you were not handed is still\nreachable on foot and still lights when you touch it. The bundles have not been walked region\nby region, though, so which ones can leave you somewhere you cannot get out of is genuinely not\nknown. `all` is the setting that has been played. Treat the other two as experimental, and\nplease report anything that strands you.",
+   "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nLiurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never\nwalked read as already-explored.\nlandmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to\nLake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across\nthe map. A middle setting: you can still cross a big region in a couple of hops.\nentrance -- only the region's front door; disconnected regions receive one entry per traversal\ncomponent, so every check AP considers open is physically reachable. You walk to and touch the\nrest yourself, the vanilla way.\n\nIt moves no item. Region Locks remain the only progression and every check stays exactly where\nit was, so nothing here changes what your seed contains or where any of it sits. A region whose\nbundle is WITHHELD (a gated child behind an armed wall) grants nothing at any value -- no\nsetting here is a way past a wall.\n\n🛑 THAT IS NOT THE SAME AS SAFE. The intent is that a grace you were not handed is still\nreachable on foot and still lights when you touch it. The bundles have not been walked region\nby region, though, so which ones can leave you somewhere you cannot get out of is genuinely not\nknown. `all` is the setting that has been played. Treat the other two as experimental, and\nplease report anything that strands you.",
    "kind": "choice",
    "base": "Choice",
    "default": "all",
@@ -920,6 +922,35 @@
    "base": "Toggle",
    "default": false,
    "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "protect_missable_locations",
+   "class": "ProtectMissableLocations",
+   "display_name": "Protect Missable Locations",
+   "description": "What may be placed at checks that can be lost behind a limited consumable, a killable NPC,\nor NPC-questline progress. ``progression and useful`` (default) leaves only filler there;\n``progression`` protects winnability but may lose useful gear; ``off`` permits either and accepts\nthat a seed can require a missable questline step. Legacy ``true`` selects the new default and\n``false`` selects off.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "progression_and_useful",
+   "choices": [
+    {
+     "name": "off",
+     "value": 0
+    },
+    {
+     "name": "progression",
+     "value": 1
+    },
+    {
+     "name": "progression_and_useful",
+     "value": 2
+    }
+   ],
    "range": null,
    "valid_keys": null,
    "casefold": false,

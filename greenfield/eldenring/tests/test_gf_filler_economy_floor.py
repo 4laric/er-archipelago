@@ -397,7 +397,11 @@ class LeanSeedWarnsRatherThanShipsQuietly(WorldTestBase):
     # SIZE IS THE POINT HERE (a seed too small for its recipe) and it does not change; only the
     # ending does, because #768 made a 1-region `region_locks` seed illegal at gen.
     options = {"num_regions": 1, "curated_filler": {"stones": 2, "juice": 98},
-               "ending_condition": "great_runes"}
+               "ending_condition": "great_runes",
+               # This fixture intentionally starves the filler pool to exercise the economy
+               # warning. Keep missable protection at its winnability-only level so the new
+               # filler-only default does not reject that unrelated artificial pool.
+               "protect_missable_locations": "progression"}
 
     def test_thin_stone_reservation_is_warned(self):
         import logging

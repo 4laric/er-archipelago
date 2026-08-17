@@ -43,6 +43,19 @@ case — raise it rather than guessing.
 | Game files modified at runtime | **none** — no `regulation.bin` patch, nothing baked per seed |
 | Data or code from another randomizer | **none** — see *The foreign-list rule* below |
 
+### Separately licensed questline evidence
+
+`greenfield/questline_cc_wiki.tsv` is a small, human-curated evidence layer adapted from
+[Elden Ring Wiki](https://eldenring.wiki.gg/) under CC BY-SA 4.0. It is not a foreign randomizer
+list and it is not vanilla-derived data. Every row pins a page revision, timestamp and source URL;
+`tools/build_questline_model.py` preserves that attribution and keeps item nodes in a different id
+space from event flags. The generated `questline_model.tsv` compilation and the corresponding
+section of the DAG page are CC BY-SA 4.0.
+
+This exception cannot silently become game logic: the keeper test scans the runtime package and
+fails if a non-test world module imports or names the evidence model. The original flag-only
+`questline_dag.tsv` remains derived solely from vanilla data.
+
 Elden Ring and Shadow of the Erdtree are property of FromSoftware / Bandai Namco. This is an
 unaffiliated fan project.
 
@@ -50,8 +63,9 @@ unaffiliated fan project.
 
 ## How the world data is derived
 
-Every table under `greenfield/` is generated from **vanilla game data**, by tools in this repo,
-against files that never enter this repo.
+Runtime tables under `greenfield/` are generated from **vanilla game data**, by tools in this repo,
+against files that never enter this repo. The evidence-only CC questline exception is documented
+above and is never packaged as world logic.
 
 `greenfield/gen_data.py` reads exactly (enumerated from its read sites, and pinned by
 `tools/gen_inputs.py`):

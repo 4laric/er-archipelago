@@ -191,10 +191,19 @@ class OneRegionSeed(WorldTestBase):
         from test.bases import WorldTestBase as _B
         opts = {"num_regions": 1, "ending_condition": "region_locks"}
         with pytest.raises(OptionError) as ei:
-            probe = type(self)("test_a_one_region_region_locks_seed_is_refused_and_says_why")
-            probe.options = opts
-            probe.game = GAME
-            probe.run_default_tests = False
+            # WorldTestBase reads fixture configuration from the class during world_setup.
+            # Assigning ``probe.options`` on an instance silently left this class's
+            # ``great_runes`` options in force, so the probe never exercised region_locks.
+            # Build the probe directly from AP's base. Subclassing this great-runes fixture
+            # carries its already-constructed class state into a second world_setup, which made
+            # this assertion order-dependent in the full suite even though it passed alone.
+            probe_type = type("OneRegionRegionLocksProbe", (_B,), {
+                "options": opts,
+                "game": GAME,
+                "run_default_tests": False,
+                "test_probe": lambda self: None,
+            })
+            probe = probe_type("test_probe")
             _B.world_setup(probe)
         msg = str(ei.value)
         assert "start_regions" in msg and "num_regions" in msg, msg
