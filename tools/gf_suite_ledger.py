@@ -70,6 +70,9 @@ GENERATORS = [
     # wizard/ and presets/, neither of which gf_test.py installs beside the world, so both
     # skip in the `tests` job. AP-free, no artifacts, no client.
     "option_groups",
+    # Cross-checks the same committed wizard metadata against the player-facing release yaml.
+    # Both live at repo root and are not installed with the world; AP-free and artifact-free.
+    "shipped_option_template",
     # Compares the committed boss worksheet through its repo-only builder helper. AP-free; the
     # builder and worksheet are not installed beside the world.
     "boss_region_worksheet",
