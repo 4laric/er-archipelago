@@ -122,6 +122,36 @@ class LegacyKeyGateOn(WorldTestBase):
             assert not loc.can_reach(without), f"{loc.name} reachable without the statue"
             assert loc.can_reach(with_statue), f"{loc.name} blocked with the statue"
 
+    def test_metyr_chain_needs_the_necklace_and_both_region_locks(self):
+        """Rhia + Dheo are necklace-gated; Metyr additionally needs Jagged Peak's Lock."""
+        world = self.multiworld
+        items = world_items(self)
+        loc_by_flag = {int(flag): world.get_location(name, 1)
+                       for locations in LOCATIONS.values() for (name, _ap, flag) in locations
+                       if int(flag) in {2053467600, 2050407000, 510550}}
+        necklace = next(it for it in items if it.name == "Hole-Laden Necklace")
+        jagged = next(it for it in items if it.name == "Jagged Peak Lock")
+
+        def _state(*extras):
+            st = CollectionState(world)
+            for item in items:
+                if item.name in {necklace.name, jagged.name}:
+                    continue
+                if item.classification & IC.progression:
+                    st.collect(item, prevent_sweep=True)
+            for item in extras:
+                st.collect(item, prevent_sweep=True)
+            return st
+
+        no_keys, necklace_only, jagged_only, both = (
+            _state(), _state(necklace), _state(jagged), _state(necklace, jagged))
+        rhia, dheo, metyr = (loc_by_flag[f] for f in (2053467600, 2050407000, 510550))
+        assert not rhia.can_reach(no_keys) and rhia.can_reach(necklace_only)
+        assert not dheo.can_reach(jagged_only), "Dheo must still need the necklace"
+        assert dheo.can_reach(both)
+        assert not metyr.can_reach(necklace_only), "Metyr must need the Jagged Peak Lock"
+        assert metyr.can_reach(both)
+
 
 # ---- multi-key gate: DLC Lamenter's Gaol needs BOTH Gaol keys -------------------------------------
 GAOL_KEYS = ("Gaol Upper Level Key", "Gaol Lower Level Key")

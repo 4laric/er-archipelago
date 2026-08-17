@@ -534,7 +534,10 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
 
     class _T(WorldTestBase):
         game = GAME
-        options = dict(extra, global_scadutree_blessing=mode)
+        # This matrix measures Scadutree supply, including deliberately tiny one-region pools.
+        # Keep the unrelated missable-location capacity guard from rejecting those fixtures first.
+        options = dict(extra, global_scadutree_blessing=mode,
+                       protect_missable_locations="off")
 
     # Log capture BEFORE setUp: generation happens inside it, and the clamped-injection arm below
     # must see the WARNING scadu_supply emits while the pool is being built.
