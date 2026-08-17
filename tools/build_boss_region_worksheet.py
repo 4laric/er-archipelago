@@ -69,6 +69,18 @@ PLACE_TO_REGION = {
 }
 
 
+def _arena_vs_members(arena, derived):
+    """Compare a human-owned PLACE verdict with the generated AP REGION.
+
+    The worksheet preserves the place Alaric wrote so the ruling stays auditable, but the
+    comparison must speak the repo's folded region vocabulary.  Other call sites already apply
+    ``PLACE_TO_REGION``; keeping the column on the raw spelling made those two reports disagree.
+    """
+    if arena == "ABSENT":
+        return ""
+    return "ok" if PLACE_TO_REGION.get(arena, arena) == derived else "MISMATCH"
+
+
 def _existing_verdicts():
     """{boss_entity: (verdict, reason)} carried forward from the worksheet already on disk.
 
@@ -226,7 +238,7 @@ def main():
         #                                arenas. 22 of them, 16 in this sheet.
         #   overworld + ABSENT         = fogwall-less. The verdict is a GEOGRAPHY call.
         has_arena = "no" if arena == "ABSENT" else "yes"
-        mismatch = "" if arena == "ABSENT" else ("MISMATCH" if arena != SR.get(b) else "ok")
+        mismatch = _arena_vs_members(arena, SR.get(b))
         rows.append((b, name, tile, cls, n, members.get(b, 0),
                      SR.get(b, "?"), arena, has_arena, mismatch,
                      ";".join(sorted(claims[b])), "yes" if tile in graced else "no",
