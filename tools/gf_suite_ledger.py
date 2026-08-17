@@ -86,6 +86,15 @@ GENERATORS = [
     #     shrink, so a count ratchet could not have seen it.
     "arena_grace_load_bearing",
     "arena_grace_exclusions",
+    # The version-site list polices ITSELF here: any tracked file carrying today's version next to
+    # a version identifier must be registered in check_version_sites.SITES. It needs `git ls-files`
+    # over the real checkout and it imports tools/check_version_sites -- neither is installed
+    # beside the world -- so it skips in the `tests` job. AP-free, no artifacts, no client.
+    #   why it exists: SITES claimed to be the single definition of "a version site" and listed 4
+    #     of 7. The three it missed are all GENERATED, and three consecutive windows (v0.4.4,
+    #     v0.4.5, v0.4.6) went red in `generators` because of it while this gate reported that
+    #     every site agreed.
+    "version_sites",
     # The publish surface: tools/build_apworld.py vs build.ps1 exclusion parity, and the
     # release/CHANNELS.tsv gate. Reads build.ps1 and release/, neither of which is installed beside
     # the world, so it can only run from a repo checkout.

@@ -44,13 +44,30 @@ import pytest
 # 🛑 REPO IS SEARCHED FOR, NOT COUNTED TO. gf_test.py copies this package into a pinned
 # Archipelago checkout and copies NO tools/, so walking up a fixed number of directories resolves
 # to `_ap` under the harness and dies on FileNotFoundError -- the exact way 45 tests went green
-# locally and red in CI on 2026-07-27. Same idiom as _util.find_repo_root, which is where the
-# story is written down; this file cannot import it before it has found the root.
-from ._util import REPO_ONLY_REASON, find_repo_root  # noqa: E402
+# locally and red in CI on 2026-07-27. `_util.find_repo_root` is where that story is written down
+# and is the canonical version of this search.
+#
+# ⚠️ AND IT IS NOT IMPORTED FROM THERE, DELIBERATELY. `_util` imports the world package, which
+# imports `BaseClasses` -- so importing it would drag Archipelago into a suite that is AP-free on
+# purpose (that is why this file is in the ledger's GENERATORS bucket, which runs the suites as
+# scripts with no AP on the path). Ten lines duplicated is the cheaper of the two wrongs; the
+# comment above is the pointer that keeps them from drifting apart silently.
+def _find_repo_root(start, marker=os.path.join("tools", "check_integrity.py")):
+    d = os.path.abspath(start)
+    for _ in range(8):
+        if os.path.exists(os.path.join(d, marker)):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            break
+        d = parent
+    return None
 
-REPO = find_repo_root(os.path.dirname(os.path.abspath(__file__)))
+
+REPO = _find_repo_root(os.path.dirname(os.path.abspath(__file__)))
 if REPO is None:
-    pytest.skip(REPO_ONLY_REASON, allow_module_level=True)
+    pytest.skip("needs the repo checkout (tools/ is not installed beside the world by gf_test.py); "
+                "the `generators` CI job runs this suite", allow_module_level=True)
 sys.path.insert(0, os.path.join(REPO, "tools"))
 
 check_version_sites = pytest.importorskip("check_version_sites")
@@ -151,3 +168,16 @@ def test_no_unregistered_file_carries_the_current_version():
         "quotes the current version without BEING a site (an example in a doc), quote a different "
         "one: an example that tracks the live version is indistinguishable from a site that does."
         % (len(strays), current, "\n  ".join(strays)))
+
+
+if __name__ == "__main__":
+    # THE TESTS ARE CALLED DIRECTLY, not handed to pytest. The `generators` job runs this bucket as
+    # scripts on a runner with NO Archipelago on the path, and `pytest.main([__file__])` would
+    # collect through this directory's conftest, which imports the world package and therefore
+    # `BaseClasses`. Calling the functions keeps the suite as AP-free as its ledger entry claims --
+    # and a claim in a ledger that the file cannot honour is the kind of thing this file exists to
+    # catch elsewhere.
+    test_every_registered_site_still_matches()
+    test_no_unregistered_file_carries_the_current_version()
+    print("OK test_gf_version_sites: %d registered site(s), no unregistered file carries the "
+          "current version" % len(check_version_sites.SITES))
