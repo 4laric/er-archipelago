@@ -733,7 +733,8 @@
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss": 1,
-    "Fragment": 1
+    "Fragment": 1,
+    "KeyItem": 1
    },
    "dlc": true,
    "parent": null,
@@ -1205,7 +1206,7 @@
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Boss|MinorDungeonBoss": 1,
     "Fragment": 8,
-    "KeyItem": 1,
+    "KeyItem": 2,
     "Legendary": 1,
     "Revered": 2,
     "Shop": 5
@@ -1505,5 +1506,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "13caadc9b29dd4713ee40cf68bc574966c6f223a279d2e5c4aefcbca56a37ddb"
+ "source_sha256": "559503d74db63ccd839b6b205ac494e1e73cab4274f292e8fc60838fbc7a02df"
 }

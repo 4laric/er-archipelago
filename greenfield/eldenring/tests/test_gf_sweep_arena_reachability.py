@@ -261,11 +261,17 @@ class EveryMismatchedGroup(unittest.TestCase):
         Gravesite; play_region_buckets.tsv carries a Rauh Base row for that exact tile, and
         gen_data.TILE_ROW_REGION now reads it. The members moved onto the ground their arena is
         already on, so the group agrees with itself -- nothing about the arena, the trigger or this
-        screen's predicate changed. See test_gf_tile_row_region.py."""
+        screen's predicate changed. See test_gf_tile_row_region.py.
+
+        ⭐ GREW 5 -> 6 on 2026-08-17 by an explicit gameplay ruling, not a looser predicate.
+        34100800 entered when m34_10 (Divine Tower of Limgrave) moved from Limgrave geography to
+        Stormveil's runtime bucket for region locks (#202). Its arena remains grace-truth Limgrave,
+        so the mismatch is real, intentional, and retained here as measured debt."""
         self.assertEqual(
             dict(self.split),
             {21000850: ("Shadow Keep", "Scadu Altus"),
              10000850: ("Stormveil", "Limgrave"),
+             34100800: ("Stormveil", "Limgrave"),
              2052430800: ("Abyssal", "Scadu Altus"),
              11050800: ("Ashen Capital", "Leyndell"),
              11050850: ("Ashen Capital", "Leyndell")},

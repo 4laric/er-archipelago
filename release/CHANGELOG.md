@@ -29,6 +29,20 @@ repeated it. Client half: clients#246, gitlink bumped in the same commit (AGENTS
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
+### Metyr's quest is logic now, not a free bell at spawn
+
+The run used to force the Finger Ruins of Dheo bell flag at spawn to make Metyr reachable without
+Jagged Peak. Loading the ruins then awarded its check automatically, and the forced flag bypassed
+the Hole-Laden Necklace the real bell requires.
+
+Both existing bell checks now describe ringing their respective bell and require the necklace.
+When both regions are live, Metyr additionally requires access to Scadu Altus and Jagged Peak,
+matching the two bells that open her throne, and neither bell is forced. If Jagged Peak is sealed,
+its absent check costs nothing and Dheo alone is supplied so Scadu Altus does not contain an
+impossible Metyr check. Neither bell check can ride an unrelated boss's filler sweep.
+
+Closes #665.
+
 ### Missable checks stop eating useful gear by default
 
 The 285 checks that can disappear behind a spent currency, a killable NPC, or questline state used

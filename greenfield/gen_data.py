@@ -4821,11 +4821,20 @@ def _collapsed_sites_of(_row):
 # geometry uses the same value -- so the marker is a suffix and no group splits.
 REGION_UNCONFIRMED = " (region unconfirmed)"
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
+# These checks ARE the two Finger Ruins bell interactions: the bell event awards the talisman lot and
+# flips the check flag as one operation. Name the action the player performs rather than the contents
+# of its vanilla lot (#665), and tag it as a gate-shaped KeyItem check below.
+_BELL_CHECK_LABEL = {
+    2050407000: "Ring the Finger Ruins of Dheo bell",
+    2053467600: "Ring the Finger Ruins of Rhia bell",
+}
 for r in rows:
     reg=region_of(r); flag=int(r['flag'])
     # region_map's name first, then the params-derived one, then the honest placeholder.
-    item=r['item_name'] or _DERIVED_NAMES.get(flag) or 'check'
+    item=_BELL_CHECK_LABEL.get(flag) or r['item_name'] or _DERIVED_NAMES.get(flag) or 'check'
     _t=_loc_tags(r)
+    if flag in _BELL_CHECK_LABEL and "KeyItem" not in _t:
+        _t.append("KeyItem")
     # human descriptor (desc_sources waterfall). KEEP [f{flag}] as the final tiebreaker; the descriptor
     # is the readable middle. Item substring + [f...] suffix stay intact so name-substring and
     # flag-extraction consumers are unaffected. Feed the map TILE: use the placed map when present, else
@@ -9459,10 +9468,6 @@ DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 # sweeping it from an unrelated fight would award an inaccessible check and bypass the key gate.
 # Keep this flag-shaped (rather than AP-shaped) so co-checks such as f34117500 are excluded together.
 _SWEEP_EXCLUDED_FLAGS = {
-    # Rakshasa's defeat shares the broad Scadu Altus legacy pool with the Finger Ruins of Rhia, but
-    # the bell reward cannot be earned until the player has the Hole-Laden Necklace. Rakshasa is
-    # unrelated to that route and must not pay the reward early (#664).
-    2051440800: {2053467600},
     # Study Hall's defeat trigger is on the ordinary layout, while these flags exist only after the
     # Carian Inverted Statue changes the map.
     34110800: {
