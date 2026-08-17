@@ -165,7 +165,11 @@ class TestRegionCensusAgainstRealWorlds(unittest.TestCase):
     # (options, why this row is here) -- every branch of the identity, not a spread of samples.
     CASES = [
         ({"num_regions": 6}, "the default draw"),
-        ({"num_regions": 1}, "the smallest draw -- goal force-keeps and parent closure dominate"),
+        # the rune goal is what makes the smallest draw LEGAL since #768 withheld the Ashen
+        # Lock -- a 1-region `region_locks` seed mints nothing the goal can want and is refused
+        # at gen. The case is still the smallest draw, which is what it is here to measure.
+        ({"num_regions": 1, "ending_condition": "great_runes"},
+         "the smallest draw -- goal force-keeps and parent closure dominate"),
         ({"num_regions": 0}, "the whole-map branch (no draw at all)"),
         ({"num_regions": 3, "enable_dlc": False}, "base game only"),
         ({"num_regions": 4, "dlc_only": True}, "no base region in play -> the finale must DROP OUT"),
