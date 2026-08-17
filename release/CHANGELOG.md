@@ -49,6 +49,15 @@ regions, more regions, or a Great Runes ending, which is exactly what the requir
 
 Needs the matching client (#245).
 
+**The DLC ending is covered too, and it was not at first.** `goal: promised_consort` ends the run in
+Enir Ilim, and unlike the Ashen Capital that is a region the draw keeps — so its Lock was an ordinary
+find and could still land in your first sphere. It is withheld on the same terms now, and the region
+opens when you hold everything else. Nothing about the base-game ending changes; that ending is the
+one that was already covered.
+
+No client update is needed for this half: the client already works out which Lock is being withheld
+from the goal locations the seed sends it, rather than being told a region name.
+
 ### Every seed has all seven Great Runes, and the goal can ask for any of them
 
 A Great Rune sits on exactly one region's boss. So the number of Great Runes in your seed was

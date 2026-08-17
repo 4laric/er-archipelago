@@ -8,7 +8,7 @@ Data-derived + matt-free (see ../LESSONS-LEARNED.md): rules keyed by REGION only
 """
 import logging
 import os
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from dataclasses import fields as dataclass_fields, make_dataclass
 
@@ -833,6 +833,34 @@ class GreenfieldEldenRingWorld(World):
             % (n_start, minted, len(locks),
                " + %d required Great Rune(s)" % len(runes) if runes else ""))
 
+    def withheld_goal_lock(self) -> Optional[str]:
+        """The kept region's Lock this seed withholds, or None.
+
+        🛑 #768 SHIPPED THIS FOR ONE GOAL AND THERE ARE TWO. `GOAL_CHOICES` is
+        `{"elden_beast": ("Ashen Capital", ()), "promised_consort": ("Enir Ilim", ("Enir Ilim",))}`,
+        and the Ashen Capital is never a KEPT region -- it hangs off the hub behind a synthetic
+        lock -- so dropping that one lock covered `elden_beast` completely and `promised_consort`
+        not at all. Enir Ilim IS kept (its own goal force-keeps it), its Lock is an ordinary kept
+        region's Lock, and fill could put it in sphere 1: on a DLC-terminus seed the ending stayed
+        reachable before the run exactly as it was before #768.
+
+        The DLC terminus only got its guarantee on 2026-08-09, after bobler finished a seed on
+        Romina by lottery, so "the base-game case is the real one" is not a defence -- that ending
+        is reachable on purpose now.
+
+        ⭐ THE CLIENT ALREADY GENERALISED; ONLY THIS SIDE WAS PINNED. `tracker_tables::
+        goal_lock_item` resolves the withheld item from `goalLocations` -> coarse region key ->
+        that region's lock item, so it names Enir Ilim's Lock on a `promised_consort` seed without
+        being told. No contract change and no client change: the world simply stops minting the
+        item the client was already prepared to grant."""
+        if _np.is_on(self) or _vp.is_on(self):
+            return None                 # no synthetic locks exist in these modes
+        choice = getattr(self, "gf_goal_choice", None)
+        region = _gl.GOAL_CHOICES[choice][0] if choice in _gl.GOAL_CHOICES else None
+        if region is None or region not in self._kept():
+            return None                 # `elden_beast`: the Ashen Capital is never kept -> None
+        return f"{region} Lock"
+
     def kept_lock_names(self) -> List[str]:
         """The Region Lock item names this seed's completion requires -- THE single source.
 
@@ -859,7 +887,10 @@ class GreenfieldEldenRingWorld(World):
         # a filter in one of them is how they would drift again. `region_open_flags` still carries
         # `Ashen Capital Lock -> open flag` (built separately, below), because that mapping is how
         # the client resolves WHICH flag to set; it is a name->flag lookup, not a requirement.
-        out = [f"{r} Lock" for r in self._kept()]
+        # ...and the same withholding, for the goal that keeps its own region (see
+        # `withheld_goal_lock`). ONE LIST STILL: dropped HERE, not filtered in a consumer.
+        _withheld = self.withheld_goal_lock()
+        out = [f"{r} Lock" for r in self._kept() if f"{r} Lock" != _withheld]
         return out
 
     def goal_required_lock_names(self) -> List[str]:
@@ -1051,7 +1082,11 @@ class GreenfieldEldenRingWorld(World):
         # base game's own doors gate this seed, so a synthetic lock would gate it TWICE.
         _vanilla = _vp.is_on(self)
         _nolocks = _natural or _vanilla
-        lock_items: List[Item] = [] if _nolocks else [self.create_item(f"{r} Lock") for r in kept]
+        # `kept_lock_names` is THE list of locks this seed mints -- it already drops the goal
+        # region's own Lock (#768 for the Ashen Capital, and the DLC terminus alongside it), so
+        # minting from it keeps the pool and the goal reading the same source.
+        lock_items: List[Item] = ([] if _nolocks
+                                  else [self.create_item(n) for n in self.kept_lock_names()])
         # SPEC-ashen-capital-lock item 5: mint the burn item, unconditionally on any seed whose
         # finale exists, and mint it HERE -- before pool_builder -- so count-exactness holds by
         # construction (the builder fills whatever remains). It is progression. It is deliberately
@@ -1580,6 +1615,7 @@ class GreenfieldEldenRingWorld(World):
         # hangs off the hub with an always-true entrance. It still needs the EVENT LOCKS below
         # for the same reason natural_progression does (many features ask has('<R> Lock')).
         _vanilla = _vp.is_on(self)
+        _withheld_lock = self.withheld_goal_lock()
         for r, reg in created.items():
             # In natural_progression the geography flattens (a lock warps you in), so most regions hang
             # off the hub and only the kept chokepoints keep a graph parent (natural_progression.
@@ -1599,6 +1635,20 @@ class GreenfieldEldenRingWorld(World):
             elif _natural:
                 _erule = _np.entrance_rule(self, r)
                 rule = _erule if _erule is not None else (lambda state: True)
+            elif f"{r} Lock" == _withheld_lock:
+                # 🛑 THE GOAL REGION DOES NOT ASK FOR A LOCK NOBODY MINTS. Its Lock is withheld
+                # (`withheld_goal_lock`), so `has("<R> Lock")` would be false forever and the
+                # region -- with the run's ending inside it -- would be unreachable in logic: a
+                # FillError, or an unwinnable seed past it. It asks for the SAME set the client
+                # waits on before granting the region, so AP's logic and `er_logic::goal_gate`
+                # open the arena on one condition rather than two that can drift.
+                #
+                # ⚠️ `kept_lock_names()`, NOT `goal_required_lock_names()`: create_regions runs
+                # BEFORE create_items, so the start anchor is not precollected yet and the
+                # "minus the anchor" spelling is a silent no-op here. That exact mistake shipped
+                # in the finale wiring on this branch and had to be fixed; see finale.py.
+                _need = tuple(self.kept_lock_names()) + tuple(self._required_runes())
+                rule = lambda state, n=_need: state.has_all(n, self.player)
             else:
                 lock = f"{r} Lock"
                 rule = lambda state, l=lock: state.has(l, self.player)
