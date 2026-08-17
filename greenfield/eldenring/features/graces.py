@@ -97,9 +97,26 @@ def _grace_tier(world):
     return getattr(opt, "current_key", None) or "all"
 
 
+# Logical regions are usually one connected traversal space, but Ainsel River is not. Its lower
+# well and its Nokstella/Lake of Rot half have no walkable edge between them. A single "entrance"
+# therefore makes one half unreachable while AP logic exposes checks in both. Keep one safe anchor
+# per disconnected component (#806); 71218 is Grand Cloister, beside the coffin route into Astel,
+# while 71211 preserves lower Ainsel. Lake of Rot Shoreside (71216) is not the Astel handoff: the
+# live map witness places the required anchor at Grand Cloister.
+_ENTRANCE_COMPONENT_GRACES = {
+    "Ainsel River": [71211, 71218],
+}
+
+
 def _bundle_for(region, flags, tier):
     """The warp graces a region's unlock lights, at `tier`. `flags` is the full set, non-empty."""
     if tier == "entrance":
+        component_graces = _ENTRANCE_COMPONENT_GRACES.get(region)
+        if component_graces is not None:
+            missing = [f for f in component_graces if f not in flags]
+            if missing:
+                raise ValueError(f"{region}: component entrance grace(s) absent from bundle: {missing}")
+            return list(component_graces)
         return [entrance_grace(flags)]
     if tier == "landmarks":
         picks = [f for f in REGION_GRACE_LANDMARKS.get(region, ()) if f in flags]
@@ -163,7 +180,9 @@ class RegionGraceUnlock(Choice):
     landmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to
     Lake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across
     the map. A middle setting: you can still cross a big region in a couple of hops.
-    entrance -- only the region's front door; you walk to and touch the rest yourself, the vanilla way.
+    entrance -- only the region's front door; disconnected regions receive one entry per traversal
+    component, so every check AP considers open is physically reachable. You walk to and touch the
+    rest yourself, the vanilla way.
 
     It moves no item. Region Locks remain the only progression and every check stays exactly where
     it was, so nothing here changes what your seed contains or where any of it sits. A region whose
