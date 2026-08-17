@@ -158,6 +158,11 @@ STEPS = [
     Step(PAGES, "tools/build_questline_dag.py",
          emits=["greenfield/questline_dag.tsv"],
          why="the tsv the page reads; a pure join, so a gen_data edit alone can move it."),
+    Step(PAGES, "tools/build_questline_model.py",
+         emits=["greenfield/questline_model.tsv"],
+         why="typed union of the flag-only DAG and revision-pinned CC-wiki evidence; must run "
+             "after build_questline_dag.py because the model treats that table as its machine "
+             "evidence layer."),
     Step(PAGES, "tools/build_questline_dag_page.py",
          emits=["er-archipelago-questline-dag.html"],
          why="THE PAGE THAT REDDENED #698, and the one that appeared in no doc at all. Mermaid is "

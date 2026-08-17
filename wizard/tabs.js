@@ -21,7 +21,7 @@
  * not rendering it there is the correct outcome and not a degradation.
  *
  * !! THE OTHER COPY OF THIS STRIP IS IN ANOTHER REPO: peliarch's webgui/templates/base.html
- * renders the same five links server-side, because a templated page whose only navigation came
+ * renders the same six links server-side, because a templated page whose only navigation came
  * from a script that 404s on an undeployed box would have no navigation at all. That is a
  * deliberate two-copy trade, and both copies are pinned by a test: TestTabStrip in peliarch's
  * webgui/test_app.py, and tools/check_tabs.py here. Change a tab and both fail, loudly, in the
@@ -45,6 +45,7 @@
     ["builder",   "/er/",            "Builder"],
     ["downloads", "/downloads",      "Downloads"],
     ["hosting",   "/hosting",        "Hosting"],
+    ["questlines", "/er/questlines.html", "Questlines"],
     ["checks",    "/er/checks.html", "Checks"],
     ["report",    "/er/report.html", "Report a bug"]
   ];
@@ -61,6 +62,7 @@
     if (/\/er\/(beta\/)?(wizard\.html)?$/.test(p)) { current = "builder"; }
     else if (p.indexOf("checks") !== -1)           { current = "checks"; }
     else if (p.indexOf("report") !== -1)           { current = "report"; }
+    else if (p.indexOf("questlines") !== -1)       { current = "questlines"; }
     else if (p.indexOf("downloads") !== -1)        { current = "downloads"; }
     else if (p.indexOf("hosting") !== -1)          { current = "hosting"; }
   }

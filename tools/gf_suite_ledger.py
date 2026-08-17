@@ -57,6 +57,7 @@ GENERATORS = [
     "desc_triage",
     "provenance_gate",
     "questline_dag",
+    "questline_model",
     "shipping_yaml_recipe",
     "scaling_ladder_mirror",
     "client_contract_paths",

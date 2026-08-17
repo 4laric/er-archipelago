@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""build_questline_dag_page.py -- an offline reader for greenfield/questline_dag.tsv.
+"""build_questline_dag_page.py -- an offline reader for the questline evidence model.
 
 WHY A PAGE. The tsv is 280 rows of flag ids. The question a human actually asks of it is
 "what gates THIS check, and what gates that", which is a walk over a graph, and a walk is
@@ -36,8 +36,8 @@ byte-identical run to run: no timestamps, no git hash, sorted iteration througho
 endings. It is stamped with data.py's `inputs_hash`, like the check browser -- a content id
 that is stable across commits.
 
-INPUT:  greenfield/questline_dag.tsv (via build_questline_dag.build(), NOT a re-parse --
-        one join, one implementation, so the page and the table cannot disagree).
+INPUT:  greenfield/questline_dag.tsv (machine layer) + greenfield/questline_model.tsv (typed,
+        revision-pinned CC-wiki evidence layer).
 OUTPUT: er-archipelago-questline-dag.html (repo root, beside the other offline pages).
 
 USAGE:
@@ -58,8 +58,47 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
 import build_questline_dag as dag  # noqa: E402
+import build_questline_model as typed_model  # noqa: E402
 
 OUT = os.path.join(ROOT, "er-archipelago-questline-dag.html")
+
+
+def _cc_panel():
+    """Render the small human-curated layer separately from the machine graph.
+
+    Keeping the layers visually separate is load-bearing: a CC-wiki ordering claim is useful
+    corroboration, but it must never acquire the visual authority of an EMEVD-derived flag edge.
+    Typed item nodes also cannot be fed through the legacy flag-only Mermaid renderer without
+    lying about their id space.
+    """
+    rows, _world = typed_model.build()
+    cc = [row for row in rows if row["evidence_kind"] == "cc_wiki"]
+    typed_model.validate(rows, _world)
+    body = []
+    for row in cc:
+        source = row["source_label"] or row["source_node"]
+        target = row["target_label"] or row["target_node"]
+        body.append(
+            "<tr><td><b>%s</b><div class=\"sub\"><code>%s</code><br><code>%s</code><br>%s</div></td>"
+            "<td><b>%s</b><div class=\"sub\">group %s</div></td>"
+            "<td>%s<div class=\"sub\"><code>%s</code></div></td>"
+            "<td><a href=\"%s\">%s, revision %s</a>"
+            "<div class=\"sub\">%s &middot; CC BY-SA 4.0</div></td></tr>" % (
+                html.escape(source), html.escape(row["source_node"]),
+                html.escape(row["source_game_ref"]), html.escape(row["id_evidence"]),
+                html.escape(row["relation"]),
+                html.escape(row["group_semantics"]), html.escape(target),
+                html.escape(row["target_node"]), html.escape(row["source_url"], quote=True),
+                html.escape(row["source_page"]), html.escape(row["source_revision"]),
+                html.escape(row["claim"])))
+    return ("<section class=\"cc\"><h2>CC-wiki quest evidence</h2>"
+            "<p><b>Separately licensed corroboration, not game logic.</b> These concise claims are "
+            "adapted from pinned Elden Ring Wiki revisions under CC BY-SA 4.0. Typed nodes keep "
+            "items distinct from event flags. The machine graph below remains the vanilla-data "
+            "oracle; neither layer is consumed by world logic.</p>"
+            "<table><thead><tr><th>source node</th><th>relation</th><th>target check</th>"
+            "<th>attribution &amp; adapted claim</th></tr></thead><tbody>%s</tbody></table>"
+            "</section>" % "".join(body))
 
 
 def _inputs_hash():
@@ -281,19 +320,23 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--dim);font-size:13px}
 .legend span{margin-right:14px}
 .sw{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:4px}
 #mode{font-size:12px;color:var(--dim);padding:6px 26px}
+.cc{margin:16px 26px;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:8px}
+.cc h2{font-size:17px;margin:0 0 4px}.cc p{font-size:13px;color:var(--dim);margin:0 0 10px}
+.cc a{color:var(--acc)}
 </style></head><body>
 <header>
-<h1>Questline DAG &mdash; tier 1</h1>
+<h1>Questline DAG &mdash; machine graph + CC evidence</h1>
 <div class="sub">__SUB__</div>
 </header>
 <div class="banner">
-<b>A reader, not an oracle.</b> Nothing in the world reads this graph &mdash; every check named here
+<b>A reader, not an access-rule generator.</b> Nothing in the world reads this graph &mdash; every check named here
 still carries its missable tag. An edge is <b>co-occurrence plus a polarity rule, not proof</b>, and a
 dashed edge (<code>sense=unknown</code>) means the corpus does not encode the polarity: do not reason
-with those. <b>Absence is not safety.</b> Every corpus feeding this reads an AWARD SITE, so a questline
-that gates whether a <i>fight exists</i> leaves no trace &mdash; <code>f510110</code> (Fortissax), the
-case the spec was written from, is absent here <b>by construction</b>.
+with those. <b>Absence is not safety.</b> The machine corpus reads AWARD SITES and therefore cannot
+see arena-existence gates. The separately attributed CC layer now records the known Fortissax hole,
+but that does not retroactively make it machine-derived.
 </div>
+__CC__
 <div class="stats" id="stats"></div>
 <div id="mode"></div>
 <main>
@@ -405,24 +448,28 @@ list(); show();
 
 def render():
     payload, summary, acceptance, edges = build_page()
+    typed_rows, _typed_world = typed_model.build()
+    cc_count = sum(row["evidence_kind"] == "cc_wiki" for row in typed_rows)
     senses = collections.Counter(e["sense"] for e in edges)
     stats = [
         ["clusters", len(payload)],
         ["edges", len(edges)],
         ["checks", len({e["target_flag"] for e in edges})],
+        ["CC-wiki evidence", cc_count],
         ["prerequisites", senses["set"]],
         ["exclusions", senses["clear"]],
         ["unusable", senses["unknown"]],
     ]
-    sub = ("%d edges over %d checks, in %d disjoint clusters &middot; inputs_hash %s &middot; "
-           "generated by tools/build_questline_dag_page.py from greenfield/questline_dag.tsv"
-           % (len(edges), len({e["target_flag"] for e in edges}), len(payload),
+    sub = ("%d machine edges over %d checks + %d revision-pinned CC-wiki evidence rows, in %d "
+           "machine clusters &middot; inputs_hash %s"
+           % (len(edges), len({e["target_flag"] for e in edges}), cc_count, len(payload),
               html.escape(_inputs_hash()[:23])))
     data = json.dumps({"clusters": payload, "stats": stats,
                        "summary": summary,
                        "acceptance": [[bool(ok), lab, det] for ok, lab, det in acceptance]},
                       sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return (_HTML.replace("__SUB__", sub)
+            .replace("__CC__", _cc_panel())
             .replace("__DATA__", data.replace("</", "<\\/"))
             .replace("__JS__", _JS))
 
