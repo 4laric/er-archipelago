@@ -3,6 +3,22 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.7 — 2026-08-17
+
+Window opened AT THE TAG of v0.4.6 with ZERO commits past it.
+
+`CONTRACT_HASH` is unmoved at `5c2b9bf2`, verified by loading `contract.py` after the bump. The
+wire contract has therefore kept the same shape since v0.3.9; this window is version-lockstep, and
+the version change does not add a new handshake field.
+
+The client half is clients#259. `contract_gen.rs` embeds the version string even when the hash is
+unchanged, so the merged client commit is pinned by the gitlink in this same window-opening change.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.6 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
+the release).
+
 ## v0.4.6 — 2026-08-16
 
 Window opened AT the v0.4.5 tag (`4d96806`), with zero commits past it. That is the third window
