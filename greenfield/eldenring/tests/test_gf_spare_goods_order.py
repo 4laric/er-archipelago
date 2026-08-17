@@ -19,6 +19,7 @@ GoodsInfo.fmg.xml") AND NOTHING ACTED ON IT. A self-reported gap is not a safegu
 Ordering, not filtering: requiring all three would cut the pool ~65 -> ~25, below the ~54 region
 locks that each need a distinct row. Complete rows are spent first and it degrades gracefully.
 """
+import importlib.util
 import os
 import unittest
 
@@ -89,6 +90,37 @@ class SpareGoodsOrder(unittest.TestCase):
         self.assertNotEqual(emitted, sorted(emitted),
                             "the emitted pool is in plain ascending id order, which is what a stray "
                             "sorted() produces -- the completeness ordering has been undone")
+
+    def test_twin_maiden_bell_runs_are_not_preview_spares(self):
+        """Cut bell rows still drive talk ESD and expose broken menu entries when granted."""
+        path = os.path.join(_FOUND, "tools", "datamine_spare_goods.py")
+        spec = importlib.util.spec_from_file_location("_datamine_spare_goods", path)
+        miner = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(miner)
+        fixture = """
+def bells():
+    while True:
+        ComparePlayerInventoryNumber(ItemType.Goods, 8910 + GetWorkValue(0), 0, 1, False)
+        if GetWorkValue(0) > 55:
+            break
+    while True:
+        ComparePlayerInventoryNumber(ItemType.Goods, 2008900 + GetWorkValue(0), 0, 1, False)
+        if GetWorkValue(0) > 10:
+            break
+"""
+        import tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".py", encoding="utf-8", delete=False) as fh:
+            fh.write(fixture)
+            fixture_path = fh.name
+        try:
+            refs = miner._talk_goods_references([fixture_path])
+        finally:
+            os.unlink(fixture_path)
+        self.assertTrue(set(range(8910, 8966)) <= refs.keys())
+        self.assertTrue(set(range(2008900, 2008911)) <= refs.keys())
+        spares = {goods_id for goods_id, _full in self.rows}
+        self.assertFalse(spares & refs.keys(),
+                         "spare_goods.tsv contains a goods row inspected by talk ESD")
 
 
 if __name__ == "__main__":
