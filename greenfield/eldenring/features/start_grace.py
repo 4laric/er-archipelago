@@ -92,31 +92,21 @@ _RADAHN_FESTIVAL = 9410
 # And the preamble means a PRESET flag awards the lot when the tile loads:
 #     Rhia  2053460600 -> lot 2053460600 -> check flag 2053467600, "Cerulean Seed Talisman +1" (7773806)
 #     Dheo  2050400600 -> lot 2050400000 -> check flag 2050407000, "Crimson Seed Talisman +1"  (7773730)
-# So a forced bell SPENDS its check. Force the fewest that close the reachability hole:
-#   * DHEO is forced ALWAYS. It is the only CROSS-REGION conjunct -- Metyr's checks region to Scadu
-#     Altus, Dheo's tile is Jagged Peak -- so forcing it keeps Metyr independent of Jagged Peak and
-#     preserves today's logic shape exactly. Cost: 7773730 self-collects in seeds that keep Jagged
-#     Peak and visit that tile. Not forcing it would make Metyr require the Jagged Peak Lock, which
-#     is a fill-shape change, not a bypass; see the note in the PR.
-#   * RHIA is forced ONLY when Scadu Altus is sealed. When it is kept, Metyr's checks are in the
-#     pool and so is 7773806, the player rings it with the necklace, and the necklace keeps its
-#     meaning. When it is sealed, Metyr's checks are not in the pool and the award costs nothing.
-_BELL_RHIA = 2053460600         # m61_53_46, Scadu Altus
-_BELL_DHEO = 2050400600         # m61_50_40, Jagged Peak
-_BELL_RHIA_REGION = "Scadu Altus"
+# So a forced bell SPENDS its check. #665 replaces the bypass with the honest logic model: both bell
+# checks require the Hole-Laden Necklace, and Metyr requires both Scadu Altus and Jagged Peak. Neither
+# live bell flag is ever a start grant: if Jagged Peak is sealed, Dheo's check is absent and its flag
+# is forced so Scadu Altus's Metyr check remains playable; if Jagged Peak is kept, the player must ring
+# it. Rhia is never forced because Metyr cannot exist without Scadu Altus. Keep the set named so tests
+# reject accidental additions without duplicating numbers.
+_BELL_RHIA = 2053460600
+_BELL_DHEO = 2050400600
+_BELL_DHEO_REGION = "Jagged Peak"
+_METYR_BELL_FLAGS = frozenset({_BELL_RHIA, _BELL_DHEO})
 
 
-def bells_to_force(kept):
-    """The bell flags this seed must set at spawn, given its KEPT region list.
-
-    Pure on purpose (CONTRIBUTING: separate decision from I/O) so both branches are testable
-    without standing up a seed that happens to seal Scadu Altus. See the block above for why
-    Dheo is unconditional and Rhia is not.
-    """
-    bells = [_BELL_DHEO]
-    if _BELL_RHIA_REGION not in set(kept or ()):
-        bells.append(_BELL_RHIA)
-    return bells
+def metyr_bells_to_force(kept):
+    """Only a bell whose entire region/check is sealed may be bypassed."""
+    return [] if _BELL_DHEO_REGION in set(kept or ()) else [_BELL_DHEO]
 # (60100, the Spectral Steed Whistle obtained-flag, used to be appended here unconditionally with
 # start_with_steed. It moved to features/start_items.py uniqueStartGrants: the flag is now set AS
 # PART OF the whistle grant and doubles as its idempotency latch -- see start_items module doc.)
@@ -392,7 +382,7 @@ class StartGrace(Feature):
             graces += [_LEVEL_UP_FLAG, _MELINA_SUPPRESS_FLAG]
         graces.append(_FINGERSLAYER_CHEST_GATE)   # open the Ranni-gated Nokron chest (check 12027080)
         graces.append(_RADAHN_FESTIVAL)           # start the Radahn Festival so Radahn is fightable
-        graces += bells_to_force(world._kept())   # Metyr's bells -- see the block above
+        graces += metyr_bells_to_force(world._kept())
         # 🛑 TAIL ONLY. `start_graces.first()` is the clobber read-back sentinel (core.rs) and what
         # fast_travel::prime_known_good picks, so anything appended here is invisible to both --
         # which is exactly why the catacomb doors can ride this key instead of cutting a new one.

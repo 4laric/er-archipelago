@@ -19,6 +19,11 @@ take several rounds of chat to rediscover.
 Rakshasa no longer pays out the Finger Ruins of Rhia bell reward. The bell now properly requires
 the Hole-Laden Necklace instead of being claimable through an unrelated Scadu Altus boss sweep.
 
+Metyr's route now follows that logic all the way through: both Finger Ruins bells require the
+necklace, and when both regions are in play, reaching Metyr requires both Scadu Altus and Jagged
+Peak. Dheo is no longer silently rung in a seed where its check exists; a sealed Jagged Peak still
+gets the flag because there is then no Dheo check to auto-award.
+
 ## What carried over from v0.4.5
 
 Nothing is owed. v0.4.5 shipped complete: its changelog section and its blurb were both finished

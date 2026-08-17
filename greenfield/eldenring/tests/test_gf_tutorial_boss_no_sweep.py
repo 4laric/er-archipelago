@@ -458,8 +458,12 @@ def test_the_sweep_corpus_did_not_shrink():
     # legacy pool with Rakshasa (trigger 2051440800), an unrelated fight reachable without the
     # necklace. The check stays obtainable at the bell; only the gate-bypassing convenience award
     # is gone. ADDED 0, RE-OWNED 0.
-    assert total == 4033, (
-        "sweep corpus is %d, expected 4033. If a sweep was legitimately added or removed, say WHY "
+    # -1 (2026-08-17, #665): 4033 -> 4032. Retagging BOTH bell interactions as KeyItem generalises
+    # #664's Rhia exclusion and also removes Dheo (flag 2050407000) from Bayle's filler sweep. The
+    # two removals are now the same policy: a necklace-gated quest action is not filler an unrelated
+    # boss may grant. Rhia was already absent, so this stack removes only Dheo. ADDED 0, RE-OWNED 0.
+    assert total == 4032, (
+        "sweep corpus is %d, expected 4032. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -624,6 +628,8 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 34110800. No member was added or re-owned, so this is the narrow gate-bypass correction.
     # 2026-08-17 (#664): 1755ba16 -> 1f01b69f, 4034 -> 4033. REMOVED only: Rhia bell reward
     # 2053467600 left Rakshasa's sweep. No member was added or re-owned.
-    assert (digest, n) == ("1f01b69f616530ea", 4033), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (1f01b69f616530ea, 4033). The total alone will "
+    # 2026-08-17 (#665): 1f01b69f -> 79ccf39c, 4033 -> 4032. REMOVED only: Dheo bell reward
+    # 2050407000 left Bayle's sweep when both bell interactions became KeyItem checks.
+    assert (digest, n) == ("79ccf39c8e3be6aa", 4032), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (79ccf39c8e3be6aa, 4032). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
