@@ -448,8 +448,13 @@ def test_the_sweep_corpus_did_not_shrink():
     # corpus. Exactly one check, and it is the one the fix was about. The reshuffle between
     # 10000800 and 10000850 in the same regen is the m10_00 pair re-partitioning 111 members instead
     # of 112 (the DIVVIED path), not membership crossing a region boundary.
-    assert total == 4044, (
-        "sweep corpus is %d, expected 4044. If a sweep was legitimately added or removed, say WHY "
+    # -10 (2026-08-17, #653): 4044 -> 4034. All ten removals are the Carian Study Hall inverted
+    # layout: flags 34117100/110/120, 34117400/401/402/403, 34117500 (two co-checks), and 34117710.
+    # Trigger 34110800 is reachable on the ordinary layout, before the Carian Inverted Statue changes
+    # the map, so sweeping those checks from it bypassed the new key gate. The five ordinary-layout
+    # checks stay on that trigger. ADDED 0, RE-OWNED 0; physical pickup remains their only award path.
+    assert total == 4034, (
+        "sweep corpus is %d, expected 4034. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -609,6 +614,9 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # became Margit's reward instead of his filler (see the +/- note in the corpus test above). The
     # rest of the digest change is m10_00's two triggers re-partitioning 111 members where they had
     # 112 -- the DIVVIED path re-phases both sides whenever the pool size moves.
-    assert (digest, n) == ("03b7fb990ee4274c", 4044), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (03b7fb990ee4274c, 4044). The total alone will "
+    # 2026-08-17 (#653): 03b7fb99 -> 1755ba16, count 4044 -> 4034. REMOVED only: the ten
+    # Carian-Inverted-Statue checks named in the corpus ratchet above left ordinary-layout trigger
+    # 34110800. No member was added or re-owned, so this is the narrow gate-bypass correction.
+    assert (digest, n) == ("1755ba166686cee8", 4034), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (1755ba166686cee8, 4034). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

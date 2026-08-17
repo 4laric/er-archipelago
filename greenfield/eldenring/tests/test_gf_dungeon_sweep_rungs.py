@@ -361,3 +361,17 @@ def test_no_sweep_grants_a_check_its_trigger_is_not_gated_behind():
     assert gated_sweeps > 0, (
         "no sweep contained a key-gated member, so this property was never actually exercised. "
         "If the gates moved, re-derive them rather than deleting this.")
+
+
+def test_carian_inverted_checks_stay_out_of_the_standard_layout_sweep():
+    """The ordinary Study Hall fight must not pay out checks from the inverted layout."""
+    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+    from worlds.eldenring.data import LOCATIONS
+    from worlds.eldenring.features import legacy_key_gates as lkg
+
+    statue_flags = set(lkg._LEGACY_EXTRA["Carian Inverted Statue"])
+    flag_of = {ap: int(flag) for locs in LOCATIONS.values() for (_name, ap, flag) in locs}
+    swept_flags = {flag_of[ap] for ap in DUNGEON_SWEEPS[34110800]}
+    assert statue_flags.isdisjoint(swept_flags), (
+        "Study Hall's standard-layout sweep bypasses the Carian Inverted Statue gate: %s"
+        % sorted(statue_flags & swept_flags))

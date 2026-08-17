@@ -9434,6 +9434,18 @@ _SWEEP_UNSPAWNED = {_e: _r for _e, (_v, _r) in _UNSPAWNED_VERDICTS.items() if _v
 _SWEEP_UNSPAWNED_OPEN = {_e: _r for _e, (_v, _r) in _UNSPAWNED_VERDICTS.items() if _v != "unspawned"}
 
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
+# Map-local filler normally belongs to the map's boss sweep.  A key-gated sub-map is the exception:
+# Study Hall's defeat trigger is on the ordinary layout, while these flags exist only after the
+# Carian Inverted Statue changes the map.  Sweeping them from the ordinary-layout fight would award
+# inaccessible checks and bypass the key gate.  Keep this flag-shaped (rather than AP-shaped) so
+# co-checks such as f34117500 are excluded together.
+_SWEEP_EXCLUDED_FLAGS = {
+    34110800: {
+        34117100, 34117110, 34117120,
+        34117400, 34117401, 34117402, 34117403,
+        34117500, 34117710,
+    },
+}
 _sweep_excluded_hits = []
 _sweep_unspawned_hits = []
 _sweep_secondary_hits = []
@@ -9568,6 +9580,8 @@ if BOSS_HEALTHBARS:
                   if _ap_region.get(_a) is not None and _ap_region[_a] != HUB]
         _sreg = (Counter(_known).most_common(1)[0][0] if _known else _mreg.get(_bmap, HUB))
         _members = [_a for _a in _members if _ap_region.get(_a) == _sreg]
+        _cut_flags = _SWEEP_EXCLUDED_FLAGS.get(_ent, set())
+        _members = [_a for _a in _members if _apid_flag.get(_a) not in _cut_flags]
         if not _members:
             continue
         DUNGEON_SWEEPS[_ent] = _members
