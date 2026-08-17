@@ -25,8 +25,9 @@ CONTRIBUTING.md at all.
 
 So the list lives HERE, once, and the consumers invoke this file instead of enumerating it.
 `greenfield/eldenring/tests/test_gf_regen_all.py` is the gate that keeps it honest: it fails if a
-stamp-bearing committed artifact, or a `tools/build_*.py` that writes a root page, is not reachable
-from `STEPS`.
+stamp-bearing committed artifact, or an output declared by a staleness-checking `tools/build_*.py`,
+is not reachable from `STEPS`. The latter is producer-driven -- generated files do not become
+invisible merely because they live below `greenfield/` or `wizard/` instead of at the repo root.
 
 WHY A NEW `tools/` SCRIPT AND NOT `gen_data.py --all`. `greenfield/gen_data.py` is
 `gen_manifest.FILE_INPUTS[0]` -- its BYTES are hashed into `inputs_hash`. Adding a driver flag to
@@ -43,8 +44,8 @@ PHASES (`--phases`, default all, in this order):
 
   inputs   materialise gen_data's inputs from the committed bundle (idempotent)
   modules  the datamines -> gen_data.py -> the generated `eldenring/*.py` modules + `_GEN_STAMP`
-  tables   the CROSS-REPO tables (region locks, contract, area tiers) + the repo-side contract
-  pages    the stamp-embedding readers: check browser, desc triage, questline DAG (+ its tsv)
+  tables   the CROSS-REPO tables + repo-side contract and confidence tables
+  pages    stamp-embedding readers plus generated wizard payloads
 
 CLIENT-DEPENDENT STEPS ARE GATED HERE, IN ONE PLACE -- and that gate had to be written, because
 MEASURED 2026-08-15 in a submodule-less checkout the three client steps fail three DIFFERENT ways:
@@ -143,6 +144,10 @@ STEPS = [
              "been told to regenerate. Its staleness gate lives in a repo-only suite that SKIPS in "
              "the installed-world layout, so a local `gf_test.py` run cannot see it and only the "
              "generators job can. AFTER gen_data (MODULES), which writes the sweeps it reads."),
+    Step(TABLES, "tools/build_surface_confidence.py",
+         emits=["greenfield/surface_confidence.tsv"],
+         why="staleness-gated confidence table over generated location and surface data. It moved "
+             "on #701 but regen_all omitted its producer -- the same hole #700 was meant to close."),
 
     Step(PAGES, "tools/build_check_browser.py",
          emits=["er-archipelago-check-browser.html"],
@@ -157,6 +162,10 @@ STEPS = [
          emits=["er-archipelago-questline-dag.html"],
          why="THE PAGE THAT REDDENED #698, and the one that appeared in no doc at all. Mermaid is "
              "fetched at VIEW time, so this is offline-safe and byte-deterministic."),
+    Step(PAGES, "tools/build_region_census.py",
+         emits=["wizard/region-census.json", "wizard/wizard.html"],
+         why="writes both the wizard's external census and its inlined copy. Both are "
+             "staleness-gated generated artifacts, so one step deliberately owns both outputs."),
 ]
 
 

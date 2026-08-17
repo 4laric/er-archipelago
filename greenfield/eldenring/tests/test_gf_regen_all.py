@@ -21,8 +21,11 @@ WHAT IT ASSERTS, and why each is the thing that would actually have caught #699:
      `er-archipelago-questline-dag.html` renders the stamp TRUNCATED -- a full-hash scan silently
      misses the very page that motivated the issue.
 
-  B. EVERY tools/build_*.py THAT WRITES A ROOT PAGE IS A STEP. The other direction, and the one
-     that names the defect: a page builder that exists but is unreachable from the entrypoint.
+  B. EVERY STALENESS-CHECKING tools/build_*.py HAS ALL OF ITS DECLARED OUTPUTS EMITTED BY A STEP.
+     This is producer-driven, not location-driven. #708 recurred because the old version knew to
+     inspect root HTML pages but could not see greenfield/surface_confidence.tsv or either wizard/
+     output. A builder with `--check` is an executable claim that its committed outputs must match;
+     the regen entrypoint must be able to make that claim true.
 
   C. THE STAMP IS WRITTEN BEFORE ANY PAGE IS BUILT. `gen_data.py` writes `_GEN_STAMP`; the pages
      EMBED it. Reordering them is a red CI diff with no visible cause -- it cost six rounds on
@@ -169,36 +172,59 @@ class RegenEntrypointIsComplete(unittest.TestCase):
                          "notices (issue #699). Add the producing step to STEPS with an `emits` "
                          "entry.")
 
-    # -- B. the other direction: a page builder unreachable from the entrypoint
-    def test_every_root_page_builder_is_a_step(self):
+    # -- B. the other direction: checked producers unreachable from the entrypoint
+    def test_every_checked_builder_output_is_emitted_by_a_step(self):
         scripted = {s.script for s in self.steps}
-        page_re = re.compile(r"er-[a-z0-9-]+\.html")
-        seen, missing = [], []
+        # Output globals are the builders' existing convention: OUT, OUTPUT, *_OUT, *_OUTPUT and
+        # *_HTML. Read their final path component, then resolve it against the shipped tree. This
+        # asks PRODUCERS what they write; it does not enumerate directories or artifact names.
+        output_re = re.compile(
+            r'^\s*(OUT|OUTPUT|[A-Z][A-Z0-9_]*(?:_OUT|_OUTPUT|_HTML))\s*=\s*os\.path\.join\('
+            r'[^\n]*?["\']([^"\']+\.(?:html|json|tsv|csv|py|rs))["\']\s*\)\s*$', re.MULTILINE)
+        by_name = {}
+        for root, dirs, files in os.walk(REPO):
+            dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+            for fn in files:
+                by_name.setdefault(fn, []).append(
+                    os.path.relpath(os.path.join(root, fn), REPO).replace(os.sep, "/"))
+
+        seen, missing, undeclared = [], [], []
         tools = os.path.join(REPO, "tools")
         for fn in sorted(os.listdir(tools)):
             if not (fn.startswith("build_") and fn.endswith(".py")):
                 continue
             with open(os.path.join(tools, fn), encoding="utf-8", errors="ignore") as fh:
                 text = fh.read()
-            pages = {p for p in page_re.findall(text)
-                     if os.path.isfile(os.path.join(REPO, p))}
-            if not pages:
+            if "--check" not in text:
+                continue
+            declared = []
+            for _var, basename in output_re.findall(text):
+                declared.extend(by_name.get(basename, ()))
+            declared = sorted(set(declared))
+            if not declared:
+                undeclared.append(fn)
                 continue
             seen.append(fn)
-            if "tools/%s" % fn not in scripted:
-                missing.append("%s -> %s" % (fn, ", ".join(sorted(pages))))
-        # THE WITNESS. An empty `missing` is also what a scan that matched NOTHING produces -- a
-        # renamed prefix, a moved tools/ dir, or a page written through a variable would all make
-        # this test pass while seeing zero builders. MEASURED 2026-08-15: exactly three tools write
-        # a committed root page. Assert the scan found them before believing it found no orphan.
-        self.assertGreaterEqual(len(seen), 3,
-                                "the page-builder scan matched only %d tool(s) (%s) -- it has "
+            script = "tools/%s" % fn
+            if script not in scripted:
+                missing.append("%s -> %s" % (fn, ", ".join(declared)))
+                continue
+            for rel in declared:
+                if not self._covered(rel):
+                    missing.append("%s does not emit %s" % (fn, rel))
+        self.assertEqual([], undeclared,
+                         "these builders offer --check but declare no discoverable output global; "
+                         "name outputs OUT/OUTPUT/*_OUT/*_OUTPUT/*_HTML so regen_all can own them: "
+                         + ", ".join(undeclared))
+        # THE WITNESS. An empty `missing` is also what a blind scan produces. Four checked builders
+        # exist today; assert the producer scan still sees the corpus before trusting its answer.
+        self.assertGreaterEqual(len(seen), 4,
+                                "the checked-builder scan matched only %d tool(s) (%s) -- it has "
                                 "stopped seeing the corpus, and a blind scan reports no orphans"
                                 % (len(seen), ", ".join(seen)))
         self.assertEqual([], missing,
-                         "these tools write a committed root page but are not reachable from "
-                         "tools/regen_all.py -- exactly how build_questline_dag_page.py went "
-                         "undocumented and reddened PR #698")
+                         "these checked builder outputs are not reachable from tools/regen_all.py "
+                         "-- exactly how #708 recurred one PR after the root-page-only guard")
 
     # -- D. no consumer keeps its own list ----------------------------------
     def test_the_consumers_invoke_the_entrypoint_and_enumerate_nothing(self):
