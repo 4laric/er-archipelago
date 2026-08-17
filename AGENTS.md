@@ -793,6 +793,16 @@ The sandbox mount can silently truncate/NUL-pad large writes. Tools guard agains
 - Player-visible change? The `release/CHANGELOG.md` line goes in **this** commit and the
   version's `BLURB-v<version>.md` grows with it -- `python tools/check_release_notes.py`
   (CONTRIBUTING rule 14). Do not leave it for tag time; that is how the blurb series died.
+- **Opening a release window? Run `python3 tools/open_window.py --to X.Y.Z`, do not do it by hand.**
+  It is SEVEN files across TWO repos, and the last three windows each found one of them by going
+  red in CI rather than by looking: v0.4.4, v0.4.5 and v0.4.6 all shipped "no client half was
+  needed" (`contract_gen.rs` embeds the version string, so a version-only bump makes the pinned
+  client stale), and v0.4.6 also shipped a stale wizard blob. The tool drives every site off
+  `check_version_sites.SITES` — it has no list of its own — regenerates what is derived instead of
+  patching it, and refuses to finish unless all seven agree. It writes no prose: the notes are
+  skeletons with `TODO(open)` markers, and `--check-notes` fails while any survive.
+  ⚠️ It commits the client half on a branch and stops. Landing that PR and bumping the gitlink in
+  the same commit is still yours, per the ordering above.
 - `git fetch` + rebase onto **the branch you verified in §2** before pushing (Alaric pushes
   concurrently, often mid-session — re-fetch late, not once at the start); resolve/regen if the rebase
   touched generated files, then `git push origin HEAD:<that branch>`.

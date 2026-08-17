@@ -78,6 +78,42 @@ SITES = [
         ),
         "optional": True,
     },
+    {
+        # 🛑 ADDED 2026-08-17, AND ITS ABSENCE IS WHY THIS LIST'S OWN PROMISE WAS FALSE.
+        # contract_gen.rs is GENERATED from the world's contract into the client repo and it
+        # embeds the version string, so a version-only bump moves it even when CONTRACT_HASH
+        # does not. Three windows running (v0.4.4, v0.4.5, v0.4.6) the opener wrote "no client
+        # half was needed", saw this gate report every site agreeing, and found out from the
+        # `generators` job that the pinned client did not contain the output this repo
+        # generates. The gate was green because the site was not on the list.
+        "what": "client contract_gen.rs APWORLD_VERSION_EXPECTED",
+        "path": os.path.join(CLIENT, "crates", "eldenring-archipelago", "src", "contract_gen.rs"),
+        "kind": "regex",
+        "rx": re.compile(r'APWORLD_VERSION_EXPECTED:\s*&str\s*=\s*"(\d+(?:\.\d+)+)"'),
+        "optional": True,
+        "generated": "python greenfield/gen_contract.py  (writes contract_gen.rs into the CLIENT repo)",
+    },
+    {
+        # The wizard's committed metadata blob. GENERATED, and checked here anyway: the failure
+        # this catches is a STALE COMMITTED ARTIFACT, which is exactly the thing a generator
+        # cannot notice on its own. The `tests` job has a drift gate for it, but that gate needs
+        # a full Archipelago import and runs late; this one is a JSON key read and runs anywhere.
+        "what": "wizard/options-metadata.json apworld_version",
+        "path": os.path.join(REPO, "wizard", "options-metadata.json"),
+        "kind": "json",
+        "key": "apworld_version",
+        "generated": "python tools/dump_options_metadata.py",
+    },
+    {
+        # The SAME blob, inlined into the page so the wizard works from a file:// URL with no
+        # fetch. Two copies of one datum is the shape that drifts, so both are checked: they
+        # were both stale at v0.4.6 and nothing said so until CI step 12.
+        "what": "wizard/wizard.html inlined apworld_version",
+        "path": os.path.join(REPO, "wizard", "wizard.html"),
+        "kind": "regex",
+        "rx": re.compile(r'"apworld_version":\s*"(\d+(?:\.\d+)+)"'),
+        "generated": "python tools/dump_options_metadata.py",
+    },
 ]
 
 
