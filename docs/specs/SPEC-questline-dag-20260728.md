@@ -8,6 +8,12 @@ measured and what it changed about the plan below. Originally written 2026-07-28
 shipped the Fortissax softlock fix (`6df0a22` → `2a13b6d`), while that context was still warm.
 Alaric's ask, verbatim: *"I want to model all the questlines as a dag."*
 
+**CC evidence increment, 2026-08-17 (#789):** the flag-only machine graph remains intact, and a
+typed evidence union (`questline_model.tsv`) adds revision-pinned CC BY-SA 4.0 ordering claims from
+Elden Ring Wiki. This closes the graph's ability to *display* the known Fortissax arena-existence
+hole and represent item prerequisites such as the Hole-Laden Necklace without laundering goods ids
+into the event-flag namespace. It still changes no world behaviour; see §9c.
+
 **Read first:** `greenfield/gen_data.py` around `QUEST_GATED_FLAGS` — every set folded into it is a
 piece of this graph discovered one screen at a time, and its comments carry the provenance rules that
 should survive into the DAG.
@@ -279,6 +285,31 @@ majority of `clear` sources are set by the *awarding talk itself*. Those are mem
 steps whose firing costs you the check — producer 3 already dropped the identical class via
 `self_set_flags`, and producer 2 now degrades them to `unknown` with a tally. This is why the
 exclusion count fell 62 → 20: **the drop is the fix, not a regression.**
+
+## 9c. CC-wiki corroboration is a typed evidence layer, not a new oracle (2026-08-17)
+
+The award-site graph cannot describe two important shapes found in a human walkthrough:
+
+1. a prerequisite may be an **item**, not an event flag (`Hole-Laden Necklace`, goods 2008008);
+2. a quest may gate whether an **arena exists**, leaving no award-site edge (`f400392 → f510110`,
+   Cursemark of Death before Fortissax).
+
+`greenfield/questline_cc_wiki.tsv` records concise adapted claims with exact page id, revision id,
+timestamp, pinned URL, and CC BY-SA 4.0 license. `tools/build_questline_model.py` unions those rows
+with the machine DAG using typed node ids (`flag:` and `item:`), while preserving which evidence is
+`game_data` and which is `cc_wiki`. The generated page renders the CC evidence in a separate panel
+so corroboration cannot be mistaken for derivation.
+
+The first slice covers Fia, Ranni, Ymir, Millicent, and Patches. It deliberately includes one
+machine-overlap fixture (Patches) to prove the layers can corroborate each other, one machine-blind
+fixture (Fortissax), and one cross-id-space fixture (the Necklace). Keeper tests assert all three,
+plus exact-revision attribution and the absence of any runtime consumer.
+
+🛑 Wiki ordering is evidence of ordering, not proof of the game's internal event flag. Numeric ids
+still come from the vanilla-data side of this repo. A CC row may join those two facts, but must keep
+both provenances visible. Nothing in `greenfield/eldenring/` imports `questline_model.tsv`; promoting
+an edge to access logic remains tier 3 and needs the game-derived predicate, region composition,
+and fill regression described above.
 
 Also corrected: a comment claiming "12 pairs carry both verbs" (recomputed: 20), a §9a claim that
 all 39 unknowns were treasure-verb rows (28 of 108), and the §3 *table row* for `esd_flags.tsv` —
