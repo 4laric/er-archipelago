@@ -3,6 +3,32 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.6 — 2026-08-16
+
+Window opened AT the v0.4.5 tag (`4d96806`), with zero commits past it. That is the third window
+opened while every gate was still green and the second in a row: `check_release_notes` reported
+`v0.4.5 is tagged and HEAD is at it -- nothing has landed since` rather than failing, so this open
+pre-empts the red the next commit would have produced instead of paying one.
+
+`CONTRACT_HASH` is unmoved at `5c2b9bf2` -- the shape the contract has had since 0.3.9 -- so this is
+version-lockstep and a v0.4.5 client still handshakes with a v0.4.6 seed. Verified by loading
+`contract.py` after the bump and reading the value, not by assuming the shape did not move. Worth
+saying explicitly this time: v0.4.5 withheld the goal region's Lock, which changes what the item pool
+contains, and it still moved no contract key -- the client was already told which lock to grant.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.5 in this same commit. That is the second window
+running it has not lagged its tag; before v0.4.4 it lagged every time.
+
+🛑 A client half IS needed, and the last two windows' notes said it was not. `contract_gen.rs` is
+generated into the client repo and embeds the version string, so a version-only bump moves it even
+when the hash does not — the `generators` gate goes red until the gitlink follows. The v0.4.5 client
+commit caught this, wrote *"a version bump always needs this half"*, and promised to correct the row
+it came from; the correction never landed, so the next window-opener read the old sentence and
+repeated it. Client half: clients#246, gitlink bumped in the same commit (AGENTS §7).
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
+the release).
+
 ## v0.4.5 — 2026-08-16
 
 Window opened AT the v0.4.4 tag (`1ffac04`), with zero commits past it. `check_release_notes` was
