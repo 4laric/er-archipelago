@@ -486,6 +486,7 @@ _OPTION_GROUPS = [
         "difficulty_ramp_speed", "traps", "spawn_traps", "trap_count"]),
     ("Checks & Item Pool", [
         "vanilla_placement", "natural_progression", "dungeon_sweep", "reroll_enemy_drops",
+        "protect_missable_locations",
         # vanilla_pool sits directly before curated_filler because it OVERRIDES it (#618): the
         # wizard renders a group in this order, and a player reading the recipe first would edit
         # weights that the switch above them makes moot.
@@ -1411,6 +1412,11 @@ class GreenfieldEldenRingWorld(World):
             # item in Elden Ring, which is the property the mode's safety argument rests on.
             _vp.apply(self)
             return
+        # #582: reserve compatible filler for filler-only missable checks before AP's general fill
+        # can spend it elsewhere. The feature owns the matcher; core only provides the lifecycle
+        # hook, following progression_surface immediately below.
+        from .features import missable_locations as _missable
+        _missable.reserve_filler(self)
         # progression_surface (v0.2): CONFINE this world's own progression (region Locks + required/
         # gate runes + legacy keys) to a small high-confidence surface -- default MajorBoss -- via
         # fill_restrictive over the selected classes, with a feasibility ladder that widens (then spills
