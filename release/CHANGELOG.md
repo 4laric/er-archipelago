@@ -3,6 +3,26 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.8 — 2026-08-18
+
+Window opened 39 commit(s) PAST the v0.4.6 tag.
+
+`CONTRACT_HASH` moved from `5c2b9bf2` to `dc0dc687`, verified by loading `contract.py`. The new
+`armorBundles` map is intentionally incompatible with clients that can only map one AP item to one
+Elden Ring FullID; the feature handshake refuses that pairing instead of silently losing a set.
+
+The armor-bundle behavior shipped in clients#277. A small 0.4.8 client follow-up updates the embedded
+version, and its commit is pinned by the gitlink in this same window-opening change.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.6 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **Armor sets now occupy one randomized item instead of one slot per piece.** Families are generated
+  from the protector rows, include altered pieces, and reconcile member-by-member across reconnects.
+  Tight pools also deduplicate exact weapon names and retire the two trick mirrors and Sacrificial
+  Twig into ordinary filler economy capacity.
+
 ## v0.4.7 — 2026-08-17
 
 Window opened AT THE TAG of v0.4.6 with ZERO commits past it.

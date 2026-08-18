@@ -383,15 +383,15 @@ class TestSlotDataUnits:
         assert nested == scaling_ladder.ceiling_multiplier(50)
         assert _ceiling_tier(nested) == round(50 / 100 * top) < top, "the cap must actually cap"
         # ...and the seed must TELL the client, or an old one would ignore the cap in silence.
-        assert sd.get(contract.REQUIRES_CLIENT_FEATURES) == ["scaling_ceiling"]
+        assert sd.get(contract.REQUIRES_CLIENT_FEATURES) == ["armor_bundles", "scaling_ceiling"]
 
     def test_an_uncapped_seed_demands_nothing_of_the_client(self):
         """Default seeds must connect to ANY client. The handshake is a cost you pay only when you
         opt into the thing that costs it -- otherwise it is a compatibility break for everyone."""
         from worlds.eldenring import contract
         sd = self._slot_data(0)
-        assert contract.REQUIRES_CLIENT_FEATURES not in sd, (
-            "an uncapped seed declared a client requirement it does not have")
+        assert sd.get(contract.REQUIRES_CLIENT_FEATURES) == ["armor_bundles"], (
+            "an uncapped shuffled seed should demand only its armour-bundle client support")
         assert sd["options"]["completion_scaling_ceiling"] == scaling_ladder.SCALING_HP_LADDER[-1], (
             "uncapped must still EMIT the key, as the top rung -- presence must not carry meaning")
 

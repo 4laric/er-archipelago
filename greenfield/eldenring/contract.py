@@ -771,6 +771,9 @@ CONTRACT = (
     ContractKey("apIdsToItemIds", "SCALAR_INT_MAP", True, (BOTH,),
                 "core._base_slot_data", "core.rs:309 i64_map",
                 "AP item id (str) -> ER FullID granted on receipt."),
+    ContractKey("armorBundles", "LISTVAL_INT_MAP", False, (GREENFIELD,),
+                "features/armor_bundles.py", "core.rs armor-bundle receive reconciler",
+                "synthetic armor-set AP item id (str) -> every protector FullID in its generated family."),
     # GREENFIELD-only and REQUIRED there. NOT required of a foreign apworld: Bedrock emits
     # `locationIdsToKeys` (matt slot keys) instead, and key_resolver.rs derives the flag from token 1
     # of the key. core.rs prefers the derived table and falls back to this one. Requiring BOTH of a
@@ -1513,7 +1516,7 @@ pub fn validate(sd: &Value) -> Vec<String> {
 # forget; a derived one cannot go stale. (Same doctrine as the gen-input stamp.)
 import hashlib as _hashlib
 
-APWORLD_VERSION = "0.4.7"
+APWORLD_VERSION = "0.4.8"
 
 def _contract_hash() -> str:
     _mat = "\n".join(
