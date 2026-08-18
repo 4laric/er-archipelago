@@ -5,8 +5,11 @@ only moment anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing yet. This window was opened two internal/docs commits after the v0.4.8 tag, before another
-player-facing change landed, so this file exists before its first entry does—which is the point.
+The bundle now starts with the files it actually contains. Stable releases tell me3 to load the
+authenticated `flower-package`, while development bundles without those assets no longer retain a
+dead `ap-package` reference. Packaging stops before publication if a profile names a directory that
+is not in the finished bundle, closing the `ReadDir: Path not found` startup failure reported on
+Linux.
 
 ## What carried over from v0.4.8
 

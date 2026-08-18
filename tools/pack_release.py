@@ -33,6 +33,12 @@ import sys
 import zipfile
 from datetime import datetime, timezone
 
+from package_me3_profile import (
+    ProfileError,
+    configure_release_profile,
+    validate_release_profile,
+)
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REL = os.path.join(REPO, "release")
 
@@ -201,18 +207,30 @@ def stage(args, stage_dir: str) -> None:
     shutil.copy2(icon_installer, os.path.join(me3_dst, "install-ap-flower.ps1"))
     shutil.copy2(icon_installer_py, os.path.join(me3_dst, "install_ap_flower.py"))
     flower_package = os.path.join(args.me3, "flower-package")
+    staged_package: str | None = None
     if os.path.isdir(flower_package):
         flower_manifest(flower_package, args.version)
         shutil.copytree(flower_package, os.path.join(me3_dst, "flower-package"))
+        staged_package = "flower-package"
         info("+ AP flower installers + packaged hi/low atlases")
     elif not args.unofficial:
         die("stable release requires me3/flower-package with both AP Flower atlases")
     else:
         warn("AP Flower release assets unavailable; installer will report that clearly")
 
+    profile_path = Path(me3_dst, "ap.me3")
+    if not profile_path.is_file():
+        die("no ap.me3 in the stage -- me3 has nothing to load")
+    try:
+        configured = configure_release_profile(profile_path, Path(me3_dst), staged_package)
+    except ProfileError as exc:
+        die(f"could not configure staged me3 profile: {exc}")
+    info(f"+ me3/ap.me3 package = {configured[0] if configured else '<none>'}")
+
     if os.path.isdir(args.me3):
         extra = [n for n in os.listdir(args.me3)
-                 if n not in ME3_ALLOW and n not in ("apconfig.json", "ap-package")]
+                 if n not in ME3_ALLOW
+                 and n not in ("apconfig.json", "ap-package", "flower-package")]
         if extra:
             warn(f"excluded {len(extra)} non-release item(s) from me3/: {', '.join(sorted(extra)[:25])}")
 
@@ -248,7 +266,8 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
         die(f"eldenring_archipelago.dll is {os.path.getsize(dll)} bytes -- that is not a build")
     info(f"dll: {os.path.getsize(dll)/1e6:.2f} MB")
 
-    if not os.path.isfile(os.path.join(me3, "ap.me3")):
+    profile_path = Path(me3, "ap.me3")
+    if not profile_path.is_file():
         die("no ap.me3 in the stage -- me3 has nothing to load")
 
     installer = os.path.join(me3, "install-ap-flower.ps1")
@@ -267,6 +286,13 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
     elif not unofficial:
         die("stable stage has no authenticated flower-package")
     info("AP flower: packaged-asset installer present")
+
+    expected_package = "flower-package" if os.path.isdir(package) else None
+    try:
+        profile_packages = validate_release_profile(profile_path, Path(me3), expected_package)
+    except ProfileError as exc:
+        die(f"staged me3 profile/package mismatch: {exc}")
+    info(f"me3 profile package: {profile_packages[0] if profile_packages else '<none>'} -- exists")
 
     # Walk once for the remaining two content gates.
     leaked, foreign, loose_atlases = [], [], []

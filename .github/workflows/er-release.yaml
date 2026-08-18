@@ -15,7 +15,8 @@
 #
 # 🛑 AP Flower's complete hi/low overrides cannot live in this public repo. Stable packaging fetches
 # them from private `ICON_REPO`, puts them under `flower-package`, and generates the authenticated
-# manifest. Development builds omit them and the installer reports that the release assets are absent.
+# manifest. `pack_release.py` rewrites the STAGED ap.me3 to that directory and hard-fails if any
+# profile package path is absent. Development builds omit the assets and ship no [[packages]] entry.
 #
 # 🛑 THIS DOES NOT REPLACE release.yaml. That one attaches the bare apworld and the wizard and is
 # deliberately not gated on the pin. This one produces the player bundle. They attach to the same
@@ -195,7 +196,10 @@ jobs:
           mkdir -p me3/flower-package
           cp -r .icon/ap-package/menu me3/flower-package/menu
 
-      - name: Assemble
+      # The packer translates the local ap-package profile template to flower-package for stable
+      # bundles, or removes [[packages]] for asset-free development bundles. Its correctness gate
+      # then resolves every declared package against the finished me3/ stage before writing a zip.
+      - name: Assemble and validate me3 profile paths
         env:
           CLIENT_SHA: ${{ needs.client-dll.outputs.client_sha }}
         run: |
