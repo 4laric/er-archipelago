@@ -44,6 +44,7 @@ def test_every_channel_accepts_the_derivation_without_a_generated_atlas(tmp_path
     stage = _minimal_stage(tmp_path)
     me3 = stage / "me3"
     (me3 / "install-ap-flower.ps1").write_text("# installer", encoding="ascii")
+    (me3 / "install_ap_flower.py").write_text("# installer", encoding="ascii")
     (me3 / "ap_flower_160.bc7").write_bytes(b"f" * 25_600)
     pr.gate_stage(str(stage), unofficial=True)
     assert (me3 / "install-ap-flower.ps1").stat().st_size > 0, "the accepted derivation was not staged"
@@ -55,6 +56,7 @@ def test_a_generated_fromsoft_atlas_is_rejected(tmp_path):
     stage = _minimal_stage(tmp_path)
     me3 = stage / "me3"
     (me3 / "install-ap-flower.ps1").write_text("# installer", encoding="ascii")
+    (me3 / "install_ap_flower.py").write_text("# installer", encoding="ascii")
     (me3 / "ap_flower_160.bc7").write_bytes(b"f" * 25_600)
     sheet = me3 / "ap-package/menu/hi/01_common.tpf.dcx"
     sheet.parent.mkdir(parents=True)

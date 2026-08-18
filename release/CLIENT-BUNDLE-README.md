@@ -20,6 +20,10 @@ the contract is at the bottom of this file.
    override under this folder's `ap-package`. The generated atlas never travels in the download.
    On an upgrade it replaces the older bundle's own atlas; an explicit external destination is
    protected from unmarked overwrites.
+
+   On Linux/Proton, run `python3 ./install_ap_flower.py`. It locates the usual Steam installation,
+   runs the pinned WitchyBND through Wine, and builds the same local override. Pass `--game-dir`
+   when Elden Ring is installed in another Steam library.
 4. (Optional) Put your server details in `apconfig.json`:
    ```json
    { "url": "archipelago.gg:12345", "slot": "YourName", "password": "" }
@@ -52,6 +56,7 @@ only files created by this installer, rerun it with the same destination and `-U
 | `check_lots_table.json` | **vanilla suppression.** See below. |
 | `shoplineup_flags.json` | **shop check detection.** See below. |
 | `install-ap-flower.ps1` | builds/installs the flower override locally; rerun safely after upgrades |
+| `install_ap_flower.py` | cross-platform installer for Linux/Proton and Python-capable Windows setups |
 | `ap_flower_160.bc7` | 25,600 bytes of project-owned flower art; not a FromSoft atlas |
 | `ap-package/` | locally generated hi/low override; appears after running the installer |
 

@@ -176,12 +176,15 @@ def stage(args, stage_dir: str) -> None:
     info(f"+ me3/ (allowlisted {copied} of {len(ME3_ALLOW)})")
 
     icon_installer = os.path.join(REPO, "tools", "install_ap_flower.ps1")
+    icon_installer_py = os.path.join(REPO, "tools", "install_ap_flower.py")
     icon_payload = os.path.join(REPO, "tools", "ap_icon_src", "ap_flower_160.bc7")
-    if not os.path.isfile(icon_installer) or not os.path.isfile(icon_payload):
+    if (not os.path.isfile(icon_installer) or not os.path.isfile(icon_installer_py)
+            or not os.path.isfile(icon_payload)):
         die("AP flower local installer or BC7 payload is missing")
     shutil.copy2(icon_installer, os.path.join(me3_dst, "install-ap-flower.ps1"))
+    shutil.copy2(icon_installer_py, os.path.join(me3_dst, "install_ap_flower.py"))
     shutil.copy2(icon_payload, os.path.join(me3_dst, "ap_flower_160.bc7"))
-    info("+ AP flower local installer + BC7 payload")
+    info("+ AP flower Windows/Python installers + BC7 payload")
 
     if os.path.isdir(args.me3):
         extra = [n for n in os.listdir(args.me3)
@@ -225,9 +228,12 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
         die("no ap.me3 in the stage -- me3 has nothing to load")
 
     installer = os.path.join(me3, "install-ap-flower.ps1")
+    installer_py = os.path.join(me3, "install_ap_flower.py")
     payload = os.path.join(me3, "ap_flower_160.bc7")
     if not os.path.isfile(installer):
         die("no install-ap-flower.ps1 in the stage")
+    if not os.path.isfile(installer_py):
+        die("no install_ap_flower.py in the stage")
     if not os.path.isfile(payload) or os.path.getsize(payload) != 25_600:
         die("AP flower BC7 payload is absent or not exactly 25,600 bytes")
     leaked_sheets = []
