@@ -3,6 +3,20 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.9 — 2026-08-18
+
+Window opened 2 commit(s) PAST the v0.4.8 tag.
+
+`CONTRACT_HASH` remains `dc0dc687`, verified by loading `contract.py` after the bump. The slot-data
+shape is unchanged, but the client half still moves because its generated handshake embeds the
+world version.
+
+Client half: clients#286. Its merged commit is pinned by the gitlink in this same change.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.8 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
 ## v0.4.8 — 2026-08-18
 
 v0.4.8 is the first release after v0.4.6. v0.4.7 was never tagged or released; the number is
