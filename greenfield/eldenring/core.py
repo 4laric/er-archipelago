@@ -472,7 +472,7 @@ _OPTION_GROUPS = [
         "num_regions", "num_regions_order", "start_regions", "start_region_pool", "goal",
         "ending_condition",
         "goal_great_runes", "leyndell_runes_required", "region_grace_unlock",
-        "grace_attunement", "grace_attunement_anchor"]),
+        "grace_attunement", "grace_attunement_anchor", "goal_region_unlock_policy"]),
     ("DLC & Blessings", [
         "enable_dlc", "dlc_only", "scadutree_blessing_scope", "dlc_blessing_catchup",
         "global_scadutree_blessing"]),
@@ -1868,6 +1868,9 @@ class GreenfieldEldenRingWorld(World):
             # runtime toggle; the client-feature TAG that stops an older client silently ignoring it
             # is emitted by the feature, because only the feature knows the seed actually uses it.
             contract.AUTO_EQUIP: _opt("auto_equip"),
+            # 0 keeps the possession-based goal gate; 1 requires every progression-surface check
+            # in every required non-goal region (with viewed shop rows supplied by the client).
+            contract.GOAL_REGION_UNLOCK_POLICY: _opt("goal_region_unlock_policy"),
             # 0 off; nonzero = opening a merchant's buy menu sets the Twin Maidens hand-in flag
             # for that merchant's Bell Bearing (features/merchant_bells.py -> merchant_bells.rs).
             # 🛑 THIS LINE WAS MISSING FROM 2026-08-10 (#509) TO ITS FIX, AND THE FEATURE WAS DARK

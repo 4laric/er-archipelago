@@ -234,6 +234,14 @@ Elden Ring:
   # unbeatable. This is a count over all seven eligible Great Runes.
   goal_great_runes: 4
 
+  # What opens the final goal region (Ashen Capital, or the DLC goal terminus).
+  #   items_held        -- the existing behavior: hold every Region Lock in play.
+  #   regions_completed -- clear every progression-surface check in each required
+  #                        non-goal region. For shop checks, merely viewing the
+  #                        merchant's inventory counts; no purchase is required.
+  #                        Progress is restored when reconnecting.
+  goal_region_unlock_policy: items_held
+
   # Great Runes needed to get into Leyndell, ON TOP of the Leyndell Lock --
   # echoing the vanilla "two Great Runes to enter the capital".
   #
