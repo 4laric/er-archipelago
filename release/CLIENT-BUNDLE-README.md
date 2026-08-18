@@ -15,15 +15,14 @@ the contract is at the bottom of this file.
 1. Install **me3** (link above). It launches the retail exe; you do **not** need UXM or modified
    game files. If you have previously UXM-patched Elden Ring, restore vanilla files first.
 2. Unzip this folder anywhere.
-3. Run `powershell -ExecutionPolicy Bypass -File .\install-ap-flower.ps1`. It reads Elden Ring's
-   own hi/low menu atlases and Oodle DLL, inserts the project-owned flower, and writes the generated
-   override under this folder's `ap-package`. The generated atlas never travels in the download.
-   On an upgrade it replaces the older bundle's own atlas; an explicit external destination is
-   protected from unmarked overwrites.
+3. Run Matt's randomizer, then run `powershell -ExecutionPolicy Bypass -File
+   .\install-ap-flower.ps1 -Destination <randomizer-folder>`. It copies the authenticated hi/low
+   overrides from `flower-package` into the folder Matt actually loads. It never downloads tools,
+   unpacks Elden Ring, or writes into the stock game. Restart Elden Ring after installing.
 
-   On Linux/Proton, run `python3 ./install_ap_flower.py`. It locates the usual Steam installation,
-   runs the pinned WitchyBND through Wine, and builds the same local override. Pass `--game-dir`
-   when Elden Ring is installed in another Steam library.
+   On Linux/Proton, run `python3 ./install_ap_flower.py --destination <randomizer-folder>`.
+   Existing unowned atlas mods are refused unless you deliberately pass `--replace-existing`,
+   which backs them up for a later `--uninstall`.
 4. (Optional) Put your server details in `apconfig.json`:
    ```json
    { "url": "archipelago.gg:12345", "slot": "YourName", "password": "" }
@@ -55,10 +54,9 @@ only files created by this installer, rerun it with the same destination and `-U
 | `apconfig.json` | server / slot / password. Blank is valid. |
 | `check_lots_table.json` | **vanilla suppression.** See below. |
 | `shoplineup_flags.json` | **shop check detection.** See below. |
-| `install-ap-flower.ps1` | builds/installs the flower override locally; rerun safely after upgrades |
-| `install_ap_flower.py` | cross-platform installer for Linux/Proton and Python-capable Windows setups |
-| `ap_flower_160.bc7` | 25,600 bytes of project-owned flower art; not a FromSoft atlas |
-| `ap-package/` | locally generated hi/low override; appears after running the installer |
+| `install-ap-flower.ps1` | thin Windows launcher for the packaged-asset installer |
+| `install_ap_flower.py` | authenticated, transactional installer for Windows and Linux/Proton |
+| `flower-package/` | release-only manifest plus complete hi/low AP Flower overrides; may be absent from dev bundles |
 
 **Both JSON tables are derived from the game's own params -- game data, not seed data.** That is why
 one static copy works for every apworld and every seed. Keep them next to the DLL.

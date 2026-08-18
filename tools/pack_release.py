@@ -14,8 +14,8 @@ WHAT THIS DOES NOT DO, ON PURPOSE
     stand and the workflow calls them directly. A second copy of a check is a second thing to drift.
 
     It does not build the apworld (`tools/build_apworld.py`) or the .dll (the client repo's CI does,
-    on windows-latest). It ships the AP-owned BC7 flower payload and local installer, never the
-    generated FromSoft atlas or Oodle.
+    on windows-latest). It copies an optional, privately supplied `flower-package` verbatim; the
+    installer authenticates its manifest before any destination write.
 
 EXIT CODES -- 0 clean, 1 hard failure, 2 staged WITH WARNINGS. 2 is load-bearing: it is how an
 `--unofficial` build says "this is not a release", and it must never collapse into 0.
@@ -177,14 +177,16 @@ def stage(args, stage_dir: str) -> None:
 
     icon_installer = os.path.join(REPO, "tools", "install_ap_flower.ps1")
     icon_installer_py = os.path.join(REPO, "tools", "install_ap_flower.py")
-    icon_payload = os.path.join(REPO, "tools", "ap_icon_src", "ap_flower_160.bc7")
-    if (not os.path.isfile(icon_installer) or not os.path.isfile(icon_installer_py)
-            or not os.path.isfile(icon_payload)):
-        die("AP flower local installer or BC7 payload is missing")
+    if not os.path.isfile(icon_installer) or not os.path.isfile(icon_installer_py):
+        die("AP flower packaged-asset installer is missing")
     shutil.copy2(icon_installer, os.path.join(me3_dst, "install-ap-flower.ps1"))
     shutil.copy2(icon_installer_py, os.path.join(me3_dst, "install_ap_flower.py"))
-    shutil.copy2(icon_payload, os.path.join(me3_dst, "ap_flower_160.bc7"))
-    info("+ AP flower Windows/Python installers + BC7 payload")
+    flower_package = os.path.join(args.me3, "flower-package")
+    if os.path.isdir(flower_package):
+        shutil.copytree(flower_package, os.path.join(me3_dst, "flower-package"))
+        info("+ AP flower installers + packaged hi/low atlases")
+    else:
+        info("+ AP flower installers (release assets unavailable in this build)")
 
     if os.path.isdir(args.me3):
         extra = [n for n in os.listdir(args.me3)
@@ -229,20 +231,11 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
 
     installer = os.path.join(me3, "install-ap-flower.ps1")
     installer_py = os.path.join(me3, "install_ap_flower.py")
-    payload = os.path.join(me3, "ap_flower_160.bc7")
     if not os.path.isfile(installer):
         die("no install-ap-flower.ps1 in the stage")
     if not os.path.isfile(installer_py):
         die("no install_ap_flower.py in the stage")
-    if not os.path.isfile(payload) or os.path.getsize(payload) != 25_600:
-        die("AP flower BC7 payload is absent or not exactly 25,600 bytes")
-    leaked_sheets = []
-    for root, _dirs, files in os.walk(me3):
-        leaked_sheets += [os.path.join(root, f) for f in files
-                          if f.lower() == "01_common.tpf.dcx"]
-    if leaked_sheets:
-        die("generated FromSoft atlas entered the release stage: " + ", ".join(leaked_sheets))
-    info("AP flower: local installer + project-owned BC7 payload; no generated atlas")
+    info("AP flower: packaged-asset installer present")
 
     # Walk once for the remaining two content gates.
     leaked, foreign = [], []
