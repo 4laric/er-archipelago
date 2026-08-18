@@ -258,7 +258,15 @@ class LocalItemsFeature(Feature):
         that do not exist, and that number is the thing a player is being shown."""
         if not self._shuffle_on(world):
             return []
-        names = set(names_in(self._keep_local_categories(world), _PROGRESSIVE_NAMES))
+        categories = self._keep_local_categories(world)
+        names = set(names_in(categories, _PROGRESSIVE_NAMES))
+        # Progressive stone bells REPLACE the vanilla upgrade-bell names in the pool. They still
+        # belong to the same player-facing category: selecting `upgrade_bells` must keep the
+        # replacement items local too, or conversion silently releases them into another player's
+        # world. `names_in` cannot express this semantic subtype because all feature-minted items
+        # share its broad `progressive` category (which also contains flasks and stonesword keys).
+        if "upgrade_bells" in categories:
+            names.update((PROG_SMITHING_BELL, PROG_SOMBER_BELL))
         cap = self._rune_cap(world)
         if cap > 0:
             names.update(n for n in ITEM_CATALOG
