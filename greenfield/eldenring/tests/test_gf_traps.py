@@ -7,7 +7,7 @@ is a promise to another repository with nothing enforcing it.
 
 🛑 THE FAILURE THIS FILE EXISTS FOR: rename `Trap: Rune Thief` and nothing breaks. No error, no
 failed build, no red gate -- just an item that arrives, is classified filler, and does nothing at
-all, forever. `er_logic::traps::Trap::from_item_name` carries the same two strings on the other side
+all, forever. `er_logic::traps::Trap::from_item_name` carries the same strings on the other side
 with its own test. These cases pin ours; the two lists must move together.
 """
 import os
@@ -29,6 +29,7 @@ REPO = find_repo_root(HERE)
 EXPECTED = {
     "rune_thief": "Trap: Rune Thief",
     "no_flask": "Trap: No Flask",
+    "blackout": "Trap: Blackout",
     "runebear": "Trap: Runebear",
 }
 
@@ -41,7 +42,7 @@ def _mod():
 class TrapCatalogue(unittest.TestCase):
     """Pure table checks -- no world, no fill."""
 
-    def test_the_catalogue_is_exactly_the_two_implemented_traps(self):
+    def test_the_catalogue_is_exactly_the_implemented_traps(self):
         """🛑 Rule 4: adding a name later is safe, REMOVING one is a compat break. So this asserts
         equality, not containment -- a name appearing here without a client that fires it is a yaml
         value that promises something the game will not do."""
@@ -50,7 +51,7 @@ class TrapCatalogue(unittest.TestCase):
     def test_every_name_carries_the_prefix_the_client_dispatches_on(self):
         t = _mod()
         # WITNESS: an empty catalogue would satisfy the loop below vacuously.
-        self.assertEqual(len(t.TRAPS), 3)
+        self.assertEqual(len(t.TRAPS), 4)
         for key, name in t.TRAPS.items():
             self.assertTrue(name.startswith(t.TRAP_PREFIX),
                             f"{key!r} -> {name!r} does not start with {t.TRAP_PREFIX!r}; the client "

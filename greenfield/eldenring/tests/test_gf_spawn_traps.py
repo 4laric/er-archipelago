@@ -383,6 +383,19 @@ class TheClientFeatureHandshake(unittest.TestCase):
         self.assertEqual(self._declared(self._World()), [])
         self.assertEqual(self._declared(self._World(traps=["rune_thief", "no_flask"], count=8)), [])
 
+    def test_blackout_declares_its_own_fixed_name_capability(self):
+        self.assertEqual(
+            self._declared(self._World(traps=["blackout"], count=1)),
+            [_mod().BLACKOUT_CLIENT_FEATURE_TAG],
+        )
+        self.assertEqual(_mod().BLACKOUT_CLIENT_FEATURE_TAG, "blackout")
+
+    def test_blackout_and_spawn_tags_union_without_either_disappearing(self):
+        self.assertEqual(
+            self._declared(self._World(traps=["blackout", "basilisk"], count=2)),
+            [_mod().CLIENT_FEATURE_TAG, _mod().BLACKOUT_CLIENT_FEATURE_TAG],
+        )
+
     def test_a_named_trap_with_a_zero_count_declares_nothing(self):
         """Keyed on the items that WILL EXIST, not on the options being non-empty. `trap_count: 0`
         mints nothing, and a seed that mints nothing needs nothing from the client.
@@ -422,4 +435,3 @@ class TheClientFeatureHandshake(unittest.TestCase):
         by construction."""
         self.assertEqual(_mod().spawn_item_name(4150), "Trap: Basilisk x3 (4150/41500060)")
         self.assertEqual(_mod().CLIENT_FEATURE_TAG, "spawn_traps")
-
