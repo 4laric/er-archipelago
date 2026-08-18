@@ -1,4 +1,4 @@
-"""The development channel may omit the private icon sheet; stable packaging never may."""
+"""Every channel ships the local flower derivation, and no channel ships the game atlas."""
 import os
 import sys
 import unittest
@@ -32,21 +32,34 @@ def _minimal_stage(tmp_path):
     return tmp_path
 
 
-def test_stable_bundle_still_requires_the_flower_icon(tmp_path):
+def test_stable_bundle_requires_the_local_installer_and_payload(tmp_path):
     pr = _pack_release()
     with pytest.raises(SystemExit):
         pr.gate_stage(str(_minimal_stage(tmp_path)), unofficial=False)
 
 
-def test_development_bundle_can_explicitly_omit_the_flower_icon(tmp_path):
+def test_every_channel_accepts_the_derivation_without_a_generated_atlas(tmp_path):
     pr = _pack_release()
     pr.WARNINGS.clear()
     stage = _minimal_stage(tmp_path)
-    pr.gate_stage(str(stage), unofficial=True, allow_missing_ap_icon=True)
-    marker = stage / "DEVELOPMENT-BUILD-NO-AP-ICON.txt"
-    assert marker.is_file()
-    assert "Telescope" in marker.read_text(encoding="ascii")
-    assert any("intentionally omitted" in warning for warning in pr.WARNINGS)
+    me3 = stage / "me3"
+    (me3 / "install-ap-flower.ps1").write_text("# installer", encoding="ascii")
+    (me3 / "ap_flower_160.bc7").write_bytes(b"f" * 25_600)
+    pr.gate_stage(str(stage), unofficial=True)
+    assert not pr.WARNINGS
+
+
+def test_a_generated_fromsoft_atlas_is_rejected(tmp_path):
+    pr = _pack_release()
+    stage = _minimal_stage(tmp_path)
+    me3 = stage / "me3"
+    (me3 / "install-ap-flower.ps1").write_text("# installer", encoding="ascii")
+    (me3 / "ap_flower_160.bc7").write_bytes(b"f" * 25_600)
+    sheet = me3 / "ap-package/menu/hi/01_common.tpf.dcx"
+    sheet.parent.mkdir(parents=True)
+    sheet.write_bytes(b"game data")
+    with pytest.raises(SystemExit):
+        pr.gate_stage(str(stage), unofficial=False)
 
 
 @unittest.skipUnless(_FOUND is not None, REPO_ONLY_REASON)
@@ -55,7 +68,7 @@ def test_main_publishes_a_named_moving_dev_prerelease():
     root = Path(_FOUND)
     workflow = (root / ".github/workflows/er-release.yaml").read_text(encoding="utf-8")
     assert "branches: [main]" in workflow
-    assert "--allow-missing-ap-icon" in workflow
+    assert "ICON_REPO_TOKEN" not in workflow
     assert "git tag -f dev" in workflow
     assert "gh release upload dev" in workflow
     assert "ER-Archipelago-dev.zip" in workflow

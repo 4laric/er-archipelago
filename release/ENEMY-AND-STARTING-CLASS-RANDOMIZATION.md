@@ -143,7 +143,7 @@ Launch through matt's randomizer and that line is never read, because the profil
 is never read. Here is why that is worth two minutes of your time.
 
 **The AP flower is not an item.** It is icon cell 92 -- the vanilla **Telescope**
--- repainted by a texture we ship in `ap-package\menu`. The client points every
+-- repainted by a texture generated locally under `ap-package\menu`. The client points every
 foreign shop slot and every check placeholder at cell 92 whether or not the
 repaint got loaded. So on this launcher the pointing still happens, the repaint
 does not, and you get a shop full of literal telescopes. A player reported
@@ -159,20 +159,25 @@ written into memory at runtime and do not depend on the profile:
 - An item for your own world is sold as the real Elden Ring item, with its own
   real name and its own real icon. Those were never telescopes.
 
-**The fix: copy one folder.** Take `menu` out of `ap-package` and drop it into
-matt's output folder -- the one holding `regulation.bin` -- so you end up with:
+**The fix: run the installer against matt's output folder.** From the client bundle:
+
+```powershell
+.\install-ap-flower.ps1 -Destination "<matt's output folder>"
+```
+
+That locally derives the override from your installed game, so you end up with:
 
 ```
 <matt's output folder>\menu\hi\01_common.tpf.dcx
 <matt's output folder>\menu\low\01_common.tpf.dcx
 ```
 
-Relaunch. That folder is the one the loader actually reads, which is the whole
-difference between the two locations.
+Relaunch. The script refuses to overwrite an unmarked existing atlas unless you explicitly pass
+`-Force`, so another loose-file mod cannot silently lose its own menu override.
 
-> ⚠️ **We have not watched this work.** It follows from how both loaders resolve
-> a file override, and the files are ordinary, but nobody here has confirmed it
-> in game. If you try it, tell us either way -- it is a one-line answer that
+The same DFLT hi/low override was confirmed in game through standalone ModEngine2 during the
+2026-08-17 AP-flower experiment. The installer changes how those confirmed files are constructed,
+not where the loader reads them.
 > would settle the section.
 
 > ⚠️ **Re-randomizing may undo it.** matt's randomizer writes that folder; if the

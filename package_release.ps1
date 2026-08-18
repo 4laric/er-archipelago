@@ -3,14 +3,12 @@
 # Pure-runtime: NO FromSoftware game data ships. This wraps the three things a
 # player needs into one zip:
 #   1. eldenring.apworld            (built by build.ps1 -Apworld = the greenfield world)
-#   2. me3\ runtime                 (client DLL + ap-package AP-icon override +
-#                                    apconfig.json)
+#   2. me3\ runtime                 (client DLL + local AP-flower installer + apconfig.json)
 #   3. the flagship yaml + SETUP.md + CHANGELOG.md
 # (The PopTracker pack stays in the repo, not bundled; the built-in F6 tracker ships.)
 #
-# The AP-icon override IS me3\ap-package (a me3 VFS texture swap: AP items show the
-# flower icon). It is bundled by copying me3\ wholesale; the script WARNS if the
-# ap-package menu textures are missing so an empty icon package never ships silently.
+# The generated AP-icon atlas is FromSoft data and never ships. The release carries only the local
+# installer and the 25,600-byte project-owned flower payload.
 #
 # Usage (from the repo root):
 #   .\package_release.ps1                 # build apworld, stage, zip -> dist\
@@ -394,7 +392,7 @@ New-Item -ItemType Directory -Force -Path $Me3Dst | Out-Null
 # .NET / old-loader artifacts, leftover mods\, a second dll, whatever was in your working me3\. A
 # strip-list is always one surprise behind. Copy ONLY the known release entries instead, so nothing
 # unexpected can ever ship. apconfig.json is (re)written fresh below, so it is deliberately NOT here.
-$Me3Allow = @('ap.me3', 'eldenring_archipelago.dll', 'check_lots_table.json', 'shoplineup_flags.json', 'ap-package')
+$Me3Allow = @('ap.me3', 'eldenring_archipelago.dll', 'check_lots_table.json', 'shoplineup_flags.json')
 $copied = 0
 foreach ($name in $Me3Allow) {
     $src = Join-Path $Me3Src $name
@@ -406,7 +404,7 @@ Info "+ me3\ (allowlisted $copied of $($Me3Allow.Count) entries)"
 # can go clean it) even though the allowlist already kept it OUT of the release. apconfig.json is
 # expected (written fresh below) so it isn't flagged.
 $skipped = @(Get-ChildItem -Path $Me3Src -Force -ErrorAction SilentlyContinue |
-             Where-Object { $_.Name -notin $Me3Allow -and $_.Name -ne 'apconfig.json' })
+             Where-Object { $_.Name -notin $Me3Allow -and $_.Name -notin @('apconfig.json', 'ap-package') })
 if ($skipped.Count -gt 0) {
     Warn ("excluded $($skipped.Count) non-release item(s) from your working me3\ (NOT shipped -- clean them up): " +
           (($skipped | Select-Object -First 25 | ForEach-Object { $_.Name }) -join ", "))
@@ -443,7 +441,7 @@ Info ("staged client DLL timestamp: {0:yyyy-MM-dd HH:mm:ss}" -f $StagedDllTime)
 # unreproducible baker-era file that only ever existed on the dev box. Nothing stages it, so
 # there is nothing to check for here.
 
-# AP-icon override = me3\ap-package\menu textures. HARD FAIL if absent.
+# AP-icon installer. The generated full atlas contains FromSoft assets and MUST NOT enter a release.
 #
 # This used to Info "cosmetic nicety, not a feature" and ship anyway. That rationale was wrong, and
 # it is why the flower has never actually shipped from this tree. The CLIENT unconditionally points
@@ -458,20 +456,18 @@ Info ("staged client DLL timestamp: {0:yyyy-MM-dd HH:mm:ss}" -f $StagedDllTime)
 # !! THE TEXTURE ITSELF IS NOT AND MUST NOT BE COMMITTED -- it is a repainted FromSoft sprite sheet
 # (menu\hi|low\01_common.tpf.dcx), i.e. game data, barred by PROVENANCE.md rule 1. It is BUILT per
 # machine from the local install. What must be committed is the TOOL that builds it.
-$IconMenu = Join-Path $Me3Dst "ap-package\menu"
-$IconFiles = @()
-if (Test-Path $IconMenu) {
-    $IconFiles = @(Get-ChildItem -Path $IconMenu -Recurse -File -ErrorAction SilentlyContinue)
+$IconInstaller = Join-Path $Repo "tools\install_ap_flower.ps1"
+$IconPayload = Join-Path $Repo "tools\ap_icon_src\ap_flower_160.bc7"
+if (-not (Test-Path $IconInstaller)) { Die "missing AP flower installer: $IconInstaller" }
+if (-not (Test-Path $IconPayload)) { Die "missing project-owned AP flower BC7 payload: $IconPayload" }
+if ((Get-Item $IconPayload).Length -ne 25600) { Die "AP flower payload is not exactly 25,600 bytes" }
+Copy-Item $IconInstaller (Join-Path $Me3Dst "install-ap-flower.ps1") -Force
+Copy-Item $IconPayload (Join-Path $Me3Dst "ap_flower_160.bc7") -Force
+$LeakedAtlases = @(Get-ChildItem -Path $Me3Dst -Filter "01_common.tpf.dcx" -Recurse -File -ErrorAction SilentlyContinue)
+if ($LeakedAtlases.Count -gt 0) {
+    Die ("generated FromSoft atlas entered the release stage: " + ($LeakedAtlases.FullName -join ", "))
 }
-$IconSheets = @($IconFiles | Where-Object { $_.Name -ieq "01_common.tpf.dcx" })
-if ($IconSheets.Count -eq 0) {
-    Die ("no AP flower-icon sprite sheet staged at $IconMenu (need menu\hi and/or menu\low " +
-         "01_common.tpf.dcx). The client points the placeholder and every repointed shop slot at " +
-         "iconId 92 and RELIES on this override to repaint it; without it players see a literal " +
-         "telescope. Build it, then re-run: " +
-         "python build_ap_icon.py --icon01 --icon-id 92 --black-to-alpha --bundles hi,low --menu ""<game>\menu""")
-}
-Info "+ AP-icon override ($($IconSheets.Count) sprite sheet(s), $($IconFiles.Count) file(s) in ap-package\menu)"
+Info "+ AP flower local installer + 25,600-byte project-owned payload (no generated atlas)"
 
 # Ship a GENERIC apconfig so a personal slot name never leaks into the release.
 #
