@@ -36,3 +36,5 @@ stable	v0.4.5	2026-08-16	the goal-withholding + seven-Great-Runes window. ⭐ PA
 beta	main	2026-08-16	the open v0.4.6 window
 stable	v0.4.6	2026-08-17	the any-four Great Rune goal, cross-game progression, ruled entrances, Metyr logic, missable-item protection, and matching client capital/rune/rescue fixes; promoted while opening v0.4.7 so the public stable wizard moves with the tag rather than after the next change
 beta	main	2026-08-17	the open v0.4.7 window
+stable	v0.4.6	2026-08-18	v0.4.7 was never tagged, so there is no newer immutable release to promote; v0.4.8 opens explicitly without pretending the accumulated main changes were already shipped
+beta	main	2026-08-18	the open v0.4.8 window
