@@ -1404,7 +1404,6 @@ LOCATIONS = {
         ("Cerulean :: Living Jar Shard - around Lamenter's Gaol (1), also granted by Lamenter (m41_02) [f41027985]", 7774342, 41027985),
         ("Cerulean :: Living Jar Shard - around Lamenter's Gaol (2), also granted by Lamenter (m41_02) [f41027990]", 7774343, 41027990),
         ("Cerulean :: Living Jar Shard - around Lamenter's Gaol (3), also granted by Lamenter (m41_02) [f41027995]", 7774344, 41027995),
-        ('Cerulean :: Scadutree Fragment - Shadowpot, graveyard southwest of Cliffroad Terminus [f2044417995]', 7774814, 2044417995),
         ('Cerulean :: Scadutree Fragment - At Fissure Cross, also granted by Death Rite Bird (m61_47_39) [f2047397070]', 7774820, 2047397070),
         ("Cerulean :: Scadutree Fragment - From the Cerulean Coast grace, head southwest hugging the north cliff wall to a valley; small cave with a corpse on the valley's north side [f2047407100]", 7774821, 2047407100),
         ("Cerulean :: Dancer's Hood - Dancer of Ranah [f530810]", 7900155, 530810),
@@ -1967,6 +1966,7 @@ LOCATIONS = {
         ("Gravesite :: Knot Resin - near Dragon's Pit, also granted by Ancient Dragon-Man (m43_01) [f43017020]", 7774367, 43017020),
         ("Gravesite :: Smithing Stone [5] - near Dragon's Pit, also granted by Ancient Dragon-Man (m43_01) [f43017030]", 7774368, 43017030),
         ("Gravesite :: Smithing Stone [4] - near Dragon's Pit Terminus, also granted by Ancient Dragon-Man (m43_01) [f43017040]", 7774369, 43017040),
+        ('Gravesite :: Scadutree Fragment - Shadowpot, graveyard southwest of Cliffroad Terminus [f2044417995]', 7774814, 2044417995),
         ('Gravesite :: Scadutree Fragment - On the cross at Main Gate Cross [f2045427700]', 7774815, 2045427700),
         ('Gravesite :: Scadutree Fragment - On the cross at Three-Path Cross [f2046427700]', 7774816, 2046427700),
         ('Gravesite :: Smithing Stone [6] - near Greatbridge, North [f2046437040]', 7774817, 2046437040),
@@ -5531,4 +5531,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:f111005169c81a64f2f860ff3aa8bf909fc595226fce407d2ef4011503816084', 'module': 'data.py', 'body_sha256': 'sha256:f944839f0de8bb0de813cf343e8ebeced8c944b57588d71abd5ab8117967946a'}
+_GEN_STAMP = {'inputs_hash': 'sha256:630ba1963f9c31268f2411810ce9a15fd108e0807cc7173397ac152311375b54', 'module': 'data.py', 'body_sha256': 'sha256:1d295bcff491ab75fab45739a053cba79b5f8218545f9adea47802a71e1c81ea'}
