@@ -102,10 +102,9 @@ def stacked_vanilla_name(nm, ap_id, name_to_id):
     promotion is to a NAME: `Scadutree Fragment` -> `Scadutree Fragment x2`, minted by
     features/scadu_supply with its own id, the same game FullID and itemCounts = 2.
 
-    GENERAL, WITH ONE LIVE CONSUMER. The promotion fires only when the stacked name is a REGISTERED
-    AP item, and today exactly one is. Every other multi-copy location keeps paying x1, unchanged --
-    minting 900-odd stack names would renumber the item id space and change the pool for items whose
-    quantity nobody has ruled on. A future stack costs one entry in a feature's ITEMS/ITEM_GRANTS.
+    GENERAL. The promotion fires only when the stacked name is a REGISTERED AP item. `lot_stacks`
+    registers every resolvable source-lot quantity, so all captured multi-copy locations pay the
+    exact lot count; curated category bundles use their own stacked names and cannot alter it.
 
     Returns (name, units). `units` is 1 whenever the name did not move, so a caller can charge a
     budget by what was actually handed over without re-deriving it.
@@ -1815,20 +1814,11 @@ class GreenfieldEldenRingWorld(World):
         }
 
     def _item_counts(self) -> Dict[str, int]:
-        # Per-item GRANT quantity (stacks): filler_curation.STACK_QTY_BY_CATEGORY (throwables x5,
-        # pots x2, greases x2, ammunition x20) -> slot_data itemCounts
-        # keyed by AP item id (the client grants full_id x qty). Sparse: only stacked items appear.
-        from .features.filler_curation import stack_qty_by_name
-        counts = {str(item_name_to_id[_n]): _q for _n, _q in stack_qty_by_name().items()
-                  if _n in item_name_to_id}
-        # Feature-minted stacks (today: the Scadutree Fragment x2) ride the same map. Merged rather
-        # than assigned so neither source can quietly drop the other's entries, and last-wins would
-        # be a silent contradiction if a name ever appeared in both.
+        # Every multi-grant is a quantity-specific AP item. Category bundles used to put their count
+        # on the BASE id, which also multiplied vanilla source lots; lot_stacks now owns both the
+        # exact vanilla quantities and the separate curated bundle ids.
+        counts = {}
         for _k, _v in _FEATURE_ITEM_COUNTS.items():
-            if _k in counts and counts[_k] != _v:
-                raise ValueError(
-                    f"itemCounts disagreement for AP item {_k}: filler_curation says {counts[_k]}, "
-                    f"a feature's ITEM_GRANTS says {_v}")
             counts[_k] = _v
         return counts
 

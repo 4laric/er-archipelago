@@ -126,15 +126,17 @@ class CuratedFillerRecipe(WorldTestBase):
         from collections import Counter
         self.world_setup(seed=self.SEED)
         n = Counter(i.name for i in self.multiworld.itempool if i.player == self.world.player)
-        thr = sum(n[x] for x in fc.CATEGORIES["throwables"])
-        pot = sum(n[x] for x in fc.CATEGORIES["pots"])
-        gre = sum(n[x] for x in fc.CATEGORIES["greases"])
+        thr = sum(n[fc.curated_stack_name(x)] for x in fc.CATEGORIES["throwables"])
+        pot = sum(n[fc.curated_stack_name(x)] for x in fc.CATEGORIES["pots"])
+        gre = sum(n[fc.curated_stack_name(x)] for x in fc.CATEGORIES["greases"])
         self.assertGreater(thr, pot, "throwables (weight 60) > pots (30)")
         self.assertGreater(pot, gre, "pots (30) > greases (10)")
         # stacks emitted in slot_data
         ic = self.world.fill_slot_data().get("itemCounts", {})
-        self.assertEqual(ic.get(str(self.world.item_name_to_id["Kukri"])), 5)
-        self.assertEqual(ic.get(str(self.world.item_name_to_id["Fire Pot"])), 2)
+        self.assertEqual(ic.get(str(self.world.item_name_to_id["Kukri x5"])), 5)
+        self.assertEqual(ic.get(str(self.world.item_name_to_id["Fire Pot x2"])), 2)
+        self.assertNotIn(str(self.world.item_name_to_id["Kukri"]), ic,
+                         "the curated count must not leak onto vanilla Kukri lots")
         # FUNNY JUNK SURVIVES THE SEIZURE. `_is_junk_consumable` returns False for these two, so
         # curated_filler may not displace them; the unit-level half of that promise is
         # test_junk_predicate_protects_economy_and_funny, which needs no world at all.
@@ -165,6 +167,8 @@ class CuratedFillerOff(WorldTestBase):
         n = sum(1 for i in self.multiworld.itempool
                 if i.player == self.world.player and i.name in ("Fire Pot", "Kukri"))
         self.assertLess(n, 10, "empty recipe must not inject the roster")
-        # itemCounts (stacks) are ALWAYS emitted (item property, not recipe-gated).
+        # itemCounts (stacks) are ALWAYS emitted (item property, not recipe-gated), but on the
+        # curated bundle id -- the vanilla base id stays x1.
         ic = self.world.fill_slot_data().get("itemCounts", {})
-        self.assertEqual(ic.get(str(self.world.item_name_to_id["Kukri"])), 5)
+        self.assertEqual(ic.get(str(self.world.item_name_to_id["Kukri x5"])), 5)
+        self.assertNotIn(str(self.world.item_name_to_id["Kukri"]), ic)

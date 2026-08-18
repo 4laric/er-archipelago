@@ -382,8 +382,8 @@ Elden Ring:
   # the gate exists so that cannot happen twice.) Delete the block entirely to
   # follow the default automatically.
   curated_filler:
-    juice: 42
-    stones: 29
+    juice: 66
+    stones: 5
     somber_stones: 6
     runes: 10
     throwables: 6

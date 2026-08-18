@@ -93,8 +93,8 @@ def _whole_items(share):
 COLLECTION_RATE = fb.COLLECTION_RATE
 EARLY_TARGET_LEVEL = fb.EARLY_TARGET_LEVEL
 
-_STONE_RE = re.compile(r"Smithing Stone \[(\d+)\]$")
-_SOMBER_RE = re.compile(r"Somber Smithing Stone \[(\d+)\]$")
+_STONE_RE = re.compile(r"Smithing Stone \[(\d+)\](?: x(\d+))?$")
+_SOMBER_RE = re.compile(r"Somber Smithing Stone \[(\d+)\](?: x(\d+))?$")
 
 
 def _stones_needed(level_target, flatten):
@@ -125,7 +125,12 @@ def _junk_larder(world):
 
 
 def _delivered(counts, categories):
-    return sum(counts[m] for c in categories for m in fc.CATEGORIES.get(c, ()))
+    names = set()
+    for cat in categories:
+        for base in fc.CATEGORIES.get(cat, ()):
+            names.add(base)
+            names.add(fc.curated_stack_name(base))
+    return sum(counts[n] for n in names)
 
 
 # The early-economy sample. ONE seed cannot answer a question about fill DENSITY: measured across
