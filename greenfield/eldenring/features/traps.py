@@ -1,8 +1,9 @@
 """traps -- trap items in the filler pool.
 
-WHAT A TRAP IS HERE. An AP item that makes your run momentarily worse: it takes half your runes, or
-stops your flask healing for twenty seconds. bobler and Alaric designed the set on 2026-08-08
-(issue #114); this ships the two the client can already fire.
+WHAT A TRAP IS HERE. An AP item that makes your run momentarily worse: it takes half your runes,
+stops your flask healing for twenty seconds, blacks out the screen briefly, or drops an enemy on
+your head. bobler and Alaric designed the set on 2026-08-08 (issue #114); only live-confirmed,
+client-implemented effects enter this catalogue.
 
 ## Why this costs no contract move
 
@@ -25,8 +26,8 @@ carries the same list with its own test. Change one, change both.
    N items here removes N fillers and the pool total is unchanged.
 4. 🛑 ADDING a trap name later is safe; REMOVING one is a compat break -- an OptionSet value that
    vanishes fails an old yaml. Never ship a name you might withdraw. That is why this file ships
-   TWO names and not the eleven in the design: these two are implemented, tested and CI-green in the
-   client. The rest arrive when they work, not when they are decided.
+   only confirmed names and not the eleven in the design: these are implemented, tested and
+   CI-gated in the client. The rest arrive when they work, not when they are decided.
 
 ## Defaults
 
@@ -71,9 +72,14 @@ TRAP_PREFIX = "Trap: "
 #: CLIENT TOO OLD instead of failing quietly. `test_gf_spawn_traps` pins the two together so the
 #: format cannot move without this line moving.
 #:
-#: Deliberately NOT declared by the three fixed traps (`Trap: Rune Thief` and friends): their names
-#: are exact-match and have never changed, so an older client reads them correctly.
+#: Deliberately NOT declared by the older fixed traps (`Trap: Rune Thief` and friends): their names
+#: are exact-match and have never changed, so an older client reads them correctly. Blackout gets
+#: its own tag below because it is a new fixed name.
 CLIENT_FEATURE_TAG = "spawn_traps"
+
+#: A fixed-name capability tag for the newly promoted Blackout trap. Unlike the older fixed traps,
+#: clients already in circulation do not recognise this name and would consume it silently.
+BLACKOUT_CLIENT_FEATURE_TAG = "blackout"
 
 
 def spawn_item_name(chr_id: int) -> str:
@@ -118,6 +124,7 @@ def spawn_item_name(chr_id: int) -> str:
 TRAPS = {
     "rune_thief": "Trap: Rune Thief",
     "no_flask": "Trap: No Flask",
+    "blackout": "Trap: Blackout",
     "runebear": "Trap: Runebear",
 }
 
@@ -132,6 +139,7 @@ class Traps(OptionSet):
     - **rune_thief** -- half your runes, gone.
     - **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does
       nothing, and the charge is spent.
+    - **blackout** -- the screen fades out, stays dark for 2 seconds, then fades back in.
     - **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the
       runes.
     - **basilisk** -- THREE basilisks appear where you are standing. One is a joke; three is the
@@ -286,18 +294,21 @@ class TrapsFeature(Feature):
         return [world.create_item(nm) for nm in trap_items(world)]
 
     def slot_data(self, world):
-        """Declare the spawn-trap tag, and ONLY when this seed actually mints one.
+        """Declare each trap capability, and ONLY when this seed actually mints one.
 
         Keyed on the ITEMS THAT WILL EXIST, not on the options being non-empty: `trap_count: 0` with
         a trap named mints nothing, and a seed that mints nothing needs nothing from the client. A
         tag declared by a seed that cannot use it would refuse older clients for no reason, which is
         how a safety check turns into an upgrade tax.
 
-        🛑 Only the SPAWN traps declare. The three fixed names are exact-match and unchanged, so an
-        older client fires them correctly; requiring the tag for them would refuse clients that are
-        in fact perfectly able to run the seed.
+        The three older fixed names need no tag: every released trap client knows them. Blackout is
+        fixed too, but new, so it declares its own capability rather than being silently consumed
+        by an older client.
         """
         minted = set(trap_items(world))
-        if not minted & set(_spawn_names()):
-            return {}
-        return {contract.REQUIRES_CLIENT_FEATURES: [CLIENT_FEATURE_TAG]}
+        tags = []
+        if minted & set(_spawn_names()):
+            tags.append(CLIENT_FEATURE_TAG)
+        if TRAPS["blackout"] in minted:
+            tags.append(BLACKOUT_CLIENT_FEATURE_TAG)
+        return {contract.REQUIRES_CLIENT_FEATURES: tags} if tags else {}
