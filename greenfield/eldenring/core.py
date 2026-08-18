@@ -1784,6 +1784,7 @@ class GreenfieldEldenRingWorld(World):
                           or self.options.enable_dlc.value)
         return {
             contract.DEATH_LINK: _opt("death_link"),
+            contract.TRAP_LINK: _opt("trap_link"),
             contract.ENABLE_DLC: int(dlc_only or enable_dlc),
             contract.NO_WEAPON_REQUIREMENTS: _opt("no_weapon_requirements"),
             # Two capabilities the client has implemented for months and no seed could turn on --

@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.4.7",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "45a1f8cde4c5affe986c5a50da692df2efc87141e8e4533d5db5bd7d8bf85aa7",
+ "source_sha256": "c8c38c2d25d74bb0c395e8ce738fd0022a7dec0b8c298d112d2ad884e0079cfa",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -58,6 +58,7 @@
   "start_regions",
   "start_region_pool",
   "start_with_whetblades",
+  "trap_link",
   "traps",
   "trap_count",
   "spawn_traps",
@@ -166,7 +167,9 @@
    ]
   }
  ],
- "ungrouped": [],
+ "ungrouped": [
+  "trap_link"
+ ],
  "options": [
   {
    "key": "num_regions",
@@ -1619,6 +1622,22 @@
    "class": "StartWithWhetblades",
    "display_name": "Start With All Whetblades",
    "description": "Start with all five whetblades (Iron, Red-Hot, Sanctified, Glintstone, Black) so every Ash-of-War\naffinity is selectable at any grace from the opening, instead of hunting the vanilla pickups. OFF by\ndefault (opt-in). Grants the ITEMS only -- no event flag is set, because each whetblade's only\nvanilla flag is its randomized check flag; the grace affinity menu keys on possession. The whetblade\nCHECKS stay in the pool regardless.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
+  },
+  {
+   "key": "trap_link",
+   "class": "TrapLink",
+   "display_name": "TrapLink",
+   "description": "Share trap items with other TrapLink players.\n\nA trap received through Archipelago is broadcast once when it enters your local trap queue.\nLinked traps use an exact compatible Elden Ring trap name; unknown foreign trap names are\nignored rather than converted into an arbitrary effect. Incoming linked traps never echo back.",
    "kind": "toggle",
    "base": "Toggle",
    "default": false,

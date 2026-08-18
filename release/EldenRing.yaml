@@ -875,6 +875,10 @@ Elden Ring:
   # Shared deaths in a multiworld. Works in both directions.
   death_link: false
 
+  # Share locally received trap items with other TrapLink players. Incoming traps whose names this
+  # client does not recognize are ignored; linked traps never echo back onto the network.
+  trap_link: false
+
 
 # ============================================================================
 #  FIXED IN v0.2 -- these are NOT options. Do not add them to the file above.
