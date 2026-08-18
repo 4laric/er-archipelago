@@ -1606,9 +1606,15 @@ class GreenfieldEldenRingWorld(World):
         # of {Limgrave, Mt. Gelmir, Cerulean} is legitimate and must still generate.
         try:
             from .features.progression_surface import (collapsed_site_regions as _csr,
-                                                       collapsed_lift_aps as _cla)
+                                                       collapsed_lift_aps as _cla,
+                                                       _roundtable_merchant_aps as _rhma)
             _sites = _csr(self)
             _barred = _barred - _cla(self)
+            # Enia and the Twin Maidens are excluded from the curated surface, but a surface spill
+            # rejoins AP's general fill. Make the intended hub-merchant rule permanent at the
+            # location chokepoint so no spill, foreign pass, or future fill phase can put required
+            # progression on a shop available from the opening hub (#860).
+            _barred = _barred | _rhma()
         except Exception:
             _sites = {}
         # confine_foreign_progression (progression_surface): the surface ap-ids that MAY host another

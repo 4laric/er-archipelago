@@ -25,6 +25,10 @@ them, and that is the test doing its job: re-measure, satisfy yourself the delta
 tag rework quietly emptying the guard again, then update the number here deliberately.
 """
 import unittest
+import pytest
+
+WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
+from BaseClasses import Item, ItemClassification
 
 from .. import contract
 from ..data import HUB, LOCATIONS
@@ -108,6 +112,25 @@ class TestHubMerchantBar(unittest.TestCase):
         # ...and it removed exactly the hub, nothing else.
         self.assertEqual(unguarded - _HUB_APS, set(guarded),
                          "the bar changed the surface OUTSIDE the hub.")
+
+
+class HubMerchantLocationRule(WorldTestBase):
+    """A surface exclusion alone is bypassed when restricted progression spills to general fill."""
+    game = "Elden Ring"
+    options = {"num_regions": 3}
+
+    def test_every_hub_merchant_rejects_advancement_at_the_location_rule(self):
+        item = Item("required progression probe", ItemClassification.progression, None, self.player)
+        locations = {loc.address: loc for loc in self.multiworld.get_locations(self.player)}
+        barred = _roundtable_merchant_aps()
+        self.assertTrue(barred, "test basis: the hub merchant set vanished")
+        missing = barred - locations.keys()
+        self.assertFalse(missing, f"hub merchant AP ids are absent from the generated world: {missing}")
+        leaked = [locations[ap].name for ap in barred if locations[ap].item_rule(item)]
+        self.assertFalse(
+            leaked,
+            "hub merchant checks still accept required progression through general fill: %s"
+            % leaked[:5])
 
 
 if __name__ == "__main__":
