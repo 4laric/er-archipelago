@@ -679,6 +679,10 @@ OPTIONS_SUBKEYS = (
     ContractKey("death_link", "BOOL_OR_INT", True, (GREENFIELD,),
                 "core._options_echo", "er-logic/options.rs parse_death_link",
                 "shared deaths across the multiworld (world.options.death_link)."),
+    ContractKey("trap_link", "BOOL_OR_INT", False, (GREENFIELD,),
+                "core._options_echo", "er-logic/options.rs parse_trap_link",
+                "nonzero = advertise TrapLink after slot-data parse, send locally received trap "
+                "items once, and queue compatible inbound linked traps without echoing them."),
     ContractKey("enable_dlc", "BOOL_OR_INT", True, (GREENFIELD,),
                 "core._options_echo", "er-logic/options.rs parse_dlc",
                 "RESOLVED DLC bool (dlc_only implies on); gates DLC map-reveal flags."),

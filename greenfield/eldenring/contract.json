@@ -148,6 +148,17 @@
           "doc": "shared deaths across the multiworld (world.options.death_link)."
         },
         {
+          "name": "trap_link",
+          "shape": "BOOL_OR_INT",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo",
+          "consumer": "er-logic/options.rs parse_trap_link",
+          "doc": "nonzero = advertise TrapLink after slot-data parse, send locally received trap items once, and queue compatible inbound linked traps without echoing them."
+        },
+        {
           "name": "enable_dlc",
           "shape": "BOOL_OR_INT",
           "required": true,
