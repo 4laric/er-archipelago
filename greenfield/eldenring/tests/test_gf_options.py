@@ -358,7 +358,8 @@ def test_keep_out_of_shops_combinations_fill_clean(label, opts):
     skipped everything, every time."""
     from Fill import distribute_items_restrictive
     from worlds.eldenring.shop_data import SHOP_ROW_FLAGS
-    from worlds.eldenring.features.keep_out_of_shops import plan, _PROGRESSIVE_NAMES
+    from worlds.eldenring.features.keep_out_of_shops import (
+        plan, safe_forbid_capacity, _max_shop_matches, _PROGRESSIVE_NAMES)
     from worlds.eldenring.item_categories import expand, names_in
     from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS
 
@@ -387,6 +388,16 @@ def test_keep_out_of_shops_combinations_fill_clean(label, opts):
                    if getattr(l, "address", None) is not None
                    and str(l.address) not in SHOP_ROW_FLAGS
                    and (l.item is None or l in reserved))
+    selected_names = set().union(*by_cat.values()) if by_cat else set()
+    shops = [l for l in t.multiworld.get_locations(player)
+             if getattr(l, "address", None) is not None
+             and str(l.address) in SHOP_ROW_FLAGS and l.item is None]
+    compatible_outside = _max_shop_matches(
+        [item for item in own if item.name not in selected_names], shops)
+    capacity = safe_forbid_capacity(
+        capacity,
+        sum(1 for item in own if item.name in selected_names),
+        len(shops), compatible_outside)
     enforced, _dropped = plan({c: sum(1 for i in own if i.name in ns)
                                for c, ns in by_cat.items()}, capacity)
 
