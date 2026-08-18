@@ -146,8 +146,22 @@ def pytest_sessionfinish(session, exitstatus):
         pass
     out = os.environ.get("GF_QUANTIFIER_SPY_OUT")
     if out:
+        # BOTH sets, because the STALE half of the verdict is a claim about what this run REACHED,
+        # and a reader that only gets `empty` cannot evaluate it. Until 2026-08-18 this file was
+        # written by nobody's request and read by nobody at all; the shard aggregator
+        # (tools/gf_shard_verdict.py) is its first consumer, so the format is free to say what a
+        # consumer actually needs.
         with open(out, "w", encoding="utf-8") as fh:
-            fh.write("\n".join(sorted(empty)) + "\n")
+            json.dump({"empty": sorted(empty), "seen": sorted(seen)}, fh)
+    if os.environ.get("GF_QUANTIFIER_SPY_DEFER") == "1":
+        # 🛑 THE SHARDING TRAP. `stale` fires for a waived site that RAN and was never empty. Split
+        # the suite across shards and the site that is empty in shard 3 is merely non-empty in
+        # shard 1 -- so shard 1 calls a correct waiver stale and goes red, and the redness is an
+        # artifact of the split, not a fact about the code. The verdict is only sound over the
+        # UNION of shards, so a deferring run records and says nothing; tools/gf_shard_verdict.py
+        # reassembles the union and renders it once. `unwaived` is deferred with it rather than
+        # kept here: two half-verdicts in two places is how a gate ends up fired by neither.
+        return
     unwaived, stale = _qspy_verdict(empty, seen, waived)
     if unwaived:
         print("\nVACUOUS QUANTIFIER(S) -- all()/any() over an EMPTY iterable, i.e. an assertion "
@@ -162,3 +176,75 @@ def pytest_sessionfinish(session, exitstatus):
             print("   %s  (%s)" % (s, waived[s]))
     if unwaived or stale:
         session.exitstatus = session.exitstatus or 1
+
+
+# ---------------------------------------------------------------------------------------------
+# FILE-LEVEL SHARDING (2026-08-18, #865).
+#
+# The `tests` job was one 18-minute pytest step: 1069s of a 1113s job, already spread over both
+# cores of the hosted runner by `-n 2 --dist loadfile`. Splitting it across several jobs is the
+# only lever that does not need new hardware.
+#
+# The partition is by FILE, not by test, for the same reason `--dist loadfile` is: a module's tests
+# may carry collection/order assumptions, and a split that can land two of them in different
+# processes would be trading a slow suite for a flaky one.
+#
+# It is DERIVED, never listed. A shard is `index/total` over the sorted collected files, so a test
+# file added tomorrow lands in a shard by arithmetic. A hand-maintained shard manifest is a gate
+# that quietly stops covering new tests while stalling green -- the same failure this suite already
+# names for lint rules whose options vanished and waivers that match nothing.
+# ---------------------------------------------------------------------------------------------
+
+def _gf_parse_shard(spec):
+    """'2/4' -> (2, 4), validated. Raises ValueError with a usable message."""
+    try:
+        idx_s, total_s = spec.split("/", 1)
+        idx, total = int(idx_s), int(total_s)
+    except Exception:
+        raise ValueError("GF_SHARD must look like '2/4' (1-based index / total), got %r" % (spec,))
+    if total < 1 or not (1 <= idx <= total):
+        raise ValueError("GF_SHARD %r is out of range: need 1 <= index <= total and total >= 1"
+                         % (spec,))
+    return idx, total
+
+
+def gf_shard_owner(files, total):
+    """file -> shard index (1-based), for a SORTED file list. Pure, so it is testable without
+    pytest: see tests/test_gf_shard_partition.py.
+
+    Round-robin over the sorted list rather than contiguous blocks. The suite's cost is
+    concentrated in a few generation-heavy modules (test_gf_options.py alone is ~80s), and
+    alphabetically adjacent files are the ones most likely to be siblings of one expensive
+    feature -- contiguous blocks would pile those into one shard and the slowest shard IS the
+    wall time.
+    """
+    return {f: (i % total) + 1 for i, f in enumerate(sorted(files))}
+
+
+def pytest_collection_modifyitems(config, items):
+    spec = os.environ.get("GF_SHARD")
+    if not spec:
+        return
+    idx, total = _gf_parse_shard(spec)
+    owner = gf_shard_owner({item.nodeid.split("::")[0] for item in items}, total)
+
+    keep, drop = [], []
+    for item in items:
+        (keep if owner[item.nodeid.split("::")[0]] == idx else drop).append(item)
+
+    # THE ARITHMETIC THIS SHARD SAW, recorded before anything runs. Every shard collects the WHOLE
+    # suite and then deselects, so each one independently knows the full population -- which makes
+    # "did sharding drop a test?" answerable by comparison rather than by trust. A shard that
+    # silently loses a module is indistinguishable from a fast shard in a green run; this is the
+    # instrument that tells them apart, and tools/gf_shard_verdict.py asserts
+    # sum(selected) == collected, on one agreed collected.
+    out = os.environ.get("GF_SHARD_MANIFEST_OUT")
+    if out:
+        with open(out, "w", encoding="utf-8") as fh:
+            json.dump({"shard": idx, "total_shards": total,
+                       "collected": len(items), "selected": len(keep),
+                       "files": sorted({i.nodeid.split("::")[0] for i in keep})}, fh)
+
+    if drop:
+        config.hook.pytest_deselected(items=drop)
+    items[:] = keep

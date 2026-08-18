@@ -50,8 +50,28 @@ jobs:
   #    worlds/, so it can only be imported from there -- `from ..location_tags import ...`).
   # ---------------------------------------------------------------------------------------------
   tests:
+    # SHARDED 2026-08-18 (#865). This was 1113s of an 1113s workflow -- 1069s of it in the pytest
+    # step alone, already spread over both cores of the hosted runner by `-n 2 --dist loadfile`.
+    # Queue time was measured at 2-4s, so waiting was never the problem and more capacity alone
+    # would buy nothing; the only lever without new hardware is running the suite as several jobs.
+    #
+    # The shard count lives HERE and nowhere else. The partition is arithmetic over the sorted
+    # collected files (tests/conftest.py gf_shard_owner), so changing this list is the whole change
+    # -- there is no file manifest to keep in step, because a manifest is a gate that quietly stops
+    # covering new tests.
+    #
+    # 🛑 Both run-level gates are DEFERRED here, not dropped. `--skip-census` counts skips per
+    # family and no single shard can satisfy an exact count; the quantifier spy's STALE half fires
+    # a FALSE RED when a correctly-waived empty site happens to be non-empty in this shard. Their
+    # verdicts are rendered once, over the union, by the `tests-verdict` job below. That job is
+    # what `tests` means -- do not make the branch protection depend on this matrix alone.
+    name: tests (shard ${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
     if: github.event_name != 'schedule'
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v4
 
@@ -141,8 +161,117 @@ jobs:
       # (greenfield/eldenring/tests/expected_skips_ci.json). "Deliberately dev-box-only" and
       # "dark by accident" look identical in a green run; the census is the instrument that can
       # tell them apart, and it turns any skip-family or count change into a reviewed diff.
-      - name: pytest (tools/gf_test.py -- pinned upstream AP)
-        run: python tools/gf_test.py --ap-dir _ap --quantifier-spy --skip-census greenfield/eldenring/tests/expected_skips_ci.json -n 2 --dist loadfile
+      - name: pytest (tools/gf_test.py -- pinned upstream AP, shard ${{ matrix.shard }}/4)
+        run: |
+          python tools/gf_test.py --ap-dir _ap \
+            --shard ${{ matrix.shard }}/4 --artifact-dir shard-artifacts \
+            --quantifier-spy --skip-census greenfield/eldenring/tests/expected_skips_ci.json \
+            -n 2 --dist loadfile
+
+      # ALWAYS upload. A shard that went red is the shard whose census and spy records the verdict
+      # job most needs -- and without `if: always()` a single failing shard would take the union
+      # with it and report a reconciliation error on top of the real failure, burying it.
+      - name: Upload this shard's census, spy and manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gf-shard-${{ matrix.shard }}
+          path: shard-artifacts/
+          retention-days: 5
+          if-no-files-found: error
+
+
+  # ---------------------------------------------------------------------------------------------
+  # 1a. THE UNION VERDICT (#865). The two gates the shards deliberately do not render.
+  #
+  #     A shard is not a run. `--skip-census` asserts an EXACT per-family skip count and no single
+  #     shard can satisfy one; the vacuous-quantifier spy's STALE half asks whether a waived site
+  #     was ever empty, and "ever" is a property of the union -- judged per shard it turns a correct
+  #     waiver into a red tick for a reason that is an artifact of the split.
+  #
+  #     The pressure that creates is the dangerous part: the obvious way to make a falsely-red shard
+  #     green is to stop passing the gates to the shards, after which both instruments are still in
+  #     the tree, still look armed, and examine nothing. This job is what stops that trade being
+  #     available. It also answers the question a sharded green run cannot answer for itself --
+  #     whether every collected test was selected by exactly one shard, because a shard that lost a
+  #     module is indistinguishable from a shard that was quick.
+  # ---------------------------------------------------------------------------------------------
+  tests-verdict:
+    name: tests (union verdict)
+    needs: tests
+    # always(), so a red shard still produces the union -- its census and spy are exactly what a
+    # failure investigation needs, and they are the artifacts most likely to be thrown away.
+    if: always() && github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # This job must never be green over a red matrix. Branch protection sees job NAMES, and
+      # "tests (union verdict)" is the one that reads like the answer.
+      - name: Every shard finished
+        if: needs.tests.result != 'success'
+        run: |
+          echo "::error::the tests matrix did not succeed (result: ${{ needs.tests.result }})"
+          exit 1
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gf-shard-*
+          path: shard-artifacts
+
+      # RULE 11: the gate proves it can go red before it is believed. Five ways a shard split can
+      # break -- a missing shard, tests selected by nobody, shards that collected different trees,
+      # a file claimed twice, no manifests at all -- each must fire.
+      - name: The reconciliation can go red (--self-test)
+        run: python tools/gf_shard_verdict.py --self-test
+
+      - name: Union verdict -- skip census, quantifier spy, and every test ran once
+        run: |
+          python tools/gf_shard_verdict.py \
+            --artifacts shard-artifacts \
+            --expected-skips greenfield/eldenring/tests/expected_skips_ci.json
+
+  # ---------------------------------------------------------------------------------------------
+  # 1c. THE WIZARD AND TOOL GATES, lifted out of `tests` when it was sharded (#865).
+  #
+  #     They are ~40s of AP-light checks that used to ride along after an 18-minute pytest step, so
+  #     a wizard-only defect waited for the whole suite to report. Pinning them to one shard of the
+  #     matrix was the cheaper edit and the wrong one: it would couple "the wizard gates ran" to
+  #     "shard 1 exists", and the shard count is a number someone will change.
+  # ---------------------------------------------------------------------------------------------
+  wizard-gates:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Read the Archipelago pin
+        id: ap
+        run: echo "version=$(cat .ap-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Check out stock upstream Archipelago
+        uses: actions/checkout@v4
+        with:
+          repository: ArchipelagoMW/Archipelago    # UPSTREAM. Never a fork -- see bootstrap-ap.ps1.
+          ref: ${{ steps.ap.outputs.version }}
+          path: _ap
+
+      - name: Install Archipelago's requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install "setuptools<80"
+          pip install -r _ap/requirements.txt
+
+      - name: Materialise gen_data's inputs from the committed bundle
+        run: python tools/gen_inputs.py --ensure elden_ring_artifacts
 
       # Wizard metadata drift, against the LIVE GFOptions -- the only instrument that can tell the
       # three committed artifacts (wizard/options-metadata.json, the blob inlined in
