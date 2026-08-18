@@ -7208,10 +7208,9 @@ if CO_CHECK_EMITTED and not all(_ap9 in LOCATION_ITEM for _ap9 in CO_CHECK_EMITT
 # entries of `1` would bury the ones that mean something.
 #
 # WHAT CONSUMES IT: core.create_items promotes `<name>` to `<name> x<n>` when that stacked name is a
-# registered AP item. Today exactly one is -- features/scadu_supply's `Scadutree Fragment x2`, a
-# second AP id on the same goods row riding slot_data itemCounts = 2 -- so this table is a general
-# capture with one live consumer, not a hard-coded fix for one item. A location whose quantity has
-# no minted stack keeps paying x1, exactly as before.
+# registered AP item. features/lot_stacks registers every resolvable pair here as a second AP id on
+# the same game row riding slot_data itemCounts = n. Curated category bundles are separate stacked
+# ids, so their usability quantity cannot overwrite the source lot's quantity.
 def _lot_units(_fullid, _flag, _bind):
     """Copies the lot slot(s) granting `_fullid` under `_flag` hand over. `_bind` restricts to one
     (table, lot) for a co-check sibling. Returns (units, ambiguous).
@@ -7251,63 +7250,14 @@ for _apu, (_fullu, _flagu, _bindu) in _LOC_FULL.items():
 # and the client needs nothing new -- it already resolves through apIdsToItemIds and multiplies by
 # itemCounts. The id space is ours, so the only real cost is one name per (item, quantity) PAIR.
 #
-# WHY NOT ALL 926 MULTI-COPY LOCATIONS. Honouring everything means 455 pairs across 202 items, and
-# 315 of those names are junk consumables (Smoldering Butterfly, Mushroom, Old Fang) where the count
-# changes nothing a player would notice. Phase 1 mints the slice with a MEASURABLE consequence:
-#
-#   * stones      -- 39 names / 121 lots / 288 copies. features/filler_budget reserves an upgrade
-#                    economy off the top and tests/test_gf_filler_economy_floor tunes the `stones`
-#                    weight to the smallest value clearing a stated player-facing bar. That bar was
-#                    measured against a world paying 288 fewer stones than vanilla, so the shipped
-#                    weight is partly compensating for this bug.
-#   * collectathon -- 2 names / 6 lots / 6 copies. Golden Seed / Sacred Tear / Revered Spirit Ash get
-#                    the same treatment #616 gave Scadutree Fragment; leaving them behind would mean
-#                    one collectathon line is honest and the others are not.
-#
-# DELIBERATELY NOT phase 1: ammunition (35 names) and throwables/pots (64). features/filler_curation
-# ALREADY stacks those by CATEGORY (STACK_QTY_BY_CATEGORY: throwables 5, pots 2, greases 2,
-# ammunition 20) through the same itemCounts field -- a per-item constant, not the lot's quantity. Two
-# systems would be answering "how many" for one item and the winner would be decided by whichever
-# path ran last. That needs a ruling first (#624). Stones and somber_stones are NOT in
-# STACK_QTY_BY_CATEGORY, which is exactly why this slice is safe to do without it.
-_STACK_MINT_STONES = lambda _n: ("Smithing Stone [" in _n) or ("Somber Smithing Stone [" in _n)
-_STACK_MINT_COLLECT = lambda _n: _n in ("Golden Seed", "Sacred Tear", "Scadutree Fragment",
-                                        "Revered Spirit Ash")
-# THROWABLES (Alaric's ruling 2026-08-13): the category stack is a FLOOR, not an exact quantity.
-# features/filler_curation grants throwables x5 via STACK_QTY_BY_CATEGORY -- a USABILITY decision
-# ("a found throwable is a usable handful"), which is why an x1 lot still hands over five. 28 vanilla
-# lots grant MORE than five, up to ten, and paying five there loses 68 copies for no reason. So mint
-# every throwable multi-copy pair and let features/lot_stacks apply `max(lot, constant)`.
-#
-# 🛑 THE FLOOR COMPARISON DOES NOT LIVE HERE. STACK_QTY_BY_CATEGORY is the feature's constant and
-# mirroring it into the generator is exactly the drift this repo gates elsewhere. gen_data emits the
-# DATA (every throwable pair above 1); lot_stacks owns the RULE and registers only the pairs that
-# beat the category stack. A pair it declines is simply never registered, and
-# core.stacked_vanilla_name only promotes to a REGISTERED name -- so a sub-floor lot keeps paying the
-# base item and its x5, exactly as before.
-#
-# ammunition / pots / greases are NOT here and need nothing: measured 2026-08-13, ammunition's 71
-# multi-copy lots top out at exactly its x20 constant, and pots/greases have no multi-copy lot at
-# all. Minting for them could only ever pay LESS than they already do.
-_STACK_MINT_THROWABLE = lambda _n: _n in _THROWABLE_NAMES
-# Read the throwable roster from the FEATURE that owns it (same reason the policy import in the
-# co-check widening reads datamine_flag_lots): one definition, no second copy to fall out of date.
-_THROWABLE_NAMES = frozenset()
-try:
-    import ast as _ast_t
-    _fc_src = open(os.path.join(HERE, "eldenring", "features", "filler_curation.py"),
-                   encoding="utf-8").read()
-    _cat_blk = re.search(r"^CATEGORIES = \{(.*?)^\}", _fc_src, re.M | re.S).group(1)
-    _THROWABLE_NAMES = frozenset(
-        _ast_t.literal_eval(re.search(r'"throwables":\s*(\[.*?\])', _cat_blk, re.S).group(1)))
-except Exception as _e:
-    print("[gen_data] WARNING: could not read the throwables roster (%r) -- throwable stacks inert" % (_e,))
+# Alaric's ruling 2026-08-17: the source lot wins. Mint every resolvable `(FullID, quantity)` pair,
+# including ammunition, throwables and mundane materials. Curated category bundles use their own
+# stacked ids (features/lot_stacks), so their usability quantities no longer leak onto vanilla lots.
 
 LOT_STACK_GRANTS = {}
 for _apk, _nk in LOCATION_ITEM.items():
     _qk = LOCATION_UNITS.get(_apk, 1)
-    if _qk <= 1 or not (_STACK_MINT_STONES(_nk) or _STACK_MINT_COLLECT(_nk)
-                        or _STACK_MINT_THROWABLE(_nk)):
+    if _qk <= 1:
         continue
     _fk = ITEM_CATALOG.get(_nk)
     if _fk is None:                      # unresolvable base name -> nothing to point the stack at

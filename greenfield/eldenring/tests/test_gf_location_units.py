@@ -205,9 +205,8 @@ def test_the_hippo_co_check_pays_two_copies():
 
 
 # ---- what carries the second copy into the pool -------------------------------------------------
-def test_the_stack_is_a_registered_grantable_item_worth_two():
-    """`core.stacked_vanilla_name` promotes only to a REGISTERED name, so an unregistered stack is a
-    silent no-op. The one live stack must be registered AND carry its quantity to the client."""
+def test_every_resolvable_multi_copy_lot_is_a_registered_grant():
+    """Every captured source quantity must promote to an exact, grantable stacked AP item."""
     from worlds.eldenring.core import item_name_to_id
     stacked_vanilla_name = getattr(
         __import__("worlds.eldenring.core", fromlist=["core"]), "stacked_vanilla_name", None)
@@ -217,12 +216,11 @@ def test_the_stack_is_a_registered_grantable_item_worth_two():
     assert ss.FRAGMENT_X2 in item_name_to_id
     assert ss.ScaduSupply.ITEM_GRANTS[ss.FRAGMENT_X2] == (ITEM_CATALOG[FRAGMENT], 2)
     assert stacked_vanilla_name(FRAGMENT, HIPPO_AP, item_name_to_id) == (ss.FRAGMENT_X2, 2)
-    # A location with no minted stack keeps paying x1 -- the table is a general capture with one
-    # live consumer, not a hard-coded fix. 921 entries, one of them promotable.
-    unpromotable = next(ap for ap, n in LOCATION_UNITS.items()
-                        if n > 1 and LOCATION_ITEM.get(ap) not in (None, FRAGMENT))
-    nm = LOCATION_ITEM[unpromotable]
-    assert stacked_vanilla_name(nm, unpromotable, item_name_to_id) == (nm, 1)
+    for ap_id, qty in LOCATION_UNITS.items():
+        nm = LOCATION_ITEM.get(ap_id)
+        if not nm or nm not in ITEM_CATALOG:
+            continue
+        assert stacked_vanilla_name(nm, ap_id, item_name_to_id) == (f"{nm} x{qty}", qty)
 
 
 def test_the_stacked_name_survives_the_filler_tail():

@@ -133,7 +133,8 @@ CATEGORIES = {
     # wepType in {81 arrow, 83 greatarrow, 85 bolt, 86 ballista bolt} joined to the catalog. NEVER
     # name-derived -- "Honed Bolt" / "Vyke's Dragonbolt" / the Lightning-Strike family are INCANTATIONS
     # and several end in "Bolt". Members grant x20 (STACK_QTY_BY_CATEGORY) so a found arrow is a usable
-    # quiver; the stack rides slot_data itemCounts whether the ammo was curated or vanilla-placed.
+    # quiver. The curated bundle rides its own `Arrow x20` AP id; vanilla-placed ammo instead keeps
+    # the exact quantity carried by its source lot (#624).
     # Empty pre-regen (absent names are skipped, same as _dlc_pots).
     "ammunition": list(AMMO_ITEM_NAMES),
     # Boiled Prawn is crafted-only (not in the catalog until the Phase-2 regen mines it) -> added then.
@@ -225,6 +226,12 @@ def stack_qty_by_name():
     return out
 
 
+def curated_stack_name(name):
+    """The AP item name for a curated bundle; vanilla source lots do not use this rule."""
+    qty = stack_qty_by_name().get(name, 1)
+    return "%s x%d" % (name, qty) if qty > 1 else name
+
+
 class CuratedFiller(OptionDict):
     """Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the
     categories in proportion to their weights -- they are relative, not percentages, and need not sum
@@ -297,10 +304,11 @@ class CuratedFiller(OptionDict):
     # budget the stone weight is a share OF got smaller), and the NPC-handover corpus + the Fortissax
     # boss-arena tag barred ~35 more checks from carrying progression (so what remains is displaced
     # earlier). Either alone still cleared the floor; together they did not. MEASURED under the fix, 9
-    # seeds each: stones 27 -> [22, 23, 23, 29, 34, ...] median 34, THREE under the 24 floor; stones 28 ->
-    # clears; stones 29 -> clears with a point of margin, which is what ships. The juice weight pays for
-    # it (44 -> 42): gear injection is the thing that can afford to give, the upgrade curve is not.
-    default = {"juice": 42, "stones": 29, "somber_stones": 6, "runes": 10,
+    # Re-derived after #624 began paying the source lot's real units: stones 4 produces median 23
+    # with five of nine samples under the 24-unit floor; stones 5 clears. The former weight 29 was
+    # compensating for 288 stone copies the world discarded. Return those 24 points to juice; core's
+    # missable-location reserve trims useful tail picks only on the small seeds that need the room.
+    default = {"juice": 66, "stones": 5, "somber_stones": 6, "runes": 10,
                "throwables": 6, "pots": 4, "greases": 3, "foods": 2, "boluses": 1}
 
 
