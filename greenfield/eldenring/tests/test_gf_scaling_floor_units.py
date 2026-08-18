@@ -395,6 +395,29 @@ class TestSlotDataUnits:
         assert sd["options"]["completion_scaling_ceiling"] == scaling_ladder.SCALING_HP_LADDER[-1], (
             "uncapped must still EMIT the key, as the top rung -- presence must not carry meaning")
 
+    def test_a_cap_on_a_scaling_off_seed_demands_nothing(self):
+        """world#661: a modifier cannot require support when its parent pass is disabled."""
+        WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
+        from worlds.eldenring import contract
+
+        class _T(WorldTestBase):
+            game = GAME
+            options = {
+                "num_regions": 0,
+                "enemy_scaling": False,
+                "maximum_enemy_difficulty": 50,
+            }
+
+        t = _T()
+        t.setUp()
+        try:
+            sd = t.world.fill_slot_data()
+        finally:
+            t.tearDown()
+        assert sd["options"]["completion_scaling"] == 0
+        assert "scaling_ceiling" not in sd.get(contract.REQUIRES_CLIENT_FEATURES, []), (
+            "a scaling-off seed declared a modifier the client cannot arm")
+
     def test_an_inverted_floor_and_ceiling_is_refused_at_generation(self):
         """CONTRIBUTING's headline gate: an incompatible combination fails at options-validation with
         a message naming BOTH options -- not a FillError, not a config that generates and plays
