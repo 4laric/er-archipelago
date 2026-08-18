@@ -11,7 +11,7 @@ from ..registry import Feature, register
 
 
 # (source flag, dependent flag, item name).  Flags keep this table directly comparable with the
-# typed `flag:<id> -> flag:<id>` evidence in questline_model.tsv; AP ids are derived below.
+# typed `flag:<id> -> flag:<id>` evidence table; AP ids are derived below.
 REVIEWED_PREREQUISITES = (
     (400392, 510110, "Cursemark of Death"),
     (400031, 400033, "Lord of Blood's Favor"),
