@@ -3987,6 +3987,12 @@ def region_of(r):
     if _gtm:
         _gtr = _gt_region(_gtm)
         if _gtr:
+            # Region and sweep ownership consume the same placement evidence.  Preserve the MSB
+            # map on rows that still carry the scanner's PENDING placeholder; otherwise an earlier,
+            # stronger region answer can make a check disappear from the map-keyed sweep corpus.
+            # Do not overwrite a concrete descriptor map: it remains useful independent evidence.
+            if (r.get('map') or '') in ('', 'PENDING'):
+                r['map'] = _gt_full_map(_gtm)
             MSB_TILE_PROVENANCE[_ovfl] = _gtm     # this tile IS the region's derivation -- record it
             return _gtr
     _dov = DUNGEON_REGION_OVERRIDE.get(r.get('map', ''))

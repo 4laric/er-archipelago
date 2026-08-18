@@ -36,13 +36,13 @@
 #   seed (55 on a 4-region seed, ~170 on the full map). So the DEFAULT SURFACE hosting
 #   number below is the TAGGED half only.
 #   checks 5212 total, 1063 carry any tag
-#   DEFAULT SURFACE: tag union 209 | hosting 181 | hosting w/ reconciler armed 183 | hosting if missable guard OFF 188
+#   DEFAULT SURFACE: tag union 209 | hosting 180 | hosting w/ reconciler armed 183 | hosting if missable guard OFF 187
 #
 class	total	tag_excluded	guessed_region	missable	erdtree_burn	surface_excluded	release_gated	hub_merchant	eligible	eligible_pct	in_default
-Remembrance	25	0	1	1	0	0	0	0	23	92
+Remembrance	25	0	1	1	1	0	0	0	22	88
 Seedtree	43	0	2	1	2	1	0	0	37	86	yes
 Church	13	0	0	0	0	1	0	0	12	92	yes
-Boss	267	0	30	5	0	2	0	0	232	87
+Boss	267	0	30	5	1	2	0	0	231	87
 Fragment	46	0	0	0	0	7	0	0	39	85	yes
 Revered	23	0	0	0	0	5	0	0	18	78	yes
 Basin	15	0	3	0	0	0	0	0	12	80
@@ -52,7 +52,7 @@ ShopSlot	12	0	0	0	0	0	0	0	12	100	yes
 Legendary	102	29	11	18	6	0	0	0	71	70
 GreatRune	7	0	0	0	0	0	0	0	7	100
 KeyItem	21	0	0	4	0	2	0	0	15	71	yes
-MajorBoss	51	0	1	2	0	0	0	0	48	94	yes
-LegacyBoss	53	0	0	4	0	2	0	0	49	92
+MajorBoss	51	0	1	2	1	0	0	0	47	92	yes
+LegacyBoss	53	0	0	4	1	2	0	0	48	91
 FieldBoss	110	0	25	0	0	0	0	0	85	77
 MinorDungeonBoss	79	0	1	1	0	0	0	0	77	97

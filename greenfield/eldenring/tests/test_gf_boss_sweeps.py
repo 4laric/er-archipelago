@@ -33,6 +33,9 @@ GREENFIELD = os.path.dirname(GF_PKG)
 REGION_MAP_CSV = next((p for p in (os.path.join(GF_PKG, "region_map.csv"),
                                    os.path.join(GREENFIELD, "region_map.csv")) if os.path.isfile(p)),
                       os.path.join(GF_PKG, "region_map.csv"))
+MSB_FLAG_REGION_TSV = next((p for p in (os.path.join(GF_PKG, "msb_flag_region.tsv"),
+                                        os.path.join(GREENFIELD, "msb_flag_region.tsv"))
+                            if os.path.isfile(p)), os.path.join(GF_PKG, "msb_flag_region.tsv"))
 
 # Minor-dungeon map prefixes, in the X0SS7000 flag convention (flag -> map mXX_SS). MUST match
 # gen_data._is_dungeon: this oracle re-derives a member's true map from its flag, and a prefix
@@ -126,6 +129,19 @@ class BossSweepScoping(unittest.TestCase):
             if str(r["flag"]).lstrip("-").isdigit():
                 cls.flag_map[int(r["flag"])] = r["map"] or ""
                 cls.flag_method[int(r["flag"])] = r.get("method") or ""
+        # #562: region_map is deliberately the raw scanner output, so rows recovered from an MSB
+        # placement can remain PENDING there. Re-derive the generator's unambiguous placement from
+        # the shipped source table instead of importing a generated effective-map answer.
+        cls.msb_flag_map = {}
+        if os.path.isfile(MSB_FLAG_REGION_TSV):
+            maps = defaultdict(set)
+            with open(MSB_FLAG_REGION_TSV, encoding="utf-8-sig") as fh:
+                for r in csv.DictReader((line for line in fh if not line.startswith("#")),
+                                        delimiter="\t"):
+                    if str(r["flag"]).lstrip("-").isdigit() and r.get("map_id"):
+                        maps[int(r["flag"])].add(r["map_id"])
+            cls.msb_flag_map = {flag: next(iter(found)) for flag, found in maps.items()
+                                if len(found) == 1}
 
     def _eff_map(self, ap):
         """A member's effective map: region_map's map, or -- for an unplaced dungeon check whose flag
@@ -154,6 +170,9 @@ class BossSweepScoping(unittest.TestCase):
         # _ENTITY_SUFFIX) that nobody outside gen_data can check.
         if len(fs) == 10 and fs[:2] == "10":
             return "m60_" + fs[2:4] + "_" + fs[4:6] + "_00"
+        msb = self.msb_flag_map.get(self.ap_flag.get(ap, -1), "")
+        if msb:
+            return msb + ("_00" if msb[:3] in ("m60", "m61") else "_00_00")
         return raw
 
     def _members_by_class(self, cls_name):
