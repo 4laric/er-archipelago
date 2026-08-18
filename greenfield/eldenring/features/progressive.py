@@ -43,11 +43,11 @@ Ships three independent toggles (progressive_flasks default ON; the others defau
   - Progressive Stone Bells -> "Progressive Smithing-Stone Miner's Bell Bearing" (4 tiers) and
     "Progressive Somberstone Miner's Bell Bearing" (5 tiers). Ported from the matt-based apworld
     (SPEC-PARITY: ProgressiveItems stone_bells). The Kth copy sets the Twin Maiden ShopLineupParam
-    eventFlag_forStock values for that rung -- setting the flag IS the shop unlock, no hand-in and
-    no physical bearing grant. Granting both representations makes the game reject the bearing as
-    already handed in (live playtest 2026-08-17, #804).
+    stock flags for that rung AND its shared release flag -- setting both halves is the shop unlock,
+    with no hand-in and no physical bearing grant. Granting both representations makes the game
+    reject the bearing as already handed in (live playtest 2026-08-17, #804).
     Flags verified against vanilla_er/ShopLineupParam.csv (Twin Maiden shop 1018xx: item 10100 ->
-    flag 280080, etc.). 1 copy of each is forced to sphere 0 (generate_early -> early_items) so the
+    stock 280080, tier release 11109751, etc.). 1 copy of each is forced to sphere 0 so the
     upgrade ramp opens at the start; the rest distribute normally. Copies past the last tier are
     silent no-ops client-side (the k < tiers guard). The VANILLA bell bearings SUBSTITUTE to the
     progressive item exactly as the flask checks do (vanilla_substitutions), so the pool cannot hold
@@ -352,24 +352,28 @@ def vanilla_substitutions(world) -> Dict[str, str]:
     return subs
 
 # ---- progressive stone-bell grant ladders (shop-unlock flags only) ----------------------------
-# Setting the flag(s) IS the shop unlock (no hand-over to the Twin Maidens needed). Do not also
-# grant the corresponding physical bearing: once its stock flags are set, Elden Ring treats the
-# bearing as already handed in and refuses it as over-capacity (#804). Flags verified against
-# vanilla_er/ShopLineupParam.csv (each stone bell tier unlocks two stone material tiers, except
-# Somber [5] which unlocks one).
+# Setting the flags IS the shop unlock (no hand-over to the Twin Maidens needed). Do not also grant
+# the corresponding physical bearing: once its shop flags are set, Elden Ring treats the bearing as
+# already handed in and refuses it as over-capacity (#804).
+#
+# EACH RUNG NEEDS BOTH PARAM GATES. ShopLineupParam.eventFlag_forStock unlocks the individual rows;
+# eventFlag_forRelease makes that bearing's shelf EXIST in the menu. The first implementation set
+# only the stock flags, so receipts reconciled forever without the stones appearing. Values below
+# are read from vanilla_er/ShopLineupParam.csv block 1018: two stock flags + one shared release flag
+# per tier, except Somber [5], which has one stock row.
 _BELL_GRANTS: Dict[str, List[Dict[str, Any]]] = {
     PROG_SMITHING_BELL: [
-        {"flags": [280080, 280090]},  # Smithing Stone [1],[2]
-        {"flags": [280110, 280120]},  # Smithing Stone [3],[4]
-        {"flags": [280140, 280150]},  # Smithing Stone [5],[6]
-        {"flags": [280160, 280170]},  # Smithing Stone [7],[8]
+        {"flags": [280080, 280090, 11109751]},  # Smithing Stone [1],[2]
+        {"flags": [280110, 280120, 11109752]},  # Smithing Stone [3],[4]
+        {"flags": [280140, 280150, 11109753]},  # Smithing Stone [5],[6]
+        {"flags": [280160, 280170, 11109754]},  # Smithing Stone [7],[8]
     ],
     PROG_SOMBER_BELL: [
-        {"flags": [280180, 280190]},  # Somber [1],[2]
-        {"flags": [280200, 280210]},  # Somber [3],[4]
-        {"flags": [280230, 280240]},  # Somber [5],[6]
-        {"flags": [280250, 280260]},  # Somber [7],[8]
-        {"flags": [280280]},          # Somber [9]
+        {"flags": [280180, 280190, 11109755]},  # Somber [1],[2]
+        {"flags": [280200, 280210, 11109756]},  # Somber [3],[4]
+        {"flags": [280230, 280240, 11109757]},  # Somber [5],[6]
+        {"flags": [280250, 280260, 11109758]},  # Somber [7],[8]
+        {"flags": [280280, 11109759]},          # Somber [9]
     ],
 }
 
