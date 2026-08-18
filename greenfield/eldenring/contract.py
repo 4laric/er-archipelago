@@ -165,13 +165,19 @@ def _chk_nested_grants(v):
         if not isinstance(lst, (list, tuple)):
             return f"{k!r} must map to a list"
         for e in lst:
+            noop = isinstance(e, dict) and e.get("noop") is True and len(e) == 1
             flags_ok = (isinstance(e, dict) and isinstance(e.get("flags"), (list, tuple))
                         and all(_is_int(i) for i in e["flags"]))
             goods_present = isinstance(e, dict) and "goods" in e
-            if not flags_ok or (goods_present and not _is_int(e.get("goods"))) or \
-               (not goods_present and (not isinstance(e, dict) or not e.get("flags"))):
+            invalid_effect = (not flags_ok or
+                              (goods_present and not _is_int(e.get("goods"))) or
+                              (not goods_present and
+                               (not isinstance(e, dict) or not e.get("flags"))))
+            if not noop and invalid_effect:
                 return (f"{k!r} entry must carry goods:int and/or non-empty flags:[int], "
                         f"got {e!r}")
+            if noop:
+                continue
             if goods_present and not isinstance(e.get("consumed"), bool):
                 return (f"{k!r} rung is missing `consumed` (bool): {e!r}. A rung must declare whether "
                         f"its goods are SPENT by the player (consumed=true -> granted once, ledgered) "

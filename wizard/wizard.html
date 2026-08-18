@@ -953,7 +953,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "progressive_flasks",
    "class": "ProgressiveFlasks",
    "display_name": "Progressive Flasks",
-   "description": "On (default): every Golden Seed and Sacred Tear check pays out a single \"Progressive Flask\nUpgrade\" item instead, one-for-one. Each copy raises your flask on two axes: CHARGES climb on an\nescalating schedule the client applies directly, and POTENCY rises by granting you a Sacred Tear\nthat you spend at a grace the vanilla way -- so upgrades arrive on a steady cadence instead of a\npile of silent flat pickups. Off: seeds and tears stay discrete pickups at their shuffled\nlocations. Flasks never gate logic, so either way the seed is always winnable.",
+   "description": "On (default): every Golden Seed and Sacred Tear check pays out a single \"Progressive Flask\nUpgrade\" item instead, one-for-one. Copies alternate deterministically: Charge, then +1 potency,\nthen Charge, then +1, continuing in that order. The first copy visibly raises total charges above\nthe vanilla starting allocation; +1 copies grant a Sacred Tear to spend at a grace. Off: seeds\nand tears stay discrete pickups at their shuffled locations. Flasks never gate logic, so either\nway the seed is always winnable.",
    "kind": "toggle",
    "base": "Toggle",
    "default": true,
