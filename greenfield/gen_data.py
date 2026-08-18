@@ -2624,6 +2624,10 @@ FLAG_REGION_OVERRIDE = {
     2048417030: 'Gravesite',
     # 76804 Cliffroad Terminus -> Gravesite
     2044417000: 'Gravesite',
+    # The Shadowpot immediately southwest of Cliffroad Terminus shares this tile.  Its enemy-lot
+    # path otherwise exits the resolver above the tile answer and nearest-neighbours into Cerulean,
+    # splitting one physical tile across two regions (#598).
+    2044417995: 'Gravesite',
     # 76905 Church District Highroad -> Scadu Altus
     2050467800: 'Scadu Altus',
     2050477010: 'Scadu Altus',

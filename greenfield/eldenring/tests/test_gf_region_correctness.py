@@ -216,6 +216,9 @@ class RegionCorrectness(unittest.TestCase):
                                                    #   Altus); Alaric was KICKED reaching the fight Keep-only
                                                    #   (playtest 2026-07-21), so a Keep drop is unreachable.
                                                    #   FLAG_REGION_OVERRIDE re-homes it (above the MSB branch).
+        2044417995: "Gravesite",                  # Shadowpot southwest of Cliffroad Terminus. Its enemy-lot
+                                                   #   path used to split it into Cerulean while the map lot on
+                                                   #   the same m61_44_41 tile correctly landed in Gravesite.
     }
 
     def test_flag_region_overrides_pinned(self):
