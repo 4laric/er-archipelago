@@ -19,6 +19,12 @@ unchanged, so the merged client commit is pinned by the gitlink in this same win
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
+- **The AP flower installer now has a Linux/Proton path.** The release bundle includes a Python
+  installer that finds the usual Steam installation, runs the pinned WitchyBND through Wine, and
+  builds the same local hi/low DFLT overrides without distributing FromSoft assets. It detects a
+  nearby randomizer/data-mod root (including matt's `.randomizeopt` fingerprint), accepts explicit
+  game and destination paths, and leaves the existing PowerShell route intact for Windows users.
+
 ## v0.4.6 — 2026-08-16
 
 Window opened AT the v0.4.5 tag (`4d96806`), with zero commits past it. That is the third window

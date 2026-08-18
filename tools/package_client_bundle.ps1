@@ -98,12 +98,15 @@ Write-Host "  apconfig.json  (blank -- fill in-game, or edit)"
 # Ship only the derivation and project-owned payload. The generated atlas contains FromSoft assets
 # and is created under ap-package on the player's machine.
 $iconInstaller = Join-Path $Repo "tools\install_ap_flower.ps1"
+$iconInstallerPy = Join-Path $Repo "tools\install_ap_flower.py"
 $iconPayload = Join-Path $Repo "tools\ap_icon_src\ap_flower_160.bc7"
 if (-not (Test-Path $iconInstaller)) { throw "AP flower installer missing: $iconInstaller" }
+if (-not (Test-Path $iconInstallerPy)) { throw "AP flower Python installer missing: $iconInstallerPy" }
 if (-not (Test-Path $iconPayload)) { throw "AP flower payload missing: $iconPayload" }
 Copy-Item $iconInstaller (Join-Path $bundle "install-ap-flower.ps1") -Force
+Copy-Item $iconInstallerPy (Join-Path $bundle "install_ap_flower.py") -Force
 Copy-Item $iconPayload (Join-Path $bundle "ap_flower_160.bc7") -Force
-Write-Host "  AP flower local installer + project-owned BC7 payload"
+Write-Host "  AP flower Windows/Python installers + project-owned BC7 payload"
 
 $readme = Join-Path $Repo "release\CLIENT-BUNDLE-README.md"
 if (Test-Path $readme) {
