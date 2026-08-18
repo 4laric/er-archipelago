@@ -306,7 +306,8 @@ class CuratedFiller(OptionDict):
     # earlier). Either alone still cleared the floor; together they did not. MEASURED under the fix, 9
     # Re-derived after #624 began paying the source lot's real units: stones 4 produces median 23
     # with five of nine samples under the 24-unit floor; stones 5 clears. The former weight 29 was
-    # compensating for 288 stone copies the world discarded. Return those 24 points to juice.
+    # compensating for 288 stone copies the world discarded. Return those 24 points to juice; core's
+    # missable-location reserve trims useful tail picks only on the small seeds that need the room.
     default = {"juice": 66, "stones": 5, "somber_stones": 6, "runes": 10,
                "throwables": 6, "pots": 4, "greases": 3, "foods": 2, "boluses": 1}
 

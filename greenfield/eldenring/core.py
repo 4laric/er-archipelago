@@ -1360,6 +1360,7 @@ class GreenfieldEldenRingWorld(World):
             for _k, _pick in zip(_budget_ix, _plan):
                 if _pick is not None:      # None = keep what the check already paid (junk / Rune)
                     _names[_k] = _pick
+        _tail_start = len(pool)
         for _nm in _names:
             # Under vanilla_placement an unpinnable location (a gesture, an unnamed `check -` row:
             # 67 of 4916) pays the MONOTONE Rune, not varied filler -- `_pick_filler` would put an
@@ -1370,6 +1371,38 @@ class GreenfieldEldenRingWorld(World):
             # retired (its promotion became a no-op when item_categories flipped the gear
             # categories to `useful`), so an item's class is decided once, in _class_for.
             pool.append(self.create_item(_nm))
+        # Missable protection is a placement promise, so the pool must contain at least one
+        # compatible filler item per protected check. A small/category-filtered seed can spend most
+        # of its short tail on useful juice (especially after #624 retired obsolete stone weight),
+        # leaving the later item-rule with fewer legal items than locations. Reserve capacity here,
+        # where the real classifications and the final tail both exist: replace only useful items
+        # drawn from the filler tail, never progression or feature-owned items.
+        from .features.missable_locations import (MISSABLE_LOCATIONS as _MISSABLE_LOCATIONS,
+                                                  ProtectMissableLocations as _ProtectMissable)
+        _miss_opt = getattr(self.options, "protect_missable_locations", None)
+        if (_miss_opt is not None
+                and _miss_opt.value == _ProtectMissable.option_progression_and_useful):
+            _miss_n = sum(1 for loc in self.multiworld.get_locations(self.player)
+                          if getattr(loc, "address", None) in _MISSABLE_LOCATIONS)
+            _bar = ItemClassification.progression | ItemClassification.useful
+            _eligible = sum(1 for item in pool if not (item.classification & _bar))
+            _short = max(0, _miss_n - _eligible)
+            if _short:
+                for _ix in range(_tail_start, len(pool)):
+                    if _short <= 0:
+                        break
+                    if pool[_ix].classification & ItemClassification.useful:
+                        pool[_ix] = self.create_item(FILLER)
+                        _short -= 1
+                if _short:
+                    raise OptionError(
+                        "protect_missable_locations=progression_and_useful needs %d eligible items, "
+                        "but the filler tail can supply only %d even after reserving every useful "
+                        "tail slot. Keep more regions or choose a less restrictive protection level."
+                        % (_miss_n, _miss_n - _short))
+                logging.getLogger("Greenfield").info(
+                    "[eldenring:%s] missable protection reserved %d filler tail slot(s) from juice",
+                    self.player, _miss_n - _eligible)
         # ONE pass. No PASS-2. The old design ran additive contributors, then in-place SWAPS over
         # the materialised pool (stone_injection, then curated_filler.curate()), then a THIRD relabel
         # in post_fill (stone_ramp) -- three owners of one resource, arbitrated by nothing but the
