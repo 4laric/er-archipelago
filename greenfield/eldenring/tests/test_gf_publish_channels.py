@@ -210,6 +210,14 @@ class WizardDeploy(unittest.TestCase):
         for edit in ("sed -i", "> \"$dst\" <<", "cat >> "):
             self.assertNotIn(edit, text, f"the deploy script edits the page ({edit!r})")
 
+    def test_baked_stable_hosts_have_an_honest_beta_only_mode(self):
+        """peliarch mounts only DEST/beta. A default deploy can still support generic hosts, but
+        the baked-stable command must neither fetch nor claim to install stable artifacts."""
+        _path, text = self._script()
+        self.assertIn("--beta-only", text)
+        self.assertIn('stable -> baked image (UNTOUCHED)', text)
+        self.assertIn('Stable was NOT written', text)
+
 
 
 

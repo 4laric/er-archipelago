@@ -34,6 +34,9 @@ reconstruction).
 - **Tiny seeds keep their promised somber-stone floor.** A positive `somber_stones` recipe weight
   now arms the reservation even when its initial proportional share rounds to zero, so one-region
   seeds cannot silently lose an upgrade tier. World: #858.
+- **Baked-stable hosts can deploy beta without a false stable success.** `deploy_wizard.sh
+  --beta-only` writes only the directory peliarch actually mounts and reports that stable remains
+  owned by the immutable image pin, closing the misleading half of #863.
 - **Quest prerequisites cannot be placed on their own downstream rewards.** Cursemark of Death
   cannot land on Fortissax, with direct rules also covering the Favor, Needle, Valkyrie,
   Fingerslayer, and Dark Moon chains. The items remain filler elsewhere. World: #836, closing #832.

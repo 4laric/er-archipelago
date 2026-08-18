@@ -96,3 +96,19 @@ class LocalItemsPartial(WorldTestBase):
                         "the named 'goods' category must be held local")
         self.assertTrue(all(n not in local for n in weapons),
                         "an unnamed category must stay foreign-eligible")
+
+
+class ProgressiveUpgradeBellsLocal(WorldTestBase):
+    """A progressive replacement retains the locality category of what it replaced."""
+    game = GAME
+    options = {
+        "num_regions": 2,
+        "item_shuffle": True,
+        "progressive_stone_bells": True,
+        "keep_local": {"upgrade_bells"},
+    }
+
+    def test_progressive_bell_replacements_are_forced_local(self):
+        local = _local_set(self)
+        self.assertIn("Progressive Smithing-Stone Miner's Bell Bearing", local)
+        self.assertIn("Progressive Somberstone Miner's Bell Bearing", local)
