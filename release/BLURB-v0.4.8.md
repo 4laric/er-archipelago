@@ -6,26 +6,20 @@ only moment anyone remembers why it mattered._
 ## What changed at the table
 
 **Every Archipelago item you have ever picked up in this randomizer was a telescope.** Cell 92 of
-the game's icon sheet belongs to the Telescope, the AP flower was supposed to be composited over it,
-and for the whole life of the project that never happened -- so the one thing that says *this came
-from somebody else's game* looked like an optical instrument. The art has been in the repo since
-2026-07-29. The tool that puts it in the sheet did not exist outside a dev box, and rather than ship
-a build that quietly skipped the step, `build.ps1` threw and `package_release.ps1` refused to
-package. Every tag since has died there.
+the game's icon sheet belongs to the Telescope, and the AP flower was supposed to be composited over
+it. The art had been in the repo since 2026-07-29, but the first shipping attempt tried to rebuild
+the atlases on each player's machine. That assumed access to unpacked game files and turned a small
+icon replacement into an installation toolchain. We backed that approach out.
 
-It is done, and it is done on your machine rather than ours. The installer reads the two atlases out
-of your own installation, borrows your own Oodle DLL to decompress them, drops the flower into cell
-92, repacks the container, and checks the header afterwards to confirm it came out the way it needs
-to. Nothing FromSoft owns is copied into git or into a release, and you need neither an image
-library nor a texture compressor to run it. There is a Linux/Proton path -- the same build through
-Wine, which finds a Steam install and a nearby randomizer root on its own -- and a button in the
-overlay that runs the whole thing for you and tells you to restart the game.
+The Flower itself still ships. Release bundles now carry authenticated, prebuilt atlases, and the
+client's install button copies them into either an ordinary Mod Engine 2 setup or Matt's randomizer.
+Players do not need UXM, WitchyBND, Oodle, an image library, or a texture compressor. The installer
+does not reconstruct FromSoft assets from a local unpack; it installs the release payload and asks
+for the Matt-randomizer path when it cannot find that layout safely.
 
-The question that stalled this for weeks -- whether the game would accept a re-compressed atlas, or
-whether the client would have to splice the texture in at runtime -- got settled by playing the game
-on 2026-08-17. Repacked as DFLT, both atlases load and the flower renders with the client DLL out of
-the picture entirely. There was no hidden second mip to reconstruct. The hard part had been solved
-and nobody had checked.
+The runtime experiment still settled the technical question that had stalled the feature: Elden Ring
+accepts the DFLT-repacked atlases, both icon sheets load, and the Flower renders without runtime
+texture injection. What changed after that result was delivery, not the image.
 
 **Progressive Flask Upgrades stop doing two things at once.** Each copy used to nudge charges *and*
 hand you a Sacred Tear, which made every upgrade two half-upgrades, neither of which felt like
