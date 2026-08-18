@@ -728,7 +728,9 @@ OPTIONS_SUBKEYS = (
                 "eldenring-archipelago/core.rs -> region completion goal gate",
                 "0 = preserve the possession-based goal-region unlock; 1 = wait until every "
                 "progression-surface check in every required non-goal region is checked, with "
-                "visible shop rows additionally satisfied by the server-backed viewed-shop ledger. "
+                "visible shop rows additionally satisfied by the server-backed viewed-shop ledger; "
+                "2 = impose no region-side goal requirement. This is independent of the Great "
+                "Rune requirement. "
                 "A seed selecting 1 emits requiresClientFeatures "
                 "['region_completion_goal_gate']; OPTIONS_SUBKEYS is not folded into CONTRACT_HASH."),
     ContractKey("no_equip_load", "INT_OR_BOOL", False, (GREENFIELD,),

@@ -5,6 +5,14 @@ only moment anyone remembers why it mattered._
 
 ## What changed at the table
 
+**The ending is now two choices instead of one bundled choice.** Great Runes are one axis: require
+the configured count, or do not. Regions are the other: require their Lock items, require every
+region's checks to be completed, or do not require regions at all. That makes Great Runes-only runs
+possible, while the existing held-Locks default remains unchanged for old YAMLs.
+Required progression is also hard-barred from questline Patches, Enia, and the Twin Maidens now:
+excluding those shops from the preferred surface was not enough when an item spilled back into
+Archipelago's general fill. Ordinary wandering merchants can still carry it.
+
 **Progressive Flask Upgrades stop doing two things at once.** Each copy used to nudge charges *and*
 hand you a Sacred Tear, which made every upgrade two half-upgrades, neither of which felt like
 anything. They alternate now: charge, potency, charge, potency, in that order, every time. The first
@@ -28,7 +36,9 @@ you ever saw them. At the real quantities, five does the same job. The 24 points
 
 So: fewer stone *entries*, the same stones in your hands, and noticeably more actual gear in the
 filler pool. ⚠️ If you have hand-tuned `curated_filler` in your yaml, this is the release to re-read
-your numbers, because the scale underneath them moved.
+your numbers, because the scale underneath them moved. Tiny one-region seeds also keep the promised
+somber-stone floor when that recipe share initially rounds to zero, rather than silently losing an
+upgrade tier.
 
 **There is a new trap, and it turns the lights off.** `Trap: Blackout` fades your screen out, holds
 it dark for two seconds, and fades it back. It is the first of the eleven traps designed on

@@ -25,6 +25,15 @@ reconstruction).
 
 ### The rest of the v0.4.8 window so far
 
+- **Goal requirements are two independent axes.** Great Runes can be required or not, while the
+  goal region separately opens from held Region Locks, completed regions, or no region requirement.
+  This adds Great Runes-only goals without changing existing YAML defaults. Patches, Enia, and the
+  Twin Maidens now reject progression at the location rule as well as the curated surface, so a
+  required Great Rune cannot reach those shops through a spill or later fill pass; ordinary
+  wandering merchants remain eligible. World: #858.
+- **Tiny seeds keep their promised somber-stone floor.** A positive `somber_stones` recipe weight
+  now arms the reservation even when its initial proportional share rounds to zero, so one-region
+  seeds cannot silently lose an upgrade tier. World: #858.
 - **Baked-stable hosts can deploy beta without a false stable success.** `deploy_wizard.sh
   --beta-only` writes only the directory peliarch actually mounts and reports that stable remains
   owned by the immutable image pin, closing the misleading half of #863.

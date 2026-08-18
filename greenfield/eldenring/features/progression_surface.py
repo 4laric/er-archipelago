@@ -130,14 +130,19 @@ class GoalRegionUnlockPolicy(Choice):
     """When the synthetic final region opens.
 
     ``items_held`` preserves the original rule: receiving every required Region Lock opens the
-    final region. ``regions_completed`` waits until every progression-surface check in every
-    non-final region has been satisfied. A shop check is satisfied when its merchant inventory is
-    viewed; buying the ware is not required. Completion is reconstructed from the server's checked
-    locations plus its per-slot viewed-shop ledger, so reconnecting cannot lose progress.
+    final region. ``none`` imposes no region-side requirement. ``regions_completed`` waits until
+    every progression-surface check in every non-final region has been satisfied. A shop check is
+    satisfied when its merchant inventory is viewed; buying the ware is not required. Completion
+    is reconstructed from the server's checked locations plus its per-slot viewed-shop ledger, so
+    reconnecting cannot lose progress.
+
+    This is independent of Ending Condition: any of these three policies can be combined with or
+    without the Great Rune threshold.
     """
     display_name = "Goal Region Unlock Policy"
     option_items_held = 0
     option_regions_completed = 1
+    option_none = 2
     default = 0
 
 
@@ -526,11 +531,12 @@ _HUB_MERCHANT_TAGS = ("Shop",)
 
 
 def _roundtable_merchant_aps():
-    """Roundtable Hold (the always-open hub) MERCHANT rows -- Enia (remembrance weapons/armor) and
-    the Twin Maiden Husks. BARRED from the progression surface (Alaric 2026-07-18): the hub is
-    reachable at spawn, so a Lock / key item placed on a hub merchant slot is 'progression' you
-    already hold on turn one -- trivial. This rule touches ONLY hub MERCHANT rows; the hub's Golden
-    Seed checks (Seedtree, physical pickups) are left to the normal surface/defaulted logic.
+    """MERCHANT rows filed in Roundtable Hold, the always-open hub. This includes Enia and the Twin
+    Maiden Husks plus multi-site rows collapsed into the hub, notably questline Patches/Thiollier.
+    BARRED from the progression surface (Alaric 2026-07-18): a hub-filed merchant slot otherwise
+    looks reachable at spawn. Ordinary wandering merchants are filed in their physical regions and
+    remain eligible; this rule touches only hub MERCHANT rows. The hub's Golden Seed checks
+    (Seedtree, physical pickups) are left to the normal surface/defaulted logic.
 
     Derived from the generated data, so a regen that adds or moves a hub merchant row is covered
     without a hand-list -- but "derived" is only as good as the tag name being one the data still
