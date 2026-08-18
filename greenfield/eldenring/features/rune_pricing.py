@@ -1,4 +1,4 @@
-"""rune_pricing -- a shop slot selling a RUNE should not cost what the slot used to cost.
+"""shop price overrides for money runes and limited-currency altars.
 
 A shop check keeps the price of the ware it used to sell; `shop_sell` rewrites `equipId` to the AP
 reward and deliberately leaves `value` alone (the slot costs what the slot cost). That is right for
@@ -18,6 +18,11 @@ Scope: every rune-family consumable, not just Golden Rune. Hero's / Lord's / Num
 identical wall for the identical reason, and narrowing this to the one Alaric happened to see would
 be pinning the symptom (CONTRIBUTING: "derive the datum, don't pin the symptom"). A rune is anything
 GOODS_PRICE prices whose name is `<X> Rune` or `<X> Rune [N]`.
+
+Dragon Communion is the other exceptional economy. Randomising the reward must never randomise the
+number of scarce hearts the altar asks for: every altar row costs exactly one unit of its own
+currency (Dragon Heart, Bayle's Heart, or another costType the game assigns). The cost type stays
+untouched; only ShopLineupParam.value is normalised to 1.
 
 Cosmetic-adjacent but NOT cosmetic: the price is the only thing standing between a check and the
 player. It does not touch reachability -- fill sees the same locations either way -- so this feature
@@ -40,6 +45,10 @@ try:
     from ..item_ids import ITEM_CATALOG
 except Exception:  # not yet generated
     ITEM_CATALOG = {}
+try:
+    from ..missable_locations import MISSABLE_LOCATIONS
+except Exception:  # not yet generated
+    MISSABLE_LOCATIONS = {}
 
 _GOODS_NIBBLE = 0x40000000
 _ROW_MASK = 0x0FFFFFFF
@@ -125,6 +134,19 @@ def is_rune_item(name):
     return bool(full) and is_rune(full)
 
 
+def fixed_alt_currency_prices():
+    """ShopLineupParam row -> 1 for every generated limited-currency altar check."""
+    alt_location_ids = {
+        str(int(aid)) for aid, source in MISSABLE_LOCATIONS.items()
+        if str(source).startswith("alt_currency:")
+    }
+    return {
+        str(int(row_id)): 1
+        for aid in alt_location_ids
+        for row_id in SHOP_ROW_IDS.get(aid, [])
+    }, alt_location_ids
+
+
 class RuneShopPricing(Toggle):
     """Randomise the rune price of shop slots whose reward is a Golden/Hero's/Lord's/Numen's Rune,
     to somewhere in [0, 2x that rune's own worth]. Off = the slot keeps the price of the ware it
@@ -145,20 +167,27 @@ class RunePricing(Feature):
     OPTIONS = {"rune_shop_pricing": RuneShopPricing}
 
     def slot_data(self, world):
+        # RULING (#231, 2026-08-18): every Dragon Communion / other alt-currency altar row costs
+        # exactly ONE unit of the currency selected by its unchanged costType.  The generated
+        # missable table is the reviewed costType != 0 classification; joining it back through
+        # SHOP_ROW_IDS avoids a second, hand-maintained altar list.
+        out, alt_location_ids = fixed_alt_currency_prices()
+
         opt = getattr(world.options, "rune_shop_pricing", None)
         if opt is None or not int(getattr(opt, "value", 0)):
-            return {contract.SHOP_RUNE_PRICES: {}}
+            return {contract.SHOP_RUNE_PRICES: out}
         if not (SHOP_ROW_FLAGS and SHOP_ROW_IDS and GOODS_PRICE and ITEM_CATALOG):
-            return {contract.SHOP_RUNE_PRICES: {}}
+            return {contract.SHOP_RUNE_PRICES: out}
 
         player = world.player
-        out = {}
         priced = unpriced = 0
         _ratios = []          # price/worth per slot, for the distribution line below
         for loc in world.multiworld.get_locations(player):
             aid = getattr(loc, "address", None)
             if aid is None or str(aid) not in SHOP_ROW_FLAGS:
                 continue
+            if str(aid) in alt_location_ids:
+                continue          # fixed one-heart ruling outranks the optional money-rune roll
             it = getattr(loc, "item", None)
             if it is None or getattr(it, "player", None) != player:
                 continue          # a foreign reward is not sold natively; its slot shows a placeholder
