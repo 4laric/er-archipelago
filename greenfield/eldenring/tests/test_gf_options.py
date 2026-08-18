@@ -534,6 +534,7 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
 
     class _T(WorldTestBase):
         game = GAME
+        auto_construct = False
         # This matrix measures Scadutree supply, including deliberately tiny one-region pools.
         # Keep the unrelated missable-location capacity guard from rejecting those fixtures first.
         options = dict(extra, global_scadutree_blessing=mode,
@@ -553,6 +554,10 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
     lg.addHandler(h)
     t = _T()
     t.setUp()
+    # Fixed seed 1 keeps the one-region DLC arm on Abyssal, whose two natural fragment units
+    # reproduce the tight-tail regression: injection used to trim those units after plan() had
+    # already subtracted them. A random draw made main alternate red/green without changing code.
+    t.world_setup(seed=1)
     try:
         m, target, natural, want, injected = ss.plan(t.world)
         assert m == mode
