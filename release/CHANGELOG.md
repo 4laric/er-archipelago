@@ -36,7 +36,18 @@ reconstruction).
   seeds cannot silently lose an upgrade tier. World: #858.
 - **Baked-stable hosts can deploy beta without a false stable success.** `deploy_wizard.sh
   --beta-only` writes only the directory peliarch actually mounts and reports that stable remains
-  owned by the immutable image pin, closing the misleading half of #863.
+  owned by the immutable image pin, closing the misleading half of #863. World: #864.
+- **Progressive stone bells now stay local and actually stock their shelves.** Their replacement
+  items inherit `keep_local: [upgrade_bells]`, and every rung sets both the stock and release flags
+  used by the Twin Maidens. World: #859.
+- **Capital warps respect the selected map version.** Royal and Ashen targets are classified by
+  their real map bucket, including the duplicate Ashen graces, so approaching the Ashen endgame no
+  longer replays the transition and throws the player back. Client: clients#284.
+- **Client logs always live beside the loaded DLL.** Their location no longer changes with the mod
+  loader or profile. Client: clients#283.
+- **RandomizerHelper is a hard incompatibility, not a warning.** When its DLL is actually co-loaded,
+  AP stops before connecting and explains what to remove; a merely present but unloaded file does
+  not block startup. Client: clients#285.
 - **Quest prerequisites cannot be placed on their own downstream rewards.** Cursemark of Death
   cannot land on Fortissax, with direct rules also covering the Favor, Needle, Valkyrie,
   Fingerslayer, and Dark Moon chains. The items remain filler elsewhere. World: #836, closing #832.
@@ -59,51 +70,6 @@ reconstruction).
   frozen surface mode (#840); release bundles keep their requested name instead of inheriting
   `shoplineup_flags.json` through PowerShell's case-insensitive `$Name` (#847).
 
-
-### The AP flower is finally on the items
-
-Every Archipelago item in this randomizer has been wearing a Telescope. Icon cell 92 belongs to the
-Telescope in the game's sprite sheet, the AP flower was meant to be composited over it, and the tool
-that does that existed only on a dev box -- so `build.ps1` threw with instructions and
-`package_release.ps1` refused to package rather than let a build quietly skip the step. Every tag
-since the art landed on 2026-07-29 has died there.
-
-`tools/build_ap_icon.py` is committed, and the derivation happens on the player's machine: it reads
-the hi and low KRAK atlases out of the installed game, exposes the player's own
-`oo2core_6_win64.dll` to Witchy for decompression, replaces cell 92 with the committed AP artwork,
-repacks the container as `DCX_DFLT`, and verifies the output header says DFLT before it stops.
-Nothing FromSoft owns is copied into git or into a release.
-
-The KRAK-versus-runtime-splice fork is closed rather than worked around. A live experiment on
-2026-08-17 showed the game loads both `menu\hi\01_common.tpf.dcx` and `menu\low\01_common.tpf.dcx`
-when repacked as DFLT, with the flower rendering without the AP client DLL and without a KRAK
-override; the atlas has one mip, so there is no lower-mip splice left to reconstruct. The "Open
-item" in `docs/AP-ICON-PIPELINE.md` is rewritten accordingly.
-
-Players need neither Pillow nor texconv: the committed 25,600-byte BC7 payload is project-owned art,
-and the installer copies its aligned blocks straight into the one-mip BC7 surface. A missing game
-file, Oodle, or Witchy, unexpected layout geometry, or a non-DFLT output are hard failures with
-actionable messages. Re-running starts from the installed source again and clears the intermediate
-extraction, so a second build cannot inherit the first one's edits.
-
-World: #819, #826. Refs #818.
-
-### The flower installer has a Linux/Proton path, and a button in the client
-
-The release bundle carries a Python installer alongside the PowerShell one. It finds the usual Steam
-installation, runs the pinned WitchyBND through Wine, and builds the same local hi/low DFLT
-overrides without distributing FromSoft assets. It detects a nearby randomizer or data-mod root
-(including matt's `.randomizeopt` fingerprint) and accepts explicit game and destination paths. The
-PowerShell route is untouched for Windows users.
-
-The overlay now offers **Install AP Flower...** (or **Reinstall...** when it finds one already
-present). It picks the mod root the active loader actually reads, launches the installer in a
-separate visible process -- deliberately asynchronous, because unpacking on imgui's present thread
-would freeze the game, and the terminal stays open so a failure is not swallowed after one frame --
-and returns a status line immediately. Restart the game before the already-loaded menu atlas
-changes.
-
-World: #829. Client: clients#270, closing clients#269.
 
 ### Progressive Flask upgrades alternate instead of doubling up
 
@@ -288,6 +254,25 @@ recorded here rather than retro-edited into a tagged section.
   numbers the wizard shows before you generate. World: #783, closing #724.
 - **Scaling reads are correlated by instance** in the boss-fight probe and rescale watch -- the
   instrument for clients#251, which stays open. Client: clients#252.
+
+### Cosmetic: the AP Flower works outside the shipped profile
+
+The packaged Mod Engine 3 profile already loaded the AP Flower. The Telescope reports came from
+other mod layouts that did not load our atlas override, so this was never an across-the-board icon
+failure.
+
+The discarded first attempt rebuilt FromSoftware's atlases on each player's machine and assumed a
+local texture toolchain. That path, and its short-lived in-client launch button, were reverted.
+Release bundles can instead carry the two authenticated prebuilt atlases, and the standalone Python
+installer copies them transactionally into Matt's randomizer data-mod root. It supports safe
+install, update, repair, and hash-checked uninstall; PowerShell is only a thin Windows launcher.
+Linux and Windows CI exercise the shipped entrypoints against a synthetic authenticated package.
+
+The runtime experiment still established that Elden Ring accepts the DFLT-repacked hi and low
+atlases and renders the Flower without runtime texture injection. Players do not need UXM,
+WitchyBND, Oodle, Pillow, or texconv for the packaged-asset installer.
+
+World: #819, #826, #856, #857. Client: clients#270 reverted by clients#282. Refs #818, #827.
 
 ## v0.4.6 — 2026-08-16
 
