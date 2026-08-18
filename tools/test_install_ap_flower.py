@@ -40,6 +40,19 @@ class DestinationTests(unittest.TestCase):
             (a/"a.randomizeopt").write_text(""); (b/"b.randomizeopt").write_text("")
             with self.assertRaisesRegex(flower.InstallError, "ambiguous"): flower.resolve_destination([a, b])
 
+    def test_no_candidate_refuses_instead_of_using_ap_package(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(flower.InstallError, "--destination"):
+                flower.resolve_destination([Path(tmp)])
+
+    def test_prompt_rejects_a_folder_without_matt_fingerprint(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            from unittest.mock import patch
+            with patch.object(flower.sys.stdin, "isatty", return_value=True), \
+                 patch("builtins.input", return_value=tmp):
+                with self.assertRaisesRegex(flower.InstallError, "does not look like"):
+                    flower.prompt_destination()
+
 class InstallTests(unittest.TestCase):
     def test_missing_or_corrupt_package_writes_nothing(self):
         with tempfile.TemporaryDirectory() as tmp:

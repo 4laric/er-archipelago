@@ -53,7 +53,7 @@ def fingerprint(path: Path) -> tuple[int, str] | None:
     return (1, ", ".join(markers)) if markers else None
 
 def resolve_destination(starts: list[Path], explicit: Path | None = None,
-                        fallback: Path | None = None, max_parents: int = 5) -> tuple[Path, str]:
+                        max_parents: int = 5) -> tuple[Path, str]:
     if explicit is not None: return explicit.resolve(), "explicit --destination"
     found: dict[Path, tuple[int, int, str]] = {}
     for start in starts:
@@ -70,8 +70,19 @@ def resolve_destination(starts: list[Path], explicit: Path | None = None,
             raise InstallError("ambiguous Matt roots: " + ", ".join(str(x[0]) for x in best)
                                + "; pass --destination")
         return best[0][0], f"Matt/data-mod fingerprint: {best[0][1]}"
-    if fallback is not None: return fallback.resolve(), "standalone ap-package fallback"
     raise InstallError("could not locate Matt's randomizer output; pass --destination")
+
+def prompt_destination() -> Path:
+    if not sys.stdin.isatty():
+        raise InstallError("could not locate Matt's randomizer output; rerun with --destination PATH")
+    print("Could not automatically find Matt's randomizer output folder.")
+    value = input("Enter the folder containing the .randomizeopt/regulation.bin: ").strip().strip('"')
+    if not value:
+        raise InstallError("no destination supplied")
+    destination = Path(value).expanduser().resolve()
+    if fingerprint(destination) is None:
+        raise InstallError(f"that folder does not look like Matt's randomizer output: {destination}")
+    return destination
 
 def read_marker(destination: Path) -> dict[str, Any] | None:
     path = destination / MARKER
@@ -160,7 +171,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--replace-existing", action="store_true"); p.add_argument("--uninstall", action="store_true")
     args = p.parse_args(argv); script_dir = Path(__file__).resolve().parent
     try:
-        destination, reason = resolve_destination(args.start or [Path.cwd(), script_dir], args.destination, script_dir/"ap-package")
+        try:
+            destination, reason = resolve_destination(args.start or [Path.cwd(), script_dir], args.destination)
+        except InstallError:
+            if args.destination is not None:
+                raise
+            destination, reason = prompt_destination(), "path supplied by user"
         print(f"AP Flower destination: {destination} ({reason})")
         print("; ".join(uninstall(destination)) if args.uninstall else
               install((args.package or script_dir/"flower-package").resolve(), destination, args.replace_existing))

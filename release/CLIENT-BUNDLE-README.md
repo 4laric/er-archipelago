@@ -22,7 +22,8 @@ the contract is at the bottom of this file.
 
    On Linux/Proton, run `python3 ./install_ap_flower.py --destination <randomizer-folder>`.
    Existing unowned atlas mods are refused unless you deliberately pass `--replace-existing`,
-   which backs them up for a later `--uninstall`.
+   which backs them up for a later `--uninstall`. If automatic detection cannot find Matt's output,
+   an interactive run asks for the folder; non-interactive use must pass `--destination`.
 4. (Optional) Put your server details in `apconfig.json`:
    ```json
    { "url": "archipelago.gg:12345", "slot": "YourName", "password": "" }
