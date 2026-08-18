@@ -33,6 +33,13 @@ class GreenfieldWorldTest(WorldTestBase):
     options = {"num_regions": 0}
 
     # --- item pool -----------------------------------------------------------------
+    def test_serpent_hunter_is_not_hintable(self):
+        self.assertIn(
+            "Serpent-Hunter",
+            self.world.hint_blacklist,
+            "the client grants it at Rykard; the server must not charge for an impossible hint",
+        )
+
     def test_one_progression_lock_per_region(self):
         locks = [i for i in world_items(self) if i.name.endswith(" Lock")]
         # One lock per region. The Ashen Capital Lock is NOT in the AP item pool: since #768 the
