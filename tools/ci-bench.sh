@@ -61,13 +61,13 @@ say "box"
 } | tee "$OUT/box.txt"
 
 # ------------------------------------------------------------------------------ 2. provisioning
-if ! command -v git >/dev/null || ! command -v python3 >/dev/null; then
-  say "installing packages"
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get update -qq
-  apt-get install -y -qq git curl python3 python3-venv python3-pip nodejs >/dev/null
-fi
-python3 --version
+# Unconditional and idempotent. The first version of this gated on `command -v python3`, which is
+# present on every Ubuntu image ever made -- so on a fresh CX43 the apt step never ran, and the
+# failure surfaced much later as a missing ensurepip.
+say "packages"
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -qq
+apt-get install -y -qq git curl ca-certificates tar >/dev/null
 
 if [ ! -d "$WORK/repo/.git" ]; then
   say "cloning $REPO_URL"
@@ -87,15 +87,48 @@ if [ ! -d "$WORK/ap/worlds" ]; then
   git clone --depth 1 --branch "$PIN" https://github.com/ArchipelagoMW/Archipelago.git "$WORK/ap"
 fi
 
-if [ ! -x "$WORK/venv/bin/python" ]; then
-  say "venv + requirements"
-  python3 -m venv "$WORK/venv"
-  "$WORK/venv/bin/pip" install -q --upgrade pip
-  "$WORK/venv/bin/pip" install -q "setuptools<80"
-  "$WORK/venv/bin/pip" install -q -r "$WORK/ap/requirements.txt"
-  "$WORK/venv/bin/pip" install -q pytest pytest-xdist
+# 🛑🛑 CI RUNS PYTHON 3.12 (.github/workflows/tests.yaml pins it), SO THIS MUST TOO.
+#
+# The system interpreter is whatever the image ships -- Ubuntu 26.04 gives 3.14, and there is no
+# python3.14-venv to install. Using it anyway would be worse than the error: a bench on a different
+# interpreter is an answer to a different question, which is the exact failure this repo already
+# has a name for (the dev box gating the apworld against a fork's Fill.py, 661 tests vs CI's 686).
+# Interpreter version moves GC behaviour, dict/str internals and startup cost -- all of which this
+# bench is measuring.
+#
+# So: a self-contained CPython 3.12 from python-build-standalone. No PPA, no ensurepip, no apt
+# dependency on what the base image happens to package, and it carries its own pip.
+PY_DIR="$WORK/py312"
+if [ ! -x "$PY_DIR/python/bin/python3.12" ]; then
+  say "fetching CPython 3.12 (python-build-standalone)"
+  if [ -z "${PBS_URL:-}" ]; then
+    # The download URL percent-encodes the `+` in the version, so match loosely and extract.
+    PBS_URL="$(curl -fsSL https://api.github.com/repos/astral-sh/python-build-standalone/releases/latest \
+      | grep -oE '"browser_download_url": *"[^"]*cpython-3\.12\.[^"]*x86_64-unknown-linux-gnu-install_only_stripped\.tar\.gz"' \
+      | head -1 | sed 's/.*"browser_download_url": *"//; s/"$//')"
+  fi
+  test -n "$PBS_URL" \
+    || { echo "could not resolve a CPython 3.12 tarball (API rate limit?). Set PBS_URL=<url> and re-run."; exit 1; }
+  echo "  $PBS_URL"
+  mkdir -p "$PY_DIR"
+  curl -fsSL "$PBS_URL" -o "$WORK/py312.tar.gz"
+  tar -xzf "$WORK/py312.tar.gz" -C "$PY_DIR"
 fi
-PY="$WORK/venv/bin/python"
+PY="$PY_DIR/python/bin/python3.12"
+# Assert rather than trust. A bench that silently ran on the wrong interpreter would still produce
+# a confident table, and nothing downstream would question it.
+"$PY" -c 'import sys; assert sys.version_info[:2] == (3, 12), sys.version' \
+  || { echo "the interpreter at $PY is not 3.12 -- refusing to benchmark a different question"; exit 1; }
+"$PY" -V
+
+if [ ! -f "$WORK/.deps-installed" ]; then
+  say "requirements (Archipelago $PIN)"
+  "$PY" -m pip install -q --upgrade pip
+  "$PY" -m pip install -q "setuptools<80"          # AP 0.6.x vs pkg_resources removal in >= 80
+  "$PY" -m pip install -q -r "$WORK/ap/requirements.txt"
+  "$PY" -m pip install -q pytest pytest-xdist
+  touch "$WORK/.deps-installed"
+fi
 
 say "installing the world"
 export SKIP_REQUIREMENTS_UPDATE=1 AP_NONINTERACTIVE=1
