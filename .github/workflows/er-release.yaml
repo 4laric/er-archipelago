@@ -13,9 +13,9 @@
 # one of those was a .dll "built separately" and a record that disagreed. There is nothing left to
 # disagree.
 #
-# ⭐ THE ICON IS NOW STRUCTURAL TOO. The bundle carries a local installer and 25,600 bytes of
-# project-owned BC7 flower blocks. It never carries FromSoft's atlas or Oodle: the player derives
-# the hi/low DFLT overrides from the installed game. The former private ICON_REPO is retired.
+# 🛑 AP Flower's complete hi/low overrides cannot live in this public repo. Stable packaging fetches
+# them from private `ICON_REPO`, puts them under `flower-package`, and generates the authenticated
+# manifest. Development builds omit them and the installer reports that the release assets are absent.
 #
 # 🛑 THIS DOES NOT REPLACE release.yaml. That one attaches the bare apworld and the wizard and is
 # deliberately not gated on the pin. This one produces the player bundle. They attach to the same
@@ -181,6 +181,19 @@ jobs:
       - name: The tag's record of what pairs with what
         run: python tools/check_release_pairing.py --dll me3/eldenring_archipelago.dll
         continue-on-error: ${{ github.ref == 'refs/heads/main' || github.event.inputs.unofficial == 'true' }}
+
+      - name: Fetch the AP Flower release atlases
+        if: github.ref != 'refs/heads/main'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.ICON_REPO }}
+          token: ${{ secrets.ICON_REPO_TOKEN }}
+          path: .icon
+      - name: Stage AP Flower as installer input
+        if: github.ref != 'refs/heads/main'
+        run: |
+          mkdir -p me3/flower-package
+          cp -r .icon/ap-package/menu me3/flower-package/menu
 
       - name: Assemble
         env:

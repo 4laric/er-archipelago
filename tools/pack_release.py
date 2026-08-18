@@ -14,8 +14,8 @@ WHAT THIS DOES NOT DO, ON PURPOSE
     stand and the workflow calls them directly. A second copy of a check is a second thing to drift.
 
     It does not build the apworld (`tools/build_apworld.py`) or the .dll (the client repo's CI does,
-    on windows-latest). It ships the AP-owned BC7 flower payload and local installer, never the
-    generated FromSoft atlas or Oodle.
+    on windows-latest). It copies an optional, privately supplied `flower-package` verbatim; the
+    installer authenticates its manifest before any destination write.
 
 EXIT CODES -- 0 clean, 1 hard failure, 2 staged WITH WARNINGS. 2 is load-bearing: it is how an
 `--unofficial` build says "this is not a release", and it must never collapse into 0.
@@ -23,8 +23,10 @@ EXIT CODES -- 0 clean, 1 hard failure, 2 staged WITH WARNINGS. 2 is load-bearing
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
+from pathlib import Path
 import re
 import shutil
 import sys
@@ -49,6 +51,23 @@ def warn(m: str) -> None:
 def die(m: str) -> "None":
     print(f"::error::pack_release: {m}", file=sys.stderr)
     raise SystemExit(1)
+
+
+def flower_manifest(root: str, version: str) -> None:
+    files = []
+    for relative in ("menu/hi/01_common.tpf.dcx", "menu/low/01_common.tpf.dcx"):
+        path = os.path.join(root, *relative.split("/"))
+        if not os.path.isfile(path):
+            die(f"AP flower release input is missing {relative}")
+        digest = hashlib.sha256()
+        with open(path, "rb") as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(chunk)
+        files.append({"path": relative, "size": os.path.getsize(path),
+                      "sha256": digest.hexdigest()})
+    with open(os.path.join(root, "manifest.json"), "w", encoding="utf-8", newline="\n") as stream:
+        json.dump({"schema": 1, "asset_version": version, "files": files}, stream, indent=2)
+        stream.write("\n")
 
 
 def soft(m: str, hard: bool) -> None:
@@ -177,14 +196,19 @@ def stage(args, stage_dir: str) -> None:
 
     icon_installer = os.path.join(REPO, "tools", "install_ap_flower.ps1")
     icon_installer_py = os.path.join(REPO, "tools", "install_ap_flower.py")
-    icon_payload = os.path.join(REPO, "tools", "ap_icon_src", "ap_flower_160.bc7")
-    if (not os.path.isfile(icon_installer) or not os.path.isfile(icon_installer_py)
-            or not os.path.isfile(icon_payload)):
-        die("AP flower local installer or BC7 payload is missing")
+    if not os.path.isfile(icon_installer) or not os.path.isfile(icon_installer_py):
+        die("AP flower packaged-asset installer is missing")
     shutil.copy2(icon_installer, os.path.join(me3_dst, "install-ap-flower.ps1"))
     shutil.copy2(icon_installer_py, os.path.join(me3_dst, "install_ap_flower.py"))
-    shutil.copy2(icon_payload, os.path.join(me3_dst, "ap_flower_160.bc7"))
-    info("+ AP flower Windows/Python installers + BC7 payload")
+    flower_package = os.path.join(args.me3, "flower-package")
+    if os.path.isdir(flower_package):
+        flower_manifest(flower_package, args.version)
+        shutil.copytree(flower_package, os.path.join(me3_dst, "flower-package"))
+        info("+ AP flower installers + packaged hi/low atlases")
+    elif not args.unofficial:
+        die("stable release requires me3/flower-package with both AP Flower atlases")
+    else:
+        warn("AP Flower release assets unavailable; installer will report that clearly")
 
     if os.path.isdir(args.me3):
         extra = [n for n in os.listdir(args.me3)
@@ -229,28 +253,31 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
 
     installer = os.path.join(me3, "install-ap-flower.ps1")
     installer_py = os.path.join(me3, "install_ap_flower.py")
-    payload = os.path.join(me3, "ap_flower_160.bc7")
     if not os.path.isfile(installer):
         die("no install-ap-flower.ps1 in the stage")
     if not os.path.isfile(installer_py):
         die("no install_ap_flower.py in the stage")
-    if not os.path.isfile(payload) or os.path.getsize(payload) != 25_600:
-        die("AP flower BC7 payload is absent or not exactly 25,600 bytes")
-    leaked_sheets = []
-    for root, _dirs, files in os.walk(me3):
-        leaked_sheets += [os.path.join(root, f) for f in files
-                          if f.lower() == "01_common.tpf.dcx"]
-    if leaked_sheets:
-        die("generated FromSoft atlas entered the release stage: " + ", ".join(leaked_sheets))
-    info("AP flower: local installer + project-owned BC7 payload; no generated atlas")
+    package = os.path.join(me3, "flower-package")
+    if os.path.isdir(package):
+        try:
+            from install_ap_flower import load_package
+            load_package(Path(package))
+        except Exception as exc:
+            die(f"invalid packaged AP Flower assets: {exc}")
+    elif not unofficial:
+        die("stable stage has no authenticated flower-package")
+    info("AP flower: packaged-asset installer present")
 
     # Walk once for the remaining two content gates.
-    leaked, foreign = [], []
+    leaked, foreign, loose_atlases = [], [], []
     for root, _dirs, files in os.walk(stage_dir):
         for f in files:
             low = f.lower()
             if low.startswith("ap_save_") and low.endswith(".json"):
                 leaked.append(os.path.relpath(os.path.join(root, f), stage_dir))
+            if low == "01_common.tpf.dcx" and not os.path.relpath(
+                    os.path.join(root, f), me3).replace("\\", "/").startswith("flower-package/menu/"):
+                loose_atlases.append(os.path.relpath(os.path.join(root, f), stage_dir))
             # Case-INSENSITIVE on purpose. It was implicitly so on Windows; a naive port makes it
             # case-sensitive and `Eldenring_Archipelago.dll` newly trips this gate.
             if low.endswith((".dll", ".exe", ".asi")) and low not in [b.lower() for b in OUR_BINARIES]:
@@ -259,6 +286,8 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
         die(f"player save state staged: {', '.join(leaked)}")
     if foreign:
         die(f"third-party binaries staged: {', '.join(foreign)}")
+    if loose_atlases:
+        die(f"AP Flower atlas outside authenticated flower-package: {', '.join(loose_atlases)}")
     info("no save state, no third-party binaries")
 
 

@@ -16,8 +16,8 @@
 #                               AP item.
 #   shoplineup_flags.json       shop-row -> eventFlag_forStock. Lets shop purchases self-detect.
 #                               Without it, shop checks never fire.
-#   install-ap-flower.ps1       locally builds the icon override from the player's game
-#   ap_flower_160.bc7           25,600 bytes of project-owned compressed flower art
+#   install-ap-flower.ps1       installs authenticated release atlases into Matt's output
+#   flower-package\             optional release-only hi/low atlases + manifest
 #   README.md                   install + what the client needs from a slot_data
 #
 # Usage:
@@ -95,18 +95,19 @@ $cfg = @"
 Set-Content -Path (Join-Path $bundle "apconfig.json") -Value $cfg -Encoding UTF8
 Write-Host "  apconfig.json  (blank -- fill in-game, or edit)"
 
-# Ship only the derivation and project-owned payload. The generated atlas contains FromSoft assets
-# and is created under ap-package on the player's machine.
+# The public tree supplies the installer. A private release stage may additionally supply the
+# authenticated full-atlas flower-package; dev bundles deliberately omit it.
 $iconInstaller = Join-Path $Repo "tools\install_ap_flower.ps1"
 $iconInstallerPy = Join-Path $Repo "tools\install_ap_flower.py"
-$iconPayload = Join-Path $Repo "tools\ap_icon_src\ap_flower_160.bc7"
 if (-not (Test-Path $iconInstaller)) { throw "AP flower installer missing: $iconInstaller" }
 if (-not (Test-Path $iconInstallerPy)) { throw "AP flower Python installer missing: $iconInstallerPy" }
-if (-not (Test-Path $iconPayload)) { throw "AP flower payload missing: $iconPayload" }
 Copy-Item $iconInstaller (Join-Path $bundle "install-ap-flower.ps1") -Force
 Copy-Item $iconInstallerPy (Join-Path $bundle "install_ap_flower.py") -Force
-Copy-Item $iconPayload (Join-Path $bundle "ap_flower_160.bc7") -Force
-Write-Host "  AP flower Windows/Python installers + project-owned BC7 payload"
+$flowerPackage = Join-Path $Repo "flower-package"
+if (Test-Path $flowerPackage -PathType Container) {
+    Copy-Item $flowerPackage (Join-Path $bundle "flower-package") -Recurse -Force
+}
+Write-Host "  AP flower packaged-asset installers"
 
 $readme = Join-Path $Repo "release\CLIENT-BUNDLE-README.md"
 if (Test-Path $readme) {
