@@ -74,6 +74,7 @@
 #   ER_STATIC_DIR=/srv/er ./tools/deploy_wizard.sh
 #   ER_STATIC_DIR=/srv/er ./tools/deploy_wizard.sh --dry-run
 #   ./tools/deploy_wizard.sh --stable-only          # promote stable, leave beta alone
+#   ./tools/deploy_wizard.sh --beta-only            # baked stable: update only the mounted beta/
 #
 # Cron it if you like -- `beta` tracks main, so on a daily-stable project this wants to run at least
 # as often as you merge:
@@ -92,6 +93,7 @@ STABLE_ONLY=0
 NO_CHECKS=0
 LANDING=0
 SITE_ONLY=0
+BETA_ONLY=0
 for a in "$@"; do
   case "$a" in
     --dry-run) DRY=1 ;;
@@ -99,10 +101,15 @@ for a in "$@"; do
     --no-checks) NO_CHECKS=1 ;;
     --landing) LANDING=1 ;;
     --site) SITE_ONLY=1 ;;
+    --beta-only) BETA_ONLY=1 ;;
     -h|--help) sed -n '2,30p' "$0"; exit 0 ;;
     *) echo "unknown argument: $a" >&2; exit 2 ;;
   esac
 done
+[ "$BETA_ONLY" = "0" ] || [ "$STABLE_ONLY" = "0" ] \
+  || { echo "--beta-only and --stable-only are mutually exclusive" >&2; exit 2; }
+[ "$BETA_ONLY" = "0" ] || [ "$SITE_ONLY" = "0" ] \
+  || { echo "--beta-only and --site are mutually exclusive" >&2; exit 2; }
 
 say() { printf '%s\n' "$*"; }
 # Rule 4: a filter with no tally is a lie. Skips are counted and reported at the end.
@@ -117,10 +124,16 @@ die() { printf 'deploy_wizard: %s\n' "$*" >&2; exit 1; }
 
 # ---- which tag is stable? Read it from the ledger AT MAIN, so the answer comes from the same place
 # the repo records it and a promotion is a commit rather than an argument typed on a box.
-ledger="$(curl -fsSL "${RAW}/main/release/CHANNELS.tsv")" || die "could not fetch release/CHANNELS.tsv"
-stable_tag="$(printf '%s\n' "$ledger" | awk -F'\t' '!/^#/ && $1=="stable" { t=$2 } END { print t }')"
-[ -n "$stable_tag" ] || die "no stable row in release/CHANNELS.tsv"
-say "channels: stable -> ${stable_tag} | beta -> main"
+stable_tag=""
+if [ "$BETA_ONLY" = "1" ]; then
+  say "channels: stable -> baked image (UNTOUCHED) | beta -> main"
+else
+  ledger="$(curl -fsSL "${RAW}/main/release/CHANNELS.tsv")" \
+    || die "could not fetch release/CHANNELS.tsv"
+  stable_tag="$(printf '%s\n' "$ledger" | awk -F'\t' '!/^#/ && $1=="stable" { t=$2 } END { print t }')"
+  [ -n "$stable_tag" ] || die "no stable row in release/CHANNELS.tsv"
+  say "channels: stable -> ${stable_tag} | beta -> main"
+fi
 
 # ---- fetch + install one file, atomically, and only if it looks like the thing we asked for.
 # !! THE SENTINEL CHECK IS NOT PARANOIA. raw.githubusercontent answers 404 with an HTML page and
@@ -216,6 +229,22 @@ if [ "$SITE_ONLY" = "1" ]; then
   say "The wizard, the check browser and the questline DAG were NOT touched: they are pinned to the"
   say "stable tag on purpose, and a copy ahead of the released apworld is the failure this whole"
   say "script exists to prevent. Run without --site to move those."
+  exit 0
+fi
+
+# The peliarch Compose layout bakes stable pages and mounts ONLY DEST/beta at /er-static/beta.
+# Writing DEST/wizard.html there succeeds and prints a plausible version while changing no live
+# page -- exactly #863. This explicit mode updates only the directory that layout serves and says
+# plainly that stable remains owned by the immutable image pin.
+if [ "$BETA_ONLY" = "1" ]; then
+  install_one "main" "$WIZ_SRC" "${DEST}/beta/wizard.html" "$WIZ_SENTINEL" "wizard  beta (main)"
+  install_one "main" "$RPT_SRC" "${DEST}/beta/report.html" "$RPT_SENTINEL" "report  beta (main)"
+  [ "$NO_CHECKS" = "1" ] || {
+    install_one "main" "$CHK_SRC" "${DEST}/beta/checks.html" "$CHK_SENTINEL" "checks  beta (main)"
+    install_one "main" "$QDAG_SRC" "${DEST}/beta/questlines.html" "$QDAG_SENTINEL" "qdag    beta (main)"
+  }
+  say ""
+  say "Stable was NOT written: this mode is for hosts whose stable pages are baked into the image."
   exit 0
 fi
 

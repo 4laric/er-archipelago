@@ -25,6 +25,9 @@ reconstruction).
 
 ### The rest of the v0.4.8 window so far
 
+- **Baked-stable hosts can deploy beta without a false stable success.** `deploy_wizard.sh
+  --beta-only` writes only the directory peliarch actually mounts and reports that stable remains
+  owned by the immutable image pin, closing the misleading half of #863.
 - **Quest prerequisites cannot be placed on their own downstream rewards.** Cursemark of Death
   cannot land on Fortissax, with direct rules also covering the Favor, Needle, Valkyrie,
   Fingerslayer, and Dark Moon chains. The items remain filler elsewhere. World: #836, closing #832.
