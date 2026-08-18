@@ -67,9 +67,10 @@ def test_doors_to_force_fails_closed_and_can_open():
 
     # the witness: the ON arm returns the whole table, so the OFF arm below is a real zero
     on = cd.doors_to_force(_world(open_boss_doors=1))
-    expected = [f for _, f in cd.LEVER_DOORS] + [f for _, f in cd.ANCESTOR_ALTARS]
-    assert on == expected, "the ON arm must force every lever door and both ancestor altars"
-    assert len(on) == 20
+    expected = ([f for _, f in cd.LEVER_DOORS] + [f for _, f in cd.ANCESTOR_ALTARS] +
+                list(cd.ANCESTOR_URNS))
+    assert on == expected, "the ON arm must force every lever door, altar warp, and visible urn"
+    assert len(on) == 36
 
     assert cd.doors_to_force(_world(open_boss_doors=0)) == [], "the toggle must gate it"
     assert cd.doors_to_force(_world()) == [], "an ABSENT option must read as OFF -- fail closed"
@@ -102,22 +103,20 @@ class DoorsOn(WorldTestBase):
         # looked for. Both counts are pinned independently by the table tests.
         assert len(cd.LEVER_DOORS) == 18, "the table emptied -- `missing` would be empty for free"
         assert len(cd.ANCESTOR_ALTARS) == 2, "likewise the altars"
-        want = [f for _, f in cd.LEVER_DOORS] + [f for _, f in cd.ANCESTOR_ALTARS]
+        want = ([f for _, f in cd.LEVER_DOORS] + [f for _, f in cd.ANCESTOR_ALTARS] +
+                list(cd.ANCESTOR_URNS))
         missing = [f for f in want if f not in graces]
         assert not missing, f"{len(missing)} flag(s) never reached startGraces: {missing[:3]}"
 
-    def test_the_individual_urn_flags_are_NOT_set(self):
-        """🛑 We set the two aggregates and nothing else. The counter's own already-done branch
-        lights the altar from the aggregate at map load, so the eight-per-altar urn flags are
-        redundant -- and they are a plausible future check family, which is exactly what a QoL
-        toggle must not quietly pre-satisfy."""
+    def test_all_individual_urn_flags_are_set_for_legibility(self):
+        """The aggregate makes the warp work; the individual flags make every urn visibly agree."""
         graces = set(self.world.fill_slot_data()[contract.START_GRACES])
-        urns = list(range(12020600, 12020608)) + list(range(12020620, 12020628))
+        urns = list(cd.ANCESTOR_URNS)
         assert len(urns) == 16, "the urn range is wrong -- the assertion below would be vacuous"
         assert 12020609 in graces and 12020629 in graces, (
-            "the aggregates are not on the wire, so 'no urns' below would be true for free")
-        leaked = sorted(set(urns) & graces)
-        assert not leaked, f"individual urn flag(s) reached startGraces: {leaked}"
+            "the aggregates are not on the wire; lit urns alone would not make the warps work")
+        missing = sorted(set(urns) - graces)
+        assert not missing, f"individual urn flag(s) did not reach startGraces: {missing}"
 
     def test_the_doors_are_on_the_TAIL_and_never_the_head(self):
         """🛑 start_graces.first() is read twice for something else entirely: it is the clobber
