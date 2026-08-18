@@ -6,11 +6,13 @@ the pixel work and the guards -- and testing them found a real bug (see the clea
 Run: python tools/test_build_ap_icon.py
 """
 import importlib.util
+import hashlib
 import os
 import struct
 import sys
 import tempfile
 import unittest
+import xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 _spec = importlib.util.spec_from_file_location("bai", os.path.join(HERE, "build_ap_icon.py"))
@@ -106,17 +108,6 @@ class Composite(unittest.TestCase):
 
 
 class DdsFormat(unittest.TestCase):
-    """Re-encoding to the wrong format still LOADS and still looks nearly right -- so a wrong guess
-    here silently degrades every icon on a 4096x2048 sheet and nothing flags it."""
-
-    def test_known_formats_round_trip_to_texconv_names(self):
-        self.assertEqual(bai._texconv_format("DX10", 98), "BC7_UNORM")
-        self.assertEqual(bai._texconv_format("DXT5", None), "BC3_UNORM")
-
-    def test_an_unknown_format_refuses_rather_than_defaulting(self):
-        with self.assertRaises(SystemExit):
-            bai._texconv_format("DX10", 12345)
-
     def test_it_reads_a_dx10_header(self):
         import struct
         d = tempfile.mkdtemp()
@@ -145,6 +136,111 @@ class DdsHeader(unittest.TestCase):
         with open(p, "wb") as fh:
             fh.write(b"NOPE" + b"\0" * 64)
         self.assertIsNone(bai.dds_size(p))
+
+
+class InstalledGameInputs(unittest.TestCase):
+    def test_oodle_is_discovered_beside_the_game_menu(self):
+        root = tempfile.mkdtemp()
+        menu = os.path.join(root, "menu")
+        os.makedirs(menu)
+        dll = os.path.join(root, "oo2core_6_win64.dll")
+        with open(dll, "wb") as fh:
+            fh.write(b"player-owned fixture")
+        self.assertEqual(bai.find_oodle(menu), dll)
+
+    def test_missing_installed_oodle_fails_before_witchy(self):
+        root = tempfile.mkdtemp()
+        menu = os.path.join(root, "menu")
+        os.makedirs(menu)
+        with self.assertRaises(SystemExit):
+            bai.find_oodle(menu)
+
+
+class DfltOutput(unittest.TestCase):
+    def test_manifest_is_rewritten_from_krak_to_dflt(self):
+        root = tempfile.mkdtemp()
+        manifest = os.path.join(root, "_witchy-tpf.xml")
+        with open(manifest, "w", encoding="utf-8") as fh:
+            fh.write("<tpf><compression>DCX_KRAK</compression><compressionLevel>6</compressionLevel>"
+                     "<oodleCompressorType>KRAK</oodleCompressorType></tpf>")
+        self.assertEqual(bai.force_dflt_manifest(root), manifest)
+        out = ET.parse(manifest).getroot()
+        self.assertEqual(out.findtext("compression"), "DCX_DFLT")
+        self.assertIsNone(out.find("compressionLevel"))
+        self.assertIsNone(out.find("oodleCompressorType"))
+        self.assertEqual(out.findtext("dfltUnk04"), "69632")
+        self.assertEqual(out.findtext("dfltUnk38"), "21")
+
+    def test_ambiguous_manifests_are_rejected(self):
+        root = tempfile.mkdtemp()
+        for name in ("a.xml", "b.xml"):
+            with open(os.path.join(root, name), "w", encoding="utf-8") as fh:
+                fh.write("<tpf><compression>DCX_KRAK</compression></tpf>")
+        with self.assertRaises(SystemExit):
+            bai.force_dflt_manifest(root)
+
+    def test_repacked_header_must_identify_dflt(self):
+        root = tempfile.mkdtemp()
+        dflt = os.path.join(root, "dflt.dcx")
+        krak = os.path.join(root, "krak.dcx")
+        raw = os.path.join(root, "raw.bin")
+        with open(dflt, "wb") as fh:
+            fh.write(b"DCX\0" + b"x" * 20 + b"DCP\0DFLT" + b"x" * 20)
+        with open(krak, "wb") as fh:
+            fh.write(b"DCX\0" + b"x" * 20 + b"DCP\0KRAK" + b"x" * 20)
+        with open(raw, "wb") as fh:
+            fh.write(b"not a dcx")
+        self.assertEqual(bai.dcx_codec(dflt), "DFLT")
+        self.assertEqual(bai.dcx_codec(krak), "KRAK")
+        self.assertIsNone(bai.dcx_codec(raw))
+
+
+class Bc7Splice(unittest.TestCase):
+    def _dds(self, width=16, height=8, mips=1, dxgi=98):
+        root = tempfile.mkdtemp()
+        path = os.path.join(root, "atlas.dds")
+        header = bytearray(b"DDS " + b"\0" * 144)
+        struct.pack_into("<I", header, 12, height)
+        struct.pack_into("<I", header, 16, width)
+        struct.pack_into("<I", header, 28, mips)
+        header[84:88] = b"DX10"
+        struct.pack_into("<I", header, 128, dxgi)
+        blocks = (width // 4) * (height // 4) * 16
+        with open(path, "wb") as fh:
+            fh.write(header)
+            fh.write(b"V" * blocks)
+        return path
+
+    def test_only_the_requested_bc7_blocks_are_replaced(self):
+        dds = self._dds()
+        payload = os.path.join(os.path.dirname(dds), "flower.bc7")
+        with open(payload, "wb") as fh:
+            fh.write(b"F" * 64)  # 8x8 = 2x2 BC7 blocks
+        self.assertEqual(bai.splice_bc7_payload(dds, payload, 4, 0, 8, 8), 64)
+        with open(dds, "rb") as fh:
+            data = fh.read()[148:]
+        self.assertEqual(data[0:16], b"V" * 16)
+        self.assertEqual(data[16:48], b"F" * 32)
+        self.assertEqual(data[48:80], b"V" * 32)
+        self.assertEqual(data[80:112], b"F" * 32)
+        self.assertEqual(data[112:128], b"V" * 16)
+
+    def test_wrong_format_mips_and_payload_size_fail_closed(self):
+        root = tempfile.mkdtemp()
+        payload = os.path.join(root, "bad.bc7")
+        with open(payload, "wb") as fh:
+            fh.write(b"x")
+        for dds in (self._dds(dxgi=77), self._dds(mips=2), self._dds()):
+            with self.assertRaises(SystemExit):
+                bai.splice_bc7_payload(dds, payload, 4, 0, 8, 8)
+
+    def test_committed_payload_is_exactly_the_owned_160px_cell(self):
+        payload = os.path.join(HERE, "ap_icon_src", "ap_flower_160.bc7")
+        with open(payload, "rb") as fh:
+            data = fh.read()
+        self.assertEqual(len(data), 40 * 40 * 16)
+        self.assertEqual(hashlib.sha256(data).hexdigest(),
+                         "b26be52daaec18149470383e8f9fda60234a300617b596bfb15aa3c0373ec5e6")
 
 
 class SpriteLookup(unittest.TestCase):
