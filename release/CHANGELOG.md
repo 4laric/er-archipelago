@@ -25,10 +25,6 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 
 ### The rest of the v0.4.8 window so far
 
-- **Armor sets use one pool slot and deliver the whole family.** Altered pieces are included, exact
-  duplicate weapon names are compacted, and both trick mirrors plus Sacrificial Twigs return their
-  space to filler capacity. Delivery is member-by-member and reconnect-safe. World: #854. Client:
-  clients#277, closing #849.
 - **Quest prerequisites cannot be placed on their own downstream rewards.** Cursemark of Death
   cannot land on Fortissax, with direct rules also covering the Favor, Needle, Valkyrie,
   Fingerslayer, and Dark Moon chains. The items remain filler elsewhere. World: #836, closing #832.
