@@ -1,4 +1,4 @@
-import hashlib, importlib.util, json, tempfile, unittest
+import hashlib, importlib.util, json, shutil, subprocess, sys, tempfile, unittest
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -97,5 +97,34 @@ class InstallTests(unittest.TestCase):
             with self.assertRaisesRegex(flower.InstallError, "simulated"):
                 flower.install(make_package(root, "2"), destination, fail_after=1)
             self.assertEqual([(destination/p).read_bytes() for p in flower.EXPECTED], before)
+
+class EntrypointTests(unittest.TestCase):
+    def _round_trip(self, command: list[str]) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); package = make_package(root); destination = root/"matt-output"
+            installed = subprocess.run(
+                command + ["--package", str(package), "--destination", str(destination)],
+                check=True, capture_output=True, text=True,
+            )
+            self.assertIn("restart Elden Ring", installed.stdout)
+            for relative in flower.EXPECTED:
+                self.assertEqual((destination/relative).read_bytes(), (package/relative).read_bytes())
+            removed = subprocess.run(
+                command + ["--destination", str(destination), "--uninstall"],
+                check=True, capture_output=True, text=True,
+            )
+            self.assertIn("uninstalled", removed.stdout)
+            self.assertFalse((destination/flower.MARKER).exists())
+            for relative in flower.EXPECTED:
+                self.assertFalse((destination/relative).exists())
+
+    def test_python_cli_install_and_uninstall(self):
+        self._round_trip([sys.executable, str(HERE/"install_ap_flower.py")])
+
+    def test_powershell_launcher_install_and_uninstall(self):
+        shell = shutil.which("pwsh") or shutil.which("powershell")
+        if shell is None:
+            self.skipTest("PowerShell is not installed")
+        self._round_trip([shell, "-NoProfile", "-File", str(HERE/"install_ap_flower.ps1")])
 
 if __name__ == "__main__": unittest.main()
