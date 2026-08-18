@@ -17,6 +17,14 @@ Players do not need UXM, WitchyBND, Oodle, an image library, or a texture compre
 does not reconstruct FromSoft assets from a local unpack; it installs the release payload and asks
 for the Matt-randomizer path when it cannot find that layout safely.
 
+The ending can now wait for you to finish the regions you opened, rather than appearing as soon as
+their Locks arrive. Under the optional `regions_completed` policy, every progression-surface check
+in each non-final region must be satisfied. Merely looking through a merchant's visible inventory
+counts for its shop checks—you do not have to buy filler to prove you visited—and that view progress
+survives reconnects.
+
+## What carried over from v0.4.6
+
 The runtime experiment still settled the technical question that had stalled the feature: Elden Ring
 accepts the DFLT-repacked atlases, both icon sheets load, and the Flower renders without runtime
 texture injection. What changed after that result was delivery, not the image.

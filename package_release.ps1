@@ -7,8 +7,8 @@
 #   3. the flagship yaml + SETUP.md + CHANGELOG.md
 # (The PopTracker pack stays in the repo, not bundled; the built-in F6 tracker ships.)
 #
-# The generated AP-icon atlas is FromSoft data and never ships. The release carries only the local
-# installer and the 25,600-byte project-owned flower payload.
+# AP Flower atlases are optional private release inputs under flower-package; the public checkout
+# carries only the authenticated copy installer.
 #
 # Usage (from the repo root):
 #   .\package_release.ps1                 # build apworld, stage, zip -> dist\
@@ -453,21 +453,20 @@ Info ("staged client DLL timestamp: {0:yyyy-MM-dd HH:mm:ss}" -f $StagedDllTime)
 # are two halves of one feature; shipping half of it silently is the failure mode this whole
 # repo's gates exist to stop.
 #
-# !! THE TEXTURE ITSELF IS NOT AND MUST NOT BE COMMITTED -- it is a repainted FromSoft sprite sheet
-# (menu\hi|low\01_common.tpf.dcx), i.e. game data, barred by PROVENANCE.md rule 1. It is BUILT per
-# machine from the local install. What must be committed is the TOOL that builds it.
+# Full atlases remain uncommitted release artifacts. The installer never builds them from a player's
+# game; it only accepts the two files declared by flower-package\manifest.json.
 $IconInstaller = Join-Path $Repo "tools\install_ap_flower.ps1"
-$IconPayload = Join-Path $Repo "tools\ap_icon_src\ap_flower_160.bc7"
 if (-not (Test-Path $IconInstaller)) { Die "missing AP flower installer: $IconInstaller" }
-if (-not (Test-Path $IconPayload)) { Die "missing project-owned AP flower BC7 payload: $IconPayload" }
-if ((Get-Item $IconPayload).Length -ne 25600) { Die "AP flower payload is not exactly 25,600 bytes" }
 Copy-Item $IconInstaller (Join-Path $Me3Dst "install-ap-flower.ps1") -Force
-Copy-Item $IconPayload (Join-Path $Me3Dst "ap_flower_160.bc7") -Force
-$LeakedAtlases = @(Get-ChildItem -Path $Me3Dst -Filter "01_common.tpf.dcx" -Recurse -File -ErrorAction SilentlyContinue)
-if ($LeakedAtlases.Count -gt 0) {
-    Die ("generated FromSoft atlas entered the release stage: " + ($LeakedAtlases.FullName -join ", "))
+$FlowerPackage = Join-Path $Repo "flower-package"
+if (Test-Path $FlowerPackage -PathType Container) {
+    Copy-Item $FlowerPackage (Join-Path $Me3Dst "flower-package") -Recurse -Force
+} elseif (-not $Unofficial) {
+    Die "stable release requires flower-package with both AP Flower atlases"
+} else {
+    Warn "AP Flower release assets unavailable; installer will request a bundle that includes them"
 }
-Info "+ AP flower local installer + 25,600-byte project-owned payload (no generated atlas)"
+Info "+ AP flower packaged-asset installer"
 
 # Ship a GENERIC apconfig so a personal slot name never leaks into the release.
 #

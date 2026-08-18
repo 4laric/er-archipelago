@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.4.8",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "73cffc1b1719e98402e3196a27b45239a1c908bda928f941ab3190ec71a43b5b",
+ "source_sha256": "740ec7473bdacc4d5fb5905354d339d3b19929ce13fce17ad3b022ecc0a22583",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -45,6 +45,7 @@
   "progression_bias",
   "confine_foreign_progression",
   "cross_game_progression",
+  "goal_region_unlock_policy",
   "enemy_scaling",
   "minimum_enemy_difficulty",
   "maximum_enemy_difficulty",
@@ -80,7 +81,8 @@
     "leyndell_runes_required",
     "region_grace_unlock",
     "grace_attunement",
-    "grace_attunement_anchor"
+    "grace_attunement_anchor",
+    "goal_region_unlock_policy"
    ]
   },
   {
@@ -1347,6 +1349,31 @@
      "value": 0
     }
    ]
+  },
+  {
+   "key": "goal_region_unlock_policy",
+   "class": "GoalRegionUnlockPolicy",
+   "display_name": "Goal Region Unlock Policy",
+   "description": "When the synthetic final region opens.\n\n``items_held`` preserves the original rule: receiving every required Region Lock opens the\nfinal region. ``regions_completed`` waits until every progression-surface check in every\nnon-final region has been satisfied. A shop check is satisfied when its merchant inventory is\nviewed; buying the ware is not required. Completion is reconstructed from the server's checked\nlocations plus its per-slot viewed-shop ledger, so reconnecting cannot lose progress.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "items_held",
+   "choices": [
+    {
+     "name": "items_held",
+     "value": 0
+    },
+    {
+     "name": "regions_completed",
+     "value": 1
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null
   },
   {
    "key": "enemy_scaling",

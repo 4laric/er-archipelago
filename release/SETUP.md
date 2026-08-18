@@ -55,7 +55,7 @@ rush.
 | File | What it is |
 |---|---|
 | `eldenring.apworld` | The Archipelago world -- the package that teaches Archipelago about Elden Ring. Goes in your Archipelago install. |
-| `me3/` | The runtime client folder. Holds `eldenring_archipelago.dll` (the MIT client), the `ap.me3` profile, `apconfig.json`, the local AP-flower installers/payload, and two **required** data tables (`check_lots_table.json`, `shoplineup_flags.json`). Keep these together. Run `me3\install-ap-flower.ps1` on Windows or `python3 me3/install_ap_flower.py` on Linux once before launching; it creates `ap-package/` from your installed game. |
+| `me3/` | The runtime client folder. Holds `eldenring_archipelago.dll`, `ap.me3`, `apconfig.json`, the AP Flower installer and two **required** data tables. After generating Matt's randomizer output, run `install-ap-flower.ps1 -Destination <randomizer-folder>` on Windows or `python3 install_ap_flower.py --destination <randomizer-folder>` on Linux/Proton, then restart Elden Ring. The installer only copies authenticated assets from `flower-package`; it never modifies or unpacks the base game. |
 | `EldenRing.yaml` | The player config template (The Shattering). Copy it, set `name:`, generate. Or build one at <https://peliarch.ca/er/>. |
 | `er-options-wizard.html` | An **offline copy of the yaml builder**. The live one at <https://peliarch.ca/er/> is the one to use -- it can hand your seed straight to a host -- but this file works with no network at all. |
 | `SETUP.md` | This file. |

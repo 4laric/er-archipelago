@@ -723,6 +723,14 @@ OPTIONS_SUBKEYS = (
                 "a seed with it ON emits requiresClientFeatures [\"auto_equip\"] -- OPTIONS_SUBKEYS is "
                 "not folded into CONTRACT_HASH, so an older client would report VERSION: OK and then "
                 "never see this key at all."),
+    ContractKey("goal_region_unlock_policy", "INT", False, (GREENFIELD,),
+                "core._options_echo (features/progression_surface.py)",
+                "eldenring-archipelago/core.rs -> region completion goal gate",
+                "0 = preserve the possession-based goal-region unlock; 1 = wait until every "
+                "progression-surface check in every required non-goal region is checked, with "
+                "visible shop rows additionally satisfied by the server-backed viewed-shop ledger. "
+                "A seed selecting 1 emits requiresClientFeatures "
+                "['region_completion_goal_gate']; OPTIONS_SUBKEYS is not folded into CONTRACT_HASH."),
     ContractKey("no_equip_load", "INT_OR_BOOL", False, (GREENFIELD,),
                 "core._options_echo (features/body_tuning.py)", "no_equip_load.rs set_enabled",
                 "ROLL MODE, not a plain toggle (widened 2026-08-12, #548): 0 = off, 1 = light "
