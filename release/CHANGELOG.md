@@ -5,45 +5,277 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.4.8 — 2026-08-18
 
-Window opened 39 commit(s) PAST the v0.4.6 tag.
+v0.4.8 is the first release after v0.4.6. v0.4.7 was never tagged or released; the number is
+intentionally skipped rather than rewriting the already-generated world/client version state. Every
+change accumulated since v0.4.6 is recorded in this one release window.
 
-`CONTRACT_HASH` moved from `5c2b9bf2` to `dc0dc687`, verified by loading `contract.py`. The new
-`armorBundles` map is intentionally incompatible with clients that can only map one AP item to one
-Elden Ring FullID; the feature handshake refuses that pairing instead of silently losing a set.
+`CONTRACT_HASH` eventually moved from `5c2b9bf2` to `dc0dc687` when armor bundles added the
+`armorBundles` map. That feature intentionally refuses clients which can only map one AP item to
+one Elden Ring FullID instead of silently losing part of a set. Client half: clients#277.
 
-The armor-bundle behavior shipped in clients#277. A small 0.4.8 client follow-up updates the embedded
-version, and its commit is pinned by the gitlink in this same window-opening change.
+`release/CHANNELS.tsv` correctly leaves `stable` on v0.4.6 until v0.4.8 is actually tagged.
 
-`release/CHANNELS.tsv` promotes `stable` to v0.4.6 in this same commit.
-
-Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+Entries arrive below as they merge (rule 14: release notes are part of the change, not tag-time
+reconstruction).
 
 - **Armor sets now occupy one randomized item instead of one slot per piece.** Families are generated
   from the protector rows, include altered pieces, and reconcile member-by-member across reconnects.
   Tight pools also deduplicate exact weapon names and retire the two trick mirrors and Sacrificial
   Twig into ordinary filler economy capacity.
 
-## v0.4.7 — 2026-08-17
+### The rest of the v0.4.8 window so far
 
-Window opened AT THE TAG of v0.4.6 with ZERO commits past it.
+- **Quest prerequisites cannot be placed on their own downstream rewards.** Cursemark of Death
+  cannot land on Fortissax, with direct rules also covering the Favor, Needle, Valkyrie,
+  Fingerslayer, and Dark Moon chains. The items remain filler elsewhere. World: #836, closing #832.
+- **TrapLink is opt-in.** ER traps can cross the multiworld; self-echoes and unknown foreign names
+  are ignored, and DeathLink remains independent. World: #844. Client: clients#273, closing #758.
+- **Hefty Pots and perfumes join DLC curated filler.** Crafted finished pots, aromatics, and the
+  smaller throwable pots arrive in useful quantities; reusable vessels stay out. World: #846,
+  closing #843.
+- **A capped reusable pot no longer blocks every later delivery.** The safety cap still suppresses
+  the impossible bottle but advances past the permanent refusal. Client: clients#272.
+- **Leyndell's rune gate has an independent backstop.** Flags 105 and 182 are re-derived from
+  cumulative AP Great Runes, covering ordinary sends, server `/send`, reconnects, and mid-seed
+  upgrades. Client: clients#274.
+- **Checks observed across a death/load edge remain report debt until accepted.** Pickups, shops,
+  and sweeps no longer depend on one transient frame surviving transport. Client: clients#276,
+  closing #720.
+- **Dragon Communion and Bayle checks cost one unit of their currency.** World: #835, closing #231.
+- **Small-seed Scadutree supply survives tail trimming.** World: #848.
+- **Smaller fixes:** Cliffroad's shadowpot stays in Gravesite (#839); the wizard stops advertising a
+  frozen surface mode (#840); release bundles keep their requested name instead of inheriting
+  `shoplineup_flags.json` through PowerShell's case-insensitive `$Name` (#847).
 
-`CONTRACT_HASH` is unmoved at `5c2b9bf2`, verified by loading `contract.py` after the bump. The
-wire contract has therefore kept the same shape since v0.3.9; this window is version-lockstep, and
-the version change does not add a new handshake field.
 
-The client half is clients#259. `contract_gen.rs` embeds the version string even when the hash is
-unchanged, so the merged client commit is pinned by the gitlink in this same window-opening change.
+### The AP flower is finally on the items
 
-`release/CHANNELS.tsv` promotes `stable` to v0.4.6 in this same commit.
+Every Archipelago item in this randomizer has been wearing a Telescope. Icon cell 92 belongs to the
+Telescope in the game's sprite sheet, the AP flower was meant to be composited over it, and the tool
+that does that existed only on a dev box -- so `build.ps1` threw with instructions and
+`package_release.ps1` refused to package rather than let a build quietly skip the step. Every tag
+since the art landed on 2026-07-29 has died there.
 
-Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
-the release).
+`tools/build_ap_icon.py` is committed, and the derivation happens on the player's machine: it reads
+the hi and low KRAK atlases out of the installed game, exposes the player's own
+`oo2core_6_win64.dll` to Witchy for decompression, replaces cell 92 with the committed AP artwork,
+repacks the container as `DCX_DFLT`, and verifies the output header says DFLT before it stops.
+Nothing FromSoft owns is copied into git or into a release.
 
-- **The AP flower installer now has a Linux/Proton path.** The release bundle includes a Python
-  installer that finds the usual Steam installation, runs the pinned WitchyBND through Wine, and
-  builds the same local hi/low DFLT overrides without distributing FromSoft assets. It detects a
-  nearby randomizer/data-mod root (including matt's `.randomizeopt` fingerprint), accepts explicit
-  game and destination paths, and leaves the existing PowerShell route intact for Windows users.
+The KRAK-versus-runtime-splice fork is closed rather than worked around. A live experiment on
+2026-08-17 showed the game loads both `menu\hi\01_common.tpf.dcx` and `menu\low\01_common.tpf.dcx`
+when repacked as DFLT, with the flower rendering without the AP client DLL and without a KRAK
+override; the atlas has one mip, so there is no lower-mip splice left to reconstruct. The "Open
+item" in `docs/AP-ICON-PIPELINE.md` is rewritten accordingly.
+
+Players need neither Pillow nor texconv: the committed 25,600-byte BC7 payload is project-owned art,
+and the installer copies its aligned blocks straight into the one-mip BC7 surface. A missing game
+file, Oodle, or Witchy, unexpected layout geometry, or a non-DFLT output are hard failures with
+actionable messages. Re-running starts from the installed source again and clears the intermediate
+extraction, so a second build cannot inherit the first one's edits.
+
+World: #819, #826. Refs #818.
+
+### The flower installer has a Linux/Proton path, and a button in the client
+
+The release bundle carries a Python installer alongside the PowerShell one. It finds the usual Steam
+installation, runs the pinned WitchyBND through Wine, and builds the same local hi/low DFLT
+overrides without distributing FromSoft assets. It detects a nearby randomizer or data-mod root
+(including matt's `.randomizeopt` fingerprint) and accepts explicit game and destination paths. The
+PowerShell route is untouched for Windows users.
+
+The overlay now offers **Install AP Flower...** (or **Reinstall...** when it finds one already
+present). It picks the mod root the active loader actually reads, launches the installer in a
+separate visible process -- deliberately asynchronous, because unpacking on imgui's present thread
+would freeze the game, and the terminal stays open so a failure is not swallowed after one frame --
+and returns a status line immediately. Restart the game before the already-loaded menu atlas
+changes.
+
+World: #829. Client: clients#270, closing clients#269.
+
+### Progressive Flask upgrades alternate instead of doubling up
+
+Every Progressive Flask Upgrade used to move both axes at once: charges climbed on an escalating
+schedule and potency rose by one Sacred Tear on the same copy, so each upgrade was two half-things.
+Copies now alternate deterministically -- charge, potency, charge, potency.
+
+The first copy takes you to **five** total charges, one above the vanilla starting allocation of
+four, so it can never be silently absorbed by a fresh character; the old ladder opened below that
+allocation, which made the first upgrade or two invisible by construction. Each later charge copy
+advances one more observable step until the vanilla cap. Potency is still one consumed Sacred Tear
+spent at a grace, now on even copies only.
+
+Each copy therefore carries half as much, so the ladder is twice as long: a seed with no kept Golden
+Seed or Sacred Tear check (`dlc_only`, or a `num_regions` seed that seals every flask region)
+injects **24** copies instead of 12, which is what both axes need to reach their caps. A seed with
+fewer copies tops out honestly below potency 12 rather than pretending otherwise. Flasks never gate
+logic, so either way the seed is winnable.
+
+Closes #798. Client: clients#263 -- an alternating ladder needs explicit no-op rungs to keep its copy
+index, so `progressiveGrants` now accepts a `{"noop": true}` rung. That is a new rung shape on an
+existing key, so `CONTRACT_HASH` does not move; a client without clients#263 loses the index.
+
+### Filler pays out the quantity the source lot actually carried
+
+A vanilla lot holding one arrow was being promoted into the curated quiver's stack, and a lot holding
+twenty was being flattened to the base item. Curated bundles now ride their own `<name> x<n>` AP ids
+while vanilla-placed items keep the exact units their source lot carried -- that separation is what
+lets a vanilla x1 Arrow stay x1 while a curated Arrow stays a quiver. `LOT_STACK_GRANTS` covers every
+quantity a source lot actually carries, not just the phase-1 slice.
+
+The curated-filler weights are re-derived on top of that, because the old ones were compensating for
+copies the world was discarding. **`stones` drops from 29 to 5 and `juice` rises from 42 to 66.**
+Weight 29 was paying for 288 stone copies that never survived; at the real units, `stones: 4` puts
+five of nine sample seeds under the 24-unit floor and `stones: 5` clears it. The 24 freed points go
+to gear injection, which is the axis that can afford to give; small seeds that need the room have
+their useful tail picks trimmed by core's missable-location reserve rather than by a blunt weight.
+
+⚠️ If you have hand-tuned `curated_filler` in your yaml, re-read your numbers: the scale underneath
+them moved.
+
+Closes #624. The wizard's copy of the defaults follows in #831.
+
+### Blackout is a real trap now
+
+`Trap: Blackout` joins the catalogue: the screen fades out, holds dark for two seconds, and fades
+back in. It is the first of the eleven designed on 2026-08-08 (#114) to graduate from the probe
+list, and it graduated on the same rule as the others -- implemented, tested and CI-gated in the
+client before its name enters a pool.
+
+Unlike the three older fixed names, Blackout declares its own `blackout` client-capability tag.
+Those older names are exact-match and have never changed, so any released trap client fires them and
+requiring a tag would refuse clients that can in fact run the seed. Blackout is fixed *and* new, so a
+client in circulation would consume it silently. The tag is emitted only when a seed actually mints
+one.
+
+World: #824. Client: clients#265.
+
+### A scaling cap on a scaling-off seed stops demanding a client feature
+
+Setting `maximum_enemy_difficulty` below 100 declared the `scaling_ceiling` client capability even
+when `enemy_scaling` was off. The connect-time read-back then correctly reported the feature dark and
+went on to incorrectly blame a missing value that was in fact present. A cap modifies the scaling
+pass; with the pass disabled there is nothing for an older client to mishandle, so nothing is
+declared.
+
+Fixes #661.
+
+### Boss sweeps stop losing checks to a stronger region answer
+
+Region ownership and sweep ownership consume the same placement evidence, and the region pass could
+answer first and overwrite a row's MSB map, dropping the check out of the map-keyed sweep corpus
+entirely. `region_of` now preserves the MSB map on rows still carrying the scanner's `PENDING`
+placeholder, and leaves a concrete descriptor map alone -- that stays useful as independent evidence.
+
+World: #830.
+
+### Ancestor urns light up with the doors they belong to
+
+With the catacomb-door option on, both ancestor altars opened and their warps worked, but sixteen
+urns stayed dark, so the world told the player the encounters were still closed. Every instantiated
+urn flag is now set alongside the aggregate. They are presentation state, not randomized checks; the
+boss and its sweep are untouched.
+
+This reverses the earlier ruling that the individual flags stay dark in case the urns became a check
+family; #677's follow-up makes presentation part of what the option promises.
+
+World: #821.
+
+### Serpent-Hunter can no longer be hinted
+
+Serpent-Hunter is deliberately absent from the randomized pool -- the client grants it on entry to
+Rykard's arena -- and the server was charging hint points to search for it. It is now on the world's
+`hint_blacklist`, and asking for it in room chat gets an explanation instead of silence.
+
+World: #823. Client: clients#266.
+
+### The wizard's filler defaults match the world's again
+
+`options-metadata.json` and `wizard.html` still offered `juice: 42` / `stones: 29` after #828
+re-derived them. Refreshed, with the source hash following.
+
+World: #831.
+
+### The client's own half of this window
+
+- **Leyndell's seal reads both of its flags.** The physical two-rune seal checks 105 and 182.
+  Vanilla supplies 105 through Roundtable / Finger Reader progression and derives 182 from the
+  rune-location flags, and either half can be missing when AP supplies the runes and a random start
+  skips that sequence. Both are now derived from the same cumulative receive stream ordinary
+  deliveries and server `/send` use, and sit in `DesiredInputs` so the active reconciler self-heals
+  the write. Flags 171-177 are deliberately untouched: 171-176 are the randomized Great Rune
+  location flags and 177 is the same vanilla family. clients#260.
+- **A pending boss sweep no longer tells you which boss pays best.** A pending group's exact size is
+  routing information. The group and its state stay visible; `members` and `checked` do not, until
+  the sweep fires -- at which point the same numbers stop being a way to choose the next boss and
+  become confirmation of what happened. Hiding only `members` would have leaked the allocation
+  through the ordinary rows. clients#261, closing clients#160.
+- **An item that will not fit is retried, not swallowed.** A delivery blocked by inventory capacity
+  used to report success and vanish. `grant_full_id` now returns false for that arm, so the receive
+  path and the reconciler both hold their watermark and retry the same entry. A partially-fitting
+  stack defers whole rather than placing what fits, because placing one of three and retrying would
+  duplicate it. A warning line aggregates repeated deferrals so backpressure is visible without
+  per-tick spam. clients#262. Refs #692.
+- **Only Ashen-exclusive graces force the Ashen capital.** Selecting a capital grace forced the Ashen
+  version off whichever map variant the menu happened to be showing. Five of the six m11_05 graces
+  have Royal counterparts under the same name, so only the two Ashen-exclusive targets now write the
+  burn flag on; every shared grace and every other resolvable target chooses Royal. An unresolvable
+  target leaves the flag alone rather than guessing. clients#264.
+- **DeathLink can be toggled mid-session.** A session-scoped in-game toggle overrides what slot data
+  configured, until reconnect -- including opting a slot that parsed off back in. A kill queued
+  before the toggle is cleared rather than left waiting to surprise you when you opt back in;
+  cleanup already owed by a kill that fired still finishes. clients#267.
+
+### Previously undocumented -- these shipped in v0.4.6
+
+Rule 14's own failure mode, caught by an audit rather than by the gate: these landed inside the
+v0.4.6 window with no changelog line, so anyone who hit them is still looking for the fix. They are
+recorded here rather than retro-edited into a tagged section.
+
+- **Progressive stone bells stopped handing you a bearing the game refuses.** A copy granted both
+  the physical bell bearing and the Twin Maiden shop-unlock flags. Setting the flags *is* the
+  hand-in, so with the stock unlocked the game treats the bearing as already handed in and rejects
+  it as over-capacity. The ladder sets flags only; the goods ids (8951-8954 Smithing, 8955-8959
+  Somber) are gone from it. `progressiveGrants` was relaxed to match -- a rung may carry goods
+  and/or non-empty flags, and a flags-only rung must not declare `consumed`, which is meaningless
+  when there is nothing in inventory to reconcile. `CONTRACT_HASH` did not move and no client half
+  was owed: the client parser already defaulted `goods` to empty and dropped only fully-empty rungs.
+  World: #805, fixing #804.
+- **The Moonlight Altar grace left Liurnia's bundle.** It physically stands on Liurnia's tile
+  (`m60_34_41`) so the play-region join classified it as Liurnia, and the Liurnia Lock lit it -- a
+  shortcut around Lake of Rot and Astel, which is the route that owns access to the plateau. It now
+  belongs to no automatic bundle, and deliberately not to Ainsel's either, because that would still
+  skip Astel. Its physical checks stay in Liurnia. `gen_data.py` now fails the build if flag 76250
+  stops being "Moonlight Altar @ m60_34_41", so the exception cannot go stale silently. This is the
+  first **route-gated grace**, a category rather than a one-off. World: #793, closing #792, reported
+  by bobler 2026-08-17.
+- **The Carian Inverted Statue gate is modelled.** Nine checks behind Carian Study Hall's inversion
+  were swept by the ordinary-layout fight; those flags only exist after the statue changes the map,
+  so the sweep awarded inaccessible checks and bypassed the key gate. They are excluded by flag, so
+  co-checks such as `f34117500` leave together. The gate is in `key_item_gates.tsv` with its
+  datamine citation: the pedestal tests `PlayerHasItem(ItemType.Goods, 8111)` and removes the goods
+  after the cutscene, so a plain AP grant suffices and no obtained-event flag is owed. World: #787,
+  closing #653.
+- **There is a Development download channel.** `beta -> main` publishes as the GitHub prerelease tag
+  `dev`, a moving pointer, alongside `stable`, which still names an immutable `vX.Y.Z` tag. ⚠️ A
+  development build may ship without the AP flower override; when it does it carries a
+  `DEVELOPMENT-BUILD-NO-AP-ICON.txt` and every check and AP shop slot renders as a Telescope. The
+  packager accepts that opt-out only on an `--unofficial` build. World: #788.
+- **A rescue guide ships in the bundle.** `release/GETTING-UNSTUCK.md`, linked from `SETUP.md`: how
+  to open the rescue console (F5 -> Console), how to warp out of anywhere, and which flag to touch
+  for the progression edges that strand a character. It works while disconnected, which is when it
+  is needed. World: #780, closing #722.
+- **Item sell values are no longer rewritten for shop visibility.** `shop_value.rs` is gone, along
+  with the global param write it performed. Client: clients#250, closing #359.
+- **The wizard's progression surface has presets.** "Recommended", "Major bosses only" and the rest,
+  instead of 17 flat checkboxes. World: #784. Refs #733, which stays open for the containment
+  drawing.
+- **Talk-referenced goods are excluded from preview spares**, so a cut bell-bearing row cannot
+  produce a `?EventTextForTalk?` shop entry. World: #801, closing #596.
+- **Release-gated shops are barred from the advertised surface**, which changes the region-census
+  numbers the wizard shows before you generate. World: #783, closing #724.
+- **Scaling reads are correlated by instance** in the boss-fight probe and rescale watch -- the
+  instrument for clients#251, which stays open. Client: clients#252.
 
 ## v0.4.6 — 2026-08-16
 
