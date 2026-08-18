@@ -490,7 +490,7 @@ _OPTION_GROUPS = [
         "pool_builder_pct_armor", "pool_builder_pct_spells", "pool_builder_pct_talismans",
         "pool_builder_pct_ashes_of_war"]),
     ("Multiworld & Placement", [
-        "death_link", "filler_foreign_pct", "progression_surface", "progression_bias",
+        "death_link", "trap_link", "filler_foreign_pct", "progression_surface", "progression_bias",
         # cross_game_progression reads directly after progression_bias because it only has meaning
         # once that one has released something: bias decides HOW MANY Locks travel, this decides how
         # many of the travellers may leave Elden Ring entirely. Reversed, the second is unanswerable.
@@ -1197,6 +1197,21 @@ class GreenfieldEldenRingWorld(World):
         if not _vanilla:
             for f in _FEATURES:
                 pool += f.create_items(self)
+        shuffle = self._shuffle_on()
+        _seen_weapon_names = set()
+        _seen_armor_bundles = set()
+        if shuffle and not _vanilla:
+            # Feature floors contribute before the vanilla tail is built. Compact them first and
+            # carry the same seen sets into the tail, otherwise a floor-protected armour piece can
+            # bypass bundling (or an early weapon can leave a duplicate in the vanilla candidates).
+            # Replacements are count-neutral normal filler, so contributor accounting stays exact.
+            from .features.pool_compaction import compact_name as _compact_name
+            for _pool_ix, _item in enumerate(pool):
+                _compacted = _compact_name(
+                    _item.name, _seen_weapon_names, _seen_armor_bundles)
+                if _compacted != _item.name:
+                    pool[_pool_ix] = self.create_item(
+                        _compacted if _compacted is not None else self._pick_filler())
         self._gf_reserved_slots = len(pool)
         total = len(LOCATIONS.get(HUB, [])) + sum(len(LOCATIONS.get(r, [])) for r in kept)
         # FEATURE-OWNED LOCATIONS (documented seam): a feature that creates locations beyond
@@ -1205,7 +1220,6 @@ class GreenfieldEldenRingWorld(World):
         # is the model. Counting them here is what keeps items == locations when they exist.
         total += len(getattr(self, "gf_extra_locations", ()))
         slots = total - len(pool)
-        shuffle = self._shuffle_on()
         required = set(self._required_runes())
         extras: List[str] = []
         if shuffle:
@@ -1336,7 +1350,29 @@ class GreenfieldEldenRingWorld(World):
             # throw away the only thing this mode computes.
             if not _vanilla:
                 extras.sort(key=_tail_rank)
+                # Feature contributors consume `slots` before this vanilla tail is cut. In a tiny
+                # one-region seed, even rank-1 protected gear can overfill the tail; natural
+                # Scadutree fragments were then sometimes cut after scadu_supply.plan() had already
+                # subtracted them from its injection. Rescue only fragments that would actually be
+                # cut, swapping them with the last surviving ordinary rank-1 item. This leaves the
+                # established itempool order byte-for-byte unchanged in every seed where the bug is
+                # absent (important: fill consumes that order as part of its deterministic stream).
+                def _scadu(x):
+                    return x == "Scadutree Fragment" or x.startswith("Scadutree Fragment x")
+
+                cut_scadu = [k for k in range(slots, len(extras)) if _scadu(extras[k])]
+                victims = [k for k in range(min(slots, len(extras)) - 1, -1, -1)
+                           if _tail_rank(extras[k]) == 1 and not _scadu(extras[k])]
+                for keep, drop in zip(cut_scadu, victims):
+                    extras[drop], extras[keep] = extras[keep], extras[drop]
         _names: List[str] = [extras[k] if k < len(extras) else FILLER for k in range(slots)]
+        if shuffle and not _vanilla:
+            # Compact only AFTER the contributor trim chose the copies that actually survive.
+            # Doing this in the location walk would remember a weapon/family from the cut tail and
+            # then delete the sole surviving copy. The resulting filler enters the shared allocator
+            # below, so every removed piece remains useful count-neutral economy capacity.
+            _names = [(_compact_name(nm, _seen_weapon_names, _seen_armor_bundles) or FILLER)
+                      for nm in _names]
         if _vanilla:
             # slots == total and pool is empty (no locks, no feature contributors), so _names is
             # extras unchanged and index k still means 'the k-th walked location'. Assert it
@@ -1359,7 +1395,8 @@ class GreenfieldEldenRingWorld(World):
             _plan = _fb.plan(self, len(_budget_ix))
             for _k, _pick in zip(_budget_ix, _plan):
                 if _pick is not None:      # None = keep what the check already paid (junk / Rune)
-                    _names[_k] = _pick
+                    _names[_k] = (_compact_name(
+                        _pick, _seen_weapon_names, _seen_armor_bundles) or FILLER)
         _tail_start = len(pool)
         for _nm in _names:
             # Under vanilla_placement an unpinnable location (a gesture, an unnamed `check -` row:
@@ -1784,6 +1821,7 @@ class GreenfieldEldenRingWorld(World):
                           or self.options.enable_dlc.value)
         return {
             contract.DEATH_LINK: _opt("death_link"),
+            contract.TRAP_LINK: _opt("trap_link"),
             contract.ENABLE_DLC: int(dlc_only or enable_dlc),
             contract.NO_WEAPON_REQUIREMENTS: _opt("no_weapon_requirements"),
             # Two capabilities the client has implemented for months and no seed could turn on --

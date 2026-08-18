@@ -3,6 +3,54 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.8 — 2026-08-18
+
+Window opened 39 commit(s) PAST the v0.4.6 tag.
+
+`CONTRACT_HASH` moved from `5c2b9bf2` to `dc0dc687`, verified by loading `contract.py`. The new
+`armorBundles` map is intentionally incompatible with clients that can only map one AP item to one
+Elden Ring FullID; the feature handshake refuses that pairing instead of silently losing a set.
+
+The armor-bundle behavior shipped in clients#277. A small 0.4.8 client follow-up updates the embedded
+version, and its commit is pinned by the gitlink in this same window-opening change.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.6 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **Armor sets now occupy one randomized item instead of one slot per piece.** Families are generated
+  from the protector rows, include altered pieces, and reconcile member-by-member across reconnects.
+  Tight pools also deduplicate exact weapon names and retire the two trick mirrors and Sacrificial
+  Twig into ordinary filler economy capacity.
+
+### The rest of the v0.4.8 window so far
+
+- **Armor sets use one pool slot and deliver the whole family.** Altered pieces are included, exact
+  duplicate weapon names are compacted, and both trick mirrors plus Sacrificial Twigs return their
+  space to filler capacity. Delivery is member-by-member and reconnect-safe. World: #854. Client:
+  clients#277, closing #849.
+- **Quest prerequisites cannot be placed on their own downstream rewards.** Cursemark of Death
+  cannot land on Fortissax, with direct rules also covering the Favor, Needle, Valkyrie,
+  Fingerslayer, and Dark Moon chains. The items remain filler elsewhere. World: #836, closing #832.
+- **TrapLink is opt-in.** ER traps can cross the multiworld; self-echoes and unknown foreign names
+  are ignored, and DeathLink remains independent. World: #844. Client: clients#273, closing #758.
+- **Hefty Pots and perfumes join DLC curated filler.** Crafted finished pots, aromatics, and the
+  smaller throwable pots arrive in useful quantities; reusable vessels stay out. World: #846,
+  closing #843.
+- **A capped reusable pot no longer blocks every later delivery.** The safety cap still suppresses
+  the impossible bottle but advances past the permanent refusal. Client: clients#272.
+- **Leyndell's rune gate has an independent backstop.** Flags 105 and 182 are re-derived from
+  cumulative AP Great Runes, covering ordinary sends, server `/send`, reconnects, and mid-seed
+  upgrades. Client: clients#274.
+- **Checks observed across a death/load edge remain report debt until accepted.** Pickups, shops,
+  and sweeps no longer depend on one transient frame surviving transport. Client: clients#276,
+  closing #720.
+- **Dragon Communion and Bayle checks cost one unit of their currency.** World: #835, closing #231.
+- **Small-seed Scadutree supply survives tail trimming.** World: #848.
+- **Smaller fixes:** Cliffroad's shadowpot stays in Gravesite (#839); the wizard stops advertising a
+  frozen surface mode (#840); release bundles keep their requested name instead of inheriting
+  `shoplineup_flags.json` through PowerShell's case-insensitive `$Name` (#847).
+
 ## v0.4.7 — 2026-08-17
 
 Window opened AT THE TAG of v0.4.6 with ZERO commits past it.

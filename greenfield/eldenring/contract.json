@@ -82,6 +82,17 @@
       "doc": "AP item id (str) -> ER FullID granted on receipt."
     },
     {
+      "name": "armorBundles",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/armor_bundles.py",
+      "consumer": "core.rs armor-bundle receive reconciler",
+      "doc": "synthetic armor-set AP item id (str) -> every protector FullID in its generated family."
+    },
+    {
       "name": "locationFlags",
       "shape": "SCALAR_INT_MAP",
       "required": true,
@@ -146,6 +157,17 @@
           "producer": "core._options_echo",
           "consumer": "er-logic/options.rs parse_death_link",
           "doc": "shared deaths across the multiworld (world.options.death_link)."
+        },
+        {
+          "name": "trap_link",
+          "shape": "BOOL_OR_INT",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo",
+          "consumer": "er-logic/options.rs parse_trap_link",
+          "doc": "nonzero = advertise TrapLink after slot-data parse, send locally received trap items once, and queue compatible inbound linked traps without echoing them."
         },
         {
           "name": "enable_dlc",
@@ -708,7 +730,7 @@
       ],
       "producer": "features/rune_pricing.py",
       "consumer": "shop_prices.rs configure/run",
-      "doc": "ShopLineupParam row id (str) -> rune price, for CHECK rows whose reward is a rune item (Golden/Numen's/Hero's/Lord's Rune). A shop check keeps the price of the ware it USED to sell, so a slot that cost 3500 can end up selling a Golden Rune [1] worth ~200 -- the reward is randomised but its cost is not, which makes the slot strictly bad rather than a gamble. Rolled per seed in [0, 2x the rune's own derived worth] (GOODS_PRICE, the same basicPrice/sellValue*10 chain shop_stock prices its rerolls with), so buying one is sometimes free and sometimes a bad trade. Absent/empty = every row keeps its vanilla price."
+      "doc": "ShopLineupParam row id (str) -> price override. Alt-currency altar rows always map to 1, preserving their costType while preventing random rewards from demanding an absurd number of Dragon/Bayle Hearts. Other entries are CHECK rows whose reward is a rune item (Golden/Numen's/Hero's/Lord's Rune). A shop check keeps the price of the ware it USED to sell, so a slot that cost 3500 can end up selling a Golden Rune [1] worth ~200 -- the reward is randomised but its cost is not, which makes the slot strictly bad rather than a gamble. Rolled per seed in [0, 2x the rune's own derived worth] (GOODS_PRICE, the same basicPrice/sellValue*10 chain shop_stock prices its rerolls with), so buying one is sometimes free and sometimes a bad trade. Absent/empty = every row keeps its vanilla price."
     },
     {
       "name": "shopPreviewGoods",

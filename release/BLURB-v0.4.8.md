@@ -1,4 +1,4 @@
-# v0.4.7 — release blurb (draft)
+# v0.4.8 — release blurb (draft)
 
 _Draft. Written as the window fills, not at tag time -- the moment a change lands is the
 only moment anyone remembers why it mattered._
@@ -75,7 +75,25 @@ now gets an explanation. And a seed with `enemy_scaling` off no longer demands a
 your client that it has nothing to do with, which was producing a connect message that reported the
 feature dark and then blamed a value that was right there.
 
-## What carried over from v0.4.6
+**Armor sets stop eating a short seed alive.** One randomized item delivers the whole family,
+altered pieces included, while reconnects fill only missing members. Exact duplicate weapons, both
+trick mirrors, and Sacrificial Twigs stop consuming scarce pool slots too.
+
+**Quest items can stay ordinary without locking their own quests.** Cursemark cannot land on
+Fortissax, and direct prerequisite rules protect the Needle, Valkyrie, Fingerslayer, Favor, and Dark
+Moon chains while leaving those items filler everywhere else.
+
+**TrapLink is here when you ask for it.** ER traps can cross the multiworld; self-echoes and unknown
+names are ignored, and DeathLink remains separate.
+
+**The useful consumable tail got heavier.** DLC Hefty Pots, perfumes, and smaller throwable pots
+arrive in useful quantities. Dragon Communion and Bayle altar checks cost one unit of their currency.
+
+**Several missing-item reports were receive edges.** A permanent pot cap no longer jams all later
+deliveries, death-edge checks stay queued until the server accepts them, and Leyndell's rune seal has
+an independent cumulative backstop—including server `/send` and mid-seed upgrades.
+
+## What carried into v0.4.8
 
 **Ten changes that shipped in v0.4.6 had no changelog line, and they are written down in this
 window's section instead.** Two of them matter enough to repeat here. Progressive stone bells were

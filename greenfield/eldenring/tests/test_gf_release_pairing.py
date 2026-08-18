@@ -163,6 +163,15 @@ class CallersPassTheWorldRoot(unittest.TestCase):
         if not os.path.isdir(self.wf):
             self.skipTest("no .github/workflows in this checkout")
 
+    def test_package_allowlist_iterator_cannot_overwrite_release_name(self):
+        """PowerShell variables are case-insensitive: `$name` overwrote the bundle's `$Name` with
+        the final allowlist filename, producing `shoplineup_flags.json-<timestamp>.zip` (#834)."""
+        script = os.path.join(_FOUND, "package_release.ps1")
+        with open(script, encoding="utf-8-sig") as fh:
+            text = fh.read()
+        self.assertNotIn("foreach ($name in $Me3Allow)", text)
+        self.assertIn("foreach ($me3Entry in $Me3Allow)", text)
+
     def _invocations(self):
         """[(workflow, line)] for every line invoking the pairing tool."""
         out = []

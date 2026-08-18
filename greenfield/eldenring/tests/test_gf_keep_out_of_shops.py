@@ -32,7 +32,7 @@ pytest.importorskip("worlds.eldenring")
 from Options import OptionError  # noqa: E402
 from worlds.eldenring.shop_data import SHOP_ROW_FLAGS  # noqa: E402
 from worlds.eldenring.features.keep_out_of_shops import (  # noqa: E402
-    forbidden_goods_rows, forbidden_names, plan, skip_line)
+    forbidden_goods_rows, forbidden_names, plan, safe_forbid_capacity, skip_line)
 from worlds.eldenring.item_categories import category_of, names_in  # noqa: E402
 
 GAME = "Elden Ring"
@@ -309,6 +309,17 @@ def test_smallest_first_maximises_how_many_categories_survive():
     """The stated objective. Largest-first would keep one; smallest-first keeps three."""
     enforced, _ = plan({"big": 40, "s1": 5, "s2": 5, "s3": 5}, 40)
     assert enforced == ["s1", "s2", "s3"], enforced
+
+
+def test_capacity_reserves_selected_items_for_shops_that_reject_outside_sentinels():
+    # The old non-shop-only arithmetic allowed all 100 selected items to be forbidden. Ten shop
+    # rows cannot accept the outside-partition Region Locks / Rune sentinels, so ten selected items
+    # must remain legal shop stock.
+    assert safe_forbid_capacity(100, 100, 20, 10) == 90
+
+
+def test_capacity_is_unchanged_when_outside_items_cover_every_shop():
+    assert safe_forbid_capacity(100, 100, 20, 20) == 100
 
 
 def test_the_skip_line_quotes_the_REMAINING_budget_not_the_total():

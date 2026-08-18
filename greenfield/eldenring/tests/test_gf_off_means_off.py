@@ -271,13 +271,18 @@ OFF_LEDGER = {
     "dlcRegionBuckets": ("off_test",
                          "test_gf_scaling_sphere.py::DlcOffSeed::test_dlc_buckets_absent_without_dlc",
                          {"enable_dlc": False}),
+    "armorBundles": ("off_test",
+                      "test_gf_off_means_off.py::AllClientFeatureGatesOffSeed"
+                      "::test_armor_bundle_wire_absent_under_vanilla_placement",
+                      {"vanilla_placement": "all"}),
     # UNION key -- every producer (auto_equip handshake, scaling ceiling) must be off at once for
     # the key to vanish, so its off-world pins them all. Per-tag exactness lives with each feature
     # (test_gf_auto_equip.py, test_gf_options.py's ceiling matrix); this row owns full absence.
     "requiresClientFeatures": ("off_test",
                                "test_gf_off_means_off.py::AllClientFeatureGatesOffSeed"
                                "::test_no_client_feature_demand_when_nothing_is_used",
-                               {"auto_equip": False, "maximum_enemy_difficulty": 100}),
+                               {"auto_equip": False, "maximum_enemy_difficulty": 100,
+                                "vanilla_placement": "all"}),
     "enemyDropRoll": ("off_test",
                       "test_gf_off_means_off.py::RerollWiresOffSeed"
                       "::test_enemy_drop_wire_absent_when_off",
@@ -563,7 +568,11 @@ class AllClientFeatureGatesOffSeed(WorldTestBase):
     game = GAME
     options = {"num_regions": 0,
                "auto_equip": False,
-               "maximum_enemy_difficulty": 100}
+               "maximum_enemy_difficulty": 100,
+               "vanilla_placement": "all"}
+
+    def test_armor_bundle_wire_absent_under_vanilla_placement(self):
+        assert "armorBundles" not in self.world.fill_slot_data()
 
     def test_no_client_feature_demand_when_nothing_is_used(self):
         sd = self.world.fill_slot_data()

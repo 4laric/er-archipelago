@@ -119,6 +119,9 @@ GENERATORS = [
 # families in expected_skips_ci.json.
 TESTS_JOB = {
     "boss_geography": "committed greenfield data; artifact-dependent halves covered by the bundle",
+    "quest_prerequisite_rules": "runtime item_rule coverage uses the installed world; the typed "
+                                  "questline_model.tsv witness is reached through find_repo_root "
+                                  "from the tests job's real repository checkout",
     "capital_reconciler": "committed data only; sentinel is a comment/reference",
     "data": "client tables read from the gitlink checkout the tests job now makes",
     "finale": "committed data only",

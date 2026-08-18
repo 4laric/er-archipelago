@@ -232,10 +232,10 @@ class ConfineForeignProgression(NamedRange):
     It is a propensity by ITEM NAME, not a per-copy coin flip: the decision for a given foreign item
     name is fixed for the whole seed, so a name is either surface-only or free, never both.
 
-    No effect in a solo seed, or when Progression Surface Mode is off. It never blocks generation:
-    your OWN progression keeps its feasibility-ladder + spill safety valve, and foreign progression
-    that will not fit your surface simply lands in its own world instead (only YOUR filler checks
-    are barred to it -- other worlds are untouched)."""
+    No effect in a solo seed, because there is no foreign progression to confine. It never blocks
+    generation: your OWN progression keeps its feasibility-ladder + spill safety valve, and foreign
+    progression that will not fit your surface simply lands in its own world instead (only YOUR
+    filler checks are barred to it -- other worlds are untouched)."""
     display_name = "Confine Foreign Progression"
     range_start = 0
     range_end = 100

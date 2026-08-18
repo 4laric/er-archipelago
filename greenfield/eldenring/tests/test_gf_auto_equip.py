@@ -146,7 +146,7 @@ class AutoEquipWithScalingCeiling(WorldTestBase):
     def test_both_tags_ride_together(self):
         sd = self.world.fill_slot_data()
         self.assertEqual(sorted(sd[contract.REQUIRES_CLIENT_FEATURES]),
-                         ["auto_equip", "scaling_ceiling"],
+                         ["armor_bundles", "auto_equip", "scaling_ceiling"],
                          "both features declared a dependency and the wire carries %r. A union, "
                          "sorted, is the only shape that is a function of the OPTIONS rather than "
                          "of feature import order." % (sd[contract.REQUIRES_CLIENT_FEATURES],))

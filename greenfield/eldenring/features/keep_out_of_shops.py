@@ -203,6 +203,44 @@ def plan(counts: Dict[str, int], capacity: int) -> Tuple[List[str], List[str]]:
     return sorted(enforced), sorted(dropped)
 
 
+def safe_forbid_capacity(non_shop_slots: int, selected_items: int,
+                         shop_slots: int, compatible_outside_items: int) -> int:
+    """Maximum selected items that may be forbidden without starving shop-only slots.
+
+    ``B <= non_shop_slots`` is necessary but not sufficient: some shop rows already reject the
+    Region Locks / Rune sentinels outside the catalog partition. Preserve enough selected items as
+    legal shop stock to cover the shortfall. This is deliberately conservative (one outside item
+    is counted once even if many shops accept it), which may drop a category but can never invent
+    capacity that fill does not have.
+    """
+    shop_shortfall = max(0, shop_slots - compatible_outside_items)
+    return max(0, min(non_shop_slots, selected_items - shop_shortfall))
+
+
+def _max_shop_matches(items, shops) -> int:
+    """Maximum one-item/one-shop matching under the rows' existing item rules.
+
+    Counting an outside item merely because *some* shop accepts it overstates capacity when several
+    items all fit the same permissive row but not the restrictive rows. The small augmenting-path
+    matcher makes the reserve a proof rather than a heuristic.
+    """
+    matched_item = [-1] * len(shops)
+
+    def place(item_index: int, seen: Set[int]) -> bool:
+        item = items[item_index]
+        for shop_index, shop in enumerate(shops):
+            if shop_index in seen or not shop.item_rule(item):
+                continue
+            seen.add(shop_index)
+            prior = matched_item[shop_index]
+            if prior == -1 or place(prior, seen):
+                matched_item[shop_index] = item_index
+                return True
+        return False
+
+    return sum(1 for item_index in range(len(items)) if place(item_index, set()))
+
+
 def skip_line(cat: str, count: int, remaining: int, capacity: int, enforced: List[str]) -> str:
     """The sentence a dropped category is owed, as a PURE function so a test can pin the numbers.
 
@@ -314,6 +352,13 @@ class KeepOutOfShopsFeature(Feature):
 
         by_cat = _names_by_category(cats)
         own = [i for i in world.multiworld.itempool if i.player == player]
+        selected_names = set().union(*by_cat.values()) if by_cat else set()
+        open_shops = [loc for loc in shop_locs if loc.item is None]
+        outside = [item for item in own if item.name not in selected_names]
+        compatible_outside = _max_shop_matches(outside, open_shops)
+        selected_count = sum(1 for item in own if item.name in selected_names)
+        capacity = safe_forbid_capacity(
+            capacity, selected_count, len(open_shops), compatible_outside)
         counts = {c: sum(1 for i in own if i.name in ns) for c, ns in by_cat.items()}
         enforced, dropped = plan(counts, capacity)
 
