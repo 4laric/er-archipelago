@@ -82,6 +82,17 @@
       "doc": "AP item id (str) -> ER FullID granted on receipt."
     },
     {
+      "name": "armorBundles",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/armor_bundles.py",
+      "consumer": "core.rs armor-bundle receive reconciler",
+      "doc": "synthetic armor-set AP item id (str) -> every protector FullID in its generated family."
+    },
+    {
       "name": "locationFlags",
       "shape": "SCALAR_INT_MAP",
       "required": true,

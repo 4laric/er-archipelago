@@ -24,9 +24,10 @@ class ItemShuffleOn(WorldTestBase):
         # a curated bundle even when no source lot carries exactly five.
         from worlds.eldenring.features.lot_stacks import MINTED
         from worlds.eldenring.features.scadu_supply import FRAGMENT_X2
+        from worlds.eldenring.item_ids import ARMOR_BUNDLES
 
         self.assertTrue(ITEM_CATALOG, "item_ids.py must be generated")
-        _not_vanilla = {"Rune", PROG_FLASK, FRAGMENT_X2} | set(MINTED)
+        _not_vanilla = {"Rune", PROG_FLASK, FRAGMENT_X2} | set(MINTED) | set(ARMOR_BUNDLES)
         names = [i.name for i in self.multiworld.itempool
                  if not i.name.endswith(" Lock") and i.name not in _not_vanilla]
         self.assertTrue(names, "item shuffle should place real vanilla items")
@@ -57,4 +58,3 @@ def test_filler_pool_excludes_capped_and_endtier():
     for n in ("Golden Seed", "Sacred Tear", "Scadutree Fragment", "Revered Spirit Ash",
               "Ancient Dragon Smithing Stone", "Somber Ancient Dragon Smithing Stone"):
         assert n not in fp, f"{n} must NOT be in FILLER_POOL (capped/end-tier)"
-

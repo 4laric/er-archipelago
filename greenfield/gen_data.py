@@ -7411,6 +7411,36 @@ for _fn, _nib, _dir in _NAME_FMGS:
             _tgt.add(_nm)
 _DLC_ONLY = _dlc_dlc_nm - _dlc_base_nm
 DLC_ITEM_NAMES = {_n for _n in ITEM_CATALOG if _n in _DLC_ONLY}
+
+# One wrapper per multi-piece EquipParamProtector row-id family (#849). Variants share the
+# ten-thousand family (e.g. Carian Knight 980000..980300 + altered 981100), so this is derived from
+# the catalog/param FullIDs rather than a maintained set roster.
+def _armor_bundle_label(_members, _family):
+    _raw, _name = min(_members, key=lambda _x: (0 if ((_x[0] // 100) % 10) == 1 else 1, _x[0]))
+    _base = _name.removesuffix(" (Altered)")
+    for _suffix in (" Armor", " Robe", " Garb", " Attire", " Gown", " Clothes", " Clothing",
+                    " Vest", " Surcoat", " Cloak", " Dress", " Raiment", " Finery",
+                    " Pauldron", " Tabard"):
+        if _base.endswith(_suffix):
+            _base = _base[:-len(_suffix)]
+            break
+    return (_base or "Armor Family %d" % _family) + " Set"
+
+_armor_groups = {}
+for _name, _full in ITEM_CATALOG.items():
+    if (_full & 0xF0000000) == 0x10000000:
+        _raw = _full & 0x0FFFFFFF
+        _armor_groups.setdefault(_raw // 10000, []).append((_raw, _name, _full))
+ARMOR_BUNDLES = {}; ARMOR_NAME_TO_BUNDLE = {}
+for _family, _rows in sorted(_armor_groups.items()):
+    if len(_rows) < 2:                         # wrapping a singleton saves no slot
+        continue
+    _label = _armor_bundle_label([(_r, _n) for _r, _n, _f in _rows], _family)
+    if _label in ARMOR_BUNDLES:                # stable collision disambiguator, still generated
+        _label = "%s [%d]" % (_label, _family)
+    ARMOR_BUNDLES[_label] = sorted(_f for _r, _n, _f in _rows)
+    for _r, _name, _full in _rows:
+        ARMOR_NAME_TO_BUNDLE[_name] = _label
 print(f"item_ids: DLC_ITEM_NAMES {len(DLC_ITEM_NAMES)} DLC-only catalog items")
 OUT_ITEMS = os.path.join(HERE, "eldenring", "item_ids.py")
 with open(OUT_ITEMS, "w", newline="\n", encoding="utf-8") as f:
@@ -7420,6 +7450,12 @@ with open(OUT_ITEMS, "w", newline="\n", encoding="utf-8") as f:
     f.write("ITEM_CATALOG = {\n")
     for _nm in sorted(ITEM_CATALOG):
         f.write(f"    {ascii(_nm)}: {ITEM_CATALOG[_nm]},\n")
+    f.write("}\n\n# EquipParamProtector row-family bundles (#849).\nARMOR_BUNDLES = {\n")
+    for _nm in sorted(ARMOR_BUNDLES):
+        f.write(f"    {ascii(_nm)}: {ARMOR_BUNDLES[_nm]!r},\n")
+    f.write("}\n\nARMOR_NAME_TO_BUNDLE = {\n")
+    for _nm in sorted(ARMOR_NAME_TO_BUNDLE):
+        f.write(f"    {ascii(_nm)}: {ascii(ARMOR_NAME_TO_BUNDLE[_nm])},\n")
     f.write("}\n\nLOCATION_ITEM = {\n")
     for _aid in sorted(LOCATION_ITEM):
         f.write(f"    {_aid}: {ascii(LOCATION_ITEM[_aid])},\n")
