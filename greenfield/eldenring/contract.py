@@ -1072,7 +1072,9 @@ CONTRACT = (
                 "Absent/empty = shelves stay vanilla."),
     ContractKey("shopRunePrices", "SCALAR_INT_MAP", False, (GREENFIELD,),
                 "features/rune_pricing.py", "shop_prices.rs configure/run",
-                "ShopLineupParam row id (str) -> rune price, for CHECK rows whose reward is a rune "
+                "ShopLineupParam row id (str) -> price override. Alt-currency altar rows always map "
+                "to 1, preserving their costType while preventing random rewards from demanding an "
+                "absurd number of Dragon/Bayle Hearts. Other entries are CHECK rows whose reward is a rune "
                 "item (Golden/Numen's/Hero's/Lord's Rune). A shop check keeps the price of the ware "
                 "it USED to sell, so a slot that cost 3500 can end up selling a Golden Rune [1] worth "
                 "~200 -- the reward is randomised but its cost is not, which makes the slot strictly "
