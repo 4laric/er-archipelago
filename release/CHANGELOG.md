@@ -3,20 +3,19 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.4.8 — 2026-08-18
+## v0.4.7 — 2026-08-17
 
-Window opened 39 commit(s) PAST the v0.4.6 tag.
+Window opened at the v0.4.6 tag. v0.4.7 was never tagged while this window filled, so every change
+below still belongs to v0.4.7; an open changelog section is not a release.
 
-`CONTRACT_HASH` moved from `5c2b9bf2` to `dc0dc687`, verified by loading `contract.py`. The new
-`armorBundles` map is intentionally incompatible with clients that can only map one AP item to one
-Elden Ring FullID; the feature handshake refuses that pairing instead of silently losing a set.
+`CONTRACT_HASH` eventually moved from `5c2b9bf2` to `dc0dc687` when armor bundles added the
+`armorBundles` map. That feature intentionally refuses clients which can only map one AP item to
+one Elden Ring FullID instead of silently losing part of a set. Client half: clients#277.
 
-The armor-bundle behavior shipped in clients#277. A small 0.4.8 client follow-up updates the embedded
-version, and its commit is pinned by the gitlink in this same window-opening change.
+`release/CHANNELS.tsv` correctly leaves `stable` on v0.4.6 until v0.4.7 is actually tagged.
 
-`release/CHANNELS.tsv` promotes `stable` to v0.4.6 in this same commit.
-
-Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+Entries arrive below as they merge (rule 14: release notes are part of the change, not tag-time
+reconstruction).
 
 - **Armor sets now occupy one randomized item instead of one slot per piece.** Families are generated
   from the protector rows, include altered pieces, and reconcile member-by-member across reconnects.
@@ -47,21 +46,6 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   frozen surface mode (#840); release bundles keep their requested name instead of inheriting
   `shoplineup_flags.json` through PowerShell's case-insensitive `$Name` (#847).
 
-## v0.4.7 — 2026-08-17
-
-Window opened AT THE TAG of v0.4.6 with ZERO commits past it.
-
-`CONTRACT_HASH` is unmoved at `5c2b9bf2`, verified by loading `contract.py` after the bump. The
-wire contract has therefore kept the same shape since v0.3.9; this window is version-lockstep, and
-the version change does not add a new handshake field.
-
-The client half is clients#259. `contract_gen.rs` embeds the version string even when the hash is
-unchanged, so the merged client commit is pinned by the gitlink in this same window-opening change.
-
-`release/CHANNELS.tsv` promotes `stable` to v0.4.6 in this same commit.
-
-Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
-the release).
 
 ### The AP flower is finally on the items
 
