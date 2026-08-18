@@ -5,24 +5,6 @@ only moment anyone remembers why it mattered._
 
 ## What changed at the table
 
-**The AP flower already worked in the profile we shipped; this release makes it survive other
-mod layouts.** The Telescope is the game's original image in icon cell 92, so it appeared when the
-AP texture override was not being loaded—not across the board. Players launching through our
-packaged Mod Engine 2 profile already had the override and saw the Flower. The gap showed up for
-people running outside that profile, including Matt's randomizer layouts, where the atlas was not
-installed into the directory the game actually loaded.
-
-The first attempt to close that gap tried to rebuild the atlases on each player's machine. That
-assumed access to unpacked game files and turned a small compatibility install into a local texture
-toolchain, so we backed that approach out. Release bundles now carry authenticated, prebuilt
-atlases, and the install button copies them into either the normal profile or Matt's randomizer.
-Players do not need UXM, WitchyBND, Oodle, an image library, or a texture compressor.
-
-The runtime experiment still settled the technical question that had stalled the alternate-layout
-support: Elden Ring accepts the DFLT-repacked atlases, both icon sheets load, and the Flower renders
-without runtime texture injection. What changed afterwards was how those atlases reach layouts
-outside the profile that already worked.
-
 **Progressive Flask Upgrades stop doing two things at once.** Each copy used to nudge charges *and*
 hand you a Sacred Tear, which made every upgrade two half-upgrades, neither of which felt like
 anything. They alternate now: charge, potency, charge, potency, in that order, every time. The first
@@ -88,6 +70,24 @@ arrive in useful quantities. Dragon Communion and Bayle altar checks cost one un
 **Several missing-item reports were receive edges.** A permanent pot cap no longer jams all later
 deliveries, death-edge checks stay queued until the server accepts them, and Leyndell's rune seal has
 an independent cumulative backstop—including server `/send` and mid-seed upgrades.
+
+**The AP flower already worked in the profile we shipped; this release makes it survive other
+mod layouts.** The Telescope is the game's original image in icon cell 92, so it appeared when the
+AP texture override was not being loaded—not across the board. Players launching through our
+packaged Mod Engine 2 profile already had the override and saw the Flower. The gap showed up for
+people running outside that profile, including Matt's randomizer layouts, where the atlas was not
+installed into the directory the game actually loaded.
+
+The first attempt to close that gap tried to rebuild the atlases on each player's machine. That
+assumed access to unpacked game files and turned a small compatibility install into a local texture
+toolchain, so we backed that approach out. Release bundles now carry authenticated, prebuilt
+atlases, and the install button copies them into either the normal profile or Matt's randomizer.
+Players do not need UXM, WitchyBND, Oodle, an image library, or a texture compressor.
+
+The runtime experiment still settled the technical question that had stalled the alternate-layout
+support: Elden Ring accepts the DFLT-repacked atlases, both icon sheets load, and the Flower renders
+without runtime texture injection. What changed afterwards was how those atlases reach layouts
+outside the profile that already worked.
 
 ## What carried into v0.4.8
 
