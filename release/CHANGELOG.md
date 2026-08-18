@@ -3,16 +3,17 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.4.7 — 2026-08-17
+## v0.4.8 — 2026-08-18
 
-Window opened at the v0.4.6 tag. v0.4.7 was never tagged while this window filled, so every change
-below still belongs to v0.4.7; an open changelog section is not a release.
+v0.4.8 is the first release after v0.4.6. v0.4.7 was never tagged or released; the number is
+intentionally skipped rather than rewriting the already-generated world/client version state. Every
+change accumulated since v0.4.6 is recorded in this one release window.
 
 `CONTRACT_HASH` eventually moved from `5c2b9bf2` to `dc0dc687` when armor bundles added the
 `armorBundles` map. That feature intentionally refuses clients which can only map one AP item to
 one Elden Ring FullID instead of silently losing part of a set. Client half: clients#277.
 
-`release/CHANNELS.tsv` correctly leaves `stable` on v0.4.6 until v0.4.7 is actually tagged.
+`release/CHANNELS.tsv` correctly leaves `stable` on v0.4.6 until v0.4.8 is actually tagged.
 
 Entries arrive below as they merge (rule 14: release notes are part of the change, not tag-time
 reconstruction).
