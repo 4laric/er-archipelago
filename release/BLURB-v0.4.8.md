@@ -51,9 +51,11 @@ rather than silently eating the item.
 pending boss sweep no longer publishes its member count, because that count is a map of which boss
 pays best; the numbers come back the moment the sweep fires, when they are confirmation instead of
 routing. An item that will not fit in your inventory is now retried instead of reported delivered and
-dropped on the floor. DeathLink has an in-game toggle that lasts the session. And Leyndell's two-rune
-seal reads both of the flags it actually checks, so a random start that skips the Roundtable sequence
-cannot leave you standing at a gate holding the runes it wants.
+dropped on the floor. DeathLink has an in-game toggle that lasts the session. Leyndell's two-rune
+seal reads both flags it actually checks, and Ashen/Royal warps now follow the selected target's real
+map version instead of guessing from a shared grace name. Logs always land beside the client DLL.
+And if `RandomizerHelper.dll` is actually co-loaded, AP now refuses to start with a direct explanation
+instead of connecting into the known state where item delivery is broken.
 
 **Smaller things you might notice.** Both ancestor altars light every urn when the catacomb-door
 option opens them, instead of opening the warp while sixteen dark urns insist the encounters are
@@ -81,6 +83,11 @@ arrive in useful quantities. Dragon Communion and Bayle altar checks cost one un
 deliveries, death-edge checks stay queued until the server accepts them, and Leyndell's rune seal has
 an independent cumulative backstop—including server `/send` and mid-seed upgrades.
 
+**Progressive stone bells now stay local when requested and open the shelves they promise.** The
+progressive replacements inherit `keep_local: [upgrade_bells]`, and each rung sets both the stock and
+release flags used by the Twin Maidens. Receiving a tier therefore makes its stones visible without
+trying to hand you a duplicate physical bell bearing.
+
 **The AP flower already worked in the profile we shipped; this release makes it survive other
 mod layouts.** The Telescope is the game's original image in icon cell 92, so it appeared when the
 AP texture override was not being loaded—not across the board. Players launching through our
@@ -90,9 +97,10 @@ installed into the directory the game actually loaded.
 
 The first attempt to close that gap tried to rebuild the atlases on each player's machine. That
 assumed access to unpacked game files and turned a small compatibility install into a local texture
-toolchain, so we backed that approach out. Release bundles now carry authenticated, prebuilt
-atlases, and the install button copies them into either the normal profile or Matt's randomizer.
-Players do not need UXM, WitchyBND, Oodle, an image library, or a texture compressor.
+toolchain, so we backed that approach out. Release bundles can instead carry authenticated, prebuilt
+atlases, with a standalone installer that can target Matt's randomizer layout. The short-lived
+in-client button was reverted with the obsolete builder path; installation is an explicit bundle
+step. Players do not need UXM, WitchyBND, Oodle, an image library, or a texture compressor.
 
 The runtime experiment still settled the technical question that had stalled the alternate-layout
 support: Elden Ring accepts the DFLT-repacked atlases, both icon sheets load, and the Flower renders
