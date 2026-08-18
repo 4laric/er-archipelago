@@ -117,7 +117,9 @@ class TestHubMerchantBar(unittest.TestCase):
 class HubMerchantLocationRule(WorldTestBase):
     """A surface exclusion alone is bypassed when restricted progression spills to general fill."""
     game = "Elden Ring"
-    options = {"num_regions": 3}
+    # Full map makes the wandering-merchant positive witness deterministic: a small random draw can
+    # legitimately keep none of the 12 vetted ShopSlot merchants.
+    options = {"num_regions": 0}
 
     def test_every_hub_merchant_rejects_advancement_at_the_location_rule(self):
         item = Item("required progression probe", ItemClassification.progression, None, self.player)

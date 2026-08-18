@@ -446,6 +446,26 @@ class AllocationIsExact(WorldTestBase):
         self.assertEqual(len(fb.plan(self.world, total)), total,
                          "the materialiser must produce exactly one decision per budget slot")
 
+    def test_somber_floor_survives_a_proportional_share_that_rounds_to_zero(self):
+        """A positive recipe weight is the promise; integer rounding must not disarm its floor."""
+        class _World:
+            player = 1
+
+            class options:
+                class curated_filler:
+                    value = {"somber_stones": 1, "junk": 99}
+
+        world = _World()
+        total = fb.SOMBER_RESERVATION_FLOOR
+        recipe = fb.recipe_of(world)
+        self.assertGreater(recipe.get("somber_stones", 0), 0,
+                           "the fixture stopped promising a somber economy")
+        proportional = total * recipe["somber_stones"] // sum(recipe.values())
+        self.assertEqual(proportional, 0, "the fixture no longer reaches the zero-rounding edge")
+        alloc = fb.allocate(world, total)
+        self.assertEqual(alloc["somber_stones"], fb.SOMBER_RESERVATION_FLOOR)
+        self.assertEqual(sum(alloc.values()), total)
+
 
 def test_recipe_rejects_unknown_category():
     """CONTRIBUTING: any yaml -> clean gen or GRACEFUL REJECT. A typo'd category must not be silently

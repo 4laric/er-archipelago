@@ -36,7 +36,9 @@ you ever saw them. At the real quantities, five does the same job. The 24 points
 
 So: fewer stone *entries*, the same stones in your hands, and noticeably more actual gear in the
 filler pool. ⚠️ If you have hand-tuned `curated_filler` in your yaml, this is the release to re-read
-your numbers, because the scale underneath them moved.
+your numbers, because the scale underneath them moved. Tiny one-region seeds also keep the promised
+somber-stone floor when that recipe share initially rounds to zero, rather than silently losing an
+upgrade tier.
 
 **There is a new trap, and it turns the lights off.** `Trap: Blackout` fades your screen out, holds
 it dark for two seconds, and fades it back. It is the first of the eleven traps designed on
