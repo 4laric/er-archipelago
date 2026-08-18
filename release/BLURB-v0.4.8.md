@@ -5,29 +5,23 @@ only moment anyone remembers why it mattered._
 
 ## What changed at the table
 
-**Every Archipelago item you have ever picked up in this randomizer was a telescope.** Cell 92 of
-the game's icon sheet belongs to the Telescope, and the AP flower was supposed to be composited over
-it. The art had been in the repo since 2026-07-29, but the first shipping attempt tried to rebuild
-the atlases on each player's machine. That assumed access to unpacked game files and turned a small
-icon replacement into an installation toolchain. We backed that approach out.
+**The AP flower already worked in the profile we shipped; this release makes it survive other
+mod layouts.** The Telescope is the game's original image in icon cell 92, so it appeared when the
+AP texture override was not being loaded—not across the board. Players launching through our
+packaged Mod Engine 2 profile already had the override and saw the Flower. The gap showed up for
+people running outside that profile, including Matt's randomizer layouts, where the atlas was not
+installed into the directory the game actually loaded.
 
-The Flower itself still ships. Release bundles now carry authenticated, prebuilt atlases, and the
-client's install button copies them into either an ordinary Mod Engine 2 setup or Matt's randomizer.
-Players do not need UXM, WitchyBND, Oodle, an image library, or a texture compressor. The installer
-does not reconstruct FromSoft assets from a local unpack; it installs the release payload and asks
-for the Matt-randomizer path when it cannot find that layout safely.
+The first attempt to close that gap tried to rebuild the atlases on each player's machine. That
+assumed access to unpacked game files and turned a small compatibility install into a local texture
+toolchain, so we backed that approach out. Release bundles now carry authenticated, prebuilt
+atlases, and the install button copies them into either the normal profile or Matt's randomizer.
+Players do not need UXM, WitchyBND, Oodle, an image library, or a texture compressor.
 
-The ending can now wait for you to finish the regions you opened, rather than appearing as soon as
-their Locks arrive. Under the optional `regions_completed` policy, every progression-surface check
-in each non-final region must be satisfied. Merely looking through a merchant's visible inventory
-counts for its shop checks—you do not have to buy filler to prove you visited—and that view progress
-survives reconnects.
-
-## What carried over from v0.4.6
-
-The runtime experiment still settled the technical question that had stalled the feature: Elden Ring
-accepts the DFLT-repacked atlases, both icon sheets load, and the Flower renders without runtime
-texture injection. What changed after that result was delivery, not the image.
+The runtime experiment still settled the technical question that had stalled the alternate-layout
+support: Elden Ring accepts the DFLT-repacked atlases, both icon sheets load, and the Flower renders
+without runtime texture injection. What changed afterwards was how those atlases reach layouts
+outside the profile that already worked.
 
 **Progressive Flask Upgrades stop doing two things at once.** Each copy used to nudge charges *and*
 hand you a Sacred Tear, which made every upgrade two half-upgrades, neither of which felt like
