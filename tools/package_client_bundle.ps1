@@ -16,7 +16,8 @@
 #                               AP item.
 #   shoplineup_flags.json       shop-row -> eventFlag_forStock. Lets shop purchases self-detect.
 #                               Without it, shop checks never fire.
-#   ap-package\                 optional cosmetic icon override (if built)
+#   install-ap-flower.ps1       locally builds the icon override from the player's game
+#   ap_flower_160.bc7           25,600 bytes of project-owned compressed flower art
 #   README.md                   install + what the client needs from a slot_data
 #
 # Usage:
@@ -73,6 +74,9 @@ disable_arxan = true
 [[supports]]
 game = "eldenring"
 
+[[packages]]
+path = 'ap-package'
+
 [[natives]]
 path = 'eldenring_archipelago.dll'
 "@
@@ -91,16 +95,15 @@ $cfg = @"
 Set-Content -Path (Join-Path $bundle "apconfig.json") -Value $cfg -Encoding UTF8
 Write-Host "  apconfig.json  (blank -- fill in-game, or edit)"
 
-# Optional cosmetic icon override.
-$pkg = Join-Path $Repo "me3\ap-package"
-if (Test-Path (Join-Path $pkg "menu")) {
-    Copy-Item $pkg (Join-Path $bundle "ap-package") -Recurse -Force
-    $profileText = $profileText -replace "\[\[natives\]\]", "[[packages]]`npath = 'ap-package'`n`n[[natives]]"
-    Set-Content -Path (Join-Path $bundle "ap.me3") -Value $profileText -Encoding UTF8
-    Write-Host "  ap-package\  (AP icon override; profile updated)"
-} else {
-    Write-Host "  ap-package\ absent -- shipping without the AP icon override (cosmetic only)" -ForegroundColor Yellow
-}
+# Ship only the derivation and project-owned payload. The generated atlas contains FromSoft assets
+# and is created under ap-package on the player's machine.
+$iconInstaller = Join-Path $Repo "tools\install_ap_flower.ps1"
+$iconPayload = Join-Path $Repo "tools\ap_icon_src\ap_flower_160.bc7"
+if (-not (Test-Path $iconInstaller)) { throw "AP flower installer missing: $iconInstaller" }
+if (-not (Test-Path $iconPayload)) { throw "AP flower payload missing: $iconPayload" }
+Copy-Item $iconInstaller (Join-Path $bundle "install-ap-flower.ps1") -Force
+Copy-Item $iconPayload (Join-Path $bundle "ap_flower_160.bc7") -Force
+Write-Host "  AP flower local installer + project-owned BC7 payload"
 
 $readme = Join-Path $Repo "release\CLIENT-BUNDLE-README.md"
 if (Test-Path $readme) {

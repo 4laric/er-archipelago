@@ -13,12 +13,9 @@
 # one of those was a .dll "built separately" and a record that disagreed. There is nothing left to
 # disagree.
 #
-# 🛑 ONE INPUT THIS CANNOT PRODUCE. me3/ap-package is Elden Ring's SB_Icon atlas with cell 92
-# repainted -- game data, PROVENANCE.md rule 1, and docs/AP-ICON-PIPELINE.md rules it out of this
-# repo in as many words. It comes from a PRIVATE repo (`ICON_REPO`), so the public tree stays clean
-# and the provenance docs stay true as written. Without it `pack_release.py` HARD FAILS rather than
-# shipping a stable bundle that renders a Telescope on every check. Development builds explicitly
-# omit it for now and carry a warning file; that opt-out is unavailable to stable packaging.
+# ⭐ THE ICON IS NOW STRUCTURAL TOO. The bundle carries a local installer and 25,600 bytes of
+# project-owned BC7 flower blocks. It never carries FromSoft's atlas or Oodle: the player derives
+# the hi/low DFLT overrides from the installed game. The former private ICON_REPO is retired.
 #
 # 🛑 THIS DOES NOT REPLACE release.yaml. That one attaches the bare apworld and the wizard and is
 # deliberately not gated on the pin. This one produces the player bundle. They attach to the same
@@ -185,17 +182,6 @@ jobs:
         run: python tools/check_release_pairing.py --dll me3/eldenring_archipelago.dll
         continue-on-error: ${{ github.ref == 'refs/heads/main' || github.event.inputs.unofficial == 'true' }}
 
-      # 🛑 The one input that cannot live in this repo. See docs/AP-ICON-PIPELINE.md.
-      - name: Fetch the AP icon override
-        if: github.ref != 'refs/heads/main'
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ vars.ICON_REPO }}
-          token: ${{ secrets.ICON_REPO_TOKEN }}
-          path: .icon
-      - if: github.ref != 'refs/heads/main'
-        run: cp -r .icon/ap-package me3/ap-package
-
       - name: Assemble
         env:
           CLIENT_SHA: ${{ needs.client-dll.outputs.client_sha }}
@@ -203,7 +189,7 @@ jobs:
           set +e
           extra=()
           if [ "${{ github.ref }}" = refs/heads/main ]; then
-            extra=(--unofficial --stamp "dev-${GITHUB_SHA::7}" --allow-missing-ap-icon)
+            extra=(--unofficial --stamp "dev-${GITHUB_SHA::7}")
           elif [ "${{ github.event.inputs.unofficial }}" = true ]; then
             extra=(--unofficial --stamp "${{ github.event.inputs.stamp }}")
           fi

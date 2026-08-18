@@ -15,7 +15,12 @@ the contract is at the bottom of this file.
 1. Install **me3** (link above). It launches the retail exe; you do **not** need UXM or modified
    game files. If you have previously UXM-patched Elden Ring, restore vanilla files first.
 2. Unzip this folder anywhere.
-3. (Optional) Put your server details in `apconfig.json`:
+3. Run `powershell -ExecutionPolicy Bypass -File .\install-ap-flower.ps1`. It reads Elden Ring's
+   own hi/low menu atlases and Oodle DLL, inserts the project-owned flower, and writes the generated
+   override under this folder's `ap-package`. The generated atlas never travels in the download.
+   On an upgrade it replaces the older bundle's own atlas; an explicit external destination is
+   protected from unmarked overwrites.
+4. (Optional) Put your server details in `apconfig.json`:
    ```json
    { "url": "archipelago.gg:12345", "slot": "YourName", "password": "" }
    ```
@@ -23,7 +28,7 @@ the contract is at the bottom of this file.
    different for every room -- it is only `38281` if you are running the
    server yourself, at `localhost:38281`.
    Leaving it blank is fine -- the client shows a connect form in-game.
-4. Launch:
+5. Launch:
    ```
    me3 launch --profile "<path to this folder>\ap.me3"
    ```
@@ -32,6 +37,10 @@ Start a **new character**. Launched with `ap.me3` as above, the game writes to a
 (`AP_me3.sl2`), so your normal saves are not touched. That comes from the profile's `savefile` line
 rather than from the client, so it only holds for this launch path -- load the dll through another
 loader (matt's randomizer, say) and your Archipelago character goes into your ordinary save.
+
+For a standalone ModEngine2 or randomizer output instead of me3, point the installer at that loose
+file root: `.\install-ap-flower.ps1 -Destination "<folder containing regulation.bin>"`. To remove
+only files created by this installer, rerun it with the same destination and `-Uninstall`.
 
 ## What is in the folder
 
@@ -42,7 +51,9 @@ loader (matt's randomizer, say) and your Archipelago character goes into your or
 | `apconfig.json` | server / slot / password. Blank is valid. |
 | `check_lots_table.json` | **vanilla suppression.** See below. |
 | `shoplineup_flags.json` | **shop check detection.** See below. |
-| `ap-package/` | cosmetic icon override (optional) |
+| `install-ap-flower.ps1` | builds/installs the flower override locally; rerun safely after upgrades |
+| `ap_flower_160.bc7` | 25,600 bytes of project-owned flower art; not a FromSoft atlas |
+| `ap-package/` | locally generated hi/low override; appears after running the installer |
 
 **Both JSON tables are derived from the game's own params -- game data, not seed data.** That is why
 one static copy works for every apworld and every seed. Keep them next to the DLL.
