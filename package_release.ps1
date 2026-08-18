@@ -394,9 +394,9 @@ New-Item -ItemType Directory -Force -Path $Me3Dst | Out-Null
 # unexpected can ever ship. apconfig.json is (re)written fresh below, so it is deliberately NOT here.
 $Me3Allow = @('ap.me3', 'eldenring_archipelago.dll', 'check_lots_table.json', 'shoplineup_flags.json')
 $copied = 0
-foreach ($name in $Me3Allow) {
-    $src = Join-Path $Me3Src $name
-    if (Test-Path $src) { Copy-Item $src (Join-Path $Me3Dst $name) -Recurse -Force; $copied++ }
+foreach ($me3Entry in $Me3Allow) {
+    $src = Join-Path $Me3Src $me3Entry
+    if (Test-Path $src) { Copy-Item $src (Join-Path $Me3Dst $me3Entry) -Recurse -Force; $copied++ }
 }
 Info "+ me3\ (allowlisted $copied of $($Me3Allow.Count) entries)"
 

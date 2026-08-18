@@ -1336,6 +1336,21 @@ class GreenfieldEldenRingWorld(World):
             # throw away the only thing this mode computes.
             if not _vanilla:
                 extras.sort(key=_tail_rank)
+                # Feature contributors consume `slots` before this vanilla tail is cut. In a tiny
+                # one-region seed, even rank-1 protected gear can overfill the tail; natural
+                # Scadutree fragments were then sometimes cut after scadu_supply.plan() had already
+                # subtracted them from its injection. Rescue only fragments that would actually be
+                # cut, swapping them with the last surviving ordinary rank-1 item. This leaves the
+                # established itempool order byte-for-byte unchanged in every seed where the bug is
+                # absent (important: fill consumes that order as part of its deterministic stream).
+                def _scadu(x):
+                    return x == "Scadutree Fragment" or x.startswith("Scadutree Fragment x")
+
+                cut_scadu = [k for k in range(slots, len(extras)) if _scadu(extras[k])]
+                victims = [k for k in range(min(slots, len(extras)) - 1, -1, -1)
+                           if _tail_rank(extras[k]) == 1 and not _scadu(extras[k])]
+                for keep, drop in zip(cut_scadu, victims):
+                    extras[drop], extras[keep] = extras[keep], extras[drop]
         _names: List[str] = [extras[k] if k < len(extras) else FILLER for k in range(slots)]
         if _vanilla:
             # slots == total and pool is empty (no locks, no feature contributors), so _names is
