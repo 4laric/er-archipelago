@@ -7304,6 +7304,18 @@ _FINISHED_POTS = {"Fire Pot": 300, "Lightning Pot": 320, "Fetid Pot": 330, "Holy
                   "Rancor Pot": 650}
 for _pn, _pid in _FINISHED_POTS.items():
     ITEM_CATALOG.setdefault(_pn, 0x40000000 | _pid)
+# DLC crafted consumables have the same blind spot: no placed lot means the check-derived catalog
+# never sees them. Derive the complete roster from the DLC FMG-backed name map instead of pinning
+# row ids or only the variants which happen to have a vanilla source. The goods-nibble fence keeps
+# the five equippable Perfume Bottle weapons out of this pass; placed/tier cataloguing already owns
+# those, while the crafted Spraymist/Aromatic goods belong here.
+_CRAFTED_DLC_FILLER = sorted(
+    (_nm, _full) for _nm, _full in _name2full.items()
+    if (_full & 0xF0000000) == 0x40000000
+    and ((_nm.startswith("Hefty ") and _nm.endswith(" Pot") and _nm != "Hefty Cracked Pot")
+         or _nm.endswith("Spraymist") or _nm.endswith("Aromatic")))
+for _cn, _cfull in _CRAFTED_DLC_FILLER:
+    ITEM_CATALOG.setdefault(_cn, _cfull)
 # Crafted-only FOODS (Alaric 2026-07-11): same situation as the pots -- never LOOTED, so never in the
 # placed-item catalog, but valid grantable goods. Resolved BY NAME from GoodsName.fmg.xml via the same
 # _resolve_item map the placed items use, so no ids are hand-guessed (unlike _FINISHED_POTS above, which

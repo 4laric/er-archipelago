@@ -3,16 +3,63 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.item_ids import AMMO_ITEM_NAMES, ITEM_CATALOG  # noqa: E402
+from worlds.eldenring.item_ids import AMMO_ITEM_NAMES, DLC_ITEM_NAMES, ITEM_CATALOG  # noqa: E402
 from worlds.eldenring.features import filler_curation as fc  # noqa: E402
 
 GAME = "Elden Ring"
+
+EXPECTED_HEFTY_POTS = {
+    "Hefty Fetid Pot", "Hefty Fire Pot", "Hefty Fly Pot", "Hefty Freezing Pot",
+    "Hefty Frenzied Flame Pot", "Hefty Furnace Pot", "Hefty Lightning Pot", "Hefty Magic Pot",
+    "Hefty Oil Pot", "Hefty Poison Pot", "Hefty Rancor Pot", "Hefty Red Lightning Pot",
+    "Hefty Rock Pot", "Hefty Rot Pot", "Hefty Volcano Pot",
+}
+EXPECTED_PERFUMES = {
+    "Acid Spraymist", "Bloodboil Aromatic", "Chilling Perfume Bottle",
+    "Deadly Poison Perfume Bottle", "Firespark Perfume Bottle", "Frenzyflame Perfume Bottle",
+    "Ironjar Aromatic", "Lightning Perfume Bottle", "Poison Spraymist", "Spark Aromatic",
+    "Uplifting Aromatic",
+}
 
 
 # ---- pure-data guards -------------------------------------------------------------------------
 def test_finished_pots_in_catalog():
     for p in ("Fire Pot", "Lightning Pot", "Volcano Pot", "Sleep Pot", "Rancor Pot"):
         assert p in ITEM_CATALOG, f"{p} must be added to the catalog (grantable)"
+
+
+def test_complete_crafted_hefty_roster_is_grantable_and_dlc_only():
+    got = {n for n in fc.CATEGORIES["pots"] if n.startswith("Hefty ")}
+    assert got == EXPECTED_HEFTY_POTS
+    assert got <= set(ITEM_CATALOG)
+    assert got <= set(DLC_ITEM_NAMES), "DLC-off seeds must filter every crafted Hefty Pot"
+    assert "Hefty Cracked Pot" not in got, "the permanent vessel is not a finished consumable"
+
+
+def test_complete_finished_perfume_roster_is_grantable_and_dlc_only():
+    got = set(fc.CATEGORIES["perfumes"])
+    assert got == EXPECTED_PERFUMES
+    assert got <= set(ITEM_CATALOG)
+    dlc_perfumes = {n for n in got if n.endswith("Perfume Bottle")}
+    base_perfumes = got - dlc_perfumes
+    assert dlc_perfumes <= set(DLC_ITEM_NAMES), "DLC-off seeds must filter DLC perfume weapons"
+    assert base_perfumes.isdisjoint(DLC_ITEM_NAMES), "base-game aromatics/spraymists must remain available"
+    assert "Perfume Bottle" not in got, "the permanent vessel is not a finished consumable"
+
+
+def test_finished_pots_and_perfumes_are_x10_bundles():
+    qty = fc.stack_qty_by_name()
+    for name in set(fc.CATEGORIES["pots"]) | set(fc.CATEGORIES["firepots"]) | set(fc.CATEGORIES["perfumes"]):
+        assert qty.get(name) == 10, f"{name} must arrive as a useful x10 bundle"
+    for vessel in ("Cracked Pot", "Ritual Pot", "Perfume Bottle", "Hefty Cracked Pot"):
+        assert qty.get(vessel, 1) == 1, f"permanent vessel {vessel} must never use consumable stacking"
+
+
+def test_default_perfume_share_is_paid_for_by_juice():
+    default = fc.CuratedFiller.default
+    assert default["perfumes"] == 2
+    assert default["juice"] == 63
+    assert sum(default.values()) == 103, "the recipe budget must not grow when perfumes are added"
 
 
 def test_all_categories_resolve():
@@ -41,7 +88,7 @@ def test_firepots_is_opt_in_fire_lean():
         "not one we impose; weighting it by default re-proportions every other category")
     assert "junk_gear" in fc.CATEGORIES, "junk_gear must still be an offerable category"
     assert "junk_gear" in fc.RECIPE_KEYS, "junk_gear must be an accepted recipe key or a yaml naming it raises"
-    assert fc.stack_qty_by_name().get("Fire Pot") == 2, "firepots members stack x2 like pots"
+    assert fc.stack_qty_by_name().get("Fire Pot") == 10, "firepots members stack x10 like pots"
 
 
 # ---- the recipe key surface: one list, three consumers (#571) ----------------------------------
@@ -76,7 +123,7 @@ def test_valid_keys_is_sorted():
 def test_stack_quantities():
     q = fc.stack_qty_by_name()
     assert q["Kukri"] == 5 and q["Throwing Dagger"] == 5, "throwables grant x5"
-    assert q["Fire Pot"] == 2 and q["Rancor Pot"] == 2, "pots grant x2"
+    assert q["Fire Pot"] == 10 and q["Rancor Pot"] == 10, "pots grant x10"
     assert q["Fire Grease"] == 2 and q["Rot Grease"] == 2, "greases grant x2"
     assert q["Arrow"] == 20 and q["Bolt"] == 20 and q["Ballista Bolt"] == 20, "ammunition grants x20"
     # foods/economy are NOT stacked here
@@ -134,7 +181,7 @@ class CuratedFillerRecipe(WorldTestBase):
         # stacks emitted in slot_data
         ic = self.world.fill_slot_data().get("itemCounts", {})
         self.assertEqual(ic.get(str(self.world.item_name_to_id["Kukri x5"])), 5)
-        self.assertEqual(ic.get(str(self.world.item_name_to_id["Fire Pot x2"])), 2)
+        self.assertEqual(ic.get(str(self.world.item_name_to_id["Fire Pot x10"])), 10)
         self.assertNotIn(str(self.world.item_name_to_id["Kukri"]), ic,
                          "the curated count must not leak onto vanilla Kukri lots")
         # FUNNY JUNK SURVIVES THE SEIZURE. `_is_junk_consumable` returns False for these two, so
