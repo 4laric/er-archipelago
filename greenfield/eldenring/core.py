@@ -549,6 +549,9 @@ class GreenfieldEldenRingWorld(World):
     options: GFOptions
     item_name_to_id = item_name_to_id
     location_name_to_id = location_name_to_id
+    # Serpent-Hunter is deliberately absent from the randomized pool: the client grants it on
+    # entry to Rykard's arena. Keep the server from charging hint points for an item it cannot find.
+    hint_blacklist = frozenset({"Serpent-Hunter"})
     origin_region_name = "Menu"
 
     # ---- region scope (num_regions) -------------------------------------------
