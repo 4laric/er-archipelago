@@ -74,7 +74,7 @@ an independent cumulative backstop—including server `/send` and mid-seed upgra
 **The AP flower already worked in the profile we shipped; this release makes it survive other
 mod layouts.** The Telescope is the game's original image in icon cell 92, so it appeared when the
 AP texture override was not being loaded—not across the board. Players launching through our
-packaged Mod Engine 2 profile already had the override and saw the Flower. The gap showed up for
+packaged Mod Engine 3 profile already had the override and saw the Flower. The gap showed up for
 people running outside that profile, including Matt's randomizer layouts, where the atlas was not
 installed into the directory the game actually loaded.
 
