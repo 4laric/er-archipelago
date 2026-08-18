@@ -34,6 +34,7 @@ from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E
 #     corpus and never had a sweep to lose.
 GRAFTED_SCION = 10010800          # boss_healthbars: ('m10_01', 'm10_01', 'legacy', 'Grafted Scion')
 SCION_OWN_DROP_AP = 7773886       # Ornamental Straight Sword, f510030 -- a normal check, must SURVIVE
+GOSTOC_BELL_AP = 7773843           # f400051, MSB-placed in m10_00 while its source map was PENDING
 
 
 def test_the_tutorial_boss_grants_no_sweep():
@@ -41,6 +42,13 @@ def test_the_tutorial_boss_grants_no_sweep():
         "the tutorial Grafted Scion (m10_01) has a sweep again, of %d check(s) in %r. Killing it is "
         "possible in the first few minutes; its sweep pays out a legacy dungeon gated behind Margit."
         % (len(DUNGEON_SWEEPS.get(GRAFTED_SCION, [])), SWEEP_REGION.get(GRAFTED_SCION)))
+
+
+def test_msb_placed_pending_map_check_reaches_its_dungeon_sweep():
+    """#562: a stronger region answer must not erase the map used by the sweep consumer."""
+    owners = [trigger for trigger, members in DUNGEON_SWEEPS.items() if GOSTOC_BELL_AP in members]
+    assert len(owners) == 1
+    assert SWEEP_REGION[owners[0]] == "Stormveil"
 
 
 def test_no_stormveil_sweep_is_keyed_on_a_non_stormveil_boss():
@@ -467,8 +475,14 @@ def test_the_sweep_corpus_did_not_shrink():
     # #664's Rhia exclusion and also removes Dheo (flag 2050407000) from Bayle's filler sweep. The
     # two removals are now the same policy: a necklace-gated quest action is not filler an unrelated
     # boss may grant. Rhia was already absent, so this stack removes only Dheo. ADDED 0, RE-OWNED 0.
-    assert total == 4032, (
-        "sweep corpus is %d, expected 4032. If a sweep was legitimately added or removed, say WHY "
+    # +89 (2026-08-18, #562): 4032 -> 4121. MSB placement was already the authority for 59 checks'
+    # regions, but region_of returned before copying that same known map onto rows whose scanner map
+    # was PENDING. The map-keyed sweep consumer therefore could not see them. Recording the MSB map
+    # adds 59 physical flags plus 30 co-check siblings, removes 0, and re-owns 45 existing flags.
+    # Verified by (trigger, flag): all 59 additions are swept inside their location region and all
+    # 45 re-owned flags stay inside their previous region. Gostoc's bell above is the motivating case.
+    assert total == 4121, (
+        "sweep corpus is %d, expected 4121. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -635,6 +649,9 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 2053467600 left Rakshasa's sweep. No member was added or re-owned.
     # 2026-08-17 (#665): 1f01b69f -> 79ccf39c, 4033 -> 4032. REMOVED only: Dheo bell reward
     # 2050407000 left Bayle's sweep when both bell interactions became KeyItem checks.
-    assert (digest, n) == ("79ccf39c8e3be6aa", 4032), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (79ccf39c8e3be6aa, 4032). The total alone will "
+    # 2026-08-18 (#562): 79ccf39c -> 394aa604, 4032 -> 4121. ADDED 59 physical flags and 30
+    # co-check siblings, REMOVED 0, RE-OWNED 45; zero additions or re-ownerships cross a region.
+    # This is the intended recovery of checks whose MSB-derived map was known but not recorded.
+    assert (digest, n) == ("394aa6043e5d1c28", 4121), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (394aa6043e5d1c28, 4121). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
