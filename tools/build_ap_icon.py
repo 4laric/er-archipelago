@@ -8,8 +8,9 @@ docs/AP-ICON-PIPELINE.md for what may and may not be committed.
 
 WHY THIS IS A WITCHYBND WRAPPER AND NOT A FORMAT IMPLEMENTATION
     menu\\{hi,low}\\01_common.tpf.dcx is DCX/**KRAK** -- Oodle Kraken. Verified on the real files:
-    magic DCX\\0 ... DCP\\0 KRAK. Oodle is proprietary and Windows-side; WitchyBND already carries it.
-    So witchy does the (de)compression and this script does only the pixels.
+    magic DCX\\0 ... DCP\\0 KRAK. Oodle is proprietary and Windows-side, so this tool uses the DLL
+    from the player's installed game and never redistributes it. Witchy does the decompression;
+    the output is deliberately repacked as DFLT, which the 2026-08-17 live experiment proved loads.
 
 PROBE FIRST -- it is what established the geometry rather than guessing it. Two real runs against
 the game gave, for BOTH bundles:
@@ -19,11 +20,9 @@ the game gave, for BOTH bundles:
 Note 2132 is NOT a multiple of 160: the atlas is arbitrarily packed, so a grid model is wrong here
 whatever cell size is chosen. The rect comes from the layout, per bundle, every run.
 
-🛑 THE WRITE PATH HAS NEVER BEEN RUN. The probe path has (witchy 3.0.1.0, Windows). Everything
-downstream of texconv is UNVERIFIED -- there is no texconv, no Oodle and no game in the sandbox
-where this was written. What IS covered by tools/test_build_ap_icon.py: the rect paste at the real
-coordinates, the clear-before-paste, the refusal to write outside the atlas, DDS header parsing and
-format preservation.
+The complete write path was proven in game on 2026-08-17 with Witchy 3.0.1.0: both hi and low DFLT
+outputs loaded and rendered the flower without the AP DLL or a KRAK override. Unit tests cover the
+rect paste, clear-before-paste, bounds, DDS preservation, manifest conversion and output-codec gate.
 
     python tools/build_ap_icon.py --probe --menu "<game>\\menu"
     python tools/build_ap_icon.py --icon01 --icon-id 92 --bundles hi,low --menu "<game>\\menu"
@@ -38,10 +37,12 @@ import os
 import shutil
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 DEFAULT_ART = os.path.join(HERE, "ap_icon_src", "ap_flower.png")
+DEFAULT_PAYLOAD = os.path.join(HERE, "ap_icon_src", "ap_flower_160.bc7")
 SHEET = "01_common.tpf.dcx"
 
 
@@ -72,24 +73,39 @@ def find_witchy(explicit=None):
     for c in cands:
         tried.append(c)
         if c and os.path.isfile(c):
-            _warn_if_no_oodle(c)
             return c
-    die("WitchyBND not found. It supplies the Oodle/KRAK codec these atlases need; this script "
-        "deliberately does not implement DCX. Looked at:\n  " + "\n  ".join(tried) +
-        "\nPass --witchy <path>, set WITCHYBND, or drop it in elden_ring_artifacts\\.")
+    die("WitchyBND not found. It unpacks/re-packs the game containers; this script deliberately "
+        "does not implement DCX. Looked at:\n  " + "\n  ".join(tried) +
+        "\nPass --witchy <path>, set WITCHYBND, or drop it in elden_ring_artifacts\\. The Oodle "
+        "decoder is discovered separately from the player's installed game.")
 
 
-def _warn_if_no_oodle(witchy_exe):
-    """KRAK needs oo2core beside witchy. Absent, the unpack fails with a confusing error -- say so
-    up front rather than letting it surface as 'witchybnd -u failed'."""
-    d = os.path.dirname(os.path.abspath(witchy_exe))
-    if not any(f.lower().startswith("oo2core") for f in os.listdir(d) if os.path.isfile(os.path.join(d, f))):
-        print("build_ap_icon: WARNING no oo2core*.dll beside %s -- these atlases are DCX/KRAK "
-              "(Oodle) and the unpack will fail without it." % witchy_exe, file=sys.stderr)
+def find_oodle(menu, explicit=None):
+    """Find the player's own Oodle DLL; never require or package a redistributed copy.
+
+    Elden Ring keeps ``oo2core_6_win64.dll`` beside ``eldenring.exe``, two levels above the menu
+    directory.  Accept an override for non-Steam layouts, but reject a missing codec before Witchy
+    turns it into a vague KRAK failure.
+    """
+    candidates = []
+    if explicit:
+        candidates.append(explicit)
+    if os.environ.get("ER_OODLE"):
+        candidates.append(os.environ["ER_OODLE"])
+    game = os.path.dirname(os.path.abspath(menu))
+    for name in ("oo2core_6_win64.dll", "oo2core_8_win64.dll", "oo2core_9_win64.dll"):
+        candidates.append(os.path.join(game, name))
+    for candidate in candidates:
+        if candidate and os.path.isfile(candidate):
+            return os.path.abspath(candidate)
+    die("the installed game's oo2core DLL was not found. Looked beside the game menu at %s. "
+        "Pass --oodle <path> or set ER_OODLE; the DLL is read from the player's installation and "
+        "is never copied into the repository or release." % game)
 
 
 _PROMPTPLUS = "requires a terminal"
 _NEEDS_CONSOLE = [False]   # latched on first refusal: witchy 3.0.1.0 refuses even with -s
+_WITCHY_ENV = [None]
 
 
 def run_witchy(witchy, args, what):
@@ -106,11 +122,12 @@ def run_witchy(witchy, args, what):
     directory it produced, never its stdout, so inheriting costs nothing but noise.
     """
     if _NEEDS_CONSOLE[0]:
-        r0 = subprocess.run([witchy] + args)      # learned already; skip the wasted attempt
+        r0 = subprocess.run([witchy] + args, env=_WITCHY_ENV[0])
         if r0.returncode != 0:
             die("%s failed (exit %d)" % (what, r0.returncode))
         return r0
-    r = subprocess.run([witchy, "-s"] + args, capture_output=True, text=True)
+    r = subprocess.run([witchy, "-s"] + args, capture_output=True, text=True,
+                       env=_WITCHY_ENV[0])
     if r.returncode == 0:
         return r
     blob = (r.stdout or "") + (r.stderr or "")
@@ -119,7 +136,7 @@ def run_witchy(witchy, args, what):
             print("build_ap_icon: witchy refused redirected stdio even with -s; attaching to this "
                   "console for the rest of the run.", file=sys.stderr)
         _NEEDS_CONSOLE[0] = True
-        r2 = subprocess.run([witchy] + args)
+        r2 = subprocess.run([witchy] + args, env=_WITCHY_ENV[0])
         if r2.returncode == 0:
             return r2
         die("%s failed (exit %d) with witchy attached to the console -- this is a real witchy "
@@ -129,6 +146,8 @@ def run_witchy(witchy, args, what):
 
 def unpack(witchy, src, workdir):
     """witchy -u <file> -> a sibling directory. Returns the unpacked dir."""
+    if os.path.isdir(workdir):
+        shutil.rmtree(workdir)
     os.makedirs(workdir, exist_ok=True)
     local = os.path.join(workdir, os.path.basename(src))
     shutil.copy2(src, local)
@@ -141,6 +160,62 @@ def unpack(witchy, src, workdir):
         die("expected exactly one unpacked directory in %s, found %r. Witchy's naming changed; "
             "fix this rather than guessing." % (workdir, made))
     return os.path.join(workdir, made[0])
+
+
+_DFLT_FIELDS = {
+    "dfltUnk04": "69632",  # 0x11000
+    "dfltUnk10": "68",     # 0x44
+    "dfltUnk14": "76",     # 0x4c
+    "dfltUnk30": "9",
+    "dfltUnk38": "21",     # 0x15
+}
+
+
+def force_dflt_manifest(unpacked):
+    """Change the one Witchy container manifest from KRAK to the proven-loadable DFLT form."""
+    candidates = []
+    for root, _dirs, files in os.walk(unpacked):
+        for filename in files:
+            if not filename.lower().endswith(".xml"):
+                continue
+            path = os.path.join(root, filename)
+            try:
+                tree = ET.parse(path)
+            except ET.ParseError:
+                continue
+            compression = tree.getroot().find("compression")
+            if compression is not None:
+                candidates.append((path, tree, compression))
+    if len(candidates) != 1:
+        die("expected exactly one Witchy compression manifest under %s, found %d; refusing to "
+            "guess which nested file controls the output DCX." % (unpacked, len(candidates)))
+    path, tree, compression = candidates[0]
+    root = tree.getroot()
+    compression.text = "DCX_DFLT"
+    for stale in ("compressionLevel", "oodleCompressorType"):
+        node = root.find(stale)
+        if node is not None:
+            root.remove(node)
+    for name, value in _DFLT_FIELDS.items():
+        node = root.find(name)
+        if node is None:
+            node = ET.SubElement(root, name)
+        node.text = value
+    tree.write(path, encoding="utf-8", xml_declaration=True)
+    return path
+
+
+def dcx_codec(path):
+    """Return DFLT/KRAK from the DCX header, or None for an unsupported/uncompressed result."""
+    with open(path, "rb") as fh:
+        header = fh.read(192)
+    if not header.startswith(b"DCX\0"):
+        return None
+    if b"DCP\0DFLT" in header:
+        return "DFLT"
+    if b"DCP\0KRAK" in header:
+        return "KRAK"
+    return None
 
 
 def dds_files(unpacked):
@@ -270,12 +345,7 @@ def probe(menu, bundles, icon_id, cell, witchy, workdir):
 
 
 def dds_format(path):
-    """(fourcc, dxgi_format, mip_count) -- so a re-encode can preserve what the game shipped.
-
-    A DDS re-encoded to the wrong format still LOADS and still looks fine in a viewer, so getting
-    this wrong is another silent-wrong-answer: it would ship a bloated or subtly wrong atlas that
-    nothing flags. Read it, echo it, pass it back to texconv.
-    """
+    """(fourcc, dxgi_format, mip_count), used to prove a direct block splice is safe."""
     import struct
     with open(path, "rb") as fh:
         head = fh.read(148)
@@ -287,6 +357,49 @@ def dds_format(path):
     if fourcc == b"DX10" and len(head) >= 132:
         dxgi = struct.unpack_from("<I", head, 128)[0]
     return (fourcc.decode("ascii", "replace"), dxgi, mips)
+
+
+def splice_bc7_payload(dds, payload_path, x, y, w, h):
+    """Replace an aligned BC7 rectangle without decoding or re-encoding the game atlas."""
+    size = dds_size(dds)
+    fourcc, dxgi, mips = dds_format(dds)
+    if not size:
+        die("could not read a DDS header from %s" % dds)
+    if fourcc != "DX10" or dxgi not in (98, 99):
+        die("expected a BC7 DX10 atlas, found fourcc=%r dxgi=%r; refusing a block splice into an "
+            "unknown format." % (fourcc, dxgi))
+    if mips != 1:
+        die("expected the proven one-mip atlas, found %r mip(s); lower mips are not block-aligned "
+            "and must not be silently left with the Telescope." % mips)
+    atlas_w, atlas_h = size
+    if any(v % 4 for v in (x, y, w, h)) or w <= 0 or h <= 0:
+        die("sprite rect %d,%d %dx%d is not positive and BC-block aligned." % (x, y, w, h))
+    if x + w > atlas_w or y + h > atlas_h:
+        die("rect (%d,%d %dx%d) falls outside the %dx%d atlas." %
+            (x, y, w, h, atlas_w, atlas_h))
+    with open(payload_path, "rb") as fh:
+        payload = fh.read()
+    block_bytes = 16
+    row_bytes = (w // 4) * block_bytes
+    rows = h // 4
+    expected = row_bytes * rows
+    if len(payload) != expected:
+        die("BC7 flower payload is %d bytes, expected %d for %dx%d." %
+            (len(payload), expected, w, h))
+    data_offset = 148  # DDS magic + 124-byte header + 20-byte DX10 header
+    atlas_row_bytes = (atlas_w // 4) * block_bytes
+    required = data_offset + atlas_row_bytes * (atlas_h // 4)
+    if os.path.getsize(dds) < required:
+        die("DDS is truncated: %d bytes, need at least %d for a %dx%d BC7 surface." %
+            (os.path.getsize(dds), required, atlas_w, atlas_h))
+    with open(dds, "r+b") as fh:
+        for row in range(rows):
+            offset = (data_offset + ((y // 4 + row) * atlas_row_bytes) +
+                      (x // 4) * block_bytes)
+            fh.seek(offset)
+            start = row * row_bytes
+            fh.write(payload[start:start + row_bytes])
+    return expected
 
 
 def composite_rect(art, sheet_png, x, y, w, h, out_png, force_black_alpha):
@@ -326,6 +439,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--menu", required=True, help=r'the game\menu directory')
     ap.add_argument("--art", default=DEFAULT_ART)
+    ap.add_argument("--payload", default=DEFAULT_PAYLOAD,
+                    help="project-owned precompressed 160x160 BC7 flower blocks")
     ap.add_argument("--icon-id", type=int, default=92)
     ap.add_argument("--bundles", default="hi,low")
     # --cell survives ONLY for the no-layout fallback report. The rect comes from the sblytbnd.
@@ -337,21 +452,29 @@ def main():
     ap.add_argument("--out", default=os.path.join(REPO, "build", "ap_icon01", "menu"))
     ap.add_argument("--work", default=os.path.join(REPO, "build", "ap_icon01", "_work"))
     ap.add_argument("--witchy", help="path to WitchyBND.exe (default: elden_ring_artifacts, then PATH)")
+    ap.add_argument("--oodle", help="installed game's oo2core DLL (default: beside eldenring.exe)")
     ap.add_argument("--probe", action="store_true", help="report the atlas layout, write nothing")
     ap.add_argument("--icon01", action="store_true", help="accepted for the inherited command line")
     ap.add_argument("--black-to-alpha", action="store_true",
                     help="ACCEPTED AND IGNORED -- the committed art already has alpha (see module docstring)")
     ap.add_argument("--force-black-to-alpha", action="store_true", help="really do the black->alpha keying")
-    ap.add_argument("--format", help="texconv -f value; default preserves the shipped DDS format")
     a = ap.parse_args()
 
     bundles = [b.strip() for b in a.bundles.split(",") if b.strip()]
     if not os.path.isdir(a.menu):
         die("no menu directory at %s" % a.menu)
-    if not os.path.isfile(a.art):
-        die("no art at %s (expected the committed flower; see tools/ap_icon_src/README.md)" % a.art)
+    if not os.path.isfile(a.payload):
+        die("no BC7 payload at %s (expected the committed project-owned flower blocks; see "
+            "tools/ap_icon_src/README.md)" % a.payload)
     witchy = find_witchy(a.witchy)
+    oodle = find_oodle(a.menu, a.oodle)
+    witchy_env = os.environ.copy()
+    oodle_dir = os.path.dirname(oodle)
+    witchy_env["PATH"] = oodle_dir + os.pathsep + witchy_env.get("PATH", "")
+    _WITCHY_ENV[0] = witchy_env
     print("build_ap_icon: using witchy at %s" % witchy, file=sys.stderr)
+    print("build_ap_icon: using installed-game Oodle at %s (not packaged)" % oodle,
+          file=sys.stderr)
     if a.black_to_alpha and not a.force_black_to_alpha:
         print("build_ap_icon: NOTE --black-to-alpha ignored (art already has an alpha channel). "
               "Pass --force-black-to-alpha to override.", file=sys.stderr)
@@ -359,12 +482,6 @@ def main():
     if a.probe:
         probe(a.menu, bundles, a.icon_id, a.cell, witchy, a.work)
         return 0
-
-    texconv = shutil.which("texconv") or shutil.which("texconv.exe")
-    if not texconv:
-        die("texconv not found. Pillow cannot WRITE the block-compressed DDS these atlases use, so "
-            "the round trip needs DirectXTex's texconv.exe on PATH (or beside WitchyBND). Get it "
-            "from https://github.com/microsoft/DirectXTex/releases -- it is a single exe.")
 
     os.makedirs(a.out, exist_ok=True)
     for b in bundles:
@@ -397,27 +514,23 @@ def main():
         if not size:
             die("could not read a DDS header from %s" % dds)
 
-        # 3. dds -> png, edit, png -> dds in the SAME format
-        stage = os.path.join(a.work, b, "_edit")
-        os.makedirs(stage, exist_ok=True)
-        run_tool([texconv, "-nologo", "-y", "-ft", "png", "-o", stage, dds],
-                 "texconv dds->png on %s" % atlas)
-        png = os.path.join(stage, os.path.splitext(os.path.basename(dds))[0] + ".png")
-        if not os.path.isfile(png):
-            die("texconv reported success but produced no %s. An empty result is a FAILURE." % png)
-        composite_rect(a.art, png, x, y, w, h, png, a.force_black_to_alpha)
+        # 3. The one-mip atlas and target rect are BC7-block aligned. Copy only our 25,600 bytes;
+        # never decode or re-encode the other 8,388,608 bytes of FromSoft texture data.
+        written = splice_bc7_payload(dds, a.payload, x, y, w, h)
+        print("    spliced %d bytes of project-owned BC7 flower blocks" % written)
 
-        fmt = a.format or _texconv_format(fourcc, dxgi)
-        cmd = [texconv, "-nologo", "-y", "-f", fmt, "-o", os.path.dirname(dds), png]
-        if mips:
-            cmd[1:1] = ["-m", str(mips)]
-        run_tool(cmd, "texconv png->dds (%s) on %s" % (fmt, atlas))
-
-        # 4. repack and stage
+        # 4. The source is KRAK, but the live experiment proved the same TPF loads as DFLT. Force
+        # that cheap codec before repack so no proprietary KRAK encoder enters the output.
+        manifest = force_dflt_manifest(up_tpf)
+        print("    repack codec: DCX_DFLT via %s" % manifest)
         run_witchy(witchy, [up_tpf], "witchybnd repack of %s" % up_tpf)
         built = os.path.join(os.path.dirname(up_tpf), SHEET)
         if not os.path.isfile(built):
             die("witchy repack produced no %s next to %s" % (SHEET, up_tpf))
+        codec = dcx_codec(built)
+        if codec != "DFLT":
+            die("witchy repack produced codec %r, expected DFLT. Refusing to stage an output that "
+                "depends on proprietary KRAK recompression." % codec)
         dst_dir = os.path.join(a.out, b)
         os.makedirs(dst_dir, exist_ok=True)
         shutil.copy2(built, os.path.join(dst_dir, SHEET))
@@ -426,31 +539,6 @@ def main():
     print("\nDone. build.ps1 stages these into me3\\ap-package; package_release refuses to ship "
           "without them.")
     return 0
-
-
-def run_tool(cmd, what):
-    r = subprocess.run(cmd, capture_output=True, text=True)
-    if r.returncode != 0:
-        die("%s failed (exit %d)\n%s%s" % (what, r.returncode, r.stdout, r.stderr))
-    return r
-
-
-def _texconv_format(fourcc, dxgi):
-    """Preserve the shipped format. DXGI numbers per the DDS DX10 header.
-
-    🛑 Only the formats actually seen are mapped. An unknown one DIES rather than defaulting to
-    something plausible -- re-encoding BC7 as BC3 still loads, still looks nearly right, and
-    silently degrades every icon on the sheet.
-    """
-    known = {77: "BC3_UNORM", 78: "BC3_UNORM_SRGB", 80: "BC4_UNORM", 83: "BC5_UNORM",
-             98: "BC7_UNORM", 99: "BC7_UNORM_SRGB", 71: "BC1_UNORM", 72: "BC1_UNORM_SRGB"}
-    if dxgi in known:
-        return known[dxgi]
-    if fourcc in ("DXT1", "DXT3", "DXT5"):
-        return {"DXT1": "BC1_UNORM", "DXT3": "BC2_UNORM", "DXT5": "BC3_UNORM"}[fourcc]
-    die("unrecognised DDS format (fourcc=%r dxgi=%r). Refusing to guess an encoding -- re-encoding "
-        "to the wrong one still loads and silently degrades the whole atlas. Pass --format "
-        "explicitly (a texconv -f value) once you have confirmed it." % (fourcc, dxgi))
 
 
 if __name__ == "__main__":

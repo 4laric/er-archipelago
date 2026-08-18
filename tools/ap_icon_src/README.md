@@ -14,10 +14,16 @@ Provided by Alaric 2026-07-29, which closed half of the gap described in
 |---|---|
 | `ap_flower.webp` | **CANONICAL.** The original, byte-for-byte as supplied. 2034x2112, RGBA, transparent background. |
 | `ap_flower.png`  | Derived convenience copy for tooling that will not read webp. Regenerate with the one-liner below; verified a lossless round-trip of the webp's pixels. |
+| `ap_flower_160.bc7` | The 160x160, one-mip BC7 payload copied into the player's atlas. It is 25,600 bytes of project-owned art, not a game texture. SHA-256 `b26be52daaec18149470383e8f9fda60234a300617b596bfb15aa3c0373ec5e6`. |
 
     python -c "from PIL import Image; Image.open('tools/ap_icon_src/ap_flower.webp').convert('RGBA').save('tools/ap_icon_src/ap_flower.png','PNG',optimize=True)"
 
 If they ever disagree, the webp wins and the png is stale — regenerate it, do not hand-edit either.
+
+The BC7 payload was generated from the PNG with `ispc_texcomp` 1.0.1's `alpha_slow` profile after
+the same aspect-preserving 154x160 resize and centering used by the original atlas tool. Its decoded
+preview was checked against the source, and `test_build_ap_icon.py` pins its exact size and hash.
+Regenerate it only when the canonical art changes; players do not need the encoder.
 
 ## Two things to check when wiring the tool
 
