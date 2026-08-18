@@ -490,7 +490,7 @@ _OPTION_GROUPS = [
         "pool_builder_pct_armor", "pool_builder_pct_spells", "pool_builder_pct_talismans",
         "pool_builder_pct_ashes_of_war"]),
     ("Multiworld & Placement", [
-        "death_link", "filler_foreign_pct", "progression_surface", "progression_bias",
+        "death_link", "trap_link", "filler_foreign_pct", "progression_surface", "progression_bias",
         # cross_game_progression reads directly after progression_bias because it only has meaning
         # once that one has released something: bias decides HOW MANY Locks travel, this decides how
         # many of the travellers may leave Elden Ring entirely. Reversed, the second is unanswerable.

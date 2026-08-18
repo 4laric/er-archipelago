@@ -131,6 +131,7 @@
    "collapsed": false,
    "options": [
     "death_link",
+    "trap_link",
     "filler_foreign_pct",
     "progression_surface",
     "progression_bias",
@@ -167,9 +168,7 @@
    ]
   }
  ],
- "ungrouped": [
-  "trap_link"
- ],
+ "ungrouped": [],
  "options": [
   {
    "key": "num_regions",
