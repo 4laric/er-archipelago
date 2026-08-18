@@ -220,9 +220,9 @@ Elden Ring:
   # not been playtested yet. On a base-game seed it is safe to try.
   global_scadutree_blessing: off
 
-  # What the goal requires.
-  #   region_locks  -- hold every Region Lock that is in play (default).
-  #   great_runes   -- ALSO collect goal_great_runes Great Runes. You must HOLD the
+  # Whether the goal also requires Great Runes (independent of the region policy below).
+  #   region_locks  -- compatibility spelling for no Great Rune requirement (default).
+  #   great_runes   -- collect goal_great_runes Great Runes. You must HOLD the
   #                    runes; killing the boss that vanilla-drops one is NOT enough
   #                    (they are shuffled -- the rune is not at its boss).
   #                    Any distinct Great Runes count. By default this means any
@@ -235,11 +235,13 @@ Elden Ring:
   goal_great_runes: 4
 
   # What opens the final goal region (Ashen Capital, or the DLC goal terminus).
+  #   none              -- no region-side requirement; useful for Great Runes-only goals.
   #   items_held        -- the existing behavior: hold every Region Lock in play.
   #   regions_completed -- clear every progression-surface check in each required
   #                        non-goal region. For shop checks, merely viewing the
   #                        merchant's inventory counts; no purchase is required.
   #                        Progress is restored when reconnecting.
+  # This is independent of ending_condition, giving six possible combinations.
   goal_region_unlock_policy: items_held
 
   # Great Runes needed to get into Leyndell, ON TOP of the Leyndell Lock --

@@ -5,6 +5,11 @@ only moment anyone remembers why it mattered._
 
 ## What changed at the table
 
+**The ending is now two choices instead of one bundled choice.** Great Runes are one axis: require
+the configured count, or do not. Regions are the other: require their Lock items, require every
+region's checks to be completed, or do not require regions at all. That makes Great Runes-only runs
+possible, while the existing held-Locks default remains unchanged for old YAMLs.
+
 **Progressive Flask Upgrades stop doing two things at once.** Each copy used to nudge charges *and*
 hand you a Sacred Tear, which made every upgrade two half-upgrades, neither of which felt like
 anything. They alternate now: charge, potency, charge, potency, in that order, every time. The first

@@ -325,8 +325,9 @@ class GoalLocations(Feature):
                 "[eldenring:%s] goal = %s (%d location(s)) AND %d held Region Lock(s)",
                 world.player, region, len(ids), len(required))
         else:
+            policy = getattr(world.options, "goal_region_unlock_policy", None)
+            policy_name = getattr(policy, "current_key", "items_held")
             logging.getLogger("Greenfield").info(
                 "[eldenring:%s] goal = %s (%d location(s)); no held-item requirement "
-                "(%s mints no Locks)", world.player, region, len(ids),
-                "vanilla_placement" if _vp.is_on(world) else "natural_progression")
+                "(goal-region policy: %s)", world.player, region, len(ids), policy_name)
         return out

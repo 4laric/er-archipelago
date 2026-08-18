@@ -130,14 +130,19 @@ class GoalRegionUnlockPolicy(Choice):
     """When the synthetic final region opens.
 
     ``items_held`` preserves the original rule: receiving every required Region Lock opens the
-    final region. ``regions_completed`` waits until every progression-surface check in every
-    non-final region has been satisfied. A shop check is satisfied when its merchant inventory is
-    viewed; buying the ware is not required. Completion is reconstructed from the server's checked
-    locations plus its per-slot viewed-shop ledger, so reconnecting cannot lose progress.
+    final region. ``none`` imposes no region-side requirement. ``regions_completed`` waits until
+    every progression-surface check in every non-final region has been satisfied. A shop check is
+    satisfied when its merchant inventory is viewed; buying the ware is not required. Completion
+    is reconstructed from the server's checked locations plus its per-slot viewed-shop ledger, so
+    reconnecting cannot lose progress.
+
+    This is independent of Ending Condition: any of these three policies can be combined with or
+    without the Great Rune threshold.
     """
     display_name = "Goal Region Unlock Policy"
     option_items_held = 0
     option_regions_completed = 1
+    option_none = 2
     default = 0
 
 

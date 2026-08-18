@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.8",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "740ec7473bdacc4d5fb5905354d339d3b19929ce13fce17ad3b022ecc0a22583",
+ "source_sha256": "6b5342f5ecc0e27a49c89e8116a8a7cb99f15b244a156f3a449a04f8a04a8d28",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -438,7 +438,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "ending_condition",
    "class": "EndingCondition",
    "display_name": "Ending Condition",
-   "description": "What the seed's goal requires. 'region_locks' (default): reach the goal region -- hold every\nkept Region Lock (the classic Shattering goal). 'great_runes': ALSO collect Great Runes. Great\nRunes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off this falls\nback to the region_locks goal. The requirement is auto-clamped to the number of Great Runes\nactually reachable this seed, so it can never make a seed unbeatable.\n\n'great_runes' means ANY N of the seven Great Runes. The full eligible set rides slot_data as\n`great_rune_items`, alongside `great_runes_required`; both the AP completion rule and client\ncount distinct held names from that set (#813).",
+   "description": "Whether the seed's goal also requires Great Runes. This is independent of Goal Region\nUnlock Policy, which separately chooses whether Region Locks, completed regions, or neither\nare required. ``region_locks`` is the compatibility spelling for no Great-Rune requirement;\n``great_runes`` requires the configured rune count.\n\nGreat Runes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off the\nrune requirement is inert. It is auto-clamped to the number of Great Runes actually reachable\nthis seed, so it can never make a seed unbeatable.\n\n'great_runes' means ANY N of the seven Great Runes. The full eligible set rides slot_data as\n`great_rune_items`, alongside `great_runes_required`; both the AP completion rule and client\ncount distinct held names from that set (#813).",
    "kind": "choice",
    "base": "Choice",
    "default": "region_locks",
@@ -1543,7 +1543,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "goal_region_unlock_policy",
    "class": "GoalRegionUnlockPolicy",
    "display_name": "Goal Region Unlock Policy",
-   "description": "When the synthetic final region opens.\n\n``items_held`` preserves the original rule: receiving every required Region Lock opens the\nfinal region. ``regions_completed`` waits until every progression-surface check in every\nnon-final region has been satisfied. A shop check is satisfied when its merchant inventory is\nviewed; buying the ware is not required. Completion is reconstructed from the server's checked\nlocations plus its per-slot viewed-shop ledger, so reconnecting cannot lose progress.",
+   "description": "When the synthetic final region opens.\n\n``items_held`` preserves the original rule: receiving every required Region Lock opens the\nfinal region. ``none`` imposes no region-side requirement. ``regions_completed`` waits until\nevery progression-surface check in every non-final region has been satisfied. A shop check is\nsatisfied when its merchant inventory is viewed; buying the ware is not required. Completion\nis reconstructed from the server's checked locations plus its per-slot viewed-shop ledger, so\nreconnecting cannot lose progress.\n\nThis is independent of Ending Condition: any of these three policies can be combined with or\nwithout the Great Rune threshold.",
    "kind": "choice",
    "base": "Choice",
    "default": "items_held",
@@ -1555,6 +1555,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     {
      "name": "regions_completed",
      "value": 1
+    },
+    {
+     "name": "none",
+     "value": 2
     }
    ],
    "range": null,
