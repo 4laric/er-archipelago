@@ -26,6 +26,7 @@ import argparse
 import hashlib
 import json
 import os
+from pathlib import Path
 import re
 import shutil
 import sys
@@ -256,15 +257,27 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
         die("no install-ap-flower.ps1 in the stage")
     if not os.path.isfile(installer_py):
         die("no install_ap_flower.py in the stage")
+    package = os.path.join(me3, "flower-package")
+    if os.path.isdir(package):
+        try:
+            from install_ap_flower import load_package
+            load_package(Path(package))
+        except Exception as exc:
+            die(f"invalid packaged AP Flower assets: {exc}")
+    elif not unofficial:
+        die("stable stage has no authenticated flower-package")
     info("AP flower: packaged-asset installer present")
 
     # Walk once for the remaining two content gates.
-    leaked, foreign = [], []
+    leaked, foreign, loose_atlases = [], [], []
     for root, _dirs, files in os.walk(stage_dir):
         for f in files:
             low = f.lower()
             if low.startswith("ap_save_") and low.endswith(".json"):
                 leaked.append(os.path.relpath(os.path.join(root, f), stage_dir))
+            if low == "01_common.tpf.dcx" and not os.path.relpath(
+                    os.path.join(root, f), me3).replace("\\", "/").startswith("flower-package/menu/"):
+                loose_atlases.append(os.path.relpath(os.path.join(root, f), stage_dir))
             # Case-INSENSITIVE on purpose. It was implicitly so on Windows; a naive port makes it
             # case-sensitive and `Eldenring_Archipelago.dll` newly trips this gate.
             if low.endswith((".dll", ".exe", ".asi")) and low not in [b.lower() for b in OUR_BINARIES]:
@@ -273,6 +286,8 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
         die(f"player save state staged: {', '.join(leaked)}")
     if foreign:
         die(f"third-party binaries staged: {', '.join(foreign)}")
+    if loose_atlases:
+        die(f"AP Flower atlas outside authenticated flower-package: {', '.join(loose_atlases)}")
     info("no save state, no third-party binaries")
 
 
