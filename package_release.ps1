@@ -461,6 +461,10 @@ Copy-Item $IconInstaller (Join-Path $Me3Dst "install-ap-flower.ps1") -Force
 $FlowerPackage = Join-Path $Repo "flower-package"
 if (Test-Path $FlowerPackage -PathType Container) {
     Copy-Item $FlowerPackage (Join-Path $Me3Dst "flower-package") -Recurse -Force
+} elseif (-not $Unofficial) {
+    Die "stable release requires flower-package with both AP Flower atlases"
+} else {
+    Warn "AP Flower release assets unavailable; installer will request a bundle that includes them"
 }
 Info "+ AP flower packaged-asset installer"
 

@@ -23,6 +23,7 @@ EXIT CODES -- 0 clean, 1 hard failure, 2 staged WITH WARNINGS. 2 is load-bearing
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -49,6 +50,23 @@ def warn(m: str) -> None:
 def die(m: str) -> "None":
     print(f"::error::pack_release: {m}", file=sys.stderr)
     raise SystemExit(1)
+
+
+def flower_manifest(root: str, version: str) -> None:
+    files = []
+    for relative in ("menu/hi/01_common.tpf.dcx", "menu/low/01_common.tpf.dcx"):
+        path = os.path.join(root, *relative.split("/"))
+        if not os.path.isfile(path):
+            die(f"AP flower release input is missing {relative}")
+        digest = hashlib.sha256()
+        with open(path, "rb") as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(chunk)
+        files.append({"path": relative, "size": os.path.getsize(path),
+                      "sha256": digest.hexdigest()})
+    with open(os.path.join(root, "manifest.json"), "w", encoding="utf-8", newline="\n") as stream:
+        json.dump({"schema": 1, "asset_version": version, "files": files}, stream, indent=2)
+        stream.write("\n")
 
 
 def soft(m: str, hard: bool) -> None:
@@ -183,10 +201,13 @@ def stage(args, stage_dir: str) -> None:
     shutil.copy2(icon_installer_py, os.path.join(me3_dst, "install_ap_flower.py"))
     flower_package = os.path.join(args.me3, "flower-package")
     if os.path.isdir(flower_package):
+        flower_manifest(flower_package, args.version)
         shutil.copytree(flower_package, os.path.join(me3_dst, "flower-package"))
         info("+ AP flower installers + packaged hi/low atlases")
+    elif not args.unofficial:
+        die("stable release requires me3/flower-package with both AP Flower atlases")
     else:
-        info("+ AP flower installers (release assets unavailable in this build)")
+        warn("AP Flower release assets unavailable; installer will report that clearly")
 
     if os.path.isdir(args.me3):
         extra = [n for n in os.listdir(args.me3)
