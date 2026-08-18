@@ -10,6 +10,12 @@ piece in that family—including altered variants—while reconnect-safe pacing 
 the character does not already own. Exact duplicate weapons, both trick mirrors, and Sacrificial
 Twigs also stop consuming scarce pool slots.
 
+The ending can now wait for you to finish the regions you opened, rather than appearing as soon as
+their Locks arrive. Under the optional `regions_completed` policy, every progression-surface check
+in each non-final region must be satisfied. Merely looking through a merchant's visible inventory
+counts for its shop checks—you do not have to buy filler to prove you visited—and that view progress
+survives reconnects.
+
 ## What carried over from v0.4.6
 
 This window opened 39 commits past v0.4.6 because v0.4.7 was never tagged. Those accumulated changes

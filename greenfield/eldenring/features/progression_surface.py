@@ -50,6 +50,7 @@ except Exception:  # not yet generated -> feature is a no-op
 # defeat the restriction -- Shop is only ever in play if the user explicitly selects it in the base.
 _WIDEN_GROUPS = [["Remembrance", "GreatRune"], ["KeyItem"], ["Boss"], ["Legendary"], ["Seedtree", "Church"]]
 _BOSS_KEY_PREFIX = "Boss Key:"
+_REGION_COMPLETION_FEATURE = "region_completion_goal_gate"
 
 
 class ProgressionSurface(OptionSet):
@@ -123,6 +124,21 @@ class ProgressionSurface(OptionSet):
                 {"label": "Off", "keys": []},
             ],
         }
+
+
+class GoalRegionUnlockPolicy(Choice):
+    """When the synthetic final region opens.
+
+    ``items_held`` preserves the original rule: receiving every required Region Lock opens the
+    final region. ``regions_completed`` waits until every progression-surface check in every
+    non-final region has been satisfied. A shop check is satisfied when its merchant inventory is
+    viewed; buying the ware is not required. Completion is reconstructed from the server's checked
+    locations plus its per-slot viewed-shop ledger, so reconnecting cannot lose progress.
+    """
+    display_name = "Goal Region Unlock Policy"
+    option_items_held = 0
+    option_regions_completed = 1
+    default = 0
 
 
 class ProgressionSurfaceMode(Removed):
@@ -1474,7 +1490,8 @@ class ProgressionSurfaceFeature(Feature):
                "progression_surface_mode": ProgressionSurfaceMode,
                "progression_bias": ProgressionBias,
                "confine_foreign_progression": ConfineForeignProgression,
-               "cross_game_progression": CrossGameProgression}
+               "cross_game_progression": CrossGameProgression,
+               "goal_region_unlock_policy": GoalRegionUnlockPolicy}
     # Placement runs centrally from core.pre_fill via apply() (locations exist + get_all_state valid).
     # The foreign-progression bar is set in core._add_locations (item_rule), using confined_surface_ids.
 
@@ -1508,4 +1525,8 @@ class ProgressionSurfaceFeature(Feature):
         ids = surface_ap_ids(world, classes)
         own = {loc.address for loc in world.multiworld.get_locations(world.player)
                if getattr(loc, "address", None) is not None}
-        return {contract.PROGRESSION_SURFACE_LOCATIONS: sorted(i for i in ids if i in own)}
+        out = {contract.PROGRESSION_SURFACE_LOCATIONS: sorted(i for i in ids if i in own)}
+        policy = getattr(world.options, "goal_region_unlock_policy", None)
+        if int(getattr(policy, "value", policy or 0)) == GoalRegionUnlockPolicy.option_regions_completed:
+            out[contract.REQUIRES_CLIENT_FEATURES] = [_REGION_COMPLETION_FEATURE]
+        return out
