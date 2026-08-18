@@ -382,8 +382,8 @@ Elden Ring:
   # the gate exists so that cannot happen twice.) Delete the block entirely to
   # follow the default automatically.
   curated_filler:
-    juice: 66
-    stones: 5
+    juice: 63
+    stones: 6
     somber_stones: 6
     runes: 10
     throwables: 6
@@ -391,6 +391,7 @@ Elden Ring:
     greases: 3
     foods: 2
     boluses: 1
+    perfumes: 2
 
   # How many Sites of Grace a region unlock lights.
   #   all       (default) every warp point in the region -- Liurnia is 59 at once

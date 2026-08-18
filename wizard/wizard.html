@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.7",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "c8c38c2d25d74bb0c395e8ce738fd0022a7dec0b8c298d112d2ad884e0079cfa",
+ "source_sha256": "73cffc1b1719e98402e3196a27b45239a1c908bda928f941ab3190ec71a43b5b",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -679,19 +679,20 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "curated_filler",
    "class": "CuratedFiller",
    "display_name": "Curated Filler recipe (category -> weight)",
-   "description": "Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the\ncategories in proportion to their weights -- they are relative, not percentages, and need not sum\nto anything. Categories: juice, junk_gear, stones, somber_stones, runes, throwables, pots,\nfirepots, greases, ammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to\nkeep that share as whatever the check already paid. Stacks: throwables x5, pots x2, firepots x2, greases x2,\nammunition x20.\nNOT off by default. The shipped recipe is juice 42 / stones 29 / somber_stones 6 / runes 10 /\nthrowables 6 / pots 4 / greases 3 / foods 2 / boluses 1, so roughly two fifths of a default seed's\nfiller tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --\nit warns loudly rather than silently reverting to vanilla junk.\n'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier\nfrom ~1013 qualifying items). Its opposite number is 'junk_gear': the ~368 equippables the game\nitself rates trivial, which juice will never hand you at any intensity because its floor starts\nabove them. Weight junk_gear if you want the low end of the armoury in your filler -- it is the\nonly path to the ~96 pieces (the Celebrant's weapons among them) that have no check at all,\nbecause their only source is a random enemy drop the game never flags. It competes on the same budget as everything else; raising it past\nwhat the catalog can supply spills the surplus to junk, with a warning naming the shortfall.\n'stones', 'somber_stones' and 'runes' are an upgrade-economy RESERVATION taken off the top\nproportionally. A tail too small for that reservation to buy a useful number of stones warns by\nname; it does not refuse to generate.\n'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace\nGolems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample (a consumable-leaning run that still keeps its economy): {juice: 20, stones: 29,\nsomber_stones: 6, runes: 10, throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5,\nperfumes: 8, rare: 1}. Copying an example WITHOUT `juice` and the stone weights is what the\nempty-recipe warning is about.",
+   "description": "Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the\ncategories in proportion to their weights -- they are relative, not percentages, and need not sum\nto anything. Categories: juice, junk_gear, stones, somber_stones, runes, throwables, pots,\nfirepots, greases, ammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to\nkeep that share as whatever the check already paid. Stacks: throwables x5, pots/firepots/perfumes\nx10, greases x2, ammunition x20.\nNOT off by default. The shipped recipe is juice 63 / stones 6 / somber_stones 6 / runes 10 /\nthrowables 6 / pots 4 / greases 3 / foods 2 / boluses 1 / perfumes 2. Perfumes take two points\nfrom juice, so adding them does not increase the filler budget.\nfiller tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --\nit warns loudly rather than silently reverting to vanilla junk.\n'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier\nfrom ~1013 qualifying items). Its opposite number is 'junk_gear': the ~368 equippables the game\nitself rates trivial, which juice will never hand you at any intensity because its floor starts\nabove them. Weight junk_gear if you want the low end of the armoury in your filler -- it is the\nonly path to the ~96 pieces (the Celebrant's weapons among them) that have no check at all,\nbecause their only source is a random enemy drop the game never flags. It competes on the same budget as everything else; raising it past\nwhat the catalog can supply spills the surplus to junk, with a warning naming the shortfall.\n'stones', 'somber_stones' and 'runes' are an upgrade-economy RESERVATION taken off the top\nproportionally. A tail too small for that reservation to buy a useful number of stones warns by\nname; it does not refuse to generate.\n'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace\nGolems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample (a consumable-leaning run that still keeps its economy): {juice: 20, stones: 29,\nsomber_stones: 6, runes: 10, throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5,\nperfumes: 8, rare: 1}. Copying an example WITHOUT `juice` and the stone weights is what the\nempty-recipe warning is about.",
    "kind": "dict",
    "base": "OptionDict",
    "default": {
-    "juice": 66,
-    "stones": 5,
+    "juice": 63,
+    "stones": 6,
     "somber_stones": 6,
     "runes": 10,
     "throwables": 6,
     "pots": 4,
     "greases": 3,
     "foods": 2,
-    "boluses": 1
+    "boluses": 1,
+    "perfumes": 2
    },
    "choices": null,
    "range": null,
