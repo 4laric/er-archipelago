@@ -280,3 +280,26 @@ def test_contract_accepts_flags_only_bell_rung_but_not_an_empty_rung():
     good = {"Progressive Smithing-Stone Miner's Bell Bearing":
             [{"goods": 1073751844, "flags": [280080], "consumed": False}]}
     assert contract._chk_nested_grants(good) is None
+
+
+def test_bell_rungs_set_stock_and_release_gates():
+    """A stock flag alone does not put a release-gated row on the Twin Maiden shelf."""
+    from worlds.eldenring.features import progressive as pgg
+
+    expected = {
+        pgg.PROG_SMITHING_BELL: [
+            [280080, 280090, 11109751],
+            [280110, 280120, 11109752],
+            [280140, 280150, 11109753],
+            [280160, 280170, 11109754],
+        ],
+        pgg.PROG_SOMBER_BELL: [
+            [280180, 280190, 11109755],
+            [280200, 280210, 11109756],
+            [280230, 280240, 11109757],
+            [280250, 280260, 11109758],
+            [280280, 11109759],
+        ],
+    }
+    assert {name: [rung["flags"] for rung in rungs]
+            for name, rungs in pgg._BELL_GRANTS.items()} == expected
