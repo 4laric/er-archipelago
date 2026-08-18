@@ -35,7 +35,7 @@ from ..data import HUB, LOCATIONS
 from ..features.progression_surface import (_HUB_MERCHANT_TAGS, _roundtable_merchant_aps,
                                             allowed_ap_ids)
 from ..location_tags import (DEFAULTED_REGION_APS, ERDTREE_BURN_APS, LOCATION_TAGS,
-                             SHOP_RELEASE_GATED_APS, SURFACE_EXCLUDE_APS)
+                             SHOP_RELEASE_GATED_APS, SHOP_SLOT_PINS, SURFACE_EXCLUDE_APS)
 
 # Every hub row carrying a merchant tag. 184 = 158 Shop+ShopNonSpell, 23 EniaShop(+Legendary), 3 Shop.
 _PINNED_BAR = 184
@@ -131,6 +131,18 @@ class HubMerchantLocationRule(WorldTestBase):
             leaked,
             "hub merchant checks still accept required progression through general fill: %s"
             % leaked[:5])
+
+    def test_wandering_merchant_slots_still_accept_a_great_rune(self):
+        """The permanent bar owns hub-filed rows, not ordinary merchants in their real regions."""
+        item = Item("Great Rune probe", ItemClassification.progression, None, self.player)
+        locations = {loc.address: loc for loc in self.multiworld.get_locations(self.player)}
+        present = sorted(set(SHOP_SLOT_PINS.values()) & locations.keys())
+        self.assertTrue(present, "this seed contains no vetted wandering-merchant slot")
+        refused = [locations[ap].name for ap in present if not locations[ap].item_rule(item)]
+        self.assertFalse(
+            refused,
+            "the hub-only location bar swallowed wandering merchants in real regions: %s"
+            % refused[:5])
 
 
 if __name__ == "__main__":

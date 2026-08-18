@@ -1610,10 +1610,10 @@ class GreenfieldEldenRingWorld(World):
                                                        _roundtable_merchant_aps as _rhma)
             _sites = _csr(self)
             _barred = _barred - _cla(self)
-            # Enia and the Twin Maidens are excluded from the curated surface, but a surface spill
-            # rejoins AP's general fill. Make the intended hub-merchant rule permanent at the
-            # location chokepoint so no spill, foreign pass, or future fill phase can put required
-            # progression on a shop available from the opening hub (#860).
+            # A surface spill rejoins AP's general fill, so keep every merchant row FILED in the
+            # always-open hub permanently barred at the location chokepoint. This covers Enia, the
+            # Twin Maidens, and questline Patches/Thiollier; ordinary wandering merchants are filed
+            # in their physical regions and remain eligible to hold progression (#860).
             _barred = _barred | _rhma()
         except Exception:
             _sites = {}

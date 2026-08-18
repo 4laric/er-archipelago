@@ -9,8 +9,9 @@ only moment anyone remembers why it mattered._
 the configured count, or do not. Regions are the other: require their Lock items, require every
 region's checks to be completed, or do not require regions at all. That makes Great Runes-only runs
 possible, while the existing held-Locks default remains unchanged for old YAMLs.
-Required progression is also hard-barred from Enia and the Twin Maidens now: excluding those shops
-from the preferred surface was not enough when an item spilled back into Archipelago's general fill.
+Required progression is also hard-barred from questline Patches, Enia, and the Twin Maidens now:
+excluding those shops from the preferred surface was not enough when an item spilled back into
+Archipelago's general fill. Ordinary wandering merchants can still carry it.
 
 **Progressive Flask Upgrades stop doing two things at once.** Each copy used to nudge charges *and*
 hand you a Sacred Tear, which made every upgrade two half-upgrades, neither of which felt like

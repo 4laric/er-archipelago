@@ -27,9 +27,10 @@ reconstruction).
 
 - **Goal requirements are two independent axes.** Great Runes can be required or not, while the
   goal region separately opens from held Region Locks, completed regions, or no region requirement.
-  This adds Great Runes-only goals without changing existing YAML defaults. Enia and the Twin
-  Maidens now reject progression at the location rule as well as the curated surface, so a required
-  Great Rune cannot reach their shops through a spill or later fill pass. World: #858.
+  This adds Great Runes-only goals without changing existing YAML defaults. Patches, Enia, and the
+  Twin Maidens now reject progression at the location rule as well as the curated surface, so a
+  required Great Rune cannot reach those shops through a spill or later fill pass; ordinary
+  wandering merchants remain eligible. World: #858.
 - **Quest prerequisites cannot be placed on their own downstream rewards.** Cursemark of Death
   cannot land on Fortissax, with direct rules also covering the Favor, Needle, Valkyrie,
   Fingerslayer, and Dark Moon chains. The items remain filler elsewhere. World: #836, closing #832.

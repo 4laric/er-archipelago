@@ -531,11 +531,12 @@ _HUB_MERCHANT_TAGS = ("Shop",)
 
 
 def _roundtable_merchant_aps():
-    """Roundtable Hold (the always-open hub) MERCHANT rows -- Enia (remembrance weapons/armor) and
-    the Twin Maiden Husks. BARRED from the progression surface (Alaric 2026-07-18): the hub is
-    reachable at spawn, so a Lock / key item placed on a hub merchant slot is 'progression' you
-    already hold on turn one -- trivial. This rule touches ONLY hub MERCHANT rows; the hub's Golden
-    Seed checks (Seedtree, physical pickups) are left to the normal surface/defaulted logic.
+    """MERCHANT rows filed in Roundtable Hold, the always-open hub. This includes Enia and the Twin
+    Maiden Husks plus multi-site rows collapsed into the hub, notably questline Patches/Thiollier.
+    BARRED from the progression surface (Alaric 2026-07-18): a hub-filed merchant slot otherwise
+    looks reachable at spawn. Ordinary wandering merchants are filed in their physical regions and
+    remain eligible; this rule touches only hub MERCHANT rows. The hub's Golden Seed checks
+    (Seedtree, physical pickups) are left to the normal surface/defaulted logic.
 
     Derived from the generated data, so a regen that adds or moves a hub merchant row is covered
     without a hand-list -- but "derived" is only as good as the tag name being one the data still
