@@ -144,7 +144,7 @@ class CheckGroundRegions(unittest.TestCase):
     def test_sweep_anchored_class_is_exactly_the_ruled_corpus(self):
         """The SWEEP-ANCHORED verdict (#885) may only excuse what a ruling covers.
 
-        The class exists for the Golden Hippopotamus: his 88 measurable m21_00 members stand on
+        The class exists for the Golden Hippopotamus: his 48 measurable m21_00 members stand on
         Shadow Keep ground (bucket 21000) and present as Scadu Altus, the arena bucket the fight is
         fought from -- a RULING (Alaric 2026-08-19), not a mis-attribution, and every one of them is
         obtainable from Scadu Altus alone by killing him. Three witnesses keep the class honest:
@@ -173,9 +173,14 @@ class CheckGroundRegions(unittest.TestCase):
         self.assertEqual(regions, {"Scadu Altus"},
                          "a sweep-anchored check is assigned a region other than its trigger's "
                          "arena: %r" % sorted(regions))
+        # 2026-08-19 (#330 merged under #885): 88 -> 48. The Hippo sweep shrank from 108 to 58
+        # members because exactly 50 worldless Rada Fruit flags left the location corpus; all 50
+        # removed members are in gen_data._RADA_WORLDLESS and no non-Rada member left. Of the 58
+        # retained members, these 48 have coordinates that let this partial ground audit measure
+        # them. This is source removal, not a looser SWEEP-ANCHORED predicate.
         self.assertEqual(
-            len(recs), 88,
-            "the Hippo's measurable sweep-anchored corpus moved (was 88). Fine if "
+            len(recs), 48,
+            "the Hippo's measurable sweep-anchored corpus moved (was 48 after #330). Fine if "
             "item_grace_coords.tsv coverage or his membership changed -- say which check(s) and "
             "why, then re-pin.")
 
