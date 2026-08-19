@@ -212,8 +212,16 @@ class UnplacedGlobals(unittest.TestCase):
             400915: "m60_48_41", 580400: "m61_45_43",
         }
         for flag, map_id in expected.items():
-            self.assertEqual((map_id, "item_coords"), by_flag.get(flag),
-                             "f%d has an exact item coordinate but was not derived" % flag)
+            got = by_flag.get(flag)
+            self.assertIsNotNone(got, "f%d has an exact item coordinate but was not derived" % flag)
+            self.assertEqual(map_id, got[0],
+                             "f%d derived to the WRONG map: %r" % (flag, got))
+            # 2026-08-19 (the full-MSB census): the resolver may now see these rows in the census
+            # ("observed") before falling through to the coordinate corpus -- same map either way,
+            # and the issue #218 claim under test is "resolved without hand pins", not which
+            # sufficient corpus answered first. A THIRD label would still be a surprise.
+            self.assertIn(got[1], ("item_coords", "observed"),
+                          "f%d derived from an unexpected corpus: %r" % (flag, got))
 
     @unittest.skipIf(not (_TOOL and os.path.isfile(_TOOL)), REPO_ONLY_REASON)
     def test_map_event_flag_and_lot_pair_resolves_the_sacred_tower_painting(self):

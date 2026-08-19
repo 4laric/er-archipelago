@@ -254,8 +254,12 @@ def test_the_committed_table_has_not_shrunk_and_keeps_its_derived_rows():
         pytest.skip("nearest_grace.tsv not beside the package")
     rows = [ln.rstrip("\n").split("\t") for ln in open(tsv, encoding="utf-8")
             if ln.strip() and not ln.startswith("#") and not ln.startswith("flag\t")]
-    assert len(rows) >= 3880, (
-        f"nearest_grace.tsv has {len(rows)} rows, below the 3880 measured on 2026-08-04. A re-emit "
+    # FLOOR 3880 -> 3761 (2026-08-19, full-census regen): measured, explained shrink -- the complete
+    # rescan re-derived item_grace_coords with 173 fewer item rows, departures concentrated in maps
+    # the OLD file had attributed with earlier tool logic; every departed map WAS rescanned (census
+    # coverage is hole-free), so the fewer rows are the truer set. Emitted WITH --extra-coords.
+    assert len(rows) >= 3761, (
+        f"nearest_grace.tsv has {len(rows)} rows, below the 3761 measured on 2026-08-19. A re-emit "
         f"that STRANDS checks must be explained, not rebaselined -- did the coords regress, or was "
         f"--extra-coords omitted?")
     derived = [r for r in rows if len(r) > 3 and r[3] == "boss_arena"]
