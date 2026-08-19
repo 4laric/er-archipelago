@@ -5727,8 +5727,10 @@ _ARENA_GRACE_FLAGS = frozenset({
 # its entry there. It is the ashen twin of 71107, withheld from base Leyndell since 08-04 for the
 # identical reason, and it survived that fix only because this list still skipped the whole map on
 # the day the fix was made.
-# The bundle is therefore {71122, 71123, 71125} and the front door is 71122, the ashen East Capital
-# Rampart -- the map's actual doorway, which is a better entry than the throne room anyway.
+# The bundle is therefore {71122, 71123, 71125}. Its front door is pinned below to 71123,
+# Leyndell, Capital of Ash: the unambiguous Ashen-only entry. 71122 is the m11_05 duplicate of
+# East Capital Rampart, whose Royal twin is 71102; using the duplicate as the synthetic region
+# entrance made the two capital variants indistinguishable in the warp menu (#853).
 # All four are reachable-on-foot from each other, so the withheld ones cost a walk, not a check.
 _ASHEN_LEYNDELL_GRACE_FLAGS = frozenset({71120, 71121, 71122, 71123, 71124, 71125})
 # DERIVED arena graces (arena_graces.tsv, tools/datamine_arena_graces.py). THE predicate we actually
@@ -5830,8 +5832,8 @@ if os.path.exists(os.path.join(HERE, "arena_graces.tsv")) \
 #     Like 71107 it is NOT 9005810 asset-hidden, so the EMEVD oracle cannot see it and it does not
 #     belong in _BOSS_GATED_GRACE_FLAGS. It is a physically-present grace sealed by a boss-defeat
 #     state, which is what this set is for.
-#     The Ashen Capital keeps {71122, 71123, 71125}; its front door (71122 East Capital Rampart) and
-#     its REGION_GRACE_LANDMARKS entry are untouched, so the region stays enterable.
+#     The Ashen Capital keeps {71122, 71123, 71125}; its pinned front door (71123 Leyndell, Capital
+#     of Ash) and its REGION_GRACE_LANDMARKS entry are untouched, so the region stays enterable.
 _STATE_GATED_GRACE_FLAGS = frozenset({71107, 71124, 72107, 76314})
 # _ASHEN_LEYNDELL_GRACE_FLAGS is deliberately NOT in this union any more (see its note above): the
 # Ashen Capital owns them now. The set is kept as a named constant because features/capital.py and
@@ -6069,7 +6071,10 @@ for _reg in sorted(_gg_regions_hit):
 # the Hinterland, which DOES stand on the Keep's own ground (bucket 21000, measured) -- a walk-in
 # Keep entrance, no kick. The Main Gate still lights on foot when the player reaches it through
 # Scadu Altus. (The pin machinery is kept for the next interior-entrance region that needs it.)
-_FRONT_DOOR_PIN = {"Altus": 76301}
+_FRONT_DOOR_PIN = {
+    "Altus": 76301,
+    "Ashen Capital": 71123,
+}
 def _front_door(r):
     if r in _FRONT_DOOR_PIN:
         _pin = _FRONT_DOOR_PIN[r]

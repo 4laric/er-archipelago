@@ -163,7 +163,10 @@ def bundle_withheld(world, region):
 _OVERWORLD_LO, _OVERWORLD_HI = 76000, 77000
 # Human rulings where designer order is not traversal order. A pin must remain in the region's
 # emitted grace set; entrance_grace fails loudly if it goes stale.
-_ENTRANCE_GRACE_PIN = {"Altus": 76301}  # Altus Plateau, at the Grand Lift; #641
+_ENTRANCE_GRACE_PIN = {
+    "Altus": 76301,          # Altus Plateau, at the Grand Lift; #641
+    "Ashen Capital": 71123,  # Leyndell, Capital of Ash; unambiguous post-burn entry; #853
+}
 
 
 def entrance_grace(flags, region=None):

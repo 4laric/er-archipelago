@@ -8,8 +8,9 @@ Cliffs* for Liurnia, or the option is built and pointed at the wrong grace.
 
 🛑 THE TWO NEARBY TABLES THAT LOOK RIGHT AND ARE NOT -- both were checked and rejected, and this
 file exists partly so nobody "simplifies" the derivation into one of them:
-  * REGION_OPEN_FLAGS is one flag per region and equals REGION_GRACE_POINTS[r][0] for all 30 -- but
-    it is a region-OPEN DETECTION anchor and resolves to cave interiors (Limgrave -> Murkwater Cave).
+  * REGION_OPEN_FLAGS is one flag per region and usually equals REGION_GRACE_POINTS[r][0] -- but it
+    is a region-OPEN DETECTION anchor and resolves to cave interiors (Limgrave -> Murkwater Cave).
+    Two explicit human rulings intentionally align the two tables: Altus and Ashen Capital.
   * BonfireWarpParam.bonfireSubCategorySortId sorts within the warp MENU's 55 subcategories, not our
     30 regions, so its per-region minimum TIES in 12 of 30.
 """
@@ -27,6 +28,7 @@ EXEMPLARS = {
     "Limgrave": (76100, "Church of Elleh"),
     "Weeping": (76150, "Church of Pilgrimage"),
     "Altus": (76301, "Altus Plateau"),         # lift-side entrance; #641
+    "Ashen Capital": (71123, "Leyndell, Capital of Ash"),  # unambiguous post-burn entry; #853
     "Gravesite": (76800, "Gravesite Plain"),       # where the DLC starts
     "Stormveil": (71003, "Gateside Chamber"),      # interior region: no 76xxx member at all
     "Leyndell": (71102, "East Capital Rampart"),   # interior
@@ -81,8 +83,8 @@ def test_the_named_exemplars_are_still_what_the_pipeline_picks():
         "numbers, which is how a regression gets laundered into a test." % wrong)
 
 
-def test_only_the_ruled_altus_entrance_matches_its_open_anchor():
-    """The rejected REGION_OPEN_FLAGS table stays rejected except for the explicit Altus ruling.
+def test_only_the_ruled_entrances_match_their_open_anchors():
+    """The rejected REGION_OPEN_FLAGS table stays rejected except for explicit human rulings.
 
     If someone swaps the derivation for `REGION_GRACE_POINTS[r][0]` (which IS REGION_OPEN_FLAGS, and
     is one line shorter) every test above would still need to fail loudly. It does: for the
@@ -95,6 +97,8 @@ def test_only_the_ruled_altus_entrance_matches_its_open_anchor():
         "the entrance rule has collapsed onto REGION_OPEN_FLAGS for %s. That table is a region-open "
         "detection anchor, not a front door -- it grants Murkwater Cave for Limgrave." % differing)
     assert entrance_grace(REGION_GRACE_POINTS["Altus"], "Altus") == REGION_OPEN_FLAGS["Altus"] == 76301
+    assert (entrance_grace(REGION_GRACE_POINTS["Ashen Capital"], "Ashen Capital")
+            == REGION_OPEN_FLAGS["Ashen Capital"] == 71123)
 
 
 def test_empty_input_fails_rather_than_inventing_an_answer():

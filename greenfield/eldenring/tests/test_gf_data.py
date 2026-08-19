@@ -171,7 +171,7 @@ class GreenfieldRegionOpenFlags(unittest.TestCase):
 
     # THE ONE NON-`REGIONS` OPEN-FLAG HOLDER (SPEC-ashen-capital-lock, 2026-08-06). Until then
     # every open flag named a rollable region, because the Ashen Capital had no flag of its own
-    # and borrowed Leyndell's through `core._lockless_host`. It now owns flag 71122, its own grace
+    # and borrowed Leyndell's through `core._lockless_host`. It now owns flag 71123, its own grace
     # bundle and its own kick buckets -- but it is still NEVER ROLLED (not in REGIONS, never drawn
     # by num_regions, never the start anchor). So the table's key set is REGIONS plus exactly this
     # one name, and the tests below say "plus exactly this one", not "plus anything".

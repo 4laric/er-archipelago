@@ -103,8 +103,10 @@ class TestTheGeometryIsItsOwn:
             "the finale's buckets must have LEFT Leyndell, or both regions claim them and the "
             "kick is decided by dict order")
 
-    def test_the_front_door_is_one_of_its_own_graces(self):
-        assert REGION_OPEN_FLAGS[FINALE_REGION] == REGION_GRACE_POINTS[FINALE_REGION][0]
+    def test_the_front_door_is_the_unambiguous_capital_of_ash_grace(self):
+        """#853: never use m11_05's duplicate East Capital Rampart as the synthetic entrance."""
+        assert REGION_OPEN_FLAGS[FINALE_REGION] == 71123
+        assert REGION_OPEN_FLAGS[FINALE_REGION] in REGION_GRACE_POINTS[FINALE_REGION]
 
     def test_the_arena_and_post_goal_graces_stay_withheld(self):
         """FOUR of the six m11_05/m19_00 graces are NOT in the bundle, each by a derivation that
