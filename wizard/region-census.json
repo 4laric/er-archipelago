@@ -164,13 +164,13 @@
    "rollable": true,
    "sweep_slots": {
     "all": 12,
-    "bosses": 27,
+    "bosses": 24,
     "minidungeons": 12
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 12,
-     "bosses": 27,
+     "bosses": 24,
      "minidungeons": 12
     },
     "SweepSlotMajor": {
@@ -178,19 +178,19 @@
     },
     "SweepSlotMinor": {
      "all": 12,
-     "bosses": 26,
+     "bosses": 23,
      "minidungeons": 12
     }
    },
    "sweep_slots_max": {
     "all": 82,
-    "bosses": 166,
+    "bosses": 145,
     "minidungeons": 82
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 82,
-     "bosses": 166,
+     "bosses": 145,
      "minidungeons": 82
     },
     "SweepSlotMajor": {
@@ -198,7 +198,7 @@
     },
     "SweepSlotMinor": {
      "all": 82,
-     "bosses": 158,
+     "bosses": 137,
      "minidungeons": 82
     }
    }
@@ -365,13 +365,13 @@
    "rollable": true,
    "sweep_slots": {
     "all": 10,
-    "bosses": 25,
+    "bosses": 21,
     "minidungeons": 10
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 10,
-     "bosses": 25,
+     "bosses": 21,
      "minidungeons": 10
     },
     "SweepSlotMajor": {
@@ -379,19 +379,19 @@
     },
     "SweepSlotMinor": {
      "all": 10,
-     "bosses": 24,
+     "bosses": 20,
      "minidungeons": 10
     }
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 135,
+    "bosses": 108,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 135,
+     "bosses": 108,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -399,7 +399,7 @@
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 131,
+     "bosses": 104,
      "minidungeons": 55
     }
    }
@@ -653,36 +653,36 @@
    "parent": null,
    "rollable": true,
    "sweep_slots": {
-    "all": 8,
-    "bosses": 8,
+    "all": 6,
+    "bosses": 6,
     "minidungeons": 4
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 8,
-     "bosses": 8,
+     "all": 6,
+     "bosses": 6,
      "minidungeons": 4
     },
     "SweepSlotMinor": {
-     "all": 8,
-     "bosses": 8,
+     "all": 6,
+     "bosses": 6,
      "minidungeons": 4
     }
    },
    "sweep_slots_max": {
-    "all": 60,
-    "bosses": 60,
+    "all": 44,
+    "bosses": 44,
     "minidungeons": 28
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 60,
-     "bosses": 60,
+     "all": 44,
+     "bosses": 44,
      "minidungeons": 28
     },
     "SweepSlotMinor": {
-     "all": 60,
-     "bosses": 60,
+     "all": 44,
+     "bosses": 44,
      "minidungeons": 28
     }
    }
@@ -836,35 +836,35 @@
    "rollable": true,
    "sweep_slots": {
     "all": 9,
-    "bosses": 18,
+    "bosses": 16,
     "minidungeons": 7
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 9,
-     "bosses": 18,
+     "bosses": 16,
      "minidungeons": 7
     },
     "SweepSlotMinor": {
      "all": 9,
-     "bosses": 18,
+     "bosses": 16,
      "minidungeons": 7
     }
    },
    "sweep_slots_max": {
     "all": 40,
-    "bosses": 104,
+    "bosses": 88,
     "minidungeons": 27
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 40,
-     "bosses": 104,
+     "bosses": 88,
      "minidungeons": 27
     },
     "SweepSlotMinor": {
      "all": 40,
-     "bosses": 104,
+     "bosses": 88,
      "minidungeons": 27
     }
    }
@@ -893,13 +893,13 @@
    "rollable": true,
    "sweep_slots": {
     "all": 9,
-    "bosses": 27,
+    "bosses": 24,
     "minidungeons": 9
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 9,
-     "bosses": 27,
+     "bosses": 24,
      "minidungeons": 9
     },
     "SweepSlotMajor": {
@@ -909,19 +909,19 @@
     },
     "SweepSlotMinor": {
      "all": 8,
-     "bosses": 25,
+     "bosses": 22,
      "minidungeons": 8
     }
    },
    "sweep_slots_max": {
     "all": 53,
-    "bosses": 177,
+    "bosses": 158,
     "minidungeons": 53
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 53,
-     "bosses": 177,
+     "bosses": 158,
      "minidungeons": 53
     },
     "SweepSlotMajor": {
@@ -931,7 +931,7 @@
     },
     "SweepSlotMinor": {
      "all": 45,
-     "bosses": 161,
+     "bosses": 142,
      "minidungeons": 45
     }
    }
@@ -996,13 +996,13 @@
    "rollable": true,
    "sweep_slots": {
     "all": 7,
-    "bosses": 17,
+    "bosses": 15,
     "minidungeons": 7
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 7,
-     "bosses": 17,
+     "bosses": 15,
      "minidungeons": 7
     },
     "SweepSlotMajor": {
@@ -1010,19 +1010,19 @@
     },
     "SweepSlotMinor": {
      "all": 7,
-     "bosses": 15,
+     "bosses": 13,
      "minidungeons": 7
     }
    },
    "sweep_slots_max": {
     "all": 52,
-    "bosses": 118,
+    "bosses": 106,
     "minidungeons": 52
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 52,
-     "bosses": 118,
+     "bosses": 106,
      "minidungeons": 52
     },
     "SweepSlotMajor": {
@@ -1030,7 +1030,7 @@
     },
     "SweepSlotMinor": {
      "all": 52,
-     "bosses": 102,
+     "bosses": 90,
      "minidungeons": 52
     }
    }
@@ -1057,13 +1057,13 @@
    "rollable": true,
    "sweep_slots": {
     "all": 7,
-    "bosses": 11,
+    "bosses": 10,
     "minidungeons": 3
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 7,
-     "bosses": 11,
+     "bosses": 10,
      "minidungeons": 3
     },
     "SweepSlotMajor": {
@@ -1072,19 +1072,19 @@
     },
     "SweepSlotMinor": {
      "all": 5,
-     "bosses": 9,
+     "bosses": 8,
      "minidungeons": 3
     }
    },
    "sweep_slots_max": {
     "all": 53,
-    "bosses": 85,
+    "bosses": 77,
     "minidungeons": 21
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 53,
-     "bosses": 85,
+     "bosses": 77,
      "minidungeons": 21
     },
     "SweepSlotMajor": {
@@ -1093,7 +1093,7 @@
     },
     "SweepSlotMinor": {
      "all": 37,
-     "bosses": 69,
+     "bosses": 61,
      "minidungeons": 21
     }
    }
@@ -1214,14 +1214,14 @@
    "parent": null,
    "rollable": true,
    "sweep_slots": {
-    "all": 8,
-    "bosses": 8,
+    "all": 5,
+    "bosses": 5,
     "minidungeons": 1
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 8,
-     "bosses": 8,
+     "all": 5,
+     "bosses": 5,
      "minidungeons": 1
     },
     "SweepSlotMajor": {
@@ -1229,20 +1229,20 @@
      "bosses": 1
     },
     "SweepSlotMinor": {
-     "all": 7,
-     "bosses": 7,
+     "all": 4,
+     "bosses": 4,
      "minidungeons": 1
     }
    },
    "sweep_slots_max": {
-    "all": 60,
-    "bosses": 60,
+    "all": 36,
+    "bosses": 36,
     "minidungeons": 8
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 60,
-     "bosses": 60,
+     "all": 36,
+     "bosses": 36,
      "minidungeons": 8
     },
     "SweepSlotMajor": {
@@ -1250,8 +1250,8 @@
      "bosses": 4
     },
     "SweepSlotMinor": {
-     "all": 56,
-     "bosses": 56,
+     "all": 32,
+     "bosses": 32,
      "minidungeons": 8
     }
    }
@@ -1318,39 +1318,39 @@
    "parent": null,
    "rollable": true,
    "sweep_slots": {
-    "all": 9,
-    "bosses": 9
+    "all": 6,
+    "bosses": 6
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 9,
-     "bosses": 9
+     "all": 6,
+     "bosses": 6
     },
     "SweepSlotMajor": {
      "all": 2,
      "bosses": 2
     },
     "SweepSlotMinor": {
-     "all": 7,
-     "bosses": 7
+     "all": 4,
+     "bosses": 4
     }
    },
    "sweep_slots_max": {
-    "all": 56,
-    "bosses": 56
+    "all": 40,
+    "bosses": 40
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 56,
-     "bosses": 56
+     "all": 40,
+     "bosses": 40
     },
     "SweepSlotMajor": {
      "all": 13,
      "bosses": 13
     },
     "SweepSlotMinor": {
-     "all": 43,
-     "bosses": 43
+     "all": 27,
+     "bosses": 27
     }
    }
   },
@@ -1463,13 +1463,13 @@
    "rollable": true,
    "sweep_slots": {
     "all": 5,
-    "bosses": 10,
+    "bosses": 9,
     "minidungeons": 5
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 5,
-     "bosses": 10,
+     "bosses": 9,
      "minidungeons": 5
     },
     "SweepSlotMajor": {
@@ -1477,19 +1477,19 @@
     },
     "SweepSlotMinor": {
      "all": 5,
-     "bosses": 9,
+     "bosses": 8,
      "minidungeons": 5
     }
    },
    "sweep_slots_max": {
     "all": 26,
-    "bosses": 66,
+    "bosses": 58,
     "minidungeons": 26
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 26,
-     "bosses": 66,
+     "bosses": 58,
      "minidungeons": 26
     },
     "SweepSlotMajor": {
@@ -1497,7 +1497,7 @@
     },
     "SweepSlotMinor": {
      "all": 26,
-     "bosses": 58,
+     "bosses": 50,
      "minidungeons": 26
     }
    }
@@ -1505,5 +1505,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "12a6a42cc3ca7ffe80e80ffb768c7595fb5935b73d5a2f32ea376e46db21833c"
+ "source_sha256": "61cc845685a9d898a275adb6fa02e875599d329838a6af3e1b624d01864d9150"
 }

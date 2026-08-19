@@ -494,20 +494,29 @@ _UNNAMED_TRIGGER_REASON = (
     "boss to kill and cannot assert the sweep can ever fire"
 )
 
+_UNAUDITED_TRIGGER_REASON = (
+    "unaudited arena: SWEEP_ARENA_REGION has no authoritative region for this trigger, so its "
+    "members cannot be asserted reachable and may not be required (#671)"
+)
 
-def sweep_slot_skips(healthbars=None):
+
+def sweep_slot_skips(healthbars=None, arena_regions=None, triggers=None):
     """{trigger flag: reason} -- the sweeps SweepSlot must not nominate from. ShopSlot's
     `location_tags.SHOP_SLOT_SKIPS`, one feature over, and deliberately the same shape: a dict
     keyed by the thing excluded, valued by WHY, so the exclusion is auditable rather than a silent
     filter.
 
-    Two sources, and the split is the point:
+    Three sources, and the split is the point:
 
     * DERIVED -- a trigger `BOSS_HEALTHBARS` cannot name (absent, or a blank name field). This is
       the honest gate: it does not claim the dungeon has no boss, only that we cannot vouch for one,
       which is the same standard ShopSlot holds a merchant to.
     * DECLARED -- `_SWEEP_SLOT_SKIP_REASONS`, for triggers that ARE named and still cannot fire.
       Patches is the confirmed case and cannot be derived; see that dict's comment.
+    * AUDIT -- when `arena_regions` is supplied, every trigger absent from that authoritative table.
+      The sweep may still pay ordinary members, but it cannot make one of them REQUIRED until the
+      arena is audited (#671). `triggers` narrows this to the actual sweep universe; when omitted,
+      the healthbar keys are the best available trigger corpus.
 
     `healthbars` is injectable so the gate is testable without the data module, and so
     tools/build_region_census.py can price the wizard's SweepSlot checkbox off the same expression
@@ -530,6 +539,11 @@ def sweep_slot_skips(healthbars=None):
         name = (info[3] if isinstance(info, (tuple, list)) and len(info) > 3 else "") or ""
         if not str(name).strip():
             skips.setdefault(flag, _UNNAMED_TRIGGER_REASON)
+    if arena_regions is not None:
+        audit_scope = healthbars.keys() if triggers is None else triggers
+        for flag in audit_scope:
+            if flag not in arena_regions:
+                skips.setdefault(flag, _UNAUDITED_TRIGGER_REASON)
     return skips
 
 
