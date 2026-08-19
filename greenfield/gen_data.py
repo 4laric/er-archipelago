@@ -9655,6 +9655,22 @@ if BOSS_HEALTHBARS:
                 continue
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
+            # A legacy healthbar head that does not report its own defeat is not a sweep trigger.
+            # The old code deliberately applied `_arena_secondary` only to dungeon-class fights,
+            # on the theory that legacy round-robin partitioning avoided duplicate payouts. That
+            # answered the wrong question: partitioning can make the member lists disjoint, but it
+            # cannot make a participant/activation flag become a terminal encounter flag.
+            #
+            # Enir Ilim is the decisive case (#877). Event 20012850 waits for characters
+            # 20010850..854 to die, displays the one banner keyed by 20010850, and then sets only
+            # event flag 20010850. The derived banner table therefore maps 20010851/52 -> 20010850;
+            # keeping 51/52 as independent legacy triggers leaves permanent tracker rows (and 51
+            # can also fire early as the encounter's entry/activation choice). Apply the same
+            # same-map guarded evidence rule here that the dungeon branch already trusts.
+            _sec = _arena_secondary(_ent, _bmap)
+            if _sec:
+                _sweep_secondary_hits.append((_ent, _bmap, _name, _sec[0], _sec[1]))
+                continue
             # ⭐⭐⭐ AN x801 BESIDE AN x800 ON THE SAME MAP IS NOT THE FIGHT'S DEFEAT FLAG.
             #
             # WHAT IS MEASURED, from boblerrr's 2026-08-08 Enir Ilim log, twice:

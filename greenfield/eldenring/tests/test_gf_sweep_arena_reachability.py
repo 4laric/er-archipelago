@@ -142,7 +142,11 @@ BOBLERRR_KEPT = frozenset({"Ancient Ruins", "Belurat", "Cerulean", "Jagged Peak"
 # Then 190 -> 192: Alaric ruled the last two by name (Ancestor Spirit m12_08 and Regal
 # Ancestor Spirit m12_09, both Siofra River). ALL 26 that remain are the circular
 # overworld case -- so this floor is now one short of everything we are willing to claim.
-ARENA_COVERAGE_FLOOR = 192
+# 2026-08-19 (#877): 192 -> 185 because seven legacy participant/activation triggers ceased to be
+# sweeps at all (Deeproot 12030810..13, Gelmir 16000861, Enir Ilim 20010851/52). Their arena
+# regions did not become unknown; the bogus triggers were removed and their members redistributed
+# among the same fights' terminal flags. The denominator moved 218 -> 211 by the same seven.
+ARENA_COVERAGE_FLOOR = 185
 
 
 class SweepArenaTable(unittest.TestCase):
