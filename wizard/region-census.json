@@ -146,10 +146,11 @@
    }
   },
   "Altus": {
-   "checks": 373,
+   "checks": 374,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss|FieldBoss": 8,
+    "Boss|FieldBoss|Legendary": 1,
     "Boss|FieldBoss|Legendary|MajorBoss": 1,
     "Boss|Legendary|MinorDungeonBoss": 4,
     "Boss|MinorDungeonBoss": 12,
@@ -1036,11 +1037,11 @@
    }
   },
   "Mt. Gelmir": {
-   "checks": 244,
+   "checks": 243,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 4,
-    "Boss|FieldBoss|Legendary": 2,
+    "Boss|FieldBoss|Legendary": 1,
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss": 2,
     "Boss|LegacyBoss|MajorBoss": 1,
@@ -1505,5 +1506,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "61cc845685a9d898a275adb6fa02e875599d329838a6af3e1b624d01864d9150"
+ "source_sha256": "99cb2b7bfe4449555dd0a87bfb282932d7c137b4cf81a14165709cf31f2cac1e"
 }
