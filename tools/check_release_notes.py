@@ -21,6 +21,7 @@ Usage:
     python3 tools/check_release_notes.py           # gate the current APWORLD_VERSION
     python3 tools/check_release_notes.py --check   # identical (alias; see below)
     python3 tools/check_release_notes.py --version 0.3.1   # gate some other version
+    python3 tools/check_release_notes.py --git-range v0.4.2..v0.4.3  # audit a historical window
 
 `--check` is a no-op alias. Every neighbouring repo-level gate is invoked as
 `tools/<x>.py --check` (dump_options_metadata, gen_region_locks, build_questline_dag),
@@ -61,6 +62,9 @@ MIN_BLURB_CHARS = 400
 # blurb, the fix is to write the blurb, not to widen the exemption -- an exemption you
 # can extend is a gate you have switched off.
 BLURB_EXEMPT = {"0.3.0"}
+CLIENT_GITLINK = "from-software-archipelago-clients"
+CLIENT_NOTES_EXEMPT_TRAILER = "Client-Gitlink-Notes"
+CLIENT_NOTES_EXEMPT_VALUE = "no-player-visible-change"
 
 RED = "\033[31m"
 GRN = "\033[32m"
@@ -235,15 +239,103 @@ def check_version_is_still_open(version, errs):
         % (version, n, version, version))
 
 
+def _git(repo, *args, input_text=None):
+    return subprocess.run(["git", *args], cwd=repo, input=input_text, capture_output=True,
+                          text=True, timeout=20)
+
+
+def client_gitlink_note_failures(repo=REPO, rev_range=None):
+    """Return gitlink-moving first-parent commits that carry neither notes nor an exemption.
+
+    First-parent is deliberate. On a PR branch it sees the PR commit; after a merge it sees the merge
+    commit's net change against main. Walking every parent would charge the same PR twice and would
+    inspect client-side history that is not part of the world's release ledger.
+    """
+    if rev_range is None:
+        tag = _git(repo, "describe", "--tags", "--match", "v[0-9]*", "--abbrev=0", "HEAD")
+        if tag.returncode != 0 or not tag.stdout.strip():
+            return None, "no reachable v* release tag; fetch tags before trusting this gate"
+        rev_range = "%s..HEAD" % tag.stdout.strip()
+
+    commits = _git(repo, "rev-list", "--first-parent", "--reverse", rev_range)
+    if commits.returncode != 0:
+        return None, "cannot walk %s: %s" % (rev_range, commits.stderr.strip() or "git failed")
+
+    failures = []
+    bumps = 0
+    for commit in commits.stdout.split():
+        # Compare explicitly to parent 1. `diff-tree -m --first-parent` still emits the other-parent
+        # view on this Git version, falsely charging unrelated merge commits for paths that exist
+        # only on main. Omitting `-m` emits no merge paths at all. The explicit pair has one answer.
+        changed = _git(repo, "diff", "--name-only", "%s^1" % commit, commit, "--")
+        if changed.returncode != 0:
+            return None, "cannot inspect %s: %s" % (commit[:12], changed.stderr.strip())
+        paths = set(changed.stdout.splitlines())
+        if CLIENT_GITLINK not in paths:
+            continue
+        bumps += 1
+        if "release/CHANGELOG.md" in paths:
+            continue
+
+        body = _git(repo, "show", "-s", "--format=%B", commit)
+        if body.returncode != 0:
+            return None, "cannot read commit message %s" % commit[:12]
+        trailers = _git(repo, "interpret-trailers", "--parse", input_text=body.stdout)
+        exempt = False
+        if trailers.returncode == 0:
+            for line in trailers.stdout.splitlines():
+                key, sep, value = line.partition(":")
+                if (sep and key.strip().lower() == CLIENT_NOTES_EXEMPT_TRAILER.lower()
+                        and value.strip() == CLIENT_NOTES_EXEMPT_VALUE):
+                    exempt = True
+                    break
+        if exempt:
+            continue
+        subject = _git(repo, "show", "-s", "--format=%s", commit).stdout.strip()
+        failures.append((commit, subject))
+    return {"range": rev_range, "bumps": bumps, "failures": failures}, None
+
+
+def check_client_gitlink_notes(errs, rev_range=None):
+    """Rule #709: every client gitlink bump pays its release note in the same world commit."""
+    try:
+        result, unchecked = client_gitlink_note_failures(REPO, rev_range)
+    except (OSError, subprocess.SubprocessError) as exc:
+        result, unchecked = None, "git unavailable (%s)" % exc
+    if result is None:
+        print("  client notes: UNCHECKED -- %s" % unchecked)
+        return
+    print("  client notes: checked %d gitlink bump(s) in %s" %
+          (result["bumps"], result["range"]))
+    if not result["failures"]:
+        return
+    rows = "\n".join("      %s %s" % (sha[:12], subject)
+                     for sha, subject in result["failures"])
+    errs.append(
+        "%d client gitlink bump(s) carry neither a release/CHANGELOG.md update nor the exact\n"
+        "    no-visible-change trailer:\n%s\n"
+        "    FIX each bump in the commit that moves the gitlink: add the client-facing changelog\n"
+        "    entry, or for a pure version-lockstep/no-behaviour bump add this exact git trailer:\n"
+        "        %s: %s\n"
+        "    An unchanged changelog and prose saying 'lockstep' are not exemptions (#709)."
+        % (len(result["failures"]), rows, CLIENT_NOTES_EXEMPT_TRAILER,
+           CLIENT_NOTES_EXEMPT_VALUE))
+
+
 def main(argv):
     args = [a for a in argv[1:] if a != "--check"]   # --check: accepted, no-op (see docstring)
     version = None
-    if args and args[0] == "--version":
-        if len(args) < 2:
-            sys.stderr.write("check_release_notes: --version needs a value\n")
+    git_range = None
+    while args and args[0] in ("--version", "--git-range"):
+        opt = args.pop(0)
+        if not args:
+            sys.stderr.write("check_release_notes: %s needs a value\n" % opt)
             return 2
-        version = args[1]
-        args = args[2:]
+        value = args.pop(0)
+        if opt == "--version":
+            version = value
+        else:
+            git_range = value
     if args:
         sys.stderr.write(__doc__)
         return 2
@@ -255,6 +347,7 @@ def main(argv):
     check_changelog(version, errs)
     check_blurb(version, errs)
     check_version_is_still_open(version, errs)
+    check_client_gitlink_notes(errs, git_range)
 
     for m in errs:
         print("%sERROR%s %s" % (RED, OFF, m))
