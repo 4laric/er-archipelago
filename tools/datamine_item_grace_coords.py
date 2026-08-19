@@ -313,6 +313,11 @@ def main(argv=None):
                     help="use this artifacts tree instead of <repo>/elden_ring_artifacts (accepts "
                          "both param layouts: vanilla_params/ and vanilla_er/vanilla_er/; MSB dirs "
                          "under map/, mapstudio/, or the root)")
+    ap.add_argument("--merge", action="store_true",
+                    help="UNION with the committed tsv: item rows for maps scanned THIS run are "
+                         "refreshed, item rows for absent maps are carried forward, and grace rows "
+                         "are kept when this run produced none. Batch witchy exports compose "
+                         "instead of clobbering (see the degenerate-scan guard's incident).")
     ap.add_argument("--force", action="store_true",
                     help="write the tsv even when the scan is DEGENERATE (params missing, zero "
                          "maps, or far fewer rows than the committed file). Without this the tool "
@@ -365,6 +370,30 @@ def main(argv=None):
     # 5,295-row tsv with 1,436 merchant rows while printing "wrote ...". A partial census read as
     # complete is worse than no census (the msb_item_regions coverage lesson) -- so a scan that is
     # obviously blind REFUSES to publish unless --force says the shrink is intended.
+    carried_graces = []
+    if args.merge and os.path.isfile(args.out):
+        scanned = set(maps)
+        new_keys = {(str(f), m) for f, m, _ in item_rows}
+        carried = kept_scanned = 0
+        with open(args.out, encoding="utf-8") as fh:
+            for ln in fh:
+                p = ln.rstrip("\n").split("\t")
+                if len(p) < 6 or p[0] not in ("item", "grace"):
+                    continue
+                if p[0] == "grace":
+                    carried_graces.append(p)
+                    continue
+                # an old item row survives when this run neither rescanned its map nor reproduced
+                # its (flag, map). NEW rows win a collision (freshest position).
+                mid_map = p[2][: p[2].rfind("_", 0, p[2].rfind("_"))] if p[2].count("_") >= 3 else p[2]
+                if (p[1], p[2]) in new_keys or mid_map in scanned or p[2] in scanned:
+                    kept_scanned += 1
+                    continue
+                item_rows.append((p[1], p[2], (p[3], p[4], p[5])))
+                carried += 1
+        print(f"[coords] merge: carried {carried} item row(s) forward; "
+              f"{kept_scanned} superseded by this scan; {len(carried_graces)} grace row(s) held in reserve")
+
     prior_items = 0
     if os.path.isfile(args.out) and not args.maps:
         with open(args.out, encoding="utf-8") as fh:
@@ -398,6 +427,14 @@ def main(argv=None):
             named += 1 if nm else 0
             gwritten += 1
             fh.write(f"grace\t{fl}\t{_full_map(tile)}\t{x}\t{y}\t{z}\t{nm}\n")
+        if gwritten == 0 and carried_graces:
+            # BonfireWarpParam was unreadable this run; a merge must not amputate the grace half
+            # (build_nearest_grace emits nothing without it).
+            for p in carried_graces:
+                nm = p[6] if len(p) > 6 else ""
+                named += 1 if nm else 0
+                gwritten += 1
+                fh.write("\t".join(p[:6] + [nm]) + "\n")
     print(f"wrote {args.out}: {len(seen)} item rows, {gwritten} grace rows ({named} named). "
           f"Now run tools/build_nearest_grace.py.")
     if named == 0:

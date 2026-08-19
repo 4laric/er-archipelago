@@ -105,7 +105,7 @@ def _region(name):
 
 
 def _ware(name):
-    return re.split(r" - | \[f", name.split(" :: ", 1)[1], 1)[0].strip()
+    return re.split(r" - | \[f", name.split(" :: ", 1)[1], maxsplit=1)[0].strip()
 
 
 def audit():
