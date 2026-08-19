@@ -6169,6 +6169,15 @@ function stripYamlComment(line){
     let quote = "";
     for (let i = 0; i < line.length; i++){
       const ch = line[i];
+      // Inside a double-quoted string, a backslash escapes the next character --
+      // including an escaped closing quote (buildYaml's own yamlScalar() writes
+      // `\"` for a literal quote) -- so that character can never close the string
+      // or start a comment. Single-quoted strings double `''` for a literal quote
+      // instead and are unaffected by this.
+      if (quoted && quote === '"' && ch === "\\" && i + 1 < line.length){
+        i++;
+        continue;
+      }
       if ((ch === '"' || ch === "'")){
         if (!quoted){
           quoted = true;
@@ -6216,6 +6225,8 @@ function stripYamlComment(line){
     };
     let inGame = false;
     let currentMapKey = null;
+    let currentMapOption = null;
+    const seenKeys = new Set();
     for (let i = 0; i < lines.length; i++){
       const raw = lines[i];
       if (!raw.trim() || raw.trim().startsWith("#")){
@@ -6228,6 +6239,7 @@ function stripYamlComment(line){
       // Top-level fields
       if (indent === 0){
         currentMapKey = null;
+        currentMapOption = null;
         if (content.startsWith("name:")){
           result.name = parseYamlScalar(content.slice(5).trim());
           continue;
@@ -6271,9 +6283,35 @@ function stripYamlComment(line){
 
         const childKey = match[1].trim();
         const childValue = (match[2] || "").trim();
+        const childParsed = parseYamlScalar(childValue);
 
-        result.values[currentMapKey][childKey] =
-          parseYamlScalar(childValue);
+        // dict/weight validation (#735): only a valid key with a non-negative
+        // numeric weight can enter state -- anything else is a control the
+        // wizard's own weight grid could never have produced.
+        const validKeys = (currentMapOption.valid_keys && currentMapOption.valid_keys.length)
+          ? currentMapOption.valid_keys
+          : Object.keys(currentMapOption.default || {});
+        if (!validKeys.includes(childKey)){
+          yamlImportError(
+            "option `" + currentMapKey + "` has an unrecognised key `" + childKey +
+            "` near line " + (i + 1)
+          );
+        }
+        if (typeof childParsed !== "number" || !Number.isFinite(childParsed) ||
+            childParsed < 0){
+          yamlImportError(
+            "option `" + currentMapKey + "` weight for `" + childKey +
+            "` must be a non-negative number near line " + (i + 1)
+          );
+        }
+        if (Object.prototype.hasOwnProperty.call(result.values[currentMapKey], childKey)){
+          yamlImportError(
+            "option `" + currentMapKey + "` has a duplicate key `" + childKey +
+            "` near line " + (i + 1)
+          );
+        }
+
+        result.values[currentMapKey][childKey] = childParsed;
 
         continue;
       }
@@ -6305,9 +6343,27 @@ function stripYamlComment(line){
         );
       }
 
-      // Mapping option.
+      if (seenKeys.has(key)){
+        yamlImportError(
+          "duplicate option `" + key + "` near line " + (i + 1)
+        );
+      }
+      seenKeys.add(key);
+
+      // Mapping option: only a real dict option may open a nested block or
+      // omit its value on this line. Every other kind must fail loudly here
+      // rather than being silently swallowed into state as `{}` (#735) --
+      // e.g. a weighted `num_regions:` with no inline value is not something
+      // the range control could ever represent.
       if (!valueText){
+        if (option.kind !== "dict"){
+          yamlImportError(
+            "option `" + key + "` is `" + option.kind + "`, not a mapping, near line " +
+            (i + 1)
+          );
+        }
         currentMapKey = key;
+        currentMapOption = option;
         result.values[key] = {};
         continue;
       }
@@ -6323,64 +6379,170 @@ function stripYamlComment(line){
     if (!result.name){
       yamlImportError("missing `name:`");
     }
-    if (!Object.keys(result.values).length){
+    // Wizard-output-only scope (#735): current wizard output writes every
+    // option on every download, so anything short of the complete emitted
+    // set is partial/arbitrary player yaml, not something this wizard wrote.
+    // (Duplicates are already refused above, as each key is parsed once.)
+    const expectedKeys = meta.field_order
+      .concat(meta.apCore.map(o => o.key))
+      .filter(k => meta.byKey[k]);
+
+    const gotKeys = Object.keys(result.values);
+
+    const missing = expectedKeys.filter(k => !gotKeys.includes(k));
+    const unexpected = gotKeys.filter(k => !expectedKeys.includes(k));
+
+    if (missing.length){
       yamlImportError(
-        "the `" + meta.game + ":` section contains no options"
+        "missing " + missing.length + " of " + expectedKeys.length +
+        " expected options (not full wizard output): " + missing.join(", ")
+      );
+    }
+
+    if (unexpected.length){
+      yamlImportError(
+        "unexpected options not emitted by the wizard: " +
+        unexpected.join(", ")
       );
     }
     return result;
   }
 
-  function parseWizardOptionValue(o, text){
-    const s = text.trim();
-    // Lists: [a, b, c]
-    if (s.startsWith("[") && s.endsWith("]")){
-      const inner = s.slice(1, -1).trim();
-      if (!inner) return [];
-      const parts = [];
-      let current = "";
-      let quoted = false;
-      let quote = "";
-      for (let i = 0; i < inner.length; i++){
-        const ch = inner[i];
-        if (ch === '"' || ch === "'"){
-          if (!quoted){
-            quoted = true;
-            quote = ch;
-          } else if (quote === ch){
-            quoted = false;
-          }
-        }
-        if (ch === "," && !quoted){
-          parts.push(current.trim());
-          current = "";
-        } else {
-          current += ch;
+  window.parseWizardYaml = parseWizardYaml;
+  window.stripYamlComment = stripYamlComment;
+  window.coerceOptionValue = coerceOptionValue;
+
+  function splitYamlListItems(inner){
+    const parts = [];
+    let current = "";
+    let quoted = false;
+    let quote = "";
+    for (let i = 0; i < inner.length; i++){
+      const ch = inner[i];
+      // Same escape rule as stripYamlComment(): inside a double-quoted item, a
+      // backslash protects the next character (including an escaped `"`) from
+      // ending the quote or splitting the list early.
+      if (quoted && quote === '"' && ch === "\\" && i + 1 < inner.length){
+        current += ch + inner[i + 1];
+        i++;
+        continue;
+      }
+      if (ch === '"' || ch === "'"){
+        if (!quoted){
+          quoted = true;
+          quote = ch;
+        } else if (quote === ch){
+          quoted = false;
         }
       }
-      if (current.trim()){
+      if (ch === "," && !quoted){
         parts.push(current.trim());
+        current = "";
+      } else {
+        current += ch;
       }
-      return parts.map(parseYamlScalar);
     }
-    // Inline empty mapping.
+    if (current.trim()){
+      parts.push(current.trim());
+    }
+    return parts;
+  }
+
+  // Validates and coerces an already-scalar-parsed value against the option's
+  // declared kind, so an imported yaml either lands in state exactly as the
+  // wizard's own controls would have produced it, or is refused loudly (#735).
+  // Never lets a value through that the corresponding control could not itself
+  // set: toggles must be real booleans, choices must name a declared choice,
+  // ranges must be in-range (or a declared special value), and set/list/dict
+  // members must be drawn from valid_keys.
+  function coerceOptionValue(o, s){
+    // Lists: [a, b, c] -- only meaningful for set/list options.
+    if (s.startsWith("[") && s.endsWith("]")){
+      if (o.kind !== "set" && o.kind !== "list"){
+        yamlImportError(
+          "option `" + o.key + "` is `" + o.kind + "`, not a list, but has a list value"
+        );
+      }
+      const inner = s.slice(1, -1).trim();
+      const items = inner ? splitYamlListItems(inner).map(parseYamlScalar) : [];
+      const known = new Set(o.valid_keys || []);
+      for (const item of items){
+        if (typeof item !== "string" || !known.has(item)){
+          yamlImportError(
+            "option `" + o.key + "` has an entry `" + item +
+            "` that is not one of its accepted values"
+          );
+        }
+      }
+      return items;
+    }
+    if (o.kind === "set" || o.kind === "list"){
+      yamlImportError("option `" + o.key + "` needs a list value, e.g. `[]`");
+    }
+
+    // Inline empty mapping -- dict options only; a non-empty dict always
+    // arrives as a nested block, handled in parseWizardYaml.
     if (s === "{}"){
+      if (o.kind !== "dict"){
+        yamlImportError(
+          "option `" + o.key + "` is `" + o.kind + "`, not a mapping, but has a mapping value"
+        );
+      }
       return {};
     }
-    // Special values:
-    // buildYaml() writes the human-readable special name,
-    // while the option internally stores its numeric value.
-    if (o && Array.isArray(o.special_values)){
-      const parsed = parseYamlScalar(s);
-      const special = o.special_values.find(
-        sv => sv.name === parsed
+    if (o.kind === "dict"){
+      yamlImportError(
+        "option `" + o.key + "` is a mapping and must be `{}` or a nested block, not `" + s + "`"
       );
-      if (special){
-        return special.value;
-      }
     }
-    // Strings / numbers / booleans.
-    return parseYamlScalar(s);
+
+    const parsed = parseYamlScalar(s);
+
+    if (o.kind === "toggle"){
+      if (typeof parsed !== "boolean"){
+        yamlImportError(
+          "option `" + o.key + "` must be `true` or `false`, got `" + s + "`"
+        );
+      }
+      return parsed;
+    }
+
+    if (o.kind === "choice"){
+      if (typeof parsed === "string" && (o.choices || []).some(c => c.name === parsed)){
+        return parsed;
+      }
+      yamlImportError(
+        "option `" + o.key + "` has an unrecognised value `" + s + "`"
+      );
+    }
+
+    if (o.kind === "range"){
+      if (typeof parsed === "number" && Number.isFinite(parsed) &&
+          o.range && parsed >= o.range.start && parsed <= o.range.end){
+        return parsed;
+      }
+      // buildYaml() writes the human-readable special name while the option
+      // internally stores its numeric value (see yamlOptionValue()).
+      if (typeof parsed === "string" && Array.isArray(o.special_values)){
+        const special = o.special_values.find(sv => sv.name === parsed);
+        if (special) return special.value;
+      }
+      yamlImportError(
+        "option `" + o.key + "` must be between " + (o.range ? o.range.start : "?") +
+        " and " + (o.range ? o.range.end : "?") +
+        (Array.isArray(o.special_values) && o.special_values.length
+          ? ", or one of: " + o.special_values.map(sv => sv.name).join(", ")
+          : "") +
+        "; got `" + s + "`"
+      );
+    }
+
+    // Any other kind reaching here has no legal inline scalar form.
+    yamlImportError("option `" + o.key + "` cannot take the value `" + s + "`");
+  }
+
+  function parseWizardOptionValue(o, text){
+    return coerceOptionValue(o, text.trim());
   }
 
   function importWizardYaml(text){
