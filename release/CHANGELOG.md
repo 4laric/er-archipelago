@@ -47,6 +47,9 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   instead of asking me3 to scan a nonexistent `ap-package`. Both release packagers now reject any
   profile whose declared package directory is absent, preventing the startup `ReadDir: Path not
   found` failure from returning.
+- **Ashen Capital opens at Leyndell, Capital of Ash.** Its region unlock no longer treats the
+  duplicate Ashen East Capital Rampart as the front door; the full grace bundle still contains both
+  entries. World: #853; client: clients#312.
 
 ## v0.4.8 — 2026-08-18
 
