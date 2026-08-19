@@ -2257,6 +2257,45 @@ SHOP_PREVIEW_GOODS = {
     '7774893': 1073750527,
 }
 
+MERCHANT_BELL_REGIONS = {
+    1073750734: frozenset(('Liurnia',)),
+    1073750735: frozenset(('Liurnia',)),
+    1073750736: frozenset(('Altus', 'Cerulean', 'Limgrave', 'Liurnia', 'Mt. Gelmir')),
+    1073750737: frozenset(('Limgrave', 'Liurnia', 'Raya Lucaria Academy')),
+    1073750739: frozenset(('Limgrave',)),
+    1073750740: frozenset(('Limgrave', 'Mt. Gelmir')),
+    1073750741: frozenset(('Liurnia',)),
+    1073750742: frozenset(('Stormveil',)),
+    1073750743: frozenset(('Liurnia',)),
+    1073750744: frozenset(('Limgrave',)),
+    1073750745: frozenset(('Limgrave',)),
+    1073750746: frozenset(('Limgrave',)),
+    1073750747: frozenset(('Limgrave',)),
+    1073750748: frozenset(('Weeping',)),
+    1073750749: frozenset(('Liurnia',)),
+    1073750750: frozenset(('Weeping',)),
+    1073750751: frozenset(('Liurnia',)),
+    1073750752: frozenset(('Liurnia',)),
+    1073750753: frozenset(('Altus',)),
+    1073750754: frozenset(('Altus',)),
+    1073750755: frozenset(('Mt. Gelmir',)),
+    1073750756: frozenset(('Caelid',)),
+    1073750757: frozenset(('Caelid',)),
+    1073750758: frozenset(()),
+    1073750759: frozenset(('Caelid',)),
+    1073750760: frozenset(('Mountaintops of the Giants',)),
+    1073750761: frozenset(('Siofra River',)),
+    1073750762: frozenset(('Ainsel River',)),
+    1073750763: frozenset(('Mohgwyn',)),
+    1073750764: frozenset(('Liurnia',)),
+    1073750765: frozenset(('Stormveil',)),
+    1073750766: frozenset(('Altus', 'Liurnia')),
+    1073750767: frozenset(('Altus', 'Leyndell', 'Mountaintops of the Giants')),
+    1073750768: frozenset(('Caelid',)),
+    1075750724: frozenset(('Abyssal', 'Gravesite', 'Scadu Altus')),
+    1075750725: frozenset(('Scadu Altus',)),
+}
+
 SPARE_PREVIEW_GOODS = (
     8853, 8854, 9314, 9315, 9316, 9317, 9318, 9319, 9332, 9333, 9334, 9335, 9336, 9337,
     9338, 9339, 9394, 9395, 9396, 9397, 9398, 9399, 9349, 9350, 9351, 9352, 9353, 9354,
@@ -2265,4 +2304,4 @@ SPARE_PREVIEW_GOODS = (
     9446, 9447, 9448, 9449, 9450, 51760,
 )
 
-_GEN_STAMP = {'inputs_hash': 'sha256:b7702a1c400a417d4c2effdbdc2df3d992d0acbe5594eeead32287ebf0a553ee', 'module': 'shop_data.py', 'body_sha256': 'sha256:2dea2784430d0d1702a10dcbf7962e1d260649e644fd4e7694b51484428622b6'}
+_GEN_STAMP = {'inputs_hash': 'sha256:9fbc427d83b530f35af5969a4e586d7109a7669394331ab2212ebd53165024d6', 'module': 'shop_data.py', 'body_sha256': 'sha256:585f8eda8acb4f6b354f9180bd3ffef031a7266521a7dc00db8accdbe1047959'}

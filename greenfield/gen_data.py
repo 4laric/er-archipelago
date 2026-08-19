@@ -3715,7 +3715,7 @@ def _build_merchant_shop_region():
     _mpath = os.path.join(HERE, "merchant_shops.tsv")
     _spath = os.path.join(HERE, "shop_rows.tsv")
     if not os.path.isfile(_spath):
-        return {}, frozenset()                       # no shop data at all -> inert (partial source tree)
+        return {}, frozenset(), {}                   # no shop data at all -> inert (partial source tree)
     # FAIL LOUD, don't silently revert. The Hermit hand-pins were RETIRED (commit 2331115) because this
     # derivation reproduces them, so if shop_rows.tsv is present (a real gen) but merchant_shops.tsv is
     # gone, all 100+ corrections silently revert to their pre-fix regions -- the exact shipped bug --
@@ -3739,7 +3739,7 @@ def _build_merchant_shop_region():
                     pass
     # A CLAIMANT IS A MERCHANT INSTANCE, NOT A LINE. Keyed by (talk, npc, name, tile) so the two
     # filters below can drop ONE merchant's claim on a row without discarding the row.
-    _bells = []                                      # (begin, end, bell_name) -- pairwise disjoint
+    _bells = []                                      # (begin, end, bell_name, full_goods_id)
     _bpath = os.path.join(HERE, "bell_handins.tsv")
     if os.path.isfile(_bpath):
         with open(_bpath, encoding="utf-8-sig") as _f:
@@ -3749,11 +3749,12 @@ def _build_merchant_shop_region():
                 _p = _ln.rstrip("\n").split("\t")
                 if len(_p) >= 5:
                     try:
-                        _bells.append((int(_p[3]), int(_p[4]), _p[2]))
+                        _bells.append((int(_p[3]), int(_p[4]), _p[2],
+                                       int(_p[1]) | 0x40000000))
                     except ValueError:
                         pass
     def _bell_of(_r):
-        for _a, _b, _n in _bells:
+        for _a, _b, _n, _gid in _bells:
             if _a <= _r <= _b:
                 return _n
         return None
@@ -3817,6 +3818,18 @@ def _build_merchant_shop_region():
     for (_tk, _npc, _nm, _mp), _rs in _claims.items():
         for _rid in _rs:
             _row2tiles.setdefault(_rid, set()).add(_mp)
+    # Bell item -> every AP region containing one of its PHYSICAL merchants. The Twin Maidens'
+    # re-sell instance was excluded above; this answers where the merchant stands, not where the
+    # handed-in menu appears. Empty is meaningful and fail-closed: the bell has no resolvable
+    # merchant evidence (Gostoc/Rogier-class) and therefore cannot promise randomized stock.
+    _bell_regions = {}
+    for _lo, _hi, _name, _gid in _bells:
+        _regs = _bell_regions.setdefault(_gid, set())
+        for _rid in range(_lo, _hi + 1):
+            for _tile in _row2tiles.get(_rid, ()):
+                _reg = _gt_region(_tile)
+                if _reg:
+                    _regs.add(_reg)
     # 🛑 FILTER 3, AND IT NARROWS THE SITES ONLY -- NEVER THE COLLAPSE. A merchant INSTANCE (one
     # npc_param) placed in SEVERAL maps is one character the game shows in AT MOST ONE of them at a
     # time; which one is a quest-state question this pipeline does not model. So such a placement is
@@ -3918,14 +3931,16 @@ def _build_merchant_shop_region():
     # through to the block guess. It was a diagnostic string; _region_is_derived needs it as data, and
     # deriving it HERE (rather than hand-listing 19 ap ids) means a regen that splits another merchant
     # across regions is covered on the same rule -- including the 3 Dragon Communion rows #557 missed.
-    return _out, _multi_sites
+    return _out, _multi_sites, {
+        _gid: tuple(sorted(_regs)) for _gid, _regs in sorted(_bell_regions.items())}
 # Flags with a single physical merchant region (the re-pins) and, separately, the flags whose merchants
 # span SEVERAL regions -- the latter are pinned to nothing and collapse to the HUB (#701). The second
 # value was a frozenset of flags under option C, which only had to answer "is this one of them?"; it is
 # now flag -> the tuple of regions the merchant really stands in, because option B has to answer "which
 # one?" as well. Membership (`in`) reads the same on a dict, so _region_is_derived is unchanged.
 # See _region_is_derived() and location_tags.HUB_COLLAPSED_SITE_APS.
-MERCHANT_SHOP_REGION, MERCHANT_SHOP_MULTI_REGION = _build_merchant_shop_region()
+MERCHANT_SHOP_REGION, MERCHANT_SHOP_MULTI_REGION, MERCHANT_BELL_REGIONS = \
+    _build_merchant_shop_region()
 
 # A REDUNDANT SHOP PIN IS A FAILURE (same rule as _BOSS_DROP_EXTRAS up top): a FLAG_REGION_OVERRIDE entry
 # that the merchant-ESD derivation already reproduces hides which path is load-bearing and silently rots
@@ -7035,6 +7050,9 @@ with open(OUT_SHOP, "w", newline="\n", encoding="utf-8") as f:
     f.write("}\n\nSHOP_PREVIEW_GOODS = {\n")
     for _aid in sorted(SHOP_PREVIEW_GOODS, key=int):
         f.write(f"    {_aid!r}: {SHOP_PREVIEW_GOODS[_aid]},\n")
+    f.write("}\n\nMERCHANT_BELL_REGIONS = {\n")
+    for _gid in sorted(MERCHANT_BELL_REGIONS):
+        f.write(f"    {_gid}: frozenset({MERCHANT_BELL_REGIONS[_gid]!r}),\n")
     f.write("}\n\n")
     # Safe-to-clobber spare goods for lock/foreign shop-slot previews (tools/datamine_spare_goods.py).
     f.write("SPARE_PREVIEW_GOODS = (\n")
