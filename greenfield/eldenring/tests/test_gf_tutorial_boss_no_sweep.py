@@ -498,12 +498,12 @@ def test_the_sweep_corpus_did_not_shrink():
     # 239 removed / 339 added / 237 re-owned; exactly ONE re-own crosses a region boundary --
     # f2047457180, whose REGION itself flipped Scadu Altus -> Gravesite in the same regen (one of
     # the nine ground-truth corrections), so its sweep followed its check.
-    # -85 net (2026-08-19, the worldless-singles cull): 4103 -> 4018. The 85 culled flags that
-    # held sweep slots left with their locations; measured by (trigger, flag): 390 removed (85 of
-    # them the cull, the rest the divvy re-phase it triggered) / 303 added / 307 re-owned, and
-    # ZERO re-ownerships cross a region boundary.
-    assert total == 4018, (
-        "sweep corpus is %d, expected 4018. If a sweep was legitimately added or removed, say WHY "
+    # 2026-08-19: main's #896 pin was 3997; the full census (+placed rows) then the
+    # worldless-singles cull (-85 sweep-slotted flags) lands at 4018. Cull delta measured by
+    # (trigger, flag): 387 removed (85 the cull itself, the rest the divvy re-phase it
+    # triggered) / 300 added / 304 re-owned, and ZERO re-ownerships cross a region boundary.
+    assert total == 4019, (  # +1 on the #898 base: one of its placed rewards holds a sweep slot
+        "sweep corpus is %d, expected 4019. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -690,8 +690,8 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 2026-08-19 (full-census regen): f3b8f3f3 -> 606018dc, 3997 -> 4103. The corpus ratchet above
     # carries the measurement; the one region-crossing re-own (f2047457180) follows its check's own
     # region correction, the safe direction.
-    # 2026-08-19 (the cull): 606018dc -> 83df3c19, 4103 -> 4018. Measurement at the corpus ratchet
-    # above; zero region-crossing re-owns.
-    assert (digest, n) == ("83df3c19b1c907c4", 4018), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (83df3c19b1c907c4, 4018). The total alone will "
+    # 2026-08-19 (census + cull on top of #896's 89fbf395/3997): -> a57ff5e1/4018. Measurement at
+    # the corpus ratchet above; zero region-crossing re-owns.
+    assert (digest, n) == ("c5ca37e2faf558c9", 4019), (  # re-measured on the #898 base
+        "sweep OWNERSHIP changed: (%s, %d), expected (c5ca37e2faf558c9, 4019). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
