@@ -34,7 +34,9 @@ from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E
 #     corpus and never had a sweep to lose.
 GRAFTED_SCION = 10010800          # boss_healthbars: ('m10_01', 'm10_01', 'legacy', 'Grafted Scion')
 SCION_OWN_DROP_AP = 7773886       # Ornamental Straight Sword, f510030 -- a normal check, must SURVIVE
-GOSTOC_BELL_AP = 7773843           # f400051, MSB-placed in m10_00 while its source map was PENDING
+GOSTOC_BELL_AP = 7773808           # f400051, MSB-placed in m10_00 while its source map was PENDING
+# (7773843 -> 7773808 on 2026-08-19, #330: ap ids are positional and 124 worldless Rada Fruit rows
+#  ahead of it left the corpus; the flag is the identity, verified before re-pinning.)
 
 
 def test_the_tutorial_boss_grants_no_sweep():
@@ -481,8 +483,14 @@ def test_the_sweep_corpus_did_not_shrink():
     # adds 59 physical flags plus 30 co-check siblings, removes 0, and re-owns 45 existing flags.
     # Verified by (trigger, flag): all 59 additions are swept inside their location region and all
     # 45 re-owned flags stay inside their previous region. Gostoc's bell above is the motivating case.
-    assert total == 4121, (
-        "sweep corpus is %d, expected 4121. If a sweep was legitimately added or removed, say WHY "
+    # -124 (2026-08-19, #330): 4121 -> 3997. The worldless Rada Fruit rows left the corpus with
+    # their locations (gen_data._RADA_WORLDLESS): 55 rows no datamine can place in the world plus
+    # 69 m21 bundle-stack rows (up to 12 flags on ONE physical corpse) -- the boss sweep was the
+    # ONLY real award path these ever had, which is exactly why they must not be checks. Measured
+    # by (trigger, flag): every removed pair's flag is in the exclusion set; the same measurement,
+    # with the divvy re-phase it triggered, is recorded at the OWNERSHIP digest below.
+    assert total == 3997, (
+        "sweep corpus is %d, expected 3997. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -652,14 +660,20 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 2026-08-18 (#562): 79ccf39c -> 394aa604, 4032 -> 4121. ADDED 59 physical flags and 30
     # co-check siblings, REMOVED 0, RE-OWNED 45; zero additions or re-ownerships cross a region.
     # This is the intended recovery of checks whose MSB-derived map was known but not recorded.
-    # 2026-08-19 (#885): 394aa604 -> 2d795f3d, count UNCHANGED at 4121. The Hippo's members moved
-    # onto his arena's region (Shadow Keep -> Scadu Altus, the ruling), so BOTH regions' divvies
-    # re-phased: measured by (trigger, flag), 52 removed / 53 added / 50 re-owned, almost all
-    # rotations among the Scadu Altus divvy triggers. FOUR crossed a region boundary, all in the
-    # correct direction: m21_02 (West Rampart) checks 21027090/21027180/21027230/21027350 are still
-    # Shadow Keep ground checks, so they LEFT the now-Scadu-Altus Hippo for Shadow Keep triggers
-    # (2049480800 / 2050480812 / 21010800 / 2050480860) -- before the move they would have been the
-    # cross-region grants #445 screens for.
-    assert (digest, n) == ("2d795f3dc68c3584", 4121), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (2d795f3dc68c3584, 4121). The total alone will "
+    # 2026-08-19 (#330): 394aa604 -> 3ca932cb, 4121 -> 3997. The 124 worldless Rada Fruit rows left
+    # (gen_data._RADA_WORLDLESS; the corpus ratchet above carries the WHY). Measured by
+    # (trigger, flag) in flag-pair space: 644 removed / 519 added / 522 re-owned -- large because
+    # the 124 sat in MANY divvy pools (legacy map-local, region round-robin, AND m61 field slices),
+    # and every pool that shrinks re-phases `_ents[_j % len(_ents)]` for its whole membership
+    # (#363's stable-modulus effect, at its widest observed). Every removed pair's flag is in the
+    # exclusion set; exactly ONE re-own crosses a region boundary and in the SAFE direction --
+    # f21027991 (m21_02, Shadow Keep ground) moved from m61 trigger 2050470800 onto the Golden
+    # Hippopotamus, i.e. INTO its own region's map-local sweep.
+    # 2026-08-19 (#885, rebased after #330): 3ca932cb -> f3b8f3f3, count UNCHANGED at 3997.
+    # Measured in (trigger, flag) multiset space: 28 removed / 28 added, with 25 flags changing
+    # owner. The churn itself moves no flag between differently-labelled owner regions. Separately,
+    # the Hippo sweep's region label changes Shadow Keep -> Scadu Altus, and all 58 members it now
+    # owns are Scadu Altus checks -- the intended arena-region ruling, not a cross-region grant.
+    assert (digest, n) == ("f3b8f3f398c31801", 3997), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (f3b8f3f398c31801, 3997). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

@@ -91,9 +91,13 @@ _SWEEP_NEVER = {"Remembrance", "Boss", "GreatRune", "KeyItem", "Shop", "ShopNonS
 # and those rows are no longer a defect to ratchet. Deleted rather than re-justified, which is the
 # tightening this test's own `gone` branch asks for. The three below are floor classes and stay.
 _KNOWN_IMPORTANT_IN_SWEEPS = {
-    7772584,   # KeyItem   -- Gaol Upper Level Key
-    7772588,   # KeyItem   -- Gaol Lower Level Key
-    7772603,   # Boss      -- Dragon Heart, around Dragon's Pit
+    # ⚠️ ap ids are POSITIONAL and this ledger is keyed on them: #330's 124-row Rada removal
+    # (2026-08-19) shifted all three by -35 while the CHECKS (flags 41027000 / 41027320 / 43017900,
+    # verified identical) never moved. If this ledger drifts again for a corpus change, match by
+    # flag before concluding the debt grew.
+    7772549,   # KeyItem   -- Gaol Upper Level Key            (f41027000)
+    7772553,   # KeyItem   -- Gaol Lower Level Key            (f41027320)
+    7772568,   # Boss      -- Dragon Heart, around Dragon's Pit (f43017900)
 }
 
 

@@ -127,6 +127,9 @@ TESTS_JOB = {
                             "shared _util import, and the tests job supplies the real checkout. "
                             "Pytest suite with no generator role; #885's acceptance case must run "
                             "in TESTS_JOB",
+    "rada_fruit_worldless": "committed TSV inputs reached through the repo-root walk-up are "
+                             "re-derived against the installed generated data. The tests job has "
+                             "both; this is a pytest acceptance suite, not a generator",
     "quest_prerequisite_rules": "runtime item_rule coverage uses the installed world; the typed "
                                   "questline_model.tsv witness is reached through find_repo_root "
                                   "from the tests job's real repository checkout",
