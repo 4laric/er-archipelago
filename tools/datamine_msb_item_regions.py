@@ -70,6 +70,24 @@ VV = os.path.join(ART, "vanilla_er", "vanilla_er")
 EVT = os.path.join(ART, "event")
 OUT = os.path.join(REPO, "greenfield", "msb_flag_region.tsv")
 
+
+def _set_artifacts_root(path):
+    """Point every input at a different `elden_ring_artifacts` tree (`--artifacts`).
+
+    Rebinds the module constants rather than threading a parameter through every reader: the
+    Windows process pool SPAWNS, but the workers receive their msb_dir as an argument, so only the
+    parent's DISCOVERY paths matter and a parent-side rebind is complete. `OUT` is deliberately
+    untouched -- the tsv belongs to the repo regardless of where the game data lives (`--out`
+    exists for the rest).
+
+    The expected layout under the root is unchanged: `mapstudio/<map>-msb-dcx/` (or `-msb-dcx`
+    dirs directly under the root), `event/*.emevd.dcx.js`, `vanilla_er/vanilla_er/*.csv`.
+    """
+    global ART, VV, EVT
+    ART = os.path.abspath(path)
+    VV = os.path.join(ART, "vanilla_er", "vanilla_er")
+    EVT = os.path.join(ART, "event")
+
 SOURCES = ("treasure", "enemy", "event")
 
 _DIR_RE = re.compile(r"^(m\d\d)_(\d\d)_(\d\d)_(\d\d)-msb-dcx$")
@@ -922,6 +940,12 @@ def main(argv=None):
     ap.add_argument("--sources", nargs="*", choices=SOURCES, default=list(SOURCES),
                     help="which provenance chains to emit (default: all)")
     ap.add_argument("--out", default=OUT)
+    ap.add_argument("--artifacts", metavar="DIR",
+                    help="use this elden_ring_artifacts tree instead of <repo>/elden_ring_artifacts "
+                         "(same layout inside: mapstudio/, event/, vanilla_er/vanilla_er/). "
+                         "Applies to every mode, --coverage and --emit-assets included; the output "
+                         "tsv still lands in the repo unless --out moves it. ER_REPO relocates the "
+                         "whole repo instead; this relocates only the game data.")
     ap.add_argument("--stdout", action="store_true", help="print instead of writing the tsv")
     ap.add_argument("--jobs", "-j", type=int, default=min(8, (os.cpu_count() or 1)),
                     help="parallel map scans (default: min(8, cpu count)). `-j 1` runs serially, "
@@ -941,6 +965,10 @@ def main(argv=None):
                          "first MSB found, and write nothing. Needed to build the asset->lot join "
                          "datamine_lot_gates.py wants; see probe.__doc__.")
     args = ap.parse_args(argv)
+    if args.artifacts:
+        if not os.path.isdir(args.artifacts):
+            sys.exit(f"FATAL: --artifacts {args.artifacts} is not a directory")
+        _set_artifacts_root(args.artifacts)
     if args.coverage:
         holes = _print_coverage(read_tsv_rows(args.out), sys.stdout)
         return 1 if holes else 0
