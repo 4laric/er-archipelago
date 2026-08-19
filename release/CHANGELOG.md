@@ -20,6 +20,9 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **Unaudited boss sweeps cannot host required progression.** A sweep with no authoritative arena
   region still pays its ordinary members, but contributes no `SweepSlot` progression-surface entry
   until the arena is audited. The current 26 circular-evidence triggers now fail closed. World: #671.
+- **Lansseax's Glaive is filed in Altus.** Its two independently placed acquisition sites both
+  resolve to Altus; the generator now accepts unanimous region evidence from multi-map checks instead
+  of letting a one-site entity fallback misfile the incantation under Mt. Gelmir. World: #502.
 - **Packaged me3 profiles now name the package that actually ships.** Stable bundles load the
   authenticated `flower-package`; development bundles with no Flower assets omit the package entry
   instead of asking me3 to scan a nonexistent `ap-package`. Both release packagers now reject any

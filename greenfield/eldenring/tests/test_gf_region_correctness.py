@@ -43,6 +43,9 @@ DATA_PY = os.path.join(GF_PKG, "data.py")
 REGION_MAP_CSV = next((p for p in (os.path.join(GF_PKG, "region_map.csv"),
                                    os.path.join(GREENFIELD, "region_map.csv")) if os.path.isfile(p)),
                       os.path.join(GREENFIELD, "region_map.csv"))
+MSB_FLAG_REGION_TSV = next((p for p in (os.path.join(GF_PKG, "msb_flag_region.tsv"),
+                                        os.path.join(GREENFIELD, "msb_flag_region.tsv"))
+                            if os.path.isfile(p)), os.path.join(GREENFIELD, "msb_flag_region.tsv"))
 
 # Placed-item flag_sources: the item sits on a real ItemLotParam_map tile, so its declared region is
 # ground truth and region_of must preserve it (never quarantine to HUB). `shop`/`global` sources are
@@ -238,6 +241,28 @@ class RegionCorrectness(unittest.TestCase):
             self.assigned.get(400280),
             "Haligtree Left obtained-flag twin f400280 should be EXCLUDED (redundant with the placed "
             f"f1051587800); got region(s) {self.assigned.get(400280)}")
+
+    def test_lansseax_multisite_consensus_is_altus(self):
+        """Lansseax's Glaive has two real MSB sites, but no region ambiguity: both are Altus.
+
+        Pin the independent input evidence as well as the emitted answer.  If the datamine changes,
+        this fails instead of quietly preserving a stale special case; if only the resolver regresses,
+        the exact Altus assignment fails (#502).
+        """
+        if not os.path.isfile(MSB_FLAG_REGION_TSV):
+            self.skipTest("msb_flag_region.tsv absent -- cannot verify Lansseax placement evidence")
+        maps = set()
+        with open(MSB_FLAG_REGION_TSV, encoding="utf-8") as fh:
+            for line in fh:
+                if line.startswith("#"):
+                    continue
+                parts = line.rstrip("\n").split("\t")
+                if len(parts) >= 2 and parts[0] == "530300":
+                    maps.add(parts[1])
+        self.assertEqual(maps, {"m60_37_51", "m60_41_52"},
+                         "Lansseax MSB sites changed; re-audit their unanimous region")
+        self.assertEqual(self.assigned.get(530300), {"Altus"},
+                         "Lansseax's Glaive must be assigned to Altus (#502 ruling)")
 
     # ------------------------------------------------------------------- unique KeyItem singletons
     # KeyItem = gen_data's curated set of UNIQUE progression keys (medallions, lift/glintstone keys).
