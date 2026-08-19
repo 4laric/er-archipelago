@@ -20,7 +20,24 @@ import os
 import sys
 
 
+_GF_FILE_SECONDS = {}
+
+
 def pytest_runtest_logreport(report):
+    # PER-FILE DURATIONS, first, because everything below this returns early.
+    #
+    # A committed weights file is a claim about how long things take, and claims rot. This one rots
+    # SILENTLY and specifically: stale weights do not break a run, they stop balancing it, and CI
+    # gets slower while every gate stays green. So a sharded run measures what it actually ran and
+    # ships the numbers beside its manifest for tools/gf_shard_verdict.py to check the split it got
+    # against the split it assumed.
+    #
+    # Controller-only, for the same reason the census below is: under xdist every worker report also
+    # passes through the controller, and counting both would double every duration.
+    if not os.environ.get("PYTEST_XDIST_WORKER") and not getattr(report, "context", None):
+        _f = report.nodeid.split("::")[0]
+        _GF_FILE_SECONDS[_f] = _GF_FILE_SECONDS.get(_f, 0.0) + getattr(report, "duration", 0.0)
+
     out = os.environ.get("GF_SKIP_CENSUS_OUT")
     if not out or not report.skipped:
         return
@@ -135,6 +152,15 @@ def pytest_sessionfinish(session, exitstatus):
       thing it protects has moved on. Only judged for sites this run actually reached, so a partial
       run never reports a waiver as stale just because its file did not execute.
     """
+    # The durations ride out here, BEFORE the spy's own early return -- they are recorded whenever
+    # a shard manifest was asked for, whether or not the spy is armed.
+    _out = os.environ.get("GF_SHARD_MANIFEST_OUT")
+    if _out and _GF_FILE_SECONDS:
+        with open(os.path.join(os.path.dirname(os.path.abspath(_out)), "durations.json"),
+                  "w", encoding="utf-8") as _fh:
+            json.dump({"files": {k: round(v, 3) for k, v in sorted(_GF_FILE_SECONDS.items())}},
+                      _fh, indent=1)
+
     if os.environ.get("GF_QUANTIFIER_SPY") != "1":
         return
     empty, seen = set(_QSPY_HITS), set(_QSPY_SEEN)
@@ -208,17 +234,61 @@ def _gf_parse_shard(spec):
     return idx, total
 
 
-def gf_shard_owner(files, total):
-    """file -> shard index (1-based), for a SORTED file list. Pure, so it is testable without
-    pytest: see tests/test_gf_shard_partition.py.
+GF_SHARD_WEIGHTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "shard_weights.json")
 
-    Round-robin over the sorted list rather than contiguous blocks. The suite's cost is
-    concentrated in a few generation-heavy modules (test_gf_options.py alone is ~80s), and
-    alphabetically adjacent files are the ones most likely to be siblings of one expensive
-    feature -- contiguous blocks would pile those into one shard and the slowest shard IS the
-    wall time.
+
+def gf_load_weights(path=GF_SHARD_WEIGHTS):
+    """{file: seconds} from the committed measurement, or {} if there is none.
+
+    Absence is a supported state, not an error: the first sharded run has no weights and must still
+    partition correctly. That is the bootstrap -- it runs round-robin, emits the durations it
+    measured, and the next commit of shard_weights.json is balanced.
     """
-    return {f: (i % total) + 1 for i, f in enumerate(sorted(files))}
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return {k: float(v) for k, v in json.load(fh)["files"].items()}
+    except (OSError, KeyError, ValueError, TypeError):
+        return {}
+
+
+def gf_shard_owner(files, total, weights=None):
+    """file -> shard index (1-based). Pure, so it is testable without pytest:
+    see tests/test_gf_shard_partition.py.
+
+    WITH weights: longest-processing-time-first. Sort by cost descending and hand each file to
+    whichever shard is currently lightest. LPT is provably within 4/3 of optimal, which is far more
+    than this suite needs -- its cost is a handful of generation-heavy modules and the rest is dust.
+
+    WITHOUT weights: round-robin over the sorted list. Kept as the fallback rather than deleted,
+    because a first run, a renamed file or a deleted weights file must still produce a CORRECT
+    partition -- just a slower one.
+
+    🛑 WHY NOT ROUND-ROBIN ALWAYS: it balances FILES, and a file is not the unit of cost. Measured
+    on the first sharded CI run (#866), a 4-way round-robin gave shard 4 550s and shard 2 197s --
+    it had put five of the expensive modules in one place. The slowest shard IS the wall time, so
+    that 2.8x spread was the entire loss.
+
+    Ties break on the filename so the split is deterministic. The same tree must always produce the
+    same partition, or "which shard is this test in" stops being answerable and a flaky shard
+    becomes impossible to reproduce.
+    """
+    files = sorted(files)
+    if not weights:
+        return {f: (i % total) + 1 for i, f in enumerate(files)}
+
+    # An unknown file gets the MEDIAN of what we know, not zero. Zero would pile every newly added
+    # test file onto whichever shard is lightest at the end -- and a new file is exactly the case
+    # where nobody is looking.
+    known = sorted(weights.values())
+    default = known[len(known) // 2] if known else 1.0
+
+    load = [[0.0, i + 1] for i in range(total)]        # [cost so far, shard index]
+    owner = {}
+    for f in sorted(files, key=lambda n: (-weights.get(n, default), n)):
+        load.sort(key=lambda x: (x[0], x[1]))
+        load[0][0] += weights.get(f, default)
+        owner[f] = load[0][1]
+    return owner
 
 
 def pytest_collection_modifyitems(config, items):
@@ -226,7 +296,8 @@ def pytest_collection_modifyitems(config, items):
     if not spec:
         return
     idx, total = _gf_parse_shard(spec)
-    owner = gf_shard_owner({item.nodeid.split("::")[0] for item in items}, total)
+    owner = gf_shard_owner({item.nodeid.split("::")[0] for item in items}, total,
+                           gf_load_weights())
 
     keep, drop = [], []
     for item in items:

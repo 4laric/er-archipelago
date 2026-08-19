@@ -152,12 +152,14 @@ def main():
         p.error("--artifacts is required (or use --self-test)")
 
     root = Path(args.artifacts).resolve()
-    manifests, censuses, spies = [], [], []
+    manifests, censuses, spies, durations = [], [], [], []
     for d in sorted(root.iterdir()) if root.is_dir() else []:
         if (d / "manifest.json").is_file():
             manifests.append(json.loads((d / "manifest.json").read_text(encoding="utf-8")))
         if (d / "census.jsonl").is_file():
             censuses.append(d / "census.jsonl")
+        if (d / "durations.json").is_file():
+            durations.append((d.name, json.loads((d / "durations.json").read_text(encoding="utf-8"))))
         if (d / "spy.json").is_file():
             spies.append(json.loads((d / "spy.json").read_text(encoding="utf-8")))
 
@@ -217,6 +219,58 @@ def main():
         # the whole guard disappear from CI without a single red tick.
         print("gf_shard_verdict: NO spy artifacts -- the quantifier spy did not run in any shard")
         rc = 1
+
+    # ---------------------------------------------------------------- 4. was the split BALANCED?
+    #
+    # The slowest shard IS the wall time, so an unbalanced split wastes exactly as much as the
+    # imbalance. The committed weights (tests/shard_weights.json) are a CLAIM about cost, and a
+    # stale claim fails silently -- it does not break the run, it just stops balancing it, and CI
+    # gets slower while every tick stays green. So compare the split we ASSUMED against the one we
+    # GOT, every run.
+    if durations:
+        per_shard = sorted((sum(d["files"].values()), name) for name, d in durations)
+        lo, hi = per_shard[0][0], per_shard[-1][0]
+        print("\n## Shard balance\n")
+        for secs, name in per_shard:
+            print("  %-16s %7.0fs" % (name, secs))
+        print("  spread: %.1fx  (wall time is the slowest shard, %.0fs)"
+              % ((hi / lo) if lo > 0 else float("inf"), hi))
+
+        merged = {}
+        for _name, d in durations:
+            for f, v in d["files"].items():
+                merged[f] = max(merged.get(f, 0.0), float(v))
+
+        # 🛑 JUDGE AGAINST THE OPTIMUM, NOT AGAINST THE FASTEST SHARD.
+        # `--dist loadfile` keeps a module whole, so the worst shard can never beat the heaviest
+        # single FILE. When one module dominates -- and here one does -- a large max/min spread is
+        # what a PERFECT split looks like, and a max/min threshold would fail it. The honest
+        # question is "how close to the best achievable split is this?", which is
+        # worst / max(heaviest file, total / shards).
+        heaviest = max(merged.values()) if merged else 0.0
+        optimum = max(heaviest, sum(merged.values()) / max(1, len(per_shard)))
+        efficiency = (hi / optimum) if optimum > 0 else 1.0
+        print("  optimum: %.0fs (heaviest file %.0fs, fair share %.0fs) -> this split is %.2fx it"
+              % (optimum, heaviest, sum(merged.values()) / max(1, len(per_shard)), efficiency))
+        weights_out = root / "shard_weights.json"
+        weights_out.write_text(json.dumps({"files": dict(sorted(merged.items()))}, indent=1),
+                               encoding="utf-8")
+        print("  fresh weights written to %s -- commit it over "
+              "greenfield/eldenring/tests/shard_weights.json to rebalance" % weights_out)
+
+        if efficiency > 1.5:
+            print("\n  🛑 SHARD BALANCE FAILED: the slowest shard is %.2fx the best achievable "
+                  "split." % efficiency)
+            print("     %.0fs of the %.0fs wall is avoidable -- the committed weights no longer "
+                  "describe this suite." % (hi - optimum, hi))
+            print("     Commit the fresh weights above over "
+                  "greenfield/eldenring/tests/shard_weights.json.")
+            rc = 1
+        elif efficiency > 1.2:
+            print("  NOTE: drifting (%.2fx optimum, %.0fs avoidable). Refresh the weights when "
+                  "convenient." % (efficiency, hi - optimum))
+    else:
+        print("\ngf_shard_verdict: no durations.json -- shard balance UNMEASURED this run")
 
     return rc
 
