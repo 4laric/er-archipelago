@@ -23,6 +23,14 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **Lansseax's Glaive is filed in Altus.** Its two independently placed acquisition sites both
   resolve to Altus; the generator now accepts unanimous region evidence from multi-map checks instead
   of letting a one-site entity fallback misfile the incantation under Mt. Gelmir. World: #502.
+- **The Golden Hippopotamus is Scadu Altus everywhere.** His fight is fought standing in Scadu
+  Altus (the arena play-region), so the reward, the sweep, AND all ~105 checks he grants now present
+  under `Scadu Altus ::` instead of `Shadow Keep ::`. Before this, a player holding the Shadow Keep
+  lock without Scadu Altus was shown a hundred-plus Shadow Keep rows "also granted by Golden
+  Hippopotamus", walked to the fight, and was ejected by the region guard; now those checks exist
+  exactly in the seeds that can fire the Hippo, and killing him from Scadu Altus alone pays all of
+  them. The one m21_00 pickup he does not grant (a cookbook) stays Shadow Keep. World: #885, from
+  cokeman5's report on #330.
 - **Packaged me3 profiles now name the package that actually ships.** Stable bundles load the
   authenticated `flower-package`; development bundles with no Flower assets omit the package entry
   instead of asking me3 to scan a nonexistent `ap-package`. Both release packagers now reject any

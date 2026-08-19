@@ -652,6 +652,14 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 2026-08-18 (#562): 79ccf39c -> 394aa604, 4032 -> 4121. ADDED 59 physical flags and 30
     # co-check siblings, REMOVED 0, RE-OWNED 45; zero additions or re-ownerships cross a region.
     # This is the intended recovery of checks whose MSB-derived map was known but not recorded.
-    assert (digest, n) == ("394aa6043e5d1c28", 4121), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (394aa6043e5d1c28, 4121). The total alone will "
+    # 2026-08-19 (#885): 394aa604 -> 2d795f3d, count UNCHANGED at 4121. The Hippo's members moved
+    # onto his arena's region (Shadow Keep -> Scadu Altus, the ruling), so BOTH regions' divvies
+    # re-phased: measured by (trigger, flag), 52 removed / 53 added / 50 re-owned, almost all
+    # rotations among the Scadu Altus divvy triggers. FOUR crossed a region boundary, all in the
+    # correct direction: m21_02 (West Rampart) checks 21027090/21027180/21027230/21027350 are still
+    # Shadow Keep ground checks, so they LEFT the now-Scadu-Altus Hippo for Shadow Keep triggers
+    # (2049480800 / 2050480812 / 21010800 / 2050480860) -- before the move they would have been the
+    # cross-region grants #445 screens for.
+    assert (digest, n) == ("2d795f3dc68c3584", 4121), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (2d795f3dc68c3584, 4121). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

@@ -2638,6 +2638,14 @@ FLAG_REGION_OVERRIDE = {
     2044417995: 'Gravesite',
     # 76905 Church District Highroad -> Scadu Altus
     2050467800: 'Scadu Altus',
+    # THE #885 CARVE-OUT: m21_00 is curated to Scadu Altus (DUNGEON_REGION_CURATED) because
+    # everything the Golden Hippopotamus grants presents as his arena's region -- but this cookbook
+    # is the one m21_00 ground check the Hippo does NOT grant (no sweep clause, no member row). With
+    # no alternate grant, its honest region is the ground it stands on (bucket 21000 = Shadow Keep):
+    # labelled Scadu Altus it would be CREATED by a Scadu-Altus-only seed and sit behind the Shadow
+    # Keep kick with no boss to hand it over -- the exact dead-check class
+    # tools/check_ground_regions.py exists to catch (and it did, in-sandbox, before this pin).
+    68800: 'Shadow Keep',
     2050477010: 'Scadu Altus',
     2050477020: 'Scadu Altus',
     # 76916 Castle Watering Hole -> SCADU ALTUS (2026-08-13, REVERSED -- see below)
@@ -2990,6 +2998,15 @@ DUNGEON_REGION_CURATED = {
     # boundary SET; the ConnectCollision pass now derives it to Mountaintops of the Giants --
     # the same value -- so the override was redundant and went. The guard below enforces that.)
     "m32_04_00_00": "Altus",                # data says 'Mt. Gelmir' -- CURATED override
+    # m21_00 (Shadow Keep main map): the grace join says 'Shadow Keep' and that is not wrong about
+    # where the ground sits -- it is wrong about what GUARANTEES the ground. Every swept m21_00 check
+    # is granted by the Golden Hippopotamus, whose arena is PlayRegionParam bucket 69000 = Scadu
+    # Altus (boss_area_regions.tsv 21000850); a Keep-lock-only player steered at those checks walks
+    # into the arena and is KICKED (#885, cokeman5 on #330). Scadu Altus alone always suffices (kill
+    # the Hippo, the sweep pays all of them), so the RULING (Alaric 2026-08-19, #885) is that the
+    # Hippo and everything it grants present as Scadu Altus, members included. This supersedes the
+    # 2026-07-21 region_overrides.tsv ruling that kept the post-death floor at Shadow Keep.
+    "m21_00_00_00": "Scadu Altus",          # data says 'Shadow Keep' -- CURATED override (#885)
 }
 
 
@@ -3100,7 +3117,7 @@ GLOBAL_RECOVER = {
     # Also tagged questline-missable in QUEST_GATED_FLAGS below -- an NPC handover can be lost.
     # Pinned by test_gf_esd_npc_awards.py (RED until this regen bakes).
     400190: "Limgrave",              # Spirit Jellyfish Ashes -> Roderika (Stormhill Shack, Limgrave)
-    510440: "Shadow Keep",           # Golden Hippopotamus. Recovery MEMBERSHIP + post-DEATH floor: the plaza reverts to play_region 21000 = Shadow Keep once the Hippo is dead (so the filler SWEEP is Shadow Keep). The LIVE-fight reward region is now DERIVED, not hand-set: region_of's boss-arena branch resolves 510440 -> defeat 21000850 -> PlayRegionParam boss-alive row 6900010 (bucket 69000 = Scadu Altus) ABOVE the msb branch, so this value is never consulted for the reward's region. (Membership is also covered by _BOSS_REWARD_TILE auto-recover; this entry could be dropped entirely.)
+    510440: "Scadu Altus",           # Golden Hippopotamus (#885). Was "Shadow Keep" (the post-death-floor ruling, superseded 2026-08-19: the Hippo presents as Scadu Altus EVERYWHERE, members included -- see DUNGEON_REGION_CURATED["m21_00_00_00"]). Value matters again: with m21_00 curated to Scadu Altus the boss-arena branch's _bar == _bmd, so it FALLS THROUGH and a global-method row can reach this entry -- a stale "Shadow Keep" here would resurrect the exact inconsistency #885 removes.
     # === DLC (SotE) recovered checks + re-pins (Alaric 2026-07-10; DLC-CHECK-AUDIT.md §4/§5c) ===
     400660: 'Scadu Altus',
     65460: 'Gravesite',
