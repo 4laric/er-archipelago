@@ -1862,16 +1862,28 @@ _RADA_WORLDLESS = frozenset({
 # these stay VANILLA rows: check_lots stops rewriting a lot that is no longer a check, and the
 # tracker stops selling pickups nobody can find. Keeper: test_gf_worldless_singles.py re-derives
 # the class from the committed corpora every run.
+# 🛑 f10007452 (Crimson Hood, Roundtable Hold "around Table of Lost Grace") is RULED LIVE and
+# kept OUT of this set by hand: it is the vanilla-visible hub pickup on the chair by the Table,
+# in every seed. flag_names.tsv carries the proof the screen missed: EMEVD event 11100704
+# (m11_10) awards it ("NPC320_Farnese_Replaced with hood item") -- the safety screen greps LOT
+# ids in the blobs and this award references the FLAG, so a flag-level EMEVD reference is a
+# known screen gap, not new doctrine. Culling it also regressed the gear_one_region fill
+# (Fill.FillError, one weapon over the hub's non-shop capacity), which is the in-repo witness.
+# Keeper: test_gf_worldless_singles.RULED_LIVE_MAP_FLAGS.
 _WORLDLESS_SINGLES = frozenset({
-    10007452, 11007995, 12027840, 12037560, 12037570, 12037580, 12037590, 12037900,
+    11007995, 12027840, 12037560, 12037570, 12037580, 12037590, 12037900,
     12037910, 12057220, 12057230, 12057260, 12057270, 12057380, 12057390, 12057420,
     12057430, 12057440, 12057450, 12057460, 12057470, 12057480, 12057490, 12057500,
     12057520, 12057530, 12057540, 12057550, 12057560, 12057570, 12057580, 12057720,
     12057730, 12057740, 12077190, 12077200, 12077210, 12077220, 12077230, 12077240,
     12077260, 12077270, 12077280, 12077290, 12077520, 12077530, 12077540, 15001210,
     16007991, 16007992, 30127000, 30127900, 30177060, 35007750, 35007920, 35007960,
-    39207170, 39207200, 1033457100, 1036437010, 1036477100, 1036487100, 1037487100, 1038447100,
-    1038467400, 1038477100, 1039527700, 1042337200, 1042377100, 1042377110, 1043317500, 1044357050,
+    # 2026-08-19, 8 RELEASED (86 -> 78): #898's audited unplaced_global_tiles.tsv placed
+    # 39207170 (the Sacred Tear), 1033457100, 1036437010, 1038447100, 1039527700 (Eleonora's
+    # Poleblade), 1042377100/110, 1044357050 -- an OBSERVED/audited tile IS a world reference,
+    # so the tsv is a corpus this rule must consult (the keeper test now subtracts it).
+    39207200, 1036477100, 1036487100, 1037487100,
+    1038467400, 1038477100, 1042337200, 1043317500,
     1047557040, 1052557040, 2046407001, 2046407002, 2046407003, 2046407004, 2047447901, 2048467701,
     2049437610, 2049437901, 2049437902, 2049437911, 2049437912, 2050457510,
 })

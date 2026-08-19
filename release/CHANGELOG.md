@@ -52,13 +52,18 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   full-MSB datamine (every map's treasure, enemy-attached, and event-chained references, merged
   with the prior partial run) closed the census's 39 blind maps; the coverage witness now FAILS
   the build if any placed map goes blind again or the denominator comes back empty. Against that
-  zero-blind-map census, 86 map-encoded ground-lot flags -- Golden Rune "around <grace>" rows in
+  zero-blind-map census, 77 map-encoded ground-lot flags -- Golden Rune "around <grace>" rows in
   Siofra, Mohgwyn and the Shaded Castle among them -- reference no world object in ANY corpus
-  (coords, census, gifts, quest scripts, bell hand-ins) and leave the pool exactly as the Rada
-  rows did: pickups revert to vanilla, ledgered under `worldless_single`. 40 near-identical rows
-  were SCREENED OUT of the cull because EMEVD scripts award them (evergaol drops like Godefroy's
-  Icon, the #653 inverted-tower trio) -- scripted awards are real checks the ground census cannot
-  see. 5098 -> 5033 locations. World: #330 follow-up, the "any other phantoms?" sweep.
+  (coords, census, gifts, quest scripts, bell hand-ins, and #898's audited tile placements) and
+  leave the pool exactly as the Rada rows did: pickups revert to vanilla, ledgered under
+  `worldless_single`. 49 near-identical rows were kept OUT of the cull by three screens: 40
+  because EMEVD scripts award them (evergaol drops like Godefroy's Icon, the #653 inverted-tower
+  trio -- scripted awards are real checks the ground census cannot see), 8 because #898's audited
+  unplaced-tile datamine places them (Eleonora's Poleblade among them), and 1 by hand ruling (the
+  Roundtable's Crimson Hood, awarded by a flag-level EMEVD reference the lot-based screen cannot
+  see). 5115 -> 5047 locations
+  net of the census's own +9 recovered pickups. World: #330 follow-up, the "any other phantoms?"
+  sweep.
 - **Packaged me3 profiles now name the package that actually ships.** Stable bundles load the
   authenticated `flower-package`; development bundles with no Flower assets omit the package entry
   instead of asking me3 to scan a nonexistent `ap-package`. Both release packagers now reject any

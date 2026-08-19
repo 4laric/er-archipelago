@@ -59,8 +59,8 @@ POCKET = {
     # worldless-singles cull). Flag-verified each time.
     # 7772653 -> 7772649 (2026-08-19, the cull): the sibling that "never moves" finally moved --
     # 4 culled flags sat before it. There is no pinned id the corpus cannot renumber.
-    1035467100: 7774242,   # +5 on the #898 base (its placed rows land before this one); flag-verified   # Golden Seed - near Main Academy Gate (the reported check)
-    1035467700: 7772649,   # Ash of War: Raptor of the Mists - around Main Academy Gate
+    1035467100: 7774245,   # +5 on the #898 base, +2 more at the 8 audited-tile releases, +1 at the Crimson Hood ruling; flag-verified   # Golden Seed - near Main Academy Gate (the reported check)
+    1035467700: 7772650,   # Ash of War: Raptor of the Mists - around Main Academy Gate
 }
 ANCHOR_FLAG = 14007990     # Golden Seed - near Schoolhouse Classroom: undisputed academy ground
 ACADEMY = "Raya Lucaria Academy"

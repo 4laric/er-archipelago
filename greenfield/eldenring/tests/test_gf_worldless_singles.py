@@ -60,6 +60,16 @@ def _gen_literal(name):
     raise AssertionError(f"{name} is gone from gen_data.py")
 
 
+# Map-shaped rows the derivation names but a RULING keeps live. Each entry carries its witness.
+RULED_LIVE_MAP_FLAGS = frozenset({
+    10007452,   # Crimson Hood, Roundtable Hold. Awarded by EMEVD event 11100704 in m11_10
+                # (flag_names.tsv: "NPC320_Farnese_Replaced with hood item") -- a FLAG-level EMEVD
+                # reference the lot-grepping safety screen cannot see. In-repo witness: culling it
+                # regressed test_gf_options gear_one_region with a FillError (the hub lost its one
+                # spare non-shop gear slot). 2026-08-19.
+})
+
+
 class WorldlessSingles(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -97,6 +107,19 @@ class WorldlessSingles(unittest.TestCase):
                 lots.setdefault(row["flag"], []).append(row["lot"])
         derived = {f for f in derived
                    if not any(l in blob for l in lots.get(str(f), ()))}
+        # 2026-08-19: #898's audited tile placements are a world reference too. A flag the
+        # unplaced-globals datamine can place has a world object by construction; subtract the
+        # corpus rather than hand-releasing its rows (8 released the day it landed).
+        tiles = set()
+        with open(os.path.join(REPO, "greenfield", "unplaced_global_tiles.tsv"), encoding="utf-8") as fh:
+            _body = (l for l in fh if not l.startswith("#"))  # the emit writes a comment banner
+            for row in _csv.DictReader(_body, delimiter="\t"):
+                if row.get("flag", "").isdigit():
+                    tiles.add(int(row["flag"]))
+        self.assertTrue(tiles, "WITNESS: unplaced_global_tiles.tsv absent or empty -- the "
+                               "audited-tile subtraction would be vacuous")
+        derived -= tiles
+        derived -= RULED_LIVE_MAP_FLAGS
         only_frozen = sorted(self.frozen - derived - self.flags)
         # a frozen flag may legitimately leave the DERIVED set only by leaving the corpus (it is
         # excluded, so the audit cannot see it); one that RE-ENTERS the corpus while still frozen
@@ -124,8 +147,12 @@ class WorldlessSingles(unittest.TestCase):
                                    "on its own: %r" % both)
 
     def test_the_corpus_size_is_pinned(self):
-        self.assertEqual(len(self.frozen), 86,
-                         "the cull corpus moved (was 86, ruled 2026-08-19; the EMEVD screen removed 40 of the original 126). A shrink after a "
+        # 86 -> 78 (2026-08-19, same day): #898's audited unplaced_global_tiles.tsv placed 8 of
+        # them -- the derivation below now subtracts that corpus, which is exactly the shrink
+        # this message asks to be named.
+        self.assertEqual(len(self.frozen), 77,
+                         "the cull corpus moved (was 77, ruled 2026-08-19; EMEVD screen -40, audited tiles -8, "
+                         "RULED_LIVE -1 off the original 126). A shrink after a "
                          "census improvement is the loop working -- name the released rows; a "
                          "growth needs its own ruling.")
 

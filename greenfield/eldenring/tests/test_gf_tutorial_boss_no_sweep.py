@@ -34,7 +34,7 @@ from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E
 #     corpus and never had a sweep to lose.
 GRAFTED_SCION = 10010800          # boss_healthbars: ('m10_01', 'm10_01', 'legacy', 'Grafted Scion')
 SCION_OWN_DROP_AP = 7773886       # Ornamental Straight Sword, f510030 -- a normal check, must SURVIVE
-GOSTOC_BELL_AP = 7773805           # f400051, MSB-placed in m10_00 while its source map was PENDING
+GOSTOC_BELL_AP = 7773806           # f400051, MSB-placed in m10_00 while its source map was PENDING
 # (7773843 -> 7773808 on 2026-08-19, #330; 7773808 -> 7773821 same day, full-census regen: +10
 #  restored m21_02 Rada rows and +3 other insertions ahead of it. Flag-verified both times -- the
 #  stale pin was even OWNED by a Liurnia trigger, the exact wrong-check-same-id trap.)
@@ -502,8 +502,8 @@ def test_the_sweep_corpus_did_not_shrink():
     # worldless-singles cull (-85 sweep-slotted flags) lands at 4018. Cull delta measured by
     # (trigger, flag): 387 removed (85 the cull itself, the rest the divvy re-phase it
     # triggered) / 300 added / 304 re-owned, and ZERO re-ownerships cross a region boundary.
-    assert total == 4019, (  # +1 on the #898 base: one of its placed rewards holds a sweep slot
-        "sweep corpus is %d, expected 4019. If a sweep was legitimately added or removed, say WHY "
+    assert total == 4027, (  # +1 on the #898 base, +8 more when the audited-tile rows were released from the cull
+        "sweep corpus is %d, expected 4027. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -692,6 +692,6 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # region correction, the safe direction.
     # 2026-08-19 (census + cull on top of #896's 89fbf395/3997): -> a57ff5e1/4018. Measurement at
     # the corpus ratchet above; zero region-crossing re-owns.
-    assert (digest, n) == ("c5ca37e2faf558c9", 4019), (  # re-measured on the #898 base
-        "sweep OWNERSHIP changed: (%s, %d), expected (c5ca37e2faf558c9, 4019). The total alone will "
+    assert (digest, n) == ("b3d443e97f16ed0d", 4027), (  # re-measured after the tile releases + the Crimson Hood ruling (same 4027 members, one re-own)
+        "sweep OWNERSHIP changed: (%s, %d), expected (b3d443e97f16ed0d, 4027). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

@@ -394,6 +394,7 @@ ITEM_TIERS = {
     'Crimson Amber Medallion +1': 0,
     'Crimson Amber Medallion +2': 0,
     'Crimson Amber Medallion +3': 2,
+    'Crimson Hood': 2,
     'Crimson Seed Talisman': 1,
     'Crimson Seed Talisman +1': 1,
     'Crimson Tear Scarab': 2,
@@ -1860,6 +1861,7 @@ ITEM_TIER_CATEGORY = {
     'Crimson Amber Medallion +1': 'TALISMAN',
     'Crimson Amber Medallion +2': 'TALISMAN',
     'Crimson Amber Medallion +3': 'TALISMAN',
+    'Crimson Hood': 'ARMOR',
     'Crimson Seed Talisman': 'TALISMAN',
     'Crimson Seed Talisman +1': 'TALISMAN',
     'Crimson Tear Scarab': 'ARMOR',
@@ -2933,4 +2935,4 @@ ITEM_TIER_CATEGORY = {
     'Zweihander': 'WEAPON',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:adebc4c71223981414fe8adea4026efbf70c1e740f76fade77b00758020151c7', 'module': 'item_tiers.py', 'body_sha256': 'sha256:f3666b580d46631c4602a5e25d1a86438c02978f6793b2521353d6fe5d4e4077'}
+_GEN_STAMP = {'inputs_hash': 'sha256:2dad0f964909e0225a608b6fcf79a7f838151b59a28c9c174d657f3e117cf227', 'module': 'item_tiers.py', 'body_sha256': 'sha256:a985145ca9f804e351315443cb95047c36b9ff11a8b120cc81b2d21c8b0315ea'}

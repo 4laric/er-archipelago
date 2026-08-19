@@ -130,6 +130,11 @@ TESTS_JOB = {
     "rada_fruit_worldless": "committed TSV inputs reached through the repo-root walk-up are "
                              "re-derived against the installed generated data. The tests job has "
                              "both; this is a pytest acceptance suite, not a generator",
+    "worldless_singles": "same shape as rada_fruit_worldless one class over: re-derives the "
+                          "86-flag cull from the committed corpora (including the EMEVD blobs "
+                          "out of gen_inputs.db) via the repo-root walk-up, and pins the 8 "
+                          "hand-fired proven-live flags against the installed world. Pytest "
+                          "acceptance suite for the #330 follow-up cull, not a generator",
     "quest_prerequisite_rules": "runtime item_rule coverage uses the installed world; the typed "
                                   "questline_model.tsv witness is reached through find_repo_root "
                                   "from the tests job's real repository checkout",
