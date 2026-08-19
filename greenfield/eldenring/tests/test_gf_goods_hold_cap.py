@@ -69,12 +69,13 @@ def _pool_copies():
 class TestTheMotivatingCase(unittest.TestCase):
     def test_the_four_pot_rows_are_capped_and_the_numbers_are_the_logged_ones(self):
         expect = {          # name: (ceiling, start, pool-before-clamp)
-            # pool-before-clamp moved 2026-08-07 (#249, de-dup re-key): 17->18, 8, 7->8, 4->5.
-            # These four are exactly the "common consumable, many sources" shape the old
-            # ITEM-NAME filter was discarding, so they are where the placed rows land.
-            "Cracked Pot": (19, 10, 18),
-            "Ritual Pot": (9, 4, 8),
-            "Perfume Bottle": (9, 9, 8),
+            # #218 recovers exact fixed-pickup coordinates for two Cracked Pots, two Ritual Pots,
+            # and three Perfume Bottles which the old coarse global-reward pass missed. These are
+            # physical checks, so they belong in the pool; the hold-cap clamp pays filler for the
+            # copies that cannot fit beside the pinned start loadout.
+            "Cracked Pot": (19, 10, 20),
+            "Ritual Pot": (9, 4, 10),
+            "Perfume Bottle": (9, 9, 11),
             "Hefty Cracked Pot": (10, 9, 5),
         }
         pool = _pool_copies()
@@ -97,12 +98,11 @@ class TestTheMotivatingCase(unittest.TestCase):
                     clamped[nm] = clamped.get(nm, 0) + 1
                 elif nm in budget:
                     budget[nm] -= 1
-        # 2026-08-07 (#249): each rises by exactly the pool copies added above -- 8->9, 3, 7->8,
-        # 3->4. The clamp is doing more work because the pool got bigger, not because a ceiling
-        # or a start loadout moved (both pinned unchanged in this file).
-        self.assertEqual(clamped.get("Cracked Pot"), 9)
-        self.assertEqual(clamped.get("Ritual Pot"), 3)
-        self.assertEqual(clamped.get("Perfume Bottle"), 8)
+        # #218 adds 2/2/3 exact fixed pickups respectively. The clamp is doing more work because
+        # the pool got bigger, not because a ceiling or start loadout moved (both pinned above).
+        self.assertEqual(clamped.get("Cracked Pot"), 11)
+        self.assertEqual(clamped.get("Ritual Pot"), 5)
+        self.assertEqual(clamped.get("Perfume Bottle"), 11)
         self.assertEqual(clamped.get("Hefty Cracked Pot"), 4)
 
     def test_after_the_clamp_nothing_is_undeliverable(self):
@@ -168,6 +168,11 @@ class TestTheClampDoesNotEatDeliberateDuplicates(unittest.TestCase):
             #   Letter for Freyja  -- flag 400625 lot 106235, sibling of Ansbach's set
             "Black Knifeprint": (2, 1), "Igon's Bell Bearing": (2, 1),
             "Letter for Freyja": (2, 1),
+            # #218's exact coordinate recovery makes these physical fixed pickups visible. Unlike
+            # Hefty Cracked Pot, their pool alone now exceeds the safe hold ceiling; the excess
+            # locations remain randomized and pay filler rather than an undeliverable vanilla item.
+            "Cracked Pot": (20, 19), "Ritual Pot": (10, 9),
+            "Perfume Bottle": (11, 9),
             # 🛑 "Rya's Necklace": (2, 1) WAS pinned here on 2026-08-07 and is now GONE, because
             # the second copy was never a necklace. Diffing by LOCATION NAME said "the re-key
             # recovered a second pickup"; diffing by ITEM ID says otherwise:
@@ -179,13 +184,10 @@ class TestTheClampDoesNotEatDeliberateDuplicates(unittest.TestCase):
             # ⭐ A NAME MATCH IS NOT AN ITEM MATCH -- the same lesson that made the #249 de-dup
             # key on (table, lot) instead of item_name, one table over.
         }
-        # 🛑 NOT ONE OF THE FOUR POT ROWS IS IN THIS LIST, and that is the finding, not an
-        # omission: every one of them is UNDER its ceiling on pool copies alone (17<=19, 8<=9,
-        # 7<=9, 4<=10). They overflow only once the start loadout is added. A pool-only view of
-        # this bug -- which is the obvious way to write it -- misses the exact case that was
-        # reported. `TestTheMotivatingCase` covers them via hold_budget.
-        for _pot in ("Cracked Pot", "Ritual Pot", "Perfume Bottle", "Hefty Cracked Pot"):
-            self.assertNotIn(_pot, bites, _pot)
+        # Hefty Cracked Pot remains below its ceiling on pool copies alone (5<=10), and only
+        # overflows when the start loadout is counted. The other three now have enough exact fixed
+        # pickups to bite even in this pool-only view.
+        self.assertNotIn("Hefty Cracked Pot", bites)
         self.assertEqual(bites, expected,
                          "the set of items the hold ceiling removes has changed -- if a SPELL is "
                          "in this diff, stop: that is a deliberate duplicate")

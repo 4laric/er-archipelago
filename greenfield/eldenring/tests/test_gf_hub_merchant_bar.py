@@ -37,8 +37,9 @@ from ..features.progression_surface import (_HUB_MERCHANT_TAGS, _roundtable_merc
 from ..location_tags import (DEFAULTED_REGION_APS, ERDTREE_BURN_APS, LOCATION_TAGS,
                              SHOP_RELEASE_GATED_APS, SHOP_SLOT_PINS, SURFACE_EXCLUDE_APS)
 
-# Every hub row carrying a merchant tag. 184 = 158 Shop+ShopNonSpell, 23 EniaShop(+Legendary), 3 Shop.
-_PINNED_BAR = 184
+# Every hub row carrying a merchant tag. #218 replaces the old number-anywhere-in-ESD heuristic with
+# exact AwardItemLot calls: two false Hub rows retire while one real Hub award enters, for a net -1.
+_PINNED_BAR = 183
 # Of those, the ones a `Shop`-selecting seed would put on the surface before this bar fires: 184 minus
 # the 58 already DEFAULTED (region guessed) minus the 21 EniaShop rows (EniaShop is itself a
 # contract.SURFACE_EXCLUDE_TAGS member, so has_class rejects them on tags alone) minus the 47 that

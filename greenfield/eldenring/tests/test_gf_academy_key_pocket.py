@@ -55,7 +55,8 @@ POCKET = {
     # 7774401 -> 7774277 and 7772688 -> 7772653 (2026-08-19, #330): 124 worldless Rada Fruit rows
     # left the corpus (_RADA_WORLDLESS); both pins sit after removals this time, and by different
     # amounts (124 vs 35), which is the same never-blanket-a-delta lesson from the other direction.
-    1035467100: 7774277,   # Golden Seed - near Main Academy Gate (the reported check)
+    # 7774277 -> 7774304 (#218): 27 newly recovered positional checks land before this row.
+    1035467100: 7774304,   # Golden Seed - near Main Academy Gate (the reported check)
     1035467700: 7772653,   # Ash of War: Raptor of the Mists - around Main Academy Gate
 }
 ANCHOR_FLAG = 14007990     # Golden Seed - near Schoolhouse Classroom: undisputed academy ground

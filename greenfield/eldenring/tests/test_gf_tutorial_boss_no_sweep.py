@@ -34,9 +34,9 @@ from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E
 #     corpus and never had a sweep to lose.
 GRAFTED_SCION = 10010800          # boss_healthbars: ('m10_01', 'm10_01', 'legacy', 'Grafted Scion')
 SCION_OWN_DROP_AP = 7773886       # Ornamental Straight Sword, f510030 -- a normal check, must SURVIVE
-GOSTOC_BELL_AP = 7773808           # f400051, MSB-placed in m10_00 while its source map was PENDING
-# (7773843 -> 7773808 on 2026-08-19, #330: ap ids are positional and 124 worldless Rada Fruit rows
-#  ahead of it left the corpus; the flag is the identity, verified before re-pinning.)
+GOSTOC_BELL_AP = 7773821           # f400051, MSB-placed in m10_00 while its source map was PENDING
+# (7773843 -> 7773808 on 2026-08-19, #330; -> 7773821 on #218): ap ids are positional. The flag is
+# the identity, verified before re-pinning; #218 adds 13 checks ahead of this row.
 
 
 def test_the_tutorial_boss_grants_no_sweep():
@@ -489,8 +489,13 @@ def test_the_sweep_corpus_did_not_shrink():
     # ONLY real award path these ever had, which is exactly why they must not be checks. Measured
     # by (trigger, flag): every removed pair's flag is in the exclusion set; the same measurement,
     # with the divvy re-phase it triggered, is recorded at the OWNERSHIP digest below.
-    assert total == 3997, (
-        "sweep corpus is %d, expected 3997. If a sweep was legitimately added or removed, say WHY "
+    # +9 (2026-08-19, #218): 3997 -> 4006. Exact coordinate / AwardItemLot evidence recovers ten
+    # physical checks onto maps which already have working sweeps: Tarnished's Furled Finger, one
+    # each of Perfume/Cracked/Ritual Pot, four DLC Hefty Pots, Volcano Manor Invitation, and Stars
+    # of Ruin. Tailoring Tools leaves the old false m12_03 talk-number
+    # attribution, for net +9. The ownership ratchet below records the divvy re-phase separately.
+    assert total == 4006, (
+        "sweep corpus is %d, expected 4006. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -674,6 +679,10 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # owner. The churn itself moves no flag between differently-labelled owner regions. Separately,
     # the Hippo sweep's region label changes Shadow Keep -> Scadu Altus, and all 58 members it now
     # owns are Scadu Altus checks -- the intended arena-region ruling, not a cross-region grant.
-    assert (digest, n) == ("f3b8f3f398c31801", 3997), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (f3b8f3f398c31801, 3997). The total alone will "
+    # 2026-08-19 (#218): f3b8f3f3 -> 43d60a14, 3997 -> 4006. Measured in (trigger, flag)
+    # space: 184 pairs added / 175 removed, ten genuinely new sweep flags / one retired false
+    # attribution, and 175 existing flags re-owned as the affected round-robin pools re-phase.
+    # ZERO changed owner-region sets: all churn stays inside the same region-labelled sweep.
+    assert (digest, n) == ("43d60a14d3de1e64", 4006), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (43d60a14d3de1e64, 4006). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
