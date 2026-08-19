@@ -1836,9 +1836,48 @@ _RADA_WORLDLESS = frozenset({
     21027290, 21027300, 21027310, 21027320, 21027330, 21027340, 21027350, 21027360,
     21027370, 21027380, 21027390, 21027400,
 })
+# WORLDLESS MAP-LOT SINGLES -- EXCLUDED AS NOT-FINDABLE (the #330 rule, generalized; Alaric's
+# cull ruling 2026-08-19, made against a census with ZERO blind maps). A check enters this class
+# iff ALL of:
+#   * its flag is MAP-ENCODED (8-digit interior mAA_BB for areas 10..59, or 10-digit m60/m61
+#     overworld) -- i.e. it is shaped like GROUND loot. Short flags (Great Rune boss drops 172-176,
+#     Gurranq's quest rewards, physick tears) are boss/NPC/quest awards whose mechanisms our ground
+#     corpora deliberately do not model; they are NEVER in this class, and four of them fired BY
+#     HAND in the reference log.
+#   * no item_grace_coords row, no msb_flag_region row, no mention in any scripted-award corpus
+#     (the audit_worldless_checks rule) -- with the census now covering EVERY map that ItemLotParam
+#     expects lots in, absence finally IS evidence.
+#   * not already in _RADA_WORLDLESS (kept disjoint so each ruling reads on its own).
+#   * SAFETY SCREEN: its lot id appears NOWHERE in the EMEVD corpus (gen_inputs' event/*.js). The
+#     screen is deliberately OVER-inclusive -- an id that resolves is not a table match -- because
+#     for an exclusion list, keeping an unproven row costs nothing and culling a live one costs a
+#     check. It caught 40 of the original 126: the #653 inverted-tower trio (34117401-403, gated
+#     alternate-state pickups gen_data's own sweep-exclusion guard vouches for), Godfrey Icon
+#     (1039507100, Godefroy's evergaol drop), and the Mohgwyn/overworld rows whose lots ride
+#     scripted awards the census event chain cannot yet resolve.
+# The profile is pure ground-filler noise: 70x Golden Rune [1] (Mohgwyn's 33 -- NOT the visible
+# rune farm, which is flagless enemy drops; the theory they were farm pickups was tested and
+# DISPROVEN by this census -- Siofra's 17, the player complaint of record), 9x Golden Rune [6],
+# assorted stones. Zero of the 126 ever fired by hand in any collected log. Like the Rada class
+# these stay VANILLA rows: check_lots stops rewriting a lot that is no longer a check, and the
+# tracker stops selling pickups nobody can find. Keeper: test_gf_worldless_singles.py re-derives
+# the class from the committed corpora every run.
+_WORLDLESS_SINGLES = frozenset({
+    10007452, 11007995, 12027840, 12037560, 12037570, 12037580, 12037590, 12037900,
+    12037910, 12057220, 12057230, 12057260, 12057270, 12057380, 12057390, 12057420,
+    12057430, 12057440, 12057450, 12057460, 12057470, 12057480, 12057490, 12057500,
+    12057520, 12057530, 12057540, 12057550, 12057560, 12057570, 12057580, 12057720,
+    12057730, 12057740, 12077190, 12077200, 12077210, 12077220, 12077230, 12077240,
+    12077260, 12077270, 12077280, 12077290, 12077520, 12077530, 12077540, 15001210,
+    16007991, 16007992, 30127000, 30127900, 30177060, 35007750, 35007920, 35007960,
+    39207170, 39207200, 1033457100, 1036437010, 1036477100, 1036487100, 1037487100, 1038447100,
+    1038467400, 1038477100, 1039527700, 1042337200, 1042377100, 1042377110, 1043317500, 1044357050,
+    1047557040, 1052557040, 2046407001, 2046407002, 2046407003, 2046407004, 2047447901, 2048467701,
+    2049437610, 2049437901, 2049437902, 2049437911, 2049437912, 2050457510,
+})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
-                | _SHEET_DROPS | _RADA_WORLDLESS)
+                | _SHEET_DROPS | _RADA_WORLDLESS | _WORLDLESS_SINGLES)
 # Per-flag progression_surface exclusion (Alaric, 2026-07-17): checks that CARRY a surface tag but must
 # NOT host this world's progression (kept as ordinary checks; barred like DEFAULTED_REGION_APS). Emitted
 # as SURFACE_EXCLUDE_APS into location_tags.py, unioned into features/progression_surface barred set.
@@ -5477,6 +5516,10 @@ _NR_RULES = (
      "vanilla expresses one 'Rada Fruit xN' corpse as N consecutive lots, and 55 rows reference no "
      "world object at all; one hand-fire in 5 sessions of the reference seed. Stays a vanilla "
      "pickup; the four m21 coordinate singletons and the live m20 corpus remain checks"),
+    (lambda _fl, _r: _fl in _WORLDLESS_SINGLES,
+     "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged "
+     "against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); "
+     "stays a vanilla row"),
     (lambda _fl, _r: _fl in _SHEET_DROPS,
      "surface_sheet_drop: dropped on Alaric's 2026-07-17 progression_surface sheet review -- 14007930 "
      "is a phantom SECOND Academy Glintstone Key (the key is a singleton, the overworld pickup "
@@ -5502,7 +5545,8 @@ _NR_RULES = (
 _nr_unexplained = EXCLUDE_FLAGS - (MAP_REVEAL_FLAGS | MINIBAKER_VENDOR_FLAGS | frozenset({400280})
                                    | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                                    | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD
-                                   | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS | _RADA_WORLDLESS)
+                                   | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS | _RADA_WORLDLESS
+                                   | _WORLDLESS_SINGLES)
 if _nr_unexplained:
     raise SystemExit("FATAL: EXCLUDE_FLAGS member(s) %r have no NOT_RANDOMIZED ledger rule -- add "
                      "the new exclusion to _NR_RULES (gen_data) so deliberate absence stays "

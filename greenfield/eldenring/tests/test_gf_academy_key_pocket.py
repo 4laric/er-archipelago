@@ -55,10 +55,12 @@ POCKET = {
     # 7774401 -> 7774277 and 7772688 -> 7772653 (2026-08-19, #330): 124 worldless Rada Fruit rows
     # left the corpus (_RADA_WORLDLESS); both pins sit after removals this time, and by different
     # amounts (124 vs 35), which is the same never-blanket-a-delta lesson from the other direction.
-    # 7774277 -> 7774287 (2026-08-19, full-census regen): +10 restored m21_02 Rada rows ahead of
-    # it; the sibling below sits before every insertion and does not move. Flag-verified.
-    1035467100: 7774287,   # Golden Seed - near Main Academy Gate (the reported check)
-    1035467700: 7772653,   # Ash of War: Raptor of the Mists - around Main Academy Gate
+    # 7774277 -> 7774287 -> 7774237 (2026-08-19: +10 restored Rada rows, then -65 from the
+    # worldless-singles cull). Flag-verified each time.
+    # 7772653 -> 7772649 (2026-08-19, the cull): the sibling that "never moves" finally moved --
+    # 4 culled flags sat before it. There is no pinned id the corpus cannot renumber.
+    1035467100: 7774237,   # Golden Seed - near Main Academy Gate (the reported check)
+    1035467700: 7772649,   # Ash of War: Raptor of the Mists - around Main Academy Gate
 }
 ANCHOR_FLAG = 14007990     # Golden Seed - near Schoolhouse Classroom: undisputed academy ground
 ACADEMY = "Raya Lucaria Academy"

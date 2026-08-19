@@ -34,7 +34,7 @@ from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E
 #     corpus and never had a sweep to lose.
 GRAFTED_SCION = 10010800          # boss_healthbars: ('m10_01', 'm10_01', 'legacy', 'Grafted Scion')
 SCION_OWN_DROP_AP = 7773886       # Ornamental Straight Sword, f510030 -- a normal check, must SURVIVE
-GOSTOC_BELL_AP = 7773821           # f400051, MSB-placed in m10_00 while its source map was PENDING
+GOSTOC_BELL_AP = 7773805           # f400051, MSB-placed in m10_00 while its source map was PENDING
 # (7773843 -> 7773808 on 2026-08-19, #330; 7773808 -> 7773821 same day, full-census regen: +10
 #  restored m21_02 Rada rows and +3 other insertions ahead of it. Flag-verified both times -- the
 #  stale pin was even OWNED by a Liurnia trigger, the exact wrong-check-same-id trap.)
@@ -498,8 +498,12 @@ def test_the_sweep_corpus_did_not_shrink():
     # 239 removed / 339 added / 237 re-owned; exactly ONE re-own crosses a region boundary --
     # f2047457180, whose REGION itself flipped Scadu Altus -> Gravesite in the same regen (one of
     # the nine ground-truth corrections), so its sweep followed its check.
-    assert total == 4103, (
-        "sweep corpus is %d, expected 4103. If a sweep was legitimately added or removed, say WHY "
+    # -85 net (2026-08-19, the worldless-singles cull): 4103 -> 4018. The 85 culled flags that
+    # held sweep slots left with their locations; measured by (trigger, flag): 390 removed (85 of
+    # them the cull, the rest the divvy re-phase it triggered) / 303 added / 307 re-owned, and
+    # ZERO re-ownerships cross a region boundary.
+    assert total == 4018, (
+        "sweep corpus is %d, expected 4018. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -686,6 +690,8 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 2026-08-19 (full-census regen): f3b8f3f3 -> 606018dc, 3997 -> 4103. The corpus ratchet above
     # carries the measurement; the one region-crossing re-own (f2047457180) follows its check's own
     # region correction, the safe direction.
-    assert (digest, n) == ("606018dc8528e769", 4103), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (606018dc8528e769, 4103). The total alone will "
+    # 2026-08-19 (the cull): 606018dc -> 83df3c19, 4103 -> 4018. Measurement at the corpus ratchet
+    # above; zero region-crossing re-owns.
+    assert (digest, n) == ("83df3c19b1c907c4", 4018), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (83df3c19b1c907c4, 4018). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

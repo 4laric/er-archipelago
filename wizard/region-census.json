@@ -147,7 +147,7 @@
    }
   },
   "Altus": {
-   "checks": 377,
+   "checks": 374,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss|FieldBoss": 8,
@@ -166,13 +166,13 @@
    "rollable": true,
    "sweep_slots": {
     "all": 12,
-    "bosses": 24,
+    "bosses": 23,
     "minidungeons": 12
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 12,
-     "bosses": 24,
+     "bosses": 23,
      "minidungeons": 12
     },
     "SweepSlotMajor": {
@@ -180,28 +180,28 @@
     },
     "SweepSlotMinor": {
      "all": 12,
-     "bosses": 23,
+     "bosses": 22,
      "minidungeons": 12
     }
    },
    "sweep_slots_max": {
-    "all": 83,
-    "bosses": 146,
-    "minidungeons": 83
+    "all": 81,
+    "bosses": 143,
+    "minidungeons": 81
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 83,
-     "bosses": 146,
-     "minidungeons": 83
+     "all": 81,
+     "bosses": 143,
+     "minidungeons": 81
     },
     "SweepSlotMajor": {
      "bosses": 8
     },
     "SweepSlotMinor": {
-     "all": 83,
-     "bosses": 138,
-     "minidungeons": 83
+     "all": 81,
+     "bosses": 135,
+     "minidungeons": 81
     }
    }
   },
@@ -387,13 +387,13 @@
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 110,
+    "bosses": 112,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 110,
+     "bosses": 112,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -401,7 +401,7 @@
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 107,
+     "bosses": 109,
      "minidungeons": 55
     }
    }
@@ -464,7 +464,7 @@
    }
   },
   "Deeproot Depths": {
-   "checks": 86,
+   "checks": 80,
    "combos": {
     "Boss|LegacyBoss": 2,
     "Legendary": 4
@@ -558,7 +558,7 @@
    }
   },
   "Ensis": {
-   "checks": 42,
+   "checks": 41,
    "combos": {
     "Boss|FieldBoss|MajorBoss|Remembrance": 1,
     "Fragment": 2,
@@ -638,7 +638,7 @@
    }
   },
   "Gravesite": {
-   "checks": 228,
+   "checks": 224,
    "combos": {
     "Basin": 1,
     "Boss": 5,
@@ -690,7 +690,7 @@
    }
   },
   "Haligtree": {
-   "checks": 124,
+   "checks": 123,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss": 1,
@@ -779,7 +779,7 @@
    }
   },
   "Leyndell": {
-   "checks": 161,
+   "checks": 160,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss": 1,
@@ -794,7 +794,7 @@
    "sweep_slots_max_by_class": {}
   },
   "Limgrave": {
-   "checks": 330,
+   "checks": 327,
    "combos": {
     "Basin": 2,
     "Boss|FieldBoss": 5,
@@ -831,24 +831,24 @@
    },
    "sweep_slots_max": {
     "all": 42,
-    "bosses": 89,
+    "bosses": 88,
     "minidungeons": 28
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 42,
-     "bosses": 89,
+     "bosses": 88,
      "minidungeons": 28
     },
     "SweepSlotMinor": {
      "all": 42,
-     "bosses": 89,
+     "bosses": 88,
      "minidungeons": 28
     }
    }
   },
   "Liurnia": {
-   "checks": 615,
+   "checks": 605,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -870,13 +870,13 @@
    "rollable": true,
    "sweep_slots": {
     "all": 9,
-    "bosses": 23,
+    "bosses": 24,
     "minidungeons": 9
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 9,
-     "bosses": 23,
+     "bosses": 24,
      "minidungeons": 9
     },
     "SweepSlotMajor": {
@@ -886,19 +886,19 @@
     },
     "SweepSlotMinor": {
      "all": 8,
-     "bosses": 21,
+     "bosses": 22,
      "minidungeons": 8
     }
    },
    "sweep_slots_max": {
     "all": 53,
-    "bosses": 157,
+    "bosses": 159,
     "minidungeons": 53
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 53,
-     "bosses": 157,
+     "bosses": 159,
      "minidungeons": 53
     },
     "SweepSlotMajor": {
@@ -908,13 +908,13 @@
     },
     "SweepSlotMinor": {
      "all": 45,
-     "bosses": 141,
+     "bosses": 143,
      "minidungeons": 45
     }
    }
   },
   "Mohgwyn": {
-   "checks": 92,
+   "checks": 67,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
@@ -954,7 +954,7 @@
    }
   },
   "Mountaintops of the Giants": {
-   "checks": 345,
+   "checks": 342,
    "combos": {
     "Basin|Boss|FieldBoss": 2,
     "Boss|FieldBoss": 7,
@@ -992,28 +992,28 @@
     }
    },
    "sweep_slots_max": {
-    "all": 52,
-    "bosses": 106,
-    "minidungeons": 52
+    "all": 51,
+    "bosses": 104,
+    "minidungeons": 51
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 52,
-     "bosses": 106,
-     "minidungeons": 52
+     "all": 51,
+     "bosses": 104,
+     "minidungeons": 51
     },
     "SweepSlotMajor": {
      "bosses": 16
     },
     "SweepSlotMinor": {
-     "all": 52,
-     "bosses": 90,
-     "minidungeons": 52
+     "all": 51,
+     "bosses": 88,
+     "minidungeons": 51
     }
    }
   },
   "Mt. Gelmir": {
-   "checks": 245,
+   "checks": 243,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 4,
@@ -1163,7 +1163,7 @@
    }
   },
   "Roundtable Hold": {
-   "checks": 237,
+   "checks": 236,
    "combos": {},
    "dlc": false,
    "parent": null,
@@ -1174,7 +1174,7 @@
    "sweep_slots_max_by_class": {}
   },
   "Scadu Altus": {
-   "checks": 331,
+   "checks": 324,
    "combos": {
     "Boss|FieldBoss": 4,
     "Boss|Fragment|LegacyBoss": 1,
@@ -1234,7 +1234,7 @@
    }
   },
   "Sewer": {
-   "checks": 94,
+   "checks": 91,
    "combos": {
     "Boss|LegacyBoss|Legendary": 1,
     "Boss|LegacyBoss|MajorBoss": 1,
@@ -1332,7 +1332,7 @@
    }
   },
   "Siofra River": {
-   "checks": 180,
+   "checks": 166,
    "combos": {
     "Boss|LegacyBoss": 3,
     "Boss|LegacyBoss|MajorBoss": 3,
@@ -1424,7 +1424,7 @@
    }
   },
   "Weeping": {
-   "checks": 154,
+   "checks": 152,
    "combos": {
     "Basin": 1,
     "Boss|FieldBoss": 2,
@@ -1482,5 +1482,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "1661ade5877731413c0bed8d1c1b224c265d2e5b44da6feb5bf58b7df3da1e49"
+ "source_sha256": "6389cb147c8c8bfc469b3e95c8d78c2f75f616cd2be8a4706d3d63e35f3995d8"
 }
