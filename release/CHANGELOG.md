@@ -17,6 +17,9 @@ Client half: clients#286. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Lansseax's Glaive is filed in Altus.** Its two independently placed acquisition sites both
+  resolve to Altus; the generator now accepts unanimous region evidence from multi-map checks instead
+  of letting a one-site entity fallback misfile the incantation under Mt. Gelmir. World: #502.
 - **Packaged me3 profiles now name the package that actually ships.** Stable bundles load the
   authenticated `flower-package`; development bundles with no Flower assets omit the package entry
   instead of asking me3 to scan a nonexistent `ap-package`. Both release packagers now reject any
