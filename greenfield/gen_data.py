@@ -835,6 +835,13 @@ def _maplot_map(_lot):
 # So: where the datamine proves an UNAMBIGUOUS map, trust it over the row's scanned map. This is a
 # DERIVATION fix -- it retires per-flag hand patches instead of adding more (SPEC-provenance-oracle).
 MSB_TRUTH_MAP = {}
+# A flag placed in several maps is normally ambiguous and stays out of MSB_TRUTH_MAP.  There is one
+# strictly stronger case: every placed map independently resolves to the SAME region.  The exact map
+# is ambiguous, but reachability is not, so keep the unanimous region instead of falling through to
+# a weaker entity-suffix / scanner guess.  Require every map to resolve; dropping an unknown vote
+# would turn incomplete evidence into false consensus.
+MSB_REGION_CONSENSUS = {}
+_MSB_PLACED_MAPS = {}
 # WHICH flags region_of() actually ANSWERED with an MSB tile, and which tile. MSB_TRUTH_MAP alone
 # does not tell you that: six higher-precedence branches (finale, gesture, FLAG_REGION_OVERRIDE, the
 # merchant ESD, the shop block, the boss arena) can win first, and _gt_region() can decline. Only a
@@ -850,6 +857,7 @@ if os.path.isfile(_mfr):
             _p = _ln.rstrip("\n").split("\t")
             if len(_p) < 2 or not _p[0].isdigit(): continue
             _t[int(_p[0])].add(_p[1])
+    _MSB_PLACED_MAPS = {_f: frozenset(_maps) for _f, _maps in _t.items()}
     MSB_TRUTH_MAP = {_f: next(iter(_m)) for _f, _m in _t.items() if len(_m) == 1}  # unambiguous only
     print(f"msb ground truth: {len(MSB_TRUTH_MAP)} flags with an unambiguous placed map")
 else:
@@ -3675,6 +3683,16 @@ def _gt_region(_mid):
     # otherwise fall through to the existing path (return None).
     return None
 
+# Resolve multi-map consensus only after _gt_region exists.  Keep the raw map sets from the early
+# input load rather than parsing the TSV twice; an absent TSV leaves the derivation empty.
+for _f, _maps in _MSB_PLACED_MAPS.items():
+    if len(_maps) < 2:
+        continue
+    _regions = {_gt_region(_m) for _m in _maps}
+    if None not in _regions and len(_regions) == 1:
+        MSB_REGION_CONSENSUS[_f] = next(iter(_regions))
+print(f"msb region consensus: {len(MSB_REGION_CONSENSUS)} multi-map flag(s) resolve unanimously")
+
 def _cookbook_region(_flag):
     """Region for a map_lot pickup (cookbook) whose 5-digit flag doesn't self-encode a tile, via its
     ItemLotParam_map lot id -- which DOES encode the map (20XXYY->m61_XX_YY overworld tile;
@@ -4000,6 +4018,12 @@ def region_of(r):
             _bmd = _gt_region(_bmap) if _bmap else None
             if _bmd is not None and _bar != _bmd:
                 return _bar
+    # MULTI-MAP MSB CONSENSUS: the exact pickup site is ambiguous, but every independently placed
+    # site belongs to the same region.  This is stronger than the single entity-suffix fallback
+    # below.  Lansseax's Glaive is present in m60_37_51 and m60_41_52; both are Altus, while the old
+    # suffix fallback guessed Mt. Gelmir from only one occurrence (#502).
+    if _ovfl is not None and _ovfl in MSB_REGION_CONSENSUS:
+        return MSB_REGION_CONSENSUS[_ovfl]
     # GROUND TRUTH (MSB/param datamine) beats the row's scanned map. Resolved through gen_data's OWN
     # map->region tables (NOT the grace join), so the grace-join oracle stays an INDEPENDENT check.
     _gtm = MSB_TRUTH_MAP.get(_ovfl) if _ovfl is not None else None

@@ -20,6 +20,9 @@ on:
   schedule:
     - cron: "17 6 * * *"
 
+permissions:
+  contents: read
+
 env:
   # AP pins its own deps at import time and will try to self-update mid-test without this.
   SKIP_REQUIREMENTS_UPDATE: "1"
@@ -65,7 +68,9 @@ jobs:
     # a FALSE RED when a correctly-waived empty site happens to be non-empty in this shard. Their
     # verdicts are rendered once, over the union, by the `tests-verdict` job below. That job is
     # what `tests` means -- do not make the branch protection depend on this matrix alone.
-    name: tests (shard ${{ matrix.shard }}/${{ env.SHARD_TOTAL }})
+    # A job's env context does not exist while GitHub evaluates its display name. Referencing
+    # env.SHARD_TOTAL here rejects the entire workflow before it creates even one job.
+    name: tests (shard ${{ matrix.shard }})
     runs-on: ubuntu-latest
     if: github.event_name != 'schedule'
     env:
@@ -174,7 +179,7 @@ jobs:
       # (greenfield/eldenring/tests/expected_skips_ci.json). "Deliberately dev-box-only" and
       # "dark by accident" look identical in a green run; the census is the instrument that can
       # tell them apart, and it turns any skip-family or count change into a reviewed diff.
-      - name: pytest (tools/gf_test.py -- pinned upstream AP, shard ${{ matrix.shard }}/${{ env.SHARD_TOTAL }})
+      - name: pytest (tools/gf_test.py -- pinned upstream AP, shard ${{ matrix.shard }})
         run: |
           python tools/gf_test.py --ap-dir _ap \
             --shard ${{ matrix.shard }}/${{ env.SHARD_TOTAL }} --artifact-dir shard-artifacts \
