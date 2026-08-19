@@ -23,6 +23,14 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **Lansseax's Glaive is filed in Altus.** Its two independently placed acquisition sites both
   resolve to Altus; the generator now accepts unanimous region evidence from multi-map checks instead
   of letting a one-site entity fallback misfile the incantation under Mt. Gelmir. World: #502.
+- **The 124 unfindable Rada Fruit "locations" are no longer checks.** The DLC's most repeated
+  tracker row was mostly bundle math: vanilla expresses one "Rada Fruit xN" corpse as N consecutive
+  item lots (each with its own flag), and 55 more lots reference no world object any datamine can
+  find -- in a fully-combed Shadow Keep, exactly one of its 125 Rada rows ever fired outside a
+  boss-kill sweep. Those rows leave the pool and their pickups revert to vanilla fruit; the four
+  uniquely-placed m21 pickups and all of Belurat/Enir Ilim's real corpses (which do fire) remain
+  checks. Shadow Keep's tracker list now reflects what a player can actually find. World: #330,
+  reported three times by cokeman5.
 - **Packaged me3 profiles now name the package that actually ships.** Stable bundles load the
   authenticated `flower-package`; development bundles with no Flower assets omit the package entry
   instead of asking me3 to scan a nonexistent `ap-package`. Both release packagers now reject any
