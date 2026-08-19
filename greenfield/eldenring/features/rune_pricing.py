@@ -21,6 +21,8 @@ Cosmetic-adjacent but NOT cosmetic: the price is the only thing standing between
 player. It does not touch reachability -- fill sees the same locations either way -- so this feature
 never gates progression and needs no logic rules.
 """
+import random as _random
+
 from ..registry import Feature, register
 from .. import contract
 
@@ -146,9 +148,14 @@ class RunePricing(Feature):
             if str(getattr(loc, "address", "")) in SHOP_ROW_FLAGS
             and str(getattr(loc, "address", "")) not in alt_location_ids
         }, key=int)
+        # fill_slot_data may be called repeatedly for the same already-built world (the fixture
+        # contract does exactly that). Consuming world.random here makes the wire move on every
+        # call and also perturbs later feature output. Use a namespaced RNG so the prices vary by
+        # seed/player while remaining a pure function of that seed.
+        rng = _random.Random(f"{world.multiworld.seed}:finite_shop_prices:{player}")
         prices = []
         for aid in active_shop_ids:
-            price = world.random.randint(0, FINITE_PRICE_MAX)
+            price = rng.randint(0, FINITE_PRICE_MAX)
             prices.append(price)
             for row_id in SHOP_ROW_IDS.get(aid, []):
                 out[str(int(row_id))] = price

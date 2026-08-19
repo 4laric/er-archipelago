@@ -129,7 +129,10 @@ class GreenfieldWorldTest(WorldTestBase):
     # The selector is a seeded `world.random` sample now, so the key varies across seeds and is
     # still byte-identical for the SAME seed -- which test_slot_data_is_deterministic above proves
     # and is the property that actually matters on the wire.
-    _SEED_VARYING = {"regionSphereTargetRanges", "shopInfiniteStock", "enemyDropRoll",
+    # shopRunePrices: finite checks deliberately roll a fresh 0..5000 price per seed, from a
+    # dedicated seed/player RNG so repeated slot-data reads remain byte-identical.
+    _SEED_VARYING = {"regionSphereTargetRanges", "shopInfiniteStock", "shopRunePrices",
+                     "enemyDropRoll",
                      "progressiveGrants", "shopPreviewGoods", "filler_foreign_localized",
                      "goalRequiredItems"}
 
