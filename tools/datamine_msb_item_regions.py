@@ -903,7 +903,17 @@ def coverage_holes(rows):
     for (_flag, map_id, _lot, _nm, _src) in rows:
         have[map_id] = have.get(map_id, 0) + 1
     out = []
-    for mp, n in sorted(_expected_map_lots().items(), key=lambda kv: -kv[1]):
+    expected = _expected_map_lots()
+    if not expected:
+        # THE WITNESS NEEDS A WITNESS (2026-08-19, found in use): with no ItemLotParam CSVs on disk
+        # the denominator is empty, every map trivially clears the bar, and --coverage printed
+        # "no blind maps" over a census it could not measure at all. An unmeasurable census is a
+        # loud error, never a clean bill.
+        raise SystemExit(
+            "FATAL: coverage cannot be measured -- no ItemLotParam CSVs under %s. Extract them "
+            "(python tools/gen_inputs.py --extract elden_ring_artifacts) or point --artifacts at "
+            "a tree that has them." % VV)
+    for mp, n in sorted(expected.items(), key=lambda kv: -kv[1]):
         if n < COVERAGE_MIN_EXPECTED:
             continue
         h = have.get(mp, 0)
