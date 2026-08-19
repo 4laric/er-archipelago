@@ -36,6 +36,9 @@ REGION_MAP_CSV = next((p for p in (os.path.join(GF_PKG, "region_map.csv"),
 MSB_FLAG_REGION_TSV = next((p for p in (os.path.join(GF_PKG, "msb_flag_region.tsv"),
                                         os.path.join(GREENFIELD, "msb_flag_region.tsv"))
                             if os.path.isfile(p)), os.path.join(GF_PKG, "msb_flag_region.tsv"))
+UNPLACED_GLOBAL_TSV = next((p for p in (os.path.join(GF_PKG, "unplaced_global_tiles.tsv"),
+                                        os.path.join(GREENFIELD, "unplaced_global_tiles.tsv"))
+                            if os.path.isfile(p)), os.path.join(GF_PKG, "unplaced_global_tiles.tsv"))
 
 # Minor-dungeon map prefixes, in the X0SS7000 flag convention (flag -> map mXX_SS). MUST match
 # gen_data._is_dungeon: this oracle re-derives a member's true map from its flag, and a prefix
@@ -142,6 +145,17 @@ class BossSweepScoping(unittest.TestCase):
                         maps[int(r["flag"])].add(r["map_id"])
             cls.msb_flag_map = {flag: next(iter(found)) for flag, found in maps.items()
                                 if len(found) == 1}
+        # #218: the unplaced-global audit publishes exact coordinate / AwardItemLot placement as a
+        # committed source table. Read that evidence here just as we read msb_flag_region.tsv above;
+        # otherwise the oracle calls every newly recovered dungeon pickup PENDING while gen_data
+        # correctly puts it in that dungeon's map-local sweep.
+        cls.unplaced_flag_map = {}
+        if os.path.isfile(UNPLACED_GLOBAL_TSV):
+            with open(UNPLACED_GLOBAL_TSV, encoding="utf-8-sig") as fh:
+                for r in csv.DictReader((line for line in fh if not line.startswith("#")),
+                                        delimiter="\t"):
+                    if str(r["flag"]).lstrip("-").isdigit() and r.get("map_id"):
+                        cls.unplaced_flag_map[int(r["flag"])] = r["map_id"]
 
     def _eff_map(self, ap):
         """A member's effective map: region_map's map, or -- for an unplaced dungeon check whose flag
@@ -173,6 +187,14 @@ class BossSweepScoping(unittest.TestCase):
         msb = self.msb_flag_map.get(self.ap_flag.get(ap, -1), "")
         if msb:
             return msb + ("_00" if msb[:3] in ("m60", "m61") else "_00_00")
+        unplaced = self.unplaced_flag_map.get(self.ap_flag.get(ap, -1), "")
+        if unplaced:
+            parts = unplaced.split("_")
+            if unplaced[:3] in ("m60", "m61") and len(parts) == 3:
+                return unplaced + "_00"
+            if len(parts) == 2:
+                return unplaced + "_00_00"
+            return unplaced
         return raw
 
     def _members_by_class(self, cls_name):

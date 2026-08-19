@@ -18,9 +18,15 @@ Client half: clients#286. Its merged commit is pinned by the gitlink in this sam
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
 - **The tracker no longer waits forever for Patches to die.** Patches yields in normal play, so
-  his death-flag sweep is no longer sent to the client or advertised as an “also granted by” route.
+  his death-flag sweep is no longer sent to the client or advertised as an "also granted by" route.
   Merely unnamed or unaudited sweeps remain available as ordinary convenience grants; only triggers
   positively known not to fire are removed at runtime. World: #878.
+- **Previously vanilla-only unique rewards are now checks.** Exact item coordinates recover seven
+  missing merchant Bell Bearings, the Serpent Crest Shield, the Sacred Tower painting, and fixed
+  pot/bottle pickups; the same audit places Thops's Academy Glintstone Staff, the Discarded Palace
+  Key, Comet Azur, Stars of Ruin, and Coastal Cave's Tailoring Tools at their real sources. The full
+  30-item residue is committed with a verdict for every duplicate, multi-site, phantom, dead, or
+  itemless row, so the old raw "621 unplaced" label cannot return as a defect count. World: #218.
 - **Merchant Bell Bearings only enter seeds that keep one of their merchants.** A bell whose every
   merchant region is sealed now pays normal filler count-neutrally instead of opening a wholly
   vanilla Twin-Maiden shop that looks like a failed randomizer. World: #560; client fallback: #555.
