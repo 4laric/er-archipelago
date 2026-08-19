@@ -34,7 +34,9 @@ from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E
 #     corpus and never had a sweep to lose.
 GRAFTED_SCION = 10010800          # boss_healthbars: ('m10_01', 'm10_01', 'legacy', 'Grafted Scion')
 SCION_OWN_DROP_AP = 7773886       # Ornamental Straight Sword, f510030 -- a normal check, must SURVIVE
-GOSTOC_BELL_AP = 7773843           # f400051, MSB-placed in m10_00 while its source map was PENDING
+GOSTOC_BELL_AP = 7773808           # f400051, MSB-placed in m10_00 while its source map was PENDING
+# (7773843 -> 7773808 on 2026-08-19, #330: ap ids are positional and 124 worldless Rada Fruit rows
+#  ahead of it left the corpus; the flag is the identity, verified before re-pinning.)
 
 
 def test_the_tutorial_boss_grants_no_sweep():
@@ -481,8 +483,14 @@ def test_the_sweep_corpus_did_not_shrink():
     # adds 59 physical flags plus 30 co-check siblings, removes 0, and re-owns 45 existing flags.
     # Verified by (trigger, flag): all 59 additions are swept inside their location region and all
     # 45 re-owned flags stay inside their previous region. Gostoc's bell above is the motivating case.
-    assert total == 4121, (
-        "sweep corpus is %d, expected 4121. If a sweep was legitimately added or removed, say WHY "
+    # -124 (2026-08-19, #330): 4121 -> 3997. The worldless Rada Fruit rows left the corpus with
+    # their locations (gen_data._RADA_WORLDLESS): 55 rows no datamine can place in the world plus
+    # 69 m21 bundle-stack rows (up to 12 flags on ONE physical corpse) -- the boss sweep was the
+    # ONLY real award path these ever had, which is exactly why they must not be checks. Measured
+    # by (trigger, flag): every removed pair's flag is in the exclusion set; the same measurement,
+    # with the divvy re-phase it triggered, is recorded at the OWNERSHIP digest below.
+    assert total == 3997, (
+        "sweep corpus is %d, expected 3997. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -652,6 +660,15 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 2026-08-18 (#562): 79ccf39c -> 394aa604, 4032 -> 4121. ADDED 59 physical flags and 30
     # co-check siblings, REMOVED 0, RE-OWNED 45; zero additions or re-ownerships cross a region.
     # This is the intended recovery of checks whose MSB-derived map was known but not recorded.
-    assert (digest, n) == ("394aa6043e5d1c28", 4121), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (394aa6043e5d1c28, 4121). The total alone will "
+    # 2026-08-19 (#330): 394aa604 -> 3ca932cb, 4121 -> 3997. The 124 worldless Rada Fruit rows left
+    # (gen_data._RADA_WORLDLESS; the corpus ratchet above carries the WHY). Measured by
+    # (trigger, flag) in flag-pair space: 644 removed / 519 added / 522 re-owned -- large because
+    # the 124 sat in MANY divvy pools (legacy map-local, region round-robin, AND m61 field slices),
+    # and every pool that shrinks re-phases `_ents[_j % len(_ents)]` for its whole membership
+    # (#363's stable-modulus effect, at its widest observed). Every removed pair's flag is in the
+    # exclusion set; exactly ONE re-own crosses a region boundary and in the SAFE direction --
+    # f21027991 (m21_02, Shadow Keep ground) moved from m61 trigger 2050470800 onto the Golden
+    # Hippopotamus, i.e. INTO its own region's map-local sweep.
+    assert (digest, n) == ("3ca932cb90fda7d8", 3997), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (3ca932cb90fda7d8, 3997). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

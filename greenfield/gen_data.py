@@ -1760,9 +1760,58 @@ _QUESTLINE_GATED = frozenset({400061, 400381, 400394, 400602, 400614, 400644, 40
                               # widened-screen additions, 2026-07-26 (table above):
                               400033, 400107, 400183, 400191, 400622, 11007985, 1042397500,
                               1050567700})
+# WORLDLESS RADA FRUIT ROWS -- EXCLUDED AS NOT-FINDABLE (#330, Alaric 2026-08-19). The DLC's most
+# repeated ware descriptor (184 lots of goods 2020001) is mostly BUNDLE math, not pickups: vanilla
+# expresses one "Rada Fruit xN" corpse as N consecutive ItemLotParam_map rows (each 1x, own flag),
+# and 52 more rows reference NO world object either datamine can find. Three player reports said the
+# same thing ("shadow keep is full of Rada fruit locations ... I haven't been able to find any");
+# the live-log measurement agreed: in seed AP_58957851755699651282, across 5 sessions and a
+# hand-combed Shadow Keep, exactly ONE of its 125 Rada rows ever fired outside a boss-sweep burst --
+# f21007670, one of only four m21 rows with a UNIQUE datamined coordinate.
+#
+# THE RULE, derived from committed inputs (item_grace_coords.tsv / msb_flag_region.tsv /
+# flag_lots.tsv), re-derived and pinned by test_gf_rada_fruit_worldless.py:
+#   drop a Rada Fruit map-lot flag iff
+#     (a) it has NO datamined coordinate AND no msb_flag_region attribution (worldless: 55 rows,
+#         the `around <grace>`-named ones, incl. the three m20_01 "around Gate of Divinity"), OR
+#     (b) it is an m21 row whose coordinate is SHARED with another Rada row (bundle-stack: 69 rows,
+#         up to 12 flags on one part; none has ever fired by hand).
+#   KEPT: the four m21 coordinate singletons (21007200 / 21007670 / 21027000 / 21027190 -- 670 is
+#   the one that provably fires), every m20 row (Belurat's are individually MSB-attributed corpses,
+#   and m20_01 stack rows fired BY HAND in the same log -- 20017290 / 20017560 -- so the m20 bundles
+#   are live and repeat-lootable), and 40007120 (unique coordinate).
+#
+# ⚠️ m21_01's 27 stack rows ride the uniform m21 ruling on WEAKER evidence: Messmer died on day one
+# of the reference seed and swept them all, so their hand behaviour was unobservable. If the on-box
+# test from #330 (loot the Main Gate Plaza corpse at map-local 154.2/182.9/194.5, count
+# f21007210-290) shows stack rows firing per-interact, this set can shrink -- it is a CLASS defined
+# by the rule above, not a hand list, and the keeper test names any drift.
+#
+# Like _UNPLACEABLE_DLC_COOKBOOKS these stay VANILLA pickups: check_lots stops rewriting a lot that
+# is no longer a check, so the real bundle corpses go back to paying real Rada Fruit, and the
+# worldless rows stop being tracker rows a player can search a cleared keep for. All filler; the
+# boss sweeps that were the only real grant path shrink by exactly this corpus.
+_RADA_WORLDLESS = frozenset({
+    20017670, 20017680, 20017690, 21007210, 21007220, 21007230, 21007240, 21007250,
+    21007260, 21007270, 21007280, 21007290, 21007430, 21007440, 21007450, 21007460,
+    21007470, 21007480, 21007490, 21007500, 21007510, 21007520, 21007530, 21007540,
+    21007690, 21007700, 21007710, 21007720, 21007730, 21007740, 21007750, 21007760,
+    21007770, 21007780, 21007790, 21007820, 21007830, 21007840, 21007850, 21007860,
+    21007870, 21007880, 21007890, 21007900, 21007910, 21007920, 21007930, 21007940,
+    21007950, 21007960, 21007970, 21007980, 21007990, 21017210, 21017220, 21017230,
+    21017240, 21017250, 21017260, 21017270, 21017280, 21017290, 21017370, 21017380,
+    21017390, 21017520, 21017530, 21017540, 21017550, 21017560, 21017570, 21017580,
+    21017590, 21017680, 21017690, 21017700, 21017710, 21017720, 21017730, 21017740,
+    21017810, 21017820, 21017830, 21017840, 21017850, 21017860, 21017870, 21017880,
+    21017890, 21017900, 21017910, 21017920, 21017930, 21017940, 21017950, 21017960,
+    21017970, 21017980, 21017990, 21027070, 21027080, 21027090, 21027100, 21027110,
+    21027120, 21027130, 21027140, 21027150, 21027160, 21027170, 21027180, 21027280,
+    21027290, 21027300, 21027310, 21027320, 21027330, 21027340, 21027350, 21027360,
+    21027370, 21027380, 21027390, 21027400,
+})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
-                | _SHEET_DROPS)
+                | _SHEET_DROPS | _RADA_WORLDLESS)
 # Per-flag progression_surface exclusion (Alaric, 2026-07-17): checks that CARRY a surface tag but must
 # NOT host this world's progression (kept as ordinary checks; barred like DEFAULTED_REGION_APS). Emitted
 # as SURFACE_EXCLUDE_APS into location_tags.py, unioned into features/progression_surface barred set.
@@ -5339,6 +5388,11 @@ _NR_RULES = (
      "unplaceable_dlc_cookbook: DLC cookbook whose lot id encodes no map and which no datamine "
      "places (ESD/scripted gift, matt-diff C 2026-07-14); stays a vanilla pickup rather than lie "
      "about its region"),
+    (lambda _fl, _r: _fl in _RADA_WORLDLESS,
+     "rada_worldless: Rada Fruit bundle-stack/worldless param row (#330, Alaric 2026-08-19) -- "
+     "vanilla expresses one 'Rada Fruit xN' corpse as N consecutive lots, and 55 rows reference no "
+     "world object at all; one hand-fire in 5 sessions of the reference seed. Stays a vanilla "
+     "pickup; the four m21 coordinate singletons and the live m20 corpus remain checks"),
     (lambda _fl, _r: _fl in _SHEET_DROPS,
      "surface_sheet_drop: dropped on Alaric's 2026-07-17 progression_surface sheet review -- 14007930 "
      "is a phantom SECOND Academy Glintstone Key (the key is a singleton, the overworld pickup "
@@ -5364,7 +5418,7 @@ _NR_RULES = (
 _nr_unexplained = EXCLUDE_FLAGS - (MAP_REVEAL_FLAGS | MINIBAKER_VENDOR_FLAGS | frozenset({400280})
                                    | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                                    | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD
-                                   | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS)
+                                   | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS | _RADA_WORLDLESS)
 if _nr_unexplained:
     raise SystemExit("FATAL: EXCLUDE_FLAGS member(s) %r have no NOT_RANDOMIZED ledger rule -- add "
                      "the new exclusion to _NR_RULES (gen_data) so deliberate absence stays "

@@ -84,7 +84,9 @@ class ClientGitlinkNotesGate(unittest.TestCase):
 
     def test_same_commit_changelog_update_is_green(self):
         self.bump("pin documented client changes", note=True)
-        self.assertEqual(self.audit()["failures"], [])
+        result = self.audit()
+        self.assertEqual(result["bumps"], 1)
+        self.assertEqual(result["failures"], [])
 
     def test_lockstep_control_with_exact_exemption_is_green(self):
         self.bump("pure version lockstep", trailer=(
