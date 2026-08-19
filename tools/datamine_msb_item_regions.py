@@ -832,11 +832,17 @@ def build(only_maps=None, sources=SOURCES):
                 rows += _treasure_rows(msb_dir, map_id, lot_map)
             if "enemy" in sources:
                 rows += _enemy_rows(msb_dir, map_id, lot_map, lot_enemy, npc_lots)
+    scanned = {}
+    if "treasure" in sources:
+        scanned["treasure"] = set(maps)
+    if "enemy" in sources:
+        scanned["enemy"] = set(maps)
     if "event" in sources:
         erows, emaps = _event_rows(only_maps, lot_map, lot_enemy)
         rows += erows
         maps |= emaps
-    return sorted(set(rows)), len(maps)
+        scanned["event"] = set(emaps)
+    return sorted(set(rows)), len(maps), scanned
 
 
 # ---------------------------------------------------------------- coverage (the census's own witness)
@@ -957,6 +963,14 @@ def main(argv=None):
                     help="trace ONE check flag through the treasure chain in seconds -- map, lot, "
                          "event, part, where it was looked for, and where the name actually appears. "
                          "Use this instead of a full --emit-assets walk to diagnose a single miss.")
+    ap.add_argument("--merge", action="store_true",
+                    help="UNION with the committed tsv instead of replacing it: rows for every "
+                         "(map, source) actually scanned THIS run are refreshed; rows for maps not "
+                         "on disk are carried forward. This is how batch witchy exports compose -- "
+                         "a full-overwrite run against a partial mapstudio tree DELETES the "
+                         "coverage of every absent map (2026-08-19: a hole-maps-only rerun turned "
+                         "202 worldless checks into 697, 499 of them already covered by the "
+                         "committed file).")
     ap.add_argument("--coverage", action="store_true",
                     help="report the census's blind maps from the COMMITTED tsv (no MSBs needed; "
                          "runs in the sandbox/CI). A full build prints the same table at the end.")
@@ -1001,8 +1015,22 @@ def main(argv=None):
             return probe(_msb_dir)
         sys.exit("FATAL: no unpacked MSB dir%s found under %s -- nothing to probe."
                  % (" matching --maps" if want else "", ART))
-    rows, nmaps = build(set(args.maps) if args.maps else None, set(args.sources))
+    rows, nmaps, scanned = build(set(args.maps) if args.maps else None, set(args.sources))
     scope = ",".join(sorted(args.maps)) if args.maps else "all"
+    if args.merge and os.path.isfile(args.out):
+        # Refresh exactly what was scanned; carry everything else forward. A row is stale only if
+        # THIS run re-examined its (map, source) and did not reproduce it.
+        fresh = {(m, src) for src, ms in scanned.items() for m in ms}
+        # read_tsv_rows yields strings; build() yields int flag/lot. Normalize the carried rows to
+        # build()'s types so the union sorts (mixed int/str tuples do not) and the emitted numeric
+        # ordering stays byte-stable with a non-merge full run.
+        carried = [(int(r[0]), r[1], int(r[2]), r[3], r[4])
+                   for r in read_tsv_rows(args.out)
+                   if (r[1], r[4]) not in fresh and r[0].isdigit() and r[2].isdigit()]
+        rows = sorted(set(rows) | set(carried))
+        scope = "all"          # the union approximates the full scan; coverage below verifies it
+        sys.stderr.write("merge: refreshed %d (map,source) pair(s) this run; carried %d row(s) "
+                         "forward from the existing tsv\n" % (len(fresh), len(carried)))
     if args.stdout:
         for r in rows:
             print("\t".join(map(str, r)))
