@@ -294,4 +294,4 @@ MISSABLE_LOCATIONS = {
     7900274: 'questline',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:2dad0f964909e0225a608b6fcf79a7f838151b59a28c9c174d657f3e117cf227', 'module': 'missable_locations.py', 'body_sha256': 'sha256:2a52d9abb2a3e858d12b299932496f41cf129c6efd5fa6688a5ab6138b4885be'}
+_GEN_STAMP = {'inputs_hash': 'sha256:d649b5b85644122ef561683b5d3b60d6aa3e1e540b46a49b581e9fad7b73e4e9', 'module': 'missable_locations.py', 'body_sha256': 'sha256:2a52d9abb2a3e858d12b299932496f41cf129c6efd5fa6688a5ab6138b4885be'}

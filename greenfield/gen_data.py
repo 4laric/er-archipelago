@@ -10467,16 +10467,16 @@ print("boss_sweeps: %d group(s) whose ARENA region differs from their MEMBERS' r
 # A member under a SKIPPED trigger gets NO clause: features/progression_surface already refuses to
 # nominate from a sweep that cannot fire (#672), and promising a boss we know does not die would be
 # the same lie one layer over. Patches is the reason that set cannot be derived; see
-# contract.sweep_slot_skips.
+# contract.runtime_sweep_skips.
 import ast as _ast
 
 _SWEEP_SKIPS = {}
 try:
     _ctrspec = _ilu.spec_from_file_location("_gd_contract", os.path.join(HERE, "eldenring", "contract.py"))
     _ctrmod = _ilu.module_from_spec(_ctrspec); _ctrspec.loader.exec_module(_ctrmod)
-    _SWEEP_SKIPS = _ctrmod.sweep_slot_skips(healthbars=BOSS_HEALTHBARS)
+    _SWEEP_SKIPS = _ctrmod.runtime_sweep_skips()
 except Exception as _e:
-    print(f"[gen_data] contract.sweep_slot_skips unavailable ({_e!r}); no sweep clause suppressed")
+    print(f"[gen_data] contract.runtime_sweep_skips unavailable ({_e!r}); no sweep clause suppressed")
 
 _sweep_of = {}
 for _st, _sms in DUNGEON_SWEEPS.items():
