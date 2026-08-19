@@ -785,19 +785,15 @@ class BossSweepScoping(unittest.TestCase):
         it names every head the fight waits on. Both sources are checked here under one guard,
         because a head suppressed by either must not carry a sweep.
 
-        SCOPED TO THE DUNGEON CLASSES, matching gen_data. `boss_arena_pairs.tsv` also adjudicates
-        LEGACY maps -- m12_02's Valiant Gargoyle duo, Maliketh/Beast Clergyman, the Deeproot invader
-        pile -- because they are the same question and the answers are wanted by the region-capstone
-        work, which has to count ARENAS rather than healthbar entities. But legacy bosses take the
-        round-robin DIVVY, which PARTITIONS a region's filler instead of handing each boss the same
-        list, so they never had this defect and suppressing one would silently reshape shares that
-        are correct today. Asserting over them would be asserting gen_data does something it
-        deliberately does not do."""
+        Applies to DUNGEON and LEGACY classes. A legacy round-robin divvy prevents two heads from
+        holding the same member list, but it cannot turn a participant or activation flag into a
+        terminal encounter flag. #877 is the counterexample that retired the old dungeon-only
+        scope: Enir Ilim's 20010851/52 rows never report their own defeat."""
         areas, pairs = self._game_areas(), self._arena_pairs()
         offenders = []
         for ent in self.DS:
             info = self.BH.get(ent)
-            if info is None or info[2] not in DUNGEON_CLASSES:
+            if info is None or info[2] == "field":
                 continue
             primary = self._secondary(ent, info[0], areas, pairs)
             if primary is not None:
@@ -806,6 +802,29 @@ class BossSweepScoping(unittest.TestCase):
                          "sweep -- their fight is reported by another flag on the same map, so they "
                          "pay the dungeon out early (#363). Offenders (entity, primary, map, "
                          "name): " + repr(offenders))
+
+    def test_enir_ilim_npc_battle_uses_its_one_terminal_flag(self):
+        """#877: Leda/Dane/Freyja are heads in one five-character encounter, not three fights.
+
+        m20_01 event 20012850 waits for characters 20010850..854 to die, displays one banner keyed
+        by 20010850, then sets event flag 20010850. The banner datamine captures the two additional
+        displayed heads as conjuncts of that one terminal event. They must not survive as tracker
+        rows or lend their names to generated ``also granted by`` descriptions.
+        """
+        pairs = self._arena_pairs()
+        for secondary in (20010851, 20010852):
+            self.assertEqual(
+                pairs.get(secondary),
+                (20010850, "conjunct"),
+                "%d must derive from the one 20010850 defeat banner" % secondary,
+            )
+            self.assertNotIn(
+                secondary,
+                self.DS,
+                "%d is a participant/activation id, not an Enir Ilim terminal sweep flag"
+                % secondary,
+            )
+        self.assertIn(20010850, self.DS, "the real Enir Ilim terminal sweep disappeared")
 
     def test_the_fell_twins_are_suppressed_by_the_banner_table(self):
         """THE GAP #364 SHIPPED WITH, pinned so it cannot reopen (bobler, 2026-08-04).

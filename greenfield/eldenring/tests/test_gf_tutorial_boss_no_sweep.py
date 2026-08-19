@@ -679,10 +679,14 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # owner. The churn itself moves no flag between differently-labelled owner regions. Separately,
     # the Hippo sweep's region label changes Shadow Keep -> Scadu Altus, and all 58 members it now
     # owns are Scadu Altus checks -- the intended arena-region ruling, not a cross-region grant.
-    # 2026-08-19 (#218): f3b8f3f3 -> 43d60a14, 3997 -> 4006. Measured in (trigger, flag)
+    # 2026-08-19 (#877): f3b8f3f3 -> 89fbf395, count UNCHANGED at 3997. Seven legacy
+    # participant/activation triggers were removed (Deeproot x4, Gelmir x1, Enir Ilim x2), and the
+    # same-region round-robin divvies redistributed their members among each fight's surviving
+    # terminal flags. No check was added, removed, or moved to a differently-labelled region.
+    # 2026-08-19 (#218): 89fbf395 -> b23f5d4d, 3997 -> 4006. Measured in (trigger, flag)
     # space: 184 pairs added / 175 removed, ten genuinely new sweep flags / one retired false
     # attribution, and 175 existing flags re-owned as the affected round-robin pools re-phase.
     # ZERO changed owner-region sets: all churn stays inside the same region-labelled sweep.
-    assert (digest, n) == ("43d60a14d3de1e64", 4006), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (43d60a14d3de1e64, 4006). The total alone will "
+    assert (digest, n) == ("b23f5d4da72b1de3", 4006), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (b23f5d4da72b1de3, 4006). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
