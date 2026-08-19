@@ -59,6 +59,19 @@ BENIGN_GROUNDS = {
 }
 
 
+# Sweep triggers whose members' cross-region assignment is a RULING, not an accident. The verdict
+# below applies ONLY to these: without this scope it would also have excused the three
+# KNOWN_MISMATCHES rows in test_gf_check_ground_regions.py (400175/400036/400401), which are open
+# questions about a possibly-wrong assignment that happen to sit inside a same-region sweep --
+# reachable, but not RULED. A trigger enters this table with its ruling, or its members stay
+# MISMATCH.
+RULED_SWEEP_ANCHORS = {
+    21000850: "#885 (Alaric 2026-08-19): the Golden Hippopotamus presents as Scadu Altus "
+              "EVERYWHERE -- reward, trigger, and every granted member. m21_00 is curated to "
+              "Scadu Altus in gen_data.DUNGEON_REGION_CURATED; the arena is bucket 69000.",
+}
+
+
 def _load(path, name):
     spec = importlib.util.spec_from_file_location(name, path)
     m = importlib.util.module_from_spec(spec)
@@ -79,6 +92,20 @@ def load_tables(repo):
     gf = os.path.join(repo, "greenfield")
     data = _load(os.path.join(gf, "eldenring", "data.py"), "_cgr_data")
     groups = _load(os.path.join(gf, "region_groups.py"), "_cgr_groups")
+    sweeps = _load(os.path.join(gf, "eldenring", "boss_sweeps.py"), "_cgr_sweeps")
+
+    # ap -> (trigger, arena_region) for every member of a RULED trigger (RULED_SWEEP_ANCHORS) that
+    # has an AUDITED arena region. Used by the SWEEP-ANCHORED verdict; an unruled or unmeasured
+    # trigger contributes nothing (neither may excuse anything).
+    sweep_anchor = {}
+    for trig, members in sweeps.DUNGEON_SWEEPS.items():
+        if trig not in RULED_SWEEP_ANCHORS:
+            continue
+        arena = sweeps.SWEEP_ARENA_REGION.get(trig)
+        if not arena:
+            continue
+        for ap in members:
+            sweep_anchor[ap] = (trig, arena)
 
     bucket_region = {}
     for region, buckets in groups.PLAY_REGION_GROUPS.items():
@@ -103,7 +130,7 @@ def load_tables(repo):
             key = (r.get("key") or "").strip()
             if r.get("kind") == "item" and key.isdigit():
                 coords[int(key)] = r["map_id"]
-    return data, bucket_region, tile_buckets, coords
+    return data, bucket_region, tile_buckets, coords, sweep_anchor
 
 
 def audit(repo):
@@ -114,8 +141,8 @@ def audit(repo):
     wholesale whenever the corpus grows -- a regen on 2026-08-07 shifted every id above 7774000 by
     adding 16 checks -- so a pin keyed on them silently comes to name different checks. The flag is
     game data and does not move."""
-    data, bucket_region, tile_buckets, coords = load_tables(repo)
-    out = {"agree": [], "benign": [], "mismatch": [], "ambiguous": [],
+    data, bucket_region, tile_buckets, coords, sweep_anchor = load_tables(repo)
+    out = {"agree": [], "benign": [], "sweep_anchored": [], "mismatch": [], "ambiguous": [],
            "no_coord": [], "no_bucket_row": []}
     for region, rows in sorted(data.LOCATIONS.items()):
         for (name, ap, flag) in rows:
@@ -137,6 +164,16 @@ def audit(repo):
                 out["ambiguous"].append(rec)
             elif grounds <= set(BENIGN_GROUNDS):
                 out["benign"].append(rec)
+            elif sweep_anchor.get(ap, (None, None))[1] == region:
+                # SWEEP-ANCHORED (#885): the check stands on foreign ground, but it is a MEMBER of a
+                # sweep whose trigger is fought standing IN the assigned region -- so any seed that
+                # keeps the assigned region can obtain it by killing that boss, and the assignment is
+                # a deliberate ruling, not a mis-attribution. The archetype is the Golden
+                # Hippopotamus: its 100+ m21_00 members stand on Shadow Keep ground (bucket 21000)
+                # and present as Scadu Altus, the arena bucket 69000 the fight is actually fought
+                # from (Alaric 2026-08-19). Caveat stated out loud: walking to the pickup from a seed
+                # that lacks the GROUND region still kicks; the sweep is the guaranteed route.
+                out["sweep_anchored"].append(rec + (sweep_anchor[ap][0],))
             else:
                 out["mismatch"].append(rec)
     return out
@@ -145,7 +182,8 @@ def audit(repo):
 def report(repo, stream=sys.stdout):
     a = audit(repo)
     total = sum(len(v) for v in a.values())
-    resolved = len(a["agree"]) + len(a["benign"]) + len(a["mismatch"]) + len(a["ambiguous"])
+    resolved = (len(a["agree"]) + len(a["benign"]) + len(a["sweep_anchored"])
+                + len(a["mismatch"]) + len(a["ambiguous"]))
     w = stream.write
     w("check ground-region audit (issue #445)\n")
     w("  %d checks total\n" % total)
@@ -153,14 +191,19 @@ def report(repo, stream=sys.stdout):
     w("  %d unmeasured: %d have no datamined coordinate, %d sit on a tile with no bucket row\n"
       % (len(a["no_coord"]) + len(a["no_bucket_row"]), len(a["no_coord"]), len(a["no_bucket_row"])))
     w("     ^ these are UNMEASURED, not clean. Any rate below is over the resolved subset only.\n")
-    w("  %d agree | %d benign | %d AMBIGUOUS | %d MISMATCH\n"
-      % (len(a["agree"]), len(a["benign"]), len(a["ambiguous"]), len(a["mismatch"])))
-    for label, key in (("BENIGN", "benign"), ("AMBIGUOUS (tile spans two regions -- unresolved)",
-                                              "ambiguous"), ("MISMATCH", "mismatch")):
+    w("  %d agree | %d benign | %d sweep-anchored | %d AMBIGUOUS | %d MISMATCH\n"
+      % (len(a["agree"]), len(a["benign"]), len(a["sweep_anchored"]), len(a["ambiguous"]),
+         len(a["mismatch"])))
+    for label, key in (("BENIGN", "benign"),
+                       ("SWEEP-ANCHORED (member of a sweep fought from the assigned region, #885)",
+                        "sweep_anchored"),
+                       ("AMBIGUOUS (tile spans two regions -- unresolved)", "ambiguous"),
+                       ("MISMATCH", "mismatch")):
         if not a[key]:
             continue
         w("\n  --- %s ---\n" % label)
-        for (flag, region, grounds, tile, name) in sorted(a[key], key=lambda r: (r[1], str(r[2]))):
+        for rec in sorted(a[key], key=lambda r: (r[1], str(r[2]))):
+            (flag, region, grounds, tile, name) = rec[:5]
             w("    f%-10d %-22s ground=%-28s tile=%-12s %s\n"
               % (flag, region, "/".join(str(g) for g in grounds), tile, name[:72]))
     if a["benign"]:

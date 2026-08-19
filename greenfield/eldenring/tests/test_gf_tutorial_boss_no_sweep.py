@@ -669,6 +669,11 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # exclusion set; exactly ONE re-own crosses a region boundary and in the SAFE direction --
     # f21027991 (m21_02, Shadow Keep ground) moved from m61 trigger 2050470800 onto the Golden
     # Hippopotamus, i.e. INTO its own region's map-local sweep.
-    assert (digest, n) == ("3ca932cb90fda7d8", 3997), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (3ca932cb90fda7d8, 3997). The total alone will "
+    # 2026-08-19 (#885, rebased after #330): 3ca932cb -> f3b8f3f3, count UNCHANGED at 3997.
+    # Measured in (trigger, flag) multiset space: 28 removed / 28 added, with 25 flags changing
+    # owner. The churn itself moves no flag between differently-labelled owner regions. Separately,
+    # the Hippo sweep's region label changes Shadow Keep -> Scadu Altus, and all 58 members it now
+    # owns are Scadu Altus checks -- the intended arena-region ruling, not a cross-region grant.
+    assert (digest, n) == ("f3b8f3f398c31801", 3997), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (f3b8f3f398c31801, 3997). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

@@ -108,7 +108,12 @@ AR = getattr(sw, "SWEEP_ARENA_REGION", None)
 # constants rather than a literal in one assertion, because rule 11 wants the exemplar to survive a
 # regen that renumbers everything around it.
 HIPPO = 21000850
-HIPPO_MEMBERS_REGION = "Shadow Keep"
+# ⭐ #885 (2026-08-19): the Hippo GRADUATED from the split set. His members' region is now the
+# arena's own -- Alaric ruled the Hippo presents as Scadu Altus everywhere, and
+# gen_data.DUNGEON_REGION_CURATED["m21_00_00_00"] moved the granted checks onto that ruling -- so
+# the group agrees with itself and #445's screen has nothing to drop. The bobler test below asserts
+# the NEW shape of the motivating case; test_gf_hippo_region_ruling.py owns the ruling itself.
+HIPPO_MEMBERS_REGION = "Scadu Altus"
 HIPPO_ARENA_REGION = "Scadu Altus"
 # boblerrr's seed, verbatim (2026-08-07). The acceptance test is HIS kept set, not a synthetic one.
 # "Charo's" dropped 2026-08-10: it merged INTO Cerulean, which is already in his set, so the
@@ -180,18 +185,29 @@ class SweepTriggerReachable(unittest.TestCase):
     """The predicate features/boss_locks actually calls."""
 
     def test_the_hippo_sweep_is_dead_in_boblerrrs_seed(self):
-        """THE motivating case, end to end, by name (rule 11)."""
+        """THE motivating case, end to end, by name (rule 11) -- IN ITS POST-#885 SHAPE.
+
+        Before #885 this asserted the #445 screen dropped the group: bobler's seed keeps Shadow
+        Keep without Scadu Altus, the members existed as Shadow Keep checks, and the unfireable
+        trigger had to be screened out. #885 moved the members onto the arena's region (Scadu
+        Altus), so in that same seed they are not created at all -- nothing is stranded and nothing
+        on the tracker steers the player into the arena kick. The group is now ordinary
+        out-of-scope filtering (the class test_a_group_whose_members_region_is_not_kept pins), and
+        the drop-screen has nothing to do. Both halves asserted:"""
         self.assertIn(HIPPO, DS, "the Hippo's sweep group is gone from boss_sweeps")
-        self.assertEqual(SR.get(HIPPO), HIPPO_MEMBERS_REGION)
+        self.assertEqual(SR.get(HIPPO), HIPPO_MEMBERS_REGION,
+                         "the Hippo's members' region left Scadu Altus -- the #885 ruling is "
+                         "un-applied (see test_gf_hippo_region_ruling.py before touching this)")
         self.assertEqual(AR.get(HIPPO), HIPPO_ARENA_REGION,
                          "the Hippo's arena region is no longer Scadu Altus -- if boss_area_regions "
                          "changed, re-derive; if the join broke, #445 is back")
-        self.assertIn(HIPPO_MEMBERS_REGION, BOBLERRR_KEPT)
         self.assertNotIn(HIPPO_ARENA_REGION, BOBLERRR_KEPT)
         self.assertFalse(
             bl.sweep_trigger_reachable(HIPPO, BOBLERRR_KEPT),
-            "boblerrr's seed keeps Shadow Keep and not Scadu Altus, so the Golden Hippopotamus "
-            "cannot be fought and its 104-member sweep can never fire -- it must not be emitted")
+            "boblerrr's seed does not keep Scadu Altus, so the Hippo's group is out of scope there")
+        self.assertEqual(bl.unreachable_sweeps({HIPPO: DS[HIPPO]}, BOBLERRR_KEPT), {},
+                         "the Hippo must be ORDINARY out-of-scope now, not a reported unfireable "
+                         "group -- if he is back in the report, members and arena split again")
 
     def test_the_hippo_sweep_still_fires_when_scadu_altus_is_kept(self):
         """THE MIRROR (CONTRIBUTING rule 7's other half): prove the fix does not just delete the
@@ -266,11 +282,16 @@ class EveryMismatchedGroup(unittest.TestCase):
         ⭐ GREW 5 -> 6 on 2026-08-17 by an explicit gameplay ruling, not a looser predicate.
         34100800 entered when m34_10 (Divine Tower of Limgrave) moved from Limgrave geography to
         Stormveil's runtime bucket for region locks (#202). Its arena remains grace-truth Limgrave,
-        so the mismatch is real, intentional, and retained here as measured debt."""
+        so the mismatch is real, intentional, and retained here as measured debt.
+
+        ⭐ SHRANK 6 -> 5 on 2026-08-19 by ruling #885, the ASSIGNMENT moving rather than the
+        predicate loosening: the Golden Hippopotamus (21000850, "Shadow Keep" -> "Scadu Altus",
+        109 links, the group this screen was BUILT for in #445) left because his members now
+        present as the arena's own region -- the group agrees with itself. The screen itself is
+        unchanged and still holds the five below."""
         self.assertEqual(
             dict(self.split),
-            {21000850: ("Shadow Keep", "Scadu Altus"),
-             10000850: ("Stormveil", "Limgrave"),
+            {10000850: ("Stormveil", "Limgrave"),
              34100800: ("Stormveil", "Limgrave"),
              2052430800: ("Abyssal", "Scadu Altus"),
              11050800: ("Ashen Capital", "Leyndell"),
