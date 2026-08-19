@@ -35,8 +35,9 @@ from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E
 GRAFTED_SCION = 10010800          # boss_healthbars: ('m10_01', 'm10_01', 'legacy', 'Grafted Scion')
 SCION_OWN_DROP_AP = 7773886       # Ornamental Straight Sword, f510030 -- a normal check, must SURVIVE
 GOSTOC_BELL_AP = 7773821           # f400051, MSB-placed in m10_00 while its source map was PENDING
-# (7773843 -> 7773808 on 2026-08-19, #330; -> 7773821 on #218): ap ids are positional. The flag is
-# the identity, verified before re-pinning; #218 adds 13 checks ahead of this row.
+# (7773843 -> 7773808 on 2026-08-19, #330; 7773808 -> 7773821 same day, full-census regen: +10
+#  restored m21_02 Rada rows and +3 other insertions ahead of it. Flag-verified both times -- the
+#  stale pin was even OWNED by a Liurnia trigger, the exact wrong-check-same-id trap.)
 
 
 def test_the_tutorial_boss_grants_no_sweep():
@@ -489,13 +490,16 @@ def test_the_sweep_corpus_did_not_shrink():
     # ONLY real award path these ever had, which is exactly why they must not be checks. Measured
     # by (trigger, flag): every removed pair's flag is in the exclusion set; the same measurement,
     # with the divvy re-phase it triggered, is recorded at the OWNERSHIP digest below.
-    # +9 (2026-08-19, #218): 3997 -> 4006. Exact coordinate / AwardItemLot evidence recovers ten
-    # physical checks onto maps which already have working sweeps: Tarnished's Furled Finger, one
-    # each of Perfume/Cracked/Ritual Pot, four DLC Hefty Pots, Volcano Manor Invitation, and Stars
-    # of Ruin. Tailoring Tools leaves the old false m12_03 talk-number
-    # attribution, for net +9. The ownership ratchet below records the divvy re-phase separately.
-    assert total == 4006, (
-        "sweep corpus is %d, expected 4006. If a sweep was legitimately added or removed, say WHY "
+    # +106 (2026-08-19, the full-census regen): 3997 -> 4103. The doubled MSB census gave real
+    # maps to checks the sweeps could never see: the 10 restored m21_02 Rada corpses, the 4 Royal
+    # fillers un-orphaned by the Ashen-twin fold (11007215/11007820/11007860/11007900 back with
+    # Morgott), the 4 dungeon cookbooks admitted by method (68000/68660/68680/68700), Midra's 3,
+    # Cerulean's 8, and the divvy growth those re-deals pulled in. Measured by (trigger, flag):
+    # 239 removed / 339 added / 237 re-owned; exactly ONE re-own crosses a region boundary --
+    # f2047457180, whose REGION itself flipped Scadu Altus -> Gravesite in the same regen (one of
+    # the nine ground-truth corrections), so its sweep followed its check.
+    assert total == 4103, (
+        "sweep corpus is %d, expected 4103. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -679,14 +683,9 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # owner. The churn itself moves no flag between differently-labelled owner regions. Separately,
     # the Hippo sweep's region label changes Shadow Keep -> Scadu Altus, and all 58 members it now
     # owns are Scadu Altus checks -- the intended arena-region ruling, not a cross-region grant.
-    # 2026-08-19 (#877): f3b8f3f3 -> 89fbf395, count UNCHANGED at 3997. Seven legacy
-    # participant/activation triggers were removed (Deeproot x4, Gelmir x1, Enir Ilim x2), and the
-    # same-region round-robin divvies redistributed their members among each fight's surviving
-    # terminal flags. No check was added, removed, or moved to a differently-labelled region.
-    # 2026-08-19 (#218): 89fbf395 -> b23f5d4d, 3997 -> 4006. Measured in (trigger, flag)
-    # space: 184 pairs added / 175 removed, ten genuinely new sweep flags / one retired false
-    # attribution, and 175 existing flags re-owned as the affected round-robin pools re-phase.
-    # ZERO changed owner-region sets: all churn stays inside the same region-labelled sweep.
-    assert (digest, n) == ("b23f5d4da72b1de3", 4006), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (b23f5d4da72b1de3, 4006). The total alone will "
+    # 2026-08-19 (full-census regen): f3b8f3f3 -> 606018dc, 3997 -> 4103. The corpus ratchet above
+    # carries the measurement; the one region-crossing re-own (f2047457180) follows its check's own
+    # region correction, the safe direction.
+    assert (digest, n) == ("606018dc8528e769", 4103), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (606018dc8528e769, 4103). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

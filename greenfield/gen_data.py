@@ -857,6 +857,17 @@ if os.path.isfile(_mfr):
             _p = _ln.rstrip("\n").split("\t")
             if len(_p) < 2 or not _p[0].isdigit(): continue
             _t[int(_p[0])].add(_p[1])
+    # THE ASHEN TWIN FOLD (2026-08-19, the full-census regen). m11_05 is the burnt COPY of
+    # m11_00: the finale duplicates every Royal treasure, so a flag placed in exactly
+    # {m11_00, m11_05} is not ambiguous -- its physical original is m11_00 (the finale derivation
+    # subtracts non-exclusive flags on the same reasoning). Folded HERE, before BOTH consumers:
+    # left to the multi-map path, these flags return through MSB_REGION_CONSENSUS -- which is
+    # region-only by design and never writes r['map'] -- so the PENDING-map population
+    # (11007215/11007820/11007860/11007900, Royal fillers) lost their map and fell out of
+    # Morgott's sweep (test_gf_sweep_pool_admits_bossless_maps caught the orphans). Folded into
+    # the truth map, the exact map is m11_00 and the side-effect materializes it.
+    _ASHEN_TWIN = frozenset({"m11_00", "m11_05"})
+    _t = {_f: ({"m11_00"} if set(_m) == _ASHEN_TWIN else _m) for _f, _m in _t.items()}
     _MSB_PLACED_MAPS = {_f: frozenset(_maps) for _f, _maps in _t.items()}
     MSB_TRUTH_MAP = {_f: next(iter(_m)) for _f, _m in _t.items() if len(_m) == 1}  # unambiguous only
     print(f"msb ground truth: {len(MSB_TRUTH_MAP)} flags with an unambiguous placed map")
@@ -1525,14 +1536,25 @@ def _finale_derive():
         raise SystemExit("FATAL: finale: msb_flag_region.tsv missing -- refusing to regen without "
                          "the placement corpus (the event-award class would silently empty)")
     _fin_short = {_m[:6] for _m in _fin_maps}          # 'm11_05_00_00' -> 'm11_05'
+    # FINALE-EXCLUSIVE placement, not finale-touching (2026-08-19, the full-census regen). The
+    # richer msb_flag_region now also attributes to m11_05 every ROYAL check whose pickup has an
+    # Ashen TWIN (the f1100xxxx rows -- the same benign class check_ground_regions documents for
+    # the coordinate corpus), and wandering-NPC drops like Corhyn's 400370 (SIX maps, one of them
+    # m11_05). Claiming those for the finale would re-region live Leyndell/quest checks into the
+    # never-rolled FINALE_REGION. A flag is a finale event award only when the corpus places it
+    # NOWHERE ELSE -- the "exists ONLY in the post-burn capital" sentence above, now enforced
+    # rather than assumed. 9500 and 400500 are m11_05-exclusive and survive; on the pre-expansion
+    # census (no twin rows at all) this subtraction was a no-op, so the rule is backward-stable.
     _events = set()
+    _elsewhere = set()
     with open(_msb, encoding="utf-8") as _mf:
         for _ln in _mf:
             if _ln.startswith("#") or _ln.startswith("flag"):
                 continue
             _c = _ln.rstrip("\n").split("\t")
-            if len(_c) >= 2 and _c[1] in _fin_short and _c[0].isdigit():
-                _events.add(int(_c[0]))
+            if len(_c) >= 2 and _c[0].isdigit():
+                (_events if _c[1] in _fin_short else _elsewhere).add(int(_c[0]))
+    _events -= _elsewhere
     _events -= set(_rewards.values()) | _maplots
     # (8) the count PIN (2026-07-14 artifacts + the 2026-08-06 event class): 3 boss rewards
     # (510060 Gideon, 510070 Godfrey, 510230 Elden Beast) + 7 m11_05 map lots + 2 event awards
@@ -1776,6 +1798,11 @@ _QUESTLINE_GATED = frozenset({400061, 400381, 400394, 400602, 400614, 400644, 40
 #         the `around <grace>`-named ones, incl. the three m20_01 "around Gate of Divinity"), OR
 #     (b) it is an m21 row whose coordinate is SHARED with another Rada row (bundle-stack: 69 rows,
 #         up to 12 flags on one part; none has ever fired by hand).
+#   RESTORED 2026-08-19 (the full-census regen): 21027070-21027160, ten m21_02 "around West
+#   Rampart" rows. They were in the class only because m21_02 was census-BLIND; the complete scan
+#   attributes each to its own individual treasure corpse (宝死体007-016), exactly Belurat's live
+#   shape. The class is a RULE, and the rule's inputs improved -- test_gf_rada_fruit_worldless is
+#   the keeper that demanded this re-derive.
 #   KEPT: the four m21 coordinate singletons (21007200 / 21007670 / 21027000 / 21027190 -- 670 is
 #   the one that provably fires), every m20 row (Belurat's are individually MSB-attributed corpses,
 #   and m20_01 stack rows fired BY HAND in the same log -- 20017290 / 20017560 -- so the m20 bundles
@@ -1804,8 +1831,8 @@ _RADA_WORLDLESS = frozenset({
     21017590, 21017680, 21017690, 21017700, 21017710, 21017720, 21017730, 21017740,
     21017810, 21017820, 21017830, 21017840, 21017850, 21017860, 21017870, 21017880,
     21017890, 21017900, 21017910, 21017920, 21017930, 21017940, 21017950, 21017960,
-    21017970, 21017980, 21017990, 21027070, 21027080, 21027090, 21027100, 21027110,
-    21027120, 21027130, 21027140, 21027150, 21027160, 21027170, 21027180, 21027280,
+    21017970, 21017980, 21017990, 
+    21027170, 21027180, 21027280,
     21027290, 21027300, 21027310, 21027320, 21027330, 21027340, 21027350, 21027360,
     21027370, 21027380, 21027390, 21027400,
 })
@@ -1859,6 +1886,14 @@ EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # the wrong arity (er-tiles-legitimately-span-regions) -- the first two share tile m60_34_45 with
 # checks nobody has stood in front of.
 _REGION_CONFIRMED_FLAGS = frozenset({
+    # --- 2026-08-19, from FLAG_REGION_OVERRIDE's own ruling (Alaric: "physically in Castle Sol").
+    # The full-census regen gave this flag an MSB tile (m60_51_58, graceless -- the Castle Sol
+    # church tower), and the structural graceless-tile bar would have stripped progression
+    # eligibility from the Haligtree Secret Medallion (Left). Unlike the Rold-seam trio, the ground
+    # IS plain Mountaintops and reachable by any Mountaintops-anchored player -- Castle Sol is
+    # walkable inside the region, no cross-region gate. Region confidence AND reachability both
+    # hold, which is the pair the bar's own doc says the exception requires.
+    1051587800,   # Mountaintops :: Haligtree Secret Medallion (Left) -- Castle Sol.
     # --- 2026-08-04, Alaric, ground truth. Read "Altus :: ... (region unconfirmed)" and is neither
     # Altus nor a guess: see FLAG_REGION_OVERRIDE[400300] for why the map join was wrong.
     400300,       # Liurnia :: Rya's Necklace -- from Blackguard Big Boggart, Boilprawn Shack.
@@ -9292,7 +9327,13 @@ for _i, _r in enumerate(rows):
         # [Incantation] Knight's Lightning Spear at Scorpion River Catacombs (7774285, Legendary)
         # both walked in. A sweep that hands you a flask upgrade or a legendary incantation is a
         # progression decision, not a convenience.
-        _r["method"] in ("flag_prefix", "global", "global_filler")
+        # "cookbook" joined 2026-08-19 with the full-census regen: four cookbooks (68000 Wyndham
+        # Catacombs, 68660 Belurat Gaol, 68680 Fog Rift, 68700 Scorpion River) gained MSB treasure
+        # rows placing them INSIDE minor dungeons, and this METHOD gate -- not their tags, not
+        # their maps -- was what kept them out of those dungeons' sweeps
+        # (test_gf_boss_sweeps::test_no_dungeon_mapped_filler_is_left_unswept). A method is how a
+        # row was DISCOVERED, not where it lives; the map conditions below stay the arbiter.
+        _r["method"] in ("flag_prefix", "global", "global_filler", "cookbook")
         and (_is_dungeon(_mp2(_r["map"])) or _is_interior_member_map(_mp2(_r["map"]))
              # ...and a row that already names an OVERWORLD TILE (piece A). Without this the m61
              # neighbourhood pass has nothing to assign: `_mem_tile` is fed from rows that passed

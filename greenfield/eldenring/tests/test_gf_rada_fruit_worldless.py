@@ -100,7 +100,10 @@ class RadaFruitWorldless(unittest.TestCase):
         # sets, or "no worldless row is a location" is also what a broken derivation would say.
         self.assertTrue(self.derived, "WITNESS: the derivation produced nothing")
         self.assertTrue(self.flags, "WITNESS: data.LOCATIONS scanned as empty")
-        self.assertEqual(len(self.derived), 124, "the derived class changed size -- say which rows "
+        # 124 -> 114 (2026-08-19, the full-census regen): the INPUT improved. m21_02 stopped being
+        # census-blind and attributed 21027070-21027160 to ten individual treasure corpses
+        # (Belurat's proven-live shape), so the rule releases them and the ten return to the pool.
+        self.assertEqual(len(self.derived), 114, "the derived class changed size -- say which rows "
                                                  "and which input moved before re-pinning")
         alive = sorted(self.derived & self.flags)
         self.assertEqual(alive, [], "worldless Rada rows still in the pool: %r" % alive[:8])
