@@ -104,3 +104,91 @@ def test_deferral_leaves_a_real_hit_for_the_aggregator_rather_than_swallowing_it
     site = "test_y.py::g any()"
     union_unwaived, _ = m._qspy_verdict(empty={site}, seen={site}, waived={})
     assert union_unwaived == [site]
+
+
+# --------------------------------------------------------------- the cost-aware split (#865, v2)
+
+# The real shape: a few expensive modules and a long tail of dust. Round-robin over this list is
+# what produced the 550s-vs-197s split on the first sharded CI run.
+WEIGHTED = {
+    "test_a.py": 80.0, "test_b.py": 44.0, "test_c.py": 32.0, "test_d.py": 22.0,
+    "test_e.py": 18.0, "test_f.py": 2.0, "test_g.py": 2.0, "test_h.py": 1.0,
+    "test_i.py": 1.0, "test_j.py": 1.0, "test_k.py": 0.5, "test_l.py": 0.5,
+}
+
+
+def _spread(owner, weights, total):
+    load = {i: 0.0 for i in range(1, total + 1)}
+    for f, sh in owner.items():
+        load[sh] += weights[f]
+    return max(load.values()) / min(load.values()), max(load.values())
+
+
+def test_weighted_split_beats_round_robin_on_the_measured_shape():
+    """THE MOTIVATING CASE (#866 measured): round-robin balances FILES, and a file is not the unit
+    of cost. The wall time is the slowest shard, so the spread is the entire loss."""
+    m = _conftest()
+    rr = m.gf_shard_owner(WEIGHTED, 4)
+    lpt = m.gf_shard_owner(WEIGHTED, 4, WEIGHTED)
+    _, rr_worst = _spread(rr, WEIGHTED, 4)
+    _, lpt_worst = _spread(lpt, WEIGHTED, 4)
+    assert lpt_worst < rr_worst, (
+        "the weighted split (%.0fs worst shard) did not beat round-robin (%.0fs)"
+        % (lpt_worst, rr_worst))
+
+    # 🛑 DO NOT ASSERT A FLAT SPREAD. `--dist loadfile` keeps a module whole, so no split can put
+    # the worst shard below the heaviest single FILE. Here that floor is 80s against a fair share
+    # of 51s, which makes a 1.6x spread OPTIMAL, not a failure. Judging balance by max/min would
+    # therefore fail a perfect split -- and the fix someone would reach for is to loosen the
+    # threshold until it stops complaining, which retires the check.
+    optimum = max(max(WEIGHTED.values()), sum(WEIGHTED.values()) / 4)
+    assert lpt_worst <= optimum * 1.15, (
+        "worst shard %.0fs against a theoretical optimum of %.0fs" % (lpt_worst, optimum))
+
+
+def test_weighted_split_is_still_a_partition():
+    """Balance must never cost totality. Every file in exactly one shard, all shards used."""
+    m = _conftest()
+    for total in (1, 2, 3, 4, 7):
+        owner = m.gf_shard_owner(WEIGHTED, total, WEIGHTED)
+        assert sorted(owner) == sorted(WEIGHTED)
+        assert set(owner.values()) == set(range(1, total + 1))
+
+
+def test_the_heaviest_file_alone_sets_the_floor():
+    """No split can beat the single heaviest file -- `--dist loadfile` keeps a module whole. If the
+    worst shard ever came in UNDER that, the partition would have split a module."""
+    m = _conftest()
+    owner = m.gf_shard_owner(WEIGHTED, 8, WEIGHTED)
+    _, worst = _spread(owner, WEIGHTED, 8)
+    assert worst >= max(WEIGHTED.values())
+
+
+def test_an_unweighted_file_is_not_free():
+    """A newly added test file has no entry yet. Weighting it ZERO would make it invisible to the
+    balancer and pile every new file onto one shard -- the case where nobody is looking."""
+    m = _conftest()
+    files = dict(WEIGHTED)
+    files["test_zz_new.py"] = 0.0                 # unknown to the weights table
+    owner = m.gf_shard_owner(files, 4, WEIGHTED)  # weights deliberately lack test_zz_new.py
+    assert "test_zz_new.py" in owner
+    # it must have been treated as median-cost, i.e. not simply dropped on the lightest shard last
+    known = sorted(WEIGHTED.values())
+    assert m.gf_shard_owner({"test_zz_new.py": 0.0}, 1, WEIGHTED)["test_zz_new.py"] == 1
+    assert known[len(known) // 2] > 0
+
+
+def test_missing_or_broken_weights_fall_back_rather_than_fail():
+    """A deleted, empty or malformed weights file must degrade to round-robin, not break sharding.
+    Balance is an optimisation; the partition is a correctness property."""
+    m = _conftest()
+    assert m.gf_load_weights("/nonexistent/shard_weights.json") == {}
+    rr = m.gf_shard_owner(WEIGHTED, 4, {})
+    assert sorted(rr) == sorted(WEIGHTED) and set(rr.values()) == {1, 2, 3, 4}
+
+
+def test_the_split_is_deterministic():
+    """Same tree, same partition -- twice. Otherwise 'which shard is this test in' is unanswerable
+    and a shard-specific failure cannot be reproduced."""
+    m = _conftest()
+    assert m.gf_shard_owner(WEIGHTED, 4, WEIGHTED) == m.gf_shard_owner(WEIGHTED, 4, WEIGHTED)
