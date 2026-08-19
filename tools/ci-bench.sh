@@ -61,13 +61,13 @@ say "box"
 } | tee "$OUT/box.txt"
 
 # ------------------------------------------------------------------------------ 2. provisioning
-if ! command -v git >/dev/null || ! command -v python3 >/dev/null; then
-  say "installing packages"
-  export DEBIAN_FRONTEND=noninteractive
-  apt-get update -qq
-  apt-get install -y -qq git curl python3 python3-venv python3-pip nodejs >/dev/null
-fi
-python3 --version
+# Unconditional and idempotent. The first version of this gated on `command -v python3`, which is
+# present on every Ubuntu image ever made -- so on a fresh CX43 the apt step never ran, and the
+# failure surfaced much later as a missing ensurepip.
+say "packages"
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -qq
+apt-get install -y -qq git curl ca-certificates tar >/dev/null
 
 if [ ! -d "$WORK/repo/.git" ]; then
   say "cloning $REPO_URL"
@@ -82,27 +82,67 @@ test -d from-software-archipelago-clients/crates \
   || echo "WARNING: no client checkout -- cross-side gates will SKIP and the timing is not CI's"
 
 PIN="$(cat .ap-version)"
-if [ ! -d "$WORK/ap/worlds" ]; then
-  say "cloning upstream Archipelago $PIN"
-  git clone --depth 1 --branch "$PIN" https://github.com/ArchipelagoMW/Archipelago.git "$WORK/ap"
+# 🛑🛑 INSIDE THE REPO, at .ap-test/ -- gf_test.py's own default, and not negotiable.
+# The first version put this at $WORK/ap, one directory up. That is a documented trap: an --ap-dir
+# OUTSIDE the repo makes the tools/ gates SKIP, and the first real run duly reported 395 skips
+# against a committed census of 70. The suite still passed, still printed a confident wall time,
+# and was quietly measuring ~2300 of CI's ~2600 tests -- a benchmark of a different workload than
+# the one being sized for.
+AP="$WORK/repo/.ap-test"
+if [ ! -d "$AP/worlds" ]; then
+  say "cloning upstream Archipelago $PIN -> .ap-test (inside the repo)"
+  git clone --depth 1 --branch "$PIN" https://github.com/ArchipelagoMW/Archipelago.git "$AP"
 fi
 
-if [ ! -x "$WORK/venv/bin/python" ]; then
-  say "venv + requirements"
-  python3 -m venv "$WORK/venv"
-  "$WORK/venv/bin/pip" install -q --upgrade pip
-  "$WORK/venv/bin/pip" install -q "setuptools<80"
-  "$WORK/venv/bin/pip" install -q -r "$WORK/ap/requirements.txt"
-  "$WORK/venv/bin/pip" install -q pytest pytest-xdist
+# 🛑🛑 CI RUNS PYTHON 3.12 (.github/workflows/tests.yaml pins it), SO THIS MUST TOO.
+#
+# The system interpreter is whatever the image ships -- Ubuntu 26.04 gives 3.14, and there is no
+# python3.14-venv to install. Using it anyway would be worse than the error: a bench on a different
+# interpreter is an answer to a different question, which is the exact failure this repo already
+# has a name for (the dev box gating the apworld against a fork's Fill.py, 661 tests vs CI's 686).
+# Interpreter version moves GC behaviour, dict/str internals and startup cost -- all of which this
+# bench is measuring.
+#
+# So: a self-contained CPython 3.12 from python-build-standalone. No PPA, no ensurepip, no apt
+# dependency on what the base image happens to package, and it carries its own pip.
+PY_DIR="$WORK/py312"
+if [ ! -x "$PY_DIR/python/bin/python3.12" ]; then
+  say "fetching CPython 3.12 (python-build-standalone)"
+  if [ -z "${PBS_URL:-}" ]; then
+    # The download URL percent-encodes the `+` in the version, so match loosely and extract.
+    PBS_URL="$(curl -fsSL https://api.github.com/repos/astral-sh/python-build-standalone/releases/latest \
+      | grep -oE '"browser_download_url": *"[^"]*cpython-3\.12\.[^"]*x86_64-unknown-linux-gnu-install_only_stripped\.tar\.gz"' \
+      | head -1 | sed 's/.*"browser_download_url": *"//; s/"$//')"
+  fi
+  test -n "$PBS_URL" \
+    || { echo "could not resolve a CPython 3.12 tarball (API rate limit?). Set PBS_URL=<url> and re-run."; exit 1; }
+  echo "  $PBS_URL"
+  mkdir -p "$PY_DIR"
+  curl -fsSL "$PBS_URL" -o "$WORK/py312.tar.gz"
+  tar -xzf "$WORK/py312.tar.gz" -C "$PY_DIR"
 fi
-PY="$WORK/venv/bin/python"
+PY="$PY_DIR/python/bin/python3.12"
+# Assert rather than trust. A bench that silently ran on the wrong interpreter would still produce
+# a confident table, and nothing downstream would question it.
+"$PY" -c 'import sys; assert sys.version_info[:2] == (3, 12), sys.version' \
+  || { echo "the interpreter at $PY is not 3.12 -- refusing to benchmark a different question"; exit 1; }
+"$PY" -V
+
+if [ ! -f "$WORK/.deps-installed" ]; then
+  say "requirements (Archipelago $PIN)"
+  "$PY" -m pip install -q --upgrade pip
+  "$PY" -m pip install -q "setuptools<80"          # AP 0.6.x vs pkg_resources removal in >= 80
+  "$PY" -m pip install -q -r "$AP/requirements.txt"
+  "$PY" -m pip install -q pytest pytest-xdist
+  touch "$WORK/.deps-installed"
+fi
 
 say "installing the world"
 export SKIP_REQUIREMENTS_UPDATE=1 AP_NONINTERACTIVE=1
 "$PY" tools/gen_inputs.py --ensure elden_ring_artifacts >/dev/null
-"$PY" tools/gf_test.py --install-only --ap-dir "$WORK/ap" >/dev/null
+"$PY" tools/gf_test.py --install-only --ap-dir "$AP" >/dev/null
 
-COLLECTED="$(cd "$WORK/ap" && "$PY" -m pytest --co -q -p no:cacheprovider worlds/eldenring/tests 2>/dev/null | grep -c '::' || true)"
+COLLECTED="$(cd "$AP" && "$PY" -m pytest --co -q -p no:cacheprovider worlds/eldenring/tests 2>/dev/null | grep -c '::' || true)"
 echo "collected=$COLLECTED" | tee -a "$OUT/box.txt"
 
 # ------------------------------------------------------------------------------ 3. steal sampling
@@ -112,24 +152,102 @@ echo "collected=$COLLECTED" | tee -a "$OUT/box.txt"
 steal_now() { awk '/^cpu /{print $9+0; exit}' /proc/stat; }
 total_now() { awk '/^cpu /{s=0; for(i=2;i<=11;i++) s+=$i; print s; exit}' /proc/stat; }
 
-run_suite() {  # $1 = -n value ; echoes "wall_seconds steal_pct"
-  local n="$1" s0 t0 s1 t1 start end
-  s0="$(steal_now)"; t0="$(total_now)"; start="$(date +%s.%N)"
-  ( cd "$WORK/ap" && "$PY" -m pytest -q -p no:cacheprovider -n "$n" --dist loadfile \
+# cgroup CFS throttling, which is NOT the same thing as steal and does not show up in /proc/stat.
+throttled_now() {
+  if [ -r /sys/fs/cgroup/cpu.stat ]; then                       # cgroup v2
+    awk '/^throttled_usec/{print $2; f=1} END{if(!f) print 0}' /sys/fs/cgroup/cpu.stat
+  elif [ -r /sys/fs/cgroup/cpu/cpu.stat ]; then                 # cgroup v1 (usec -> from nsec)
+    awk '/^throttled_time/{printf "%d", $2/1000; f=1} END{if(!f) print 0}' /sys/fs/cgroup/cpu/cpu.stat
+  else
+    echo 0
+  fi
+}
+
+# ⭐ THE INSTRUMENT THAT ACTUALLY WORKS, and the lesson from run 1.
+#
+# On the first real box, steal read 0.00 on every run while wall time degraded 43% across three
+# passes. Whether the accounting is not exposed to the guest or the cap sits somewhere steal cannot
+# see, the counter said "clean" while the box was demonstrably not. So do not ask the platform how
+# fast it is -- MEASURE IT, with fixed work, and compare the answer to itself over time.
+#
+# Two numbers, ten seconds:
+#   single   -- fixed single-threaded work. Comparable ACROSS BOXES, so a CX43, a CCX33 and an AX42
+#               can be ranked without re-running a 30-minute suite on each.
+#   effective-- the same work on every core at once. (single * NPROC / allcore) is how many cores
+#               the box will ACTUALLY give you under load. A dedicated 8-core answers ~8 (less SMT
+#               losses); a shared vCPU plan capped near its baseline answers ~2-3, which is exactly
+#               the shape that makes -n 8 lose to -n 4.
+cpu_probe() {  # echoes "single_s allcore_s effective_cores"
+  # 🛑 A FILE, not a heredoc on stdin, and guarded by __main__.
+  # Python 3.14 changed the default start method on Linux from `fork` to `forkserver`, and
+  # forkserver has to RE-IMPORT __main__ in the child. A __main__ that arrived on stdin cannot be
+  # re-imported, so the pool dies with `ConnectionResetError: [Errno 104]` from
+  # answer_challenge -- which reads like a network fault, not a start-method problem. $PY is 3.12
+  # (still fork-by-default) so this was latent here, but a probe whose correctness depends on the
+  # interpreter's default start method is a trap set for the next person.
+  # Verified under fork, forkserver AND spawn.
+  cat > "$WORK/cpu_probe.py" <<'PYEOF'
+import os
+import sys
+import time
+import multiprocessing as mp
+
+
+def work(_=None):
+    x = 0
+    for _i in range(20_000_000):   # ~1s: big enough that scheduler noise does not dominate
+        x = (x * 1103515245 + 12345) & 0x7FFFFFFF
+    return x
+
+
+if __name__ == "__main__":
+    N = int(sys.argv[1]) if len(sys.argv) > 1 else (os.cpu_count() or 1)
+    work()                                    # warm the interpreter, do not time it
+    t0 = time.perf_counter(); work(); single = time.perf_counter() - t0
+    t0 = time.perf_counter()
+    with mp.Pool(N) as pool:
+        pool.map(work, range(N))
+    allc = time.perf_counter() - t0
+    print("%.3f %.3f %.2f" % (single, allc, (single * N / allc) if allc > 0 else 0))
+PYEOF
+  "$PY" "$WORK/cpu_probe.py" "$NPROC"
+}
+
+run_suite() {  # $1 = -n value ; echoes "wall steal_pct throttled_s skipped"
+  local n="$1" s0 t0 s1 t1 h0 h1 start end skipped
+  s0="$(steal_now)"; t0="$(total_now)"; h0="$(throttled_now)"; start="$(date +%s.%N)"
+  ( cd "$AP" && "$PY" -m pytest -q -p no:cacheprovider -n "$n" --dist loadfile \
       worlds/eldenring/tests >"$OUT/run-n$n.log" 2>&1 ) || true
-  end="$(date +%s.%N)"; s1="$(steal_now)"; t1="$(total_now)"
+  end="$(date +%s.%N)"; s1="$(steal_now)"; t1="$(total_now)"; h1="$(throttled_now)"
+  skipped="$(grep -oE '[0-9]+ skipped' "$OUT/run-n$n.log" | head -1 | grep -oE '[0-9]+' || echo 0)"
   awk -v a="$start" -v b="$end" -v s0="$s0" -v s1="$s1" -v t0="$t0" -v t1="$t1" \
-    'BEGIN{d=t1-t0; printf "%.1f %.2f", b-a, (d>0? (s1-s0)*100.0/d : 0)}'
+      -v h0="$h0" -v h1="$h1" -v sk="$skipped" \
+    'BEGIN{d=t1-t0; printf "%.1f %.2f %.1f %s", b-a, (d>0? (s1-s0)*100.0/d : 0), (h1-h0)/1000000.0, sk}'
 }
 
 # ------------------------------------------------------------------------------ 4. the sweep
 say "scaling sweep: -n over [$WORKERS], $REPEATS pass(es)"
-echo "pass,workers,wall_seconds,steal_pct" > "$OUT/sweep.csv"
+echo "pass,workers,wall_seconds,steal_pct,throttled_s,skipped,probe_single_s,probe_effective_cores" \
+  > "$OUT/sweep.csv"
+
+# The layout check, ONCE, before anything is timed. `expected_skips_ci.json` is the committed
+# inventory of what CI skips; if this box skips a wildly different number, the bench is measuring a
+# different suite and every wall time below is an answer to a different question. Run 1 shipped 395
+# against a census of 70 and nothing said a word.
+CENSUS_TOTAL="$("$PY" -c 'import json;print(sum(f["count"] for f in json.load(open("greenfield/eldenring/tests/expected_skips_ci.json"))["families"]))' 2>/dev/null || echo 0)"
+echo "  census expects $CENSUS_TOTAL skip(s)"
+
 for pass in $(seq 1 "$REPEATS"); do
   for n in $WORKERS; do
-    read -r wall steal <<<"$(run_suite "$n")"
+    read -r psingle pall peff <<<"$(cpu_probe)"
+    read -r wall steal thr skipped <<<"$(run_suite "$n")"
     tail -1 "$OUT/run-n$n.log" | sed 's/^/    /'
-    printf '%s,%s,%s,%s\n' "$pass" "$n" "$wall" "$steal" | tee -a "$OUT/sweep.csv"
+    if [ "$CENSUS_TOTAL" -gt 0 ] && [ "$skipped" -gt $((CENSUS_TOTAL * 2)) ]; then
+      echo "  🛑 $skipped skips vs a census of $CENSUS_TOTAL -- this is NOT CI's suite; fix the"
+      echo "     layout before quoting any number from this run."
+    fi
+    printf '%s,%s,%s,%s,%s,%s,%s,%s\n' \
+      "$pass" "$n" "$wall" "$steal" "$thr" "$skipped" "$psingle" "$peff" | tee -a "$OUT/sweep.csv"
   done
 done
 
@@ -140,9 +258,9 @@ done
 if [ "$PER_FILE" = "1" ]; then
   say "per-file wall (serial, one process each) -- this is the slow part"
   echo "file,wall_seconds" > "$OUT/per_file.csv"
-  ( cd "$WORK/ap" && ls worlds/eldenring/tests/test_*.py ) | while read -r f; do
+  ( cd "$AP" && ls worlds/eldenring/tests/test_*.py ) | while read -r f; do
     st="$(date +%s.%N)"
-    ( cd "$WORK/ap" && "$PY" -m pytest -q -p no:cacheprovider "$f" >/dev/null 2>&1 ) || true
+    ( cd "$AP" && "$PY" -m pytest -q -p no:cacheprovider "$f" >/dev/null 2>&1 ) || true
     en="$(date +%s.%N)"
     awk -v f="$f" -v a="$st" -v b="$en" 'BEGIN{printf "%s,%.1f\n", f, b-a}' >> "$OUT/per_file.csv"
   done
@@ -160,18 +278,47 @@ for r in rows:
     by_n.setdefault(int(r["workers"]), []).append((float(r["wall_seconds"]), float(r["steal_pct"])))
 
 print("\n## Scaling\n")
-print("| -n | best wall | median | steal% | speedup vs -n2 | marginal gain |")
-print("|---:|---:|---:|---:|---:|---:|")
+print("| -n | best wall | median | steal% | throttled | speedup vs -n2 | marginal gain |")
+print("|---:|---:|---:|---:|---:|---:|---:|")
 base = min(w for w, _ in by_n[min(by_n)])
 prev = None
+regressed = []
 for n in sorted(by_n):
     walls = [w for w, _ in by_n[n]]
     steal = max(s for _, s in by_n[n])
+    thr = max(float(r["throttled_s"]) for r in rows if int(r["workers"]) == n)
     best = min(walls)
     gain = "-" if prev is None else "%.0f%%" % ((prev - best) / prev * 100)
-    print("| %d | %.0fs | %.0fs | %.1f | %.2fx | %s |"
-          % (n, best, statistics.median(walls), steal, base / best, gain))
+    if prev is not None and best > prev:
+        regressed.append(n)
+    print("| %d | %.0fs | %.0fs | %.1f | %.0fs | %.2fx | %s |"
+          % (n, best, statistics.median(walls), steal, thr, base / best, gain))
     prev = best
+
+# The CPU probe is the honest per-core number, and the one comparable between boxes.
+probes = [(float(r["probe_single_s"]), float(r["probe_effective_cores"])) for r in rows
+          if r.get("probe_single_s")]
+if probes:
+    singles = [p for p, _ in probes]
+    effs = [e for _, e in probes]
+    import os as _os
+    print("\n## What this box really gives you\n")
+    print("  fixed single-core work : %.2fs best, %.2fs worst  (lower is faster; compare BOXES with this)"
+          % (min(singles), max(singles)))
+    print("  effective cores        : %.1f best, %.1f worst  of %s advertised"
+          % (max(effs), min(effs), _os.cpu_count()))
+    if max(effs) < _os.cpu_count() * 0.6:
+        print("  🛑 the box delivers well under its advertised core count under load. That is a CAP,")
+        print("     not a scaling limit of the suite -- do not read the -n curve below as a fact")
+        print("     about the test suite.")
+    if max(singles) > min(singles) * 1.25:
+        print("  🛑 single-core speed MOVED between runs by %.0f%% -- the box is not a stable ruler."
+              % ((max(singles) / min(singles) - 1) * 100))
+
+if regressed:
+    print("\n  NOTE: -n %s was SLOWER than the step below it. More workers than real cores means"
+          % ", ".join(str(n) for n in regressed))
+    print("  contention, not parallelism; read it with the effective-core number above.")
 
 print("\n## Drift across passes (the throttling tell)\n")
 for n in sorted(by_n):
