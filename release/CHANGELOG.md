@@ -25,7 +25,9 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   itemless row, so the old raw “621 unplaced” label cannot return as a defect count. World: #218.
 - **Merchant Bell Bearings only enter seeds that keep one of their merchants.** A bell whose every
   merchant region is sealed now pays normal filler count-neutrally instead of opening a wholly
-  vanilla Twin-Maiden shop that looks like a failed randomizer. World: #560; client fallback: #555.
+  vanilla Twin-Maiden shop that looks like a failed randomizer. When a vanilla-only bell is handed
+  in anyway, the client now says that plainly instead of presenting an apparently empty AP shop.
+  World: #560 and #555; client: clients#297.
 - **Unaudited boss sweeps cannot host required progression.** A sweep with no authoritative arena
   region still pays its ordinary members, but contributes no `SweepSlot` progression-surface entry
   until the arena is audited. The current 26 circular-evidence triggers now fail closed. World: #671.
@@ -48,7 +50,7 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   uniquely-placed m21 pickups and all of Belurat/Enir Ilim's real corpses (which do fire) remain
   checks. Shadow Keep's tracker list now reflects what a player can actually find. World: #330,
   reported three times by cokeman5.
-- **The world census now covers every map, and it culled 86 more phantom checks.** Alaric's
+- **The world census now covers every map, and it culled 77 more phantom checks.** Alaric's
   full-MSB datamine (every map's treasure, enemy-attached, and event-chained references, merged
   with the prior partial run) closed the census's 39 blind maps; the coverage witness now FAILS
   the build if any placed map goes blind again or the denominator comes back empty. Against that
@@ -72,6 +74,33 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **Ashen Capital opens at Leyndell, Capital of Ash.** Its region unlock no longer treats the
   duplicate Ashen East Capital Rampart as the front door; the full grace bundle still contains both
   entries. World: #853; client: clients#312.
+- **Boss-sweep rows collapse by region, and legacy arenas wait for their terminal state.** The
+  tracker no longer expands every member of every sweep into one permanent wall of rows; each region
+  can be opened when wanted. For inherited arena triggers, completion now follows the terminal flag
+  instead of an earlier phase that can fire while the encounter is still live. World: #877 and
+  #896; client: clients#293, closing #237.
+- **Fresh auto-equip runs keep one left-hand slot, not the starting class's whole off-hand
+  loadout.** Left 1 is filled and Left 2/3 are cleared once for a genuinely fresh character; returning
+  saves keep the loadout their player arranged. World: #441; client: clients#294.
+- **The experimental boss HP probe is off by default.** The runtime witnesses it was built to gather
+  are in hand, so ordinary players no longer pay for its live boss-state reads unless they explicitly
+  arm the probe. World: #553; client: clients#290.
+- **Client sidecar tables resolve beside the AP DLL.** `check_lots_table.json` and
+  `shoplineup_flags.json` no longer disappear merely because me3's global mod root differs from the
+  profile's natives directory; the loader-root lookup remains as a compatibility fallback. Client:
+  clients#302, closing clients#299.
+- **World teardown no longer turns an empty param holder into a process abort.** Add-item and
+  shop-open callbacks now test the requested table's live holder before reading it, and the extern
+  boundary contains any remaining Rust panic instead of unwinding through Elden Ring. Client:
+  clients#303, closing clients#300.
+- **Starting items have one writer at a time.** The possession backfill now waits until the
+  reconciler's complete negative start-item band is drained, rather than treating a readable bag as
+  proof that the paced grant ledger is finished. This closes the 2-of-40 race that duplicated pots
+  and then reported the remainder capped. World: #267; client: clients#304.
+- **Native crash reports now include the faulting x64 registers.** This does not claim to fix the
+  separate me3 allocator crash. It makes the next occurrence identify the exact pointer me3 was
+  classifying/freeing, so the remaining corruptor can be narrowed from evidence instead of by
+  disabling unrelated features. Client: clients#305; follow-up: clients#301.
 
 ## v0.4.8 — 2026-08-18
 
