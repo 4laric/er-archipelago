@@ -135,6 +135,9 @@ class WorldlessSingles(unittest.TestCase):
 
     def test_the_short_flag_class_is_untouchable(self):
         """The overshoot guard, by name: boss/NPC/quest awards must never enter this cull."""
+        # WITNESSES: both empty-set asserts below pass for free on an empty input.
+        self.assertEqual(len(PROVEN_SHORT_FLAGS), 8, "the proven-live ledger itself moved")
+        self.assertTrue(self.frozen, "WITNESS: the frozen cull set is empty -- nothing was scanned")
         culled_short = sorted(f for f in self.frozen if not _map_shaped(str(f)))
         self.assertEqual(culled_short, [], "non-map-shaped flag(s) in _WORLDLESS_SINGLES: %r"
                          % culled_short)
@@ -142,6 +145,9 @@ class WorldlessSingles(unittest.TestCase):
         self.assertEqual(gone, [], "provably-live short-flag checks left the pool: %r" % gone)
 
     def test_the_class_is_disjoint_from_rada(self):
+        # WITNESS: disjointness of two empty sets is not a finding.
+        self.assertTrue(self.frozen and self.rada,
+                        "WITNESS: a worldless set is empty -- the disjointness below is vacuous")
         both = sorted(self.frozen & self.rada)
         self.assertEqual(both, [], "a flag sits in BOTH worldless sets -- each ruling must read "
                                    "on its own: %r" % both)

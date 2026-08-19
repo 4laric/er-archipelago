@@ -95,11 +95,13 @@ _KNOWN_IMPORTANT_IN_SWEEPS = {
     # (2026-08-19) shifted all three by -35 while the CHECKS (flags 41027000 / 41027320 / 43017900,
     # verified identical) never moved. If this ledger drifts again for a corpus change, match by
     # flag before concluding the debt grew.
-    # 2026-08-19 (the worldless-singles cull renumbered ap ids): 7772549 -> 7772545,
-    # 7772553 -> 7772549, 7772568 -> 7772564. Same three flags; re-verified by flag identity.
-    7772545,   # KeyItem   -- Gaol Upper Level Key            (f41027000)
-    7772549,   # KeyItem   -- Gaol Lower Level Key            (f41027320)
-    7772564,   # Boss      -- Dragon Heart, around Dragon's Pit (f43017900)
+    # 2026-08-19 (the cull renumbered ap ids, twice -- the second time when the Crimson Hood
+    # ruling put one location back ahead of these): 7772549 -> 7772545 -> 7772546,
+    # 7772553 -> 7772549 -> 7772550, 7772568 -> 7772564 -> 7772565. Same three flags;
+    # re-verified by flag identity each time.
+    7772546,   # KeyItem   -- Gaol Upper Level Key            (f41027000)
+    7772550,   # KeyItem   -- Gaol Lower Level Key            (f41027320)
+    7772565,   # Boss      -- Dragon Heart, around Dragon's Pit (f43017900)
 }
 
 
