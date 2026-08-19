@@ -118,6 +118,10 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "client_gitlink_notes": "pure-stdlib Git fixture imports tools/check_release_notes.py through "
+                            "the repo-root walk-up. The tests job checks out full history and the "
+                            "repo tree, so the per-bump gate must run there rather than skip; it "
+                            "reproduces the unnoted v0.4.3 pin and the #687 lockstep control (#709)",
     "boss_geography": "committed greenfield data; artifact-dependent halves covered by the bundle",
     "quest_prerequisite_rules": "runtime item_rule coverage uses the installed world; the typed "
                                   "questline_model.tsv witness is reached through find_repo_root "
