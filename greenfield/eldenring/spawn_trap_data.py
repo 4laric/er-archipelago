@@ -401,4 +401,4 @@ SPAWN_TRAP_KEYS = {
     'basilisk': 4150,
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:8b3e6d2df417e11b5eebf3de01d1a777f8e2cc1141ee1b58d7c032a33048f9d7', 'module': 'spawn_trap_data.py', 'body_sha256': 'sha256:0596c56d4c6dfa1ee20c524feebece696b65b976aeb98e2dda2d7a7a27105e53'}
+_GEN_STAMP = {'inputs_hash': 'sha256:c87d7384f2535f1def46ff0b2a8f48e72319ace6384e24306133ad65bf2e0d14', 'module': 'spawn_trap_data.py', 'body_sha256': 'sha256:0596c56d4c6dfa1ee20c524feebece696b65b976aeb98e2dda2d7a7a27105e53'}
