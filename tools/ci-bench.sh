@@ -178,22 +178,39 @@ throttled_now() {
 #               losses); a shared vCPU plan capped near its baseline answers ~2-3, which is exactly
 #               the shape that makes -n 8 lose to -n 4.
 cpu_probe() {  # echoes "single_s allcore_s effective_cores"
-  "$PY" - "$NPROC" <<'PYEOF'
-import sys, time, multiprocessing as mp
-N = int(sys.argv[1])
+  # 🛑 A FILE, not a heredoc on stdin, and guarded by __main__.
+  # Python 3.14 changed the default start method on Linux from `fork` to `forkserver`, and
+  # forkserver has to RE-IMPORT __main__ in the child. A __main__ that arrived on stdin cannot be
+  # re-imported, so the pool dies with `ConnectionResetError: [Errno 104]` from
+  # answer_challenge -- which reads like a network fault, not a start-method problem. $PY is 3.12
+  # (still fork-by-default) so this was latent here, but a probe whose correctness depends on the
+  # interpreter's default start method is a trap set for the next person.
+  # Verified under fork, forkserver AND spawn.
+  cat > "$WORK/cpu_probe.py" <<'PYEOF'
+import os
+import sys
+import time
+import multiprocessing as mp
+
+
 def work(_=None):
     x = 0
-    for _i in range(20_000_000):   # ~1s of work: big enough that scheduler noise does not dominate
+    for _i in range(20_000_000):   # ~1s: big enough that scheduler noise does not dominate
         x = (x * 1103515245 + 12345) & 0x7FFFFFFF
     return x
-work()                                    # warm the interpreter, do not time it
-t0 = time.perf_counter(); work(); single = time.perf_counter() - t0
-t0 = time.perf_counter()
-with mp.Pool(N) as pool:
-    pool.map(work, range(N))
-allc = time.perf_counter() - t0
-print("%.3f %.3f %.2f" % (single, allc, (single * N / allc) if allc > 0 else 0))
+
+
+if __name__ == "__main__":
+    N = int(sys.argv[1]) if len(sys.argv) > 1 else (os.cpu_count() or 1)
+    work()                                    # warm the interpreter, do not time it
+    t0 = time.perf_counter(); work(); single = time.perf_counter() - t0
+    t0 = time.perf_counter()
+    with mp.Pool(N) as pool:
+        pool.map(work, range(N))
+    allc = time.perf_counter() - t0
+    print("%.3f %.3f %.2f" % (single, allc, (single * N / allc) if allc > 0 else 0))
 PYEOF
+  "$PY" "$WORK/cpu_probe.py" "$NPROC"
 }
 
 run_suite() {  # $1 = -n value ; echoes "wall steal_pct throttled_s skipped"
