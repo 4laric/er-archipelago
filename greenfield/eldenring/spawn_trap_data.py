@@ -267,7 +267,7 @@ SPAWN_TRAPS = {
     5260: ('c5260', 52600081, 52600000, 1),
     5270: ('c5270', 52700080, 52700000, 1),
     5271: ('c5271', 52710280, 52710000, 1),
-    5280: ('c5280', 52800086, 52800000, 1),
+    5280: ('Aging Untouchable', 52800086, 52800000, 1),
     5300: ('c5300', 53000000, 53000000, 1),
     5311: ('c5311', 53110080, 53110000, 1),
     5320: ('c5320', 53207086, 53200000, 1),
@@ -398,7 +398,8 @@ SPAWN_TRAPS = {
 
 # curated yaml option value -> chr_id. 🛑 REMOVING one is a compat break (#114 rule 4).
 SPAWN_TRAP_KEYS = {
+    'aging_untouchable': 5280,
     'basilisk': 4150,
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:e11b8db8b9b2970cbd37300c021374f3fd02cb4fb1a417eec3d59d844cf270b8', 'module': 'spawn_trap_data.py', 'body_sha256': 'sha256:0596c56d4c6dfa1ee20c524feebece696b65b976aeb98e2dda2d7a7a27105e53'}
+_GEN_STAMP = {'inputs_hash': 'sha256:0fe4b6c929dfc7816af65327a7d9b1831c3883f3646f72064585e922ea2466f3', 'module': 'spawn_trap_data.py', 'body_sha256': 'sha256:7ea1c90322d6c6f194fa4cf8ec6abaf2ce51d5050935c16196b2c81c3b903b34'}

@@ -100,11 +100,14 @@ LABEL_CAP = 24
 #: basilisk: c4150, the motivating case (issue #114). Three of them, because bobler's ask was
 #: "enemy horde on your head" and one basilisk at zero range is trivially killable -- the threat is
 #: the Death Blight mist, and mist wants numbers.
+#: aging_untouchable: c5280, the Abyssal Woods madness enemy. One is already a serious trap: it is
+#: invulnerable until parried, so a horde would turn an inconvenience into an arbitrary run-killer.
 #: 🛑 c4630 (Runebear) is deliberately NOT curated: it already ships as the fixed item name
 #: `Trap: Runebear`, which may never be withdrawn. It stays reachable here by raw id, and the two
 #: names coexist rather than one shadowing the other.
 CURATED = {
     4150: ("basilisk", "Basilisk", 3),
+    5280: ("aging_untouchable", "Aging Untouchable", 1),
 }
 
 HEADER = ["chr_id", "npc_param_id", "think_param_id", "count", "label", "yaml_key",
