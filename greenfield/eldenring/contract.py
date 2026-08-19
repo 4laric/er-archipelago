@@ -482,12 +482,25 @@ SWEEP_RUNGS = {
 # ENCOUNTER grants, not the sweep's defeat flag. The usual rule (a boss's identity is the check its
 # death grants) is exactly what comes apart here, so no join over the shipped tables can see it.
 # The non-lethal class needs enumerating rather than special-casing; this is the one confirmed member.
-_SWEEP_SLOT_SKIP_REASONS = {
+_RUNTIME_SWEEP_SKIP_REASONS = {
     31000800: "non-lethal trigger: Patches yields instead of dying, so his defeat flag is not "
               "reached in normal play -- the sweep cannot fire (bobler 2026-08-14, #672)",
     31000850: "non-lethal trigger: Patches yields instead of dying, so his defeat flag is not "
               "reached in normal play -- the sweep cannot fire (bobler 2026-08-14, #672)",
 }
+
+
+def runtime_sweep_skips():
+    """{trigger flag: reason} for sweeps known not to fire in normal play.
+
+    This is deliberately NARROWER than :func:`sweep_slot_skips`. An unnamed trigger or a trigger
+    whose arena has not been audited is unsafe as a REQUIRED progression host, but may still be a
+    working convenience sweep. Only a positive fireability ruling belongs here and disappears from
+    seed slot data, the client tracker, boss-key gates, and the generated ``also granted by`` text.
+
+    Return a copy so callers cannot mutate the contract's ruling for the rest of generation.
+    """
+    return dict(_RUNTIME_SWEEP_SKIP_REASONS)
 
 _UNNAMED_TRIGGER_REASON = (
     "unnamed trigger: BOSS_HEALTHBARS records no boss name for this sweep, so we cannot name a "
@@ -511,7 +524,7 @@ def sweep_slot_skips(healthbars=None, arena_regions=None, triggers=None):
     * DERIVED -- a trigger `BOSS_HEALTHBARS` cannot name (absent, or a blank name field). This is
       the honest gate: it does not claim the dungeon has no boss, only that we cannot vouch for one,
       which is the same standard ShopSlot holds a merchant to.
-    * DECLARED -- `_SWEEP_SLOT_SKIP_REASONS`, for triggers that ARE named and still cannot fire.
+    * DECLARED -- `runtime_sweep_skips()`, for triggers that ARE named and still cannot fire.
       Patches is the confirmed case and cannot be derived; see that dict's comment.
     * AUDIT -- when `arena_regions` is supplied, every trigger absent from that authoritative table.
       The sweep may still pay ordinary members, but it cannot make one of them REQUIRED until the
@@ -526,7 +539,7 @@ def sweep_slot_skips(healthbars=None, arena_regions=None, triggers=None):
     would silently empty the surface, and a feature that disables itself when a lookup fails is
     worse than one that stays on: the ladder would widen and nobody would know why.
     """
-    skips = dict(_SWEEP_SLOT_SKIP_REASONS)
+    skips = runtime_sweep_skips()
     if healthbars is None:
         try:
             from .boss_healthbars import BOSS_HEALTHBARS as _bh  # noqa: PLC0415 -- data leaf

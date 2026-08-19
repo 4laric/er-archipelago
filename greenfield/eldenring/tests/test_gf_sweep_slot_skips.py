@@ -196,6 +196,16 @@ class TestSweepSlotSkips(unittest.TestCase):
             self.assertTrue(str(HEALTHBARS[flag][3]).strip(),
                             "fixture check: Patches is NAMED, so the derived half cannot catch him")
 
+    def test_runtime_skips_are_the_declared_unfireable_subset_only(self):
+        runtime = CONTRACT.runtime_sweep_skips()
+        surface = CONTRACT.sweep_slot_skips(
+            healthbars=HEALTHBARS, arena_regions=ARENA_REGIONS, triggers=SWEEPS)
+        self.assertEqual(set(runtime), {31000800, 31000850})
+        self.assertTrue(set(runtime) < set(surface),
+                        "runtime fireability was conflated with the wider progression-safety bar")
+        self.assertNotIn(34100800, runtime,
+                         "an unnamed trigger is unaudited, not positively known unfireable")
+
     def test_every_skip_carries_a_reason(self):
         """ShopSlot's SHOP_SLOT_SKIPS shape: keyed by what is excluded, valued by WHY. A silent
         filter is how an exclusion outlives the reason for it."""

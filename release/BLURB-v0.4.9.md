@@ -11,6 +11,11 @@ dead `ap-package` reference. Packaging stops before publication if a profile nam
 is not in the finished bundle, closing the `ReadDir: Path not found` startup failure reported on
 Linux.
 
+The boss-sweep tracker also stops asking you to kill Patches after he has surrendered. His normal
+encounter never sets the death flag that old seeds displayed as a two-check sweep, so new seeds no
+longer arm or advertise that impossible route. Unknown sweeps are not discarded wholesale: the cut
+is limited to triggers the project has positively confirmed cannot fire in normal play.
+
 ## What carried over from v0.4.8
 
 No player-facing work is carried over. The two post-tag commits corrected the v0.4.8 release prose
