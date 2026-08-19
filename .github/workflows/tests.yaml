@@ -65,13 +65,26 @@ jobs:
     # a FALSE RED when a correctly-waived empty site happens to be non-empty in this shard. Their
     # verdicts are rendered once, over the union, by the `tests-verdict` job below. That job is
     # what `tests` means -- do not make the branch protection depend on this matrix alone.
-    name: tests (shard ${{ matrix.shard }}/4)
+    name: tests (shard ${{ matrix.shard }}/${{ env.SHARD_TOTAL }})
     runs-on: ubuntu-latest
     if: github.event_name != 'schedule'
+    env:
+      # WIDENED 4 -> 8 (#875). Widening was worth exactly NOTHING until the floor moved: with
+      # test_gf_keep_out_of_shops.py at 450s, 4, 6 and 8 shards all modelled to the same 450s wall,
+      # because `--dist loadfile` runs a module on one worker. With that file down to ~122s the
+      # floor is test_gf_options.py at 131s, and the arithmetic finally rewards more shards:
+      #   4 shards -> max(parallel 195s, floor 131s) = 195s
+      #   8 shards -> max(parallel  97s, floor 131s) = 131s
+      # Past 8 it is floor-bound again and buys nothing, so this is the last widening that pays.
+      #
+      # 🛑 SHARD_TOTAL and the matrix list below must agree. They cannot drift SILENTLY: every
+      # shard records its own index and total, and tests-verdict asserts the indices are exactly
+      # 1..total, so a mismatch is a red reconciliation rather than a quietly unrun slice.
+      SHARD_TOTAL: 8
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v4
 
@@ -161,10 +174,10 @@ jobs:
       # (greenfield/eldenring/tests/expected_skips_ci.json). "Deliberately dev-box-only" and
       # "dark by accident" look identical in a green run; the census is the instrument that can
       # tell them apart, and it turns any skip-family or count change into a reviewed diff.
-      - name: pytest (tools/gf_test.py -- pinned upstream AP, shard ${{ matrix.shard }}/4)
+      - name: pytest (tools/gf_test.py -- pinned upstream AP, shard ${{ matrix.shard }}/${{ env.SHARD_TOTAL }})
         run: |
           python tools/gf_test.py --ap-dir _ap \
-            --shard ${{ matrix.shard }}/4 --artifact-dir shard-artifacts \
+            --shard ${{ matrix.shard }}/${{ env.SHARD_TOTAL }} --artifact-dir shard-artifacts \
             --quantifier-spy --skip-census greenfield/eldenring/tests/expected_skips_ci.json \
             -n 2 --dist loadfile
 
