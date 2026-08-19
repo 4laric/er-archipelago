@@ -69,8 +69,10 @@ EXPECTED_APS = {
     # 7774857 -> 7774856 (2026-08-07): same one-check retirement as test_gf_academy_key_pocket.
     # 7774856 -> 7774732 (2026-08-19, #330): -124 worldless Rada Fruit rows removed before it; the
     # three 777039x pins sit ahead of every removal and do not move. Same never-blanket-a-delta rule.
-    # 7774732 -> 7774759 (#218): 27 newly recovered positional checks land before this late row.
-    160820: 7774759, 160880: 7770394, 160890: 7770395, 160910: 7770396,
+    # 7774732 -> 7774742 -> 7774677 (2026-08-19: +10 Rada restores, then -65 cull). Flag-verified.
+    # 160820: 7774759 (main/#898) -> 7774691 on this branch (the census +9 and the cull -77 both
+    # land before it); flag-verified. The three below sit under the watermark and do not move.
+    160820: 7774691, 160880: 7770394, 160890: 7770395, 160910: 7770396,
     160920: 7770397, 160930: 7770398, 160940: 7770399, 160950: 7770400,
 }
 

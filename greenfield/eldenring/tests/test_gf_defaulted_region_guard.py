@@ -243,7 +243,10 @@ class TestDefaultedRegionGuard(unittest.TestCase):
         # 🛑 Three of the four share ONE tile that carries FOURTEEN checks. Only the three he named
         # moved; the other eleven Golden Runes and a Smoldering Butterfly are still hedged, which is
         # the per-flag arity this exception exists to preserve.
-        self.assertLessEqual(len(REGION_CONFIRMED_APS), 21,
+        # 21 -> 22 (2026-08-19): 1051587800 Haligtree Secret Medallion (Left) -- promoted from Alaric's
+        # own FLAG_REGION_OVERRIDE ruling ("physically in Castle Sol") when the full-census regen gave
+        # the flag a graceless MSB tile; the ground is plain, reachable Mountaintops. Note in gen_data.
+        self.assertLessEqual(len(REGION_CONFIRMED_APS), 22,
                              "REGION_CONFIRMED_APS is growing -- each entry un-bars a check on ground "
                              "the derivation cannot see. If these are real in-game confirmations, "
                              "raise the pin WITH who confirmed them and when (gen_data "
