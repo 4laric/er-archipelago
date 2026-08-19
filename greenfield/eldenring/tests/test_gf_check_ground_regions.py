@@ -141,10 +141,54 @@ class CheckGroundRegions(unittest.TestCase):
         missing = sorted(g for g in grounds if not BENIGN_GROUNDS.get(g))
         self.assertEqual(missing, [], "benign ground(s) with no recorded reason: %r" % missing)
 
+    def test_sweep_anchored_class_is_exactly_the_ruled_corpus(self):
+        """The SWEEP-ANCHORED verdict (#885) may only excuse what a ruling covers.
+
+        The class exists for the Golden Hippopotamus: his 48 measurable m21_00 members stand on
+        Shadow Keep ground (bucket 21000) and present as Scadu Altus, the arena bucket the fight is
+        fought from -- a RULING (Alaric 2026-08-19), not a mis-attribution, and every one of them is
+        obtainable from Scadu Altus alone by killing him. Three witnesses keep the class honest:
+
+          * every record's trigger must be in tools/check_ground_regions.RULED_SWEEP_ANCHORS --
+            a new trigger reaching this class without its ruling being written down is a FAIL;
+          * every record's ASSIGNED region must equal that trigger's arena region (the excusing
+            mechanism itself, re-asserted from the outside);
+          * the corpus is pinned EXACTLY. It moves only when item_grace_coords coverage or the
+            Hippo's membership moves, and the bump must say what the extra one IS
+            (er-sandbox-regen lesson: bumping a pin to green is only honest then).
+        """
+        from tools.check_ground_regions import RULED_SWEEP_ANCHORS
+        recs = self.a["sweep_anchored"]
+        self.assertTrue(recs, "WITNESS: the sweep-anchored class is empty -- the #885 corpus should "
+                              "be here; an empty class means the join or the ruling table broke")
+        triggers = {rec[5] for rec in recs}
+        self.assertLessEqual(
+            triggers, set(RULED_SWEEP_ANCHORS),
+            "sweep-anchored record(s) from a trigger with NO written ruling: %r"
+            % sorted(triggers - set(RULED_SWEEP_ANCHORS)))
+        self.assertEqual(triggers, {21000850},
+                         "the ruled corpus changed shape -- a trigger was added or the Hippo's "
+                         "members vanished: %r" % sorted(triggers))
+        regions = {rec[1] for rec in recs}
+        self.assertEqual(regions, {"Scadu Altus"},
+                         "a sweep-anchored check is assigned a region other than its trigger's "
+                         "arena: %r" % sorted(regions))
+        # 2026-08-19 (#330 merged under #885): 88 -> 48. The Hippo sweep shrank from 108 to 58
+        # members because exactly 50 worldless Rada Fruit flags left the location corpus; all 50
+        # removed members are in gen_data._RADA_WORLDLESS and no non-Rada member left. Of the 58
+        # retained members, these 48 have coordinates that let this partial ground audit measure
+        # them. This is source removal, not a looser SWEEP-ANCHORED predicate.
+        self.assertEqual(
+            len(recs), 48,
+            "the Hippo's measurable sweep-anchored corpus moved (was 48 after #330). Fine if "
+            "item_grace_coords.tsv coverage or his membership changed -- say which check(s) and "
+            "why, then re-pin.")
+
     def test_ground_audit_coverage_is_stated_out_loud(self):
         """The screen knows it is partial, so it says so on a GREEN run."""
         a = self.a
-        resolved = len(a["agree"]) + len(a["benign"]) + len(a["mismatch"]) + len(a["ambiguous"])
+        resolved = (len(a["agree"]) + len(a["benign"]) + len(a["sweep_anchored"])
+                    + len(a["mismatch"]) + len(a["ambiguous"]))
         unmeasured = len(a["no_coord"]) + len(a["no_bucket_row"])
         self.assertGreaterEqual(
             resolved, RESOLVED_FLOOR,
