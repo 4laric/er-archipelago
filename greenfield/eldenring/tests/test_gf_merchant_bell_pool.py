@@ -34,14 +34,14 @@ class MerchantBellPoolPolicy(unittest.TestCase):
     def test_bell_is_excluded_when_no_merchant_region_is_kept(self):
         catalog = {"Bell": 123}
         regions = {123: frozenset({"Weeping"})}
-        self.assertFalse(merchant_bell_pool_allowed(
+        self.assertIs(merchant_bell_pool_allowed(
             "Bell", {"Liurnia", "Raya Lucaria Academy"},
-            item_catalog=catalog, bell_regions=regions))
+            item_catalog=catalog, bell_regions=regions), False)
 
     def test_empty_evidence_fails_closed(self):
-        self.assertFalse(merchant_bell_pool_allowed(
+        self.assertIs(merchant_bell_pool_allowed(
             "Bell", {"Roundtable Hold"}, item_catalog={"Bell": 123},
-            bell_regions={123: frozenset()}))
+            bell_regions={123: frozenset()}), False)
 
     def test_unmapped_release_only_bell_is_unchanged(self):
         self.assertTrue(merchant_bell_pool_allowed(
