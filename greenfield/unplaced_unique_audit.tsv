@@ -1,0 +1,36 @@
+# unplaced_unique_audit.tsv -- issue #218's corrected 30-item residue.
+# This is a review worksheet, not generator input.  `flag` is the suspect region_map row;
+# `canonical_flag` is the real/generated check when the suspect is a duplicate or stale award path.
+# verdict values: generated, duplicate, excluded_multisite, excluded_dead, excluded_phantom,
+# excluded_itemless.  Evidence names committed inputs or generated output so every ruling is repeatable.
+flag	item	verdict	canonical_flag	region	evidence
+400079	Aspects of the Crucible: Breath	duplicate	16007950	Mt. Gelmir	data.py already has the same incantation at f16007950
+400104	Comet Azur	duplicate	400440	Mt. Gelmir	flag_lots has the same item; t111006000 is the actual AwardItemLot(104400) path and f400440 is generated
+400105	Stars of Ruin	duplicate	400430	Caelid	flag_lots has the same item; t110003111 in m31_11 is the actual AwardItemLot(104300) path and f400430 is generated
+400159	Discarded Palace Key	generated	400159	Ainsel River	common event 3050 awards lot 101590 after f12019280; lot_gates.tsv gives the single m12_01 setter map
+400162	Eleonora's Poleblade	duplicate	1039527700	Altus	data.py already has the same weapon at f1039527700
+400173	Alexander's Innards	duplicate	400174	Farum Azula	data.py already has the same key item as a co-check at f400174
+400189	Patches' Bell Bearing	excluded_multisite			merchant_shops.tsv places Patches in m16_00, m31_00 and several overworld tiles; no single region is truthful
+400293	Devourer's Scepter	excluded_multisite			flag_lots contains the two Bernahl drop lots 102921/112901; merchant_shops.tsv places Bernahl in Limgrave and Mt. Gelmir
+400294	Beast Champion Helm	excluded_multisite			flag_lots contains multiple Bernahl drop variants; merchant_shops.tsv places Bernahl in Limgrave and Mt. Gelmir
+400295	Gelmir's Fury	duplicate	400291	Mt. Gelmir	data.py already has the same sorcery at f400291
+400361	Academy Glintstone Staff	generated	400361	Raya Lucaria Academy	first-hand issue #249 report pairs the vanilla staff drop with Thops's generated f400360 Bell Bearing in Raya Academy
+400395	Fingerslayer Blade	duplicate	12027080	Siofra River	data.py already has the same key item at f12027080
+400421	Stormhawk Axe	duplicate	11007105	Leyndell	data.py already has Stormhawk Axe checks at f11007105 and f1051577220
+400451	Hoslow's Petal Whip	duplicate	1050567700	Mountaintops of the Giants	data.py already has the same weapon at f1050567700
+400452	Numen's Rune	duplicate	12037800	Deeproot Depths	data.py contains multiple ordinary Numen's Rune checks; this common reward is not unique
+540514	Flame, Protect Me	duplicate	30177010	Mountaintops of the Giants	data.py already has the same incantation at f30177010
+580110	The Sacred Tower Painting	generated	580110	Gravesite	m61_47_42 event initializer carries both f580110 and lot 80110
+580400	Serpent Crest Shield	generated	580400	Gravesite	item_grace_coords.tsv has an exact f580400 entity on m61_45_43
+30207900	Silver Scarab	excluded_dead			gen_data._UNREACHABLE_DEAD: cut/unreachable Hidden Path imp-gate reward row
+59930000	Veteran's Helm	duplicate	250290	Roundtable Hold	data.py already has Veteran's Helm as Enia shop check f250290
+1033477020	Imbued Sword Key	excluded_phantom			gen_data._RECOVER_PHANTOM_DUPES: phantom fourth key; the three real keys already have checks
+1038417100	Ash of War: Gravitas	excluded_itemless			itemless_flags.tsv and gen_data item-existence guard: lot item is an unnamed/cut placeholder
+400902	Nomadic Merchant's Bell Bearing [2]	generated	400902	Limgrave	item_grace_coords.tsv exact entity m60_45_36
+400903	Nomadic Merchant's Bell Bearing [3]	generated	400903	Limgrave	item_grace_coords.tsv exact entity m60_41_36
+400907	Isolated Merchant's Bell Bearing [2]	generated	400907	Liurnia	item_grace_coords.tsv exact entity m60_35_45
+400908	Nomadic Merchant's Bell Bearing [6]	generated	400908	Liurnia	item_grace_coords.tsv exact entity m60_36_49
+400909	Hermit Merchant's Bell Bearing [1]	generated	400909	Altus	item_grace_coords.tsv exact entity m60_43_53
+400910	Nomadic Merchant's Bell Bearing [7]	generated	400910	Altus	item_grace_coords.tsv exact entity m60_40_52
+400914	Nomadic Merchant's Bell Bearing [11]	excluded_itemless			itemless_flags.tsv: FromSoft ERROR/absent catalog item, so the lot awards nothing nameable
+400915	Isolated Merchant's Bell Bearing [3]	generated	400915	Caelid	item_grace_coords.tsv exact entity m60_48_41

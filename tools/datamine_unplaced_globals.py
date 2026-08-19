@@ -12,18 +12,22 @@ exists for what no data can reach, and which this is meant to shrink rather than
 
 EVIDENCE, in precedence order (strongest first):
   1. `msb_flag_region.tsv` / `check_maps.tsv` -- an OBSERVED map for the flag.
-  2. the lot -> talk-ESD join: `flag_lots.tsv` gives the flag's item lots, and the decompiled talk
-     ESD is bucketed by map (`elden_ring_artifacts/talk/<map>-only/`), so an ESD that names the lot
-     names the map its award fires in.
+  2. `item_grace_coords.tsv` -- an item entity observed at an exact map-local coordinate. This is
+     the missing path for fixed world pickups whose short/common flag carries no tile itself.
+  3. a map EMEVD initializer that carries BOTH the acquisition flag and one of its item lots as
+     arguments. The pair is the award site; a bare flag mention would only prove a reader/gate.
+  4. the lot -> actual talk-ESD award join: `esd_gifts.tsv` identifies AwardItemLot calls, and the
+     matching decompiled talk filename is bucketed by map
+     (`elden_ring_artifacts/talk/<map>-only/`). Incidental flag/lot reads do not count.
 
 🛑 IT REFUSES, LOUDLY, IN TWO CASES, and the refusals are the point:
   * MORE THAN ONE map. NPCs relocate, so the ESD names every site they award from -- Dancer's
     Castanets is named in m16_00, m31_00 and m60_00. Picking one would be a confident wrong answer
     of exactly the kind CONTRIBUTING rule 1 is about, and a wrong region is worse than none: it
     asserts a reachability we do not have (see DEFAULTED_REGION_APS).
-  * NO evidence at all. Measured 2026-08-04: 45 of 101 candidates, INCLUDING f400361, the Thops
-    staff that motivated the issue. Its lots 103601/113601 are named by no talk ESD and no map
-    EMEVD. This tool does not close #249; it reduces it, and prints what it could not reach.
+  * NO evidence at all. The tool prints these and leaves them absent. The narrow hand-confirmed
+    exceptions (including Thops's f400361 report from #249) live visibly in GLOBAL_RECOVER; they do
+    not justify widening this derivation for unrelated rows.
 
 Run:
     python3 tools/datamine_unplaced_globals.py            # report only
@@ -237,21 +241,81 @@ def candidates():
 
 
 def talk_index():
-    """{lot id -> {map bucket}}, built once. Empty (and said so) when the artifacts are absent."""
+    """{lot id -> {map bucket}} for actual ESD awards, built once.
+
+    A number merely appearing in a talk file is not award evidence: quest dialogue routinely reads
+    a reward flag after some other NPC granted it.  `esd_gifts.tsv` is the datamined AwardItemLot
+    call list, so join its talk id to the extracted talk filename and index only those lots.  This
+    is what distinguishes Lusat's m31_11 award of Stars of Ruin from Sellen's later dialogue reads.
+    """
     idx = collections.defaultdict(set)
     files = glob.glob(os.path.join(TALK, "*", "*.py"))
     if not files:
         return idx, 0
-    num = re.compile(r"\b\d{4,10}\b")
+    gifts = collections.defaultdict(set)
+    gifts_path = os.path.join(GF, "esd_gifts.tsv")
+    if not os.path.isfile(gifts_path):
+        return idx, len(files)
+    for ln in open(gifts_path, encoding="utf-8"):
+        c = ln.rstrip("\n").split("\t")
+        if len(c) >= 4 and c[0].isdigit() and c[3].isdigit():
+            gifts[c[0]].add(c[3])
     for p in files:
-        bucket = os.path.basename(os.path.dirname(p)).replace("-only", "")
-        try:
-            txt = open(p, encoding="utf-8", errors="ignore").read()
-        except OSError:
+        talk_id = os.path.splitext(os.path.basename(p))[0].lstrip("t")
+        if talk_id not in gifts:
             continue
-        for n in set(num.findall(txt)):
-            idx[n].add(bucket)
+        bucket = os.path.basename(os.path.dirname(p)).replace("-only", "")
+        for lot in gifts[talk_id]:
+            idx[lot].add(bucket)
     return idx, len(files)
+
+
+def item_coordinate_index():
+    """{flag -> {canonical map bucket}} from exact item-entity coordinates.
+
+    The coordinate table uses four-part map ids because coordinates are map-local. Region recovery
+    consumes an overworld tile (m60/m61 XX_YY) or an interior map prefix (mBB_SS), so collapse only
+    the block/layer suffix. Two actors on different blocks of one overworld tile are one placement
+    answer; actors on genuinely different tiles/maps remain multiple answers and are refused below.
+    """
+    idx = collections.defaultdict(set)
+    p = os.path.join(GF, "item_grace_coords.tsv")
+    if not os.path.isfile(p):
+        return idx, False
+    for ln in open(p, encoding="utf-8"):
+        if ln.startswith("#") or ln.startswith("kind\t") or not ln.strip():
+            continue
+        c = ln.rstrip("\n").split("\t")
+        if len(c) < 3 or c[0] != "item" or not c[1].isdigit():
+            continue
+        parts = c[2].split("_")
+        if parts[0] in ("m60", "m61") and len(parts) >= 3:
+            idx[c[1]].add("_".join(parts[:3]))
+        elif len(parts) >= 2:
+            idx[c[1]].add("_".join(parts[:2]))
+    return idx, True
+
+
+def event_award_index(lots):
+    """{flag -> {map}} when one map initializer names the flag and one of its item lots together.
+
+    A flag alone is not placement evidence: maps read quest state from elsewhere constantly. The
+    flag+lot pair on one initializer is the call-site form of an award event (for example the DLC
+    painting event that carries f580110 and lot 80110). Common EMEVD is deliberately excluded; it
+    defines the reusable event but cannot say which map called it.
+    """
+    idx = collections.defaultdict(set)
+    num = re.compile(r"\b\d{4,10}\b")
+    for p in glob.glob(os.path.join(ROOT, "elden_ring_artifacts", "event", "m*.js")):
+        map_id = os.path.basename(p).split(".emevd", 1)[0]
+        for ln in open(p, encoding="utf-8", errors="ignore"):
+            numbers = set(num.findall(ln))
+            if len(numbers) < 2:
+                continue
+            for flag in numbers & lots.keys():
+                if numbers & lots[flag]:
+                    idx[flag].add(map_id)
+    return idx
 
 
 def resolve(cands):
@@ -264,11 +328,19 @@ def resolve(cands):
         if c and c[0].isdigit() and len(c) > 2:
             lots[c[0]].add(c[2])
     talk, n_talk = talk_index()
+    item_coords, have_item_coords = item_coordinate_index()
+    event_awards = event_award_index(lots)
     rows, refused = [], collections.Counter()
     for r in cands:
         f = r["flag"]
         maps = set(obs_msb.get(f, ())) | set(obs_cm.get(f, ()))
         src = "observed"
+        if not maps and have_item_coords:
+            maps |= item_coords.get(f, set())
+            src = "item_coords"
+        if not maps:
+            maps |= event_awards.get(f, set())
+            src = "event_call"
         if not maps and n_talk:
             for lot in lots.get(f, ()):
                 maps |= talk.get(lot, set())
@@ -333,10 +405,12 @@ def main(argv=None):
         fh.write("# DO NOT hand-edit: a hand pin belongs in gen_data.GLOBAL_RECOVER, where it is visible\n")
         fh.write("# as one. Rows here are DERIVED -- `source` says from what.\n")
         fh.write("#   observed = an MSB/check_maps map for the flag\n")
-        fh.write("#   talk_esd = the flag's item lot is named by exactly ONE map's talk ESD\n")
+        fh.write("#   item_coords = an exact item entity in item_grace_coords.tsv\n")
+        fh.write("#   event_call = a map EMEVD initializer carrying the flag and its item lot\n")
+        fh.write("#   talk_esd = the flag's item lot is awarded by exactly ONE map's talk ESD\n")
         fh.write("# A flag whose evidence names MORE THAN ONE map is absent on purpose (NPCs relocate;\n")
         fh.write("# picking one would assert a reachability we do not have). So is a flag with no\n")
-        fh.write("# evidence at all -- 45 of them, including f400361, the Thops staff of issue #249.\n")
+        fh.write("# evidence at all. Hand-confirmed exceptions belong in GLOBAL_RECOVER instead.\n")
         fh.write("flag\tmap_id\tsource\titem_name\n")
         for f, m, s, n in rows:
             fh.write("%s\t%s\t%s\t%s\n" % (f, m, s, n))

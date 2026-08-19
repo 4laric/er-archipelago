@@ -3128,6 +3128,11 @@ for _rr in _ALLROWS:
 # to the boss/location region they drop from) are recovered as real checks. Empty = none recovered
 # (globals stay excluded, no hub sphere-0 balloon). {flag(int): region}.
 GLOBAL_RECOVER = {
+    # Tailoring Tools are the m31_15 Coastal Cave / Demi-Human Chief reward.  The old broad talk
+    # number scan accidentally placed f60140 in Deeproot; the award itself is not an ESD gift.
+    # m31_15's boss/game-area/grace data all agree on Limgrave, so keep the unique tool randomized
+    # at its real source while the stricter talk-award index removes the false m12_03 evidence.
+    60140: "Limgrave",
     # Field-boss unique drops the pipeline couldn't decode to a tile -> stranded in the unplaced
     # common-event bucket, so their boss had no check. Hand-pinned to the boss's region so they recover
     # as real checks (item name resolves via FMG; both verified present) -> and tagged Boss below via
@@ -3149,6 +3154,18 @@ GLOBAL_RECOVER = {
     # features/natural_progression gates Mohgwyn on it (OR the Snowfield Secret-Medallion route). NEEDS a
     # Windows `build.ps1 -Greenfield` regen to bake -- the sandbox has no artifacts. (Alaric 2026-07-24.)
     400032: "Liurnia",               # Pureblood Knight's Medal -> Varre (Rose Church, Liurnia)
+    # Common-event NPC/quest awards with no item entity to supply a map.  These are hand-pins, not
+    # numeric guesses; each has a concrete game-data or in-game witness documented below.
+    400159: "Ainsel River",           # Discarded Palace Key. common event 3050 awards lot 101590
+                                         # after f12019280; m12_01 sets that state and lot_gates.tsv
+                                         # records the single m12_01 gate map (Nokstella/Ainsel).
+    400361: "Raya Lucaria Academy",  # Academy Glintstone Staff -> Thops. First-hand #249 report:
+                                         # it dropped vanilla beside his already-randomized f400360
+                                         # Bell Bearing, whose game-data region is Raya Academy.
+    400440: "Mt. Gelmir",            # Comet Azur -> Primeval Sorcerer Azur. t111006000 awards lot
+                                         # 104400 from the common overworld talk bucket; the NPC's
+                                         # exact m60_37_53 placement is pinned by grace 76357 and his
+                                         # adjacent f400441 crown row on the same tile.
     # Spirit Jellyfish Ashes (400190): Roderika's OTHER gift at the Stormhill Shack. Exactly the
     # 400032 shape -- an NPC handover whose 4xxxxx flag encodes no map, so `_recover_tile` returns
     # None, `_recover_row_ok` drops the row, and the ashes are a location NOWHERE: Roderika hands
