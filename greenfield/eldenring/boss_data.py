@@ -38,7 +38,7 @@ REGION_BOSSES = {
     ],
     'Haligtree': [
         (7770006, 176, "Malenia's Great Rune"),
-        (7773882, 15000850, "[Sorcery] Loretta's Mastery"),
+        (7773907, 15000850, "[Sorcery] Loretta's Mastery"),
     ],
     'Leyndell': [
         (7770754, 510040, 'Remembrance of the Omen King'),
@@ -72,4 +72,4 @@ REGION_BOSSES = {
     ],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:3cf291e3385c7a6698e2daeffa7f1509b40bf01f2ece8988865750c286825241', 'module': 'boss_data.py', 'body_sha256': 'sha256:dd861b3348ee2d496cbf1adb0b78ab75ca4e9ef739c4dced4b60d909c08e3d52'}
+_GEN_STAMP = {'inputs_hash': 'sha256:512a2a958b9db0b83665a03b4e6eeb2df0d45c143145a7ee81abb42db12bc672', 'module': 'boss_data.py', 'body_sha256': 'sha256:4070d81b388e7a9fce0d6533d149120a527b01f2ac966e024cf7c9ed93946bc3'}

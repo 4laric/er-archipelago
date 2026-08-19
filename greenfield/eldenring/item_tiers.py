@@ -1256,6 +1256,7 @@ ITEM_TIERS = {
     "Sentry's Torch": 0,
     'Serpent Arrow': 1,
     'Serpent Bow': 2,
+    'Serpent Crest Shield': 0,
     'Serpent Flail': 1,
     "Serpent-God's Curved Sword": 2,
     'Serpent-Hunter': 2,
@@ -2722,6 +2723,7 @@ ITEM_TIER_CATEGORY = {
     "Sentry's Torch": 'WEAPON',
     'Serpent Arrow': 'WEAPON',
     'Serpent Bow': 'WEAPON',
+    'Serpent Crest Shield': 'WEAPON',
     'Serpent Flail': 'WEAPON',
     "Serpent-God's Curved Sword": 'WEAPON',
     'Serpent-Hunter': 'WEAPON',
@@ -2933,4 +2935,4 @@ ITEM_TIER_CATEGORY = {
     'Zweihander': 'WEAPON',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:3cf291e3385c7a6698e2daeffa7f1509b40bf01f2ece8988865750c286825241', 'module': 'item_tiers.py', 'body_sha256': 'sha256:0dcbee81c78a75bc74ab4dc1bf3eab8abd92a5d37c96891e3b584c38d377c308'}
+_GEN_STAMP = {'inputs_hash': 'sha256:512a2a958b9db0b83665a03b4e6eeb2df0d45c143145a7ee81abb42db12bc672', 'module': 'item_tiers.py', 'body_sha256': 'sha256:a985145ca9f804e351315443cb95047c36b9ff11a8b120cc81b2d21c8b0315ea'}
