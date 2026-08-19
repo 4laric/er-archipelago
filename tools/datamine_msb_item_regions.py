@@ -821,6 +821,101 @@ def build(only_maps=None, sources=SOURCES):
     return sorted(set(rows)), len(maps)
 
 
+# ---------------------------------------------------------------- coverage (the census's own witness)
+
+def _decode_lot_map(lot):
+    """Map id a MAP-SHAPED lot id encodes, or None for common/character lots.
+
+    Same conventions the flag prefixes use (gen_data's tile decodes): 8-digit `AABBxxxx` -> mAA_BB
+    for legacy/dungeon areas 10..59; 10-digit `10AABBxxxx` -> m60_AA_BB; 10-digit `20AABBxxxx` ->
+    m61_AA_BB (the DLC overworld, the same decode #547 taught gen_data). 6/7-digit lots (100360,
+    40680) encode no map and are deliberately None -- expecting them somewhere would be a guess.
+    """
+    s = str(lot)
+    if len(s) == 8 and s[:2].isdigit() and 10 <= int(s[:2]) <= 59:
+        return f"m{s[:2]}_{s[2:4]}"
+    if len(s) == 10 and s[:2] == "10":
+        return f"m60_{s[2:4]}_{s[4:6]}"
+    if len(s) == 10 and s[:2] == "20":
+        return f"m61_{s[2:4]}_{s[4:6]}"
+    return None
+
+
+def _expected_map_lots():
+    """map_id -> how many FLAGGED map-lots encode that map (the census's denominator).
+
+    An over-count by design: not every flagged map-lot is an MSB treasure (some are EMEVD awards,
+    some cut content), so 100% coverage is not expected -- but a map with dozens of flagged lots and
+    ~zero census rows is blind, not clean. That blindness is what this measures.
+    """
+    exp = {}
+    for lot, flags in _lot2flags("ItemLotParam_map.csv").items():
+        if not flags:
+            continue
+        mp = _decode_lot_map(lot)
+        if mp:
+            exp[mp] = exp.get(mp, 0) + 1
+    return exp
+
+
+# A map is reported as a HOLE when it has at least this many expected flagged lots...
+COVERAGE_MIN_EXPECTED = 8
+# ...and the census carries fewer than this fraction of them (any source).
+COVERAGE_MIN_FRACTION = 0.2
+
+
+def coverage_holes(rows):
+    """[(map_id, expected, have)] for every map the census is effectively blind to.
+
+    WHY THIS EXISTS (2026-08-19). The committed tsv said `# maps=all` while carrying ZERO rows for
+    m11_00 (Leyndell, ~148 flagged lots), all of m21 (Shadow Keep, ~247), m40/m41, m22, m39_20 and
+    a dozen overworld tiles -- ~1,125 expected lots in blind maps. Every consumer read absence as
+    evidence: the provenance oracle lost its ground truth there, and the #330 worldless-check scan
+    had to caveat itself around it. A scope header proves what was ASKED for, not what was SEEN --
+    this is the census's own witness that it saw something per map (the notes-gate lesson:
+    existence is not currency).
+    """
+    have = {}
+    for (_flag, map_id, _lot, _nm, _src) in rows:
+        have[map_id] = have.get(map_id, 0) + 1
+    out = []
+    for mp, n in sorted(_expected_map_lots().items(), key=lambda kv: -kv[1]):
+        if n < COVERAGE_MIN_EXPECTED:
+            continue
+        h = have.get(mp, 0)
+        if h < n * COVERAGE_MIN_FRACTION:
+            out.append((mp, n, h))
+    return out
+
+
+def _print_coverage(rows, stream):
+    holes = coverage_holes(rows)
+    if not holes:
+        stream.write("coverage: no blind maps (every map with >=%d expected flagged lots has >=%d%% "
+                     "census rows)\n" % (COVERAGE_MIN_EXPECTED, int(COVERAGE_MIN_FRACTION * 100)))
+        return holes
+    stream.write("coverage: %d BLIND map(s) -- expected flagged lots with (almost) no census rows. "
+                 "For each: the witchy MSB export is missing/stale under elden_ring_artifacts/"
+                 "mapstudio, or the map genuinely awards everything by script. Re-export, re-run, "
+                 "and only then read absence as evidence:\n" % len(holes))
+    for mp, n, h in holes:
+        stream.write("  %-12s expected~%-4d census %d\n" % (mp, n, h))
+    return holes
+
+
+def read_tsv_rows(path):
+    """The committed tsv, in build()'s row shape -- so --coverage runs without any MSB on disk."""
+    rows = []
+    with open(path, encoding="utf-8") as fh:
+        for ln in fh:
+            if ln.startswith("#") or ln.startswith("flag\t"):
+                continue
+            p = ln.rstrip("\n").split("\t")
+            if len(p) >= 5:
+                rows.append((p[0], p[1], p[2], p[3], p[4]))
+    return rows
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--maps", nargs="*", help="restrict to these map_ids (validation)")
@@ -838,11 +933,17 @@ def main(argv=None):
                     help="trace ONE check flag through the treasure chain in seconds -- map, lot, "
                          "event, part, where it was looked for, and where the name actually appears. "
                          "Use this instead of a full --emit-assets walk to diagnose a single miss.")
+    ap.add_argument("--coverage", action="store_true",
+                    help="report the census's blind maps from the COMMITTED tsv (no MSBs needed; "
+                         "runs in the sandbox/CI). A full build prints the same table at the end.")
     ap.add_argument("--probe", action="store_true",
                     help="LOOK FIRST: print the Treasure-event and Asset-part XML tag names of the "
                          "first MSB found, and write nothing. Needed to build the asset->lot join "
                          "datamine_lot_gates.py wants; see probe.__doc__.")
     args = ap.parse_args(argv)
+    if args.coverage:
+        holes = _print_coverage(read_tsv_rows(args.out), sys.stdout)
+        return 1 if holes else 0
     if args.emit_assets:
         rows = build_treasure_assets(set(args.maps) if args.maps else None, jobs=args.jobs)
         with open(ASSETS_OUT, "w", encoding="utf-8", newline="\n") as fh:
@@ -889,6 +990,9 @@ def main(argv=None):
     by_src = {}
     for r in rows:
         by_src[r[4]] = by_src.get(r[4], 0) + 1
+    # Coverage witness on every FULL scan (a --maps subset would false-alarm on every other map).
+    if not args.maps:
+        _print_coverage(rows, sys.stderr)
     sys.stderr.write(
         "msb_item_regions: %d flag->map rows (%s) across %d maps%s\n"
         % (len(rows), ", ".join(f"{k}={v}" for k, v in sorted(by_src.items())), nmaps,
