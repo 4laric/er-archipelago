@@ -17,6 +17,12 @@ Client half: clients#286. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Packaged me3 profiles now name the package that actually ships.** Stable bundles load the
+  authenticated `flower-package`; development bundles with no Flower assets omit the package entry
+  instead of asking me3 to scan a nonexistent `ap-package`. Both release packagers now reject any
+  profile whose declared package directory is absent, preventing the startup `ReadDir: Path not
+  found` failure from returning.
+
 ## v0.4.8 — 2026-08-18
 
 v0.4.8 is the first release after v0.4.6. v0.4.7 was never tagged or released; the number is

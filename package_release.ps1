@@ -404,7 +404,7 @@ Info "+ me3\ (allowlisted $copied of $($Me3Allow.Count) entries)"
 # can go clean it) even though the allowlist already kept it OUT of the release. apconfig.json is
 # expected (written fresh below) so it isn't flagged.
 $skipped = @(Get-ChildItem -Path $Me3Src -Force -ErrorAction SilentlyContinue |
-             Where-Object { $_.Name -notin $Me3Allow -and $_.Name -notin @('apconfig.json', 'ap-package') })
+             Where-Object { $_.Name -notin $Me3Allow -and $_.Name -notin @('apconfig.json', 'ap-package', 'flower-package') })
 if ($skipped.Count -gt 0) {
     Warn ("excluded $($skipped.Count) non-release item(s) from your working me3\ (NOT shipped -- clean them up): " +
           (($skipped | Select-Object -First 25 | ForEach-Object { $_.Name }) -join ", "))
@@ -446,8 +446,9 @@ Info ("staged client DLL timestamp: {0:yyyy-MM-dd HH:mm:ss}" -f $StagedDllTime)
 # This used to Info "cosmetic nicety, not a feature" and ship anyway. That rationale was wrong, and
 # it is why the flower has never actually shipped from this tree. The CLIENT unconditionally points
 # the placeholder AND every repointed shop slot at iconId 92 (check_lots.rs dress_placeholder,
-# shop_icon.rs), on the assumption that ap-package repaints cell 92 into the AP flower. Without the
-# package, that assumption is false and every one of those slots renders a literal TELESCOPE --
+# shop_icon.rs), on the assumption that the active me3 package repaints cell 92 into the AP flower.
+# Local builds call it ap-package; authenticated release bundles call it flower-package. Without an
+# active package, that assumption is false and every one of those slots renders a literal TELESCOPE --
 # which is exactly what a player reported on Nexus 2026-07-29 ("with ... telescope icon but i dont
 # know what ap item it is"). A client that writes an icon id and a bundle that does not define it
 # are two halves of one feature; shipping half of it silently is the failure mode this whole
@@ -459,14 +460,32 @@ $IconInstaller = Join-Path $Repo "tools\install_ap_flower.ps1"
 if (-not (Test-Path $IconInstaller)) { Die "missing AP flower installer: $IconInstaller" }
 Copy-Item $IconInstaller (Join-Path $Me3Dst "install-ap-flower.ps1") -Force
 $FlowerPackage = Join-Path $Repo "flower-package"
+$FlowerPackageDest = Join-Path $Me3Dst "flower-package"
+$ProfilePackage = $null
 if (Test-Path $FlowerPackage -PathType Container) {
-    Copy-Item $FlowerPackage (Join-Path $Me3Dst "flower-package") -Recurse -Force
+    Copy-Item $FlowerPackage $FlowerPackageDest -Recurse -Force
+    $ProfilePackage = "flower-package"
 } elseif (-not $Unofficial) {
     Die "stable release requires flower-package with both AP Flower atlases"
 } else {
     Warn "AP Flower release assets unavailable; installer will request a bundle that includes them"
 }
 Info "+ AP flower packaged-asset installer"
+
+# The checked-in profile is a DEVELOPMENT template: it names ap-package, which build.ps1 generates
+# locally from the player's own game. The release artifact carries the authenticated directory under
+# flower-package instead, while an asset-free unofficial bundle carries no package at all. Rewrite
+# only the staged copy, then require every path it names to exist beside it. This gate is the direct
+# regression guard for the 2026-08-18 ReadDir(Path not found) release failure.
+$ProfileTool = Join-Path $Repo "tools\package_me3_profile.py"
+if (-not (Test-Path $ProfileTool)) { Die "missing staged-profile tool: $ProfileTool" }
+$ProfileArgs = @($ProfileTool, "--profile", $Prof)
+if ($ProfilePackage) { $ProfileArgs += @("--package", $ProfilePackage) }
+& python @ProfileArgs
+if ($LASTEXITCODE -ne 0) {
+    Die "staged me3 profile does not agree with its packaged directories"
+}
+Info ("+ ap.me3 package = " + $(if ($ProfilePackage) { $ProfilePackage } else { "<none>" }))
 
 # Ship a GENERIC apconfig so a personal slot name never leaks into the release.
 #
