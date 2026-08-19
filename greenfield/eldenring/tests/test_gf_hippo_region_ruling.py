@@ -57,8 +57,11 @@ class HippoPresentsAsScaduAltusEverywhere(unittest.TestCase):
 
     def test_every_granted_member_presents_as_the_arena_region(self):
         members = self.boss_sweeps.DUNGEON_SWEEPS.get(HIPPO_DEFEAT) or []
-        self.assertGreater(len(members), 80, "WITNESS: the Hippo's membership collapsed -- an empty "
-                                             "list would make the assertion below vacuously green")
+        # #330 merged after this test was written: exactly 50 _RADA_WORLDLESS flags left the
+        # Hippo's former 108-member list, and no non-Rada member left. Pin the resulting 58 rather
+        # than retaining a floor that mistakes that deliberate source removal for a collapse.
+        self.assertEqual(len(members), 58, "the Hippo's post-#330 membership moved; establish which "
+                                           "flags entered or left before re-pinning")
         wrong = [(ap,) + self.by_ap[ap] for ap in members if self.by_ap[ap][0] != ARENA]
         self.assertEqual(wrong, [], "Hippo-granted member(s) present as a region other than the "
                                     "arena -- the split #885 removed is back: %r" % wrong[:10])
