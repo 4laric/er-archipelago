@@ -20,6 +20,9 @@ on:
   schedule:
     - cron: "17 6 * * *"
 
+permissions:
+  contents: read
+
 env:
   # AP pins its own deps at import time and will try to self-update mid-test without this.
   SKIP_REQUIREMENTS_UPDATE: "1"

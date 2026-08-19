@@ -17,6 +17,9 @@ Client half: clients#286. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Merchant Bell Bearings only enter seeds that keep one of their merchants.** A bell whose every
+  merchant region is sealed now pays normal filler count-neutrally instead of opening a wholly
+  vanilla Twin-Maiden shop that looks like a failed randomizer. World: #560; client fallback: #555.
 - **Unaudited boss sweeps cannot host required progression.** A sweep with no authoritative arena
   region still pays its ordinary members, but contributes no `SweepSlot` progression-surface entry
   until the arena is audited. The current 26 circular-evidence triggers now fail closed. World: #671.
