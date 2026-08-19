@@ -463,6 +463,7 @@ LOCATIONS = {
         ('Altus :: Seedbed Curse - m60_44_52 (region unconfirmed), also granted by Bell Bearing Hunter (m60_43_53) [f400308]', 7770696, 400308),
         ('Altus :: Great Stars - around Bower of Bounty, also granted by Sanguine Noble (m60_40_53) [f400510]', 7770728, 400510),
         ('Altus :: Omenkiller Rollo - around Divine Tower of East Altus: Gate, also granted by Fell Twin (m34_14) [f510740]', 7770779, 510740),
+        ("Altus :: [Incantation] Lansseax's Glaive - Ancient Dragon Lansseax [f530300]", 7770805, 530300),
         ('Altus :: Somber Smithing Stone [5] - Fallingstar Beast (region unconfirmed) [f530310]', 7770806, 530310),
         ('Altus :: Dragon Greatclaw - Draconic Tree Sentinel [f530315]', 7770807, 530315),
         ('Altus :: Godskin Peeler - Godskin Apostle [f530325]', 7770808, 530325),
@@ -3731,7 +3732,6 @@ LOCATIONS = {
         ("Mt. Gelmir :: [Sorcery] Gelmir's Fury - around Volcano Manor, also granted by Abductor Virgin (Swinging Sickle) (m16_00) [f400291]", 7770693, 400291),
         ("Mt. Gelmir :: Azur's Glintstone Crown - near Primeval Sorcerer Azur, also granted by Demi-Human Queen Maggie (m60_37_53) [f400441]", 7770722, 400441),
         ('Mt. Gelmir :: Remembrance of the Blasphemous - Rykard [f510220]', 7770763, 510220),
-        ("Mt. Gelmir :: [Incantation] Lansseax's Glaive - Ancient Dragon Lansseax [f530300]", 7770805, 530300),
         ('Mt. Gelmir :: Somber Smithing Stone [6] - Full-Grown Fallingstar Beast [f530375]', 7770811, 530375),
         ('Mt. Gelmir :: Dragon Heart - Magma Wyrm [f530390]', 7770813, 530390),
         ('Mt. Gelmir :: Ash of War: Barrage - around Primeval Sorcerer Azur, also granted by Demi-Human Queen Maggie (m60_37_53) [f540332]', 7770866, 540332),
@@ -5531,4 +5531,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:b7702a1c400a417d4c2effdbdc2df3d992d0acbe5594eeead32287ebf0a553ee', 'module': 'data.py', 'body_sha256': 'sha256:1d295bcff491ab75fab45739a053cba79b5f8218545f9adea47802a71e1c81ea'}
+_GEN_STAMP = {'inputs_hash': 'sha256:56e0cd4e4e3f0fb30483fe4de4ac81d036478298a410a76a8bfac1686d56ddff', 'module': 'data.py', 'body_sha256': 'sha256:f6dc904cce65c5da63b39f31ea900e277e42d47d6126df2306cdfbf6dcac32f3'}
