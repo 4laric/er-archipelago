@@ -571,6 +571,9 @@ jobs:
       # `## v<version> — <date>` section in release/CHANGELOG.md, when that section is EMPTY
       # (rule 2 -- a heading with nothing under it is not a release note), or when
       # release/BLURB-v<version>.md is missing, a stub, or headed with another version.
+      # It also walks every first-parent client gitlink bump since the last release tag and requires
+      # that SAME commit to update the changelog or carry the exact no-visible-change trailer. This
+      # is the client half of rule 14 (#709); a non-empty section alone cannot satisfy it.
       #
       # MOTIVATING CASE (rule 11): v0.3.0 shipped 2026-08-01 and by 2026-08-02 main carried five
       # more player-visible fixes -- two straight off Nexus bug reports -- with no v0.3.1 section

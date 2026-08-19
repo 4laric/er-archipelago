@@ -17,6 +17,9 @@ Client half: clients#286. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Unaudited boss sweeps cannot host required progression.** A sweep with no authoritative arena
+  region still pays its ordinary members, but contributes no `SweepSlot` progression-surface entry
+  until the arena is audited. The current 26 circular-evidence triggers now fail closed. World: #671.
 - **Lansseax's Glaive is filed in Altus.** Its two independently placed acquisition sites both
   resolve to Altus; the generator now accepts unanimous region evidence from multi-map checks instead
   of letting a one-site entity fallback misfile the incantation under Mt. Gelmir. World: #502.

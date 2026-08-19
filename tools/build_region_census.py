@@ -154,6 +154,9 @@ def measure(sc=None):
             for _n, ap, _f in rows_:
                 ap_region[ap] = rname
         hb = bars_mod.BOSS_HEALTHBARS
+        arena_regions = sweeps_mod.SWEEP_ARENA_REGION
+        sweep_skips = contract.sweep_slot_skips(
+            healthbars=hb, arena_regions=arena_regions, triggers=sweeps_mod.DUNGEON_SWEEPS)
         sweep_classes = [c for c in contract.SWEEP_SLOT_CLASS_WANTS if c in set(contract.SURFACE_CLASSES)]
         for rung, allowed in sorted(contract.SWEEP_RUNGS.items()):
             at_rung = {}
@@ -182,7 +185,8 @@ def measure(sc=None):
                 for cls in sweep_classes:
                     part = contract.sweeps_for_surface_class(
                         at_rung, cls, sweeps_mod.MAJOR_SWEEP_TRIGGERS)
-                    for ap in contract.nominate_sweep_slots(part, barred=barred, slots=slots):
+                    for ap in contract.nominate_sweep_slots(
+                            part, barred=barred, skips=sweep_skips, slots=slots):
                         r = ap_region.get(ap)
                         if r:
                             by_class.setdefault(r, {}).setdefault(cls, {}).setdefault(rung, 0)

@@ -649,16 +649,24 @@ def sweep_slot_aps(world, classes, tag_ids=frozenset()):
     except Exception:
         _sx = frozenset()
     barred = (frozenset(_world_barred_aps(world)) | _roundtable_merchant_aps() | frozenset(_sx))
-    # 🛑 PASS THE HEALTHBARS EXPLICITLY. `contract.sweep_slot_skips()` can resolve them itself, but
+    sweeps = rung_sweeps(world)
+    # 🛑 PASS BOTH AUTHORITIES EXPLICITLY. `contract.sweep_slot_skips()` can resolve healthbars
+    # itself, but only via a package-relative import, and an absent arena row now means UNAUDITED --
+    # fail closed for progression-surface eligibility (#671). Ordinary sweep payouts are untouched.
     # only via a package-relative import, and on failure it degrades to the DECLARED skips alone --
     # which would quietly put the unfireable triggers back on the surface and reopen #672. The
     # production path must not depend on an import that is allowed to fail; the census tool, which
     # has no world, keeps the lazy default.
     try:
         from ..boss_healthbars import BOSS_HEALTHBARS  # noqa: PLC0415 -- data leaf
-        skips = contract.sweep_slot_skips(healthbars=BOSS_HEALTHBARS)
+        from ..boss_sweeps import SWEEP_ARENA_REGION  # noqa: PLC0415 -- data leaf
+        skips = contract.sweep_slot_skips(healthbars=BOSS_HEALTHBARS,
+                                          arena_regions=SWEEP_ARENA_REGION,
+                                          triggers=sweeps)
     except Exception:
-        skips = contract.sweep_slot_skips()
+        # The ruling is fail-CLOSED: without the authoritative audit table every trigger is
+        # unaudited. Returning no nominations is safer than quietly widening to guessed arenas.
+        return frozenset()
     # #703: more members per sweep when there are FEW partners, exactly one when there are many.
     # In a 2-game world the partner's progression saturates its own ~404 locations during
     # fill_restrictive and the useful tier is exhausted before the scan reaches a partner slot; the
@@ -680,7 +688,6 @@ def sweep_slot_aps(world, classes, tag_ids=frozenset()):
         # empty surface is the failure this feature exists to prevent (#631).
         MAJOR_SWEEP_TRIGGERS = frozenset()
         chosen = ["SweepSlot"] if set(chosen) else []
-    sweeps = rung_sweeps(world)
     out = set()
     for cls in chosen:
         part = contract.sweeps_for_surface_class(sweeps, cls, MAJOR_SWEEP_TRIGGERS)
