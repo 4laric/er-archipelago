@@ -1,9 +1,8 @@
-"""Rune shop prices are ROLLED, not inherited.
+"""Finite AP shop-check prices are rolled independently of their rewards.
 
-A shop check keeps the price of the ware it used to sell (`shop_sell` rewrites equipId and leaves
-`value` alone -- correct for gear, wrong for money). A slot that cost 3500 selling a Golden Rune [1]
-worth 2000 is not a gamble, it is a slot nobody presses, and the check behind it never gets
-collected. features/rune_pricing rolls those into [0, 2x the rune's own worth].
+Every active finite shop check gets one seeded price in [0, 5000], shared by all of its physical
+rows. The reward is deliberately not inspected, so the price cannot leak item identity. Separate
+rune-datum tests protect the infinite-stock path, where runes must cost their exact payout.
 """
 import re
 
@@ -15,7 +14,6 @@ from worlds.eldenring.features import rune_pricing as rp  # noqa: E402
 from worlds.eldenring.shop_data import SHOP_ROW_FLAGS, SHOP_ROW_IDS  # noqa: E402
 from worlds.eldenring.shop_stock_data import GOODS_PRICE  # noqa: E402
 from worlds.eldenring.item_ids import ITEM_CATALOG  # noqa: E402
-from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
 
 GAME = "Elden Ring"
 _ROW_MASK = 0x0FFFFFFF
@@ -136,180 +134,68 @@ class RuneDatumTests(WorldTestBase):
         self.assertGreater(checked, 25, "the RUNE_PAYOUT/GOODS_PRICE join has drifted")
 
 
-class _StubItem:
-    def __init__(self, name, player):
-        self.name, self.player = name, player
-
-
 class _StubLoc:
-    def __init__(self, address, item):
-        self.address, self.item = address, item
+    def __init__(self, address):
+        self.address = address
 
 
-class RunePricingRolls(WorldTestBase):
-    """Driven with stubbed placements: in a solo WorldTestBase world almost nothing is placed at
-    fill_slot_data time, so a seed-driven assertion here would pass without entering the branch.
-
-    🛑 THE OPTION IS FROZEN AT 0 AGAIN (2026-08-16), so a yaml value cannot turn it on -- `core`
-    builds its option surface from the keys NOT in FROZEN_OPTIONS, and `apply_frozen` overwrites
-    whatever the test asked for. `options = {"rune_shop_pricing": 1}` therefore stopped working, and
-    this class went red the moment the freeze landed. It is lifted in `setUp` instead.
-
-    WHY THE SUITE STAYS ALIVE FOR A FEATURE NO PLAYER CAN REACH. Freezing keeps the code so it can
-    be unfrozen; the 2026-08-12 unfreeze is proof that happens. Untested frozen code is what rots
-    between the two, and the roll is the part with real arithmetic in it. So the freeze is lifted
-    HERE, in the one place, and nowhere else -- `test_rune_shop_pricing_is_frozen_at_zero` is what
-    asserts the shipped state.
-
-    (The 2026-08-12 note this replaces recorded the mirror hazard: while the option was FROZEN ON,
-    every world had it whether it asked or not, and unfreezing turned this suite
-    green-for-the-wrong-reason overnight -- `slot_data` short-circuits to an empty dict when the
-    option is off, so every assertion below would have been made about `{}`. Both directions of the
-    same trap, six weeks apart.)"""
+class FiniteShopPricingRolls(WorldTestBase):
+    """Drive the feature with explicit active checks so every assertion enters the pricing branch."""
 
     game = GAME
     options = {"num_regions": 6}
 
-    def setUp(self):
-        super().setUp()
-        # Lift the freeze for THIS world only. `Frozen` mimics an AP option by exposing `.value`,
-        # so a stand-in with value 1 is all `slot_data` reads.
-        self.world.options.rune_shop_pricing = type(
-            "_Unfrozen", (), {"value": 1, "current_key": None, "visibility": 0})()
-
-    def _emit(self, placements):
+    def _emit(self, aids, seed=189):
         w = self.world
-        locs = [_StubLoc(int(a), _StubItem(nm, pl)) for a, (nm, pl) in placements.items()]
+        locs = [_StubLoc(int(a)) for a in aids]
         orig = w.multiworld.get_locations
+        state = w.random.getstate()
         w.multiworld.get_locations = lambda player=None: locs
+        w.random.seed(seed)
         try:
-            return w.fill_slot_data().get("shopRunePrices", {})
+            return rp.RunePricing().slot_data(w)["shopRunePrices"]
         finally:
             w.multiworld.get_locations = orig
+            w.random.setstate(state)
 
-    def _a_shop_ap_id(self):
+    def _shop_ap_ids(self, count=2):
         _fixed, alt_ids = rp.fixed_alt_currency_prices()
         ids = [a for a in sorted(SHOP_ROW_FLAGS, key=int)
                if SHOP_ROW_IDS.get(a) and a not in alt_ids]
-        self.assertTrue(ids, "no shop check has a ShopLineupParam row to reprice")
-        return ids[0]
+        self.assertGreaterEqual(len(ids), count, "not enough finite rune-priced shop checks")
+        return ids[:count]
 
     def _fixed_prices(self):
         return rp.fixed_alt_currency_prices()[0]
 
-    def _a_rune(self):
-        for n in sorted(ITEM_CATALOG):
-            if rp.is_rune_item(n) and rp.rune_worth(ITEM_CATALOG[n]):
-                return n, rp.rune_worth(ITEM_CATALOG[n])
-        self.skipTest("no priceable rune in the catalog")
-
-    def test_a_rune_reward_reprices_every_row_of_its_slot(self):
-        aid = self._a_shop_ap_id()
-        name, worth = self._a_rune()
-        out = self._emit({aid: (name, self.world.player)})
-        rows = [str(r) for r in SHOP_ROW_IDS[aid]]
-        expected = set(self._fixed_prices()) | set(rows)
+    def test_every_active_finite_check_gets_one_price_for_all_its_rows(self):
+        aids = self._shop_ap_ids()
+        out = self._emit(aids)
+        rows = {str(r) for aid in aids for r in SHOP_ROW_IDS[aid]}
+        expected = set(self._fixed_prices()) | rows
         self.assertEqual(set(out), expected,
-                         "the rune rows and every unconditional altar row must be present")
-        for r in rows:
-            self.assertGreaterEqual(out[r], 0)
-            self.assertLessEqual(out[r], rp.PRICE_MULT * worth,
-                                 "roll must stay within [0, %dx worth]" % rp.PRICE_MULT)
+                         "finite rows plus every unconditional altar row must be present")
+        for aid in aids:
+            values = {out[str(r)] for r in SHOP_ROW_IDS[aid]}
+            self.assertEqual(len(values), 1, "all rows of one AP check must share its price")
+            price = values.pop()
+            self.assertGreaterEqual(price, 0)
+            self.assertLessEqual(price, rp.FINITE_PRICE_MAX)
 
-    def test_a_non_rune_reward_is_left_alone(self):
-        """THE REGRESSION GUARD. Repricing gear would silently rewrite the whole shop economy."""
-        aid = self._a_shop_ap_id()
-        gear = next(n for n in sorted(ITEM_CATALOG) if not rp.is_rune_item(n))
-        self.assertEqual(self._emit({aid: (gear, self.world.player)}), self._fixed_prices())
+    def test_roll_is_seeded_and_independent_of_location_iteration_order(self):
+        aids = self._shop_ap_ids(3)
+        self.assertEqual(self._emit(aids, 4242), self._emit(reversed(aids), 4242))
+        self.assertNotEqual(self._emit(aids, 4242), self._emit(aids, 4243))
 
-    def test_a_foreign_reward_is_left_alone(self):
-        """A foreign reward is not sold natively -- its slot shows a placeholder, and repricing it
-        would leak which foreign slots hold runes."""
-        aid = self._a_shop_ap_id()
-        name, _ = self._a_rune()
-        self.assertEqual(self._emit({aid: (name, self.world.player + 1)}), self._fixed_prices())
-
-
-# ---- the option is a knob again ---------------------------------------------------------------
-#
-# 🛑 UNFROZEN 2026-08-12. `rune_shop_pricing` was in `defaults.FROZEN_OPTIONS` at 1, which both
-# pinned the value AND removed the option from `GFOptions` -- so the roll ran for every seed and the
-# class default underneath was unreachable. That is the shape
-# [[er-unfreezing-an-option-needs-the-class-default]] documents: while an option is frozen its own
-# `default` rots unobserved, and unfreezing silently moves every seed that does not name it. Here
-# the move is INTENTIONAL -- off unless asked -- so it is pinned rather than assumed.
-#
-# 🛑 MODULE-LEVEL FUNCTIONS, NOT A CLASS, and that is not a style choice. These began as
-# `class TheOptionIsAKnobAgain:` and pytest COLLECTED NOTHING: the default `python_classes` is
-# `Test*`, this repo ships no pytest.ini overriding it, and a plain class that is not a
-# unittest.TestCase is simply skipped in silence. The suite went green with all three of these
-# never running. A test that cannot be collected is worse than no test, because it reads as cover.
+    def test_alt_currency_rows_stay_at_one(self):
+        fixed = self._fixed_prices()
+        self.assertTrue(fixed, "the generated alternate-currency row set is empty")
+        out = self._emit(self._shop_ap_ids(1))
+        self.assertEqual({row: out[row] for row in fixed}, fixed)
+        self.assertEqual(set(fixed.values()), {1})
 
 
-def test_rune_shop_pricing_is_off_unless_the_player_asks():
-    """The frozen value was 1; the shipped default is 0, and that difference IS the change. If
-    someone later "restores" this to 1 so an old seed reproduces, they have undone the request
-    rather than fixed a bug."""
-    from worlds.eldenring.features.rune_pricing import RuneShopPricing
-    assert RuneShopPricing.default == 0
-
-
-def test_rune_shop_pricing_is_frozen_at_zero():
-    """RE-FROZEN 2026-08-16, AT 0. This test previously asserted the opposite (`not in
-    FROZEN_OPTIONS`, from the 2026-08-12 unfreeze); the direction is the change, so it is inverted
-    rather than deleted -- a reader landing here should see that this line has moved three times.
-
-    🛑 THE VALUE MATTERS AS MUCH AS THE MEMBERSHIP. Frozen at 1 is what shipped before 2026-08-12
-    and it made the roll run for everyone. Freezing at 0 pins the value RuneShopPricing.default
-    already states, which is what makes this seed-neutral and what
-    [[er-unfreezing-an-option-needs-the-class-default]] asks for. If someone re-freezes at 1 to
-    reproduce an old seed, they have changed every default seed, not fixed one."""
+def test_finite_shop_pricing_is_behavior_not_a_yaml_option():
     from worlds.eldenring.defaults import FROZEN_OPTIONS
-    from worlds.eldenring.features.rune_pricing import RuneShopPricing
-    assert FROZEN_OPTIONS.get("rune_shop_pricing") == (0, None), (
-        "expected rune_shop_pricing frozen at 0, got %r" % (FROZEN_OPTIONS.get("rune_shop_pricing"),))
-    assert RuneShopPricing.default == 0, (
-        "the frozen value must equal the class default, or unfreezing silently reverts every seed")
-    # WITNESS: the table is populated, so the lookup above is not passing over an empty dict.
-    assert len(FROZEN_OPTIONS) > 3
-
-
-def test_rune_shop_pricing_is_filed_under_a_wizard_tab():
-    """Kept filed even while frozen, and that is deliberate.
-
-    A frozen option has no yaml key and no wizard control, so this assertion guards nothing TODAY.
-    It guards the unfreeze: the 2026-08-12 one had to add this entry, and an option that becomes
-    visible with no `_OPTION_GROUPS` home falls into `ungrouped` and renders inside Advanced -- the
-    failure `core`'s own comment warns about, and the one that reddened CI on the spawn-trap option
-    hours earlier that same day. Deleting the entry because it is currently unreachable is how the
-    next unfreeze re-earns that red."""
-    from worlds.eldenring import core
-    grouped = {k for _name, keys in core._OPTION_GROUPS for k in keys}
-    assert "rune_shop_pricing" in grouped
-
-
-class OffMeansOnlyFixedPricesRemain(WorldTestBase):
-    """The OFF path emits no random rune prices, but altar prices are an unconditional safety rule.
-
-    🛑 WITNESSED against the ON path in `RunePricingRolls` above -- an `slot_data` that returned an
-    empty dict for every input would satisfy this test for free, which is the whole reason the
-    on-case has to exist beside it."""
-    game = GAME
-    options = {"num_regions": 0, "rune_shop_pricing": 0}
-
-    def test_only_alt_currency_rows_cost_one(self):
-        from worlds.eldenring import contract
-        sd = rp.RunePricing().slot_data(self.multiworld.worlds[1])
-        got = sd[contract.SHOP_RUNE_PRICES]
-        alt_ids = {
-            str(aid) for aid, source in MISSABLE_LOCATIONS.items()
-            if source.startswith("alt_currency:")
-        }
-        expected_rows = {
-            str(row_id)
-            for aid in alt_ids
-            for row_id in SHOP_ROW_IDS.get(aid, [])
-        }
-        assert expected_rows, "the generated alt-currency/ShopLineupParam join is empty"
-        assert set(got) == expected_rows
-        assert set(got.values()) == {1}
+    assert not rp.RunePricing.OPTIONS
+    assert "rune_shop_pricing" not in FROZEN_OPTIONS

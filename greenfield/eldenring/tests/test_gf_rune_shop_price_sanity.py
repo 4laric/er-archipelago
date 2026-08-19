@@ -1,31 +1,16 @@
-"""A rune must never be sold for more than it pays out -- on EITHER pricing path.
+"""Infinite-stock money runes cost exactly their payout.
 
-THE BUG, reported by Alaric 2026-07-29: "rune pricing is bugged, i have never seen a single rune
-priced below its value ... nothing remotely close to the 0 end."
-
-There are TWO paths that put a price on a shop slot and only one of them knew about runes:
-
-  * features/rune_pricing prices shop CHECKS holding a rune. Innocent -- measured over 3 seeds /
-    350 slots it is a clean uniform [0, 2x worth]: median ratio 1.03, 50% below worth, 5% below
-    0.10x, minimum 0.002x.
-  * features/shop_stock rerolls INFINITE-STOCK slots and priced every roll at GOODS_PRICE. For a
-    consumable that is the vanilla shop price and is exactly right. For a rune GOODS_PRICE is
-    `sellValue * 10` and a rune's sellValue IS its payout -- so a Golden Rune [5] cost 16,000 for
-    1,600 runes. Ten times value, every rune, every seed.
-
-🛑 THE SECOND PATH IS THE BIGGER ONE: ~455 rerolled slots against ~113 priced checks, at the
-unlimited-stock merchants a player returns to. The correct feature was measured and blamed while the
-one nobody thought about did the damage -- so this test walks BOTH and asserts on the ratio, not on
-either implementation.
+Finite AP checks intentionally roll an unrelated 0--5000 price, so a valuable rune can create a fun
+one-shot flip. Applying that rule to an unlimited shelf would create an infinite money loop. The
+infinite-stock path therefore uses the game-authored payout as both price and value.
 """
-import statistics
 
 import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
-from worlds.eldenring.features.rune_pricing import is_rune_item, rune_worth, PRICE_MULT  # noqa: E402
+from worlds.eldenring.features.rune_pricing import is_rune_item, rune_worth  # noqa: E402
 from worlds.eldenring.item_ids import ITEM_CATALOG  # noqa: E402
 
 GAME = "Elden Ring"
@@ -79,39 +64,14 @@ def _infinite_stock_rune_ratios(seed):
     return out
 
 
-def test_infinite_stock_runes_are_not_priced_at_ten_times_value():
-    """THE regression. A flat 10.0x on every rune is what shipped."""
+def test_infinite_stock_runes_cost_exactly_their_payout():
+    """Neither the old 10x markup nor the finite-shop bargain roll may reach this path."""
     ratios = sorted(_direct_rune_ratios(4242) + _direct_rune_ratios(777))
     assert ratios, ("no rune in ITEM_CATALOG has a GOODS_PRICE entry -- the join broke and this test "
                     "proves nothing. Re-derive it rather than deleting this.")
-    assert max(ratios) <= PRICE_MULT + 0.01, (
-        "an infinite-stock rune costs %.2fx its payout; the roll is capped at %dx. A flat 10.0x here "
-        "is the GOODS_PRICE bug returning -- GOODS_PRICE is sellValue*10 and for a rune sellValue IS "
-        "the payout." % (max(ratios), PRICE_MULT))
-
-
-def test_the_roll_actually_reaches_the_cheap_end():
-    """Alaric's actual complaint: not just 'too expensive' but 'never anywhere near 0'.
-
-    A uniform [0, 2x] should put ~half below worth. Asserting the SHAPE catches a future change that
-    keeps the cap but skews the distribution -- which would still read as 'runes are never a deal'."""
-    ratios = sorted(_direct_rune_ratios(4242) + _direct_rune_ratios(777) + _direct_rune_ratios(31337))
-    below = sum(1 for r in ratios if r <= 1.0)
-    # PRICE_MULT is 1 as of 2026-07-29: every rune must be at or BELOW its payout, so buying one is
-    # never a loss. Written as a function of PRICE_MULT rather than a hardcoded fraction, so raising
-    # the cap back to 2 relaxes this instead of breaking it.
-    if PRICE_MULT <= 1:
-        assert below == len(ratios), (
-            "%d of %d infinite-stock runes cost MORE than they pay out, with PRICE_MULT=%d. At a 1x "
-            "cap that is impossible from the roll -- suspect the worth derivation."
-            % (len(ratios) - below, len(ratios), PRICE_MULT))
-    else:
-        assert 0.30 <= below / len(ratios) <= 0.70, (
-            "only %.0f%% of infinite-stock runes are priced at or below payout (n=%d); a uniform "
-            "[0, %dx] roll should be near 50%%." % (100 * below / len(ratios), len(ratios), PRICE_MULT))
-    assert min(ratios) < 0.25, (
-        "the cheapest rune across three seeds is %.2fx its payout -- the roll never reaches the "
-        "cheap end, so it is not really a gamble." % min(ratios))
+    assert set(ratios) == {1.0}, (
+        "infinite-stock rune price/payout ratios must all be 1.0, got %r; below 1 is an unlimited "
+        "money loop and 10 is the retired GOODS_PRICE markup" % sorted(set(ratios)))
 
 
 def test_both_pricing_paths_agree_on_what_a_rune_is_worth():

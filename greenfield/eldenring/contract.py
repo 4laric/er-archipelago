@@ -1105,14 +1105,10 @@ CONTRACT = (
                 "features/rune_pricing.py", "shop_prices.rs configure/run",
                 "ShopLineupParam row id (str) -> price override. Alt-currency altar rows always map "
                 "to 1, preserving their costType while preventing random rewards from demanding an "
-                "absurd number of Dragon/Bayle Hearts. Other entries are CHECK rows whose reward is a rune "
-                "item (Golden/Numen's/Hero's/Lord's Rune). A shop check keeps the price of the ware "
-                "it USED to sell, so a slot that cost 3500 can end up selling a Golden Rune [1] worth "
-                "~200 -- the reward is randomised but its cost is not, which makes the slot strictly "
-                "bad rather than a gamble. Rolled per seed in [0, 2x the rune's own derived worth] "
-                "(GOODS_PRICE, the same basicPrice/sellValue*10 chain shop_stock prices its rerolls "
-                "with), so buying one is sometimes free and sometimes a bad trade. Absent/empty = "
-                "every row keeps its vanilla price."),
+                "absurd number of Dragon/Bayle Hearts. Every other finite AP shop check receives a "
+                "seed-seeded price in [0, 5000], independent of its reward, and all rows belonging "
+                "to one check share that price. Infinite-stock rows are excluded and remain priced "
+                "at the rerolled ware's value, preventing an unlimited rune-arbitrage loop."),
     ContractKey("shopPreviewGoods", "SCALAR_INT_MAP", False, (BOTH,),
                 "features/shops.py", "core.rs:353 i64_map",
                 "AP location id -> preview goods id shown in the shop slot."),

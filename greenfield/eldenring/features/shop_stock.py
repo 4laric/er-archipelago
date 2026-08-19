@@ -64,11 +64,9 @@ except ImportError:                      # pre-regen: feature is simply inert
     INFINITE_SHOP_ROWS, GOODS_PRICE = [], {}
 
 try:
-    from .rune_pricing import (is_rune as _is_rune, rune_worth as _rune_worth,
-                               PRICE_MULT as _PRICE_MULT)
+    from .rune_pricing import is_rune as _is_rune, rune_worth as _rune_worth
 except ImportError:                      # rune_pricing absent -> vanilla price, i.e. today's behaviour
     _is_rune = _rune_worth = None
-    _PRICE_MULT = 1   # keep in step with rune_pricing.PRICE_MULT
 
 try:
     from ..item_ids import ITEM_CATALOG
@@ -179,16 +177,14 @@ def pool():
 # runes. TEN TIMES its value, on every rune, in every seed.
 #
 # Reported by Alaric 2026-07-29: "rune pricing is bugged, i have never seen a single rune priced
-# below its value ... nothing remotely close to the 0 end." The randomizer in features/rune_pricing
-# was innocent -- measured over 3 seeds / 350 slots it is a clean uniform [0, 2x worth]: median
-# ratio 1.03, 50% below worth, 5% below 0.10x, minimum 0.002x. It just never touched THIS path, and
-# this one rerolls the 14 browsable shelves. (That figure was ~455 until 2026-07-29, and the claim
-# that they were "the merchants a player stands in front of most" was false -- they were the
-# Alter-Garments and AoW-duplication menus. Retargeted; see the module docstring.)
+# below its value ... nothing remotely close to the 0 end." This path rerolls the 14 browsable
+# shelves. (That figure was ~455 until 2026-07-29, and the claim that they were "the merchants a
+# player stands in front of most" was false -- they were the Alter-Garments and AoW-duplication
+# menus. Retargeted; see the module docstring.)
 # Every targeted row is costType 0 by regen-time assertion, so a rune-derived price is well-typed here
 # -- the old set included 116 rows priced in Lost Ashes of War, where it was not.
 #
-# So route runes through the same roll. `rune_worth` already divides out the 10x and its ladder is
+# So route runes to their exact payout. `rune_worth` reads the game-authored payout and its ladder is
 # pinned by test_gf_rune_pricing (200/400/800/... for [1]..[13], 13 independent confirmations).
 def _resolved_pins(world):
     """{shelf row -> goods row id} for `infinite_hub_wares`. Empty by default.
@@ -235,13 +231,17 @@ def _resolved_pins(world):
     return out
 
 
-def _price_for(gid, rng):
-    """What an infinite-stock slot charges for `gid`: vanilla price, or a rolled price for a rune."""
+def _price_for(gid, _rng):
+    """What an infinite-stock slot charges: vanilla value, or a rune's exact payout.
+
+    Infinite stock must never use the finite-check bargain roll: any price below a rune's payout is
+    an unlimited money loop.
+    """
     full = gid | _GOODS_CATEGORY
     if _is_rune and _rune_worth and _is_rune(full):
         worth = _rune_worth(full)
         if worth:
-            return rng.randint(0, _PRICE_MULT * int(worth))
+            return int(worth)
     return GOODS_PRICE[gid]
 
 
@@ -268,8 +268,8 @@ class ShopStockFeature(Feature):
             return {}
         rids = sorted(p.values())             # sorted list => a stable draw order
         # no_runes_in_shops: the shelf half. A shelf stocking a rune is "runes in shops" as surely
-        # as a check reward is -- and a rune shelf is priced by the same [0, worth] roll
-        # (_price_for), so it sits squarely in the render trap that option exists to sidestep.
+        # as a check reward is. The shelf is priced at exact payout by `_price_for`, but the option
+        # promises no rune wares at all, so filter the draw list rather than only changing its price.
         # Filter the DRAW LIST, not filler_curation.CATEGORIES (shared -- the received-filler roster
         # must keep its runes): with the option OFF the list is untouched and every roll is
         # bit-identical to before the option existed. Pins are handled at options time

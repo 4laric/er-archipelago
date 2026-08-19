@@ -1,23 +1,16 @@
-"""shop price overrides for money runes and limited-currency altars.
+"""shop price overrides for finite AP checks and limited-currency altars.
 
-A shop check keeps the price of the ware it used to sell; `shop_sell` rewrites `equipId` to the AP
-reward and deliberately leaves `value` alone (the slot costs what the slot cost). That is right for
-gear -- you are buying a randomised item at this merchant's price -- and wrong for runes, because a
-rune IS money. A 3500-rune slot that now sells a Golden Rune [1] worth ~200 is not a gamble, it is
-a slot no player will ever press, and the check behind it goes uncollected.
+Finite shop checks receive a seed-seeded price in ``[0, 5000]`` independent of their reward. That
+restores the fun one-shot arbitrage where a valuable money rune can land on a cheap shelf, without
+making the price itself an item hint. Every row belonging to one AP check receives the same price.
 
-So: roll the price. `[0, 2x the rune's own derived worth]`, per seed, per row. Sometimes free,
-sometimes a bad trade, occasionally worth it -- which is what "randomised" should mean for an item
-whose only property is a number.
+Infinite shelves are deliberately outside this feature. ``shop_stock`` prices their rerolled ware at
+its value (and a money rune at its exact payout), so a lucky finite flip cannot become an unlimited
+rune farm.
 
-The worth comes from `GOODS_PRICE` (gen_data: vanilla shop price -> basicPrice -> sellValue*10), the
-same chain `shop_stock` prices its infinite-row rerolls with. Deriving a SECOND price notion here
-would be a fork, and the two would drift.
-
-Scope: every rune-family consumable, not just Golden Rune. Hero's / Lord's / Numen's Runes hit the
-identical wall for the identical reason, and narrowing this to the one Alaric happened to see would
-be pinning the symptom (CONTRIBUTING: "derive the datum, don't pin the symptom"). A rune is anything
-GOODS_PRICE prices whose name is `<X> Rune` or `<X> Rune [N]`.
+The rune helpers in this module still cover every money-rune family. ``shop_stock`` needs that datum
+to recognize unlimited rune shelves and price them at their exact payout; narrowing it to Golden
+Runes would leave the same exploit on Hero's, Lord's, Numen's, and DLC runes.
 
 Dragon Communion is the other exceptional economy. Randomising the reward must never randomise the
 number of scarce hearts the altar asks for: every altar row costs exactly one unit of its own
@@ -28,8 +21,6 @@ Cosmetic-adjacent but NOT cosmetic: the price is the only thing standing between
 player. It does not touch reachability -- fill sees the same locations either way -- so this feature
 never gates progression and needs no logic rules.
 """
-from Options import Toggle
-
 from ..registry import Feature, register
 from .. import contract
 
@@ -75,20 +66,7 @@ if GOODS_PRICE and not RUNE_PAYOUT:
 # needs no edit here. The old regex survives as a CROSS-CHECK in test_gf_rune_pricing: everything it
 # matched must still be priced.
 
-# The roll is [0, PRICE_MULT x worth].
-#
-# 2 = "up to double" (Alaric 2026-07-25) -- a rune could be a bargain or a rip-off, which is what
-# "randomized" should mean. Changed to 1 on 2026-07-29 at Alaric's call, as a DIAGNOSTIC as much as a
-# tuning: at 1x every rune is priced at or below its payout, so buying one is never a loss. If a rune
-# still shows above its payout in game after this, the displayed price is provably not the one we
-# wrote, and the fault is downstream of the generator.
-#
-# Context: the world was cleared of the reported bug by reading his own seed -- 117 rune slots,
-# 38% below worth, min 0.003x, and four BELOW-value runes at the very merchant in the screenshot
-# (Golden Rune [4] paying 1200 for 378). The two prices he photographed, 419 and 1011, matched rows
-# 101863 and 101867 exactly, which also proves the client applies what we send. At 1x there is no
-# above-value case left to mistake for one.
-PRICE_MULT = 1
+FINITE_PRICE_MAX = 5000
 
 # ⭐ WORTH IS THE PAYOUT, NOT THE SHOP PRICE. GOODS_PRICE is what a MERCHANT charges, and for runes
 # that is a 10x markup over what the rune actually gives you. Priced off it, a Golden Rune [10] --
@@ -147,24 +125,9 @@ def fixed_alt_currency_prices():
     }, alt_location_ids
 
 
-class RuneShopPricing(Toggle):
-    """Randomise the rune price of shop slots whose reward is a Golden/Hero's/Lord's/Numen's Rune,
-    to somewhere in [0, 2x that rune's own worth]. Off = the slot keeps the price of the ware it
-    used to sell, which for a rune reward is usually far more than the rune is worth."""
-    display_name = "Randomise Rune Shop Prices"
-    # 🛑 EXPLICIT, not inherited, because this option was FROZEN AT 1 until 2026-08-12 and a frozen
-    # option's class default is unreachable -- so it sits there unread and rots
-    # ([[er-unfreezing-an-option-needs-the-class-default]]: PoolBuilderIntensity was frozen at `max`
-    # over a `default = high` nobody could see, and unfreezing it silently reverted every seed).
-    # Writing the 0 down makes "off unless you ask" a decision on the page instead of an inherited
-    # accident, and `test_gf_rune_pricing` pins it.
-    default = 0
-
-
 @register
 class RunePricing(Feature):
     name = "rune_pricing"
-    OPTIONS = {"rune_shop_pricing": RuneShopPricing}
 
     def slot_data(self, world):
         # RULING (#231, 2026-08-18): every Dragon Communion / other alt-currency altar row costs
@@ -173,66 +136,29 @@ class RunePricing(Feature):
         # SHOP_ROW_IDS avoids a second, hand-maintained altar list.
         out, alt_location_ids = fixed_alt_currency_prices()
 
-        opt = getattr(world.options, "rune_shop_pricing", None)
-        if opt is None or not int(getattr(opt, "value", 0)):
-            return {contract.SHOP_RUNE_PRICES: out}
-        if not (SHOP_ROW_FLAGS and SHOP_ROW_IDS and GOODS_PRICE and ITEM_CATALOG):
+        if not (SHOP_ROW_FLAGS and SHOP_ROW_IDS):
             return {contract.SHOP_RUNE_PRICES: out}
 
         player = world.player
-        priced = unpriced = 0
-        _ratios = []          # price/worth per slot, for the distribution line below
-        for loc in world.multiworld.get_locations(player):
-            aid = getattr(loc, "address", None)
-            if aid is None or str(aid) not in SHOP_ROW_FLAGS:
-                continue
-            if str(aid) in alt_location_ids:
-                continue          # fixed one-heart ruling outranks the optional money-rune roll
-            it = getattr(loc, "item", None)
-            if it is None or getattr(it, "player", None) != player:
-                continue          # a foreign reward is not sold natively; its slot shows a placeholder
-            if not is_rune_item(it.name):
-                continue
-            full = ITEM_CATALOG.get(it.name)
-            if full is None or (full & 0xF0000000) != _GOODS_NIBBLE:
-                continue
-            worth = rune_worth(full)
-            if not worth:
-                # REFUSE rather than invent a price: an unpriced rune left at the slot's own cost is
-                # the status quo, while a made-up one could be anything. Counted, not swallowed.
-                unpriced += 1
-                continue
-            price = world.random.randint(0, PRICE_MULT * int(worth))
-            _ratios.append(price / float(worth))
-            for row_id in SHOP_ROW_IDS.get(str(aid), []):
+        active_shop_ids = sorted({
+            str(getattr(loc, "address", ""))
+            for loc in world.multiworld.get_locations(player)
+            if str(getattr(loc, "address", "")) in SHOP_ROW_FLAGS
+            and str(getattr(loc, "address", "")) not in alt_location_ids
+        }, key=int)
+        prices = []
+        for aid in active_shop_ids:
+            price = world.random.randint(0, FINITE_PRICE_MAX)
+            prices.append(price)
+            for row_id in SHOP_ROW_IDS.get(aid, []):
                 out[str(int(row_id))] = price
-            priced += 1
-        if priced or unpriced:
+        if prices:
             import logging
             log = logging.getLogger("Greenfield")
-            # 🛑 REPORT THE DISTRIBUTION, NOT JUST THE COUNT. "repriced N slots" is true whether the
-            # roll lands where it should or piles every rune above its value -- which is exactly what
-            # was reported in game 2026-07-29 ("i have never seen a single rune priced below its
-            # value") while this code was, measurably, correct. A count with no shape cannot tell the
-            # two apart, so the generate log now carries the shape and any future report is one
-            # grep from an answer instead of a session of guessing.
-            if _ratios:
-                _r = sorted(_ratios)
-                _below = sum(1 for x in _r if x < 1.0)
-                log.info(
-                    "[eldenring:%s] rune pricing: %d slot(s) into [0, %dx worth] -- price/worth "
-                    "min %.2f median %.2f max %.2f, %d of %d BELOW worth (%.0f%%); %d left at the "
-                    "slot's own price (no derived worth)",
-                    player, priced, PRICE_MULT, _r[0], _r[len(_r) // 2], _r[-1],
-                    _below, len(_r), 100.0 * _below / len(_r), unpriced)
-                if _below == 0:
-                    log.warning(
-                        "[eldenring:%s] rune pricing: NOT ONE of %d rune slots is priced below its "
-                        "worth. A uniform [0, %dx] roll should put about half of them there -- "
-                        "suspect the worth derivation before the roll.", player, len(_r), PRICE_MULT)
-            else:
-                log.info(
-                    "[eldenring:%s] rune pricing: %d rune shop slot(s) repriced into [0, %dx worth], "
-                    "%d left at the slot's own price (no derived worth)",
-                    player, priced, PRICE_MULT, unpriced)
+            ordered = sorted(prices)
+            log.info(
+                "[eldenring:%s] finite shop pricing: %d check(s) into [0, %d] -- min %d median %d "
+                "max %d; %d alternate-currency check(s) fixed at one",
+                player, len(prices), FINITE_PRICE_MAX, ordered[0], ordered[len(ordered) // 2],
+                ordered[-1], len(alt_location_ids))
         return {contract.SHOP_RUNE_PRICES: out}

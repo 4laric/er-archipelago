@@ -503,7 +503,7 @@ _OPTION_GROUPS = [
         "confine_foreign_progression",
         "keep_local", "keep_local_rune_cap"]),
     ("Shops & Merchants", [
-        "keep_out_of_shops", "no_runes_in_shops", "rune_shop_pricing", "merchant_bells_on_talk",
+        "keep_out_of_shops", "no_runes_in_shops", "merchant_bells_on_talk",
         "merchant_bell_logic", "reroll_infinite_shop_stock", "infinite_hub_wares",
         "progressive_stone_bells"]),
     ("Quality of Life", [

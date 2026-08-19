@@ -50,6 +50,11 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **Ashen Capital opens at Leyndell, Capital of Ash.** Its region unlock no longer treats the
   duplicate Ashen East Capital Rampart as the front door; the full grace bundle still contains both
   entries. World: #853; client: clients#312.
+- **Finite shop checks can be lucky rune flips again.** Every one-time AP shop check now receives a
+  seeded 0--5000 rune price independent of its reward, so finding a valuable consumable rune on a
+  cheap shelf can fund the next leg of a run without the price hinting what the shelf contains.
+  Unlimited shelves remain priced at the ware's value -- money runes cost exactly their payout --
+  so the one-shot bargain cannot become an infinite rune farm. World: #189.
 
 ## v0.4.8 — 2026-08-18
 
