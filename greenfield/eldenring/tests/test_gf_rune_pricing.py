@@ -149,14 +149,14 @@ class FiniteShopPricingRolls(WorldTestBase):
         w = self.world
         locs = [_StubLoc(int(a)) for a in aids]
         orig = w.multiworld.get_locations
-        state = w.random.getstate()
+        orig_seed = w.multiworld.seed
         w.multiworld.get_locations = lambda player=None: locs
-        w.random.seed(seed)
+        w.multiworld.seed = seed
         try:
             return rp.RunePricing().slot_data(w)["shopRunePrices"]
         finally:
             w.multiworld.get_locations = orig
-            w.random.setstate(state)
+            w.multiworld.seed = orig_seed
 
     def _shop_ap_ids(self, count=2):
         _fixed, alt_ids = rp.fixed_alt_currency_prices()
