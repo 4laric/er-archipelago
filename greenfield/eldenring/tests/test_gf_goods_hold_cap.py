@@ -70,13 +70,13 @@ class TestTheMotivatingCase(unittest.TestCase):
     def test_the_four_pot_rows_are_capped_and_the_numbers_are_the_logged_ones(self):
         expect = {          # name: (ceiling, start, pool-before-clamp)
             # #218 recovers exact fixed-pickup coordinates for two Cracked Pots, two Ritual Pots,
-            # and three Perfume Bottles which the old coarse global-reward pass missed. These are
-            # physical checks, so they belong in the pool; the hold-cap clamp pays filler for the
-            # copies that cannot fit beside the pinned start loadout.
+            # three Perfume Bottles, and five Hefty Cracked Pots which the old coarse global-reward
+            # pass missed. These are physical checks, so they belong in the pool; the hold-cap clamp
+            # pays filler for the copies that cannot fit beside the pinned start loadout.
             "Cracked Pot": (19, 10, 20),
             "Ritual Pot": (9, 4, 10),
             "Perfume Bottle": (9, 9, 11),
-            "Hefty Cracked Pot": (10, 9, 5),
+            "Hefty Cracked Pot": (10, 9, 10),
         }
         pool = _pool_copies()
         for nm, (ceiling, start, copies) in expect.items():
@@ -98,12 +98,12 @@ class TestTheMotivatingCase(unittest.TestCase):
                     clamped[nm] = clamped.get(nm, 0) + 1
                 elif nm in budget:
                     budget[nm] -= 1
-        # #218 adds 2/2/3 exact fixed pickups respectively. The clamp is doing more work because
+        # #218 adds 2/2/3/5 exact fixed pickups respectively. The clamp is doing more work because
         # the pool got bigger, not because a ceiling or start loadout moved (both pinned above).
         self.assertEqual(clamped.get("Cracked Pot"), 11)
         self.assertEqual(clamped.get("Ritual Pot"), 5)
         self.assertEqual(clamped.get("Perfume Bottle"), 11)
-        self.assertEqual(clamped.get("Hefty Cracked Pot"), 4)
+        self.assertEqual(clamped.get("Hefty Cracked Pot"), 9)
 
     def test_after_the_clamp_nothing_is_undeliverable(self):
         """The invariant the whole change exists for: start + surviving pool copies <= ceiling."""
@@ -184,7 +184,7 @@ class TestTheClampDoesNotEatDeliberateDuplicates(unittest.TestCase):
             # ⭐ A NAME MATCH IS NOT AN ITEM MATCH -- the same lesson that made the #249 de-dup
             # key on (table, lot) instead of item_name, one table over.
         }
-        # Hefty Cracked Pot remains below its ceiling on pool copies alone (5<=10), and only
+        # Hefty Cracked Pot remains at its ceiling on pool copies alone (10<=10), and only
         # overflows when the start loadout is counted. The other three now have enough exact fixed
         # pickups to bite even in this pool-only view.
         self.assertNotIn("Hefty Cracked Pot", bites)
