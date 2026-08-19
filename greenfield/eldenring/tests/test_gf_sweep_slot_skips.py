@@ -39,7 +39,9 @@ def _load(name):
 
 
 CONTRACT = _load("contract")
-SWEEPS = _load("boss_sweeps").DUNGEON_SWEEPS
+_SWEEP_DATA = _load("boss_sweeps")
+SWEEPS = _SWEEP_DATA.DUNGEON_SWEEPS
+ARENA_REGIONS = _SWEEP_DATA.SWEEP_ARENA_REGION
 HEALTHBARS = _load("boss_healthbars").BOSS_HEALTHBARS
 
 # bobler's two, resolved from data.py by FLAG rather than hard-coded ap-id: #249 renumbered the ap
@@ -53,6 +55,42 @@ WARMING_STONE_AP = _AP_BY_FLAG["34107000"]  # Divine Tower of Limgrave, swept by
 
 
 class TestSweepSlotSkips(unittest.TestCase):
+
+    def _surface_skips(self, arena_regions=ARENA_REGIONS):
+        return CONTRACT.sweep_slot_skips(
+            healthbars=HEALTHBARS, arena_regions=arena_regions, triggers=SWEEPS)
+
+    def test_every_unaudited_trigger_is_withheld_from_the_surface(self):
+        """#671 ruling: no authoritative arena row means no SweepSlot progression nomination."""
+        unaudited = set(SWEEPS) - set(ARENA_REGIONS)
+        self.assertEqual(len(unaudited), 26,
+                         "the audited-arena census changed; review the issue #671 residue")
+        skips = self._surface_skips()
+        self.assertTrue(unaudited <= set(skips),
+                        "every unaudited trigger must fail closed for progression surface")
+        for flag in unaudited:
+            self.assertEqual(
+                CONTRACT.nominate_sweep_slots({flag: SWEEPS[flag]}, skips=skips), set(),
+                f"unaudited trigger {flag} contributed a SweepSlot surface entry")
+
+    def test_adding_authoritative_arena_evidence_restores_eligibility(self):
+        """The gate is audit-driven, not a permanent hand blacklist."""
+        other_skips = CONTRACT.sweep_slot_skips(healthbars=HEALTHBARS)
+        flag = min((set(SWEEPS) - set(ARENA_REGIONS)) - set(other_skips))
+        before = self._surface_skips()
+        audited = dict(ARENA_REGIONS)
+        audited[flag] = "Limgrave"
+        after = self._surface_skips(audited)
+        self.assertIn(flag, before)
+        self.assertNotIn(flag, after,
+                         "an authoritative arena row must restore eligibility unless another skip applies")
+        self.assertTrue(CONTRACT.nominate_sweep_slots({flag: SWEEPS[flag]}, skips=after))
+
+    def test_missing_audit_table_fails_closed(self):
+        """An empty-but-present audit table means every sweep is unaudited, not clean."""
+        skips = self._surface_skips({})
+        self.assertTrue(set(SWEEPS) <= set(skips))
+        self.assertEqual(CONTRACT.nominate_sweep_slots(SWEEPS, skips=skips), set())
 
     def test_boblers_two_checks_are_not_nominated(self):
         """THE MOTIVATING CASE. Neither check may be a SweepSlot surface entry.

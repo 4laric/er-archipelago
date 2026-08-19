@@ -17,6 +17,9 @@ Client half: clients#286. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Unaudited boss sweeps cannot host required progression.** A sweep with no authoritative arena
+  region still pays its ordinary members, but contributes no `SweepSlot` progression-surface entry
+  until the arena is audited. The current 26 circular-evidence triggers now fail closed. World: #671.
 - **Packaged me3 profiles now name the package that actually ships.** Stable bundles load the
   authenticated `flower-package`; development bundles with no Flower assets omit the package entry
   instead of asking me3 to scan a nonexistent `ap-package`. Both release packagers now reject any
