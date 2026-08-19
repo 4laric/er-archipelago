@@ -15,7 +15,7 @@ SPAWN_TRAPS = {
     2060: ('c2060', 20600000, 20600000, 1),
     2100: ('c2100', 21000034, 21000000, 1),
     2110: ('c2110', 21109000, 21100000, 1),
-    2120: ('c2120', 21200000, 21200000, 1),
+    2120: ('Malenia (Phase 1)', 21200000, 21200000, 1),
     2130: ('c2130', 21300033, 21300000, 1),
     2140: ('c2140', 21400114, 21400000, 1),
     2150: ('c2150', 21500000, 21500000, 1),
@@ -400,6 +400,7 @@ SPAWN_TRAPS = {
 SPAWN_TRAP_KEYS = {
     'aging_untouchable': 5280,
     'basilisk': 4150,
+    'malenia': 2120,
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:0fe4b6c929dfc7816af65327a7d9b1831c3883f3646f72064585e922ea2466f3', 'module': 'spawn_trap_data.py', 'body_sha256': 'sha256:7ea1c90322d6c6f194fa4cf8ec6abaf2ce51d5050935c16196b2c81c3b903b34'}
+_GEN_STAMP = {'inputs_hash': 'sha256:611cf73f438783a8ba2776c905ef084d1fe832a5ba856fd0178d6dfd530d4223', 'module': 'spawn_trap_data.py', 'body_sha256': 'sha256:1979567ffba029e59176478d83fc163315c8b9a8fbfbe613fd49bcdea6cb40f1'}

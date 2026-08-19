@@ -102,10 +102,13 @@ LABEL_CAP = 24
 #: the Death Blight mist, and mist wants numbers.
 #: aging_untouchable: c5280, the Abyssal Woods madness enemy. One is already a serious trap: it is
 #: invulnerable until parried, so a horde would turn an inconvenience into an arbitrary run-killer.
+#: malenia: c2120, Malenia's phase-one model/body/brain. Her phase transition is driven by arena
+#: EMEVD; a debug spawn of this template remains phase one, which is the trap promised by the yaml.
 #: 🛑 c4630 (Runebear) is deliberately NOT curated: it already ships as the fixed item name
 #: `Trap: Runebear`, which may never be withdrawn. It stays reachable here by raw id, and the two
 #: names coexist rather than one shadowing the other.
 CURATED = {
+    2120: ("malenia", "Malenia (Phase 1)", 1),
     4150: ("basilisk", "Basilisk", 3),
     5280: ("aging_untouchable", "Aging Untouchable", 1),
 }

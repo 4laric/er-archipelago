@@ -31,6 +31,7 @@ import unittest
 #: client's parser is pinned against on the other side.
 BASILISK_NAME = "Trap: Basilisk x3 (4150/41500060)"
 AGING_UNTOUCHABLE_NAME = "Trap: Aging Untouchable x1 (5280/52800086)"
+MALENIA_NAME = "Trap: Malenia (Phase 1) x1 (2120/21200000)"
 
 #: `er_logic::traps::LABEL_CAP`. The client retains a spawn label inline so its `SpawnSpec` stays
 #: `Copy`, and REFUSES a longer one rather than truncating.
@@ -119,6 +120,16 @@ class SpawnCatalogue(unittest.TestCase):
         )
         self.assertEqual(_data().SPAWN_TRAP_KEYS["aging_untouchable"], 5280)
 
+    def test_malenia_is_the_phase_one_template(self):
+        """Malenia's later phase is entered by her arena event. A standalone c2120 debug spawn
+        using the family template remains phase one, so pin all three ids rather than letting a
+        future row-selection change silently alter the promised trap."""
+        self.assertEqual(
+            _data().SPAWN_TRAPS[2120],
+            ("Malenia (Phase 1)", 21200000, 21200000, 1),
+        )
+        self.assertEqual(_data().SPAWN_TRAP_KEYS["malenia"], 2120)
+
     def test_props_and_brainless_models_are_excluded(self):
         """🛑 THE REFUSALS ARE THE POINT, so they get a test of their own rather than being a
         by-product of the derivation. Each of these would generate clean and mint an item that does
@@ -156,6 +167,9 @@ class TheNameContract(unittest.TestCase):
 
     def test_the_aging_untouchable_name_is_the_literal_the_client_parses(self):
         self.assertEqual(_mod().spawn_item_name(5280), AGING_UNTOUCHABLE_NAME)
+
+    def test_the_malenia_name_is_the_literal_the_client_parses(self):
+        self.assertEqual(_mod().spawn_item_name(2120), MALENIA_NAME)
 
     def test_every_name_carries_the_prefix_the_client_dispatches_on(self):
         t = _mod()
