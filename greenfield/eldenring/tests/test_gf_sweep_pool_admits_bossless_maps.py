@@ -183,9 +183,11 @@ class NoBosslessInteriorMapIsOrphaned(unittest.TestCase):
     # them and this suite refuses to claim they are compliant. They are the same PENDING-map defect;
     # they need the same fix (publish the map) and a different oracle to observe.
     PENDING_MAP_REMAINDER = {
-        ("Abyssal", "m28_00"): 3,
+        # ("Abyssal", "m28_00"): 3 -- REMOVED 2026-08-19: the full-census regen gave the three
+        # Midra's-Manse rows real MSB placements, so they joined the m28_00 sweep.
+        # ("Cerulean", "m22_00"): 9 -> 1, same regen, same direction (eight gained real maps).
         ("Ashen Capital", "m11_05"): 1,
-        ("Cerulean", "m22_00"): 9,   # Stone Coffin merged into Cerulean 2026-08-10
+        ("Cerulean", "m22_00"): 1,
     }
 
     def test_the_only_orphans_left_are_the_pending_map_rows(self):

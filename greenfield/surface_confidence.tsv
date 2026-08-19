@@ -35,7 +35,7 @@
 #   PLUS SweepSlot -- DERIVED, not priced here: one check per enabled dungeon sweep, decided per
 #   seed (55 on a 4-region seed, ~170 on the full map). So the DEFAULT SURFACE hosting
 #   number below is the TAGGED half only.
-#   checks 5115 total, 1066 carry any tag
+#   checks 5047 total, 1066 carry any tag
 #   DEFAULT SURFACE: tag union 210 | hosting 181 | hosting w/ reconciler armed 184 | hosting if missable guard OFF 188
 #
 class	total	tag_excluded	guessed_region	missable	erdtree_burn	surface_excluded	release_gated	hub_merchant	eligible	eligible_pct	in_default
@@ -45,7 +45,7 @@ Church	13	0	0	0	0	1	0	0	12	92	yes
 Boss	267	0	30	5	1	2	0	0	231	87
 Fragment	46	0	0	0	0	7	0	0	39	85	yes
 Revered	23	0	0	0	0	5	0	0	18	78	yes
-Basin	15	0	3	0	0	0	0	0	12	80
+Basin	15	0	6	0	0	0	0	0	9	60
 Shop	533	29	59	28	0	0	171	160	274	51
 ShopNonSpell	419	23	55	10	0	0	108	157	234	56
 ShopSlot	12	0	0	0	0	0	0	0	12	100	yes

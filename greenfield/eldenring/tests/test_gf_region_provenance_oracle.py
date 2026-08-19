@@ -120,10 +120,17 @@ def _load_data_flag_regions():
 
 
 def _load_overrides():
-    """flag -> region overrides (reason-carrying table). Absent/optional -> empty."""
-    ov = {}
+    """(flag -> region, map_id -> region) overrides -- the reason-carrying table, two scopes.
+
+    `key_kind == "map"` (2026-08-19): a MAP-scoped ruling. The #885 decision made every m21_00
+    check present as Scadu Altus against Shadow-Keep grace truth; when the full-census regen let
+    this oracle SEE those ~46 placements, the choice was 46 copies of one sentence or one row at
+    the ruling's own scope. A map row excuses a violation ONLY when data.py's region equals the
+    row's region -- a check on that map filed anywhere ELSE still violates, so the oracle keeps
+    its teeth on the very map it waives."""
+    ov, ovmap = {}, {}
     if not OVERRIDES_TSV or not os.path.isfile(OVERRIDES_TSV):
-        return ov
+        return ov, ovmap
     with open(OVERRIDES_TSV, encoding="utf-8", newline="") as fh:
         for row in csv.DictReader(fh, delimiter="\t"):
             if row.get("key_kind") == "flag":
@@ -131,7 +138,9 @@ def _load_overrides():
                     ov[int(row["key"])] = row["region"]
                 except (KeyError, ValueError):
                     pass
-    return ov
+            elif row.get("key_kind") == "map" and row.get("key") and row.get("region"):
+                ovmap[row["key"]] = row["region"]
+    return ov, ovmap
 
 
 def _load_msb():
@@ -193,12 +202,14 @@ def excluded_flags(map_flags, map_truth):
     return out
 
 
-def find_violations(map_flags, f2r, map_truth, overrides=None, flag_src=None, f2name=None):
+def find_violations(map_flags, f2r, map_truth, overrides=None, flag_src=None, f2name=None,
+                    map_overrides=None):
     """Predicate A, as a PURE function so the negative controls can inject their own tables.
 
     map_truth: {interior map_id: set(gf regions)} -- the independent grace-join arbiter.
     -> (violations[str], maps_checked, excluded {flag: reason}, no_grace_maps [map_id])"""
     overrides = overrides or {}
+    map_overrides = map_overrides or {}
     flag_src = flag_src or {}
     f2name = f2name or {}
     excluded = excluded_flags(map_flags, map_truth)
@@ -225,6 +236,8 @@ def find_violations(map_flags, f2r, map_truth, overrides=None, flag_src=None, f2
                 continue
             if overrides.get(f) in regs:    # a reasoned override row justifies this placement
                 continue
+            if map_overrides.get(map_id) in regs:   # a MAP-scoped ruling (#885 / Wyndham) does too
+                continue
             src = ",".join(sorted(flag_src.get((f, map_id), {"?"})))
             nm = f2name.get(f)
             violations.append(
@@ -240,7 +253,7 @@ class ProvenanceOracle(unittest.TestCase):
     def setUpClass(cls):
         cls.map_flags, cls.flag_src, cls.scope = _load_msb()
         cls.f2r, cls.f2name = _load_data_flag_regions()
-        cls.ov = _load_overrides()
+        cls.ov, cls.ovmap = _load_overrides()
         arb = _load_arbiter()
         cls.map_truth, cls.truth_meta = (arb.load_map_truth() if arb else (None, "tools/map_region_oracle.py absent"))
 
@@ -257,7 +270,8 @@ class ProvenanceOracle(unittest.TestCase):
         """Every check the game places in interior map M must carry M's grace-truth region in data.py."""
         self._require_tables()
         violations, maps_checked, excluded, no_grace = find_violations(
-            self.map_flags, self.f2r, self.map_truth, self.ov, self.flag_src, self.f2name)
+            self.map_flags, self.f2r, self.map_truth, self.ov, self.flag_src, self.f2name,
+            map_overrides=self.ovmap)
         overworld = sorted(m for m in self.map_flags if _is_overworld(m))
         ow_flags = {f for m in overworld for f in self.map_flags[m]}
         gated = {f for m, fl in self.map_flags.items()
