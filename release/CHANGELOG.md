@@ -106,6 +106,19 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   (`core._ESSENTIAL_OPTIONS`, validated at import, flowing through the metadata dump), not in the
   page, and it is presentation only: Archipelago's own options page and the emitted yaml are
   untouched.
+- **Legacy dungeon bosses are Major bosses now.** The LegacyBoss surface class was absorbed into
+  MajorBoss (a boss standing in a legacy dungeon is a major by any player's reading; the split
+  earned nothing but a wizard row). A default seed's progression surface GROWS by the 22
+  legacy-standing rows that were not already majors -- deliberate, stated here. Yamls that name
+  `LegacyBoss` keep loading: the spelling is normalized to `MajorBoss` on read. Under the hood
+  the tag survives as roster data (goal and anchor selection are unchanged); only the player
+  category merged.
+- **The wizard's boss grid is live, and the messy card is fixed.** The progression-surface
+  checkboxes' marginal counts, covered-by notes and totals now recompute on every toggle instead
+  of freezing at first render (and the class-preset buttons stop jumping the page to the top).
+  The Cross Game Progression tooltip lost its raw-markdown engineering essay for three readable
+  paragraphs, and named range values render by name -- the slider says "auto", not "-1 (default
+  -1)".
 - **The Sewer is part of Leyndell now.** The Subterranean Shunning-Grounds merged into the
   capital -- the well is inside the walls, so one region, one Lock, one wall (Alaric's call on
   #842/#917, taken over the alternative of making it independently accessible). Its graces ride

@@ -9021,6 +9021,12 @@ def _geography_of_map(_m):
         return "underground"
     return "legacy" if _m else None
 
+# 🛑 The TAG stays "LegacyBoss" even though the CLASS was absorbed into MajorBoss (2026-08-20).
+# First cut retagged here and five tests refused it: goal_locations, anchor eligibility and the
+# roster-uniqueness law all read the raw MajorBoss tag as ROSTER identity (= REGION_BOSSES arena
+# majors), and retagging the 22 legacy-only rows widened the goal-candidate and anchor sets.
+# The absorption lives at contract.has_class (SURFACE_CLASS_EXTRA_TAGS) -- the surface predicate --
+# so players see one category while the roster consumers keep their meaning.
 _GEO_TAG = {"legacy": "LegacyBoss", "field": "FieldBoss",
             "underground": "MinorDungeonBoss"}
 _geo_counts = Counter(); _geo_unresolved = 0
@@ -9301,7 +9307,7 @@ def _is_dungeon(_mp):
 # DEFAULT surface the per-seed cut takes back 94 of those (Church/Seedtree/Fragment/Revered are all
 # in SURFACE_DEFAULT_CLASSES), so a default seed gains 51 and an empty-surface seed gains all 145.
 _SWEEP_NEVER_TAGS = frozenset({"Remembrance", "Boss", "GreatRune", "KeyItem", "Shop",
-                               "ShopNonSpell", "ShopSlot", "MajorBoss", "LegacyBoss", "FieldBoss",
+                               "ShopNonSpell", "ShopSlot", "MajorBoss", "FieldBoss",
                                # Cuts NOTHING new -- every one of these already carries `Boss`,
                                # which is in this set. Listed so the boss classes stay a complete
                                # enumeration: the next reader must not have to prove the closure to

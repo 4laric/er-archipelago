@@ -98,6 +98,15 @@ class ProgressionSurface(OptionSet):
     default = contract.SURFACE_DEFAULT_CLASSES
     valid_keys = frozenset(contract.SURFACE_CLASSES)
 
+    @classmethod
+    def from_any(cls, data):
+        # "LegacyBoss" was absorbed into MajorBoss (2026-08-20). The spelling stays accepted so no
+        # yaml in the wild breaks -- same shape as the limgrave_caves region alias. Normalized
+        # BEFORE validation, so verify_keys never sees the retired name.
+        if isinstance(data, (list, set, frozenset, tuple)):
+            data = ["MajorBoss" if x == "LegacyBoss" else x for x in data]
+        return super().from_any(data)
+
     @staticmethod
     def wizard_key_meta():
         """Per-key presentation for the options wizard. Read by tools/dump_options_metadata.py.
@@ -325,7 +334,7 @@ class ConfineForeignProgression(NamedRange):
 # DISPLAY ORDER LIVES HERE, not in contract.SURFACE_CLASSES -- that list's order is a determinism
 # handle for the ladder and must never be rearranged (see the comment on it).
 SURFACE_CLASS_FAMILIES = (
-    ("bosses", "Bosses", ("Boss", "MajorBoss", "LegacyBoss", "FieldBoss", "MinorDungeonBoss",
+    ("bosses", "Bosses", ("Boss", "MajorBoss", "FieldBoss", "MinorDungeonBoss",
                           "Remembrance", "GreatRune")),
     ("collectathon", "Collectathon lines",
      ("Seedtree", "Church", "Basin", "Fragment", "Revered")),
@@ -353,10 +362,10 @@ SURFACE_CLASS_LABELS = {
                      "Every enemy the game gives a boss healthbar. Contains all the boss classes "
                      "below, so ticking this makes them redundant."),
     "MajorBoss":    ("Major bosses",
-                     "Remembrance and great-rune arena bosses, plus curated majors for the regions "
-                     "that have none. Contains Remembrances and Great Runes."),
-    "LegacyBoss":   ("Legacy dungeon bosses",
-                     "Bosses standing inside a legacy dungeon."),
+                     "Remembrance and great-rune arena bosses, curated majors for the regions "
+                     "that have none, and every boss standing inside a legacy dungeon (the former "
+                     "Legacy dungeon bosses class, absorbed v0.4.10). Contains Remembrances and "
+                     "Great Runes."),
     "MinorDungeonBoss": ("Minor dungeon bosses",
                      "Catacomb, cave, tunnel, gaol and Divine Tower bosses -- the minidungeons. "
                      "NOT the underground REGIONS: Nokron, Nokstella, Siofra and Ainsel are "
@@ -449,7 +458,10 @@ def class_containment(tags_map=None, classes=None):
     """
     lt = LOCATION_TAGS if tags_map is None else tags_map
     vocab = list(classes if classes is not None else contract.SURFACE_CLASSES)
-    members = {c: {ap for ap, ts in (lt or {}).items() if c in (ts or ())} for c in vocab}
+    members = {c: {ap for ap, ts in (lt or {}).items()
+                   if c in (ts or ())
+                   or set(ts or ()) & contract.SURFACE_CLASS_EXTRA_TAGS.get(c, frozenset())}
+               for c in vocab}
     out = {}
     for outer in vocab:
         inner = [c for c in vocab

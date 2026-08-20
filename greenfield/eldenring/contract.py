@@ -274,9 +274,16 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # test_field_exclude_matches_contract would have compared FIELD_EXCLUDE against an EMPTY set and
 # passed VACUOUSLY -- a green parity gate over nothing. Both are direct attribute access now: if
 # this constant is ever renamed again, they must break.
+# "LegacyBoss" ABSORBED into MajorBoss 2026-08-20 (Alaric): a boss standing in a legacy dungeon
+# is a major by any player's reading, and the split earned nothing but a wizard row. The yaml
+# spelling stays ACCEPTED -- ProgressionSurface.from_any normalizes it to MajorBoss (the
+# limgrave_caves alias precedent) -- so no wild yaml breaks; only the vocabulary shrank.
+# 🛑 The TAG "LegacyBoss" is still baked (SURFACE_INTERNAL_TAGS): the MajorBoss tag doubles as
+# roster identity for goal/anchor/roster consumers, so the absorption is done at has_class via
+# SURFACE_CLASS_EXTRA_TAGS rather than by retagging the data.
 SURFACE_CLASSES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                    "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
-                   "KeyItem", "MajorBoss", "LegacyBoss", "FieldBoss", "MinorDungeonBoss",
+                   "KeyItem", "MajorBoss", "FieldBoss", "MinorDungeonBoss",
                    "SweepSlot", "SweepSlotMajor", "SweepSlotMinor"]
 # 🛑 SweepSlot is NOT A LOCATION TAG. Every other member of this list names a tag that gen_data
 # writes onto a check; SweepSlot is DERIVED at world-build time from that seed's own enabled sweeps
@@ -393,6 +400,17 @@ def sweeps_for_surface_class(sweeps, cls, majors):
 # store (a shop slot holding a rarity-3 item) -- buy-only, so no region Lock and no tracker star even
 # when Shop or Legendary is selected.
 SURFACE_EXCLUDE_TAGS = frozenset({"EniaShop"})
+
+# INTERNAL tags: present in LOCATION_TAGS, deliberately NOT in SURFACE_CLASSES (not user-selectable)
+# and NOT excluding. "LegacyBoss" survives as a tag because goal_locations / anchor eligibility /
+# the roster-uniqueness law read the raw MajorBoss tag as ROSTER identity; only the CLASS was
+# absorbed (2026-08-20, Alaric). Matched onto the MajorBoss selection via SURFACE_CLASS_EXTRA_TAGS.
+SURFACE_INTERNAL_TAGS = frozenset({"LegacyBoss"})
+
+# CLASS -> extra internal tags that selection also matches. THE absorption seam: has_class and
+# features/progression_surface.class_containment both read it, so the surface and the wizard's
+# covered-by lattice cannot disagree about what a class covers.
+SURFACE_CLASS_EXTRA_TAGS = {"MajorBoss": frozenset({"LegacyBoss"})}
 
 # The DEFAULT progression surface. It lives HERE, beside has_class, because it has two consumers that
 # cannot import each other:
@@ -676,7 +694,11 @@ def has_class(tags, selected) -> bool:
     SECOND selection masquerade as a second mechanism.
     """
     t = set(tags or ())
-    return bool(set(selected) & t) and not (SURFACE_EXCLUDE_TAGS & t)
+    sel = set(selected)
+    for _cls, _extra in SURFACE_CLASS_EXTRA_TAGS.items():
+        if _cls in sel:
+            sel = sel | _extra   # the LegacyBoss absorption (see SURFACE_CLASS_EXTRA_TAGS)
+    return bool(sel & t) and not (SURFACE_EXCLUDE_TAGS & t)
 
 
 class ContractKey:

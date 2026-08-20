@@ -14,7 +14,6 @@
   "GreatRune",
   "KeyItem",
   "MajorBoss",
-  "LegacyBoss",
   "FieldBoss",
   "MinorDungeonBoss",
   "SweepSlot",
@@ -50,7 +49,7 @@
   "Abyssal": {
    "checks": 19,
    "combos": {
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Fragment": 1,
     "Revered": 2
    },
@@ -97,9 +96,8 @@
   "Ainsel River": {
    "checks": 123,
    "combos": {
-    "Boss|LegacyBoss": 1,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss": 2,
+    "Boss|MajorBoss|Remembrance": 1,
     "KeyItem": 1,
     "Legendary": 2,
     "Seedtree": 2,
@@ -257,8 +255,8 @@
   "Ashen Capital": {
    "checks": 18,
    "combos": {
-    "Boss|LegacyBoss": 5,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 2,
+    "Boss|MajorBoss": 5,
+    "Boss|MajorBoss|Remembrance": 2,
     "Legendary": 1
    },
    "dlc": false,
@@ -304,7 +302,7 @@
   "Belurat": {
    "checks": 93,
    "combos": {
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Fragment": 1,
     "KeyItem": 1,
     "Revered": 4
@@ -411,8 +409,8 @@
    "combos": {
     "Boss": 4,
     "Boss|FieldBoss": 2,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Boss|Legendary": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Boss|MinorDungeonBoss": 1,
     "Fragment": 3,
     "KeyItem": 2
@@ -512,7 +510,7 @@
   "Deeproot Depths": {
    "checks": 80,
    "combos": {
-    "Boss|LegacyBoss": 2,
+    "Boss|MajorBoss": 2,
     "Legendary": 4
    },
    "dlc": false,
@@ -558,7 +556,7 @@
   "Enir Ilim": {
    "checks": 107,
    "combos": {
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Fragment": 3,
     "Legendary": 1,
     "Revered": 3
@@ -645,9 +643,8 @@
   "Farum Azula": {
    "checks": 105,
    "combos": {
-    "Boss|LegacyBoss": 1,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 2,
+    "Boss|MajorBoss": 2,
+    "Boss|MajorBoss|Remembrance": 2,
     "Legendary": 4,
     "Seedtree": 2
    },
@@ -739,9 +736,8 @@
    "checks": 123,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss": 1,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss": 2,
+    "Boss|MajorBoss|Remembrance": 1,
     "Seedtree": 1
    },
    "dlc": false,
@@ -828,8 +824,8 @@
    "checks": 251,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss|Legendary": 1,
-    "Boss|LegacyBoss|MajorBoss": 2,
+    "Boss|Legendary|MajorBoss": 1,
+    "Boss|MajorBoss": 2,
     "KeyItem": 1,
     "Legendary": 1
    },
@@ -879,7 +875,7 @@
     "Basin": 2,
     "Boss|FieldBoss": 5,
     "Boss|FieldBoss|Legendary": 1,
-    "Boss|LegacyBoss|Seedtree": 1,
+    "Boss|MajorBoss|Seedtree": 1,
     "Boss|MinorDungeonBoss": 7,
     "Church": 1,
     "KeyItem": 1,
@@ -997,7 +993,7 @@
    "checks": 67,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Shop|ShopNonSpell": 4,
     "Shop|ShopNonSpell|ShopSlot": 1
    },
@@ -1098,9 +1094,8 @@
     "Boss|FieldBoss": 4,
     "Boss|FieldBoss|Legendary": 1,
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss": 2,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss": 3,
+    "Boss|MajorBoss|Remembrance": 1,
     "Boss|MinorDungeonBoss": 2,
     "KeyItem": 1,
     "Legendary": 3,
@@ -1202,9 +1197,9 @@
   "Raya Lucaria Academy": {
    "checks": 105,
    "combos": {
-    "Boss|GreatRune|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|GreatRune|MajorBoss": 1,
+    "Boss|MajorBoss": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Legendary": 3,
     "Seedtree": 2,
     "Shop|ShopNonSpell": 16
@@ -1256,9 +1251,9 @@
    "checks": 324,
    "combos": {
     "Boss|FieldBoss": 4,
-    "Boss|Fragment|LegacyBoss": 1,
-    "Boss|LegacyBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|Fragment|MajorBoss": 1,
+    "Boss|MajorBoss": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Boss|MinorDungeonBoss": 1,
     "Fragment": 9,
     "KeyItem": 2,
@@ -1317,8 +1312,8 @@
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 2,
-    "Boss|KeyItem|LegacyBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|KeyItem|MajorBoss": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Fragment": 8,
     "Legendary": 1,
     "Revered": 2
@@ -1366,9 +1361,8 @@
   "Siofra River": {
    "checks": 166,
    "combos": {
-    "Boss|LegacyBoss": 3,
-    "Boss|LegacyBoss|MajorBoss": 3,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss": 6,
+    "Boss|MajorBoss|Remembrance": 1,
     "Legendary": 1,
     "Seedtree": 1,
     "Shop|ShopNonSpell": 7,
@@ -1418,7 +1412,7 @@
    "checks": 140,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "KeyItem": 1,
     "Seedtree": 2,
     "Shop|ShopNonSpell": 14
@@ -1514,5 +1508,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "be718fbc8408ac01265b889b53ae76681c87f7808230316d2c3c4db124e10c47"
+ "source_sha256": "c11fc024eea7a033a5810031ba3a83ac218a60df7d018f950fd431bb7913dce8"
 }

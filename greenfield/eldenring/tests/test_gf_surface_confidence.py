@@ -135,8 +135,12 @@ class SurfaceConfidenceArtifact(unittest.TestCase):
         mods = mod._load()
         rows, _ = mod.measure(mods)
         lt = mods["location_tags"].LOCATION_TAGS
+        from ..contract import SURFACE_CLASS_EXTRA_TAGS
         for r in rows:
-            raw = sum(1 for ts in lt.values() if r["class"] in (ts or ()))
+            # A class's population includes its absorbed internal tags (MajorBoss -> LegacyBoss,
+            # 2026-08-20) -- the same expansion the tool and has_class apply.
+            want_tags = {r["class"]} | set(SURFACE_CLASS_EXTRA_TAGS.get(r["class"], ()))
+            raw = sum(1 for ts in lt.values() if want_tags & set(ts or ()))
             self.assertEqual(
                 r["total"] + r["tag_excluded"], raw,
                 "%s: total %d + tag_excluded %d != %d raw tags -- the table's filtered and raw "

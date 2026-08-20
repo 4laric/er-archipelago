@@ -61,7 +61,7 @@ CASES = [
     None,                                              # = the option's own default
     ["MajorBoss"],
     ["MajorBoss", "Remembrance", "GreatRune"],
-    ["Boss", "MajorBoss", "LegacyBoss", "FieldBoss"],
+    ["Boss", "MajorBoss", "FieldBoss"],
     ["Shop", "ShopNonSpell", "ShopSlot"],
     [],
     "ALL",
