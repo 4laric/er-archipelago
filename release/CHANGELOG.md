@@ -28,6 +28,16 @@ Client half: clients#334. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Eight Sites of Grace that lit for NOBODY now light with the region whose ground they stand
+  on.** The grace-ground safety gate dropped a grace from the wrong region's bundle but never
+  re-homed it to the right one, so these stayed dark all game even after their region opened:
+  Shadow Keep Main Gate (lights with Scadu Altus), Main Academy Gate (Raya Lucaria), Grand Lift
+  of Rold (Mountaintops), Hidden Path to the Haligtree (Consecrated Snowfield), Castleward
+  Tunnel, Limgrave Tower Bridge and Divine Tower of Limgrave (Stormveil), and Wyndham Catacombs
+  (Altus). On `region_grace_unlock: entrance`, Stormveil's entrance is now Castleward Tunnel and
+  Raya Lucaria's is Main Academy Gate — the canonical doors, and the academy pick no longer
+  warps you inside the seal. (#930)
+
 ## v0.4.10 — 2026-08-19
 
 ### What you need to update

@@ -18,6 +18,15 @@ only moment anyone remembers why it mattered._
 Nothing yet. This window was opened at the v0.4.10 tag with zero commits past it, so the notes
 exist before the first change does. That is the point of opening it now.
 
+**The graces that lit for nobody light now.** Eight Sites of Grace were orphans: a safety gate
+correctly refused to let the wrong region force-light them, but nothing ever handed them to the
+right one — so Shadow Keep Main Gate stayed dark even after Scadu Altus opened, and so did Main
+Academy Gate, Grand Lift of Rold, Hidden Path to the Haligtree, Castleward Tunnel, both Limgrave
+Divine Tower graces, and Wyndham Catacombs. Each now lights with the region whose ground it
+actually stands on. If you play `region_grace_unlock: entrance`, two entrances move to the
+canonical doors: Stormveil opens at Castleward Tunnel and Raya Lucaria at Main Academy Gate —
+which also means the academy unlock no longer warps you inside the seal.
+
 ## What carried over from v0.4.10
 
 No player-facing work is carried over. The v0.4.10 tag is exactly the `main` commit this window

@@ -31,10 +31,16 @@ EXEMPLARS = {
     "Ashen Capital": (71123, "Leyndell, Capital of Ash"),  # unambiguous post-burn entry; #853
     "Consecrated Snowfield": (76550, "Consecrated Snowfield"),  # secret-lift exit; #868
     "Gravesite": (76800, "Gravesite Plain"),       # where the DLC starts
-    "Stormveil": (71003, "Gateside Chamber"),      # interior region: no 76xxx member at all
+    "Stormveil": (71002, "Castleward Tunnel"),     # the storm-tunnel approach itself; re-homed
+                                                   # into the bundle by #930 (ground is Stormveil's
+                                                   # own) and the better entrance by name
     "Leyndell": (71102, "East Capital Rampart"),   # interior
     "Haligtree": (71506, "Haligtree Canopy"),      # top of the physical descent; #861
-    "Raya Lucaria Academy": (71402, "Church of the Cuckoo"),
+    "Raya Lucaria Academy": (76206, "Main Academy Gate"),  # re-homed by #930; the seal's own
+                                                   # doorstep, granted only once the wall disarms
+                                                   # (gated-child bundles stay withheld while armed).
+                                                   # Replaces Church of the Cuckoo, which warped the
+                                                   # player INSIDE the seal -- strictly less correct.
 }
 
 

@@ -6160,6 +6160,28 @@ for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, bu
 for _fl, _reg, _owners in sorted(_foreign_ground_skipped):
     print(f"grace-ground gate: NOT force-lighting {_fl} ({_reg} bundle) -- it stands on ground "
           f"owned by {_owners} (walk in; warping there with only the {_reg} lock is a kick)")
+# RE-HOME, don't orphan (#930, bobler 2026-08-20): the gate stops the WRONG region force-lighting
+# a grace, but a dropped grace still belongs in the bundle of the region that OWNS its measured
+# ground -- that lock opens exactly the ground the grace stands on, so lighting it from there
+# carries no kick risk, and orphaning it means it lights for NOBODY (Shadow Keep Main Gate 72102
+# stayed dark after Scadu Altus opened, forcing the walk). Single-owner only: with two+ owners
+# every side has some foreign bucket and which lock may light it is a ruling, not a derivation.
+# Bundle membership ONLY -- never _open_cand, so a re-homed grace can never become the owner's
+# front door or open flag (72102 < 74002 would otherwise undercut Scadu Altus's real entrance).
+_GRACE_REHOME = defaultdict(list)
+for _fl, _reg, _owners in _foreign_ground_skipped:
+    if len(_owners) != 1:
+        print(f"grace-ground gate: {_fl} ({_reg} bundle) ground has MULTIPLE owners {_owners} -- "
+              f"walk-in only (which side may light it is a ruling, not a derivation)")
+        continue
+    _own = _owners[0]
+    if _own not in spokes + [_FINALE_REGION]:
+        print(f"grace-ground gate: {_fl} ({_reg} bundle) ground owner {_own!r} ships no bundle -- "
+              f"walk-in only")
+        continue
+    _GRACE_REHOME[_own].append(_fl)
+    print(f"grace-ground gate: re-homed {_fl} ({_reg} menu region) into the {_own} bundle -- "
+          f"its measured ground is {_own}'s own, so that lock may light it")
 # A region whose NATURAL front door (its numerically-first overworld grace, the one _front_door
 # would pick) stands on provably-foreign ground DIES here. Skipping it and letting the front door
 # slide to the next grace is how the Scaduview kick would RE-hide (2026-07-15): 76935 measured
@@ -6569,7 +6591,10 @@ MAJOR_BOSS_EXTRAS = {
 # receipt; freebie+scatter is a v2 enhancement.
 def _graces_frontdoor_first(r):
     _fs = sorted(_open_cand[r]); _fd = _front_door(r)
-    return [_fd] + [f for f in _fs if f != _fd]
+    # _GRACE_REHOME last: graces another region's menu claims but THIS region's ground owns
+    # (#930). Bundle-only, so they are never front-door candidates -- _fd comes from _open_cand.
+    return [_fd] + [f for f in _fs if f != _fd] + [f for f in sorted(_GRACE_REHOME.get(r, ()))
+                                                   if f not in _fs]
 REGION_GRACE_POINTS = {r: _graces_frontdoor_first(r)
                        for r in _OPEN_FLAG_REGIONS if _open_cand.get(r)}
 OUT_GRACES = os.path.join(HERE, "eldenring", "region_graces.py")

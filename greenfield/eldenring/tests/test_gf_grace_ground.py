@@ -176,6 +176,10 @@ class TestGraceGround(unittest.TestCase):
         self.assertNotIn(72102, self.graces.get("Shadow Keep", ()),
                          "72102 stands on Scadu Altus ground -- the grace-ground gate must drop it "
                          "from the Keep's force-lit bundle (else the Keep lock warps into a kick)")
+        self.assertIn(72102, self.graces.get("Scadu Altus", ()),
+                      "72102's ground is Scadu Altus's OWN ground, so the Scadu Altus bundle must "
+                      "carry it: dropped from the Keep's bundle without a re-home, the Main Gate "
+                      "lit for NOBODY even after Scadu Altus opened (#930, bobler 2026-08-20)")
 
     def test_charos_regression(self):
         """The literal 2026-07-15 in-game failure, pinned: Charo's front door 76841 stands on
