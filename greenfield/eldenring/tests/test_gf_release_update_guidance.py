@@ -2,14 +2,29 @@
 
 import importlib.util
 import os
+import sys
 import unittest
 
 
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-TOOL = os.path.join(ROOT, "tools", "check_release_notes.py")
-SPEC = importlib.util.spec_from_file_location("check_release_update_guidance_test", TOOL)
-NOTES = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(NOTES)
+HERE = os.path.dirname(os.path.abspath(__file__))
+try:
+    from ._util import find_repo_root, REPO_ONLY_REASON
+except ImportError:
+    sys.path.insert(0, HERE)
+    from _util import find_repo_root, REPO_ONLY_REASON
+
+ROOT = find_repo_root(HERE)
+NOTES = None
+if ROOT is not None:
+    TOOL = os.path.join(ROOT, "tools", "check_release_notes.py")
+    if os.path.isfile(TOOL):
+        SPEC = importlib.util.spec_from_file_location("check_release_update_guidance_test", TOOL)
+        NOTES = importlib.util.module_from_spec(SPEC)
+        SPEC.loader.exec_module(NOTES)
+        if not hasattr(NOTES, "parse_update_guidance"):
+            # An installed world may sit inside another checkout whose tool predates this test.
+            # That is not the source tree paired with the installed test package.
+            NOTES = None
 
 
 VALID = """### What you need to update
@@ -25,6 +40,7 @@ Something happened.
 """
 
 
+@unittest.skipUnless(NOTES is not None, REPO_ONLY_REASON)
 class ReleaseUpdateGuidanceTests(unittest.TestCase):
     def test_valid_block_parses_to_semantic_statuses(self):
         values, errors = NOTES.parse_update_guidance(VALID, 3, "changelog")
