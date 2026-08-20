@@ -3079,6 +3079,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
   "region": "Ashen Capital"
  },
+ "hub_dlc_gated_checks": 36,
  "hub_region": "Roundtable Hold",
  "parent": {
   "Leyndell": "Altus",
@@ -4892,7 +4893,11 @@ const ERW = (() => {
     // base game is in play. census.finale.present_when states the rule; this evaluates it.
     const finaleName = census.finale && census.finale.region;
     const finaleOn = !!(finaleName && R[finaleName]) && eligible.some(n => !R[n].dlc);
-    const base = R[census.hub_region].checks + (finaleOn ? R[finaleName].checks : 0);
+    /* #913: Enia's DLC-gated shop rows leave a no-DLC seed, so the hub is smaller by the
+       census's hub_dlc_gated_checks there. check_wizard_census_js proves this line matches the
+       Python reference. */
+    const base = R[census.hub_region].checks + (finaleOn ? R[finaleName].checks : 0)
+               - ((!opts.dlcOnly && !opts.enableDlc) ? (census.hub_dlc_gated_checks || 0) : 0);
     const rung = opts.dungeonSweep || "bosses";
     const baseSurf = comboHits(R[census.hub_region], sel, rung)
                    + (finaleOn ? comboHits(R[finaleName], sel, rung) : 0);

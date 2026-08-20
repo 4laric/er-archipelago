@@ -154,6 +154,10 @@ def seed_size(census, opts):
     finale_on = bool(fin and fin in R) and any(not R[n]["dlc"] for n in eligible)
     hub = census["hub_region"]
     base = R[hub]["checks"] + (R[fin]["checks"] if finale_on else 0)
+    # #913: the DLC-gated hub shop rows exist per-seed; a no-DLC seed's hub is smaller by exactly
+    # this census field. Mirrored in ERW.seedSize -- this gate is the parity proof.
+    if not opts["dlcOnly"] and not opts["enableDlc"]:
+        base -= int(census.get("hub_dlc_gated_checks") or 0)
     base_surf = (_combo_hits(R[hub], sel, rung)
                  + (_combo_hits(R[fin], sel, rung) if finale_on else 0))
 
