@@ -39,8 +39,8 @@ _LOD_CHECKS = {
     1042377070: ("Limgrave", "Lordsworn's Greatsword -- Gatefront; was Weeping Peninsula"),
     1042397010: ("Limgrave", "Lance; was Weeping Peninsula"),
     1045527000: ("Altus", "Gravity Stone Fan"),
-    1048557900: ("Mountaintops of the Giants", "Flowing Curved Sword"),
-    1049547900: ("Mountaintops of the Giants", "St. Trina's Torch"),
+    1048557900: ("Consecrated Snowfield", "Flowing Curved Sword"),
+    1049547900: ("Consecrated Snowfield", "St. Trina's Torch"),
 }
 
 

@@ -752,6 +752,14 @@ jobs:
           echo "pinned gitlink : $pin"
           echo "client main    : $head"
 
+          if ! cmp -s greenfield/grace_names.tsv \
+              from-software-archipelago-clients/crates/er-logic/src/grace_names.tsv; then
+            echo "::error::client main's embedded grace catalog differs from world main -- !unlockgrace would search stale names"
+            diff -u greenfield/grace_names.tsv \
+              from-software-archipelago-clients/crates/er-logic/src/grace_names.tsv || true
+            exit 1
+          fi
+
           python tools/gen_region_locks.py
           python greenfield/gen_contract.py
 

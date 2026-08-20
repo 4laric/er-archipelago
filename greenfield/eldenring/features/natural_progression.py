@@ -114,6 +114,8 @@ GATE_CLAUSES = {
     "Mt. Gelmir": [("Rya's Necklace",),
                    ("Remembrance of the Grafted", "Academy Glintstone Key")],
     "Mountaintops of the Giants": [("Rold Medallion",)],
+    "Consecrated Snowfield": [("Haligtree Secret Medallion (Left)",
+                                "Haligtree Secret Medallion (Right)")],
     "Haligtree": [("Haligtree Secret Medallion (Left)", "Haligtree Secret Medallion (Right)")],
     # Underworld / Eternal Cities bloc (spec S3 "Underworld (whole bloc)"): Rem. of the Starscourge.
     "Siofra River": [("Remembrance of the Starscourge",)],

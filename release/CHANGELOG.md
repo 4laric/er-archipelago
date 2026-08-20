@@ -40,6 +40,12 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   useful items delivered, pooled composition 1.01:1 useful:filler -- the pool's own mix. The CI
   export guard now asserts the derived floor instead of a margin-of-one (#918). Ruling: Alaric,
   2026-08-20.
+- **The region-lock kick table caught up with the census.** Mountaintops of the Giants' lock now
+  covers its own catacombs (play regions the full-MSB census attributed to it); the client's baked
+  table was three world regens behind, which the main-only drift gate caught. Consecrated Snowfield
+  is now a separate rollable region with its own lock, entrance grace, checks, scaling and boss
+  sweeps instead of being bundled into Mountaintops (#868). Clients: clients#331 paired the census
+  correction; clients#332 pairs the Snowfield split and this gitlink bump.
 - **Enia's DLC rows leave a seed that has no DLC.** Thirty-six of the Finger Reader's shop
   checks are gated on Shadow of the Erdtree content -- the remembrance trades consume a DLC
   remembrance, and the DLC boss armor sets release on DLC ceremony flags -- but Enia stands in
@@ -98,6 +104,11 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   the run. The wizard's seed-size preview now includes those extra regions and shows their marginal
   0–N contribution beyond `num_regions`; generation logs distinguish them from goal force-keeps
   instead of calling them `goal=auto`. World: #841.
+- **The two Region-Lock travel settings now describe separate axes.** `progression_bias` controls
+  how many Locks leave their owner, but ordinary fill does not promise those Locks to a much smaller
+  partner game; measured cross-game seeds could send that partner zero. `cross_game_progression`
+  is the setting that deliberately chooses the non-Elden-Ring share. Documentation only; seed
+  behavior is unchanged. World: #633.
 
 ## v0.4.9 — 2026-08-18
 

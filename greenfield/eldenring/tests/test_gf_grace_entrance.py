@@ -29,6 +29,7 @@ EXEMPLARS = {
     "Weeping": (76150, "Church of Pilgrimage"),
     "Altus": (76301, "Altus Plateau"),         # lift-side entrance; #641
     "Ashen Capital": (71123, "Leyndell, Capital of Ash"),  # unambiguous post-burn entry; #853
+    "Consecrated Snowfield": (76550, "Consecrated Snowfield"),  # secret-lift exit; #868
     "Gravesite": (76800, "Gravesite Plain"),       # where the DLC starts
     "Stormveil": (71003, "Gateside Chamber"),      # interior region: no 76xxx member at all
     "Leyndell": (71102, "East Capital Rampart"),   # interior
@@ -100,6 +101,8 @@ def test_only_the_ruled_entrances_match_their_open_anchors():
     assert entrance_grace(REGION_GRACE_POINTS["Altus"], "Altus") == REGION_OPEN_FLAGS["Altus"] == 76301
     assert (entrance_grace(REGION_GRACE_POINTS["Ashen Capital"], "Ashen Capital")
             == REGION_OPEN_FLAGS["Ashen Capital"] == 71123)
+    assert (entrance_grace(REGION_GRACE_POINTS["Consecrated Snowfield"], "Consecrated Snowfield")
+            == REGION_OPEN_FLAGS["Consecrated Snowfield"] == 76550)
 
 
 def test_empty_input_fails_rather_than_inventing_an_answer():

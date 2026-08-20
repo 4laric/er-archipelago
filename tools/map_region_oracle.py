@@ -57,9 +57,9 @@ PLAY_REGION_TO_GF.update({int(_p): _r for _p, _r in _rg.PLAY2AP.items()})
 # wrong); the curated region is ADDED, so neither assignment false-positives. Each entry cites why.
 MAP_TRUTH_EXTRA = {
     # Hidden Path to the Haligtree: grace bucket 63003 (E. Altus / Forbidden Lands / Rold) -> Altus,
-    # but gen_data DUNGEON_REGION_OVERRIDE curates m30_20 -> Mountaintops of the Giants ("Snowfield
-    # folded into Mountaintops") since it is the Snowfield chain's entrance.
-    "m30_20": {"Mountaintops of the Giants"},
+    # but gen_data DUNGEON_REGION_OVERRIDE curates m30_20 -> Consecrated Snowfield since it is the
+    # Snowfield chain's entrance.
+    "m30_20": {"Consecrated Snowfield"},
 }
 
 _OVERWORLD_RE = re.compile(r"^m6[01]_")

@@ -332,7 +332,9 @@ class TagDataTests(unittest.TestCase):
         # `Boss` does NOT move (266): Dancer of Ranah and Godefroy reached it only through CLOSURE 2
         # while they were wrongly major, and they are now in _BOSS_DROP_EXTRAS on their own evidence
         # (both have BOSS_HEALTHBARS rows; neither defeat flag is in the reward capture).
-        self.assertEqual(TAG_COUNTS["MajorBoss"], 51)
+        # 51 -> 52 (#868): Great Wyrm Theodorix is Consecrated Snowfield's own progression anchor.
+        # It remains FieldBoss-only, so this does not turn Snowfield into a terminal goal region.
+        self.assertEqual(TAG_COUNTS["MajorBoss"], 52)
 
     def test_boss_geography_counts(self):
         """LegacyBoss / FieldBoss split `Boss` by WHERE the boss stands. Drift guard on both."""
