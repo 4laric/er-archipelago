@@ -487,7 +487,7 @@ _OPTION_GROUPS = [
         "enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
         "difficulty_ramp_speed", "traps", "spawn_traps", "trap_count"]),
     ("Checks & Item Pool", [
-        "vanilla_placement", "natural_progression", "dungeon_sweep", "reroll_enemy_drops",
+        "dungeon_sweep", "reroll_enemy_drops",
         "protect_missable_locations",
         # vanilla_pool sits directly before curated_filler because it OVERRIDES it (#618): the
         # wizard renders a group in this order, and a player reading the recipe first would edit
@@ -509,11 +509,19 @@ _OPTION_GROUPS = [
         "merchant_bell_logic", "reroll_infinite_shop_stock", "infinite_hub_wares",
         "progressive_stone_bells"]),
     ("Quality of Life", [
-        # no_weapon_requirements sits beside no_equip_load because they are the same kind of knob --
-        # both remove a constraint the game puts between you and gear the multiworld handed you, one
-        # on stats and one on weight -- and a player deciding about one is deciding about the other.
-        "auto_equip", "no_weapon_requirements", "no_equip_load", "start_with_whetblades",
+        # auto_equip and no_equip_load are ADJACENT on purpose (Alaric 2026-08-20): the moment you
+        # turn auto_equip on, "do you want a guaranteed medium roll so a random drop cannot
+        # overload you?" is the next question, so it sits right there. no_weapon_requirements is
+        # the same kind of constraint-remover and follows. auto_upgrade UNFROZE the same day.
+        "auto_equip", "no_equip_load", "auto_upgrade", "no_weapon_requirements",
+        "start_with_whetblades",
         "progressive_flasks", "capital_reconciler", "open_boss_doors"]),
+    # Collapsed = filed under the wizard's Advanced step and folded on AP's page. Both of these
+    # invert the randomizer's whole premise (items where vanilla keeps them; vanilla's dependency
+    # shape instead of synthetic locks) -- Alaric 2026-08-20: "buried pretty deep, both kind of
+    # experimental". They are still fully supported options; they just should not greet a player
+    # who came to randomize.
+    ("Experimental", ["vanilla_placement", "natural_progression"], True),
 ]
 
 
@@ -528,7 +536,12 @@ def _option_groups() -> List[OptionGroup]:
     """
     live = {f.name: f.type for f in dataclass_fields(GFOptions)}
     groups = []
-    for name, keys in _OPTION_GROUPS:
+    for entry in _OPTION_GROUPS:
+        # (name, keys) or (name, keys, start_collapsed). A collapsed group renders inside the
+        # wizard's Advanced step and starts folded on AP's own options page -- it is the home for
+        # experimental options that should exist without greeting anyone (Alaric, 2026-08-20).
+        name, keys = entry[0], entry[1]
+        collapsed = bool(entry[2]) if len(entry) > 2 else False
         unknown = [k for k in keys if k not in live and k not in FROZEN_OPTIONS]
         if unknown:
             raise AssertionError(
@@ -536,8 +549,49 @@ def _option_groups() -> List[OptionGroup]:
                 "%s -- fix the key or drop it." % (name, ", ".join(unknown)))
         members = [live[k] for k in keys if k in live]
         if members:
-            groups.append(OptionGroup(name, members))
+            groups.append(OptionGroup(name, members, start_collapsed=collapsed))
     return groups
+
+
+# THE ESSENTIALS TIER (2026-08-20, PR #910 follow-up; player complaint "too many options").
+# The options a player forming a seed actually DECIDES -- the shape-of-the-run knobs. Everything
+# else renders behind a per-section "More ..." fold in the wizard. Criterion: an option is
+# essential if it changes WHAT run you are having (goal, size, DLC ownership, where items are,
+# who may hold progression, death link); tuning HOW a decision behaves stays under More.
+# A judgement call, like the grouping itself -- promoting a key is a one-line edit here plus
+# `python tools/dump_options_metadata.py`.
+#
+# PRESENTATION ONLY: the wizard reads it from the metadata blob; AP's player-options page has no
+# such concept and is untouched; the emitted yaml cannot move. Validated at import: a key that is
+# not claimed by _OPTION_GROUPS is a typo (frozen keys are not "essential" -- they are not knobs).
+# tests/test_gf_option_groups.py asserts every open group keeps at least one essential, so no
+# section can silently become all-More.
+_ESSENTIAL_OPTIONS = frozenset({
+    # Goal & Regions -- how big, what ends it, and both goal gates (Alaric 2026-08-20: the rune
+    # count is prominent, and "all region locks required" -- goal_region_unlock_policy -- is a
+    # front-page yes/no whose regions_completed spelling is the deep cut)
+    "num_regions", "goal", "ending_condition", "goal_great_runes", "goal_region_unlock_policy",
+    # DLC & Blessings -- the ownership toggle alone; dlc_only is the More tier (Alaric 2026-08-20)
+    "enable_dlc",
+    # Difficulty & Scaling -- the headline toggle and the flavor decision; the dials stay under
+    # More behind the easy/standard/hard quick-picks the wizard draws
+    "enemy_scaling", "traps",
+    # Checks & Item Pool -- who sweeps (vanilla_placement/natural_progression moved to the
+    # collapsed Experimental group)
+    "dungeon_sweep",
+    # Multiworld & Placement -- the two decisions a multiworld newcomer is actually making
+    "death_link", "progression_surface",
+    # Shops & Merchants: NONE (Alaric 2026-08-20 -- keep_out_of_shops was a bobler request, usage
+    # unknown; a zero-essential group renders its rows directly under its own fold, no inner More)
+    # Quality of Life -- the comfort ladder: wear it, don't fat-roll from it, keep it levelled
+    "auto_equip", "no_equip_load", "auto_upgrade", "no_weapon_requirements",
+})
+_grouped_keys = {k for _e in _OPTION_GROUPS for k in _e[1]}
+_bad_essentials = sorted(_ESSENTIAL_OPTIONS - _grouped_keys)
+if _bad_essentials:
+    raise RuntimeError("_ESSENTIAL_OPTIONS names key(s) no group claims (typo or retired "
+                       "option): %s" % _bad_essentials)
+del _grouped_keys, _bad_essentials
 
 
 class GFWeb(WebWorld):
@@ -546,6 +600,12 @@ class GFWeb(WebWorld):
     # metaclass, so an option landing in two groups fails at import. Assigning after the class is
     # created would skip that check.
     option_groups = _option_groups()
+
+
+# After class creation on purpose (the mirror of the note above): essential_options is OUR
+# metadata for the wizard dumper, not an attribute WebWorldRegister knows -- assigning it in the
+# body would hand an unknown key to AP's metaclass for no benefit.
+GFWeb.essential_options = _ESSENTIAL_OPTIONS
 
 
 class GreenfieldEldenRingWorld(World):
@@ -568,6 +628,22 @@ class GreenfieldEldenRingWorld(World):
         enable_dlc = bool(getattr(self.options, "enable_dlc", None) is None
                           or self.options.enable_dlc.value)
         return dlc_only or enable_dlc
+
+    def _seed_locations(self, region_name):
+        """LOCATIONS[region] minus the rows THIS SEED cannot open -- today exactly the DLC-gated
+        hub shop rows (Enia's 36) when the DLC is off. ONE chokepoint on purpose: the region
+        build, the pool assembly, the count-neutral total and the slot-data tables all read it,
+        so a location and its pool item can never disagree about whether they exist. The first
+        cut filtered only the region build and the 36 vanilla wares stayed in the pool -- the
+        bell test's count-neutrality caught 1003 items over 967 locations (AzoTax, 2026-08-20)."""
+        rows = LOCATIONS.get(region_name, [])
+        if self._dlc_on():
+            return rows
+        try:
+            from .shop_data import DLC_GATED_SHOP_CHECK_FLAGS as _dgs
+        except ImportError:
+            return rows
+        return [t for t in rows if int(t[2]) not in _dgs]
 
     def _resolve_start_region_pool(self) -> frozenset:
         """The regions `start_region_pool` allows the run to open in, validated. Empty = no constraint.
@@ -769,7 +845,8 @@ class GreenfieldEldenRingWorld(World):
         # why. One line in the gen log, naming all three contributions, is the whole fix.
         logging.getLogger("Greenfield").info(
             "[eldenring:%s] %s", self.player,
-            describe_kept(_nr, _draw_parts, self.gf_kept, self.gf_goal_choice))
+            describe_kept(_nr, _draw_parts, self.gf_kept, self.gf_goal_choice,
+                          start_region_pool=self.gf_start_pool))
         # Resolve the Great-Rune goal now (once), so create_item/set_rules/slot_data agree.
         self.gf_required_runes: List[str] = self._resolve_required_runes()
         self._lint_goal_reachability()
@@ -984,7 +1061,7 @@ class GreenfieldEldenRingWorld(World):
             return []
         seen: Dict[str, None] = {}
         for rn in self._kept():
-            for (_n, ap_id, _flag) in LOCATIONS.get(rn, []):
+            for (_n, ap_id, _flag) in self._seed_locations(rn):
                 nm = LOCATION_ITEM.get(ap_id)
                 if nm in GREAT_RUNES and nm not in seen:
                     seen[nm] = None
@@ -1132,7 +1209,7 @@ class GreenfieldEldenRingWorld(World):
                                                        missable_barred_aps as _ps_missable)
             from .features.start_grace import pick_anchor_regions
             _strict = True   # progression_surface_mode retired 2026-08-14; strict is the regime
-            _counts = {r: len(LOCATIONS.get(r, [])) for r in kept}
+            _counts = {r: len(self._seed_locations(r)) for r in kept}
             _n_start = 1
             _sr = getattr(self.options, "start_regions", None)
             if _sr is not None:
@@ -1237,7 +1314,7 @@ class GreenfieldEldenRingWorld(World):
                     pool[_pool_ix] = self.create_item(
                         _compacted if _compacted is not None else self._pick_filler())
         self._gf_reserved_slots = len(pool)
-        total = len(LOCATIONS.get(HUB, [])) + sum(len(LOCATIONS.get(r, [])) for r in kept)
+        total = len(self._seed_locations(HUB)) + sum(len(self._seed_locations(r)) for r in kept)
         # FEATURE-OWNED LOCATIONS (documented seam): a feature that creates locations beyond
         # LOCATIONS[HUB + kept] declares them in world.gf_extra_locations (generate_early) and
         # contributes exactly one pool item per entry from its create_items -- features/finale.py
@@ -1289,7 +1366,7 @@ class GreenfieldEldenRingWorld(World):
             # would disagree with the pool we actually built.
             _pin_aps: List[int] = []
             for rn in [HUB] + kept:
-                for (_n, ap_id, _flag) in LOCATIONS.get(rn, []):
+                for (_n, ap_id, _flag) in self._seed_locations(rn):
                     nm = LOCATION_ITEM.get(ap_id)
                     # DLC off: a kept BASE / HUB location whose vanilla item is DLC-only pays Rune
                     # instead (the same rule the juice / varied-filler / filler-foreign paths follow).
@@ -1649,7 +1726,15 @@ class GreenfieldEldenRingWorld(World):
         # player's advancement. None => feature off. Non-surface locations get a foreign-advancement bar
         # below. Computed once in create_regions (self._foreign_confine_surface).
         _fsurf = getattr(self, "_foreign_confine_surface", None)
-        for (name, ap_id, _flag) in LOCATIONS.get(region_name, []):
+        # DLC-GATED HUB SHOP ROWS LEAVE A NO-DLC SEED (AzoTax, Discord 2026-08-20). Enia's 36
+        # remembrance-trade and DLC-armor rows are Roundtable Hold checks -- kept in EVERY seed --
+        # whose vanilla shop row is gated on DLC content (a DLC remembrance consumed as material,
+        # or a DLC boss's ceremony flag releasing a DLC armor set). With the DLC off they can
+        # never open: pre-#860 apworlds could park REQUIRED items there (AzoTax's two-player seed
+        # goal-locked on one), and post-#860 they survived as forever-uncompletable checks. Skip
+        # them at creation, exactly as a sealed DLC region's own checks are skipped; the pool is
+        # derived from created locations, so their vanilla wares leave with them.
+        for (name, ap_id, _flag) in self._seed_locations(region_name):
             _loc = GFLocation(self.player, name, ap_id, region)
             _site = _sites.get(ap_id)
             if _site is not None:
@@ -1999,7 +2084,7 @@ class GreenfieldEldenRingWorld(World):
         kept = self._kept()
         loc_flags: Dict[str, List[int]] = {}
         for rn in [HUB] + kept:
-            for (_n, ap_id, flag) in LOCATIONS.get(rn, []):
+            for (_n, ap_id, flag) in self._seed_locations(rn):
                 # scalar {ap_id: flag} -- the client reads locationFlags via i64_to_u32_map (scalar),
                 # NOT a list; a [flag] value parsed to EMPTY -> no detection table -> checks never
                 # registered and goal was checked-fallback (2026-07-06). One flag per location.
@@ -2020,7 +2105,7 @@ class GreenfieldEldenRingWorld(World):
         # along through `gf_extra_location_regions` for the same reason loc_flags has that seam.
         loc_regions: Dict[str, List[int]] = {}
         for rn in [HUB] + kept:
-            ids = [int(ap_id) for (_n, ap_id, _f) in LOCATIONS.get(rn, [])]
+            ids = [int(ap_id) for (_n, ap_id, _f) in self._seed_locations(rn)]
             if ids:
                 loc_regions[rn] = ids
         # FEATURE-OWNED LOCATIONS, the same seam loc_flags uses above -- and the reason this is a

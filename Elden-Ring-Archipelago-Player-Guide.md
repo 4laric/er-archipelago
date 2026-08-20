@@ -327,6 +327,15 @@ run rather than tune it.
   100, 23% at 75, 38% at 50. Lower it if your friends should be opening your
   weapons; the cost is that their keys stop landing on your interesting checks.
 
+> **The "anything anywhere" recipe.** If you come from classic ER item rando and
+> want the old feel -- any check can matter, no curation steering keys onto
+> bosses -- three settings do it: widen **`progression_surface`** to every
+> category, set **`confine_foreign_progression: 0`** so other players' keys can
+> land on any of your checks, and leave **`progression_bias`** at 0 so your own
+> Region Locks travel freely. (Asked for on Discord, 2026-08-20 -- the builder's
+> defaults are curated on purpose, but nothing about the old style is
+> unsupported.)
+
 **How much am I actually sending out?** The *Seed size* tab of the yaml builder
 (<https://peliarch.ca/er/>) shows the ceiling as you move those options -- how many of your items are permitted to
 leave. The real number needs a finished seed, and it's in the spoiler and the
@@ -417,6 +426,36 @@ levels cost half the total fragments for roughly 11% more damage.
 > **This option used to do nothing outside the DLC**, whatever you set
 > it to -- the game declines to apply the blessing's effect outside the Land of
 > Shadow, and the option only wrote the stored number. It now works as described.
+
+### Your weapons keep up on their own
+
+```yaml
+auto_upgrade: true   # the default -- this has been every seed's behaviour since v0.2
+```
+
+Any weapon the game **adds to your bag** is raised to the highest reinforce level
+you already hold on its smithing track (normal and somber are separate; it never
+downgrades and never crosses tracks). That covers three moments:
+
+- an **AP grant** arriving from the multiworld,
+- a **world pickup** -- chests, corpses, drops,
+- and anything you **put down and take back**.
+
+That last one is the catch-up move, and it is deliberate: a weapon received
+early sits at the level you had *then*. To bring it to your current tier, drop
+it with **Leave** (not Discard -- Discard destroys) and pick it back up. Same
+gesture as matt's randomizer, same result. Upgrading a weapon at a blacksmith
+still works exactly as in vanilla; auto-upgrade only ever raises to a level you
+have already paid for once on that track.
+
+> If a dropped weapon ever seems to **vanish** on pickup instead, the client
+> noticed: check the log for a `vanilla-suppress ... Rescue:` line -- it names
+> the item and the exact `!give` console command that returns it (it comes back
+> at your current tier). Please also report it; that line is us hunting a rare
+> pickup-identity bug, and a sighting is evidence.
+
+A fully hands-off version -- weapons upgrading **in your bag** the moment your
+tier climbs, no gesture at all -- is planned as a separate yaml option.
 
 ## How much of a region an unlock opens
 

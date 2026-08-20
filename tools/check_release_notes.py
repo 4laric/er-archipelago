@@ -51,6 +51,8 @@ MIN_CHANGELOG_CHARS = 120
 MIN_CHANGELOG_LINES = 2
 # Likewise for the blurb: the thinnest shipped one is ~4.5k non-whitespace chars.
 MIN_BLURB_CHARS = 400
+UPDATE_HEADING = "What you need to update"
+UPDATE_FIELDS = ("Client", "APWorld", "YAML", "Existing seed/save", "Profile/assets")
 
 # ---- RATCHET ---------------------------------------------------------------------
 # Versions that predate this gate and cannot be made green retroactively without
@@ -180,6 +182,108 @@ def check_blurb(version, errs):
             "    A blurb filed under one version and headed with another is how you ship the\n"
             "    wrong notes -- the filename is not evidence about the contents."
             % (rel, version, first, version))
+
+
+def _plain(text):
+    """Collapse Markdown emphasis/whitespace for fixed-shape status comparisons."""
+    return re.sub(r"\s+", " ", text.replace("**", "").strip()).lower()
+
+
+def _update_status(field, value):
+    """Return the player-facing ruling represented by one update line, or None."""
+    value = _plain(value)
+    choices = {
+        "Client": ("required", "optional", "no"),
+        "APWorld": ("required", "host-only", "no"),
+        "YAML": (
+            "no new yaml required. existing yamls remain valid.",
+            "new yaml required.",
+            "new yaml optional. existing yamls remain valid.",
+        ),
+        "Existing seed/save": ("compatible", "new seed required", "save migration required"),
+        "Profile/assets": ("no action", "reinstall or replace"),
+    }
+    return next((choice for choice in choices[field] if value.startswith(choice)), None)
+
+
+def parse_update_guidance(text, level, source):
+    """Parse the first player-facing update section from one current release document.
+
+    `level=3` is the first subsection inside a changelog version; `level=2` is the first section
+    below a blurb title. The fixed labels make the two documents comparable without requiring
+    byte-identical prose.
+    """
+    errs = []
+    marker = "#" * level
+    headings = list(re.finditer(r"(?m)^%s\s+(.+?)\s*$" % re.escape(marker), text))
+    if not headings:
+        return None, [
+            "%s has no `%s %s` section; it must be the first player-facing section."
+            % (source, marker, UPDATE_HEADING)
+        ]
+    first = headings[0]
+    if first.group(1).strip().lower() != UPDATE_HEADING.lower():
+        return None, [
+            "%s begins with `%s %s`, not `%s %s`. Put update instructions first."
+            % (source, marker, first.group(1).strip(), marker, UPDATE_HEADING)
+        ]
+    end = headings[1].start() if len(headings) > 1 else len(text)
+    block = text[first.end():end]
+    if re.search(r"(?i)\bTODO(?:\(open\))?\b|\bTBD\b|<[^>]+>", block):
+        errs.append("%s leaves an unresolved placeholder in its update instructions." % source)
+
+    values = {}
+    field_rx = "|".join(re.escape(field) for field in UPDATE_FIELDS)
+    rows = list(re.finditer(
+        r"(?ms)^- \*\*(%s):\*\*\s*(.*?)(?=^- \*\*(?:%s):\*\*|\Z)"
+        % (field_rx, field_rx), block))
+    for row in rows:
+        field, value = row.group(1), row.group(2).strip()
+        if field in values:
+            errs.append("%s repeats the **%s:** update line." % (source, field))
+            continue
+        status = _update_status(field, value)
+        if status is None:
+            errs.append("%s has an unsupported or missing **%s:** ruling: %r"
+                        % (source, field, _plain(value)[:100]))
+        else:
+            values[field] = status
+        if field == "YAML" and not value.startswith("**"):
+            errs.append("%s must bold the direct YAML yes/no/optional answer." % source)
+
+    missing = [field for field in UPDATE_FIELDS if field not in values]
+    if missing:
+        errs.append("%s is missing resolved update guidance for: %s."
+                    % (source, ", ".join(missing)))
+    return (values if not errs else None), errs
+
+
+def check_update_guidance(version, errs):
+    """Require complete, mutually consistent update instructions in both current documents."""
+    _, changelog_body = changelog_section(version)
+    blurb_rel = "%s/BLURB-v%s.md" % (NOTES_DIR, version)
+    blurb_path = os.path.join(REPO, NOTES_DIR, "BLURB-v%s.md" % version)
+    if changelog_body is None or not os.path.isfile(blurb_path):
+        return  # The ordinary presence checks already provide the actionable error.
+    with open(blurb_path, encoding="utf-8") as fh:
+        blurb = fh.read()
+
+    changelog_values, changelog_errs = parse_update_guidance(
+        changelog_body, 3, "%s/CHANGELOG.md v%s" % (NOTES_DIR, version))
+    blurb_values, blurb_errs = parse_update_guidance(blurb, 2, blurb_rel)
+    errs.extend(changelog_errs)
+    errs.extend(blurb_errs)
+    if changelog_values is not None and blurb_values is not None:
+        mismatched = [field for field in UPDATE_FIELDS
+                      if changelog_values[field] != blurb_values[field]]
+        if mismatched:
+            detail = ", ".join(
+                "%s (%s vs %s)" %
+                (field, changelog_values[field], blurb_values[field])
+                for field in mismatched)
+            errs.append(
+                "the changelog and blurb contradict each other about update requirements: %s."
+                % detail)
 
 
 
@@ -346,6 +450,7 @@ def main(argv):
     errs = []
     check_changelog(version, errs)
     check_blurb(version, errs)
+    check_update_guidance(version, errs)
     check_version_is_still_open(version, errs)
     check_client_gitlink_notes(errs, git_range)
 

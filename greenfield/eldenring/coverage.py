@@ -292,7 +292,7 @@ def _finale_base_game_in_play(regions) -> bool:
     return bool(set(regions) - set(DLC_REGIONS))
 
 
-def build_coverage(world=None, kept=None, _static_table=None, finale=None):
+def build_coverage(world=None, kept=None, _static_table=None, finale=None, dlc_on=None):
     """Build the per-location coverage records for every EMITTED location this gen.
 
     world given  -> scope = HUB + world._kept(); the emitted tables (locationFlags /
@@ -470,8 +470,29 @@ def build_coverage(world=None, kept=None, _static_table=None, finale=None):
             grace_flag_region.setdefault(int(f), region)
 
     records = {}
+    # THE SAME PER-SEED FILTER THE WORLD APPLIES. A world given means this coverage run describes
+    # THAT SEED, and core._seed_locations drops the DLC-gated hub shop rows when the DLC is off
+    # (AzoTax, 2026-08-20) -- a records universe built from the raw table would then demand
+    # emitted entries for locations the seed deliberately does not have, and every one would
+    # read as "not present in emitted locationFlags". No world -> the raw table, as before.
+    # `dlc_on` is the same shape as `finale`: a question only the WORLD can answer, made a
+    # parameter so the STATIC join can be asked what the live join already knows (the test that
+    # compares them forwards ctx["dlc_on"]). world given -> the world's own filter; static with
+    # dlc_on=False -> the same 36-row cut applied by hand; static default -> the raw table.
+    if world is not None and hasattr(world, "_seed_locations"):
+        _rows_of = world._seed_locations
+        if dlc_on is None:
+            dlc_on = bool(world._dlc_on()) if hasattr(world, "_dlc_on") else True
+    elif dlc_on is False:
+        try:
+            from .shop_data import DLC_GATED_SHOP_CHECK_FLAGS as _dgs
+        except ImportError:
+            _dgs = frozenset()
+        _rows_of = lambda rn, _d=_dgs: [t for t in LOCATIONS.get(rn, []) if int(t[2]) not in _d]
+    else:
+        _rows_of = lambda rn: LOCATIONS.get(rn, [])
     for region in scope:
-        for (name, ap_id, flag) in LOCATIONS.get(region, []):
+        for (name, ap_id, flag) in _rows_of(region):
             rec = LocationCoverage(ap_id, name, region)
             rec.provenance["region"] = "data.py"
             rec.provenance["name"] = "data.py"
@@ -536,7 +557,7 @@ def build_coverage(world=None, kept=None, _static_table=None, finale=None):
             records[ap_id] = rec
 
     ctx = {
-        "scope": scope, "kept": scope_kept, "hub": HUB,
+        "scope": scope, "kept": scope_kept, "hub": HUB, "dlc_on": dlc_on,
         "GESTURE_AWARD_FLAGS": GESTURE_AWARD_FLAGS,
         "FINALE_REGION": FINALE_REGION if finale_on else None,
         "FINALE_REQUIRES": FINALE_REQUIRES,
@@ -898,11 +919,12 @@ def _flatten(byname):
 # ---------------------------------------------------------------------------------------------------
 # REPORT MODE (no raise) + the raising variant
 # ---------------------------------------------------------------------------------------------------
-def report_coverage(world=None, kept=None, printer=print, _static_table=None, finale=None):
+def report_coverage(world=None, kept=None, printer=print, _static_table=None, finale=None,
+                    dlc_on=None):
     """Build records, run all checks + the degradation ledger, return
     (records, ctx, violations_by_check). Prints a compact summary; NEVER raises."""
     records, ctx = build_coverage(world, kept=kept, _static_table=_static_table,
-                                 finale=finale)
+                                 finale=finale, dlc_on=dlc_on)
     byname = all_checks(records, ctx)
     total = sum(len(v) for v in byname.values())
     if printer:

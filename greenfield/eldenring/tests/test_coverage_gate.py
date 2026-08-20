@@ -422,8 +422,12 @@ if _HAVE_AP:
             #
             # ctx["FINALE_REGION"] is the live join's own verdict (None when off), so this asks
             # the static join the same question the world already answered.
+            # dlc_on rides the same seam as finale (see the block comment above): the DLC-gated
+            # hub shop rows (AzoTax, 2026-08-20) exist per-SEED, so the static join must be told
+            # the live join's verdict or the two differ by exactly those 36 on a no-DLC config.
             s_records, s_ctx, s_byname = live_cov.report_coverage(
-                kept=ctx["kept"], finale=ctx["FINALE_REGION"] is not None, printer=None)
+                kept=ctx["kept"], finale=ctx["FINALE_REGION"] is not None, printer=None,
+                dlc_on=ctx.get("dlc_on"))
             self.assertEqual(sorted(records), sorted(s_records),
                              "live and static joins disagree on the emitted location set")
 

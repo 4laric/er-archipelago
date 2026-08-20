@@ -69,7 +69,10 @@ class CheckItemFlags(Feature):
         scope = [HUB] + list(world._kept())
         by_full = defaultdict(set)
         for region in scope:
-            for (_name, ap_id, flag) in LOCATIONS.get(region, []):
+            # _seed_locations, not the raw table: the comment above is the rule, and the DLC-gated
+            # hub shop rows (#913) are exactly a check "not in play this seed" whose ware must not
+            # arm suppression -- gf_multiworld_smoke's forever-suppressed gate caught the raw read.
+            for (_name, ap_id, flag) in world._seed_locations(region):
                 # DETECT-ONLY gesture pickups: their ware is awarded by EMEVD AwardGesture, which
                 # the AddItemFunc detour never sees, so arming an id here could only ever eat a
                 # LEGITIMATE grant, never the vanilla award. gen_data already keeps their wares out

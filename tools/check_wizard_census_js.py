@@ -70,6 +70,13 @@ CASES = [
      "surfaceClasses": ["MajorBoss", "SweepSlotMinor"], "dungeonSweep": "bosses"},
     # ...and the DEFAULT surface, which now contains SweepSlot: the case a player actually gets.
     {"numRegions": 6, "enableDlc": True, "dlcOnly": False, "dungeonSweep": "bosses"},
+    # #841: start_region_pool is ADDITIVE. One candidate can overlap the random draw (0 marginal)
+    # or be appended after it (1 marginal); several candidates exercise the full 0..N band and
+    # parent closure after the force-keeps.
+    {"numRegions": 1, "enableDlc": True, "dlcOnly": False,
+     "startRegionPool": ["Caelid"]},
+    {"numRegions": 4, "enableDlc": True, "dlcOnly": False,
+     "startRegionPool": ["Caelid", "Liurnia", "Altus"]},
 ]
 
 
@@ -154,6 +161,10 @@ def seed_size(census, opts):
     finale_on = bool(fin and fin in R) and any(not R[n]["dlc"] for n in eligible)
     hub = census["hub_region"]
     base = R[hub]["checks"] + (R[fin]["checks"] if finale_on else 0)
+    # #913: the DLC-gated hub shop rows exist per-seed; a no-DLC seed's hub is smaller by exactly
+    # this census field. Mirrored in ERW.seedSize -- this gate is the parity proof.
+    if not opts["dlcOnly"] and not opts["enableDlc"]:
+        base -= int(census.get("hub_dlc_gated_checks") or 0)
     base_surf = (_combo_hits(R[hub], sel, rung)
                  + (_combo_hits(R[fin], sel, rung) if finale_on else 0))
 
@@ -161,7 +172,8 @@ def seed_size(census, opts):
     whole = (n <= 0 or n >= len(eligible))
     trials = 1 if whole else 4000
     rnd = _mulberry32(0x45524147)
-    checks, surf, kept = [], [], []
+    start_pool = {r for r in opts.get("startRegionPool", []) if r in elig}
+    checks, surf, kept, forced_start = [], [], [], []
     for _ in range(trials):
         if whole:
             kept_set = set(eligible)
@@ -170,6 +182,8 @@ def seed_size(census, opts):
             kept_set = set()
             for _i in range(n):
                 kept_set.add(pool.pop(int(rnd() * len(pool))))
+            added = start_pool - kept_set
+            kept_set.update(start_pool)
             grew = True
             while grew:
                 grew = False
@@ -178,6 +192,8 @@ def seed_size(census, opts):
                     if p and p in elig and p not in kept_set:
                         kept_set.add(p)
                         grew = True
+        if whole:
+            added = set()
         c, s = base, base_surf
         for r in kept_set:
             c += R[r]["checks"]
@@ -185,13 +201,15 @@ def seed_size(census, opts):
         checks.append(c)
         surf.append(s)
         kept.append(len(kept_set))
+        forced_start.append(len(added))
 
     def band(a):
         a = sorted(a)
         q = lambda p: a[int(p * (len(a) - 1))]
         return {"min": q(0), "p10": q(0.10), "median": q(0.5), "p90": q(0.90), "max": q(1)}
     return {"whole": whole, "trials": trials, "eligible": len(eligible), "finale": finale_on,
-            "checks": band(checks), "surface": band(surf), "kept": band(kept)}
+            "checks": band(checks), "surface": band(surf), "kept": band(kept),
+            "forcedStart": band(forced_start)}
 
 
 def _run_node(core, census, cases):
@@ -249,6 +267,21 @@ def main():
         want = seed_size(census, case)
         if got != want:
             bad.append("  case %s\n    js     %s\n    python %s" % (json.dumps(case), got, want))
+    # Differential agreement alone is not enough: deleting startRegionPool from BOTH
+    # implementations would make them agree about the original bug. These are semantic witnesses
+    # for #841's additive ruling. The fixed PRNG makes the bands exact and repeatable.
+    one_start = js[-2]
+    three_start = js[-1]
+    no_start = js[1]  # same one-region draw, no start_region_pool
+    if one_start.get("forcedStart") != {"min": 0, "p10": 1, "median": 1, "p90": 1, "max": 1}:
+        bad.append("  one start-region candidate did not contribute the expected 0..1 beyond the "
+                   "draw: %s" % one_start.get("forcedStart"))
+    if three_start.get("forcedStart", {}).get("max") != 3:
+        bad.append("  three start-region candidates never contributed all three beyond the draw: "
+                   "%s" % three_start.get("forcedStart"))
+    if one_start["kept"]["median"] <= no_start["kept"]["median"]:
+        bad.append("  start_region_pool did not move the median kept-region count: no pool %s, "
+                   "one candidate %s" % (no_start["kept"], one_start["kept"]))
     game_bad = check_yaml_names_the_game(core, _metadata(html))
     if game_bad:
         print("[FAIL] the yaml the wizard emits names the wrong game:")

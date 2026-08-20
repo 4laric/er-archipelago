@@ -5,6 +5,17 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.4.10 — 2026-08-19
 
+### What you need to update
+
+- **Client:** Required — use the v0.4.10 client with v0.4.10 seeds.
+- **APWorld:** Host-only — the room host or generator must install v0.4.10; joining players only
+  need the matching client.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** Generate a fresh template only to
+  see and select newly added options such as the Malenia goal.
+- **Existing seed/save:** New seed required — finish an active v0.4.9 seed with its matched v0.4.9
+  client and APWorld; use a new seed for v0.4.10 features.
+- **Profile/assets:** No action — this window does not require a profile or asset reinstall.
+
 Window opened from `main` immediately after v0.4.9 was tagged. The release tag's only commit not on
 `main` is its client-gitlink bump; this window supersedes that pin with the v0.4.10 client, so no
 player-facing work is stranded between the tag and this branch.
@@ -18,11 +29,64 @@ Client half: clients#320. Its commit is pinned by the gitlink in this same chang
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Enia's DLC rows leave a seed that has no DLC.** Thirty-six of the Finger Reader's shop
+  checks are gated on Shadow of the Erdtree content -- the remembrance trades consume a DLC
+  remembrance, and the DLC boss armor sets release on DLC ceremony flags -- but Enia stands in
+  Roundtable Hold, which every seed keeps, so with `enable_dlc: false` those checks existed
+  forever-uncompletable, and on older apworlds the fill could park a REQUIRED item on one
+  (AzoTax's two-player seed goal-locked exactly there). The set is derived from the vanilla shop
+  params, the locations and their pool items now leave a no-DLC seed together through one
+  chokepoint, and the coverage gate compares live and static joins under the same answer.
+  Reported by AzoTax on Discord, 2026-08-20.
+- **The options wizard is five steps, not eleven.** Players called the wall of tabs out: seven
+  option tabs, each a flat list, all reading as mandatory. The seven groups are now collapsible
+  sections inside ONE Options step (Start / Options / Seed size / Advanced / Finish), each header
+  live-counting your changes, with the first section open on arrival. The Start step now says out
+  loud that a preset is a complete, playable yaml on its own. Presentation only: the grouping
+  still lives in the world's option_groups (one grouping, two surfaces — Archipelago's own
+  player-options page is untouched), and the emitted yaml is byte-identical.
+- **Auto-upgrade is a setting again, on by default -- and it now covers every pickup.** Since
+  v0.2 every received weapon has been silently raised to the highest reinforce level you hold on
+  its track; that behaviour is now the `auto_upgrade` yaml knob (default on, so an existing yaml
+  changes nothing). The same raise now applies to any weapon the game adds to your bag -- world
+  pickups, chests, and the put-it-down-with-Leave-pick-it-up gesture players know from matt's
+  randomizer, which is the intended catch-up for a weapon received before you found your stones
+  (in-bag catch-up with no gesture at all is planned separately, behind its own option). The
+  client also now watches every suppressed pickup and, if one never turns into a check, names
+  the item in the log with its `!give` rescue -- the drop-and-pickup gesture can no longer
+  silently cost you a weapon. World: #693; client: clients#329.
+- **The wizard's Difficulty section opens with Easy / Standard / Hard.** Three quick-picks that
+  set the four scaling dials -- Standard is the default curve, whose cap scales to your run's
+  length and lands your final region around the scaling of vanilla Haligtree; Easy caps the climb
+  near 2x enemy HP; Hard raises the floor, uncaps the top and front-loads the ramp. The dials
+  stay real underneath: set one by hand and no button claims you.
+- **`vanilla_placement` and `natural_progression` moved to a collapsed Experimental group.** Both
+  invert the randomizer's premise and are filed under Advanced (and folded on Archipelago's own
+  options page) rather than greeting new players mid-form. Fully supported, just not front-page.
+- **The Seed size card stops claiming your Region Locks never travel.** The sentence shipped as
+  a constant -- "Your own progression never travels either way" -- while `progression_bias`'s
+  default is 0, meaning every Lock rides the multiworld like any other item. The card now derives
+  the sentence from `progression_bias` and `cross_game_progression`, and the render gate flips
+  the knob and demands the words follow. The player guide also gains the "anything anywhere"
+  recipe for the classic-rando feel. From 255's Discord question, 2026-08-20.
+- **Each wizard section leads with its essentials.** Fifteen of the sixty options are the
+  decisions that shape a run — goal, seed size, DLC ownership, where the items are, who may hold
+  progression, death link, and friends — and they render expanded; the tuning sits behind one
+  live-counted "More" fold per section, which opens itself while anything inside it deviates so a
+  changed option is never out of sight. The tier lives in the world
+  (`core._ESSENTIAL_OPTIONS`, validated at import, flowing through the metadata dump), not in the
+  page, and it is presentation only: Archipelago's own options page and the emitted yaml are
+  untouched.
 - **Malenia can end the run.** `goal: malenia` force-keeps the Haligtree and withholds its Lock
   from fill until the seed's independently selected Great-Rune and region requirements are met.
   Opening it grants Haligtree Canopy alone—even under the all-graces or grace-attunement settings—
   so Loretta, Elphael and the full descent to Malenia remain physical play. The terminal check is
   Malenia's f510200 defeat, not every Haligtree major boss. World: #861.
+- **Starting-region candidates now count honestly before you generate.** The additive behavior is
+  unchanged: every region in `start_region_pool` is kept, while only `start_regions` of them open
+  the run. The wizard's seed-size preview now includes those extra regions and shows their marginal
+  0–N contribution beyond `num_regions`; generation logs distinguish them from goal force-keeps
+  instead of calling them `goal=auto`. World: #841.
 
 ## v0.4.9 — 2026-08-18
 
