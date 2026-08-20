@@ -163,12 +163,12 @@ class NaturalProgressionTest(WorldTestBase):
     def test_leyndell_count_trigger_on_great_runes(self):
         """The capital blooms client-side on the Nth Great Rune (N = leyndell_runes_required,
         default 2, clamped by leyndell_gate -> world.gf_leyndell_runes): the count trigger sets open
-        flag 71102 exactly when the vanilla 2-rune wall opens. Sewer (73501, one wall deeper) rides
-        the same rune count -- without it the client kick reseals the player at the well."""
+        flag 71102 exactly when the vanilla 2-rune wall opens. (The Sewer merged into Leyndell
+        2026-08-20: 73501 rides Leyndell's own bundle and count now -- one region, one trigger.)"""
         world = self.multiworld.worlds[self.player]
         runes = list(getattr(world, "gf_leyndell_runes", []))
         self.assertTrue(runes, "default seed must arm the rune gate (leyndell_runes_required=2)")
-        for region in ("Leyndell", "Sewer"):
+        for region in ("Leyndell",):
             clauses = self._count_clauses(region)
             self.assertEqual(len(clauses), 1, f"{region}: exactly one count clause")
             c = clauses[0]

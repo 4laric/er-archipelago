@@ -83,13 +83,12 @@ region's own Lock, never in place of it:
 - **Leyndell** also needs **Great Runes** -- 2 by default
   (`leyndell_runes_required`), echoing the vanilla capital gate.
 
-🛑 **Neither of these lights its graces for you, and nor does the Sewer** (a
-third gated region, entered down a well inside the capital). They sit behind a
-wall the *game* enforces, so the grace bundle is withheld while that wall is
-armed -- the Lock arrives and nothing visibly happens. Open them the vanilla
-way: the Academy seal with the key, the capital's main gate from Altus with the
-runes in hand, the Sewer down the well once inside; then touch the graces
-yourself.
+🛑 **Neither of these lights its graces for you.** They sit behind a wall the
+*game* enforces, so the grace bundle is withheld while that wall is armed --
+the Lock arrives and nothing visibly happens. Open them the vanilla way: the
+Academy seal with the key, the capital's main gate from Altus with the runes
+in hand; then touch the graces yourself. (The Shunning-Grounds sewer is part
+of Leyndell since v0.4.10 -- once the capital opens, the well is yours.)
 
 Neither can strand a seed: the key is always placed reachably, and the capital's
 rune requirement is FLOORED at the vanilla 2 -- when the seed cannot supply that

@@ -365,9 +365,23 @@ def client_gitlink_note_failures(repo=REPO, rev_range=None):
     if commits.returncode != 0:
         return None, "cannot walk %s: %s" % (rev_range, commits.stderr.strip() or "git failed")
 
+    # RULED HISTORICAL BUMPS. A bump commit that cannot carry its note any more (history is
+    # immutable) gets a WAIVER here with the ruling -- and a stale waiver (the sha leaves the
+    # window) is pruned when the window rolls. Same both-directions shape as RULED_BARE_GROUPS.
+    ruled = {
+        # #925's merge: Alaric recreated the gitlink bump as a bare commit (4582be8e) re-pinning
+        # to the post-clients#332 client main; the paired changelog entry ("the region-lock kick
+        # table caught up with the census") had already landed via a18b70d2 one commit earlier on
+        # the same branch. The note EXISTS on main; only the commit-granularity pairing is broken,
+        # and rewriting main is worse than recording the ruling (2026-08-20).
+        "933c7a24e0d07885dbae9b115bdcfb684a285a76",
+    }
     failures = []
     bumps = 0
     for commit in commits.stdout.split():
+        if commit in ruled:
+            bumps += 1
+            continue
         # Compare explicitly to parent 1. `diff-tree -m --first-parent` still emits the other-parent
         # view on this Git version, falsely charging unrelated merge commits for paths that exist
         # only on main. Omitting `-m` emits no merge paths at all. The explicit pair has one answer.

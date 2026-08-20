@@ -352,13 +352,17 @@ class RegionCorrectness(unittest.TestCase):
     # Shunning-Grounds (m35_00) is labelled 'Divine Tower' in region_map.csv (would route to
     # Liurnia); it is the SEWER region since region-spine v2 (bucket 35000).
     RECARVE_MAP_PREFIX_EXPECT = {
-        "m35_00": "Sewer",
+        # 2026-08-20: the Sewer MERGED into Leyndell (Alaric's audible on #917/#842) -- every
+        # m35 row is a Leyndell row now. Same assertion shape, new truth.
+        "m35_00": "Leyndell",
     }
 
     # Region names deleted by the re-carve(s). No emitted location may resolve to any of these --
     # v2 renamed/split the coarse names on the right of every old fold.
     REMOVED_REGION_NAMES = frozenset({
         "Land of Shadow",
+        # merged away 2026-08-20 (into Leyndell): no emitted location may say it again.
+        "Sewer",
         # v2 renames (bedrock interop) -- the long forms are gone:
         "Weeping Peninsula", "Stormveil Castle", "Liurnia of the Lakes", "Altus Plateau",
         "Miquella's Haligtree", "Mohgwyn Palace", "Gravesite Plain", "Abyssal Woods",
@@ -451,10 +455,10 @@ class RegionCorrectness(unittest.TestCase):
             str(len(overlap)) + " flag(s) present in BOTH data.LOCATIONS and data.NOT_RANDOMIZED "
             "(ledger lies about a live check; regen: " + self.REGEN_CMD + "): " + repr(overlap[:10]))
 
-    def test_shunning_grounds_is_the_sewer(self):
-        """Subterranean Shunning-Grounds (m35_00) is the SEWER region (bucket 35000; region-spine
-        v2). Keyed on the `map` tile prefix because region_map.csv mislabels every m35 row
-        'Divine Tower'."""
+    def test_shunning_grounds_is_leyndell(self):
+        """Subterranean Shunning-Grounds (m35_00) is LEYNDELL since the 2026-08-20 merge (bucket
+        35000 joined Leyndell's group; region-spine v2 had carved it out as 'Sewer'). Keyed on the
+        `map` tile prefix because region_map.csv mislabels every m35 row 'Divine Tower'."""
         bad, empty = [], []
         for prefix, target in sorted(self.RECARVE_MAP_PREFIX_EXPECT.items()):
             flags = self._placed_flags_where(lambda r, p=prefix: (r.get("map") or "").startswith(p))
@@ -469,7 +473,7 @@ class RegionCorrectness(unittest.TestCase):
         self.assertEqual(empty, [], "map-prefix group(s) produced no emitted checks: " + repr(empty))
         self.assertEqual(
             bad, [],
-            str(len(bad)) + " Shunning-Grounds (m35_00) pickup(s) not in the Sewer "
+            str(len(bad)) + " Shunning-Grounds (m35_00) pickup(s) not in Leyndell "
             "(region-spine v2 regression, or pre-regen stale data). (map_prefix, flag, expected, got): "
             + repr(bad[:8]))
 

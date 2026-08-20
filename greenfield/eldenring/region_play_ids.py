@@ -30,7 +30,7 @@ REGION_PLAY_IDS = {
     'Gravesite': [40000, 41000, 42000, 43000, 43010, 68000, 68100],
     'Haligtree': [15000],
     'Jagged Peak': [68410, 68500],
-    'Leyndell': [11000],
+    'Leyndell': [11000, 35000],
     'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 61000, 61010],
     'Liurnia': [30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110, 39200, 62000, 62010, 62020],
     'Mohgwyn': [12050],
@@ -39,7 +39,6 @@ REGION_PLAY_IDS = {
     'Rauh Base': [40010, 42030, 69010],
     'Raya Lucaria Academy': [14000],
     'Scadu Altus': [40020, 41010, 42020, 69000, 69020, 69030],
-    'Sewer': [35000],
     'Shadow Keep': [21000, 21010, 21020, 69300],
     'Siofra River': [12020, 12070],
     'Stormveil': [10000, 34100],
@@ -72,7 +71,7 @@ SCALING_PLAY_IDS = {
     'Gravesite': [40000, 41000, 42000, 43000, 43010, 68000, 68100],
     'Haligtree': [15000],
     'Jagged Peak': [68410, 68500],
-    'Leyndell': [11000],
+    'Leyndell': [11000, 35000],
     'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 61000, 61010],
     'Liurnia': [30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110, 39200, 62000, 62010, 62020],
     'Mohgwyn': [12050],
@@ -81,7 +80,6 @@ SCALING_PLAY_IDS = {
     'Rauh Base': [40010, 42030, 69010],
     'Raya Lucaria Academy': [14000],
     'Scadu Altus': [40020, 41010, 42020, 69000, 69020, 69030],
-    'Sewer': [35000],
     'Shadow Keep': [21000, 21010, 21020, 69300],
     'Siofra River': [12020, 12070],
     'Stormveil': [10000, 34100],
@@ -95,4 +93,4 @@ SCALING_PLAY_IDS = {
 # always sufficient (the client cannot scale DOWN an enemy it cannot place).
 SCALING_FLOOR_PLAY_IDS = frozenset([10010, 11100, 18000])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:7d7ea51db2b0c64df527976e873f77ff50a785f3bc640f25b05aaeb2c87113e6', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:4a41b8a78ef1e63543251e9bf6c1268a020bfb7bfc8783f1df599b793801b210'}
+_GEN_STAMP = {'inputs_hash': 'sha256:7063797ea927525e134712162f1df23c5659bc5cb0bfb19501e8201c5a9b97b7', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:2bcc6f2fb540d378ac9f8e1a948de34d4d56836c0ef1c4e179bcf28dcbec961e'}

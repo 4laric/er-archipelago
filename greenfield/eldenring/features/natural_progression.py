@@ -168,7 +168,8 @@ COUNT_GATES = {
 # the capital as Leyndell's child). They DO get a client count trigger from slot_data below (N Great
 # Runes) -- the vanilla main gate opens in-game on held runes, but the client's areaLock seal needs
 # the open flag bloomed or the kick keeps the capital shut (2026-07-24 playtest).
-GAME_NATIVE_GATE = frozenset({"Leyndell", "Sewer"})
+# "Sewer" left 2026-08-20 with the merge into Leyndell -- one region, one native gate.
+GAME_NATIVE_GATE = frozenset({"Leyndell"})
 
 # Graph parents kept in THIS mode (everything else flattens off the hub). Leyndell stays behind Altus
 # (Alaric 2026-07-23: Altus IS a Leyndell prerequisite -- supersedes spec S2); Sewer stays inside the
