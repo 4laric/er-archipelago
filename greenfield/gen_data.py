@@ -10160,6 +10160,50 @@ if BOSS_HEALTHBARS:
         print("boss_sweeps: trigger %d excluded %d key-gated flag(s): %s" % (
             _trigger, len(_flags), sorted(_flags)))
 
+    # ---- OWN-DROP ADMISSION (2026-08-20, #907, CptFabulous's Lansseax report) ---------------------
+    # A field/evergaol boss's OWN drop check must ride its own trigger. The vanilla award (common
+    # event 90005860) is gated on CharacterDead(vanilla chr), so under a host ENEMY RANDOMIZER the
+    # replacement dies, the site flag fires (the rando's compat layer sets it), our sweep pays the
+    # MEMBERS -- and the boss's own drop never fires: the vanilla character never died. A FLAG IS
+    # NOT AN AWARD. Sweeping the drop with the trigger closes it: the client sets the drop's
+    # acquisition flag the moment the defeat flag fires, exactly the rungs-test ruling ("killing
+    # the boss no longer grants the boss's own reward [is] strictly worse than the debt").
+    #
+    # FAIL-CLOSED buckets, each printed (rule 4) and pinned by the acceptance test:
+    #   * region mismatch -- a sweep may only grant checks in ITS OWN region (the Hippo rule); a
+    #     drop regioned elsewhere stays out rather than leaking a cross-region grant.
+    #   * no sweep -- the trigger was suppressed (phase pair / secondary) or swept nothing. Not
+    #     resurrected here: minting a sweep for a suppressed head is the #363 shape.
+    #   * not a check -- the drop flag is excluded/unpooled this build.
+    # 🛑 The region compared is the PRESENTED one (the data.py bucket), not _ap_region: the kick
+    # guard reads what the row presents under, and the tear/physick drops are global-lot rows
+    # _ap_region never covers (they carry no map), yet they present in a real region and are
+    # exactly the class this fix exists for.
+    _drop_added, _drop_mismatch, _drop_nosweep, _drop_notcheck = [], [], [], []
+    _flag_apid = {_fl: _aid for _aid, _fl in _apid_flag.items()}
+    _bucket_region = {_aid: _reg for _reg, _locs in buckets.items() for (_nm, _aid, _fl) in _locs}
+    for _dfl, _dtrig in sorted(_BOSS_DROP_ENTITY.items()):
+        _dap = _flag_apid.get(_dfl)
+        if _dap is None:
+            _drop_notcheck.append(_dfl); continue
+        if _dtrig not in DUNGEON_SWEEPS:
+            _drop_nosweep.append((_dfl, _dtrig)); continue
+        if _bucket_region.get(_dap) != SWEEP_REGION.get(_dtrig):
+            _drop_mismatch.append((_dfl, _dtrig, _bucket_region.get(_dap), SWEEP_REGION.get(_dtrig)))
+            continue
+        if _dap not in DUNGEON_SWEEPS[_dtrig]:
+            DUNGEON_SWEEPS[_dtrig] = sorted(set(DUNGEON_SWEEPS[_dtrig]) | {_dap})
+            _drop_added.append((_dfl, _dtrig))
+    assert _drop_added, (
+        "own-drop admission added NOTHING -- boss_drops.py is empty or every row failed a bucket; "
+        "the #907 fix is not running and this pass is scenery")
+    print("boss_sweeps: own-drop admission (#907): %d added, %d region-mismatch (kept OUT), "
+          "%d trigger-without-sweep (kept OUT), %d not-a-check" % (
+              len(_drop_added), len(_drop_mismatch), len(_drop_nosweep), len(_drop_notcheck)))
+    for _dfl, _dtrig, _dr, _sr in _drop_mismatch:
+        print("boss_sweeps:   own-drop f%d region %r != sweep %r (trigger %d) -- fail closed" % (
+            _dfl, _dr, _sr, _dtrig))
+
     # An exclusion that matches nothing is a lie -- it reads as protection while protecting
     # nothing (the boss_healthbars map string could drift and this would silently stop applying).
     assert not _unregioned_legacy, (

@@ -96,6 +96,14 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   see). 5115 -> 5047 locations
   net of the census's own +9 recovered pickups. World: #330 follow-up, the "any other phantoms?"
   sweep.
+- **A boss's own drop is granted by killing the boss, even under a host enemy randomizer.**
+  Vanilla awards a field/evergaol boss's drop only when its own character dies (common event
+  90005860); an enemy randomizer's replacement sets the defeat flag without that death, so the
+  kill paid the boss's swept member checks but never its own drop -- CptFabulous's Lansseax's
+  Glaive, holding his Liurnia Lock, was the report. All 73 admissible own drops (region-agreeing,
+  live-check, sweep-holding triggers) now ride their own trigger's sweep: the moment the defeat
+  flag fires, the drop check fires with it, whoever actually died in the arena. The 15
+  inadmissible rows fail closed and are pinned by the acceptance test. World: #907.
 - **Packaged me3 profiles now name the package that actually ships.** Stable bundles load the
   authenticated `flower-package`; development bundles with no Flower assets omit the package entry
   instead of asking me3 to scan a nonexistent `ap-package`. Both release packagers now reject any

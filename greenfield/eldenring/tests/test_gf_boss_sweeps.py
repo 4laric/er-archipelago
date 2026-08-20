@@ -106,6 +106,12 @@ class BossSweepScoping(unittest.TestCase):
         cls.sw = _mod("boss_sweeps")
         cls.bh = _mod("boss_healthbars")
         cls.d = _mod("data")
+        # 2026-08-20 (#907): a boss's OWN drop is admitted into its own trigger's sweep (the
+        # vanilla award waits on CharacterDead; a host enemy randomizer breaks it). The scoping
+        # tests exempt exactly that RELATION -- flag's own trigger, from boss_drops.py -- never an
+        # id list. Same shape as test_gf_dungeon_sweep_rungs' own_reward.
+        _bd = _mod("boss_drops")
+        cls.own_drop_of = dict(getattr(_bd, "BOSS_DROP_ENTITY", {}) or {}) if _bd else {}
         cls.lt = getattr(_mod("location_tags"), "LOCATION_TAGS", {}) if _mod("location_tags") else {}
         if not (cls.sw and cls.bh and cls.d):
             raise unittest.SkipTest("boss_sweeps/boss_healthbars/data not generated")
@@ -266,6 +272,8 @@ class BossSweepScoping(unittest.TestCase):
         bad = []
         for ent, info, members in self._members_by_class("field"):
             for ap in members:
+                if self.own_drop_of.get(self.ap_flag.get(ap)) == ent:
+                    continue  # #907: the boss's own drop, swept by its own trigger
                 if FIELD_EXCLUDE & set(self.lt.get(ap, ())):
                     bad.append((ent, info[3], ap, sorted(FIELD_EXCLUDE & set(self.lt.get(ap, ())))))
         self.assertEqual(bad, [], str(len(bad)) + " field-boss sweep member(s) are important-tagged "
@@ -289,6 +297,12 @@ class BossSweepScoping(unittest.TestCase):
                 continue
             bx, by = int(bt.group(1)), int(bt.group(2))
             for ap in members:
+                if self.own_drop_of.get(self.ap_flag.get(ap)) == ent:
+                    # #907: the boss's own drop. Global-lot drops (physick tears) carry no tile at
+                    # all; region agreement was already enforced at admission (gen_data fails a
+                    # region mismatch CLOSED), and "where does the boss's own reward sit" is by
+                    # definition local to the boss.
+                    continue
                 mt = self._TILE_RE.match(self._eff_map(ap) or "")
                 if not mt or max(abs(int(mt.group(1)) - bx), abs(int(mt.group(2)) - by)) > 2:
                     bad.append((ent, info[3], info[1], ap, self._eff_map(ap)))
@@ -660,6 +674,8 @@ class BossSweepScoping(unittest.TestCase):
         bad = []
         for ent, info, members in self._members_by_class("legacy"):
             for ap in members:
+                if self.own_drop_of.get(self.ap_flag.get(ap)) == ent:
+                    continue  # #907: the boss's own drop, swept by its own trigger
                 hit = FIELD_EXCLUDE & set(self.lt.get(ap, ()))
                 if hit:
                     bad.append((ent, info[3], ap, sorted(hit)))

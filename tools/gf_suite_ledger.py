@@ -127,6 +127,9 @@ TESTS_JOB = {
                             "shared _util import, and the tests job supplies the real checkout. "
                             "Pytest suite with no generator role; #885's acceptance case must run "
                             "in TESTS_JOB",
+    "boss_own_drops": "re-derives #907's own-drop admission from the committed boss_drops/"
+                       "boss_sweeps tables against the installed world's data.py -- a pytest "
+                       "acceptance suite with no generator role; the tests job has both sides",
     "rada_fruit_worldless": "committed TSV inputs reached through the repo-root walk-up are "
                              "re-derived against the installed generated data. The tests job has "
                              "both; this is a pytest acceptance suite, not a generator",
