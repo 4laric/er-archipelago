@@ -716,6 +716,18 @@ Elden Ring:
   # No effect in a solo seed. Never blocks generation.
   confine_foreign_progression: 100
 
+  # GUARANTEE AN INCOMING SHARE OF PROGRESSION FROM EVERY PARTNER GAME. When
+  # enabled, this Elden Ring slot reserves about 1 / number-of-games of each
+  # other game's eligible advancement items on the progression_surface above.
+  # Two slots of the same game contribute one combined share, sampled fairly
+  # across their players. Items their owner keeps local are not eligible.
+  #
+  # This is a hard placement promise: generation stops with a capacity message
+  # if the requested share cannot legally fit. It guarantees items CLASSIFIED
+  # as progression, not that every one survives the spoiler's final pruning as
+  # strictly required after redundant routes are removed.
+  receive_foreign_progression: false
+
   # RESERVED. The option exists but is INERT in v0.2 -- shop checks are assumed
   # reachable regardless of what you set here. Left in place so seeds stay
   # forward-compatible; see KNOWN-ISSUES.md. Leave it alone.

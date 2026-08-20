@@ -16,6 +16,13 @@ only moment anyone remembers why it mattered._
 
 ## What changed at the table
 
+**Your partners can be required to put keys in your Elden Ring world.** Turn on
+`receive_foreign_progression` and each other game contributes roughly its 1/N share of eligible
+progression to your starred Progression Surface. It is opt-in, respects items another player kept
+local, and stops generation with a useful capacity message rather than claiming a quota it could
+not place. The promise is about progression-classified items; the spoiler may still omit a
+redundant one from its minimal playthrough.
+
 **Malenia can be the ending now.** Set `goal: malenia` and the seed guarantees the Haligtree, but it
 does not hand you Prayer Room or Roots. Once your chosen Great-Rune and region requirements resolve,
 you get Haligtree Canopy and play the whole route through Loretta and Elphael; Malenia's own defeat

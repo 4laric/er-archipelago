@@ -29,6 +29,13 @@ Client half: clients#320. Its commit is pinned by the gitlink in this same chang
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **You can ask every partner game to put progression in Elden Ring.** The new opt-in
+  `receive_foreign_progression` setting reserves roughly `1 / number of games` of each partner
+  game's eligible advancement pool on your Progression Surface before ordinary fill. Multiple
+  slots of one game contribute one combined pool sampled fairly across their players; owner-local
+  items remain local, and an undersized surface fails generation with the requested/available
+  counts instead of silently weakening the promise. This guarantees progression-classified
+  placements, not that every item survives the spoiler's redundant-route pruning. World: #927.
 - **Your weapons finally reach your friends.** At the shipped settings a non-Elden-Ring partner
   received nothing from an Elden Ring slot but filler -- 0 useful items in 498 measured
   placements -- because of a fill-order artifact, not any option's intent (the partner's own
