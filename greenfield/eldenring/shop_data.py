@@ -2356,4 +2356,4 @@ SPARE_PREVIEW_GOODS = (
 # is entirely redirectable.
 SPARE_PREVIEW_REDIRECTABLE = 62
 
-_GEN_STAMP = {'inputs_hash': 'sha256:4b932035b1be2c4decfe6b797d3ee4ac508e6d6a07dc375eb00f9d3a1dfd8f23', 'module': 'shop_data.py', 'body_sha256': 'sha256:914b8d9cbab51aa564836601a2459ab8ef69c80a0bcab5ca1245127f7a864c18'}
+_GEN_STAMP = {'inputs_hash': 'sha256:a9d609ae85eaff317d2cad16fc7108a58179a973de420739cc36a0852a748c05', 'module': 'shop_data.py', 'body_sha256': 'sha256:914b8d9cbab51aa564836601a2459ab8ef69c80a0bcab5ca1245127f7a864c18'}
