@@ -1537,7 +1537,16 @@ class GreenfieldEldenRingWorld(World):
         supplies the world list, because `get_game_worlds` needs the GAME constant and features may
         not import core."""
         from .features import progression_surface as _psf  # local, like pre_fill/post_fill do
-        _psf.place_released_locks(multiworld, list(multiworld.get_game_worlds(GAME)))
+        _worlds = list(multiworld.get_game_worlds(GAME))
+        _psf.place_released_locks(multiworld, _worlds)
+        # #903: keep_out_of_shops cannot decide its capacity in set_rules. Missable protection,
+        # each world's progression pass, and the cross-world released-Lock pass above all consume
+        # non-shop slots after that hook. Finalise against the actual remaining grid, after every
+        # progression placement and before AP's general fill.
+        from .features import keep_out_of_shops as _kos
+        for _world in _worlds:
+            _kos.finalize_rules(_world)
+        _kos.reserve_forbidden_items(multiworld, _worlds)
 
     def post_fill(self) -> None:
         # ---- COVERAGE GATE (RAISING as of 2026-07-14) ------------------------------------------

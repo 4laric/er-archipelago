@@ -301,8 +301,15 @@ def rung_sweeps(world, _want_unjoined=False):
     key = getattr(opt, "current_key", None) or "bosses"
     allowed = _SWEEP_RUNGS.get(key, _SWEEP_RUNGS["bosses"])
     out, unjoined = {}, []
+    runtime_skips = contract.runtime_sweep_skips()
     if allowed:
         for fl, members in DUNGEON_SWEEPS.items():
+            # #878: a trigger positively known not to fire is not a runtime sweep. Keep the baked
+            # table as evidence, but never send this group to the client/tracker. Do NOT use the
+            # wider sweep_slot_skips() set here: unnamed/unaudited groups are unsafe for required
+            # progression, not proven dead at runtime.
+            if fl in runtime_skips:
+                continue
             info = BOSS_HEALTHBARS.get(fl)
             if info is None:
                 # A sweep whose boss is not in boss_healthbars cannot be classified. Count it, say
@@ -397,7 +404,10 @@ def _sweep_lock_gates(kept, region_bosses=None, dungeon_sweeps=None, sweep_regio
         for (_aid, fl, reward) in lst:
             flag_to_key[fl] = "Boss Key: " + _boss_label(reward)  # per-boss defeat flag -> its key
     gates = {}
+    runtime_skips = contract.runtime_sweep_skips()
     for fl in dungeon_sweeps:
+        if fl in runtime_skips:
+            continue
         reg = sweep_region.get(fl)
         if reg not in kept:
             continue
@@ -440,7 +450,7 @@ def key_gate_map(world):
         # Sweep MEMBERS defer behind their boss key too (their real trigger is the key-gated sweep, not
         # their own pickup flag). setdefault so the boss's own-check gate wins on overlap.
         _live = enabled_sweeps(world)
-        for _fl_str, _key in _sweep_lock_gates(kept).items():
+        for _fl_str, _key in _sweep_lock_gates(kept, dungeon_sweeps=_live).items():
             for _member in _live.get(int(_fl_str), ()):
                 gate.setdefault(_member, _key)
     return gate
@@ -551,5 +561,5 @@ class BossLocks(Feature):
             # documented coarsening gap). See _sweep_lock_gates. Sound either way -- client-side
             # deferral hint only; sweep members are NEVER logic-gated. Empty when boss_keys OFF
             # (HEAD-identical).
-            sd["sweepLockGates"] = _sweep_lock_gates(kept) if _bk else {}
+            sd["sweepLockGates"] = _sweep_lock_gates(kept, dungeon_sweeps=_live) if _bk else {}
         return sd
