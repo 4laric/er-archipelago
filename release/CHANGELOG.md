@@ -43,6 +43,12 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **`vanilla_placement` and `natural_progression` moved to a collapsed Experimental group.** Both
   invert the randomizer's premise and are filed under Advanced (and folded on Archipelago's own
   options page) rather than greeting new players mid-form. Fully supported, just not front-page.
+- **The Seed size card stops claiming your Region Locks never travel.** The sentence shipped as
+  a constant -- "Your own progression never travels either way" -- while `progression_bias`'s
+  default is 0, meaning every Lock rides the multiworld like any other item. The card now derives
+  the sentence from `progression_bias` and `cross_game_progression`, and the render gate flips
+  the knob and demands the words follow. The player guide also gains the "anything anywhere"
+  recipe for the classic-rando feel. From 255's Discord question, 2026-08-20.
 - **Each wizard section leads with its essentials.** Fifteen of the sixty options are the
   decisions that shape a run — goal, seed size, DLC ownership, where the items are, who may hold
   progression, death link, and friends — and they render expanded; the tuning sits behind one

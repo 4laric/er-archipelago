@@ -327,6 +327,15 @@ run rather than tune it.
   100, 23% at 75, 38% at 50. Lower it if your friends should be opening your
   weapons; the cost is that their keys stop landing on your interesting checks.
 
+> **The "anything anywhere" recipe.** If you come from classic ER item rando and
+> want the old feel -- any check can matter, no curation steering keys onto
+> bosses -- three settings do it: widen **`progression_surface`** to every
+> category, set **`confine_foreign_progression: 0`** so other players' keys can
+> land on any of your checks, and leave **`progression_bias`** at 0 so your own
+> Region Locks travel freely. (Asked for on Discord, 2026-08-20 -- the builder's
+> defaults are curated on purpose, but nothing about the old style is
+> unsupported.)
+
 **How much am I actually sending out?** The *Seed size* tab of the yaml builder
 (<https://peliarch.ca/er/>) shows the ceiling as you move those options -- how many of your items are permitted to
 leave. The real number needs a finished seed, and it's in the spoiler and the

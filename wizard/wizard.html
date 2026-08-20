@@ -5863,8 +5863,31 @@ if (typeof module !== "undefined") module.exports = ERW;
             "(" + bandText(cats.runes || [0, 0, 0]) + "% of the pool) that is depends on which rune " +
             "items your seed actually contains, which is not knowable here.") + "</div>";
     }
-    html += "<div class='desc' style='margin-top:10px'>Your own progression never travels either " +
-      "way: the region Locks are placed in your world before the multiworld fill ever sees them.</div>";
+    /* 255 (Discord, 2026-08-20) quoted the sentence that used to live here -- "Your own
+       progression never travels either way" -- as a constant, while progression_bias's DEFAULT
+       is 0: every Region Lock travels like any other item. The exact inverse of the live
+       behaviour, told to a player deciding whether to join an async. DERIVED from the knobs it
+       describes now, and check_wizard_renders' reactivity audit (TEXT_MOVES) flips
+       progression_bias and demands these words follow -- the fifth "page lied" instance, and the
+       first where the prose itself gets a gate. */
+    const lockBias = Number(v("progression_bias") || 0);
+    const lockXg = v("cross_game_progression");
+    const xgNote = (lockXg === 0)
+      ? " (and never into a non-Elden-Ring game: <code>cross_game_progression</code> 0)" : "";
+    let lockSent;
+    if (lockBias >= 100){
+      lockSent = "<b>Your Region Locks stay home</b> at this setting: <code>progression_bias" +
+        "</code> 100 places every one in your own world before the multiworld fill sees them.";
+    } else if (lockBias > 0){
+      lockSent = "<b>Your Region Locks lean home but can travel</b>: <code>progression_bias</code> " +
+        lockBias + " pulls them toward your own world, and the rest ride the multiworld like any " +
+        "other item" + xgNote + ".";
+    } else {
+      lockSent = "<b>Your Region Locks travel like any other item</b> at this setting — " +
+        "another player can find your way into Liurnia, which is Archipelago working as intended. " +
+        "<code>progression_bias</code> is the knob if you want them kept home" + xgNote + ".";
+    }
+    html += "<div class='desc' style='margin-top:10px'>" + lockSent + "</div>";
     card.insertAdjacentHTML("beforeend", html);
     return card;
   }
