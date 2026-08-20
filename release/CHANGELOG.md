@@ -45,7 +45,8 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   `shop_preview_fmg_insert` in `requiresClientFeatures`, and a client too old to insert entries
   refuses the connect by name instead of rendering `?GoodsName?` on those slots. When the whole
   pool is spent, generation now logs the demand/supply/lock arithmetic rather than a bare count.
-  World: #937. Client: clients#341.
+  World: #937. Client: clients#341, whose merged commit is pinned by the gitlink in this same
+  change.
 
 ## v0.4.10 — 2026-08-19
 
