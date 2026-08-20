@@ -14,6 +14,11 @@ This runs two Elden Ring slots beside two slots of a PARTNER game, once per part
 ship with Archipelago, are pure Python with no ROM and no extra pip dependency, and are realistic
 rather than stubs -- a test world would not exercise a real foreign item pool.
 
+#636 adds two shapes the partner loop cannot express: one seed with all three partner games at once,
+and one two-game stress seed where BOTH Elden Ring slots use the shipped confinement default. The
+first proves a claim did not accidentally depend on there being exactly two games; the second gives
+identical options a control row and rejects a positional receive-share ratio above 2x.
+
 WHY MORE THAN ONE PARTNER (2026-08-09). With a single partner, "ER reaches a foreign GAME" and "ER
 reaches Hollow Knight" are the same sentence, and the difference is not academic: cross-world share
 is monotone in the partner's SIZE, so every cross-world number this apworld reports is a number
@@ -116,7 +121,9 @@ SEED = "20260728"
 # A spoiler line in a MULTIWORLD is `Location (Owner): Item (Owner)`; in a solo seed it has no
 # parentheses at all. Anchoring on the 4-tuple is what makes this test structurally unable to pass
 # on a single-player generation.
-_ROW = re.compile(r"^(.*?) \(([^)]+)\): (.*?) \(([^)]+)\)$", re.M)
+# Generate.py writes the host platform's native line endings.  Accept the carriage return from a
+# Windows-generated spoiler as part of the line boundary so the same smoke remains runnable off CI.
+_ROW = re.compile(r"^(.*?) \(([^)]+)\): (.*?) \(([^)]+)\)\r?$", re.M)
 
 # The real vanilla keys natural_progression puts into circulation. Substring match on purpose --
 # "Rykard's Great Rune" and "Remembrance of Hoarah Loux" are both members and neither is a fixed id.
@@ -172,6 +179,11 @@ def _partner_yaml(partner, n):
 # unambiguous: measured 2026-08-10, a two-slot ER seed beside Hollow Knight sends the partner 0.0%
 # useful at 100 and 38.3% at 50.
 PARTIAL_CONFINE = 50
+# Five identical ER slots measured a 3.25x receive-share ratio (9.3%..30.2%) in the broken probe
+# that opened #632/#636. The real two-slot control on main measures 1.45x (40.8%..59.2%); a 2x cap
+# rejects the observed positional confound without pretending ordinary deterministic fill variance
+# should be only a few percentage points.
+MAX_IDENTICAL_SHARE_RATIO = 2.0
 
 
 def _er_yaml(name, natural, confine=None):
@@ -311,12 +323,14 @@ def check_gear_reaches_the_partner(slot_info, locations, report):
     """THE MOTIVATING CASE (CONTRIBUTING rule 11), filed 2026-08-10 off a boblerrr report.
 
     Elden Ring items DO leave for the partner game -- check 2 below has always said so -- but at
-    confine 100 every single one of them is FILLER. Measured before the share existed: 498 Elden
-    Ring items reached Hollow Knight across three seeds and ZERO were useful, no weapon, no armour,
-    no talisman, while the other Elden Ring slot received 43.1% useful. bobler: *"well it sends out
-    weapons and armors i assume, and talismans ... dont think ive seen any of those items being
-    global."* He was right, and check 2 was green through all of it, because it counts items and
-    not what they are.
+    confine 100 every single one of them is FILLER. Measured before the share existed in two-game
+    Elden Ring + Hollow Knight seeds: 498 Elden Ring items reached Hollow Knight across three seeds
+    and ZERO were useful, no weapon, no armour, no talisman, while the other Elden Ring slot
+    received 43.1% useful. That zero is partner-count-specific -- wider seeds give displaced
+    progression other homes -- which is why #636 also runs a four-game shape. bobler: *"well it
+    sends out weapons and armors i assume, and talismans ... dont think ive seen any of those items
+    being global."* He was right, and check 2 was green through all of it, because it counts items
+    and not what they are.
 
     🛑 THE ASSERTION IS GLOBAL, NOT PER-SLOT, and saying so matters. `confine_foreign_progression`
     is a rule about the setting world's OWN locations; its effect on the partner is DISPLACEMENT --
@@ -342,6 +356,73 @@ def check_gear_reaches_the_partner(slot_info, locations, report):
             "is the exact defect confine_foreign_progression was reshaped into a share to fix, and "
             "which check 2 (\"ER reaches a non-ER game\") passes over because it counts items "
             "rather than reading their classification." % len(to_partner))
+    return bad
+
+
+def check_identical_er_balance(slot_info, locations, report):
+    """#636 control: identical ER options may not produce a position-dominated receive share.
+
+    This is deliberately progression received by ER, not total items: it is the metric the broken
+    per-slot sweep interpreted as an option effect, and the all-default stress seed holds every
+    other input constant. Counts are read from multidata classification flags, never item names.
+    """
+    er = sorted(p for p, info in slot_info.items() if info.game == "Elden Ring")
+    if len(er) != 2:
+        return ["identical-options control expected exactly 2 Elden Ring slots; saw %d" % len(er)]
+    counts = {}
+    for player in er:
+        counts[player] = sum(
+            1 for _lid, (_iid, owner, flags) in (locations.get(player) or {}).items()
+            if owner != player and (flags & _FLAG_ADVANCEMENT))
+    total = sum(counts.values())
+    if not total:
+        return ["identical-options control received ZERO foreign progression across both ER slots; "
+                "the share comparison would be vacuous"]
+    shares = {p: counts[p] / total for p in er}
+    spread = max(shares.values()) - min(shares.values())
+    low = min(shares.values())
+    ratio = max(shares.values()) / low if low else float("inf")
+    report("identical confine-100 control: foreign progression received %s | shares %s | "
+           "spread %.1fpp / ratio %.2fx"
+           % (", ".join("slot %d=%d" % (p, counts[p]) for p in er),
+              ", ".join("slot %d=%.1f%%" % (p, shares[p] * 100) for p in er),
+              spread * 100, ratio))
+    if ratio > MAX_IDENTICAL_SHARE_RATIO:
+        return [
+            "two Elden Ring slots with IDENTICAL shipped options differ by %.2fx in "
+            "foreign-progression receive share (counts %s), above the %.2fx control bound. "
+            "This is the positional confound from #632/#636: a per-slot option comparison would "
+            "misread slot position as the option moving its metric."
+            % (ratio, counts, MAX_IDENTICAL_SHARE_RATIO)]
+    return []
+
+
+def check_many_game_flow(slot_info, locations, partner_games, report):
+    """#636: every named partner participates in BOTH directions in one >2-game seed."""
+    bad = []
+    er = {p for p, info in slot_info.items() if info.game == "Elden Ring"}
+    games = {info.game for info in slot_info.values()}
+    expected = {"Elden Ring"} | set(partner_games)
+    missing = sorted(expected - games)
+    if missing:
+        return ["wide multiworld is missing game(s) %s; saw %s"
+                % (", ".join(missing), ", ".join(sorted(games)))]
+    if len(games) <= 2:
+        return ["wide multiworld contains only %d distinct games (%s); the >2-game guard is vacuous"
+                % (len(games), ", ".join(sorted(games)))]
+
+    for game in partner_games:
+        holders = {p for p, info in slot_info.items() if info.game == game}
+        sent = sum(1 for h in holders for _lid, (_iid, owner, _fl) in
+                   (locations.get(h) or {}).items() if owner in er)
+        received = sum(1 for h in er for _lid, (_iid, owner, _fl) in
+                       (locations.get(h) or {}).items() if owner in holders)
+        report("four-game flow: %s received %d ER item(s), sent %d item(s) to ER"
+               % (game, sent, received))
+        if not sent:
+            bad.append("%s received NO Elden Ring item in the four-game seed" % game)
+        if not received:
+            bad.append("%s sent NO item to an Elden Ring location in the four-game seed" % game)
     return bad
 
 
@@ -574,8 +655,9 @@ def self_test():
     if "confine_foreign_progression: %s" % match.group(1) not in rendered:
         raise AssertionError("_er_yaml did not preserve an explicitly requested shipped default")
     class _Info:
-        def __init__(self, game):
+        def __init__(self, game, name=None):
             self.game = game
+            self.name = name or game
 
     ER = {1: _Info("Elden Ring"), 2: _Info("Elden Ring"), 3: _Info("Hollow Knight")}
 
@@ -669,6 +751,55 @@ def self_test():
         else:
             print("  ok    %-52s fails as designed" % name)
 
+    # #636's two new shape guards. Each gets a clean fixture and the fault that motivated it; the
+    # all-zero receive case is separate because a 0/0 "perfect balance" is the cheapest vacuous
+    # pass this comparison could accidentally grow.
+    shape_info = {
+        1: _Info("Elden Ring", "ErdtreeOne"), 2: _Info("Elden Ring", "ErdtreeTwo"),
+        3: _Info("Hollow Knight", "Hallownest1"),
+        4: _Info("Bumper Stickers", "Bumpstik1"), 5: _Info("DOOM 1993", "Doomguy1")}
+
+    def adv(owner):
+        return (999, owner, _FLAG_ADVANCEMENT)
+
+    balanced = {1: {11: adv(3), 12: adv(4)}, 2: {21: adv(3), 22: adv(5)}}
+    skewed = {1: {11: adv(3), 12: adv(4), 13: adv(5), 14: adv(3)}, 2: {}}
+    empty = {1: {}, 2: {}}
+    balance_cases = [
+        ("identical ER slots with balanced intake", balanced, None),
+        ("slot-position dominated intake", skewed, "positional confound"),
+        ("no foreign progression to compare", empty, "ZERO foreign progression"),
+    ]
+    for name, locs, want in balance_cases:
+        got = check_identical_er_balance(shape_info, locs, lambda _m: None)
+        if want is None and got:
+            problems.append("%-52s expected PASS, got: %s" % (name, got[0][:90]))
+        elif want is None:
+            print("  ok    %-52s passes" % name)
+        elif not any(want in f for f in got):
+            problems.append("%-52s did not fire the expected guard: %s" % (name, got or "PASS"))
+        else:
+            print("  ok    %-52s fails as designed" % name)
+
+    wide_locs = {
+        1: {11: (1, 3, 0), 12: (1, 4, 0), 13: (1, 5, 0)},
+        2: {},
+        3: {31: (1, 1, 0)}, 4: {41: (1, 2, 0)}, 5: {51: (1, 1, 0)}}
+    wide_games = ("Hollow Knight", "Bumper Stickers", "DOOM 1993")
+    got = check_many_game_flow(shape_info, wide_locs, wide_games, lambda _m: None)
+    if got:
+        problems.append("%-52s expected PASS, got: %s" % ("four-game bidirectional flow", got[0]))
+    else:
+        print("  ok    %-52s passes" % "four-game bidirectional flow")
+    broken_wide = {p: dict(rows) for p, rows in wide_locs.items()}
+    broken_wide[5] = {}
+    got = check_many_game_flow(shape_info, broken_wide, wide_games, lambda _m: None)
+    if not any("DOOM 1993 received NO" in f for f in got):
+        problems.append("%-52s did not fire the expected guard: %s"
+                        % ("one game receives no ER item", got or "PASS"))
+    else:
+        print("  ok    %-52s fails as designed" % "one game receives no ER item")
+
     # THE PARTNER LIST ITSELF IS DATA, and a typo in it degrades this whole file to a SKIP rather
     # than a failure -- so it is checked here, where no Archipelago is needed. Duplicate slot
     # prefixes are the sharp one: `check()` selects the partner's slots by name prefix, so two
@@ -690,7 +821,7 @@ def self_test():
             print("  * %s" % pr)
         return 1
     print("SELF-TEST: PASS -- %d guard(s) proven able to go red\n"
-          % (len(cases) - 1 + len(lock_cases) - 1))
+          % (len(cases) - 1 + len(lock_cases) - 1 + 4))
     return 0
 
 
@@ -725,6 +856,69 @@ def run_partner(ap_dir, partner, keep):
                                                                  lambda m: print("  " + m))]
             failures += ["[%s] %s" % (label, f)
                          for f in check_slot_data_tables(si, sd, lambda m: print("  " + m))]
+        finally:
+            if keep:
+                print("  kept: %s" % work)
+            else:
+                shutil.rmtree(work, ignore_errors=True)
+    return failures
+
+
+def run_shape_cases(ap_dir, keep):
+    """The two #636 shapes that are not "two ER + two copies of one partner"."""
+    failures = []
+    cases = [
+        ("four games", [(p, 1) for p in PARTNERS], (100, PARTIAL_CONFINE)),
+        ("all-default two-game stress", [(PARTNERS[0], 2)], (100, 100)),
+    ]
+    for label, partner_counts, confines in cases:
+        desc = " + ".join("%dx %s" % (count, p.game) for p, count in partner_counts)
+        print("\n=== multiworld shape: 2x Elden Ring + %s -- %s ===" % (desc, label))
+        work = tempfile.mkdtemp(prefix="gf_mw_shape_")
+        players, out = os.path.join(work, "players"), os.path.join(work, "out")
+        os.makedirs(players); os.makedirs(out)
+        try:
+            for i, confine in enumerate(confines, 1):
+                with open(os.path.join(players, "ER_%d.yaml" % i), "w", encoding="utf-8") as f:
+                    f.write(_er_yaml("Erdtree%s" % ("One" if i == 1 else "Two"), False,
+                                     confine=confine))
+            for partner, count in partner_counts:
+                for n in range(1, count + 1):
+                    with open(os.path.join(players, "%s_%d.yaml" % (partner.dir, n)), "w",
+                              encoding="utf-8") as f:
+                        f.write(_partner_yaml(partner, n))
+            zip_path = generate(ap_dir, players, out)
+            rows = placements(zip_path)
+            si, sd, locs = multidata(zip_path)
+            print("  generated %s -- %d placements / %d distinct games"
+                  % (os.path.basename(zip_path), len(rows), len({i.game for i in si.values()})))
+            if label == "four games":
+                partner_games = tuple(p.game for p in PARTNERS)
+                failures += ["[%s] %s" % (label, f) for f in
+                             check_many_game_flow(si, locs, partner_games,
+                                                  lambda m: print("  " + m))]
+                er_names = {i.name for i in si.values() if i.game == "Elden Ring"}
+                foreign_names = {i.name for i in si.values() if i.game != "Elden Ring"}
+                failures += ["[%s] %s" % (label, f) for f in
+                             check_locks_reach_a_partner(rows, er_names, foreign_names,
+                                                         "the partner games",
+                                                         lambda m: print("  " + m))]
+                failures += ["[%s] %s" % (label, f) for f in
+                             check_foreign_confinement(si, sd, locs,
+                                                       lambda m: print("  " + m))]
+                failures += ["[%s] %s" % (label, f) for f in
+                             check_gear_reaches_the_partner(si, locs,
+                                                            lambda m: print("  " + m))]
+            else:
+                failures += ["[%s] %s" % (label, f) for f in
+                             check(rows, False, lambda m: print("  " + m), PARTNERS[0])]
+                failures += ["[%s] %s" % (label, f) for f in
+                             check_gear_reaches_the_partner(si, locs,
+                                                            lambda m: print("  " + m))]
+                failures += ["[%s] %s" % (label, f) for f in
+                             check_identical_er_balance(si, locs, lambda m: print("  " + m))]
+            failures += ["[%s] %s" % (label, f) for f in
+                         check_slot_data_tables(si, sd, lambda m: print("  " + m))]
         finally:
             if keep:
                 print("  kept: %s" % work)
@@ -782,6 +976,11 @@ def main(argv=None):
     failures = []
     for partner in present:
         failures += run_partner(ap_dir, partner, args.keep)
+    if not args.partner and len(present) == len(PARTNERS):
+        failures += run_shape_cases(ap_dir, args.keep)
+    elif not args.partner:
+        print("note: wide/stress #636 shapes skipped because they require all %d partner worlds; "
+              "found %d" % (len(PARTNERS), len(present)))
 
     print()
     if failures:
@@ -794,7 +993,8 @@ def main(argv=None):
           "real gear,\n      natural_progression keys are placeable in other players' worlds, "
           "foreign progression lands\n      only on the progression surface at confine 100 and is "
           "genuinely released at %d,\n      and each slot's checkItemFlags is collectable, "
-          "unshared, and its own."
+          "unshared, and its own. The full run also covers a four-game seed and an all-default "
+          "identical-options stress control."
           % (len(present), ", ".join(p.game for p in present), PARTIAL_CONFINE))
     return 0
 
