@@ -328,11 +328,11 @@ class BossSweepScoping(unittest.TestCase):
                          "to m60_XX_YY, so they can never sweep and never count as an arena: "
                          + repr(bad[:5]))
 
-    def test_the_yelough_anix_cavalry_is_a_mountaintops_arena(self):
+    def test_the_yelough_anix_cavalry_is_a_snowfield_arena(self):
         """The motivating case above, pinned end to end: tile, sweep, region.
 
         Its 29 members are a REDISTRIBUTION, not a widening -- the field pass is a disjoint
-        nearest-boss partition, so five neighbouring Mountaintops bosses shed exactly what is now
+        nearest-boss partition, so neighbouring Snowfield bosses shed exactly what is now
         nearer this arena and the corpus total is unchanged. test_field_sweeps_are_local is the
         check that the tile is the RIGHT one: a wrong tile puts those 29 members outside Chebyshev
         distance 2 and reddens it."""
@@ -343,7 +343,7 @@ class BossSweepScoping(unittest.TestCase):
         self.assertTrue(self.DS.get(ENT),
                         "1248550800 has no sweep members; the tile decode regressed and this boss "
                         "grants nothing again")
-        self.assertEqual(self.sw.SWEEP_REGION.get(ENT), "Mountaintops of the Giants",
+        self.assertEqual(self.sw.SWEEP_REGION.get(ENT), "Consecrated Snowfield",
                          "sweep region regressed -- the tile's own checks are 'near Yelough Anix "
                          "Tunnel' and one of them is the Night's Cavalry Helm (flag 1048557710)")
 

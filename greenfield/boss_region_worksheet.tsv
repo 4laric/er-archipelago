@@ -11,7 +11,7 @@ boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	a
 1048370800	Decaying Ekzykes	m60_48_37	field	21	26	Caelid	Caelid	yes	ok	Caelid	yes		
 1248550800	?	m60_48_55	?	14	30	Mountaintops of the Giants	ABSENT	no		Mountaintops of the Giants	no		
 1041530800	Wormface	m60_41_53	field	13	22	Altus	Altus	yes	ok	Altus	no		
-1050560800	Great Wyrm Theodorix	m60_50_56	field	12	25	Mountaintops of the Giants	Mountaintops of the Giants	yes	ok	Mountaintops of the Giants	no		
+1050560800	Great Wyrm Theodorix	m60_50_56	field	12	25	Consecrated Snowfield	Consecrated Snowfield	yes	ok	Consecrated Snowfield	no	Consecrated Snowfield	Region split: Theodorix is fought in Consecrated Snowfield.
 1034450800	Glintstone Dragon Smarag	m60_34_45	field	9	18	Liurnia	Liurnia	yes	ok	Liurnia	no		
 1039500800	Godefroy the Grafted	m60_39_50	field	9	10	Altus	Altus	yes	ok	Altus;Liurnia	no		
 1053560800	Roundtable Knight Vyke	m60_53_56	field	9	26	Mountaintops of the Giants	Mountaintops of the Giants	yes	ok	Mountaintops of the Giants	yes		
@@ -19,7 +19,7 @@ boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	a
 1038520800	Tibia Mariner	m60_38_52	field	8	11	Altus	Altus	yes	ok	Altus	no		
 1041510800	Tree Sentinel	m60_41_51	field	8	12	Altus	Altus	yes	ok	Altus	no		
 1043530800	Bell Bearing Hunter	m60_43_53	field	8	20	Altus	Altus	yes	ok	Altus	yes		
-1048570800	Death Rite Bird	m60_48_57	field	8	30	Mountaintops of the Giants	Mountaintops of the Giants	yes	ok	Mountaintops of the Giants	yes		
+1048570800	Death Rite Bird	m60_48_57	field	8	30	Consecrated Snowfield	Consecrated Snowfield	yes	ok	Consecrated Snowfield	yes	Consecrated Snowfield	Region split: this Death Rite Bird is fought in Consecrated Snowfield.
 2044470800	Rugalea the Great Red Bear	m61_44_47	legacy	8	38	Rauh Base	Rauh Base	yes	ok	Rauh Base	no		
 2045440800	Ghostflame Dragon	m61_45_44	legacy	8	27	Gravesite	Gravesite	yes	ok	Gravesite	no		
 2046380800	Dancer of Ranah	m61_46_38	legacy	8	12	Cerulean	Cerulean	yes	ok	Cerulean	no		
@@ -48,7 +48,7 @@ boss_entity	boss_name	tile	class	ambiguous_checks	sweep_members	derived_region	a
 1042330800	Ancient Hero of Zamor	m60_42_33	field	3	11	Weeping	Weeping	yes	ok	Weeping	yes		
 1041330800	?	m60_41_33	field	3	10	Weeping	ABSENT	no		Weeping	yes		
 1044320800	Deathbird	m60_44_32	field	3	13	Weeping	Weeping	yes	ok	Weeping	no		
-1050570850	Putrid Avatar	m60_50_57	field	3	5	Mountaintops of the Giants	Mountaintops of the Giants	yes	ok	Mountaintops of the Giants	no		
+1050570850	Putrid Avatar	m60_50_57	field	3	5	Consecrated Snowfield	Consecrated Snowfield	yes	ok	Consecrated Snowfield	no	Consecrated Snowfield	Region split: the Avatar is on the Snowfield side of the shared m60_50_57 seam.
 1049380800	?	m60_49_38	?	3	14	Caelid	ABSENT	no		Caelid	yes		
 1051570800	Commander Niall	m60_51_57	field	3	38	Mountaintops of the Giants	Mountaintops of the Giants	yes	ok	Mountaintops of the Giants	yes		
 2049430850	Black Knight Edredd	m61_49_43	legacy	3	48	Scadu Altus	ABSENT	no		Abyssal	yes		

@@ -19,7 +19,8 @@ pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.data import LOCATIONS  # noqa: E402
 from worlds.eldenring.region_spine import SPINE, GOAL_REGION, compute_kept, base_regions, dlc_regions  # noqa: E402
 from worlds.eldenring.features.goal_locations import (terminal_goal_ids, _major_boss_ids,  # noqa: E402
-                                                      _by_depth, DLC_TERMINUS_REGION)
+                                                      _by_depth, _is_terminus,
+                                                      DLC_TERMINUS_REGION)
 from worlds.eldenring.features.finale import finale_active  # noqa: E402
 from worlds.eldenring.data import FINALE_REGION, FINALE_REQUIRES  # noqa: E402
 
@@ -31,7 +32,9 @@ MORGOTT_IDS = set(_major_boss_ids(GOAL_REGION))
 
 class TestTerminalGoalPure:
     def test_deeper_kept_region_beats_leyndell(self):
-        # every base spine suffix deeper than Leyndell must out-rank the capital as the terminal.
+        # Every base spine suffix deeper than Leyndell with a real terminus must out-rank the
+        # capital. A field-boss-only region such as Consecrated Snowfield deliberately does not:
+        # Theodorix gives it a progression surface, not an ending (goal_locations._is_terminus).
         #
         # ⭐ RE-PREMISED 2026-08-06 (SPEC-ashen-capital-lock). This is a TIER 1 test -- the spine
         # ladder -- and tier 0 now outranks the ladder on EVERY base-game seed, because the finale
@@ -43,7 +46,8 @@ class TestTerminalGoalPure:
         # grew for this -- and the precedence claim the deleted branch used to make for one region
         # is asserted below for ALL of them, which is strictly more than it said.
         leyndell_rank = SPINE.index(GOAL_REGION)
-        deeper = [r for r in base_regions() if SPINE.index(r) > leyndell_rank and _major_boss_ids(r)]
+        deeper = [r for r in base_regions()
+                  if SPINE.index(r) > leyndell_rank and _major_boss_ids(r) and _is_terminus(r)]
         assert deeper, "spine data lost its deeper-than-Leyndell majors; test basis broken"
         for r in deeper:
             kept = {GOAL_REGION, "Altus", r}

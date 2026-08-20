@@ -212,7 +212,7 @@ if _HAVE_AP:
     class TestPocketAllRegionsKept(_PocketBindsMixin, WorldTestBase):
         # every base region kept -> the academy EXISTS and the bind is exercised, deterministically.
         game = "Elden Ring"
-        options = {"num_regions": len(REGIONS)}   # ALL regions kept; 30 -> 28 when
+        options = {"num_regions": len(REGIONS)}   # ALL regions kept; follows the generated spine
         # Charo's and Stone Coffin merged into Cerulean (#526). A literal here is the
         # #404 mistake -- the documented maximum drifting past what the option accepts.
 

@@ -9,6 +9,7 @@ REGION_OPEN_FLAGS = {
     'Belurat': 72001,
     'Caelid': 73207,
     'Cerulean': 76831,
+    'Consecrated Snowfield': 76550,
     'Deeproot Depths': 71231,
     'Enir Ilim': 72012,
     'Ensis': 76821,
@@ -36,4 +37,4 @@ REGION_OPEN_FLAGS = {
 REGION_OPEN_PENDING = [
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:fdfb8d552763e26d2308747c96163bd4b953e70eb60a87d70ff5f336b5df72df', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:94796534b8c5d12d8299c810f78775a32160f7219928ea11fba2f0a448ee3469'}
+_GEN_STAMP = {'inputs_hash': 'sha256:7d7ea51db2b0c64df527976e873f77ff50a785f3bc640f25b05aaeb2c87113e6', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:911c6d083212f1d0988d1237c2a0ddd93a850e6f52fbcc55e595426ef9ab2a7b'}

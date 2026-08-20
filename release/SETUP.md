@@ -19,7 +19,7 @@ shipped `EldenRing.yaml` turns it **off** (`enable_dlc: false`) because the base
 game is the better-tested path. So: build from the template, or from a wizard
 preset, and you get base game. Generate from a yaml that says nothing about it
 -- an empty `Elden Ring: {}` section, or the wizard's blank **Defaults** card --
-and you get all 28 regions, 11 of which need Shadow of the Erdtree.
+and you get all 29 regions, 12 of which need Shadow of the Erdtree.
 
 ---
 

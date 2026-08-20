@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.10",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "b4f1738898ed8d88a7ee14da4906d91f8d7dd5ec91974b252a3513ad62d30390",
+ "source_sha256": "a6a40dd50423a313ee2fff6c317825a72a34f374cbfb69f28ac54a2d4201811b",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -380,7 +380,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "choices": null,
    "range": {
     "start": 0,
-    "end": 28
+    "end": 29
    },
    "valid_keys": null,
    "casefold": false,
@@ -1874,6 +1874,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Belurat",
     "Caelid",
     "Cerulean",
+    "Consecrated Snowfield",
     "Deeproot Depths",
     "Enir Ilim",
     "Ensis",
@@ -3590,6 +3591,52 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    }
   },
+  "Consecrated Snowfield": {
+   "checks": 151,
+   "combos": {
+    "Boss|FieldBoss": 1,
+    "Boss|Legendary|MinorDungeonBoss": 1,
+    "Boss|MinorDungeonBoss": 4,
+    "Seedtree": 2
+   },
+   "dlc": false,
+   "parent": null,
+   "rollable": true,
+   "sweep_slots": {
+    "all": 4,
+    "bosses": 6,
+    "minidungeons": 4
+   },
+   "sweep_slots_by_class": {
+    "SweepSlot": {
+     "all": 4,
+     "bosses": 6,
+     "minidungeons": 4
+    },
+    "SweepSlotMinor": {
+     "all": 4,
+     "bosses": 6,
+     "minidungeons": 4
+    }
+   },
+   "sweep_slots_max": {
+    "all": 29,
+    "bosses": 45,
+    "minidungeons": 29
+   },
+   "sweep_slots_max_by_class": {
+    "SweepSlot": {
+     "all": 29,
+     "bosses": 45,
+     "minidungeons": 29
+    },
+    "SweepSlotMinor": {
+     "all": 29,
+     "bosses": 45,
+     "minidungeons": 29
+    }
+   }
+  },
   "Deeproot Depths": {
    "checks": 80,
    "combos": {
@@ -4081,61 +4128,60 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Mountaintops of the Giants": {
-   "checks": 342,
+   "checks": 191,
    "combos": {
-    "Basin|Boss|FieldBoss": 2,
-    "Boss|FieldBoss": 7,
+    "Basin|Boss|FieldBoss": 1,
+    "Boss|FieldBoss": 6,
     "Boss|FieldBoss|MajorBoss": 1,
-    "Boss|Legendary|MinorDungeonBoss": 1,
-    "Boss|MinorDungeonBoss": 12,
+    "Boss|MinorDungeonBoss": 8,
     "Boss|MinorDungeonBoss|Seedtree": 1,
     "Church": 2,
     "KeyItem": 1,
     "Legendary": 4,
-    "Seedtree": 4,
+    "Seedtree": 2,
     "Shop": 6
    },
    "dlc": false,
    "parent": null,
    "rollable": true,
    "sweep_slots": {
-    "all": 7,
-    "bosses": 15,
-    "minidungeons": 7
+    "all": 3,
+    "bosses": 8,
+    "minidungeons": 3
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 7,
-     "bosses": 15,
-     "minidungeons": 7
+     "all": 3,
+     "bosses": 8,
+     "minidungeons": 3
     },
     "SweepSlotMajor": {
      "bosses": 2
     },
     "SweepSlotMinor": {
-     "all": 7,
-     "bosses": 13,
-     "minidungeons": 7
+     "all": 3,
+     "bosses": 6,
+     "minidungeons": 3
     }
    },
    "sweep_slots_max": {
-    "all": 51,
-    "bosses": 105,
-    "minidungeons": 51
+    "all": 22,
+    "bosses": 58,
+    "minidungeons": 22
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 51,
-     "bosses": 105,
-     "minidungeons": 51
+     "all": 22,
+     "bosses": 58,
+     "minidungeons": 22
     },
     "SweepSlotMajor": {
      "bosses": 16
     },
     "SweepSlotMinor": {
-     "all": 51,
-     "bosses": 89,
-     "minidungeons": 51
+     "all": 22,
+     "bosses": 42,
+     "minidungeons": 22
     }
    }
   },
@@ -4609,7 +4655,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "6ec103577202b476b93f485b3a7b1dd5997ca542f3dc92ae6bf8a828dbea1dbc"
+ "source_sha256": "160ed0613a5f3d64e2201e522a96241d7c2a8a1a5111648d06b93af586837d91"
 }
 </script>
 <div class="wrap">
