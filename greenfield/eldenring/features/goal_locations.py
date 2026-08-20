@@ -29,12 +29,13 @@ the default and is unchanged. When the player NAMES a goal, GOAL_CHOICES pins th
 outright and core force-keeps that region's prerequisites through compute_kept(forced=...), so the
 chosen goal is reachable BY CONSTRUCTION rather than by fallback -- there is no silent degradation
 to the ladder, which is the "I set my goal and the game ignored it" failure this project has been
-burned by. An explicit choice OUTRANKS tier 0: `goal: promised_consort` on a seed that also keeps
-Farum Azula + Leyndell still goals on Enir Ilim, and the Ashen Capital's ten checks remain ordinary
-locations (features/finale.py creates the region on its own prerequisites, never on the goal). The
-consequence, stated plainly because this docstring has lied before: with an explicit choice the
-goal ids are NOT necessarily in the deepest kept region by SPINE rank -- that invariant holds for
-`auto` only.
+burned by. Most choices clear all majors in that region; a boss-specific choice may pin an exact
+check (`malenia` is only f510200, not Loretta). An explicit choice OUTRANKS tier 0: a named goal on
+a seed that also keeps Farum Azula + Leyndell still goals on its named boss, and the Ashen Capital's
+ten checks remain ordinary locations (features/finale.py creates the region on its own
+prerequisites, never on the goal). The consequence, stated plainly because this docstring has lied
+before: with an explicit choice the goal ids are NOT necessarily in the deepest kept region by
+SPINE rank -- that invariant holds for `auto` only.
 
 Resolution ladder (each tier total, deterministic, and derived -- no hand list):
   0. THE FINALE's major bosses, iff features/finale.py created the finale region this seed.
@@ -90,6 +91,8 @@ Invariants promised here and enforced by tests/test_gf_goal_terminal.py + test_g
     set_rules closes its has_all over, minus the precollected anchor.
 """
 import logging
+from dataclasses import dataclass
+from typing import Optional, Tuple
 
 from ..registry import Feature, register
 from . import vanilla_placement as _vp
@@ -118,12 +121,30 @@ except Exception:
 # Spine rank for ordering kept regions; regions off the spine sort last (defensive, never expected).
 _SPINE_RANK = {r: i for i, r in enumerate(SPINE)}
 
-# THE EXPLICIT GOAL TABLE: option value -> (terminal region, regions that must be KEPT for it).
-# One line per value; adding e.g. 'dragonlord' (Farum Azula: Placidusax + Maliketh) is a one-line
-# change. The option selects a REGION, not a boss -- tiers 0/1 mean "clear ALL majors of the
-# terminal region" and that invariant does not bend. The values are NAMED for bosses because that
-# is how players ask for them; 'elden_beast' resolves to the Ashen Capital's pair (Hoarah Loux is
-# physically on the way -- the Elden Throne is behind his arena -- so the pair adds no detour).
+# THE EXPLICIT GOAL TABLE. Most choices select a REGION and therefore clear all of that region's
+# majors. A choice may instead pin one or more exact terminal checks when the player-facing choice
+# names one boss in a region with several majors -- Malenia is the motivating case. Keeping that
+# distinction in the table prevents a new boss-shaped choice from silently inheriting the old
+# "clear the region" rule.
+@dataclass(frozen=True)
+class GoalChoiceSpec:
+    region: str
+    forced: Tuple[str, ...]
+    location_ids: Tuple[int, ...] = ()
+    entry_grace: Optional[int] = None
+
+
+# Generated-data pins for #861. 7770762 is "Remembrance of the Rot Goddess - Malenia [f510200]";
+# 71506 is "Haligtree Canopy" in grace_flags.tsv. The remembrance's defeat flag is the canonical
+# Malenia kill check; her Great Rune uses a separate synthetic flag and is not the terminal event.
+MALENIA_REGION = "Haligtree"
+MALENIA_GOAL_LOCATION = 7770762
+MALENIA_ENTRY_GRACE = 71506
+
+
+# One line per value. The values are NAMED for bosses because that is how players ask for them;
+# 'elden_beast' resolves to the Ashen Capital's pair (Hoarah Loux is physically on the way -- the
+# Elden Throne is behind his arena -- so the pair adds no detour).
 # 🛑 `elden_beast` FORCES NOTHING as of 2026-08-06 (SPEC-ashen-capital-lock). It used to force-keep
 # ('Farum Azula', 'Leyndell') because the burn was game data and only those two regions could reach
 # it -- which is why `num_regions: 1` produced four regions. The Ashen Capital Lock made the finale
@@ -134,8 +155,10 @@ _SPINE_RANK = {r: i for i, r in enumerate(SPINE)}
 # all. core carries an explicit base-game test for exactly that; do not re-derive the guard from
 # this tuple.
 GOAL_CHOICES = {
-    "elden_beast":      (FINALE_REGION, ()),
-    "promised_consort": ("Enir Ilim",   ("Enir Ilim",)),
+    "elden_beast":      GoalChoiceSpec(FINALE_REGION, ()),
+    "promised_consort": GoalChoiceSpec("Enir Ilim", ("Enir Ilim",)),
+    "malenia":          GoalChoiceSpec(MALENIA_REGION, (MALENIA_REGION,),
+                                        (MALENIA_GOAL_LOCATION,), MALENIA_ENTRY_GRACE),
 }
 
 
@@ -186,7 +209,20 @@ def forced_regions(chosen):
     core, the yaml validator and the tests cannot drift from the table."""
     if not chosen or chosen == "auto":
         return ()
-    return GOAL_CHOICES.get(chosen, ((), ()))[1]
+    spec = GOAL_CHOICES.get(chosen)
+    return spec.forced if spec is not None else ()
+
+
+def goal_region(chosen):
+    """The explicitly selected terminal region, or None for auto / an unknown value."""
+    spec = GOAL_CHOICES.get(chosen)
+    return spec.region if spec is not None else None
+
+
+def goal_entry_grace(chosen):
+    """A named goal's required physical entry grace, if it overrides the normal region bundle."""
+    spec = GOAL_CHOICES.get(chosen)
+    return spec.entry_grace if spec is not None else None
 
 
 def _major_boss_ids(region):
@@ -252,11 +288,18 @@ def terminal_goal_ids(kept, chosen=None, finale_built=None, dlc_terminus=None):
     raises).
 
     `chosen` is the explicit `goal` option value; when it names a GOAL_CHOICES entry it PINS the
-    region and returns before the ladder runs -- outranking tier 0. Empty majors fall through to
-    the ladder rather than returning nothing (defensive against a partial regen), and a wholly
-    empty result still reaches the caller's ContractError."""
+    region and returns before the ladder runs -- outranking tier 0. A boss-specific choice returns
+    only its pinned checks and NEVER falls through to a different ending if one goes stale. A
+    region-wide choice with empty majors falls through to the ladder (defensive against a partial
+    regen), and a wholly empty result still reaches the caller's ContractError."""
     if chosen and chosen != "auto" and chosen in GOAL_CHOICES:
-        region = GOAL_CHOICES[chosen][0]
+        spec = GOAL_CHOICES[chosen]
+        region = spec.region
+        if spec.location_ids:
+            available = {aid for (_name, aid, _flag) in LOCATIONS.get(region, ())}
+            if all(aid in available for aid in spec.location_ids):
+                return region, sorted(spec.location_ids)
+            return region, []
         ids = _major_boss_ids(region)
         if ids:
             return region, ids

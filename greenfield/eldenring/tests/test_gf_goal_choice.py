@@ -30,13 +30,16 @@ from worlds.eldenring.data import FINALE_REGION, FINALE_REQUIRES  # noqa: E402
 from worlds.eldenring.region_spine import (SPINE, REGIONS, GOAL_REGION, compute_kept,  # noqa: E402
                                            base_regions, dlc_regions, parent_chain)
 from worlds.eldenring.features.finale import finale_active, finale_entries  # noqa: E402
-from worlds.eldenring.features.goal_locations import (GOAL_CHOICES, forced_regions,  # noqa: E402
-                                                      terminal_goal_ids, _major_boss_ids)
+from worlds.eldenring import contract  # noqa: E402
+from worlds.eldenring.features.goal_locations import (  # noqa: E402
+    GOAL_CHOICES, MALENIA_ENTRY_GRACE, MALENIA_GOAL_LOCATION, MALENIA_REGION,
+    forced_regions, terminal_goal_ids, _major_boss_ids)
 
 GAME = "Elden Ring"
 PCR_REGION = "Enir Ilim"
 PCR_IDS = set(_major_boss_ids(PCR_REGION))
 FINALE_IDS = set(_major_boss_ids(FINALE_REGION))
+LORETTA_LOCATION = 7773891
 
 
 class TestGoalChoiceTable:
@@ -50,7 +53,8 @@ class TestGoalChoiceTable:
         assert FINALE_IDS == {7770755, 7770764}
 
     def test_every_choice_names_a_region_with_majors(self):
-        for value, (region, need) in GOAL_CHOICES.items():
+        for value, spec in GOAL_CHOICES.items():
+            region, need = spec.region, spec.forced
             assert _major_boss_ids(region), f"goal {value!r} -> {region!r} has no MajorBoss checks"
             # A named goal must be able to GUARANTEE its region is in the seed, and there are now
             # exactly TWO ways to do that. This line read `assert need` until 2026-08-06, when
@@ -77,11 +81,27 @@ class TestGoalChoiceTable:
             assert set(forced_regions(value)) <= set(REGIONS), \
                 "a forced region must be one compute_kept can actually keep"
 
-    def test_the_two_choices_are_the_ones_that_were_asked_for(self):
+    def test_named_choices_are_the_ones_that_were_asked_for(self):
         # A conscious-change gate: adding a value is fine, silently dropping one is not.
-        assert {"elden_beast", "promised_consort"} <= set(GOAL_CHOICES)
-        assert GOAL_CHOICES["elden_beast"] == (FINALE_REGION, tuple(FINALE_REQUIRES))
-        assert GOAL_CHOICES["promised_consort"] == (PCR_REGION, (PCR_REGION,))
+        assert {"elden_beast", "promised_consort", "malenia"} <= set(GOAL_CHOICES)
+        assert GOAL_CHOICES["elden_beast"].region == FINALE_REGION
+        assert GOAL_CHOICES["elden_beast"].forced == tuple(FINALE_REQUIRES)
+        assert GOAL_CHOICES["promised_consort"].region == PCR_REGION
+        assert GOAL_CHOICES["promised_consort"].forced == (PCR_REGION,)
+        malenia = GOAL_CHOICES["malenia"]
+        assert malenia.region == MALENIA_REGION
+        assert malenia.forced == (MALENIA_REGION,)
+        assert malenia.location_ids == (MALENIA_GOAL_LOCATION,)
+        assert malenia.entry_grace == MALENIA_ENTRY_GRACE
+
+    def test_malenia_pin_is_the_remembrance_check_not_every_haligtree_major(self):
+        assert MALENIA_GOAL_LOCATION == 7770762
+        assert MALENIA_GOAL_LOCATION in _major_boss_ids(MALENIA_REGION)
+        assert LORETTA_LOCATION in _major_boss_ids(MALENIA_REGION)
+        region, ids = terminal_goal_ids(set(REGIONS), "malenia")
+        assert region == MALENIA_REGION
+        assert ids == [MALENIA_GOAL_LOCATION]
+        assert LORETTA_LOCATION not in ids
 
 
 class TestChoiceOutranksFinale:
@@ -99,6 +119,14 @@ class TestChoiceOutranksFinale:
         assert region == PCR_REGION
         assert set(ids) == PCR_IDS
         assert set(ids) != FINALE_IDS, "the choice did NOT override tier 0 -- goal fell to the finale"
+
+    def test_malenia_choice_beats_an_active_finale(self):
+        kept = set(REGIONS)
+        assert finale_active(kept)
+        region, ids = terminal_goal_ids(kept, "malenia")
+        assert region == MALENIA_REGION
+        assert ids == [MALENIA_GOAL_LOCATION]
+        assert set(ids) != FINALE_IDS
 
     def test_elden_beast_choice_agrees_with_tier_zero(self):
         kept = set(REGIONS)
@@ -203,6 +231,91 @@ class GoalAutoFullSeed(WorldTestBase):
         assert set(sd["goalLocations"]) == FINALE_IDS
 
 
+class GoalMaleniaPhysicalRoute(WorldTestBase):
+    """#861: open at Canopy, walk Loretta -> Elphael -> Malenia, and goal on Malenia alone."""
+    game = GAME
+    run_default_tests = False
+    options = {
+        "num_regions": 3,
+        "goal": "malenia",
+        # Both deliberately try to widen/split every normal bundle. The named route must outrank
+        # them or an unrelated setting turns Canopy-only back into a Prayer Room shortcut.
+        "region_grace_unlock": "all",
+        "grace_attunement": 4,
+    }
+
+    def test_haligtree_is_kept_and_its_lock_is_withheld(self):
+        assert MALENIA_REGION in self.world._kept()
+        assert all(item.name != "Haligtree Lock" for item in self.multiworld.itempool)
+        assert "Haligtree Lock" not in self.world.kept_lock_names()
+
+    def test_goal_is_malenia_alone(self):
+        sd = self.world.fill_slot_data()
+        assert sd[contract.GOAL_LOCATIONS] == [MALENIA_GOAL_LOCATION]
+        assert sd[contract.LOCATION_FLAGS][str(MALENIA_GOAL_LOCATION)] == 510200
+        assert LORETTA_LOCATION not in sd[contract.GOAL_LOCATIONS]
+
+    def test_only_canopy_is_granted_even_under_all_plus_attunement(self):
+        sd = self.world.fill_slot_data()
+        assert sd[contract.REGION_GRACES]["Haligtree Lock"] == [MALENIA_ENTRY_GRACE]
+        assert "Haligtree Lock" not in sd.get(contract.GRACE_ATTUNEMENT, {})
+        assert MALENIA_ENTRY_GRACE == 71506
+
+
+class GoalMaleniaComposesWithBothIndependentAxes(WorldTestBase):
+    """The boss choice does not collapse either the Great-Rune or completed-region axis."""
+    game = GAME
+    run_default_tests = False
+    options = {
+        "num_regions": 3,
+        "goal": "malenia",
+        "item_shuffle": True,
+        "ending_condition": "great_runes",
+        "goal_great_runes": 4,
+        "goal_region_unlock_policy": "regions_completed",
+    }
+
+    def test_malenia_rides_both_existing_gates(self):
+        sd = self.world.fill_slot_data()
+        assert sd[contract.GOAL_LOCATIONS] == [MALENIA_GOAL_LOCATION]
+        assert sd["great_runes_required"] == 4
+        assert "region_completion_goal_gate" in sd[contract.REQUIRES_CLIENT_FEATURES]
+        assert contract.GOAL_REQUIRED_ITEMS not in sd
+        assert sd[contract.REGION_GRACES]["Haligtree Lock"] == [MALENIA_ENTRY_GRACE]
+
+
+@pytest.mark.parametrize("runes", [False, True], ids=["no_runes", "four_runes"])
+@pytest.mark.parametrize("policy", ["items_held", "regions_completed", "none"])
+def test_malenia_goal_axis_matrix_fills_clean(runes, policy):
+    """All 2 x 3 combinations are real fills, not just six slot-data spellings."""
+    from Fill import distribute_items_restrictive
+
+    options = {
+        "num_regions": 4,
+        "goal": "malenia",
+        "goal_region_unlock_policy": policy,
+    }
+    if runes:
+        options.update(item_shuffle=True, ending_condition="great_runes", goal_great_runes=4)
+
+    class _T(WorldTestBase):
+        game = GAME
+        auto_construct = False
+
+    test = _T("runTest")
+    test.options = options
+    test.world_setup(20260819)
+    try:
+        distribute_items_restrictive(test.multiworld)
+        sd = test.world.fill_slot_data()
+        assert sd[contract.GOAL_LOCATIONS] == [MALENIA_GOAL_LOCATION]
+        assert sd[contract.REGION_GRACES]["Haligtree Lock"] == [MALENIA_ENTRY_GRACE]
+        assert sd["great_runes_required"] == (4 if runes else 0)
+        assert (contract.GOAL_REQUIRED_ITEMS in sd) == (policy == "items_held")
+    finally:
+        test.tearDown()
+
+
 class GoalEldenBeastNeedsNoForcing(WorldTestBase):
     """`goal: elden_beast` on a small draw, which used to be the case that PROVED the force-keep.
 
@@ -305,9 +418,14 @@ class TestImpossibleChoicesDieAtGeneration:
         assert "base game" in msg, msg       # why it is impossible
         assert "dlc_only" in msg, msg        # which knob to turn
 
+    def test_malenia_under_dlc_only_raises(self):
+        with pytest.raises(OptionError, match="Haligtree"):
+            self._generate(num_regions=0, dlc_only=True, goal="malenia")
+
     def test_the_legal_pairings_do_not_raise(self):
         # The mirror leg -- a guard that rejects everything is not a guard. These must generate.
         self._generate(num_regions=0, goal="promised_consort")
         self._generate(num_regions=0, goal="elden_beast")
         self._generate(num_regions=0, dlc_only=True, goal="promised_consort")
         self._generate(num_regions=0, enable_dlc=False, goal="elden_beast")
+        self._generate(num_regions=0, enable_dlc=False, goal="malenia")

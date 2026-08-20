@@ -3,6 +3,27 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.10 — 2026-08-19
+
+Window opened from `main` immediately after v0.4.9 was tagged. The release tag's only commit not on
+`main` is its client-gitlink bump; this window supersedes that pin with the v0.4.10 client, so no
+player-facing work is stranded between the tag and this branch.
+
+`CONTRACT_HASH` remains `dc0dc687`, verified by loading `contract.py` after the bump. The slot-data
+shape is unchanged, but the exact-version handshake still moves to 0.4.10.
+
+Client half: clients#320. Its commit is pinned by the gitlink in this same change.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.9 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **Malenia can end the run.** `goal: malenia` force-keeps the Haligtree and withholds its Lock
+  from fill until the seed's independently selected Great-Rune and region requirements are met.
+  Opening it grants Haligtree Canopy alone—even under the all-graces or grace-attunement settings—
+  so Loretta, Elphael and the full descent to Malenia remain physical play. The terminal check is
+  Malenia's f510200 defeat, not every Haligtree major boss. World: #861.
+
 ## v0.4.9 — 2026-08-18
 
 Window opened 2 commit(s) PAST the v0.4.8 tag.

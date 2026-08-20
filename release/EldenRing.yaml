@@ -152,11 +152,14 @@ Elden Ring:
   #   elden_beast      -- pin that pair explicitly. Forces no regions kept.
   #   promised_consort -- Promised Consort Radahn, the DLC's final boss, and
   #                       FORCE Enir Ilim kept.
+  #   malenia          -- Malenia alone. FORCE Haligtree kept, then grant only
+  #                       Haligtree Canopy: walk the full Loretta -> Elphael ->
+  #                       Malenia route instead of warping to a later grace.
   # Why you'd set it: on a full base+DLC seed `auto` ends at the Elden Beast and
   # the whole DLC is optional, so PCR can never become the goal by luck.
   # A choice your other options make impossible FAILS GENERATION rather than
   # quietly falling back (promised_consort needs the DLC in play; elden_beast
-  # needs the base game).
+  # and malenia need the base game).
   #
   # HOW YOU GET THERE (v0.3.7). Burning the Erdtree used to require killing
   # Maliketh in Crumbling Farum Azula, so the ending only existed on seeds that
