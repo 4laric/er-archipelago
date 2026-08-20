@@ -1377,7 +1377,7 @@
    "key": "cross_game_progression",
    "class": "CrossGameProgression",
    "display_name": "Cross Game Progression",
-   "description": "What share of your travelling Region Locks may land in a NON-Elden-Ring player's world.\n\n`auto` (the default) is **1 / number of games**: in a two-game multiworld half your travelling\nLocks go to the partner, in a four-game one a quarter each. That is the same 1/N rule the export\nvolume is judged by, and it means the answer scales with the table instead of being a number\nsomeone has to re-pick per seed. `0` keeps every Lock inside Elden Ring, which is the behaviour\nevery seed had before this option existed. A number is that share explicitly.\n\n# Why this option exists at all\n\n`progression_bias` already releases Locks into the multiworld, and between Elden Ring worlds it\nworks -- MEASURED 50-54% travel on 2xER seeds. But `place_released_locks` only ever offered them\nELDEN RING surfaces, and our surfaces host ~170 checks against at most ~36 Locks, so the spill\nvalve that was supposed to feed a partner never had anything to spill. MEASURED across four\nconfigurations: **0 Locks reached a Hollow Knight slot, ever** -- including a 2xER + 1xHK seed\nwhere 15 of 28 Locks travelled and all 15 went to the other Elden Ring world.\n\n`progression_bias` controls whether Locks leave their owner at all. It does not choose between\nanother Elden Ring slot and a non-Elden-Ring partner; this option provides that second axis.\n\n⚠️ IT PLACES INTO ANOTHER GAME'S LOCATIONS, which is the one thing `place_released_locks` used to\nrefuse to do, and the refusal was not arbitrary -- TUNIC's own `stage_pre_fill` raises\n\"caused by another world filling TUNIC locations during pre_fill... we cannot recover from this\nissue.\" We only ever offer locations that are still EMPTY, never force a placement, and put back\nanything unplaced -- but a partner game that objects to being filled at all is a real failure\nmode, and `0` is the escape hatch. Set it to 0 if a seed will not generate.\n\nNo effect in a solo seed, in an all-Elden-Ring multiworld (there is no non-ER world to send to),\nor in the modes that mint no Lock items.",
+   "description": "How your progression is shared with the other games at the table.\n\n``auto`` (the default) balances it: every other game receives its own near **1 / number of\ngames** share of your travelling progression, and your world reserves the same share of every\npartner game's progression in return. Eleven items at a three-game table means roughly four to\neach partner and three staying home -- not one aggregate batch split however fill happens to\nland. Two slots of one game count as a single game, sampled fairly across their players, and\nitems a player keeps local are never taken.\n\n``aggregate`` is the older shape: one combined foreign batch sized at 1/N, divided between the\npartners by ordinary fill, with no incoming reservation. A number from 1 to 100 is that\naggregate share set by hand. ``never`` (0) keeps every travelling progression item inside\nElden Ring -- the escape hatch if a partner game will not tolerate being filled and a seed\nrefuses to generate.\n\nShares are capacity-aware: a partner game with fewer open locations than its share, or a world\nwithout room for the full incoming reservation, caps the share at what fits, and the\ngeneration log states requested-versus-reserved per game. Only a placement the rules refuse\noutright is a failure.\n\nNo effect in a solo seed, in an all-Elden-Ring multiworld, or in the modes that mint no Lock\nitems.",
    "kind": "range",
    "base": "NamedRange",
    "default": -1,
@@ -1391,6 +1391,10 @@
    "group": null,
    "group_collapsed": false,
    "special_values": [
+    {
+     "name": "aggregate",
+     "value": -2
+    },
     {
      "name": "auto",
      "value": -1

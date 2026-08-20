@@ -29,6 +29,18 @@ Client half: clients#320. Its commit is pinned by the gitlink in this same chang
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **`cross_game_progression: auto` now balances progression per game.** Every partner game
+  receives its own near-`1 / number of games` share of your travelling progression, and your
+  world reserves the same share of each partner game's advancement in return -- eleven items at
+  a three-game table land roughly 4/4 abroad and 3 at home, instead of one aggregate batch split
+  however fill happens to land (the motivating seed split them 2/2/7). Multiple slots of one game
+  form one combined pool sampled fairly across their players; owner-local items stay local; and a
+  capacity shortfall (a tiny partner game, a full world) caps the share at what fits, with
+  requested-versus-reserved counts in the generation log. The older one-batch shape kept a name:
+  `cross_game_progression: aggregate` -- and an explicit percentage or `never` behaves exactly as
+  before. One lever, three regimes; no new option (the draft's separate toggle was folded into
+  `auto` before shipping). This guarantees progression-classified placements, not that every item
+  survives the spoiler's redundant-route pruning. World: #927.
 - **Your weapons finally reach your friends.** At the shipped settings a non-Elden-Ring partner
   received nothing from an Elden Ring slot but filler -- 0 useful items in 498 measured
   placements -- because of a fill-order artifact, not any option's intent (the partner's own
