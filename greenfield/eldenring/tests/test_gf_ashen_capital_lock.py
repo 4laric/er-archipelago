@@ -99,7 +99,10 @@ class TestTheGeometryIsItsOwn:
         assert FINALE_REGION in REGION_OPEN_FLAGS
         assert FINALE_REGION in REGION_GRACE_POINTS and REGION_GRACE_POINTS[FINALE_REGION]
         assert REGION_PLAY_IDS.get(FINALE_REGION) == [11050, 19000]
-        assert REGION_PLAY_IDS.get(FINALE_KICK_OWNER) == [11000], (
+        # [11000] -> [11000, 35000] (2026-08-20): the Sewer merged into Leyndell; m35 is
+        # capital-version-NEUTRAL ground (capital_partition classifies it neither Royal nor
+        # Ashen), so it rides Leyndell's kick while never touching the reconciler.
+        assert REGION_PLAY_IDS.get(FINALE_KICK_OWNER) == [11000, 35000], (
             "the finale's buckets must have LEFT Leyndell, or both regions claim them and the "
             "kick is decided by dict order")
 

@@ -107,6 +107,15 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   The Cross Game Progression tooltip lost its raw-markdown engineering essay for three readable
   paragraphs, and named range values render by name -- the slider says "auto", not "-1 (default
   -1)".
+- **The Sewer is part of Leyndell now.** The Subterranean Shunning-Grounds merged into the
+  capital -- the well is inside the walls, so one region, one Lock, one wall (Alaric's call on
+  #842/#917, taken over the alternative of making it independently accessible). Its graces ride
+  the Leyndell bundle, its ground rides the Leyndell kick, the capital's rune gate and the
+  no-required-progression-behind-the-wall machinery cover it for free -- which also removes the
+  #842 hazard of a Great Rune stranding itself on Mohg the Omen -- and the capital reconciler
+  treats sewer ground as version-neutral (standing in the well never rewrites the Royal/Ashen
+  map flags). `num_regions` tops out at 27; no shipped yaml or preset named a higher value or
+  the Sewer as a start region. Client: the region-lock table regen in the paired gitlink.
 - **Malenia can end the run.** `goal: malenia` force-keeps the Haligtree and withholds its Lock
   from fill until the seed's independently selected Great-Rune and region requirements are met.
   Opening it grants Haligtree Canopy alone—even under the all-graces or grace-attunement settings—

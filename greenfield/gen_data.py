@@ -476,6 +476,8 @@ try:
                 continue
             _p = _line.rstrip("\n").split("\t")
             if len(_p) == 3 and _p[0].isdigit():
+                # NOTE: _REGION_MERGES is applied later (it is defined below this load); the fold
+                # for this table happens right after the merge map exists.
                 BOSS_AREA_REGION[int(_p[0])] = _p[2]
 except OSError as _e:
     print(f"[gen_data] boss_area_regions.tsv unavailable ({_e!r}); boss-arena region corrections OFF "
@@ -514,7 +516,7 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite',
  'Lake of Rot (Astel)':'Ainsel River','Deeproot Depths (Lichdragon Fortissax)':'Deeproot Depths','Fractured Marika (final)':'Leyndell',
  'Belurat, Tower Settlement (DLC)':'Belurat','Enir-Ilim (DLC)':'Enir Ilim','Stone Coffin Fissure (DLC)':'Cerulean',
  "Midra's Manse (DLC)":'Abyssal','Church of the Bud (DLC)':'Ancient Ruins','Castle Ensis (DLC)':'Ensis',
- 'Ainsel River / Lake of Rot':'Ainsel River','Nokstella, Eternal City':'Ainsel River','Subterranean Shunning-Grounds':'Sewer',
+ 'Ainsel River / Lake of Rot':'Ainsel River','Nokstella, Eternal City':'Ainsel River','Subterranean Shunning-Grounds':'Leyndell',
  'm22':'Cerulean','m28':'Abyssal'}
 
 # ---- SHOP-ROW REGION GROUND TRUTH (shop_rows.tsv col 9, tools/datamine_shop_rows.py) --------------
@@ -3334,7 +3336,7 @@ GLOBAL_RECOVER = {
     # (HUB / Altus). Re-pin to the boss's real region so check + detect flag + sweep agree (2026-07-10):
     510810: "Liurnia",  # Royal Knight Loretta (Caria Manor) -- was HUB (Loretta's Greatbow/Slash)
     510210: "Mt. Gelmir",            # Godskin Noble (Volcano Manor) -- was auto-recovered to Altus
-    510250: "Sewer",               # Bloodflame Talons -> Mohg, the Omen (Subterranean Shunning-Grounds = the Sewer region now; was unplaced/global -> not randomized, in-game 2026-07-10)
+    510250: "Leyndell",            # Bloodflame Talons -> Mohg, the Omen (the Shunning-Grounds merged into Leyndell 2026-08-20)
     # Shared-flag Golden Seeds the flag-tile decode couldn't place, so recovery dropped them entirely.
     # Each is a real reachable pickup whose acquisition flag is shared with a co-located spirit ash that
     # is NOT a separate check anywhere, so recovering them loses nothing and completes the Golden Seed
@@ -4155,7 +4157,7 @@ if _redundant_shop_pins:
         % (len(_redundant_shop_pins), _redundant_shop_pins))
 
 
-def region_of(r):
+def _region_of_unfolded(r):
     """Corrected region: per-flag override (highest priority) -> curated dungeon override -> EMEVD/
     common-event audit for emevd+global rows -> raw region_of for everything else."""
     try: _ovfl = int(r['flag'])
@@ -4282,6 +4284,27 @@ def region_of(r):
 
 # Derive the interior map-prefix -> region table from the PLACED rows (before recovery is appended),
 # so recovered interior drops inherit their dungeon's region instead of quarantining to HUB.
+# ---- REGION MERGES (Alaric 2026-08-20, the audible on #917/#842) --------------------------------
+# A name that is no longer a REGION. "Sewer" (the Subterranean Shunning-Grounds, m35) merged into
+# Leyndell: the well is inside the capital walls, one region, one wall -- the rune-gate and #589
+# supply-repair machinery cover the Shunning-Grounds for free, which also dissolves #842's
+# self-gating hazard. Same fold as Scaduview -> Shadow Keep (2026-07-19); THAT one was reruled at
+# the tile tables, but "Sewer" appears across five source tsvs, so this fold lives at the ONE
+# chokepoint every derivation path exits through -- a tsv can keep saying "Sewer" about a place
+# and no table can disagree about the region. The tsvs stay untouched on purpose.
+_REGION_MERGES = {"Sewer": "Leyndell"}
+# Fold the direct tsv-fed tables that bypass region_of. BOSS_AREA_REGION feeds the sweep-arena
+# audit; a stale "Sewer" there would make an audited arena look unaudited.
+for _k in list(BOSS_AREA_REGION):
+    BOSS_AREA_REGION[_k] = _REGION_MERGES.get(BOSS_AREA_REGION[_k], BOSS_AREA_REGION[_k])
+
+
+def region_of(r):
+    """`_region_of_unfolded` (every priority tier, side effects included), then the merge fold."""
+    _reg = _region_of_unfolded(r)
+    return _REGION_MERGES.get(_reg, _reg)
+
+
 _mpr_votes = defaultdict(Counter)
 for _r in rows:
     _pf = _tile_prefix2(_r.get('map'))
@@ -4291,6 +4314,8 @@ _MAP_PREFIX_REGION.update({_p: _c.most_common(1)[0][0] for _p, _c in _mpr_votes.
 
 # RECOVER: append the currently-SKIPped `global` rows (real pickups: crystal tears, memory stones,
 # effigies, etc.) as reachable checks. Appended AFTER `rows` so existing positional ap-ids are stable.
+
+
 def _recover_row_ok(r):
     if r['method'] not in ('global', 'global_filler'):
         return False
@@ -6252,7 +6277,10 @@ REGION_OPEN_FLAGS = {r: _front_door(r) for r in _OPEN_FLAG_REGIONS if _open_cand
 _GATED_CHILD_OPEN_FLAGS = {
     "Leyndell": 76980,               # was 71102 East Capital Rampart
     "Raya Lucaria Academy": 76981,   # was 71402 Church of the Cuckoo
-    "Sewer": 76982,                  # was 73501
+    # "Sewer": 76982 RETIRED 2026-08-20 (Alaric's audible on #917/#842): the Sewer MERGED into
+    # Leyndell -- the m35 well is inside the capital walls, so one region, one wall, and the
+    # rune-gate/supply-repair machinery covers the Shunning-Grounds for free. Same fold as
+    # Scaduview->Shadow Keep (2026-07-19). Flag 76982 returns to the probed-id pool.
 }
 for _r, _syn in _GATED_CHILD_OPEN_FLAGS.items():
     if _r in REGION_OPEN_FLAGS:
