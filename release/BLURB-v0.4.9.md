@@ -49,12 +49,6 @@ the corrupt object instead of inviting a speculative feature shutdown.
 their player arranged. The live boss-HP probe is also off by default now that its audit has the
 evidence it needed.
 
-**Malenia can be the ending now.** Set `goal: malenia` and the seed guarantees the Haligtree, but it
-does not hand you Prayer Room or Roots. Once your chosen Great-Rune and region requirements resolve,
-you get Haligtree Canopy and play the whole route through Loretta and Elphael; Malenia's own defeat
-ends the run. The existing goal axes remain independent, so this works with no Great Runes or any N,
-and with held locks, completed regions, or no region requirement.
-
 **Merchant bells and capital entrances say what they mean.** A Merchant Bell Bearing is removed from
 the pool when every merchant who owns it lives in a sealed region. If a vanilla-only bell is handed
 in anyway, the client explains that it opened vanilla inventory instead of looking like an empty AP

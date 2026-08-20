@@ -40,3 +40,5 @@ stable	v0.4.6	2026-08-18	v0.4.7 was never tagged, so there is no newer immutable
 beta	main	2026-08-18	the open v0.4.8 window
 stable	v0.4.8	2026-08-18	armor bundles, independent Great Rune/region goals, alternating flask upgrades, corrected filler quantities, TrapLink and Blackout, durable item/check delivery, Leyndell and capital fixes, and packaged AP Flower support; promoted while opening v0.4.9 so stable moves with the release
 beta	main	2026-08-18	the open v0.4.9 window
+stable	v0.4.9	2026-08-19	full-map data cleanup, safer start-item delivery, honest boss sweeps and tracker grouping, corrected merchant bells and capital entry, and stronger crash diagnostics; promoted while opening v0.4.10 so stable moves with the release
+beta	main	2026-08-19	the open v0.4.10 window
