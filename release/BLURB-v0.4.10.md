@@ -27,6 +27,12 @@ kept; `start_regions` decides how many of them actually open the run. The seed-s
 the resulting extra regions before you generate, and the generation log names them separately from
 regions forced by your goal.
 
+**Region-Lock travel has two knobs, and the descriptions now say which is which.**
+`progression_bias` decides how many Locks leave their owner; `cross_game_progression` decides how
+many travelling Locks are deliberately sent to non-Elden-Ring games. Ordinary fill alone does not
+promise that a smaller partner gets most of them. This is a documentation correction, not a seed
+behavior change.
+
 ## What carried over from v0.4.9
 
 No player-facing work is carried over. The v0.4.9 release tag differs from `main` only by its client
