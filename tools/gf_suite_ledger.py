@@ -131,6 +131,9 @@ TESTS_JOB = {
                             "shared _util import, and the tests job supplies the real checkout. "
                             "Pytest suite with no generator role; #885's acceptance case must run "
                             "in TESTS_JOB",
+    "export_reservation": "pure share-derivation and eligibility tests for the #918 pass; the "
+                           "acceptance instrument is gf_multiworld_smoke (real gens, the derived "
+                           "floor) in regen-and-fill. Pytest, needs only the installed package",
     "dlc_gated_shop_rows": "builds two solo multiworlds (WorldTestBase) to hold the DLC and "
                             "no-DLC location sets against each other -- needs the installed "
                             "world and AP; the derived-set keeper reads the same installed "
