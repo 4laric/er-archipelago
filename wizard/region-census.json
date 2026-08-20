@@ -44,8 +44,7 @@
  "hub_region": "Roundtable Hold",
  "parent": {
   "Leyndell": "Altus",
-  "Raya Lucaria Academy": "Liurnia",
-  "Sewer": "Leyndell"
+  "Raya Lucaria Academy": "Liurnia"
  },
  "regions": {
   "Abyssal": {
@@ -1242,7 +1241,7 @@
     "Legendary": 1
    },
    "dlc": false,
-   "parent": "Leyndell",
+   "parent": null,
    "rollable": true,
    "sweep_slots": {
     "all": 2,
@@ -1483,5 +1482,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "6ec103577202b476b93f485b3a7b1dd5997ca542f3dc92ae6bf8a828dbea1dbc"
+ "source_sha256": "843972c336651b49945f2c77e762cee73ab47351e1706ac9211573b776c918fe"
 }
