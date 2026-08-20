@@ -127,6 +127,10 @@ TESTS_JOB = {
                             "shared _util import, and the tests job supplies the real checkout. "
                             "Pytest suite with no generator role; #885's acceptance case must run "
                             "in TESTS_JOB",
+    "dlc_gated_shop_rows": "builds two solo multiworlds (WorldTestBase) to hold the DLC and "
+                            "no-DLC location sets against each other -- needs the installed "
+                            "world and AP; the derived-set keeper reads the same installed "
+                            "shop_data. Pytest acceptance suite for AzoTax's no-DLC goal-lock",
     "boss_own_drops": "re-derives #907's own-drop admission from the committed boss_drops/"
                        "boss_sweeps tables against the installed world's data.py -- a pytest "
                        "acceptance suite with no generator role; the tests job has both sides",

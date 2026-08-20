@@ -40,6 +40,7 @@
   "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
   "region": "Ashen Capital"
  },
+ "hub_dlc_gated_checks": 36,
  "hub_region": "Roundtable Hold",
  "parent": {
   "Leyndell": "Altus",

@@ -18,6 +18,15 @@ Client half: clients#320. Its commit is pinned by the gitlink in this same chang
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Enia's DLC rows leave a seed that has no DLC.** Thirty-six of the Finger Reader's shop
+  checks are gated on Shadow of the Erdtree content -- the remembrance trades consume a DLC
+  remembrance, and the DLC boss armor sets release on DLC ceremony flags -- but Enia stands in
+  Roundtable Hold, which every seed keeps, so with `enable_dlc: false` those checks existed
+  forever-uncompletable, and on older apworlds the fill could park a REQUIRED item on one
+  (AzoTax's two-player seed goal-locked exactly there). The set is derived from the vanilla shop
+  params, the locations and their pool items now leave a no-DLC seed together through one
+  chokepoint, and the coverage gate compares live and static joins under the same answer.
+  Reported by AzoTax on Discord, 2026-08-20.
 - **The options wizard is five steps, not eleven.** Players called the wall of tabs out: seven
   option tabs, each a flat list, all reading as mandatory. The seven groups are now collapsible
   sections inside ONE Options step (Start / Options / Seed size / Advanced / Finish), each header
