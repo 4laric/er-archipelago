@@ -726,10 +726,17 @@ Elden Ring:
   # Two slots of the same game form one combined destination/source game.
   # Items their owner keeps local are not eligible.
   #
-  # This is a hard placement promise: generation stops with a capacity message
-  # if the requested share cannot legally fit. It guarantees items CLASSIFIED
-  # as progression, not that every one survives the spoiler's final pruning as
-  # strictly required after redundant routes are removed.
+  # The outgoing half only reshapes `cross_game_progression: auto` (the
+  # shipped value). An explicit percentage there -- 0 included -- keeps its
+  # declared meaning and wins over this option; the incoming half runs
+  # whenever this is enabled.
+  #
+  # Shares are capacity-aware: a partner game with fewer open locations than
+  # its share, or a surface too small for the full incoming request, caps the
+  # share at what fits -- the log states requested vs reserved per game. Only
+  # a placement the rules or reachability refuse outright stops generation.
+  # This concerns items CLASSIFIED as progression, not that every one
+  # survives the spoiler's final pruning after redundant routes are removed.
   # Set false to retain Archipelago's ordinary asymmetric fill.
   balance_progression_across_games: true
 

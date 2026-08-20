@@ -317,6 +317,37 @@ class TestBalancedForeignQuotas(unittest.TestCase):
         self.assertEqual(sorted(quotas.values()), [0, 1, 1])
 
 
+class TestBalanceActive(unittest.TestCase):
+    """#927's outgoing shape only reshapes AUTO -- every explicit declaration keeps its meaning."""
+
+    @staticmethod
+    def _world(balance, cross):
+        from types import SimpleNamespace
+        return SimpleNamespace(options=SimpleNamespace(
+            balance_progression_across_games=SimpleNamespace(value=balance),
+            cross_game_progression=SimpleNamespace(value=cross)))
+
+    def test_auto_is_balanced(self):
+        from worlds.eldenring.features.progression_surface import balance_active
+        self.assertTrue(balance_active(self._world(1, -1), 3))
+
+    def test_explicit_percentages_keep_their_declared_meaning(self):
+        from worlds.eldenring.features.progression_surface import balance_active
+        # WITNESS in-test: the predicate CAN fire on this fixture shape, so the refusals below
+        # are the option doing work, not the fixture failing to parse.
+        self.assertTrue(balance_active(self._world(1, -1), 3))
+        for cross in (0, 30, 100):
+            self.assertFalse(balance_active(self._world(1, cross), 3),
+                             "an explicit cross_game_progression=%d must not be silently "
+                             "reshaped (DECLARED IS NOT EMITTED)" % cross)
+
+    def test_disabled_or_solo_is_never_balanced(self):
+        from worlds.eldenring.features.progression_surface import balance_active
+        self.assertTrue(balance_active(self._world(1, -1), 3))   # witness: the fixture can fire
+        self.assertFalse(balance_active(self._world(0, -1), 3))
+        self.assertFalse(balance_active(self._world(1, -1), 1))
+
+
 class TestForeignOpenLocations(unittest.TestCase):
     """`_foreign_open_locations` -- which of a PARTNER's locations we may honestly offer a Lock."""
 

@@ -776,6 +776,23 @@ def _balance_across_games(world) -> bool:
     return bool(int(getattr(opt, "value", opt or 0)))
 
 
+def balance_active(world, n_games: int) -> bool:
+    """Does #927's balanced OUTGOING shape govern this slot's cross-game placement?
+
+    Only when `cross_game_progression` is AUTO (-1). An explicit percentage -- including 0/never --
+    is a declaration this pass must not silently override: 0 is a locality promise ("my progression
+    stays home") and 30 is a manual volume ("30% may leave"), and the balanced quotas would emit a
+    different number than either declares (DECLARED IS NOT EMITTED, the #635 disease). `auto`
+    means "let the world pick the shape", and the balanced per-game 1/N IS the better shape.
+    The INCOMING half (features/incoming_progression) is deliberately not gated on this option:
+    what arrives here is governed by the surface + confine, not by where OUR progression goes.
+    """
+    if not _balance_across_games(world) or n_games <= 1:
+        return False
+    opt = getattr(getattr(world, "options", None), "cross_game_progression", None)
+    return opt is not None and int(opt.value) < 0
+
+
 def place_released_locks(multiworld, worlds) -> None:
     """`stage_pre_fill`: place every Elden Ring world's travelling progression across every Elden
     Ring world's surface, in ONE pass, and spill whatever does not fit back into the pool.
@@ -832,7 +849,7 @@ def place_released_locks(multiworld, worlds) -> None:
     """
     import inspect
     import logging
-    from Fill import FillError, fill_restrictive
+    from Fill import fill_restrictive
 
     items, locations, participants = [], [], []
     for w in worlds:
@@ -861,7 +878,7 @@ def place_released_locks(multiworld, worlds) -> None:
     cross_offered = cross_placed = 0
     er_players = {w.player for w in worlds}
     n_games = len({w.game for w in getattr(multiworld, "worlds", {}).values()}) or 1
-    balanced_players = {w.player for w in participants if _balance_across_games(w)}
+    balanced_players = {w.player for w in participants if balance_active(w, n_games)}
     foreign_all = _foreign_open_locations(multiworld, er_players)
     foreign_by_game = {}
     for loc in foreign_all:
@@ -889,12 +906,20 @@ def place_released_locks(multiworld, worlds) -> None:
                 if quota <= 0:
                     continue
                 locs = foreign_by_game[game]
-                if len(locs) < quota:
-                    raise FillError(
-                        f"[eldenring:{player}] Balance Progression Across Games requests {quota} "
-                        f"of {source_total} progression item(s) in {game}, but only {len(locs)} "
-                        "open location(s) remain in that game.")
-                batch, source = source[:quota], source[quota:]
+                # DERIVED CAP, stated loudly, never a generation failure: a tiny partner game
+                # (Clique ships ONE location) cannot host its arithmetic share, and failing the
+                # whole table because someone brought a small game would make the default
+                # unshippable. The uncapped remainder falls back to the ER surfaces below --
+                # the same place the owner bucket goes. Refused placements still raise.
+                take = min(quota, len(locs))
+                if take < quota:
+                    logging.getLogger("Greenfield").warning(
+                        "[greenfield:%s] balanced progression: %s can host only %d of its %d "
+                        "share (%d open location(s)); the remainder stays on the Elden Ring "
+                        "surfaces.", player, game, take, quota, len(locs))
+                if take <= 0:
+                    continue
+                batch, source = source[:take], source[take:]
                 offered = len(batch)
                 multiworld.random.shuffle(locs)
                 fill_restrictive(
@@ -904,11 +929,18 @@ def place_released_locks(multiworld, worlds) -> None:
                 cross_offered += offered
                 cross_placed += placed
                 if batch:
+                    # Refusals DEGRADE LOUDLY, same as the aggregate pass below has always done:
+                    # a partner's own location rules can refuse specific items (the shipped
+                    # two-game smoke measured Hollow Knight refusing 3 of 9 remembrances), and
+                    # killing the whole table for it would make the default unshippable. The
+                    # refused items fall back to the Elden Ring surfaces.
                     names = ", ".join(item.name for item in batch[:8])
-                    raise FillError(
-                        f"[eldenring:{player}] Balance Progression Across Games placed only "
-                        f"{placed}/{offered} requested item(s) in {game}; locality, reachability, "
-                        f"or location rules refused {len(batch)}. First refused: {names}")
+                    logging.getLogger("Greenfield").warning(
+                        "[greenfield:%s] balanced progression: %s accepted %d/%d; its rules "
+                        "refused %d (falling back to the Elden Ring surfaces): %s",
+                        player, game, placed, offered, len(batch), names)
+                    source.extend(batch)
+                    batch = []
                 logging.getLogger("Greenfield").info(
                     "[greenfield:%s] balanced progression: %s received %d/%d source item(s) "
                     "(%d total progression, %d game(s))",
@@ -1411,12 +1443,10 @@ def apply(world) -> None:
     released = released_locks(to_place, _released_pct(world), world.random)
     n_games = len({w.game for w in getattr(mw, "worlds", {}).values()}) or 1
     cross_share = cross_game_share(world, n_games)
-    # Balanced mode's numerator is the WHOLE restricted progression pool: every Region Lock plus
-    # all seven Great Runes when any-count rune ending makes them advancement. It must not collapse
-    # to the released-Lock subset merely because an older yaml also says
-    # `cross_game_progression: never`; the balance option is the newer, explicit placement promise.
-    if _balance_across_games(world) and n_games > 1:
-        cross_share = max(cross_share, 1)  # non-zero tells travelling_progression to include all
+    # No special numerator step for balanced mode: `balance_active` requires AUTO, auto resolves to
+    # a positive share, and any positive share already makes travelling_progression include every
+    # non-Lock restricted item (#811). An explicit `cross_game_progression` value -- 0 included --
+    # keeps its declared meaning and the balanced shape stands down (see balance_active).
     travelling = travelling_progression(to_place, released, cross_share)
     if travelling:
         _rel = {id(it) for it in travelling}

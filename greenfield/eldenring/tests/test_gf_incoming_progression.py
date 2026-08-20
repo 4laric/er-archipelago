@@ -2,9 +2,6 @@
 import random
 from types import SimpleNamespace
 
-import pytest
-
-from Fill import FillError
 from ..features import progression_surface
 from ..features.incoming_progression import (
     BalanceProgressionAcrossGames, _eligible_by_game, fair_sample_by_player, requested_share,
@@ -61,7 +58,13 @@ def test_owner_local_advancement_is_excluded_before_quota():
     assert _eligible_by_game(mw, {1}) == {"Partner": [travelling]}
 
 
-def test_insufficient_surface_capacity_fails_with_requested_breakdown(monkeypatch):
+def test_insufficient_surface_capacity_caps_the_share_loudly(monkeypatch, caplog):
+    """The DERIVED cap: 5 eligible at a two-game table asks for 3, one open surface slot caps it
+    at 1 -- generation proceeds (the shipped two-game smoke measured 135 requested vs 134 open;
+    a default-on option must not fail the shipped configuration). The refused-placement error
+    after fill_restrictive stays fatal and is not exercised here."""
+    import logging
+
     foreign = [SimpleNamespace(player=2, name=f"Key {i}", advancement=True) for i in range(5)]
     partner = SimpleNamespace(game="Partner", options=SimpleNamespace(
         local_items=SimpleNamespace(value=set())))
@@ -75,5 +78,20 @@ def test_insufficient_surface_capacity_fails_with_requested_breakdown(monkeypatc
     monkeypatch.setattr(progression_surface, "selected_surface", lambda value: value)
     monkeypatch.setattr(progression_surface, "_open_allowed", lambda _world, _surface: [object()])
 
-    with pytest.raises(FillError, match=r"requests 3 item\(s\).*only 1 open"):
+    seen = {}
+
+    def _fake_fill(multiworld, state, locations, batch, **kwargs):
+        seen["batch"] = list(batch)
+        batch.clear()          # everything placed -- the cap, not the fill, is under test
+
+    import Fill
+    monkeypatch.setattr(Fill, "fill_restrictive", _fake_fill)
+    mw.get_all_state = lambda _use_cache: object()
+
+    with caplog.at_level(logging.WARNING, logger="eldenring"):
         reserve_incoming_progression(mw, [destination])
+
+    # WITNESS: the pass really ran and really asked for the capped share.
+    assert len(seen["batch"]) == 1, "the surface has one open slot; the reservation must cap at 1"
+    assert "caps the reservation at 1 of 3" in caplog.text
+    assert len(mw.itempool) == 4, "exactly the reserved item leaves the pool"

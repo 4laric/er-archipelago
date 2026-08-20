@@ -35,10 +35,12 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   gives every partner game its own share of Elden Ring's progression instead of splitting one
   aggregate foreign quota between them. Multiple
   slots of one game contribute one combined pool sampled fairly across their players; owner-local
-  items remain local, and an undersized surface fails generation with the requested/available
-  counts instead of silently weakening the promise. Set it to `false` to retain ordinary
-  asymmetric fill. This guarantees progression-classified
-  placements, not that every item survives the spoiler's redundant-route pruning. World: #927.
+  items remain local, and capacity shortfalls (a tiny partner game, an undersized surface) cap
+  the share at what fits with the requested-versus-reserved counts in the generation log. The outgoing half only reshapes
+  `cross_game_progression: auto`; an explicit percentage there (0 included) keeps its declared
+  meaning and wins. Set it to `false` to retain ordinary asymmetric fill. This guarantees
+  progression-classified placements, not that every item survives the spoiler's redundant-route
+  pruning. World: #927.
 - **Your weapons finally reach your friends.** At the shipped settings a non-Elden-Ring partner
   received nothing from an Elden Ring slot but filler -- 0 useful items in 498 measured
   placements -- because of a fill-order artifact, not any option's intent (the partner's own

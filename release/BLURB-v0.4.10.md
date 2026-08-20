@@ -20,9 +20,10 @@ only moment anyone remembers why it mattered._
 `balance_progression_across_games` makes each partner contribute roughly its 1/N share of eligible
 progression to your starred Progression Surface, while every partner game receives its own share
 of Elden Ring's Locks, all seven Great Runes when the rune goal is active, and other progression.
-It respects items another player kept local and stops with a capacity message rather than claiming
-a quota it could not place. Set it to `false` for ordinary asymmetric fill. The spoiler may still
-prune a redundant item from its minimal route.
+It respects items another player kept local, defers to any explicit `cross_game_progression`
+percentage you set, and states in the log when capacity caps a share rather than claiming a
+quota it could not place. Set it to `false` for ordinary asymmetric fill. The spoiler may still prune a redundant
+item from its minimal route.
 
 **Malenia can be the ending now.** Set `goal: malenia` and the seed guarantees the Haligtree, but it
 does not hand you Prayer Room or Roots. Once your chosen Great-Rune and region requirements resolve,
