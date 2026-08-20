@@ -11,9 +11,8 @@ straight in and ended the run at Morgott. The fix is fourfold, and each fold get
      disarming the wall (leyndell_runes_required: 0) reverts to granting, because a fixed in-game
      wall with no armed logic gate would otherwise be physically unwinnable.
   3. KEPT CLOSURE: compute_kept never keeps a child without its whole ancestor chain.
-  4. REACHABILITY + ANCHOR: a child's checks require the parent's Lock chain in logic -- and the
-     rune wall rides the "To Leyndell" ENTRANCE, so it is transitive to the Sewer -- and the start
-     anchor is never a gated child.
+  4. REACHABILITY + ANCHOR: a child's checks require the parent's Lock chain in logic, and the
+     start anchor is never a gated child.
   5. THE OPEN FLAG IS NOT A GRACE (#278, added 2026-08-01). Folds 1-4 shipped in 2026-07 and the
      playtest bug came BACK anyway, through a door none of them watched. `regionGraces` is emptied
      while the wall is armed -- but `regionOpenFlags` shipped the SAME flag, because for every
@@ -23,6 +22,10 @@ straight in and ended the run at Morgott. The fix is fourfold, and each fold get
      fast-travel target past the wall. Folds 1-4 all passed while it did (35 green). One bit cannot
      be both the kick latch and a warp unlock (#240's shape), so gated children now carry a
      SYNTHETIC open flag and this fold is what keeps it synthetic.
+
+#842 deliberately removes Sewer from this model: its Lock grants Underground Roadside plus its
+safe m35 grace bundle, so it is independently reachable and may be the sole/start region. Its open
+flag remains synthetic as the kick latch; the graces travel through regionGraces.
 """
 import random
 
@@ -129,7 +132,13 @@ class TestKeptClosure:
         # path, including the n >= len(pool) full-pool return.
         rng = random.Random(3)
         with pytest.raises(ValueError):
-            compute_kept(1, rng, ["Sewer"])
+            compute_kept(1, rng, ["Leyndell"])
+
+    def test_sewer_is_a_standalone_one_region_draw(self):
+        kept = compute_kept(1, random.Random(3), ["Sewer"])
+        assert kept == ["Sewer"], (
+            "Sewer has its own granted grace entrance; it must not pull Leyndell/Altus into a "
+            f"one-region seed (#842): {kept}")
 
 
 # ---- 4a. the anchor is never a gated child ---------------------------------------------------------
@@ -143,14 +152,20 @@ class TestAnchorNeverGatedChild:
                 REGIONS, rng, self.COUNTS, DLC_REGIONS, gated=frozenset(REGION_PARENT))
             assert region not in REGION_PARENT, f"anchor {region} is a gated child"
 
-    def test_child_heavy_kept_set_still_anchors_on_an_ancestor(self):
-        # the minimal closed kept set around the capital chain: children + their ancestors only.
+    def test_child_heavy_kept_set_can_anchor_on_standalone_sewer_or_an_ancestor(self):
+        # Sewer is independent; the other two children remain barred and anchor on their ancestors.
         kept = ["Sewer", "Leyndell", "Altus", "Raya Lucaria Academy", "Liurnia"]
         rng = random.Random(7)
         for _ in range(200):
             region, _rule, _n = pick_anchor_region(
                 kept, rng, self.COUNTS, DLC_REGIONS, gated=frozenset(REGION_PARENT))
-            assert region in ("Altus", "Liurnia")
+            assert region in ("Altus", "Liurnia", "Sewer")
+
+    def test_sewer_alone_is_a_valid_anchor(self):
+        region, _rule, eligible = pick_anchor_region(
+            ["Sewer"], random.Random(842), self.COUNTS, DLC_REGIONS,
+            gated=frozenset(REGION_PARENT))
+        assert (region, eligible) == ("Sewer", 1)
 
     def test_all_children_kept_set_raises_loudly(self):
         # an all-children kept set cannot exist post-closure; if handed one anyway, refuse.
@@ -174,10 +189,11 @@ class GatedChildrenLiveSeed(WorldTestBase):
     def test_armed_children_bundles_withheld_others_granted(self):
         rg = self._sd()["regionGraces"]
         kept = set(self.world._kept())
-        # Pin the base trio by name so a rename can't quietly empty the loop. (Scaduview used to be a
+        # Pin the remaining pair by name so a rename can't quietly empty the loop. (Scaduview used to be a
         # fourth, DLC, child here; it was FOLDED into Shadow Keep 2026-07-19 -- ScaduviewFoldedIntoKeep
         # below now asserts the post-fold state on an enable_dlc seed.)
-        assert {"Raya Lucaria Academy", "Leyndell", "Sewer"} <= kept & set(REGION_PARENT)
+        assert {"Raya Lucaria Academy", "Leyndell"} <= kept & set(REGION_PARENT)
+        assert "Sewer" in kept and "Sewer" not in REGION_PARENT
         # 🛑 RAYA LUCARIA IS A GATED CHILD WITH NO WALL SINCE 2026-08-16. Its Academy Glintstone Key
         # gate was retired (bobler + Alaric: "have the minted Academy Lock be the thing that grants
         # all the graces"), so WALL_ARMED's predicate is False in every seed and the bundle SHIPS.
@@ -196,6 +212,8 @@ class GatedChildrenLiveSeed(WorldTestBase):
         # a non-gated region's bundle is untouched -- the fix must not eat normal grants.
         assert rg.get("Altus Lock") == list(REGION_GRACE_POINTS["Altus"])
         assert rg.get("Liurnia Lock") == list(REGION_GRACE_POINTS["Liurnia"])
+        assert rg.get("Sewer Lock") == list(REGION_GRACE_POINTS["Sewer"])
+        assert rg["Sewer Lock"][0] == 73501, "Underground Roadside must lead the Sewer bundle"
 
     def test_rune_gate_keys_no_longer_emitted(self):
         sd = self._sd()
@@ -208,9 +226,8 @@ class GatedChildrenLiveSeed(WorldTestBase):
         # unreachable; hand the Lock back -> reachable. The remove-all-copies pattern (per
         # test_gf_ending) is what makes this seed-robust: the withheld Lock may be the
         # precollected anchor, which a naive collect-everything-else loop would miss.
-        cases = [("Leyndell", "Altus Lock", ["Leyndell", "Sewer"]),
-                 ("Raya Lucaria Academy", "Liurnia Lock", ["Raya Lucaria Academy"]),
-                 ("Sewer", "Leyndell Lock", ["Sewer"])]
+        cases = [("Leyndell", "Altus Lock", ["Leyndell"]),
+                 ("Raya Lucaria Academy", "Liurnia Lock", ["Raya Lucaria Academy"])]
         locs_by_region = {}
         for l in self.multiworld.get_locations(self.player):
             locs_by_region.setdefault(l.parent_region.name, []).append(l)
@@ -231,11 +248,9 @@ class GatedChildrenLiveSeed(WorldTestBase):
                 for l in locs_by_region.get(region, [])[:8]:
                     assert l.can_reach(st), f"{l.name} ({region}) blocked WITH {parent_lock}"
 
-    def test_capital_and_sewer_unreachable_without_the_gate_runes(self):
-        # the rune wall is TRANSITIVE: it guards the "To Leyndell" ENTRANCE (not just the capital's
-        # own checks), so the Sewer -- entered down a well inside the capital -- is runeless-
-        # unreachable too. A full state minus every copy of the gate's chosen runes must reach
-        # neither region; collecting the runes back must open both.
+    def test_capital_but_not_standalone_sewer_needs_the_gate_runes(self):
+        # The rune wall guards Leyndell. Sewer's Lock now supplies its own warp entrance, so Sewer
+        # deliberately is outside that wall and remains reachable without the capital's runes.
         runes = set(getattr(self.world, "gf_leyndell_runes", ()))
         assert runes, "default seed must arm the rune gate (leyndell_runes_required=2)"
         st = self.multiworld.get_all_state(False)
@@ -246,18 +261,17 @@ class GatedChildrenLiveSeed(WorldTestBase):
         locs_by_region = {}
         for l in self.multiworld.get_locations(self.player):
             locs_by_region.setdefault(l.parent_region.name, []).append(l)
-        for region in ("Leyndell", "Sewer"):
-            sample = locs_by_region.get(region, [])[:8]
-            assert sample, f"no locations in {region}"
-            for l in sample:
-                assert not l.can_reach(st), (
-                    f"{l.name} ({region}) reachable WITHOUT the gate runes -- the rune wall is "
-                    f"not transitive to the capital's children")
+        capital = locs_by_region.get("Leyndell", [])[:8]
+        sewer = locs_by_region.get("Sewer", [])[:8]
+        assert capital and sewer
+        for l in capital:
+            assert not l.can_reach(st), f"{l.name} reachable WITHOUT the capital gate runes"
+        for l in sewer:
+            assert l.can_reach(st), f"{l.name} blocked by Leyndell runes despite Sewer's own Lock"
         for it in rune_copies:
             st.collect(it, prevent_sweep=True)
-        for region in ("Leyndell", "Sewer"):
-            for l in locs_by_region.get(region, [])[:8]:
-                assert l.can_reach(st), f"{l.name} ({region}) blocked WITH the runes"
+        for l in capital:
+            assert l.can_reach(st), f"{l.name} (Leyndell) blocked WITH the runes"
 
     def test_fill_never_strands_progression_in_a_sealed_child(self):
         mw = self.multiworld
@@ -293,7 +307,10 @@ class GatedChildrenLiveSeed(WorldTestBase):
                 f"Lock receipt, so receiving the Lock lights a warp target on the far side of the "
                 f"wall and the withheld bundle is bypassed (#278)")
             checked += 1
-        assert checked >= 3, f"expected the base trio at least, checked {checked}"
+        assert checked >= 2, f"expected the remaining base pair at least, checked {checked}"
+        # Sewer still uses a synthetic open/kick latch; its independently granted graces travel
+        # through regionGraces, keeping the two writes distinct just like a disarmed wall.
+        assert open_flags["Sewer Lock"] not in all_graces
 
     def test_area_lock_ranges_use_that_same_non_grace_flag(self):
         """The kick must latch on the SAME synthetic bit. If areaLockFlags kept the grace id, the
@@ -393,17 +410,17 @@ class ScaduviewFoldedIntoKeep(WorldTestBase):
 
 class LeyndellWallDisarmed(WorldTestBase):
     """leyndell_runes_required: 0 disarms the rune gate -> the capital bundle is GRANTED again
-    (the game's own wall stays 2 runes; only the granted warp can honor 'no requirement'), while
-    the Sewer (containment wall, no knob) stays withheld."""
+    (the game's own wall stays 2 runes; only the granted warp can honor 'no requirement'). Sewer
+    is independent and grants its own bundle regardless of the capital setting."""
     game = GAME
     run_default_tests = False
     options = {"num_regions": 0, "leyndell_runes_required": 0}
 
-    def test_disarmed_capital_grants_sewer_still_withheld(self):
+    def test_disarmed_capital_and_independent_sewer_both_grant(self):
         rg = self.world.fill_slot_data()["regionGraces"]
         assert rg.get("Leyndell Lock") == list(REGION_GRACE_POINTS["Leyndell"]), (
             "disarmed rune gate must grant the capital bundle or the capital is unwinnable")
-        assert rg.get("Sewer Lock") == []
+        assert rg.get("Sewer Lock") == list(REGION_GRACE_POINTS["Sewer"])
         # Raya's wall is gone entirely (2026-08-16) -- it grants regardless of the capital's state.
         assert rg.get("Raya Lucaria Academy Lock")
 
@@ -418,20 +435,13 @@ class LeyndellWallDisarmed(WorldTestBase):
 
 
 class SewerRuneRegressionSeed(WorldTestBase):
-    """Alaric's in-game generation combo, 2026-07-15 ('a great rune was in the sewer on mohg's
-    drop'): num_regions 0 + DLC + region_locks ending + leyndell_runes_required 2 + accessibility
-    MINIMAL. Under minimal, AP's fill_restrictive SKIPS the location reachability check whenever
-    the exploration state can already beat the game (Fill.py perform_access_check) -- and because
-    the region_locks completion never mentions the gate runes, a rune's own placement is exactly
-    when the check is skipped. The strict progression-surface pre-fill (which runs in this
-    fixture: WorldTestBase's gen steps end at pre_fill) then LOCKS the rune wherever item_rule
-    allows. Seed 36 locked Godrick's Great Rune onto Mohg the Omen (Sewer :: [Incantation]
-    Bloodflame Talons, f510250) -- behind the very wall it opens -- an unrescuable strand that
-    post_fill's audit rightly FillErrors. item_rule is the ONE rule can_fill honors even with the
-    access check skipped, so the deterministic guard here is: every location in the walled
-    subtree -- the capital AND everything hanging off it (the Sewer) -- must REJECT every gating
-    item outright. (The Ashen Capital finale used to be named here too; it left the subtree on
-    2026-08-06 when SPEC-ashen-capital-lock re-hosted it on the hub. See the test body.)"""
+    """The old seed-36 Great-Rune-in-Sewer strand remains pinned at its new boundary.
+
+    Sewer used to hang below Leyndell, so a gate rune placed there gated itself; #842 gives Sewer
+    its own Lock/grace entrance and removes that cycle. Leyndell itself remains behind the rune
+    wall, so its locations must still reject every gating item even when AP's minimal-accessibility
+    fill skips an ordinary reachability check. The Ashen Capital likewise remains outside the
+    subtree on its independent hub edge."""
     game = GAME
     run_default_tests = False
     options = {"num_regions": 0, "enable_dlc": True, "ending_condition": "region_locks",
@@ -442,9 +452,9 @@ class SewerRuneRegressionSeed(WorldTestBase):
         from worlds.eldenring.features.leyndell_gate import (
             _GATING_ITEMS, _gated_region_names)
         gated = _gated_region_names(self.world)
-        # the derivation must span the KNOWN children -- a rename/reparent that drops one of
-        # these must fail here, not resurface as a 1-in-N FillError in someone's overnight gen.
-        assert {"Leyndell", "Sewer"} <= set(gated), gated
+        # Sewer deliberately left this subtree in #842: its own Lock grants a warp entrance, so a
+        # Great Rune placed there does not gate itself. Leyndell remains behind the rune wall.
+        assert "Leyndell" in gated and "Sewer" not in gated, gated
         # FINALE_REGION was in that set until 2026-08-06, when SPEC-ashen-capital-lock re-hosted
         # the Ashen Capital from Leyndell to the HUB: you no longer walk to it through the rune
         # wall, you warp to its own graces once the Ashen Capital Lock arms the burn. It is

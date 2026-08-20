@@ -7,9 +7,9 @@ REGION_GRACE_POINTS (all warp graces per major region, sorted) is generated from
 always a real, physically-present warp point (never a sealed boss arena). Region Locks stay the sole
 progression, so any seed is winnable by construction.
 
-GATED CHILDREN are the exception (region_spine.REGION_PARENT: Raya Lucaria Academy, Leyndell, Sewer).
+GATED CHILDREN are the exception (region_spine.REGION_PARENT: Raya Lucaria Academy and Leyndell).
 Each sits behind a wall the GAME already enforces -- the Academy seal wants the Academy Glintstone
-Key, the capital main gate wants Great Runes, and the Sewer is entered down a well inside the capital.
+Key and the capital main gate wants Great Runes.
 Granting such a region's bundle hands the player a warp target on the FAR side of that wall: the
 2026-07-14 playtest opened on Altus and was handed East Capital Rampart (71102, BonfireWarpParam
 110002), a free walk into Leyndell past the 2-rune gate, and the run ended at Morgott. So while the
@@ -18,8 +18,10 @@ The player walks in from the parent the vanilla way (key / runes in hand; the cl
 grants make the game's own gate open) and touches the graces themselves; a touched grace is the
 vanilla warp unlock and persists in the save. The empty list is deliberate contract shape: the
 client logs "graces: 0 requested" for a lock with an empty bundle but WARNS about a lock with a
-MISSING one (region.rs), and this is intent, not drift. Reachability honesty is the other half of
-the same fix: core.create_regions parents the child's AP region under REGION_PARENT, so AP logic
+MISSING one (region.rs), and this is intent, not drift. The Sewer deliberately is not an exception:
+its Lock grants Underground Roadside and the rest of the safe m35 bundle, so it remains independently
+accessible even when Leyndell is sealed (#842). Reachability honesty is the other half of the same
+fix: core.create_regions parents the remaining child's AP region under REGION_PARENT, so AP logic
 knows the child's checks need the whole ancestor Lock chain.
 
 ARMED IN LOGIC is load-bearing, not a hedge. The game's wall is FIXED (the capital always wants 2
@@ -29,9 +31,7 @@ withholding the bundle would leave the child physically unwinnable while logic r
 gate -> the bundle is GRANTED, i.e. the warp deliberately bypasses the game's wall, which is the only
 honest reading of "0 disables the gate". WALL_ARMED below pairs every REGION_PARENT child with its
 arming predicate; an unpaired child withholds unconditionally (never grant past a wall by default)
-and test_gf_gated_children fails until the pairing is written down. The Sewer has no predicate to
-consult: its wall is containment itself (parent access), always sound to withhold because the parent
-chain is exactly what the region graph requires.
+and test_gf_gated_children fails until the pairing is written down.
 
 This RETIRES the two half-shipped grace gates that used to live here:
   * runeGatedGraces / greatRuneItemIds ("light the capital graces at >= N received runes") is no
@@ -73,7 +73,7 @@ except ImportError:      # table predates the landmarks tier -- see _bundle_for(
 
 # Gated child -> "is its wall armed in logic this seed?". Reads the state the gate features publish
 # in generate_early (leyndell_gate.gf_leyndell_runes, legacy_key_gates.gf_legacy_keys), so the
-# bundle decision and the fill rules can never disagree. Sewer: containment wall, always armed.
+# bundle decision and the fill rules can never disagree.
 WALL_ARMED = {
     # 🛑 FALSE IN EVERY SEED SINCE 2026-08-16, and deliberately expressed this way rather than as
     # `lambda world: False`. The Academy Glintstone Key was removed from legacy_key_gates._LEGACY_KEYS,
@@ -84,8 +84,6 @@ WALL_ARMED = {
         lambda world: "Academy Glintstone Key" in getattr(world, "gf_legacy_keys", ()),
     "Leyndell":
         lambda world: bool(getattr(world, "gf_leyndell_runes", ())),
-    "Sewer":
-        lambda world: True,
     # Scaduview's wall was REMOVED 2026-07-19: the Hinterland was folded into Shadow Keep, so it is no
     # longer a gated child with a bundle to withhold -- its graces ride the Keep's own bundle.
 }
@@ -167,6 +165,7 @@ _ENTRANCE_GRACE_PIN = {
     "Altus": 76301,          # Altus Plateau, at the Grand Lift; #641
     "Ashen Capital": 71123,  # Leyndell, Capital of Ash; unambiguous post-burn entry; #853
     "Haligtree": 71506,      # Haligtree Canopy; start of the physical descent; #861
+    "Sewer": 73501,          # Underground Roadside; independent m35 entry; #842
 }
 
 

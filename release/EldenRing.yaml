@@ -25,17 +25,16 @@
 #  client warps you back out. You start at Roundtable Hold with one region
 #  already open; the default goal is to hold every Lock in play.
 #
-#  THREE regions are different, and this is the most-reported non-bug in the
-#  mod. Raya Lucaria Academy (the seal), Leyndell (the main gate) and the Sewer
-#  (down a well inside the capital) sit behind a wall the GAME enforces, so
+#  TWO regions are different. Raya Lucaria Academy (the seal) and Leyndell
+#  (the main gate) sit behind a wall the GAME enforces, so
 #  receiving their Lock LIGHTS NOTHING -- the Lock arrives and nothing visibly
 #  happens. You open them the vanilla way and touch the graces yourself: the
 #  Academy with its Glintstone Key (shuffled into the pool), the capital by
-#  walking in from Altus holding leyndell_runes_required Great Runes, and the
-#  Sewer down the well once you are inside the capital.
+#  walking in from Altus holding leyndell_runes_required Great Runes.
+#  The Sewer is independent: its Lock grants Underground Roadside and the rest of
+#  its safe graces, even when Leyndell is sealed.
 #
-#  leyndell_runes_required: 0 is the only setting that changes this, and only
-#  for the capital. The Sewer's graces never ride its Lock in any seed.
+#  leyndell_runes_required: 0 changes the capital case only.
 # ============================================================================
 
 name: Player1

@@ -14,10 +14,9 @@ GOAL_REGION = "Leyndell"
 
 # VANILLA HARD WALLS -- gated child -> the parent region it is physically entered from.
 #
-# These three regions sit behind a wall the GAME already enforces: Raya Lucaria's seal wants the
-# Academy Glintstone Key, the capital's main gate wants Great Runes (leyndell_runes_required), and
-# the m35 Shunning-Grounds are entered down a well INSIDE the capital (no independent entrance), so
-# the Sewer inherits Leyndell's wall transitively. The 2026-07-14 playtest bug was the apworld
+# These regions sit behind a wall the GAME already enforces: Raya Lucaria's seal wants the Academy
+# Glintstone Key and the capital's main gate wants Great Runes (leyndell_runes_required). The
+# 2026-07-14 playtest bug was the apworld
 # GRANTING a child's grace bundle on region-open -- a warp target on the far side of the wall
 # (East Capital Rampart 71102, BonfireWarpParam 110002, straight past the 2-rune gate). The fix is
 # to let the game keep enforcing its own walls and encode the containment ONCE, here:
@@ -32,7 +31,10 @@ GOAL_REGION = "Leyndell"
 REGION_PARENT = {
     "Raya Lucaria Academy": "Liurnia",   # Academy Glintstone Key seal (features/legacy_key_gates)
     "Leyndell": "Altus",                 # capital main gate, N Great Runes (features/leyndell_gate)
-    "Sewer": "Leyndell",                 # m35 well is inside the capital walls (SPEC-region-spine-v2)
+    # Sewer deliberately is NOT a child here (#842). Its physical well is inside Leyndell, but a
+    # Sewer Lock lights Underground Roadside plus the rest of m35's safe grace bundle and therefore
+    # supplies an independent entrance. Pulling Leyndell and Altus into the kept set would turn a
+    # requested one-region Sewer seed into a three-region route for a dependency the warp bypasses.
     # Scaduview's containment entry was REMOVED 2026-07-19: the Hinterland was FOLDED into Shadow Keep
     # (region_groups) rather than kept a contained child, so it is no longer a separate region to gate
     # -- its checks ARE Shadow Keep checks now, under the Keep's own Lock. (Its door ground was always

@@ -18,6 +18,10 @@ Client half: clients#320. Its commit is pinned by the gitlink in this same chang
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The Sewer is a real standalone region.** A Sewer draw no longer drags Leyndell and Altus into
+  the seed merely because vanilla enters it through the capital well. Its Lock grants all four safe
+  Sewer graces with Underground Roadside first, so a one-region Sewer seed remains one region and
+  can start or warp there directly. World: #842.
 - **Malenia can end the run.** `goal: malenia` force-keeps the Haligtree and withholds its Lock
   from fill until the seed's independently selected Great-Rune and region requirements are met.
   Opening it grants Haligtree Canopy alone—even under the all-graces or grace-attunement settings—

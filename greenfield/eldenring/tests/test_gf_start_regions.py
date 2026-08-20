@@ -44,6 +44,7 @@ from Options import OptionError                                                 
 from worlds.eldenring.data import HUB, REGIONS, LOCATIONS                       # noqa: E402
 from worlds.eldenring.region_spine import (  # noqa: E402
     DLC_REGIONS, GOAL_REGION, REGION_PARENT)
+from worlds.eldenring.region_graces import REGION_GRACE_POINTS                    # noqa: E402
 from worlds.eldenring.features.start_grace import (  # noqa: E402
     StartRegions, pick_anchor_region, pick_anchor_regions)
 from worlds.eldenring.features.progression_surface import lock_region_name      # noqa: E402
@@ -374,11 +375,14 @@ class StartRegionPoolRefusalsNameTheRegion(WorldTestBase):
                            "start_region_pool": ["Caelid"]},
                           "start_region_pool", "Caelid", "dlc_only")
 
-    def test_a_gated_child_says_which_parent_to_name_instead(self):
-        # Sewer is reached through Leyndell; its grace bundle is withheld, so the player could not
-        # warp into it even if the Lock were in hand.
-        self._raises_with({"num_regions": 4, "start_region_pool": ["Sewer"]},
-                          "start_region_pool", "Sewer", "Leyndell")
+    def test_sewer_is_now_a_valid_standalone_start(self):
+        self.options = {"num_regions": 4, "start_region_pool": ["Sewer"]}
+        self.world_setup(seed=7)
+        self.assertEqual(_precollected_locks(self), ["Sewer"])
+        self.assertEqual(self.world.gf_start_pool, frozenset({"Sewer"}))
+        bundle = self.world.fill_slot_data()["regionGraces"]["Sewer Lock"]
+        self.assertEqual(bundle, list(REGION_GRACE_POINTS["Sewer"]))
+        self.assertEqual(bundle[0], 73501, "Underground Roadside must be the Sewer entrance")
 
     def test_the_goal_region_says_the_goal(self):
         # Enir Ilim, not Leyndell: the default goal's region is ALSO a gated child, so it trips the

@@ -107,11 +107,11 @@ _GATING_ITEMS = frozenset(GREAT_RUNES) | _LEGACY_KEY_NAMES
 
 def _gated_region_names(world):
     """Every region physically behind the 'To <GOAL_REGION>' edge, DERIVED from the live region
-    graph: the goal region plus everything reachable through its exits -- the Sewer (gated child,
-    region_spine.REGION_PARENT) and the finale's Ashen Capital (features/finale.py hangs it off the
-    capital), plus any future child, without this list needing to know their names. A location in
-    this subtree sits behind the rune wall, so a gating item placed there can deadlock the very
-    gate it opens. Empty when the goal region is sealed this seed (dlc_only)."""
+    graph: the goal region plus everything reachable through its exits, without this list needing
+    to know future child names. Sewer left this subtree in #842 because its own Lock now grants an
+    independent m35 warp entrance; the Ashen Capital left earlier when finale.py hung it off the
+    hub. A location still in this subtree sits behind the rune wall, so a gating item placed there
+    can deadlock the very gate it opens. Empty when the goal region is sealed this seed (dlc_only)."""
     try:
         start = world.multiworld.get_region(GOAL_REGION, world.player)
     except KeyError:

@@ -5,6 +5,11 @@ only moment anyone remembers why it mattered._
 
 ## What changed at the table
 
+**A one-region Sewer seed is actually one region.** The Sewer Lock now grants Underground Roadside
+and the other safe Sewer graces directly, so the randomizer no longer adds Leyndell and Altus just
+to reproduce the vanilla route down the capital well. You can also name Sewer as the starting
+region and warp straight in.
+
 **Malenia can be the ending now.** Set `goal: malenia` and the seed guarantees the Haligtree, but it
 does not hand you Prayer Room or Roots. Once your chosen Great-Rune and region requirements resolve,
 you get Haligtree Canopy and play the whole route through Loretta and Elphael; Malenia's own defeat

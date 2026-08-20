@@ -343,10 +343,10 @@ class GoalEldenBeastNeedsNoForcing(WorldTestBase):
         #
         # 🛑 THE BOUND IS DERIVED, NOT GUESSED, and that is a repair. This read
         # `<= 5`, and 5 is not a fact about anything: `num_regions: 3` keeps three DRAWN regions
-        # plus the parent closure of those three, and REGION_PARENT holds a two-deep chain
-        # (Sewer -> Leyndell -> Altus). One draw that lands on the Sewer therefore keeps six
-        # legitimately, which is a real seed and not a bug -- so the assertion failed whenever the
-        # suite's random seed found one, roughly 1 run in 15, on a test nobody was editing. A
+        # plus the parent closure of those three. REGION_PARENT used to hold a two-deep chain
+        # (Sewer -> Leyndell -> Altus); #842 made Sewer independently warpable, so the live maximum
+        # is smaller, but deriving it remains the only non-rotting assertion. The old fixed bound
+        # failed whenever the suite's random seed found the deep chain, on a test nobody was editing. A
         # magic-number bound over a random draw is a coin flip wearing an assertion.
         #
         # What it was defending is that the goal forces nothing extra in, and that is asserted

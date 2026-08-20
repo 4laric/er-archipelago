@@ -827,9 +827,10 @@ CONTRACT = (
                 "'<Region> Lock' -> the region-open event flag set when that lock is received. Keys "
                 "MUST be exactly '<Region> Lock' matching the coarse lock-item names the client "
                 "derives from regionCoarseKeys. Usually the region's front-door GRACE, so the Lock "
-                "lights the way in; for a gated child (region_spine.REGION_PARENT) it is a SYNTHETIC "
-                "client-owned flag instead, because there the same write must disarm the kick "
-                "WITHOUT lighting a warp target past the vanilla wall (#278)."),
+                "lights the way in; for a gated child (region_spine.REGION_PARENT), and standalone "
+                "Sewer, it is a SYNTHETIC client-owned flag instead, because the same write must "
+                "disarm the kick without doubling as a warp unlock (#278/#842). The actual Sewer "
+                "warps travel through regionGraces."),
     # --- the tracker's region model, SENT rather than BAKED (2026-07-28) -------------------------
     # These two replace er-logic's generated `tracker_regions.rs`, and the reason is correctness
     # before convenience. That table was built from data.LOCATIONS at GENERATOR time, so it
@@ -984,10 +985,12 @@ CONTRACT = (
                 "features/graces.py", "region.rs:122 str_to_u32vec",
                 "item_name -> grace warp flags lit when that item is RECEIVED. Keyed by "
                 "'<Region> Lock' (bundle: all of the region's graces). A GATED CHILD region "
-                "(region_spine.REGION_PARENT -- Raya Lucaria Academy, Leyndell, Sewer) maps to [] "
+                "(region_spine.REGION_PARENT -- Raya Lucaria Academy, Leyndell) maps to [] "
                 "while its vanilla wall is armed in logic: its graces are deliberately NOT granted "
                 "(the player walks in past the game's own wall and touches them; gated-children "
-                "fix 2026-07-14). Client MUST light on receipt of ANY keyed item, not just Locks, "
+                "fix 2026-07-14). Sewer is standalone: its Lock grants Underground Roadside plus "
+                "the rest of its safe m35 bundle even when Leyndell is sealed (#842). Client MUST "
+                "light on receipt of ANY keyed item, not just Locks, "
                 "and MUST treat an empty bundle as intent, not drift."),
     ContractKey("runeGatedGraces", "LISTVAL_INT_MAP", False, (GREENFIELD,),
                 "CONTRACT: DEAD (unemitted since 2026-07-14)", "CONTRACT: DEAD (never built)",
