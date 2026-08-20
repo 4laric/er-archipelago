@@ -2,10 +2,12 @@
 
 Archipelago's ordinary fill is intentionally free to produce an asymmetric multiworld.  That is
 usually desirable, but it means an Elden Ring slot can export several of its own keys while hosting
-none of its partners' advancement.  ``balance_progression_across_games`` defaults to a different
-shape: for every other game represented at the table, reserve 1/N of that game's
-eligible unplaced advancement on this slot's progression surface, where N is the number of distinct
-games.  The outgoing half lives beside the existing cross-game pass in progression_surface.py.
+none of its partners' advancement.  ``cross_game_progression: auto`` (the shipped default) chooses
+a different shape: for every other game represented at the table, reserve 1/N of that game's
+eligible unplaced advancement among this slot's own checks, where N is the number of distinct
+games.  The outgoing half lives beside the existing cross-game pass in progression_surface.py, and
+`aggregate`/explicit-percent/`never` all bypass this module entirely (see
+progression_surface.balance_active -- #929's draft toggle was folded into auto, Alaric 2026-08-20).
 
 This is a PLACEMENT guarantee, not a playthrough guarantee.  The spoiler's reduced playthrough may
 later prune an advancement item whose route proved redundant.
@@ -13,37 +15,9 @@ later prune an advancement item whose route proved redundant.
 from collections import defaultdict, deque
 import logging
 
-from Options import Toggle
-
 from ..registry import Feature, register
 
 _LOG = logging.getLogger("eldenring")
-
-
-class BalanceProgressionAcrossGames(Toggle):
-    """Balance progression evenly across the distinct games at the table.
-
-    N is the number of distinct games. Every partner game receives its own near-1/N share of this
-    slot's travelling progression, and this slot reserves a 1/N share of every partner game's
-    eligible advancement among its own checks (each item still obeys the Progression Surface and
-    Confine Foreign Progression rules). Two slots of one game count as one game and
-    are sampled fairly across their players. Items a player keeps local are never taken.
-
-    The outgoing half only reshapes ``cross_game_progression: auto``. An explicit percentage --
-    including 0 -- keeps its declared meaning and wins over this option. The incoming half runs
-    whenever this is enabled and more than one game is present.
-
-    Shares are capacity-aware: when a partner game has fewer open locations than its share, or
-    the Progression Surface cannot host the full incoming request, the share is capped at what
-    fits and the generation log states requested-versus-reserved per game. A placement the rules
-    or reachability refuse outright still fails generation with a diagnostic. This concerns
-    progression-classified placements, not whether every item survives the spoiler's
-    redundant-route pruning.
-
-    Disable for Archipelago's ordinary asymmetric fill.
-    """
-    display_name = "Balance Progression Across Games"
-    default = 1
 
 
 def requested_share(eligible: int, game_count: int) -> int:
@@ -80,11 +54,6 @@ def fair_sample_by_player(items, count: int, rng):
     return chosen
 
 
-def _enabled(world) -> bool:
-    opt = getattr(getattr(world, "options", None), "balance_progression_across_games", None)
-    return bool(int(getattr(opt, "value", opt or 0)))
-
-
 def _eligible_by_game(multiworld, er_players):
     """Foreign advancement still in the pool, excluding owner-local item names."""
     out = defaultdict(list)
@@ -101,17 +70,19 @@ def _eligible_by_game(multiworld, er_players):
 
 
 def reserve_incoming_progression(multiworld, worlds) -> None:
-    """Stage-pre-fill reservation for every opted-in Elden Ring world."""
-    destinations = [world for world in worlds if _enabled(world)]
+    """Stage-pre-fill reservation for every ER world whose cross_game_progression is `auto`."""
+    # Imports stay local so the pure quota/sampling helpers remain cheap to test without an AP fill.
+    from .progression_surface import balance_active
+
+    game_count = len({world.game for world in multiworld.worlds.values()}) or 1
+    destinations = [world for world in worlds if balance_active(world, game_count)]
     if not destinations:
         return
 
-    # Imports stay local so the pure quota/sampling helpers remain cheap to test without an AP fill.
     from Fill import fill_restrictive
     from .progression_surface import _open_allowed, _selection, selected_surface
 
     er_players = {world.player for world in worlds}
-    game_count = len({world.game for world in multiworld.worlds.values()}) or 1
     eligible = _eligible_by_game(multiworld, er_players)
 
     # Do not let slot number decide who gets first pick.  The RNG order is seed-deterministic and
@@ -225,5 +196,7 @@ def reserve_incoming_progression(multiworld, worlds) -> None:
 
 @register
 class IncomingProgressionFeature(Feature):
+    """No option of its own: the incoming half is governed by `cross_game_progression: auto`
+    (see progression_surface.balance_active -- #929's draft toggle was folded into auto)."""
     name = "incoming_progression"
-    OPTIONS = {"balance_progression_across_games": BalanceProgressionAcrossGames}
+    OPTIONS = {}

@@ -503,7 +503,6 @@ _OPTION_GROUPS = [
         # many of the travellers may leave Elden Ring entirely. Reversed, the second is unanswerable.
         "cross_game_progression",
         "confine_foreign_progression",
-        "balance_progression_across_games",
         "keep_local", "keep_local_rune_cap"]),
     ("Shops & Merchants", [
         "keep_out_of_shops", "no_runes_in_shops", "rune_shop_pricing", "merchant_bells_on_talk",

@@ -4,16 +4,19 @@ from types import SimpleNamespace
 
 from ..features import progression_surface
 from ..features.incoming_progression import (
-    BalanceProgressionAcrossGames, _eligible_by_game, fair_sample_by_player, requested_share,
-    reserve_incoming_progression)
+    _eligible_by_game, fair_sample_by_player, requested_share, reserve_incoming_progression)
 
 
 def _item(player, name):
     return SimpleNamespace(player=player, name=name)
 
 
-def test_balance_is_on_by_default():
-    assert BalanceProgressionAcrossGames.default == 1
+def test_auto_is_the_default_and_aggregate_is_spellable():
+    # The balanced shape IS the default (auto = -1), and the older one-batch shape kept a NAME
+    # (#929's draft toggle was folded into auto -- `aggregate` is its "false" spelling).
+    from ..features.progression_surface import CrossGameProgression
+    assert CrossGameProgression.default == -1
+    assert CrossGameProgression.special_range_names == {"auto": -1, "aggregate": -2, "never": 0}
 
 
 def test_requested_share_is_nearest_one_over_n_half_up():
@@ -70,7 +73,7 @@ def test_insufficient_surface_capacity_caps_the_share_loudly(monkeypatch, caplog
         local_items=SimpleNamespace(value=set())))
     destination = SimpleNamespace(
         player=1, game="Elden Ring", options=SimpleNamespace(
-            balance_progression_across_games=SimpleNamespace(value=1)))
+            cross_game_progression=SimpleNamespace(value=-1)))   # auto = the balanced regime
     mw = SimpleNamespace(
         itempool=foreign, worlds={1: destination, 2: partner}, random=random.Random(927))
     destination.multiworld = mw

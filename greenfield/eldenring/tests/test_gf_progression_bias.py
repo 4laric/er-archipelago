@@ -256,6 +256,13 @@ class TestCrossGameShare(unittest.TestCase):
     def test_auto_is_one_over_n_games(self):
         """THE RULING, literally. Two games is half."""
         self.assertEqual(cross_game_share(self._W(-1), 2), 50)
+
+    def test_aggregate_resolves_to_the_same_percent_as_auto(self):
+        """`aggregate` (-2) is old-auto: same 1/N batch size, minus the balanced shape. The percent
+        must track auto's exactly -- a one-point disagreement here is the #703 half-up bug again."""
+        for n in (2, 3, 4, 8):
+            self.assertEqual(cross_game_share(self._W(-2), n),
+                             cross_game_share(self._W(-1), n))
         self.assertEqual(cross_game_share(self._W(-1), 3), 33)
         self.assertEqual(cross_game_share(self._W(-1), 4), 25)
         self.assertEqual(cross_game_share(self._W(-1), 8), 13)
@@ -318,34 +325,33 @@ class TestBalancedForeignQuotas(unittest.TestCase):
 
 
 class TestBalanceActive(unittest.TestCase):
-    """#927's outgoing shape only reshapes AUTO -- every explicit declaration keeps its meaning."""
+    """One lever, three regimes: auto (-1) = balanced; aggregate (-2) and explicit percents = the
+    older one-batch pass; never (0) = nothing travels. #929's draft toggle was folded into auto."""
 
     @staticmethod
-    def _world(balance, cross):
+    def _world(cross):
         from types import SimpleNamespace
         return SimpleNamespace(options=SimpleNamespace(
-            balance_progression_across_games=SimpleNamespace(value=balance),
             cross_game_progression=SimpleNamespace(value=cross)))
 
     def test_auto_is_balanced(self):
         from worlds.eldenring.features.progression_surface import balance_active
-        self.assertTrue(balance_active(self._world(1, -1), 3))
+        self.assertTrue(balance_active(self._world(-1), 3))
 
-    def test_explicit_percentages_keep_their_declared_meaning(self):
+    def test_every_other_spelling_runs_the_aggregate_or_nothing(self):
         from worlds.eldenring.features.progression_surface import balance_active
         # WITNESS in-test: the predicate CAN fire on this fixture shape, so the refusals below
-        # are the option doing work, not the fixture failing to parse.
-        self.assertTrue(balance_active(self._world(1, -1), 3))
-        for cross in (0, 30, 100):
-            self.assertFalse(balance_active(self._world(1, cross), 3),
-                             "an explicit cross_game_progression=%d must not be silently "
-                             "reshaped (DECLARED IS NOT EMITTED)" % cross)
+        # are the regimes doing work, not the fixture failing to parse.
+        self.assertTrue(balance_active(self._world(-1), 3))
+        for cross in (-2, 0, 30, 100):   # aggregate, never, and two explicit percents
+            self.assertFalse(balance_active(self._world(cross), 3),
+                             "cross_game_progression=%d must not run the balanced shape "
+                             "(DECLARED IS NOT EMITTED)" % cross)
 
-    def test_disabled_or_solo_is_never_balanced(self):
+    def test_solo_is_never_balanced(self):
         from worlds.eldenring.features.progression_surface import balance_active
-        self.assertTrue(balance_active(self._world(1, -1), 3))   # witness: the fixture can fire
-        self.assertFalse(balance_active(self._world(0, -1), 3))
-        self.assertFalse(balance_active(self._world(1, -1), 1))
+        self.assertTrue(balance_active(self._world(-1), 3))   # witness: the fixture can fire
+        self.assertFalse(balance_active(self._world(-1), 1))
 
 
 class TestForeignOpenLocations(unittest.TestCase):

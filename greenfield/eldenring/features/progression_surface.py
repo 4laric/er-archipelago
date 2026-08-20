@@ -192,40 +192,50 @@ class ProgressionBias(Range):
 
 
 class CrossGameProgression(NamedRange):
-    """What share of your travelling Region Locks may land in a NON-Elden-Ring player's world.
+    """How your progression is shared with the other games at the table.
 
-    `auto` (the default) is **1 / number of games**: in a two-game multiworld half your travelling
-    Locks go to the partner, in a four-game one a quarter each. That is the same 1/N rule the export
-    volume is judged by, and it means the answer scales with the table instead of being a number
-    someone has to re-pick per seed. `0` keeps every Lock inside Elden Ring, which is the behaviour
-    every seed had before this option existed. A number is that share explicitly.
+    ``auto`` (the default) balances it: every other game receives its own near **1 / number of
+    games** share of your travelling progression, and your world reserves the same share of every
+    partner game's progression in return. Eleven items at a three-game table means roughly four to
+    each partner and three staying home -- not one aggregate batch split however fill happens to
+    land. Two slots of one game count as a single game, sampled fairly across their players, and
+    items a player keeps local are never taken.
 
-    # Why this option exists at all
+    ``aggregate`` is the older shape: one combined foreign batch sized at 1/N, divided between the
+    partners by ordinary fill, with no incoming reservation. A number from 1 to 100 is that
+    aggregate share set by hand. ``never`` (0) keeps every travelling progression item inside
+    Elden Ring -- the escape hatch if a partner game will not tolerate being filled and a seed
+    refuses to generate.
 
-    `progression_bias` already releases Locks into the multiworld, and between Elden Ring worlds it
-    works -- MEASURED 50-54% travel on 2xER seeds. But `place_released_locks` only ever offered them
-    ELDEN RING surfaces, and our surfaces host ~170 checks against at most ~36 Locks, so the spill
-    valve that was supposed to feed a partner never had anything to spill. MEASURED across four
-    configurations: **0 Locks reached a Hollow Knight slot, ever** -- including a 2xER + 1xHK seed
-    where 15 of 28 Locks travelled and all 15 went to the other Elden Ring world.
+    Shares are capacity-aware: a partner game with fewer open locations than its share, or a world
+    without room for the full incoming reservation, caps the share at what fits, and the
+    generation log states requested-versus-reserved per game. Only a placement the rules refuse
+    outright is a failure.
 
-    `progression_bias` controls whether Locks leave their owner at all. It does not choose between
-    another Elden Ring slot and a non-Elden-Ring partner; this option provides that second axis.
-
-    ⚠️ IT PLACES INTO ANOTHER GAME'S LOCATIONS, which is the one thing `place_released_locks` used to
-    refuse to do, and the refusal was not arbitrary -- TUNIC's own `stage_pre_fill` raises
-    "caused by another world filling TUNIC locations during pre_fill... we cannot recover from this
-    issue." We only ever offer locations that are still EMPTY, never force a placement, and put back
-    anything unplaced -- but a partner game that objects to being filled at all is a real failure
-    mode, and `0` is the escape hatch. Set it to 0 if a seed will not generate.
-
-    No effect in a solo seed, in an all-Elden-Ring multiworld (there is no non-ER world to send to),
-    or in the modes that mint no Lock items."""
+    No effect in a solo seed, in an all-Elden-Ring multiworld, or in the modes that mint no Lock
+    items."""
     display_name = "Cross Game Progression"
     range_start = 0
     range_end = 100
     default = -1
-    special_range_names = {"auto": -1, "never": 0}
+    special_range_names = {"auto": -1, "aggregate": -2, "never": 0}
+
+
+# Why CrossGameProgression exists at all (measured 2026-08; kept beside the class per the #402
+# rule -- rationale is a comment, the docstring is the player's):
+# `progression_bias` already releases Locks into the multiworld, and between Elden Ring worlds it
+# works -- MEASURED 50-54% travel on 2xER seeds. But `place_released_locks` only ever offered them
+# ELDEN RING surfaces (~170 checks against at most ~36 Locks), so the spill valve that was supposed
+# to feed a partner never had anything to spill: 0 Locks reached a Hollow Knight slot across four
+# measured configurations, including a 2xER+1xHK seed where 15 of 28 Locks travelled -- all to the
+# other ER world. `progression_bias` decides whether Locks leave their owner; this option chooses
+# between ER slots and non-ER partners. It PLACES INTO ANOTHER GAME'S LOCATIONS, which the old pass
+# refused for a reason (TUNIC's stage_pre_fill raises on foreign pre-fill placements); we only offer
+# EMPTY locations, never force, and put back anything unplaced -- `never` is the escape hatch.
+# `balanced` became auto's meaning in v0.4.10 (#927/#929): the per-game 1/N shape replaced the
+# aggregate batch after the motivating seed split 11 progression items 2/2/7. The separate
+# `balance_progression_across_games` toggle from #929's draft was FOLDED INTO auto before ever
+# shipping (Alaric 2026-08-20) -- one lever, three regimes, no interaction matrix.
 
 
 class ConfineForeignProgression(NamedRange):
@@ -771,26 +781,20 @@ def balanced_foreign_quotas(total: int, foreign_games, rng):
     return quotas
 
 
-def _balance_across_games(world) -> bool:
-    opt = getattr(getattr(world, "options", None), "balance_progression_across_games", None)
-    return bool(int(getattr(opt, "value", opt or 0)))
-
-
 def balance_active(world, n_games: int) -> bool:
-    """Does #927's balanced OUTGOING shape govern this slot's cross-game placement?
+    """Does the balanced 1/N-per-game shape (#927) govern this slot -- both halves of it?
 
-    Only when `cross_game_progression` is AUTO (-1). An explicit percentage -- including 0/never --
-    is a declaration this pass must not silently override: 0 is a locality promise ("my progression
-    stays home") and 30 is a manual volume ("30% may leave"), and the balanced quotas would emit a
-    different number than either declares (DECLARED IS NOT EMITTED, the #635 disease). `auto`
-    means "let the world pick the shape", and the balanced per-game 1/N IS the better shape.
-    The INCOMING half (features/incoming_progression) is deliberately not gated on this option:
-    what arrives here is governed by the surface + confine, not by where OUR progression goes.
+    True exactly when `cross_game_progression` is AUTO (-1) at a multi-game table. There is no
+    separate toggle: #929's draft shipped one and it was folded into auto before release (Alaric
+    2026-08-20) -- one lever, three regimes. `aggregate` (-2) and explicit percentages run the
+    older one-batch pass; `never`/0 sends nothing. An explicit value -- 0 included -- is a
+    declaration the balanced pass must not silently override (DECLARED IS NOT EMITTED, the #635
+    disease); auto means "let the world pick the shape", and per-game 1/N IS the better shape.
     """
-    if not _balance_across_games(world) or n_games <= 1:
+    if n_games <= 1:
         return False
     opt = getattr(getattr(world, "options", None), "cross_game_progression", None)
-    return opt is not None and int(opt.value) < 0
+    return opt is not None and int(opt.value) == -1
 
 
 def place_released_locks(multiworld, worlds) -> None:
@@ -1191,7 +1195,10 @@ def cross_game_share(world, n_games: int) -> int:
         return 0                      # older yaml -> behave as before this option existed
     v = int(opt.value)
     if v < 0:
-        # auto. HALF-UP, not `round`: Python rounds .5 to even, so a four-game seed would get
+        # auto (-1) AND aggregate (-2) both resolve to the 1/N percent. For aggregate it is the
+        # batch size; for auto the balanced pass supplies its own per-game quotas and only needs
+        # this to be POSITIVE so travelling_progression includes the non-Lock tier (#811).
+        # HALF-UP, not `round`: Python rounds .5 to even, so a four-game seed would get
         # 100/8 = 12.5 -> 12 while the export-volume side's 1/N cap says 13. A silent one-point
         # disagreement between the two halves of #703 is exactly the class of bug this repo has
         # paid for twice, and `released_locks` already rounds half-up for the same reason.
