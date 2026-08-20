@@ -87,6 +87,11 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   the run. The wizard's seed-size preview now includes those extra regions and shows their marginal
   0–N contribution beyond `num_regions`; generation logs distinguish them from goal force-keeps
   instead of calling them `goal=auto`. World: #841.
+- **The two Region-Lock travel settings now describe separate axes.** `progression_bias` controls
+  how many Locks leave their owner, but ordinary fill does not promise those Locks to a much smaller
+  partner game; measured cross-game seeds could send that partner zero. `cross_game_progression`
+  is the setting that deliberately chooses the non-Elden-Ring share. Documentation only; seed
+  behavior is unchanged. World: #633.
 
 ## v0.4.9 — 2026-08-18
 

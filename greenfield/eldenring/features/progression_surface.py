@@ -178,9 +178,10 @@ class ProgressionBias(Range):
 
     MEASURED at 0, over 740 generations: in a two-slot Elden Ring multiworld about 45% of Locks
     leave their own world and ~90% of all placed Locks sit on a surface check; four slots pushes
-    travel to 60-70%. In a CROSS-GAME multiworld expect most of your travelling Locks to land in the
-    partner game rather than spread evenly -- a partner has no surface of its own to compete with
-    ours, so it absorbs what our surface will not hold.
+    travel to 60-70%. That says how many leave, not WHICH other world receives them: ordinary fill
+    follows the available locations, so a smaller non-Elden-Ring partner may receive none at all.
+    `cross_game_progression` is the separate share that deliberately sends travelling Locks to
+    non-Elden-Ring worlds.
 
     No effect in a solo seed (there is nowhere else for a Lock to go), nor in the modes that mint no
     Lock items at all (natural progression, vanilla placement)."""
@@ -208,8 +209,8 @@ class CrossGameProgression(NamedRange):
     configurations: **0 Locks reached a Hollow Knight slot, ever** -- including a 2xER + 1xHK seed
     where 15 of 28 Locks travelled and all 15 went to the other Elden Ring world.
 
-    `ProgressionBias`'s own docstring promised the opposite ("expect most of your travelling Locks to
-    land in the partner game"), so this is the option that makes that sentence true.
+    `progression_bias` controls whether Locks leave their owner at all. It does not choose between
+    another Elden Ring slot and a non-Elden-Ring partner; this option provides that second axis.
 
     ⚠️ IT PLACES INTO ANOTHER GAME'S LOCATIONS, which is the one thing `place_released_locks` used to
     refuse to do, and the refusal was not arbitrary -- TUNIC's own `stage_pre_fill` raises
