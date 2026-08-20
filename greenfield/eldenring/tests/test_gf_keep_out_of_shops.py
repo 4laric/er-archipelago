@@ -45,10 +45,18 @@ def _shop_locs(world, mw):
 
 
 def _own_item_in(world, categories):
-    """A pool item of this world whose name is in one of `categories`, or None."""
+    """An item of this world whose name is in one of `categories`, or None.
+
+    #903 reserves the constrained subset during ``stage_pre_fill``, so an enforced-category item
+    may already be locked to a location instead of remaining in the general item pool. Either is a
+    valid object for probing the installed location rules.
+    """
     want = set(names_in(sorted(categories)))
-    return next((i for i in world.multiworld.itempool
-                 if i.player == world.player and i.name in want), None)
+    candidates = list(world.multiworld.itempool)
+    candidates.extend(loc.item for loc in world.multiworld.get_locations()
+                      if loc.item is not None)
+    return next((item for item in candidates
+                 if item.player == world.player and item.name in want), None)
 
 
 # ---- 1. the default -----------------------------------------------------------------------------
