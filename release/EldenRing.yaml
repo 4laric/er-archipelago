@@ -716,7 +716,7 @@ Elden Ring:
   # No effect in a solo seed. Never blocks generation.
   confine_foreign_progression: 100
 
-  # BALANCE PROGRESSION ACROSS THE DISTINCT GAMES AT THE TABLE. When enabled,
+  # BALANCE PROGRESSION ACROSS THE DISTINCT GAMES AT THE TABLE. By default,
   # this Elden Ring slot reserves about 1 / number-of-games of each other
   # game's eligible advancement items on the progression_surface above. Every
   # partner game also gets its OWN near-1/N share of this slot's progression;
@@ -730,7 +730,8 @@ Elden Ring:
   # if the requested share cannot legally fit. It guarantees items CLASSIFIED
   # as progression, not that every one survives the spoiler's final pruning as
   # strictly required after redundant routes are removed.
-  balance_progression_across_games: false
+  # Set false to retain Archipelago's ordinary asymmetric fill.
+  balance_progression_across_games: true
 
   # RESERVED. The option exists but is INERT in v0.2 -- shop checks are assumed
   # reachable regardless of what you set here. Left in place so seeds stay

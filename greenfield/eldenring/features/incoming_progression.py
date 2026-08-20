@@ -2,8 +2,8 @@
 
 Archipelago's ordinary fill is intentionally free to produce an asymmetric multiworld.  That is
 usually desirable, but it means an Elden Ring slot can export several of its own keys while hosting
-none of its partners' advancement.  ``balance_progression_across_games`` is the explicit opt-in to
-a different shape: for every other game represented at the table, reserve 1/N of that game's
+none of its partners' advancement.  ``balance_progression_across_games`` defaults to a different
+shape: for every other game represented at the table, reserve 1/N of that game's
 eligible unplaced advancement on this slot's progression surface, where N is the number of distinct
 games.  The outgoing half lives beside the existing cross-game pass in progression_surface.py.
 
@@ -30,11 +30,12 @@ class BalanceProgressionAcrossGames(Toggle):
     reachability rules. Generation fails with a capacity diagnostic if the requested share cannot
     legally fit.
 
-    This guarantees advancement-classified placements.  It cannot guarantee that every reserved
+    Disable it for Archipelago's ordinary asymmetric fill. This guarantees advancement-classified
+    placements. It cannot guarantee that every reserved
     item remains in the spoiler's minimal playthrough after redundant routes are pruned.
     """
     display_name = "Balance Progression Across Games"
-    default = 0
+    default = 1
 
 
 def requested_share(eligible: int, game_count: int) -> int:

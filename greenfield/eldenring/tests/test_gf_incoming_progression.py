@@ -7,11 +7,16 @@ import pytest
 from Fill import FillError
 from ..features import progression_surface
 from ..features.incoming_progression import (
-    _eligible_by_game, fair_sample_by_player, requested_share, reserve_incoming_progression)
+    BalanceProgressionAcrossGames, _eligible_by_game, fair_sample_by_player, requested_share,
+    reserve_incoming_progression)
 
 
 def _item(player, name):
     return SimpleNamespace(player=player, name=name)
+
+
+def test_balance_is_on_by_default():
+    assert BalanceProgressionAcrossGames.default == 1
 
 
 def test_requested_share_is_nearest_one_over_n_half_up():
