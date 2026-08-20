@@ -4916,8 +4916,9 @@ const ERW = (() => {
     // region_spine.compute_kept: N is a DRAW SIZE. The Seed size panel shows the resulting spread,
     // so this points at it rather than restating a number that is only true for one draw.
     if (has("num_regions") && v("num_regions") > 0 && set("num_regions"))
-      info("num_regions", "A draw size, not a final count \u2014 goal force-keeps and parent " +
-           "closure can add more. See Seed size for the range your setting actually produces.");
+      info("num_regions", "A draw size, not a final count \u2014 goal and start-region force-keeps " +
+           "plus parent closure can add more. See Seed size for the range your setting actually " +
+           "produces.");
 
     return out;
   }
@@ -4925,7 +4926,8 @@ const ERW = (() => {
 
   /* ---- seed size (wizard/region-census.json; tools/build_region_census.py) --------------------
      num_regions is a DRAW SIZE, not a final count: compute_kept = draw + explicit-goal force-keeps
-     + parent closure. So a single number would be wrong -- we sample the draw and report a spread.
+     + start_region_pool force-keeps + parent closure. So a single number would be wrong -- we
+     sample the draw and report a spread.
 
      DETERMINISTIC ON PURPOSE. A seeded PRNG (mulberry32, fixed seed), so the same option set always
      shows the same figures. With Math.random the readout jittered on every unrelated keystroke and
@@ -4991,15 +4993,18 @@ const ERW = (() => {
     const whole = (n <= 0 || n >= eligible.length);
     const trials = whole ? 1 : Math.max(1, opts.trials || 4000);
     const rnd = mulberry32(0x45524147);
-    const checks = [], surf = [], kept = [];
+    const startPool = new Set((opts.startRegionPool || []).filter(r => elig.has(r)));
+    const checks = [], surf = [], kept = [], forcedStart = [];
     for (let t = 0; t < trials; t++){
-      let keptSet;
-      if (whole){ keptSet = new Set(eligible); }
+      let keptSet, addedStart;
+      if (whole){ keptSet = new Set(eligible); addedStart = new Set(); }
       else {
         const pool = eligible.slice();
         keptSet = new Set();
         for (let i = 0; i < n; i++)
           keptSet.add(pool.splice(Math.floor(rnd() * pool.length), 1)[0]);
+        addedStart = new Set(Array.from(startPool).filter(r => !keptSet.has(r)));
+        for (const r of startPool) keptSet.add(r);
         let grew = true;
         while (grew){
           grew = false;
@@ -5011,12 +5016,13 @@ const ERW = (() => {
       }
       let c = base, s = baseSurf;
       for (const r of keptSet){ c += R[r].checks; s += comboHits(R[r], sel, rung); }
-      checks.push(c); surf.push(s); kept.push(keptSet.size);
+      checks.push(c); surf.push(s); kept.push(keptSet.size); forcedStart.push(addedStart.size);
     }
     const q = (a, p) => { a = a.slice().sort((x, y) => x - y); return a[Math.floor(p * (a.length - 1))]; };
     const band = a => ({ min: q(a, 0), p10: q(a, 0.10), median: q(a, 0.5), p90: q(a, 0.90), max: q(a, 1) });
     return { whole, trials, eligible: eligible.length, finale: finaleOn,
-             checks: band(checks), surface: band(surf), kept: band(kept) };
+             checks: band(checks), surface: band(surf), kept: band(kept),
+             forcedStart: band(forcedStart) };
   }
 
   /* WHAT EACH BOX IS ACTUALLY WORTH: {total, marginal:{class:n}, regions}.
@@ -5594,7 +5600,8 @@ if (typeof module !== "undefined") module.exports = ERW;
   // OTHER players' progression to that same surface, so a reader who meets it alone has no idea what
   // "the surface" refers to. enable_dlc / dlc_only change which regions are eligible at all, which
   // matters but is usually decided once and left.
-  const SEED_SIZE_OPTIONS = ["num_regions", "progression_surface", "confine_foreign_progression",
+  const SEED_SIZE_OPTIONS = ["num_regions", "start_region_pool", "progression_surface",
+                             "confine_foreign_progression",
                              "enable_dlc", "dlc_only",
                              // the locality knobs -- they move the "what you send out" card below
                              "keep_local", "keep_local_rune_cap",
@@ -5905,6 +5912,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const nr = v("num_regions"), dlcOn = !!v("enable_dlc"), only = !!v("dlc_only");
     const size = ERW.seedSize(census, { numRegions: nr, enableDlc: dlcOn, dlcOnly: only,
+                                        startRegionPool: v("start_region_pool") || [],
                                         surfaceClasses: v("progression_surface") || [],
                                         dungeonSweep: v("dungeon_sweep") });
     if (!size){
@@ -5933,7 +5941,14 @@ if (typeof module !== "undefined") module.exports = ERW;
        "<div class='desc' style='margin-top:8px'><b>num_regions is a draw size, not a final " +
        "count.</b> Which regions the draw takes moves everything above, which is why these are " +
        "ranges. Full spread at this setting: " + n(size.checks.min) + "\u2013" + n(size.checks.max) +
-       " checks.</div>"));
+       " checks.</div>") +
+      (size.forcedStart.max ?
+       "<div class='desc' style='margin-top:8px'><b>start_region_pool adds " +
+       (size.forcedStart.min === size.forcedStart.max ? n(size.forcedStart.median)
+        : n(size.forcedStart.min) + "\u2013" + n(size.forcedStart.max)) +
+       " region(s) beyond the draw</b>, depending on overlap. Every candidate is kept; only " +
+       "the opening " + ((v("start_regions") || 1) > 1 ? "regions are" : "region is") +
+       " chosen from them.</div>" : ""));
     box.append(c1);
 
     const cs = nearestCase(nr, dlcOn && !only);
@@ -5978,6 +5993,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, { numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"),
                                         dlcOnly: !!v("dlc_only"),
+                                        startRegionPool: v("start_region_pool") || [],
                                         surfaceClasses: v("progression_surface") || [],
                                         dungeonSweep: v("dungeon_sweep") });
     if (!size) return null;
@@ -6000,6 +6016,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, { numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"),
                                         dlcOnly: !!v("dlc_only"),
+                                        startRegionPool: v("start_region_pool") || [],
                                         surfaceClasses: v("progression_surface") || [],
                                         dungeonSweep: v("dungeon_sweep") });
     const cs = nearestCase(v("num_regions"), !!v("enable_dlc") && !v("dlc_only"));
@@ -6287,6 +6304,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, {
       numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"), dlcOnly: !!v("dlc_only"),
+      startRegionPool: v("start_region_pool") || [],
       surfaceClasses: v("progression_surface") || [], dungeonSweep: v("dungeon_sweep")
     });
     if (!size){
@@ -6302,7 +6320,11 @@ if (typeof module !== "undefined") module.exports = ERW;
        num(size.checks.min) + "&ndash;" + num(size.checks.max)],
       ["regions kept", size.kept.min === size.kept.max ? num(size.kept.median)
                             : num(size.kept.p10) + "&ndash;" + num(size.kept.p90),
-       "num_regions is a draw size, not a final count"],
+       "num_regions is a draw size, not a final count" +
+       (size.forcedStart.max ? "; start_region_pool adds " +
+        (size.forcedStart.min === size.forcedStart.max ? num(size.forcedStart.median)
+         : num(size.forcedStart.min) + "&ndash;" + num(size.forcedStart.max)) +
+        " beyond the draw" : "")],
       ["can hold progression", size.whole ? num(size.surface.median)
                             : num(size.surface.p10) + "&ndash;" + num(size.surface.p90),
        "checks on your progression surface"]

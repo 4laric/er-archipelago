@@ -845,7 +845,8 @@ class GreenfieldEldenRingWorld(World):
         # why. One line in the gen log, naming all three contributions, is the whole fix.
         logging.getLogger("Greenfield").info(
             "[eldenring:%s] %s", self.player,
-            describe_kept(_nr, _draw_parts, self.gf_kept, self.gf_goal_choice))
+            describe_kept(_nr, _draw_parts, self.gf_kept, self.gf_goal_choice,
+                          start_region_pool=self.gf_start_pool))
         # Resolve the Great-Rune goal now (once), so create_item/set_rules/slot_data agree.
         self.gf_required_runes: List[str] = self._resolve_required_runes()
         self._lint_goal_reachability()
