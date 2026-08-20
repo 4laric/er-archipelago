@@ -466,8 +466,7 @@
   "Consecrated Snowfield": {
    "checks": 151,
    "combos": {
-    "Basin|Boss|FieldBoss": 1,
-    "Boss|FieldBoss": 2,
+    "Boss|FieldBoss": 1,
     "Boss|Legendary|MinorDungeonBoss": 1,
     "Boss|MinorDungeonBoss": 4,
     "Seedtree": 2
@@ -477,35 +476,35 @@
    "rollable": true,
    "sweep_slots": {
     "all": 4,
-    "bosses": 7,
+    "bosses": 6,
     "minidungeons": 4
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 4,
-     "bosses": 7,
+     "bosses": 6,
      "minidungeons": 4
     },
     "SweepSlotMinor": {
      "all": 4,
-     "bosses": 7,
+     "bosses": 6,
      "minidungeons": 4
     }
    },
    "sweep_slots_max": {
     "all": 29,
-    "bosses": 47,
+    "bosses": 45,
     "minidungeons": 29
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 29,
-     "bosses": 47,
+     "bosses": 45,
      "minidungeons": 29
     },
     "SweepSlotMinor": {
      "all": 29,
-     "bosses": 47,
+     "bosses": 45,
      "minidungeons": 29
     }
    }
@@ -1528,5 +1527,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "7c542197ec4f637dbc7b087bd7663b9efcdd605007681967736cccf18fe4a2d9"
+ "source_sha256": "160ed0613a5f3d64e2201e522a96241d7c2a8a1a5111648d06b93af586837d91"
 }

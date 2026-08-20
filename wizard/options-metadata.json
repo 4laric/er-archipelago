@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.4.10",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "d5ac73c59611255e614fb1c98c6070d402cf247a818bdf8c329d23a381224fb8",
+ "source_sha256": "39eb7c4c353b06bba3084e5ef7f4ddcb085a821bd5f0d39fdd3c341702fd3393",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -183,7 +183,7 @@
    "choices": null,
    "range": {
     "start": 0,
-    "end": 28
+    "end": 29
    },
    "valid_keys": null,
    "casefold": false,
@@ -1625,6 +1625,7 @@
     "Belurat",
     "Caelid",
     "Cerulean",
+    "Consecrated Snowfield",
     "Deeproot Depths",
     "Enir Ilim",
     "Ensis",

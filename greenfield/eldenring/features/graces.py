@@ -278,8 +278,8 @@ def _attune_split(world, region, bundle):
     graces DOES attune, but only on the very last one, and then blooms NOTHING. A banner that fires
     to grant an empty set is worse than no gate. Below the boundary it is worse still -- the region
     could never attune at all and its remaining graces would stay dark for the whole run, which
-    reads as a bug rather than a setting. At threshold 4 this skips 12 of the 28 bundled regions
-    and gates 16. Traversal is not the problem in a two-grace region anyway.
+    reads as a bug rather than a setting. At threshold 4 this skips 12 of the 29 bundled regions
+    and gates 17. Traversal is not the problem in a two-grace region anyway.
 
     🛑 A WITHHELD BUNDLE IS NEVER GATED. Gated children (REGION_PARENT: Raya Lucaria Academy,
     Leyndell, Sewer) already emit [] while their vanilla wall is armed -- there is nothing to split,
@@ -287,7 +287,7 @@ def _attune_split(world, region, bundle):
     target on the far side of a wall the game enforces).
 
     THE ANCHOR is the region's own front door by default: REGION_OPEN_FLAGS[region], which is a
-    member of the region's grace points for all 28 bundled regions (the three where it is not are
+    member of the region's grace points for all 29 bundled regions (the three where it is not are
     exactly the gated children, which return above). `random_grace` picks any of them -- safe
     because REGION_GRACE_POINTS already excludes boss-gated and arena graces, so every candidate is
     a real, physically-present warp point.

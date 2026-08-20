@@ -2,6 +2,7 @@
 
 from .. import boss_sweeps, data, region_graces, region_open_flags, region_play_ids
 from ..features import natural_progression
+from ..location_tags import DEFAULTED_REGION_APS
 from ..region_spine import SPINE
 
 
@@ -48,6 +49,12 @@ def test_snowfield_checks_and_sweeps_move_but_castle_sol_stays_mountaintops():
         assert boss_sweeps.SWEEP_REGION[trigger] == SNOWFIELD
     for trigger in ruled_arenas:
         assert boss_sweeps.SWEEP_ARENA_REGION[trigger] == SNOWFIELD
+
+    # The Avatar rewards are correctly owned by Snowfield, but their MSB evidence is a graceless
+    # seam tile. Re-regioning must not silently promote either guess into progression eligibility.
+    ap_by_flag = {flag: ap_id for locs in data.LOCATIONS.values()
+                  for _name, ap_id, flag in locs}
+    assert {ap_by_flag[65130], ap_by_flag[65170]} <= set(DEFAULTED_REGION_APS)
 
 
 def test_natural_progression_requires_both_secret_medallion_halves():

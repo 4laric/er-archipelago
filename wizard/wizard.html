@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.10",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "d5ac73c59611255e614fb1c98c6070d402cf247a818bdf8c329d23a381224fb8",
+ "source_sha256": "39eb7c4c353b06bba3084e5ef7f4ddcb085a821bd5f0d39fdd3c341702fd3393",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -372,7 +372,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "choices": null,
    "range": {
     "start": 0,
-    "end": 28
+    "end": 29
    },
    "valid_keys": null,
    "casefold": false,
@@ -1814,6 +1814,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Belurat",
     "Caelid",
     "Cerulean",
+    "Consecrated Snowfield",
     "Deeproot Depths",
     "Enir Ilim",
     "Ensis",
@@ -3505,8 +3506,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "Consecrated Snowfield": {
    "checks": 151,
    "combos": {
-    "Basin|Boss|FieldBoss": 1,
-    "Boss|FieldBoss": 2,
+    "Boss|FieldBoss": 1,
     "Boss|Legendary|MinorDungeonBoss": 1,
     "Boss|MinorDungeonBoss": 4,
     "Seedtree": 2
@@ -3516,35 +3516,35 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true,
    "sweep_slots": {
     "all": 4,
-    "bosses": 7,
+    "bosses": 6,
     "minidungeons": 4
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 4,
-     "bosses": 7,
+     "bosses": 6,
      "minidungeons": 4
     },
     "SweepSlotMinor": {
      "all": 4,
-     "bosses": 7,
+     "bosses": 6,
      "minidungeons": 4
     }
    },
    "sweep_slots_max": {
     "all": 29,
-    "bosses": 47,
+    "bosses": 45,
     "minidungeons": 29
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 29,
-     "bosses": 47,
+     "bosses": 45,
      "minidungeons": 29
     },
     "SweepSlotMinor": {
      "all": 29,
-     "bosses": 47,
+     "bosses": 45,
      "minidungeons": 29
     }
    }
@@ -4567,7 +4567,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "7c542197ec4f637dbc7b087bd7663b9efcdd605007681967736cccf18fe4a2d9"
+ "source_sha256": "160ed0613a5f3d64e2201e522a96241d7c2a8a1a5111648d06b93af586837d91"
 }
 </script>
 <div class="wrap">
@@ -6008,7 +6008,7 @@ if (typeof module !== "undefined") module.exports = ERW;
       pc.innerHTML = "<h2>Pick a starting point</h2>";
       const grid = el("div", "presets");
       const cards = [{id:null, title:"Defaults", tagline:"Blank slate — every option at its default.",
-                      description:"Writes an empty options block, so the apworld decides everything. Note this INCLUDES the DLC: enable_dlc defaults on, so you get all 28 regions. Pick a preset if you only own the base game."}]
+                      description:"Writes an empty options block, so the apworld decides everything. Note this INCLUDES the DLC: enable_dlc defaults on, so you get all 29 regions. Pick a preset if you only own the base game."}]
                     .concat(meta.presets);
       for (const p of cards){
         const d = el("div", "preset" + ((state.presetId === p.id) ? " sel" : ""));

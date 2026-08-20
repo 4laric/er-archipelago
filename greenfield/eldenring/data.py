@@ -1506,8 +1506,8 @@ LOCATIONS = {
         ('Consecrated Snowfield :: Drawstring Holy Grease - near Ancient Snow Valley Ruins (region unconfirmed), also granted by Great Wyrm Theodorix (m60_50_56) [f1051557310]', 7773239, 1051557310),
         ('Consecrated Snowfield :: Rainbow Stone - near Ancient Snow Valley Ruins (region unconfirmed), also granted by Great Wyrm Theodorix (m60_50_56) [f1051557320]', 7773240, 1051557320),
         ('Consecrated Snowfield :: Golden Rune [13] - near Ancient Snow Valley Ruins (region unconfirmed), also granted by Great Wyrm Theodorix (m60_50_56) [f1051557330]', 7773241, 1051557330),
-        ('Consecrated Snowfield :: Thorny Cracked Tear - Putrid Avatar, also granted by Putrid Avatar (m60_50_57) [f65130]', 7773770, 65130),
-        ('Consecrated Snowfield :: Ruptured Crystal Tear - Putrid Avatar, also granted by Putrid Avatar (m60_50_57) [f65170]', 7773773, 65170),
+        ('Consecrated Snowfield :: Thorny Cracked Tear - Putrid Avatar (region unconfirmed), also granted by Putrid Avatar (m60_50_57) [f65130]', 7773770, 65130),
+        ('Consecrated Snowfield :: Ruptured Crystal Tear - Putrid Avatar (region unconfirmed), also granted by Putrid Avatar (m60_50_57) [f65170]', 7773773, 65170),
         ('Consecrated Snowfield :: Great Grave Glovewort - m30_19 [f520190]', 7773922, 520190),
         ('Consecrated Snowfield :: Golden Order Greatsword - around Cave of the Forlorn [f520470]', 7773937, 520470),
         ('Consecrated Snowfield :: [Sorcery] Meteorite of Astel - Yelough Anix Tunnel [f520680]', 7773948, 520680),
@@ -5560,4 +5560,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:dfb785d0d9e5a877fd0352885106d8a17e8027f85f965f3f43f3540603933532', 'module': 'data.py', 'body_sha256': 'sha256:3ccea238e8e2d253cb8556d905352780678ed17cdc79156286b417f3ce6d74da'}
+_GEN_STAMP = {'inputs_hash': 'sha256:3ef25de73614ade8e9717736838426b00a98043d106849656a331ec4eafa718b', 'module': 'data.py', 'body_sha256': 'sha256:ce9920d78f81dc16c4cee592a671cad8a7b247bd6101309f4aa2399562f30a8b'}

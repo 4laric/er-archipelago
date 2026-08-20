@@ -3100,6 +3100,12 @@ FLAG_REGION_OVERRIDE = {
     1043357100: "Weeping",   # Sacred Tear -- Church of Pilgrimage
 }
 
+# These per-flag pins settle WHICH SIDE of a measured region seam owns the reward, but they do not
+# turn a graceless MSB tile into directly reachable ground. Keep the Snowfield Avatar tears as live
+# Snowfield checks while retaining the conservative DEFAULTED progression bar until their exact
+# pickup ground is witnessed in game. A region correction must not silently promote a guessed check.
+_REGION_OVERRIDE_UNCONFIRMED_FLAGS = frozenset({65130, 65170})
+
 # ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------
 # The coarse REGION_MAP buckets every minor dungeon into one region ("Caves"->Limgrave,
 # "Tunnels"->Caelid, catacombs->Limgrave, m34 Divine Towers->"DLC Dungeon"), which is wrong for any
@@ -5096,6 +5102,10 @@ for r in rows:
         _sites = _collapsed_sites_of(r)
         if _sites:
             collapsed_site_aps[apid] = _sites
+    if (flag in _REGION_OVERRIDE_UNCONFIRMED_FLAGS
+            and (not defaulted_aps or defaulted_aps[-1] != apid)):
+        defaulted_aps.append(apid)
+        tile_guessed_aps.append(apid)
     # ---- THE THIRD STATE: known / GUESSED / unknown -------------------------------------------
     # tile_pr() nearest-neighbours an overworld tile onto the closest tile that CONTAINS A GRACE.
     # It has no failure branch, so a GRACELESS tile always gets a confident answer about ground it
