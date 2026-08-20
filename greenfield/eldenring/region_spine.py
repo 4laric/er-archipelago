@@ -1,6 +1,6 @@
 """Greenfield num_regions spine (matt-free) -- SPEC-PARITY Phase 1.
 
-Progression ORDER over the 28 greenfield regions (region-spine v2). `num_regions` seals the world
+Progression ORDER over the 29 greenfield regions (region-spine v2). `num_regions` seals the world
 down to N regions; `compute_kept` decides which N -- by random draw, never by this order. Pure (no AP import) so it runs
 in the data-invariant gate. Keyed by REGION name only (greenfield's own names), never an imported
 set -- this is the re-keyed port of the eldenring region spine (SPEC-PARITY.md P1).
@@ -70,7 +70,7 @@ SPINE = [
     "Limgrave", "Weeping", "Stormveil", "Liurnia", "Raya Lucaria Academy",
     "Caelid", "Siofra River", "Altus", "Mt. Gelmir",
     "Leyndell", "Sewer", "Ainsel River", "Deeproot Depths", "Mohgwyn",
-    "Mountaintops of the Giants", "Haligtree", "Farum Azula",
+    "Mountaintops of the Giants", "Consecrated Snowfield", "Haligtree", "Farum Azula",
     # DLC (rides as plain lock gates -- SPEC-PARITY.md P7), entry-first
     "Gravesite", "Ensis", "Cerulean", "Belurat",
     "Scadu Altus", "Shadow Keep",

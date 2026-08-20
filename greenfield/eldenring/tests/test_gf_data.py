@@ -366,7 +366,7 @@ class GreenfieldAreaLockGeometry(unittest.TestCase):
     GENERATED er-logic `region_locks.rs` (tools/gen_region_locks.py, the foreign-apworld
     fallback), which CI regenerates and diffs so it cannot drift. What stays forbidden is a
     HAND-typed mirror in region.rs -- that is the thing that repeatedly drifted (e.g. the
-    Consecrated Snowfield -> Mountaintops fold). Skips cleanly if the client source is not
+    region split). Skips cleanly if the client source is not
     checked out beside the apworld."""
 
     @unittest.skipUnless(_ROOT is not None, REPO_ONLY_REASON)

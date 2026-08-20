@@ -358,7 +358,7 @@ def sweeps_for_surface_class(sweeps, cls, majors):
 # 🛑 CONTAINMENT, CORRECTED 2026-08-08 -- this comment had it BACKWARDS. It read "MajorBoss is a
 # SUBSET of Remembrance/GreatRune"; measured over LOCATION_TAGS the relation is the REVERSE, and it
 # matters for what the wizard can tell a player:
-#   Remembrance (25) and GreatRune (7) are SUBSETS of MajorBoss (51)  <- not the other way round
+#   Remembrance (25) and GreatRune (7) are SUBSETS of MajorBoss (52)  <- not the other way round
 #   MajorBoss is itself a SUBSET of Boss (266), as are LegacyBoss (52) and FieldBoss (110)
 #   MajorBoss n Legendary = 2; neither contains the other
 # Counts re-measured over LOCATION_TAGS 2026-08-16, and MajorBoss moved TWICE that day for two

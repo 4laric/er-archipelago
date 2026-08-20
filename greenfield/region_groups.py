@@ -51,8 +51,8 @@ DELIBERATE SPANS (one region, several buckets -- each earns its line):
   * Leyndell = 11000 + 11050 (Ashen Capital: kick bucket of the conditional finale region, see
     above) + 19000 (Fractured Marika, the capital-ending arena) -- the GOAL region;
   * Caelid = 64000 + 64001 (Dragonbarrow) + 64002 (Swamp of Aeonia);
-  * Mountaintops of the Giants = 65000 + 65001 + 65002 (Consecrated Snowfield fold: keeps Fire
-    Giant as the region's major; a split Snowfield would have no MajorBoss check);
+  * Mountaintops of the Giants = 65000 + 65001 (ordinary Mountaintops, including Castle Sol);
+  * Consecrated Snowfield = 65002 (the secret-medallion branch);
   * Haligtree = 15000 (Elphael) + 15001 (Miquella's Haligtree proper);
   * Ainsel River = 12010 + 12011 (Lake of Rot) + 12012 (Ainsel Depths / Astel) -- one descent;
   * Siofra River = 12020 (Siofra / Nokron) + 12070 (Siofra Bank / Worshippers' Woods);
@@ -91,7 +91,8 @@ REGION_GROUPS = {
     "Altus": (63000, 63002, 63003),
     "Mt. Gelmir": (63001, 16000),
     "Caelid": (64000, 64001, 64002),
-    "Mountaintops of the Giants": (65000, 65001, 65002),
+    "Mountaintops of the Giants": (65000, 65001),
+    "Consecrated Snowfield": (65002,),
     # --- base game legacy / interiors ---
     "Stormveil": (10000,),
     "Raya Lucaria Academy": (14000,),
@@ -311,10 +312,12 @@ PLAY_REGION_GROUPS = {
     "Mt. Gelmir": (63020, 16000, 30090, 31070, 31090),
     "Caelid": (64000, 64010, 64020, 30140, 30150, 30160, 31100, 31110, 31200, 31210, 32070, 32080, 34130),
     # 65000: the derivation votes 'Altus' 2/2 -- OVERRIDDEN. It is the Mountaintops PRIMARY bucket and
-    # its three siblings (65010/65020/65030) carry 45 votes of Mountaintops between them. Two border
+    # its two ordinary-Mountaintops siblings (65010/65020) carry the remaining Mountaintops votes.
+    # Snowfield's surface is the independently measured 65030 bucket. Two border
     # checks (the Grand Lift of Rold sits on the seam) do not outweigh that. Same artefact class as the
     # Altus/Gelmir grace-join fold we already declined to "correct".
-    "Mountaintops of the Giants": (65000, 65010, 65020, 65030, 30170, 30180, 30190, 30200, 31120, 31220, 32110),
+    "Mountaintops of the Giants": (65000, 65010, 65020, 30170, 30180, 31220),
+    "Consecrated Snowfield": (65030, 30190, 30200, 31120, 32110),
 
     # --- base interiors / legacy ---
     "Stormveil": (10000, 10010, 34100),
