@@ -7324,23 +7324,47 @@ print(f"shop_stock: {len(INFINITE_SHOP_ROWS)} infinite rows; {len(GOODS_PRICE)} 
 # and foreign-item shop slots onto (exists, no real name, referenced by nothing; tools/datamine_spare_goods.py
 # -> greenfield/spare_goods.tsv). Emitting it here lets shops.py TRACK the datamine instead of carrying a
 # hand-list that goes stale. Absent tsv -> empty, and shops.py falls back to its built-in tuple.
+#
+# THREE TIERS since 2026-08-20 (issue #937): redirectable+complete, redirectable name-only, then
+# INSERTABLE (no vanilla GoodsName entry -- the client creates it via the 2026-08-03 fmg_inject
+# INSERT path). SPARE_PREVIEW_REDIRECTABLE is the tier-3 boundary: the count of LEADING rows any
+# client can name. shops.py spends the pool positionally, so a slot drawing pool[i] with
+# i >= SPARE_PREVIEW_REDIRECTABLE needs the insert-capable client, and the seed declares
+# requiresClientFeatures. A 1/2-column tsv (pre-widening) has no insertable rows: boundary = pool.
 _SPARE_GOODS = []
+_SPARE_ENTRY = []                                        # parallel: 1 redirectable, 0 insertable
 _spare_path = os.path.join(HERE, "spare_goods.tsv")
 if os.path.isfile(_spare_path):
     with open(_spare_path, encoding="utf-8-sig") as _sfh:
         for _ln in _sfh:
             _ln = _ln.strip()
             if _ln[:1].isdigit():
-                # tab-separated since 2026-07-29 (goods_id, fmg_full); tolerate the old 1-column form
-                _SPARE_GOODS.append(int(_ln.split("\t")[0]))
+                # tab-separated: (goods_id, fmg_full[, fmg_entry]); tolerate the older 1/2-column
+                # forms -- every row in them is redirectable (they predate the insertable tier).
+                _parts = _ln.split("\t")
+                _SPARE_GOODS.append(int(_parts[0]))
+                _SPARE_ENTRY.append(int(_parts[2]) if len(_parts) > 2 else 1)
     # 🛑 PRESERVE THE FILE'S ORDER. This used to be `sorted(set(...))`, and that numeric sort would
     # now silently undo the whole point of the datamine's ordering: rows carrying
     # GoodsName+Info+Caption are emitted FIRST so shops.py -- which indexes this pool positionally --
     # spends the describable rows before the name-only ones. Sorting by id re-interleaves them and
     # the item panel goes back to `?GoodsInfo?`. De-dupe only, order-preserving.
     _seen = set()
-    _SPARE_GOODS = [g for g in _SPARE_GOODS if not (g in _seen or _seen.add(g))]
-print(f"spare_goods: {len(_SPARE_GOODS)} safe preview-good rows (greenfield/spare_goods.tsv)")
+    _dedup = [(g, e) for g, e in zip(_SPARE_GOODS, _SPARE_ENTRY) if not (g in _seen or _seen.add(g))]
+    _SPARE_GOODS = [g for g, _e in _dedup]
+    _SPARE_ENTRY = [e for _g, e in _dedup]
+# The boundary is the first insertable row. Anything else -- an insertable row followed by a
+# redirectable one -- means the tsv lost its tier ordering, and a boundary computed here would
+# point shops.py's requiresClientFeatures declaration at the wrong seeds. Fail, don't guess.
+SPARE_PREVIEW_REDIRECTABLE = next((i for i, e in enumerate(_SPARE_ENTRY) if e == 0),
+                                  len(_SPARE_ENTRY))
+if any(e == 1 for e in _SPARE_ENTRY[SPARE_PREVIEW_REDIRECTABLE:]):
+    raise ValueError("spare_goods.tsv: a redirectable row (fmg_entry=1) sits AFTER an insertable "
+                     "one -- the tier ordering is broken, so the SPARE_PREVIEW_REDIRECTABLE "
+                     "boundary would be a lie. Re-run tools/datamine_spare_goods.py.")
+print(f"spare_goods: {len(_SPARE_GOODS)} safe preview-good rows "
+      f"({SPARE_PREVIEW_REDIRECTABLE} redirectable + "
+      f"{len(_SPARE_GOODS) - SPARE_PREVIEW_REDIRECTABLE} insertable) (greenfield/spare_goods.tsv)")
 
 # The check flags among the DLC-gated stock flags, with a rule-4 tally by region so the number
 # is auditable. Expected shape: the hub's Enia block (the motivating case) plus DLC-region rows
@@ -7385,7 +7409,14 @@ with open(OUT_SHOP, "w", newline="\n", encoding="utf-8") as f:
     f.write("SPARE_PREVIEW_GOODS = (\n")
     for _i in range(0, len(_SPARE_GOODS), 14):
         f.write("    " + ", ".join(str(_g) for _g in _SPARE_GOODS[_i:_i + 14]) + ",\n")
-    f.write(")\n")
+    f.write(")\n\n")
+    f.write("# Tier boundary of the pool above (issue #937): the first SPARE_PREVIEW_REDIRECTABLE rows\n")
+    f.write("# are REDIRECTABLE -- any client can name them (their placeholder GoodsName entry exists).\n")
+    f.write("# Rows past the boundary are INSERTABLE -- the client must CREATE the FMG entry (the\n")
+    f.write("# 2026-08-03 fmg_inject INSERT path), so a seed that spends one declares\n")
+    f.write("# requiresClientFeatures (features/shops.py). Absent tsv: 0, and shops.py's fallback tuple\n")
+    f.write("# is entirely redirectable.\n")
+    f.write(f"SPARE_PREVIEW_REDIRECTABLE = {SPARE_PREVIEW_REDIRECTABLE}\n")
 print(f"shop_data: {len(SHOP_ROW_FLAGS)} shop checks, {len(SHOP_PREVIEW_GOODS)} with preview goods across {len(set(SHOP_LOC_REGION.values()))} regions (param_present={_slp_present})")
 
 # ---- missable_locations.py: ap_ids of checks gated behind a limited consumable / killable NPC ------

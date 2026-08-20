@@ -2344,7 +2344,16 @@ SPARE_PREVIEW_GOODS = (
     9338, 9339, 9394, 9395, 9396, 9397, 9398, 9399, 9349, 9350, 9351, 9352, 9353, 9354,
     9355, 9356, 9357, 9358, 9359, 9366, 9367, 9368, 9369, 9370, 9404, 9405, 9406, 9407,
     9408, 9409, 9410, 9424, 9425, 9426, 9427, 9428, 9429, 9430, 9442, 9443, 9444, 9445,
-    9446, 9447, 9448, 9449, 9450, 51760,
+    9446, 9447, 9448, 9449, 9450, 51760, 50200, 50201, 50202, 50203, 53090, 53230, 53400, 53630,
+    53650, 53651, 53652, 53653, 53654, 53655, 53656, 53657, 53658,
 )
 
-_GEN_STAMP = {'inputs_hash': 'sha256:4b932035b1be2c4decfe6b797d3ee4ac508e6d6a07dc375eb00f9d3a1dfd8f23', 'module': 'shop_data.py', 'body_sha256': 'sha256:4a23a810e0b3b05e1a257bd1d1939698cf752a75b497246f84c0e16da16f347c'}
+# Tier boundary of the pool above (issue #937): the first SPARE_PREVIEW_REDIRECTABLE rows
+# are REDIRECTABLE -- any client can name them (their placeholder GoodsName entry exists).
+# Rows past the boundary are INSERTABLE -- the client must CREATE the FMG entry (the
+# 2026-08-03 fmg_inject INSERT path), so a seed that spends one declares
+# requiresClientFeatures (features/shops.py). Absent tsv: 0, and shops.py's fallback tuple
+# is entirely redirectable.
+SPARE_PREVIEW_REDIRECTABLE = 62
+
+_GEN_STAMP = {'inputs_hash': 'sha256:a9d609ae85eaff317d2cad16fc7108a58179a973de420739cc36a0852a748c05', 'module': 'shop_data.py', 'body_sha256': 'sha256:914b8d9cbab51aa564836601a2459ab8ef69c80a0bcab5ca1245127f7a864c18'}

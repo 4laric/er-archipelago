@@ -37,6 +37,16 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   (Altus). On `region_grace_unlock: entrance`, Stormveil's entrance is now Castleward Tunnel and
   Raya Lucaria's is Main Academy Gate — the canonical doors, and the academy pick no longer
   warps you inside the seal. (#930)
+- **Shop previews no longer run out of real names at 62 slots.** The spare-goods pool that lock
+  and foreign-item shop-slot previews draw their display names from grew from 62 to 79 rows: the
+  same 62 rename-safe goods first — so seeds under the old ceiling draw the identical rows — then
+  17 rows with no vanilla text entry at all, which only a client that can CREATE FMG entries is
+  able to name. A seed whose preview demand exceeds the first 62 declares
+  `shop_preview_fmg_insert` in `requiresClientFeatures`, and a client too old to insert entries
+  refuses the connect by name instead of rendering `?GoodsName?` on those slots. When the whole
+  pool is spent, generation now logs the demand/supply/lock arithmetic rather than a bare count.
+  World: #937. Client: clients#341, whose merged commit is pinned by the gitlink in this same
+  change.
 
 ## v0.4.10 — 2026-08-19
 
