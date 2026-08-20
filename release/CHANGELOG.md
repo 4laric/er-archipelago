@@ -3,6 +3,31 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.11 — 2026-08-20
+
+### What you need to update
+
+- **Client:** Required — use the v0.4.11 client with v0.4.11 seeds; the exact-version handshake
+  moves even though the slot-data shape does not.
+- **APWorld:** Host-only — the room host or generator must install v0.4.11; joining players only
+  need the matching client.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.** This empty window adds no
+  option yet.
+- **Existing seed/save:** Compatible — finish an active v0.4.10 seed with its matched v0.4.10
+  client and APWorld. No save migration is required; do not mix the two versions.
+- **Profile/assets:** No action — opening the window changes no profile or packaged asset.
+
+Window opened AT THE TAG of v0.4.10 with ZERO commits past it.
+
+`CONTRACT_HASH` remains `dc0dc687`, verified by loading `contract.py` after the bump. The slot-data
+shape is unchanged, but the exact-version handshake still moves to 0.4.11.
+
+Client half: clients#334. Its merged commit is pinned by the gitlink in this same change.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.10 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
 ## v0.4.10 — 2026-08-19
 
 ### What you need to update
