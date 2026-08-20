@@ -284,7 +284,7 @@ def test_rune_shop_pricing_is_filed_under_a_wizard_tab():
     hours earlier that same day. Deleting the entry because it is currently unreachable is how the
     next unfreeze re-earns that red."""
     from worlds.eldenring import core
-    grouped = {k for _name, keys in core._OPTION_GROUPS for k in keys}
+    grouped = {k for _e in core._OPTION_GROUPS for k in _e[1]}  # entries may carry a collapsed flag
     assert "rune_shop_pricing" in grouped
 
 

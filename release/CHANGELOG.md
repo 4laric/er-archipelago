@@ -25,6 +25,18 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   loud that a preset is a complete, playable yaml on its own. Presentation only: the grouping
   still lives in the world's option_groups (one grouping, two surfaces — Archipelago's own
   player-options page is untouched), and the emitted yaml is byte-identical.
+- **Auto-upgrade is a setting again, on by default.** Since v0.2 every received weapon has been
+  silently raised to the highest reinforce level you hold on its track; that behaviour is now the
+  `auto_upgrade` yaml knob (default on, so an existing yaml changes nothing) and can be turned off
+  to keep received weapons at their found level. The client has understood both values all along.
+- **The wizard's Difficulty section opens with Easy / Standard / Hard.** Three quick-picks that
+  set the four scaling dials -- Standard is the default curve, whose cap scales to your run's
+  length and lands your final region around the scaling of vanilla Haligtree; Easy caps the climb
+  near 2x enemy HP; Hard raises the floor, uncaps the top and front-loads the ramp. The dials
+  stay real underneath: set one by hand and no button claims you.
+- **`vanilla_placement` and `natural_progression` moved to a collapsed Experimental group.** Both
+  invert the randomizer's premise and are filed under Advanced (and folded on Archipelago's own
+  options page) rather than greeting new players mid-form. Fully supported, just not front-page.
 - **Each wizard section leads with its essentials.** Fifteen of the sixty options are the
   decisions that shape a run — goal, seed size, DLC ownership, where the items are, who may hold
   progression, death link, and friends — and they render expanded; the tuning sits behind one

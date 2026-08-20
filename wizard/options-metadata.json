@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.4.10",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "d5ac73c59611255e614fb1c98c6070d402cf247a818bdf8c329d23a381224fb8",
+ "source_sha256": "cdf27eaa839bdf49b692fcba72f9c9ba319249c3e85c9d33b7e4e52a87a0aba4",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -63,6 +63,7 @@
   "traps",
   "trap_count",
   "spawn_traps",
+  "auto_upgrade",
   "vanilla_pool",
   "no_weapon_requirements"
  ],
@@ -113,8 +114,6 @@
    "name": "Checks & Item Pool",
    "collapsed": false,
    "options": [
-    "vanilla_placement",
-    "natural_progression",
     "dungeon_sweep",
     "reroll_enemy_drops",
     "protect_missable_locations",
@@ -161,12 +160,21 @@
    "collapsed": false,
    "options": [
     "auto_equip",
-    "no_weapon_requirements",
     "no_equip_load",
+    "auto_upgrade",
+    "no_weapon_requirements",
     "start_with_whetblades",
     "progressive_flasks",
     "capital_reconciler",
     "open_boss_doors"
+   ]
+  },
+  {
+   "name": "Experimental",
+   "collapsed": true,
+   "options": [
+    "vanilla_placement",
+    "natural_progression"
    ]
   }
  ],
@@ -296,7 +304,7 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": false
+   "essential": true
   },
   {
    "key": "enable_dlc",
@@ -330,7 +338,7 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": true
+   "essential": false
   },
   {
    "key": "vanilla_placement",
@@ -356,7 +364,7 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": true
+   "essential": false
   },
   {
    "key": "capital_reconciler",
@@ -420,7 +428,7 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": false
+   "essential": true
   },
   {
    "key": "dungeon_sweep",
@@ -718,7 +726,7 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": true
+   "essential": false
   },
   {
    "key": "region_grace_unlock",
@@ -866,7 +874,7 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": true
+   "essential": false
   },
   {
    "key": "leyndell_runes_required",
@@ -1422,7 +1430,7 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": false
+   "essential": true
   },
   {
    "key": "enemy_scaling",
@@ -2190,6 +2198,23 @@
    "special_values": null,
    "free_text": true,
    "essential": false
+  },
+  {
+   "key": "auto_upgrade",
+   "class": "AutoUpgrade",
+   "display_name": "Auto-Upgrade Received Weapons",
+   "description": "Automatically raise any RECEIVED weapon to the highest reinforce level you already hold on\nits smithing track (normal caps at +25, somber at +10). Raise-only: a received weapon already\nabove your live level is left untouched. On by default, and it has been the fixed behaviour of\nevery seed since v0.2 -- turn it off to keep received weapons at their found level and spend\nthe stones yourself. (The level tracks your inventory live; there is no fixed target to\nchoose.)",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": true,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "vanilla_pool",

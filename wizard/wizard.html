@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.10",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "d5ac73c59611255e614fb1c98c6070d402cf247a818bdf8c329d23a381224fb8",
+ "source_sha256": "cdf27eaa839bdf49b692fcba72f9c9ba319249c3e85c9d33b7e4e52a87a0aba4",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -252,6 +252,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "traps",
   "trap_count",
   "spawn_traps",
+  "auto_upgrade",
   "vanilla_pool",
   "no_weapon_requirements"
  ],
@@ -302,8 +303,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "name": "Checks & Item Pool",
    "collapsed": false,
    "options": [
-    "vanilla_placement",
-    "natural_progression",
     "dungeon_sweep",
     "reroll_enemy_drops",
     "protect_missable_locations",
@@ -350,12 +349,21 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "collapsed": false,
    "options": [
     "auto_equip",
-    "no_weapon_requirements",
     "no_equip_load",
+    "auto_upgrade",
+    "no_weapon_requirements",
     "start_with_whetblades",
     "progressive_flasks",
     "capital_reconciler",
     "open_boss_doors"
+   ]
+  },
+  {
+   "name": "Experimental",
+   "collapsed": true,
+   "options": [
+    "vanilla_placement",
+    "natural_progression"
    ]
   }
  ],
@@ -485,7 +493,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": false
+   "essential": true
   },
   {
    "key": "enable_dlc",
@@ -519,7 +527,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": true
+   "essential": false
   },
   {
    "key": "vanilla_placement",
@@ -545,7 +553,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": true
+   "essential": false
   },
   {
    "key": "capital_reconciler",
@@ -609,7 +617,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": false
+   "essential": true
   },
   {
    "key": "dungeon_sweep",
@@ -907,7 +915,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": true
+   "essential": false
   },
   {
    "key": "region_grace_unlock",
@@ -1055,7 +1063,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": true
+   "essential": false
   },
   {
    "key": "leyndell_runes_required",
@@ -1611,7 +1619,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": false
+   "essential": true
   },
   {
    "key": "enemy_scaling",
@@ -2379,6 +2387,23 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "special_values": null,
    "free_text": true,
    "essential": false
+  },
+  {
+   "key": "auto_upgrade",
+   "class": "AutoUpgrade",
+   "display_name": "Auto-Upgrade Received Weapons",
+   "description": "Automatically raise any RECEIVED weapon to the highest reinforce level you already hold on\nits smithing track (normal caps at +25, somber at +10). Raise-only: a received weapon already\nabove your live level is left untouched. On by default, and it has been the fixed behaviour of\nevery seed since v0.2 -- turn it off to keep received weapons at their found level and spend\nthe stones yourself. (The level tracks your inventory live; there is no fixed target to\nchoose.)",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": true,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "vanilla_pool",
@@ -6099,6 +6124,7 @@ if (typeof module !== "undefined") module.exports = ERW;
            deviates -- a changed option must never be out of sight (the #554 class). If the
            metadata carries NO essentials (an older blob), every option renders expanded: an
            absent tier means "show everything", never "hide everything". */
+        if (g.options.includes("enemy_scaling")) det.append(scalingPicksCard());
         const ess = g.options.filter(k => meta.byKey[k] && meta.byKey[k].essential);
         const rest = ess.length ? g.options.filter(k => meta.byKey[k] && !meta.byKey[k].essential)
                                 : [];
@@ -6115,6 +6141,7 @@ if (typeof module !== "undefined") module.exports = ERW;
         main.append(det);
       });
       paintSectionCounts();  // AFTER the append -- it queries the document for #gsec-N
+      paintScalingPicks();   // ditto (#sp-*)
     }
 
     const btns = el("div", "navbtns");
@@ -6302,6 +6329,66 @@ if (typeof module !== "undefined") module.exports = ERW;
   /* The section headers' "n options · k changed" is derived from state, and refresh() never
      rebuilds rows -- a count set once at render is the stale-toggle-word defect again, one level
      up. Same no-op-unless-on-screen contract as paintSeedSize. */
+  /* EASY / STANDARD / HARD (Alaric, 2026-08-20): player-facing scaling quick-picks; the four
+     dials stay real and live under More. A pick is a SETTER over the dials -- one source of truth,
+     the yaml -- so the buttons highlight by recognising the dial values, not by remembering what
+     was clicked. Standard clears the four deviations outright (defaults ARE standard). Placed by
+     the section that CONTAINS enemy_scaling, never by group name -- names come from the world.
+     The Haligtree line is Alaric's calibration of the default curve, 2026-08-20. */
+  const SCALING_PICKS = [
+    {id:"easy", label:"Easy",
+     set:{enemy_scaling:true, minimum_enemy_difficulty:0, maximum_enemy_difficulty:25,
+          difficulty_ramp_speed:0},
+     blurb:"caps the climb at about 2x enemy HP — even the deep end of your run stays near " +
+           "vanilla midgame strength"},
+    {id:"standard", label:"Standard", set:null,
+     blurb:"the default curve: the cap scales to your run's length, and your final region lands " +
+           "around the scaling of vanilla Haligtree"},
+    {id:"hard", label:"Hard",
+     set:{enemy_scaling:true, minimum_enemy_difficulty:25, maximum_enemy_difficulty:100,
+          difficulty_ramp_speed:50},
+     blurb:"nothing below about 2.3x enemy HP, no cap (about 7.4x), and the maximum arrives " +
+           "halfway through the run"}];
+  const SCALING_KEYS = ["enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
+                        "difficulty_ramp_speed"];
+  function activeScalingPick(){
+    const v = k => ERW.getVal(meta, state, k);
+    for (const pk of SCALING_PICKS){
+      if (pk.set === null){
+        if (SCALING_KEYS.every(k => ERW.isDefault(meta, state, k))) return pk.id;
+      } else if (Object.keys(pk.set).every(k => v(k) === pk.set[k])) return pk.id;
+    }
+    return null;
+  }
+  function scalingPicksCard(){
+    const card = el("div", "card");
+    card.innerHTML = "<h3 style='margin:0 0 4px'>How hard do you want it?</h3><div class='small'>" +
+      "Three ready answers. The four dials they turn live under More below — set a dial by hand " +
+      "and no button claims you.</div>";
+    const row = el("div", "presets");
+    for (const pk of SCALING_PICKS){
+      const d = el("div", "preset");
+      d.id = "sp-" + pk.id;
+      d.innerHTML = "<h3>" + esc(pk.label) + "</h3><div class='tag'>" + esc(pk.blurb) + "</div>";
+      d.addEventListener("click", () => {
+        if (pk.set === null){ for (const k of SCALING_KEYS) delete state.values[k]; }
+        else { for (const k of Object.keys(pk.set)) ERW.setVal(meta, state, k, pk.set[k]); }
+        refresh();
+        renderStep();   // the dial rows under More may be on screen; same move as a preset pick
+      });
+      row.append(d);
+    }
+    card.append(row);
+    return card;
+  }
+  function paintScalingPicks(){
+    const act = activeScalingPick();
+    for (const pk of SCALING_PICKS){
+      const d = $("#sp-" + pk.id);
+      if (d) d.className = "preset" + (act === pk.id ? " sel" : "");
+    }
+  }
+
   function paintSectionCounts(){
     openGroups.forEach((g, gi) => {
       const span = $("#gsec-" + gi);
@@ -6331,6 +6418,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     renderHostCard();
     paintSeedSize();          // no-op unless the Seed size tab is the one on screen
     paintSectionCounts();     // no-op unless the Options step is the one on screen
+    paintScalingPicks();      // same contract
     renderSideContribution(); // the side rail's live readout -- on screen on every step
     const fs = ERW.findings(meta, state);
     const box = $("#findings");

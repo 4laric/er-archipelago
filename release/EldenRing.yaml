@@ -857,6 +857,14 @@ Elden Ring:
   # connecting and quietly ignoring it.
   auto_equip: false
 
+  # Automatically raise any RECEIVED weapon to the highest reinforce level you
+  # already hold on its smithing track (normal caps at +25, somber at +10).
+  # Raise-only: a weapon already above your live level is left untouched.
+  # ON by default -- this has been the fixed behaviour of every seed since v0.2
+  # and became a setting in v0.4.10. Turn it off to keep received weapons at
+  # their found level and spend the stones yourself.
+  auto_upgrade: true
+
   # Start with all five whetblades (Iron, Red-Hot, Sanctified, Glintstone,
   # Black), so every Ash-of-War affinity is selectable at any grace from the
   # opening instead of hunting the vanilla pickups. Grants the ITEMS only --

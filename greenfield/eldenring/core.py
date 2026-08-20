@@ -487,7 +487,7 @@ _OPTION_GROUPS = [
         "enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
         "difficulty_ramp_speed", "traps", "spawn_traps", "trap_count"]),
     ("Checks & Item Pool", [
-        "vanilla_placement", "natural_progression", "dungeon_sweep", "reroll_enemy_drops",
+        "dungeon_sweep", "reroll_enemy_drops",
         "protect_missable_locations",
         # vanilla_pool sits directly before curated_filler because it OVERRIDES it (#618): the
         # wizard renders a group in this order, and a player reading the recipe first would edit
@@ -509,11 +509,19 @@ _OPTION_GROUPS = [
         "merchant_bell_logic", "reroll_infinite_shop_stock", "infinite_hub_wares",
         "progressive_stone_bells"]),
     ("Quality of Life", [
-        # no_weapon_requirements sits beside no_equip_load because they are the same kind of knob --
-        # both remove a constraint the game puts between you and gear the multiworld handed you, one
-        # on stats and one on weight -- and a player deciding about one is deciding about the other.
-        "auto_equip", "no_weapon_requirements", "no_equip_load", "start_with_whetblades",
+        # auto_equip and no_equip_load are ADJACENT on purpose (Alaric 2026-08-20): the moment you
+        # turn auto_equip on, "do you want a guaranteed medium roll so a random drop cannot
+        # overload you?" is the next question, so it sits right there. no_weapon_requirements is
+        # the same kind of constraint-remover and follows. auto_upgrade UNFROZE the same day.
+        "auto_equip", "no_equip_load", "auto_upgrade", "no_weapon_requirements",
+        "start_with_whetblades",
         "progressive_flasks", "capital_reconciler", "open_boss_doors"]),
+    # Collapsed = filed under the wizard's Advanced step and folded on AP's page. Both of these
+    # invert the randomizer's whole premise (items where vanilla keeps them; vanilla's dependency
+    # shape instead of synthetic locks) -- Alaric 2026-08-20: "buried pretty deep, both kind of
+    # experimental". They are still fully supported options; they just should not greet a player
+    # who came to randomize.
+    ("Experimental", ["vanilla_placement", "natural_progression"], True),
 ]
 
 
@@ -528,7 +536,12 @@ def _option_groups() -> List[OptionGroup]:
     """
     live = {f.name: f.type for f in dataclass_fields(GFOptions)}
     groups = []
-    for name, keys in _OPTION_GROUPS:
+    for entry in _OPTION_GROUPS:
+        # (name, keys) or (name, keys, start_collapsed). A collapsed group renders inside the
+        # wizard's Advanced step and starts folded on AP's own options page -- it is the home for
+        # experimental options that should exist without greeting anyone (Alaric, 2026-08-20).
+        name, keys = entry[0], entry[1]
+        collapsed = bool(entry[2]) if len(entry) > 2 else False
         unknown = [k for k in keys if k not in live and k not in FROZEN_OPTIONS]
         if unknown:
             raise AssertionError(
@@ -536,7 +549,7 @@ def _option_groups() -> List[OptionGroup]:
                 "%s -- fix the key or drop it." % (name, ", ".join(unknown)))
         members = [live[k] for k in keys if k in live]
         if members:
-            groups.append(OptionGroup(name, members))
+            groups.append(OptionGroup(name, members, start_collapsed=collapsed))
     return groups
 
 
@@ -554,22 +567,26 @@ def _option_groups() -> List[OptionGroup]:
 # tests/test_gf_option_groups.py asserts every open group keeps at least one essential, so no
 # section can silently become all-More.
 _ESSENTIAL_OPTIONS = frozenset({
-    # Goal & Regions -- how big, what ends it, whether runes gate it
-    "num_regions", "goal", "ending_condition",
-    # DLC & Blessings -- the ownership question every first-timer must answer
-    "enable_dlc", "dlc_only",
-    # Difficulty & Scaling -- the headline toggle and the flavor decision
+    # Goal & Regions -- how big, what ends it, and both goal gates (Alaric 2026-08-20: the rune
+    # count is prominent, and "all region locks required" -- goal_region_unlock_policy -- is a
+    # front-page yes/no whose regions_completed spelling is the deep cut)
+    "num_regions", "goal", "ending_condition", "goal_great_runes", "goal_region_unlock_policy",
+    # DLC & Blessings -- the ownership toggle alone; dlc_only is the More tier (Alaric 2026-08-20)
+    "enable_dlc",
+    # Difficulty & Scaling -- the headline toggle and the flavor decision; the dials stay under
+    # More behind the easy/standard/hard quick-picks the wizard draws
     "enemy_scaling", "traps",
-    # Checks & Item Pool -- where the items are, who sweeps, whether progression is vanilla-shaped
-    "vanilla_placement", "dungeon_sweep", "natural_progression",
+    # Checks & Item Pool -- who sweeps (vanilla_placement/natural_progression moved to the
+    # collapsed Experimental group)
+    "dungeon_sweep",
     # Multiworld & Placement -- the two decisions a multiworld newcomer is actually making
     "death_link", "progression_surface",
-    # Shops & Merchants -- the one players ask about
-    "keep_out_of_shops",
-    # Quality of Life -- the two most-picked comforts
-    "auto_equip", "no_weapon_requirements",
+    # Shops & Merchants: NONE (Alaric 2026-08-20 -- keep_out_of_shops was a bobler request, usage
+    # unknown; a zero-essential group renders its rows directly under its own fold, no inner More)
+    # Quality of Life -- the comfort ladder: wear it, don't fat-roll from it, keep it levelled
+    "auto_equip", "no_equip_load", "auto_upgrade", "no_weapon_requirements",
 })
-_grouped_keys = {k for _n, _ks in _OPTION_GROUPS for k in _ks}
+_grouped_keys = {k for _e in _OPTION_GROUPS for k in _e[1]}
 _bad_essentials = sorted(_ESSENTIAL_OPTIONS - _grouped_keys)
 if _bad_essentials:
     raise RuntimeError("_ESSENTIAL_OPTIONS names key(s) no group claims (typo or retired "
