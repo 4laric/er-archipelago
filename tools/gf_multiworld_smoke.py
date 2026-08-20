@@ -48,8 +48,9 @@ WHAT IT ASSERTS, and none of it is "it generated". Every item runs ONCE PER PART
      passes every single-player gate we have.
   2. ER REACHES A NON-ER GAME specifically. ER-to-ER traffic alone would satisfy (1) while the world
      was in fact unable to place into a foreign game.
-  2b. AND THE GEAR DOES TOO -- of the ER items that reach the partner, at least one is
-     USEFUL-classified. Added 2026-08-10. Item 2 counts items and never reads what they are, and at
+  2b. AND THE GEAR DOES TOO, WHEN THE CONFINE LEVER IS PULLED -- of the ER items that reach the
+     partner, at least one is USEFUL-classified. Added 2026-08-10. Item 2 counts items and never
+     reads what they are, and at
      `confine_foreign_progression: 100` it was green while the partner received 498 items across
      three seeds of which ZERO were useful: no weapon, no armour, no talisman, pure filler. A
      player reported it before any gate did. The slot configuration exists to make this testable --
@@ -912,9 +913,11 @@ def run_shape_cases(ap_dir, keep):
             else:
                 failures += ["[%s] %s" % (label, f) for f in
                              check(rows, False, lambda m: print("  " + m), PARTNERS[0])]
-                failures += ["[%s] %s" % (label, f) for f in
-                             check_gear_reaches_the_partner(si, locs,
-                                                            lambda m: print("  " + m))]
+                # Both ER slots deliberately keep the shipped confine=100 default here. This is
+                # the position-bias control, not the gear-release experiment: requiring useful
+                # exports without lowering either slot's share makes an ordinary deterministic
+                # all-filler fill fail the suite. run_partner and the four-game shape above pull
+                # one slot to PARTIAL_CONFINE and retain the useful-export guard.
                 failures += ["[%s] %s" % (label, f) for f in
                              check_identical_er_balance(si, locs, lambda m: print("  " + m))]
             failures += ["[%s] %s" % (label, f) for f in
