@@ -29,6 +29,11 @@ Client half: clients#320. Its commit is pinned by the gitlink in this same chang
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The region-lock kick table caught up with the census.** Mountaintops of the Giants' lock now
+  covers its own catacombs and the snowfield approach (play regions the full-MSB census attributed
+  to it); the client's baked table was three world regens behind, which the main-only drift gate
+  caught. The premature Consecrated Snowfield split (clients#330) leaves the table until its world
+  half (#868) lands. Client: clients#331; this gitlink bump is its pairing.
 - **Enia's DLC rows leave a seed that has no DLC.** Thirty-six of the Finger Reader's shop
   checks are gated on Shadow of the Erdtree content -- the remembrance trades consume a DLC
   remembrance, and the DLC boss armor sets release on DLC ceremony flags -- but Enia stands in
