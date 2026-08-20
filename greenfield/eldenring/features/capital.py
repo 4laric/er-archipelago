@@ -123,7 +123,15 @@ def capital_partition(play_ids=None):
     ids = _capital_buckets() if play_ids is None else play_ids
     royal = sorted(b for b in ids if b // 10 == 1100)
     ashen = sorted(b for b in ids if b // 10 == 1105 or b // 1000 == 19)
-    leftover = sorted(set(ids) - set(royal) - set(ashen))
+    # VERSION-NEUTRAL ground (2026-08-20): the Sewer merge put m35's bucket 35000 under Leyndell.
+    # The Shunning-Grounds exist IDENTICALLY in both capital versions -- m35 is its own map, the
+    # 9116 map-version flag governs m11 only -- so standing there says NOTHING about which capital
+    # the player is in, and the reconciler must classify it as NEITHER: present in neither emitted
+    # list, so the client's latch ignores sewer ground instead of mis-flipping 9116 from a well.
+    # Named explicitly (not "whatever is left over") so the hard-fail below still catches a future
+    # regen adding a bucket nobody has ruled on.
+    neutral = sorted(b for b in ids if b // 1000 == 35)
+    leftover = sorted(set(ids) - set(royal) - set(ashen) - set(neutral))
     if leftover or not royal or not ashen:
         raise contract.ContractError(
             f"capital: cannot partition {'+'.join(_CAPITAL_REGIONS)} play buckets {sorted(ids)} into "

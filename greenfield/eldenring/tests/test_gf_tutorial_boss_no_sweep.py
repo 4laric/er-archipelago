@@ -692,10 +692,6 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # region correction, the safe direction.
     # 2026-08-19 (census + cull on top of #896's 89fbf395/3997): -> a57ff5e1/4018. Measurement at
     # the corpus ratchet above; zero region-crossing re-owns.
-    # 2026-08-20 (#868): ef50c12d40700ff6 -> 792095ca827825b8, count unchanged at 4100.
-    # Splitting Snowfield from Mountaintops re-phases 29 field-sweep owners: 29 removed / 29
-    # added. Eight cross the old region boundary, all INTO the newly correct Snowfield owner
-    # region; the other 21 remain within their check's region. Zero current owner/check mismatches.
-    assert (digest, n) == ("792095ca827825b8", 4100), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (792095ca827825b8, 4100). The total alone will "
+    assert (digest, n) == ("7883452acaa19d1f", 4100), (  # 2026-08-20: same 4100 (trigger, flag) members; m35 triggers re-owned Sewer -> Leyndell, and main's Snowfield split re-owned its 65030-side sweeps in the same window
+        "sweep OWNERSHIP changed: (%s, %d), expected (7883452acaa19d1f, 4100). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

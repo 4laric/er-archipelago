@@ -96,7 +96,11 @@ REGION_GROUPS = {
     # --- base game legacy / interiors ---
     "Stormveil": (10000,),
     "Raya Lucaria Academy": (14000,),
-    "Leyndell": (11000,),
+    # 35000 (the Subterranean Shunning-Grounds) JOINED Leyndell 2026-08-20 (Alaric's audible on
+    # #917/#842): the Sewer merged into the capital -- the well is inside the walls, one region,
+    # one wall, and the rune-gate/supply-repair machinery covers m35 for free. Same fold as
+    # Scaduview -> Shadow Keep. The kick therefore treats the Shunning-Grounds as Leyndell ground.
+    "Leyndell": (11000, 35000),
     # SPEC-ashen-capital-lock: 11050 (m11_05) + 19000 (m19_00) left Leyndell 2026-08-06.
     # They used to ride the capital because the Ashen Capital had no lock of its own -- the
     # burn was game data, so its checks borrowed Leyndell's geometry and its graces were
@@ -104,7 +108,6 @@ REGION_GROUPS = {
     # into a capital they had not burned. The Ashen Capital Lock ends that borrowing: the
     # region owns its buckets, its graces ARE its bundle, and its lock arms the burn.
     "Ashen Capital": (11050, 19000),
-    "Sewer": (35000,),
     "Haligtree": (15000, 15001),
     "Farum Azula": (13000,),
     # --- base game underground ---
@@ -321,7 +324,9 @@ PLAY_REGION_GROUPS = {
 
     # --- base interiors / legacy ---
     "Stormveil": (10000, 10010, 34100),
-    "Leyndell": (11000,),
+    # 35000 joined with the 2026-08-20 Sewer merge: the Shunning-Grounds scale with the capital,
+    # which matches vanilla pacing (the sewer is capital-tier ground).
+    "Leyndell": (11000, 35000),
     # SPEC-ashen-capital-lock: the finale maps' MEASURED kick buckets. Split out of Leyndell
     # 2026-08-06 so the kick enforces the Ashen Capital Lock in its own right instead of
     # borrowing the capital's (core._lockless_host is gone with it). features/capital.py
@@ -330,7 +335,6 @@ PLAY_REGION_GROUPS = {
     "Raya Lucaria Academy": (14000,),
     "Haligtree": (15000,),
     "Farum Azula": (13000,),
-    "Sewer": (35000,),
     "Ainsel River": (12010,),
     "Siofra River": (12020, 12070),
     "Deeproot Depths": (12030,),

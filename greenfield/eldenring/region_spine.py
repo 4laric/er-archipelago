@@ -1,6 +1,6 @@
 """Greenfield num_regions spine (matt-free) -- SPEC-PARITY Phase 1.
 
-Progression ORDER over the 29 greenfield regions (region-spine v2). `num_regions` seals the world
+Progression ORDER over the 28 greenfield regions (region-spine v2). `num_regions` seals the world
 down to N regions; `compute_kept` decides which N -- by random draw, never by this order. Pure (no AP import) so it runs
 in the data-invariant gate. Keyed by REGION name only (greenfield's own names), never an imported
 set -- this is the re-keyed port of the eldenring region spine (SPEC-PARITY.md P1).
@@ -32,7 +32,8 @@ GOAL_REGION = "Leyndell"
 REGION_PARENT = {
     "Raya Lucaria Academy": "Liurnia",   # Academy Glintstone Key seal (features/legacy_key_gates)
     "Leyndell": "Altus",                 # capital main gate, N Great Runes (features/leyndell_gate)
-    "Sewer": "Leyndell",                 # m35 well is inside the capital walls (SPEC-region-spine-v2)
+    # "Sewer" MERGED into Leyndell 2026-08-20 (Alaric): the well is inside the capital walls,
+    # so it is not a parented child any more -- it is the same region.
     # Scaduview's containment entry was REMOVED 2026-07-19: the Hinterland was FOLDED into Shadow Keep
     # (region_groups) rather than kept a contained child, so it is no longer a separate region to gate
     # -- its checks ARE Shadow Keep checks now, under the Keep's own Lock. (Its door ground was always
@@ -67,7 +68,7 @@ SPINE = [
     # base game, rough vanilla progression order
     "Limgrave", "Weeping", "Stormveil", "Liurnia", "Raya Lucaria Academy",
     "Caelid", "Siofra River", "Altus", "Mt. Gelmir",
-    "Leyndell", "Sewer", "Ainsel River", "Deeproot Depths", "Mohgwyn",
+    "Leyndell", "Ainsel River", "Deeproot Depths", "Mohgwyn",
     "Mountaintops of the Giants", "Consecrated Snowfield", "Haligtree", "Farum Azula",
     # DLC (rides as plain lock gates -- SPEC-PARITY.md P7), entry-first
     "Gravesite", "Ensis", "Cerulean", "Belurat",

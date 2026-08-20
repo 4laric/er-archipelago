@@ -39,19 +39,19 @@ the region's own Lock -- never instead of it:
   into the item pool like everything else.
 - **Leyndell** also needs **Great Runes** -- two by default
   (`leyndell_runes_required`).
-- **The Sewer** is entered down a well inside Leyndell, so it needs the capital
-  opened first.
+- **The Shunning-Grounds sewer is part of Leyndell** (merged in v0.4.10): once
+  the capital opens, the well is yours, and the sewer's graces arrive with the
+  Leyndell bundle.
 
-🛑 **None of these three lights its graces for you, and this is the single most
+🛑 **Neither of these lights its graces for you, and this is the single most
 common "my Lock is broken" report.** They sit behind a wall the *game* enforces,
 so their grace bundle is withheld while that wall is armed -- the Lock arrives
 and nothing visibly happens. You open them the vanilla way and touch the graces
 yourself: the Academy seal with the key, the capital's main gate walking in from
-Altus with your Great Runes, the Sewer down the well once you are inside. A
-grace you touch is the warp unlock, and it sticks.
+Altus with your Great Runes. A grace you touch is the warp unlock, and it sticks.
 
 `leyndell_runes_required: 0` is the only setting that changes any of this, and
-only for the capital. **The Sewer's graces never ride its Lock, in any seed.**
+only for the capital.
 
 None of the three can make a seed unbeatable: the key is always placed somewhere
 you can reach, and the capital's rune requirement is floored at the vanilla two

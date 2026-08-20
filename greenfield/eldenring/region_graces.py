@@ -15,7 +15,7 @@ REGION_GRACE_POINTS = {
     'Gravesite': [76800, 74000, 74100, 74200, 74300, 74301, 74351, 76801, 76802, 76803, 76804, 76805, 76810, 76811, 76812, 76813, 76830],
     'Haligtree': [71501, 71502, 71503, 71504, 71506, 71507, 71508],
     'Jagged Peak': [76840, 76850, 76851],
-    'Leyndell': [71102, 71103, 71104, 71105, 71108, 71109],
+    'Leyndell': [71102, 71103, 71104, 71105, 71108, 71109, 73501, 73502, 73503, 73504],
     'Limgrave': [73100, 71800, 71801, 73002, 73004, 73011, 73103, 73115, 73117, 73201, 76100, 76101, 76102, 76103, 76104, 76105, 76106, 76108, 76110, 76111, 76113, 76114, 76116, 76117, 76118, 76119],
     'Liurnia': [73202, 73003, 73005, 73006, 73104, 73105, 73106, 73420, 73421, 73422, 73901, 73902, 76200, 76201, 76202, 76203, 76204, 76205, 76207, 76208, 76209, 76210, 76211, 76212, 76213, 76214, 76215, 76216, 76217, 76218, 76219, 76220, 76221, 76222, 76223, 76224, 76225, 76226, 76227, 76228, 76229, 76230, 76231, 76233, 76234, 76235, 76236, 76237, 76238, 76239, 76240, 76241, 76242, 76243, 76244, 76245, 76251, 76252],
     'Mohgwyn': [71251, 71252, 71253],
@@ -24,7 +24,6 @@ REGION_GRACE_POINTS = {
     'Rauh Base': [76912, 74001, 74203, 76913, 76914],
     'Raya Lucaria Academy': [71402, 71403],
     'Scadu Altus': [76900, 74002, 74101, 74202, 76902, 76903, 76904, 76905, 76906, 76907, 76908, 76909, 76910, 76911, 76916, 76917, 76918],
-    'Sewer': [73501, 73502, 73503, 73504],
     'Shadow Keep': [76935, 72106, 72108, 72109, 72111, 72112, 72113, 72114, 72116, 72117, 72120, 76936, 76937],
     'Siofra River': [71222, 71223, 71224, 71225, 71226, 71227, 71270, 71271],
     'Stormveil': [71003, 71004, 71005, 71006, 71007, 71008],
@@ -50,7 +49,7 @@ REGION_GRACE_LANDMARKS = {
     'Gravesite': [76800],  # Gravesite Plain
     'Haligtree': [71501, 71506],  # Prayer Room, Haligtree Canopy
     'Jagged Peak': [76840, 76851],  # Grand Altar of Dragon Communion, Jagged Peak Mountainside
-    'Leyndell': [71102],  # East Capital Rampart
+    'Leyndell': [71102, 73501],  # East Capital Rampart, Underground Roadside
     'Limgrave': [71800, 76100, 76102],  # Cave of Knowledge, Church of Elleh, Stormhill Shack
     'Liurnia': [73901, 76200, 76207, 76251],  # Ruin-Strewn Precipice, Lake-Facing Cliffs, East Raya Lucaria Gate, Cathedral of Manus Celes
     'Mohgwyn': [71251],  # Palace Approach Ledge-Road
@@ -59,11 +58,10 @@ REGION_GRACE_LANDMARKS = {
     'Rauh Base': [76912],  # Ancient Ruins Base
     'Raya Lucaria Academy': [71402],  # Church of the Cuckoo
     'Scadu Altus': [76900],  # Highroad Cross
-    'Sewer': [73501],  # Underground Roadside
     'Shadow Keep': [72106, 72111, 76935],  # Church District Entrance, Storehouse, First Floor, Hinterland
     'Siofra River': [71222, 71224],  # Siofra River Bank, Ancestral Woods
     'Stormveil': [71003],  # Gateside Chamber
     'Weeping': [76150],  # Church of Pilgrimage
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:7d7ea51db2b0c64df527976e873f77ff50a785f3bc640f25b05aaeb2c87113e6', 'module': 'region_graces.py', 'body_sha256': 'sha256:e2cd9e64049ef2986ae27bf1d103083bd92c8285d69303ef2095db61b6e17765'}
+_GEN_STAMP = {'inputs_hash': 'sha256:077ff09b62919227466302baa92e43a12c3ab3439c1be88025c51a95f25c9e49', 'module': 'region_graces.py', 'body_sha256': 'sha256:1c8cfb87340db39a11045cdda0ead9a38a3b8762e3867a1d9c4051563617422b'}

@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.10",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "a6a40dd50423a313ee2fff6c317825a72a34f374cbfb69f28ac54a2d4201811b",
+ "source_sha256": "0ce94519ca150dd36e190ccbb8f06681edebe8cfb3c8ce0cd0e76696144a2d3f",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -380,7 +380,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "choices": null,
    "range": {
     "start": 0,
-    "end": 29
+    "end": 28
    },
    "valid_keys": null,
    "casefold": false,
@@ -1891,7 +1891,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Rauh Base",
     "Raya Lucaria Academy",
     "Scadu Altus",
-    "Sewer",
     "Shadow Keep",
     "Siofra River",
     "Stormveil",
@@ -3171,8 +3170,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "hub_region": "Roundtable Hold",
  "parent": {
   "Leyndell": "Altus",
-  "Raya Lucaria Academy": "Liurnia",
-  "Sewer": "Leyndell"
+  "Raya Lucaria Academy": "Liurnia"
  },
  "regions": {
   "Abyssal": {
@@ -3953,19 +3951,53 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Leyndell": {
-   "checks": 160,
+   "checks": 251,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "KeyItem": 1
+    "Boss|LegacyBoss|Legendary": 1,
+    "Boss|LegacyBoss|MajorBoss": 2,
+    "KeyItem": 1,
+    "Legendary": 1
    },
    "dlc": false,
    "parent": "Altus",
    "rollable": true,
-   "sweep_slots": {},
-   "sweep_slots_by_class": {},
-   "sweep_slots_max": {},
-   "sweep_slots_max_by_class": {}
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   },
+   "sweep_slots_by_class": {
+    "SweepSlot": {
+     "all": 2,
+     "bosses": 2
+    },
+    "SweepSlotMajor": {
+     "all": 1,
+     "bosses": 1
+    },
+    "SweepSlotMinor": {
+     "all": 1,
+     "bosses": 1
+    }
+   },
+   "sweep_slots_max": {
+    "all": 16,
+    "bosses": 16
+   },
+   "sweep_slots_max_by_class": {
+    "SweepSlot": {
+     "all": 16,
+     "bosses": 16
+    },
+    "SweepSlotMajor": {
+     "all": 8,
+     "bosses": 8
+    },
+    "SweepSlotMinor": {
+     "all": 8,
+     "bosses": 8
+    }
+   }
   },
   "Limgrave": {
    "checks": 330,
@@ -4406,53 +4438,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    }
   },
-  "Sewer": {
-   "checks": 91,
-   "combos": {
-    "Boss|LegacyBoss|Legendary": 1,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "Legendary": 1
-   },
-   "dlc": false,
-   "parent": "Leyndell",
-   "rollable": true,
-   "sweep_slots": {
-    "all": 2,
-    "bosses": 2
-   },
-   "sweep_slots_by_class": {
-    "SweepSlot": {
-     "all": 2,
-     "bosses": 2
-    },
-    "SweepSlotMajor": {
-     "all": 1,
-     "bosses": 1
-    },
-    "SweepSlotMinor": {
-     "all": 1,
-     "bosses": 1
-    }
-   },
-   "sweep_slots_max": {
-    "all": 16,
-    "bosses": 16
-   },
-   "sweep_slots_max_by_class": {
-    "SweepSlot": {
-     "all": 16,
-     "bosses": 16
-    },
-    "SweepSlotMajor": {
-     "all": 8,
-     "bosses": 8
-    },
-    "SweepSlotMinor": {
-     "all": 8,
-     "bosses": 8
-    }
-   }
-  },
   "Shadow Keep": {
    "checks": 118,
    "combos": {
@@ -4655,7 +4640,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "160ed0613a5f3d64e2201e522a96241d7c2a8a1a5111648d06b93af586837d91"
+ "source_sha256": "be718fbc8408ac01265b889b53ae76681c87f7808230316d2c3c4db124e10c47"
 }
 </script>
 <div class="wrap">
