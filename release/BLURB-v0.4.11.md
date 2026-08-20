@@ -27,6 +27,14 @@ actually stands on. If you play `region_grace_unlock: entrance`, two entrances m
 canonical doors: Stormveil opens at Castleward Tunnel and Raya Lucaria at Main Academy Gate —
 which also means the academy unlock no longer warps you inside the seal.
 
+**Shop previews keep their real names past 62 slots.** Locked and foreign-item shop slots show
+you what is actually in them, but the pool of spare goods rows those preview names are written
+into ran dry at 62 — past that, slots fell back to the `?GoodsName?` placeholder. The pool now
+carries 79 rows: the same safe 62 first, so seeds under the old ceiling draw the identical names,
+then 17 rows that have no vanilla text at all, named by the client creating brand-new text
+entries in the game's own tables. A seed that needs the extra rows says so, and a client too old
+to create entries is told to update at connect instead of silently showing placeholders.
+
 ## What carried over from v0.4.10
 
 No player-facing work is carried over. The v0.4.10 tag is exactly the `main` commit this window

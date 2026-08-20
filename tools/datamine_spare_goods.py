@@ -14,8 +14,15 @@ shops.py logs the overflow warning).
 
 Criterion (matt-free), mirroring gen_data.REPEATABLE_GOODS + AP_PLACEHOLDER_GOODS:
   * EXISTS   -- id is a row in EquipParamGoods.csv,
-  * NO NAME  -- id has no GoodsName.fmg entry (base + item_dlc0*; %null%/<?null?>/x/'' all count as no
-                name, so the in-game '[ERROR]' rows qualify),
+  * NO REAL NAME -- id has NO GoodsName.fmg entry, or its entry (base + item_dlc0*) is a placeholder
+                (%null%/<?null?>/x/'' all count, so the in-game '[ERROR]' rows qualify). Since
+                2026-08-03 the client CREATES missing FMG entries (fmg_inject INSERT, read-back
+                validated), so an entry-LESS row is usable too -- it is emitted as INSERTABLE
+                (fmg_entry=0) and sorts AFTER every redirectable row. SPEC-spare-goods-pool-growth.md
+                section 3's prerequisite settled 2026-08-20: the on-disk group records of all three
+                goods categories (base + both DLC msgbnds) are strictly ascending and disjoint
+                (0 wide claims / 0 overlaps), so the mid-array insert the Nightreign convention
+                would have broken is safe against ER's vanilla FMGs.
   * UNREFERENCED -- id appears in NO ItemLotParam_map/_enemy goods slot (lotItemCategory==1), NO
                 ShopLineupParam / ShopLineupParam_Recipe goods row (equipType==3), and NO talk ESD
                 inventory check. (The talk scan matters for cut bell-bearing rows: granting one can
@@ -202,27 +209,36 @@ def main():
               file=sys.stderr)
         return 1
 
-    # ⭐ THE POOL NEEDS *TWO* PROPERTIES, AND THEY WERE CONFLATED INTO ONE (fixed 2026-07-25).
+    # ⭐ THE POOL NEEDS *TWO* PROPERTIES, KEPT DISTINCT (separated 2026-07-25, WIDENED 2026-08-20).
     #
     #   SAFETY:      nothing else wears this row's identity -> no real name, referenced by nothing.
-    #   WRITABILITY: the client can RENAME it -> the FMG must already have an ENTRY for the id.
+    #   WRITABILITY: the client can give the row a name.
     #
-    # `_fmg_texts` keeps every entry, so "no real name" was satisfied both by a row whose entry holds
-    # a placeholder token (`[ERROR]`, `%null%`) AND by a row with NO ENTRY AT ALL -- and only the
-    # first kind is usable. `fmg_inject::extend_swap_overrides` REDIRECTS the string slot of an id
-    # that already lives in a vanilla FMG group; an id in no group has no slot, and build_block's
-    # inject path cannot take it either (injected ids must sort above every vanilla id, and a spare
-    # goods row sits in the middle). So the entry-less rows were selected precisely BECAUSE they had
-    # no name, and are exactly the ones that can never be given one.
+    # WRITABILITY used to mean "the FMG must already have an ENTRY for the id", because
+    # `fmg_inject::extend_swap_overrides` could only REDIRECT the string slot of an id already in a
+    # vanilla FMG group. Since 2026-08-03 it can also INSERT a new group record mid-array (read-back
+    # validated through the game's own SearchStringTable; er-logic fmg_groups::merged_order is the
+    # ascending+disjoint gate). So writability now has TWO shapes, and the tsv's third column names
+    # which one a row needs:
     #
-    # In game they render the tag `?GoodsName?` / `?GoodsInfo?` (Alaric, playtest 2026-07-25). The
-    # client now warns with the ids; requiring `g in texts` here is what stops them being offered.
-    # An EMPTY entry is ideal: that is the `[ERROR]` render, and 8852 -- the lot placeholder that
-    # dress_placeholder successfully renames to "Archipelago Item" -- is exactly that shape.
+    #   fmg_entry=1  REDIRECTABLE -- a placeholder entry exists (`[ERROR]`, `%null%`, ...); every
+    #                client since the FMG override shipped can name these.
+    #   fmg_entry=0  INSERTABLE  -- no entry at all; the client must CREATE one. Only clients with
+    #                the 2026-08-03 insert path can name these, so they sort LAST and a seed that
+    #                spends one declares requiresClientFeatures (features/shops.py, issue #937).
     #
-    # ⚠️ GoodsInfo/GoodsCaption (FMG categories 20/24) have NARROWER group coverage than GoodsName
-    # (10): the same run wrote names=9 of 13 but infos=2 of 13. This filter only proves the NAME is
-    # writable. If the description matters too, this wants the same test against GoodsInfo.fmg.xml.
+    # The mid-array insert was blocked on SPEC-spare-goods-pool-growth.md section 3: Nightreign's
+    # vanilla FMGs use boundary-claim groups (last_id == next.first_id), which the disjointness gate
+    # rejects. Settled 2026-08-20 by parsing the ON-DISK group records ({stringIndexBase, firstId,
+    # lastId} at 0x28, the same layout fmg_inject::parse reads at runtime): GoodsName/GoodsInfo/
+    # GoodsCaption, base + both DLC msgbnds, are strictly ascending with ZERO wide claims and ZERO
+    # overlaps -- ER does not share NR's convention, so the insert path's gate holds. (The runtime
+    # startup probe the SPEC asks for is still worth shipping as belt-and-suspenders; the static
+    # number is what unblocked this.)
+    #
+    # An EMPTY placeholder entry remains the ideal redirectable shape: that is the `[ERROR]` render,
+    # and 8852 -- the lot placeholder that dress_placeholder successfully renames to "Archipelago
+    # Item" -- is exactly that shape.
     #
     # LEARN the placeholder strings instead of guessing them -- two independent signals, unioned:
     #  (1) KNOWN-GOOD: the 64 hand-listed spares carry NO real name (shops.py: "[ERROR] placeholder
@@ -251,6 +267,20 @@ def main():
     for goods_id, source in talk_refs.items():
         referenced.setdefault(goods_id, source)
 
+    # 🛑 THE BELL-BEARING RUNS, PINNED (2026-08-20). The Twin Maiden Husks enumerate bell bearings
+    # by affine inventory runs -- 8910 + GetWorkValue (bound 55), and 2008900 + GetWorkValue
+    # (bound 10) for the DLC bearings -- and a GRANTED cut row in one of those runs exposes a
+    # broken bell-bearing menu entry. A shop preview good IS granted on purchase, so a spare in
+    # the run is the exact hazard the talk scan exists for. But the script that proves it lives
+    # with the Roundtable talk ESD, which is NOT guaranteed to be in the artifact set (this box's
+    # talk artifacts are the m60-only subset), and an incomplete scan fails SILENTLY -- it did
+    # here: 8914/8949/8950 slipped into the pool until test_gf_spare_goods_order's fixture (which
+    # pins the same two runs) redded on the emitted tsv. The derived runs above stay the primary
+    # mechanism; these pins are the floor under it, and the test keeps the two honest about each
+    # other -- if a script-derived run ever disagrees with the pins, that test fails.
+    for _bell in list(range(8910, 8910 + 56)) + list(range(2008900, 2008900 + 11)):
+        referenced.setdefault(_bell, "PINNED Twin Maiden bell-bearing run (test fixture)")
+
     # SENTINEL/TEMPLATE guard: params carry a default row (id 999999999 and similarly the huge
     # 2^31-ish rows) that is nameless + unreferenced and would masquerade as a spare. A real
     # EquipParamGoods good id is <= 6 digits; cap at MAX_ID so no template row leaks into the pool.
@@ -267,59 +297,63 @@ def main():
             return "ABSENT from EquipParamGoods"
         if g in named:
             return "HAS GoodsName"
-        if g not in texts:
-            return "NO GoodsName ENTRY (unnameable -- renders `?GoodsName?`)"
+        # NO `g not in texts` cut since 2026-08-20 (issue #937): an entry-less row is INSERTABLE --
+        # the client creates its FMG entry. It is emitted in tier 3, not excluded.
         if g in referenced:
             return "REFERENCED by %s" % referenced[g]
         return None                                     # survives -> a spare
 
     spares = sorted(g for g in exists if _cut_reason(g) is None)
 
-    # ⭐ ORDER BY FMG COMPLETENESS (2026-07-29). shops.py indexes this pool positionally, so ORDER
-    # decides which rows a seed actually uses -- and only some rows can carry a DESCRIPTION.
+    # ⭐ THREE TIERS, ORDER IS THE FEATURE (completeness tiering 2026-07-29; insertable tier
+    # 2026-08-20, issue #937). shops.py indexes this pool POSITIONALLY, so ORDER decides which rows
+    # a seed actually spends:
     #
-    # `extend_swap_overrides` redirects the string slot of an id already in a vanilla FMG group. An
-    # id in no group has no slot. GoodsName (cat 10) covers far more ids than GoodsInfo (20) and
-    # GoodsCaption (24), so a row can be nameable but not describable -- and the client then logs
-    # "N of M id(s) are in NO vanilla group" and the game renders `?GoodsInfo?` in the item panel.
-    # Seen in the wild 2026-07-29: names=12 of 12, infos=2 of 12.
+    #   tier 1  REDIRECTABLE + complete (GoodsName + GoodsInfo + GoodsCaption entries) -- a full
+    #           preview any client can write.
+    #   tier 2  REDIRECTABLE, name-only -- nameable by any client; the client creates the missing
+    #           GoodsInfo/GoodsCaption entries since 2026-08-03.
+    #   tier 3  INSERTABLE (no GoodsName entry at all) -- needs the client's mid-array INSERT.
     #
-    # 🛑 THE GAP WAS ALREADY WRITTEN DOWN IN THIS FILE, ON 2026-07-25 -- "this filter only proves the
-    # NAME is writable ... if the description matters too, this wants the same test against
-    # GoodsInfo.fmg.xml" -- and nothing acted on it for four days. A self-reported gap is not a
-    # safeguard unless something ACTS on it.
-    #
-    # NOT a filter, deliberately: requiring all three would cut the pool from ~65 to ~25, below the
-    # ~54 region locks that each need a distinct row, and locks are the slots whose names matter
-    # most. Ordering costs nothing and degrades gracefully -- complete rows are spent first, and only
-    # a seed needing more distinct previews than there are complete rows sees `?GoodsInfo?`.
+    # Tiers 1+2 are exactly the pre-widening pool in the pre-widening order, so a seed that never
+    # reaches tier 3 draws byte-identical previews to before (SPEC section 6 acceptance), and only
+    # a seed that SPENDS a tier-3 row declares requiresClientFeatures. Requiring completeness was
+    # never a filter for the same reason as before: it would cut the pool below the ~54 region
+    # locks that each need a distinct row.
     _info = _fmg_texts(glob.glob(os.path.join(AR, "msg", "**", "GoodsInfo.fmg.xml"), recursive=True))
     _cap = _fmg_texts(glob.glob(os.path.join(AR, "msg", "**", "GoodsCaption.fmg.xml"), recursive=True))
     if not _info or not _cap:
         print("no GoodsInfo/GoodsCaption FMG entries found -- refusing to emit an unordered pool "
               "(an empty result is a FAILURE, not a clean run).", file=sys.stderr)
         return 1
-    _full = {g for g in spares if g in _info and g in _cap}
-    spares = sorted(_full) + sorted(set(spares) - _full)
-    print(f"FMG completeness: {len(_full)} of {len(spares)} spare rows carry name+info+caption "
-          f"(those are emitted FIRST); {len(spares) - len(_full)} are name-only and will render "
-          f"`?GoodsInfo?` if a seed gets that deep.", file=sys.stderr)
+    _redirect = {g for g in spares if g in texts}
+    _full = {g for g in spares if g in texts and g in _info and g in _cap}
+    _tier2 = sorted(_redirect - _full)
+    _tier3 = sorted(set(spares) - _redirect)
+    spares = sorted(_full) + _tier2 + _tier3
+    print(f"pool tiers: {len(_full)} redirectable+complete (emitted FIRST), {len(_tier2)} "
+          f"redirectable name-only, {len(_tier3)} INSERTABLE (emitted LAST -- the client creates "
+          f"their FMG entries, and a seed that spends one declares requiresClientFeatures).",
+          file=sys.stderr)
 
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         f.write("# AUTO-GENERATED by tools/datamine_spare_goods.py -- EquipParamGoods rows that EXIST,\n")
-        f.write("# have an FMG ENTRY whose text is a PLACEHOLDER (not a real name -- an empty `[ERROR]`\n")
-        f.write("# entry is the ideal shape), and are referenced by NO lot/shop/recipe/talk ESD.\n")
-        f.write("# The pool\n")
-        f.write("# for features/shops._LOCK_PREVIEW_SPARE_GOODS (region-lock + foreign-item previews).\n")
+        f.write("# have NO real name (a placeholder GoodsName entry, or -- tier 3 -- no entry at all:\n")
+        f.write("# the client CREATES it via the 2026-08-03 fmg_inject INSERT path), and are referenced\n")
+        f.write("# by NO lot/shop/recipe/talk ESD. The pool for\n")
+        f.write("# features/shops._LOCK_PREVIEW_SPARE_GOODS (region-lock + foreign-item previews).\n")
         f.write(f"# floor id={MIN_ID}, cap id={MAX_ID}, excludes reserved placeholder {PLACEHOLDER}.\n")
-        f.write(f"# ORDERED: the first {len(_full)} rows carry GoodsName+Info+Caption (a full\n")
-        f.write("# preview); the rest are name-only and render `?GoodsInfo?` for the description.\n")
-        f.write("# shops.py indexes this pool positionally, so the order IS the priority.\n")
-        f.write("goods_id\tfmg_full\n")
+        f.write(f"# ORDERED in three tiers: the first {len(_full)} rows are redirectable and carry\n")
+        f.write(f"# GoodsName+Info+Caption (a full preview); the next {len(_tier2)} are redirectable\n")
+        f.write(f"# name-only; the last {len(_tier3)} are INSERTABLE (fmg_entry=0 -- no vanilla FMG\n")
+        f.write("# entry; the client must create it, so a seed spending one of these declares\n")
+        f.write("# requiresClientFeatures). shops.py indexes this pool positionally: order IS priority.\n")
+        f.write("goods_id\tfmg_full\tfmg_entry\n")
         for g in spares:
-            f.write(f"{g}\t{1 if g in _full else 0}\n")
-    print(f"wrote {OUT}: {len(spares)} spare goods rows "
-          f"(exists={len(exists)} named={len(named)} referenced={len(referenced)})")
+            f.write(f"{g}\t{1 if g in _full else 0}\t{1 if g in _redirect else 0}\n")
+    print(f"wrote {OUT}: {len(spares)} spare goods rows ({len(_redirect)} redirectable + "
+          f"{len(_tier3)} insertable; exists={len(exists)} named={len(named)} "
+          f"referenced={len(referenced)})")
 
     # EXCLUSION BREAKDOWN over the in-range existing rows -- shows whether NAME or REFERENCE is the
     # limiting filter if the pool is still short of the ~332 target.

@@ -45,6 +45,11 @@ except Exception:                                   # predates the spare-goods e
     SPARE_PREVIEW_GOODS = ()
 
 try:
+    from ..shop_data import SPARE_PREVIEW_REDIRECTABLE  # tier boundary (issue #937): rows past it
+except Exception:                                       # need the client's FMG INSERT; predates it
+    SPARE_PREVIEW_REDIRECTABLE = len(SPARE_PREVIEW_GOODS)  # old shop_data: all redirectable
+
+try:
     from ..item_ids import ITEM_CATALOG              # item NAME -> ER FullID (generated)
 except Exception:                                   # not yet generated
     ITEM_CATALOG = {}
@@ -111,12 +116,14 @@ def _client_can_sell(item_name):
 # clobber), and is referenced by NO lot / shop / recipe -- the exact AP_PLACEHOLDER_GOODS (8852)
 # criterion, above the 8852 low/system floor. The pool is DATAMINED (tools/datamine_spare_goods.py ->
 # greenfield/spare_goods.tsv -> shop_data.SPARE_PREVIEW_GOODS); gen_data emits it so this list tracks
-# the artifacts instead of drifting. NOTE the usable pool is ~82 rows, not the 332 an earlier comment
-# claimed -- 332 was the raw all-range count; only ~82 sit above the 8852 floor (the rest are in the
-# unusable low/system band). 82 > the ~54 max region locks, so every LOCK gets its own distinct row;
-# FOREIGN items draw from the remainder and, in a busy multiworld, may exceed it and share a row (still
-# flowered, just a shared name -- shops.py logs that overflow). The hardcoded tuple below is the
-# FALLBACK for a tree with no regenerated shop_data yet.
+# the artifacts instead of drifting. The pool is THREE-TIERED since 2026-08-20 (issue #937):
+# redirectable+complete, redirectable name-only, then INSERTABLE rows (no vanilla GoodsName entry --
+# the client CREATES it via the 2026-08-03 fmg_inject INSERT path) at the tail. 79 rows total on the
+# current artifacts (62 redirectable + 17 insertable) > the ~54 max region locks, so every LOCK gets
+# its own distinct row; FOREIGN items draw from the remainder and, in a busy multiworld, may exceed
+# it and share a row (still flowered, just a shared name -- shops.py logs that overflow). The
+# hardcoded tuple below is the FALLBACK for a tree with no regenerated shop_data yet; it predates
+# the insertable tier and is entirely redirectable.
 _LOCK_PREVIEW_SPARE_GOODS_FALLBACK = (
     9314, 9315, 9316, 9317, 9318, 9319, 9332, 9333, 9334, 9335, 9336, 9337, 9338, 9339,
     9349, 9350, 9351, 9352, 9353, 9354, 9355, 9356, 9357, 9358, 9359, 9366, 9367, 9368,
@@ -125,6 +132,17 @@ _LOCK_PREVIEW_SPARE_GOODS_FALLBACK = (
     9448, 9449, 9450, 50200, 50201, 50202, 50203, 51760,
 )
 _LOCK_PREVIEW_SPARE_GOODS = tuple(SPARE_PREVIEW_GOODS) or _LOCK_PREVIEW_SPARE_GOODS_FALLBACK
+
+# Tier boundary of the pool: rows at index >= _POOL_REDIRECTABLE are INSERTABLE -- naming them needs
+# the client's 2026-08-03 FMG INSERT path, and a seed that SPENDS one must say so. The fallback
+# tuple is entirely redirectable, so its boundary is its own length (never declares).
+_POOL_REDIRECTABLE = SPARE_PREVIEW_REDIRECTABLE if SPARE_PREVIEW_GOODS else len(_LOCK_PREVIEW_SPARE_GOODS)
+
+# requiresClientFeatures tag for a seed that spends an insertable spare row (issue #937). Without
+# the declaration an older client (redirect-only) connects cleanly and renders `?GoodsName?` on
+# every tier-3 slot -- OPTIONS_SUBKEYS is not folded into CONTRACT_HASH, so nothing else would say
+# why. The client refuses loudly instead (er-logic client_features::unsupported).
+_CLIENT_FEATURE_TAG = "shop_preview_fmg_insert"
 
 
 class MerchantBellLogic(Choice):
@@ -256,9 +274,19 @@ class Shops(Feature):
         if _overflow:
             import logging
             logging.getLogger("Greenfield").warning(
-                "[eldenring:%s] shop flowering: %d foreign/unsellable slot(s) exceeded the %d free "
-                "spare goods and SHARE one preview good (they still flower, but show a single shared "
-                "name). Widen the spare pool (tools/datamine_spare_goods.py) to give each its own name.",
-                world.player, _overflow, len(_free))
+                "[eldenring:%s] shop flowering: demand was %d foreign/unsellable slot(s) for the "
+                "%d free spare goods (%d reserved for region locks) -- %d slot(s) SHARE the last "
+                "spare (they still flower, but show a single shared name). Widen the spare pool "
+                "(tools/datamine_spare_goods.py) to give each its own name.",
+                world.player, _fi + _overflow, len(_free), len(name_to_preview), _overflow)
 
-        return {contract.SHOP_ROW_FLAGS: flags, contract.SHOP_PREVIEW_GOODS: preview}
+        # DECLARE THE INSERT DEPENDENCY (issue #937, SPEC-spare-goods-pool-growth.md section 4.4).
+        # Pool rows spent are pool[0 .. spent-1] (locks take the head, foreign/unsellable slots the
+        # rest, in order); a spent row past the redirectable boundary is INSERTABLE, so this seed
+        # needs a client with the 2026-08-03 fmg_inject INSERT path. A seed that never reaches the
+        # tier-3 rows declares nothing and connects to any client, byte-identical to before.
+        _spent = len(name_to_preview) + _fi
+        out = {contract.SHOP_ROW_FLAGS: flags, contract.SHOP_PREVIEW_GOODS: preview}
+        if _spent > _POOL_REDIRECTABLE:
+            out[contract.REQUIRES_CLIENT_FEATURES] = [_CLIENT_FEATURE_TAG]
+        return out
