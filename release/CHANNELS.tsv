@@ -42,3 +42,5 @@ stable	v0.4.8	2026-08-18	armor bundles, independent Great Rune/region goals, alt
 beta	main	2026-08-18	the open v0.4.9 window
 stable	v0.4.9	2026-08-19	full-map data cleanup, safer start-item delivery, honest boss sweeps and tracker grouping, corrected merchant bells and capital entry, and stronger crash diagnostics; promoted while opening v0.4.10 so stable moves with the release
 beta	main	2026-08-19	the open v0.4.10 window
+stable	v0.4.10	2026-08-20	balanced cross-game progression and useful exports, a simpler live wizard, MajorBoss absorption, the Malenia goal, Snowfield and Sewer region corrections, Enia DLC filtering, and stronger delivery, Radahn, capital-warp, and grace-rescue handling; promoted while opening v0.4.11 so stable moves with the release
+beta	main	2026-08-20	the open v0.4.11 window
