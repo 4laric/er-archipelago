@@ -86,17 +86,9 @@ in a normal playthrough, and that's the fun of it.
 (`ending_condition: region_locks`). Open every kept region and you've won.
 The goal region -- Leyndell -- is always among the kept ones, so a seed is
 always winnable. The alternative, `ending_condition: great_runes`, asks you
-to hold Great Runes as well -- and it is a **specific set**, not any N of
-them. The seed picks which runes count; holding the right *number* of the
-wrong ones sends no victory and the run simply never ends. **Your client
-names the required runes at connect** -- in the client log, the line
-
-    goal: N item(s) must be HELD, not merely their boss killed: <names>
-
-is the requirement, so you never need the spoiler to find out. (The set is
-drawn at random from all seven Great Runes. All seven are in every seed's pool
-whatever regions you drew, so any of them can be the one you need -- read the
-line rather than guessing from which bosses your seed kept.)
+to hold Great Runes as well. **Any distinct Great Runes count**: the default
+is any four of all seven, and no particular named rune is mandatory. The
+client reports the count and the full eligible set when you connect.
 
 **Which boss actually ends it** is a separate knob, `goal`. Left on `auto` it
 works itself out: if your seed keeps both Farum Azula and Leyndell you finish
@@ -324,16 +316,26 @@ run rather than tune it.
 - **`filler_foreign_pct`** -- how much of your filler other worlds may draw
   from. It picks *which* filler at random per seed, so it can't be aimed;
   `keep_local` is the aimable version and they compose.
-- **`confine_foreign_progression`** -- the one that decides whether your gear is
-  worth receiving, which is not what the name suggests. It is a percentage: how
-  much of *other* players' progression is held to your progression surface. At
-  the default of 100 it also, as a side effect, means a non-Elden-Ring partner
-  receives **nothing from you but filler** -- no weapon, no armour, no talisman.
-  The rule is about your own locations, but it pushes the other game's keys back
-  into that game's own slots, and Archipelago fills those before it gets to the
-  good stuff. Measured beside Hollow Knight: 0% of what we sent was useful at
-  100, 23% at 75, 38% at 50. Lower it if your friends should be opening your
-  weapons; the cost is that their keys stop landing on your interesting checks.
+- **`confine_foreign_progression`** -- how much of *other* players' progression
+  is held to your progression surface. At 100 (default) a foreign key can only
+  sit on a starred check; lower it and their keys spread across your world.
+  It USED to have an ugly side effect -- at 100 a non-Elden-Ring partner
+  received nothing from you but filler, a fill-order artifact measured at 0%
+  useful -- but that is fixed at its own layer now: a dedicated reservation
+  pass places your fair share of useful gear (weapons, armour, talismans) into
+  partner worlds before the general fill, whatever confine is set to. Measured
+  after the fix: partners receive your pool's own mix, about 1:1
+  useful-to-filler. Lowering confine is now purely about where foreign keys
+  may sit, which is what the name always said.
+
+> **The "anything anywhere" recipe.** If you come from classic ER item rando and
+> want the old feel -- any check can matter, no curation steering keys onto
+> bosses -- three settings do it: widen **`progression_surface`** to every
+> category, set **`confine_foreign_progression: 0`** so other players' keys can
+> land on any of your checks, and leave **`progression_bias`** at 0 so your own
+> Region Locks travel freely. (Asked for on Discord, 2026-08-20 -- the builder's
+> defaults are curated on purpose, but nothing about the old style is
+> unsupported.)
 
 **How much am I actually sending out?** The *Seed size* tab of the yaml builder
 (<https://peliarch.ca/er/>) shows the ceiling as you move those options -- how many of your items are permitted to
@@ -425,6 +427,36 @@ levels cost half the total fragments for roughly 11% more damage.
 > **This option used to do nothing outside the DLC**, whatever you set
 > it to -- the game declines to apply the blessing's effect outside the Land of
 > Shadow, and the option only wrote the stored number. It now works as described.
+
+### Your weapons keep up on their own
+
+```yaml
+auto_upgrade: true   # the default -- this has been every seed's behaviour since v0.2
+```
+
+Any weapon the game **adds to your bag** is raised to the highest reinforce level
+you already hold on its smithing track (normal and somber are separate; it never
+downgrades and never crosses tracks). That covers three moments:
+
+- an **AP grant** arriving from the multiworld,
+- a **world pickup** -- chests, corpses, drops,
+- and anything you **put down and take back**.
+
+That last one is the catch-up move, and it is deliberate: a weapon received
+early sits at the level you had *then*. To bring it to your current tier, drop
+it with **Leave** (not Discard -- Discard destroys) and pick it back up. Same
+gesture as matt's randomizer, same result. Upgrading a weapon at a blacksmith
+still works exactly as in vanilla; auto-upgrade only ever raises to a level you
+have already paid for once on that track.
+
+> If a dropped weapon ever seems to **vanish** on pickup instead, the client
+> noticed: check the log for a `vanilla-suppress ... Rescue:` line -- it names
+> the item and the exact `!give` console command that returns it (it comes back
+> at your current tier). Please also report it; that line is us hunting a rare
+> pickup-identity bug, and a sighting is evidence.
+
+A fully hands-off version -- weapons upgrading **in your bag** the moment your
+tier climbs, no gesture at all -- is planned as a separate yaml option.
 
 ## How much of a region an unlock opens
 

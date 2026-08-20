@@ -50,6 +50,7 @@ except Exception:  # not yet generated -> feature is a no-op
 # defeat the restriction -- Shop is only ever in play if the user explicitly selects it in the base.
 _WIDEN_GROUPS = [["Remembrance", "GreatRune"], ["KeyItem"], ["Boss"], ["Legendary"], ["Seedtree", "Church"]]
 _BOSS_KEY_PREFIX = "Boss Key:"
+_REGION_COMPLETION_FEATURE = "region_completion_goal_gate"
 
 
 class ProgressionSurface(OptionSet):
@@ -123,6 +124,26 @@ class ProgressionSurface(OptionSet):
                 {"label": "Off", "keys": []},
             ],
         }
+
+
+class GoalRegionUnlockPolicy(Choice):
+    """When the synthetic final region opens.
+
+    ``items_held`` preserves the original rule: receiving every required Region Lock opens the
+    final region. ``none`` imposes no region-side requirement. ``regions_completed`` waits until
+    every progression-surface check in every non-final region has been satisfied. A shop check is
+    satisfied when its merchant inventory is viewed; buying the ware is not required. Completion
+    is reconstructed from the server's checked locations plus its per-slot viewed-shop ledger, so
+    reconnecting cannot lose progress.
+
+    This is independent of Ending Condition: any of these three policies can be combined with or
+    without the Great Rune threshold.
+    """
+    display_name = "Goal Region Unlock Policy"
+    option_items_held = 0
+    option_regions_completed = 1
+    option_none = 2
+    default = 0
 
 
 class ProgressionSurfaceMode(Removed):
@@ -218,24 +239,21 @@ class ConfineForeignProgression(NamedRange):
     behaviour. In between, that share of the foreign advancement you see is held to the surface and
     the rest is free.
 
-    🛑 IT IS NOT ONLY A CURATION KNOB, and this is the reason it stopped being a toggle. The rule is
-    about YOUR locations, but it displaces your NEIGHBOUR: barred from your ~3000 filler checks, a
-    partner game's progression has nowhere to go but its own locations, which saturates them early
-    in the fill -- and Archipelago places the whole `useful` tier before any filler, so by the time
-    it reaches what is left of the partner's world only filler remains. MEASURED at 100, three
-    seeds, two Elden Ring slots beside two Hollow Knight slots: of 498 Elden Ring items that reached
-    Hollow Knight, **zero** were useful -- no weapon, no armour, no talisman, 100% filler -- while
-    the other Elden Ring slot got a healthy 43.1% useful. At 0 the same seeds send Hollow Knight
-    40.7% useful, which is the pool's own mix. Lower this if you want your gear to be worth
-    receiving in a non-Elden-Ring game.
+    This is purely about where INCOMING foreign keys may sit. It used to have a nasty side effect
+    -- at 100 the displacement it causes starved non-Elden-Ring partners of your useful gear
+    entirely (measured: 0 useful in 498 placements to Hollow Knight) -- but that is fixed at its
+    own layer since v0.4.10: a dedicated export-reservation pass places your fair share of useful
+    items into partner worlds before the general fill, whatever this option is set to. Re-measured
+    with the pass: partners receive the pool's own mix (about 1:1 useful to filler) at every
+    confine value. Lower this only if you want foreign keys spread beyond your starred checks.
 
     It is a propensity by ITEM NAME, not a per-copy coin flip: the decision for a given foreign item
     name is fixed for the whole seed, so a name is either surface-only or free, never both.
 
-    No effect in a solo seed, or when Progression Surface Mode is off. It never blocks generation:
-    your OWN progression keeps its feasibility-ladder + spill safety valve, and foreign progression
-    that will not fit your surface simply lands in its own world instead (only YOUR filler checks
-    are barred to it -- other worlds are untouched)."""
+    No effect in a solo seed, because there is no foreign progression to confine. It never blocks
+    generation: your OWN progression keeps its feasibility-ladder + spill safety valve, and foreign
+    progression that will not fit your surface simply lands in its own world instead (only YOUR
+    filler checks are barred to it -- other worlds are untouched)."""
     display_name = "Confine Foreign Progression"
     range_start = 0
     range_end = 100
@@ -510,11 +528,12 @@ _HUB_MERCHANT_TAGS = ("Shop",)
 
 
 def _roundtable_merchant_aps():
-    """Roundtable Hold (the always-open hub) MERCHANT rows -- Enia (remembrance weapons/armor) and
-    the Twin Maiden Husks. BARRED from the progression surface (Alaric 2026-07-18): the hub is
-    reachable at spawn, so a Lock / key item placed on a hub merchant slot is 'progression' you
-    already hold on turn one -- trivial. This rule touches ONLY hub MERCHANT rows; the hub's Golden
-    Seed checks (Seedtree, physical pickups) are left to the normal surface/defaulted logic.
+    """MERCHANT rows filed in Roundtable Hold, the always-open hub. This includes Enia and the Twin
+    Maiden Husks plus multi-site rows collapsed into the hub, notably questline Patches/Thiollier.
+    BARRED from the progression surface (Alaric 2026-07-18): a hub-filed merchant slot otherwise
+    looks reachable at spawn. Ordinary wandering merchants are filed in their physical regions and
+    remain eligible; this rule touches only hub MERCHANT rows. The hub's Golden Seed checks
+    (Seedtree, physical pickups) are left to the normal surface/defaulted logic.
 
     Derived from the generated data, so a regen that adds or moves a hub merchant row is covered
     without a hand-list -- but "derived" is only as good as the tag name being one the data still
@@ -627,16 +646,24 @@ def sweep_slot_aps(world, classes, tag_ids=frozenset()):
     except Exception:
         _sx = frozenset()
     barred = (frozenset(_world_barred_aps(world)) | _roundtable_merchant_aps() | frozenset(_sx))
-    # 🛑 PASS THE HEALTHBARS EXPLICITLY. `contract.sweep_slot_skips()` can resolve them itself, but
+    sweeps = rung_sweeps(world)
+    # 🛑 PASS BOTH AUTHORITIES EXPLICITLY. `contract.sweep_slot_skips()` can resolve healthbars
+    # itself, but only via a package-relative import, and an absent arena row now means UNAUDITED --
+    # fail closed for progression-surface eligibility (#671). Ordinary sweep payouts are untouched.
     # only via a package-relative import, and on failure it degrades to the DECLARED skips alone --
     # which would quietly put the unfireable triggers back on the surface and reopen #672. The
     # production path must not depend on an import that is allowed to fail; the census tool, which
     # has no world, keeps the lazy default.
     try:
         from ..boss_healthbars import BOSS_HEALTHBARS  # noqa: PLC0415 -- data leaf
-        skips = contract.sweep_slot_skips(healthbars=BOSS_HEALTHBARS)
+        from ..boss_sweeps import SWEEP_ARENA_REGION  # noqa: PLC0415 -- data leaf
+        skips = contract.sweep_slot_skips(healthbars=BOSS_HEALTHBARS,
+                                          arena_regions=SWEEP_ARENA_REGION,
+                                          triggers=sweeps)
     except Exception:
-        skips = contract.sweep_slot_skips()
+        # The ruling is fail-CLOSED: without the authoritative audit table every trigger is
+        # unaudited. Returning no nominations is safer than quietly widening to guessed arenas.
+        return frozenset()
     # #703: more members per sweep when there are FEW partners, exactly one when there are many.
     # In a 2-game world the partner's progression saturates its own ~404 locations during
     # fill_restrictive and the useful tier is exhausted before the scan reaches a partner slot; the
@@ -658,7 +685,6 @@ def sweep_slot_aps(world, classes, tag_ids=frozenset()):
         # empty surface is the failure this feature exists to prevent (#631).
         MAJOR_SWEEP_TRIGGERS = frozenset()
         chosen = ["SweepSlot"] if set(chosen) else []
-    sweeps = rung_sweeps(world)
     out = set()
     for cls in chosen:
         part = contract.sweeps_for_surface_class(sweeps, cls, MAJOR_SWEEP_TRIGGERS)
@@ -724,8 +750,8 @@ def _foreign_open_locations(multiworld, er_players):
 
 
 def place_released_locks(multiworld, worlds) -> None:
-    """`stage_pre_fill`: place every Elden Ring world's RELEASED Locks across every Elden Ring
-    world's surface, in ONE pass, and spill whatever does not fit back into the pool.
+    """`stage_pre_fill`: place every Elden Ring world's travelling progression across every Elden
+    Ring world's surface, in ONE pass, and spill whatever does not fit back into the pool.
 
     # Why this is not an item_rule (er-archipelago#491)
 
@@ -760,8 +786,15 @@ def place_released_locks(multiworld, worlds) -> None:
     configurations**, including a 2xER + 1xHK seed where 15 of 28 Locks travelled and every one went
     to the other Elden Ring world.
 
-    So `cross_game_progression` routes a share of them at partner locations FIRST, before the ER
-    surfaces get a look. `auto` is 1/n_games -- half of them in a two-game seed.
+    So `cross_game_progression` routes a share of the eligible progression at partner locations
+    FIRST, before the ER surfaces get a look. `auto` is 1/n_games -- half in a two-game seed.
+
+    #811: that set used to be `gf_released_lock_items`, so despite the option's name the pass could
+    see Region Locks and NOTHING ELSE. Required Great Runes were advancement, but `apply()` removed
+    them first and locked them onto their owner's surface. The pass now reads
+    `gf_released_progression_items`: released Locks plus every non-Lock advancement item whenever
+    this world has a non-zero cross-game share. The remainder still falls through to the same ER
+    surface pass, preserving curation and reachability.
 
     ⚠️ THIS FILLS ANOTHER GAME'S LOCATIONS, which is exactly what the note above warns about: TUNIC
     raises "caused by another world filling TUNIC locations during pre_fill" and cannot recover.
@@ -776,7 +809,8 @@ def place_released_locks(multiworld, worlds) -> None:
 
     items, locations, participants = [], [], []
     for w in worlds:
-        pending = list(getattr(w, "gf_released_lock_items", ()) or ())
+        pending = list(getattr(w, "gf_released_progression_items",
+                               getattr(w, "gf_released_lock_items", ())) or ())
         if not pending:
             continue
         participants.append(w)
@@ -796,7 +830,7 @@ def place_released_locks(multiworld, worlds) -> None:
 
     # ---- CROSS-GAME FIRST (#703) --------------------------------------------------------------
     # Offered BEFORE the Elden Ring surfaces, because our surfaces have four times the room they
-    # need and would otherwise absorb every Lock -- which is the measured defect, not a risk.
+    # need and would otherwise absorb every progression item -- which is the measured defect.
     cross_offered = cross_placed = 0
     er_players = {w.player for w in worlds}
     n_games = len({w.game for w in getattr(multiworld, "worlds", {}).values()}) or 1
@@ -805,6 +839,10 @@ def place_released_locks(multiworld, worlds) -> None:
         foreign = _foreign_open_locations(multiworld, er_players)
         k = (n0 * share + 50) // 100
         if foreign and k > 0:
+            # The old list was all Locks, so its stable construction order did not matter. Once
+            # required Great Runes joined it, slicing before shuffling would let the leading Locks
+            # consume the entire cross-game quota and recreate #811 under a different name.
+            multiworld.random.shuffle(items)
             batch, rest = items[:k], items[k:]
             cross_offered = len(batch)
             multiworld.random.shuffle(foreign)
@@ -818,15 +856,15 @@ def place_released_locks(multiworld, worlds) -> None:
                 # Swallowing leaves `batch` unplaced, and unplaced Locks fall through to the Elden
                 # Ring pass below exactly as they did before #703 existed.
                 logging.getLogger("Greenfield").warning(
-                    "[greenfield] progression surface: the cross-game Lock pass raised and was "
-                    "abandoned; its %d Lock(s) fall back to the Elden Ring surfaces, which is the "
+                    "[greenfield] progression surface: the cross-game progression pass raised and "
+                    "was abandoned; its %d item(s) fall back to the Elden Ring surfaces, which is the "
                     "pre-#703 behaviour. Set cross_game_progression: 0 if this recurs",
                     len(batch), exc_info=True)
             cross_placed = cross_offered - len(batch)
             items = batch + rest          # whatever it could not place rejoins the ER pass
             logging.getLogger("Greenfield").info(
                 "[greenfield] progression surface: cross-game pass placed %d of %d offered "
-                "(%d%% share of %d released, %d game(s), %d open foreign location(s))",
+                "(%d%% share of %d eligible progression, %d game(s), %d open foreign location(s))",
                 cross_placed, cross_offered, share, n0, n_games, len(foreign))
 
     multiworld.random.shuffle(locations)
@@ -1051,6 +1089,22 @@ def _released_pct(world) -> int:
     return 100 - int(opt.value)
 
 
+def travelling_progression(items, released, cross_share):
+    """The exact item objects handed from `apply()` to the stage-wide placement pass.
+
+    Released Region Locks always travel, preserving `progression_bias`. With a non-zero
+    `cross_game_progression` share, every other restricted advancement item travels too so required
+    Great Runes and legacy keys are actually candidates for that share (#811). At zero, non-Locks
+    keep the pre-#811 local-surface behaviour.
+    """
+    out = list(released)
+    if cross_share <= 0:
+        return out
+    seen = {id(it) for it in out}
+    out.extend(it for it in items if id(it) not in seen)
+    return out
+
+
 def _restricted_items(world):
     return [it for it in world.multiworld.itempool
             if is_restricted_progression(it, world.player)]
@@ -1263,15 +1317,18 @@ def apply(world) -> None:
     # 🛑 The draw happens BEFORE the removal loop and ONCE, recorded on `world`. Drawing it later
     # would mean re-deciding per caller, and an inline rng draw that runs a different number of times
     # in different code paths splits the seed.
-    _restricted = list(to_place)   # before the split -- the valve counts EVERY Lock, not the released ones
     released = released_locks(to_place, _released_pct(world), world.random)
-    if released:
-        _rel = {id(it) for it in released}
+    n_games = len({w.game for w in getattr(mw, "worlds", {}).values()}) or 1
+    travelling = travelling_progression(
+        to_place, released, cross_game_share(world, n_games))
+    if travelling:
+        _rel = {id(it) for it in travelling}
         to_place = [it for it in to_place if id(it) not in _rel]
     world.gf_locks_released = sorted(it.name for it in released)
     # The handle `stage_pre_fill` reads. The ITEMS, not the names: it has to remove these exact
     # objects from the pool and hand them to fill_restrictive.
     world.gf_released_lock_items = list(released)
+    world.gf_released_progression_items = list(travelling)
     n0 = len(to_place)
     for it in to_place:
         mw.itempool.remove(it)
@@ -1443,7 +1500,8 @@ class ProgressionSurfaceFeature(Feature):
                "progression_surface_mode": ProgressionSurfaceMode,
                "progression_bias": ProgressionBias,
                "confine_foreign_progression": ConfineForeignProgression,
-               "cross_game_progression": CrossGameProgression}
+               "cross_game_progression": CrossGameProgression,
+               "goal_region_unlock_policy": GoalRegionUnlockPolicy}
     # Placement runs centrally from core.pre_fill via apply() (locations exist + get_all_state valid).
     # The foreign-progression bar is set in core._add_locations (item_rule), using confined_surface_ids.
 
@@ -1477,4 +1535,8 @@ class ProgressionSurfaceFeature(Feature):
         ids = surface_ap_ids(world, classes)
         own = {loc.address for loc in world.multiworld.get_locations(world.player)
                if getattr(loc, "address", None) is not None}
-        return {contract.PROGRESSION_SURFACE_LOCATIONS: sorted(i for i in ids if i in own)}
+        out = {contract.PROGRESSION_SURFACE_LOCATIONS: sorted(i for i in ids if i in own)}
+        policy = getattr(world.options, "goal_region_unlock_policy", None)
+        if int(getattr(policy, "value", policy or 0)) == GoalRegionUnlockPolicy.option_regions_completed:
+            out[contract.REQUIRES_CLIENT_FEATURES] = [_REGION_COMPLETION_FEATURE]
+        return out

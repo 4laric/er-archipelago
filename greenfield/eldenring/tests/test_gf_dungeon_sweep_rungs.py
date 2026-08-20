@@ -91,9 +91,17 @@ _SWEEP_NEVER = {"Remembrance", "Boss", "GreatRune", "KeyItem", "Shop", "ShopNonS
 # and those rows are no longer a defect to ratchet. Deleted rather than re-justified, which is the
 # tightening this test's own `gone` branch asks for. The three below are floor classes and stay.
 _KNOWN_IMPORTANT_IN_SWEEPS = {
-    7772584,   # KeyItem   -- Gaol Upper Level Key
-    7772588,   # KeyItem   -- Gaol Lower Level Key
-    7772603,   # Boss      -- Dragon Heart, around Dragon's Pit
+    # ⚠️ ap ids are POSITIONAL and this ledger is keyed on them: #330's 124-row Rada removal
+    # (2026-08-19) shifted all three by -35 while the CHECKS (flags 41027000 / 41027320 / 43017900,
+    # verified identical) never moved. If this ledger drifts again for a corpus change, match by
+    # flag before concluding the debt grew.
+    # 2026-08-19 (the cull renumbered ap ids, twice -- the second time when the Crimson Hood
+    # ruling put one location back ahead of these): 7772549 -> 7772545 -> 7772546,
+    # 7772553 -> 7772549 -> 7772550, 7772568 -> 7772564 -> 7772565. Same three flags;
+    # re-verified by flag identity each time.
+    7772546,   # KeyItem   -- Gaol Upper Level Key            (f41027000)
+    7772550,   # KeyItem   -- Gaol Lower Level Key            (f41027320)
+    7772565,   # Boss      -- Dragon Heart, around Dragon's Pit (f43017900)
 }
 
 
@@ -123,8 +131,14 @@ def test_the_important_checks_inside_sweeps_do_not_grow():
     # 🛑 It does NOT weaken the ratchet. All six pre-existing rows FAIL this relation (verified), so
     # the hand list below is untouched and still carries exactly the real debt.
     _flag_of = {ap: int(fl) for locs in LOCATIONS.values() for (_n, ap, fl) in locs}
+    # 2026-08-20 (#907): the relation gained a second table. BOSS_DROP_ENTITY is the field/evergaol
+    # own-drop map (boss_drops.py), admitted into sweeps by gen_data's own-drop pass because the
+    # vanilla award waits on CharacterDead and a host enemy randomizer breaks it. Same property as
+    # BOSS_REWARD_DEFEAT: satisfied only by the flag's OWN trigger, never by adding an id here.
+    from worlds.eldenring.boss_drops import BOSS_DROP_ENTITY
     own_reward = {ap for trig, members in DUNGEON_SWEEPS.items() for ap in members
-                  if BOSS_REWARD_DEFEAT.get(_flag_of.get(ap)) == trig}
+                  if BOSS_REWARD_DEFEAT.get(_flag_of.get(ap)) == trig
+                  or BOSS_DROP_ENTITY.get(_flag_of.get(ap)) == trig}
     found = {ap for members in DUNGEON_SWEEPS.values() for ap in members
              if important & set(LOCATION_TAGS.get(ap, ()))}
     new = sorted(found - _KNOWN_IMPORTANT_IN_SWEEPS - own_reward)
@@ -232,10 +246,12 @@ def test_the_floor_holds_whatever_the_surface_says():
     from worlds.eldenring.boss_reward_lots import BOSS_REWARD_DEFEAT
     from worlds.eldenring.data import LOCATIONS
     _flag_of = {ap: int(fl) for locs in LOCATIONS.values() for (_n, ap, fl) in locs}
+    from worlds.eldenring.boss_drops import BOSS_DROP_ENTITY
     for surface in (set(), _CUTTABLE, {"Legendary"}):
         live = enabled_sweeps(_FakeWorld(surface))
         own_reward = {ap for trig, mem in live.items() for ap in mem
-                      if BOSS_REWARD_DEFEAT.get(_flag_of.get(ap)) == trig}
+                      if BOSS_REWARD_DEFEAT.get(_flag_of.get(ap)) == trig
+                      or BOSS_DROP_ENTITY.get(_flag_of.get(ap)) == trig}
         # WITNESSES, both of them load-bearing: `assert not leaked` passes for free if the payload
         # is empty or if the floor vocabulary stopped matching any tag at all, and either would be
         # a silent hole rather than a green run (test_gf_vacuous_pass's ratchet, shape 2).
@@ -260,9 +276,15 @@ def test_the_legacy_pool_specifically_is_clean():
     from worlds.eldenring.boss_healthbars import BOSS_HEALTHBARS
     from worlds.eldenring.location_tags import LOCATION_TAGS
     important = set(_SWEEP_NEVER)
+    from worlds.eldenring.data import LOCATIONS
+    from worlds.eldenring.boss_drops import BOSS_DROP_ENTITY
+    _flag_of = {ap: int(fl) for locs in LOCATIONS.values() for (_n, ap, fl) in locs}
     leaked = [ap for fl, members in DUNGEON_SWEEPS.items()
               if (BOSS_HEALTHBARS.get(fl) or (None, None, None))[2] == "legacy"
-              for ap in members if important & set(LOCATION_TAGS.get(ap, ()))]
+              for ap in members if important & set(LOCATION_TAGS.get(ap, ()))
+              # 2026-08-20 (#907): a legacy-geography boss's OWN drop is not a leak -- the same
+              # own-trigger relation the field tests carry.
+              and BOSS_DROP_ENTITY.get(_flag_of.get(ap)) != fl]
     assert not leaked, (
         "the LEGACY sweep pool is supposed to be filler-only by construction (_filler_only), and %d "
         "important check(s) got in: %s" % (len(leaked), leaked[:5]))

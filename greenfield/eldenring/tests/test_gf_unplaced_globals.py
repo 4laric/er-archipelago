@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 """Issue #249 -- the unplaced common-event rows that were never checks, so their item stayed vanilla.
 
-Reported in game: Thops still drops the vanilla Academy Glintstone Staff while his Bell Bearing from
-the same corpse is randomized. A `region_map.csv` row filed `Global / Common-event (unplaced)` gets
-no location, `check_lots` never blanks the vanilla lot, and nothing errors -- the item is simply not
-a check.
+Reported in game: Thops still dropped the vanilla Academy Glintstone Staff while his Bell Bearing
+from the same corpse was randomized. A `region_map.csv` row filed `Global / Common-event
+(unplaced)` got no location, `check_lots` never blanked the vanilla lot, and nothing errored.
 
-🛑 READ THIS BEFORE CLOSING #249. The derivation added here does NOT reach f400361. Its lots
-103601/113601 are named by no talk ESD and no map EMEVD, so it sits in the 45-strong "no evidence in
-any corpus" bucket. CONTRIBUTING rule 11 says the case that motivated the work is the acceptance
-test; where that case CANNOT be fixed, the test says so by name, so nobody reads a green suite as
-"the reported bug is gone". That is what test_the_motivating_case_is_still_unreached does.
+The general derivation still refuses flags with no single-map evidence.  The first-hand #249 report
+is the evidence for the narrow f400361 GLOBAL_RECOVER pin, and the acceptance test below now requires
+that motivating case to remain a real Raya Lucaria Academy check.
 
 Run: python3 eldenring/tests/test_gf_unplaced_globals.py
 """
@@ -36,6 +33,9 @@ TABLE = os.path.join(PKG, "unplaced_global_tiles.tsv")
 if not os.path.isfile(TABLE) and _ROOT:
     TABLE = os.path.join(_ROOT, "greenfield", "unplaced_global_tiles.tsv")
 DATA = os.path.join(PKG, "data.py")
+AUDIT = os.path.join(PKG, "unplaced_unique_audit.tsv")
+if not os.path.isfile(AUDIT) and _ROOT:
+    AUDIT = os.path.join(_ROOT, "greenfield", "unplaced_unique_audit.tsv")
 
 # MEASURED 2026-08-04 on the emit that shipped with this file. A floor, not a target: the table may
 # grow when a corpus improves, and must not silently SHRINK (an oracle that quietly stops protecting
@@ -52,7 +52,10 @@ DATA = os.path.join(PKG, "data.py")
 #     -400081  m35_00_00_00  talk_esd  Rya's Necklace
 # 🛑 This is the shape the docstring above warns about, so the burden is discharged by SAYING WHICH
 # ROW and WHY it is not a real placement -- never by moving the number to whatever the emit printed.
-MIN_ROWS = 51
+# 51 -> 74 (2026-08-19, #218): 22 exact item entities plus the Sacred Tower painting's map-event
+# flag+lot call became available as placement evidence. A stricter ESD join also retired three
+# false talk-number matches and admitted three actual AwardItemLot sites; the table's net is +23.
+MIN_ROWS = 74
 
 
 def _rows():
@@ -91,6 +94,32 @@ def _locations():
 @unittest.skipIf(not os.path.isfile(TABLE), "unplaced_global_tiles.tsv not beside the package")
 class UnplacedGlobals(unittest.TestCase):
 
+    def test_issue_218_audit_covers_exactly_the_corrected_30(self):
+        expected = {
+            400079, 400104, 400105, 400159, 400162, 400173, 400189, 400293,
+            400294, 400295, 400361, 400395, 400421, 400451, 400452, 540514,
+            580110, 580400, 30207900, 59930000, 1033477020, 1038417100,
+            400902, 400903, 400907, 400908, 400909, 400910, 400914, 400915,
+        }
+        with open(AUDIT, encoding="utf-8") as fh:
+            rows = list(csv.DictReader((ln for ln in fh if not ln.startswith("#")), delimiter="\t"))
+        self.assertEqual(30, len(rows))
+        self.assertEqual(expected, {int(row["flag"]) for row in rows})
+
+    def test_every_audit_acceptance_names_a_generated_check(self):
+        locations = _locations()
+        by_flag = {f: (region, name) for region, rows in locations.items() for name, _ap, f in rows}
+        with open(AUDIT, encoding="utf-8") as fh:
+            rows = list(csv.DictReader((ln for ln in fh if not ln.startswith("#")), delimiter="\t"))
+        accepted = [row for row in rows if row["verdict"] in ("generated", "duplicate")]
+        self.assertTrue(accepted)
+        for row in accepted:
+            canonical = int(row["canonical_flag"])
+            self.assertIn(canonical, by_flag, "%s has no generated canonical check" % row["item"])
+            if row["verdict"] == "generated":
+                self.assertEqual(int(row["flag"]), canonical)
+                self.assertEqual(row["region"], by_flag[canonical][0])
+
     def test_the_table_is_populated(self):
         """Rule 2: an empty table is a failure, not a clean run. If the emit ever produces nothing,
         every one of these checks silently reverts to dropping its vanilla item."""
@@ -108,7 +137,10 @@ class UnplacedGlobals(unittest.TestCase):
 
         Before this filter the emit placed EIGHT checks at "m60_00_00_00", which reads exactly like
         a map id and is not one, and the row count looked like a bigger win (43 vs 37)."""
-        bad = [c for c in _rows() if c[1] in ("m60_00_00_00", "m61_00_00_00", "m00_00_00_00")]
+        rows = list(_rows())
+        # WITNESS (vacuous-pass ratchet): an empty emit greens the bucket check for free.
+        self.assertTrue(rows, "the emit produced no rows -- the bucket filter below sees nothing")
+        bad = [c for c in rows if c[1] in ("m60_00_00_00", "m61_00_00_00", "m00_00_00_00")]
         self.assertEqual([], bad, "common ESD buckets placed as if they were locations: %s" % bad[:5])
 
     @unittest.skipIf(not (_TOOL and os.path.isfile(_TOOL)), REPO_ONLY_REASON)
@@ -170,6 +202,39 @@ class UnplacedGlobals(unittest.TestCase):
                          % (len(missing), missing[:8]))
 
     @unittest.skipIf(not (_TOOL and os.path.isfile(_TOOL)), REPO_ONLY_REASON)
+    def test_fixed_coordinate_pickups_are_resolved_without_hand_pins(self):
+        """Issue #218's concrete blind spot: these flags have exact item entities, but neither
+        their short common flag nor a talk script supplies a map. The production resolver must use
+        the coordinate corpus rather than leave them vanilla or grow GLOBAL_RECOVER by hand."""
+        out, _refused, _n_talk = _dug().resolve(_dug().candidates()[0])
+        by_flag = {int(flag): (map_id, source) for flag, map_id, source, _name in out}
+        expected = {
+            400902: "m60_45_36", 400903: "m60_41_36",
+            400907: "m60_35_45", 400908: "m60_36_49",
+            400909: "m60_43_53", 400910: "m60_40_52",
+            400915: "m60_48_41", 580400: "m61_45_43",
+        }
+        for flag, map_id in expected.items():
+            got = by_flag.get(flag)
+            self.assertIsNotNone(got, "f%d has an exact item coordinate but was not derived" % flag)
+            self.assertEqual(map_id, got[0],
+                             "f%d derived to the WRONG map: %r" % (flag, got))
+            # 2026-08-19 (the full-MSB census): the resolver may now see these rows in the census
+            # ("observed") before falling through to the coordinate corpus -- same map either way,
+            # and the issue #218 claim under test is "resolved without hand pins", not which
+            # sufficient corpus answered first. A THIRD label would still be a surprise.
+            self.assertIn(got[1], ("item_coords", "observed"),
+                          "f%d derived from an unexpected corpus: %r" % (flag, got))
+
+    @unittest.skipIf(not (_TOOL and os.path.isfile(_TOOL)), REPO_ONLY_REASON)
+    def test_map_event_flag_and_lot_pair_resolves_the_sacred_tower_painting(self):
+        """The painting has no item entity, but m61_47_42 initializes its award event with BOTH
+        f580110 and lot 80110. That pair is placement evidence; either literal alone is not."""
+        out, _refused, _n_talk = _dug().resolve(_dug().candidates()[0])
+        by_flag = {int(flag): (map_id, source) for flag, map_id, source, _name in out}
+        self.assertEqual(("m61_47_42_00", "event_call"), by_flag.get(580110))
+
+    @unittest.skipIf(not (_TOOL and os.path.isfile(_TOOL)), REPO_ONLY_REASON)
     def test_the_name_twin_survives_the_dedup(self):
         """THE ACCEPTANCE TEST for the 2026-08-07 key change -- it asks PRODUCTION for its verdict.
 
@@ -184,22 +249,26 @@ class UnplacedGlobals(unittest.TestCase):
                       "de-dup has been re-keyed onto the item name. It shares NO lot with f530950 "
                       "and boblerrr collected both in one session (2026-08-07).")
 
-    def test_the_motivating_case_is_still_unreached(self):
-        """🛑 THE HONEST ONE. f400361 (Thops's Academy Glintstone Staff) is what #249 is about, and
-        this derivation does NOT fix it -- no corpus we have names its lots. Rule 11's corollary: if
-        the exemplar cannot be a fixture, say in the test how you would know it was still covered.
-
-        This assertion is INVERTED on purpose. It fails the day f400361 finally gets placed -- and
-        that failure is the signal to close #249 and delete this test, not to widen anything."""
-        placed = {int(c[0]) for c in _rows()}
-        self.assertNotIn(400361, placed,
-                         "f400361 (Thops) is now placed -- #249's reported bug is FIXED. Verify in "
-                         "game that the staff is randomized, close #249, and remove this test.")
+    def test_the_motivating_thops_staff_is_a_real_check(self):
+        """The exact first-hand #249 failure must never return under a green suite."""
         loc = _locations()
-        in_world = {f for _r, v in loc.items() for (_n, _a, f) in v}
-        self.assertNotIn(400361, in_world,
-                         "f400361 became a check by some OTHER route -- good, but this test is now "
-                         "lying about the state of #249. Re-verify and retire it.")
+        by_flag = {f: (region, name) for region, rows in loc.items() for name, _ap, f in rows}
+        self.assertEqual("Raya Lucaria Academy", by_flag.get(400361, (None, None))[0])
+        self.assertIn("Academy Glintstone Staff", by_flag[400361][1])
+
+    def test_hand_pinned_unique_quest_awards_are_real_checks(self):
+        loc = _locations()
+        by_flag = {f: region for region, rows in loc.items() for _name, _ap, f in rows}
+        self.assertEqual("Ainsel River", by_flag.get(400159))
+        self.assertEqual("Mt. Gelmir", by_flag.get(400440))
+
+    @unittest.skipIf(not (_TOOL and os.path.isfile(_TOOL)), REPO_ONLY_REASON)
+    def test_talk_index_uses_awards_not_incidental_flag_reads(self):
+        """Lusat awards Stars in m31_11; Sellen merely reads its flag in other talk files."""
+        out, _refused, _n_talk = _dug().resolve(_dug().candidates()[0])
+        by_flag = {int(flag): (map_id, source) for flag, map_id, source, _name in out}
+        self.assertEqual(("m31_11_00_00", "talk_esd"), by_flag.get(400430))
+        self.assertNotIn(400440, by_flag, "common overworld talk bucket is not a placement")
 
 
 

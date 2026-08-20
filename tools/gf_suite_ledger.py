@@ -118,7 +118,40 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "release_update_guidance": "pure-stdlib pytest suite imports tools/check_release_notes.py "
+                               "through the repo-root walk-up. The tests job checks out the full "
+                               "repository, while installed-world-only consumers skip honestly; "
+                               "it guards the player-facing update headline required by #909",
+    "client_gitlink_notes": "pure-stdlib Git fixture imports tools/check_release_notes.py through "
+                            "the repo-root walk-up. The tests job checks out full history and the "
+                            "repo tree, so the per-bump gate must run there rather than skip; it "
+                            "reproduces the unnoted v0.4.3 pin and the #687 lockstep control (#709)",
     "boss_geography": "committed greenfield data; artifact-dependent halves covered by the bundle",
+    "hippo_region_ruling": "committed boss_sweeps/data; the repo-root sentinel comes from the "
+                            "shared _util import, and the tests job supplies the real checkout. "
+                            "Pytest suite with no generator role; #885's acceptance case must run "
+                            "in TESTS_JOB",
+    "export_reservation": "pure share-derivation and eligibility tests for the #918 pass; the "
+                           "acceptance instrument is gf_multiworld_smoke (real gens, the derived "
+                           "floor) in regen-and-fill. Pytest, needs only the installed package",
+    "dlc_gated_shop_rows": "builds two solo multiworlds (WorldTestBase) to hold the DLC and "
+                            "no-DLC location sets against each other -- needs the installed "
+                            "world and AP; the derived-set keeper reads the same installed "
+                            "shop_data. Pytest acceptance suite for AzoTax's no-DLC goal-lock",
+    "boss_own_drops": "re-derives #907's own-drop admission from the committed boss_drops/"
+                       "boss_sweeps tables against the installed world's data.py -- a pytest "
+                       "acceptance suite with no generator role; the tests job has both sides",
+    "rada_fruit_worldless": "committed TSV inputs reached through the repo-root walk-up are "
+                             "re-derived against the installed generated data. The tests job has "
+                             "both; this is a pytest acceptance suite, not a generator",
+    "worldless_singles": "same shape as rada_fruit_worldless one class over: re-derives the "
+                          "86-flag cull from the committed corpora (including the EMEVD blobs "
+                          "out of gen_inputs.db) via the repo-root walk-up, and pins the 8 "
+                          "hand-fired proven-live flags against the installed world. Pytest "
+                          "acceptance suite for the #330 follow-up cull, not a generator",
+    "quest_prerequisite_rules": "runtime item_rule coverage uses the installed world; the typed "
+                                  "questline_model.tsv witness is reached through find_repo_root "
+                                  "from the tests job's real repository checkout",
     "capital_reconciler": "committed data only; sentinel is a comment/reference",
     "data": "client tables read from the gitlink checkout the tests job now makes",
     "finale": "committed data only",

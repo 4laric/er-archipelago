@@ -165,13 +165,19 @@ def _chk_nested_grants(v):
         if not isinstance(lst, (list, tuple)):
             return f"{k!r} must map to a list"
         for e in lst:
+            noop = isinstance(e, dict) and e.get("noop") is True and len(e) == 1
             flags_ok = (isinstance(e, dict) and isinstance(e.get("flags"), (list, tuple))
                         and all(_is_int(i) for i in e["flags"]))
             goods_present = isinstance(e, dict) and "goods" in e
-            if not flags_ok or (goods_present and not _is_int(e.get("goods"))) or \
-               (not goods_present and (not isinstance(e, dict) or not e.get("flags"))):
+            invalid_effect = (not flags_ok or
+                              (goods_present and not _is_int(e.get("goods"))) or
+                              (not goods_present and
+                               (not isinstance(e, dict) or not e.get("flags"))))
+            if not noop and invalid_effect:
                 return (f"{k!r} entry must carry goods:int and/or non-empty flags:[int], "
                         f"got {e!r}")
+            if noop:
+                continue
             if goods_present and not isinstance(e.get("consumed"), bool):
                 return (f"{k!r} rung is missing `consumed` (bool): {e!r}. A rung must declare whether "
                         f"its goods are SPENT by the player (consumed=true -> granted once, ledgered) "
@@ -476,32 +482,54 @@ SWEEP_RUNGS = {
 # ENCOUNTER grants, not the sweep's defeat flag. The usual rule (a boss's identity is the check its
 # death grants) is exactly what comes apart here, so no join over the shipped tables can see it.
 # The non-lethal class needs enumerating rather than special-casing; this is the one confirmed member.
-_SWEEP_SLOT_SKIP_REASONS = {
+_RUNTIME_SWEEP_SKIP_REASONS = {
     31000800: "non-lethal trigger: Patches yields instead of dying, so his defeat flag is not "
               "reached in normal play -- the sweep cannot fire (bobler 2026-08-14, #672)",
     31000850: "non-lethal trigger: Patches yields instead of dying, so his defeat flag is not "
               "reached in normal play -- the sweep cannot fire (bobler 2026-08-14, #672)",
 }
 
+
+def runtime_sweep_skips():
+    """{trigger flag: reason} for sweeps known not to fire in normal play.
+
+    This is deliberately NARROWER than :func:`sweep_slot_skips`. An unnamed trigger or a trigger
+    whose arena has not been audited is unsafe as a REQUIRED progression host, but may still be a
+    working convenience sweep. Only a positive fireability ruling belongs here and disappears from
+    seed slot data, the client tracker, boss-key gates, and the generated ``also granted by`` text.
+
+    Return a copy so callers cannot mutate the contract's ruling for the rest of generation.
+    """
+    return dict(_RUNTIME_SWEEP_SKIP_REASONS)
+
 _UNNAMED_TRIGGER_REASON = (
     "unnamed trigger: BOSS_HEALTHBARS records no boss name for this sweep, so we cannot name a "
     "boss to kill and cannot assert the sweep can ever fire"
 )
 
+_UNAUDITED_TRIGGER_REASON = (
+    "unaudited arena: SWEEP_ARENA_REGION has no authoritative region for this trigger, so its "
+    "members cannot be asserted reachable and may not be required (#671)"
+)
 
-def sweep_slot_skips(healthbars=None):
+
+def sweep_slot_skips(healthbars=None, arena_regions=None, triggers=None):
     """{trigger flag: reason} -- the sweeps SweepSlot must not nominate from. ShopSlot's
     `location_tags.SHOP_SLOT_SKIPS`, one feature over, and deliberately the same shape: a dict
     keyed by the thing excluded, valued by WHY, so the exclusion is auditable rather than a silent
     filter.
 
-    Two sources, and the split is the point:
+    Three sources, and the split is the point:
 
     * DERIVED -- a trigger `BOSS_HEALTHBARS` cannot name (absent, or a blank name field). This is
       the honest gate: it does not claim the dungeon has no boss, only that we cannot vouch for one,
       which is the same standard ShopSlot holds a merchant to.
-    * DECLARED -- `_SWEEP_SLOT_SKIP_REASONS`, for triggers that ARE named and still cannot fire.
+    * DECLARED -- `runtime_sweep_skips()`, for triggers that ARE named and still cannot fire.
       Patches is the confirmed case and cannot be derived; see that dict's comment.
+    * AUDIT -- when `arena_regions` is supplied, every trigger absent from that authoritative table.
+      The sweep may still pay ordinary members, but it cannot make one of them REQUIRED until the
+      arena is audited (#671). `triggers` narrows this to the actual sweep universe; when omitted,
+      the healthbar keys are the best available trigger corpus.
 
     `healthbars` is injectable so the gate is testable without the data module, and so
     tools/build_region_census.py can price the wizard's SweepSlot checkbox off the same expression
@@ -511,7 +539,7 @@ def sweep_slot_skips(healthbars=None):
     would silently empty the surface, and a feature that disables itself when a lookup fails is
     worse than one that stays on: the ladder would widen and nobody would know why.
     """
-    skips = dict(_SWEEP_SLOT_SKIP_REASONS)
+    skips = runtime_sweep_skips()
     if healthbars is None:
         try:
             from .boss_healthbars import BOSS_HEALTHBARS as _bh  # noqa: PLC0415 -- data leaf
@@ -524,6 +552,11 @@ def sweep_slot_skips(healthbars=None):
         name = (info[3] if isinstance(info, (tuple, list)) and len(info) > 3 else "") or ""
         if not str(name).strip():
             skips.setdefault(flag, _UNNAMED_TRIGGER_REASON)
+    if arena_regions is not None:
+        audit_scope = healthbars.keys() if triggers is None else triggers
+        for flag in audit_scope:
+            if flag not in arena_regions:
+                skips.setdefault(flag, _UNAUDITED_TRIGGER_REASON)
     return skips
 
 
@@ -673,6 +706,10 @@ OPTIONS_SUBKEYS = (
     ContractKey("death_link", "BOOL_OR_INT", True, (GREENFIELD,),
                 "core._options_echo", "er-logic/options.rs parse_death_link",
                 "shared deaths across the multiworld (world.options.death_link)."),
+    ContractKey("trap_link", "BOOL_OR_INT", False, (GREENFIELD,),
+                "core._options_echo", "er-logic/options.rs parse_trap_link",
+                "nonzero = advertise TrapLink after slot-data parse, send locally received trap "
+                "items once, and queue compatible inbound linked traps without echoing them."),
     ContractKey("enable_dlc", "BOOL_OR_INT", True, (GREENFIELD,),
                 "core._options_echo", "er-logic/options.rs parse_dlc",
                 "RESOLVED DLC bool (dlc_only implies on); gates DLC map-reveal flags."),
@@ -713,6 +750,16 @@ OPTIONS_SUBKEYS = (
                 "a seed with it ON emits requiresClientFeatures [\"auto_equip\"] -- OPTIONS_SUBKEYS is "
                 "not folded into CONTRACT_HASH, so an older client would report VERSION: OK and then "
                 "never see this key at all."),
+    ContractKey("goal_region_unlock_policy", "INT", False, (GREENFIELD,),
+                "core._options_echo (features/progression_surface.py)",
+                "eldenring-archipelago/core.rs -> region completion goal gate",
+                "0 = preserve the possession-based goal-region unlock; 1 = wait until every "
+                "progression-surface check in every required non-goal region is checked, with "
+                "visible shop rows additionally satisfied by the server-backed viewed-shop ledger; "
+                "2 = impose no region-side goal requirement. This is independent of the Great "
+                "Rune requirement. "
+                "A seed selecting 1 emits requiresClientFeatures "
+                "['region_completion_goal_gate']; OPTIONS_SUBKEYS is not folded into CONTRACT_HASH."),
     ContractKey("no_equip_load", "INT_OR_BOOL", False, (GREENFIELD,),
                 "core._options_echo (features/body_tuning.py)", "no_equip_load.rs set_enabled",
                 "ROLL MODE, not a plain toggle (widened 2026-08-12, #548): 0 = off, 1 = light "
@@ -761,6 +808,9 @@ CONTRACT = (
     ContractKey("apIdsToItemIds", "SCALAR_INT_MAP", True, (BOTH,),
                 "core._base_slot_data", "core.rs:309 i64_map",
                 "AP item id (str) -> ER FullID granted on receipt."),
+    ContractKey("armorBundles", "LISTVAL_INT_MAP", False, (GREENFIELD,),
+                "features/armor_bundles.py", "core.rs armor-bundle receive reconciler",
+                "synthetic armor-set AP item id (str) -> every protector FullID in its generated family."),
     # GREENFIELD-only and REQUIRED there. NOT required of a foreign apworld: Bedrock emits
     # `locationIdsToKeys` (matt slot keys) instead, and key_resolver.rs derives the flag from token 1
     # of the key. core.rs prefers the derived table and falls back to this one. Requiring BOTH of a
@@ -1066,7 +1116,9 @@ CONTRACT = (
                 "Absent/empty = shelves stay vanilla."),
     ContractKey("shopRunePrices", "SCALAR_INT_MAP", False, (GREENFIELD,),
                 "features/rune_pricing.py", "shop_prices.rs configure/run",
-                "ShopLineupParam row id (str) -> rune price, for CHECK rows whose reward is a rune "
+                "ShopLineupParam row id (str) -> price override. Alt-currency altar rows always map "
+                "to 1, preserving their costType while preventing random rewards from demanding an "
+                "absurd number of Dragon/Bayle Hearts. Other entries are CHECK rows whose reward is a rune "
                 "item (Golden/Numen's/Hero's/Lord's Rune). A shop check keeps the price of the ware "
                 "it USED to sell, so a slot that cost 3500 can end up selling a Golden Rune [1] worth "
                 "~200 -- the reward is randomised but its cost is not, which makes the slot strictly "
@@ -1168,11 +1220,12 @@ CONTRACT = (
                 "core._base_slot_data", "(diagnostic -- no client read)",
                 "resolved goal tag: 'region_locks' | 'great_runes'."),
     ContractKey("great_runes_required", "ANY", False, (GREENFIELD,),
-                "core._base_slot_data", "(diagnostic -- no client read)",
+                "core._base_slot_data", "goal.rs parse",
                 "EFFECTIVE (clamped) Great Rune requirement for the great_runes ending."),
     ContractKey("great_rune_items", "STR_LIST", False, (GREENFIELD,),
                 "core._base_slot_data", "goal.rs parse",
-                "Item NAMES the player must HOLD before Goal can fire (the great_runes ending). WAS a "
+                "Eligible Great Rune item NAMES; goal.rs requires great_runes_required distinct names "
+                "from this set before Goal can fire. WAS a "
                 "diagnostic with no client read, which is exactly how the bug survived: the client's "
                 "goal was the LOCATION of each rune's boss drop -- i.e. KILL Godrick -- while AP's "
                 "victory rule was state.has(rune). item_shuffle is frozen ON, so the rune is NOT at the "
@@ -1500,7 +1553,7 @@ pub fn validate(sd: &Value) -> Vec<String> {
 # forget; a derived one cannot go stale. (Same doctrine as the gen-input stamp.)
 import hashlib as _hashlib
 
-APWORLD_VERSION = "0.4.6"
+APWORLD_VERSION = "0.4.10"
 
 def _contract_hash() -> str:
     _mat = "\n".join(

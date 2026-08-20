@@ -2,18 +2,32 @@
 # DO NOT hand-edit: a hand pin belongs in gen_data.GLOBAL_RECOVER, where it is visible
 # as one. Rows here are DERIVED -- `source` says from what.
 #   observed = an MSB/check_maps map for the flag
-#   talk_esd = the flag's item lot is named by exactly ONE map's talk ESD
+#   item_coords = an exact item entity in item_grace_coords.tsv
+#   event_call = a map EMEVD initializer carrying the flag and its item lot
+#   talk_esd = the flag's item lot is awarded by exactly ONE map's talk ESD
 # A flag whose evidence names MORE THAN ONE map is absent on purpose (NPCs relocate;
 # picking one would assert a reachability we do not have). So is a flag with no
-# evidence at all -- 45 of them, including f400361, the Thops staff of issue #249.
+# evidence at all. Hand-confirmed exceptions belong in GLOBAL_RECOVER instead.
 flag	map_id	source	item_name
-60140	m12_03_00_00	talk_esd	Tailoring Tools
+60220	m18_00	observed	Tarnished's Furled Finger
+66000	m31_03	observed	Cracked Pot
+66190	m60_47_40	observed	Cracked Pot
+66400	m30_18	observed	Ritual Pot
+66420	m60_37_42	observed	Ritual Pot
+66710	m11_00	observed	Perfume Bottle
+66730	m60_36_51	observed	Perfume Bottle
+66770	m60_39_54	observed	Perfume Bottle
+66900	m41_00	observed	Hefty Cracked Pot
+66920	m41_00	observed	Hefty Cracked Pot
+66940	m41_02	observed	Hefty Cracked Pot
+66950	m61_47_41	observed	Hefty Cracked Pot
+66980	m21_02	observed	Hefty Cracked Pot
 66990	m61_47_37	observed	Hefty Cracked Pot
-400030	m11_10_00_00	talk_esd	Festering Bloody Finger
+400020	m10_00_00_00	talk_esd	Neutralizing Boluses
 400049	m60_42_36	observed	Kalé's Bell Bearing
 400051	m10_00	observed	Gostoc's Bell Bearing
-400060	m11_10_00_00	talk_esd	Sacrificial Twig
-400069	m60_43_31	observed	[Sorcery] Rancorcall
+400080	m60_45_34	observed	Irina's Letter
+400090	m16_00_00_00	talk_esd	Volcano Manor Invitation
 400101	m14_00_00_00	talk_esd	Glintstone Kris
 400103	m14_00_00_00	talk_esd	Starlight Shards
 400158	m60_34_50	observed	Royal Greatsword
@@ -22,14 +36,22 @@ flag	map_id	source	item_name
 400221	m10_00_00_00	talk_esd	Erdsteel Dagger
 400380	m11_10_00_00	talk_esd	Sewer-Gaol Key
 400412	m60_36_41	observed	Blue Silver Mail Hood
+400430	m31_11_00_00	talk_esd	[Sorcery] Stars of Ruin
 400612	m21_01_00_00	talk_esd	Furnace Visage
 400901	m60_44_39	observed	Nomadic Merchant's Bell Bearing [1]
+400902	m60_45_36	observed	Nomadic Merchant's Bell Bearing [2]
+400903	m60_41_36	observed	Nomadic Merchant's Bell Bearing [3]
 400904	m60_44_33	observed	Nomadic Merchant's Bell Bearing [4]
 400905	m60_38_41	observed	Nomadic Merchant's Bell Bearing [5]
 400906	m60_41_32	observed	Isolated Merchant's Bell Bearing [1]
+400907	m60_35_45	observed	Isolated Merchant's Bell Bearing [2]
+400908	m60_36_49	observed	Nomadic Merchant's Bell Bearing [6]
+400909	m60_43_53	observed	Hermit Merchant's Bell Bearing [1]
+400910	m60_40_52	observed	Nomadic Merchant's Bell Bearing [7]
 400911	m60_37_54	observed	Nomadic Merchant's Bell Bearing [8]
 400912	m60_48_38	observed	Nomadic Merchant's Bell Bearing [9]
 400913	m60_49_37	observed	Nomadic Merchant's Bell Bearing [10]
+400915	m60_48_41	observed	Isolated Merchant's Bell Bearing [3]
 400916	m60_51_56	observed	Hermit Merchant's Bell Bearing [2]
 400917	m12_02	observed	Abandoned Merchant's Bell Bearing
 400918	m12_01	observed	Hermit Merchant's Bell Bearing [3]
@@ -56,5 +78,15 @@ flag	map_id	source	item_name
 540916	m61_45_47	observed	Ash of War: The Poison Flower Blooms Twice
 580030	m60_51_57	observed	"Sorcerer" Painting
 580060	m60_50_39	observed	"Redmane" Painting
+580110	m61_47_42_00	event_call	"The Sacred Tower" Painting
+580400	m61_45_43	observed	Serpent Crest Shield
+39207170	m39_20	observed	Sacred Tear
 99997020	m99_99	observed	Cracked Pot
 99997030	m99_99	observed	Perfume Bottle
+1033457100	m60_33_45	observed	Dragonscale Blade
+1036437010	m60_36_43	observed	Confessor Hood
+1038447100	m60_38_44	observed	Dragon Cult Prayerbook
+1039527700	m60_39_52	observed	Eleonora's Poleblade
+1042377100	m60_42_37	observed	Assassin's Crimson Dagger
+1042377110	m60_42_37	observed	Ash of War: Storm Stomp
+1044357050	m60_44_35	observed	[Incantation] Flame Sling

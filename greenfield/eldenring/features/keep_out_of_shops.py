@@ -100,6 +100,14 @@ feasibility ladder is the precedent). `plan()` is a PURE function of (counts, ca
 call it directly both ways: no realistic corpus seed exercises every branch, and a guard the corpus
 never triggers is untested.
 
+Capacity only becomes real AFTER every progression pre-fill. `set_rules` therefore installs a
+provisional ban for progression curation, `stage_pre_fill` narrows it to what the remaining grid can
+actually support, then AP's reachability-aware restrictive filler reserves those items before the
+cheap general filler runs. The last step matters even when the count fits: #903's Ensis witness had
+six spare non-shop slots and still stranded Cipher Pata opposite Enia because `remaining_fill` only
+tries limited swaps. Abyssal and Jagged Peak are the complementary witnesses where the late count
+correctly relaxes weapons and preserves armour.
+
 REJECTED COMBINATIONS (both name the option, the value and the fix, per CONTRIBUTING)
 --------------------------------------------------------------------------------------
   * `vanilla_placement` -- it pins EVERY location with `place_locked_item`, which does not consult
@@ -203,6 +211,44 @@ def plan(counts: Dict[str, int], capacity: int) -> Tuple[List[str], List[str]]:
     return sorted(enforced), sorted(dropped)
 
 
+def safe_forbid_capacity(non_shop_slots: int, selected_items: int,
+                         shop_slots: int, compatible_outside_items: int) -> int:
+    """Maximum selected items that may be forbidden without starving shop-only slots.
+
+    ``B <= non_shop_slots`` is necessary but not sufficient: some shop rows already reject the
+    Region Locks / Rune sentinels outside the catalog partition. Preserve enough selected items as
+    legal shop stock to cover the shortfall. This is deliberately conservative (one outside item
+    is counted once even if many shops accept it), which may drop a category but can never invent
+    capacity that fill does not have.
+    """
+    shop_shortfall = max(0, shop_slots - compatible_outside_items)
+    return max(0, min(non_shop_slots, selected_items - shop_shortfall))
+
+
+def _max_shop_matches(items, shops) -> int:
+    """Maximum one-item/one-shop matching under the rows' existing item rules.
+
+    Counting an outside item merely because *some* shop accepts it overstates capacity when several
+    items all fit the same permissive row but not the restrictive rows. The small augmenting-path
+    matcher makes the reserve a proof rather than a heuristic.
+    """
+    matched_item = [-1] * len(shops)
+
+    def place(item_index: int, seen: Set[int]) -> bool:
+        item = items[item_index]
+        for shop_index, shop in enumerate(shops):
+            if shop_index in seen or not shop.item_rule(item):
+                continue
+            seen.add(shop_index)
+            prior = matched_item[shop_index]
+            if prior == -1 or place(prior, seen):
+                matched_item[shop_index] = item_index
+                return True
+        return False
+
+    return sum(1 for item_index in range(len(items)) if place(item_index, set()))
+
+
 def skip_line(cat: str, count: int, remaining: int, capacity: int, enforced: List[str]) -> str:
     """The sentence a dropped category is owed, as a PURE function so a test can pin the numbers.
 
@@ -255,6 +301,142 @@ def forbidden_goods_rows(world) -> Set[int]:
     return out
 
 
+def finalize_rules(world) -> None:
+    """Choose the categories the seed can afford after every progression pre-fill.
+
+    ``set_rules`` installs the requested ban early so progression curation cannot put a selected
+    key item on a shop.  Capacity is not true yet at that point: missable protection and both
+    progression-surface passes still consume non-shop locations.  ``stage_pre_fill`` calls this
+    after those passes, immediately before AP's general fill, and this function relaxes any
+    category that no longer fits.
+
+    The mutable set captured by each shop rule is intentional.  Replacing the set would leave the
+    lambdas holding the provisional all-requested ban; mutating it makes the final decision atomic
+    across every shop row.
+    """
+    cats = _selected(world)
+    if not cats or not SHOP_ROW_FLAGS:
+        return
+    forbidden = getattr(world, "_gf_keep_out_of_shops_forbidden", None)
+    shop_locs = getattr(world, "_gf_keep_out_of_shops_locations", None)
+    if forbidden is None or shop_locs is None:
+        return
+
+    player = world.player
+    capacity = sum(
+        1 for loc in world.multiworld.get_locations(player)
+        if getattr(loc, "address", None) is not None
+        and str(loc.address) not in SHOP_ROW_FLAGS
+        and loc.item is None
+    )
+    by_cat = _names_by_category(cats)
+    own = [item for item in world.multiworld.itempool if item.player == player]
+    selected_names = set().union(*by_cat.values()) if by_cat else set()
+    open_shops = [loc for loc in shop_locs if loc.item is None]
+    outside = [item for item in own if item.name not in selected_names]
+    compatible_outside = _max_shop_matches(outside, open_shops)
+    selected_count = sum(1 for item in own if item.name in selected_names)
+    capacity = safe_forbid_capacity(
+        capacity, selected_count, len(open_shops), compatible_outside)
+    counts = {cat: sum(1 for item in own if item.name in names)
+              for cat, names in by_cat.items()}
+    enforced, dropped = plan(counts, capacity)
+
+    used = sum(counts[cat] for cat in enforced)
+    for cat in dropped:
+        _LOG.warning("[eldenring:%s] %s", player,
+                     skip_line(cat, counts[cat], capacity - used, capacity, enforced))
+
+    final_forbidden: Set[str] = set()
+    for cat in enforced:
+        final_forbidden |= by_cat[cat]
+    forbidden.clear()
+    forbidden.update(final_forbidden)
+    world._gf_keep_out_of_shops_enforced = tuple(enforced)
+
+    if not enforced:
+        _LOG.warning(
+            "[eldenring:%s] keep_out_of_shops: INERT this seed -- none of %s fits in %d "
+            "non-shop location(s) after progression pre-fill. A larger seed (more kept regions) "
+            "has room.",
+            player, ", ".join(cats), capacity)
+        return
+
+    _LOG.info(
+        "[eldenring:%s] keep_out_of_shops: armed on %d shop check(s) for %s -- %d item name(s) "
+        "forbidden, %d pool item(s) displaced into %d non-shop location(s) after progression "
+        "pre-fill.",
+        player, len(shop_locs), ", ".join(enforced), len(final_forbidden), used, capacity)
+
+
+def reserve_forbidden_items(multiworld, worlds) -> None:
+    """Place every finally-forbidden item before AP's greedy remaining fill can strand its tail.
+
+    The capacity gate proves that a legal assignment exists, but ``remaining_fill`` is intentionally
+    cheap: it walks one shuffled order and performs only limited swaps.  #903's exact witness left
+    Cipher Pata opposite one Enia row despite six spare non-shop slots.  Use AP's reachability-aware
+    restrictive fill for this constrained subset, across the whole multiworld in one pass.  That
+    preserves cross-world placement freedom; the only locations removed are the owner's shops,
+    exactly the option's promise.
+    """
+    forbidden_by_player = {
+        world.player: getattr(world, "_gf_keep_out_of_shops_forbidden", set())
+        for world in worlds
+        if getattr(world, "_gf_keep_out_of_shops_forbidden", None)
+    }
+    if not forbidden_by_player:
+        return
+
+    items = [
+        item for item in multiworld.itempool
+        if item.player in forbidden_by_player
+        and item.name in forbidden_by_player[item.player]
+    ]
+    if not items:
+        return
+
+    # Build the all-items state before taking this batch out of the pool. fill_restrictive still
+    # checks reachability for advancement/useful items, unlike place_locked_item or remaining_fill.
+    state = multiworld.get_all_state(False)
+    selected_ids = {id(item) for item in items}
+    multiworld.itempool[:] = [item for item in multiworld.itempool
+                              if id(item) not in selected_ids]
+    locations = list(multiworld.get_unfilled_locations())
+    multiworld.random.shuffle(items)
+    multiworld.random.shuffle(locations)
+
+    from Fill import fill_restrictive
+    total = len(items)
+    fill_restrictive(
+        multiworld, state, locations, items,
+        lock=True, allow_partial=True, one_item_per_player=True,
+        name="Keep Out Of Shops")
+    placed = total - len(items)
+
+    if items:
+        # The count/matching gate should make this unreachable, but a new independent location rule
+        # can narrow the real grid after the gate. Generation still wins: relax the affected owners'
+        # whole ban, return the leftovers to normal fill, and say exactly what degraded.
+        affected = sorted({item.player for item in items})
+        for world in worlds:
+            if world.player not in affected:
+                continue
+            requested = ", ".join(getattr(world, "_gf_keep_out_of_shops_enforced", ()))
+            world._gf_keep_out_of_shops_forbidden.clear()
+            world._gf_keep_out_of_shops_enforced = ()
+            _LOG.warning(
+                "[eldenring:%s] keep_out_of_shops: RELAXED %s after the restrictive reservation "
+                "could not place every forbidden item. The seed still generates; those categories "
+                "may appear at merchants this seed.",
+                world.player, requested or "the requested categories")
+        multiworld.itempool.extend(items)
+
+    _LOG.info(
+        "[greenfield] keep_out_of_shops: reserved %d of %d forbidden item(s) outside their "
+        "owner's shops before general fill%s",
+        placed, total, "; the remaining ban was relaxed" if items else "")
+
+
 @register
 class KeepOutOfShopsFeature(Feature):
     name = "keep_out_of_shops"
@@ -302,39 +484,21 @@ class KeepOutOfShopsFeature(Feature):
             return
 
         shop_locs = []
-        capacity = 0
         for loc in world.multiworld.get_locations(player):
             aid = getattr(loc, "address", None)
             if aid is None:
                 continue                      # events are not checks
             if str(aid) in SHOP_ROW_FLAGS:
                 shop_locs.append(loc)
-            elif loc.item is None:
-                capacity += 1                 # a non-shop slot a displaced item could land on
 
-        by_cat = _names_by_category(cats)
-        own = [i for i in world.multiworld.itempool if i.player == player]
-        counts = {c: sum(1 for i in own if i.name in ns) for c, ns in by_cat.items()}
-        enforced, dropped = plan(counts, capacity)
-
-        used = sum(counts[c] for c in enforced)
-        for c in dropped:
-            _LOG.warning("[eldenring:%s] %s", player,
-                         skip_line(c, counts[c], capacity - used, capacity, enforced))
-        if not enforced:
-            _LOG.warning(
-                "[eldenring:%s] keep_out_of_shops: INERT this seed -- none of %s fits in %d "
-                "non-shop location(s). A larger seed (more kept regions) has room.",
-                player, ", ".join(cats), capacity)
-            return
-
-        forbidden: Set[str] = set()
-        for c in enforced:
-            forbidden |= by_cat[c]
-        _LOG.info(
-            "[eldenring:%s] keep_out_of_shops: armed on %d shop check(s) for %s -- %d item name(s) "
-            "forbidden, %d pool item(s) displaced into %d non-shop location(s).",
-            player, len(shop_locs), ", ".join(enforced), len(forbidden), used, capacity)
+        # Prohibit every requested category while progression is curated. The exact capacity does
+        # not exist until stage_pre_fill: missable protection and the progression surface still
+        # consume non-shop locations after set_rules. finalize_rules mutates this captured set down
+        # to the categories the remaining grid can actually support.
+        forbidden = set(forbidden_names(world))
+        world._gf_keep_out_of_shops_forbidden = forbidden
+        world._gf_keep_out_of_shops_locations = tuple(shop_locs)
+        world._gf_keep_out_of_shops_enforced = ()
 
         for loc in shop_locs:
             prev = loc.item_rule

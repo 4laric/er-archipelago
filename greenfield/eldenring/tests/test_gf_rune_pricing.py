@@ -15,6 +15,7 @@ from worlds.eldenring.features import rune_pricing as rp  # noqa: E402
 from worlds.eldenring.shop_data import SHOP_ROW_FLAGS, SHOP_ROW_IDS  # noqa: E402
 from worlds.eldenring.shop_stock_data import GOODS_PRICE  # noqa: E402
 from worlds.eldenring.item_ids import ITEM_CATALOG  # noqa: E402
+from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
 
 GAME = "Elden Ring"
 _ROW_MASK = 0x0FFFFFFF
@@ -187,9 +188,14 @@ class RunePricingRolls(WorldTestBase):
             w.multiworld.get_locations = orig
 
     def _a_shop_ap_id(self):
-        ids = [a for a in sorted(SHOP_ROW_FLAGS, key=int) if SHOP_ROW_IDS.get(a)]
+        _fixed, alt_ids = rp.fixed_alt_currency_prices()
+        ids = [a for a in sorted(SHOP_ROW_FLAGS, key=int)
+               if SHOP_ROW_IDS.get(a) and a not in alt_ids]
         self.assertTrue(ids, "no shop check has a ShopLineupParam row to reprice")
         return ids[0]
+
+    def _fixed_prices(self):
+        return rp.fixed_alt_currency_prices()[0]
 
     def _a_rune(self):
         for n in sorted(ITEM_CATALOG):
@@ -202,8 +208,9 @@ class RunePricingRolls(WorldTestBase):
         name, worth = self._a_rune()
         out = self._emit({aid: (name, self.world.player)})
         rows = [str(r) for r in SHOP_ROW_IDS[aid]]
-        self.assertEqual(sorted(out), sorted(rows),
-                         "every ShopLineupParam row behind the check must be repriced, not just one")
+        expected = set(self._fixed_prices()) | set(rows)
+        self.assertEqual(set(out), expected,
+                         "the rune rows and every unconditional altar row must be present")
         for r in rows:
             self.assertGreaterEqual(out[r], 0)
             self.assertLessEqual(out[r], rp.PRICE_MULT * worth,
@@ -213,14 +220,14 @@ class RunePricingRolls(WorldTestBase):
         """THE REGRESSION GUARD. Repricing gear would silently rewrite the whole shop economy."""
         aid = self._a_shop_ap_id()
         gear = next(n for n in sorted(ITEM_CATALOG) if not rp.is_rune_item(n))
-        self.assertEqual(self._emit({aid: (gear, self.world.player)}), {})
+        self.assertEqual(self._emit({aid: (gear, self.world.player)}), self._fixed_prices())
 
     def test_a_foreign_reward_is_left_alone(self):
         """A foreign reward is not sold natively -- its slot shows a placeholder, and repricing it
         would leak which foreign slots hold runes."""
         aid = self._a_shop_ap_id()
         name, _ = self._a_rune()
-        self.assertEqual(self._emit({aid: (name, self.world.player + 1)}), {})
+        self.assertEqual(self._emit({aid: (name, self.world.player + 1)}), self._fixed_prices())
 
 
 # ---- the option is a knob again ---------------------------------------------------------------
@@ -277,12 +284,12 @@ def test_rune_shop_pricing_is_filed_under_a_wizard_tab():
     hours earlier that same day. Deleting the entry because it is currently unreachable is how the
     next unfreeze re-earns that red."""
     from worlds.eldenring import core
-    grouped = {k for _name, keys in core._OPTION_GROUPS for k in keys}
+    grouped = {k for _e in core._OPTION_GROUPS for k in _e[1]}  # entries may carry a collapsed flag
     assert "rune_shop_pricing" in grouped
 
 
-class OffMeansTheSlotKeepsItsPrice(WorldTestBase):
-    """The OFF path emits no prices at all, so the client leaves every slot alone.
+class OffMeansOnlyFixedPricesRemain(WorldTestBase):
+    """The OFF path emits no random rune prices, but altar prices are an unconditional safety rule.
 
     🛑 WITNESSED against the ON path in `RunePricingRolls` above -- an `slot_data` that returned an
     empty dict for every input would satisfy this test for free, which is the whole reason the
@@ -290,8 +297,19 @@ class OffMeansTheSlotKeepsItsPrice(WorldTestBase):
     game = GAME
     options = {"num_regions": 0, "rune_shop_pricing": 0}
 
-    def test_no_slot_is_repriced(self):
+    def test_only_alt_currency_rows_cost_one(self):
         from worlds.eldenring import contract
         sd = rp.RunePricing().slot_data(self.multiworld.worlds[1])
-        assert sd == {contract.SHOP_RUNE_PRICES: {}}
-
+        got = sd[contract.SHOP_RUNE_PRICES]
+        alt_ids = {
+            str(aid) for aid, source in MISSABLE_LOCATIONS.items()
+            if source.startswith("alt_currency:")
+        }
+        expected_rows = {
+            str(row_id)
+            for aid in alt_ids
+            for row_id in SHOP_ROW_IDS.get(aid, [])
+        }
+        assert expected_rows, "the generated alt-currency/ShopLineupParam join is empty"
+        assert set(got) == expected_rows
+        assert set(got.values()) == {1}

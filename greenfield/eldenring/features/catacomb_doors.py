@@ -110,18 +110,18 @@ LEVER_DOORS = (
 # BOTH altars live in m12_02 (Siofra River Bank), the parent overworld tile. m12_08 and m12_09 hold
 # only the fights and contain no ObjActs at all -- the arena-is-not-the-tile split again.
 #
-# ⭐ ONE FLAG EACH, not sixteen. Each altar is a counter event over its per-urn flags that sets a
-# single aggregate, and the WARP reads the aggregate directly (m12_02:323):
+# Each altar has one aggregate flag for the working warp plus individual urn flags for readable
+# world state. The WARP reads the aggregate directly (m12_02:323):
 #
 #     $Event(12022609, Default, ...):
 #         if (EventFlag(12020609)) {                      # <- the aggregate, all we set
 #             WaitFor(... ActionButtonInArea(9525, 12021609));
 #             ... WarpCharacterAndCopyFloorWithFadeout(20000, Area, 12082400, ...)
 #
-# 🛑 WE DO NOT SET THE INDIVIDUAL URN FLAGS (12020600-07, 12020620-27), and a test pins that. The
-# counter's own already-done branch lights the altar SFX from the aggregate at map load, so setting
-# the eight would be redundant; and the urns are a plausible future check family, which is exactly
-# the kind of thing you do not want a QoL toggle silently pre-satisfying.
+# The original implementation set only the aggregates. The warps worked, but sixteen dark urns
+# still told the player the encounters were closed. #677's follow-up ruling makes presentation part
+# of the option's promise: set every instantiated urn too, so the world visibly agrees with the
+# open altar. They are state flags, not randomized checks; the boss and sweep remain untouched.
 #
 # ⭐ The upper counter waits on SIX of its eight urns (12020620-12020625) while eight are
 # instantiated. Two are decorative as far as the gate is concerned. Irrelevant here -- we set the
@@ -130,6 +130,8 @@ ANCESTOR_ALTARS = (
     ("m12_02 lower", 12020609),   # -> m12_08 Ancestor Spirit
     ("m12_02 upper", 12020629),   # -> m12_09 Regal Ancestor Spirit
 )
+
+ANCESTOR_URNS = tuple(range(12020600, 12020608)) + tuple(range(12020620, 12020628))
 
 # The four excluded doors, kept as data rather than prose so a test can assert they stay out.
 # 90005652 = opens on a mini-boss death, not a lever. 27041 = ObjAct on the door itself.
@@ -167,7 +169,8 @@ def doors_to_force(world) -> list:
     opt = getattr(world.options, "open_boss_doors", None)
     if not (opt is not None and opt.value):
         return []
-    return [flag for _tile, flag in LEVER_DOORS] + [flag for _where, flag in ANCESTOR_ALTARS]
+    return ([flag for _tile, flag in LEVER_DOORS] +
+            [flag for _where, flag in ANCESTOR_ALTARS] + list(ANCESTOR_URNS))
 
 
 @register

@@ -116,7 +116,10 @@ FROZEN_OPTIONS = {
     # up that the 2026-07 playtest ran almost exclusively SOMBER weapons.) -- Alaric 2026-07-11
     "stone_ramp": (0, None),                   # mechanism DELETED (see core.post_fill); class inert
     "flatten_regular_upgrades": (2, None),
-    "auto_upgrade": (1, None),
+    # "auto_upgrade" UNFROZE 2026-08-20 (Alaric: "auto_upgrade prominent" for the wizard's QoL
+    # essentials). The class default moved to the frozen value (1) in the same commit, so a yaml
+    # that does not name it gets exactly the behaviour every seed has had since the freeze; the
+    # options-echo key keeps being emitted (now player-valued), so the client contract is unmoved.
     "start_with_lantern": (1, None),   # replaces the old start Torch: hands-free pouch light
     "start_with_flasks": (1, None),
     "start_with_steed": (1, None),
@@ -138,7 +141,8 @@ FROZEN_OPTIONS = {
     #   "no_weapon_requirements": (1, None),
     "early_leveling": (1, None),
     "buyable_stonesword_keys": (1, None),
-    "protect_missable_locations": (1, None),
+    # UNFROZEN 2026-08-17 by ruling #582: this is now a three-level Choice whose default protects
+    # both progression and useful items. The old frozen value remains expressible as `progression`.
     "legacy_dungeon_keys": (1, None),
     "varied_filler": (1, None),
     # NB curated_filler is deliberately NOT frozen. It is now THE recipe for the entire filler tail

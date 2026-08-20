@@ -1,9 +1,9 @@
 {
  "schema": 1,
  "game": "Elden Ring",
- "apworld_version": "0.4.6",
+ "apworld_version": "0.4.10",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "6f88f40e580f8e98dc816ca4aa373561a7e0b94129b7114fdf49ce367cb3793f",
+ "source_sha256": "b4f1738898ed8d88a7ee14da4906d91f8d7dd5ec91974b252a3513ad62d30390",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -39,11 +39,13 @@
   "keep_local",
   "keep_local_rune_cap",
   "merchant_bells_on_talk",
+  "protect_missable_locations",
   "no_runes_in_shops",
   "progression_surface",
   "progression_bias",
   "confine_foreign_progression",
   "cross_game_progression",
+  "goal_region_unlock_policy",
   "enemy_scaling",
   "minimum_enemy_difficulty",
   "maximum_enemy_difficulty",
@@ -57,9 +59,11 @@
   "start_regions",
   "start_region_pool",
   "start_with_whetblades",
+  "trap_link",
   "traps",
   "trap_count",
   "spawn_traps",
+  "auto_upgrade",
   "vanilla_pool",
   "no_weapon_requirements"
  ],
@@ -78,7 +82,8 @@
     "leyndell_runes_required",
     "region_grace_unlock",
     "grace_attunement",
-    "grace_attunement_anchor"
+    "grace_attunement_anchor",
+    "goal_region_unlock_policy"
    ]
   },
   {
@@ -109,10 +114,9 @@
    "name": "Checks & Item Pool",
    "collapsed": false,
    "options": [
-    "vanilla_placement",
-    "natural_progression",
     "dungeon_sweep",
     "reroll_enemy_drops",
+    "protect_missable_locations",
     "vanilla_pool",
     "curated_filler",
     "pool_builder_intensity",
@@ -128,6 +132,7 @@
    "collapsed": false,
    "options": [
     "death_link",
+    "trap_link",
     "filler_foreign_pct",
     "progression_surface",
     "progression_bias",
@@ -155,12 +160,21 @@
    "collapsed": false,
    "options": [
     "auto_equip",
-    "no_weapon_requirements",
     "no_equip_load",
+    "auto_upgrade",
+    "no_weapon_requirements",
     "start_with_whetblades",
     "progressive_flasks",
     "capital_reconciler",
     "open_boss_doors"
+   ]
+  },
+  {
+   "name": "Experimental",
+   "collapsed": true,
+   "options": [
+    "vanilla_placement",
+    "natural_progression"
    ]
   }
  ],
@@ -183,7 +197,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "num_regions_order",
@@ -208,13 +223,14 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "goal",
    "class": "Goal",
    "display_name": "Goal",
-   "description": "WHICH BOSS ENDS THE RUN. 'auto' (default) derives it: on ANY seed with the base game in\nplay, Godfrey/Hoarah Loux + the Elden Beast. Under DLC Only, the major bosses of the deepest\nkept region.\n\nHOW YOU GET THERE. The Erdtree burn is an ITEM. The Ashen Capital Lock is shuffled into the\npool like any other progression item, and when it reaches you the Erdtree burns and the Ashen\nCapital's graces light -- so you warp to the end of the game from wherever you are, and no\nparticular region has to be kept for the ending to exist. Before v0.3.7 the burn was the\ngame's own (Maliketh, in Farum Azula), which is why this option used to force two regions into\nevery draw. The Ashen Capital itself is never rolled, never counted by Number of Regions and\nnever where you start.\n\n'elden_beast' pins that pair explicitly and forces NO regions kept.\n'promised_consort' pins Enir Ilim -- Promised Consort Radahn, the DLC's final boss -- and\nFORCES Enir Ilim to be kept. It is the only choice that still forces anything, and that is the\npoint of the option: on a full base+DLC seed 'auto' ends at the Elden Beast and the whole DLC\nis optional, so PCR can never be the goal by luck.\n\nA choice its toggles make impossible is a GENERATION ERROR, never a silent fallback:\n'promised_consort' needs DLC content in play (fails with Enable DLC off), 'elden_beast' needs\nbase-game content (fails with DLC Only on). A goal that quietly evaporates is worse than a\nyaml that refuses to roll.",
+   "description": "WHICH BOSS ENDS THE RUN. 'auto' (default) derives it: on ANY seed with the base game in\nplay, Godfrey/Hoarah Loux + the Elden Beast. Under DLC Only, the major bosses of the deepest\nkept region.\n\nHOW YOU GET THERE. The Erdtree burn is an ITEM. The Ashen Capital Lock is shuffled into the\npool like any other progression item, and when it reaches you the Erdtree burns and the Ashen\nCapital's graces light -- so you warp to the end of the game from wherever you are, and no\nparticular region has to be kept for the ending to exist. Before v0.3.7 the burn was the\ngame's own (Maliketh, in Farum Azula), which is why this option used to force two regions into\nevery draw. The Ashen Capital itself is never rolled, never counted by Number of Regions and\nnever where you start.\n\n'elden_beast' pins that pair explicitly and forces NO regions kept.\n'promised_consort' pins Enir Ilim -- Promised Consort Radahn, the DLC's final boss -- and\nFORCES Enir Ilim to be kept. 'malenia' pins Malenia alone, force-keeps the Haligtree, and opens\nthe route at Haligtree Canopy only: Loretta, Elphael and the full descent remain physical play.\nOn a full base+DLC seed 'auto' ends at the Elden Beast and the whole DLC is optional, so PCR or\nMalenia can never be the goal by luck.\n\nA choice its toggles make impossible is a GENERATION ERROR, never a silent fallback:\n'promised_consort' needs DLC content in play (fails with Enable DLC off); 'elden_beast' and\n'malenia' need base-game content (fail with DLC Only on). A goal that quietly evaporates is\nworse than a yaml that refuses to roll.",
    "kind": "choice",
    "base": "Choice",
    "default": "auto",
@@ -230,6 +246,10 @@
     {
      "name": "promised_consort",
      "value": 2
+    },
+    {
+     "name": "malenia",
+     "value": 3
     }
    ],
    "range": null,
@@ -237,13 +257,14 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "ending_condition",
    "class": "EndingCondition",
    "display_name": "Ending Condition",
-   "description": "What the seed's goal requires. 'region_locks' (default): reach the goal region -- hold every\nkept Region Lock (the classic Shattering goal). 'great_runes': ALSO collect Great Runes. Great\nRunes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off this falls\nback to the region_locks goal. The requirement is auto-clamped to the number of Great Runes\nactually reachable this seed, so it can never make a seed unbeatable.\n\n'great_runes' names a SPECIFIC SET, not any N. The seed resolves which runes count\n(core._resolve_required_runes) and only those complete the goal -- holding the right NUMBER of\nthe wrong runes sends no victory, which has already cost a finished run (#656). The names ride\nslot_data as `great_rune_items` and the client prints them at connect (\"goal: N item(s) must be\nHELD, not merely their boss killed: ...\"), so a player can read the set off the client log\nwithout opening the spoiler.",
+   "description": "Whether the seed's goal also requires Great Runes. This is independent of Goal Region\nUnlock Policy, which separately chooses whether Region Locks, completed regions, or neither\nare required. ``region_locks`` is the compatibility spelling for no Great-Rune requirement;\n``great_runes`` requires the configured rune count.\n\nGreat Runes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off the\nrune requirement is inert. It is auto-clamped to the number of Great Runes actually reachable\nthis seed, so it can never make a seed unbeatable.\n\n'great_runes' means ANY N of the seven Great Runes. The full eligible set rides slot_data as\n`great_rune_items`, alongside `great_runes_required`; both the AP completion rule and client\ncount distinct held names from that set (#813).",
    "kind": "choice",
    "base": "Choice",
    "default": "region_locks",
@@ -262,16 +283,17 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "goal_great_runes",
    "class": "GreatRunesRequired",
    "display_name": "Great Runes Required",
-   "description": "How many Great Runes the 'great_runes' ending needs. INERT unless Ending Condition is\ngreat_runes -- core._resolve_required_runes returns before this value is ever read.\n\nRENAMED from `great_runes_required` (2026-07-14). It sat one line above `leyndell_runes_required`,\nwhich is a completely different thing (the Great Runes needed to ENTER Leyndell, live in every\nseed), and the pair read as two settings for one mechanic. One was a no-op in the default config\nand nothing said so.\n\nThe effective requirement is clamped down to the Great Runes reachable in the kept regions, so\nsealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.\n\nThe maximum is SEVEN. The Great Rune of the Unborn counts: Rennala drops it (flag 197, ap\n7900004 in Raya Lucaria Academy), the game counts it toward the Leyndell wall, and this world\ncan hand it to you like any other rune.\n\nA COUNT OF A NAMED SET. This picks how many, never which: the seed picks which, and any other\nGreat Rune completes nothing (#656). See Ending Condition for where the client prints the\nnames.",
+   "description": "How many Great Runes the 'great_runes' ending needs. INERT unless Ending Condition is\ngreat_runes -- core._resolve_required_runes returns before this value is ever read.\n\nRENAMED from `great_runes_required` (2026-07-14). It sat one line above `leyndell_runes_required`,\nwhich is a completely different thing (the Great Runes needed to ENTER Leyndell, live in every\nseed), and the pair read as two settings for one mechanic. One was a no-op in the default config\nand nothing said so.\n\nThe effective requirement is clamped down to the Great Runes reachable in the kept regions, so\nsealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.\n\nThe maximum is SEVEN. The Great Rune of the Unborn counts: Rennala drops it (flag 197, ap\n7900004 in Raya Lucaria Academy), the game counts it toward the Leyndell wall, and this world\ncan hand it to you like any other rune.\n\nA COUNT OF THE FULL SEVEN-RUNE SET. Any distinct runes count; no particular named rune is\nmandatory (#813).",
    "kind": "range",
    "base": "Range",
-   "default": 2,
+   "default": 4,
    "choices": null,
    "range": {
     "start": 1,
@@ -281,7 +303,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "enable_dlc",
@@ -297,7 +320,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "dlc_only",
@@ -313,7 +337,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "vanilla_placement",
@@ -338,7 +363,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "capital_reconciler",
@@ -354,7 +380,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "auto_equip",
@@ -370,7 +397,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "no_equip_load",
@@ -399,7 +427,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "dungeon_sweep",
@@ -432,7 +461,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "open_boss_doors",
@@ -448,7 +478,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "death_link",
@@ -464,7 +495,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "reroll_enemy_drops",
@@ -480,25 +512,27 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "curated_filler",
    "class": "CuratedFiller",
    "display_name": "Curated Filler recipe (category -> weight)",
-   "description": "Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the\ncategories in proportion to their weights -- they are relative, not percentages, and need not sum\nto anything. Categories: juice, junk_gear, stones, somber_stones, runes, throwables, pots,\nfirepots, greases, ammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to\nkeep that share as whatever the check already paid. Stacks: throwables x5, pots x2, firepots x2, greases x2,\nammunition x20.\nNOT off by default. The shipped recipe is juice 42 / stones 29 / somber_stones 6 / runes 10 /\nthrowables 6 / pots 4 / greases 3 / foods 2 / boluses 1, so roughly two fifths of a default seed's\nfiller tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --\nit warns loudly rather than silently reverting to vanilla junk.\n'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier\nfrom ~1013 qualifying items). Its opposite number is 'junk_gear': the ~368 equippables the game\nitself rates trivial, which juice will never hand you at any intensity because its floor starts\nabove them. Weight junk_gear if you want the low end of the armoury in your filler -- it is the\nonly path to the ~96 pieces (the Celebrant's weapons among them) that have no check at all,\nbecause their only source is a random enemy drop the game never flags. It competes on the same budget as everything else; raising it past\nwhat the catalog can supply spills the surplus to junk, with a warning naming the shortfall.\n'stones', 'somber_stones' and 'runes' are an upgrade-economy RESERVATION taken off the top\nproportionally. A tail too small for that reservation to buy a useful number of stones warns by\nname; it does not refuse to generate.\n'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace\nGolems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample (a consumable-leaning run that still keeps its economy): {juice: 20, stones: 29,\nsomber_stones: 6, runes: 10, throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5,\nperfumes: 8, rare: 1}. Copying an example WITHOUT `juice` and the stone weights is what the\nempty-recipe warning is about.",
+   "description": "Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the\ncategories in proportion to their weights -- they are relative, not percentages, and need not sum\nto anything. Categories: juice, junk_gear, stones, somber_stones, runes, throwables, pots,\nfirepots, greases, ammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to\nkeep that share as whatever the check already paid. Stacks: throwables x5, pots/firepots/perfumes\nx10, greases x2, ammunition x20.\nNOT off by default. The shipped recipe is juice 63 / stones 6 / somber_stones 6 / runes 10 /\nthrowables 6 / pots 4 / greases 3 / foods 2 / boluses 1 / perfumes 2. Perfumes take two points\nfrom juice, so adding them does not increase the filler budget.\nfiller tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --\nit warns loudly rather than silently reverting to vanilla junk.\n'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier\nfrom ~1013 qualifying items). Its opposite number is 'junk_gear': the ~368 equippables the game\nitself rates trivial, which juice will never hand you at any intensity because its floor starts\nabove them. Weight junk_gear if you want the low end of the armoury in your filler -- it is the\nonly path to the ~96 pieces (the Celebrant's weapons among them) that have no check at all,\nbecause their only source is a random enemy drop the game never flags. It competes on the same budget as everything else; raising it past\nwhat the catalog can supply spills the surplus to junk, with a warning naming the shortfall.\n'stones', 'somber_stones' and 'runes' are an upgrade-economy RESERVATION taken off the top\nproportionally. A tail too small for that reservation to buy a useful number of stones warns by\nname; it does not refuse to generate.\n'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace\nGolems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample (a consumable-leaning run that still keeps its economy): {juice: 20, stones: 29,\nsomber_stones: 6, runes: 10, throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5,\nperfumes: 8, rare: 1}. Copying an example WITHOUT `juice` and the stone weights is what the\nempty-recipe warning is about.",
    "kind": "dict",
    "base": "OptionDict",
    "default": {
-    "juice": 42,
-    "stones": 29,
+    "juice": 63,
+    "stones": 6,
     "somber_stones": 6,
     "runes": 10,
     "throwables": 6,
     "pots": 4,
     "greases": 3,
     "foods": 2,
-    "boluses": 1
+    "boluses": 1,
+    "perfumes": 2
    },
    "choices": null,
    "range": null,
@@ -524,7 +558,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_intensity",
@@ -553,7 +588,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_weapons",
@@ -572,7 +608,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_armor",
@@ -591,7 +628,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_spells",
@@ -610,7 +648,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_talismans",
@@ -629,7 +668,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_ashes_of_war",
@@ -648,7 +688,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "filler_foreign_pct",
@@ -667,7 +708,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "natural_progression",
@@ -683,7 +725,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "region_grace_unlock",
@@ -712,7 +755,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "grace_attunement",
@@ -731,7 +775,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "grace_attunement_anchor",
@@ -756,13 +801,14 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "progressive_flasks",
    "class": "ProgressiveFlasks",
    "display_name": "Progressive Flasks",
-   "description": "On (default): every Golden Seed and Sacred Tear check pays out a single \"Progressive Flask\nUpgrade\" item instead, one-for-one. Each copy raises your flask on two axes: CHARGES climb on an\nescalating schedule the client applies directly, and POTENCY rises by granting you a Sacred Tear\nthat you spend at a grace the vanilla way -- so upgrades arrive on a steady cadence instead of a\npile of silent flat pickups. Off: seeds and tears stay discrete pickups at their shuffled\nlocations. Flasks never gate logic, so either way the seed is always winnable.",
+   "description": "On (default): every Golden Seed and Sacred Tear check pays out a single \"Progressive Flask\nUpgrade\" item instead, one-for-one. Copies alternate deterministically: Charge, then +1 potency,\nthen Charge, then +1, continuing in that order. The first copy visibly raises total charges above\nthe vanilla starting allocation; +1 copies grant a Sacred Tear to spend at a grace. Off: seeds\nand tears stay discrete pickups at their shuffled locations. Flasks never gate logic, so either\nway the seed is always winnable.",
    "kind": "toggle",
    "base": "Toggle",
    "default": true,
@@ -772,7 +818,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "progressive_stone_bells",
@@ -788,7 +835,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "keep_out_of_shops",
@@ -825,7 +873,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "leyndell_runes_required",
@@ -844,7 +893,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "keep_local",
@@ -890,7 +940,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "keep_local_rune_cap",
@@ -909,7 +960,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "merchant_bells_on_talk",
@@ -925,7 +977,38 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "protect_missable_locations",
+   "class": "ProtectMissableLocations",
+   "display_name": "Protect Missable Locations",
+   "description": "What may be placed at checks that can be lost behind a limited consumable, a killable NPC,\nor NPC-questline progress. ``progression and useful`` (default) leaves only filler there;\n``progression`` protects winnability but may lose useful gear; ``off`` permits either and accepts\nthat a seed can require a missable questline step. Legacy ``true`` selects the new default and\n``false`` selects off.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "progression_and_useful",
+   "choices": [
+    {
+     "name": "off",
+     "value": 0
+    },
+    {
+     "name": "progression",
+     "value": 1
+    },
+    {
+     "name": "progression_and_useful",
+     "value": 2
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "no_runes_in_shops",
@@ -941,7 +1024,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "progression_surface",
@@ -1229,7 +1313,8 @@
       "keys": []
      }
     ]
-   }
+   },
+   "essential": true
   },
   {
    "key": "progression_bias",
@@ -1248,13 +1333,14 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "confine_foreign_progression",
    "class": "ConfineForeignProgression",
    "display_name": "Confine Foreign Progression",
-   "description": "What share of OTHER players' progression is confined to your Progression Surface, the way\nyour own is. A percentage, not a switch.\n\n100 (`true`) confines all of it: another world's advancement may only be placed on your surface\nlocations -- the same high-confidence checks your own progression is curated onto -- never on\nyour filler checks. So a foreign key spell lands on a major-boss / remembrance / key-item check\nof yours, not on a random Smithing Stone pickup. 0 (`false`) confines none of it and foreign\nprogression scatters across any reachable location of yours, which is standard Archipelago\nbehaviour. In between, that share of the foreign advancement you see is held to the surface and\nthe rest is free.\n\n🛑 IT IS NOT ONLY A CURATION KNOB, and this is the reason it stopped being a toggle. The rule is\nabout YOUR locations, but it displaces your NEIGHBOUR: barred from your ~3000 filler checks, a\npartner game's progression has nowhere to go but its own locations, which saturates them early\nin the fill -- and Archipelago places the whole `useful` tier before any filler, so by the time\nit reaches what is left of the partner's world only filler remains. MEASURED at 100, three\nseeds, two Elden Ring slots beside two Hollow Knight slots: of 498 Elden Ring items that reached\nHollow Knight, **zero** were useful -- no weapon, no armour, no talisman, 100% filler -- while\nthe other Elden Ring slot got a healthy 43.1% useful. At 0 the same seeds send Hollow Knight\n40.7% useful, which is the pool's own mix. Lower this if you want your gear to be worth\nreceiving in a non-Elden-Ring game.\n\nIt is a propensity by ITEM NAME, not a per-copy coin flip: the decision for a given foreign item\nname is fixed for the whole seed, so a name is either surface-only or free, never both.\n\nNo effect in a solo seed, or when Progression Surface Mode is off. It never blocks generation:\nyour OWN progression keeps its feasibility-ladder + spill safety valve, and foreign progression\nthat will not fit your surface simply lands in its own world instead (only YOUR filler checks\nare barred to it -- other worlds are untouched).",
+   "description": "What share of OTHER players' progression is confined to your Progression Surface, the way\nyour own is. A percentage, not a switch.\n\n100 (`true`) confines all of it: another world's advancement may only be placed on your surface\nlocations -- the same high-confidence checks your own progression is curated onto -- never on\nyour filler checks. So a foreign key spell lands on a major-boss / remembrance / key-item check\nof yours, not on a random Smithing Stone pickup. 0 (`false`) confines none of it and foreign\nprogression scatters across any reachable location of yours, which is standard Archipelago\nbehaviour. In between, that share of the foreign advancement you see is held to the surface and\nthe rest is free.\n\nThis is purely about where INCOMING foreign keys may sit. It used to have a nasty side effect\n-- at 100 the displacement it causes starved non-Elden-Ring partners of your useful gear\nentirely (measured: 0 useful in 498 placements to Hollow Knight) -- but that is fixed at its\nown layer since v0.4.10: a dedicated export-reservation pass places your fair share of useful\nitems into partner worlds before the general fill, whatever this option is set to. Re-measured\nwith the pass: partners receive the pool's own mix (about 1:1 useful to filler) at every\nconfine value. Lower this only if you want foreign keys spread beyond your starred checks.\n\nIt is a propensity by ITEM NAME, not a per-copy coin flip: the decision for a given foreign item\nname is fixed for the whole seed, so a name is either surface-only or free, never both.\n\nNo effect in a solo seed, because there is no foreign progression to confine. It never blocks\ngeneration: your OWN progression keeps its feasibility-ladder + spill safety valve, and foreign\nprogression that will not fit your surface simply lands in its own world instead (only YOUR\nfiller checks are barred to it -- other worlds are untouched).",
    "kind": "range",
    "base": "NamedRange",
    "default": 100,
@@ -1284,7 +1370,8 @@
      "name": "true",
      "value": 100
     }
-   ]
+   ],
+   "essential": false
   },
   {
    "key": "cross_game_progression",
@@ -1312,7 +1399,38 @@
      "name": "never",
      "value": 0
     }
-   ]
+   ],
+   "essential": false
+  },
+  {
+   "key": "goal_region_unlock_policy",
+   "class": "GoalRegionUnlockPolicy",
+   "display_name": "Goal Region Unlock Policy",
+   "description": "When the synthetic final region opens.\n\n``items_held`` preserves the original rule: receiving every required Region Lock opens the\nfinal region. ``none`` imposes no region-side requirement. ``regions_completed`` waits until\nevery progression-surface check in every non-final region has been satisfied. A shop check is\nsatisfied when its merchant inventory is viewed; buying the ware is not required. Completion\nis reconstructed from the server's checked locations plus its per-slot viewed-shop ledger, so\nreconnecting cannot lose progress.\n\nThis is independent of Ending Condition: any of these three policies can be combined with or\nwithout the Great Rune threshold.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "items_held",
+   "choices": [
+    {
+     "name": "items_held",
+     "value": 0
+    },
+    {
+     "name": "regions_completed",
+     "value": 1
+    },
+    {
+     "name": "none",
+     "value": 2
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "enemy_scaling",
@@ -1328,7 +1446,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "minimum_enemy_difficulty",
@@ -1347,7 +1466,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "maximum_enemy_difficulty",
@@ -1371,7 +1491,8 @@
      "name": "auto",
      "value": -1
     }
-   ]
+   ],
+   "essential": false
   },
   {
    "key": "difficulty_ramp_speed",
@@ -1390,7 +1511,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "scadutree_blessing_scope",
@@ -1415,7 +1537,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "dlc_blessing_catchup",
@@ -1431,7 +1554,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "global_scadutree_blessing",
@@ -1460,7 +1584,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "reroll_infinite_shop_stock",
@@ -1476,7 +1601,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "infinite_hub_wares",
@@ -1492,7 +1618,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "merchant_bell_logic",
@@ -1517,7 +1644,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "start_regions",
@@ -1536,7 +1664,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "start_region_pool",
@@ -1581,7 +1710,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "start_with_whetblades",
@@ -1597,20 +1727,41 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "trap_link",
+   "class": "TrapLink",
+   "display_name": "TrapLink",
+   "description": "Share trap items with other TrapLink players.\n\nA trap received through Archipelago is broadcast once when it enters your local trap queue.\nLinked traps use an exact compatible Elden Ring trap name; unknown foreign trap names are\nignored rather than converted into an arbitrary effect. Incoming linked traps never echo back.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "traps",
    "class": "Traps",
    "display_name": "Traps",
-   "description": "Which traps may appear in your world. Empty (default) = no traps at all.\n\nA trap is an item that makes your run briefly worse. They are FILLER: a trap never holds\nprogression, and every trap in your pool replaces one junk item, so your seed does not grow.\n\n- **rune_thief** -- half your runes, gone.\n- **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does\n  nothing, and the charge is spent.\n- **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the\n  runes.\n- **basilisk** -- THREE basilisks appear where you are standing. One is a joke; three is the\n  Death Blight mist, which kills outright. Killing you sends a DeathLink.\n\nTraps are sent to YOU by your own world like any other item, so in a multiworld somebody else\nmay be the one who finds them.\n\nFor any other enemy in the game, see `spawn_traps`.",
+   "description": "Which traps may appear in your world. Empty (default) = no traps at all.\n\nA trap is an item that makes your run briefly worse. They are FILLER: a trap never holds\nprogression, and every trap in your pool replaces one junk item, so your seed does not grow.\n\n- **rune_thief** -- half your runes, gone.\n- **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does\n  nothing, and the charge is spent.\n- **blackout** -- the screen fades out, stays dark for 2 seconds, then fades back in.\n- **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the\n  runes.\n- **basilisk** -- THREE basilisks appear where you are standing. One is a joke; three is the\n  Death Blight mist, which kills outright. Killing you sends a DeathLink.\n\nTraps are sent to YOU by your own world like any other item, so in a multiworld somebody else\nmay be the one who finds them.\n\nFor any other enemy in the game, see `spawn_traps`.",
    "kind": "set",
    "base": "OptionSet",
    "default": [],
    "choices": null,
    "range": null,
    "valid_keys": [
+    "aging_untouchable",
     "basilisk",
+    "blackout",
+    "malenia",
     "no_flask",
     "rune_thief",
     "runebear"
@@ -1618,7 +1769,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "trap_count",
@@ -1637,7 +1789,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "spawn_traps",
@@ -2045,7 +2198,25 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "free_text": true
+   "free_text": true,
+   "essential": false
+  },
+  {
+   "key": "auto_upgrade",
+   "class": "AutoUpgrade",
+   "display_name": "Auto-Upgrade Received Weapons",
+   "description": "Automatically raise any weapon that enters your bag -- an AP grant, a world pickup, or an\nitem you put down with Leave and took back -- to the highest reinforce level you already hold\non its smithing track (normal caps at +25, somber at +10). Raise-only and per-track: nothing\nis ever downgraded, and somber never feeds normal. The put-it-down-pick-it-up gesture is the\nintended catch-up for a weapon received before you found your stones. On by default, and the\nreceipt half has been every seed's behaviour since v0.2 -- turn it off to keep weapons at\ntheir found level and spend the stones yourself.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": true,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "vanilla_pool",
@@ -2061,7 +2232,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "no_weapon_requirements",
@@ -2077,7 +2249,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   }
  ],
  "presets": [

@@ -93,8 +93,8 @@ def _whole_items(share):
 COLLECTION_RATE = fb.COLLECTION_RATE
 EARLY_TARGET_LEVEL = fb.EARLY_TARGET_LEVEL
 
-_STONE_RE = re.compile(r"Smithing Stone \[(\d+)\]$")
-_SOMBER_RE = re.compile(r"Somber Smithing Stone \[(\d+)\]$")
+_STONE_RE = re.compile(r"Smithing Stone \[(\d+)\](?: x(\d+))?$")
+_SOMBER_RE = re.compile(r"Somber Smithing Stone \[(\d+)\](?: x(\d+))?$")
 
 
 def _stones_needed(level_target, flatten):
@@ -125,7 +125,12 @@ def _junk_larder(world):
 
 
 def _delivered(counts, categories):
-    return sum(counts[m] for c in categories for m in fc.CATEGORIES.get(c, ()))
+    names = set()
+    for cat in categories:
+        for base in fc.CATEGORIES.get(cat, ()):
+            names.add(base)
+            names.add(fc.curated_stack_name(base))
+    return sum(counts[n] for n in names)
 
 
 # The early-economy sample. ONE seed cannot answer a question about fill DENSITY: measured across
@@ -397,7 +402,11 @@ class LeanSeedWarnsRatherThanShipsQuietly(WorldTestBase):
     # SIZE IS THE POINT HERE (a seed too small for its recipe) and it does not change; only the
     # ending does, because #768 made a 1-region `region_locks` seed illegal at gen.
     options = {"num_regions": 1, "curated_filler": {"stones": 2, "juice": 98},
-               "ending_condition": "great_runes"}
+               "ending_condition": "great_runes",
+               # This fixture intentionally starves the filler pool to exercise the economy
+               # warning. Keep missable protection at its winnability-only level so the new
+               # filler-only default does not reject that unrelated artificial pool.
+               "protect_missable_locations": "progression"}
 
     def test_thin_stone_reservation_is_warned(self):
         import logging
@@ -436,6 +445,26 @@ class AllocationIsExact(WorldTestBase):
         self.assertGreater(total, 0)
         self.assertEqual(len(fb.plan(self.world, total)), total,
                          "the materialiser must produce exactly one decision per budget slot")
+
+    def test_somber_floor_survives_a_proportional_share_that_rounds_to_zero(self):
+        """A positive recipe weight is the promise; integer rounding must not disarm its floor."""
+        class _World:
+            player = 1
+
+            class options:
+                class curated_filler:
+                    value = {"somber_stones": 1, "junk": 99}
+
+        world = _World()
+        total = fb.SOMBER_RESERVATION_FLOOR
+        recipe = fb.recipe_of(world)
+        self.assertGreater(recipe.get("somber_stones", 0), 0,
+                           "the fixture stopped promising a somber economy")
+        proportional = total * recipe["somber_stones"] // sum(recipe.values())
+        self.assertEqual(proportional, 0, "the fixture no longer reaches the zero-rounding edge")
+        alloc = fb.allocate(world, total)
+        self.assertEqual(alloc["somber_stones"], fb.SOMBER_RESERVATION_FLOOR)
+        self.assertEqual(sum(alloc.values()), total)
 
 
 def test_recipe_rejects_unknown_category():

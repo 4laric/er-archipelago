@@ -20,18 +20,76 @@ on:
   schedule:
     - cron: "17 6 * * *"
 
+permissions:
+  contents: read
+
 env:
   # AP pins its own deps at import time and will try to self-update mid-test without this.
   SKIP_REQUIREMENTS_UPDATE: "1"
 
 jobs:
+  # The Flower installer is shipped as both a Python entrypoint and a thin PowerShell launcher.
+  # Function tests alone do not catch argument-forwarding, interpreter discovery, or exit-code
+  # mistakes in those player-facing entrypoints, so exercise a complete synthetic install and
+  # uninstall on both supported runner families.
+  flower-install:
+    name: AP Flower install (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    if: github.event_name != 'schedule'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install, verify, and uninstall synthetic Flower package
+        run: python -m unittest -v tools/test_install_ap_flower.py
+
   # ---------------------------------------------------------------------------------------------
   # 1. The apworld test suite, run inside a real Archipelago tree (the world is a package under
   #    worlds/, so it can only be imported from there -- `from ..location_tags import ...`).
   # ---------------------------------------------------------------------------------------------
   tests:
+    # SHARDED 2026-08-18 (#865). This was 1113s of an 1113s workflow -- 1069s of it in the pytest
+    # step alone, already spread over both cores of the hosted runner by `-n 2 --dist loadfile`.
+    # Queue time was measured at 2-4s, so waiting was never the problem and more capacity alone
+    # would buy nothing; the only lever without new hardware is running the suite as several jobs.
+    #
+    # The shard count lives HERE and nowhere else. The partition is arithmetic over the sorted
+    # collected files (tests/conftest.py gf_shard_owner), so changing this list is the whole change
+    # -- there is no file manifest to keep in step, because a manifest is a gate that quietly stops
+    # covering new tests.
+    #
+    # 🛑 Both run-level gates are DEFERRED here, not dropped. `--skip-census` counts skips per
+    # family and no single shard can satisfy an exact count; the quantifier spy's STALE half fires
+    # a FALSE RED when a correctly-waived empty site happens to be non-empty in this shard. Their
+    # verdicts are rendered once, over the union, by the `tests-verdict` job below. That job is
+    # what `tests` means -- do not make the branch protection depend on this matrix alone.
+    # A job's env context does not exist while GitHub evaluates its display name. Referencing
+    # env.SHARD_TOTAL here rejects the entire workflow before it creates even one job.
+    name: tests (shard ${{ matrix.shard }})
     runs-on: ubuntu-latest
     if: github.event_name != 'schedule'
+    env:
+      # WIDENED 4 -> 8 (#875). Widening was worth exactly NOTHING until the floor moved: with
+      # test_gf_keep_out_of_shops.py at 450s, 4, 6 and 8 shards all modelled to the same 450s wall,
+      # because `--dist loadfile` runs a module on one worker. With that file down to ~122s the
+      # floor is test_gf_options.py at 131s, and the arithmetic finally rewards more shards:
+      #   4 shards -> max(parallel 195s, floor 131s) = 195s
+      #   8 shards -> max(parallel  97s, floor 131s) = 131s
+      # Past 8 it is floor-bound again and buys nothing, so this is the last widening that pays.
+      #
+      # 🛑 SHARD_TOTAL and the matrix list below must agree. They cannot drift SILENTLY: every
+      # shard records its own index and total, and tests-verdict asserts the indices are exactly
+      # 1..total, so a mismatch is a red reconciliation rather than a quietly unrun slice.
+      SHARD_TOTAL: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v4
 
@@ -121,8 +179,117 @@ jobs:
       # (greenfield/eldenring/tests/expected_skips_ci.json). "Deliberately dev-box-only" and
       # "dark by accident" look identical in a green run; the census is the instrument that can
       # tell them apart, and it turns any skip-family or count change into a reviewed diff.
-      - name: pytest (tools/gf_test.py -- pinned upstream AP)
-        run: python tools/gf_test.py --ap-dir _ap --quantifier-spy --skip-census greenfield/eldenring/tests/expected_skips_ci.json -n 2 --dist loadfile
+      - name: pytest (tools/gf_test.py -- pinned upstream AP, shard ${{ matrix.shard }})
+        run: |
+          python tools/gf_test.py --ap-dir _ap \
+            --shard ${{ matrix.shard }}/${{ env.SHARD_TOTAL }} --artifact-dir shard-artifacts \
+            --quantifier-spy --skip-census greenfield/eldenring/tests/expected_skips_ci.json \
+            -n 2 --dist loadfile
+
+      # ALWAYS upload. A shard that went red is the shard whose census and spy records the verdict
+      # job most needs -- and without `if: always()` a single failing shard would take the union
+      # with it and report a reconciliation error on top of the real failure, burying it.
+      - name: Upload this shard's census, spy and manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gf-shard-${{ matrix.shard }}
+          path: shard-artifacts/
+          retention-days: 5
+          if-no-files-found: error
+
+
+  # ---------------------------------------------------------------------------------------------
+  # 1a. THE UNION VERDICT (#865). The two gates the shards deliberately do not render.
+  #
+  #     A shard is not a run. `--skip-census` asserts an EXACT per-family skip count and no single
+  #     shard can satisfy one; the vacuous-quantifier spy's STALE half asks whether a waived site
+  #     was ever empty, and "ever" is a property of the union -- judged per shard it turns a correct
+  #     waiver into a red tick for a reason that is an artifact of the split.
+  #
+  #     The pressure that creates is the dangerous part: the obvious way to make a falsely-red shard
+  #     green is to stop passing the gates to the shards, after which both instruments are still in
+  #     the tree, still look armed, and examine nothing. This job is what stops that trade being
+  #     available. It also answers the question a sharded green run cannot answer for itself --
+  #     whether every collected test was selected by exactly one shard, because a shard that lost a
+  #     module is indistinguishable from a shard that was quick.
+  # ---------------------------------------------------------------------------------------------
+  tests-verdict:
+    name: tests (union verdict)
+    needs: tests
+    # always(), so a red shard still produces the union -- its census and spy are exactly what a
+    # failure investigation needs, and they are the artifacts most likely to be thrown away.
+    if: always() && github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # This job must never be green over a red matrix. Branch protection sees job NAMES, and
+      # "tests (union verdict)" is the one that reads like the answer.
+      - name: Every shard finished
+        if: needs.tests.result != 'success'
+        run: |
+          echo "::error::the tests matrix did not succeed (result: ${{ needs.tests.result }})"
+          exit 1
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gf-shard-*
+          path: shard-artifacts
+
+      # RULE 11: the gate proves it can go red before it is believed. Five ways a shard split can
+      # break -- a missing shard, tests selected by nobody, shards that collected different trees,
+      # a file claimed twice, no manifests at all -- each must fire.
+      - name: The reconciliation can go red (--self-test)
+        run: python tools/gf_shard_verdict.py --self-test
+
+      - name: Union verdict -- skip census, quantifier spy, and every test ran once
+        run: |
+          python tools/gf_shard_verdict.py \
+            --artifacts shard-artifacts \
+            --expected-skips greenfield/eldenring/tests/expected_skips_ci.json
+
+  # ---------------------------------------------------------------------------------------------
+  # 1c. THE WIZARD AND TOOL GATES, lifted out of `tests` when it was sharded (#865).
+  #
+  #     They are ~40s of AP-light checks that used to ride along after an 18-minute pytest step, so
+  #     a wizard-only defect waited for the whole suite to report. Pinning them to one shard of the
+  #     matrix was the cheaper edit and the wrong one: it would couple "the wizard gates ran" to
+  #     "shard 1 exists", and the shard count is a number someone will change.
+  # ---------------------------------------------------------------------------------------------
+  wizard-gates:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Read the Archipelago pin
+        id: ap
+        run: echo "version=$(cat .ap-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Check out stock upstream Archipelago
+        uses: actions/checkout@v4
+        with:
+          repository: ArchipelagoMW/Archipelago    # UPSTREAM. Never a fork -- see bootstrap-ap.ps1.
+          ref: ${{ steps.ap.outputs.version }}
+          path: _ap
+
+      - name: Install Archipelago's requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install "setuptools<80"
+          pip install -r _ap/requirements.txt
+
+      - name: Materialise gen_data's inputs from the committed bundle
+        run: python tools/gen_inputs.py --ensure elden_ring_artifacts
 
       # Wizard metadata drift, against the LIVE GFOptions -- the only instrument that can tell the
       # three committed artifacts (wizard/options-metadata.json, the blob inlined in
@@ -272,7 +439,7 @@ jobs:
       - name: Multiworld smoke -- guards can go red (--self-test)
         run: python tools/gf_multiworld_smoke.py --self-test
 
-      - name: Multiworld smoke (2x Elden Ring + 2x each partner game)
+      - name: Multiworld smoke (partner matrix + four-game/default-control shapes)
         # rc is captured with `|| rc=$?`, NOT a bare `rc=$?` on the next line: GitHub runs `run:`
         # blocks under `bash -e`, so a non-zero exit aborts the step BEFORE the assignment is
         # reached. The exit-4 SKIP tolerance below was therefore dead code and had never once been
@@ -407,6 +574,9 @@ jobs:
       # `## v<version> — <date>` section in release/CHANGELOG.md, when that section is EMPTY
       # (rule 2 -- a heading with nothing under it is not a release note), or when
       # release/BLURB-v<version>.md is missing, a stub, or headed with another version.
+      # It also walks every first-parent client gitlink bump since the last release tag and requires
+      # that SAME commit to update the changelog or carry the exact no-visible-change trailer. This
+      # is the client half of rule 14 (#709); a non-empty section alone cannot satisfy it.
       #
       # MOTIVATING CASE (rule 11): v0.3.0 shipped 2026-08-01 and by 2026-08-02 main carried five
       # more player-visible fixes -- two straight off Nexus bug reports -- with no v0.3.1 section

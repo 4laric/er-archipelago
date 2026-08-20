@@ -42,9 +42,42 @@ from collections import defaultdict
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 AR = os.path.join(ROOT, "elden_ring_artifacts")
-MSB_DIRS = [os.path.join(AR, "map"), os.path.join(AR, "mapstudio")]   # search both; prefer whichever has the map
-VV = os.path.join(AR, "vanilla_params")   # ItemLotParam*/NpcParam CSVs (same dir datamine_msb_item_regions uses)
+
+
+def _param_dir(root):
+    """The vanilla-param CSV dir under an artifacts root. TWO layouts exist in the wild --
+    `vanilla_params/` (this tool's original expectation) and `vanilla_er/vanilla_er/` (the
+    gen_inputs bundle and datamine_msb_item_regions). The old comment here claimed they were the
+    same dir; they never were, and on 2026-08-19 that lie cost a run: every param read printed
+    `missing ...` and the tool still wrote a 1,436-row tsv over a 5,295-row one. Prefer whichever
+    actually holds ItemLotParam_map.csv; fall back to the first so the error message names a path.
+    """
+    cands = [os.path.join(root, "vanilla_params"),
+             os.path.join(root, "vanilla_er", "vanilla_er")]
+    for c in cands:
+        if os.path.isfile(os.path.join(c, "ItemLotParam_map.csv")):
+            return c
+    return cands[0]
+
+
+def _msb_dirs(root):
+    # map/ + mapstudio/ + the root itself (datamine_msb_item_regions scans the root too, and a
+    # witchy export dropped there should mean the same thing to both tools).
+    return [os.path.join(root, "map"), os.path.join(root, "mapstudio"), root]
+
+
+MSB_DIRS = _msb_dirs(AR)
+VV = _param_dir(AR)
 OUT = os.path.join(ROOT, "greenfield", "item_grace_coords.tsv")
+
+
+def _set_artifacts_root(path):
+    """`--artifacts`: point every input at a different artifacts tree (same flag, same semantics
+    as datamine_msb_item_regions). Output stays repo-relative; `--out` moves it."""
+    global AR, MSB_DIRS, VV
+    AR = os.path.abspath(path)
+    MSB_DIRS = _msb_dirs(AR)
+    VV = _param_dir(AR)
 
 _POS_RE = re.compile(r"<Position>\s*<X>(-?[\d.eE+]+)</X>\s*<Y>(-?[\d.eE+]+)</Y>\s*<Z>(-?[\d.eE+]+)</Z>")
 _NPCID_RE = re.compile(r"<NPCParamID>\s*(-?\d+)\s*</NPCParamID>")
@@ -276,10 +309,27 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--maps", nargs="*", help="restrict to these map ids (e.g. m20_00 m20_01)")
     ap.add_argument("--out", default=OUT)
+    ap.add_argument("--artifacts", metavar="DIR",
+                    help="use this artifacts tree instead of <repo>/elden_ring_artifacts (accepts "
+                         "both param layouts: vanilla_params/ and vanilla_er/vanilla_er/; MSB dirs "
+                         "under map/, mapstudio/, or the root)")
+    ap.add_argument("--merge", action="store_true",
+                    help="UNION with the committed tsv: item rows for maps scanned THIS run are "
+                         "refreshed, item rows for absent maps are carried forward, and grace rows "
+                         "are kept when this run produced none. Batch witchy exports compose "
+                         "instead of clobbering (see the degenerate-scan guard's incident).")
+    ap.add_argument("--force", action="store_true",
+                    help="write the tsv even when the scan is DEGENERATE (params missing, zero "
+                         "maps, or far fewer rows than the committed file). Without this the tool "
+                         "refuses instead of silently shrinking ground truth.")
     ap.add_argument("--enemy", action="store_true",
                     help="also scan Part/Enemy for enemy-drop checks (slower -- reads every enemy in "
                          "every map; treasure alone covers most checks)")
     args = ap.parse_args(argv)
+    if args.artifacts:
+        if not os.path.isdir(args.artifacts):
+            sys.exit(f"FATAL: --artifacts {args.artifacts} is not a directory")
+        _set_artifacts_root(args.artifacts)
 
     print("[coords] reading params...", flush=True)
     lot2flags = _lot2flags()
@@ -313,6 +363,54 @@ def main(argv=None):
     # Merchant rows come LAST in the de-dup order on purpose: a shop check that also has a real
     # world placement (a map_lot row) keeps the placement, and the merchant is the fallback.
     item_rows = item_rows + _merch_rows
+
+    # ---- DEGENERATE-SCAN GUARD (2026-08-19). `open(..., "w")` below TRUNCATES the committed
+    # ground truth before a single row lands, and this tool once did exactly that: params missing
+    # (three `missing ...` lines scrolled past), ZERO maps found, and it still replaced a
+    # 5,295-row tsv with 1,436 merchant rows while printing "wrote ...". A partial census read as
+    # complete is worse than no census (the msb_item_regions coverage lesson) -- so a scan that is
+    # obviously blind REFUSES to publish unless --force says the shrink is intended.
+    carried_graces = []
+    if args.merge and os.path.isfile(args.out):
+        scanned = set(maps)
+        new_keys = {(str(f), m) for f, m, _ in item_rows}
+        carried = kept_scanned = 0
+        with open(args.out, encoding="utf-8") as fh:
+            for ln in fh:
+                p = ln.rstrip("\n").split("\t")
+                if len(p) < 6 or p[0] not in ("item", "grace"):
+                    continue
+                if p[0] == "grace":
+                    carried_graces.append(p)
+                    continue
+                # an old item row survives when this run neither rescanned its map nor reproduced
+                # its (flag, map). NEW rows win a collision (freshest position).
+                mid_map = p[2][: p[2].rfind("_", 0, p[2].rfind("_"))] if p[2].count("_") >= 3 else p[2]
+                if (p[1], p[2]) in new_keys or mid_map in scanned or p[2] in scanned:
+                    kept_scanned += 1
+                    continue
+                item_rows.append((p[1], p[2], (p[3], p[4], p[5])))
+                carried += 1
+        print(f"[coords] merge: carried {carried} item row(s) forward; "
+              f"{kept_scanned} superseded by this scan; {len(carried_graces)} grace row(s) held in reserve")
+
+    prior_items = 0
+    if os.path.isfile(args.out) and not args.maps:
+        with open(args.out, encoding="utf-8") as fh:
+            prior_items = sum(1 for ln in fh if ln.startswith("item\t"))
+    fatal = []
+    if not lot2flags:
+        fatal.append(f"no ItemLotParam CSVs under {VV} (both layouts tried)")
+    if total == 0:
+        fatal.append("zero witchy MSB dirs found under " + ", ".join(MSB_DIRS))
+    new_items = len({(f, m) for f, m, _ in item_rows})
+    if not args.maps and prior_items and new_items < prior_items // 2:
+        fatal.append(f"scan yields {new_items} item rows vs {prior_items} already committed -- "
+                     "more than half the ground truth would vanish")
+    if fatal and not args.force:
+        sys.exit("FATAL: refusing to overwrite %s -- %s. Fix the inputs (or pass --force if the "
+                 "shrink is deliberate)." % (args.out, "; ".join(fatal)))
+
     seen = set()
     with open(args.out, "w", encoding="utf-8", newline="\n") as fh:
         fh.write("# AUTO-GENERATED by tools/datamine_item_grace_coords.py (run on Windows). Map-local XYZ.\n")
@@ -329,6 +427,14 @@ def main(argv=None):
             named += 1 if nm else 0
             gwritten += 1
             fh.write(f"grace\t{fl}\t{_full_map(tile)}\t{x}\t{y}\t{z}\t{nm}\n")
+        if gwritten == 0 and carried_graces:
+            # BonfireWarpParam was unreadable this run; a merge must not amputate the grace half
+            # (build_nearest_grace emits nothing without it).
+            for p in carried_graces:
+                nm = p[6] if len(p) > 6 else ""
+                named += 1 if nm else 0
+                gwritten += 1
+                fh.write("\t".join(p[:6] + [nm]) + "\n")
     print(f"wrote {args.out}: {len(seen)} item rows, {gwritten} grace rows ({named} named). "
           f"Now run tools/build_nearest_grace.py.")
     if named == 0:

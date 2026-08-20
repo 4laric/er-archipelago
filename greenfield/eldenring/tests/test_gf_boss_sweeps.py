@@ -33,6 +33,12 @@ GREENFIELD = os.path.dirname(GF_PKG)
 REGION_MAP_CSV = next((p for p in (os.path.join(GF_PKG, "region_map.csv"),
                                    os.path.join(GREENFIELD, "region_map.csv")) if os.path.isfile(p)),
                       os.path.join(GF_PKG, "region_map.csv"))
+MSB_FLAG_REGION_TSV = next((p for p in (os.path.join(GF_PKG, "msb_flag_region.tsv"),
+                                        os.path.join(GREENFIELD, "msb_flag_region.tsv"))
+                            if os.path.isfile(p)), os.path.join(GF_PKG, "msb_flag_region.tsv"))
+UNPLACED_GLOBAL_TSV = next((p for p in (os.path.join(GF_PKG, "unplaced_global_tiles.tsv"),
+                                        os.path.join(GREENFIELD, "unplaced_global_tiles.tsv"))
+                            if os.path.isfile(p)), os.path.join(GF_PKG, "unplaced_global_tiles.tsv"))
 
 # Minor-dungeon map prefixes, in the X0SS7000 flag convention (flag -> map mXX_SS). MUST match
 # gen_data._is_dungeon: this oracle re-derives a member's true map from its flag, and a prefix
@@ -100,6 +106,12 @@ class BossSweepScoping(unittest.TestCase):
         cls.sw = _mod("boss_sweeps")
         cls.bh = _mod("boss_healthbars")
         cls.d = _mod("data")
+        # 2026-08-20 (#907): a boss's OWN drop is admitted into its own trigger's sweep (the
+        # vanilla award waits on CharacterDead; a host enemy randomizer breaks it). The scoping
+        # tests exempt exactly that RELATION -- flag's own trigger, from boss_drops.py -- never an
+        # id list. Same shape as test_gf_dungeon_sweep_rungs' own_reward.
+        _bd = _mod("boss_drops")
+        cls.own_drop_of = dict(getattr(_bd, "BOSS_DROP_ENTITY", {}) or {}) if _bd else {}
         cls.lt = getattr(_mod("location_tags"), "LOCATION_TAGS", {}) if _mod("location_tags") else {}
         if not (cls.sw and cls.bh and cls.d):
             raise unittest.SkipTest("boss_sweeps/boss_healthbars/data not generated")
@@ -126,6 +138,30 @@ class BossSweepScoping(unittest.TestCase):
             if str(r["flag"]).lstrip("-").isdigit():
                 cls.flag_map[int(r["flag"])] = r["map"] or ""
                 cls.flag_method[int(r["flag"])] = r.get("method") or ""
+        # #562: region_map is deliberately the raw scanner output, so rows recovered from an MSB
+        # placement can remain PENDING there. Re-derive the generator's unambiguous placement from
+        # the shipped source table instead of importing a generated effective-map answer.
+        cls.msb_flag_map = {}
+        if os.path.isfile(MSB_FLAG_REGION_TSV):
+            maps = defaultdict(set)
+            with open(MSB_FLAG_REGION_TSV, encoding="utf-8-sig") as fh:
+                for r in csv.DictReader((line for line in fh if not line.startswith("#")),
+                                        delimiter="\t"):
+                    if str(r["flag"]).lstrip("-").isdigit() and r.get("map_id"):
+                        maps[int(r["flag"])].add(r["map_id"])
+            cls.msb_flag_map = {flag: next(iter(found)) for flag, found in maps.items()
+                                if len(found) == 1}
+        # #218: the unplaced-global audit publishes exact coordinate / AwardItemLot placement as a
+        # committed source table. Read that evidence here just as we read msb_flag_region.tsv above;
+        # otherwise the oracle calls every newly recovered dungeon pickup PENDING while gen_data
+        # correctly puts it in that dungeon's map-local sweep.
+        cls.unplaced_flag_map = {}
+        if os.path.isfile(UNPLACED_GLOBAL_TSV):
+            with open(UNPLACED_GLOBAL_TSV, encoding="utf-8-sig") as fh:
+                for r in csv.DictReader((line for line in fh if not line.startswith("#")),
+                                        delimiter="\t"):
+                    if str(r["flag"]).lstrip("-").isdigit() and r.get("map_id"):
+                        cls.unplaced_flag_map[int(r["flag"])] = r["map_id"]
 
     def _eff_map(self, ap):
         """A member's effective map: region_map's map, or -- for an unplaced dungeon check whose flag
@@ -154,6 +190,17 @@ class BossSweepScoping(unittest.TestCase):
         # _ENTITY_SUFFIX) that nobody outside gen_data can check.
         if len(fs) == 10 and fs[:2] == "10":
             return "m60_" + fs[2:4] + "_" + fs[4:6] + "_00"
+        msb = self.msb_flag_map.get(self.ap_flag.get(ap, -1), "")
+        if msb:
+            return msb + ("_00" if msb[:3] in ("m60", "m61") else "_00_00")
+        unplaced = self.unplaced_flag_map.get(self.ap_flag.get(ap, -1), "")
+        if unplaced:
+            parts = unplaced.split("_")
+            if unplaced[:3] in ("m60", "m61") and len(parts) == 3:
+                return unplaced + "_00"
+            if len(parts) == 2:
+                return unplaced + "_00_00"
+            return unplaced
         return raw
 
     def _members_by_class(self, cls_name):
@@ -225,6 +272,8 @@ class BossSweepScoping(unittest.TestCase):
         bad = []
         for ent, info, members in self._members_by_class("field"):
             for ap in members:
+                if self.own_drop_of.get(self.ap_flag.get(ap)) == ent:
+                    continue  # #907: the boss's own drop, swept by its own trigger
                 if FIELD_EXCLUDE & set(self.lt.get(ap, ())):
                     bad.append((ent, info[3], ap, sorted(FIELD_EXCLUDE & set(self.lt.get(ap, ())))))
         self.assertEqual(bad, [], str(len(bad)) + " field-boss sweep member(s) are important-tagged "
@@ -248,6 +297,12 @@ class BossSweepScoping(unittest.TestCase):
                 continue
             bx, by = int(bt.group(1)), int(bt.group(2))
             for ap in members:
+                if self.own_drop_of.get(self.ap_flag.get(ap)) == ent:
+                    # #907: the boss's own drop. Global-lot drops (physick tears) carry no tile at
+                    # all; region agreement was already enforced at admission (gen_data fails a
+                    # region mismatch CLOSED), and "where does the boss's own reward sit" is by
+                    # definition local to the boss.
+                    continue
                 mt = self._TILE_RE.match(self._eff_map(ap) or "")
                 if not mt or max(abs(int(mt.group(1)) - bx), abs(int(mt.group(2)) - by)) > 2:
                     bad.append((ent, info[3], info[1], ap, self._eff_map(ap)))
@@ -619,6 +674,8 @@ class BossSweepScoping(unittest.TestCase):
         bad = []
         for ent, info, members in self._members_by_class("legacy"):
             for ap in members:
+                if self.own_drop_of.get(self.ap_flag.get(ap)) == ent:
+                    continue  # #907: the boss's own drop, swept by its own trigger
                 hit = FIELD_EXCLUDE & set(self.lt.get(ap, ()))
                 if hit:
                     bad.append((ent, info[3], ap, sorted(hit)))
@@ -744,19 +801,15 @@ class BossSweepScoping(unittest.TestCase):
         it names every head the fight waits on. Both sources are checked here under one guard,
         because a head suppressed by either must not carry a sweep.
 
-        SCOPED TO THE DUNGEON CLASSES, matching gen_data. `boss_arena_pairs.tsv` also adjudicates
-        LEGACY maps -- m12_02's Valiant Gargoyle duo, Maliketh/Beast Clergyman, the Deeproot invader
-        pile -- because they are the same question and the answers are wanted by the region-capstone
-        work, which has to count ARENAS rather than healthbar entities. But legacy bosses take the
-        round-robin DIVVY, which PARTITIONS a region's filler instead of handing each boss the same
-        list, so they never had this defect and suppressing one would silently reshape shares that
-        are correct today. Asserting over them would be asserting gen_data does something it
-        deliberately does not do."""
+        Applies to DUNGEON and LEGACY classes. A legacy round-robin divvy prevents two heads from
+        holding the same member list, but it cannot turn a participant or activation flag into a
+        terminal encounter flag. #877 is the counterexample that retired the old dungeon-only
+        scope: Enir Ilim's 20010851/52 rows never report their own defeat."""
         areas, pairs = self._game_areas(), self._arena_pairs()
         offenders = []
         for ent in self.DS:
             info = self.BH.get(ent)
-            if info is None or info[2] not in DUNGEON_CLASSES:
+            if info is None or info[2] == "field":
                 continue
             primary = self._secondary(ent, info[0], areas, pairs)
             if primary is not None:
@@ -765,6 +818,29 @@ class BossSweepScoping(unittest.TestCase):
                          "sweep -- their fight is reported by another flag on the same map, so they "
                          "pay the dungeon out early (#363). Offenders (entity, primary, map, "
                          "name): " + repr(offenders))
+
+    def test_enir_ilim_npc_battle_uses_its_one_terminal_flag(self):
+        """#877: Leda/Dane/Freyja are heads in one five-character encounter, not three fights.
+
+        m20_01 event 20012850 waits for characters 20010850..854 to die, displays one banner keyed
+        by 20010850, then sets event flag 20010850. The banner datamine captures the two additional
+        displayed heads as conjuncts of that one terminal event. They must not survive as tracker
+        rows or lend their names to generated ``also granted by`` descriptions.
+        """
+        pairs = self._arena_pairs()
+        for secondary in (20010851, 20010852):
+            self.assertEqual(
+                pairs.get(secondary),
+                (20010850, "conjunct"),
+                "%d must derive from the one 20010850 defeat banner" % secondary,
+            )
+            self.assertNotIn(
+                secondary,
+                self.DS,
+                "%d is a participant/activation id, not an Enir Ilim terminal sweep flag"
+                % secondary,
+            )
+        self.assertIn(20010850, self.DS, "the real Enir Ilim terminal sweep disappeared")
 
     def test_the_fell_twins_are_suppressed_by_the_banner_table(self):
         """THE GAP #364 SHIPPED WITH, pinned so it cannot reopen (bobler, 2026-08-04).

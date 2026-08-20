@@ -824,7 +824,11 @@ class Scaling(Feature):
         # made that two, and a second bare assignment would have silently dropped whichever ran
         # first -- a handshake key that loses half its content is worse than no handshake.
         _needs = []
-        if resolved_max_difficulty(world) < 100:
+        # A cap modifies the scaling pass; when scaling itself is OFF there is nothing for an old
+        # client to mis-handle. Declaring in that state makes the connect-time read-back correctly
+        # report the feature dark, then incorrectly blame a missing value that is actually present
+        # (world#661).
+        if completion_scaling_id(world) != 0 and resolved_max_difficulty(world) < 100:
             _needs.append("scaling_ceiling")
         # MODE 3 IS THE ONLY NEW WIRE VALUE (dlc_only scope + catch-up). Modes 0/1/2 mean exactly
         # what they meant, so only a mode-3 seed declares anything: an older client reads

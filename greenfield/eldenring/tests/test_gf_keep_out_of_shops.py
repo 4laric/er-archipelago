@@ -32,7 +32,7 @@ pytest.importorskip("worlds.eldenring")
 from Options import OptionError  # noqa: E402
 from worlds.eldenring.shop_data import SHOP_ROW_FLAGS  # noqa: E402
 from worlds.eldenring.features.keep_out_of_shops import (  # noqa: E402
-    forbidden_goods_rows, forbidden_names, plan, skip_line)
+    forbidden_goods_rows, forbidden_names, plan, safe_forbid_capacity, skip_line)
 from worlds.eldenring.item_categories import category_of, names_in  # noqa: E402
 
 GAME = "Elden Ring"
@@ -45,10 +45,18 @@ def _shop_locs(world, mw):
 
 
 def _own_item_in(world, categories):
-    """A pool item of this world whose name is in one of `categories`, or None."""
+    """An item of this world whose name is in one of `categories`, or None.
+
+    #903 reserves the constrained subset during ``stage_pre_fill``, so an enforced-category item
+    may already be locked to a location instead of remaining in the general item pool. Either is a
+    valid object for probing the installed location rules.
+    """
     want = set(names_in(sorted(categories)))
-    return next((i for i in world.multiworld.itempool
-                 if i.player == world.player and i.name in want), None)
+    candidates = list(world.multiworld.itempool)
+    candidates.extend(loc.item for loc in world.multiworld.get_locations()
+                      if loc.item is not None)
+    return next((item for item in candidates
+                 if item.player == world.player and item.name in want), None)
 
 
 # ---- 1. the default -----------------------------------------------------------------------------
@@ -66,7 +74,11 @@ class DefaultIsEmptyAndInstallsNoRule(WorldTestBase):
         assert gear is not None, "no own weapon/armour in a default pool -- the probe is broken"
         shops = _shop_locs(self.world, self.multiworld)
         assert shops, "no shop-row locations in a default seed -- scope table missing?"
-        refusing = [l for l in shops if not l.item_rule(gear)]
+        from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS
+        # #582 deliberately makes the missable subset filler-only by default. This test owns the
+        # keep_out_of_shops default, so probe only rows outside that independent protection.
+        ordinary_shops = [l for l in shops if l.address not in MISSABLE_LOCATIONS]
+        refusing = [l for l in ordinary_shops if not l.item_rule(gear)]
         assert not refusing, (
             "%d shop checks reject %r with the option unset -- the default is not no-change "
             "(first: %s)" % (len(refusing), gear.name, refusing[0].name))
@@ -80,7 +92,35 @@ class GearBannedOnAFullSizedSeed(WorldTestBase):
     # passes and the RULE is what is under test here (the gate has its own tests below).
     options = {"num_regions": 0, "keep_out_of_shops": {"weapons", "armor"}}
 
-    def test_shop_checks_reject_own_gear_but_not_other_categories(self):
+    # 🛑 COST, NOT SCOPE (#875). This file was 450s -- 24% of the whole suite -- and under
+    # `--dist loadfile` a module runs on ONE worker, so it WAS the CI floor: 4, 6 and 8 shards all
+    # modelled to the same 450s wall. Two thirds of that was setup for assertions made elsewhere.
+    #
+    # 93s of it was AP's three inherited default tests (all_state reachability, empty_state, fill)
+    # re-run on the most expensive seed in the file. They are not what this file tests, 19 of 195
+    # files here already opt out, and 45 OTHER files still make those same three assertions on a
+    # `num_regions: 0` seed -- so nothing is lost by declining to be the 46th. bases.py skips
+    # world_setup for those methods too when this is False, which is where the time actually goes.
+    run_default_tests = False
+
+    def test_the_ban_is_scoped_to_shops_and_to_the_selected_categories(self):
+        """Three read-only properties of ONE generated world, in one test.
+
+        They were three test methods, and unittest builds a fresh world per method -- 31s each on a
+        max-size seed, for three assertions that only READ it. Merged rather than shared via
+        setUpClass because AP's tearDown asserts the MultiWorld has been garbage collected
+        (bases.py memory_leak_tested), and a world deliberately held on the class trips that as a
+        leak. subTest keeps each property failing independently and by name, which is the only
+        thing three separate methods were buying.
+        """
+        with self.subTest("shop checks reject own gear but not other categories"):
+            self._assert_shops_reject_gear_only()
+        with self.subTest("non-shop locations still accept gear"):
+            self._assert_non_shop_locations_accept_gear()
+        with self.subTest("region locks and the rune sentinel are not forbidden"):
+            self._assert_locks_and_rune_not_forbidden()
+
+    def _assert_shops_reject_gear_only(self):
         gear = _own_item_in(self.world, _GEAR)
         assert gear is not None, "no own weapon/armour in the pool to probe with"
         shops = _shop_locs(self.world, self.multiworld)
@@ -99,7 +139,7 @@ class GearBannedOnAFullSizedSeed(WorldTestBase):
             "%d of %d shop checks reject %r, an unselected category -- the ban is over-broad"
             % (len(blocked), len(shops), other.name))
 
-    def test_non_shop_locations_still_accept_gear(self):
+    def _assert_non_shop_locations_accept_gear(self):
         gear = _own_item_in(self.world, _GEAR)
         others = [l for l in self.multiworld.get_locations(self.world.player)
                   if getattr(l, "address", None) is not None
@@ -110,7 +150,7 @@ class GearBannedOnAFullSizedSeed(WorldTestBase):
             "only %d of %d non-shop locations accept %r -- the ban leaked out of the shop scope"
             % (accepting, len(others), gear.name))
 
-    def test_region_locks_and_the_rune_sentinel_are_not_forbidden(self):
+    def _assert_locks_and_rune_not_forbidden(self):
         """`category_of` answers `progressive` for every name outside ITEM_CATALOG -- the region
         Locks and the `Rune` filler sentinel included -- so building the ban from it instead of
         `names_in` would put a progression constraint on all 562 shop checks. Nothing else in the
@@ -305,6 +345,17 @@ def test_smallest_first_maximises_how_many_categories_survive():
     """The stated objective. Largest-first would keep one; smallest-first keeps three."""
     enforced, _ = plan({"big": 40, "s1": 5, "s2": 5, "s3": 5}, 40)
     assert enforced == ["s1", "s2", "s3"], enforced
+
+
+def test_capacity_reserves_selected_items_for_shops_that_reject_outside_sentinels():
+    # The old non-shop-only arithmetic allowed all 100 selected items to be forbidden. Ten shop
+    # rows cannot accept the outside-partition Region Locks / Rune sentinels, so ten selected items
+    # must remain legal shop stock.
+    assert safe_forbid_capacity(100, 100, 20, 10) == 90
+
+
+def test_capacity_is_unchanged_when_outside_items_cover_every_shop():
+    assert safe_forbid_capacity(100, 100, 20, 20) == 100
 
 
 def test_the_skip_line_quotes_the_REMAINING_budget_not_the_total():

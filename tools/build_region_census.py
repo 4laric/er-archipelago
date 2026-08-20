@@ -154,6 +154,9 @@ def measure(sc=None):
             for _n, ap, _f in rows_:
                 ap_region[ap] = rname
         hb = bars_mod.BOSS_HEALTHBARS
+        arena_regions = sweeps_mod.SWEEP_ARENA_REGION
+        sweep_skips = contract.sweep_slot_skips(
+            healthbars=hb, arena_regions=arena_regions, triggers=sweeps_mod.DUNGEON_SWEEPS)
         sweep_classes = [c for c in contract.SWEEP_SLOT_CLASS_WANTS if c in set(contract.SURFACE_CLASSES)]
         for rung, allowed in sorted(contract.SWEEP_RUNGS.items()):
             at_rung = {}
@@ -182,7 +185,8 @@ def measure(sc=None):
                 for cls in sweep_classes:
                     part = contract.sweeps_for_surface_class(
                         at_rung, cls, sweeps_mod.MAJOR_SWEEP_TRIGGERS)
-                    for ap in contract.nominate_sweep_slots(part, barred=barred, slots=slots):
+                    for ap in contract.nominate_sweep_slots(
+                            part, barred=barred, skips=sweep_skips, slots=slots):
                         r = ap_region.get(ap)
                         if r:
                             by_class.setdefault(r, {}).setdefault(cls, {}).setdefault(rung, 0)
@@ -232,10 +236,28 @@ def measure(sc=None):
             },
         }
 
+    # #913: the hub's check count is now PER-SEED -- Enia's DLC-gated shop rows leave a no-DLC
+    # seed (core._seed_locations). The census stays a description of the FULL table; this field is
+    # the adjustment a consumer subtracts from the hub when the DLC is off, so seedSize and the
+    # check-count identity stop over-counting no-DLC seeds by exactly this number.
+    try:
+        _shop = mods.get("shop_data") if hasattr(mods, "get") else None
+        if _shop is None:
+            import importlib.util as _ilu
+            _sp = _ilu.spec_from_file_location(
+                "_shop_data", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
+                                           "greenfield", "eldenring", "shop_data.py"))
+            _shop = _ilu.module_from_spec(_sp); _sp.loader.exec_module(_shop)
+        _hub_flags = {int(fl) for (_n, _a, fl) in data.LOCATIONS.get(hub, [])}
+        hub_dlc_gated = len(set(getattr(_shop, "DLC_GATED_SHOP_CHECK_FLAGS", ())) & _hub_flags)
+    except Exception:
+        hub_dlc_gated = 0
+
     census = {
         "schema": SCHEMA,
         "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
         "hub_region": hub,
+        "hub_dlc_gated_checks": hub_dlc_gated,
         "finale": {
             "region": finale_region,
             # Stated as a rule rather than a number so a consumer cannot apply it to the wrong seed:

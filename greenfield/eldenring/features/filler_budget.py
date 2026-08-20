@@ -50,7 +50,8 @@ from Options import OptionError
 from ..item_ids import ITEM_CATALOG
 from ..data import HUB, LOCATIONS
 from ..item_ids import LOCATION_ITEM
-from .filler_curation import CATEGORIES, JUICE, RECIPE_KEYS, displaceable_filler
+from .filler_curation import (CATEGORIES, JUICE, RECIPE_KEYS, curated_stack_name,
+                              displaceable_filler)
 from .pool_builder import juice_order_for_floor, INTENSITY_FLOOR, CATEGORY_OPTION
 from ..item_tiers import ITEM_TIER_CATEGORY
 
@@ -369,7 +370,8 @@ def allocate(world, total: int) -> Dict[str, int]:
     # (see the constant). Only when the recipe actually reserves somber stones -- a recipe with a
     # zero weight promised nothing and must keep promising nothing -- and never DOWNWARD: a larger
     # proportional share is a richer seed, not a violation.
-    if econ.get("somber_stones", 0) and econ["somber_stones"] < SOMBER_RESERVATION_FLOOR:
+    if (recipe.get("somber_stones", 0) > 0
+            and econ.get("somber_stones", 0) < SOMBER_RESERVATION_FLOOR):
         _room = total - sum(n for c, n in econ.items() if c != "somber_stones")
         _want = min(SOMBER_RESERVATION_FLOOR, max(_room, 0))
         if _want < SOMBER_RESERVATION_FLOOR:
@@ -691,7 +693,7 @@ def plan(world, total: int) -> List[Optional[str]]:
                     f"available (DLC filtered?): spilling its {n} slot(s) to junk.")
                 out += [None] * n
             else:
-                out += [world.random.choice(members) for _ in range(n)]
+                out += [curated_stack_name(world.random.choice(members)) for _ in range(n)]
 
     if len(out) != total:
         raise AssertionError(

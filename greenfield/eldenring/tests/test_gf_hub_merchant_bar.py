@@ -25,16 +25,21 @@ them, and that is the test doing its job: re-measure, satisfy yourself the delta
 tag rework quietly emptying the guard again, then update the number here deliberately.
 """
 import unittest
+import pytest
+
+WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
+from BaseClasses import Item, ItemClassification
 
 from .. import contract
 from ..data import HUB, LOCATIONS
 from ..features.progression_surface import (_HUB_MERCHANT_TAGS, _roundtable_merchant_aps,
                                             allowed_ap_ids)
 from ..location_tags import (DEFAULTED_REGION_APS, ERDTREE_BURN_APS, LOCATION_TAGS,
-                             SHOP_RELEASE_GATED_APS, SURFACE_EXCLUDE_APS)
+                             SHOP_RELEASE_GATED_APS, SHOP_SLOT_PINS, SURFACE_EXCLUDE_APS)
 
-# Every hub row carrying a merchant tag. 184 = 158 Shop+ShopNonSpell, 23 EniaShop(+Legendary), 3 Shop.
-_PINNED_BAR = 184
+# Every hub row carrying a merchant tag. #218 replaces the old number-anywhere-in-ESD heuristic with
+# exact AwardItemLot calls: two false Hub rows retire while one real Hub award enters, for a net -1.
+_PINNED_BAR = 183
 # Of those, the ones a `Shop`-selecting seed would put on the surface before this bar fires: 184 minus
 # the 58 already DEFAULTED (region guessed) minus the 21 EniaShop rows (EniaShop is itself a
 # contract.SURFACE_EXCLUDE_TAGS member, so has_class rejects them on tags alone) minus the 47 that
@@ -108,6 +113,39 @@ class TestHubMerchantBar(unittest.TestCase):
         # ...and it removed exactly the hub, nothing else.
         self.assertEqual(unguarded - _HUB_APS, set(guarded),
                          "the bar changed the surface OUTSIDE the hub.")
+
+
+class HubMerchantLocationRule(WorldTestBase):
+    """A surface exclusion alone is bypassed when restricted progression spills to general fill."""
+    game = "Elden Ring"
+    # Full map makes the wandering-merchant positive witness deterministic: a small random draw can
+    # legitimately keep none of the 12 vetted ShopSlot merchants.
+    options = {"num_regions": 0}
+
+    def test_every_hub_merchant_rejects_advancement_at_the_location_rule(self):
+        item = Item("required progression probe", ItemClassification.progression, None, self.player)
+        locations = {loc.address: loc for loc in self.multiworld.get_locations(self.player)}
+        barred = _roundtable_merchant_aps()
+        self.assertTrue(barred, "test basis: the hub merchant set vanished")
+        missing = barred - locations.keys()
+        self.assertFalse(missing, f"hub merchant AP ids are absent from the generated world: {missing}")
+        leaked = [locations[ap].name for ap in barred if locations[ap].item_rule(item)]
+        self.assertFalse(
+            leaked,
+            "hub merchant checks still accept required progression through general fill: %s"
+            % leaked[:5])
+
+    def test_wandering_merchant_slots_still_accept_a_great_rune(self):
+        """The permanent bar owns hub-filed rows, not ordinary merchants in their real regions."""
+        item = Item("Great Rune probe", ItemClassification.progression, None, self.player)
+        locations = {loc.address: loc for loc in self.multiworld.get_locations(self.player)}
+        present = sorted(set(SHOP_SLOT_PINS.values()) & locations.keys())
+        self.assertTrue(present, "this seed contains no vetted wandering-merchant slot")
+        refused = [locations[ap].name for ap in present if not locations[ap].item_rule(item)]
+        self.assertFalse(
+            refused,
+            "the hub-only location bar swallowed wandering merchants in real regions: %s"
+            % refused[:5])
 
 
 if __name__ == "__main__":

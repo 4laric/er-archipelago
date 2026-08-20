@@ -16,7 +16,8 @@
 #                               AP item.
 #   shoplineup_flags.json       shop-row -> eventFlag_forStock. Lets shop purchases self-detect.
 #                               Without it, shop checks never fire.
-#   ap-package\                 optional cosmetic icon override (if built)
+#   install-ap-flower.ps1       installs authenticated release atlases into Matt's output
+#   flower-package\             optional release-only hi/low atlases + manifest
 #   README.md                   install + what the client needs from a slot_data
 #
 # Usage:
@@ -73,6 +74,9 @@ disable_arxan = true
 [[supports]]
 game = "eldenring"
 
+[[packages]]
+path = 'ap-package'
+
 [[natives]]
 path = 'eldenring_archipelago.dll'
 "@
@@ -91,16 +95,19 @@ $cfg = @"
 Set-Content -Path (Join-Path $bundle "apconfig.json") -Value $cfg -Encoding UTF8
 Write-Host "  apconfig.json  (blank -- fill in-game, or edit)"
 
-# Optional cosmetic icon override.
-$pkg = Join-Path $Repo "me3\ap-package"
-if (Test-Path (Join-Path $pkg "menu")) {
-    Copy-Item $pkg (Join-Path $bundle "ap-package") -Recurse -Force
-    $profileText = $profileText -replace "\[\[natives\]\]", "[[packages]]`npath = 'ap-package'`n`n[[natives]]"
-    Set-Content -Path (Join-Path $bundle "ap.me3") -Value $profileText -Encoding UTF8
-    Write-Host "  ap-package\  (AP icon override; profile updated)"
-} else {
-    Write-Host "  ap-package\ absent -- shipping without the AP icon override (cosmetic only)" -ForegroundColor Yellow
+# The public tree supplies the installer. A private release stage may additionally supply the
+# authenticated full-atlas flower-package; dev bundles deliberately omit it.
+$iconInstaller = Join-Path $Repo "tools\install_ap_flower.ps1"
+$iconInstallerPy = Join-Path $Repo "tools\install_ap_flower.py"
+if (-not (Test-Path $iconInstaller)) { throw "AP flower installer missing: $iconInstaller" }
+if (-not (Test-Path $iconInstallerPy)) { throw "AP flower Python installer missing: $iconInstallerPy" }
+Copy-Item $iconInstaller (Join-Path $bundle "install-ap-flower.ps1") -Force
+Copy-Item $iconInstallerPy (Join-Path $bundle "install_ap_flower.py") -Force
+$flowerPackage = Join-Path $Repo "flower-package"
+if (Test-Path $flowerPackage -PathType Container) {
+    Copy-Item $flowerPackage (Join-Path $bundle "flower-package") -Recurse -Force
 }
+Write-Host "  AP flower packaged-asset installers"
 
 $readme = Join-Path $Repo "release\CLIENT-BUNDLE-README.md"
 if (Test-Path $readme) {

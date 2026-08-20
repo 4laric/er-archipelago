@@ -190,9 +190,9 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
 {
  "schema": 1,
  "game": "Elden Ring",
- "apworld_version": "0.4.6",
+ "apworld_version": "0.4.10",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "6f88f40e580f8e98dc816ca4aa373561a7e0b94129b7114fdf49ce367cb3793f",
+ "source_sha256": "b4f1738898ed8d88a7ee14da4906d91f8d7dd5ec91974b252a3513ad62d30390",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -228,11 +228,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "keep_local",
   "keep_local_rune_cap",
   "merchant_bells_on_talk",
+  "protect_missable_locations",
   "no_runes_in_shops",
   "progression_surface",
   "progression_bias",
   "confine_foreign_progression",
   "cross_game_progression",
+  "goal_region_unlock_policy",
   "enemy_scaling",
   "minimum_enemy_difficulty",
   "maximum_enemy_difficulty",
@@ -246,9 +248,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "start_regions",
   "start_region_pool",
   "start_with_whetblades",
+  "trap_link",
   "traps",
   "trap_count",
   "spawn_traps",
+  "auto_upgrade",
   "vanilla_pool",
   "no_weapon_requirements"
  ],
@@ -267,7 +271,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "leyndell_runes_required",
     "region_grace_unlock",
     "grace_attunement",
-    "grace_attunement_anchor"
+    "grace_attunement_anchor",
+    "goal_region_unlock_policy"
    ]
   },
   {
@@ -298,10 +303,9 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "name": "Checks & Item Pool",
    "collapsed": false,
    "options": [
-    "vanilla_placement",
-    "natural_progression",
     "dungeon_sweep",
     "reroll_enemy_drops",
+    "protect_missable_locations",
     "vanilla_pool",
     "curated_filler",
     "pool_builder_intensity",
@@ -317,6 +321,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "collapsed": false,
    "options": [
     "death_link",
+    "trap_link",
     "filler_foreign_pct",
     "progression_surface",
     "progression_bias",
@@ -344,12 +349,21 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "collapsed": false,
    "options": [
     "auto_equip",
-    "no_weapon_requirements",
     "no_equip_load",
+    "auto_upgrade",
+    "no_weapon_requirements",
     "start_with_whetblades",
     "progressive_flasks",
     "capital_reconciler",
     "open_boss_doors"
+   ]
+  },
+  {
+   "name": "Experimental",
+   "collapsed": true,
+   "options": [
+    "vanilla_placement",
+    "natural_progression"
    ]
   }
  ],
@@ -372,7 +386,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "num_regions_order",
@@ -397,13 +412,14 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "goal",
    "class": "Goal",
    "display_name": "Goal",
-   "description": "WHICH BOSS ENDS THE RUN. 'auto' (default) derives it: on ANY seed with the base game in\nplay, Godfrey/Hoarah Loux + the Elden Beast. Under DLC Only, the major bosses of the deepest\nkept region.\n\nHOW YOU GET THERE. The Erdtree burn is an ITEM. The Ashen Capital Lock is shuffled into the\npool like any other progression item, and when it reaches you the Erdtree burns and the Ashen\nCapital's graces light -- so you warp to the end of the game from wherever you are, and no\nparticular region has to be kept for the ending to exist. Before v0.3.7 the burn was the\ngame's own (Maliketh, in Farum Azula), which is why this option used to force two regions into\nevery draw. The Ashen Capital itself is never rolled, never counted by Number of Regions and\nnever where you start.\n\n'elden_beast' pins that pair explicitly and forces NO regions kept.\n'promised_consort' pins Enir Ilim -- Promised Consort Radahn, the DLC's final boss -- and\nFORCES Enir Ilim to be kept. It is the only choice that still forces anything, and that is the\npoint of the option: on a full base+DLC seed 'auto' ends at the Elden Beast and the whole DLC\nis optional, so PCR can never be the goal by luck.\n\nA choice its toggles make impossible is a GENERATION ERROR, never a silent fallback:\n'promised_consort' needs DLC content in play (fails with Enable DLC off), 'elden_beast' needs\nbase-game content (fails with DLC Only on). A goal that quietly evaporates is worse than a\nyaml that refuses to roll.",
+   "description": "WHICH BOSS ENDS THE RUN. 'auto' (default) derives it: on ANY seed with the base game in\nplay, Godfrey/Hoarah Loux + the Elden Beast. Under DLC Only, the major bosses of the deepest\nkept region.\n\nHOW YOU GET THERE. The Erdtree burn is an ITEM. The Ashen Capital Lock is shuffled into the\npool like any other progression item, and when it reaches you the Erdtree burns and the Ashen\nCapital's graces light -- so you warp to the end of the game from wherever you are, and no\nparticular region has to be kept for the ending to exist. Before v0.3.7 the burn was the\ngame's own (Maliketh, in Farum Azula), which is why this option used to force two regions into\nevery draw. The Ashen Capital itself is never rolled, never counted by Number of Regions and\nnever where you start.\n\n'elden_beast' pins that pair explicitly and forces NO regions kept.\n'promised_consort' pins Enir Ilim -- Promised Consort Radahn, the DLC's final boss -- and\nFORCES Enir Ilim to be kept. 'malenia' pins Malenia alone, force-keeps the Haligtree, and opens\nthe route at Haligtree Canopy only: Loretta, Elphael and the full descent remain physical play.\nOn a full base+DLC seed 'auto' ends at the Elden Beast and the whole DLC is optional, so PCR or\nMalenia can never be the goal by luck.\n\nA choice its toggles make impossible is a GENERATION ERROR, never a silent fallback:\n'promised_consort' needs DLC content in play (fails with Enable DLC off); 'elden_beast' and\n'malenia' need base-game content (fail with DLC Only on). A goal that quietly evaporates is\nworse than a yaml that refuses to roll.",
    "kind": "choice",
    "base": "Choice",
    "default": "auto",
@@ -419,6 +435,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     {
      "name": "promised_consort",
      "value": 2
+    },
+    {
+     "name": "malenia",
+     "value": 3
     }
    ],
    "range": null,
@@ -426,13 +446,14 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "ending_condition",
    "class": "EndingCondition",
    "display_name": "Ending Condition",
-   "description": "What the seed's goal requires. 'region_locks' (default): reach the goal region -- hold every\nkept Region Lock (the classic Shattering goal). 'great_runes': ALSO collect Great Runes. Great\nRunes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off this falls\nback to the region_locks goal. The requirement is auto-clamped to the number of Great Runes\nactually reachable this seed, so it can never make a seed unbeatable.\n\n'great_runes' names a SPECIFIC SET, not any N. The seed resolves which runes count\n(core._resolve_required_runes) and only those complete the goal -- holding the right NUMBER of\nthe wrong runes sends no victory, which has already cost a finished run (#656). The names ride\nslot_data as `great_rune_items` and the client prints them at connect (\"goal: N item(s) must be\nHELD, not merely their boss killed: ...\"), so a player can read the set off the client log\nwithout opening the spoiler.",
+   "description": "Whether the seed's goal also requires Great Runes. This is independent of Goal Region\nUnlock Policy, which separately chooses whether Region Locks, completed regions, or neither\nare required. ``region_locks`` is the compatibility spelling for no Great-Rune requirement;\n``great_runes`` requires the configured rune count.\n\nGreat Runes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off the\nrune requirement is inert. It is auto-clamped to the number of Great Runes actually reachable\nthis seed, so it can never make a seed unbeatable.\n\n'great_runes' means ANY N of the seven Great Runes. The full eligible set rides slot_data as\n`great_rune_items`, alongside `great_runes_required`; both the AP completion rule and client\ncount distinct held names from that set (#813).",
    "kind": "choice",
    "base": "Choice",
    "default": "region_locks",
@@ -451,16 +472,17 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "goal_great_runes",
    "class": "GreatRunesRequired",
    "display_name": "Great Runes Required",
-   "description": "How many Great Runes the 'great_runes' ending needs. INERT unless Ending Condition is\ngreat_runes -- core._resolve_required_runes returns before this value is ever read.\n\nRENAMED from `great_runes_required` (2026-07-14). It sat one line above `leyndell_runes_required`,\nwhich is a completely different thing (the Great Runes needed to ENTER Leyndell, live in every\nseed), and the pair read as two settings for one mechanic. One was a no-op in the default config\nand nothing said so.\n\nThe effective requirement is clamped down to the Great Runes reachable in the kept regions, so\nsealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.\n\nThe maximum is SEVEN. The Great Rune of the Unborn counts: Rennala drops it (flag 197, ap\n7900004 in Raya Lucaria Academy), the game counts it toward the Leyndell wall, and this world\ncan hand it to you like any other rune.\n\nA COUNT OF A NAMED SET. This picks how many, never which: the seed picks which, and any other\nGreat Rune completes nothing (#656). See Ending Condition for where the client prints the\nnames.",
+   "description": "How many Great Runes the 'great_runes' ending needs. INERT unless Ending Condition is\ngreat_runes -- core._resolve_required_runes returns before this value is ever read.\n\nRENAMED from `great_runes_required` (2026-07-14). It sat one line above `leyndell_runes_required`,\nwhich is a completely different thing (the Great Runes needed to ENTER Leyndell, live in every\nseed), and the pair read as two settings for one mechanic. One was a no-op in the default config\nand nothing said so.\n\nThe effective requirement is clamped down to the Great Runes reachable in the kept regions, so\nsealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.\n\nThe maximum is SEVEN. The Great Rune of the Unborn counts: Rennala drops it (flag 197, ap\n7900004 in Raya Lucaria Academy), the game counts it toward the Leyndell wall, and this world\ncan hand it to you like any other rune.\n\nA COUNT OF THE FULL SEVEN-RUNE SET. Any distinct runes count; no particular named rune is\nmandatory (#813).",
    "kind": "range",
    "base": "Range",
-   "default": 2,
+   "default": 4,
    "choices": null,
    "range": {
     "start": 1,
@@ -470,7 +492,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "enable_dlc",
@@ -486,7 +509,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "dlc_only",
@@ -502,7 +526,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "vanilla_placement",
@@ -527,7 +552,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "capital_reconciler",
@@ -543,7 +569,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "auto_equip",
@@ -559,7 +586,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "no_equip_load",
@@ -588,7 +616,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "dungeon_sweep",
@@ -621,7 +650,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "open_boss_doors",
@@ -637,7 +667,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "death_link",
@@ -653,7 +684,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "reroll_enemy_drops",
@@ -669,25 +701,27 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "curated_filler",
    "class": "CuratedFiller",
    "display_name": "Curated Filler recipe (category -> weight)",
-   "description": "Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the\ncategories in proportion to their weights -- they are relative, not percentages, and need not sum\nto anything. Categories: juice, junk_gear, stones, somber_stones, runes, throwables, pots,\nfirepots, greases, ammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to\nkeep that share as whatever the check already paid. Stacks: throwables x5, pots x2, firepots x2, greases x2,\nammunition x20.\nNOT off by default. The shipped recipe is juice 42 / stones 29 / somber_stones 6 / runes 10 /\nthrowables 6 / pots 4 / greases 3 / foods 2 / boluses 1, so roughly two fifths of a default seed's\nfiller tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --\nit warns loudly rather than silently reverting to vanilla junk.\n'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier\nfrom ~1013 qualifying items). Its opposite number is 'junk_gear': the ~368 equippables the game\nitself rates trivial, which juice will never hand you at any intensity because its floor starts\nabove them. Weight junk_gear if you want the low end of the armoury in your filler -- it is the\nonly path to the ~96 pieces (the Celebrant's weapons among them) that have no check at all,\nbecause their only source is a random enemy drop the game never flags. It competes on the same budget as everything else; raising it past\nwhat the catalog can supply spills the surplus to junk, with a warning naming the shortfall.\n'stones', 'somber_stones' and 'runes' are an upgrade-economy RESERVATION taken off the top\nproportionally. A tail too small for that reservation to buy a useful number of stones warns by\nname; it does not refuse to generate.\n'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace\nGolems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample (a consumable-leaning run that still keeps its economy): {juice: 20, stones: 29,\nsomber_stones: 6, runes: 10, throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5,\nperfumes: 8, rare: 1}. Copying an example WITHOUT `juice` and the stone weights is what the\nempty-recipe warning is about.",
+   "description": "Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the\ncategories in proportion to their weights -- they are relative, not percentages, and need not sum\nto anything. Categories: juice, junk_gear, stones, somber_stones, runes, throwables, pots,\nfirepots, greases, ammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to\nkeep that share as whatever the check already paid. Stacks: throwables x5, pots/firepots/perfumes\nx10, greases x2, ammunition x20.\nNOT off by default. The shipped recipe is juice 63 / stones 6 / somber_stones 6 / runes 10 /\nthrowables 6 / pots 4 / greases 3 / foods 2 / boluses 1 / perfumes 2. Perfumes take two points\nfrom juice, so adding them does not increase the filler budget.\nfiller tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --\nit warns loudly rather than silently reverting to vanilla junk.\n'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier\nfrom ~1013 qualifying items). Its opposite number is 'junk_gear': the ~368 equippables the game\nitself rates trivial, which juice will never hand you at any intensity because its floor starts\nabove them. Weight junk_gear if you want the low end of the armoury in your filler -- it is the\nonly path to the ~96 pieces (the Celebrant's weapons among them) that have no check at all,\nbecause their only source is a random enemy drop the game never flags. It competes on the same budget as everything else; raising it past\nwhat the catalog can supply spills the surplus to junk, with a warning naming the shortfall.\n'stones', 'somber_stones' and 'runes' are an upgrade-economy RESERVATION taken off the top\nproportionally. A tail too small for that reservation to buy a useful number of stones warns by\nname; it does not refuse to generate.\n'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace\nGolems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample (a consumable-leaning run that still keeps its economy): {juice: 20, stones: 29,\nsomber_stones: 6, runes: 10, throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5,\nperfumes: 8, rare: 1}. Copying an example WITHOUT `juice` and the stone weights is what the\nempty-recipe warning is about.",
    "kind": "dict",
    "base": "OptionDict",
    "default": {
-    "juice": 42,
-    "stones": 29,
+    "juice": 63,
+    "stones": 6,
     "somber_stones": 6,
     "runes": 10,
     "throwables": 6,
     "pots": 4,
     "greases": 3,
     "foods": 2,
-    "boluses": 1
+    "boluses": 1,
+    "perfumes": 2
    },
    "choices": null,
    "range": null,
@@ -713,7 +747,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_intensity",
@@ -742,7 +777,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_weapons",
@@ -761,7 +797,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_armor",
@@ -780,7 +817,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_spells",
@@ -799,7 +837,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_talismans",
@@ -818,7 +857,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_ashes_of_war",
@@ -837,7 +877,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "filler_foreign_pct",
@@ -856,7 +897,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "natural_progression",
@@ -872,7 +914,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "region_grace_unlock",
@@ -901,7 +944,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "grace_attunement",
@@ -920,7 +964,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "grace_attunement_anchor",
@@ -945,13 +990,14 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "progressive_flasks",
    "class": "ProgressiveFlasks",
    "display_name": "Progressive Flasks",
-   "description": "On (default): every Golden Seed and Sacred Tear check pays out a single \"Progressive Flask\nUpgrade\" item instead, one-for-one. Each copy raises your flask on two axes: CHARGES climb on an\nescalating schedule the client applies directly, and POTENCY rises by granting you a Sacred Tear\nthat you spend at a grace the vanilla way -- so upgrades arrive on a steady cadence instead of a\npile of silent flat pickups. Off: seeds and tears stay discrete pickups at their shuffled\nlocations. Flasks never gate logic, so either way the seed is always winnable.",
+   "description": "On (default): every Golden Seed and Sacred Tear check pays out a single \"Progressive Flask\nUpgrade\" item instead, one-for-one. Copies alternate deterministically: Charge, then +1 potency,\nthen Charge, then +1, continuing in that order. The first copy visibly raises total charges above\nthe vanilla starting allocation; +1 copies grant a Sacred Tear to spend at a grace. Off: seeds\nand tears stay discrete pickups at their shuffled locations. Flasks never gate logic, so either\nway the seed is always winnable.",
    "kind": "toggle",
    "base": "Toggle",
    "default": true,
@@ -961,7 +1007,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "progressive_stone_bells",
@@ -977,7 +1024,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "keep_out_of_shops",
@@ -1014,7 +1062,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "leyndell_runes_required",
@@ -1033,7 +1082,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "keep_local",
@@ -1079,7 +1129,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "keep_local_rune_cap",
@@ -1098,7 +1149,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "merchant_bells_on_talk",
@@ -1114,7 +1166,38 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "protect_missable_locations",
+   "class": "ProtectMissableLocations",
+   "display_name": "Protect Missable Locations",
+   "description": "What may be placed at checks that can be lost behind a limited consumable, a killable NPC,\nor NPC-questline progress. ``progression and useful`` (default) leaves only filler there;\n``progression`` protects winnability but may lose useful gear; ``off`` permits either and accepts\nthat a seed can require a missable questline step. Legacy ``true`` selects the new default and\n``false`` selects off.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "progression_and_useful",
+   "choices": [
+    {
+     "name": "off",
+     "value": 0
+    },
+    {
+     "name": "progression",
+     "value": 1
+    },
+    {
+     "name": "progression_and_useful",
+     "value": 2
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "no_runes_in_shops",
@@ -1130,7 +1213,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "progression_surface",
@@ -1418,7 +1502,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
       "keys": []
      }
     ]
-   }
+   },
+   "essential": true
   },
   {
    "key": "progression_bias",
@@ -1437,13 +1522,14 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "confine_foreign_progression",
    "class": "ConfineForeignProgression",
    "display_name": "Confine Foreign Progression",
-   "description": "What share of OTHER players' progression is confined to your Progression Surface, the way\nyour own is. A percentage, not a switch.\n\n100 (`true`) confines all of it: another world's advancement may only be placed on your surface\nlocations -- the same high-confidence checks your own progression is curated onto -- never on\nyour filler checks. So a foreign key spell lands on a major-boss / remembrance / key-item check\nof yours, not on a random Smithing Stone pickup. 0 (`false`) confines none of it and foreign\nprogression scatters across any reachable location of yours, which is standard Archipelago\nbehaviour. In between, that share of the foreign advancement you see is held to the surface and\nthe rest is free.\n\n🛑 IT IS NOT ONLY A CURATION KNOB, and this is the reason it stopped being a toggle. The rule is\nabout YOUR locations, but it displaces your NEIGHBOUR: barred from your ~3000 filler checks, a\npartner game's progression has nowhere to go but its own locations, which saturates them early\nin the fill -- and Archipelago places the whole `useful` tier before any filler, so by the time\nit reaches what is left of the partner's world only filler remains. MEASURED at 100, three\nseeds, two Elden Ring slots beside two Hollow Knight slots: of 498 Elden Ring items that reached\nHollow Knight, **zero** were useful -- no weapon, no armour, no talisman, 100% filler -- while\nthe other Elden Ring slot got a healthy 43.1% useful. At 0 the same seeds send Hollow Knight\n40.7% useful, which is the pool's own mix. Lower this if you want your gear to be worth\nreceiving in a non-Elden-Ring game.\n\nIt is a propensity by ITEM NAME, not a per-copy coin flip: the decision for a given foreign item\nname is fixed for the whole seed, so a name is either surface-only or free, never both.\n\nNo effect in a solo seed, or when Progression Surface Mode is off. It never blocks generation:\nyour OWN progression keeps its feasibility-ladder + spill safety valve, and foreign progression\nthat will not fit your surface simply lands in its own world instead (only YOUR filler checks\nare barred to it -- other worlds are untouched).",
+   "description": "What share of OTHER players' progression is confined to your Progression Surface, the way\nyour own is. A percentage, not a switch.\n\n100 (`true`) confines all of it: another world's advancement may only be placed on your surface\nlocations -- the same high-confidence checks your own progression is curated onto -- never on\nyour filler checks. So a foreign key spell lands on a major-boss / remembrance / key-item check\nof yours, not on a random Smithing Stone pickup. 0 (`false`) confines none of it and foreign\nprogression scatters across any reachable location of yours, which is standard Archipelago\nbehaviour. In between, that share of the foreign advancement you see is held to the surface and\nthe rest is free.\n\nThis is purely about where INCOMING foreign keys may sit. It used to have a nasty side effect\n-- at 100 the displacement it causes starved non-Elden-Ring partners of your useful gear\nentirely (measured: 0 useful in 498 placements to Hollow Knight) -- but that is fixed at its\nown layer since v0.4.10: a dedicated export-reservation pass places your fair share of useful\nitems into partner worlds before the general fill, whatever this option is set to. Re-measured\nwith the pass: partners receive the pool's own mix (about 1:1 useful to filler) at every\nconfine value. Lower this only if you want foreign keys spread beyond your starred checks.\n\nIt is a propensity by ITEM NAME, not a per-copy coin flip: the decision for a given foreign item\nname is fixed for the whole seed, so a name is either surface-only or free, never both.\n\nNo effect in a solo seed, because there is no foreign progression to confine. It never blocks\ngeneration: your OWN progression keeps its feasibility-ladder + spill safety valve, and foreign\nprogression that will not fit your surface simply lands in its own world instead (only YOUR\nfiller checks are barred to it -- other worlds are untouched).",
    "kind": "range",
    "base": "NamedRange",
    "default": 100,
@@ -1473,7 +1559,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "name": "true",
      "value": 100
     }
-   ]
+   ],
+   "essential": false
   },
   {
    "key": "cross_game_progression",
@@ -1501,7 +1588,38 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "name": "never",
      "value": 0
     }
-   ]
+   ],
+   "essential": false
+  },
+  {
+   "key": "goal_region_unlock_policy",
+   "class": "GoalRegionUnlockPolicy",
+   "display_name": "Goal Region Unlock Policy",
+   "description": "When the synthetic final region opens.\n\n``items_held`` preserves the original rule: receiving every required Region Lock opens the\nfinal region. ``none`` imposes no region-side requirement. ``regions_completed`` waits until\nevery progression-surface check in every non-final region has been satisfied. A shop check is\nsatisfied when its merchant inventory is viewed; buying the ware is not required. Completion\nis reconstructed from the server's checked locations plus its per-slot viewed-shop ledger, so\nreconnecting cannot lose progress.\n\nThis is independent of Ending Condition: any of these three policies can be combined with or\nwithout the Great Rune threshold.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "items_held",
+   "choices": [
+    {
+     "name": "items_held",
+     "value": 0
+    },
+    {
+     "name": "regions_completed",
+     "value": 1
+    },
+    {
+     "name": "none",
+     "value": 2
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "enemy_scaling",
@@ -1517,7 +1635,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "minimum_enemy_difficulty",
@@ -1536,7 +1655,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "maximum_enemy_difficulty",
@@ -1560,7 +1680,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "name": "auto",
      "value": -1
     }
-   ]
+   ],
+   "essential": false
   },
   {
    "key": "difficulty_ramp_speed",
@@ -1579,7 +1700,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "scadutree_blessing_scope",
@@ -1604,7 +1726,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "dlc_blessing_catchup",
@@ -1620,7 +1743,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "global_scadutree_blessing",
@@ -1649,7 +1773,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "reroll_infinite_shop_stock",
@@ -1665,7 +1790,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "infinite_hub_wares",
@@ -1681,7 +1807,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "merchant_bell_logic",
@@ -1706,7 +1833,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "start_regions",
@@ -1725,7 +1853,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "start_region_pool",
@@ -1770,7 +1899,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "start_with_whetblades",
@@ -1786,20 +1916,41 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "trap_link",
+   "class": "TrapLink",
+   "display_name": "TrapLink",
+   "description": "Share trap items with other TrapLink players.\n\nA trap received through Archipelago is broadcast once when it enters your local trap queue.\nLinked traps use an exact compatible Elden Ring trap name; unknown foreign trap names are\nignored rather than converted into an arbitrary effect. Incoming linked traps never echo back.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "traps",
    "class": "Traps",
    "display_name": "Traps",
-   "description": "Which traps may appear in your world. Empty (default) = no traps at all.\n\nA trap is an item that makes your run briefly worse. They are FILLER: a trap never holds\nprogression, and every trap in your pool replaces one junk item, so your seed does not grow.\n\n- **rune_thief** -- half your runes, gone.\n- **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does\n  nothing, and the charge is spent.\n- **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the\n  runes.\n- **basilisk** -- THREE basilisks appear where you are standing. One is a joke; three is the\n  Death Blight mist, which kills outright. Killing you sends a DeathLink.\n\nTraps are sent to YOU by your own world like any other item, so in a multiworld somebody else\nmay be the one who finds them.\n\nFor any other enemy in the game, see `spawn_traps`.",
+   "description": "Which traps may appear in your world. Empty (default) = no traps at all.\n\nA trap is an item that makes your run briefly worse. They are FILLER: a trap never holds\nprogression, and every trap in your pool replaces one junk item, so your seed does not grow.\n\n- **rune_thief** -- half your runes, gone.\n- **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does\n  nothing, and the charge is spent.\n- **blackout** -- the screen fades out, stays dark for 2 seconds, then fades back in.\n- **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the\n  runes.\n- **basilisk** -- THREE basilisks appear where you are standing. One is a joke; three is the\n  Death Blight mist, which kills outright. Killing you sends a DeathLink.\n\nTraps are sent to YOU by your own world like any other item, so in a multiworld somebody else\nmay be the one who finds them.\n\nFor any other enemy in the game, see `spawn_traps`.",
    "kind": "set",
    "base": "OptionSet",
    "default": [],
    "choices": null,
    "range": null,
    "valid_keys": [
+    "aging_untouchable",
     "basilisk",
+    "blackout",
+    "malenia",
     "no_flask",
     "rune_thief",
     "runebear"
@@ -1807,7 +1958,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "trap_count",
@@ -1826,7 +1978,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "spawn_traps",
@@ -2234,7 +2387,25 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "free_text": true
+   "free_text": true,
+   "essential": false
+  },
+  {
+   "key": "auto_upgrade",
+   "class": "AutoUpgrade",
+   "display_name": "Auto-Upgrade Received Weapons",
+   "description": "Automatically raise any weapon that enters your bag -- an AP grant, a world pickup, or an\nitem you put down with Leave and took back -- to the highest reinforce level you already hold\non its smithing track (normal caps at +25, somber at +10). Raise-only and per-track: nothing\nis ever downgraded, and somber never feeds normal. The put-it-down-pick-it-up gesture is the\nintended catch-up for a weapon received before you found your stones. On by default, and the\nreceipt half has been every seed's behaviour since v0.2 -- turn it off to keep weapons at\ntheir found level and spend the stones yourself.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": true,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "vanilla_pool",
@@ -2250,7 +2421,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "no_weapon_requirements",
@@ -2266,7 +2438,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   }
  ],
  "presets": [
@@ -2993,6 +3166,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
   "region": "Ashen Capital"
  },
+ "hub_dlc_gated_checks": 36,
  "hub_region": "Roundtable Hold",
  "parent": {
   "Leyndell": "Altus",
@@ -3029,17 +3203,17 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "sweep_slots_max": {
-    "all": 12,
-    "bosses": 12
+    "all": 13,
+    "bosses": 13
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 12,
-     "bosses": 12
+     "all": 13,
+     "bosses": 13
     },
     "SweepSlotMajor": {
-     "all": 7,
-     "bosses": 7
+     "all": 8,
+     "bosses": 8
     },
     "SweepSlotMinor": {
      "all": 5,
@@ -3048,11 +3222,12 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Ainsel River": {
-   "checks": 122,
+   "checks": 123,
    "combos": {
     "Boss|LegacyBoss": 1,
     "Boss|LegacyBoss|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "KeyItem": 1,
     "Legendary": 2,
     "Seedtree": 2,
     "Shop|ShopNonSpell": 8,
@@ -3099,10 +3274,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Altus": {
-   "checks": 373,
+   "checks": 375,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss|FieldBoss": 8,
+    "Boss|FieldBoss|Legendary": 1,
     "Boss|FieldBoss|Legendary|MajorBoss": 1,
     "Boss|Legendary|MinorDungeonBoss": 4,
     "Boss|MinorDungeonBoss": 12,
@@ -3117,13 +3293,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true,
    "sweep_slots": {
     "all": 12,
-    "bosses": 27,
+    "bosses": 23,
     "minidungeons": 12
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 12,
-     "bosses": 27,
+     "bosses": 23,
      "minidungeons": 12
     },
     "SweepSlotMajor": {
@@ -3131,28 +3307,28 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 12,
-     "bosses": 26,
+     "bosses": 22,
      "minidungeons": 12
     }
    },
    "sweep_slots_max": {
-    "all": 82,
-    "bosses": 166,
-    "minidungeons": 82
+    "all": 81,
+    "bosses": 143,
+    "minidungeons": 81
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 82,
-     "bosses": 166,
-     "minidungeons": 82
+     "all": 81,
+     "bosses": 143,
+     "minidungeons": 81
     },
     "SweepSlotMajor": {
      "bosses": 8
     },
     "SweepSlotMinor": {
-     "all": 82,
-     "bosses": 158,
-     "minidungeons": 82
+     "all": 81,
+     "bosses": 135,
+     "minidungeons": 81
     }
    }
   },
@@ -3293,7 +3469,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Caelid": {
-   "checks": 358,
+   "checks": 361,
    "combos": {
     "Basin": 1,
     "Basin|Boss|FieldBoss": 1,
@@ -3318,13 +3494,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true,
    "sweep_slots": {
     "all": 10,
-    "bosses": 25,
+    "bosses": 21,
     "minidungeons": 10
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 10,
-     "bosses": 25,
+     "bosses": 21,
      "minidungeons": 10
     },
     "SweepSlotMajor": {
@@ -3332,19 +3508,19 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 10,
-     "bosses": 24,
+     "bosses": 20,
      "minidungeons": 10
     }
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 135,
+    "bosses": 118,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 135,
+     "bosses": 118,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -3352,7 +3528,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 131,
+     "bosses": 114,
      "minidungeons": 55
     }
    }
@@ -3365,7 +3541,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Boss|Legendary": 1,
     "Boss|MinorDungeonBoss": 1,
-    "Fragment": 4,
+    "Fragment": 3,
     "KeyItem": 2
    },
    "dlc": true,
@@ -3415,7 +3591,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Deeproot Depths": {
-   "checks": 87,
+   "checks": 80,
    "combos": {
     "Boss|LegacyBoss": 2,
     "Legendary": 4
@@ -3424,44 +3600,44 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "parent": null,
    "rollable": true,
    "sweep_slots": {
-    "all": 7,
-    "bosses": 7
+    "all": 3,
+    "bosses": 3
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 7,
-     "bosses": 7
+     "all": 3,
+     "bosses": 3
     },
     "SweepSlotMajor": {
      "all": 1,
      "bosses": 1
     },
     "SweepSlotMinor": {
-     "all": 6,
-     "bosses": 6
+     "all": 2,
+     "bosses": 2
     }
    },
    "sweep_slots_max": {
-    "all": 56,
-    "bosses": 56
+    "all": 24,
+    "bosses": 24
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 56,
-     "bosses": 56
+     "all": 24,
+     "bosses": 24
     },
     "SweepSlotMajor": {
      "all": 8,
      "bosses": 8
     },
     "SweepSlotMinor": {
-     "all": 48,
-     "bosses": 48
+     "all": 16,
+     "bosses": 16
     }
    }
   },
   "Enir Ilim": {
-   "checks": 110,
+   "checks": 107,
    "combos": {
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Fragment": 3,
@@ -3472,44 +3648,44 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "parent": null,
    "rollable": true,
    "sweep_slots": {
-    "all": 4,
-    "bosses": 4
+    "all": 2,
+    "bosses": 2
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 4,
-     "bosses": 4
+     "all": 2,
+     "bosses": 2
     },
     "SweepSlotMajor": {
      "all": 1,
      "bosses": 1
     },
     "SweepSlotMinor": {
-     "all": 3,
-     "bosses": 3
+     "all": 1,
+     "bosses": 1
     }
    },
    "sweep_slots_max": {
-    "all": 32,
-    "bosses": 32
+    "all": 16,
+    "bosses": 16
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 32,
-     "bosses": 32
+     "all": 16,
+     "bosses": 16
     },
     "SweepSlotMajor": {
      "all": 8,
      "bosses": 8
     },
     "SweepSlotMinor": {
-     "all": 24,
-     "bosses": 24
+     "all": 8,
+     "bosses": 8
     }
    }
   },
   "Ensis": {
-   "checks": 42,
+   "checks": 41,
    "combos": {
     "Boss|FieldBoss|MajorBoss|Remembrance": 1,
     "Fragment": 2,
@@ -3589,7 +3765,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Gravesite": {
-   "checks": 215,
+   "checks": 224,
    "combos": {
     "Basin": 1,
     "Boss": 5,
@@ -3597,7 +3773,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Boss|Legendary|MajorBoss": 1,
     "Boss|Legendary|MinorDungeonBoss": 1,
     "Boss|MinorDungeonBoss": 3,
-    "Fragment": 5,
+    "Fragment": 6,
     "Legendary": 3,
     "Revered": 4,
     "Shop|ShopNonSpell": 11
@@ -3606,42 +3782,42 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "parent": null,
    "rollable": true,
    "sweep_slots": {
-    "all": 8,
-    "bosses": 8,
+    "all": 6,
+    "bosses": 6,
     "minidungeons": 4
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 8,
-     "bosses": 8,
+     "all": 6,
+     "bosses": 6,
      "minidungeons": 4
     },
     "SweepSlotMinor": {
-     "all": 8,
-     "bosses": 8,
+     "all": 6,
+     "bosses": 6,
      "minidungeons": 4
     }
    },
    "sweep_slots_max": {
-    "all": 60,
-    "bosses": 60,
+    "all": 44,
+    "bosses": 44,
     "minidungeons": 28
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 60,
-     "bosses": 60,
+     "all": 44,
+     "bosses": 44,
      "minidungeons": 28
     },
     "SweepSlotMinor": {
-     "all": 60,
-     "bosses": 60,
+     "all": 44,
+     "bosses": 44,
      "minidungeons": 28
     }
    }
   },
   "Haligtree": {
-   "checks": 124,
+   "checks": 123,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss": 1,
@@ -3682,11 +3858,12 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Jagged Peak": {
-   "checks": 49,
+   "checks": 43,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss": 1,
-    "Fragment": 1
+    "Fragment": 1,
+    "KeyItem": 1
    },
    "dlc": true,
    "parent": null,
@@ -3729,49 +3906,24 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Leyndell": {
-   "checks": 161,
+   "checks": 160,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "KeyItem": 1
    },
    "dlc": false,
    "parent": "Altus",
    "rollable": true,
-   "sweep_slots": {
-    "all": 1,
-    "bosses": 1
-   },
-   "sweep_slots_by_class": {
-    "SweepSlot": {
-     "all": 1,
-     "bosses": 1
-    },
-    "SweepSlotMajor": {
-     "all": 1,
-     "bosses": 1
-    }
-   },
-   "sweep_slots_max": {
-    "all": 1,
-    "bosses": 1
-   },
-   "sweep_slots_max_by_class": {
-    "SweepSlot": {
-     "all": 1,
-     "bosses": 1
-    },
-    "SweepSlotMajor": {
-     "all": 1,
-     "bosses": 1
-    }
-   }
+   "sweep_slots": {},
+   "sweep_slots_by_class": {},
+   "sweep_slots_max": {},
+   "sweep_slots_max_by_class": {}
   },
   "Limgrave": {
-   "checks": 332,
+   "checks": 330,
    "combos": {
-    "Basin": 3,
+    "Basin": 2,
     "Boss|FieldBoss": 5,
     "Boss|FieldBoss|Legendary": 1,
     "Boss|LegacyBoss|Seedtree": 1,
@@ -3789,43 +3941,42 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true,
    "sweep_slots": {
     "all": 9,
-    "bosses": 18,
+    "bosses": 16,
     "minidungeons": 7
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 9,
-     "bosses": 18,
+     "bosses": 16,
      "minidungeons": 7
     },
     "SweepSlotMinor": {
      "all": 9,
-     "bosses": 18,
+     "bosses": 16,
      "minidungeons": 7
     }
    },
    "sweep_slots_max": {
-    "all": 40,
-    "bosses": 103,
-    "minidungeons": 27
+    "all": 42,
+    "bosses": 88,
+    "minidungeons": 28
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 40,
-     "bosses": 103,
-     "minidungeons": 27
+     "all": 42,
+     "bosses": 88,
+     "minidungeons": 28
     },
     "SweepSlotMinor": {
-     "all": 40,
-     "bosses": 103,
-     "minidungeons": 27
+     "all": 42,
+     "bosses": 88,
+     "minidungeons": 28
     }
    }
   },
   "Liurnia": {
-   "checks": 610,
+   "checks": 609,
    "combos": {
-    "Basin": 2,
     "Boss": 1,
     "Boss|FieldBoss": 15,
     "Boss|FieldBoss|Legendary": 1,
@@ -3846,13 +3997,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true,
    "sweep_slots": {
     "all": 9,
-    "bosses": 27,
+    "bosses": 24,
     "minidungeons": 9
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 9,
-     "bosses": 27,
+     "bosses": 24,
      "minidungeons": 9
     },
     "SweepSlotMajor": {
@@ -3862,19 +4013,19 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 8,
-     "bosses": 25,
+     "bosses": 22,
      "minidungeons": 8
     }
    },
    "sweep_slots_max": {
     "all": 53,
-    "bosses": 177,
+    "bosses": 156,
     "minidungeons": 53
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 53,
-     "bosses": 177,
+     "bosses": 156,
      "minidungeons": 53
     },
     "SweepSlotMajor": {
@@ -3884,13 +4035,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 45,
-     "bosses": 161,
+     "bosses": 140,
      "minidungeons": 45
     }
    }
   },
   "Mohgwyn": {
-   "checks": 92,
+   "checks": 67,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
@@ -3930,7 +4081,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Mountaintops of the Giants": {
-   "checks": 344,
+   "checks": 342,
    "combos": {
     "Basin|Boss|FieldBoss": 2,
     "Boss|FieldBoss": 7,
@@ -3949,13 +4100,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true,
    "sweep_slots": {
     "all": 7,
-    "bosses": 17,
+    "bosses": 15,
     "minidungeons": 7
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 7,
-     "bosses": 17,
+     "bosses": 15,
      "minidungeons": 7
     },
     "SweepSlotMajor": {
@@ -3963,37 +4114,37 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 7,
-     "bosses": 15,
+     "bosses": 13,
      "minidungeons": 7
     }
    },
    "sweep_slots_max": {
-    "all": 52,
-    "bosses": 117,
-    "minidungeons": 52
+    "all": 51,
+    "bosses": 105,
+    "minidungeons": 51
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 52,
-     "bosses": 117,
-     "minidungeons": 52
+     "all": 51,
+     "bosses": 105,
+     "minidungeons": 51
     },
     "SweepSlotMajor": {
      "bosses": 16
     },
     "SweepSlotMinor": {
-     "all": 52,
-     "bosses": 101,
-     "minidungeons": 52
+     "all": 51,
+     "bosses": 89,
+     "minidungeons": 51
     }
    }
   },
   "Mt. Gelmir": {
-   "checks": 244,
+   "checks": 243,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 4,
-    "Boss|FieldBoss|Legendary": 2,
+    "Boss|FieldBoss|Legendary": 1,
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss": 2,
     "Boss|LegacyBoss|MajorBoss": 1,
@@ -4009,14 +4160,14 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "parent": null,
    "rollable": true,
    "sweep_slots": {
-    "all": 7,
-    "bosses": 11,
+    "all": 6,
+    "bosses": 9,
     "minidungeons": 3
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 7,
-     "bosses": 11,
+     "all": 6,
+     "bosses": 9,
      "minidungeons": 3
     },
     "SweepSlotMajor": {
@@ -4024,20 +4175,20 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "bosses": 2
     },
     "SweepSlotMinor": {
-     "all": 5,
-     "bosses": 9,
+     "all": 4,
+     "bosses": 7,
      "minidungeons": 3
     }
    },
    "sweep_slots_max": {
-    "all": 53,
-    "bosses": 85,
+    "all": 45,
+    "bosses": 69,
     "minidungeons": 21
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 53,
-     "bosses": 85,
+     "all": 45,
+     "bosses": 69,
      "minidungeons": 21
     },
     "SweepSlotMajor": {
@@ -4045,8 +4196,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "bosses": 16
     },
     "SweepSlotMinor": {
-     "all": 37,
-     "bosses": 69,
+     "all": 29,
+     "bosses": 53,
      "minidungeons": 21
     }
    }
@@ -4097,7 +4248,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Raya Lucaria Academy": {
-   "checks": 104,
+   "checks": 105,
    "combos": {
     "Boss|GreatRune|LegacyBoss|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss": 1,
@@ -4139,7 +4290,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Roundtable Hold": {
-   "checks": 239,
+   "checks": 237,
    "combos": {},
    "dlc": false,
    "parent": null,
@@ -4150,15 +4301,15 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "sweep_slots_max_by_class": {}
   },
   "Scadu Altus": {
-   "checks": 277,
+   "checks": 324,
    "combos": {
     "Boss|FieldBoss": 4,
     "Boss|Fragment|LegacyBoss": 1,
     "Boss|LegacyBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Boss|MinorDungeonBoss": 1,
-    "Fragment": 8,
-    "KeyItem": 1,
+    "Fragment": 9,
+    "KeyItem": 2,
     "Legendary": 1,
     "Revered": 2,
     "Shop": 5
@@ -4167,14 +4318,14 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "parent": null,
    "rollable": true,
    "sweep_slots": {
-    "all": 8,
-    "bosses": 8,
+    "all": 6,
+    "bosses": 6,
     "minidungeons": 1
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 8,
-     "bosses": 8,
+     "all": 6,
+     "bosses": 6,
      "minidungeons": 1
     },
     "SweepSlotMajor": {
@@ -4182,20 +4333,20 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "bosses": 1
     },
     "SweepSlotMinor": {
-     "all": 7,
-     "bosses": 7,
+     "all": 5,
+     "bosses": 5,
      "minidungeons": 1
     }
    },
    "sweep_slots_max": {
-    "all": 60,
-    "bosses": 60,
+    "all": 44,
+    "bosses": 44,
     "minidungeons": 8
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 60,
-     "bosses": 60,
+     "all": 44,
+     "bosses": 44,
      "minidungeons": 8
     },
     "SweepSlotMajor": {
@@ -4203,14 +4354,14 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "bosses": 4
     },
     "SweepSlotMinor": {
-     "all": 56,
-     "bosses": 56,
+     "all": 40,
+     "bosses": 40,
      "minidungeons": 8
     }
    }
   },
   "Sewer": {
-   "checks": 94,
+   "checks": 91,
    "combos": {
     "Boss|LegacyBoss|Legendary": 1,
     "Boss|LegacyBoss|MajorBoss": 1,
@@ -4257,13 +4408,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Shadow Keep": {
-   "checks": 283,
+   "checks": 118,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 2,
     "Boss|KeyItem|LegacyBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
-    "Fragment": 9,
+    "Fragment": 8,
     "Legendary": 1,
     "Revered": 2
    },
@@ -4271,44 +4422,44 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "parent": null,
    "rollable": true,
    "sweep_slots": {
-    "all": 9,
-    "bosses": 9
+    "all": 5,
+    "bosses": 5
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 9,
-     "bosses": 9
+     "all": 5,
+     "bosses": 5
     },
     "SweepSlotMajor": {
      "all": 2,
      "bosses": 2
     },
     "SweepSlotMinor": {
-     "all": 7,
-     "bosses": 7
+     "all": 3,
+     "bosses": 3
     }
    },
    "sweep_slots_max": {
-    "all": 56,
-    "bosses": 56
+    "all": 32,
+    "bosses": 32
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 56,
-     "bosses": 56
+     "all": 32,
+     "bosses": 32
     },
     "SweepSlotMajor": {
-     "all": 13,
-     "bosses": 13
+     "all": 14,
+     "bosses": 14
     },
     "SweepSlotMinor": {
-     "all": 43,
-     "bosses": 43
+     "all": 18,
+     "bosses": 18
     }
    }
   },
   "Siofra River": {
-   "checks": 180,
+   "checks": 166,
    "combos": {
     "Boss|LegacyBoss": 3,
     "Boss|LegacyBoss|MajorBoss": 3,
@@ -4359,7 +4510,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Stormveil": {
-   "checks": 132,
+   "checks": 140,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
@@ -4400,7 +4551,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Weeping": {
-   "checks": 154,
+   "checks": 152,
    "combos": {
     "Basin": 1,
     "Boss|FieldBoss": 2,
@@ -4416,13 +4567,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "rollable": true,
    "sweep_slots": {
     "all": 5,
-    "bosses": 10,
+    "bosses": 9,
     "minidungeons": 5
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 5,
-     "bosses": 10,
+     "bosses": 9,
      "minidungeons": 5
     },
     "SweepSlotMajor": {
@@ -4430,19 +4581,19 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 5,
-     "bosses": 9,
+     "bosses": 8,
      "minidungeons": 5
     }
    },
    "sweep_slots_max": {
     "all": 26,
-    "bosses": 66,
+    "bosses": 58,
     "minidungeons": 26
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 26,
-     "bosses": 66,
+     "bosses": 58,
      "minidungeons": 26
     },
     "SweepSlotMajor": {
@@ -4450,7 +4601,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 26,
-     "bosses": 58,
+     "bosses": 50,
      "minidungeons": 26
     }
    }
@@ -4458,7 +4609,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "dd94247578d7f7d49b4e9df8474325a7e65b5284fa4e58049c282269d1990af5"
+ "source_sha256": "6ec103577202b476b93f485b3a7b1dd5997ca542f3dc92ae6bf8a828dbea1dbc"
 }
 </script>
 <div class="wrap">
@@ -4770,8 +4921,9 @@ const ERW = (() => {
     // region_spine.compute_kept: N is a DRAW SIZE. The Seed size panel shows the resulting spread,
     // so this points at it rather than restating a number that is only true for one draw.
     if (has("num_regions") && v("num_regions") > 0 && set("num_regions"))
-      info("num_regions", "A draw size, not a final count \u2014 goal force-keeps and parent " +
-           "closure can add more. See Seed size for the range your setting actually produces.");
+      info("num_regions", "A draw size, not a final count \u2014 goal and start-region force-keeps " +
+           "plus parent closure can add more. See Seed size for the range your setting actually " +
+           "produces.");
 
     return out;
   }
@@ -4779,7 +4931,8 @@ const ERW = (() => {
 
   /* ---- seed size (wizard/region-census.json; tools/build_region_census.py) --------------------
      num_regions is a DRAW SIZE, not a final count: compute_kept = draw + explicit-goal force-keeps
-     + parent closure. So a single number would be wrong -- we sample the draw and report a spread.
+     + start_region_pool force-keeps + parent closure. So a single number would be wrong -- we
+     sample the draw and report a spread.
 
      DETERMINISTIC ON PURPOSE. A seeded PRNG (mulberry32, fixed seed), so the same option set always
      shows the same figures. With Math.random the readout jittered on every unrelated keystroke and
@@ -4832,7 +4985,11 @@ const ERW = (() => {
     // base game is in play. census.finale.present_when states the rule; this evaluates it.
     const finaleName = census.finale && census.finale.region;
     const finaleOn = !!(finaleName && R[finaleName]) && eligible.some(n => !R[n].dlc);
-    const base = R[census.hub_region].checks + (finaleOn ? R[finaleName].checks : 0);
+    /* #913: Enia's DLC-gated shop rows leave a no-DLC seed, so the hub is smaller by the
+       census's hub_dlc_gated_checks there. check_wizard_census_js proves this line matches the
+       Python reference. */
+    const base = R[census.hub_region].checks + (finaleOn ? R[finaleName].checks : 0)
+               - ((!opts.dlcOnly && !opts.enableDlc) ? (census.hub_dlc_gated_checks || 0) : 0);
     const rung = opts.dungeonSweep || "bosses";
     const baseSurf = comboHits(R[census.hub_region], sel, rung)
                    + (finaleOn ? comboHits(R[finaleName], sel, rung) : 0);
@@ -4841,15 +4998,18 @@ const ERW = (() => {
     const whole = (n <= 0 || n >= eligible.length);
     const trials = whole ? 1 : Math.max(1, opts.trials || 4000);
     const rnd = mulberry32(0x45524147);
-    const checks = [], surf = [], kept = [];
+    const startPool = new Set((opts.startRegionPool || []).filter(r => elig.has(r)));
+    const checks = [], surf = [], kept = [], forcedStart = [];
     for (let t = 0; t < trials; t++){
-      let keptSet;
-      if (whole){ keptSet = new Set(eligible); }
+      let keptSet, addedStart;
+      if (whole){ keptSet = new Set(eligible); addedStart = new Set(); }
       else {
         const pool = eligible.slice();
         keptSet = new Set();
         for (let i = 0; i < n; i++)
           keptSet.add(pool.splice(Math.floor(rnd() * pool.length), 1)[0]);
+        addedStart = new Set(Array.from(startPool).filter(r => !keptSet.has(r)));
+        for (const r of startPool) keptSet.add(r);
         let grew = true;
         while (grew){
           grew = false;
@@ -4861,12 +5021,13 @@ const ERW = (() => {
       }
       let c = base, s = baseSurf;
       for (const r of keptSet){ c += R[r].checks; s += comboHits(R[r], sel, rung); }
-      checks.push(c); surf.push(s); kept.push(keptSet.size);
+      checks.push(c); surf.push(s); kept.push(keptSet.size); forcedStart.push(addedStart.size);
     }
     const q = (a, p) => { a = a.slice().sort((x, y) => x - y); return a[Math.floor(p * (a.length - 1))]; };
     const band = a => ({ min: q(a, 0), p10: q(a, 0.10), median: q(a, 0.5), p90: q(a, 0.90), max: q(a, 1) });
     return { whole, trials, eligible: eligible.length, finale: finaleOn,
-             checks: band(checks), surface: band(surf), kept: band(kept) };
+             checks: band(checks), surface: band(surf), kept: band(kept),
+             forcedStart: band(forcedStart) };
   }
 
   /* WHAT EACH BOX IS ACTUALLY WORTH: {total, marginal:{class:n}, regions}.
@@ -5042,10 +5203,21 @@ if (typeof module !== "undefined") module.exports = ERW;
     meta.groups.filter(g => g.collapsed).map(g => ({name:g.name, options:g.options})),
     meta.ungrouped.length ? [{name:"Other Options", options:meta.ungrouped}] : [],
     [{name:"Archipelago Core", options:meta.apCore.map(o => o.key)}]);
-  const steps = [{id:"welcome", title:"Start"}, {id:"seedsize", title:"Seed size"}]
-    .concat(openGroups.map(g => ({id:"g:"+g.name, title:g.name, options:g.options})))
-    .concat([{id:"advanced", title:"Advanced"}, {id:"finish", title:"Finish"}]);
+  /* ELEVEN STEPS -> FIVE (2026-08-20, player complaint: "too many tabs, too many options").
+     The seven option groups are no longer one rail tab each; they are collapsible SECTIONS inside
+     a single Options step. The GROUPING itself still lives in core.GFWeb.option_groups -- one
+     grouping, two surfaces -- this is a composition on top of it, not a second table. The step
+     carries the union of the group keys so the rail's touched-badge logic reads it unchanged. */
+  const steps = [{id:"welcome", title:"Start"},
+                 {id:"options", title:"Options",
+                  options:[].concat.apply([], openGroups.map(g => g.options))},
+                 {id:"seedsize", title:"Seed size"},
+                 {id:"advanced", title:"Advanced"}, {id:"finish", title:"Finish"}];
   let cur = 0;
+  /* Which Options sections are open. Survives renderStep (preset picks re-render the whole step),
+     dies with the page -- deliberately not persisted. The first section starts open so the step
+     never reads as a wall of closed doors. */
+  const openSections = new Set(openGroups.length ? [openGroups[0].name] : []);
 
   const $ = sel => document.querySelector(sel);
   const el = (tag, cls, html) => { const e = document.createElement(tag);
@@ -5435,7 +5607,8 @@ if (typeof module !== "undefined") module.exports = ERW;
   // OTHER players' progression to that same surface, so a reader who meets it alone has no idea what
   // "the surface" refers to. enable_dlc / dlc_only change which regions are eligible at all, which
   // matters but is usually decided once and left.
-  const SEED_SIZE_OPTIONS = ["num_regions", "progression_surface", "confine_foreign_progression",
+  const SEED_SIZE_OPTIONS = ["num_regions", "start_region_pool", "progression_surface",
+                             "confine_foreign_progression",
                              "enable_dlc", "dlc_only",
                              // the locality knobs -- they move the "what you send out" card below
                              "keep_local", "keep_local_rune_cap",
@@ -5709,8 +5882,31 @@ if (typeof module !== "undefined") module.exports = ERW;
             "(" + bandText(cats.runes || [0, 0, 0]) + "% of the pool) that is depends on which rune " +
             "items your seed actually contains, which is not knowable here.") + "</div>";
     }
-    html += "<div class='desc' style='margin-top:10px'>Your own progression never travels either " +
-      "way: the region Locks are placed in your world before the multiworld fill ever sees them.</div>";
+    /* 255 (Discord, 2026-08-20) quoted the sentence that used to live here -- "Your own
+       progression never travels either way" -- as a constant, while progression_bias's DEFAULT
+       is 0: every Region Lock travels like any other item. The exact inverse of the live
+       behaviour, told to a player deciding whether to join an async. DERIVED from the knobs it
+       describes now, and check_wizard_renders' reactivity audit (TEXT_MOVES) flips
+       progression_bias and demands these words follow -- the fifth "page lied" instance, and the
+       first where the prose itself gets a gate. */
+    const lockBias = Number(v("progression_bias") || 0);
+    const lockXg = v("cross_game_progression");
+    const xgNote = (lockXg === 0)
+      ? " (and never into a non-Elden-Ring game: <code>cross_game_progression</code> 0)" : "";
+    let lockSent;
+    if (lockBias >= 100){
+      lockSent = "<b>Your Region Locks stay home</b> at this setting: <code>progression_bias" +
+        "</code> 100 places every one in your own world before the multiworld fill sees them.";
+    } else if (lockBias > 0){
+      lockSent = "<b>Your Region Locks lean home but can travel</b>: <code>progression_bias</code> " +
+        lockBias + " pulls them toward your own world, and the rest ride the multiworld like any " +
+        "other item" + xgNote + ".";
+    } else {
+      lockSent = "<b>Your Region Locks travel like any other item</b> at this setting — " +
+        "another player can find your way into Liurnia, which is Archipelago working as intended. " +
+        "<code>progression_bias</code> is the knob if you want them kept home" + xgNote + ".";
+    }
+    html += "<div class='desc' style='margin-top:10px'>" + lockSent + "</div>";
     card.insertAdjacentHTML("beforeend", html);
     return card;
   }
@@ -5723,6 +5919,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const nr = v("num_regions"), dlcOn = !!v("enable_dlc"), only = !!v("dlc_only");
     const size = ERW.seedSize(census, { numRegions: nr, enableDlc: dlcOn, dlcOnly: only,
+                                        startRegionPool: v("start_region_pool") || [],
                                         surfaceClasses: v("progression_surface") || [],
                                         dungeonSweep: v("dungeon_sweep") });
     if (!size){
@@ -5751,7 +5948,14 @@ if (typeof module !== "undefined") module.exports = ERW;
        "<div class='desc' style='margin-top:8px'><b>num_regions is a draw size, not a final " +
        "count.</b> Which regions the draw takes moves everything above, which is why these are " +
        "ranges. Full spread at this setting: " + n(size.checks.min) + "\u2013" + n(size.checks.max) +
-       " checks.</div>"));
+       " checks.</div>") +
+      (size.forcedStart.max ?
+       "<div class='desc' style='margin-top:8px'><b>start_region_pool adds " +
+       (size.forcedStart.min === size.forcedStart.max ? n(size.forcedStart.median)
+        : n(size.forcedStart.min) + "\u2013" + n(size.forcedStart.max)) +
+       " region(s) beyond the draw</b>, depending on overlap. Every candidate is kept; only " +
+       "the opening " + ((v("start_regions") || 1) > 1 ? "regions are" : "region is") +
+       " chosen from them.</div>" : ""));
     box.append(c1);
 
     const cs = nearestCase(nr, dlcOn && !only);
@@ -5796,6 +6000,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, { numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"),
                                         dlcOnly: !!v("dlc_only"),
+                                        startRegionPool: v("start_region_pool") || [],
                                         surfaceClasses: v("progression_surface") || [],
                                         dungeonSweep: v("dungeon_sweep") });
     if (!size) return null;
@@ -5818,6 +6023,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, { numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"),
                                         dlcOnly: !!v("dlc_only"),
+                                        startRegionPool: v("start_region_pool") || [],
                                         surfaceClasses: v("progression_surface") || [],
                                         dungeonSweep: v("dungeon_sweep") });
     const cs = nearestCase(v("num_regions"), !!v("enable_dlc") && !v("dlc_only"));
@@ -5901,7 +6107,9 @@ if (typeof module !== "undefined") module.exports = ERW;
       nr.append(inp);
       nameCard.append(nr);
       const pc = el("div", "card");
-      pc.innerHTML = "<h2>Pick a starting point</h2>";
+      pc.innerHTML = "<h2>Pick a starting point</h2><div class='small'>A preset is a complete, " +
+        "playable yaml on its own — pick one and you can go straight to Finish. The Options step " +
+        "is there for the things you want to change, not a form to fill in.</div>";
       const grid = el("div", "presets");
       const cards = [{id:null, title:"Defaults", tagline:"Blank slate — every option at its default.",
                       description:"Writes an empty options block, so the apworld decides everything. Note this INCLUDES the DLC: enable_dlc defaults on, so you get all 28 regions. Pick a preset if you only own the base game."}]
@@ -5945,15 +6153,47 @@ if (typeof module !== "undefined") module.exports = ERW;
         "client.\n\nFix anything red in Checks first — red means generation will reject " +
         "the file.</div>";
       main.append(done);
-    } else {
-      const g = openGroups.find(g => "g:" + g.name === step.id);
-      const card = el("div", "card");
-      const changed = g.options.filter(k => !ERW.isDefault(meta, state, k)).length;
-      card.append(el("div", "grouphead",
-        "<h2>" + esc(g.name) + "</h2><span class='count'>" + g.options.length +
-        " options" + (changed ? " · " + changed + " changed" : "") + "</span>"));
-      for (const k of g.options){ const o = meta.byKey[k]; if (o) card.append(optRow(o)); }
-      main.append(card);
+    } else if (step.id === "options"){
+      const total = openGroups.reduce((a, g) => a + g.options.length, 0);
+      main.append(el("div", "card",
+        "<h2>The options</h2><div class='desc'>" + openGroups.length + " sections, " + total +
+        " options. Each section leads with the decisions that shape the run; the tuning sits " +
+        "behind its More fold, and a fold holding a changed option opens itself. The yaml on the " +
+        "right moves as you do — a preset from the Start step is already a complete, playable " +
+        "file, so everything here is adjustment, not homework.</div>"));
+      openGroups.forEach((g, gi) => {
+        const det = el("details", "card");
+        det.open = openSections.has(g.name);
+        det.addEventListener("toggle",
+          () => { if (det.open) openSections.add(g.name); else openSections.delete(g.name); });
+        const sum = el("summary", "");
+        sum.style.cssText = "cursor:pointer;color:var(--gold)";
+        sum.innerHTML = esc(g.name) + " <span class='small' id='gsec-" + gi + "'></span>";
+        det.append(sum);
+        /* THE ESSENTIALS TIER (core._ESSENTIAL_OPTIONS -> metadata `essential`). The decisions
+           render expanded; the tuning goes behind one "More ..." fold per section, whose count is
+           live via paintSectionCounts. The fold auto-opens at render while something inside it
+           deviates -- a changed option must never be out of sight (the #554 class). If the
+           metadata carries NO essentials (an older blob), every option renders expanded: an
+           absent tier means "show everything", never "hide everything". */
+        if (g.options.includes("enemy_scaling")) det.append(scalingPicksCard());
+        const ess = g.options.filter(k => meta.byKey[k] && meta.byKey[k].essential);
+        const rest = ess.length ? g.options.filter(k => meta.byKey[k] && !meta.byKey[k].essential)
+                                : [];
+        const head = ess.length ? ess : g.options;
+        for (const k of head){ const o = meta.byKey[k]; if (o) det.append(optRow(o)); }
+        if (rest.length){
+          const more = el("details", "more");
+          more.open = rest.some(k => meta.byKey[k] && !ERW.isDefault(meta, state, k));
+          more.innerHTML = "<summary>More <span class='small' id='gsec-" + gi +
+                           "-more'></span></summary>";
+          for (const k of rest){ const o = meta.byKey[k]; if (o) more.append(optRow(o)); }
+          det.append(more);
+        }
+        main.append(det);
+      });
+      paintSectionCounts();  // AFTER the append -- it queries the document for #gsec-N
+      paintScalingPicks();   // ditto (#sp-*)
     }
 
     const btns = el("div", "navbtns");
@@ -6071,6 +6311,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, {
       numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"), dlcOnly: !!v("dlc_only"),
+      startRegionPool: v("start_region_pool") || [],
       surfaceClasses: v("progression_surface") || [], dungeonSweep: v("dungeon_sweep")
     });
     if (!size){
@@ -6086,7 +6327,11 @@ if (typeof module !== "undefined") module.exports = ERW;
        num(size.checks.min) + "&ndash;" + num(size.checks.max)],
       ["regions kept", size.kept.min === size.kept.max ? num(size.kept.median)
                             : num(size.kept.p10) + "&ndash;" + num(size.kept.p90),
-       "num_regions is a draw size, not a final count"],
+       "num_regions is a draw size, not a final count" +
+       (size.forcedStart.max ? "; start_region_pool adds " +
+        (size.forcedStart.min === size.forcedStart.max ? num(size.forcedStart.median)
+         : num(size.forcedStart.min) + "&ndash;" + num(size.forcedStart.max)) +
+        " beyond the draw" : "")],
       ["can hold progression", size.whole ? num(size.surface.median)
                             : num(size.surface.p10) + "&ndash;" + num(size.surface.p90),
        "checks on your progression surface"]
@@ -6138,6 +6383,86 @@ if (typeof module !== "undefined") module.exports = ERW;
       "yaml this page makes.</span>";
   }
 
+  /* The section headers' "n options · k changed" is derived from state, and refresh() never
+     rebuilds rows -- a count set once at render is the stale-toggle-word defect again, one level
+     up. Same no-op-unless-on-screen contract as paintSeedSize. */
+  /* EASY / STANDARD / HARD (Alaric, 2026-08-20): player-facing scaling quick-picks; the four
+     dials stay real and live under More. A pick is a SETTER over the dials -- one source of truth,
+     the yaml -- so the buttons highlight by recognising the dial values, not by remembering what
+     was clicked. Standard clears the four deviations outright (defaults ARE standard). Placed by
+     the section that CONTAINS enemy_scaling, never by group name -- names come from the world.
+     The Haligtree line is Alaric's calibration of the default curve, 2026-08-20. */
+  const SCALING_PICKS = [
+    {id:"easy", label:"Easy",
+     set:{enemy_scaling:true, minimum_enemy_difficulty:0, maximum_enemy_difficulty:25,
+          difficulty_ramp_speed:0},
+     blurb:"caps the climb at about 2x enemy HP — even the deep end of your run stays near " +
+           "vanilla midgame strength"},
+    {id:"standard", label:"Standard", set:null,
+     blurb:"the default curve: the cap scales to your run's length, and your final region lands " +
+           "around the scaling of vanilla Haligtree"},
+    {id:"hard", label:"Hard",
+     set:{enemy_scaling:true, minimum_enemy_difficulty:25, maximum_enemy_difficulty:100,
+          difficulty_ramp_speed:50},
+     blurb:"nothing below about 2.3x enemy HP, no cap (about 7.4x), and the maximum arrives " +
+           "halfway through the run"}];
+  const SCALING_KEYS = ["enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
+                        "difficulty_ramp_speed"];
+  function activeScalingPick(){
+    const v = k => ERW.getVal(meta, state, k);
+    for (const pk of SCALING_PICKS){
+      if (pk.set === null){
+        if (SCALING_KEYS.every(k => ERW.isDefault(meta, state, k))) return pk.id;
+      } else if (Object.keys(pk.set).every(k => v(k) === pk.set[k])) return pk.id;
+    }
+    return null;
+  }
+  function scalingPicksCard(){
+    const card = el("div", "card");
+    card.innerHTML = "<h3 style='margin:0 0 4px'>How hard do you want it?</h3><div class='small'>" +
+      "Three ready answers. The four dials they turn live under More below — set a dial by hand " +
+      "and no button claims you.</div>";
+    const row = el("div", "presets");
+    for (const pk of SCALING_PICKS){
+      const d = el("div", "preset");
+      d.id = "sp-" + pk.id;
+      d.innerHTML = "<h3>" + esc(pk.label) + "</h3><div class='tag'>" + esc(pk.blurb) + "</div>";
+      d.addEventListener("click", () => {
+        if (pk.set === null){ for (const k of SCALING_KEYS) delete state.values[k]; }
+        else { for (const k of Object.keys(pk.set)) ERW.setVal(meta, state, k, pk.set[k]); }
+        refresh();
+        renderStep();   // the dial rows under More may be on screen; same move as a preset pick
+      });
+      row.append(d);
+    }
+    card.append(row);
+    return card;
+  }
+  function paintScalingPicks(){
+    const act = activeScalingPick();
+    for (const pk of SCALING_PICKS){
+      const d = $("#sp-" + pk.id);
+      if (d) d.className = "preset" + (act === pk.id ? " sel" : "");
+    }
+  }
+
+  function paintSectionCounts(){
+    openGroups.forEach((g, gi) => {
+      const span = $("#gsec-" + gi);
+      if (!span) return;
+      const changed = g.options.filter(k => meta.byKey[k] && !ERW.isDefault(meta, state, k)).length;
+      span.innerHTML = "(" + g.options.length + " options" +
+        (changed ? " · <b>" + changed + " changed</b>" : "") + ")";
+      const ms = $("#gsec-" + gi + "-more");
+      if (ms){
+        const rest = g.options.filter(k => meta.byKey[k] && !meta.byKey[k].essential);
+        const mch = rest.filter(k => !ERW.isDefault(meta, state, k)).length;
+        ms.innerHTML = "(" + rest.length + " more option" + (rest.length === 1 ? "" : "s") +
+          (mch ? " · <b>" + mch + " changed</b>" : "") + ")";
+      }
+    });
+  }
+
   function refresh(){
     const y = ERW.buildYaml(meta, state);
     $("#yamlout").innerHTML = highlightYaml(y);
@@ -6149,6 +6474,8 @@ if (typeof module !== "undefined") module.exports = ERW;
     renderSeedSize();
     renderHostCard();
     paintSeedSize();          // no-op unless the Seed size tab is the one on screen
+    paintSectionCounts();     // no-op unless the Options step is the one on screen
+    paintScalingPicks();      // same contract
     renderSideContribution(); // the side rail's live readout -- on screen on every step
     const fs = ERW.findings(meta, state);
     const box = $("#findings");

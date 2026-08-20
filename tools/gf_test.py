@@ -209,6 +209,16 @@ def main():
                    help="After the run, assert the observed skip inventory matches this committed "
                         "census (CI passes greenfield/eldenring/tests/expected_skips_ci.json). Only "
                         "meaningful for a FULL-suite run in the CI layout.")
+    p.add_argument("--shard", metavar="INDEX/TOTAL", default=None,
+                   help="Run only this shard of the suite, partitioned BY FILE over the sorted "
+                        "collected files (see tests/conftest.py gf_shard_owner). '2/4' is the "
+                        "second of four. Requires --artifact-dir, because the two run-level gates "
+                        "(--skip-census, --quantifier-spy) are only sound over the UNION of shards "
+                        "and must be rendered by tools/gf_shard_verdict.py instead.")
+    p.add_argument("--artifact-dir", metavar="DIR", default=None,
+                   help="Write this run's census/spy/manifest artifacts here and DEFER every "
+                        "run-level verdict to tools/gf_shard_verdict.py. Without it, behaviour is "
+                        "exactly as before: the verdicts are rendered inline, at the end of the run.")
     p.add_argument("--install-only", action="store_true",
                    help="Install the world into --ap-dir and exit -- no bootstrap, no fork check, no "
                         "pytest. This makes install_world() the ONE definition of 'the installed "
@@ -227,19 +237,46 @@ def main():
     ensure_ap(ap, pin)
     install_world(ap)
 
+    if args.shard and not args.artifact_dir:
+        # Refused rather than defaulted. A shard that renders the run-level verdicts inline reports
+        # a skip census for a SUBSET against a census counted for the WHOLE, and calls a correct
+        # vacuous-quantifier waiver stale because the emptiness lives in a sibling shard. Both fail
+        # LOUDLY and for reasons that have nothing to do with the code under test -- and the obvious
+        # "fix" is to stop passing the gates to the shards, which is how sharding ends up silently
+        # disarming the two instruments this suite added on purpose.
+        sys.exit("gf_test: --shard requires --artifact-dir (the run-level verdicts are only sound "
+                 "over the union of shards; tools/gf_shard_verdict.py renders them)")
+
     print("gf_test: pytest worlds/eldenring/tests  (Archipelago %s, %s)" % (pin, ap))
     env = dict(os.environ)
     env["AP_NONINTERACTIVE"] = "1"
+    deferred = bool(args.artifact_dir)
+    art = None
+    if deferred:
+        art = Path(args.artifact_dir).resolve()
+        art.mkdir(parents=True, exist_ok=True)
+    if args.shard:
+        env["GF_SHARD"] = args.shard
+        env["GF_SHARD_MANIFEST_OUT"] = str(art / "manifest.json")
     if args.quantifier_spy:
         env["GF_QUANTIFIER_SPY"] = "1"
+        if deferred:
+            env["GF_QUANTIFIER_SPY_OUT"] = str(art / "spy.json")
+            env["GF_QUANTIFIER_SPY_DEFER"] = "1"
     census_out = None
     if args.skip_census:
-        census_out = ap / "_gf_skip_census.jsonl"
+        census_out = (art / "census.jsonl") if deferred else (ap / "_gf_skip_census.jsonl")
         if census_out.exists():
             census_out.unlink()
         env["GF_SKIP_CENSUS_OUT"] = str(census_out)
     r = subprocess.run([sys.executable, "-m", "pytest", "worlds/eldenring/tests", "-q", *pytest_args],
                        cwd=str(ap), env=env)
+    if deferred:
+        # Say so, every time. A deferred gate reads exactly like a gate that did not run, and this
+        # line is the difference between "the aggregator owes a verdict" and "nobody is watching".
+        print("gf_test: run-level verdicts DEFERRED to tools/gf_shard_verdict.py -- artifacts in %s"
+              % art)
+        return r.returncode
     if args.skip_census:
         census_rc = check_skip_census(Path(args.skip_census).resolve(), census_out)
         if r.returncode == 0:

@@ -15,7 +15,7 @@ SPAWN_TRAPS = {
     2060: ('c2060', 20600000, 20600000, 1),
     2100: ('c2100', 21000034, 21000000, 1),
     2110: ('c2110', 21109000, 21100000, 1),
-    2120: ('c2120', 21200000, 21200000, 1),
+    2120: ('Malenia (Phase 1)', 21200000, 21200000, 1),
     2130: ('c2130', 21300033, 21300000, 1),
     2140: ('c2140', 21400114, 21400000, 1),
     2150: ('c2150', 21500000, 21500000, 1),
@@ -267,7 +267,7 @@ SPAWN_TRAPS = {
     5260: ('c5260', 52600081, 52600000, 1),
     5270: ('c5270', 52700080, 52700000, 1),
     5271: ('c5271', 52710280, 52710000, 1),
-    5280: ('c5280', 52800086, 52800000, 1),
+    5280: ('Aging Untouchable', 52800086, 52800000, 1),
     5300: ('c5300', 53000000, 53000000, 1),
     5311: ('c5311', 53110080, 53110000, 1),
     5320: ('c5320', 53207086, 53200000, 1),
@@ -398,7 +398,9 @@ SPAWN_TRAPS = {
 
 # curated yaml option value -> chr_id. 🛑 REMOVING one is a compat break (#114 rule 4).
 SPAWN_TRAP_KEYS = {
+    'aging_untouchable': 5280,
     'basilisk': 4150,
+    'malenia': 2120,
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:75b40281956c1f26eb8c8bffb983c90994e7d3ebccd151b0ecb2735f2438224e', 'module': 'spawn_trap_data.py', 'body_sha256': 'sha256:0596c56d4c6dfa1ee20c524feebece696b65b976aeb98e2dda2d7a7a27105e53'}
+_GEN_STAMP = {'inputs_hash': 'sha256:fdfb8d552763e26d2308747c96163bd4b953e70eb60a87d70ff5f336b5df72df', 'module': 'spawn_trap_data.py', 'body_sha256': 'sha256:1979567ffba029e59176478d83fc163315c8b9a8fbfbe613fd49bcdea6cb40f1'}

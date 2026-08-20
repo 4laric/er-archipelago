@@ -835,6 +835,13 @@ def _maplot_map(_lot):
 # So: where the datamine proves an UNAMBIGUOUS map, trust it over the row's scanned map. This is a
 # DERIVATION fix -- it retires per-flag hand patches instead of adding more (SPEC-provenance-oracle).
 MSB_TRUTH_MAP = {}
+# A flag placed in several maps is normally ambiguous and stays out of MSB_TRUTH_MAP.  There is one
+# strictly stronger case: every placed map independently resolves to the SAME region.  The exact map
+# is ambiguous, but reachability is not, so keep the unanimous region instead of falling through to
+# a weaker entity-suffix / scanner guess.  Require every map to resolve; dropping an unknown vote
+# would turn incomplete evidence into false consensus.
+MSB_REGION_CONSENSUS = {}
+_MSB_PLACED_MAPS = {}
 # WHICH flags region_of() actually ANSWERED with an MSB tile, and which tile. MSB_TRUTH_MAP alone
 # does not tell you that: six higher-precedence branches (finale, gesture, FLAG_REGION_OVERRIDE, the
 # merchant ESD, the shop block, the boss arena) can win first, and _gt_region() can decline. Only a
@@ -850,6 +857,18 @@ if os.path.isfile(_mfr):
             _p = _ln.rstrip("\n").split("\t")
             if len(_p) < 2 or not _p[0].isdigit(): continue
             _t[int(_p[0])].add(_p[1])
+    # THE ASHEN TWIN FOLD (2026-08-19, the full-census regen). m11_05 is the burnt COPY of
+    # m11_00: the finale duplicates every Royal treasure, so a flag placed in exactly
+    # {m11_00, m11_05} is not ambiguous -- its physical original is m11_00 (the finale derivation
+    # subtracts non-exclusive flags on the same reasoning). Folded HERE, before BOTH consumers:
+    # left to the multi-map path, these flags return through MSB_REGION_CONSENSUS -- which is
+    # region-only by design and never writes r['map'] -- so the PENDING-map population
+    # (11007215/11007820/11007860/11007900, Royal fillers) lost their map and fell out of
+    # Morgott's sweep (test_gf_sweep_pool_admits_bossless_maps caught the orphans). Folded into
+    # the truth map, the exact map is m11_00 and the side-effect materializes it.
+    _ASHEN_TWIN = frozenset({"m11_00", "m11_05"})
+    _t = {_f: ({"m11_00"} if set(_m) == _ASHEN_TWIN else _m) for _f, _m in _t.items()}
+    _MSB_PLACED_MAPS = {_f: frozenset(_maps) for _f, _maps in _t.items()}
     MSB_TRUTH_MAP = {_f: next(iter(_m)) for _f, _m in _t.items() if len(_m) == 1}  # unambiguous only
     print(f"msb ground truth: {len(MSB_TRUTH_MAP)} flags with an unambiguous placed map")
 else:
@@ -1517,14 +1536,25 @@ def _finale_derive():
         raise SystemExit("FATAL: finale: msb_flag_region.tsv missing -- refusing to regen without "
                          "the placement corpus (the event-award class would silently empty)")
     _fin_short = {_m[:6] for _m in _fin_maps}          # 'm11_05_00_00' -> 'm11_05'
+    # FINALE-EXCLUSIVE placement, not finale-touching (2026-08-19, the full-census regen). The
+    # richer msb_flag_region now also attributes to m11_05 every ROYAL check whose pickup has an
+    # Ashen TWIN (the f1100xxxx rows -- the same benign class check_ground_regions documents for
+    # the coordinate corpus), and wandering-NPC drops like Corhyn's 400370 (SIX maps, one of them
+    # m11_05). Claiming those for the finale would re-region live Leyndell/quest checks into the
+    # never-rolled FINALE_REGION. A flag is a finale event award only when the corpus places it
+    # NOWHERE ELSE -- the "exists ONLY in the post-burn capital" sentence above, now enforced
+    # rather than assumed. 9500 and 400500 are m11_05-exclusive and survive; on the pre-expansion
+    # census (no twin rows at all) this subtraction was a no-op, so the rule is backward-stable.
     _events = set()
+    _elsewhere = set()
     with open(_msb, encoding="utf-8") as _mf:
         for _ln in _mf:
             if _ln.startswith("#") or _ln.startswith("flag"):
                 continue
             _c = _ln.rstrip("\n").split("\t")
-            if len(_c) >= 2 and _c[1] in _fin_short and _c[0].isdigit():
-                _events.add(int(_c[0]))
+            if len(_c) >= 2 and _c[0].isdigit():
+                (_events if _c[1] in _fin_short else _elsewhere).add(int(_c[0]))
+    _events -= _elsewhere
     _events -= set(_rewards.values()) | _maplots
     # (8) the count PIN (2026-07-14 artifacts + the 2026-08-06 event class): 3 boss rewards
     # (510060 Gideon, 510070 Godfrey, 510230 Elden Beast) + 7 m11_05 map lots + 2 event awards
@@ -1752,9 +1782,114 @@ _QUESTLINE_GATED = frozenset({400061, 400381, 400394, 400602, 400614, 400644, 40
                               # widened-screen additions, 2026-07-26 (table above):
                               400033, 400107, 400183, 400191, 400622, 11007985, 1042397500,
                               1050567700})
+# WORLDLESS RADA FRUIT ROWS -- EXCLUDED AS NOT-FINDABLE (#330, Alaric 2026-08-19). The DLC's most
+# repeated ware descriptor (184 lots of goods 2020001) is mostly BUNDLE math, not pickups: vanilla
+# expresses one "Rada Fruit xN" corpse as N consecutive ItemLotParam_map rows (each 1x, own flag),
+# and 52 more rows reference NO world object either datamine can find. Three player reports said the
+# same thing ("shadow keep is full of Rada fruit locations ... I haven't been able to find any");
+# the live-log measurement agreed: in seed AP_58957851755699651282, across 5 sessions and a
+# hand-combed Shadow Keep, exactly ONE of its 125 Rada rows ever fired outside a boss-sweep burst --
+# f21007670, one of only four m21 rows with a UNIQUE datamined coordinate.
+#
+# THE RULE, derived from committed inputs (item_grace_coords.tsv / msb_flag_region.tsv /
+# flag_lots.tsv), re-derived and pinned by test_gf_rada_fruit_worldless.py:
+#   drop a Rada Fruit map-lot flag iff
+#     (a) it has NO datamined coordinate AND no msb_flag_region attribution (worldless: 55 rows,
+#         the `around <grace>`-named ones, incl. the three m20_01 "around Gate of Divinity"), OR
+#     (b) it is an m21 row whose coordinate is SHARED with another Rada row (bundle-stack: 69 rows,
+#         up to 12 flags on one part; none has ever fired by hand).
+#   RESTORED 2026-08-19 (the full-census regen): 21027070-21027160, ten m21_02 "around West
+#   Rampart" rows. They were in the class only because m21_02 was census-BLIND; the complete scan
+#   attributes each to its own individual treasure corpse (宝死体007-016), exactly Belurat's live
+#   shape. The class is a RULE, and the rule's inputs improved -- test_gf_rada_fruit_worldless is
+#   the keeper that demanded this re-derive.
+#   KEPT: the four m21 coordinate singletons (21007200 / 21007670 / 21027000 / 21027190 -- 670 is
+#   the one that provably fires), every m20 row (Belurat's are individually MSB-attributed corpses,
+#   and m20_01 stack rows fired BY HAND in the same log -- 20017290 / 20017560 -- so the m20 bundles
+#   are live and repeat-lootable), and 40007120 (unique coordinate).
+#
+# ⚠️ m21_01's 27 stack rows ride the uniform m21 ruling on WEAKER evidence: Messmer died on day one
+# of the reference seed and swept them all, so their hand behaviour was unobservable. If the on-box
+# test from #330 (loot the Main Gate Plaza corpse at map-local 154.2/182.9/194.5, count
+# f21007210-290) shows stack rows firing per-interact, this set can shrink -- it is a CLASS defined
+# by the rule above, not a hand list, and the keeper test names any drift.
+#
+# Like _UNPLACEABLE_DLC_COOKBOOKS these stay VANILLA pickups: check_lots stops rewriting a lot that
+# is no longer a check, so the real bundle corpses go back to paying real Rada Fruit, and the
+# worldless rows stop being tracker rows a player can search a cleared keep for. All filler; the
+# boss sweeps that were the only real grant path shrink by exactly this corpus.
+_RADA_WORLDLESS = frozenset({
+    20017670, 20017680, 20017690, 21007210, 21007220, 21007230, 21007240, 21007250,
+    21007260, 21007270, 21007280, 21007290, 21007430, 21007440, 21007450, 21007460,
+    21007470, 21007480, 21007490, 21007500, 21007510, 21007520, 21007530, 21007540,
+    21007690, 21007700, 21007710, 21007720, 21007730, 21007740, 21007750, 21007760,
+    21007770, 21007780, 21007790, 21007820, 21007830, 21007840, 21007850, 21007860,
+    21007870, 21007880, 21007890, 21007900, 21007910, 21007920, 21007930, 21007940,
+    21007950, 21007960, 21007970, 21007980, 21007990, 21017210, 21017220, 21017230,
+    21017240, 21017250, 21017260, 21017270, 21017280, 21017290, 21017370, 21017380,
+    21017390, 21017520, 21017530, 21017540, 21017550, 21017560, 21017570, 21017580,
+    21017590, 21017680, 21017690, 21017700, 21017710, 21017720, 21017730, 21017740,
+    21017810, 21017820, 21017830, 21017840, 21017850, 21017860, 21017870, 21017880,
+    21017890, 21017900, 21017910, 21017920, 21017930, 21017940, 21017950, 21017960,
+    21017970, 21017980, 21017990, 
+    21027170, 21027180, 21027280,
+    21027290, 21027300, 21027310, 21027320, 21027330, 21027340, 21027350, 21027360,
+    21027370, 21027380, 21027390, 21027400,
+})
+# WORLDLESS MAP-LOT SINGLES -- EXCLUDED AS NOT-FINDABLE (the #330 rule, generalized; Alaric's
+# cull ruling 2026-08-19, made against a census with ZERO blind maps). A check enters this class
+# iff ALL of:
+#   * its flag is MAP-ENCODED (8-digit interior mAA_BB for areas 10..59, or 10-digit m60/m61
+#     overworld) -- i.e. it is shaped like GROUND loot. Short flags (Great Rune boss drops 172-176,
+#     Gurranq's quest rewards, physick tears) are boss/NPC/quest awards whose mechanisms our ground
+#     corpora deliberately do not model; they are NEVER in this class, and four of them fired BY
+#     HAND in the reference log.
+#   * no item_grace_coords row, no msb_flag_region row, no mention in any scripted-award corpus
+#     (the audit_worldless_checks rule) -- with the census now covering EVERY map that ItemLotParam
+#     expects lots in, absence finally IS evidence.
+#   * not already in _RADA_WORLDLESS (kept disjoint so each ruling reads on its own).
+#   * SAFETY SCREEN: its lot id appears NOWHERE in the EMEVD corpus (gen_inputs' event/*.js). The
+#     screen is deliberately OVER-inclusive -- an id that resolves is not a table match -- because
+#     for an exclusion list, keeping an unproven row costs nothing and culling a live one costs a
+#     check. It caught 40 of the original 126: the #653 inverted-tower trio (34117401-403, gated
+#     alternate-state pickups gen_data's own sweep-exclusion guard vouches for), Godfrey Icon
+#     (1039507100, Godefroy's evergaol drop), and the Mohgwyn/overworld rows whose lots ride
+#     scripted awards the census event chain cannot yet resolve.
+# The profile is pure ground-filler noise: 70x Golden Rune [1] (Mohgwyn's 33 -- NOT the visible
+# rune farm, which is flagless enemy drops; the theory they were farm pickups was tested and
+# DISPROVEN by this census -- Siofra's 17, the player complaint of record), 9x Golden Rune [6],
+# assorted stones. Zero of the 126 ever fired by hand in any collected log. Like the Rada class
+# these stay VANILLA rows: check_lots stops rewriting a lot that is no longer a check, and the
+# tracker stops selling pickups nobody can find. Keeper: test_gf_worldless_singles.py re-derives
+# the class from the committed corpora every run.
+# 🛑 f10007452 (Crimson Hood, Roundtable Hold "around Table of Lost Grace") is RULED LIVE and
+# kept OUT of this set by hand: it is the vanilla-visible hub pickup on the chair by the Table,
+# in every seed. flag_names.tsv carries the proof the screen missed: EMEVD event 11100704
+# (m11_10) awards it ("NPC320_Farnese_Replaced with hood item") -- the safety screen greps LOT
+# ids in the blobs and this award references the FLAG, so a flag-level EMEVD reference is a
+# known screen gap, not new doctrine. Culling it also regressed the gear_one_region fill
+# (Fill.FillError, one weapon over the hub's non-shop capacity), which is the in-repo witness.
+# Keeper: test_gf_worldless_singles.RULED_LIVE_MAP_FLAGS.
+_WORLDLESS_SINGLES = frozenset({
+    11007995, 12027840, 12037560, 12037570, 12037580, 12037590, 12037900,
+    12037910, 12057220, 12057230, 12057260, 12057270, 12057380, 12057390, 12057420,
+    12057430, 12057440, 12057450, 12057460, 12057470, 12057480, 12057490, 12057500,
+    12057520, 12057530, 12057540, 12057550, 12057560, 12057570, 12057580, 12057720,
+    12057730, 12057740, 12077190, 12077200, 12077210, 12077220, 12077230, 12077240,
+    12077260, 12077270, 12077280, 12077290, 12077520, 12077530, 12077540, 15001210,
+    16007991, 16007992, 30127000, 30127900, 30177060, 35007750, 35007920, 35007960,
+    # 2026-08-19, 8 RELEASED (86 -> 78): #898's audited unplaced_global_tiles.tsv placed
+    # 39207170 (the Sacred Tear), 1033457100, 1036437010, 1038447100, 1039527700 (Eleonora's
+    # Poleblade), 1042377100/110, 1044357050 -- an OBSERVED/audited tile IS a world reference,
+    # so the tsv is a corpus this rule must consult (the keeper test now subtracts it).
+    39207200, 1036477100, 1036487100, 1037487100,
+    1038467400, 1038477100, 1042337200, 1043317500,
+    1047557040, 1052557040, 2046407001, 2046407002, 2046407003, 2046407004, 2047447901, 2048467701,
+    2049437610, 2049437901, 2049437902, 2049437911, 2049437912, 2050457510,
+})
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
-                | _SHEET_DROPS)
+                | _SHEET_DROPS | _RADA_WORLDLESS | _WORLDLESS_SINGLES)
 # Per-flag progression_surface exclusion (Alaric, 2026-07-17): checks that CARRY a surface tag but must
 # NOT host this world's progression (kept as ordinary checks; barred like DEFAULTED_REGION_APS). Emitted
 # as SURFACE_EXCLUDE_APS into location_tags.py, unioned into features/progression_surface barred set.
@@ -1802,6 +1937,14 @@ EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # the wrong arity (er-tiles-legitimately-span-regions) -- the first two share tile m60_34_45 with
 # checks nobody has stood in front of.
 _REGION_CONFIRMED_FLAGS = frozenset({
+    # --- 2026-08-19, from FLAG_REGION_OVERRIDE's own ruling (Alaric: "physically in Castle Sol").
+    # The full-census regen gave this flag an MSB tile (m60_51_58, graceless -- the Castle Sol
+    # church tower), and the structural graceless-tile bar would have stripped progression
+    # eligibility from the Haligtree Secret Medallion (Left). Unlike the Rold-seam trio, the ground
+    # IS plain Mountaintops and reachable by any Mountaintops-anchored player -- Castle Sol is
+    # walkable inside the region, no cross-region gate. Region confidence AND reachability both
+    # hold, which is the pair the bar's own doc says the exception requires.
+    1051587800,   # Mountaintops :: Haligtree Secret Medallion (Left) -- Castle Sol.
     # --- 2026-08-04, Alaric, ground truth. Read "Altus :: ... (region unconfirmed)" and is neither
     # Altus nor a guess: see FLAG_REGION_OVERRIDE[400300] for why the map join was wrong.
     400300,       # Liurnia :: Rya's Necklace -- from Blackguard Big Boggart, Boilprawn Shack.
@@ -2624,8 +2767,20 @@ FLAG_REGION_OVERRIDE = {
     2048417030: 'Gravesite',
     # 76804 Cliffroad Terminus -> Gravesite
     2044417000: 'Gravesite',
+    # The Shadowpot immediately southwest of Cliffroad Terminus shares this tile.  Its enemy-lot
+    # path otherwise exits the resolver above the tile answer and nearest-neighbours into Cerulean,
+    # splitting one physical tile across two regions (#598).
+    2044417995: 'Gravesite',
     # 76905 Church District Highroad -> Scadu Altus
     2050467800: 'Scadu Altus',
+    # THE #885 CARVE-OUT: m21_00 is curated to Scadu Altus (DUNGEON_REGION_CURATED) because
+    # everything the Golden Hippopotamus grants presents as his arena's region -- but this cookbook
+    # is the one m21_00 ground check the Hippo does NOT grant (no sweep clause, no member row). With
+    # no alternate grant, its honest region is the ground it stands on (bucket 21000 = Shadow Keep):
+    # labelled Scadu Altus it would be CREATED by a Scadu-Altus-only seed and sit behind the Shadow
+    # Keep kick with no boss to hand it over -- the exact dead-check class
+    # tools/check_ground_regions.py exists to catch (and it did, in-sandbox, before this pin).
+    68800: 'Shadow Keep',
     2050477010: 'Scadu Altus',
     2050477020: 'Scadu Altus',
     # 76916 Castle Watering Hole -> SCADU ALTUS (2026-08-13, REVERSED -- see below)
@@ -2978,6 +3133,15 @@ DUNGEON_REGION_CURATED = {
     # boundary SET; the ConnectCollision pass now derives it to Mountaintops of the Giants --
     # the same value -- so the override was redundant and went. The guard below enforces that.)
     "m32_04_00_00": "Altus",                # data says 'Mt. Gelmir' -- CURATED override
+    # m21_00 (Shadow Keep main map): the grace join says 'Shadow Keep' and that is not wrong about
+    # where the ground sits -- it is wrong about what GUARANTEES the ground. Every swept m21_00 check
+    # is granted by the Golden Hippopotamus, whose arena is PlayRegionParam bucket 69000 = Scadu
+    # Altus (boss_area_regions.tsv 21000850); a Keep-lock-only player steered at those checks walks
+    # into the arena and is KICKED (#885, cokeman5 on #330). Scadu Altus alone always suffices (kill
+    # the Hippo, the sweep pays all of them), so the RULING (Alaric 2026-08-19, #885) is that the
+    # Hippo and everything it grants present as Scadu Altus, members included. This supersedes the
+    # 2026-07-21 region_overrides.tsv ruling that kept the post-death floor at Shadow Keep.
+    "m21_00_00_00": "Scadu Altus",          # data says 'Shadow Keep' -- CURATED override (#885)
 }
 
 
@@ -3050,6 +3214,11 @@ for _rr in _ALLROWS:
 # to the boss/location region they drop from) are recovered as real checks. Empty = none recovered
 # (globals stay excluded, no hub sphere-0 balloon). {flag(int): region}.
 GLOBAL_RECOVER = {
+    # Tailoring Tools are the m31_15 Coastal Cave / Demi-Human Chief reward.  The old broad talk
+    # number scan accidentally placed f60140 in Deeproot; the award itself is not an ESD gift.
+    # m31_15's boss/game-area/grace data all agree on Limgrave, so keep the unique tool randomized
+    # at its real source while the stricter talk-award index removes the false m12_03 evidence.
+    60140: "Limgrave",
     # Field-boss unique drops the pipeline couldn't decode to a tile -> stranded in the unplaced
     # common-event bucket, so their boss had no check. Hand-pinned to the boss's region so they recover
     # as real checks (item name resolves via FMG; both verified present) -> and tagged Boss below via
@@ -3071,6 +3240,18 @@ GLOBAL_RECOVER = {
     # features/natural_progression gates Mohgwyn on it (OR the Snowfield Secret-Medallion route). NEEDS a
     # Windows `build.ps1 -Greenfield` regen to bake -- the sandbox has no artifacts. (Alaric 2026-07-24.)
     400032: "Liurnia",               # Pureblood Knight's Medal -> Varre (Rose Church, Liurnia)
+    # Common-event NPC/quest awards with no item entity to supply a map.  These are hand-pins, not
+    # numeric guesses; each has a concrete game-data or in-game witness documented below.
+    400159: "Ainsel River",           # Discarded Palace Key. common event 3050 awards lot 101590
+                                         # after f12019280; m12_01 sets that state and lot_gates.tsv
+                                         # records the single m12_01 gate map (Nokstella/Ainsel).
+    400361: "Raya Lucaria Academy",  # Academy Glintstone Staff -> Thops. First-hand #249 report:
+                                         # it dropped vanilla beside his already-randomized f400360
+                                         # Bell Bearing, whose game-data region is Raya Academy.
+    400440: "Mt. Gelmir",            # Comet Azur -> Primeval Sorcerer Azur. t111006000 awards lot
+                                         # 104400 from the common overworld talk bucket; the NPC's
+                                         # exact m60_37_53 placement is pinned by grace 76357 and his
+                                         # adjacent f400441 crown row on the same tile.
     # Spirit Jellyfish Ashes (400190): Roderika's OTHER gift at the Stormhill Shack. Exactly the
     # 400032 shape -- an NPC handover whose 4xxxxx flag encodes no map, so `_recover_tile` returns
     # None, `_recover_row_ok` drops the row, and the ashes are a location NOWHERE: Roderika hands
@@ -3088,7 +3269,7 @@ GLOBAL_RECOVER = {
     # Also tagged questline-missable in QUEST_GATED_FLAGS below -- an NPC handover can be lost.
     # Pinned by test_gf_esd_npc_awards.py (RED until this regen bakes).
     400190: "Limgrave",              # Spirit Jellyfish Ashes -> Roderika (Stormhill Shack, Limgrave)
-    510440: "Shadow Keep",           # Golden Hippopotamus. Recovery MEMBERSHIP + post-DEATH floor: the plaza reverts to play_region 21000 = Shadow Keep once the Hippo is dead (so the filler SWEEP is Shadow Keep). The LIVE-fight reward region is now DERIVED, not hand-set: region_of's boss-arena branch resolves 510440 -> defeat 21000850 -> PlayRegionParam boss-alive row 6900010 (bucket 69000 = Scadu Altus) ABOVE the msb branch, so this value is never consulted for the reward's region. (Membership is also covered by _BOSS_REWARD_TILE auto-recover; this entry could be dropped entirely.)
+    510440: "Scadu Altus",           # Golden Hippopotamus (#885). Was "Shadow Keep" (the post-death-floor ruling, superseded 2026-08-19: the Hippo presents as Scadu Altus EVERYWHERE, members included -- see DUNGEON_REGION_CURATED["m21_00_00_00"]). Value matters again: with m21_00 curated to Scadu Altus the boss-arena branch's _bar == _bmd, so it FALLS THROUGH and a global-method row can reach this entry -- a stale "Shadow Keep" here would resurrect the exact inconsistency #885 removes.
     # === DLC (SotE) recovered checks + re-pins (Alaric 2026-07-10; DLC-CHECK-AUDIT.md §4/§5c) ===
     400660: 'Scadu Altus',
     65460: 'Gravesite',
@@ -3671,6 +3852,16 @@ def _gt_region(_mid):
     # otherwise fall through to the existing path (return None).
     return None
 
+# Resolve multi-map consensus only after _gt_region exists.  Keep the raw map sets from the early
+# input load rather than parsing the TSV twice; an absent TSV leaves the derivation empty.
+for _f, _maps in _MSB_PLACED_MAPS.items():
+    if len(_maps) < 2:
+        continue
+    _regions = {_gt_region(_m) for _m in _maps}
+    if None not in _regions and len(_regions) == 1:
+        MSB_REGION_CONSENSUS[_f] = next(iter(_regions))
+print(f"msb region consensus: {len(MSB_REGION_CONSENSUS)} multi-map flag(s) resolve unanimously")
+
 def _cookbook_region(_flag):
     """Region for a map_lot pickup (cookbook) whose 5-digit flag doesn't self-encode a tile, via its
     ItemLotParam_map lot id -- which DOES encode the map (20XXYY->m61_XX_YY overworld tile;
@@ -3711,7 +3902,7 @@ def _build_merchant_shop_region():
     _mpath = os.path.join(HERE, "merchant_shops.tsv")
     _spath = os.path.join(HERE, "shop_rows.tsv")
     if not os.path.isfile(_spath):
-        return {}, frozenset()                       # no shop data at all -> inert (partial source tree)
+        return {}, frozenset(), {}                   # no shop data at all -> inert (partial source tree)
     # FAIL LOUD, don't silently revert. The Hermit hand-pins were RETIRED (commit 2331115) because this
     # derivation reproduces them, so if shop_rows.tsv is present (a real gen) but merchant_shops.tsv is
     # gone, all 100+ corrections silently revert to their pre-fix regions -- the exact shipped bug --
@@ -3735,7 +3926,7 @@ def _build_merchant_shop_region():
                     pass
     # A CLAIMANT IS A MERCHANT INSTANCE, NOT A LINE. Keyed by (talk, npc, name, tile) so the two
     # filters below can drop ONE merchant's claim on a row without discarding the row.
-    _bells = []                                      # (begin, end, bell_name) -- pairwise disjoint
+    _bells = []                                      # (begin, end, bell_name, full_goods_id)
     _bpath = os.path.join(HERE, "bell_handins.tsv")
     if os.path.isfile(_bpath):
         with open(_bpath, encoding="utf-8-sig") as _f:
@@ -3745,11 +3936,12 @@ def _build_merchant_shop_region():
                 _p = _ln.rstrip("\n").split("\t")
                 if len(_p) >= 5:
                     try:
-                        _bells.append((int(_p[3]), int(_p[4]), _p[2]))
+                        _bells.append((int(_p[3]), int(_p[4]), _p[2],
+                                       int(_p[1]) | 0x40000000))
                     except ValueError:
                         pass
     def _bell_of(_r):
-        for _a, _b, _n in _bells:
+        for _a, _b, _n, _gid in _bells:
             if _a <= _r <= _b:
                 return _n
         return None
@@ -3813,6 +4005,18 @@ def _build_merchant_shop_region():
     for (_tk, _npc, _nm, _mp), _rs in _claims.items():
         for _rid in _rs:
             _row2tiles.setdefault(_rid, set()).add(_mp)
+    # Bell item -> every AP region containing one of its PHYSICAL merchants. The Twin Maidens'
+    # re-sell instance was excluded above; this answers where the merchant stands, not where the
+    # handed-in menu appears. Empty is meaningful and fail-closed: the bell has no resolvable
+    # merchant evidence (Gostoc/Rogier-class) and therefore cannot promise randomized stock.
+    _bell_regions = {}
+    for _lo, _hi, _name, _gid in _bells:
+        _regs = _bell_regions.setdefault(_gid, set())
+        for _rid in range(_lo, _hi + 1):
+            for _tile in _row2tiles.get(_rid, ()):
+                _reg = _gt_region(_tile)
+                if _reg:
+                    _regs.add(_reg)
     # 🛑 FILTER 3, AND IT NARROWS THE SITES ONLY -- NEVER THE COLLAPSE. A merchant INSTANCE (one
     # npc_param) placed in SEVERAL maps is one character the game shows in AT MOST ONE of them at a
     # time; which one is a quest-state question this pipeline does not model. So such a placement is
@@ -3914,14 +4118,16 @@ def _build_merchant_shop_region():
     # through to the block guess. It was a diagnostic string; _region_is_derived needs it as data, and
     # deriving it HERE (rather than hand-listing 19 ap ids) means a regen that splits another merchant
     # across regions is covered on the same rule -- including the 3 Dragon Communion rows #557 missed.
-    return _out, _multi_sites
+    return _out, _multi_sites, {
+        _gid: tuple(sorted(_regs)) for _gid, _regs in sorted(_bell_regions.items())}
 # Flags with a single physical merchant region (the re-pins) and, separately, the flags whose merchants
 # span SEVERAL regions -- the latter are pinned to nothing and collapse to the HUB (#701). The second
 # value was a frozenset of flags under option C, which only had to answer "is this one of them?"; it is
 # now flag -> the tuple of regions the merchant really stands in, because option B has to answer "which
 # one?" as well. Membership (`in`) reads the same on a dict, so _region_is_derived is unchanged.
 # See _region_is_derived() and location_tags.HUB_COLLAPSED_SITE_APS.
-MERCHANT_SHOP_REGION, MERCHANT_SHOP_MULTI_REGION = _build_merchant_shop_region()
+MERCHANT_SHOP_REGION, MERCHANT_SHOP_MULTI_REGION, MERCHANT_BELL_REGIONS = \
+    _build_merchant_shop_region()
 
 # A REDUNDANT SHOP PIN IS A FAILURE (same rule as _BOSS_DROP_EXTRAS up top): a FLAG_REGION_OVERRIDE entry
 # that the merchant-ESD derivation already reproduces hides which path is load-bearing and silently rots
@@ -3981,12 +4187,24 @@ def region_of(r):
             _bmd = _gt_region(_bmap) if _bmap else None
             if _bmd is not None and _bar != _bmd:
                 return _bar
+    # MULTI-MAP MSB CONSENSUS: the exact pickup site is ambiguous, but every independently placed
+    # site belongs to the same region.  This is stronger than the single entity-suffix fallback
+    # below.  Lansseax's Glaive is present in m60_37_51 and m60_41_52; both are Altus, while the old
+    # suffix fallback guessed Mt. Gelmir from only one occurrence (#502).
+    if _ovfl is not None and _ovfl in MSB_REGION_CONSENSUS:
+        return MSB_REGION_CONSENSUS[_ovfl]
     # GROUND TRUTH (MSB/param datamine) beats the row's scanned map. Resolved through gen_data's OWN
     # map->region tables (NOT the grace join), so the grace-join oracle stays an INDEPENDENT check.
     _gtm = MSB_TRUTH_MAP.get(_ovfl) if _ovfl is not None else None
     if _gtm:
         _gtr = _gt_region(_gtm)
         if _gtr:
+            # Region and sweep ownership consume the same placement evidence.  Preserve the MSB
+            # map on rows that still carry the scanner's PENDING placeholder; otherwise an earlier,
+            # stronger region answer can make a check disappear from the map-keyed sweep corpus.
+            # Do not overwrite a concrete descriptor map: it remains useful independent evidence.
+            if (r.get('map') or '') in ('', 'PENDING'):
+                r['map'] = _gt_full_map(_gtm)
             MSB_TILE_PROVENANCE[_ovfl] = _gtm     # this tile IS the region's derivation -- record it
             return _gtr
     _dov = DUNGEON_REGION_OVERRIDE.get(r.get('map', ''))
@@ -4821,11 +5039,20 @@ def _collapsed_sites_of(_row):
 # geometry uses the same value -- so the marker is a suffix and no group splits.
 REGION_UNCONFIRMED = " (region unconfirmed)"
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
+# These checks ARE the two Finger Ruins bell interactions: the bell event awards the talisman lot and
+# flips the check flag as one operation. Name the action the player performs rather than the contents
+# of its vanilla lot (#665), and tag it as a gate-shaped KeyItem check below.
+_BELL_CHECK_LABEL = {
+    2050407000: "Ring the Finger Ruins of Dheo bell",
+    2053467600: "Ring the Finger Ruins of Rhia bell",
+}
 for r in rows:
     reg=region_of(r); flag=int(r['flag'])
     # region_map's name first, then the params-derived one, then the honest placeholder.
-    item=r['item_name'] or _DERIVED_NAMES.get(flag) or 'check'
+    item=_BELL_CHECK_LABEL.get(flag) or r['item_name'] or _DERIVED_NAMES.get(flag) or 'check'
     _t=_loc_tags(r)
+    if flag in _BELL_CHECK_LABEL and "KeyItem" not in _t:
+        _t.append("KeyItem")
     # human descriptor (desc_sources waterfall). KEEP [f{flag}] as the final tiebreaker; the descriptor
     # is the readable middle. Item substring + [f...] suffix stay intact so name-substring and
     # flag-extraction consumers are unaffected. Feed the map TILE: use the placed map when present, else
@@ -5296,6 +5523,15 @@ _NR_RULES = (
      "unplaceable_dlc_cookbook: DLC cookbook whose lot id encodes no map and which no datamine "
      "places (ESD/scripted gift, matt-diff C 2026-07-14); stays a vanilla pickup rather than lie "
      "about its region"),
+    (lambda _fl, _r: _fl in _RADA_WORLDLESS,
+     "rada_worldless: Rada Fruit bundle-stack/worldless param row (#330, Alaric 2026-08-19) -- "
+     "vanilla expresses one 'Rada Fruit xN' corpse as N consecutive lots, and 55 rows reference no "
+     "world object at all; one hand-fire in 5 sessions of the reference seed. Stays a vanilla "
+     "pickup; the four m21 coordinate singletons and the live m20 corpus remain checks"),
+    (lambda _fl, _r: _fl in _WORLDLESS_SINGLES,
+     "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged "
+     "against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); "
+     "stays a vanilla row"),
     (lambda _fl, _r: _fl in _SHEET_DROPS,
      "surface_sheet_drop: dropped on Alaric's 2026-07-17 progression_surface sheet review -- 14007930 "
      "is a phantom SECOND Academy Glintstone Key (the key is a singleton, the overworld pickup "
@@ -5321,7 +5557,8 @@ _NR_RULES = (
 _nr_unexplained = EXCLUDE_FLAGS - (MAP_REVEAL_FLAGS | MINIBAKER_VENDOR_FLAGS | frozenset({400280})
                                    | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                                    | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD
-                                   | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS)
+                                   | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS | _RADA_WORLDLESS
+                                   | _WORLDLESS_SINGLES)
 if _nr_unexplained:
     raise SystemExit("FATAL: EXCLUDE_FLAGS member(s) %r have no NOT_RANDOMIZED ledger rule -- add "
                      "the new exclusion to _NR_RULES (gen_data) so deliberate absence stays "
@@ -5598,8 +5835,10 @@ _ARENA_GRACE_FLAGS = frozenset({
 # its entry there. It is the ashen twin of 71107, withheld from base Leyndell since 08-04 for the
 # identical reason, and it survived that fix only because this list still skipped the whole map on
 # the day the fix was made.
-# The bundle is therefore {71122, 71123, 71125} and the front door is 71122, the ashen East Capital
-# Rampart -- the map's actual doorway, which is a better entry than the throne room anyway.
+# The bundle is therefore {71122, 71123, 71125}. Its front door is pinned below to 71123,
+# Leyndell, Capital of Ash: the unambiguous Ashen-only entry. 71122 is the m11_05 duplicate of
+# East Capital Rampart, whose Royal twin is 71102; using the duplicate as the synthetic region
+# entrance made the two capital variants indistinguishable in the warp menu (#853).
 # All four are reachable-on-foot from each other, so the withheld ones cost a walk, not a check.
 _ASHEN_LEYNDELL_GRACE_FLAGS = frozenset({71120, 71121, 71122, 71123, 71124, 71125})
 # DERIVED arena graces (arena_graces.tsv, tools/datamine_arena_graces.py). THE predicate we actually
@@ -5701,8 +5940,8 @@ if os.path.exists(os.path.join(HERE, "arena_graces.tsv")) \
 #     Like 71107 it is NOT 9005810 asset-hidden, so the EMEVD oracle cannot see it and it does not
 #     belong in _BOSS_GATED_GRACE_FLAGS. It is a physically-present grace sealed by a boss-defeat
 #     state, which is what this set is for.
-#     The Ashen Capital keeps {71122, 71123, 71125}; its front door (71122 East Capital Rampart) and
-#     its REGION_GRACE_LANDMARKS entry are untouched, so the region stays enterable.
+#     The Ashen Capital keeps {71122, 71123, 71125}; its pinned front door (71123 Leyndell, Capital
+#     of Ash) and its REGION_GRACE_LANDMARKS entry are untouched, so the region stays enterable.
 _STATE_GATED_GRACE_FLAGS = frozenset({71107, 71124, 72107, 76314})
 # _ASHEN_LEYNDELL_GRACE_FLAGS is deliberately NOT in this union any more (see its note above): the
 # Ashen Capital owns them now. The set is kept as a named constant because features/capital.py and
@@ -5923,7 +6162,13 @@ for _reg in sorted(_gg_regions_hit):
 # be a real, non-foreign candidate of the region (asserted below), so a pin can never paper over a
 # foreign-ground front door.
 #
-# EMPTY since 2026-07-21. It briefly pinned Shadow Keep -> 72102 (the Main Gate) to keep the Keep's
+# Altus 76301 is the lift-side "Altus Plateau" grace. The lower 76300 "Abandoned Coffin" is the
+# Ruin-Strewn Precipice exit, while the numerically-lowest candidate 73204 is the Old Altus Tunnel
+# dungeon interior. Bobler's 2026-08-17 entrance-tier seed received both wrong answers: 73204 as
+# the region-open flag and 76300 as the separately-derived entrance bundle (#641).
+#
+# This table was empty from 2026-07-21 until that ruling. It briefly pinned Shadow Keep -> 72102
+# (the Main Gate) to keep the Keep's
 # front door at the gate rather than the folded-in Hinterland grace 76935. But 72102 does NOT stand
 # on the Keep's ground: it sits at the gate threshold, inside no 21000 Keep volume and 3.6 m outside
 # the Scadu Altus 6900000 approach column, so datamine_grace_ground.py now derives 72102 -> 69000
@@ -5934,7 +6179,10 @@ for _reg in sorted(_gg_regions_hit):
 # the Hinterland, which DOES stand on the Keep's own ground (bucket 21000, measured) -- a walk-in
 # Keep entrance, no kick. The Main Gate still lights on foot when the player reaches it through
 # Scadu Altus. (The pin machinery is kept for the next interior-entrance region that needs it.)
-_FRONT_DOOR_PIN = {}
+_FRONT_DOOR_PIN = {
+    "Altus": 76301,
+    "Ashen Capital": 71123,
+}
 def _front_door(r):
     if r in _FRONT_DOOR_PIN:
         _pin = _FRONT_DOOR_PIN[r]
@@ -6294,16 +6542,23 @@ with open(OUT_GRACES, "w", newline="\n", encoding="utf-8") as f:
     # 🛑 Derived, never transcribed. Another project's curated grace set may be READ to cross-check
     # this (PROVENANCE.md: "let the other project be the bug report; keep our datamine as the
     # source") but never ingested -- a copied flag cannot be regenerated or stamped.
-    def _landmarks(_fs):
+    def _landmarks(_r, _fs):
         _by = {}
         for _f in _fs:
             _by.setdefault(gsub.get(_f, -1), []).append(_f)
         _out = []
+        # Only an explicit human front-door ruling overrides the warp-menu group's own ordering.
+        # Using _front_door unconditionally here promotes cave-style REGION_OPEN_FLAGS (Caelid's
+        # 73207) over the real entrance and breaks entrance ⊆ landmarks.
+        _fd = _FRONT_DOOR_PIN.get(_r)
         for _grp in _by.values():
-            _ow = [x for x in _grp if 76000 <= x < 77000]
-            _out.append(min(_ow) if _ow else min(_grp))
+            if _fd in _grp:
+                _out.append(_fd)
+            else:
+                _ow = [x for x in _grp if 76000 <= x < 77000]
+                _out.append(min(_ow) if _ow else min(_grp))
         return sorted(_out)
-    REGION_GRACE_LANDMARKS = {r: _landmarks(v) for r, v in REGION_GRACE_POINTS.items()}
+    REGION_GRACE_LANDMARKS = {r: _landmarks(r, v) for r, v in REGION_GRACE_POINTS.items()}
     _lm = sum(len(v) for v in REGION_GRACE_LANDMARKS.values())
     assert _lm >= len(REGION_GRACE_LANDMARKS), (
         "landmarks tier derived %d graces for %d regions -- the subCategory column is missing from "
@@ -6335,6 +6590,26 @@ _SLP = os.path.join(_SLP_DIR, "ShopLineupParam.csv")
 _REC = os.path.join(_SLP_DIR, "ShopLineupParam_Recipe.csv")
 _flag2goods = defaultdict(list)   # stock_flag -> [(equipId, equipType)]
 _flag2rows = defaultdict(list)    # stock_flag -> [ShopLineupParam row ID] (client shopRowFlags key)
+# DLC-GATED shop stock flags (AzoTax, Discord 2026-08-20): a HUB shop row can be gated on DLC
+# content -- Enia's remembrance trades consume a DLC remembrance (EquipMtrlSetParam material in
+# the 2,000,000 goods block) and her DLC boss armor releases on a DLC ceremony flag while SELLING
+# a DLC protector (equipId >= 3,000,000). Roundtable is kept in every seed, so with the DLC off
+# these checks were pooled FOREVER-UNCOMPLETABLE -- and on pre-#860 apworlds fill could park a
+# required item there (AzoTax's two-player no-DLC seed goal-locked on one). The set is derived
+# for ALL shop checks, not just Enia: a DLC-region merchant's row lands here too, harmlessly --
+# its location already leaves with the region. core.py skips these per-seed when DLC is off.
+_flag2dlcgate = set()             # stock_flag -> vanilla row is DLC-gated (material or ware)
+_MTRL_CSV = os.path.join(_SLP_DIR, "EquipMtrlSetParam.csv")
+_mtrl_dlc = set()                 # EquipMtrlSetParam IDs consuming a 2,000,000-block goods
+if os.path.isfile(_MTRL_CSV):
+    for _mr in csv.DictReader(open(_MTRL_CSV, encoding="utf-8-sig")):
+        try:
+            _mats = [int(_mr[_k]) for _k in _mr
+                     if _k.startswith("materialId") and _mr[_k].lstrip("-").isdigit()]
+        except (KeyError, ValueError):
+            continue
+        if any(2_000_000 <= _m < 3_000_000 for _m in _mats):
+            _mtrl_dlc.add(_mr.get("ID", ""))
 _CAT_NIB = {0:0x00000000,1:0x10000000,2:0x20000000,3:0x40000000,4:0x80000000}
 # ALT-CURRENCY stock flags: any ShopLineupParam row NOT paid in runes. costType 0 == runes; anything
 # else is a limited consumable, so the purchase is missable (spend the currency elsewhere and the
@@ -6380,6 +6655,13 @@ if _slp_present:
                 pass
             try:
                 _flag2rows[_fl].append(int(_sr["ID"]))
+            except (KeyError, ValueError):
+                pass
+            try:
+                if _sr.get("mtrlId", "-1") in _mtrl_dlc or (
+                        int(_sr.get("equipType", -1)) == 1
+                        and int(_sr.get("equipId", 0)) >= 3_000_000):
+                    _flag2dlcgate.add(_fl)
             except (KeyError, ValueError):
                 pass
             try:
@@ -6986,6 +7268,17 @@ if os.path.isfile(_spare_path):
     _SPARE_GOODS = [g for g in _SPARE_GOODS if not (g in _seen or _seen.add(g))]
 print(f"spare_goods: {len(_SPARE_GOODS)} safe preview-good rows (greenfield/spare_goods.tsv)")
 
+# The check flags among the DLC-gated stock flags, with a rule-4 tally by region so the number
+# is auditable. Expected shape: the hub's Enia block (the motivating case) plus DLC-region rows
+# that are redundantly listed (their locations leave with their regions regardless).
+DLC_GATED_SHOP_CHECK_FLAGS = sorted(
+    _fl for _fl in set(SHOP_ROW_FLAGS.values()) & _flag2dlcgate)
+_dlc_shop_by_region = Counter(
+    SHOP_LOC_REGION[int(_aid)] for _aid, _fl in SHOP_ROW_FLAGS.items()
+    if _fl in _flag2dlcgate and int(_aid) in SHOP_LOC_REGION)
+print("shop_data: %d DLC-gated shop check flag(s) (skipped per-seed when the DLC is off): %s"
+      % (len(DLC_GATED_SHOP_CHECK_FLAGS), dict(_dlc_shop_by_region)))
+
 OUT_SHOP = os.path.join(HERE, "eldenring", "shop_data.py")
 with open(OUT_SHOP, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Shop-purchase checks: greenfield ap-id -> ShopLineupParam\n')
@@ -7000,9 +7293,19 @@ with open(OUT_SHOP, "w", newline="\n", encoding="utf-8") as f:
     f.write("}\n\nSHOP_LOC_REGION = {\n")
     for _aid in sorted(SHOP_LOC_REGION):
         f.write(f"    {_aid}: {SHOP_LOC_REGION[_aid]!r},\n")
-    f.write("}\n\nSHOP_PREVIEW_GOODS = {\n")
+    f.write("}\n\n# Stock flags whose vanilla ShopLineupParam row is DLC-GATED (consumes a 2,000,000-block\n")
+    f.write("# material -- a DLC remembrance -- or releases a >=3,000,000 DLC protector). The hub keeps\n")
+    f.write("# these rows in every seed, so core.py must skip them when the DLC is off or they are\n")
+    f.write("# forever-uncompletable checks (AzoTax, 2026-08-20: a no-DLC seed goal-locked on one).\n")
+    f.write("DLC_GATED_SHOP_CHECK_FLAGS = frozenset({\n")
+    for _fl in DLC_GATED_SHOP_CHECK_FLAGS:
+        f.write(f"    {_fl},\n")
+    f.write("})\n\nSHOP_PREVIEW_GOODS = {\n")
     for _aid in sorted(SHOP_PREVIEW_GOODS, key=int):
         f.write(f"    {_aid!r}: {SHOP_PREVIEW_GOODS[_aid]},\n")
+    f.write("}\n\nMERCHANT_BELL_REGIONS = {\n")
+    for _gid in sorted(MERCHANT_BELL_REGIONS):
+        f.write(f"    {_gid}: frozenset({MERCHANT_BELL_REGIONS[_gid]!r}),\n")
     f.write("}\n\n")
     # Safe-to-clobber spare goods for lock/foreign shop-slot previews (tools/datamine_spare_goods.py).
     f.write("SPARE_PREVIEW_GOODS = (\n")
@@ -7186,10 +7489,9 @@ if CO_CHECK_EMITTED and not all(_ap9 in LOCATION_ITEM for _ap9 in CO_CHECK_EMITT
 # entries of `1` would bury the ones that mean something.
 #
 # WHAT CONSUMES IT: core.create_items promotes `<name>` to `<name> x<n>` when that stacked name is a
-# registered AP item. Today exactly one is -- features/scadu_supply's `Scadutree Fragment x2`, a
-# second AP id on the same goods row riding slot_data itemCounts = 2 -- so this table is a general
-# capture with one live consumer, not a hard-coded fix for one item. A location whose quantity has
-# no minted stack keeps paying x1, exactly as before.
+# registered AP item. features/lot_stacks registers every resolvable pair here as a second AP id on
+# the same game row riding slot_data itemCounts = n. Curated category bundles are separate stacked
+# ids, so their usability quantity cannot overwrite the source lot's quantity.
 def _lot_units(_fullid, _flag, _bind):
     """Copies the lot slot(s) granting `_fullid` under `_flag` hand over. `_bind` restricts to one
     (table, lot) for a co-check sibling. Returns (units, ambiguous).
@@ -7229,63 +7531,14 @@ for _apu, (_fullu, _flagu, _bindu) in _LOC_FULL.items():
 # and the client needs nothing new -- it already resolves through apIdsToItemIds and multiplies by
 # itemCounts. The id space is ours, so the only real cost is one name per (item, quantity) PAIR.
 #
-# WHY NOT ALL 926 MULTI-COPY LOCATIONS. Honouring everything means 455 pairs across 202 items, and
-# 315 of those names are junk consumables (Smoldering Butterfly, Mushroom, Old Fang) where the count
-# changes nothing a player would notice. Phase 1 mints the slice with a MEASURABLE consequence:
-#
-#   * stones      -- 39 names / 121 lots / 288 copies. features/filler_budget reserves an upgrade
-#                    economy off the top and tests/test_gf_filler_economy_floor tunes the `stones`
-#                    weight to the smallest value clearing a stated player-facing bar. That bar was
-#                    measured against a world paying 288 fewer stones than vanilla, so the shipped
-#                    weight is partly compensating for this bug.
-#   * collectathon -- 2 names / 6 lots / 6 copies. Golden Seed / Sacred Tear / Revered Spirit Ash get
-#                    the same treatment #616 gave Scadutree Fragment; leaving them behind would mean
-#                    one collectathon line is honest and the others are not.
-#
-# DELIBERATELY NOT phase 1: ammunition (35 names) and throwables/pots (64). features/filler_curation
-# ALREADY stacks those by CATEGORY (STACK_QTY_BY_CATEGORY: throwables 5, pots 2, greases 2,
-# ammunition 20) through the same itemCounts field -- a per-item constant, not the lot's quantity. Two
-# systems would be answering "how many" for one item and the winner would be decided by whichever
-# path ran last. That needs a ruling first (#624). Stones and somber_stones are NOT in
-# STACK_QTY_BY_CATEGORY, which is exactly why this slice is safe to do without it.
-_STACK_MINT_STONES = lambda _n: ("Smithing Stone [" in _n) or ("Somber Smithing Stone [" in _n)
-_STACK_MINT_COLLECT = lambda _n: _n in ("Golden Seed", "Sacred Tear", "Scadutree Fragment",
-                                        "Revered Spirit Ash")
-# THROWABLES (Alaric's ruling 2026-08-13): the category stack is a FLOOR, not an exact quantity.
-# features/filler_curation grants throwables x5 via STACK_QTY_BY_CATEGORY -- a USABILITY decision
-# ("a found throwable is a usable handful"), which is why an x1 lot still hands over five. 28 vanilla
-# lots grant MORE than five, up to ten, and paying five there loses 68 copies for no reason. So mint
-# every throwable multi-copy pair and let features/lot_stacks apply `max(lot, constant)`.
-#
-# 🛑 THE FLOOR COMPARISON DOES NOT LIVE HERE. STACK_QTY_BY_CATEGORY is the feature's constant and
-# mirroring it into the generator is exactly the drift this repo gates elsewhere. gen_data emits the
-# DATA (every throwable pair above 1); lot_stacks owns the RULE and registers only the pairs that
-# beat the category stack. A pair it declines is simply never registered, and
-# core.stacked_vanilla_name only promotes to a REGISTERED name -- so a sub-floor lot keeps paying the
-# base item and its x5, exactly as before.
-#
-# ammunition / pots / greases are NOT here and need nothing: measured 2026-08-13, ammunition's 71
-# multi-copy lots top out at exactly its x20 constant, and pots/greases have no multi-copy lot at
-# all. Minting for them could only ever pay LESS than they already do.
-_STACK_MINT_THROWABLE = lambda _n: _n in _THROWABLE_NAMES
-# Read the throwable roster from the FEATURE that owns it (same reason the policy import in the
-# co-check widening reads datamine_flag_lots): one definition, no second copy to fall out of date.
-_THROWABLE_NAMES = frozenset()
-try:
-    import ast as _ast_t
-    _fc_src = open(os.path.join(HERE, "eldenring", "features", "filler_curation.py"),
-                   encoding="utf-8").read()
-    _cat_blk = re.search(r"^CATEGORIES = \{(.*?)^\}", _fc_src, re.M | re.S).group(1)
-    _THROWABLE_NAMES = frozenset(
-        _ast_t.literal_eval(re.search(r'"throwables":\s*(\[.*?\])', _cat_blk, re.S).group(1)))
-except Exception as _e:
-    print("[gen_data] WARNING: could not read the throwables roster (%r) -- throwable stacks inert" % (_e,))
+# Alaric's ruling 2026-08-17: the source lot wins. Mint every resolvable `(FullID, quantity)` pair,
+# including ammunition, throwables and mundane materials. Curated category bundles use their own
+# stacked ids (features/lot_stacks), so their usability quantities no longer leak onto vanilla lots.
 
 LOT_STACK_GRANTS = {}
 for _apk, _nk in LOCATION_ITEM.items():
     _qk = LOCATION_UNITS.get(_apk, 1)
-    if _qk <= 1 or not (_STACK_MINT_STONES(_nk) or _STACK_MINT_COLLECT(_nk)
-                        or _STACK_MINT_THROWABLE(_nk)):
+    if _qk <= 1:
         continue
     _fk = ITEM_CATALOG.get(_nk)
     if _fk is None:                      # unresolvable base name -> nothing to point the stack at
@@ -7322,6 +7575,18 @@ _FINISHED_POTS = {"Fire Pot": 300, "Lightning Pot": 320, "Fetid Pot": 330, "Holy
                   "Rancor Pot": 650}
 for _pn, _pid in _FINISHED_POTS.items():
     ITEM_CATALOG.setdefault(_pn, 0x40000000 | _pid)
+# DLC crafted consumables have the same blind spot: no placed lot means the check-derived catalog
+# never sees them. Derive the complete roster from the DLC FMG-backed name map instead of pinning
+# row ids or only the variants which happen to have a vanilla source. The goods-nibble fence keeps
+# the five equippable Perfume Bottle weapons out of this pass; placed/tier cataloguing already owns
+# those, while the crafted Spraymist/Aromatic goods belong here.
+_CRAFTED_DLC_FILLER = sorted(
+    (_nm, _full) for _nm, _full in _name2full.items()
+    if (_full & 0xF0000000) == 0x40000000
+    and ((_nm.startswith("Hefty ") and _nm.endswith(" Pot") and _nm != "Hefty Cracked Pot")
+         or _nm.endswith("Spraymist") or _nm.endswith("Aromatic")))
+for _cn, _cfull in _CRAFTED_DLC_FILLER:
+    ITEM_CATALOG.setdefault(_cn, _cfull)
 # Crafted-only FOODS (Alaric 2026-07-11): same situation as the pots -- never LOOTED, so never in the
 # placed-item catalog, but valid grantable goods. Resolved BY NAME from GoodsName.fmg.xml via the same
 # _resolve_item map the placed items use, so no ids are hand-guessed (unlike _FINISHED_POTS above, which
@@ -7417,6 +7682,36 @@ for _fn, _nib, _dir in _NAME_FMGS:
             _tgt.add(_nm)
 _DLC_ONLY = _dlc_dlc_nm - _dlc_base_nm
 DLC_ITEM_NAMES = {_n for _n in ITEM_CATALOG if _n in _DLC_ONLY}
+
+# One wrapper per multi-piece EquipParamProtector row-id family (#849). Variants share the
+# ten-thousand family (e.g. Carian Knight 980000..980300 + altered 981100), so this is derived from
+# the catalog/param FullIDs rather than a maintained set roster.
+def _armor_bundle_label(_members, _family):
+    _raw, _name = min(_members, key=lambda _x: (0 if ((_x[0] // 100) % 10) == 1 else 1, _x[0]))
+    _base = _name.removesuffix(" (Altered)")
+    for _suffix in (" Armor", " Robe", " Garb", " Attire", " Gown", " Clothes", " Clothing",
+                    " Vest", " Surcoat", " Cloak", " Dress", " Raiment", " Finery",
+                    " Pauldron", " Tabard"):
+        if _base.endswith(_suffix):
+            _base = _base[:-len(_suffix)]
+            break
+    return (_base or "Armor Family %d" % _family) + " Set"
+
+_armor_groups = {}
+for _name, _full in ITEM_CATALOG.items():
+    if (_full & 0xF0000000) == 0x10000000:
+        _raw = _full & 0x0FFFFFFF
+        _armor_groups.setdefault(_raw // 10000, []).append((_raw, _name, _full))
+ARMOR_BUNDLES = {}; ARMOR_NAME_TO_BUNDLE = {}
+for _family, _rows in sorted(_armor_groups.items()):
+    if len(_rows) < 2:                         # wrapping a singleton saves no slot
+        continue
+    _label = _armor_bundle_label([(_r, _n) for _r, _n, _f in _rows], _family)
+    if _label in ARMOR_BUNDLES:                # stable collision disambiguator, still generated
+        _label = "%s [%d]" % (_label, _family)
+    ARMOR_BUNDLES[_label] = sorted(_f for _r, _n, _f in _rows)
+    for _r, _name, _full in _rows:
+        ARMOR_NAME_TO_BUNDLE[_name] = _label
 print(f"item_ids: DLC_ITEM_NAMES {len(DLC_ITEM_NAMES)} DLC-only catalog items")
 OUT_ITEMS = os.path.join(HERE, "eldenring", "item_ids.py")
 with open(OUT_ITEMS, "w", newline="\n", encoding="utf-8") as f:
@@ -7426,6 +7721,12 @@ with open(OUT_ITEMS, "w", newline="\n", encoding="utf-8") as f:
     f.write("ITEM_CATALOG = {\n")
     for _nm in sorted(ITEM_CATALOG):
         f.write(f"    {ascii(_nm)}: {ITEM_CATALOG[_nm]},\n")
+    f.write("}\n\n# EquipParamProtector row-family bundles (#849).\nARMOR_BUNDLES = {\n")
+    for _nm in sorted(ARMOR_BUNDLES):
+        f.write(f"    {ascii(_nm)}: {ARMOR_BUNDLES[_nm]!r},\n")
+    f.write("}\n\nARMOR_NAME_TO_BUNDLE = {\n")
+    for _nm in sorted(ARMOR_NAME_TO_BUNDLE):
+        f.write(f"    {ascii(_nm)}: {ascii(ARMOR_NAME_TO_BUNDLE[_nm])},\n")
     f.write("}\n\nLOCATION_ITEM = {\n")
     for _aid in sorted(LOCATION_ITEM):
         f.write(f"    {_aid}: {ascii(LOCATION_ITEM[_aid])},\n")
@@ -9127,7 +9428,13 @@ for _i, _r in enumerate(rows):
         # [Incantation] Knight's Lightning Spear at Scorpion River Catacombs (7774285, Legendary)
         # both walked in. A sweep that hands you a flask upgrade or a legendary incantation is a
         # progression decision, not a convenience.
-        _r["method"] in ("flag_prefix", "global", "global_filler")
+        # "cookbook" joined 2026-08-19 with the full-census regen: four cookbooks (68000 Wyndham
+        # Catacombs, 68660 Belurat Gaol, 68680 Fog Rift, 68700 Scorpion River) gained MSB treasure
+        # rows placing them INSIDE minor dungeons, and this METHOD gate -- not their tags, not
+        # their maps -- was what kept them out of those dungeons' sweeps
+        # (test_gf_boss_sweeps::test_no_dungeon_mapped_filler_is_left_unswept). A method is how a
+        # row was DISCOVERED, not where it lives; the map conditions below stay the arbiter.
+        _r["method"] in ("flag_prefix", "global", "global_filler", "cookbook")
         and (_is_dungeon(_mp2(_r["map"])) or _is_interior_member_map(_mp2(_r["map"]))
              # ...and a row that already names an OVERWORLD TILE (piece A). Without this the m61
              # neighbourhood pass has nothing to assign: `_mem_tile` is fed from rows that passed
@@ -9459,10 +9766,6 @@ DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 # sweeping it from an unrelated fight would award an inaccessible check and bypass the key gate.
 # Keep this flag-shaped (rather than AP-shaped) so co-checks such as f34117500 are excluded together.
 _SWEEP_EXCLUDED_FLAGS = {
-    # Rakshasa's defeat shares the broad Scadu Altus legacy pool with the Finger Ruins of Rhia, but
-    # the bell reward cannot be earned until the player has the Hole-Laden Necklace. Rakshasa is
-    # unrelated to that route and must not pay the reward early (#664).
-    2051440800: {2053467600},
     # Study Hall's defeat trigger is on the ordinary layout, while these flags exist only after the
     # Carian Inverted Statue changes the map.
     34110800: {
@@ -9511,6 +9814,22 @@ if BOSS_HEALTHBARS:
                 continue
             _members = _mem_map.get(_bmap, [])
         else:  # legacy / interior region major -> DIVVY the region filler (partition pass below)
+            # A legacy healthbar head that does not report its own defeat is not a sweep trigger.
+            # The old code deliberately applied `_arena_secondary` only to dungeon-class fights,
+            # on the theory that legacy round-robin partitioning avoided duplicate payouts. That
+            # answered the wrong question: partitioning can make the member lists disjoint, but it
+            # cannot make a participant/activation flag become a terminal encounter flag.
+            #
+            # Enir Ilim is the decisive case (#877). Event 20012850 waits for characters
+            # 20010850..854 to die, displays the one banner keyed by 20010850, and then sets only
+            # event flag 20010850. The derived banner table therefore maps 20010851/52 -> 20010850;
+            # keeping 51/52 as independent legacy triggers leaves permanent tracker rows (and 51
+            # can also fire early as the encounter's entry/activation choice). Apply the same
+            # same-map guarded evidence rule here that the dungeon branch already trusts.
+            _sec = _arena_secondary(_ent, _bmap)
+            if _sec:
+                _sweep_secondary_hits.append((_ent, _bmap, _name, _sec[0], _sec[1]))
+                continue
             # ⭐⭐⭐ AN x801 BESIDE AN x800 ON THE SAME MAP IS NOT THE FIGHT'S DEFEAT FLAG.
             #
             # WHAT IS MEASURED, from boblerrr's 2026-08-08 Enir Ilim log, twice:
@@ -9886,6 +10205,50 @@ if BOSS_HEALTHBARS:
         print("boss_sweeps: trigger %d excluded %d key-gated flag(s): %s" % (
             _trigger, len(_flags), sorted(_flags)))
 
+    # ---- OWN-DROP ADMISSION (2026-08-20, #907, CptFabulous's Lansseax report) ---------------------
+    # A field/evergaol boss's OWN drop check must ride its own trigger. The vanilla award (common
+    # event 90005860) is gated on CharacterDead(vanilla chr), so under a host ENEMY RANDOMIZER the
+    # replacement dies, the site flag fires (the rando's compat layer sets it), our sweep pays the
+    # MEMBERS -- and the boss's own drop never fires: the vanilla character never died. A FLAG IS
+    # NOT AN AWARD. Sweeping the drop with the trigger closes it: the client sets the drop's
+    # acquisition flag the moment the defeat flag fires, exactly the rungs-test ruling ("killing
+    # the boss no longer grants the boss's own reward [is] strictly worse than the debt").
+    #
+    # FAIL-CLOSED buckets, each printed (rule 4) and pinned by the acceptance test:
+    #   * region mismatch -- a sweep may only grant checks in ITS OWN region (the Hippo rule); a
+    #     drop regioned elsewhere stays out rather than leaking a cross-region grant.
+    #   * no sweep -- the trigger was suppressed (phase pair / secondary) or swept nothing. Not
+    #     resurrected here: minting a sweep for a suppressed head is the #363 shape.
+    #   * not a check -- the drop flag is excluded/unpooled this build.
+    # 🛑 The region compared is the PRESENTED one (the data.py bucket), not _ap_region: the kick
+    # guard reads what the row presents under, and the tear/physick drops are global-lot rows
+    # _ap_region never covers (they carry no map), yet they present in a real region and are
+    # exactly the class this fix exists for.
+    _drop_added, _drop_mismatch, _drop_nosweep, _drop_notcheck = [], [], [], []
+    _flag_apid = {_fl: _aid for _aid, _fl in _apid_flag.items()}
+    _bucket_region = {_aid: _reg for _reg, _locs in buckets.items() for (_nm, _aid, _fl) in _locs}
+    for _dfl, _dtrig in sorted(_BOSS_DROP_ENTITY.items()):
+        _dap = _flag_apid.get(_dfl)
+        if _dap is None:
+            _drop_notcheck.append(_dfl); continue
+        if _dtrig not in DUNGEON_SWEEPS:
+            _drop_nosweep.append((_dfl, _dtrig)); continue
+        if _bucket_region.get(_dap) != SWEEP_REGION.get(_dtrig):
+            _drop_mismatch.append((_dfl, _dtrig, _bucket_region.get(_dap), SWEEP_REGION.get(_dtrig)))
+            continue
+        if _dap not in DUNGEON_SWEEPS[_dtrig]:
+            DUNGEON_SWEEPS[_dtrig] = sorted(set(DUNGEON_SWEEPS[_dtrig]) | {_dap})
+            _drop_added.append((_dfl, _dtrig))
+    assert _drop_added, (
+        "own-drop admission added NOTHING -- boss_drops.py is empty or every row failed a bucket; "
+        "the #907 fix is not running and this pass is scenery")
+    print("boss_sweeps: own-drop admission (#907): %d added, %d region-mismatch (kept OUT), "
+          "%d trigger-without-sweep (kept OUT), %d not-a-check" % (
+              len(_drop_added), len(_drop_mismatch), len(_drop_nosweep), len(_drop_notcheck)))
+    for _dfl, _dtrig, _dr, _sr in _drop_mismatch:
+        print("boss_sweeps:   own-drop f%d region %r != sweep %r (trigger %d) -- fail closed" % (
+            _dfl, _dr, _sr, _dtrig))
+
     # An exclusion that matches nothing is a lie -- it reads as protection while protecting
     # nothing (the boss_healthbars map string could drift and this would silently stop applying).
     assert not _unregioned_legacy, (
@@ -10193,16 +10556,16 @@ print("boss_sweeps: %d group(s) whose ARENA region differs from their MEMBERS' r
 # A member under a SKIPPED trigger gets NO clause: features/progression_surface already refuses to
 # nominate from a sweep that cannot fire (#672), and promising a boss we know does not die would be
 # the same lie one layer over. Patches is the reason that set cannot be derived; see
-# contract.sweep_slot_skips.
+# contract.runtime_sweep_skips.
 import ast as _ast
 
 _SWEEP_SKIPS = {}
 try:
     _ctrspec = _ilu.spec_from_file_location("_gd_contract", os.path.join(HERE, "eldenring", "contract.py"))
     _ctrmod = _ilu.module_from_spec(_ctrspec); _ctrspec.loader.exec_module(_ctrmod)
-    _SWEEP_SKIPS = _ctrmod.sweep_slot_skips(healthbars=BOSS_HEALTHBARS)
+    _SWEEP_SKIPS = _ctrmod.runtime_sweep_skips()
 except Exception as _e:
-    print(f"[gen_data] contract.sweep_slot_skips unavailable ({_e!r}); no sweep clause suppressed")
+    print(f"[gen_data] contract.runtime_sweep_skips unavailable ({_e!r}); no sweep clause suppressed")
 
 _sweep_of = {}
 for _st, _sms in DUNGEON_SWEEPS.items():

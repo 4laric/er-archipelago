@@ -3,6 +3,489 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.10 — 2026-08-19
+
+### What you need to update
+
+- **Client:** Required — use the v0.4.10 client with v0.4.10 seeds.
+- **APWorld:** Host-only — the room host or generator must install v0.4.10; joining players only
+  need the matching client.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** Generate a fresh template only to
+  see and select newly added options such as the Malenia goal.
+- **Existing seed/save:** New seed required — finish an active v0.4.9 seed with its matched v0.4.9
+  client and APWorld; use a new seed for v0.4.10 features.
+- **Profile/assets:** No action — this window does not require a profile or asset reinstall.
+
+Window opened from `main` immediately after v0.4.9 was tagged. The release tag's only commit not on
+`main` is its client-gitlink bump; this window supersedes that pin with the v0.4.10 client, so no
+player-facing work is stranded between the tag and this branch.
+
+`CONTRACT_HASH` remains `dc0dc687`, verified by loading `contract.py` after the bump. The slot-data
+shape is unchanged, but the exact-version handshake still moves to 0.4.10.
+
+Client half: clients#320. Its commit is pinned by the gitlink in this same change.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.9 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **Your weapons finally reach your friends.** At the shipped settings a non-Elden-Ring partner
+  received nothing from an Elden Ring slot but filler -- 0 useful items in 498 measured
+  placements -- because of a fill-order artifact, not any option's intent (the partner's own
+  progression saturated its slots before Archipelago's useful tier arrived). A dedicated
+  reservation pass now places each Elden Ring slot's fair share of useful gear into non-ER worlds
+  before the general fill: the share is derived per seed (useful pool x the partner's share of
+  open locations), `confine_foreign_progression` stays at its curating default of 100, and
+  keep_local/local items are respected. Re-measured across the six-generation CI matrix: 0 -> 983
+  useful items delivered, pooled composition 1.01:1 useful:filler -- the pool's own mix. The CI
+  export guard now asserts the derived floor instead of a margin-of-one (#918). Ruling: Alaric,
+  2026-08-20.
+- **Enia's DLC rows leave a seed that has no DLC.** Thirty-six of the Finger Reader's shop
+  checks are gated on Shadow of the Erdtree content -- the remembrance trades consume a DLC
+  remembrance, and the DLC boss armor sets release on DLC ceremony flags -- but Enia stands in
+  Roundtable Hold, which every seed keeps, so with `enable_dlc: false` those checks existed
+  forever-uncompletable, and on older apworlds the fill could park a REQUIRED item on one
+  (AzoTax's two-player seed goal-locked exactly there). The set is derived from the vanilla shop
+  params, the locations and their pool items now leave a no-DLC seed together through one
+  chokepoint, and the coverage gate compares live and static joins under the same answer.
+  Reported by AzoTax on Discord, 2026-08-20.
+- **The options wizard is five steps, not eleven.** Players called the wall of tabs out: seven
+  option tabs, each a flat list, all reading as mandatory. The seven groups are now collapsible
+  sections inside ONE Options step (Start / Options / Seed size / Advanced / Finish), each header
+  live-counting your changes, with the first section open on arrival. The Start step now says out
+  loud that a preset is a complete, playable yaml on its own. Presentation only: the grouping
+  still lives in the world's option_groups (one grouping, two surfaces — Archipelago's own
+  player-options page is untouched), and the emitted yaml is byte-identical.
+- **Auto-upgrade is a setting again, on by default -- and it now covers every pickup.** Since
+  v0.2 every received weapon has been silently raised to the highest reinforce level you hold on
+  its track; that behaviour is now the `auto_upgrade` yaml knob (default on, so an existing yaml
+  changes nothing). The same raise now applies to any weapon the game adds to your bag -- world
+  pickups, chests, and the put-it-down-with-Leave-pick-it-up gesture players know from matt's
+  randomizer, which is the intended catch-up for a weapon received before you found your stones
+  (in-bag catch-up with no gesture at all is planned separately, behind its own option). The
+  client also now watches every suppressed pickup and, if one never turns into a check, names
+  the item in the log with its `!give` rescue -- the drop-and-pickup gesture can no longer
+  silently cost you a weapon. World: #693; client: clients#329.
+- **The wizard's Difficulty section opens with Easy / Standard / Hard.** Three quick-picks that
+  set the four scaling dials -- Standard is the default curve, whose cap scales to your run's
+  length and lands your final region around the scaling of vanilla Haligtree; Easy caps the climb
+  near 2x enemy HP; Hard raises the floor, uncaps the top and front-loads the ramp. The dials
+  stay real underneath: set one by hand and no button claims you.
+- **`vanilla_placement` and `natural_progression` moved to a collapsed Experimental group.** Both
+  invert the randomizer's premise and are filed under Advanced (and folded on Archipelago's own
+  options page) rather than greeting new players mid-form. Fully supported, just not front-page.
+- **The Seed size card stops claiming your Region Locks never travel.** The sentence shipped as
+  a constant -- "Your own progression never travels either way" -- while `progression_bias`'s
+  default is 0, meaning every Lock rides the multiworld like any other item. The card now derives
+  the sentence from `progression_bias` and `cross_game_progression`, and the render gate flips
+  the knob and demands the words follow. The player guide also gains the "anything anywhere"
+  recipe for the classic-rando feel. From 255's Discord question, 2026-08-20.
+- **Each wizard section leads with its essentials.** Fifteen of the sixty options are the
+  decisions that shape a run — goal, seed size, DLC ownership, where the items are, who may hold
+  progression, death link, and friends — and they render expanded; the tuning sits behind one
+  live-counted "More" fold per section, which opens itself while anything inside it deviates so a
+  changed option is never out of sight. The tier lives in the world
+  (`core._ESSENTIAL_OPTIONS`, validated at import, flowing through the metadata dump), not in the
+  page, and it is presentation only: Archipelago's own options page and the emitted yaml are
+  untouched.
+- **Malenia can end the run.** `goal: malenia` force-keeps the Haligtree and withholds its Lock
+  from fill until the seed's independently selected Great-Rune and region requirements are met.
+  Opening it grants Haligtree Canopy alone—even under the all-graces or grace-attunement settings—
+  so Loretta, Elphael and the full descent to Malenia remain physical play. The terminal check is
+  Malenia's f510200 defeat, not every Haligtree major boss. World: #861.
+- **Starting-region candidates now count honestly before you generate.** The additive behavior is
+  unchanged: every region in `start_region_pool` is kept, while only `start_regions` of them open
+  the run. The wizard's seed-size preview now includes those extra regions and shows their marginal
+  0–N contribution beyond `num_regions`; generation logs distinguish them from goal force-keeps
+  instead of calling them `goal=auto`. World: #841.
+
+## v0.4.9 — 2026-08-18
+
+Window opened 2 commit(s) PAST the v0.4.8 tag.
+
+`CONTRACT_HASH` remains `dc0dc687`, verified by loading `contract.py` after the bump. The slot-data
+shape is unchanged, but the client half still moves because its generated handshake embeds the
+world version.
+
+Client half: clients#286. Its merged commit is pinned by the gitlink in this same change.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.8 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **Small-region `keep_out_of_shops` seeds generate cleanly.** The option now decides what fits
+  after progression reservations and places the constrained subset with the restrictive filler,
+  so an Ensis start no longer strands Cipher Pata opposite Enia despite having legal non-shop
+  space. Abyssal and Jagged Peak explicitly relax the oversized category instead of ending in a
+  `FillError`; the generation log names every category that could not fit. World: #903.
+- **The tracker no longer waits forever for Patches to die.** Patches yields in normal play, so
+  his death-flag sweep is no longer sent to the client or advertised as an "also granted by" route.
+  Merely unnamed or unaudited sweeps remain available as ordinary convenience grants; only triggers
+  positively known not to fire are removed at runtime. World: #878.
+- **Previously vanilla-only unique rewards are now checks.** Exact item coordinates recover seven
+  missing merchant Bell Bearings, the Serpent Crest Shield, the Sacred Tower painting, and fixed
+  pot/bottle pickups; the same audit places Thops's Academy Glintstone Staff, the Discarded Palace
+  Key, Comet Azur, Stars of Ruin, and Coastal Cave's Tailoring Tools at their real sources. The full
+  30-item residue is committed with a verdict for every duplicate, multi-site, phantom, dead, or
+  itemless row, so the old raw "621 unplaced" label cannot return as a defect count. World: #218.
+- **Merchant Bell Bearings only enter seeds that keep one of their merchants.** A bell whose every
+  merchant region is sealed now pays normal filler count-neutrally instead of opening a wholly
+  vanilla Twin-Maiden shop that looks like a failed randomizer. When a vanilla-only bell is handed
+  in anyway, the client now says that plainly instead of presenting an apparently empty AP shop.
+  World: #560 and #555; client: clients#297.
+- **Unaudited boss sweeps cannot host required progression.** A sweep with no authoritative arena
+  region still pays its ordinary members, but contributes no `SweepSlot` progression-surface entry
+  until the arena is audited. The current 26 circular-evidence triggers now fail closed. World: #671.
+- **Lansseax's Glaive is filed in Altus.** Its two independently placed acquisition sites both
+  resolve to Altus; the generator now accepts unanimous region evidence from multi-map checks instead
+  of letting a one-site entity fallback misfile the incantation under Mt. Gelmir. World: #502.
+- **The Golden Hippopotamus is Scadu Altus everywhere.** His fight is fought standing in Scadu
+  Altus (the arena play-region), so the reward, the sweep, AND all ~105 checks he grants now present
+  under `Scadu Altus ::` instead of `Shadow Keep ::`. Before this, a player holding the Shadow Keep
+  lock without Scadu Altus was shown a hundred-plus Shadow Keep rows "also granted by Golden
+  Hippopotamus", walked to the fight, and was ejected by the region guard; now those checks exist
+  exactly in the seeds that can fire the Hippo, and killing him from Scadu Altus alone pays all of
+  them. The one m21_00 pickup he does not grant (a cookbook) stays Shadow Keep. World: #885, from
+  cokeman5's report on #330.
+- **The 124 unfindable Rada Fruit "locations" are no longer checks.** The DLC's most repeated
+  tracker row was mostly bundle math: vanilla expresses one "Rada Fruit xN" corpse as N consecutive
+  item lots (each with its own flag), and 55 more lots reference no world object any datamine can
+  find -- in a fully-combed Shadow Keep, exactly one of its 125 Rada rows ever fired outside a
+  boss-kill sweep. Those rows leave the pool and their pickups revert to vanilla fruit; the four
+  uniquely-placed m21 pickups and all of Belurat/Enir Ilim's real corpses (which do fire) remain
+  checks. Shadow Keep's tracker list now reflects what a player can actually find. World: #330,
+  reported three times by cokeman5.
+- **The world census now covers every map, and it culled 77 more phantom checks.** Alaric's
+  full-MSB datamine (every map's treasure, enemy-attached, and event-chained references, merged
+  with the prior partial run) closed the census's 39 blind maps; the coverage witness now FAILS
+  the build if any placed map goes blind again or the denominator comes back empty. Against that
+  zero-blind-map census, 77 map-encoded ground-lot flags -- Golden Rune "around <grace>" rows in
+  Siofra, Mohgwyn and the Shaded Castle among them -- reference no world object in ANY corpus
+  (coords, census, gifts, quest scripts, bell hand-ins, and #898's audited tile placements) and
+  leave the pool exactly as the Rada rows did: pickups revert to vanilla, ledgered under
+  `worldless_single`. 49 near-identical rows were kept OUT of the cull by three screens: 40
+  because EMEVD scripts award them (evergaol drops like Godefroy's Icon, the #653 inverted-tower
+  trio -- scripted awards are real checks the ground census cannot see), 8 because #898's audited
+  unplaced-tile datamine places them (Eleonora's Poleblade among them), and 1 by hand ruling (the
+  Roundtable's Crimson Hood, awarded by a flag-level EMEVD reference the lot-based screen cannot
+  see). 5115 -> 5047 locations
+  net of the census's own +9 recovered pickups. World: #330 follow-up, the "any other phantoms?"
+  sweep.
+- **A boss's own drop is granted by killing the boss, even under a host enemy randomizer.**
+  Vanilla awards a field/evergaol boss's drop only when its own character dies (common event
+  90005860); an enemy randomizer's replacement sets the defeat flag without that death, so the
+  kill paid the boss's swept member checks but never its own drop -- CptFabulous's Lansseax's
+  Glaive, holding his Liurnia Lock, was the report. All 73 admissible own drops (region-agreeing,
+  live-check, sweep-holding triggers) now ride their own trigger's sweep: the moment the defeat
+  flag fires, the drop check fires with it, whoever actually died in the arena. The 15
+  inadmissible rows fail closed and are pinned by the acceptance test. World: #907.
+- **Packaged me3 profiles now name the package that actually ships.** Stable bundles load the
+  authenticated `flower-package`; development bundles with no Flower assets omit the package entry
+  instead of asking me3 to scan a nonexistent `ap-package`. Both release packagers now reject any
+  profile whose declared package directory is absent, preventing the startup `ReadDir: Path not
+  found` failure from returning.
+- **Ashen Capital opens at Leyndell, Capital of Ash.** Its region unlock no longer treats the
+  duplicate Ashen East Capital Rampart as the front door; the full grace bundle still contains both
+  entries. World: #853; client: clients#312.
+- **Boss-sweep rows collapse by region, and legacy arenas wait for their terminal state.** The
+  tracker no longer expands every member of every sweep into one permanent wall of rows; each region
+  can be opened when wanted. For inherited arena triggers, completion now follows the terminal flag
+  instead of an earlier phase that can fire while the encounter is still live. World: #877 and
+  #896; client: clients#293, closing #237.
+- **Fresh auto-equip runs keep one left-hand slot, not the starting class's whole off-hand
+  loadout.** Left 1 is filled and Left 2/3 are cleared once for a genuinely fresh character; returning
+  saves keep the loadout their player arranged. World: #441; client: clients#294.
+- **The experimental boss HP probe is off by default.** The runtime witnesses it was built to gather
+  are in hand, so ordinary players no longer pay for its live boss-state reads unless they explicitly
+  arm the probe. World: #553; client: clients#290.
+- **Client sidecar tables resolve beside the AP DLL.** `check_lots_table.json` and
+  `shoplineup_flags.json` no longer disappear merely because me3's global mod root differs from the
+  profile's natives directory; the loader-root lookup remains as a compatibility fallback. Client:
+  clients#302, closing clients#299.
+- **World teardown no longer turns an empty param holder into a process abort.** Add-item and
+  shop-open callbacks now test the requested table's live holder before reading it, and the extern
+  boundary contains any remaining Rust panic instead of unwinding through Elden Ring. Client:
+  clients#303, closing clients#300.
+- **Starting items have one writer at a time.** The possession backfill now waits until the
+  reconciler's complete negative start-item band is drained, rather than treating a readable bag as
+  proof that the paced grant ledger is finished. This closes the 2-of-40 race that duplicated pots
+  and then reported the remainder capped. World: #267; client: clients#304.
+- **Native crash reports now include the faulting x64 registers.** This does not claim to fix the
+  separate me3 allocator crash. It makes the next occurrence identify the exact pointer me3 was
+  classifying/freeing, so the remaining corruptor can be narrowed from evidence instead of by
+  disabling unrelated features. Client: clients#305; follow-up: clients#301.
+
+## v0.4.8 — 2026-08-18
+
+v0.4.8 is the first release after v0.4.6. v0.4.7 was never tagged or released; the number is
+intentionally skipped rather than rewriting the already-generated world/client version state. Every
+change accumulated since v0.4.6 is recorded in this one release window.
+
+`CONTRACT_HASH` eventually moved from `5c2b9bf2` to `dc0dc687` when armor bundles added the
+`armorBundles` map. That feature intentionally refuses clients which can only map one AP item to
+one Elden Ring FullID instead of silently losing part of a set. Client half: clients#277.
+
+`release/CHANNELS.tsv` correctly leaves `stable` on v0.4.6 until v0.4.8 is actually tagged.
+
+Entries arrive below as they merge (rule 14: release notes are part of the change, not tag-time
+reconstruction).
+
+- **Armor sets now occupy one randomized item instead of one slot per piece.** Families are generated
+  from the protector rows, include altered pieces, and reconcile member-by-member across reconnects.
+  Tight pools also deduplicate exact weapon names and retire the two trick mirrors and Sacrificial
+  Twig into ordinary filler economy capacity.
+
+### The rest of the v0.4.8 window so far
+
+- **Goal requirements are two independent axes.** Great Runes can be required or not, while the
+  goal region separately opens from held Region Locks, completed regions, or no region requirement.
+  This adds Great Runes-only goals without changing existing YAML defaults. Patches, Enia, and the
+  Twin Maidens now reject progression at the location rule as well as the curated surface, so a
+  required Great Rune cannot reach those shops through a spill or later fill pass; ordinary
+  wandering merchants remain eligible. World: #858.
+- **Tiny seeds keep their promised somber-stone floor.** A positive `somber_stones` recipe weight
+  now arms the reservation even when its initial proportional share rounds to zero, so one-region
+  seeds cannot silently lose an upgrade tier. World: #858.
+- **Baked-stable hosts can deploy beta without a false stable success.** `deploy_wizard.sh
+  --beta-only` writes only the directory peliarch actually mounts and reports that stable remains
+  owned by the immutable image pin, closing the misleading half of #863. World: #864.
+- **Progressive stone bells now stay local and actually stock their shelves.** Their replacement
+  items inherit `keep_local: [upgrade_bells]`, and every rung sets both the stock and release flags
+  used by the Twin Maidens. World: #859.
+- **Capital warps respect the selected map version.** Royal and Ashen targets are classified by
+  their real map bucket, including the duplicate Ashen graces, so approaching the Ashen endgame no
+  longer replays the transition and throws the player back. Client: clients#284.
+- **Client logs always live beside the loaded DLL.** Their location no longer changes with the mod
+  loader or profile. Client: clients#283.
+- **RandomizerHelper is a hard incompatibility, not a warning.** When its DLL is actually co-loaded,
+  AP stops before connecting and explains what to remove; a merely present but unloaded file does
+  not block startup. Client: clients#285.
+- **Quest prerequisites cannot be placed on their own downstream rewards.** Cursemark of Death
+  cannot land on Fortissax, with direct rules also covering the Favor, Needle, Valkyrie,
+  Fingerslayer, and Dark Moon chains. The items remain filler elsewhere. World: #836, closing #832.
+- **TrapLink is opt-in.** ER traps can cross the multiworld; self-echoes and unknown foreign names
+  are ignored, and DeathLink remains independent. World: #844. Client: clients#273, closing #758.
+- **Hefty Pots and perfumes join DLC curated filler.** Crafted finished pots, aromatics, and the
+  smaller throwable pots arrive in useful quantities; reusable vessels stay out. World: #846,
+  closing #843.
+- **A capped reusable pot no longer blocks every later delivery.** The safety cap still suppresses
+  the impossible bottle but advances past the permanent refusal. Client: clients#272.
+- **Leyndell's rune gate has an independent backstop.** Flags 105 and 182 are re-derived from
+  cumulative AP Great Runes, covering ordinary sends, server `/send`, reconnects, and mid-seed
+  upgrades. Client: clients#274.
+- **Checks observed across a death/load edge remain report debt until accepted.** Pickups, shops,
+  and sweeps no longer depend on one transient frame surviving transport. Client: clients#276,
+  closing #720.
+- **Dragon Communion and Bayle checks cost one unit of their currency.** World: #835, closing #231.
+- **Small-seed Scadutree supply survives tail trimming.** World: #848.
+- **Smaller fixes:** Cliffroad's shadowpot stays in Gravesite (#839); the wizard stops advertising a
+  frozen surface mode (#840); release bundles keep their requested name instead of inheriting
+  `shoplineup_flags.json` through PowerShell's case-insensitive `$Name` (#847).
+
+
+### Progressive Flask upgrades alternate instead of doubling up
+
+Every Progressive Flask Upgrade used to move both axes at once: charges climbed on an escalating
+schedule and potency rose by one Sacred Tear on the same copy, so each upgrade was two half-things.
+Copies now alternate deterministically -- charge, potency, charge, potency.
+
+The first copy takes you to **five** total charges, one above the vanilla starting allocation of
+four, so it can never be silently absorbed by a fresh character; the old ladder opened below that
+allocation, which made the first upgrade or two invisible by construction. Each later charge copy
+advances one more observable step until the vanilla cap. Potency is still one consumed Sacred Tear
+spent at a grace, now on even copies only.
+
+Each copy therefore carries half as much, so the ladder is twice as long: a seed with no kept Golden
+Seed or Sacred Tear check (`dlc_only`, or a `num_regions` seed that seals every flask region)
+injects **24** copies instead of 12, which is what both axes need to reach their caps. A seed with
+fewer copies tops out honestly below potency 12 rather than pretending otherwise. Flasks never gate
+logic, so either way the seed is winnable.
+
+Closes #798. Client: clients#263 -- an alternating ladder needs explicit no-op rungs to keep its copy
+index, so `progressiveGrants` now accepts a `{"noop": true}` rung. That is a new rung shape on an
+existing key, so `CONTRACT_HASH` does not move; a client without clients#263 loses the index.
+
+### Filler pays out the quantity the source lot actually carried
+
+A vanilla lot holding one arrow was being promoted into the curated quiver's stack, and a lot holding
+twenty was being flattened to the base item. Curated bundles now ride their own `<name> x<n>` AP ids
+while vanilla-placed items keep the exact units their source lot carried -- that separation is what
+lets a vanilla x1 Arrow stay x1 while a curated Arrow stays a quiver. `LOT_STACK_GRANTS` covers every
+quantity a source lot actually carries, not just the phase-1 slice.
+
+The curated-filler weights are re-derived on top of that, because the old ones were compensating for
+copies the world was discarding. **`stones` drops from 29 to 5 and `juice` rises from 42 to 66.**
+Weight 29 was paying for 288 stone copies that never survived; at the real units, `stones: 4` puts
+five of nine sample seeds under the 24-unit floor and `stones: 5` clears it. The 24 freed points go
+to gear injection, which is the axis that can afford to give; small seeds that need the room have
+their useful tail picks trimmed by core's missable-location reserve rather than by a blunt weight.
+
+⚠️ If you have hand-tuned `curated_filler` in your yaml, re-read your numbers: the scale underneath
+them moved.
+
+Closes #624. The wizard's copy of the defaults follows in #831.
+
+### Blackout is a real trap now
+
+`Trap: Blackout` joins the catalogue: the screen fades out, holds dark for two seconds, and fades
+back in. It is the first of the eleven designed on 2026-08-08 (#114) to graduate from the probe
+list, and it graduated on the same rule as the others -- implemented, tested and CI-gated in the
+client before its name enters a pool.
+
+Unlike the three older fixed names, Blackout declares its own `blackout` client-capability tag.
+Those older names are exact-match and have never changed, so any released trap client fires them and
+requiring a tag would refuse clients that can in fact run the seed. Blackout is fixed *and* new, so a
+client in circulation would consume it silently. The tag is emitted only when a seed actually mints
+one.
+
+World: #824. Client: clients#265.
+
+### A scaling cap on a scaling-off seed stops demanding a client feature
+
+Setting `maximum_enemy_difficulty` below 100 declared the `scaling_ceiling` client capability even
+when `enemy_scaling` was off. The connect-time read-back then correctly reported the feature dark and
+went on to incorrectly blame a missing value that was in fact present. A cap modifies the scaling
+pass; with the pass disabled there is nothing for an older client to mishandle, so nothing is
+declared.
+
+Fixes #661.
+
+### Boss sweeps stop losing checks to a stronger region answer
+
+Region ownership and sweep ownership consume the same placement evidence, and the region pass could
+answer first and overwrite a row's MSB map, dropping the check out of the map-keyed sweep corpus
+entirely. `region_of` now preserves the MSB map on rows still carrying the scanner's `PENDING`
+placeholder, and leaves a concrete descriptor map alone -- that stays useful as independent evidence.
+
+World: #830.
+
+### Ancestor urns light up with the doors they belong to
+
+With the catacomb-door option on, both ancestor altars opened and their warps worked, but sixteen
+urns stayed dark, so the world told the player the encounters were still closed. Every instantiated
+urn flag is now set alongside the aggregate. They are presentation state, not randomized checks; the
+boss and its sweep are untouched.
+
+This reverses the earlier ruling that the individual flags stay dark in case the urns became a check
+family; #677's follow-up makes presentation part of what the option promises.
+
+World: #821.
+
+### Serpent-Hunter can no longer be hinted
+
+Serpent-Hunter is deliberately absent from the randomized pool -- the client grants it on entry to
+Rykard's arena -- and the server was charging hint points to search for it. It is now on the world's
+`hint_blacklist`, and asking for it in room chat gets an explanation instead of silence.
+
+World: #823. Client: clients#266.
+
+### The wizard's filler defaults match the world's again
+
+`options-metadata.json` and `wizard.html` still offered `juice: 42` / `stones: 29` after #828
+re-derived them. Refreshed, with the source hash following.
+
+World: #831.
+
+### The client's own half of this window
+
+- **Leyndell's seal reads both of its flags.** The physical two-rune seal checks 105 and 182.
+  Vanilla supplies 105 through Roundtable / Finger Reader progression and derives 182 from the
+  rune-location flags, and either half can be missing when AP supplies the runes and a random start
+  skips that sequence. Both are now derived from the same cumulative receive stream ordinary
+  deliveries and server `/send` use, and sit in `DesiredInputs` so the active reconciler self-heals
+  the write. Flags 171-177 are deliberately untouched: 171-176 are the randomized Great Rune
+  location flags and 177 is the same vanilla family. clients#260.
+- **A pending boss sweep no longer tells you which boss pays best.** A pending group's exact size is
+  routing information. The group and its state stay visible; `members` and `checked` do not, until
+  the sweep fires -- at which point the same numbers stop being a way to choose the next boss and
+  become confirmation of what happened. Hiding only `members` would have leaked the allocation
+  through the ordinary rows. clients#261, closing clients#160.
+- **An item that will not fit is retried, not swallowed.** A delivery blocked by inventory capacity
+  used to report success and vanish. `grant_full_id` now returns false for that arm, so the receive
+  path and the reconciler both hold their watermark and retry the same entry. A partially-fitting
+  stack defers whole rather than placing what fits, because placing one of three and retrying would
+  duplicate it. A warning line aggregates repeated deferrals so backpressure is visible without
+  per-tick spam. clients#262. Refs #692.
+- **Only Ashen-exclusive graces force the Ashen capital.** Selecting a capital grace forced the Ashen
+  version off whichever map variant the menu happened to be showing. Five of the six m11_05 graces
+  have Royal counterparts under the same name, so only the two Ashen-exclusive targets now write the
+  burn flag on; every shared grace and every other resolvable target chooses Royal. An unresolvable
+  target leaves the flag alone rather than guessing. clients#264.
+- **DeathLink can be toggled mid-session.** A session-scoped in-game toggle overrides what slot data
+  configured, until reconnect -- including opting a slot that parsed off back in. A kill queued
+  before the toggle is cleared rather than left waiting to surprise you when you opt back in;
+  cleanup already owed by a kill that fired still finishes. clients#267.
+
+### Previously undocumented -- these shipped in v0.4.6
+
+Rule 14's own failure mode, caught by an audit rather than by the gate: these landed inside the
+v0.4.6 window with no changelog line, so anyone who hit them is still looking for the fix. They are
+recorded here rather than retro-edited into a tagged section.
+
+- **Progressive stone bells stopped handing you a bearing the game refuses.** A copy granted both
+  the physical bell bearing and the Twin Maiden shop-unlock flags. Setting the flags *is* the
+  hand-in, so with the stock unlocked the game treats the bearing as already handed in and rejects
+  it as over-capacity. The ladder sets flags only; the goods ids (8951-8954 Smithing, 8955-8959
+  Somber) are gone from it. `progressiveGrants` was relaxed to match -- a rung may carry goods
+  and/or non-empty flags, and a flags-only rung must not declare `consumed`, which is meaningless
+  when there is nothing in inventory to reconcile. `CONTRACT_HASH` did not move and no client half
+  was owed: the client parser already defaulted `goods` to empty and dropped only fully-empty rungs.
+  World: #805, fixing #804.
+- **The Moonlight Altar grace left Liurnia's bundle.** It physically stands on Liurnia's tile
+  (`m60_34_41`) so the play-region join classified it as Liurnia, and the Liurnia Lock lit it -- a
+  shortcut around Lake of Rot and Astel, which is the route that owns access to the plateau. It now
+  belongs to no automatic bundle, and deliberately not to Ainsel's either, because that would still
+  skip Astel. Its physical checks stay in Liurnia. `gen_data.py` now fails the build if flag 76250
+  stops being "Moonlight Altar @ m60_34_41", so the exception cannot go stale silently. This is the
+  first **route-gated grace**, a category rather than a one-off. World: #793, closing #792, reported
+  by bobler 2026-08-17.
+- **The Carian Inverted Statue gate is modelled.** Nine checks behind Carian Study Hall's inversion
+  were swept by the ordinary-layout fight; those flags only exist after the statue changes the map,
+  so the sweep awarded inaccessible checks and bypassed the key gate. They are excluded by flag, so
+  co-checks such as `f34117500` leave together. The gate is in `key_item_gates.tsv` with its
+  datamine citation: the pedestal tests `PlayerHasItem(ItemType.Goods, 8111)` and removes the goods
+  after the cutscene, so a plain AP grant suffices and no obtained-event flag is owed. World: #787,
+  closing #653.
+- **There is a Development download channel.** `beta -> main` publishes as the GitHub prerelease tag
+  `dev`, a moving pointer, alongside `stable`, which still names an immutable `vX.Y.Z` tag. ⚠️ A
+  development build may ship without the AP flower override; when it does it carries a
+  `DEVELOPMENT-BUILD-NO-AP-ICON.txt` and every check and AP shop slot renders as a Telescope. The
+  packager accepts that opt-out only on an `--unofficial` build. World: #788.
+- **A rescue guide ships in the bundle.** `release/GETTING-UNSTUCK.md`, linked from `SETUP.md`: how
+  to open the rescue console (F5 -> Console), how to warp out of anywhere, and which flag to touch
+  for the progression edges that strand a character. It works while disconnected, which is when it
+  is needed. World: #780, closing #722.
+- **Item sell values are no longer rewritten for shop visibility.** `shop_value.rs` is gone, along
+  with the global param write it performed. Client: clients#250, closing #359.
+- **The wizard's progression surface has presets.** "Recommended", "Major bosses only" and the rest,
+  instead of 17 flat checkboxes. World: #784. Refs #733, which stays open for the containment
+  drawing.
+- **Talk-referenced goods are excluded from preview spares**, so a cut bell-bearing row cannot
+  produce a `?EventTextForTalk?` shop entry. World: #801, closing #596.
+- **Release-gated shops are barred from the advertised surface**, which changes the region-census
+  numbers the wizard shows before you generate. World: #783, closing #724.
+- **Scaling reads are correlated by instance** in the boss-fight probe and rescale watch -- the
+  instrument for clients#251, which stays open. Client: clients#252.
+
+### Cosmetic: the AP Flower works outside the shipped profile
+
+The packaged Mod Engine 3 profile already loaded the AP Flower. The Telescope reports came from
+other mod layouts that did not load our atlas override, so this was never an across-the-board icon
+failure.
+
+The discarded first attempt rebuilt FromSoftware's atlases on each player's machine and assumed a
+local texture toolchain. That path, and its short-lived in-client launch button, were reverted.
+Release bundles can instead carry the two authenticated prebuilt atlases, and the standalone Python
+installer copies them transactionally into Matt's randomizer data-mod root. It supports safe
+install, update, repair, and hash-checked uninstall; PowerShell is only a thin Windows launcher.
+Linux and Windows CI exercise the shipped entrypoints against a synthetic authenticated package.
+
+The runtime experiment still established that Elden Ring accepts the DFLT-repacked hi and low
+atlases and renders the Flower without runtime texture injection. Players do not need UXM,
+WitchyBND, Oodle, Pillow, or texconv for the packaged-asset installer.
+
+World: #819, #826, #856, #857. Client: clients#270 reverted by clients#282. Refs #818, #827.
+
 ## v0.4.6 — 2026-08-16
 
 Window opened AT the v0.4.5 tag (`4d96806`), with zero commits past it. That is the third window
@@ -29,6 +512,91 @@ repeated it. Client half: clients#246, gitlink bumped in the same commit (AGENTS
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
+### Altus opens at the lift, not inside two unrelated side entrances
+
+With `region_grace_unlock: entrance`, receiving the Altus Lock lit **Old Altus Tunnel** as the
+region-open flag and **Abandoned Coffin** as the entrance bundle. Bobler's playtest saw both. The
+two derivations independently chose their lowest numeric candidate, and neither candidate is the
+way into Altus from the Grand Lift.
+
+Both now resolve to **Altus Plateau** (`76301`), the lift-side grace. The same ruling is carried
+through the landmarks tier so the three grace tiers remain nested: moving from landmarks to
+entrance removes warp points and never swaps one for a different one.
+
+Refs #641.
+
+### Ainsel and Stormveil open at their real front doors
+
+The entrance tier now grants **Ainsel River Main** for the Ainsel River component instead of
+requiring a grace already present in generated region data. Stormveil now owns Margit, his tunnel
+entrance, and the Divine Tower approach, keeping boss sweeps in the same region as the boss that
+fires them. The generated client region table follows the same boundaries.
+
+The first client integration lost Stormveil's Divine Tower runtime bucket during a merge; a focused
+follow-up restored it before release.
+
+World: #803, #807. Client: clients#253, clients#257.
+
+### Metyr's quest is logic now, not a free bell at spawn
+
+The run used to force the Finger Ruins of Dheo bell flag at spawn to make Metyr reachable without
+Jagged Peak. Loading the ruins then awarded its check automatically, and the forced flag bypassed
+the Hole-Laden Necklace the real bell requires.
+
+Both existing bell checks now describe ringing their respective bell and require the necklace.
+When both regions are live, Metyr additionally requires access to Scadu Altus and Jagged Peak,
+matching the two bells that open her throne, and neither bell is forced. If Jagged Peak is sealed,
+its absent check costs nothing and Dheo alone is supplied so Scadu Altus does not contain an
+impossible Metyr check. Neither bell check can ride an unrelated boss's filler sweep.
+
+Closes #665.
+
+### Missable checks stop eating useful gear by default
+
+The 285 checks that can disappear behind a spent currency, a killable NPC, or questline state used
+to protect only required progression. They could still consume useful weapons, spells, spirit ashes,
+crystal tears, and other build-defining rewards. The default now leaves only filler at those checks.
+
+The setting is now an explicit three-level choice: `off`, `progression` (the previous behaviour), or
+`progression and useful` (the new default). Existing YAML booleans remain meaningful: `false` is off
+and `true` selects the new default. A seed whose pool cannot supply enough eligible filler is refused
+with a specific option error instead of silently switching the protection off.
+
+Closes #582.
+
+### Great Rune goals now mean any four of seven
+
+The Great Rune ending previously defaulted to two and turned the option into a seed-selected named
+checklist. Holding the requested number of different Great Runes could therefore fail to finish the
+run. It now defaults to four and counts any four distinct Great Runes from the full seven-rune pool;
+no particular rune is mandatory. The slot contract exposes the full eligible set and the required
+count separately so the client reports and enforces the same rule.
+
+Fixes #813.
+
+### The client enforces the same Great Rune and capital rules
+
+Great Runes received through Archipelago now count toward Leyndell's two-rune seal, and the ending
+counter counts any required number of distinct runes from the full eligible set rather than a named
+prefix. Divine Tower altar flags are disarmed before an AP rune is delivered, preventing the game
+from granting a duplicate vanilla rune when its tower later loads.
+
+The capital reconciler now applies the complete world state: it selects Ashen Capital, sets the
+world-burn state, clears the pre-burn state, and preserves that choice while an asynchronous warp
+still reports the stale source capital. This fixes both the capital warp race and front-door grace
+state that could otherwise regress on reconnect.
+
+Client: clients#248, clients#254, clients#255, clients#256, clients#258.
+
+### Grace rescue commands are pasteable and data-independent
+
+`!grace` now resolves names against the live `BonfireWarpParam`, including valid graces absent from
+the generated seed tables, and prints a pasteable `!warp <entity>` command. Parser aliases, console
+help, and the overlay all use the same command registry, so the documented rescue syntax cannot
+drift from what the client accepts.
+
+Client: clients#247.
+
 ### Rakshasa no longer rings a Finger Ruins bell for you
 
 Killing Rakshasa could grant the Cerulean Seed Talisman +1 check from the Finger Ruins of Rhia.
@@ -39,6 +607,21 @@ That reward is no longer in Rakshasa's sweep, and logic now requires the necklac
 itself. This also clears the concrete bypass that blocked the ruled Metyr logic model in #665.
 
 Closes #664.
+
+### Cross-game progression now includes required Great Runes
+
+`cross_game_progression` previously routed only released Region Locks. Required Great Runes and
+legacy keys were progression too, but the strict surface prefill removed them first and locked them
+into their owner's world; Archipelago's later balancing pass can only move advancement that is
+already foreign. Bobler's seven local Great Runes exposed the gap: five were useful and could be
+local by chance, but the two required by his goal were local by construction.
+
+With a non-zero cross-game share, non-Lock advancement now joins released Locks in the stage-wide
+placement pass. The candidate order is shuffled before the foreign quota is sliced so leading Locks
+cannot consume the entire share merely because they were constructed first. A zero share preserves
+the old local-surface treatment for runes and keys.
+
+Closes #811. Corrects the diagnosis, but not the underlying observation, in #808.
 
 ### The CI test suite uses both runner cores
 
@@ -279,6 +862,18 @@ version-lockstep and a v0.4.3 client still handshakes with a v0.4.4 seed. Verifi
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
 the release).
 
+### Altus opens at the lift, not inside two unrelated side entrances
+
+With `region_grace_unlock: entrance`, receiving the Altus Lock lit **Old Altus Tunnel** as the
+region-open flag and **Abandoned Coffin** as the entrance bundle. Bobler's playtest saw both. The
+two derivations independently chose their lowest numeric candidate, and neither candidate is the
+way into Altus from the Grand Lift.
+
+Both now resolve to **Altus Plateau** (`76301`), the lift-side grace. The same ruling is carried
+through the landmarks tier so the three grace tiers remain nested: moving from landmarks to
+entrance removes warp points and never swaps one for a different one.
+
+Refs #641.
 ### Four pairs of trousers are no longer major bosses
 
 `MajorBoss` is one of the classes the default progression surface confines this world's own

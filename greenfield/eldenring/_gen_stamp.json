@@ -1,24 +1,24 @@
 {
   "counts": {
-    "filler_pool": 229,
-    "item_catalog": 2330,
-    "locations": 5212,
+    "filler_pool": 249,
+    "item_catalog": 2362,
+    "locations": 5047,
     "regions": 28,
-    "sweeps": 218
+    "sweeps": 211
   },
-  "inputs_hash": "sha256:75b40281956c1f26eb8c8bffb983c90994e7d3ebccd151b0ecb2735f2438224e",
+  "inputs_hash": "sha256:fdfb8d552763e26d2308747c96163bd4b953e70eb60a87d70ff5f336b5df72df",
   "modules": {
-    "boss_data.py": "sha256:6cf8277dbf62e8eaff7ccfa429272b8e06bfd331c25c4412cf77bf2873584cd8",
-    "boss_sweeps.py": "sha256:60c1bf1972ea13a3fa8c5261677227a584f20b5dcae3592e2edf408cec421216",
-    "data.py": "sha256:2102115d2043ca74322a63b4089882c868b51966cd8736d21175c7dbee1910bc",
-    "item_ids.py": "sha256:44307f71eef6bf243c0998e463442d367c50cdcc0c4f6ea0e30f8b5198c4de3c",
-    "item_tiers.py": "sha256:0dcbee81c78a75bc74ab4dc1bf3eab8abd92a5d37c96891e3b584c38d377c308",
-    "location_tags.py": "sha256:e7bb670f6657b9bf398ae82c241310df65366a98bf8035334031ee08ab127b6c",
-    "missable_locations.py": "sha256:e6df650b5e9c4b934e8248485cecdd6847462d4ac6baa5e9c95df7a1ab7341ca",
-    "region_graces.py": "sha256:c05213ab42c305477c073b36bddd8abeed32724cc76ba67ad6fd84c25318243c",
-    "region_open_flags.py": "sha256:e578ed7958e74bafc78ef41eefe5a5a44836f859c231d2ac240168708ce81687",
-    "region_play_ids.py": "sha256:62dfe20157c3260a6f91e218526c10d34e84f062908eed36e59a5ca0978a1a75",
-    "shop_data.py": "sha256:2dea2784430d0d1702a10dcbf7962e1d260649e644fd4e7694b51484428622b6",
-    "spawn_trap_data.py": "sha256:0596c56d4c6dfa1ee20c524feebece696b65b976aeb98e2dda2d7a7a27105e53"
+    "boss_data.py": "sha256:19701b6467e1376fa7ac59c040cd7a4cb7dabd57175b4ef1a86ad3f7d7583078",
+    "boss_sweeps.py": "sha256:f724040c0e1a521dfdb068b476fe99b6357c58d8b116186b27f6fc3f9d6b39c9",
+    "data.py": "sha256:1add59b7ff6b743afac5eefd8b0d64b49dd634bea49a354392c4ee39146526a6",
+    "item_ids.py": "sha256:d73014acf03ea5638054fc56814138597a6c0c775ef82ac3ab1e577a24bde350",
+    "item_tiers.py": "sha256:a985145ca9f804e351315443cb95047c36b9ff11a8b120cc81b2d21c8b0315ea",
+    "location_tags.py": "sha256:3b023b4891cb456f5487b792c8ab5041aa4624cd8b639bf8ca4faf44f2899f4f",
+    "missable_locations.py": "sha256:2a52d9abb2a3e858d12b299932496f41cf129c6efd5fa6688a5ab6138b4885be",
+    "region_graces.py": "sha256:3136ac240578949742a38f9ac544717c7049305d64ddcdf3a99ae5d0c4de94c9",
+    "region_open_flags.py": "sha256:94796534b8c5d12d8299c810f78775a32160f7219928ea11fba2f0a448ee3469",
+    "region_play_ids.py": "sha256:3fda008c36d8e0a5dcbfa12a3dd1998ff5b5012644d4a16d3b2ab259bc9bcf50",
+    "shop_data.py": "sha256:4a23a810e0b3b05e1a257bd1d1939698cf752a75b497246f84c0e16da16f347c",
+    "spawn_trap_data.py": "sha256:1979567ffba029e59176478d83fc163315c8b9a8fbfbe613fd49bcdea6cb40f1"
   }
 }

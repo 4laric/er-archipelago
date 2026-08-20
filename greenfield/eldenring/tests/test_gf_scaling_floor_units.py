@@ -383,17 +383,40 @@ class TestSlotDataUnits:
         assert nested == scaling_ladder.ceiling_multiplier(50)
         assert _ceiling_tier(nested) == round(50 / 100 * top) < top, "the cap must actually cap"
         # ...and the seed must TELL the client, or an old one would ignore the cap in silence.
-        assert sd.get(contract.REQUIRES_CLIENT_FEATURES) == ["scaling_ceiling"]
+        assert sd.get(contract.REQUIRES_CLIENT_FEATURES) == ["armor_bundles", "scaling_ceiling"]
 
     def test_an_uncapped_seed_demands_nothing_of_the_client(self):
         """Default seeds must connect to ANY client. The handshake is a cost you pay only when you
         opt into the thing that costs it -- otherwise it is a compatibility break for everyone."""
         from worlds.eldenring import contract
         sd = self._slot_data(0)
-        assert contract.REQUIRES_CLIENT_FEATURES not in sd, (
-            "an uncapped seed declared a client requirement it does not have")
+        assert sd.get(contract.REQUIRES_CLIENT_FEATURES) == ["armor_bundles"], (
+            "an uncapped shuffled seed should demand only its armour-bundle client support")
         assert sd["options"]["completion_scaling_ceiling"] == scaling_ladder.SCALING_HP_LADDER[-1], (
             "uncapped must still EMIT the key, as the top rung -- presence must not carry meaning")
+
+    def test_a_cap_on_a_scaling_off_seed_demands_nothing(self):
+        """world#661: a modifier cannot require support when its parent pass is disabled."""
+        WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
+        from worlds.eldenring import contract
+
+        class _T(WorldTestBase):
+            game = GAME
+            options = {
+                "num_regions": 0,
+                "enemy_scaling": False,
+                "maximum_enemy_difficulty": 50,
+            }
+
+        t = _T()
+        t.setUp()
+        try:
+            sd = t.world.fill_slot_data()
+        finally:
+            t.tearDown()
+        assert sd["options"]["completion_scaling"] == 0
+        assert "scaling_ceiling" not in sd.get(contract.REQUIRES_CLIENT_FEATURES, []), (
+            "a scaling-off seed declared a modifier the client cannot arm")
 
     def test_an_inverted_floor_and_ceiling_is_refused_at_generation(self):
         """CONTRIBUTING's headline gate: an incompatible combination fails at options-validation with

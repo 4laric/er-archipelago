@@ -71,14 +71,27 @@ KNOWN_MISMATCHES = {
     # have taken a Region Lock the player could never reach (#680, off Alaric's own tracker).
     # gen_data._REGION_CONFIRMED_FLAGS now sends it to Scadu Altus beside every other m41_01 check,
     # which is where the grace join said it belonged all along.
-    (400036, "Mohgwyn", "Limgrave"),
-    (400401, "Raya Lucaria Academy", "Caelid"),
+    # REMOVED 2026-08-19 (the full-census regen), and this time the reason is the INPUT changing
+    # under them: both mismatches were manufactured by stale coordinate attributions the refreshed
+    # item_grace_coords no longer reproduces (400036 was placed at The First Step, 400401 at
+    # Redmane Castle Plaza; their regenerated descriptors now read Palace Approach Ledge-Road and
+    # Church of the Cuckoo). Both are no_coord/UNMEASURED today -- no longer accused, not proven.
+    #   (400036, "Mohgwyn", "Limgrave"),
+    #   (400401, "Raya Lucaria Academy", "Caelid"),
+    #
+    # ADDED 2026-08-19: D's quest family (Bell Bearing + the Twinned set), assigned to the HUB
+    # where the handover happens, datamined at his m60_44_39 field station. The HUB is in scope in
+    # EVERY seed, so this can never strand a check -- an open attribution question, zero
+    # reachability risk.
+    (400349, "Roundtable Hold", "Limgrave"),
 }
 
-# One tile (m61_47_44) carries two buckets in two regions, so the join CANNOT say which one this
-# check stands in. It is reported as ambiguous and stays that way: a tile-level join guessing at a
-# 3-D volume is exactly the `tile_pr()` failure CONTRIBUTING opens with.
-KNOWN_AMBIGUOUS = {(2047457180, "Scadu Altus")}
+# EMPTIED 2026-08-19: 2047457180's region flipped Scadu Altus -> Gravesite in the full-census
+# regen (one of nine ground-truth corrections), and Gravesite is one of its m61_47_44 tile's two
+# bucket regions -- the record now AGREES instead of straddling. The set stays declared so the
+# next genuine tile ambiguity has a ledger to enter (the mechanism note it entered under: one tile,
+# two buckets, two regions; a tile-level join must not guess at a 3-D volume).
+KNOWN_AMBIGUOUS = set()
 
 # Floor for the measured subset, so the audit cannot quietly stop looking at most of the corpus.
 RESOLVED_FLOOR = 2400
@@ -141,10 +154,77 @@ class CheckGroundRegions(unittest.TestCase):
         missing = sorted(g for g in grounds if not BENIGN_GROUNDS.get(g))
         self.assertEqual(missing, [], "benign ground(s) with no recorded reason: %r" % missing)
 
+    def test_sweep_anchored_class_is_exactly_the_ruled_corpus(self):
+        """The SWEEP-ANCHORED verdict (#885) may only excuse what a ruling covers.
+
+        The class exists for the Golden Hippopotamus: his 48 measurable m21_00 members stand on
+        Shadow Keep ground (bucket 21000) and present as Scadu Altus, the arena bucket the fight is
+        fought from -- a RULING (Alaric 2026-08-19), not a mis-attribution, and every one of them is
+        obtainable from Scadu Altus alone by killing him. Three witnesses keep the class honest:
+
+          * every record's trigger must be in tools/check_ground_regions.RULED_SWEEP_ANCHORS --
+            a new trigger reaching this class without its ruling being written down is a FAIL;
+          * every record's ASSIGNED region must equal that trigger's arena region (the excusing
+            mechanism itself, re-asserted from the outside);
+          * the corpus is pinned EXACTLY. It moves only when item_grace_coords coverage or the
+            Hippo's membership moves, and the bump must say what the extra one IS
+            (er-sandbox-regen lesson: bumping a pin to green is only honest then).
+        """
+        from tools.check_ground_regions import RULED_SWEEP_ANCHORS
+        recs = self.a["sweep_anchored"]
+        self.assertTrue(recs, "WITNESS: the sweep-anchored class is empty -- the #885 corpus should "
+                              "be here; an empty class means the join or the ruling table broke")
+        triggers = {rec[5] for rec in recs}
+        self.assertLessEqual(
+            triggers, set(RULED_SWEEP_ANCHORS),
+            "sweep-anchored record(s) from a trigger with NO written ruling: %r"
+            % sorted(triggers - set(RULED_SWEEP_ANCHORS)))
+        self.assertEqual(triggers, {21000850},
+                         "the ruled corpus changed shape -- a trigger was added or the Hippo's "
+                         "members vanished: %r" % sorted(triggers))
+        regions = {rec[1] for rec in recs}
+        self.assertEqual(regions, {"Scadu Altus"},
+                         "a sweep-anchored check is assigned a region other than its trigger's "
+                         "arena: %r" % sorted(regions))
+        # 2026-08-19 (#330 merged under #885): 88 -> 48. The Hippo sweep shrank from 108 to 58
+        # members because exactly 50 worldless Rada Fruit flags left the location corpus; all 50
+        # removed members are in gen_data._RADA_WORLDLESS and no non-Rada member left. Of the 58
+        # retained members, these 48 have coordinates that let this partial ground audit measure
+        # them. This is source removal, not a looser SWEEP-ANCHORED predicate.
+        self.assertEqual(
+            len(recs), 48,
+            "the Hippo's measurable sweep-anchored corpus moved (was 48 after #330). Fine if "
+            "item_grace_coords.tsv coverage or his membership changed -- say which check(s) and "
+            "why, then re-pin.")
+
+    def test_sites_elsewhere_is_the_relocating_merchant_class(self):
+        """The 2026-08-19 verdict for a multi-site check NONE of whose sites ground in its region.
+
+        Every member is a RELOCATING NPC's shop/drop row -- assigned to the FIRST station by the
+        merchant-ESD ground truth, datamined only at LATER stations (Bernahl at Volcano Manor and
+        the Hold, Sellen at the academy and the Hold, the Kale-family rows one tile over). The
+        assignment is unwitnessed, not contradicted: the missing datum is the first station's
+        coordinates, and promoting these to MISMATCH would accuse rows the ESD corpus places
+        correctly. Pinned by count so the class cannot quietly absorb a real defect: a NEW entry is
+        either a relocating NPC (re-pin with the name) or a mis-assignment wearing this class's
+        clothes."""
+        recs = self.a["sites_elsewhere"]
+        self.assertTrue(recs, "WITNESS: the class is empty -- the relocating-merchant rows should "
+                              "be here; an empty class means the join or the corpus moved")
+        single = [r for r in recs if "/" not in r[3]]
+        self.assertEqual(single, [],
+                         "SINGLE-site record(s) entered sites_elsewhere -- those are plain "
+                         "mismatches: %r" % single[:3])
+        self.assertEqual(
+            len(recs), 76,
+            "the sites-elsewhere corpus moved (was 76: Bernahl/Sellen/Kale-family rows). Name the "
+            "new/departed rows and their NPC before re-pinning.")
+
     def test_ground_audit_coverage_is_stated_out_loud(self):
         """The screen knows it is partial, so it says so on a GREEN run."""
         a = self.a
-        resolved = len(a["agree"]) + len(a["benign"]) + len(a["mismatch"]) + len(a["ambiguous"])
+        resolved = (len(a["agree"]) + len(a["benign"]) + len(a["sweep_anchored"])
+                    + len(a["mismatch"]) + len(a["ambiguous"]) + len(a["sites_elsewhere"]))
         unmeasured = len(a["no_coord"]) + len(a["no_bucket_row"])
         self.assertGreaterEqual(
             resolved, RESOLVED_FLOOR,

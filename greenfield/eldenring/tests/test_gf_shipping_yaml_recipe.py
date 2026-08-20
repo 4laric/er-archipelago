@@ -2,8 +2,9 @@
 
 THE BUG THIS EXISTS FOR, and it shipped. `release/EldenRing.yaml` carried a literal recipe of
 `juice: 44 / stones: 27`. The default in `features/filler_curation.py` had moved to `juice: 42 /
-stones: 29` -- a MEASURED change: at stones 27, three of nine seeds fell under the 24-stone +3
-affordability floor, and 29 "clears with a point of margin, which is what ships".
+stones: 29`, but the template kept overriding it. The recipe was re-derived again after #624
+restored real lot quantities: stones 4 leaves the median at 23, below the affordability floor;
+stones 5 clears it.
 
 An explicit yaml value OVERRIDES the default. So every player generating from the shipped template
 was getting the economy that had just been measured broken, while the code, the tests and the wizard

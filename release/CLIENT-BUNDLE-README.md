@@ -15,7 +15,16 @@ the contract is at the bottom of this file.
 1. Install **me3** (link above). It launches the retail exe; you do **not** need UXM or modified
    game files. If you have previously UXM-patched Elden Ring, restore vanilla files first.
 2. Unzip this folder anywhere.
-3. (Optional) Put your server details in `apconfig.json`:
+3. Run Matt's randomizer, then run `powershell -ExecutionPolicy Bypass -File
+   .\install-ap-flower.ps1 -Destination <randomizer-folder>`. It copies the authenticated hi/low
+   overrides from `flower-package` into the folder Matt actually loads. It never downloads tools,
+   unpacks Elden Ring, or writes into the stock game. Restart Elden Ring after installing.
+
+   On Linux/Proton, run `python3 ./install_ap_flower.py --destination <randomizer-folder>`.
+   Existing unowned atlas mods are refused unless you deliberately pass `--replace-existing`,
+   which backs them up for a later `--uninstall`. If automatic detection cannot find Matt's output,
+   an interactive run asks for the folder; non-interactive use must pass `--destination`.
+4. (Optional) Put your server details in `apconfig.json`:
    ```json
    { "url": "archipelago.gg:12345", "slot": "YourName", "password": "" }
    ```
@@ -23,7 +32,7 @@ the contract is at the bottom of this file.
    different for every room -- it is only `38281` if you are running the
    server yourself, at `localhost:38281`.
    Leaving it blank is fine -- the client shows a connect form in-game.
-4. Launch:
+5. Launch:
    ```
    me3 launch --profile "<path to this folder>\ap.me3"
    ```
@@ -32,6 +41,10 @@ Start a **new character**. Launched with `ap.me3` as above, the game writes to a
 (`AP_me3.sl2`), so your normal saves are not touched. That comes from the profile's `savefile` line
 rather than from the client, so it only holds for this launch path -- load the dll through another
 loader (matt's randomizer, say) and your Archipelago character goes into your ordinary save.
+
+For a standalone ModEngine2 or randomizer output instead of me3, point the installer at that loose
+file root: `.\install-ap-flower.ps1 -Destination "<folder containing regulation.bin>"`. To remove
+only files created by this installer, rerun it with the same destination and `-Uninstall`.
 
 ## What is in the folder
 
@@ -42,7 +55,9 @@ loader (matt's randomizer, say) and your Archipelago character goes into your or
 | `apconfig.json` | server / slot / password. Blank is valid. |
 | `check_lots_table.json` | **vanilla suppression.** See below. |
 | `shoplineup_flags.json` | **shop check detection.** See below. |
-| `ap-package/` | cosmetic icon override (optional) |
+| `install-ap-flower.ps1` | thin Windows launcher for the packaged-asset installer |
+| `install_ap_flower.py` | authenticated, transactional installer for Windows and Linux/Proton |
+| `flower-package/` | release-only manifest plus complete hi/low AP Flower overrides; may be absent from dev bundles |
 
 **Both JSON tables are derived from the game's own params -- game data, not seed data.** That is why
 one static copy works for every apworld and every seed. Keep them next to the DLL.

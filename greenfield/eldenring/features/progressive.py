@@ -43,11 +43,11 @@ Ships three independent toggles (progressive_flasks default ON; the others defau
   - Progressive Stone Bells -> "Progressive Smithing-Stone Miner's Bell Bearing" (4 tiers) and
     "Progressive Somberstone Miner's Bell Bearing" (5 tiers). Ported from the matt-based apworld
     (SPEC-PARITY: ProgressiveItems stone_bells). The Kth copy sets the Twin Maiden ShopLineupParam
-    eventFlag_forStock values for that rung -- setting the flag IS the shop unlock, no hand-in and
-    no physical bearing grant. Granting both representations makes the game reject the bearing as
-    already handed in (live playtest 2026-08-17, #804).
+    stock flags for that rung AND its shared release flag -- setting both halves is the shop unlock,
+    with no hand-in and no physical bearing grant. Granting both representations makes the game
+    reject the bearing as already handed in (live playtest 2026-08-17, #804).
     Flags verified against vanilla_er/ShopLineupParam.csv (Twin Maiden shop 1018xx: item 10100 ->
-    flag 280080, etc.). 1 copy of each is forced to sphere 0 (generate_early -> early_items) so the
+    stock 280080, tier release 11109751, etc.). 1 copy of each is forced to sphere 0 so the
     upgrade ramp opens at the start; the rest distribute normally. Copies past the last tier are
     silent no-ops client-side (the k < tiers guard). The VANILLA bell bearings SUBSTITUTE to the
     progressive item exactly as the flask checks do (vanilla_substitutions), so the pool cannot hold
@@ -139,8 +139,8 @@ _GOODS_LADDERS: Dict[str, List[int]] = {
 # potency item-id swap CTD'd on death (ER mirrors flask tier across the inventory entry, the equipped/
 # quickslot reference, AND the global GaItem; death's flask-refill crashed on the half-updated state,
 # playtest 2026-07-19). Granting a tear and upgrading at a grace touches every mirror the vanilla way.
-# The "potency" field below is therefore DOCUMENTATION ONLY (kept accurate = min(rung, 12), one tear
-# per copy); the client takes potency from the ledgered tears, not this ladder.
+# The "potency" field below is therefore DOCUMENTATION ONLY (kept accurate to the even-copy
+# schedule); the client takes potency from the ledgered tears, not this ladder.
 #
 # The deceleration the old design inherited from the vanilla cost table is baked into the ladder's
 # escalating charge-step weights below.
@@ -161,8 +161,8 @@ FLASK_POTENCY_TEAR_COST: List[int] = [1] * 12                        # vanilla t
 # at 12): potency is granted as one consumed Sacred Tear per copy, so a rung MUST NOT advance potency
 # by more than 1 (a +2 rung would need 2 tears at one copy = 2 ledger entries at one stream index = the
 # batching the consumed-goods ledger forbids). See flask_ladder() -- potency is computed directly as
-# min(rung, 12), NOT distributed through _cum_levels like charges.
-FLASK_CHARGES_BASE = 2
+# min(rung//2, 12), NOT distributed through _cum_levels like charges.
+FLASK_CHARGES_BASE = 4
 FLASK_CHARGES_MAX = 14
 FLASK_POTENCY_MAX = 12
 _CHARGE_STEP_WEIGHTS: List[int] = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]   # 12 steps (2 -> 14), escalating
@@ -171,9 +171,8 @@ _POTENCY_STEP_WEIGHTS: List[int] = list(FLASK_POTENCY_TEAR_COST)          # 12 f
 # When NO Golden Seed / Sacred Tear check is kept (dlc_only, or a num_regions seed that seals every
 # flask region), there are no substituted PROG_FLASK copies -- so inject a fixed count of copies and
 # build a ladder that maxes by the last rung. 12 copies: one Sacred Tear per copy needs 12 copies to
-# reach potency 12, and the escalating charge schedule reaches 14 at rung 12 -- so both axes fully max
-# exactly at copy 12 (ladder length == copies == DLC_ONLY_FLASK_COPIES).
-DLC_ONLY_FLASK_COPIES = 12
+# reach potency 12 under an alternating schedule. Twenty-four copies fully max both axes.
+DLC_ONLY_FLASK_COPIES = 24
 
 
 def _flasks_on(world) -> bool:
@@ -273,9 +272,9 @@ def flask_ladder(world) -> List[Dict[str, int]]:
     """The flaskLadder wire: [{"charges", "potency"}, ...], one rung per PROG_FLASK copy. Monotonic
     non-decreasing. CHARGES reaches FLASK_CHARGES_MAX at the last rung (the client reconciles the flask
     charge target via a direct write). POTENCY climbs a flat +1 per rung capped at FLASK_POTENCY_MAX
-    (= min(rung, 12)) and is DOCUMENTATION ONLY -- the client sets potency from the ledgered Sacred
-    Tears granted in progressiveGrants, one tear per copy. With the normal >=12 copies (full seed, or
-    dlc_only's fixed 12) the last rung is (FLASK_CHARGES_MAX, FLASK_POTENCY_MAX); with fewer than 12
+    (= min(rung//2, 12)) and is DOCUMENTATION ONLY -- the client sets potency from ledgered Sacred
+    Tears on even copies. With the normal >=24 copies (full seed, or dlc_only's fixed 24) the last
+    rung is (FLASK_CHARGES_MAX, FLASK_POTENCY_MAX); with fewer than 24
     copies potency honestly tops out below 12 (fewer tears granted). Deterministic (closed-form;
     world.random not needed) and cached on the world so create_items and slot_data agree."""
     cached = getattr(world, "gf_flask_ladder", None)
@@ -285,14 +284,19 @@ def flask_ladder(world) -> List[Dict[str, int]]:
     if n <= 0:
         world.gf_flask_ladder = []
         return []
-    # CHARGES: escalating-weight schedule reaching FLASK_CHARGES_MAX at the last rung (client direct
-    # write). POTENCY: a flat +1 per rung capped at FLASK_POTENCY_MAX -- computed directly, NOT through
-    # _cum_levels, because potency is granted as ONE consumed Sacred Tear per copy (a +2 rung would need
-    # 2 tears at one stream index = the batching the ledger forbids). Potency here is documentation only
-    # (the client takes potency from the ledgered tears), but it is kept accurate = min(rung, 12).
-    charge_lv = _cum_levels(n, _CHARGE_STEP_WEIGHTS)
-    ladder = [{"charges": FLASK_CHARGES_BASE + c, "potency": min(rung, FLASK_POTENCY_MAX)}
-              for rung, c in enumerate(charge_lv, start=1)]
+    # Alternating ruling (#798): odd copies advance CHARGES, even copies grant +1 POTENCY. Derive
+    # both cumulative targets from the copy ordinal so reconnect/retry cannot shift the sequence.
+    # The first charge target is 5, one above the vanilla starting allocation of 4; it can therefore
+    # never be silently absorbed by a fresh character. Each later scheduled charge advances one more
+    # observable step until the vanilla cap. Potency is one consumed Sacred Tear on each even copy.
+    charge_copies = (n + 1) // 2
+    charge_targets = [min(FLASK_CHARGES_BASE + ordinal, FLASK_CHARGES_MAX)
+                      for ordinal in range(1, charge_copies + 1)]
+    ladder = []
+    for copy in range(1, n + 1):
+        charges = charge_targets[(copy - 1) // 2]
+        potency = min(copy // 2, FLASK_POTENCY_MAX)
+        ladder.append({"charges": charges, "potency": potency})
     world.gf_flask_ladder = ladder
     return ladder
 
@@ -348,24 +352,28 @@ def vanilla_substitutions(world) -> Dict[str, str]:
     return subs
 
 # ---- progressive stone-bell grant ladders (shop-unlock flags only) ----------------------------
-# Setting the flag(s) IS the shop unlock (no hand-over to the Twin Maidens needed). Do not also
-# grant the corresponding physical bearing: once its stock flags are set, Elden Ring treats the
-# bearing as already handed in and refuses it as over-capacity (#804). Flags verified against
-# vanilla_er/ShopLineupParam.csv (each stone bell tier unlocks two stone material tiers, except
-# Somber [5] which unlocks one).
+# Setting the flags IS the shop unlock (no hand-over to the Twin Maidens needed). Do not also grant
+# the corresponding physical bearing: once its shop flags are set, Elden Ring treats the bearing as
+# already handed in and refuses it as over-capacity (#804).
+#
+# EACH RUNG NEEDS BOTH PARAM GATES. ShopLineupParam.eventFlag_forStock unlocks the individual rows;
+# eventFlag_forRelease makes that bearing's shelf EXIST in the menu. The first implementation set
+# only the stock flags, so receipts reconciled forever without the stones appearing. Values below
+# are read from vanilla_er/ShopLineupParam.csv block 1018: two stock flags + one shared release flag
+# per tier, except Somber [5], which has one stock row.
 _BELL_GRANTS: Dict[str, List[Dict[str, Any]]] = {
     PROG_SMITHING_BELL: [
-        {"flags": [280080, 280090]},  # Smithing Stone [1],[2]
-        {"flags": [280110, 280120]},  # Smithing Stone [3],[4]
-        {"flags": [280140, 280150]},  # Smithing Stone [5],[6]
-        {"flags": [280160, 280170]},  # Smithing Stone [7],[8]
+        {"flags": [280080, 280090, 11109751]},  # Smithing Stone [1],[2]
+        {"flags": [280110, 280120, 11109752]},  # Smithing Stone [3],[4]
+        {"flags": [280140, 280150, 11109753]},  # Smithing Stone [5],[6]
+        {"flags": [280160, 280170, 11109754]},  # Smithing Stone [7],[8]
     ],
     PROG_SOMBER_BELL: [
-        {"flags": [280180, 280190]},  # Somber [1],[2]
-        {"flags": [280200, 280210]},  # Somber [3],[4]
-        {"flags": [280230, 280240]},  # Somber [5],[6]
-        {"flags": [280250, 280260]},  # Somber [7],[8]
-        {"flags": [280280]},          # Somber [9]
+        {"flags": [280180, 280190, 11109755]},  # Somber [1],[2]
+        {"flags": [280200, 280210, 11109756]},  # Somber [3],[4]
+        {"flags": [280230, 280240, 11109757]},  # Somber [5],[6]
+        {"flags": [280250, 280260, 11109758]},  # Somber [7],[8]
+        {"flags": [280280, 11109759]},          # Somber [9]
     ],
 }
 
@@ -439,11 +447,11 @@ _BELL_ITEMS = (PROG_SMITHING_BELL, PROG_SOMBER_BELL)
 
 class ProgressiveFlasks(Toggle):
     """On (default): every Golden Seed and Sacred Tear check pays out a single "Progressive Flask
-    Upgrade" item instead, one-for-one. Each copy raises your flask on two axes: CHARGES climb on an
-    escalating schedule the client applies directly, and POTENCY rises by granting you a Sacred Tear
-    that you spend at a grace the vanilla way -- so upgrades arrive on a steady cadence instead of a
-    pile of silent flat pickups. Off: seeds and tears stay discrete pickups at their shuffled
-    locations. Flasks never gate logic, so either way the seed is always winnable."""
+    Upgrade" item instead, one-for-one. Copies alternate deterministically: Charge, then +1 potency,
+    then Charge, then +1, continuing in that order. The first copy visibly raises total charges above
+    the vanilla starting allocation; +1 copies grant a Sacred Tear to spend at a grace. Off: seeds
+    and tears stay discrete pickups at their shuffled locations. Flasks never gate logic, so either
+    way the seed is always winnable."""
     display_name = "Progressive Flasks"
     default = 1
 
@@ -518,10 +526,14 @@ class Progressive(Feature):
         # in-place potency item-id swap CTD'd on death against the half-updated mirrors (playtest
         # 2026-07-19); granting a tear + a grace upgrade is the proven safe path.
         if name == PROG_FLASK:
-            # POTENCY axis: one consumed Sacred Tear per copy, FLASK_POTENCY_MAX rungs (12). No flags.
-            # Copies past rung 12 overflow to a Lord's Rune client-side (existing behavior -- fine).
-            return [{"goods": _GOOD_SACRED_TEAR | _GOODS_NIBBLE, "flags": [], "consumed": True}
-                    for _ in range(FLASK_POTENCY_MAX)]
+            # Keep one progressiveGrants rung per pool copy so the tier ordinal is the authoritative
+            # schedule. Odd copies are explicit no-ops here (their charge effect rides flaskLadder);
+            # even copies grant exactly one consumed Sacred Tear until potency caps.
+            return [
+                ({"goods": _GOOD_SACRED_TEAR | _GOODS_NIBBLE, "flags": [], "consumed": True}
+                 if copy % 2 == 0 and copy // 2 <= FLASK_POTENCY_MAX else {"noop": True})
+                for copy in range(1, flask_copy_count(world) + 1)
+            ]
         if name in _BELL_GRANTS:
             return [{"flags": list(e["flags"])}
                     for e in _BELL_GRANTS[name]]
@@ -569,7 +581,7 @@ class Progressive(Feature):
         # progressiveGrants = {item_name: [{"goods": FullID, "flags": [...], "consumed": bool}, ...]}.
         # Empty {} when no progressive toggle is on. Stonesword keys carry empty flags (spend-at-seal
         # goods); stone bells carry the Twin Maiden shop-unlock flags per rung (set = unlock). PROG_FLASK
-        # IS INCLUDED: its POTENCY axis is 12 consumed Sacred Tears (the player upgrades potency at a
+        # IS INCLUDED: its POTENCY axis is consumed Sacred Tears on even copies (the player upgrades potency at a
         # grace the vanilla way, which updates every flask mirror safely). Its CHARGES axis rides the
         # SEPARATE flaskLadder wire below (a reconciled leveled state, direct write). The flask appearing
         # in BOTH wires is intentional and non-overlapping (tears != charges): the old in-place potency

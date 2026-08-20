@@ -1,0 +1,137 @@
+# v0.4.8 — release blurb (draft)
+
+_Draft. Written as the window fills, not at tag time -- the moment a change lands is the
+only moment anyone remembers why it mattered._
+
+## What changed at the table
+
+**The ending is now two choices instead of one bundled choice.** Great Runes are one axis: require
+the configured count, or do not. Regions are the other: require their Lock items, require every
+region's checks to be completed, or do not require regions at all. That makes Great Runes-only runs
+possible, while the existing held-Locks default remains unchanged for old YAMLs.
+Required progression is also hard-barred from questline Patches, Enia, and the Twin Maidens now:
+excluding those shops from the preferred surface was not enough when an item spilled back into
+Archipelago's general fill. Ordinary wandering merchants can still carry it.
+
+**Progressive Flask Upgrades stop doing two things at once.** Each copy used to nudge charges *and*
+hand you a Sacred Tear, which made every upgrade two half-upgrades, neither of which felt like
+anything. They alternate now: charge, potency, charge, potency, in that order, every time. The first
+copy puts you at five total charges -- one above what a fresh character starts with -- so you can see
+it land. The old ladder opened below the vanilla allocation, so the first upgrade or two were
+invisible by construction.
+
+The trade is that a copy is worth half what it was, so the ladder is twice as long. Seeds that inject
+flask copies because they kept no Golden Seed or Sacred Tear check -- `dlc_only`, or a `num_regions`
+seed that seals every flask region -- now inject 24 instead of 12, which is what it takes to max both
+axes. Fewer than that and your potency honestly tops out below 12 instead of the ladder pretending
+otherwise. Flasks never gate logic, so as before, either way the seed is winnable.
+
+**Your filler is going to look different, and it is because the old numbers were lying.** A vanilla
+lot holding one arrow was being promoted into the curated quiver's twenty; a lot holding twenty was
+being flattened back to one. Both are fixed -- a curated bundle and a vanilla pickup are separate
+items now, so each pays what it should. What that exposed is that the curated weights had been tuned
+*against* the loss: `stones: 29` was paying for 288 smithing stone copies the world threw away before
+you ever saw them. At the real quantities, five does the same job. The 24 points that frees go into
+`juice` -- gear injection -- which climbs from 42 to 66.
+
+So: fewer stone *entries*, the same stones in your hands, and noticeably more actual gear in the
+filler pool. ⚠️ If you have hand-tuned `curated_filler` in your yaml, this is the release to re-read
+your numbers, because the scale underneath them moved. Tiny one-region seeds also keep the promised
+somber-stone floor when that recipe share initially rounds to zero, rather than silently losing an
+upgrade tier.
+
+**There is a new trap, and it turns the lights off.** `Trap: Blackout` fades your screen out, holds
+it dark for two seconds, and fades it back. It is the first of the eleven traps designed on
+2026-08-08 to graduate from the probe list, and it graduated the only way anything gets into that
+catalogue -- somebody confirmed it works in a real game. Add it to `traps` if you want it. A seed
+that mints one asks your client whether it knows the name, so an older client is refused up front
+rather than silently eating the item.
+
+**The client got quieter about things it should not tell you, and louder about things it should.** A
+pending boss sweep no longer publishes its member count, because that count is a map of which boss
+pays best; the numbers come back the moment the sweep fires, when they are confirmation instead of
+routing. An item that will not fit in your inventory is now retried instead of reported delivered and
+dropped on the floor. DeathLink has an in-game toggle that lasts the session. Leyndell's two-rune
+seal reads both flags it actually checks, and Ashen/Royal warps now follow the selected target's real
+map version instead of guessing from a shared grace name. Logs always land beside the client DLL.
+And if `RandomizerHelper.dll` is actually co-loaded, AP now refuses to start with a direct explanation
+instead of connecting into the known state where item delivery is broken.
+
+**Smaller things you might notice.** Both ancestor altars light every urn when the catacomb-door
+option opens them, instead of opening the warp while sixteen dark urns insist the encounters are
+closed. Serpent-Hunter can no longer be hinted -- the client hands it to you at Rykard's arena, so
+the server was charging you points to search for something that was never in the pool, and asking
+now gets an explanation. And a seed with `enemy_scaling` off no longer demands a scaling feature from
+your client that it has nothing to do with, which was producing a connect message that reported the
+feature dark and then blamed a value that was right there.
+
+**Armor sets stop eating a short seed alive.** One randomized item delivers the whole family,
+altered pieces included, while reconnects fill only missing members. Exact duplicate weapons, both
+trick mirrors, and Sacrificial Twigs stop consuming scarce pool slots too.
+
+**Quest items can stay ordinary without locking their own quests.** Cursemark cannot land on
+Fortissax, and direct prerequisite rules protect the Needle, Valkyrie, Fingerslayer, Favor, and Dark
+Moon chains while leaving those items filler everywhere else.
+
+**TrapLink is here when you ask for it.** ER traps can cross the multiworld; self-echoes and unknown
+names are ignored, and DeathLink remains separate.
+
+**The useful consumable tail got heavier.** DLC Hefty Pots, perfumes, and smaller throwable pots
+arrive in useful quantities. Dragon Communion and Bayle altar checks cost one unit of their currency.
+
+**Several missing-item reports were receive edges.** A permanent pot cap no longer jams all later
+deliveries, death-edge checks stay queued until the server accepts them, and Leyndell's rune seal has
+an independent cumulative backstop—including server `/send` and mid-seed upgrades.
+
+**Progressive stone bells now stay local when requested and open the shelves they promise.** The
+progressive replacements inherit `keep_local: [upgrade_bells]`, and each rung sets both the stock and
+release flags used by the Twin Maidens. Receiving a tier therefore makes its stones visible without
+trying to hand you a duplicate physical bell bearing.
+
+**The AP flower already worked in the profile we shipped; this release makes it survive other
+mod layouts.** The Telescope is the game's original image in icon cell 92, so it appeared when the
+AP texture override was not being loaded—not across the board. Players launching through our
+packaged Mod Engine 3 profile already had the override and saw the Flower. The gap showed up for
+people running outside that profile, including Matt's randomizer layouts, where the atlas was not
+installed into the directory the game actually loaded.
+
+The first attempt to close that gap tried to rebuild the atlases on each player's machine. That
+assumed access to unpacked game files and turned a small compatibility install into a local texture
+toolchain, so we backed that approach out. Release bundles can instead carry authenticated, prebuilt
+atlases, with a standalone installer that can target Matt's randomizer layout. The short-lived
+in-client button was reverted with the obsolete builder path; installation is an explicit bundle
+step. Players do not need UXM, WitchyBND, Oodle, an image library, or a texture compressor.
+
+The runtime experiment still settled the technical question that had stalled the alternate-layout
+support: Elden Ring accepts the DFLT-repacked atlases, both icon sheets load, and the Flower renders
+without runtime texture injection. What changed afterwards was how those atlases reach layouts
+outside the profile that already worked.
+
+## What carried into v0.4.8
+
+**Ten changes that shipped in v0.4.6 had no changelog line, and they are written down in this
+window's section instead.** Two of them matter enough to repeat here. Progressive stone bells were
+granting the physical bell bearing alongside the shop-unlock flags, and since setting the flags *is*
+the hand-in, the game refused the bearing as already handed in -- fixed 2026-08-17, findable as of
+now. And the Moonlight Altar grace left Liurnia's bundle: it stands on Liurnia's tile but is reached
+from Ainsel after Lake of Rot and Astel, so the Liurnia Lock was handing out a shortcut around the
+route that owns it.
+
+That is rule 14's own failure mode, and it was caught by an audit rather than by the gate.
+`check_release_notes` asks whether the open version has a section; it never asks whether the section
+accounts for the window's commits, which is why it stayed green through v0.4.6 at 13 entries for 28
+merged PRs and this window at one for ten. Comparing merged PR numbers against the numbers cited in
+the section, with an explicit allowlist for the deliberately internal ones, is the missing half --
+tracked in #709, which filed exactly this for the client side of the v0.4.3 window.
+
+🛑 And one thing is still owed, unchanged for four windows because it is not ours to write: **Elden
+Ring Tarnished Edition ships 2026-08-28** and a paid content update moves the executable version.
+v0.4.4 shipped the gate that explains that failure to a player instead of a Rust backtrace, but the
+RVA table it reports against lives in a third-party crate, so the recovery is an upstream revision
+plus a rebuild -- see #241. That is ten days out. It lands in this window.
+
+## For whoever writes the real one
+
+The v0.4.3 blurb is the model: lead with what changed at the table, not with the option name. Its
+opening line -- "You can get BK'ed now, and that is the point" -- says what a player will feel before
+it says what was built, and that is the right order.

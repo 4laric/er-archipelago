@@ -34,6 +34,10 @@ from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E
 #     corpus and never had a sweep to lose.
 GRAFTED_SCION = 10010800          # boss_healthbars: ('m10_01', 'm10_01', 'legacy', 'Grafted Scion')
 SCION_OWN_DROP_AP = 7773886       # Ornamental Straight Sword, f510030 -- a normal check, must SURVIVE
+GOSTOC_BELL_AP = 7773806           # f400051, MSB-placed in m10_00 while its source map was PENDING
+# (7773843 -> 7773808 on 2026-08-19, #330; 7773808 -> 7773821 same day, full-census regen: +10
+#  restored m21_02 Rada rows and +3 other insertions ahead of it. Flag-verified both times -- the
+#  stale pin was even OWNED by a Liurnia trigger, the exact wrong-check-same-id trap.)
 
 
 def test_the_tutorial_boss_grants_no_sweep():
@@ -43,19 +47,31 @@ def test_the_tutorial_boss_grants_no_sweep():
         % (len(DUNGEON_SWEEPS.get(GRAFTED_SCION, [])), SWEEP_REGION.get(GRAFTED_SCION)))
 
 
+def test_msb_placed_pending_map_check_reaches_its_dungeon_sweep():
+    """#562: a stronger region answer must not erase the map used by the sweep consumer."""
+    owners = [trigger for trigger, members in DUNGEON_SWEEPS.items() if GOSTOC_BELL_AP in members]
+    assert len(owners) == 1
+    assert SWEEP_REGION[owners[0]] == "Stormveil"
+
+
 def test_no_stormveil_sweep_is_keyed_on_a_non_stormveil_boss():
-    """The general form: a sweep may only be paid by a boss that lives where the checks live."""
+    """The general form: a sweep may only be paid by a boss that lives where the checks live.
+
+    m34_10 is the deliberate exception: its Divine Tower runtime bucket is Stormveil even though
+    its grace geography is Limgrave (#202, Alaric ruling 2026-08-17). m10_01 remains the bad fold
+    this test was created to catch.
+    """
     from worlds.eldenring.boss_healthbars import BOSS_HEALTHBARS
     wrong = []
     for flag, region in SWEEP_REGION.items():
         if region != "Stormveil":
             continue
         info = BOSS_HEALTHBARS.get(flag)
-        if info and not info[0].startswith("m10_00"):
+        if info and info[0] not in ("m10_00", "m34_10"):
             wrong.append((flag, info[0], info[3]))
     assert not wrong, (
-        "a Stormveil sweep is keyed on a boss outside m10_00: %s. m10_01 is the intro map and rides "
-        "Stormveil's bucket; it is not IN Stormveil." % wrong)
+        "a Stormveil sweep is keyed outside Stormveil's approved m10_00/m34_10 maps: %s. m10_01 "
+        "is the intro map and rides Stormveil's bucket; it is not IN Stormveil." % wrong)
 
 
 def test_the_scions_own_drop_is_untouched():
@@ -458,8 +474,36 @@ def test_the_sweep_corpus_did_not_shrink():
     # legacy pool with Rakshasa (trigger 2051440800), an unrelated fight reachable without the
     # necklace. The check stays obtainable at the bell; only the gate-bypassing convenience award
     # is gone. ADDED 0, RE-OWNED 0.
-    assert total == 4033, (
-        "sweep corpus is %d, expected 4033. If a sweep was legitimately added or removed, say WHY "
+    # -1 (2026-08-17, #665): 4033 -> 4032. Retagging BOTH bell interactions as KeyItem generalises
+    # #664's Rhia exclusion and also removes Dheo (flag 2050407000) from Bayle's filler sweep. The
+    # two removals are now the same policy: a necklace-gated quest action is not filler an unrelated
+    # boss may grant. Rhia was already absent, so this stack removes only Dheo. ADDED 0, RE-OWNED 0.
+    # +89 (2026-08-18, #562): 4032 -> 4121. MSB placement was already the authority for 59 checks'
+    # regions, but region_of returned before copying that same known map onto rows whose scanner map
+    # was PENDING. The map-keyed sweep consumer therefore could not see them. Recording the MSB map
+    # adds 59 physical flags plus 30 co-check siblings, removes 0, and re-owns 45 existing flags.
+    # Verified by (trigger, flag): all 59 additions are swept inside their location region and all
+    # 45 re-owned flags stay inside their previous region. Gostoc's bell above is the motivating case.
+    # -124 (2026-08-19, #330): 4121 -> 3997. The worldless Rada Fruit rows left the corpus with
+    # their locations (gen_data._RADA_WORLDLESS): 55 rows no datamine can place in the world plus
+    # 69 m21 bundle-stack rows (up to 12 flags on ONE physical corpse) -- the boss sweep was the
+    # ONLY real award path these ever had, which is exactly why they must not be checks. Measured
+    # by (trigger, flag): every removed pair's flag is in the exclusion set; the same measurement,
+    # with the divvy re-phase it triggered, is recorded at the OWNERSHIP digest below.
+    # +106 (2026-08-19, the full-census regen): 3997 -> 4103. The doubled MSB census gave real
+    # maps to checks the sweeps could never see: the 10 restored m21_02 Rada corpses, the 4 Royal
+    # fillers un-orphaned by the Ashen-twin fold (11007215/11007820/11007860/11007900 back with
+    # Morgott), the 4 dungeon cookbooks admitted by method (68000/68660/68680/68700), Midra's 3,
+    # Cerulean's 8, and the divvy growth those re-deals pulled in. Measured by (trigger, flag):
+    # 239 removed / 339 added / 237 re-owned; exactly ONE re-own crosses a region boundary --
+    # f2047457180, whose REGION itself flipped Scadu Altus -> Gravesite in the same regen (one of
+    # the nine ground-truth corrections), so its sweep followed its check.
+    # 2026-08-19: main's #896 pin was 3997; the full census (+placed rows) then the
+    # worldless-singles cull (-85 sweep-slotted flags) lands at 4018. Cull delta measured by
+    # (trigger, flag): 387 removed (85 the cull itself, the rest the divvy re-phase it
+    # triggered) / 300 added / 304 re-owned, and ZERO re-ownerships cross a region boundary.
+    assert total == 4100, (  # +73 (2026-08-20, #907): every admissible boss OWN drop joined its own trigger's sweep
+        "sweep corpus is %d, expected 4100. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -624,6 +668,30 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 34110800. No member was added or re-owned, so this is the narrow gate-bypass correction.
     # 2026-08-17 (#664): 1755ba16 -> 1f01b69f, 4034 -> 4033. REMOVED only: Rhia bell reward
     # 2053467600 left Rakshasa's sweep. No member was added or re-owned.
-    assert (digest, n) == ("1f01b69f616530ea", 4033), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (1f01b69f616530ea, 4033). The total alone will "
+    # 2026-08-17 (#665): 1f01b69f -> 79ccf39c, 4033 -> 4032. REMOVED only: Dheo bell reward
+    # 2050407000 left Bayle's sweep when both bell interactions became KeyItem checks.
+    # 2026-08-18 (#562): 79ccf39c -> 394aa604, 4032 -> 4121. ADDED 59 physical flags and 30
+    # co-check siblings, REMOVED 0, RE-OWNED 45; zero additions or re-ownerships cross a region.
+    # This is the intended recovery of checks whose MSB-derived map was known but not recorded.
+    # 2026-08-19 (#330): 394aa604 -> 3ca932cb, 4121 -> 3997. The 124 worldless Rada Fruit rows left
+    # (gen_data._RADA_WORLDLESS; the corpus ratchet above carries the WHY). Measured by
+    # (trigger, flag) in flag-pair space: 644 removed / 519 added / 522 re-owned -- large because
+    # the 124 sat in MANY divvy pools (legacy map-local, region round-robin, AND m61 field slices),
+    # and every pool that shrinks re-phases `_ents[_j % len(_ents)]` for its whole membership
+    # (#363's stable-modulus effect, at its widest observed). Every removed pair's flag is in the
+    # exclusion set; exactly ONE re-own crosses a region boundary and in the SAFE direction --
+    # f21027991 (m21_02, Shadow Keep ground) moved from m61 trigger 2050470800 onto the Golden
+    # Hippopotamus, i.e. INTO its own region's map-local sweep.
+    # 2026-08-19 (#885, rebased after #330): 3ca932cb -> f3b8f3f3, count UNCHANGED at 3997.
+    # Measured in (trigger, flag) multiset space: 28 removed / 28 added, with 25 flags changing
+    # owner. The churn itself moves no flag between differently-labelled owner regions. Separately,
+    # the Hippo sweep's region label changes Shadow Keep -> Scadu Altus, and all 58 members it now
+    # owns are Scadu Altus checks -- the intended arena-region ruling, not a cross-region grant.
+    # 2026-08-19 (full-census regen): f3b8f3f3 -> 606018dc, 3997 -> 4103. The corpus ratchet above
+    # carries the measurement; the one region-crossing re-own (f2047457180) follows its check's own
+    # region correction, the safe direction.
+    # 2026-08-19 (census + cull on top of #896's 89fbf395/3997): -> a57ff5e1/4018. Measurement at
+    # the corpus ratchet above; zero region-crossing re-owns.
+    assert (digest, n) == ("ef50c12d40700ff6", 4100), (  # #907: 73 own-drop additions, zero removals/re-owns (measured by (trigger, flag))
+        "sweep OWNERSHIP changed: (%s, %d), expected (ef50c12d40700ff6, 4100). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

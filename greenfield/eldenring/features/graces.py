@@ -117,13 +117,13 @@ def _bundle_for(region, flags, tier):
             if missing:
                 raise ValueError(f"{region}: component entrance grace(s) absent from bundle: {missing}")
             return list(component_graces)
-        return [entrance_grace(flags)]
+        return [entrance_grace(flags, region)]
     if tier == "landmarks":
         picks = [f for f in REGION_GRACE_LANDMARKS.get(region, ()) if f in flags]
         # An absent/stale landmarks table must not silently degrade to a thinner OR fatter bundle:
         # fall back to the entrance (the one answer we can always derive here) and say so.
         if not picks:
-            return [entrance_grace(flags)]
+            return [entrance_grace(flags, region)]
         return sorted(picks)
     return list(flags)
 
@@ -161,12 +161,25 @@ def bundle_withheld(world, region):
 # Liurnia -> Lake-Facing Cliffs, Weeping -> Church of Pilgrimage, Limgrave -> Church of Elleh,
 # Stormveil -> Gateside Chamber, Leyndell -> East Capital Rampart. test_gf_grace_entrance pins them.
 _OVERWORLD_LO, _OVERWORLD_HI = 76000, 77000
+# Human rulings where designer order is not traversal order. A pin must remain in the region's
+# emitted grace set; entrance_grace fails loudly if it goes stale.
+_ENTRANCE_GRACE_PIN = {
+    "Altus": 76301,          # Altus Plateau, at the Grand Lift; #641
+    "Ashen Capital": 71123,  # Leyndell, Capital of Ash; unambiguous post-burn entry; #853
+    "Haligtree": 71506,      # Haligtree Canopy; start of the physical descent; #861
+}
 
 
-def entrance_grace(flags):
+def entrance_grace(flags, region=None):
     """The one warp grace that IS the way into a region. `flags` must be non-empty."""
     if not flags:
         raise ValueError("entrance_grace() on an empty grace set -- callers must skip empty regions")
+    if region in _ENTRANCE_GRACE_PIN:
+        pin = _ENTRANCE_GRACE_PIN[region]
+        if pin not in flags:
+            raise ValueError("entrance grace pin %s for %s is absent from its grace set" %
+                             (pin, region))
+        return pin
     overworld = [f for f in flags if _OVERWORLD_LO <= f < _OVERWORLD_HI]
     return min(overworld) if overworld else min(flags)
 
@@ -329,6 +342,10 @@ class RegionGracesFeature(Feature):
         tier = _grace_tier(world)
         region_graces = {}
         grace_attunement = {}
+        from . import goal_locations as _gl
+        goal_choice = getattr(world, "gf_goal_choice", None)
+        goal_region = _gl.goal_region(goal_choice)
+        goal_entry = _gl.goal_entry_grace(goal_choice)
         for r, fs in REGION_GRACE_POINTS.items():
             if r not in kept or not fs:
                 continue
@@ -338,7 +355,18 @@ class RegionGracesFeature(Feature):
             # this one is intended.
             # gated child behind an armed wall: grant nothing, at every tier
             bundle = [] if bundle_withheld(world, r) else _bundle_for(r, fs, tier)
-            bundle, gate = _attune_split(world, r, bundle)
+            # `goal: malenia` is a route, not a boss warp. Handing the usual Haligtree bundle to
+            # the withheld goal lock would light Prayer Room / Roots and skip Loretta plus most of
+            # Elphael. Its goal spec therefore owns one entry grace and suppresses attunement for
+            # this bundle: Canopy is the whole grant, at every global grace tier.
+            if goal_entry is not None and r == goal_region:
+                if goal_entry not in fs:
+                    raise contract.ContractError(
+                        "goal %s entry grace %s is absent from %s's generated grace set"
+                        % (goal_choice, goal_entry, r))
+                bundle, gate = [goal_entry], None
+            else:
+                bundle, gate = _attune_split(world, r, bundle)
             if gate is not None:
                 grace_attunement[f"{r} Lock"] = gate
             region_graces[f"{r} Lock"] = bundle

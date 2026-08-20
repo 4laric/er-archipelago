@@ -30,7 +30,7 @@ REGION_PLAY_IDS = {
     'Haligtree': [15000],
     'Jagged Peak': [68410, 68500],
     'Leyndell': [11000],
-    'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 34100, 61000, 61010],
+    'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 61000, 61010],
     'Liurnia': [30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110, 39200, 62000, 62010, 62020],
     'Mohgwyn': [12050],
     'Mountaintops of the Giants': [30170, 30180, 30190, 30200, 31120, 31220, 32110, 65000, 65010, 65020, 65030],
@@ -41,7 +41,7 @@ REGION_PLAY_IDS = {
     'Sewer': [35000],
     'Shadow Keep': [21000, 21010, 21020, 69300],
     'Siofra River': [12020, 12070],
-    'Stormveil': [10000],
+    'Stormveil': [10000, 34100],
     'Weeping': [30000, 30010, 31010, 31020, 32000, 61020],
 }
 
@@ -71,7 +71,7 @@ SCALING_PLAY_IDS = {
     'Haligtree': [15000],
     'Jagged Peak': [68410, 68500],
     'Leyndell': [11000],
-    'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 34100, 61000, 61010],
+    'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 61000, 61010],
     'Liurnia': [30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110, 39200, 62000, 62010, 62020],
     'Mohgwyn': [12050],
     'Mountaintops of the Giants': [30170, 30180, 30190, 30200, 31120, 31220, 32110, 65000, 65010, 65020, 65030],
@@ -82,7 +82,7 @@ SCALING_PLAY_IDS = {
     'Sewer': [35000],
     'Shadow Keep': [21000, 21010, 21020, 69300],
     'Siofra River': [12020, 12070],
-    'Stormveil': [10000],
+    'Stormveil': [10000, 34100],
     'Weeping': [30000, 30010, 31010, 31020, 32000, 61020],
 }
 # Buckets PINNED to the FLOOR of the seed's ramp -- emitted as [pid, pid, 0] in every
@@ -93,4 +93,4 @@ SCALING_PLAY_IDS = {
 # always sufficient (the client cannot scale DOWN an enemy it cannot place).
 SCALING_FLOOR_PLAY_IDS = frozenset([10010, 11100, 18000])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:75b40281956c1f26eb8c8bffb983c90994e7d3ebccd151b0ecb2735f2438224e', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:62dfe20157c3260a6f91e218526c10d34e84f062908eed36e59a5ca0978a1a75'}
+_GEN_STAMP = {'inputs_hash': 'sha256:fdfb8d552763e26d2308747c96163bd4b953e70eb60a87d70ff5f336b5df72df', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:3fda008c36d8e0a5dcbfa12a3dd1998ff5b5012644d4a16d3b2ab259bc9bcf50'}

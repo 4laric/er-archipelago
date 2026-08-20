@@ -8,8 +8,9 @@ Cliffs* for Liurnia, or the option is built and pointed at the wrong grace.
 
 🛑 THE TWO NEARBY TABLES THAT LOOK RIGHT AND ARE NOT -- both were checked and rejected, and this
 file exists partly so nobody "simplifies" the derivation into one of them:
-  * REGION_OPEN_FLAGS is one flag per region and equals REGION_GRACE_POINTS[r][0] for all 30 -- but
-    it is a region-OPEN DETECTION anchor and resolves to cave interiors (Limgrave -> Murkwater Cave).
+  * REGION_OPEN_FLAGS is one flag per region and usually equals REGION_GRACE_POINTS[r][0] -- but it
+    is a region-OPEN DETECTION anchor and resolves to cave interiors (Limgrave -> Murkwater Cave).
+    Two explicit human rulings intentionally align the two tables: Altus and Ashen Capital.
   * BonfireWarpParam.bonfireSubCategorySortId sorts within the warp MENU's 55 subcategories, not our
     30 regions, so its per-region minimum TIES in 12 of 30.
 """
@@ -26,10 +27,12 @@ EXEMPLARS = {
     "Liurnia": (76200, "Lake-Facing Cliffs"),      # the literal way in from Stormveil
     "Limgrave": (76100, "Church of Elleh"),
     "Weeping": (76150, "Church of Pilgrimage"),
-    "Altus": (76300, "Abandoned Coffin"),
+    "Altus": (76301, "Altus Plateau"),         # lift-side entrance; #641
+    "Ashen Capital": (71123, "Leyndell, Capital of Ash"),  # unambiguous post-burn entry; #853
     "Gravesite": (76800, "Gravesite Plain"),       # where the DLC starts
     "Stormveil": (71003, "Gateside Chamber"),      # interior region: no 76xxx member at all
     "Leyndell": (71102, "East Capital Rampart"),   # interior
+    "Haligtree": (71506, "Haligtree Canopy"),      # top of the physical descent; #861
     "Raya Lucaria Academy": (71402, "Church of the Cuckoo"),
 }
 
@@ -38,7 +41,7 @@ def test_every_region_resolves_to_exactly_one_entrance():
     for region, flags in REGION_GRACE_POINTS.items():
         if not flags:
             continue
-        f = entrance_grace(flags)
+        f = entrance_grace(flags, region)
         assert f in flags, "%s: entrance %s is not one of the region's graces" % (region, f)
 
 
@@ -71,7 +74,7 @@ def test_the_named_exemplars_are_still_what_the_pipeline_picks():
         if region not in REGION_GRACE_POINTS:
             wrong.append("%s: region is gone from REGION_GRACE_POINTS" % region)
             continue
-        got = entrance_grace(REGION_GRACE_POINTS[region])
+        got = entrance_grace(REGION_GRACE_POINTS[region], region)
         if got != flag:
             wrong.append("%s: expected %s (%s), got %s" % (region, flag, name, got))
     assert not wrong, (
@@ -81,8 +84,8 @@ def test_the_named_exemplars_are_still_what_the_pipeline_picks():
         "numbers, which is how a regression gets laundered into a test." % wrong)
 
 
-def test_an_entrance_is_never_a_catacomb_anchor():
-    """The rejected REGION_OPEN_FLAGS table, asserted as rejected.
+def test_only_the_ruled_entrances_match_their_open_anchors():
+    """The rejected REGION_OPEN_FLAGS table stays rejected except for explicit human rulings.
 
     If someone swaps the derivation for `REGION_GRACE_POINTS[r][0]` (which IS REGION_OPEN_FLAGS, and
     is one line shorter) every test above would still need to fail loudly. It does: for the
@@ -90,10 +93,13 @@ def test_an_entrance_is_never_a_catacomb_anchor():
     from worlds.eldenring.region_open_flags import REGION_OPEN_FLAGS
     differing = [r for r in ("Limgrave", "Liurnia", "Caelid", "Altus", "Weeping")
                  if r in REGION_GRACE_POINTS
-                 and entrance_grace(REGION_GRACE_POINTS[r]) != REGION_OPEN_FLAGS.get(r)]
-    assert len(differing) == 5, (
+                 and entrance_grace(REGION_GRACE_POINTS[r], r) != REGION_OPEN_FLAGS.get(r)]
+    assert set(differing) == {"Limgrave", "Liurnia", "Caelid", "Weeping"}, (
         "the entrance rule has collapsed onto REGION_OPEN_FLAGS for %s. That table is a region-open "
         "detection anchor, not a front door -- it grants Murkwater Cave for Limgrave." % differing)
+    assert entrance_grace(REGION_GRACE_POINTS["Altus"], "Altus") == REGION_OPEN_FLAGS["Altus"] == 76301
+    assert (entrance_grace(REGION_GRACE_POINTS["Ashen Capital"], "Ashen Capital")
+            == REGION_OPEN_FLAGS["Ashen Capital"] == 71123)
 
 
 def test_empty_input_fails_rather_than_inventing_an_answer():

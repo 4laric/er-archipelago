@@ -79,7 +79,10 @@ NUMBERS_MOVE = ["filler_foreign_pct", "keep_local",
 # Real effects the card cannot COUNT (the rune cap's share of the runes category depends on which
 # rune items a seed contains). They must still change what the card SAYS -- silence is the failure
 # mode, not imprecision.
-TEXT_MOVES = ["keep_local_rune_cap"]
+# progression_bias joined 2026-08-20 (255's Discord question): the card's Region-Lock sentence
+# shipped as a CONSTANT claiming locks never travel while the option's default says they do.
+# Flipping the knob must now change the words -- prose meaning gated for the first time.
+TEXT_MOVES = ["keep_local_rune_cap", "progression_bias"]
 
 HARNESS = r"""
 const fs = require("fs");

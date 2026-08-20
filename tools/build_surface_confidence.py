@@ -35,7 +35,7 @@ THE BARS, and why each one disqualifies a check from hosting progression:
                     This is the softlock that put a Stormveil Lock on a Golden Seed (gen_data
                     _region_is_derived). THE bar this tool exists to price.
   missable          MISSABLE_LOCATIONS -- can be lost permanently, so it cannot be required. Counted
-                    while `protect_missable_locations` is armed (it is frozen ON).
+                    while `protect_missable_locations` bars progression (the default does).
   erdtree_burn      ERDTREE_BURN_APS -- m11_00 is destroyed when Maliketh dies. Barred unless the
                     capital reconciler is armed, so this tool reports it as a SEPARATE column rather
                     than folding it in: it is conditional, the others are not.

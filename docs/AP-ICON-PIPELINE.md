@@ -26,8 +26,10 @@ game data.** `gen_inputs.db` and the params are handled the same way.
     flower art (ours, committed)
             +
     <game>\menu\hi|low\01_common.tpf.dcx   (the player's own install -- never ours to redistribute)
+            +
+    <game>\oo2core_6_win64.dll   (the player's codec; discovered, never copied or packaged)
             |
-            v   tools/build_ap_icon.py --icon01 --icon-id 92 --black-to-alpha --bundles hi,low --menu "<game>\menu"
+            v   tools/build_ap_icon.py --icon01 --icon-id 92 --bundles hi,low --menu "<game>\menu"
     build\ap_icon01\menu\{hi,low}\01_common.tpf.dcx   (gitignored)
             |
             v   build.ps1
@@ -54,11 +56,22 @@ still ship telescopes.
 
 ## Open item
 
-The **source art has landed** (`tools/ap_icon_src/`, 2026-07-29). What is still missing is
-`tools/build_ap_icon.py` itself -- it exists only on the dev box. Until it is committed, `build.ps1`
-throws with instructions and `package_release.ps1` refuses to package. That is deliberate: the gap
-was previously invisible, and a build that quietly skipped the icon is how it stayed invisible.
+The old KRAK/runtime-splice fork is resolved. A 2026-08-17 live experiment proved that Elden Ring
+loads both `menu\hi\01_common.tpf.dcx` and `menu\low\01_common.tpf.dcx` when repacked as
+`DCX_DFLT`; the flower rendered without the AP client DLL or any KRAK override. The game atlas has
+one mip, so there is no hidden lower-mip splice to reconstruct.
 
-Two notes for whoever commits the tool, both recorded in `tools/ap_icon_src/README.md`: the art is
-not square (2034x2112) while SB_Icon cells are, and the documented `--black-to-alpha` flag looks
-wrong for this source, which already carries a real alpha channel.
+`build_ap_icon.py` therefore performs an installer-side derivation:
+
+1. read the hi and low KRAK source atlases from the player's installation;
+2. expose the player's own `oo2core_6_win64.dll` to Witchy for decompression;
+3. replace only icon 92 with the committed AP artwork;
+4. change Witchy's container manifest to `DCX_DFLT`, repack, and verify the output header says DFLT;
+5. stage the generated full atlases only under ignored build/package paths.
+
+Neither Oodle nor a generated atlas is copied into git or a release. Re-running starts from the
+installed source again and clears the intermediate extraction, so the result does not accumulate
+edits from an earlier build. Missing game files, Oodle, Witchy, the expected layout geometry, or a
+DFLT output are hard failures with actionable messages. The player does not need Pillow or texconv: the
+committed 25,600-byte BC7 payload is project-owned art, and the installer copies its aligned blocks
+directly into the one-mip BC7 surface.

@@ -133,7 +133,8 @@ CATEGORIES = {
     # wepType in {81 arrow, 83 greatarrow, 85 bolt, 86 ballista bolt} joined to the catalog. NEVER
     # name-derived -- "Honed Bolt" / "Vyke's Dragonbolt" / the Lightning-Strike family are INCANTATIONS
     # and several end in "Bolt". Members grant x20 (STACK_QTY_BY_CATEGORY) so a found arrow is a usable
-    # quiver; the stack rides slot_data itemCounts whether the ammo was curated or vanilla-placed.
+    # quiver. The curated bundle rides its own `Arrow x20` AP id; vanilla-placed ammo instead keeps
+    # the exact quantity carried by its source lot (#624).
     # Empty pre-regen (absent names are skipped, same as _dlc_pots).
     "ammunition": list(AMMO_ITEM_NAMES),
     # Boiled Prawn is crafted-only (not in the catalog until the Phase-2 regen mines it) -> added then.
@@ -189,7 +190,14 @@ RECIPE_KEYS = frozenset(_VALID_CATS) | {JUICE}
 # STACK quantities (grant size) by category -> emitted as slot_data itemCounts. Others default 1.
 # ammunition x20: a quiver per drop (Alaric 2026-07-14, "x20 all the ammunition drops"). Far under the
 # game's held caps (999 for basic ammo, 99 for special), so a stack can never overflow a grant.
-STACK_QTY_BY_CATEGORY = {"throwables": 5, "pots": 2, "firepots": 2, "greases": 2, "ammunition": 20}
+STACK_QTY_BY_CATEGORY = {
+    "throwables": 5,
+    "pots": 10,
+    "firepots": 10,
+    "greases": 2,
+    "ammunition": 20,
+    "perfumes": 10,
+}
 
 # Beloved junk -- never seized, always survives.
 FUNNY_JUNK = frozenset({"Raw Meat Dumpling", "Gold-Tinged Excrement"})
@@ -225,15 +233,22 @@ def stack_qty_by_name():
     return out
 
 
+def curated_stack_name(name):
+    """The AP item name for a curated bundle; vanilla source lots do not use this rule."""
+    qty = stack_qty_by_name().get(name, 1)
+    return "%s x%d" % (name, qty) if qty > 1 else name
+
+
 class CuratedFiller(OptionDict):
     """Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the
     categories in proportion to their weights -- they are relative, not percentages, and need not sum
     to anything. Categories: juice, junk_gear, stones, somber_stones, runes, throwables, pots,
     firepots, greases, ammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to
-    keep that share as whatever the check already paid. Stacks: throwables x5, pots x2, firepots x2, greases x2,
-    ammunition x20.
-    NOT off by default. The shipped recipe is juice 42 / stones 29 / somber_stones 6 / runes 10 /
-    throwables 6 / pots 4 / greases 3 / foods 2 / boluses 1, so roughly two fifths of a default seed's
+    keep that share as whatever the check already paid. Stacks: throwables x5, pots/firepots/perfumes
+    x10, greases x2, ammunition x20.
+    NOT off by default. The shipped recipe is juice 63 / stones 6 / somber_stones 6 / runes 10 /
+    throwables 6 / pots 4 / greases 3 / foods 2 / boluses 1 / perfumes 2. Perfumes take two points
+    from juice, so adding them does not increase the filler budget.
     filler tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --
     it warns loudly rather than silently reverting to vanilla junk.
     'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier
@@ -297,11 +312,17 @@ class CuratedFiller(OptionDict):
     # budget the stone weight is a share OF got smaller), and the NPC-handover corpus + the Fortissax
     # boss-arena tag barred ~35 more checks from carrying progression (so what remains is displaced
     # earlier). Either alone still cleared the floor; together they did not. MEASURED under the fix, 9
-    # seeds each: stones 27 -> [22, 23, 23, 29, 34, ...] median 34, THREE under the 24 floor; stones 28 ->
-    # clears; stones 29 -> clears with a point of margin, which is what ships. The juice weight pays for
-    # it (44 -> 42): gear injection is the thing that can afford to give, the upgrade curve is not.
-    default = {"juice": 42, "stones": 29, "somber_stones": 6, "runes": 10,
-               "throwables": 6, "pots": 4, "greases": 3, "foods": 2, "boluses": 1}
+    # Re-derived after #624 began paying the source lot's real units: stones 4 produces median 23
+    # with five of nine samples under the 24-unit floor; stones 5 clears. The former weight 29 was
+    # compensating for 288 stone copies the world discarded. Return those 24 points to juice; core's
+    # missable-location reserve trims useful tail picks only on the small seeds that need the room.
+    # #843 widens the grantable catalog with the 15 crafted-only Hefty Pots and six perfume goods.
+    # That changes the deterministic filler draw and puts stones 5 back below the same measured
+    # early +3 floor (median 23, six of nine under 24), so one juice point returns to stones. Two
+    # further juice points fund the new perfume share; total recipe weight remains 103.
+    default = {"juice": 63, "stones": 6, "somber_stones": 6, "runes": 10,
+               "throwables": 6, "pots": 4, "greases": 3, "foods": 2, "boluses": 1,
+               "perfumes": 2}
 
 
 @register

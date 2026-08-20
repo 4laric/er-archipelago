@@ -49,7 +49,7 @@ _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relat
 # 4932 -> 4931 (2026-08-07): the item-existence guard learned that FromSoft's cut-content marker
 # also appears as '[ERROR]<real name>', which retired f400081 (goods 8130, "[ERROR]Rya's
 # Necklace"). It was never a second necklace -- the real one is goods 8136 (f400300).
-BASELINE_TOTAL_LOCATIONS = 5212   # PREVIOUS: 4931 (#191 widened the co-check allowlist from 5 hand-verified families to the datamine_flag_lots policy: +281 sibling checks, each the same physical acquisition as its primary) # PREVIOUS: 4932 # PREVIOUS: 4916 # 4915 + 1: the Great Rune of the Unborn co-check (flag 197 lot 10181, #426): a co-check is the SAME physical acquisition as its primary and inherits its tags.
+BASELINE_TOTAL_LOCATIONS = 5047   # PREVIOUS: 5115 (#898). The full-MSB census places +9 more, then the worldless-singles cull removes 77 map-encoded ground-lot flags with no world reference in ANY corpus -- coords, census, scripted, #898 audited tiles, the flag-level EMEVD ruling -- under a zero-blind-map census (gen_data._WORLDLESS_SINGLES): 5115 + 9 - 77 = 5047
                                   # 4879 + 36 (unplaced common-event rows placed, 2026-08-04,
                                   # issue #249): rows filed `Global / Common-event (unplaced)` that
                                   # were never checks at all, so their item dropped VANILLA. Placed
@@ -422,8 +422,12 @@ if _HAVE_AP:
             #
             # ctx["FINALE_REGION"] is the live join's own verdict (None when off), so this asks
             # the static join the same question the world already answered.
+            # dlc_on rides the same seam as finale (see the block comment above): the DLC-gated
+            # hub shop rows (AzoTax, 2026-08-20) exist per-SEED, so the static join must be told
+            # the live join's verdict or the two differ by exactly those 36 on a no-DLC config.
             s_records, s_ctx, s_byname = live_cov.report_coverage(
-                kept=ctx["kept"], finale=ctx["FINALE_REGION"] is not None, printer=None)
+                kept=ctx["kept"], finale=ctx["FINALE_REGION"] is not None, printer=None,
+                dlc_on=ctx.get("dlc_on"))
             self.assertEqual(sorted(records), sorted(s_records),
                              "live and static joins disagree on the emitted location set")
 

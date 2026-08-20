@@ -152,11 +152,14 @@ Elden Ring:
   #   elden_beast      -- pin that pair explicitly. Forces no regions kept.
   #   promised_consort -- Promised Consort Radahn, the DLC's final boss, and
   #                       FORCE Enir Ilim kept.
+  #   malenia          -- Malenia alone. FORCE Haligtree kept, then grant only
+  #                       Haligtree Canopy: walk the full Loretta -> Elphael ->
+  #                       Malenia route instead of warping to a later grace.
   # Why you'd set it: on a full base+DLC seed `auto` ends at the Elden Beast and
   # the whole DLC is optional, so PCR can never become the goal by luck.
   # A choice your other options make impossible FAILS GENERATION rather than
   # quietly falling back (promised_consort needs the DLC in play; elden_beast
-  # needs the base game).
+  # and malenia need the base game).
   #
   # HOW YOU GET THERE (v0.3.7). Burning the Erdtree used to require killing
   # Maliketh in Crumbling Farum Azula, so the ending only existed on seeds that
@@ -220,31 +223,29 @@ Elden Ring:
   # not been playtested yet. On a base-game seed it is safe to try.
   global_scadutree_blessing: off
 
-  # What the goal requires.
-  #   region_locks  -- hold every Region Lock that is in play (default).
-  #   great_runes   -- ALSO collect goal_great_runes Great Runes. You must HOLD the
+  # Whether the goal also requires Great Runes (independent of the region policy below).
+  #   region_locks  -- compatibility spelling for no Great Rune requirement (default).
+  #   great_runes   -- collect goal_great_runes Great Runes. You must HOLD the
   #                    runes; killing the boss that vanilla-drops one is NOT enough
   #                    (they are shuffled -- the rune is not at its boss).
-  #                    It is a SPECIFIC SET, not any N. The seed picks which
-  #                    runes count and the others do not complete the goal, so
-  #                    holding the right NUMBER of the wrong runes sends no
-  #                    victory -- the run just never ends.
-  #                    WHICH ONES: the client NAMES them at connect. In the
-  #                    client log, look for the line
-  #                      goal: N item(s) must be HELD, not merely their boss
-  #                      killed: <the rune names>
-  #                    That list IS the requirement; you do not need the spoiler.
-  #                    The set is drawn at random from ALL SEVEN Great Runes,
-  #                    every one of which is in every seed's pool -- so any rune
-  #                    can be required, including Rykard's, and the draw does not
-  #                    change which ones are available (#640, #764).
+  #                    Any distinct Great Runes count. By default this means any
+  #                    four of all seven; no particular named rune is mandatory.
   ending_condition: region_locks
 
   # Only used when ending_condition is great_runes. Clamped down to the
   # Great Runes actually reachable this seed, so it can never make a seed
-  # unbeatable. This is a COUNT of a NAMED SET, not a free choice of any N --
-  # see ending_condition above for where the client prints the names.
-  goal_great_runes: 2
+  # unbeatable. This is a count over all seven eligible Great Runes.
+  goal_great_runes: 4
+
+  # What opens the final goal region (Ashen Capital, or the DLC goal terminus).
+  #   none              -- no region-side requirement; useful for Great Runes-only goals.
+  #   items_held        -- the existing behavior: hold every Region Lock in play.
+  #   regions_completed -- clear every progression-surface check in each required
+  #                        non-goal region. For shop checks, merely viewing the
+  #                        merchant's inventory counts; no purchase is required.
+  #                        Progress is restored when reconnecting.
+  # This is independent of ending_condition, giving six possible combinations.
+  goal_region_unlock_policy: items_held
 
   # Great Runes needed to get into Leyndell, ON TOP of the Leyndell Lock --
   # echoing the vanilla "two Great Runes to enter the capital".
@@ -366,6 +367,17 @@ Elden Ring:
   # Leyndell's checks.
   vanilla_placement: off
 
+  # What may be placed at the 285 checks that can be lost behind a spent
+  # currency, a killable NPC, or questline state.
+  #   progression_and_useful -- filler only (default): losing the check cannot
+  #                             take required progression or useful gear
+  #   progression            -- the old behaviour: protects winnability, but a
+  #                             useful weapon, spell, summon, or tear may be lost
+  #   off                    -- no protection; for guaranteed-access play
+  # Legacy booleans remain valid: true selects the new default, false selects off.
+  # The spelling `progression+useful` is also accepted.
+  protect_missable_locations: progression_and_useful
+
   # Recipe for the junk-consumable filler tail: {category: weight}.
   # Leave it alone unless you know what you want. Raising `juice` gives you more
   # genuinely useful drops; raising `stones` keeps upgrade materials flowing.
@@ -383,8 +395,8 @@ Elden Ring:
   # the gate exists so that cannot happen twice.) Delete the block entirely to
   # follow the default automatically.
   curated_filler:
-    juice: 42
-    stones: 29
+    juice: 63
+    stones: 6
     somber_stones: 6
     runes: 10
     throwables: 6
@@ -392,6 +404,7 @@ Elden Ring:
     greases: 3
     foods: 2
     boluses: 1
+    perfumes: 2
 
   # How many Sites of Grace a region unlock lights.
   #   all       (default) every warp point in the region -- Liurnia is 59 at once
@@ -844,6 +857,16 @@ Elden Ring:
   # connecting and quietly ignoring it.
   auto_equip: false
 
+  # Automatically raise any weapon that enters your bag -- an AP grant, a world
+  # pickup, or an item you put down with Leave and took back -- to the highest
+  # reinforce level you already hold on its smithing track (normal caps at +25,
+  # somber at +10). Raise-only and per-track. The put-it-down-pick-it-up gesture
+  # is the intended catch-up for a weapon received before you found your stones.
+  # ON by default -- the receipt half has been every seed's behaviour since v0.2;
+  # it became a setting (and gained the pickup half) in v0.4.10. Turn it off to
+  # keep weapons at their found level and spend the stones yourself.
+  auto_upgrade: true
+
   # Start with all five whetblades (Iron, Red-Hot, Sanctified, Glintstone,
   # Black), so every Ash-of-War affinity is selectable at any grace from the
   # opening instead of hunting the vanilla pickups. Grants the ITEMS only --
@@ -875,6 +898,10 @@ Elden Ring:
 
   # Shared deaths in a multiworld. Works in both directions.
   death_link: false
+
+  # Share locally received trap items with other TrapLink players. Incoming traps whose names this
+  # client does not recognize are ignored; linked traps never echo back onto the network.
+  trap_link: false
 
 
 # ============================================================================

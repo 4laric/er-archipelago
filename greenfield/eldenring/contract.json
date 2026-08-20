@@ -82,6 +82,17 @@
       "doc": "AP item id (str) -> ER FullID granted on receipt."
     },
     {
+      "name": "armorBundles",
+      "shape": "LISTVAL_INT_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/armor_bundles.py",
+      "consumer": "core.rs armor-bundle receive reconciler",
+      "doc": "synthetic armor-set AP item id (str) -> every protector FullID in its generated family."
+    },
+    {
       "name": "locationFlags",
       "shape": "SCALAR_INT_MAP",
       "required": true,
@@ -146,6 +157,17 @@
           "producer": "core._options_echo",
           "consumer": "er-logic/options.rs parse_death_link",
           "doc": "shared deaths across the multiworld (world.options.death_link)."
+        },
+        {
+          "name": "trap_link",
+          "shape": "BOOL_OR_INT",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo",
+          "consumer": "er-logic/options.rs parse_trap_link",
+          "doc": "nonzero = advertise TrapLink after slot-data parse, send locally received trap items once, and queue compatible inbound linked traps without echoing them."
         },
         {
           "name": "enable_dlc",
@@ -234,6 +256,17 @@
           "producer": "core._options_echo (features/auto_equip.py)",
           "consumer": "er-logic/options.rs parse_auto_equip",
           "doc": "\"use what you get\": nonzero = the client equips every RECEIVED weapon / armour piece the moment it lands in the bag, clobbering the slot (auto_equip.rs enqueue + tick). NOT required: this key is younger than the released clients that read it, and an absent key parses false, which is exactly the off default. That silence is also why a seed with it ON emits requiresClientFeatures [\"auto_equip\"] -- OPTIONS_SUBKEYS is not folded into CONTRACT_HASH, so an older client would report VERSION: OK and then never see this key at all."
+        },
+        {
+          "name": "goal_region_unlock_policy",
+          "shape": "INT",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo (features/progression_surface.py)",
+          "consumer": "eldenring-archipelago/core.rs -> region completion goal gate",
+          "doc": "0 = preserve the possession-based goal-region unlock; 1 = wait until every progression-surface check in every required non-goal region is checked, with visible shop rows additionally satisfied by the server-backed viewed-shop ledger; 2 = impose no region-side goal requirement. This is independent of the Great Rune requirement. A seed selecting 1 emits requiresClientFeatures ['region_completion_goal_gate']; OPTIONS_SUBKEYS is not folded into CONTRACT_HASH."
         },
         {
           "name": "no_equip_load",
@@ -708,7 +741,7 @@
       ],
       "producer": "features/rune_pricing.py",
       "consumer": "shop_prices.rs configure/run",
-      "doc": "ShopLineupParam row id (str) -> rune price, for CHECK rows whose reward is a rune item (Golden/Numen's/Hero's/Lord's Rune). A shop check keeps the price of the ware it USED to sell, so a slot that cost 3500 can end up selling a Golden Rune [1] worth ~200 -- the reward is randomised but its cost is not, which makes the slot strictly bad rather than a gamble. Rolled per seed in [0, 2x the rune's own derived worth] (GOODS_PRICE, the same basicPrice/sellValue*10 chain shop_stock prices its rerolls with), so buying one is sometimes free and sometimes a bad trade. Absent/empty = every row keeps its vanilla price."
+      "doc": "ShopLineupParam row id (str) -> price override. Alt-currency altar rows always map to 1, preserving their costType while preventing random rewards from demanding an absurd number of Dragon/Bayle Hearts. Other entries are CHECK rows whose reward is a rune item (Golden/Numen's/Hero's/Lord's Rune). A shop check keeps the price of the ware it USED to sell, so a slot that cost 3500 can end up selling a Golden Rune [1] worth ~200 -- the reward is randomised but its cost is not, which makes the slot strictly bad rather than a gamble. Rolled per seed in [0, 2x the rune's own derived worth] (GOODS_PRICE, the same basicPrice/sellValue*10 chain shop_stock prices its rerolls with), so buying one is sometimes free and sometimes a bad trade. Absent/empty = every row keeps its vanilla price."
     },
     {
       "name": "shopPreviewGoods",
@@ -894,7 +927,7 @@
         "greenfield"
       ],
       "producer": "core._base_slot_data",
-      "consumer": "(diagnostic -- no client read)",
+      "consumer": "goal.rs parse",
       "doc": "EFFECTIVE (clamped) Great Rune requirement for the great_runes ending."
     },
     {
@@ -906,7 +939,7 @@
       ],
       "producer": "core._base_slot_data",
       "consumer": "goal.rs parse",
-      "doc": "Item NAMES the player must HOLD before Goal can fire (the great_runes ending). WAS a diagnostic with no client read, which is exactly how the bug survived: the client's goal was the LOCATION of each rune's boss drop -- i.e. KILL Godrick -- while AP's victory rule was state.has(rune). item_shuffle is frozen ON, so the rune is NOT at the boss: you could kill every rune boss, hold no rune, and the run would end. A kill is not a collection. The client now READS this key. Absent/empty adds no requirement."
+      "doc": "Eligible Great Rune item NAMES; goal.rs requires great_runes_required distinct names from this set before Goal can fire. WAS a diagnostic with no client read, which is exactly how the bug survived: the client's goal was the LOCATION of each rune's boss drop -- i.e. KILL Godrick -- while AP's victory rule was state.has(rune). item_shuffle is frozen ON, so the rune is NOT at the boss: you could kill every rune boss, hold no rune, and the run would end. A kill is not a collection. The client now READS this key. Absent/empty adds no requirement."
     },
     {
       "name": "bossLocations",

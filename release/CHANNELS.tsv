@@ -34,3 +34,11 @@ stable	v0.4.4	2026-08-16	the wizard-defaults + surface-lattice window. ⭐ PAID 
 beta	main	2026-08-16	the open v0.4.5 window
 stable	v0.4.5	2026-08-16	the goal-withholding + seven-Great-Runes window. ⭐ PAID AT THE WINDOW OPEN for the SECOND WINDOW RUNNING, in the same commit -- v0.4.4's row was the first time it had not lagged, and one occurrence is a fluke rather than a habit. Before that it sat on v0.4.1 through TWO tags in August and on v0.3.10 through two more in July, every time with check_channels green, because that gate asks whether the pointer RESOLVES and never whether it is CURRENT. deploy_wizard.sh --landing fetches from THIS row, so the public landing page now serves v0.4.5's wizard -- the one that emits every option rather than only the ones you changed (#732).
 beta	main	2026-08-16	the open v0.4.6 window
+stable	v0.4.6	2026-08-17	the any-four Great Rune goal, cross-game progression, ruled entrances, Metyr logic, missable-item protection, and matching client capital/rune/rescue fixes; promoted while opening v0.4.7 so the public stable wizard moves with the tag rather than after the next change
+beta	main	2026-08-17	the open v0.4.7 window
+stable	v0.4.6	2026-08-18	v0.4.7 was never tagged, so there is no newer immutable release to promote; v0.4.8 opens explicitly without pretending the accumulated main changes were already shipped
+beta	main	2026-08-18	the open v0.4.8 window
+stable	v0.4.8	2026-08-18	armor bundles, independent Great Rune/region goals, alternating flask upgrades, corrected filler quantities, TrapLink and Blackout, durable item/check delivery, Leyndell and capital fixes, and packaged AP Flower support; promoted while opening v0.4.9 so stable moves with the release
+beta	main	2026-08-18	the open v0.4.9 window
+stable	v0.4.9	2026-08-19	full-map data cleanup, safer start-item delivery, honest boss sweeps and tracker grouping, corrected merchant bells and capital entry, and stronger crash diagnostics; promoted while opening v0.4.10 so stable moves with the release
+beta	main	2026-08-19	the open v0.4.10 window
