@@ -74,6 +74,7 @@ def test_insufficient_surface_capacity_caps_the_share_loudly(monkeypatch, caplog
     mw = SimpleNamespace(
         itempool=foreign, worlds={1: destination, 2: partner}, random=random.Random(927))
     destination.multiworld = mw
+    mw.get_unfilled_locations = lambda _player: []   # no off-surface checks in this fixture
     monkeypatch.setattr(progression_surface, "_selection", lambda _world: {"MajorBoss"})
     monkeypatch.setattr(progression_surface, "selected_surface", lambda value: value)
     monkeypatch.setattr(progression_surface, "_open_allowed", lambda _world, _surface: [object()])

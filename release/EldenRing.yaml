@@ -718,7 +718,8 @@ Elden Ring:
 
   # BALANCE PROGRESSION ACROSS THE DISTINCT GAMES AT THE TABLE. By default,
   # this Elden Ring slot reserves about 1 / number-of-games of each other
-  # game's eligible advancement items on the progression_surface above. Every
+  # game's eligible advancement items among its own checks (each item still
+  # obeys progression_surface and confine_foreign_progression). Every
   # partner game also gets its OWN near-1/N share of this slot's progression;
   # the foreign share is no longer one batch divided between all partners.
   # For a rune-goal seed the numerator includes all seven Great Runes, plus

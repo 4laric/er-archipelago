@@ -25,7 +25,8 @@ class BalanceProgressionAcrossGames(Toggle):
 
     N is the number of distinct games. Every partner game receives its own near-1/N share of this
     slot's travelling progression, and this slot reserves a 1/N share of every partner game's
-    eligible advancement on its Progression Surface. Two slots of one game count as one game and
+    eligible advancement among its own checks (each item still obeys the Progression Surface and
+    Confine Foreign Progression rules). Two slots of one game count as one game and
     are sampled fairly across their players. Items a player keeps local are never taken.
 
     The outgoing half only reshapes ``cross_game_progression: auto``. An explicit percentage --
@@ -117,7 +118,19 @@ def reserve_incoming_progression(multiworld, worlds) -> None:
     # every destination receives its independently requested 1/N share or generation fails.
     multiworld.random.shuffle(destinations)
     for world in destinations:
-        locations = _open_allowed(world, selected_surface(_selection(world)))
+        # ALL of this world's open checks, UNIFORMLY SHUFFLED. Restricting the reservation to
+        # the surface would duplicate confine_foreign_progression's job with a harder hand: at
+        # confine 50 half the foreign names are released from the surface restriction, and a
+        # reservation that still forced them on-surface made the share look inert (the DOOM
+        # smoke's guard caught exactly that -- 77 of 77 on-surface). Enumerate what PLACES, let
+        # confine's own item rules say what refuses. The shuffle must be UNIFORM over the whole
+        # list: fill_restrictive takes locations in order, so a surface-first ordering quietly
+        # recreates the on-surface monopoly (measured -- the guard fired again).
+        surface = _open_allowed(world, selected_surface(_selection(world)))
+        surface_ids = {id(loc) for loc in surface}
+        rest = [loc for loc in multiworld.get_unfilled_locations(world.player)
+                if getattr(loc, "address", None) is not None and id(loc) not in surface_ids]
+        locations = surface + rest
         multiworld.random.shuffle(locations)
         requested = []
         audit = []
@@ -163,9 +176,8 @@ def reserve_incoming_progression(multiworld, worlds) -> None:
             detail = ", ".join(f"{game}: {kept.get(game, 0)}/{quota}"
                                for game, _count, quota in audit)
             _LOG.warning(
-                "[eldenring:%s] incoming progression: surface capacity caps the reservation at "
-                "%d of %d requested item(s) (%s -- reserved/requested). Widen "
-                "progression_surface to host the full share.",
+                "[eldenring:%s] incoming progression: open-location capacity caps the "
+                "reservation at %d of %d requested item(s) (%s -- reserved/requested).",
                 world.player, len(requested), len(requested) + len(dropped), detail)
 
         selected = {id(item) for item in requested}
