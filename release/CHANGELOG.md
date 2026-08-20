@@ -138,6 +138,24 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   the run. The wizard's seed-size preview now includes those extra regions and shows their marginal
   0–N contribution beyond `num_regions`; generation logs distinguish them from goal force-keeps
   instead of calling them `goal=auto`. World: #841.
+- **The v0.4.9 Radahn stall is fixed.** The known issue that closed the v0.4.9 notes -- an
+  enemy-randomizer kill during the Radahn festival leaving the fight unfinishable -- is repaired:
+  the client backfills the festival state flags (9130/9412) raise-only when the boss dies without
+  its ceremony, so the arena resolves and the check fires. clients#326.
+- **Six client repairs ride this window's pin, each closing a reported wedge.** Received items
+  now cursor against your Elden Ring character identity, not the connection -- a fresh character
+  starts at zero and a reconnect cannot replay or skip a delivery (one cause of the "receiving
+  dead" family; clients#327). A contained panic during AddItem no longer poisons the receive
+  state -- delivery resumes instead of stalling silently (clients#324). A capital warp against a
+  target the current world state cannot resolve is rejected instead of dumped mid-air (the
+  stuck-burnt-world class; clients#325). The withheld-goal gate FAILS OPEN when its inputs are
+  unresolved -- a data gap can no longer seal the goal room shut, only widen which flags write
+  (clients#323). And the rescue console grew `!grace` / `!unlockgrace` -- search by name and
+  light any Site of Grace when a seed strands you (clients#328). The auto-upgrade pickup parity
+  and its suppressed-pickup watchdog are described above (clients#329).
+- **This change also moves the client pin to clients#333's merge commit** -- the same tree the
+  previous pin named, recorded at client `main` so the release tag's pin check reads current
+  rather than one-merge-behind.
 - **The two Region-Lock travel settings now describe separate axes.** `progression_bias` controls
   how many Locks leave their owner, but ordinary fill does not promise those Locks to a much smaller
   partner game; measured cross-game seeds could send that partner zero. `cross_game_progression`
