@@ -11,6 +11,11 @@ you get Haligtree Canopy and play the whole route through Loretta and Elphael; M
 ends the run. The existing goal axes remain independent, so this works with no Great Runes or any N,
 and with held locks, completed regions, or no region requirement.
 
+**Starting Region Pool is additive, and the wizard now shows the cost.** Every candidate you name is
+kept; `start_regions` decides how many of them actually open the run. The seed-size preview includes
+the resulting extra regions before you generate, and the generation log names them separately from
+regions forced by your goal.
+
 ## What carried over from v0.4.9
 
 No player-facing work is carried over. The v0.4.9 release tag differs from `main` only by its client

@@ -23,6 +23,11 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   Opening it grants Haligtree Canopy alone—even under the all-graces or grace-attunement settings—
   so Loretta, Elphael and the full descent to Malenia remain physical play. The terminal check is
   Malenia's f510200 defeat, not every Haligtree major boss. World: #861.
+- **Starting-region candidates now count honestly before you generate.** The additive behavior is
+  unchanged: every region in `start_region_pool` is kept, while only `start_regions` of them open
+  the run. The wizard's seed-size preview now includes those extra regions and shows their marginal
+  0–N contribution beyond `num_regions`; generation logs distinguish them from goal force-keeps
+  instead of calling them `goal=auto`. World: #841.
 
 ## v0.4.9 — 2026-08-18
 
