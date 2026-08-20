@@ -239,16 +239,13 @@ class ConfineForeignProgression(NamedRange):
     behaviour. In between, that share of the foreign advancement you see is held to the surface and
     the rest is free.
 
-    🛑 IT IS NOT ONLY A CURATION KNOB, and this is the reason it stopped being a toggle. The rule is
-    about YOUR locations, but it displaces your NEIGHBOUR: barred from your ~3000 filler checks, a
-    partner game's progression has nowhere to go but its own locations, which saturates them early
-    in the fill -- and Archipelago places the whole `useful` tier before any filler, so by the time
-    it reaches what is left of the partner's world only filler remains. MEASURED at 100, three
-    seeds, two Elden Ring slots beside two Hollow Knight slots: of 498 Elden Ring items that reached
-    Hollow Knight, **zero** were useful -- no weapon, no armour, no talisman, 100% filler -- while
-    the other Elden Ring slot got a healthy 43.1% useful. At 0 the same seeds send Hollow Knight
-    40.7% useful, which is the pool's own mix. Lower this if you want your gear to be worth
-    receiving in a non-Elden-Ring game.
+    This is purely about where INCOMING foreign keys may sit. It used to have a nasty side effect
+    -- at 100 the displacement it causes starved non-Elden-Ring partners of your useful gear
+    entirely (measured: 0 useful in 498 placements to Hollow Knight) -- but that is fixed at its
+    own layer since v0.4.10: a dedicated export-reservation pass places your fair share of useful
+    items into partner worlds before the general fill, whatever this option is set to. Re-measured
+    with the pass: partners receive the pool's own mix (about 1:1 useful to filler) at every
+    confine value. Lower this only if you want foreign keys spread beyond your starred checks.
 
     It is a propensity by ITEM NAME, not a per-copy coin flip: the decision for a given foreign item
     name is fixed for the whole seed, so a name is either surface-only or free, never both.

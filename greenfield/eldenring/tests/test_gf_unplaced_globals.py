@@ -137,7 +137,10 @@ class UnplacedGlobals(unittest.TestCase):
 
         Before this filter the emit placed EIGHT checks at "m60_00_00_00", which reads exactly like
         a map id and is not one, and the row count looked like a bigger win (43 vs 37)."""
-        bad = [c for c in _rows() if c[1] in ("m60_00_00_00", "m61_00_00_00", "m00_00_00_00")]
+        rows = list(_rows())
+        # WITNESS (vacuous-pass ratchet): an empty emit greens the bucket check for free.
+        self.assertTrue(rows, "the emit produced no rows -- the bucket filter below sees nothing")
+        bad = [c for c in rows if c[1] in ("m60_00_00_00", "m61_00_00_00", "m00_00_00_00")]
         self.assertEqual([], bad, "common ESD buckets placed as if they were locations: %s" % bad[:5])
 
     @unittest.skipIf(not (_TOOL and os.path.isfile(_TOOL)), REPO_ONLY_REASON)
