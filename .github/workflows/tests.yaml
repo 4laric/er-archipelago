@@ -439,7 +439,7 @@ jobs:
       - name: Multiworld smoke -- guards can go red (--self-test)
         run: python tools/gf_multiworld_smoke.py --self-test
 
-      - name: Multiworld smoke (2x Elden Ring + 2x each partner game)
+      - name: Multiworld smoke (partner matrix + four-game/default-control shapes)
         # rc is captured with `|| rc=$?`, NOT a bare `rc=$?` on the next line: GitHub runs `run:`
         # blocks under `bash -e`, so a non-zero exit aborts the step BEFORE the assignment is
         # reached. The exit-4 SKIP tolerance below was therefore dead code and had never once been

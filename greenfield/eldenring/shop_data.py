@@ -1696,6 +1696,49 @@ SHOP_LOC_REGION = {
     7774728: 'Roundtable Hold',
 }
 
+# Stock flags whose vanilla ShopLineupParam row is DLC-GATED (consumes a 2,000,000-block
+# material -- a DLC remembrance -- or releases a >=3,000,000 DLC protector). The hub keeps
+# these rows in every seed, so core.py must skip them when the DLC is off or they are
+# forever-uncompletable checks (AzoTax, 2026-08-20: a no-DLC seed goal-locked on one).
+DLC_GATED_SHOP_CHECK_FLAGS = frozenset({
+    250550,
+    250560,
+    250570,
+    250580,
+    250590,
+    250600,
+    250610,
+    250620,
+    250630,
+    250640,
+    250650,
+    250660,
+    250670,
+    250680,
+    250690,
+    280980,
+    280990,
+    290300,
+    290310,
+    290320,
+    290330,
+    290340,
+    290350,
+    290360,
+    290370,
+    290380,
+    290390,
+    290400,
+    290410,
+    290420,
+    290430,
+    290440,
+    290450,
+    290460,
+    290470,
+    290480,
+})
+
 SHOP_PREVIEW_GOODS = {
     '7770011': 1073742074,
     '7770012': 1073749982,
@@ -2304,4 +2347,4 @@ SPARE_PREVIEW_GOODS = (
     9446, 9447, 9448, 9449, 9450, 51760,
 )
 
-_GEN_STAMP = {'inputs_hash': 'sha256:6f17d305d2e33c25b5870436f865914a4bfaaf8bea6b5a5d3d4658023ee762f6', 'module': 'shop_data.py', 'body_sha256': 'sha256:477a28e29dc54cba83bd50223ccfda38150409d9f4fdd7e63fff4f7281f889e3'}
+_GEN_STAMP = {'inputs_hash': 'sha256:fdfb8d552763e26d2308747c96163bd4b953e70eb60a87d70ff5f336b5df72df', 'module': 'shop_data.py', 'body_sha256': 'sha256:4a23a810e0b3b05e1a257bd1d1939698cf752a75b497246f84c0e16da16f347c'}

@@ -210,6 +210,26 @@ class RegionSelection(unittest.TestCase):
             "num_regions: 1 drawn (Liurnia) + 2 forced by goal=elden_beast (Farum Azula, Leyndell)"
             " + 1 parent closure (Altus) = 4 kept")
 
+    def test_start_pool_and_goal_force_keeps_are_named_separately(self):
+        """#841: the old line called every forced region `goal=auto`, including candidates the
+        player added through start_region_pool. The categories must partition the same combined
+        `forced` list without moving or double-counting a region."""
+        line = self.rs.describe_kept(
+            1,
+            {"drawn": ["Liurnia"],
+             "forced": ["Farum Azula", "Leyndell", "Caelid", "Limgrave"],
+             "closure": ["Altus"]},
+            ["Liurnia", "Farum Azula", "Leyndell", "Caelid", "Limgrave", "Altus"],
+            goal="elden_beast",
+            start_region_pool={"Caelid", "Limgrave"})
+        self.assertEqual(
+            line,
+            "num_regions: 1 drawn (Liurnia) + 2 forced by start_region_pool (Caelid, Limgrave)"
+            " + 2 forced by goal=elden_beast (Farum Azula, Leyndell)"
+            " + 1 parent closure (Altus) = 6 kept")
+        self.assertEqual(line.count("Caelid"), 1, "a starting candidate was counted twice")
+        self.assertNotIn("goal=auto", line, "start_region_pool was mislabeled as an automatic goal")
+
     def test_the_line_omits_contributions_that_did_not_happen(self):
         """A draw that needed nothing must not print "+ 0 forced + 0 parent closure" -- noise in
         every log line is how a line stops being read."""

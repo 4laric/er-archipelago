@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.10",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "d5ac73c59611255e614fb1c98c6070d402cf247a818bdf8c329d23a381224fb8",
+ "source_sha256": "b4f1738898ed8d88a7ee14da4906d91f8d7dd5ec91974b252a3513ad62d30390",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -252,6 +252,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "traps",
   "trap_count",
   "spawn_traps",
+  "auto_upgrade",
   "vanilla_pool",
   "no_weapon_requirements"
  ],
@@ -302,8 +303,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "name": "Checks & Item Pool",
    "collapsed": false,
    "options": [
-    "vanilla_placement",
-    "natural_progression",
     "dungeon_sweep",
     "reroll_enemy_drops",
     "protect_missable_locations",
@@ -350,12 +349,21 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "collapsed": false,
    "options": [
     "auto_equip",
-    "no_weapon_requirements",
     "no_equip_load",
+    "auto_upgrade",
+    "no_weapon_requirements",
     "start_with_whetblades",
     "progressive_flasks",
     "capital_reconciler",
     "open_boss_doors"
+   ]
+  },
+  {
+   "name": "Experimental",
+   "collapsed": true,
+   "options": [
+    "vanilla_placement",
+    "natural_progression"
    ]
   }
  ],
@@ -378,7 +386,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "num_regions_order",
@@ -403,7 +412,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "goal",
@@ -436,7 +446,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "ending_condition",
@@ -461,7 +472,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "goal_great_runes",
@@ -480,7 +492,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "enable_dlc",
@@ -496,7 +509,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "dlc_only",
@@ -512,7 +526,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "vanilla_placement",
@@ -537,7 +552,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "capital_reconciler",
@@ -553,7 +569,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "auto_equip",
@@ -569,7 +586,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "no_equip_load",
@@ -598,7 +616,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "dungeon_sweep",
@@ -631,7 +650,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "open_boss_doors",
@@ -647,7 +667,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "death_link",
@@ -663,7 +684,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "reroll_enemy_drops",
@@ -679,7 +701,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "curated_filler",
@@ -724,7 +747,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_intensity",
@@ -753,7 +777,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_weapons",
@@ -772,7 +797,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_armor",
@@ -791,7 +817,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_spells",
@@ -810,7 +837,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_talismans",
@@ -829,7 +857,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_ashes_of_war",
@@ -848,7 +877,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "filler_foreign_pct",
@@ -867,7 +897,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "natural_progression",
@@ -883,7 +914,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "region_grace_unlock",
@@ -912,7 +944,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "grace_attunement",
@@ -931,7 +964,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "grace_attunement_anchor",
@@ -956,7 +990,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "progressive_flasks",
@@ -972,7 +1007,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "progressive_stone_bells",
@@ -988,7 +1024,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "keep_out_of_shops",
@@ -1025,7 +1062,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "leyndell_runes_required",
@@ -1044,7 +1082,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "keep_local",
@@ -1090,7 +1129,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "keep_local_rune_cap",
@@ -1109,7 +1149,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "merchant_bells_on_talk",
@@ -1125,7 +1166,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "protect_missable_locations",
@@ -1154,7 +1196,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "no_runes_in_shops",
@@ -1170,7 +1213,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "progression_surface",
@@ -1458,7 +1502,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
       "keys": []
      }
     ]
-   }
+   },
+   "essential": true
   },
   {
    "key": "progression_bias",
@@ -1477,7 +1522,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "confine_foreign_progression",
@@ -1513,7 +1559,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "name": "true",
      "value": 100
     }
-   ]
+   ],
+   "essential": false
   },
   {
    "key": "cross_game_progression",
@@ -1541,7 +1588,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "name": "never",
      "value": 0
     }
-   ]
+   ],
+   "essential": false
   },
   {
    "key": "goal_region_unlock_policy",
@@ -1570,7 +1618,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "enemy_scaling",
@@ -1586,7 +1635,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "minimum_enemy_difficulty",
@@ -1605,7 +1655,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "maximum_enemy_difficulty",
@@ -1629,7 +1680,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "name": "auto",
      "value": -1
     }
-   ]
+   ],
+   "essential": false
   },
   {
    "key": "difficulty_ramp_speed",
@@ -1648,7 +1700,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "scadutree_blessing_scope",
@@ -1673,7 +1726,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "dlc_blessing_catchup",
@@ -1689,7 +1743,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "global_scadutree_blessing",
@@ -1718,7 +1773,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "reroll_infinite_shop_stock",
@@ -1734,7 +1790,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "infinite_hub_wares",
@@ -1750,7 +1807,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "merchant_bell_logic",
@@ -1775,7 +1833,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "start_regions",
@@ -1794,7 +1853,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "start_region_pool",
@@ -1839,7 +1899,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "start_with_whetblades",
@@ -1855,7 +1916,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "trap_link",
@@ -1871,7 +1933,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "traps",
@@ -1884,8 +1947,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "choices": null,
    "range": null,
    "valid_keys": [
+    "aging_untouchable",
     "basilisk",
     "blackout",
+    "malenia",
     "no_flask",
     "rune_thief",
     "runebear"
@@ -1893,7 +1958,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "trap_count",
@@ -1912,7 +1978,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "spawn_traps",
@@ -2320,7 +2387,25 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "free_text": true
+   "free_text": true,
+   "essential": false
+  },
+  {
+   "key": "auto_upgrade",
+   "class": "AutoUpgrade",
+   "display_name": "Auto-Upgrade Received Weapons",
+   "description": "Automatically raise any weapon that enters your bag -- an AP grant, a world pickup, or an\nitem you put down with Leave and took back -- to the highest reinforce level you already hold\non its smithing track (normal caps at +25, somber at +10). Raise-only and per-track: nothing\nis ever downgraded, and somber never feeds normal. The put-it-down-pick-it-up gesture is the\nintended catch-up for a weapon received before you found your stones. On by default, and the\nreceipt half has been every seed's behaviour since v0.2 -- turn it off to keep weapons at\ntheir found level and spend the stones yourself.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": true,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "vanilla_pool",
@@ -2336,7 +2421,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "no_weapon_requirements",
@@ -2352,7 +2438,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   }
  ],
  "presets": [
@@ -3079,6 +3166,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
   "region": "Ashen Capital"
  },
+ "hub_dlc_gated_checks": 36,
  "hub_region": "Roundtable Hold",
  "parent": {
   "Leyndell": "Altus",
@@ -4830,8 +4918,9 @@ const ERW = (() => {
     // region_spine.compute_kept: N is a DRAW SIZE. The Seed size panel shows the resulting spread,
     // so this points at it rather than restating a number that is only true for one draw.
     if (has("num_regions") && v("num_regions") > 0 && set("num_regions"))
-      info("num_regions", "A draw size, not a final count \u2014 goal force-keeps and parent " +
-           "closure can add more. See Seed size for the range your setting actually produces.");
+      info("num_regions", "A draw size, not a final count \u2014 goal and start-region force-keeps " +
+           "plus parent closure can add more. See Seed size for the range your setting actually " +
+           "produces.");
 
     return out;
   }
@@ -4839,7 +4928,8 @@ const ERW = (() => {
 
   /* ---- seed size (wizard/region-census.json; tools/build_region_census.py) --------------------
      num_regions is a DRAW SIZE, not a final count: compute_kept = draw + explicit-goal force-keeps
-     + parent closure. So a single number would be wrong -- we sample the draw and report a spread.
+     + start_region_pool force-keeps + parent closure. So a single number would be wrong -- we
+     sample the draw and report a spread.
 
      DETERMINISTIC ON PURPOSE. A seeded PRNG (mulberry32, fixed seed), so the same option set always
      shows the same figures. With Math.random the readout jittered on every unrelated keystroke and
@@ -4892,7 +4982,11 @@ const ERW = (() => {
     // base game is in play. census.finale.present_when states the rule; this evaluates it.
     const finaleName = census.finale && census.finale.region;
     const finaleOn = !!(finaleName && R[finaleName]) && eligible.some(n => !R[n].dlc);
-    const base = R[census.hub_region].checks + (finaleOn ? R[finaleName].checks : 0);
+    /* #913: Enia's DLC-gated shop rows leave a no-DLC seed, so the hub is smaller by the
+       census's hub_dlc_gated_checks there. check_wizard_census_js proves this line matches the
+       Python reference. */
+    const base = R[census.hub_region].checks + (finaleOn ? R[finaleName].checks : 0)
+               - ((!opts.dlcOnly && !opts.enableDlc) ? (census.hub_dlc_gated_checks || 0) : 0);
     const rung = opts.dungeonSweep || "bosses";
     const baseSurf = comboHits(R[census.hub_region], sel, rung)
                    + (finaleOn ? comboHits(R[finaleName], sel, rung) : 0);
@@ -4901,15 +4995,18 @@ const ERW = (() => {
     const whole = (n <= 0 || n >= eligible.length);
     const trials = whole ? 1 : Math.max(1, opts.trials || 4000);
     const rnd = mulberry32(0x45524147);
-    const checks = [], surf = [], kept = [];
+    const startPool = new Set((opts.startRegionPool || []).filter(r => elig.has(r)));
+    const checks = [], surf = [], kept = [], forcedStart = [];
     for (let t = 0; t < trials; t++){
-      let keptSet;
-      if (whole){ keptSet = new Set(eligible); }
+      let keptSet, addedStart;
+      if (whole){ keptSet = new Set(eligible); addedStart = new Set(); }
       else {
         const pool = eligible.slice();
         keptSet = new Set();
         for (let i = 0; i < n; i++)
           keptSet.add(pool.splice(Math.floor(rnd() * pool.length), 1)[0]);
+        addedStart = new Set(Array.from(startPool).filter(r => !keptSet.has(r)));
+        for (const r of startPool) keptSet.add(r);
         let grew = true;
         while (grew){
           grew = false;
@@ -4921,12 +5018,13 @@ const ERW = (() => {
       }
       let c = base, s = baseSurf;
       for (const r of keptSet){ c += R[r].checks; s += comboHits(R[r], sel, rung); }
-      checks.push(c); surf.push(s); kept.push(keptSet.size);
+      checks.push(c); surf.push(s); kept.push(keptSet.size); forcedStart.push(addedStart.size);
     }
     const q = (a, p) => { a = a.slice().sort((x, y) => x - y); return a[Math.floor(p * (a.length - 1))]; };
     const band = a => ({ min: q(a, 0), p10: q(a, 0.10), median: q(a, 0.5), p90: q(a, 0.90), max: q(a, 1) });
     return { whole, trials, eligible: eligible.length, finale: finaleOn,
-             checks: band(checks), surface: band(surf), kept: band(kept) };
+             checks: band(checks), surface: band(surf), kept: band(kept),
+             forcedStart: band(forcedStart) };
   }
 
   /* WHAT EACH BOX IS ACTUALLY WORTH: {total, marginal:{class:n}, regions}.
@@ -5100,10 +5198,21 @@ if (typeof module !== "undefined") module.exports = ERW;
     meta.groups.filter(g => g.collapsed).map(g => ({name:g.name, options:g.options})),
     meta.ungrouped.length ? [{name:"Other Options", options:meta.ungrouped}] : [],
     [{name:"Archipelago Core", options:meta.apCore.map(o => o.key)}]);
-  const steps = [{id:"welcome", title:"Start"}, {id:"seedsize", title:"Seed size"}]
-    .concat(openGroups.map(g => ({id:"g:"+g.name, title:g.name, options:g.options})))
-    .concat([{id:"advanced", title:"Advanced"}, {id:"finish", title:"Finish"}]);
+  /* ELEVEN STEPS -> FIVE (2026-08-20, player complaint: "too many tabs, too many options").
+     The seven option groups are no longer one rail tab each; they are collapsible SECTIONS inside
+     a single Options step. The GROUPING itself still lives in core.GFWeb.option_groups -- one
+     grouping, two surfaces -- this is a composition on top of it, not a second table. The step
+     carries the union of the group keys so the rail's touched-badge logic reads it unchanged. */
+  const steps = [{id:"welcome", title:"Start"},
+                 {id:"options", title:"Options",
+                  options:[].concat.apply([], openGroups.map(g => g.options))},
+                 {id:"seedsize", title:"Seed size"},
+                 {id:"advanced", title:"Advanced"}, {id:"finish", title:"Finish"}];
   let cur = 0;
+  /* Which Options sections are open. Survives renderStep (preset picks re-render the whole step),
+     dies with the page -- deliberately not persisted. The first section starts open so the step
+     never reads as a wall of closed doors. */
+  const openSections = new Set(openGroups.length ? [openGroups[0].name] : []);
 
   const $ = sel => document.querySelector(sel);
   const el = (tag, cls, html) => { const e = document.createElement(tag);
@@ -5493,7 +5602,8 @@ if (typeof module !== "undefined") module.exports = ERW;
   // OTHER players' progression to that same surface, so a reader who meets it alone has no idea what
   // "the surface" refers to. enable_dlc / dlc_only change which regions are eligible at all, which
   // matters but is usually decided once and left.
-  const SEED_SIZE_OPTIONS = ["num_regions", "progression_surface", "confine_foreign_progression",
+  const SEED_SIZE_OPTIONS = ["num_regions", "start_region_pool", "progression_surface",
+                             "confine_foreign_progression",
                              "enable_dlc", "dlc_only",
                              // the locality knobs -- they move the "what you send out" card below
                              "keep_local", "keep_local_rune_cap",
@@ -5767,8 +5877,31 @@ if (typeof module !== "undefined") module.exports = ERW;
             "(" + bandText(cats.runes || [0, 0, 0]) + "% of the pool) that is depends on which rune " +
             "items your seed actually contains, which is not knowable here.") + "</div>";
     }
-    html += "<div class='desc' style='margin-top:10px'>Your own progression never travels either " +
-      "way: the region Locks are placed in your world before the multiworld fill ever sees them.</div>";
+    /* 255 (Discord, 2026-08-20) quoted the sentence that used to live here -- "Your own
+       progression never travels either way" -- as a constant, while progression_bias's DEFAULT
+       is 0: every Region Lock travels like any other item. The exact inverse of the live
+       behaviour, told to a player deciding whether to join an async. DERIVED from the knobs it
+       describes now, and check_wizard_renders' reactivity audit (TEXT_MOVES) flips
+       progression_bias and demands these words follow -- the fifth "page lied" instance, and the
+       first where the prose itself gets a gate. */
+    const lockBias = Number(v("progression_bias") || 0);
+    const lockXg = v("cross_game_progression");
+    const xgNote = (lockXg === 0)
+      ? " (and never into a non-Elden-Ring game: <code>cross_game_progression</code> 0)" : "";
+    let lockSent;
+    if (lockBias >= 100){
+      lockSent = "<b>Your Region Locks stay home</b> at this setting: <code>progression_bias" +
+        "</code> 100 places every one in your own world before the multiworld fill sees them.";
+    } else if (lockBias > 0){
+      lockSent = "<b>Your Region Locks lean home but can travel</b>: <code>progression_bias</code> " +
+        lockBias + " pulls them toward your own world, and the rest ride the multiworld like any " +
+        "other item" + xgNote + ".";
+    } else {
+      lockSent = "<b>Your Region Locks travel like any other item</b> at this setting — " +
+        "another player can find your way into Liurnia, which is Archipelago working as intended. " +
+        "<code>progression_bias</code> is the knob if you want them kept home" + xgNote + ".";
+    }
+    html += "<div class='desc' style='margin-top:10px'>" + lockSent + "</div>";
     card.insertAdjacentHTML("beforeend", html);
     return card;
   }
@@ -5781,6 +5914,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const nr = v("num_regions"), dlcOn = !!v("enable_dlc"), only = !!v("dlc_only");
     const size = ERW.seedSize(census, { numRegions: nr, enableDlc: dlcOn, dlcOnly: only,
+                                        startRegionPool: v("start_region_pool") || [],
                                         surfaceClasses: v("progression_surface") || [],
                                         dungeonSweep: v("dungeon_sweep") });
     if (!size){
@@ -5809,7 +5943,14 @@ if (typeof module !== "undefined") module.exports = ERW;
        "<div class='desc' style='margin-top:8px'><b>num_regions is a draw size, not a final " +
        "count.</b> Which regions the draw takes moves everything above, which is why these are " +
        "ranges. Full spread at this setting: " + n(size.checks.min) + "\u2013" + n(size.checks.max) +
-       " checks.</div>"));
+       " checks.</div>") +
+      (size.forcedStart.max ?
+       "<div class='desc' style='margin-top:8px'><b>start_region_pool adds " +
+       (size.forcedStart.min === size.forcedStart.max ? n(size.forcedStart.median)
+        : n(size.forcedStart.min) + "\u2013" + n(size.forcedStart.max)) +
+       " region(s) beyond the draw</b>, depending on overlap. Every candidate is kept; only " +
+       "the opening " + ((v("start_regions") || 1) > 1 ? "regions are" : "region is") +
+       " chosen from them.</div>" : ""));
     box.append(c1);
 
     const cs = nearestCase(nr, dlcOn && !only);
@@ -5854,6 +5995,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, { numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"),
                                         dlcOnly: !!v("dlc_only"),
+                                        startRegionPool: v("start_region_pool") || [],
                                         surfaceClasses: v("progression_surface") || [],
                                         dungeonSweep: v("dungeon_sweep") });
     if (!size) return null;
@@ -5876,6 +6018,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, { numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"),
                                         dlcOnly: !!v("dlc_only"),
+                                        startRegionPool: v("start_region_pool") || [],
                                         surfaceClasses: v("progression_surface") || [],
                                         dungeonSweep: v("dungeon_sweep") });
     const cs = nearestCase(v("num_regions"), !!v("enable_dlc") && !v("dlc_only"));
@@ -5959,7 +6102,9 @@ if (typeof module !== "undefined") module.exports = ERW;
       nr.append(inp);
       nameCard.append(nr);
       const pc = el("div", "card");
-      pc.innerHTML = "<h2>Pick a starting point</h2>";
+      pc.innerHTML = "<h2>Pick a starting point</h2><div class='small'>A preset is a complete, " +
+        "playable yaml on its own — pick one and you can go straight to Finish. The Options step " +
+        "is there for the things you want to change, not a form to fill in.</div>";
       const grid = el("div", "presets");
       const cards = [{id:null, title:"Defaults", tagline:"Blank slate — every option at its default.",
                       description:"Writes an empty options block, so the apworld decides everything. Note this INCLUDES the DLC: enable_dlc defaults on, so you get all 28 regions. Pick a preset if you only own the base game."}]
@@ -6003,15 +6148,47 @@ if (typeof module !== "undefined") module.exports = ERW;
         "client.\n\nFix anything red in Checks first — red means generation will reject " +
         "the file.</div>";
       main.append(done);
-    } else {
-      const g = openGroups.find(g => "g:" + g.name === step.id);
-      const card = el("div", "card");
-      const changed = g.options.filter(k => !ERW.isDefault(meta, state, k)).length;
-      card.append(el("div", "grouphead",
-        "<h2>" + esc(g.name) + "</h2><span class='count'>" + g.options.length +
-        " options" + (changed ? " · " + changed + " changed" : "") + "</span>"));
-      for (const k of g.options){ const o = meta.byKey[k]; if (o) card.append(optRow(o)); }
-      main.append(card);
+    } else if (step.id === "options"){
+      const total = openGroups.reduce((a, g) => a + g.options.length, 0);
+      main.append(el("div", "card",
+        "<h2>The options</h2><div class='desc'>" + openGroups.length + " sections, " + total +
+        " options. Each section leads with the decisions that shape the run; the tuning sits " +
+        "behind its More fold, and a fold holding a changed option opens itself. The yaml on the " +
+        "right moves as you do — a preset from the Start step is already a complete, playable " +
+        "file, so everything here is adjustment, not homework.</div>"));
+      openGroups.forEach((g, gi) => {
+        const det = el("details", "card");
+        det.open = openSections.has(g.name);
+        det.addEventListener("toggle",
+          () => { if (det.open) openSections.add(g.name); else openSections.delete(g.name); });
+        const sum = el("summary", "");
+        sum.style.cssText = "cursor:pointer;color:var(--gold)";
+        sum.innerHTML = esc(g.name) + " <span class='small' id='gsec-" + gi + "'></span>";
+        det.append(sum);
+        /* THE ESSENTIALS TIER (core._ESSENTIAL_OPTIONS -> metadata `essential`). The decisions
+           render expanded; the tuning goes behind one "More ..." fold per section, whose count is
+           live via paintSectionCounts. The fold auto-opens at render while something inside it
+           deviates -- a changed option must never be out of sight (the #554 class). If the
+           metadata carries NO essentials (an older blob), every option renders expanded: an
+           absent tier means "show everything", never "hide everything". */
+        if (g.options.includes("enemy_scaling")) det.append(scalingPicksCard());
+        const ess = g.options.filter(k => meta.byKey[k] && meta.byKey[k].essential);
+        const rest = ess.length ? g.options.filter(k => meta.byKey[k] && !meta.byKey[k].essential)
+                                : [];
+        const head = ess.length ? ess : g.options;
+        for (const k of head){ const o = meta.byKey[k]; if (o) det.append(optRow(o)); }
+        if (rest.length){
+          const more = el("details", "more");
+          more.open = rest.some(k => meta.byKey[k] && !ERW.isDefault(meta, state, k));
+          more.innerHTML = "<summary>More <span class='small' id='gsec-" + gi +
+                           "-more'></span></summary>";
+          for (const k of rest){ const o = meta.byKey[k]; if (o) more.append(optRow(o)); }
+          det.append(more);
+        }
+        main.append(det);
+      });
+      paintSectionCounts();  // AFTER the append -- it queries the document for #gsec-N
+      paintScalingPicks();   // ditto (#sp-*)
     }
 
     const btns = el("div", "navbtns");
@@ -6129,6 +6306,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, {
       numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"), dlcOnly: !!v("dlc_only"),
+      startRegionPool: v("start_region_pool") || [],
       surfaceClasses: v("progression_surface") || [], dungeonSweep: v("dungeon_sweep")
     });
     if (!size){
@@ -6144,7 +6322,11 @@ if (typeof module !== "undefined") module.exports = ERW;
        num(size.checks.min) + "&ndash;" + num(size.checks.max)],
       ["regions kept", size.kept.min === size.kept.max ? num(size.kept.median)
                             : num(size.kept.p10) + "&ndash;" + num(size.kept.p90),
-       "num_regions is a draw size, not a final count"],
+       "num_regions is a draw size, not a final count" +
+       (size.forcedStart.max ? "; start_region_pool adds " +
+        (size.forcedStart.min === size.forcedStart.max ? num(size.forcedStart.median)
+         : num(size.forcedStart.min) + "&ndash;" + num(size.forcedStart.max)) +
+        " beyond the draw" : "")],
       ["can hold progression", size.whole ? num(size.surface.median)
                             : num(size.surface.p10) + "&ndash;" + num(size.surface.p90),
        "checks on your progression surface"]
@@ -6196,6 +6378,86 @@ if (typeof module !== "undefined") module.exports = ERW;
       "yaml this page makes.</span>";
   }
 
+  /* The section headers' "n options · k changed" is derived from state, and refresh() never
+     rebuilds rows -- a count set once at render is the stale-toggle-word defect again, one level
+     up. Same no-op-unless-on-screen contract as paintSeedSize. */
+  /* EASY / STANDARD / HARD (Alaric, 2026-08-20): player-facing scaling quick-picks; the four
+     dials stay real and live under More. A pick is a SETTER over the dials -- one source of truth,
+     the yaml -- so the buttons highlight by recognising the dial values, not by remembering what
+     was clicked. Standard clears the four deviations outright (defaults ARE standard). Placed by
+     the section that CONTAINS enemy_scaling, never by group name -- names come from the world.
+     The Haligtree line is Alaric's calibration of the default curve, 2026-08-20. */
+  const SCALING_PICKS = [
+    {id:"easy", label:"Easy",
+     set:{enemy_scaling:true, minimum_enemy_difficulty:0, maximum_enemy_difficulty:25,
+          difficulty_ramp_speed:0},
+     blurb:"caps the climb at about 2x enemy HP — even the deep end of your run stays near " +
+           "vanilla midgame strength"},
+    {id:"standard", label:"Standard", set:null,
+     blurb:"the default curve: the cap scales to your run's length, and your final region lands " +
+           "around the scaling of vanilla Haligtree"},
+    {id:"hard", label:"Hard",
+     set:{enemy_scaling:true, minimum_enemy_difficulty:25, maximum_enemy_difficulty:100,
+          difficulty_ramp_speed:50},
+     blurb:"nothing below about 2.3x enemy HP, no cap (about 7.4x), and the maximum arrives " +
+           "halfway through the run"}];
+  const SCALING_KEYS = ["enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
+                        "difficulty_ramp_speed"];
+  function activeScalingPick(){
+    const v = k => ERW.getVal(meta, state, k);
+    for (const pk of SCALING_PICKS){
+      if (pk.set === null){
+        if (SCALING_KEYS.every(k => ERW.isDefault(meta, state, k))) return pk.id;
+      } else if (Object.keys(pk.set).every(k => v(k) === pk.set[k])) return pk.id;
+    }
+    return null;
+  }
+  function scalingPicksCard(){
+    const card = el("div", "card");
+    card.innerHTML = "<h3 style='margin:0 0 4px'>How hard do you want it?</h3><div class='small'>" +
+      "Three ready answers. The four dials they turn live under More below — set a dial by hand " +
+      "and no button claims you.</div>";
+    const row = el("div", "presets");
+    for (const pk of SCALING_PICKS){
+      const d = el("div", "preset");
+      d.id = "sp-" + pk.id;
+      d.innerHTML = "<h3>" + esc(pk.label) + "</h3><div class='tag'>" + esc(pk.blurb) + "</div>";
+      d.addEventListener("click", () => {
+        if (pk.set === null){ for (const k of SCALING_KEYS) delete state.values[k]; }
+        else { for (const k of Object.keys(pk.set)) ERW.setVal(meta, state, k, pk.set[k]); }
+        refresh();
+        renderStep();   // the dial rows under More may be on screen; same move as a preset pick
+      });
+      row.append(d);
+    }
+    card.append(row);
+    return card;
+  }
+  function paintScalingPicks(){
+    const act = activeScalingPick();
+    for (const pk of SCALING_PICKS){
+      const d = $("#sp-" + pk.id);
+      if (d) d.className = "preset" + (act === pk.id ? " sel" : "");
+    }
+  }
+
+  function paintSectionCounts(){
+    openGroups.forEach((g, gi) => {
+      const span = $("#gsec-" + gi);
+      if (!span) return;
+      const changed = g.options.filter(k => meta.byKey[k] && !ERW.isDefault(meta, state, k)).length;
+      span.innerHTML = "(" + g.options.length + " options" +
+        (changed ? " · <b>" + changed + " changed</b>" : "") + ")";
+      const ms = $("#gsec-" + gi + "-more");
+      if (ms){
+        const rest = g.options.filter(k => meta.byKey[k] && !meta.byKey[k].essential);
+        const mch = rest.filter(k => !ERW.isDefault(meta, state, k)).length;
+        ms.innerHTML = "(" + rest.length + " more option" + (rest.length === 1 ? "" : "s") +
+          (mch ? " · <b>" + mch + " changed</b>" : "") + ")";
+      }
+    });
+  }
+
   function refresh(){
     const y = ERW.buildYaml(meta, state);
     $("#yamlout").innerHTML = highlightYaml(y);
@@ -6207,6 +6469,8 @@ if (typeof module !== "undefined") module.exports = ERW;
     renderSeedSize();
     renderHostCard();
     paintSeedSize();          // no-op unless the Seed size tab is the one on screen
+    paintSectionCounts();     // no-op unless the Options step is the one on screen
+    paintScalingPicks();      // same contract
     renderSideContribution(); // the side rail's live readout -- on screen on every step
     const fs = ERW.findings(meta, state);
     const box = $("#findings");

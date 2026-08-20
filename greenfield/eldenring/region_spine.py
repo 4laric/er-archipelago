@@ -267,7 +267,7 @@ def compute_kept(n, rng, eligible=None, forced=(), parts=None, bar_from_draw=(),
     return final
 
 
-def describe_kept(n, parts, kept, goal="auto"):
+def describe_kept(n, parts, kept, goal="auto", start_region_pool=()):
     """ONE LINE naming every contribution to the kept set, for the gen log / spoiler (#409).
 
     THE MOTIVATING CASE (CONTRIBUTING rule 11), and it is a player-support cost, not a crash.
@@ -277,8 +277,9 @@ def describe_kept(n, parts, kept, goal="auto"):
     Leyndell. Nothing anywhere said so. N IS A DRAW SIZE, NOT A REGION COUNT, and until this line
     existed the only way to learn that was to read compute_kept.
 
-        num_regions: 1 drawn (Liurnia) + 2 forced by goal=elden_beast (Farum Azula, Leyndell)
-        + 1 parent closure (Altus) = 4 kept
+        num_regions: 1 drawn (Liurnia) + 1 forced by start_region_pool (Caelid)
+        + 2 forced by goal=elden_beast (Farum Azula, Leyndell)
+        + 1 parent closure (Altus) = 5 kept
 
     Empty contributions are OMITTED rather than printed as "+ 0", so the common case (a plain draw
     that needed nothing) stays one short clause. Pure and AP-free like the rest of this module, so
@@ -286,6 +287,9 @@ def describe_kept(n, parts, kept, goal="auto"):
     total = len(kept)
     drawn = list(parts.get("drawn", ()))
     forced = list(parts.get("forced", ()))
+    start_names = set(start_region_pool or ())
+    forced_start = [r for r in forced if r in start_names]
+    forced_goal = [r for r in forced if r not in start_names]
     closure = list(parts.get("closure", ()))
     if parts.get("full_pool"):
         # 0 (or an N at/above the eligible pool) is "the whole eligible map" -- there is no draw to
@@ -293,8 +297,12 @@ def describe_kept(n, parts, kept, goal="auto"):
         bits = ["num_regions: %d = the whole eligible map" % n]
     else:
         bits = ["num_regions: %d drawn (%s)" % (len(drawn), ", ".join(drawn) or "none")]
-    if forced:
-        bits.append("%d forced by goal=%s (%s)" % (len(forced), goal, ", ".join(forced)))
+    if forced_start:
+        bits.append("%d forced by start_region_pool (%s)"
+                    % (len(forced_start), ", ".join(forced_start)))
+    if forced_goal:
+        bits.append("%d forced by goal=%s (%s)"
+                    % (len(forced_goal), goal, ", ".join(forced_goal)))
     if closure:
         bits.append("%d parent closure (%s)" % (len(closure), ", ".join(closure)))
     return "%s = %d kept" % (" + ".join(bits), total)

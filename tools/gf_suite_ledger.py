@@ -118,6 +118,10 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "release_update_guidance": "pure-stdlib pytest suite imports tools/check_release_notes.py "
+                               "through the repo-root walk-up. The tests job checks out the full "
+                               "repository, while installed-world-only consumers skip honestly; "
+                               "it guards the player-facing update headline required by #909",
     "client_gitlink_notes": "pure-stdlib Git fixture imports tools/check_release_notes.py through "
                             "the repo-root walk-up. The tests job checks out full history and the "
                             "repo tree, so the per-bump gate must run there rather than skip; it "
@@ -127,6 +131,10 @@ TESTS_JOB = {
                             "shared _util import, and the tests job supplies the real checkout. "
                             "Pytest suite with no generator role; #885's acceptance case must run "
                             "in TESTS_JOB",
+    "dlc_gated_shop_rows": "builds two solo multiworlds (WorldTestBase) to hold the DLC and "
+                            "no-DLC location sets against each other -- needs the installed "
+                            "world and AP; the derived-set keeper reads the same installed "
+                            "shop_data. Pytest acceptance suite for AzoTax's no-DLC goal-lock",
     "boss_own_drops": "re-derives #907's own-drop admission from the committed boss_drops/"
                        "boss_sweeps tables against the installed world's data.py -- a pytest "
                        "acceptance suite with no generator role; the tests job has both sides",

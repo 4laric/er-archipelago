@@ -7,7 +7,8 @@ smithing track (normal, cap +25 / somber, cap +10) -- raise-only, never lowering
 weapon, cap-clamped, and idempotent under the reconnect re-grant burst. There is no target-level
 magnitude to pick: the client reads this as nonzero == on and derives the level from your live
 inventory (er-logic/upgrades.rs apply_auto_upgrade + upgrades_replay.rs). Greenfield emits the
-resolved int in slot_data["options"]["auto_upgrade"] (core._options_echo). Off by default. Matches
+resolved int in slot_data["options"]["auto_upgrade"] (core._options_echo). On by default (the
+2026-08-20 unfreeze kept the frozen value as the default). Matches
 the old matt world's AutoUpgradeOption(Toggle) semantics 1:1.
 
 FLATTEN_REGULAR_UPGRADES (Range) -- graduated smithing-stone COST for standard weapon reinforcement.
@@ -30,10 +31,17 @@ from ..registry import Feature, register
 
 
 class AutoUpgrade(Toggle):
-    """Automatically raise any RECEIVED weapon to the highest reinforce level you already hold on
-    its smithing track (normal caps at +25, somber at +10). Raise-only: a received weapon already
-    above your live level is left untouched. Off by default. (The level tracks your inventory live;
-    there is no fixed target to choose.)"""
+    """Automatically raise any weapon that enters your bag -- an AP grant, a world pickup, or an
+    item you put down with Leave and took back -- to the highest reinforce level you already hold
+    on its smithing track (normal caps at +25, somber at +10). Raise-only and per-track: nothing
+    is ever downgraded, and somber never feeds normal. The put-it-down-pick-it-up gesture is the
+    intended catch-up for a weapon received before you found your stones. On by default, and the
+    receipt half has been every seed's behaviour since v0.2 -- turn it off to keep weapons at
+    their found level and spend the stones yourself."""
+    # The default IS the ex-frozen value (2026-08-20 unfreeze). While an option is frozen its class
+    # default is unreachable and rots; moving it in the same commit is what keeps a default seed's
+    # behaviour identical (the PoolBuilderIntensity lesson). Pinned by test_gf_option_groups.
+    default = 1
     display_name = "Auto-Upgrade Received Weapons"
 
 
