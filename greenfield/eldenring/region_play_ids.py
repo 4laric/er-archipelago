@@ -22,6 +22,7 @@ REGION_PLAY_IDS = {
     'Belurat': [20000],
     'Caelid': [30140, 30150, 30160, 31100, 31110, 31200, 31210, 32070, 32080, 34130, 64000, 64010, 64020],
     'Cerulean': [22000, 41020, 68300, 68400],
+    'Consecrated Snowfield': [30190, 30200, 31120, 32110, 65030],
     'Deeproot Depths': [12030],
     'Enir Ilim': [20010],
     'Ensis': [68200],
@@ -33,7 +34,7 @@ REGION_PLAY_IDS = {
     'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 61000, 61010],
     'Liurnia': [30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110, 39200, 62000, 62010, 62020],
     'Mohgwyn': [12050],
-    'Mountaintops of the Giants': [30170, 30180, 30190, 30200, 31120, 31220, 32110, 65000, 65010, 65020, 65030],
+    'Mountaintops of the Giants': [30170, 30180, 31220, 65000, 65010, 65020],
     'Mt. Gelmir': [16000, 30090, 31070, 31090, 63020],
     'Rauh Base': [40010, 42030, 69010],
     'Raya Lucaria Academy': [14000],
@@ -63,6 +64,7 @@ SCALING_PLAY_IDS = {
     'Belurat': [20000],
     'Caelid': [30140, 30150, 30160, 31100, 31110, 31200, 31210, 32070, 32080, 34130, 64000, 64010, 64020],
     'Cerulean': [22000, 41020, 68300, 68400],
+    'Consecrated Snowfield': [30190, 30200, 31120, 32110, 65030],
     'Deeproot Depths': [12030],
     'Enir Ilim': [20010],
     'Ensis': [68200],
@@ -74,7 +76,7 @@ SCALING_PLAY_IDS = {
     'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 61000, 61010],
     'Liurnia': [30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110, 39200, 62000, 62010, 62020],
     'Mohgwyn': [12050],
-    'Mountaintops of the Giants': [30170, 30180, 30190, 30200, 31120, 31220, 32110, 65000, 65010, 65020, 65030],
+    'Mountaintops of the Giants': [30170, 30180, 31220, 65000, 65010, 65020],
     'Mt. Gelmir': [16000, 30090, 31070, 31090, 63020],
     'Rauh Base': [40010, 42030, 69010],
     'Raya Lucaria Academy': [14000],
@@ -93,4 +95,4 @@ SCALING_PLAY_IDS = {
 # always sufficient (the client cannot scale DOWN an enemy it cannot place).
 SCALING_FLOOR_PLAY_IDS = frozenset([10010, 11100, 18000])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:6f17d305d2e33c25b5870436f865914a4bfaaf8bea6b5a5d3d4658023ee762f6', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:3fda008c36d8e0a5dcbfa12a3dd1998ff5b5012644d4a16d3b2ab259bc9bcf50'}
+_GEN_STAMP = {'inputs_hash': 'sha256:dfb785d0d9e5a877fd0352885106d8a17e8027f85f965f3f43f3540603933532', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:4a41b8a78ef1e63543251e9bf6c1268a020bfb7bfc8783f1df599b793801b210'}

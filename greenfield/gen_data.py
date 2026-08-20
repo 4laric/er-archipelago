@@ -505,7 +505,7 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite',
  "Liurnia of the Lakes (Seluvis's Rise)":'Liurnia',"Liurnia of the Lakes (Ranni's Rise)":'Liurnia',
  'Weeping Peninsula':'Weeping','Siofra River / Nokron':'Siofra River','Caelid':'Caelid',
  'Caelid (Redmane Castle)':'Caelid','Caelid (Cathedral of Dragon Communion)':'Caelid','Gravesite Plain (DLC)':'Gravesite','Gravesite Plain':'Gravesite',
- 'Cathedral of Manus Metyr (DLC)':'Scadu Altus','Scadu Altus (DLC)':'Scadu Altus','Consecrated Snowfield':'Mountaintops of the Giants',
+ 'Cathedral of Manus Metyr (DLC)':'Scadu Altus','Scadu Altus (DLC)':'Scadu Altus','Consecrated Snowfield':'Consecrated Snowfield',
  'Shadow Keep (DLC)':'Shadow Keep','Altus Plateau':'Altus','Jagged Peak (DLC)':'Jagged Peak',
  'Grand Altar of Dragon Communion (Jagged Peak, DLC)':'Jagged Peak','Cerulean Coast (DLC)':'Cerulean',
  'Abyssal Woods (DLC)':'Abyssal','Mountaintops of the Giants':'Mountaintops of the Giants',
@@ -2843,6 +2843,11 @@ FLAG_REGION_OVERRIDE = {
     1051587800: "Mountaintops of the Giants",  # Haligtree Secret Medallion (Left) is physically in
                                                #   Castle Sol (Mountaintops); the EMEVD scan mis-tiled the
                                                #   flag to Liurnia (m60_36_41). Right half stays in Liurnia.
+    # The Snowfield Putrid Avatar's crystal tears are global/common-event rewards whose auxiliary
+    # placement evidence resolves across the m60_50_57 seam into Mountaintops. The boss itself is on
+    # the Snowfield side (see _FIELD_SWEEP_REGION_CURATED), so both rewards belong with that boss.
+    65130: "Consecrated Snowfield",  # Thorny Cracked Tear
+    65170: "Consecrated Snowfield",  # Ruptured Crystal Tear
     520000: "Weeping",               # Lhutel the Headless (spirit ash) -- Alaric-confirmed
                                                #   Weeping, mis-tiled to m10/Stormveil by the EMEVD scan.
     520010: "Weeping",               # Demi-Human Ashes -- same (Alaric-confirmed Weeping).
@@ -3363,10 +3368,10 @@ GLOBAL_RECOVER = {
     65070: "Mountaintops of the Giants",  # Crimson Bubbletear (Mountaintops Erdtree Avatar)
     65080: "Weeping",        # Opaline Bubbletear (Weeping Erdtree Avatar)
     65110: "Caelid",                   # Opaline Hardtear (Caelid Erdtree Avatar)
-    65130: "Mountaintops of the Giants",  # Thorny Cracked Tear (Snowfield Erdtree Avatar; Snowfield folded in)
+    65130: "Consecrated Snowfield",       # Thorny Cracked Tear (Snowfield Erdtree Avatar)
     65140: "Limgrave",                 # Spiked Cracked Tear
     65160: "Liurnia",     # Ruptured Crystal Tear (Liurnia Erdtree Avatar)
-    65170: "Mountaintops of the Giants",  # Ruptured Crystal Tear (Snowfield Erdtree Avatar; Snowfield folded in)
+    65170: "Consecrated Snowfield",       # Ruptured Crystal Tear (Snowfield Erdtree Avatar)
     65210: "Limgrave",                 # Strength-knot Crystal Tear
     65220: "Liurnia",     # Dexterity-knot Crystal Tear
     65230: "Liurnia",     # Intelligence-knot Crystal Tear (Carian Manor)
@@ -6182,6 +6187,10 @@ for _reg in sorted(_gg_regions_hit):
 _FRONT_DOOR_PIN = {
     "Altus": 76301,
     "Ashen Capital": 71123,
+    # BonfireWarpParam records the Catacombs/Tunnel warp destinations on m60 tiles, so the generic
+    # "overworld first" heuristic sees 73019 before the actual Snowfield entrance. The region's
+    # direct-access contract is the named surface grace at the secret-lift exit.
+    "Consecrated Snowfield": 76550,
 }
 def _front_door(r):
     if r in _FRONT_DOOR_PIN:
@@ -6509,9 +6518,11 @@ MAJOR_BOSS_EXTRAS = {
         # flag it loudly if the override does not land it in Jagged Peak). Verify in-game before trusting.
         # Alternates: Senessax; Ancient Dragon (no distinct in-region drop-check found for either).
     ],
-    # Consecrated Snowfield: FOLDED into Mountaintops of the Giants (its maps re-region there via the
-    #   overrides above), whose Fire Giant is already a boss_arena major -- so it needs no extra and is
-    #   no longer a standalone zero-major region.
+    "Consecrated Snowfield": [
+        (530550, "Great Wyrm Theodorix", "Dragon Heart", "HIGH"),
+        # Dragon Heart rewards are Boss checks but not part of the achievement/remembrance roster.
+        # Theodorix is the Snowfield's standalone major anchor after the 65002 split.
+    ],
 }
 
 
@@ -9976,6 +9987,24 @@ if BOSS_HEALTHBARS:
     # authority the divvy uses -- so pin it rather than let a neighbourhood vote re-decide it. A
     # boss whose sweep region disagreed with its divvy region would hold one trigger claiming two.
     _freg.update(_m61_field_region)
+    # The Snowfield Putrid Avatar and the Mountaintops Death Rite Bird share coarse tile
+    # m60_50_57 across the region seam. A tile-majority vote therefore assigns both bosses to
+    # Mountaintops, even though the Avatar and both of its crystal-tear rewards are on the
+    # Snowfield side. Curate the BOSS, not the tile: moving the whole tile would incorrectly drag
+    # the Death Rite Bird and its Mountaintops checks across the seam. The local-member filter
+    # below then gives the Avatar only Snowfield checks and leaves the other side to its own boss.
+    _FIELD_SWEEP_REGION_CURATED = {
+        1050570850: "Consecrated Snowfield",
+    }
+    for _trig, _reg in _FIELD_SWEEP_REGION_CURATED.items():
+        if _trig not in dict(_field_bosses):
+            raise SystemExit(
+                f"gen_data: field-sweep region ruling {_trig} no longer names a live field boss")
+        if _freg.get(_trig) == _reg:
+            raise SystemExit(
+                f"gen_data: field-sweep region ruling {_trig} -> {_reg!r} is REDUNDANT; "
+                "the measured neighbourhood now agrees, so delete the ruling")
+        _freg[_trig] = _reg
     _fassign = defaultdict(list)
     for _t in sorted(_tile_xy):
         _txy = _tile_xy[_t]

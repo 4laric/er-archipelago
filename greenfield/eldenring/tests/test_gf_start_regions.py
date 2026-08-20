@@ -321,7 +321,7 @@ class StartRegionPoolDrawsFromThePool(WorldTestBase):
 
     def test_exactly_one_of_the_named_regions_opens(self):
         seen = set()
-        for seed in (1, 7, 13, 22222, 5551212, 31337, 424242):
+        for seed in (1, 2, 7, 13, 22222, 5551212, 31337, 424242):
             self.world_setup(seed=seed)
             locks = _precollected_locks(self)
             self.assertEqual(len(locks), 1, f"seed {seed}: {locks}")
@@ -330,7 +330,7 @@ class StartRegionPoolDrawsFromThePool(WorldTestBase):
         # Not an assertion about fairness -- just that the pool is a POOL. If one name could never
         # win, "draw from these" would be a lie and a single-name test would never notice.
         self.assertEqual(seen, {"Caelid", "Liurnia"},
-                         "over 7 seeds only %s ever opened the run, so the second name is dead"
+                         "over 8 seeds only %s ever opened the run, so the second name is dead"
                          % sorted(seen))
 
 

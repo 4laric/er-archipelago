@@ -166,6 +166,7 @@ _OVERWORLD_LO, _OVERWORLD_HI = 76000, 77000
 _ENTRANCE_GRACE_PIN = {
     "Altus": 76301,          # Altus Plateau, at the Grand Lift; #641
     "Ashen Capital": 71123,  # Leyndell, Capital of Ash; unambiguous post-burn entry; #853
+    "Consecrated Snowfield": 76550,  # secret-lift exit and named Snowfield entrance; #868
     "Haligtree": 71506,      # Haligtree Canopy; start of the physical descent; #861
 }
 

@@ -60,8 +60,8 @@ defeat_flag	bucket	region
 30160800	30160	Caelid
 30170800	30170	Mountaintops of the Giants
 30180800	30180	Mountaintops of the Giants
-30190800	30190	Mountaintops of the Giants
-30200800	30200	Mountaintops of the Giants
+30190800	30190	Consecrated Snowfield
+30200800	30200	Consecrated Snowfield
 31000845	31000	Limgrave
 31010800	31010	Weeping
 31020800	31020	Weeping
@@ -73,7 +73,7 @@ defeat_flag	bucket	region
 31090800	31090	Mt. Gelmir
 31100800	31100	Caelid
 31110800	31110	Caelid
-31120800	31120	Mountaintops of the Giants
+31120800	31120	Consecrated Snowfield
 31150800	31150	Limgrave
 31170800	31170	Limgrave
 31180800	31180	Altus
@@ -89,7 +89,7 @@ defeat_flag	bucket	region
 32050800	32050	Altus
 32070800	32070	Caelid
 32080800	32080	Caelid
-32110800	32110	Mountaintops of the Giants
+32110800	32110	Consecrated Snowfield
 34100800	34100	Limgrave
 34110800	34110	Liurnia
 34120800	34120	Altus
