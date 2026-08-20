@@ -284,6 +284,38 @@ class GoalMaleniaComposesWithBothIndependentAxes(WorldTestBase):
         assert sd[contract.REGION_GRACES]["Haligtree Lock"] == [MALENIA_ENTRY_GRACE]
 
 
+@pytest.mark.parametrize("runes", [False, True], ids=["no_runes", "four_runes"])
+@pytest.mark.parametrize("policy", ["items_held", "regions_completed", "none"])
+def test_malenia_goal_axis_matrix_fills_clean(runes, policy):
+    """All 2 x 3 combinations are real fills, not just six slot-data spellings."""
+    from Fill import distribute_items_restrictive
+
+    options = {
+        "num_regions": 4,
+        "goal": "malenia",
+        "goal_region_unlock_policy": policy,
+    }
+    if runes:
+        options.update(item_shuffle=True, ending_condition="great_runes", goal_great_runes=4)
+
+    class _T(WorldTestBase):
+        game = GAME
+        auto_construct = False
+
+    test = _T("runTest")
+    test.options = options
+    test.world_setup(20260819)
+    try:
+        distribute_items_restrictive(test.multiworld)
+        sd = test.world.fill_slot_data()
+        assert sd[contract.GOAL_LOCATIONS] == [MALENIA_GOAL_LOCATION]
+        assert sd[contract.REGION_GRACES]["Haligtree Lock"] == [MALENIA_ENTRY_GRACE]
+        assert sd["great_runes_required"] == (4 if runes else 0)
+        assert (contract.GOAL_REQUIRED_ITEMS in sd) == (policy == "items_held")
+    finally:
+        test.tearDown()
+
+
 class GoalEldenBeastNeedsNoForcing(WorldTestBase):
     """`goal: elden_beast` on a small draw, which used to be the case that PROVED the force-keep.
 
