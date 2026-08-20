@@ -502,8 +502,8 @@ def test_the_sweep_corpus_did_not_shrink():
     # worldless-singles cull (-85 sweep-slotted flags) lands at 4018. Cull delta measured by
     # (trigger, flag): 387 removed (85 the cull itself, the rest the divvy re-phase it
     # triggered) / 300 added / 304 re-owned, and ZERO re-ownerships cross a region boundary.
-    assert total == 4027, (  # +1 on the #898 base, +8 more when the audited-tile rows were released from the cull
-        "sweep corpus is %d, expected 4027. If a sweep was legitimately added or removed, say WHY "
+    assert total == 4100, (  # +73 (2026-08-20, #907): every admissible boss OWN drop joined its own trigger's sweep
+        "sweep corpus is %d, expected 4100. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -692,6 +692,6 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # region correction, the safe direction.
     # 2026-08-19 (census + cull on top of #896's 89fbf395/3997): -> a57ff5e1/4018. Measurement at
     # the corpus ratchet above; zero region-crossing re-owns.
-    assert (digest, n) == ("b3d443e97f16ed0d", 4027), (  # re-measured after the tile releases + the Crimson Hood ruling (same 4027 members, one re-own)
-        "sweep OWNERSHIP changed: (%s, %d), expected (b3d443e97f16ed0d, 4027). The total alone will "
+    assert (digest, n) == ("ef50c12d40700ff6", 4100), (  # #907: 73 own-drop additions, zero removals/re-owns (measured by (trigger, flag))
+        "sweep OWNERSHIP changed: (%s, %d), expected (ef50c12d40700ff6, 4100). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
