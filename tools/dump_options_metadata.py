@@ -326,6 +326,17 @@ def extract(ap_dir):
 
     field_order = [k for k, _ in fields]
     groups, ungrouped = group_surface(GFWeb, fields)
+    # THE ESSENTIALS TIER (core._ESSENTIAL_OPTIONS via GFWeb.essential_options). Presentation only,
+    # like the grouping: the wizard renders a group's essential options expanded and the rest
+    # behind a per-section "More ..." fold. Validated here so a retired key cannot linger: every
+    # essential must be a VISIBLE key (core already raised on ungrouped ones at import).
+    essentials = set(getattr(GFWeb, "essential_options", ()) or ())
+    ghost = sorted(essentials - {k for k, _ in fields})
+    if ghost:
+        sys.exit("[FAIL] essential option(s) not on the visible surface: %s -- frozen or retired "
+                 "keys are not knobs; fix core._ESSENTIAL_OPTIONS" % ", ".join(ghost))
+    for o in options:
+        o["essential"] = o["key"] in essentials
     # Deterministic surface hash (no timestamps) so --check can byte-compare.
     surface = json.dumps([[o["key"], o["kind"], o["default"], o["choices"], o["range"],
                            o["valid_keys"]] for o in options], sort_keys=True, default=str)
