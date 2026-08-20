@@ -40,6 +40,7 @@
   "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
   "region": "Ashen Capital"
  },
+ "hub_dlc_gated_checks": 36,
  "hub_region": "Roundtable Hold",
  "parent": {
   "Leyndell": "Altus",
@@ -186,13 +187,13 @@
    },
    "sweep_slots_max": {
     "all": 81,
-    "bosses": 141,
+    "bosses": 143,
     "minidungeons": 81
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 81,
-     "bosses": 141,
+     "bosses": 143,
      "minidungeons": 81
     },
     "SweepSlotMajor": {
@@ -200,7 +201,7 @@
     },
     "SweepSlotMinor": {
      "all": 81,
-     "bosses": 133,
+     "bosses": 135,
      "minidungeons": 81
     }
    }
@@ -387,13 +388,13 @@
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 112,
+    "bosses": 118,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 112,
+     "bosses": 118,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -401,7 +402,7 @@
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 108,
+     "bosses": 114,
      "minidungeons": 55
     }
    }
@@ -993,13 +994,13 @@
    },
    "sweep_slots_max": {
     "all": 51,
-    "bosses": 104,
+    "bosses": 105,
     "minidungeons": 51
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 51,
-     "bosses": 104,
+     "bosses": 105,
      "minidungeons": 51
     },
     "SweepSlotMajor": {
@@ -1007,7 +1008,7 @@
     },
     "SweepSlotMinor": {
      "all": 51,
-     "bosses": 88,
+     "bosses": 89,
      "minidungeons": 51
     }
    }
@@ -1313,21 +1314,21 @@
     }
    },
    "sweep_slots_max": {
-    "all": 31,
-    "bosses": 31
+    "all": 32,
+    "bosses": 32
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 31,
-     "bosses": 31
+     "all": 32,
+     "bosses": 32
     },
     "SweepSlotMajor": {
      "all": 14,
      "bosses": 14
     },
     "SweepSlotMinor": {
-     "all": 17,
-     "bosses": 17
+     "all": 18,
+     "bosses": 18
     }
    }
   },
@@ -1482,5 +1483,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "73bf9ba7e4288fe892fe9a830d61b2fbbe55386c9755ac579121c691d5db2cb5"
+ "source_sha256": "6ec103577202b476b93f485b3a7b1dd5997ca542f3dc92ae6bf8a828dbea1dbc"
 }

@@ -130,5 +130,89 @@ class TestOptionGroups(unittest.TestCase):
             "Advanced. %s" % (covered, len(self.order), FIX))
 
 
+
+class TestAutoUpgradeUnfreeze(unittest.TestCase):
+    """2026-08-20: auto_upgrade unfroze (frozen at 1 since v0.2). While frozen, the class default
+    was unreachable and had rotted to Toggle's 0 -- so the unfreeze moved the default to the
+    frozen value in the same commit, and this pin keeps a default seed's behaviour identical to
+    every seed since the freeze (the PoolBuilderIntensity lesson, one option over)."""
+
+    def test_the_default_is_the_ex_frozen_value(self):
+        import importlib.util as ilu
+        spec = ilu.spec_from_file_location(
+            "_upg", os.path.join(REPO, "greenfield", "eldenring", "features", "upgrades.py"))
+        # AP-free: read the class body textually rather than import a module that wants Options.
+        with open(os.path.join(REPO, "greenfield", "eldenring", "features", "upgrades.py"),
+                  encoding="utf-8") as f:
+            src = f.read()
+        body = src.split("class AutoUpgrade", 1)[1].split("class ", 1)[0]
+        self.assertIn("default = 1", body,
+                      "AutoUpgrade.default is not 1 -- a yaml that does not name auto_upgrade "
+                      "would silently turn OFF behaviour every seed has had since v0.2")
+        with open(os.path.join(REPO, "greenfield", "eldenring", "defaults.py"),
+                  encoding="utf-8") as f:
+            self.assertNotIn('"auto_upgrade": (', f.read(),
+                             "auto_upgrade is frozen AND defaulted -- pick one")
+
+
+class TestEssentialsTier(unittest.TestCase):
+    """The essentials tier (core._ESSENTIAL_OPTIONS -> metadata `essential`) stays honest.
+
+    2026-08-20, the "too many options" follow-up to the five-step rail: each section renders its
+    essential options expanded and the rest behind a More fold. These assertions keep the tier
+    from decaying the way ungrouped options used to: a section with no essentials renders as a
+    single closed fold, which is the pre-#554 accordion one group at a time."""
+
+    @classmethod
+    def setUpClass(cls):
+        with open(os.path.join(REPO, "wizard", "options-metadata.json"),
+                  "r", encoding="utf-8", newline="") as f:
+            cls.meta = json.load(f)
+        cls.ess = {o["key"] for o in cls.meta["options"] if o.get("essential")}
+
+    def test_the_tier_exists_and_is_a_tier(self):
+        # WITNESS both directions: no essentials = the fold hides everything; all essentials = the
+        # fold is scenery. Either way the tier stopped meaning anything.
+        total = len(self.meta["options"])
+        self.assertTrue(self.ess, "no option is marked essential -- the wizard renders every "
+                                  "section as one closed More fold")
+        self.assertLess(len(self.ess), total * 0.5,
+                        "%d of %d options are 'essential' -- the tier no longer distinguishes "
+                        "anything; demote some or delete the concept" % (len(self.ess), total))
+
+    # A group RULED to have no essentials renders every row directly under its own section fold
+    # (the page skips the inner More when nothing is promoted) -- one fold, not two. Any OTHER
+    # bare group is an accident and fails below.
+    RULED_BARE_GROUPS = {
+        # Alaric 2026-08-20: keep_out_of_shops was a bobler request, usage unknown; nothing in
+        # the section is a first-session decision.
+        "Shops & Merchants",
+    }
+
+    def test_every_open_group_keeps_at_least_one_essential(self):
+        # WITNESSES: an empty groups list or an empty tier makes `bare == []` true for free.
+        self.assertTrue(self.meta["groups"], "no groups -- this assertion is over nothing")
+        self.assertTrue(self.ess, "no essentials -- this assertion is over nothing")
+        bare = {g["name"] for g in self.meta["groups"]
+                if not g.get("collapsed") and not any(k in self.ess for k in g["options"])}
+        self.assertEqual(bare - self.RULED_BARE_GROUPS, set(),
+                         "open group(s) with NO essential option and no ruling: %r -- promote a "
+                         "key in core._ESSENTIAL_OPTIONS, or record the ruling in "
+                         "RULED_BARE_GROUPS with who made it." % sorted(bare - self.RULED_BARE_GROUPS))
+        self.assertEqual(self.RULED_BARE_GROUPS - bare, set(),
+                         "stale RULED_BARE_GROUPS entr(ies): %r now carry an essential -- drop "
+                         "them so the waiver does not outlive its subject."
+                         % sorted(self.RULED_BARE_GROUPS - bare))
+
+    def test_every_essential_is_grouped_and_visible(self):
+        grouped = {k for g in self.meta["groups"] for k in g["options"]}
+        # WITNESSES: both sides must be nonempty for the disjointness below to mean anything.
+        self.assertTrue(grouped, "no grouped keys -- the subtraction below is vacuous")
+        self.assertTrue(self.ess, "no essentials -- the subtraction below is vacuous")
+        stray = sorted(self.ess - grouped)
+        self.assertEqual(stray, [], "essential option(s) outside every group: %r -- core.py "
+                                    "validates this at import, so the metadata is stale; rerun "
+                                    "tools/dump_options_metadata.py" % stray)
+
 if __name__ == "__main__":
     unittest.main()

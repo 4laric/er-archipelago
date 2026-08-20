@@ -218,6 +218,12 @@ class TestRegionCensusAgainstRealWorlds(unittest.TestCase):
                 base_in_play = not options.get("dlc_only", False)
                 if base_in_play:
                     predicted += regions[finale]["checks"]
+                # #913: the hub sheds its DLC-gated shop rows (Enia) when the seed has no DLC --
+                # the census carries the adjustment so the identity holds on both kinds of seed.
+                dlc_on = bool(options.get("dlc_only", False)
+                              or options.get("enable_dlc", True))
+                if not dlc_on:
+                    predicted -= int(census.get("hub_dlc_gated_checks") or 0)
 
                 self.assertEqual(
                     predicted, actual,
