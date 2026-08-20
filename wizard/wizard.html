@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.9",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "6b5342f5ecc0e27a49c89e8116a8a7cb99f15b244a156f3a449a04f8a04a8d28",
+ "source_sha256": "d5ac73c59611255e614fb1c98c6070d402cf247a818bdf8c329d23a381224fb8",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -409,7 +409,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "goal",
    "class": "Goal",
    "display_name": "Goal",
-   "description": "WHICH BOSS ENDS THE RUN. 'auto' (default) derives it: on ANY seed with the base game in\nplay, Godfrey/Hoarah Loux + the Elden Beast. Under DLC Only, the major bosses of the deepest\nkept region.\n\nHOW YOU GET THERE. The Erdtree burn is an ITEM. The Ashen Capital Lock is shuffled into the\npool like any other progression item, and when it reaches you the Erdtree burns and the Ashen\nCapital's graces light -- so you warp to the end of the game from wherever you are, and no\nparticular region has to be kept for the ending to exist. Before v0.3.7 the burn was the\ngame's own (Maliketh, in Farum Azula), which is why this option used to force two regions into\nevery draw. The Ashen Capital itself is never rolled, never counted by Number of Regions and\nnever where you start.\n\n'elden_beast' pins that pair explicitly and forces NO regions kept.\n'promised_consort' pins Enir Ilim -- Promised Consort Radahn, the DLC's final boss -- and\nFORCES Enir Ilim to be kept. It is the only choice that still forces anything, and that is the\npoint of the option: on a full base+DLC seed 'auto' ends at the Elden Beast and the whole DLC\nis optional, so PCR can never be the goal by luck.\n\nA choice its toggles make impossible is a GENERATION ERROR, never a silent fallback:\n'promised_consort' needs DLC content in play (fails with Enable DLC off), 'elden_beast' needs\nbase-game content (fails with DLC Only on). A goal that quietly evaporates is worse than a\nyaml that refuses to roll.",
+   "description": "WHICH BOSS ENDS THE RUN. 'auto' (default) derives it: on ANY seed with the base game in\nplay, Godfrey/Hoarah Loux + the Elden Beast. Under DLC Only, the major bosses of the deepest\nkept region.\n\nHOW YOU GET THERE. The Erdtree burn is an ITEM. The Ashen Capital Lock is shuffled into the\npool like any other progression item, and when it reaches you the Erdtree burns and the Ashen\nCapital's graces light -- so you warp to the end of the game from wherever you are, and no\nparticular region has to be kept for the ending to exist. Before v0.3.7 the burn was the\ngame's own (Maliketh, in Farum Azula), which is why this option used to force two regions into\nevery draw. The Ashen Capital itself is never rolled, never counted by Number of Regions and\nnever where you start.\n\n'elden_beast' pins that pair explicitly and forces NO regions kept.\n'promised_consort' pins Enir Ilim -- Promised Consort Radahn, the DLC's final boss -- and\nFORCES Enir Ilim to be kept. 'malenia' pins Malenia alone, force-keeps the Haligtree, and opens\nthe route at Haligtree Canopy only: Loretta, Elphael and the full descent remain physical play.\nOn a full base+DLC seed 'auto' ends at the Elden Beast and the whole DLC is optional, so PCR or\nMalenia can never be the goal by luck.\n\nA choice its toggles make impossible is a GENERATION ERROR, never a silent fallback:\n'promised_consort' needs DLC content in play (fails with Enable DLC off); 'elden_beast' and\n'malenia' need base-game content (fail with DLC Only on). A goal that quietly evaporates is\nworse than a yaml that refuses to roll.",
    "kind": "choice",
    "base": "Choice",
    "default": "auto",
@@ -425,6 +425,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     {
      "name": "promised_consort",
      "value": 2
+    },
+    {
+     "name": "malenia",
+     "value": 3
     }
    ],
    "range": null,

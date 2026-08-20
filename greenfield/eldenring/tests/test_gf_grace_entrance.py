@@ -32,6 +32,7 @@ EXEMPLARS = {
     "Gravesite": (76800, "Gravesite Plain"),       # where the DLC starts
     "Stormveil": (71003, "Gateside Chamber"),      # interior region: no 76xxx member at all
     "Leyndell": (71102, "East Capital Rampart"),   # interior
+    "Haligtree": (71506, "Haligtree Canopy"),      # top of the physical descent; #861
     "Raya Lucaria Academy": (71402, "Church of the Cuckoo"),
 }
 

@@ -236,18 +236,20 @@ class Goal(Choice):
 
     'elden_beast' pins that pair explicitly and forces NO regions kept.
     'promised_consort' pins Enir Ilim -- Promised Consort Radahn, the DLC's final boss -- and
-    FORCES Enir Ilim to be kept. It is the only choice that still forces anything, and that is the
-    point of the option: on a full base+DLC seed 'auto' ends at the Elden Beast and the whole DLC
-    is optional, so PCR can never be the goal by luck.
+    FORCES Enir Ilim to be kept. 'malenia' pins Malenia alone, force-keeps the Haligtree, and opens
+    the route at Haligtree Canopy only: Loretta, Elphael and the full descent remain physical play.
+    On a full base+DLC seed 'auto' ends at the Elden Beast and the whole DLC is optional, so PCR or
+    Malenia can never be the goal by luck.
 
     A choice its toggles make impossible is a GENERATION ERROR, never a silent fallback:
-    'promised_consort' needs DLC content in play (fails with Enable DLC off), 'elden_beast' needs
-    base-game content (fails with DLC Only on). A goal that quietly evaporates is worse than a
-    yaml that refuses to roll."""
+    'promised_consort' needs DLC content in play (fails with Enable DLC off); 'elden_beast' and
+    'malenia' need base-game content (fail with DLC Only on). A goal that quietly evaporates is
+    worse than a yaml that refuses to roll."""
     display_name = "Goal"
     option_auto = 0
     option_elden_beast = 1
     option_promised_consort = 2
+    option_malenia = 3
     default = 0
 
 
@@ -845,12 +847,11 @@ class GreenfieldEldenRingWorld(World):
     def withheld_goal_lock(self) -> Optional[str]:
         """The kept region's Lock this seed withholds, or None.
 
-        🛑 #768 SHIPPED THIS FOR ONE GOAL AND THERE ARE TWO. `GOAL_CHOICES` is
-        `{"elden_beast": ("Ashen Capital", ()), "promised_consort": ("Enir Ilim", ("Enir Ilim",))}`,
-        and the Ashen Capital is never a KEPT region -- it hangs off the hub behind a synthetic
-        lock -- so dropping that one lock covered `elden_beast` completely and `promised_consort`
-        not at all. Enir Ilim IS kept (its own goal force-keeps it), its Lock is an ordinary kept
-        region's Lock, and fill could put it in sphere 1: on a DLC-terminus seed the ending stayed
+        🛑 #768 SHIPPED THIS FOR ONE GOAL WHEN THERE WERE TWO. The Ashen Capital is never a KEPT
+        region -- it hangs off the hub behind a synthetic lock -- so dropping that one lock covered
+        `elden_beast` completely and `promised_consort` not at all. Named goals can also use kept
+        regions now (`promised_consort` -> Enir Ilim, `malenia` -> Haligtree), and their Locks are
+        ordinary kept-region Locks that fill could otherwise put in sphere 1: the ending would be
         reachable before the run exactly as it was before #768.
 
         The DLC terminus only got its guarantee on 2026-08-09, after bobler finished a seed on
@@ -865,7 +866,7 @@ class GreenfieldEldenRingWorld(World):
         if _np.is_on(self) or _vp.is_on(self):
             return None                 # no synthetic locks exist in these modes
         choice = getattr(self, "gf_goal_choice", None)
-        region = _gl.GOAL_CHOICES[choice][0] if choice in _gl.GOAL_CHOICES else None
+        region = _gl.goal_region(choice)
         if region is None or region not in self._kept():
             return None                 # `elden_beast`: the Ashen Capital is never kept -> None
         return f"{region} Lock"
@@ -944,7 +945,7 @@ class GreenfieldEldenRingWorld(World):
         # out of AP's region cache instead of here with an actionable message. A named goal whose
         # region cannot be BUILT is the same unsatisfiable yaml as one whose region was toggled
         # away, so it dies in the same place, by an explicit test rather than a quantifier.
-        _region = _gl.GOAL_CHOICES[chosen][0]
+        _region = _gl.goal_region(chosen)
         if _region == FINALE_REGION and not _finale.base_game_in_play(self.gf_eligible):
             raise OptionError(
                 "goal: %s ends on %s, which is base-game content -- and this seed's options "
@@ -963,7 +964,7 @@ class GreenfieldEldenRingWorld(World):
                    getattr(getattr(self.options, "dlc_only", None), "value", "?")))
         logging.getLogger("Greenfield").info(
             "[eldenring:%s] goal ARMED: %s -> region %s (forcing %s kept)", self.player, chosen,
-            _gl.GOAL_CHOICES[chosen][0], "+".join(need))
+            _region, "+".join(need))
         return chosen
 
     def _kept(self) -> List[str]:
@@ -1814,7 +1815,7 @@ class GreenfieldEldenRingWorld(World):
             # An explicit `goal` choice wins here too, or natural_progression would complete on the
             # capital while goalLocations named a different region's boss -- two terminal claims.
             _choice = getattr(self, "gf_goal_choice", "auto")
-            goal = _gl.GOAL_CHOICES[_choice][0] if _choice in _gl.GOAL_CHOICES else GOAL_REGION
+            goal = _gl.goal_region(_choice) or GOAL_REGION
             if goal not in _kept_now:
                 # (no local `import ... as _gl` here: it would shadow the module-level binding
                 # used two lines above and raise UnboundLocalError.)

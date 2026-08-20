@@ -17,6 +17,11 @@ Client half: clients#286. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Malenia can end the run.** `goal: malenia` force-keeps the Haligtree and withholds its Lock
+  from fill until the seed's independently selected Great-Rune and region requirements are met.
+  Opening it grants Haligtree Canopy alone—even under the all-graces or grace-attunement settings—
+  so Loretta, Elphael and the full descent to Malenia remain physical play. The terminal check is
+  Malenia's f510200 defeat, not every Haligtree major boss. World: #861.
 - **Small-region `keep_out_of_shops` seeds generate cleanly.** The option now decides what fits
   after progression reservations and places the constrained subset with the restrictive filler,
   so an Ensis start no longer strands Cipher Pata opposite Enia despite having legal non-shop
