@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.4.10",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "cdf27eaa839bdf49b692fcba72f9c9ba319249c3e85c9d33b7e4e52a87a0aba4",
+ "source_sha256": "b4f1738898ed8d88a7ee14da4906d91f8d7dd5ec91974b252a3513ad62d30390",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -1758,8 +1758,10 @@
    "choices": null,
    "range": null,
    "valid_keys": [
+    "aging_untouchable",
     "basilisk",
     "blackout",
+    "malenia",
     "no_flask",
     "rune_thief",
     "runebear"
