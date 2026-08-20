@@ -62,7 +62,7 @@ def test_insufficient_surface_capacity_fails_with_requested_breakdown(monkeypatc
         local_items=SimpleNamespace(value=set())))
     destination = SimpleNamespace(
         player=1, game="Elden Ring", options=SimpleNamespace(
-            receive_foreign_progression=SimpleNamespace(value=1)))
+            balance_progression_across_games=SimpleNamespace(value=1)))
     mw = SimpleNamespace(
         itempool=foreign, worlds={1: destination, 2: partner}, random=random.Random(927))
     destination.multiworld = mw

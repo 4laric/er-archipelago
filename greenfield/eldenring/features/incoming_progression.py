@@ -2,9 +2,10 @@
 
 Archipelago's ordinary fill is intentionally free to produce an asymmetric multiworld.  That is
 usually desirable, but it means an Elden Ring slot can export several of its own keys while hosting
-none of its partners' advancement.  ``receive_foreign_progression`` is the explicit opt-in to a
-different shape: for every other game represented at the table, reserve 1/N of that game's eligible
-unplaced advancement on this slot's progression surface, where N is the number of distinct games.
+none of its partners' advancement.  ``balance_progression_across_games`` is the explicit opt-in to
+a different shape: for every other game represented at the table, reserve 1/N of that game's
+eligible unplaced advancement on this slot's progression surface, where N is the number of distinct
+games.  The outgoing half lives beside the existing cross-game pass in progression_surface.py.
 
 This is a PLACEMENT guarantee, not a playthrough guarantee.  The spoiler's reduced playthrough may
 later prune an advancement item whose route proved redundant.
@@ -19,18 +20,20 @@ from ..registry import Feature, register
 _LOG = logging.getLogger("eldenring")
 
 
-class ReceiveForeignProgression(Toggle):
-    """Reserve 1/N of each other game's eligible progression on this Elden Ring slot.
+class BalanceProgressionAcrossGames(Toggle):
+    """Balance Elden Ring progression with every represented partner game.
 
-    N is the number of distinct games in the multiworld.  Items that their owner requires to remain
-    local are excluded.  The reservation uses this slot's Progression Surface and obeys normal item,
-    location, and reachability rules.  Generation fails with a capacity diagnostic if the requested
-    share cannot legally fit.
+    N is the number of distinct games in the multiworld. Every partner receives its own near-1/N
+    share of this slot's fill-visible progression, and this slot receives a 1/N share from every
+    partner game. Items that their owner requires to remain local are excluded. The incoming
+    reservation uses this slot's Progression Surface and obeys normal item, location, and
+    reachability rules. Generation fails with a capacity diagnostic if the requested share cannot
+    legally fit.
 
     This guarantees advancement-classified placements.  It cannot guarantee that every reserved
     item remains in the spoiler's minimal playthrough after redundant routes are pruned.
     """
-    display_name = "Receive Foreign Progression Share"
+    display_name = "Balance Progression Across Games"
     default = 0
 
 
@@ -69,7 +72,7 @@ def fair_sample_by_player(items, count: int, rng):
 
 
 def _enabled(world) -> bool:
-    opt = getattr(getattr(world, "options", None), "receive_foreign_progression", None)
+    opt = getattr(getattr(world, "options", None), "balance_progression_across_games", None)
     return bool(int(getattr(opt, "value", opt or 0)))
 
 
@@ -119,7 +122,7 @@ def reserve_incoming_progression(multiworld, worlds) -> None:
             picked = fair_sample_by_player(available, quota, multiworld.random)
             if len(picked) != quota:
                 raise FillError(
-                    f"[eldenring:{world.player}] Receive Foreign Progression Share requests "
+                    f"[eldenring:{world.player}] Balance Progression Across Games requests "
                     f"{quota} item(s) from {game}, but only {len(available)} remain after the other "
                     "opted-in Elden Ring slots were reserved. Reduce the number of receiving slots "
                     "or disable the option on one of them.")
@@ -135,7 +138,7 @@ def reserve_incoming_progression(multiworld, worlds) -> None:
         if len(locations) < len(requested):
             detail = ", ".join(f"{game}: {quota}/{count}" for game, count, quota in audit)
             raise FillError(
-                f"[eldenring:{world.player}] Receive Foreign Progression Share requests "
+                f"[eldenring:{world.player}] Balance Progression Across Games requests "
                 f"{len(requested)} item(s), but only {len(locations)} open Progression Surface "
                 f"location(s) remain ({detail}). Widen progression_surface or disable the option.")
 
@@ -157,7 +160,7 @@ def reserve_incoming_progression(multiworld, worlds) -> None:
             fill_restrictive(
                 multiworld, state, locations, batch,
                 lock=True, allow_partial=True, one_item_per_player=True,
-                name="Elden Ring Incoming Progression Share")
+                name="Elden Ring Balanced Incoming Progression")
         finally:
             for acc, value in saved:
                 acc.value = value
@@ -169,7 +172,7 @@ def reserve_incoming_progression(multiworld, worlds) -> None:
             names = ", ".join(f"{item.name} (P{item.player})" for item in batch[:8])
             detail = ", ".join(f"{game}: {quota}/{count}" for game, count, quota in audit)
             raise FillError(
-                f"[eldenring:{world.player}] Receive Foreign Progression Share placed only "
+                f"[eldenring:{world.player}] Balance Progression Across Games placed only "
                 f"{placed}/{len(requested)} requested item(s); locality, reachability, or location "
                 f"rules refused {len(batch)} ({detail}). First refused: {names}")
 
@@ -182,4 +185,4 @@ def reserve_incoming_progression(multiworld, worlds) -> None:
 @register
 class IncomingProgressionFeature(Feature):
     name = "incoming_progression"
-    OPTIONS = {"receive_foreign_progression": ReceiveForeignProgression}
+    OPTIONS = {"balance_progression_across_games": BalanceProgressionAcrossGames}

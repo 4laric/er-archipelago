@@ -20,6 +20,7 @@ WHAT THESE TESTS GUARD. `released_locks` is pure, which is the point: the endpoi
 never touch an item that is not a Lock. `travelling_progression` is the separate #811 join: when
 cross-game progression is armed, required Great Runes and legacy keys join those released Locks.
 """
+import random
 import unittest
 
 import pytest
@@ -300,6 +301,20 @@ class TestCrossGameShare(unittest.TestCase):
         # the missing attribute being defaulted, not the whole helper being inert.
         self.assertEqual(cross_game_share(self._W(-1), 2), 50)
         self.assertEqual(cross_game_share(_Bare(), 2), 0)
+
+
+class TestBalancedForeignQuotas(unittest.TestCase):
+    def test_eleven_progression_items_split_four_four_three(self):
+        from worlds.eldenring.features.progression_surface import balanced_foreign_quotas
+        quotas = balanced_foreign_quotas(11, {"e33", "Sekiro"}, random.Random(927))
+        self.assertEqual(sorted(quotas.values()), [4, 4])
+        self.assertEqual(11 - sum(quotas.values()), 3)
+
+    def test_items_are_never_duplicated_when_there_are_more_games_than_items(self):
+        from worlds.eldenring.features.progression_surface import balanced_foreign_quotas
+        quotas = balanced_foreign_quotas(2, {"A", "B", "C"}, random.Random(927))
+        self.assertEqual(sum(quotas.values()), 2)
+        self.assertEqual(sorted(quotas.values()), [0, 1, 1])
 
 
 class TestForeignOpenLocations(unittest.TestCase):

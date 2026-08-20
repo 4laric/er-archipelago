@@ -29,9 +29,11 @@ Client half: clients#320. Its commit is pinned by the gitlink in this same chang
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
-- **You can ask every partner game to put progression in Elden Ring.** The new opt-in
-  `receive_foreign_progression` setting reserves roughly `1 / number of games` of each partner
-  game's eligible advancement pool on your Progression Surface before ordinary fill. Multiple
+- **Progression can be balanced across the games at the table.** The new opt-in
+  `balance_progression_across_games` setting reserves roughly `1 / number of games` of each
+  partner game's eligible advancement pool on your Progression Surface before ordinary fill, and
+  gives every partner game its own share of Elden Ring's progression instead of splitting one
+  aggregate foreign quota between them. Multiple
   slots of one game contribute one combined pool sampled fairly across their players; owner-local
   items remain local, and an undersized surface fails generation with the requested/available
   counts instead of silently weakening the promise. This guarantees progression-classified

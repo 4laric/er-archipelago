@@ -16,12 +16,12 @@ only moment anyone remembers why it mattered._
 
 ## What changed at the table
 
-**Your partners can be required to put keys in your Elden Ring world.** Turn on
-`receive_foreign_progression` and each other game contributes roughly its 1/N share of eligible
-progression to your starred Progression Surface. It is opt-in, respects items another player kept
-local, and stops generation with a useful capacity message rather than claiming a quota it could
-not place. The promise is about progression-classified items; the spoiler may still omit a
-redundant one from its minimal playthrough.
+**Progression can be balanced across every game at the table.** Turn on
+`balance_progression_across_games` and each partner contributes roughly its 1/N share of eligible
+progression to your starred Progression Surface, while every partner game receives its own share
+of Elden Ring's Locks, all seven Great Runes when the rune goal is active, and other progression.
+It respects items another player kept local and stops with a capacity message rather than claiming
+a quota it could not place. The spoiler may still prune a redundant item from its minimal route.
 
 **Malenia can be the ending now.** Set `goal: malenia` and the seed guarantees the Haligtree, but it
 does not hand you Prayer Room or Roots. Once your chosen Great-Rune and region requirements resolve,

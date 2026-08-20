@@ -750,6 +750,32 @@ def _foreign_open_locations(multiworld, er_players):
     ]
 
 
+def balanced_foreign_quotas(total: int, foreign_games, rng):
+    """Near-even per-game quotas, giving indivisible remainders to partner games first.
+
+    The owner game is the implicit final bucket.  Eleven items at a three-game table therefore
+    yields 4 + 4 abroad and 3 at home, rather than one aggregate batch of 4 split 2 + 2 abroad.
+    When there are fewer items than partner games, seeded shuffling decides which partners receive
+    the available singleton shares; no item is duplicated and the result remains reproducible.
+    """
+    games = sorted(set(foreign_games))
+    if total <= 0 or not games:
+        return {game: 0 for game in games}
+    n_games = len(games) + 1             # partner games plus the Elden Ring owner game
+    base, remainder = divmod(total, n_games)
+    order = list(games)
+    rng.shuffle(order)
+    quotas = {game: base for game in games}
+    for game in order[:remainder]:       # remainder <= n_games - 1 == len(games)
+        quotas[game] += 1
+    return quotas
+
+
+def _balance_across_games(world) -> bool:
+    opt = getattr(getattr(world, "options", None), "balance_progression_across_games", None)
+    return bool(int(getattr(opt, "value", opt or 0)))
+
+
 def place_released_locks(multiworld, worlds) -> None:
     """`stage_pre_fill`: place every Elden Ring world's travelling progression across every Elden
     Ring world's surface, in ONE pass, and spill whatever does not fit back into the pool.
@@ -806,7 +832,7 @@ def place_released_locks(multiworld, worlds) -> None:
     """
     import inspect
     import logging
-    from Fill import fill_restrictive
+    from Fill import FillError, fill_restrictive
 
     items, locations, participants = [], [], []
     for w in worlds:
@@ -829,23 +855,86 @@ def place_released_locks(multiworld, worlds) -> None:
     if "allow_partial" in inspect.signature(fill_restrictive).parameters:
         kwargs["allow_partial"] = True
 
-    # ---- CROSS-GAME FIRST (#703) --------------------------------------------------------------
+    # ---- CROSS-GAME FIRST (#703, per-partner balance #927) -----------------------------------
     # Offered BEFORE the Elden Ring surfaces, because our surfaces have four times the room they
     # need and would otherwise absorb every progression item -- which is the measured defect.
     cross_offered = cross_placed = 0
     er_players = {w.player for w in worlds}
     n_games = len({w.game for w in getattr(multiworld, "worlds", {}).values()}) or 1
-    share = max((cross_game_share(w, n_games) for w in participants), default=0)
+    balanced_players = {w.player for w in participants if _balance_across_games(w)}
+    foreign_all = _foreign_open_locations(multiworld, er_players)
+    foreign_by_game = {}
+    for loc in foreign_all:
+        game = multiworld.worlds[loc.player].game
+        foreign_by_game.setdefault(game, []).append(loc)
+
+    # The opt-in guarantee is PER SOURCE and PER DESTINATION GAME. The old pass made one aggregate
+    # foreign batch, so 11 ER progression items at a three-game table produced 4 abroad total and
+    # ordinary fill happened to split it 2/2. Balanced mode gives each partner its own near-1/N
+    # quota: 4/4 abroad, 3 left for the ER surfaces. All seven Great Runes are already advancement
+    # whenever a rune ending is active; the numerator is those seven PLUS every travelling Lock and
+    # other restricted progression item from this source slot.
+    if balanced_players and foreign_by_game:
+        for player in sorted(balanced_players):
+            source = [item for item in items if item.player == player]
+            if not source:
+                continue
+            source_total = len(source)
+            source_ids = {id(item) for item in source}
+            items = [item for item in items if id(item) not in source_ids]
+            multiworld.random.shuffle(source)
+            quotas = balanced_foreign_quotas(len(source), foreign_by_game, multiworld.random)
+            for game in sorted(quotas):
+                quota = quotas[game]
+                if quota <= 0:
+                    continue
+                locs = foreign_by_game[game]
+                if len(locs) < quota:
+                    raise FillError(
+                        f"[eldenring:{player}] Balance Progression Across Games requests {quota} "
+                        f"of {source_total} progression item(s) in {game}, but only {len(locs)} "
+                        "open location(s) remain in that game.")
+                batch, source = source[:quota], source[quota:]
+                offered = len(batch)
+                multiworld.random.shuffle(locs)
+                fill_restrictive(
+                    multiworld, multiworld.get_all_state(False), locs, batch,
+                    **kwargs, name=f"Elden Ring Progression Share -> {game}")
+                placed = offered - len(batch)
+                cross_offered += offered
+                cross_placed += placed
+                if batch:
+                    names = ", ".join(item.name for item in batch[:8])
+                    raise FillError(
+                        f"[eldenring:{player}] Balance Progression Across Games placed only "
+                        f"{placed}/{offered} requested item(s) in {game}; locality, reachability, "
+                        f"or location rules refused {len(batch)}. First refused: {names}")
+                logging.getLogger("Greenfield").info(
+                    "[greenfield:%s] balanced progression: %s received %d/%d source item(s) "
+                    "(%d total progression, %d game(s))",
+                    player, game, placed, offered, source_total, n_games)
+            items.extend(source)  # the owner game's bucket goes to ER surfaces below
+
+    # Unbalanced ER slots retain the existing aggregate cross_game_progression behaviour exactly.
+    unbalanced = [w for w in participants if w.player not in balanced_players]
+    share = max((cross_game_share(w, n_games) for w in unbalanced), default=0)
     if share > 0:
+        legacy_items = [item for item in items if item.player in {w.player for w in unbalanced}]
+        legacy_ids = {id(item) for item in legacy_items}
+        rest_items = [item for item in items if id(item) not in legacy_ids]
+        # Re-read after balanced placements: `foreign_all` was captured before those locations
+        # were filled, and handing the stale list to fill_restrictive would advertise occupied
+        # partner checks to an unbalanced ER slot in the same multiworld.
         foreign = _foreign_open_locations(multiworld, er_players)
-        k = (n0 * share + 50) // 100
+        k = (len(legacy_items) * share + 50) // 100
         if foreign and k > 0:
             # The old list was all Locks, so its stable construction order did not matter. Once
             # required Great Runes joined it, slicing before shuffling would let the leading Locks
             # consume the entire cross-game quota and recreate #811 under a different name.
-            multiworld.random.shuffle(items)
-            batch, rest = items[:k], items[k:]
-            cross_offered = len(batch)
+            multiworld.random.shuffle(legacy_items)
+            batch, rest = legacy_items[:k], legacy_items[k:]
+            legacy_offered = len(batch)
+            cross_offered += legacy_offered
             multiworld.random.shuffle(foreign)
             try:
                 fill_restrictive(multiworld, multiworld.get_all_state(False), foreign, batch,
@@ -861,12 +950,13 @@ def place_released_locks(multiworld, worlds) -> None:
                     "was abandoned; its %d item(s) fall back to the Elden Ring surfaces, which is the "
                     "pre-#703 behaviour. Set cross_game_progression: 0 if this recurs",
                     len(batch), exc_info=True)
-            cross_placed = cross_offered - len(batch)
-            items = batch + rest          # whatever it could not place rejoins the ER pass
+            legacy_placed = legacy_offered - len(batch)
+            cross_placed += legacy_placed
+            items = rest_items + batch + rest  # whatever it could not place rejoins the ER pass
             logging.getLogger("Greenfield").info(
                 "[greenfield] progression surface: cross-game pass placed %d of %d offered "
                 "(%d%% share of %d eligible progression, %d game(s), %d open foreign location(s))",
-                cross_placed, cross_offered, share, n0, n_games, len(foreign))
+                legacy_placed, legacy_offered, share, len(legacy_ids), n_games, len(foreign))
 
     multiworld.random.shuffle(locations)
     state = multiworld.get_all_state(False)
@@ -1320,8 +1410,14 @@ def apply(world) -> None:
     # in different code paths splits the seed.
     released = released_locks(to_place, _released_pct(world), world.random)
     n_games = len({w.game for w in getattr(mw, "worlds", {}).values()}) or 1
-    travelling = travelling_progression(
-        to_place, released, cross_game_share(world, n_games))
+    cross_share = cross_game_share(world, n_games)
+    # Balanced mode's numerator is the WHOLE restricted progression pool: every Region Lock plus
+    # all seven Great Runes when any-count rune ending makes them advancement. It must not collapse
+    # to the released-Lock subset merely because an older yaml also says
+    # `cross_game_progression: never`; the balance option is the newer, explicit placement promise.
+    if _balance_across_games(world) and n_games > 1:
+        cross_share = max(cross_share, 1)  # non-zero tells travelling_progression to include all
+    travelling = travelling_progression(to_place, released, cross_share)
     if travelling:
         _rel = {id(it) for it in travelling}
         to_place = [it for it in to_place if id(it) not in _rel]
