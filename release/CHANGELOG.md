@@ -28,6 +28,12 @@ Client half: clients#334. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The matt's-randomizer install step stops inviting stray dll copies.** The walkthrough and
+  SETUP now say to point **Add dll mod** at `eldenring_archipelago.dll` inside the release's
+  `me3/` folder, in place -- never to copy it out (the dll is inert without its two data tables
+  beside it) -- and to unpack releases into a version-less folder name so matt's remembered dll
+  path survives an upgrade instead of silently loading last release's client. Docs only.
+
 - **Eight Sites of Grace that lit for NOBODY now light with the region whose ground they stand
   on.** The grace-ground safety gate dropped a grace from the wrong region's bundle but never
   re-homed it to the right one, so these stayed dark all game even after their region opened:

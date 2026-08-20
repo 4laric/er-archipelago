@@ -154,9 +154,13 @@ You also need, separately:
    Launch our dll any other way and it does not apply. See the next step.
 
    **Also running matt's randomizer?** Then you do not launch twice. Add
-   `eldenring_archipelago.dll` to matt's **Add dll mod** list and use his
-   **Launch Elden Ring** button -- it loads our client for you. Full walkthrough,
-   with pictures, in `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md`.
+   `eldenring_archipelago.dll` to matt's **Add dll mod** list -- **pointing at the dll
+   inside this release's `me3/` folder, in place; never copy the dll out of it** -- and
+   use his **Launch Elden Ring** button, which loads our client for you. The dll needs
+   its two data tables beside it, and an upgrade should be "replace the folder", not
+   "hunt down stray copies". Unpack the release to a folder without the version in its
+   name so matt's remembered path survives your next update. Full walkthrough, with
+   pictures, in `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md`.
 
    **On that path you do NOT get a separate save.** matt's launcher never reads
    `ap.me3`, so the `savefile` line above never applies: your Archipelago
