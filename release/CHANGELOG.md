@@ -29,6 +29,17 @@ Client half: clients#320. Its commit is pinned by the gitlink in this same chang
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Your weapons finally reach your friends.** At the shipped settings a non-Elden-Ring partner
+  received nothing from an Elden Ring slot but filler -- 0 useful items in 498 measured
+  placements -- because of a fill-order artifact, not any option's intent (the partner's own
+  progression saturated its slots before Archipelago's useful tier arrived). A dedicated
+  reservation pass now places each Elden Ring slot's fair share of useful gear into non-ER worlds
+  before the general fill: the share is derived per seed (useful pool x the partner's share of
+  open locations), `confine_foreign_progression` stays at its curating default of 100, and
+  keep_local/local items are respected. Re-measured across the six-generation CI matrix: 0 -> 983
+  useful items delivered, pooled composition 1.01:1 useful:filler -- the pool's own mix. The CI
+  export guard now asserts the derived floor instead of a margin-of-one (#918). Ruling: Alaric,
+  2026-08-20.
 - **Enia's DLC rows leave a seed that has no DLC.** Thirty-six of the Finger Reader's shop
   checks are gated on Shadow of the Erdtree content -- the remembrance trades consume a DLC
   remembrance, and the DLC boss armor sets release on DLC ceremony flags -- but Enia stands in
