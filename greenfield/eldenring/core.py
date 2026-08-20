@@ -1617,6 +1617,12 @@ class GreenfieldEldenRingWorld(World):
         from .features import progression_surface as _psf  # local, like pre_fill/post_fill do
         _worlds = list(multiworld.get_game_worlds(GAME))
         _psf.place_released_locks(multiworld, _worlds)
+        # #918's ruling (Alaric 2026-08-20): confine stays 100; the useful-export displacement is
+        # fixed by a dedicated reservation pass. BEFORE keep_out finalisation on purpose --
+        # exporting an item shrinks what must fit in the owner's own grid, so capacity sees the
+        # truer demand. The share is a fixed derivation (uniformity), not a knob.
+        from .features import export_reservation as _exr
+        _exr.reserve_useful_exports(multiworld, _worlds)
         # #903: keep_out_of_shops cannot decide its capacity in set_rules. Missable protection,
         # each world's progression pass, and the cross-world released-Lock pass above all consume
         # non-shop slots after that hook. Finalise against the actual remaining grid, after every
