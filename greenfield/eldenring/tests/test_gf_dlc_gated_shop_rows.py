@@ -33,7 +33,7 @@ class TestTheMotivatingCase(unittest.TestCase):
         """AzoTax's seed shape: DLC off. Not one of the 36 may exist."""
         class _T(WorldTestBase):
             game = GAME
-            options = {"enable_dlc": False}
+            options = {"num_regions": 0, "enable_dlc": False}
         t = _T("runTest"); t.setUp()
         flags = _flags_in(t)
         # WITNESSES: an empty world or an empty derived set greens the emptiness below for free.
@@ -48,7 +48,7 @@ class TestTheMotivatingCase(unittest.TestCase):
         """The other direction: the skip must not leak into DLC seeds."""
         class _T(WorldTestBase):
             game = GAME
-            options = {"enable_dlc": True}
+            options = {"num_regions": 0, "enable_dlc": True}
         t = _T("runTest"); t.setUp()
         flags = _flags_in(t)
         self.assertGreater(len(flags), 1000, "the DLC world built almost nothing")

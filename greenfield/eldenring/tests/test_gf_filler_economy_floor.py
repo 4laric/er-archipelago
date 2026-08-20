@@ -575,7 +575,8 @@ class SomberTierPresenceFloor(WorldTestBase):
     # 🛑 CONTRIBUTING RULE 11: the reported size was ONE REGION and it stays one region. #768
     # made that seed illegal under the default ending, so the rune goal carries it -- changing
     # num_regions instead would have retired the motivating case to make a test pass.
-    options = {"num_regions": 1, "enable_dlc": True, "ending_condition": "great_runes"}
+    options = {"num_regions": 1, "num_regions_order": "vanilla_order",
+               "enable_dlc": True, "ending_condition": "great_runes"}
 
     def _vanilla_somber(self):
         """{tier} of somber stone the kept vanilla checks already pay -- derived, not imported."""
