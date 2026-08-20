@@ -98,6 +98,15 @@ class ProgressionSurface(OptionSet):
     default = contract.SURFACE_DEFAULT_CLASSES
     valid_keys = frozenset(contract.SURFACE_CLASSES)
 
+    @classmethod
+    def from_any(cls, data):
+        # "LegacyBoss" was absorbed into MajorBoss (2026-08-20). The spelling stays accepted so no
+        # yaml in the wild breaks -- same shape as the limgrave_caves region alias. Normalized
+        # BEFORE validation, so verify_keys never sees the retired name.
+        if isinstance(data, (list, set, frozenset, tuple)):
+            data = ["MajorBoss" if x == "LegacyBoss" else x for x in data]
+        return super().from_any(data)
+
     @staticmethod
     def wizard_key_meta():
         """Per-key presentation for the options wizard. Read by tools/dump_options_metadata.py.
@@ -192,35 +201,38 @@ class ProgressionBias(Range):
 
 
 class CrossGameProgression(NamedRange):
-    """What share of your travelling Region Locks may land in a NON-Elden-Ring player's world.
+    """What share of your travelling Region Locks may land in a non-Elden-Ring player's world.
 
-    `auto` (the default) is **1 / number of games**: in a two-game multiworld half your travelling
-    Locks go to the partner, in a four-game one a quarter each. That is the same 1/N rule the export
-    volume is judged by, and it means the answer scales with the table instead of being a number
-    someone has to re-pick per seed. `0` keeps every Lock inside Elden Ring, which is the behaviour
-    every seed had before this option existed. A number is that share explicitly.
+    'auto' (the default) means one share per game at the table: in a two-game multiworld half
+    your travelling Locks may go to the partner, in a four-game one a quarter each -- the answer
+    scales with the table instead of being a number to re-pick per seed. 'never' (0) keeps every
+    Lock inside Elden Ring, which is how every seed behaved before this option existed. A number
+    is that share, explicitly.
 
-    # Why this option exists at all
+    This is a different question from Progression Bias: that option decides whether your Locks
+    leave home at all; this one decides whether a travelling Lock may leave Elden Ring. Without
+    it, a travelling Lock always landed in another Elden Ring world and a non-Elden-Ring partner
+    never held one.
 
-    `progression_bias` already releases Locks into the multiworld, and between Elden Ring worlds it
-    works -- MEASURED 50-54% travel on 2xER seeds. But `place_released_locks` only ever offered them
-    ELDEN RING surfaces, and our surfaces host ~170 checks against at most ~36 Locks, so the spill
-    valve that was supposed to feed a partner never had anything to spill. MEASURED across four
-    configurations: **0 Locks reached a Hollow Knight slot, ever** -- including a 2xER + 1xHK seed
-    where 15 of 28 Locks travelled and all 15 went to the other Elden Ring world.
-
-    `progression_bias` controls whether Locks leave their owner at all. It does not choose between
-    another Elden Ring slot and a non-Elden-Ring partner; this option provides that second axis.
-
-    ⚠️ IT PLACES INTO ANOTHER GAME'S LOCATIONS, which is the one thing `place_released_locks` used to
-    refuse to do, and the refusal was not arbitrary -- TUNIC's own `stage_pre_fill` raises
-    "caused by another world filling TUNIC locations during pre_fill... we cannot recover from this
-    issue." We only ever offer locations that are still EMPTY, never force a placement, and put back
-    anything unplaced -- but a partner game that objects to being filled at all is a real failure
-    mode, and `0` is the escape hatch. Set it to 0 if a seed will not generate.
-
-    No effect in a solo seed, in an all-Elden-Ring multiworld (there is no non-ER world to send to),
-    or in the modes that mint no Lock items."""
+    Set it to 'never' if a seed refuses to generate: some games' worlds object to other games
+    placing into their locations, and 0 is the escape hatch. No effect in a solo seed, in an
+    all-Elden-Ring multiworld, or in the modes that mint no Lock items."""
+    # THE PLAYER'S SENTENCE IS ABOVE; THE RATIONALE LIVES HERE (the #402 rule -- this docstring is
+    # the wizard tooltip, AP's option help, and the weighted template, and its first shipped cut
+    # was an engineering essay with markdown headers rendering as literal text on the wizard card;
+    # Alaric, 2026-08-20: "one of the cards is a mess").
+    #
+    # Why the option exists: progression_bias releases Locks into the multiworld and between ER
+    # worlds it works (measured 50-54% travel on 2xER seeds), but place_released_locks only ever
+    # offered ER surfaces -- ~170 surface checks vs at most ~36 Locks -- so the spill valve never
+    # had anything to spill: 0 Locks reached a Hollow Knight slot across four measured configs,
+    # including a 2xER+1xHK seed where 15 of 28 Locks travelled, all to the other ER world.
+    # auto = 1/N is the same rule the export volume is judged by.
+    #
+    # The TUNIC caveat: cross-game placement is the one thing place_released_locks used to refuse,
+    # and not arbitrarily -- TUNIC's stage_pre_fill raises on foreign fills of its locations. We
+    # only offer still-EMPTY locations, never force, and put back anything unplaced; a partner
+    # that objects to being filled AT ALL is the real failure mode 'never' escapes.
     display_name = "Cross Game Progression"
     range_start = 0
     range_end = 100
@@ -315,7 +327,7 @@ class ConfineForeignProgression(NamedRange):
 # DISPLAY ORDER LIVES HERE, not in contract.SURFACE_CLASSES -- that list's order is a determinism
 # handle for the ladder and must never be rearranged (see the comment on it).
 SURFACE_CLASS_FAMILIES = (
-    ("bosses", "Bosses", ("Boss", "MajorBoss", "LegacyBoss", "FieldBoss", "MinorDungeonBoss",
+    ("bosses", "Bosses", ("Boss", "MajorBoss", "FieldBoss", "MinorDungeonBoss",
                           "Remembrance", "GreatRune")),
     ("collectathon", "Collectathon lines",
      ("Seedtree", "Church", "Basin", "Fragment", "Revered")),
@@ -343,10 +355,10 @@ SURFACE_CLASS_LABELS = {
                      "Every enemy the game gives a boss healthbar. Contains all the boss classes "
                      "below, so ticking this makes them redundant."),
     "MajorBoss":    ("Major bosses",
-                     "Remembrance and great-rune arena bosses, plus curated majors for the regions "
-                     "that have none. Contains Remembrances and Great Runes."),
-    "LegacyBoss":   ("Legacy dungeon bosses",
-                     "Bosses standing inside a legacy dungeon."),
+                     "Remembrance and great-rune arena bosses, curated majors for the regions "
+                     "that have none, and every boss standing inside a legacy dungeon (the former "
+                     "Legacy dungeon bosses class, absorbed v0.4.10). Contains Remembrances and "
+                     "Great Runes."),
     "MinorDungeonBoss": ("Minor dungeon bosses",
                      "Catacomb, cave, tunnel, gaol and Divine Tower bosses -- the minidungeons. "
                      "NOT the underground REGIONS: Nokron, Nokstella, Siofra and Ainsel are "
@@ -439,7 +451,10 @@ def class_containment(tags_map=None, classes=None):
     """
     lt = LOCATION_TAGS if tags_map is None else tags_map
     vocab = list(classes if classes is not None else contract.SURFACE_CLASSES)
-    members = {c: {ap for ap, ts in (lt or {}).items() if c in (ts or ())} for c in vocab}
+    members = {c: {ap for ap, ts in (lt or {}).items()
+                   if c in (ts or ())
+                   or set(ts or ()) & contract.SURFACE_CLASS_EXTRA_TAGS.get(c, frozenset())}
+               for c in vocab}
     out = {}
     for outer in vocab:
         inner = [c for c in vocab

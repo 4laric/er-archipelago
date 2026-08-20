@@ -60,7 +60,11 @@ def test_every_boss_check_is_reachable_by_a_class_narrower_than_Boss():
 
     boss = tagged("Boss")
     assert boss, "no Boss-tagged checks -- this test is measuring an empty world"
-    subs = {c: tagged(c) for c in ("MajorBoss", "LegacyBoss", "FieldBoss", "MinorDungeonBoss")}
+    # LegacyBoss absorbed into MajorBoss 2026-08-20. The law is about REACHABILITY BY A CLASS, so
+    # membership is has_class (the surface predicate, alias included) -- raw-tag membership would
+    # count the 22 legacy-only rows as unreachable residue when ticking MajorBoss reaches them.
+    subs = {c: {ap for ap, tags in LOCATION_TAGS.items() if contract.has_class(tags, {c})}
+            for c in ("MajorBoss", "FieldBoss", "MinorDungeonBoss")}
     for name, aps in subs.items():
         assert aps, f"{name} tags nothing"
         assert aps <= boss, f"{name} has {len(aps - boss)} check(s) outside Boss"

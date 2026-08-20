@@ -202,6 +202,13 @@ def measure(sc=None):
             tags = set(lt.get(ap) or ())
             if not tags or (exclude_tags & tags) or ap in barred:
                 continue
+            # This is a CLASS census, so absorbed internal tags are folded into their class here
+            # (MajorBoss <- LegacyBoss, 2026-08-20; contract.SURFACE_CLASS_EXTRA_TAGS) -- the
+            # wizard's plain combo intersection then agrees with has_class without learning the
+            # alias itself.
+            for _cls, _more in (getattr(contract, "SURFACE_CLASS_EXTRA_TAGS", {}) or {}).items():
+                if tags & set(_more):
+                    tags = (tags - set(_more)) | {_cls}
             key = "|".join(sorted(tags & vocab_set))
             if not key:
                 continue

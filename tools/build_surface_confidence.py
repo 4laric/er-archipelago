@@ -153,10 +153,22 @@ def measure(mods=None):
     default_derived = set(contract.SURFACE_DEFAULT_CLASSES) & _derived
     default = set(contract.SURFACE_DEFAULT_CLASSES) - _derived
 
+    # The absorption seam, mirrored: selecting a class also matches its extra INTERNAL tags
+    # (MajorBoss -> LegacyBoss, 2026-08-20). Read from the loaded contract so this re-expression
+    # cannot drift from has_class -- test_gf_surface_confidence pins the two against each other.
+    extra = dict(getattr(contract, "SURFACE_CLASS_EXTRA_TAGS", {}) or {})
+
+    def _expand(classes):
+        sel = set(classes)
+        for _cls, _more in extra.items():
+            if _cls in sel:
+                sel = sel | set(_more)
+        return sel
+
     def tagged(classes):
         """ap-ids carrying any of `classes` and none of SURFACE_EXCLUDE_TAGS -- contract.has_class,
         re-expressed so this stays AP-free."""
-        sel = set(classes)
+        sel = _expand(classes)
         return {ap for ap, ts in lt.items()
                 if (sel & set(ts or ())) and not (exclude_tags & set(ts or ()))}
 
@@ -165,7 +177,7 @@ def measure(mods=None):
 
         Only used to price the `tag_excluded` column. `total` deliberately stays the has_class
         count -- see the emit() header for why this column exists at all."""
-        sel = set(classes)
+        sel = _expand(classes)
         return {ap for ap, ts in lt.items() if sel & set(ts or ())}
 
     rows = []
