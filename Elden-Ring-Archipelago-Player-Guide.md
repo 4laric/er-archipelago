@@ -316,16 +316,17 @@ run rather than tune it.
 - **`filler_foreign_pct`** -- how much of your filler other worlds may draw
   from. It picks *which* filler at random per seed, so it can't be aimed;
   `keep_local` is the aimable version and they compose.
-- **`confine_foreign_progression`** -- the one that decides whether your gear is
-  worth receiving, which is not what the name suggests. It is a percentage: how
-  much of *other* players' progression is held to your progression surface. At
-  the default of 100 it also, as a side effect, means a non-Elden-Ring partner
-  receives **nothing from you but filler** -- no weapon, no armour, no talisman.
-  The rule is about your own locations, but it pushes the other game's keys back
-  into that game's own slots, and Archipelago fills those before it gets to the
-  good stuff. Measured beside Hollow Knight: 0% of what we sent was useful at
-  100, 23% at 75, 38% at 50. Lower it if your friends should be opening your
-  weapons; the cost is that their keys stop landing on your interesting checks.
+- **`confine_foreign_progression`** -- how much of *other* players' progression
+  is held to your progression surface. At 100 (default) a foreign key can only
+  sit on a starred check; lower it and their keys spread across your world.
+  It USED to have an ugly side effect -- at 100 a non-Elden-Ring partner
+  received nothing from you but filler, a fill-order artifact measured at 0%
+  useful -- but that is fixed at its own layer now: a dedicated reservation
+  pass places your fair share of useful gear (weapons, armour, talismans) into
+  partner worlds before the general fill, whatever confine is set to. Measured
+  after the fix: partners receive your pool's own mix, about 1:1
+  useful-to-filler. Lowering confine is now purely about where foreign keys
+  may sit, which is what the name always said.
 
 > **The "anything anywhere" recipe.** If you come from classic ER item rando and
 > want the old feel -- any check can matter, no curation steering keys onto
