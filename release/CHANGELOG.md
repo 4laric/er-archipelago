@@ -25,10 +25,16 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   loud that a preset is a complete, playable yaml on its own. Presentation only: the grouping
   still lives in the world's option_groups (one grouping, two surfaces — Archipelago's own
   player-options page is untouched), and the emitted yaml is byte-identical.
-- **Auto-upgrade is a setting again, on by default.** Since v0.2 every received weapon has been
-  silently raised to the highest reinforce level you hold on its track; that behaviour is now the
-  `auto_upgrade` yaml knob (default on, so an existing yaml changes nothing) and can be turned off
-  to keep received weapons at their found level. The client has understood both values all along.
+- **Auto-upgrade is a setting again, on by default -- and it now covers every pickup.** Since
+  v0.2 every received weapon has been silently raised to the highest reinforce level you hold on
+  its track; that behaviour is now the `auto_upgrade` yaml knob (default on, so an existing yaml
+  changes nothing). The same raise now applies to any weapon the game adds to your bag -- world
+  pickups, chests, and the put-it-down-with-Leave-pick-it-up gesture players know from matt's
+  randomizer, which is the intended catch-up for a weapon received before you found your stones
+  (in-bag catch-up with no gesture at all is planned separately, behind its own option). The
+  client also now watches every suppressed pickup and, if one never turns into a check, names
+  the item in the log with its `!give` rescue -- the drop-and-pickup gesture can no longer
+  silently cost you a weapon. World: #693; client: clients#329.
 - **The wizard's Difficulty section opens with Easy / Standard / Hard.** Three quick-picks that
   set the four scaling dials -- Standard is the default curve, whose cap scales to your run's
   length and lands your final region around the scaling of vanilla Haligtree; Easy caps the climb

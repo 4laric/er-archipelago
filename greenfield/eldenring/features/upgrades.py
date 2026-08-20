@@ -31,12 +31,13 @@ from ..registry import Feature, register
 
 
 class AutoUpgrade(Toggle):
-    """Automatically raise any RECEIVED weapon to the highest reinforce level you already hold on
-    its smithing track (normal caps at +25, somber at +10). Raise-only: a received weapon already
-    above your live level is left untouched. On by default, and it has been the fixed behaviour of
-    every seed since v0.2 -- turn it off to keep received weapons at their found level and spend
-    the stones yourself. (The level tracks your inventory live; there is no fixed target to
-    choose.)"""
+    """Automatically raise any weapon that enters your bag -- an AP grant, a world pickup, or an
+    item you put down with Leave and took back -- to the highest reinforce level you already hold
+    on its smithing track (normal caps at +25, somber at +10). Raise-only and per-track: nothing
+    is ever downgraded, and somber never feeds normal. The put-it-down-pick-it-up gesture is the
+    intended catch-up for a weapon received before you found your stones. On by default, and the
+    receipt half has been every seed's behaviour since v0.2 -- turn it off to keep weapons at
+    their found level and spend the stones yourself."""
     # The default IS the ex-frozen value (2026-08-20 unfreeze). While an option is frozen its class
     # default is unreachable and rots; moving it in the same commit is what keeps a default seed's
     # behaviour identical (the PoolBuilderIntensity lesson). Pinned by test_gf_option_groups.

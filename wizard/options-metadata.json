@@ -2203,7 +2203,7 @@
    "key": "auto_upgrade",
    "class": "AutoUpgrade",
    "display_name": "Auto-Upgrade Received Weapons",
-   "description": "Automatically raise any RECEIVED weapon to the highest reinforce level you already hold on\nits smithing track (normal caps at +25, somber at +10). Raise-only: a received weapon already\nabove your live level is left untouched. On by default, and it has been the fixed behaviour of\nevery seed since v0.2 -- turn it off to keep received weapons at their found level and spend\nthe stones yourself. (The level tracks your inventory live; there is no fixed target to\nchoose.)",
+   "description": "Automatically raise any weapon that enters your bag -- an AP grant, a world pickup, or an\nitem you put down with Leave and took back -- to the highest reinforce level you already hold\non its smithing track (normal caps at +25, somber at +10). Raise-only and per-track: nothing\nis ever downgraded, and somber never feeds normal. The put-it-down-pick-it-up gesture is the\nintended catch-up for a weapon received before you found your stones. On by default, and the\nreceipt half has been every seed's behaviour since v0.2 -- turn it off to keep weapons at\ntheir found level and spend the stones yourself.",
    "kind": "toggle",
    "base": "Toggle",
    "default": true,

@@ -857,12 +857,14 @@ Elden Ring:
   # connecting and quietly ignoring it.
   auto_equip: false
 
-  # Automatically raise any RECEIVED weapon to the highest reinforce level you
-  # already hold on its smithing track (normal caps at +25, somber at +10).
-  # Raise-only: a weapon already above your live level is left untouched.
-  # ON by default -- this has been the fixed behaviour of every seed since v0.2
-  # and became a setting in v0.4.10. Turn it off to keep received weapons at
-  # their found level and spend the stones yourself.
+  # Automatically raise any weapon that enters your bag -- an AP grant, a world
+  # pickup, or an item you put down with Leave and took back -- to the highest
+  # reinforce level you already hold on its smithing track (normal caps at +25,
+  # somber at +10). Raise-only and per-track. The put-it-down-pick-it-up gesture
+  # is the intended catch-up for a weapon received before you found your stones.
+  # ON by default -- the receipt half has been every seed's behaviour since v0.2;
+  # it became a setting (and gained the pickup half) in v0.4.10. Turn it off to
+  # keep weapons at their found level and spend the stones yourself.
   auto_upgrade: true
 
   # Start with all five whetblades (Iron, Red-Hot, Sanctified, Glintstone,
