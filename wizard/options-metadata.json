@@ -189,7 +189,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "num_regions_order",
@@ -214,7 +215,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "goal",
@@ -247,7 +249,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "ending_condition",
@@ -272,7 +275,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "goal_great_runes",
@@ -291,7 +295,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "enable_dlc",
@@ -307,7 +312,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "dlc_only",
@@ -323,7 +329,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "vanilla_placement",
@@ -348,7 +355,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "capital_reconciler",
@@ -364,7 +372,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "auto_equip",
@@ -380,7 +389,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "no_equip_load",
@@ -409,7 +419,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "dungeon_sweep",
@@ -442,7 +453,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "open_boss_doors",
@@ -458,7 +470,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "death_link",
@@ -474,7 +487,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "reroll_enemy_drops",
@@ -490,7 +504,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "curated_filler",
@@ -535,7 +550,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_intensity",
@@ -564,7 +580,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_weapons",
@@ -583,7 +600,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_armor",
@@ -602,7 +620,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_spells",
@@ -621,7 +640,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_talismans",
@@ -640,7 +660,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "pool_builder_pct_ashes_of_war",
@@ -659,7 +680,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "filler_foreign_pct",
@@ -678,7 +700,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "natural_progression",
@@ -694,7 +717,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "region_grace_unlock",
@@ -723,7 +747,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "grace_attunement",
@@ -742,7 +767,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "grace_attunement_anchor",
@@ -767,7 +793,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "progressive_flasks",
@@ -783,7 +810,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "progressive_stone_bells",
@@ -799,7 +827,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "keep_out_of_shops",
@@ -836,7 +865,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "leyndell_runes_required",
@@ -855,7 +885,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "keep_local",
@@ -901,7 +932,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "keep_local_rune_cap",
@@ -920,7 +952,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "merchant_bells_on_talk",
@@ -936,7 +969,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "protect_missable_locations",
@@ -965,7 +999,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "no_runes_in_shops",
@@ -981,7 +1016,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "progression_surface",
@@ -1269,7 +1305,8 @@
       "keys": []
      }
     ]
-   }
+   },
+   "essential": true
   },
   {
    "key": "progression_bias",
@@ -1288,7 +1325,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "confine_foreign_progression",
@@ -1324,7 +1362,8 @@
      "name": "true",
      "value": 100
     }
-   ]
+   ],
+   "essential": false
   },
   {
    "key": "cross_game_progression",
@@ -1352,7 +1391,8 @@
      "name": "never",
      "value": 0
     }
-   ]
+   ],
+   "essential": false
   },
   {
    "key": "goal_region_unlock_policy",
@@ -1381,7 +1421,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "enemy_scaling",
@@ -1397,7 +1438,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "minimum_enemy_difficulty",
@@ -1416,7 +1458,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "maximum_enemy_difficulty",
@@ -1440,7 +1483,8 @@
      "name": "auto",
      "value": -1
     }
-   ]
+   ],
+   "essential": false
   },
   {
    "key": "difficulty_ramp_speed",
@@ -1459,7 +1503,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "scadutree_blessing_scope",
@@ -1484,7 +1529,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "dlc_blessing_catchup",
@@ -1500,7 +1546,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "global_scadutree_blessing",
@@ -1529,7 +1576,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "reroll_infinite_shop_stock",
@@ -1545,7 +1593,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "infinite_hub_wares",
@@ -1561,7 +1610,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "merchant_bell_logic",
@@ -1586,7 +1636,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "start_regions",
@@ -1605,7 +1656,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "start_region_pool",
@@ -1650,7 +1702,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "start_with_whetblades",
@@ -1666,7 +1719,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "trap_link",
@@ -1682,7 +1736,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "traps",
@@ -1704,7 +1759,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   },
   {
    "key": "trap_count",
@@ -1723,7 +1779,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "spawn_traps",
@@ -2131,7 +2188,8 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "free_text": true
+   "free_text": true,
+   "essential": false
   },
   {
    "key": "vanilla_pool",
@@ -2147,7 +2205,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "no_weapon_requirements",
@@ -2163,7 +2222,8 @@
    "casefold": false,
    "group": null,
    "group_collapsed": false,
-   "special_values": null
+   "special_values": null,
+   "essential": true
   }
  ],
  "presets": [

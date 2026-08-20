@@ -540,12 +540,55 @@ def _option_groups() -> List[OptionGroup]:
     return groups
 
 
+# THE ESSENTIALS TIER (2026-08-20, PR #910 follow-up; player complaint "too many options").
+# The options a player forming a seed actually DECIDES -- the shape-of-the-run knobs. Everything
+# else renders behind a per-section "More ..." fold in the wizard. Criterion: an option is
+# essential if it changes WHAT run you are having (goal, size, DLC ownership, where items are,
+# who may hold progression, death link); tuning HOW a decision behaves stays under More.
+# A judgement call, like the grouping itself -- promoting a key is a one-line edit here plus
+# `python tools/dump_options_metadata.py`.
+#
+# PRESENTATION ONLY: the wizard reads it from the metadata blob; AP's player-options page has no
+# such concept and is untouched; the emitted yaml cannot move. Validated at import: a key that is
+# not claimed by _OPTION_GROUPS is a typo (frozen keys are not "essential" -- they are not knobs).
+# tests/test_gf_option_groups.py asserts every open group keeps at least one essential, so no
+# section can silently become all-More.
+_ESSENTIAL_OPTIONS = frozenset({
+    # Goal & Regions -- how big, what ends it, whether runes gate it
+    "num_regions", "goal", "ending_condition",
+    # DLC & Blessings -- the ownership question every first-timer must answer
+    "enable_dlc", "dlc_only",
+    # Difficulty & Scaling -- the headline toggle and the flavor decision
+    "enemy_scaling", "traps",
+    # Checks & Item Pool -- where the items are, who sweeps, whether progression is vanilla-shaped
+    "vanilla_placement", "dungeon_sweep", "natural_progression",
+    # Multiworld & Placement -- the two decisions a multiworld newcomer is actually making
+    "death_link", "progression_surface",
+    # Shops & Merchants -- the one players ask about
+    "keep_out_of_shops",
+    # Quality of Life -- the two most-picked comforts
+    "auto_equip", "no_weapon_requirements",
+})
+_grouped_keys = {k for _n, _ks in _OPTION_GROUPS for k in _ks}
+_bad_essentials = sorted(_ESSENTIAL_OPTIONS - _grouped_keys)
+if _bad_essentials:
+    raise RuntimeError("_ESSENTIAL_OPTIONS names key(s) no group claims (typo or retired "
+                       "option): %s" % _bad_essentials)
+del _grouped_keys, _bad_essentials
+
+
 class GFWeb(WebWorld):
     theme = "stone"
     # Defined in the class BODY on purpose: WebWorldRegister validates option_groups in the
     # metaclass, so an option landing in two groups fails at import. Assigning after the class is
     # created would skip that check.
     option_groups = _option_groups()
+
+
+# After class creation on purpose (the mirror of the note above): essential_options is OUR
+# metadata for the wizard dumper, not an attribute WebWorldRegister knows -- assigning it in the
+# body would hand an unknown key to AP's metaclass for no benefit.
+GFWeb.essential_options = _ESSENTIAL_OPTIONS
 
 
 class GreenfieldEldenRingWorld(World):

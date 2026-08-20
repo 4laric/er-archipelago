@@ -24,8 +24,15 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   live-counting your changes, with the first section open on arrival. The Start step now says out
   loud that a preset is a complete, playable yaml on its own. Presentation only: the grouping
   still lives in the world's option_groups (one grouping, two surfaces — Archipelago's own
-  player-options page is untouched), and the emitted yaml is byte-identical. Wizard only, no
-  world change.
+  player-options page is untouched), and the emitted yaml is byte-identical.
+- **Each wizard section leads with its essentials.** Fifteen of the sixty options are the
+  decisions that shape a run — goal, seed size, DLC ownership, where the items are, who may hold
+  progression, death link, and friends — and they render expanded; the tuning sits behind one
+  live-counted "More" fold per section, which opens itself while anything inside it deviates so a
+  changed option is never out of sight. The tier lives in the world
+  (`core._ESSENTIAL_OPTIONS`, validated at import, flowing through the metadata dump), not in the
+  page, and it is presentation only: Archipelago's own options page and the emitted yaml are
+  untouched.
 - **Malenia can end the run.** `goal: malenia` force-keeps the Haligtree and withholds its Lock
   from fill until the seed's independently selected Great-Rune and region requirements are met.
   Opening it grants Haligtree Canopy alone—even under the all-graces or grace-attunement settings—
