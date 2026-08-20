@@ -5100,10 +5100,21 @@ if (typeof module !== "undefined") module.exports = ERW;
     meta.groups.filter(g => g.collapsed).map(g => ({name:g.name, options:g.options})),
     meta.ungrouped.length ? [{name:"Other Options", options:meta.ungrouped}] : [],
     [{name:"Archipelago Core", options:meta.apCore.map(o => o.key)}]);
-  const steps = [{id:"welcome", title:"Start"}, {id:"seedsize", title:"Seed size"}]
-    .concat(openGroups.map(g => ({id:"g:"+g.name, title:g.name, options:g.options})))
-    .concat([{id:"advanced", title:"Advanced"}, {id:"finish", title:"Finish"}]);
+  /* ELEVEN STEPS -> FIVE (2026-08-20, player complaint: "too many tabs, too many options").
+     The seven option groups are no longer one rail tab each; they are collapsible SECTIONS inside
+     a single Options step. The GROUPING itself still lives in core.GFWeb.option_groups -- one
+     grouping, two surfaces -- this is a composition on top of it, not a second table. The step
+     carries the union of the group keys so the rail's touched-badge logic reads it unchanged. */
+  const steps = [{id:"welcome", title:"Start"},
+                 {id:"options", title:"Options",
+                  options:[].concat.apply([], openGroups.map(g => g.options))},
+                 {id:"seedsize", title:"Seed size"},
+                 {id:"advanced", title:"Advanced"}, {id:"finish", title:"Finish"}];
   let cur = 0;
+  /* Which Options sections are open. Survives renderStep (preset picks re-render the whole step),
+     dies with the page -- deliberately not persisted. The first section starts open so the step
+     never reads as a wall of closed doors. */
+  const openSections = new Set(openGroups.length ? [openGroups[0].name] : []);
 
   const $ = sel => document.querySelector(sel);
   const el = (tag, cls, html) => { const e = document.createElement(tag);
@@ -5959,7 +5970,9 @@ if (typeof module !== "undefined") module.exports = ERW;
       nr.append(inp);
       nameCard.append(nr);
       const pc = el("div", "card");
-      pc.innerHTML = "<h2>Pick a starting point</h2>";
+      pc.innerHTML = "<h2>Pick a starting point</h2><div class='small'>A preset is a complete, " +
+        "playable yaml on its own — pick one and you can go straight to Finish. The Options step " +
+        "is there for the things you want to change, not a form to fill in.</div>";
       const grid = el("div", "presets");
       const cards = [{id:null, title:"Defaults", tagline:"Blank slate — every option at its default.",
                       description:"Writes an empty options block, so the apworld decides everything. Note this INCLUDES the DLC: enable_dlc defaults on, so you get all 28 regions. Pick a preset if you only own the base game."}]
@@ -6003,15 +6016,26 @@ if (typeof module !== "undefined") module.exports = ERW;
         "client.\n\nFix anything red in Checks first — red means generation will reject " +
         "the file.</div>";
       main.append(done);
-    } else {
-      const g = openGroups.find(g => "g:" + g.name === step.id);
-      const card = el("div", "card");
-      const changed = g.options.filter(k => !ERW.isDefault(meta, state, k)).length;
-      card.append(el("div", "grouphead",
-        "<h2>" + esc(g.name) + "</h2><span class='count'>" + g.options.length +
-        " options" + (changed ? " · " + changed + " changed" : "") + "</span>"));
-      for (const k of g.options){ const o = meta.byKey[k]; if (o) card.append(optRow(o)); }
-      main.append(card);
+    } else if (step.id === "options"){
+      const total = openGroups.reduce((a, g) => a + g.options.length, 0);
+      main.append(el("div", "card",
+        "<h2>The options</h2><div class='desc'>" + openGroups.length + " sections, " + total +
+        " options. Open a section to work in it — each header counts what you have changed, and " +
+        "the yaml on the right moves as you do. A preset from the Start step is already a " +
+        "complete, playable file; everything here is adjustment, not homework.</div>"));
+      openGroups.forEach((g, gi) => {
+        const det = el("details", "card");
+        det.open = openSections.has(g.name);
+        det.addEventListener("toggle",
+          () => { if (det.open) openSections.add(g.name); else openSections.delete(g.name); });
+        const sum = el("summary", "");
+        sum.style.cssText = "cursor:pointer;color:var(--gold)";
+        sum.innerHTML = esc(g.name) + " <span class='small' id='gsec-" + gi + "'></span>";
+        det.append(sum);
+        for (const k of g.options){ const o = meta.byKey[k]; if (o) det.append(optRow(o)); }
+        main.append(det);
+      });
+      paintSectionCounts();  // AFTER the append -- it queries the document for #gsec-N
     }
 
     const btns = el("div", "navbtns");
@@ -6196,6 +6220,19 @@ if (typeof module !== "undefined") module.exports = ERW;
       "yaml this page makes.</span>";
   }
 
+  /* The section headers' "n options · k changed" is derived from state, and refresh() never
+     rebuilds rows -- a count set once at render is the stale-toggle-word defect again, one level
+     up. Same no-op-unless-on-screen contract as paintSeedSize. */
+  function paintSectionCounts(){
+    openGroups.forEach((g, gi) => {
+      const span = $("#gsec-" + gi);
+      if (!span) return;
+      const changed = g.options.filter(k => meta.byKey[k] && !ERW.isDefault(meta, state, k)).length;
+      span.innerHTML = "(" + g.options.length + " options" +
+        (changed ? " · <b>" + changed + " changed</b>" : "") + ")";
+    });
+  }
+
   function refresh(){
     const y = ERW.buildYaml(meta, state);
     $("#yamlout").innerHTML = highlightYaml(y);
@@ -6207,6 +6244,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     renderSeedSize();
     renderHostCard();
     paintSeedSize();          // no-op unless the Seed size tab is the one on screen
+    paintSectionCounts();     // no-op unless the Options step is the one on screen
     renderSideContribution(); // the side rail's live readout -- on screen on every step
     const fs = ERW.findings(meta, state);
     const box = $("#findings");

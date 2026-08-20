@@ -18,6 +18,14 @@ Client half: clients#320. Its commit is pinned by the gitlink in this same chang
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The options wizard is five steps, not eleven.** Players called the wall of tabs out: seven
+  option tabs, each a flat list, all reading as mandatory. The seven groups are now collapsible
+  sections inside ONE Options step (Start / Options / Seed size / Advanced / Finish), each header
+  live-counting your changes, with the first section open on arrival. The Start step now says out
+  loud that a preset is a complete, playable yaml on its own. Presentation only: the grouping
+  still lives in the world's option_groups (one grouping, two surfaces — Archipelago's own
+  player-options page is untouched), and the emitted yaml is byte-identical. Wizard only, no
+  world change.
 - **Malenia can end the run.** `goal: malenia` force-keeps the Haligtree and withholds its Lock
   from fill until the seed's independently selected Great-Rune and region requirements are met.
   Opening it grants Haligtree Canopy alone—even under the all-graces or grace-attunement settings—
