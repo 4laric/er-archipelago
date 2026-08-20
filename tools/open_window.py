@@ -182,6 +182,13 @@ def skeletons(new_version, prev_tag, past, chash, today):
     )
     changelog = (
         "## v%s — %s\n\n"
+        "### What you need to update\n\n"
+        "- **Client:** %s: Required / Optional / No — rule on the client download directly.\n"
+        "- **APWorld:** %s: Required / Host-only / No — say who must replace it.\n"
+        "- **YAML:** **%s: New YAML required / New YAML optional / No new YAML required.** "
+        "Say whether existing YAMLs remain valid.\n"
+        "- **Existing seed/save:** %s: Compatible / New seed required / Save migration required.\n"
+        "- **Profile/assets:** %s: No action / Reinstall or replace exactly what changed.\n\n"
         "Window opened %s.\n\n"
         "`CONTRACT_HASH` is `%s`. %s: state whether that is unmoved and what it means for "
         "handshake compatibility — and say it after LOADING contract.py, not after assuming.\n\n"
@@ -190,12 +197,20 @@ def skeletons(new_version, prev_tag, past, chash, today):
         "`release/CHANNELS.tsv` promotes `stable` to %s in this same commit.\n\n"
         "Entries arrive below as they merge (rule 14: the release notes are part of the change, "
         "not part of the release).\n\n"
-        % (new_version, today, opened, chash[:8], TODO, TODO, prev_tag)
+        % (new_version, today, TODO, TODO, TODO, TODO, TODO, opened, chash[:8], TODO, TODO,
+           prev_tag)
     )
     blurb = (
         "# v%s — release blurb (draft)\n\n"
         "_Draft. Written as the window fills, not at tag time -- the moment a change lands is the\n"
         "only moment anyone remembers why it mattered._\n\n"
+        "## What you need to update\n\n"
+        "- **Client:** %s: Required / Optional / No — rule on the client download directly.\n"
+        "- **APWorld:** %s: Required / Host-only / No — say who must replace it.\n"
+        "- **YAML:** **%s: New YAML required / New YAML optional / No new YAML required.** "
+        "Say whether existing YAMLs remain valid.\n"
+        "- **Existing seed/save:** %s: Compatible / New seed required / Save migration required.\n"
+        "- **Profile/assets:** %s: No action / Reinstall or replace exactly what changed.\n\n"
         "## What is in it so far\n\n"
         "Nothing yet. This window was opened %s, so this file exists before its first entry does,\n"
         "which is the point of it.\n\n"
@@ -206,7 +221,7 @@ def skeletons(new_version, prev_tag, past, chash, today):
         "The v0.4.3 blurb is the model: lead with what changed at the table, not with the option\n"
         "name. Its opening line -- \"You can get BK'ed now, and that is the point\" -- says what a\n"
         "player will feel before it says what was built, and that is the right order.\n"
-        % (new_version, opened, prev_tag, TODO)
+        % (new_version, TODO, TODO, TODO, TODO, TODO, opened, prev_tag, TODO)
     )
     return ledger, changelog, blurb
 

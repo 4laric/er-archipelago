@@ -118,6 +118,10 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "release_update_guidance": "pure-stdlib pytest suite imports tools/check_release_notes.py "
+                               "through the repo-root walk-up. The tests job checks out the full "
+                               "repository, while installed-world-only consumers skip honestly; "
+                               "it guards the player-facing update headline required by #909",
     "client_gitlink_notes": "pure-stdlib Git fixture imports tools/check_release_notes.py through "
                             "the repo-root walk-up. The tests job checks out full history and the "
                             "repo tree, so the per-bump gate must run there rather than skip; it "

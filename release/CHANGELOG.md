@@ -5,6 +5,17 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.4.10 — 2026-08-19
 
+### What you need to update
+
+- **Client:** Required — use the v0.4.10 client with v0.4.10 seeds.
+- **APWorld:** Host-only — the room host or generator must install v0.4.10; joining players only
+  need the matching client.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** Generate a fresh template only to
+  see and select newly added options such as the Malenia goal.
+- **Existing seed/save:** New seed required — finish an active v0.4.9 seed with its matched v0.4.9
+  client and APWorld; use a new seed for v0.4.10 features.
+- **Profile/assets:** No action — this window does not require a profile or asset reinstall.
+
 Window opened from `main` immediately after v0.4.9 was tagged. The release tag's only commit not on
 `main` is its client-gitlink bump; this window supersedes that pin with the v0.4.10 client, so no
 player-facing work is stranded between the tag and this branch.
