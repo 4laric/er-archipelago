@@ -55,6 +55,12 @@ in anyway, the client explains that it opened vanilla inventory instead of looki
 shop. Ashen Capital now opens at Leyndell, Capital of Ash; the duplicate Ashen East Capital Rampart
 stays in the grace bundle without pretending to be the front door.
 
+Small one-region games can also use `keep_out_of_shops` without gambling on the filler. The option
+waits until progression has claimed its locations before deciding which categories fit, then places
+that constrained subset first. Ensis no longer ends with Cipher Pata stranded opposite Enia; when an
+Abyssal or Jagged Peak seed genuinely cannot hold all the requested gear outside shops, generation
+keeps the category that fits and names the one it relaxed instead of failing at the last item.
+
 The packaged me3 profiles also name the package they actually ship. Stable bundles load the
 authenticated `flower-package`, development bundles omit a package they do not contain, and the
 packager refuses to publish a profile that points at a missing directory.

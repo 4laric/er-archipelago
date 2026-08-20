@@ -334,34 +334,47 @@ def test_no_runes_in_shops_combinations_fill_clean(label, opts):
 #
 # Same reasoning as the no_runes_in_shops sweep above, with one difference that matters: this option
 # CONSTRAINS FILL HARD ENOUGH TO SKIP, so the sweep's job is not only "it gens" but "it gens whether
-# or not the capacity gate fired". num_regions walks it across that boundary -- 0 is 4369 non-shop
-# slots against 689 gear items (armed), 1 is 94 against 137 (armor drops, weapons hold) -- and the
-# DLC pair changes the kept set and the pool underneath it. `goods` is swept because an umbrella
-# expands to eight categories at once and is the widest ban a yaml can express in one word.
+# or not the capacity gate fired". num_regions walks it across that boundary. The three named
+# one-region fixtures are #903's real failures: Ensis stranded Cipher Pata at Enia on main, while
+# Abyssal and Jagged Peak left 16 and 10 items unplaced under the same option. `goods` is swept
+# because an umbrella expands to eight categories at once and is the widest ban a yaml can express
+# in one word.
 # ---------------------------------------------------------------------------------------------
 _KOS_COMBOS = (
-    ("gear_full_world",   {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 0}),
-    ("gear_one_region",   {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 1,
-                           "ending_condition": "great_runes"}),
-    ("gear_small_rolled", {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 4}),
-    ("goods_umbrella",    {"keep_out_of_shops": {"goods"}, "num_regions": 4}),
-    ("everything",        {"keep_out_of_shops": {"everything"}, "num_regions": 4}),
-    ("gear_dlc",          {"keep_out_of_shops": {"weapons", "armor"}, "enable_dlc": True}),
-    ("gear_dlc_only",     {"keep_out_of_shops": {"weapons", "armor"}, "dlc_only": True}),
+    ("gear_full_world",   {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 0},
+     20260810, None),
+    ("gear_one_region_ensis",
+     {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 1,
+      "ending_condition": "great_runes"}, 20260810, "Ensis"),
+    ("gear_one_region_abyssal",
+     {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 1,
+      "ending_condition": "great_runes"}, 1, "Abyssal"),
+    ("gear_one_region_jagged_peak",
+     {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 1,
+      "ending_condition": "great_runes"}, 27, "Jagged Peak"),
+    ("gear_small_rolled", {"keep_out_of_shops": {"weapons", "armor"}, "num_regions": 4},
+     20260810, None),
+    ("goods_umbrella",    {"keep_out_of_shops": {"goods"}, "num_regions": 4},
+     20260810, None),
+    ("everything",        {"keep_out_of_shops": {"everything"}, "num_regions": 4},
+     20260810, None),
+    ("gear_dlc",          {"keep_out_of_shops": {"weapons", "armor"}, "enable_dlc": True},
+     20260810, None),
+    ("gear_dlc_only",     {"keep_out_of_shops": {"weapons", "armor"}, "dlc_only": True},
+     20260810, None),
 )
 
 
-@pytest.mark.parametrize("label,opts", _KOS_COMBOS, ids=[c[0] for c in _KOS_COMBOS])
-def test_keep_out_of_shops_combinations_fill_clean(label, opts):
+@pytest.mark.parametrize("label,opts,seed,expected_region", _KOS_COMBOS,
+                         ids=[c[0] for c in _KOS_COMBOS])
+def test_keep_out_of_shops_combinations_fill_clean(label, opts, seed, expected_region):
     """Gens clean, and where the gate did NOT skip a category, that category really is absent from
     every purchase menu. Asserting only "it genned" would pass just as happily on an option that
     skipped everything, every time."""
     from Fill import distribute_items_restrictive
     from worlds.eldenring.shop_data import SHOP_ROW_FLAGS
-    from worlds.eldenring.features.keep_out_of_shops import (
-        plan, safe_forbid_capacity, _max_shop_matches, _PROGRESSIVE_NAMES)
+    from worlds.eldenring.features.keep_out_of_shops import _PROGRESSIVE_NAMES
     from worlds.eldenring.item_categories import expand, names_in
-    from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS
 
     class _T(WorldTestBase):
         game = GAME
@@ -369,37 +382,17 @@ def test_keep_out_of_shops_combinations_fill_clean(label, opts):
 
     t = _T("runTest")
     t.options = dict(opts)
-    t.world_setup(20260810)                      # pinned seed: a red run must be reproducible
+    t.world_setup(seed)                          # pinned seeds: every red is reproducible
     player = t.world.player
+    if expected_region is not None:
+        assert t.world._kept() == [expected_region], (
+            "%s no longer draws its acceptance region: %r" % (label, t.world._kept()))
 
-    # Recompute the gate's own decision from the pre-fill pool, so the assertion below tracks what
-    # the feature actually armed instead of assuming it armed everything.
+    # Read the post-progression decision. Before #903 the option decided in set_rules and this test
+    # reconstructed that stale pre-fill grid, thereby agreeing with the bug instead of seeing it.
     cats = expand(opts["keep_out_of_shops"])
     by_cat = {c: set(names_in([c], _PROGRESSIVE_NAMES)) for c in cats}
-    # #582 reserves compatible filler onto missable checks in pre_fill. Reconstruct the pool and
-    # non-shop capacity as keep_out_of_shops saw them in set_rules, before that reservation, or this
-    # oracle can disagree with the feature about which final category fit.
-    reserved = [l for l in t.multiworld.get_locations(player)
-                if getattr(l, "address", None) in MISSABLE_LOCATIONS
-                and l.locked and l.item is not None and l.item.player == player]
-    own = ([i for i in t.multiworld.itempool if i.player == player]
-           + [l.item for l in reserved])
-    capacity = sum(1 for l in t.multiworld.get_locations(player)
-                   if getattr(l, "address", None) is not None
-                   and str(l.address) not in SHOP_ROW_FLAGS
-                   and (l.item is None or l in reserved))
-    selected_names = set().union(*by_cat.values()) if by_cat else set()
-    shops = [l for l in t.multiworld.get_locations(player)
-             if getattr(l, "address", None) is not None
-             and str(l.address) in SHOP_ROW_FLAGS and l.item is None]
-    compatible_outside = _max_shop_matches(
-        [item for item in own if item.name not in selected_names], shops)
-    capacity = safe_forbid_capacity(
-        capacity,
-        sum(1 for item in own if item.name in selected_names),
-        len(shops), compatible_outside)
-    enforced, _dropped = plan({c: sum(1 for i in own if i.name in ns)
-                               for c, ns in by_cat.items()}, capacity)
+    enforced = list(t.world._gf_keep_out_of_shops_enforced)
 
     assert enforced, (
         "%s: the gate armed NOTHING, so the check below is vacuous -- either this combo's shape "

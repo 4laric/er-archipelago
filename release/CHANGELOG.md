@@ -17,6 +17,11 @@ Client half: clients#286. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Small-region `keep_out_of_shops` seeds generate cleanly.** The option now decides what fits
+  after progression reservations and places the constrained subset with the restrictive filler,
+  so an Ensis start no longer strands Cipher Pata opposite Enia despite having legal non-shop
+  space. Abyssal and Jagged Peak explicitly relax the oversized category instead of ending in a
+  `FillError`; the generation log names every category that could not fit. World: #903.
 - **The tracker no longer waits forever for Patches to die.** Patches yields in normal play, so
   his death-flag sweep is no longer sent to the client or advertised as an "also granted by" route.
   Merely unnamed or unaudited sweeps remain available as ordinary convenience grants; only triggers
