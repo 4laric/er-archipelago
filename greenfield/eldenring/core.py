@@ -1617,6 +1617,11 @@ class GreenfieldEldenRingWorld(World):
         from .features import progression_surface as _psf  # local, like pre_fill/post_fill do
         _worlds = list(multiworld.get_game_worlds(GAME))
         _psf.place_released_locks(multiworld, _worlds)
+        # #927: optionally reserve a 1/N share of every partner game's advancement on each opted-in
+        # ER slot. Run after ER's own released-progression pass so both see the final open surface,
+        # but before ordinary/useful placement consumes partner items or ER locations.
+        from .features import incoming_progression as _incoming
+        _incoming.reserve_incoming_progression(multiworld, _worlds)
         # #918's ruling (Alaric 2026-08-20): confine stays 100; the useful-export displacement is
         # fixed by a dedicated reservation pass. BEFORE keep_out finalisation on purpose --
         # exporting an item shrinks what must fit in the owner's own grid, so capacity sees the

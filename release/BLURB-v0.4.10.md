@@ -16,6 +16,15 @@ only moment anyone remembers why it mattered._
 
 ## What changed at the table
 
+**Progression is balanced across every game at the table.** `cross_game_progression: auto` --
+the shipped default -- now gives every partner game its own near-1/N share of Elden Ring's Locks,
+all seven Great Runes when the rune goal is active, and other progression, while your world
+reserves the same share of each partner game's progression in return. It respects items another
+player kept local and states in the log when capacity caps a share rather than claiming a quota
+it could not place. Prefer the old shape? `aggregate` is its name now, and an explicit percentage
+or `never` behaves exactly as before. The spoiler may still prune a redundant item from its
+minimal route.
+
 **Malenia can be the ending now.** Set `goal: malenia` and the seed guarantees the Haligtree, but it
 does not hand you Prayer Room or Roots. Once your chosen Great-Rune and region requirements resolve,
 you get Haligtree Canopy and play the whole route through Loretta and Elphael; Malenia's own defeat

@@ -1368,7 +1368,7 @@
    "key": "cross_game_progression",
    "class": "CrossGameProgression",
    "display_name": "Cross Game Progression",
-   "description": "What share of your travelling Region Locks may land in a non-Elden-Ring player's world.\n\n'auto' (the default) means one share per game at the table: in a two-game multiworld half\nyour travelling Locks may go to the partner, in a four-game one a quarter each -- the answer\nscales with the table instead of being a number to re-pick per seed. 'never' (0) keeps every\nLock inside Elden Ring, which is how every seed behaved before this option existed. A number\nis that share, explicitly.\n\nThis is a different question from Progression Bias: that option decides whether your Locks\nleave home at all; this one decides whether a travelling Lock may leave Elden Ring. Without\nit, a travelling Lock always landed in another Elden Ring world and a non-Elden-Ring partner\nnever held one.\n\nSet it to 'never' if a seed refuses to generate: some games' worlds object to other games\nplacing into their locations, and 0 is the escape hatch. No effect in a solo seed, in an\nall-Elden-Ring multiworld, or in the modes that mint no Lock items.",
+   "description": "How your progression is shared with the other games at the table.\n\n``auto`` (the default) balances it: every other game receives its own near **1 / number of\ngames** share of your travelling progression, and your world reserves the same share of every\npartner game's progression in return. Eleven items at a three-game table means roughly four to\neach partner and three staying home -- not one aggregate batch split however fill happens to\nland. Two slots of one game count as a single game, sampled fairly across their players, and\nitems a player keeps local are never taken.\n\n``aggregate`` is the older shape: one combined foreign batch sized at 1/N, divided between the\npartners by ordinary fill, with no incoming reservation. A number from 1 to 100 is that\naggregate share set by hand. ``never`` (0) keeps every travelling progression item inside\nElden Ring -- the escape hatch if a partner game will not tolerate being filled and a seed\nrefuses to generate.\n\nShares are capacity-aware: a partner game with fewer open locations than its share, or a world\nwithout room for the full incoming reservation, caps the share at what fits, and the\ngeneration log states requested-versus-reserved per game. Only a placement the rules refuse\noutright is a failure.\n\nNo effect in a solo seed, in an all-Elden-Ring multiworld, or in the modes that mint no Lock\nitems.",
    "kind": "range",
    "base": "NamedRange",
    "default": -1,
@@ -1382,6 +1382,10 @@
    "group": null,
    "group_collapsed": false,
    "special_values": [
+    {
+     "name": "aggregate",
+     "value": -2
+    },
     {
      "name": "auto",
      "value": -1
