@@ -1,54 +1,52 @@
-# v0.4.11 — release blurb (draft)
+# v0.4.11 — release blurb
 
-_Draft. Written as the window fills, not at tag time -- the moment a change lands is the
-only moment anyone remembers why it mattered._
+**The shelf finally tells you what it's selling.** Since the first shop rework, a merchant
+holding more multiworld items than the game had spare name rows collapsed them into one shared
+"Archipelago Items" label — you bought blind and checked the tracker afterward. That's over for
+every regular merchant: the seed now assigns names so that no two items *on the same shelf* ever
+share a row, and the client repaints the menu the moment it opens, so Kalé's stock, a nomad's, and
+the Twin Maiden Husks' all read as exactly what they hold. The trick wasn't a bigger pool — it was
+noticing that two slots only need different names if you can see them at the same time.
+
+**Eight graces that lit for nobody light now.** Shadow Keep Main Gate, Main Academy Gate, Grand
+Lift of Rold, Hidden Path to the Haligtree, Castleward Tunnel, both Limgrave Divine Tower graces,
+and Wyndham Catacombs were orphans: a safety gate correctly refused to let the wrong region
+force-light them, and nothing ever handed them to the right one. Each now lights with the region
+whose ground it stands on. Under `region_grace_unlock: entrance`, Stormveil opens at Castleward
+Tunnel and Raya Lucaria at Main Academy Gate — which also means the academy unlock no longer warps
+you inside the seal.
+
+**Updating stops being archaeology.** The client now checks the published release feed and tells
+you, on screen, whether an update exists and whether it's safe mid-seed — a same-contract update
+is a drop-in; a contract move waits for your seed to finish. When it says go, one command
+(`update-er-archipelago.ps1`, shipped beside the dll) downloads the release, verifies it, swaps
+the payload, backs up what it replaced, and never touches your config, saves, or logs. It is
+deliberately never automatic: the banner decides, you run it.
+
+**Playing through matt's randomizer is one command too.** `install-into-matts-rando.ps1` points
+the launcher's dll list at the client where it sits — no copying files into anyone else's folders,
+and re-running it after an update is the upgrade path. It refuses incomplete bundles and warns
+about the one dll known to eat item deliveries.
+
+**Quitting the game no longer risks a crash report.** Quit to menu, quit game — the most correct
+exit there is — could abort the process if one of our callbacks read game data mid-teardown.
+Every such read now degrades to a log line instead.
+
+And the accumulated table stakes: the Four Belfries Imbued Sword Key chest is a real check again
+(the third of four copies, not a phantom duplicate); the Serpent-Hunter's spectral waves belong to
+the Rykard fight instead of your inventory; receiving the Crafting Kit actually unlocks crafting;
+local pickups that resolve as AP checks play an audio cue; the client backs up your save once per
+launch; the goal ledger is on the tracker overlay; the spare-name pool grew 62 → 79 for the menus
+that still need every row; and "Region unlocked" says it once, on the edge, not once per tick.
 
 ## What you need to update
 
 - **Client:** Required — use the v0.4.11 client with v0.4.11 seeds.
 - **APWorld:** Host-only — the room host or generator must install v0.4.11; joining players only
   need the matching client.
-- **YAML:** **No new YAML required. Existing YAMLs remain valid.** The window is empty.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.** No option was added or
+  renamed; note only that `region_grace_unlock: entrance` now uses the canonical doors above.
 - **Existing seed/save:** Compatible — keep an active v0.4.10 seed on its matched v0.4.10 pair.
-  There is no save migration; just do not mix client and APWorld versions.
-- **Profile/assets:** No action — no profile or packaged asset changed when the window opened.
-
-## What is in it so far
-
-Nothing yet. This window was opened at the v0.4.10 tag with zero commits past it, so the notes
-exist before the first change does. That is the point of opening it now.
-
-**The graces that lit for nobody light now.** Eight Sites of Grace were orphans: a safety gate
-correctly refused to let the wrong region force-light them, but nothing ever handed them to the
-right one — so Shadow Keep Main Gate stayed dark even after Scadu Altus opened, and so did Main
-Academy Gate, Grand Lift of Rold, Hidden Path to the Haligtree, Castleward Tunnel, both Limgrave
-Divine Tower graces, and Wyndham Catacombs. Each now lights with the region whose ground it
-actually stands on. If you play `region_grace_unlock: entrance`, two entrances move to the
-canonical doors: Stormveil opens at Castleward Tunnel and Raya Lucaria at Main Academy Gate —
-which also means the academy unlock no longer warps you inside the seal.
-
-**Shop previews keep their real names past 62 slots.** Locked and foreign-item shop slots show
-you what is actually in them, but the pool of spare goods rows those preview names are written
-into ran dry at 62 — past that, slots fell back to the `?GoodsName?` placeholder. The pool now
-carries 79 rows: the same safe 62 first, so seeds under the old ceiling draw the identical names,
-then 17 rows that have no vanilla text at all, named by the client creating brand-new text
-entries in the game's own tables. A seed that needs the extra rows says so, and a client too old
-to create entries is told to update at connect instead of silently showing placeholders.
-
-**The Four Belfries key chest joins the pool.** The Imbued Sword Key chest at The Four Belfries
-had been mislabeled as a duplicate of a key that already existed elsewhere, so it paid out its
-vanilla key and could never hold a real item. It is the genuine third base-game copy — alongside
-Raya Lucaria and Sellia, with Castle Ensis the fourth in the DLC — and it now works like any other
-check, regioned to Liurnia.
-
-## What carried over from v0.4.10
-
-No player-facing work is carried over. The v0.4.10 tag is exactly the `main` commit this window
-started from, and that release's notes are complete. The only housekeeping paid here is promoting
-the stable channel to the already-published v0.4.10 tag while beta remains on `main`.
-
-## For whoever writes the real one
-
-The v0.4.3 blurb is the model: lead with what changed at the table, not with the option
-name. Its opening line -- "You can get BK'ed now, and that is the point" -- says what a
-player will feel before it says what was built, and that is the right order.
+  There is no save migration; just do not mix client and APWorld versions. (Contract unchanged at
+  `dc0dc687`; the exact-version handshake still moves.)
+- **Profile/assets:** No action.
