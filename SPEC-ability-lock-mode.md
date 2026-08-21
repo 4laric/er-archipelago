@@ -1,7 +1,8 @@
 # SPEC — ability lock mode
 
-**Status:** proposed, 2026-08-20. Blocked on the two client probes in §4.2 — no enforcement ships
-before they report.
+**Status:** probes ANSWERED, 2026-08-21 (findings inline in §4.2, from three sessions / 4,389
+basket samples in Alaric's v0.4.11 acceptance logs). Enforcement is unblocked except for one
+field test: apply SpEffect 9621 outside a sanctuary zone and record what it disables.
 **Owner:** Alaric rules. This document is a proposal with its prerequisites stated, not a plan of
 record.
 
@@ -119,18 +120,38 @@ inventory. So every input-masked ability gates on a **menu-open predicate the cl
 yet have**. (The overlay's imgui `want_capture` gate is not it — that covers *our* UI, not the
 game's.)
 
-**Probe 1 — menu context.** Find a reliable "game menu is open" read (candidate families:
-`FeMan`/UI state, the pause flag, ESD state — the `esd_probe`/`downstate_probe` gated-probe
-pattern is the vehicle). Deliverable: a one-line log probe, run through open/close of every menu
-class, per the `probes_are_host_safe` rule. If nothing reads clean, the fallback per ability is
-*mask only while `in_world()` and not in a known menu play_region* — weaker, and the spec should
-treat that as a finding, not a plan.
+**Probe 1 — menu context. ✅ ANSWERED 2026-08-21** (`ability_probe.rs`, change-logged basket;
+protocol run through pause/equipment/map/merchant/gestures/dialogue/Roundtable):
 
-**Probe 2 — the Roundtable lead.** The Roundtable Hold is a no-combat zone: attacks are disabled
-there by *some* vanilla mechanism (map flag, SpEffect, or ChrSys state — unknown today). If it is
-a SpEffect or a settable state, it is a **universal attack lock** with no input masking at all,
-and possibly a roll lock too. One RE session on the transition into m11_10 answers it. Do not
-design around it until measured — but if it hits, §4.3's attack rows get much cheaper.
+- **Dead candidates, by evidence of silence where change-logging guarantees signal:**
+  `CSMenuManImp.popup_menu.is_some()` never read false across three sessions (an always-present
+  pointer, not a menu bit), and `sel_goods`/`sel_magic` never read anything but `None`.
+- **The predicate is `ChrMenuFlags`.** Resting gameplay reads `1`; every menu state observed
+  sets bit 2 or bit 3: non-pause menus read 5/7, the pause family 9/11/13/15, the map 25/27 —
+  and `pause_menu_state` corroborates bit 3 in all 4,389 samples. So *game menu open* =
+  `chr_menu_flags & 0b1100 != 0`. Because the probe logs on EVERY field change, the absence of
+  any other gameplay value is evidence, not a sampling gap.
+- **Dialogue caveat for the roll lock:** if an NPC dialogue reads as gameplay (`1`), B-as-back
+  needs the belt the client already has — `esd_probe`'s talk-activity clock
+  (`LAST_TALK_ACTIVITY_MS`). Mask roll only when the flags predicate is clear AND the talk clock
+  is stale.
+
+**Probe 2 — the Roundtable lead. ✅ ANSWERED 2026-08-21, one field test left.** The mechanism is
+**SpEffect 9621**, and it is a *zone-applied* effect, not a Roundtable map special:
+
+- present on the player in **187/187** Roundtable samples (play_region 1110000), absent in all
+  ~4,200 samples elsewhere, and it flips exactly at the region transitions in and out;
+- present in a **second region** (play_region 1600012, 25 samples) — a second sanctuary zone,
+  which is what promotes it from "Roundtable trivia" to "the game's own no-combat lever";
+- **negative finding:** `ChrDebugFlags` (disabled_hit / disabled_secondary_actions / ...) sat
+  all-false inside the Roundtable — that family is ruled out.
+
+The client already owns apply/strip-SpEffect infrastructure (the serpent-hunter 1908 work), so
+if applying 9621 in the field disables attacks, R1/R2/L1/L2 lock with **no input masking at
+all**. The one remaining measurement, per this spec's own read-back rule: apply 9621 outside a
+sanctuary, swing, and record everything it blocks — TOO BROAD is the live risk (if it also eats
+rolls, items or spells, it is one lever where §4.3 wants four, and the fine-grained locks fall
+back to input masking behind the probe-1 predicate).
 
 ### 4.3 Per-ability mechanisms
 
@@ -139,9 +160,9 @@ design around it until measured — but if it hits, §4.3's attack rows get much
 | heal | `flask.rs` charge-target clamp to 0 | **high** — fields proven, infra shipped | the only one with no input component |
 | jump | input mask | medium-high | jump is near-useless in menus; even the weak in-world gate may suffice |
 | crouch | input mask | medium-high | stick-click; same menu profile as jump |
-| dodge roll | input mask + menu predicate | medium | B/Circle is "back" — **blocked on probe 1** |
-| R1 / L1 | input mask + menu predicate | medium | RB/LB are menu tab keys — **blocked on probe 1**; or probe 2 |
-| R2 / L2 | input mask + menu predicate | medium-high | triggers see little menu use; still probe-1-gated for consistency |
+| dodge roll | input mask + menu predicate | medium-high | **unblocked**: mask when `chr_menu_flags & 0b1100 == 0` AND the talk clock is stale |
+| R1 / L1 | SpEffect 9621, else input mask + predicate | medium-high | **unblocked pending the 9621 field test**; input masking is the fallback |
+| R2 / L2 | SpEffect 9621, else input mask + predicate | medium-high | same as R1/L1 |
 
 Two rejected/conditional paths, named so nobody re-walks them:
 
@@ -185,8 +206,8 @@ first (§7), world side follows in the same release.
 
 0. **World, safe to land immediately:** the jump audit (§3) — its answer shapes the rules and it
    needs no client. Also the eight-flag reservation test.
-1. **Client probes 1 and 2** (§4.2) — log-only, the `hover_probe` pattern. Their findings pick
-   each ability's mechanism from §4.3.
+1. ~~**Client probes 1 and 2**~~ ✅ DONE 2026-08-21 — findings inline in §4.2. One residue:
+   the 9621 apply-test in the field, which decides the attack rows' mechanism in §4.3.
 2. **Client enforcement**, heal first (no probe dependency), then the input-masked set behind the
    menu predicate; `ability_lock` added to SUPPORTED; read-back logging per ability.
 3. **World feature** (§2, §3) emitting `abilityLockFlags` + the tag, with the option-matrix gen
