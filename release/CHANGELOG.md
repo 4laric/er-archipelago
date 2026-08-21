@@ -28,6 +28,20 @@ Client half: clients#334. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Shop shelves now name every Archipelago item properly.** The shared "Archipelago Items"
+  label -- hundreds of shop checks folding onto one spare row's single FMG name -- is gone from
+  regular merchants. The insight is a scope change, not a bigger pool: two slots only need
+  distinct names if one MENU can show both, and a menu is exactly the row range its ESD passes
+  to the shop opener. Generation now colors the spare preview rows against the datamined
+  display scopes (tools/datamine_shop_open_ranges.py, 62 scopes, 8 opener kinds; the busiest
+  regular menu is the Twin Maiden re-sell at 31 checks against a 79-row pool), so same-shelf
+  slots never share a row while different shelves reuse rows freely -- and the paired client
+  repaints each opened shelf's rows with that shelf's own item names at shop open. Menus the
+  client cannot repaint yet (Enia's transposition menu, Champions/Dragon Communion/Dupe/Puppet
+  shops) get private rows first-come, i.e. exactly the old behaviour, never worse. Slot-data
+  shape unchanged; old clients on new seeds and new clients on old seeds both degrade to the
+  honest shared label. Client half: clients#366.
+
 - **The updater, phase 2: one command brings this install to stable.** The bundle ships
   `update-er-archipelago.ps1` (Python twin included) beside the dll. It reads the same
   `/er/latest.json` the in-game banner reads, refuses while the game runs, and -- the point --

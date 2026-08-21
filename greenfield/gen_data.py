@@ -7370,6 +7370,34 @@ print(f"spare_goods: {len(_SPARE_GOODS)} safe preview-good rows "
       f"({SPARE_PREVIEW_REDIRECTABLE} redirectable + "
       f"{len(_SPARE_GOODS) - SPARE_PREVIEW_REDIRECTABLE} insertable) (greenfield/spare_goods.tsv)")
 
+# ---- SHOP-MENU DISPLAY SCOPES (shop_open_ranges.tsv, tools/datamine_shop_open_ranges.py) ----------
+# Every ESD shop-opener call's (begin, end) ShopLineupParam range = the display scope of one shop
+# menu (issue #937). features/shops.py COLORS the spare pool against these so no two slots visible
+# in one menu share a spare row; the opener string is the client-repaintability bit (only
+# OpenRegularShop menus are repainted at open -- the client's ESD command-22 detour).
+_sor_path = os.path.join(HERE, "shop_open_ranges.tsv")
+SHOP_OPEN_SCOPES = []
+if os.path.isfile(_sor_path):
+    with open(_sor_path, encoding="utf-8-sig") as _sofh:
+        _so_hdr = None
+        for _ln in _sofh:
+            if _ln.startswith("#") or not _ln.strip():
+                continue
+            _p = _ln.rstrip("\n").split("\t")
+            if _so_hdr is None:
+                _so_hdr = _p          # opener/begin/end/check_rows/talk_ids
+                continue
+            SHOP_OPEN_SCOPES.append((_p[0], int(_p[1]), int(_p[2])))
+    print(f"shop_open_scopes: {len(SHOP_OPEN_SCOPES)} menu display scope(s), "
+          f"{len({_op for _op, _b, _e in SHOP_OPEN_SCOPES})} opener kind(s) "
+          f"(greenfield/shop_open_ranges.tsv)")
+elif _slp_present:
+    # A real gen (params present) without the scopes file would silently regress the #937 coloring
+    # to zero constraints -- every seed reverting to the shared-label draw. Refuse instead.
+    raise SystemExit("FATAL: greenfield/shop_open_ranges.tsv missing while ShopLineupParam is "
+                     "present -- run tools/datamine_shop_open_ranges.py (issue #937). Refusing a "
+                     "scopeless shop_data emit.")
+
 # The check flags among the DLC-gated stock flags, with a rule-4 tally by region so the number
 # is auditable. Expected shape: the hub's Enia block (the motivating case) plus DLC-region rows
 # that are redundantly listed (their locations leave with their regions regardless).
@@ -7421,6 +7449,15 @@ with open(OUT_SHOP, "w", newline="\n", encoding="utf-8") as f:
     f.write("# requiresClientFeatures (features/shops.py). Absent tsv: 0, and shops.py's fallback tuple\n")
     f.write("# is entirely redirectable.\n")
     f.write(f"SPARE_PREVIEW_REDIRECTABLE = {SPARE_PREVIEW_REDIRECTABLE}\n")
+    f.write("\n# Shop-menu display scopes (tools/datamine_shop_open_ranges.py, issue #937): every\n")
+    f.write("# ESD shop-opener call's (begin, end) ShopLineupParam range, with its opener. Two shop\n")
+    f.write("# slots can be ON SCREEN TOGETHER iff one scope holds both rows; features/shops.py\n")
+    f.write("# colors spare preview rows against these (eldenring/shop_coloring.py). The opener is\n")
+    f.write("# the client-repaintability bit: only OpenRegularShop menus are repainted at open.\n")
+    f.write("SHOP_OPEN_SCOPES = (\n")
+    for _op, _b, _e in SHOP_OPEN_SCOPES:
+        f.write(f"    ({_op!r}, {_b}, {_e}),\n")
+    f.write(")\n")
 print(f"shop_data: {len(SHOP_ROW_FLAGS)} shop checks, {len(SHOP_PREVIEW_GOODS)} with preview goods across {len(set(SHOP_LOC_REGION.values()))} regions (param_present={_slp_present})")
 
 # ---- missable_locations.py: ap_ids of checks gated behind a limited consumable / killable NPC ------

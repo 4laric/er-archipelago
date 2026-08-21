@@ -50,6 +50,13 @@ except Exception:                                       # need the client's FMG 
     SPARE_PREVIEW_REDIRECTABLE = len(SPARE_PREVIEW_GOODS)  # old shop_data: all redirectable
 
 try:
+    from ..shop_data import SHOP_OPEN_SCOPES         # menu display scopes (issue #937 coloring)
+except Exception:                                   # predates the scopes emit: coloring falls back
+    SHOP_OPEN_SCOPES = ()                           # to per-block buckets, all slots private
+
+from ..shop_coloring import color_spare_rows        # pure, host-tested (tests/test_shop_coloring.py)
+
+try:
     from ..item_ids import ITEM_CATALOG              # item NAME -> ER FullID (generated)
 except Exception:                                   # not yet generated
     ITEM_CATALOG = {}
@@ -223,8 +230,7 @@ class Shops(Feature):
         # order over the sorted pool. Cosmetic only -- the check fires by SHOP_ROW_FLAGS, not the ware.
         player = world.player
         _free = [g | _GOODS_NIBBLE for g in _LOCK_PREVIEW_SPARE_GOODS[len(name_to_preview):]]
-        _fi = 0
-        _overflow = 0
+        _draw = []     # spare-drawing slots (str ap-id), in stable get_locations order
         for loc in world.multiworld.get_locations(player):
             aid = getattr(loc, "address", None)
             if aid is None:
@@ -256,36 +262,47 @@ class Shops(Feature):
                 # branch on 2026-07-29 -- see _SELLABLE_NIBBLES for the datum (135 vanilla
                 # ShopLineupParam rows carry equipType 4). The branch and the hazard are unchanged;
                 # only the population reaching it shrank.
-                if _fi < len(_free):
-                    preview[key] = _free[_fi]
-                    _fi += 1
-                elif _free:
-                    preview[key] = _free[-1]
-                    _overflow += 1
+                _draw.append(key)
                 continue
             # FOREIGN item: repoint to a spare so the client flowers it (spare is never a real good).
-            if _fi < len(_free):
-                preview[key] = _free[_fi]
-                _fi += 1
-            elif _free:
-                preview[key] = _free[-1]   # pool exhausted -> share the last spare (still flowers)
-                _overflow += 1
-            # else (no spares at all -- e.g. locks consumed the whole pool): leave vanilla, don't crash
-        if _overflow:
+            _draw.append(key)
+
+        # SPARE ASSIGNMENT IS A COLORING, NOT A QUEUE (issue #937). A spare row's FMG entry holds one
+        # string, so two slots on one row used to fold to the shared "Archipelago Items" label -- and
+        # with ~500 shop checks against this pool, most of a big seed shared ONE row. But ambiguity
+        # only exists between slots visible in the SAME menu: the client repaints a regular shop's
+        # rows with the open menu's own labels at ESD command 22, so rows may be reused across
+        # regular menus freely. color_spare_rows (pure, host-tested) gives repaintable slots
+        # menu-distinct colors from the low/described end, non-repaintable-menu slots private rows
+        # first-come (the old behaviour, for exactly the menus that still need it), and parks any
+        # private overflow on the shared last row (still flowered, honestly shared-labelled).
+        _slot_rows = [(k, SHOP_ROW_IDS.get(k, [])) for k in _draw]
+        _colors, _overflow_keys = color_spare_rows(_slot_rows, SHOP_OPEN_SCOPES, len(_free))
+        if _free:
+            for _k, _c in _colors.items():
+                preview[_k] = _free[_c]
+            for _k in _overflow_keys:
+                preview[_k] = _free[-1]
+        # else (no spares at all -- e.g. locks consumed the whole pool): leave vanilla, don't crash
+        if _overflow_keys and _free:
             import logging
             logging.getLogger("Greenfield").warning(
-                "[eldenring:%s] shop flowering: demand was %d foreign/unsellable slot(s) for the "
-                "%d free spare goods (%d reserved for region locks) -- %d slot(s) SHARE the last "
-                "spare (they still flower, but show a single shared name). Widen the spare pool "
-                "(tools/datamine_spare_goods.py) to give each its own name.",
-                world.player, _fi + _overflow, len(_free), len(name_to_preview), _overflow)
+                "[eldenring:%s] shop flowering: %d of %d foreign/unsellable slot(s) SHARE the last "
+                "spare row (non-repaintable menus outgrew the %d free spare goods; %d reserved for "
+                "region locks). They still flower and are honestly labelled as shared. Repaintable "
+                "(regular-merchant) slots are unaffected -- their menus are colored, not queued.",
+                world.player, len(_overflow_keys), len(_draw), len(_free), len(name_to_preview))
 
         # DECLARE THE INSERT DEPENDENCY (issue #937, SPEC-spare-goods-pool-growth.md section 4.4).
-        # Pool rows spent are pool[0 .. spent-1] (locks take the head, foreign/unsellable slots the
-        # rest, in order); a spent row past the redirectable boundary is INSERTABLE, so this seed
-        # needs a client with the 2026-08-03 fmg_inject INSERT path. A seed that never reaches the
-        # tier-3 rows declares nothing and connects to any client, byte-identical to before.
-        _spent = len(name_to_preview) + _fi
+        # Colors are drawn low-first, so the WATERMARK (highest pool index touched, lock head
+        # included; the shared overflow row is the pool's last) decides: any touched row past the
+        # redirectable boundary is INSERTABLE, and the seed needs a client with the 2026-08-03
+        # fmg_inject INSERT path. A seed whose watermark stays below the boundary declares nothing
+        # and connects to any client.
+        _max_color = max(_colors.values(), default=-1)
+        if _overflow_keys and _free:
+            _max_color = max(_max_color, len(_free) - 1)
+        _spent = len(name_to_preview) + _max_color + 1
         out = {contract.SHOP_ROW_FLAGS: flags, contract.SHOP_PREVIEW_GOODS: preview}
         if _spent > _POOL_REDIRECTABLE:
             out[contract.REQUIRES_CLIENT_FEATURES] = [_CLIENT_FEATURE_TAG]
