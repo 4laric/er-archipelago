@@ -3,7 +3,7 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.4.11 — 2026-08-20
+## v0.4.11 — 2026-08-21
 
 ### What you need to update
 
@@ -114,6 +114,14 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   so a bad session has something to roll back to. (clients#287)
 - **The goal ledger is on screen.** The tracker overlay carries the session's goal state, and the
   withheld-goal lock no longer appears on the hint surfaces. (clients#361)
+- **Local pickups that land as AP checks play an audio cue.** You hear the check fire without
+  watching the ticker — useful mid-fight and in menus alike. (clients#364, issue clients#336)
+- **Quitting the game can no longer abort with a crash report.** Quit-to-menu freed the
+  character, quit-game tore the param tables down, and a callback reading them in that window hit
+  an upstream panic in a frame that cannot unwind — process gone, crash txt written, on the most
+  correct exit there is. Every raw param read (24 sites, 11 modules) now goes through the guarded
+  accessor and degrades to one deferred-log line naming the callback. (clients#373, issue
+  clients#372)
 - **Fixes worth naming:** the wrong-save refusal now names the room the save belongs to
   (clients#337); "Region unlocked" announces on the edge, not every tick of the pass
   (clients#356); spawn requests are paced by wall clock instead of one per frame (clients#947);
@@ -122,8 +130,11 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   boss-sweep clause no longer carries its baked text (clients#936); and a teardown crash avenue is
   closed by retiring the captured inventory pointer at world exit (clients#353).
 - **Diagnostics:** probes toggle live from `apconfig.json` with no restart (clients#166); the
-  crash reporter decodes id-shaped fault values against this seed's own tables (clients#351); the
-  scaling census shows the HP-pending population session-wide (clients#365).
+  crash reporter decodes id-shaped fault values against this seed's own tables (clients#351) and
+  carries the session's scaling-write tallies (clients#367); a probe-gated full id-set dump feeds
+  the scaling census (clients#368); the save-marker flag-band audit is recorded with the tool
+  that reruns it (clients#370); the scaling census shows the HP-pending population session-wide
+  (clients#365).
 
 ## v0.4.10 — 2026-08-19
 
