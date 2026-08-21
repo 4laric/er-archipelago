@@ -187,6 +187,27 @@ class WizardDeploy(unittest.TestCase):
         self.assertIn("mv -f", text)
         self.assertNotIn('curl -fsSL "${RAW}/${ref}/wizard/wizard.html" -o "$dst"', text)
 
+    def test_latest_json_is_emitted_from_the_ledgers_atomically(self):
+        """/er/latest.json feeds the client's update banner (phase 1 of the updater, 2026-08-21).
+        The verdict a player sees ("safe mid-seed" vs "contract moved") is derived by comparing
+        this file's `contract` to the dll's compiled hash -- so the emit must read BOTH ledgers
+        (CHANNELS.tsv for the tag, CONTRACT-VERSIONS.tsv for its contract), never a typed hash,
+        and must install with the same mktemp-sibling + mv discipline as every page."""
+        _, script = self._script()
+        # WITNESS: the block exists at all (a deleted emit must fail here, not pass vacuously).
+        self.assertIn("latest.json", script)
+        self.assertIn("CONTRACT-VERSIONS.tsv", script)
+        self.assertIn('"$cvledger"', script)
+        # The contract comes from the ledger row for the stable version -- the awk join.
+        self.assertRegex(script, r'awk[^\n]*\$1==v[^\n]*print \$2')
+        # Atomic: a sibling temp file, then mv onto the destination.
+        self.assertRegex(script, r'mktemp "\$\{DEST\}/latest\.json\.XXXXXX\.tmp"')
+        self.assertRegex(script, r'mv "\$ljtmp" "\$\{DEST\}/latest\.json"')
+        # A missing ledger row DIES rather than emitting a lie.
+        self.assertIn("latest.json would lie", script)
+        # Stable-only artifact: both non-stable modes guard it off.
+        self.assertRegex(script, r'\[ "\$BETA_ONLY" = "0" \] && \[ "\$SITE_ONLY" = "0" \]')
+
     def test_the_stable_tag_comes_from_the_ledger(self):
         """Not from an argument: a tag typed on the box is a second source of truth for which build
         is stable, and the two would disagree the first time someone was in a hurry."""
