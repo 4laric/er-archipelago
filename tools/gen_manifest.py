@@ -84,6 +84,8 @@ FILE_INPUTS = [
     "greenfield/merchant_shops.tsv",               # row -> PHYSICAL merchant + map tile (talk ESD)
     "greenfield/bell_handins.tsv",                 # bell -> its merchant's OWN block range; the
                                                    # discriminator for an over-wide OpenRegularShop
+    "greenfield/shop_open_ranges.tsv",             # shop-menu display scopes (issue #937): the
+                                                   # coloring constraints behind shopPreviewGoods
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam.csv",
     "elden_ring_artifacts/vanilla_er/vanilla_er/ShopLineupParam_Recipe.csv",
 ]

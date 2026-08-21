@@ -119,6 +119,13 @@ STEPS = [
              "never before them: its classifier IS boss_healthbars + boss_reward_lots, so run out "
              "of order it would emit a roster of mostly kind=collection rows -- a SMALLER default "
              "progression surface, written to a committed table, reported as a clean run."),
+    Step(MODULES, "tools/datamine_shop_open_ranges.py",
+         emits=["greenfield/shop_open_ranges.tsv"],
+         why="shop-menu display scopes (issue #937): gen_data REFUSES to emit shop_data.py without "
+             "them (a scopeless emit would silently regress the spare-row coloring to the shared-"
+             "label draw). Reads the talk corpus, so after INPUTS; before gen_data, which reads "
+             "the tsv."),
+
     Step(MODULES, "greenfield/gen_data.py",
          emits=["greenfield/eldenring/*.py", "greenfield/eldenring/_gen_stamp.json"],
          why="WRITES THE STAMP. Everything below reads it; nothing below may precede it."),
