@@ -28,6 +28,16 @@ Client half: clients#334. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The updater, phase 2: one command brings this install to stable.** The bundle ships
+  `update-er-archipelago.ps1` (Python twin included) beside the dll. It reads the same
+  `/er/latest.json` the in-game banner reads, refuses while the game runs, and -- the point --
+  gates on the CONTRACT: if the new release's contract is not found in your installed dll it
+  stops and explains that updating mid-seed breaks your pairing, unless you pass
+  `--accept-contract-change`. The download is size-verified against the release asset and the
+  zip's own integrity table; the swap replaces only the shipped `me3/` payload, backs up every
+  replaced file, and never touches `apconfig.json`, saves, logs, or ledgers. It is deliberately
+  never automatic: the banner decides, the human runs. Rides the phase-1 verdict pair
+  (site latest.json + client banner).
 - **The site now publishes a machine-readable update verdict.** `deploy_wizard.sh` emits
   `/er/latest.json` -- the stable version, its contract hash (from the CONTRACT-VERSIONS
   ledger, never typed), and the release url -- installed with the same atomic discipline as
