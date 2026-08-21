@@ -28,6 +28,16 @@ Client half: clients#334. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **One command wires the client into matt's randomizer.** `install-into-matts-rando.ps1
+  -Randomizer path\to\randomizer` (Python twin included) edits the one file matt's launcher actually
+  reads -- `config_eldenringrandomizer_dll.toml` -- to point at `eldenring_archipelago.dll`
+  inside the release's `me3/` folder, in place. Re-running after an update repoints a stale
+  versioned path automatically (the way a launcher ends up loading last release's client),
+  a backup is written first, an incomplete bundle refuses instead of installing a dll without
+  its data tables, and `-WithFlower` chains the icon installer. It never touches the
+  hash-guarded auto-generated config, and it warns if RandomizerHelper.dll shares the list.
+  Spec and the measured seam: #944.
+
 - **Eight Sites of Grace that lit for NOBODY now light with the region whose ground they stand
   on.** The grace-ground safety gate dropped a grace from the wrong region's bundle but never
   re-homed it to the right one, so these stayed dark all game even after their region opened:
