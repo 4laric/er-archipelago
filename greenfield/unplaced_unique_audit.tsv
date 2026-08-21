@@ -24,7 +24,7 @@ flag	item	verdict	canonical_flag	region	evidence
 580400	Serpent Crest Shield	generated	580400	Gravesite	item_grace_coords.tsv has an exact f580400 entity on m61_45_43
 30207900	Silver Scarab	excluded_dead			gen_data._UNREACHABLE_DEAD: cut/unreachable Hidden Path imp-gate reward row
 59930000	Veteran's Helm	duplicate	250290	Roundtable Hold	data.py already has Veteran's Helm as Enia shop check f250290
-1033477020	Imbued Sword Key	excluded_phantom			gen_data._RECOVER_PHANTOM_DUPES: phantom fourth key; the three real keys already have checks
+1033477020	Imbued Sword Key	generated	1033477020	Liurnia	treasure_assets.tsv (asset 1033471601), msb_flag_region.tsv (m60_33_47 lot 1033470020 treasure) and item_grace_coords.tsv all place it: the REAL Four Belfries chest -- #940 reversed the phantom ruling
 1038417100	Ash of War: Gravitas	excluded_itemless			itemless_flags.tsv and gen_data item-existence guard: lot item is an unnamed/cut placeholder
 400902	Nomadic Merchant's Bell Bearing [2]	generated	400902	Limgrave	item_grace_coords.tsv exact entity m60_45_36
 400903	Nomadic Merchant's Bell Bearing [3]	generated	400903	Limgrave	item_grace_coords.tsv exact entity m60_41_36

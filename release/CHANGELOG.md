@@ -62,6 +62,12 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   pool is spent, generation now logs the demand/supply/lock arithmetic rather than a bare count.
   World: #937. Client: clients#341, whose merged commit is pinned by the gitlink in this same
   change.
+- **The Four Belfries Imbued Sword Key chest is a real check.** It had been excluded as "a
+  nonexistent fourth key", so the chest kept handing out its vanilla key and could never hold a
+  multiworld item. The placement data (treasure asset, MSB row, exact entity coordinates) says it
+  is the real Four Belfries treasure: the base game has three Imbued Sword Key checks — The Four
+  Belfries, Raya Lucaria, Sellia — and the DLC adds the fourth at Castle Ensis. The chest is
+  regioned to Liurnia and joins the location pool. (#940)
 
 ## v0.4.10 — 2026-08-19
 

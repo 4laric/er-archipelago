@@ -1685,12 +1685,16 @@ print(f"capital: world-burn state flag {_CAPITAL_WORLD_BURN} (read by "
       f"{_CAPITAL_WORLD_BURN_READERS}), pre-burn state flag {_CAPITAL_PRE_BURN}")
 # PHANTOM recovery duplicates: a common-event/unplaced `global` flag that names a UNIQUE key item
 # already fully placed elsewhere -- recovering it would inject an extra copy of a singleton key.
-#   1033477020 = a 4th "Imbued Sword Key" (decodes to m60_33_47/Liurnia) that sits in the unplaced
-#     `global` bucket (map PENDING) and is referenced in NO EMEVD, while the three real keys are
-#     placed as method='treasure' (Raya Lucaria 14007630, Caelid 1050397910, Land of Shadow
-#     2048447800). The game has exactly three -> drop this phantom so global-recovery doesn't
-#     re-double the singleton (test_unique_key_items_are_singletons).
-_RECOVER_PHANTOM_DUPES = frozenset({1033477020})
+# (no members since 2026-08-21 -- the set stays so the ledger rule and the datamine cross-check in
+# tools/datamine_unplaced_globals.py keep their named anchor.)
+#   1033477020 -- RULING REVERSED (issue #940). It sat here as "a 4th Imbued Sword Key referenced in
+#     NO EMEVD", but the placement evidence says it is the REAL Four Belfries chest:
+#     treasure_assets.tsv (asset 1033471601 on m60_33_47), msb_flag_region.tsv (m60_33_47, lot
+#     1033470020, 宝箱001：鐘楼群頂上, method treasure), item_grace_coords.tsv (exact entity), and
+#     nearest_grace.tsv (The Four Belfries 76227). The count premise was stale too: the base game
+#     has THREE keys (Four Belfries, Raya Lucaria, Sellia) and the DLC adds the fourth (Castle
+#     Ensis). It now regions via MSB ground truth like any placed treasure; do NOT re-add it here.
+_RECOVER_PHANTOM_DUPES = frozenset({})
 # UNREACHABLE important checks -- EXCLUDED AS DEAD (Alaric 2026-07-09). Physically gated behind
 # mechanics a warp-grace region-lock shuffle can't guarantee, so a placed multiworld item strands.
 #   30207900 = Silver Scarab: end of the Hidden Path to the Haligtree (m30_20), behind an imp-statue /
