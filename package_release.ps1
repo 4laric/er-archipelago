@@ -3,7 +3,10 @@
 # Pure-runtime: NO FromSoftware game data ships. This wraps the three things a
 # player needs into one zip:
 #   1. eldenring.apworld            (built by build.ps1 -Apworld = the greenfield world)
-#   2. me3\ runtime                 (client DLL + local AP-flower installer + apconfig.json)
+#   2. me3\ runtime                 (client DLL + data tables + apconfig.json, plus the
+#                                    player-run tools that must live BESIDE the dll: the
+#                                    AP-flower installer, install-into-matts-rando (#948)
+#                                    and update-er-archipelago (#954))
 #   3. the flagship yaml + SETUP.md + CHANGELOG.md
 # (The PopTracker pack stays in the repo, not bundled; the built-in F6 tracker ships.)
 #
@@ -41,7 +44,7 @@
 
 [CmdletBinding()]
 param(
-    [string]$Version = "0.2",
+    [string]$Version = "",
     [switch]$SkipApworld,
     [switch]$SkipGenSmoke,   # skip the zipped-apworld generation gate (NOT recommended for a real release)
     [switch]$SkipCrossRepoCheck, # skip the apworld<->client data-agreement gate (NOT recommended)
@@ -52,9 +55,26 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$Repo      = $PSScriptRoot
+# No -Version? Derive it from contract.py's APWORLD_VERSION -- the same site the lockstep gate
+# checks below. The old default was a literal "0.2", which had been four minors stale for months:
+# a default that is always wrong is just a mandatory flag wearing a disguise. Passing -Version
+# explicitly still works (and still has to agree with every site, or the gate says so).
+if ([string]::IsNullOrWhiteSpace($Version)) {
+    $verContract = Join-Path $Repo "greenfield\eldenring\contract.py"
+    if (-not (Test-Path $verContract)) {
+        throw "package_release: no -Version given and contract.py not found to derive one from."
+    }
+    $verHit = (Select-String -Path $verContract -Pattern '^APWORLD_VERSION\s*=\s*"([0-9]+(?:\.[0-9]+)+)"' |
+               Select-Object -First 1)
+    if (-not $verHit) {
+        throw "package_release: no -Version given and APWORLD_VERSION not readable from contract.py."
+    }
+    $Version = $verHit.Matches[0].Groups[1].Value
+    Write-Host "  version:   derived v$Version from contract.py APWORLD_VERSION" -ForegroundColor DarkGray
+}
 # Normalize the version: accept -Version 0.1.1 OR v0.1.1; the zip name prepends its own "v".
 $Version = $Version -replace '^[vV]', ''
-$Repo      = $PSScriptRoot
 $TimeStamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $Dist      = Join-Path $Repo "dist"
 $Rel       = Join-Path $Repo "release"
@@ -471,6 +491,34 @@ if (Test-Path $FlowerPackage -PathType Container) {
     Warn "AP Flower release assets unavailable; installer will request a bundle that includes them"
 }
 Info "+ AP flower packaged-asset installer"
+
+# ---- PLAYER-RUN RELEASE TOOLS: these MUST live beside the dll -------------------------------
+# Both refuse to run anywhere else on purpose (update_er_archipelago.install_dir and
+# install_into_matts_rando.bundle_dir check for the dll + tables next to themselves), and both
+# are promised "shipped beside the dll" by their own release notes (#948, #954). Until 0.4.11
+# this script predated them, so the bundle shipped a changelog advertising tools it did not
+# contain. The .py halves keep their underscored names -- each .ps1 launcher invokes its .py by
+# that exact name via $PSScriptRoot; the .ps1 halves ship dashed, the name the docs teach
+# (install-ap-flower.ps1 set the precedent).
+$ReleaseTools = @(
+    @{ src = "tools\update-er-archipelago.ps1";     dst = "update-er-archipelago.ps1" },
+    @{ src = "tools\update_er_archipelago.py";      dst = "update_er_archipelago.py" },
+    @{ src = "tools\install_into_matts_rando.ps1";  dst = "install-into-matts-rando.ps1" },
+    @{ src = "tools\install_into_matts_rando.py";   dst = "install_into_matts_rando.py" },
+    # --with-flower shells out to install_ap_flower.py BESIDE the installer; without it that
+    # flag dies with "not found beside this script" in the shipped bundle.
+    @{ src = "tools\install_ap_flower.py";          dst = "install_ap_flower.py" }
+)
+foreach ($tool in $ReleaseTools) {
+    $toolSrc = Join-Path $Repo $tool.src
+    if (-not (Test-Path $toolSrc)) {
+        Die ("missing player-run release tool: " + $tool.src + " -- the changelog promises it " +
+             "beside the dll (#948/#954). Restore it rather than shipping a bundle that " +
+             "advertises a tool it does not contain.")
+    }
+    Copy-Item $toolSrc (Join-Path $Me3Dst $tool.dst) -Force
+}
+Info ("+ player-run tools beside the dll (" + $ReleaseTools.Count + "): updater + matts-rando installer + flower .py")
 
 # The checked-in profile is a DEVELOPMENT template: it names ap-package, which build.ps1 generates
 # locally from the player's own game. The release artifact carries the authenticated directory under
