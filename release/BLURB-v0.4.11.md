@@ -35,6 +35,12 @@ then 17 rows that have no vanilla text at all, named by the client creating bran
 entries in the game's own tables. A seed that needs the extra rows says so, and a client too old
 to create entries is told to update at connect instead of silently showing placeholders.
 
+**The Four Belfries key chest joins the pool.** The Imbued Sword Key chest at The Four Belfries
+had been mislabeled as a duplicate of a key that already existed elsewhere, so it paid out its
+vanilla key and could never hold a real item. It is the genuine third base-game copy — alongside
+Raya Lucaria and Sellia, with Castle Ensis the fourth in the DLC — and it now works like any other
+check, regioned to Liurnia.
+
 ## What carried over from v0.4.10
 
 No player-facing work is carried over. The v0.4.10 tag is exactly the `main` commit this window

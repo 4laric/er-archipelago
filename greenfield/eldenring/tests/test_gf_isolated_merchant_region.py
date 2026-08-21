@@ -72,7 +72,9 @@ EXPECTED_APS = {
     # 7774732 -> 7774742 -> 7774677 (2026-08-19: +10 Rada restores, then -65 cull). Flag-verified.
     # 160820: 7774759 (main/#898) -> 7774691 on this branch (the census +9 and the cull -77 both
     # land before it); flag-verified. The three below sit under the watermark and do not move.
-    160820: 7774691, 160880: 7770394, 160890: 7770395, 160910: 7770396,
+    # 160820: 7774691 -> 7774692 (2026-08-21, #940): the Four Belfries key inserted at ap 7774225,
+    # ahead of this pin; every other pin here sits before the insertion and is unmoved (measured).
+    160820: 7774692, 160880: 7770394, 160890: 7770395, 160910: 7770396,
     160920: 7770397, 160930: 7770398, 160940: 7770399, 160950: 7770400,
 }
 

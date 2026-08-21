@@ -280,7 +280,8 @@ class RegionCorrectness(unittest.TestCase):
     UNIQUE_SINGLETON_TAGS = frozenset({"KeyItem", "GreatRune", "Remembrance"})
     KEYITEM_MULTI_COPY = {
         "Academy Glintstone Key": 2,   # Meeting Place ruins corpse + Schoolhouse Classroom (Thops)
-        "Imbued Sword Key": 3,         # three illusory-wall keys: Raya Lucaria, Caelid, Land of Shadow
+        "Imbued Sword Key": 4,         # Four Belfries (the #940 "phantom" was the REAL chest),
+                                       # Raya Lucaria, Sellia, + the DLC's Castle Ensis
     }
 
     def test_unique_key_items_are_singletons(self):
@@ -308,6 +309,31 @@ class RegionCorrectness(unittest.TestCase):
             str(len(bad)) + " unique KeyItem(s) exceed their allowed location count -- an obtained-flag "
             "TWIN regression (2026-07-08 Haligtree Left) or a new multi-copy key needing an allowlist "
             "entry. (item, found, allowed, regions): " + repr(bad))
+
+    # ------------------------------------------------------------------- #940: the fourth key
+    def test_four_belfries_imbued_sword_key_is_a_real_check(self):
+        """ACCEPTANCE for issue #940. Flag 1033477020 sat in gen_data._RECOVER_PHANTOM_DUPES as "a
+        nonexistent fourth key", but treasure_assets.tsv (asset 1033471601), msb_flag_region.tsv
+        (m60_33_47, lot 1033470020, method treasure) and item_grace_coords.tsv (exact entity) all
+        place it: it is the REAL Four Belfries chest. It must be an emitted Liurnia check, and the
+        Imbued Sword Key census is the DLC-sensitive FOUR -- three base-game copies (Four Belfries,
+        Raya Lucaria, Sellia) plus one DLC copy (Castle Ensis)."""
+        hits = [(region, flag)
+                for region, locs in self.d.LOCATIONS.items()
+                for (name, _ap, flag) in locs
+                if "Imbued Sword Key" in name]
+        by_flag = {flag: region for region, flag in hits}
+        self.assertIn(1033477020, by_flag,
+                      "the Four Belfries chest flag is not an emitted check -- did "
+                      "_RECOVER_PHANTOM_DUPES re-acquire a member?")
+        self.assertEqual("Liurnia", by_flag[1033477020],
+                         "the Four Belfries key must region to Liurnia (nearest grace The Four "
+                         "Belfries 76227), got " + repr(by_flag[1033477020]))
+        self.assertEqual(sorted(region for region, _flag in hits),
+                         ["Caelid", "Ensis", "Liurnia", "Raya Lucaria Academy"],
+                         "Imbued Sword Key census moved: the base game has exactly three (Four "
+                         "Belfries, Raya Lucaria, Sellia) and the DLC adds Castle Ensis. Hits: "
+                         + repr(hits))
 
     # ------------------------------------------------------------------ region capstone re-carve
     # SPEC-region-capstone-model-20260708 (sections 3, 3a) + WIRING-region-capstone-v0.2 (section 7)

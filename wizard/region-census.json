@@ -184,13 +184,13 @@
    },
    "sweep_slots_max": {
     "all": 81,
-    "bosses": 143,
+    "bosses": 144,
     "minidungeons": 81
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 81,
-     "bosses": 143,
+     "bosses": 144,
      "minidungeons": 81
     },
     "SweepSlotMajor": {
@@ -198,7 +198,7 @@
     },
     "SweepSlotMinor": {
      "all": 81,
-     "bosses": 135,
+     "bosses": 136,
      "minidungeons": 81
     }
    }
@@ -385,13 +385,13 @@
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 118,
+    "bosses": 119,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 118,
+     "bosses": 119,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -399,7 +399,7 @@
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 114,
+     "bosses": 115,
      "minidungeons": 55
     }
    }
@@ -924,7 +924,7 @@
    }
   },
   "Liurnia": {
-   "checks": 609,
+   "checks": 610,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -1068,13 +1068,13 @@
    },
    "sweep_slots_max": {
     "all": 22,
-    "bosses": 58,
+    "bosses": 59,
     "minidungeons": 22
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 22,
-     "bosses": 58,
+     "bosses": 59,
      "minidungeons": 22
     },
     "SweepSlotMajor": {
@@ -1082,7 +1082,7 @@
     },
     "SweepSlotMinor": {
      "all": 22,
-     "bosses": 42,
+     "bosses": 43,
      "minidungeons": 22
     }
    }
@@ -1508,5 +1508,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "c11fc024eea7a033a5810031ba3a83ac218a60df7d018f950fd431bb7913dce8"
+ "source_sha256": "856da571cabe4e6097b2e9eaacde29ed561f12a1ffa716d1f6ec3141f2e3110b"
 }

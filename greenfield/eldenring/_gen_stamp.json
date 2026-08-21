@@ -2,23 +2,23 @@
   "counts": {
     "filler_pool": 249,
     "item_catalog": 2362,
-    "locations": 5047,
+    "locations": 5048,
     "regions": 28,
     "sweeps": 211
   },
-  "inputs_hash": "sha256:a9d609ae85eaff317d2cad16fc7108a58179a973de420739cc36a0852a748c05",
+  "inputs_hash": "sha256:e64d154af11cad8899bdd73d2f0effe08e8c0e35fc7f5718ffe8fe9fe43742e5",
   "modules": {
     "boss_data.py": "sha256:19701b6467e1376fa7ac59c040cd7a4cb7dabd57175b4ef1a86ad3f7d7583078",
-    "boss_sweeps.py": "sha256:aa172f9d1d09f669b96280152d3e7aee6341058c60db0445ff6ff7b23348e1fb",
-    "data.py": "sha256:aaf758d0d2de92f871bfc3e6e212c7c75a912bbddafce9595a2a26b55ef326b0",
-    "item_ids.py": "sha256:d73014acf03ea5638054fc56814138597a6c0c775ef82ac3ab1e577a24bde350",
+    "boss_sweeps.py": "sha256:0e72bb749f2a3578e62d9cb19133a930ed315e431741c4b123884fc64301846b",
+    "data.py": "sha256:c06b950c38e7bb50e26376b908840aa187381edf47d479428f171174a7d63e97",
+    "item_ids.py": "sha256:bebeeada5a0951902fed2334204f82406beb7619a9a05100086f4ab6584b9237",
     "item_tiers.py": "sha256:a985145ca9f804e351315443cb95047c36b9ff11a8b120cc81b2d21c8b0315ea",
-    "location_tags.py": "sha256:3e96cd15eee0ebfd807bc7cbb37c092f56b95e2235e5d9812b1853870b23d4e1",
-    "missable_locations.py": "sha256:2a52d9abb2a3e858d12b299932496f41cf129c6efd5fa6688a5ab6138b4885be",
+    "location_tags.py": "sha256:05a463b4e2c3ac2b41427838de48d7dae6dd8b0694750a994c17812c44f6ead1",
+    "missable_locations.py": "sha256:29ffdbdbb9743dafc3086a619eec18a12293d5e1d566257e54cc3abf5bebc3e7",
     "region_graces.py": "sha256:f41b69595db1edbfe9b8fd1d1a0f5da65016158be811b083eef295d807efc018",
     "region_open_flags.py": "sha256:7c2c446ea7da7d4b28ebee77057c34446d7c718c9339a74f69df58eec66fb5b5",
     "region_play_ids.py": "sha256:2bcc6f2fb540d378ac9f8e1a948de34d4d56836c0ef1c4e179bcf28dcbec961e",
-    "shop_data.py": "sha256:914b8d9cbab51aa564836601a2459ab8ef69c80a0bcab5ca1245127f7a864c18",
+    "shop_data.py": "sha256:85c5bbd1e5aaa36fcae822ad5d22e4580ff69fd5443c890437f5d1b16bdf70cc",
     "spawn_trap_data.py": "sha256:1979567ffba029e59176478d83fc163315c8b9a8fbfbe613fd49bcdea6cb40f1"
   }
 }
