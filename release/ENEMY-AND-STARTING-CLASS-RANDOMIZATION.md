@@ -103,8 +103,16 @@ launch the game with both active.
 
    ![The Dll mods dialog](screenshots/matt-03-dll-mods-dialog.png)
 
-2. **Add...** and pick `eldenring_archipelago.dll` (it is in the release bundle;
-   pick it from wherever you unpacked or installed it).
+2. **Add...** and pick `eldenring_archipelago.dll` **from inside the release's `me3\` folder,
+   where it already sits. Point at it -- do not copy or move it.** The dll only works with its
+   two data tables (`check_lots_table.json`, `shoplineup_flags.json`) beside it; a copied dll
+   leaves them behind, and then checks double-pay the vanilla item and shop checks never fire.
+
+   One habit saves you a broken upgrade later: unpack the release to a folder **without the
+   version in its name** (say `ER-Archipelago\`) and overwrite it in place when you update.
+   matt's launcher remembers the dll's full path -- if that path has `v0.4.10` in it, the
+   launcher will still be loading the v0.4.10 client long after you have downloaded v0.4.11,
+   and a mismatched client looks exactly like a broken mod.
 
    ![Selecting eldenring_archipelago.dll](screenshots/matt-04-select-client-dll.png)
 
