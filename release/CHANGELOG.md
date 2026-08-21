@@ -3,6 +3,47 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.12 — 2026-08-21
+
+### What you need to update
+
+- **Client:** Required — use the v0.4.12 client with v0.4.12 seeds; the exact-version handshake
+  moves even though the slot-data shape does not.
+- **APWorld:** Host-only — the room host or generator must install v0.4.12; joining players only
+  need the matching client.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — finish an active v0.4.11 seed with its matched v0.4.11
+  pair. No save migration; do not mix versions.
+- **Profile/assets:** No action.
+
+Window opened 2 commits past the v0.4.11 tag; both are the packaging/installer fixes below,
+found during v0.4.11's own packaging acceptance and carried here as this window's first entries.
+
+`CONTRACT_HASH` remains `dc0dc687`, verified by loading `contract.py` after the bump. The
+slot-data shape is unchanged, but the exact-version handshake still moves to 0.4.12.
+
+Client half: clients#375. Its commit is pinned by the gitlink in this same change.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.11 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **The release bundle now contains the tools its changelog promises.** `package_release.ps1`
+  predated the updater (#954) and the matt's-rando installer (#948), so a bundle cut with it
+  advertised `update-er-archipelago.ps1` and `install-into-matts-rando.ps1` "beside the dll"
+  while shipping neither — and `--with-flower` died on a missing `install_ap_flower.py`. All five
+  player-run tool files now stage into `me3\` as required entries, and `-Version` derives from
+  `contract.py` instead of defaulting to a literal four-minors-stale `0.2`. The published
+  v0.4.11 zip was cut WITH this fix, so no shipped artifact carried the gap.
+- **The matt's-rando installer creates the dll config on a fresh install.** Its refusal used to
+  instruct "open 'Add dll mod' once, close it (the app writes the file)" — measured false during
+  v0.4.11 acceptance: the app writes nothing on open-and-close, stranding exactly the first-time
+  installs the tool exists for. A genuinely missing
+  `config_eldenringrandomizer_dll.toml` is now created carrying only the one line the tool owns
+  (the app's own measured single-line style); a toml without an `external_dlls` array gets that
+  line appended; and if the toml exists in the parent folder or one level down, the installer
+  refuses and names the real folder instead of planting a twin.
+
 ## v0.4.11 — 2026-08-21
 
 ### What you need to update
