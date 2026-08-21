@@ -86,6 +86,30 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   is the real Four Belfries treasure: the base game has three Imbued Sword Key checks — The Four
   Belfries, Raya Lucaria, Sellia — and the DLC adds the fourth at Castle Ensis. The chest is
   regioned to Liurnia and joins the location pool. (#940)
+- **Every AP shop slot now shows its proper name.** Opening a shop repaints the menu's display
+  names from the seed's placement data, so a shelf of multiworld items no longer borrows the
+  vanilla goods' names — each slot names what it actually holds. The walk clamps its range before
+  touching param rows. Client: clients#366, completing the #937 pair.
+- **The Serpent-Hunter's spectral waves now belong to the Rykard fight.** The wave SpEffect is
+  applied through the fight itself for its duration rather than bound to the weapon's resident
+  equip slot, so the waves follow the arena instead of your inventory state. (clients#345)
+- **Receiving the Crafting Kit now actually unlocks crafting.** The delivery sets the same
+  crafting-unlock flag the vanilla kit sets, so the menu opens as if you had bought it.
+  (clients#335)
+- **The client backs up your active game save once per launch** — rotating, timestamped copies,
+  so a bad session has something to roll back to. (clients#287)
+- **The goal ledger is on screen.** The tracker overlay carries the session's goal state, and the
+  withheld-goal lock no longer appears on the hint surfaces. (clients#361)
+- **Fixes worth naming:** the wrong-save refusal now names the room the save belongs to
+  (clients#337); "Region unlocked" announces on the edge, not every tick of the pass
+  (clients#356); spawn requests are paced by wall clock instead of one per frame (clients#947);
+  the post-warp fat-roll gap in `no_equip_load` is closed (clients#359); the overlay console
+  follows a sweep burst until you scroll it yourself (clients#357); a seed that does not grant a
+  boss-sweep clause no longer carries its baked text (clients#936); and a teardown crash avenue is
+  closed by retiring the captured inventory pointer at world exit (clients#353).
+- **Diagnostics:** probes toggle live from `apconfig.json` with no restart (clients#166); the
+  crash reporter decodes id-shaped fault values against this seed's own tables (clients#351); the
+  scaling census shows the HP-pending population session-wide (clients#365).
 
 ## v0.4.10 — 2026-08-19
 
