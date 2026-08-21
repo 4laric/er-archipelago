@@ -134,7 +134,9 @@ class EndToEndTests(unittest.TestCase):
             (fx.rando.parent / matts.TOML_NAME).write_text(LIVE, encoding="utf-8")
             with self.assertRaises(matts.InstallError) as ctx:
                 self._run(fx)
-            self.assertIn(str(fx.rando.parent), str(ctx.exception))
+            # resolve() both sides: Windows hands tempfile an 8.3 short path (RUNNER~1) while
+            # the installer resolves to the long form (runneradmin) -- same folder, two spellings.
+            self.assertIn(str(fx.rando.parent.resolve()), str(ctx.exception))
             self.assertFalse((fx.rando / matts.TOML_NAME).exists(), "nothing created next door")
 
     def test_incomplete_bundle_refuses_naming_the_missing_table(self):
