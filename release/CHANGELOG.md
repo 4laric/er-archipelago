@@ -38,6 +38,13 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   replaced file, and never touches `apconfig.json`, saves, logs, or ledgers. It is deliberately
   never automatic: the banner decides, the human runs. Rides the phase-1 verdict pair
   (site latest.json + client banner).
+- **The site now publishes a machine-readable update verdict.** `deploy_wizard.sh` emits
+  `/er/latest.json` -- the stable version, its contract hash (from the CONTRACT-VERSIONS
+  ledger, never typed), and the release url -- installed with the same atomic discipline as
+  the pages. The client's update banner reads it on connect and tells the player the thing
+  the update matrix always knew: whether the new build is safe to pick up mid-seed (same
+  contract) or their seed pair must finish first (contract moved). Client half: the
+  update-check banner PR paired with this window's gitlink.
 
 - **One command wires the client into matt's randomizer.** `install-into-matts-rando.ps1
   -Randomizer path\to\randomizer` (Python twin included) edits the one file matt's launcher actually
