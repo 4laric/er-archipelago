@@ -28,6 +28,15 @@ Client half: clients#334. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **One command wires the client into matt's randomizer.** `install-into-matts-rando.ps1
+  -Randomizer path\to\randomizer` (Python twin included) edits the one file matt's launcher actually
+  reads -- `config_eldenringrandomizer_dll.toml` -- to point at `eldenring_archipelago.dll`
+  inside the release's `me3/` folder, in place. Re-running after an update repoints a stale
+  versioned path automatically (the way a launcher ends up loading last release's client),
+  a backup is written first, an incomplete bundle refuses instead of installing a dll without
+  its data tables, and `-WithFlower` chains the icon installer. It never touches the
+  hash-guarded auto-generated config, and it warns if RandomizerHelper.dll shares the list.
+  Spec and the measured seam: #944.
 - **The matt's-randomizer install step stops inviting stray dll copies.** The walkthrough and
   SETUP now say to point **Add dll mod** at `eldenring_archipelago.dll` inside the release's
   `me3/` folder, in place -- never to copy it out (the dll is inert without its two data tables
