@@ -2,6 +2,14 @@
 """Wire the Archipelago client into matt's randomizer launcher -- without moving a single file.
 
 WHAT THIS EDITS (measured on a live v0.11.4 install, 2026-08-21; spec on issue #944):
+
+WHEN THE TOML DOES NOT EXIST YET it is CREATED, carrying only the one line this tool owns
+(`modengine = { debug = false, external_dlls = [ ... ] }`, the app's own measured single-line
+style). v0.4.11 acceptance, 2026-08-21: the original refusal instructed "open 'Add dll mod'
+once, close it (the app writes the file)" -- Alaric followed it on a fresh install and NO file
+appeared, so that instruction was an unverified assumption doing the work of a feature. If
+matt's app dislikes a file it did not write, delete the toml and report it; nothing else is
+touched.
 matt's launcher persists its "Add dll mod" list in `config_eldenringrandomizer_dll.toml`
 beside `EldenRingRandomizer.exe` -- a small machine-written TOML. The adjacent
 `config_eldenringrandomizer.toml` is hash-guarded and AUTO-GENERATED ("DO NOT MODIFY");
@@ -22,9 +30,8 @@ WHAT THIS REFUSES, loudly (exit 1):
   * the target folder has no `EldenRingRandomizer.exe`;
   * `EldenRingRandomizer.exe` is running (the app holds the dll list in memory and can
     rewrite the file over our edit);
-  * `config_eldenringrandomizer_dll.toml` does not exist or has no `external_dlls` array
-    (open "Add dll mod" once, close it, re-run -- creating the app's own state file for it
-    is deliberately out of scope until the app's tolerance for that is verified).
+  * `config_eldenringrandomizer_dll.toml` exists NEARBY but not in the target folder
+    (--randomizer points at the wrong level; the refusal names where it was found).
 
 Exit codes: 0 = changed, 2 = already current (idempotent no-op), 1 = refused.
 All output is ASCII. A timestamped backup of the toml is written before any change.
@@ -71,10 +78,12 @@ def mutate_dll_toml(text: str, dll_path: str) -> tuple[str, str]:
     single-line emission style, and the surrounding structure byte-for-byte."""
     m = re.search(r"external_dlls\s*=\s*\[(.*?)\]", text, re.S)
     if not m:
-        raise InstallError(
-            "%s has no external_dlls array. Open matt's 'Add dll mod' dialog once, close\n"
-            "it (the app writes the file), then re-run this installer." % TOML_NAME
-        )
+        # A file with no external_dlls array at all: the app tolerates keys it did not write the
+        # same way it tolerates a file it did not write (the creation path in run() proves the
+        # latter), so append the one line this tool owns rather than teaching a dialog dance
+        # that does not produce the array either (measured 2026-08-21).
+        sep = "" if (not text or text.endswith("\n")) else "\n"
+        return text + sep + created_dll_toml(dll_path), "appended"
     entries = [e.strip() for e in m.group(1).split(",") if e.strip()]
     new_entry = _toml_quote(dll_path)
     action = "appended"
@@ -89,6 +98,29 @@ def mutate_dll_toml(text: str, dll_path: str) -> tuple[str, str]:
         entries.append(new_entry)
     body = " " + ", ".join(entries) + " " if entries else " "
     return text[: m.start(1)] + body + text[m.end(1):], action
+
+
+def created_dll_toml(dll_path: str) -> str:
+    """The file written when the app has not written one: ONLY the line this tool owns, in the
+    app's own measured single-line inline-table style (double-backslash paths). No `extension`
+    key -- that block belongs to the app's mod list, and inventing a path for it would be a
+    guess wearing a config's clothes."""
+    return "modengine = { debug = false, external_dlls = [ %s ] }\n" % _toml_quote(dll_path)
+
+
+def find_toml_nearby(target: Path) -> Path | None:
+    """The wrong--randomizer-level detector: the toml in the target's parent or one subfolder
+    down. Returns the found path (for the refusal to name it), never acts on it -- installing
+    into a folder the user did not point at is how installers earn distrust."""
+    candidates = [target.parent / TOML_NAME]
+    try:
+        candidates += [d / TOML_NAME for d in sorted(target.iterdir()) if d.is_dir()]
+    except OSError:
+        pass
+    for c in candidates:
+        if c.is_file():
+            return c
+    return None
 
 
 def bundle_dir(script_path: Path) -> Path:
@@ -145,13 +177,28 @@ def run(argv: list[str] | None = None, script_path: Path | None = None) -> int:
         )
 
     toml_path = target / TOML_NAME
-    if not toml_path.is_file():
-        raise InstallError(
-            "%s does not exist yet. Open matt's 'Add dll mod' dialog once, close it\n"
-            "(the app writes the file), then re-run this installer." % TOML_NAME
-        )
-
     dll_path = str(me3 / DLL_NAME)
+    if not toml_path.is_file():
+        elsewhere = find_toml_nearby(target)
+        if elsewhere is not None:
+            raise InstallError(
+                "%s is not in %s, but it DOES exist at %s.\n"
+                "--randomizer should point at the folder that holds the toml (with the exe\n"
+                "beside it) -- re-run with that folder." % (TOML_NAME, target, elsewhere.parent)
+            )
+        # Genuinely absent: a fresh install. The app does NOT write this file just from opening
+        # the 'Add dll mod' dialog (measured 2026-08-21), so waiting for it strands first-time
+        # installs. Create it, carrying only the line this tool owns, in the app's own style.
+        toml_path.write_text(created_dll_toml(dll_path), encoding="utf-8")
+        print("Created %s (it did not exist -- fresh install)" % TOML_NAME)
+        print("  now loading: %s" % dll_path)
+        print(
+            "  NOTE: this file was created by the installer, not by matt's app. If the app\n"
+            "  refuses to start or the client does not load, delete it and report the issue."
+        )
+        _post_edit_notes(created_dll_toml(dll_path))
+        return _maybe_flower(args, me3, target, 0)
+
     text = toml_path.read_text(encoding="utf-8-sig")
     new_text, action = mutate_dll_toml(text, dll_path)
 
@@ -168,13 +215,20 @@ def run(argv: list[str] | None = None, script_path: Path | None = None) -> int:
         print("  backup: %s" % backup.name)
         rc = 0
 
-    if "randomizerhelper.dll" in new_text.lower():
+    _post_edit_notes(new_text)
+    return _maybe_flower(args, me3, target, rc)
+
+
+def _post_edit_notes(toml_text: str) -> None:
+    if "randomizerhelper.dll" in toml_text.lower():
         print(HELPER_WARNING)
     print(
         "Note: launched through matt's launcher there is NO separate AP_me3.sl2 save --\n"
         "your Archipelago character lives in the normal Elden Ring save file."
     )
 
+
+def _maybe_flower(args, me3: Path, target: Path, rc: int) -> int:
     if args.with_flower:
         flower = me3 / "install_ap_flower.py"
         if not flower.is_file():

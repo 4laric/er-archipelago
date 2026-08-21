@@ -56,10 +56,24 @@ class MutationTests(unittest.TestCase):
         self.assertEqual(action, "current")
         self.assertEqual(twice, once, "a no-op must be byte-identical")
 
-    def test_no_array_is_an_instructive_refusal(self):
-        with self.assertRaises(matts.InstallError) as ctx:
-            matts.mutate_dll_toml("modengine = { debug = false }\n", NEW_DLL)
-        self.assertIn("Add dll mod", str(ctx.exception))
+    def test_no_array_appends_our_own_modengine_line(self):
+        # The old behaviour refused with "open 'Add dll mod' once, close it (the app writes the
+        # file)" -- an instruction MEASURED FALSE on a fresh install (2026-08-21): the app writes
+        # nothing on open+close. We own the line now.
+        out, action = matts.mutate_dll_toml("someother = { x = 1 }\n", NEW_DLL)
+        self.assertEqual(action, "appended")
+        self.assertIn("modengine = { debug = false, external_dlls = [", out)
+        self.assertEqual(out.count("eldenring_archipelago.dll"), 1)
+        self.assertTrue(out.startswith("someother = { x = 1 }\n"), "existing content untouched")
+
+    def test_created_toml_matches_the_apps_measured_style_and_rereads_current(self):
+        text = matts.created_dll_toml(NEW_DLL)
+        self.assertTrue(text.startswith("modengine = { debug = false, external_dlls = [ "))
+        self.assertTrue(text.rstrip().endswith("] }"))
+        self.assertIn("ER-Archipelago\\\\me3\\\\eldenring_archipelago.dll", text)
+        # and the mutator recognises its own creation as current on a re-run
+        _, action = matts.mutate_dll_toml(text, NEW_DLL)
+        self.assertEqual(action, "current")
 
 
 class _Fixture:
@@ -101,12 +115,27 @@ class EndToEndTests(unittest.TestCase):
             with self.assertRaises(matts.InstallError):
                 self._run(fx)
 
-    def test_missing_toml_refuses_with_instructions(self):
+    def test_missing_toml_is_created_and_the_run_succeeds(self):
+        # THE MOTIVATING CASE (v0.4.11 acceptance): fresh matt install, no toml anywhere, and the
+        # old refusal's dialog instruction produces no file. One command must mean one command.
         with tempfile.TemporaryDirectory() as tmp:
             fx = _Fixture(Path(tmp), with_toml=False)
+            self.assertEqual(self._run(fx), 0)
+            text = (fx.rando / matts.TOML_NAME).read_text()
+            self.assertIn("eldenring_archipelago.dll", text)
+            self.assertIn("modengine = { debug = false, external_dlls = [", text)
+            self.assertEqual(self._run(fx), 2, "second run reads its own creation as current")
+
+    def test_toml_one_level_up_refuses_and_names_the_real_folder(self):
+        # The other reading of "does not exist": --randomizer pointed one level too deep. Never
+        # create a second toml next door to a real one -- refuse, and say where the real one is.
+        with tempfile.TemporaryDirectory() as tmp:
+            fx = _Fixture(Path(tmp), with_toml=False)
+            (fx.rando.parent / matts.TOML_NAME).write_text(LIVE, encoding="utf-8")
             with self.assertRaises(matts.InstallError) as ctx:
                 self._run(fx)
-            self.assertIn("Add dll mod", str(ctx.exception))
+            self.assertIn(str(fx.rando.parent), str(ctx.exception))
+            self.assertFalse((fx.rando / matts.TOML_NAME).exists(), "nothing created next door")
 
     def test_incomplete_bundle_refuses_naming_the_missing_table(self):
         # The double-pay footgun becomes an install-time refusal: a dll without its tables
