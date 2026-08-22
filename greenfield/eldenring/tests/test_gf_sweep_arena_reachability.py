@@ -297,10 +297,11 @@ class EveryMismatchedGroup(unittest.TestCase):
         ⭐ SHRANK 6 -> 4 on 2026-08-21 by ruling #523 (the ASSIGNMENT moving, not the predicate).
         Margit (10000850, "Stormveil" members -> "Limgrave" arena, 56 links) left: Alaric ruled
         "Margit belongs to Stormveil; the game data is decisive, superseding the 'Margit is outside'
-        call on #202", so gen_data._ARENA_REGION_CURATED co-regions his arena onto his members. His
-        KICKWARP ground stays Limgrave (PLAY_REGION_GROUPS 61010/61001), so the fight and the
-        Castleward Tunnel death-recovery route stay reachable -- see test_the_kickwarp_ground_for_
-        margit_stays_reachable. The four below remain measured debt; 34100800 and the two inert
+        call on #202", so gen_data._ARENA_REGION_CURATED co-regions his arena onto his members. The
+        region ID already agrees: his arena grace and the Castleward Tunnel are m10_00 (play bucket
+        10000 = Stormveil). Only the Stormhill CLIFF you swing at him from (bucket 61010, m60_41_38)
+        stays Limgrave -- it shares the tile with 8 early overworld checks -- see
+        MargitArenaAndTunnelAreStormveil. The four below remain measured debt; 34100800 and the two inert
         Ashen Capital rows have no members' region a seed can select the boss's region without,
         and 2052430800 (Jori) is now withheld from SweepSlot by the arena/members-split rule."""
         self.assertEqual(
@@ -340,13 +341,19 @@ class LockGatesAgreeWithTheEmit(unittest.TestCase):
                          "client would render 'waiting on <lock>' for a fight the seed forbids")
 
 
-class MargitKickwarpGroundStaysReachable(unittest.TestCase):
-    """#523: Margit's SWEEP region moved to Stormveil (his members), but his KICKWARP ground must
-    stay Limgrave. You fight Margit -- and, after a first death, walk back through the Castleward
-    Tunnel mouth -- BEFORE Stormveil opens, so the play-region buckets under him must not be
-    region-locked to Stormveil or the fight becomes a softlock. This pins the constraint Alaric
-    named alongside the #523 ruling; nothing in this change touches PLAY_REGION_GROUPS, and this
-    guards that it stays so."""
+class MargitArenaAndTunnelAreStormveil(unittest.TestCase):
+    """#523: Margit is a Stormveil boss, and the region ID already agrees with that -- his arena
+    grace (71001) and the Castleward Tunnel (grace 71002) are map m10_00, whose play-region bucket
+    10000 belongs to Stormveil. This pins the natural model Alaric ruled to (2026-08-21): "the region
+    ID maps onto Margit-as-Stormveil; the earlier 'Margit is outside' call on #202 was the exception,
+    now reversed."
+
+    The Stormhill CLIFF you physically stand on to swing at him is a DIFFERENT bucket -- 61010 =
+    tile m60_41_38 -- and it stays Limgrave, because it shares the tile with 8 early Limgrave
+    overworld checks (Stormhill Shack: Deathbird / Bell Bearing Hunter / Crucible Knight / Roderika's
+    Golden Seed / the Warmaster's Shack approach). The kick is tile-bucket-coarse, so that ground
+    cannot move without stranding them -- documented here so a future 'make Margit's ground Stormveil'
+    change sees the cost before paying it."""
 
     @classmethod
     def setUpClass(cls):
@@ -361,21 +368,26 @@ class MargitKickwarpGroundStaysReachable(unittest.TestCase):
         return [r for r, buckets in self.groups.items()
                 if any(str(x) == want for x in buckets)]
 
-    def test_margit_arena_play_bucket_is_limgrave_not_stormveil(self):
-        # 61010 is Margit's arena PLAY-region bucket (boss_area_regions.tsv 10000850 -> 61010), the
-        # ground the kick-watch reads. It -- and the Stormhill approach you retread from the grace
-        # after a first death -- must stay Limgrave so the fight is reachable before Stormveil opens.
-        # (61001 is the graces' WARP bucket, not a play-group bucket, so it is not asserted here.)
+    def test_the_tunnel_and_arena_bucket_counts_as_stormveil(self):
+        # m10_00 -> bucket 10000: the Castleward Tunnel and Margit's arena grace both live here.
+        owners = self._owners(10000)
+        self.assertIn(
+            "Stormveil", owners,
+            "the Castleward Tunnel / Margit's arena bucket 10000 (m10_00) is not Stormveil -- "
+            "owners=%r. Margit is a Stormveil boss and the region ID must agree (#523)." % (owners,))
+        self.assertNotIn(
+            "Limgrave", owners,
+            "bucket 10000 (m10_00, Margit's arena / Castleward Tunnel) is Limgrave -- it must be "
+            "Stormveil for the Margit-as-Stormveil model.")
+
+    def test_the_stormhill_cliff_stays_limgrave(self):
+        # 61010 = m60_41_38: the ground you stand on to fight Margit AND 8 early Limgrave overworld
+        # checks. Moving it to Stormveil would strand those, so it stays Limgrave by design.
         owners = self._owners(61010)
         self.assertIn(
             "Limgrave", owners,
-            "kickwarp bucket 61010 (Margit's arena) is not in Limgrave -- owners=%r. Margit is fought "
-            "before Stormveil opens, so a Stormveil-locked arena softlocks the fight (#523: the SWEEP "
-            "region moved to Stormveil, the KICKWARP ground must NOT)." % (owners,))
-        self.assertNotIn(
-            "Stormveil", owners,
-            "kickwarp bucket 61010 (Margit's arena) is in Stormveil -- you would be kicked off his "
-            "ground before you could beat him.")
+            "the Stormhill cliff bucket 61010 (m60_41_38) left Limgrave -- owners=%r. It shares the "
+            "tile with 8 early overworld checks (Stormhill Shack); moving it strands them (#523)." % (owners,))
 
 
 
