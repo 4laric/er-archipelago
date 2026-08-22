@@ -3,6 +3,29 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.5.0 — 2026-08-22
+
+Ability lock: restrict abilities for a run, or start locked and find them back as items.
+
+### What you need to update
+
+- **Client:** Required for a progressive seed (the `ability_unlock` handshake) and for any seed once you upgrade the host — the version handshake moves to 0.5.0. A 0.4.x client can still play a plain 0.4.x seed.
+- **APWorld:** Required for the host to generate 0.5.0 seeds.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** `locked_abilities` and `ability_lock_mode` are new and default to off/empty, so nothing you already wrote changes.
+- **Existing seed/save:** Compatible — a seed that sets neither option behaves exactly as it did on 0.4.x; the new keys are simply absent (= off) for older clients.
+- **Profile/assets:** No action.
+
+This is the first `v0.5` **integration branch** window: it is opened off v0.4.14 but does NOT ship to `main`, which holds the 0.4.x stable line while the feature is validated. `release/CHANNELS.tsv` therefore moves nothing — there is no stable promotion in this window.
+
+`CONTRACT_HASH` is `13db0b3a`, read by loading contract.py — **MOVED** from `dc0dc687` (the armorBundles shape that stood from v0.4.8). `abilityUnlockItems` is the new key. An older client reports incompatible for a progressive seed rather than leaving abilities locked, via `requiresClientFeatures: ["ability_unlock"]`; a static-lock seed rides the always-declared options echo and needs no new key.
+
+The version moved, so a client half is required: `contract_gen.rs` embeds the version string and the hash. Client half is `from-software-archipelago-clients` v0.5 (`d4f23eb`), and the gitlink rides in this same commit (AGENTS §7).
+
+### Added
+
+- **Ability lock (#945).** A new option axis: `locked_abilities` disables any of jump / crouch / roll / r1 / r2 / l1 / l2 at the game's logical-action layer — keybind- and device-agnostic (rebinds, keyboard and mouse all covered) and menu-safe. `ability_lock_mode` chooses `static` (off for the whole seed) or `progressive`.
+- **Progressive ability lock (#980).** In progressive mode each locked ability becomes a synthetic `Unlock: X` item shuffled into the multiworld; find it (or receive it from another world) to get that ability back. The unlock is reconnect-safe — recomputed from the whole received stream on every connect — and the items are never logic-required, so a seed always completes with an ability still out.
+
 ## v0.4.14 — 2026-08-22
 
 ### What you need to update

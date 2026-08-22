@@ -82,6 +82,17 @@
       "doc": "AP item id (str) -> ER FullID granted on receipt."
     },
     {
+      "name": "abilityUnlockItems",
+      "shape": "STR_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/ability_lock.py (progressive mode)",
+      "consumer": "er-logic ability_lock receive path",
+      "doc": "synthetic AP item id (str) -> ability name (jump/crouch/roll/r1/r2/l1/l2). Present only under ability_lock_mode: progressive: the abilities start locked (options.locked_abilities) and each rides one shuffled 'Unlock: X' item; receiving that item id unlocks the ability (er_logic ability_lock::unlock). Same shape as armorBundles -- the game is never asked to grant these, the client resolves them by this map. A seed that emits it also emits requiresClientFeatures ['ability_unlock']."
+    },
+    {
       "name": "armorBundles",
       "shape": "LISTVAL_INT_MAP",
       "required": false,
@@ -311,6 +322,17 @@
           "producer": "core._options_echo (features/upgrades.py)",
           "consumer": "upgrades client path",
           "doc": "standard-weapon stones/level: 0 = off (vanilla 2/4/6), 1..4 = uniform N/level (tuned ~3)."
+        },
+        {
+          "name": "locked_abilities",
+          "shape": "STR_LIST",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo (features/ability_lock.py)",
+          "consumer": "er-logic/options.rs parse_ability_lock",
+          "doc": "abilities the seed disables at the game's LOGICAL action layer (CSChrActionRequestModule.disabled_action_inputs): any of jump, crouch, roll, r1, r2, l1, l2. Keybind- and device-agnostic; menus unaffected. Emitted as a sorted name list (empty = nothing locked). NOT required: an absent key parses to the empty set, which is the off default -- OPTIONS_SUBKEYS is not folded into CONTRACT_HASH, so this key adds no version pairing and an older client simply never reads it."
         }
       ]
     },
