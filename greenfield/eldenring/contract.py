@@ -281,6 +281,14 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # 🛑 The TAG "LegacyBoss" is still baked (SURFACE_INTERNAL_TAGS): the MajorBoss tag doubles as
 # roster identity for goal/anchor/roster consumers, so the absorption is done at has_class via
 # SURFACE_CLASS_EXTRA_TAGS rather than by retagging the data.
+# The lockable abilities (#945). The AUTHORITATIVE name list is er-logic's Ability enum
+# (crates/er-logic/src/ability_lock.rs parse_set); this mirror exists so the OptionSet's valid_keys
+# and the wizard can enumerate them without importing Rust. Order matches the enum. `heal` is NOT
+# here -- its mechanism is the flask-charge clamp, not an action lock. Keep the two in sync: a name
+# added here that er-logic does not know is silently dropped by parse_ability_lock (tolerant), and
+# one er-logic knows that is missing here simply cannot be selected in yaml.
+ABILITY_LOCK_KEYS = ("jump", "crouch", "roll", "r1", "r2", "l1", "l2")
+
 SURFACE_CLASSES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                    "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
                    "KeyItem", "MajorBoss", "FieldBoss", "MinorDungeonBoss",
@@ -839,6 +847,14 @@ OPTIONS_SUBKEYS = (
     ContractKey("flatten_regular_upgrades", "INT", True, (GREENFIELD,),
                 "core._options_echo (features/upgrades.py)", "upgrades client path",
                 "standard-weapon stones/level: 0 = off (vanilla 2/4/6), 1..4 = uniform N/level (tuned ~3)."),
+    ContractKey("locked_abilities", "STR_LIST", False, (GREENFIELD,),
+                "core._options_echo (features/ability_lock.py)", "er-logic/options.rs parse_ability_lock",
+                "abilities the seed disables at the game's LOGICAL action layer "
+                "(CSChrActionRequestModule.disabled_action_inputs): any of jump, crouch, roll, r1, "
+                "r2, l1, l2. Keybind- and device-agnostic; menus unaffected. Emitted as a sorted "
+                "name list (empty = nothing locked). NOT required: an absent key parses to the empty "
+                "set, which is the off default -- OPTIONS_SUBKEYS is not folded into CONTRACT_HASH, "
+                "so this key adds no version pairing and an older client simply never reads it."),
 )
 
 

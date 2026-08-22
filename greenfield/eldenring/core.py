@@ -522,7 +522,7 @@ _OPTION_GROUPS = [
     # shape instead of synthetic locks) -- Alaric 2026-08-20: "buried pretty deep, both kind of
     # experimental". They are still fully supported options; they just should not greet a player
     # who came to randomize.
-    ("Experimental", ["vanilla_placement", "natural_progression"], True),
+    ("Experimental", ["vanilla_placement", "natural_progression", "locked_abilities"], True),
 ]
 
 
@@ -2057,6 +2057,10 @@ class GreenfieldEldenRingWorld(World):
             # test_gf_options_echo_covers_its_producers.py is the gate; see #408 for the same shape.
             contract.MERCHANT_BELLS_ON_TALK: _opt("merchant_bells_on_talk"),
             contract.FLATTEN_REGULAR_UPGRADES: _opt("flatten_regular_upgrades"),  # 0 off (vanilla 2/4/6); 1..4 stones/level
+            # ability-lock (#945): a SORTED name list read straight from the OptionSet (empty =
+            # nothing locked). Not a bare literal -- resolved from world.options; the client folds
+            # it via parse_ability_lock. STR_LIST subkey, so it moves no contract hash.
+            contract.LOCKED_ABILITIES: sorted(self.options.locked_abilities.value),
         }
 
     def _item_counts(self) -> Dict[str, int]:

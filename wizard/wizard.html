@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.4.14",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "ed0d3422a002a7a5782d10956b27dfe3a0ac6d9f35577c829e7c76d67288c730",
+ "source_sha256": "ed3bac72da6a775c0d53485b46877f77308f76b9d1f4f2561fe42e84bada74ee",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -201,6 +201,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "goal_great_runes",
   "enable_dlc",
   "dlc_only",
+  "locked_abilities",
   "vanilla_placement",
   "capital_reconciler",
   "auto_equip",
@@ -363,7 +364,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "collapsed": true,
    "options": [
     "vanilla_placement",
-    "natural_progression"
+    "natural_progression",
+    "locked_abilities"
    ]
   }
  ],
@@ -527,6 +529,71 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "locked_abilities",
+   "class": "LockedAbilities",
+   "display_name": "Locked Abilities",
+   "description": "ABILITIES THE GAME DISABLES ALL SEED. Each named ability is turned off at the character's\nlogical-action layer, so the lock survives key/pad rebinds and covers keyboard and mouse, and\nmenu navigation is never affected.\n\nValid names: jump, crouch, roll, r1, r2, l1, l2. (r1/r2/l1/l2 are the attack inputs; locking one\nalso stops casting through it, since a staff or seal casts on the attack button.) Empty = nothing\nlocked, the default. `heal` is not lockable here -- that is the flask-charge option's job.\n\n🛑 crouch is the one UNVERIFIED action: ER has no dedicated crouch action, so the client routes it\nto the stick-click (l3) as a first guess. If a playtest shows that is wrong, the fix is one line\nin er-logic, not here.\n\nThis is a STATIC lock for the whole seed -- there is no in-run unlock yet (that is the separate\nabilities-as-items feature). It is env-overridable in test builds via ER_ABILITY_LOCK_TEST.",
+   "kind": "set",
+   "base": "OptionSet",
+   "default": [],
+   "choices": null,
+   "range": null,
+   "valid_keys": [
+    "crouch",
+    "jump",
+    "l1",
+    "l2",
+    "r1",
+    "r2",
+    "roll"
+   ],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "key_meta": {
+    "keys": [
+     {
+      "key": "jump",
+      "label": "JUMP",
+      "description": "Jumping (and jump attacks)."
+     },
+     {
+      "key": "crouch",
+      "label": "CROUCH",
+      "description": "Crouch / stealth (unverified: routed to stick-click)."
+     },
+     {
+      "key": "roll",
+      "label": "ROLL",
+      "description": "Dodge roll and neutral backstep."
+     },
+     {
+      "key": "r1",
+      "label": "R1",
+      "description": "Right light attack (and casting through it)."
+     },
+     {
+      "key": "r2",
+      "label": "R2",
+      "description": "Right heavy attack (and its charged cast)."
+     },
+     {
+      "key": "l1",
+      "label": "L1",
+      "description": "Left attack / offhand (and casting through it)."
+     },
+     {
+      "key": "l2",
+      "label": "L2",
+      "description": "Left trigger: guard / weapon skill / left cast."
+     }
+    ],
+    "default": []
+   },
    "essential": false
   },
   {
