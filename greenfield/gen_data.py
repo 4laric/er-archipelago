@@ -1195,8 +1195,9 @@ CO_CHECK_HAND = frozenset({
               #          (KEY ITEM, goods 2008036)
     197,      # Rennala: 10180 Remembrance of the Full Moon Queen (primary) + 10181 Great Rune of
               #          the Unborn (goods 10080). Added 2026-08-06 on Alaric's ruling that the game
-              #          COUNTS this rune toward the Leyndell wall (#427): flag 197 sits inside the
-              #          counted 190-199 band alongside the six restored-rune flags 191-196. Until
+              #          COUNTS this rune toward the Leyndell wall (#427): relief $Event(6905) maps
+              #          197 -> 177, inside the 170-179 possession band the gate counts (common
+              #          $Event(730) -> flag 182; corrected 2026-08-22, clients#392). Until
               #          now lot 10181 was unmodelled, so check_lots blanked only the primary and
               #          every Rennala kill handed out a real vanilla rune ON TOP of the AP item
               #          (#426). NOTE the sibling is named from the FMG like any other -- goods

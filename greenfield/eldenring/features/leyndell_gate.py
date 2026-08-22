@@ -84,10 +84,14 @@ VANILLA_CAPITAL_GATE_RUNES = 2
 #     CONTIGUOUS held-rune slot -- 510010->171, 510300->172, 510040->173, 510220->174, 510120->175,
 #     510200->176, and 197->177. SEVEN slots, one per Great Rune, the Unborn rune among them.
 #
-# A game that did not count it would not give it a slot in that block. Nothing in the 589-file EMEVD
-# corpus READS 171-177, so the gate's actual count is engine-side and not decidable from here -- but
-# an uncited exclusion is the wrong way to resolve that, and shipping one would have removed a rune
-# the player legitimately holds from the wall it legitimately opens.
+# A game that did not count it would not give it a slot in that block. And the count IS decidable
+# from the corpus after all (2026-08-22, clients#392): common $Event(730) 大ルーン所持数チェック is
+# `CountEventFlags(EventFlag, 170, 179) >= threshold` -- the possession band 6905 writes into --
+# and its threshold-2 slot outputs flag 182, which the 王都の封印 (m60_45_52_00/.10
+# $Event(1045522500)) reads as `EventFlag(182) && EventFlag(105)`. The sibling counter $Event(720)
+# over the RESTORED band 190-199 feeds outputs 160-167 that nothing in the corpus reads. So all
+# seven count, in vanilla, through 171-177 -- and an AP goods grant sets none of them, which is why
+# the client writes 105+182 directly (keyitems.rs LEYNDELL_TWO_RUNES_FLAGS).
 #
 # So: no exclusion. If the engine ever proves otherwise, the fix is a cited constant, not a docstring.
 
