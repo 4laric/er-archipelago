@@ -354,6 +354,13 @@ jobs:
       - name: Wizard renders (every step draws, under a DOM shim)
         run: python tools/check_wizard_renders.py
 
+      # The YAML importer accepts only COMPLETE output from this wizard, and every imported value
+      # must be one its rendered control can represent.  Exercise the shipped parser against the
+      # shipped emitter so partial/weighted YAML and invalid option values cannot quietly enter
+      # state while the controls display something else (#735).
+      - name: Wizard YAML import round-trip and refusal contract
+        run: python tools/check_wizard_yaml_import.py
+
       # Every option KIND the dumper can emit must have a control that draws it. The branch list in
       # controlFor ends in an `else` that makes a text box, so an unhandled kind does not fail -- it
       # DEGRADES into the widget that can hold anything. `curated_filler` (kind: "dict") fell in
