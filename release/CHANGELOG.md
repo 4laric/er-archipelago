@@ -29,6 +29,17 @@ same-day as its tag).
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **A boss the game forgot to pay now pays retroactively.** 179 checks are corpse-treasure
+  awards fired by an EMEVD death event, and a death the event never witnesses — a despawn, a
+  fall, a death during a load — left the check permanently unpayable in-game (the reload branch
+  force-kills the corpse without re-offering the loot; found live when rouqs' Leyndell Ulcerated
+  Tree Spirit died unpaid). The death flag persists in the save, so the pair (death flag up,
+  check flag down) is a complete signature of the miss: a new shipped table
+  (`death_award_pairs.json`, game data beside the dll like the check-lot table) lets the client
+  sweep those pairs at connect and fire the check — retroactively, on any seed old or new, no
+  yaml or apworld change. The six sites whose corpses re-offer on reload are excluded, so a
+  merely-unlooted corpse is never pre-empted. (clients#385; the client half pairs this entry.)
+
 ## v0.4.12 — 2026-08-21
 
 ### What you need to update
@@ -53,6 +64,7 @@ Client half: clients#375. Its commit is pinned by the gitlink in this same chang
 `release/CHANNELS.tsv` promotes `stable` to v0.4.11 in this same commit.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
 - **One purchase no longer padlocks a whole shelf.** Buying an Archipelago shop slot hands you
   its spare "receipt" good, and 64 of the 79 spare rows are vanilla hold-cap-1 items you can
   neither drop, discard, nor sell — so ER itself refused every later purchase resolving to the

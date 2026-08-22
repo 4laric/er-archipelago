@@ -412,7 +412,8 @@ New-Item -ItemType Directory -Force -Path $Me3Dst | Out-Null
 # .NET / old-loader artifacts, leftover mods\, a second dll, whatever was in your working me3\. A
 # strip-list is always one surprise behind. Copy ONLY the known release entries instead, so nothing
 # unexpected can ever ship. apconfig.json is (re)written fresh below, so it is deliberately NOT here.
-$Me3Allow = @('ap.me3', 'eldenring_archipelago.dll', 'check_lots_table.json', 'shoplineup_flags.json')
+$Me3Allow = @('ap.me3', 'eldenring_archipelago.dll', 'check_lots_table.json', 'shoplineup_flags.json',
+              'death_award_pairs.json')
 $copied = 0
 foreach ($me3Entry in $Me3Allow) {
     $src = Join-Path $Me3Src $me3Entry
