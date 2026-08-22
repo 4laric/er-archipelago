@@ -556,6 +556,18 @@ if ($Me3Deploy) {
         Write-Host "  check_lots_table.json ABSENT -- foreign seeds will DOUBLE-DIP (vanilla + AP item). Run: python tools\gen_check_lots_table.py" -ForegroundColor Yellow
     }
 
+    # Death-award pair table (clients#385): death flag -> check flag for EMEVD corpse-treasure
+    # awards, so the client can fire a check whose award the event system missed (an unwitnessed
+    # death). Optional at runtime -- the client degrades to no sweep -- shipped whenever present.
+    $dapTable = Join-Path $Repo "greenfield\eldenring\death_award_pairs.json"
+    if (Test-Path $dapTable) {
+        Copy-Item $dapTable (Join-Path $Me3Dir "death_award_pairs.json") -Force
+        Write-Host "  death_award_pairs.json -> $Me3Dir  (missed death-award sweep, clients#385)"
+        if ($me3InstallShop) {
+            Copy-Item $dapTable (Join-Path $me3InstallShop "death_award_pairs.json") -Force
+        }
+    }
+
     # Shop-check flags: client key_resolver reads shoplineup_flags.json from the DLL dir
     # (mod_directory), same staging as the sweep table. Maps shop rows -> eventFlag_forStock.
     # SOURCED FROM greenfield\eldenring (2026-07-13). It used to be read from

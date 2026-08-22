@@ -119,6 +119,13 @@ STEPS = [
              "never before them: its classifier IS boss_healthbars + boss_reward_lots, so run out "
              "of order it would emit a roster of mostly kind=collection rows -- a SMALLER default "
              "progression surface, written to a committed table, reported as a clean run."),
+    Step(MODULES, "tools/gen_death_award_pairs.py",
+         emits=["greenfield/eldenring/death_award_pairs.json"],
+         why="the (death flag, check flag) pairs behind EMEVD corpse-treasure awards "
+             "(clients#385): a static me3 table the client sweeps so an unwitnessed death "
+             "cannot leave a check permanently unpayable. Reads the event corpus, so after "
+             "INPUTS; independent of gen_data."),
+
     Step(MODULES, "tools/datamine_shop_open_ranges.py",
          emits=["greenfield/shop_open_ranges.tsv"],
          why="shop-menu display scopes (issue #937): gen_data REFUSES to emit shop_data.py without "
