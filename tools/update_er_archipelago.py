@@ -183,12 +183,24 @@ def run(argv: list[str] | None = None, script_path: Path | None = None) -> int:
     if game_is_running():
         raise UpdateError("%s is running -- close the game first; it holds these files" % EXE_NAME)
 
-    with urllib.request.urlopen(
-        urllib.request.Request(args.latest_url,
-                               headers={"User-Agent": "er-archipelago-updater"}),
-        timeout=30,
-    ) as r:
-        latest = parse_latest(r.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(
+            urllib.request.Request(args.latest_url,
+                                   headers={"User-Agent": "er-archipelago-updater"}),
+            timeout=30,
+        ) as r:
+            latest = parse_latest(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        # NAME THE URL AND THE LIKELY CAUSE (Alaric, 2026-08-22, dogfooding the first shipped
+        # updater run: 'FAILED: HTTPError: HTTP Error 404: Not Found' named neither). A 404 here
+        # is the server not publishing the verdict file yet -- a deploy-side gap, not a player
+        # mistake -- and the player's next move is 'wait / tell the maintainer', not 'reinstall'.
+        raise UpdateError(
+            "%s answered HTTP %d for %s. That file is the update verdict the maintainer's deploy "
+            "publishes; if this persists, the update service is not fully deployed yet -- your "
+            "install is untouched and there is nothing to fix on your side."
+            % (args.latest_url, exc.code, exc.reason)
+        ) from exc
     print("latest stable: v%s (contract %s)" % (latest["version"], latest["contract"]))
 
     stamp_file = install / STAMP
