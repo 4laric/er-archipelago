@@ -275,6 +275,12 @@ OFF_LEDGER = {
                       "test_gf_off_means_off.py::AllClientFeatureGatesOffSeed"
                       "::test_armor_bundle_wire_absent_under_vanilla_placement",
                       {"vanilla_placement": "all"}),
+    # Progressive ability lock (#980): the id->ability map is emitted ONLY under
+    # ability_lock_mode: progressive; a static-mode seed (the default) emits nothing.
+    "abilityUnlockItems": ("off_test",
+                           "test_gf_ability_unlock.py::StaticMintsNoItems"
+                           "::test_no_unlock_items_and_no_map",
+                           {"ability_lock_mode": "static"}),
     # UNION key -- every producer (auto_equip handshake, scaling ceiling) must be off at once for
     # the key to vanish, so its off-world pins them all. Per-tag exactness lives with each feature
     # (test_gf_auto_equip.py, test_gf_options.py's ceiling matrix); this row owns full absence.
