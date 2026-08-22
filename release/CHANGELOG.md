@@ -27,6 +27,19 @@ Client half: clients#375. Its commit is pinned by the gitlink in this same chang
 `release/CHANNELS.tsv` promotes `stable` to v0.4.11 in this same commit.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+- **One purchase no longer padlocks a whole shelf.** Buying an Archipelago shop slot hands you
+  its spare "receipt" good, and 64 of the 79 spare rows are vanilla hold-cap-1 items you can
+  neither drop, discard, nor sell — so ER itself refused every later purchase resolving to the
+  same row ("would exceed the maximum able to be held"), and the name-sharing that reuses rows
+  across shops turned one buy into a seed-wide lock. The client now raises both hold caps on
+  every spare row it already owns, at the same guarded write that draws the AP flower. Fixes
+  every seed ever generated, including live v0.4.11 rooms, the moment the player updates —
+  confirmed in-game by the reporting player. (clients#380)
+- **Ability-lock test harness (experimental, off by default).** Setting
+  ER_ABILITY_LOCK_TEST (for example "roll,r1") masks those abilities' gamepad inputs while in
+  gameplay — menus and NPC dialogue are never masked, per the #945 probe findings. Gamepad
+  only, physical buttons, no seed integration yet: this is the enforcement half of ability
+  lock mode out for wear-testing ahead of the world feature. (clients#377)
 
 - **The release bundle now contains the tools its changelog promises.** `package_release.ps1`
   predated the updater (#954) and the matt's-rando installer (#948), so a bundle cut with it
@@ -43,6 +56,9 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   (the app's own measured single-line style); a toml without an `external_dlls` array gets that
   line appended; and if the toml exists in the parent folder or one level down, the installer
   refuses and names the real folder instead of planting a twin.
+- **Diagnostics:** FMG entry-insertion rejections now name the measured exe version, so a
+  SearchStringTable signature mismatch dates itself (clients#379, from the #371 audit); Bloodborne
+  runtime path errors name the setting and the resolved path (clients#378).
 
 ## v0.4.11 — 2026-08-21
 
