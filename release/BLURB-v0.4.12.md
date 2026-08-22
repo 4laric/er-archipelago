@@ -21,11 +21,12 @@ diagnostics date their own signature mismatches.
 
 ## What you need to update
 
-- **Client: THIS IS THE ONE TO UPDATE.** Players update the client; the contract is unchanged
-  (`dc0dc687`), so it is a drop-in even mid-seed — the bundled `update-er-archipelago.ps1` does
-  it in one command.
-- **APWorld:** Hosts do NOT need to act. v0.4.11 rooms keep working with v0.4.12 clients (the
-  version banner will note the mismatch; that is it doing its job).
-- **YAML:** No new YAML required. Existing YAMLs remain valid.
-- **Existing seed/save:** Compatible. No save migration.
+- **Client:** Required — this is the one to update. The contract is unchanged (`dc0dc687`), so
+  it is a drop-in even mid-seed; the bundled `update-er-archipelago.ps1` does it in one command.
+- **APWorld:** Host-only — and hosts do not need to act for this release: v0.4.11 rooms keep
+  working with v0.4.12 clients (the version banner will note the mismatch; that is it doing its
+  job). Roll new seeds on v0.4.12 when convenient.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — no save migration; keep a mid-flight seed's apworld as is
+  and just update the client.
 - **Profile/assets:** No action.
