@@ -289,6 +289,24 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # one er-logic knows that is missing here simply cannot be selected in yaml.
 ABILITY_LOCK_KEYS = ("jump", "crouch", "roll", "r1", "r2", "l1", "l2")
 
+# Progressive ability lock (#945 / #980): the locked abilities can instead be SYNTHETIC UNLOCK ITEMS
+# shuffled into the pool -- start locked, unlock the one you find. The item is synthetic (never a
+# real EquipParamGoods; the game hands over nothing), recognised by the client through the per-seed
+# abilityUnlockItems map, exactly like armorBundles. Display label per ability key.
+_ABILITY_LABEL = {"jump": "Jump", "crouch": "Crouch", "roll": "Roll",
+                  "r1": "R1", "r2": "R2", "l1": "L1", "l2": "L2"}
+# key -> synthetic item NAME, in ABILITY_LOCK_KEYS order. The client learns the id->ability binding
+# from slot_data (abilityUnlockItems), so these ids need not be arithmetically stable across seeds --
+# but they are allocated at a FIXED BASE (core.py) rather than through a feature's ITEMS anyway, so
+# adding them renumbers no other feature's item ids (the spawn-trap lesson).
+ABILITY_UNLOCK_ITEM_NAMES = tuple((k, f"Unlock: {_ABILITY_LABEL[k]}") for k in ABILITY_LOCK_KEYS)
+# Fixed id block for the seven. 7800000 is the spawn-trap base (10000 wide); 7900000 clears it and
+# stays under the next round base. test_gf_ability_unlock asserts the disjointness.
+ABILITY_UNLOCK_ITEM_BASE = 7900000
+# The er-logic client_features.rs SUPPORTED tag a progressive seed declares, so a client too old to
+# turn unlock items back into abilities reports incompatible instead of leaving the player locked.
+ABILITY_UNLOCK_FEATURE = "ability_unlock"
+
 SURFACE_CLASSES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                    "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
                    "KeyItem", "MajorBoss", "FieldBoss", "MinorDungeonBoss",
@@ -866,6 +884,14 @@ CONTRACT = (
     ContractKey("apIdsToItemIds", "SCALAR_INT_MAP", True, (BOTH,),
                 "core._base_slot_data", "core.rs:309 i64_map",
                 "AP item id (str) -> ER FullID granted on receipt."),
+    ContractKey("abilityUnlockItems", "STR_MAP", False, (GREENFIELD,),
+                "features/ability_lock.py (progressive mode)", "er-logic ability_lock receive path",
+                "synthetic AP item id (str) -> ability name (jump/crouch/roll/r1/r2/l1/l2). Present "
+                "only under ability_lock_mode: progressive: the abilities start locked (options."
+                "locked_abilities) and each rides one shuffled 'Unlock: X' item; receiving that item "
+                "id unlocks the ability (er_logic ability_lock::unlock). Same shape as armorBundles -- "
+                "the game is never asked to grant these, the client resolves them by this map. A seed "
+                "that emits it also emits requiresClientFeatures ['ability_unlock']."),
     ContractKey("armorBundles", "LISTVAL_INT_MAP", False, (GREENFIELD,),
                 "features/armor_bundles.py", "core.rs armor-bundle receive reconciler",
                 "synthetic armor-set AP item id (str) -> every protector FullID in its generated family."),

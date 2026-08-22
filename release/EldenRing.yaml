@@ -908,6 +908,14 @@ Elden Ring:
   # is not lockable here (that is the flask option's job).
   locked_abilities: []
 
+  # EXPERIMENTAL (#980). How the locked abilities behave:
+  #   static      -- off for the whole seed (the default).
+  #   progressive -- they start off and each becomes an "Unlock: X" item shuffled into the
+  #                  multiworld; find it to get that ability back. Needs a client that understands
+  #                  ability unlocks (declared via requiresClientFeatures). No effect if the set
+  #                  above is empty.
+  ability_lock_mode: static
+
   # ---- Standard Archipelago options -----------------------------------------
 
   # region_lock seeds want `minimal`, not `full`.

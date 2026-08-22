@@ -426,6 +426,18 @@ for _c in sorted(_spawn_trap_data.SPAWN_TRAPS):
     # it; the client's name branch fires the effect instead.
     _item_class[_nm] = ItemClassification.filler
 
+# ABILITY UNLOCK ITEMS (#945/#980) -- seven synthetic USEFUL items, one per lockable ability, at a
+# FIXED id block for the same reason the spawn traps use one: allocating them through a feature's
+# ITEMS would renumber every feature-minted item registered after it. Like a spawn trap they carry
+# NO `_AP_IDS_TO_ITEM_IDS` entry -- the game hands nothing over; the client turns a received id back
+# into an ability through the per-seed abilityUnlockItems map (features/ability_lock.py). USEFUL, not
+# filler: an unlock is worth finding and must never be swept or discarded as junk. Minted
+# unconditionally (so create_item works whenever asked); only POOLED under ability_lock_mode:
+# progressive, by features/ability_lock.create_items.
+for _idx, (_key, _nm) in enumerate(contract.ABILITY_UNLOCK_ITEM_NAMES):
+    item_name_to_id[_nm] = contract.ABILITY_UNLOCK_ITEM_BASE + _idx
+    _item_class[_nm] = ItemClassification.useful
+
 # FEATURE-MINTED GRANTS. `registry.allocate_item_ids` gives a feature's ITEMS an AP id, but nothing
 # tells the client what one resolves to: `_AP_IDS_TO_ITEM_IDS` is built from ITEM_CATALOG above, so
 # a minted item is a name the game can never hand over. That is why scadu_supply's fragment stayed
@@ -522,7 +534,7 @@ _OPTION_GROUPS = [
     # shape instead of synthetic locks) -- Alaric 2026-08-20: "buried pretty deep, both kind of
     # experimental". They are still fully supported options; they just should not greet a player
     # who came to randomize.
-    ("Experimental", ["vanilla_placement", "natural_progression", "locked_abilities"], True),
+    ("Experimental", ["vanilla_placement", "natural_progression", "locked_abilities", "ability_lock_mode"], True),
 ]
 
 

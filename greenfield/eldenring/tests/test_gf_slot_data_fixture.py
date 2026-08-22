@@ -86,6 +86,11 @@ INFORMATIONAL_EXTRAS = {
 # both keys are tagged CONTRACT: DEAD in contract.py.
 _CONTRACT_NOT_EMITTED = {"enable_dlc", "runeGatedGraces", "greatRuneItemIds",
                          "dlcScadutreeFloorRanges",
+                         # abilityUnlockItems is emitted ONLY under ability_lock_mode: progressive
+                         # (#980) -- the id->ability map for the shuffled 'Unlock: X' items. The rich
+                         # and default fixture seeds are static-mode, so it is justified-not-emitted
+                         # here; test_gf_ability_unlock covers the progressive keyset directly.
+                         "abilityUnlockItems",
                          # NO SEED EMITS A BLESSING CEILING any more (2026-08-06). The only ceiling
                          # is the vanilla ladder's 20, which is what an ABSENT key has always meant
                          # on the client side -- so absence is now the answer at every mode, not a
