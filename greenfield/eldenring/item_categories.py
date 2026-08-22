@@ -185,7 +185,8 @@ def _goods_category(name: str) -> str:
 # 2026-08-06 both were false. Rennala's flag 197 co-check (gen_data `_COCHECK_FLAGS`) put goods
 # 10080 in the catalog AND on a location that day -- ap 7900004, "Raya Lucaria Academy :: Great Rune
 # of the Unborn - Rennala [f197]" -- on Alaric's ruling that the GAME counts it toward the Leyndell
-# wall: flag 197 sits inside the counted 190-199 band beside the six restored-rune flags 191-196.
+# wall: relief $Event(6905) maps 197 -> 177, inside the 170-179 possession band the gate counts
+# (common $Event(730) -> flag 182; corrected 2026-08-22, clients#392).
 # The item became a full citizen and the derivation never noticed.
 #
 # ⭐ ALARIC'S RULING, 2026-08-16: **there are seven Great Runes everywhere, and the Unborn rune is a

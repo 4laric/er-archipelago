@@ -56,11 +56,20 @@ UNVERIFIED_CEILING = 18
 #
 # 197 joined on 2026-08-16 (Alaric's ruling: seven runes, the Unborn one is a full citizen). It is NOT
 # a Divine-Tower restore flag like 191-196 -- there is no tower for the Unborn rune. It is Rennala's
-# ACQUISITION flag, and it counts for the same reason the others do: the capital reads
-# `CountEventFlags(EventFlag, 190, 199)`, and 197 is inside 190-199. Which is also why the band
-# membership below is the assertion that actually matters -- an id outside 190-199 is silently
-# uncounted, and the count is the whole gate.
-GREAT_RUNE_BAND = range(190, 200)
+# ACQUISITION flag.
+#
+# 🛑 WHAT THESE FLAGS ARE NOT (corrected 2026-08-22, clients#392): they are NOT the capital gate's
+# counted band. This block used to claim the capital reads `CountEventFlags(EventFlag, 190, 199)`
+# (common $Event(720)) and that band membership was the load-bearing property -- the 08-01 probe had
+# verified 720's DEFINITION but never traced a call site. The call graph says otherwise: the
+# 王都の封印 (m60_45_52_00/.10 $Event(1045522500)) reads `EventFlag(182) && EventFlag(105)`; 182 is
+# the output of common $Event(730) slot 2 = `CountEventFlags(EventFlag, 170, 179) >= 2` over the
+# POSSESSION band, whose flags 171-177 are engine-set by the boss lots' getItemFlagId (lot 10010 ->
+# 171) plus relief $Event(6905) (which maps 197 -> 177). $Event(720)'s outputs 160-167 have zero
+# readers in the corpus. So 191-197 matter as the restored/acquired state keyitems.rs writes; the
+# GATE is covered by keyitems.rs writing 105+182 directly (LEYNDELL_TWO_RUNES_FLAGS). The pin below
+# stays as the ledger between this table and the client's writes -- edit the table and this fails,
+# which is still the alarm we want.
 GREAT_RUNE_FLAGS = {191, 192, 193, 194, 195, 196, 197}
 
 
@@ -241,12 +250,14 @@ class TestTheKnownCasesAreRecorded:
         rows = {r["item"] for r in _rows()}
         assert set(GREAT_RUNES) <= rows, sorted(set(GREAT_RUNES) - rows)
 
-    def test_great_runes_are_flag_gated_on_the_measured_band(self):
-        """The capital gate is `CountEventFlags(EventFlag, 190, 199) >= 2` (common $Event(720)).
-        Six of the seven flags come from the Divine-Tower altar initializers; the seventh (197) is
-        Rennala's acquisition flag and counts because it lands in the same band. Nothing gates on
-        possession of a rune's goods. If this row set ever drifts, the client's writes stop matching
-        the count."""
+    def test_great_runes_are_flag_gated(self):
+        """Each rune row carries exactly one flag: the id the GAME sets on restore/acquire, and the
+        id keyitems.rs writes on AP grant. 191-196 are the Divine-Tower restore flags (common
+        90005110); 197 is Rennala's acquisition flag (relief $Event(6905) maps it to 177). The
+        capital gate is NOT these flags -- the 王都の封印 reads 182 && 105, 182 being common
+        $Event(730)'s count over the possession band 170-179; see key_item_gates.tsv rows 40-46.
+        This pin is the ledger between the table and the client's writes: drift here means the
+        table and keyitems.rs disagree."""
         from worlds.eldenring.features.leyndell_gate import GREAT_RUNES
         seen = set()
         for name in GREAT_RUNES:
@@ -256,13 +267,6 @@ class TestTheKnownCasesAreRecorded:
             flags = {int(f) for f in r["flags"].split(",") if f.strip()}
             assert len(flags) == 1, f"{name}: expected exactly one restored flag, got {flags}"
             seen |= flags
-        # The BAND is the load-bearing property: the gate is a count over 190-199, so an id outside
-        # it contributes nothing and no amount of writing it opens the door. Asserted separately
-        # from the exact set so a future rune is caught by the rule, not only by the ledger.
-        stray = sorted(f for f in seen if f not in GREAT_RUNE_BAND)
-        assert not stray, (
-            f"rune flags {stray} fall outside the counted band {GREAT_RUNE_BAND} -- the capital "
-            f"counts 190-199, so these are written and silently uncounted.")
         assert seen == GREAT_RUNE_FLAGS, (
             f"the rune flags must be exactly {sorted(GREAT_RUNE_FLAGS)} -- got {sorted(seen)}. "
             f"Do not edit this table without re-measuring.")
