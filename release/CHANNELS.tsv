@@ -48,3 +48,5 @@ stable	v0.4.11	2026-08-21	proper shop-shelf names (menu-scoped spare-row colorin
 beta	main	2026-08-21	the open v0.4.12 window
 stable	v0.4.12	2026-08-22	the hold-cap hotfix: one purchase no longer padlocks every same-row shop slot (confirmed in-game by the reporter), plus the quit-game crash fix and the packaging/installer currency; promoted the same day as the tag, mid-window -- a hotfix promotion, not a window-open one, so the shipped updater and banner point players at the fix immediately
 beta	main	2026-08-22	the open v0.4.13 window
+stable	v0.4.13	2026-08-22	the corpse-award retroactive sweep (179 death-award checks pay on any old seed) plus the shop-repaint fast-reopen fix, the F6 tracker horizontal-resize fix, and the pickup cue defaulting off; promoted at its tag as the window opened
+beta	main	2026-08-22	the open v0.4.14 window
