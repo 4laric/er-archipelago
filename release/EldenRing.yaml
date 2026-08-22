@@ -25,17 +25,18 @@
 #  client warps you back out. You start at Roundtable Hold with one region
 #  already open; the default goal is to hold every Lock in play.
 #
-#  THREE regions are different, and this is the most-reported non-bug in the
-#  mod. Raya Lucaria Academy (the seal), Leyndell (the main gate) and the Sewer
-#  (down a well inside the capital) sit behind a wall the GAME enforces, so
-#  receiving their Lock LIGHTS NOTHING -- the Lock arrives and nothing visibly
-#  happens. You open them the vanilla way and touch the graces yourself: the
-#  Academy with its Glintstone Key (shuffled into the pool), the capital by
-#  walking in from Altus holding leyndell_runes_required Great Runes, and the
-#  Sewer down the well once you are inside the capital.
+#  TWO regions are different, and this is the most-reported non-bug in the
+#  mod. Raya Lucaria Academy (the seal) and Leyndell (the main gate) sit
+#  behind a wall the GAME enforces, so receiving their Lock LIGHTS NOTHING --
+#  the Lock arrives and nothing visibly happens. You open them the vanilla
+#  way and touch the graces yourself: the Academy with its Glintstone Key
+#  (shuffled into the pool), the capital by walking in from Altus holding
+#  leyndell_runes_required Great Runes. The Shunning-Grounds sewer is part of
+#  Leyndell (v0.4.10 merged them): once the capital opens, the well is yours,
+#  and its graces ride the Leyndell Lock's bundle.
 #
 #  leyndell_runes_required: 0 is the only setting that changes this, and only
-#  for the capital. The Sewer's graces never ride its Lock in any seed.
+#  for the capital.
 # ============================================================================
 
 name: Player1
@@ -643,26 +644,34 @@ Elden Ring:
   # seed, nor in the modes that mint no Locks.
   progression_bias: 0
 
-  # WHAT SHARE OF YOUR TRAVELLING LOCKS MAY LAND IN A NON-ELDEN-RING GAME.
-  # `auto`, the default, is 1 / number of games -- half of them in a two-game
-  # seed, a quarter in a four-game one. A number is that percent directly, and
-  # `never` (or 0) keeps every Lock inside Elden Ring worlds.
+  # HOW YOUR PROGRESSION IS SHARED WITH THE OTHER GAMES AT THE TABLE.
+  # `auto`, the default, BALANCES it per game: every partner game receives its
+  # own near 1-per-number-of-games share of your travelling progression, and
+  # your world reserves the same share of each partner game's progression in
+  # return. Eleven items at a three-game table means roughly four to each
+  # partner and three at home -- not one batch split however fill lands (the
+  # motivating seed split 11 items 2/2/7). Two slots of one game count as one
+  # game, sampled fairly across their players; items a player keeps local are
+  # never taken; shares a partner or your own world cannot host are capped at
+  # what fits, with requested-vs-reserved counts in the generation log.
+  #
+  # `aggregate` is the older shape: ONE combined foreign batch sized at 1/N,
+  # divided between partners by ordinary fill, no incoming reservation. A
+  # number from 1 to 100 is that aggregate share set by hand. `never` (or 0)
+  # keeps every travelling progression item inside Elden Ring worlds.
   #
   # This exists because the answer used to be ZERO, always, and not on purpose.
-  # Locks were offered to Elden Ring surfaces only; a Lock bound elsewhere was
-  # simply one this pass did not place, and the general fill would take it
-  # anywhere. But our surfaces have about 170 checks for at most ~36 Locks, so
-  # nothing was ever left over. Measured: 0 Locks reached a Hollow Knight slot
-  # across four configurations, including a two-Elden-Ring-plus-Hollow-Knight
-  # seed where 15 of 28 Locks travelled and every one went to the OTHER Elden
-  # Ring world. With `auto` on that same shape, 50% land in Hollow Knight.
+  # Locks were offered to Elden Ring surfaces only; our surfaces have about 170
+  # checks for at most ~36 Locks, so nothing was ever left over. Measured:
+  # 0 Locks reached a Hollow Knight slot across four configurations, including
+  # a two-Elden-Ring-plus-Hollow-Knight seed where 15 of 28 Locks travelled and
+  # every one went to the OTHER Elden Ring world.
   #
   # 🛑 THIS PLACES ITEMS IN ANOTHER GAME'S LOCATIONS. Only empty, non-excluded,
-  # unlocked ones, never forced, and if the attempt raises, the Locks fall back
-  # to Elden Ring surfaces rather than failing your seed. But an apworld is
-  # within its rights to object to being filled during pre_fill -- TUNIC says so
-  # outright. If a partner game generates badly beside Elden Ring, set this to
-  # `never` first; it restores the pre-0.4.3 behaviour exactly.
+  # unlocked ones, never forced, and anything refused falls back to Elden Ring
+  # surfaces rather than failing your seed. But an apworld is within its rights
+  # to object to being filled during pre_fill -- TUNIC says so outright. If a
+  # partner game generates badly beside Elden Ring, set this to `never` first.
   #
   # No effect in a solo seed, in a seed with only Elden Ring players, or in the
   # modes that mint no Locks.

@@ -375,10 +375,11 @@ class StartRegionPoolRefusalsNameTheRegion(WorldTestBase):
                           "start_region_pool", "Caelid", "dlc_only")
 
     def test_a_gated_child_says_which_parent_to_name_instead(self):
-        # Sewer is reached through Leyndell; its grace bundle is withheld, so the player could not
-        # warp into it even if the Lock were in hand.
-        self._raises_with({"num_regions": 4, "start_region_pool": ["Sewer"]},
-                          "start_region_pool", "Sewer", "Leyndell")
+        # Leyndell itself is the gated child now (the Sewer merged into it 2026-08-20, so it is no
+        # longer a nameable region at all -- the unknown-key path covers it). The capital is
+        # reached through Altus and its bundle is rune-walled, so the refusal names Altus.
+        self._raises_with({"num_regions": 4, "start_region_pool": ["Leyndell"]},
+                          "start_region_pool", "Leyndell", "Altus")
 
     def test_the_goal_region_says_the_goal(self):
         # Enir Ilim, not Leyndell: the default goal's region is ALSO a gated child, so it trips the

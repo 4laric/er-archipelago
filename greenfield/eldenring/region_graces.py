@@ -2,12 +2,12 @@
 REGION_GRACE_POINTS = {
     'Abyssal': [76860, 72801, 72802, 72803, 76861, 76863, 76864],
     'Ainsel River': [71211, 71212, 71213, 71214, 71215, 71216, 71218, 71219],
-    'Altus': [76301, 73008, 73010, 73012, 73013, 73118, 73204, 73205, 73430, 73431, 73432, 73450, 73451, 76300, 76302, 76303, 76304, 76305, 76306, 76307, 76308, 76309, 76310, 76311, 76312, 76320, 76500],
+    'Altus': [76301, 73008, 73010, 73012, 73013, 73118, 73204, 73205, 73430, 73431, 73432, 73450, 73451, 76300, 76302, 76303, 76304, 76305, 76306, 76307, 76308, 76309, 76310, 76311, 76312, 76320, 76500, 73007],
     'Ancient Ruins': [76940, 76941, 76942, 76943, 76944],
     'Belurat': [72001, 72002, 72003],
     'Caelid': [73207, 73014, 73015, 73016, 73110, 73111, 73120, 73121, 73208, 73257, 73440, 73441, 73460, 76400, 76401, 76402, 76403, 76404, 76405, 76406, 76407, 76409, 76410, 76411, 76413, 76414, 76416, 76417, 76418, 76420, 76450, 76451, 76452, 76453, 76454, 76455, 76456],
     'Cerulean': [76831, 72201, 72202, 72203, 72204, 74102, 76832, 76833, 76834, 76835, 76841],
-    'Consecrated Snowfield': [76550, 73019, 73112, 73211, 76551, 76652, 76653],
+    'Consecrated Snowfield': [76550, 73019, 73112, 73211, 76551, 76652, 76653, 73020],
     'Deeproot Depths': [71231, 71232, 71233, 71234, 71235],
     'Enir Ilim': [72012, 72013, 72014, 72015, 72016],
     'Ensis': [76821, 76822],
@@ -15,19 +15,18 @@ REGION_GRACE_POINTS = {
     'Gravesite': [76800, 74000, 74100, 74200, 74300, 74301, 74351, 76801, 76802, 76803, 76804, 76805, 76810, 76811, 76812, 76813, 76830],
     'Haligtree': [71501, 71502, 71503, 71504, 71506, 71507, 71508],
     'Jagged Peak': [76840, 76850, 76851],
-    'Leyndell': [71102, 71103, 71104, 71105, 71108, 71109],
+    'Leyndell': [71102, 71103, 71104, 71105, 71108, 71109, 73501, 73502, 73503, 73504],
     'Limgrave': [73100, 71800, 71801, 73002, 73004, 73011, 73103, 73115, 73117, 73201, 76100, 76101, 76102, 76103, 76104, 76105, 76106, 76108, 76110, 76111, 76113, 76114, 76116, 76117, 76118, 76119],
     'Liurnia': [73202, 73003, 73005, 73006, 73104, 73105, 73106, 73420, 73421, 73422, 73901, 73902, 76200, 76201, 76202, 76203, 76204, 76205, 76207, 76208, 76209, 76210, 76211, 76212, 76213, 76214, 76215, 76216, 76217, 76218, 76219, 76220, 76221, 76222, 76223, 76224, 76225, 76226, 76227, 76228, 76229, 76230, 76231, 76233, 76234, 76235, 76236, 76237, 76238, 76239, 76240, 76241, 76242, 76243, 76244, 76245, 76251, 76252],
     'Mohgwyn': [71251, 71252, 71253],
-    'Mountaintops of the Giants': [73017, 73018, 73122, 76501, 76503, 76504, 76505, 76506, 76507, 76510, 76520, 76521, 76522, 76523],
+    'Mountaintops of the Giants': [73017, 73018, 73122, 76501, 76503, 76504, 76505, 76506, 76507, 76510, 76520, 76521, 76522, 76523, 76502],
     'Mt. Gelmir': [76350, 71602, 71603, 71604, 71605, 71607, 73009, 73107, 76351, 76352, 76353, 76354, 76355, 76356, 76357],
     'Rauh Base': [76912, 74001, 74203, 76913, 76914],
-    'Raya Lucaria Academy': [71402, 71403],
-    'Scadu Altus': [76900, 74002, 74101, 74202, 76902, 76903, 76904, 76905, 76906, 76907, 76908, 76909, 76910, 76911, 76916, 76917, 76918],
-    'Sewer': [73501, 73502, 73503, 73504],
+    'Raya Lucaria Academy': [71402, 71403, 76206],
+    'Scadu Altus': [76900, 74002, 74101, 74202, 76902, 76903, 76904, 76905, 76906, 76907, 76908, 76909, 76910, 76911, 76916, 76917, 76918, 72102],
     'Shadow Keep': [76935, 72106, 72108, 72109, 72111, 72112, 72113, 72114, 72116, 72117, 72120, 76936, 76937],
     'Siofra River': [71222, 71223, 71224, 71225, 71226, 71227, 71270, 71271],
-    'Stormveil': [71003, 71004, 71005, 71006, 71007, 71008],
+    'Stormveil': [71003, 71004, 71005, 71006, 71007, 71008, 71002, 73410, 73412],
     'Weeping': [73102, 73000, 73001, 73101, 73200, 76150, 76151, 76152, 76153, 76154, 76155, 76156, 76157, 76158, 76159, 76160, 76162],
     'Ashen Capital': [71123, 71122, 71125],
 }
@@ -37,12 +36,12 @@ REGION_GRACE_POINTS = {
 REGION_GRACE_LANDMARKS = {
     'Abyssal': [72801, 76860],  # Manse Hall, Abyssal Woods
     'Ainsel River': [71211, 71214, 71216],  # Ainsel River Well Depths, Ainsel River Main, Lake of Rot Shoreside
-    'Altus': [76301, 76309, 76500],  # Altus Plateau, Outer Wall Phantom Tree, Forbidden Lands
+    'Altus': [73007, 76301, 76309, 76500],  # Wyndham Catacombs, Altus Plateau, Outer Wall Phantom Tree, Forbidden Lands
     'Ancient Ruins': [76940],  # Viaduct Minor Tower
     'Belurat': [72001],  # Belurat, Tower Settlement
     'Caelid': [76400, 76406, 76450],  # Smoldering Church, Aeonia Swamp Shore, Dragonbarrow West
     'Cerulean': [72201, 76831, 76841],  # Stone Coffin Fissure, Cerulean Coast, Charo's Hidden Grave
-    'Consecrated Snowfield': [76550],  # Consecrated Snowfield
+    'Consecrated Snowfield': [73020, 76550],  # Hidden Path to the Haligtree, Consecrated Snowfield
     'Deeproot Depths': [71231],  # Root-Facing Cliffs
     'Enir Ilim': [72012],  # Enir-Ilim: Outer Wall
     'Ensis': [76821],  # Castle Ensis Checkpoint
@@ -50,20 +49,19 @@ REGION_GRACE_LANDMARKS = {
     'Gravesite': [76800],  # Gravesite Plain
     'Haligtree': [71501, 71506],  # Prayer Room, Haligtree Canopy
     'Jagged Peak': [76840, 76851],  # Grand Altar of Dragon Communion, Jagged Peak Mountainside
-    'Leyndell': [71102],  # East Capital Rampart
+    'Leyndell': [71102, 73501],  # East Capital Rampart, Underground Roadside
     'Limgrave': [71800, 76100, 76102],  # Cave of Knowledge, Church of Elleh, Stormhill Shack
     'Liurnia': [73901, 76200, 76207, 76251],  # Ruin-Strewn Precipice, Lake-Facing Cliffs, East Raya Lucaria Gate, Cathedral of Manus Celes
     'Mohgwyn': [71251],  # Palace Approach Ledge-Road
-    'Mountaintops of the Giants': [76501, 76506],  # Zamor Ruins, Giants' Gravepost
+    'Mountaintops of the Giants': [76501, 76502, 76506],  # Zamor Ruins, Grand Lift of Rold, Giants' Gravepost
     'Mt. Gelmir': [71602, 76350],  # Volcano Manor, Bridge of Iniquity
     'Rauh Base': [76912],  # Ancient Ruins Base
-    'Raya Lucaria Academy': [71402],  # Church of the Cuckoo
-    'Scadu Altus': [76900],  # Highroad Cross
-    'Sewer': [73501],  # Underground Roadside
+    'Raya Lucaria Academy': [71402, 76206],  # Church of the Cuckoo, Main Academy Gate
+    'Scadu Altus': [72102, 76900],  # Shadow Keep Main Gate, Highroad Cross
     'Shadow Keep': [72106, 72111, 76935],  # Church District Entrance, Storehouse, First Floor, Hinterland
     'Siofra River': [71222, 71224],  # Siofra River Bank, Ancestral Woods
-    'Stormveil': [71003],  # Gateside Chamber
+    'Stormveil': [71002, 71003],  # Castleward Tunnel, Gateside Chamber
     'Weeping': [76150],  # Church of Pilgrimage
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:7d7ea51db2b0c64df527976e873f77ff50a785f3bc640f25b05aaeb2c87113e6', 'module': 'region_graces.py', 'body_sha256': 'sha256:e2cd9e64049ef2986ae27bf1d103083bd92c8285d69303ef2095db61b6e17765'}
+_GEN_STAMP = {'inputs_hash': 'sha256:70fa17889b2db64b051bea2f7bbf4dc09fe0814bb5ea7d898739d82553195507', 'module': 'region_graces.py', 'body_sha256': 'sha256:f41b69595db1edbfe9b8fd1d1a0f5da65016158be811b083eef295d807efc018'}

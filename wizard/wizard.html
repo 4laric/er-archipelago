@@ -190,9 +190,9 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
 {
  "schema": 1,
  "game": "Elden Ring",
- "apworld_version": "0.4.10",
+ "apworld_version": "0.4.13",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "a6a40dd50423a313ee2fff6c317825a72a34f374cbfb69f28ac54a2d4201811b",
+ "source_sha256": "ed0d3422a002a7a5782d10956b27dfe3a0ac6d9f35577c829e7c76d67288c730",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -380,7 +380,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "choices": null,
    "range": {
     "start": 0,
-    "end": 29
+    "end": 28
    },
    "valid_keys": null,
    "casefold": false,
@@ -1243,7 +1243,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Fragment",
     "GreatRune",
     "KeyItem",
-    "LegacyBoss",
     "Legendary",
     "MajorBoss",
     "MinorDungeonBoss",
@@ -1273,14 +1272,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      {
       "key": "MajorBoss",
       "label": "Major bosses",
-      "hint": "Remembrance and great-rune arena bosses, plus curated majors for the regions that have none. Contains Remembrances and Great Runes.",
-      "family": "bosses",
-      "family_label": "Bosses"
-     },
-     {
-      "key": "LegacyBoss",
-      "label": "Legacy dungeon bosses",
-      "hint": "Bosses standing inside a legacy dungeon.",
+      "hint": "Remembrance and great-rune arena bosses, curated majors for the regions that have none, and every boss standing inside a legacy dungeon (the former Legacy dungeon bosses class, absorbed v0.4.10). Contains Remembrances and Great Runes.",
       "family": "bosses",
       "family_label": "Bosses"
      },
@@ -1431,7 +1423,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
       "Remembrance",
       "GreatRune",
       "MajorBoss",
-      "LegacyBoss",
       "FieldBoss",
       "MinorDungeonBoss"
      ],
@@ -1566,7 +1557,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "cross_game_progression",
    "class": "CrossGameProgression",
    "display_name": "Cross Game Progression",
-   "description": "What share of your travelling Region Locks may land in a NON-Elden-Ring player's world.\n\n`auto` (the default) is **1 / number of games**: in a two-game multiworld half your travelling\nLocks go to the partner, in a four-game one a quarter each. That is the same 1/N rule the export\nvolume is judged by, and it means the answer scales with the table instead of being a number\nsomeone has to re-pick per seed. `0` keeps every Lock inside Elden Ring, which is the behaviour\nevery seed had before this option existed. A number is that share explicitly.\n\n# Why this option exists at all\n\n`progression_bias` already releases Locks into the multiworld, and between Elden Ring worlds it\nworks -- MEASURED 50-54% travel on 2xER seeds. But `place_released_locks` only ever offered them\nELDEN RING surfaces, and our surfaces host ~170 checks against at most ~36 Locks, so the spill\nvalve that was supposed to feed a partner never had anything to spill. MEASURED across four\nconfigurations: **0 Locks reached a Hollow Knight slot, ever** -- including a 2xER + 1xHK seed\nwhere 15 of 28 Locks travelled and all 15 went to the other Elden Ring world.\n\n`progression_bias` controls whether Locks leave their owner at all. It does not choose between\nanother Elden Ring slot and a non-Elden-Ring partner; this option provides that second axis.\n\n⚠️ IT PLACES INTO ANOTHER GAME'S LOCATIONS, which is the one thing `place_released_locks` used to\nrefuse to do, and the refusal was not arbitrary -- TUNIC's own `stage_pre_fill` raises\n\"caused by another world filling TUNIC locations during pre_fill... we cannot recover from this\nissue.\" We only ever offer locations that are still EMPTY, never force a placement, and put back\nanything unplaced -- but a partner game that objects to being filled at all is a real failure\nmode, and `0` is the escape hatch. Set it to 0 if a seed will not generate.\n\nNo effect in a solo seed, in an all-Elden-Ring multiworld (there is no non-ER world to send to),\nor in the modes that mint no Lock items.",
+   "description": "How your progression is shared with the other games at the table.\n\n``auto`` (the default) balances it: every other game receives its own near **1 / number of\ngames** share of your travelling progression, and your world reserves the same share of every\npartner game's progression in return. Eleven items at a three-game table means roughly four to\neach partner and three staying home -- not one aggregate batch split however fill happens to\nland. Two slots of one game count as a single game, sampled fairly across their players, and\nitems a player keeps local are never taken.\n\n``aggregate`` is the older shape: one combined foreign batch sized at 1/N, divided between the\npartners by ordinary fill, with no incoming reservation. A number from 1 to 100 is that\naggregate share set by hand. ``never`` (0) keeps every travelling progression item inside\nElden Ring -- the escape hatch if a partner game will not tolerate being filled and a seed\nrefuses to generate.\n\nShares are capacity-aware: a partner game with fewer open locations than its share, or a world\nwithout room for the full incoming reservation, caps the share at what fits, and the\ngeneration log states requested-versus-reserved per game. Only a placement the rules refuse\noutright is a failure.\n\nNo effect in a solo seed, in an all-Elden-Ring multiworld, or in the modes that mint no Lock\nitems.",
    "kind": "range",
    "base": "NamedRange",
    "default": -1,
@@ -1580,6 +1571,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": [
+    {
+     "name": "aggregate",
+     "value": -2
+    },
     {
      "name": "auto",
      "value": -1
@@ -1891,7 +1886,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Rauh Base",
     "Raya Lucaria Academy",
     "Scadu Altus",
-    "Sewer",
     "Shadow Keep",
     "Siofra River",
     "Stormveil",
@@ -3141,7 +3135,6 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "GreatRune",
   "KeyItem",
   "MajorBoss",
-  "LegacyBoss",
   "FieldBoss",
   "MinorDungeonBoss",
   "SweepSlot",
@@ -3171,14 +3164,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "hub_region": "Roundtable Hold",
  "parent": {
   "Leyndell": "Altus",
-  "Raya Lucaria Academy": "Liurnia",
-  "Sewer": "Leyndell"
+  "Raya Lucaria Academy": "Liurnia"
  },
  "regions": {
   "Abyssal": {
    "checks": 19,
    "combos": {
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Fragment": 1,
     "Revered": 2
    },
@@ -3225,9 +3217,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "Ainsel River": {
    "checks": 123,
    "combos": {
-    "Boss|LegacyBoss": 1,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss": 2,
+    "Boss|MajorBoss|Remembrance": 1,
     "KeyItem": 1,
     "Legendary": 2,
     "Seedtree": 2,
@@ -3314,13 +3305,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "sweep_slots_max": {
     "all": 81,
-    "bosses": 143,
+    "bosses": 144,
     "minidungeons": 81
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 81,
-     "bosses": 143,
+     "bosses": 144,
      "minidungeons": 81
     },
     "SweepSlotMajor": {
@@ -3328,7 +3319,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 81,
-     "bosses": 135,
+     "bosses": 136,
      "minidungeons": 81
     }
    }
@@ -3385,8 +3376,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "Ashen Capital": {
    "checks": 18,
    "combos": {
-    "Boss|LegacyBoss": 5,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 2,
+    "Boss|MajorBoss": 5,
+    "Boss|MajorBoss|Remembrance": 2,
     "Legendary": 1
    },
    "dlc": false,
@@ -3432,7 +3423,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "Belurat": {
    "checks": 93,
    "combos": {
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Fragment": 1,
     "KeyItem": 1,
     "Revered": 4
@@ -3515,13 +3506,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 118,
+    "bosses": 119,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 118,
+     "bosses": 119,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -3529,7 +3520,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 114,
+     "bosses": 115,
      "minidungeons": 55
     }
    }
@@ -3539,8 +3530,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "combos": {
     "Boss": 4,
     "Boss|FieldBoss": 2,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
     "Boss|Legendary": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Boss|MinorDungeonBoss": 1,
     "Fragment": 3,
     "KeyItem": 2
@@ -3640,7 +3631,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "Deeproot Depths": {
    "checks": 80,
    "combos": {
-    "Boss|LegacyBoss": 2,
+    "Boss|MajorBoss": 2,
     "Legendary": 4
    },
    "dlc": false,
@@ -3686,7 +3677,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "Enir Ilim": {
    "checks": 107,
    "combos": {
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Fragment": 3,
     "Legendary": 1,
     "Revered": 3
@@ -3773,9 +3764,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "Farum Azula": {
    "checks": 105,
    "combos": {
-    "Boss|LegacyBoss": 1,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 2,
+    "Boss|MajorBoss": 2,
+    "Boss|MajorBoss|Remembrance": 2,
     "Legendary": 4,
     "Seedtree": 2
    },
@@ -3867,9 +3857,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "checks": 123,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss": 1,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss": 2,
+    "Boss|MajorBoss|Remembrance": 1,
     "Seedtree": 1
    },
    "dlc": false,
@@ -3953,19 +3942,53 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Leyndell": {
-   "checks": 160,
+   "checks": 251,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "KeyItem": 1
+    "Boss|Legendary|MajorBoss": 1,
+    "Boss|MajorBoss": 2,
+    "KeyItem": 1,
+    "Legendary": 1
    },
    "dlc": false,
    "parent": "Altus",
    "rollable": true,
-   "sweep_slots": {},
-   "sweep_slots_by_class": {},
-   "sweep_slots_max": {},
-   "sweep_slots_max_by_class": {}
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   },
+   "sweep_slots_by_class": {
+    "SweepSlot": {
+     "all": 2,
+     "bosses": 2
+    },
+    "SweepSlotMajor": {
+     "all": 1,
+     "bosses": 1
+    },
+    "SweepSlotMinor": {
+     "all": 1,
+     "bosses": 1
+    }
+   },
+   "sweep_slots_max": {
+    "all": 16,
+    "bosses": 16
+   },
+   "sweep_slots_max_by_class": {
+    "SweepSlot": {
+     "all": 16,
+     "bosses": 16
+    },
+    "SweepSlotMajor": {
+     "all": 8,
+     "bosses": 8
+    },
+    "SweepSlotMinor": {
+     "all": 8,
+     "bosses": 8
+    }
+   }
   },
   "Limgrave": {
    "checks": 330,
@@ -3973,7 +3996,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Basin": 2,
     "Boss|FieldBoss": 5,
     "Boss|FieldBoss|Legendary": 1,
-    "Boss|LegacyBoss|Seedtree": 1,
+    "Boss|MajorBoss|Seedtree": 1,
     "Boss|MinorDungeonBoss": 7,
     "Church": 1,
     "KeyItem": 1,
@@ -4022,7 +4045,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Liurnia": {
-   "checks": 609,
+   "checks": 610,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -4091,7 +4114,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "checks": 67,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Shop|ShopNonSpell": 4,
     "Shop|ShopNonSpell|ShopSlot": 1
    },
@@ -4166,13 +4189,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "sweep_slots_max": {
     "all": 22,
-    "bosses": 58,
+    "bosses": 59,
     "minidungeons": 22
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 22,
-     "bosses": 58,
+     "bosses": 59,
      "minidungeons": 22
     },
     "SweepSlotMajor": {
@@ -4180,7 +4203,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 22,
-     "bosses": 42,
+     "bosses": 43,
      "minidungeons": 22
     }
    }
@@ -4192,9 +4215,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Boss|FieldBoss": 4,
     "Boss|FieldBoss|Legendary": 1,
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss": 2,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss": 3,
+    "Boss|MajorBoss|Remembrance": 1,
     "Boss|MinorDungeonBoss": 2,
     "KeyItem": 1,
     "Legendary": 3,
@@ -4296,9 +4318,9 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "Raya Lucaria Academy": {
    "checks": 105,
    "combos": {
-    "Boss|GreatRune|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|GreatRune|MajorBoss": 1,
+    "Boss|MajorBoss": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Legendary": 3,
     "Seedtree": 2,
     "Shop|ShopNonSpell": 16
@@ -4350,9 +4372,9 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "checks": 324,
    "combos": {
     "Boss|FieldBoss": 4,
-    "Boss|Fragment|LegacyBoss": 1,
-    "Boss|LegacyBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|Fragment|MajorBoss": 1,
+    "Boss|MajorBoss": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Boss|MinorDungeonBoss": 1,
     "Fragment": 9,
     "KeyItem": 2,
@@ -4406,60 +4428,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    }
   },
-  "Sewer": {
-   "checks": 91,
-   "combos": {
-    "Boss|LegacyBoss|Legendary": 1,
-    "Boss|LegacyBoss|MajorBoss": 1,
-    "Legendary": 1
-   },
-   "dlc": false,
-   "parent": "Leyndell",
-   "rollable": true,
-   "sweep_slots": {
-    "all": 2,
-    "bosses": 2
-   },
-   "sweep_slots_by_class": {
-    "SweepSlot": {
-     "all": 2,
-     "bosses": 2
-    },
-    "SweepSlotMajor": {
-     "all": 1,
-     "bosses": 1
-    },
-    "SweepSlotMinor": {
-     "all": 1,
-     "bosses": 1
-    }
-   },
-   "sweep_slots_max": {
-    "all": 16,
-    "bosses": 16
-   },
-   "sweep_slots_max_by_class": {
-    "SweepSlot": {
-     "all": 16,
-     "bosses": 16
-    },
-    "SweepSlotMajor": {
-     "all": 8,
-     "bosses": 8
-    },
-    "SweepSlotMinor": {
-     "all": 8,
-     "bosses": 8
-    }
-   }
-  },
   "Shadow Keep": {
    "checks": 118,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 2,
-    "Boss|KeyItem|LegacyBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|KeyItem|MajorBoss": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "Fragment": 8,
     "Legendary": 1,
     "Revered": 2
@@ -4507,9 +4482,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "Siofra River": {
    "checks": 166,
    "combos": {
-    "Boss|LegacyBoss": 3,
-    "Boss|LegacyBoss|MajorBoss": 3,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss": 6,
+    "Boss|MajorBoss|Remembrance": 1,
     "Legendary": 1,
     "Seedtree": 1,
     "Shop|ShopNonSpell": 7,
@@ -4559,7 +4533,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "checks": 140,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
-    "Boss|LegacyBoss|MajorBoss|Remembrance": 1,
+    "Boss|MajorBoss|Remembrance": 1,
     "KeyItem": 1,
     "Seedtree": 2,
     "Shop|ShopNonSpell": 14
@@ -4655,7 +4629,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "160ed0613a5f3d64e2201e522a96241d7c2a8a1a5111648d06b93af586837d91"
+ "source_sha256": "856da571cabe4e6097b2e9eaacde29ed561f12a1ffa716d1f6ec3141f2e3110b"
 }
 </script>
 <div class="wrap">
@@ -5083,8 +5057,9 @@ const ERW = (() => {
      "carrying nothing", whichever side of the checkbox you are on.
 
      WHY THIS AND NOT A TREE WIDGET. These classes are NOT a hierarchy. Measured over the live tags:
-     10 pairs nest, but SIXTEEN overlap without nesting -- MajorBoss and LegacyBoss share 22 checks
-     with neither containing the other, MajorBoss and FieldBoss share 10, and 9 Boss checks are in
+     10 pairs nest, but SIXTEEN overlap without nesting -- MajorBoss and FieldBoss share 10 checks
+     with neither containing the other (LegacyBoss, the old worst offender, was absorbed into
+     MajorBoss 2026-08-20), and 9 Boss checks are in
      none of its three sub-classes. Drawing that as an indented tree would be a picture of something
      untrue. A marginal count is exact under overlap, nesting AND disjointness, because it is set
      arithmetic rather than a claim about shape.
@@ -5321,17 +5296,44 @@ if (typeof module !== "undefined") module.exports = ERW;
       wrap.append(lab);
     } else if (o.kind === "range"){
       const {start, end} = o.range;
+      /* NAMED VALUES (2026-08-20, Alaric: the Cross Game Progression card "is a mess"): a
+         NamedRange's special values live OUTSIDE the slider's numeric range -- its default -1
+         rendered as a bare "-1" against a stated "0-100", which reads like a bug. The names ride
+         the metadata (special_values); the slider stays numeric, a WORD chip beside it names the
+         current value when it has a name, and clicking the word for an out-of-range special value
+         (auto) commits it directly since the slider cannot reach it. */
+      const specials = o.special_values || [];
+      const nameOf = n => { const hit = specials.find(sv => sv[1] === n); return hit && hit[0]; };
       const sl = Object.assign(document.createElement("input"),
-        {type:"range", min:start, max:end, value:v});
+        {type:"range", min:start, max:end, value:Math.max(start, Math.min(end, v))});
       const num = Object.assign(document.createElement("input"),
-        {type:"number", min:start, max:end, value:v});
+        {type:"number", min:Math.min(start, ...specials.map(sv => sv[1])), max:end, value:v});
       num.style.width = "80px";
-      sl.addEventListener("input", () => { num.value = sl.value; commit(+sl.value); });
+      const word = el("span", "bounds");
+      const paintWord = n => {
+        const nm = nameOf(n);
+        word.textContent = nm ? nm : "";
+        word.style.marginLeft = nm ? "6px" : "0";
+      };
+      paintWord(v);
+      sl.addEventListener("input", () => { num.value = sl.value; paintWord(+sl.value); commit(+sl.value); });
       num.addEventListener("change", () => {
-        let n = Math.max(start, Math.min(end, +num.value || start));
-        num.value = n; sl.value = n; commit(n);
+        let n = +num.value;
+        if (!specials.some(sv => sv[1] === n)) n = Math.max(start, Math.min(end, n || start));
+        num.value = n; sl.value = Math.max(start, Math.min(end, n)); paintWord(n); commit(n);
       });
-      wrap.append(sl, num, el("span", "bounds", start + "–" + end + " (default " + o.default + ")"));
+      const defName = nameOf(o.default);
+      const chips = specials.filter(sv => sv[1] < start || sv[1] > end).map(sv => {
+        const c = el("button", "reset", sv[0]);
+        c.addEventListener("click", () => {
+          num.value = sv[1]; sl.value = Math.max(start, Math.min(end, sv[1]));
+          paintWord(sv[1]); commit(sv[1]);
+        });
+        return c;
+      });
+      wrap.append(sl, num, word, ...chips,
+        el("span", "bounds", start + "–" + end + " (default " +
+           (defName ? defName : o.default) + ")"));
     } else if (o.kind === "set" || o.kind === "list"){
       /* THE SELECTION IS ALWAYS COMMITTED IN valid_keys ORDER, in both branches below. That list
          is sorted by the dumper and is the only stable order available -- the display order is a
@@ -5406,7 +5408,16 @@ if (typeof module !== "undefined") module.exports = ERW;
            hard-fails every yaml already in the wild. */
         const meta_ = o.key_meta;
         const contains = meta_.contains || {};
-        const sel = new Set(v);
+        /* LIVE GRID (Alaric 2026-08-20: "the numbers aren't live"). Everything below -- the
+           marginals, the covered-by notes, the totals -- derives from the CURRENT selection, and
+           refresh() never rebuilds controls, so a grid built once froze its numbers at first
+           render: the stale-toggle-word class, a whole card at a time. buildGrid() re-reads state
+           and each toggle swaps the grid node in place; the preset bar uses the same rebuild
+           instead of renderStep(), which also stops its scroll-to-top jump. */
+        let gridNode = null;
+        const buildGrid = () => {
+        const vLive = ERW.getVal(meta, state, o.key) || [];
+        const sel = new Set(vLive);
         /* Which boxes a BROADER checked class already covers -- whether or not the child is itself
            checked, because both facts are worth drawing: a checked child is REDUNDANT, and an
            unchecked one would ADD NOTHING if ticked. ERW.surfaceCoverage answers the selected-only
@@ -5427,7 +5438,7 @@ if (typeof module !== "undefined") module.exports = ERW;
            DLC-aware, because offering "+39 Scadutree Fragments" on a base-game seed is a wrong
            number, not a hint. */
         const mg = (o.key === "progression_surface" && census)
-          ? ERW.surfaceMarginals(census, v, {
+          ? ERW.surfaceMarginals(census, vLive, {
               enableDlc: ERW.getVal(meta, state, "enable_dlc") !== false,
               dlcOnly: ERW.getVal(meta, state, "dlc_only") === true,
               /* SweepSlot's worth is a function of dungeon_sweep -- 64 checks at `minidungeons`,
@@ -5444,13 +5455,13 @@ if (typeof module !== "undefined") module.exports = ERW;
             b.type = "button";
             b.addEventListener("click", () => {
               /* A preset changes several native inputs AND every derived marginal beside them.
-                 refresh() deliberately does not rebuild controls, so rebuild this step after the
-                 atomic state change; otherwise the yaml would be right while the grid stayed old. */
+                 Swap the grid in place (buildGrid), never renderStep() -- the step rebuild
+                 scrolled to top from the middle of the card. */
               ERW.setVal(meta, state, o.key,
                 o.valid_keys.filter(k => new Set(preset.keys).has(k)));
               touched.add(o.key);
-              renderStep();
               refresh();
+              const nu = buildGrid(); gridNode.replaceWith(nu); gridNode = nu;
             });
             bar.append(b);
           }
@@ -5484,7 +5495,12 @@ if (typeof module !== "undefined") module.exports = ERW;
                                   + (row.depth ? " kd" + Math.min(row.depth, 3) : ""));
             const cb = Object.assign(document.createElement("input"),
               {type:"checkbox", checked:sel.has(km.key)});
-            onToggle(cb, km.key);
+            cb.addEventListener("change", () => {
+              const curv = new Set(ERW.getVal(meta, state, o.key));
+              cb.checked ? curv.add(km.key) : curv.delete(km.key);
+              commit(o.valid_keys.filter(x => curv.has(x)));
+              const nu = buildGrid(); gridNode.replaceWith(nu); gridNode = nu;
+            });
             const body = el("div", "kbody");
             const head = el("div", "klab");
             head.append(document.createTextNode(km.label), el("span", "kkey", " " + km.key));
@@ -5512,7 +5528,10 @@ if (typeof module !== "undefined") module.exports = ERW;
           box.append(grid);
           famwrap.append(box);
         }
-        wrap.append(famwrap);
+        return famwrap;
+        };
+        gridNode = buildGrid();
+        wrap.append(gridNode);
       } else {
         const grid = el("div", "setgrid");
         for (const k of o.valid_keys){

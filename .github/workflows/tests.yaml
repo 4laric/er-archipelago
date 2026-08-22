@@ -47,6 +47,10 @@ jobs:
           python-version: "3.12"
       - name: Install, verify, and uninstall synthetic Flower package
         run: python -m unittest -v tools/test_install_ap_flower.py
+      - name: matt's-randomizer installer edits only the dll toml, idempotently
+        run: python -m unittest -v tools/test_install_into_matts_rando.py
+      - name: the updater replaces only payload, backs up, never touches user state
+        run: python -m unittest -v tools/test_update_er_archipelago.py
 
   # ---------------------------------------------------------------------------------------------
   # 1. The apworld test suite, run inside a real Archipelago tree (the world is a package under

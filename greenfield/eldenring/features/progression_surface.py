@@ -98,6 +98,15 @@ class ProgressionSurface(OptionSet):
     default = contract.SURFACE_DEFAULT_CLASSES
     valid_keys = frozenset(contract.SURFACE_CLASSES)
 
+    @classmethod
+    def from_any(cls, data):
+        # "LegacyBoss" was absorbed into MajorBoss (2026-08-20). The spelling stays accepted so no
+        # yaml in the wild breaks -- same shape as the limgrave_caves region alias. Normalized
+        # BEFORE validation, so verify_keys never sees the retired name.
+        if isinstance(data, (list, set, frozenset, tuple)):
+            data = ["MajorBoss" if x == "LegacyBoss" else x for x in data]
+        return super().from_any(data)
+
     @staticmethod
     def wizard_key_meta():
         """Per-key presentation for the options wizard. Read by tools/dump_options_metadata.py.
@@ -192,40 +201,50 @@ class ProgressionBias(Range):
 
 
 class CrossGameProgression(NamedRange):
-    """What share of your travelling Region Locks may land in a NON-Elden-Ring player's world.
+    """How your progression is shared with the other games at the table.
 
-    `auto` (the default) is **1 / number of games**: in a two-game multiworld half your travelling
-    Locks go to the partner, in a four-game one a quarter each. That is the same 1/N rule the export
-    volume is judged by, and it means the answer scales with the table instead of being a number
-    someone has to re-pick per seed. `0` keeps every Lock inside Elden Ring, which is the behaviour
-    every seed had before this option existed. A number is that share explicitly.
+    ``auto`` (the default) balances it: every other game receives its own near **1 / number of
+    games** share of your travelling progression, and your world reserves the same share of every
+    partner game's progression in return. Eleven items at a three-game table means roughly four to
+    each partner and three staying home -- not one aggregate batch split however fill happens to
+    land. Two slots of one game count as a single game, sampled fairly across their players, and
+    items a player keeps local are never taken.
 
-    # Why this option exists at all
+    ``aggregate`` is the older shape: one combined foreign batch sized at 1/N, divided between the
+    partners by ordinary fill, with no incoming reservation. A number from 1 to 100 is that
+    aggregate share set by hand. ``never`` (0) keeps every travelling progression item inside
+    Elden Ring -- the escape hatch if a partner game will not tolerate being filled and a seed
+    refuses to generate.
 
-    `progression_bias` already releases Locks into the multiworld, and between Elden Ring worlds it
-    works -- MEASURED 50-54% travel on 2xER seeds. But `place_released_locks` only ever offered them
-    ELDEN RING surfaces, and our surfaces host ~170 checks against at most ~36 Locks, so the spill
-    valve that was supposed to feed a partner never had anything to spill. MEASURED across four
-    configurations: **0 Locks reached a Hollow Knight slot, ever** -- including a 2xER + 1xHK seed
-    where 15 of 28 Locks travelled and all 15 went to the other Elden Ring world.
+    Shares are capacity-aware: a partner game with fewer open locations than its share, or a world
+    without room for the full incoming reservation, caps the share at what fits, and the
+    generation log states requested-versus-reserved per game. Only a placement the rules refuse
+    outright is a failure.
 
-    `progression_bias` controls whether Locks leave their owner at all. It does not choose between
-    another Elden Ring slot and a non-Elden-Ring partner; this option provides that second axis.
-
-    ⚠️ IT PLACES INTO ANOTHER GAME'S LOCATIONS, which is the one thing `place_released_locks` used to
-    refuse to do, and the refusal was not arbitrary -- TUNIC's own `stage_pre_fill` raises
-    "caused by another world filling TUNIC locations during pre_fill... we cannot recover from this
-    issue." We only ever offer locations that are still EMPTY, never force a placement, and put back
-    anything unplaced -- but a partner game that objects to being filled at all is a real failure
-    mode, and `0` is the escape hatch. Set it to 0 if a seed will not generate.
-
-    No effect in a solo seed, in an all-Elden-Ring multiworld (there is no non-ER world to send to),
-    or in the modes that mint no Lock items."""
+    No effect in a solo seed, in an all-Elden-Ring multiworld, or in the modes that mint no Lock
+    items."""
     display_name = "Cross Game Progression"
     range_start = 0
     range_end = 100
     default = -1
-    special_range_names = {"auto": -1, "never": 0}
+    special_range_names = {"auto": -1, "aggregate": -2, "never": 0}
+
+
+# Why CrossGameProgression exists at all (measured 2026-08; kept beside the class per the #402
+# rule -- rationale is a comment, the docstring is the player's):
+# `progression_bias` already releases Locks into the multiworld, and between Elden Ring worlds it
+# works -- MEASURED 50-54% travel on 2xER seeds. But `place_released_locks` only ever offered them
+# ELDEN RING surfaces (~170 checks against at most ~36 Locks), so the spill valve that was supposed
+# to feed a partner never had anything to spill: 0 Locks reached a Hollow Knight slot across four
+# measured configurations, including a 2xER+1xHK seed where 15 of 28 Locks travelled -- all to the
+# other ER world. `progression_bias` decides whether Locks leave their owner; this option chooses
+# between ER slots and non-ER partners. It PLACES INTO ANOTHER GAME'S LOCATIONS, which the old pass
+# refused for a reason (TUNIC's stage_pre_fill raises on foreign pre-fill placements); we only offer
+# EMPTY locations, never force, and put back anything unplaced -- `never` is the escape hatch.
+# `balanced` became auto's meaning in v0.4.10 (#927/#929): the per-game 1/N shape replaced the
+# aggregate batch after the motivating seed split 11 progression items 2/2/7. The separate
+# `balance_progression_across_games` toggle from #929's draft was FOLDED INTO auto before ever
+# shipping (Alaric 2026-08-20) -- one lever, three regimes, no interaction matrix.
 
 
 class ConfineForeignProgression(NamedRange):
@@ -315,7 +334,7 @@ class ConfineForeignProgression(NamedRange):
 # DISPLAY ORDER LIVES HERE, not in contract.SURFACE_CLASSES -- that list's order is a determinism
 # handle for the ladder and must never be rearranged (see the comment on it).
 SURFACE_CLASS_FAMILIES = (
-    ("bosses", "Bosses", ("Boss", "MajorBoss", "LegacyBoss", "FieldBoss", "MinorDungeonBoss",
+    ("bosses", "Bosses", ("Boss", "MajorBoss", "FieldBoss", "MinorDungeonBoss",
                           "Remembrance", "GreatRune")),
     ("collectathon", "Collectathon lines",
      ("Seedtree", "Church", "Basin", "Fragment", "Revered")),
@@ -343,10 +362,10 @@ SURFACE_CLASS_LABELS = {
                      "Every enemy the game gives a boss healthbar. Contains all the boss classes "
                      "below, so ticking this makes them redundant."),
     "MajorBoss":    ("Major bosses",
-                     "Remembrance and great-rune arena bosses, plus curated majors for the regions "
-                     "that have none. Contains Remembrances and Great Runes."),
-    "LegacyBoss":   ("Legacy dungeon bosses",
-                     "Bosses standing inside a legacy dungeon."),
+                     "Remembrance and great-rune arena bosses, curated majors for the regions "
+                     "that have none, and every boss standing inside a legacy dungeon (the former "
+                     "Legacy dungeon bosses class, absorbed v0.4.10). Contains Remembrances and "
+                     "Great Runes."),
     "MinorDungeonBoss": ("Minor dungeon bosses",
                      "Catacomb, cave, tunnel, gaol and Divine Tower bosses -- the minidungeons. "
                      "NOT the underground REGIONS: Nokron, Nokstella, Siofra and Ainsel are "
@@ -439,7 +458,10 @@ def class_containment(tags_map=None, classes=None):
     """
     lt = LOCATION_TAGS if tags_map is None else tags_map
     vocab = list(classes if classes is not None else contract.SURFACE_CLASSES)
-    members = {c: {ap for ap, ts in (lt or {}).items() if c in (ts or ())} for c in vocab}
+    members = {c: {ap for ap, ts in (lt or {}).items()
+                   if c in (ts or ())
+                   or set(ts or ()) & contract.SURFACE_CLASS_EXTRA_TAGS.get(c, frozenset())}
+               for c in vocab}
     out = {}
     for outer in vocab:
         inner = [c for c in vocab
@@ -750,6 +772,43 @@ def _foreign_open_locations(multiworld, er_players):
     ]
 
 
+def balanced_foreign_quotas(total: int, foreign_games, rng):
+    """Near-even per-game quotas, giving indivisible remainders to partner games first.
+
+    The owner game is the implicit final bucket.  Eleven items at a three-game table therefore
+    yields 4 + 4 abroad and 3 at home, rather than one aggregate batch of 4 split 2 + 2 abroad.
+    When there are fewer items than partner games, seeded shuffling decides which partners receive
+    the available singleton shares; no item is duplicated and the result remains reproducible.
+    """
+    games = sorted(set(foreign_games))
+    if total <= 0 or not games:
+        return {game: 0 for game in games}
+    n_games = len(games) + 1             # partner games plus the Elden Ring owner game
+    base, remainder = divmod(total, n_games)
+    order = list(games)
+    rng.shuffle(order)
+    quotas = {game: base for game in games}
+    for game in order[:remainder]:       # remainder <= n_games - 1 == len(games)
+        quotas[game] += 1
+    return quotas
+
+
+def balance_active(world, n_games: int) -> bool:
+    """Does the balanced 1/N-per-game shape (#927) govern this slot -- both halves of it?
+
+    True exactly when `cross_game_progression` is AUTO (-1) at a multi-game table. There is no
+    separate toggle: #929's draft shipped one and it was folded into auto before release (Alaric
+    2026-08-20) -- one lever, three regimes. `aggregate` (-2) and explicit percentages run the
+    older one-batch pass; `never`/0 sends nothing. An explicit value -- 0 included -- is a
+    declaration the balanced pass must not silently override (DECLARED IS NOT EMITTED, the #635
+    disease); auto means "let the world pick the shape", and per-game 1/N IS the better shape.
+    """
+    if n_games <= 1:
+        return False
+    opt = getattr(getattr(world, "options", None), "cross_game_progression", None)
+    return opt is not None and int(opt.value) == -1
+
+
 def place_released_locks(multiworld, worlds) -> None:
     """`stage_pre_fill`: place every Elden Ring world's travelling progression across every Elden
     Ring world's surface, in ONE pass, and spill whatever does not fit back into the pool.
@@ -829,23 +888,101 @@ def place_released_locks(multiworld, worlds) -> None:
     if "allow_partial" in inspect.signature(fill_restrictive).parameters:
         kwargs["allow_partial"] = True
 
-    # ---- CROSS-GAME FIRST (#703) --------------------------------------------------------------
+    # ---- CROSS-GAME FIRST (#703, per-partner balance #927) -----------------------------------
     # Offered BEFORE the Elden Ring surfaces, because our surfaces have four times the room they
     # need and would otherwise absorb every progression item -- which is the measured defect.
     cross_offered = cross_placed = 0
     er_players = {w.player for w in worlds}
     n_games = len({w.game for w in getattr(multiworld, "worlds", {}).values()}) or 1
-    share = max((cross_game_share(w, n_games) for w in participants), default=0)
+    balanced_players = {w.player for w in participants if balance_active(w, n_games)}
+    foreign_all = _foreign_open_locations(multiworld, er_players)
+    foreign_by_game = {}
+    for loc in foreign_all:
+        game = multiworld.worlds[loc.player].game
+        foreign_by_game.setdefault(game, []).append(loc)
+
+    # The opt-in guarantee is PER SOURCE and PER DESTINATION GAME. The old pass made one aggregate
+    # foreign batch, so 11 ER progression items at a three-game table produced 4 abroad total and
+    # ordinary fill happened to split it 2/2. Balanced mode gives each partner its own near-1/N
+    # quota: 4/4 abroad, 3 left for the ER surfaces. All seven Great Runes are already advancement
+    # whenever a rune ending is active; the numerator is those seven PLUS every travelling Lock and
+    # other restricted progression item from this source slot.
+    if balanced_players and foreign_by_game:
+        for player in sorted(balanced_players):
+            source = [item for item in items if item.player == player]
+            if not source:
+                continue
+            source_total = len(source)
+            source_ids = {id(item) for item in source}
+            items = [item for item in items if id(item) not in source_ids]
+            multiworld.random.shuffle(source)
+            quotas = balanced_foreign_quotas(len(source), foreign_by_game, multiworld.random)
+            for game in sorted(quotas):
+                quota = quotas[game]
+                if quota <= 0:
+                    continue
+                locs = foreign_by_game[game]
+                # DERIVED CAP, stated loudly, never a generation failure: a tiny partner game
+                # (Clique ships ONE location) cannot host its arithmetic share, and failing the
+                # whole table because someone brought a small game would make the default
+                # unshippable. The uncapped remainder falls back to the ER surfaces below --
+                # the same place the owner bucket goes. Refused placements still raise.
+                take = min(quota, len(locs))
+                if take < quota:
+                    logging.getLogger("Greenfield").warning(
+                        "[greenfield:%s] balanced progression: %s can host only %d of its %d "
+                        "share (%d open location(s)); the remainder stays on the Elden Ring "
+                        "surfaces.", player, game, take, quota, len(locs))
+                if take <= 0:
+                    continue
+                batch, source = source[:take], source[take:]
+                offered = len(batch)
+                multiworld.random.shuffle(locs)
+                fill_restrictive(
+                    multiworld, multiworld.get_all_state(False), locs, batch,
+                    **kwargs, name=f"Elden Ring Progression Share -> {game}")
+                placed = offered - len(batch)
+                cross_offered += offered
+                cross_placed += placed
+                if batch:
+                    # Refusals DEGRADE LOUDLY, same as the aggregate pass below has always done:
+                    # a partner's own location rules can refuse specific items (the shipped
+                    # two-game smoke measured Hollow Knight refusing 3 of 9 remembrances), and
+                    # killing the whole table for it would make the default unshippable. The
+                    # refused items fall back to the Elden Ring surfaces.
+                    names = ", ".join(item.name for item in batch[:8])
+                    logging.getLogger("Greenfield").warning(
+                        "[greenfield:%s] balanced progression: %s accepted %d/%d; its rules "
+                        "refused %d (falling back to the Elden Ring surfaces): %s",
+                        player, game, placed, offered, len(batch), names)
+                    source.extend(batch)
+                    batch = []
+                logging.getLogger("Greenfield").info(
+                    "[greenfield:%s] balanced progression: %s received %d/%d source item(s) "
+                    "(%d total progression, %d game(s))",
+                    player, game, placed, offered, source_total, n_games)
+            items.extend(source)  # the owner game's bucket goes to ER surfaces below
+
+    # Unbalanced ER slots retain the existing aggregate cross_game_progression behaviour exactly.
+    unbalanced = [w for w in participants if w.player not in balanced_players]
+    share = max((cross_game_share(w, n_games) for w in unbalanced), default=0)
     if share > 0:
+        legacy_items = [item for item in items if item.player in {w.player for w in unbalanced}]
+        legacy_ids = {id(item) for item in legacy_items}
+        rest_items = [item for item in items if id(item) not in legacy_ids]
+        # Re-read after balanced placements: `foreign_all` was captured before those locations
+        # were filled, and handing the stale list to fill_restrictive would advertise occupied
+        # partner checks to an unbalanced ER slot in the same multiworld.
         foreign = _foreign_open_locations(multiworld, er_players)
-        k = (n0 * share + 50) // 100
+        k = (len(legacy_items) * share + 50) // 100
         if foreign and k > 0:
             # The old list was all Locks, so its stable construction order did not matter. Once
             # required Great Runes joined it, slicing before shuffling would let the leading Locks
             # consume the entire cross-game quota and recreate #811 under a different name.
-            multiworld.random.shuffle(items)
-            batch, rest = items[:k], items[k:]
-            cross_offered = len(batch)
+            multiworld.random.shuffle(legacy_items)
+            batch, rest = legacy_items[:k], legacy_items[k:]
+            legacy_offered = len(batch)
+            cross_offered += legacy_offered
             multiworld.random.shuffle(foreign)
             try:
                 fill_restrictive(multiworld, multiworld.get_all_state(False), foreign, batch,
@@ -861,12 +998,13 @@ def place_released_locks(multiworld, worlds) -> None:
                     "was abandoned; its %d item(s) fall back to the Elden Ring surfaces, which is the "
                     "pre-#703 behaviour. Set cross_game_progression: 0 if this recurs",
                     len(batch), exc_info=True)
-            cross_placed = cross_offered - len(batch)
-            items = batch + rest          # whatever it could not place rejoins the ER pass
+            legacy_placed = legacy_offered - len(batch)
+            cross_placed += legacy_placed
+            items = rest_items + batch + rest  # whatever it could not place rejoins the ER pass
             logging.getLogger("Greenfield").info(
                 "[greenfield] progression surface: cross-game pass placed %d of %d offered "
                 "(%d%% share of %d eligible progression, %d game(s), %d open foreign location(s))",
-                cross_placed, cross_offered, share, n0, n_games, len(foreign))
+                legacy_placed, legacy_offered, share, len(legacy_ids), n_games, len(foreign))
 
     multiworld.random.shuffle(locations)
     state = multiworld.get_all_state(False)
@@ -1069,7 +1207,10 @@ def cross_game_share(world, n_games: int) -> int:
         return 0                      # older yaml -> behave as before this option existed
     v = int(opt.value)
     if v < 0:
-        # auto. HALF-UP, not `round`: Python rounds .5 to even, so a four-game seed would get
+        # auto (-1) AND aggregate (-2) both resolve to the 1/N percent. For aggregate it is the
+        # batch size; for auto the balanced pass supplies its own per-game quotas and only needs
+        # this to be POSITIVE so travelling_progression includes the non-Lock tier (#811).
+        # HALF-UP, not `round`: Python rounds .5 to even, so a four-game seed would get
         # 100/8 = 12.5 -> 12 while the export-volume side's 1/N cap says 13. A silent one-point
         # disagreement between the two halves of #703 is exactly the class of bug this repo has
         # paid for twice, and `released_locks` already rounds half-up for the same reason.
@@ -1320,8 +1461,12 @@ def apply(world) -> None:
     # in different code paths splits the seed.
     released = released_locks(to_place, _released_pct(world), world.random)
     n_games = len({w.game for w in getattr(mw, "worlds", {}).values()}) or 1
-    travelling = travelling_progression(
-        to_place, released, cross_game_share(world, n_games))
+    cross_share = cross_game_share(world, n_games)
+    # No special numerator step for balanced mode: `balance_active` requires AUTO, auto resolves to
+    # a positive share, and any positive share already makes travelling_progression include every
+    # non-Lock restricted item (#811). An explicit `cross_game_progression` value -- 0 included --
+    # keeps its declared meaning and the balanced shape stands down (see balance_active).
+    travelling = travelling_progression(to_place, released, cross_share)
     if travelling:
         _rel = {id(it) for it in travelling}
         to_place = [it for it in to_place if id(it) not in _rel]

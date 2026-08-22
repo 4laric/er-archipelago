@@ -55,7 +55,10 @@ DUNGEON_LOT_PREFIXES = ("30", "31", "32", "34", "39", "40", "41", "42", "43")
 # may contain one of these: another boss's reward is not this boss's area loot, a key item is a
 # gate, and merchant stock is bought rather than picked up.
 FIELD_EXCLUDE = frozenset({"Remembrance", "Boss", "GreatRune", "KeyItem", "Shop", "ShopNonSpell",
-                           "ShopSlot", "MajorBoss", "LegacyBoss", "FieldBoss",
+                           # "LegacyBoss" left with the class absorption (2026-08-20): every
+                           # such row carries `Boss` (witnessed in test_gf_location_tags), so the
+                           # never-sweep guarantee lost nothing.
+                           "ShopSlot", "MajorBoss", "FieldBoss",
                            "MinorDungeonBoss"})
 # ...and the half that IS admitted, cut per seed instead (gen_data._SWEEP_SURFACE_CUTTABLE /
 # features/boss_locks._SWEEP_SURFACE_CUTTABLE). The collectathon and rarity lines hold loot unless

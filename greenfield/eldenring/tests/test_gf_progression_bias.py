@@ -20,6 +20,7 @@ WHAT THESE TESTS GUARD. `released_locks` is pure, which is the point: the endpoi
 never touch an item that is not a Lock. `travelling_progression` is the separate #811 join: when
 cross-game progression is armed, required Great Runes and legacy keys join those released Locks.
 """
+import random
 import unittest
 
 import pytest
@@ -255,6 +256,13 @@ class TestCrossGameShare(unittest.TestCase):
     def test_auto_is_one_over_n_games(self):
         """THE RULING, literally. Two games is half."""
         self.assertEqual(cross_game_share(self._W(-1), 2), 50)
+
+    def test_aggregate_resolves_to_the_same_percent_as_auto(self):
+        """`aggregate` (-2) is old-auto: same 1/N batch size, minus the balanced shape. The percent
+        must track auto's exactly -- a one-point disagreement here is the #703 half-up bug again."""
+        for n in (2, 3, 4, 8):
+            self.assertEqual(cross_game_share(self._W(-2), n),
+                             cross_game_share(self._W(-1), n))
         self.assertEqual(cross_game_share(self._W(-1), 3), 33)
         self.assertEqual(cross_game_share(self._W(-1), 4), 25)
         self.assertEqual(cross_game_share(self._W(-1), 8), 13)
@@ -300,6 +308,50 @@ class TestCrossGameShare(unittest.TestCase):
         # the missing attribute being defaulted, not the whole helper being inert.
         self.assertEqual(cross_game_share(self._W(-1), 2), 50)
         self.assertEqual(cross_game_share(_Bare(), 2), 0)
+
+
+class TestBalancedForeignQuotas(unittest.TestCase):
+    def test_eleven_progression_items_split_four_four_three(self):
+        from worlds.eldenring.features.progression_surface import balanced_foreign_quotas
+        quotas = balanced_foreign_quotas(11, {"e33", "Sekiro"}, random.Random(927))
+        self.assertEqual(sorted(quotas.values()), [4, 4])
+        self.assertEqual(11 - sum(quotas.values()), 3)
+
+    def test_items_are_never_duplicated_when_there_are_more_games_than_items(self):
+        from worlds.eldenring.features.progression_surface import balanced_foreign_quotas
+        quotas = balanced_foreign_quotas(2, {"A", "B", "C"}, random.Random(927))
+        self.assertEqual(sum(quotas.values()), 2)
+        self.assertEqual(sorted(quotas.values()), [0, 1, 1])
+
+
+class TestBalanceActive(unittest.TestCase):
+    """One lever, three regimes: auto (-1) = balanced; aggregate (-2) and explicit percents = the
+    older one-batch pass; never (0) = nothing travels. #929's draft toggle was folded into auto."""
+
+    @staticmethod
+    def _world(cross):
+        from types import SimpleNamespace
+        return SimpleNamespace(options=SimpleNamespace(
+            cross_game_progression=SimpleNamespace(value=cross)))
+
+    def test_auto_is_balanced(self):
+        from worlds.eldenring.features.progression_surface import balance_active
+        self.assertTrue(balance_active(self._world(-1), 3))
+
+    def test_every_other_spelling_runs_the_aggregate_or_nothing(self):
+        from worlds.eldenring.features.progression_surface import balance_active
+        # WITNESS in-test: the predicate CAN fire on this fixture shape, so the refusals below
+        # are the regimes doing work, not the fixture failing to parse.
+        self.assertTrue(balance_active(self._world(-1), 3))
+        for cross in (-2, 0, 30, 100):   # aggregate, never, and two explicit percents
+            self.assertFalse(balance_active(self._world(cross), 3),
+                             "cross_game_progression=%d must not run the balanced shape "
+                             "(DECLARED IS NOT EMITTED)" % cross)
+
+    def test_solo_is_never_balanced(self):
+        from worlds.eldenring.features.progression_surface import balance_active
+        self.assertTrue(balance_active(self._world(-1), 3))   # witness: the fixture can fire
+        self.assertFalse(balance_active(self._world(-1), 1))
 
 
 class TestForeignOpenLocations(unittest.TestCase):

@@ -206,6 +206,22 @@ def stage(args, stage_dir: str) -> None:
         die("AP flower packaged-asset installer is missing")
     shutil.copy2(icon_installer, os.path.join(me3_dst, "install-ap-flower.ps1"))
     shutil.copy2(icon_installer_py, os.path.join(me3_dst, "install_ap_flower.py"))
+    # The matt's-launcher installer pair (#944): ships beside the dll it wires in, because
+    # bundle_dir() resolves the bundle as "the folder this script runs from".
+    matts_installer = os.path.join(REPO, "tools", "install_into_matts_rando.ps1")
+    matts_installer_py = os.path.join(REPO, "tools", "install_into_matts_rando.py")
+    if not os.path.isfile(matts_installer) or not os.path.isfile(matts_installer_py):
+        die("matt's-randomizer installer is missing")
+    shutil.copy2(matts_installer, os.path.join(me3_dst, "install-into-matts-rando.ps1"))
+    shutil.copy2(matts_installer_py, os.path.join(me3_dst, "install_into_matts_rando.py"))
+    # The phase-2 updater (the banner tells you WHEN; this is what you run). Ships beside the
+    # dll because it self-locates its install as its own folder.
+    updater = os.path.join(REPO, "tools", "update-er-archipelago.ps1")
+    updater_py = os.path.join(REPO, "tools", "update_er_archipelago.py")
+    if not os.path.isfile(updater) or not os.path.isfile(updater_py):
+        die("the updater pair is missing")
+    shutil.copy2(updater, os.path.join(me3_dst, "update-er-archipelago.ps1"))
+    shutil.copy2(updater_py, os.path.join(me3_dst, "update_er_archipelago.py"))
     flower_package = os.path.join(args.me3, "flower-package")
     staged_package: str | None = None
     if os.path.isdir(flower_package):

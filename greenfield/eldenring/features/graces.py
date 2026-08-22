@@ -84,8 +84,9 @@ WALL_ARMED = {
         lambda world: "Academy Glintstone Key" in getattr(world, "gf_legacy_keys", ()),
     "Leyndell":
         lambda world: bool(getattr(world, "gf_leyndell_runes", ())),
-    "Sewer":
-        lambda world: True,
+    # "Sewer" wall REMOVED 2026-08-20: the Shunning-Grounds merged into Leyndell (Alaric's
+    # audible on #917) -- its graces ride Leyndell's own bundle behind Leyndell's own wall,
+    # exactly the Scaduview -> Shadow Keep fold below.
     # Scaduview's wall was REMOVED 2026-07-19: the Hinterland was folded into Shadow Keep, so it is no
     # longer a gated child with a bundle to withhold -- its graces ride the Keep's own bundle.
 }

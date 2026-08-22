@@ -3,6 +3,222 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.4.13 — 2026-08-22
+
+### What you need to update
+
+- **Client:** Required — use the v0.4.13 client with v0.4.13 seeds; the exact-version handshake
+  moves even though the slot-data shape does not.
+- **APWorld:** Host-only — the room host or generator must install v0.4.13; joining players only
+  need the matching client.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — finish an active v0.4.12 seed with its matched v0.4.12
+  pair. No save migration; do not mix versions.
+- **Profile/assets:** No action.
+
+Window opened the same day as the v0.4.12 hotfix tag, in the promotion commit; nothing is
+carried over.
+
+`CONTRACT_HASH` remains `dc0dc687`, verified by loading `contract.py` after the bump. The
+slot-data shape is unchanged, but the exact-version handshake still moves to 0.4.13.
+
+Client half: clients#382. Its commit is pinned by the gitlink in this same change.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.12 in this same change (a hotfix promotion,
+same-day as its tag).
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+## v0.4.12 — 2026-08-21
+
+### What you need to update
+
+- **Client:** Required — use the v0.4.12 client with v0.4.12 seeds; the exact-version handshake
+  moves even though the slot-data shape does not.
+- **APWorld:** Host-only — the room host or generator must install v0.4.12; joining players only
+  need the matching client.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — finish an active v0.4.11 seed with its matched v0.4.11
+  pair. No save migration; do not mix versions.
+- **Profile/assets:** No action.
+
+Window opened 2 commits past the v0.4.11 tag; both are the packaging/installer fixes below,
+found during v0.4.11's own packaging acceptance and carried here as this window's first entries.
+
+`CONTRACT_HASH` remains `dc0dc687`, verified by loading `contract.py` after the bump. The
+slot-data shape is unchanged, but the exact-version handshake still moves to 0.4.12.
+
+Client half: clients#375. Its commit is pinned by the gitlink in this same change.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.11 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+- **One purchase no longer padlocks a whole shelf.** Buying an Archipelago shop slot hands you
+  its spare "receipt" good, and 64 of the 79 spare rows are vanilla hold-cap-1 items you can
+  neither drop, discard, nor sell — so ER itself refused every later purchase resolving to the
+  same row ("would exceed the maximum able to be held"), and the name-sharing that reuses rows
+  across shops turned one buy into a seed-wide lock. The client now raises both hold caps on
+  every spare row it already owns, at the same guarded write that draws the AP flower. Fixes
+  every seed ever generated, including live v0.4.11 rooms, the moment the player updates —
+  confirmed in-game by the reporting player. (clients#380)
+- **Ability-lock test harness (experimental, off by default).** Setting
+  ER_ABILITY_LOCK_TEST (for example "roll,r1") masks those abilities' gamepad inputs while in
+  gameplay — menus and NPC dialogue are never masked, per the #945 probe findings. Gamepad
+  only, physical buttons, no seed integration yet: this is the enforcement half of ability
+  lock mode out for wear-testing ahead of the world feature. (clients#377)
+
+- **The release bundle now contains the tools its changelog promises.** `package_release.ps1`
+  predated the updater (#954) and the matt's-rando installer (#948), so a bundle cut with it
+  advertised `update-er-archipelago.ps1` and `install-into-matts-rando.ps1` "beside the dll"
+  while shipping neither — and `--with-flower` died on a missing `install_ap_flower.py`. All five
+  player-run tool files now stage into `me3\` as required entries, and `-Version` derives from
+  `contract.py` instead of defaulting to a literal four-minors-stale `0.2`. The published
+  v0.4.11 zip was cut WITH this fix, so no shipped artifact carried the gap.
+- **The matt's-rando installer creates the dll config on a fresh install.** Its refusal used to
+  instruct "open 'Add dll mod' once, close it (the app writes the file)" — measured false during
+  v0.4.11 acceptance: the app writes nothing on open-and-close, stranding exactly the first-time
+  installs the tool exists for. A genuinely missing
+  `config_eldenringrandomizer_dll.toml` is now created carrying only the one line the tool owns
+  (the app's own measured single-line style); a toml without an `external_dlls` array gets that
+  line appended; and if the toml exists in the parent folder or one level down, the installer
+  refuses and names the real folder instead of planting a twin.
+- **Diagnostics:** FMG entry-insertion rejections now name the measured exe version, so a
+  SearchStringTable signature mismatch dates itself (clients#379, from the #371 audit); Bloodborne
+  runtime path errors name the setting and the resolved path (clients#378).
+
+## v0.4.11 — 2026-08-21
+
+### What you need to update
+
+- **Client:** Required — use the v0.4.11 client with v0.4.11 seeds; the exact-version handshake
+  moves even though the slot-data shape does not.
+- **APWorld:** Host-only — the room host or generator must install v0.4.11; joining players only
+  need the matching client.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.** This empty window adds no
+  option yet.
+- **Existing seed/save:** Compatible — finish an active v0.4.10 seed with its matched v0.4.10
+  client and APWorld. No save migration is required; do not mix the two versions.
+- **Profile/assets:** No action — opening the window changes no profile or packaged asset.
+
+Window opened AT THE TAG of v0.4.10 with ZERO commits past it.
+
+`CONTRACT_HASH` remains `dc0dc687`, verified by loading `contract.py` after the bump. The slot-data
+shape is unchanged, but the exact-version handshake still moves to 0.4.11.
+
+Client half: clients#334. Its merged commit is pinned by the gitlink in this same change.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.4.10 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **Shop shelves now name every Archipelago item properly.** The shared "Archipelago Items"
+  label -- hundreds of shop checks folding onto one spare row's single FMG name -- is gone from
+  regular merchants. The insight is a scope change, not a bigger pool: two slots only need
+  distinct names if one MENU can show both, and a menu is exactly the row range its ESD passes
+  to the shop opener. Generation now colors the spare preview rows against the datamined
+  display scopes (tools/datamine_shop_open_ranges.py, 62 scopes, 8 opener kinds; the busiest
+  regular menu is the Twin Maiden re-sell at 31 checks against a 79-row pool), so same-shelf
+  slots never share a row while different shelves reuse rows freely -- and the paired client
+  repaints each opened shelf's rows with that shelf's own item names at shop open. Menus the
+  client cannot repaint yet (Enia's transposition menu, Champions/Dragon Communion/Dupe/Puppet
+  shops) get private rows first-come, i.e. exactly the old behaviour, never worse. Slot-data
+  shape unchanged; old clients on new seeds and new clients on old seeds both degrade to the
+  honest shared label. Client half: clients#366.
+
+- **The updater, phase 2: one command brings this install to stable.** The bundle ships
+  `update-er-archipelago.ps1` (Python twin included) beside the dll. It reads the same
+  `/er/latest.json` the in-game banner reads, refuses while the game runs, and -- the point --
+  gates on the CONTRACT: if the new release's contract is not found in your installed dll it
+  stops and explains that updating mid-seed breaks your pairing, unless you pass
+  `--accept-contract-change`. The download is size-verified against the release asset and the
+  zip's own integrity table; the swap replaces only the shipped `me3/` payload, backs up every
+  replaced file, and never touches `apconfig.json`, saves, logs, or ledgers. It is deliberately
+  never automatic: the banner decides, the human runs. Rides the phase-1 verdict pair
+  (site latest.json + client banner).
+- **The site now publishes a machine-readable update verdict.** `deploy_wizard.sh` emits
+  `/er/latest.json` -- the stable version, its contract hash (from the CONTRACT-VERSIONS
+  ledger, never typed), and the release url -- installed with the same atomic discipline as
+  the pages. The client's update banner reads it on connect and tells the player the thing
+  the update matrix always knew: whether the new build is safe to pick up mid-seed (same
+  contract) or their seed pair must finish first (contract moved). Client half: the
+  update-check banner PR paired with this window's gitlink.
+
+- **One command wires the client into matt's randomizer.** `install-into-matts-rando.ps1
+  -Randomizer path\to\randomizer` (Python twin included) edits the one file matt's launcher actually
+  reads -- `config_eldenringrandomizer_dll.toml` -- to point at `eldenring_archipelago.dll`
+  inside the release's `me3/` folder, in place. Re-running after an update repoints a stale
+  versioned path automatically (the way a launcher ends up loading last release's client),
+  a backup is written first, an incomplete bundle refuses instead of installing a dll without
+  its data tables, and `-WithFlower` chains the icon installer. It never touches the
+  hash-guarded auto-generated config, and it warns if RandomizerHelper.dll shares the list.
+  Spec and the measured seam: #944.
+- **The matt's-randomizer install step stops inviting stray dll copies.** The walkthrough and
+  SETUP now say to point **Add dll mod** at `eldenring_archipelago.dll` inside the release's
+  `me3/` folder, in place -- never to copy it out (the dll is inert without its two data tables
+  beside it) -- and to unpack releases into a version-less folder name so matt's remembered dll
+  path survives an upgrade instead of silently loading last release's client. Docs only.
+
+- **Eight Sites of Grace that lit for NOBODY now light with the region whose ground they stand
+  on.** The grace-ground safety gate dropped a grace from the wrong region's bundle but never
+  re-homed it to the right one, so these stayed dark all game even after their region opened:
+  Shadow Keep Main Gate (lights with Scadu Altus), Main Academy Gate (Raya Lucaria), Grand Lift
+  of Rold (Mountaintops), Hidden Path to the Haligtree (Consecrated Snowfield), Castleward
+  Tunnel, Limgrave Tower Bridge and Divine Tower of Limgrave (Stormveil), and Wyndham Catacombs
+  (Altus). On `region_grace_unlock: entrance`, Stormveil's entrance is now Castleward Tunnel and
+  Raya Lucaria's is Main Academy Gate — the canonical doors, and the academy pick no longer
+  warps you inside the seal. (#930)
+- **Shop previews no longer run out of real names at 62 slots.** The spare-goods pool that lock
+  and foreign-item shop-slot previews draw their display names from grew from 62 to 79 rows: the
+  same 62 rename-safe goods first — so seeds under the old ceiling draw the identical rows — then
+  17 rows with no vanilla text entry at all, which only a client that can CREATE FMG entries is
+  able to name. A seed whose preview demand exceeds the first 62 declares
+  `shop_preview_fmg_insert` in `requiresClientFeatures`, and a client too old to insert entries
+  refuses the connect by name instead of rendering `?GoodsName?` on those slots. When the whole
+  pool is spent, generation now logs the demand/supply/lock arithmetic rather than a bare count.
+  World: #937. Client: clients#341, whose merged commit is pinned by the gitlink in this same
+  change.
+- **The Four Belfries Imbued Sword Key chest is a real check.** It had been excluded as "a
+  nonexistent fourth key", so the chest kept handing out its vanilla key and could never hold a
+  multiworld item. The placement data (treasure asset, MSB row, exact entity coordinates) says it
+  is the real Four Belfries treasure: the base game has three Imbued Sword Key checks — The Four
+  Belfries, Raya Lucaria, Sellia — and the DLC adds the fourth at Castle Ensis. The chest is
+  regioned to Liurnia and joins the location pool. (#940)
+- **Every AP shop slot now shows its proper name.** Opening a shop repaints the menu's display
+  names from the seed's placement data, so a shelf of multiworld items no longer borrows the
+  vanilla goods' names — each slot names what it actually holds. The walk clamps its range before
+  touching param rows. Client: clients#366, completing the #937 pair.
+- **The Serpent-Hunter's spectral waves now belong to the Rykard fight.** The wave SpEffect is
+  applied through the fight itself for its duration rather than bound to the weapon's resident
+  equip slot, so the waves follow the arena instead of your inventory state. (clients#345)
+- **Receiving the Crafting Kit now actually unlocks crafting.** The delivery sets the same
+  crafting-unlock flag the vanilla kit sets, so the menu opens as if you had bought it.
+  (clients#335)
+- **The client backs up your active game save once per launch** — rotating, timestamped copies,
+  so a bad session has something to roll back to. (clients#287)
+- **The goal ledger is on screen.** The tracker overlay carries the session's goal state, and the
+  withheld-goal lock no longer appears on the hint surfaces. (clients#361)
+- **Local pickups that land as AP checks play an audio cue.** You hear the check fire without
+  watching the ticker — useful mid-fight and in menus alike. (clients#364, issue clients#336)
+- **Quitting the game can no longer abort with a crash report.** Quit-to-menu freed the
+  character, quit-game tore the param tables down, and a callback reading them in that window hit
+  an upstream panic in a frame that cannot unwind — process gone, crash txt written, on the most
+  correct exit there is. Every raw param read (24 sites, 11 modules) now goes through the guarded
+  accessor and degrades to one deferred-log line naming the callback. (clients#373, issue
+  clients#372)
+- **Fixes worth naming:** the wrong-save refusal now names the room the save belongs to
+  (clients#337); "Region unlocked" announces on the edge, not every tick of the pass
+  (clients#356); spawn requests are paced by wall clock instead of one per frame (clients#947);
+  the post-warp fat-roll gap in `no_equip_load` is closed (clients#359); the overlay console
+  follows a sweep burst until you scroll it yourself (clients#357); a seed that does not grant a
+  boss-sweep clause no longer carries its baked text (clients#936); and a teardown crash avenue is
+  closed by retiring the captured inventory pointer at world exit (clients#353).
+- **Diagnostics:** probes toggle live from `apconfig.json` with no restart (clients#166); the
+  crash reporter decodes id-shaped fault values against this seed's own tables (clients#351) and
+  carries the session's scaling-write tallies (clients#367); a probe-gated full id-set dump feeds
+  the scaling census (clients#368); the save-marker flag-band audit is recorded with the tool
+  that reruns it (clients#370); the scaling census shows the HP-pending population session-wide
+  (clients#365).
+
 ## v0.4.10 — 2026-08-19
 
 ### What you need to update
@@ -29,6 +245,18 @@ Client half: clients#320. Its commit is pinned by the gitlink in this same chang
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **`cross_game_progression: auto` now balances progression per game.** Every partner game
+  receives its own near-`1 / number of games` share of your travelling progression, and your
+  world reserves the same share of each partner game's advancement in return -- eleven items at
+  a three-game table land roughly 4/4 abroad and 3 at home, instead of one aggregate batch split
+  however fill happens to land (the motivating seed split them 2/2/7). Multiple slots of one game
+  form one combined pool sampled fairly across their players; owner-local items stay local; and a
+  capacity shortfall (a tiny partner game, a full world) caps the share at what fits, with
+  requested-versus-reserved counts in the generation log. The older one-batch shape kept a name:
+  `cross_game_progression: aggregate` -- and an explicit percentage or `never` behaves exactly as
+  before. One lever, three regimes; no new option (the draft's separate toggle was folded into
+  `auto` before shipping). This guarantees progression-classified placements, not that every item
+  survives the spoiler's redundant-route pruning. World: #927.
 - **Your weapons finally reach your friends.** At the shipped settings a non-Elden-Ring partner
   received nothing from an Elden Ring slot but filler -- 0 useful items in 498 measured
   placements -- because of a fill-order artifact, not any option's intent (the partner's own
@@ -94,6 +322,28 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   (`core._ESSENTIAL_OPTIONS`, validated at import, flowing through the metadata dump), not in the
   page, and it is presentation only: Archipelago's own options page and the emitted yaml are
   untouched.
+- **Legacy dungeon bosses are Major bosses now.** The LegacyBoss surface class was absorbed into
+  MajorBoss (a boss standing in a legacy dungeon is a major by any player's reading; the split
+  earned nothing but a wizard row). A default seed's progression surface GROWS by the 22
+  legacy-standing rows that were not already majors -- deliberate, stated here. Yamls that name
+  `LegacyBoss` keep loading: the spelling is normalized to `MajorBoss` on read. Under the hood
+  the tag survives as roster data (goal and anchor selection are unchanged); only the player
+  category merged.
+- **The wizard's boss grid is live, and the messy card is fixed.** The progression-surface
+  checkboxes' marginal counts, covered-by notes and totals now recompute on every toggle instead
+  of freezing at first render (and the class-preset buttons stop jumping the page to the top).
+  The Cross Game Progression tooltip lost its raw-markdown engineering essay for three readable
+  paragraphs, and named range values render by name -- the slider says "auto", not "-1 (default
+  -1)".
+- **The Sewer is part of Leyndell now.** The Subterranean Shunning-Grounds merged into the
+  capital -- the well is inside the walls, so one region, one Lock, one wall (Alaric's call on
+  #842/#917, taken over the alternative of making it independently accessible). Its graces ride
+  the Leyndell bundle, its ground rides the Leyndell kick, the capital's rune gate and the
+  no-required-progression-behind-the-wall machinery cover it for free -- which also removes the
+  #842 hazard of a Great Rune stranding itself on Mohg the Omen -- and the capital reconciler
+  treats sewer ground as version-neutral (standing in the well never rewrites the Royal/Ashen
+  map flags). `num_regions` tops out at 27; no shipped yaml or preset named a higher value or
+  the Sewer as a start region. Client: the region-lock table regen in the paired gitlink.
 - **Malenia can end the run.** `goal: malenia` force-keeps the Haligtree and withholds its Lock
   from fill until the seed's independently selected Great-Rune and region requirements are met.
   Opening it grants Haligtree Canopy alone—even under the all-graces or grace-attunement settings—
@@ -104,6 +354,24 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   the run. The wizard's seed-size preview now includes those extra regions and shows their marginal
   0–N contribution beyond `num_regions`; generation logs distinguish them from goal force-keeps
   instead of calling them `goal=auto`. World: #841.
+- **The v0.4.9 Radahn stall is fixed.** The known issue that closed the v0.4.9 notes -- an
+  enemy-randomizer kill during the Radahn festival leaving the fight unfinishable -- is repaired:
+  the client backfills the festival state flags (9130/9412) raise-only when the boss dies without
+  its ceremony, so the arena resolves and the check fires. clients#326.
+- **Six client repairs ride this window's pin, each closing a reported wedge.** Received items
+  now cursor against your Elden Ring character identity, not the connection -- a fresh character
+  starts at zero and a reconnect cannot replay or skip a delivery (one cause of the "receiving
+  dead" family; clients#327). A contained panic during AddItem no longer poisons the receive
+  state -- delivery resumes instead of stalling silently (clients#324). A capital warp against a
+  target the current world state cannot resolve is rejected instead of dumped mid-air (the
+  stuck-burnt-world class; clients#325). The withheld-goal gate FAILS OPEN when its inputs are
+  unresolved -- a data gap can no longer seal the goal room shut, only widen which flags write
+  (clients#323). And the rescue console grew `!grace` / `!unlockgrace` -- search by name and
+  light any Site of Grace when a seed strands you (clients#328). The auto-upgrade pickup parity
+  and its suppressed-pickup watchdog are described above (clients#329).
+- **This change also moves the client pin to clients#333's merge commit** -- the same tree the
+  previous pin named, recorded at client `main` so the release tag's pin check reads current
+  rather than one-merge-behind.
 - **The two Region-Lock travel settings now describe separate axes.** `progression_bias` controls
   how many Locks leave their owner, but ordinary fill does not promise those Locks to a much smaller
   partner game; measured cross-game seeds could send that partner zero. `cross_game_progression`

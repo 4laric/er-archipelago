@@ -150,6 +150,22 @@ _EDGE_EXEMPT = {
         "none, so the DISAPPEARANCE of that line is the signal -- at which point the swap stops "
         "being an identity swap and this module needs a reset() and an edge call like the rest."
     ),
+    "serpent_hunter": (
+        "READ-ONLY SINCE #345 (2026-08-21, the ruling reversal, same day as the client#351 audit "
+        "that surfaced this row). The `EquipParamWeapon` resident-slot write was REMOVED: the wave "
+        "is now SpEffect 1908 applied to the wielder via WorldChrMan for the duration of the "
+        "Rykard fight, and a live-object write is explicitly outside this gate's universe (a load "
+        "tears down and rebuilds the object; there is no param file to re-stream over it). What "
+        "still matches the mutable-borrow signal is `probe_row`, which borrows "
+        "`SoloParamRepository::instance_mut()` only to LOG row 17030000's six SpEffect fields once "
+        "per session -- read-only, and its own comment says so (a non-vanilla triple now means "
+        "some OTHER mod wrote the row). A map load cannot break a module that writes no param. "
+        "Re-derived each run by `test_serpent_hunter_writes_no_param_since_345`, the same shape as "
+        "`test_fmg_inject_is_still_inert`. WHAT WOULD INVALIDATE IT: any `.set_*(` param setter "
+        "returning to the module (the companion test goes red that day) -- at which point it "
+        "needs `pub fn reset()` clearing PROBED_ROW and a `crate::serpent_hunter::reset()` call in "
+        "the edge block like the other eighteen."
+    ),
     "traps": (
         "NO PASS AND NO DONE LATCH -- it re-applies on every fire, which is the one case this "
         "file's own header already calls cheap to exempt (\"a writer that genuinely re-applies "
@@ -588,6 +604,34 @@ class ClientResetsAreCalled(unittest.TestCase):
             re.search(r'log::warn!\(\s*\n?\s*"FMG-inject: INERT', body),
             "the INERT line is no longer a `log::warn!` -- at info level it scrolls past in a "
             "612k-line session log, which is the same as not logging it")
+
+    def test_serpent_hunter_writes_no_param_since_345(self):
+        """THE SERPENT_HUNTER EXEMPTION'S EVIDENCE, re-derived rather than believed.
+
+        serpent_hunter is exempt on the claim that #345 (2026-08-21) removed its only param write:
+        the `EquipParamWeapon` resident-slot write is gone, `probe_row` borrows the mutable repo
+        only to LOG the row, and the wave itself is a SpEffect applied through WorldChrMan -- a
+        live object this gate does not track. A claim parked in prose is exactly what rotted on
+        2026-07-31, so pin the two facts the exemption rests on. If either changes, this fails and
+        the module needs `pub fn reset()` plus an edge call like the other writers.
+        """
+        self.assertIn(
+            "serpent_hunter", self.writers,
+            "serpent_hunter no longer matches any write signal -- the mutable borrow is gone too, "
+            "so prune its _EDGE_EXEMPT row rather than leaving a reason for a hazard that is gone")
+        body = self.bodies["serpent_hunter"]
+
+        # THE CLAIM: no param setter is called anywhere in the module. Matched as a METHOD CALL
+        # (`.set_*(`) on purpose, exactly as test_fmg_inject_is_still_inert matches `.set_vagrant_*
+        # (` -- the module doc and the exemption reason both name setters in prose, and a bare-name
+        # match would find those and read as coverage.
+        setters = sorted(set(re.findall(r"\.set_\w+\s*\(", body)))
+        self.assertFalse(
+            setters,
+            "serpent_hunter calls param setter(s) %s -- the write #345 removed is BACK. A map load "
+            "re-streams EquipParamWeapon and reverts it, so the module now latches-or-leaks like "
+            "any other writer: give it `pub fn reset()` and a `crate::serpent_hunter::reset()` "
+            "call in core.rs's in_world edge block, and delete its _EDGE_EXEMPT row." % setters)
 
     def test_the_method_shape_is_still_detected(self):
         """`lock_hints` is the module that exposed the LYING DIAGNOSTIC -- reset() defined as a

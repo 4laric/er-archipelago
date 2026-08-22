@@ -42,3 +42,9 @@ stable	v0.4.8	2026-08-18	armor bundles, independent Great Rune/region goals, alt
 beta	main	2026-08-18	the open v0.4.9 window
 stable	v0.4.9	2026-08-19	full-map data cleanup, safer start-item delivery, honest boss sweeps and tracker grouping, corrected merchant bells and capital entry, and stronger crash diagnostics; promoted while opening v0.4.10 so stable moves with the release
 beta	main	2026-08-19	the open v0.4.10 window
+stable	v0.4.10	2026-08-20	balanced cross-game progression and useful exports, a simpler live wizard, MajorBoss absorption, the Malenia goal, Snowfield and Sewer region corrections, Enia DLC filtering, and stronger delivery, Radahn, capital-warp, and grace-rescue handling; promoted while opening v0.4.11 so stable moves with the release
+beta	main	2026-08-20	the open v0.4.11 window
+stable	v0.4.11	2026-08-21	proper shop-shelf names (menu-scoped spare-row coloring + open-shelf repaint), eight orphan graces re-homed, the update banner + one-command updater, the matt's-rando installer, the quit-game crash fix, the Four Belfries key restored; promoted while opening v0.4.12 so stable moves with the release
+beta	main	2026-08-21	the open v0.4.12 window
+stable	v0.4.12	2026-08-22	the hold-cap hotfix: one purchase no longer padlocks every same-row shop slot (confirmed in-game by the reporter), plus the quit-game crash fix and the packaging/installer currency; promoted the same day as the tag, mid-window -- a hotfix promotion, not a window-open one, so the shipped updater and banner point players at the fix immediately
+beta	main	2026-08-22	the open v0.4.13 window

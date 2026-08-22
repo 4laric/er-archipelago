@@ -280,7 +280,8 @@ class RegionCorrectness(unittest.TestCase):
     UNIQUE_SINGLETON_TAGS = frozenset({"KeyItem", "GreatRune", "Remembrance"})
     KEYITEM_MULTI_COPY = {
         "Academy Glintstone Key": 2,   # Meeting Place ruins corpse + Schoolhouse Classroom (Thops)
-        "Imbued Sword Key": 3,         # three illusory-wall keys: Raya Lucaria, Caelid, Land of Shadow
+        "Imbued Sword Key": 4,         # Four Belfries (the #940 "phantom" was the REAL chest),
+                                       # Raya Lucaria, Sellia, + the DLC's Castle Ensis
     }
 
     def test_unique_key_items_are_singletons(self):
@@ -308,6 +309,31 @@ class RegionCorrectness(unittest.TestCase):
             str(len(bad)) + " unique KeyItem(s) exceed their allowed location count -- an obtained-flag "
             "TWIN regression (2026-07-08 Haligtree Left) or a new multi-copy key needing an allowlist "
             "entry. (item, found, allowed, regions): " + repr(bad))
+
+    # ------------------------------------------------------------------- #940: the fourth key
+    def test_four_belfries_imbued_sword_key_is_a_real_check(self):
+        """ACCEPTANCE for issue #940. Flag 1033477020 sat in gen_data._RECOVER_PHANTOM_DUPES as "a
+        nonexistent fourth key", but treasure_assets.tsv (asset 1033471601), msb_flag_region.tsv
+        (m60_33_47, lot 1033470020, method treasure) and item_grace_coords.tsv (exact entity) all
+        place it: it is the REAL Four Belfries chest. It must be an emitted Liurnia check, and the
+        Imbued Sword Key census is the DLC-sensitive FOUR -- three base-game copies (Four Belfries,
+        Raya Lucaria, Sellia) plus one DLC copy (Castle Ensis)."""
+        hits = [(region, flag)
+                for region, locs in self.d.LOCATIONS.items()
+                for (name, _ap, flag) in locs
+                if "Imbued Sword Key" in name]
+        by_flag = {flag: region for region, flag in hits}
+        self.assertIn(1033477020, by_flag,
+                      "the Four Belfries chest flag is not an emitted check -- did "
+                      "_RECOVER_PHANTOM_DUPES re-acquire a member?")
+        self.assertEqual("Liurnia", by_flag[1033477020],
+                         "the Four Belfries key must region to Liurnia (nearest grace The Four "
+                         "Belfries 76227), got " + repr(by_flag[1033477020]))
+        self.assertEqual(sorted(region for region, _flag in hits),
+                         ["Caelid", "Ensis", "Liurnia", "Raya Lucaria Academy"],
+                         "Imbued Sword Key census moved: the base game has exactly three (Four "
+                         "Belfries, Raya Lucaria, Sellia) and the DLC adds Castle Ensis. Hits: "
+                         + repr(hits))
 
     # ------------------------------------------------------------------ region capstone re-carve
     # SPEC-region-capstone-model-20260708 (sections 3, 3a) + WIRING-region-capstone-v0.2 (section 7)
@@ -352,13 +378,17 @@ class RegionCorrectness(unittest.TestCase):
     # Shunning-Grounds (m35_00) is labelled 'Divine Tower' in region_map.csv (would route to
     # Liurnia); it is the SEWER region since region-spine v2 (bucket 35000).
     RECARVE_MAP_PREFIX_EXPECT = {
-        "m35_00": "Sewer",
+        # 2026-08-20: the Sewer MERGED into Leyndell (Alaric's audible on #917/#842) -- every
+        # m35 row is a Leyndell row now. Same assertion shape, new truth.
+        "m35_00": "Leyndell",
     }
 
     # Region names deleted by the re-carve(s). No emitted location may resolve to any of these --
     # v2 renamed/split the coarse names on the right of every old fold.
     REMOVED_REGION_NAMES = frozenset({
         "Land of Shadow",
+        # merged away 2026-08-20 (into Leyndell): no emitted location may say it again.
+        "Sewer",
         # v2 renames (bedrock interop) -- the long forms are gone:
         "Weeping Peninsula", "Stormveil Castle", "Liurnia of the Lakes", "Altus Plateau",
         "Miquella's Haligtree", "Mohgwyn Palace", "Gravesite Plain", "Abyssal Woods",
@@ -451,10 +481,10 @@ class RegionCorrectness(unittest.TestCase):
             str(len(overlap)) + " flag(s) present in BOTH data.LOCATIONS and data.NOT_RANDOMIZED "
             "(ledger lies about a live check; regen: " + self.REGEN_CMD + "): " + repr(overlap[:10]))
 
-    def test_shunning_grounds_is_the_sewer(self):
-        """Subterranean Shunning-Grounds (m35_00) is the SEWER region (bucket 35000; region-spine
-        v2). Keyed on the `map` tile prefix because region_map.csv mislabels every m35 row
-        'Divine Tower'."""
+    def test_shunning_grounds_is_leyndell(self):
+        """Subterranean Shunning-Grounds (m35_00) is LEYNDELL since the 2026-08-20 merge (bucket
+        35000 joined Leyndell's group; region-spine v2 had carved it out as 'Sewer'). Keyed on the
+        `map` tile prefix because region_map.csv mislabels every m35 row 'Divine Tower'."""
         bad, empty = [], []
         for prefix, target in sorted(self.RECARVE_MAP_PREFIX_EXPECT.items()):
             flags = self._placed_flags_where(lambda r, p=prefix: (r.get("map") or "").startswith(p))
@@ -469,7 +499,7 @@ class RegionCorrectness(unittest.TestCase):
         self.assertEqual(empty, [], "map-prefix group(s) produced no emitted checks: " + repr(empty))
         self.assertEqual(
             bad, [],
-            str(len(bad)) + " Shunning-Grounds (m35_00) pickup(s) not in the Sewer "
+            str(len(bad)) + " Shunning-Grounds (m35_00) pickup(s) not in Leyndell "
             "(region-spine v2 regression, or pre-regen stale data). (map_prefix, flag, expected, got): "
             + repr(bad[:8]))
 

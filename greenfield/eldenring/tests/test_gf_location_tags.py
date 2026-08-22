@@ -396,10 +396,43 @@ class TagDataTests(unittest.TestCase):
     def test_tags_are_valid_keys(self):
         # LOCATION_TAGS may carry INTERNAL tags (EniaShop) that are deliberately NOT user-selectable
         # surface-selectable TYPES; those live in contract.SURFACE_EXCLUDE_TAGS. Valid == either.
-        valid = set(SURFACE_CLASSES) | SURFACE_EXCLUDE_TAGS
+        from ..contract import SURFACE_INTERNAL_TAGS
+        valid = set(SURFACE_CLASSES) | SURFACE_EXCLUDE_TAGS | SURFACE_INTERNAL_TAGS
         for tags in LOCATION_TAGS.values():
             for t in tags:
                 self.assertIn(t, valid)
+
+
+class LegacyBossAbsorption(unittest.TestCase):
+    """The CLASS is absorbed into MajorBoss; the TAG survives as roster fuel (2026-08-20).
+
+    Retagging was tried first and refused by five tests: goal_locations, anchor eligibility and
+    the roster-uniqueness law all read the raw MajorBoss tag as ROSTER identity. The absorption
+    therefore lives at contract.has_class (SURFACE_CLASS_EXTRA_TAGS)."""
+
+    def test_the_class_is_gone_but_the_tag_remains(self):
+        self.assertNotIn("LegacyBoss", SURFACE_CLASSES)
+        self.assertEqual(TAG_COUNTS.get("LegacyBoss"), 53)
+
+    def test_selecting_majorboss_matches_a_legacy_only_row(self):
+        from .. import contract
+        # WITNESS both halves: a LegacyBoss-only row is ON the MajorBoss surface, and a row with
+        # neither tag is not -- so the alias is doing work and the predicate did not go vacuous.
+        self.assertTrue(contract.has_class(("LegacyBoss", "Boss"), {"MajorBoss"}))
+        self.assertFalse(contract.has_class(("Boss",), {"MajorBoss"}))
+        # The absorbed MajorBoss surface population: 52 native + 22 legacy-only = 74.
+        absorbed = [ap for ap, ts in LOCATION_TAGS.items()
+                    if contract.has_class(ts, {"MajorBoss"})]
+        self.assertEqual(len(absorbed), 74)
+
+    def test_every_legacy_row_also_carries_boss(self):
+        # THE closure that lets _SWEEP_NEVER_TAGS drop "LegacyBoss": `Boss` is in that set, so
+        # dropping the alias tag cuts nothing from the never-sweep guarantee. If a LegacyBoss row
+        # ever stops carrying Boss, that reasoning is dead and this must fail.
+        rows = [ap for ap, ts in LOCATION_TAGS.items() if "LegacyBoss" in ts]
+        self.assertEqual(len(rows), 53)   # witness: the closure is over a real population
+        for ap in rows:
+            self.assertIn("Boss", LOCATION_TAGS[ap])
 
 
 if __name__ == "__main__":

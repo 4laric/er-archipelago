@@ -279,6 +279,34 @@ if [ "$SKIPPED_ARTIFACTS" -gt 0 ]; then
   say "   They ship on the next release. Promote stable in release/CHANNELS.tsv and rerun."
 fi
 
+# ---- /er/latest.json : the machine-readable update verdict (clients read this on connect) ------
+# THE CONSUMER IS THE CLIENT'S UPDATE BANNER: {version, contract, url}. The verdict a player needs
+# ("safe to update mid-seed" vs "contract moved -- finish this seed first") is DERIVED client-side
+# by comparing `contract` to the hash the running dll was compiled against, so this file must name
+# the stable tag's contract from the LEDGER (CONTRACT-VERSIONS.tsv), never a hand-typed hash.
+# Composed on the box, installed with the same mktemp+mv discipline as every page above. Skipped
+# under --beta-only and --site: it describes STABLE, and those modes deliberately do not touch
+# stable artifacts. ASCII only, like everything in this script.
+if [ "$BETA_ONLY" = "0" ] && [ "$SITE_ONLY" = "0" ] && [ -n "$stable_tag" ]; then
+  cvledger="$(curl -fsSL "${RAW}/main/release/CONTRACT-VERSIONS.tsv")"     || die "could not fetch release/CONTRACT-VERSIONS.tsv for latest.json"
+  stable_ver="${stable_tag#v}"
+  stable_contract="$(printf '%s
+' "$cvledger" | awk -F'	' -v v="$stable_ver" '!/^#/ && $1==v { print $2 }' | head -1)"
+  [ -n "$stable_contract" ] || die "CONTRACT-VERSIONS.tsv has no row for ${stable_ver} -- latest.json would lie"
+  if [ "$DRY" = "1" ]; then
+    say "  DRY   latest.json: {\"version\":\"${stable_ver}\",\"contract\":\"${stable_contract}\"}"
+  else
+    mkdir -p "$DEST"
+    ljtmp="$(mktemp "${DEST}/latest.json.XXXXXX.tmp")"
+    CURRENT_TMP="$ljtmp"
+    printf '{"version": "%s", "contract": "%s", "url": "https://github.com/4laric/er-archipelago/releases/tag/%s"}\n' \
+      "$stable_ver" "$stable_contract" "$stable_tag" > "$ljtmp"
+    grep -q '"version"' "$ljtmp" || die "latest.json compose failed"
+    mv "$ljtmp" "${DEST}/latest.json"; CURRENT_TMP=""
+    say "  OK    latest.json: ${stable_ver} contract/${stable_contract}"
+  fi
+fi
+
 cat <<'NOTE'
 
 Live at:
@@ -291,6 +319,7 @@ Live at:
   /er/questlines.html     stable   the questline DAG
   /er/beta/wizard.html    beta
   /er/beta/checks.html    beta
+  /er/latest.json         stable   the update verdict (version + contract for the client banner)
 
 The page works out which it is from its own URL and banners itself, so nothing here edits the HTML.
 

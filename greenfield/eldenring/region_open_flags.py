@@ -26,7 +26,6 @@ REGION_OPEN_FLAGS = {
     'Rauh Base': 76912,
     'Raya Lucaria Academy': 76981,
     'Scadu Altus': 76900,
-    'Sewer': 76982,
     'Shadow Keep': 76935,
     'Siofra River': 71222,
     'Stormveil': 71003,
@@ -37,4 +36,4 @@ REGION_OPEN_FLAGS = {
 REGION_OPEN_PENDING = [
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:7d7ea51db2b0c64df527976e873f77ff50a785f3bc640f25b05aaeb2c87113e6', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:911c6d083212f1d0988d1237c2a0ddd93a850e6f52fbcc55e595426ef9ab2a7b'}
+_GEN_STAMP = {'inputs_hash': 'sha256:70fa17889b2db64b051bea2f7bbf4dc09fe0814bb5ea7d898739d82553195507', 'module': 'region_open_flags.py', 'body_sha256': 'sha256:7c2c446ea7da7d4b28ebee77057c34446d7c718c9339a74f69df58eec66fb5b5'}

@@ -502,8 +502,15 @@ def test_the_sweep_corpus_did_not_shrink():
     # worldless-singles cull (-85 sweep-slotted flags) lands at 4018. Cull delta measured by
     # (trigger, flag): 387 removed (85 the cull itself, the rest the divvy re-phase it
     # triggered) / 300 added / 304 re-owned, and ZERO re-ownerships cross a region boundary.
-    assert total == 4100, (  # +73 (2026-08-20, #907): every admissible boss OWN drop joined its own trigger's sweep
-        "sweep corpus is %d, expected 4100. If a sweep was legitimately added or removed, say WHY "
+    # 2026-08-21 (#940): 4100 -> 4101. The un-culled Four Belfries Imbued Sword Key
+    # (f1033477020, ap 7774225) joined the sweep of its nearest same-region field boss, the
+    # Royal Revenant (trigger 1034480800, m60_34_48 -- Chebyshev 2 from the chest's m60_33_47).
+    # The nearest-boss tie-split round-robin re-dealt 148 distance-tied checks to their tied
+    # partner triggers across 10 regions; measured by (trigger, flag): 148 removed / 149 added,
+    # every re-dealt flag KEEPS a same-region owner (0 region-crossing re-owns), and no check
+    # left the corpus.
+    assert total == 4101, (  # +73 (2026-08-20, #907): every admissible boss OWN drop joined its own trigger's sweep; +1 (2026-08-21, #940): the Four Belfries key joined the Royal Revenant
+        "sweep corpus is %d, expected 4101. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -692,10 +699,10 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # region correction, the safe direction.
     # 2026-08-19 (census + cull on top of #896's 89fbf395/3997): -> a57ff5e1/4018. Measurement at
     # the corpus ratchet above; zero region-crossing re-owns.
-    # 2026-08-20 (#868): ef50c12d40700ff6 -> 792095ca827825b8, count unchanged at 4100.
-    # Splitting Snowfield from Mountaintops re-phases 29 field-sweep owners: 29 removed / 29
-    # added. Eight cross the old region boundary, all INTO the newly correct Snowfield owner
-    # region; the other 21 remain within their check's region. Zero current owner/check mismatches.
-    assert (digest, n) == ("792095ca827825b8", 4100), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (792095ca827825b8, 4100). The total alone will "
+    # 2026-08-21 (#940): 7883452acaa19d1f/4100 -> 1489c9c542f81b0a/4101. The +1 member is the
+    # un-culled Four Belfries key (f1033477020 -> Royal Revenant 1034480800); the other 148
+    # re-owns are the tie-split round-robin re-dealing distance-tied checks, and ZERO cross a
+    # region boundary (measured pair-by-pair against SWEEP_REGION).
+    assert (digest, n) == ("1489c9c542f81b0a", 4101), (  # 2026-08-21 (#940): +1 member (Four Belfries key -> Royal Revenant 1034480800); 148 tie-split re-owns, none region-crossing
+        "sweep OWNERSHIP changed: (%s, %d), expected (1489c9c542f81b0a, 4101). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

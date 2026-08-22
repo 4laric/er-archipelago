@@ -108,7 +108,13 @@ def _shipped_by_tag():
     with tempfile.TemporaryDirectory() as td:
         for i, tag in enumerate(_tags()):
             blob = subprocess.run(["git", "show", "%s:greenfield/eldenring/contract.py" % tag],
-                                  cwd=_ROOT, capture_output=True, text=True, timeout=30)
+                                  cwd=_ROOT, capture_output=True, timeout=30,
+                                  # UTF-8 explicitly: `text=True` alone decodes with the LOCALE,
+                                  # which on a Windows dev box is cp1252 -- a non-cp1252 byte in an
+                                  # old tag's contract.py kills the reader thread and leaves
+                                  # `blob.stdout` None, erroring the suite on a machine where the
+                                  # gate is supposed to be runnable. CI (Linux, UTF-8) never saw it.
+                                  encoding="utf-8", errors="replace")
             if blob.returncode != 0 or len(blob.stdout) < 100:
                 continue
             path = os.path.join(td, "c_%d.py" % i)

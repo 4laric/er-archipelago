@@ -623,5 +623,17 @@
     "assignee": null,
     "comments": 0,
     "activeCol": null
+  },
+  {
+    "id": "shop-slot-proper-names",
+    "col": "backlog",
+    "pri": "P2",
+    "cat": "Client",
+    "title": "Shop slots show each AP item's proper name (not the shared \"Archipelago Items\" label)",
+    "desc": "🛒 Shop shelves show \"Archipelago Items / Reusable\" with \"AP: 54 DIFFERENT items share this shelf slot's name…\" instead of the real item name (screenshot from playtest). That's `shop_shared_label()` (`from-software-archipelago-clients/crates/er-logic/src/name_override.rs:167`) working **as designed** — the honest-shared-name mitigation for Funnyfail's 2026-08-16 Nexus report (\"all AP items from Kale look like 'Arrows(10)'… in reality they are completely different items\"). Better than a confident wrong name, but the player experience is still \"go check the tracker\" for most of a big shop.\n\nRoot constraint: the spare-goods pool is **65 renameable rows** (`tools/datamine_spare_goods.py` — a spare must already own an FMG entry to be renameable at all) against as many as **501 shop checks**, and the FMG write is once-per-session. Surplus slots share a goods row, and a row has ONE name.\n\nProper per-slot names need a new technique. Candidate directions:\n1. **Rename on hover/selection** — rewrite the shared row's FMG entry when a slot is highlighted instead of once per session (the buy menu only shows one slot's details at a time).\n2. **Grow the pool** — find/synth more FMG-owning goods rows so fewer slots share.\n3. **LookupEntry hook with slot context** — the `NameTable`/`Override` machinery (module doc, `name_override.rs:1-10`) already supports per-id Redirect/Custom substitution; needs the hook to know WHICH slot is being rendered when several share a row id.\n\nSibling of #109 (same shared-row problem on the pickup-popup surface).",
+    "issue": 937,
+    "assignee": null,
+    "comments": 0,
+    "activeCol": null
   }
 ]

@@ -49,7 +49,12 @@ _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relat
 # 4932 -> 4931 (2026-08-07): the item-existence guard learned that FromSoft's cut-content marker
 # also appears as '[ERROR]<real name>', which retired f400081 (goods 8130, "[ERROR]Rya's
 # Necklace"). It was never a second necklace -- the real one is goods 8136 (f400300).
-BASELINE_TOTAL_LOCATIONS = 5047   # PREVIOUS: 5115 (#898). The full-MSB census places +9 more, then the worldless-singles cull removes 77 map-encoded ground-lot flags with no world reference in ANY corpus -- coords, census, scripted, #898 audited tiles, the flag-level EMEVD ruling -- under a zero-blind-map census (gen_data._WORLDLESS_SINGLES): 5115 + 9 - 77 = 5047
+BASELINE_TOTAL_LOCATIONS = 5048   # 5047 + 1 (2026-08-21, #940): the Four Belfries Imbued Sword Key
+                                  # (f1033477020) un-culled -- the "phantom fourth key" ruling was
+                                  # wrong (treasure_assets / msb_flag_region / item_grace_coords all
+                                  # place it); it is an ordinary Liurnia map_lot check, adopted by the
+                                  # Royal Revenant sweep (trigger 1034480800).
+                                  # PREVIOUS: 5115 (#898). The full-MSB census places +9 more, then the worldless-singles cull removes 77 map-encoded ground-lot flags with no world reference in ANY corpus -- coords, census, scripted, #898 audited tiles, the flag-level EMEVD ruling -- under a zero-blind-map census (gen_data._WORLDLESS_SINGLES): 5115 + 9 - 77 = 5047
                                   # 4879 + 36 (unplaced common-event rows placed, 2026-08-04,
                                   # issue #249): rows filed `Global / Common-event (unplaced)` that
                                   # were never checks at all, so their item dropped VANILLA. Placed

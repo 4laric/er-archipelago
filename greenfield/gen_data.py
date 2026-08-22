@@ -476,6 +476,8 @@ try:
                 continue
             _p = _line.rstrip("\n").split("\t")
             if len(_p) == 3 and _p[0].isdigit():
+                # NOTE: _REGION_MERGES is applied later (it is defined below this load); the fold
+                # for this table happens right after the merge map exists.
                 BOSS_AREA_REGION[int(_p[0])] = _p[2]
 except OSError as _e:
     print(f"[gen_data] boss_area_regions.tsv unavailable ({_e!r}); boss-arena region corrections OFF "
@@ -514,7 +516,7 @@ REGION_MAP={'Land of Shadow (DLC)':'Gravesite',
  'Lake of Rot (Astel)':'Ainsel River','Deeproot Depths (Lichdragon Fortissax)':'Deeproot Depths','Fractured Marika (final)':'Leyndell',
  'Belurat, Tower Settlement (DLC)':'Belurat','Enir-Ilim (DLC)':'Enir Ilim','Stone Coffin Fissure (DLC)':'Cerulean',
  "Midra's Manse (DLC)":'Abyssal','Church of the Bud (DLC)':'Ancient Ruins','Castle Ensis (DLC)':'Ensis',
- 'Ainsel River / Lake of Rot':'Ainsel River','Nokstella, Eternal City':'Ainsel River','Subterranean Shunning-Grounds':'Sewer',
+ 'Ainsel River / Lake of Rot':'Ainsel River','Nokstella, Eternal City':'Ainsel River','Subterranean Shunning-Grounds':'Leyndell',
  'm22':'Cerulean','m28':'Abyssal'}
 
 # ---- SHOP-ROW REGION GROUND TRUTH (shop_rows.tsv col 9, tools/datamine_shop_rows.py) --------------
@@ -1683,12 +1685,16 @@ print(f"capital: world-burn state flag {_CAPITAL_WORLD_BURN} (read by "
       f"{_CAPITAL_WORLD_BURN_READERS}), pre-burn state flag {_CAPITAL_PRE_BURN}")
 # PHANTOM recovery duplicates: a common-event/unplaced `global` flag that names a UNIQUE key item
 # already fully placed elsewhere -- recovering it would inject an extra copy of a singleton key.
-#   1033477020 = a 4th "Imbued Sword Key" (decodes to m60_33_47/Liurnia) that sits in the unplaced
-#     `global` bucket (map PENDING) and is referenced in NO EMEVD, while the three real keys are
-#     placed as method='treasure' (Raya Lucaria 14007630, Caelid 1050397910, Land of Shadow
-#     2048447800). The game has exactly three -> drop this phantom so global-recovery doesn't
-#     re-double the singleton (test_unique_key_items_are_singletons).
-_RECOVER_PHANTOM_DUPES = frozenset({1033477020})
+# (no members since 2026-08-21 -- the set stays so the ledger rule and the datamine cross-check in
+# tools/datamine_unplaced_globals.py keep their named anchor.)
+#   1033477020 -- RULING REVERSED (issue #940). It sat here as "a 4th Imbued Sword Key referenced in
+#     NO EMEVD", but the placement evidence says it is the REAL Four Belfries chest:
+#     treasure_assets.tsv (asset 1033471601 on m60_33_47), msb_flag_region.tsv (m60_33_47, lot
+#     1033470020, 宝箱001：鐘楼群頂上, method treasure), item_grace_coords.tsv (exact entity), and
+#     nearest_grace.tsv (The Four Belfries 76227). The count premise was stale too: the base game
+#     has THREE keys (Four Belfries, Raya Lucaria, Sellia) and the DLC adds the fourth (Castle
+#     Ensis). It now regions via MSB ground truth like any placed treasure; do NOT re-add it here.
+_RECOVER_PHANTOM_DUPES = frozenset({})
 # UNREACHABLE important checks -- EXCLUDED AS DEAD (Alaric 2026-07-09). Physically gated behind
 # mechanics a warp-grace region-lock shuffle can't guarantee, so a placed multiworld item strands.
 #   30207900 = Silver Scarab: end of the Hidden Path to the Haligtree (m30_20), behind an imp-statue /
@@ -3334,7 +3340,7 @@ GLOBAL_RECOVER = {
     # (HUB / Altus). Re-pin to the boss's real region so check + detect flag + sweep agree (2026-07-10):
     510810: "Liurnia",  # Royal Knight Loretta (Caria Manor) -- was HUB (Loretta's Greatbow/Slash)
     510210: "Mt. Gelmir",            # Godskin Noble (Volcano Manor) -- was auto-recovered to Altus
-    510250: "Sewer",               # Bloodflame Talons -> Mohg, the Omen (Subterranean Shunning-Grounds = the Sewer region now; was unplaced/global -> not randomized, in-game 2026-07-10)
+    510250: "Leyndell",            # Bloodflame Talons -> Mohg, the Omen (the Shunning-Grounds merged into Leyndell 2026-08-20)
     # Shared-flag Golden Seeds the flag-tile decode couldn't place, so recovery dropped them entirely.
     # Each is a real reachable pickup whose acquisition flag is shared with a co-located spirit ash that
     # is NOT a separate check anywhere, so recovering them loses nothing and completes the Golden Seed
@@ -4155,7 +4161,7 @@ if _redundant_shop_pins:
         % (len(_redundant_shop_pins), _redundant_shop_pins))
 
 
-def region_of(r):
+def _region_of_unfolded(r):
     """Corrected region: per-flag override (highest priority) -> curated dungeon override -> EMEVD/
     common-event audit for emevd+global rows -> raw region_of for everything else."""
     try: _ovfl = int(r['flag'])
@@ -4282,6 +4288,27 @@ def region_of(r):
 
 # Derive the interior map-prefix -> region table from the PLACED rows (before recovery is appended),
 # so recovered interior drops inherit their dungeon's region instead of quarantining to HUB.
+# ---- REGION MERGES (Alaric 2026-08-20, the audible on #917/#842) --------------------------------
+# A name that is no longer a REGION. "Sewer" (the Subterranean Shunning-Grounds, m35) merged into
+# Leyndell: the well is inside the capital walls, one region, one wall -- the rune-gate and #589
+# supply-repair machinery cover the Shunning-Grounds for free, which also dissolves #842's
+# self-gating hazard. Same fold as Scaduview -> Shadow Keep (2026-07-19); THAT one was reruled at
+# the tile tables, but "Sewer" appears across five source tsvs, so this fold lives at the ONE
+# chokepoint every derivation path exits through -- a tsv can keep saying "Sewer" about a place
+# and no table can disagree about the region. The tsvs stay untouched on purpose.
+_REGION_MERGES = {"Sewer": "Leyndell"}
+# Fold the direct tsv-fed tables that bypass region_of. BOSS_AREA_REGION feeds the sweep-arena
+# audit; a stale "Sewer" there would make an audited arena look unaudited.
+for _k in list(BOSS_AREA_REGION):
+    BOSS_AREA_REGION[_k] = _REGION_MERGES.get(BOSS_AREA_REGION[_k], BOSS_AREA_REGION[_k])
+
+
+def region_of(r):
+    """`_region_of_unfolded` (every priority tier, side effects included), then the merge fold."""
+    _reg = _region_of_unfolded(r)
+    return _REGION_MERGES.get(_reg, _reg)
+
+
 _mpr_votes = defaultdict(Counter)
 for _r in rows:
     _pf = _tile_prefix2(_r.get('map'))
@@ -4291,6 +4318,8 @@ _MAP_PREFIX_REGION.update({_p: _c.most_common(1)[0][0] for _p, _c in _mpr_votes.
 
 # RECOVER: append the currently-SKIPped `global` rows (real pickups: crystal tears, memory stones,
 # effigies, etc.) as reachable checks. Appended AFTER `rows` so existing positional ap-ids are stable.
+
+
 def _recover_row_ok(r):
     if r['method'] not in ('global', 'global_filler'):
         return False
@@ -6135,6 +6164,28 @@ for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, bu
 for _fl, _reg, _owners in sorted(_foreign_ground_skipped):
     print(f"grace-ground gate: NOT force-lighting {_fl} ({_reg} bundle) -- it stands on ground "
           f"owned by {_owners} (walk in; warping there with only the {_reg} lock is a kick)")
+# RE-HOME, don't orphan (#930, bobler 2026-08-20): the gate stops the WRONG region force-lighting
+# a grace, but a dropped grace still belongs in the bundle of the region that OWNS its measured
+# ground -- that lock opens exactly the ground the grace stands on, so lighting it from there
+# carries no kick risk, and orphaning it means it lights for NOBODY (Shadow Keep Main Gate 72102
+# stayed dark after Scadu Altus opened, forcing the walk). Single-owner only: with two+ owners
+# every side has some foreign bucket and which lock may light it is a ruling, not a derivation.
+# Bundle membership ONLY -- never _open_cand, so a re-homed grace can never become the owner's
+# front door or open flag (72102 < 74002 would otherwise undercut Scadu Altus's real entrance).
+_GRACE_REHOME = defaultdict(list)
+for _fl, _reg, _owners in _foreign_ground_skipped:
+    if len(_owners) != 1:
+        print(f"grace-ground gate: {_fl} ({_reg} bundle) ground has MULTIPLE owners {_owners} -- "
+              f"walk-in only (which side may light it is a ruling, not a derivation)")
+        continue
+    _own = _owners[0]
+    if _own not in spokes + [_FINALE_REGION]:
+        print(f"grace-ground gate: {_fl} ({_reg} bundle) ground owner {_own!r} ships no bundle -- "
+              f"walk-in only")
+        continue
+    _GRACE_REHOME[_own].append(_fl)
+    print(f"grace-ground gate: re-homed {_fl} ({_reg} menu region) into the {_own} bundle -- "
+          f"its measured ground is {_own}'s own, so that lock may light it")
 # A region whose NATURAL front door (its numerically-first overworld grace, the one _front_door
 # would pick) stands on provably-foreign ground DIES here. Skipping it and letting the front door
 # slide to the next grace is how the Scaduview kick would RE-hide (2026-07-15): 76935 measured
@@ -6252,7 +6303,10 @@ REGION_OPEN_FLAGS = {r: _front_door(r) for r in _OPEN_FLAG_REGIONS if _open_cand
 _GATED_CHILD_OPEN_FLAGS = {
     "Leyndell": 76980,               # was 71102 East Capital Rampart
     "Raya Lucaria Academy": 76981,   # was 71402 Church of the Cuckoo
-    "Sewer": 76982,                  # was 73501
+    # "Sewer": 76982 RETIRED 2026-08-20 (Alaric's audible on #917/#842): the Sewer MERGED into
+    # Leyndell -- the m35 well is inside the capital walls, so one region, one wall, and the
+    # rune-gate/supply-repair machinery covers the Shunning-Grounds for free. Same fold as
+    # Scaduview->Shadow Keep (2026-07-19). Flag 76982 returns to the probed-id pool.
 }
 for _r, _syn in _GATED_CHILD_OPEN_FLAGS.items():
     if _r in REGION_OPEN_FLAGS:
@@ -6541,7 +6595,10 @@ MAJOR_BOSS_EXTRAS = {
 # receipt; freebie+scatter is a v2 enhancement.
 def _graces_frontdoor_first(r):
     _fs = sorted(_open_cand[r]); _fd = _front_door(r)
-    return [_fd] + [f for f in _fs if f != _fd]
+    # _GRACE_REHOME last: graces another region's menu claims but THIS region's ground owns
+    # (#930). Bundle-only, so they are never front-door candidates -- _fd comes from _open_cand.
+    return [_fd] + [f for f in _fs if f != _fd] + [f for f in sorted(_GRACE_REHOME.get(r, ()))
+                                                   if f not in _fs]
 REGION_GRACE_POINTS = {r: _graces_frontdoor_first(r)
                        for r in _OPEN_FLAG_REGIONS if _open_cand.get(r)}
 OUT_GRACES = os.path.join(HERE, "eldenring", "region_graces.py")
@@ -7271,23 +7328,75 @@ print(f"shop_stock: {len(INFINITE_SHOP_ROWS)} infinite rows; {len(GOODS_PRICE)} 
 # and foreign-item shop slots onto (exists, no real name, referenced by nothing; tools/datamine_spare_goods.py
 # -> greenfield/spare_goods.tsv). Emitting it here lets shops.py TRACK the datamine instead of carrying a
 # hand-list that goes stale. Absent tsv -> empty, and shops.py falls back to its built-in tuple.
+#
+# THREE TIERS since 2026-08-20 (issue #937): redirectable+complete, redirectable name-only, then
+# INSERTABLE (no vanilla GoodsName entry -- the client creates it via the 2026-08-03 fmg_inject
+# INSERT path). SPARE_PREVIEW_REDIRECTABLE is the tier-3 boundary: the count of LEADING rows any
+# client can name. shops.py spends the pool positionally, so a slot drawing pool[i] with
+# i >= SPARE_PREVIEW_REDIRECTABLE needs the insert-capable client, and the seed declares
+# requiresClientFeatures. A 1/2-column tsv (pre-widening) has no insertable rows: boundary = pool.
 _SPARE_GOODS = []
+_SPARE_ENTRY = []                                        # parallel: 1 redirectable, 0 insertable
 _spare_path = os.path.join(HERE, "spare_goods.tsv")
 if os.path.isfile(_spare_path):
     with open(_spare_path, encoding="utf-8-sig") as _sfh:
         for _ln in _sfh:
             _ln = _ln.strip()
             if _ln[:1].isdigit():
-                # tab-separated since 2026-07-29 (goods_id, fmg_full); tolerate the old 1-column form
-                _SPARE_GOODS.append(int(_ln.split("\t")[0]))
+                # tab-separated: (goods_id, fmg_full[, fmg_entry]); tolerate the older 1/2-column
+                # forms -- every row in them is redirectable (they predate the insertable tier).
+                _parts = _ln.split("\t")
+                _SPARE_GOODS.append(int(_parts[0]))
+                _SPARE_ENTRY.append(int(_parts[2]) if len(_parts) > 2 else 1)
     # 🛑 PRESERVE THE FILE'S ORDER. This used to be `sorted(set(...))`, and that numeric sort would
     # now silently undo the whole point of the datamine's ordering: rows carrying
     # GoodsName+Info+Caption are emitted FIRST so shops.py -- which indexes this pool positionally --
     # spends the describable rows before the name-only ones. Sorting by id re-interleaves them and
     # the item panel goes back to `?GoodsInfo?`. De-dupe only, order-preserving.
     _seen = set()
-    _SPARE_GOODS = [g for g in _SPARE_GOODS if not (g in _seen or _seen.add(g))]
-print(f"spare_goods: {len(_SPARE_GOODS)} safe preview-good rows (greenfield/spare_goods.tsv)")
+    _dedup = [(g, e) for g, e in zip(_SPARE_GOODS, _SPARE_ENTRY) if not (g in _seen or _seen.add(g))]
+    _SPARE_GOODS = [g for g, _e in _dedup]
+    _SPARE_ENTRY = [e for _g, e in _dedup]
+# The boundary is the first insertable row. Anything else -- an insertable row followed by a
+# redirectable one -- means the tsv lost its tier ordering, and a boundary computed here would
+# point shops.py's requiresClientFeatures declaration at the wrong seeds. Fail, don't guess.
+SPARE_PREVIEW_REDIRECTABLE = next((i for i, e in enumerate(_SPARE_ENTRY) if e == 0),
+                                  len(_SPARE_ENTRY))
+if any(e == 1 for e in _SPARE_ENTRY[SPARE_PREVIEW_REDIRECTABLE:]):
+    raise ValueError("spare_goods.tsv: a redirectable row (fmg_entry=1) sits AFTER an insertable "
+                     "one -- the tier ordering is broken, so the SPARE_PREVIEW_REDIRECTABLE "
+                     "boundary would be a lie. Re-run tools/datamine_spare_goods.py.")
+print(f"spare_goods: {len(_SPARE_GOODS)} safe preview-good rows "
+      f"({SPARE_PREVIEW_REDIRECTABLE} redirectable + "
+      f"{len(_SPARE_GOODS) - SPARE_PREVIEW_REDIRECTABLE} insertable) (greenfield/spare_goods.tsv)")
+
+# ---- SHOP-MENU DISPLAY SCOPES (shop_open_ranges.tsv, tools/datamine_shop_open_ranges.py) ----------
+# Every ESD shop-opener call's (begin, end) ShopLineupParam range = the display scope of one shop
+# menu (issue #937). features/shops.py COLORS the spare pool against these so no two slots visible
+# in one menu share a spare row; the opener string is the client-repaintability bit (only
+# OpenRegularShop menus are repainted at open -- the client's ESD command-22 detour).
+_sor_path = os.path.join(HERE, "shop_open_ranges.tsv")
+SHOP_OPEN_SCOPES = []
+if os.path.isfile(_sor_path):
+    with open(_sor_path, encoding="utf-8-sig") as _sofh:
+        _so_hdr = None
+        for _ln in _sofh:
+            if _ln.startswith("#") or not _ln.strip():
+                continue
+            _p = _ln.rstrip("\n").split("\t")
+            if _so_hdr is None:
+                _so_hdr = _p          # opener/begin/end/check_rows/talk_ids
+                continue
+            SHOP_OPEN_SCOPES.append((_p[0], int(_p[1]), int(_p[2])))
+    print(f"shop_open_scopes: {len(SHOP_OPEN_SCOPES)} menu display scope(s), "
+          f"{len({_op for _op, _b, _e in SHOP_OPEN_SCOPES})} opener kind(s) "
+          f"(greenfield/shop_open_ranges.tsv)")
+elif _slp_present:
+    # A real gen (params present) without the scopes file would silently regress the #937 coloring
+    # to zero constraints -- every seed reverting to the shared-label draw. Refuse instead.
+    raise SystemExit("FATAL: greenfield/shop_open_ranges.tsv missing while ShopLineupParam is "
+                     "present -- run tools/datamine_shop_open_ranges.py (issue #937). Refusing a "
+                     "scopeless shop_data emit.")
 
 # The check flags among the DLC-gated stock flags, with a rule-4 tally by region so the number
 # is auditable. Expected shape: the hub's Enia block (the motivating case) plus DLC-region rows
@@ -7332,6 +7441,22 @@ with open(OUT_SHOP, "w", newline="\n", encoding="utf-8") as f:
     f.write("SPARE_PREVIEW_GOODS = (\n")
     for _i in range(0, len(_SPARE_GOODS), 14):
         f.write("    " + ", ".join(str(_g) for _g in _SPARE_GOODS[_i:_i + 14]) + ",\n")
+    f.write(")\n\n")
+    f.write("# Tier boundary of the pool above (issue #937): the first SPARE_PREVIEW_REDIRECTABLE rows\n")
+    f.write("# are REDIRECTABLE -- any client can name them (their placeholder GoodsName entry exists).\n")
+    f.write("# Rows past the boundary are INSERTABLE -- the client must CREATE the FMG entry (the\n")
+    f.write("# 2026-08-03 fmg_inject INSERT path), so a seed that spends one declares\n")
+    f.write("# requiresClientFeatures (features/shops.py). Absent tsv: 0, and shops.py's fallback tuple\n")
+    f.write("# is entirely redirectable.\n")
+    f.write(f"SPARE_PREVIEW_REDIRECTABLE = {SPARE_PREVIEW_REDIRECTABLE}\n")
+    f.write("\n# Shop-menu display scopes (tools/datamine_shop_open_ranges.py, issue #937): every\n")
+    f.write("# ESD shop-opener call's (begin, end) ShopLineupParam range, with its opener. Two shop\n")
+    f.write("# slots can be ON SCREEN TOGETHER iff one scope holds both rows; features/shops.py\n")
+    f.write("# colors spare preview rows against these (eldenring/shop_coloring.py). The opener is\n")
+    f.write("# the client-repaintability bit: only OpenRegularShop menus are repainted at open.\n")
+    f.write("SHOP_OPEN_SCOPES = (\n")
+    for _op, _b, _e in SHOP_OPEN_SCOPES:
+        f.write(f"    ({_op!r}, {_b}, {_e}),\n")
     f.write(")\n")
 print(f"shop_data: {len(SHOP_ROW_FLAGS)} shop checks, {len(SHOP_PREVIEW_GOODS)} with preview goods across {len(set(SHOP_LOC_REGION.values()))} regions (param_present={_slp_present})")
 
@@ -8993,6 +9118,12 @@ def _geography_of_map(_m):
         return "underground"
     return "legacy" if _m else None
 
+# 🛑 The TAG stays "LegacyBoss" even though the CLASS was absorbed into MajorBoss (2026-08-20).
+# First cut retagged here and five tests refused it: goal_locations, anchor eligibility and the
+# roster-uniqueness law all read the raw MajorBoss tag as ROSTER identity (= REGION_BOSSES arena
+# majors), and retagging the 22 legacy-only rows widened the goal-candidate and anchor sets.
+# The absorption lives at contract.has_class (SURFACE_CLASS_EXTRA_TAGS) -- the surface predicate --
+# so players see one category while the roster consumers keep their meaning.
 _GEO_TAG = {"legacy": "LegacyBoss", "field": "FieldBoss",
             "underground": "MinorDungeonBoss"}
 _geo_counts = Counter(); _geo_unresolved = 0
@@ -9273,7 +9404,7 @@ def _is_dungeon(_mp):
 # DEFAULT surface the per-seed cut takes back 94 of those (Church/Seedtree/Fragment/Revered are all
 # in SURFACE_DEFAULT_CLASSES), so a default seed gains 51 and an empty-surface seed gains all 145.
 _SWEEP_NEVER_TAGS = frozenset({"Remembrance", "Boss", "GreatRune", "KeyItem", "Shop",
-                               "ShopNonSpell", "ShopSlot", "MajorBoss", "LegacyBoss", "FieldBoss",
+                               "ShopNonSpell", "ShopSlot", "MajorBoss", "FieldBoss",
                                # Cuts NOTHING new -- every one of these already carries `Boss`,
                                # which is in this set. Listed so the boss classes stay a complete
                                # enumeration: the next reader must not have to prove the closure to
