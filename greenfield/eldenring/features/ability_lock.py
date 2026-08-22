@@ -50,24 +50,6 @@ class LockedAbilities(OptionSet):
     default = frozenset()
     valid_keys = frozenset(contract.ABILITY_LOCK_KEYS)
 
-    @staticmethod
-    def wizard_key_meta():
-        """Per-key presentation for the options wizard (generic hook, read by
-        tools/dump_options_metadata.py). Additive -- a renderer that ignores it still works."""
-        desc = {
-            "jump": "Jumping (and jump attacks).",
-            "crouch": "Crouch / stealth (unverified: routed to stick-click).",
-            "roll": "Dodge roll and neutral backstep.",
-            "r1": "Right light attack (and casting through it).",
-            "r2": "Right heavy attack (and its charged cast).",
-            "l1": "Left attack / offhand (and casting through it).",
-            "l2": "Left trigger: guard / weapon skill / left cast.",
-        }
-        return {
-            "keys": [{"key": k, "label": k.upper(), "description": desc[k]}
-                     for k in contract.ABILITY_LOCK_KEYS],
-            "default": [],
-        }
 
 
 class AbilityLockMode(Choice):
