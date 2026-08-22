@@ -83,6 +83,18 @@ crashes to tell you.
   generation results against the generated spoiler / on-disk source — not a
   built `.apworld`, a zip, or a stale mount. Timestamp any dump you rely on so
   it can't be confused with an older one.
+- **A claim about what the game *checks* must name the instruction, not a survey.**
+  Invented IDs are one shape of this failure; the same failure wears prose. On
+  2026-08-01 an agent asserted "the Leyndell fog wall checks the restored
+  great-rune flags" and backed it with *"an EMEVD survey"* — it named no event, no
+  command, no flag, and it was a hallucination the project chased for weeks. Any
+  statement about game-state enforcement — what flag a gate reads, what a fog wall
+  gates on, what a script sets — must trace to the **specific datum a reviewer can
+  open**: the EMEVD event id and instruction, the param row, the ESD state node.
+  "A survey shows…" is not a citation, it is the ID-guess in a sentence: plausible,
+  load-bearing, unverifiable. If you cannot point at the instruction, you have a
+  *hypothesis* — label it one, and gate the feature on a probe→readback, not on the
+  claim.
 
 ## Architecture — separate decision from I/O
 
@@ -199,6 +211,19 @@ just silent failure with better manners.
   lose events unrecoverably. Game-state application must latch on *observable
   state* (read the flag back; re-apply per tick until it sticks) — never
   advance a cursor past a write you didn't verify landed.
+- **A flag relationship is a reconciliation target, not a chain you can trust the
+  game to run.** When two flags are *meant* to move together — a boss-defeat flag
+  and the fog-teardown or reward it gates, a death flag and the award it should
+  pay, a check's award flag and the pickup that stands for it — the game only runs
+  that chain from the **vanilla trigger**. Randomize the trigger and the leaf flag
+  still gets set while the dependent event never fires: the replacement boss dies
+  and sets the defeat flag, but the seal fog whose teardown was bound to the
+  *original* boss's death stays standing (#951), and a field boss's own drop goes
+  unpaid (#908). Never assume `set(A) ⇒ B`. If a feature depends on B following A,
+  **derive B and reconcile it yourself** — per tick or per connect, off the
+  observable leaf flag — the same latch-on-state discipline as above, applied to a
+  dependency the game will not honour for a seed it never generated. A periodic
+  reconcile is cheap; a chain the game refuses to run is a silent dead feature.
 - **Validation claims carry an environment manifest and a date.** "Confirmed
   in-game" is only meaningful if it states what was on disk: vanilla snapshot
   or baked leftovers, which mods loaded, which build. Every pre-pure-runtime
