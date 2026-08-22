@@ -5906,12 +5906,22 @@ def _derived_arena_graces():
     if not os.path.exists(fp):
         return frozenset()
     out = set()
+    # Caves, catacombs and tunnels have NO arena grace -- across the board their only grace is the
+    # entrance warp, and it never appears on a boss death (Alaric 2026-08-21, #324). A minor-dungeon
+    # grace that lands within the distance threshold of its boss is therefore a FALSE POSITIVE: the
+    # grace sits at the cave mouth while the boss is in a sealed chamber behind a wall (Sage Cave
+    # 73119 at 30.3m, Volcano Cave 73109 at 25.4m). Withholding it would leave the region unable to
+    # ever force-light it. The distance heuristic has no room-containment term; the dungeon TYPE is
+    # the ground truth the tool already records, so exclude by type rather than by re-thresholding.
+    _NO_ARENA_GRACE_TYPES = {"cave", "catacomb", "tunnel"}
     with open(fp, encoding="utf-8") as f:
         for line in f:
             if line.startswith("#") or line.startswith("grace_flag"):
                 continue
             parts = line.split("\t")
             if parts and parts[0].strip().isdigit():
+                if len(parts) > 3 and parts[3].strip().lower() in _NO_ARENA_GRACE_TYPES:
+                    continue
                 out.add(int(parts[0]))
     return frozenset(out)
 
@@ -5922,7 +5932,9 @@ _DERIVED_ARENA_GRACE_FLAGS = _derived_arena_graces()
 # even where the derived set overlaps them (37 of 49 _BOSS_GATED + 0 of 3 _ARENA today).
 # The hazard is the reverse: re-running the tool on a box WITHOUT the MSBs silently shrinks
 # arena_graces.tsv, and the graces it used to catch quietly start being force-lit again. Fail instead.
-_ARENA_FLOOR = 41   # what the tool derives with the COMPLETE MSB set (map/, 108/118 maps). Raise, never lower.
+_ARENA_FLOOR = 39   # what the tool derives with the COMPLETE MSB set (map/, 108/118 maps), MINUS the
+                    # cave/catacomb/tunnel false positives now excluded by type above (#324: 41 -> 39,
+                    # dropping Sage Cave 73119 + Volcano Cave 73109). Raise, never lower otherwise.
 # 🛑 NO TRUTHINESS SHORT-CIRCUIT. This read `if _DERIVED_ARENA_GRACE_FLAGS and len(...) < FLOOR`
 # until 2026-08-10, so an EMPTY set -- the worst case, the one where every arena grace is grantable
 # again -- was falsy and skipped the guard entirely. A zero-row arena_graces.tsv both disabled the

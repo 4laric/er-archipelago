@@ -32,7 +32,6 @@ from ..region_graces import REGION_GRACE_POINTS
 # Derived arena graces that were being GRANTED before the oracle landed (2026-07-11).
 # Each is within 40m of a boss spawn; granting them warps the player onto a live boss.
 _DERIVED_REGRESSIONS = {
-    73119: "31190850 (30.3m)",
     76419: "1051360801 -- STARSCOURGE RADAHN (13.3m)",
     76524: "1051570800 (13.6m)",
     76823: "2048440800 (7.6m)",
@@ -52,6 +51,15 @@ _PLAYTEST_SCARS = {
 _OVER_SKIPPED_NOW_SAFE = {
     76414: "46.6m from the Redmane duo",
     76416: "119.8m from the Redmane duo",
+}
+
+# #324 (Alaric 2026-08-21): caves, catacombs and tunnels have NO arena grace -- across the board
+# their only grace is the entrance warp, which never appears on a boss death. So a minor-dungeon
+# grace within the distance threshold is a FALSE POSITIVE (grace at the cave mouth, boss behind a
+# sealed wall) and MUST be granted. gen_data._derived_arena_graces excludes these by dungeon TYPE.
+_CAVE_CATACOMB_TUNNEL_GRACES = {
+    73119: "Sage Cave (Necromancer Garris, cave, 30.3m) -- the #324 report",
+    73109: "Volcano Cave (Demi-Human Queen Margot, cave, 25.4m) -- same false positive, unreported",
 }
 
 
@@ -84,6 +92,16 @@ class TestArenaGraces(unittest.TestCase):
         for flag, why in _OVER_SKIPPED_NOW_SAFE.items():
             self.assertIn(flag, granted,
                           f"grace {flag} is SAFE ({why}) -- do not skip it. Measure, don't guess.")
+
+    def test_cave_catacomb_tunnel_graces_are_granted(self):
+        """#324: cave/catacomb/tunnel graces are ENTRANCE warps, not arena graces -- they must be
+        force-lit so the region can warp you in. Red-first: before the dungeon-type filter both were
+        in _DERIVED_REGRESSIONS and withheld, which is the reporter's 'grace missing for Sage Cave'."""
+        granted = self._all_granted()
+        for flag, why in _CAVE_CATACOMB_TUNNEL_GRACES.items():
+            self.assertIn(
+                flag, granted,
+                f"grace {flag} ({why}) must be granted -- caves/catacombs/tunnels have no arena grace (#324)")
 
     def test_derived_table_is_present_and_used(self):
         """If arena_graces.tsv goes missing, gen_data silently degrades to the hand lists -- and the
