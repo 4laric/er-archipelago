@@ -40,6 +40,31 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   yaml or apworld change. The six sites whose corpses re-offer on reload are excluded, so a
   merely-unlooted corpse is never pre-empted. (clients#385; the client half pairs this entry.)
 
+- **Fast-reopening a shop keeps its Archipelago item names.** The shop-slot repaint (v0.4.11+)
+  names each padded row on open, but reopening the same merchant in the same second a lagging
+  load-edge `reset()` fired dropped the repaint -- you got hints and unnamed rows (rouqs' 0.4.12
+  log: a clean 09:35 open, a nameless 09:56 reopen). `reset()` no longer clears the pending shelf
+  range, so a warp-then-fast-open survives; a stale range is harmless because the block-identity
+  guard refuses anything older than the re-published baseline. (clients#383.)
+
+- **The F6 tracker resizes horizontally again, and a shrunk window scrolls instead of clipping.**
+  The anti-clipping content floor -- the widest row, re-measured every frame -- capped at 95% of
+  the display, the SAME 95% as the resize maximum. Once a late-game sweep row landed, the floor met
+  the ceiling, `min == max`, and imgui killed left/right resize exactly while up/down kept its own
+  band (rouqs: "can resize up/down but left right doesn't work anymore"). The floor now caps at 85%
+  (resize max stays 95%), and it is a DEFAULT rather than a hard minimum, so a window dragged
+  smaller scrolls its content instead of clipping it. (clients#386, clients#388.)
+
+- **The pickup sound cue is off by default now.** The multiworld-collect cue was the stock Windows
+  system chime (`SystemAsterisk` through the OS mixer -- system volume, no game-slider coupling)
+  firing on every pickup, which Alaric judged live to be "worse than doing nothing." `sound_cue`
+  now defaults false; add `"sound_cue": true` to `apconfig.json` to opt back in. (clients#336 /
+  clients#389.)
+
+- **Housekeeping pinned in the same gitlink bump:** the client's exact-version handshake moves to
+  0.4.13 (clients#382), and a Bloodborne save-restore reconciliation lands on the shared client
+  (clients#384) -- neither changes an Elden Ring seed.
+
 ## v0.4.12 — 2026-08-21
 
 ### What you need to update
