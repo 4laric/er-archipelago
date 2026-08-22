@@ -530,8 +530,17 @@ _UNAUDITED_TRIGGER_REASON = (
     "members cannot be asserted reachable and may not be required (#671)"
 )
 
+_SPLIT_TRIGGER_REASON = (
+    "arena/members split: SWEEP_ARENA_REGION and SWEEP_REGION disagree, so the trigger boss is "
+    "fought in a different region from the members it grants -- a SweepSlot here would place "
+    "progression behind a boss the seed's region selection may exclude, or hand it over before the "
+    "members' region opens (#523, Margit 2026-08-17). A curated arena override that co-regions the "
+    "two (gen_data _ARENA_REGION_CURATED) removes the trigger from this set so a corrected boss "
+    "keeps its slot"
+)
 
-def sweep_slot_skips(healthbars=None, arena_regions=None, triggers=None):
+
+def sweep_slot_skips(healthbars=None, arena_regions=None, member_regions=None, triggers=None):
     """{trigger flag: reason} -- the sweeps SweepSlot must not nominate from. ShopSlot's
     `location_tags.SHOP_SLOT_SKIPS`, one feature over, and deliberately the same shape: a dict
     keyed by the thing excluded, valued by WHY, so the exclusion is auditable rather than a silent
@@ -575,6 +584,17 @@ def sweep_slot_skips(healthbars=None, arena_regions=None, triggers=None):
         for flag in audit_scope:
             if flag not in arena_regions:
                 skips.setdefault(flag, _UNAUDITED_TRIGGER_REASON)
+    # SPLIT -- when BOTH the arena region and the members' region are known and DISAGREE, the sweep
+    # cannot host a SweepSlot: the candidate is a member (members' region), but the trigger boss is
+    # fought elsewhere. Ranked last, and it fires only when a caller supplies member_regions, so the
+    # narrower gates above still stand alone.
+    if arena_regions is not None and member_regions is not None:
+        split_scope = healthbars.keys() if triggers is None else triggers
+        for flag in split_scope:
+            _a = arena_regions.get(flag)
+            _m = member_regions.get(flag)
+            if _a is not None and _m is not None and _a != _m:
+                skips.setdefault(flag, _SPLIT_TRIGGER_REASON)
     return skips
 
 

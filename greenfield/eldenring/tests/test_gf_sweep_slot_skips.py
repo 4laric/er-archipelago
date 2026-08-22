@@ -42,6 +42,7 @@ CONTRACT = _load("contract")
 _SWEEP_DATA = _load("boss_sweeps")
 SWEEPS = _SWEEP_DATA.DUNGEON_SWEEPS
 ARENA_REGIONS = _SWEEP_DATA.SWEEP_ARENA_REGION
+MEMBER_REGIONS = _SWEEP_DATA.SWEEP_REGION
 HEALTHBARS = _load("boss_healthbars").BOSS_HEALTHBARS
 
 # bobler's two, resolved from data.py by FLAG rather than hard-coded ap-id: #249 renumbered the ap
@@ -241,6 +242,75 @@ class TestSweepSlotSkips(unittest.TestCase):
         self.assertEqual(set(skips), {31000800, 31000850})
         still = CONTRACT.nominate_sweep_slots(SWEEPS, skips=skips)
         self.assertGreater(len(still), len(SWEEPS) - 10)
+
+
+def _split_triggers():
+    """Triggers whose arena region and members' region are both known and DISAGREE (#523)."""
+    return {t for t in SWEEPS
+            if t in ARENA_REGIONS and t in MEMBER_REGIONS
+            and ARENA_REGIONS[t] != MEMBER_REGIONS[t]}
+
+
+class TestArenaMembersSplitSkip(unittest.TestCase):
+    """#523: a SweepSlot candidate must co-region with the boss that triggers its sweep."""
+
+    def _skips(self, member_regions=MEMBER_REGIONS):
+        return CONTRACT.sweep_slot_skips(
+            healthbars=HEALTHBARS, arena_regions=ARENA_REGIONS,
+            member_regions=member_regions, triggers=SWEEPS)
+
+    def test_there_is_a_split_to_witness(self):
+        # The whole surface #523 addresses. At zero, every assertion below is vacuous.
+        self.assertGreater(
+            len(_split_triggers()), 0,
+            "no arena/members-split trigger remains, so the split-skip tests witness nothing. If the "
+            "data legitimately reached zero, retire this class deliberately rather than leave it green.")
+
+    def test_no_split_trigger_nominates_a_sweep_slot(self):
+        skips = self._skips()
+        for t in sorted(_split_triggers()):
+            self.assertIn(
+                t, skips,
+                "split trigger %d (%s members / %s arena) is not withheld -- a SweepSlot here places "
+                "progression behind a boss the seed's region selection may exclude (#523)"
+                % (t, MEMBER_REGIONS[t], ARENA_REGIONS[t]))
+            self.assertEqual(
+                CONTRACT.nominate_sweep_slots({t: SWEEPS[t]}, skips=skips), set(),
+                "split trigger %d still contributed a SweepSlot nomination" % t)
+
+    def test_the_split_skip_is_load_bearing(self):
+        # RED-FIRST: without member_regions a NAMED, AUDITED split (Jori) slips past every other
+        # source; supplying member_regions is what catches it. Delete the SPLIT block and this reds.
+        jori = 2052430800
+        self.assertIn(
+            jori, _split_triggers(),
+            "Jori (2052430800) is no longer an arena/members split -- choose another named split fixture")
+        without = CONTRACT.sweep_slot_skips(
+            healthbars=HEALTHBARS, arena_regions=ARENA_REGIONS, triggers=SWEEPS)
+        self.assertNotIn(
+            jori, without,
+            "Jori is caught even without member_regions -- the SPLIT source is not load-bearing here, "
+            "so this differential proves nothing; find a split that only the SPLIT source catches")
+        self.assertIn(jori, self._skips(),
+                      "Jori is not caught with member_regions -- the SPLIT source did not fire")
+
+    def test_margit_co_regions_and_keeps_its_slot(self):
+        # #523 regression fixture: _ARENA_REGION_CURATED put Margit's arena onto his members' region,
+        # so he is NOT a split and his sweep still hosts a (Stormveil) SweepSlot.
+        margit = 10000850
+        self.assertEqual(
+            ARENA_REGIONS.get(margit), MEMBER_REGIONS.get(margit),
+            "Margit's arena and members no longer agree -- gen_data._ARENA_REGION_CURATED[10000850] regressed")
+        self.assertEqual(ARENA_REGIONS.get(margit), "Stormveil",
+                         "Margit did not co-region onto Stormveil")
+        skips = self._skips()
+        self.assertNotIn(
+            margit, skips,
+            "Margit is withheld from SweepSlot -- the override was meant to make his slot VALID, not skip it")
+        self.assertTrue(
+            CONTRACT.nominate_sweep_slots({margit: SWEEPS[margit]}, skips=skips),
+            "Margit's sweep nominates no SweepSlot despite co-regioning -- his slot was lost")
+
 
 
 if __name__ == "__main__":

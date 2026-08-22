@@ -679,9 +679,10 @@ def sweep_slot_aps(world, classes, tag_ids=frozenset()):
     # has no world, keeps the lazy default.
     try:
         from ..boss_healthbars import BOSS_HEALTHBARS  # noqa: PLC0415 -- data leaf
-        from ..boss_sweeps import SWEEP_ARENA_REGION  # noqa: PLC0415 -- data leaf
+        from ..boss_sweeps import SWEEP_ARENA_REGION, SWEEP_REGION  # noqa: PLC0415 -- data leaf
         skips = contract.sweep_slot_skips(healthbars=BOSS_HEALTHBARS,
                                           arena_regions=SWEEP_ARENA_REGION,
+                                          member_regions=SWEEP_REGION,
                                           triggers=sweeps)
     except Exception:
         # The ruling is fail-CLOSED: without the authoritative audit table every trigger is

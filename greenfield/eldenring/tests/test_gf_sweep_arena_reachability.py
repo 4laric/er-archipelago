@@ -292,11 +292,21 @@ class EveryMismatchedGroup(unittest.TestCase):
         predicate loosening: the Golden Hippopotamus (21000850, "Shadow Keep" -> "Scadu Altus",
         109 links, the group this screen was BUILT for in #445) left because his members now
         present as the arena's own region -- the group agrees with itself. The screen itself is
-        unchanged and still holds the five below."""
+        unchanged and still holds the five below.
+
+        ⭐ SHRANK 6 -> 4 on 2026-08-21 by ruling #523 (the ASSIGNMENT moving, not the predicate).
+        Margit (10000850, "Stormveil" members -> "Limgrave" arena, 56 links) left: Alaric ruled
+        "Margit belongs to Stormveil; the game data is decisive, superseding the 'Margit is outside'
+        call on #202", so gen_data._ARENA_REGION_CURATED co-regions his arena onto his members. The
+        region ID already agrees: his arena grace and the Castleward Tunnel are m10_00 (play bucket
+        10000 = Stormveil). Only the Stormhill CLIFF you swing at him from (bucket 61010, m60_41_38)
+        stays Limgrave -- it shares the tile with 8 early overworld checks -- see
+        MargitArenaAndTunnelAreStormveil. The four below remain measured debt; 34100800 and the two inert
+        Ashen Capital rows have no members' region a seed can select the boss's region without,
+        and 2052430800 (Jori) is now withheld from SweepSlot by the arena/members-split rule."""
         self.assertEqual(
             dict(self.split),
-            {10000850: ("Stormveil", "Limgrave"),
-             34100800: ("Stormveil", "Limgrave"),
+            {34100800: ("Stormveil", "Limgrave"),
              2052430800: ("Abyssal", "Scadu Altus"),
              11050800: ("Ashen Capital", "Leyndell"),
              11050850: ("Ashen Capital", "Leyndell")},
@@ -329,6 +339,54 @@ class LockGatesAgreeWithTheEmit(unittest.TestCase):
         self.assertNotIn(str(HIPPO), gates,
                          "sweepLockGates still routes the Hippo's dead group to a boss key -- the "
                          "client would render 'waiting on <lock>' for a fight the seed forbids")
+
+
+class MargitArenaAndTunnelAreStormveil(unittest.TestCase):
+    """#523: Margit is a Stormveil boss, and the region ID already agrees with that -- his arena
+    grace (71001) and the Castleward Tunnel (grace 71002) are map m10_00, whose play-region bucket
+    10000 belongs to Stormveil. This pins the natural model Alaric ruled to (2026-08-21): "the region
+    ID maps onto Margit-as-Stormveil; the earlier 'Margit is outside' call on #202 was the exception,
+    now reversed."
+
+    The Stormhill CLIFF you physically stand on to swing at him is a DIFFERENT bucket -- 61010 =
+    tile m60_41_38 -- and it stays Limgrave, because it shares the tile with 8 early Limgrave
+    overworld checks (Stormhill Shack: Deathbird / Bell Bearing Hunter / Crucible Knight / Roderika's
+    Golden Seed / the Warmaster's Shack approach). The kick is tile-bucket-coarse, so that ground
+    cannot move without stranding them -- documented here so a future 'make Margit's ground Stormveil'
+    change sees the cost before paying it."""
+
+    @classmethod
+    def setUpClass(cls):
+        # REGION_PLAY_IDS is the SHIPPED kick-watch geometry (region -> measured PlayRegionParam
+        # buckets), the table the kick actually reads -- and it is inside the eldenring package, so
+        # it loads in the installed apworld. (region_groups.PLAY_REGION_GROUPS is a top-level
+        # greenfield gen-input, NOT packaged, and is warp-menu ids anyway.)
+        cls.play_ids = _load("eldenring.region_play_ids", "region_play_ids.py").REGION_PLAY_IDS
+
+    def _owners(self, bucket):
+        return [r for r, buckets in self.play_ids.items() if bucket in buckets]
+
+    def test_the_tunnel_and_arena_bucket_counts_as_stormveil(self):
+        # m10_00 -> bucket 10000: the Castleward Tunnel and Margit's arena grace both live here.
+        owners = self._owners(10000)
+        self.assertIn(
+            "Stormveil", owners,
+            "the Castleward Tunnel / Margit's arena bucket 10000 (m10_00) is not Stormveil -- "
+            "owners=%r. Margit is a Stormveil boss and the region ID must agree (#523)." % (owners,))
+        self.assertNotIn(
+            "Limgrave", owners,
+            "bucket 10000 (m10_00, Margit's arena / Castleward Tunnel) is Limgrave -- it must be "
+            "Stormveil for the Margit-as-Stormveil model.")
+
+    def test_the_stormhill_cliff_stays_limgrave(self):
+        # 61010 = m60_41_38: the ground you stand on to fight Margit AND 8 early Limgrave overworld
+        # checks. Moving it to Stormveil would strand those, so it stays Limgrave by design.
+        owners = self._owners(61010)
+        self.assertIn(
+            "Limgrave", owners,
+            "the Stormhill cliff bucket 61010 (m60_41_38) left Limgrave -- owners=%r. It shares the "
+            "tile with 8 early overworld checks (Stormhill Shack); moving it strands them (#523)." % (owners,))
+
 
 
 if __name__ == "__main__":

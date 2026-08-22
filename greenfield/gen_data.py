@@ -10704,6 +10704,37 @@ print("boss_sweeps: of those, %d disagree with their members' region (each becom
 print("boss_sweeps: %d trigger(s) filled from a HUMAN RULING where PlayRegionParam had no row "
       "(boss_arena_rulings.tsv), holding %d member link(s)"
       % (len(_sweep_arena_ruled), sum(len(DUNGEON_SWEEPS[_t]) for _t in _sweep_arena_ruled)))
+# ---- FOURTH source: curated arena-region overrides that BEAT measured evidence -----------------
+# The three sources above rank measured PlayRegionParam highest, and boss_arena_rulings.tsv can only
+# fill an ABSENT key -- neither can move a boss whose MEASURED arena tile lands it in the wrong region
+# for the region-lock model. This table is the deliberate, human-owned exception: it OVERRIDES a
+# measured row, so every entry must cite the ruling that earns it and carries a redundancy guard so
+# it deletes itself the day the datamine agrees.
+#
+#   10000850 Margit, the Fell Omen -- MEASURED arena is Limgrave (bucket 61010, the Stormhill cliff),
+#   but his 56 members are all Stormveil, and Alaric ruled 2026-08-17 (#523): "Margit belongs to
+#   Stormveil; the game data is decisive, superseding the earlier 'Margit is outside' call on #202."
+#   Co-regioning his arena with his members removes the arena/members split, so his SweepSlot is a
+#   valid Stormveil slot instead of one nominated behind a boss the seed may exclude. The KICKWARP
+#   ground is untouched: PLAY_REGION_GROUPS keeps buckets 61010 (his arena) and 61001 (Castleward
+#   Tunnel mouth + Stormhill Shack) in Limgrave, so the fight and the death-recovery route back into
+#   the arena stay reachable before Stormveil opens. This table only moves the SWEEP arena region.
+_ARENA_REGION_CURATED = {
+    10000850: "Stormveil",
+}
+for _t, _reg in _ARENA_REGION_CURATED.items():
+    if _t not in DUNGEON_SWEEPS:
+        raise SystemExit(
+            "gen_data: arena-region override %d no longer names a live sweep trigger" % _t)
+    if _reg not in REGION_GROUPS and _reg != HUB:
+        raise SystemExit(
+            "gen_data: arena-region override %d -> %r names a region that does not exist" % (_t, _reg))
+    if SWEEP_ARENA_REGION.get(_t) == _reg:
+        raise SystemExit(
+            "gen_data: arena-region override %d -> %r is REDUNDANT; the measured/derived arena "
+            "region now agrees, so delete the override" % (_t, _reg))
+    SWEEP_ARENA_REGION[_t] = _reg
+
 _sweep_arena_split = {_t: (SWEEP_REGION[_t], SWEEP_ARENA_REGION[_t])
                       for _t in SWEEP_ARENA_REGION if SWEEP_ARENA_REGION[_t] != SWEEP_REGION.get(_t)}
 _sweep_arena_unaudited = sorted(set(DUNGEON_SWEEPS) - set(SWEEP_ARENA_REGION))

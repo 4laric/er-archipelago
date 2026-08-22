@@ -156,7 +156,8 @@ def measure(sc=None):
         hb = bars_mod.BOSS_HEALTHBARS
         arena_regions = sweeps_mod.SWEEP_ARENA_REGION
         sweep_skips = contract.sweep_slot_skips(
-            healthbars=hb, arena_regions=arena_regions, triggers=sweeps_mod.DUNGEON_SWEEPS)
+            healthbars=hb, arena_regions=arena_regions,
+            member_regions=sweeps_mod.SWEEP_REGION, triggers=sweeps_mod.DUNGEON_SWEEPS)
         sweep_classes = [c for c in contract.SWEEP_SLOT_CLASS_WANTS if c in set(contract.SURFACE_CLASSES)]
         for rung, allowed in sorted(contract.SWEEP_RUNGS.items()):
             at_rung = {}
