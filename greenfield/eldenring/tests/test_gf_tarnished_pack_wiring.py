@@ -1,0 +1,43 @@
+"""#241 -- `core` publishes the Tarnished-Pack pool exclusion into `gf_dlc_excluded`.
+
+The decision logic (unconditional exclusion, empty until patch day) is proved AP-free in
+test_gf_tarnished_pack_exclude.py. This asserts the WIRING that makes it reach the pool: the world's
+`gf_dlc_excluded` -- the single set every pool-augmentation feature reads (filler_budget,
+pool_builder, presence_floor, progressive, finale, scadu_supply, ...) -- must be exactly what
+`tarnished_pack.pool_excluded_names` returns. If that ever drifts, the names pasted in on 2026-08-28
+would be dropped from the decision but never reach a single placement path, and every pre-patch seed
+would look identical -- so this is the guard that keeps patch day a one-line edit.
+
+Needs the installed world, so it is `importorskip`-guarded and runs in the `tests` job.
+"""
+import pytest
+
+WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
+pytest.importorskip("worlds.eldenring")
+
+from worlds.eldenring import tarnished_pack as tp  # noqa: E402
+from worlds.eldenring.item_ids import DLC_ITEM_NAMES  # noqa: E402
+
+GAME = "Elden Ring"
+
+
+class TarnishedExclusionIsPublished(WorldTestBase):
+    game = GAME
+    # DLC OFF so gf_dlc_excluded is non-empty today (the DLC names) -- the comparison then witnesses
+    # a real set, not two empty ones, and would catch a helper that silently returned nothing.
+    options = {"num_regions": 6, "enable_dlc": False}
+
+    def test_gf_dlc_excluded_is_exactly_the_helper_output(self):
+        want = tp.pool_excluded_names(self.world.gf_dlc_on, DLC_ITEM_NAMES)
+        self.assertEqual(
+            self.world.gf_dlc_excluded, want,
+            "gf_dlc_excluded must equal tarnished_pack.pool_excluded_names(gf_dlc_on, DLC_ITEM_NAMES)"
+            " -- the resolved set every pool path reads. If core stops routing through the helper, "
+            "the patch-day Tarnished names never reach the pool.")
+
+    def test_the_dlc_names_are_actually_present_so_the_comparison_is_not_vacuous(self):
+        # The witness: DLC-off must exclude a non-empty set, else the equality above is two empties.
+        self.assertGreater(
+            len(self.world.gf_dlc_excluded), 0,
+            "DLC-off seed excluded nothing -- gf_dlc_excluded is empty, so the wiring test compares "
+            "two empty sets. DLC_ITEM_NAMES should be non-empty on a real catalog.")
