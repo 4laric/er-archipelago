@@ -478,7 +478,7 @@ MAJOR_SWEEP_TRIGGERS = frozenset({
 })
 SWEEP_ARENA_REGION = {
     10000800: 'Stormveil',
-    10000850: 'Limgrave',
+    10000850: 'Stormveil',
     11000800: 'Leyndell',
     11000850: 'Leyndell',
     11050800: 'Leyndell',
@@ -678,4 +678,4 @@ SWEEP_UNSPAWNED_OPEN = {
     1041330800: "unnamed m60_41_33 (Fourth Church of Marika, Weeping) -- the same shape and NOT yet falsified in game, so its 10 members keep their trigger. FALSIFIER: warp to the Fourth Church of Marika and look, by day and at night (the tile's other candidate reading is a night-conditional spawn). Absent -> move it to 'unspawned' here and regen; present -> the datamine owes it a GameAreaParam binding and an MSB position. Issue #540.",
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:70fa17889b2db64b051bea2f7bbf4dc09fe0814bb5ea7d898739d82553195507', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:0e72bb749f2a3578e62d9cb19133a930ed315e431741c4b123884fc64301846b'}
+_GEN_STAMP = {'inputs_hash': 'sha256:e6df4f7091b38590c834b605e5acef5cb73950bb9ec9b377e88045bfe2efd210', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:8c7f79d7c6547b1d11f7428cf6455d806156ce2eaf14c06b663ec9ffd5339d2d'}

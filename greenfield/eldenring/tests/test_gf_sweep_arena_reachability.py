@@ -292,11 +292,20 @@ class EveryMismatchedGroup(unittest.TestCase):
         predicate loosening: the Golden Hippopotamus (21000850, "Shadow Keep" -> "Scadu Altus",
         109 links, the group this screen was BUILT for in #445) left because his members now
         present as the arena's own region -- the group agrees with itself. The screen itself is
-        unchanged and still holds the five below."""
+        unchanged and still holds the five below.
+
+        ⭐ SHRANK 6 -> 4 on 2026-08-21 by ruling #523 (the ASSIGNMENT moving, not the predicate).
+        Margit (10000850, "Stormveil" members -> "Limgrave" arena, 56 links) left: Alaric ruled
+        "Margit belongs to Stormveil; the game data is decisive, superseding the 'Margit is outside'
+        call on #202", so gen_data._ARENA_REGION_CURATED co-regions his arena onto his members. His
+        KICKWARP ground stays Limgrave (PLAY_REGION_GROUPS 61010/61001), so the fight and the
+        Castleward Tunnel death-recovery route stay reachable -- see test_the_kickwarp_ground_for_
+        margit_stays_reachable. The four below remain measured debt; 34100800 and the two inert
+        Ashen Capital rows have no members' region a seed can select the boss's region without,
+        and 2052430800 (Jori) is now withheld from SweepSlot by the arena/members-split rule."""
         self.assertEqual(
             dict(self.split),
-            {10000850: ("Stormveil", "Limgrave"),
-             34100800: ("Stormveil", "Limgrave"),
+            {34100800: ("Stormveil", "Limgrave"),
              2052430800: ("Abyssal", "Scadu Altus"),
              11050800: ("Ashen Capital", "Leyndell"),
              11050850: ("Ashen Capital", "Leyndell")},
@@ -329,6 +338,45 @@ class LockGatesAgreeWithTheEmit(unittest.TestCase):
         self.assertNotIn(str(HIPPO), gates,
                          "sweepLockGates still routes the Hippo's dead group to a boss key -- the "
                          "client would render 'waiting on <lock>' for a fight the seed forbids")
+
+
+class MargitKickwarpGroundStaysReachable(unittest.TestCase):
+    """#523: Margit's SWEEP region moved to Stormveil (his members), but his KICKWARP ground must
+    stay Limgrave. You fight Margit -- and, after a first death, walk back through the Castleward
+    Tunnel mouth -- BEFORE Stormveil opens, so the play-region buckets under him must not be
+    region-locked to Stormveil or the fight becomes a softlock. This pins the constraint Alaric
+    named alongside the #523 ruling; nothing in this change touches PLAY_REGION_GROUPS, and this
+    guards that it stays so."""
+
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location(
+            "gf_region_groups_kick", os.path.join(GF, "..", "region_groups.py"))
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        cls.groups = m.PLAY_REGION_GROUPS
+
+    def _owners(self, bucket):
+        want = str(bucket)
+        return [r for r, buckets in self.groups.items()
+                if any(str(x) == want for x in buckets)]
+
+    def test_margit_arena_play_bucket_is_limgrave_not_stormveil(self):
+        # 61010 is Margit's arena PLAY-region bucket (boss_area_regions.tsv 10000850 -> 61010), the
+        # ground the kick-watch reads. It -- and the Stormhill approach you retread from the grace
+        # after a first death -- must stay Limgrave so the fight is reachable before Stormveil opens.
+        # (61001 is the graces' WARP bucket, not a play-group bucket, so it is not asserted here.)
+        owners = self._owners(61010)
+        self.assertIn(
+            "Limgrave", owners,
+            "kickwarp bucket 61010 (Margit's arena) is not in Limgrave -- owners=%r. Margit is fought "
+            "before Stormveil opens, so a Stormveil-locked arena softlocks the fight (#523: the SWEEP "
+            "region moved to Stormveil, the KICKWARP ground must NOT)." % (owners,))
+        self.assertNotIn(
+            "Stormveil", owners,
+            "kickwarp bucket 61010 (Margit's arena) is in Stormveil -- you would be kicked off his "
+            "ground before you could beat him.")
+
 
 
 if __name__ == "__main__":
