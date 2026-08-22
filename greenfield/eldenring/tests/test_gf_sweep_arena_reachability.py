@@ -357,16 +357,14 @@ class MargitArenaAndTunnelAreStormveil(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        spec = importlib.util.spec_from_file_location(
-            "gf_region_groups_kick", os.path.join(GF, "..", "region_groups.py"))
-        m = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(m)
-        cls.groups = m.PLAY_REGION_GROUPS
+        # REGION_PLAY_IDS is the SHIPPED kick-watch geometry (region -> measured PlayRegionParam
+        # buckets), the table the kick actually reads -- and it is inside the eldenring package, so
+        # it loads in the installed apworld. (region_groups.PLAY_REGION_GROUPS is a top-level
+        # greenfield gen-input, NOT packaged, and is warp-menu ids anyway.)
+        cls.play_ids = _load("eldenring.region_play_ids", "region_play_ids.py").REGION_PLAY_IDS
 
     def _owners(self, bucket):
-        want = str(bucket)
-        return [r for r, buckets in self.groups.items()
-                if any(str(x) == want for x in buckets)]
+        return [r for r, buckets in self.play_ids.items() if bucket in buckets]
 
     def test_the_tunnel_and_arena_bucket_counts_as_stormveil(self):
         # m10_00 -> bucket 10000: the Castleward Tunnel and Margit's arena grace both live here.
