@@ -33,7 +33,8 @@ The version moved, so a client half is required: `contract_gen.rs` embeds the ve
   frame; the client now says ONCE when a Progressive Flask Upgrade lands on a seed with no flask
   ladder (progressive_flasks off, #988); and the `auto_upgrade` log states that the normal and somber
   smithing tracks are separate and a level never crosses (#989).
-- **Progressive ability lock (#980).** In progressive mode each locked ability becomes a synthetic `Unlock: X` item shuffled into the multiworld; find it (or receive it from another world) to get that ability back. The unlock is reconnect-safe — recomputed from the whole received stream on every connect — and the items are never logic-required, so a seed always completes with an ability still out.
+- **Progressive ability lock (#980).** In progressive mode each locked ability becomes a synthetic `Unlock: X` item shuffled into the multiworld; find it (or receive it from another world) to get that ability back. The unlock is reconnect-safe — recomputed from the whole received stream on every connect.
+- **Ability unlocks are goal-required by default (#980).** New `ability_unlocks_required` (default on): in progressive mode each `Unlock: X` is now `progression` and is added to the goal's held-item requirement, exactly like a required Great Rune. Because progression is distributed across the whole multiworld — and these are deliberately exempt from Elden Ring's local progression confinement — your abilities can land in a PARTNER's world, and then you cannot finish until they send them back. That mutual dependency is the point of playing in an Archipelago. Turn it off to keep the old behavior: the unlocks stay `useful` and never gate completion. No client change — the client's existing Goal gate enforces the requirement (`goalRequiredItems`), and the player-visible goal line lists the unlocks it still needs.
 
 ## v0.4.14 — 2026-08-22
 

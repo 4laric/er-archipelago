@@ -101,3 +101,57 @@ class ProgressiveHealUnlock(WorldTestBase):
         assert set(sd["abilityUnlockItems"].values()) == {"heal"}
         assert contract.ABILITY_UNLOCK_FEATURE in sd["requiresClientFeatures"]
         assert sd["options"]["locked_abilities"] == ["heal"]
+
+
+# ---- goal requirement (#980 follow-up): unlocks are progression + gate the goal by default -------
+class ProgressiveUnlocksGateTheGoalByDefault(WorldTestBase):
+    game = GAME
+    options = {"num_regions": 0,
+               "locked_abilities": ["roll", "r1"],
+               "ability_lock_mode": "progressive"}  # ability_unlocks_required defaults ON
+
+    def test_created_items_are_progression(self):
+        from BaseClasses import ItemClassification
+        names = {dict(contract.ABILITY_UNLOCK_ITEM_NAMES)[k] for k in ("roll", "r1")}
+        pool = {i.name: i for i in self.multiworld.itempool if i.player == self.player}
+        for n in names:
+            # the created item is upgraded to progression by core._class_for, even though the
+            # module-level base classification stays useful (that base is asserted elsewhere)
+            assert pool[n].advancement, f"{n} should be progression when goal-required"
+
+    def test_single_source_and_goal_wire_agree(self):
+        names = {dict(contract.ABILITY_UNLOCK_ITEM_NAMES)[k] for k in ("roll", "r1")}
+        assert set(self.world._required_ability_unlocks()) == names
+        sd = self.world.fill_slot_data()
+        # both terminal conditions read the same list: the wire carries every required unlock
+        assert names <= set(sd["goalRequiredItems"])
+        contract.validate_slot_data(sd, strict=True)
+
+    def test_completion_condition_actually_requires_them(self):
+        names = [dict(contract.ABILITY_UNLOCK_ITEM_NAMES)[k] for k in ("roll", "r1")]
+        cond = self.multiworld.completion_condition[self.player]
+        # a state that has collected everything EXCEPT the unlocks must not read as complete
+        full = self.multiworld.get_all_state(False)
+        for n in names:
+            full.remove(self.world.create_item(n))
+        assert not cond(full), "goal must not fire without the required Unlock items held"
+
+
+class ProgressiveUnlocksOptOutStayUseful(WorldTestBase):
+    game = GAME
+    options = {"num_regions": 0,
+               "locked_abilities": ["roll", "r1"],
+               "ability_lock_mode": "progressive",
+               "ability_unlocks_required": False}
+
+    def test_useful_not_progression_and_not_goal_required(self):
+        names = {dict(contract.ABILITY_UNLOCK_ITEM_NAMES)[k] for k in ("roll", "r1")}
+        pool = {i.name: i for i in self.multiworld.itempool if i.player == self.player}
+        for n in names:
+            assert pool[n].useful and not pool[n].advancement, f"{n} should stay useful when opted out"
+        assert self.world._required_ability_unlocks() == []
+        sd = self.world.fill_slot_data()
+        assert not (names & set(sd.get("goalRequiredItems", [])))
+        # still findable items with the map + handshake -- only the GOAL requirement is dropped
+        assert set(sd["abilityUnlockItems"].values()) == {"roll", "r1"}
+        assert contract.ABILITY_UNLOCK_FEATURE in sd["requiresClientFeatures"]

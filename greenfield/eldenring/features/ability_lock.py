@@ -29,7 +29,7 @@ completable with an ability still locked, so a missing unlock is a harder run, n
 different mechanism: the client re-applies the No Flask SpEffect while it is locked (the flask
 heals nothing), since heal owns no action bit.
 """
-from Options import Choice, OptionSet
+from Options import Choice, DefaultOnToggle, OptionSet
 from ..registry import Feature, register
 from .. import contract
 
@@ -62,8 +62,10 @@ class AbilityLockMode(Choice):
 
     ``progressive`` -- they start off, and each locked ability becomes an "Unlock: X" item shuffled
     into the multiworld. Find it (or receive it from another world) to get that ability back. The
-    items are `useful`, never required to finish, so a seed is always completable even if an unlock
-    is still out there. Needs a client that understands ability unlocks (declared via
+    items default to `progression` and are REQUIRED to finish (see Ability Unlocks Required) -- so
+    a partner holding your "Unlock: Roll" genuinely blocks your goal, which is the whole point of a
+    multiworld. Turn Ability Unlocks Required off to make them `useful` and never gate completion.
+    Needs a client that understands ability unlocks (declared via
     requiresClientFeatures); older clients would leave the abilities locked, so they are told to
     upgrade rather than play it half-supported.
 
@@ -72,6 +74,23 @@ class AbilityLockMode(Choice):
     option_static = 0
     option_progressive = 1
     default = 0
+
+
+class AbilityUnlocksRequired(DefaultOnToggle):
+    """In PROGRESSIVE mode, must you HOLD your unlock items to finish the seed?
+
+    On (default): each pooled "Unlock: X" is `progression` and is added to the goal's held-item
+    requirement, exactly like a required Great Rune or Region Lock. Because progression items are
+    distributed across the whole multiworld, your abilities can land in a PARTNER's world -- and then
+    you cannot complete until they send them back. That mutual dependency is the point of playing in
+    an Archipelago rather than solo.
+
+    Off: the unlocks stay `useful` and never gate completion (a seed always finishes even with an
+    ability still out). Choose this if you want the ability item-hunt without your ending held hostage
+    to another player's progress.
+
+    No effect outside progressive mode, or when Locked Abilities is empty."""
+    display_name = "Ability Unlocks Required for Goal"
 
 
 def _locked_keys(world):
@@ -95,15 +114,38 @@ def _progressive_active(world):
     return bool(world._shuffle_on()) and not vanilla_placement.is_on(world)
 
 
+def _required_unlock_names(world):
+    """The pooled 'Unlock: X' item names this seed's GOAL requires the player to HOLD.
+
+    Empty unless progressive mode is active AND ability_unlocks_required is on (the default). This is
+    the ONE source both terminal conditions read: core._class_for upgrades these to `progression`,
+    core.set_rules ANDs `state.has_all(...)` over them, and features/goal_locations appends them to
+    `goalRequiredItems` -- so the AP-side completion_condition and the client-side Goal gate cannot
+    drift, the same 2026-07-30 single-source discipline the Region Locks follow."""
+    if not _progressive_active(world):
+        return []
+    opt = getattr(getattr(world, "options", None), "ability_unlocks_required", None)
+    # DefaultOnToggle: absent => on. Only an explicit 0 opts out.
+    if opt is not None and not int(getattr(opt, "value", 1)):
+        return []
+    names = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)
+    return [names[k] for k in _locked_keys(world)]
+
+
 @register
 class AbilityLock(Feature):
     name = "ability_lock"
-    OPTIONS = {"locked_abilities": LockedAbilities, "ability_lock_mode": AbilityLockMode}
+    OPTIONS = {
+        "locked_abilities": LockedAbilities,
+        "ability_lock_mode": AbilityLockMode,
+        "ability_unlocks_required": AbilityUnlocksRequired,
+    }
     # No ITEMS: the seven unlock items are minted at a fixed id base in core.py (see module docstring).
 
     def create_items(self, world):
-        # Progressive: one useful 'Unlock: X' per locked ability, appended before the filler tail so
-        # the pool stays count-exact (each displaces one filler slot, like every other contributor).
+        # Progressive: one 'Unlock: X' per locked ability, appended before the filler tail so the pool
+        # stays count-exact (each displaces one filler slot). create_item -> core._class_for decides
+        # useful vs progression from ability_unlocks_required; no classification is baked here.
         if not _progressive_active(world):
             return []
         names = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)

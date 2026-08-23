@@ -938,6 +938,16 @@ Elden Ring:
   #                  above is empty.
   ability_lock_mode: static
 
+  # EXPERIMENTAL (#980). In PROGRESSIVE mode, must you HOLD your unlock items to finish?
+  #   on  (default) -- each "Unlock: X" is progression and is added to the goal's held-item
+  #                    requirement. Because progression is distributed across the whole multiworld,
+  #                    your abilities can land in a PARTNER's world -- and then you cannot complete
+  #                    until they send them back. That mutual dependency is the point of a multiworld.
+  #   off           -- the unlocks stay useful and never gate completion (a seed always finishes even
+  #                    with an ability still out). The item-hunt without your ending held hostage.
+  # No effect outside progressive mode, or when Locked Abilities is empty.
+  ability_unlocks_required: true
+
   # ---- Standard Archipelago options -----------------------------------------
 
   # region_lock seeds want `minimal`, not `full`.

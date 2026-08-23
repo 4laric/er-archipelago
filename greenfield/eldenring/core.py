@@ -534,7 +534,7 @@ _OPTION_GROUPS = [
     # shape instead of synthetic locks) -- Alaric 2026-08-20: "buried pretty deep, both kind of
     # experimental". They are still fully supported options; they just should not greet a player
     # who came to randomize.
-    ("Experimental", ["vanilla_placement", "natural_progression", "locked_abilities", "ability_lock_mode"], True),
+    ("Experimental", ["vanilla_placement", "natural_progression", "locked_abilities", "ability_lock_mode", "ability_unlocks_required"], True),
 ]
 
 
@@ -1133,6 +1133,15 @@ class GreenfieldEldenRingWorld(World):
     def _required_runes(self) -> List[str]:
         return getattr(self, "gf_required_runes", [])
 
+    def _required_ability_unlocks(self) -> List[str]:
+        """Pooled 'Unlock: X' names this seed's goal requires held (progressive + ability_unlocks_required).
+
+        The single source both terminal conditions read -- upgraded to progression by _class_for, ANDed
+        into completion_condition below, and appended to goalRequiredItems by features/goal_locations.
+        Empty in static mode, with no locks, or when the requirement is opted out."""
+        from .features.ability_lock import _required_unlock_names
+        return _required_unlock_names(self)
+
     def _great_runes_required_count(self) -> int:
         """Effective number of distinct eligible Great Runes needed for completion."""
         eligible = self._required_runes()
@@ -1151,7 +1160,8 @@ class GreenfieldEldenRingWorld(World):
         # progression so AP fill guarantees it reachable (all are GOODS -> filler by default).
         if (name in self._required_runes() or name in getattr(self, "gf_leyndell_runes", [])
                 or name in getattr(self, "gf_legacy_keys", [])
-                or name in getattr(self, "gf_natural_keys", [])):
+                or name in getattr(self, "gf_natural_keys", [])
+                or name in self._required_ability_unlocks()):
             return ItemClassification.progression
         # 🛑 AND A GREAT RUNE IS NEVER FILLER, EVEN WHEN THIS SEED'S GOAL DOES NOT WANT IT (#640).
         # Great Runes are GOODS, so `_item_class` defaults them to filler, and the branch above only
@@ -1988,6 +1998,16 @@ class GreenfieldEldenRingWorld(World):
             else:
                 self.multiworld.completion_condition[player] = \
                     lambda state, lk=locks: state.has_all(lk, player)
+        # ABILITY UNLOCKS (#980 follow-up): when progressive mode requires them, the goal ALSO needs
+        # every pooled 'Unlock: X' held -- an independent AND term on whatever goal was built above,
+        # exactly like a required Great Rune. Single-sourced with goalRequiredItems through
+        # _required_ability_unlocks so the AP-side and client-side terminal conditions cannot drift.
+        _ability_unlocks = self._required_ability_unlocks()
+        if _ability_unlocks:
+            _goal_base = self.multiworld.completion_condition[player]
+            self.multiworld.completion_condition[player] = \
+                lambda state, b=_goal_base, un=_ability_unlocks, p=player: (
+                    b(state) and state.has_all(un, p))
         for f in _FEATURES:
             f.set_rules(self)
 

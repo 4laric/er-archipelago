@@ -87,8 +87,9 @@ Invariants promised here and enforced by tests/test_gf_goal_terminal.py + test_g
     compute_kept(forced=...) guarantees is kept;
   * every id belongs to a location set that exists this seed (a kept region's, or the active
     finale region's);
-  * goalRequiredItems, when present, is EXACTLY core.goal_required_lock_names() -- the same list
-    set_rules closes its has_all over, minus the precollected anchor.
+  * goalRequiredItems, when present, is EXACTLY core.goal_required_lock_names() +
+    core._required_ability_unlocks() -- the same two lists set_rules closes its has_all over (the
+    locks minus the precollected anchor, plus the pooled Unlock items when ability_unlocks_required).
 """
 import logging
 from dataclasses import dataclass
@@ -361,7 +362,11 @@ class GoalLocations(Feature):
                 "goal_locations: no achievable goal location exists in the kept set %r -- the seed "
                 "would be unwinnable (goalLocations may never be empty)" % (sorted(kept),))
         out = {contract.GOAL_LOCATIONS: sorted(ids)}
-        required = list(world.goal_required_lock_names())
+        # goalRequiredItems = held Region Locks PLUS required ability unlocks (#980 follow-up). Both
+        # halves are single-sourced -- locks at core.kept_lock_names, unlocks at
+        # core._required_ability_unlocks -- and core.set_rules closes the same two lists into the
+        # completion_condition, so the client Goal gate and AP's terminal condition stay identical.
+        required = list(world.goal_required_lock_names()) + list(world._required_ability_unlocks())
         if required:
             out[contract.GOAL_REQUIRED_ITEMS] = sorted(required)
             logging.getLogger("Greenfield").info(
