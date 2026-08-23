@@ -498,7 +498,7 @@ _OPTION_GROUPS = [
         "global_scadutree_blessing"]),
     ("Difficulty & Scaling", [
         "enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
-        "difficulty_ramp_speed", "traps", "spawn_traps", "trap_count"]),
+        "difficulty_ramp_speed", "coop_difficulty", "traps", "spawn_traps", "trap_count"]),
     ("Checks & Item Pool", [
         "dungeon_sweep", "reroll_enemy_drops",
         "protect_missable_locations",
@@ -2092,6 +2092,12 @@ class GreenfieldEldenRingWorld(World):
             # nothing locked). Not a bare literal -- resolved from world.options; the client folds
             # it via parse_ability_lock. STR_LIST subkey, so it moves no contract hash.
             contract.LOCKED_ABILITIES: sorted(self.options.locked_abilities.value),
+            # co-op difficulty (#993): extra enemy-scaling tiers per co-op partner. 0 = off. Read
+            # straight from the Range; the client (scaling.rs coop_tier_bump) counts partners from
+            # its own phantom census and bumps the applied region tier. NOT required and needs no
+            # client-feature tag -- a client that ignores this key just plays at un-bumped co-op
+            # difficulty. Needs enemy_scaling ON to do anything (no tier to bump otherwise).
+            contract.COOP_DIFFICULTY: _opt("coop_difficulty"),
         }
 
     def _item_counts(self) -> Dict[str, int]:

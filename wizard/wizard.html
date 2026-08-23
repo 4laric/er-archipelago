@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.5.0",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "f8f4c58f4bfb0b2bcee6f900496aea4fd919b06e7ce1be0feb39ffe67aa151e9",
+ "source_sha256": "5bc0e7cadd2e9f2220a8e942cf70edff3ab3a4609be356bdab49b147f1741f2e",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -241,6 +241,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "minimum_enemy_difficulty",
   "maximum_enemy_difficulty",
   "difficulty_ramp_speed",
+  "coop_difficulty",
   "scadutree_blessing_scope",
   "dlc_blessing_catchup",
   "global_scadutree_blessing",
@@ -297,6 +298,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "minimum_enemy_difficulty",
     "maximum_enemy_difficulty",
     "difficulty_ramp_speed",
+    "coop_difficulty",
     "traps",
     "spawn_traps",
     "trap_count"
@@ -1748,6 +1750,26 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "range": {
     "start": 0,
     "end": 100
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "coop_difficulty",
+   "class": "CoopDifficulty",
+   "display_name": "Co-op Difficulty",
+   "description": "Extra enemy difficulty per co-op partner, for seamless co-op (#993). Solo play ignores it.\n\n  0    off -- co-op enemies scale exactly as they do today                (default)\n  1    +1 sphere tier per partner in your world (a little more HP and bite)\n  2    +2 tiers per partner (noticeably harder with a full party)\n  3+   steeper still, clamped to the top of the ladder\n\nSeamless co-op already raises enemy HP, but it leaves enemy DAMAGE at the host's default -- so a\nsecond player roughly halves the threat coming at each of you without the enemies hitting any\nharder, which is the \"it felt too easy in co-op\" report this addresses. Each extra tier moves an\nenemy UP the same sphere ladder normal scaling uses, and a higher rung carries both more HP and\nmore attack, so the missing bite comes back. Every player is on their own Archipelago slot reading\nthe one shared world, so each client counts the party and applies the same bump -- no host.\n\n🛑 A TIER CARRIES HP AS WELL AS ATTACK. If you leave Seamless's own enemy-HP scaling on, this\nstacks a little extra HP on top of the damage it is really there to restore. Pair a non-zero value\nwith Seamless's HP knob turned down, or accept spongier-and-harder. Needs enemy_scaling ON to do\nanything (vanilla-difficulty seeds apply no tier to bump).",
+   "kind": "range",
+   "base": "Range",
+   "default": 0,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 9
    },
    "valid_keys": null,
    "casefold": false,

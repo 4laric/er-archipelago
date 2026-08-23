@@ -873,6 +873,19 @@ OPTIONS_SUBKEYS = (
                 "name list (empty = nothing locked). NOT required: an absent key parses to the empty "
                 "set, which is the off default -- OPTIONS_SUBKEYS is not folded into CONTRACT_HASH, "
                 "so this key adds no version pairing and an older client simply never reads it."),
+    ContractKey("coop_difficulty", "INT", False, (GREENFIELD,),
+                "core._options_echo (features/scaling.py)",
+                "er-logic/options.rs parse_coop_difficulty -> scaling.rs coop_tier_bump",
+                "seamless-co-op difficulty: extra enemy-scaling TIERS added per co-op partner in the "
+                "world, on top of the region's own tier (#993). 0 (default) = off. Seamless raises "
+                "enemy HP but leaves enemy DAMAGE at the host default, so a partner halves incoming "
+                "threat without enemies hitting harder; a higher tier carries both HP and attack, "
+                "restoring it. Each client counts its own phantom census and applies this "
+                "identically -- every player is on its own AP slot reading the same world, so no host "
+                "arbitration. NOT required: an absent key parses 0 (off), and OPTIONS_SUBKEYS is not "
+                "folded into CONTRACT_HASH, so this adds no version pairing and an older client "
+                "simply never reads it -- it also needs no requiresClientFeatures, because a client "
+                "that ignores it merely plays at the un-bumped (current) co-op difficulty."),
 )
 
 

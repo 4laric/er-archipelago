@@ -838,6 +838,21 @@ Elden Ring:
   #   100   maximum almost immediately
   difficulty_ramp_speed: 0
 
+  # SEAMLESS CO-OP difficulty. Extra enemy tiers per co-op partner in your world.
+  # Solo play ignores it. Seamless raises enemy HP but leaves enemy DAMAGE at the
+  # host default, so a partner halves the threat without enemies hitting harder;
+  # each tier moves enemies up the same scaling ladder (more HP AND attack), which
+  # restores it. Needs enemy_scaling on. Every player is on their own slot, so each
+  # client counts the party and applies the same bump -- no host.
+  #     0   off -- co-op scales as it does today          (default)
+  #     1   +1 tier per partner
+  #     2   +2 tiers per partner (harder with a full party)
+  #   3..9  steeper, clamped to the top of the ladder
+  # NOTE: a tier adds HP too, so if you leave Seamless's own enemy-HP scaling on,
+  # this stacks a little extra HP -- pair a non-zero value with Seamless's HP knob
+  # turned down, or accept spongier-and-harder.
+  coop_difficulty: 0
+
   # What your equipment WEIGHS, and therefore which roll you get.
   #   off     (default) equipment weighs what it weighs -- your kit is a budget
   #   light   equipment weighs nothing: always light roll, whatever you wear.
