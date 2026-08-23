@@ -30,8 +30,9 @@ def test_valid_names_match_the_authoritative_list():
     from worlds.eldenring.features.ability_lock import LockedAbilities
     assert LockedAbilities.valid_keys == frozenset(contract.ABILITY_LOCK_KEYS)
     assert set(LockedAbilities.default) == set()
-    # the seven the client's er_logic Ability enum knows -- heal is deliberately absent
-    assert set(contract.ABILITY_LOCK_KEYS) == {"jump", "crouch", "roll", "r1", "r2", "l1", "l2"}
+    # the eight the client's er_logic Ability enum knows. heal is the odd one: it owns no ChrActions
+    # bit and the client enforces it via the No Flask SpEffect, but it IS a lockable name.
+    assert set(contract.ABILITY_LOCK_KEYS) == {"jump", "crouch", "roll", "r1", "r2", "l1", "l2", "heal"}
 
 
 def test_option_is_filed_under_a_wizard_group():

@@ -25,7 +25,9 @@ WHICH get pooled and emits the map.
 
 NOT lockable progression. The unlock items are `useful`, never required by logic -- a seed is always
 completable with an ability still locked, so a missing unlock is a harder run, not a dead one.
-`crouch -> l3` is the one unverified action map (er-logic). `heal` is the flask option's job.
+`crouch -> l3` is the one unverified action map (er-logic). `heal` is lockable too, but by a
+different mechanism: the client re-applies the No Flask SpEffect while it is locked (the flask
+heals nothing), since heal owns no action bit.
 """
 from Options import Choice, OptionSet
 from ..registry import Feature, register
@@ -36,9 +38,10 @@ class LockedAbilities(OptionSet):
     """ABILITIES THE GAME DISABLES. Each named ability is turned off at the character's logical-action
     layer, so the lock survives key/pad rebinds, covers keyboard and mouse, and never affects menus.
 
-    Valid names: jump, crouch, roll, r1, r2, l1, l2. (r1/r2/l1/l2 are the attack inputs; locking one
-    also stops casting through it, since a staff or seal casts on the attack button.) Empty = nothing
-    locked, the default. `heal` is not lockable here -- that is the flask-charge option's job.
+    Valid names: jump, crouch, roll, r1, r2, l1, l2, heal. (r1/r2/l1/l2 are the attack inputs; locking
+    one also stops casting through it, since a staff or seal casts on the attack button. `heal` locks
+    the flask -- it heals nothing while locked -- via the No Flask SpEffect, not an action mask.)
+    Empty = nothing locked, the default.
 
     🛑 crouch is the one UNVERIFIED action: ER has no dedicated crouch action, so the client routes it
     to the stick-click (l3) as a first guess. If a playtest shows that is wrong, the fix is one line

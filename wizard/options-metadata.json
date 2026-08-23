@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.5.0",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "2ef8d1848fd70e755c8110752e7ce2c1110230ad8c693c2cc4c0aa92149a3764",
+ "source_sha256": "ca00e785caaaec7c1f09979b70683f92d4dc4811c8e3b9cdf95daa23d7008645",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -348,7 +348,7 @@
    "key": "locked_abilities",
    "class": "LockedAbilities",
    "display_name": "Locked Abilities",
-   "description": "ABILITIES THE GAME DISABLES. Each named ability is turned off at the character's logical-action\nlayer, so the lock survives key/pad rebinds, covers keyboard and mouse, and never affects menus.\n\nValid names: jump, crouch, roll, r1, r2, l1, l2. (r1/r2/l1/l2 are the attack inputs; locking one\nalso stops casting through it, since a staff or seal casts on the attack button.) Empty = nothing\nlocked, the default. `heal` is not lockable here -- that is the flask-charge option's job.\n\n🛑 crouch is the one UNVERIFIED action: ER has no dedicated crouch action, so the client routes it\nto the stick-click (l3) as a first guess. If a playtest shows that is wrong, the fix is one line\nin er-logic, not here.\n\nAbility Lock Mode decides whether these stay off all seed (Static) or start off and are unlocked\nby items you find (Progressive). Env-overridable in test builds via ER_ABILITY_LOCK_TEST.",
+   "description": "ABILITIES THE GAME DISABLES. Each named ability is turned off at the character's logical-action\nlayer, so the lock survives key/pad rebinds, covers keyboard and mouse, and never affects menus.\n\nValid names: jump, crouch, roll, r1, r2, l1, l2, heal. (r1/r2/l1/l2 are the attack inputs; locking\none also stops casting through it, since a staff or seal casts on the attack button. `heal` locks\nthe flask -- it heals nothing while locked -- via the No Flask SpEffect, not an action mask.)\nEmpty = nothing locked, the default.\n\n🛑 crouch is the one UNVERIFIED action: ER has no dedicated crouch action, so the client routes it\nto the stick-click (l3) as a first guess. If a playtest shows that is wrong, the fix is one line\nin er-logic, not here.\n\nAbility Lock Mode decides whether these stay off all seed (Static) or start off and are unlocked\nby items you find (Progressive). Env-overridable in test builds via ER_ABILITY_LOCK_TEST.",
    "kind": "set",
    "base": "OptionSet",
    "default": [],
@@ -356,6 +356,7 @@
    "range": null,
    "valid_keys": [
     "crouch",
+    "heal",
     "jump",
     "l1",
     "l2",

@@ -901,8 +901,9 @@ Elden Ring:
 
   # EXPERIMENTAL / test build (#945). Abilities the game disables for the whole seed, at the
   # character's LOGICAL action layer -- so the lock survives key/pad rebinds, covers keyboard and
-  # mouse, and never touches menus. Any of: jump, crouch, roll, r1, r2, l1, l2. r1/r2/l1/l2 are the
-  # attack inputs; locking one also stops casting through it. Empty = nothing locked (the default).
+  # mouse, and never touches menus. Any of: jump, crouch, roll, r1, r2, l1, l2, heal. r1/r2/l1/l2 are
+  # the attack inputs; locking one also stops casting through it. `heal` locks the flask (it heals
+  # nothing while locked). Empty = nothing locked (the default).
   #
   # This is a STATIC lock -- there is no in-run unlock yet. crouch is an unverified mapping. `heal`
   # is not lockable here (that is the flask option's job).

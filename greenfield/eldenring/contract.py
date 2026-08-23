@@ -287,14 +287,14 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # here -- its mechanism is the flask-charge clamp, not an action lock. Keep the two in sync: a name
 # added here that er-logic does not know is silently dropped by parse_ability_lock (tolerant), and
 # one er-logic knows that is missing here simply cannot be selected in yaml.
-ABILITY_LOCK_KEYS = ("jump", "crouch", "roll", "r1", "r2", "l1", "l2")
+ABILITY_LOCK_KEYS = ("jump", "crouch", "roll", "r1", "r2", "l1", "l2", "heal")
 
 # Progressive ability lock (#945 / #980): the locked abilities can instead be SYNTHETIC UNLOCK ITEMS
 # shuffled into the pool -- start locked, unlock the one you find. The item is synthetic (never a
 # real EquipParamGoods; the game hands over nothing), recognised by the client through the per-seed
 # abilityUnlockItems map, exactly like armorBundles. Display label per ability key.
 _ABILITY_LABEL = {"jump": "Jump", "crouch": "Crouch", "roll": "Roll",
-                  "r1": "R1", "r2": "R2", "l1": "L1", "l2": "L2"}
+                  "r1": "R1", "r2": "R2", "l1": "L1", "l2": "L2", "heal": "Heal"}
 # key -> synthetic item NAME, in ABILITY_LOCK_KEYS order. The client learns the id->ability binding
 # from slot_data (abilityUnlockItems), so these ids need not be arithmetically stable across seeds --
 # but they are allocated at a FIXED BASE (core.py) rather than through a feature's ITEMS anyway, so

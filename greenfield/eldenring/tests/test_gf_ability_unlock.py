@@ -85,3 +85,19 @@ class ProgressivePoolsAndMaps(WorldTestBase):
     # suite, which fills this very seed -- a surplus/deficit would raise FillError there. A naive
     # len(itempool) == len(get_locations) check is wrong (itempool excludes the precollected start
     # anchor and event locations), so it is deliberately not re-asserted here.
+
+
+class ProgressiveHealUnlock(WorldTestBase):
+    game = GAME
+    options = {"num_regions": 0, "locked_abilities": ["heal"], "ability_lock_mode": "progressive"}
+
+    def test_heal_is_a_findable_unlock_item(self):
+        # heal locks the flask (client No-Flask SpEffect), but in progressive mode it is still just
+        # another findable Unlock item -- the pool + map treat it like any ability.
+        unlock_heal = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)["heal"]  # "Unlock: Heal"
+        pool = [i.name for i in self.multiworld.itempool if i.player == self.player]
+        assert pool.count(unlock_heal) == 1, pool
+        sd = self.world.fill_slot_data()
+        assert set(sd["abilityUnlockItems"].values()) == {"heal"}
+        assert contract.ABILITY_UNLOCK_FEATURE in sd["requiresClientFeatures"]
+        assert sd["options"]["locked_abilities"] == ["heal"]
