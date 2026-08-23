@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.5.0",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "ca00e785caaaec7c1f09979b70683f92d4dc4811c8e3b9cdf95daa23d7008645",
+ "source_sha256": "f8f4c58f4bfb0b2bcee6f900496aea4fd919b06e7ce1be0feb39ffe67aa151e9",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -247,6 +247,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "reroll_infinite_shop_stock",
   "infinite_hub_wares",
   "merchant_bell_logic",
+  "shop_checks",
   "start_regions",
   "start_region_pool",
   "start_with_whetblades",
@@ -337,6 +338,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "name": "Shops & Merchants",
    "collapsed": false,
    "options": [
+    "shop_checks",
     "keep_out_of_shops",
     "no_runes_in_shops",
     "merchant_bells_on_talk",
@@ -1879,6 +1881,23 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "value": 1
     }
    ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "shop_checks",
+   "class": "ShopChecks",
+   "display_name": "Shop Checks",
+   "description": "Whether merchant purchase slots are AP CHECKS. ON (default): buying from a merchant can pay\nout an AP item, as normal. OFF: no merchant slot is a check -- the ~562 shop rows (184 in the hub\nalone) stop being locations entirely, so no item -- yours OR another player's -- can be gated\nbehind a purchase menu, and there is no shop-grinding to collect checks.\n\nThis SHRINKS the seed (fewer checks, a correspondingly smaller item pool) and empties the\n`ShopSlot` progression surface (the feasibility ladder widens automatically). Merchants still\nexist and still sell their vanilla wares; their purchase slots simply hold nothing to collect.\n\nDistinct from `keep_out_of_shops`, which only relocates YOUR OWN items and leaves the slots as\nchecks a FOREIGN item can still land in -- this removes the slots outright, which is what \"an\nitem someone else really wants never ends up in a merchant\" requires.",
+   "kind": "toggle",
+   "base": "DefaultOnToggle",
+   "default": true,
+   "choices": null,
    "range": null,
    "valid_keys": null,
    "casefold": false,

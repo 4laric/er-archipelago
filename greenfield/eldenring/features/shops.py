@@ -28,7 +28,7 @@ carries no shop-lineup id / bell column. So v1 emits the OPTION only (default of
 always open); the bell->merchant->shop-rows map is a v2 EMEVD enrichment (SPEC-PARITY 14.3). Empty
 dicts remain a valid no-op contract if shop_data.py is absent.
 """
-from Options import Choice
+from Options import DefaultOnToggle, Choice
 from ..registry import Feature, register
 from .. import contract
 from ..data import HUB
@@ -164,12 +164,33 @@ class MerchantBellLogic(Choice):
     default = 0
 
 
+class ShopChecks(DefaultOnToggle):
+    """Whether merchant purchase slots are AP CHECKS. ON (default): buying from a merchant can pay
+    out an AP item, as normal. OFF: no merchant slot is a check -- the ~562 shop rows (184 in the hub
+    alone) stop being locations entirely, so no item -- yours OR another player's -- can be gated
+    behind a purchase menu, and there is no shop-grinding to collect checks.
+
+    This SHRINKS the seed (fewer checks, a correspondingly smaller item pool) and empties the
+    `ShopSlot` progression surface (the feasibility ladder widens automatically). Merchants still
+    exist and still sell their vanilla wares; their purchase slots simply hold nothing to collect.
+
+    Distinct from `keep_out_of_shops`, which only relocates YOUR OWN items and leaves the slots as
+    checks a FOREIGN item can still land in -- this removes the slots outright, which is what "an
+    item someone else really wants never ends up in a merchant" requires."""
+    display_name = "Shop Checks"
+
+
 @register
 class Shops(Feature):
     name = "shops"
-    OPTIONS = {"merchant_bell_logic": MerchantBellLogic}
+    OPTIONS = {"merchant_bell_logic": MerchantBellLogic, "shop_checks": ShopChecks}
 
     def slot_data(self, world):
+        # #994: shop_checks OFF -> no shop-check locations exist (filtered in core._seed_locations),
+        # so emit NO shop tables. Keeps slot_data and the location set from disagreeing about whether
+        # a shop check exists (the same invariant _seed_locations centralises).
+        if not world._shop_checks_on():
+            return {}
         # Hub is always in play; kept() is the spokes. Shop rows collapse to hub or a spoke region.
         scope = {HUB} | set(world._kept())
         # In-scope shop checks (keyed by AP id) and their vanilla stock flag.

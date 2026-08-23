@@ -518,7 +518,7 @@ _OPTION_GROUPS = [
         "confine_foreign_progression",
         "keep_local", "keep_local_rune_cap"]),
     ("Shops & Merchants", [
-        "keep_out_of_shops", "no_runes_in_shops", "rune_shop_pricing", "merchant_bells_on_talk",
+        "shop_checks", "keep_out_of_shops", "no_runes_in_shops", "rune_shop_pricing", "merchant_bells_on_talk",
         "merchant_bell_logic", "reroll_infinite_shop_stock", "infinite_hub_wares",
         "progressive_stone_bells"]),
     ("Quality of Life", [
@@ -642,14 +642,33 @@ class GreenfieldEldenRingWorld(World):
                           or self.options.enable_dlc.value)
         return dlc_only or enable_dlc
 
+    def _shop_checks_on(self) -> bool:
+        """Whether merchant purchase slots are AP checks (#994). Default ON; OFF removes them.
+        Read HERE and in features/shops.slot_data -- the location set and the slot-data tables must
+        agree, so both consult this one predicate."""
+        opt = getattr(self.options, "shop_checks", None)
+        return True if opt is None else bool(opt.value)
+
     def _seed_locations(self, region_name):
-        """LOCATIONS[region] minus the rows THIS SEED cannot open -- today exactly the DLC-gated
-        hub shop rows (Enia's 36) when the DLC is off. ONE chokepoint on purpose: the region
-        build, the pool assembly, the count-neutral total and the slot-data tables all read it,
-        so a location and its pool item can never disagree about whether they exist. The first
-        cut filtered only the region build and the 36 vanilla wares stayed in the pool -- the
-        bell test's count-neutrality caught 1003 items over 967 locations (AzoTax, 2026-08-20)."""
+        """LOCATIONS[region] minus the rows THIS SEED cannot open -- the DLC-gated hub shop rows
+        (Enia's 36) when the DLC is off, and (#994) EVERY shop-check row when shop_checks is off.
+        ONE chokepoint on purpose: the region build, the pool assembly, the count-neutral total and
+        the slot-data tables all read it, so a location and its pool item can never disagree about
+        whether they exist. The first cut filtered only the region build and the 36 vanilla wares
+        stayed in the pool -- the bell test's count-neutrality caught 1003 items over 967 locations
+        (AzoTax, 2026-08-20)."""
         rows = LOCATIONS.get(region_name, [])
+        # #994: drop every merchant-slot check (SHOP_ROW_FLAGS scope, ~562 rows) so no item -- yours
+        # or a foreign player's -- is ever gated behind a purchase. Filtered here so region build,
+        # pool, count and slot_data all agree the rows are gone; keep_out_of_shops / no_runes_in_shops
+        # then find no shop locations to constrain and are inert by construction.
+        if not self._shop_checks_on():
+            try:
+                # SHOP_ROW_FLAGS is keyed by str(AP location id) -- t[1], the ap_id, NOT t[2] (flag).
+                from .shop_data import SHOP_ROW_FLAGS as _srf
+                rows = [t for t in rows if str(t[1]) not in _srf]
+            except ImportError:
+                pass
         if self._dlc_on():
             return rows
         try:

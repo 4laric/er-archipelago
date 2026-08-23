@@ -281,6 +281,14 @@ OFF_LEDGER = {
                            "test_gf_ability_unlock.py::StaticMintsNoItems"
                            "::test_no_unlock_items_and_no_map",
                            {"ability_lock_mode": "static"}),
+    # shop_checks off (#994): merchant-slot checks are removed entirely, so shops.slot_data emits
+    # neither table. Both point at the same shop_checks:false off-test.
+    "shopRowFlags": ("off_test",
+                     "test_gf_shop_checks.py::ShopChecksOff::test_shop_tables_absent_from_slot_data",
+                     {"shop_checks": "false"}),
+    "shopPreviewGoods": ("off_test",
+                         "test_gf_shop_checks.py::ShopChecksOff::test_shop_tables_absent_from_slot_data",
+                         {"shop_checks": "false"}),
     # UNION key -- every producer (auto_equip handshake, scaling ceiling) must be off at once for
     # the key to vanish, so its off-world pins them all. Per-tag exactness lives with each feature
     # (test_gf_auto_equip.py, test_gf_options.py's ceiling matrix); this row owns full absence.

@@ -375,6 +375,13 @@ def client_gitlink_note_failures(repo=REPO, rev_range=None):
         # the same branch. The note EXISTS on main; only the commit-granularity pairing is broken,
         # and rewriting main is worse than recording the ruling (2026-08-20).
         "933c7a24e0d07885dbae9b115bdcfb684a285a76",
+        # v0.5 INTEGRATION-BRANCH incremental client bumps (heal + log-cleanup quick wins). The
+        # notes for all three land collectively in the v0.5.0 CHANGELOG section (heal, #988, #989);
+        # the commits were pushed to the shared v0.5 branch before the note, and rewriting a pushed
+        # integration branch is worse than recording the pairing here (same ruling as #925).
+        "1024ebcdb7ce35066f8485993e106d494294909a",  # heal -> client 2951d8a
+        "317723001d141ac742e43215d69ea6c0fd7d5814",  # clippy fix -> client fda778f
+        "675853737108421de875570398b9449118234639",  # log-cleanup quick wins -> client e4dec95
     }
     failures = []
     bumps = 0

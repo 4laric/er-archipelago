@@ -23,7 +23,15 @@ The version moved, so a client half is required: `contract_gen.rs` embeds the ve
 
 ### Added
 
+- **Remove merchant checks (#994).** New `shop_checks` option (default on). Off makes no merchant purchase slot an AP check -- the ~562 shop rows (184 in the hub alone) stop being locations, so nothing you or another player wants can be gated behind a purchase, and the seed shrinks accordingly. Merchants still sell their vanilla wares.
 - **Ability lock (#945).** A new option axis: `locked_abilities` disables any of jump / crouch / roll / r1 / r2 / l1 / l2 at the game's logical-action layer — keybind- and device-agnostic (rebinds, keyboard and mouse all covered) and menu-safe. `ability_lock_mode` chooses `static` (off for the whole seed) or `progressive`.
+- **Heal is lockable too (#945).** `heal` joins the ability lock; because it owns no action bit it
+  disables the flask instead (the No Flask SpEffect, re-applied while locked), so the flask heals
+  nothing until it is unlocked.
+- **Log cleanups.** A heal-locked seed no longer repeats the flask-param "not loaded yet" line every
+  frame; the client now says ONCE when a Progressive Flask Upgrade lands on a seed with no flask
+  ladder (progressive_flasks off, #988); and the `auto_upgrade` log states that the normal and somber
+  smithing tracks are separate and a level never crosses (#989).
 - **Progressive ability lock (#980).** In progressive mode each locked ability becomes a synthetic `Unlock: X` item shuffled into the multiworld; find it (or receive it from another world) to get that ability back. The unlock is reconnect-safe — recomputed from the whole received stream on every connect — and the items are never logic-required, so a seed always completes with an ability still out.
 
 ## v0.4.14 — 2026-08-22

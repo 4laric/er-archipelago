@@ -768,6 +768,12 @@ Elden Ring:
   # 224 locations, and a category holding more items than there are non-shop
   # slots to move them to is skipped -- the generation log names which one and
   # by how much. Full-world seeds have room to spare.
+
+  # Whether merchant purchase slots are AP checks. off removes them entirely --
+  # ~562 shop rows stop being locations, so no item (yours or a foreign player's) is
+  # gated behind a purchase, and the seed shrinks. Merchants still sell vanilla wares.
+  shop_checks: true
+
   keep_out_of_shops: []
 
   # Keep your own money runes (Golden / Hero's / Lord's / Numen's and the DLC
