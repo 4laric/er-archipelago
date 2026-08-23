@@ -130,8 +130,11 @@ class ProgressiveUnlocksGateTheGoalByDefault(WorldTestBase):
     def test_completion_condition_actually_requires_them(self):
         names = [dict(contract.ABILITY_UNLOCK_ITEM_NAMES)[k] for k in ("roll", "r1")]
         cond = self.multiworld.completion_condition[self.player]
-        # a state that has collected everything EXCEPT the unlocks must not read as complete
         full = self.multiworld.get_all_state(False)
+        # WITNESS: the full state (unlocks included) DOES complete -- so the negative below is the
+        # requirement biting, not a goal that never fires (test_gf_vacuous_pass discipline).
+        assert cond(full), "the full collected state should satisfy the goal"
+        # ...and dropping just the unlocks must break it: they are genuinely required.
         for n in names:
             full.remove(self.world.create_item(n))
         assert not cond(full), "goal must not fire without the required Unlock items held"
@@ -145,13 +148,24 @@ class ProgressiveUnlocksOptOutStayUseful(WorldTestBase):
                "ability_unlocks_required": False}
 
     def test_useful_not_progression_and_not_goal_required(self):
+        from worlds.eldenring.features.ability_lock import _progressive_active, _locked_keys
+        # WITNESS: the feature IS active with a real lock set, so an empty requirement below is the
+        # opt-out doing its job, not the scan finding nothing (test_gf_vacuous_pass discipline).
+        assert _progressive_active(self.world) and set(_locked_keys(self.world)) == {"roll", "r1"}
         names = {dict(contract.ABILITY_UNLOCK_ITEM_NAMES)[k] for k in ("roll", "r1")}
         pool = {i.name: i for i in self.multiworld.itempool if i.player == self.player}
+        # the unlocks are pooled (witness they exist) but stay useful, not progression
+        assert names <= set(pool), "opted-out unlocks must still be pooled"
         for n in names:
             assert pool[n].useful and not pool[n].advancement, f"{n} should stay useful when opted out"
-        assert self.world._required_ability_unlocks() == []
-        sd = self.world.fill_slot_data()
-        assert not (names & set(sd.get("goalRequiredItems", [])))
+        # BEHAVIOURAL: the goal does NOT require them -- a state holding everything but the unlocks
+        # still reads complete (the mirror of the default-on test, and a positive assertion).
+        cond = self.multiworld.completion_condition[self.player]
+        full = self.multiworld.get_all_state(False)
+        for n in names:
+            full.remove(self.world.create_item(n))
+        assert cond(full), "opted out: goal must still fire without the unlocks held"
         # still findable items with the map + handshake -- only the GOAL requirement is dropped
+        sd = self.world.fill_slot_data()
         assert set(sd["abilityUnlockItems"].values()) == {"roll", "r1"}
         assert contract.ABILITY_UNLOCK_FEATURE in sd["requiresClientFeatures"]
