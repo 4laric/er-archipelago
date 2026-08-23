@@ -272,9 +272,9 @@ OFF_LEDGER = {
                          "test_gf_scaling_sphere.py::DlcOffSeed::test_dlc_buckets_absent_without_dlc",
                          {"enable_dlc": False}),
     "armorBundles": ("off_test",
-                      "test_gf_off_means_off.py::AllClientFeatureGatesOffSeed"
-                      "::test_armor_bundle_wire_absent_under_vanilla_placement",
-                      {"vanilla_placement": "all"}),
+                      "test_gf_armor_bundles.py::ArmorBundlesOffSeed"
+                      "::test_armor_bundle_wire_absent_when_off",
+                      {"armor_bundles": False}),
     # UNION key -- every producer (auto_equip handshake, scaling ceiling) must be off at once for
     # the key to vanish, so its off-world pins them all. Per-tag exactness lives with each feature
     # (test_gf_auto_equip.py, test_gf_options.py's ceiling matrix); this row owns full absence.
