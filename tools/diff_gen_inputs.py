@@ -9,7 +9,8 @@ need to know what moved, because several of our features are pinned to facts abo
 that nothing re-checks on its own:
 
   * We REPURPOSE vanilla `SpEffectParam` rows at runtime (`no_equip_load` 20012080,
-    `no_fall_damage` 20010827, `scadu_blessing` 20012081). Each was claimed on the strength of
+    `no_fall_damage` 20010827, `scadu_blessing` 20012081, `traps::no_flask` 20012082 -- the live
+    registry is `er-logic/src/safe_speffect_rows.rs::CLAIMED`). Each was claimed on the strength of
     "occurs exactly once across all 239 param tables — as its own row". A patch that adds a
     reference to one of those rows makes us silently rewrite something the game reads, and the
     symptom is a BALANCE bug in one area weeks later, not a crash.
@@ -58,11 +59,26 @@ WATCHED = [
     ("no_equip_load clone row", range(20012080, 20012081)),
     ("no_fall_damage clone row", range(20010827, 20010828)),
     ("scadu_blessing clone row", range(20012081, 20012082)),
+    # Claimed 2026-08-10 by `traps::NoFlask` and MISSING from this list until 2026-08-24. The row is
+    # rewritten at runtime exactly like the three above, so it carries the same silent-write hazard;
+    # the drift test below now derives the claimed set from the registry instead of re-typing it.
+    ("traps::no_flask clone row", range(20012082, 20012083)),
     ("Scadutree blessing ladder", range(20000100, 20000121)),
     ("Revered spirit-ash ladder", range(20000200, 20000231)),
     ("Revered Torrent ladder", range(20000300, 20000311)),
     ("DLC enemy-scaling ladder", range(20007000, 20007351)),
+    # `er_logic::scaling` reads and CLEARS the DLC band family as well as the ladder
+    # (`scaling.rs`: "20007400..20007750 is the band (haveSoulRate 2)", `BAND_TIERS`), and its own
+    # declared window is `DLC_SCALING_ID_RANGE = 20007000..20008000`. Watch the band too.
+    ("DLC enemy-scaling band", range(20007400, 20007751)),
 ]
+
+# 🛑 NOT WATCHABLE BY THIS INSTRUMENT: the base-game scaling ladder/band
+# (`er_logic::scaling::SCALING_ID_RANGE = 7000..8000`). The scan tokenises integers and tests
+# membership, so four-digit ids collide with ordinary cell VALUES (counts, rates, ids of other
+# kinds) in every one of the 239 tables -- a watch entry there would fire on essentially every
+# patch and train the reader to ignore the guard. Those rows are covered by the informational row
+# diff instead: `--only SpEffectParam` and read the changed-row list by hand.
 
 
 def load(db: sqlite3.Connection, path: str) -> str:
