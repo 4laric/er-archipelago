@@ -3501,7 +3501,9 @@ QUEST_GATED_FLAGS = {
     400740, 510030, 510420, 520400,
     # DRYLEAF DANE (Alaric, 2026-08-16, bobler playtest): "some questline shit, i think there are
     # multiple places you can fight him. should all go missable for now."
-    # boss_healthbars carries him TWICE -- 2049440710 (m61_49_44) and 2050430710 (m61_50_43) -- and
+    # boss_healthbars carries him TWICE -- 2049440800 (m61_49_44) and 2050430800 (m61_50_43), his
+    # EMEVD-derived defeat flags since #987; his ENTITY ids are ...710 and were the (never-firing)
+    # sweep keys before that -- and
     # both triggers are among the 26 with no SWEEP_ARENA_REGION row (#445), which is the same fact
     # from the other side: an NPC you meet at more than one site has no single arena to be filed in.
     # 🛑 THE SIBLINGS WERE ALREADY SPLIT AND NOBODY NOTICED. Three Enir Ilim pickups carry the same
