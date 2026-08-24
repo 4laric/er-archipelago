@@ -193,3 +193,8 @@ locationIdsToKeys*.json
 # CONTRIBUTING -- so this lands in a working tree routinely, and `git add -A` swept 1224 lines of
 # results.json into a commit once. Ignore the artifact, not the habit.
 fillreg_*/
+
+# tools/gen_enemy_drop_entities.py (#1000) writes its Rust rows into the CWD by default. It is a
+# local-only tool run from the repo root, so the artifact lands in a working tree routinely and is
+# one `git add -A` from being committed. Ignore the artifact, not the habit (see fillreg_* above).
+enemy_drop_entities.rows

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Minimal excerpt of the WitchyBND `<map>-msb-dcx/Part/Enemy/<name>.xml` shape: ONE part per
+     file. Only the two fields the tool joins on are pinned; the rest is trimmed. -->
+<MSB.Part.Enemy>
+  <Name>c3330_9000</Name>
+  <ModelName>c3330</ModelName>
+  <EntityID>12010245</EntityID>
+  <ThinkParamID>33300000</ThinkParamID>
+  <NPCParamID>33306000</NPCParamID>
+  <TalkID>0</TalkID>
+</MSB.Part.Enemy>
