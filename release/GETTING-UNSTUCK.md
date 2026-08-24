@@ -72,6 +72,29 @@ These IDs come from the shipped `grace_flags.tsv`. Do not substitute a nearby-lo
 After the write, open the map and fast-travel normally, or use the pasteable command from
 `!grace` if map travel is the thing that is broken.
 
+## A check never registered
+
+Some checks are picked up from an enemy, boss, or NPC drop, and their flag can fail to fire -- most
+often under enemy randomization, where the enemy that would have set it never spawns. If you have a
+pickup that "didn't fire", `!check` finds its acquisition flag by name:
+
+```
+!check larval tear
+```
+
+The console prints each matching check, whether its flag is set, and a ready `!setflag`:
+
+```
+Ainsel River :: Larval Tear - around Dragonkin Soldier of Nokstella (1): flag 12017965 = false; !setflag 12017965 1
+```
+
+Copy the `!setflag ...` line to send the check on the next poll. `!check` only lists checks that
+carry a settable flag -- enemy, boss and NPC drops and offline pickups; a normal world pickup fires
+on its own and will not appear.
+
+Setting a check's flag also drops its vanilla item locally, so use this for a check that never fired,
+not to double up a pickup you can still reach.
+
 ## The goal did not fire
 
 Pick up any item. Some older goal paths defer their final send until the next pickup. If that does

@@ -131,7 +131,7 @@ def test_rescue_commands_are_explicitly_scoped_to_the_client_console():
     """
     rescue = _unstuck_text()
     commands = set(re.findall(r"!(?:[a-z]+)", rescue))
-    assert commands == {"!flag", "!grace", "!help", "!setflag", "!warp"}
+    assert commands == {"!check", "!flag", "!grace", "!help", "!setflag", "!warp"}
 
 
 def _live_option_names():
