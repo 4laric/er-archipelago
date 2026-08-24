@@ -169,3 +169,30 @@ class ProgressiveUnlocksOptOutStayUseful(WorldTestBase):
         sd = self.world.fill_slot_data()
         assert set(sd["abilityUnlockItems"].values()) == {"roll", "r1"}
         assert contract.ABILITY_UNLOCK_FEATURE in sd["requiresClientFeatures"]
+
+
+# ---- Roll comes early (bobler playtest): early_items, still exportable -----------------------------
+class RollUnlockIsForcedEarly(WorldTestBase):
+    game = GAME
+    options = {"num_regions": 0,
+               "locked_abilities": ["roll", "l2"],
+               "ability_lock_mode": "progressive"}
+
+    def test_only_roll_is_declared_early(self):
+        roll = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)["roll"]
+        l2 = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)["l2"]
+        early = self.multiworld.early_items[self.player]
+        # Roll is forced early; L2 (an annoyance, not a cripple) is left to export freely.
+        assert early.get(roll) == 1, "Roll unlock must be declared early"
+        assert l2 not in early, "only Roll is forced early; other abilities export freely"
+
+    def test_roll_actually_lands_in_an_early_sphere(self):
+        from Fill import distribute_items_restrictive
+        roll = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)["roll"]
+        # WITNESS it was declared early, then prove Fill honoured it end to end.
+        assert self.multiworld.early_items[self.player].get(roll) == 1
+        distribute_items_restrictive(self.multiworld)
+        spheres = list(self.multiworld.get_spheres())
+        idx = next((i for i, sph in enumerate(spheres)
+                    for loc in sph if loc.item and loc.item.name == roll), None)
+        assert idx is not None and idx <= 1, f"Roll unlock should land in sphere 0-1, got {idx}"

@@ -149,7 +149,18 @@ class AbilityLock(Feature):
         if not _progressive_active(world):
             return []
         names = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)
-        return [world.create_item(names[k]) for k in _locked_keys(world)]
+        keys = _locked_keys(world)
+        items = [world.create_item(names[k]) for k in keys]
+        # ROLL MUST COME EARLY (bobler, playtest): being without the dodge roll for hours is
+        # miserable in a way the other locks are not -- and once the unlocks are cross-game
+        # progression, Roll can otherwise land deep in a partner's world. Declare it to AP's
+        # `early_items` (NOT local_early_items): Fill forces it into an early sphere but leaves it
+        # exportable, so it is early WHEREVER it lands -- a partner's early game too. Only Roll, and
+        # only when Roll is actually locked; early_items can only place an item the pool holds, which
+        # `items` above guarantees. Applies in both required/opt-out modes -- the cripple is the same.
+        if "roll" in keys:
+            world.multiworld.early_items[world.player][names["roll"]] = 1
+        return items
 
     def slot_data(self, world):
         # Static mode contributes nothing here -- the locked set rides the central options echo.
