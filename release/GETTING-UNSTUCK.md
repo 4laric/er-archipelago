@@ -72,6 +72,36 @@ These IDs come from the shipped `grace_flags.tsv`. Do not substitute a nearby-lo
 After the write, open the map and fast-travel normally, or use the pasteable command from
 `!grace` if map travel is the thing that is broken.
 
+## The Leyndell capital gate will not open
+
+The Seal of the Royal Capital reads two flags: the two-great-rune gate (`182`) and its paired
+capital condition (`105`). When a seed's rune supply has left the capital sealed and you cannot get
+in, set both, then confirm:
+
+```text
+!setflag 182 1
+!setflag 105 1
+!flag 182
+```
+
+`182` is the game's "at least two great runes possessed" result, so setting it opens the fogwall
+directly; `105` is the paired condition the seal also checks. This is the standard fix for being
+routinely unable to enter Leyndell.
+
+## A check never registered
+
+Enemy and boss drops and NPC gifts send when their acquisition flag fires. If enemy randomisation
+replaced the source, or the drop was missed, that flag never sets and the check stays unsent. If you
+know the acquisition flag, set it and the client reports the check on the next poll:
+
+```text
+!flag <acquisition flag>
+!setflag <acquisition flag> 1
+```
+
+Finding that flag per check is not yet a console lookup, so until one lands, capture the log and
+report the unsent checks (see below) or ask in the thread.
+
 ## The goal did not fire
 
 Pick up any item. Some older goal paths defer their final send until the next pickup. If that does
