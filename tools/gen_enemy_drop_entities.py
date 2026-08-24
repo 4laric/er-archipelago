@@ -44,6 +44,7 @@ Run on LOCAL disk: reading thousands of Enemy XMLs over a network mount is slow;
 147-check pass is seconds.
 """
 import argparse, sqlite3, zlib, csv, io, os, glob, re, sys
+from collections import namedtuple
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -72,16 +73,43 @@ def open_db(path):
     return sqlite3.connect("file:%s?mode=ro" % (path,), uri=True)
 
 
+class PartIndex(namedtuple('PartIndex', 'by_npc zero_by_npc present')):
+    """One map's `Part/Enemy` directory, indexed two ways.
+
+    `by_npc`      {NPCParamID: [EntityID, ...]} -- the ADDRESSABLE placements, non-zero EntityID.
+    `zero_by_npc` {NPCParamID: count} -- placements whose `<EntityID>` is exactly 0.
+    `present`     False for the sentinel returned when the map's directory is not on disk.
+
+    WHY THE ZERO SIDE EXISTS (2026-08-24 local verification against the full vanilla tree, 1346 map
+    dirs). `m12_02_00_00-msb-dcx/Part/Enemy/c3330_9000.xml` carries `<NPCParamID>33300665` and
+    `<EntityID>0`, and EntityID 2800393 -- previously read off a matt-randomized seed and asserted
+    to be that placement's vanilla id -- appears on NO c3330 part in ANY vanilla map. A vanilla
+    EntityID of 0 is not "missing datamining": it is a placement the EntityID-keyed `CharacterDead`
+    watch CANNOT address, because there is no id to watch. Folding those into one flat "unresolved"
+    list hid a structural class behind a coverage number, so `build` now names it separately.
+    """
+    __slots__ = ()
+
+
+EMPTY_INDEX = PartIndex({}, {}, False)
+
+
 def index_enemy_parts(d):
-    """{NPCParamID: [EntityID, ...]} for one unpacked `<map>-msb-dcx/Part/Enemy` directory.
+    """`PartIndex` for one unpacked `<map>-msb-dcx/Part/Enemy` directory.
 
     ONE PART PER FILE is the whole assumption; both ways it can break are refusals, not silence.
+
+    The EntityID-0 parts are COUNTED, not discarded: they are the difference between "this NPC was
+    never datamined" and "this NPC is placed but unaddressable". The empty-index refusal below still
+    keys on the NON-ZERO side only -- a directory that yields nothing but zero-id parts is far more
+    likely an un-unpacked layout than a real map (every real map has addressable placements), and
+    softening it would reopen the exact hole the refusal exists to close.
     """
     files = sorted(glob.glob(os.path.join(d, '*.xml')))
     if not files:
         raise Refusal("%s contains no *.xml -- WitchyBND unpacks Part/Enemy as one XML per part, so "
                       "an empty Enemy dir means the layout is not the one this tool parses." % (d,))
-    m = {}
+    m, zeros = {}, {}
     for f in files:
         with open(f, encoding='utf-8-sig', errors='replace') as fh:
             t = fh.read()
@@ -91,13 +119,16 @@ def index_enemy_parts(d):
             raise Refusal("%s holds %d <NPCParamID> and %d <EntityID> -- more than one part per "
                           "file. Pairing the FIRST of each would mis-pair records; refusing."
                           % (f, len(npcs), len(eids)))
-        if npcs and eids and eids[0] != '0':
-            m.setdefault(npcs[0], []).append(int(eids[0]))
+        if npcs and eids:
+            if eids[0] == '0':
+                zeros[npcs[0]] = zeros.get(npcs[0], 0) + 1
+            else:
+                m.setdefault(npcs[0], []).append(int(eids[0]))
     if not m:
         raise Refusal("%s: %d XML(s) parsed and not one yielded an (NPCParamID, non-zero EntityID) "
                       "pair -- the part layout is not what this tool parses. Refusing to report "
                       "that as a partial resolve." % (d, len(files)))
-    return m
+    return PartIndex(m, zeros, True)
 
 
 def f2m(f):
@@ -172,28 +203,61 @@ def maps_for(flag, flagmap):
     return cands
 
 
+UNRESOLVED_CLASSES = ('unresolved_entity_zero', 'unresolved_npc_absent', 'unresolved_no_map')
+
+Unresolved = namedtuple('Unresolved', UNRESOLVED_CLASSES)
+
+
 def build(enemy, ap, npc_by_base, flagmap, index_map):
-    """(rows, unresolved). `index_map(mapname) -> {npc: [eid]}`; separated out so the test can
-    drive the join over a fixture without an MSB tree."""
-    table, unresolved = [], []
-    for flag, (lot, item, name) in enemy.items():
+    """(rows, unresolved). `index_map(mapname) -> PartIndex`; separated out so the test can drive
+    the join over a fixture without an MSB tree.
+
+    `unresolved` is an `Unresolved` triple, not one flat list, because the three members need
+    DIFFERENT fixes and lumping them together makes the residual look like one datamining backlog:
+
+      * `unresolved_entity_zero` -- the NPC IS placed in a candidate map, but every matching part
+        has `<EntityID>0`. No regen can ever resolve these; the EntityID-keyed watch has nothing to
+        key on, so they need a different key entirely (EMEVD-side, or a map+part-name address).
+      * `unresolved_npc_absent`  -- a candidate map's parts were read and no part runs the NPC.
+        Either the check lives in a map `check_maps.tsv` does not name, or the NPC/lot join is off.
+      * `unresolved_no_map`      -- no candidate map directory was on disk to read at all. THIS is
+        the class a fuller MSB tree fixes.
+
+    Iteration is in `sorted` flag order so the classification is deterministic across runs.
+    """
+    table = []
+    entity_zero, npc_absent, no_map = [], [], []
+    for flag in sorted(enemy):
+        lot, item, name = enemy[flag]
         loc = ap.get(flag)
         if loc is None:
             continue
         base = str(lot - lot % 10)
+        npcs = npc_by_base.get(base, [])
         eids = set()
+        saw_map, saw_zero = False, False
         for mp in maps_for(flag, flagmap):
             mi = index_map(mp)
-            for n in npc_by_base.get(base, []):
-                eids.update(mi.get(n, []))
+            if not mi.present:
+                continue
+            saw_map = True
+            for n in npcs:
+                eids.update(mi.by_npc.get(n, []))
+                if mi.zero_by_npc.get(n):
+                    saw_zero = True
             if eids:
                 break
-        if not eids:
-            unresolved.append(flag)
+        if eids:
+            for e in sorted(eids):
+                table.append((e, loc, (name[:40] or item)))
             continue
-        for e in sorted(eids):
-            table.append((e, loc, (name[:40] or item)))
-    return table, unresolved
+        if saw_zero:
+            entity_zero.append(flag)
+        elif saw_map:
+            npc_absent.append(flag)
+        else:
+            no_map.append(flag)
+    return table, Unresolved(entity_zero, npc_absent, no_map)
 
 
 def render(table, fh):
@@ -231,7 +295,7 @@ def main():
     def index_map(mp):
         if mp not in idx:
             d = mdir(mp)
-            idx[mp] = index_enemy_parts(d) if d else {}
+            idx[mp] = index_enemy_parts(d) if d else EMPTY_INDEX
         return idx[mp]
 
     try:
@@ -244,10 +308,13 @@ def main():
     with open(a.out, 'w', encoding='utf-8', newline='\n') as fh:
         render(table, fh)
     shipped = sum(1 for f in enemy if f in ap)
+    total_unresolved = sum(len(c) for c in unresolved)
     print(f"resolved {len(set(e for e, _, _ in table))} placements for "
-          f"{shipped - len(unresolved)}/{shipped} shipped checks -> {a.out}")
-    if unresolved:
-        print(f"unresolved ({len(unresolved)}): {unresolved}", file=sys.stderr)
+          f"{shipped - total_unresolved}/{shipped} shipped checks -> {a.out}")
+    for cls, flags in zip(UNRESOLVED_CLASSES, unresolved):
+        # Printed even when empty: a class that vanishes from the output is indistinguishable from
+        # a class that was never computed, and `unresolved_entity_zero` being 0 is a REAL result.
+        print(f"{cls} ({len(flags)}): {flags}", file=sys.stderr)
     return 0
 
 
