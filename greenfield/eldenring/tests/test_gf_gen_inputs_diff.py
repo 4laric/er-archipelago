@@ -19,6 +19,7 @@ notices and exits non-zero.
 """
 import csv
 import io
+import re
 import sqlite3
 import sys
 import zlib
@@ -127,16 +128,61 @@ def test_the_row_merely_EXISTING_is_not_a_hit(tmp_path):
     assert _invoke(tmp_path, []) == 0
 
 
+# The registry of repurposed rows lives in the CLIENT (`safe_speffect_rows.rs::CLAIMED`). This file
+# used to re-type three of its ids by hand -- and that is exactly how it failed: `traps::no_flask`
+# (20012082) was claimed 2026-08-10 and neither the tool's watch list nor this "drift guard" noticed
+# for two weeks, because the guard's own copy was the thing that had drifted. A hand-copied list
+# cannot guard a hand-copied list. So: PARSE the registry when the submodule is checked out, and
+# keep the literal set below only as a FLOOR that can never regress.
+_CLAIMED_FLOOR = {20012080: "no_equip_load", 20010827: "no_fall_damage",
+                  20012081: "scadu_blessing", 20012082: "traps::no_flask"}
+
+_REGISTRY = (Path(_ROOT) / "from-software-archipelago-clients" / "crates" / "er-logic" / "src"
+             / "safe_speffect_rows.rs")
+
+
+def _claimed_from_registry():
+    """{id: owner} parsed out of `CLAIMED` in the client's registry, or None if it isn't checked out.
+
+    Reads the array literal, not the `pub const` lines: CLAIMED is what the duplicate-claim test in
+    that file enforces, so it is the set that is actually authoritative there.
+    """
+    if not _REGISTRY.exists():
+        return None
+    src = _REGISTRY.read_text(encoding="utf-8")
+    body = re.search(r"pub const CLAIMED[^=]*=\s*\[(.*?)\];", src, re.S)
+    if not body:
+        return None
+    consts = dict(re.findall(r"pub const ([A-Z_]+): i32 = ([0-9_]+);", src))
+    out = {}
+    for name, owner in re.findall(r"\(\s*([A-Z_]+)\s*,\s*\"([^\"]+)\"\s*\)", body.group(1)):
+        if name in consts:
+            out[int(consts[name].replace("_", ""))] = owner
+    return out or None
+
+
 def test_the_watch_list_covers_every_row_we_repurpose(tmp_path):
-    """Drift guard. The claimed rows live in the client's `safe_speffect_rows.rs`; this tool carries
-    its own copy of the ids. If someone claims a fourth row and forgets to add it here, the guard is
-    silently narrower than the thing it protects."""
+    """Drift guard. Every row the client repurposes at runtime must be in `WATCHED`, or the guard is
+    silently narrower than the thing it protects and a patch-day reference lands unseen."""
     watched = {w for _, rng in diff_gen_inputs.WATCHED for w in rng}
-    for row, owner in ((20012080, "no_equip_load"), (20010827, "no_fall_damage"),
-                       (20012081, "scadu_blessing")):
+    claimed = dict(_CLAIMED_FLOOR)
+    claimed.update(_claimed_from_registry() or {})
+    for row, owner in sorted(claimed.items()):
         assert row in watched, (
             f"{row} ({owner}) is repurposed at runtime but is NOT in diff_gen_inputs.WATCHED -- a "
             "patch could start referencing it and this tool would say nothing")
+
+
+def test_the_registry_is_parsed_when_it_is_checked_out():
+    """Non-vacuity witness for the parse above. Without this, a regex that silently returns None
+    would leave the drift guard back on the hand-typed floor -- the exact failure being fixed."""
+    if not _REGISTRY.exists():
+        pytest.skip("client submodule not checked out -- the floor list is the guard here")
+    claimed = _claimed_from_registry()
+    assert claimed, f"{_REGISTRY} exists but CLAIMED did not parse -- the drift guard is back to the floor"
+    assert set(_CLAIMED_FLOOR) <= set(claimed), (
+        "the registry no longer claims a row this test pins as a floor -- if a row was RELEASED, "
+        "drop it from _CLAIMED_FLOOR in the same commit")
 
 
 def test_a_column_layout_change_is_called_out(tmp_path, capsys):
