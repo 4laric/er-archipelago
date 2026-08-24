@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The VANILLA Siofra larval-tear dropper, transcribed from Alaric's local WitchyBND tree
+     (2026-08-24 local verification, full 1346-map-dir unpack). Its <EntityID> is 0: this
+     placement cannot be addressed by an EntityID-keyed CharacterDead watch at all. EntityID
+     2800393 -- once read off a matt-randomized seed and asserted to be this part's vanilla id --
+     appears on no c3330 part in any vanilla map. -->
+<MSB.Part.Enemy>
+  <Name>c3330_9000</Name>
+  <ModelName>c3330</ModelName>
+  <EntityID>0</EntityID>
+  <NPCParamID>33300665</NPCParamID>
+</MSB.Part.Enemy>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- An ordinary addressable neighbour, so the directory is a normal map and not the
+     "nothing resolved" refusal case. -->
+<MSB.Part.Enemy>
+  <Name>c4200_9000</Name>
+  <ModelName>c4200</ModelName>
+  <EntityID>12020400</EntityID>
+  <NPCParamID>42000050</NPCParamID>
+</MSB.Part.Enemy>
