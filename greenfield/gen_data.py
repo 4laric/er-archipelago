@@ -7196,6 +7196,24 @@ for _fn, _dst, _zdst in (("ItemLotParam_map.csv", CHECK_LOT_SLOTS_MAP, CHECK_LOT
             if (_sl or _zsl) and _dst is CHECK_LOT_SLOTS_ENEMY:
                 _ENEMY_LOT_FLAGS[_lot] = _flag
 
+# NEUTRALISE-ONLY DUPLICATE-KEY LOTS (#1001). A lot whose vanilla ware is a DUPLICATE of a real
+# check's key: it must NOT become a check (that would double the key in the pool -- the pool is
+# per-check LOCATION_ITEM) and must NOT stay a live vanilla drop (or it hands the key out for free
+# and cheeses the vanilla gate). The loop above skips it because its lotItemParam getItemFlagId is 0
+# -- the acquisition flag lives on the MSB object, not the lot row -- so we blank its goods slot here
+# by hand. The flag stays in _SHEET_DROPS (no check, key stays a singleton); only the LOT is blanked.
+#   14000930 = the Church of the Cuckoo chandelier Academy Glintstone Key (goods 8174 -- named
+#              "Academy Glintstone Key" like the corpse's 8109, a duplicate goods id; flag 14007930,
+#              m14_00). Datamined 2026-08-24: ItemLotParam_map lot 14000930 lotItemId01=8174 cat=1
+#              (GOODS), getItemFlagId=0, zero EMEVD refs. 255's report: chandelier handed the real
+#              key with no AP check.
+_NEUTRALISE_DUPLICATE_MAP = {14000930: [1]}
+for _dlot, _dslots in _NEUTRALISE_DUPLICATE_MAP.items():
+    _cur = CHECK_LOT_SLOTS_MAP.setdefault(_dlot, [])
+    for _ds in _dslots:
+        if _ds not in _cur:
+            _cur.append(_ds)
+
 # THE COLLISION, named out loud. Every id in both tables is a lot the old single-dict scheme got wrong.
 _COLLIDING = sorted(set(CHECK_LOT_SLOTS_MAP) & set(CHECK_LOT_SLOTS_ENEMY))
 if _COLLIDING:
