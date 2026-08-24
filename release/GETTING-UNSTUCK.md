@@ -363,10 +363,10 @@ one you are at.
 | Rellana, Twin Moon Knight | 2048440800 |
 | Jagged Peak Drake | 2049410800 |
 | Black Knight Edredd | 2049430850 |
-| Dryleaf Dane | 2049440710 |
+| Dryleaf Dane | 2049440800 |
 | Ralva the Great Red Bear | 2049450800 |
 | Commander Gaius | 2049480800 |
-| Dryleaf Dane | 2050430710 |
+| Dryleaf Dane | 2050430800 |
 | Tree Sentinel | 2050470800 |
 | Scadutree Avatar | 2050480810 |
 | Scadutree Avatar | 2050480811 |
