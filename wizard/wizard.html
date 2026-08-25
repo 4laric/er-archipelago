@@ -190,9 +190,9 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
 {
  "schema": 1,
  "game": "Elden Ring",
- "apworld_version": "0.4.14",
+ "apworld_version": "0.5.0",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "46b872af684205f79144fca40f896ad32ec1b2ce51d23f4cc13f40d974e96384",
+ "source_sha256": "a50ae6bf261f4a36e75913b68fc60ac8d702e40001f85cb9778c0576af169bd1",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -201,6 +201,9 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "goal_great_runes",
   "enable_dlc",
   "dlc_only",
+  "locked_abilities",
+  "ability_lock_mode",
+  "ability_unlocks_required",
   "vanilla_placement",
   "capital_reconciler",
   "armor_bundles",
@@ -240,12 +243,14 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "minimum_enemy_difficulty",
   "maximum_enemy_difficulty",
   "difficulty_ramp_speed",
+  "coop_difficulty",
   "scadutree_blessing_scope",
   "dlc_blessing_catchup",
   "global_scadutree_blessing",
   "reroll_infinite_shop_stock",
   "infinite_hub_wares",
   "merchant_bell_logic",
+  "shop_checks",
   "start_regions",
   "start_region_pool",
   "start_with_whetblades",
@@ -295,6 +300,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "minimum_enemy_difficulty",
     "maximum_enemy_difficulty",
     "difficulty_ramp_speed",
+    "coop_difficulty",
     "traps",
     "spawn_traps",
     "trap_count"
@@ -337,6 +343,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "name": "Shops & Merchants",
    "collapsed": false,
    "options": [
+    "shop_checks",
     "keep_out_of_shops",
     "no_runes_in_shops",
     "merchant_bells_on_talk",
@@ -365,7 +372,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "collapsed": true,
    "options": [
     "vanilla_placement",
-    "natural_progression"
+    "natural_progression",
+    "locked_abilities",
+    "ability_lock_mode",
+    "ability_unlocks_required"
    ]
   }
  ],
@@ -522,6 +532,75 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "kind": "toggle",
    "base": "Toggle",
    "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "locked_abilities",
+   "class": "LockedAbilities",
+   "display_name": "Locked Abilities",
+   "description": "ABILITIES THE GAME DISABLES. Each named ability is turned off at the character's logical-action\nlayer, so the lock survives key/pad rebinds, covers keyboard and mouse, and never affects menus.\n\nValid names: jump, crouch, roll, r1, r2, l1, l2, heal. (r1/r2/l1/l2 are the attack inputs; locking\none also stops casting through it, since a staff or seal casts on the attack button. `heal` locks\nthe flask -- it heals nothing while locked -- via the No Flask SpEffect, not an action mask.)\nEmpty = nothing locked, the default.\n\n🛑 crouch is the one UNVERIFIED action: ER has no dedicated crouch action, so the client routes it\nto the stick-click (l3) as a first guess. If a playtest shows that is wrong, the fix is one line\nin er-logic, not here.\n\nAbility Lock Mode decides whether these stay off all seed (Static) or start off and are unlocked\nby items you find (Progressive). Env-overridable in test builds via ER_ABILITY_LOCK_TEST.",
+   "kind": "set",
+   "base": "OptionSet",
+   "default": [],
+   "choices": null,
+   "range": null,
+   "valid_keys": [
+    "crouch",
+    "heal",
+    "jump",
+    "l1",
+    "l2",
+    "r1",
+    "r2",
+    "roll"
+   ],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "ability_lock_mode",
+   "class": "AbilityLockMode",
+   "display_name": "Ability Lock Mode",
+   "description": "HOW the Locked Abilities behave.\n\n``static`` -- they are off for the entire seed. No item, no check; a pure client restriction.\n\n``progressive`` -- they start off, and each locked ability becomes an \"Unlock: X\" item shuffled\ninto the multiworld. Find it (or receive it from another world) to get that ability back. The\nitems default to `progression` and are REQUIRED to finish (see Ability Unlocks Required) -- so\na partner holding your \"Unlock: Roll\" genuinely blocks your goal, which is the whole point of a\nmultiworld. Turn Ability Unlocks Required off to make them `useful` and never gate completion.\nNeeds a client that understands ability unlocks (declared via\nrequiresClientFeatures); older clients would leave the abilities locked, so they are told to\nupgrade rather than play it half-supported.\n\nNo effect when Locked Abilities is empty.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "static",
+   "choices": [
+    {
+     "name": "static",
+     "value": 0
+    },
+    {
+     "name": "progressive",
+     "value": 1
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "ability_unlocks_required",
+   "class": "AbilityUnlocksRequired",
+   "display_name": "Ability Unlocks Required for Goal",
+   "description": "In PROGRESSIVE mode, must you HOLD your unlock items to finish the seed?\n\nOn (default): each pooled \"Unlock: X\" is `progression` and is added to the goal's held-item\nrequirement, exactly like a required Great Rune or Region Lock. Because progression items are\ndistributed across the whole multiworld, your abilities can land in a PARTNER's world -- and then\nyou cannot complete until they send them back. That mutual dependency is the point of playing in\nan Archipelago rather than solo.\n\nOff: the unlocks stay `useful` and never gate completion (a seed always finishes even with an\nability still out). Choose this if you want the ability item-hunt without your ending held hostage\nto another player's progress.\n\nNo effect outside progressive mode, or when Locked Abilities is empty.",
+   "kind": "toggle",
+   "base": "DefaultOnToggle",
+   "default": true,
    "choices": null,
    "range": null,
    "valid_keys": null,
@@ -1718,6 +1797,26 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "essential": false
   },
   {
+   "key": "coop_difficulty",
+   "class": "CoopDifficulty",
+   "display_name": "Co-op Difficulty",
+   "description": "Extra enemy difficulty per co-op partner, for seamless co-op (#993). Solo play ignores it.\n\n  0    off -- co-op enemies scale exactly as they do today                (default)\n  1    +1 sphere tier per partner in your world (a little more HP and bite)\n  2    +2 tiers per partner (noticeably harder with a full party)\n  3+   steeper still, clamped to the top of the ladder\n\nSeamless co-op already raises enemy HP, but it leaves enemy DAMAGE at the host's default -- so a\nsecond player roughly halves the threat coming at each of you without the enemies hitting any\nharder, which is the \"it felt too easy in co-op\" report this addresses. Each extra tier moves an\nenemy UP the same sphere ladder normal scaling uses, and a higher rung carries both more HP and\nmore attack, so the missing bite comes back. Every player is on their own Archipelago slot reading\nthe one shared world, so each client counts the party and applies the same bump -- no host.\n\n🛑 A TIER CARRIES HP AS WELL AS ATTACK. If you leave Seamless's own enemy-HP scaling on, this\nstacks a little extra HP on top of the damage it is really there to restore. Pair a non-zero value\nwith Seamless's HP knob turned down, or accept spongier-and-harder. Needs enemy_scaling ON to do\nanything (vanilla-difficulty seeds apply no tier to bump).",
+   "kind": "range",
+   "base": "Range",
+   "default": 0,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 9
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
    "key": "scadutree_blessing_scope",
    "class": "ScadutreeBlessingScope",
    "display_name": "Scadutree Blessing Scope",
@@ -1842,6 +1941,23 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "value": 1
     }
    ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "shop_checks",
+   "class": "ShopChecks",
+   "display_name": "Shop Checks",
+   "description": "Whether merchant purchase slots are AP CHECKS. ON (default): buying from a merchant can pay\nout an AP item, as normal. OFF: no merchant slot is a check -- the ~562 shop rows (184 in the hub\nalone) stop being locations entirely, so no item -- yours OR another player's -- can be gated\nbehind a purchase menu, and there is no shop-grinding to collect checks.\n\nThis SHRINKS the seed (fewer checks, a correspondingly smaller item pool) and empties the\n`ShopSlot` progression surface (the feasibility ladder widens automatically). Merchants still\nexist and still sell their vanilla wares; their purchase slots simply hold nothing to collect.\n\nDistinct from `keep_out_of_shops`, which only relocates YOUR OWN items and leaves the slots as\nchecks a FOREIGN item can still land in -- this removes the slots outright, which is what \"an\nitem someone else really wants never ends up in a merchant\" requires.",
+   "kind": "toggle",
+   "base": "DefaultOnToggle",
+   "default": true,
+   "choices": null,
    "range": null,
    "valid_keys": null,
    "casefold": false,

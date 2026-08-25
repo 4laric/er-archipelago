@@ -90,18 +90,29 @@ routinely unable to enter Leyndell.
 
 ## A check never registered
 
-Enemy and boss drops and NPC gifts send when their acquisition flag fires. If enemy randomisation
-replaced the source, or the drop was missed, that flag never sets and the check stays unsent. If you
-know the acquisition flag, set it and the client reports the check on the next poll:
+Some checks are picked up from an enemy, boss, or NPC drop, and their flag can fail to fire -- most
+often under enemy randomization, where the enemy that would have set it never spawns. If you have a
+pickup that "didn't fire", `!check` finds its acquisition flag by name:
 
-```text
-!flag <acquisition flag>
-!setflag <acquisition flag> 1
+```
+!check larval tear
 ```
 
-Finding that flag per check is not yet a console lookup, so until one lands, capture the log and
-report the unsent checks (see below) or ask in the thread. For a boss whose checks never
-released, set its **defeat flag** from the table at the end of this guide.
+The console prints each matching check, whether its flag is set, and a ready `!setflag`:
+
+```
+Ainsel River :: Larval Tear - around Dragonkin Soldier of Nokstella (1): flag 12017965 = false; !setflag 12017965 1
+```
+
+Copy the `!setflag ...` line to send the check on the next poll. `!check` only lists checks that
+carry a settable flag -- enemy, boss and NPC drops and offline pickups; a normal world pickup fires
+on its own and will not appear.
+
+Setting a check's flag also drops its vanilla item locally, so use this for a check that never fired,
+not to double up a pickup you can still reach.
+
+For a boss whose swept checks never released, set its **defeat flag** from the table at the
+end of this guide instead.
 
 ## The goal did not fire
 

@@ -85,28 +85,61 @@ def estimate(world) -> Dict[str, Any]:
     return out
 
 
-def measured(world) -> Dict[str, Any]:
-    """The TRUTH, after the fill: this world's items that actually sit in another player's world.
+def _tally(rows, me, local) -> Dict[str, Any]:
+    """PURE tally over ONE universe (placed locations), so numerator and denominator can never
+    disagree. `rows` = iterable of (item_owner, location_owner, is_event, item_name, class).
 
-    🛑 `location.item.player` IS THE OWNER, NOT THE FINDER. The item's `player` is whose world it
-    came FROM; the location's `player` is whose world it sits IN. Reading either one alone gives a
-    number that looks plausible and means something else -- `item.player == me` over ALL locations
-    counts my own items sitting at home too, which in a default seed is most of them.
+    🛑 THE UNIVERSE MUST BE THE SAME FOR BOTH HALVES (the #995 bug). Reading `sent` from placed
+    locations and the ceiling from `multiworld.itempool` counts two different sets -- itempool
+    EXCLUDES event items (region locks, goal, sweep grants: created straight onto event locations),
+    so the ratio can exceed 100%. Here everything comes from the same walk:
+      * `is_event` (an event location, `loc.address is None`) items are LOCKED home -- never
+        travel-eligible, so they are kept out of `travelable`;
+      * `held` = travel-eligible items your `local_items` pins home;
+      * `free = travelable - held`, and `sent` (your items at a FOREIGN location) is a subset of it
+        by construction (an event can't be foreign, a held item stays home) -- so `sent <= free`
+        ALWAYS, and the percentage is bounded at 100%.
+
+    `location.item.player` is the OWNER; `location.player` is where it SITS.
     """
-    sent = received = 0
+    sent = received = home = travelable = held = 0
     by_class = {"filler": 0, "useful": 0, "progression": 0}
-    for loc in world.multiworld.get_locations():
-        it = loc.item
-        if it is None:
-            continue
-        if loc.player != world.player and it.player == world.player:
-            sent += 1
-            by_class[_classify(it)] += 1
-        elif loc.player == world.player and it.player != world.player:
+    for owner, sits_in, is_event, name, cls in rows:
+        if owner == me:
+            if not is_event:
+                travelable += 1
+                if name in local:
+                    held += 1
+            if sits_in != me:
+                sent += 1
+                by_class[cls] += 1
+            else:
+                home += 1
+        elif sits_in == me:
             received += 1
-    return {"sent": sent, "received": received,
+    return {"sent": sent, "received": received, "home": home,
+            "pool": travelable, "held": held, "free": travelable - held,
             "sent_filler": by_class["filler"], "sent_useful": by_class["useful"],
             "sent_progression": by_class["progression"]}
+
+
+def measured(world) -> Dict[str, Any]:
+    """The TRUTH, after the fill, measured from the placed locations alone (see [`_tally`])."""
+    try:
+        local = set(world.options.local_items.value)
+    except Exception:
+        local = set()
+    me = world.player
+
+    def _rows():
+        for loc in world.multiworld.get_locations():
+            it = loc.item
+            if it is None:
+                continue
+            yield (it.player, loc.player, loc.address is None,
+                   getattr(it, "name", ""), _classify(it))
+
+    return _tally(_rows(), me, local)
 
 
 def summary(world) -> Dict[str, Any]:
@@ -125,12 +158,14 @@ def _line(world, s: Dict[str, Any]) -> str:
     if s["players"] <= 1:
         return (f"Elden Ring ({name}) multiworld contribution: solo seed -- nothing travels. "
                 f"{s['pool']} items in the pool.")
-    pct = (100.0 * s["sent"] / s["pool"]) if s["pool"] else 0.0
-    return (f"Elden Ring ({name}) multiworld contribution: sent {s['sent']} of {s['pool']} items "
-            f"into other worlds ({pct:.1f}%) -- {s['sent_filler']} filler, {s['sent_useful']} "
-            f"useful, {s['sent_progression']} progression; received {s['received']}. "
-            f"{s['held']} items were held local by your options "
-            f"(ceiling: {s['free']} were free to travel).")
+    # DENOMINATOR IS `free`, NOT `pool` (#995): `sent` and `free` are both measured from the same
+    # post-fill walk (events excluded), so `sent <= free` and the percentage cannot exceed 100%.
+    pct = (100.0 * s["sent"] / s["free"]) if s["free"] else 0.0
+    return (f"Elden Ring ({name}) multiworld contribution: sent {s['sent']} of {s['free']} "
+            f"free-to-travel items into other worlds ({pct:.1f}%) -- {s['sent_filler']} filler, "
+            f"{s['sent_useful']} useful, {s['sent_progression']} progression; received "
+            f"{s['received']}. {s['held']} of your {s['pool']} items were held local by your "
+            f"options.")
 
 
 def log(world) -> None:

@@ -283,9 +283,10 @@ class _Item:
 
 
 class _Loc:
-    def __init__(self, player, item):
+    def __init__(self, player, item, address=1):
         self.player = player
         self.item = item
+        self.address = address  # None == an event location (item locked home); non-None otherwise
 
 
 class _MW:
@@ -334,11 +335,11 @@ def test_report_line_is_readable_and_names_both_numbers():
          "free_useful": 100, "free_progression": 0, "sent": 120, "received": 45,
          "sent_filler": 100, "sent_useful": 20, "sent_progression": 0}
     line = pool_report._line(_World([]), s)
-    assert "sent 120 of 1000" in line
+    # #995: the denominator is `free` (travel-eligible), not `pool`, so the ratio can't exceed 100%.
+    assert "sent 120 of 400" in line          # sent of FREE, not of pool
+    assert "30.0%" in line                    # 120/400, bounded
     assert "100 filler" in line
-    assert "600 items were held local" in line
-    # the ceiling has to be labelled as one -- an unlabelled 400 next to a 120 reads as a conflict
-    assert "ceiling" in line
+    assert "600 of your 1000 items were held local" in line
 
 
 def test_solo_line_does_not_report_a_measured_zero():

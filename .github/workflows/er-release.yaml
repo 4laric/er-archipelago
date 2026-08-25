@@ -184,14 +184,14 @@ jobs:
         continue-on-error: ${{ github.ref == 'refs/heads/main' || github.event.inputs.unofficial == 'true' }}
 
       - name: Fetch the AP Flower release atlases
-        if: github.ref != 'refs/heads/main'
+        if: github.ref != 'refs/heads/main' && github.event.inputs.unofficial != 'true'
         uses: actions/checkout@v4
         with:
           repository: ${{ vars.ICON_REPO }}
           token: ${{ secrets.ICON_REPO_TOKEN }}
           path: .icon
       - name: Stage AP Flower as installer input
-        if: github.ref != 'refs/heads/main'
+        if: github.ref != 'refs/heads/main' && github.event.inputs.unofficial != 'true'
         run: |
           mkdir -p me3/flower-package
           cp -r .icon/ap-package/menu me3/flower-package/menu

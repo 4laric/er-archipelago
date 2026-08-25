@@ -714,6 +714,31 @@ def blessing_mode(world) -> int:
     return 2 if catchup else 1
 
 
+class CoopDifficulty(Range):
+    """Extra enemy difficulty per co-op partner, for seamless co-op (#993). Solo play ignores it.
+
+      0    off -- co-op enemies scale exactly as they do today                (default)
+      1    +1 sphere tier per partner in your world (a little more HP and bite)
+      2    +2 tiers per partner (noticeably harder with a full party)
+      3+   steeper still, clamped to the top of the ladder
+
+    Seamless co-op already raises enemy HP, but it leaves enemy DAMAGE at the host's default -- so a
+    second player roughly halves the threat coming at each of you without the enemies hitting any
+    harder, which is the "it felt too easy in co-op" report this addresses. Each extra tier moves an
+    enemy UP the same sphere ladder normal scaling uses, and a higher rung carries both more HP and
+    more attack, so the missing bite comes back. Every player is on their own Archipelago slot reading
+    the one shared world, so each client counts the party and applies the same bump -- no host.
+
+    🛑 A TIER CARRIES HP AS WELL AS ATTACK. If you leave Seamless's own enemy-HP scaling on, this
+    stacks a little extra HP on top of the damage it is really there to restore. Pair a non-zero value
+    with Seamless's HP knob turned down, or accept spongier-and-harder. Needs enemy_scaling ON to do
+    anything (vanilla-difficulty seeds apply no tier to bump)."""
+    display_name = "Co-op Difficulty"
+    range_start = 0
+    range_end = 9
+    default = 0
+
+
 @register
 class Scaling(Feature):
     name = "scaling"
@@ -722,6 +747,7 @@ class Scaling(Feature):
         "minimum_enemy_difficulty": MinimumEnemyDifficulty,
         "maximum_enemy_difficulty": MaximumEnemyDifficulty,
         "difficulty_ramp_speed": DifficultyRampSpeed,
+        "coop_difficulty": CoopDifficulty,
         "scadutree_blessing_scope": ScadutreeBlessingScope,
         "dlc_blessing_catchup": DlcBlessingCatchup,
         # DEPRECATED alias for the two above; translated in generate_early.

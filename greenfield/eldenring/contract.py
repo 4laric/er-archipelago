@@ -281,6 +281,32 @@ GREENFIELD, BEDROCK, BOTH = "greenfield", "bedrock", "both"
 # 🛑 The TAG "LegacyBoss" is still baked (SURFACE_INTERNAL_TAGS): the MajorBoss tag doubles as
 # roster identity for goal/anchor/roster consumers, so the absorption is done at has_class via
 # SURFACE_CLASS_EXTRA_TAGS rather than by retagging the data.
+# The lockable abilities (#945). The AUTHORITATIVE name list is er-logic's Ability enum
+# (crates/er-logic/src/ability_lock.rs parse_set); this mirror exists so the OptionSet's valid_keys
+# and the wizard can enumerate them without importing Rust. Order matches the enum. `heal` is NOT
+# here -- its mechanism is the flask-charge clamp, not an action lock. Keep the two in sync: a name
+# added here that er-logic does not know is silently dropped by parse_ability_lock (tolerant), and
+# one er-logic knows that is missing here simply cannot be selected in yaml.
+ABILITY_LOCK_KEYS = ("jump", "crouch", "roll", "r1", "r2", "l1", "l2", "heal")
+
+# Progressive ability lock (#945 / #980): the locked abilities can instead be SYNTHETIC UNLOCK ITEMS
+# shuffled into the pool -- start locked, unlock the one you find. The item is synthetic (never a
+# real EquipParamGoods; the game hands over nothing), recognised by the client through the per-seed
+# abilityUnlockItems map, exactly like armorBundles. Display label per ability key.
+_ABILITY_LABEL = {"jump": "Jump", "crouch": "Crouch", "roll": "Roll",
+                  "r1": "R1", "r2": "R2", "l1": "L1", "l2": "L2", "heal": "Heal"}
+# key -> synthetic item NAME, in ABILITY_LOCK_KEYS order. The client learns the id->ability binding
+# from slot_data (abilityUnlockItems), so these ids need not be arithmetically stable across seeds --
+# but they are allocated at a FIXED BASE (core.py) rather than through a feature's ITEMS anyway, so
+# adding them renumbers no other feature's item ids (the spawn-trap lesson).
+ABILITY_UNLOCK_ITEM_NAMES = tuple((k, f"Unlock: {_ABILITY_LABEL[k]}") for k in ABILITY_LOCK_KEYS)
+# Fixed id block for the seven. 7800000 is the spawn-trap base (10000 wide); 7900000 clears it and
+# stays under the next round base. test_gf_ability_unlock asserts the disjointness.
+ABILITY_UNLOCK_ITEM_BASE = 7900000
+# The er-logic client_features.rs SUPPORTED tag a progressive seed declares, so a client too old to
+# turn unlock items back into abilities reports incompatible instead of leaving the player locked.
+ABILITY_UNLOCK_FEATURE = "ability_unlock"
+
 SURFACE_CLASSES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                    "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
                    "KeyItem", "MajorBoss", "FieldBoss", "MinorDungeonBoss",
@@ -839,6 +865,27 @@ OPTIONS_SUBKEYS = (
     ContractKey("flatten_regular_upgrades", "INT", True, (GREENFIELD,),
                 "core._options_echo (features/upgrades.py)", "upgrades client path",
                 "standard-weapon stones/level: 0 = off (vanilla 2/4/6), 1..4 = uniform N/level (tuned ~3)."),
+    ContractKey("locked_abilities", "STR_LIST", False, (GREENFIELD,),
+                "core._options_echo (features/ability_lock.py)", "er-logic/options.rs parse_ability_lock",
+                "abilities the seed disables at the game's LOGICAL action layer "
+                "(CSChrActionRequestModule.disabled_action_inputs): any of jump, crouch, roll, r1, "
+                "r2, l1, l2. Keybind- and device-agnostic; menus unaffected. Emitted as a sorted "
+                "name list (empty = nothing locked). NOT required: an absent key parses to the empty "
+                "set, which is the off default -- OPTIONS_SUBKEYS is not folded into CONTRACT_HASH, "
+                "so this key adds no version pairing and an older client simply never reads it."),
+    ContractKey("coop_difficulty", "INT", False, (GREENFIELD,),
+                "core._options_echo (features/scaling.py)",
+                "er-logic/options.rs parse_coop_difficulty -> scaling.rs coop_tier_bump",
+                "seamless-co-op difficulty: extra enemy-scaling TIERS added per co-op partner in the "
+                "world, on top of the region's own tier (#993). 0 (default) = off. Seamless raises "
+                "enemy HP but leaves enemy DAMAGE at the host default, so a partner halves incoming "
+                "threat without enemies hitting harder; a higher tier carries both HP and attack, "
+                "restoring it. Each client counts its own phantom census and applies this "
+                "identically -- every player is on its own AP slot reading the same world, so no host "
+                "arbitration. NOT required: an absent key parses 0 (off), and OPTIONS_SUBKEYS is not "
+                "folded into CONTRACT_HASH, so this adds no version pairing and an older client "
+                "simply never reads it -- it also needs no requiresClientFeatures, because a client "
+                "that ignores it merely plays at the un-bumped (current) co-op difficulty."),
 )
 
 
@@ -850,6 +897,14 @@ CONTRACT = (
     ContractKey("apIdsToItemIds", "SCALAR_INT_MAP", True, (BOTH,),
                 "core._base_slot_data", "core.rs:309 i64_map",
                 "AP item id (str) -> ER FullID granted on receipt."),
+    ContractKey("abilityUnlockItems", "STR_MAP", False, (GREENFIELD,),
+                "features/ability_lock.py (progressive mode)", "er-logic ability_lock receive path",
+                "synthetic AP item id (str) -> ability name (jump/crouch/roll/r1/r2/l1/l2). Present "
+                "only under ability_lock_mode: progressive: the abilities start locked (options."
+                "locked_abilities) and each rides one shuffled 'Unlock: X' item; receiving that item "
+                "id unlocks the ability (er_logic ability_lock::unlock). Same shape as armorBundles -- "
+                "the game is never asked to grant these, the client resolves them by this map. A seed "
+                "that emits it also emits requiresClientFeatures ['ability_unlock']."),
     ContractKey("armorBundles", "LISTVAL_INT_MAP", False, (GREENFIELD,),
                 "features/armor_bundles.py", "core.rs armor-bundle receive reconciler",
                 "synthetic armor-set AP item id (str) -> every protector FullID in its generated family."),
@@ -1595,7 +1650,7 @@ pub fn validate(sd: &Value) -> Vec<String> {
 # forget; a derived one cannot go stale. (Same doctrine as the gen-input stamp.)
 import hashlib as _hashlib
 
-APWORLD_VERSION = "0.4.14"
+APWORLD_VERSION = "0.5.0"
 
 def _contract_hash() -> str:
     _mat = "\n".join(

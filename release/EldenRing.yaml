@@ -774,6 +774,12 @@ Elden Ring:
   # 224 locations, and a category holding more items than there are non-shop
   # slots to move them to is skipped -- the generation log names which one and
   # by how much. Full-world seeds have room to spare.
+
+  # Whether merchant purchase slots are AP checks. off removes them entirely --
+  # ~562 shop rows stop being locations, so no item (yours or a foreign player's) is
+  # gated behind a purchase, and the seed shrinks. Merchants still sell vanilla wares.
+  shop_checks: true
+
   keep_out_of_shops: []
 
   # Keep your own money runes (Golden / Hero's / Lord's / Numen's and the DLC
@@ -837,6 +843,21 @@ Elden Ring:
   #    75   maximum about a quarter of the way in
   #   100   maximum almost immediately
   difficulty_ramp_speed: 0
+
+  # SEAMLESS CO-OP difficulty. Extra enemy tiers per co-op partner in your world.
+  # Solo play ignores it. Seamless raises enemy HP but leaves enemy DAMAGE at the
+  # host default, so a partner halves the threat without enemies hitting harder;
+  # each tier moves enemies up the same scaling ladder (more HP AND attack), which
+  # restores it. Needs enemy_scaling on. Every player is on their own slot, so each
+  # client counts the party and applies the same bump -- no host.
+  #     0   off -- co-op scales as it does today          (default)
+  #     1   +1 tier per partner
+  #     2   +2 tiers per partner (harder with a full party)
+  #   3..9  steeper, clamped to the top of the ladder
+  # NOTE: a tier adds HP too, so if you leave Seamless's own enemy-HP scaling on,
+  # this stacks a little extra HP -- pair a non-zero value with Seamless's HP knob
+  # turned down, or accept spongier-and-harder.
+  coop_difficulty: 0
 
   # What your equipment WEIGHS, and therefore which roll you get.
   #   off     (default) equipment weighs what it weighs -- your kit is a budget
@@ -904,6 +925,34 @@ Elden Ring:
   # reaching the boss, and the boss and its dungeon sweep still have to be earned.
   # Applied at connect, so a dungeon you are already standing in needs a reload.
   open_boss_doors: false
+
+  # EXPERIMENTAL / test build (#945). Abilities the game disables for the whole seed, at the
+  # character's LOGICAL action layer -- so the lock survives key/pad rebinds, covers keyboard and
+  # mouse, and never touches menus. Any of: jump, crouch, roll, r1, r2, l1, l2, heal. r1/r2/l1/l2 are
+  # the attack inputs; locking one also stops casting through it. `heal` locks the flask (it heals
+  # nothing while locked). Empty = nothing locked (the default).
+  #
+  # This is a STATIC lock -- there is no in-run unlock yet. crouch is an unverified mapping. `heal`
+  # is not lockable here (that is the flask option's job).
+  locked_abilities: []
+
+  # EXPERIMENTAL (#980). How the locked abilities behave:
+  #   static      -- off for the whole seed (the default).
+  #   progressive -- they start off and each becomes an "Unlock: X" item shuffled into the
+  #                  multiworld; find it to get that ability back. Needs a client that understands
+  #                  ability unlocks (declared via requiresClientFeatures). No effect if the set
+  #                  above is empty.
+  ability_lock_mode: static
+
+  # EXPERIMENTAL (#980). In PROGRESSIVE mode, must you HOLD your unlock items to finish?
+  #   on  (default) -- each "Unlock: X" is progression and is added to the goal's held-item
+  #                    requirement. Because progression is distributed across the whole multiworld,
+  #                    your abilities can land in a PARTNER's world -- and then you cannot complete
+  #                    until they send them back. That mutual dependency is the point of a multiworld.
+  #   off           -- the unlocks stay useful and never gate completion (a seed always finishes even
+  #                    with an ability still out). The item-hunt without your ending held hostage.
+  # No effect outside progressive mode, or when Locked Abilities is empty.
+  ability_unlocks_required: true
 
   # ---- Standard Archipelago options -----------------------------------------
 

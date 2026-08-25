@@ -426,6 +426,18 @@ for _c in sorted(_spawn_trap_data.SPAWN_TRAPS):
     # it; the client's name branch fires the effect instead.
     _item_class[_nm] = ItemClassification.filler
 
+# ABILITY UNLOCK ITEMS (#945/#980) -- seven synthetic USEFUL items, one per lockable ability, at a
+# FIXED id block for the same reason the spawn traps use one: allocating them through a feature's
+# ITEMS would renumber every feature-minted item registered after it. Like a spawn trap they carry
+# NO `_AP_IDS_TO_ITEM_IDS` entry -- the game hands nothing over; the client turns a received id back
+# into an ability through the per-seed abilityUnlockItems map (features/ability_lock.py). USEFUL, not
+# filler: an unlock is worth finding and must never be swept or discarded as junk. Minted
+# unconditionally (so create_item works whenever asked); only POOLED under ability_lock_mode:
+# progressive, by features/ability_lock.create_items.
+for _idx, (_key, _nm) in enumerate(contract.ABILITY_UNLOCK_ITEM_NAMES):
+    item_name_to_id[_nm] = contract.ABILITY_UNLOCK_ITEM_BASE + _idx
+    _item_class[_nm] = ItemClassification.useful
+
 # FEATURE-MINTED GRANTS. `registry.allocate_item_ids` gives a feature's ITEMS an AP id, but nothing
 # tells the client what one resolves to: `_AP_IDS_TO_ITEM_IDS` is built from ITEM_CATALOG above, so
 # a minted item is a name the game can never hand over. That is why scadu_supply's fragment stayed
@@ -486,7 +498,7 @@ _OPTION_GROUPS = [
         "global_scadutree_blessing"]),
     ("Difficulty & Scaling", [
         "enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
-        "difficulty_ramp_speed", "traps", "spawn_traps", "trap_count"]),
+        "difficulty_ramp_speed", "coop_difficulty", "traps", "spawn_traps", "trap_count"]),
     ("Checks & Item Pool", [
         "dungeon_sweep", "reroll_enemy_drops",
         "protect_missable_locations", "armor_bundles",
@@ -506,7 +518,7 @@ _OPTION_GROUPS = [
         "confine_foreign_progression",
         "keep_local", "keep_local_rune_cap"]),
     ("Shops & Merchants", [
-        "keep_out_of_shops", "no_runes_in_shops", "rune_shop_pricing", "merchant_bells_on_talk",
+        "shop_checks", "keep_out_of_shops", "no_runes_in_shops", "rune_shop_pricing", "merchant_bells_on_talk",
         "merchant_bell_logic", "reroll_infinite_shop_stock", "infinite_hub_wares",
         "progressive_stone_bells"]),
     ("Quality of Life", [
@@ -522,7 +534,7 @@ _OPTION_GROUPS = [
     # shape instead of synthetic locks) -- Alaric 2026-08-20: "buried pretty deep, both kind of
     # experimental". They are still fully supported options; they just should not greet a player
     # who came to randomize.
-    ("Experimental", ["vanilla_placement", "natural_progression"], True),
+    ("Experimental", ["vanilla_placement", "natural_progression", "locked_abilities", "ability_lock_mode", "ability_unlocks_required"], True),
 ]
 
 
@@ -630,14 +642,33 @@ class GreenfieldEldenRingWorld(World):
                           or self.options.enable_dlc.value)
         return dlc_only or enable_dlc
 
+    def _shop_checks_on(self) -> bool:
+        """Whether merchant purchase slots are AP checks (#994). Default ON; OFF removes them.
+        Read HERE and in features/shops.slot_data -- the location set and the slot-data tables must
+        agree, so both consult this one predicate."""
+        opt = getattr(self.options, "shop_checks", None)
+        return True if opt is None else bool(opt.value)
+
     def _seed_locations(self, region_name):
-        """LOCATIONS[region] minus the rows THIS SEED cannot open -- today exactly the DLC-gated
-        hub shop rows (Enia's 36) when the DLC is off. ONE chokepoint on purpose: the region
-        build, the pool assembly, the count-neutral total and the slot-data tables all read it,
-        so a location and its pool item can never disagree about whether they exist. The first
-        cut filtered only the region build and the 36 vanilla wares stayed in the pool -- the
-        bell test's count-neutrality caught 1003 items over 967 locations (AzoTax, 2026-08-20)."""
+        """LOCATIONS[region] minus the rows THIS SEED cannot open -- the DLC-gated hub shop rows
+        (Enia's 36) when the DLC is off, and (#994) EVERY shop-check row when shop_checks is off.
+        ONE chokepoint on purpose: the region build, the pool assembly, the count-neutral total and
+        the slot-data tables all read it, so a location and its pool item can never disagree about
+        whether they exist. The first cut filtered only the region build and the 36 vanilla wares
+        stayed in the pool -- the bell test's count-neutrality caught 1003 items over 967 locations
+        (AzoTax, 2026-08-20)."""
         rows = LOCATIONS.get(region_name, [])
+        # #994: drop every merchant-slot check (SHOP_ROW_FLAGS scope, ~562 rows) so no item -- yours
+        # or a foreign player's -- is ever gated behind a purchase. Filtered here so region build,
+        # pool, count and slot_data all agree the rows are gone; keep_out_of_shops / no_runes_in_shops
+        # then find no shop locations to constrain and are inert by construction.
+        if not self._shop_checks_on():
+            try:
+                # SHOP_ROW_FLAGS is keyed by str(AP location id) -- t[1], the ap_id, NOT t[2] (flag).
+                from .shop_data import SHOP_ROW_FLAGS as _srf
+                rows = [t for t in rows if str(t[1]) not in _srf]
+            except ImportError:
+                pass
         if self._dlc_on():
             return rows
         try:
@@ -1102,6 +1133,15 @@ class GreenfieldEldenRingWorld(World):
     def _required_runes(self) -> List[str]:
         return getattr(self, "gf_required_runes", [])
 
+    def _required_ability_unlocks(self) -> List[str]:
+        """Pooled 'Unlock: X' names this seed's goal requires held (progressive + ability_unlocks_required).
+
+        The single source both terminal conditions read -- upgraded to progression by _class_for, ANDed
+        into completion_condition below, and appended to goalRequiredItems by features/goal_locations.
+        Empty in static mode, with no locks, or when the requirement is opted out."""
+        from .features.ability_lock import _required_unlock_names
+        return _required_unlock_names(self)
+
     def _great_runes_required_count(self) -> int:
         """Effective number of distinct eligible Great Runes needed for completion."""
         eligible = self._required_runes()
@@ -1120,7 +1160,8 @@ class GreenfieldEldenRingWorld(World):
         # progression so AP fill guarantees it reachable (all are GOODS -> filler by default).
         if (name in self._required_runes() or name in getattr(self, "gf_leyndell_runes", [])
                 or name in getattr(self, "gf_legacy_keys", [])
-                or name in getattr(self, "gf_natural_keys", [])):
+                or name in getattr(self, "gf_natural_keys", [])
+                or name in self._required_ability_unlocks()):
             return ItemClassification.progression
         # 🛑 AND A GREAT RUNE IS NEVER FILLER, EVEN WHEN THIS SEED'S GOAL DOES NOT WANT IT (#640).
         # Great Runes are GOODS, so `_item_class` defaults them to filler, and the branch above only
@@ -1960,6 +2001,16 @@ class GreenfieldEldenRingWorld(World):
             else:
                 self.multiworld.completion_condition[player] = \
                     lambda state, lk=locks: state.has_all(lk, player)
+        # ABILITY UNLOCKS (#980 follow-up): when progressive mode requires them, the goal ALSO needs
+        # every pooled 'Unlock: X' held -- an independent AND term on whatever goal was built above,
+        # exactly like a required Great Rune. Single-sourced with goalRequiredItems through
+        # _required_ability_unlocks so the AP-side and client-side terminal conditions cannot drift.
+        _ability_unlocks = self._required_ability_unlocks()
+        if _ability_unlocks:
+            _goal_base = self.multiworld.completion_condition[player]
+            self.multiworld.completion_condition[player] = \
+                lambda state, b=_goal_base, un=_ability_unlocks, p=player: (
+                    b(state) and state.has_all(un, p))
         for f in _FEATURES:
             f.set_rules(self)
 
@@ -2060,6 +2111,16 @@ class GreenfieldEldenRingWorld(World):
             # test_gf_options_echo_covers_its_producers.py is the gate; see #408 for the same shape.
             contract.MERCHANT_BELLS_ON_TALK: _opt("merchant_bells_on_talk"),
             contract.FLATTEN_REGULAR_UPGRADES: _opt("flatten_regular_upgrades"),  # 0 off (vanilla 2/4/6); 1..4 stones/level
+            # ability-lock (#945): a SORTED name list read straight from the OptionSet (empty =
+            # nothing locked). Not a bare literal -- resolved from world.options; the client folds
+            # it via parse_ability_lock. STR_LIST subkey, so it moves no contract hash.
+            contract.LOCKED_ABILITIES: sorted(self.options.locked_abilities.value),
+            # co-op difficulty (#993): extra enemy-scaling tiers per co-op partner. 0 = off. Read
+            # straight from the Range; the client (scaling.rs coop_tier_bump) counts partners from
+            # its own phantom census and bumps the applied region tier. NOT required and needs no
+            # client-feature tag -- a client that ignores this key just plays at un-bumped co-op
+            # difficulty. Needs enemy_scaling ON to do anything (no tier to bump otherwise).
+            contract.COOP_DIFFICULTY: _opt("coop_difficulty"),
         }
 
     def _item_counts(self) -> Dict[str, int]:

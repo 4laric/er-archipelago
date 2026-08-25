@@ -521,7 +521,13 @@ class ClientResetsAreCalled(unittest.TestCase):
         #    inside a `fn fire_*`, which `pub fn fire` dispatches to per trap fired. If one appears
         #    in an arm/init function instead, the write became once-per-session and a load CAN
         #    strand it -- which is precisely the shop_sell/shop_icon/shop_stock/shop_preview bug.
-        fns = [(m.start(), m.group(1)) for m in re.finditer(r"\n(?:pub )?fn (\w+)", body)]
+        # The visibility prefix is optional AND may be restricted -- `pub(crate) fn` / `pub(super) fn`
+        # / `pub(in path) fn`, not just bare `pub fn`. Match all of them: a fn this regex fails to
+        # register is invisible as an OWNER, so an `instance_mut()` inside it is misattributed to the
+        # previous fn declared -- which is exactly how `pub(crate) fn fire_no_flask` (per-fire, exempt)
+        # once got charged to `drive_spawn_burst` and turned this gate red on a false positive.
+        fns = [(m.start(), m.group(1))
+               for m in re.finditer(r"\n(?:pub(?:\([^)]*\))? )?fn (\w+)", body)]
         self.assertTrue(fns, "no fn declarations parsed out of traps.rs -- re-point this scan")
         stray = []
         for m in re.finditer(r"SoloParamRepository::instance_mut\s*\(", body):

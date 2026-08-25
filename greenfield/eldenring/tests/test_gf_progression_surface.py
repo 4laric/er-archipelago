@@ -224,6 +224,9 @@ def test_restricted_progression_predicate():
     assert ps.is_restricted_progression(_FakeItem("Academy Glintstone Key", P, True), P)
     # Boss Keys are EXEMPT (they'd swamp the tiny surface; boss_locks keeps them reachable)
     assert not ps.is_restricted_progression(_FakeItem("Boss Key: Godrick the Grafted", P, True), P)
+    # Ability Unlocks are EXEMPT too -- made progression so the GENERAL fill exports them to partner
+    # worlds (cross-game BK); confining them locally would defeat that. #980 follow-up.
+    assert not ps.is_restricted_progression(_FakeItem("Unlock: Roll", P, True), P)
     # non-advancement and foreign items are not ours to confine
     assert not ps.is_restricted_progression(_FakeItem("Rune", P, False), P)
     assert not ps.is_restricted_progression(_FakeItem("Limgrave Lock", P + 1, True), P)

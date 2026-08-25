@@ -12,7 +12,10 @@ MAJOR_BOSS_EXTRAS, tagged 'MajorBoss' in location_tags). Everything else lands n
 WHAT COUNTS AS "OUR PROGRESSION": the region Locks (the region-lock spine's gate items) plus any
 conditionally-progression items -- required Great Runes (great_runes goal), Leyndell-gate runes, legacy
 dungeon keys. Boss Keys are DELIBERATELY EXEMPT: with boss_keys on there are ~24 of them, they'd swamp
-the tiny surface, and features/boss_locks already keeps them reachable in logic.
+the tiny surface, and features/boss_locks already keeps them reachable in logic. Ability Unlocks
+(ability_unlocks_required) are ALSO exempt, for the opposite reason: they are made progression precisely
+so the GENERAL fill can carry them into partner worlds -- confining them here would keep them home and
+kill the cross-game dependency that is their entire purpose.
 
 FEASIBILITY LADDER (never FillError): a surface smaller than the number of locks to place -- or a seed
 with no sphere-0 anchor -- can't host every lock. So strict mode WIDENS the allowed surface one grouped
@@ -50,6 +53,12 @@ except Exception:  # not yet generated -> feature is a no-op
 # defeat the restriction -- Shop is only ever in play if the user explicitly selects it in the base.
 _WIDEN_GROUPS = [["Remembrance", "GreatRune"], ["KeyItem"], ["Boss"], ["Legendary"], ["Seedtree", "Church"]]
 _BOSS_KEY_PREFIX = "Boss Key:"
+# Ability unlocks (#980 follow-up) are advancement + goal-required when ability_unlocks_required is on,
+# but they are DELIBERATELY EXEMPT from local confinement: the whole point of making them progression
+# is that the general multiworld fill can scatter them into PARTNER worlds, so a partner holding your
+# "Unlock: Roll" genuinely blocks your goal (cross-game BK). Confining them to this world's own surface
+# would defeat that -- so, like Boss Keys, they escape is_restricted_progression and ride the general fill.
+_ABILITY_UNLOCK_PREFIX = "Unlock: "
 _REGION_COMPLETION_FEATURE = "region_completion_goal_gate"
 
 
@@ -734,10 +743,12 @@ def surface_ap_ids(world, classes):
 
 def is_restricted_progression(item, player):
     """True iff `item` is THIS world's own progression that we confine: advancement, owned by `player`,
-    and NOT a Boss Key (those are exempt). Pure over an item-like with .player/.advancement/.name."""
+    and NOT a Boss Key or an ability Unlock (both exempt -- Boss Keys because they would swamp the
+    surface, Unlocks because they are meant to travel to partner worlds). Pure over an item-like."""
     if getattr(item, "player", None) != player or not getattr(item, "advancement", False):
         return False
-    return not str(getattr(item, "name", "")).startswith(_BOSS_KEY_PREFIX)
+    name = str(getattr(item, "name", ""))
+    return not (name.startswith(_BOSS_KEY_PREFIX) or name.startswith(_ABILITY_UNLOCK_PREFIX))
 
 
 def _foreign_open_locations(multiworld, er_players):

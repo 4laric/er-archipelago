@@ -3,6 +3,43 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.5.0 — 2026-08-22
+
+Ability lock: restrict abilities for a run, or start locked and find them back as items.
+
+### What you need to update
+
+- **Client:** Required for a progressive seed (the `ability_unlock` handshake) and for any seed once you upgrade the host — the version handshake moves to 0.5.0. A 0.4.x client can still play a plain 0.4.x seed.
+- **APWorld:** Required for the host to generate 0.5.0 seeds.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** `locked_abilities` and `ability_lock_mode` are new and default to off/empty, so nothing you already wrote changes.
+- **Existing seed/save:** Compatible — a seed that sets neither option behaves exactly as it did on 0.4.x; the new keys are simply absent (= off) for older clients.
+- **Profile/assets:** No action.
+
+This is the first `v0.5` **integration branch** window: it is opened off v0.4.14 but does NOT ship to `main`, which holds the 0.4.x stable line while the feature is validated. `release/CHANNELS.tsv` therefore moves nothing — there is no stable promotion in this window.
+
+`CONTRACT_HASH` is `13db0b3a`, read by loading contract.py — **MOVED** from `dc0dc687` (the armorBundles shape that stood from v0.4.8). `abilityUnlockItems` is the new key. An older client reports incompatible for a progressive seed rather than leaving abilities locked, via `requiresClientFeatures: ["ability_unlock"]`; a static-lock seed rides the always-declared options echo and needs no new key.
+
+The version moved, so a client half is required: `contract_gen.rs` embeds the version string and the hash. Client half is `from-software-archipelago-clients` v0.5 (`d4f23eb`), and the gitlink rides in this same commit (AGENTS §7).
+
+### Added
+
+- **Co-op difficulty (#993).** New `coop_difficulty` option (0-9, default 0 = off) for seamless co-op. Seamless raises enemy HP but leaves enemy DAMAGE at the host default, so a partner roughly halves the incoming threat without enemies hitting harder -- the "too easy in co-op" report. Each extra point adds that many enemy-scaling tiers per co-op partner in your world; a higher tier carries both HP and attack, restoring the missing threat. Every player is on their own AP slot reading one shared world, so each client counts the party and applies the same bump -- no host. Needs `enemy_scaling` on; a tier adds HP too, so pair a non-zero value with Seamless's own HP knob turned down. Off by default, so nothing changes for solo or existing seeds.
+- **Remove merchant checks (#994).** New `shop_checks` option (default on). Off makes no merchant purchase slot an AP check -- the ~562 shop rows (184 in the hub alone) stop being locations, so nothing you or another player wants can be gated behind a purchase, and the seed shrinks accordingly. Merchants still sell their vanilla wares.
+- **Ability lock (#945).** A new option axis: `locked_abilities` disables any of jump / crouch / roll / r1 / r2 / l1 / l2 at the game's logical-action layer — keybind- and device-agnostic (rebinds, keyboard and mouse all covered) and menu-safe. `ability_lock_mode` chooses `static` (off for the whole seed) or `progressive`.
+- **Heal is lockable too (#945).** `heal` joins the ability lock; because it owns no action bit it
+  disables the flask instead (the No Flask SpEffect, re-applied while locked), so the flask heals
+  nothing until it is unlocked.
+- **Log cleanups.** A heal-locked seed no longer repeats the flask-param "not loaded yet" line every
+  frame; the client now says ONCE when a Progressive Flask Upgrade lands on a seed with no flask
+  ladder (progressive_flasks off, #988); and the `auto_upgrade` log states that the normal and somber
+  smithing tracks are separate and a level never crosses (#989).
+- **Progressive ability lock (#980).** In progressive mode each locked ability becomes a synthetic `Unlock: X` item shuffled into the multiworld; find it (or receive it from another world) to get that ability back. The unlock is reconnect-safe — recomputed from the whole received stream on every connect.
+- **Ability unlocks are goal-required by default (#980).** New `ability_unlocks_required` (default on): in progressive mode each `Unlock: X` is now `progression` and is added to the goal's held-item requirement, exactly like a required Great Rune. Because progression is distributed across the whole multiworld — and these are deliberately exempt from Elden Ring's local progression confinement — your abilities can land in a PARTNER's world, and then you cannot finish until they send them back. That mutual dependency is the point of playing in an Archipelago. Turn it off to keep the old behavior: the unlocks stay `useful` and never gate completion. No client change — the client's existing Goal gate enforces the requirement (`goalRequiredItems`), and the player-visible goal line lists the unlocks it still needs.
+
+- **Fix: chandelier Academy Glintstone Key no longer hands out a free duplicate key (#1001).** The Church of the Cuckoo chandelier copy grants a *duplicate* goods id (8174) of the Academy Glintstone Key; it was excluded from checks (so the key stays a pool singleton) but its vanilla lot was left live, cheesing the Raya Lucaria gate for free with no AP check. Its lot is now neutralized at the source (a duplicate-lot goods-blank), so it drops nothing while the key remains a singleton.
+- **`!check <name>` rescue console command (#1008).** Look up a check's acquisition flag by name -- for enemy/boss/NPC death drops and offline pickups that "did not fire" (e.g. under enemy rando). Prints each match's flag, whether it is set, and a ready `!setflag` to send it on the next poll. Documented in GETTING-UNSTUCK.md.
+- **Sweep-flush burst telemetry (#1006).** Client-only diagnostics: the sweep-flush path now logs the per-tick shared-flag write time and, per sweep, the ms-to-confirm + peak flag count. Measure-before-optimize for the seamless-co-op "flood gate" (boss sweeps paying out on the defeat flag + SC flag-sync latency) -- no behavior change.
+- **Roll unlocks early (#980, bobler).** In progressive mode the `Unlock: Roll` item is declared to Archipelago's `early_items`, so Fill forces it into an early sphere -- you are never stuck without the dodge roll for hours. It stays exportable (not `local_early_items`), so it can still reach a partner's world, just early there too. Only Roll is forced early; the other abilities place freely.
 ## v0.4.14 — 2026-08-22
 
 ### What you need to update
