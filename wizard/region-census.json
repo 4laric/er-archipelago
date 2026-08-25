@@ -830,7 +830,7 @@
    }
   },
   "Limgrave": {
-   "checks": 330,
+   "checks": 328,
    "combos": {
     "Basin": 2,
     "Boss|FieldBoss": 5,
@@ -884,7 +884,7 @@
    }
   },
   "Liurnia": {
-   "checks": 610,
+   "checks": 612,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -1468,5 +1468,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "9d7f71fa71de9ac1b99b26510ad704df4227fb08194ba03c1da14f989d3112dc"
+ "source_sha256": "4289561eda0dffbdeafc085d9df3837390a8b4434c7bf83a0c04d25de1e6ba69"
 }

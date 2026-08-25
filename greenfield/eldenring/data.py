@@ -2795,7 +2795,6 @@ LOCATIONS = {
         ("Limgrave :: Nomadic Merchant's Bell Bearing [1] - near Saintsbridge, also granted by Tibia Mariner (m60_45_39) [f400901]", 7773869, 400901),
         ("Limgrave :: Nomadic Merchant's Bell Bearing [2] - near Fort Haight West, also granted by Bloodhound Knight Darriwil (m60_44_35) [f400902]", 7773870, 400902),
         ("Limgrave :: Nomadic Merchant's Bell Bearing [3] - m60_41_36 (region unconfirmed), also granted by Crucible Knight (m60_42_37) [f400903]", 7773871, 400903),
-        ('Limgrave :: Ornamental Straight Sword - m10_01 [f510030]', 7773887, 510030),
         ("Limgrave :: Golden Seed - Ulcerated Tree Spirit in Fringefolk Hero's Grave [f510280]", 7773895, 510280),
         ('Limgrave :: Blue Dancer Charm - around Highroad Cave [f520350]', 7773925, 520350),
         ('Limgrave :: Roar Medallion - Limgrave Tunnels [f520610]', 7773941, 520610),
@@ -2885,7 +2884,6 @@ LOCATIONS = {
         ('Limgrave :: Curtsy [f60803]', 7774744, 60803),
         ('Limgrave :: Nod In Thought [f60817]', 7774748, 60817),
         ('Limgrave :: Sitting Sideways [f60835]', 7774752, 60835),
-        ('Limgrave :: Golden Beast Crest Shield - m10_01 [f510030]', 7900113, 510030),
         ('Limgrave :: Cloth Trousers - treasure · Murkwater Cave [f31007010]', 7900210, 31007010),
         ('Limgrave :: Scaled Armor - m60_42_39 (region unconfirmed), also granted by Bell Bearing Hunter (m60_42_38) [f1042397500]', 7900253, 1042397500),
         ('Limgrave :: Scaled Gauntlets - m60_42_39 (region unconfirmed), also granted by Deathbird (m60_42_38) [f1042397500]', 7900254, 1042397500),
@@ -3317,6 +3315,7 @@ LOCATIONS = {
         ("Liurnia :: Nomadic Merchant's Bell Bearing [5] - around Laskyar Ruins, also granted by Adan, Thief of Fire (m60_38_41) [f400905]", 7773873, 400905),
         ("Liurnia :: Isolated Merchant's Bell Bearing [2] - around South Raya Lucaria Gate, also granted by Death Rite Bird (m60_36_45) [f400907]", 7773875, 400907),
         ("Liurnia :: Nomadic Merchant's Bell Bearing [6] - around Bellum Church, also granted by Royal Knight Loretta (m60_35_50) [f400908]", 7773876, 400908),
+        ('Liurnia :: Ornamental Straight Sword - m10_01 [f510030]', 7773887, 510030),
         ("Liurnia :: Magma Wyrm's Scalesword - Makkar [f510260]", 7773894, 510260),
         ("Liurnia :: [Sorcery] Loretta's Greatbow - around Main Caria Manor Gate [f510810]", 7773904, 510810),
         ('Liurnia :: Twinsage Sorcerer Ashes - around Black Knife Catacombs [f520050]', 7773908, 520050),
@@ -3482,6 +3481,7 @@ LOCATIONS = {
         ("Liurnia :: Blue Silver Mail Armor - around Slumbering Wolf's Shack, also granted by Deathbird (m60_37_42) [f400412]", 7900047, 400412),
         ("Liurnia :: Blue Silver Bracelets - around Slumbering Wolf's Shack, also granted by Omenkiller (m60_35_42) [f400412]", 7900048, 400412),
         ("Liurnia :: Blue Silver Mail Skirt - around Slumbering Wolf's Shack, also granted by Deathbird (m60_37_42) [f400412]", 7900049, 400412),
+        ('Liurnia :: Golden Beast Crest Shield - m10_01 [f510030]', 7900113, 510030),
         ('Liurnia :: Dragon Heart - Makkar [f510260]', 7900122, 510260),
         ("Liurnia :: Ash of War: Loretta's Slash - around Main Caria Manor Gate [f510810]", 7900127, 510810),
         ('Liurnia :: Black Knifeprint - around Altar South [f520210]', 7900139, 520210),
@@ -5557,4 +5557,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:9570c20dc311a54722a820d8b48fb8ea675088c0333ca5f02fa095345d41e132', 'module': 'data.py', 'body_sha256': 'sha256:c06b950c38e7bb50e26376b908840aa187381edf47d479428f171174a7d63e97'}
+_GEN_STAMP = {'inputs_hash': 'sha256:c792b546c788fc469f3574aef8c3df48d0f34e93710f26ae2d31ed45bb3bd35a', 'module': 'data.py', 'body_sha256': 'sha256:542994aca232a5f51573ad3fbc859c8f48492b16bfa9dd152f35a3053a62e61f'}

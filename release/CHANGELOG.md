@@ -30,6 +30,16 @@ promotion since v0.4.13, and the one the v0.5.0 window deliberately deferred unt
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The Chapel of Anticipation return is Liurnia now, not Limgrave.** The Grafted Scion's drops --
+  Ornamental Straight Sword and Golden Beast Crest Shield -- sat under Limgrave on the strength of
+  the prologue fight, which the game expects you to lose. The chapel floor has no Site of Grace of
+  its own, so nothing the Limgrave Lock lights puts you back on it; the route that does is the Four
+  Belfries -> Chapel warp, and the Belfries are Liurnia's (their Imbued Sword Key chest became a
+  Liurnia check in v0.4.11, #940). Both checks now read `Liurnia ::`, and stay barred from hosting
+  progression as before. Nothing else moved: the Cave of Knowledge tutorial pickups and the
+  Fringefolk Hero's Grave rewards below the Stranded Graveyard -- including the Erdtree Greatbow,
+  which the chariot pays out, not a chapel chest -- are all walkable from Limgrave and stay there.
+  Reported by 255. (#1023)
 ### Added
 
 - **Region Sync (#1005).** New `region_sync` toggle (default off) for seamless co-op: the party
