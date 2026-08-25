@@ -267,10 +267,17 @@ class RegionSecondOpinionPageTest(unittest.TestCase):
 
     def test_the_check_flag_agrees_with_the_freshness_assertion(self):
         """regen_all's consumers call --check; if it ever disagreed with this suite the CI
-        byte-diff and the gate would point in opposite directions."""
-        rc = subprocess.run([sys.executable, TOOL, "--repo", REPO, "--check"],
-                            stdout=subprocess.DEVNULL).returncode
-        self.assertEqual(rc, 0, "tools/build_region_second_opinion_page.py --check says STALE")
+        byte-diff and the gate would point in opposite directions.
+
+        The WITNESS is the word it printed: a --check that exited 0 because it never compared
+        anything would pass a bare returncode assertion for the same reason a fresh page does."""
+        run = subprocess.run([sys.executable, TOOL, "--repo", REPO, "--check"],
+                             stdout=subprocess.PIPE, universal_newlines=True)
+        self.assertIn("fresh:", run.stdout,
+                      "--check exited without saying it compared anything: %r" % run.stdout)
+        self.assertIn(os.path.basename(SHIPPED), run.stdout)
+        self.assertEqual(run.returncode, 0,
+                         "tools/build_region_second_opinion_page.py --check says STALE")
 
 
 if __name__ == "__main__":
