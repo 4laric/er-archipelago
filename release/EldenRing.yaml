@@ -967,6 +967,22 @@ Elden Ring:
   # client does not recognize are ignored; linked traps never echo back onto the network.
   trap_link: false
 
+  # SEAMLESS CO-OP: share region unlocks with the other Elden Ring players here.
+  # You all play in ONE physical world (the co-op host's) but each have your own
+  # Archipelago slot -- so if one of you has unlocked Liurnia and the rest have
+  # not, the rest get kicked out of it and cannot follow. With this on, the moment
+  # ANY Elden Ring player who also turned it on unlocks a region, that region's
+  # door opens for all of you: the map gate lifts and its graces light up.
+  #
+  # IT ONLY OPENS THE DOOR. Nobody is handed anyone else's region key item -- that
+  # stays where the multiworld put it, and finding your own is still what counts
+  # for your items and your goal. Generation is identical either way, so turning
+  # this on makes nobody's seed easier to finish.
+  #
+  # Turn it on for every Elden Ring player in the group. Players who leave it off
+  # are unaffected, and other games in the multiworld never see it.
+  region_sync: false
+
 
 # ============================================================================
 #  FIXED IN v0.2 -- these are NOT options. Do not add them to the file above.
