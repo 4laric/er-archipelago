@@ -120,6 +120,10 @@ class ItemNameTests(unittest.TestCase):
             "Rotten Breath")
 
     def test_generic_items_are_refused_without_a_network_call(self):
+        # WITNESS: the refusal list is non-empty. Without this the assertFalse half below would
+        # pass just as happily against an EMPTY GENERIC_ITEMS -- i.e. with the refusal switched
+        # off entirely (test_gf_vacuous_pass's witness ratchet).
+        self.assertTrue(AUDIT.GENERIC_ITEMS, "the generic-item refusal list is empty")
         for name in ("Golden Rune [1]", "golden rune [12]", "Smithing Stone [7]", "Rune Arc"):
             self.assertTrue(AUDIT.is_generic(name), name)
         for name in ("Dragonscale Blade", "Snow Witch Hat", "Pearldrake Talisman +1"):
@@ -147,6 +151,9 @@ class AreaMappingTests(unittest.TestCase):
         self.assertTrue(known)
 
     def test_an_unknown_place_is_unknown_not_a_guess(self):
+        # WITNESS: the same call SAYS KNOWN for a place we do recognise. A normalize_area that
+        # returned (None, False) for everything would satisfy the assertions below.
+        self.assertTrue(AUDIT.normalize_area("Caelid")[1])
         mapped, known = AUDIT.normalize_area("Some Place That Does Not Exist")
         self.assertIsNone(mapped)
         self.assertFalse(known)
@@ -178,6 +185,9 @@ class WikitextTests(unittest.TestCase):
         self.assertEqual(regions, ["Mt. Gelmir"])
 
     def test_no_recognised_place_yields_nothing_rather_than_a_default(self):
+        # WITNESS: the fixture really does carry wikilinks. An empty result off a page with no
+        # links at all would prove nothing about the mapping refusing them.
+        self.assertIn("[[", PAGE_NO_PLACES)
         regions, _unmapped, _scope = AUDIT.regions_from_wikitext(PAGE_NO_PLACES)
         self.assertEqual(regions, [])
 
