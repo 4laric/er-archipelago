@@ -55,6 +55,12 @@ GENERATORS = [
     "region_selection",
     "check_browser",
     "desc_triage",
+    # The region second-opinion worksheet page. Same shape as the two above: it loads
+    # tools/build_region_second_opinion_page.py BY PATH and diffs the committed root page
+    # against a fresh build, and neither the tool nor the page is installed beside the world.
+    # AP-free, no artifacts, no client -- and it belongs in the job whose byte-diff would
+    # otherwise be the only witness that the page had gone stale.
+    "region_second_opinion_page",
     "provenance_gate",
     "questline_dag",
     "questline_model",

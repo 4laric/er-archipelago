@@ -540,7 +540,8 @@ are absent in CI). Know which tier your change is in:
   `eldenring/*.py` consumer → **`-All` covers it. Say it once.**
 
   🛑 **THE PAGES ARE PART OF TIER 1, and this doc used to omit them** (issue #699, 2026-08-15).
-  `er-archipelago-check-browser.html`, `-desc-triage.html` and `-questline-dag.html` EMBED
+  `er-archipelago-check-browser.html`, `-desc-triage.html`, `-questline-dag.html` and
+  `-region-second-opinion.html` EMBED
   `inputs_hash`, so **any** change that moves the stamp — including a comment edit to `gen_data.py`,
   which is `FILE_INPUTS[0]` — re-stales all three, and the only thing that notices is CI's byte
   diff (`apworld generated output is STALE`). PR #698 went red for exactly one such line. That is
@@ -665,6 +666,21 @@ Both ride `tools/regen_all.py`. `tests/test_gf_questline_dag.py` gates the **tsv
 the SPEC §7 acceptance cases, freshness); `test_gf_regen_all.py` is what keeps the **page** from
 falling out of the chain. 🛑 An edge is co-occurrence plus a polarity rule, not proof;
 `sense=unknown` (108 of 280) must not be reasoned with, and absence is not evidence of safety.
+
+### REGION SECOND OPINION — adjudicating the `(region unconfirmed)` checks
+
+`er-archipelago-region-second-opinion.html` (root, rebuilt by `python3 tools/regen_all.py` — §5a)
+is a **worksheet**, not a verdict. It renders `greenfield/check_region_second_opinion.tsv` — what
+Eldenpedia (CC BY-SA 4.0) and the Fandom wiki (CC BY-SA 3.0) appear to say about each of the 305
+checks whose region came from a nearest-neighbour hop — grouped DISAGREE → AMBIGUOUS → NO-DATA →
+AGREE, with the 209 generic-name rows collapsed. Rule a row, add a note, and the page hands back a
+`flag / ap_ids / audit_verdict / adjudication / note` TSV for `region_overrides.tsv`.
+
+🛑 **THE ADJUDICATION UNIT IS THE FLAG.** Eight flags carry more than one ap id and `region_of`
+decides per flag, so the page merges them into one row; ruling on one id and not its siblings
+produces an override the table cannot express. 🛑 **NO-DATA is not AGREE** — a page was found and
+never named a region — and 🛑 a **tile cluster is a hint, not a finding**: contiguous ground
+legitimately shares one hop. Nothing in generation reads this page or its export.
 
 ### DESC-TRIAGE — authoring `location_descriptions.tsv`
 
