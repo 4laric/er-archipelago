@@ -78,7 +78,11 @@ SKIP_DIRS = {".git", ".github", "_ap", ".ap-test", "__pycache__", "node_modules"
              # greenfield/ copies carry the same builder-output basenames, and the walk below then
              # reports those copies as outputs no regen_all step emits -- the same spurious-red
              # class as the `_ap` case above, seen locally 2026-08-24. CI has no `.wt`.
-             ".wt"}
+             ".wt",
+             # A bare `Archipelago/` at the repo root is the same thing one more time: a stale
+             # AP checkout with an installed world copy (gitignored, so invisible to git status),
+             # found the same way 2026-08-25. CI has no such dir either.
+             "Archipelago"}
 # A stamped file is only interesting if it is TEXT we ship. 8 MB of html is fine to read; a param
 # blob is not, and cannot embed the hash as text anyway.
 SCAN_EXT = {".html", ".py", ".json", ".tsv", ".csv", ".md", ".rs", ".yaml", ".yml", ".ps1"}
