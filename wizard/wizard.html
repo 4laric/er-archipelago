@@ -5669,7 +5669,6 @@ if (typeof module !== "undefined") module.exports = ERW;
       const keys = (o.valid_keys && o.valid_keys.length)
         ? o.valid_keys : Object.keys(o.default || {});
       const cur = ERW.isPlainObject(v) ? v : {};
-      const total = keys.reduce((a, k) => a + (+cur[k] || 0), 0);
       /* Committed in valid_keys order, and ZERO WEIGHTS ARE OMITTED rather than written as 0 --
          absent and 0 are the same thing to a proportional split, and the shorter yaml is the one a
          player can read. All-zero therefore commits {}, which the option documents as an EMPTY
@@ -5683,27 +5682,61 @@ if (typeof module !== "undefined") module.exports = ERW;
         commit(next);
       };
       const grid = el("div", "dictgrid");
+      const note = el("div", "dnote", "");
+      const cells = [];
+      /* 🛑 THE SHARE COLUMN IS DERIVED, AND `refresh()` DOES NOT REBUILD CONTROLS -- the same root
+         as the toggle's stale "on"/"off" word, one column wider. The total and every percentage
+         used to be computed ONCE, when the row was built, and written into the spans as text that
+         nothing ever touched again: you typed juice 63 -> 20, the yaml moved, and all seventeen
+         percentages plus the footer's "a share of 103" sat there describing the recipe you had
+         BEFORE the edit. Reported by NovahDango on Discord 2026-08-25 -- "are the percentages on
+         the option builder supposed to change when i edit the numbers?" -- whose screenshot was
+         the shipped default's shares next to weights that were not the shipped default's.
+         The share is the number a player reasons about (the comment at the top of this file says
+         so), so a frozen one is the whole widget lying.
+
+         Repainted rather than rebuilt: swapping the grid node the way the key_meta grid does would
+         destroy the number input mid-keystroke and drop focus. `paintShares` re-reads the INPUTS,
+         not `state`, so the column tracks what is on screen -- including a value still being typed,
+         which is when a player is watching it -- and it is wired to `input` as well as `change` so
+         it answers per keystroke while the yaml still only moves on commit. */
+      const liveWeight = num => Math.max(0, Math.floor(+num.value || 0));
+      const paintShares = () => {
+        let sum = 0;
+        for (const c of cells) sum += liveWeight(c.num);
+        for (const c of cells){
+          const w = liveWeight(c.num);
+          c.row.className = "dweight" + (w ? "" : " dzero");
+          /* sum === 0 is the empty recipe, not a division: "--" rather than NaN%. */
+          c.share.textContent = sum ? (Math.round(1000 * w / sum) / 10) + "%" : "--";
+        }
+        note.textContent = sum
+          ? "Weights are RELATIVE -- the filler tail is split in proportion, so each is a share of "
+            + sum + ", not a percentage. They need not sum to anything."
+          : "Every weight is zero. An empty recipe is honoured and means no gear AND no upgrade "
+            + "economy -- generation warns rather than silently reverting to vanilla junk.";
+      };
       for (const k of keys){
         const w = +cur[k] || 0;
-        const row = el("label", "dweight" + (w ? "" : " dzero"));
+        const row = el("label", "dweight");
         const num = Object.assign(document.createElement("input"),
           {type:"number", min:0, step:1, value:w});
+        num.addEventListener("input", paintShares);
         num.addEventListener("change", () => {
-          const n = Math.max(0, Math.floor(+num.value || 0));
+          const n = liveWeight(num);
           num.value = n;
           commitWeights(k, n);
+          paintShares();
         });
-        row.append(el("span", "dk", k), num,
-                   el("span", "dshare", total ? (Math.round(1000 * w / total) / 10) + "%" : "--"));
+        const share = el("span", "dshare", "--");
+        row.append(el("span", "dk", k), num, share);
+        cells.push({ row, num, share });
         grid.append(row);
       }
       grid.style.flex = "1 1 100%";
       wrap.append(grid);
-      wrap.append(el("div", "dnote", total
-        ? "Weights are RELATIVE -- the filler tail is split in proportion, so each is a share of "
-          + total + ", not a percentage. They need not sum to anything."
-        : "Every weight is zero. An empty recipe is honoured and means no gear AND no upgrade "
-          + "economy -- generation warns rather than silently reverting to vanilla junk."));
+      wrap.append(note);
+      paintShares();
     } else {
       /* `text` is the only kind that reaches here now. tools/check_wizard_kind_controls.py fails
          CI if the dumper learns a kind this function does not name -- the gate that did not exist

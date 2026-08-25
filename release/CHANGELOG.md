@@ -58,6 +58,19 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   its player region-kicked out from under the party. Client half clients#417; the gitlink moves to
   its merge (`3967d512`).
 
+### Fixed
+
+- **The wizard's `curated_filler` share column now re-shares when you edit a weight.** The
+  `{category: weight}` grid draws a `%` of the tail beside every weight and a footer naming the
+  total those percentages are shares of — and both were computed once, when the row was built, and
+  written in as text nothing ever touched again. You typed juice 63 → 20, the yaml moved correctly,
+  and all seventeen percentages plus the footer's "a share of 103" went on describing the recipe you
+  had *before* the edit. Worse at the bottom of the range: zeroing every weight commits the EMPTY
+  recipe — no gear and no upgrade economy — while the grid kept quoting the shipped default's
+  shares and the footer kept promising 103 points of filler. The column and the footer now track the
+  weights live, per keystroke, and an all-zero recipe reads `--` with the empty-recipe warning
+  instead of a stale percentage. Reported by NovahDango. (#1031)
+
 ## v0.5.0 — 2026-08-22
 
 Ability lock: restrict abilities for a run, or start locked and find them back as items.
