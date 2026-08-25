@@ -24,8 +24,35 @@ m61 entries (the Scadutree Avatar phases) have NO derivable defeat flag; droppin
 16 members' sweeps to fix 41. The gate keeps the existing entity key when no flag can be derived,
 and that behaviour is pinned here so a later tightening cannot silently trade one bug for another.
 
+🛑🛑 AND THE THIRD HALF, WHICH IS THE ONE THAT WILL SAVE YOU (2026-08-24, the #987 corpus audit).
+The obvious next move after this fix is to run the same predicate over the whole corpus and re-key
+everything it names. `tools/audit_sweep_trigger_flags.py` does the census: of 244 trigger keys, 145
+are set directly, 79 through the parameterized-init shape, and **20 are set as flags NOWHERE in the
+corpus** -- the three Scadutree Avatar proxies and 17 duo/phase partner entities.
+
+THAT LIST IS NOT A BUG LIST, and this repo already holds the logs that prove it:
+
+    tests/fixtures/sweep_kill_bobler_scadutree.log
+        12:58:20  sweep-watch: census -- 1 group(s), 0 already set: [2050480810(49)]
+        13:03:47  sweep-watch: trigger flag 2050480810 -> SET (49 member(s) in its group)
+        13:03:47  Received item: Boss sweep (Scadu Altus)
+    tests/fixtures/sweep_kill_suppressed_head.log
+        14:10:05  sweep-watch: trigger flag 31220801 -> SET (12 member(s) in its group)
+        14:10:05  sweep-watch: trigger flag 31220802 -> SET (12 member(s) in its group)
+
+Three of the twenty were OBSERVED FIRING AND PAYING OUT in captured player sessions. Whatever
+writes them is not an EMEVD flag instruction -- it is the same unwritten mechanism every
+entity-keyed interior sweep has always rested on, and the premise `flag_equals_id` encodes.
+**SUFFICIENT IS NOT NECESSARY**: corpus-absence is a lead to check against in-game evidence, the
+way Spinks' report drove this issue, never a licence to re-key a working trigger. Re-keying is not
+free -- measured 2026-08-24, merging the three Avatar proxies onto 2050480800 moved the sweep
+ownership digest 991951420a8525a4 -> 5847d65898b36345, re-owned 33 member links and took
+MAJOR_SWEEP_TRIGGERS 40 -> 41, all to "fix" a sweep the logs show working.
+
 Run:  python -m pytest greenfield/eldenring/tests/test_gf_dane_sweep_trigger_flag.py
 """
+import os
+
 import pytest
 
 pytest.importorskip("worlds.eldenring")
@@ -37,6 +64,16 @@ DANE_DEFEAT_FLAGS = {2049440800: "m61_49_44", 2050430800: "m61_50_43"}
 DANE_ENTITY_IDS = (2049440710, 2050430710)
 # Scadutree Avatar, m61_50_48 -- three phase entries, no derivable defeat flag, entity-keyed.
 NO_DERIVATION_ENTITY_KEYS = (2050480810, 2050480811, 2050480812)
+# Entity-keyed triggers the EMEVD corpus sets as flags NOWHERE and that a captured player session
+# nonetheless shows FIRING. flag -> (fixture log, the line that witnesses it).
+OBSERVED_FIRING_ENTITY_KEYS = {
+    2050480810: ("sweep_kill_bobler_scadutree.log",
+                 "sweep-watch: trigger flag 2050480810 -> SET"),
+    31220801: ("sweep_kill_suppressed_head.log",
+               "sweep-watch: trigger flag 31220801 -> SET"),
+    31220802: ("sweep_kill_suppressed_head.log",
+               "sweep-watch: trigger flag 31220802 -> SET"),
+}
 
 
 @pytest.mark.parametrize("flag,tile", sorted(DANE_DEFEAT_FLAGS.items()))
@@ -81,3 +118,22 @@ def test_every_m61_trigger_flag_is_a_flag_the_game_can_set():
     assert offenders == [], (
         "m61 trigger(s) %r are not in the 08xx defeat-flag band -- almost certainly raw entity ids "
         "that no EMEVD sets, i.e. sweeps that can never fire (#987)." % offenders)
+
+
+@pytest.mark.parametrize("flag,witness", sorted(OBSERVED_FIRING_ENTITY_KEYS.items()))
+def test_a_key_the_corpus_never_sets_can_still_fire_in_game(flag, witness):
+    """The refutation, pinned: these entity-keyed triggers are in the audit's NEVER-SET list AND on
+    record firing. Keep the witness beside the claim so the next corpus-wide audit cannot conclude
+    they are dead and re-key them (#987; tools/audit_sweep_trigger_flags.py)."""
+    log_name, line = witness
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", log_name)
+    if not os.path.isfile(path):
+        pytest.skip("%s is repo-only" % log_name)
+    text = open(path, encoding="utf-8").read()
+    assert line in text, (
+        "%s no longer witnesses %d firing. That log is the ONLY evidence that a trigger the EMEVD "
+        "sets nowhere still pays out; without it the corpus audit's NEVER-SET list reads as a bug "
+        "list and someone re-keys a working sweep (#987)." % (log_name, flag))
+    assert flag in BOSS_HEALTHBARS, (
+        "trigger %d was re-keyed away, but %s shows it FIRING and paying out. Corpus-absence is a "
+        "lead, not a defect -- SUFFICIENT IS NOT NECESSARY (#987)." % (flag, log_name))

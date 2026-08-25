@@ -305,6 +305,18 @@ def datamine():
                 # NOT field's drop-loudly rule: the 3 Scadutree Avatar entries have NO derivation
                 # and KEEP their entity key -- dropping them would cost 16 members a sweep, and an
                 # entity-keyed trigger that never fires is the status quo, not a regression.
+                #
+                # 🛑🛑 AND THEY ARE NOT BROKEN, so do not "finish the job" by re-keying them.
+                # 2026-08-24, the #987 corpus audit (tools/audit_sweep_trigger_flags.py): 20 of the
+                # 244 trigger keys are set as flags NOWHERE in the corpus -- these three (head-hitbox
+                # / per-phase referred-damage proxies, m61_50_48_00 CreateReferredDamagePair L133/
+                # L144/L167) plus 17 duo/phase partners. THREE OF THE TWENTY ARE ON RECORD FIRING:
+                # tests/fixtures/sweep_kill_bobler_scadutree.log has "trigger flag 2050480810 -> SET
+                # (49 member(s))" followed by the payout, and sweep_kill_suppressed_head.log has the
+                # same for 31220801 and 31220802. Whatever writes them is not an EMEVD instruction --
+                # it is the mechanism every entity-keyed interior sweep already rests on. Corpus
+                # absence is a LEAD to check against in-game evidence (Dane had a player report; the
+                # Avatar has a log showing it working), never the defect predicate itself.
                 out[flags.get(ent, ent)] = b
             else:
                 out[ent] = b
