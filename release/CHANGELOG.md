@@ -15,11 +15,11 @@ Ability lock: restrict abilities for a run, or start locked and find them back a
 - **Existing seed/save:** Compatible — a seed that sets neither option behaves exactly as it did on 0.4.x; the new keys are simply absent (= off) for older clients.
 - **Profile/assets:** No action.
 
-This is the first `v0.5` **integration branch** window: it is opened off v0.4.14 but does NOT ship to `main`, which holds the 0.4.x stable line while the feature is validated. `release/CHANNELS.tsv` therefore moves nothing — there is no stable promotion in this window.
+This window was cut as a `v0.5` integration branch off v0.4.14 and merged to `main` on 2026-08-24 (#982) after the ability-lock client build checked out in play. `stable` stays on v0.4.13 until this window is tagged — no promotion yet.
 
 `CONTRACT_HASH` is `13db0b3a`, read by loading contract.py — **MOVED** from `dc0dc687` (the armorBundles shape that stood from v0.4.8). `abilityUnlockItems` is the new key. An older client reports incompatible for a progressive seed rather than leaving abilities locked, via `requiresClientFeatures: ["ability_unlock"]`; a static-lock seed rides the always-declared options echo and needs no new key.
 
-The version moved, so a client half is required: `contract_gen.rs` embeds the version string and the hash. Client half is `from-software-archipelago-clients` v0.5 (`d4f23eb`), and the gitlink rides in this same commit (AGENTS §7).
+The version moved, so a client half is required: `contract_gen.rs` embeds the version string and the hash. Client half is `from-software-archipelago-clients` at `3797563` (client main; `d4f23eb` at the branch cut), pinned by the gitlink in the same commit as these notes (AGENTS §7).
 
 ### Added
 
@@ -40,6 +40,33 @@ The version moved, so a client half is required: `contract_gen.rs` embeds the ve
 - **`!check <name>` rescue console command (#1008).** Look up a check's acquisition flag by name -- for enemy/boss/NPC death drops and offline pickups that "did not fire" (e.g. under enemy rando). Prints each match's flag, whether it is set, and a ready `!setflag` to send it on the next poll. Documented in GETTING-UNSTUCK.md.
 - **Sweep-flush burst telemetry (#1006).** Client-only diagnostics: the sweep-flush path now logs the per-tick shared-flag write time and, per sweep, the ms-to-confirm + peak flag count. Measure-before-optimize for the seamless-co-op "flood gate" (boss sweeps paying out on the defeat flag + SC flag-sync latency) -- no behavior change.
 - **Roll unlocks early (#980, bobler).** In progressive mode the `Unlock: Roll` item is declared to Archipelago's `early_items`, so Fill forces it into an early sphere -- you are never stuck without the dodge roll for hours. It stays exportable (not `local_early_items`), so it can still reach a partner's world, just early there too. Only Roll is forced early; the other abilities place freely.
+- **Fix: Leyndell's capital gate no longer fights itself (clients#409).** The two fog-wall
+  prerequisite flags (105 and 182) were routed through `seal_flags`, whose contract is "hold FALSE
+  while owned" — so the reconciler cleared them every tick while the key-item backstop re-set them,
+  and the capital wall stayed shut with two Great Runes received (Otakuu, 08-24). They now ride a new
+  `prereq_set_flags` class: desired-SET, never cleared.
+- **Fix: Great Runes from boss drops are delivered as-sent (clients#393).** The delivery path
+  rewrote a boss-drop rune row to its restored form on the way in, which could leave a received rune
+  inert; the rewrite is gone and the row lands exactly as the server sent it.
+- **Fix: the two Dryleaf Dane sweeps key on their EMEVD defeat flags (#1015).** The Scadu Altus Dane
+  fights' sweeps were keyed on entity-id-derived flags (2049440710/2050430710); they now key on the
+  flags the EMEVD defeat handlers set (2049440800/2050430800) — 41 checks (24 + 17) change trigger.
+- **Stacked armor sets are a YAML option now (#986).** `armor_bundles` (default on) was hardcoded
+  since #849; off restores the classic pool where every helm, chest, gauntlet and greave is its own
+  item. An off seed emits no `armorBundles` slot-data key, so an older client accepts it.
+- **129 more checks pay out from the corpse-award sweep (#984).** `death_award_pairs.json` grows
+  179 → 308 pairs, covering the common `$Event(1100)`/`$Event(1200)` boss-award latch family.
+  Retroactive on existing seeds — no yaml or apworld change, the client just reads the bigger table.
+- **GETTING-UNSTUCK grew Leyndell-gate and unsent-check walkthroughs (#1007).** How to force the
+  capital fog wall by its two flags, and how to chase a check that never sent down to its
+  acquisition flag with `!check`/`!setflag`.
+- **Updater errors name the URL (#978).** A failed `latest.json` fetch prints the URL it tried and
+  the likely cause instead of a bare error.
+- **Groundwork, no player effect yet:** the enemy-drop EntityID table and its generator (#1004,
+  #1012 — feeds a client module nothing calls yet), the Tarnished patch-day baseline doc plus a
+  fourth watched SpEffect row (#1011), a census of every sweep trigger key refuting #987's premise
+  (#1016), and the Leyndell wall derivation corrected to the 170-179 possession band, comments only
+  (#983).
 ## v0.4.14 — 2026-08-22
 
 ### What you need to update
