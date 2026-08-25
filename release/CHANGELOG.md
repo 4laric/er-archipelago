@@ -30,6 +30,18 @@ promotion since v0.4.13, and the one the v0.5.0 window deliberately deferred unt
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+### Added
+
+- **Region Sync (#1005).** New `region_sync` toggle (default off) for seamless co-op: the party
+  shares one physical world, so when any Elden Ring player with it on unlocks a region, every other
+  opted-in ER slot's door opens too — the region-open flag is set and its graces light, the same
+  write a locally received Lock makes. ACCESS ONLY: nobody is granted the region-Lock ITEM,
+  fill/logic/goal are untouched, and generation is identical on or off. Rides the options echo
+  (OPTIONS_SUBKEYS, so `CONTRACT_HASH` does not move); a seed with it ON emits
+  `requiresClientFeatures ["region_sync"]` so an older client refuses the seed instead of leaving
+  its player region-kicked out from under the party. Client half clients#417; the gitlink moves to
+  its merge (`3967d512`).
+
 ## v0.5.0 — 2026-08-22
 
 Ability lock: restrict abilities for a run, or start locked and find them back as items.

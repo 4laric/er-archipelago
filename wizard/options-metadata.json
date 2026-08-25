@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.5.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "a50ae6bf261f4a36e75913b68fc60ac8d702e40001f85cb9778c0576af169bd1",
+ "source_sha256": "c0eac42688afd741bdeec4438ce8aaa27b2331c47126891fdae8c2a18af824f2",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -50,6 +50,7 @@
   "confine_foreign_progression",
   "cross_game_progression",
   "goal_region_unlock_policy",
+  "region_sync",
   "enemy_scaling",
   "minimum_enemy_difficulty",
   "maximum_enemy_difficulty",
@@ -141,6 +142,7 @@
    "options": [
     "death_link",
     "trap_link",
+    "region_sync",
     "filler_foreign_pct",
     "progression_surface",
     "progression_bias",
@@ -1524,6 +1526,23 @@
    "group_collapsed": false,
    "special_values": null,
    "essential": true
+  },
+  {
+   "key": "region_sync",
+   "class": "RegionSync",
+   "display_name": "Region Sync",
+   "description": "Share region unlocks with the other Elden Ring players in this multiworld.\n\nFor seamless co-op. Everyone plays in ONE physical world (the co-op host's), but each player\nhas their own Archipelago slot -- so if one of you has unlocked Liurnia and the rest have not,\nthe rest get kicked out of it and cannot follow. With this on, the moment ANY Elden Ring player\nwho also turned it on unlocks a region, that region's door opens for all of you: the map gate\nlifts and its Sites of Grace light up.\n\nIt only opens the door. It does NOT give anyone else the region's key item -- that stays\nwherever the multiworld put it, and finding your own is still what counts for your items and\nyour goal. Nothing about how the seed is generated changes, so you can turn this on without\nmaking anyone's game easier to complete.\n\nTurn it on for every Elden Ring player in the co-op group; players who leave it off are not\naffected either way, and other games in the multiworld never see it.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "enemy_scaling",
