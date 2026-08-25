@@ -58,6 +58,16 @@ main{flex:1 1 auto;display:flex;min-height:0}
 .ours{color:var(--blue)}
 .theirs{color:var(--gold2)}
 .clus{color:var(--orange);border-color:#5a4a3a}
+/* The vote is coloured by WHO IT BACKS, not by whether it exists: "backs us" is the least
+   interesting row on the page and must not glow like a finding. */
+.vote-both{color:var(--red);border-color:#5a3a3a}
+.vote-wiki{color:var(--gold2);border-color:#5a4a3a}
+.vote-ours{color:var(--dim)}
+.vote-none{color:var(--dim);opacity:.7}
+.sus{color:var(--orange);border-color:#6a4a2a;background:#2a2015}
+#votecaveat{border-top:1px solid var(--line);background:#1d1a14;color:var(--dim);
+  padding:7px 14px;font-size:11px;line-height:1.5}
+#votecaveat b{color:var(--gold)}
 .adj{display:flex;gap:4px;flex-wrap:wrap}
 .adj label{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:3px;
   border:1px solid var(--line);background:var(--bg3);cursor:pointer;font-size:11px;color:var(--dim)}
@@ -95,6 +105,7 @@ footer b{color:var(--gold)}
   <button class="btn" id="exportbtn">copy adjudications as TSV</button>
   <button class="btn" id="clearbtn">clear</button>
 </header>
+<div id="votecaveat"></div>
 <main>
   <div id="facets"></div>
   <div id="listwrap"><div id="list"></div></div>
@@ -125,10 +136,13 @@ function saveAdj(){ try { localStorage.setItem(LS, JSON.stringify(ADJ)); } catch
 function get(k){ return ADJ[k] || {v:"", n:""}; }
 
 const DEFAULT_OPEN = VERDICTS.filter(v => v !== "AMBIGUOUS-GENERIC");
-const state = {q:"", verdicts:new Set(VERDICTS), open:new Set(DEFAULT_OPEN), todo:false};
+const VOTE_SIDES = DATA.meta.vote_sides.map(p => p[0]);
+const state = {q:"", verdicts:new Set(VERDICTS), open:new Set(DEFAULT_OPEN), todo:false,
+               votes:new Set(VOTE_SIDES)};
 
 function matches(u){
   if (!state.verdicts.has(u.verdict)) return false;
+  if (!state.votes.has(u.vote_side)) return false;
   if (state.todo && get(u.key).v) return false;
   if (!state.q) return true;
   return u.hay.indexOf(state.q) >= 0;
@@ -142,6 +156,13 @@ function facets(){
     h += '<label class="f"><input type="checkbox" data-v="' + esc(v) + '"' +
          (state.verdicts.has(v) ? " checked" : "") + '><span class="badge v-' + esc(v) + '">' +
          esc(v) + '</span><span class="c">' + (counts[v] || 0) + '</span></label>';
+  }
+  h += '<div class="fhead">MSB vote</div>';
+  for (const pair of DATA.meta.vote_sides){
+    h += '<label class="f"><input type="checkbox" data-vs="' + esc(pair[0]) + '"' +
+         (state.votes.has(pair[0]) ? " checked" : "") + '><span class="badge vote-' +
+         esc(pair[0]) + '">' + esc(pair[1]) + '</span><span class="c">' +
+         (DATA.meta.vote_counts[pair[0]] || 0) + '</span></label>';
   }
   h += '<div class="fhead">View</div>';
   h += '<label class="f"><input type="checkbox" id="todo"' + (state.todo ? " checked" : "") +
@@ -158,6 +179,10 @@ function facets(){
   fa.innerHTML = h;
   fa.querySelectorAll("input[data-v]").forEach(el => el.addEventListener("change", () => {
     el.checked ? state.verdicts.add(el.dataset.v) : state.verdicts.delete(el.dataset.v);
+    render();
+  }));
+  fa.querySelectorAll("input[data-vs]").forEach(el => el.addEventListener("change", () => {
+    el.checked ? state.votes.add(el.dataset.vs) : state.votes.delete(el.dataset.vs);
     render();
   }));
   $("#todo").addEventListener("change", e => { state.todo = e.target.checked; render(); });
@@ -180,6 +205,20 @@ function rowHtml(u){
   if (u.cluster) h += '<span class="badge clus">' + esc(u.cluster) + "</span>";
   h += '<span class="badge ours">ours: ' + esc(u.our_region) + "</span>";
   h += '<span class="badge theirs">wiki: ' + esc(u.external_regions.join(" / ") || "--") + "</span>";
+  // The vote never appears without its distance and its anchor: a bare region name reads as a
+  // fact, and the distance and the anchoring grace are what let a reader disbelieve it.
+  if (u.vote_region){
+    h += '<span class="badge vote-' + esc(u.vote_side) + '">msb vote: ' + esc(u.vote_region) +
+         " &middot; " + esc(u.vote_distance) + "m" +
+         (u.vote_unanimous === "no" ? " &middot; top-3 split" : "") +
+         (u.vote_anchor ? " &middot; " + esc(u.vote_anchor) : "") + "</span>";
+  } else {
+    h += '<span class="badge vote-none">msb vote: ' + esc(u.vote_note || "none") + "</span>";
+  }
+  if (u.vote_suspect){
+    h += '<span class="badge sus" title="' + esc(DATA.meta.vote_suspect_note) +
+         '">SUSPECT-ANCHOR</span>';
+  }
   if (u.item) h += '<span class="badge">' + esc(u.item) + "</span>";
   if (u.scope) h += '<span class="badge">scope: ' + esc(u.scope) + "</span>";
   h += '<span class="badge">how: ' + esc(u.how) + "</span>";
@@ -283,6 +322,8 @@ $("#clearbtn").addEventListener("click", () => {
 
 $("#stamp").textContent = DATA.meta.stamp + "  ·  " + DATA.meta.rows + " audit rows · " +
   DATA.units.length + " adjudication units";
+$("#votecaveat").innerHTML = "<b>MSB VOTE \u2014 a ranking signal, not a ruling.</b> " +
+  esc(DATA.meta.vote_caveat) + " " + esc(DATA.meta.vote_suspect_note);
 $("#foot").innerHTML = DATA.meta.footer;
 facets();
 render();

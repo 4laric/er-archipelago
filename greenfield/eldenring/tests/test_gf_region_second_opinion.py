@@ -15,6 +15,19 @@ WHY IT EXISTS (CONTRIBUTING rule 11, the motivating case is the acceptance test)
     vanilla copies cannot adjudicate a placement, and asking anyway manufactures a verdict.
   * `regions_from_wikitext` must label a page-wide read as `page-wide`. Weak evidence that does
     not announce itself is indistinguishable from strong evidence in the report.
+
+THE MSB VOTE (tools/msb_region_vote.py) is tested here too, on SYNTHETIC geometry -- three
+hand-placed graces and a point between them, not repo data, so the assertions say what the
+algorithm does rather than what the current tables happen to contain:
+  * a point nearer grace A than grace B must vote A's region. That is the whole claim, and it is
+    the one that would break silently if the fold or the distance ever changed frame.
+  * the LOD fold must be the SHARED one. A LOD2 tile has pitch 1024 and a centring term; a vote
+    that folded it at 256 would put the check 384 m from where it is and still return an answer
+    (rule 1: a derivation that cannot fail). One known pair is pinned against overworld_fold.
+  * a vote with no coords, or with no region-attributed grace in its frame, must SAY SO in
+    vote_note rather than return a region anyway.
+  * an anchor whose own region came from a tile-default row must badge SUSPECT-ANCHOR. 17 of the
+    19 current votes-against ride one such grace; unbadged, they read as 17 independent findings.
 """
 
 import importlib.util
@@ -42,6 +55,15 @@ if ROOT is not None:
         if not hasattr(AUDIT, "verdict_for"):
             # An installed world may sit beside an older checkout whose tool predates this test.
             AUDIT = None
+
+VOTE = None
+if ROOT is not None:
+    _VT = os.path.join(ROOT, "tools", "msb_region_vote.py")
+    if os.path.isfile(_VT):
+        sys.path.insert(0, os.path.join(ROOT, "tools"))
+        _VS = importlib.util.spec_from_file_location("msb_region_vote_test", _VT)
+        VOTE = importlib.util.module_from_spec(_VS)
+        _VS.loader.exec_module(VOTE)
 
 
 # Synthetic wikitext. Shaped like a MediaWiki item page; written here, not copied from one.
@@ -251,6 +273,160 @@ class ReportTests(unittest.TestCase):
             with open(path, encoding="utf-8") as fh:
                 text = fh.read()
         self.assertIn("## DISAGREE\n\nNone.", text)
+
+
+@unittest.skipUnless(VOTE is not None, REPO_ONLY_REASON)
+class VoteGeometryTests(unittest.TestCase):
+    """Synthetic geometry. No repo table is read; every coordinate is placed here by hand."""
+
+    # Two graces on one fine-grid tile, 100 m apart in x. Nothing else is on this tile.
+    GRACES = [
+        ("9001", "m60_40_40_00", 10.0, 0.0, 0.0, "Grace A"),
+        ("9002", "m60_40_40_00", 110.0, 0.0, 0.0, "Grace B"),
+        ("9003", "m41_00", 0.0, 0.0, 0.0, "Interior Grace"),
+    ]
+    REGIONS = {"9001": "Limgrave", "9002": "Caelid", "9003": "Ainsel River"}
+
+    def voter(self, items, suspect=()):
+        return VOTE.Voter(items, self.GRACES, self.REGIONS, suspect)
+
+    def test_a_point_nearer_grace_a_than_grace_b_votes_a_region(self):
+        v = self.voter({"1": ("m60_40_40_00", 20.0, 0.0, 0.0)}).vote("1")
+        self.assertEqual(v.region, "Limgrave")
+        self.assertEqual(v.anchor_grace, "9001")
+        self.assertAlmostEqual(v.distance_m, 10.0, places=3)
+
+    def test_the_same_point_moved_past_the_midpoint_votes_b_instead(self):
+        """The MIRROR of the test above: prove the vote MOVES. A voter hard-wired to return the
+        first grace would pass the previous assertion for the wrong reason."""
+        v = self.voter({"1": ("m60_40_40_00", 100.0, 0.0, 0.0)}).vote("1")
+        self.assertEqual(v.region, "Caelid")
+        self.assertEqual(v.anchor_grace, "9002")
+
+    def test_top_three_unanimity_is_reported_not_assumed(self):
+        split = self.voter({"1": ("m60_40_40_00", 20.0, 0.0, 0.0)}).vote("1")
+        self.assertFalse(split.unanimous)      # A is Limgrave, B is Caelid
+        same = VOTE.Voter({"1": ("m60_40_40_00", 20.0, 0.0, 0.0)}, self.GRACES,
+                          dict(self.REGIONS, **{"9002": "Limgrave"})).vote("1")
+        self.assertTrue(same.unanimous)
+
+    def test_the_lod_fold_is_the_shared_one_not_a_local_reimplementation(self):
+        """m60_10_10_02 is a LOD2 tile: pitch 1024, centring term (1024-256)/2 = 384. A local
+        fold at *256 would answer too -- with a point 3 km away (issue #338's exact shape)."""
+        sys.path.insert(0, os.path.join(ROOT, "tools"))
+        import overworld_fold
+        self.assertEqual(overworld_fold.world_xz("m60_10_10_02", 0.0, 0.0),
+                         ("m60", 10 * 1024 + 384.0, 10 * 1024 + 384.0))
+        frame, point = VOTE.fold("m60_10_10_02", 0.0, 5.0, 0.0)
+        self.assertEqual(frame, "m60")
+        self.assertEqual((point[0], point[2]), (10624.0, 10624.0))
+        # and the fine tile that covers that world position folds to the SAME neighbourhood
+        self.assertEqual(VOTE.fold("m60_41_41_00", 128.0, 5.0, 128.0)[0], "m60")
+
+    def test_a_coarse_lod_row_is_noted_because_the_position_is_coarser(self):
+        v = self.voter({"1": ("m60_10_10_02", 0.0, 0.0, 0.0)}).vote("1", "m60_10_10")
+        self.assertIn(VOTE.NOTE_COARSE, v.notes)
+
+    def test_no_coords_says_so_and_returns_no_region(self):
+        v = self.voter({}).vote("404")
+        self.assertIsNone(v.region)
+        self.assertEqual(v.notes, [VOTE.NOTE_NO_COORDS])
+        self.assertEqual(v.as_columns()["msb_vote_region"], "")
+        self.assertEqual(v.as_columns()["vote_distance_m"], "")
+
+    def test_a_frame_with_no_region_attributed_grace_votes_nothing(self):
+        """An interior map with no attributed grace must NOT reach across to the overworld and
+        answer from 40 km away. An empty candidate list is a FAILURE, not a clean run (rule 2)."""
+        v = VOTE.Voter({"1": ("m30_00", 0.0, 0.0, 0.0)}, self.GRACES, self.REGIONS).vote("1")
+        self.assertIsNone(v.region)
+        self.assertIn(VOTE.NOTE_NO_ANCHOR, v.notes)
+
+    def test_an_interior_frame_votes_only_within_its_own_map(self):
+        v = VOTE.Voter({"1": ("m41_00", 1.0, 0.0, 0.0)}, self.GRACES, self.REGIONS).vote("1")
+        self.assertEqual(v.region, "Ainsel River")
+
+    def test_a_tile_default_anchor_is_badged_suspect_not_dropped(self):
+        v = self.voter({"1": ("m60_40_40_00", 20.0, 0.0, 0.0)}, suspect={"9001"}).vote("1")
+        self.assertEqual(v.region, "Limgrave")            # still answered
+        self.assertIn(VOTE.NOTE_SUSPECT, v.notes)         # and still flagged
+
+    def test_several_placements_pick_the_closest_and_SAY_they_chose(self):
+        """442 flags in item_grace_coords.tsv are placed more than once. Taking whichever row was
+        read last would pick a winner by file order and never mention it (rule 4)."""
+        v = self.voter({"1": [("m60_40_40_00", 108.0, 0.0, 0.0),      # 2 m from B
+                              ("m60_40_40_00", 30.0, 0.0, 0.0)]}).vote("1")
+        self.assertEqual(v.region, "Caelid")                 # the CLOSEST anchor wins
+        self.assertIn(VOTE.NOTE_MULTI, v.notes)
+        self.assertIn("MULTI-PLACEMENT-SPLIT", v.notes)      # the two placements disagreed
+
+    def test_duplicate_placements_at_the_same_folded_point_are_not_a_split(self):
+        """The `_00`/`_10` MSB version pair is the SAME point. The fold ignores the version digit,
+        so it must not manufacture a MULTI-PLACEMENT note out of one placement."""
+        v = self.voter({"1": [("m60_40_40_00", 20.0, 0.0, 0.0),
+                              ("m60_40_40_10", 20.0, 0.0, 0.0)]}).vote("1")
+        self.assertEqual(v.region, "Limgrave")
+        self.assertNotIn(VOTE.NOTE_MULTI, v.notes)
+
+    def test_coords_authored_on_another_fine_tile_are_noted_as_cross_tile(self):
+        v = self.voter({"1": ("m60_40_40_00", 20.0, 0.0, 0.0)}).vote("1", "m60_51_41")
+        self.assertIn(VOTE.NOTE_CROSS_TILE, v.notes)
+        same = self.voter({"1": ("m60_40_40_00", 20.0, 0.0, 0.0)}).vote("1", "m60_40_40")
+        self.assertNotIn(VOTE.NOTE_CROSS_TILE, same.notes)
+
+
+@unittest.skipUnless(VOTE is not None and AUDIT is not None, REPO_ONLY_REASON)
+class VoteWiringTests(unittest.TestCase):
+    """The vote as it reaches the report -- columns, header, and the committed numbers."""
+
+    def test_the_report_declares_the_vote_columns(self):
+        for col in VOTE.VOTE_COLUMNS:
+            self.assertIn(col, AUDIT.REPORT_COLUMNS)
+
+    def test_a_run_without_a_voter_writes_blank_cells_rather_than_dying(self):
+        rows = [dict(r) for r in ReportTests.ROWS]     # no msb_vote_* keys at all
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "r.tsv")
+            AUDIT.write_report(rows, path)
+            with open(path, encoding="utf-8") as fh:
+                body = [ln for ln in fh if not ln.startswith("#") and ln.strip()]
+        header = body[0].rstrip("\n").split("\t")
+        self.assertEqual(header[-5:], VOTE.VOTE_COLUMNS)
+        self.assertEqual(body[1].rstrip("\n").split("\t")[-5:], ["", "", "", "", ""])
+
+    def test_the_tsv_header_carries_the_calibration_verbatim(self):
+        """A number that travels without its caveat becomes an authority. The header must say
+        the accuracy IN THE FILE, not only in the tool that wrote it."""
+        self.assertIn(VOTE.CALIBRATION, AUDIT.REPORT_HEADER)
+
+    def test_the_committed_report_has_the_vote_columns_populated(self):
+        path = os.path.join(ROOT, "greenfield", "check_region_second_opinion.tsv")
+        with open(path, encoding="utf-8") as fh:
+            body = [ln.rstrip("\n") for ln in fh if not ln.startswith("#") and ln.strip()]
+        header = body[0].split("\t")
+        rows = [dict(zip(header, ln.split("\t"))) for ln in body[1:]]
+        cast = [r for r in rows if r["msb_vote_region"]]
+        against = [r for r in cast if r["msb_vote_region"] != r["our_region"]]
+        # Re-measured 2026-08-25 against this tsv. These move when the audit is re-run: update
+        # them WITH the regenerated table, never by loosening the assertion.
+        self.assertEqual(len(rows), 305)
+        self.assertEqual(len(cast), 260)
+        self.assertEqual(len(against), 19)
+        self.assertTrue(all(r["vote_note"] for r in rows if not r["msb_vote_region"]),
+                        "a row with no vote must say WHY in vote_note")
+        suspect = [r for r in against if VOTE.NOTE_SUSPECT in r["vote_note"]]
+        self.assertEqual(len(suspect), 17,
+                         "the Yelough Anix Tunnel cluster must stay visible as ONE anchor")
+
+    def test_the_calibration_number_is_still_true_of_this_repo(self):
+        """Rule 7's mirror: the sentence in CALIBRATION is re-derivable, so it cannot rot into a
+        remembered number. The floor is deliberately BELOW the measured 90.1% -- this pins that
+        the vote is a usable ranking signal, not that it never moves."""
+        hits, misses, _families = VOTE.calibrate(ROOT)
+        total = hits + misses
+        self.assertGreater(total, 2000, "control set collapsed -- the vote is unmeasured")
+        self.assertGreater(100.0 * hits / total, 85.0)
+        self.assertLess(100.0 * hits / total, 100.0,
+                        "a 100%% control score means the control set is the vote's own output")
 
 
 if __name__ == "__main__":

@@ -36,6 +36,17 @@ WHAT IT CANNOT DO -- read this before believing a number.
     `NO-DATA` means "we could not read it here", never "the check is fine".
   * An AGREE is corroboration of the REGION, not of the tile. Two independent guesses can agree.
 
+THE MSB VOTE (the `msb_vote_*` columns). Beside the wiki verdict every row now carries a SECOND,
+offline second opinion computed from our own committed coordinates: `tools/msb_region_vote.py`
+folds the check's MSB position into the overworld frame and votes the region of the nearest
+region-attributed Site of Grace. It needs no network and runs in `--offline` mode too. It is a
+RANKING signal (90.1% on a 2607-row control set of checks whose region is NOT unconfirmed), NOT
+an adjudicator, and it is NOT independent of the hop that produced these regions -- both are
+nearest-neighbour derivations, so an agreement between them corroborates nothing. Rows it cannot
+vote on say so in `vote_note` (`NO-COORDS` / `NO-ANCHOR`); rows whose anchoring grace got its own
+region from a tile-default row say `SUSPECT-ANCHOR`. The exact instrument is the PlayArea
+point-in-volume test -- see `docs/PLAYAREA-ITEM-SCAN.md`.
+
 Run:
   python3 tools/audit_region_second_opinion.py --probe-sources
   python3 tools/audit_region_second_opinion.py --limit 40 --out greenfield/check_region_second_opinion.tsv
@@ -50,6 +61,9 @@ import sys
 import time
 import urllib.parse
 import urllib.request
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import msb_region_vote  # noqa: E402  -- sibling module, same tools/ dir
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TRIAGE = os.path.join(REPO, "greenfield", "check_region_triage.tsv")
@@ -401,7 +415,7 @@ def probe_sources(timeout=20):
 REPORT_COLUMNS = [
     "verdict", "our_region", "external_regions", "flag", "ap_id", "map_tile",
     "item", "source", "page_title", "scope", "how", "label",
-]
+] + msb_region_vote.VOTE_COLUMNS
 
 REPORT_HEADER = """\
 # Second opinion on the "(region unconfirmed)" checks -- tools/audit_region_second_opinion.py
@@ -416,7 +430,18 @@ REPORT_HEADER = """\
 # This is a CANDIDATE list for hand-adjudication, not a cull list and not a fix list.
 # NO-DATA means "not readable there" -- absence on a thin wiki is WEAK evidence that
 # says nothing about whether the check's region is right.
-"""
+#
+# The msb_vote_* columns are a SECOND and SEPARATE opinion, computed offline from our own
+# committed MSB coordinates (tools/msb_region_vote.py): the region of the nearest
+# region-attributed Site of Grace, once the check is folded into the overworld frame.
+# %s
+# It is NOT independent of the nearest-neighbour hop that produced these regions in the first
+# place, so a vote that AGREES with us corroborates nothing. vote_note: NO-COORDS (no MSB row),
+# NO-ANCHOR (no region-attributed grace in that frame), SUSPECT-ANCHOR (the anchoring grace's
+# own region came from a tile-default row, so the vote inherits a tile-wide guess),
+# CROSS-TILE-MSB (the coords are authored on a different fine-grid tile than the label names),
+# COARSE-LOD (the coords row is on a LOD1/2 tile -- folded correctly, but coarser).
+""" % msb_region_vote.CALIBRATION
 
 
 def write_report(rows, path):
@@ -425,8 +450,10 @@ def write_report(rows, path):
     rows = sorted(rows, key=lambda r: (order.get(r["verdict"], 9), int(r["flag"])))
     with open(path, "w", encoding="utf-8", newline="") as fh:
         fh.write(REPORT_HEADER)
+        # restval="" so a --no-vote run writes EMPTY vote cells rather than dying on the
+        # missing keys: an absent opinion is a blank, and a blank is honest.
         writer = csv.DictWriter(fh, fieldnames=REPORT_COLUMNS, delimiter="\t",
-                                extrasaction="ignore", lineterminator="\n")
+                                extrasaction="ignore", restval="", lineterminator="\n")
         writer.writeheader()
         for row in rows:
             out = dict(row)
@@ -441,6 +468,59 @@ def summarize(rows):
     for row in rows:
         counts[row["verdict"]] = counts.get(row["verdict"], 0) + 1
     return counts
+
+
+
+def _vote_cell(row):
+    """The vote as one markdown cell. Empty when there is none -- and the NOTE is carried, because
+    a distance without SUSPECT-ANCHOR beside it reads as a measurement rather than a guess."""
+    if not row.get("msb_vote_region"):
+        return row.get("vote_note", "") or "--"
+    bits = "%s @ %sm" % (row["msb_vote_region"], row.get("vote_distance_m", "?"))
+    if row.get("vote_unanimous") == "no":
+        bits += ", top-3 split"
+    if row.get("vote_note"):
+        bits += " (%s)" % row["vote_note"]
+    return bits
+
+
+def _vote_section(rows):
+    """The MSB-vote roll-up. Numbers first, then the rows where the vote and our region differ --
+    which is the whole point of the column: it ORDERS the reading, it does not settle anything."""
+    cast = [r for r in rows if r.get("msb_vote_region")]
+    against = [r for r in cast if r["msb_vote_region"] != r["our_region"]]
+    suspect = [r for r in against if "SUSPECT-ANCHOR" in (r.get("vote_note") or "")]
+    out = ["## MSB nearest-grace vote", ""]
+    out.append("A second and SEPARATE opinion, computed offline from our own committed MSB")
+    out.append("coordinates (`tools/msb_region_vote.py`): fold the check into the overworld frame,")
+    out.append("vote the region of the nearest region-attributed Site of Grace.")
+    out.append("")
+    out.append("**%s**" % msb_region_vote.CALIBRATION)
+    out.append("")
+    out.append("It is NOT independent of the nearest-neighbour hop that produced these regions, so a")
+    out.append("vote that AGREES with us corroborates nothing; a vote that disagrees is a QUESTION.")
+    out.append("")
+    out.append("| | rows |")
+    out.append("| --- | ---: |")
+    out.append("| vote cast | %d |" % len(cast))
+    out.append("| vote backs our region | %d |" % (len(cast) - len(against)))
+    out.append("| vote disagrees with our region | %d |" % len(against))
+    out.append("| of those, on a SUSPECT-ANCHOR grace | %d |" % len(suspect))
+    out.append("| no vote (no coords / no anchor) | %d |" % (len(rows) - len(cast)))
+    out.append("")
+    if against:
+        out.append("### Votes against our region")
+        out.append("")
+        out.append("| flag | tile | our region | wiki | msb vote | anchor grace | verdict |")
+        out.append("| --- | --- | --- | --- | --- | --- | --- |")
+        for row in sorted(against, key=lambda r: int(r["flag"])):
+            ext = row["external_regions"]
+            out.append("| %s | %s | %s | %s | %s | %s | %s |" % (
+                row["flag"], row["map_tile"], row["our_region"],
+                (",".join(ext) if isinstance(ext, list) else ext) or "--",
+                _vote_cell(row), row.get("vote_anchor_grace", ""), row["verdict"]))
+        out.append("")
+    return out
 
 
 def write_markdown(rows, counts, path, probes=None):
@@ -473,14 +553,15 @@ def write_markdown(rows, counts, path, probes=None):
     if not dis:
         lines.append("None.")
     else:
-        lines.append("| flag | ap_id | tile | our region | external | item | source / page |")
-        lines.append("| --- | --- | --- | --- | --- | --- | --- |")
+        lines.append("| flag | ap_id | tile | our region | external | item | source / page | msb vote |")
+        lines.append("| --- | --- | --- | --- | --- | --- | --- | --- |")
         for row in sorted(dis, key=lambda r: int(r["flag"])):
-            lines.append("| %s | %s | %s | %s | %s | %s | %s / %s |" % (
+            lines.append("| %s | %s | %s | %s | %s | %s | %s / %s | %s |" % (
                 row["flag"], row["ap_id"], row["map_tile"], row["our_region"],
                 ",".join(row["external_regions"]), row["item"],
-                row["source"], row["page_title"]))
+                row["source"], row["page_title"], _vote_cell(row)))
     lines.append("")
+    lines.extend(_vote_section(rows))
     with open(path, "w", encoding="utf-8") as fh:
         fh.write("\n".join(lines) + "\n")
     return path
@@ -488,11 +569,16 @@ def write_markdown(rows, counts, path, probes=None):
 
 # --------------------------------------------------------------------------- driver
 
-def audit(targets, wiki, verbose=False):
+def audit(targets, wiki, verbose=False, voter=None):
     rows = []
     for i, tgt in enumerate(targets, 1):
         item = tgt["item"]
         row = dict(tgt)
+        # The vote is attached to EVERY row, including the AMBIGUOUS-GENERIC ones the wiki
+        # cannot speak about at all -- those 209 rows are precisely where a coordinate-based
+        # opinion is the only opinion available.
+        if voter is not None:
+            row.update(voter.vote(tgt["flag"], tgt.get("map_tile", "")).as_columns())
         row["external_regions"] = []
         row["source"] = ""
         row["page_title"] = ""
@@ -523,6 +609,9 @@ def main(argv=None):
     ap.add_argument("--out", default=os.path.join(
         REPO, "greenfield", "check_region_second_opinion.tsv"))
     ap.add_argument("--markdown", default=None, help="also write a markdown run report here")
+    ap.add_argument("--markdown-probe", action="store_true",
+                    help="with --markdown, re-probe the sources so the report's reachability "
+                         "section is a MEASUREMENT of this run, not a remembered one")
     ap.add_argument("--cache", default=os.environ.get(
         "ER_REGION_AUDIT_CACHE", os.path.join(os.path.expanduser("~"), ".cache",
                                               "er-region-audit")),
@@ -531,6 +620,8 @@ def main(argv=None):
     ap.add_argument("--offset", type=int, default=0)
     ap.add_argument("--delay", type=float, default=1.0, help="seconds between requests")
     ap.add_argument("--offline", action="store_true", help="cache only; make no requests")
+    ap.add_argument("--no-vote", action="store_true",
+                    help="skip the offline MSB nearest-grace vote (leaves msb_vote_* empty)")
     ap.add_argument("--probe-sources", action="store_true")
     ap.add_argument("--verbose", action="store_true")
     args = ap.parse_args(argv)
@@ -549,14 +640,24 @@ def main(argv=None):
     print("this batch: %d (offset %d)" % (len(window), args.offset))
 
     wiki = Wiki(args.cache, delay=args.delay, offline=args.offline)
-    rows = audit(window, wiki, verbose=args.verbose)
+    voter = None if args.no_vote else msb_region_vote.Voter.from_repo(REPO)
+    if voter is not None:
+        print("msb vote: %d region-attributed graces, %d suspect tile-default anchors"
+              % (len(voter.grace_region), len(voter.suspect)))
+    rows = audit(window, wiki, verbose=args.verbose, voter=voter)
     counts = summarize(rows)
     write_report(rows, args.out)
     print("cache hits %d, fetches %d, fetch errors %d" % (wiki.hits, wiki.misses, wiki.errors))
+    if voter is not None:
+        agree = sum(1 for r in rows if r.get("msb_vote_region") == r["our_region"])
+        cast = sum(1 for r in rows if r.get("msb_vote_region"))
+        print("msb vote: %d cast, %d back our region, %d disagree, %d not votable"
+              % (cast, agree, cast - agree, len(rows) - cast))
     for verdict in VERDICTS:
         print("%-18s %d" % (verdict, counts.get(verdict, 0)))
     if args.markdown:
-        write_markdown(rows, counts, args.markdown, probes=None)
+        write_markdown(rows, counts, args.markdown,
+                       probes=probe_sources() if args.markdown_probe else None)
     print("wrote %s" % args.out)
     return 0
 

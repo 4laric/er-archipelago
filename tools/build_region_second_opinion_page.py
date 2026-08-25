@@ -25,11 +25,23 @@ record of "not consulted", not "consulted and found nothing". The group ships CO
 its rows are not even rendered until it is opened, because a reader who scrolls into 209
 sourceless rows starts adjudicating noise.
 
+THE MSB VOTE COLUMN. Every row also carries the offline nearest-grace vote the audit computes
+(`tools/msb_region_vote.py`): the region of the nearest region-attributed Site of Grace, once the
+check is folded into the overworld frame. It is coloured by WHO IT BACKS -- us, the wiki, or
+neither -- because that is the only thing about it a reader can act on, and it is the reason the
+209 generic rows are no longer opinion-free. 🛑 IT IS 90% ACCURATE AND IT IS NOT INDEPENDENT OF
+US: the same nearest-neighbour shape produced the regions it is checking, so a vote that agrees
+corroborates nothing, and one row in ten is simply wrong. The header says so, in those words,
+above every ruling anyone makes. Rows anchored on a grace whose OWN region came from a
+tile-default row are badged SUSPECT-ANCHOR -- 17 of the 19 votes-against are one such grace
+(73211, Yelough Anix Tunnel), which is a cluster to explain, not 17 defects to fix.
+
 NO-DATA IS NOT AGREE. A page was found and it never named a region. That is a third thing,
 and it is coloured as its own verdict for the same reason the audit's own suite pins it.
 
 INPUTS (all committed; none are game files, none are fetched here):
-  greenfield/check_region_second_opinion.tsv  the audit verdicts (produced offline, by hand run)
+  greenfield/check_region_second_opinion.tsv  the audit verdicts AND the msb_vote_* columns
+                                              (produced offline, by hand run)
   greenfield/check_region_triage.tsv          how the region was decided (GUESSED / CONFLICT)
   greenfield/eldenring/data.py                _GEN_STAMP.inputs_hash, for the freshness stamp
 
@@ -85,7 +97,45 @@ ADJUDICATIONS = [
     ("generic-collision", "generic collision"),
 ]
 
+def _vote_calibration():
+    """The calibration sentence, taken from the tool that measured it -- never retyped here.
+
+    🛑 If msb_region_vote is not importable (an installed world beside a partial checkout), we
+    say the number is UNKNOWN rather than emitting a remembered one. A caveat that invents its
+    own confidence is worse than no caveat.
+    """
+    try:
+        sys.path.insert(0, os.path.join(REPO, "tools"))
+        import msb_region_vote
+        return msb_region_vote.CALIBRATION
+    except Exception:  # noqa: BLE001 -- a missing sibling is data, not a crash
+        return ("Its accuracy is UNKNOWN in this build (tools/msb_region_vote.py was not "
+                "readable) -- treat every vote as unvalidated.")
+
+
 EXPORT_HEADER = ["flag", "ap_ids", "audit_verdict", "adjudication", "note"]
+
+# The four vote colourings, in the order a reader cares about them. "both" first: a vote that
+# backs NEITHER of the two opinions on the row is the one worth a human's next hour.
+VOTE_SIDES = [
+    ("both", "vote disagrees with both"),
+    ("wiki", "vote backs the wiki"),
+    ("ours", "vote backs us"),
+    ("none", "no vote"),
+]
+
+VOTE_CAVEAT = (
+    "The MSB VOTE column is the region of the nearest region-attributed Site of Grace, folded "
+    "into the overworld frame from our own committed coordinates. " + _vote_calibration() +
+    " It is NOT independent of the nearest-neighbour hop that gave these checks their regions in "
+    "the first place, so a vote that AGREES with us corroborates nothing. Read it as an ORDERING "
+    "over what to adjudicate next, never as a ruling."
+)
+
+VOTE_SUSPECT_NOTE = (
+    "SUSPECT-ANCHOR: the anchoring grace's OWN region came from a tile-default row, not from a "
+    "PlayArea volume -- so the vote inherits a tile-wide guess. Badged, not dropped."
+)
 
 # Page titles are turned into links, never into prose. wiki.gg and Fandom are both MediaWiki,
 # so /wiki/<Title with underscores> resolves on either.
@@ -232,6 +282,13 @@ def build(root):
                 "tile": r.get("map_tile", ""),
                 "how": r.get("how", ""),
                 "name": strip_label(r.get("label", "")),
+                # The vote is a property of the FLAG (it is computed from the flag's one MSB
+                # position), so the first row of a multi-ap-id flag carries it for all of them.
+                "vote_region": r.get("msb_vote_region", ""),
+                "vote_distance": r.get("vote_distance_m", ""),
+                "vote_unanimous": r.get("vote_unanimous", ""),
+                "vote_anchor": r.get("vote_anchor_grace", ""),
+                "vote_note": r.get("vote_note", ""),
                 "rows": 0,
             }
         u["rows"] += 1
@@ -262,12 +319,23 @@ def build(root):
                                   else t["kick_row_says"])
         else:
             u["grace_says"] = u["kick_row_says"] = ""
+        # WHO the vote backs -- the only actionable thing about it. "both" means it backs
+        # neither us nor the wiki, which is the rarest and most interesting row on the page.
+        if not u["vote_region"]:
+            u["vote_side"] = "none"
+        elif u["vote_region"] == u["our_region"]:
+            u["vote_side"] = "ours"
+        elif u["vote_region"] in u["external_regions"]:
+            u["vote_side"] = "wiki"
+        else:
+            u["vote_side"] = "both"
+        u["vote_suspect"] = "SUSPECT-ANCHOR" in u["vote_note"]
         base = SOURCE_BASE.get(u["source"])
         u["url"] = (base + u["page_title"].replace(" ", "_")) if (base and u["page_title"]) else ""
         u["hay"] = " ".join([
             u["name"], u["item"], str(u["flag"]), " ".join(u["ap_ids"]), u["tile"],
             u["our_region"], " ".join(u["external_regions"]), u["page_title"], u["source"],
-            u["verdict"], u["cluster"],
+            u["verdict"], u["cluster"], u["vote_region"], u["vote_anchor"], u["vote_note"],
         ]).lower()
         out.append(u)
 
@@ -277,6 +345,9 @@ def build(root):
     counts = {}
     for u in out:
         counts[u["verdict"]] = counts.get(u["verdict"], 0) + 1
+    vote_counts = {}
+    for u in out:
+        vote_counts[u["vote_side"]] = vote_counts.get(u["vote_side"], 0) + 1
 
     footer = (
         "<b>Worksheet, not a verdict.</b> Rulings live only in this browser (localStorage) "
@@ -291,6 +362,12 @@ def build(root):
 
     meta = {
         "stamp": data_stamp(os.path.join(er, "data.py")),
+        "vote_counts": vote_counts,
+        "vote_sides": [list(p) for p in VOTE_SIDES],
+        # Verbatim from the tool that computed the votes -- paraphrasing a calibration is how a
+        # calibration becomes a claim of exactness.
+        "vote_caveat": VOTE_CAVEAT,
+        "vote_suspect_note": VOTE_SUSPECT_NOTE,
         "rows": len(rows),
         "counts": counts,
         "verdict_order": VERDICT_ORDER,

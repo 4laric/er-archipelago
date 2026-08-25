@@ -280,5 +280,105 @@ class RegionSecondOpinionPageTest(unittest.TestCase):
                          "tools/build_region_second_opinion_page.py --check says STALE")
 
 
+class VoteColumnTests(unittest.TestCase):
+    """The MSB vote as the page presents it.
+
+    WHY (rule 11 -- the motivating case is the acceptance test): the vote is a 90%-accurate
+    ranking signal wearing the clothes of a measurement. Every assertion here is about a reader
+    being unable to mistake it for one: the caveat is ON the page, the anchor and distance travel
+    WITH the region, the tile-default anchors are badged, and a reader can filter to the rows
+    where the vote disagrees -- which is the only view that changes what anyone does next.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        if not RUNNING_FROM_REPO:
+            raise unittest.SkipTest(REPO_ONLY_REASON)
+        cls._tmp = tempfile.TemporaryDirectory()
+        cls.html = _build(os.path.join(cls._tmp.name, "page.html"))
+        cls.payload = _payload(cls.html)
+
+    @classmethod
+    def tearDownClass(cls):
+        if hasattr(cls, "_tmp"):
+            cls._tmp.cleanup()
+
+    def test_every_unit_carries_a_vote_side_even_when_there_is_no_vote(self):
+        sides = {p[0] for p in self.payload["meta"]["vote_sides"]}
+        for u in self.payload["units"]:
+            self.assertIn(u["vote_side"], sides)
+            if not u["vote_region"]:
+                self.assertEqual(u["vote_side"], "none")
+                self.assertTrue(u["vote_note"],
+                                "unit %s has no vote and no reason" % u["flag"])
+
+    def test_a_vote_is_classified_by_who_it_backs(self):
+        for u in self.payload["units"]:
+            if u["vote_side"] == "ours":
+                self.assertEqual(u["vote_region"], u["our_region"])
+            elif u["vote_side"] == "wiki":
+                self.assertIn(u["vote_region"], u["external_regions"])
+                self.assertNotEqual(u["vote_region"], u["our_region"])
+            elif u["vote_side"] == "both":
+                self.assertNotEqual(u["vote_region"], u["our_region"])
+                self.assertNotIn(u["vote_region"], u["external_regions"])
+
+    def test_the_region_never_travels_without_its_distance_and_anchor(self):
+        """A bare region name reads as a fact. The distance and the anchoring grace are what let
+        a reader disbelieve it, so the payload must never carry one without the others."""
+        for u in self.payload["units"]:
+            if u["vote_region"]:
+                self.assertTrue(u["vote_distance"], "unit %s: vote with no distance" % u["flag"])
+                self.assertTrue(u["vote_anchor"], "unit %s: vote with no anchor" % u["flag"])
+
+    def test_the_calibration_caveat_is_rendered_on_the_page_not_only_in_the_tool(self):
+        caveat = self.payload["meta"]["vote_caveat"]
+        self.assertIn("ranking", caveat.lower())
+        self.assertNotIn("UNKNOWN in this build", caveat,
+                         "the page could not read the tool that measured the vote")
+        self.assertIn("votecaveat", self.html)
+        self.assertIn(caveat[:60], self.html)
+
+    def test_the_suspect_anchor_badge_exists_and_explains_itself(self):
+        suspect = [u for u in self.payload["units"] if u["vote_suspect"]]
+        self.assertTrue(suspect, "no SUSPECT-ANCHOR rows -- the badge is untested (unfired "
+                                 "guard = untested guard)")
+        self.assertIn("SUSPECT-ANCHOR", self.html)
+        self.assertIn("tile-default", self.payload["meta"]["vote_suspect_note"])
+        for u in suspect:
+            self.assertIn("SUSPECT-ANCHOR", u["vote_note"])
+
+    def test_the_vote_filter_offers_the_disagrees_view(self):
+        sides = dict(self.payload["meta"]["vote_sides"])
+        self.assertIn("both", sides)
+        self.assertIn("wiki", sides)
+        self.assertIn("disagree", sides["both"].lower())
+        self.assertIn('data-vs=', self.html)
+        self.assertIn("state.votes", self.html)
+
+    def test_the_vote_counts_total_the_units(self):
+        self.assertEqual(sum(self.payload["meta"]["vote_counts"].values()),
+                         len(self.payload["units"]))
+
+    def test_the_vote_is_searchable_by_region_and_anchor(self):
+        for u in self.payload["units"]:
+            if u["vote_region"]:
+                self.assertIn(u["vote_region"].lower(), u["hay"])
+                self.assertIn(u["vote_anchor"].split(" ")[0].lower(), u["hay"])
+
+    def test_the_generic_bucket_is_where_the_vote_earns_its_place(self):
+        """The 209 AMBIGUOUS-GENERIC rows are the ones no wiki can speak about. If the vote did
+        not reach them the column would only decorate rows that already had an opinion."""
+        generic = [u for u in self.payload["units"] if u["verdict"] == "AMBIGUOUS-GENERIC"]
+        voted = [u for u in generic if u["vote_region"]]
+        self.assertGreater(len(voted), len(generic) // 2)
+
+    def test_a_multi_ap_id_flag_carries_one_vote_for_all_its_ids(self):
+        multi = [u for u in self.payload["units"] if len(u["ap_ids"]) > 1]
+        self.assertTrue(multi, "the flag-is-the-unit fixture vanished")
+        for u in multi:
+            self.assertIsInstance(u["vote_region"], str)
+
+
 if __name__ == "__main__":
     unittest.main()
