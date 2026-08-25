@@ -50,3 +50,5 @@ stable	v0.4.12	2026-08-22	the hold-cap hotfix: one purchase no longer padlocks e
 beta	main	2026-08-22	the open v0.4.13 window
 stable	v0.4.13	2026-08-22	the corpse-award retroactive sweep (179 death-award checks pay on any old seed) plus the shop-repaint fast-reopen fix, the F6 tracker horizontal-resize fix, and the pickup cue defaulting off; promoted at its tag as the window opened
 beta	main	2026-08-22	the open v0.4.14 window
+stable	v0.5.0	2026-08-24	ability lock: name any of jump / crouch / roll / r1 / r2 / l1 / l2 / heal in locked_abilities and the game will not do it, or set ability_lock_mode: progressive and find them back as multiworld items (roll forced early); plus co-op difficulty, shop_checks and armor_bundles as YAML options, the Leyndell capital-gate and as-sent Great Rune fixes, 129 more retroactive corpse-award checks, and the !check rescue command; promoted at its tag as the v0.5.1 window opened -- the promotion v0.5.0 deferred while it was an integration branch
+beta	main	2026-08-24	the open v0.5.1 window
