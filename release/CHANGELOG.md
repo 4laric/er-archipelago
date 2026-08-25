@@ -40,6 +40,17 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   Fringefolk Hero's Grave rewards below the Stranded Graveyard -- including the Erdtree Greatbow,
   which the chariot pays out, not a chapel chest -- are all walkable from Limgrave and stay there.
   Reported by 255. (#1023)
+### Added
+
+- **Region Sync (#1005).** New `region_sync` toggle (default off) for seamless co-op: the party
+  shares one physical world, so when any Elden Ring player with it on unlocks a region, every other
+  opted-in ER slot's door opens too — the region-open flag is set and its graces light, the same
+  write a locally received Lock makes. ACCESS ONLY: nobody is granted the region-Lock ITEM,
+  fill/logic/goal are untouched, and generation is identical on or off. Rides the options echo
+  (OPTIONS_SUBKEYS, so `CONTRACT_HASH` does not move); a seed with it ON emits
+  `requiresClientFeatures ["region_sync"]` so an older client refuses the seed instead of leaving
+  its player region-kicked out from under the party. Client half clients#417; the gitlink moves to
+  its merge (`3967d512`).
 
 ## v0.5.0 — 2026-08-22
 

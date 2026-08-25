@@ -886,6 +886,21 @@ OPTIONS_SUBKEYS = (
                 "folded into CONTRACT_HASH, so this adds no version pairing and an older client "
                 "simply never reads it -- it also needs no requiresClientFeatures, because a client "
                 "that ignores it merely plays at the un-bumped (current) co-op difficulty."),
+    ContractKey("region_sync", "BOOL_OR_INT", False, (GREENFIELD,),
+                "core._options_echo (features/region_sync.py)",
+                "er-logic/options.rs parse_region_sync -> region_sync.rs apply_pending",
+                "seamless-co-op region sharing (#1005): nonzero = advertise the RegionSync link "
+                "tag, broadcast this slot's region-OPENS to that group, and apply everyone else's "
+                "by setting the region's regionOpenFlags value and lighting its graces -- the same "
+                "write a locally received Lock makes, and exactly what the console's `!setflag "
+                "<region open flag> 1` does today. ACCESS ONLY: it does NOT grant the AP region-Lock "
+                "ITEM to anyone (Fill's placement is untouched), does not move the receive "
+                "watermark, sends no check, and changes no logic or goal state -- so generation is "
+                "identical whether it is on or off. NOT required: an absent key parses false, which "
+                "is the off default. A seed with it ON emits requiresClientFeatures "
+                "[\"region_sync\"], because OPTIONS_SUBKEYS is not folded into CONTRACT_HASH and an "
+                "older client would report VERSION: OK and then leave its player region-kicked out "
+                "from under the party -- which reads as a broken seed, not an old client."),
 )
 
 
