@@ -73,7 +73,12 @@ STAMP = os.path.join(REPO, "greenfield", "eldenring", "_gen_stamp.json")
 # real thing this test is for (#699), on the default local harness, for anyone who ran gf_test.py
 # without `--ap-dir`. Both names, and any new AP-checkout convention belongs here too.
 SKIP_DIRS = {".git", ".github", "_ap", ".ap-test", "__pycache__", "node_modules",
-             "elden_ring_artifacts", "from-software-archipelago-clients", ".pytest_cache", ".venv"}
+             "elden_ring_artifacts", "from-software-archipelago-clients", ".pytest_cache", ".venv",
+             # `.wt` holds Alaric's local git worktrees (stale checkouts of OTHER branches): their
+             # greenfield/ copies carry the same builder-output basenames, and the walk below then
+             # reports those copies as outputs no regen_all step emits -- the same spurious-red
+             # class as the `_ap` case above, seen locally 2026-08-24. CI has no `.wt`.
+             ".wt"}
 # A stamped file is only interesting if it is TEXT we ship. 8 MB of html is fine to read; a param
 # blob is not, and cannot embed the hash as text anyway.
 SCAN_EXT = {".html", ".py", ".json", ".tsv", ".csv", ".md", ".rs", ".yaml", ".yml", ".ps1"}

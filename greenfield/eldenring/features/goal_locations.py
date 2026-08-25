@@ -135,11 +135,13 @@ class GoalChoiceSpec:
     entry_grace: Optional[int] = None
 
 
-# Generated-data pins for #861. 7770762 is "Remembrance of the Rot Goddess - Malenia [f510200]";
-# 71506 is "Haligtree Canopy" in grace_flags.tsv. The remembrance's defeat flag is the canonical
-# Malenia kill check; her Great Rune uses a separate synthetic flag and is not the terminal event.
+# Generated-data pins for #861. 7770662 is "Remembrance of the Rot Goddess - Malenia [f510200]"
+# (was 7770762 until #1013's Enia-vanilla exclusion removed 100 shop checks and shifted every
+# later AP id down by 100); 71506 is "Haligtree Canopy" in grace_flags.tsv. The remembrance's
+# defeat flag is the canonical Malenia kill check; her Great Rune uses a separate synthetic flag
+# and is not the terminal event.
 MALENIA_REGION = "Haligtree"
-MALENIA_GOAL_LOCATION = 7770762
+MALENIA_GOAL_LOCATION = 7770662
 MALENIA_ENTRY_GRACE = 71506
 
 

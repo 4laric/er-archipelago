@@ -99,9 +99,12 @@ _KNOWN_IMPORTANT_IN_SWEEPS = {
     # ruling put one location back ahead of these): 7772549 -> 7772545 -> 7772546,
     # 7772553 -> 7772549 -> 7772550, 7772568 -> 7772564 -> 7772565. Same three flags;
     # re-verified by flag identity each time.
-    7772546,   # KeyItem   -- Gaol Upper Level Key            (f41027000)
-    7772550,   # KeyItem   -- Gaol Lower Level Key            (f41027320)
-    7772565,   # Boss      -- Dragon Heart, around Dragon's Pit (f43017900)
+    # 2026-08-24 (#1013): Enia's 100 rows left the pool ahead of all three -> -100 each
+    # (7772546 -> 7772446, 7772550 -> 7772450, 7772565 -> 7772465). Same three flags again;
+    # flag-verified.
+    7772446,   # KeyItem   -- Gaol Upper Level Key            (f41027000)
+    7772450,   # KeyItem   -- Gaol Lower Level Key            (f41027320)
+    7772465,   # Boss      -- Dragon Heart, around Dragon's Pit (f43017900)
 }
 
 

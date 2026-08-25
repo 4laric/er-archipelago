@@ -39,7 +39,7 @@
   "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
   "region": "Ashen Capital"
  },
- "hub_dlc_gated_checks": 36,
+ "hub_dlc_gated_checks": 0,
  "hub_region": "Roundtable Hold",
  "parent": {
   "Leyndell": "Altus",
@@ -176,13 +176,13 @@
    },
    "sweep_slots_max": {
     "all": 81,
-    "bosses": 144,
+    "bosses": 145,
     "minidungeons": 81
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 81,
-     "bosses": 144,
+     "bosses": 145,
      "minidungeons": 81
     },
     "SweepSlotMajor": {
@@ -190,7 +190,7 @@
     },
     "SweepSlotMinor": {
      "all": 81,
-     "bosses": 136,
+     "bosses": 137,
      "minidungeons": 81
     }
    }
@@ -345,13 +345,13 @@
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 119,
+    "bosses": 121,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 119,
+     "bosses": 121,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -359,7 +359,7 @@
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 115,
+     "bosses": 117,
      "minidungeons": 55
     }
    }
@@ -928,13 +928,13 @@
    },
    "sweep_slots_max": {
     "all": 53,
-    "bosses": 156,
+    "bosses": 158,
     "minidungeons": 53
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 53,
-     "bosses": 156,
+     "bosses": 158,
      "minidungeons": 53
     },
     "SweepSlotMajor": {
@@ -944,7 +944,7 @@
     },
     "SweepSlotMinor": {
      "all": 45,
-     "bosses": 140,
+     "bosses": 142,
      "minidungeons": 45
     }
    }
@@ -1197,7 +1197,7 @@
    }
   },
   "Roundtable Hold": {
-   "checks": 237,
+   "checks": 137,
    "combos": {},
    "dlc": false,
    "parent": null,
@@ -1468,5 +1468,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "9d7f71fa71de9ac1b99b26510ad704df4227fb08194ba03c1da14f989d3112dc"
+ "source_sha256": "1cd36f9d529d955883069e3a4daa7442f636472edc84230f90d1c47a4b3ee1c4"
 }

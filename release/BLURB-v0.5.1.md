@@ -15,9 +15,14 @@ only moment anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing yet. This window was opened at the v0.5.0 tag with zero commits past it, in the same
-change that promoted stable to v0.5.0; nothing was carried over. `CONTRACT_HASH` stays at
-`13db0b3a` — only the exact-version handshake moved.
+Enia sells what Enia sells. Finger Reader Enia's shop is vanilla again — her hundred stock rows
+are no longer checks, nothing from across the multiworld can turn up on her shelves, and the
+"empty Enia" report is impossible by construction rather than by luck. The Roundtable's quietest
+merchant goes back to being a shop, not a slot machine.
+
+One housekeeping note: removing her rows shifts every later AP location id down by exactly 100.
+Seeds are self-consistent, so nothing in play changes — but if you keep an external tracker or
+notes that reference 0.5.0 location ids, regenerate them from a 0.5.1 seed.
 
 ## What carried over from v0.5.0
 

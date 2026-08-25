@@ -6,8 +6,8 @@ spine walk UNCONDITIONALLY -- so on any full base+DLC seed the run ends at the E
 Ilim / Promised Consort Radahn is optional content that can never be the goal by luck.
 
 So the pin is exactly that case, both legs, on the SAME draw:
-  * num_regions 0 + `goal: promised_consort`  -> goalLocations == [7770770]  (PCR, and NOT the pair)
-  * num_regions 0 + default (`goal: auto`)    -> goalLocations == {7770755, 7770764}  (the pair)
+  * num_regions 0 + `goal: promised_consort`  -> goalLocations == [7770670]  (PCR, and NOT the pair)
+  * num_regions 0 + default (`goal: auto`)    -> goalLocations == {7770655, 7770664}  (the pair)
 
 The rest guards the failure modes this design was chosen to avoid:
   * a named goal must never SILENTLY degrade to the ladder -- an impossible one raises at
@@ -39,18 +39,21 @@ GAME = "Elden Ring"
 PCR_REGION = "Enir Ilim"
 PCR_IDS = set(_major_boss_ids(PCR_REGION))
 FINALE_IDS = set(_major_boss_ids(FINALE_REGION))
-LORETTA_LOCATION = 7773891
+# All four AP-id pins in this file moved DOWN by exactly 100 on 2026-08-25 (#1013): the
+# Enia-vanilla exclusion removed her 100 shop checks from the location pool and every later id
+# shifted. Pin by defeat flag if a fifth move is ever needed.
+LORETTA_LOCATION = 7773791  # "[Sorcery] Loretta's Mastery - Loretta (real) [f510190]"
 
 
 class TestGoalChoiceTable:
     """The table is data; these pin the data itself so a regen cannot quietly empty a choice."""
 
     def test_pcr_is_the_sole_major_of_enir_ilim(self):
-        assert PCR_IDS == {7770770}, \
+        assert PCR_IDS == {7770670}, \
             "Promised Consort Radahn (f510430) must be Enir Ilim's only MajorBoss check"
 
     def test_finale_pair_is_hoarah_loux_and_the_elden_beast(self):
-        assert FINALE_IDS == {7770755, 7770764}
+        assert FINALE_IDS == {7770655, 7770664}
 
     def test_every_choice_names_a_region_with_majors(self):
         for value, spec in GOAL_CHOICES.items():
@@ -95,7 +98,7 @@ class TestGoalChoiceTable:
         assert malenia.entry_grace == MALENIA_ENTRY_GRACE
 
     def test_malenia_pin_is_the_remembrance_check_not_every_haligtree_major(self):
-        assert MALENIA_GOAL_LOCATION == 7770762
+        assert MALENIA_GOAL_LOCATION == 7770662
         assert MALENIA_GOAL_LOCATION in _major_boss_ids(MALENIA_REGION)
         assert LORETTA_LOCATION in _major_boss_ids(MALENIA_REGION)
         region, ids = terminal_goal_ids(set(REGIONS), "malenia")
@@ -203,7 +206,7 @@ class GoalPCRFullSeed(WorldTestBase):
 
     def test_goal_is_pcr_and_not_the_finale_pair(self):
         sd = self.world.fill_slot_data()
-        assert set(sd["goalLocations"]) == {7770770}
+        assert set(sd["goalLocations"]) == {7770670}
         assert set(sd["goalLocations"]) != FINALE_IDS
 
     def test_enir_ilim_is_kept(self):
@@ -383,7 +386,7 @@ class GoalPCRUnderDLCOnly(WorldTestBase):
     def test_goal_is_pcr_with_the_finale_inert(self):
         kept = set(self.world._kept())
         assert not finale_active(kept), "dlc_only must leave the finale inert"
-        assert set(self.world.fill_slot_data()["goalLocations"]) == {7770770}
+        assert set(self.world.fill_slot_data()["goalLocations"]) == {7770670}
 
 
 class TestImpossibleChoicesDieAtGeneration:

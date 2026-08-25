@@ -74,7 +74,9 @@ EXPECTED_APS = {
     # land before it); flag-verified. The three below sit under the watermark and do not move.
     # 160820: 7774691 -> 7774692 (2026-08-21, #940): the Four Belfries key inserted at ap 7774225,
     # ahead of this pin; every other pin here sits before the insertion and is unmoved (measured).
-    160820: 7774692, 160880: 7770394, 160890: 7770395, 160910: 7770396,
+    # 160820: 7774692 -> 7774592 (2026-08-24, #1013): Enia's 100 rows left ahead of it; every other
+    # pin here sits before the cull and is unmoved (measured, flag-verified).
+    160820: 7774592, 160880: 7770394, 160890: 7770395, 160910: 7770396,
     160920: 7770397, 160930: 7770398, 160940: 7770399, 160950: 7770400,
 }
 

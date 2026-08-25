@@ -30,6 +30,16 @@ promotion since v0.4.13, and the one the v0.5.0 window deliberately deferred unt
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+### Changed
+
+- **Enia is vanilla (#1013).** Finger Reader Enia's 100 stock rows are excluded from randomization: they are not AP locations, nothing from other players can appear on her shelves, and her wares are exactly the game's own. This restores a rule the project had and lost — an empty or thinned Enia (reported more than once) is now impossible by construction. Her rows still count as DLC-gated shop ROWS for the no-DLC filter; they simply stop being checks. Note for external trackers: every AP location id after her removed block shifts **down by exactly 100** — seeds are self-consistent, but notes keyed to 0.5.0 ids are stale.
+- **Scadu floor is enforced in code.** On a degenerate pool (one DLC region kept), the fragment injector now guarantees the level-12 blessing floor even when `MAX_POOL_SHARE` would cap below it — a bounded, warned breach instead of a silent shortfall.
+
+### Consequences to know
+
+- Removing 100 early filler slots (sphere-0/1 purchases) fattens the thin-seed filler tail: the early-economy gate's tolerance moved from 2 to 4 under-reserved seeds in its sample. Median seed is unaffected.
+
+
 ## v0.5.0 — 2026-08-22
 
 Ability lock: restrict abilities for a run, or start locked and find them back as items.
