@@ -169,6 +169,11 @@ STEPS = [
     Step(PAGES, "tools/build_desc_triage.py",
          emits=["er-archipelago-desc-triage.html"],
          why="embeds inputs_hash -> stale on every stamp move."),
+    Step(PAGES, "tools/build_region_second_opinion_page.py",
+         emits=["er-archipelago-region-second-opinion.html"],
+         why="embeds inputs_hash -> stale on every stamp move, exactly like the other two root "
+             "pages. It offers --check, so leaving it out of this list would be the #699/#708 "
+             "defect wearing a third hat: only CI's byte-diff would ever say so."),
     Step(PAGES, "tools/build_questline_dag.py",
          emits=["greenfield/questline_dag.tsv"],
          why="the tsv the page reads; a pure join, so a gen_data edit alone can move it."),

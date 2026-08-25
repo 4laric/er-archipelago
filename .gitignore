@@ -198,3 +198,8 @@ fillreg_*/
 # local-only tool run from the repo root, so the artifact lands in a working tree routinely and is
 # one `git add -A` from being committed. Ignore the artifact, not the habit (see fillreg_* above).
 enemy_drop_entities.rows
+
+# --- region second-opinion audit: raw wiki API responses (tools/audit_region_second_opinion.py).
+# The tool defaults its cache OUTSIDE the tree; this catches an in-tree --cache. Wiki prose must
+# never be committed -- only our verdicts, our region names and page titles as citations.
+.er-region-audit-cache/

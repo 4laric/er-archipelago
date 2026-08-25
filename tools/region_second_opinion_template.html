@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ER Archipelago &mdash; Region Second-Opinion Worksheet</title>
+<style>
+:root{
+  --bg:#14120e; --bg2:#1c1a15; --bg3:#252118; --line:#3a3428;
+  --fg:#e8e2d2; --dim:#9a927e; --gold:#c9a961; --gold2:#e0c98a;
+  --blue:#7fa8c9; --red:#c97f7f; --green:#8fb87a; --purple:#a98fc9; --orange:#c9a07f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--fg);font:13px/1.45 "Segoe UI",system-ui,sans-serif;
+  display:flex;flex-direction:column;overflow:hidden}
+a{color:var(--gold2)}
+header{padding:10px 14px;border-bottom:1px solid var(--line);background:var(--bg2);
+  display:flex;gap:14px;align-items:center;flex-wrap:wrap;flex:0 0 auto}
+h1{font:600 15px/1 "Segoe UI",sans-serif;margin:0;letter-spacing:.06em;color:var(--gold)}
+h1 small{display:block;font:400 10px/1.4 monospace;color:var(--dim);letter-spacing:0;margin-top:3px}
+#q{flex:1 1 300px;min-width:200px;background:var(--bg3);border:1px solid var(--line);
+  color:var(--fg);padding:7px 10px;border-radius:4px;font:13px/1 inherit;outline:none}
+#q:focus{border-color:var(--gold)}
+#count{color:var(--dim);font:12px/1 monospace;white-space:nowrap}
+.btn{background:var(--bg3);border:1px solid var(--line);color:var(--fg);padding:6px 10px;
+  border-radius:4px;font:12px/1 inherit;cursor:pointer}
+.btn:hover{border-color:var(--gold);color:var(--gold2)}
+main{flex:1 1 auto;display:flex;min-height:0}
+#facets{width:230px;flex:0 0 auto;overflow-y:auto;border-right:1px solid var(--line);
+  background:var(--bg2);padding:10px 0 40px}
+.fhead{padding:8px 12px 4px;font:600 10px/1 inherit;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--gold)}
+.f{display:flex;align-items:center;gap:7px;padding:3px 12px;cursor:pointer;font-size:12px}
+.f:hover{background:var(--bg3)}
+.f input{margin:0;accent-color:var(--gold)}
+.f .c{margin-left:auto;color:var(--dim);font:10px/1 monospace}
+#listwrap{flex:1 1 auto;overflow-y:auto;min-width:0;padding:0 0 60px}
+.ghead{position:sticky;top:0;z-index:3;background:var(--bg2);border-bottom:1px solid var(--line);
+  border-top:1px solid var(--line);padding:7px 12px;font:600 11px/1.2 inherit;letter-spacing:.09em;
+  text-transform:uppercase;cursor:pointer;user-select:none;display:flex;gap:10px;align-items:center}
+.ghead .c{margin-left:auto;color:var(--dim);font:10px/1 monospace;letter-spacing:0}
+.ghead .why{text-transform:none;letter-spacing:0;font-weight:400;color:var(--dim);font-size:11px}
+.gbody.hidden{display:none}
+.row{border-bottom:1px solid #241f18;padding:7px 12px}
+.row:hover{background:#191712}
+.row.done{background:#171d15}
+.l1{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.nm{font-size:13px;flex:1 1 300px;min-width:200px}
+.mono{font:11px/1.5 monospace;color:var(--dim);white-space:nowrap}
+.l2{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:5px}
+.badge{display:inline-block;padding:1px 6px;border-radius:3px;font:10px/1.6 monospace;
+  background:var(--bg3);border:1px solid var(--line);color:var(--dim);white-space:nowrap}
+.v-DISAGREE{color:var(--red);border-color:#5a3a3a}
+.v-AMBIGUOUS{color:var(--orange);border-color:#5a4a3a}
+.v-NO-DATA{color:var(--purple);border-color:#4a3a5a}
+.v-AGREE{color:var(--green);border-color:#3a5a3a}
+.ours{color:var(--blue)}
+.theirs{color:var(--gold2)}
+.clus{color:var(--orange);border-color:#5a4a3a}
+/* The vote is coloured by WHO IT BACKS, not by whether it exists: "backs us" is the least
+   interesting row on the page and must not glow like a finding. */
+.vote-both{color:var(--red);border-color:#5a3a3a}
+.vote-wiki{color:var(--gold2);border-color:#5a4a3a}
+.vote-ours{color:var(--dim)}
+.vote-none{color:var(--dim);opacity:.7}
+.sus{color:var(--orange);border-color:#6a4a2a;background:#2a2015}
+#votecaveat{border-top:1px solid var(--line);background:#1d1a14;color:var(--dim);
+  padding:7px 14px;font-size:11px;line-height:1.5}
+#votecaveat b{color:var(--gold)}
+.adj{display:flex;gap:4px;flex-wrap:wrap}
+.adj label{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:3px;
+  border:1px solid var(--line);background:var(--bg3);cursor:pointer;font-size:11px;color:var(--dim)}
+.adj label:hover{border-color:var(--gold)}
+.adj input{margin:0;accent-color:var(--gold)}
+.adj input:checked+span{color:var(--gold2)}
+.note{flex:1 1 220px;min-width:160px;background:var(--bg3);border:1px solid var(--line);
+  color:var(--fg);padding:4px 7px;border-radius:3px;font:12px/1.3 inherit;outline:none}
+.note:focus{border-color:var(--gold)}
+#exportwrap{flex:0 0 auto;border-top:1px solid var(--line);background:var(--bg2);padding:8px 14px;
+  display:none}
+#exportwrap.on{display:block}
+#exportta{width:100%;height:150px;background:var(--bg3);border:1px solid var(--line);color:var(--fg);
+  font:11px/1.5 monospace;padding:8px;border-radius:4px;resize:vertical}
+footer{flex:0 0 auto;border-top:1px solid var(--line);background:var(--bg2);color:var(--dim);
+  padding:7px 14px;font-size:11px}
+footer b{color:var(--gold)}
+.empty{padding:30px;color:var(--dim);text-align:center}
+</style>
+</head>
+<body>
+<!-- THIS PAGE IS GENERATED -- tools/build_region_second_opinion_page.py. Do not hand-edit:
+     greenfield/eldenring/tests/test_gf_region_second_opinion_page.py asserts the committed
+     copy equals a fresh build, so a hand edit reds the freshness gate.
+
+     OFFLINE BY CONSTRUCTION. Every byte is in this file: no external script or stylesheet,
+     no remote image, and nothing is fetched at view time. The only URLs are the wiki page
+     links a human clicks ON PURPOSE -- nothing loads one automatically, so the page renders
+     identically with the network unplugged. The freshness gate asserts this by grepping for
+     the tags themselves, which is why they are not spelled out in this comment. -->
+<header>
+  <h1>Region second opinion<small id="stamp"></small></h1>
+  <input id="q" placeholder="search name / item / flag / ap id / tile / region / wiki page">
+  <span id="count"></span>
+  <button class="btn" id="exportbtn">copy adjudications as TSV</button>
+  <button class="btn" id="clearbtn">clear</button>
+</header>
+<div id="votecaveat"></div>
+<main>
+  <div id="facets"></div>
+  <div id="listwrap"><div id="list"></div></div>
+</main>
+<div id="exportwrap">
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px">
+    <b style="color:var(--gold);font-size:11px;letter-spacing:.08em">ADJUDICATIONS (TSV)</b>
+    <span class="mono" id="exportmsg"></span>
+    <button class="btn" id="exportclose" style="margin-left:auto">close</button>
+  </div>
+  <textarea id="exportta" spellcheck="false" readonly></textarea>
+</div>
+<footer id="foot"></footer>
+<script>
+const DATA = /*__DATA__*/null;
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g,
+  c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+const VERDICTS = DATA.meta.verdict_order;
+const LS = "er-region-second-opinion-v1";
+
+// Adjudication state is CLIENT-SIDE ONLY. It is kept in localStorage so a refresh does not
+// throw away an afternoon of reading; nothing is ever sent anywhere, and the TSV export is
+// the only way out of the page.
+let ADJ = {};
+try { ADJ = JSON.parse(localStorage.getItem(LS) || "{}") || {}; } catch (e) { ADJ = {}; }
+function saveAdj(){ try { localStorage.setItem(LS, JSON.stringify(ADJ)); } catch (e) {} }
+function get(k){ return ADJ[k] || {v:"", n:""}; }
+
+const DEFAULT_OPEN = VERDICTS.filter(v => v !== "AMBIGUOUS-GENERIC");
+const VOTE_SIDES = DATA.meta.vote_sides.map(p => p[0]);
+const state = {q:"", verdicts:new Set(VERDICTS), open:new Set(DEFAULT_OPEN), todo:false,
+               votes:new Set(VOTE_SIDES)};
+
+function matches(u){
+  if (!state.verdicts.has(u.verdict)) return false;
+  if (!state.votes.has(u.vote_side)) return false;
+  if (state.todo && get(u.key).v) return false;
+  if (!state.q) return true;
+  return u.hay.indexOf(state.q) >= 0;
+}
+
+function facets(){
+  const counts = {};
+  for (const u of DATA.units) counts[u.verdict] = (counts[u.verdict] || 0) + 1;
+  let h = '<div class="fhead">Verdict</div>';
+  for (const v of VERDICTS){
+    h += '<label class="f"><input type="checkbox" data-v="' + esc(v) + '"' +
+         (state.verdicts.has(v) ? " checked" : "") + '><span class="badge v-' + esc(v) + '">' +
+         esc(v) + '</span><span class="c">' + (counts[v] || 0) + '</span></label>';
+  }
+  h += '<div class="fhead">MSB vote</div>';
+  for (const pair of DATA.meta.vote_sides){
+    h += '<label class="f"><input type="checkbox" data-vs="' + esc(pair[0]) + '"' +
+         (state.votes.has(pair[0]) ? " checked" : "") + '><span class="badge vote-' +
+         esc(pair[0]) + '">' + esc(pair[1]) + '</span><span class="c">' +
+         (DATA.meta.vote_counts[pair[0]] || 0) + '</span></label>';
+  }
+  h += '<div class="fhead">View</div>';
+  h += '<label class="f"><input type="checkbox" id="todo"' + (state.todo ? " checked" : "") +
+       '><span>unadjudicated only</span><span class="c" id="todoc"></span></label>';
+  h += '<div class="fhead">Tile clusters</div>';
+  h += '<div style="padding:2px 12px 8px;color:var(--dim);font-size:11px">' +
+       esc(DATA.meta.cluster_note) + '</div>';
+  for (const c of DATA.meta.clusters){
+    h += '<div class="f" style="cursor:default"><span class="badge clus">' + esc(c.id) +
+         '</span><span style="overflow:hidden;text-overflow:ellipsis">' + esc(c.label) +
+         '</span><span class="c">' + c.n + '</span></div>';
+  }
+  const fa = $("#facets");
+  fa.innerHTML = h;
+  fa.querySelectorAll("input[data-v]").forEach(el => el.addEventListener("change", () => {
+    el.checked ? state.verdicts.add(el.dataset.v) : state.verdicts.delete(el.dataset.v);
+    render();
+  }));
+  fa.querySelectorAll("input[data-vs]").forEach(el => el.addEventListener("change", () => {
+    el.checked ? state.votes.add(el.dataset.vs) : state.votes.delete(el.dataset.vs);
+    render();
+  }));
+  $("#todo").addEventListener("change", e => { state.todo = e.target.checked; render(); });
+}
+
+function rowHtml(u){
+  const a = get(u.key);
+  const src = u.url
+    ? '<a href="' + esc(u.url) + '" target="_blank" rel="noopener noreferrer">' +
+      esc(u.source) + ": " + esc(u.page_title) + "</a>"
+    : '<span class="mono">no source page</span>';
+  let h = '<div class="row' + (a.v ? " done" : "") + '" data-k="' + esc(u.key) + '">';
+  h += '<div class="l1"><span class="badge v-' + esc(u.verdict) + '">' + esc(u.verdict) + "</span>";
+  h += '<span class="nm">' + esc(u.name) + "</span>";
+  h += '<span class="mono">f' + u.flag + " &middot; ap " + esc(u.ap_ids.join(", ")) +
+       (u.ap_ids.length > 1 ? " (" + u.ap_ids.length + " ids, ONE flag)" : "") + "</span>";
+  h += "</div>";
+  h += '<div class="l2">';
+  h += '<span class="badge">' + esc(u.tile) + "</span>";
+  if (u.cluster) h += '<span class="badge clus">' + esc(u.cluster) + "</span>";
+  h += '<span class="badge ours">ours: ' + esc(u.our_region) + "</span>";
+  h += '<span class="badge theirs">wiki: ' + esc(u.external_regions.join(" / ") || "--") + "</span>";
+  // The vote never appears without its distance and its anchor: a bare region name reads as a
+  // fact, and the distance and the anchoring grace are what let a reader disbelieve it.
+  if (u.vote_region){
+    h += '<span class="badge vote-' + esc(u.vote_side) + '">msb vote: ' + esc(u.vote_region) +
+         " &middot; " + esc(u.vote_distance) + "m" +
+         (u.vote_unanimous === "no" ? " &middot; top-3 split" : "") +
+         (u.vote_anchor ? " &middot; " + esc(u.vote_anchor) : "") + "</span>";
+  } else {
+    h += '<span class="badge vote-none">msb vote: ' + esc(u.vote_note || "none") + "</span>";
+  }
+  if (u.vote_suspect){
+    h += '<span class="badge sus" title="' + esc(DATA.meta.vote_suspect_note) +
+         '">SUSPECT-ANCHOR</span>';
+  }
+  if (u.item) h += '<span class="badge">' + esc(u.item) + "</span>";
+  if (u.scope) h += '<span class="badge">scope: ' + esc(u.scope) + "</span>";
+  h += '<span class="badge">how: ' + esc(u.how) + "</span>";
+  if (u.grace_says) h += '<span class="badge">grace: ' + esc(u.grace_says) + "</span>";
+  if (u.kick_row_says) h += '<span class="badge">kick row: ' + esc(u.kick_row_says) + "</span>";
+  h += '<span style="margin-left:auto">' + src + "</span>";
+  h += "</div>";
+  h += '<div class="l2"><span class="adj">';
+  for (const pair of DATA.meta.adjudications){
+    h += '<label><input type="radio" name="a_' + esc(u.key) + '" value="' + esc(pair[0]) + '"' +
+         (a.v === pair[0] ? " checked" : "") + '><span>' + esc(pair[1]) + "</span></label>";
+  }
+  h += "</span>";
+  h += '<input class="note" placeholder="note (optional)" value="' + esc(a.n) + '">';
+  h += "</div></div>";
+  return h;
+}
+
+function counters(){
+  const done = DATA.units.filter(u => get(u.key).v || get(u.key).n).length;
+  const tc = $("#todoc"); if (tc) tc.textContent = DATA.units.length - done;
+  return done;
+}
+
+function render(){
+  const shown = DATA.units.filter(matches);
+  const by = {};
+  for (const u of shown) (by[u.verdict] = by[u.verdict] || []).push(u);
+  let h = "";
+  for (const v of VERDICTS){
+    if (!state.verdicts.has(v)) continue;
+    const us = by[v] || [];
+    const open = state.open.has(v);
+    h += '<div class="ghead" data-g="' + esc(v) + '"><span class="badge v-' + esc(v) + '">' +
+         esc(v) + '</span><span class="why">' + esc(DATA.meta.verdict_why[v] || "") +
+         '</span><span class="c">' + us.length + (open ? "" : " &mdash; click to expand") +
+         "</span></div>";
+    h += '<div class="gbody' + (open ? "" : " hidden") + '">';
+    h += open ? us.map(rowHtml).join("") : "";
+    h += "</div>";
+  }
+  $("#list").innerHTML = h || '<div class="empty">nothing matches</div>';
+  const done = counters();
+  $("#count").textContent = shown.length + " / " + DATA.units.length + " units · " +
+    DATA.meta.rows + " tsv rows · " + done + " adjudicated";
+}
+
+$("#listwrap").addEventListener("click", e => {
+  const g = e.target.closest(".ghead");
+  if (g){ const v = g.dataset.g; state.open.has(v) ? state.open.delete(v) : state.open.add(v);
+          render(); }
+});
+$("#listwrap").addEventListener("change", e => {
+  if (e.target.type !== "radio") return;
+  const row = e.target.closest(".row"); if (!row) return;
+  const k = row.dataset.k, a = get(k);
+  a.v = e.target.value; ADJ[k] = a; saveAdj(); row.classList.add("done");
+  const done = counters();
+  $("#count").textContent = $("#count").textContent.replace(/\d+ adjudicated/, done + " adjudicated");
+});
+$("#listwrap").addEventListener("input", e => {
+  if (!e.target.classList.contains("note")) return;
+  const row = e.target.closest(".row"); if (!row) return;
+  const k = row.dataset.k, a = get(k);
+  a.n = e.target.value; ADJ[k] = a; saveAdj();
+});
+$("#q").addEventListener("input", e => { state.q = e.target.value.toLowerCase().trim(); render(); });
+
+function exportTsv(){
+  const out = [DATA.meta.export_header.join("\t")];
+  for (const u of DATA.units){
+    const a = get(u.key);
+    if (!a.v && !a.n) continue;
+    out.push([u.flag, u.ap_ids.join(","), u.verdict, a.v || "", (a.n || "").replace(/\s+/g, " ")]
+             .join("\t"));
+  }
+  return out.join("\n");
+}
+
+$("#exportbtn").addEventListener("click", async () => {
+  const t = exportTsv();
+  $("#exportwrap").classList.add("on");
+  $("#exportta").value = t;
+  // A file:// page cannot hand the browser a download (the wizard learned this the hard way,
+  // #735), so the TEXTAREA is the delivery mechanism and the clipboard is only the
+  // convenience. Never the clipboard alone: without a permitted gesture it fails silently.
+  let ok = false;
+  try { await navigator.clipboard.writeText(t); ok = true; } catch (e){
+    const ta = $("#exportta"); ta.focus(); ta.select();
+    try { ok = document.execCommand("copy"); } catch (e2){}
+  }
+  const n = t.split("\n").length - 1;
+  $("#exportmsg").textContent = (ok ? "copied to clipboard" : "select the text and copy") +
+    " · " + n + " adjudicated row(s)";
+});
+$("#exportclose").addEventListener("click", () => $("#exportwrap").classList.remove("on"));
+$("#clearbtn").addEventListener("click", () => {
+  if (!confirm("Discard every adjudication and note on this page?")) return;
+  ADJ = {}; saveAdj(); render();
+});
+
+$("#stamp").textContent = DATA.meta.stamp + "  ·  " + DATA.meta.rows + " audit rows · " +
+  DATA.units.length + " adjudication units";
+$("#votecaveat").innerHTML = "<b>MSB VOTE \u2014 a ranking signal, not a ruling.</b> " +
+  esc(DATA.meta.vote_caveat) + " " + esc(DATA.meta.vote_suspect_note);
+$("#foot").innerHTML = DATA.meta.footer;
+facets();
+render();
+</script>
+</body>
+</html>
