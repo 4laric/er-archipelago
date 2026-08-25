@@ -33,6 +33,27 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 ### Added
 
 - **Second-opinion region audit (`tools/audit_region_second_opinion.py`).** Developer tool, no player-facing change. The 305 checks whose names still say `(region unconfirmed)` got their region from a nearest-neighbour hop that cannot fail, so nothing in this repo can tell us which of them are wrong. The tool asks an independent corpus -- Eldenpedia (eldenring.wiki.gg, CC BY-SA 4.0), with the Fandom Elden Ring Wiki (CC BY-SA 3.0) as fallback -- where each check's vanilla item is found, maps the answer into our region vocabulary through a hand-written table, and prints AGREE / DISAGREE / AMBIGUOUS / NO-DATA per check. ERDB (MIT) was evaluated and is not used as a location source: its datamined params carry no placement field. Fextralife is deliberately not consulted. First run over all 305: 51 AGREE, 16 DISAGREE, 3 AMBIGUOUS, 26 NO-DATA, 209 AMBIGUOUS-GENERIC (an item with many vanilla copies cannot name one placement, so the tool refuses those without a request). Output is `greenfield/check_region_second_opinion.tsv` and `greenfield/CHECK-REGION-SECOND-OPINION.md` -- verdicts, region names and page titles only; no wiki prose is committed and the response cache is off-repo. It is a CANDIDATE list for hand-adjudication, never a cull list: NO-DATA means "not readable there", not "the check is fine".
+- **The Chapel of Anticipation return is Liurnia now, not Limgrave.** The Grafted Scion's drops --
+  Ornamental Straight Sword and Golden Beast Crest Shield -- sat under Limgrave on the strength of
+  the prologue fight, which the game expects you to lose. The chapel floor has no Site of Grace of
+  its own, so nothing the Limgrave Lock lights puts you back on it; the route that does is the Four
+  Belfries -> Chapel warp, and the Belfries are Liurnia's (their Imbued Sword Key chest became a
+  Liurnia check in v0.4.11, #940). Both checks now read `Liurnia ::`, and stay barred from hosting
+  progression as before. Nothing else moved: the Cave of Knowledge tutorial pickups and the
+  Fringefolk Hero's Grave rewards below the Stranded Graveyard -- including the Erdtree Greatbow,
+  which the chariot pays out, not a chapel chest -- are all walkable from Limgrave and stay there.
+  Reported by 255. (#1023)
+### Added
+
+- **Region Sync (#1005).** New `region_sync` toggle (default off) for seamless co-op: the party
+  shares one physical world, so when any Elden Ring player with it on unlocks a region, every other
+  opted-in ER slot's door opens too — the region-open flag is set and its graces light, the same
+  write a locally received Lock makes. ACCESS ONLY: nobody is granted the region-Lock ITEM,
+  fill/logic/goal are untouched, and generation is identical on or off. Rides the options echo
+  (OPTIONS_SUBKEYS, so `CONTRACT_HASH` does not move); a seed with it ON emits
+  `requiresClientFeatures ["region_sync"]` so an older client refuses the seed instead of leaving
+  its player region-kicked out from under the party. Client half clients#417; the gitlink moves to
+  its merge (`3967d512`).
 
 ## v0.5.0 — 2026-08-22
 

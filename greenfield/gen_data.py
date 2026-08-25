@@ -2858,11 +2858,30 @@ FLAG_REGION_OVERRIDE = {
     520000: "Weeping",               # Lhutel the Headless (spirit ash) -- Alaric-confirmed
                                                #   Weeping, mis-tiled to m10/Stormveil by the EMEVD scan.
     520010: "Weeping",               # Demi-Human Ashes -- same (Alaric-confirmed Weeping).
-    510030: "Limgrave",          # Ornamental Straight Sword = the tutorial GRAFTED SCION drop (Chapel
-                                               #   of Anticipation) -- obtainable only at the very START (or the
-                                               #   Ashen-return), NOT Stormveil. boss_reward_lots mis-tied it to
-                                               #   m10_01 (defeat flag 10010800). Pin to sphere-0 Limgrave; also
-                                               #   surface-excluded (missable hard fight). (Alaric 2026-07-23.)
+    510030: "Liurnia",           # Ornamental Straight Sword + Golden Beast Crest Shield = the GRAFTED
+                                               #   SCION drop on the Chapel of Anticipation floor (m10_01, defeat
+                                               #   flag 10010800; m10_01's own EMEVD calls it the "tutorial boss"
+                                               #   and $Event(10012800) sets 9103, which common.emevd
+                                               #   $Event(1100) slot 3 pays out as lot 10030 under this flag).
+                                               #   NOT Stormveil -- boss_reward_lots mis-tied it to m10_01's
+                                               #   Stormveil bucket -- and, since 2026-08-25, not Limgrave
+                                               #   either.
+                                               #
+                                               #   #1023 RULING (Alaric, on 255's tracker report): "chapel of
+                                               #   anticipation return we can model as liurnia". The prologue
+                                               #   pass at this fight is a one-shot the game expects you to
+                                               #   LOSE; every reliable route back to the chapel floor is the
+                                               #   Four Belfries -> Chapel warp, and the Belfries are Liurnia
+                                               #   (the Imbued Sword Key that opens them is itself a Liurnia
+                                               #   check, f1033477020). Pinning sphere-0 Limgrave sold the
+                                               #   Limgrave Lock an access it does not grant: Limgrave's graces
+                                               #   put you nowhere on that floor. Liurnia is the region whose
+                                               #   Lock actually buys the warp.
+                                               #
+                                               #   Unchanged by the move: still _SURFACE_EXCLUDE_FLAGS and still
+                                               #   QUEST_GATED_FLAGS (missable hard fight), so it hosts no
+                                               #   progression either way. (Alaric 2026-07-23; re-ruled
+                                               #   2026-08-25, #1023.)
     400001: "Leyndell",          # Rold Medallion = GRANTED by Melina at the Elden Throne after Morgott
                                                #   dies -- obtained IN Leyndell, needs Leyndell + Morgott, NOT
                                                #   Altus. Raw pipeline pinned it to Altus off the m34_14

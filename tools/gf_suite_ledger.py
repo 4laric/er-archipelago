@@ -283,6 +283,14 @@ TESTS_JOB = {
     "isolated_merchant_region": "committed gen_data.py/data.py/location_tags.py read by walk-up; "
                                 "the fill-binding half needs the installed world (tests job has it)",
     "unplaced_globals": "bundle-covered EMEVD corpus",
+    "chapel_return_region": "#1023's acceptance test. The region halves read only the installed "
+                            "data.py and never skip; the three that pin the MECHANISM read "
+                            "gen_data.py and region_overrides.tsv, which are NOT copied in beside "
+                            "the world, by the find_repo_root walk-up -- guaranteed present in the "
+                            "tests job's checkout (--ap-dir sits inside it), so they run rather "
+                            "than skip. Same shape as isolated_merchant_region above. NOT "
+                            "GENERATORS: it is a pytest suite, and its data half wants the "
+                            "installed world",
 }
 
 # Suites where EVERY test skips in CI. The reason must name the missing input honestly -- these are
