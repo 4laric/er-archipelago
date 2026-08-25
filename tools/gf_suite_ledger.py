@@ -118,6 +118,13 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "region_second_opinion": "pure-stdlib unittest suite over tools/audit_region_second_opinion.py, "
+                             "reached through the repo-root walk-up. It is OFFLINE by construction "
+                             "-- every wikitext fixture is hand-written synthetic text and no test "
+                             "opens a socket -- so it belongs in a real job, not on the dev box; "
+                             "the tests job checks out the full repository, and an installed-world "
+                             "consumer without tools/ skips honestly. It pins the mapping table "
+                             "against data.REGIONS and pins NO-DATA-is-not-AGREE (#1025 audit)",
     "release_update_guidance": "pure-stdlib pytest suite imports tools/check_release_notes.py "
                                "through the repo-root walk-up. The tests job checks out the full "
                                "repository, while installed-world-only consumers skip honestly; "

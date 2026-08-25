@@ -30,6 +30,10 @@ promotion since v0.4.13, and the one the v0.5.0 window deliberately deferred unt
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+### Added
+
+- **Second-opinion region audit (`tools/audit_region_second_opinion.py`).** Developer tool, no player-facing change. The 305 checks whose names still say `(region unconfirmed)` got their region from a nearest-neighbour hop that cannot fail, so nothing in this repo can tell us which of them are wrong. The tool asks an independent corpus -- Eldenpedia (eldenring.wiki.gg, CC BY-SA 4.0), with the Fandom Elden Ring Wiki (CC BY-SA 3.0) as fallback -- where each check's vanilla item is found, maps the answer into our region vocabulary through a hand-written table, and prints AGREE / DISAGREE / AMBIGUOUS / NO-DATA per check. ERDB (MIT) was evaluated and is not used as a location source: its datamined params carry no placement field. Fextralife is deliberately not consulted. First run over all 305: 51 AGREE, 16 DISAGREE, 3 AMBIGUOUS, 26 NO-DATA, 209 AMBIGUOUS-GENERIC (an item with many vanilla copies cannot name one placement, so the tool refuses those without a request). Output is `greenfield/check_region_second_opinion.tsv` and `greenfield/CHECK-REGION-SECOND-OPINION.md` -- verdicts, region names and page titles only; no wiki prose is committed and the response cache is off-repo. It is a CANDIDATE list for hand-adjudication, never a cull list: NO-DATA means "not readable there", not "the check is fine".
+
 ## v0.5.0 — 2026-08-22
 
 Ability lock: restrict abilities for a run, or start locked and find them back as items.

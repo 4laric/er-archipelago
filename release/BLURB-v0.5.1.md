@@ -15,7 +15,11 @@ only moment anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing yet. This window was opened at the v0.5.0 tag with zero commits past it, in the same
+Nothing player-facing yet. Behind the scenes, a second-opinion audit tool now cross-checks the
+305 checks whose names still read `(region unconfirmed)` against an independent, permissively
+licensed corpus, so those guesses can finally be argued with instead of trusted.
+
+Nothing else yet. This window was opened at the v0.5.0 tag with zero commits past it, in the same
 change that promoted stable to v0.5.0; nothing was carried over. `CONTRACT_HASH` stays at
 `13db0b3a` — only the exact-version handshake moved.
 
