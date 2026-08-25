@@ -610,6 +610,18 @@ jobs:
         run: python tools/check_contract_version.py
 
 
+      # tools/gen_enemy_drop_entities.py (#1000) is a LOCAL-INPUT tool -- it reads the vanilla MSBs
+      # off Alaric's disk, so CI can never run it end to end. That is exactly why its one contract
+      # needs a gate here: reviewed at PR #1004, NOTHING in the repo referenced the generator, so
+      # all 16 checks were green over a file no job executed a line of. This runs its pairing
+      # contract over a committed XML fixture (tools/testdata/enemy_drop_msb/) -- one part per file,
+      # the two ways that assumption breaks, the overworld flag-decode refusal, the one-to-many
+      # check_maps parse and the missing-database refusal. AP-free and repo-only, so this job (real
+      # tree, no Archipelago) is where it belongs. Mutation-checked: each of the five guards was
+      # broken in turn and the suite went red for it.
+      - name: The enemy-drop EntityID generator's XML pairing contract (#1000)
+        run: python -m unittest -v tools/test_gen_enemy_drop_entities.py
+
       # The ledger BEFORE the loop: the loop below is generated from it, so an unledgered
       # repo-only suite must fail the job before a green loop can imply "everything ran".
       - name: Every repo-only suite is in a CI job or explicitly ledgered

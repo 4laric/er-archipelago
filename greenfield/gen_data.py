@@ -1195,8 +1195,9 @@ CO_CHECK_HAND = frozenset({
               #          (KEY ITEM, goods 2008036)
     197,      # Rennala: 10180 Remembrance of the Full Moon Queen (primary) + 10181 Great Rune of
               #          the Unborn (goods 10080). Added 2026-08-06 on Alaric's ruling that the game
-              #          COUNTS this rune toward the Leyndell wall (#427): flag 197 sits inside the
-              #          counted 190-199 band alongside the six restored-rune flags 191-196. Until
+              #          COUNTS this rune toward the Leyndell wall (#427): relief $Event(6905) maps
+              #          197 -> 177, inside the 170-179 possession band the gate counts (common
+              #          $Event(730) -> flag 182; corrected 2026-08-22, clients#392). Until
               #          now lot 10181 was unmodelled, so check_lots blanked only the primary and
               #          every Rennala kill handed out a real vanilla rune ON TOP of the AP item
               #          (#426). NOTE the sibling is named from the FMG like any other -- goods
@@ -3500,7 +3501,9 @@ QUEST_GATED_FLAGS = {
     400740, 510030, 510420, 520400,
     # DRYLEAF DANE (Alaric, 2026-08-16, bobler playtest): "some questline shit, i think there are
     # multiple places you can fight him. should all go missable for now."
-    # boss_healthbars carries him TWICE -- 2049440710 (m61_49_44) and 2050430710 (m61_50_43) -- and
+    # boss_healthbars carries him TWICE -- 2049440800 (m61_49_44) and 2050430800 (m61_50_43), his
+    # EMEVD-derived defeat flags since #987; his ENTITY ids are ...710 and were the (never-firing)
+    # sweep keys before that -- and
     # both triggers are among the 26 with no SWEEP_ARENA_REGION row (#445), which is the same fact
     # from the other side: an NPC you meet at more than one site has no single arena to be filed in.
     # 🛑 THE SIBLINGS WERE ALREADY SPLIT AND NOBODY NOTICED. Three Enir Ilim pickups carry the same

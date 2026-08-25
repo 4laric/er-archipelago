@@ -379,6 +379,12 @@ Elden Ring:
   # The spelling `progression+useful` is also accepted.
   protect_missable_locations: progression_and_useful
 
+  # Each complete armor set arrives as ONE item that grants every piece at
+  # once -- one pool slot per set instead of four to six. On by default.
+  # Turn it off for the classic pool where every helm, chest, gauntlet and
+  # greave is its own item and sets trickle in a piece at a time.
+  armor_bundles: true
+
   # Recipe for the junk-consumable filler tail: {category: weight}.
   # Leave it alone unless you know what you want. Raising `juice` gives you more
   # genuinely useful drops; raising `stones` keeps upgrade materials flowing.

@@ -501,7 +501,7 @@ _OPTION_GROUPS = [
         "difficulty_ramp_speed", "coop_difficulty", "traps", "spawn_traps", "trap_count"]),
     ("Checks & Item Pool", [
         "dungeon_sweep", "reroll_enemy_drops",
-        "protect_missable_locations",
+        "protect_missable_locations", "armor_bundles",
         # vanilla_pool sits directly before curated_filler because it OVERRIDES it (#618): the
         # wizard renders a group in this order, and a player reading the recipe first would edit
         # weights that the switch above them makes moot.
@@ -1345,7 +1345,10 @@ class GreenfieldEldenRingWorld(World):
                 pool += f.create_items(self)
         shuffle = self._shuffle_on()
         _seen_weapon_names = set()
-        _seen_armor_bundles = set()
+        # None disables the bundle branch of compact_name (features/pool_compaction.py): with
+        # armor_bundles off (#985) every protector piece stays its own pool item.
+        from .features.armor_bundles import armor_bundles_on as _armor_bundles_on
+        _seen_armor_bundles = set() if _armor_bundles_on(self) else None
         if shuffle and not _vanilla:
             # Feature floors contribute before the vanilla tail is built. Compact them first and
             # carry the same seen sets into the tail, otherwise a floor-protected armour piece can

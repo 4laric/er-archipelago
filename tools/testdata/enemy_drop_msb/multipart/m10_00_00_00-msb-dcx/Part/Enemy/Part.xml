@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Enemies>
+  <MSB.Part.Enemy>
+    <Name>c3330_9000</Name>
+    <EntityID>12010245</EntityID>
+    <NPCParamID>33306000</NPCParamID>
+  </MSB.Part.Enemy>
+  <MSB.Part.Enemy>
+    <Name>c4140_9000</Name>
+    <EntityID>12010300</EntityID>
+    <NPCParamID>41400100</NPCParamID>
+  </MSB.Part.Enemy>
+</Enemies>

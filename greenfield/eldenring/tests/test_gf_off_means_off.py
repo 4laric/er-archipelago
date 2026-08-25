@@ -272,9 +272,9 @@ OFF_LEDGER = {
                          "test_gf_scaling_sphere.py::DlcOffSeed::test_dlc_buckets_absent_without_dlc",
                          {"enable_dlc": False}),
     "armorBundles": ("off_test",
-                      "test_gf_off_means_off.py::AllClientFeatureGatesOffSeed"
-                      "::test_armor_bundle_wire_absent_under_vanilla_placement",
-                      {"vanilla_placement": "all"}),
+                      "test_gf_armor_bundles.py::ArmorBundlesOffSeed"
+                      "::test_armor_bundle_wire_absent_when_off",
+                      {"armor_bundles": False}),
     # Progressive ability lock (#980): the id->ability map is emitted ONLY under
     # ability_lock_mode: progressive; a static-mode seed (the default) emits nothing.
     "abilityUnlockItems": ("off_test",

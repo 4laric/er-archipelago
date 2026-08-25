@@ -703,6 +703,14 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # un-culled Four Belfries key (f1033477020 -> Royal Revenant 1034480800); the other 148
     # re-owns are the tie-split round-robin re-dealing distance-tied checks, and ZERO cross a
     # region boundary (measured pair-by-pair against SWEEP_REGION).
-    assert (digest, n) == ("1489c9c542f81b0a", 4101), (  # 2026-08-21 (#940): +1 member (Four Belfries key -> Royal Revenant 1034480800); 148 tie-split re-owns, none region-crossing
-        "sweep OWNERSHIP changed: (%s, %d), expected (1489c9c542f81b0a, 4101). The total alone will "
+    # 2026-08-24 (#987): 1489c9c542f81b0a -> 991951420a8525a4, count UNCHANGED at 4101. The
+    # narrowest shape this pin can record that is not a no-op: TWO TRIGGERS WERE RENUMBERED and
+    # nothing else moved. Dryleaf Dane's sweeps keyed on his ENTITY ids (2049440710/2050430710),
+    # which no EMEVD sets as a flag, and now key on his EMEVD-derived DEFEAT flags
+    # (2049440800/2050430800). Measured in (trigger, flag) space: 41 removed / 41 added / 41
+    # re-owned, and the removed and added sets are the SAME 41 flags -- every member kept its
+    # owner, the owner's number changed. ZERO region crossings (both triggers stay Scadu Altus on
+    # both sides). No divvy re-phase: a key rename cannot move `_ents[_j % len(_ents)]`.
+    assert (digest, n) == ("991951420a8525a4", 4101), (  # 2026-08-24 (#987): Dane's 2 triggers re-keyed entity id -> defeat flag; same 41 members, same regions
+        "sweep OWNERSHIP changed: (%s, %d), expected (991951420a8525a4, 4101). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

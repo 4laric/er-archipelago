@@ -14,6 +14,13 @@ outright that the bundle carries what gen_data READS, "not the MSBs", and `datam
 already ran into the same wall on #363. So this table takes the two-hop route through data that IS
 committed -- params + NpcName FMG -- and is honest about what that costs.
 
+  UPDATE (#1000): the one-hop join now EXISTS, as a LOCAL-INPUT tool --
+  `tools/gen_enemy_drop_entities.py` takes the WitchyBND-unpacked vanilla MSBs as an external
+  argument and does exactly this lookup. Nothing above is wrong: the MSBs still are not in the
+  bundle and never will be, so that tool cannot run in CI or on a fresh clone and this table stays
+  the committed-data route. But if you have the MSBs on disk, do not re-derive the two-hop
+  workaround -- read that tool first.
+
 THE TWO HOPS
 
   1. flag -> chr, via the healthbar's `nameId`. `DisplayBossHealthBar(Enabled, ent, slot, nameId)`

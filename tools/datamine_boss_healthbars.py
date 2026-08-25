@@ -20,8 +20,11 @@ flag is what the death event passes to SetEventFlagID:
 So for FIELD-class bosses the key is the EMEVD-derived defeat flag (parameterized defeat handlers
 in common_func/map-local events, or a literal HandleBossDefeatAndDisplayBanner event's first
 SetEventFlagID); a field boss whose flag cannot be derived is DROPPED LOUDLY (a trigger that never
-fires is worse than none). Interior classes (legacy/catacomb/cave/tunnel/dungeon) keep the entity
-id as key -- their sweeps are in-game confirmed; known residual: a few duo/phase PARTNER entities
+fires is worse than none). The DLC OVERWORLD (m61, classed `legacy` for sweep scoping only) is
+ALSO re-keyed when a flag can be derived, keeping its entity key when none can (#987: Dryleaf Dane
+2049440710/2050430710 -> 2049440800/2050430800; 23 of 28 derive flag == entity, and the 3
+Scadutree Avatar entries have no derivation and stay entity-keyed). Other interior classes keep the
+entity id as key -- their sweeps are in-game confirmed; known residual: a few duo/phase PARTNER entities
 (e.g. Rogier 12030810, Crucible Knight 30100801) carry entity-keyed triggers that never fire.
 
 Class (by map): m30=catacomb, m31=cave, m32=tunnel, m60=field, everything else=legacy/interior.
@@ -289,7 +292,22 @@ def datamine():
     out, dropped = {}, []
     for ent, b in sorted(bosses.items()):
         if b["class"] != "field":
-            out[ent] = b
+            if b["class"] == "legacy" and b["map"].startswith("m61"):
+                # 🛑 #987 (2026-08-24): the DLC OVERWORLD is `legacy` only to keep its sweeps
+                # scoped (see _class), but geographically it is field -- and it inherited field's
+                # "defeat flag == entity id" assumption WITHOUT field's EMEVD check. Dryleaf Dane
+                # is the one m61 boss where that is false: entities 2049440710 / 2050430710, defeat
+                # flags 2049440800 / 2050430800 (event/m61_49_44_00 $Event(2049442800) and
+                # m61_50_43_00 $Event(2050432800): WaitFor(CharacterDead(...710)) ...
+                # SetNetworkconnectedEventFlagID(...800, ON)). The entity ids are set as flags
+                # NOWHERE in the corpus, so both sweeps sat armed forever -- 41 checks stranded.
+                # 23 of the 28 m61 entries derive flag == entity (re-key is a no-op for them).
+                # NOT field's drop-loudly rule: the 3 Scadutree Avatar entries have NO derivation
+                # and KEEP their entity key -- dropping them would cost 16 members a sweep, and an
+                # entity-keyed trigger that never fires is the status quo, not a regression.
+                out[flags.get(ent, ent)] = b
+            else:
+                out[ent] = b
             continue
         fl = flags.get(ent)
         if fl is None:

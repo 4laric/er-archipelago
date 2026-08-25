@@ -37,7 +37,7 @@ client PRs #14, #15, #16, #17, #18, #19, #20, #21, #22.
 - `want = min(want, len(_available_runes()))` — lowering a requirement is NOT always safe
 - the capital gate is a fixed two-rune wall that does not clamp with us; `leyndell_runes_required: 1` is selectable
 - floor an armed wall at `VANILLA_CAPITAL_GATE_RUNES`; DISARM rather than arm low
-- the Leyndell gate is a flag COUNT: `CountEventFlags(EventFlag, 190, 199) >= countThreshold`, ITEM-ARG 0/6
+- the Leyndell gate reads `EventFlag(182) && EventFlag(105)`; 182 is common $Event(730)'s count over the POSSESSION band 170-179, ITEM-ARG 0/6 (corrected 2026-08-22, clients#392 — the earlier 190-199/$Event(720) claim verified the counter's definition, never its call site)
 - 191-196 are both restored-goods ids and restored-flag ids — FromSoft parallel numbering, not our error
 - a gated child's open flag must not BE a grace; new bits Leyndell 76980 / Raya Lucaria 76981 / Sewer 76982
 - core.py and area_locks.py change ZERO lines — fix the table, not four consumers
