@@ -86,14 +86,22 @@ class TestCapitalPins:
         assert CAPITAL_BURN_DONE_FLAG == _FALLBACK_BURN_DONE_FLAG
         assert tuple(tuple(r) for r in CAPITAL_RELEASE_ROWS) == _FALLBACK_RELEASE_ROWS
 
-    def test_release_rows_rekey_live_checks_to_the_done_latch(self):
-        # Every re-keyed row moves 9116 -> 118, and its stock flag is a REAL check in the world
-        # data (Enia's Maliketh armor set): flags 250160/250170/250180/250190.
+    def test_release_rows_rekey_the_vanilla_shelf_to_the_done_latch(self):
+        # Every re-keyed row moves 9116 -> 118. The rows are Enia's Maliketh armor set (stock
+        # flags 250160/250170/250180/250190). Since #1013 (2026-08-24) her shop is VANILLA, so
+        # those flags are no longer live checks -- they are ledgered in NOT_RANDOMIZED -- but
+        # the re-key STAYS, deliberately row-based: the vanilla shelf must still release the
+        # armor on the burn-done latch while the client reconciler toggles 9116. Dropping the
+        # re-key with the checks would strand the vanilla Maliketh set on a Royal-only row.
         assert all(frm == BURN_FLAG and to == BURN_DONE_FLAG for (_r, frm, to) in RELEASE_ROWS)
         assert [r for (r, _f, _t) in RELEASE_ROWS] == [101516, 101517, 101518, 101519]
+        from worlds.eldenring.data import NOT_RANDOMIZED
         all_flags = {f for locs in LOCATIONS.values() for (_n, _a, f) in locs}
         for stock in (250160, 250170, 250180, 250190):
-            assert stock in all_flags, f"stock flag {stock} is not a live check -- re-key stale"
+            assert stock not in all_flags, \
+                f"stock flag {stock} is a live check -- Enia is vanilla (#1013), investigate"
+            assert "enia_vanilla" in NOT_RANDOMIZED.get(stock, ""), \
+                f"stock flag {stock} left the check pool WITHOUT a ledger entry -- data loss"
 
 
 class CapitalOnSeed(WorldTestBase):

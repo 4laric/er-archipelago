@@ -70,17 +70,29 @@ class TestFragmentsToInject:
         UNITS, the ceiling is on ITEMS -- and the assertion kept the old number, which is 13 units
         short of nothing but three units short of the answer. It was right about the share and
         wrong about the SPACE (CONTRIBUTING rule 3: name the space wherever two components exchange
-        a value), so this is written in both spaces now and neither is a bare literal."""
+        a value), so this is written in both spaces now and neither is a bare literal.
+
+        2026-08-25 (#1013): the FLOOR now overrides the clamp up to SCADU_CUM[CLAMP_FLOOR_LEVEL].
+        Target 12 IS the floor level, so this call is the maximal breach: the clamp sheds 26 -> 13
+        (the largest injection whose ITEMS fit the share) and the floor lifts the return back to
+        26. Both numbers are pinned -- the clamp still bounds everything ABOVE the floor, the floor
+        bounds the loss."""
         ceiling_items = int(100 * ss.MAX_POOL_SHARE)
         self_units = ss.fragments_to_inject(1, 12, 0, 100, False)
-        assert self_units == 13, "13 units, not 26: the clamp bound"
-        assert ss.items_for_units(self_units) == ceiling_items == 10, (
-            "the injection must MEET the 10%% share, not overrun it: %d units -> %d items, "
-            "ceiling %d" % (self_units, ss.items_for_units(self_units), ceiling_items))
-        # ...and it is the LARGEST injection that fits -- the loop sheds units until it does, so a
-        # clamp that stopped one unit early would pass the line above and lose supply for nothing.
-        assert ss.items_for_units(self_units + 1) > ceiling_items
+        assert self_units == 26, "26 units: the clamp bound at 13, the floor overrode back to the cap"
+        assert ss.items_for_units(self_units) == 20, (
+            "the breach, stated in ITEM space: 26 units -> 20 items vs ceiling %d (~20%% of the "
+            "pool -- the bounded cost of holding the floor; see CLAMP_FLOOR_LEVEL)" % ceiling_items)
+        # The clamp itself still works underneath the floor: 13 units is the LARGEST injection
+        # that fits -- one more unit's items overrun the share.
+        assert ss.items_for_units(13) == ceiling_items == 10
+        assert ss.items_for_units(14) > ceiling_items
+        # ...and the floor does NOT fire on a pool too small to charge (zero ceiling): injecting
+        # 26 units into <10 locations would BE the pool.
         assert ss.fragments_to_inject(1, 12, 0, 0, False) == 0
+        # Above the floor the clamp is untouched: target 20 on the same pool sheds 48 -> 26, no
+        # further (the floor is already met) and never to the target.
+        assert ss.fragments_to_inject(1, 20, 0, 100, False) == 26
 
 
 # ---- the cross-repo constant -------------------------------------------------------------------
@@ -116,8 +128,10 @@ def test_every_one_region_draw_clears_the_original_cap_under_the_clamp():
 
     If this fails, region geometry shrank past the point where the clamp starves the blessing
     below its original cap. That is a premise change -- take it back to a ruling on the
-    clamp-vs-floor trade (see CLAMP_FLOOR_LEVEL's note on why the floor is not in code) -- not a
-    number to relax."""
+    clamp-vs-floor trade, not a number to relax. (2026-08-25, #1013: it happened -- Enia's 100
+    hub rows left and the Abyssal draw fell to 22 units. The ruling landed: the floor is now
+    enforced in code as a bounded breach of the share ceiling; see CLAMP_FLOOR_LEVEL. This sweep
+    still gates it, now by construction of the breach bound.)"""
     from worlds.eldenring import region_spine as rspine
     from worlds.eldenring.data import HUB, LOCATIONS, REGIONS
     from worlds.eldenring.item_ids import LOCATION_ITEM, LOCATION_UNITS

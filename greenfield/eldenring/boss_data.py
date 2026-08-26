@@ -2,74 +2,74 @@
 joined by event flag. Matt-free. Dungeon-sweep triggers need EMEVD enrichment (SPEC P3)."""
 REGION_BOSSES = {
     'Abyssal': [
-        (7770774, 510560, 'Remembrance of the Lord of Frenzied Flame'),
+        (7770674, 510560, 'Remembrance of the Lord of Frenzied Flame'),
     ],
     'Ainsel River': [
-        (7770756, 510080, 'Remembrance of the Naturalborn'),
+        (7770656, 510080, 'Remembrance of the Naturalborn'),
     ],
     'Ancient Ruins': [
-        (7770775, 510600, 'Remembrance of the Saint of the Bud'),
+        (7770675, 510600, 'Remembrance of the Saint of the Bud'),
     ],
     'Ashen Capital': [
-        (7770755, 510070, 'Remembrance of Hoarah Loux'),
-        (7770764, 510230, 'Elden Remembrance'),
+        (7770655, 510070, 'Remembrance of Hoarah Loux'),
+        (7770664, 510230, 'Elden Remembrance'),
     ],
     'Belurat': [
-        (7770768, 510400, 'Remembrance of the Dancing Lion'),
+        (7770668, 510400, 'Remembrance of the Dancing Lion'),
     ],
     'Caelid': [
         (7770002, 172, "Radahn's Great Rune"),
     ],
     'Cerulean': [
-        (7770772, 510480, 'Remembrance of Putrescence'),
+        (7770672, 510480, 'Remembrance of Putrescence'),
     ],
     'Deeproot Depths': [
-        (7770758, 510110, 'Remembrance of the Lichdragon'),
+        (7770658, 510110, 'Remembrance of the Lichdragon'),
     ],
     'Enir Ilim': [
-        (7770770, 510430, 'Remembrance of a God and a Lord'),
+        (7770670, 510430, 'Remembrance of a God and a Lord'),
     ],
     'Ensis': [
-        (7770780, 510900, 'Remembrance of the Twin Moon Knight'),
+        (7770680, 510900, 'Remembrance of the Twin Moon Knight'),
     ],
     'Farum Azula': [
-        (7770760, 510150, 'Remembrance of the Dragonlord'),
-        (7770761, 510160, 'Remembrance of the Black Blade'),
+        (7770660, 510150, 'Remembrance of the Dragonlord'),
+        (7770661, 510160, 'Remembrance of the Black Blade'),
     ],
     'Haligtree': [
         (7770006, 176, "Malenia's Great Rune"),
-        (7773891, 15000850, "[Sorcery] Loretta's Mastery"),
+        (7773791, 15000850, "[Sorcery] Loretta's Mastery"),
     ],
     'Leyndell': [
-        (7770754, 510040, 'Remembrance of the Omen King'),
+        (7770654, 510040, 'Remembrance of the Omen King'),
     ],
     'Mohgwyn': [
         (7770005, 175, "Mohg's Great Rune"),
     ],
     'Mountaintops of the Giants': [
-        (7770766, 510310, 'Remembrance of the Fire Giant'),
+        (7770666, 510310, 'Remembrance of the Fire Giant'),
     ],
     'Mt. Gelmir': [
         (7770004, 174, "Rykard's Great Rune"),
-        (7770763, 510220, 'Remembrance of the Blasphemous'),
+        (7770663, 510220, 'Remembrance of the Blasphemous'),
     ],
     'Raya Lucaria Academy': [
         (7770007, 14000800, 'Remembrance of the Full Moon Queen'),
     ],
     'Scadu Altus': [
-        (7770773, 510550, 'Remembrance of the Mother of Fingers'),
+        (7770673, 510550, 'Remembrance of the Mother of Fingers'),
     ],
     'Shadow Keep': [
-        (7770771, 510460, 'Remembrance of the Impaler'),
-        (7770776, 510620, 'Remembrance of the Shadow Sunflower'),
-        (7770778, 510640, 'Remembrance of the Wild Boar Rider'),
+        (7770671, 510460, 'Remembrance of the Impaler'),
+        (7770676, 510620, 'Remembrance of the Shadow Sunflower'),
+        (7770678, 510640, 'Remembrance of the Wild Boar Rider'),
     ],
     'Siofra River': [
-        (7770767, 510330, 'Remembrance of the Regal Ancestor'),
+        (7770667, 510330, 'Remembrance of the Regal Ancestor'),
     ],
     'Stormveil': [
-        (7770753, 510010, 'Remembrance of the Grafted'),
+        (7770653, 510010, 'Remembrance of the Grafted'),
     ],
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:ce67fec8310a6a4e1cbd4063addb63f2b02ba91ebe7c4acd6bfe5b022dc60233', 'module': 'boss_data.py', 'body_sha256': 'sha256:19701b6467e1376fa7ac59c040cd7a4cb7dabd57175b4ef1a86ad3f7d7583078'}
+_GEN_STAMP = {'inputs_hash': 'sha256:f8b393790c70801925131ca624590e4dd01f0fb2db34526f6c21a517389c5998', 'module': 'boss_data.py', 'body_sha256': 'sha256:0077a571f7171e92205b81140b7ef0f71cb19abadf80d5095b5bb8e10bdb52b3'}

@@ -39,12 +39,14 @@ from ..location_tags import (DEFAULTED_REGION_APS, ERDTREE_BURN_APS, LOCATION_TA
 
 # Every hub row carrying a merchant tag. #218 replaces the old number-anywhere-in-ESD heuristic with
 # exact AwardItemLot calls: two false Hub rows retire while one real Hub award enters, for a net -1.
-_PINNED_BAR = 183
-# Of those, the ones a `Shop`-selecting seed would put on the surface before this bar fires: 184 minus
-# the 58 already DEFAULTED (region guessed) minus the 21 EniaShop rows (EniaShop is itself a
-# contract.SURFACE_EXCLUDE_TAGS member, so has_class rejects them on tags alone) minus the 47 that
-# are also in SHOP_RELEASE_GATED_APS (barred unconditionally by allowed_ap_ids).
-_PINNED_ON_SURFACE = 58
+# 2026-08-24 (#1013): Enia's shop is VANILLA -- her 100 hub rows left the location pool entirely, so
+# the bar drops 183 -> 83. The delta is exactly her row count, nothing else moved.
+_PINNED_BAR = 83
+# Of those, the ones a `Shop`-selecting seed would put on the surface before this bar fires: 83 minus
+# the 63 covered by the other bars (the DEFAULTED / ERDTREE_BURN / SURFACE_EXCLUDE /
+# SHOP_RELEASE_GATED union) = 20. Was 58 before #1013; the 38 that left were Enia's on-surface rows
+# (the rest of her 100 were already covered by the release-gate bar).
+_PINNED_ON_SURFACE = 20
 
 _HUB_APS = frozenset(ap for (_n, ap, _f) in LOCATIONS.get(HUB, ()))
 

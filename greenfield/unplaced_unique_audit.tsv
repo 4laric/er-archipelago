@@ -2,7 +2,8 @@
 # This is a review worksheet, not generator input.  `flag` is the suspect region_map row;
 # `canonical_flag` is the real/generated check when the suspect is a duplicate or stale award path.
 # verdict values: generated, duplicate, excluded_multisite, excluded_dead, excluded_phantom,
-# excluded_itemless.  Evidence names committed inputs or generated output so every ruling is repeatable.
+# excluded_itemless, excluded_enia_vanilla.  Evidence names committed inputs or generated output
+# so every ruling is repeatable.
 flag	item	verdict	canonical_flag	region	evidence
 400079	Aspects of the Crucible: Breath	duplicate	16007950	Mt. Gelmir	data.py already has the same incantation at f16007950
 400104	Comet Azur	duplicate	400440	Mt. Gelmir	flag_lots has the same item; t111006000 is the actual AwardItemLot(104400) path and f400440 is generated
@@ -23,7 +24,7 @@ flag	item	verdict	canonical_flag	region	evidence
 580110	The Sacred Tower Painting	generated	580110	Gravesite	m61_47_42 event initializer carries both f580110 and lot 80110
 580400	Serpent Crest Shield	generated	580400	Gravesite	item_grace_coords.tsv has an exact f580400 entity on m61_45_43
 30207900	Silver Scarab	excluded_dead			gen_data._UNREACHABLE_DEAD: cut/unreachable Hidden Path imp-gate reward row
-59930000	Veteran's Helm	duplicate	250290	Roundtable Hold	data.py already has Veteran's Helm as Enia shop check f250290
+59930000	Veteran's Helm	excluded_enia_vanilla	250290	Roundtable Hold	was 'duplicate' of Enia shop check f250290 until #1013 made Enia vanilla: her shelf is not randomized, so f250290 is no longer a generated check and the helm sits on a vanilla shelf out of the pool's scope
 1033477020	Imbued Sword Key	generated	1033477020	Liurnia	treasure_assets.tsv (asset 1033471601), msb_flag_region.tsv (m60_33_47 lot 1033470020 treasure) and item_grace_coords.tsv all place it: the REAL Four Belfries chest -- #940 reversed the phantom ruling
 1038417100	Ash of War: Gravitas	excluded_itemless			itemless_flags.tsv and gen_data item-existence guard: lot item is an unnamed/cut placeholder
 400902	Nomadic Merchant's Bell Bearing [2]	generated	400902	Limgrave	item_grace_coords.tsv exact entity m60_45_36

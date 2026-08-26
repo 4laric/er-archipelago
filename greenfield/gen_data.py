@@ -1725,9 +1725,11 @@ def _capital_derive():
         raise SystemExit(f"FATAL: capital: world-burn flag {_world_burn} has only "
                          f"{_readers[_world_burn]!r} reader map(s) -- the 2026-08-06 scan found 5 "
                          f"(m11_00, m11_10, m12_03, m35_00, m60_42_32). A shrunken scan is a bad scan.")
-    # COUNT PIN (2026-07-14 artifacts): 4 purchase checks release on the burn flag -- Enia's
-    # Maliketh armor set, rows 101516-101519 (stock 250160/250170/250180/250190, checks
-    # 7770500-7770503). A different number = the inputs or the predicate changed; answer WHICH
+    # COUNT PIN (2026-07-14 artifacts): 4 purchase rows release on the burn flag -- Enia's
+    # Maliketh armor set, rows 101516-101519 (stock 250160/250170/250180/250190). Row-based, not
+    # check-based: Enia's shop is vanilla since 2026-08-24 (world#1013), and the re-key is what
+    # keeps her vanilla Maliketh armor releasing on schedule while the reconciler toggles 9116.
+    # A different number = the inputs or the predicate changed; answer WHICH
     # before re-pinning (CONTRIBUTING: rebaselining unexplained launders a regression).
     if len(_rows) != 4:
         raise SystemExit(f"FATAL: capital release-row drift: {len(_rows)} rows "
@@ -1956,9 +1958,54 @@ _WORLDLESS_SINGLES = frozenset({
     1047557040, 1052557040, 2046407001, 2046407002, 2046407003, 2046407004, 2047447901, 2048467701,
     2049437610, 2049437901, 2049437902, 2049437911, 2049437912, 2050457510,
 })
+# ---- ENIA IS VANILLA (Alaric, 2026-08-24, world#1013) ---------------------------------------------
+# Finger Reader Enia's shop is EXCLUDED FROM RANDOMIZATION -- none of her rows is a check. This
+# restores the rule 8c53e955 ("remove enia from big ticket") kept only half of: that took her rows
+# off big-ticket but left them in the pool. Her stock is the worst case of the gap
+# SHOP_RELEASE_GATED_APS only mitigates: all 49 block-1015 armor rows release on remembrance-boss
+# ceremony flags, and her 1019xx trades render only while the player HOLDS the remembrance, so her
+# menu is empty at start while AP logic filed her ~100 checks in the always-open hub and the
+# spoiler read them as sphere-1 ("i can't buy any items from Enia... the spoiler log says I should
+# be able to buy things from her from the very beginning" -- 570N3F157, Discord 2026-08-24).
+# Vanilla is the honest fix: no checks, no slot_data, no client rewrite, no spoiler lie. The
+# capital reconciler's capitalReleaseRows re-key (rows 101516-101519, 9116 -> 118) STAYS: it is
+# row-based, not check-based, and her vanilla Maliketh armor still needs its release to survive
+# the reconciler's 9116 toggling. Her Talisman Pouch (f60500, an m11_10 EMEVD reward, not a shop
+# row) is untouched.
+# DERIVED, never hand-listed: her rows are merchant_shops.tsv's "Finger Reader Enia" entries,
+# joined to stock flags through shop_rows.tsv (flag 290100 rides along -- Mohgwyn's Sacred Spear
+# is her trade row 101910 wherever region_map mis-files it). Both tsvs are declared inputs
+# (require_complete_inputs has already run), so an empty result means the derivation broke, not
+# that she has no stock: FATAL, per rule 2 (empty result = failure).
+def _enia_shop_flags():
+    """Stock flags of every ShopLineupParam row Finger Reader Enia opens."""
+    _enia_rows = set()
+    with open(os.path.join(HERE, "merchant_shops.tsv"), encoding="utf-8-sig") as _fh:
+        for _ln in _fh:
+            if _ln.startswith("#"):
+                continue
+            _p = _ln.rstrip("\n").split("\t")
+            if len(_p) >= 4 and _p[0].isdigit() and _p[3].strip() == "Finger Reader Enia":
+                _enia_rows.add(_p[0])
+    _out = set()
+    with open(os.path.join(HERE, "shop_rows.tsv"), encoding="utf-8-sig") as _fh:
+        for _ln in _fh:
+            if _ln.startswith("#"):
+                continue
+            _p = _ln.rstrip("\n").split("\t")
+            if len(_p) > 5 and _p[0] in _enia_rows and _p[5].strip().isdigit():
+                _out.add(int(_p[5].strip()))
+    return _out
+
+_ENIA_SHOP_FLAGS = frozenset(_enia_shop_flags())
+if not _ENIA_SHOP_FLAGS:
+    raise SystemExit("FATAL: Enia shop-flag derivation came back empty -- merchant_shops.tsv or "
+                     "shop_rows.tsv changed shape. Her rows must stay vanilla; do not rebaseline "
+                     "this away (world#1013).")
+print(f"enia: {len(_ENIA_SHOP_FLAGS)} stock flag(s) excluded from randomization -- her shop is vanilla")
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
-                | _SHEET_DROPS | _RADA_WORLDLESS | _WORLDLESS_SINGLES)
+                | _SHEET_DROPS | _RADA_WORLDLESS | _WORLDLESS_SINGLES | _ENIA_SHOP_FLAGS)
 # Per-flag progression_surface exclusion (Alaric, 2026-07-17): checks that CARRY a surface tag but must
 # NOT host this world's progression (kept as ordinary checks; barred like DEFAULTED_REGION_APS). Emitted
 # as SURFACE_EXCLUDE_APS into location_tags.py, unioned into features/progression_surface barred set.
@@ -5709,6 +5756,11 @@ _NR_RULES = (
     (lambda _fl, _r: _fl in MINIBAKER_VENDOR_FLAGS,
      "minibaker_vendor_row: ShopLineupParam row 101801 is repurposed at runtime as the infinite "
      "Stonesword Key vendor (features/minibaker.py); a check here would be clobbered"),
+    (lambda _fl, _r: _fl in _ENIA_SHOP_FLAGS,
+     "enia_vanilla: Finger Reader Enia's shop is excluded from randomization (Alaric 2026-08-24, "
+     "world#1013) -- her armor rows release on ceremony flags and her trades on holding the "
+     "remembrance, so her checks read sphere-1 in the spoiler while her menu is empty at start; "
+     "her stock stays vanilla"),
     (lambda _fl, _r: _fl == 400280,
      "obtained_flag_twin: Haligtree Secret Medallion (Left) obtained-flag twin of the placed "
      "Castle Sol pickup f1051587800; keeping both double-checks one medallion"),
@@ -5763,7 +5815,7 @@ _nr_unexplained = EXCLUDE_FLAGS - (MAP_REVEAL_FLAGS | MINIBAKER_VENDOR_FLAGS | f
                                    | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                                    | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD
                                    | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS | _RADA_WORLDLESS
-                                   | _WORLDLESS_SINGLES)
+                                   | _WORLDLESS_SINGLES | _ENIA_SHOP_FLAGS)
 if _nr_unexplained:
     raise SystemExit("FATAL: EXCLUDE_FLAGS member(s) %r have no NOT_RANDOMIZED ledger rule -- add "
                      "the new exclusion to _NR_RULES (gen_data) so deliberate absence stays "
@@ -7589,16 +7641,24 @@ elif _slp_present:
                      "present -- run tools/datamine_shop_open_ranges.py (issue #937). Refusing a "
                      "scopeless shop_data emit.")
 
-# The check flags among the DLC-gated stock flags, with a rule-4 tally by region so the number
-# is auditable. Expected shape: the hub's Enia block (the motivating case) plus DLC-region rows
-# that are redundantly listed (their locations leave with their regions regardless).
+# The RAW DLC-gated stock flags, then the check flags among them, with a rule-4 tally by region
+# so the number is auditable. With Enia vanilla (#1013) the raw set is exactly her 36 rows (15
+# DLC boss-armor releases + 2 Dancing Lion + 19 remembrance trades) and the CHECK set is EMPTY:
+# her rows are no longer locations. Both are still emitted -- the raw set keeps the #913
+# machinery's derivation observable (and arms it for any future hub row that becomes a check),
+# and the check set is what core.py skips per-seed when the DLC is off. A DLC-region merchant's
+# gated row would land in the raw set too, harmlessly -- its location already leaves with the
+# region.
+DLC_GATED_SHOP_ROW_FLAGS = sorted(_flag2dlcgate)
 DLC_GATED_SHOP_CHECK_FLAGS = sorted(
     _fl for _fl in set(SHOP_ROW_FLAGS.values()) & _flag2dlcgate)
 _dlc_shop_by_region = Counter(
     SHOP_LOC_REGION[int(_aid)] for _aid, _fl in SHOP_ROW_FLAGS.items()
     if _fl in _flag2dlcgate and int(_aid) in SHOP_LOC_REGION)
-print("shop_data: %d DLC-gated shop check flag(s) (skipped per-seed when the DLC is off): %s"
-      % (len(DLC_GATED_SHOP_CHECK_FLAGS), dict(_dlc_shop_by_region)))
+print("shop_data: %d DLC-gated stock flag(s) raw, %d shop check flag(s) among them "
+      "(skipped per-seed when the DLC is off): %s"
+      % (len(DLC_GATED_SHOP_ROW_FLAGS), len(DLC_GATED_SHOP_CHECK_FLAGS),
+         dict(_dlc_shop_by_region)))
 
 OUT_SHOP = os.path.join(HERE, "eldenring", "shop_data.py")
 with open(OUT_SHOP, "w", newline="\n", encoding="utf-8") as f:
@@ -7620,6 +7680,13 @@ with open(OUT_SHOP, "w", newline="\n", encoding="utf-8") as f:
     f.write("# forever-uncompletable checks (AzoTax, 2026-08-20: a no-DLC seed goal-locked on one).\n")
     f.write("DLC_GATED_SHOP_CHECK_FLAGS = frozenset({\n")
     for _fl in DLC_GATED_SHOP_CHECK_FLAGS:
+        f.write(f"    {_fl},\n")
+    f.write("})\n\n# RAW DLC-gated stock flags (every ShopLineupParam row meeting the predicate, whether or\n")
+    f.write("# not it is a check). With Enia vanilla (#1013) this is exactly her 36 rows and\n")
+    f.write("# DLC_GATED_SHOP_CHECK_FLAGS above is empty -- kept so the #913 derivation stays\n")
+    f.write("# observable and re-arms itself if a gated hub row ever becomes a check again.\n")
+    f.write("DLC_GATED_SHOP_ROW_FLAGS = frozenset({\n")
+    for _fl in DLC_GATED_SHOP_ROW_FLAGS:
         f.write(f"    {_fl},\n")
     f.write("})\n\nSHOP_PREVIEW_GOODS = {\n")
     for _aid in sorted(SHOP_PREVIEW_GOODS, key=int):

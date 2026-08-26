@@ -34,7 +34,7 @@ from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E
 #     corpus and never had a sweep to lose.
 GRAFTED_SCION = 10010800          # boss_healthbars: ('m10_01', 'm10_01', 'legacy', 'Grafted Scion')
 SCION_OWN_DROP_AP = 7773886       # Ornamental Straight Sword, f510030 -- a normal check, must SURVIVE
-GOSTOC_BELL_AP = 7773806           # f400051, MSB-placed in m10_00 while its source map was PENDING
+GOSTOC_BELL_AP = 7773706           # f400051, MSB-placed in m10_00 while its source map was PENDING
 # (7773843 -> 7773808 on 2026-08-19, #330; 7773808 -> 7773821 same day, full-census regen: +10
 #  restored m21_02 Rada rows and +3 other insertions ahead of it. Flag-verified both times -- the
 #  stale pin was even OWNED by a Liurnia trigger, the exact wrong-check-same-id trap.)
@@ -745,6 +745,16 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 🛑 The Mt. Gelmir trio (1039537040/50/60) is WITHHELD from this batch, not applied: it would
     # take three of the twenty-three checks test_gf_unspawned_field_boss pins to Mt. Gelmir. See the
     # note in gen_data.FLAG_REGION_OVERRIDE.
-    assert (digest, n) == ("5d5de2223034adf6", 4100), (  # 2026-08-26 (#1059): measured arena outranks the tile decode; 32 re-owns, 0 region crossings, 0 orphans
-        "sweep OWNERSHIP changed: (%s, %d), expected (5d5de2223034adf6, 4100). The total alone will "
+    # 2026-08-26 (#1013, Enia vanilla): 5d5de2223034adf6 -> bd4c7e5d5b89c0f1, count UNCHANGED at
+    # 4100. Enia's hundred hub rows left the corpus (gen_data `enia_vanilla`), and NO Enia row was
+    # sweep-owned -- the OWNED FLAG SET is untouched at 3897, zero lost, zero gained. The whole churn
+    # is the divvy re-phase: the hub rows sat inside region round-robin pools, so removing 100
+    # members re-deals `_ents[_j % len(_ents)]` for every pool that held them. Measured in
+    # (trigger, flag) space against main: 195 removed / 195 added / 196 re-owned, and ZERO region
+    # crossings, checked pair-by-pair against SWEEP_REGION on both sides.
+    # 🛑 The same removal shifts every LATER ap id down by exactly 100, which is why GOSTOC_BELL_AP
+    # at the top of this file moves 7773806 -> 7773706. Re-read from the regenerated data.py, not
+    # arithmetic: f400051 is ap 7773706 there.
+    assert (digest, n) == ("bd4c7e5d5b89c0f1", 4100), (  # 2026-08-26 (#1059): measured arena outranks the tile decode; 32 re-owns, 0 region crossings, 0 orphans
+        "sweep OWNERSHIP changed: (%s, %d), expected (bd4c7e5d5b89c0f1, 4100). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

@@ -603,12 +603,20 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
                          + sum(len(LOCATIONS.get(r, [])) for r in kept)
                          + len(getattr(t.world, "gf_extra_locations", ())))
                 ceiling = int(total * ss.MAX_POOL_SHARE)
-                # 1) TIGHT: the share ceiling, recomputed from raw data, is what stopped it --
-                #    one more unit would not fit. A looser stop is an injection bug hiding here.
-                assert ss.items_for_units(injected) <= ceiling < ss.items_for_units(injected + 1), (
+                # 1) TIGHT: the shortfall is explained by a NAMED bound, not drift. Either the
+                #    share ceiling stopped it (one more unit would not fit), or the
+                #    CLAMP_FLOOR_LEVEL floor overrode the ceiling (2026-08-25, #1013): the
+                #    injection then sits ABOVE the share, bounded at floor units -- legal only
+                #    because the floor is the original cap, never the target.
+                floor_want = max(0, ss.SCADU_CUM[ss.CLAMP_FLOOR_LEVEL] - natural)
+                tight = ss.items_for_units(injected) <= ceiling < ss.items_for_units(injected + 1)
+                floored = (injected == floor_want
+                           and natural + injected >= ss.SCADU_CUM[ss.CLAMP_FLOOR_LEVEL])
+                assert tight or floored, (
                     f"{label} mode {mode}: injection stopped at {injected} unit(s) but the share "
-                    f"ceiling is {ceiling} item(s) of {total} locations -- the clamp is not what "
-                    f"stopped it, so this shortfall is a defect, not the designed degrade")
+                    f"ceiling is {ceiling} item(s) of {total} locations and the floor wants "
+                    f"{floor_want} -- neither bound explains the stop, so this shortfall is a "
+                    f"defect, not the designed degrade")
                 # 2) FLOORED: never below the ORIGINAL cap (12, the pre-2026-08-06 target).
                 assert frags >= ss.SCADU_CUM[ss.CLAMP_FLOOR_LEVEL], (
                     f"{label} mode {mode}: clamped pool carries {frags} unit(s), below "

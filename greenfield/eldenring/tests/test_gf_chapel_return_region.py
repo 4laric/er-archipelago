@@ -54,7 +54,11 @@ IN_REPO = REPO is not None
 
 CHAPEL_FLAG = 510030
 CHAPEL_APS = {
-    7773887: "Ornamental Straight Sword",
+    # 2026-08-26 (#1013, Enia vanilla): the ap ids below moved because Enia's hundred hub rows
+    # left the corpus, which renumbers every LATER ap id. That is this branch's change, NOT a
+    # region move and NOT a renumbering bug. Every id here was RE-READ from the regenerated
+    # data.py by flag, never by subtracting 100 from the old one.
+    7773787: "Ornamental Straight Sword",
     7900113: "Golden Beast Crest Shield",
 }
 CHAPEL_REGION = "Liurnia"

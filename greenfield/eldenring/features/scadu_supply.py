@@ -116,12 +116,16 @@ MAX_POOL_SHARE = 0.10
 # When 12 WAS the target it was judged an acceptable whole-playthrough supply, so it is the line
 # between "tops out early" (fine, warned) and "starved" (a defect).
 #
-# 🛑 NOT enforced in code, deliberately. `fragments_to_inject` stays a pure clamp with no floor:
-# a floor that overrides the share ceiling would breach it exactly on the degenerate pools the
-# ceiling exists for (a 100-location pool owed 26 units is 20% fragments). It is a fact about the
-# REAL region geometry -- today the worst draw still injects 32 units, level 14 -- and the
-# one-region sweep in tests/test_gf_scadu_supply.py is the gate that holds it. If geometry ever
-# breaks that sweep, the answer is a ruling on the clamp/floor trade, not a bumped constant.
+# 2026-08-25 (#1013): NOW ENFORCED IN CODE, as a bounded breach of the share ceiling. It was
+# deliberately NOT enforced ("a floor that overrides the share ceiling would breach it exactly on
+# the degenerate pools the ceiling exists for") while real geometry kept the floor unreachable --
+# the smallest one-region draw still injected 32 units. Enia's shop going vanilla removed her 100
+# hub rows, and with them the smallest draw (Abyssal, hub + one tiny region, ~150 locations) fell
+# through the floor: 2 natural + 20 clamped injected = 22 < 26 units. The ruling on the
+# clamp-vs-floor trade the old comment asked for: the floor wins, but ONLY the floor -- the
+# breach is capped at SCADU_CUM[CLAMP_FLOOR_LEVEL] units (never the target), so a ~150-location
+# seed pays ~18 items (~12%) for level 12, not 36 items (~24%) for level 20. The target stays
+# share-clamped; the loss is still stated by the create_items warning.
 CLAMP_FLOOR_LEVEL = 12
 
 
@@ -209,6 +213,13 @@ def fragments_to_inject(mode: int, target: int, natural: int, total_locations: i
     # already being told, loudly, that it cannot reach the target.
     while want > 0 and items_for_units(want) > ceiling:
         want -= 1
+    # ...but never below the FLOOR (2026-08-25, #1013 -- see CLAMP_FLOOR_LEVEL): the clamp may
+    # starve the TARGET, not the original cap. The breach is bounded at floor units, and it only
+    # fires on a REAL pool -- a zero ceiling means a pool too small to charge (total < 10), where
+    # injecting 26 units would BE the pool. No real seed is that small (the hub alone is not).
+    floor_want = SCADU_CUM[CLAMP_FLOOR_LEVEL] - max(0, natural)
+    if ceiling > 0 and want < floor_want:
+        want = floor_want
     return want
 
 
@@ -302,12 +313,24 @@ class ScaduSupply(Feature):
                 "this seed (DLC-excluded or item_shuffle off); the blessing has no fragments",
                 world.game, world.player, mode)
         elif injected < want:
-            log.warning(
-                "[%s:%d] scadu_supply: target %d needs %d fragment unit(s), seed has %d natural, "
-                "but only %d could be injected (%d pool item(s), clamped to %.0f%% of %d "
-                "locations) -- the blessing cannot reach its target this seed",
-                world.game, world.player, target, SCADU_CUM[target], natural, injected,
-                items_for_units(injected), MAX_POOL_SHARE * 100, _total_locations(world))
+            floor_units = SCADU_CUM[CLAMP_FLOOR_LEVEL]
+            if natural + injected >= floor_units and items_for_units(injected) > int(
+                    _total_locations(world) * MAX_POOL_SHARE):
+                log.warning(
+                    "[%s:%d] scadu_supply: target %d needs %d fragment unit(s), seed has %d "
+                    "natural, and the %.0f%% pool-share clamp stops injection at %d -- the "
+                    "blessing cannot reach its target this seed, but the level-%d floor (%d "
+                    "units) overrode the ceiling, so it holds its original cap and only the "
+                    "target is lost",
+                    world.game, world.player, target, SCADU_CUM[target], natural,
+                    MAX_POOL_SHARE * 100, injected, CLAMP_FLOOR_LEVEL, floor_units)
+            else:
+                log.warning(
+                    "[%s:%d] scadu_supply: target %d needs %d fragment unit(s), seed has %d natural, "
+                    "but only %d could be injected (%d pool item(s), clamped to %.0f%% of %d "
+                    "locations) -- the blessing cannot reach its target this seed",
+                    world.game, world.player, target, SCADU_CUM[target], natural, injected,
+                    items_for_units(injected), MAX_POOL_SHARE * 100, _total_locations(world))
         else:
             log.info(
                 "[%s:%d] scadu_supply: %d fragment unit(s) in pool for target %d (%d natural + %d "

@@ -62,8 +62,11 @@ POCKET = {
     # 7774245 -> 7774246 (2026-08-21, #940): the un-culled Four Belfries key (f1033477020) inserted
     # at ap 7774225, ahead of this pin; the sibling below (7772650) sits BEFORE the insertion and
     # does not move. Flag-verified, never blanket-applied.
-    1035467100: 7774246,   # +5 on the #898 base, +2 more at the 8 audited-tile releases, +1 at the Crimson Hood ruling, +1 at the #940 Four Belfries un-cull; flag-verified   # Golden Seed - near Main Academy Gate (the reported check)
-    1035467700: 7772650,   # Ash of War: Raptor of the Mists - around Main Academy Gate
+    # 7774246 -> 7774146 and 7772650 -> 7772550 (2026-08-24, #1013): Enia's shop went vanilla and
+    # her 100 rows left the pool ahead of BOTH pins; -100 each, flag-verified. Same lesson as
+    # 2026-08-19: this time the sibling DOES move with its twin.
+    1035467100: 7774146,   # +5 on the #898 base, +2 more at the 8 audited-tile releases, +1 at the Crimson Hood ruling, +1 at the #940 Four Belfries un-cull, -100 at the #1013 Enia cull; flag-verified   # Golden Seed - near Main Academy Gate (the reported check)
+    1035467700: 7772550,   # Ash of War: Raptor of the Mists - around Main Academy Gate
 }
 ANCHOR_FLAG = 14007990     # Golden Seed - near Schoolhouse Classroom: undisputed academy ground
 ACADEMY = "Raya Lucaria Academy"

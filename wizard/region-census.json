@@ -39,7 +39,7 @@
   "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
   "region": "Ashen Capital"
  },
- "hub_dlc_gated_checks": 36,
+ "hub_dlc_gated_checks": 0,
  "hub_region": "Roundtable Hold",
  "parent": {
   "Leyndell": "Altus",
@@ -176,13 +176,13 @@
    },
    "sweep_slots_max": {
     "all": 81,
-    "bosses": 144,
+    "bosses": 145,
     "minidungeons": 81
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 81,
-     "bosses": 144,
+     "bosses": 145,
      "minidungeons": 81
     },
     "SweepSlotMajor": {
@@ -190,7 +190,7 @@
     },
     "SweepSlotMinor": {
      "all": 81,
-     "bosses": 136,
+     "bosses": 137,
      "minidungeons": 81
     }
    }
@@ -377,13 +377,13 @@
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 119,
+    "bosses": 121,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 119,
+     "bosses": 121,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -391,7 +391,7 @@
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 115,
+     "bosses": 117,
      "minidungeons": 55
     }
    }
@@ -960,13 +960,13 @@
    },
    "sweep_slots_max": {
     "all": 53,
-    "bosses": 155,
+    "bosses": 158,
     "minidungeons": 53
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 53,
-     "bosses": 155,
+     "bosses": 158,
      "minidungeons": 53
     },
     "SweepSlotMajor": {
@@ -976,7 +976,7 @@
     },
     "SweepSlotMinor": {
      "all": 45,
-     "bosses": 139,
+     "bosses": 142,
      "minidungeons": 45
     }
    }
@@ -1229,7 +1229,7 @@
    }
   },
   "Roundtable Hold": {
-   "checks": 237,
+   "checks": 137,
    "combos": {},
    "dlc": false,
    "parent": null,
@@ -1278,14 +1278,14 @@
     }
    },
    "sweep_slots_max": {
-    "all": 49,
-    "bosses": 49,
+    "all": 48,
+    "bosses": 48,
     "minidungeons": 8
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 49,
-     "bosses": 49,
+     "all": 48,
+     "bosses": 48,
      "minidungeons": 8
     },
     "SweepSlotMajor": {
@@ -1293,8 +1293,8 @@
      "bosses": 3
     },
     "SweepSlotMinor": {
-     "all": 46,
-     "bosses": 46,
+     "all": 45,
+     "bosses": 45,
      "minidungeons": 8
     }
    }
@@ -1500,5 +1500,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "d085c0b3ac8e6314f33d0ffa0dc4b66f40ffb8913ab74b991b307d910f87d629"
+ "source_sha256": "2f9c3ff45e4b44cb4168d158bfba5812f4764d2e544c483689067356eda6bc5a"
 }
