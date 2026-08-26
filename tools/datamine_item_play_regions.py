@@ -19,6 +19,9 @@ NOTHING GEOMETRIC IS RE-IMPLEMENTED HERE. Everything is imported from its one ow
     datamine_grace_ground.Vol / Vol.contains / _shape / _load_msb_playareas / load_volumes
                               / load_interior_volumes / _nearest_face / SEAM_SLACK
                               / MEASURED_GROUND / load_play_region_defaults
+                              / grace_rows  THE calibration population: the BWP SPAWN position of
+                              every warp grace, the point the kick-watch evaluates at warp-in --
+                              never the grace asset coordinate in item_grace_coords.tsv
     overworld_fold.world_xz   THE LOD-aware overworld fold (issue #338 -- never a second one),
                               reached THROUGH datamine_grace_ground.derive_ground, which owns the
                               volume -> seam -> tile-default -> none ladder for BOTH tools
@@ -143,42 +146,20 @@ def item_rows(repo, vols, tile_ids, interior_ids):
 
 
 def grace_rows(vols, tile_ids, interior_ids):
-    """The SAME pipeline over BonfireWarpParam's warp graces -- the calibration population.
+    """The calibration population -- `datamine_grace_ground.grace_rows`, verbatim.
 
-    Overworld graces are handed a 4-field `_00` map id, so `world_xz` reduces to the `tile*256`
-    transform `datamine_grace_ground` uses and the two derivations are comparable by construction.
-    MEASURED_GROUND is applied exactly as next door: an in-game kick line is the ENGINE reporting
-    the play_region, and it outranks the derivation.
+    NOT a second reader of BonfireWarpParam. The gate's whole claim is that it reproduces
+    `grace_ground.tsv`, and that claim is only about the ladder if both sides judge THE SAME
+    POINT: the grace's BWP SPAWN position (`posX/posY/posZ`), the point the kick-watch evaluates
+    at warp-in -- never the grace ASSET coordinate in `item_grace_coords.tsv`, which is metres
+    away at some graces. This file used to hold its own copy of that loop, and the copies had
+    already drifted (a grace whose spawn position does not parse was skipped here and emitted next
+    door, so the gate never compared it). One generator, so the populations cannot differ.
+
+    Returns (flag, map_id, ids, source): the tile column belongs to grace_ground's tsv, not here.
     """
-    rows = []
-    for r in csv.DictReader(open(gg.BWP, newline="", encoding="utf-8-sig")):
-        try:
-            f = int(r["eventflagId"] or 0)
-        except ValueError:
-            continue
-        if not (71000 <= f <= 76999):
-            continue
-        a = int(r["areaNo"] or 0)
-        try:
-            x, y, z = float(r["posX"]), float(r["posY"]), float(r["posZ"])
-        except (TypeError, ValueError):
-            continue
-        if a in (60, 61):
-            map_id = "m%d_%02d_%02d_00" % (a, int(r["gridXNo"]), int(r["gridZNo"]))
-        else:
-            ent = str(r["bonfireEntityId"] or "")
-            map_id = "m%s_%s" % (ent[0:2], ent[2:4]) if len(ent) == 8 else "?"
-        ids, src = derive(map_id, x, y, z, vols, tile_ids, interior_ids)
-        if f in gg.MEASURED_GROUND:
-            mbks, msrc = gg.MEASURED_GROUND[f]
-            if ids and tuple(sorted({i // 100 for i in ids})) != tuple(mbks):
-                raise SystemExit(
-                    "FATAL: derived ground %r for grace %d disagrees with the in-game measurement "
-                    "%r (%s) -- the transform or the params changed; re-derive, do not paper over."
-                    % (sorted({i // 100 for i in ids}), f, list(mbks), msrc))
-            if not ids:
-                ids, src = [b * 100 for b in mbks], msrc
-        rows.append((f, map_id, ids, src))
+    rows = [(f, map_id, ids, src)
+            for f, map_id, _tile, ids, src in gg.grace_rows(vols, tile_ids, interior_ids)]
     rows.sort(key=lambda r: (r[0], r[1]))
     return rows
 

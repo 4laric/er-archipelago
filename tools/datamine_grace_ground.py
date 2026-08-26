@@ -389,25 +389,31 @@ def derive_ground(map_id, x, y, z, vols, tile_ids, interior_ids):
     return (ids, "interior-map") if ids else ([], "none")
 
 
-def main(argv=None):
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--emit", action="store_true", help="write %s" % OUT)
-    artifacts_root.add_path_argument(ap)
-    args = ap.parse_args(argv)          # argv is a PARAMETER so the suite can drive it
-    root = artifacts_root.resolve(args.path)
-    if root:
-        _set_artifacts_root(root)
-    for p in (BWP, PRP):
-        if not os.path.isfile(p):
-            raise SystemExit("FATAL: %s missing -- restore elden_ring_artifacts." % p)
+def grace_rows(vols, tile_ids, interior_ids, bwp=None):
+    """THE warp-grace population, for BOTH consumers -- yields (flag, map_id, tile, ids, source).
 
-    vols = load_volumes()
-    print("PlayArea volumes: %d (m60+m61)" % len(vols))
+    ONE OWNER OF THE POINT, not just of the ladder. `derive_ground` above made the two tools agree
+    about how a placement is judged; this generator makes them agree about WHICH PLACEMENT IS
+    JUDGED. Every grace answer -- this tool's emitted `grace_ground.tsv` and
+    `datamine_item_play_regions --graces`, the gate that diffs against it -- is derived from the
+    BonfireWarpParam SPAWN POSITION (`posX/posY/posZ`) of the grace's own row: the point the
+    player materialises at, which is the point the client's kick-watch evaluates play_region at on
+    warp-in. It is NOT the grace ASSET coordinate that `greenfield/item_grace_coords.tsv` carries
+    for the same flag; the two are metres apart at some graces, and a gate that compared a
+    spawn-derived table against asset-derived answers would report seam/none deltas that are
+    artifacts of comparing two different points.
 
-    tile_ids, interior_ids = load_play_region_defaults()
+    Until 2026-08-26 the loop below was written TWICE -- here and in the gate -- and the copies had
+    already drifted: a row whose spawn position does not parse got a fallback row here and was
+    silently SKIPPED there, so the gate simply never compared it. A grace the gate does not compare
+    is not a grace the gate blessed.
 
-    rows = []
-    for r in csv.DictReader(open(BWP, newline="", encoding="utf-8-sig")):
+    Yields the raw PlayRegionParam ids (bucket = id // 100, the caller divides) plus the AUTHORED
+    tile, which only this tool's tsv column wants. MEASURED_GROUND is applied here, once: an
+    in-game kick line is the ENGINE reporting the play_region and outranks the derivation, and a
+    derivation that DISAGREES with one is fatal, not a shrug.
+    """
+    for r in csv.DictReader(open(bwp or BWP, newline="", encoding="utf-8-sig")):
         try:
             f = int(r["eventflagId"] or 0)
         except ValueError:
@@ -432,16 +438,39 @@ def main(argv=None):
             src = "interior-map" if ids else "none"
         else:
             ids, src = derive_ground(map_id, px, py, pz, vols, tile_ids, interior_ids)
-        bks = sorted({i // 100 for i in ids})
         if f in MEASURED_GROUND:
             mbks, msrc = MEASURED_GROUND[f]
+            bks = sorted({i // 100 for i in ids})
             if bks and tuple(bks) != tuple(mbks):
                 raise SystemExit(
                     "FATAL: derived ground %r for grace %d disagrees with the in-game measurement "
                     "%r (%s) -- the volume transform or the params changed; re-derive, do not "
                     "paper over." % (bks, f, list(mbks), msrc))
             if not bks:
-                bks, src = list(mbks), msrc
+                ids, src = [b * 100 for b in mbks], msrc
+        yield f, map_id, tile, ids, src
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--emit", action="store_true", help="write %s" % OUT)
+    artifacts_root.add_path_argument(ap)
+    args = ap.parse_args(argv)          # argv is a PARAMETER so the suite can drive it
+    root = artifacts_root.resolve(args.path)
+    if root:
+        _set_artifacts_root(root)
+    for p in (BWP, PRP):
+        if not os.path.isfile(p):
+            raise SystemExit("FATAL: %s missing -- restore elden_ring_artifacts." % p)
+
+    vols = load_volumes()
+    print("PlayArea volumes: %d (m60+m61)" % len(vols))
+
+    tile_ids, interior_ids = load_play_region_defaults()
+
+    rows = []
+    for f, _map_id, tile, ids, src in grace_rows(vols, tile_ids, interior_ids):
+        bks = sorted({i // 100 for i in ids})
         rows.append((f, ";".join(map(str, bks)) or "-", src, tile))
 
     rows.sort()

@@ -108,6 +108,9 @@ passes with a flag the scan is then run without, the check was of a different co
 python tools/datamine_grace_ground.py --path <artifacts-root>      # default: elden_ring_artifacts/
 ```
 
+(Report only, deliberately: this run is the corpus check. `--emit` is what writes
+`greenfield/grace_ground.tsv`, and every command in this file that means to write it says so.)
+
 Expect `PlayArea volumes: ~497 (m60+m61)` (measured on a comprehensive 1,346-dir export,
 2026-08-26 -- PlayAreas exist at play-region boundaries, not on every tile) and
 `421 total, ~293+ with a derived ground`.
@@ -265,6 +268,19 @@ this and nothing else:
 
 Then **`--graces` must come back CLEAN** — no bucket mismatches AND no source deltas. Anything else
 is a finding about the corpus, not about the tools.
+
+🛑 **The gate compares SPAWN POSITIONS, on both sides.** Every grace answer — the committed
+`grace_ground.tsv` and the `--graces` rows diffed against it — is derived from the grace's
+BonfireWarpParam `posX/posY/posZ`, the point the player materialises at and therefore the point the
+client's kick-watch evaluates `play_region` at on warp-in. It is **not** the grace ASSET coordinate
+that `greenfield/item_grace_coords.tsv` carries under the same flag; the two are metres apart at
+some graces, and a gate that judged one against the other would report `seam:`/`none` deltas that
+are artifacts of comparing two different points, not findings about the corpus. Since 2026-08-26
+that is structural rather than a convention: `datamine_grace_ground.grace_rows()` is the single
+generator of the grace population and the gate's own `grace_rows` is a projection of it, so the two
+tools cannot read different points any more than they can run different ladders. (The two copies of
+that loop had already drifted: a BWP row whose spawn position does not parse was emitted into
+`grace_ground.tsv` and *skipped* by the gate, so the gate never compared it. It does now.)
 
 What the regenerated table moves downstream (measured in-sandbox against a simulated regen, so it
 is a prediction with a witness, not a guess):
