@@ -2935,4 +2935,4 @@ ITEM_TIER_CATEGORY = {
     'Zweihander': 'WEAPON',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:c792b546c788fc469f3574aef8c3df48d0f34e93710f26ae2d31ed45bb3bd35a', 'module': 'item_tiers.py', 'body_sha256': 'sha256:a985145ca9f804e351315443cb95047c36b9ff11a8b120cc81b2d21c8b0315ea'}
+_GEN_STAMP = {'inputs_hash': 'sha256:cc801633252e77e6b2c0c344986abde6911e7800e7eb62ac1499218bffdd3622', 'module': 'item_tiers.py', 'body_sha256': 'sha256:a985145ca9f804e351315443cb95047c36b9ff11a8b120cc81b2d21c8b0315ea'}

@@ -259,40 +259,74 @@ class TestArenaMembersSplitSkip(unittest.TestCase):
             healthbars=HEALTHBARS, arena_regions=ARENA_REGIONS,
             member_regions=member_regions, triggers=SWEEPS)
 
-    def test_there_is_a_split_to_witness(self):
-        # The whole surface #523 addresses. At zero, every assertion below is vacuous.
+    # 🛑 THE LIVE CORPUS NO LONGER CONTAINS A SPLIT (#1059, 2026-08-26), so these tests are driven
+    # by a SYNTHETIC one instead of by whichever defect happened to be in the data.
+    #
+    # They used to assert `len(_split_triggers()) > 0` and use Jori (2052430800) as the named
+    # fixture -- and that was the right shape while a split existed, because a skip rule with
+    # nothing to skip is not tested. #1059 fixed the split at the source (the measured arena now
+    # outranks the tile decode when a legacy boss picks its host region, and boss_area_regions.tsv
+    # is re-folded through the live bucket spine), so Jori is no longer a split and the corpus is
+    # at zero -- which is now asserted, in test_the_corpus_has_no_split_left below.
+    #
+    # Retiring the class was the other option and it is the wrong one: `sweep_slot_skips`' SPLIT
+    # branch is live code that must keep working, and a branch whose only test needed a defect in
+    # the data to fire is a branch that goes dark the moment the data is fixed. The fixture below
+    # exercises it unconditionally and is stronger than what it replaces.
+    SYNTH_TRIGGER = 999999800          # not a real defeat flag; never present in SWEEPS
+    SYNTH_MEMBERS = [7770041, 7770047]
+
+    def _synth(self):
+        """A trigger whose arena region and members' region disagree, and nothing else does."""
+        # NB dict(x, **{int: ...}) is a TypeError -- these tables are keyed by INT flags.
+        triggers, arena = dict(SWEEPS), dict(ARENA_REGIONS)
+        members, healthbars = dict(MEMBER_REGIONS), dict(HEALTHBARS)
+        triggers[self.SYNTH_TRIGGER] = list(self.SYNTH_MEMBERS)
+        arena[self.SYNTH_TRIGGER] = "Caelid"
+        members[self.SYNTH_TRIGGER] = "Limgrave"
+        healthbars[self.SYNTH_TRIGGER] = HEALTHBARS[10000800]
+        return triggers, arena, members, healthbars
+
+    def test_the_corpus_has_no_split_left(self):
+        """#1059's ruling, at the surface this class guards: a boss may only grant checks in the
+        region it is fought in. gen_data refuses to emit a split at all, so a non-empty set here is
+        a regression, not a number to rebaseline."""
+        # WITNESS: [] must mean "checked every trigger and none split", not "the tables are empty".
         self.assertGreater(
-            len(_split_triggers()), 0,
-            "no arena/members-split trigger remains, so the split-skip tests witness nothing. If the "
-            "data legitimately reached zero, retire this class deliberately rather than leave it green.")
+            len(ARENA_REGIONS), 150,
+            "only %d trigger(s) carry an arena region -- _split_triggers() cannot see the corpus, "
+            "so an empty result proves nothing" % len(ARENA_REGIONS))
+        self.assertEqual(
+            sorted(_split_triggers()), [],
+            "an arena/members split is back (#1059). gen_data is supposed to refuse to emit one.")
 
     def test_no_split_trigger_nominates_a_sweep_slot(self):
-        skips = self._skips()
-        for t in sorted(_split_triggers()):
-            self.assertIn(
-                t, skips,
-                "split trigger %d (%s members / %s arena) is not withheld -- a SweepSlot here places "
-                "progression behind a boss the seed's region selection may exclude (#523)"
-                % (t, MEMBER_REGIONS[t], ARENA_REGIONS[t]))
-            self.assertEqual(
-                CONTRACT.nominate_sweep_slots({t: SWEEPS[t]}, skips=skips), set(),
-                "split trigger %d still contributed a SweepSlot nomination" % t)
+        triggers, arena, members, healthbars = self._synth()
+        skips = CONTRACT.sweep_slot_skips(
+            healthbars=healthbars, arena_regions=arena, member_regions=members, triggers=triggers)
+        self.assertIn(
+            self.SYNTH_TRIGGER, skips,
+            "a split trigger (Limgrave members / Caelid arena) is not withheld -- a SweepSlot here "
+            "places progression behind a boss the seed's region selection may exclude (#523)")
+        self.assertEqual(
+            CONTRACT.nominate_sweep_slots(
+                {self.SYNTH_TRIGGER: triggers[self.SYNTH_TRIGGER]}, skips=skips), set(),
+            "the split trigger still contributed a SweepSlot nomination")
 
     def test_the_split_skip_is_load_bearing(self):
-        # RED-FIRST: without member_regions a NAMED, AUDITED split (Jori) slips past every other
-        # source; supplying member_regions is what catches it. Delete the SPLIT block and this reds.
-        jori = 2052430800
-        self.assertIn(
-            jori, _split_triggers(),
-            "Jori (2052430800) is no longer an arena/members split -- choose another named split fixture")
+        """RED-FIRST: without member_regions the split slips past every other source; supplying it
+        is what catches it. Delete the SPLIT block in contract.py and this reds."""
+        triggers, arena, members, healthbars = self._synth()
         without = CONTRACT.sweep_slot_skips(
-            healthbars=HEALTHBARS, arena_regions=ARENA_REGIONS, triggers=SWEEPS)
+            healthbars=healthbars, arena_regions=arena, triggers=triggers)
         self.assertNotIn(
-            jori, without,
-            "Jori is caught even without member_regions -- the SPLIT source is not load-bearing here, "
-            "so this differential proves nothing; find a split that only the SPLIT source catches")
-        self.assertIn(jori, self._skips(),
-                      "Jori is not caught with member_regions -- the SPLIT source did not fire")
+            self.SYNTH_TRIGGER, without,
+            "the fixture is caught even without member_regions -- the SPLIT source is not "
+            "load-bearing here, so this differential proves nothing")
+        with_regions = CONTRACT.sweep_slot_skips(
+            healthbars=healthbars, arena_regions=arena, member_regions=members, triggers=triggers)
+        self.assertIn(self.SYNTH_TRIGGER, with_regions,
+                      "the fixture is not caught with member_regions -- the SPLIT source did not fire")
 
     def test_margit_co_regions_and_keeps_its_slot(self):
         # #523 regression fixture: _ARENA_REGION_CURATED put Margit's arena onto his members' region,

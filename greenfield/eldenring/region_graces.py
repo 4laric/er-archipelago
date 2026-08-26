@@ -2,7 +2,7 @@
 REGION_GRACE_POINTS = {
     'Abyssal': [76860, 72801, 72802, 72803, 76861, 76863, 76864],
     'Ainsel River': [71211, 71212, 71213, 71214, 71215, 71216, 71218, 71219],
-    'Altus': [76301, 73008, 73010, 73012, 73013, 73118, 73119, 73204, 73205, 73430, 73431, 73432, 73450, 73451, 76300, 76302, 76303, 76304, 76305, 76306, 76307, 76308, 76309, 76310, 76311, 76312, 76320, 76500, 73007],
+    'Altus': [76301, 73008, 73010, 73012, 73013, 73118, 73119, 73204, 73205, 73430, 73431, 73432, 73450, 73451, 76300, 76302, 76303, 76304, 76305, 76306, 76307, 76308, 76309, 76310, 76311, 76312, 76320, 73007],
     'Ancient Ruins': [76940, 76941, 76942, 76943, 76944],
     'Belurat': [72001, 72002, 72003],
     'Caelid': [73207, 73014, 73015, 73016, 73110, 73111, 73120, 73121, 73208, 73257, 73440, 73441, 73460, 76400, 76401, 76402, 76403, 76404, 76405, 76406, 76407, 76409, 76410, 76411, 76413, 76414, 76416, 76417, 76418, 76420, 76450, 76451, 76452, 76453, 76454, 76455, 76456],
@@ -19,7 +19,7 @@ REGION_GRACE_POINTS = {
     'Limgrave': [73100, 71800, 71801, 73002, 73004, 73011, 73103, 73115, 73117, 73201, 76100, 76101, 76102, 76103, 76104, 76105, 76106, 76108, 76110, 76111, 76113, 76114, 76116, 76117, 76118, 76119],
     'Liurnia': [73202, 73003, 73005, 73006, 73104, 73105, 73106, 73420, 73421, 73422, 73901, 73902, 76200, 76201, 76202, 76203, 76204, 76205, 76207, 76208, 76209, 76210, 76211, 76212, 76213, 76214, 76215, 76216, 76217, 76218, 76219, 76220, 76221, 76222, 76223, 76224, 76225, 76226, 76227, 76228, 76229, 76230, 76231, 76233, 76234, 76235, 76236, 76237, 76238, 76239, 76240, 76241, 76242, 76243, 76244, 76245, 76251, 76252],
     'Mohgwyn': [71251, 71252, 71253],
-    'Mountaintops of the Giants': [73017, 73018, 73122, 76501, 76503, 76504, 76505, 76506, 76507, 76510, 76520, 76521, 76522, 76523, 76502],
+    'Mountaintops of the Giants': [73017, 73018, 73122, 76501, 76503, 76504, 76505, 76506, 76507, 76510, 76520, 76521, 76522, 76523, 76500, 76502],
     'Mt. Gelmir': [76350, 71602, 71603, 71604, 71605, 71607, 73009, 73107, 73109, 76351, 76352, 76353, 76354, 76355, 76356, 76357],
     'Rauh Base': [76912, 74001, 74203, 76913, 76914],
     'Raya Lucaria Academy': [71402, 71403, 76206],
@@ -36,7 +36,7 @@ REGION_GRACE_POINTS = {
 REGION_GRACE_LANDMARKS = {
     'Abyssal': [72801, 76860],  # Manse Hall, Abyssal Woods
     'Ainsel River': [71211, 71214, 71216],  # Ainsel River Well Depths, Ainsel River Main, Lake of Rot Shoreside
-    'Altus': [73007, 76301, 76309, 76500],  # Wyndham Catacombs, Altus Plateau, Outer Wall Phantom Tree, Forbidden Lands
+    'Altus': [73007, 73450, 76301, 76309],  # Wyndham Catacombs, Divine Tower of East Altus: Gate, Altus Plateau, Outer Wall Phantom Tree
     'Ancient Ruins': [76940],  # Viaduct Minor Tower
     'Belurat': [72001],  # Belurat, Tower Settlement
     'Caelid': [76400, 76406, 76450],  # Smoldering Church, Aeonia Swamp Shore, Dragonbarrow West
@@ -53,7 +53,7 @@ REGION_GRACE_LANDMARKS = {
     'Limgrave': [71800, 76100, 76102],  # Cave of Knowledge, Church of Elleh, Stormhill Shack
     'Liurnia': [73901, 76200, 76207, 76251],  # Ruin-Strewn Precipice, Lake-Facing Cliffs, East Raya Lucaria Gate, Cathedral of Manus Celes
     'Mohgwyn': [71251],  # Palace Approach Ledge-Road
-    'Mountaintops of the Giants': [76501, 76502, 76506],  # Zamor Ruins, Grand Lift of Rold, Giants' Gravepost
+    'Mountaintops of the Giants': [76500, 76501, 76506],  # Forbidden Lands, Zamor Ruins, Giants' Gravepost
     'Mt. Gelmir': [71602, 76350],  # Volcano Manor, Bridge of Iniquity
     'Rauh Base': [76912],  # Ancient Ruins Base
     'Raya Lucaria Academy': [71402, 76206],  # Church of the Cuckoo, Main Academy Gate
@@ -64,4 +64,4 @@ REGION_GRACE_LANDMARKS = {
     'Weeping': [76150],  # Church of Pilgrimage
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:c792b546c788fc469f3574aef8c3df48d0f34e93710f26ae2d31ed45bb3bd35a', 'module': 'region_graces.py', 'body_sha256': 'sha256:210cd1d40d4b224f5b5573f63628e714fd6244463030b38e5c1ce1b579ce2508'}
+_GEN_STAMP = {'inputs_hash': 'sha256:cc801633252e77e6b2c0c344986abde6911e7800e7eb62ac1499218bffdd3622', 'module': 'region_graces.py', 'body_sha256': 'sha256:6c8eb071ebfb5dfad413ea807c320ddcd978ffecb76a7c99a0ec937fa0cd1617'}
