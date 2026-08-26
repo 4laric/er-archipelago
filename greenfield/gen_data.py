@@ -478,10 +478,66 @@ try:
             if len(_p) == 3 and _p[0].isdigit():
                 # NOTE: _REGION_MERGES is applied later (it is defined below this load); the fold
                 # for this table happens right after the merge map exists.
-                BOSS_AREA_REGION[int(_p[0])] = _p[2]
+                #
+                # 🛑 THE `region` COLUMN IS RE-FOLDED, NOT TRUSTED (2026-08-26, the #1059 audit).
+                # This file is AUTO-GENERATED and its third column is a SNAPSHOT of what
+                # PLAY_REGION_GROUPS said the day it was emitted. region_groups.py is the single
+                # source for "bucket -> region" and it MOVES: the Ashen Capital split took 11050
+                # out of Leyndell, the #202 ruling took 34100 into Stormveil, and the 2026-08-20
+                # Sewer merge deleted the region name "Sewer" outright. Six of the 120 rows here
+                # were still carrying the pre-move answers, and two of them named a region that no
+                # longer exists -- which is how a boss's ARENA region silently disagreed with its
+                # own members and produced 17 of the 22 "cross-region" sweep links in that audit.
+                # Re-folding the BUCKET through the live table makes this file a measurement of
+                # geometry (which is what the datamine actually knows) and leaves the naming to the
+                # one place that owns it. A stale copy of a table that moves is not evidence.
+                _bar_buckets = [int(_b) for _b in _p[1].split(";") if _b.strip().isdigit()]
+                _bar_owners = {_KICK_BUCKET_OWNER.get(str(_b)) for _b in _bar_buckets} - {None}
+                if len(_bar_owners) == 1:
+                    BOSS_AREA_REGION[int(_p[0])] = _bar_owners.pop()
+                elif len(_bar_owners) > 1:
+                    raise SystemExit(
+                        "gen_data: boss_area_regions row %s spans buckets owned by more than one "
+                        "region (%s) -- a boss is fought in ONE region, so this is a spine bug, not "
+                        "something to average" % (_p[0], sorted(_bar_owners)))
+                else:
+                    raise SystemExit(
+                        "gen_data: boss_area_regions row %s names bucket(s) %s that "
+                        "PLAY_REGION_GROUPS does not own. Add the bucket to region_groups.py or "
+                        "re-emit the table; do NOT fall back to the stale region column."
+                        % (_p[0], _p[1]))
 except OSError as _e:
     print(f"[gen_data] boss_area_regions.tsv unavailable ({_e!r}); boss-arena region corrections OFF "
           f"(run tools/datamine_boss_area_regions.py --emit)")
+
+# ---- CURATED arena-region rulings that BEAT the measured row ----------------------------------
+# Human-owned exception to the measurement above. MOVED HERE 2026-08-26 (#1059) from the sweep
+# section: BOSS_AREA_REGION is now what decides a legacy boss's HOST region (`_lreg`), so a ruling
+# applied after the sweeps were built would move the arena label without moving the members, and
+# re-open the very arena/members split the #1059 invariant closes. Applied at the source, one
+# answer feeds both.
+#
+#   10000850 Margit, the Fell Omen -- MEASURED arena is Limgrave (bucket 61010, the Stormhill
+#   cliff), and Alaric ruled 2026-08-17 (#523): "Margit belongs to Stormveil; the game data is
+#   decisive, superseding the earlier 'Margit is outside' call on #202." So Margit hosts
+#   Stormveil's sweep and his members are Stormveil's -- consistent in both directions, which is
+#   what the invariant asks for. The KICKWARP ground is untouched: PLAY_REGION_GROUPS keeps
+#   buckets 61010 (his arena) and 61001 (Castleward Tunnel mouth + Stormhill Shack) in Limgrave,
+#   so the fight and the death-recovery route back into it stay reachable before Stormveil opens.
+_ARENA_REGION_CURATED = {
+    10000850: "Stormveil",
+}
+for _t, _reg in _ARENA_REGION_CURATED.items():
+    if _reg not in REGION_GROUPS and _reg != _RG_HUB:
+        raise SystemExit(
+            "gen_data: arena-region override %d -> %r names a region that does not exist" % (_t, _reg))
+    # The redundancy guard compares against the MEASURED row, before the override lands -- so it
+    # still deletes itself the day the datamine agrees, exactly as it did in its old home.
+    if BOSS_AREA_REGION.get(_t) == _reg:
+        raise SystemExit(
+            "gen_data: arena-region override %d -> %r is REDUNDANT; the measured arena region now "
+            "agrees, so delete the override" % (_t, _reg))
+    BOSS_AREA_REGION[_t] = _reg
 
 # region_map.csv's region-column LABEL -> region. Keys are the pipeline's raw labels (verbatim);
 # values are region_groups.py region names. UN-COLLAPSED 2026-07-12 (SPEC-region-spine-v2.md):
@@ -10126,7 +10182,27 @@ if BOSS_HEALTHBARS:
             # paying out the always-open hub is never the intended reading, so there is no case where
             # falling back to HUB is right. Collect and fail at the end of the pass with every
             # offender named, rather than one assert per boss.
-            _lreg = _m61_boss_region(_ent) or _LEGACY_BMAP_REGION.get(_bmap) or _mreg.get(_bmap)
+            # 🛑 THE MEASURED ARENA OUTRANKS THE TILE DECODE (2026-08-26, #1059, NovahDango's
+            # Jori report). BOSS_AREA_REGION is PlayRegionParam's own answer to "which region is
+            # the player STANDING IN while this boss dies" -- first-hand geometry. Everything to
+            # its right is the nearest-neighbour tile machinery that also regions the CHECKS, so
+            # putting it first was the bug: the boss inherited its members' region by construction
+            # and a sweep could pay out checks in a region the player never had to enter.
+            #
+            # Jori, Elder Inquisitor is the motivating case. `_m61_boss_region` reads his m61_52_43
+            # tile as Abyssal, so he hosted an Abyssal divvy slice -- five Abyssal checks reading
+            # "also granted by Jori" -- while the fight itself is in SCADU ALTUS (bucket 40020,
+            # and Alaric walked it in game on 2026-08-10; boss_verdict_tiles.tsv carries the
+            # verdict). Alaric's ruling, 2026-08-26: "there shouldn't be any [Abyssal checks
+            # sweeping on Jori], or cross-region boss sweeps in general."
+            #
+            # This is a RE-HOST, not a drop. Jori becomes a Scadu Altus divvy host, and the five
+            # Abyssal checks fall back into the Abyssal divvy pool for Abyssal's own hosts -- the
+            # existing machinery, no orphans. Ranking it here rather than filtering members later
+            # is what makes that true: a late filter would strip the members after the divvy had
+            # already been dealt, and they would simply go unswept.
+            _lreg = (BOSS_AREA_REGION.get(_ent) or _m61_boss_region(_ent)
+                     or _LEGACY_BMAP_REGION.get(_bmap) or _mreg.get(_bmap))
             if not _lreg:
                 _unregioned_legacy.append((_ent, _bmap, _name))
                 continue
@@ -10794,24 +10870,47 @@ print("boss_sweeps: %d trigger(s) filled from a HUMAN RULING where PlayRegionPar
 #   ground is untouched: PLAY_REGION_GROUPS keeps buckets 61010 (his arena) and 61001 (Castleward
 #   Tunnel mouth + Stormhill Shack) in Limgrave, so the fight and the death-recovery route back into
 #   the arena stay reachable before Stormveil opens. This table only moves the SWEEP arena region.
-_ARENA_REGION_CURATED = {
-    10000850: "Stormveil",
-}
-for _t, _reg in _ARENA_REGION_CURATED.items():
+# _ARENA_REGION_CURATED itself now lives beside the BOSS_AREA_REGION load (#1059) so that one
+# answer feeds both the arena label and the boss's HOST region. All that is left here is the check
+# that each ruling still names a live trigger -- a guard that protects nothing is worse than none.
+for _t in _ARENA_REGION_CURATED:
     if _t not in DUNGEON_SWEEPS:
         raise SystemExit(
             "gen_data: arena-region override %d no longer names a live sweep trigger" % _t)
-    if _reg not in REGION_GROUPS and _reg != HUB:
-        raise SystemExit(
-            "gen_data: arena-region override %d -> %r names a region that does not exist" % (_t, _reg))
-    if SWEEP_ARENA_REGION.get(_t) == _reg:
-        raise SystemExit(
-            "gen_data: arena-region override %d -> %r is REDUNDANT; the measured/derived arena "
-            "region now agrees, so delete the override" % (_t, _reg))
-    SWEEP_ARENA_REGION[_t] = _reg
 
 _sweep_arena_split = {_t: (SWEEP_REGION[_t], SWEEP_ARENA_REGION[_t])
                       for _t in SWEEP_ARENA_REGION if SWEEP_ARENA_REGION[_t] != SWEEP_REGION.get(_t)}
+
+# ---- THE CONTAINMENT INVARIANT (#1059, Alaric 2026-08-26) --------------------------------------
+# "there shouldn't be any [Abyssal checks sweeping on Jori], or cross-region boss sweeps in
+# general." A sweep trigger's MEMBERS must live in the region the trigger is FOUGHT in. Before this
+# gate the repo could only observe the violation and hope the seed rolled a shape that hid it:
+# features/boss_locks drops an arena/members split only when the seed keeps the members' region
+# WITHOUT the arena's, so a seed holding both regions paid the cross-region grant out in full --
+# which is exactly what NovahDango and Lilith saw and reported on Discord.
+#
+# 🛑 THIS GATE IS NOT A TAUTOLOGY, and that is the thing to check before trusting it.
+# tools/datamine_check_nearest_boss.py measured "checks whose OWN region != their sweep boss's
+# SWEEP_REGION: 0" and explained the zero honestly: SWEEP_REGION is DERIVED from the members, so it
+# cannot disagree with them. SWEEP_ARENA_REGION is different evidence -- PlayRegionParam's own
+# answer to where the player stands -- and it CAN disagree. That is why the invariant is stated
+# against the arena region and why the audit that motivated it found 22 real links, not zero.
+#
+# A trigger with no measured arena row is UNAUDITED, not clean: it is skipped here and counted in
+# the line above, and test_gf_sweep_region_containment ratchets that count so the gate cannot be
+# widened by quietly losing arena coverage.
+if _sweep_arena_split:
+    raise SystemExit(
+        "gen_data: CROSS-REGION BOSS SWEEP -- %d trigger(s) grant checks outside the region the "
+        "boss is fought in, which #1059 forbids: %s\n"
+        "Fix the SOURCE, not this list: a legacy boss's host region is BOSS_AREA_REGION (the "
+        "measured arena) and its members are dealt from that region's divvy, so a split here means "
+        "either boss_area_regions.tsv disagrees with region_groups.py, or a curated ruling moved "
+        "the arena label without moving the members."
+        % (len(_sweep_arena_split),
+           ", ".join("%d members=%s arena=%s" % (_t, _sweep_arena_split[_t][0],
+                                                 _sweep_arena_split[_t][1])
+                     for _t in sorted(_sweep_arena_split))))
 _sweep_arena_unaudited = sorted(set(DUNGEON_SWEEPS) - set(SWEEP_ARENA_REGION))
 print("boss_sweeps: arena regions known for %d of %d trigger(s); %d UNAUDITED (no boss_area_regions "
       "row -- not clean, unmeasured), holding %d member link(s)"

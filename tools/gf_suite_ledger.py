@@ -316,6 +316,14 @@ TESTS_JOB = {
                             "than skip. Same shape as isolated_merchant_region above. NOT "
                             "GENERATORS: it is a pytest suite, and its data half wants the "
                             "installed world",
+    "sweep_region_containment": "#1059's acceptance test. The invariant itself and the Jori/Leda "
+                                "cases read the installed boss_sweeps.py + data.py and never skip; "
+                                "the two that pin the SOURCE read boss_area_regions.tsv, "
+                                "region_groups.py and gen_data.py out of greenfield/ by walk-up, "
+                                "present in the tests job. It must not be DEV_BOX_ONLY: this is "
+                                "the gate that stops a cross-region sweep regressing, and a gate "
+                                "that only runs on the dev box is a gate that runs when it is too "
+                                "late",
     "playarea_region_moves": "#1054's acceptance test, same shape as chapel_return_region. The "
                              "mover/carve-out/ap-id halves read only the installed data.py and "
                              "never skip; the two that pin the MECHANISM read region_overrides.tsv "
