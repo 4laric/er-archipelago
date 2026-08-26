@@ -3233,10 +3233,15 @@ FLAG_REGION_OVERRIDE = {
     1035457000: "Raya Lucaria Academy",   # Celestial Dew -- volume: 14000
     1035457030: "Raya Lucaria Academy",   # Strip of White Flesh -- volume: 14000
     1035457100: "Raya Lucaria Academy",   # Meeting Place Map -- seam: 14000
-    # Bower of Bounty / Bridge of Iniquity: Altus ground on the Gelmir side of the tile decode.
-    1039537040: "Altus",   # Nascent Butterfly -- volume: 63000
-    1039537050: "Altus",   # [Sorcery] Unseen Blade -- volume: 63000
-    1039537060: "Altus",   # Slumbering Egg -- volume: 63000
+    # 🛑 Bower of Bounty / Bridge of Iniquity (1039537040 / 1039537050 / 1039537060) are WITHHELD,
+    # not refuted. The scan answers them exactly and they are ordinary ground pickups, so they meet
+    # this block's own admission rule: 1039537040 sits in bucket 6300001, the volume literally named
+    # "領域 マップ情報上書き用 (高山と火山の境界)" -- the Altus/Gelmir BOUNDARY override -- and the
+    # other two in 6300040 (高山 ... 魔術師の塔). But moving them out of Mt. Gelmir takes three of
+    # the twenty-three checks that test_gf_unspawned_field_boss pins to the region, and that gate is
+    # a deliberate #445 witness: on a Gelmir-only seed those three stop being in the seed at all.
+    # That is the CORRECT consequence of the move if the move is right, which is exactly why it
+    # needs a ruling rather than a merge resolution. Withheld pending #1054.
     # Cerulean Coast: four rows filed Gravesite stand in the Cerulean volume.
     2046407040: "Cerulean",   # Great Grave Glovewort
     2046407050: "Cerulean",   # Ghost Glovewort [7]

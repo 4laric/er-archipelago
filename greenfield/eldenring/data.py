@@ -588,9 +588,6 @@ LOCATIONS = {
         ("Altus :: Ash of War: Shared Order - Night's Cavalry, also granted by Night's Cavalry (m60_39_51) [f1039517200]", 7772842, 1039517200),
         ("Altus :: Golden Seed - On a tree near the road, also granted by Night's Cavalry (m60_39_51) [f1039517400]", 7772843, 1039517400),
         ('Altus :: Sacred Tear - Second Church of Marika, also granted by Sanguine Noble (m60_40_53) [f1039527400]', 7772844, 1039527400),
-        ('Altus :: Nascent Butterfly - near Bridge of Iniquity, also granted by Elemer of the Briar (m60_39_54) [f1039537040]', 7772849, 1039537040),
-        ('Altus :: [Sorcery] Unseen Blade - near Bower of Bounty, also granted by Black Knife Assassin (m60_40_52) [f1039537050]', 7772850, 1039537050),
-        ('Altus :: Slumbering Egg - near Bower of Bounty, also granted by Sanguine Noble (m60_40_53) [f1039537060]', 7772851, 1039537060),
         ('Altus :: Glass Shard - near Shaded Castle Ramparts, also granted by Elemer of the Briar (m60_39_54) [f1039547220]', 7772855, 1039547220),
         ('Altus :: Smithing Stone [5] - near Shaded Castle Inner Gate (2), also granted by Elemer of the Briar (m60_39_54) [f1039547230]', 7772856, 1039547230),
         ('Altus :: Golden Rune [4] - near Shaded Castle Inner Gate, also granted by Elemer of the Briar (m60_39_54) [f1039547250]', 7772857, 1039547250),
@@ -793,7 +790,6 @@ LOCATIONS = {
         ("Altus :: Tree Sentinel Gauntlets - around Auriza Hero's Grave, also granted by Crucible Knight Ordovis (m30_10) [f30107100]", 7900208, 30107100),
         ("Altus :: Tree Sentinel Greaves - around Auriza Hero's Grave, also granted by Crucible Knight Ordovis (m30_10) [f30107100]", 7900209, 30107100),
         ("Altus :: Ruler's Robe - near Abandoned Coffin, also granted by Ancient Dragon Lansseax (m60_37_51) [f1037517020]", 7900239, 1037517020),
-        ('Altus :: Unseen Form - near Bower of Bounty, also granted by Elemer of the Briar (m60_39_54) [f1039537050]', 7900245, 1039537050),
         ('Altus :: Battlemage Robe - m60_40_55 (region unconfirmed), also granted by Elemer of the Briar (m60_39_54) [f1040557700]', 7900247, 1040557700),
         ('Altus :: Battlemage Manchettes - m60_40_55 (region unconfirmed), also granted by Elemer of the Briar (m60_39_54) [f1040557700]', 7900248, 1040557700),
         ('Altus :: Battlemage Legwraps - m60_40_55 (region unconfirmed), also granted by Elemer of the Briar (m60_39_54) [f1040557700]', 7900249, 1040557700),
@@ -3962,6 +3958,9 @@ LOCATIONS = {
         ('Mt. Gelmir :: Blood Grease - near Bridge of Iniquity, also granted by Demi-Human Queen Maggie (m60_37_53) [f1039537010]', 7772846, 1039537010),
         ('Mt. Gelmir :: Golden Rune [3] - near Old Altus Tunnel, also granted by Ulcerated Tree Spirit (m60_37_54) [f1039537020]', 7772847, 1039537020),
         ("Mt. Gelmir :: Miquella's Lily - near Bridge of Iniquity, also granted by Demi-Human Queen Maggie (m60_37_53) [f1039537030]", 7772848, 1039537030),
+        ('Mt. Gelmir :: Nascent Butterfly - near Bridge of Iniquity, also granted by Ulcerated Tree Spirit (m60_37_54) [f1039537040]', 7772849, 1039537040),
+        ('Mt. Gelmir :: [Sorcery] Unseen Blade - near Bower of Bounty, also granted by Demi-Human Queen Maggie (m60_37_53) [f1039537050]', 7772850, 1039537050),
+        ('Mt. Gelmir :: Slumbering Egg - near Bower of Bounty, also granted by Ulcerated Tree Spirit (m60_37_54) [f1039537060]', 7772851, 1039537060),
         ('Mt. Gelmir :: Golden Rune [3] - near Bower of Bounty, also granted by Demi-Human Queen Maggie (m60_37_53) [f1039537070]', 7772852, 1039537070),
         ('Mt. Gelmir :: Mirage Riddle - around Bridge of Iniquity, also granted by Ulcerated Tree Spirit (m60_37_54) [f1039537080]', 7772853, 1039537080),
         ("Mt. Gelmir :: Crepus's Vial - around Bridge of Iniquity, also granted by Demi-Human Queen Maggie (m60_37_53) [f1039537700]", 7772854, 1039537700),
@@ -4008,6 +4007,7 @@ LOCATIONS = {
         ('Mt. Gelmir :: Errant Sorcerer Robe (Altered) - near Primeval Sorcerer Azur, also granted by Demi-Human Queen Maggie (m60_37_53) [f1037527100]', 7900241, 1037527100),
         ('Mt. Gelmir :: Marais Mask - around First Mt. Gelmir Campsite, also granted by Demi-Human Queen Maggie (m60_37_53) [f1038547100]', 7900242, 1038547100),
         ('Mt. Gelmir :: Marais Robe - around First Mt. Gelmir Campsite, also granted by Ulcerated Tree Spirit (m60_37_54) [f1038547100]', 7900243, 1038547100),
+        ('Mt. Gelmir :: Unseen Form - near Bower of Bounty, also granted by Ulcerated Tree Spirit (m60_37_54) [f1039537050]', 7900245, 1039537050),
         ('Mt. Gelmir :: Black-Key Bolt - around Bridge of Iniquity, also granted by Demi-Human Queen Maggie (m60_37_53) [f1039537700]', 7900246, 1039537700),
     ],
     'Rauh Base': [
@@ -5557,4 +5557,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:853d31b7624765a14b5b413dbaa959eca80821c26a2673a2c5cd0c090a4258ac', 'module': 'data.py', 'body_sha256': 'sha256:b2416d2c007a6fac22467915e589c1615aa8a266a97d22f84b08d05e382dfbdf'}
+_GEN_STAMP = {'inputs_hash': 'sha256:ce67fec8310a6a4e1cbd4063addb63f2b02ba91ebe7c4acd6bfe5b022dc60233', 'module': 'data.py', 'body_sha256': 'sha256:cf3445c0d6d6a8a1aff70db178dacfdd876277424033889c12be070966b1437a'}
