@@ -53,7 +53,7 @@ AR = artifacts_root.default_root(ROOT)
 #     elden_ring_artifacts/map        -> 1347 unpacked  (COMPLETE -- 117 of 118)
 # I pointed this tool at `mapstudio`, found 52 boss maps "missing", and told Alaric to unpack them --
 # they were unpacked the whole time, one directory over. Search BOTH, prefer whichever has the map.
-MSB_DIRS = [os.path.join(AR, "map"), os.path.join(AR, "mapstudio")]
+MSB_DIRS = artifacts_root.msb_dirs(AR) or [os.path.join(AR, "map"), os.path.join(AR, "mapstudio")]
 EVENT = os.path.join(AR, "event")
 OUT = os.path.join(ROOT, "greenfield", "arena_graces.tsv")
 
@@ -173,7 +173,10 @@ def _set_artifacts_root(path):
     and the old names -- a plausible table, which is the failure this repo pays for."""
     global AR, MSB_DIRS, EVENT, _BOSS_META, _NPC_NAME
     AR = os.path.abspath(path)
-    MSB_DIRS = [os.path.join(AR, "map"), os.path.join(AR, "mapstudio")]
+    # Discovered, not hardcoded (tools/artifacts_root.py): this keeps reading EVERY candidate
+    # that holds MSBs -- the reason above is real -- but the candidate LIST is now the one the
+    # whole tool family shares, so a flat `mapstudio/`-only export resolves here too.
+    MSB_DIRS = artifacts_root.msb_dirs(AR) or [os.path.join(AR, "map"), os.path.join(AR, "mapstudio")]
     EVENT = os.path.join(AR, "event")
     _BOSS_META = _boss_meta()
     _NPC_NAME = _npc_names()

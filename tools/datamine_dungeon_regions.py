@@ -37,12 +37,17 @@ sys.path.insert(0, HERE)
 import artifacts_root                          # noqa: E402  -- THE --path argument, not a copy
 
 ART = artifacts_root.default_root(REPO)
+# The witchy'd MSB dir under the root, DISCOVERED (map/, mapstudio/, map/mapstudio/, the root
+# itself) rather than hardcoded to `mapstudio/` -- tools/artifacts_root.py, shared with every
+# other corpus reader. Falls back to `mapstudio/` so the path is still nameable with no corpus.
+MSBDIR = artifacts_root.msb_dir(ART) or os.path.join(ART, "mapstudio")
 
 
 def _set_artifacts_root(path):
     """`--path`: read the witchy'd MSBs (and the tsv fallbacks) out of a different corpus root."""
-    global ART
+    global ART, MSBDIR
     ART = os.path.abspath(path)
+    MSBDIR = artifacts_root.msb_dir(ART) or os.path.join(ART, "mapstudio")
 OUT = os.path.join(REPO, "greenfield", "dungeon_regions.tsv")
 
 # play_region_id -> greenfield region: imported from THE spine (greenfield/region_groups.py) --
@@ -130,7 +135,7 @@ def _map_from_graces(gf, pid, anchors):
 def _connect_tiles(map_id):
     """Parent overworld tile(s) from the dungeon MSB's ConnectCollision <MapID> (base64 4 bytes)."""
     tiles = Counter()
-    for d in glob.glob(os.path.join(ART, "mapstudio", map_id + "_*_*-msb-dcx")):
+    for d in glob.glob(os.path.join(MSBDIR, map_id + "_*_*-msb-dcx")):
         for f in glob.glob(os.path.join(d, "Part", "ConnectCollision", "*.xml")):
             try:
                 r = ET.parse(f).getroot()

@@ -108,6 +108,15 @@ def _map_id_from_dir(dirname):
     return _map_id(m.group(1), m.group(2), m.group(3)) if m else None
 
 
+def _msb_roots():
+    """Every dir under the artifacts root that holds witchy'd MSB dirs -- map/, mapstudio/,
+    map/mapstudio/, or the root itself. The candidate list is shared with every other
+    corpus-reading tool (tools/artifacts_root.py); the four call sites below used to spell
+    `[mapstudio, ART]` privately, which is how tools ended up disagreeing about the layout.
+    Falls back to the old pair so `_iter_msb_dirs` still has paths to skip with no corpus."""
+    return artifacts_root.msb_dirs(ART) or [os.path.join(ART, "mapstudio"), ART]
+
+
 def _iter_msb_dirs(roots):
     for root in roots:
         if not os.path.isdir(root):
@@ -204,7 +213,7 @@ def explain(flag):
 
     want_lots = {(r.get("item_lot_id") or "").strip() for r in hits}
     map_ids = {(r.get("map_id") or "").strip() for r in hits}
-    roots = [os.path.join(ART, "mapstudio"), ART]
+    roots = _msb_roots()
     for map_id, msb_dir in _iter_msb_dirs(roots):
         if map_id not in map_ids:
             continue
@@ -532,7 +541,7 @@ def build_treasure_assets(only_maps=None, jobs=1):
     stats = {"direct": 0, "indexed": 0, "map_scans": 0, "no_entity": 0,
              "missing_part": 0, "treasures": 0, "name_mismatch": 0, "dup_name": 0,
              "type_Asset": 0, "type_Enemy": 0, "type_MapPiece": 0, "type_Collision": 0}
-    roots = [os.path.join(ART, "mapstudio"), ART]
+    roots = _msb_roots()
     # DEDUPE BY MAP ID. `_iter_msb_dirs` walks mapstudio AND the root-level witchy dirs, so maps come
     # back more than once -- Alaric's run had `m10_00` at [1] and again at [2], the second yielding 0
     # rows. First one wins.
@@ -827,7 +836,7 @@ def build(only_maps=None, sources=SOURCES):
     rows = []
     maps = set()
     if "treasure" in sources or "enemy" in sources:
-        roots = [os.path.join(ART, "mapstudio"), ART]     # mapstudio + any root-level witchy dirs
+        roots = _msb_roots()     # mapstudio + any root-level witchy dirs
         for map_id, msb_dir in _iter_msb_dirs(roots):
             if only_maps and map_id not in only_maps:
                 continue
@@ -1018,7 +1027,7 @@ def main(argv=None):
     if args.explain:
         return explain(args.explain)
     if args.probe:
-        roots = [os.path.join(ART, "mapstudio"), ART]
+        roots = _msb_roots()
         want = set(args.maps) if args.maps else None
         for _map_id, _msb_dir in _iter_msb_dirs(roots):
             if want and _map_id not in want:

@@ -204,11 +204,20 @@ def main():
     ap.add_argument("--probe", action="store_true")
     a = ap.parse_args()
     _root = artifacts_root.resolve(a.path)
+    # --root stays the NARROWER flag and wins outright. Absent it, the MSB dir is DISCOVERED under
+    # the artifacts root (map/, mapstudio/, map/mapstudio/, the root itself -- the list every
+    # corpus reader shares) instead of being hardcoded to `mapstudio/`, so a witchy export that
+    # landed elsewhere is a run, not an edit. The fallback keeps the historical default so the
+    # FATAL below still names a path when there is no corpus at all.
+    _art = _root or artifacts_root.default_root(REPO)
     if not a.root:
-        a.root = os.path.join(_root, "mapstudio") if _root else ROOT_DEFAULT
+        a.root = artifacts_root.msb_dir(_art) or (
+            os.path.join(_root, "mapstudio") if _root else ROOT_DEFAULT)
 
     if not os.path.isdir(a.root):
-        sys.exit("FATAL: %s not found. Point --root at the witchy-unpacked mapstudio dir." % a.root)
+        sys.exit("FATAL: %s not found. Point --root at the witchy-unpacked mapstudio dir "
+                 "(searched under %s: %s)."
+                 % (a.root, _art, artifacts_root.msb_search_report(_art)))
 
     done, st, ndirs = scan(a.root, a.state)
     if done is None:

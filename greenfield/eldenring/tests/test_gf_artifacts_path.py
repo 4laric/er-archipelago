@@ -44,7 +44,7 @@ CENSUS = {
     "datamine_msb_item_regions":   (("ART", "VV", "EVT"), True),
     "datamine_arena_graces":       (("AR", "EVENT"), False),
     "datamine_merchant_shops":     (("ART", "VV", "TALK"), False),
-    "datamine_dungeon_regions":    (("ART",), False),
+    "datamine_dungeon_regions":    (("ART", "MSBDIR"), False),
 }
 # These two take --path but own no `_set_artifacts_root` seam: the root is one argparse default
 # away from the directory they walk, so the flag is asserted through --help + the resolved default
@@ -141,6 +141,133 @@ class ArtifactsPathFlagTest(unittest.TestCase):
                         self.assertNotEqual(before[g], now, "%s.%s did not move" % (name, g))
                         self.assertTrue(os.path.abspath(now).startswith(os.path.abspath(moved)),
                                         "%s.%s is still outside the new root: %s" % (name, g, now))
+
+    # ---- MSB discovery: the corpus root does not say WHERE the witchy'd MSBs sit ---------------
+    # Alaric's WitchyBND export (2026-08-26) put every map FLAT under `<root>/mapstudio/`, beside
+    # unrelated siblings. Three tools read it; three said `FATAL: no witchy'd m60/m61 MSBs under
+    # <root>/map`. One candidate list, one predicate, and every tool resolves the same tree.
+    LAYOUTS = ("map", "mapstudio", "")          # "" == the witchy dirs sit in the root itself
+
+    def _tree(self, tmp, layout, noise=()):
+        root = os.path.join(tmp, "corpus")
+        d = os.path.join(root, layout) if layout else root
+        for m in ("m60_44_45_00-msb-dcx", "m10_00_00_00-msb-dcx"):
+            os.makedirs(os.path.join(d, m, "Region", "PlayArea"))
+        for n in noise:
+            os.makedirs(os.path.join(root, n), exist_ok=True)
+        return root
+
+    def test_all_three_layouts_resolve(self):
+        for layout in self.LAYOUTS:
+            with tempfile.TemporaryDirectory() as tmp:
+                root = self._tree(tmp, layout)
+                want = os.path.join(root, layout) if layout else root
+                with self.subTest(layout=layout or "<root>"):
+                    self.assertEqual(want, self.ar.msb_dir(root))
+                    self.assertIn(want, self.ar.msb_dirs(root))
+
+    def test_map_wins_over_mapstudio_when_both_hold_msbs(self):
+        """Order is not cosmetic: the committed grace tables were derived from `map/`, and 2026-07
+        measured `mapstudio/` holding only 66 of the 118 boss maps. First hit must stay `map/`."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._tree(tmp, "map")
+            os.makedirs(os.path.join(root, "mapstudio", "m60_44_45_00-msb-dcx"))
+            self.assertEqual(os.path.join(root, "map"), self.ar.msb_dir(root))
+            self.assertEqual([os.path.join(root, "map"), os.path.join(root, "mapstudio")],
+                             self.ar.msb_dirs(root))
+
+    def test_noise_siblings_do_not_fake_a_flat_root(self):
+        """The bare root is only a hit when it DIRECTLY holds `m*-msb-dcx` children. Alaric's root
+        also holds `_pilot`, `breakgeom`, `m00`..`m61` -- none of which is a witchy MSB dir, and an
+        `isdir` test would have accepted every one of them."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = os.path.join(tmp, "corpus")
+            for n in ("_pilot", "breakgeom", "m00", "m60", "m61", "mapstudio-notreally"):
+                os.makedirs(os.path.join(root, n))
+            self.assertIsNone(self.ar.msb_dir(root))
+            self.assertEqual([], self.ar.msb_dirs(root))
+            self.assertFalse(self.ar.holds_msb_dirs(root))
+            # ...and the same root WITH one real witchy dir added does resolve.
+            os.makedirs(os.path.join(root, "m60_44_45_00-msb-dcx"))
+            self.assertEqual(root, self.ar.msb_dir(root))
+
+    def test_an_empty_map_dir_does_not_shadow_a_populated_mapstudio(self):
+        """The motivating shape's evil twin: `map/` exists but is empty. Existence is not a hit."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._tree(tmp, "mapstudio", noise=("map", "_pilot"))
+            self.assertEqual(os.path.join(root, "mapstudio"), self.ar.msb_dir(root))
+
+    def test_the_fatal_names_every_location_tried(self):
+        report = self.ar.msb_search_report("/corpus")
+        for c in self.ar.msb_candidates("/corpus"):
+            self.assertIn(c, report, "the FATAL must name %s" % c)
+
+    def test_every_msb_reading_tool_resolves_the_flat_mapstudio_layout(self):
+        """THE MOTIVATING CASE (rule 11): a tree shaped exactly like Alaric's -- witchy dirs FLAT
+        under `<root>/mapstudio/`, with `_pilot`/`m60` sibling noise -- must resolve for every tool
+        through plain `--path <root>`, with no per-tool flag and no `map/` anywhere."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = self._tree(tmp, "mapstudio", noise=("_pilot", "breakgeom", "m00", "m60", "m61"))
+            ms = os.path.join(root, "mapstudio")
+            for name, attr in (("datamine_grace_ground", "MAPDIR"),
+                               ("datamine_dungeon_regions", "MSBDIR")):
+                with self.subTest(tool=name):
+                    mod = _load(name)
+                    mod._set_artifacts_root(root)
+                    self.assertEqual(ms, getattr(mod, attr),
+                                     "%s.%s did not find the flat mapstudio export" % (name, attr))
+            for name, attr in (("datamine_arena_graces", "MSB_DIRS"),
+                               ("datamine_merchant_shops", "MAPSTUDIO_ROOTS")):
+                with self.subTest(tool=name):
+                    mod = _load(name)
+                    mod._set_artifacts_root(root)
+                    self.assertEqual([ms], list(getattr(mod, attr)))
+            with self.subTest(tool="datamine_msb_item_regions"):
+                mod = _load("datamine_msb_item_regions")
+                mod._set_artifacts_root(root)
+                self.assertEqual([ms], mod._msb_roots())
+                self.assertEqual(["m10_00", "m60_44_45"],
+                                 sorted(m for m, _d in mod._iter_msb_dirs(mod._msb_roots())))
+            with self.subTest(tool="datamine_item_grace_coords"):
+                mod = _load("datamine_item_grace_coords")
+                self.assertEqual([ms], mod._msb_dirs(root))
+            with self.subTest(tool="datamine_msb_gated_treasures"):
+                out = subprocess.run(
+                    [sys.executable, os.path.join(TOOLS, "datamine_msb_gated_treasures.py"),
+                     "--path", root, "--probe"], capture_output=True, text=True, timeout=180)
+                txt = (out.stdout or "") + (out.stderr or "")
+                # DISCOVERY is what is under test: the tool must have WALKED both fixture dirs.
+                # It still refuses the fixture on its row floor, and rightly so -- two empty MSB
+                # dirs are not a corpus -- so assert the discovery FATAL specifically is absent.
+                self.assertNotIn("Point --root at", txt, txt[-600:])
+                self.assertIn("msb dirs 2", txt, txt[-600:])
+            with self.subTest(tool="probe_msb_mapversions"):
+                out = subprocess.run(
+                    [sys.executable, os.path.join(TOOLS, "probe_msb_mapversions.py"),
+                     "--path", root, "--out", os.path.join(tmp, "probe.txt")],
+                    capture_output=True, text=True, timeout=180)
+                with open(os.path.join(tmp, "probe.txt"), encoding="utf-8") as fh:
+                    txt = fh.read()
+                # The auto-detection must both FIND the flat export and RANK it first -- this probe
+                # reports on an unknown tree, so what it names first is what a reader will trust.
+                self.assertIn(ms, txt)
+                self.assertNotIn("No candidate root found", txt)
+                self.assertIn("=== ROOT DETECTION ===", txt)
+                self.assertEqual(ms, [ln.split()[0] for ln in txt.splitlines()
+                                      if ln.strip().endswith("EXISTS")][0].strip())
+
+    def test_the_grace_ground_fatal_lists_the_paths_it_tried(self):
+        """The failure that started this: the message named ONE path and taught the wrong layout."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = os.path.join(tmp, "corpus")
+            os.makedirs(os.path.join(root, "_pilot"))
+            gg = _load("datamine_grace_ground")
+            gg._set_artifacts_root(root)
+            with self.assertRaises(SystemExit) as cm:
+                gg.load_volumes()
+            msg = str(cm.exception)
+            for c in self.ar.msb_candidates(root):
+                self.assertIn(c, msg, "the FATAL must name %s" % c)
 
     def test_gated_treasures_path_means_mapstudio_under_it(self):
         mod = _load("datamine_msb_gated_treasures")

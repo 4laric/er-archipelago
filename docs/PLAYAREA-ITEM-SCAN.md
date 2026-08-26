@@ -73,9 +73,18 @@ label. Those rows carry `vote_note=CROSS-TILE-MSB` today.
 
 1. Alaric's Windows checkout of `er-archipelago`.
 2. `elden_ring_artifacts/` with, at minimum:
-   * `map/` and/or `mapstudio/` — **witchy'd MSB directories** (`WitchyBND` the `.msb.dcx`
-     first). `datamine_grace_ground.py` reads `map/`; `datamine_item_grace_coords.py` reads
-     `map/`, `mapstudio/`, and the artifacts root.
+   * the **witchy'd MSB directories** (`WitchyBND` the `.msb.dcx` first) — `m??_??_??_??-msb-dcx`
+     dirs. WitchyBND does not promise a subdirectory, so **three layouts are accepted** and every
+     tool searches them in the same order, stopping at the first that actually holds MSB dirs:
+
+     1. `<artifacts-root>/map/`
+     2. `<artifacts-root>/mapstudio/` (also `<artifacts-root>/map/mapstudio/`)
+     3. `<artifacts-root>/` itself, when the `m*-msb-dcx` dirs sit directly in it
+
+     A directory counts only if it DIRECTLY contains `m*-msb-dcx` children — an empty `map/` does
+     not shadow a populated `mapstudio/`, and unrelated siblings (`_pilot`, `breakgeom`, `m00`…)
+     never make a root look like an MSB dir. One implementation, `tools/artifacts_root.py`, shared
+     by every tool below; if nothing is found the FATAL names every location it tried.
    * `vanilla_er/vanilla_er/` (or `vanilla_params/`) — the param CSVs, for
      `ItemLotParam_map.csv`, `ItemLotParam_enemy.csv`, `BonfireWarpParam.csv`,
      `PlayRegionParam.csv`.
@@ -98,7 +107,8 @@ python tools/datamine_grace_ground.py --path <artifacts-root>      # default: el
 ```
 
 Expect `PlayArea volumes: <thousands> (m60+m61)` and `421 total, ~293+ with a derived ground`.
-If it says `FATAL: no witchy'd m60/m61 MSBs`, stop: the corpus is not extracted.
+If it says `FATAL: no witchy'd m60/m61 MSBs`, stop and read the paths it lists: it names every
+layout it searched, so either the corpus is not extracted or `--path` is pointed above/below it.
 
 ---
 
