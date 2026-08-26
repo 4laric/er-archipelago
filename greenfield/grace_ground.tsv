@@ -258,7 +258,7 @@ grace_flag	ground_buckets	source	tile
 76211	-	none	m60_34_47
 76212	62000	tile-default	m60_34_48
 76213	62000	volume:領域 プレイ領域 6200005 {2}	m60_34_49
-76214	62000	tile-default	m60_35_50
+76214	-	none	m60_35_50
 76215	31050	volume:領域パーツ プレイ領域 3105090 ②	m60_36_41
 76216	-	none	m60_36_43
 76217	-	none	m60_38_45
@@ -280,7 +280,7 @@ grace_flag	ground_buckets	source	tile
 76233	-	none	m60_36_45
 76234	62000	tile-default	m60_38_46
 76235	-	none	m60_36_49
-76236	-	none	m60_36_43
+76236	62000	tile-default	m60_36_43
 76237	-	none	m60_34_43
 76238	62000	volume:領域 プレイ領域 6200008 00	m60_36_50
 76239	-	none	m60_38_48
@@ -298,7 +298,7 @@ grace_flag	ground_buckets	source	tile
 76301	-	none	m60_38_50
 76302	-	none	m60_38_51
 76303	63000	tile-default	m60_39_51
-76304	-	none	m60_40_52
+76304	63000	tile-default	m60_40_52
 76305	63000	tile-default	m60_41_52
 76306	63000	tile-default	m60_40_53
 76307	-	none	m60_40_54
@@ -402,7 +402,7 @@ grace_flag	ground_buckets	source	tile
 76902	-	none	m61_49_44
 76903	69020	volume:プレイ領域　6902000	m61_49_44
 76904	-	none	m61_51_44
-76905	-	none	m61_51_47
+76905	69020	tile-default	m61_51_47
 76906	69030	tile-default	m61_51_45
 76907	69000	volume:プレイ領域　6900000	m61_47_45
 76908	-	none	m61_49_43
@@ -418,7 +418,7 @@ grace_flag	ground_buckets	source	tile
 76930	21010	volume:プレイ領域 2101010-1	m61_49_48
 76931	21010	volume:プレイ領域 2101010-3	m61_49_48
 76935	21000	measured:2100010 client kick line 2026-07-15	m61_50_48
-76936	-	none	m61_51_48
+76936	69300	tile-default	m61_51_48
 76937	-	none	m61_51_48
 76940	-	none	m61_47_47
 76941	69400	tile-default	m61_46_47

@@ -25,6 +25,7 @@ they fail loudly rather than drift:
   * "3-field id + low tile = truncated LOD2" -- tools/datamine_merchant_shops.py::_map_id builds
     `area_x_y` and drops both digits, and the fine grid starts at tile 33.
 """
+import math
 import re
 
 # A 3-field id (m60_34_50) is the SAME TILE as its 4-field form (m60_34_50_00) when the tile is on
@@ -45,3 +46,31 @@ def world_xz(map_id, x, z):
     pitch = 256 << lod
     off = (pitch - 256) / 2.0
     return base, tx * pitch + x + off, tz * pitch + z + off
+
+
+def fine_tile(gx, gz):
+    """The FINE-GRID tile index a FOLDED overworld position belongs to -- i.e. the tile whose
+    PlayRegionParam (gridXNo, gridZNo) row governs that point.
+
+    THE TILE FRAME IS CENTRE-ORIGIN, so this ROUNDS; it does not floor. Tile index t owns
+    [t*256 - 128, t*256 + 128), not [t*256, t*256 + 256). `floor(g / 256)` -- what
+    datamine_item_play_regions did until 2026-08-26 -- attributes every point to the tile a HALF
+    STEP down-and-left of the one it is standing on, and it looks entirely plausible because it is
+    only ever wrong by one tile index.
+
+    THE MEASUREMENT, on the shipped params (pure counts, all re-runnable):
+      * BonfireWarpParam's 225 overworld graces carry 450 local axis values. 438 (97.3%) fall in
+        [-128, 128); only 227 (50.4%) fall in [0, 256), and 222 of them are NEGATIVE. A local frame
+        whose origin were the tile CORNER cannot produce 222 negative locals.
+      * greenfield/item_grace_coords.tsv, overworld placements: 4732 of 5010 axis values (94.5%)
+        in [-128, 128).
+      * Round-trip each grace -- fold with `world_xz`, re-derive the tile with THIS function -- and
+        214 of 225 land back on the grace's OWN authored tile. Under `floor` only 53 of 225 do.
+        The 11 that still move are genuine spillers: their local coordinate is past +-128, so they
+        physically stand on the neighbouring tile.
+      * Against the graces whose ground a PlayArea VOLUME rules on (independent truth), the tile
+        default agrees 11/14 rounded and 8/10 floored.
+
+    Rounds half AWAY FROM ZERO deliberately: Python's `round` is banker's, so a coordinate exactly
+    on a tile seam would flip with the PARITY of the tile index."""
+    return (int(math.floor(gx / 256.0 + 0.5)), int(math.floor(gz / 256.0 + 0.5)))
