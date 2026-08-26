@@ -25,9 +25,16 @@ import sys
 import tempfile
 import unittest
 
+try:                       # package-relative under pytest; plain path when run directly
+    from ._util import find_repo_root, REPO_ONLY_REASON
+except ImportError:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _util import find_repo_root, REPO_ONLY_REASON
+
 HERE = os.path.dirname(os.path.abspath(__file__))
-REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))   # .../greenfield/eldenring/tests
-TOOL = os.path.join(REPO, "tools", "datamine_item_play_regions.py")
+# Never positional: under tools/gf_test.py the same walk lands in the AP checkout (2026-07-27).
+REPO = find_repo_root(HERE)
+TOOL = os.path.join(REPO, "tools", "datamine_item_play_regions.py") if REPO else None
 
 TILE = 40                       # fine-grid tile the fixture volumes live on (tx = tz = 40)
 BASE = TILE * 256               # 10240 -- the world origin of that tile
@@ -168,8 +175,8 @@ def build_grace_fixtures(artifacts, ground_path, mutate=False):
 class ItemPlayRegionScanTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        if not os.path.isfile(TOOL):
-            raise unittest.SkipTest("tools/datamine_item_play_regions.py absent (installed world)")
+        if TOOL is None or not os.path.isfile(TOOL):
+            raise unittest.SkipTest(REPO_ONLY_REASON)
         cls.tmp = tempfile.mkdtemp(prefix="ipr_fixture_")
         cls.artifacts = build_artifacts(os.path.join(cls.tmp, "artifacts"))
         cls.coords = build_coords_repo(os.path.join(cls.tmp, "coordsrepo"))
@@ -315,6 +322,16 @@ class ItemPlayRegionScanTest(unittest.TestCase):
     def test_graces_mode_diffs_clean_against_a_fixture_ground(self):
         ground = os.path.join(self.tmp, "grace_ground.tsv")
         build_grace_fixtures(self.artifacts, ground)
+        # The witness: a --graces that compared NOTHING would also return 0. Assert first that
+        # there are graces on both sides and that every one of them derived a bucket.
+        vols = self.mod.load_volumes_or_die(force=True)
+        gg = _load(os.path.join(REPO, "tools", "datamine_grace_ground.py"), "_ipr_gg3")
+        tile_ids, interior_ids = gg.load_play_region_defaults(
+            os.path.join(self.artifacts, "vanilla_er", "vanilla_er", "PlayRegionParam.csv"))
+        rows = self.mod.grace_rows(vols, tile_ids, interior_ids)
+        self.assertEqual(len(rows), len(GRACES))
+        self.assertEqual(len(self.mod.read_ground(ground)), len(GRACES))
+        self.assertTrue(all(ids for _f, _m, ids, _s in rows), "a grace with no bucket to compare")
         self.assertEqual(0, self.mod.main(["--artifacts", self.artifacts, "--graces",
                                            "--ground", ground]),
                          "the same pipeline must reproduce the graces' committed buckets")
