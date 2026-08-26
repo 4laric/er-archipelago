@@ -89,11 +89,14 @@ from overworld_fold import world_xz         # noqa: E402  -- THE fold (#338), si
 OUT = os.path.join(REPO, "greenfield", "item_play_regions.tsv")
 GROUND = os.path.join(REPO, "greenfield", "grace_ground.tsv")
 
-# A witchy'd m60+m61 export is THOUSANDS of PlayArea volumes. Anything less is a partial export and
-# the scan is worthless -- not wrong-looking, WORSE: the missing tiles answer `tile-default`, which
-# is a plausible-looking row. Floor set well below a full export so a legitimate corpus never trips
-# it, and high enough that a handful of tiles cannot pass.
-VOL_FLOOR = 1000
+# MEASURED, not guessed (the 1000 that stood here was a guess, and it FATAL'd a complete corpus):
+# Alaric's box, 2026-08-26 -- a comprehensive witchy export (829 m60 + 386 m61 msb-dcx dirs, 1,346
+# total) yields 497 PlayArea volumes. PlayAreas exist where play-region boundaries run, not on
+# every tile. A partial export is still the hazard -- missing tiles answer `tile-default`, which is
+# a plausible-looking row -- but the real arbiter is `--graces`: a partial volume set cannot
+# reproduce grace_ground.tsv. Floor set below the measured full-export count and far above a
+# handful of tiles.
+VOL_FLOOR = 400
 
 # The floor for the emitted table. `grace_ground.tsv`'s MIN_DERIVED = 200 is a measured pin against
 # ITS 421-row population; there is no committed item table to measure against on the FIRST run, so
