@@ -932,17 +932,17 @@ Elden Ring:
   # the attack inputs; locking one also stops casting through it. `heal` locks the flask (it heals
   # nothing while locked). Empty = nothing locked (the default).
   #
-  # This is a STATIC lock -- there is no in-run unlock yet. crouch is an unverified mapping. `heal`
-  # is not lockable here (that is the flask option's job).
+  # Nothing below happens until you name an ability here: with this list empty the whole ability-lock
+  # axis is inert, whatever Ability Lock Mode says. crouch is an unverified mapping.
   locked_abilities: []
 
   # EXPERIMENTAL (#980). How the locked abilities behave:
-  #   static      -- off for the whole seed (the default).
-  #   progressive -- they start off and each becomes an "Unlock: X" item shuffled into the
-  #                  multiworld; find it to get that ability back. Needs a client that understands
-  #                  ability unlocks (declared via requiresClientFeatures). No effect if the set
-  #                  above is empty.
-  ability_lock_mode: static
+  #   progressive -- (the default) they start off and each becomes an "Unlock: X" item shuffled into
+  #                  the multiworld; find it to get that ability back. Needs a client that
+  #                  understands ability unlocks (declared via requiresClientFeatures).
+  #   static      -- the opt-out: off for the whole seed, no item and no check.
+  # No effect if the set above is empty.
+  ability_lock_mode: progressive
 
   # EXPERIMENTAL (#980). In PROGRESSIVE mode, must you HOLD your unlock items to finish?
   #   on  (default) -- each "Unlock: X" is progression and is added to the goal's held-item

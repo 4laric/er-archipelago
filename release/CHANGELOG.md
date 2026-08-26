@@ -58,6 +58,26 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   its player region-kicked out from under the party. Client half clients#417; the gitlink moves to
   its merge (`3967d512`).
 
+### Changed
+
+- **Ability Lock Mode now defaults to `progressive`, not `static` (Alaric's 2026-08-25 ruling).**
+  If you name abilities in `locked_abilities`, they now start locked and each one comes back as an
+  "Unlock: X" item shuffled into the multiworld, instead of being off for the whole seed. Static is
+  still there as the explicit opt-out (`ability_lock_mode: static`) and behaves exactly as before.
+  🛑 **This changes what an existing YAML generates.** A YAML written before today that sets
+  `locked_abilities` but does NOT set `ability_lock_mode` used to produce a permanent lock and now
+  produces a progressive one: unlock items enter the pool (displacing filler, count-exact), the seed
+  emits `abilityUnlockItems` plus `requiresClientFeatures ["ability_unlock"]` so an older client
+  refuses it rather than leaving the abilities dark, and — because `ability_unlocks_required`
+  defaults ON — those unlocks are `progression` and are ANDed into the goal's held-item
+  requirement, so in a multiworld a partner can be holding your Roll. That is the intent of the
+  ruling; set `ability_lock_mode: static`, or `ability_unlocks_required: false`, to opt out of
+  either half. A YAML that locks NOTHING is completely unaffected: `locked_abilities` still defaults
+  empty and the whole axis stays inert whatever the mode says. No client change and no contract
+  change — `abilityUnlockItems` and the mode's wiring have shipped since v0.5.0, and the mode is not
+  a slot-data key at all (the client reads the emitted map, never a mode string), so `CONTRACT_HASH`
+  does not move. `release/EldenRing.yaml`, the wizard metadata and `wizard.html` are regenerated.
+
 ## v0.5.0 — 2026-08-22
 
 Ability lock: restrict abilities for a run, or start locked and find them back as items.
