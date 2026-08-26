@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.5.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "7ebabb5adcb9d5077a73157157f202f5a75b8d45901084d946d307525509d31c",
+ "source_sha256": "69e363a0ca07e25e2fa9f9d55974cc80f952a3c48ea3034c7d7c350aabeded51",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -360,7 +360,7 @@
    "key": "locked_abilities",
    "class": "LockedAbilities",
    "display_name": "Locked Abilities",
-   "description": "ABILITIES THE GAME DISABLES. Each named ability is turned off at the character's logical-action\nlayer, so the lock survives key/pad rebinds, covers keyboard and mouse, and never affects menus.\n\nValid names: jump, crouch, roll, r1, r2, l1, l2, heal. (r1/r2/l1/l2 are the attack inputs; locking\none also stops casting through it, since a staff or seal casts on the attack button. `heal` locks\nthe flask -- it heals nothing while locked -- via the No Flask SpEffect, not an action mask.)\nEmpty = nothing locked, the default.\n\n🛑 crouch is the one UNVERIFIED action: ER has no dedicated crouch action, so the client routes it\nto the stick-click (l3) as a first guess. If a playtest shows that is wrong, the fix is one line\nin er-logic, not here.\n\nLocking ALL FOUR attack inputs (r1, r2, l1, l2) in Progressive mode leaves you unable to damage\nanything, and a great many checks are kill-gated -- so that seed forces one attack unlock\n(\"Unlock: R1\") into an early sphere, wherever in the multiworld it lands. Spells do not count as\nan attack for this: a staff or seal casts on an attack button, so a caster with all four locked\nis just as weaponless. Locking three or fewer forces nothing -- you still have an attack.\n\nAbility Lock Mode decides whether these stay off all seed (Static) or start off and are unlocked\nby items you find (Progressive). Env-overridable in test builds via ER_ABILITY_LOCK_TEST.",
+   "description": "ABILITIES THE GAME DISABLES. Each named ability is turned off at the character's logical-action\nlayer, so the lock survives key/pad rebinds, covers keyboard and mouse, and never affects menus.\n\nValid names: jump, crouch, roll, r1, r2, l1, l2, heal. (r1/r2/l1/l2 are the attack inputs; locking\none also stops casting through it, since a staff or seal casts on the attack button. `heal` locks\nthe flask -- it heals nothing while locked -- via the No Flask SpEffect, not an action mask.)\nEmpty = nothing locked, the default.\n\n🛑 crouch is the one UNVERIFIED action: ER has no dedicated crouch action, so the client routes it\nto the stick-click (l3) as a first guess. If a playtest shows that is wrong, the fix is one line\nin er-logic, not here.\n\nLocking ALL FOUR attack inputs (r1, r2, l1, l2) in Progressive mode leaves you unable to damage\nanything, and a great many checks are kill-gated -- so that seed forces one attack unlock\n(\"Unlock: R1\") into an early sphere, wherever in the multiworld it lands. Spells do not count as\nan attack for this: a staff or seal casts on an attack button, so a caster with all four locked\nis just as weaponless. Locking three or fewer forces nothing -- you still have an attack.\n\nAbility Lock Mode decides whether these start off and are unlocked by items you find\n(Progressive, the default) or stay off for the whole seed (Static, the opt-out).\nEnv-overridable in test builds via ER_ABILITY_LOCK_TEST.",
    "kind": "set",
    "base": "OptionSet",
    "default": [],
@@ -386,10 +386,10 @@
    "key": "ability_lock_mode",
    "class": "AbilityLockMode",
    "display_name": "Ability Lock Mode",
-   "description": "HOW the Locked Abilities behave.\n\n``static`` -- they are off for the entire seed. No item, no check; a pure client restriction.\n\n``progressive`` -- they start off, and each locked ability becomes an \"Unlock: X\" item shuffled\ninto the multiworld. Find it (or receive it from another world) to get that ability back. The\nitems default to `progression` and are REQUIRED to finish (see Ability Unlocks Required) -- so\na partner holding your \"Unlock: Roll\" genuinely blocks your goal, which is the whole point of a\nmultiworld. Turn Ability Unlocks Required off to make them `useful` and never gate completion.\nNeeds a client that understands ability unlocks (declared via\nrequiresClientFeatures); older clients would leave the abilities locked, so they are told to\nupgrade rather than play it half-supported.\n\nNo effect when Locked Abilities is empty.",
+   "description": "HOW the Locked Abilities behave.\n\n``progressive`` (DEFAULT) -- they start off, and each locked ability becomes an \"Unlock: X\"\nitem shuffled into the multiworld. Find it (or receive it from another world) to get that\nability back. The items default to `progression` and are REQUIRED to finish (see Ability\nUnlocks Required) -- so a partner holding your \"Unlock: Roll\" genuinely blocks your goal, which\nis the whole point of a multiworld. Turn Ability Unlocks Required off to make them `useful` and\nnever gate completion. Needs a client that understands ability unlocks (declared via\nrequiresClientFeatures); older clients would leave the abilities locked, so they are told to\nupgrade rather than play it half-supported.\n\n``static`` (the opt-out) -- they are off for the entire seed. No item, no check; a pure client\nrestriction, and no client-feature demand.\n\nNo effect when Locked Abilities is empty (the default) -- this option only bites once you have\nnamed an ability to lock.",
    "kind": "choice",
    "base": "Choice",
-   "default": "static",
+   "default": "progressive",
    "choices": [
     {
      "name": "static",

@@ -6,22 +6,29 @@ never touches menus (see the client's ability_lock.rs).
 
 TWO MODES, one set (`locked_abilities`):
 
-* STATIC (default) -- the abilities are off for the whole seed. Pure client behaviour: no item, no
-  check, no pool. The set rides `slot_data["options"]["locked_abilities"]` (emitted centrally by
+* STATIC (the opt-out) -- the abilities are off for the whole seed. Pure client behaviour: no item,
+  no check, no pool. The set rides `slot_data["options"]["locked_abilities"]` (emitted centrally by
   `core._options_echo`), read by `er-logic/options.rs parse_ability_lock`.
 
-* PROGRESSIVE (#980) -- the same abilities start locked, but each becomes a SYNTHETIC 'Unlock: X'
-  item shuffled into the pool; finding it unlocks that ability (`er_logic ability_lock::unlock`).
-  This IS a pool contribution: `create_items` mints one useful item per locked ability (count-exact,
-  displacing filler like every other contributor), and `slot_data` ships the per-seed
-  `abilityUnlockItems` {item_id: ability} map plus `requiresClientFeatures: ["ability_unlock"]` --
-  the armorBundles pattern exactly. The item ids are registered at a fixed base in core.py; the
-  client never grants them, it resolves them through the map.
+* PROGRESSIVE (#980, THE DEFAULT since 2026-08-25) -- the same abilities start locked, but each
+  becomes a SYNTHETIC 'Unlock: X' item shuffled into the pool; finding it unlocks that ability
+  (`er_logic ability_lock::unlock`). This IS a pool contribution: `create_items` mints one useful
+  item per locked ability (count-exact, displacing filler like every other contributor), and
+  `slot_data` ships the per-seed `abilityUnlockItems` {item_id: ability} map plus
+  `requiresClientFeatures: ["ability_unlock"]` -- the armorBundles pattern exactly. The item ids
+  are registered at a fixed base in core.py; the client never grants them, it resolves them
+  through the map.
 
 WHY THE ITEMS ARE core-REGISTERED, NOT `ITEMS =` HERE. `registry.allocate_item_ids` hands feature
 ITEMS sequential ids, so seven names here would renumber every later feature's items. core.py mints
 them at contract.ABILITY_UNLOCK_ITEM_BASE instead (the spawn-trap lesson); this module only decides
 WHICH get pooled and emits the map.
+
+GOAL-REQUIRED BY DEFAULT. Under `ability_unlocks_required` (a DefaultOnToggle) the pooled unlocks
+are `progression` and are ANDed into the goal's held-item requirement; turn it off and they fall
+back to `useful`, never gating completion. Either way nothing in region/check logic depends on an
+ability, so a seed is always traversable -- the requirement is a held-item gate at the goal, not a
+reachability one.
 
 ONE ATTACK COMES EARLY WHEN ALL FOUR ATTACK INPUTS ARE LOCKED (#1035). A great many checks are
 kill-gated -- boss defeats, enemy drops, every defeat-flag sweep trigger -- and logic knows nothing
@@ -31,8 +38,6 @@ Roll uses. Spells are NOT a way out and get no carve-out (Alaric, 2026-08-25: "s
 you need an L or R button to cast a spell") -- a staff or seal casts on an attack button. Fewer than
 four locked forces nothing: an unlocked attack input is a damage source from the start.
 
-NOT lockable progression. The unlock items are `useful`, never required by logic -- a seed is always
-completable with an ability still locked, so a missing unlock is a harder run, not a dead one.
 `crouch -> l3` is the one unverified action map (er-logic). `heal` is lockable too, but by a
 different mechanism: the client re-applies the No Flask SpEffect while it is locked (the flask
 heals nothing), since heal owns no action bit.
@@ -61,8 +66,9 @@ class LockedAbilities(OptionSet):
     an attack for this: a staff or seal casts on an attack button, so a caster with all four locked
     is just as weaponless. Locking three or fewer forces nothing -- you still have an attack.
 
-    Ability Lock Mode decides whether these stay off all seed (Static) or start off and are unlocked
-    by items you find (Progressive). Env-overridable in test builds via ER_ABILITY_LOCK_TEST."""
+    Ability Lock Mode decides whether these start off and are unlocked by items you find
+    (Progressive, the default) or stay off for the whole seed (Static, the opt-out).
+    Env-overridable in test builds via ER_ABILITY_LOCK_TEST."""
     display_name = "Locked Abilities"
     default = frozenset()
     valid_keys = frozenset(contract.ABILITY_LOCK_KEYS)
@@ -72,22 +78,24 @@ class LockedAbilities(OptionSet):
 class AbilityLockMode(Choice):
     """HOW the Locked Abilities behave.
 
-    ``static`` -- they are off for the entire seed. No item, no check; a pure client restriction.
-
-    ``progressive`` -- they start off, and each locked ability becomes an "Unlock: X" item shuffled
-    into the multiworld. Find it (or receive it from another world) to get that ability back. The
-    items default to `progression` and are REQUIRED to finish (see Ability Unlocks Required) -- so
-    a partner holding your "Unlock: Roll" genuinely blocks your goal, which is the whole point of a
-    multiworld. Turn Ability Unlocks Required off to make them `useful` and never gate completion.
-    Needs a client that understands ability unlocks (declared via
+    ``progressive`` (DEFAULT) -- they start off, and each locked ability becomes an "Unlock: X"
+    item shuffled into the multiworld. Find it (or receive it from another world) to get that
+    ability back. The items default to `progression` and are REQUIRED to finish (see Ability
+    Unlocks Required) -- so a partner holding your "Unlock: Roll" genuinely blocks your goal, which
+    is the whole point of a multiworld. Turn Ability Unlocks Required off to make them `useful` and
+    never gate completion. Needs a client that understands ability unlocks (declared via
     requiresClientFeatures); older clients would leave the abilities locked, so they are told to
     upgrade rather than play it half-supported.
 
-    No effect when Locked Abilities is empty."""
+    ``static`` (the opt-out) -- they are off for the entire seed. No item, no check; a pure client
+    restriction, and no client-feature demand.
+
+    No effect when Locked Abilities is empty (the default) -- this option only bites once you have
+    named an ability to lock."""
     display_name = "Ability Lock Mode"
     option_static = 0
     option_progressive = 1
-    default = 0
+    default = 1
 
 
 class AbilityUnlocksRequired(DefaultOnToggle):

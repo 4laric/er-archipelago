@@ -38,6 +38,56 @@ def test_map_is_a_declared_hashed_key():
     assert "abilityUnlockItems" not in contract.OPTIONS_BY_NAME
 
 
+# ---- the DEFAULT (2026-08-25 ruling): progressive, and inert until an ability is named ------
+def test_mode_defaults_to_progressive():
+    """Alaric's 2026-08-25 ruling: a seed that locks abilities should hand them back as items.
+
+    The motivating case is the multiworld one -- a lock the player can never undo is a permanent
+    handicap, while the progressive default turns it into the item hunt the mode was written for.
+    Static stays available as the explicit opt-out."""
+    from worlds.eldenring.features.ability_lock import AbilityLockMode
+    assert AbilityLockMode.default == AbilityLockMode.option_progressive
+    assert AbilityLockMode.option_static == 0, "static must remain a NAMED opt-out, not a removal"
+
+
+class ProgressiveDefaultWithNoLockedAbilities(WorldTestBase):
+    """The default flip must not move a seed that locks nothing -- the whole axis stays inert.
+
+    locked_abilities defaults empty, and `_progressive_active` gates on it, so the new default mode
+    pools no item, ships no map, and demands no client feature. This is the shipped-default seed."""
+    game = GAME
+    options = {"num_regions": 0}
+
+    def test_the_axis_is_inert_without_a_locked_ability(self):
+        from worlds.eldenring.features.ability_lock import AbilityLockMode
+        assert int(self.world.options.ability_lock_mode.value) == AbilityLockMode.option_progressive
+        assert set(self.world.options.locked_abilities.value) == set(), "empty is the default"
+        names = {nm for _k, nm in contract.ABILITY_UNLOCK_ITEM_NAMES}
+        pool_names = {i.name for i in self.multiworld.itempool if i.player == self.player}
+        assert not (names & pool_names), "an empty lock set must pool no Unlock: item"
+        sd = self.world.fill_slot_data()
+        assert "abilityUnlockItems" not in sd
+        assert contract.ABILITY_UNLOCK_FEATURE not in sd.get("requiresClientFeatures", [])
+        assert sd["options"]["locked_abilities"] == []
+
+
+class ProgressiveIsWhatAnUnpinnedModeGets(WorldTestBase):
+    """A yaml that names abilities but NOT a mode now generates PROGRESSIVE (behaviour change).
+
+    Before 2026-08-25 the same yaml generated a static, permanent lock. This pins the new
+    resolution end to end: the items are pooled and the client handshake is demanded."""
+    game = GAME
+    options = {"num_regions": 0, "locked_abilities": ["roll"]}  # mode deliberately unset
+
+    def test_unpinned_mode_pools_the_unlock_and_demands_the_feature(self):
+        want = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)["roll"]
+        pool_names = [i.name for i in self.multiworld.itempool if i.player == self.player]
+        assert want in pool_names, "an unpinned mode must now resolve to progressive"
+        sd = self.world.fill_slot_data()
+        assert sd["abilityUnlockItems"] == {str(self.world.item_name_to_id[want]): "roll"}
+        assert contract.ABILITY_UNLOCK_FEATURE in sd["requiresClientFeatures"]
+
+
 # ---- static mode mints nothing ---------------------------------------------------------------
 class StaticMintsNoItems(WorldTestBase):
     game = GAME
