@@ -509,8 +509,17 @@ def test_the_sweep_corpus_did_not_shrink():
     # partner triggers across 10 regions; measured by (trigger, flag): 148 removed / 149 added,
     # every re-dealt flag KEEPS a same-region owner (0 region-crossing re-owns), and no check
     # left the corpus.
-    assert total == 4101, (  # +73 (2026-08-20, #907): every admissible boss OWN drop joined its own trigger's sweep; +1 (2026-08-21, #940): the Four Belfries key joined the Royal Revenant
-        "sweep corpus is %d, expected 4101. If a sweep was legitimately added or removed, say WHY "
+    # 2026-08-26 (#1054/#1046, the rest of the PlayArea-scan adjudication): 4101 -> 4100, and the
+    # -1 is a DROP that is being recorded rather than re-baselined. Sixteen more scan-exact,
+    # ground-placed pickups take the region the scan says they physically stand in. Fifteen of them
+    # simply re-home to a trigger in their NEW region (measured pair-by-pair: 29 removed / 28 added
+    # / 28 re-owned, 15 of which cross a region boundary BY DESIGN -- the check moved region, so its
+    # granter moved with it). The sixteenth, 1035457030 (Strip of White Flesh, South Raya Lucaria
+    # Gate), moves Liurnia -> Raya Lucaria Academy and finds NO sweep host there, so it is left
+    # UNSWEPT. That is the containment design's stated honest outcome, not a lost check: the flag is
+    # still a check and still reachable, it is simply no longer paid by a boss kill.
+    assert total == 4100, (  # +73 (2026-08-20, #907): every admissible boss OWN drop joined its own trigger's sweep; +1 (2026-08-21, #940): the Four Belfries key joined the Royal Revenant
+        "sweep corpus is %d, expected 4100. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -723,6 +732,19 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # is why the count holds at 4101: this is a re-HOST, not a drop. Applying the constraint at the
     # host derivation rather than as a late member filter is what makes that true; a late filter
     # would have stripped them after the divvy was dealt.
-    assert (digest, n) == ("bc5e71949dacb1c9", 4101), (  # 2026-08-26 (#1059): measured arena outranks the tile decode; 32 re-owns, 0 region crossings, 0 orphans
-        "sweep OWNERSHIP changed: (%s, %d), expected (bc5e71949dacb1c9, 4101). The total alone will "
+    # 2026-08-26 (#1054/#1046): bc5e71949dacb1c9/4101 -> 5d5de2223034adf6/4100. Diffed the way the
+    # docstring demands, in (trigger, flag) space: REMOVED 29, ADDED 28, RE-OWNED 28. FIFTEEN of the
+    # re-owns change the sweep's REGION, and here that is the CORRECT reading rather than the
+    # reachability bug this gate normally hunts -- the CHECK moved region first (the scan
+    # adjudication above), and a member always re-homes to a trigger in the region it now lives in.
+    # Named, so a future regen can tell this shape from the bug: 2052407010/2052417010/2050437010/
+    # 2050437040 -> Abyssal, 2048417000/2048417010/2048417700/2049427000 -> Gravesite,
+    # 2046407040/2046407050/2046407060/2047417110 -> Cerulean, 1035457000/1035457100 -> Raya Lucaria
+    # Academy, 1047517000 -> Mountaintops. ZERO flags gained an owner; ONE lost one (1035457030,
+    # see the corpus pin above -- no Academy host exists for it).
+    # 🛑 The Mt. Gelmir trio (1039537040/50/60) is WITHHELD from this batch, not applied: it would
+    # take three of the twenty-three checks test_gf_unspawned_field_boss pins to Mt. Gelmir. See the
+    # note in gen_data.FLAG_REGION_OVERRIDE.
+    assert (digest, n) == ("5d5de2223034adf6", 4100), (  # 2026-08-26 (#1059): measured arena outranks the tile decode; 32 re-owns, 0 region crossings, 0 orphans
+        "sweep OWNERSHIP changed: (%s, %d), expected (5d5de2223034adf6, 4100). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

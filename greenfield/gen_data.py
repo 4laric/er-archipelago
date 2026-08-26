@@ -3221,6 +3221,48 @@ FLAG_REGION_OVERRIDE = {
     2046457000: "Gravesite",      # Two-Headed Turtle Talisman, Temple Town Ruins -- volume: 68100
     2045457010: "Rauh Base",      # Grave Glovewort [5], Temple Town Ruins -- volume: 69010 (REVERSE)
     2046467800: "Rauh Base",      # Larval Tear, near Scadu Altus West -- volume: 69010 (REVERSE)
+    #
+    # -- The rest of the scan-exact, ground-placed queue (#1054 / #1046) --------------------
+    # Same instrument, same evidence class as the ten above: each row's EXACT item_play_regions
+    # answer disagrees with the nearest-grace derivation, and each is a GROUND-PLACED pickup, so
+    # the scan rules. The NPC-relocation families and the two deliberate carves stay withheld.
+    # Forbidden Lands. Corroborated independently by this same regen: grace 76500 (Forbidden Lands)
+    # moves Altus -> Mountaintops in region_graces.py off the refreshed grace ground.
+    1047517000: "Mountaintops of the Giants",   # Drawstring Fire Grease -- volume: 65000
+    # South Raya Lucaria Gate: the gate ground is the Academy's, not Liurnia's.
+    1035457000: "Raya Lucaria Academy",   # Celestial Dew -- volume: 14000
+    1035457030: "Raya Lucaria Academy",   # Strip of White Flesh -- volume: 14000
+    1035457100: "Raya Lucaria Academy",   # Meeting Place Map -- seam: 14000
+    # 🛑 Bower of Bounty / Bridge of Iniquity (1039537040 / 1039537050 / 1039537060) are WITHHELD,
+    # not refuted. The scan answers them exactly and they are ordinary ground pickups, so they meet
+    # this block's own admission rule: 1039537040 sits in bucket 6300001, the volume literally named
+    # "領域 マップ情報上書き用 (高山と火山の境界)" -- the Altus/Gelmir BOUNDARY override -- and the
+    # other two in 6300040 (高山 ... 魔術師の塔). But moving them out of Mt. Gelmir takes three of
+    # the twenty-three checks that test_gf_unspawned_field_boss pins to the region, and that gate is
+    # a deliberate #445 witness: on a Gelmir-only seed those three stop being in the seed at all.
+    # That is the CORRECT consequence of the move if the move is right, which is exactly why it
+    # needs a ruling rather than a merge resolution. Withheld pending #1054.
+    # Cerulean Coast: four rows filed Gravesite stand in the Cerulean volume.
+    2046407040: "Cerulean",   # Great Grave Glovewort
+    2046407050: "Cerulean",   # Ghost Glovewort [7]
+    2046407060: "Cerulean",   # Ghost Glovewort [9]
+    2047417110: "Cerulean",   # Mushroom-Seller's Bell Bearing [2]
+    # Ellac River / Fort of Reprimand: Gravesite ground, filed Jagged Peak off the nearest boss.
+    2048417000: "Gravesite",   # Fire Coil
+    2048417010: "Gravesite",   # Blessing of Marika
+    2048417700: "Gravesite",   # Scadutree Fragment
+    2049427000: "Gravesite",   # Talisman of the Dread
+    # Church Ruins and the Woodland Trail are Abyssal Woods ground.
+    2052407010: "Abyssal",   # Somber Smithing Stone [6]
+    2052417010: "Abyssal",   # Clarifying Boluses
+    2050437010: "Abyssal",   # Scadutree Fragment -- seam
+    2050437040: "Abyssal",   # Smithing Stone [7]
+    # 🛑 Message from Leda (580600) is deliberately NOT pinned here. This branch proposed moving it
+    # to Scadu Altus off the scan's bucket-69000 answer; main's later sweep-containment ruling
+    # (#1059) adjudicated the same report the other way -- m20_00 IS Belurat, so the Dancing Lion
+    # grant is CONTAINED, and the Shadow Keep placement is the #320/#502 multisite family, not a
+    # region error. test_gf_sweep_region_containment pins that decision, so the proposal is
+    # withdrawn rather than re-litigated in a merge.
 }
 
 # These per-flag pins settle WHICH SIDE of a measured region seam owns the reward, but they do not
