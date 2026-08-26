@@ -146,10 +146,25 @@ PY
 
 Commit the regenerated `greenfield/item_grace_coords.tsv` with the row-count delta in the message.
 
-### Step 2 — write the scan
+### Step 2 — run the scan
 
-A new `tools/datamine_item_play_regions.py` (or a `--items` mode on `datamine_grace_ground.py` —
-either is fine; the machinery is the same). It must:
+**THE TOOL NOW EXISTS — run it as written, do not re-derive it:** `tools/datamine_item_play_regions.py`
+(PR against #1025, gated by `greenfield/eldenring/tests/test_gf_item_play_regions.py`, which
+exercises the geometry on synthetic MSB fixtures because CI has no corpus).
+
+```
+python tools/datamine_item_play_regions.py --graces     # step 3 FIRST -- the calibration gate
+python tools/datamine_item_play_regions.py              # report only: counts, and by-source split
+python tools/datamine_item_play_regions.py --emit       # writes greenfield/item_play_regions.tsv
+```
+
+Other flags: `--out`, `--artifacts DIR` (same semantics as `datamine_item_grace_coords`'s;
+`datamine_grace_ground` gained the matching `_set_artifacts_root` for it), `--coords-repo DIR`,
+`--ground PATH` (what `--graces` diffs against), and `--force`, which exists to say a shrink is
+DELIBERATE — the help text says so, and passing it to make a red run green destroys the ground
+truth the gate is made of.
+
+It does exactly what this section specified:
 
 1. `load_volumes()` once. Assert the count is in the thousands; a small number means a partial
    witchy export and the scan is worthless.
@@ -164,13 +179,30 @@ either is fine; the machinery is the same). It must:
    `flag  map_id  play_region_ids  buckets  source`.
 4. Carry a **floor**, like `MIN_DERIVED = 200` next door: refuse to emit a table that derives
    fewer rows than the committed one. A shrinking ground-truth table that writes anyway is how a
-   gate goes blind.
+   gate goes blind. On the FIRST run there is no committed table to ratchet against, so the floor
+   is two-part — `max(committed derived count, MIN_DERIVED_ABS = 2000)`. Raise `MIN_DERIVED_ABS`
+   to the measured count once the first real run has one; raise, never lower.
 5. Take no network, read no game install, and be deterministic.
+
+Three details the implementation settled that this section had left open:
+
+* the seam step applies to the OVERWORLD too, not only interiors (the order above reads that way
+  and it is the right order). `datamine_grace_ground` goes straight from "no volume" to the tile
+  default for overworld graces, so `--graces` can legitimately report a *source* delta there. It
+  therefore fails on a **bucket** mismatch only, and prints source deltas as findings. A bucket
+  delta means the geometry moved; a source delta means this pipeline found ground the older one
+  called a default.
+* the tile default is looked up for the tile the FOLDED position lands on, not the tile the row
+  was authored in — a LOD2 row's authored tile spans 16 fine tiles and only one of them is the
+  ground the item stands on.
+* the `source` vocabulary is `volume:NAME`, `interior-vol:NAME`, `seam:NAME@Nm`,
+  `interior-seam:NAME@Nm`, `tile-default`, `interior-map`, `none`.
 
 ### Step 3 — sanity-check it against something already known
 
 Before believing a single item answer, run the scan over the **421 graces** and diff it against
-`greenfield/grace_ground.tsv`. Those answers are already calibrated against two in-game kick
+`greenfield/grace_ground.tsv` — `python tools/datamine_item_play_regions.py --graces`, which
+exits non-zero on a bucket mismatch. Those answers are already calibrated against two in-game kick
 measurements (`76841` → `6840000`, 2026-07-15; `72102` → `6900000/6900010`, 2026-07-21). A scan
 that cannot reproduce `grace_ground.tsv` is not ready to be trusted about items.
 
