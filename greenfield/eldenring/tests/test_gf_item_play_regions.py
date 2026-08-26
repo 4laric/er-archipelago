@@ -211,6 +211,40 @@ class ItemPlayRegionScanTest(unittest.TestCase):
         fixture tree, at a NON-DEFAULT location, must give byte-identical rows through either."""
         self.assertEqual(self._run(flag="--path"), self._run(flag="--artifacts"))
 
+    def test_the_same_corpus_resolves_from_map_mapstudio_or_the_bare_root(self):
+        """WitchyBND does not promise a subdirectory. Alaric's 2026-08-26 export put every map FLAT
+        under `<root>/mapstudio/`, beside `_pilot`/`breakgeom`/`m00`..`m61` noise dirs, and this
+        scan's loader said `FATAL: no witchy'd m60/m61 MSBs under <root>/map`. All three layouts
+        are the SAME corpus, so all three must give BYTE-IDENTICAL rows off plain `--path <root>`:
+        discovery may move where the tool looks, never what it answers."""
+        want = self._run()                                   # the map/ layout, built in setUpClass
+        for layout in ("mapstudio", ""):
+            with self.subTest(layout=layout or "<root>"):
+                alt = os.path.join(self.tmp, "alt_" + (layout or "root"))
+                shutil.copytree(self.artifacts, alt)
+                src = os.path.join(alt, "map")
+                dst = os.path.join(alt, layout) if layout else alt
+                if layout:
+                    os.rename(src, dst)
+                else:
+                    for name in os.listdir(src):
+                        os.rename(os.path.join(src, name), os.path.join(dst, name))
+                    os.rmdir(src)
+                for noise in ("_pilot", "breakgeom", "m00", "m60", "m61"):
+                    os.makedirs(os.path.join(alt, noise), exist_ok=True)
+                out = os.path.join(self.tmp, "alt_%s.tsv" % (layout or "root"))
+                self.assertEqual(0, self.mod.main(["--emit", "--path", alt,
+                                                   "--coords-repo", self.coords, "--out", out]))
+                rows = {}
+                with open(out, encoding="utf-8") as fh:
+                    for ln in fh:
+                        if ln.startswith("#") or ln.startswith("flag\t") or not ln.strip():
+                            continue
+                        f, mid, ids, buckets, src_col = ln.rstrip("\n").split("\t")
+                        rows[f] = (mid, ids, buckets, src_col)
+                self.assertEqual(want, rows,
+                                 "the %s layout answered differently from map/" % (layout or "root"))
+
     def test_a_moved_root_that_is_not_there_stops_the_run(self):
         """A typo'd root must FAIL, not scan an empty tree and write a plausible table."""
         with self.assertRaises(SystemExit):

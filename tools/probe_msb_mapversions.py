@@ -40,7 +40,10 @@ sys.path.insert(0, HERE)
 import artifacts_root                          # noqa: E402  -- THE --path argument, not a copy
 
 ART = artifacts_root.default_root(REPO)
-CANDIDATES = ["map", "msb", "mapstudio", "map/mapstudio", "MapStudio", "map/MapStudio"]
+# The shared candidate list (tools/artifacts_root.py) FIRST, so this probe's auto-detection agrees
+# with what the datamine tools will actually read, then this probe's own extra guesses -- it exists
+# to REPORT on an unknown tree, so a wider net is right here and only here.
+EXTRA_CANDIDATES = ["msb", "MapStudio", os.path.join("map", "MapStudio")]
 TILE = "m60_40_39"
 MARK = "宝死体"          # 宝死体 -- treasure corpse
 CAP_WALK = 400000                     # hard cap: this tree is reportedly huge; never walk forever
@@ -75,7 +78,16 @@ def main():
             print(s.encode("ascii", "replace").decode("ascii"))
 
     _art = artifacts_root.resolve(a.path) or ART
-    roots = [a.root] if a.root else [os.path.join(_art, c) for c in CANDIDATES]
+    if a.root:
+        roots = [a.root]
+    else:
+        # Verified hits (a dir that DIRECTLY holds m*-msb-dcx children) first -- including the
+        # bare root, which is a real layout but must never be selected merely for existing --
+        # then the unverified guesses, which this probe reports on rather than trusts.
+        roots = artifacts_root.msb_dirs(_art)
+        roots += [c for c in artifacts_root.msb_candidates(_art)
+                  if c not in roots and c != _art]
+        roots += [os.path.join(_art, c) for c in EXTRA_CANDIDATES]
     say("=== ROOT DETECTION ===")
     found = []
     for r in roots:

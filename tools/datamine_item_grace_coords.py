@@ -65,9 +65,13 @@ def _param_dir(root):
 
 
 def _msb_dirs(root):
-    # map/ + mapstudio/ + the root itself (datamine_msb_item_regions scans the root too, and a
-    # witchy export dropped there should mean the same thing to both tools).
-    return [os.path.join(root, "map"), os.path.join(root, "mapstudio"), root]
+    # map/ + mapstudio/ + map/mapstudio/ + the root itself. This tool had the widest private list
+    # in the family and was RIGHT; it is now the SHARED one (tools/artifacts_root.py), so the five
+    # tools that each guessed a narrower subset agree with it instead of contradicting it. Only the
+    # candidates that actually hold witchy MSB dirs come back; the old unfiltered list is the
+    # no-corpus fallback so a message can still name a path.
+    return (artifacts_root.msb_dirs(root)
+            or [os.path.join(root, "map"), os.path.join(root, "mapstudio"), root])
 
 
 MSB_DIRS = _msb_dirs(AR)

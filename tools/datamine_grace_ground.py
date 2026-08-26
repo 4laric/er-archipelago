@@ -88,7 +88,7 @@ import artifacts_root                          # noqa: E402  -- THE --path argum
 AR = artifacts_root.default_root(REPO)
 BWP = os.path.join(AR, "vanilla_er", "vanilla_er", "BonfireWarpParam.csv")
 PRP = os.path.join(AR, "vanilla_er", "vanilla_er", "PlayRegionParam.csv")
-MAPDIR = os.path.join(AR, "map")
+MAPDIR = artifacts_root.msb_dir(AR) or os.path.join(AR, "map")
 OUT = os.path.join(REPO, "greenfield", "grace_ground.tsv")
 
 # Refuse to emit a table that would silently shrink the derived set: like arena_graces.tsv, the
@@ -136,7 +136,12 @@ def _set_artifacts_root(path):
     AR = os.path.abspath(path)
     BWP = os.path.join(AR, "vanilla_er", "vanilla_er", "BonfireWarpParam.csv")
     PRP = os.path.join(AR, "vanilla_er", "vanilla_er", "PlayRegionParam.csv")
-    MAPDIR = os.path.join(AR, "map")
+    # DISCOVERY, not a hardcoded subdir: `map/`, `mapstudio/`, `map/mapstudio/`, then the root
+    # itself (tools/artifacts_root.py). A witchy export that landed FLAT under `mapstudio/` used
+    # to make this tool alone say "no witchy'd m60/m61 MSBs" while three sibling tools read the
+    # same corpus fine. Falls back to `map/` so the FATAL below still names a path when the
+    # corpus is absent entirely (CI has none).
+    MAPDIR = artifacts_root.msb_dir(AR) or os.path.join(AR, "map")
     _INTERIOR_VOLS.clear()
 
 
@@ -255,7 +260,9 @@ def load_volumes():
     tile_dirs = sorted(set(glob.glob(os.path.join(MAPDIR, "m6[01]_*_00-msb-dcx"))))
     if not tile_dirs:
         raise SystemExit("FATAL: no witchy'd m60/m61 MSBs under %s -- the overworld ground "
-                         "derivation needs them (WitchyBND the .msb.dcx first)." % MAPDIR)
+                         "derivation needs them (WitchyBND the .msb.dcx first). Searched under "
+                         "the artifacts root %s: %s."
+                         % (MAPDIR, AR, artifacts_root.msb_search_report(AR)))
     for d in tile_dirs:
         bn = os.path.basename(d)
         area, tx, tz = int(bn[1:3]), int(bn[4:6]), int(bn[7:9])

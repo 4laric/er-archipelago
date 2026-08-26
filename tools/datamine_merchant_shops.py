@@ -74,7 +74,7 @@ import artifacts_root                          # noqa: E402  -- THE --path argum
 ART = artifacts_root.default_root(REPO)
 VV = os.path.join(ART, "vanilla_er", "vanilla_er")
 TALK = os.path.join(ART, "talk")
-MAPSTUDIO_ROOTS = [os.path.join(ART, "mapstudio"), os.path.join(ART, "map", "mapstudio")]
+MAPSTUDIO_ROOTS = artifacts_root.msb_dirs(ART) or [os.path.join(ART, "mapstudio"), os.path.join(ART, "map", "mapstudio")]
 OUT = os.path.join(REPO, "greenfield", "merchant_shops.tsv")
 
 # Merchant shop rows are ShopLineupParam ids shopBlock*100+slot in the 1000xx..1029xx band. Ranges an
@@ -152,7 +152,7 @@ def _set_artifacts_root(path):
     ART = os.path.abspath(path)
     VV = os.path.join(ART, "vanilla_er", "vanilla_er")
     TALK = os.path.join(ART, "talk")
-    MAPSTUDIO_ROOTS = [os.path.join(ART, "mapstudio"), os.path.join(ART, "map", "mapstudio")]
+    MAPSTUDIO_ROOTS = artifacts_root.msb_dirs(ART) or [os.path.join(ART, "mapstudio"), os.path.join(ART, "map", "mapstudio")]
     _NPC_NAME_FMGS = [
         os.path.join(ART, "msg", "item-msgbnd-dcx", "NpcName.fmg.xml"),
         os.path.join(ART, "msg", "item_dlc01-msgbnd-dcx", "NpcName_dlc01.fmg.xml"),
