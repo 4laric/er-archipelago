@@ -30,6 +30,7 @@ algorithm does rather than what the current tables happen to contain:
     19 current votes-against ride one such grace; unbadged, they read as 17 independent findings.
 """
 
+import collections
 import importlib.util
 import os
 import sys
@@ -416,27 +417,141 @@ class VoteWiringTests(unittest.TestCase):
         rows = [dict(zip(header, ln.split("\t"))) for ln in body[1:]]
         cast = [r for r in rows if r["msb_vote_region"]]
         against = [r for r in cast if r["msb_vote_region"] != r["our_region"]]
-        # Re-measured 2026-08-25 against this tsv. These move when the audit is re-run: update
-        # them WITH the regenerated table, never by loosening the assertion.
+        # RE-MEASURED 2026-08-26 against this tsv, after the PlayArea scan landed and the vote
+        # started preferring it. `cast` rose 260 -> 268: a PLAYAREA-CONFIRMED ruling is keyed by
+        # flag and needs no coordinate row of its own, so eight rows that were NO-COORDS now
+        # carry an answer. `against` rose 19 -> 22 for the same reason. These move when the audit
+        # is re-run: update them WITH the regenerated table, never by loosening the assertion.
         self.assertEqual(len(rows), 305)
-        self.assertEqual(len(cast), 260)
-        self.assertEqual(len(against), 19)
+        self.assertEqual(len(cast), 268)
+        self.assertEqual(len(against), 22)
+        ruled = [r for r in rows if VOTE.NOTE_PLAYAREA in r["vote_note"]]
+        self.assertEqual(len(ruled), 17,
+                         "the exact PlayArea answers must be visible as rulings, not votes")
+        self.assertFalse([r for r in ruled if r["vote_distance_m"]],
+                         "a ruling has no anchor distance -- one would imply a nearest-grace hop")
         self.assertTrue(all(r["vote_note"] for r in rows if not r["msb_vote_region"]),
                         "a row with no vote must say WHY in vote_note")
         suspect = [r for r in against if VOTE.NOTE_SUSPECT in r["vote_note"]]
-        self.assertEqual(len(suspect), 17,
+        self.assertEqual(len(suspect), 19,
                          "the Yelough Anix Tunnel cluster must stay visible as ONE anchor")
+        # 17 -> 19 on 2026-08-26: --revote re-reads `our_region` from check_region_triage.tsv
+        # instead of carrying the crawl's copy, and two rows the crawl had recorded as agreeing
+        # were agreeing with a region data.py had already moved away from. The point of the
+        # assertion is unchanged -- ONE suspect anchor still owns the whole votes-against column.
+        anchors = collections.Counter(r["vote_anchor_grace"] for r in against)
+        self.assertEqual(anchors["73211 Yelough Anix Tunnel"], 19)
+        # 🛑 AND THE SCAN CANNOT SETTLE THEM. All 19 answer `none` in item_play_regions.tsv --
+        # no volume, no seam, and no PlayRegionParam default for their tiles -- so not one of
+        # them became a ruling. Absence of an answer is not evidence about the region
+        # (docs/PLAYAREA-ITEM-SCAN.md), and this pins that we did not quietly promote the
+        # heuristic on the cluster the runbook expected the scan to settle "in either direction".
+        yelough = [r for r in against if r["vote_anchor_grace"].startswith("73211")]
+        self.assertEqual(len(yelough), 19, "the candidate set itself vanished -- WITNESS first")
+        self.assertEqual([r["flag"] for r in yelough
+                          if VOTE.NOTE_PLAYAREA in r["vote_note"]], [])
 
     def test_the_calibration_number_is_still_true_of_this_repo(self):
         """Rule 7's mirror: the sentence in CALIBRATION is re-derivable, so it cannot rot into a
         remembered number. The floor is deliberately BELOW the measured 90.1% -- this pins that
         the vote is a usable ranking signal, not that it never moves."""
-        hits, misses, _families = VOTE.calibrate(ROOT)
+        hits, misses, _families, _ruled = VOTE.calibrate(ROOT)
         total = hits + misses
         self.assertGreater(total, 2000, "control set collapsed -- the vote is unmeasured")
         self.assertGreater(100.0 * hits / total, 85.0)
         self.assertLess(100.0 * hits / total, 100.0,
                         "a 100%% control score means the control set is the vote's own output")
+
+
+class PlayAreaRulingTests(unittest.TestCase):
+    """THE EXACT ANSWER BEATS THE HEURISTIC -- and only the EXACT answer does.
+
+    Motivating case (rule 11): `item_play_regions.tsv`'s ladder is
+    `volume -> seam -> tile-default -> none`. The last two are the SAME tile-wide guess the
+    nearest-grace vote already is. Letting a `tile-default` row become a PLAYAREA-CONFIRMED
+    ruling would relabel the guess as geometry -- the row would stop being adjudicated and
+    nothing would ever catch it, because a fallback that agrees with a fallback cannot fail
+    (rule 1). Both directions are asserted here: the exact answer must REPLACE the vote, and the
+    fallback must leave it standing.
+    """
+
+    GRACES = [("9001", "m60_40_40_00", 10.0, 0.0, 0.0, "Grace A")]
+    REGIONS = {"9001": "Limgrave"}
+    ITEMS = {"1": ("m60_40_40_00", 20.0, 0.0, 0.0)}
+
+    def voter(self, play_area=None):
+        return VOTE.Voter(self.ITEMS, self.GRACES, self.REGIONS, play_area=play_area)
+
+    def test_without_a_ruling_the_nearest_grace_vote_stands(self):
+        v = self.voter().vote("1")
+        self.assertEqual(v.region, "Limgrave")
+        self.assertNotIn(VOTE.NOTE_PLAYAREA, v.notes)
+
+    def test_an_exact_answer_REPLACES_the_vote_and_says_so(self):
+        v = self.voter({"1": "Caelid"}).vote("1")
+        self.assertEqual(v.region, "Caelid")               # not Limgrave, and not averaged
+        self.assertEqual(v.notes, [VOTE.NOTE_PLAYAREA])
+        self.assertIsNone(v.distance_m,
+                          "a ruling has no anchor distance -- printing one would imply a vote")
+
+    def test_a_ruling_stands_even_with_no_coordinate_row_of_its_own(self):
+        """The scan reads item_grace_coords, but the ruling is keyed by FLAG: a flag the voter
+        has no placement for still gets its ruling rather than NO-COORDS."""
+        v = self.voter({"2": "Caelid"}).vote("2")
+        self.assertEqual(v.region, "Caelid")
+        self.assertNotIn(VOTE.NOTE_NO_COORDS, v.notes)
+
+    def test_a_tile_default_row_does_NOT_confirm(self):
+        """The reader, not the vote: `load_play_area_regions` must skip the fallback sources."""
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, "greenfield"))
+            with open(os.path.join(d, "greenfield", "item_play_regions.tsv"), "w",
+                      encoding="utf-8") as fh:
+                fh.write("# synthetic\n")
+                fh.write("flag\tmap_id\tplay_region_ids\tbuckets\tsource\n")
+                fh.write("11\tm60_40_40_00\t6100000\t61000\tvolume:X\n")
+                fh.write("12\tm60_40_40_00\t6100000\t61000\tseam:X@1.0m\n")
+                fh.write("13\tm11_00_00_00\t1100000\t11000\tinterior-vol:X\n")
+                fh.write("14\tm11_00_00_00\t1100000\t11000\tinterior-seam:X@1.0m\n")
+                fh.write("15\tm60_40_40_00\t6100000\t61000\ttile-default\n")
+                fh.write("16\tm11_00_00_00\t1100000\t11000\tinterior-map\n")
+                fh.write("17\tm60_40_40_00\t-\t-\tnone\n")
+                fh.write("18\tm60_40_40_00\t9999999\t99999\tvolume:unowned bucket\n")
+                fh.write("19\tm60_40_40_00\t6100000;1100000\t61000;11000\tvolume:two regions\n")
+            got = VOTE.load_play_area_regions(d, play={"61000": "Limgrave", "11000": "Leyndell"})
+        self.assertEqual(got, {"11": "Limgrave", "12": "Limgrave",
+                               "13": "Leyndell", "14": "Leyndell"})
+        for fallback in ("15", "16", "17"):
+            self.assertNotIn(fallback, got,
+                             "a fallback source must never become a ruling")
+        self.assertNotIn("18", got, "a bucket we do not own is not a region")
+        self.assertNotIn("19", got, "a two-region answer is not an answer")
+
+    def test_a_missing_scan_table_is_no_rulings_not_a_crash(self):
+        """The WITNESS first: the same loader over the same dir WITH a table must answer, so an
+        empty answer here is the missing file and not a loader that stopped reading anything."""
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, "greenfield"))
+            path = os.path.join(d, "greenfield", "item_play_regions.tsv")
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write("flag\tmap_id\tplay_region_ids\tbuckets\tsource\n")
+                fh.write("11\tm60_40_40_00\t6100000\t61000\tvolume:X\n")
+            witness = VOTE.load_play_area_regions(d, play={"61000": "Limgrave"})
+            self.assertEqual(witness, {"11": "Limgrave"})
+            os.remove(path)
+            self.assertEqual(VOTE.load_play_area_regions(d, play={"61000": "Limgrave"}), {})
+
+    def test_the_repo_scan_rules_some_rows_and_they_are_all_exact(self):
+        """The live table, as a witness that the wiring reaches real data -- and that no ruling
+        in it came from a fallback source."""
+        exact = set()
+        for row in VOTE._rows(os.path.join(ROOT, VOTE.PLAY_REGIONS)):
+            if row["source"].startswith(VOTE.EXACT_SOURCES):
+                exact.add(row["flag"])
+        ruled = VOTE.load_play_area_regions(ROOT)
+        self.assertGreater(len(ruled), 100, "the scan table stopped ruling anything")
+        self.assertTrue(set(ruled) <= exact,
+                        "a ruling appeared for a flag with no exact scan row")
 
 
 if __name__ == "__main__":

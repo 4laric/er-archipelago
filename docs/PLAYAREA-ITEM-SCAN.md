@@ -325,6 +325,31 @@ our 30 regions. Bucket is `PlayRegionParam.ID // 100`, the kick-watch id space.
 python tools/msb_region_vote.py            # the heuristic, for the diff (committed tsvs only -- no corpus, no --path)
 ```
 
+✅ **RUN 2026-08-26 -- and the expectation below was WRONG. Read this before believing it.**
+The scan is on main (5,295 placement rows over 4,086 flags). Over the 305 audit flags it answered
+**17 exactly (volume/seam), 10 from a tile default, 241 `none`, and 37 have no scan row at all.**
+The three clusters this section names as "the interesting ones" are almost all in the `none` bucket:
+
+| cluster | expected | measured |
+| --- | --- | --- |
+| 19 rows anchored on 73211 Yelough Anix Tunnel | "settles all 17 at once, in either direction" | **all 19 answer `none`** -- no volume, no seam, and no `PlayRegionParam` default for their tiles. NOT SETTLED. |
+| 2 Weeping rows on 76113 (`1042347000`, `1042347030`) | settled | **both `none`**. NOT SETTLED. |
+| 3 Bestial Sanctum `CROSS-TILE-MSB` rows | settled | `1051417000`/`1051417010` `none`; `1051417030` `tile-default`, which does NOT confirm. NOT SETTLED. |
+
+🛑 **`none` is not a smaller answer, it is no answer** -- absence of a coordinate's containment is
+not evidence about the region, and a row that answers `none` must stay on the heuristic and stay
+in the adjudication queue. The overworld `none` rate is 44% (1,225 of 2,768 m60 rows), because
+`Region/PlayArea` volumes exist at play-region BOUNDARIES and `PlayRegionParam` has no default row
+for most fine tiles. That is the corpus, not a partial export: `--graces` is clean.
+
+Where it IS decisive: **679 checks repo-wide carry an exact answer, and 114 of them disagree with
+the region `data.py` gives them today** (16.8%, higher than the one-in-ten this section guessed).
+🛑 **Do not bulk-apply that list.** A large share of it is NPC-RELOCATION artifacts -- the Patches /
+Thiollier / Moore / Bernahl rows, whose coordinate is where the NPC ENDED UP, not where the check
+is -- and moving `Roundtable Hold :: Margit's Shackle` to Mt. Gelmir because Patches relocated
+there would be the scan being right about a point and wrong about a check. Ground-placed pickups
+are the population this instrument rules on.
+
 Expect the exact answer to disagree with the vote on **roughly one row in ten**. Every
 disagreement is a row where the worksheet's colour was wrong, and the interesting ones are:
 
@@ -338,6 +363,25 @@ disagreement is a row where the worksheet's colour was wrong, and the interestin
 
 ### Step 5 — flow the answers back into the audit
 
+✅ **DONE 2026-08-26 (steps 1-5).** What the wiring turned out to need, beyond what this list said:
+
+* `EXACT_SOURCES` in `msb_region_vote.py` is `volume:`/`interior-vol:`/`seam:`/`interior-seam:`
+  and deliberately nothing else. `tile-default`/`interior-map` are the same tile-wide guess the
+  vote already IS: a fallback confirming a fallback cannot fail, and the row would silently leave
+  the adjudication queue. A bucket `REGION_PLAY_IDS` does not own, and an answer landing in two of
+  our regions, are both refused for the same reason a two-region grace ground is.
+* A ruling is keyed by FLAG, so it stands for a flag with no `item_grace_coords` row: `cast` on
+  the audit rose 260 -> 268 without a single new coordinate.
+* 🛑 **Use `--revote`, not `--offline`, for step 3's first command.** `--offline` recomputes the
+  wiki half from a cache that only exists on the box that crawled; anywhere else it rewrites every
+  `verdict` as NO-DATA and commits that, destroying a rate-limited crawl. `--revote` refreshes ONLY
+  the `msb_vote_*` columns -- and re-reads `our_region` from `check_region_triage.tsv`, because
+  `data.py` moves under this file (the Ancient Snow Valley cluster moved to Consecrated Snowfield
+  after the crawl) and a fresh vote judged against a stale region invents disagreements.
+* The calibration was RE-MEASURED, not edited: 92.9% on 2,169 controls, with the 518 ruled rows
+  EXCLUDED from the control population -- measuring the vote on rows where geometry replaced it
+  would print the geometry's number under the heuristic's name.
+
 1. Commit `greenfield/item_play_regions.tsv`.
 2. Teach `tools/msb_region_vote.py` to prefer it: where a flag has an exact answer, the vote
    becomes that answer and `vote_note` becomes **`PLAYAREA-CONFIRMED`** — the heuristic is
@@ -345,7 +389,7 @@ disagreement is a row where the worksheet's colour was wrong, and the interestin
    with its existing notes.
 3. Re-run, in this order:
    ```
-   python tools/audit_region_second_opinion.py --offline --markdown greenfield/CHECK-REGION-SECOND-OPINION.md
+   python tools/audit_region_second_opinion.py --revote --markdown greenfield/CHECK-REGION-SECOND-OPINION.md
    python tools/build_region_second_opinion_page.py
    python tools/regen_all.py --check
    ```
