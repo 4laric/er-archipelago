@@ -446,8 +446,10 @@ class VoteWiringTests(unittest.TestCase):
         # them became a ruling. Absence of an answer is not evidence about the region
         # (docs/PLAYAREA-ITEM-SCAN.md), and this pins that we did not quietly promote the
         # heuristic on the cluster the runbook expected the scan to settle "in either direction".
-        self.assertFalse([r for r in against if VOTE.NOTE_PLAYAREA in r["vote_note"]
-                          and r["vote_anchor_grace"].startswith("73211")])
+        yelough = [r for r in against if r["vote_anchor_grace"].startswith("73211")]
+        self.assertEqual(len(yelough), 19, "the candidate set itself vanished -- WITNESS first")
+        self.assertEqual([r["flag"] for r in yelough
+                          if VOTE.NOTE_PLAYAREA in r["vote_note"]], [])
 
     def test_the_calibration_number_is_still_true_of_this_repo(self):
         """Rule 7's mirror: the sentence in CALIBRATION is re-derivable, so it cannot rot into a
@@ -526,8 +528,18 @@ class PlayAreaRulingTests(unittest.TestCase):
         self.assertNotIn("19", got, "a two-region answer is not an answer")
 
     def test_a_missing_scan_table_is_no_rulings_not_a_crash(self):
+        """The WITNESS first: the same loader over the same dir WITH a table must answer, so an
+        empty answer here is the missing file and not a loader that stopped reading anything."""
         with tempfile.TemporaryDirectory() as d:
-            self.assertEqual(VOTE.load_play_area_regions(d, play={}), {})
+            os.makedirs(os.path.join(d, "greenfield"))
+            path = os.path.join(d, "greenfield", "item_play_regions.tsv")
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write("flag\tmap_id\tplay_region_ids\tbuckets\tsource\n")
+                fh.write("11\tm60_40_40_00\t6100000\t61000\tvolume:X\n")
+            witness = VOTE.load_play_area_regions(d, play={"61000": "Limgrave"})
+            self.assertEqual(witness, {"11": "Limgrave"})
+            os.remove(path)
+            self.assertEqual(VOTE.load_play_area_regions(d, play={"61000": "Limgrave"}), {})
 
     def test_the_repo_scan_rules_some_rows_and_they_are_all_exact(self):
         """The live table, as a witness that the wiring reaches real data -- and that no ruling
