@@ -532,7 +532,12 @@ class GraceGroundSharesTheItemScanLadderTest(unittest.TestCase):
     def test_the_calibration_gate_is_clean_on_the_shared_ladder(self):
         """End to end: grace_ground's OWN emitted table, handed to the item scan's `--graces`
         gate, must diff clean -- including the SOURCE column, which is where the old divergence
-        showed up first (`source delta (buckets AGREE)`)."""
+        showed up first (`source delta (buckets AGREE)`).
+
+        The WITNESS first: a `--graces` that compared NOTHING would also return 0, so assert the
+        emitted table actually holds every fixture grace before believing the exit code."""
+        self.assertEqual(len(self.rows), len(GRACES),
+                         "the emitted table is not the whole fixture grace population")
         self.assertEqual(0, self.ipr.main(["--path", self.artifacts, "--graces",
                                            "--ground", self.gg.OUT]))
 
