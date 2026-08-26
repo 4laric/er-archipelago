@@ -156,6 +156,8 @@ def build_coords_repo(root):
     lines = ["# fixture item_grace_coords.tsv", "kind\tkey\tmap_id\tx\ty\tz\tname"]
     for flag, mid, (x, y, z), _src, _ids in CASES:
         lines.append("item\t%s\t%s\t%s\t%s\t%s\t" % (flag, mid, x, y, z))
+    key, mid, (x, y, z) = GRACE_ASSET_COORD          # the straddle: asset point != spawn point
+    lines.append("grace\t%s\t%s\t%s\t%s\t%s\t" % (key, mid, x, y, z))
     _write(os.path.join(root, "greenfield", "item_grace_coords.tsv"), "\n".join(lines) + "\n")
     return root
 
@@ -173,7 +175,22 @@ GRACES = [
     # ...and its mirror: 12 m off the same face is PAST the slack, so it must still read a tile
     # default (local +232 folds onto tile 41, whose default row is 6859900).
     (76005, 60, TILE, TILE, (232, 1, 50), "", "68599"),
+    # THE UNPARSEABLE SPAWN (2026-08-26). A BWP row whose posX/posY/posZ do not parse has no
+    # geometry, so the ladder is never entered and the row falls to its map default. It is here
+    # because the gate used to `continue` past such a row while `datamine_grace_ground` EMITTED
+    # one: the two copies of this loop had drifted, and a grace the gate never compares is a grace
+    # the gate never blessed. Both sides now come out of ONE generator.
+    (76006, 10, 0, 0, ("", "", ""), "10000950", "10000"),
+    # THE ASSET-VS-SPAWN STRADDLE. Its BWP spawn sits 12 m off the CylVol face -- past the slack,
+    # so tile-default 68599. Its ASSET coordinate in item_grace_coords.tsv (below) is deep inside
+    # BoxVol, bucket 68000. The two straddle the seam slack on purpose: the gate must judge the
+    # SPAWN point (what the kick-watch evaluates at warp-in), and reading the asset coordinate
+    # instead would answer 68000 here and disagree with a spawn-derived committed table.
+    (76007, 60, TILE, TILE, (240, 1, 50), "", "68599"),
 ]
+
+# The asset coordinate for grace 76007 -- deliberately a DIFFERENT point from its BWP spawn row.
+GRACE_ASSET_COORD = ("76007", "m60_40_40", BOX_PT)
 
 
 def build_grace_fixtures(artifacts, ground_path, mutate=False):
@@ -402,6 +419,49 @@ class ItemPlayRegionScanTest(unittest.TestCase):
                                            "--ground", ground]),
                          "the same pipeline must reproduce the graces' committed buckets")
 
+    def test_the_gate_judges_the_SPAWN_point_not_the_grace_asset_coordinate(self):
+        """The straddle. Grace 76007's BWP spawn is 12 m off the CylVol face (tile-default 68599);
+        its `item_grace_coords.tsv` ASSET row is inside BoxVol (68000). They straddle SEAM_SLACK on
+        purpose. The kick-watch evaluates play_region where the player MATERIALISES, so the spawn
+        row is the point both this gate and `grace_ground.tsv` are derived from -- an asset-coord
+        reading would answer 68000 and turn a correct table into a phantom bucket mismatch."""
+        ground = os.path.join(self.tmp, "grace_ground_straddle.tsv")
+        build_grace_fixtures(self.artifacts, ground)
+        vols = self.mod.load_volumes_or_die(force=True)
+        gg = _load(os.path.join(REPO, "tools", "datamine_grace_ground.py"), "_ipr_gg4")
+        tile_ids, interior_ids = gg.load_play_region_defaults(
+            os.path.join(self.artifacts, "vanilla_er", "vanilla_er", "PlayRegionParam.csv"))
+        got = {f: (sorted({i // 100 for i in ids}), src)
+               for f, _m, ids, src in self.mod.grace_rows(vols, tile_ids, interior_ids)}
+        self.assertEqual(got[76007][0], [68599],
+                         "76007 answered %r -- that is its ASSET coordinate's volume, not the "
+                         "spawn position the kick-watch reads" % (got[76007],))
+        self.assertEqual(got[76007][1], "tile-default")
+        # the mirror, so the assertion is about the POINT and not about 68000 being unreachable:
+        # the asset point really is inside BoxVol when the ladder is handed it.
+        ids, src = self.mod.derive("m60_40_40", BOX_PT[0], BOX_PT[1], BOX_PT[2],
+                                   vols, tile_ids, interior_ids)
+        self.assertEqual(sorted({i // 100 for i in ids}), [68000])
+        self.assertTrue(src.startswith("volume:BoxVol"), src)
+        # and end to end: the spawn-derived committed table diffs CLEAN.
+        self.assertEqual(0, self.mod.main(["--artifacts", self.artifacts, "--graces",
+                                           "--ground", ground]))
+
+    def test_a_grace_with_an_unparseable_spawn_is_still_COMPARED(self):
+        """RED on the pre-2026-08-26 gate, which `continue`d past such a row. A skipped grace is
+        invisible to every assertion the gate makes, so corrupting its committed bucket has to
+        turn the gate RED -- otherwise the gate's population is quietly smaller than the table's."""
+        ground = os.path.join(self.tmp, "grace_ground_nopos.tsv")
+        build_grace_fixtures(self.artifacts, ground)
+        text = open(ground, encoding="utf-8").read().replace(
+            "76006\t10000\t", "76006\t19999\t")
+        self.assertIn("76006\t19999\t", text, "the fixture row moved; this test lost its subject")
+        with open(ground, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(text)
+        self.assertEqual(1, self.mod.main(["--artifacts", self.artifacts, "--graces",
+                                           "--ground", ground]),
+                         "a grace with no parseable spawn position was never compared")
+
     def test_graces_mode_fails_on_a_bucket_mismatch(self):
         """The gate's own falsifier: a ground table that disagrees must exit NON-ZERO. Without
         this, a --graces that always returned 0 would read identically."""
@@ -453,6 +513,47 @@ class GraceGroundSharesTheItemScanLadderTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         shutil.rmtree(cls.tmp, ignore_errors=True)
+
+    # The PRE-refactor emitted table for this fixture corpus, byte for byte (captured from
+    # `git show origin/main:tools/datamine_grace_ground.py` before the shared generator landed,
+    # 2026-08-26). Moving the BWP row loop into `grace_rows` is a PURE REFACTOR of this tool: the
+    # gate gained the rows it used to skip, `grace_ground.tsv` gained nothing. If this literal has
+    # to change, the change is NOT a refactor and the runbook's regen expectations move with it.
+    GOLDEN_ROWS = (
+        "76001\t68000\tvolume:BoxVol\tm60_40_40",
+        "76002\t68000;68999\ttile-default\tm60_40_40",
+        "76003\t10000\tinterior-vol:InnerVol\tm10_00",
+        "76004\t68100\tseam:CylVol@4.0m\tm60_40_40",
+        "76005\t68599\ttile-default\tm60_40_40",
+        "76006\t10000\tinterior-map\tm10_00",
+        "76007\t68599\ttile-default\tm60_40_40",
+    )
+
+    def test_grace_ground_emits_the_PRE_REFACTOR_bytes(self):
+        """The refactor's own falsifier. `datamine_grace_ground`'s output must not have moved by a
+        single byte when its row loop became a shared generator -- MEASURED_GROUND now overrides
+        `ids` where it used to override `buckets`, and a table that changed under that would mean
+        the two consumers were reconciled by moving THIS one, which is not what happened."""
+        with open(self.gg.OUT, encoding="utf-8") as fh:
+            body = tuple(ln.rstrip("\n") for ln in fh
+                         if not ln.startswith("#") and not ln.startswith("grace_flag\t")
+                         and ln.strip())
+        self.assertEqual(body, self.GOLDEN_ROWS)
+
+    def test_the_population_is_ONE_generator(self):
+        """The twin of the ladder assertion, one level up: the two tools must not merely agree
+        about how a point is judged, they must read the SAME points out of BonfireWarpParam. The
+        gate's `grace_rows` is a projection of `datamine_grace_ground.grace_rows`, not a second
+        reader of the param -- the previous two copies had already drifted over unparseable spawn
+        rows."""
+        vols = self.ipr.load_volumes_or_die(force=True)
+        tile_ids, interior_ids = self.gg.load_play_region_defaults(
+            os.path.join(self.artifacts, "vanilla_er", "vanilla_er", "PlayRegionParam.csv"))
+        mine = [(f, m, ids, s) for f, m, _t, ids, s
+                in self.ipr.gg.grace_rows(vols, tile_ids, interior_ids)]
+        self.assertTrue(mine, "an empty population proves nothing")
+        self.assertEqual(sorted(mine, key=lambda r: (r[0], r[1])),
+                         self.ipr.grace_rows(vols, tile_ids, interior_ids))
 
     def test_the_ladder_is_ONE_function_object(self):
         """Not "the same logic" -- the same object. A future copy-paste fails this line.
