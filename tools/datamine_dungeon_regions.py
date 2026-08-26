@@ -21,6 +21,7 @@ Run on Windows (the MSB pass reads mapstudio; slow over the sandbox FUSE mount):
   python tools/datamine_dungeon_regions.py
 """
 import base64
+import argparse
 import csv
 import glob
 import os
@@ -31,7 +32,17 @@ from collections import Counter, defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, ".."))
-ART = os.path.join(REPO, "elden_ring_artifacts")
+sys.path.insert(0, HERE)
+
+import artifacts_root                          # noqa: E402  -- THE --path argument, not a copy
+
+ART = artifacts_root.default_root(REPO)
+
+
+def _set_artifacts_root(path):
+    """`--path`: read the witchy'd MSBs (and the tsv fallbacks) out of a different corpus root."""
+    global ART
+    ART = os.path.abspath(path)
 OUT = os.path.join(REPO, "greenfield", "dungeon_regions.tsv")
 
 # play_region_id -> greenfield region: imported from THE spine (greenfield/region_groups.py) --
@@ -192,7 +203,14 @@ def build():
     return rows
 
 
-def main():
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=(__doc__ or "").strip().splitlines()[0])
+    artifacts_root.add_path_argument(ap, artifacts_alias=False)
+    args = ap.parse_args(argv)
+    root = artifacts_root.resolve(args.path)
+    if root:
+        _set_artifacts_root(root)
+
     rows = build()
     with open(OUT, "w", encoding="utf-8", newline="\n") as fh:
         fh.write("map_id\tregion\tsource\tevidence\n")

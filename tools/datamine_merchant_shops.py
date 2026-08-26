@@ -67,7 +67,11 @@ from collections import Counter, defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.environ.get("ER_REPO") or os.path.abspath(os.path.join(HERE, ".."))
-ART = os.path.join(REPO, "elden_ring_artifacts")
+sys.path.insert(0, HERE)
+
+import artifacts_root                          # noqa: E402  -- THE --path argument, not a copy
+
+ART = artifacts_root.default_root(REPO)
 VV = os.path.join(ART, "vanilla_er", "vanilla_er")
 TALK = os.path.join(ART, "talk")
 MAPSTUDIO_ROOTS = [os.path.join(ART, "mapstudio"), os.path.join(ART, "map", "mapstudio")]
@@ -136,6 +140,24 @@ _NPC_NAME_FMGS = [
     os.path.join(ART, "msg", "item_dlc02-msgbnd-dcx", "NpcName_dlc02.fmg.xml"),
 ]
 _PLACEHOLDER_NAMES = ("%null%", "[ERROR]")
+
+
+def _set_artifacts_root(path):
+    """`--path`: read every artifact input out of a different corpus root.
+
+    🛑 `_NPC_NAME_FMGS` is built AT IMPORT off the old root, so moving the root has to rebuild it
+    too -- a seam that leaves one input behind gives a run that reads the new ESDs and the old
+    names, and that is a plausible table, not a loud failure."""
+    global ART, VV, TALK, MAPSTUDIO_ROOTS, _NPC_NAME_FMGS
+    ART = os.path.abspath(path)
+    VV = os.path.join(ART, "vanilla_er", "vanilla_er")
+    TALK = os.path.join(ART, "talk")
+    MAPSTUDIO_ROOTS = [os.path.join(ART, "mapstudio"), os.path.join(ART, "map", "mapstudio")]
+    _NPC_NAME_FMGS = [
+        os.path.join(ART, "msg", "item-msgbnd-dcx", "NpcName.fmg.xml"),
+        os.path.join(ART, "msg", "item_dlc01-msgbnd-dcx", "NpcName_dlc01.fmg.xml"),
+        os.path.join(ART, "msg", "item_dlc02-msgbnd-dcx", "NpcName_dlc02.fmg.xml"),
+    ]
 
 
 # ------------------------------------------------------------------ merchant IDENTITY: a warning
@@ -420,6 +442,7 @@ def refresh_names(path):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=OUT)
+    artifacts_root.add_path_argument(ap, artifacts_alias=False)
     ap.add_argument("--refresh-names", action="store_true",
                     help="rewrite ONLY the merchant_name column of an existing table, from the "
                          "committed npc_name_id + the NpcName FMGs. Needs no MSB/ESD scan, so it "
@@ -433,6 +456,9 @@ def main():
                          "0x82 literal pair. Distinguishes 'binder not unpacked' from 'range is "
                          "parameterized, not a literal'. Writes nothing.")
     args = ap.parse_args()
+    root = artifacts_root.resolve(args.path)
+    if root:
+        _set_artifacts_root(root)
 
     if args.refresh_names:
         return refresh_names(args.out)

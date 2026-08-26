@@ -77,7 +77,11 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.environ.get("ER_REPO") or os.path.abspath(os.path.join(HERE, ".."))
-ROOT_DEFAULT = os.path.join(REPO, "elden_ring_artifacts", "mapstudio")
+sys.path.insert(0, HERE)
+
+import artifacts_root                          # noqa: E402  -- THE --path argument, not a copy
+
+ROOT_DEFAULT = os.path.join(artifacts_root.default_root(REPO), "mapstudio")
 OUT = os.path.join(REPO, "greenfield", "msb_gated_treasures.tsv")
 CORPSE = "宝死体"          # 宝死体 -- "treasure corpse"
 
@@ -189,11 +193,19 @@ def scan(root, state_path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--root", default=ROOT_DEFAULT)
+    ap.add_argument("--root", default=None,
+                    help="the witchy-unpacked MSB directory itself (default: <--path>/mapstudio). "
+                         "--root is the narrower flag and WINS over --path when both are given.")
+    artifacts_root.add_path_argument(
+        ap, artifacts_alias=False,
+        extra_help="this tool reads mapstudio/ under it, so --path DIR means --root DIR/mapstudio")
     ap.add_argument("--out", default=OUT)
     ap.add_argument("--state", help="checkpoint file (sandbox/mount use only; see docstring)")
     ap.add_argument("--probe", action="store_true")
     a = ap.parse_args()
+    _root = artifacts_root.resolve(a.path)
+    if not a.root:
+        a.root = os.path.join(_root, "mapstudio") if _root else ROOT_DEFAULT
 
     if not os.path.isdir(a.root):
         sys.exit("FATAL: %s not found. Point --root at the witchy-unpacked mapstudio dir." % a.root)

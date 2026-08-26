@@ -81,7 +81,11 @@ import xml.etree.ElementTree as ET
 XSI = "{http://www.w3.org/2001/XMLSchema-instance}type"
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.environ.get("ER_REPO") or os.path.dirname(HERE)
-AR = os.path.join(REPO, "elden_ring_artifacts")
+sys.path.insert(0, HERE)
+
+import artifacts_root                          # noqa: E402  -- THE --path argument, not a copy
+
+AR = artifacts_root.default_root(REPO)
 BWP = os.path.join(AR, "vanilla_er", "vanilla_er", "BonfireWarpParam.csv")
 PRP = os.path.join(AR, "vanilla_er", "vanilla_er", "PlayRegionParam.csv")
 MAPDIR = os.path.join(AR, "map")
@@ -124,8 +128,8 @@ MEASURED_GROUND = {
 
 
 def _set_artifacts_root(path):
-    """Point every input at a DIFFERENT artifacts tree (same flag and semantics as
-    datamine_item_grace_coords's --artifacts). Exists so the derivation can be exercised against a
+    """Point every input at a DIFFERENT artifacts tree -- what `--path` (alias `--artifacts`)
+    calls, the one flag shared by every corpus-reading tool (tools/artifacts_root.py). Exists so the derivation can be exercised against a
     synthetic MSB fixture -- the machinery below is otherwise only reachable on a box with the
     extracted corpus, which is how it stayed untested for a month."""
     global AR, BWP, PRP, MAPDIR
@@ -315,7 +319,11 @@ def _nearest_face(vols, x, y, z):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true", help="write %s" % OUT)
+    artifacts_root.add_path_argument(ap)
     args = ap.parse_args()
+    root = artifacts_root.resolve(args.path)
+    if root:
+        _set_artifacts_root(root)
     for p in (BWP, PRP):
         if not os.path.isfile(p):
             raise SystemExit("FATAL: %s missing -- restore elden_ring_artifacts." % p)
