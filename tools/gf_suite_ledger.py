@@ -117,6 +117,13 @@ GENERATORS = [
     # the world. AP-free, no artifacts, no client. It belongs in THIS job specifically: this is
     # the job whose byte-diff went red on PR #698 for an unregenerated page, so this is where the
     # gate that prevents the next one has to run.
+    # The PlayArea ITEM scan's geometry, on SYNTHETIC witchy-style MSB fixtures (issue #1025 /
+    # docs/PLAYAREA-ITEM-SCAN.md). It drives tools/datamine_item_play_regions.py over a temp
+    # artifacts tree it builds itself -- so it needs tools/, but NOT the real corpus, no AP, no
+    # client, and no network. It belongs in CI precisely because the tool it witnesses can only
+    # ever RUN on Alaric's box: without this suite the point-in-volume test, the LOD fold and the
+    # seam snap would be exercised nowhere, and a wrong answer there looks exactly like a right one.
+    "item_play_regions",
     "regen_all",
 ]
 

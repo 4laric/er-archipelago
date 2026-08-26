@@ -123,6 +123,39 @@ MEASURED_GROUND = {
 }
 
 
+def _set_artifacts_root(path):
+    """Point every input at a DIFFERENT artifacts tree (same flag and semantics as
+    datamine_item_grace_coords's --artifacts). Exists so the derivation can be exercised against a
+    synthetic MSB fixture -- the machinery below is otherwise only reachable on a box with the
+    extracted corpus, which is how it stayed untested for a month."""
+    global AR, BWP, PRP, MAPDIR
+    AR = os.path.abspath(path)
+    BWP = os.path.join(AR, "vanilla_er", "vanilla_er", "BonfireWarpParam.csv")
+    PRP = os.path.join(AR, "vanilla_er", "vanilla_er", "PlayRegionParam.csv")
+    MAPDIR = os.path.join(AR, "map")
+    _INTERIOR_VOLS.clear()
+
+
+def load_play_region_defaults(prp=None):
+    """(tile_ids, interior_ids) out of PlayRegionParam.csv -- the LAST-RESORT answers.
+
+    tile_ids:     (gridXNo, gridZNo) -> {PlayRegionID}  for the overworld areas 60/61.
+    interior_ids: 'mAA_BB'           -> {PlayRegionID}  for the interior maps the id space encodes.
+    Full ids, not buckets: a caller that wants the kick-watch bucket divides by 100 itself, and a
+    caller that wants to PRINT the id (item_play_regions.tsv does) still can.
+    """
+    tile_ids = {60: {}, 61: {}}
+    interior_ids = {}
+    for r in csv.DictReader(open(prp or PRP, newline="", encoding="utf-8-sig")):
+        i = int(r["ID"])
+        a = int(r["areaNo"] or 0)
+        if a in (60, 61):
+            tile_ids[a].setdefault((int(r["gridXNo"]), int(r["gridZNo"])), set()).add(i)
+        if i // 100 and i // 100 < 60000:
+            interior_ids.setdefault("m%02d_%02d" % (i // 100000, (i // 1000) % 100), set()).add(i)
+    return tile_ids, interior_ids
+
+
 class Vol:
     __slots__ = ("pr", "area", "name", "kind", "cx", "cy", "cz", "yaw", "a", "b", "h")
 
@@ -290,16 +323,9 @@ def main():
     vols = load_volumes()
     print("PlayArea volumes: %d (m60+m61)" % len(vols))
 
-    tile_default = {60: {}, 61: {}}
-    interior = {}
-    for r in csv.DictReader(open(PRP, newline="", encoding="utf-8-sig")):
-        i = int(r["ID"])
-        b = i // 100
-        a = int(r["areaNo"] or 0)
-        if a in (60, 61):
-            tile_default[a].setdefault((int(r["gridXNo"]), int(r["gridZNo"])), set()).add(b)
-        if b and b < 60000:
-            interior.setdefault("m%02d_%02d" % (b // 1000, (b // 10) % 100), set()).add(b)
+    tile_ids, interior_ids = load_play_region_defaults()
+    tile_default = {a: {k: {i // 100 for i in v} for k, v in tile_ids[a].items()} for a in (60, 61)}
+    interior = {k: {i // 100 for i in v} for k, v in interior_ids.items()}
 
     rows = []
     for r in csv.DictReader(open(BWP, newline="", encoding="utf-8-sig")):
