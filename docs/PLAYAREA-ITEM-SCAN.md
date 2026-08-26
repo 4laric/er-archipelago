@@ -106,7 +106,9 @@ passes with a flag the scan is then run without, the check was of a different co
 python tools/datamine_grace_ground.py --path <artifacts-root>      # default: elden_ring_artifacts/
 ```
 
-Expect `PlayArea volumes: <thousands> (m60+m61)` and `421 total, ~293+ with a derived ground`.
+Expect `PlayArea volumes: ~497 (m60+m61)` (measured on a comprehensive 1,346-dir export,
+2026-08-26 -- PlayAreas exist at play-region boundaries, not on every tile) and
+`421 total, ~293+ with a derived ground`.
 If it says `FATAL: no witchy'd m60/m61 MSBs`, stop and read the paths it lists: it names every
 layout it searched, so either the corpus is not extracted or `--path` is pointed above/below it.
 
@@ -186,8 +188,9 @@ truth the gate is made of.
 
 It does exactly what this section specified:
 
-1. `load_volumes()` once. Assert the count is in the thousands; a small number means a partial
-   witchy export and the scan is worthless.
+1. `load_volumes()` once. Assert the count clears the measured floor (~497 on a full export;
+   `VOL_FLOOR = 400`); far fewer means a partial witchy export and the scan is worthless -- and
+   the `--graces` diff is the decisive partial-export catch either way.
 2. For each item row in `item_grace_coords.tsv`:
    * overworld (`m60_`/`m61_`): fold with `overworld_fold.world_xz`, then test against the
      overworld volumes with `Vol.contains`. **Fold first, test second.**
