@@ -276,6 +276,19 @@ run rather than tune it.
   other, that boss's sweep is left out rather than shipped as a payout you
   could never trigger. You collect its checks on foot instead; nothing is
   missing from the seed.
+- **`full_area_sweeps`** (off) -- "does killing a boss give me *every* item in
+  the area?" Off, the answer is "the ordinary loot, yes". The classes you put
+  on `progression_surface` are held back, because that is exactly where this
+  seed hid its key items -- at the default surface that is Golden Seeds, Sacred
+  Tears, Scadutree Fragments and Revered Spirit Ashes, and you walk to those
+  yourself. Turn it on and nothing is held back: the boss's area arrives whole,
+  progression included, so a boss kill can hand you a region Lock or another
+  player's item. It cannot strand you -- a sweep only ever grants checks in a
+  region you kept, behind a boss you could already reach, so it makes a
+  reachable check arrive *earlier* and never makes an unreachable one required.
+  Four things are never swept whatever this says: another boss's reward, a
+  remembrance or Great Rune, quest and gate key items, and merchant stock --
+  those are cut when the sweep is built, and no yaml puts them back.
 - **`reroll_enemy_drops` / `reroll_infinite_shop_stock`** (both on) -- reroll
   what farmable enemies drop and what unlimited-stock merchants sell. One-time
   drops -- the actual checks -- are untouched; this randomizes the repeatable
