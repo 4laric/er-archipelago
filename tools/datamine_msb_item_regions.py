@@ -65,14 +65,18 @@ import xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.environ.get("ER_REPO") or os.path.abspath(os.path.join(HERE, ".."))
-ART = os.path.join(REPO, "elden_ring_artifacts")
+sys.path.insert(0, HERE)
+
+import artifacts_root                          # noqa: E402  -- THE --path argument, not a copy
+
+ART = artifacts_root.default_root(REPO)
 VV = os.path.join(ART, "vanilla_er", "vanilla_er")
 EVT = os.path.join(ART, "event")
 OUT = os.path.join(REPO, "greenfield", "msb_flag_region.tsv")
 
 
 def _set_artifacts_root(path):
-    """Point every input at a different `elden_ring_artifacts` tree (`--artifacts`).
+    """Point every input at a different `elden_ring_artifacts` tree (`--path`, alias `--artifacts`).
 
     Rebinds the module constants rather than threading a parameter through every reader: the
     Windows process pool SPAWNS, but the workers receive their msb_dir as an argument, so only the
@@ -956,12 +960,11 @@ def main(argv=None):
     ap.add_argument("--sources", nargs="*", choices=SOURCES, default=list(SOURCES),
                     help="which provenance chains to emit (default: all)")
     ap.add_argument("--out", default=OUT)
-    ap.add_argument("--artifacts", metavar="DIR",
-                    help="use this elden_ring_artifacts tree instead of <repo>/elden_ring_artifacts "
-                         "(same layout inside: mapstudio/, event/, vanilla_er/vanilla_er/). "
-                         "Applies to every mode, --coverage and --emit-assets included; the output "
-                         "tsv still lands in the repo unless --out moves it. ER_REPO relocates the "
-                         "whole repo instead; this relocates only the game data.")
+    artifacts_root.add_path_argument(
+        ap, extra_help="same layout inside (mapstudio/, event/, vanilla_er/vanilla_er/), and it "
+                       "applies to every mode, --coverage and --emit-assets included; the output "
+                       "tsv still lands in the repo unless --out moves it. ER_REPO relocates the "
+                       "whole repo instead; this relocates only the game data")
     ap.add_argument("--stdout", action="store_true", help="print instead of writing the tsv")
     ap.add_argument("--jobs", "-j", type=int, default=min(8, (os.cpu_count() or 1)),
                     help="parallel map scans (default: min(8, cpu count)). `-j 1` runs serially, "
@@ -989,10 +992,9 @@ def main(argv=None):
                          "first MSB found, and write nothing. Needed to build the asset->lot join "
                          "datamine_lot_gates.py wants; see probe.__doc__.")
     args = ap.parse_args(argv)
-    if args.artifacts:
-        if not os.path.isdir(args.artifacts):
-            sys.exit(f"FATAL: --artifacts {args.artifacts} is not a directory")
-        _set_artifacts_root(args.artifacts)
+    root = artifacts_root.resolve(args.path)
+    if root:
+        _set_artifacts_root(root)
     if args.coverage:
         holes = _print_coverage(read_tsv_rows(args.out), sys.stdout)
         return 1 if holes else 0

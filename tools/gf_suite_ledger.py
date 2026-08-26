@@ -124,6 +124,12 @@ GENERATORS = [
     # ever RUN on Alaric's box: without this suite the point-in-volume test, the LOD fold and the
     # seam snap would be exercised nowhere, and a wrong answer there looks exactly like a right one.
     "item_play_regions",
+    # The `--path <artifacts-root>` flag itself (tools/artifacts_root.py). Loads nine tools/ scripts
+    # by path and calls their `_set_artifacts_root` seams against a temp directory -- it needs
+    # tools/, but no corpus, no AP, no client and no network. It belongs here for the same reason
+    # as the suite above: these tools only ever RUN on Alaric's box, so "the flag parsed but the
+    # root did not move" would otherwise be witnessed by nothing.
+    "artifacts_path",
     "regen_all",
 ]
 

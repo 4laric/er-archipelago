@@ -190,9 +190,9 @@ class ItemPlayRegionScanTest(unittest.TestCase):
     def tearDownClass(cls):
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
-    def _run(self, extra=()):
+    def _run(self, extra=(), flag="--artifacts"):
         out = os.path.join(self.tmp, "item_play_regions.tsv")
-        rc = self.mod.main(["--emit", "--artifacts", self.artifacts, "--coords-repo", self.coords,
+        rc = self.mod.main(["--emit", flag, self.artifacts, "--coords-repo", self.coords,
                             "--out", out] + list(extra))
         self.assertEqual(rc, 0)
         rows = {}
@@ -203,6 +203,18 @@ class ItemPlayRegionScanTest(unittest.TestCase):
                 flag, mid, ids, buckets, src = ln.rstrip("\n").split("\t")
                 rows[flag] = (mid, ids, buckets, src)
         return rows
+
+    # -- the flag that points all of this at a corpus that MOVED ---------------------------------
+    def test_path_and_artifacts_are_the_same_flag(self):
+        """`--path` is the spelling every corpus-reading tool now shares (tools/artifacts_root.py);
+        `--artifacts` is kept as an alias so the runbook's commands keep working verbatim. Same
+        fixture tree, at a NON-DEFAULT location, must give byte-identical rows through either."""
+        self.assertEqual(self._run(flag="--path"), self._run(flag="--artifacts"))
+
+    def test_a_moved_root_that_is_not_there_stops_the_run(self):
+        """A typo'd root must FAIL, not scan an empty tree and write a plausible table."""
+        with self.assertRaises(SystemExit):
+            self.mod.main(["--path", os.path.join(self.tmp, "no-such-corpus")])
 
     # -- the fixture matrix, one assertion set per shape and per fallback ------------------------
     def test_every_case_answers_from_the_expected_source(self):

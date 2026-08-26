@@ -81,11 +81,20 @@ label. Those rows carry `vote_note=CROSS-TILE-MSB` today.
      `PlayRegionParam.csv`.
 3. Python 3.11+. No third-party packages; no network.
 
+🛑 **The corpus does not have to live in the checkout.** Every tool below takes
+`--path <artifacts-root>`, and it defaults to `elden_ring_artifacts/` beside the repo root — so a
+corpus kept anywhere else is a flag, not an edit. `--artifacts` is kept as an alias of `--path` on
+the three tools that shipped it first, so every command in this file works with either spelling.
+There is deliberately no environment-variable fallback: an invisible input is how a scan reads a
+stale corpus and writes a plausible table. One implementation, `tools/artifacts_root.py`, gated by
+`test_gf_artifacts_path.py`.
+
 Confirm the corpus is there before anything else — an empty scan that writes a table is the
-failure mode this project has already paid for twice:
+failure mode this project has already paid for twice. **Pass `--path` here first**: if the check
+passes with a flag the scan is then run without, the check was of a different corpus.
 
 ```
-python tools/datamine_grace_ground.py
+python tools/datamine_grace_ground.py --path <artifacts-root>      # default: elden_ring_artifacts/
 ```
 
 Expect `PlayArea volumes: <thousands> (m60+m61)` and `421 total, ~293+ with a derived ground`.
@@ -122,7 +131,7 @@ Re-run the coords tool with the enemy pass on, which is the half most likely to 
 `--enemy` is off by default and the enemy-sourced flags above are exactly what it produces:
 
 ```
-python tools/datamine_item_grace_coords.py --enemy --merge
+python tools/datamine_item_grace_coords.py --enemy --merge --path <artifacts-root>
 ```
 
 `--merge` UNIONs with the committed tsv (maps scanned this run are refreshed, absent maps carried
@@ -153,13 +162,14 @@ Commit the regenerated `greenfield/item_grace_coords.tsv` with the row-count del
 exercises the geometry on synthetic MSB fixtures because CI has no corpus).
 
 ```
-python tools/datamine_item_play_regions.py --graces     # step 3 FIRST -- the calibration gate
-python tools/datamine_item_play_regions.py              # report only: counts, and by-source split
-python tools/datamine_item_play_regions.py --emit       # writes greenfield/item_play_regions.tsv
+python tools/datamine_item_play_regions.py --graces --path <artifacts-root>   # step 3 FIRST -- the calibration gate
+python tools/datamine_item_play_regions.py --path <artifacts-root>           # report only: counts, and by-source split
+python tools/datamine_item_play_regions.py --emit --path <artifacts-root>    # writes greenfield/item_play_regions.tsv
 ```
 
-Other flags: `--out`, `--artifacts DIR` (same semantics as `datamine_item_grace_coords`'s;
-`datamine_grace_ground` gained the matching `_set_artifacts_root` for it), `--coords-repo DIR`,
+`--path` defaults to `elden_ring_artifacts/` beside the repo root and can be dropped when the
+corpus is there. Other flags: `--out`, `--artifacts DIR` (the older spelling of `--path`, kept as
+an alias), `--coords-repo DIR`,
 `--ground PATH` (what `--graces` diffs against), and `--force`, which exists to say a shrink is
 DELIBERATE — the help text says so, and passing it to make a red run green destroys the ground
 truth the gate is made of.
@@ -212,7 +222,7 @@ that cannot reproduce `grace_ground.tsv` is not ready to be trusted about items.
 our 30 regions. Bucket is `PlayRegionParam.ID // 100`, the kick-watch id space.
 
 ```
-python tools/msb_region_vote.py            # the heuristic, for the diff
+python tools/msb_region_vote.py            # the heuristic, for the diff (committed tsvs only -- no corpus, no --path)
 ```
 
 Expect the exact answer to disagree with the vote on **roughly one row in ten**. Every

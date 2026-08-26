@@ -43,7 +43,11 @@ from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-AR = os.path.join(ROOT, "elden_ring_artifacts")
+sys.path.insert(0, HERE)
+
+import artifacts_root                          # noqa: E402  -- THE --path argument, not a copy
+
+AR = artifacts_root.default_root(ROOT)
 # TWO directories hold witchy'd MSBs and they are NOT the same set (2026-07-11):
 #     elden_ring_artifacts/mapstudio  -> 1034 unpacked  (PARTIAL -- only 66 of the 118 boss maps)
 #     elden_ring_artifacts/map        -> 1347 unpacked  (COMPLETE -- 117 of 118)
@@ -159,6 +163,20 @@ def _npc_names():
 
 _BOSS_META = _boss_meta()
 _NPC_NAME = _npc_names()
+
+
+def _set_artifacts_root(path):
+    """`--path`: point every input at a different artifacts tree.
+
+    🛑 The two module-level caches below are built AT IMPORT off the old root, so moving the root
+    has to REBUILD them. A seam that only moves the path strings leaves a tool reading the new MSBs
+    and the old names -- a plausible table, which is the failure this repo pays for."""
+    global AR, MSB_DIRS, EVENT, _BOSS_META, _NPC_NAME
+    AR = os.path.abspath(path)
+    MSB_DIRS = [os.path.join(AR, "map"), os.path.join(AR, "mapstudio")]
+    EVENT = os.path.join(AR, "event")
+    _BOSS_META = _boss_meta()
+    _NPC_NAME = _npc_names()
 
 
 def _boss_label(ent):
@@ -306,7 +324,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--radius", type=float, default=DEFAULT_RADIUS)
     ap.add_argument("--out", default=OUT)
+    artifacts_root.add_path_argument(ap, artifacts_alias=False)
     args = ap.parse_args()
+    root = artifacts_root.resolve(args.path)
+    if root:
+        _set_artifacts_root(root)
 
     _graces = graces()
     bosses = boss_ids_by_map()

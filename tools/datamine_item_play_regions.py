@@ -81,6 +81,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.environ.get("ER_REPO") or os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
+import artifacts_root                        # noqa: E402  -- THE --path argument, not a copy
 import datamine_grace_ground as gg          # noqa: E402  -- THE volume machinery, not a copy of it
 import msb_region_vote as mrv               # noqa: E402  -- THE coordinate reader
 from overworld_fold import world_xz         # noqa: E402  -- THE fold (#338), single implementation
@@ -294,8 +295,7 @@ def main(argv=None):
     ap.add_argument("--emit", action="store_true", help="write the tsv (default: report only)")
     ap.add_argument("--out", default=OUT,
                     help="output tsv (default: greenfield/item_play_regions.tsv)")
-    ap.add_argument("--artifacts", metavar="DIR",
-                    help="use this artifacts tree instead of <repo>/elden_ring_artifacts")
+    artifacts_root.add_path_argument(ap)
     ap.add_argument("--coords-repo", metavar="DIR", default=None,
                     help="read greenfield/item_grace_coords.tsv out of THIS checkout (default: this one)")
     ap.add_argument("--ground", default=GROUND,
@@ -311,10 +311,9 @@ def main(argv=None):
                          "truth the gate is made of.")
     args = ap.parse_args(argv)
 
-    if args.artifacts:
-        if not os.path.isdir(args.artifacts):
-            raise SystemExit("FATAL: --artifacts %s is not a directory" % args.artifacts)
-        gg._set_artifacts_root(args.artifacts)
+    root = artifacts_root.resolve(args.path)
+    if root:
+        gg._set_artifacts_root(root)
     if not os.path.isfile(gg.PRP):
         raise SystemExit("FATAL: %s missing -- restore elden_ring_artifacts." % gg.PRP)
 
