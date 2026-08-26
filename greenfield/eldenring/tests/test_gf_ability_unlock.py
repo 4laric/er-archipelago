@@ -246,3 +246,153 @@ class RollUnlockIsForcedEarly(WorldTestBase):
         idx = next((i for i, sph in enumerate(spheres)
                     for loc in sph if loc.item and loc.item.name == roll), None)
         assert idx is not None and idx <= 1, f"Roll unlock should land in sphere 0-1, got {idx}"
+
+
+# ---- An attack comes early when ALL FOUR attack inputs are locked (#1035) --------------------------
+# Alaric's ruling, 2026-08-25: take the conservative option -- "have one attack in early_items if all
+# of r1/r2/l1/l2 are locked". And: "spells don't count, you need an L or R button to cast a spell",
+# so there is no caster carve-out; the L/R unlocks are the only attack path this code recognises.
+# The mode is PINNED explicitly in every class below rather than relying on the default (#1036 moves
+# that default; these tests must answer the same question on either side of it).
+class AllAttacksLockedForcesOneAttackEarly(WorldTestBase):
+    """THE MOTIVATING CASE (CONTRIBUTING rule 11): all four attack abilities locked, progressive
+    mode -> exactly one attack Unlock is declared early."""
+    game = GAME
+    options = {"num_regions": 0,
+               "locked_abilities": ["r1", "r2", "l1", "l2"],
+               "ability_lock_mode": "progressive"}
+
+    def test_exactly_one_attack_unlock_is_declared_early(self):
+        from worlds.eldenring.features.ability_lock import (
+            _progressive_active, _locked_keys, _ATTACK_KEYS, _FORCED_EARLY_ATTACK)
+        # WITNESS the feature is actually live with all four attacks locked, so the assertions below
+        # are the rule firing, not an inert seed (test_gf_vacuous_pass discipline).
+        assert _progressive_active(self.world)
+        assert set(_locked_keys(self.world)) == set(_ATTACK_KEYS)
+        names = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)
+        early = self.multiworld.early_items[self.player]
+        forced = [names[k] for k in _ATTACK_KEYS if early.get(names[k])]
+        assert forced == [names[_FORCED_EARLY_ATTACK]], (
+            "exactly ONE attack unlock must be forced early, and it must be the deterministic pick "
+            f"({_FORCED_EARLY_ATTACK}); got {forced}")
+        assert early[names[_FORCED_EARLY_ATTACK]] == 1
+        # exportable: early_items, NOT local_early_items (the Roll precedent -- early wherever it lands)
+        assert names[_FORCED_EARLY_ATTACK] not in self.multiworld.local_early_items[self.player]
+        # and it is really in the pool, which is what makes the declaration placeable
+        pool = {i.name for i in self.multiworld.itempool if i.player == self.player}
+        assert names[_FORCED_EARLY_ATTACK] in pool
+
+    def test_the_attack_actually_lands_in_an_early_sphere(self):
+        from Fill import distribute_items_restrictive
+        from worlds.eldenring.features.ability_lock import _FORCED_EARLY_ATTACK
+        atk = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)[_FORCED_EARLY_ATTACK]
+        assert self.multiworld.early_items[self.player].get(atk) == 1
+        distribute_items_restrictive(self.multiworld)
+        spheres = list(self.multiworld.get_spheres())
+        idx = next((i for i, sph in enumerate(spheres)
+                    for loc in sph if loc.item and loc.item.name == atk), None)
+        assert idx is not None and idx <= 1, f"attack unlock should land in sphere 0-1, got {idx}"
+
+    def test_the_pick_is_deterministic_not_drawn(self):
+        # A constant, not a draw: the same yaml must always force the same unlock (no seed-dependent
+        # assertion to re-measure). Re-running create_items on a fresh random state changes nothing.
+        from worlds.eldenring.features.ability_lock import AbilityLock, _FORCED_EARLY_ATTACK
+        names = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)
+        self.multiworld.early_items[self.player].clear()
+        self.world.random.seed(1234567)
+        AbilityLock().create_items(self.world)
+        first = dict(self.multiworld.early_items[self.player])
+        self.multiworld.early_items[self.player].clear()
+        self.world.random.seed(7654321)
+        AbilityLock().create_items(self.world)
+        assert dict(self.multiworld.early_items[self.player]) == first
+        assert first.get(names[_FORCED_EARLY_ATTACK]) == 1
+
+
+class ThreeOfFourAttacksLockedForcesNothing(WorldTestBase):
+    """THE CONTROL. Three attacks locked leaves one attack input free -- a damage source at start --
+    so nothing is forced. Without this row the class above would pass on a rule that fired always."""
+    game = GAME
+    options = {"num_regions": 0,
+               "locked_abilities": ["r1", "r2", "l1"],
+               "ability_lock_mode": "progressive"}
+
+    def test_no_attack_is_forced_early(self):
+        from worlds.eldenring.features.ability_lock import _progressive_active, _locked_keys
+        # WITNESS: the feature is live and three attacks ARE locked -- an empty early map below is
+        # the threshold holding, not the feature being off.
+        assert _progressive_active(self.world)
+        assert set(_locked_keys(self.world)) == {"r1", "r2", "l1"}
+        names = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)
+        early = self.multiworld.early_items[self.player]
+        for k in ("r1", "r2", "l1", "l2"):
+            assert names[k] not in early, f"{k} must not be forced early with an attack still free"
+        # they are still pooled, so this is a forcing decision, not a pooling one
+        pool = {i.name for i in self.multiworld.itempool if i.player == self.player}
+        assert {names[k] for k in ("r1", "r2", "l1")} <= pool
+
+
+class SpellsAreNoCarveOut(WorldTestBase):
+    """The second ruling, pinned as behaviour: "spells don't count, you need an L or R button to cast
+    a spell". Nothing about a caster-shaped seed relaxes the rule -- the world cannot see a loadout,
+    and the only attack path recognised is an L/R unlock. Same lock set as the motivating case, with
+    the spell-adjacent knobs on: the forcing is unchanged."""
+    game = GAME
+    options = {"num_regions": 0,
+               "locked_abilities": ["r1", "r2", "l1", "l2"],
+               "ability_lock_mode": "progressive",
+               "ability_unlocks_required": False}
+
+    def test_forced_even_with_unlocks_not_goal_required(self):
+        from worlds.eldenring.features.ability_lock import _FORCED_EARLY_ATTACK, _required_unlock_names
+        names = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)
+        # WITNESS the opt-out is really in force (no goal requirement), so this is the orthogonality
+        # claim being tested and not the default path again.
+        assert _required_unlock_names(self.world) == []
+        assert self.multiworld.early_items[self.player].get(names[_FORCED_EARLY_ATTACK]) == 1
+
+    def test_the_predicate_reads_the_lock_set_alone(self):
+        # No spell, staff or seal can satisfy the rule: the predicate is a function of the LOCKED
+        # ABILITY SET and nothing else, and every non-attack ability in the set is irrelevant to it.
+        from worlds.eldenring.features.ability_lock import _all_attacks_locked, _ATTACK_KEYS
+        assert _all_attacks_locked(list(_ATTACK_KEYS))
+        # heal/roll/jump/crouch do not stand in for a missing attack -- three attacks + every other
+        # lockable ability still reads False (the caster's "but I can cast" has no representation).
+        assert not _all_attacks_locked(["r1", "r2", "l1", "roll", "jump", "heal", "crouch"])
+        for drop in _ATTACK_KEYS:
+            assert not _all_attacks_locked([k for k in _ATTACK_KEYS if k != drop]), (
+                f"with {drop} unlocked there is still an attack input, so nothing is forced")
+
+
+class RollAndAttackAreBothForcedEarly(WorldTestBase):
+    """Both conditions at once: Roll locked AND all four attacks locked. early_items must carry TWO
+    entries -- the two seams compose rather than one overwriting the other."""
+    game = GAME
+    options = {"num_regions": 0,
+               "locked_abilities": ["roll", "r1", "r2", "l1", "l2"],
+               "ability_lock_mode": "progressive"}
+
+    def test_both_entries_present(self):
+        from worlds.eldenring.features.ability_lock import _FORCED_EARLY_ATTACK
+        names = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)
+        early = self.multiworld.early_items[self.player]
+        assert early.get(names["roll"]) == 1, "Roll must still be forced early"
+        assert early.get(names[_FORCED_EARLY_ATTACK]) == 1, "the attack must be forced early too"
+        assert len({names["roll"], names[_FORCED_EARLY_ATTACK]} & set(early)) == 2
+
+    def test_both_land_early_end_to_end(self):
+        from Fill import distribute_items_restrictive
+        from worlds.eldenring.features.ability_lock import _FORCED_EARLY_ATTACK
+        names = dict(contract.ABILITY_UNLOCK_ITEM_NAMES)
+        wanted = {names["roll"], names[_FORCED_EARLY_ATTACK]}
+        assert wanted <= set(self.multiworld.early_items[self.player])
+        distribute_items_restrictive(self.multiworld)
+        spheres = list(self.multiworld.get_spheres())
+        seen = {}
+        for i, sph in enumerate(spheres):
+            for loc in sph:
+                if loc.item and loc.item.name in wanted:
+                    seen.setdefault(loc.item.name, i)
+        assert set(seen) == wanted, f"both must be placed, got {seen}"
+        for nm, i in seen.items():
+            assert i <= 1, f"{nm} should land in sphere 0-1, got {i}"

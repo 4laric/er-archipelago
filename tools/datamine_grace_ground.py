@@ -22,8 +22,13 @@ DERIVATION
     box containment rotates the delta by +yaw (standard 2D rotation on (x,z)).
     CALIBRATION: grace 76841's in-game measured ground (6840000, client log 2026-07-15) is
     reproduced by this transform -- it falls inside the tile-48/39 "dragon-mountain west" box.
-    Fallback where no volume contains the grace: the PlayRegionParam coordinate row(s) of the
-    grace's own tile (the tile DEFAULT). If neither exists the ground is UNDERIVABLE ('-'):
+    Where no volume contains the grace but a volume FACE is within SEAM_SLACK m, it SNAPS to that
+    face's bucket -- the SAME seam step the interiors have always had, and the same one
+    datamine_item_play_regions has always applied outdoors. Until 2026-08-26 this tool skipped it
+    on the overworld and fell straight to the default, which made three graces sitting 0.9-3.6 m
+    from a PlayArea face answer 'none' where the item pass answered the face (76214/76453/76500).
+    Fallback where neither holds: the PlayRegionParam coordinate row(s) of the tile the folded
+    point STANDS on (the tile DEFAULT). If neither exists the ground is UNDERIVABLE ('-'):
     engine-side tile defaults are not all expressed in params, and we refuse to guess.
   * MEASURED grounds (the Scaduview kick, 2026-07-15): an in-game kick-watch line is the ENGINE
     itself reporting the play_region at a grace -- stronger than any of the above. MEASURED_GROUND
@@ -81,10 +86,15 @@ import xml.etree.ElementTree as ET
 XSI = "{http://www.w3.org/2001/XMLSchema-instance}type"
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.environ.get("ER_REPO") or os.path.dirname(HERE)
-AR = os.path.join(REPO, "elden_ring_artifacts")
+sys.path.insert(0, HERE)
+
+import artifacts_root                          # noqa: E402  -- THE --path argument, not a copy
+from overworld_fold import fine_tile, world_xz  # noqa: E402  -- THE fold + tile attribution (#338)
+
+AR = artifacts_root.default_root(REPO)
 BWP = os.path.join(AR, "vanilla_er", "vanilla_er", "BonfireWarpParam.csv")
 PRP = os.path.join(AR, "vanilla_er", "vanilla_er", "PlayRegionParam.csv")
-MAPDIR = os.path.join(AR, "map")
+MAPDIR = artifacts_root.msb_dir(AR) or os.path.join(AR, "map")
 OUT = os.path.join(REPO, "greenfield", "grace_ground.tsv")
 
 # Refuse to emit a table that would silently shrink the derived set: like arena_graces.tsv, the
@@ -121,6 +131,44 @@ MEASURED_GROUND = {
     #   Hippopotamus fight/loot is Keep ground; only this approach grace is on the Scadu Altus seam.
     72102: ((69000,), "measured:6900000/6900010 client kick lines 2026-07-21 (warp to grace 21001952, 3x)"),
 }
+
+
+def _set_artifacts_root(path):
+    """Point every input at a DIFFERENT artifacts tree -- what `--path` (alias `--artifacts`)
+    calls, the one flag shared by every corpus-reading tool (tools/artifacts_root.py). Exists so the derivation can be exercised against a
+    synthetic MSB fixture -- the machinery below is otherwise only reachable on a box with the
+    extracted corpus, which is how it stayed untested for a month."""
+    global AR, BWP, PRP, MAPDIR
+    AR = os.path.abspath(path)
+    BWP = os.path.join(AR, "vanilla_er", "vanilla_er", "BonfireWarpParam.csv")
+    PRP = os.path.join(AR, "vanilla_er", "vanilla_er", "PlayRegionParam.csv")
+    # DISCOVERY, not a hardcoded subdir: `map/`, `mapstudio/`, `map/mapstudio/`, then the root
+    # itself (tools/artifacts_root.py). A witchy export that landed FLAT under `mapstudio/` used
+    # to make this tool alone say "no witchy'd m60/m61 MSBs" while three sibling tools read the
+    # same corpus fine. Falls back to `map/` so the FATAL below still names a path when the
+    # corpus is absent entirely (CI has none).
+    MAPDIR = artifacts_root.msb_dir(AR) or os.path.join(AR, "map")
+    _INTERIOR_VOLS.clear()
+
+
+def load_play_region_defaults(prp=None):
+    """(tile_ids, interior_ids) out of PlayRegionParam.csv -- the LAST-RESORT answers.
+
+    tile_ids:     (gridXNo, gridZNo) -> {PlayRegionID}  for the overworld areas 60/61.
+    interior_ids: 'mAA_BB'           -> {PlayRegionID}  for the interior maps the id space encodes.
+    Full ids, not buckets: a caller that wants the kick-watch bucket divides by 100 itself, and a
+    caller that wants to PRINT the id (item_play_regions.tsv does) still can.
+    """
+    tile_ids = {60: {}, 61: {}}
+    interior_ids = {}
+    for r in csv.DictReader(open(prp or PRP, newline="", encoding="utf-8-sig")):
+        i = int(r["ID"])
+        a = int(r["areaNo"] or 0)
+        if a in (60, 61):
+            tile_ids[a].setdefault((int(r["gridXNo"]), int(r["gridZNo"])), set()).add(i)
+        if i // 100 and i // 100 < 60000:
+            interior_ids.setdefault("m%02d_%02d" % (i // 100000, (i // 1000) % 100), set()).add(i)
+    return tile_ids, interior_ids
 
 
 class Vol:
@@ -218,7 +266,9 @@ def load_volumes():
     tile_dirs = sorted(set(glob.glob(os.path.join(MAPDIR, "m6[01]_*_00-msb-dcx"))))
     if not tile_dirs:
         raise SystemExit("FATAL: no witchy'd m60/m61 MSBs under %s -- the overworld ground "
-                         "derivation needs them (WitchyBND the .msb.dcx first)." % MAPDIR)
+                         "derivation needs them (WitchyBND the .msb.dcx first). Searched under "
+                         "the artifacts root %s: %s."
+                         % (MAPDIR, AR, artifacts_root.msb_search_report(AR)))
     for d in tile_dirs:
         bn = os.path.basename(d)
         area, tx, tz = int(bn[1:3]), int(bn[4:6]), int(bn[7:9])
@@ -279,30 +329,91 @@ def _nearest_face(vols, x, y, z):
     return best
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--emit", action="store_true", help="write %s" % OUT)
-    args = ap.parse_args()
-    for p in (BWP, PRP):
-        if not os.path.isfile(p):
-            raise SystemExit("FATAL: %s missing -- restore elden_ring_artifacts." % p)
+def _srcname(v):
+    """A volume's name, safe to put in a TAB-separated `source` column.
 
-    vols = load_volumes()
-    print("PlayArea volumes: %d (m60+m61)" % len(vols))
+    MSB region names are free text and at least one of them contains a literal TAB: the m60_39_54
+    volume `プレイ領域 6300030<TAB>高山_地図断片８_閉込ボス領域１` (grace 76322). The committed
+    grace_ground.tsv row for that grace is CORRUPT because of it -- the tab split the source column
+    in two and pushed the tile column off the end, so the row's `tile` reads the second half of a
+    volume name instead of m60_39_54, and `--graces` reported a phantom "source delta" because the
+    reader had truncated the committed source at the tab. Collapse any run of whitespace to one
+    space at the point the name becomes a source string; do NOT normalise Vol.name itself, which is
+    what Composite children are looked up by.
+    """
+    return " ".join((v.name or "").split())
 
-    tile_default = {60: {}, 61: {}}
-    interior = {}
-    for r in csv.DictReader(open(PRP, newline="", encoding="utf-8-sig")):
-        i = int(r["ID"])
-        b = i // 100
-        a = int(r["areaNo"] or 0)
-        if a in (60, 61):
-            tile_default[a].setdefault((int(r["gridXNo"]), int(r["gridZNo"])), set()).add(b)
-        if b and b < 60000:
-            interior.setdefault("m%02d_%02d" % (b // 1000, (b // 10) % 100), set()).add(b)
 
-    rows = []
-    for r in csv.DictReader(open(BWP, newline="", encoding="utf-8-sig")):
+def derive_ground(map_id, x, y, z, vols, tile_ids, interior_ids):
+    """THE ladder, for ONE placement -> (sorted play_region ids, source string).
+
+    This is the single owner of the volume -> seam -> default -> none ordering, for BOTH the
+    overworld and the interiors, and BOTH of its callers go through it:
+    `datamine_grace_ground.main` (the grace_ground.tsv derivation) and
+    `datamine_item_play_regions.derive` (the item scan and its --graces calibration gate). They
+    used to be two ladders that agreed on interiors and DIFFERED outdoors -- the item pass offered
+    an overworld point a seam-snap before the tile default, this tool went straight to the default
+    -- so a grace 1.7 m outside a PlayArea face answered `seam:` over there and `none` here (graces
+    76214 / 76453 / 76500, Alaric's box, 2026-08-26). `none` is the less correct answer: the seam
+    tolerance is the same engine containment slack indoors and out, and the face is right there.
+    One function, so a third divergence cannot be written.
+
+    Ids are RAW PlayRegionParam ids; the bucket is id // 100 and the caller does that division.
+    """
+    got = world_xz(map_id, x, z)
+    if got is not None:                                          # OVERWORLD: world = tile*256+local
+        area = int(got[0][1:])                                   # 'm60' -> 60
+        gx, gz = got[1], got[2]
+        mine = [v for v in vols if v.area == area]
+        hits = [v for v in mine if v.contains(gx, y, gz)]
+        if hits:
+            return sorted({v.pr for v in hits}), "volume:" + _srcname(hits[0])
+        near = _nearest_face(mine, gx, y, gz)                    # gate/threshold seam
+        if near and near[0] <= SEAM_SLACK:
+            return [near[1].pr], "seam:%s@%.1fm" % (_srcname(near[1]), near[0])
+        # NOT the AUTHORED tile: the tile the folded point actually STANDS on (fine_tile rounds --
+        # the overworld frame is centre-origin). For 214 of 225 graces that IS the authored tile.
+        ids = sorted(tile_ids.get(area, {}).get(fine_tile(gx, gz), ()))
+        return (ids, "tile-default") if ids else ([], "none")
+
+    mkey = "_".join((map_id or "").split("_")[:2])               # 'm10_00_00_00' -> 'm10_00'
+    ivols = load_interior_volumes(mkey)
+    if ivols:
+        hits = [v for v in ivols if v.contains(x, y, z)]         # interior: world == local
+        if hits:
+            return sorted({v.pr for v in hits}), "interior-vol:" + _srcname(hits[0])
+        near = _nearest_face(ivols, x, y, z)
+        if near and near[0] <= SEAM_SLACK:
+            return [near[1].pr], "interior-seam:%s@%.1fm" % (_srcname(near[1]), near[0])
+    ids = sorted(interior_ids.get(mkey, ()))
+    return (ids, "interior-map") if ids else ([], "none")
+
+
+def grace_rows(vols, tile_ids, interior_ids, bwp=None):
+    """THE warp-grace population, for BOTH consumers -- yields (flag, map_id, tile, ids, source).
+
+    ONE OWNER OF THE POINT, not just of the ladder. `derive_ground` above made the two tools agree
+    about how a placement is judged; this generator makes them agree about WHICH PLACEMENT IS
+    JUDGED. Every grace answer -- this tool's emitted `grace_ground.tsv` and
+    `datamine_item_play_regions --graces`, the gate that diffs against it -- is derived from the
+    BonfireWarpParam SPAWN POSITION (`posX/posY/posZ`) of the grace's own row: the point the
+    player materialises at, which is the point the client's kick-watch evaluates play_region at on
+    warp-in. It is NOT the grace ASSET coordinate that `greenfield/item_grace_coords.tsv` carries
+    for the same flag; the two are metres apart at some graces, and a gate that compared a
+    spawn-derived table against asset-derived answers would report seam/none deltas that are
+    artifacts of comparing two different points.
+
+    Until 2026-08-26 the loop below was written TWICE -- here and in the gate -- and the copies had
+    already drifted: a row whose spawn position does not parse got a fallback row here and was
+    silently SKIPPED there, so the gate simply never compared it. A grace the gate does not compare
+    is not a grace the gate blessed.
+
+    Yields the raw PlayRegionParam ids (bucket = id // 100, the caller divides) plus the AUTHORED
+    tile, which only this tool's tsv column wants. MEASURED_GROUND is applied here, once: an
+    in-game kick line is the ENGINE reporting the play_region and outranks the derivation, and a
+    derivation that DISAGREES with one is fatal, not a shrug.
+    """
+    for r in csv.DictReader(open(bwp or BWP, newline="", encoding="utf-8-sig")):
         try:
             f = int(r["eventflagId"] or 0)
         except ValueError:
@@ -310,52 +421,56 @@ def main():
         if not (71000 <= f <= 76999):
             continue
         a = int(r["areaNo"] or 0)
+        try:
+            px, py, pz = float(r["posX"]), float(r["posY"]), float(r["posZ"])
+        except (TypeError, ValueError):
+            px = None                                # unparseable spawn: no geometry, fallback only
         if a in (60, 61):
             tx, tz = int(r["gridXNo"]), int(r["gridZNo"])
-            wx = tx * 256 + float(r["posX"])
-            wz = tz * 256 + float(r["posZ"])
-            y = float(r["posY"])
-            hits = [v for v in vols if v.area == a and v.contains(wx, y, wz)]
-            bks = sorted({v.pr // 100 for v in hits})
-            if bks:
-                src = "volume:" + hits[0].name
-            else:
-                bks = sorted(tile_default[a].get((tx, tz), set()))
-                src = "tile-default" if bks else "none"
-            tile = "m%d_%02d_%02d" % (a, tx, tz)
+            map_id = "m%d_%02d_%02d_00" % (a, tx, tz)
+            tile = "m%d_%02d_%02d" % (a, tx, tz)     # the AUTHORED tile: the grace's own map id,
+            #                                          not the ruling (the ruling may fold next door)
         else:
             ent = str(r["bonfireEntityId"] or "")
-            tile = "m%s_%s" % (ent[0:2], ent[2:4]) if len(ent) == 8 else "?"
-            bks, src = [], "none"
-            # Point-in-volume against the grace's OWN interior MSB first (the foreign-ground catch);
-            # its position is local == world for an interior map, so no tile offset.
-            try:
-                px, py, pz = float(r["posX"]), float(r["posY"]), float(r["posZ"])
-            except (TypeError, ValueError):
-                px = None
-            ivols = load_interior_volumes(tile) if px is not None else []
-            if ivols and px is not None:
-                hits = [v for v in ivols if v.contains(px, py, pz)]
-                if hits:
-                    bks = sorted({v.pr // 100 for v in hits})
-                    src = "interior-vol:" + hits[0].name
-                else:
-                    near = _nearest_face(ivols, px, py, pz)   # gate/threshold seam -> nearest face
-                    if near and near[0] <= SEAM_SLACK:
-                        bks = [near[1].pr // 100]
-                        src = "interior-seam:%s@%.1fm" % (near[1].name, near[0])
-            if not bks:                                       # inside no volume, near none: fall back
-                bks = sorted(interior.get(tile, set()))
-                src = "interior-map" if bks else "none"
+            map_id = tile = "m%s_%s" % (ent[0:2], ent[2:4]) if len(ent) == 8 else "?"
+        if px is None:
+            ids = [] if a in (60, 61) else sorted(interior_ids.get(tile, ()))
+            src = "interior-map" if ids else "none"
+        else:
+            ids, src = derive_ground(map_id, px, py, pz, vols, tile_ids, interior_ids)
         if f in MEASURED_GROUND:
             mbks, msrc = MEASURED_GROUND[f]
+            bks = sorted({i // 100 for i in ids})
             if bks and tuple(bks) != tuple(mbks):
                 raise SystemExit(
                     "FATAL: derived ground %r for grace %d disagrees with the in-game measurement "
                     "%r (%s) -- the volume transform or the params changed; re-derive, do not "
                     "paper over." % (bks, f, list(mbks), msrc))
             if not bks:
-                bks, src = list(mbks), msrc
+                ids, src = [b * 100 for b in mbks], msrc
+        yield f, map_id, tile, ids, src
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--emit", action="store_true", help="write %s" % OUT)
+    artifacts_root.add_path_argument(ap)
+    args = ap.parse_args(argv)          # argv is a PARAMETER so the suite can drive it
+    root = artifacts_root.resolve(args.path)
+    if root:
+        _set_artifacts_root(root)
+    for p in (BWP, PRP):
+        if not os.path.isfile(p):
+            raise SystemExit("FATAL: %s missing -- restore elden_ring_artifacts." % p)
+
+    vols = load_volumes()
+    print("PlayArea volumes: %d (m60+m61)" % len(vols))
+
+    tile_ids, interior_ids = load_play_region_defaults()
+
+    rows = []
+    for f, _map_id, tile, ids, src in grace_rows(vols, tile_ids, interior_ids):
+        bks = sorted({i // 100 for i in ids})
         rows.append((f, ";".join(map(str, bks)) or "-", src, tile))
 
     rows.sort()

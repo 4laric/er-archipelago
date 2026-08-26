@@ -65,14 +65,18 @@ import xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.environ.get("ER_REPO") or os.path.abspath(os.path.join(HERE, ".."))
-ART = os.path.join(REPO, "elden_ring_artifacts")
+sys.path.insert(0, HERE)
+
+import artifacts_root                          # noqa: E402  -- THE --path argument, not a copy
+
+ART = artifacts_root.default_root(REPO)
 VV = os.path.join(ART, "vanilla_er", "vanilla_er")
 EVT = os.path.join(ART, "event")
 OUT = os.path.join(REPO, "greenfield", "msb_flag_region.tsv")
 
 
 def _set_artifacts_root(path):
-    """Point every input at a different `elden_ring_artifacts` tree (`--artifacts`).
+    """Point every input at a different `elden_ring_artifacts` tree (`--path`, alias `--artifacts`).
 
     Rebinds the module constants rather than threading a parameter through every reader: the
     Windows process pool SPAWNS, but the workers receive their msb_dir as an argument, so only the
@@ -102,6 +106,15 @@ def _map_id(area, x, y):
 def _map_id_from_dir(dirname):
     m = _DIR_RE.match(dirname)
     return _map_id(m.group(1), m.group(2), m.group(3)) if m else None
+
+
+def _msb_roots():
+    """Every dir under the artifacts root that holds witchy'd MSB dirs -- map/, mapstudio/,
+    map/mapstudio/, or the root itself. The candidate list is shared with every other
+    corpus-reading tool (tools/artifacts_root.py); the four call sites below used to spell
+    `[mapstudio, ART]` privately, which is how tools ended up disagreeing about the layout.
+    Falls back to the old pair so `_iter_msb_dirs` still has paths to skip with no corpus."""
+    return artifacts_root.msb_dirs(ART) or [os.path.join(ART, "mapstudio"), ART]
 
 
 def _iter_msb_dirs(roots):
@@ -200,7 +213,7 @@ def explain(flag):
 
     want_lots = {(r.get("item_lot_id") or "").strip() for r in hits}
     map_ids = {(r.get("map_id") or "").strip() for r in hits}
-    roots = [os.path.join(ART, "mapstudio"), ART]
+    roots = _msb_roots()
     for map_id, msb_dir in _iter_msb_dirs(roots):
         if map_id not in map_ids:
             continue
@@ -528,7 +541,7 @@ def build_treasure_assets(only_maps=None, jobs=1):
     stats = {"direct": 0, "indexed": 0, "map_scans": 0, "no_entity": 0,
              "missing_part": 0, "treasures": 0, "name_mismatch": 0, "dup_name": 0,
              "type_Asset": 0, "type_Enemy": 0, "type_MapPiece": 0, "type_Collision": 0}
-    roots = [os.path.join(ART, "mapstudio"), ART]
+    roots = _msb_roots()
     # DEDUPE BY MAP ID. `_iter_msb_dirs` walks mapstudio AND the root-level witchy dirs, so maps come
     # back more than once -- Alaric's run had `m10_00` at [1] and again at [2], the second yielding 0
     # rows. First one wins.
@@ -823,7 +836,7 @@ def build(only_maps=None, sources=SOURCES):
     rows = []
     maps = set()
     if "treasure" in sources or "enemy" in sources:
-        roots = [os.path.join(ART, "mapstudio"), ART]     # mapstudio + any root-level witchy dirs
+        roots = _msb_roots()     # mapstudio + any root-level witchy dirs
         for map_id, msb_dir in _iter_msb_dirs(roots):
             if only_maps and map_id not in only_maps:
                 continue
@@ -956,12 +969,11 @@ def main(argv=None):
     ap.add_argument("--sources", nargs="*", choices=SOURCES, default=list(SOURCES),
                     help="which provenance chains to emit (default: all)")
     ap.add_argument("--out", default=OUT)
-    ap.add_argument("--artifacts", metavar="DIR",
-                    help="use this elden_ring_artifacts tree instead of <repo>/elden_ring_artifacts "
-                         "(same layout inside: mapstudio/, event/, vanilla_er/vanilla_er/). "
-                         "Applies to every mode, --coverage and --emit-assets included; the output "
-                         "tsv still lands in the repo unless --out moves it. ER_REPO relocates the "
-                         "whole repo instead; this relocates only the game data.")
+    artifacts_root.add_path_argument(
+        ap, extra_help="same layout inside (mapstudio/, event/, vanilla_er/vanilla_er/), and it "
+                       "applies to every mode, --coverage and --emit-assets included; the output "
+                       "tsv still lands in the repo unless --out moves it. ER_REPO relocates the "
+                       "whole repo instead; this relocates only the game data")
     ap.add_argument("--stdout", action="store_true", help="print instead of writing the tsv")
     ap.add_argument("--jobs", "-j", type=int, default=min(8, (os.cpu_count() or 1)),
                     help="parallel map scans (default: min(8, cpu count)). `-j 1` runs serially, "
@@ -989,10 +1001,9 @@ def main(argv=None):
                          "first MSB found, and write nothing. Needed to build the asset->lot join "
                          "datamine_lot_gates.py wants; see probe.__doc__.")
     args = ap.parse_args(argv)
-    if args.artifacts:
-        if not os.path.isdir(args.artifacts):
-            sys.exit(f"FATAL: --artifacts {args.artifacts} is not a directory")
-        _set_artifacts_root(args.artifacts)
+    root = artifacts_root.resolve(args.path)
+    if root:
+        _set_artifacts_root(root)
     if args.coverage:
         holes = _print_coverage(read_tsv_rows(args.out), sys.stdout)
         return 1 if holes else 0
@@ -1016,7 +1027,7 @@ def main(argv=None):
     if args.explain:
         return explain(args.explain)
     if args.probe:
-        roots = [os.path.join(ART, "mapstudio"), ART]
+        roots = _msb_roots()
         want = set(args.maps) if args.maps else None
         for _map_id, _msb_dir in _iter_msb_dirs(roots):
             if want and _map_id not in want:

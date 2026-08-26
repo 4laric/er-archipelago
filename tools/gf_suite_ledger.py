@@ -117,6 +117,25 @@ GENERATORS = [
     # the world. AP-free, no artifacts, no client. It belongs in THIS job specifically: this is
     # the job whose byte-diff went red on PR #698 for an unregenerated page, so this is where the
     # gate that prevents the next one has to run.
+    # The PlayArea ITEM scan's geometry, on SYNTHETIC witchy-style MSB fixtures (issue #1025 /
+    # docs/PLAYAREA-ITEM-SCAN.md). It drives tools/datamine_item_play_regions.py over a temp
+    # artifacts tree it builds itself -- so it needs tools/, but NOT the real corpus, no AP, no
+    # client, and no network. It belongs in CI precisely because the tool it witnesses can only
+    # ever RUN on Alaric's box: without this suite the point-in-volume test, the LOD fold and the
+    # seam snap would be exercised nowhere, and a wrong answer there looks exactly like a right one.
+    "item_play_regions",
+    # The OVERWORLD TILE FRAME (2026-08-26): the centre-vs-corner ruling that decides which
+    # PlayRegionParam row governs a point, re-derived over the WHOLE committed grace population out
+    # of gen_inputs.db. It reads the bundle and tools/overworld_fold.py, so it is repo-only, but it
+    # needs no MSB corpus at all -- which is the point: the half of `--graces` that is pure table
+    # lookup now reds in CI instead of on Alaric's box, where it cost a refused calibration run.
+    "grace_tile_frame",
+    # The `--path <artifacts-root>` flag itself (tools/artifacts_root.py). Loads nine tools/ scripts
+    # by path and calls their `_set_artifacts_root` seams against a temp directory -- it needs
+    # tools/, but no corpus, no AP, no client and no network. It belongs here for the same reason
+    # as the suite above: these tools only ever RUN on Alaric's box, so "the flag parsed but the
+    # root did not move" would otherwise be witnessed by nothing.
+    "artifacts_path",
     "regen_all",
 ]
 
