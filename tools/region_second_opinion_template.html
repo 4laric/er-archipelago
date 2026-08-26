@@ -64,6 +64,9 @@ main{flex:1 1 auto;display:flex;min-height:0}
 .vote-wiki{color:var(--gold2);border-color:#5a4a3a}
 .vote-ours{color:var(--dim)}
 .vote-none{color:var(--dim);opacity:.7}
+/* A RULING is not a vote and must not read like one: it is the only answer on this page that
+   came from geometry, so it gets its own class and the caveat above explicitly exempts it. */
+.vote-ruled{color:var(--green,#8fbf6f);border-color:#3a5a3a;background:#16210f;font-weight:bold}
 .sus{color:var(--orange);border-color:#6a4a2a;background:#2a2015}
 #votecaveat{border-top:1px solid var(--line);background:#1d1a14;color:var(--dim);
   padding:7px 14px;font-size:11px;line-height:1.5}
@@ -208,7 +211,9 @@ function rowHtml(u){
   // The vote never appears without its distance and its anchor: a bare region name reads as a
   // fact, and the distance and the anchoring grace are what let a reader disbelieve it.
   if (u.vote_region){
-    h += '<span class="badge vote-' + esc(u.vote_side) + '">msb vote: ' + esc(u.vote_region) +
+    h += '<span class="badge ' + (u.vote_ruled ? 'vote-ruled' : 'vote-' + esc(u.vote_side)) +
+         '" title="' + (u.vote_ruled ? esc(DATA.meta.vote_ruling_note) : '') + '">' +
+         (u.vote_ruled ? 'RULING: ' : 'msb vote: ') + esc(u.vote_region) +
          " &middot; " + esc(u.vote_distance) + "m" +
          (u.vote_unanimous === "no" ? " &middot; top-3 split" : "") +
          (u.vote_anchor ? " &middot; " + esc(u.vote_anchor) : "") + "</span>";
@@ -323,7 +328,8 @@ $("#clearbtn").addEventListener("click", () => {
 $("#stamp").textContent = DATA.meta.stamp + "  ·  " + DATA.meta.rows + " audit rows · " +
   DATA.units.length + " adjudication units";
 $("#votecaveat").innerHTML = "<b>MSB VOTE \u2014 a ranking signal, not a ruling.</b> " +
-  esc(DATA.meta.vote_caveat) + " " + esc(DATA.meta.vote_suspect_note);
+  esc(DATA.meta.vote_caveat) + " " + esc(DATA.meta.vote_ruling_note) + " " +
+  esc(DATA.meta.vote_suspect_note);
 $("#foot").innerHTML = DATA.meta.footer;
 facets();
 render();

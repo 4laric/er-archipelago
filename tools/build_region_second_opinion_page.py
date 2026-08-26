@@ -129,7 +129,21 @@ VOTE_CAVEAT = (
     "into the overworld frame from our own committed coordinates. " + _vote_calibration() +
     " It is NOT independent of the nearest-neighbour hop that gave these checks their regions in "
     "the first place, so a vote that AGREES with us corroborates nothing. Read it as an ORDERING "
-    "over what to adjudicate next, never as a ruling."
+    "over what to adjudicate next, never as a ruling. THIS PARAGRAPH DOES NOT APPLY TO A ROW "
+    "BADGED RULING -- see the next note."
+)
+
+# 🛑 The exemption, spelled out on the page itself. The caveat above exists because a
+# nearest-neighbour vote cannot fail; a PLAYAREA-CONFIRMED row is not that kind of answer, and
+# leaving one caveat covering both would either slander the ruling or launder the guess.
+VOTE_RULING_NOTE = (
+    "RULING (PLAYAREA-CONFIRMED): this row was NOT voted on. Its region is the point-in-volume "
+    "answer from Region/PlayArea <PlayRegionID> -- the exact id the client's kick-watch reads at "
+    "runtime -- read out of greenfield/item_play_regions.tsv and mapped through REGION_PLAY_IDS "
+    "(docs/PLAYAREA-ITEM-SCAN.md). It REPLACED the nearest-grace heuristic rather than being "
+    "averaged with it, the accuracy caveat above does not describe it, and only volume:/seam: "
+    "sources qualify: a tile-default answer is the same tile-wide guess the vote already is, so "
+    "it does NOT confirm anything and never becomes a ruling."
 )
 
 VOTE_SUSPECT_NOTE = (
@@ -330,6 +344,9 @@ def build(root):
         else:
             u["vote_side"] = "both"
         u["vote_suspect"] = "SUSPECT-ANCHOR" in u["vote_note"]
+        # A RULING is a separate KIND of answer, not a fifth opinion: it keeps its vote_side (who
+        # it happens to back is still worth filtering on) and carries its own class and badge.
+        u["vote_ruled"] = "PLAYAREA-CONFIRMED" in u["vote_note"]
         base = SOURCE_BASE.get(u["source"])
         u["url"] = (base + u["page_title"].replace(" ", "_")) if (base and u["page_title"]) else ""
         u["hay"] = " ".join([
@@ -368,6 +385,8 @@ def build(root):
         # calibration becomes a claim of exactness.
         "vote_caveat": VOTE_CAVEAT,
         "vote_suspect_note": VOTE_SUSPECT_NOTE,
+        "vote_ruling_note": VOTE_RULING_NOTE,
+        "vote_ruled_count": sum(1 for u in out if u["vote_ruled"]),
         "rows": len(rows),
         "counts": counts,
         "verdict_order": VERDICT_ORDER,

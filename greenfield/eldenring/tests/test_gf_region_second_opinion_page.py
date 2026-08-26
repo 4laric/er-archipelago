@@ -327,9 +327,37 @@ class VoteColumnTests(unittest.TestCase):
         """A bare region name reads as a fact. The distance and the anchoring grace are what let
         a reader disbelieve it, so the payload must never carry one without the others."""
         for u in self.payload["units"]:
-            if u["vote_region"]:
-                self.assertTrue(u["vote_distance"], "unit %s: vote with no distance" % u["flag"])
-                self.assertTrue(u["vote_anchor"], "unit %s: vote with no anchor" % u["flag"])
+            if not u["vote_region"]:
+                continue
+            if u["vote_ruled"]:
+                # A RULING is not a vote and has no anchor to disbelieve: its falsifier is the
+                # scan row, which the note names. Requiring a distance here would force the page
+                # to print a nearest-grace hop that never happened.
+                self.assertFalse(u["vote_distance"], "unit %s: a ruling with a hop" % u["flag"])
+                self.assertFalse(u["vote_anchor"])
+                self.assertIn("PLAYAREA-CONFIRMED", u["vote_note"])
+                continue
+            self.assertTrue(u["vote_distance"], "unit %s: vote with no distance" % u["flag"])
+            self.assertTrue(u["vote_anchor"], "unit %s: vote with no anchor" % u["flag"])
+
+    def test_a_ruling_renders_as_its_own_class_and_is_exempt_from_the_caveat(self):
+        """The invariant the ruling class exists for: a PLAYAREA-CONFIRMED row must NOT read as
+        a vote (its own badge class, its own note), and the accuracy caveat -- which describes a
+        heuristic that cannot fail -- must SAY it does not describe this row. One caveat covering
+        both answers would either slander the ruling or launder the guess."""
+        ruled = [u for u in self.payload["units"] if u["vote_ruled"]]
+        self.assertTrue(ruled, "no rulings -- the ruling class is an unfired guard")
+        self.assertEqual(len(ruled), self.payload["meta"]["vote_ruled_count"])
+        note = self.payload["meta"]["vote_ruling_note"]
+        self.assertIn("PLAYAREA-CONFIRMED", note)
+        self.assertIn("tile-default", note)      # says WHY a fallback is not a ruling
+        self.assertIn("kick-watch", note)        # names what the id actually is
+        self.assertIn("DOES NOT APPLY", self.payload["meta"]["vote_caveat"])
+        self.assertIn("vote-ruled", self.html)   # the distinct class is really in the page
+        self.assertIn(note[:60], self.html)
+        for u in ruled:
+            self.assertIn("PLAYAREA-CONFIRMED", u["vote_note"])
+            self.assertTrue(u["vote_region"], "a ruling with no region is not a ruling")
 
     def test_the_calibration_caveat_is_rendered_on_the_page_not_only_in_the_tool(self):
         caveat = self.payload["meta"]["vote_caveat"]
