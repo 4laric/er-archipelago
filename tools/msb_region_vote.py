@@ -71,6 +71,7 @@ from overworld_fold import world_xz  # noqa: E402  -- THE fold, single implement
 COORDS = os.path.join("greenfield", "item_grace_coords.tsv")
 GRACE_REGION_MAP = os.path.join("greenfield", "grace_region_map.tsv")
 GRACE_GROUND = os.path.join("greenfield", "grace_ground.tsv")
+PLAY_REGIONS = os.path.join("greenfield", "item_play_regions.tsv")
 REGION_PLAY_IDS_PY = os.path.join("greenfield", "eldenring", "region_play_ids.py")
 
 # The calibration sentence. It is repeated verbatim into the tsv header and the worksheet page
@@ -78,10 +79,12 @@ REGION_PLAY_IDS_PY = os.path.join("greenfield", "eldenring", "region_play_ids.py
 # MEASURED, not remembered: `python tools/msb_region_vote.py --calibrate` re-derives this number
 # from the repo in seconds, and the sentence names the run so a reader can falsify it rather than
 # inherit it (CONTRIBUTING rule 10 -- a comment that asserts a fact is a claim, and claims rot).
-CALIBRATION = ("91.4% on a 2607-check control set (--calibrate, 2026-08-25) -- roughly one row in "
-               "ten is WRONG, so this is a RANKING signal for hand-adjudication, never an "
-               "adjudicator. The exact answer is the PlayArea point-in-volume test "
-               "(docs/PLAYAREA-ITEM-SCAN.md).")
+CALIBRATION = ("92.9% on a 2169-check control set (--calibrate, 2026-08-26) -- roughly one row in "
+               "fourteen is WRONG, so this is a RANKING signal for hand-adjudication, never an "
+               "adjudicator. It does NOT describe a PLAYAREA-CONFIRMED row: those are RULINGS "
+               "from the PlayArea point-in-volume test (docs/PLAYAREA-ITEM-SCAN.md), they "
+               "REPLACED the vote, and the 518 of them in the control population are excluded "
+               "from the number above rather than flattering it.")
 
 NOTE_NO_COORDS = "NO-COORDS"
 NOTE_NO_ANCHOR = "NO-ANCHOR"
@@ -89,6 +92,14 @@ NOTE_SUSPECT = "SUSPECT-ANCHOR"
 NOTE_CROSS_TILE = "CROSS-TILE-MSB"
 NOTE_COARSE = "COARSE-LOD"
 NOTE_MULTI = "MULTI-PLACEMENT"
+NOTE_PLAYAREA = "PLAYAREA-CONFIRMED"
+
+# 🛑 THE EXACT SOURCES, and ONLY these. `tile-default`/`interior-map` are the SAME kind of
+# tile-wide fallback the nearest-grace vote already is -- a row that answered from the tile
+# default has not been confirmed by geometry, it has been answered by the very guess this
+# column exists to replace, so it must NOT become a ruling (docs/PLAYAREA-ITEM-SCAN.md step 5:
+# "where a flag has an EXACT answer"). `none` is not evidence about the region at all.
+EXACT_SOURCES = ("volume:", "interior-vol:", "seam:", "interior-seam:")
 
 FINE_TILE_RE = re.compile(r"^(m6[01])_(\d\d)_(\d\d)(?:_(\d)(\d))?$")
 
@@ -148,6 +159,34 @@ def load_grace_regions(repo=REPO):
     if not region:
         raise SystemExit("no grace got a region -- inputs are stale or empty (rule 2)")
     return region, suspect
+
+
+def load_play_area_regions(repo=REPO, play=None):
+    """flag -> our region, for the flags the PlayArea scan answered EXACTLY.
+
+    `greenfield/item_play_regions.tsv` is the point-in-volume scan (docs/PLAYAREA-ITEM-SCAN.md).
+    Only `volume:`/`interior-vol:`/`seam:`/`interior-seam:` rows are read: those come from real
+    geometry and RULE. A flag whose exact rows land in more than one of our regions is dropped --
+    a two-region answer is not an answer, exactly as `load_grace_regions` treats a two-region
+    ground -- and so is a bucket we do not own (`REGION_PLAY_IDS` is the only map from a bucket to
+    a region we have).
+
+    Missing file is not fatal: the tsv is a corpus artifact and a checkout without it must still
+    be able to vote (rule 2 -- a missing input says so, it does not fake an answer).
+    """
+    path = os.path.join(repo, PLAY_REGIONS)
+    if not os.path.exists(path):
+        return {}
+    play = play if play is not None else load_play_id_regions(repo)
+    by_flag = {}
+    for row in _rows(path):
+        if not (row.get("source") or "").startswith(EXACT_SOURCES):
+            continue
+        for bucket in (row.get("buckets") or "").split(";"):
+            got = play.get(bucket)
+            if got:
+                by_flag.setdefault(row["flag"], set()).add(got)
+    return {flag: regions.pop() for flag, regions in by_flag.items() if len(regions) == 1}
 
 
 def fold(map_id, x, y, z):
@@ -227,7 +266,7 @@ class Voter(object):
     the geometry on synthetic fixtures with no repo data at all.
     """
 
-    def __init__(self, items, graces, grace_region, suspect=(), top_n=3):
+    def __init__(self, items, graces, grace_region, suspect=(), top_n=3, play_area=None):
         # A single (map_id, x, y, z) tuple is accepted for one-placement flags -- the suite's
         # synthetic fixtures are written that way and a list of one means the same thing.
         self.items = {}
@@ -247,6 +286,7 @@ class Voter(object):
         self.grace_region = grace_region
         self.suspect = set(suspect)
         self.top_n = top_n
+        self.play_area = dict(play_area or {})
         self.grace_name = {}
         self.frames = {}
         for flag, map_id, x, y, z, name in graces:
@@ -260,7 +300,8 @@ class Voter(object):
     def from_repo(cls, repo=REPO, top_n=3):
         items, graces = load_coords(repo)
         region, suspect = load_grace_regions(repo)
-        return cls(items, graces, region, suspect, top_n=top_n)
+        return cls(items, graces, region, suspect, top_n=top_n,
+                   play_area=load_play_area_regions(repo))
 
     def _vote_one(self, map_id, x, y, z, label_tile):
         frame, point = fold(map_id, x, y, z)
@@ -291,6 +332,13 @@ class Voter(object):
         MULTI-PLACEMENT -- an arbitrary pick that does not announce itself is the same silent
         wrong answer as no pick at all.
         """
+        # THE EXACT ANSWER REPLACES THE HEURISTIC -- it is not averaged with it and it does not
+        # need a coordinate row of its own to stand (docs/PLAYAREA-ITEM-SCAN.md step 5). A
+        # PLAYAREA-CONFIRMED row is a RULING: point-in-volume against the same <PlayRegionID>
+        # the client's kick-watch reads, not a nearest-neighbour derivation.
+        ruled = self.play_area.get(flag)
+        if ruled is not None:
+            return Vote(region=ruled, notes=[NOTE_PLAYAREA])
         placements = self.items.get(flag)
         if not placements:
             return Vote(notes=[NOTE_NO_COORDS])
@@ -327,10 +375,16 @@ def calibrate(repo=REPO, voter=None):
         regions.setdefault(flag, set()).add(region)
         if "(region unconfirmed)" in body:
             unconfirmed.add(flag)
-    hits = misses = 0
+    hits = misses = ruled = 0
     families = {}
     for flag, names in regions.items():
         if flag in unconfirmed or len(names) != 1 or flag not in voter.items:
+            continue
+        # A ruled row is not part of the HEURISTIC's control set: measuring the vote against rows
+        # where the vote has been replaced by geometry would measure the geometry and print the
+        # number under the heuristic's name. Counted and reported separately instead.
+        if flag in voter.play_area:
+            ruled += 1
             continue
         v = voter.vote(flag)
         if v.region is None:
@@ -341,7 +395,7 @@ def calibrate(repo=REPO, voter=None):
         else:
             misses += 1
             families[(ours, v.region)] = families.get((ours, v.region), 0) + 1
-    return hits, misses, families
+    return hits, misses, families, ruled
 
 
 def main(argv=None):
@@ -353,9 +407,10 @@ def main(argv=None):
     args = ap.parse_args(argv)
     voter = Voter.from_repo(args.repo)
     if args.calibrate:
-        hits, misses, families = calibrate(args.repo, voter)
+        hits, misses, families, ruled = calibrate(args.repo, voter)
         total = hits + misses
         print("CONTROL n=%d  agree=%d  accuracy=%.1f%%" % (total, hits, 100.0 * hits / total))
+        print("PLAYAREA-CONFIRMED rulings excluded from the control set: %d" % ruled)
         for (ours, vote_), n in sorted(families.items(), key=lambda kv: -kv[1])[:8]:
             print("  %-28s voted %-28s %d" % (ours, vote_, n))
         print("CALIBRATION says: %s" % CALIBRATION)
@@ -376,9 +431,10 @@ def main(argv=None):
             disagree += 1
             if not args.limit or shown < args.limit:
                 shown += 1
-                print("  %-10s %-28s ours=%-26s vote=%-26s %6.1fm %s %s"
+                print("  %-10s %-28s ours=%-26s vote=%-26s %8s %s %s"
                       % (row["flag"], row["item"][:28], row["our_region"], v.region,
-                         v.distance_m, v.anchor_grace, ";".join(v.notes)))
+                         ("%.1fm" % v.distance_m) if v.distance_m is not None else "RULING",
+                         v.anchor_grace, ";".join(v.notes)))
     print("audit rows %d: votable %d (agree %d, disagree %d), no vote %d"
           % (len(audit), agree + disagree, agree, disagree, novote))
     return 0
