@@ -146,6 +146,19 @@ Elden Ring:
   # unchanged.
   dungeon_sweep: bosses
 
+  # "Does killing a boss give me EVERY item in the area?" (siffrin + bobler,
+  # #1033). Off by default, and off is the current behaviour: a sweep pays out
+  # the area's ordinary loot but leaves the classes you put on
+  # progression_surface where they lie, because that is where this seed hid its
+  # key items -- at the default surface, Golden Seeds, Sacred Tears, Scadutree
+  # Fragments and Revered Spirit Ashes.
+  # Turn it on and nothing is held back: the boss hands over its whole area,
+  # progression included. It cannot strand you -- a sweep only grants checks in
+  # a region you kept, behind a boss you could already reach.
+  # Still never swept, whatever this says: another boss's reward, remembrance
+  # or Great Rune, quest/gate key items, and merchant stock.
+  full_area_sweeps: false
+
   # WHICH BOSS ENDS THE RUN.
   #   auto             -- derived (default). On ANY seed with the base game in
   #                       play: Godfrey/Hoarah Loux + the Elden Beast. Under

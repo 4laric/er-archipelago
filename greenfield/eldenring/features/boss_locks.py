@@ -68,6 +68,14 @@ def seed_surface_classes(world):
     return frozenset(getattr(opt, "value", None) or ())
 
 
+def _full_area_sweeps_on(world):
+    """Is this seed's `full_area_sweeps` on? Absent option (or no world) reads OFF, which is the
+    default and the HEAD behaviour -- every synthetic-world unit test that predates the option
+    therefore keeps measuring the surface cut it was written for."""
+    opt = getattr(getattr(world, "options", None), "full_area_sweeps", None)
+    return bool(opt is not None and getattr(opt, "value", 0))
+
+
 def sweep_surface_cut(world, location_tags=None):
     """The member ap ids this seed must NOT sweep: the ones whose class its Progression Surface has
     claimed for progression.
@@ -95,7 +103,19 @@ def sweep_surface_cut(world, location_tags=None):
     sweep can pay out progression under a non-empty surface, and it is why this returns the BASE
     selection rather than pretending to predict the ladder.
 
+    🛑 `full_area_sweeps` TURNS THIS OFF ENTIRELY (#1033, siffrin + bobler). It is checked HERE
+    rather than in `enabled_sweeps` so that every reader of the cut agrees about what this seed
+    grants -- a cut that two callers disagree about is the defect `enabled_sweeps` was written to
+    prevent. When the option is on the cut is empty, the six cuttable classes stay in the payload
+    whatever the surface says, and the honest edge above stops being an edge and becomes the
+    behaviour: a boss kill CAN hand over this seed's own Locks, and at the default
+    `confine_foreign_progression` another player's. That is not a soft-lock for the same reason the
+    ladder case is not -- a sweep member's access rule is its own region and the trigger boss stands
+    in a region this seed kept (#445) -- so the sweep only makes a reachable check arrive earlier.
+
     Pure over its inputs (module globals by default) so it unit-tests with synthetic data."""
+    if _full_area_sweeps_on(world):
+        return frozenset()
     tags = LOCATION_TAGS if location_tags is None else location_tags
     claimed = _SWEEP_SURFACE_CUTTABLE & seed_surface_classes(world)
     if not claimed:
@@ -173,7 +193,8 @@ class DungeonSweep(Choice):
     you run as somewhere a key item may be placed -- so killing a boss can hand you one. That is the
     only class the surface does NOT take back out of the sweep, and deliberately: taking it back
     would delete the check it just nominated. Drop `SweepSlot` from progression_surface if you would
-    rather a sweep never pay out progression; the cost is that at the default
+    rather a sweep never pay out progression -- or see `full_area_sweeps` for the opposite ask,
+    every check in the area including the progression; the cost of dropping it is that at the default
     `confine_foreign_progression` another player's key items have only ~30 checks of yours to land
     on, and most of them stop arriving (er-archipelago#631).
 
@@ -195,6 +216,44 @@ class DungeonSweep(Choice):
     option_all = 2
     option_bosses = 3
     default = 3
+
+
+class FullAreaSweeps(Toggle):
+    """Should a boss kill hand you EVERYTHING in its area, including the good stuff this seed is
+    using for progression?
+
+    off (default) -- a sweep pays out the area's ordinary loot. The classes you put on the
+    Progression Surface are taken back out of it, because those are exactly where this seed places
+    its key items: at the default surface that is Golden Seeds, Sacred Tears, Scadutree Fragments
+    and Revered Spirit Ashes, and you still walk to those yourself.
+
+    on -- nothing is taken back out. Every check the sweep holds is granted the moment the boss
+    dies, progression included, so killing a boss can hand you a region Lock (or, at the default
+    `confine_foreign_progression`, another player's item). That is the point of the option, not a
+    side effect: it is what "killing the boss gives me the area" actually means. It cannot strand
+    you -- a sweep only ever grants checks in a region you kept and behind a boss you could reach,
+    so it makes a reachable check arrive earlier and never makes an unreachable one required.
+
+    WHAT IT DOES NOT DO, in any seed. This widens WHICH checks a sweep pays; it does not widen
+    which bosses sweep (that is `dungeon_sweep`) and it does not lift the permanent floor:
+
+    * another boss's reward, remembrance or Great Rune -- handing those over would delete the fight;
+    * gate and quest KEY ITEMS;
+    * merchant stock, which is bought at a counter rather than picked up off the ground.
+
+    Nor can it reach a check whose position was never recovered from the game data: those belong to
+    no boss's area, so no boss kill can grant them. Requested by siffrin and bobler (#1033).
+
+    Missable checks are unaffected by this option in either direction -- they have always been
+    ordinary sweep members (170 of the 289 are swept today), so a sweep already rescues most of
+    them and this changes nothing about which. `protect_missable_locations` is the option for that.
+
+    Corpus size of the change: +113 member links at the default Progression Surface (4101 -> 4214),
+    up to +215 for a seed that puts all six of the collectathon/rarity classes on its surface, and
+    exactly zero for a seed with an empty surface -- an empty surface makes no claim, so there was
+    nothing being taken back out to restore."""
+    display_name = "Full Area Sweeps"
+    default = 0
 
 
 class BossLockPlacement(Choice):
@@ -459,8 +518,8 @@ def key_gate_map(world):
 @register
 class BossLocks(Feature):
     name = "boss_locks"
-    OPTIONS = {"dungeon_sweep": DungeonSweep, "boss_lock_placement": BossLockPlacement,
-               "boss_keys": BossKeys}
+    OPTIONS = {"dungeon_sweep": DungeonSweep, "full_area_sweeps": FullAreaSweeps,
+               "boss_lock_placement": BossLockPlacement, "boss_keys": BossKeys}
     ITEMS = {n: ItemClassification.progression for n in _boss_key_names()}
 
     def create_items(self, world):

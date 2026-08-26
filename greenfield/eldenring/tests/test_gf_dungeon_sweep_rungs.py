@@ -173,13 +173,22 @@ class _FakeOptionSet:
         self.value = set(value)
 
 
+class _FakeToggle:
+    def __init__(self, value):
+        self.value = int(bool(value))
+
+
 class _FakeWorld:
     """Minimal duck for enabled_sweeps/sweep_surface_cut: a Progression Surface and nothing else.
 
     No dungeon_sweep option on purpose -- enabled_sweeps falls back to the 'bosses' rung, which is
     the shipped default, so these read the seed a player actually gets."""
-    def __init__(self, surface):
-        self.options = type("_O", (), {"progression_surface": _FakeOptionSet(surface)})()
+    def __init__(self, surface, full_area=False):
+        # `full_area_sweeps` is present on every fake world (not only when on) because
+        # features/boss_locks reads it with getattr and an ABSENT option reads off -- a duck that
+        # omitted the attribute would test the fallback instead of the option.
+        self.options = type("_O", (), {"progression_surface": _FakeOptionSet(surface),
+                                       "full_area_sweeps": _FakeToggle(full_area)})()
 
 
 def _classes_in(members, location_tags):
@@ -397,3 +406,114 @@ def test_carian_inverted_checks_stay_out_of_the_standard_layout_sweep():
     assert statue_flags.isdisjoint(swept_flags), (
         "Study Hall's standard-layout sweep bypasses the Carian Inverted Statue gate: %s"
         % sorted(statue_flags & swept_flags))
+
+
+# ---------------------------------------------------------------------------------------------
+# `full_area_sweeps` (#1033, siffrin + bobler) -- "does killing a boss give me every item in the
+# area?". The option's whole mechanism is that the per-seed surface cut stops running, so the
+# assertions below are stated against the SAME pipeline output the four tests above use: what the
+# option does is exactly "make any surface behave like the empty one", and what it must NOT do is
+# touch the permanent floor or any trigger's membership.
+
+
+def test_full_area_sweeps_makes_any_surface_pay_out_the_whole_bake():
+    """THE ACCEPTANCE CASE (rule 11). siffrin, 2026-08-25: "does killing a boss give me every item
+    in the area? i only have 1 region and i already killed loreta and malenia and im not sure what
+    else to check". With the option ON, no surface selection may take a member back out -- for
+    EVERY surface, including the default one that protects the collectathon, the payload is the
+    whole bake at that rung."""
+    from worlds.eldenring.features.boss_locks import enabled_sweeps
+    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring import contract
+    whole = enabled_sweeps(_FakeWorld(set()))
+    for surface in (set(), contract.SURFACE_DEFAULT_CLASSES, _CUTTABLE, {"Seedtree"}):
+        live = enabled_sweeps(_FakeWorld(surface, full_area=True))
+        assert live == whole, (
+            "full_area_sweeps ON with surface=%s did not pay out the whole bake -- %d trigger(s) "
+            "differ from the uncut payload" % (sorted(surface),
+                                               sum(1 for k in set(live) | set(whole)
+                                                   if live.get(k) != whole.get(k))))
+        got = _classes_in({ap for mem in live.values() for ap in mem}, LOCATION_TAGS)
+        # Witness: an empty bake would satisfy the equality above for the wrong reason.
+        assert got == _CUTTABLE, (
+            "full_area_sweeps ON with surface=%s should carry all six cuttable classes, got %s"
+            % (sorted(surface), sorted(got)))
+
+
+def test_full_area_sweeps_off_is_byte_identical_to_head():
+    """OFF MEANS OFF, and off is the DEFAULT, so this is the gate that says the option shipped
+    inert. An explicit `full_area_sweeps=0` world and a world that has never heard of the option
+    must produce the SAME payload, trigger for trigger and member for member -- the second half
+    matters because every pre-existing caller (and every synthetic duck in this repo) passes a
+    world with no such attribute."""
+    from worlds.eldenring.features.boss_locks import enabled_sweeps
+    from worlds.eldenring import contract
+
+    class _NoOptionWorld:
+        def __init__(self, surface):
+            self.options = type("_O", (), {"progression_surface": _FakeOptionSet(surface)})()
+
+    for surface in (set(), contract.SURFACE_DEFAULT_CLASSES, _CUTTABLE):
+        off = enabled_sweeps(_FakeWorld(surface, full_area=False))
+        absent = enabled_sweeps(_NoOptionWorld(surface))
+        assert off == absent, (
+            "surface=%s: an explicit OFF and an ABSENT full_area_sweeps disagree -- the option is "
+            "not inert when off" % sorted(surface))
+
+
+def test_full_area_sweeps_delta_is_exactly_the_surface_cut():
+    """MEASURED, not asserted-away (#1033). At the default Progression Surface the option restores
+    113 member links -- Fragment 40, Seedtree 38, Revered 22, Church 13 -- and NOTHING else: no
+    trigger appears, disappears, or gains a member the bake did not already hold. The number is
+    pinned per class rather than in total so that a regen moving one collectathon line cannot be
+    absorbed by another moving the other way."""
+    import collections
+    from worlds.eldenring.features.boss_locks import enabled_sweeps
+    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring import contract
+    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+    off = enabled_sweeps(_FakeWorld(contract.SURFACE_DEFAULT_CLASSES))
+    on = enabled_sweeps(_FakeWorld(contract.SURFACE_DEFAULT_CLASSES, full_area=True))
+    assert set(on) == set(off), (
+        "full_area_sweeps changed the TRIGGER set (%d on vs %d off). It widens MEMBERSHIP only; "
+        "which bosses sweep is `dungeon_sweep` and which groups can fire is #445."
+        % (len(on), len(off)))
+    gained = collections.Counter()
+    for fl, members in on.items():
+        extra = set(members) - set(off[fl])
+        assert extra <= set(DUNGEON_SWEEPS[fl]), (
+            "trigger %s gained %d member(s) that are not in the BAKED list -- the option must "
+            "restore, never invent" % (fl, len(extra - set(DUNGEON_SWEEPS[fl]))))
+        for ap in extra:
+            for cls in _CUTTABLE & set(LOCATION_TAGS.get(ap, ())):
+                gained[cls] += 1
+    assert dict(gained) == {"Fragment": 40, "Seedtree": 38, "Revered": 22, "Church": 13}, (
+        "the measured default-surface delta moved: %s. This is a corpus fact, so a regen may "
+        "legitimately move it -- re-measure, re-state the WHY, and never re-baseline it to make a "
+        "red go away." % dict(gained))
+
+
+def test_full_area_sweeps_does_not_lift_the_floor():
+    """The floor is not an option, and this option in particular is the one a reader would expect
+    to lift it -- "every check in the area" does not include another boss's remembrance, a quest
+    key item or a merchant's stock. Same assertion as test_the_floor_holds_whatever_the_surface_says
+    with the option ON, because the floor lives in the BAKE and this option only skips the cut: if
+    that ever stopped being true, this is where it shows."""
+    from worlds.eldenring.features.boss_locks import enabled_sweeps
+    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring.boss_reward_lots import BOSS_REWARD_DEFEAT
+    from worlds.eldenring.boss_drops import BOSS_DROP_ENTITY
+    from worlds.eldenring.data import LOCATIONS
+    from worlds.eldenring import contract
+    _flag_of = {ap: int(fl) for locs in LOCATIONS.values() for (_n, ap, fl) in locs}
+    live = enabled_sweeps(_FakeWorld(contract.SURFACE_DEFAULT_CLASSES, full_area=True))
+    members = {ap for mem in live.values() for ap in mem}
+    assert len(members) > 3000, ("only %d member(s) -- this gate is asserting over almost nothing"
+                                 % len(members))
+    own_reward = {ap for trig, mem in live.items() for ap in mem
+                  if BOSS_REWARD_DEFEAT.get(_flag_of.get(ap)) == trig
+                  or BOSS_DROP_ENTITY.get(_flag_of.get(ap)) == trig}
+    leaked = {ap for ap in members if _SWEEP_NEVER & set(LOCATION_TAGS.get(ap, ()))}
+    leaked -= own_reward | _KNOWN_IMPORTANT_IN_SWEEPS
+    assert not leaked, ("full_area_sweeps let %d floor-tagged check(s) into a sweep: %s"
+                        % (len(leaked), sorted(leaked)[:5]))

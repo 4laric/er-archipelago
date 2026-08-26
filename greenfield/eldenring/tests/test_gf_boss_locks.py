@@ -117,3 +117,53 @@ class DungeonSweepOffSeed(WorldTestBase):
                          "features/boss_locks.py::slot_data is not honoring the option; a player "
                          "who disabled sweeps would still get whole-dungeon auto-grants on boss "
                          "kills")
+
+
+class FullAreaSweepsOneRegionSeed(WorldTestBase):
+    """siffrin's case, generated (#1033). One region, `full_area_sweeps` on: every check the sweep
+    tables hold for that region is in the payload, with nothing taken back out by the Progression
+    Surface.
+
+    A GENERATED world rather than a synthetic duck, because the unit tests in
+    test_gf_dungeon_sweep_rungs already pin what the option DOES -- what they cannot see is whether
+    the yaml key exists at all. An option that never reached `GFOptions` would leave them all green.
+    """
+    game = GAME
+    options = {"num_regions": 1, "ending_condition": "great_runes",
+               "dungeon_sweep": "bosses", "full_area_sweeps": True}
+
+    def test_every_baked_member_is_paid_out(self):
+        from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+        sd = self.world.fill_slot_data()
+        sw = sd.get("dungeonSweepFlags", {})
+        self.assertTrue(sw, "a one-region seed at the widest rung must still emit sweeps")
+        for fl_str, members in sw.items():
+            baked = DUNGEON_SWEEPS[int(fl_str)]
+            self.assertEqual(sorted(members), sorted(baked),
+                             "trigger %s paid out %d of its %d baked members with "
+                             "full_area_sweeps on -- something is still cutting"
+                             % (fl_str, len(members), len(baked)))
+
+
+class FullAreaSweepsOffSeed(WorldTestBase):
+    """The control: the SAME seed shape with the option left at its default. The surface cut must
+    still run, so at least one trigger pays out fewer members than the bake holds -- otherwise the
+    class above passes for free on a corpus where nothing was ever being cut."""
+    game = GAME
+    options = {"num_regions": 1, "ending_condition": "great_runes",
+               "dungeon_sweep": "bosses"}
+
+    def test_the_surface_cut_still_runs(self):
+        from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+        from worlds.eldenring.features.boss_locks import sweep_surface_cut
+        sd = self.world.fill_slot_data()
+        sw = sd.get("dungeonSweepFlags", {})
+        self.assertTrue(sw, "a one-region seed at the widest rung must still emit sweeps")
+        cut = sweep_surface_cut(self.world)
+        self.assertTrue(cut, "the DEFAULT Progression Surface claims four classes -- an empty cut "
+                             "here means the default moved and this control is vacuous")
+        for fl_str, members in sw.items():
+            baked = set(DUNGEON_SWEEPS[int(fl_str)])
+            self.assertEqual(set(members), baked - cut,
+                             "trigger %s: the emitted members are not the bake minus this seed's "
+                             "surface cut" % fl_str)
