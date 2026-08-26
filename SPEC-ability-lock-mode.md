@@ -80,6 +80,15 @@ Bell the player may not own yet are not a guarantee.
   nothing — the items stay `progression` either way, so relaxing is a logic edit, not a re-pool.
   If fewer than four attacks are locked, no rule is needed: an unlocked attack button is a damage
   source at start (fists).
+- **SHIPPED (#1035, Alaric 2026-08-25): the conservative half of the damage rule.** The
+  reachability rule above is still open; what ships is the `early_items` mitigation. When all four
+  attack inputs are locked and the mode is progressive, `create_items` declares `Unlock: R1` to
+  AP's `early_items` (exportable, the Roll seam from #980), so a weapon attack is guaranteed early
+  wherever in the multiworld it lands, without touching the reachability graph. **Spells do not
+  count and get no carve-out** — Alaric: *"spells don't count, you need an L or R button to cast a
+  spell"* (a staff or seal casts on an attack button, so a caster with all four locked is exactly
+  as weaponless). §9.3's open question is therefore answered for spells; ashes/consumables remain
+  open, and #1035 stays open for whether the full logic rule is still wanted on top.
 - **Roll, crouch, heal: no logic rules.** They make the game harder, not incompletable — the same
   standing precedent as `no_equip_load`/`no_fall_damage`, which are difficulty options with zero
   logic footprint. Their items are still `progression` (not `useful`) so fill treats them as
@@ -239,7 +248,9 @@ first (§7), world side follows in the same release.
 2. **Item names.** The §1 table's (`Light Attack`, `Guard`, …) vs button-explicit
    (`R1: Light Attack`) — the latter survives players forgetting which button casts.
 3. **Do ashes/consumables count as a damage source in logic?** Conservative answer (no) is in
-   §3; relaxing it later is a logic-only edit.
+   §3; relaxing it later is a logic-only edit. **Spells: RULED, 2026-08-25 — they do not count.**
+   *"spells don't count, you need an L or R button to cast a spell"* (Alaric). Ashes/consumables
+   are still open.
 4. **Does `Heal` lock the Physick too?** Item-use says no by default; thematically arguable.
 5. **Scope confirmations:** sprint, Torrent, and item-use stay unlocked forever, per §1 — flag
    now if any of those was meant to be lockable.

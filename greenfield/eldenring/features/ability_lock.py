@@ -23,6 +23,14 @@ ITEMS sequential ids, so seven names here would renumber every later feature's i
 them at contract.ABILITY_UNLOCK_ITEM_BASE instead (the spawn-trap lesson); this module only decides
 WHICH get pooled and emits the map.
 
+ONE ATTACK COMES EARLY WHEN ALL FOUR ATTACK INPUTS ARE LOCKED (#1035). A great many checks are
+kill-gated -- boss defeats, enemy drops, every defeat-flag sweep trigger -- and logic knows nothing
+about the locked set, so a seed that locks r1+r2+l1+l2 can expect kills the player cannot perform.
+`create_items` therefore declares `Unlock: R1` to `early_items` in exactly that case, the same seam
+Roll uses. Spells are NOT a way out and get no carve-out (Alaric, 2026-08-25: "spells don't count,
+you need an L or R button to cast a spell") -- a staff or seal casts on an attack button. Fewer than
+four locked forces nothing: an unlocked attack input is a damage source from the start.
+
 NOT lockable progression. The unlock items are `useful`, never required by logic -- a seed is always
 completable with an ability still locked, so a missing unlock is a harder run, not a dead one.
 `crouch -> l3` is the one unverified action map (er-logic). `heal` is lockable too, but by a
@@ -46,6 +54,12 @@ class LockedAbilities(OptionSet):
     🛑 crouch is the one UNVERIFIED action: ER has no dedicated crouch action, so the client routes it
     to the stick-click (l3) as a first guess. If a playtest shows that is wrong, the fix is one line
     in er-logic, not here.
+
+    Locking ALL FOUR attack inputs (r1, r2, l1, l2) in Progressive mode leaves you unable to damage
+    anything, and a great many checks are kill-gated -- so that seed forces one attack unlock
+    ("Unlock: R1") into an early sphere, wherever in the multiworld it lands. Spells do not count as
+    an attack for this: a staff or seal casts on an attack button, so a caster with all four locked
+    is just as weaponless. Locking three or fewer forces nothing -- you still have an attack.
 
     Ability Lock Mode decides whether these stay off all seed (Static) or start off and are unlocked
     by items you find (Progressive). Env-overridable in test builds via ER_ABILITY_LOCK_TEST."""
@@ -91,6 +105,21 @@ class AbilityUnlocksRequired(DefaultOnToggle):
 
     No effect outside progressive mode, or when Locked Abilities is empty."""
     display_name = "Ability Unlocks Required for Goal"
+
+
+# The four ATTACK inputs. A seed that locks every one of them leaves the player with no way to
+# damage anything -- and spells are not an escape hatch: a staff or seal casts on one of these same
+# buttons (Alaric, 2026-08-25: "spells don't count, you need an L or R button to cast a spell").
+_ATTACK_KEYS = ("r1", "r2", "l1", "l2")
+# Which unlock `create_items` forces early when all four are locked (#1035). Fixed, not drawn: r1 is
+# the primary attack input and a constant keeps the guarantee seed-independent.
+_FORCED_EARLY_ATTACK = "r1"
+
+
+def _all_attacks_locked(keys):
+    """True when this seed locks EVERY attack input -- the only case that needs a forced attack."""
+    have = set(keys)
+    return all(k in have for k in _ATTACK_KEYS)
 
 
 def _locked_keys(world):
@@ -160,6 +189,27 @@ class AbilityLock(Feature):
         # `items` above guarantees. Applies in both required/opt-out modes -- the cripple is the same.
         if "roll" in keys:
             world.multiworld.early_items[world.player][names["roll"]] = 1
+        # AN ATTACK MUST COME EARLY WHEN ALL FOUR ATTACK INPUTS ARE LOCKED (#1035, Alaric's ruling
+        # 2026-08-25). With r1/r2/l1/l2 all locked the player holds no way to hit anything, and a
+        # great many checks are kill-gated (boss defeats, enemy drops, every defeat-flag sweep
+        # trigger) -- so the seed can expect kills it has made impossible. The conservative fix is
+        # this seam, not a reachability rule: declare ONE attack unlock to `early_items` so a weapon
+        # attack is guaranteed early WHEREVER it lands (exportable, exactly like Roll above), while
+        # the logic graph is left untouched. #1035 stays open for the full logic-rule half.
+        #
+        # SPELLS DELIBERATELY DO NOT COUNT. Alaric, 2026-08-25: "spells don't count, you need an L
+        # or R button to cast a spell." A staff or seal casts ON an attack input, so a caster with
+        # all four locked is exactly as weaponless as anyone else -- there is no caster carve-out,
+        # and the L/R unlocks are the only attack path this code recognises.
+        #
+        # r1 is the deterministic pick: it is the game's primary attack input, every weapon has one,
+        # and a fixed choice keeps the declaration seed-independent (no draw to re-measure, no
+        # dependence on world.random, and the same yaml always generates the same guarantee).
+        # Fewer than four locked needs no forcing: an unlocked attack button is still a damage
+        # source at start (fists at worst). Orthogonal to ability_unlocks_required -- the cripple is
+        # the same whether the unlocks gate the goal or not, so this fires in both modes, like Roll.
+        if _all_attacks_locked(keys):
+            world.multiworld.early_items[world.player][names[_FORCED_EARLY_ATTACK]] = 1
         return items
 
     def slot_data(self, world):
