@@ -49,7 +49,11 @@ JORI = 2052430800
 JORI_ARENA_REGION = "Scadu Altus"
 # The five NovahDango reported, by ap id, with the region they live in and the boss that must
 # grant them now. Midra is Abyssal's own major (m28_00, inside the region).
-NOVAHDANGO_FIVE = {7773684, 7773729, 7773753, 7773754, 7773755}
+# 2026-08-26 (#1013, Enia vanilla): the ap ids below moved because Enia's hundred hub rows
+# left the corpus, which renumbers every LATER ap id. That is this branch's change, NOT a
+# region move and NOT a renumbering bug. Every id here was RE-READ from the regenerated
+# data.py by flag, never by subtracting 100 from the old one.
+NOVAHDANGO_FIVE = {7773584, 7773629, 7773653, 7773654, 7773655}
 ABYSSAL = "Abyssal"
 
 LEDA = 580600
