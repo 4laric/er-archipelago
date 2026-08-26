@@ -276,7 +276,9 @@ OFF_LEDGER = {
                       "::test_armor_bundle_wire_absent_when_off",
                       {"armor_bundles": False}),
     # Progressive ability lock (#980): the id->ability map is emitted ONLY under
-    # ability_lock_mode: progressive; a static-mode seed (the default) emits nothing.
+    # ability_lock_mode: progressive (the default since 2026-08-25); the static opt-out emits
+    # nothing -- and neither does progressive with an empty locked_abilities, which is the shipped
+    # default state (test_gf_ability_unlock.py::ProgressiveDefaultWithNoLockedAbilities).
     "abilityUnlockItems": ("off_test",
                            "test_gf_ability_unlock.py::StaticMintsNoItems"
                            "::test_no_unlock_items_and_no_map",

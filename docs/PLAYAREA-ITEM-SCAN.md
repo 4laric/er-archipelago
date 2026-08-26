@@ -1,0 +1,415 @@
+# PlayArea item scan — the runbook
+
+Replace a 91%-accurate guess with the exact runtime answer, for the checks whose region we have
+never confirmed.
+
+This runs on **Alaric's Windows box**, because it needs the extracted MSB corpus and CI does not
+have it. Everything below is mechanical: no step is investigative, and every command is exact.
+
+The world-repo half of the region audit (issue #1025, PRs #1027/#1028/#1029) is what asks the
+question; this file is how it gets answered.
+
+---
+
+## 1. Why — what this replaces
+
+`greenfield/check_region_second_opinion.tsv` carries two opinions per check:
+
+| column | what it is | how good it is |
+|---|---|---|
+| `verdict` (`external_regions`) | a public wiki's placement for the vanilla item | silent on 209 of 305 rows: a generic item name cannot name one pickup |
+| `msb_vote_region` | **nearest region-attributed Site of Grace**, folded into the overworld frame (`tools/msb_region_vote.py`) | **91.4%** on a 2607-check control set — one row in ten is wrong |
+
+Both are nearest-neighbour derivations, which is the same shape as the `tile_pr()` hop that gave
+these 305 checks their regions in the first place. They **cannot fail** (CONTRIBUTING rule 1), so
+they rank the work; they do not settle it.
+
+The instrument that settles it already exists and is already calibrated against an in-game
+measurement: the **point-in-volume test against `Region/PlayArea`**, which reads
+`<PlayRegionID>` — *the exact id the client's kick-watch reads at runtime*. It is what
+`tools/datamine_grace_ground.py` runs over the 421 warp graces. This runbook points the same
+machinery at **item coordinates** instead.
+
+Scope, in order of value:
+
+* **260 checks** — the coord-bearing rows of the audit set. This is the decisive run.
+* **3,966 item flags** — every flag with coordinates in `greenfield/item_grace_coords.tsv`
+  (5,122 rows; the surplus is the `_00`/`_10` MSB version pair plus 442 genuinely double-placed
+  flags). Optional, and worth doing once: it re-grounds every check, not only the unconfirmed
+  ones, and it is the only way to measure the 8.6% error rate of the vote directly.
+
+---
+
+## 2. What runs — the machinery, by name
+
+Everything needed is in `tools/datamine_grace_ground.py`. **Read it before you extend it.**
+
+| name | what it does | reuse as-is? |
+|---|---|---|
+| `class Vol` | one PlayArea volume: `pr` (`PlayRegionID`), `kind`, centre, `yaw`, `a`/`b`/`h` | yes |
+| `Vol.contains(x, y, z, yslack=8.0)` | the point-in-volume test. Box (rotates the delta by +yaw), Cylinder (planar radius), Sphere (3-D radius); ±8 m vertical slack | yes — **do not re-implement** |
+| `_shape(el)` | reads `<Shape>`: Box → (Width, Depth, Height), Cylinder/Sphere → Radius, **Composite → the list of child region names** | yes |
+| `_load_msb_playareas(d, area, tx, tz)` | every PlayArea volume in ONE witchy'd MSB dir, world-positioned as `tile*256 + local`; resolves Composite shapes to their named children | yes |
+| `load_volumes()` | all `m60_*_00-msb-dcx` / `m61_*_00-msb-dcx` overworld volumes, deduped | yes |
+| `load_interior_volumes(mtile)` | the same for ONE interior map (`mAA_BB`; world == local, no tile offset), cached | yes |
+| `_nearest_face(vols, x, y, z)` | `(planar face-distance, vol)` for the nearest y-compatible volume — 0 when inside in plan | yes, for the seam case |
+| `SEAM_SLACK = 8.0` | a point inside no volume but within 8 m of a face stands on that face's ground — **indoors AND outdoors** since 2026-08-26 | yes |
+| `derive_ground(map_id, x, y, z, vols, tile_ids, interior_ids)` | ⭐ **THE LADDER**: `volume -> seam -> tile-default -> none` (overworld) / `interior-vol -> interior-seam -> interior-map -> none`, folding through `world_xz` and attributing tiles through `fine_tile`. Returns `(sorted raw PlayRegionParam ids, source)` — the caller divides by 100 for the bucket | yes — **both tools call THIS**; `datamine_item_play_regions.derive` is an alias of it, never a copy |
+| `_srcname(vol)` | a volume's name collapsed to single spaces, safe for the TAB-separated `source` column (at least one MSB name contains a literal tab) | yes |
+| `MEASURED_GROUND` | in-game kick-watch measurements the derivation must AGREE with | keep asserting against it |
+
+🛑 **The overworld transform in `_load_msb_playareas` is `tile*256 + local` and it is only ever
+handed fine-grid (`_00`) tiles.** Item coordinates are NOT all fine-grid: some rows are authored
+on LOD1/LOD2 tiles, where the pitch is `256 << lod` plus a `(pitch-256)/2` centring term. Fold the
+ITEM through `tools/overworld_fold.py::world_xz` before testing it against the volumes — that is
+the single shared fold, and re-implementing it is issue #338 all over again.
+
+🛑 **A check's label tile is not always the tile its MSB row lives on.** Three Bestial Sanctum
+checks (`1051417000`, `1051417010`, `1051417030`) are labelled `m60_51_41` and their coordinates
+are authored in `m60_51_43`. Drive the scan off `item_grace_coords.tsv`'s `map_id`, never off the
+label. Those rows carry `vote_note=CROSS-TILE-MSB` today.
+
+---
+
+## 3. Where — the box and its inputs
+
+1. Alaric's Windows checkout of `er-archipelago`.
+2. `elden_ring_artifacts/` with, at minimum:
+   * the **witchy'd MSB directories** (`WitchyBND` the `.msb.dcx` first) — `m??_??_??_??-msb-dcx`
+     dirs. WitchyBND does not promise a subdirectory, so **three layouts are accepted** and every
+     tool searches them in the same order, stopping at the first that actually holds MSB dirs:
+
+     1. `<artifacts-root>/map/`
+     2. `<artifacts-root>/mapstudio/` (also `<artifacts-root>/map/mapstudio/`)
+     3. `<artifacts-root>/` itself, when the `m*-msb-dcx` dirs sit directly in it
+
+     A directory counts only if it DIRECTLY contains `m*-msb-dcx` children — an empty `map/` does
+     not shadow a populated `mapstudio/`, and unrelated siblings (`_pilot`, `breakgeom`, `m00`…)
+     never make a root look like an MSB dir. One implementation, `tools/artifacts_root.py`, shared
+     by every tool below; if nothing is found the FATAL names every location it tried.
+   * `vanilla_er/vanilla_er/` (or `vanilla_params/`) — the param CSVs, for
+     `ItemLotParam_map.csv`, `ItemLotParam_enemy.csv`, `BonfireWarpParam.csv`,
+     `PlayRegionParam.csv`.
+3. Python 3.11+. No third-party packages; no network.
+
+🛑 **The corpus does not have to live in the checkout.** Every tool below takes
+`--path <artifacts-root>`, and it defaults to `elden_ring_artifacts/` beside the repo root — so a
+corpus kept anywhere else is a flag, not an edit. `--artifacts` is kept as an alias of `--path` on
+the three tools that shipped it first, so every command in this file works with either spelling.
+There is deliberately no environment-variable fallback: an invisible input is how a scan reads a
+stale corpus and writes a plausible table. One implementation, `tools/artifacts_root.py`, gated by
+`test_gf_artifacts_path.py`.
+
+Confirm the corpus is there before anything else — an empty scan that writes a table is the
+failure mode this project has already paid for twice. **Pass `--path` here first**: if the check
+passes with a flag the scan is then run without, the check was of a different corpus.
+
+```
+python tools/datamine_grace_ground.py --path <artifacts-root>      # default: elden_ring_artifacts/
+```
+
+(Report only, deliberately: this run is the corpus check. `--emit` is what writes
+`greenfield/grace_ground.tsv`, and every command in this file that means to write it says so.)
+
+Expect `PlayArea volumes: ~497 (m60+m61)` (measured on a comprehensive 1,346-dir export,
+2026-08-26 -- PlayAreas exist at play-region boundaries, not on every tile) and
+`421 total, ~293+ with a derived ground`.
+If it says `FATAL: no witchy'd m60/m61 MSBs`, stop and read the paths it lists: it names every
+layout it searched, so either the corpus is not extracted or `--path` is pointed above/below it.
+
+---
+
+## 4. The sequence
+
+### Step 1 — recover the dropped coords rows
+
+`item_grace_coords.tsv` is missing rows it should have. **8 checks in the audit set carry an MSB
+`treasure`/`enemy` provenance in `greenfield/msb_flag_region.tsv` and have NO coordinates row:**
+
+```
+1042327100   treasure   m60_42_32   Weeping     Composite Bow                 (audit DISAGREE)
+1035497990   enemy      m60_35_49   Liurnia     Somber Smithing Stone [2]
+1035547980   enemy      m60_35_54   Mt. Gelmir  Somber Smithing Stone [4]
+1042527990   enemy      m60_42_52   Altus       Golden Rune [9]
+1043327990   enemy      m60_43_32   Weeping     Golden Rune [6]
+1048547990   enemy      m60_48_54   Mountaintops  Rotten Battle Hammer        (audit DISAGREE)
+1051357990   enemy      m60_51_35   Caelid      Golden Rune [9]
+1051547980   enemy      m60_51_54   Mountaintops  Somber Smithing Stone [7]
+```
+
+A further **14** audit checks have only an `event` MSB provenance (`1033417400`, `1033417410`,
+`1039437400`, `1042397500`, `1042397700`, `1044327400`, `1044327410`, `1044537300`, `1046367700`,
+`1047567700`, `1049577700`, `1049577710`, `1049577720`, `1052557700`). Those are event-script
+payouts, not placed objects: they may have no authored position at all, and that is a finding to
+record, not a bug to chase. **Do not conclude "the coords tool dropped 22 rows" — establish which
+class each is in before you touch anything** (a census column is not a population).
+
+Re-run the coords tool with the enemy pass on, which is the half most likely to be the cause —
+`--enemy` is off by default and the enemy-sourced flags above are exactly what it produces:
+
+```
+python tools/datamine_item_grace_coords.py --enemy --merge --path <artifacts-root>
+```
+
+`--merge` UNIONs with the committed tsv (maps scanned this run are refreshed, absent maps carried
+forward) so a partial witchy export composes instead of clobbering. The tool refuses a
+**degenerate** scan (params missing, zero maps, or far fewer rows than the committed file) unless
+`--force` — **do not pass `--force` to make a red run green.**
+
+Then re-check which of the 8 are still missing, and audit WHY for each survivor:
+
+```
+python - <<'PY'
+import csv, sys
+sys.path.insert(0, "tools")
+import msb_region_vote as V
+items, _ = V.load_coords(".")
+for f in ("1042327100 1035497990 1035547980 1042527990 1043327990 "
+          "1048547990 1051357990 1051547980").split():
+    print(f, "OK" if f in items else "STILL MISSING", items.get(f, ""))
+PY
+```
+
+Commit the regenerated `greenfield/item_grace_coords.tsv` with the row-count delta in the message.
+
+### Step 2 — run the scan
+
+**THE TOOL NOW EXISTS — run it as written, do not re-derive it:** `tools/datamine_item_play_regions.py`
+(PR against #1025, gated by `greenfield/eldenring/tests/test_gf_item_play_regions.py`, which
+exercises the geometry on synthetic MSB fixtures because CI has no corpus).
+
+```
+python tools/datamine_item_play_regions.py --graces --path <artifacts-root>   # step 3 FIRST -- the calibration gate
+python tools/datamine_item_play_regions.py --path <artifacts-root>           # report only: counts, and by-source split
+python tools/datamine_item_play_regions.py --emit --path <artifacts-root>    # writes greenfield/item_play_regions.tsv
+```
+
+`--path` defaults to `elden_ring_artifacts/` beside the repo root and can be dropped when the
+corpus is there. Other flags: `--out`, `--artifacts DIR` (the older spelling of `--path`, kept as
+an alias), `--coords-repo DIR`,
+`--ground PATH` (what `--graces` diffs against), and `--force`, which exists to say a shrink is
+DELIBERATE — the help text says so, and passing it to make a red run green destroys the ground
+truth the gate is made of.
+
+It does exactly what this section specified:
+
+1. `load_volumes()` once. Assert the count clears the measured floor (~497 on a full export;
+   `VOL_FLOOR = 400`); far fewer means a partial witchy export and the scan is worthless -- and
+   the `--graces` diff is the decisive partial-export catch either way.
+2. For each item row in `item_grace_coords.tsv`:
+   * overworld (`m60_`/`m61_`): fold with `overworld_fold.world_xz`, then test against the
+     overworld volumes with `Vol.contains`. **Fold first, test second.**
+   * interior: `load_interior_volumes(map_id)` and test in local coordinates.
+   * inside no volume: `_nearest_face` within `SEAM_SLACK`, else the `PlayRegionParam` tile
+     default, else `-`. Record WHICH of those four answered, in a `source` column, exactly as
+     `grace_ground.tsv` does — the source column is what makes a row falsifiable.
+3. Emit `greenfield/item_play_regions.tsv`, same shape as its sibling:
+   `flag  map_id  play_region_ids  buckets  source`.
+4. Carry a **floor**, like `MIN_DERIVED = 200` next door: refuse to emit a table that derives
+   fewer rows than the committed one. A shrinking ground-truth table that writes anyway is how a
+   gate goes blind. On the FIRST run there is no committed table to ratchet against, so the floor
+   is two-part — `max(committed derived count, MIN_DERIVED_ABS = 2000)`. Raise `MIN_DERIVED_ABS`
+   to the measured count once the first real run has one; raise, never lower.
+5. Take no network, read no game install, and be deterministic.
+
+Three details the implementation settled that this section had left open:
+
+* the seam step applies to the OVERWORLD too, not only interiors (the order above reads that way
+  and it is the right order). ✅ **RESOLVED 2026-08-26 — the two tools now share ONE ladder.**
+  `datamine_grace_ground` used to go straight from "no volume" to the tile default outdoors, which
+  made this an *interface delta* between the tools and the last semantic split between them: three
+  graces sitting 0.9-3.6 m from a PlayArea face answered `seam:` here and `none` there. `none` is
+  the less correct answer — the engine's containment tolerance does not stop applying because the
+  point is outdoors — so `datamine_grace_ground.derive_ground` now owns the whole
+  `volume -> seam -> tile-default -> none` ladder and this file's `derive` is an ALIAS of it
+  (`derive = gg.derive_ground`), not a copy. `--graces` keeps its strict semantics: it still fails
+  on a **bucket** mismatch only, and it was NOT softened to accept none-vs-seam — the fix went into
+  the derivation, which is where it belonged.
+* a volume name may contain a literal **TAB** (`m60_39_54`'s
+  `プレイ領域 6300030<TAB>高山_地図断片８_閉込ボス領域１`, grace 76322). Names are free text and the
+  `source` column is tab-separated, so `_srcname()` collapses whitespace at the point a name
+  becomes a source string. The committed row for 76322 predates that and is CORRUPT: the tab split
+  its source column and pushed `tile` off the end, so that row's tile column holds the second half
+  of a volume name instead of `m60_39_54`, and `--graces` reported a phantom "source delta" purely
+  because the reader had truncated the committed source at the tab. The regen repairs the row; the
+  bucket (63000) does not move.
+* the tile default is looked up for the tile the FOLDED position lands on, not the tile the row
+  was authored in — a LOD2 row's authored tile spans 16 fine tiles and only one of them is the
+  ground the item stands on. 🛑 **That attribution ROUNDS, it does not floor** — the overworld
+  tile's local coordinate frame is CENTRED on the tile, so tile `t` owns
+  `[t*256 - 128, t*256 + 128)`. 222 of BonfireWarpParam's 450 overworld grace local axis values are
+  negative, which a corner origin cannot produce. `floor` was wrong for 2053 of the 2768 overworld
+  item placements, always by exactly one tile index, and it is what made this gate refuse on
+  2026-08-26 (graces 76416/76420). It lives in `overworld_fold.fine_tile`, ONE implementation, and
+  `datamine_grace_ground` calls the same function — the two derivations cannot drift again.
+* the `source` vocabulary is `volume:NAME`, `interior-vol:NAME`, `seam:NAME@Nm`,
+  `interior-seam:NAME@Nm`, `tile-default`, `interior-map`, `none`.
+
+### Step 3 — sanity-check it against something already known
+
+🛑 **FIRST, ONCE, after pulling the shared-ladder change (2026-08-26):**
+
+```
+python tools/datamine_grace_ground.py --emit --path <artifacts-root>
+```
+
+and commit the regenerated `greenfield/grace_ground.tsv`. `datamine_grace_ground` gained the
+overworld seam step, so the committed table predates the ladder both tools now run. Expect exactly
+this and nothing else:
+
+| grace | committed | regenerated | why |
+| --- | --- | --- | --- |
+| 76214 Main Caria Manor Gate | `-` / `none` | `62000` / `seam:` @1.7 m | gains a bucket |
+| 76453 Fort Faroth | `-` / `none` | `64020` / `seam:` @6.3 m | gains a bucket |
+| 76500 Forbidden Lands | `-` / `none` | `65000` / `seam:` @3.6 m | gains a bucket |
+| 76230 | `62000` / `tile-default` | `62000` / `seam:` @7.4 m | source upgrade, bucket unchanged |
+| 76402 | `64000` / `tile-default` | `64000` / `seam:` @0.9 m | source upgrade, bucket unchanged |
+| 76322 | `63000` / corrupt 5-column row | `63000` / one clean row | the TAB-in-a-name repair above |
+
+Then **`--graces` must come back CLEAN** — no bucket mismatches AND no source deltas. Anything else
+is a finding about the corpus, not about the tools.
+
+🛑 **The gate compares SPAWN POSITIONS, on both sides.** Every grace answer — the committed
+`grace_ground.tsv` and the `--graces` rows diffed against it — is derived from the grace's
+BonfireWarpParam `posX/posY/posZ`, the point the player materialises at and therefore the point the
+client's kick-watch evaluates `play_region` at on warp-in. It is **not** the grace ASSET coordinate
+that `greenfield/item_grace_coords.tsv` carries under the same flag; the two are metres apart at
+some graces, and a gate that judged one against the other would report `seam:`/`none` deltas that
+are artifacts of comparing two different points, not findings about the corpus. Since 2026-08-26
+that is structural rather than a convention: `datamine_grace_ground.grace_rows()` is the single
+generator of the grace population and the gate's own `grace_rows` is a projection of it, so the two
+tools cannot read different points any more than they can run different ladders. (The two copies of
+that loop had already drifted: a BWP row whose spawn position does not parse was emitted into
+`grace_ground.tsv` and *skipped* by the gate, so the gate never compared it. It does now.)
+
+What the regenerated table moves downstream (measured in-sandbox against a simulated regen, so it
+is a prediction with a witness, not a guess):
+
+* `greenfield/eldenring/region_graces.py` — **grace 76500 "Forbidden Lands" moves from Altus to
+  Mountaintops of the Giants** in `REGION_GRACE_POINTS`, and both regions' `REGION_GRACE_LANDMARKS`
+  shift with it (Altus picks up 73450 Divine Tower of East Altus: Gate; Mountaintops drops 76502
+  Grand Lift of Rold for 76500). That is the correction, not a side effect: the Forbidden Lands
+  grace stands on Mountaintops ground. 76214 and 76453 gain buckets their own warp group already
+  agreed with, so they move nothing.
+* `gen_data.py`'s GRACE-GROUND GATE stays green — a regen completed clean with the simulated table,
+  `locations` still 5048, and no region lost its overworld face. The gate has no tolerance to
+  check: it judges rows that HAVE a bucket, so a row gaining one is a row it starts judging, and
+  all three land on ground their own region (or its parent) owns.
+* `tools/msb_region_vote.py`'s anchor coverage rises **340 → 342** graces (76453, 76500; 76214 was
+  already anchored through its warp group). The `SUSPECT-ANCHOR` count is unchanged at 24 — and
+  note that a `seam:` row is correctly NOT suspect: that badge is for `tile-default`, a tile-wide
+  guess, and a volume face is real geometry.
+* `test_gf_grace_tile_frame.py` (the corpus-free half of this gate) stays green in both directions:
+  its selection predicate now skips `seam:` alongside `volume:`/`measured:`, because a seam answer
+  comes from a face and cannot be re-derived from the params alone. Rows LEAVING that population is
+  not drift.
+
+Before believing a single item answer, run the scan over the **421 graces** and diff it against
+`greenfield/grace_ground.tsv` — `python tools/datamine_item_play_regions.py --graces`, which
+exits non-zero on a bucket mismatch. Those answers are already calibrated against two in-game kick
+measurements (`76841` → `6840000`, 2026-07-15; `72102` → `6900000/6900010`, 2026-07-21). A scan
+that cannot reproduce `grace_ground.tsv` is not ready to be trusted about items.
+
+The half of this gate that is pure table lookup — the tile default, no volume involved — is also
+asserted in CI over the whole grace population by `test_gf_grace_tile_frame.py`, out of
+`gen_inputs.db`. So a `--graces` refusal on the box is now evidence about the **corpus or the
+volumes**, not about the transform; if it names rows whose committed source is `tile-default` or
+`none`, CI was already red and the tsv is stale, not the export.
+
+### Step 4 — map play_region → our regions and compare
+
+`REGION_PLAY_IDS` in `greenfield/eldenring/region_play_ids.py` maps play ids (116 of them) onto
+our 30 regions. Bucket is `PlayRegionParam.ID // 100`, the kick-watch id space.
+
+```
+python tools/msb_region_vote.py            # the heuristic, for the diff (committed tsvs only -- no corpus, no --path)
+```
+
+✅ **RUN 2026-08-26 -- and the expectation below was WRONG. Read this before believing it.**
+The scan is on main (5,295 placement rows over 4,086 flags). Over the 305 audit flags it answered
+**17 exactly (volume/seam), 10 from a tile default, 241 `none`, and 37 have no scan row at all.**
+The three clusters this section names as "the interesting ones" are almost all in the `none` bucket:
+
+| cluster | expected | measured |
+| --- | --- | --- |
+| 19 rows anchored on 73211 Yelough Anix Tunnel | "settles all 17 at once, in either direction" | **all 19 answer `none`** -- no volume, no seam, and no `PlayRegionParam` default for their tiles. NOT SETTLED. |
+| 2 Weeping rows on 76113 (`1042347000`, `1042347030`) | settled | **both `none`**. NOT SETTLED. |
+| 3 Bestial Sanctum `CROSS-TILE-MSB` rows | settled | `1051417000`/`1051417010` `none`; `1051417030` `tile-default`, which does NOT confirm. NOT SETTLED. |
+
+🛑 **`none` is not a smaller answer, it is no answer** -- absence of a coordinate's containment is
+not evidence about the region, and a row that answers `none` must stay on the heuristic and stay
+in the adjudication queue. The overworld `none` rate is 44% (1,225 of 2,768 m60 rows), because
+`Region/PlayArea` volumes exist at play-region BOUNDARIES and `PlayRegionParam` has no default row
+for most fine tiles. That is the corpus, not a partial export: `--graces` is clean.
+
+Where it IS decisive: **679 checks repo-wide carry an exact answer, and 114 of them disagree with
+the region `data.py` gives them today** (16.8%, higher than the one-in-ten this section guessed).
+🛑 **Do not bulk-apply that list.** A large share of it is NPC-RELOCATION artifacts -- the Patches /
+Thiollier / Moore / Bernahl rows, whose coordinate is where the NPC ENDED UP, not where the check
+is -- and moving `Roundtable Hold :: Margit's Shackle` to Mt. Gelmir because Patches relocated
+there would be the scan being right about a point and wrong about a check. Ground-placed pickups
+are the population this instrument rules on.
+
+Expect the exact answer to disagree with the vote on **roughly one row in ten**. Every
+disagreement is a row where the worksheet's colour was wrong, and the interesting ones are:
+
+* the **17 rows anchored on grace 73211 "Yelough Anix Tunnel"** — badged `SUSPECT-ANCHOR`,
+  because 73211's own region came from a *tile-default* row rather than a volume. They flip
+  Mountaintops checks to Consecrated Snowfield as one block. The PlayArea test settles all 17 at
+  once, in either direction.
+* the **two Weeping checks anchored on 76113 "Seaside Ruins"** (`1042347000`, `1042347030`) which
+  the vote flips to Limgrave — the single most common control-set error family (13 occurrences).
+* the **3 Bestial Sanctum `CROSS-TILE-MSB` rows**.
+
+### Step 5 — flow the answers back into the audit
+
+✅ **DONE 2026-08-26 (steps 1-5).** What the wiring turned out to need, beyond what this list said:
+
+* `EXACT_SOURCES` in `msb_region_vote.py` is `volume:`/`interior-vol:`/`seam:`/`interior-seam:`
+  and deliberately nothing else. `tile-default`/`interior-map` are the same tile-wide guess the
+  vote already IS: a fallback confirming a fallback cannot fail, and the row would silently leave
+  the adjudication queue. A bucket `REGION_PLAY_IDS` does not own, and an answer landing in two of
+  our regions, are both refused for the same reason a two-region grace ground is.
+* A ruling is keyed by FLAG, so it stands for a flag with no `item_grace_coords` row: `cast` on
+  the audit rose 260 -> 268 without a single new coordinate.
+* 🛑 **Use `--revote`, not `--offline`, for step 3's first command.** `--offline` recomputes the
+  wiki half from a cache that only exists on the box that crawled; anywhere else it rewrites every
+  `verdict` as NO-DATA and commits that, destroying a rate-limited crawl. `--revote` refreshes ONLY
+  the `msb_vote_*` columns -- and re-reads `our_region` from `check_region_triage.tsv`, because
+  `data.py` moves under this file (the Ancient Snow Valley cluster moved to Consecrated Snowfield
+  after the crawl) and a fresh vote judged against a stale region invents disagreements.
+* The calibration was RE-MEASURED, not edited: 92.9% on 2,169 controls, with the 518 ruled rows
+  EXCLUDED from the control population -- measuring the vote on rows where geometry replaced it
+  would print the geometry's number under the heuristic's name.
+
+1. Commit `greenfield/item_play_regions.tsv`.
+2. Teach `tools/msb_region_vote.py` to prefer it: where a flag has an exact answer, the vote
+   becomes that answer and `vote_note` becomes **`PLAYAREA-CONFIRMED`** — the heuristic is
+   *replaced*, not averaged with. Where there is no exact answer the nearest-grace vote stays,
+   with its existing notes.
+3. Re-run, in this order:
+   ```
+   python tools/audit_region_second_opinion.py --revote --markdown greenfield/CHECK-REGION-SECOND-OPINION.md
+   python tools/build_region_second_opinion_page.py
+   python tools/regen_all.py --check
+   ```
+4. Update the calibration sentence — `msb_region_vote.CALIBRATION`, which the tsv header and the
+   worksheet page both quote verbatim — and re-measure it rather than editing the number:
+   ```
+   python tools/msb_region_vote.py --calibrate
+   ```
+5. The page's vote colouring then means something different and must SAY so: a
+   `PLAYAREA-CONFIRMED` row is a ruling, and the header caveat must stop applying to it.
+
+---
+
+## 5. What this does not do
+
+* It does not edit `data.py` and it does not change any check's region. A confirmed answer is a
+  candidate for `region_overrides.tsv`, adjudicated through the worksheet, like every other row.
+* It does not run in CI. `elden_ring_artifacts/` is not in the repo and will not be; the
+  committed tsv is the artifact CI sees, and its freshness gate is a row count and a floor, not a
+  re-derivation.
+* It does not answer for the 14 event-payout checks, or for any check with no authored position.
+  Those stay on the heuristic, and the heuristic keeps saying `NO-COORDS`. **Absence of a
+  coordinate is not evidence about the region.**

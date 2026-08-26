@@ -146,6 +146,19 @@ Elden Ring:
   # unchanged.
   dungeon_sweep: bosses
 
+  # "Does killing a boss give me EVERY item in the area?" (siffrin + bobler,
+  # #1033). Off by default, and off is the current behaviour: a sweep pays out
+  # the area's ordinary loot but leaves the classes you put on
+  # progression_surface where they lie, because that is where this seed hid its
+  # key items -- at the default surface, Golden Seeds, Sacred Tears, Scadutree
+  # Fragments and Revered Spirit Ashes.
+  # Turn it on and nothing is held back: the boss hands over its whole area,
+  # progression included. It cannot strand you -- a sweep only grants checks in
+  # a region you kept, behind a boss you could already reach.
+  # Still never swept, whatever this says: another boss's reward, remembrance
+  # or Great Rune, quest/gate key items, and merchant stock.
+  full_area_sweeps: false
+
   # WHICH BOSS ENDS THE RUN.
   #   auto             -- derived (default). On ANY seed with the base game in
   #                       play: Godfrey/Hoarah Loux + the Elden Beast. Under
@@ -932,17 +945,17 @@ Elden Ring:
   # the attack inputs; locking one also stops casting through it. `heal` locks the flask (it heals
   # nothing while locked). Empty = nothing locked (the default).
   #
-  # This is a STATIC lock -- there is no in-run unlock yet. crouch is an unverified mapping. `heal`
-  # is not lockable here (that is the flask option's job).
+  # Nothing below happens until you name an ability here: with this list empty the whole ability-lock
+  # axis is inert, whatever Ability Lock Mode says. crouch is an unverified mapping.
   locked_abilities: []
 
   # EXPERIMENTAL (#980). How the locked abilities behave:
-  #   static      -- off for the whole seed (the default).
-  #   progressive -- they start off and each becomes an "Unlock: X" item shuffled into the
-  #                  multiworld; find it to get that ability back. Needs a client that understands
-  #                  ability unlocks (declared via requiresClientFeatures). No effect if the set
-  #                  above is empty.
-  ability_lock_mode: static
+  #   progressive -- (the default) they start off and each becomes an "Unlock: X" item shuffled into
+  #                  the multiworld; find it to get that ability back. Needs a client that
+  #                  understands ability unlocks (declared via requiresClientFeatures).
+  #   static      -- the opt-out: off for the whole seed, no item and no check.
+  # No effect if the set above is empty.
+  ability_lock_mode: progressive
 
   # EXPERIMENTAL (#980). In PROGRESSIVE mode, must you HOLD your unlock items to finish?
   #   on  (default) -- each "Unlock: X" is progression and is added to the goal's held-item
@@ -966,6 +979,22 @@ Elden Ring:
   # Share locally received trap items with other TrapLink players. Incoming traps whose names this
   # client does not recognize are ignored; linked traps never echo back onto the network.
   trap_link: false
+
+  # SEAMLESS CO-OP: share region unlocks with the other Elden Ring players here.
+  # You all play in ONE physical world (the co-op host's) but each have your own
+  # Archipelago slot -- so if one of you has unlocked Liurnia and the rest have
+  # not, the rest get kicked out of it and cannot follow. With this on, the moment
+  # ANY Elden Ring player who also turned it on unlocks a region, that region's
+  # door opens for all of you: the map gate lifts and its graces light up.
+  #
+  # IT ONLY OPENS THE DOOR. Nobody is handed anyone else's region key item -- that
+  # stays where the multiworld put it, and finding your own is still what counts
+  # for your items and your goal. Generation is identical either way, so turning
+  # this on makes nobody's seed easier to finish.
+  #
+  # Turn it on for every Elden Ring player in the group. Players who leave it off
+  # are unaffected, and other games in the multiworld never see it.
+  region_sync: false
 
 
 # ============================================================================

@@ -41,7 +41,11 @@ from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-AR = os.path.join(ROOT, "elden_ring_artifacts")
+sys.path.insert(0, HERE)
+
+import artifacts_root                          # noqa: E402  -- THE --path argument, not a copy
+
+AR = artifacts_root.default_root(ROOT)
 
 
 def _param_dir(root):
@@ -61,9 +65,13 @@ def _param_dir(root):
 
 
 def _msb_dirs(root):
-    # map/ + mapstudio/ + the root itself (datamine_msb_item_regions scans the root too, and a
-    # witchy export dropped there should mean the same thing to both tools).
-    return [os.path.join(root, "map"), os.path.join(root, "mapstudio"), root]
+    # map/ + mapstudio/ + map/mapstudio/ + the root itself. This tool had the widest private list
+    # in the family and was RIGHT; it is now the SHARED one (tools/artifacts_root.py), so the five
+    # tools that each guessed a narrower subset agree with it instead of contradicting it. Only the
+    # candidates that actually hold witchy MSB dirs come back; the old unfiltered list is the
+    # no-corpus fallback so a message can still name a path.
+    return (artifacts_root.msb_dirs(root)
+            or [os.path.join(root, "map"), os.path.join(root, "mapstudio"), root])
 
 
 MSB_DIRS = _msb_dirs(AR)
@@ -72,8 +80,9 @@ OUT = os.path.join(ROOT, "greenfield", "item_grace_coords.tsv")
 
 
 def _set_artifacts_root(path):
-    """`--artifacts`: point every input at a different artifacts tree (same flag, same semantics
-    as datamine_msb_item_regions). Output stays repo-relative; `--out` moves it."""
+    """`--path` (alias `--artifacts`): point every input at a different artifacts tree, the same
+    flag every corpus-reading tool now takes (tools/artifacts_root.py). Output stays repo-relative;
+    `--out` moves it."""
     global AR, MSB_DIRS, VV
     AR = os.path.abspath(path)
     MSB_DIRS = _msb_dirs(AR)
@@ -309,10 +318,9 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--maps", nargs="*", help="restrict to these map ids (e.g. m20_00 m20_01)")
     ap.add_argument("--out", default=OUT)
-    ap.add_argument("--artifacts", metavar="DIR",
-                    help="use this artifacts tree instead of <repo>/elden_ring_artifacts (accepts "
-                         "both param layouts: vanilla_params/ and vanilla_er/vanilla_er/; MSB dirs "
-                         "under map/, mapstudio/, or the root)")
+    artifacts_root.add_path_argument(
+        ap, extra_help="accepts both param layouts (vanilla_params/ and vanilla_er/vanilla_er/) "
+                       "and MSB dirs under map/, mapstudio/, or the root")
     ap.add_argument("--merge", action="store_true",
                     help="UNION with the committed tsv: item rows for maps scanned THIS run are "
                          "refreshed, item rows for absent maps are carried forward, and grace rows "
@@ -326,10 +334,9 @@ def main(argv=None):
                     help="also scan Part/Enemy for enemy-drop checks (slower -- reads every enemy in "
                          "every map; treasure alone covers most checks)")
     args = ap.parse_args(argv)
-    if args.artifacts:
-        if not os.path.isdir(args.artifacts):
-            sys.exit(f"FATAL: --artifacts {args.artifacts} is not a directory")
-        _set_artifacts_root(args.artifacts)
+    root = artifacts_root.resolve(args.path)
+    if root:
+        _set_artifacts_root(root)
 
     print("[coords] reading params...", flush=True)
     lot2flags = _lot2flags()

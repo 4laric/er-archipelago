@@ -6,25 +6,38 @@ never touches menus (see the client's ability_lock.rs).
 
 TWO MODES, one set (`locked_abilities`):
 
-* STATIC (default) -- the abilities are off for the whole seed. Pure client behaviour: no item, no
-  check, no pool. The set rides `slot_data["options"]["locked_abilities"]` (emitted centrally by
+* STATIC (the opt-out) -- the abilities are off for the whole seed. Pure client behaviour: no item,
+  no check, no pool. The set rides `slot_data["options"]["locked_abilities"]` (emitted centrally by
   `core._options_echo`), read by `er-logic/options.rs parse_ability_lock`.
 
-* PROGRESSIVE (#980) -- the same abilities start locked, but each becomes a SYNTHETIC 'Unlock: X'
-  item shuffled into the pool; finding it unlocks that ability (`er_logic ability_lock::unlock`).
-  This IS a pool contribution: `create_items` mints one useful item per locked ability (count-exact,
-  displacing filler like every other contributor), and `slot_data` ships the per-seed
-  `abilityUnlockItems` {item_id: ability} map plus `requiresClientFeatures: ["ability_unlock"]` --
-  the armorBundles pattern exactly. The item ids are registered at a fixed base in core.py; the
-  client never grants them, it resolves them through the map.
+* PROGRESSIVE (#980, THE DEFAULT since 2026-08-25) -- the same abilities start locked, but each
+  becomes a SYNTHETIC 'Unlock: X' item shuffled into the pool; finding it unlocks that ability
+  (`er_logic ability_lock::unlock`). This IS a pool contribution: `create_items` mints one useful
+  item per locked ability (count-exact, displacing filler like every other contributor), and
+  `slot_data` ships the per-seed `abilityUnlockItems` {item_id: ability} map plus
+  `requiresClientFeatures: ["ability_unlock"]` -- the armorBundles pattern exactly. The item ids
+  are registered at a fixed base in core.py; the client never grants them, it resolves them
+  through the map.
 
 WHY THE ITEMS ARE core-REGISTERED, NOT `ITEMS =` HERE. `registry.allocate_item_ids` hands feature
 ITEMS sequential ids, so seven names here would renumber every later feature's items. core.py mints
 them at contract.ABILITY_UNLOCK_ITEM_BASE instead (the spawn-trap lesson); this module only decides
 WHICH get pooled and emits the map.
 
-NOT lockable progression. The unlock items are `useful`, never required by logic -- a seed is always
-completable with an ability still locked, so a missing unlock is a harder run, not a dead one.
+GOAL-REQUIRED BY DEFAULT. Under `ability_unlocks_required` (a DefaultOnToggle) the pooled unlocks
+are `progression` and are ANDed into the goal's held-item requirement; turn it off and they fall
+back to `useful`, never gating completion. Either way nothing in region/check logic depends on an
+ability, so a seed is always traversable -- the requirement is a held-item gate at the goal, not a
+reachability one.
+
+ONE ATTACK COMES EARLY WHEN ALL FOUR ATTACK INPUTS ARE LOCKED (#1035). A great many checks are
+kill-gated -- boss defeats, enemy drops, every defeat-flag sweep trigger -- and logic knows nothing
+about the locked set, so a seed that locks r1+r2+l1+l2 can expect kills the player cannot perform.
+`create_items` therefore declares `Unlock: R1` to `early_items` in exactly that case, the same seam
+Roll uses. Spells are NOT a way out and get no carve-out (Alaric, 2026-08-25: "spells don't count,
+you need an L or R button to cast a spell") -- a staff or seal casts on an attack button. Fewer than
+four locked forces nothing: an unlocked attack input is a damage source from the start.
+
 `crouch -> l3` is the one unverified action map (er-logic). `heal` is lockable too, but by a
 different mechanism: the client re-applies the No Flask SpEffect while it is locked (the flask
 heals nothing), since heal owns no action bit.
@@ -47,8 +60,15 @@ class LockedAbilities(OptionSet):
     to the stick-click (l3) as a first guess. If a playtest shows that is wrong, the fix is one line
     in er-logic, not here.
 
-    Ability Lock Mode decides whether these stay off all seed (Static) or start off and are unlocked
-    by items you find (Progressive). Env-overridable in test builds via ER_ABILITY_LOCK_TEST."""
+    Locking ALL FOUR attack inputs (r1, r2, l1, l2) in Progressive mode leaves you unable to damage
+    anything, and a great many checks are kill-gated -- so that seed forces one attack unlock
+    ("Unlock: R1") into an early sphere, wherever in the multiworld it lands. Spells do not count as
+    an attack for this: a staff or seal casts on an attack button, so a caster with all four locked
+    is just as weaponless. Locking three or fewer forces nothing -- you still have an attack.
+
+    Ability Lock Mode decides whether these start off and are unlocked by items you find
+    (Progressive, the default) or stay off for the whole seed (Static, the opt-out).
+    Env-overridable in test builds via ER_ABILITY_LOCK_TEST."""
     display_name = "Locked Abilities"
     default = frozenset()
     valid_keys = frozenset(contract.ABILITY_LOCK_KEYS)
@@ -58,22 +78,24 @@ class LockedAbilities(OptionSet):
 class AbilityLockMode(Choice):
     """HOW the Locked Abilities behave.
 
-    ``static`` -- they are off for the entire seed. No item, no check; a pure client restriction.
-
-    ``progressive`` -- they start off, and each locked ability becomes an "Unlock: X" item shuffled
-    into the multiworld. Find it (or receive it from another world) to get that ability back. The
-    items default to `progression` and are REQUIRED to finish (see Ability Unlocks Required) -- so
-    a partner holding your "Unlock: Roll" genuinely blocks your goal, which is the whole point of a
-    multiworld. Turn Ability Unlocks Required off to make them `useful` and never gate completion.
-    Needs a client that understands ability unlocks (declared via
+    ``progressive`` (DEFAULT) -- they start off, and each locked ability becomes an "Unlock: X"
+    item shuffled into the multiworld. Find it (or receive it from another world) to get that
+    ability back. The items default to `progression` and are REQUIRED to finish (see Ability
+    Unlocks Required) -- so a partner holding your "Unlock: Roll" genuinely blocks your goal, which
+    is the whole point of a multiworld. Turn Ability Unlocks Required off to make them `useful` and
+    never gate completion. Needs a client that understands ability unlocks (declared via
     requiresClientFeatures); older clients would leave the abilities locked, so they are told to
     upgrade rather than play it half-supported.
 
-    No effect when Locked Abilities is empty."""
+    ``static`` (the opt-out) -- they are off for the entire seed. No item, no check; a pure client
+    restriction, and no client-feature demand.
+
+    No effect when Locked Abilities is empty (the default) -- this option only bites once you have
+    named an ability to lock."""
     display_name = "Ability Lock Mode"
     option_static = 0
     option_progressive = 1
-    default = 0
+    default = 1
 
 
 class AbilityUnlocksRequired(DefaultOnToggle):
@@ -91,6 +113,21 @@ class AbilityUnlocksRequired(DefaultOnToggle):
 
     No effect outside progressive mode, or when Locked Abilities is empty."""
     display_name = "Ability Unlocks Required for Goal"
+
+
+# The four ATTACK inputs. A seed that locks every one of them leaves the player with no way to
+# damage anything -- and spells are not an escape hatch: a staff or seal casts on one of these same
+# buttons (Alaric, 2026-08-25: "spells don't count, you need an L or R button to cast a spell").
+_ATTACK_KEYS = ("r1", "r2", "l1", "l2")
+# Which unlock `create_items` forces early when all four are locked (#1035). Fixed, not drawn: r1 is
+# the primary attack input and a constant keeps the guarantee seed-independent.
+_FORCED_EARLY_ATTACK = "r1"
+
+
+def _all_attacks_locked(keys):
+    """True when this seed locks EVERY attack input -- the only case that needs a forced attack."""
+    have = set(keys)
+    return all(k in have for k in _ATTACK_KEYS)
 
 
 def _locked_keys(world):
@@ -160,6 +197,27 @@ class AbilityLock(Feature):
         # `items` above guarantees. Applies in both required/opt-out modes -- the cripple is the same.
         if "roll" in keys:
             world.multiworld.early_items[world.player][names["roll"]] = 1
+        # AN ATTACK MUST COME EARLY WHEN ALL FOUR ATTACK INPUTS ARE LOCKED (#1035, Alaric's ruling
+        # 2026-08-25). With r1/r2/l1/l2 all locked the player holds no way to hit anything, and a
+        # great many checks are kill-gated (boss defeats, enemy drops, every defeat-flag sweep
+        # trigger) -- so the seed can expect kills it has made impossible. The conservative fix is
+        # this seam, not a reachability rule: declare ONE attack unlock to `early_items` so a weapon
+        # attack is guaranteed early WHEREVER it lands (exportable, exactly like Roll above), while
+        # the logic graph is left untouched. #1035 stays open for the full logic-rule half.
+        #
+        # SPELLS DELIBERATELY DO NOT COUNT. Alaric, 2026-08-25: "spells don't count, you need an L
+        # or R button to cast a spell." A staff or seal casts ON an attack input, so a caster with
+        # all four locked is exactly as weaponless as anyone else -- there is no caster carve-out,
+        # and the L/R unlocks are the only attack path this code recognises.
+        #
+        # r1 is the deterministic pick: it is the game's primary attack input, every weapon has one,
+        # and a fixed choice keeps the declaration seed-independent (no draw to re-measure, no
+        # dependence on world.random, and the same yaml always generates the same guarantee).
+        # Fewer than four locked needs no forcing: an unlocked attack button is still a damage
+        # source at start (fists at worst). Orthogonal to ability_unlocks_required -- the cripple is
+        # the same whether the unlocks gate the goal or not, so this fires in both modes, like Roll.
+        if _all_attacks_locked(keys):
+            world.multiworld.early_items[world.player][names[_FORCED_EARLY_ATTACK]] = 1
         return items
 
     def slot_data(self, world):

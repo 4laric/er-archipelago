@@ -55,6 +55,12 @@ GENERATORS = [
     "region_selection",
     "check_browser",
     "desc_triage",
+    # The region second-opinion worksheet page. Same shape as the two above: it loads
+    # tools/build_region_second_opinion_page.py BY PATH and diffs the committed root page
+    # against a fresh build, and neither the tool nor the page is installed beside the world.
+    # AP-free, no artifacts, no client -- and it belongs in the job whose byte-diff would
+    # otherwise be the only witness that the page had gone stale.
+    "region_second_opinion_page",
     "provenance_gate",
     "questline_dag",
     "questline_model",
@@ -111,6 +117,25 @@ GENERATORS = [
     # the world. AP-free, no artifacts, no client. It belongs in THIS job specifically: this is
     # the job whose byte-diff went red on PR #698 for an unregenerated page, so this is where the
     # gate that prevents the next one has to run.
+    # The PlayArea ITEM scan's geometry, on SYNTHETIC witchy-style MSB fixtures (issue #1025 /
+    # docs/PLAYAREA-ITEM-SCAN.md). It drives tools/datamine_item_play_regions.py over a temp
+    # artifacts tree it builds itself -- so it needs tools/, but NOT the real corpus, no AP, no
+    # client, and no network. It belongs in CI precisely because the tool it witnesses can only
+    # ever RUN on Alaric's box: without this suite the point-in-volume test, the LOD fold and the
+    # seam snap would be exercised nowhere, and a wrong answer there looks exactly like a right one.
+    "item_play_regions",
+    # The OVERWORLD TILE FRAME (2026-08-26): the centre-vs-corner ruling that decides which
+    # PlayRegionParam row governs a point, re-derived over the WHOLE committed grace population out
+    # of gen_inputs.db. It reads the bundle and tools/overworld_fold.py, so it is repo-only, but it
+    # needs no MSB corpus at all -- which is the point: the half of `--graces` that is pure table
+    # lookup now reds in CI instead of on Alaric's box, where it cost a refused calibration run.
+    "grace_tile_frame",
+    # The `--path <artifacts-root>` flag itself (tools/artifacts_root.py). Loads nine tools/ scripts
+    # by path and calls their `_set_artifacts_root` seams against a temp directory -- it needs
+    # tools/, but no corpus, no AP, no client and no network. It belongs here for the same reason
+    # as the suite above: these tools only ever RUN on Alaric's box, so "the flag parsed but the
+    # root did not move" would otherwise be witnessed by nothing.
+    "artifacts_path",
     "regen_all",
 ]
 
@@ -118,6 +143,13 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "region_second_opinion": "pure-stdlib unittest suite over tools/audit_region_second_opinion.py, "
+                             "reached through the repo-root walk-up. It is OFFLINE by construction "
+                             "-- every wikitext fixture is hand-written synthetic text and no test "
+                             "opens a socket -- so it belongs in a real job, not on the dev box; "
+                             "the tests job checks out the full repository, and an installed-world "
+                             "consumer without tools/ skips honestly. It pins the mapping table "
+                             "against data.REGIONS and pins NO-DATA-is-not-AGREE (#1025 audit)",
     "release_update_guidance": "pure-stdlib pytest suite imports tools/check_release_notes.py "
                                "through the repo-root walk-up. The tests job checks out the full "
                                "repository, while installed-world-only consumers skip honestly; "
@@ -276,6 +308,27 @@ TESTS_JOB = {
     "isolated_merchant_region": "committed gen_data.py/data.py/location_tags.py read by walk-up; "
                                 "the fill-binding half needs the installed world (tests job has it)",
     "unplaced_globals": "bundle-covered EMEVD corpus",
+    "chapel_return_region": "#1023's acceptance test. The region halves read only the installed "
+                            "data.py and never skip; the three that pin the MECHANISM read "
+                            "gen_data.py and region_overrides.tsv, which are NOT copied in beside "
+                            "the world, by the find_repo_root walk-up -- guaranteed present in the "
+                            "tests job's checkout (--ap-dir sits inside it), so they run rather "
+                            "than skip. Same shape as isolated_merchant_region above. NOT "
+                            "GENERATORS: it is a pytest suite, and its data half wants the "
+                            "installed world",
+    "sweep_region_containment": "#1059's acceptance test. The invariant itself and the Jori/Leda "
+                                "cases read the installed boss_sweeps.py + data.py and never skip; "
+                                "the two that pin the SOURCE read boss_area_regions.tsv, "
+                                "region_groups.py and gen_data.py out of greenfield/ by walk-up, "
+                                "present in the tests job. It must not be DEV_BOX_ONLY: this is "
+                                "the gate that stops a cross-region sweep regressing, and a gate "
+                                "that only runs on the dev box is a gate that runs when it is too "
+                                "late",
+    "playarea_region_moves": "#1054's acceptance test, same shape as chapel_return_region. The "
+                             "mover/carve-out/ap-id halves read only the installed data.py and "
+                             "never skip; the two that pin the MECHANISM read region_overrides.tsv "
+                             "out of greenfield/ by the find_repo_root walk-up, which the tests "
+                             "job's checkout guarantees (--ap-dir sits inside it)",
 }
 
 # Suites where EVERY test skips in CI. The reason must name the missing input honestly -- these are

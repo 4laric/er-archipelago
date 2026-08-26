@@ -382,6 +382,11 @@ def client_gitlink_note_failures(repo=REPO, rev_range=None):
         "1024ebcdb7ce35066f8485993e106d494294909a",  # heal -> client 2951d8a
         "317723001d141ac742e43215d69ea6c0fd7d5814",  # clippy fix -> client fda778f
         "675853737108421de875570398b9449118234639",  # log-cleanup quick wins -> client e4dec95
+        # b131d034 (grace_ground regen + gitlink -> 3e62e09, clients#419-#434, all bb work + the
+        # clients#426 log tee) landed on main note-free; the entry was paid after the fact in the
+        # v0.5.1 section ("Client gitlink -> 3e62e09"). The note EXISTS on main; only the
+        # commit-granularity pairing is broken, same ruling as #925 (2026-08-26).
+        "b131d034ef5d94e17f42b95b7bb22f8c15a9a0d6",
     }
     failures = []
     bumps = 0

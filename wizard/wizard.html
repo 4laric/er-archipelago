@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.5.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "a50ae6bf261f4a36e75913b68fc60ac8d702e40001f85cb9778c0576af169bd1",
+ "source_sha256": "69e363a0ca07e25e2fa9f9d55974cc80f952a3c48ea3034c7d7c350aabeded51",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -210,6 +210,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "auto_equip",
   "no_equip_load",
   "dungeon_sweep",
+  "full_area_sweeps",
   "open_boss_doors",
   "death_link",
   "reroll_enemy_drops",
@@ -239,6 +240,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "confine_foreign_progression",
   "cross_game_progression",
   "goal_region_unlock_policy",
+  "region_sync",
   "enemy_scaling",
   "minimum_enemy_difficulty",
   "maximum_enemy_difficulty",
@@ -311,6 +313,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "collapsed": false,
    "options": [
     "dungeon_sweep",
+    "full_area_sweeps",
     "reroll_enemy_drops",
     "protect_missable_locations",
     "armor_bundles",
@@ -330,6 +333,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "options": [
     "death_link",
     "trap_link",
+    "region_sync",
     "filler_foreign_pct",
     "progression_surface",
     "progression_bias",
@@ -545,7 +549,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "locked_abilities",
    "class": "LockedAbilities",
    "display_name": "Locked Abilities",
-   "description": "ABILITIES THE GAME DISABLES. Each named ability is turned off at the character's logical-action\nlayer, so the lock survives key/pad rebinds, covers keyboard and mouse, and never affects menus.\n\nValid names: jump, crouch, roll, r1, r2, l1, l2, heal. (r1/r2/l1/l2 are the attack inputs; locking\none also stops casting through it, since a staff or seal casts on the attack button. `heal` locks\nthe flask -- it heals nothing while locked -- via the No Flask SpEffect, not an action mask.)\nEmpty = nothing locked, the default.\n\n🛑 crouch is the one UNVERIFIED action: ER has no dedicated crouch action, so the client routes it\nto the stick-click (l3) as a first guess. If a playtest shows that is wrong, the fix is one line\nin er-logic, not here.\n\nAbility Lock Mode decides whether these stay off all seed (Static) or start off and are unlocked\nby items you find (Progressive). Env-overridable in test builds via ER_ABILITY_LOCK_TEST.",
+   "description": "ABILITIES THE GAME DISABLES. Each named ability is turned off at the character's logical-action\nlayer, so the lock survives key/pad rebinds, covers keyboard and mouse, and never affects menus.\n\nValid names: jump, crouch, roll, r1, r2, l1, l2, heal. (r1/r2/l1/l2 are the attack inputs; locking\none also stops casting through it, since a staff or seal casts on the attack button. `heal` locks\nthe flask -- it heals nothing while locked -- via the No Flask SpEffect, not an action mask.)\nEmpty = nothing locked, the default.\n\n🛑 crouch is the one UNVERIFIED action: ER has no dedicated crouch action, so the client routes it\nto the stick-click (l3) as a first guess. If a playtest shows that is wrong, the fix is one line\nin er-logic, not here.\n\nLocking ALL FOUR attack inputs (r1, r2, l1, l2) in Progressive mode leaves you unable to damage\nanything, and a great many checks are kill-gated -- so that seed forces one attack unlock\n(\"Unlock: R1\") into an early sphere, wherever in the multiworld it lands. Spells do not count as\nan attack for this: a staff or seal casts on an attack button, so a caster with all four locked\nis just as weaponless. Locking three or fewer forces nothing -- you still have an attack.\n\nAbility Lock Mode decides whether these start off and are unlocked by items you find\n(Progressive, the default) or stay off for the whole seed (Static, the opt-out).\nEnv-overridable in test builds via ER_ABILITY_LOCK_TEST.",
    "kind": "set",
    "base": "OptionSet",
    "default": [],
@@ -571,10 +575,10 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "ability_lock_mode",
    "class": "AbilityLockMode",
    "display_name": "Ability Lock Mode",
-   "description": "HOW the Locked Abilities behave.\n\n``static`` -- they are off for the entire seed. No item, no check; a pure client restriction.\n\n``progressive`` -- they start off, and each locked ability becomes an \"Unlock: X\" item shuffled\ninto the multiworld. Find it (or receive it from another world) to get that ability back. The\nitems default to `progression` and are REQUIRED to finish (see Ability Unlocks Required) -- so\na partner holding your \"Unlock: Roll\" genuinely blocks your goal, which is the whole point of a\nmultiworld. Turn Ability Unlocks Required off to make them `useful` and never gate completion.\nNeeds a client that understands ability unlocks (declared via\nrequiresClientFeatures); older clients would leave the abilities locked, so they are told to\nupgrade rather than play it half-supported.\n\nNo effect when Locked Abilities is empty.",
+   "description": "HOW the Locked Abilities behave.\n\n``progressive`` (DEFAULT) -- they start off, and each locked ability becomes an \"Unlock: X\"\nitem shuffled into the multiworld. Find it (or receive it from another world) to get that\nability back. The items default to `progression` and are REQUIRED to finish (see Ability\nUnlocks Required) -- so a partner holding your \"Unlock: Roll\" genuinely blocks your goal, which\nis the whole point of a multiworld. Turn Ability Unlocks Required off to make them `useful` and\nnever gate completion. Needs a client that understands ability unlocks (declared via\nrequiresClientFeatures); older clients would leave the abilities locked, so they are told to\nupgrade rather than play it half-supported.\n\n``static`` (the opt-out) -- they are off for the entire seed. No item, no check; a pure client\nrestriction, and no client-feature demand.\n\nNo effect when Locked Abilities is empty (the default) -- this option only bites once you have\nnamed an ability to lock.",
    "kind": "choice",
    "base": "Choice",
-   "default": "static",
+   "default": "progressive",
    "choices": [
     {
      "name": "static",
@@ -721,7 +725,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "dungeon_sweep",
    "class": "DungeonSweep",
    "display_name": "Dungeon Sweep",
-   "description": "Which bosses hand you their area's loot in a sweep when you kill them.\n\nnone -- no sweeps; every check is picked up where it lies.\nminidungeons -- catacombs, caves, tunnels and minor dungeons only (~510 checks).\nall -- those plus legacy dungeons and castles (~2614).\nbosses (default) -- those plus FIELD bosses, i.e. everything (~3876).\n\nThose are the BAKED pools. What a seed grants is that minus its Progression Surface cut below;\nat the default surface, ~3782 at the widest rung.\n\n🛑 UNTIL 2026-07-29 THESE THREE WERE THE SAME THING. The emit gated on `value != 0` and never\nfiltered by class, so minidungeons/all/bosses each granted the full 3197 -- the ladder in this\ndocstring described behaviour that had never been implemented, and the player guide and the\nv0.2.15 release notes repeated it. The rungs are real now.\n\nThe DEFAULT moved 'all' -> 'bosses' at the same time, and that is not a behaviour change: the\nfull set is what every non-none value already granted, so 'bosses' IS what shipped. Leaving the\ndefault at 'all' would have quietly dropped field sweeps (1213 checks, 38%) from every seed\nunder the banner of a bug fix.\n\nA sweep never hands you another boss's reward, a Remembrance, a Great Rune, a key item or a\nmerchant's stock: those are cut when the sweep is built and no option restores them.\n\nEverything else in the area is yours, INCLUDING the good stuff -- Golden Seeds, Sacred Tears,\nScadutree Fragments, Revered Spirit Ashes, Crystal Tears and the legendaries (2026-08-13; it was\nfiller-only before, +145 checks corpus-wide). The exception is the classes YOU put on the\nProgression Surface: those are where this seed places its Locks, so they are taken back out of\nthe sweep, per seed. At the default surface that means Golden Seeds, Sacred Tears, Scadutree\nFragments and Revered Ashes stay where they lie and the legendaries and Crystal Tears sweep;\nuntick a collectathon line on the surface and the sweep picks it up instead.\n\n🛑 ONE SWEEP MEMBER PER TRIGGER CAN NOW HOLD PROGRESSION, in a default seed (2026-08-13). The\ndefault Progression Surface includes `SweepSlot`, which nominates a single member of every sweep\nyou run as somewhere a key item may be placed -- so killing a boss can hand you one. That is the\nonly class the surface does NOT take back out of the sweep, and deliberately: taking it back\nwould delete the check it just nominated. Drop `SweepSlot` from progression_surface if you would\nrather a sweep never pay out progression; the cost is that at the default\n`confine_foreign_progression` another player's key items have only ~30 checks of yours to land\non, and most of them stop arriving (er-archipelago#631).\n\n🛑 With an EMPTY Progression Surface there is no confinement at all, so progression scatters\nwherever AP's fill puts it -- including onto ordinary sweep members, as it always could. The cut\ncan only act on a surface that says something.\n\nA group is only sent to a seed that can actually FIRE it (issue #445): the trigger boss's ARENA\nregion has to be kept too, not just the region its members live in. Six groups are fought\nsomewhere other than where their loot lies -- the Golden Hippopotamus hands over 104 Shadow Keep\nchecks from Scadu Altus ground -- and a seed that keeps one region without the other used to\nship a sweep whose boss the region lock would not let the player reach. Those groups are dropped\ninstead. The checks are unaffected: every member is an ordinary pickup in its own region, so what\nis lost is the convenience, not the loot.",
+   "description": "Which bosses hand you their area's loot in a sweep when you kill them.\n\nnone -- no sweeps; every check is picked up where it lies.\nminidungeons -- catacombs, caves, tunnels and minor dungeons only (~510 checks).\nall -- those plus legacy dungeons and castles (~2614).\nbosses (default) -- those plus FIELD bosses, i.e. everything (~3876).\n\nThose are the BAKED pools. What a seed grants is that minus its Progression Surface cut below;\nat the default surface, ~3782 at the widest rung.\n\n🛑 UNTIL 2026-07-29 THESE THREE WERE THE SAME THING. The emit gated on `value != 0` and never\nfiltered by class, so minidungeons/all/bosses each granted the full 3197 -- the ladder in this\ndocstring described behaviour that had never been implemented, and the player guide and the\nv0.2.15 release notes repeated it. The rungs are real now.\n\nThe DEFAULT moved 'all' -> 'bosses' at the same time, and that is not a behaviour change: the\nfull set is what every non-none value already granted, so 'bosses' IS what shipped. Leaving the\ndefault at 'all' would have quietly dropped field sweeps (1213 checks, 38%) from every seed\nunder the banner of a bug fix.\n\nA sweep never hands you another boss's reward, a Remembrance, a Great Rune, a key item or a\nmerchant's stock: those are cut when the sweep is built and no option restores them.\n\nEverything else in the area is yours, INCLUDING the good stuff -- Golden Seeds, Sacred Tears,\nScadutree Fragments, Revered Spirit Ashes, Crystal Tears and the legendaries (2026-08-13; it was\nfiller-only before, +145 checks corpus-wide). The exception is the classes YOU put on the\nProgression Surface: those are where this seed places its Locks, so they are taken back out of\nthe sweep, per seed. At the default surface that means Golden Seeds, Sacred Tears, Scadutree\nFragments and Revered Ashes stay where they lie and the legendaries and Crystal Tears sweep;\nuntick a collectathon line on the surface and the sweep picks it up instead.\n\n🛑 ONE SWEEP MEMBER PER TRIGGER CAN NOW HOLD PROGRESSION, in a default seed (2026-08-13). The\ndefault Progression Surface includes `SweepSlot`, which nominates a single member of every sweep\nyou run as somewhere a key item may be placed -- so killing a boss can hand you one. That is the\nonly class the surface does NOT take back out of the sweep, and deliberately: taking it back\nwould delete the check it just nominated. Drop `SweepSlot` from progression_surface if you would\nrather a sweep never pay out progression -- or see `full_area_sweeps` for the opposite ask,\nevery check in the area including the progression; the cost of dropping it is that at the default\n`confine_foreign_progression` another player's key items have only ~30 checks of yours to land\non, and most of them stop arriving (er-archipelago#631).\n\n🛑 With an EMPTY Progression Surface there is no confinement at all, so progression scatters\nwherever AP's fill puts it -- including onto ordinary sweep members, as it always could. The cut\ncan only act on a surface that says something.\n\nA group is only sent to a seed that can actually FIRE it (issue #445): the trigger boss's ARENA\nregion has to be kept too, not just the region its members live in. Six groups are fought\nsomewhere other than where their loot lies -- the Golden Hippopotamus hands over 104 Shadow Keep\nchecks from Scadu Altus ground -- and a seed that keeps one region without the other used to\nship a sweep whose boss the region lock would not let the player reach. Those groups are dropped\ninstead. The checks are unaffected: every member is an ordinary pickup in its own region, so what\nis lost is the convenience, not the loot.",
    "kind": "choice",
    "base": "Choice",
    "default": "bosses",
@@ -750,6 +754,23 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group_collapsed": false,
    "special_values": null,
    "essential": true
+  },
+  {
+   "key": "full_area_sweeps",
+   "class": "FullAreaSweeps",
+   "display_name": "Full Area Sweeps",
+   "description": "Should a boss kill hand you EVERYTHING in its area, including the good stuff this seed is\nusing for progression?\n\noff (default) -- a sweep pays out the area's ordinary loot. The classes you put on the\nProgression Surface are taken back out of it, because those are exactly where this seed places\nits key items: at the default surface that is Golden Seeds, Sacred Tears, Scadutree Fragments\nand Revered Spirit Ashes, and you still walk to those yourself.\n\non -- nothing is taken back out. Every check the sweep holds is granted the moment the boss\ndies, progression included, so killing a boss can hand you a region Lock (or, at the default\n`confine_foreign_progression`, another player's item). That is the point of the option, not a\nside effect: it is what \"killing the boss gives me the area\" actually means. It cannot strand\nyou -- a sweep only ever grants checks in a region you kept and behind a boss you could reach,\nso it makes a reachable check arrive earlier and never makes an unreachable one required.\n\nWHAT IT DOES NOT DO, in any seed. This widens WHICH checks a sweep pays; it does not widen\nwhich bosses sweep (that is `dungeon_sweep`) and it does not lift the permanent floor:\n\n* another boss's reward, remembrance or Great Rune -- handing those over would delete the fight;\n* gate and quest KEY ITEMS;\n* merchant stock, which is bought at a counter rather than picked up off the ground.\n\nNor can it reach a check whose position was never recovered from the game data: those belong to\nno boss's area, so no boss kill can grant them. Requested by siffrin and bobler (#1033).\n\nMissable checks are unaffected by this option in either direction -- they have always been\nordinary sweep members (170 of the 289 are swept today), so a sweep already rescues most of\nthem and this changes nothing about which. `protect_missable_locations` is the option for that.\n\nCorpus size of the change: +113 member links at the default Progression Surface (4101 -> 4214),\nup to +215 for a seed that puts all six of the collectathon/rarity classes on its surface, and\nexactly zero for a seed with an empty surface -- an empty surface makes no claim, so there was\nnothing being taken back out to restore.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "open_boss_doors",
@@ -1713,6 +1734,23 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group_collapsed": false,
    "special_values": null,
    "essential": true
+  },
+  {
+   "key": "region_sync",
+   "class": "RegionSync",
+   "display_name": "Region Sync",
+   "description": "Share region unlocks with the other Elden Ring players in this multiworld.\n\nFor seamless co-op. Everyone plays in ONE physical world (the co-op host's), but each player\nhas their own Archipelago slot -- so if one of you has unlocked Liurnia and the rest have not,\nthe rest get kicked out of it and cannot follow. With this on, the moment ANY Elden Ring player\nwho also turned it on unlocks a region, that region's door opens for all of you: the map gate\nlifts and its Sites of Grace light up.\n\nIt only opens the door. It does NOT give anyone else the region's key item -- that stays\nwherever the multiworld put it, and finding your own is still what counts for your items and\nyour goal. Nothing about how the seed is generated changes, so you can turn this on without\nmaking anyone's game easier to complete.\n\nTurn it on for every Elden Ring player in the co-op group; players who leave it off are not\naffected either way, and other games in the multiworld never see it.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "enemy_scaling",
@@ -3295,7 +3333,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
   "region": "Ashen Capital"
  },
- "hub_dlc_gated_checks": 0,
+ "hub_dlc_gated_checks": 36,
  "hub_region": "Roundtable Hold",
  "parent": {
   "Leyndell": "Altus",
@@ -3432,13 +3470,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "sweep_slots_max": {
     "all": 81,
-    "bosses": 145,
+    "bosses": 144,
     "minidungeons": 81
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 81,
-     "bosses": 145,
+     "bosses": 144,
      "minidungeons": 81
     },
     "SweepSlotMajor": {
@@ -3446,7 +3484,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 81,
-     "bosses": 137,
+     "bosses": 136,
      "minidungeons": 81
     }
    }
@@ -3510,10 +3548,42 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": false,
-   "sweep_slots": {},
-   "sweep_slots_by_class": {},
-   "sweep_slots_max": {},
-   "sweep_slots_max_by_class": {}
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   },
+   "sweep_slots_by_class": {
+    "SweepSlot": {
+     "all": 2,
+     "bosses": 2
+    },
+    "SweepSlotMajor": {
+     "all": 1,
+     "bosses": 1
+    },
+    "SweepSlotMinor": {
+     "all": 1,
+     "bosses": 1
+    }
+   },
+   "sweep_slots_max": {
+    "all": 6,
+    "bosses": 6
+   },
+   "sweep_slots_max_by_class": {
+    "SweepSlot": {
+     "all": 6,
+     "bosses": 6
+    },
+    "SweepSlotMajor": {
+     "all": 3,
+     "bosses": 3
+    },
+    "SweepSlotMinor": {
+     "all": 3,
+     "bosses": 3
+    }
+   }
   },
   "Belurat": {
    "checks": 93,
@@ -3601,13 +3671,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 121,
+    "bosses": 119,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 121,
+     "bosses": 119,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -3615,7 +3685,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 117,
+     "bosses": 115,
      "minidungeons": 55
     }
    }
@@ -3678,7 +3748,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Consecrated Snowfield": {
-   "checks": 151,
+   "checks": 143,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|Legendary|MinorDungeonBoss": 1,
@@ -3897,7 +3967,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Gravesite": {
-   "checks": 224,
+   "checks": 225,
    "combos": {
     "Basin": 1,
     "Boss": 5,
@@ -3906,7 +3976,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "Boss|Legendary|MinorDungeonBoss": 1,
     "Boss|MinorDungeonBoss": 3,
     "Fragment": 6,
-    "Legendary": 3,
+    "Legendary": 4,
     "Revered": 4,
     "Shop|ShopNonSpell": 11
    },
@@ -4086,7 +4156,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Limgrave": {
-   "checks": 330,
+   "checks": 328,
    "combos": {
     "Basin": 2,
     "Boss|FieldBoss": 5,
@@ -4140,7 +4210,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Liurnia": {
-   "checks": 610,
+   "checks": 612,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -4184,13 +4254,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    },
    "sweep_slots_max": {
     "all": 53,
-    "bosses": 158,
+    "bosses": 156,
     "minidungeons": 53
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 53,
-     "bosses": 158,
+     "bosses": 156,
      "minidungeons": 53
     },
     "SweepSlotMajor": {
@@ -4200,7 +4270,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 45,
-     "bosses": 142,
+     "bosses": 140,
      "minidungeons": 45
     }
    }
@@ -4246,7 +4316,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Mountaintops of the Giants": {
-   "checks": 191,
+   "checks": 199,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss|FieldBoss": 6,
@@ -4366,11 +4436,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Rauh Base": {
-   "checks": 91,
+   "checks": 90,
    "combos": {
     "Boss|FieldBoss|MajorBoss": 1,
     "Boss|MinorDungeonBoss": 1,
-    "Legendary": 3
+    "Legendary": 2
    },
    "dlc": true,
    "parent": null,
@@ -4453,7 +4523,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    }
   },
   "Roundtable Hold": {
-   "checks": 137,
+   "checks": 237,
    "combos": {},
    "dlc": false,
    "parent": null,
@@ -4481,14 +4551,14 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "parent": null,
    "rollable": true,
    "sweep_slots": {
-    "all": 6,
-    "bosses": 6,
+    "all": 7,
+    "bosses": 7,
     "minidungeons": 1
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 6,
-     "bosses": 6,
+     "all": 7,
+     "bosses": 7,
      "minidungeons": 1
     },
     "SweepSlotMajor": {
@@ -4496,29 +4566,29 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
      "bosses": 1
     },
     "SweepSlotMinor": {
-     "all": 5,
-     "bosses": 5,
+     "all": 6,
+     "bosses": 6,
      "minidungeons": 1
     }
    },
    "sweep_slots_max": {
-    "all": 44,
-    "bosses": 44,
+    "all": 49,
+    "bosses": 49,
     "minidungeons": 8
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 44,
-     "bosses": 44,
+     "all": 49,
+     "bosses": 49,
      "minidungeons": 8
     },
     "SweepSlotMajor": {
-     "all": 4,
-     "bosses": 4
+     "all": 3,
+     "bosses": 3
     },
     "SweepSlotMinor": {
-     "all": 40,
-     "bosses": 40,
+     "all": 46,
+     "bosses": 46,
      "minidungeons": 8
     }
    }
@@ -4724,7 +4794,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "1cd36f9d529d955883069e3a4daa7442f636472edc84230f90d1c47a4b3ee1c4"
+ "source_sha256": "5fa263c9e2acea813fcb54ca05612106cca0069cdf2d02484d837c3f5dab3dde"
 }
 </script>
 <div class="wrap">
@@ -5650,7 +5720,6 @@ if (typeof module !== "undefined") module.exports = ERW;
       const keys = (o.valid_keys && o.valid_keys.length)
         ? o.valid_keys : Object.keys(o.default || {});
       const cur = ERW.isPlainObject(v) ? v : {};
-      const total = keys.reduce((a, k) => a + (+cur[k] || 0), 0);
       /* Committed in valid_keys order, and ZERO WEIGHTS ARE OMITTED rather than written as 0 --
          absent and 0 are the same thing to a proportional split, and the shorter yaml is the one a
          player can read. All-zero therefore commits {}, which the option documents as an EMPTY
@@ -5664,27 +5733,61 @@ if (typeof module !== "undefined") module.exports = ERW;
         commit(next);
       };
       const grid = el("div", "dictgrid");
+      const note = el("div", "dnote", "");
+      const cells = [];
+      /* 🛑 THE SHARE COLUMN IS DERIVED, AND `refresh()` DOES NOT REBUILD CONTROLS -- the same root
+         as the toggle's stale "on"/"off" word, one column wider. The total and every percentage
+         used to be computed ONCE, when the row was built, and written into the spans as text that
+         nothing ever touched again: you typed juice 63 -> 20, the yaml moved, and all seventeen
+         percentages plus the footer's "a share of 103" sat there describing the recipe you had
+         BEFORE the edit. Reported by NovahDango on Discord 2026-08-25 -- "are the percentages on
+         the option builder supposed to change when i edit the numbers?" -- whose screenshot was
+         the shipped default's shares next to weights that were not the shipped default's.
+         The share is the number a player reasons about (the comment at the top of this file says
+         so), so a frozen one is the whole widget lying.
+
+         Repainted rather than rebuilt: swapping the grid node the way the key_meta grid does would
+         destroy the number input mid-keystroke and drop focus. `paintShares` re-reads the INPUTS,
+         not `state`, so the column tracks what is on screen -- including a value still being typed,
+         which is when a player is watching it -- and it is wired to `input` as well as `change` so
+         it answers per keystroke while the yaml still only moves on commit. */
+      const liveWeight = num => Math.max(0, Math.floor(+num.value || 0));
+      const paintShares = () => {
+        let sum = 0;
+        for (const c of cells) sum += liveWeight(c.num);
+        for (const c of cells){
+          const w = liveWeight(c.num);
+          c.row.className = "dweight" + (w ? "" : " dzero");
+          /* sum === 0 is the empty recipe, not a division: "--" rather than NaN%. */
+          c.share.textContent = sum ? (Math.round(1000 * w / sum) / 10) + "%" : "--";
+        }
+        note.textContent = sum
+          ? "Weights are RELATIVE -- the filler tail is split in proportion, so each is a share of "
+            + sum + ", not a percentage. They need not sum to anything."
+          : "Every weight is zero. An empty recipe is honoured and means no gear AND no upgrade "
+            + "economy -- generation warns rather than silently reverting to vanilla junk.";
+      };
       for (const k of keys){
         const w = +cur[k] || 0;
-        const row = el("label", "dweight" + (w ? "" : " dzero"));
+        const row = el("label", "dweight");
         const num = Object.assign(document.createElement("input"),
           {type:"number", min:0, step:1, value:w});
+        num.addEventListener("input", paintShares);
         num.addEventListener("change", () => {
-          const n = Math.max(0, Math.floor(+num.value || 0));
+          const n = liveWeight(num);
           num.value = n;
           commitWeights(k, n);
+          paintShares();
         });
-        row.append(el("span", "dk", k), num,
-                   el("span", "dshare", total ? (Math.round(1000 * w / total) / 10) + "%" : "--"));
+        const share = el("span", "dshare", "--");
+        row.append(el("span", "dk", k), num, share);
+        cells.push({ row, num, share });
         grid.append(row);
       }
       grid.style.flex = "1 1 100%";
       wrap.append(grid);
-      wrap.append(el("div", "dnote", total
-        ? "Weights are RELATIVE -- the filler tail is split in proportion, so each is a share of "
-          + total + ", not a percentage. They need not sum to anything."
-        : "Every weight is zero. An empty recipe is honoured and means no gear AND no upgrade "
-          + "economy -- generation warns rather than silently reverting to vanilla junk."));
+      wrap.append(note);
+      paintShares();
     } else {
       /* `text` is the only kind that reaches here now. tools/check_wizard_kind_controls.py fails
          CI if the dumper learns a kind this function does not name -- the gate that did not exist

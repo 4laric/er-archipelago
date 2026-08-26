@@ -15,14 +15,13 @@ only moment anyone remembers why it mattered._
 
 ## What is in it so far
 
-Enia sells what Enia sells. Finger Reader Enia's shop is vanilla again — her hundred stock rows
-are no longer checks, nothing from across the multiworld can turn up on her shelves, and the
-"empty Enia" report is impossible by construction rather than by luck. The Roundtable's quietest
-merchant goes back to being a shop, not a slot machine.
+Nothing player-facing yet. Behind the scenes, a second-opinion audit tool now cross-checks the
+305 checks whose names still read `(region unconfirmed)` against an independent, permissively
+licensed corpus, so those guesses can finally be argued with instead of trusted.
 
-One housekeeping note: removing her rows shifts every later AP location id down by exactly 100.
-Seeds are self-consistent, so nothing in play changes — but if you keep an external tracker or
-notes that reference 0.5.0 location ids, regenerate them from a 0.5.1 seed.
+Nothing else yet. This window was opened at the v0.5.0 tag with zero commits past it, in the same
+change that promoted stable to v0.5.0; nothing was carried over. `CONTRACT_HASH` stays at
+`13db0b3a` — only the exact-version handshake moved.
 
 ## What carried over from v0.5.0
 

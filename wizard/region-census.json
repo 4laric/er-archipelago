@@ -39,7 +39,7 @@
   "present_when": "any non-DLC region is eligible (i.e. not dlc_only)",
   "region": "Ashen Capital"
  },
- "hub_dlc_gated_checks": 0,
+ "hub_dlc_gated_checks": 36,
  "hub_region": "Roundtable Hold",
  "parent": {
   "Leyndell": "Altus",
@@ -176,13 +176,13 @@
    },
    "sweep_slots_max": {
     "all": 81,
-    "bosses": 145,
+    "bosses": 144,
     "minidungeons": 81
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 81,
-     "bosses": 145,
+     "bosses": 144,
      "minidungeons": 81
     },
     "SweepSlotMajor": {
@@ -190,7 +190,7 @@
     },
     "SweepSlotMinor": {
      "all": 81,
-     "bosses": 137,
+     "bosses": 136,
      "minidungeons": 81
     }
    }
@@ -254,10 +254,42 @@
    "dlc": false,
    "parent": null,
    "rollable": false,
-   "sweep_slots": {},
-   "sweep_slots_by_class": {},
-   "sweep_slots_max": {},
-   "sweep_slots_max_by_class": {}
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   },
+   "sweep_slots_by_class": {
+    "SweepSlot": {
+     "all": 2,
+     "bosses": 2
+    },
+    "SweepSlotMajor": {
+     "all": 1,
+     "bosses": 1
+    },
+    "SweepSlotMinor": {
+     "all": 1,
+     "bosses": 1
+    }
+   },
+   "sweep_slots_max": {
+    "all": 6,
+    "bosses": 6
+   },
+   "sweep_slots_max_by_class": {
+    "SweepSlot": {
+     "all": 6,
+     "bosses": 6
+    },
+    "SweepSlotMajor": {
+     "all": 3,
+     "bosses": 3
+    },
+    "SweepSlotMinor": {
+     "all": 3,
+     "bosses": 3
+    }
+   }
   },
   "Belurat": {
    "checks": 93,
@@ -345,13 +377,13 @@
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 121,
+    "bosses": 119,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 121,
+     "bosses": 119,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -359,7 +391,7 @@
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 117,
+     "bosses": 115,
      "minidungeons": 55
     }
    }
@@ -422,7 +454,7 @@
    }
   },
   "Consecrated Snowfield": {
-   "checks": 151,
+   "checks": 143,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|Legendary|MinorDungeonBoss": 1,
@@ -641,7 +673,7 @@
    }
   },
   "Gravesite": {
-   "checks": 224,
+   "checks": 225,
    "combos": {
     "Basin": 1,
     "Boss": 5,
@@ -650,7 +682,7 @@
     "Boss|Legendary|MinorDungeonBoss": 1,
     "Boss|MinorDungeonBoss": 3,
     "Fragment": 6,
-    "Legendary": 3,
+    "Legendary": 4,
     "Revered": 4,
     "Shop|ShopNonSpell": 11
    },
@@ -830,7 +862,7 @@
    }
   },
   "Limgrave": {
-   "checks": 330,
+   "checks": 328,
    "combos": {
     "Basin": 2,
     "Boss|FieldBoss": 5,
@@ -884,7 +916,7 @@
    }
   },
   "Liurnia": {
-   "checks": 610,
+   "checks": 612,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -928,13 +960,13 @@
    },
    "sweep_slots_max": {
     "all": 53,
-    "bosses": 158,
+    "bosses": 156,
     "minidungeons": 53
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 53,
-     "bosses": 158,
+     "bosses": 156,
      "minidungeons": 53
     },
     "SweepSlotMajor": {
@@ -944,7 +976,7 @@
     },
     "SweepSlotMinor": {
      "all": 45,
-     "bosses": 142,
+     "bosses": 140,
      "minidungeons": 45
     }
    }
@@ -990,7 +1022,7 @@
    }
   },
   "Mountaintops of the Giants": {
-   "checks": 191,
+   "checks": 199,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss|FieldBoss": 6,
@@ -1110,11 +1142,11 @@
    }
   },
   "Rauh Base": {
-   "checks": 91,
+   "checks": 90,
    "combos": {
     "Boss|FieldBoss|MajorBoss": 1,
     "Boss|MinorDungeonBoss": 1,
-    "Legendary": 3
+    "Legendary": 2
    },
    "dlc": true,
    "parent": null,
@@ -1197,7 +1229,7 @@
    }
   },
   "Roundtable Hold": {
-   "checks": 137,
+   "checks": 237,
    "combos": {},
    "dlc": false,
    "parent": null,
@@ -1225,14 +1257,14 @@
    "parent": null,
    "rollable": true,
    "sweep_slots": {
-    "all": 6,
-    "bosses": 6,
+    "all": 7,
+    "bosses": 7,
     "minidungeons": 1
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 6,
-     "bosses": 6,
+     "all": 7,
+     "bosses": 7,
      "minidungeons": 1
     },
     "SweepSlotMajor": {
@@ -1240,29 +1272,29 @@
      "bosses": 1
     },
     "SweepSlotMinor": {
-     "all": 5,
-     "bosses": 5,
+     "all": 6,
+     "bosses": 6,
      "minidungeons": 1
     }
    },
    "sweep_slots_max": {
-    "all": 44,
-    "bosses": 44,
+    "all": 49,
+    "bosses": 49,
     "minidungeons": 8
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 44,
-     "bosses": 44,
+     "all": 49,
+     "bosses": 49,
      "minidungeons": 8
     },
     "SweepSlotMajor": {
-     "all": 4,
-     "bosses": 4
+     "all": 3,
+     "bosses": 3
     },
     "SweepSlotMinor": {
-     "all": 40,
-     "bosses": 40,
+     "all": 46,
+     "bosses": 46,
      "minidungeons": 8
     }
    }
@@ -1468,5 +1500,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "1cd36f9d529d955883069e3a4daa7442f636472edc84230f90d1c47a4b3ee1c4"
+ "source_sha256": "5fa263c9e2acea813fcb54ca05612106cca0069cdf2d02484d837c3f5dab3dde"
 }

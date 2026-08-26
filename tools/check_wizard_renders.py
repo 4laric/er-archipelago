@@ -280,7 +280,66 @@ for (let i = 0; i < railButtons().length; i++){
 }
 if (P.state) for (const k of Object.keys(P.state.values)) delete P.state.values[k];
 
-console.log(JSON.stringify({ titles, react, side, freetext, toggles,
+// ---- FIFTH AUDIT: a weight grid's SHARE COLUMN must re-share when a weight is edited ---------
+// The fourth audit's defect, one column wider. `curated_filler` renders as a {category: weight}
+// grid with a "% of the tail" readout beside every weight and a footer naming the current total,
+// and both were computed once at render and written in as dead text. NovahDango, Discord
+// 2026-08-25: "are the percentages on the option builder supposed to change when i edit the
+// numbers?" -- they do not; the screenshot showed the SHIPPED DEFAULT's shares (juice 61.2%, a
+// total of 103) beside weights that were no longer the shipped default's. The share is the number
+// a player reasons about, so a frozen one misreports the recipe they just wrote. Worse at the
+// bottom of the range: zeroing every weight commits `{}` -- the honoured EMPTY recipe -- while the
+// grid went on quoting the default's percentages and the footer went on promising gear.
+// Written over every `dict` option rather than over curated_filler by name.
+const dicts = {};
+for (const o of ((P.meta && P.state) ? P.meta.options : [])){
+  if (o.kind !== "dict") continue;
+  const rec = { rendered: false };
+  dicts[o.key] = rec;
+  for (const k of Object.keys(P.state.values)) delete P.state.values[k];
+  for (let i = 0; i < railButtons().length && !rec.rendered; i++){
+    railButtons()[i].fire("click");
+    const grid = descByClass(main, "dictgrid").filter(attached).pop();
+    if (!grid) continue;
+    const row = ancestorOpt(grid);
+    const key = row ? (descByClass(row, "key").map(sp => text(sp).trim())[0] || "") : "";
+    if (key !== o.key) continue;
+    rec.rendered = true;
+    const note = descByClass(row, "dnote").filter(attached).pop();
+    const cells = grid.kids.map(r => ({
+      key: text((r.kids || []).find(k => k.className === "dk")).trim(),
+      input: (r.kids || []).find(k => k.tagName === "INPUT"),
+      share: (r.kids || []).find(k => String(k.className || "").split(" ").includes("dshare")),
+      row: r,
+    })).filter(c => c.input && c.share);
+    if (!cells.length){ rec.error = "the dict grid has no weight rows"; break; }
+    const snap = () => cells.map(c => ({ key: c.key, value: String(c.input.value),
+                                         share: text(c.share).trim(),
+                                         zero: String(c.row.className || "").split(" ").includes("dzero") }));
+    const noteText = () => (note ? text(note).trim() : "");
+    rec.before = snap();
+    rec.noteBefore = noteText();
+    // Edit the HEAVIEST weight, and halve it: the row that carries most of the tail is the one
+    // whose share moving is unmistakable, and halving keeps it a legal weight rather than probing
+    // the zero path twice.
+    const heavy = rec.before.map((r, i) => [Number(r.value) || 0, i])
+                            .sort((a, b) => b[0] - a[0])[0];
+    rec.edited = { key: cells[heavy[1]].key, from: heavy[0], to: Math.floor(heavy[0] / 2) };
+    cells[heavy[1]].input.value = rec.edited.to;
+    cells[heavy[1]].input.fire("change");
+    rec.after = snap();
+    rec.noteAfter = noteText();
+    rec.committed = P.state.values[o.key];
+    // ALL ZERO -- the empty recipe the option documents and honours.
+    for (const c of cells){ c.input.value = 0; c.input.fire("change"); }
+    rec.zeroed = snap();
+    rec.noteZeroed = noteText();
+    rec.committedZeroed = P.state.values[o.key];
+  }
+  for (const k of Object.keys(P.state.values)) delete P.state.values[k];
+}
+
+console.log(JSON.stringify({ titles, react, side, freetext, toggles, dicts,
                              steps: out.map(s => ({ title: s.title, len: s.text.length,
                                                             text: s.text })) }));
 """
@@ -474,6 +533,71 @@ def main(argv):
                             "something other than what it saved is telling the player their edit "
                             "landed when part of it did not." % (key, r.get("normalised"), want))
 
+    # FIFTH AUDIT: the weight grid's share column. See the harness for the report this answers.
+    dicts = data.get("dicts")
+    if dicts is None:
+        problems.append("the dict-grid probe returned nothing -- the harness no longer matches the "
+                        "page, so this audit is checking nothing.")
+    elif not dicts:
+        problems.append("no option in the shipped metadata is `kind: dict`, so this audit ran "
+                        "vacuously. Delete it with the control rather than leaving an assertion "
+                        "over an empty set.")
+    for key, r in sorted((dicts or {}).items()):
+        if not r.get("rendered"):
+            problems.append("%s is a dict option but no .dictgrid was found on any step -- the "
+                            "weight grid is not rendering." % key)
+            continue
+        if r.get("error"):
+            problems.append("%s: %s" % (key, r["error"]))
+            continue
+        before = {c["key"]: c for c in r["before"]}
+        after = {c["key"]: c for c in r["after"]}
+        ed = r["edited"]
+        moved = [k for k in after if after[k]["share"] != before[k]["share"]]
+        if ed["key"] not in moved:
+            problems.append("%s: %s was edited %s -> %s and its own share still reads %r. The "
+                            "share column is computed at render and updated by nothing, so a "
+                            "player edits a weight and reads the percentages of the recipe they "
+                            "had BEFORE the edit (NovahDango, 2026-08-25)."
+                            % (key, ed["key"], ed["from"], ed["to"], after[ed["key"]]["share"]))
+        # RE-SHARED, not just recomputed for the row that was touched: every other weight's share
+        # of a smaller total is larger, and a fix that repainted only the edited cell would leave
+        # sixteen percentages that no longer sum to 100.
+        elif len(moved) < 2:
+            problems.append("%s: editing %s moved ONLY its own share. The others are shares of the "
+                            "same total, so all of them move -- a column that repaints one cell "
+                            "adds up to something other than 100%%." % (key, ed["key"]))
+        want_total = sum(int(c["value"] or 0) for c in r["after"])
+        if str(want_total) not in (r.get("noteAfter") or ""):
+            problems.append("%s: the weights now total %d and the footer still reads %r. It names "
+                            "the number the percentages are shares OF, so a stale one contradicts "
+                            "the column above it." % (key, want_total, (r.get("noteAfter") or "")[:140]))
+        # THE EMPTY RECIPE. Zeroing every weight commits {}, which the option honours as "no gear
+        # and no upgrade economy" -- the grid must say so instead of quoting the old percentages,
+        # and must not divide by the zero total.
+        zeroed = r.get("zeroed") or []
+        bad_share = [c["key"] for c in zeroed if c["share"] not in ("--", "")]
+        if bad_share:
+            problems.append("%s: with every weight at zero, %d row(s) still show a percentage "
+                            "(e.g. %s = %r). There is no total to be a share of, and the recipe "
+                            "the yaml now carries is EMPTY."
+                            % (key, len(bad_share), bad_share[0],
+                               [c["share"] for c in zeroed if c["key"] == bad_share[0]][0]))
+        if any(x in (r.get("noteZeroed") or "") for x in ("NaN", "Infinity")):
+            problems.append("%s: the all-zero footer reads %r -- the share is being divided by a "
+                            "zero total." % (key, r["noteZeroed"]))
+        if "zero" not in (r.get("noteZeroed") or "").lower():
+            problems.append("%s: every weight is zero and the footer does not say so (%r). An "
+                            "empty recipe is honoured and means no gear AND no upgrade economy; "
+                            "the builder is where that is a sentence rather than a surprise."
+                            % (key, (r.get("noteZeroed") or "")[:140]))
+        if r.get("committedZeroed") not in (None, {}):
+            problems.append("%s: all weights zero committed %r, want an empty recipe."
+                            % (key, r["committedZeroed"]))
+        if not any(c["zero"] for c in zeroed):
+            problems.append("%s: no row took the `dzero` styling with every weight at zero, so the "
+                            "grid still reads as a live recipe." % key)
+
     bad = selftest()
     if bad:
         problems.append("SELF-TEST: " + bad)
@@ -486,9 +610,10 @@ def main(argv):
     print("[ok] all %d wizard steps render (%d..%d chars); the side readout is live; the "
           "contribution card answers %d option(s) with a number and %d more in prose; %d free-text "
           "control(s) sorted what was typed and refused what the option refuses; %d toggle(s) say "
-          "what they are set to; the shim fails the detached-paint mutation"
+          "what they are set to; %d weight grid(s) re-share when a weight is edited and go quiet "
+          "when the recipe is emptied; the shim fails the detached-paint mutation"
           % (len(steps), min(s["len"] for s in steps), max(s["len"] for s in steps),
-             len(NUMBERS_MOVE), len(TEXT_MOVES), len(ft or {}), len(toggles)))
+             len(NUMBERS_MOVE), len(TEXT_MOVES), len(ft or {}), len(toggles), len(dicts or {})))
     return 0
 
 

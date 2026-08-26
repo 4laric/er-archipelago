@@ -500,7 +500,7 @@ _OPTION_GROUPS = [
         "enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
         "difficulty_ramp_speed", "coop_difficulty", "traps", "spawn_traps", "trap_count"]),
     ("Checks & Item Pool", [
-        "dungeon_sweep", "reroll_enemy_drops",
+        "dungeon_sweep", "full_area_sweeps", "reroll_enemy_drops",
         "protect_missable_locations", "armor_bundles",
         # vanilla_pool sits directly before curated_filler because it OVERRIDES it (#618): the
         # wizard renders a group in this order, and a player reading the recipe first would edit
@@ -510,7 +510,7 @@ _OPTION_GROUPS = [
         "pool_builder_pct_armor", "pool_builder_pct_spells", "pool_builder_pct_talismans",
         "pool_builder_pct_ashes_of_war"]),
     ("Multiworld & Placement", [
-        "death_link", "trap_link", "filler_foreign_pct", "progression_surface", "progression_bias",
+        "death_link", "trap_link", "region_sync", "filler_foreign_pct", "progression_surface", "progression_bias",
         # cross_game_progression reads directly after progression_bias because it only has meaning
         # once that one has released something: bias decides HOW MANY Locks travel, this decides how
         # many of the travellers may leave Elden Ring entirely. Reversed, the second is unanswerable.
@@ -2121,6 +2121,14 @@ class GreenfieldEldenRingWorld(World):
             # client-feature tag -- a client that ignores this key just plays at un-bumped co-op
             # difficulty. Needs enemy_scaling ON to do anything (no tier to bump otherwise).
             contract.COOP_DIFFICULTY: _opt("coop_difficulty"),
+            # Region Sync (#1005): seamless-co-op region sharing. 0 = off. Read straight from the
+            # Toggle; the client (region_sync.rs) joins the RegionSync link group, broadcasts this
+            # slot's region-opens and applies everyone else's. ACCESS ONLY -- the applied open is
+            # the same flag write a received Lock makes, so no item is granted and nothing here or
+            # in Fill/logic/goal changes. The client-feature TAG that stops an older client
+            # silently ignoring it (and leaving its player kicked) is emitted by the feature,
+            # because only the feature knows the seed actually asked for it.
+            contract.REGION_SYNC: _opt("region_sync"),
         }
 
     def _item_counts(self) -> Dict[str, int]:

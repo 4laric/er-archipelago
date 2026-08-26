@@ -33,14 +33,11 @@ from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E
 #     Stormveil Scion gets no defeat banner, so it is legitimately absent from a banner-derived
 #     corpus and never had a sweep to lose.
 GRAFTED_SCION = 10010800          # boss_healthbars: ('m10_01', 'm10_01', 'legacy', 'Grafted Scion')
-SCION_OWN_DROP_AP = 7773787       # Ornamental Straight Sword, f510030 -- a normal check, must SURVIVE
-GOSTOC_BELL_AP = 7773706           # f400051, MSB-placed in m10_00 while its source map was PENDING
+SCION_OWN_DROP_AP = 7773886       # Ornamental Straight Sword, f510030 -- a normal check, must SURVIVE
+GOSTOC_BELL_AP = 7773806           # f400051, MSB-placed in m10_00 while its source map was PENDING
 # (7773843 -> 7773808 on 2026-08-19, #330; 7773808 -> 7773821 same day, full-census regen: +10
 #  restored m21_02 Rada rows and +3 other insertions ahead of it. Flag-verified both times -- the
 #  stale pin was even OWNED by a Liurnia trigger, the exact wrong-check-same-id trap.)
-# 2026-08-25 (#1013): Enia's 100 rows left the pool ahead of both pins -- 7773806 -> 7773706 and
-# 7773886 -> 7773787, flag-verified (f400051 / f510030). The Scion pin's old id still held A check
-# (the ids are contiguous), which is the trap above: a positional pin can only be re-set by flag.
 
 
 def test_the_tutorial_boss_grants_no_sweep():
@@ -714,14 +711,18 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # re-owned, and the removed and added sets are the SAME 41 flags -- every member kept its
     # owner, the owner's number changed. ZERO region crossings (both triggers stay Scadu Altus on
     # both sides). No divvy re-phase: a key rename cannot move `_ents[_j % len(_ents)]`.
-    # 2026-08-25 (#1013): 991951420a8525a4 -> 0681fe15c878a761, count UNCHANGED at 4101 (distinct
-    # pairs 3943 on both sides). Enia's shop went vanilla -- her 100 hub rows left the corpus
-    # (gen_data `enia_vanilla`). No Enia row was sweep-owned, and the OWNED FLAG SET is untouched
-    # (3898 flags, zero lost, zero gained): the whole churn is the divvy re-phase again -- the hub
-    # rows sat inside region round-robin pools, and removing 100 members re-deals
-    # `_ents[_j % len(_ents)]` for the pools that held them. Measured in (trigger, flag) space:
-    # 189 removed / 189 added distinct pairs, 190 flags re-owned, ZERO region crossings
-    # (pair-by-pair against SWEEP_REGION).
-    assert (digest, n) == ("0681fe15c878a761", 4101), (  # 2026-08-25 (#1013): Enia's 100 hub rows left; pure divvy re-phase, same owned flags, zero crossings
-        "sweep OWNERSHIP changed: (%s, %d), expected (0681fe15c878a761, 4101). The total alone will "
+    # 2026-08-26 (#1059): 991951420a8525a4 -> bc5e71949dacb1c9, count UNCHANGED at 4101. A legacy
+    # boss's HOST region now ranks BOSS_AREA_REGION (the measured PlayRegionParam arena) above
+    # `_m61_boss_region` (the nearest-neighbour tile decode that also regions the CHECKS), so a
+    # boss can no longer inherit its members' region by construction. Measured in (trigger, flag)
+    # space: 34 removed / 34 added / 32 re-owned, ZERO flags lost an owner, and ZERO re-owns cross
+    # a sweep-region boundary (checked pair-by-pair against SWEEP_REGION on both sides).
+    # The motivating case is NovahDango's: five Abyssal checks read "also granted by Jori, Elder
+    # Inquisitor" while Jori is fought in Scadu Altus. They did not become unswept -- Jori became a
+    # Scadu Altus host and Midra, Lord of Frenzied Flame (Abyssal's own major) took the five. That
+    # is why the count holds at 4101: this is a re-HOST, not a drop. Applying the constraint at the
+    # host derivation rather than as a late member filter is what makes that true; a late filter
+    # would have stripped them after the divvy was dealt.
+    assert (digest, n) == ("bc5e71949dacb1c9", 4101), (  # 2026-08-26 (#1059): measured arena outranks the tile decode; 32 re-owns, 0 region crossings, 0 orphans
+        "sweep OWNERSHIP changed: (%s, %d), expected (bc5e71949dacb1c9, 4101). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
