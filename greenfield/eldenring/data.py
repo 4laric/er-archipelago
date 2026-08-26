@@ -286,15 +286,15 @@ LOCATIONS = {
         ("Abyssal :: Nanaya's Torch - near Second Floor Chamber, also granted by Midra, Lord of Frenzied Flame (m28_00) [f28007100]", 7772121, 28007100),
         ('Abyssal :: Revered Spirit Ash - on a chandelier near the Second Floor Chamber grace, also granted by Midra, Lord of Frenzied Flame (m28_00) [f28007110]', 7772122, 28007110),
         ('Abyssal :: Revered Spirit Ash - dropped by a chonky inquisitor near Manse Hall [f28007900]', 7772123, 28007900),
-        ('Abyssal :: Swollen Grape - around Abyssal Woods, also granted by Jori, Elder Inquisitor (m61_52_43) [f2050427700]', 7773684, 2050427700),
-        ('Abyssal :: Scadutree Fragment - near Abyssal Woods, also granted by Jori, Elder Inquisitor (m61_52_43) [f2050437010]', 7773686, 2050437010),
-        ('Abyssal :: Smithing Stone [7] - near Abyssal Woods, also granted by Jori, Elder Inquisitor (m61_52_43) [f2050437040]', 7773687, 2050437040),
-        ('Abyssal :: Shadow Realm Rune [7] - near Woodland Trail, also granted by Jori, Elder Inquisitor (m61_52_43) [f2051427000]', 7773729, 2051427000),
-        ('Abyssal :: Somber Smithing Stone [6] - near Church Ruins, also granted by Jori, Elder Inquisitor (m61_52_43) [f2052407010]', 7773745, 2052407010),
-        ('Abyssal :: Clarifying Boluses - near Church Ruins (1), also granted by Jori, Elder Inquisitor (m61_52_43) [f2052417010]', 7773747, 2052417010),
-        ('Abyssal :: Frenzyflame Perfume Bottle - near Church Ruins, also granted by Jori, Elder Inquisitor (m61_52_43) [f2053417000]', 7773753, 2053417000),
-        ('Abyssal :: Clarifying Boluses - near Church Ruins (2), also granted by Jori, Elder Inquisitor (m61_52_43) [f2053417020]', 7773754, 2053417020),
-        ('Abyssal :: Scadutree Fragment - at the altar right in front of you at the Church Ruins grace, also granted by Jori, Elder Inquisitor (m61_52_43) [f2053417500]', 7773755, 2053417500),
+        ('Abyssal :: Swollen Grape - around Abyssal Woods, also granted by Midra, Lord of Frenzied Flame (m28_00) [f2050427700]', 7773684, 2050427700),
+        ('Abyssal :: Scadutree Fragment - near Abyssal Woods, also granted by Midra, Lord of Frenzied Flame (m28_00) [f2050437010]', 7773686, 2050437010),
+        ('Abyssal :: Smithing Stone [7] - near Abyssal Woods, also granted by Midra, Lord of Frenzied Flame (m28_00) [f2050437040]', 7773687, 2050437040),
+        ('Abyssal :: Shadow Realm Rune [7] - near Woodland Trail, also granted by Midra, Lord of Frenzied Flame (m28_00) [f2051427000]', 7773729, 2051427000),
+        ('Abyssal :: Somber Smithing Stone [6] - near Church Ruins, also granted by Midra, Lord of Frenzied Flame (m28_00) [f2052407010]', 7773745, 2052407010),
+        ('Abyssal :: Clarifying Boluses - near Church Ruins (1), also granted by Midra, Lord of Frenzied Flame (m28_00) [f2052417010]', 7773747, 2052417010),
+        ('Abyssal :: Frenzyflame Perfume Bottle - near Church Ruins, also granted by Midra, Lord of Frenzied Flame (m28_00) [f2053417000]', 7773753, 2053417000),
+        ('Abyssal :: Clarifying Boluses - near Church Ruins (2), also granted by Midra, Lord of Frenzied Flame (m28_00) [f2053417020]', 7773754, 2053417020),
+        ('Abyssal :: Scadutree Fragment - at the altar right in front of you at the Church Ruins grace, also granted by Midra, Lord of Frenzied Flame (m28_00) [f2053417500]', 7773755, 2053417500),
     ],
     'Ainsel River': [
         ("Ainsel River :: Nomadic Warrior's Cookbook [16] - from Hermit Merchant [f67290]", 7770102, 67290),
@@ -5557,4 +5557,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:8c3517775d78a62ae2ddb73f77223fe29dc71e45ae07385bb2f83b2c50cad528', 'module': 'data.py', 'body_sha256': 'sha256:bc7791061deb285759dd74d993a6b37d88e8c28e38f3f3ae8a6d4c7516d9a290'}
+_GEN_STAMP = {'inputs_hash': 'sha256:52658b1fdba38da1f6d66978a00e92f2cc9fe6a1bab2ab578d60a7d6b9da73ad', 'module': 'data.py', 'body_sha256': 'sha256:f6456051e74ba1c911f2603342dc120f76bb718032267f87cb4f162f810451e7'}

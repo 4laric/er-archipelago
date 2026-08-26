@@ -254,10 +254,42 @@
    "dlc": false,
    "parent": null,
    "rollable": false,
-   "sweep_slots": {},
-   "sweep_slots_by_class": {},
-   "sweep_slots_max": {},
-   "sweep_slots_max_by_class": {}
+   "sweep_slots": {
+    "all": 2,
+    "bosses": 2
+   },
+   "sweep_slots_by_class": {
+    "SweepSlot": {
+     "all": 2,
+     "bosses": 2
+    },
+    "SweepSlotMajor": {
+     "all": 1,
+     "bosses": 1
+    },
+    "SweepSlotMinor": {
+     "all": 1,
+     "bosses": 1
+    }
+   },
+   "sweep_slots_max": {
+    "all": 6,
+    "bosses": 6
+   },
+   "sweep_slots_max_by_class": {
+    "SweepSlot": {
+     "all": 6,
+     "bosses": 6
+    },
+    "SweepSlotMajor": {
+     "all": 3,
+     "bosses": 3
+    },
+    "SweepSlotMinor": {
+     "all": 3,
+     "bosses": 3
+    }
+   }
   },
   "Belurat": {
    "checks": 92,
@@ -1468,5 +1500,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "8cb3f01c0db921bbb45327311dbf5b0f335109cd95217b4f3c396e291e44658c"
+ "source_sha256": "ddc55aa020a63b758deaedf1e6a35f25bd3d560b08df0ec1511919df65c7a781"
 }

@@ -10829,8 +10829,22 @@ print("boss_sweeps: %d trigger(s) filled from a HUMAN RULING where PlayRegionPar
 #   ground is untouched: PLAY_REGION_GROUPS keeps buckets 61010 (his arena) and 61001 (Castleward
 #   Tunnel mouth + Stormhill Shack) in Limgrave, so the fight and the death-recovery route back into
 #   the arena stay reachable before Stormveil opens. This table only moves the SWEEP arena region.
+#
+#   34100800 Divine Tower of Limgrave -- MEASURED arena is Limgrave, but the whole m34_10
+#   bridge/tower runtime bucket was ruled into Stormveil for region-lock purposes (#202, Alaric
+#   2026-08-17; region_overrides.tsv carries all seven 34107xxx rows). Its members are those very
+#   checks, so the arena/members split here is the ARENA attribution being stale against a ruling
+#   the CHECKS already follow -- fixing the arena is right and cutting the links would be wrong.
+#
+#   11050800 / 11050850 Ashen Capital -- MEASURED arena is Leyndell, because m11_05 sits in
+#   Leyndell's KICK bucket 11050. But data.FINALE_REGION is a deliberate sub-carve of that same
+#   bucket (region_overrides.tsv f510060/510070/510230), and these two triggers are fought inside
+#   the carve. Their members are the carve's checks. Same shape as the Divine Tower above.
 _ARENA_REGION_CURATED = {
     10000850: "Stormveil",
+    34100800: "Stormveil",
+    11050800: "Ashen Capital",
+    11050850: "Ashen Capital",
 }
 for _t, _reg in _ARENA_REGION_CURATED.items():
     if _t not in DUNGEON_SWEEPS:
@@ -10845,8 +10859,84 @@ for _t, _reg in _ARENA_REGION_CURATED.items():
             "region now agrees, so delete the override" % (_t, _reg))
     SWEEP_ARENA_REGION[_t] = _reg
 
+# ---- SWEEP CONTAINMENT: a sweep may only grant checks in the region it is FOUGHT in ------------
+# Alaric's ruling, 2026-08-26: "there shouldn't be any cross-region boss sweeps in general".
+#
+# EVIDENCE (both players credited in the issue). NovahDango, Discord 2026-08-26: five `Abyssal ::`
+# rows around the Church Ruins / Abyssal Woods (Clarifying Boluses, Frenzyflame Perfume Bottle,
+# Scadutree Fragment, Shadow Realm Rune, Swollen Grape) read "also granted by Jori, Elder
+# Inquisitor (m61_52_43)" -- and Jori is fought in Midra's Manse, which boss_area_regions.tsv puts
+# in play_region 40020 and dungeon_regions.tsv's grace join files under Scadu Altus, NOT Abyssal.
+# Lilith, same day: the Belurat `Message from Leda` physically stands outside Belurat -- that one
+# was the REGION being wrong, not the link, and is fixed by FLAG_REGION_OVERRIDE[580600] above,
+# after which the check rides Dryleaf Dane in its own region instead. Two shapes, two fixes.
+#
+# WHY THE SPLIT EXISTS AT ALL. The field pass groups a boss with its NEIGHBOURHOOD (Chebyshev<=2
+# tiles) and takes the members' region as the sweep's region -- so a boss standing just over a
+# region border legitimately reaches checks on the other side. That is measured, and it is exactly
+# what a region lock must not honour: the player buys the ARENA's region, kills the boss, and is
+# paid checks in a region they do not own (the #330 kick, the Hippo rule's motivating case).
+#
+# THE INVARIANT: for every trigger whose arena region is KNOWN, every member presents in that same
+# region. Members that do not are CUT and re-homed to a same-region trigger by the remainder rule
+# below; a trigger left holding nothing is dropped, exactly as SWEEP_UNSPAWNED drops one.
+# 🛑 An UNAUDITED trigger (no arena region from any of the four sources) is NOT clean -- it is
+# unmeasured, and this pass says nothing about it. That is the #445 accounting, not a loophole.
+_ap_present_region = {_aid: _reg for _reg, _locs in buckets.items() for (_nm, _aid, _fl) in _locs}
+_contain_cut = []
+for _t in sorted(SWEEP_ARENA_REGION):
+    _areg = SWEEP_ARENA_REGION[_t]
+    _keep, _cut = [], []
+    for _ap in DUNGEON_SWEEPS.get(_t, ()):
+        (_keep if _ap_present_region.get(_ap) == _areg else _cut).append(_ap)
+    if not _cut:
+        continue
+    DUNGEON_SWEEPS[_t] = _keep
+    for _ap in _cut:
+        _contain_cut.append((_t, _areg, _ap_present_region.get(_ap), _ap))
+# RE-HOME (the remainder rule). A cut member goes back to its OWN region's sweep hosts: the
+# smallest trigger whose sweep region AND arena region are the member's region. Smallest, so a
+# re-home spreads rather than piling onto one boss -- the same fairness the tie round-robin in the
+# field pass and the Astel clawback both encode. A member with no such host stays unswept: it is
+# still a check, it simply is not paid by a kill, which is the honest outcome and never a silently
+# emptied region (the clawback below the divvy is what guarantees no region MAJOR grants nothing).
+_contain_rehomed, _contain_orphan = [], []
+for _t, _areg, _mreg, _ap in _contain_cut:
+    _hosts = [_h for _h in DUNGEON_SWEEPS
+              if _h != _t and SWEEP_REGION.get(_h) == _mreg
+              and SWEEP_ARENA_REGION.get(_h) == _mreg]
+    if not _hosts:
+        _contain_orphan.append((_ap, _mreg)); continue
+    _host = min(_hosts, key=lambda _h: (len(DUNGEON_SWEEPS[_h]), _h))
+    DUNGEON_SWEEPS[_host] = sorted(set(DUNGEON_SWEEPS[_host]) | {_ap})
+    _contain_rehomed.append((_ap, _t, _host, _mreg))
+_contain_dropped = sorted(_t for _t in list(DUNGEON_SWEEPS) if not DUNGEON_SWEEPS[_t])
+for _t in _contain_dropped:
+    DUNGEON_SWEEPS.pop(_t, None)
+    SWEEP_REGION.pop(_t, None)
+    SWEEP_ARENA_REGION.pop(_t, None)
+print("boss_sweeps: CONTAINMENT (2026-08-26 ruling) -- %d cross-region member link(s) cut across "
+      "%d trigger(s); %d re-homed to a same-region host, %d left unswept, %d trigger(s) dropped "
+      "empty: %s" % (len(_contain_cut), len({_c[0] for _c in _contain_cut}),
+                     len(_contain_rehomed), len(_contain_orphan), len(_contain_dropped),
+                     _contain_dropped))
+for _t, _areg, _mreg, _ap in _contain_cut:
+    print("boss_sweeps:   cut ap %d (%s) from trigger %d fought in %s" % (_ap, _mreg, _t, _areg))
+# SWEEP_REGION is the region the sweep PAYS IN; after containment it is the arena's, by definition.
+for _t in list(SWEEP_REGION):
+    if _t in SWEEP_ARENA_REGION:
+        SWEEP_REGION[_t] = SWEEP_ARENA_REGION[_t]
+
 _sweep_arena_split = {_t: (SWEEP_REGION[_t], SWEEP_ARENA_REGION[_t])
                       for _t in SWEEP_ARENA_REGION if SWEEP_ARENA_REGION[_t] != SWEEP_REGION.get(_t)}
+assert not _sweep_arena_split, (
+    "gen_data: %d sweep group(s) still pay in a region they are not fought in AFTER containment: "
+    "%r. The containment pass above is the fix and this is its witness -- an arena/members split "
+    "is a cross-region grant, which the 2026-08-26 ruling forbids. Do NOT relax this assert: "
+    "either the arena attribution is wrong (curate it in _ARENA_REGION_CURATED, citing the ruling, "
+    "the Divine Tower / finale shape) or the CHECK's region is wrong (FLAG_REGION_OVERRIDE, the "
+    "Message-from-Leda shape); the links themselves are already cut." % (
+        len(_sweep_arena_split), _sweep_arena_split))
 _sweep_arena_unaudited = sorted(set(DUNGEON_SWEEPS) - set(SWEEP_ARENA_REGION))
 print("boss_sweeps: arena regions known for %d of %d trigger(s); %d UNAUDITED (no boss_area_regions "
       "row -- not clean, unmeasured), holding %d member link(s)"
