@@ -301,24 +301,45 @@ class EveryMismatchedGroup(unittest.TestCase):
         region ID already agrees: his arena grace and the Castleward Tunnel are m10_00 (play bucket
         10000 = Stormveil). Only the Stormhill CLIFF you swing at him from (bucket 61010, m60_41_38)
         stays Limgrave -- it shares the tile with 8 early overworld checks -- see
-        MargitArenaAndTunnelAreStormveil. The four below remain measured debt; 34100800 and the two inert
-        Ashen Capital rows have no members' region a seed can select the boss's region without,
-        and 2052430800 (Jori) is now withheld from SweepSlot by the arena/members-split rule."""
+        MargitArenaAndTunnelAreStormveil.
+
+        ⭐ SHRANK 4 -> 0 on 2026-08-26 by #1059 -- an INPUT getting better, and the last four going
+        at once. Alaric's ruling ("there shouldn't be any cross-region boss sweeps in general") made
+        the split a forbidden state rather than measured debt, and both of its causes were fixable
+        at the source:
+          * 34100800, 11050800 and 11050850 were never real. boss_area_regions.tsv's `region`
+            column is a generated SNAPSHOT of the bucket->region spine, and six of its 120 rows had
+            not moved with it -- 11050 still filed under Leyndell after the Ashen Capital split,
+            34100 still under Limgrave after #202, and two rows naming "Sewer", a region deleted by
+            the 2026-08-20 Shunning-Grounds merge. gen_data now re-folds the BUCKET through
+            region_groups.py, and all three agree with their members.
+          * 2052430800 (Jori) was real, and is the one a player reported. A legacy boss's host
+            region ranked the nearest-neighbour tile decode above its MEASURED arena, so the boss
+            inherited its members' region by construction. The measured arena now wins; Jori hosts
+            Scadu Altus and his five Abyssal checks were re-hosted onto Midra.
+
+        🛑 THIS SCREEN IS NOT RETIRED. The drop machinery it guards is still live code, and the set
+        being empty is now itself the assertion -- gen_data FAILS on a non-empty split
+        (test_gf_sweep_region_containment). If a group ever appears here again, that is a
+        regression to diagnose, not a number to rebaseline."""
         self.assertEqual(
-            dict(self.split),
-            {34100800: ("Stormveil", "Limgrave"),
-             2052430800: ("Abyssal", "Scadu Altus"),
-             11050800: ("Ashen Capital", "Leyndell"),
-             11050850: ("Ashen Capital", "Leyndell")},
-            "the set of sweep groups whose arena region differs from their members' region MOVED. "
-            "That is a finding, not a rebaseline: say which groups entered, which left, and whether "
-            "an input got better or a predicate got looser.")
+            dict(self.split), {},
+            "a sweep group's arena region differs from its members' region again (#1059). This is "
+            "a REGRESSION, not a rebaseline: gen_data is supposed to refuse to emit one. Say which "
+            "group appeared and whether boss_area_regions.tsv drifted from region_groups.py or a "
+            "curated arena ruling moved a label without moving its members.")
 
     def test_the_split_groups_members_are_ordinary_reachable_checks(self):
         """The severity claim in the docstring, asserted rather than asserted-in-prose: every member
         of a dropped group is still a real location in its own region, so dropping the group costs
         convenience and not checks. If this ever fails, #445 IS a strand and the fix is not a drop."""
-        self.assertTrue(self.split, "WITNESS: no split groups -- nothing was examined")
+        if not self.split:
+            # DELIBERATE, not accidental vacuity: #1059 drove the split set to zero at the source,
+            # and the sibling test above asserts that emptiness. Keeping this loop alive (rather
+            # than deleting the class) means the severity claim is re-checked the moment a split
+            # ever comes back, instead of having to be rediscovered.
+            self.skipTest("no arena/members splits remain (#1059 drove the set to 0); the empty "
+                          "set is asserted by test_the_split_set_is_the_measured_one")
         by_ap = {ap: region for region, rows in data.LOCATIONS.items() for (_n, ap, _f) in rows}
         for t, (mem, _arena) in sorted(self.split.items()):
             missing = [a for a in DS[t] if a not in by_ap]

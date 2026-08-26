@@ -711,6 +711,18 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # re-owned, and the removed and added sets are the SAME 41 flags -- every member kept its
     # owner, the owner's number changed. ZERO region crossings (both triggers stay Scadu Altus on
     # both sides). No divvy re-phase: a key rename cannot move `_ents[_j % len(_ents)]`.
-    assert (digest, n) == ("991951420a8525a4", 4101), (  # 2026-08-24 (#987): Dane's 2 triggers re-keyed entity id -> defeat flag; same 41 members, same regions
-        "sweep OWNERSHIP changed: (%s, %d), expected (991951420a8525a4, 4101). The total alone will "
+    # 2026-08-26 (#1059): 991951420a8525a4 -> bc5e71949dacb1c9, count UNCHANGED at 4101. A legacy
+    # boss's HOST region now ranks BOSS_AREA_REGION (the measured PlayRegionParam arena) above
+    # `_m61_boss_region` (the nearest-neighbour tile decode that also regions the CHECKS), so a
+    # boss can no longer inherit its members' region by construction. Measured in (trigger, flag)
+    # space: 34 removed / 34 added / 32 re-owned, ZERO flags lost an owner, and ZERO re-owns cross
+    # a sweep-region boundary (checked pair-by-pair against SWEEP_REGION on both sides).
+    # The motivating case is NovahDango's: five Abyssal checks read "also granted by Jori, Elder
+    # Inquisitor" while Jori is fought in Scadu Altus. They did not become unswept -- Jori became a
+    # Scadu Altus host and Midra, Lord of Frenzied Flame (Abyssal's own major) took the five. That
+    # is why the count holds at 4101: this is a re-HOST, not a drop. Applying the constraint at the
+    # host derivation rather than as a late member filter is what makes that true; a late filter
+    # would have stripped them after the divvy was dealt.
+    assert (digest, n) == ("bc5e71949dacb1c9", 4101), (  # 2026-08-26 (#1059): measured arena outranks the tile decode; 32 re-owns, 0 region crossings, 0 orphans
+        "sweep OWNERSHIP changed: (%s, %d), expected (bc5e71949dacb1c9, 4101). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
