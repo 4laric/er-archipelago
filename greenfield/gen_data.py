@@ -478,10 +478,72 @@ try:
             if len(_p) == 3 and _p[0].isdigit():
                 # NOTE: _REGION_MERGES is applied later (it is defined below this load); the fold
                 # for this table happens right after the merge map exists.
-                BOSS_AREA_REGION[int(_p[0])] = _p[2]
+                #
+                # 🛑 THE `region` COLUMN IS RE-FOLDED, NOT TRUSTED (2026-08-26, the #1059 audit).
+                # This file is AUTO-GENERATED and its third column is a SNAPSHOT of what
+                # PLAY_REGION_GROUPS said the day it was emitted. region_groups.py is the single
+                # source for "bucket -> region" and it MOVES: the Ashen Capital split took 11050
+                # out of Leyndell, the #202 ruling took 34100 into Stormveil, and the 2026-08-20
+                # Sewer merge deleted the region name "Sewer" outright. Six of the 120 rows here
+                # were still carrying the pre-move answers, and two of them named a region that no
+                # longer exists -- which is how a boss's ARENA region silently disagreed with its
+                # own members and produced 17 of the 22 "cross-region" sweep links in that audit.
+                # Re-folding the BUCKET through the live table makes this file a measurement of
+                # geometry (which is what the datamine actually knows) and leaves the naming to the
+                # one place that owns it. A stale copy of a table that moves is not evidence.
+                _bar_buckets = [int(_b) for _b in _p[1].split(";") if _b.strip().isdigit()]
+                _bar_owners = {_KICK_BUCKET_OWNER.get(str(_b)) for _b in _bar_buckets} - {None}
+                if len(_bar_owners) == 1:
+                    BOSS_AREA_REGION[int(_p[0])] = _bar_owners.pop()
+                elif len(_bar_owners) > 1:
+                    raise SystemExit(
+                        "gen_data: boss_area_regions row %s spans buckets owned by more than one "
+                        "region (%s) -- a boss is fought in ONE region, so this is a spine bug, not "
+                        "something to average" % (_p[0], sorted(_bar_owners)))
+                else:
+                    raise SystemExit(
+                        "gen_data: boss_area_regions row %s names bucket(s) %s that "
+                        "PLAY_REGION_GROUPS does not own. Add the bucket to region_groups.py or "
+                        "re-emit the table; do NOT fall back to the stale region column."
+                        % (_p[0], _p[1]))
 except OSError as _e:
     print(f"[gen_data] boss_area_regions.tsv unavailable ({_e!r}); boss-arena region corrections OFF "
           f"(run tools/datamine_boss_area_regions.py --emit)")
+
+# ---- CURATED arena-region rulings that BEAT the measured row ----------------------------------
+# Human-owned exception to the measurement above. MOVED HERE 2026-08-26 (#1059) from the sweep
+# section: BOSS_AREA_REGION is now what decides a legacy boss's HOST region (`_lreg`), so a ruling
+# applied after the sweeps were built would move the arena label without moving the members, and
+# re-open the very arena/members split the #1059 invariant closes. Applied at the source, one
+# answer feeds both.
+#
+#   10000850 Margit, the Fell Omen -- MEASURED arena is Limgrave (bucket 61010, the Stormhill
+#   cliff), and Alaric ruled 2026-08-17 (#523): "Margit belongs to Stormveil; the game data is
+#   decisive, superseding the earlier 'Margit is outside' call on #202." So Margit hosts
+#   Stormveil's sweep and his members are Stormveil's -- consistent in both directions, which is
+#   what the invariant asks for. The KICKWARP ground is untouched: PLAY_REGION_GROUPS keeps
+#   buckets 61010 (his arena) and 61001 (Castleward Tunnel mouth + Stormhill Shack) in Limgrave,
+#   so the fight and the death-recovery route back into it stay reachable before Stormveil opens.
+_ARENA_REGION_CURATED = {
+    10000850: "Stormveil",
+}
+# 🛑 IT DOES NOT WRITE INTO BOSS_AREA_REGION, and that is the whole care in this block.
+# BOSS_AREA_REGION also feeds `region_of` for a boss's own REWARD check (the boss-drop branch), so
+# folding a SWEEP ruling into it would silently re-region Margit's drop out of Limgrave -- which
+# takes Limgrave's last MajorBoss check with it and makes strict progression_surface infeasible
+# there. The ruling is about which region's pool this boss HOSTS, not about where his reward is
+# found. Kept as its own table and consulted only by the sweep host derivation and
+# SWEEP_ARENA_REGION.
+for _t, _reg in _ARENA_REGION_CURATED.items():
+    if _reg not in REGION_GROUPS and _reg != _RG_HUB:
+        raise SystemExit(
+            "gen_data: arena-region override %d -> %r names a region that does not exist" % (_t, _reg))
+    # The redundancy guard compares against the MEASURED row -- it still deletes itself the day the
+    # datamine agrees, exactly as it did in its old home.
+    if BOSS_AREA_REGION.get(_t) == _reg:
+        raise SystemExit(
+            "gen_data: arena-region override %d -> %r is REDUNDANT; the measured arena region now "
+            "agrees, so delete the override" % (_t, _reg))
 
 # region_map.csv's region-column LABEL -> region. Keys are the pipeline's raw labels (verbatim);
 # values are region_groups.py region names. UN-COLLAPSED 2026-07-12 (SPEC-region-spine-v2.md):
@@ -3124,44 +3186,46 @@ FLAG_REGION_OVERRIDE = {
     # A per-check pin is the narrow instrument the straddle demands. The other three stay Limgrave
     # until someone walks them.
     1043357100: "Weeping",   # Sacred Tear -- Church of Pilgrimage
-    # ---- THE PLAYAREA-SCAN ADJUDICATION (2026-08-26, #1054 / #1046; Alaric's ruling) -------------
-    # `greenfield/item_play_regions.tsv` reads the play_region VOLUME the pickup physically stands
-    # in -- the same id the client's kick-watch reads. Where that answer is EXACT (`volume:` /
-    # `interior-vol:` / `seam:`) it outranks the nearest-grace derivation, which is a distance
-    # heuristic. #1054 measured 114 such disagreements and is explicit that they must NOT be bulk
-    # applied: a large share are NPC-RELOCATION ARTIFACTS (a shop/award flag placed where the NPC
-    # ended up -- Patches/Bernahl at Volcano Manor, Moore in Scadu Altus), where the scan is right
-    # about the POINT and wrong about the CHECK. Every pin below is a GROUND-PLACED PICKUP with an
-    # exact scan row; the relocation families and the two deliberate carves (#885 Hippo -> Shadow
-    # Keep, the Leyndell/Ashen-Capital FINALE sub-carve) are withheld and stay in #1054.
+
+    # ---- THE PLAYAREA-SCAN QUEUE, #1054 (2026-08-26) ----------------------------------------
+    # Ten checks whose EXACT PlayArea point-in-volume answer (item_play_regions.tsv, the
+    # docs/PLAYAREA-ITEM-SCAN.md instrument) disagrees with the region they ship in today. These
+    # are the only rows out of that 114-row queue that are BOTH scan-exact AND ground-placed
+    # pickups -- the population the instrument rules on. The NPC-relocation families in #1054 are
+    # DELIBERATELY NOT here (the Roundtable / Limgrave Ash-of-War rows answering Mt. Gelmir off
+    # Patches and Bernahl at the Manor; the 24 "from Moore" Gravesite rows answering Scadu Altus):
+    # for a shop/grant flag the scanned point is where the NPC ENDED UP, not where the check is.
     #
-    # 🛑 THE YELOUGH ANIX RULING (2026-08-26, "Yelough Anix Tunnel - Consecrated Snowfield, ruled
-    # (wiki)") MINTS NO PIN, and that is deliberate. Grace 73211 is already filed under
-    # Consecrated Snowfield (region_graces.py; grace_region_map.tsv 73211 -> 65002, the Snowfield
-    # grace group), and all 17 SUSPECT-ANCHOR rows the nearest-grace vote anchored on it
-    # (1046577300/800, 1047567310/320/330, 1047577300/310, 1048547800/810/820/830/840, 1048557300,
-    # 1048557600, 1048557900, 1048587300, 1049567350) ALREADY derive Consecrated Snowfield. The
-    # `our_region` column of check_region_second_opinion.tsv still says Mountaintops because that
-    # table is stale against data.py (#1054's "separate finding"), not because the checks are.
-    # Pinning them here would be a REDUNDANT MANUAL OVERRIDE, which CONTRIBUTING makes a failure.
+    # Every row below cites its own item_play_regions.tsv answer. A scan row is first-hand
+    # evidence about a POINT; it is evidence about a CHECK only when the check IS that point.
     #
-    # Ancient Snow Valley Ruins -- the OPPOSITE direction from the Yelough hypothesis and a
-    # different cluster (#1054): five rows filed Consecrated Snowfield stand in bucket 65010,
-    # Mountaintops, by `volume:プレイ領域 6501000`. The sixth, 1050567600, answers 65030 and is
-    # correctly Consecrated Snowfield -- it is not pinned.
-    1050567500: "Mountaintops of the Giants",   # Warming Stone -- volume: 65010
-    1050567510: "Mountaintops of the Giants",   # Invigorating White Cured Meat -- volume: 65010
-    1050567520: "Mountaintops of the Giants",   # Smithing Stone [7] -- volume: 65010
-    1050567620: "Mountaintops of the Giants",   # Traveling Maiden set -- volume: 65010
-    1051557330: "Mountaintops of the Giants",   # Golden Rune [13] -- volume: 65010
-    # Rauh (#1046, 255's report): the upper Ancient Ruins are their own region with their own Lock,
-    # so a check filed Rauh Base that physically stands in bucket 6940/69410 is in logic on the
-    # WRONG Lock -- and two rows run the other way.
-    2045467050: "Ancient Ruins",   # Shadow Realm Rune [7] -- volume: 69410
-    2045477020: "Ancient Ruins",   # Flight Pinion -- seam: 69400 @2.7m
-    2046457000: "Gravesite",       # Two-Headed Turtle Talisman -- volume: 68100
-    2045457010: "Rauh Base",       # Grave Glovewort [5] -- volume: 69010
-    2046467800: "Rauh Base",       # Larval Tear -- volume: 69010
+    # -- Ancient Snow Valley Ruins: five rows ship Consecrated Snowfield, stand in 65010 --------
+    # Bucket 6501000 is Mountaintops (PLAY_REGION_GROUPS). The cluster's sixth row, 1050567600,
+    # answers 65030 and is correctly Consecrated Snowfield already -- it gets NO row here, and
+    # that split is exactly why this is five per-flag pins and not a tile pin: the Ancient Snow
+    # Valley Ruins tile genuinely STRADDLES the Rold boundary, the same arity problem as the
+    # Church of Pilgrimage pin above.
+    1050567500: "Mountaintops of the Giants",  # Warming Stone -- volume: 6501000
+    1050567510: "Mountaintops of the Giants",  # Invigorating White Cured Meat -- volume: 6501000
+    1050567520: "Mountaintops of the Giants",  # Smithing Stone [7] -- volume: 6501000
+    1050567620: "Mountaintops of the Giants",  # Traveling Maiden Hood -- volume: 6501000
+    1051557330: "Mountaintops of the Giants",  # Golden Rune [13] -- volume: 6501000
+    #
+    # -- Rauh: the upper-ruins / base split 255 reported (#1046), settled by the scan -----------
+    # Rauh Base graces are bucket 6950, the upper Ancient Ruins are 6940, so the scan answers
+    # these exactly and no hand adjudication is needed. NB TWO of the five move the OTHER way:
+    # 255's report was PARTLY right, and a queue that only ever moved rows in the reported
+    # direction would be the instrument agreeing with the reporter instead of measuring.
+    2045467050: "Ancient Ruins",  # Shadow Realm Rune [7], Rauh Ancient Ruins East (1) -- volume: 69410
+    2045477020: "Ancient Ruins",  # Flight Pinion, Rauh Ancient Ruins East -- seam:@2.7m 69400
+    2046457000: "Gravesite",      # Two-Headed Turtle Talisman, Temple Town Ruins -- volume: 68100
+    2045457010: "Rauh Base",      # Grave Glovewort [5], Temple Town Ruins -- volume: 69010 (REVERSE)
+    2046467800: "Rauh Base",      # Larval Tear, near Scadu Altus West -- volume: 69010 (REVERSE)
+    #
+    # -- The rest of the scan-exact, ground-placed queue (#1054 / #1046) --------------------
+    # Same instrument, same evidence class as the ten above: each row's EXACT item_play_regions
+    # answer disagrees with the nearest-grace derivation, and each is a GROUND-PLACED pickup, so
+    # the scan rules. The NPC-relocation families and the two deliberate carves stay withheld.
     # Forbidden Lands. Corroborated independently by this same regen: grace 76500 (Forbidden Lands)
     # moves Altus -> Mountaintops in region_graces.py off the refreshed grace ground.
     1047517000: "Mountaintops of the Giants",   # Drawstring Fire Grease -- volume: 65000
@@ -3188,12 +3252,12 @@ FLAG_REGION_OVERRIDE = {
     2052417010: "Abyssal",   # Clarifying Boluses
     2050437010: "Abyssal",   # Scadutree Fragment -- seam
     2050437040: "Abyssal",   # Smithing Stone [7]
-    # Message from Leda stands at Scaduview Cross, not in Belurat. Reported independently by Lilith
-    # (Discord 2026-08-26: "this one is in Shadow Keep, not in Belurat") -- the player and the scan
-    # agree it is NOT Belurat; the scan's exact answer (bucket 69000) is taken over the prose.
-    # It was filed Belurat only because the Divine Beast Dancing Lion sweeps it (see the sweep
-    # containment ruling); fixing the REGION is preferred to cutting the link.
-    580600: "Scadu Altus",   # Message from Leda -- volume: 69000
+    # 🛑 Message from Leda (580600) is deliberately NOT pinned here. This branch proposed moving it
+    # to Scadu Altus off the scan's bucket-69000 answer; main's later sweep-containment ruling
+    # (#1059) adjudicated the same report the other way -- m20_00 IS Belurat, so the Dancing Lion
+    # grant is CONTAINED, and the Shadow Keep placement is the #320/#502 multisite family, not a
+    # region error. test_gf_sweep_region_containment pins that decision, so the proposal is
+    # withdrawn rather than re-litigated in a merge.
 }
 
 # These per-flag pins settle WHICH SIDE of a measured region seam owns the reward, but they do not
@@ -10161,7 +10225,28 @@ if BOSS_HEALTHBARS:
             # paying out the always-open hub is never the intended reading, so there is no case where
             # falling back to HUB is right. Collect and fail at the end of the pass with every
             # offender named, rather than one assert per boss.
-            _lreg = _m61_boss_region(_ent) or _LEGACY_BMAP_REGION.get(_bmap) or _mreg.get(_bmap)
+            # 🛑 THE MEASURED ARENA OUTRANKS THE TILE DECODE (2026-08-26, #1059, NovahDango's
+            # Jori report). BOSS_AREA_REGION is PlayRegionParam's own answer to "which region is
+            # the player STANDING IN while this boss dies" -- first-hand geometry. Everything to
+            # its right is the nearest-neighbour tile machinery that also regions the CHECKS, so
+            # putting it first was the bug: the boss inherited its members' region by construction
+            # and a sweep could pay out checks in a region the player never had to enter.
+            #
+            # Jori, Elder Inquisitor is the motivating case. `_m61_boss_region` reads his m61_52_43
+            # tile as Abyssal, so he hosted an Abyssal divvy slice -- five Abyssal checks reading
+            # "also granted by Jori" -- while the fight itself is in SCADU ALTUS (bucket 40020,
+            # and Alaric walked it in game on 2026-08-10; boss_verdict_tiles.tsv carries the
+            # verdict). Alaric's ruling, 2026-08-26: "there shouldn't be any [Abyssal checks
+            # sweeping on Jori], or cross-region boss sweeps in general."
+            #
+            # This is a RE-HOST, not a drop. Jori becomes a Scadu Altus divvy host, and the five
+            # Abyssal checks fall back into the Abyssal divvy pool for Abyssal's own hosts -- the
+            # existing machinery, no orphans. Ranking it here rather than filtering members later
+            # is what makes that true: a late filter would strip the members after the divvy had
+            # already been dealt, and they would simply go unswept.
+            _lreg = (_ARENA_REGION_CURATED.get(_ent) or BOSS_AREA_REGION.get(_ent)
+                     or _m61_boss_region(_ent)
+                     or _LEGACY_BMAP_REGION.get(_bmap) or _mreg.get(_bmap))
             if not _lreg:
                 _unregioned_legacy.append((_ent, _bmap, _name))
                 continue
@@ -10829,24 +10914,48 @@ print("boss_sweeps: %d trigger(s) filled from a HUMAN RULING where PlayRegionPar
 #   ground is untouched: PLAY_REGION_GROUPS keeps buckets 61010 (his arena) and 61001 (Castleward
 #   Tunnel mouth + Stormhill Shack) in Limgrave, so the fight and the death-recovery route back into
 #   the arena stay reachable before Stormveil opens. This table only moves the SWEEP arena region.
-_ARENA_REGION_CURATED = {
-    10000850: "Stormveil",
-}
+# _ARENA_REGION_CURATED is DECLARED beside the BOSS_AREA_REGION load (#1059) so the sweep host
+# derivation can consult it, and it is APPLIED to the arena label here. Both readers see one
+# answer, and neither of them is the boss-drop region -- see the block at the declaration.
 for _t, _reg in _ARENA_REGION_CURATED.items():
     if _t not in DUNGEON_SWEEPS:
         raise SystemExit(
             "gen_data: arena-region override %d no longer names a live sweep trigger" % _t)
-    if _reg not in REGION_GROUPS and _reg != HUB:
-        raise SystemExit(
-            "gen_data: arena-region override %d -> %r names a region that does not exist" % (_t, _reg))
-    if SWEEP_ARENA_REGION.get(_t) == _reg:
-        raise SystemExit(
-            "gen_data: arena-region override %d -> %r is REDUNDANT; the measured/derived arena "
-            "region now agrees, so delete the override" % (_t, _reg))
     SWEEP_ARENA_REGION[_t] = _reg
 
 _sweep_arena_split = {_t: (SWEEP_REGION[_t], SWEEP_ARENA_REGION[_t])
                       for _t in SWEEP_ARENA_REGION if SWEEP_ARENA_REGION[_t] != SWEEP_REGION.get(_t)}
+
+# ---- THE CONTAINMENT INVARIANT (#1059, Alaric 2026-08-26) --------------------------------------
+# "there shouldn't be any [Abyssal checks sweeping on Jori], or cross-region boss sweeps in
+# general." A sweep trigger's MEMBERS must live in the region the trigger is FOUGHT in. Before this
+# gate the repo could only observe the violation and hope the seed rolled a shape that hid it:
+# features/boss_locks drops an arena/members split only when the seed keeps the members' region
+# WITHOUT the arena's, so a seed holding both regions paid the cross-region grant out in full --
+# which is exactly what NovahDango and Lilith saw and reported on Discord.
+#
+# 🛑 THIS GATE IS NOT A TAUTOLOGY, and that is the thing to check before trusting it.
+# tools/datamine_check_nearest_boss.py measured "checks whose OWN region != their sweep boss's
+# SWEEP_REGION: 0" and explained the zero honestly: SWEEP_REGION is DERIVED from the members, so it
+# cannot disagree with them. SWEEP_ARENA_REGION is different evidence -- PlayRegionParam's own
+# answer to where the player stands -- and it CAN disagree. That is why the invariant is stated
+# against the arena region and why the audit that motivated it found 22 real links, not zero.
+#
+# A trigger with no measured arena row is UNAUDITED, not clean: it is skipped here and counted in
+# the line above, and test_gf_sweep_region_containment ratchets that count so the gate cannot be
+# widened by quietly losing arena coverage.
+if _sweep_arena_split:
+    raise SystemExit(
+        "gen_data: CROSS-REGION BOSS SWEEP -- %d trigger(s) grant checks outside the region the "
+        "boss is fought in, which #1059 forbids: %s\n"
+        "Fix the SOURCE, not this list: a legacy boss's host region is BOSS_AREA_REGION (the "
+        "measured arena) and its members are dealt from that region's divvy, so a split here means "
+        "either boss_area_regions.tsv disagrees with region_groups.py, or a curated ruling moved "
+        "the arena label without moving the members."
+        % (len(_sweep_arena_split),
+           ", ".join("%d members=%s arena=%s" % (_t, _sweep_arena_split[_t][0],
+                                                 _sweep_arena_split[_t][1])
+                     for _t in sorted(_sweep_arena_split))))
 _sweep_arena_unaudited = sorted(set(DUNGEON_SWEEPS) - set(SWEEP_ARENA_REGION))
 print("boss_sweeps: arena regions known for %d of %d trigger(s); %d UNAUDITED (no boss_area_regions "
       "row -- not clean, unmeasured), holding %d member link(s)"
