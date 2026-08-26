@@ -3310,13 +3310,38 @@ FLAG_REGION_OVERRIDE = {
     # grant is CONTAINED, and the Shadow Keep placement is the #320/#502 multisite family, not a
     # region error. test_gf_sweep_region_containment pins that decision, so the proposal is
     # withdrawn rather than re-litigated in a merge.
+    #
+    # ---- 2026-08-26 (#445 ground audit): the Roundtable Golden Seed was never DERIVED ----------
+    # f400220 read "Roundtable Hold :: Golden Seed (region unconfirmed)" and the Hold was never a
+    # finding -- it is the fallback for a flag with no attributable map (its legacy region_map row
+    # is `map=PENDING, method=global_filler`), and location_descriptions.tsv records that Alaric's
+    # 2026-08-04 hand pass over all 43 Golden Seeds "left it blank": nobody could say where it is.
+    # The full-census coordinate refresh (main, 76c107e0) answered it. Its ONE lot (112200) is
+    # placed on three MSB enemies -- m10_00 (Stormveil; that tile carries 127 other Stormveil
+    # checks) and the Limgrave tiles m60_45_38 / m60_46_36 -- and none of the three is in the Hold.
+    # Why this is a defect and not a curiosity: the HUB is in scope in EVERY seed, so the Hold
+    # filing CREATES this check unconditionally, while its only bucket-resolvable ground sits in
+    # play_region 10000, behind the Stormveil lock -- the #680 shape exactly, a live check on the
+    # progression surface standing on ground the seed may forbid. It is filed on the ground the
+    # corpus can actually witness; the two Limgrave placements have no play_region row at all, so
+    # they are not evidence of reachability in either direction.
+    400220: "Stormveil",   # Golden Seed -- MSB enemy lot 112200 on m10_00
 }
 
 # These per-flag pins settle WHICH SIDE of a measured region seam owns the reward, but they do not
 # turn a graceless MSB tile into directly reachable ground. Keep the Snowfield Avatar tears as live
 # Snowfield checks while retaining the conservative DEFAULTED progression bar until their exact
 # pickup ground is witnessed in game. A region correction must not silently promote a guessed check.
-_REGION_OVERRIDE_UNCONFIRMED_FLAGS = frozenset({65130, 65170})
+# 400220 (the Roundtable Golden Seed) rides here for the SAME reason, added 2026-08-26 with its
+# region pin above. Its region moves to Stormveil on the MSB placement of lot 112200 in m10_00 --
+# but it has three placements, only one of which any table can resolve to a play_region, and its
+# exact pickup ground has never been witnessed in game. So the pin settles WHERE IT IS FILED and
+# nothing else: the check keeps its DEFAULTED bar and its "(region unconfirmed)" hedge, exactly as
+# it had them in the Hold. Promoting it to a progression host is a separate step and needs an
+# in-game witness, not a datamine -- and this is the check that softlocked
+# AP_55352390472076588352 (test_gf_defaulted_region_guard), so it is the last one to promote on a
+# derivation alone.
+_REGION_OVERRIDE_UNCONFIRMED_FLAGS = frozenset({65130, 65170, 400220})
 
 # ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------
 # The coarse REGION_MAP buckets every minor dungeon into one region ("Caves"->Limgrave,

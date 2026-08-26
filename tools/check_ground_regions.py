@@ -60,15 +60,31 @@ BENIGN_GROUNDS = {
 
 
 # Sweep triggers whose members' cross-region assignment is a RULING, not an accident. The verdict
-# below applies ONLY to these: without this scope it would also have excused the three
-# KNOWN_MISMATCHES rows in test_gf_check_ground_regions.py (400175/400036/400401), which are open
-# questions about a possibly-wrong assignment that happen to sit inside a same-region sweep --
-# reachable, but not RULED. A trigger enters this table with its ruling, or its members stay
-# MISMATCH.
+# below applies ONLY to these -- a trigger enters this table WITH its ruling written out, or its
+# members stay MISMATCH. The scope exists so that "it happens to sit inside a same-region sweep"
+# can never quietly excuse a possibly-wrong assignment: until 2026-08-26 it held one trigger, and
+# 400175/400036/400401 stayed accusable precisely because nobody had ruled on them.
+#
+# 2026-08-26: Mohg is the second entry, and the ground under that scope moved first. #1059 made
+# member/arena co-region a GATE (test_gf_sweep_region_containment) and made SWEEP_ARENA_REGION
+# read the MEASURED bucket instead of a snapshot, so "the trigger's arena is the member's region"
+# is now an enforced invariant rather than a coincidence this table has to guard against.
 RULED_SWEEP_ANCHORS = {
     21000850: "#885 (Alaric 2026-08-19): the Golden Hippopotamus presents as Scadu Altus "
               "EVERYWHERE -- reward, trigger, and every granted member. m21_00 is curated to "
               "Scadu Altus in gen_data.DUNGEON_REGION_CURATED; the arena is bucket 69000.",
+    12050800: "#445 (2026-08-26): MOHG, LORD OF BLOOD. His arena is MOHGWYN -- SWEEP_ARENA_REGION "
+              "reads it from the MEASURED PlayRegionParam bucket since #1059, which hard-errors "
+              "rather than falling back -- and every one of his 60 members is filed Mohgwyn, which "
+              "#1059's containment gate (test_gf_sweep_region_containment) now ENFORCES for every "
+              "trigger. One member, f400036 (Festering Bloody Finger), is accused by this audit: "
+              "its award site is Mohg's own m12_05 EMEVD grant, which has no MSB coordinate for "
+              "the join to see, so the only coordinates it has are two placements of the shared "
+              "lot 110301 on Bloody-Finger invader NPCs standing in m60_35_44 and m60_42_36. "
+              "Killing Mohg grants it, so Mohgwyn alone always suffices; and the assignment cannot "
+              "move to the accusing ground without VIOLATING the containment gate. Same caveat as "
+              "the Hippo: walking to the invader from a Mohgwyn-only seed still kicks, the sweep "
+              "is the guaranteed route.",
 }
 
 

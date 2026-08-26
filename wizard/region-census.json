@@ -1229,7 +1229,7 @@
    }
   },
   "Roundtable Hold": {
-   "checks": 137,
+   "checks": 136,
    "combos": {},
    "dlc": false,
    "parent": null,
@@ -1401,7 +1401,7 @@
    }
   },
   "Stormveil": {
-   "checks": 140,
+   "checks": 141,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|MajorBoss|Remembrance": 1,
@@ -1500,5 +1500,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "2f9c3ff45e4b44cb4168d158bfba5812f4764d2e544c483689067356eda6bc5a"
+ "source_sha256": "bc36f1f805acfc0c5e1e6ebee219c6a6f92421f4e3432373d0736d1cd02f1c6a"
 }

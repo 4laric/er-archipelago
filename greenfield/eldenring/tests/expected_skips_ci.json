@@ -67,6 +67,12 @@
       "why": "test_gf_sweep_anchor_coords is a GENERATORS suite (ledgered there) and gates tools/derive_sweep_anchor_coords.py, which the installed world does not carry -- so all 5 cases skip in THIS job and run in the generators job instead. The count is 5 and must move with the suite: a case added or retired there is a reviewed diff here.",
       "pattern": "^repo-only tool not present \\(installed world\\)",
       "count": 5
+    },
+    {
+      "family": "sweep-arena-splits-driven-to-zero",
+      "why": "test_gf_sweep_arena_reachability.py::EveryMismatchedGroup::test_the_split_groups_members_are_ordinary_reachable_checks. #1059 made a boss's arena region and its members' region agree at the SOURCE (gen_data refuses to emit a split), so the severity loop has nothing to iterate and loud-skips rather than passing vacuously. The emptiness itself is asserted by its sibling test_the_split_set_is_the_measured_one, which is why this is a deliberate skip and not a dark test. Ledgered 2026-08-26: it was UNLEDGERED from the moment #1059 merged and the census never said so, because main's union verdict was aborting on a red shard before this gate ran (an aborting gate hides every gate below it). If this count reaches 0 a split has COME BACK -- diagnose it, do not rebaseline.",
+      "pattern": "^no arena/members splits remain",
+      "count": 1
     }
   ]
 }

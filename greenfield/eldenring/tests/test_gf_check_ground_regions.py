@@ -15,10 +15,12 @@ region; this is the same shape one level down, on ordinary checks. It surfaced b
 the Gravesite sweep (2046450800) turned out to sit on Rauh Base ground -- so a seed keeping Gravesite
 without Rauh Base does not merely lose that sweep's convenience, it ships checks behind the kick.
 
-WHAT THIS TEST IS. A RATCHET, not a clean bill. 20 mismatches and 1 ambiguous tile exist on `main`
-today; they are pinned below so a NEW one fails loudly, and the pinned list may only ever SHRINK.
-Each pinned row needs an in-game verdict (label `needs-playtest`) before it can be called benign --
-the join says where the datamine put the item, and a datamined coordinate is not a playtest.
+WHAT THIS TEST IS. A RATCHET, not a clean bill. It opened with 20 pinned mismatches and 1 ambiguous
+tile; the pinned list may only ever SHRINK, and it reached ZERO on 2026-08-26 -- see the note on
+KNOWN_MISMATCHES for how each row left, because "the pin is empty" is a claim that has to say which
+verdicts it rests on. An empty pin is still not a clean bill: the audit
+measures under half the corpus (2284 checks are UNMEASURED, below), so it means "nothing the join
+can currently see", never "nothing is wrong".
 
 🛑 AND IT MEASURES LESS THAN HALF THE CORPUS. 2451 of 4916 checks resolve; the other 2465 have no
 coordinate or sit on a tile with no play_region row. `test_ground_audit_coverage_is_stated_out_loud`
@@ -62,29 +64,48 @@ REPO = find_repo_root(HERE)
 # checks and renumbered every id above 7774000, so an ap-id pin would have gone on passing while
 # naming different checks. Flags are game data and do not move. (CONTRIBUTING: "whenever two
 # components exchange ids, name the SPACE in the type, the key, or the comment -- and assert it.")
-KNOWN_MISMATCHES = {
-    (400175, "Farum Azula", "Caelid"),
-    # REMOVED 2026-08-14, and the reason is the ATTRIBUTION being fixed, not an input moving under
-    # it. This row was pinned as a tolerated mismatch and it was never only a mismatch: flag 66930's
-    # only lot is 41010000 (m41_01 Bonny Gaol), so a LIVE Limgrave check pointed at ground inside a
-    # DLC gaol. On an enable_dlc:false seed it shipped, sat on the progression surface, and could
-    # have taken a Region Lock the player could never reach (#680, off Alaric's own tracker).
-    # gen_data._REGION_CONFIRMED_FLAGS now sends it to Scadu Altus beside every other m41_01 check,
-    # which is where the grace join said it belonged all along.
-    # REMOVED 2026-08-19 (the full-census regen), and this time the reason is the INPUT changing
-    # under them: both mismatches were manufactured by stale coordinate attributions the refreshed
-    # item_grace_coords no longer reproduces (400036 was placed at The First Step, 400401 at
-    # Redmane Castle Plaza; their regenerated descriptors now read Palace Approach Ledge-Road and
-    # Church of the Cuckoo). Both are no_coord/UNMEASURED today -- no longer accused, not proven.
-    #   (400036, "Mohgwyn", "Limgrave"),
-    #   (400401, "Raya Lucaria Academy", "Caelid"),
-    #
-    # ADDED 2026-08-19: D's quest family (Bell Bearing + the Twinned set), assigned to the HUB
-    # where the handover happens, datamined at his m60_44_39 field station. The HUB is in scope in
-    # EVERY seed, so this can never strand a check -- an open attribution question, zero
-    # reachability risk.
-    (400349, "Roundtable Hold", "Limgrave"),
-}
+KNOWN_MISMATCHES = set()
+# EMPTIED 2026-08-26, and an empty pin is NOT a clean bill -- the audit still measures under half
+# the corpus (see the coverage warning below), so this is "nothing the join can currently see",
+# not "nothing is wrong". The two rows left as follows, and neither left by being re-pinned:
+#
+#   (400175, "Farum Azula", "Caelid") -- the INPUT changed under it. It was pinned when its only
+#   datamined coordinate was m60_52_38 (Caelid, tile-default bucket 64000), so the join could see
+#   nothing but Caelid ground for a Farum Azula check. main's full-census coordinate refresh
+#   (76c107e0, "updated item_grace_coords") gave the flag SIX more sites, one of which is
+#   m13_00_00_00 -- Crumbling Farum Azula itself, bucket 13000, PLAY_REGION_GROUPS["Farum Azula"].
+#   The disjunct-site rule (any site's ground matching suffices) now resolves it to AGREE. The
+#   attribution was right all along; the corpus simply could not witness it.
+#
+#   (400349, "Roundtable Hold", "Limgrave") -- the same story, same commit. Pinned as D's quest
+#   family, assigned to the HUB where the handover happens and datamined only at his m60_44_39
+#   field station. The refresh added m11_10_00_00 (bucket 11100 = Roundtable Hold), i.e. the Hold
+#   itself, so the assigned region is now among its grounds and the row AGREES.
+#
+# The two mismatches that same refresh CREATED were adjudicated in the same pass rather than
+# pinned, which is what the test below demands:
+#
+#   (400036, "Mohgwyn", "Limgrave") -- assignment UPHELD, excused as SWEEP-ANCHORED. The refresh
+#   measured a previously no_coord flag and the only coordinates it has are two placements of the
+#   shared lot 110301 on Bloody-Finger invader NPCs (m60_35_44, m60_42_36); the award site is
+#   Mohg's own m12_05 EMEVD grant, which has no MSB coordinate at all. f400036 is a member of
+#   Mohg's sweep (trigger 12050800, SWEEP_ARENA_REGION "Mohgwyn"), so a Mohgwyn seed obtains it by
+#   killing him -- and since #1059 made member/arena co-region a GATE, moving it onto the accusing
+#   ground would BREAK test_gf_sweep_region_containment. The ruling is written out in
+#   tools/check_ground_regions.RULED_SWEEP_ANCHORS[12050800].
+#
+#   (400220, "Roundtable Hold", "Stormveil") -- assignment WRONG, attribution fixed. The Hold was
+#   never derived for this flag (legacy region_map row: map=PENDING, method=global_filler; the
+#   name still said "(region unconfirmed)"; location_descriptions.tsv records that Alaric's
+#   2026-08-04 pass over all 43 Golden Seeds left this one blank). Its only lot, 112200, is placed
+#   on three MSB enemies -- m10_00 (Stormveil, bucket 10000) and the play_region-less Limgrave
+#   tiles m60_45_38 / m60_46_36 -- none of them in the Hold. Because the HUB is in scope in every
+#   seed, the Hold filing CREATED the check unconditionally while its only witnessed ground sat
+#   behind the Stormveil lock: the #680 shape. gen_data.FLAG_REGION_OVERRIDE[400220] now files it
+#   Stormveil, with the reason in region_overrides.tsv.
+#
+# 🛑 THE PROTOCOL IS UNCHANGED: a new mismatch is FIXED or RULED, never appended here. If this set
+# is ever non-empty again, each row is an open question with a name on it.
 
 # EMPTIED 2026-08-19: 2047457180's region flipped Scadu Altus -> Gravesite in the full-census
 # regen (one of nine ground-truth corrections), and Gravesite is one of its m61_47_44 tile's two
@@ -179,23 +200,46 @@ class CheckGroundRegions(unittest.TestCase):
             triggers, set(RULED_SWEEP_ANCHORS),
             "sweep-anchored record(s) from a trigger with NO written ruling: %r"
             % sorted(triggers - set(RULED_SWEEP_ANCHORS)))
-        self.assertEqual(triggers, {21000850},
-                         "the ruled corpus changed shape -- a trigger was added or the Hippo's "
-                         "members vanished: %r" % sorted(triggers))
+        # 2026-08-26: 12050800 (Mohg, Lord of Blood) joined the Hippo, and it entered the way the
+        # table demands -- with its ruling written out. One member reaches this class, f400036; the
+        # adjudication is in KNOWN_MISMATCHES' note above and in RULED_SWEEP_ANCHORS itself.
+        self.assertEqual(triggers, {12050800, 21000850},
+                         "the ruled corpus changed shape -- a trigger was added or a ruled "
+                         "trigger's members vanished: %r" % sorted(triggers))
         regions = {rec[1] for rec in recs}
-        self.assertEqual(regions, {"Scadu Altus"},
+        self.assertEqual(regions, {"Mohgwyn", "Scadu Altus"},
                          "a sweep-anchored check is assigned a region other than its trigger's "
                          "arena: %r" % sorted(regions))
+        # PER RECORD, not just per set -- with two triggers in the table a set-level equality
+        # would pass if the Hippo's members were filed Mohgwyn. Each record carries its own
+        # trigger (rec[5]); its arena must be the region the check is filed in.
+        import importlib.util
+        _spec = importlib.util.spec_from_file_location(
+            "_cgr_sweeps_test", os.path.join(REPO, "greenfield", "eldenring", "boss_sweeps.py"))
+        _sw = importlib.util.module_from_spec(_spec)
+        _spec.loader.exec_module(_sw)
+        crossed = [(rec[0], rec[1], rec[5], _sw.SWEEP_ARENA_REGION.get(rec[5]))
+                   for rec in recs if _sw.SWEEP_ARENA_REGION.get(rec[5]) != rec[1]]
+        self.assertEqual(crossed, [],
+                         "a sweep-anchored check is excused by a trigger fought in a DIFFERENT "
+                         "region -- the excusing mechanism does not hold for it: %r" % crossed)
         # 2026-08-19 (#330 merged under #885): 88 -> 48. The Hippo sweep shrank from 108 to 58
         # members because exactly 50 worldless Rada Fruit flags left the location corpus; all 50
         # removed members are in gen_data._RADA_WORLDLESS and no non-Rada member left. Of the 58
         # retained members, these 48 have coordinates that let this partial ground audit measure
         # them. This is source removal, not a looser SWEEP-ANCHORED predicate.
+        # 2026-08-26: 48 -> 49. The one added record is Mohg's f400036 and nothing else moved --
+        # the Hippo's 48 are unchanged. Named, per the rule below.
         self.assertEqual(
-            len(recs), 48,
-            "the Hippo's measurable sweep-anchored corpus moved (was 48 after #330). Fine if "
-            "item_grace_coords.tsv coverage or his membership changed -- say which check(s) and "
-            "why, then re-pin.")
+            len(recs), 49,
+            "the measurable sweep-anchored corpus moved (48 Hippo members after #330, + Mohg's "
+            "f400036 on 2026-08-26). Fine if item_grace_coords.tsv coverage or a ruled trigger's "
+            "membership changed -- say which check(s) and why, then re-pin.")
+        self.assertEqual(
+            sorted(rec[0] for rec in recs if rec[5] == 12050800), [400036],
+            "Mohg's ruling was written for ONE accused member (f400036); another of his 60 members "
+            "reaching this class is a new question, not a covered one: %r"
+            % sorted(rec[0] for rec in recs if rec[5] == 12050800))
 
     def test_sites_elsewhere_is_the_relocating_merchant_class(self):
         """The 2026-08-19 verdict for a multi-site check NONE of whose sites ground in its region.
