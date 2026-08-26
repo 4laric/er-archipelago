@@ -19,7 +19,9 @@ NOTHING GEOMETRIC IS RE-IMPLEMENTED HERE. Everything is imported from its one ow
     datamine_grace_ground.Vol / Vol.contains / _shape / _load_msb_playareas / load_volumes
                               / load_interior_volumes / _nearest_face / SEAM_SLACK
                               / MEASURED_GROUND / load_play_region_defaults
-    overworld_fold.world_xz   THE LOD-aware overworld fold (issue #338 -- never a second one)
+    overworld_fold.world_xz   THE LOD-aware overworld fold (issue #338 -- never a second one),
+                              reached THROUGH datamine_grace_ground.derive_ground, which owns the
+                              volume -> seam -> tile-default -> none ladder for BOTH tools
     msb_region_vote.load_coords   the item/grace coordinate reader, multi-placement aware
 
 FOLD FIRST, TEST SECOND. `_load_msb_playareas` world-positions volumes as `tile*256 + local` and
@@ -83,7 +85,6 @@ sys.path.insert(0, HERE)
 import artifacts_root                        # noqa: E402  -- THE --path argument, not a copy
 import datamine_grace_ground as gg          # noqa: E402  -- THE volume machinery, not a copy of it
 import msb_region_vote as mrv               # noqa: E402  -- THE coordinate reader
-from overworld_fold import fine_tile, world_xz  # noqa: E402  -- THE fold (#338), one implementation
 
 OUT = os.path.join(REPO, "greenfield", "item_play_regions.tsv")
 GROUND = os.path.join(REPO, "greenfield", "grace_ground.tsv")
@@ -107,40 +108,11 @@ VOL_FLOOR = 400
 MIN_DERIVED_ABS = 2000
 
 
-# THE fine-tile attribution, next to THE fold, for the same reason (#338): two implementations is
-# how the item pass and `datamine_grace_ground` disagreed about graces 76416/76420 on 2026-08-26.
-# It ROUNDS -- the overworld tile frame is centre-origin. See overworld_fold.fine_tile.
-_fine_tile = fine_tile
-
-
-def derive(map_id, x, y, z, vols, tile_ids, interior_ids):
-    """(sorted play_region ids, source) for ONE placement. The whole ruling, in one place, so the
-    item pass and the --graces calibration pass cannot drift apart."""
-    got = world_xz(map_id, x, z)
-    if got is not None:
-        base, gx, gz = got
-        area = int(base[1:])                                     # 'm60' -> 60
-        mine = [v for v in vols if v.area == area]
-        hits = [v for v in mine if v.contains(gx, y, gz)]
-        if hits:
-            return sorted({v.pr for v in hits}), "volume:" + hits[0].name
-        near = gg._nearest_face(mine, gx, y, gz)
-        if near and near[0] <= gg.SEAM_SLACK:
-            return [near[1].pr], "seam:%s@%.1fm" % (near[1].name, near[0])
-        ids = sorted(tile_ids.get(area, {}).get(_fine_tile(gx, gz), ()))
-        return (ids, "tile-default") if ids else ([], "none")
-
-    mkey = "_".join((map_id or "").split("_")[:2])               # 'm10_00_00_00' -> 'm10_00'
-    ivols = gg.load_interior_volumes(mkey)
-    if ivols:
-        hits = [v for v in ivols if v.contains(x, y, z)]         # interior: world == local
-        if hits:
-            return sorted({v.pr for v in hits}), "interior-vol:" + hits[0].name
-        near = gg._nearest_face(ivols, x, y, z)
-        if near and near[0] <= gg.SEAM_SLACK:
-            return [near[1].pr], "interior-seam:%s@%.1fm" % (near[1].name, near[0])
-    ids = sorted(interior_ids.get(mkey, ()))
-    return (ids, "interior-map") if ids else ([], "none")
+# THE ladder itself, for the same reason: `datamine_grace_ground.derive_ground` is the one owner
+# of volume -> seam -> tile-default -> none, and BOTH tools call it. Aliased (not wrapped) so the
+# name `derive` keeps working for this module's callers and tests. Before 2026-08-26 this file held
+# its own copy that differed from grace_ground's outdoors -- that delta is what this alias kills.
+derive = gg.derive_ground
 
 
 def load_volumes_or_die(force=False):
