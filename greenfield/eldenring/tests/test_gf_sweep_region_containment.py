@@ -74,15 +74,24 @@ class NoSweepGrantsOutsideItsArenaRegion(unittest.TestCase):
 
     def test_the_invariant(self):
         """THE gate. Every member of a trigger with a measured arena lives in that arena's region."""
-        bad = []
+        bad, examined = [], 0
         for trigger, members in self.sweeps.items():
             arena = self.arena_region.get(trigger)
             if arena is None:
                 continue                      # UNAUDITED -- counted by the floor test below
             for ap in members:
                 region = self.ap_region.get(ap)
-                if region is not None and region != arena:
+                if region is None:
+                    continue
+                examined += 1
+                if region != arena:
                     bad.append((trigger, arena, ap, region))
+        # WITNESS: an empty `bad` must mean "looked and found none", never "the join stopped
+        # matching". 3695 member links carried a measured arena when this was written.
+        self.assertGreater(
+            examined, 3000,
+            "the invariant examined only %d member link(s) -- the ap-id/arena join has broken and "
+            "this test would pass for the wrong reason" % examined)
         self.assertEqual(
             bad, [],
             "#1059: %d cross-region sweep member link(s). A boss may only grant checks in the "

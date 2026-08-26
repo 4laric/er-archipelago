@@ -527,17 +527,23 @@ except OSError as _e:
 _ARENA_REGION_CURATED = {
     10000850: "Stormveil",
 }
+# 🛑 IT DOES NOT WRITE INTO BOSS_AREA_REGION, and that is the whole care in this block.
+# BOSS_AREA_REGION also feeds `region_of` for a boss's own REWARD check (the boss-drop branch), so
+# folding a SWEEP ruling into it would silently re-region Margit's drop out of Limgrave -- which
+# takes Limgrave's last MajorBoss check with it and makes strict progression_surface infeasible
+# there. The ruling is about which region's pool this boss HOSTS, not about where his reward is
+# found. Kept as its own table and consulted only by the sweep host derivation and
+# SWEEP_ARENA_REGION.
 for _t, _reg in _ARENA_REGION_CURATED.items():
     if _reg not in REGION_GROUPS and _reg != _RG_HUB:
         raise SystemExit(
             "gen_data: arena-region override %d -> %r names a region that does not exist" % (_t, _reg))
-    # The redundancy guard compares against the MEASURED row, before the override lands -- so it
-    # still deletes itself the day the datamine agrees, exactly as it did in its old home.
+    # The redundancy guard compares against the MEASURED row -- it still deletes itself the day the
+    # datamine agrees, exactly as it did in its old home.
     if BOSS_AREA_REGION.get(_t) == _reg:
         raise SystemExit(
             "gen_data: arena-region override %d -> %r is REDUNDANT; the measured arena region now "
             "agrees, so delete the override" % (_t, _reg))
-    BOSS_AREA_REGION[_t] = _reg
 
 # region_map.csv's region-column LABEL -> region. Keys are the pipeline's raw labels (verbatim);
 # values are region_groups.py region names. UN-COLLAPSED 2026-07-12 (SPEC-region-spine-v2.md):
@@ -10201,7 +10207,8 @@ if BOSS_HEALTHBARS:
             # existing machinery, no orphans. Ranking it here rather than filtering members later
             # is what makes that true: a late filter would strip the members after the divvy had
             # already been dealt, and they would simply go unswept.
-            _lreg = (BOSS_AREA_REGION.get(_ent) or _m61_boss_region(_ent)
+            _lreg = (_ARENA_REGION_CURATED.get(_ent) or BOSS_AREA_REGION.get(_ent)
+                     or _m61_boss_region(_ent)
                      or _LEGACY_BMAP_REGION.get(_bmap) or _mreg.get(_bmap))
             if not _lreg:
                 _unregioned_legacy.append((_ent, _bmap, _name))
@@ -10870,13 +10877,14 @@ print("boss_sweeps: %d trigger(s) filled from a HUMAN RULING where PlayRegionPar
 #   ground is untouched: PLAY_REGION_GROUPS keeps buckets 61010 (his arena) and 61001 (Castleward
 #   Tunnel mouth + Stormhill Shack) in Limgrave, so the fight and the death-recovery route back into
 #   the arena stay reachable before Stormveil opens. This table only moves the SWEEP arena region.
-# _ARENA_REGION_CURATED itself now lives beside the BOSS_AREA_REGION load (#1059) so that one
-# answer feeds both the arena label and the boss's HOST region. All that is left here is the check
-# that each ruling still names a live trigger -- a guard that protects nothing is worse than none.
-for _t in _ARENA_REGION_CURATED:
+# _ARENA_REGION_CURATED is DECLARED beside the BOSS_AREA_REGION load (#1059) so the sweep host
+# derivation can consult it, and it is APPLIED to the arena label here. Both readers see one
+# answer, and neither of them is the boss-drop region -- see the block at the declaration.
+for _t, _reg in _ARENA_REGION_CURATED.items():
     if _t not in DUNGEON_SWEEPS:
         raise SystemExit(
             "gen_data: arena-region override %d no longer names a live sweep trigger" % _t)
+    SWEEP_ARENA_REGION[_t] = _reg
 
 _sweep_arena_split = {_t: (SWEEP_REGION[_t], SWEEP_ARENA_REGION[_t])
                       for _t in SWEEP_ARENA_REGION if SWEEP_ARENA_REGION[_t] != SWEEP_REGION.get(_t)}

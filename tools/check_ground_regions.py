@@ -123,6 +123,48 @@ def load_tables(repo):
                 if t and t != "-":
                     tile_buckets[t].add(int(bucket))
 
+    # ---- PLAYAREA-RULED: checks whose region was SET by the point-in-volume scan (#1059) --------
+    # `tile_buckets` above is the PlayRegionParam DEFAULT for a whole map tile -- the coarse
+    # instrument. `docs/PLAYAREA-ITEM-SCAN.md` is explicit that the point-in-volume scan's answers
+    # REPLACE it rather than average with it: the scan reads the exact runtime PlayRegionID the
+    # kick-watch reads, at the pickup's own coordinates, and a tile default cannot see a volume
+    # reaching across a tile boundary. Without this branch the audit accuses precisely the checks
+    # the scan just corrected -- the finer instrument blamed for disagreeing with the coarser one.
+    #
+    # 🛑 IT IS NOT APPLIED TO EVERY FLAG THE SCAN CAN ANSWER, and that restraint is the whole
+    # design. A scan row is exact about a POINT; it is evidence about a CHECK only when the check
+    # IS that point. Applied wholesale it drags in the NPC-relocation families #1054 excludes by
+    # name -- the Roundtable and Limgrave Ash-of-War rows answering Mt. Gelmir because Patches and
+    # Bernahl stand at Volcano Manor, the "from Moore" rows answering Scadu Altus -- and the
+    # mismatch list goes from 3 to over 100 accusations that are all the instrument being right
+    # about the wrong question. So the branch fires ONLY for a flag that carries a reasoned
+    # region_overrides.tsv row: the set a human adjudicated, one at a time, with the reason written
+    # down. An unadjudicated flag keeps the tile default and stays accusable.
+    _EXACT = ("volume:", "interior-vol:", "seam:", "interior-seam:")
+    _ruled_flags = set()
+    _ov = os.path.join(gf, "region_overrides.tsv")
+    if os.path.isfile(_ov):
+        with open(_ov, encoding="utf-8") as fh:
+            for line in fh:
+                parts = line.rstrip("\n").split("\t")
+                if len(parts) >= 4 and parts[0] == "flag" and parts[1].isdigit():
+                    _ruled_flags.add(int(parts[1]))
+    exact_buckets = defaultdict(set)
+    _ipr = os.path.join(gf, "item_play_regions.tsv")
+    if os.path.isfile(_ipr):
+        with open(_ipr, encoding="utf-8") as fh:
+            for line in fh:
+                if line[:1] == "#" or line.startswith("flag\t"):
+                    continue
+                parts = line.rstrip("\n").split("\t")
+                if len(parts) < 5 or not parts[0].isdigit():
+                    continue
+                if int(parts[0]) not in _ruled_flags or not parts[4].startswith(_EXACT):
+                    continue
+                for b in parts[3].split(";"):
+                    if b.strip().isdigit():
+                        exact_buckets[int(parts[0])].add(int(b))
+
     coords = {}
     with open(os.path.join(gf, "item_grace_coords.tsv"), encoding="utf-8") as fh:
         rows = csv.DictReader([l for l in fh if l[:1] != "#"], delimiter="\t")
@@ -136,7 +178,7 @@ def load_tables(repo):
                 # standing-ground for a disjunct-site check is a DISJUNCTION, and the audit agrees
                 # if ANY site's ground matches the assigned region.
                 coords.setdefault(int(key), []).append(r["map_id"])
-    return data, bucket_region, tile_buckets, coords, sweep_anchor
+    return data, bucket_region, tile_buckets, coords, sweep_anchor, exact_buckets
 
 
 def audit(repo):
@@ -147,15 +189,25 @@ def audit(repo):
     wholesale whenever the corpus grows -- a regen on 2026-08-07 shifted every id above 7774000 by
     adding 16 checks -- so a pin keyed on them silently comes to name different checks. The flag is
     game data and does not move."""
-    data, bucket_region, tile_buckets, coords, sweep_anchor = load_tables(repo)
-    out = {"agree": [], "benign": [], "sweep_anchored": [], "mismatch": [], "ambiguous": [],
-           "sites_elsewhere": [], "no_coord": [], "no_bucket_row": []}
+    data, bucket_region, tile_buckets, coords, sweep_anchor, exact_buckets = load_tables(repo)
+    out = {"agree": [], "benign": [], "sweep_anchored": [], "playarea_ruled": [],
+           "mismatch": [], "ambiguous": [], "sites_elsewhere": [], "no_coord": [],
+           "no_bucket_row": []}
     for region, rows in sorted(data.LOCATIONS.items()):
         for (name, ap, flag) in rows:
             map_ids = coords.get(int(flag))
             if not map_ids:
                 out["no_coord"].append((int(flag), region, name))
                 continue
+            exact = exact_buckets.get(int(flag))
+            if exact:
+                here = {bucket_region.get(b) for b in exact} - {None}
+                if here:
+                    # Its own verdict bucket, not "agree": these are EXCUSED by a ruling, and a
+                    # ruling that hides inside the agreement count cannot be reviewed.
+                    rec = (int(flag), region, sorted(here, key=str), "playarea-scan", name)
+                    out["playarea_ruled" if region in here else "mismatch"].append(rec)
+                    continue
             grounds = set()
             per_tile = {}
             for map_id in map_ids:
@@ -203,6 +255,7 @@ def report(repo, stream=sys.stdout):
     a = audit(repo)
     total = sum(len(v) for v in a.values())
     resolved = (len(a["agree"]) + len(a["benign"]) + len(a["sweep_anchored"])
+                + len(a["playarea_ruled"])
                 + len(a["mismatch"]) + len(a["ambiguous"]) + len(a["sites_elsewhere"]))
     w = stream.write
     w("check ground-region audit (issue #445)\n")
@@ -211,12 +264,16 @@ def report(repo, stream=sys.stdout):
     w("  %d unmeasured: %d have no datamined coordinate, %d sit on a tile with no bucket row\n"
       % (len(a["no_coord"]) + len(a["no_bucket_row"]), len(a["no_coord"]), len(a["no_bucket_row"])))
     w("     ^ these are UNMEASURED, not clean. Any rate below is over the resolved subset only.\n")
-    w("  %d agree | %d benign | %d sweep-anchored | %d sites-elsewhere | %d AMBIGUOUS | %d MISMATCH\n"
-      % (len(a["agree"]), len(a["benign"]), len(a["sweep_anchored"]), len(a["sites_elsewhere"]),
-         len(a["ambiguous"]), len(a["mismatch"])))
+    w("  %d agree | %d benign | %d sweep-anchored | %d playarea-ruled | %d sites-elsewhere | "
+      "%d AMBIGUOUS | %d MISMATCH\n"
+      % (len(a["agree"]), len(a["benign"]), len(a["sweep_anchored"]), len(a["playarea_ruled"]),
+         len(a["sites_elsewhere"]), len(a["ambiguous"]), len(a["mismatch"])))
     for label, key in (("BENIGN", "benign"),
                        ("SWEEP-ANCHORED (member of a sweep fought from the assigned region, #885)",
                         "sweep_anchored"),
+                       ("PLAYAREA-RULED (region set by the point-in-volume scan + a reasoned "
+                        "region_overrides row, which outranks the tile default -- #1059)",
+                        "playarea_ruled"),
                        ("SITES-ELSEWHERE (multi-site, first station unwitnessed -- relocating merchants)",
                         "sites_elsewhere"),
                        ("AMBIGUOUS (tile spans two regions -- unresolved)", "ambiguous"),

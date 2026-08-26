@@ -2558,6 +2558,7 @@ LOCATIONS = {
         ('Limgrave :: Crafting Kit - from Merchant Kalé [f60120]', 7770013, 60120),
         ('Limgrave :: Whetstone Knife - from Twin Maiden Husks [f60130]', 7770014, 60130),
         ("Limgrave :: Duelist's Furled Finger - near Warmaster's Shack (region unconfirmed), also granted by Bell Bearing Hunter (m60_42_38) [f60240]", 7770015, 60240),
+        ('Limgrave :: Talisman Pouch - around Castleward Tunnel [f60510]', 7770026, 60510),
         ('Limgrave :: Cracked Pot - from Merchant Kalé [f66030]', 7770048, 66030),
         ('Limgrave :: Cracked Pot - from Nomadic Merchant [f66060]', 7770049, 66060),
         ("Limgrave :: Nomadic Warrior's Cookbook [1] - from Merchant Kalé [f67000]", 7770081, 67000),
@@ -4825,7 +4826,6 @@ LOCATIONS = {
     ],
     'Stormveil': [
         ("Stormveil :: Godrick's Great Rune - Godrick [f171]", 7770001, 171),
-        ('Stormveil :: Talisman Pouch - around Castleward Tunnel [f60510]', 7770026, 60510),
         ('Stormveil :: Iron Whetblade - near Rampart Tower, also granted by Godrick the Grafted (m10_00) [f65610]', 7770041, 65610),
         ('Stormveil :: Cracked Pot - near Liftside Chamber (1), also granted by Margit, the Fell Omen (m10_00) [f66010]', 7770046, 66010),
         ('Stormveil :: Cracked Pot - near Liftside Chamber (2), also granted by Godrick the Grafted (m10_00) [f66020]', 7770047, 66020),
@@ -5557,4 +5557,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:7f199b80b28ee6c84a6a919bf9501fc4ea4ac35f4d66e54ef48c31142a4cda8a', 'module': 'data.py', 'body_sha256': 'sha256:ed8abb2d4c0b0eb39f0334fc0c671f5aa0334add8bf3d7f07fb37be6e727a74b'}
+_GEN_STAMP = {'inputs_hash': 'sha256:cc801633252e77e6b2c0c344986abde6911e7800e7eb62ac1499218bffdd3622', 'module': 'data.py', 'body_sha256': 'sha256:7f8eadd8182e32210af7e0326fcbeb58e9281b76ce7ee92131a668c4630f4664'}

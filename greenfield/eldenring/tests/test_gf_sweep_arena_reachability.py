@@ -322,6 +322,11 @@ class EveryMismatchedGroup(unittest.TestCase):
         being empty is now itself the assertion -- gen_data FAILS on a non-empty split
         (test_gf_sweep_region_containment). If a group ever appears here again, that is a
         regression to diagnose, not a number to rebaseline."""
+        # WITNESS: {} must mean "every group agreed", not "no groups were examined".
+        self.assertGreater(
+            len(AR), 150,
+            "only %d trigger(s) carry an arena region -- the split scan has stopped seeing the "
+            "corpus, so an empty split set proves nothing" % len(AR))
         self.assertEqual(
             dict(self.split), {},
             "a sweep group's arena region differs from its members' region again (#1059). This is "
@@ -341,6 +346,11 @@ class EveryMismatchedGroup(unittest.TestCase):
             self.skipTest("no arena/members splits remain (#1059 drove the set to 0); the empty "
                           "set is asserted by test_the_split_set_is_the_measured_one")
         by_ap = {ap: region for region, rows in data.LOCATIONS.items() for (_n, ap, _f) in rows}
+        # WITNESS: the `missing`/`elsewhere` emptiness below must mean "looked and found none".
+        # The old witness was `assertTrue(self.split)`, which #1059 retired along with the splits.
+        self.assertGreater(len(by_ap), 4000,
+                           "only %d location(s) loaded -- the membership join is broken and the "
+                           "empty assertions below prove nothing" % len(by_ap))
         for t, (mem, _arena) in sorted(self.split.items()):
             missing = [a for a in DS[t] if a not in by_ap]
             self.assertEqual(missing, [], "group %d has member(s) absent from data.LOCATIONS: %r"

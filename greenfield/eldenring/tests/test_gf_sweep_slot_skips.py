@@ -291,6 +291,11 @@ class TestArenaMembersSplitSkip(unittest.TestCase):
         """#1059's ruling, at the surface this class guards: a boss may only grant checks in the
         region it is fought in. gen_data refuses to emit a split at all, so a non-empty set here is
         a regression, not a number to rebaseline."""
+        # WITNESS: [] must mean "checked every trigger and none split", not "the tables are empty".
+        self.assertGreater(
+            len(ARENA_REGIONS), 150,
+            "only %d trigger(s) carry an arena region -- _split_triggers() cannot see the corpus, "
+            "so an empty result proves nothing" % len(ARENA_REGIONS))
         self.assertEqual(
             sorted(_split_triggers()), [],
             "an arena/members split is back (#1059). gen_data is supposed to refuse to emit one.")
