@@ -316,6 +316,11 @@ TESTS_JOB = {
                             "than skip. Same shape as isolated_merchant_region above. NOT "
                             "GENERATORS: it is a pytest suite, and its data half wants the "
                             "installed world",
+    "playarea_region_moves": "#1054's acceptance test, same shape as chapel_return_region. The "
+                             "mover/carve-out/ap-id halves read only the installed data.py and "
+                             "never skip; the two that pin the MECHANISM read region_overrides.tsv "
+                             "out of greenfield/ by the find_repo_root walk-up, which the tests "
+                             "job's checkout guarantees (--ap-dir sits inside it)",
 }
 
 # Suites where EVERY test skips in CI. The reason must name the missing input honestly -- these are

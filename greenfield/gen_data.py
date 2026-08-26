@@ -3124,6 +3124,41 @@ FLAG_REGION_OVERRIDE = {
     # A per-check pin is the narrow instrument the straddle demands. The other three stay Limgrave
     # until someone walks them.
     1043357100: "Weeping",   # Sacred Tear -- Church of Pilgrimage
+
+    # ---- THE PLAYAREA-SCAN QUEUE, #1054 (2026-08-26) ----------------------------------------
+    # Ten checks whose EXACT PlayArea point-in-volume answer (item_play_regions.tsv, the
+    # docs/PLAYAREA-ITEM-SCAN.md instrument) disagrees with the region they ship in today. These
+    # are the only rows out of that 114-row queue that are BOTH scan-exact AND ground-placed
+    # pickups -- the population the instrument rules on. The NPC-relocation families in #1054 are
+    # DELIBERATELY NOT here (the Roundtable / Limgrave Ash-of-War rows answering Mt. Gelmir off
+    # Patches and Bernahl at the Manor; the 24 "from Moore" Gravesite rows answering Scadu Altus):
+    # for a shop/grant flag the scanned point is where the NPC ENDED UP, not where the check is.
+    #
+    # Every row below cites its own item_play_regions.tsv answer. A scan row is first-hand
+    # evidence about a POINT; it is evidence about a CHECK only when the check IS that point.
+    #
+    # -- Ancient Snow Valley Ruins: five rows ship Consecrated Snowfield, stand in 65010 --------
+    # Bucket 6501000 is Mountaintops (PLAY_REGION_GROUPS). The cluster's sixth row, 1050567600,
+    # answers 65030 and is correctly Consecrated Snowfield already -- it gets NO row here, and
+    # that split is exactly why this is five per-flag pins and not a tile pin: the Ancient Snow
+    # Valley Ruins tile genuinely STRADDLES the Rold boundary, the same arity problem as the
+    # Church of Pilgrimage pin above.
+    1050567500: "Mountaintops of the Giants",  # Warming Stone -- volume: 6501000
+    1050567510: "Mountaintops of the Giants",  # Invigorating White Cured Meat -- volume: 6501000
+    1050567520: "Mountaintops of the Giants",  # Smithing Stone [7] -- volume: 6501000
+    1050567620: "Mountaintops of the Giants",  # Traveling Maiden Hood -- volume: 6501000
+    1051557330: "Mountaintops of the Giants",  # Golden Rune [13] -- volume: 6501000
+    #
+    # -- Rauh: the upper-ruins / base split 255 reported (#1046), settled by the scan -----------
+    # Rauh Base graces are bucket 6950, the upper Ancient Ruins are 6940, so the scan answers
+    # these exactly and no hand adjudication is needed. NB TWO of the five move the OTHER way:
+    # 255's report was PARTLY right, and a queue that only ever moved rows in the reported
+    # direction would be the instrument agreeing with the reporter instead of measuring.
+    2045467050: "Ancient Ruins",  # Shadow Realm Rune [7], Rauh Ancient Ruins East (1) -- volume: 69410
+    2045477020: "Ancient Ruins",  # Flight Pinion, Rauh Ancient Ruins East -- seam:@2.7m 69400
+    2046457000: "Gravesite",      # Two-Headed Turtle Talisman, Temple Town Ruins -- volume: 68100
+    2045457010: "Rauh Base",      # Grave Glovewort [5], Temple Town Ruins -- volume: 69010 (REVERSE)
+    2046467800: "Rauh Base",      # Larval Tear, near Scadu Altus West -- volume: 69010 (REVERSE)
 }
 
 # These per-flag pins settle WHICH SIDE of a measured region seam owns the reward, but they do not
