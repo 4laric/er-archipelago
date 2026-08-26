@@ -217,7 +217,13 @@ Three details the implementation settled that this section had left open:
   called a default.
 * the tile default is looked up for the tile the FOLDED position lands on, not the tile the row
   was authored in — a LOD2 row's authored tile spans 16 fine tiles and only one of them is the
-  ground the item stands on.
+  ground the item stands on. 🛑 **That attribution ROUNDS, it does not floor** — the overworld
+  tile's local coordinate frame is CENTRED on the tile, so tile `t` owns
+  `[t*256 - 128, t*256 + 128)`. 222 of BonfireWarpParam's 450 overworld grace local axis values are
+  negative, which a corner origin cannot produce. `floor` was wrong for 2053 of the 2768 overworld
+  item placements, always by exactly one tile index, and it is what made this gate refuse on
+  2026-08-26 (graces 76416/76420). It lives in `overworld_fold.fine_tile`, ONE implementation, and
+  `datamine_grace_ground` calls the same function — the two derivations cannot drift again.
 * the `source` vocabulary is `volume:NAME`, `interior-vol:NAME`, `seam:NAME@Nm`,
   `interior-seam:NAME@Nm`, `tile-default`, `interior-map`, `none`.
 
@@ -228,6 +234,12 @@ Before believing a single item answer, run the scan over the **421 graces** and 
 exits non-zero on a bucket mismatch. Those answers are already calibrated against two in-game kick
 measurements (`76841` → `6840000`, 2026-07-15; `72102` → `6900000/6900010`, 2026-07-21). A scan
 that cannot reproduce `grace_ground.tsv` is not ready to be trusted about items.
+
+The half of this gate that is pure table lookup — the tile default, no volume involved — is also
+asserted in CI over the whole grace population by `test_gf_grace_tile_frame.py`, out of
+`gen_inputs.db`. So a `--graces` refusal on the box is now evidence about the **corpus or the
+volumes**, not about the transform; if it names rows whose committed source is `tile-default` or
+`none`, CI was already red and the tsv is stale, not the export.
 
 ### Step 4 — map play_region → our regions and compare
 

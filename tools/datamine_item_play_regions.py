@@ -73,7 +73,6 @@ deliberate" and MUST NOT be used to make a red run green:
 """
 import argparse
 import csv
-import math
 import os
 import sys
 
@@ -84,7 +83,7 @@ sys.path.insert(0, HERE)
 import artifacts_root                        # noqa: E402  -- THE --path argument, not a copy
 import datamine_grace_ground as gg          # noqa: E402  -- THE volume machinery, not a copy of it
 import msb_region_vote as mrv               # noqa: E402  -- THE coordinate reader
-from overworld_fold import world_xz         # noqa: E402  -- THE fold (#338), single implementation
+from overworld_fold import fine_tile, world_xz  # noqa: E402  -- THE fold (#338), one implementation
 
 OUT = os.path.join(REPO, "greenfield", "item_play_regions.tsv")
 GROUND = os.path.join(REPO, "greenfield", "grace_ground.tsv")
@@ -108,12 +107,10 @@ VOL_FLOOR = 400
 MIN_DERIVED_ABS = 2000
 
 
-def _fine_tile(gx, gz):
-    """The FINE-GRID tile a folded overworld position sits on. Recomputed from the folded
-    coordinate rather than read off the map id on purpose: a LOD1/LOD2 row's authored tile spans 4
-    or 16 fine tiles, and the PlayRegionParam default we want is the one for the tile the point is
-    actually standing on."""
-    return int(math.floor(gx / 256.0)), int(math.floor(gz / 256.0))
+# THE fine-tile attribution, next to THE fold, for the same reason (#338): two implementations is
+# how the item pass and `datamine_grace_ground` disagreed about graces 76416/76420 on 2026-08-26.
+# It ROUNDS -- the overworld tile frame is centre-origin. See overworld_fold.fine_tile.
+_fine_tile = fine_tile
 
 
 def derive(map_id, x, y, z, vols, tile_ids, interior_ids):

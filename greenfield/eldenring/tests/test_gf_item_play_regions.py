@@ -130,7 +130,17 @@ CASES = [
     ("1000000003", "m60_40_40", (55, 5, 205), "volume:SphVol", [6820000]),
     ("1000000004", "m60_40_40", (152, 1, 148), "volume:CompChildA", [6830000]),
     ("1000000005", "m60_40_40", (224, 1, 50), "seam:CylVol", [6810000]),     # 4 m off the face
-    ("1000000006", "m60_40_40", (250, 1, 250), "tile-default", [6899900, 6800000]),
+    # THE HALF-TILE CASE, and it is a RED/GREEN PAIR (2026-08-26, graces 76416/76420). The overworld
+    # tile frame is CENTRE-origin: local -110 is inside tile 40, 18 m from its lower edge at
+    # -128. `floor(world / 256)` -- the old `_fine_tile` -- calls that tile 39 and answers `none`;
+    # `round` calls it tile 40 and answers tile 40's default. Sitting at a NEGATIVE local is the
+    # ordinary case, not the exotic one: 222 of BonfireWarpParam's 450 overworld grace axis values
+    # are negative.
+    ("1000000006", "m60_40_40", (-110, 1, -110), "tile-default", [6899900, 6800000]),
+    # ...and its mirror, the GENUINE SPILLER (grace 76420's shape): local +140 is PAST the +128
+    # half-edge, so the point stands on tile 41 and reads tile 41's default -- not the tile its own
+    # map id names. `floor` puts it back on tile 40 and steals tile 40's default for it.
+    ("1000000011", "m60_40_40", (140, 1, -110), "tile-default", [6859900]),
     # LOD2: authored on m60_10_10_02, pitch 1024 + centring 384. Folded it lands in BoxVol at
     # world (10350, 10330); folded the loader's way (tile*256) it lands ~8 km away, inside nothing.
     ("1000000007", "m60_10_10_02", (10350 - 10 * 1024 - 384, 1, 10330 - 10 * 1024 - 384),
@@ -153,7 +163,7 @@ def build_coords_repo(root):
 # graces, for the --graces calibration mode: (flag, areaNo, gridX, gridZ, pos, entity, buckets)
 GRACES = [
     (76001, 60, TILE, TILE, BOX_PT, "", "68000"),
-    (76002, 60, TILE, TILE, (250, 1, 250), "", "68000;68999"),
+    (76002, 60, TILE, TILE, (-110, 1, -110), "", "68000;68999"),   # the half-tile case, above
     (76003, 10, 0, 0, (0, 1, 0), "10000950", "10000"),
 ]
 
@@ -296,7 +306,9 @@ class ItemPlayRegionScanTest(unittest.TestCase):
         authored point is inside NOTHING and would have answered tile-default."""
         rows = self._run()
         self.assertTrue(rows["1000000007"][3].startswith("volume:BoxVol"))
-        _f, mid, (x, _y, z), _s, _i = CASES[6]
+        # by FLAG, never by index: CASES grew by one on 2026-08-26 and a positional lookup
+        # silently started witnessing a different row.
+        _f, mid, (x, _y, z), _s, _i = next(c for c in CASES if c[0] == "1000000007")
         self.assertEqual(mid, "m60_10_10_02")
         vols = self.mod.load_volumes_or_die(force=True)
         naive_x, naive_z = 10 * 256 + x, 10 * 256 + z          # the WRONG fold, on purpose

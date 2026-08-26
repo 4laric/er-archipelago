@@ -84,6 +84,7 @@ REPO = os.environ.get("ER_REPO") or os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
 import artifacts_root                          # noqa: E402  -- THE --path argument, not a copy
+from overworld_fold import fine_tile           # noqa: E402  -- THE tile attribution (#338), one impl
 
 AR = artifacts_root.default_root(REPO)
 BWP = os.path.join(AR, "vanilla_er", "vanilla_er", "BonfireWarpParam.csv")
@@ -361,9 +362,16 @@ def main():
             if bks:
                 src = "volume:" + hits[0].name
             else:
-                bks = sorted(tile_default[a].get((tx, tz), set()))
+                # NOT the AUTHORED (gridXNo, gridZNo): the tile the folded point actually STANDS on
+                # (overworld_fold.fine_tile -- the frame is centre-origin, so it rounds). For 214 of
+                # 225 graces that IS the authored tile; the 11 whose local coordinate runs past
+                # +-128 physically spill onto the neighbour, and the neighbour's row is the one the
+                # engine reads. Sharing the function with datamine_item_play_regions is the point:
+                # the two derivations disagreed about graces 76416/76420 until 2026-08-26.
+                bks = sorted(tile_default[a].get(fine_tile(wx, wz), set()))
                 src = "tile-default" if bks else "none"
-            tile = "m%d_%02d_%02d" % (a, tx, tz)
+            tile = "m%d_%02d_%02d" % (a, tx, tz)         # the AUTHORED tile: this column is the
+            #                                             grace's own map id, not the ruling
         else:
             ent = str(r["bonfireEntityId"] or "")
             tile = "m%s_%s" % (ent[0:2], ent[2:4]) if len(ent) == 8 else "?"
