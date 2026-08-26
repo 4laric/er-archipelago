@@ -3124,6 +3124,76 @@ FLAG_REGION_OVERRIDE = {
     # A per-check pin is the narrow instrument the straddle demands. The other three stay Limgrave
     # until someone walks them.
     1043357100: "Weeping",   # Sacred Tear -- Church of Pilgrimage
+    # ---- THE PLAYAREA-SCAN ADJUDICATION (2026-08-26, #1054 / #1046; Alaric's ruling) -------------
+    # `greenfield/item_play_regions.tsv` reads the play_region VOLUME the pickup physically stands
+    # in -- the same id the client's kick-watch reads. Where that answer is EXACT (`volume:` /
+    # `interior-vol:` / `seam:`) it outranks the nearest-grace derivation, which is a distance
+    # heuristic. #1054 measured 114 such disagreements and is explicit that they must NOT be bulk
+    # applied: a large share are NPC-RELOCATION ARTIFACTS (a shop/award flag placed where the NPC
+    # ended up -- Patches/Bernahl at Volcano Manor, Moore in Scadu Altus), where the scan is right
+    # about the POINT and wrong about the CHECK. Every pin below is a GROUND-PLACED PICKUP with an
+    # exact scan row; the relocation families and the two deliberate carves (#885 Hippo -> Shadow
+    # Keep, the Leyndell/Ashen-Capital FINALE sub-carve) are withheld and stay in #1054.
+    #
+    # 🛑 THE YELOUGH ANIX RULING (2026-08-26, "Yelough Anix Tunnel - Consecrated Snowfield, ruled
+    # (wiki)") MINTS NO PIN, and that is deliberate. Grace 73211 is already filed under
+    # Consecrated Snowfield (region_graces.py; grace_region_map.tsv 73211 -> 65002, the Snowfield
+    # grace group), and all 17 SUSPECT-ANCHOR rows the nearest-grace vote anchored on it
+    # (1046577300/800, 1047567310/320/330, 1047577300/310, 1048547800/810/820/830/840, 1048557300,
+    # 1048557600, 1048557900, 1048587300, 1049567350) ALREADY derive Consecrated Snowfield. The
+    # `our_region` column of check_region_second_opinion.tsv still says Mountaintops because that
+    # table is stale against data.py (#1054's "separate finding"), not because the checks are.
+    # Pinning them here would be a REDUNDANT MANUAL OVERRIDE, which CONTRIBUTING makes a failure.
+    #
+    # Ancient Snow Valley Ruins -- the OPPOSITE direction from the Yelough hypothesis and a
+    # different cluster (#1054): five rows filed Consecrated Snowfield stand in bucket 65010,
+    # Mountaintops, by `volume:プレイ領域 6501000`. The sixth, 1050567600, answers 65030 and is
+    # correctly Consecrated Snowfield -- it is not pinned.
+    1050567500: "Mountaintops of the Giants",   # Warming Stone -- volume: 65010
+    1050567510: "Mountaintops of the Giants",   # Invigorating White Cured Meat -- volume: 65010
+    1050567520: "Mountaintops of the Giants",   # Smithing Stone [7] -- volume: 65010
+    1050567620: "Mountaintops of the Giants",   # Traveling Maiden set -- volume: 65010
+    1051557330: "Mountaintops of the Giants",   # Golden Rune [13] -- volume: 65010
+    # Rauh (#1046, 255's report): the upper Ancient Ruins are their own region with their own Lock,
+    # so a check filed Rauh Base that physically stands in bucket 6940/69410 is in logic on the
+    # WRONG Lock -- and two rows run the other way.
+    2045467050: "Ancient Ruins",   # Shadow Realm Rune [7] -- volume: 69410
+    2045477020: "Ancient Ruins",   # Flight Pinion -- seam: 69400 @2.7m
+    2046457000: "Gravesite",       # Two-Headed Turtle Talisman -- volume: 68100
+    2045457010: "Rauh Base",       # Grave Glovewort [5] -- volume: 69010
+    2046467800: "Rauh Base",       # Larval Tear -- volume: 69010
+    # Forbidden Lands. Corroborated independently by this same regen: grace 76500 (Forbidden Lands)
+    # moves Altus -> Mountaintops in region_graces.py off the refreshed grace ground.
+    1047517000: "Mountaintops of the Giants",   # Drawstring Fire Grease -- volume: 65000
+    # South Raya Lucaria Gate: the gate ground is the Academy's, not Liurnia's.
+    1035457000: "Raya Lucaria Academy",   # Celestial Dew -- volume: 14000
+    1035457030: "Raya Lucaria Academy",   # Strip of White Flesh -- volume: 14000
+    1035457100: "Raya Lucaria Academy",   # Meeting Place Map -- seam: 14000
+    # Bower of Bounty / Bridge of Iniquity: Altus ground on the Gelmir side of the tile decode.
+    1039537040: "Altus",   # Nascent Butterfly -- volume: 63000
+    1039537050: "Altus",   # [Sorcery] Unseen Blade -- volume: 63000
+    1039537060: "Altus",   # Slumbering Egg -- volume: 63000
+    # Cerulean Coast: four rows filed Gravesite stand in the Cerulean volume.
+    2046407040: "Cerulean",   # Great Grave Glovewort
+    2046407050: "Cerulean",   # Ghost Glovewort [7]
+    2046407060: "Cerulean",   # Ghost Glovewort [9]
+    2047417110: "Cerulean",   # Mushroom-Seller's Bell Bearing [2]
+    # Ellac River / Fort of Reprimand: Gravesite ground, filed Jagged Peak off the nearest boss.
+    2048417000: "Gravesite",   # Fire Coil
+    2048417010: "Gravesite",   # Blessing of Marika
+    2048417700: "Gravesite",   # Scadutree Fragment
+    2049427000: "Gravesite",   # Talisman of the Dread
+    # Church Ruins and the Woodland Trail are Abyssal Woods ground.
+    2052407010: "Abyssal",   # Somber Smithing Stone [6]
+    2052417010: "Abyssal",   # Clarifying Boluses
+    2050437010: "Abyssal",   # Scadutree Fragment -- seam
+    2050437040: "Abyssal",   # Smithing Stone [7]
+    # Message from Leda stands at Scaduview Cross, not in Belurat. Reported independently by Lilith
+    # (Discord 2026-08-26: "this one is in Shadow Keep, not in Belurat") -- the player and the scan
+    # agree it is NOT Belurat; the scan's exact answer (bucket 69000) is taken over the prose.
+    # It was filed Belurat only because the Divine Beast Dancing Lion sweeps it (see the sweep
+    # containment ruling); fixing the REGION is preferred to cutting the link.
+    580600: "Scadu Altus",   # Message from Leda -- volume: 69000
 }
 
 # These per-flag pins settle WHICH SIDE of a measured region seam owns the reward, but they do not
