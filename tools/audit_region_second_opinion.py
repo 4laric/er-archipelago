@@ -604,6 +604,53 @@ def audit(targets, wiki, verbose=False, voter=None):
     return rows
 
 
+def revote(out, markdown=None):
+    """Recompute ONLY the msb_vote_* columns of an existing report, in place.
+
+    Every other cell -- above all `verdict` and `external_regions`, which cost a rate-limited
+    wiki crawl -- is carried through byte-for-byte from the file being rewritten.
+    """
+    if not os.path.exists(out):
+        raise SystemExit("--revote needs an existing report at %s" % out)
+    with open(out, encoding="utf-8-sig") as fh:
+        lines = fh.readlines()
+    body = [ln for ln in lines if not ln.startswith("#") and ln.strip()]
+    rows = list(csv.DictReader(body, delimiter="\t"))
+    # our_region/label/map_tile are RE-READ from the triage table, not carried: data.py moves
+    # under this file (the Ancient Snow Valley cluster moved to Consecrated Snowfield after the
+    # first crawl), and a worksheet that compares a fresh vote against a stale `our_region`
+    # invents disagreements and hides real ones.
+    fresh, _skipped = load_targets()
+    fresh = {t["flag"]: t for t in fresh}
+    refreshed = 0
+    for row in rows:
+        t = fresh.get(row["flag"])
+        if not t:
+            continue
+        for col in ("our_region", "label", "map_tile", "how"):
+            if row.get(col) != t[col]:
+                refreshed += 1
+            row[col] = t[col]
+    print("refreshed %d stale cells from check_region_triage.tsv" % refreshed)
+    voter = msb_region_vote.Voter.from_repo(REPO)
+    print("msb vote: %d region-attributed graces, %d suspect tile-default anchors, %d rulings"
+          % (len(voter.grace_region), len(voter.suspect), len(voter.play_area)))
+    for row in rows:
+        row.update(voter.vote(row["flag"], row.get("map_tile", "")).as_columns())
+    counts = summarize(rows)
+    write_report(rows, out)
+    ruled = sum(1 for r in rows if msb_region_vote.NOTE_PLAYAREA in (r.get("vote_note") or ""))
+    agree = sum(1 for r in rows if r.get("msb_vote_region") == r["our_region"])
+    cast = sum(1 for r in rows if r.get("msb_vote_region"))
+    print("revote: %d rows, %d cast, %d back our region, %d disagree, %d not votable, "
+          "%d PLAYAREA-CONFIRMED rulings" % (len(rows), cast, agree, cast - agree,
+                                             len(rows) - cast, ruled))
+    if markdown:
+        write_markdown(rows, counts, markdown)
+    print("rewrote %s (vote columns only)" % out)
+    return 0
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--out", default=os.path.join(
@@ -620,6 +667,16 @@ def main(argv=None):
     ap.add_argument("--offset", type=int, default=0)
     ap.add_argument("--delay", type=float, default=1.0, help="seconds between requests")
     ap.add_argument("--offline", action="store_true", help="cache only; make no requests")
+    ap.add_argument("--revote", action="store_true",
+                    help="REFRESH THE VOTE COLUMNS OF THE COMMITTED TSV IN PLACE and exit. "
+                         "The wiki verdict columns are read back from --out and carried "
+                         "forward verbatim; nothing is fetched and nothing is re-derived from "
+                         "the cache. 🛑 This exists because `--offline` on a box with no wiki "
+                         "cache does not preserve `verdict`/`external_regions` -- it recomputes "
+                         "them as NO-DATA and writes that, silently destroying the audit's "
+                         "citations (rule 4: a rerun that loses an input must say so, not "
+                         "quietly emit a smaller table). Use --revote whenever the only thing "
+                         "that changed is tools/msb_region_vote.py.")
     ap.add_argument("--no-vote", action="store_true",
                     help="skip the offline MSB nearest-grace vote (leaves msb_vote_* empty)")
     ap.add_argument("--probe-sources", action="store_true")
@@ -630,6 +687,9 @@ def main(argv=None):
         for name, lic, status in probe_sources():
             print("%-12s %-14s %s" % (name, lic, status))
         return 0
+
+    if args.revote:
+        return revote(args.out, args.markdown)
 
     targets, skipped = load_targets()
     print("triage rows skipped (not `(region unconfirmed)`): %d" % skipped)
