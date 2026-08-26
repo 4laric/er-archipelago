@@ -22,8 +22,13 @@ DERIVATION
     box containment rotates the delta by +yaw (standard 2D rotation on (x,z)).
     CALIBRATION: grace 76841's in-game measured ground (6840000, client log 2026-07-15) is
     reproduced by this transform -- it falls inside the tile-48/39 "dragon-mountain west" box.
-    Fallback where no volume contains the grace: the PlayRegionParam coordinate row(s) of the
-    grace's own tile (the tile DEFAULT). If neither exists the ground is UNDERIVABLE ('-'):
+    Where no volume contains the grace but a volume FACE is within SEAM_SLACK m, it SNAPS to that
+    face's bucket -- the SAME seam step the interiors have always had, and the same one
+    datamine_item_play_regions has always applied outdoors. Until 2026-08-26 this tool skipped it
+    on the overworld and fell straight to the default, which made three graces sitting 0.9-3.6 m
+    from a PlayArea face answer 'none' where the item pass answered the face (76214/76453/76500).
+    Fallback where neither holds: the PlayRegionParam coordinate row(s) of the tile the folded
+    point STANDS on (the tile DEFAULT). If neither exists the ground is UNDERIVABLE ('-'):
     engine-side tile defaults are not all expressed in params, and we refuse to guess.
   * MEASURED grounds (the Scaduview kick, 2026-07-15): an in-game kick-watch line is the ENGINE
     itself reporting the play_region at a grace -- stronger than any of the above. MEASURED_GROUND
@@ -84,7 +89,7 @@ REPO = os.environ.get("ER_REPO") or os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
 import artifacts_root                          # noqa: E402  -- THE --path argument, not a copy
-from overworld_fold import fine_tile           # noqa: E402  -- THE tile attribution (#338), one impl
+from overworld_fold import fine_tile, world_xz  # noqa: E402  -- THE fold + tile attribution (#338)
 
 AR = artifacts_root.default_root(REPO)
 BWP = os.path.join(AR, "vanilla_er", "vanilla_er", "BonfireWarpParam.csv")
@@ -324,11 +329,71 @@ def _nearest_face(vols, x, y, z):
     return best
 
 
-def main():
+def _srcname(v):
+    """A volume's name, safe to put in a TAB-separated `source` column.
+
+    MSB region names are free text and at least one of them contains a literal TAB: the m60_39_54
+    volume `プレイ領域 6300030<TAB>高山_地図断片８_閉込ボス領域１` (grace 76322). The committed
+    grace_ground.tsv row for that grace is CORRUPT because of it -- the tab split the source column
+    in two and pushed the tile column off the end, so the row's `tile` reads the second half of a
+    volume name instead of m60_39_54, and `--graces` reported a phantom "source delta" because the
+    reader had truncated the committed source at the tab. Collapse any run of whitespace to one
+    space at the point the name becomes a source string; do NOT normalise Vol.name itself, which is
+    what Composite children are looked up by.
+    """
+    return " ".join((v.name or "").split())
+
+
+def derive_ground(map_id, x, y, z, vols, tile_ids, interior_ids):
+    """THE ladder, for ONE placement -> (sorted play_region ids, source string).
+
+    This is the single owner of the volume -> seam -> default -> none ordering, for BOTH the
+    overworld and the interiors, and BOTH of its callers go through it:
+    `datamine_grace_ground.main` (the grace_ground.tsv derivation) and
+    `datamine_item_play_regions.derive` (the item scan and its --graces calibration gate). They
+    used to be two ladders that agreed on interiors and DIFFERED outdoors -- the item pass offered
+    an overworld point a seam-snap before the tile default, this tool went straight to the default
+    -- so a grace 1.7 m outside a PlayArea face answered `seam:` over there and `none` here (graces
+    76214 / 76453 / 76500, Alaric's box, 2026-08-26). `none` is the less correct answer: the seam
+    tolerance is the same engine containment slack indoors and out, and the face is right there.
+    One function, so a third divergence cannot be written.
+
+    Ids are RAW PlayRegionParam ids; the bucket is id // 100 and the caller does that division.
+    """
+    got = world_xz(map_id, x, z)
+    if got is not None:                                          # OVERWORLD: world = tile*256+local
+        area = int(got[0][1:])                                   # 'm60' -> 60
+        gx, gz = got[1], got[2]
+        mine = [v for v in vols if v.area == area]
+        hits = [v for v in mine if v.contains(gx, y, gz)]
+        if hits:
+            return sorted({v.pr for v in hits}), "volume:" + _srcname(hits[0])
+        near = _nearest_face(mine, gx, y, gz)                    # gate/threshold seam
+        if near and near[0] <= SEAM_SLACK:
+            return [near[1].pr], "seam:%s@%.1fm" % (_srcname(near[1]), near[0])
+        # NOT the AUTHORED tile: the tile the folded point actually STANDS on (fine_tile rounds --
+        # the overworld frame is centre-origin). For 214 of 225 graces that IS the authored tile.
+        ids = sorted(tile_ids.get(area, {}).get(fine_tile(gx, gz), ()))
+        return (ids, "tile-default") if ids else ([], "none")
+
+    mkey = "_".join((map_id or "").split("_")[:2])               # 'm10_00_00_00' -> 'm10_00'
+    ivols = load_interior_volumes(mkey)
+    if ivols:
+        hits = [v for v in ivols if v.contains(x, y, z)]         # interior: world == local
+        if hits:
+            return sorted({v.pr for v in hits}), "interior-vol:" + _srcname(hits[0])
+        near = _nearest_face(ivols, x, y, z)
+        if near and near[0] <= SEAM_SLACK:
+            return [near[1].pr], "interior-seam:%s@%.1fm" % (_srcname(near[1]), near[0])
+    ids = sorted(interior_ids.get(mkey, ()))
+    return (ids, "interior-map") if ids else ([], "none")
+
+
+def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true", help="write %s" % OUT)
     artifacts_root.add_path_argument(ap)
-    args = ap.parse_args()
+    args = ap.parse_args(argv)          # argv is a PARAMETER so the suite can drive it
     root = artifacts_root.resolve(args.path)
     if root:
         _set_artifacts_root(root)
@@ -340,8 +405,6 @@ def main():
     print("PlayArea volumes: %d (m60+m61)" % len(vols))
 
     tile_ids, interior_ids = load_play_region_defaults()
-    tile_default = {a: {k: {i // 100 for i in v} for k, v in tile_ids[a].items()} for a in (60, 61)}
-    interior = {k: {i // 100 for i in v} for k, v in interior_ids.items()}
 
     rows = []
     for r in csv.DictReader(open(BWP, newline="", encoding="utf-8-sig")):
@@ -352,50 +415,24 @@ def main():
         if not (71000 <= f <= 76999):
             continue
         a = int(r["areaNo"] or 0)
+        try:
+            px, py, pz = float(r["posX"]), float(r["posY"]), float(r["posZ"])
+        except (TypeError, ValueError):
+            px = None                                # unparseable spawn: no geometry, fallback only
         if a in (60, 61):
             tx, tz = int(r["gridXNo"]), int(r["gridZNo"])
-            wx = tx * 256 + float(r["posX"])
-            wz = tz * 256 + float(r["posZ"])
-            y = float(r["posY"])
-            hits = [v for v in vols if v.area == a and v.contains(wx, y, wz)]
-            bks = sorted({v.pr // 100 for v in hits})
-            if bks:
-                src = "volume:" + hits[0].name
-            else:
-                # NOT the AUTHORED (gridXNo, gridZNo): the tile the folded point actually STANDS on
-                # (overworld_fold.fine_tile -- the frame is centre-origin, so it rounds). For 214 of
-                # 225 graces that IS the authored tile; the 11 whose local coordinate runs past
-                # +-128 physically spill onto the neighbour, and the neighbour's row is the one the
-                # engine reads. Sharing the function with datamine_item_play_regions is the point:
-                # the two derivations disagreed about graces 76416/76420 until 2026-08-26.
-                bks = sorted(tile_default[a].get(fine_tile(wx, wz), set()))
-                src = "tile-default" if bks else "none"
-            tile = "m%d_%02d_%02d" % (a, tx, tz)         # the AUTHORED tile: this column is the
-            #                                             grace's own map id, not the ruling
+            map_id = "m%d_%02d_%02d_00" % (a, tx, tz)
+            tile = "m%d_%02d_%02d" % (a, tx, tz)     # the AUTHORED tile: the grace's own map id,
+            #                                          not the ruling (the ruling may fold next door)
         else:
             ent = str(r["bonfireEntityId"] or "")
-            tile = "m%s_%s" % (ent[0:2], ent[2:4]) if len(ent) == 8 else "?"
-            bks, src = [], "none"
-            # Point-in-volume against the grace's OWN interior MSB first (the foreign-ground catch);
-            # its position is local == world for an interior map, so no tile offset.
-            try:
-                px, py, pz = float(r["posX"]), float(r["posY"]), float(r["posZ"])
-            except (TypeError, ValueError):
-                px = None
-            ivols = load_interior_volumes(tile) if px is not None else []
-            if ivols and px is not None:
-                hits = [v for v in ivols if v.contains(px, py, pz)]
-                if hits:
-                    bks = sorted({v.pr // 100 for v in hits})
-                    src = "interior-vol:" + hits[0].name
-                else:
-                    near = _nearest_face(ivols, px, py, pz)   # gate/threshold seam -> nearest face
-                    if near and near[0] <= SEAM_SLACK:
-                        bks = [near[1].pr // 100]
-                        src = "interior-seam:%s@%.1fm" % (near[1].name, near[0])
-            if not bks:                                       # inside no volume, near none: fall back
-                bks = sorted(interior.get(tile, set()))
-                src = "interior-map" if bks else "none"
+            map_id = tile = "m%s_%s" % (ent[0:2], ent[2:4]) if len(ent) == 8 else "?"
+        if px is None:
+            ids = [] if a in (60, 61) else sorted(interior_ids.get(tile, ()))
+            src = "interior-map" if ids else "none"
+        else:
+            ids, src = derive_ground(map_id, px, py, pz, vols, tile_ids, interior_ids)
+        bks = sorted({i // 100 for i in ids})
         if f in MEASURED_GROUND:
             mbks, msrc = MEASURED_GROUND[f]
             if bks and tuple(bks) != tuple(mbks):

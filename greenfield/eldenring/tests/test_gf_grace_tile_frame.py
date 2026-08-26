@@ -61,6 +61,13 @@ PINNED = {76416: ((49, 39), ()),
 # tile and the neighbour's default is the one the engine reads. Every one of them had `tile-default`
 # or `none` as its committed source, i.e. no volume ruled on it, so the new value follows from the
 # params alone -- which is what this suite re-derives.
+# NOTE (2026-08-26, the shared-ladder change): `datamine_grace_ground` gained the OVERWORLD seam
+# step, so a regenerated table will move 76214 -- and 76453 / 76500, which are not spillers -- off
+# `none` and onto `seam:` with a real bucket. A seam answer comes from a VOLUME FACE and cannot be
+# re-derived from the params alone, so every assertion below that reads the COMMITTED bucket is
+# gated on the row still being params-derivable (see `_params_derivable`). The tile-frame half --
+# which tile the point stands on, and what that tile's default is -- is unaffected by the seam
+# step and stays asserted for all five.
 SPILLERS = {76214: ((35, 49), ()),
             76236: ((36, 44), (62000,)),
             76304: ((40, 53), (63000,)),
@@ -133,6 +140,18 @@ class GraceTileFrameTest(unittest.TestCase):
         a, (tx, tz), (x, z) = self.graces[flag]
         return a, self.fold.fine_tile(tx * 256 + x, tz * 256 + z)
 
+    @staticmethod
+    def _params_derivable(src):
+        """Is this committed row re-derivable from PlayRegionParam ALONE?
+
+        No, if a VOLUME decided it (`volume:`), a volume FACE decided it (`seam:` -- the overworld
+        seam step, 2026-08-26), or the ENGINE decided it (`measured:`). This suite is the
+        corpus-FREE half of the `--graces` gate: it must never start demanding rows whose answer
+        lives in the MSBs, and it must not go red when a regen legitimately moves a row from
+        `none`/`tile-default` INTO the seam population -- leaving this population is not drift.
+        """
+        return not src.startswith(("volume:", "seam:", "measured:"))
+
     def _default(self, area, tile):
         return tuple(sorted(self.tile_ids[area].get(tile, ())))
 
@@ -178,8 +197,9 @@ class GraceTileFrameTest(unittest.TestCase):
                 a, tile = self._standing_tile(f)
                 self.assertEqual(tile, want_tile, "grace %d stands on the wrong tile" % f)
                 self.assertEqual(self._default(a, tile), want_bks)
-                self.assertEqual(self.committed[f][0], want_bks,
-                                 "grace_ground.tsv disagrees with the params for %d" % f)
+                if self._params_derivable(self.committed[f][1]):
+                    self.assertEqual(self.committed[f][0], want_bks,
+                                     "grace_ground.tsv disagrees with the params for %d" % f)
 
     def test_the_five_spillers_the_fix_moved(self):
         """The rows the centred rule genuinely CHANGES: local past +-128, so the grace stands on a
@@ -191,7 +211,8 @@ class GraceTileFrameTest(unittest.TestCase):
                 self.assertNotEqual(tile, self.graces[f][1],
                                     "grace %d stopped being a spiller" % f)
                 self.assertEqual(self._default(a, tile), want_bks)
-                self.assertEqual(self.committed[f][0], want_bks)
+                if self._params_derivable(self.committed[f][1]):
+                    self.assertEqual(self.committed[f][0], want_bks)
 
     def test_every_committed_tile_default_row_re_derives_from_the_params(self):
         """THE POPULATION, not a sample. Every overworld grace whose committed source is a tile
@@ -201,7 +222,7 @@ class GraceTileFrameTest(unittest.TestCase):
         bad = []
         judged = 0
         for f, (bks, src) in sorted(self.committed.items()):
-            if f not in self.graces or src.startswith(("volume:", "measured:")):
+            if f not in self.graces or not self._params_derivable(src):
                 continue
             judged += 1
             a, tile = self._standing_tile(f)

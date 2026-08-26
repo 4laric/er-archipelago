@@ -165,6 +165,14 @@ GRACES = [
     (76001, 60, TILE, TILE, BOX_PT, "", "68000"),
     (76002, 60, TILE, TILE, (-110, 1, -110), "", "68000;68999"),   # the half-tile case, above
     (76003, 10, 0, 0, (0, 1, 0), "10000950", "10000"),
+    # THE OVERWORLD SEAM PAIR (2026-08-26). 4 m off the CylVol face -- inside SEAM_SLACK, so the
+    # ladder snaps to the face's bucket. `datamine_grace_ground` used to skip the seam step
+    # outdoors and answer this tile's default instead, which is the delta Alaric's `--graces` run
+    # surfaced as three BUCKET MISMATCHes (graces 76214 / 76453 / 76500).
+    (76004, 60, TILE, TILE, (224, 1, 50), "", "68100"),
+    # ...and its mirror: 12 m off the same face is PAST the slack, so it must still read a tile
+    # default (local +232 folds onto tile 41, whose default row is 6859900).
+    (76005, 60, TILE, TILE, (232, 1, 50), "", "68599"),
 ]
 
 
@@ -401,6 +409,137 @@ class ItemPlayRegionScanTest(unittest.TestCase):
         build_grace_fixtures(self.artifacts, ground, mutate=True)
         self.assertEqual(1, self.mod.main(["--artifacts", self.artifacts, "--graces",
                                            "--ground", ground]))
+
+
+class GraceGroundSharesTheItemScanLadderTest(unittest.TestCase):
+    """`datamine_grace_ground` and `datamine_item_play_regions` answer through ONE function.
+
+    Until 2026-08-26 they were two ladders. They agreed on interiors (volume -> seam -> map
+    default) and DIFFERED outdoors: the item scan offered an overworld point a seam-snap before
+    the tile default, grace_ground went straight to the default. Alaric's box run of the `--graces`
+    calibration gate turned that into three BUCKET MISMATCHes -- graces 76214 / 76453 / 76500 sit
+    0.9-3.6 m from a PlayArea face, the item pass answered the face, the committed table answered
+    `none`. `none` is the less correct answer, so grace_ground gained the overworld seam step by
+    CALLING the item scan's ladder rather than growing a second copy of it.
+
+    This class witnesses that at both levels: the identity of the function object (a copy cannot
+    be reintroduced without failing here) and, more importantly, a per-point DIFF of the two
+    tools' whole pipelines over the same fixture corpus -- because sharing a function proves
+    nothing if one caller feeds it a different map id or divides by 100 in a different place.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        if TOOL is None or not os.path.isfile(TOOL):
+            raise unittest.SkipTest(REPO_ONLY_REASON)
+        cls.tmp = tempfile.mkdtemp(prefix="gg_shared_")
+        cls.artifacts = build_artifacts(os.path.join(cls.tmp, "artifacts"))
+        cls.ground = os.path.join(cls.tmp, "grace_ground.tsv")
+        build_grace_fixtures(cls.artifacts, cls.ground)
+        cls.ipr = _load(TOOL, "_shared_ipr")
+        cls.ipr.VOL_FLOOR = 1
+        cls.gg = _load(os.path.join(REPO, "tools", "datamine_grace_ground.py"), "_shared_gg")
+        cls.gg.MIN_DERIVED = 1                  # the fixture corpus is 5 graces, not 421
+        cls.gg.OUT = os.path.join(cls.tmp, "emitted_grace_ground.tsv")
+        cls.gg.main(["--emit", "--path", cls.artifacts])
+        cls.rows = {}
+        with open(cls.gg.OUT, encoding="utf-8") as fh:
+            for ln in fh:
+                if ln.startswith("#") or ln.startswith("grace_flag\t") or not ln.strip():
+                    continue
+                flag, buckets, src, tile = ln.rstrip("\n").split("\t")
+                cls.rows[int(flag)] = (buckets, src, tile)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.tmp, ignore_errors=True)
+
+    def test_the_ladder_is_ONE_function_object(self):
+        """Not "the same logic" -- the same object. A future copy-paste fails this line.
+
+        Compared through the item scan's OWN `gg` import, not this class's separately-loaded copy:
+        `_load` execs the file under a private module name, so two loads are two module objects and
+        an identity check across them would fail for a reason that has nothing to do with drift."""
+        self.assertIs(self.ipr.derive, self.ipr.gg.derive_ground)
+        self.assertEqual(self.gg.derive_ground.__name__, self.ipr.derive.__name__)
+
+    def test_an_overworld_grace_inside_the_slack_now_answers_the_seam(self):
+        """THE RED/GREEN LINE. On the pre-fix grace_ground this grace answered `tile-default`
+        (bucket 68599, the tile's own row) because the overworld branch had no seam step at all.
+        It is 4 m from the CylVol face; the engine's containment tolerance does not stop being
+        8 m because the point is outdoors."""
+        buckets, src, _tile = self.rows[76004]
+        self.assertTrue(src.startswith("seam:CylVol"),
+                        "76004 answered %r -- the overworld seam step is missing again" % src)
+        self.assertEqual(buckets, "68100")
+
+    def test_an_overworld_grace_past_the_slack_still_answers_the_tile_default(self):
+        """The mirror, without which `seam` would just mean `nearest volume wins`. 12 m off the
+        same face falls through to the default of the tile the folded point stands on."""
+        buckets, src, _tile = self.rows[76005]
+        self.assertEqual(src, "tile-default")
+        self.assertEqual(buckets, "68599")
+
+    def test_the_interior_ladder_is_unchanged(self):
+        """The interiors already had volume -> seam -> map default and must not have moved: this
+        change is additive on the overworld only."""
+        buckets, src, tile = self.rows[76003]
+        self.assertTrue(src.startswith("interior-vol:InnerVol"), src)
+        self.assertEqual(buckets, "10000")
+        self.assertEqual(tile, "m10_00")
+
+    def test_a_containing_volume_still_outranks_the_seam(self):
+        """Ordering, not just membership: a point INSIDE a volume must never be reported as a seam
+        (the seam step is placed after the containment test, and swapping them would still pass a
+        test that only looked at buckets)."""
+        buckets, src, _tile = self.rows[76001]
+        self.assertTrue(src.startswith("volume:BoxVol"), src)
+        self.assertEqual(buckets, "68000")
+
+    def test_the_two_tools_answer_IDENTICALLY_over_the_whole_fixture_corpus(self):
+        """The real anti-drift assertion: run BOTH pipelines over the same graces and diff the
+        per-grace (buckets, source) answers. Covers what a shared function alone does not -- the
+        map id each caller builds, the // 100 each does, and the MEASURED_GROUND override."""
+        vols = self.ipr.load_volumes_or_die(force=True)
+        tile_ids, interior_ids = self.gg.load_play_region_defaults(
+            os.path.join(self.artifacts, "vanilla_er", "vanilla_er", "PlayRegionParam.csv"))
+        theirs = {}
+        for f, _map_id, ids, src in self.ipr.grace_rows(vols, tile_ids, interior_ids):
+            theirs[f] = (";".join(str(b) for b in sorted({i // 100 for i in ids})) or "-", src)
+        mine = {f: (b, s) for f, (b, s, _t) in self.rows.items()}
+        self.assertEqual(set(mine), set(theirs), "the two tools saw different grace populations")
+        self.assertTrue(mine, "a diff over an empty corpus proves nothing")
+        self.assertEqual(mine, theirs,
+                         "the item scan and grace_ground disagree about a grace -- that is the "
+                         "exact class of delta the shared ladder exists to make impossible")
+
+    def test_a_volume_name_containing_a_TAB_cannot_split_the_source_column(self):
+        """grace 76322's committed row is CORRUPT: the m60_39_54 volume name
+        `\u30d7\u30ec\u30a4\u9818\u57df 6300030<TAB>...` carries a literal tab, which split the
+        source column and pushed `tile` off the end -- so that row's tile column holds the second
+        half of a volume name. Names are free text; the source column is tab-separated; the
+        emitter, not the corpus, has to reconcile that."""
+        name = "\u30d7\u30ec\u30a4\u9818\u57df 6300030\t\u9ad8\u5c71"
+        v = self.gg.Vol(6300030, 60, name, "Box", 0, 0, 0, 0.0, 1, 1, 1)
+        self.assertEqual(self.gg._srcname(v), "\u30d7\u30ec\u30a4\u9818\u57df 6300030 \u9ad8\u5c71")
+        with open(self.gg.OUT, encoding="utf-8") as fh:
+            for ln in fh:
+                if ln.startswith("#") or not ln.strip():
+                    continue
+                self.assertEqual(len(ln.rstrip("\n").split("\t")), 4,
+                                 "every emitted row is exactly 4 columns: %r" % ln)
+
+    def test_the_calibration_gate_is_clean_on_the_shared_ladder(self):
+        """End to end: grace_ground's OWN emitted table, handed to the item scan's `--graces`
+        gate, must diff clean -- including the SOURCE column, which is where the old divergence
+        showed up first (`source delta (buckets AGREE)`).
+
+        The WITNESS first: a `--graces` that compared NOTHING would also return 0, so assert the
+        emitted table actually holds every fixture grace before believing the exit code."""
+        self.assertEqual(len(self.rows), len(GRACES),
+                         "the emitted table is not the whole fixture grace population")
+        self.assertEqual(0, self.ipr.main(["--path", self.artifacts, "--graces",
+                                           "--ground", self.gg.OUT]))
 
 
 if __name__ == "__main__":

@@ -53,7 +53,9 @@ Everything needed is in `tools/datamine_grace_ground.py`. **Read it before you e
 | `load_volumes()` | all `m60_*_00-msb-dcx` / `m61_*_00-msb-dcx` overworld volumes, deduped | yes |
 | `load_interior_volumes(mtile)` | the same for ONE interior map (`mAA_BB`; world == local, no tile offset), cached | yes |
 | `_nearest_face(vols, x, y, z)` | `(planar face-distance, vol)` for the nearest y-compatible volume — 0 when inside in plan | yes, for the seam case |
-| `SEAM_SLACK = 8.0` | an interior point inside no volume but within 8 m of a face stands on that face's ground | yes |
+| `SEAM_SLACK = 8.0` | a point inside no volume but within 8 m of a face stands on that face's ground — **indoors AND outdoors** since 2026-08-26 | yes |
+| `derive_ground(map_id, x, y, z, vols, tile_ids, interior_ids)` | ⭐ **THE LADDER**: `volume -> seam -> tile-default -> none` (overworld) / `interior-vol -> interior-seam -> interior-map -> none`, folding through `world_xz` and attributing tiles through `fine_tile`. Returns `(sorted raw PlayRegionParam ids, source)` — the caller divides by 100 for the bucket | yes — **both tools call THIS**; `datamine_item_play_regions.derive` is an alias of it, never a copy |
+| `_srcname(vol)` | a volume's name collapsed to single spaces, safe for the TAB-separated `source` column (at least one MSB name contains a literal tab) | yes |
 | `MEASURED_GROUND` | in-game kick-watch measurements the derivation must AGREE with | keep asserting against it |
 
 🛑 **The overworld transform in `_load_msb_playareas` is `tile*256 + local` and it is only ever
@@ -210,11 +212,24 @@ It does exactly what this section specified:
 Three details the implementation settled that this section had left open:
 
 * the seam step applies to the OVERWORLD too, not only interiors (the order above reads that way
-  and it is the right order). `datamine_grace_ground` goes straight from "no volume" to the tile
-  default for overworld graces, so `--graces` can legitimately report a *source* delta there. It
-  therefore fails on a **bucket** mismatch only, and prints source deltas as findings. A bucket
-  delta means the geometry moved; a source delta means this pipeline found ground the older one
-  called a default.
+  and it is the right order). ✅ **RESOLVED 2026-08-26 — the two tools now share ONE ladder.**
+  `datamine_grace_ground` used to go straight from "no volume" to the tile default outdoors, which
+  made this an *interface delta* between the tools and the last semantic split between them: three
+  graces sitting 0.9-3.6 m from a PlayArea face answered `seam:` here and `none` there. `none` is
+  the less correct answer — the engine's containment tolerance does not stop applying because the
+  point is outdoors — so `datamine_grace_ground.derive_ground` now owns the whole
+  `volume -> seam -> tile-default -> none` ladder and this file's `derive` is an ALIAS of it
+  (`derive = gg.derive_ground`), not a copy. `--graces` keeps its strict semantics: it still fails
+  on a **bucket** mismatch only, and it was NOT softened to accept none-vs-seam — the fix went into
+  the derivation, which is where it belonged.
+* a volume name may contain a literal **TAB** (`m60_39_54`'s
+  `プレイ領域 6300030<TAB>高山_地図断片８_閉込ボス領域１`, grace 76322). Names are free text and the
+  `source` column is tab-separated, so `_srcname()` collapses whitespace at the point a name
+  becomes a source string. The committed row for 76322 predates that and is CORRUPT: the tab split
+  its source column and pushed `tile` off the end, so that row's tile column holds the second half
+  of a volume name instead of `m60_39_54`, and `--graces` reported a phantom "source delta" purely
+  because the reader had truncated the committed source at the tab. The regen repairs the row; the
+  bucket (63000) does not move.
 * the tile default is looked up for the tile the FOLDED position lands on, not the tile the row
   was authored in — a LOD2 row's authored tile spans 16 fine tiles and only one of them is the
   ground the item stands on. 🛑 **That attribution ROUNDS, it does not floor** — the overworld
@@ -228,6 +243,50 @@ Three details the implementation settled that this section had left open:
   `interior-seam:NAME@Nm`, `tile-default`, `interior-map`, `none`.
 
 ### Step 3 — sanity-check it against something already known
+
+🛑 **FIRST, ONCE, after pulling the shared-ladder change (2026-08-26):**
+
+```
+python tools/datamine_grace_ground.py --emit --path <artifacts-root>
+```
+
+and commit the regenerated `greenfield/grace_ground.tsv`. `datamine_grace_ground` gained the
+overworld seam step, so the committed table predates the ladder both tools now run. Expect exactly
+this and nothing else:
+
+| grace | committed | regenerated | why |
+| --- | --- | --- | --- |
+| 76214 Main Caria Manor Gate | `-` / `none` | `62000` / `seam:` @1.7 m | gains a bucket |
+| 76453 Fort Faroth | `-` / `none` | `64020` / `seam:` @6.3 m | gains a bucket |
+| 76500 Forbidden Lands | `-` / `none` | `65000` / `seam:` @3.6 m | gains a bucket |
+| 76230 | `62000` / `tile-default` | `62000` / `seam:` @7.4 m | source upgrade, bucket unchanged |
+| 76402 | `64000` / `tile-default` | `64000` / `seam:` @0.9 m | source upgrade, bucket unchanged |
+| 76322 | `63000` / corrupt 5-column row | `63000` / one clean row | the TAB-in-a-name repair above |
+
+Then **`--graces` must come back CLEAN** — no bucket mismatches AND no source deltas. Anything else
+is a finding about the corpus, not about the tools.
+
+What the regenerated table moves downstream (measured in-sandbox against a simulated regen, so it
+is a prediction with a witness, not a guess):
+
+* `greenfield/eldenring/region_graces.py` — **grace 76500 "Forbidden Lands" moves from Altus to
+  Mountaintops of the Giants** in `REGION_GRACE_POINTS`, and both regions' `REGION_GRACE_LANDMARKS`
+  shift with it (Altus picks up 73450 Divine Tower of East Altus: Gate; Mountaintops drops 76502
+  Grand Lift of Rold for 76500). That is the correction, not a side effect: the Forbidden Lands
+  grace stands on Mountaintops ground. 76214 and 76453 gain buckets their own warp group already
+  agreed with, so they move nothing.
+* `gen_data.py`'s GRACE-GROUND GATE stays green — a regen completed clean with the simulated table,
+  `locations` still 5048, and no region lost its overworld face. The gate has no tolerance to
+  check: it judges rows that HAVE a bucket, so a row gaining one is a row it starts judging, and
+  all three land on ground their own region (or its parent) owns.
+* `tools/msb_region_vote.py`'s anchor coverage rises **340 → 342** graces (76453, 76500; 76214 was
+  already anchored through its warp group). The `SUSPECT-ANCHOR` count is unchanged at 24 — and
+  note that a `seam:` row is correctly NOT suspect: that badge is for `tile-default`, a tile-wide
+  guess, and a volume face is real geometry.
+* `test_gf_grace_tile_frame.py` (the corpus-free half of this gate) stays green in both directions:
+  its selection predicate now skips `seam:` alongside `volume:`/`measured:`, because a seam answer
+  comes from a face and cannot be re-derived from the params alone. Rows LEAVING that population is
+  not drift.
 
 Before believing a single item answer, run the scan over the **421 graces** and diff it against
 `greenfield/grace_ground.tsv` — `python tools/datamine_item_play_regions.py --graces`, which
