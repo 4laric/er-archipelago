@@ -106,6 +106,15 @@ fourth did. The lesson generalises — **a hand-copied list cannot guard a hand-
    `gf_dlc_excluded`, which every pool-augmentation path already reads, so no other wiring exists to
    forget. The hook shipped empty in #970 and a mutation test already proves a planted name is
    excluded under DLC on and off. Starting classes and Torrent skins are not catalog items.
+
+   🛑 **The name must be spelled the way ITEM_CATALOG spells it, and that is now enforced.** A
+   guessed or mistyped name is accepted by every set operation in the pool paths and excludes
+   NOTHING -- the pack item stays placeable, and nothing goes red. `test_gf_tarnished_pack_wiring.py
+   :: test_every_pack_name_is_a_real_catalog_name` asserts membership, so the paste is witnessed.
+   This REPLACED `test_empty_until_patch_day`, which hard-asserted the set was empty and would have
+   turned this very step into a red suite -- an expiring ratchet nothing in this runbook warned
+   about. Do the paste AFTER the regen in step 6's order, or the catalog it checks against is the
+   pre-patch one.
 6. **Regen**, in the normal order — the stamp is LAST. Expect `inputs_hash` to move; that IS the
    signal that seeds built before and after the patch are not comparable.
 7. **Client offsets** — hand off to
@@ -120,6 +129,12 @@ fourth did. The lesson generalises — **a hand-copied list cannot guard a hand-
 * The **fresh Windows param dump** (step 3). Needs the patched game installed.
 * Therefore both instruments in step 4: they need the new bundle as their right-hand side.
 * The **item names** (step 5). They do not exist until the regulation ships.
+* The **`eldenring.exe` PE `ProductName`**, as well as the version. The client's gate rejects on
+  product name too, and that arm's message reads "this is not Elden Ring / check the mod is
+  installed against Elden Ring" -- actively misleading advice if the Tarnished Edition executable
+  ships a changed product string. Record what the new exe reports; if it is not `elden ring`, the
+  gate's `Rejection::Product` wording (`er-logic/src/game_version.rs`) needs a Tarnished arm, not
+  just a new version constant.
 * The **`eldenring.exe` file version**, old and new. Nothing in this repo has ever recorded one, and
   the sandbox has no game install. 🛑 If a Windows box is available before the 28th, record the
   current exe's file version here — five minutes now, an investigation later.

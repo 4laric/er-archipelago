@@ -16,7 +16,7 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring import tarnished_pack as tp  # noqa: E402
-from worlds.eldenring.item_ids import DLC_ITEM_NAMES  # noqa: E402
+from worlds.eldenring.item_ids import DLC_ITEM_NAMES, ITEM_CATALOG  # noqa: E402
 
 GAME = "Elden Ring"
 
@@ -41,3 +41,22 @@ class TarnishedExclusionIsPublished(WorldTestBase):
             len(self.world.gf_dlc_excluded), 0,
             "DLC-off seed excluded nothing -- gf_dlc_excluded is empty, so the wiring test compares "
             "two empty sets. DLC_ITEM_NAMES should be non-empty on a real catalog.")
+
+    def test_every_pack_name_is_a_real_catalog_name(self):
+        """#241 step 5's actual failure mode, and the guard that replaced the empty-set pin.
+
+        The runbook says to paste the new armour names in "exactly as they appear in
+        ITEM_CATALOG". A guessed, mistyped, or renamed-in-a-later-regen name is accepted by every
+        set operation in the pool paths and excludes NOTHING -- the pack item stays placeable and
+        the seed is unwinnable for a player without the entitlement, with nothing anywhere going
+        red. Membership is the only thing that witnesses the paste landed.
+
+        Empty is still legal: it is the correct state for any tree whose regen predates the pack.
+        """
+        unknown = sorted(n for n in tp.TARNISHED_PACK_ITEM_NAMES if n not in ITEM_CATALOG)
+        self.assertEqual(
+            unknown, [],
+            f"TARNISHED_PACK_ITEM_NAMES contains name(s) absent from ITEM_CATALOG: {unknown}. "
+            "A name that is not in the catalog excludes nothing -- the pack item is still placed "
+            "and the exclusion is silently a no-op. Paste the names from a POST-patch regen, "
+            "exactly as ITEM_CATALOG spells them (docs/TARNISHED-PATCH-DAY.md step 5).")

@@ -6,8 +6,14 @@ Two things must hold before patch day, and this locks both so the hook is not a 
      whether or not DLC is on -- unlike the DLC names, which are excluded only when DLC is off. The
      mutation test plants a name and proves it is dropped under BOTH dlc states, so on patch day
      "paste the new armour names in" is all it takes.
-  2. IT IS A NO-OP TODAY. The set is empty until 2026-08-28; a non-empty set here would silently
-     drop real items from every pre-patch seed, which is exactly the failure the pin guards.
+  2. EVERY NAME IS A REAL NAME. Until the pack shipped this was pinned as "the set must be
+     EMPTY", which was the right guard for a pre-patch tree and the wrong one from patch day on:
+     it turned runbook step 5 ("paste the new armour names in", docs/TARNISHED-PATCH-DAY.md) into
+     a red suite. The pin is replaced by the guard it was standing in for -- a name here must be a
+     name the regenerated catalog actually has, asserted in test_gf_tarnished_pack_wiring.py where
+     ITEM_CATALOG is importable. That catches the failure the empty-pin was really aimed at (a
+     guessed or mistyped name, which excludes nothing and silently ships), and it keeps catching
+     it after patch day instead of expiring on it.
 
 This file is AP-free (imports only `tarnished_pack`), so it runs on any host. The WIRING -- that
 `core` publishes the helper's output as `gf_dlc_excluded`, the set every pool-augmentation feature
@@ -29,11 +35,15 @@ except Exception:  # bare source tree (sandbox)
 
 
 class TarnishedPackDecision(unittest.TestCase):
-    def test_empty_until_patch_day(self):
-        self.assertEqual(
-            tp.TARNISHED_PACK_ITEM_NAMES, frozenset(),
-            "TARNISHED_PACK_ITEM_NAMES must stay empty until 2026-08-28 -- a name here silently "
-            "drops a real item from every pre-patch seed. Populate it ONLY on patch day (#241).")
+    def test_the_hook_is_a_frozenset_of_non_blank_names(self):
+        # Shape only. WHETHER a name is real is decided against ITEM_CATALOG in the wiring test;
+        # this file is AP-free and cannot see the catalog. A blank or whitespace entry matches
+        # nothing and would be an exclusion that silently excludes zero items.
+        self.assertIsInstance(tp.TARNISHED_PACK_ITEM_NAMES, frozenset)
+        for name in tp.TARNISHED_PACK_ITEM_NAMES:
+            self.assertIsInstance(name, str, f"not a name: {name!r}")
+            self.assertEqual(name, name.strip(), f"padded name will never match ITEM_CATALOG: {name!r}")
+            self.assertTrue(name, "empty string in TARNISHED_PACK_ITEM_NAMES")
 
     def test_dlc_semantics_unchanged(self):
         # DLC excluded only when DLC is OFF -- the pre-existing behaviour, preserved exactly.
@@ -52,8 +62,8 @@ class TarnishedPackDecision(unittest.TestCase):
             self.assertNotIn("D", tp.pool_excluded_names(True, {"D"}))
         finally:
             tp.TARNISHED_PACK_ITEM_NAMES = orig
-        # restored, so the empty-set pin above is not perturbed for other tests
-        self.assertEqual(tp.TARNISHED_PACK_ITEM_NAMES, frozenset())
+        # restored, so a later patch-day paste is neither hidden nor invented by this test
+        self.assertEqual(tp.TARNISHED_PACK_ITEM_NAMES, orig)
 
 
 
