@@ -463,3 +463,189 @@ class TheClientFeatureHandshake(unittest.TestCase):
         by construction."""
         self.assertEqual(_mod().spawn_item_name(4150), "Trap: Basilisk x3 (4150/41500060)")
         self.assertEqual(_mod().CLIENT_FEATURE_TAG, "spawn_traps")
+
+
+class TheNameSurface(unittest.TestCase):
+    """`spawn_traps` takes an ENEMY NAME as well as a model id (SwiftyTaco, Discord 2026-08-26).
+
+    🛑 THE MOTIVATING CASE IS THE FIRST TEST HERE, per CONTRIBUTING rule 11. SwiftyTaco asked "Am I
+    supposed to put in ids, or the name of the enemy?" after writing model ids into `traps` -- the
+    option next to this one, which takes words. Two things had to change and both are pinned below:
+    a name works here, and a number in `traps` says where numbers go.
+
+    🛑 AND THE CONTRACT MUST NOT HAVE MOVED. A name is a yaml-side convenience that dies at
+    `spawn_trap_models`; everything past it sees the id it always saw. The cases that matter most
+    here are the ones asserting the MINTED STRING is byte-identical whichever spelling was written,
+    because that identity is the whole argument for why this cost no client release.
+    """
+
+    class _Opt:
+        def __init__(self, value):
+            self.value = value
+
+    class _World:
+        def __init__(self, traps=(), spawn=(), count=0):
+            class O:
+                pass
+            self.options = O()
+            self.options.traps = TheNameSurface._Opt(frozenset(traps))
+            self.options.spawn_traps = TheNameSurface._Opt(frozenset(spawn))
+            self.options.trap_count = TheNameSurface._Opt(count)
+
+    def _verify(self, cls, values):
+        """Run the option's own `verify`, the way generation runs it."""
+        cls(frozenset(values)).verify(None, "SwiftyTaco", None)
+
+    # -- SwiftyTaco's case, end to end
+    def test_a_player_writes_an_enemy_name_and_it_works(self):
+        """THE ACCEPTANCE TEST. `spawn_traps: [Basilisk]` gens clean and mints the basilisk."""
+        t = _mod()
+        self._verify(t.SpawnTraps, ["Basilisk"])
+        w = self._World(spawn=["Basilisk"], count=2)
+        self.assertEqual(t.enabled_trap_names(w), [BASILISK_NAME])
+        self.assertEqual(t.trap_items(w), [BASILISK_NAME] * 2)
+
+    def test_the_name_and_the_id_mint_the_same_string(self):
+        """🛑 THE CONTRACT ARGUMENT, as an assertion. If these ever differ, accepting names became a
+        cross-repo change and the client's parser is the thing that finds out."""
+        t = _mod()
+        for name, chr_id in (("Basilisk", 4150), ("Runebear", 4630), ("Malenia (Phase 1)", 2120)):
+            self.assertEqual(t.trap_items(self._World(spawn=[name], count=1)),
+                             t.trap_items(self._World(spawn=[str(chr_id)], count=1)),
+                             "%r and %d must mint the same item" % (name, chr_id))
+
+    def test_the_id_spelling_still_works(self):
+        """BACK-COMPAT. Every yaml written before names existed keeps its meaning."""
+        t = _mod()
+        self._verify(t.SpawnTraps, ["4150", "4630"])
+        self.assertEqual(sorted(t.spawn_trap_models(self._World(spawn=["4150", "4630"]))),
+                         [4150, 4630])
+
+    def test_case_and_accents_do_not_matter(self):
+        """A player types what their keyboard has. `Merchant Kale` and `Merchant Kalé` are one
+        enemy, and so are `basilisk` and `BASILISK`."""
+        t = _mod()
+        for spelling in ("basilisk", "BASILISK", "  Basilisk  "):
+            self.assertEqual(t._resolve_spawn(spelling), 4150, spelling)
+        self.assertEqual(t._resolve_spawn("Merchant Kale"), t._resolve_spawn("Merchant Kalé"))
+        self.assertIsNotNone(t._resolve_spawn("Merchant Kale"))
+
+    # -- the refusals, which are the half that must NOT relax
+    def test_an_unknown_name_is_a_generation_error_that_names_near_misses(self):
+        """🛑 NEVER A SILENT SKIP. A dropped name would be a seed quietly missing the trap the
+        player asked for; a bare `Allowed keys: frozenset({...425})` would be a true message nobody
+        can act on. Both halves are asserted: it raises, and it suggests."""
+        from Options import OptionError
+        t = _mod()
+        with self.assertRaises(OptionError) as ctx:
+            self._verify(t.SpawnTraps, ["Basilsk"])
+        self.assertIn("Basilisk", str(ctx.exception))
+
+    def test_an_unspawnable_id_is_still_a_generation_error(self):
+        """The refusal this option was built for, unchanged by the new spelling."""
+        from Options import OptionError
+        t = _mod()
+        for bad in ("5350", "9999", "0"):
+            with self.assertRaises(OptionError):
+                self._verify(t.SpawnTraps, [bad])
+        self.assertIsNone(t._resolve_spawn("c4150"), "the c-prefixed form is not a spelling we take")
+
+    def test_a_bad_id_is_not_offered_a_neighbouring_id_as_a_suggestion(self):
+        """⭐ `difflib` answers '9999' with '9998'. That is a DIFFERENT CREATURE and a confident
+        wrong answer, so ids get told they are not spawnable and are offered nothing."""
+        t = _mod()
+        msg = t._near("9999")
+        self.assertIn("not a spawnable", msg)
+        self.assertNotIn("did you mean", msg)
+
+    def test_a_number_in_traps_says_where_numbers_go(self):
+        """SwiftyTaco's actual first move. The two lists sit next to each other, one took words and
+        one took numbers, and the stock message named neither."""
+        from Options import OptionError
+        t = _mod()
+        with self.assertRaises(OptionError) as ctx:
+            self._verify(t.Traps, ["4150"])
+        self.assertIn("spawn_traps", str(ctx.exception))
+        # NOT relaxed: the id is still refused here, it is only explained.
+        self.assertNotIn("4150", t.Traps.valid_keys)
+
+    def test_traps_still_refuses_an_ordinary_unknown_word(self):
+        """WITNESS for the case above -- the new branch must not have swallowed the inherited one."""
+        from Options import OptionError
+        t = _mod()
+        with self.assertRaises(OptionError):
+            self._verify(t.Traps, ["rune_theif"])
+        self._verify(t.Traps, ["rune_thief", "basilisk"])   # and the good values still pass
+
+    # -- the table itself
+    def test_a_shared_name_resolves_to_the_lowest_model_id_deterministically(self):
+        """🛑 THREE NAMES ARE ON TWO MODELS EACH (one NPC, two bodies). A name that resolved to
+        'whichever the dict emitted first' would make the same yaml build different seeds across
+        runs; the rule is the LOWEST id and `enemy_names.ENEMY_NAME_COLLISIONS` records the rows."""
+        from worlds.eldenring.enemy_names import ENEMY_NAMES, ENEMY_NAME_COLLISIONS
+        t = _mod()
+        self.assertTrue(ENEMY_NAME_COLLISIONS, "witness: the collision table must not be empty")
+        for chr_id, (name, others) in ENEMY_NAME_COLLISIONS.items():
+            self.assertEqual(t._resolve_spawn(name), min([chr_id] + list(others)), name)
+        # Rebuilding the index must give the same answer, not merely an answer.
+        self.assertEqual(t._build_name_index(), t.SPAWN_NAME_INDEX)
+        self.assertEqual(len(ENEMY_NAMES), 35)
+
+    def test_every_named_model_is_spawnable_and_every_name_resolves(self):
+        """A name for a model this world refuses to spawn would be a yaml value that gens dirty --
+        the id problem inverted. WITNESSED by the length assert so an empty table cannot pass."""
+        from worlds.eldenring.enemy_names import ENEMY_NAMES
+        t, rows = _mod(), _data().SPAWN_TRAPS
+        self.assertGreater(len(ENEMY_NAMES), 30)
+        for chr_id, name in ENEMY_NAMES.items():
+            self.assertIn(chr_id, rows, "c%d is named but not spawnable" % chr_id)
+            self.assertIsNotNone(t._resolve_spawn(name), name)
+
+    def test_every_valid_key_resolves(self):
+        """`valid_keys` is what the wizard offers and what the error suggests out of. A member that
+        does not resolve would be a value the wizard writes and generation then rejects."""
+        t = _mod()
+        for k in t.SpawnTraps.valid_keys:
+            self.assertIsNotNone(t._resolve_spawn(k), k)
+
+    def test_the_names_are_reachable_from_the_option_the_player_reads(self):
+        """DOCSTRING = WIZARD METADATA. The names only help if they are written where the option is
+        described, so the docstring has to carry them and to say ids still work."""
+        doc = _mod().SpawnTraps.__doc__
+        for needle in ("Basilisk", "Runebear", "model id", "4150"):
+            self.assertIn(needle, doc, needle)
+
+    def test_the_contract_hash_did_not_move(self):
+        """🛑 THE PIN. Names are resolved at generation and the emitted slot data is untouched, so
+        this change owes no client release. That claim is only worth what this assert is worth."""
+        from worlds.eldenring import contract
+        self.assertEqual(contract.CONTRACT_HASH[:8], "13db0b3a")
+
+    def test_a_name_the_game_writes_with_a_comma_is_offered_without_one(self):
+        """🛑 A COMMA IS A SEPARATOR WHERE PLAYERS WRITE THESE. `spawn_traps: [Alexander, Warrior
+        Jar]` is TWO yaml values, and the wizard's box splits on commas so pasting a list works, so
+        an accepted value carrying one cannot survive being typed. Six names carry one; the offered
+        spelling drops it and the game's spelling still resolves."""
+        from worlds.eldenring.enemy_names import ENEMY_NAMES
+        t = _mod()
+        commad = [n for n in ENEMY_NAMES.values() if "," in n]
+        self.assertGreaterEqual(len(commad), 5, "witness: the comma'd population must not be empty")
+        for name in commad:
+            plain = t.yaml_name(name)
+            self.assertNotIn(",", plain)
+            self.assertEqual(t._resolve_spawn(plain), t._resolve_spawn(name), name)
+            self.assertIn(plain, t.SpawnTraps.valid_keys)
+            self.assertNotIn(name, t.SpawnTraps.valid_keys)
+        self.assertEqual(t.yaml_name("Alexander, Warrior Jar"), "Alexander Warrior Jar")
+
+    def test_the_offered_spelling_survives_a_yaml_flow_list(self):
+        """The end of the same argument, run through a real yaml parser rather than reasoned about:
+        every accepted value has to come back out of `[a, b]` as itself."""
+        import yaml
+        t = _mod()
+        offered = sorted(k for k in t.SpawnTraps.valid_keys if not k.isdigit())
+        self.assertGreater(len(offered), 30)
+        parsed = yaml.safe_load("spawn_traps: [%s]" % ", ".join(offered))["spawn_traps"]
+        self.assertEqual(parsed, offered)
+        for v in parsed:
+            self.assertIsNotNone(t._resolve_spawn(v), v)

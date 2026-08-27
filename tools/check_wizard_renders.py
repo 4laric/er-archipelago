@@ -242,6 +242,22 @@ for (const o of ((P.meta && P.state) ? P.meta.options : [])){
     const note = after && (after.kids || []).find(k => String(k.className || "").split(" ")[0] === "fsnote");
     rec.note = note ? text(note).trim() : "";
     rec.noteIsBad = !!(note && String(note.className || "").split(" ").includes("bad"));
+
+    // A SECOND PASS, for the accepted values that CONTAIN SPACES. `spawn_traps` accepts enemy
+    // names as of 2026-08-26 (SwiftyTaco), so "Blaidd the Half-Wolf" is now a legal token and the
+    // old splitter -- /[^A-Za-z0-9_]+/ -- would have shredded it into four rejected words. The
+    // sample above is bare ids and cannot see that, which is exactly the shape of check that keeps
+    // passing while the control stops working. Typed in the WRONG CASE on purpose: the option
+    // resolves case-insensitively and the box must commit the canonical spelling, not the typing.
+    const wordy = (o.valid_keys || []).filter(k => /[^A-Za-z0-9_]/.test(k)).slice(0, 2);
+    if (wordy.length){
+      rec.wordy = wordy;
+      rec.wordyTyped = wordy.map(w => w.toUpperCase()).join(", ");
+      const input2 = (box.kids || []).find(k => k.tagName === "INPUT");
+      input2.value = rec.wordyTyped;
+      input2.fire("change");
+      rec.wordyCommitted = P.state.values[o.key];
+    }
   }
   for (const k of Object.keys(P.state.values)) delete P.state.values[k];
 }
@@ -513,6 +529,19 @@ def main(argv):
                             "in valid_keys order with duplicates collapsed -- the order a player "
                             "types is presentation and must not reach the yaml."
                             % (key, r["typed"], got, want))
+        wordy = r.get("wordy")
+        if wordy:
+            gotw = r.get("wordyCommitted")
+            # Order is not asserted here -- the first sample above already pins valid_keys order.
+            # What this one is for is the SPLIT and the CASING.
+            if sorted(gotw or []) != sorted(wordy):
+                problems.append(
+                    "%s: typed %r (accepted values that contain spaces, in the wrong case) and the "
+                    "control committed %r, want %r in any order. A token is split on separators, "
+                    "not on every non-word character, and is matched case-insensitively -- "
+                    "otherwise a multi-word accepted value is shredded into rejected fragments by "
+                    "the one control that is supposed to accept it."
+                    % (key, r.get("wordyTyped"), gotw, wordy))
         if "__nope__" in (got or []):
             problems.append("%s: the control saved `__nope__`, which is not one of its %d accepted "
                             "values. AP raises on it at generation, i.e. after the download -- the "

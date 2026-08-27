@@ -34,13 +34,16 @@ carries the same list with its own test. Change one, change both.
 OFF. `traps` is an empty OptionSet, so a seed that does not name a trap is byte-identical to one
 built before this file existed -- `create_items` returns `[]` and nothing else here runs.
 """
-from typing import List
+import difflib
+import unicodedata
+from typing import List, Optional, Set
 
 from BaseClasses import ItemClassification
-from Options import OptionSet, Range
+from Options import OptionError, OptionSet, Range
 
 from ..registry import Feature, register
 from .. import contract
+from ..enemy_names import ENEMY_NAMES
 from ..spawn_trap_data import SPAWN_TRAPS, SPAWN_TRAP_KEYS
 
 #: 🛑 CROSS-REPO CONTRACT with `er_logic::traps::LABEL_CAP`. The client retains a spawn label INLINE
@@ -49,6 +52,37 @@ from ..spawn_trap_data import SPAWN_TRAPS, SPAWN_TRAP_KEYS
 #: `tools/datamine_spawn_traps.py` asserts the same ceiling when it emits the table; this pins it on
 #: the consuming side too, because the tsv can be hand-edited.
 LABEL_CAP = 24
+
+
+def yaml_name(name: str) -> str:
+    """The game's spelling of a name -> the spelling the yaml and the wizard offer.
+
+    🛑 COMMAS COME OUT, and this is not cosmetic. Six of the 35 names carry one -- `Alexander,
+    Warrior Jar`, `Rennala, Queen of the Full Moon`, `Miriel, Pastor of Vows` and friends -- and a
+    comma is a SEPARATOR in both places a player writes one of these: yaml flow style
+    (`spawn_traps: [Alexander, Warrior Jar]` is two values, not one) and the wizard's text box,
+    which splits on commas so that pasting a list of ids works at all. An accepted value that
+    cannot survive being typed is not accepted. Caught by `tools/check_wizard_renders.py`, which
+    types every multi-word accepted value into the live control.
+
+    The COMMA'D spelling still resolves -- `_build_name_index` indexes both -- because it is what
+    the game says and what a player copying from a wiki will write. Only the OFFERED spelling
+    changes.
+    """
+    return " ".join(name.replace(",", " ").split())
+
+
+def _fold(s: str) -> str:
+    """The form two spellings of one name are compared in: casefolded, accent-stripped, and with
+    runs of whitespace collapsed.
+
+    ⭐ ACCENTS ARE STRIPPED because `Merchant Kale` is what a player with a US keyboard types and
+    `Merchant Kal\u00e9` is what the game's FMG says. Refusing the first over one diacritic would be
+    the id problem again in a smaller costume. The CANONICAL spelling -- the one in `ENEMY_NAMES`,
+    the wizard and the yaml template -- keeps its accent; only the comparison drops it.
+    """
+    n = unicodedata.normalize("NFKD", s.strip().casefold())
+    return " ".join("".join(c for c in n if not unicodedata.combining(c)).split())
 
 
 #: The prefix the client dispatches on. Kept as a constant so the test can assert every name
@@ -148,7 +182,8 @@ class Traps(OptionSet):
     Traps are sent to YOU by your own world like any other item, so in a multiworld somebody else
     may be the one who finds them.
 
-    For any other enemy in the game, see `spawn_traps`.
+    THIS OPTION TAKES THESE WORDS AND NOTHING ELSE. For any other enemy in the game -- by name or by
+    character model id -- use `spawn_traps`, which is the other list in this section.
     """
     display_name = "Traps"
     # 🛑 The union, not `TRAPS` alone: a curated spawn key is a yaml value exactly like a fixed
@@ -156,41 +191,115 @@ class Traps(OptionSet):
     valid_keys = frozenset(TRAPS) | frozenset(SPAWN_TRAP_KEYS)
     default = frozenset()
 
+    def verify(self, world, player_name: str, plando_options) -> None:
+        """The inherited exact-key check, plus ONE SENTENCE for the mistake that actually happened.
+
+        SwiftyTaco, Discord 2026-08-26, put character model ids in THIS option -- the two lists sit
+        next to each other in the wizard, one takes words and one took numbers, and nothing said
+        which was which. `Found unexpected key 4150 ... Allowed keys: frozenset({'no_flask', ...})`
+        is a true message that answers a question nobody asked. A number here is never a typo for
+        `rune_thief`; it is always somebody who meant `spawn_traps`, so say so.
+
+        🛑 The check is not RELAXED -- ids are still refused here, because a trap named in the wrong
+        option would be an item that never fires. Only the sentence is new.
+        """
+        stray = sorted(v for v in self.value if str(v).strip().isdigit())
+        if stray:
+            raise OptionError(
+                "Player %s put character model id(s) %s in `traps`. Those go in `spawn_traps`, "
+                "which takes ids AND enemy names; `traps` takes only these words: %s."
+                % (player_name, ", ".join(str(v) for v in stray), ", ".join(sorted(self.valid_keys))))
+        super().verify(world, player_name, plando_options)
+
 
 class SpawnTraps(OptionSet):
-    """Extra enemies to drop on your own head, named by character model id (e.g. `4150`).
+    """Extra enemies to drop on your own head. Takes an ENEMY NAME or a character model id.
 
     THE ESCAPE HATCH. `traps` carries the enemies we curated and named; this takes any of the 390
-    spawnable models in the game by raw id, for anyone who wants something specific standing on top
-    of them. One appears where you are; the curated ones may come in numbers.
+    spawnable models in the game, for anyone who wants something specific standing on top of them.
+    One appears where you are; the curated ones may come in numbers.
 
-    Empty by default, and inert unless `trap_count` is above zero. An id that is not spawnable is a
-    yaml error rather than an item that silently never fires -- 26 models are excluded because they
-    have no AI row or no body (props like the Walking Mausoleum), and refusing them at generation is
-    the point.
+    Both spellings work and mean the same thing, so write whichever you have::
+
+        spawn_traps: [Basilisk, Runebear]     # a name -- case does not matter
+        spawn_traps: ["4150", "4630"]         # the same two models, by id
+
+    THE NAMED MODELS (35 of the 390):
+
+    Aging Untouchable, Alexander Warrior Jar, Asimi Silver Tear, Basilisk, Blaidd the Half-Wolf,
+    Boc the Seamster, Demi-Human Boc, Finger Reader Crone, Finger Reader Enia, Gatekeeper Gostoc,
+    Gurranq Beast Clergyman, Hornsent Grandam, Jar-Bairn, Latenna the Albinauric,
+    Malenia (Phase 1), Melina, Merchant Kale, Miriel Pastor of Vows, Pidia Carian Servant,
+    Primeval Sorcerer Azur, Primeval Sorcerer Lusat, Ranni the Witch,
+    Rennala Queen of the Full Moon, Runebear, Smithing Master Hewg, Smithing Master Iji,
+    Sorceress Sellen, St. Trina, Tanith's Knight, The Noble Goldmask, The Two Fingers,
+    Zorayas the Scout. (Six of these carry a comma in the game -- `Alexander,
+    Warrior Jar`. A comma separates values in yaml flow style and in the wizard box, so the
+    offered spelling drops it; both spellings resolve.)
+
+    THE OTHER 355 HAVE NO NAME TO TAKE, and that is the game's doing rather than an omission here:
+    Elden Ring never writes an enemy's name on screen, so outside `NpcName.fmg.xml` -- 31 of these
+    models -- there is no name in the data to use, and this project will not invent one. Those
+    models stay reachable by id, which is what they always were.
+
+    Empty by default, and inert unless `trap_count` is above zero. A name or id that is not
+    spawnable is a yaml ERROR naming its nearest matches, rather than an item that silently never
+    fires -- 26 models are excluded because they have no AI row or no body (props like the Walking
+    Mausoleum), and refusing them at generation is the point.
 
     Naming the same enemy here and in `traps` is harmless: it is one item either way.
+
+    🛑 THE ITEM IS STILL NAMED AFTER THE MODEL, not after what you typed: `Runebear` here mints
+    `Trap: c4630 x1`, because the item name is a cross-repo contract the client parses and writing a
+    name into the yaml must not move it. What you write is resolved to the model at generation and
+    goes no further -- which is the whole reason this cost no client release.
     """
     display_name = "Spawn Traps"
     # Strings, because a yaml list of bare ints is easy to write and an OptionSet keys on str.
-    # 🛑 `valid_keys` IS the validation. It is what turns `spawn_traps: [9999]` into a yaml error
-    # instead of a filler item that arrives in-game and does nothing forever.
-    valid_keys = frozenset(str(c) for c in SPAWN_TRAPS)
+    # The union of the three spellings a player can write: the model ids, the display names, and
+    # the curated `traps` keys (so `basilisk` means the same thing in either option).
+    #
+    # 🛑 THIS IS STILL THE MENU, NOT STILL THE VALIDATION. `verify` below resolves case-insensitively
+    # and reports near misses, so `_valid_keys` alone would reject `basilisk` typed as `Basilisk`.
+    # What this list is for is (a) the wizard's accepted-value list and the metadata dump, and
+    # (b) the corpus `verify` suggests out of. Every member of it resolves; see `_resolve_spawn`.
+    valid_keys = (frozenset(str(c) for c in SPAWN_TRAPS)
+                  | frozenset(yaml_name(n) for n in ENEMY_NAMES.values())
+                  | frozenset(SPAWN_TRAP_KEYS))
     default = frozenset()
-    #: WIZARD PRESENTATION: a text field, not 390 checkboxes.
+    #: WIZARD PRESENTATION: a text field, not 425 checkboxes.
     #:
     #: The wizard draws an OptionSet as one checkbox per `valid_keys` member, which is the right
     #: control when the keys are a MENU -- `traps` has four, `progression_surface` has a labelled
-    #: grid. These keys are a CATALOGUE: 390 bare model ids with no names on them, in numeric order,
-    #: none of which means anything to a player until they have looked it up somewhere else. There
-    #: is nothing to scan and nothing to compare, so the grid costs 390 rows of scrolling to express
-    #: the one thing anyone does with this option, which is paste the two or three ids they already
-    #: found. A text box is the smaller lie: it is shaped like the yaml and like the lookup.
+    #: grid. These keys are a CATALOGUE: 390 model ids in numeric order, only 35 of which have a
+    #: name on them, none of which means anything to a player until they have looked it up
+    #: somewhere else. There is nothing to scan and nothing to compare, so the grid costs 425 rows
+    #: of scrolling to express the one thing anyone does with this option, which is write the two
+    #: or three enemies they want.
     #:
-    #: 🛑 THIS IS PRESENTATION ONLY -- `valid_keys` above is still the validation, and the wizard
-    #: refuses an unrecognised id in the box rather than writing it into the yaml for Archipelago to
-    #: reject after the download. An option that renders as free text does not become free-form.
+    #: 🛑 THIS IS PRESENTATION ONLY -- the wizard refuses an unrecognised token in the box rather
+    #: than writing it into the yaml for Archipelago to reject after the download. An option that
+    #: renders as free text does not become free-form.
     wizard_free_text = True
+
+    def verify(self, world, player_name: str, plando_options) -> None:
+        """Every value must RESOLVE to a spawnable model -- by id, by name, or by curated key.
+
+        🛑 WHY NOT `verify_keys` (the inherited one). It is an exact, case-sensitive set membership
+        test, and this option now accepts three spellings of the same thing plus any casing of two
+        of them. `Basilisk` and `basilisk` are the same enemy and both have to work, which a
+        frozenset cannot express. What is NOT relaxed is the refusal: an unresolvable token is still
+        a generation-time error, because the alternative is a filler item that arrives in-game and
+        does nothing forever -- the exact failure this option was built to refuse.
+
+        ⭐ AND THE ERROR NAMES NEAR MISSES. SwiftyTaco's report (2026-08-26) was a player who could
+        not tell which of two options wanted words; `Allowed keys: frozenset({...425 items})` is not
+        an answer to that. A misspelling gets the three closest accepted values back.
+        """
+        bad = [v for v in self.value if _resolve_spawn(v) is None]
+        if bad:
+            raise OptionError("Player %s has invalid %s values: %s"
+                              % (player_name, self.display_name, "; ".join(_near(v) for v in bad)))
 
 
 class TrapCount(Range):
@@ -214,6 +323,81 @@ def _spawn_names():
 def _chosen(world, option: str) -> set:
     opt = getattr(world.options, option, None)
     return set(opt.value or ()) if opt is not None else set()
+
+
+def _build_name_index():
+    """folded spelling -> chr model id. Built once, deterministically, at import.
+
+    🛑 LOWEST MODEL ID WINS a name two models share -- Latenna (c3170/c6210), Smithing Master Hewg
+    (c3451/c6291) and Rennala (c2030/c2031) are one NPC with two bodies each. Written as an explicit
+    walk of `sorted(ENEMY_NAMES)` with `setdefault`, because dict order is insertion order and
+    "whichever the generator emitted first" is not a rule anybody can predict from the yaml.
+    `enemy_names.ENEMY_NAME_COLLISIONS` records the same six rows in the table itself.
+
+    The curated `traps` keys (`basilisk`, `malenia`, `aging_untouchable`) are indexed too, so a
+    player who found a name in the `traps` docs can write it here and get the enemy they asked for
+    instead of an unknown-key error.
+    """
+    idx = {}
+    for chr_id in sorted(ENEMY_NAMES):
+        name = ENEMY_NAMES[chr_id]
+        idx.setdefault(_fold(name), chr_id)
+        idx.setdefault(_fold(yaml_name(name)), chr_id)
+    for key in sorted(SPAWN_TRAP_KEYS):
+        idx.setdefault(_fold(key), SPAWN_TRAP_KEYS[key])
+    return idx
+
+
+#: folded spelling -> chr model id. Names AND curated keys; ids are handled arithmetically below.
+SPAWN_NAME_INDEX = _build_name_index()
+
+
+def _resolve_spawn(token: str) -> Optional[int]:
+    """One yaml value -> the chr model it names, or None if nothing in the catalogue answers to it.
+
+    Ids first and by VALUE, not by string: `4150`, `"4150"` and `" 4150 "` are the same model, and a
+    yaml that quotes its numbers (or does not) must not change the seed.
+    """
+    tok = str(token).strip()
+    if tok.isdigit():
+        return int(tok) if int(tok) in SPAWN_TRAPS else None
+    return SPAWN_NAME_INDEX.get(_fold(tok))
+
+
+def _near(token: str) -> str:
+    """`'basilsk' -- did you mean Basilisk?`. The message a player actually reads when they typo.
+
+    Suggestions come out of the NAMES only, never the 390 ids: `difflib` cheerfully answers "4150"
+    with "4151", which is a different creature and a confident wrong answer. A bad id gets told it
+    is not a spawnable model, which is the true statement about it.
+    """
+    tok = str(token).strip()
+    if tok.isdigit():
+        return ("%s is not a spawnable character model id -- 26 of the 416 models have no AI row "
+                "or no body and cannot be spawned" % tok)
+    near = difflib.get_close_matches(_fold(tok), list(SPAWN_NAME_INDEX), n=3, cutoff=0.6)
+    names = [yaml_name(ENEMY_NAMES.get(SPAWN_NAME_INDEX[k], k)) for k in near]
+    if names:
+        return "%r -- did you mean %s?" % (tok, ", ".join(sorted(set(names))))
+    return ("%r is not an enemy name this option knows and is not a model id; only 35 of the 390 "
+            "spawnable models have a name, the rest are written as their id" % tok)
+
+
+def spawn_trap_models(world) -> Set[int]:
+    """The `spawn_traps` option resolved to MODEL IDS.
+
+    🛑 THIS IS THE WHOLE CONTRACT ARGUMENT IN ONE FUNCTION. Names are a yaml-side convenience that
+    dies here: everything downstream -- `spawn_item_name`, the minted item, `slot_data`, the client's
+    parser -- sees the id it always saw, so accepting names moved `CONTRACT_HASH` by nothing and
+    needs no client release. Translating at generation is what buys that; carrying the name any
+    further would not.
+    """
+    out = set()
+    for tok in _chosen(world, "spawn_traps"):
+        chr_id = _resolve_spawn(tok)
+        if chr_id is not None:
+            out.add(chr_id)
+    return out
 
 
 def enabled_traps(world) -> List[str]:
@@ -245,9 +429,9 @@ def enabled_trap_names(world) -> List[str]:
     for k in sorted(SPAWN_TRAP_KEYS):
         if k in chosen:
             names.append(spawn_item_name(SPAWN_TRAP_KEYS[k]))
-    raw = _chosen(world, "spawn_traps")
+    raw = spawn_trap_models(world)
     for c in sorted(SPAWN_TRAPS):
-        if str(c) in raw:
+        if c in raw:
             names.append(spawn_item_name(c))
     return list(dict.fromkeys(names))
 
