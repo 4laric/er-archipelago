@@ -89,14 +89,42 @@ class QuestlineModelGate(unittest.TestCase):
             self.tool.validate(unpinned, world)
 
     def test_fortissax_arena_hole_is_now_visible_but_not_laundered_into_the_machine_dag(self):
+        """The hole is now covered from TWO directions, and neither may be relabelled as the other.
+
+        UPDATED 2026-08-27 (#1085), and the premise changed on purpose. This used to assert that
+        NO game_data row targets f510110, on the grounds that an AWARD-SITE corpus cannot prove
+        arena existence. That grounds is intact and is still asserted -- but questline_dag.tsv now
+        carries a fourth corpus, `questline_conditions`, which is NOT an award-site pairing: it
+        resolves the remembrance award's own guard cone per branch, through the setters. So there
+        ARE game-derived rows here now, and the thing the test actually protects -- that the
+        revision-pinned CC-wiki claim is not relabelled as game-derived, and that the award-site
+        corpora do not start claiming to see what they cannot -- is asserted directly instead of
+        via a blanket emptiness that a widening was always going to break.
+        """
         cc_pair = [r for r in self.cc
                    if r["source_node"] == "flag:400392" and r["target_node"] == "flag:510110"]
         self.assertEqual(len(cc_pair), 1)
         self.assertEqual(cc_pair[0]["relation"], "requires")
+        self.assertEqual(cc_pair[0]["evidence_kind"], "cc_wiki",
+                         "the CC-wiki Fortissax claim must keep its own attribution")
         machine = [r for r in self.rows
                    if r["target_node"] == "flag:510110" and r["evidence_kind"] == "game_data"]
-        self.assertEqual(machine, [], "the award-site corpus still cannot prove arena existence; "
-                                     "do not relabel CC evidence as game-derived")
+        award_site = [r for r in machine
+                      if r["evidence_origin"] in ("lot_gates", "esd_gifts", "treasure_enablers")]
+        self.assertEqual(award_site, [],
+                         "an AWARD-SITE corpus has started claiming f510110; it cannot prove arena "
+                         "existence, so this is an artefact leaking through -- and it must never "
+                         "be CC evidence relabelled as game-derived")
+        extractor = [r for r in machine if r["evidence_origin"] == "questline_conditions"]
+        self.assertTrue(extractor,
+                        "the #1085 cone corpus no longer reaches f510110. That is the widening "
+                        "this test was rewritten for; if it is gone, find out why before "
+                        "restoring the old blanket assertion.")
+        # ...and it must still be reported as EVIDENCE with no claimed grouping: a cone unions the
+        # arms of a disjunction, so nothing here licenses an access rule.
+        self.assertEqual({r["group_semantics"] for r in extractor}, {"unknown"},
+                         "an extractor group claimed a semantics; a cone is an over-approximation")
+        self.assertEqual({r["relation"] for r in extractor}, {"requires"})
 
     def test_metyr_requires_both_bell_states_in_one_all_group(self):
         rows = [r for r in self.cc if r["target_node"] == "flag:510550"]

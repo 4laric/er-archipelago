@@ -53,8 +53,12 @@ space from event flags. The generated `questline_model.tsv` compilation and the 
 section of the DAG page are CC BY-SA 4.0.
 
 This exception cannot silently become game logic: the keeper test scans the runtime package and
-fails if a non-test world module imports or names the evidence model. The original flag-only
-`questline_dag.tsv` remains derived solely from vanilla data.
+fails if a non-test world module imports or names the evidence model. `questline_dag.tsv` remains
+derived solely from vanilla data — including the fourth corpus added by #1085,
+`greenfield/questline_conditions.tsv`, which `tools/extract_questline_conditions.py` derives from
+the decompiled EMEVD and talk ESD of a legitimately owned installation. It carries flag ids, goods
+param ids, map ids and event/state citations; no game asset, no decompiled source and no foreign
+randomizer list enters the repo with it.
 
 Elden Ring and Shadow of the Erdtree are property of FromSoftware / Bandai Namco. This is an
 unaffiliated fan project.

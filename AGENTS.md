@@ -665,7 +665,18 @@ DAG. Mermaid is fetched from a CDN at VIEW time, so the build is offline-safe an
 Both ride `tools/regen_all.py`. `tests/test_gf_questline_dag.py` gates the **tsv** (corroboration,
 the SPEC §7 acceptance cases, freshness); `test_gf_regen_all.py` is what keeps the **page** from
 falling out of the chain. 🛑 An edge is co-occurrence plus a polarity rule, not proof;
-`sense=unknown` (108 of 280) must not be reasoned with, and absence is not evidence of safety.
+`sense=unknown` must not be reasoned with, and absence is not evidence of safety.
+
+🛑 **A FOURTH CORPUS SINCE #1085, AND IT IS A HAND EMIT.** `greenfield/questline_conditions.tsv` is
+produced by `tools/extract_questline_conditions.py --dag-corpus` from the decompiled EMEVD + talk
+ESD (`python3 tools/gen_inputs.py --ensure elden_ring_artifacts`). Those artifacts are
+licensing-restricted and absent from CI, so **no job re-emits this table** — same footing as
+`greenfield/flag_names.tsv` and `--verify-commonarg` (§5). Re-run
+`tools/extract_questline_conditions_fixtures.py` (nine acceptance fixtures, F1 = Fortissax) before
+committing a new emit. The DAG builder treats the table as ABSENT-OK and says so in its header;
+`test_gf_questline_dag.py` floors its edge count so an absent one cannot read as a clean tier-1 run.
+The page does **not** draw those edges — a cone corpus collapses the graph into one unreadable
+component — and says so in its banner with the count. See SPEC-questline-dag §9c.
 
 ### REGION SECOND OPINION — adjudicating the `(region unconfirmed)` checks
 

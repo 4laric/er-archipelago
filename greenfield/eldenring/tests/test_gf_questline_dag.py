@@ -14,12 +14,19 @@ derived corpus lies:
      TABLE -- not against the tool's in-memory output, because a hand-edited tsv is exactly the
      failure a tool-only assertion cannot see.
 
-     🛑 Including the NEGATIVE one. f510110 (Fortissax) MUST BE ABSENT. Every corpus feeding this
-     graph reads an AWARD SITE, and what Fia's questline gates is whether the FIGHT EXISTS -- so
-     the case the whole spec was written from is invisible here by construction. Asserting the
-     absence is how "the graph is populated" stops being read as "the class is covered". If a
-     future widening makes it appear, this test goes red and the right response is to READ the new
-     edge, not to delete the assertion.
+     🛑 Including the one that used to be a pure NEGATIVE. f510110 (Fortissax) was asserted ABSENT
+     because every corpus feeding this graph read an AWARD SITE, and what Fia's questline gates is
+     whether the FIGHT EXISTS. The instruction attached to that assertion was: if a future widening
+     makes it appear, READ the new edge, do not delete the assertion. #1085 is that widening -- the
+     questline-condition extractor resolves the award's own guard cone, per branch, through the
+     setters -- so the assertion was REWRITTEN to hold BOTH halves:
+        (a) f510110 is STILL absent from the three award-site corpora. The blind spot is unchanged
+            and is still what stops "the graph is populated" being read as "the class is covered".
+        (b) f510110 IS present via `questline_conditions`, with its derived ancestry asserted by
+            name (Deeproot map access, Champions f12030800, the Cursemark goods-8191 chain).
+     The premise changed deliberately, and this is the motivating case standing as the acceptance
+     test (CONTRIBUTING rule 11): the test below FAILS on main, because on main there is no
+     extractor corpus and half (b) has nothing to find.
 
   C. NO DRIFT between this table's region column and the OTHER copy of the region resolver, in
      test_gf_lot_gates_cross_region. Two implementations of one join is a smell; two
@@ -33,8 +40,9 @@ WHAT THIS GATE DELIBERATELY DOES NOT ASSERT
     same-region gates that the region lock already covers, and demanding 100% would force tags
     that buy nothing.
   * It does NOT demand zero unprotected cross-region edges. `test_gf_lot_gates_cross_region` owns
-    that bar for the lot_gates corpus and holds it at zero. This table adds two corpora that screen
-    has never read, and they surface candidates whose polarity/geometry a HUMAN has to rule on --
+    that bar for the lot_gates corpus and holds it at zero. This table adds three corpora that
+    screen has never read, and they surface candidates whose polarity/geometry a HUMAN has to rule
+    on --
     see `test_new_corpora_candidates_are_reported_not_silently_passed`, which makes them loud on a
     green run instead of asserting a verdict nobody has earned yet.
 
@@ -72,11 +80,23 @@ TABLE = os.path.join(GREENFIELD, "questline_dag.tsv")
 # missable tag. The floor sits below that with room for honest movement, and it is a RATCHET: a run
 # that comes in under it means the graph has stopped agreeing with the hand audits, which is a
 # broken join, not a discovery. Raising it is fine; LOWERING it needs the reason written down.
+#
+# 🛑 IT IS HELD ON A POPULATION, AND THE POPULATION IS THE THREE AWARD-SITE CORPORA -- unchanged by
+# #1085. The extractor corpus added in #1085 has a different reach (it resolves the guard cone of
+# EVERY award site, not only the ones an NPC hands over), so blending it in would move this ratio
+# for a reason that has nothing to do with the joins the ratchet watches, and "the number changed
+# because the population changed" is not a measurement. The extractor's own corroboration is
+# REPORTED separately below and floored separately, lower and on purpose: 10% measured 2026-08-27.
+AWARD_SITE_TOOLS = ("lot_gates", "esd_gifts", "treasure_enablers")
 CORROBORATION_FLOOR_PCT = 50
+EXTRACTOR_CORROBORATION_FLOOR_PCT = 5
 # Same argument, opposite direction: a graph that shrinks has gone blind. 283 edges / 154 targets
-# on 2026-07-28.
+# on 2026-07-28 (award-site corpora); 1513 edges / 441 targets on 2026-08-27 (extractor corpus).
+# Per corpus, because a total would let one corpus go dark while another grew.
 MIN_EDGES = 200
 MIN_TARGETS = 120
+MIN_EXTRACTOR_EDGES = 1000
+MIN_EXTRACTOR_TARGETS = 300
 
 
 def _load_tool():
@@ -107,15 +127,27 @@ class QuestlineDagGate(unittest.TestCase):
 
     # -- A. the table is a table -------------------------------------------
     def test_committed_table_is_not_empty(self):
-        # An empty result is a FAILURE, not a clean run (CONTRIBUTING rule 2).
+        # An empty result is a FAILURE, not a clean run (CONTRIBUTING rule 2). Floored PER CORPUS:
+        # a total floor stays green while one producer goes dark and another grows past it.
+        award = [r for r in self.rows if r["tool"] in AWARD_SITE_TOOLS]
         self.assertGreaterEqual(
-            len(self.rows), MIN_EDGES,
-            "questline_dag.tsv holds %d edges; %d were derived on 2026-07-28. A SHRINK means a "
+            len(award), MIN_EDGES,
+            "the AWARD-SITE corpora hold %d edges; %d were derived on 2026-07-28. A SHRINK means a "
             "producer went blind -- find out which corpus stopped joining before touching this "
-            "number." % (len(self.rows), MIN_EDGES))
-        targets = {r["target_flag"] for r in self.rows}
+            "number." % (len(award), MIN_EDGES))
+        targets = {r["target_flag"] for r in award}
         self.assertGreaterEqual(len(targets), MIN_TARGETS,
-                                "only %d distinct target checks" % len(targets))
+                                "only %d distinct award-site target checks" % len(targets))
+        ext = [r for r in self.rows if r["tool"] == "questline_conditions"]
+        self.assertGreaterEqual(
+            len(ext), MIN_EXTRACTOR_EDGES,
+            "the #1085 extractor corpus contributes %d edges; 1513 were derived 2026-08-27. If "
+            "greenfield/questline_conditions.tsv went missing this is where you find out -- the "
+            "table is a HAND EMIT (licensing-restricted artifacts, absent from CI), so an empty "
+            "one reads as a clean tier-1 run unless something floors it." % len(ext))
+        self.assertGreaterEqual(len({r["target_flag"] for r in ext}), MIN_EXTRACTOR_TARGETS,
+                                "only %d distinct extractor target checks"
+                                % len({r["target_flag"] for r in ext}))
 
     def test_every_sense_is_one_of_the_three_and_unknown_carries_a_basis(self):
         senses = {r["sense"] for r in self.rows}
@@ -241,23 +273,63 @@ class QuestlineDagGate(unittest.TestCase):
 
     # -- B. corroboration (SPEC §6 tier 2) ---------------------------------
     def test_the_graph_refinds_what_the_hand_audits_found(self):
+        """The ratchet, on the population it was measured over: the three AWARD-SITE corpora.
+
+        #1085 added a fourth corpus. Its targets are NOT added to this ratio -- see the note on
+        CORROBORATION_FLOOR_PCT. Its own ratio is asserted immediately below, against its own
+        floor, so the new corpus is measured rather than hidden behind the old one's number.
+        """
         world = self.notes["world"]
-        targets = {int(r["target_flag"]) for r in self.rows}
+        award = [r for r in self.rows if r["tool"] in AWARD_SITE_TOOLS]
+        self.assertTrue(award, "no award-site rows at all -- the ratchet would run BLIND")
+        targets = {int(r["target_flag"]) for r in award}
         tagged = {f for f in targets if world.flag_ap.get(f) in world.missable}
         pct = round(100.0 * len(tagged) / max(1, len(targets)))
         self.assertGreaterEqual(
             pct, CORROBORATION_FLOOR_PCT,
-            "only %d%% (%d/%d) of the graph's target checks are already missable-tagged; %d%% is the "
+            "only %d%% (%d/%d) of the AWARD-SITE corpora's target checks are already "
+            "missable-tagged; %d%% is the "
             "floor and 64%% was measured on 2026-07-28. The overlap with a year of hand audits is "
             "the ONLY evidence these edges are real rather than a corpus dumped into a tsv -- a "
             "collapse here means the flag/lot joins broke, not that the game changed."
             % (pct, len(tagged), len(targets), CORROBORATION_FLOOR_PCT))
-        warnings.warn("[questline-dag] corroboration %d%% (%d/%d targets already missable-tagged); "
-                      "%d edges, senses set/clear/unknown = %d/%d/%d"
-                      % (pct, len(tagged), len(targets), len(self.rows),
-                         sum(1 for r in self.rows if r["sense"] == "set"),
-                         sum(1 for r in self.rows if r["sense"] == "clear"),
-                         sum(1 for r in self.rows if r["sense"] == "unknown")), stacklevel=2)
+        warnings.warn("[questline-dag] award-site corroboration %d%% (%d/%d targets already "
+                      "missable-tagged); %d edges, senses set/clear/unknown = %d/%d/%d"
+                      % (pct, len(tagged), len(targets), len(award),
+                         sum(1 for r in award if r["sense"] == "set"),
+                         sum(1 for r in award if r["sense"] == "clear"),
+                         sum(1 for r in award if r["sense"] == "unknown")), stacklevel=2)
+
+    def test_the_extractor_corpus_corroborates_separately_and_says_by_how_much(self):
+        """#1085's corpus, measured on its own terms. A LOWER floor, argued rather than inherited.
+
+        The extractor resolves the guard cone of EVERY award site in the EMEVD/ESD corpus, so its
+        targets are mostly ordinary chest/enemy checks whose cone happens to be readable -- not the
+        NPC handovers a missable audit concentrates on. Expecting the award-site corpora's 54%%
+        here would be expecting a different population to behave like this one; expecting NOTHING
+        would let a broken flag/lot join through unnoticed. So: floored low, and REPORTED, which is
+        what makes a movement in it visible to a human.
+        """
+        world = self.notes["world"]
+        ext = [r for r in self.rows if r["tool"] == "questline_conditions"]
+        self.assertTrue(ext, "greenfield/questline_conditions.tsv contributed NO edges -- the "
+                             "corpus is absent or stopped joining; an absent hand-emitted table "
+                             "must not read as a clean run.")
+        targets = {int(r["target_flag"]) for r in ext}
+        tagged = {f for f in targets if world.flag_ap.get(f) in world.missable}
+        pct = round(100.0 * len(tagged) / max(1, len(targets)))
+        self.assertGreaterEqual(
+            pct, EXTRACTOR_CORROBORATION_FLOOR_PCT,
+            "the #1085 extractor corpus corroborates only %d%% (%d/%d) of its target checks against "
+            "the missable tag set; %d%% is the floor and 10%% was measured 2026-08-27. A collapse "
+            "here is a broken lot->flag join in the extractor, not a discovery."
+            % (pct, len(tagged), len(targets), EXTRACTOR_CORROBORATION_FLOOR_PCT))
+        warnings.warn("[questline-dag] #1085 extractor corpus: %d edges over %d targets, "
+                      "corroboration %d%% (%d already missable-tagged); source placed for %d of "
+                      "them (%d unplaced)"
+                      % (len(ext), len(targets), pct, len(tagged),
+                         sum(1 for r in ext if r["source_locator"]),
+                         sum(1 for r in ext if not r["source_locator"])), stacklevel=2)
 
     # -- C. the acceptance cases, from the COMMITTED table ------------------
     def test_acceptance_cases_survive_the_whole_pipeline(self):
@@ -268,14 +340,85 @@ class QuestlineDagGate(unittest.TestCase):
             self.assertTrue(ok, "ACCEPTANCE LOST: %s -- %s\nThe pipeline no longer reports a case it "
                                 "was built for. Fix the derivation, never the fixture." % (label, detail))
 
-    def test_fortissax_is_absent_and_that_absence_is_the_point(self):
-        """The negative fixture, spelled out because it is the easiest one to delete by accident."""
-        self.assertNotIn(
-            "510110", {r["target_flag"] for r in self.rows},
-            "f510110 (Fortissax) has APPEARED in questline_dag.tsv. That is a real finding, not a "
-            "failure to paper over: an award-site corpus is not supposed to be able to see an "
-            "arena-existence gate (SPEC §5). READ the new edge and its evidence, decide whether the "
-            "widening is sound, and only then move this assertion.")
+    def test_fortissax_is_absent_from_the_award_site_corpora_and_present_via_the_extractor(self):
+        """The fixture that WAS `assertNotIn(510110)`, rewritten when the widening arrived.
+
+        This is the motivating case of #1085 standing as its acceptance test (CONTRIBUTING rule
+        11), and it is the test that would FAIL without the change: on main, half (b) finds nothing.
+        Both halves are asserted, because deleting half (a) would quietly convert a documented blind
+        spot into a covered one -- the exact misreading SPEC §5 and §9a were written to prevent.
+        """
+        fort = [r for r in self.rows if r["target_flag"] == "510110"]
+        # (a) THE BLIND SPOT IS UNCHANGED. An award-site corpus pairs a flag test with an award in
+        #     the same event; a gate on whether the FIGHT EXISTS leaves it no trace. If one of the
+        #     three ever starts claiming to see this, that is a defect in that corpus, not progress.
+        self.assertFalse(
+            [r for r in fort if r["tool"] in AWARD_SITE_TOOLS],
+            "an AWARD-SITE corpus has started emitting f510110 (Fortissax). It cannot see an "
+            "arena-existence gate (SPEC §5), so this is a cross-product artefact leaking through, "
+            "not a discovery: %s" % [(r["tool"], r["source_flag"], r["basis"]) for r in fort
+                                     if r["tool"] in AWARD_SITE_TOOLS])
+        # (b) AND THE WIDENING IS REAL. The #1085 cone extractor is not an award-site pairing: it
+        #     resolves the remembrance award's own guard cone. The ancestry is asserted BY NAME so
+        #     that a collapse of the cone walk (a budget exhausted in the wrong subtree, the
+        #     talk-list menu gate going back to a per-file OR) fails HERE instead of silently
+        #     restoring the old, comfortable absence.
+        sources = {r["source_flag"] for r in fort if r["tool"] == "questline_conditions"}
+        for want, why in (("map:m12_03", "Deeproot Depths must be REACHABLE -- the arena is in it"),
+                          ("12030800", "Champions defeat: the band edge 4127 && 12030800 -> 4128 "
+                                       "(common.emevd.dcx.js $Event(4139))"),
+                          ("goods:8191", "the Cursemark of Death chain: t322001203_x41:914 sets "
+                                         "f12039161 right after consuming goods 8191 at :913")):
+            self.assertIn(want, sources,
+                          "f510110's derived ancestry lost %s -- %s. The cone walk has gone "
+                          "shallow; read the extractor's report before touching this list. "
+                          "sources seen: %d" % (want, why, len(sources)))
+
+    def test_the_phase1_self_gate_retractions_stay_retracted(self):
+        """The path-scoped consumption rule, asserted where it can actually fail.
+
+        Phase 1 of the extractor minted three prerequisites that phase 2 RETRACTED, each because
+        the sharper slicing showed the root was a SELF-GATE -- a flag the awarding branch sets
+        ITSELF, which is bookkeeping ("not already taken"), never a requirement:
+
+          f400020 (Neutralizing Boluses, `talk/.../t304001000.py` machine `_x43`) carried
+            DIALOGUE_STEP(f10009308) and DIALOGUE_STEP(f10009336); both are set BY that branch at
+            :696 and :716. What survives is the goods 8100 it consumes at :711 -- and that survives
+            only because consumption is now PATH-scoped (the consumption's guard stack must be
+            contained in the statement's), which is also what keeps it off the entry-2 arm.
+          f400041 (Perfume Bottle, `t800906000.py` `_x99`) carried DIALOGUE_STEP(f1043379223), a
+            flag that occurs ONLY negated (`... and not GetEventFlag(1043379223)` at :1415) and is
+            set at :1434, one line above the award at :1436.
+
+        A DENYLIST would make this test pass while the rule that produced the retraction rotted --
+        it would assert the symptom. So there is no denylist: the rule is ported (it lives in
+        `path_consumes`/`consume_reqs` and in the per-branch `else` negation in `esd_ast.py`), and
+        this asserts the rule's OUTPUT on the corpus, where a regression in the slicer shows up.
+        """
+        path = os.path.join(GREENFIELD, "questline_conditions.tsv")
+        if not os.path.isfile(path):
+            self.skipTest("greenfield/questline_conditions.tsv absent (hand emit)")
+        with open(path, encoding="utf-8-sig", newline="") as fh:
+            corpus = list(csv.DictReader(
+                (ln for ln in fh if not ln.lstrip().startswith("#")), delimiter="\t"))
+        self.assertTrue(corpus, "the extractor corpus parsed to ZERO rows")
+        for target, bad, why in (("400020", "10009308", "set by the awarding branch at :696"),
+                                 ("400020", "10009336", "set by the awarding branch at :716"),
+                                 ("400041", "1043379223", "occurs only NEGATED at :1415, set at "
+                                                          ":1434, one line above the award")):
+            hits = [r for r in corpus
+                    if r["target_flag"] == target and r["source_id"] == bad
+                    and r["source_kind"] == "flag"]
+            self.assertFalse(hits, "f%s has regrown the phase-1 self-gate root f%s (%s). The "
+                                   "per-branch slicing or the path-scoped consumption rule has "
+                                   "regressed -- fix the slicer, do not filter the row."
+                                   % (target, bad, why))
+        # ...and the requirement the retraction was careful to KEEP must still be there, or this
+        # test would pass just as well against an extractor that had gone blind entirely.
+        self.assertTrue([r for r in corpus if r["target_flag"] == "400020"
+                         and r["source_kind"] == "goods" and r["source_id"] == "8100"],
+                        "f400020 lost ITEM_POSSESSION(goods 8100) -- the retraction dropped the "
+                        "self-gates and KEPT the consumption; losing both is not the same result.")
 
     # -- D. no drift with the other copy of the region resolver -------------
     def test_interior_source_regions_agree_with_the_independent_grace_oracle(self):
@@ -365,7 +508,7 @@ class QuestlineDagGate(unittest.TestCase):
         """
         world = self.notes["world"]
         news = [r for r in self.rows
-                if r["tool"] != "lot_gates" and r["cross_region"] == "yes"
+                if r["tool"] in ("esd_gifts", "treasure_enablers") and r["cross_region"] == "yes"
                 and r["sense"] == "set"
                 and world.flag_ap.get(int(r["target_flag"])) not in world.missable]
         # ADJUDICATED 2026-07-28 by the live-game oracle (Alaric), which is the only thing that can
@@ -389,6 +532,26 @@ class QuestlineDagGate(unittest.TestCase):
                     "f%s [%s] <- f%s [%s] via %s (%s)"
                     % (r["target_flag"], r["target_region"], r["source_flag"],
                        r["source_region"], r["tool"], r["basis"]) for r in news)), stacklevel=2)
+        # #1085's corpus is reported as a POPULATION, not row by row: it contributes hundreds of
+        # such candidates, and a 300-line warning is a wall nobody reads, which is the same as no
+        # warning. It is also INERT by construction -- every extractor group carries
+        # `group_semantics=unknown`, and this table's rule is that a consumer may act on `any`/`all`
+        # only -- so no candidate here can become a rule without a human first proving the grouping.
+        # What IS actionable is the shape of the population, so it is bucketed by target region.
+        ext = [r for r in self.rows
+               if r["tool"] == "questline_conditions" and r["cross_region"] == "yes"
+               and r["sense"] == "set"
+               and world.flag_ap.get(int(r["target_flag"])) not in world.missable]
+        if ext:
+            buckets = collections.Counter(r["target_region"] or "(unplaced)" for r in ext)
+            warnings.warn(
+                "[questline-dag] #1085 extractor corpus: %d unprotected cross-region PREREQUISITE "
+                "candidate(s) over %d target check(s). NONE is a verdict -- a cone unions the arms "
+                "of a disjunction, so these are an OVER-approximation, and every one of them "
+                "carries group_semantics=unknown. By target region: %s"
+                % (len(ext), len({r["target_flag"] for r in ext}),
+                   ", ".join("%s %d" % kv for kv in sorted(buckets.items()))), stacklevel=2)
+
         # The lot_gates half stays at zero -- that bar is already held by the other screen, and a
         # regression there must fail HERE too rather than depend on which suite ran.
         old = [r for r in self.rows

@@ -389,3 +389,65 @@ would have known which.
 the enabling event each gate governs would convert the largest remaining `unknown` population into
 real polarity — and it is the same call-site resolution that took `lot_gates` from ~1% of the corpus
 to 617 pairs.
+
+## 9c. The fourth corpus — the #1085 condition extractor (2026-08-27)
+
+Tier 1's three producers are **award-site** corpora: each pairs a flag test with an award in the
+same event. §9a names the three things that cost, and this addendum records which two are now paid
+and which one is not.
+
+`tools/extract_questline_conditions.py` (issue #1085, phase 2) resolves the guard cone of an award
+**per branch** — `else` arms negated, talk-list menu entries carrying the condition they were
+registered under, item consumption scoped to the PATH — down to roots with the **setter cited**.
+`--dag-corpus` emits `greenfield/questline_conditions.tsv`, one row per (award site, root), and
+`build_questline_dag.py` reads it as producer 4 under `tool=questline_conditions`.
+
+**GAP (a), `source_locator`: partly paid, and only partly.** The extractor walks THROUGH the setter,
+so a root arrives with the file/event that writes it — a locator by construction, and a stronger one
+than `test_map` (where a flag MATTERS) could ever be. It does not close the gap: a setter in
+`common.emevd` names no map, so 812 of the corpus's 1513 edges are still unplaced. The three
+award-site corpora are **unchanged**: still 120 unplaced of 300.
+
+**GAP (c), f510110: the premise changed, deliberately.** §9a said Fortissax is "asserted **ABSENT**
+so that a populated graph is never read as a covered one… if a future widening makes it appear, the
+test goes red on purpose: read the edge, do not delete the assertion." That is what happened. The
+assertion was **rewritten to hold both halves** rather than deleted:
+
+* f510110 is **still absent from every award-site corpus** — the blind spot of §5 is unchanged, and
+  an award-site corpus that started claiming it would be a defect, not progress;
+* f510110 **is present via the extractor**, with `map:m12_03` (Deeproot), `BOSS_KILL(f12030800)`
+  (Champions; the band edge `4127 && 12030800 -> 4128` is `common.emevd.dcx.js $Event(4139)`) and
+  `goods:8191` (Cursemark of Death — `t322001203_x41` sets f12039161 immediately after
+  `PlayerEquipmentQuantityChange(ItemType.Goods, 8191, -1)` at `t322001203.py:913`) among its 59
+  sources.
+
+**GAP (b), the `unknown` polarity population: untouched.** The extractor emits `set` only. It
+resolves no IRREVERSIBLE-arm root at all, so there is no exclusive alternative to read an EXCLUSION
+off, and minting `clear` from negated guards would be a guess ("keep this OFF" is a self-gate far
+more often than a questline branch). The 125 `unknown` edges are still the three award-site corpora's.
+
+### What the fourth corpus is NOT allowed to claim
+
+1. **`group_semantics` is always `unknown`.** A cone unions the arms of a disjunction, and a
+   disjunction met further down a setter chain is not even marked — so a site's roots are neither
+   proven alternatives nor a proven conjunction. Under this table's own rule (*a consumer may act on
+   `any`/`all` only*), **every extractor edge is inert as a rule**. It is a locator and a lead.
+2. **An unreadable cone is refused wholesale.** `cone_completeness=unreadable` — a guard that could
+   not be read at all (`UNSET_FLAG`, `MANY_SETTERS`, `WORKVALUE_UNRESOLVED`, an unrecognised
+   predicate) — drops the site: 4539 rows refused and counted. Only `complete` and `budget_capped`
+   are admitted, because a cone that merely stopped WALKING can miss a prerequisite, never invent
+   one, while a cone with an unread guard cannot vouch for the roots beside it.
+3. **The corroboration ratchet is not blended.** The floor stays on the award-site population, whose
+   number did not move (54%, 88/164). The extractor corpus is measured separately — 10% (45/441),
+   floored separately at 5% — because it reaches every readable award site, not only the NPC
+   handovers a missable audit concentrates on, and a ratio over a different population is not the
+   same measurement wearing a bigger N.
+
+Non-flag roots enter as **namespaced** sources (`goods:8191`, `map:m12_03`) with
+`source_kind=item` / `map_access`: a goods param id is a different id space from an event flag and
+must not be read as one.
+
+The three phase-1 claims phase 2 **retracted** (f400020's f10009308/f10009336, f400041's
+f1043379223 — all self-gates set by the awarding branch itself) are kept out by the **rule** that
+retracted them (path-scoped consumption + per-branch `else` negation), not by a denylist: a denylist
+would assert the symptom and let the rule rot.

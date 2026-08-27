@@ -16,6 +16,7 @@ import argparse
 import csv
 import io
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -75,9 +76,18 @@ def build():
 
     rows = []
     for edge in machine:
+        # 🛑 THE NODE ID SPACE IS TYPED, AND #1085 ADDED TWO MORE SPACES TO IT. The extractor corpus
+        # emits sources that are NOT event flags: a possession requirement (`goods:8191`) and a map
+        # you must be able to reach (`map:m12_03`). They arrive already namespaced from
+        # questline_dag.tsv and are passed through UNCHANGED -- coercing them into `flag:` would
+        # collide a goods id with an event flag of the same number, which is the id-space confusion
+        # this file's typed nodes exist to prevent (CONTRIBUTING rule 3). `_flag_id()` already
+        # returns None for a node it cannot read as a flag, so every flag-only consumer skips them.
+        source_node = ("flag:%s" % edge["source_flag"] if isinstance(edge["source_flag"], int)
+                       else str(edge["source_flag"]))
         rows.append({
-            "source_node": "flag:%d" % edge["source_flag"],
-            "target_node": "flag:%d" % edge["target_flag"],
+            "source_node": source_node,
+            "target_node": "flag:%s" % edge["target_flag"],
             "relation": RELATION[edge["sense"]],
             "group_id": "game:%s" % edge["alt_group"],
             "group_semantics": edge["group_semantics"],
@@ -90,7 +100,8 @@ def build():
             "source_region": edge["source_region"],
             "target_region": edge["target_region"],
             "claim": edge["evidence"],
-            "source_game_ref": "event_flag:%d" % edge["source_flag"],
+            "source_game_ref": ("event_flag:%s" % edge["source_flag"]
+                                if isinstance(edge["source_flag"], int) else source_node),
             "id_evidence": "questline_dag.tsv:%s" % edge["tool"],
             "source_page": "",
             "source_page_id": "",
@@ -160,6 +171,20 @@ def validate(rows, world):
                 sys.exit("FATAL: item node is not in the generated item catalog: %s" % name)
             if not row["source_game_ref"].startswith("goods:"):
                 sys.exit("FATAL: item node %s lacks a typed goods: game reference" % name)
+        elif row["source_node"].startswith("goods:"):
+            # #1085. A GOODS PARAM ID, and deliberately NOT an `item:` node: `item:` names a row in
+            # the generated AP catalog, this names a `goodsType` param id straight out of the game's
+            # possession test (`ComparePlayerInventoryNumber(ItemType.Goods, 8191, ...)`). The two
+            # are different id spaces and the mapping between them is a join this file does not do,
+            # so it says which one it has rather than guessing the other.
+            if not row["source_node"].split(":", 1)[1].isdigit():
+                sys.exit("FATAL: malformed goods node: %s" % row["source_node"])
+        elif row["source_node"].startswith("map:"):
+            # #1085. A MAP the player must be able to REACH (`MAP_ACCESS(m12_03)`), which is the
+            # root that finally puts Deeproot Depths under f510110. Shape-checked only: whether
+            # that map is reachable is a world question, and this table states evidence.
+            if not re.match(r"^m\d\d_\d\d$", row["source_node"].split(":", 1)[1]):
+                sys.exit("FATAL: malformed map node: %s" % row["source_node"])
         else:
             sys.exit("FATAL: unknown source node type: %s" % row["source_node"])
         if row["evidence_kind"] == "cc_wiki":

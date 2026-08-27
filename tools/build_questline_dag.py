@@ -141,6 +141,51 @@ decode, then setter map, then common-event call-site map, then (weakest) the tes
 test is the keeper for the region half; `test_gf_questline_dag.py` asserts this tool AGREES with it
 on the overlapping rows, so the two copies cannot drift silently.
 
+THE FOURTH CORPUS: `questline_conditions.tsv` (#1085, added 2026-08-27)
+----------------------------------------------------------------------
+The three corpora above all read an AWARD SITE and pair a flag test with an award in the same
+event. §9a of the spec records exactly what that cost, and this corpus is aimed at two of those
+three recorded gaps:
+
+  * **the source_locator gap** -- 117 of 283 tier-1 edges placed their source NOWHERE. The
+    extractor walks the cone THROUGH the setter, so every root it emits arrives with the
+    `file:event` (or `talk/<file>:<machine>`) that SET it. That is a locator by construction, and
+    it is the strongest kind: the map whose EMEVD/ESD actually writes the flag.
+  * **the f510110 gap** -- Fortissax was asserted ABSENT because an award-site corpus cannot see a
+    gate on whether the FIGHT EXISTS. This one is not an award-site pairing: it resolves the guard
+    cone of the remembrance award itself, per branch, so `MAP_ACCESS(m12_03)`,
+    `BOSS_KILL(f12030800)` (Champions) and `ITEM_POSSESSION(goods 8191)` (Cursemark of Death)
+    arrive as roots. **f510110 IS IN THE TABLE NOW**, and the acceptance case that used to assert
+    its absence has been REWRITTEN rather than deleted: it now asserts BOTH halves -- still absent
+    from the three award-site corpora (the blind spot is unchanged), present via this one.
+    SPEC §9a's "if a future widening makes it appear, read the edge, do not delete the assertion"
+    is the instruction being followed, deliberately, and the premise change is the point of the
+    change (CONTRIBUTING: a PREMISE change is not a NUMBER change).
+
+WHAT IT IS NOT ALLOWED TO CLAIM, and the three refusals that enforce it:
+
+  1. **ADMISSION.** A row carries `cone_completeness`. `complete` (nothing refused) and
+     `budget_capped` (only the per-site flag budget / depth caps were hit -- an INCOMPLETE cone can
+     MISS a prerequisite, never invent one) are admitted. `unreadable` -- a guard that could not be
+     read at all (UNSET_FLAG, MANY_SETTERS, WORKVALUE_UNRESOLVED, an unrecognised predicate) -- is
+     REFUSED wholesale and counted. "We stopped walking" and "we could not read that guard" are
+     different kinds of ignorance and only the first one leaves the surviving roots trustworthy.
+  2. **`group_semantics` is ALWAYS `unknown` for this corpus.** A cone unions the arms of a
+     disjunction into one conjunction (the extractor's own limit; f400191-shaped alternatives would
+     therefore read as an AND), and a disjunction met further down a setter chain is not even
+     marked. So a site's roots are NOT a proven conjunction and NOT proven alternatives. Per this
+     file's own rule -- a consumer may act on `any`/`all` only -- every edge from this corpus is
+     INERT as a rule and lives here as evidence and as a locator.
+  3. **NO `clear` EDGES.** An exclusion needs the exclusive alternative to be VISIBLE, and the
+     phase-2 corpus contains no IRREVERSIBLE-arm roots at all (measured: zero rows). Rather than
+     mint exclusions out of negated guards -- which the extractor deliberately records as
+     "negatives" and refuses to expand, because "keep this OFF" is a self-gate far more often than
+     it is a questline branch -- this producer emits `set` only, and the tally says so out loud.
+
+The table is a hand emit (the decompiled EMEVD/ESD is licensing-restricted and absent from CI), so
+it is ABSENT-OK exactly like `flag_names.tsv`: the build must work without it and must SAY that it
+did, rather than silently reporting a tier-1-shaped graph as if nothing were missing.
+
 INPUT:  committed `greenfield/*.tsv` + the generated `eldenring/{data,missable_locations}.py`.
         AP-free and artifact-free: it runs in the agent sandbox, like build_check_browser.py.
 OUTPUT: greenfield/questline_dag.tsv
@@ -337,6 +382,21 @@ _BELOW_ENABLE = "> "
 _FLAG_TEST = re.compile(r"\b(!?)\s*EventFlag\(\s*(\d+)\s*\)")
 
 
+_CITE_MAP = re.compile(r"(m\d\d_\d\d)")
+
+
+def _cite_map(cite):
+    """`m12_03_00_00.emevd.dcx.js:12032800` / `talk/m11_10_00_00-only/t322001110.py:_x33` -> `m11_10`.
+
+    The setter citation is the extractor's answer to SPEC §9a's source_locator gap, and it is a
+    STRONGER handle than any of the four this file already had: it is the map whose script actually
+    WRITES the flag, not the map where the flag is tested. Returns "" when the citation names no
+    map (common.emevd / common_func), which resolves to no region rather than to a guess.
+    """
+    m = _CITE_MAP.search(cite or "")
+    return m.group(1) if m else ""
+
+
 def _resolve_group_semantics(members):
     """-> (semantics, was_downgraded) for one alt_group. A module-level function ON PURPOSE.
 
@@ -451,6 +511,8 @@ def build(verbose=True):
     tally["flag_names:absent" if not flag_labels else "flag_names:rows"] += len(flag_labels) or 1
 
     def source_kind(flag):
+        if not isinstance(flag, int):
+            return "unknown"
         if world.is_check(flag):
             return "check"
         if flag in npc_state:
@@ -460,16 +522,22 @@ def build(verbose=True):
     edges = []
 
     def add(source, target, sense, basis, evidence, tool, alt_group,
-            locator="", source_region=None, group_hint="unknown"):
+            locator="", source_region=None, group_hint="unknown", kind=None):
         # Every rejection is TALLIED BY TOOL. A filter with no tally is a lie (CONTRIBUTING rule 4),
         # and an aggregate tally hides WHICH corpus went blind.
+        #
+        # `source` is an event flag for the three award-site corpora. The extractor corpus also
+        # carries roots that are NOT event flags -- `goods:8191` (a possession requirement) and
+        # `map:m12_03` (a map you must be able to reach). They are NAMESPACED rather than emitted as
+        # bare numbers precisely because goods ids and event flags are DIFFERENT ID SPACES and
+        # reading one as the other is CONTRIBUTING rule 3. `source_kind` names which space it is.
         if source == target:
             tally["drop:%s:self-loop" % tool] += 1        # a check's own acquisition flag
             return
         if not world.is_check(target):
             tally["drop:%s:target-not-a-live-check" % tool] += 1
             return
-        if source <= 0:
+        if isinstance(source, int) and source <= 0:
             tally["drop:%s:sentinel-source" % tool] += 1  # 0 / -1 = "no gate", never a flag
             return
         treg = world.flag_region.get(target)
@@ -484,7 +552,7 @@ def build(verbose=True):
             "source_flag": source, "target_flag": target, "sense": sense, "basis": basis,
             "evidence": " ".join((evidence or "").split())[:180], "tool": tool,
             "alt_group": alt_group, "group_semantics": group_hint,
-            "source_kind": source_kind(source),
+            "source_kind": kind or source_kind(source),
             "source_region": sreg or "", "source_locator": loc,
             "target_region": treg or "", "target_ap_id": world.flag_ap.get(target, ""),
             "target_name": world.flag_name.get(target, ""),
@@ -638,6 +706,75 @@ def build(verbose=True):
                 "treasure_enablers:%s:%s" % (target, (row.get("enabler_event") or "").strip()),
                 locator=locator, source_region=region, group_hint=hint)
 
+    # --- producer 4: questline_conditions.tsv (#1085 cone extractor; NOT an award-site pairing) --
+    # See the docstring section "THE FOURTH CORPUS". ABSENT-OK: the artifacts are licensing-
+    # restricted, so a tree without the table must still build -- and must SAY so in the header
+    # rather than emitting a tier-1-shaped graph that reads as complete.
+    cond_rows = _rows("questline_conditions.tsv", tally)
+    if not cond_rows:
+        tally["questline_conditions:absent"] += 1
+    for row in cond_rows:
+        target = _int(row.get("target_flag"))
+        if target is None:
+            tally["drop:questline_conditions:unparsable-target"] += 1
+            continue
+        completeness = (row.get("cone_completeness") or "").strip()
+        if completeness not in ("complete", "budget_capped"):
+            # 🛑 THE REFUSAL, not a loss. `unreadable` means a guard in the cone could not be read
+            # at all, and a cone with an unread guard cannot vouch for the roots beside it.
+            tally["drop:questline_conditions:cone-%s" % (completeness or "no-completeness")] += 1
+            continue
+        kind = (row.get("source_kind") or "").strip()
+        sid = (row.get("source_id") or "").strip()
+        cite = (row.get("setter_cite") or "").strip()
+        if kind == "flag":
+            source, skind = _int(sid), None
+            if source is None:
+                tally["drop:questline_conditions:unparsable-source"] += 1
+                continue
+            region = resolve(source)
+            locator = "flag_decode" if region else ""
+            if not region and cite:
+                # The SETTER's own file -- the locator the award-site corpora could not produce.
+                region = resolve.by_map(_cite_map(cite))
+                locator = ("esd_talk_map" if cite.startswith("talk/") else "setter_map") \
+                    if region else ""
+        elif kind == "goods":
+            source, skind = "goods:%s" % sid, "item"
+            region, locator = None, ""       # an item has no region until the DAG is walked
+        elif kind == "map":
+            source, skind = "map:%s" % sid, "map_access"
+            # A MAP_ACCESS root names its map OUTRIGHT, so the region is a direct decode of the id
+            # rather than any of the four flag locators. It gets its own locator name for that
+            # reason -- reusing `flag_decode` would launder a different derivation under a label
+            # the region-drift keeper reads.
+            region = resolve.by_map(sid)
+            locator = "map_id" if region else ""
+        else:
+            tally["drop:questline_conditions:unknown-source-kind"] += 1
+            continue
+        basis = "extractor-cone-root" + ("" if completeness == "complete" else "-budget-capped")
+        # SIBLINGS ARE THE AWARD SITE: one cone, one branch, one guard stack. `group_hint` stays
+        # `unknown` for every one of them -- see refusal (2) in the docstring.
+        add(source, target, "set", basis,
+            "cone root %s(%s) at %s:%s%s"
+            % (row.get("root_class"), sid, row.get("site_file"), row.get("site_event"),
+               (" set by " + cite) if cite else ""),
+            "questline_conditions",
+            "questline_conditions:%s:%s:%s:%s"
+            % (target, (row.get("site_file") or "").strip(), (row.get("site_event") or "").strip(),
+               (row.get("site_callsite") or "").strip()),
+            locator=locator, source_region=region, group_hint="unknown", kind=skind)
+    if cond_rows and not any(e["tool"] == "questline_conditions" and e["sense"] == "clear"
+                             for e in edges):
+        # SAID OUT LOUD, because an empty population is a claim. The phase-2 corpus resolves no
+        # IRREVERSIBLE-arm root at all, so there is no exclusive alternative to read an EXCLUSION
+        # off. Minting `clear` from the extractor's negated guards would be the guess this whole
+        # file exists to refuse -- "keep this flag OFF" is a self-gate ("not already taken") far
+        # more often than it is a questline branch, which is why the extractor records negatives
+        # and does not expand them.
+        tally["questline_conditions:no-exclusion-roots-in-the-corpus"] += 1
+
     # --- post-pass 1: a pair that disagrees with ITSELF is not evidence of anything ---------------
     # Producer 2 applied this per-path for the ESD walk; the other corpora were left without it,
     # so (3383 -> 400033) stood as set AND clear and (31000800 -> 400183) as all three -- the same
@@ -669,7 +806,14 @@ def build(verbose=True):
         for m in members:
             m["group_semantics"] = resolved
 
-    edges.sort(key=lambda e: (e["target_flag"], e["tool"], e["source_flag"], e["sense"]))
+    # 🛑 The extractor corpus emits NAMESPACED sources (`goods:8191`), so a bare sort on
+    # `source_flag` compares an int with a str and dies. Flags keep their NUMERIC order (a string
+    # sort would silently reorder every pre-existing row, which is diff noise dressed as a change);
+    # namespaced sources sort after them, by text.
+    edges.sort(key=lambda e: (e["target_flag"], e["tool"],
+                              (0, e["source_flag"], "") if isinstance(e["source_flag"], int)
+                              else (1, 0, str(e["source_flag"])),
+                              e["sense"]))
     seen, deduped = set(), []
     for e in edges:
         key = (e["source_flag"], e["target_flag"], e["sense"], e["tool"], e["alt_group"])
@@ -746,14 +890,42 @@ def _acceptance(edges):
                 "the one known real cross-region prerequisite; senses %s"
                 % sorted({e["sense"] for e in f580})))
 
-    # 🛑 THE NEGATIVE FIXTURE, and the most important line in this file. Fortissax is the case the
-    # whole spec was written from, and it is ABSENT here BY CONSTRUCTION -- every corpus above reads
-    # an AWARD SITE, and what the questline gates is whether the FIGHT EXISTS. If a future widening
-    # ever makes it appear, that is a real finding and this flips: read it, do not silence it.
-    out.append((510110 not in by_target,
-                "f510110 Fortissax -- ABSENT BY CONSTRUCTION",
-                "no award-site corpus can see an arena-existence gate; absence here is the "
-                "BLIND SPOT, never evidence of safety (SPEC §5)"))
+    # 🛑 THE FIXTURE THAT USED TO ASSERT AN ABSENCE, AND NOW ASSERTS BOTH HALVES OF IT.
+    # Until #1085 this read `510110 not in by_target` -- Fortissax is the case the whole spec was
+    # written from, and no AWARD-SITE corpus can see a gate on whether the FIGHT EXISTS. SPEC §9a
+    # left the instruction for the day it appeared: "read the edge, do not delete the assertion."
+    # The widening happened (the extractor resolves the remembrance award's own guard cone, per
+    # branch, through the setters), so the assertion was REWRITTEN, not dropped:
+    #   (a) the BLIND SPOT is unchanged and still asserted -- no award-site corpus sees it;
+    #   (b) the extractor corpus does, and its derived ancestry is asserted BY NAME, so a silent
+    #       collapse of the cone walk fails here instead of quietly restoring the old absence.
+    # The premise changed deliberately; that is the whole point of the change, and a premise change
+    # is not a number change.
+    _AWARD_SITE_TOOLS = ("lot_gates", "esd_gifts", "treasure_enablers")
+    fort = by_target.get(510110, [])
+    out.append((not [e for e in fort if e["tool"] in _AWARD_SITE_TOOLS],
+                "f510110 Fortissax -- STILL ABSENT from every AWARD-SITE corpus",
+                "an award-site corpus cannot see an arena-existence gate and must not start "
+                "claiming to; the blind spot of SPEC §5 is unchanged. award-site edges: %d"
+                % len([e for e in fort if e["tool"] in _AWARD_SITE_TOOLS])))
+    ext = {str(e["source_flag"]) for e in fort if e["tool"] == "questline_conditions"}
+    want = {"map:m12_03", "12030800", "goods:8191"}
+    out.append((want <= ext,
+                "f510110 Fortissax -- PRESENT via the #1085 extractor corpus, with its ancestry",
+                "Deeproot map access (map:m12_03), Champions defeat (f12030800) and the Cursemark "
+                "of Death chain (goods:8191) must all be sources; missing %s of %d extractor "
+                "edge(s)" % (sorted(want - ext) or "nothing", len(fort))))
+
+    # 🛑 AND THE EDGES IT ADDS MUST STAY INERT. A cone unions the arms of a disjunction, so its
+    # roots are neither proven alternatives nor a proven conjunction -- if any extractor group ever
+    # starts claiming `any`/`all`, a consumer becomes entitled to act on an over-approximation.
+    extractor = [e for e in edges if e["tool"] == "questline_conditions"]
+    out.append((bool(extractor)
+                and {e["group_semantics"] for e in extractor} <= {"single", "unknown"},
+                "the #1085 extractor corpus claims NO group semantics",
+                "a cone is an over-approximation (OR arms unioned), so no group of its roots may "
+                "read as `any` or `all`; semantics seen: %s"
+                % sorted({e["group_semantics"] for e in extractor})))
     return out
 
 
@@ -781,10 +953,24 @@ def summarise(edges, tally, notes):
     # THE CORROBORATION NUMBER (SPEC §6 tier 2). A graph that re-finds what a year of hand audits
     # found is credible; one that overlaps nothing is noise wearing a tsv. It is printed as a RATIO
     # and never as a pass.
-    lines.append("CORROBORATION: %d of %d target check(s) are ALREADY missable-tagged (%d%%); "
-                 "the tag set holds %d checks in total"
+    lines.append("CORROBORATION, ALL corpora BLENDED (the per-corpus figures below are the ones "
+                 "that mean anything -- see the split): %d of %d target check(s) are ALREADY "
+                 "missable-tagged (%d%%); the tag set holds %d checks in total"
                  % (len(tagged), len(targets),
                     round(100.0 * len(tagged) / max(1, len(targets))), len(world.missable)))
+    # 🛑 AND SPLIT BY CORPUS, because the ratchet is held on a POPULATION. #1085 added a fourth
+    # corpus with a different reach; blending it into one ratio would move the number for a reason
+    # that has nothing to do with the joins the ratchet is watching. The award-site figure is the
+    # one the keeper floors; the extractor figure is REPORTED, and it is reported alongside so that
+    # a reader can see it is lower and why (the extractor reaches ordinary, non-missable checks --
+    # it resolves the guard cone of EVERY award site, not only the ones an NPC hands over).
+    for label, tools in (("award-site corpora (the ratchet's population)",
+                          ("lot_gates", "esd_gifts", "treasure_enablers")),
+                         ("#1085 extractor corpus", ("questline_conditions",))):
+        pop = {e["target_flag"] for e in edges if e["tool"] in tools}
+        hit = {f for f in pop if world.flag_ap.get(f) in world.missable}
+        lines.append("CORROBORATION, %s: %d of %d target check(s) already missable-tagged (%d%%)"
+                     % (label, len(hit), len(pop), round(100.0 * len(hit) / max(1, len(pop)))))
     lines.append("cross-region edges: %d (%d whose target is NOT missable-tagged)"
                  % (len(cross), len(cross_untagged)))
     groups = {}
@@ -837,9 +1023,18 @@ _HEADER = """\
 # 🛑 NOTHING IN THE WORLD READS THIS FILE. Every check named here keeps its missable tag.
 # 🛑 An edge is CO-OCCURRENCE + a polarity rule, not proof: datamine_lot_gates pairs every flag test
 #   in an event with every award in it, so a test on a branch that never reaches the award is here.
-# 🛑 ABSENCE IS NOT SAFETY. Every corpus below reads an AWARD SITE. A questline that gates whether a
-#   FIGHT EXISTS leaves no award-site trace -- f510110 (Fortissax), the case this spec was written
-#   from, is absent BY CONSTRUCTION and the tool asserts that absence out loud.
+# 🛑 ABSENCE IS NOT SAFETY. The three AWARD-SITE corpora (lot_gates, esd_gifts, treasure_enablers)
+#   pair a flag test with an award in the same event, so a questline that gates whether a FIGHT
+#   EXISTS leaves them no trace at all -- f510110 (Fortissax) was absent from them BY CONSTRUCTION
+#   and still is, which the acceptance block below asserts.
+# 🛑 THE FOURTH CORPUS, `questline_conditions` (#1085), IS NOT AN AWARD-SITE PAIRING: it resolves
+#   the guard cone of the award itself, per branch, through the setters -- so f510110 IS in this
+#   table now, with its ancestry, and its citation places the source. Those edges are DELIBERATELY
+#   INERT: their group_semantics is always `unknown` (a cone unions the arms of a disjunction, so
+#   its roots are neither proven alternatives nor a proven conjunction) and this file's own rule is
+#   that a consumer may act on `any`/`all` only. Cones with an UNREADABLE guard are refused
+#   wholesale and counted; the corpus emits no `clear` edge because it resolves no
+#   IRREVERSIBLE-arm root to read an exclusion off.
 # alt_group groups edges READ AT ONE SITE; `group_semantics` says what that grouping MEANS, and it
 #   is `unknown` unless the data proves otherwise -- `any` only for separate call sites of one
 #   common event (f400191's three triggers), `all` only for the `&&` conjuncts of one enabler
@@ -848,7 +1043,11 @@ _HEADER = """\
 #   UNDER-constrained rule. A consumer may act on `any` / `all` only.
 # source_locator: how the source's region was placed -- flag_decode > setter_map > common_map >
 #   test_map (WEAKEST: where the flag MATTERS, not where it lives -- good enough for a missable tag,
-#   never for an access rule). Empty = unplaced.
+#   never for an access rule). Empty = unplaced. `esd_talk_map` = the talk ESD that SETS it;
+#   `map_id` = a MAP_ACCESS root, whose source names its map outright rather than decoding a flag.
+# source_kind `item` / `map_access` and a NAMESPACED source (`goods:8191`, `map:m12_03`) come from
+#   the extractor corpus: a possession or map-reach requirement is not an event flag, and goods ids
+#   and event flags are different ID SPACES -- the prefix is there so nothing reads one as the other.
 # MEASURED THIS RUN (recomputed on every emit; the tool hard-fails on a degenerate parse):
 """
 
