@@ -15,7 +15,16 @@ only moment anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing player-facing yet. Behind the scenes, a second-opinion audit tool now cross-checks the
+You can ask for a Basilisk by writing `Basilisk`. The Spawn Traps list took bare character model
+numbers and nothing else, which meant the only people who could use it were the ones who had
+already gone and looked a number up — and the list of *words* sitting right next to it made that an
+easy thing to get wrong. It takes names now, in any casing, alongside the ids it always took, and if
+you misspell one it tells you which name you were probably reaching for. Put a number in the wrong
+list and it says which list numbers go in. Only 35 enemies have a name to give: Elden Ring never
+writes an enemy's name on the screen, so for most of the 390 models there is genuinely no name in
+the game to use, and those stay as numbers rather than as something we made up.
+
+Behind the scenes, a second-opinion audit tool now cross-checks the
 305 checks whose names still read `(region unconfirmed)` against an independent, permissively
 licensed corpus, so those guesses can finally be argued with instead of trusted.
 

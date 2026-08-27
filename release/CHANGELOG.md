@@ -32,6 +32,32 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 
 ### Added
 
+- **`spawn_traps` takes enemy NAMES now, not only model ids.** Asked for by **SwiftyTaco** on
+  Discord (2026-08-26) — *"Am I supposed to put in ids, or the name of the enemy?"* — after writing
+  character model ids into `traps`, the option next to it, which takes words. Both halves of that
+  confusion are answered. `spawn_traps: [Basilisk, Runebear]` now means exactly what
+  `spawn_traps: ["4150", "4630"]` means, case and accents ignored (`Merchant Kale` finds
+  `Merchant Kalé`), and a model id written into `traps` no longer gets the stock
+  `Found unexpected key 4150 … Allowed keys: frozenset({…})` — it gets a sentence saying ids go in
+  `spawn_traps`, which takes ids *and* names. A misspelled name is still a generation-time error,
+  never a silent skip, but the error names its nearest matches: `'Basilsk' — did you mean
+  Basilisk?`. 🛑 **35 of the 390 spawnable models have a name, and the other 355 cannot get one
+  here.** Elden Ring never writes an enemy's name on screen: outside `NpcName.fmg.xml` — reached
+  through `NpcParam.nameId`, set on 31 of these models — there is no name in the game data to use,
+  and the `Name` column of both `NpcParam` and `AtkParam_Npc` is empty in all 7039 / 12855 rows. The
+  wiki names everyone thinks of are not the game's, and this project does not invent data, so the
+  rest stay reachable by id exactly as before. The four extra names are ones already published here
+  (`Runebear`, `Basilisk`, `Malenia (Phase 1)`, `Aging Untouchable`). The table is
+  `greenfield/eldenring/enemy_names.py`, datamined by `tools/datamine_enemy_names.py --check`; a
+  name two models share (Latenna, Smithing Master Hewg, Rennala — one NPC, two bodies) resolves to
+  the lowest model id, recorded in the table itself. **No client change and no contract change:**
+  names are resolved to ids at generation, the minted item name is byte-identical whichever
+  spelling you wrote, and `CONTRACT_HASH` stays `13db0b3a` (pinned by a test). The wizard's
+  free-text box takes names too — it splits on commas and newlines rather than on every non-word
+  character, so a name with spaces survives being typed — and `release/EldenRing.yaml`, the wizard
+  metadata and `wizard.html` are regenerated. (#1063)
+
+
 - **Client gitlink -> `3e62e09` (clients#419-#434).** Rode in with the regenerated
   `grace_ground.tsv` (`b131d034`). All Bloodborne-client work (native attach/reconnect, grant
   observation, backend enum) plus the console/`--log-file` tee (clients#426); no Elden Ring

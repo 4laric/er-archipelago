@@ -192,7 +192,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.5.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "69e363a0ca07e25e2fa9f9d55974cc80f952a3c48ea3034c7d7c350aabeded51",
+ "source_sha256": "d87edd36316e6a914a2e9408226581401102053350972dd23a582ded9b6afe62",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -2108,7 +2108,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "traps",
    "class": "Traps",
    "display_name": "Traps",
-   "description": "Which traps may appear in your world. Empty (default) = no traps at all.\n\nA trap is an item that makes your run briefly worse. They are FILLER: a trap never holds\nprogression, and every trap in your pool replaces one junk item, so your seed does not grow.\n\n- **rune_thief** -- half your runes, gone.\n- **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does\n  nothing, and the charge is spent.\n- **blackout** -- the screen fades out, stays dark for 2 seconds, then fades back in.\n- **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the\n  runes.\n- **basilisk** -- THREE basilisks appear where you are standing. One is a joke; three is the\n  Death Blight mist, which kills outright. Killing you sends a DeathLink.\n\nTraps are sent to YOU by your own world like any other item, so in a multiworld somebody else\nmay be the one who finds them.\n\nFor any other enemy in the game, see `spawn_traps`.",
+   "description": "Which traps may appear in your world. Empty (default) = no traps at all.\n\nA trap is an item that makes your run briefly worse. They are FILLER: a trap never holds\nprogression, and every trap in your pool replaces one junk item, so your seed does not grow.\n\n- **rune_thief** -- half your runes, gone.\n- **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does\n  nothing, and the charge is spent.\n- **blackout** -- the screen fades out, stays dark for 2 seconds, then fades back in.\n- **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the\n  runes.\n- **basilisk** -- THREE basilisks appear where you are standing. One is a joke; three is the\n  Death Blight mist, which kills outright. Killing you sends a DeathLink.\n\nTraps are sent to YOU by your own world like any other item, so in a multiworld somebody else\nmay be the one who finds them.\n\nTHIS OPTION TAKES THESE WORDS AND NOTHING ELSE. For any other enemy in the game -- by name or by\ncharacter model id -- use `spawn_traps`, which is the other list in this section.",
    "kind": "set",
    "base": "OptionSet",
    "default": [],
@@ -2153,7 +2153,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "spawn_traps",
    "class": "SpawnTraps",
    "display_name": "Spawn Traps",
-   "description": "Extra enemies to drop on your own head, named by character model id (e.g. `4150`).\n\nTHE ESCAPE HATCH. `traps` carries the enemies we curated and named; this takes any of the 390\nspawnable models in the game by raw id, for anyone who wants something specific standing on top\nof them. One appears where you are; the curated ones may come in numbers.\n\nEmpty by default, and inert unless `trap_count` is above zero. An id that is not spawnable is a\nyaml error rather than an item that silently never fires -- 26 models are excluded because they\nhave no AI row or no body (props like the Walking Mausoleum), and refusing them at generation is\nthe point.\n\nNaming the same enemy here and in `traps` is harmless: it is one item either way.",
+   "description": "Extra enemies to drop on your own head. Takes an ENEMY NAME or a character model id.\n\nTHE ESCAPE HATCH. `traps` carries the enemies we curated and named; this takes any of the 390\nspawnable models in the game, for anyone who wants something specific standing on top of them.\nOne appears where you are; the curated ones may come in numbers.\n\nBoth spellings work and mean the same thing, so write whichever you have::\n\n    spawn_traps: [Basilisk, Runebear]     # a name -- case does not matter\n    spawn_traps: [\"4150\", \"4630\"]         # the same two models, by id\n\nTHE NAMED MODELS (35 of the 390):\n\nAging Untouchable, Alexander Warrior Jar, Asimi Silver Tear, Basilisk, Blaidd the Half-Wolf,\nBoc the Seamster, Demi-Human Boc, Finger Reader Crone, Finger Reader Enia, Gatekeeper Gostoc,\nGurranq Beast Clergyman, Hornsent Grandam, Jar-Bairn, Latenna the Albinauric,\nMalenia (Phase 1), Melina, Merchant Kale, Miriel Pastor of Vows, Pidia Carian Servant,\nPrimeval Sorcerer Azur, Primeval Sorcerer Lusat, Ranni the Witch,\nRennala Queen of the Full Moon, Runebear, Smithing Master Hewg, Smithing Master Iji,\nSorceress Sellen, St. Trina, Tanith's Knight, The Noble Goldmask, The Two Fingers,\nZorayas the Scout. (Six of these carry a comma in the game -- `Alexander,\nWarrior Jar`. A comma separates values in yaml flow style and in the wizard box, so the\noffered spelling drops it; both spellings resolve.)\n\nTHE OTHER 355 HAVE NO NAME TO TAKE, and that is the game's doing rather than an omission here:\nElden Ring never writes an enemy's name on screen, so outside `NpcName.fmg.xml` -- 31 of these\nmodels -- there is no name in the data to use, and this project will not invent one. Those\nmodels stay reachable by id, which is what they always were.\n\nEmpty by default, and inert unless `trap_count` is above zero. A name or id that is not\nspawnable is a yaml ERROR naming its nearest matches, rather than an item that silently never\nfires -- 26 models are excluded because they have no AI row or no body (props like the Walking\nMausoleum), and refusing them at generation is the point.\n\nNaming the same enemy here and in `traps` is harmless: it is one item either way.\n\n🛑 THE ITEM IS STILL NAMED AFTER THE MODEL, not after what you typed: `Runebear` here mints\n`Trap: c4630 x1`, because the item name is a cross-repo contract the client parses and writing a\nname into the yaml must not move it. What you write is resolved to the model at generation and\ngoes no further -- which is the whole reason this cost no client release.",
    "kind": "set",
    "base": "OptionSet",
    "default": [],
@@ -2549,7 +2549,42 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "7100",
     "8000",
     "8100",
-    "8110"
+    "8110",
+    "Aging Untouchable",
+    "Alexander Warrior Jar",
+    "Asimi Silver Tear",
+    "Basilisk",
+    "Blaidd the Half-Wolf",
+    "Boc the Seamster",
+    "Demi-Human Boc",
+    "Finger Reader Crone",
+    "Finger Reader Enia",
+    "Gatekeeper Gostoc",
+    "Gurranq Beast Clergyman",
+    "Hornsent Grandam",
+    "Jar-Bairn",
+    "Latenna the Albinauric",
+    "Malenia (Phase 1)",
+    "Melina",
+    "Merchant Kalé",
+    "Miriel Pastor of Vows",
+    "Pidia Carian Servant",
+    "Primeval Sorcerer Azur",
+    "Primeval Sorcerer Lusat",
+    "Ranni the Witch",
+    "Rennala Queen of the Full Moon",
+    "Runebear",
+    "Smithing Master Hewg",
+    "Smithing Master Iji",
+    "Sorceress Sellen",
+    "St. Trina",
+    "Tanith's Knight",
+    "The Noble Goldmask",
+    "The Two Fingers",
+    "Zorayas the Scout",
+    "aging_untouchable",
+    "basilisk",
+    "malenia"
    ],
    "casefold": false,
    "group": null,
@@ -5521,7 +5556,12 @@ if (typeof module !== "undefined") module.exports = ERW;
          REFUSED and NAMED here rather than written into the download for Archipelago to reject
          later. A control that accepts what the option rejects is worse than no control. */
       if (o.free_text){
-        const known = new Set(o.valid_keys);
+        /* Case-insensitive, and it commits the CANONICAL spelling. `spawn_traps` accepts enemy
+           NAMES as of 2026-08-26 (SwiftyTaco), and a control that took "basilisk" and wrote
+           "basilisk" into a yaml whose option spells it "Basilisk" would be reintroducing the
+           lookup this change exists to remove. The option itself resolves either casing; the
+           download should still carry the spelling the docs use. */
+        const known = new Map(o.valid_keys.map(k => [k.toLowerCase(), k]));
         const box = el("div", "freeset");
         const t = Object.assign(document.createElement("input"), {
           type: "text",
@@ -5544,9 +5584,24 @@ if (typeof module !== "undefined") module.exports = ERW;
           /* Split on anything that cannot be part of a key. People paste `4150, 4160`, `[4150
              4160]`, and a column out of a spreadsheet; all three mean the same thing, and guessing
              wrong costs the player a silently truncated list. */
-          const toks = t.value.split(/[^A-Za-z0-9_]+/).filter(Boolean);
-          const picked = new Set(toks.filter(x => known.has(x)));
-          rejected[o.key] = toks.filter(x => !known.has(x) && !picked.has(x));
+          /* SPLIT ON SEPARATORS, NOT ON EVERY NON-WORD CHARACTER. The old rule was
+             /[^A-Za-z0-9_]+/, which was right while every accepted value was a bare number and
+             is wrong now that "Blaidd the Half-Wolf" and "Malenia (Phase 1)" are accepted values:
+             it would shred each of them into four rejected tokens. Commas, semicolons, brackets
+             and newlines separate; spaces inside a token do not.
+             🛑 EXCEPT BETWEEN BARE NUMBERS, where a space IS a separator: people paste `4150 4630`
+             and a column out of a spreadsheet, and both meant two ids. A run of digits and spaces
+             is therefore split again -- which cannot touch a name, because no accepted name is
+             all digits. */
+          const toks = [];
+          t.value.split(/[,;\n\r\t\[\]]+/).forEach(part => {
+            const p = part.trim();
+            if (!p) return;
+            if (/^[0-9]+(\s+[0-9]+)*$/.test(p)) { p.split(/\s+/).forEach(x => toks.push(x)); }
+            else toks.push(p);
+          });
+          const picked = new Set(toks.map(x => known.get(x.toLowerCase())).filter(Boolean));
+          rejected[o.key] = toks.filter(x => !known.has(x.toLowerCase()));
           /* Committed in valid_keys order, exactly like the checkbox branches below: the order the
              player happened to type is presentation and must not reach the yaml. */
           commit(o.valid_keys.filter(x => picked.has(x)));
