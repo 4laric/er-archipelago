@@ -79,9 +79,12 @@ class HippoPresentsAsScaduAltusEverywhere(unittest.TestCase):
                          "f68800 has no Hippo grant; off Shadow Keep it is a created-but-kick-locked "
                          "check in any Scadu-Altus-only seed: %r" % rows)
         for (_r, name) in rows:
-            self.assertNotIn("also granted by", name,
-                             "f68800 grew a sweep clause -- if it IS granted now, the pin in "
-                             "gen_data.FLAG_REGION_OVERRIDE should be re-examined, not this test")
+            # Either wording is a sweep clause: #936 reworded the opener, and a test that names
+            # only the retired one would pass by being vacuous.
+            for opener in ("may be sweep-granted by", "also granted by"):
+                self.assertNotIn(opener, name,
+                                 "f68800 grew a sweep clause -- if it IS granted now, the pin in "
+                                 "gen_data.FLAG_REGION_OVERRIDE should be re-examined, not this test")
 
 
 if __name__ == "__main__":

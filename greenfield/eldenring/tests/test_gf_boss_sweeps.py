@@ -828,7 +828,7 @@ class BossSweepScoping(unittest.TestCase):
         m20_01 event 20012850 waits for characters 20010850..854 to die, displays one banner keyed
         by 20010850, then sets event flag 20010850. The banner datamine captures the two additional
         displayed heads as conjuncts of that one terminal event. They must not survive as tracker
-        rows or lend their names to generated ``also granted by`` descriptions.
+        rows or lend their names to generated ``may be sweep-granted by`` descriptions.
         """
         pairs = self._arena_pairs()
         for secondary in (20010851, 20010852):
