@@ -90,7 +90,6 @@ LOCATIONS = {
         ("Roundtable Hold :: Assassin's Prayerbook - near Table of Lost Grace [f11107700]", 7771039, 11107700),
         ("Roundtable Hold :: Crepus's Black-Key Crossbow - near Table of Lost Grace [f11107710]", 7771040, 11107710),
         ('Roundtable Hold :: Clinging Bone - around Table of Lost Grace [f11107900]', 7771041, 11107900),
-        ('Roundtable Hold :: Golden Seed (region unconfirmed) [f400220]', 7773717, 400220),
         ('Roundtable Hold :: Sewer-Gaol Key - around Table of Lost Grace (region unconfirmed) [f400380]', 7773735, 400380),
         ('Roundtable Hold :: Carian Inverted Statue (region unconfirmed) [f400391]', 7773736, 400391),
         ("Roundtable Hold :: Bloodfiend Hexer's Ashes (region unconfirmed) [f520800]", 7773854, 520800),
@@ -4862,6 +4861,7 @@ LOCATIONS = {
         ('Stormveil :: Ash-of-War Scarab - near Limgrave Tower Bridge [f34107110]', 7772308, 34107110),
         ('Stormveil :: Neutralizing Boluses - around Castleward Tunnel [f400020]', 7773703, 400020),
         ("Stormveil :: Gostoc's Bell Bearing - around Castleward Tunnel, also granted by Godrick the Grafted (m10_00) [f400051]", 7773706, 400051),
+        ('Stormveil :: Golden Seed - around Lake-Facing Cliffs (region unconfirmed) [f400220]', 7773717, 400220),
         ('Stormveil :: Erdsteel Dagger - around Castleward Tunnel, also granted by Margit, the Fell Omen (m10_00) [f400221]', 7773718, 400221),
         ('Stormveil :: Living Jar Shard - around Castleward Tunnel, also granted by Godrick the Grafted (m10_00) [f10007082]', 7773917, 10007082),
         ('Stormveil :: Dozing Cross-Legged - around Castleward Tunnel [f60836]', 7774640, 60836),
@@ -5557,4 +5557,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:f8b393790c70801925131ca624590e4dd01f0fb2db34526f6c21a517389c5998', 'module': 'data.py', 'body_sha256': 'sha256:de924a0eee154367ff74da6e36bb7d66f6aa8d0f675ece1fd89eb841b3bc5195'}
+_GEN_STAMP = {'inputs_hash': 'sha256:c150e824153518624cceac386cfe1d4007a42ca962d3b0a0ee96b29006113051', 'module': 'data.py', 'body_sha256': 'sha256:aa7fac34685874591ad46655ae8bd2afa09fae517cbbcad6d3e73e8c26d97ae7'}

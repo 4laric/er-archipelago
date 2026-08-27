@@ -416,6 +416,23 @@ class LeanSeedWarnsRatherThanShipsQuietly(WorldTestBase):
                # filler-only default does not reject that unrelated artificial pool.
                "protect_missable_locations": "progression"}
 
+    def setUp(self):
+        """🛑 THE DRAW IS PINNED, because "a seed too small for its recipe" was never guaranteed by
+        the options above -- `num_regions: 1` draws WHICH region at random, and some draws are big
+        enough to afford the ladder honestly. MEASURED 2026-08-26 over seeds 1000-1011: 9 of 12
+        warn, and 1000 / 1008 / 1011 do not, because on those draws there is nothing to warn about.
+        So this assertion was a 1-in-4 lottery on every CI run and had nothing to do with the
+        change that finally rolled it: the identical 9/12, same three seeds, reproduces on
+        origin/main's data.py (measured by re-running this fixture against main's generated
+        modules). ONE green run is not evidence -- CONTRIBUTING's draw-dependent species, exactly.
+
+        Pinning a draw the fixture's own premise HOLDS on is what makes this a regression test for
+        the warning path instead of a coin toss; the sin being guarded (a thin reservation shipping
+        QUIETLY) is exercised on every run now rather than three runs in four. If this seed ever
+        stops being thin, the honest repair is another measured seed span and a new pin -- not
+        relaxing the assertion to "some warning happened"."""
+        self.world_setup(1001)
+
     def test_thin_stone_reservation_is_warned(self):
         import logging
 

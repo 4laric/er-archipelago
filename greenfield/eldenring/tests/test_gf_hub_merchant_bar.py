@@ -85,12 +85,25 @@ class TestHubMerchantBar(unittest.TestCase):
                         "the bar reaches outside Roundtable Hold.")
 
     def test_hub_non_merchant_checks_are_left_alone(self):
-        """"...the hub's Golden Seed checks are left to the normal surface/defaulted logic." The hub
-        has exactly one Seedtree row and 54 untagged ones; none is a merchant row."""
+        """"...the hub's non-merchant checks are left to the normal surface/defaulted logic."
+
+        🛑 THE SUBJECT MOVED, so the assertion is stated over the CLASS instead of over one row.
+        Until 2026-08-26 the hub had exactly one Seedtree row and this test named it: f400220, the
+        Golden Seed. #445's ground audit re-filed it Stormveil -- the Hold was never a derivation
+        for it and its lot is placed on an m10_00 enemy (see gen_data.FLAG_REGION_OVERRIDE[400220])
+        -- so the hub has NO Seedtree row now and pinning one would be pinning a row that left.
+        The property was never about Seedtrees: it is that this bar touches merchant rows and
+        nothing else. That is what is asserted, over every non-merchant hub row, which is strictly
+        more than the one-row version ever covered.
+        """
         barred = _roundtable_merchant_aps()
-        seedtree = {ap for ap in _HUB_APS if "Seedtree" in LOCATION_TAGS.get(ap, ())}
-        self.assertTrue(seedtree, "no hub Seedtree row -- this test has lost its subject.")
-        self.assertFalse(seedtree & barred, "the bar swallowed the hub's Seedtree check(s).")
+        non_merchant = {ap for ap in _HUB_APS
+                        if not any(t in _HUB_MERCHANT_TAGS for t in LOCATION_TAGS.get(ap, ()))}
+        self.assertTrue(non_merchant,
+                        "no non-merchant hub row at all -- this test has lost its subject.")
+        self.assertFalse(non_merchant & barred,
+                         "the bar swallowed non-merchant hub check(s): %r"
+                         % sorted(non_merchant & barred))
 
     def test_chokepoint_drops_hub_merchants(self):
         """THE WITNESS. Pins the effect where fill reads it, not in the helper.
