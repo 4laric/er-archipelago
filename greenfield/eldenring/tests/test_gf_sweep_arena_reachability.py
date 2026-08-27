@@ -445,9 +445,12 @@ class JsGravesiteSeed(unittest.TestCase):
         annotation is what he read -- and no Gravesite row may carry it."""
         for name, _ap, _flag in data.LOCATIONS.get("Gravesite", ()):
             for boss in ("Demi-Human Queen Marigga", "Jagged Peak Drake"):
-                self.assertNotIn(
-                    "also granted by %s" % boss, name,
-                    "a Gravesite check still reads 'also granted by %s': %s (#1066)" % (boss, name))
+                # Both the current opener and the pre-#936 one: the ruling is about the
+                # BOSS being named on a Gravesite row, not about which wording names him.
+                for opener in ("may be sweep-granted by ", "also granted by "):
+                    self.assertNotIn(
+                        opener + boss, name,
+                        "a Gravesite check still reads '%s%s': %s (#1066)" % (opener, boss, name))
 
     def test_the_gravesite_members_are_still_swept_by_a_gravesite_host(self):
         """The re-host must not have orphaned the Gravesite checks the two groups used to pay.

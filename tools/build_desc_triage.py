@@ -56,7 +56,9 @@ DEFAULT_OUT = "er-archipelago-desc-triage.html"
 
 NAME_RE = re.compile(r"^(?P<region>.*?) :: (?P<rest>.*?) \[f(?P<flag>\d+)\]$")
 ORD_RE = re.compile(r"\s\((\d+)\)$")
-# The sweep clause a member carries (er-archipelago#670): ", also granted by <boss> (<tile>)".
+# The sweep clause a member carries (er-archipelago#670): ", may be sweep-granted by <boss> (<tile>)"
+# (it read ", also granted by ..." through v0.5.1 -- reworded by #936; this tool reads the CURRENT
+# data.py, which is regenerated wholesale, so it only ever sees the new opener).
 # 🛑 STRIPPED BEFORE ANYTHING ELSE READS THE NAME, and it must be. It is an ANNOTATION, not a
 # descriptor -- this tool exists to judge whether a descriptor distinguishes a check from its
 # siblings, and two checks can be equally indistinguishable while being swept by different bosses.
@@ -64,7 +66,7 @@ ORD_RE = re.compile(r"\s\((\d+)\)$")
 # longer matched, and it split the (region, item, desc) family key -- so a sibling pair became one
 # check with a lone ordinal and one with none, which is exactly what
 # `test_collision_ordinals_come_in_families` calls "a parse bug". It was right.
-SWEEP_CLAUSE_RE = re.compile(r",\s*also granted by .*$")
+SWEEP_CLAUSE_RE = re.compile(r",\s*may be sweep-granted by .*$")
 LOCALE_RE = re.compile(r"^(?:world drop|treasure|enemy drop|shop|event|gesture)\s·\s|^m\d\d")
 
 IMPORTANT = {"Boss", "MajorBoss", "GreatRune", "Remembrance", "KeyItem", "Legendary",

@@ -206,3 +206,57 @@ if __name__ == "__main__":
         print("ok", fn.__name__)
     print(f"\n{len(fns)} tests passed")
     sys.exit(0)
+
+
+# ---------------------------------------------------------------------------------------------
+# The sweep clause's WORDING (er-archipelago#936).
+#
+# The clause is baked into 4063 of 4948 location names and rides the STATIC AP datapackage, so it
+# cannot see a seed. Through v0.5.1 it read "also granted by X" -- a promise the corpus is not
+# entitled to make, because `dungeon_sweep` and the progression-surface cut may take the member
+# back out (colombius, Discord 2026-08-27; Haraldwyrm, 2026-08-20). v0.5.2 states ELIGIBILITY.
+# These pin the writer, and the writer/opener pair, so a reader that strips by the opener cannot
+# silently stop matching. The client recognises this opener AND the retired one (clients#460).
+
+def test_sweep_clause_states_eligibility_not_a_grant():
+    assert ds.sweep_clause("Fire Giant", "m60_52_52") == "may be sweep-granted by Fire Giant (m60_52_52)"
+    assert ds.sweep_clause("Fire Giant") == "may be sweep-granted by Fire Giant"
+    assert ds.sweep_clause("") is None
+    assert ds.sweep_clause(None) is None
+
+
+def test_the_opener_is_exactly_what_with_sweep_writes():
+    # The single seam: every reader (check browser, desc triage, the client) cuts on this string.
+    # If the writer and the constant drift, a reader stops stripping and shows a raw clause.
+    joined = ds.with_sweep("near Foot of the Forge", "Fire Giant", "m60_52_52")
+    assert joined == "near Foot of the Forge" + ds.SWEEP_CLAUSE_OPENER + "Fire Giant (m60_52_52)"
+    assert ds.SWEEP_CLAUSE_OPENER.startswith(", ")
+
+
+def test_no_shipped_wording_asserts_a_grant():
+    # The clause may say a grant is POSSIBLE; it may never assert one. "also granted by" did.
+    clause = ds.sweep_clause("Fire Giant", "m60_52_52")
+    assert "also granted by" not in ds.SWEEP_CLAUSE_OPENER and "also granted by" not in clause
+    assert ds.SWEEP_CLAUSE_OPENER.lstrip(", ").startswith("may be ")
+
+
+def test_the_clause_never_nests_parentheses_around_the_tile():
+    # 🛑 THE SHAPE IS LOAD-BEARING. #936 sketched " (Fire Giant sweep-eligible, m60_52_52)"; that
+    # form nests when the boss name itself carries parens, and every splitter here is paren-blind.
+    # colombius's own corpus has such a boss: `Night's Cavalry (Glaive)`.
+    clause = ds.sweep_clause("Night's Cavalry (Glaive)", "m60_48_55")
+    assert clause.endswith(" (m60_48_55)")
+    # the tile parenthesis is the LAST one and nothing follows it
+    assert clause.rindex("(") == clause.rindex("(m60_48_55)")
+
+
+def test_a_reader_can_take_the_clause_back_off_by_the_opener_alone():
+    # The inverse the check browser and the client both perform, spelled out: cut at the opener,
+    # keep the " [fNNNN]" tail. Colombius's Golden Seed, ap 7773183 (rule 11).
+    name = ("Mountaintops of the Giants :: Golden Seed - near Foot of the Forge, by two snow "
+            "trolls" + ds.SWEEP_CLAUSE_OPENER + "Fire Giant (m60_52_52) [f1052537800]")
+    cut = name.index(ds.SWEEP_CLAUSE_OPENER)
+    tail = name[cut:].index(" [f")
+    assert name[:cut] + name[cut + tail:] == (
+        "Mountaintops of the Giants :: Golden Seed - near Foot of the Forge, by two snow trolls "
+        "[f1052537800]")

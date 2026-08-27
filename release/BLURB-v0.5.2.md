@@ -15,7 +15,17 @@ only moment anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing yet. This window was opened at the v0.5.1 tag with zero commits past it, in the same
+**Four thousand check names stopped promising something a seed might not do.** If a boss's sweep
+could pay a check, its name said so -- "also granted by Fire Giant" -- and that was baked into the
+name once, for everyone, before any seed existed. Turn sweeps off, or let the surface cut take a
+Golden Seed back out, and the name kept saying it anyway. Haraldwyrm noticed first, colombius
+brought the receipt, and Alaric ruled: if we are leaving them off sweeps, we should not say they
+are granted by the sweep. The clause now reads **"may be sweep-granted by Fire Giant"** -- true in every
+seed -- and the tracker, which knows your seed, still tells you when it is a real grant. 4,063 of
+4,948 names change; no check moves, no id shifts. Old seeds keep their old wording in spoiler logs
+and hints, and the new client reads both (#936).
+
+This window was opened at the v0.5.1 tag with zero commits past it, in the same
 change that promoted stable to v0.5.1; nothing was carried over. `CONTRACT_HASH` stays at
 `13db0b3a` — `abilityUnlockItems` is still the newest slot-data shape, and only the exact-version
 handshake moved to 0.5.2. The client half is clients#459, whose merge commit this change pins.

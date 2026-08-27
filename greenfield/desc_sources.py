@@ -200,7 +200,7 @@ def _grace_in_region(grace_name, check_region, grace_region, hub_region):
 
 
 def sweep_clause(boss_name, tile=None):
-    """The ", also granted by X" tail a sweep MEMBER's description carries, or None.
+    """The ", may be sweep-granted by X" tail a sweep MEMBER's description carries, or None.
 
     Appended to whatever the waterfall resolved rather than being another layer of it: the sweep is
     an ADDITIONAL route to the check, not a better description of where it sits. `describe()` is
@@ -214,24 +214,55 @@ def sweep_clause(boss_name, tile=None):
     *"so idk what boss to kill?"* Under SweepSlot the answer is that a boss hands it over, and the
     name -- which is all an AP hint has to work with -- never said so.
 
-    # 🛑 "ALSO GRANTED BY", NEVER "KILL"
+    # 🛑 ELIGIBILITY, NEVER A GRANT -- AND NEVER "KILL"
 
     The member is an ordinary pickup and stays a valid route, and 106 of 218 sweep triggers have no
     audited region (#671), so we cannot promise the boss is reachable this seed. This states a fact
     about the world; an imperative would be a promise we cannot keep.
 
+    The clause said "also granted by X" through v0.5.1 and was reworded for v0.5.2 (#936). WHY: a
+    location name rides the STATIC AP datapackage, which is minted once for the corpus and cannot
+    see a seed. What a seed actually pays is `enabled_sweeps(world)` -- the `dungeon_sweep` rung plus
+    the progression-surface cut -- so "granted by" was a promise the corpus is not entitled to make.
+    colombius, Discord 2026-08-27, on a Seedtree the surface cut had taken back out of the Fire Giant
+    sweep: *"not granted by the Fire Giant sweep"*; Haraldwyrm reported the same shape a week earlier.
+    Alaric's ruling: *"when we are leaving them off sweeps, we shouldn't say they're granted by the
+    sweep."* "MAY BE sweep-granted" is true in every seed, because ELIGIBILITY is the corpus fact
+    and a grant is not; the clause now claims exactly what the datapackage knows, and no more. The
+    client half is clients#460, which recognises both openers. Readers that DO hold the seed (the client
+    tracker, via slot_data `dungeonSweepFlags`) still narrow it to a definite grant -- #670's answer
+    to bobler's "so idk what boss to kill?" survives where the truth is available, and stops being
+    asserted where it is not.
+
+    🛑 SHAPE, NOT JUST WORDING. The reword keeps the clause's one shape -- a ", "-opened tail whose
+    only parenthesis is the tile, sitting last before the " [f<flag>]" tail -- because every reader
+    strips it back off by that shape. Wordings that fold the boss and tile into one parenthesis
+    (`" (Fire Giant sweep-eligible, m60_52_52)"`, sketched in #936) NEST when the boss name itself
+    carries parens -- `Night's Cavalry (Glaive)` -- and a paren-blind splitter cuts them wrong.
+
     # 🛑 THE TILE IS NOT DECORATION
 
     Trigger names are NOT unique -- `Night's Cavalry` names EIGHT different sweeps, `Death Rite Bird`
     five, `Erdtree Burial Watchdog` / `Black Knife Assassin` / `Deathbird` / `Bell Bearing Hunter` /
-    `Tree Sentinel` four each. "Also granted by Night's Cavalry" sends the player to any of eight
+    `Tree Sentinel` four each. "May be sweep-granted by Night's Cavalry" sends the player to any of eight
     encounters, so `tile` disambiguates when given.
     """
     name = _clean(boss_name)
     if not name:
         return None
     tile = _clean(tile)
-    return f"also granted by {name} ({tile})" if tile else f"also granted by {name}"
+    return f"may be sweep-granted by {name} ({tile})" if tile else f"may be sweep-granted by {name}"
+
+
+# The clause opener, shared by every reader that has to take the clause back OUT of a finished name:
+# gen_data's own emit pass, tools/build_check_browser.py, tools/build_desc_triage.py and -- byte for
+# byte -- the client's `er_logic::sweep_clause` (from-software-archipelago-clients). Defined once,
+# next to the writer, so a reword is one edit and not a hunt across three repos (er-archipelago#936).
+#
+# 🛑 A READER MAY HAVE TO KNOW THE OLD ONE. This repo regenerates every name it owns, so world-side
+# readers need only this opener. A CLIENT does not: it meets v0.5.1-and-earlier seeds whose names are
+# frozen in the server's datapackage, so it recognises ", also granted by " as well and always will.
+SWEEP_CLAUSE_OPENER = ", may be sweep-granted by "
 
 
 def with_sweep(desc, boss_name, tile=None):

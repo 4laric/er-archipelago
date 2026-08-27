@@ -540,7 +540,7 @@ def runtime_sweep_skips():
     This is deliberately NARROWER than :func:`sweep_slot_skips`. An unnamed trigger or a trigger
     whose arena has not been audited is unsafe as a REQUIRED progression host, but may still be a
     working convenience sweep. Only a positive fireability ruling belongs here and disappears from
-    seed slot data, the client tracker, boss-key gates, and the generated ``also granted by`` text.
+    seed slot data, the client tracker, boss-key gates, and the generated ``may be sweep-granted by`` text.
 
     Return a copy so callers cannot mutate the contract's ruling for the rest of generation.
     """
