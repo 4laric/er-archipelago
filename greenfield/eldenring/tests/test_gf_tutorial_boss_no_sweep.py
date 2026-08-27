@@ -518,8 +518,19 @@ def test_the_sweep_corpus_did_not_shrink():
     # Gate), moves Liurnia -> Raya Lucaria Academy and finds NO sweep host there, so it is left
     # UNSWEPT. That is the containment design's stated honest outcome, not a lost check: the flag is
     # still a check and still reachable, it is simply no longer paid by a boss kill.
-    assert total == 4100, (  # +73 (2026-08-20, #907): every admissible boss OWN drop joined its own trigger's sweep; +1 (2026-08-21, #940): the Four Belfries key joined the Royal Revenant
-        "sweep corpus is %d, expected 4100. If a sweep was legitimately added or removed, say WHY "
+    # 2026-08-26 (#1066, J's Discord report): 4100 -> 4099, and again the -1 is a recorded DROP.
+    # Demi-Human Queen Marigga (2046400800) and the Jagged Peak Drake (2049410800) re-home to the
+    # regions they are FOUGHT in -- Cerulean and Jagged Peak, Alaric's in-game 2026-08-10 rulings,
+    # which now reach the sweep HOST derivation and not just the arena label. Their Gravesite
+    # members fall back into the Gravesite pool and are re-dealt to Gravesite's own hosts: measured
+    # in (trigger, flag) space, 65 removed / 64 added / 64 re-owned and ZERO region crossings.
+    # The one flag that leaves the corpus is 68750 (Mad Craftsman's Cookbook [1], near Divided
+    # Falls), and it leaves for a SEPARATE, scan-exact reason: it moves Gravesite -> Abyssal
+    # (item_play_regions volume 68600), and Abyssal's only sweep host is 28000800 on m28, which
+    # holds no m61 ground -- so there is no Abyssal trigger to deal it to. Same honest outcome as
+    # 1035457030 above: still a check, still reachable on foot, simply no longer paid by a kill.
+    assert total == 4099, (  # +73 (2026-08-20, #907): every admissible boss OWN drop joined its own trigger's sweep; +1 (2026-08-21, #940): the Four Belfries key joined the Royal Revenant
+        "sweep corpus is %d, expected 4099. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -755,6 +766,14 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 🛑 The same removal shifts every LATER ap id down by exactly 100, which is why GOSTOC_BELL_AP
     # at the top of this file moves 7773806 -> 7773706. Re-read from the regenerated data.py, not
     # arithmetic: f400051 is ap 7773706 there.
-    assert (digest, n) == ("bd4c7e5d5b89c0f1", 4100), (  # 2026-08-26 (#1059): measured arena outranks the tile decode; 32 re-owns, 0 region crossings, 0 orphans
-        "sweep OWNERSHIP changed: (%s, %d), expected (bd4c7e5d5b89c0f1, 4100). The total alone will "
+    # 2026-08-26 (#1066): bd4c7e5d5b89c0f1/4100 -> b30cddc2f9d07205/4099. The #1059 shape a second
+    # time, on the two triggers J reported: a HUMAN ARENA RULING now outranks the tile decode in the
+    # sweep host derivation too, so Marigga hosts Cerulean's divvy and the Jagged Peak Drake hosts
+    # Jagged Peak's instead of both hosting Gravesite's. Diffed as the docstring demands, in
+    # (trigger, flag) space: REMOVED 65, ADDED 64, RE-OWNED 64, and ZERO region crossings -- which
+    # is the whole point of re-homing at the host derivation rather than filtering members later.
+    # ONE flag loses its owner and it is not one of theirs: 68750 moves Gravesite -> Abyssal on the
+    # scan (volume 68600) and Abyssal has no host that reaches m61 ground. See the corpus pin above.
+    assert (digest, n) == ("b30cddc2f9d07205", 4099), (  # 2026-08-26 (#1066): a ruled arena re-homes the boss; 64 re-owns, 0 region crossings, 1 orphaned flag (68750, named above)
+        "sweep OWNERSHIP changed: (%s, %d), expected (b30cddc2f9d07205, 4099). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

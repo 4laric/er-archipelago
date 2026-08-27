@@ -12,6 +12,18 @@
 #   PLACE_TO_REGION. Both are kept so a reader can audit the mapping.
 # Unlike boss_verdict_tiles.tsv this KEEPS confirmations: a ruling that agrees
 #   with derived_region still answers where the boss stands.
+# ⭐ HAND ROWS ADDED 2026-08-26 (#1066, J's Discord report). Both bosses were already
+#   ruled in boss_verdict_tiles.tsv by Alaric in-game on 2026-08-10; neither has a
+#   PlayRegionParam boss-area row, so nothing carried the ruling into the sweep tables and
+#   both hosted GRAVESITE divvy slices while being fought on ground Gravesite does not own:
+#     2046400800 Demi-Human Queen Marigga -- boss_verdict_tiles m61_44_41/m61_47_40:
+#       "Demi-Human Queen Marigga is on the CERULEAN COAST, not Gravesite."  PlayArea scan
+#       corroborates: her tile m61_46_40 buckets 68300/68400 = Cerulean; Gravesite owns neither.
+#     2049410800 Jagged Peak Drake -- boss_verdict_tiles m61_48_41/m61_49_42: "the Jagged Peak
+#       Drake is on the JAGGED PEAK. Members ship as Gravesite."  Scan: nearest scanned tile
+#       m61_49_38 resolves 68410 = Jagged Peak; Gravesite owns 68410 no more than 68500.
+#   Since #1066 these rulings also decide the sweep HOST region, so each boss now hosts its own
+#   arena's divvy and its Gravesite-measured members go back to Gravesite's own hosts.
 boss_entity	boss_name	region	ruled_as
 12080800	Ancestor Spirit	Siofra River	Siofra River
 12090800	Regal Ancestor Spirit	Siofra River	Siofra River
@@ -76,11 +88,13 @@ boss_entity	boss_name	region	ruled_as
 2044470800	Rugalea the Great Red Bear	Rauh Base	Rauh Base
 2045440800	Ghostflame Dragon	Gravesite	Gravesite
 2046380800	Dancer of Ranah	Cerulean	Cerulean
+2046400800	Demi-Human Queen Marigga	Cerulean	Cerulean Coast
 2046410800	Knight of the Solitary Gaol	Gravesite	Gravesite
 2046460800	Divine Beast Dancing Lion	Ancient Ruins	Ancient Ruins of Rauh
 2047390800	Death Rite Bird	Cerulean	Cerulean
 2047450800	Black Knight Garrew	Scadu Altus	Scadu Altus
 2048380850	Ghostflame Dragon	Cerulean	Cerulean
+2049410800	Jagged Peak Drake	Jagged Peak	Jagged Peak
 2049450800	Ralva the Great Red Bear	Scadu Altus	Scadu Altus
 2050470800	Tree Sentinel	Shadow Keep	Hinterland
 2050480811	Scadutree Avatar	Shadow Keep	Shadow Keep

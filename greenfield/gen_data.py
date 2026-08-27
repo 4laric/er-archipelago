@@ -510,6 +510,48 @@ except OSError as _e:
     print(f"[gen_data] boss_area_regions.tsv unavailable ({_e!r}); boss-arena region corrections OFF "
           f"(run tools/datamine_boss_area_regions.py --emit)")
 
+# ---- the HUMAN half of the same question (boss_arena_rulings.tsv) -----------------------------
+# PlayRegionParam only ties a boss-area row to a DEFEAT flag for some bosses, so BOSS_AREA_REGION is a
+# lower bound BY CONSTRUCTION -- 106 of 218 triggers had no row. But the answer already existed:
+# Alaric ruled the PLACE 76 of 83 bosses stand in, in boss_region_worksheet.tsv's arena_region column
+# (2026-08-10, commit 41e8fe7 -- "arena_region IS the ruling column"), and boss_arena_rulings.tsv
+# unions hand rows on top of that expand. Until #445 nothing read it for THIS question: --expand
+# consumed those rulings only to re-region ambiguous CHECKS (boss_verdict_tiles.tsv), which is a
+# different question -- #523 is precisely the case where "which region owns its checks" and "where is
+# it fought" disagree.
+#
+# 🛑 RANKED BELOW MEASURED EVIDENCE, exactly like boss_verdict_tiles: a ruling fills an ABSENT and can
+# never overrule a PlayRegionParam row. A wrong ruling costs an unaudited trigger, never a measured one.
+#
+# 🛑 MOVED HERE 2026-08-26 (#1066), for the same reason _ARENA_REGION_CURATED was moved here by
+# #1059. This table used to be loaded down in the sweep section, AFTER the legacy host derivation
+# (`_lreg`) had already run -- so a ruling could only relabel SWEEP_ARENA_REGION while the members
+# stayed dealt from the tile-decode region, which is precisely the arena/members split the #1059
+# containment invariant forbids. Loading it beside the measured table lets ONE answer feed both the
+# host derivation and the arena label, so a ruling RE-HOMES the boss instead of tearing it in half.
+# J's report (Discord 2026-08-26) is the motivating case: Demi-Human Queen Marigga (2046400800) and
+# the Jagged Peak Drake (2049410800) hosted GRAVESITE divvy slices while being fought on Cerulean
+# Coast and Jagged Peak ground respectively, so a Gravesite-only seed promised payouts behind a
+# fight the kick-watch ejects the player from.
+_BOSS_ARENA_RULING = {}
+_bar_path = os.path.join(HERE, "boss_arena_rulings.tsv")
+if os.path.isfile(_bar_path):
+    with open(_bar_path, encoding="utf-8") as _rfh:
+        for _rl in _rfh:
+            if _rl[:1] == "#" or _rl.startswith("boss_entity"):
+                continue
+            _rp = _rl.rstrip("\n").split("\t")
+            if len(_rp) >= 3 and _rp[0].isdigit() and _rp[2]:
+                _BOSS_ARENA_RULING[int(_rp[0])] = _rp[2]
+    _bad_a = sorted({_r for _r in _BOSS_ARENA_RULING.values()
+                     if _r not in REGION_GROUPS and _r != _RG_HUB})
+    if _bad_a:
+        raise SystemExit(
+            "gen_data: boss_arena_rulings.tsv names region(s) %r that do not exist. A ruling must "
+            "resolve to a real region -- add the in-game place name to PLACE_TO_REGION in "
+            "tools/build_boss_region_worksheet.py rather than writing a phantom region here."
+            % _bad_a)
+
 # ---- CURATED arena-region rulings that BEAT the measured row ----------------------------------
 # Human-owned exception to the measurement above. MOVED HERE 2026-08-26 (#1059) from the sweep
 # section: BOSS_AREA_REGION is now what decides a legacy boss's HOST region (`_lreg`), so a ruling
@@ -3269,6 +3311,31 @@ FLAG_REGION_OVERRIDE = {
     2045457010: "Rauh Base",      # Grave Glovewort [5], Temple Town Ruins -- volume: 69010 (REVERSE)
     2046467800: "Rauh Base",      # Larval Tear, near Scadu Altus West -- volume: 69010 (REVERSE)
     #
+    # -- #1066 (J, Discord 2026-08-26): three rows on ground Gravesite does not own -------------
+    # The sweep half of #1066 re-homes Demi-Human Queen Marigga and the Jagged Peak Drake to the
+    # regions they are FOUGHT in (boss_arena_rulings.tsv, Alaric in-game 2026-08-10). These three
+    # CHECK rows are the leftovers of the same mistake, and each is pinned on its own evidence.
+    #
+    # 530845 / 530850 are the two bosses' OWN DROPS. Neither boss has a boss_area_regions row, so
+    # region_of's boss-drop branch had nothing to correct with and fell through to the tile decode
+    # -- which put both drops in Gravesite, i.e. promised a Gravesite-only player an item that can
+    # only be had by winning a fight the kick-watch ejects them from. That is J's symptom exactly,
+    # one layer down from the sweep. The ruled arena is the evidence for where you must stand to
+    # collect a boss's drop, so it is the answer here too. Pinned per-flag rather than by teaching
+    # the boss-drop branch to read boss_arena_rulings wholesale: that would move drops for all 62
+    # ruled triggers at once, which is a census-scale move nobody has measured (and the #1059 note
+    # beside _ARENA_REGION_CURATED says plainly why a sweep ruling must not be folded into
+    # BOSS_AREA_REGION -- it would take Margit's drop out of Limgrave).
+    530845: "Cerulean",       # Star-Lined Sword - Demi-Human Queen Marigga (m61_46_40; tile buckets 68300/68400)
+    530850: "Jagged Peak",    # Dragon Heart - Jagged Peak Drake (m61_49_41; nearest scanned tile m61_49_38 -> 68410)
+    #
+    # 68750 is the separable (a)-misfile named in #1066: it shipped Gravesite while the PlayArea
+    # scan answers it EXACTLY -- item_play_regions row `68750 m61_48_42_00 6860000 68600
+    # volume:...`, and 68600 is Abyssal in PLAY_REGION_GROUPS. Same instrument and evidence class
+    # as the #1054 block above (scan-exact, ground-placed pickup), and it is independent of the
+    # sweep move: it was a member of the Drake's group only because the Drake was mis-hosted.
+    68750: "Abyssal",         # Mad Craftsman's Cookbook [1], near Divided Falls -- volume: 68600
+    #
     # -- The rest of the scan-exact, ground-placed queue (#1054 / #1046) --------------------
     # Same instrument, same evidence class as the ten above: each row's EXACT item_play_regions
     # answer disagrees with the nearest-grace derivation, and each is a GROUND-PLACED pickup, so
@@ -4534,6 +4601,10 @@ _REGION_MERGES = {"Sewer": "Leyndell"}
 # audit; a stale "Sewer" there would make an audited arena look unaudited.
 for _k in list(BOSS_AREA_REGION):
     BOSS_AREA_REGION[_k] = _REGION_MERGES.get(BOSS_AREA_REGION[_k], BOSS_AREA_REGION[_k])
+# Same for the HUMAN rulings, which now feed the same two consumers (#1066): a tsv is free to keep
+# saying "Sewer" about a place, and this is the one chokepoint that decides what region that is.
+for _k in list(_BOSS_ARENA_RULING):
+    _BOSS_ARENA_RULING[_k] = _REGION_MERGES.get(_BOSS_ARENA_RULING[_k], _BOSS_ARENA_RULING[_k])
 
 
 def region_of(r):
@@ -10341,7 +10412,16 @@ if BOSS_HEALTHBARS:
             # existing machinery, no orphans. Ranking it here rather than filtering members later
             # is what makes that true: a late filter would strip the members after the divvy had
             # already been dealt, and they would simply go unswept.
+            #
+            # ...and where PlayRegionParam has NO row at all, a HUMAN RULING outranks the tile
+            # decode for the same reason (#1066, J's report). boss_arena_rulings.tsv is Alaric's
+            # in-game answer to "where do you stand to kill this"; `_m61_boss_region` is the
+            # nearest-neighbour tile machinery that also regions the CHECKS. Ranking the ruling
+            # above it re-homes Marigga to Cerulean and the Jagged Peak Drake to Jagged Peak --
+            # a RE-HOST, not a drop: their Gravesite members fall back into the Gravesite divvy
+            # pool and are dealt to Gravesite's own hosts by the existing machinery.
             _lreg = (_ARENA_REGION_CURATED.get(_ent) or BOSS_AREA_REGION.get(_ent)
+                     or _BOSS_ARENA_RULING.get(_ent)
                      or _m61_boss_region(_ent)
                      or _LEGACY_BMAP_REGION.get(_bmap) or _mreg.get(_bmap))
             if not _lreg:
@@ -10829,35 +10909,6 @@ else:
 # UNAUDITED, not clean. The count is printed on every regen and ratcheted by
 # test_gf_boss_sweeps.py::test_sweep_arena_coverage_floor -- a self-reported coverage number is not
 # a safeguard unless something acts on it (CONTRIBUTING rule 11).
-# ---- the HUMAN half of the same question (boss_arena_rulings.tsv) -----------------------------
-# PlayRegionParam only ties a boss-area row to a DEFEAT flag for some bosses, so the table above is a
-# lower bound BY CONSTRUCTION -- and 106 of 218 triggers had no row. But the answer already existed:
-# Alaric ruled the PLACE 76 of 83 bosses stand in, in boss_region_worksheet.tsv's arena_region column
-# (2026-08-10, commit 41e8fe7 -- "arena_region IS the ruling column"). Until now nothing read it for
-# THIS question: --expand consumed those rulings only to re-region ambiguous CHECKS
-# (boss_verdict_tiles.tsv), which is a different question -- #523 is precisely the case where "which
-# region owns its checks" and "where is it fought" disagree.
-#
-# 🛑 RANKED BELOW MEASURED EVIDENCE, exactly like boss_verdict_tiles: a ruling fills an ABSENT and can
-# never overrule a PlayRegionParam row. A wrong ruling costs an unaudited trigger, never a measured one.
-_BOSS_ARENA_RULING = {}
-_bar_path = os.path.join(HERE, "boss_arena_rulings.tsv")
-if os.path.isfile(_bar_path):
-    with open(_bar_path, encoding="utf-8") as _rfh:
-        for _rl in _rfh:
-            if _rl[:1] == "#" or _rl.startswith("boss_entity"):
-                continue
-            _rp = _rl.rstrip("\n").split("\t")
-            if len(_rp) >= 3 and _rp[0].isdigit() and _rp[2]:
-                _BOSS_ARENA_RULING[int(_rp[0])] = _rp[2]
-    _bad_a = sorted({_r for _r in _BOSS_ARENA_RULING.values() if _r not in REGION_GROUPS and _r != HUB})
-    if _bad_a:
-        raise SystemExit(
-            "gen_data: boss_arena_rulings.tsv names region(s) %r that do not exist. A ruling must "
-            "resolve to a real region -- add the in-game place name to PLACE_TO_REGION in "
-            "tools/build_boss_region_worksheet.py rather than writing a phantom region here."
-            % _bad_a)
-
 # ---- MAJOR_SWEEP_TRIGGERS: which sweeps are a MAJOR boss's (issue #734) ---------------------------
 # `SweepSlotMajor` / `SweepSlotMinor` split the derived SweepSlot class, and Alaric's ruling
 # (2026-08-16) is that "major" here means EXACTLY the `MajorBoss` progression-surface class -- not

@@ -146,7 +146,15 @@ BOBLERRR_KEPT = frozenset({"Ancient Ruins", "Belurat", "Cerulean", "Jagged Peak"
 # sweeps at all (Deeproot 12030810..13, Gelmir 16000861, Enir Ilim 20010851/52). Their arena
 # regions did not become unknown; the bogus triggers were removed and their members redistributed
 # among the same fights' terminal flags. The denominator moved 218 -> 211 by the same seven.
-ARENA_COVERAGE_FLOOR = 185
+# 2026-08-26 (#1066): 185 -> 187. Again not a new datamine -- boss_arena_rulings.tsv gained two HAND
+# ROWS for the two triggers J's report exposed (Demi-Human Queen Marigga 2046400800 -> Cerulean,
+# Jagged Peak Drake 2049410800 -> Jagged Peak), both carrying Alaric's in-game 2026-08-10 ruling out
+# of boss_verdict_tiles.tsv. They were UNAUDITED, which the header above is careful to say is not
+# clean: `sweep_trigger_reachable` treated their absent arenas as reachable and the tracker promised
+# both groups in every Gravesite seed. The rulings now also decide each boss's HOST region, so the
+# pair arrive as ordinary matched groups rather than new #445 screens -- coverage up, split set
+# still 0.
+ARENA_COVERAGE_FLOOR = 187
 
 
 class SweepArenaTable(unittest.TestCase):
@@ -370,6 +378,98 @@ class LockGatesAgreeWithTheEmit(unittest.TestCase):
         self.assertNotIn(str(HIPPO), gates,
                          "sweepLockGates still routes the Hippo's dead group to a boss key -- the "
                          "client would render 'waiting on <lock>' for a fight the seed forbids")
+
+
+# ---- #1066: J's case, by name (CONTRIBUTING rule 11) ------------------------------------------
+# J, Discord 2026-08-26: "Im a bit confused on the logic for Gravesite Plain. It says that the
+# Demi-Human Queen Marigga and Jagged Peak Drake are in logic but i cant really get to either area
+# without it kicking me out. Are these supposed to be accessible?"  They are not, and the kick was
+# right. Both bosses were RULED in game by Alaric on 2026-08-10 (boss_verdict_tiles.tsv) and neither
+# has a PlayRegionParam boss-area row, so before #1066 the ruling reached nothing that mattered:
+# boss_arena_rulings.tsv was loaded after the host derivation had already dealt their members out of
+# Gravesite. The fix loads it beside the measured table and ranks it above the tile decode, so the
+# ruling RE-HOMES each boss instead of splitting it.
+MARIGGA = 2046400800
+DRAKE = 2049410800
+MARIGGA_ARENA = "Cerulean"        # "on the CERULEAN COAST, not Gravesite" -- boss_verdict_tiles.tsv
+DRAKE_ARENA = "Jagged Peak"       # "the Jagged Peak Drake is on the JAGGED PEAK" -- same table
+# J's seed, as reported: Gravesite kept, neither arena's region kept.
+J_KEPT = frozenset({"Gravesite"})
+
+
+class JsGravesiteSeed(unittest.TestCase):
+    """The acceptance test for #1066 is J's seed, not a synthetic one."""
+
+    def test_both_bosses_are_hosted_by_the_region_they_are_fought_in(self):
+        for trig, arena in ((MARIGGA, MARIGGA_ARENA), (DRAKE, DRAKE_ARENA)):
+            self.assertIn(trig, DS, "trigger %d lost its sweep group entirely" % trig)
+            self.assertEqual(
+                AR.get(trig), arena,
+                "trigger %d's arena region is not %r -- the boss_arena_rulings.tsv hand row is "
+                "gone or no longer reaches SWEEP_ARENA_REGION (#1066)" % (trig, arena))
+            self.assertEqual(
+                SR.get(trig), arena,
+                "trigger %d hosts %r's divvy while being FOUGHT in %r. That is the #1066 defect "
+                "verbatim: a Gravesite-only player is promised payouts behind a fight the "
+                "kick-watch ejects them from. The ruling must decide the HOST region, not just "
+                "the arena label." % (trig, SR.get(trig), arena))
+
+    def test_neither_group_is_in_scope_in_js_seed(self):
+        """The symptom, end to end. Gravesite kept, neither arena kept -> neither group exists for
+        the tracker to promise."""
+        for trig in (MARIGGA, DRAKE):
+            self.assertNotIn(SR[trig], J_KEPT, "WITNESS: the host region must be one J did not keep")
+            self.assertFalse(
+                bl.sweep_trigger_reachable(trig, J_KEPT),
+                "trigger %d is still in scope in a Gravesite-only seed (#1066)" % trig)
+        # WITNESS: the groups handed to unreachable_sweeps are non-empty, so an empty REPORT is a
+        # statement about the screen and not about an empty input (test_gf_vacuous_pass).
+        self.assertTrue(DS[MARIGGA] and DS[DRAKE],
+                        "WITNESS: both groups must still hold members for the empty report below "
+                        "to mean anything")
+        self.assertEqual(
+            bl.unreachable_sweeps({t: DS[t] for t in (MARIGGA, DRAKE)}, J_KEPT), {},
+            "these must be ORDINARY out-of-scope groups now, not reported unfireable ones -- a "
+            "report here means members and arena split again")
+
+    def test_the_mirror_a_seed_keeping_the_arena_still_gets_the_sweep(self):
+        """Rule 7's other half: the fix screens, it does not delete the feature."""
+        for trig, arena in ((MARIGGA, MARIGGA_ARENA), (DRAKE, DRAKE_ARENA)):
+            self.assertTrue(
+                bl.sweep_trigger_reachable(trig, {arena}),
+                "keeping %r must arm trigger %d's sweep" % (arena, trig))
+            self.assertTrue(DS[trig], "trigger %d must still grant something" % trig)
+
+    def test_no_gravesite_check_is_annotated_with_either_boss(self):
+        """J's tracker rows, literally. The sweep clause is folded into the location NAME, so the
+        annotation is what he read -- and no Gravesite row may carry it."""
+        for name, _ap, _flag in data.LOCATIONS.get("Gravesite", ()):
+            for boss in ("Demi-Human Queen Marigga", "Jagged Peak Drake"):
+                self.assertNotIn(
+                    "also granted by %s" % boss, name,
+                    "a Gravesite check still reads 'also granted by %s': %s (#1066)" % (boss, name))
+
+    def test_the_gravesite_members_are_still_swept_by_a_gravesite_host(self):
+        """The re-host must not have orphaned the Gravesite checks the two groups used to pay.
+        Every member still in Gravesite is dealt to a trigger whose own host region is Gravesite."""
+        gravesite_hosts = {t for t in DS if SR.get(t) == "Gravesite"}
+        self.assertTrue(gravesite_hosts, "Gravesite has no sweep hosts left to re-divvy onto")
+        swept = {ap for t in gravesite_hosts for ap in DS[t]}
+        gravesite_aps = {ap for _n, ap, _f in data.LOCATIONS.get("Gravesite", ())}
+        self.assertTrue(gravesite_aps, "WITNESS: Gravesite must have checks at all")
+        # The 15 Gravesite checks the two groups used to hold, by AP id, measured on the fix commit.
+        # Named rather than recomputed: recomputing them from the post-fix tables would ask the fix
+        # to confirm itself.
+        REHOMED = (7770142, 7770144, 7770153, 7770158, 7772451, 7773206, 7773230, 7773232,
+                   7773234, 7773236, 7773238, 7773240, 7773306, 7773310, 7773374)
+        for ap in REHOMED:
+            if ap not in gravesite_aps:
+                continue   # 7770158 = f68750, moved to Abyssal by the same change on scan evidence
+            self.assertIn(
+                ap, swept,
+                "AP id %d was a Gravesite member of Marigga's or the Drake's group and is now "
+                "swept by nobody in Gravesite -- the re-divvy dropped it (#1066)" % ap)
+
 
 
 class MargitArenaAndTunnelAreStormveil(unittest.TestCase):
