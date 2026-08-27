@@ -32,6 +32,13 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 
 ### Added
 
+- **SPEC-map-for-goblins.md.** Integration spec for the Map For Goblins DLL Edition v2.1.2
+  (bobler's link): phase A ships it as an opt-in companion native -- its `live_loot_flags`
+  mode already hides markers on our check flags and `anonymous_loot` gives a spoiler-free
+  check map -- gated on one Windows acceptance session; phase C (native map icons for the
+  non-lot corpus + tracker coloring) stays the roadmap. Supersedes the K3 recon, which
+  analyzed the 2024 file-based edition.
+
 - **Client gitlink -> `3e62e09` (clients#419-#434).** Rode in with the regenerated
   `grace_ground.tsv` (`b131d034`). All Bloodborne-client work (native attach/reconnect, grant
   observation, backend enum) plus the console/`--log-file` tee (clients#426); no Elden Ring
