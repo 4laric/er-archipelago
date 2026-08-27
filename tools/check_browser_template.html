@@ -279,7 +279,8 @@ function tileMates(c){
   return out;
 }
 function reportRow(c){
-  return `<dt>Region wrong?</dt><dd><a href="#" class="rep" data-id="${c.id}">report a misregion ↗</a></dd>`;
+  return `<dt>Something wrong?</dt><dd><a href="#" class="rep2" data-id="${c.id}">report a problem with this check ↗</a>`
+       + `<br><a href="#" class="rep" data-id="${c.id}">just the region is wrong ↗</a></dd>`;
 }
 function reportUrl(c){
   const mates=tileMates(c);
@@ -317,6 +318,51 @@ function reportUrl(c){
   return REPO+'/issues/new?labels=misregion'
     +'&title='+encodeURIComponent(title)
     +'&body='+encodeURIComponent(L.join('\n'));
+}
+
+/* ---------- REPORT A CHECK (the general case) -----------------------------------------
+   Same static-page trick as the misregion button above, one rung more general: the player's
+   check misbehaved and they want it looked at. The difference is the destination -- this one
+   opens the ISSUE FORM (.github/ISSUE_TEMPLATE/check-report.yml) rather than a blank issue, so
+   the questions triage always ends up asking (which build, what did the game actually do, the
+   yaml, the log) are ASKED UP FRONT instead of being chased in comments a week later.
+
+   🛑 Only `input` and `textarea` fields prefill from the URL, keyed on the field's `id` --
+   that is the whole of what GitHub documents (see "Creating an issue from a URL query"). The
+   `symptom` dropdown is therefore deliberately NOT prefilled: the browser does not know what
+   happened to you, and a dropdown that guessed would be a verdict this page has no business
+   claiming. The player picks it.
+
+   The evidence block is the same one the misregion form carries, because "which region is this
+   in and how was that decided" is the first question asked of a check that misbehaved, whatever
+   the symptom turned out to be. */
+const REPORT_TEMPLATE='check-report.yml';
+function checkFacts(c){
+  const L=[];
+  L.push('| field | value |','|---|---|');
+  L.push(`| name | ${c.full} |`);
+  L.push(`| AP id | ${c.id} |`);
+  L.push(`| event flag | ${c.f} |`);
+  L.push(`| assigned region | ${c.r} |`);
+  L.push(`| nearest grace | ${c.g||'unknown'} |`);
+  L.push(`| map tile(s) | ${(c.maps||[]).join(', ')||'none'} |`);
+  L.push(`| tags | ${(c.t||[]).join(', ')||'-'} |`);
+  if(c.how) L.push(`| region decided by | ${c.how} (check_region_triage) |`);
+  if(c.miss) L.push(`| missable | ${c.miss} |`);
+  const mates=tileMates(c);
+  if(mates.length){
+    L.push('');
+    for(const [t,rs] of mates) L.push(`- its tile \`${t}\` also holds checks in: ${rs.join(', ')}`);
+  }
+  L.push('', `Browser view: ${location.href}`, `Data stamp: \`${META.stamp}\``);
+  return L.join('\n');
+}
+function checkReportUrl(c){
+  return REPO+'/issues/new'
+    +'?template='+encodeURIComponent(REPORT_TEMPLATE)
+    +'&title='+encodeURIComponent(`check: ${c.n} [f${c.f}]`)
+    +'&check='+encodeURIComponent(`${c.full}`)
+    +'&facts='+encodeURIComponent(checkFacts(c));
 }
 
 function showDetail(c){
@@ -622,6 +668,13 @@ document.querySelectorAll('thead th').forEach(th=>th.addEventListener('click',()
 }));
 /* caveat blocks are collapsed by default but ONE click away, never hidden */
 document.getElementById('detail').addEventListener('click',e=>{
+  const rep2=e.target.closest('.rep2');
+  if(rep2){
+    e.preventDefault();
+    const c=CHECKS.find(x=>String(x.id)===rep2.dataset.id);
+    if(c) window.open(checkReportUrl(c),'_blank','noopener');
+    return;
+  }
   const rep=e.target.closest('.rep');
   if(rep){
     e.preventDefault();
