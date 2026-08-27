@@ -458,5 +458,119 @@ process.stdout.write(JSON.stringify({risky: n, rows: out}));
             self.assertIn(want, joined, f"the symptom list dropped `{want}`")
 
 
+@unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
+class SweepClauseIsEligibilityNotAPromise(unittest.TestCase):
+    """E. #936 -- the page must not tell a seedless reader that a boss GRANTS a check.
+
+    THE MOTIVATING CASE (rule 11), colombius on Discord, 2026-08-27. He read
+
+        Mountaintops of the Giants :: Golden Seed - near Foot of the Forge, by two snow
+        trolls, also granted by Fire Giant (m60_52_52) [f1052537800]
+
+    and the Fire Giant did not hand it over. Nothing was broken: the check is tagged
+    `Seedtree`, `Seedtree` is in SURFACE_DEFAULT_CLASSES and in
+    features/boss_locks._SWEEP_SURFACE_CUTTABLE, so `sweep_surface_cut` correctly took it back
+    out of the Fire Giant sweep for that seed -- that is where the seed hid its Locks. The NAME
+    said otherwise, because names ride the static AP datapackage and cannot vary per seed.
+
+    This page is the seedless surface: it is built once from the corpus and has no
+    `dungeon_sweep` rung and no `progression_surface` to consult. So it may state ELIGIBILITY
+    and must not state a grant. (The in-game client holds the seed truth in slot_data
+    `dungeonSweepFlags` and filters the clause outright -- er_logic::sweep_clause.)
+    """
+
+    COLOMBIUS_AP = 7773183
+    COLOMBIUS_FLAG = 1052537800
+    OPENER = ", also granted by "
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tool = _load_tool()
+        cls.tmp = tempfile.mkdtemp()
+        cls.checks = _payload(_build(os.path.join(cls.tmp, "e.html")))["checks"]
+        cls.by_id = {c["id"]: c for c in cls.checks}
+
+    def test_the_motivating_check_names_no_grant_and_keeps_its_identity(self):
+        c = self.by_id[self.COLOMBIUS_AP]
+        self.assertEqual(c["f"], self.COLOMBIUS_FLAG)
+        self.assertNotIn(self.OPENER, c["full"])
+        self.assertNotIn(self.OPENER, c["n"])
+        # the flag tail is the check's identity in logs and issue reports -- stripping the
+        # clause must not take it with it.
+        self.assertTrue(c["full"].endswith("[f%d]" % self.COLOMBIUS_FLAG), c["full"])
+        self.assertIn("near Foot of the Forge, by two snow trolls", c["full"])
+
+    def test_the_motivating_check_still_carries_the_boss_as_eligibility(self):
+        # the #670 answer to "so idk what boss to kill?" must survive the fix, or this trades
+        # one unusable surface for another.
+        self.assertEqual(self.by_id[self.COLOMBIUS_AP]["sw"], ["Fire Giant", "m60_52_52"])
+
+    def test_no_payload_name_anywhere_still_asserts_a_grant(self):
+        offenders = [c["id"] for c in self.checks
+                     if self.OPENER in c["full"] or self.OPENER in c["n"]]
+        self.assertFalse(offenders,
+                         "%d name(s) still assert a per-seed grant: %s"
+                         % (len(offenders), offenders[:5]))
+
+    def test_every_clause_the_corpus_bakes_was_recovered_not_just_deleted(self):
+        # A splitter that silently failed to match would look identical to one that worked, by
+        # the test above -- the clause would simply still be in the name. Pin the population:
+        # every corpus name carrying the clause must come back with a boss on the `sw` row.
+        locs = self.tool.load_module_consts(
+            os.path.join(GF_PKG, "data.py"), {"LOCATIONS"})["LOCATIONS"]
+        baked = {a for v in locs.values() for (n, a, _f) in v if self.OPENER in n}
+        self.assertGreater(len(baked), 3000, "the corpus stopped baking the clause?")
+        lost = sorted(a for a in baked if not self.by_id[a]["sw"])
+        self.assertFalse(lost, "%d clause(s) dropped instead of recovered: %s"
+                              % (len(lost), lost[:5]))
+        # and the converse: `sw` is never invented for a name that never carried one.
+        invented = sorted(c["id"] for c in self.checks if c["sw"] and c["id"] not in baked)
+        self.assertFalse(invented, "sw invented for: %s" % invented[:5])
+
+    def test_the_page_says_the_seed_decides_rather_than_hiding_the_hedge(self):
+        html = open(os.path.join(REPO, "er-archipelago-check-browser.html"),
+                    encoding="utf-8").read()
+        self.assertIn("function sweepRow", html)
+        self.assertIn("dungeon_sweep", html)
+        self.assertIn("progression_surface", html)
+        # ...and the promise must not come back as UI chrome. Scoped to the DATA rather than
+        # the whole file: the only other occurrence is the source comment above `sweepRow`
+        # quoting the clause it exists to explain, and a test that forbade naming the thing
+        # would forbid documenting it.
+        payload = _payload(html)
+        self.assertNotIn("also granted by", json.dumps(payload))
+
+    def test_the_splitter_is_the_inverse_of_the_writer_it_sits_next_to(self):
+        # The splitter and `with_sweep` are two halves of one shape; the corpus test above only
+        # proves they agree on the shapes the corpus HAPPENS to contain today. This pins the
+        # contract itself, including the tile-less form `sweep_clause` also writes.
+        import importlib.util as _iu
+        spec = _iu.spec_from_file_location(
+            "ds_rt", os.path.join(GREENFIELD, "desc_sources.py"))
+        ds = _iu.module_from_spec(spec)
+        spec.loader.exec_module(ds)
+        for desc, boss, tile in (
+            ("near Foot of the Forge, by two snow trolls", "Fire Giant", "m60_52_52"),
+            ("On a tree near the road", "Night's Cavalry", None),
+            ("in a chest (region unconfirmed)", "Deathbird", "m60_44_53"),
+        ):
+            baked = "R :: I - %s [f7]" % ds.with_sweep(desc, boss, tile)
+            back, got_boss, got_tile = ds.split_sweep_clause(baked)
+            self.assertEqual(back, "R :: I - %s [f7]" % desc)
+            self.assertEqual(got_boss, boss)
+            self.assertEqual(got_tile, tile)
+        # a name that never carried a clause comes back untouched, boss None.
+        plain = "R :: I - just here [f7]"
+        self.assertEqual(ds.split_sweep_clause(plain), (plain, None, None))
+
+    def test_the_boss_stays_searchable(self):
+        # "which checks does Fire Giant sweep" is the question this page is asked; moving the
+        # name out of `n` must not move it out of the search haystack.
+        tpl = open(os.path.join(REPO, "tools", "check_browser_template.html"),
+                   encoding="utf-8").read()
+        hay = tpl.split("function haystack(c){", 1)[1].split("}", 1)[0]
+        self.assertIn("c.sw", hay)
+
+
 if __name__ == "__main__":
     unittest.main()

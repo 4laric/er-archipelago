@@ -234,6 +234,43 @@ def sweep_clause(boss_name, tile=None):
     return f"also granted by {name} ({tile})" if tile else f"also granted by {name}"
 
 
+# The clause opener, shared by every reader that has to take the clause back OUT of a finished
+# name: the check browser (tools/build_check_browser.py) and, byte-identical, the client's
+# `er_logic::sweep_clause` (from-software-archipelago-clients). Defined once here, next to the
+# writer, so a reword is one edit and not a hunt -- see er-archipelago#936 for why readers strip it.
+SWEEP_CLAUSE_OPENER = ", also granted by "
+
+_SWEEP_CLAUSE_RE = re.compile(
+    re.escape(SWEEP_CLAUSE_OPENER) + r"(?P<boss>.+?)(?: \((?P<tile>[^()]*)\))?(?P<tail>\s*\[f\d+\])?$"
+)
+
+
+def split_sweep_clause(name):
+    """`(name_without_the_clause, boss_name_or_None, tile_or_None)` for a finished location name.
+
+    The inverse of `with_sweep` over the shape `sweep_clause` writes, kept next to it so the two
+    cannot drift. The " [fNNNN]" tail the generator appends LAST is preserved on the stripped name:
+    it is the check's identity in logs and issue reports, and dropping it would make a stripped name
+    unciteable.
+
+    WHY A READER STRIPS AT ALL (er-archipelago#936). The clause describes the CORPUS -- every check
+    a sweep COULD pay -- because names ride the STATIC AP datapackage and cannot see a seed's
+    `dungeon_sweep` rung or its progression-surface cut. A reader that knows the seed (the client,
+    via slot_data `dungeonSweepFlags`) filters it; a reader that has NO seed (the check browser)
+    must not present it as a per-seed promise, and uses the parts to say "eligible" instead.
+
+    Returns `(name, None, None)` unchanged when there is no clause. `boss` is never empty when the
+    clause is present; `tile` is None for the tile-less form `sweep_clause` also writes.
+    """
+    if not name:
+        return name, None, None
+    m = _SWEEP_CLAUSE_RE.search(name)
+    if not m:
+        return name, None, None
+    tail = m.group("tail") or ""
+    return name[:m.start()] + tail, m.group("boss"), m.group("tile")
+
+
 def with_sweep(desc, boss_name, tile=None):
     """`desc` with the sweep clause appended; unchanged when there is no clause.
 

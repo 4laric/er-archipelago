@@ -111,6 +111,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # would have been a cycle -- build_check_browser already imports build_nearest_grace.
 from overworld_fold import OW_RE, world_xz  # noqa: F401  (re-exported for build_desc_triage)
 
+# The sweep clause is taken back OUT of the name here (er-archipelago#936). The splitter lives
+# next to the writer in greenfield/desc_sources so the two shapes cannot drift; `greenfield/` is
+# the repo root's package dir, one level up from tools/.
+sys.path.insert(0, os.path.join(REPO, "greenfield"))
+from desc_sources import split_sweep_clause  # noqa: E402
+
 
 def data_stamp(path):
     """data.py's _GEN_STAMP.inputs_hash -- a content id that is stable across commits."""
@@ -304,7 +310,14 @@ def main():
     for region, entries in LOCATIONS.items():
         for name, ap_id, flag in entries:
             # short name: strip the "Region :: " prefix and the trailing [fNNNN]
-            short = name.split(" :: ", 1)[-1]
+            # #936: the baked ", also granted by <boss> (<tile>)" clause is a CORPUS fact --
+            # every check a sweep COULD pay -- and this page has no seed, so presenting it inside
+            # the name reads as a promise this browser cannot make (colombius, Discord
+            # 2026-08-27: a Golden Seed whose name named the Fire Giant, in a seed whose
+            # progression-surface cut had taken it back out of that sweep). Split it off and let
+            # the template say "sweep-eligible" instead.
+            honest, sweep_boss, sweep_tile = split_sweep_clause(name)
+            short = honest.split(" :: ", 1)[-1]
             short = re.sub(r"\s*\[f\d+\]\s*$", "", short)
             mrows = maps_by_flag.get(flag, [])
             tiles = sorted({m["map"] for m in mrows})
@@ -312,7 +325,10 @@ def main():
                 "id": ap_id,
                 "f": flag,
                 "n": short,
-                "full": name,
+                "full": honest,
+                # ("<boss>", "<tile>") when a sweep in the CORPUS lists this check; the page
+                # renders it as eligibility, never as this-seed truth. [] when none.
+                "sw": [sweep_boss, sweep_tile or ""] if sweep_boss else [],
                 "r": region,
                 "t": TAGS.get(ap_id, []),
                 "maps": tiles,
