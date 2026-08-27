@@ -52,3 +52,5 @@ stable	v0.4.13	2026-08-22	the corpse-award retroactive sweep (179 death-award ch
 beta	main	2026-08-22	the open v0.4.14 window
 stable	v0.5.0	2026-08-24	ability lock: name any of jump / crouch / roll / r1 / r2 / l1 / l2 / heal in locked_abilities and the game will not do it, or set ability_lock_mode: progressive and find them back as multiworld items (roll forced early); plus co-op difficulty, shop_checks and armor_bundles as YAML options, the Leyndell capital-gate and as-sent Great Rune fixes, 129 more retroactive corpse-award checks, and the !check rescue command; promoted at its tag as the v0.5.1 window opened -- the promotion v0.5.0 deferred while it was an integration branch
 beta	main	2026-08-24	the open v0.5.1 window
+stable	v0.5.1	2026-08-27	region_sync for seamless co-op (one player opens a region, every opted-in ER slot's door opens with it), full_area_sweeps (a boss hands you the whole area), spawn_traps by enemy NAME, and the progressive ability-lock early-attack fix; also carries the unverified 2.7.0.0 Tarnished candidate offsets ahead of the game update; promoted at its tag as the v0.5.2 window opened
+beta	main	2026-08-27	the open v0.5.2 window
