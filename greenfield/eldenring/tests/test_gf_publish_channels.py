@@ -480,13 +480,34 @@ class LandingNumbersAreCurrent(unittest.TestCase):
                 "(both markers) -- peliarch serves this file from main, so it is live the moment "
                 "--site runs." % (got, derived))
 
+    def _unmarked_counts(self, text):
+        """Every 4-7 character number-ish run sitting within 60 characters of the word
+        "catalogued" that is NOT inside a marker element."""
+        stripped = re.sub(r'data-derived="%s"[^>]*>[^<]+<' % self.MARKER, "", text)
+        return [m.group(0) for m in
+                re.finditer(r"[\d,]{4,7}(?=[^<>]{0,60}catalogu)", stripped)]
+
     def test_no_unmarked_check_count_is_left_in_the_prose(self):
         """A future edit that writes the number in a new sentence without the marker would be
-        invisible to the gate above, which is exactly how this drifted the first time."""
-        text = self._landing()
-        stripped = re.sub(r'data-derived="%s"[^>]*>[^<]+<' % self.MARKER, "", text)
-        near = [m.group(0) for m in
-                re.finditer(r"[\d,]{4,7}(?=[^<>]{0,60}catalogu)", stripped)]
+        invisible to the gate above, which is exactly how this drifted the first time.
+
+        The scan is WITNESSED in this same body before it is trusted: an assertion that a list is
+        empty is satisfied just as well by a scanner that has stopped matching anything at all, so
+        the scan is first shown the exact prose that drifted and required to find it, and shown the
+        marked form of the same sentence and required not to.
+        """
+        planted = self._unmarked_counts("<p>All 5,048 catalogued checks are here.</p>")
+        self.assertEqual(
+            ["5,048"], planted,
+            "the unmarked-count scan no longer recognises the prose that actually drifted "
+            "(landing.html said 4,931 catalogued checks for a whole window), so the assertion "
+            "below would pass on a page that had gone stale again")
+        self.assertEqual(
+            [], self._unmarked_counts('<p>All <span data-derived="%s">4,948</span> catalogued '
+                                      'checks are here.</p>' % self.MARKER),
+            "the scan flags a properly marked number, so it would be red on a correct page and "
+            "the first person to see it would delete it")
+        near = self._unmarked_counts(self._landing())
         self.assertEqual(
             [], near,
             "landing.html states a catalogued-check count outside a "
