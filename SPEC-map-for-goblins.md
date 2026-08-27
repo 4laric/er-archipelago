@@ -136,6 +136,30 @@ Run with the AP client + MFG in one me3 profile, a real seed:
 
 Record verdicts in this file (the ability-lock spec's probes-ANSWERED pattern).
 
+## 6.5 Phase B — ware-icon signalling (OPEN, probe-gated)
+
+Alaric's ask, 2026-08-26: "any custom coloring of hinted checks? progression_surface?"
+
+MFG has no per-marker API — its only colour knobs are the own/other-map emphasis fade. But with
+`live_loot_icons`/`live_loot_labels` the marker's icon, category and label follow the LOT'S
+CURRENT WARE'S params, and the client writes those ware rows. So state can be encoded in what
+MFG already reads:
+
+- **progression_surface (static, per-seed):** bake surface-eligible check wares with a distinct
+  iconId / goodsType class at repoint time. If MFG's classifier keys on goodsType, those markers
+  land in their own MFG category and players can isolate them with MFG's OWN category toggles.
+- **hinted (dynamic):** when a hint lands, the client rewrites that check ware's iconId in the
+  live params (the minibaker write precedent). Works iff MFG re-reads on map open — the same
+  question as §6 check 2, one probe answers both.
+
+Probes before any build: (1) flip one check ware's iconId live, reopen the map — does the marker
+change? (2) what does MFG's classifier actually key on (goodsType? EquipParam table? icon id
+ranges?) — determined empirically, two ware edits and a map open. Costs and limits, stated:
+mutually exclusive with `anonymous_loot` (it overrides labels AND icons — spoiler-free or
+class-signalling, per player, not both); gaming a third-party classifier, so it can break on any
+MFG update (the SETUP note should version-pin the recommendation); icon-as-colour, not true
+tinting — in-logic/out-of-logic colouring stays phase C.
+
 ## 7. Phase C — the native endgame (CARRIED, re-priced)
 
 The recon's §6C design survives as the roadmap item: the client appends its own
