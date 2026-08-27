@@ -26,10 +26,12 @@ CLI:
                                                #   exit 0 match, 3 mismatch, 4 cannot-verify(missing)
 """
 import argparse
+import fnmatch
 import glob
 import hashlib
 import json
 import os
+import sqlite3
 import sys
 
 # Repo-root-relative input declaration. Concrete files + globs. Order here is irrelevant (sorted).
@@ -120,6 +122,7 @@ GLOB_INPUTS = [
 OPTIONAL = frozenset({"greenfield/region_overrides.tsv"})
 
 _TEXT_EXTS = {".csv", ".tsv", ".xml", ".py", ".js", ".md", ".json", ".txt", ".ps1", ".sh"}
+_ARTIFACT_PREFIX = "elden_ring_artifacts/"
 
 
 def _norm_repo(repo_root):
@@ -157,21 +160,73 @@ def _resolve_inputs(repo_root):
     return found, declared_present
 
 
+def _bundle_input_digests(repo_root):
+    """Canonical artifact relpath -> digest map from the committed gen_inputs bundle.
+
+    The extracted artifact tree is a cache.  Its contents can vary with extraction destination,
+    leftovers, and whether a caller used --extract or --ensure; none of those contexts may change
+    the identity of the committed generator inputs.  The bundle's path/digest table is the source
+    of truth and is available anywhere the repository is available.
+    """
+    db_path = os.path.join(repo_root, "gen_inputs.db")
+    if not os.path.isfile(db_path):
+        return None
+    try:
+        con = sqlite3.connect("file:%s?mode=ro" % db_path, uri=True)
+        rows = con.execute("SELECT path, sha256 FROM files ORDER BY path").fetchall()
+        con.close()
+    except sqlite3.Error as exc:
+        raise RuntimeError("cannot read canonical gen_inputs.db manifest: %s" % exc) from exc
+    if not rows:
+        raise RuntimeError("canonical gen_inputs.db contains zero files")
+    return {_ARTIFACT_PREFIX + path.replace("\\", "/"): digest for path, digest in rows}
+
+
+def _matches_declared_glob(relpath, pattern):
+    """Match the recursive globs in GLOB_INPUTS against a bundle manifest path."""
+    # pathlib/glob treat ``**/`` as zero-or-more directories; fnmatch treats it as one-or-more.
+    # Checking both spellings preserves the glob semantics for files directly under event/ as
+    # well as files in nested talk/msg directories.
+    return fnmatch.fnmatchcase(relpath, pattern) or fnmatch.fnmatchcase(
+        relpath, pattern.replace("**/", "")
+    )
+
+
 def compute_manifest(repo_root):
     """Return dict: {inputs_hash, gen_data_sha, n_files, missing:[...], files:{rel:digest}}."""
     repo_root = _norm_repo(repo_root)
     found, declared_present = _resolve_inputs(repo_root)
 
+    # When the committed bundle is present, its manifest defines the artifact half of the input
+    # identity.  Do not hash the extracted cache: an --ensure tree may contain leftovers, and an
+    # extract under a different parent must still describe the same bundle.
+    bundle_files = _bundle_input_digests(repo_root)
+    if bundle_files is not None:
+        found = {rel: ap for rel, ap in found.items() if not rel.startswith(_ARTIFACT_PREFIX)}
+        declared_present = {
+            declaration for declaration in declared_present
+            if not declaration.startswith(_ARTIFACT_PREFIX)
+        }
+        for rel in FILE_INPUTS:
+            if rel.startswith(_ARTIFACT_PREFIX) and rel in bundle_files:
+                declared_present.add(rel)
+        for pat in GLOB_INPUTS:
+            if pat.startswith(_ARTIFACT_PREFIX) and any(
+                    _matches_declared_glob(rel, pat) for rel in bundle_files):
+                declared_present.add(pat)
+
     # Which REQUIRED declarations produced nothing? (globs that matched zero files, or missing files.)
     missing = []
     for rel in FILE_INPUTS:
-        if rel not in found and rel not in OPTIONAL:
+        if rel not in declared_present and rel not in OPTIONAL:
             missing.append(rel)
     for pat in GLOB_INPUTS:
         if pat not in declared_present:
             missing.append(pat)
 
     files = {rel: _file_digest(ap) for rel, ap in found.items()}
+    if bundle_files is not None:
+        files.update(bundle_files)
     # Absent required inputs participate in the hash as "ABSENT" so the hash is well-defined and a
     # partial-input machine can't collide with a full-input one.
     for rel in missing:
