@@ -15,6 +15,9 @@ The narrative — what this project is and what v0.2 brings — lives in
 - **Existing seed/save:** Compatible — finish an active v0.5.0 seed with its matched v0.5.0
   pair. No save migration; do not mix versions.
 - **Profile/assets:** No action.
+- 🛑 **AP ids moved.** Enia's 100 shop checks left the pool (#1013), so `locations` goes
+  5048 -> 4948 and every id after hers shifts down by 100. A v0.5.0 spoiler log or external
+  tracker will name the wrong check; an in-flight seed is unaffected on its matched v0.5.0 pair.
 
 Window opened AT the v0.5.0 tag with zero commits past it, in the promotion change; nothing is
 carried over.
@@ -131,6 +134,13 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   its player region-kicked out from under the party. Client half clients#417; the gitlink moves to
   its merge (`3967d512`).
 
+- **The player guide says what `(region unconfirmed)` means and what it costs you.** 305 check names
+  still carry that hedge, it shows up on the F6 tracker, and until now nothing told a player how to
+  read it. `release/PLAYER-GUIDE.md` defines it: the check exists and is obtainable, the REGION label
+  beside it is a derivation nobody has walked in game, so an unconfirmed check is barred from hosting
+  progression -- it can hold filler and it can hold your own useful items, and the logic will never
+  require you to reach it to finish. Reported by 255 while reading the tracker. (#1024)
+
 ### Changed
 
 - **Ability Lock Mode now defaults to `progressive`, not `static` (Alaric's 2026-08-25 ruling).**
@@ -150,6 +160,31 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   change — `abilityUnlockItems` and the mode's wiring have shipped since v0.5.0, and the mode is not
   a slot-data key at all (the client reads the emitted map, never a mode string), so `CONTRACT_HASH`
   does not move. `release/EldenRing.yaml`, the wizard metadata and `wizard.html` are regenerated.
+- **Finger Reader Enia's shop is vanilla again, and every AP id after it shifts down by 100 (#1013).**
+  Her 100 stock rows are excluded from randomization at generation, a rule the project had, lost, and
+  now restores by construction. The reason is in the ledger beside every excluded row: her armor rows
+  release on ceremony flags and her trades on holding the remembrance, so her checks read sphere-1 in
+  the spoiler while her menu is empty at the start of a run -- a check the tracker calls open and the
+  game will not sell you. The exclusion is DERIVED rather than typed (`merchant_shops.tsv` col 3 ==
+  `Finger Reader Enia` -> `shop_rows.tsv` col 5, a FATAL generation error if that derivation ever comes
+  up empty) and ledgered as `enia_vanilla=100`. Her shelves are the game's own wares now.
+  🛑 **`locations` goes 5048 -> 4948, and removing her block renumbers every later AP id by exactly
+  100.** An external tracker or a spoiler log carried over from a v0.5.0 seed will read the wrong
+  check; an in-flight seed stays on its matched v0.5.0 pair, which the exact-version handshake already
+  enforces. Everything that named an id by number is re-pinned by FLAG with its reason written beside
+  it: the four `goal_choice` finales, `goal_locations.MALENIA_GOAL_LOCATION` (7770762 -> 7770662), the
+  capital reconciler, the academy pocket, the isolated merchant, the sweep rungs, the tutorial-boss
+  digest (`0681fe15c878a761` / 4101) and the coverage-gate baselines (4948 / 462, hub bar 83 / 20).
+  Her rows still count as DLC-gated shop **rows** -- the raw set stays pinned at 36, all hers -- they
+  stop being **checks**, so `DLC_GATED_SHOP_CHECK_FLAGS` is empty and the no-DLC filter test asserts
+  against the raw set. Two knock-ons ruled rather than papered over: losing 100 sphere-0/1 purchase
+  slots leaves a thin seed shorter of filler, so `EARLY_SAMPLE_MAX_UNDER` goes 2 -> 4 (the median seed
+  is unaffected at 27 >= 24); and the Scadutree level-12 blessing floor, until now a comment, is
+  enforced in code -- on a degenerate one-DLC-region pool the injector breaches `MAX_POOL_SHARE`
+  loudly ("cannot reach its target") instead of shipping a silent shortfall. 🛑 The 8 remaining
+  `EniaShop`-tagged locations are NOT hers (Gowry, Corhyn, Miriel, the Dragon Communion legendary
+  slots); the tag is a misnomer now, and renaming it is churn for another change. (#1013)
+
 ### Fixed
 
 - **Demi-Human Queen Marigga and the Jagged Peak Drake stopped promising Gravesite payouts for fights Gravesite cannot reach (#1066).** J reported it on Discord 2026-08-26: "It says that the Demi-Human Queen Marigga and Jagged Peak Drake are in logic but i cant really get to either area without it kicking me out." The kick was correct and the tracker was wrong. Both bosses were already ruled in game by Alaric on 2026-08-10 -- Marigga is on the **Cerulean Coast**, the Drake is on the **Jagged Peak** (`boss_verdict_tiles.tsv`), and the PlayArea scan agrees (her tile `m61_46_40` buckets 68300/68400 = Cerulean; the Drake's nearest scanned tile `m61_49_38` answers 68410 = Jagged Peak). Neither has a `PlayRegionParam` boss-area row, and `boss_arena_rulings.tsv` -- the table that holds exactly this ruling -- was loaded AFTER the sweep host derivation had already run, so a ruling could only relabel `SWEEP_ARENA_REGION` while the members stayed dealt out of the tile-decode region. That is the arena/members split #1059 forbids, which is why the obvious one-line fix hard-failed gen. **The fix is at the host derivation, exactly as #1059 fixed Jori:** the rulings table now loads beside the measured `BOSS_AREA_REGION` and is ranked between it and the tile decode, so ONE answer feeds both the host region and the arena label and a ruling **re-homes** a boss instead of tearing it in half. Marigga becomes a Cerulean divvy host (9 members) and the Drake a Jagged Peak one (15); their Gravesite-measured members fall back into the Gravesite pool and are re-dealt to Gravesite's own hosts by the existing machinery -- 44 member links move host, **every one of them staying inside its own region**, and the Knight of the Solitary Gaol goes 27 -> 66 members while Rellana goes 41 -> 46. Three checks change region with them: `530845` Star-Lined Sword and `530850` Dragon Heart are the two bosses' OWN DROPS, which had fallen to the tile decode for want of a boss-area row and so filed in Gravesite an item obtainable only by winning a fight on foreign ground (J's symptom, one layer down), and `68750` Mad Craftsman's Cookbook [1] is the separable misfile #1066 named -- the scan answers it EXACTLY at bucket 68600 = Abyssal. Census delta is those three and nothing else: Gravesite 225 -> 222, Cerulean 104 -> 105, Jagged Peak 37 -> 38, Abyssal 23 -> 24. **No AP id moves** (4,663 flag->id pairs identical) and no location is added or removed. 🛑 The two drops are pinned per-flag in `FLAG_REGION_OVERRIDE` rather than by teaching the boss-drop branch to read the rulings table wholesale: that would move drops for all 62 ruled triggers at once, unmeasured, and the note beside `_ARENA_REGION_CURATED` says why a sweep ruling must not be folded into `BOSS_AREA_REGION` -- it would take Margit's drop out of Limgrave. Acceptance test (rule 11) is J's seed: a seed keeping Gravesite without Cerulean or Jagged Peak now lists neither boss's rows, and no Gravesite check reads `also granted by Demi-Human Queen Marigga` / `also granted by Jagged Peak Drake`. The #1059 containment gate is GREEN with the new rulings in place, which is the point of the shape: arena coverage rises 185 -> 187 of 211 triggers and the split set stays 0.
@@ -186,6 +221,40 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   shares and the footer kept promising 103 points of filler. The column and the footer now track the
   weights live, per keystroke, and an all-zero recipe reads `--` with the empty-recipe warning
   instead of a stale percentage. Reported by NovahDango. (#1031)
+
+- **Client gitlink -> `f5b9187` (clients#456, clients#458).** Both riders are Elden Ring, and both are
+  about Tarnished Edition. 🛑 **The 2.7.0.0 support that rides in here has never been run in a game.**
+  clients#456 adds a `Ww270` arm to the version gate on offsets derived entirely offline -- 93 in the
+  pinned `eldenring` crate and 8 of the client's own, now dispatched through a new `rva_table` module
+  instead of being constants baked to 2.6.2.0 -- so a 2.7.0.0 player gets a build that can find out
+  rather than the panic the old gate had waiting for them. PE detection happens once and is cached, so
+  the crate's table and ours cannot disagree about which executable is running, and attach logs a
+  warning on the 2.7.0.0 path saying in as many words that the addresses are unverified. The JP
+  Tarnished exe is NOT supported and the rejection text says so: its binary was never available to
+  derive a table from. Both git deps point at `4laric/fromsoftware-rs` @ `63a0c372` for now, a fork of
+  the previously pinned `8c67a84f` whose only delta is the added `Ww270` arm -- TEMPORARY, and it goes
+  back to upstream the moment upstream ships its own generated arm. 2.6.2.0 and 2.6.2.1 keep working
+  unchanged; the arms coexist. clients#458 is the first smoke run's two findings: `fmg_repo` is the one
+  client RVA that is READ and never CALLED, so no prologue guard covers it and a range test any
+  pointer-shaped word passes was the entire screen -- it now validates the FMG STRUCTURE at first use
+  (ordered, disjoint group spans; an entry count in band and consistent with them; every known-vanilla
+  probe id resolving to well-formed text), and a rejection turns the FMG layer off for the session with
+  one ASCII log line instead of crashing or painting garbage item names. That guard is deliberately
+  language-independent -- it never compares the text to English words. And the `spell_slot_length`
+  oracle, which exists to spot a stacked `regulation.bin`, was accusing vanilla 2.7.0.0 of being modded
+  on every session because its "expected 25" was a 2.6.2.0 figure; the expectation is per-build now,
+  off the same detection `rva_table` dispatches on (vanilla 2.7.0.0 measures 105 of 317 rows).
+
+- **Groundwork: two CI flakes killed at the fixture, and the generator input stamps stop depending on
+  where the artifacts came from.** Developer gates, no player-facing change. The chandelier dedup
+  pool-cardinality assertion drew at random and the merchant bell pool witness could draw a seed whose
+  D and Rogier awards had no sealed merchant region, so both sometimes asserted against a world that
+  did not hold their premise; both now use a deterministic draw and a DLC-only fixture (#1065, #975).
+  Artifact identity for the deterministic generator stamps is derived from the committed
+  `gen_inputs.db` manifest rather than from extraction context, which also covers leftovers and
+  unextracted bundles, and that suite is registered in the generators ledger so the workflow actually
+  runs it -- a repo-only suite that no job executes is the exact shape of dark test this ledger exists
+  to catch (#1010).
 
 ## v0.5.0 — 2026-08-22
 
