@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """build_questline_dag_page.py -- an offline reader for the questline evidence model.
 
-WHY A PAGE. The tsv is 280 rows of flag ids. The question a human actually asks of it is
+WHY A PAGE. The tsv is thousands of rows of flag ids. The question a human actually asks of it is
 "what gates THIS check, and what gates that", which is a walk over a graph, and a walk is
 not a thing you do in a spreadsheet. SPEC-questline-dag §6 tier 1 says to ship the graph
 "and let it be read by a human for a week" -- this is the reading surface for that week.
@@ -10,18 +10,20 @@ not a thing you do in a spreadsheet. SPEC-questline-dag §6 tier 1 says to ship 
 THE UNIT OF BROWSING IS THE CLUSTER, not the edge. The graph is not one DAG: it is 136
 connected components, the largest 13 nodes across. That is a fact about the data (quest
 chains are small and mostly disjoint) and it is what makes a diagram legible at all -- one
-component fits on a screen, all 280 edges do not. Each cluster renders as its own mermaid
-graph.
+component fits on a screen, the whole edge list does not. Each cluster renders as its own
+mermaid graph. 🛑 Only the three AWARD-SITE corpora are drawn -- see `_PAGE_TOOLS` for why the
+#1085 cone corpus is counted in the banner instead of rendered.
 
 🛑 A READER, NOT AN ORACLE -- the same sentence build_check_browser.py carries, for the same
 reason. Every number here is a join over the committed tsv. The page cannot know anything
 the table does not, and it repeats the table's own warnings rather than presenting a clean
 graph as a settled one:
   * an edge is CO-OCCURRENCE plus a polarity rule, not proof;
-  * `sense=unknown` (108 of 280) means the corpus does not encode the polarity -- those
-    edges are drawn DASHED and must not be reasoned with;
-  * absence from the graph is NOT evidence of safety. f510110 (Fortissax) is absent by
-    construction, and the page says so on its face rather than in a footnote.
+  * `sense=unknown` means the corpus does not encode the polarity -- those edges are drawn
+    DASHED and must not be reasoned with;
+  * absence from the DRAWN graph is NOT evidence of safety. f510110 (Fortissax) is absent from
+    every award-site corpus by construction; since #1085 it IS in the tsv via the cone
+    extractor, and the banner says both things on the page's face rather than in a footnote.
 
 MERMAID FROM CDN, WITH THE SOURCE ALWAYS VISIBLE. The other offline pages in this repo are
 strictly self-contained; this one needs a layout engine, and vendoring ~2 MB of minified
@@ -119,8 +121,8 @@ def _clusters(edges):
     """
     adj = collections.defaultdict(set)
     for e in edges:
-        adj["t%d" % e["target_flag"]].add("s%d" % e["source_flag"])
-        adj["s%d" % e["source_flag"]].add("t%d" % e["target_flag"])
+        adj["t%s" % e["target_flag"]].add("s%s" % e["source_flag"])
+        adj["s%s" % e["source_flag"]].add("t%s" % e["target_flag"])
     seen, groups = set(), []
     for node in sorted(adj):
         if node in seen:
@@ -226,9 +228,26 @@ _NPC = set()
 _LABEL = {}
 
 
+# 🛑 THE PAGE RENDERS THE AWARD-SITE CORPORA ONLY, AND SAYS SO ON ITS FACE.
+# #1085 added a fourth corpus (`questline_conditions`, the cone extractor) to the tsv: 1513 edges
+# whose sources include NON-FLAG roots (`goods:8191`, `map:m12_03`) and which connect hundreds of
+# checks through shared ancestors. Rendering it here would destroy the one thing that makes this
+# page legible -- "the unit of browsing is the CLUSTER" -- by collapsing the graph into a single
+# component nobody can read, and it would draw as settled a corpus whose every group carries
+# `group_semantics=unknown`. So it is EXCLUDED FROM THE DIAGRAMS AND COUNTED IN THE BANNER: the
+# reader is told how many edges are not drawn and where to read them, which is a refusal, not an
+# omission. Widening the page is a separate job with its own layout question to answer.
+_PAGE_TOOLS = ("lot_gates", "esd_gifts", "treasure_enablers")
+
+
 def build_page():
     global _NPC, _LABEL
-    edges, tally, notes = dag.build()
+    all_edges, tally, notes = dag.build()
+    edges = [e for e in all_edges if e["tool"] in _PAGE_TOOLS]
+    not_drawn = [e for e in all_edges if e["tool"] not in _PAGE_TOOLS]
+    if not edges:
+        sys.exit("FATAL: no award-site edges to render. An empty page is a failure, not a clean "
+                 "run -- the corpora this page draws have stopped joining.")
     world = notes["world"]
     _NPC = {e["source_flag"] for e in edges if e["source_kind"] == "npc_state"}
     # Prefer the ENGLISH gloss in a diagram box (it is what a reader can scan) but fall back to the
@@ -236,8 +255,11 @@ def build_page():
     _LABEL = {e["source_flag"]: (e["source_label"] or e["source_label_ja"])
               for e in edges if (e["source_label"] or e["source_label_ja"])}
     groups = _clusters(edges)
-    summary = dag.summarise(edges, tally, notes)
-    acceptance = dag._acceptance(edges)
+    # The SUMMARY and the ACCEPTANCE block are computed over the WHOLE table, not over the drawn
+    # subset: they are the table's own self-report, and quoting a filtered version of them here
+    # would put a number on the page that no other consumer of the tsv would ever reproduce.
+    summary = dag.summarise(all_edges, tally, notes)
+    acceptance = dag._acceptance(all_edges)
 
     payload = []
     for idx, members in enumerate(groups):
@@ -273,7 +295,7 @@ def build_page():
                 "ev": e["evidence"],
             } for e in members],
         })
-    return payload, summary, acceptance, edges
+    return payload, summary, acceptance, edges, not_drawn
 
 
 _HTML = """<!DOCTYPE html>
@@ -335,6 +357,15 @@ dashed edge (<code>sense=unknown</code>) means the corpus does not encode the po
 with those. <b>Absence is not safety.</b> The machine corpus reads AWARD SITES and therefore cannot
 see arena-existence gates. The separately attributed CC layer now records the known Fortissax hole,
 but that does not retroactively make it machine-derived.
+<br><br>
+<b>__NOTDRAWN__ edge(s) in <code>greenfield/questline_dag.tsv</code> are NOT drawn on this page.</b>
+They come from the <code>questline_conditions</code> corpus (issue #1085): a per-branch resolution of
+each award's own guard cone, which is <i>not</i> an award-site pairing and which therefore DOES reach
+f510110 (Fortissax) &mdash; with <code>map:m12_03</code>, <code>f12030800</code> and
+<code>goods:8191</code> as its ancestry. They are excluded here because a cone corpus links hundreds
+of checks through shared ancestors and collapses this graph into one unreadable component, and
+because every one of those groups carries <code>group_semantics=unknown</code> and must not be drawn
+as settled. Read them in the tsv, not here.
 </div>
 __CC__
 <div class="stats" id="stats"></div>
@@ -447,7 +478,7 @@ list(); show();
 
 
 def render():
-    payload, summary, acceptance, edges = build_page()
+    payload, summary, acceptance, edges, not_drawn = build_page()
     typed_rows, _typed_world = typed_model.build()
     cc_count = sum(row["evidence_kind"] == "cc_wiki" for row in typed_rows)
     senses = collections.Counter(e["sense"] for e in edges)
@@ -468,7 +499,8 @@ def render():
                        "summary": summary,
                        "acceptance": [[bool(ok), lab, det] for ok, lab, det in acceptance]},
                       sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    return (_HTML.replace("__SUB__", sub)
+    return (_HTML.replace("__NOTDRAWN__", str(len(not_drawn)))
+            .replace("__SUB__", sub)
             .replace("__CC__", _cc_panel())
             .replace("__DATA__", data.replace("</", "<\\/"))
             .replace("__JS__", _JS))
