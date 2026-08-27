@@ -412,5 +412,108 @@ class SiteTabs(unittest.TestCase):
         self.assertIn('id="er-tabs-strip"', self._read("wizard/tabs.js"))
 
 
+class LandingNumbersAreCurrent(unittest.TestCase):
+    """The front page's "checks catalogued" number is a CLAIM about the corpus, and it was wrong.
+
+    landing.html is hand-written and has no build step, so its 4,931 sat there through the Enia
+    removal and every regen since -- the site told players a number the world had not defined for
+    months, and nothing anywhere could notice. This is the same failure the wizard-metadata
+    currency gate was written for: a literal that duplicates derived data with no gate between them
+    only ever drifts one way.
+
+    The fix is not a build step (a static page on the --site fast path is the point of that page).
+    It is a MARKER plus this gate: the number lives in `data-derived="checks-catalogued"`
+    attributes, and every one of them must equal the count the world actually defines. Change the
+    corpus without changing the page and CI reds, in the `generators` job, before it deploys.
+
+    TWO derivations are asserted equal, not one. wizard/region-census.json's per-region sum and the
+    shipped check browser's payload length are built by different tools from the same data; if they
+    ever disagree, the page's number is unanswerable and the right outcome is red, not a coin flip.
+
+    The motivating case (Rule 11): on 2026-08-27 the page said 4,931 and the world defined 4,948.
+    """
+
+    LANDING = "wizard/landing.html"
+    MARKER = "checks-catalogued"
+
+    def _landing(self):
+        return open(os.path.join(REPO, self.LANDING), encoding="utf-8").read()
+
+    @staticmethod
+    def _n(text):
+        return int(text.replace(",", "").strip())
+
+    def _derived_from_census(self):
+        import json
+        with open(os.path.join(REPO, "wizard", "region-census.json"), encoding="utf-8") as fh:
+            return sum(v["checks"] for v in json.load(fh)["regions"].values())
+
+    def _derived_from_check_browser(self):
+        import json
+        path = os.path.join(REPO, "er-archipelago-check-browser.html")
+        with open(path, encoding="utf-8") as fh:
+            html = fh.read()
+        m = re.search(r"^const DATA = (\{.*\});$", html, re.M)
+        self.assertIsNotNone(m, "the shipped check browser has no DATA payload")
+        return len(json.loads(m.group(1))["checks"])
+
+    def test_the_two_derivations_agree(self):
+        census, browser = self._derived_from_census(), self._derived_from_check_browser()
+        self.assertEqual(
+            census, browser,
+            "region-census.json and the shipped check browser disagree about how many checks "
+            "exist. Both are generated from data.py, so one of them is stale -- regen before "
+            "touching the landing page, because neither number can be trusted to stamp it.")
+
+    def test_every_marked_number_equals_the_derived_count(self):
+        derived = self._derived_from_census()
+        marked = re.findall(r'data-derived="%s"[^>]*>([^<]+)<' % self.MARKER, self._landing())
+        self.assertGreaterEqual(
+            len(marked), 2,
+            "landing.html has fewer than two checks-catalogued markers. The number appears in the "
+            "stat strip AND in the check-browser card; a marker that vanished took its gate with "
+            "it, which is how the last stale number survived.")
+        for got in marked:
+            self.assertEqual(
+                self._n(got), derived,
+                "landing.html claims %s catalogued checks; the world defines %d. Update the page "
+                "(both markers) -- peliarch serves this file from main, so it is live the moment "
+                "--site runs." % (got, derived))
+
+    def _unmarked_counts(self, text):
+        """Every 4-7 character number-ish run sitting within 60 characters of the word
+        "catalogued" that is NOT inside a marker element."""
+        stripped = re.sub(r'data-derived="%s"[^>]*>[^<]+<' % self.MARKER, "", text)
+        return [m.group(0) for m in
+                re.finditer(r"[\d,]{4,7}(?=[^<>]{0,60}catalogu)", stripped)]
+
+    def test_no_unmarked_check_count_is_left_in_the_prose(self):
+        """A future edit that writes the number in a new sentence without the marker would be
+        invisible to the gate above, which is exactly how this drifted the first time.
+
+        The scan is WITNESSED in this same body before it is trusted: an assertion that a list is
+        empty is satisfied just as well by a scanner that has stopped matching anything at all, so
+        the scan is first shown the exact prose that drifted and required to find it, and shown the
+        marked form of the same sentence and required not to.
+        """
+        planted = self._unmarked_counts("<p>All 5,048 catalogued checks are here.</p>")
+        self.assertEqual(
+            ["5,048"], planted,
+            "the unmarked-count scan no longer recognises the prose that actually drifted "
+            "(landing.html said 4,931 catalogued checks for a whole window), so the assertion "
+            "below would pass on a page that had gone stale again")
+        self.assertEqual(
+            [], self._unmarked_counts('<p>All <span data-derived="%s">4,948</span> catalogued '
+                                      'checks are here.</p>' % self.MARKER),
+            "the scan flags a properly marked number, so it would be red on a correct page and "
+            "the first person to see it would delete it")
+        near = self._unmarked_counts(self._landing())
+        self.assertEqual(
+            [], near,
+            "landing.html states a catalogued-check count outside a "
+            'data-derived="%s" marker: %r. Wrap it, or the next regen leaves it stale silently.'
+            % (self.MARKER, near))
+
+
 if __name__ == "__main__":
     unittest.main()

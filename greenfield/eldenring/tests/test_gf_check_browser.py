@@ -270,5 +270,193 @@ class CheckBrowserTest(unittest.TestCase):
             "run: python tools/build_check_browser.py")
 
 
+TEMPLATE = os.path.join(REPO, "tools", "check_browser_template.html")
+ISSUE_FORM = os.path.join(REPO, ".github", "ISSUE_TEMPLATE", "check-report.yml")
+NODE = None
+for _cand in ("node", "nodejs"):
+    try:
+        subprocess.run([_cand, "--version"], check=True, stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL)
+        NODE = _cand
+        break
+    except (OSError, subprocess.CalledProcessError):
+        pass
+
+
+@unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
+class ReportAProblemLink(unittest.TestCase):
+    """Every check row can open a PREFILLED GitHub issue about itself (Alaric, 2026-08-27).
+
+    A static page cannot POST, and we are not adding a backend to collect bug reports. The whole
+    mechanism is a plain <a href> to github.com's new-issue form with query parameters -- a
+    NAVIGATION, so the self-contained-page rule is untouched: the page still fetches nothing.
+
+    Rule 11, the motivating case: a player finds the check that misbehaved in the browser, clicks
+    one link, and lands on a GitHub issue form that already knows which check it is, which region
+    it was assigned, which map tile it sits on and how that region was decided -- none of which the
+    player could be expected to supply, and all of which triage needs before it can start.
+
+    WHAT THIS GATE IS FOR. The link is built by string concatenation in JS, so its failure mode is
+    a URL that LOOKS fine and is wrong: an unescaped `&` in a check name truncating the body, a
+    template filename that no longer exists, a field id renamed on one side only. None of those
+    show up as an error anywhere -- the player just gets a half-empty form, or GitHub's 404. So:
+    the URL is evaluated under node from the SHIPPED page, parsed as a URL, and its parameter names
+    are checked against the ids in the issue form itself.
+
+    🛑 Only `input` and `textarea` fields prefill from a URL query -- that is the whole of what
+    GitHub documents ("Creating an issue from a URL query" + the form-schema `id` key). So the gate
+    asserts every prefilled parameter names a TEXT field. The `symptom` dropdown is deliberately
+    not prefilled: the browser does not know what happened to the player.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        with open(SHIPPED, encoding="utf-8") as fh:
+            cls.page = fh.read()
+        with open(TEMPLATE, encoding="utf-8") as fh:
+            cls.tpl = fh.read()
+
+    def _form(self):
+        import yaml
+        with open(ISSUE_FORM, encoding="utf-8") as fh:
+            return yaml.safe_load(fh)
+
+    # -- the page carries the link -----------------------------------------
+    def test_the_template_emits_a_report_link_for_every_row(self):
+        self.assertIn('class="rep2"', self.tpl,
+                      "the report link is gone from the detail pane; a check browser that cannot "
+                      "report a check is the thing this gate exists to prevent")
+        self.assertIn("checkReportUrl", self.tpl)
+        self.assertIn("const REPORT_TEMPLATE='check-report.yml'", self.tpl,
+                      "the issue-form filename is no longer a single named constant, so the gate "
+                      "below can no longer tell whether the page and the form agree")
+
+    def test_the_shipped_page_carries_it_too(self):
+        """The template is the source, the shipped page is what peliarch serves. A gate on the
+        template alone passes happily while the deployed page is a regen behind."""
+        self.assertIn("checkReportUrl", self.page)
+        self.assertIn("check-report.yml", self.page)
+
+    def test_the_page_still_fetches_nothing_at_load(self):
+        """github.com appears in the page as a link target only. A `fetch` to it would break the
+        self-contained rule and leak every reader's view."""
+        for bad in ("fetch(", "XMLHttpRequest", "new WebSocket"):
+            self.assertNotIn(bad, self.page,
+                             f"{bad} appeared in the check browser; the page is served from a file "
+                             f"and must make no requests on load")
+
+    # -- the URL is well formed --------------------------------------------
+    @unittest.skipUnless(NODE, "needs node to evaluate the page's own URL builder")
+    def test_the_url_is_well_formed_for_sampled_rows(self):
+        """Evaluated under node, from the shipped page's OWN source -- not a python re-write of it.
+        A test that reimplemented the builder would agree with itself and prove nothing.
+
+        The sample is deliberately not random: the first row, the last row, and every row whose
+        name carries a character that has broken a query string before -- `&`, `#`, `+`, `%`, a
+        quote, a comma, a non-ASCII dash.
+        """
+        harness = r"""
+const fs = require('fs');
+const src = fs.readFileSync(process.argv[2], 'utf8');
+const m = src.match(/^const DATA = (\{.*\});$/m);
+const DATA = JSON.parse(m[1]);
+const CHECKS = DATA.checks, META = DATA.meta;
+const REPO = 'https://github.com/4laric/er-archipelago';
+const location = {href: 'https://peliarch.ca/er/checks.html#q=&id=1'};
+// the two builders, lifted verbatim out of the page
+function grab(name){
+  const i = src.indexOf('function ' + name + '(');
+  if (i < 0) throw new Error('no function ' + name);
+  let d = 0, j = src.indexOf('{', i);
+  for (let k = j; k < src.length; k++){
+    if (src[k] === '{') d++;
+    else if (src[k] === '}') { d--; if (!d) return src.slice(i, k + 1); }
+  }
+  throw new Error('unbalanced ' + name);
+}
+const constLine = src.match(/^const REPORT_TEMPLATE=.*$/m);
+if (!constLine) throw new Error('no REPORT_TEMPLATE constant in the page');
+eval(constLine[0] + '\n' + grab('tileMates') + '\n' + grab('checkFacts') + '\n' + grab('checkReportUrl'));
+const risky = c => /[&#+%'",–—]/.test(c.full || '');
+const pick = new Set([CHECKS[0], CHECKS[CHECKS.length - 1]]);
+let n = 0;
+for (const c of CHECKS) { if (risky(c) && n++ < 60) pick.add(c); }
+const out = [];
+for (const c of pick) out.push({id: c.id, full: c.full, url: checkReportUrl(c)});
+process.stdout.write(JSON.stringify({risky: n, rows: out}));
+"""
+        with tempfile.TemporaryDirectory() as tmp:
+            hp = os.path.join(tmp, "h.js")
+            with open(hp, "w", encoding="utf-8") as fh:
+                fh.write(harness)
+            res = subprocess.run([NODE, hp, SHIPPED], capture_output=True, text=True)
+        self.assertEqual(0, res.returncode, res.stderr[-2000:])
+        got = json.loads(res.stdout)
+        self.assertGreater(got["risky"], 0,
+                           "no check name in the corpus carries a query-hostile character, so the "
+                           "escaping half of this gate witnessed nothing. Widen the sample.")
+        ids = {b.get("id") for b in self._form()["body"] if b.get("id")}
+        try:                                   # py3.9+: the stdlib parser is the arbiter, not a regex
+            from urllib.parse import urlsplit, parse_qs
+        except ImportError:                    # pragma: no cover
+            raise
+        for row in got["rows"]:
+            u = urlsplit(row["url"])
+            self.assertEqual("https", u.scheme, row["url"][:120])
+            self.assertEqual("github.com", u.netloc, row["url"][:120])
+            self.assertEqual("/4laric/er-archipelago/issues/new", u.path)
+            q = parse_qs(u.query, keep_blank_values=True, strict_parsing=True)
+            self.assertEqual({"template", "title", "check", "facts"}, set(q),
+                             f"unexpected query parameters for check {row['id']}")
+            self.assertEqual(["check-report.yml"], q["template"])
+            # the round trip is the point: whatever was in the name comes back out intact
+            self.assertIn(row["full"], q["check"][0],
+                          f"check {row['id']} lost part of its name through the query string")
+            self.assertIn(str(row["id"]), q["facts"][0])
+            for key in ("title", "check", "facts"):
+                self.assertTrue(q[key][0].strip(), f"{key} arrived empty for check {row['id']}")
+            self.assertLess(len(row["url"]), 8000,
+                            "GitHub answers 414 above roughly 8k; this row's prefill is too big")
+        for key in ("check", "facts"):
+            self.assertIn(key, ids,
+                          f"the page prefills `{key}`, which is not a field id in check-report.yml "
+                          f"-- GitHub silently ignores an unknown key, so the form would open "
+                          f"EMPTY and nobody would be told")
+
+    # -- the issue form itself ---------------------------------------------
+    def test_the_issue_form_is_valid_and_its_prefilled_fields_are_text(self):
+        form = self._form()
+        self.assertTrue(form.get("name") and form.get("description"))
+        self.assertIn("player-report", form.get("labels", []))
+        by_id = {b["id"]: b for b in form["body"] if b.get("id")}
+        self.assertEqual(len(by_id), len([b for b in form["body"] if b.get("id")]),
+                         "duplicate field ids; GitHub prefill keys on the id")
+        for key in ("check", "facts"):
+            self.assertIn(key, by_id, f"check-report.yml has no `{key}` field for the browser to "
+                                      f"prefill")
+            self.assertIn(by_id[key]["type"], ("input", "textarea"),
+                          f"`{key}` is a {by_id[key]['type']}; only input and textarea prefill "
+                          f"from a URL query, so this one would open blank")
+        self.assertEqual("dropdown", by_id["symptom"]["type"])
+        self.assertNotIn("symptom", ("check", "facts"))
+        for b in form["body"]:
+            self.assertIn(b["type"], ("markdown", "input", "textarea", "dropdown", "checkboxes"))
+            self.assertTrue(b.get("attributes"), f"{b.get('id')} has no attributes block")
+
+    def test_the_form_asks_the_questions_triage_always_ends_up_asking(self):
+        """Not decoration. Every one of these has cost a round trip in a real report: the build
+        (the version string alone does not identify it), the yaml, and the log -- which is APPENDED
+        across sessions, so the form has to say so or the wrong session gets pasted."""
+        by_id = {b["id"]: b for b in self._form()["body"] if b.get("id")}
+        for key in ("symptom", "what", "version", "yaml", "log"):
+            self.assertIn(key, by_id)
+        self.assertIn("F6", by_id["version"]["attributes"]["description"])
+        self.assertIn("SESSION START", by_id["log"]["attributes"]["description"])
+        opts = by_id["symptom"]["attributes"]["options"]
+        joined = " | ".join(opts).lower()
+        for want in ("never fired", "vanilla", "reach", "wrong region"):
+            self.assertIn(want, joined, f"the symptom list dropped `{want}`")
+
+
 if __name__ == "__main__":
     unittest.main()

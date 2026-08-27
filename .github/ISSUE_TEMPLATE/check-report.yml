@@ -1,0 +1,103 @@
+name: Report a check
+description: A specific check behaved wrong in game. Best opened from the check browser's report button.
+labels: ["player-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This form is meant to be opened from the check browser.**
+        [peliarch.ca/er/checks.html](https://peliarch.ca/er/checks.html) — find the check, open it,
+        and click *report a problem*. The identity and evidence fields below arrive already filled
+        in, which is the difference between a report that can be triaged and one that cannot.
+
+        Opening it by hand is fine too. Fill in the check as precisely as you can: the event flag
+        is the only identifier that survives a regen, and
+        [#249 renumbered the AP ids once already](https://github.com/4laric/er-archipelago/blob/main/release/KNOWN-ISSUES.md).
+
+        🛑 **If your apworld and your client came from different releases, stop here.** They are a
+        hash-matched pair, and a mismatched pair does not fail at the door — it connects and
+        behaves subtly wrong. Redownload both from the same release and see if it survives.
+
+  - type: input
+    id: check
+    attributes:
+      label: Which check
+      description: >
+        Its name, and its event flag in brackets. The check browser fills this in for you.
+      placeholder: "Limgrave :: Golden Seed - Church of Elleh [f1041520700]"
+    validations: {required: true}
+
+  - type: textarea
+    id: facts
+    attributes:
+      label: What the browser knows about it
+      description: >
+        Prefilled by the check browser — region, AP id, map tile, tags, how the region was decided,
+        and the other regions on that tile. Leave it as it arrived; it is the block triage reads
+        first. If you opened this form by hand, delete it or say "opened by hand".
+    validations: {required: false}
+
+  - type: dropdown
+    id: symptom
+    attributes:
+      label: What happened at the check
+      description: >
+        Pick the closest one. If two of these are true, pick the worse one and say so below.
+      options:
+        - "It never fired — I took the item and nothing sent"
+        - "It gave the VANILLA item instead of the Archipelago one"
+        - "It gave the vanilla item AND the Archipelago one (double)"
+        - "I could not reach it — no path in, or the trigger is gone"
+        - "It is attributed to the WRONG REGION"
+        - "Something else"
+    validations: {required: true}
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, concretely
+      description: >
+        What you did, what the game did, what the client said. "I opened the chest, got the vanilla
+        Lordsworn's Straight Sword, no toast, nothing in the client log" beats "check is broken" —
+        the second sends whoever reads it looking in the wrong place first.
+    validations: {required: true}
+
+  - type: input
+    id: version
+    attributes:
+      label: Client version and build
+      description: >
+        🛑 Press **F6** in game and copy the banner. The version string alone does not identify the
+        build — several builds have shipped under one version number — so the short commit SHA
+        beside it is the half that matters.
+      placeholder: "v0.5.2 (a2c580e)"
+    validations: {required: true}
+
+  - type: textarea
+    id: yaml
+    attributes:
+      label: Your yaml, if you have it
+      description: >
+        The whole file, not the lines you think matter. Options interact, and the ones that turn out
+        to matter are usually not the ones anybody suspected. If you played someone else's seed and
+        do not have the yaml, say so — the seed's options still narrow it.
+      render: yaml
+    validations: {required: false}
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Client log
+      description: >
+        🛑 **The log is APPENDED across sessions.** Search for the LAST `SESSION START` and paste
+        from there — an older session's errors above it will send triage down a dead end. Better
+        still: drag the whole file into this box after you submit, as an attachment.
+      render: text
+    validations: {required: false}
+
+  - type: markdown
+    attributes:
+      value: |
+        <sub>The check browser is a reader, not an oracle — it repeats committed generator output
+        and claims no verdict about your check. Nothing here is treated as a defect until someone
+        reproduces it.</sub>
