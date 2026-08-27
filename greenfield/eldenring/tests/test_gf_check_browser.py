@@ -481,7 +481,18 @@ class SweepClauseIsEligibilityNotAPromise(unittest.TestCase):
 
     COLOMBIUS_AP = 7773183
     COLOMBIUS_FLAG = 1052537800
+    # The OLD wording -- used as a guard to make sure it does not sneak back into names.
     OPENER = ", also granted by "
+
+    @classmethod
+    def _corpus_opener(cls):
+        """The opener currently baked into data.py -- read from desc_sources, not hardcoded."""
+        import importlib.util as _iu
+        spec = _iu.spec_from_file_location(
+            "ds_corpus", os.path.join(GREENFIELD, "desc_sources.py"))
+        ds = _iu.module_from_spec(spec)
+        spec.loader.exec_module(ds)
+        return ds.SWEEP_CLAUSE_OPENER
 
     @classmethod
     def setUpClass(cls):
@@ -521,9 +532,10 @@ class SweepClauseIsEligibilityNotAPromise(unittest.TestCase):
         # A splitter that silently failed to match would look identical to one that worked, by
         # the test above -- the clause would simply still be in the name. Pin the population:
         # every corpus name carrying the clause must come back with a boss on the `sw` row.
+        corpus_opener = self._corpus_opener()
         locs = self.tool.load_module_consts(
             os.path.join(GF_PKG, "data.py"), {"LOCATIONS"})["LOCATIONS"]
-        baked = {a for v in locs.values() for (n, a, _f) in v if self.OPENER in n}
+        baked = {a for v in locs.values() for (n, a, _f) in v if corpus_opener in n}
         self.assertGreater(len(baked), 3000, "the corpus stopped baking the clause?")
         lost = sorted(a for a in baked if not self.by_id[a]["sw"])
         self.assertFalse(lost, "%d clause(s) dropped instead of recovered: %s"

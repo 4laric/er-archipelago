@@ -50,11 +50,14 @@ class RuntimeSweepFireability(WorldTestBase):
         self.assertNotIn(UNNAMED_CONTROL, runtime,
                          "unnamed is not evidence that a trigger cannot fire")
 
-    def test_members_do_not_promise_an_also_granted_by_patches_route(self):
+    def test_members_do_not_promise_a_sweep_eligible_patches_route(self):
         names = {ap: name for rows in LOCATIONS.values() for name, ap, _flag in rows}
         members = DUNGEON_SWEEPS[PATCHES]
         self.assertTrue(members)
-        wrong = [names[ap] for ap in members if "also granted by Patches" in names[ap]]
+        # #936 reworded the clause opener; the assertion is on the CURRENT wording, which is
+        # the only one this repo's regenerated data.py can contain.
+        wrong = [names[ap] for ap in members
+                 if "may be sweep-granted by Patches" in names[ap] or "also granted by Patches" in names[ap]]
         self.assertEqual(wrong, [],
                          "a physical pickup still advertises the runtime route we refuse to arm")
 
