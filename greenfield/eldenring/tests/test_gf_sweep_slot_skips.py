@@ -64,7 +64,13 @@ class TestSweepSlotSkips(unittest.TestCase):
     def test_every_unaudited_trigger_is_withheld_from_the_surface(self):
         """#671 ruling: no authoritative arena row means no SweepSlot progression nomination."""
         unaudited = set(SWEEPS) - set(ARENA_REGIONS)
-        self.assertEqual(len(unaudited), 26,
+        # 2026-08-26 (#1066): 26 -> 24. Two of the residue were Demi-Human Queen Marigga
+        # (2046400800) and the Jagged Peak Drake (2049410800), whose arenas Alaric had already
+        # ruled in game on 2026-08-10; the rulings are now hand rows in boss_arena_rulings.tsv and
+        # both triggers are AUDITED, so they leave this set and become eligible to nominate. That
+        # is the census IMPROVING, which is the direction #671 wants; a rise means arena coverage
+        # was lost and is to be diagnosed, not rebaselined.
+        self.assertEqual(len(unaudited), 24,
                          "the audited-arena census changed; review the issue #671 residue")
         skips = self._surface_skips()
         self.assertTrue(unaudited <= set(skips),
