@@ -506,6 +506,11 @@ class SweepClauseIsEligibilityNotAPromise(unittest.TestCase):
         self.assertEqual(self.by_id[self.COLOMBIUS_AP]["sw"], ["Fire Giant", "m60_52_52"])
 
     def test_no_payload_name_anywhere_still_asserts_a_grant(self):
+        # WITNESS FIRST: "no name asserts a grant" is also what an empty page says, so pin that
+        # the scan is looking at the whole corpus and that it is looking at names that DID carry
+        # the clause -- otherwise this passes for the wrong reason the day the join breaks.
+        self.assertGreater(len(self.checks), 3000)
+        self.assertGreater(len([c for c in self.checks if c["sw"]]), 3000)
         offenders = [c["id"] for c in self.checks
                      if self.OPENER in c["full"] or self.OPENER in c["n"]]
         self.assertFalse(offenders,
