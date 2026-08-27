@@ -242,6 +242,10 @@ def build(src, db_path):
                      zlib.compress(data, 9)))
     con.execute("INSERT OR REPLACE INTO meta VALUES ('n_files', ?)", (str(len(files)),))
     con.execute("INSERT OR REPLACE INTO meta VALUES ('raw_bytes', ?)", (str(raw),))
+    # gen_manifest opens this bundle through a separate read-only connection below.  Publish the
+    # file table first; without this boundary that reader sees the pre-transaction empty database
+    # and cannot derive the canonical bundle identity during --build.
+    con.commit()
     # ---- record the SOURCE box's gen_manifest, so the stamp can self-diagnose -------------------
     # A bundle regen reproduces the generated modules byte-for-byte (proved 2026-07-27: 11/11 body
     # hashes identical) but the _GEN_STAMP `inputs_hash` still differed between the two boxes, and

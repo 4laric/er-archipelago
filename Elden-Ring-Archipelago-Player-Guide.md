@@ -201,7 +201,10 @@ reporting; an item absent from the pool is the curation doing its job.
 
 **Where do I even stand with my checks?** Press **F6**. The in-game tracker
 lists checks by region with done/total counts, dims locked regions, and names
-the item that opens each one.
+the item that opens each one. A check labelled **`(region unconfirmed)`** has
+been placed under the best region estimate available, but its exact region has
+not yet been verified. It cannot hold a progression item, so an imperfect
+estimate there cannot strand your run.
 
 **The overlay is in the way.** Press **F5** to hide the client window, and
 again to bring it back (**F6** does the same for the tracker). Both are on the

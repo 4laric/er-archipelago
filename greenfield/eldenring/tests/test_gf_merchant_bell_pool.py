@@ -50,9 +50,14 @@ class MerchantBellPoolPolicy(unittest.TestCase):
 
 
 class MerchantBellPoolOutcome(WorldTestBase):
-    """A small base seed exercises the production caller, not only the pure predicate."""
+    """A small DLC-only seed exercises the production caller, not only the pure predicate.
+
+    Roundtable Hold always hosts D's and Rogier's bell awards, while their physical merchants are
+    in Limgrave and Stormveil.  A DLC-only seed deterministically seals both merchant regions; the
+    old random three-base-region fixture lost this witness whenever its draw kept both regions.
+    """
     game = "Elden Ring"
-    options = {"num_regions": 3, "enable_dlc": False}
+    options = {"num_regions": 3, "enable_dlc": True, "dlc_only": True}
 
     def test_no_mapped_bell_in_the_pool_has_every_merchant_sealed(self):
         kept = frozenset([HUB] + list(self.world._kept()))
@@ -62,8 +67,10 @@ class MerchantBellPoolOutcome(WorldTestBase):
                 item = LOCATION_ITEM.get(ap_id)
                 if item and not merchant_bell_pool_allowed(item, kept):
                     excluded.add(item)
-        self.assertTrue(excluded,
-                        "fixture seed excludes no merchant bell; the production gate has no witness")
+        expected = {"D's Bell Bearing", "Rogier's Bell Bearing"}
+        self.assertTrue(expected <= excluded,
+                        "D/Rogier's HUB awards must witness the production gate in a DLC-only seed; "
+                        "got %s" % sorted(excluded))
         leaked = sorted(item.name for item in self.multiworld.itempool
                         if item.player == self.player and item.name in excluded)
         self.assertEqual(leaked, [],

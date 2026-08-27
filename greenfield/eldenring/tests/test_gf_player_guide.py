@@ -146,6 +146,14 @@ def test_the_guide_is_actually_present():
                     "so if it has moved, this gate must move with it rather than skip.")
 
 
+def test_region_unconfirmed_tracker_label_is_explained_to_players():
+    """#1024: the F6 tracker exposes this generator label, so the shipped guide must define it."""
+    text = re.sub(r"\s+", " ", _guide_text().lower())
+    assert "(region unconfirmed)" in text
+    assert "exact region has not yet been verified" in text
+    assert "cannot hold a progression item" in text
+
+
 def test_every_option_the_guide_names_exists():
     """A renamed option leaves the guide telling players to set a key Archipelago silently ignores.
 

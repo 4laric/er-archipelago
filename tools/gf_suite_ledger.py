@@ -51,6 +51,10 @@ SENTINELS = re.compile(
 # The 12 names the workflow loop used to hand-type, in the same order. `--generators-list` is now
 # the only place they are written down.
 GENERATORS = [
+    # Canonical gen-input identity (#1010): reads tools/gen_manifest.py and the committed
+    # gen_inputs.db from the real repository, then builds alternate extraction contexts in temp.
+    # AP-free and deliberately skipped from the installed-world suite.
+    "gen_manifest_bundle",
     "sweep_anchor_coords",
     "region_selection",
     "check_browser",

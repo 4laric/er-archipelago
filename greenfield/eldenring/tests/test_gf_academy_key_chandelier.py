@@ -28,6 +28,11 @@ class ChandelierDedup(WorldTestBase):
     options = {"num_regions": 0}
 
     def test_lot_blanked_emitted_and_key_stays_a_singleton(self):
+        # The default WorldTestBase draw can move the one modelled key out of the itempool through
+        # another seeded placement policy, leaving this pool-only assertion with zero witnesses.
+        # Pin the draw whose premise this test owns: one key in the pool, never the chandelier's
+        # duplicate.  This is about cardinality, not distribution across arbitrary seeds (#1065).
+        self.world_setup(seed=1)
         sd = self.world.fill_slot_data()
         blank = sd.get("checkLotBlankMap", {})
         # WITNESS the map is populated, then the specific neutralisation.
