@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Acceptance fixtures for the questline-condition extractor (#1085), nine of them, reported
+"""Acceptance fixtures for the questline-condition extractor (#1085), eleven of them, reported
 pass/fail as-is; nothing here is weakened to make a fixture green. F1 is the motivating case
 (Fortissax f510110) and F4 is its negative control.
 
@@ -60,10 +60,12 @@ for (rel, mach), lines in C.esd.items():
             hit.append((mach, l.strip()[:70]))
 fx("F2c handover possession-tests goods 8191 in t322001203", bool(hit), str(hit[:2]))
 
-# F3 -- Great Runes: the Leyndell gate is a COUNT over 190-199
-roots, unres = R2.resolve([(True, 'EventFlag(161)')], 'common.emevd.dcx.js')
-fx("F3 rune gate is COUNT_FLAGS(190-199), not per-flag possession",
-   any(x.startswith('COUNT_FLAGS(190') for x in roots) and
+# F3 -- Great Runes: flag 182 opens the capital after event 730 counts the
+# held-rune band 170-179.  The sibling 190-199 counter feeds flags 160-167 and
+# does not own the Leyndell seal (#1088 and the correction on #1085).
+roots, unres = R2.resolve([(True, 'EventFlag(182)')], 'common.emevd.dcx.js')
+fx("F3 capital gate is COUNT_FLAGS(170-179) -> f182",
+   any(x.startswith('COUNT_FLAGS(170-179)') for x in roots) and
    not any(x.startswith('ITEM_POSSESSION') for x in roots),
    "roots=%s" % sorted(roots))
 
@@ -92,6 +94,28 @@ diff = dict(curated=len(cur), derived_missable=len(derived),
             derived_only=sorted(derived_any - cur)[:40],
             curated_only_seen_as_award=sorted((cur - derived_any) & all_flags)[:40],
             curated_not_an_award_site=len(cur - all_flags))
+
+# F6 -- parameterised common events are expanded at EVERY concrete call site.
+# 90005300 is the widest setter in this corpus (252 sites); its last binding is
+# far beyond the old [:12] truncation and therefore fails if that cap returns.
+boss_ev = C.events['common_func.emevd.dcx.js']['90005300']
+boss_binds = C.resolve_args(boss_ev)
+last_boss_flag = int(boss_binds[-1][2]['eventFlagId'])
+fx("F6a 90005300 exposes all 252 concrete call sites",
+   len(boss_binds) == 252 and any(s.eid == '90005300'
+                                  for s in setters.get(last_boss_flag, [])),
+   "bindings=%d last=f%d setters=%s" %
+   (len(boss_binds), last_boss_flag,
+    [(s.file, s.eid) for s in setters.get(last_boss_flag, [])]))
+
+# A value merely passed to the same common function is not necessarily a
+# setter.  In 90005703 f3360 is eventFlagId5 (read/batch-clear only), while the
+# ON writes target eventFlagId/eventFlagId2.  Complete binding must preserve
+# that role distinction instead of promoting every numeric argument.
+fx("F6b read-only common-event params do not become setters",
+   not any(s.eid == '90005703' for s in setters.get(3360, [])),
+   "f3360 setters=%s" % [(s.file, s.eid) for s in setters.get(3360, [])])
+
 json.dump(dict(fixtures=res, diff=diff,
                noise=R.noise.most_common(12),
                negatives=len(R.negatives)),
