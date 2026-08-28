@@ -1,6 +1,6 @@
-"""#241 -- `core` publishes the Tarnished-Pack pool exclusion into `gf_dlc_excluded`.
+"""#1096 -- `core` publishes the Patch 1.17 pool exclusion into `gf_dlc_excluded`.
 
-The decision logic (unconditional exclusion, empty until patch day) is proved AP-free in
+The decision logic (unconditional exclusion by verified FullID) is proved AP-free in
 test_gf_tarnished_pack_exclude.py. This asserts the WIRING that makes it reach the pool: the world's
 `gf_dlc_excluded` -- the single set every pool-augmentation feature reads (filler_budget,
 pool_builder, presence_floor, progressive, finale, scadu_supply, ...) -- must be exactly what
@@ -16,7 +16,7 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring import tarnished_pack as tp  # noqa: E402
-from worlds.eldenring.item_ids import DLC_ITEM_NAMES  # noqa: E402
+from worlds.eldenring.item_ids import DLC_ITEM_NAMES, ITEM_CATALOG  # noqa: E402
 
 GAME = "Elden Ring"
 
@@ -28,10 +28,11 @@ class TarnishedExclusionIsPublished(WorldTestBase):
     options = {"num_regions": 6, "enable_dlc": False}
 
     def test_gf_dlc_excluded_is_exactly_the_helper_output(self):
-        want = tp.pool_excluded_names(self.world.gf_dlc_on, DLC_ITEM_NAMES)
+        want = tp.pool_excluded_names(self.world.gf_dlc_on, DLC_ITEM_NAMES, ITEM_CATALOG)
         self.assertEqual(
             self.world.gf_dlc_excluded, want,
-            "gf_dlc_excluded must equal tarnished_pack.pool_excluded_names(gf_dlc_on, DLC_ITEM_NAMES)"
+            "gf_dlc_excluded must equal tarnished_pack.pool_excluded_names(gf_dlc_on, "
+            "DLC_ITEM_NAMES, ITEM_CATALOG)"
             " -- the resolved set every pool path reads. If core stops routing through the helper, "
             "the patch-day Tarnished names never reach the pool.")
 

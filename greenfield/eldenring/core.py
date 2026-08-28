@@ -823,13 +823,14 @@ class GreenfieldEldenRingWorld(World):
         self.gf_vanilla_start_off = (
             _vp.apply_vanilla_start(self) if _vp.is_on(self) else [])
         self.gf_eligible: List[str] = self._eligible_regions()
-        # DLC-off seeds must not receive DLC items as juice/filler; Tarnished Pack items (#241)
+        # DLC-off seeds must not receive DLC items as juice/filler; Tarnished Pack items (#1096)
         # must never be placed at all. pool_excluded_names publishes BOTH as one exclusion set here
         # so every pool-augmentation feature reads the same resolved decision. (The attribute keeps
         # its `gf_dlc_excluded` name -- every consumer already reads it -- but it now also carries
-        # the unconditional Tarnished-Pack names from tarnished_pack.TARNISHED_PACK_ITEM_NAMES.)
+        # the unconditional Tarnished-Pack names resolved from their verified FullIDs.)
         self.gf_dlc_on: bool = self._dlc_on()
-        self.gf_dlc_excluded = pool_excluded_names(self.gf_dlc_on, DLC_ITEM_NAMES)
+        self.gf_dlc_excluded = pool_excluded_names(
+            self.gf_dlc_on, DLC_ITEM_NAMES, ITEM_CATALOG)
         # natural_progression is the INVERSE of num_regions (the whole eligible map is in play, gated
         # by real vanilla keys), so it forces the full eligible pool -- num_regions is ignored here.
         # vanilla_placement also forces the full eligible pool: it lets the BASE GAME's doors do
