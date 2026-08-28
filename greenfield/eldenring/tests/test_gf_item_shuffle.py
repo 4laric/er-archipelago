@@ -8,6 +8,16 @@ from worlds.eldenring.item_ids import ITEM_CATALOG  # noqa: E402
 GAME = "Elden Ring"
 
 
+def test_yura_reward_uses_custom_weapon_name():
+    """#1082: the curated region row must not overwrite custom weapon lot 5030 with Tibia Summons."""
+    from worlds.eldenring.data import LOCATIONS
+
+    names = [name for rows in LOCATIONS.values() for name, _ap_id, flag in rows if flag == 400163]
+    assert len(names) == 1
+    assert "Nagakiba with Ash of War: Piercing Fang" in names[0]
+    assert "Tibia" not in names[0]
+
+
 class ItemShuffleOn(WorldTestBase):
     game = GAME
     options = {"num_regions": 0, "item_shuffle": True}
