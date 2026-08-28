@@ -121,27 +121,49 @@ def diff_table(old_txt: str, new_txt: str):
 # One compiled scan for ALL watched ids. The first version ran a separate regex per id -- ~415 ids
 # x 2 texts x 9 MB per table -- and did not finish a single table inside 40s. Tokenise once and look
 # up membership instead: one pass per text, and the cost stops depending on how many ids we watch.
+#
+# Only SpEffect-reference COLUMNS count. Patch 1.17 added ItemLotParam rows 20000111/20000112 and
+# repeated getItemFlagId 20007110. Those numbers collide with watched SpEffect ids but neither field
+# can reference SpEffectParam; the untyped whole-file scan therefore stopped a release on three
+# false positives. Param field names carry their type, so restrict the scan to columns containing
+# SpEffect (plus SpEffectParam.ID, whose one self-occurrence is the baseline for clone rows).
 WATCHED_IDS = {str(w): label for label, rng in WATCHED for w in rng}
 _INT_TOKEN = re.compile(r"(?<![0-9])[0-9]+(?![0-9])")
 
 
-def count_watched(text: str) -> Counter:
+def count_watched(text: str, table: str) -> Counter:
     c: Counter = Counter()
-    for m in _INT_TOKEN.finditer(text):
-        tok = m.group()
-        if tok in WATCHED_IDS:
-            c[tok] += 1
+    reader = csv.reader(io.StringIO(text))
+    try:
+        header = next(reader)
+    except StopIteration:
+        return c
+    columns = [
+        i for i, name in enumerate(header)
+        if "speffect" in re.sub(r"[^a-z]", "", name.lower())
+        or (table == "SpEffectParam.csv" and name == "ID")
+    ]
+    for row in reader:
+        for i in columns:
+            if i >= len(row):
+                continue
+            for m in _INT_TOKEN.finditer(row[i]):
+                tok = m.group()
+                if tok in WATCHED_IDS:
+                    c[tok] += 1
     return c
 
 
 def watch_scan(old_txt: str, new_txt: str, table: str):
-    """Every watched id whose OCCURRENCE COUNT rose in this table.
+    """Every watched SpEffect id whose typed-reference count rose in this table.
 
     Counting rather than presence is the point: a repurposed row already occurs once (as its own
     row), so presence alone would fire on every table that contains it. A COUNT that rises is a
     genuinely new reference -- which is the thing that would make us rewrite a row the game reads.
+
+    Only typed SpEffect columns count. Numeric ids from unrelated namespaces are not references.
     """
-    before, after = count_watched(old_txt), count_watched(new_txt)
+    before, after = count_watched(old_txt, table), count_watched(new_txt, table)
     hits = []
     for tok, n_after in after.items():
         n_before = before.get(tok, 0)
