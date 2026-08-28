@@ -1587,10 +1587,30 @@ def to_rust():
     L.append("")
     L.append(_RUST_VALIDATE)
     L.append(_hdr_version)
+    L.append(_RUST_TESTS)
     return "\n".join(L) + "\n"
 
 
 _RUST_VALIDATE = r'''fn is_int(v: &Value) -> bool { v.is_i64() || v.is_u64() }
+
+fn nested_grant_ok(e: &Value) -> bool {
+    let Some(o) = e.as_object() else { return false };
+    if o.len() == 1 && o.get("noop").is_some_and(|v| v.as_bool() == Some(true)) {
+        return true;
+    }
+
+    let flags = o.get("flags").and_then(|v| v.as_array());
+    let flags_ok = flags.is_some_and(|v| v.iter().all(is_int));
+    let goods = o.get("goods");
+    match goods {
+        Some(goods) => {
+            flags_ok && is_int(goods) && o.get("consumed").is_some_and(Value::is_boolean)
+        }
+        None => {
+            flags.is_some_and(|v| !v.is_empty()) && !o.contains_key("consumed")
+        }
+    }
+}
 
 fn shape_ok(shape: Shape, v: &Value) -> bool {
     match shape {
@@ -1614,11 +1634,7 @@ fn shape_ok(shape: Shape, v: &Value) -> bool {
         Shape::Number => v.is_number(),
         Shape::Str => v.is_string(),
         Shape::NestedGrants => v.as_object().is_some_and(|o| {
-            o.values().all(|l| l.as_array().is_some_and(|l| l.iter().all(|e| {
-                e.get("goods").is_some_and(is_int)
-                    && e.get("flags").and_then(|f| f.as_array())
-                        .is_some_and(|f| f.iter().all(is_int))
-            })))
+            o.values().all(|l| l.as_array().is_some_and(|l| l.iter().all(nested_grant_ok)))
         }),
         Shape::FlaskLadder => v.as_array().is_some_and(|a| {
             a.iter().all(|e| e.get("charges").is_some_and(is_int)
@@ -1655,6 +1671,35 @@ pub fn validate(sd: &Value) -> Vec<String> {
         }
     }
     out
+}'''
+
+
+_RUST_TESTS = r'''#[cfg(test)]
+mod nested_grants_tests {
+    use super::*;
+    use serde_json::json;
+
+    fn valid(v: Value) -> bool { shape_ok(Shape::NestedGrants, &v) }
+
+    #[test]
+    fn accepts_every_wire_shape_the_world_emits() {
+        assert!(valid(json!({"Flask": [{"noop": true}]})));
+        assert!(valid(json!({"Bell": [{"flags": [280080]}]})));
+        assert!(valid(json!({"Flask": [{"goods": 10020, "flags": [], "consumed": true}]})));
+        assert!(valid(json!({"Bell": [{"goods": 8101, "flags": [280080], "consumed": false}]})));
+    }
+
+    #[test]
+    fn rejects_partial_or_ambiguous_effect_rungs() {
+        assert!(!valid(json!({"Flask": [{"goods": 10020, "flags": []}]})),
+                "goods must explicitly say whether they are consumed");
+        assert!(!valid(json!({"Bell": [{"flags": []}]})),
+                "an empty flags-only rung has no effect");
+        assert!(!valid(json!({"Bell": [{"flags": [280080], "consumed": false}]})),
+                "consumed is meaningless without goods");
+        assert!(!valid(json!({"Flask": [{"noop": true, "flags": []}]})),
+                "noop is an exact one-field sentinel");
+    }
 }'''
 
 
