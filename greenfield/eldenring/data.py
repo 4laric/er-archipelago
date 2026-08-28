@@ -2298,7 +2298,7 @@ LOCATIONS = {
         ('Leyndell :: Gravel Stone Seal - around East Capital Rampart, may be sweep-granted by Godfrey, First Elden Lord (m11_00) [f11007989]', 7771024, 11007989),
         ("Leyndell :: [Incantation] Blessing of the Erdtree - near Queen's Bedchamber, may be sweep-granted by Morgott, the Omen King (m11_00) [f11007991]", 7771025, 11007991),
         ('Leyndell :: Omensmirk Mask - around East Capital Rampart, may be sweep-granted by Godfrey, First Elden Lord (m11_00) [f11007992]', 7771026, 11007992),
-        ('Leyndell :: Golden Seed - near East Capital Rampart, may be sweep-granted by Morgott, the Omen King (m11_00) [f11007993]', 7771027, 11007993),
+        ('Leyndell :: Golden Seed - Ulcerated Tree Spirit drop, may be sweep-granted by Morgott, the Omen King (m11_00) [f11007993]', 7771027, 11007993),
         ('Leyndell :: Blessed Dew Talisman - near Divine Bridge, may be sweep-granted by Godfrey, First Elden Lord (m11_00) [f11007994]', 7771028, 11007994),
         ('Leyndell :: Ritual Shield Talisman - near Divine Bridge, may be sweep-granted by Morgott, the Omen King (m11_00) [f11007996]', 7771029, 11007996),
         ('Leyndell :: Bolt of Gransax - near West Capital Rampart, may be sweep-granted by Godfrey, First Elden Lord (m11_00) [f11007997]', 7771030, 11007997),
@@ -2396,7 +2396,7 @@ LOCATIONS = {
         ('Leyndell :: Smithing Stone [5] - near Erdtree Sanctuary, may be sweep-granted by Morgott, the Omen King (m11_00) [f11007860]', 7773930, 11007860),
         ('Leyndell :: Smithing Stone [6] - near Erdtree Sanctuary (2), may be sweep-granted by Godfrey, First Elden Lord (m11_00) [f11007900]', 7773931, 11007900),
         ('Leyndell :: Stonesword Key - near Avenue Balcony (2), may be sweep-granted by Morgott, the Omen King (m11_00) [f11007980]', 7773932, 11007980),
-        ('Leyndell :: Golden Seed - Ulcerated Tree Spirit drop, may be sweep-granted by Godfrey, First Elden Lord (m11_00) [f11007990]', 7773933, 11007990),
+        ('Leyndell :: Golden Seed - near East Capital Rampart, may be sweep-granted by Godfrey, First Elden Lord (m11_00) [f11007990]', 7773933, 11007990),
         ('Leyndell :: Living Jar Shard - around Underground Roadside, may be sweep-granted by Mohg, the Omen (m35_00) [f35007997]', 7774001, 35007997),
         ('Leyndell :: By My Sword - around East Capital Rampart [f60822]', 7774599, 60822),
         ('Leyndell :: Flail - around Elden Throne, may be sweep-granted by Mohg, the Omen (m35_00) [f400370]', 7900039, 400370),
@@ -5524,4 +5524,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:395a961c611a352a526bf4bcd77728e86da1bd0630128779216f19ff3b551a76', 'module': 'data.py', 'body_sha256': 'sha256:552dce01aae1039d7c8435834193bbbba536336a7da3ccd01bc6e948c83bba6b'}
+_GEN_STAMP = {'inputs_hash': 'sha256:395a961c611a352a526bf4bcd77728e86da1bd0630128779216f19ff3b551a76', 'module': 'data.py', 'body_sha256': 'sha256:a58fbd460eea359812a748aab6f505673a7044f316003de776552ba382fc36e6'}
