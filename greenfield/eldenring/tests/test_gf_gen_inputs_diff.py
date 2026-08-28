@@ -115,6 +115,22 @@ def test_a_NEW_REFERENCE_to_a_claimed_row_fails_the_run(tmp_path):
         "a silent balance bug, not a crash")
 
 
+def test_unrelated_item_lot_ids_do_not_impersonate_speffect_references(tmp_path):
+    """Patch 1.17 added row ids and check flags numerically inside watched SpEffect bands.
+    ItemLotParam has no SpEffect reference column, so these are namespace collisions, not hazards."""
+    old = dict(BASE)
+    old["ItemLotParam_map"] = _csv(
+        ["ID", "lotItemId01", "getItemFlagId"], [[20000110, 10163, 20007110]])
+    new = dict(BASE)
+    new["ItemLotParam_map"] = _csv(
+        ["ID", "lotItemId01", "getItemFlagId"],
+        [[20000110, 2001220, 20007110], [20000111, 2001230, 20007110],
+         [20000112, 10166, 20007110]])
+    _bundle(tmp_path / "old.db", old)
+    _bundle(tmp_path / "new.db", new)
+    assert _invoke(tmp_path, ["--watch-only"]) == 0
+
+
 def test_the_row_merely_EXISTING_is_not_a_hit(tmp_path):
     """The subtlety that makes the guard usable. A repurposed row already occurs once, as its own
     row, in every dump. Presence would fire on every single run; only a RISING COUNT is a new
