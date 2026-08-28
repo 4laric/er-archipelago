@@ -23,21 +23,13 @@ flag	map_id	source	item_name
 66950	m61_47_41	observed	Hefty Cracked Pot
 66980	m21_02	observed	Hefty Cracked Pot
 66990	m61_47_37	observed	Hefty Cracked Pot
-400020	m10_00_00_00	talk_esd	Neutralizing Boluses
 400049	m60_42_36	observed	Kalé's Bell Bearing
 400051	m10_00	observed	Gostoc's Bell Bearing
 400080	m60_45_34	observed	Irina's Letter
-400090	m16_00_00_00	talk_esd	Volcano Manor Invitation
-400101	m14_00_00_00	talk_esd	Glintstone Kris
-400103	m14_00_00_00	talk_esd	Starlight Shards
 400158	m60_34_50	observed	Royal Greatsword
 400164	m60_49_53	observed	Iron Kasa
 400209	m60_37_46	observed	Glowstone
-400221	m10_00_00_00	talk_esd	Erdsteel Dagger
-400380	m11_10_00_00	talk_esd	Sewer-Gaol Key
 400412	m60_36_41	observed	Blue Silver Mail Hood
-400430	m31_11_00_00	talk_esd	[Sorcery] Stars of Ruin
-400612	m21_01_00_00	talk_esd	Furnace Visage
 400901	m60_44_39	observed	Nomadic Merchant's Bell Bearing [1]
 400902	m60_45_36	observed	Nomadic Merchant's Bell Bearing [2]
 400903	m60_41_36	observed	Nomadic Merchant's Bell Bearing [3]
