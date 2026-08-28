@@ -1889,4 +1889,4 @@ SHOP_OPEN_SCOPES = (
     ('OpenTailoringShop', 110000, 110399),
 )
 
-_GEN_STAMP = {'inputs_hash': 'sha256:26b0c604502c186c665701bbb406156440c19d5cc1e166129b5e062462e30b90', 'module': 'shop_data.py', 'body_sha256': 'sha256:046876e42797b100b583e667e88133e3698dc5f6e2e781673ceaf73e4f9376fb'}
+_GEN_STAMP = {'inputs_hash': 'sha256:b5e394537a41d2eb526061f589e064152b506e1be21c63d6aa254ac74261366f', 'module': 'shop_data.py', 'body_sha256': 'sha256:046876e42797b100b583e667e88133e3698dc5f6e2e781673ceaf73e4f9376fb'}
