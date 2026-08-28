@@ -169,7 +169,10 @@ function haystack(c){
   if(c._h) return c._h;
   return c._h = [c.n,c.r,c.f,c.id,c.g,c.t.join(' '),c.maps.join(' '),c.mapn.join(' '),
     c.desc,(c.lots||[]).map(l=>l.name+' '+l.lot).join(' '),
-    (c.shop||[]).map(s=>s.item).join(' ')].join(' ').toLowerCase();
+    (c.shop||[]).map(s=>s.item).join(' '),
+    // the sweep boss left c.n when the clause moved to its own row (#936); it stays SEARCHABLE,
+    // because "which checks does Fire Giant sweep" is exactly what the page is asked.
+    (c.sw||[]).join(' ')].join(' ').toLowerCase();
 }
 
 /* ---------- facets render ---------- */
@@ -365,6 +368,23 @@ function checkReportUrl(c){
     +'&facts='+encodeURIComponent(checkFacts(c));
 }
 
+// #936 -- eligibility, NOT a per-seed promise. The generator bakes ", also granted by <boss>"
+// into a sweep MEMBER's name, but that clause is a CORPUS fact: whether THIS seed's boss actually
+// hands the check over depends on the seed's `dungeon_sweep` rung and its progression-surface cut,
+// neither of which this page has (it is built once from the static corpus, with no seed at all).
+// So the browser states what it can know -- that a sweep lists the check -- and says out loud that
+// the seed decides. The in-game client, which DOES hold the seed truth in slot_data
+// `dungeonSweepFlags`, filters the clause instead of hedging it.
+function sweepRow(c){
+  if(!c.sw||!c.sw.length) return '';
+  const boss=c.sw[0], tile=c.sw[1];
+  const who = tile? `${esc(boss)} (${esc(tile)})` : esc(boss);
+  return `<dt>Sweep</dt><dd>eligible &mdash; ${who}<br>`
+       + `<span style="color:var(--dim)">a sweep in the corpus lists this check; whether a given `
+       + `seed grants it on that boss kill depends on its <code>dungeon_sweep</code> and `
+       + `<code>progression_surface</code> settings.</span></dd>`;
+}
+
 function showDetail(c){
   const d=document.getElementById('detail'); d.classList.remove('empty');
   const rows=(arr,fn)=>arr&&arr.length?`<div class="rows">${arr.map(fn).join('')}</div>`:'<div style="color:var(--dim)">none</div>';
@@ -380,6 +400,7 @@ function showDetail(c){
      ${c.miss?`<dt>Missable</dt><dd style="color:var(--red)">${esc(c.miss)}</dd>`:''}
      ${c.fl?`<dt>Flags</dt><dd>${c.fl.map(f=>`<span class="tag">${esc(f)}</span>`).join('')}</dd>`:''}
      ${c.desc?`<dt>Description</dt><dd>${esc(c.desc)}</dd>`:''}
+     ${sweepRow(c)}
    </dl></div>
    <div class="sec"><h3>Where</h3><dl class="kv">
      <dt>Nearest grace</dt><dd>${esc(c.g)||'<span style="color:var(--dim)">unknown</span>'}</dd>
