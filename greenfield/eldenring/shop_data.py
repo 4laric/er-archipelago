@@ -1408,6 +1408,14 @@ DLC_GATED_SHOP_CHECK_FLAGS = frozenset({
 # DLC_GATED_SHOP_CHECK_FLAGS above is empty -- kept so the #913 derivation stays
 # observable and re-arms itself if a gated hub row ever becomes a check again.
 DLC_GATED_SHOP_ROW_FLAGS = frozenset({
+    160660,
+    160670,
+    160680,
+    160690,
+    170100,
+    170110,
+    170120,
+    170130,
     250550,
     250560,
     250570,
@@ -2033,4 +2041,4 @@ SHOP_OPEN_SCOPES = (
     ('OpenTranspositionShop', 101898, 101949),
 )
 
-_GEN_STAMP = {'inputs_hash': 'sha256:4af4b645782453152cea70d84fc1976d7104d4ca05e3828053bf17ca653674d8', 'module': 'shop_data.py', 'body_sha256': 'sha256:728bdd951ec51aa908b4f98f334160a9e58682507e98ccd4efbd56c3cea9cd1c'}
+_GEN_STAMP = {'inputs_hash': 'sha256:1bc2d71984689b747d4ca27ad2f6d37985c08041e20ed76d3f94b0b65db7be3f', 'module': 'shop_data.py', 'body_sha256': 'sha256:c4173dfb8cf58ccf6ce1545fba7e91f97c81d91dbb6984840e024a55c62f1e17'}
