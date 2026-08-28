@@ -1587,6 +1587,7 @@ def to_rust():
     L.append("")
     L.append(_RUST_VALIDATE)
     L.append(_hdr_version)
+    L.append(_RUST_TESTS)
     return "\n".join(L) + "\n"
 
 
@@ -1670,9 +1671,10 @@ pub fn validate(sd: &Value) -> Vec<String> {
         }
     }
     out
-}
+}'''
 
-#[cfg(test)]
+
+_RUST_TESTS = r'''#[cfg(test)]
 mod nested_grants_tests {
     use super::*;
     use serde_json::json;
