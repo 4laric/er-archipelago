@@ -49,7 +49,12 @@ _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relat
 # 4932 -> 4931 (2026-08-07): the item-existence guard learned that FromSoft's cut-content marker
 # also appears as '[ERROR]<real name>', which retired f400081 (goods 8130, "[ERROR]Rya's
 # Necklace"). It was never a second necklace -- the real one is goods 8136 (f400300).
-BASELINE_TOTAL_LOCATIONS = 4948   # 5048 - 100 (2026-08-24, #1013): Enia's shop is vanilla again.
+BASELINE_TOTAL_LOCATIONS = 4915   # 4948 - 33 (2026-08-28, #1097): ShopLineup reference blocks
+                                  # 16001/16004 are starting/caster-kit data, not merchant checks.
+                                  # Their 36 stock flags leave the client shop table; 33 derived
+                                  # shop-only locations leave the pool, while three flags retain
+                                  # their independently placed world locations.
+                                  # PREVIOUS: 5048 - 100 (2026-08-24, #1013): Enia's shop is vanilla again.
                                   # Her 100 stock flags left the pool (gen_data._ENIA_SHOP_FLAGS,
                                   # ledgered NOT_RANDOMIZED as enia_vanilla): release-gated armor rows
                                   # and hold-the-remembrance trades read sphere-1 in the spoiler while
@@ -108,7 +113,9 @@ BASELINE_TOTAL_LOCATIONS = 4948   # 5048 - 100 (2026-08-24, #1013): Enia's shop 
                                   # new location covered; detection/award/region/suppression stayed at
                                   # ZERO violations. Prior lineage: 4833 (synthetic-award-guard regen)
                                   # + 10 finale (Ashen Capital, 2026-07-14) + 7 gesture pickups = 4848.
-BASELINE_SHOP_CHECKS = 462   # 562 - 100 (2026-08-24, #1013): Enia's shop is vanilla again -- her
+BASELINE_SHOP_CHECKS = 426   # 462 - 36 (2026-08-28, #1097): reference-block stock flags are not
+                             # purchases and no longer reach the client shop rewrite table.
+                             # PREVIOUS: 562 - 100 (2026-08-24, #1013): Enia's shop is vanilla again -- her
                              # 100 stock flags left the pool (gen_data._ENIA_SHOP_FLAGS). Every one of
                              # them detected on the shop_stock_flag channel, so the shop count takes
                              # the whole delta; no other channel moves.
@@ -236,6 +243,15 @@ class CoverageGateStatic(unittest.TestCase, _BaselineAssertions):
         _, _, tripped = self.cov.report_coverage(printer=None, _static_table=(broken, se, si))
         self.assertGreater(len(tripped["suppression"]), len(clean["suppression"]),
                            "gate did NOT trip on a corrupted suppression table")
+
+    def test_non_goods_lot_zero_counts_as_suppression(self):
+        """1.17 changed f2048467030's lot category from the goods-blank path to the
+        non-goods zero path. The coverage gate must model the same table the client emits."""
+        records, _ctx = self.cov.build_coverage()
+        rec = records[7773502]
+        self.assertEqual(rec.detect_flag, 2048467030)
+        self.assertEqual(rec.suppress_kind, "lot_zero_map")
+        self.assertIn("checkLotZero", rec.provenance["suppress"])
 
     def test_tripwire_flag_with_no_awarding_lot_is_caught(self):
         """A check keyed on a flag NO ItemLotParam row awards (the phantom synthetic class: flag

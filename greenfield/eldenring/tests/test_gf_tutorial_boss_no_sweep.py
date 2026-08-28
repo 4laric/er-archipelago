@@ -529,8 +529,12 @@ def test_the_sweep_corpus_did_not_shrink():
     # (item_play_regions volume 68600), and Abyssal's only sweep host is 28000800 on m28, which
     # holds no m61 ground -- so there is no Abyssal trigger to deal it to. Same honest outcome as
     # 1035457030 above: still a check, still reachable on foot, simply no longer paid by a kill.
-    assert total == 4099, (  # +73 (2026-08-20, #907): every admissible boss OWN drop joined its own trigger's sweep; +1 (2026-08-21, #940): the Four Belfries key joined the Royal Revenant
-        "sweep corpus is %d, expected 4099. If a sweep was legitimately added or removed, say WHY "
+    # 2026-08-28 (#241): 4099 -> 4102. The 1.17 co-check audit adds the two real sibling checks on
+    # f14007850 (AP 7900286/7900287), hence +2 members with the same acquisition flag. The restored
+    # corroborated talk award f400020 adds the third member. Four existing flags merely re-own
+    # between the two tutorial triggers; none leaves its region.
+    assert total == 4102, (  # +73 (2026-08-20, #907): every admissible boss OWN drop joined its own trigger's sweep; +1 (2026-08-21, #940): the Four Belfries key joined the Royal Revenant
+        "sweep corpus is %d, expected 4102. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -774,6 +778,10 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # is the whole point of re-homing at the host derivation rather than filtering members later.
     # ONE flag loses its owner and it is not one of theirs: 68750 moves Gravesite -> Abyssal on the
     # scan (volume 68600) and Abyssal has no host that reaches m61 ground. See the corpus pin above.
-    assert (digest, n) == ("b30cddc2f9d07205", 4099), (  # 2026-08-26 (#1066): a ruled arena re-homes the boss; 64 re-owns, 0 region crossings, 1 orphaned flag (68750, named above)
-        "sweep OWNERSHIP changed: (%s, %d), expected (b30cddc2f9d07205, 4099). The total alone will "
+    # 2026-08-28 (#241): b30cddc2f9d07205/4099 -> 22eeed5e112d8b71/4102. Pairwise by
+    # (trigger, flag): removed 4, added 6. New flags are f400020 and f14007850 (the latter occurs
+    # twice because two independently randomized sibling checks share it); f400051, f400221,
+    # f10007082 and f10017900 only swap between tutorial triggers, with zero region crossings.
+    assert (digest, n) == ("22eeed5e112d8b71", 4102), (  # 2026-08-28 (#241): +3 real members; four same-region re-owns
+        "sweep OWNERSHIP changed: (%s, %d), expected (22eeed5e112d8b71, 4102). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

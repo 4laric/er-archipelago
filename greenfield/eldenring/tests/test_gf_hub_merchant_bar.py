@@ -40,8 +40,10 @@ from ..location_tags import (DEFAULTED_REGION_APS, ERDTREE_BURN_APS, LOCATION_TA
 # Every hub row carrying a merchant tag. #218 replaces the old number-anywhere-in-ESD heuristic with
 # exact AwardItemLot calls: two false Hub rows retire while one real Hub award enters, for a net -1.
 # 2026-08-24 (#1013): Enia's shop is VANILLA -- her 100 hub rows left the location pool entirely, so
-# the bar drops 183 -> 83. The delta is exactly her row count, nothing else moved.
-_PINNED_BAR = 83
+# the bar drops 183 -> 83. 2026-08-28 (#1097): 35 more hub rows were generator-derived rewrites of
+# curated starting/caster-kit shop blocks, not independent purchases. The block-level exclusion
+# removes exactly those false checks, leaving the 48 genuine Roundtable merchant rows barred here.
+_PINNED_BAR = 48
 # Of those, the ones a `Shop`-selecting seed would put on the surface before this bar fires: 83 minus
 # the 63 covered by the other bars (the DEFAULTED / ERDTREE_BURN / SURFACE_EXCLUDE /
 # SHOP_RELEASE_GATED union) = 20. Was 58 before #1013; the 38 that left were Enia's on-surface rows

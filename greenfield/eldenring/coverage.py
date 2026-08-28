@@ -196,7 +196,8 @@ _ROW_ID_MASK = 0x0FFFFFFF
 # player keeps learning the vanilla gesture; the check itself fires via the flag poll. It is a
 # SANCTIONED kind so the gate stays green, and an EXPLICIT one so the class stays visible in the
 # mechanism mix -- never silently folded into "no ware".
-SUPPRESS_KINDS = ("lot_blank_map", "lot_blank_enemy", "static_item_ids",
+SUPPRESS_KINDS = ("lot_blank_map", "lot_blank_enemy", "lot_zero_map", "lot_zero_enemy",
+                  "static_item_ids",
                   "client_intercept", "shop_stock", "vanilla_identical",
                   "event_award_unsuppressable")
 
@@ -401,6 +402,8 @@ def build_coverage(world=None, kept=None, _static_table=None, finale=None, dlc_o
     K_SRF = getattr(contract, "SHOP_ROW_FLAGS", "shopRowFlags") if contract else "shopRowFlags"
     K_CLM = getattr(contract, "CHECK_LOT_BLANK_MAP", "checkLotBlankMap") if contract else "checkLotBlankMap"
     K_CLE = getattr(contract, "CHECK_LOT_BLANK_ENEMY", "checkLotBlankEnemy") if contract else "checkLotBlankEnemy"
+    K_CZM = getattr(contract, "CHECK_LOT_ZERO_MAP", "checkLotZeroMap") if contract else "checkLotZeroMap"
+    K_CZE = getattr(contract, "CHECK_LOT_ZERO_ENEMY", "checkLotZeroEnemy") if contract else "checkLotZeroEnemy"
     if world is not None:
         try:
             sd = world.fill_slot_data()
@@ -412,6 +415,8 @@ def build_coverage(world=None, kept=None, _static_table=None, finale=None, dlc_o
         emitted_shop_row_flags = {int(k): int(v) for k, v in sd.get(K_SRF, {}).items()}
         emitted_blank_lots_map = {int(k) for k in sd.get(K_CLM, {})}
         emitted_blank_lots_enemy = {int(k) for k in sd.get(K_CLE, {})}
+        emitted_zero_lots_map = {int(k) for k in sd.get(K_CZM, {})}
+        emitted_zero_lots_enemy = {int(k) for k in sd.get(K_CZE, {})}
         flags_src, cif_src = "slot_data." + K_LOC, "slot_data." + K_CIF
     else:
         emitted_location_flags = {aid: int(fl)
@@ -440,6 +445,8 @@ def build_coverage(world=None, kept=None, _static_table=None, finale=None, dlc_o
         cld = _load("check_lots_data")
         emitted_blank_lots_map = {int(k) for k in getattr(cld, "CHECK_LOT_SLOTS_MAP", {})} if cld else set()
         emitted_blank_lots_enemy = {int(k) for k in getattr(cld, "CHECK_LOT_SLOTS_ENEMY", {})} if cld else set()
+        emitted_zero_lots_map = {int(k) for k in getattr(cld, "CHECK_LOT_ZERO_MAP", {})} if cld else set()
+        emitted_zero_lots_enemy = {int(k) for k in getattr(cld, "CHECK_LOT_ZERO_ENEMY", {})} if cld else set()
         flags_src, cif_src = "data.py", "features/check_item_flags.py (derived)"
 
     # system flags: everything the CLIENT itself writes. Region-open flags are front-door grace
@@ -535,6 +542,7 @@ def build_coverage(world=None, kept=None, _static_table=None, finale=None, dlc_o
             rec.suppress_kind = _classify_suppression(
                 rec, flag, static_map, static_enemy, static_items,
                 emitted_blank_lots_map, emitted_blank_lots_enemy,
+                emitted_zero_lots_map, emitted_zero_lots_enemy,
                 emitted_check_item_flags, SHOP_ROW_FLAGS, SHOP_ROW_IDS, cif_src,
                 gesture_flags=frozenset(GESTURE_AWARD_FLAGS),
                 location_lot=LOCATION_LOT)
@@ -614,12 +622,14 @@ def _is_filler_location(rec, contract):
 
 
 def _classify_suppression(rec, flag, static_map, static_enemy, static_items,
-                          blank_lots_map, blank_lots_enemy, check_item_flags,
+                          blank_lots_map, blank_lots_enemy, zero_lots_map, zero_lots_enemy,
+                          check_item_flags,
                           shop_flag_by_ap, shop_rows_by_ap, cif_src, gesture_flags=frozenset(),
                           location_lot=None):
     """Resolve suppress_kind, in mechanism order:
-      shop purchase -> lot blank (static flag->lot row AND the lot actually emitted in
-      checkLotBlankMap/Enemy) -> static id-keyed (weapon/armor) -> per-seed checkItemFlags
+      shop purchase -> lot blank/zero (static flag->lot row AND the lot actually emitted in
+      checkLotBlankMap/Enemy or checkLotZeroMap/Enemy) -> static id-keyed (weapon/armor) ->
+      per-seed checkItemFlags
       client intercept -> placed==vanilla -> none (a real hole iff the location has a ware).
 
     CO-CHECK precision (SPEC-flag-lot-item-model): a location with a LOCATION_LOT binding is one
@@ -636,23 +646,30 @@ def _classify_suppression(rec, flag, static_map, static_enemy, static_items,
                                       "unsuppressable BY DESIGN and this class says so out loud)")
         return "event_award_unsuppressable"
     bind = (location_lot or {}).get(rec.ap_id)
-    for table, static_tbl, blank_lots, kind, prov in (
-            ("map", static_map, blank_lots_map, "lot_blank_map",
-             "check_lots_table.json[map(+_v2)] + checkLotBlankMap"),
-            ("enemy", static_enemy, blank_lots_enemy, "lot_blank_enemy",
-             "check_lots_table.json[enemy(+_v2)] + checkLotBlankEnemy")):
+    for table, static_tbl, blank_lots, zero_lots, blank_kind, zero_kind, prov in (
+            ("map", static_map, blank_lots_map, zero_lots_map, "lot_blank_map", "lot_zero_map",
+             "check_lots_table.json[map(+_v2)]"),
+            ("enemy", static_enemy, blank_lots_enemy, zero_lots_enemy,
+             "lot_blank_enemy", "lot_zero_enemy", "check_lots_table.json[enemy(+_v2)]")):
         lots = [int(e.get("lot", -1)) for e in _entries(static_tbl, flag)]
         if bind is not None:
             if bind[0] != table:
                 continue                       # bound to the other table -> this branch can't cover it
             hit = bind[1] in lots and bind[1] in blank_lots
             if hit:
-                rec.provenance["suppress"] = prov + f" (own lot {bind[1]})"
-                return kind
+                rec.provenance["suppress"] = prov + f" + checkLotBlank (own lot {bind[1]})"
+                return blank_kind
+            hit = bind[1] in lots and bind[1] in zero_lots
+            if hit:
+                rec.provenance["suppress"] = prov + f" + checkLotZero (own lot {bind[1]})"
+                return zero_kind
             continue                           # bound member NOT covered here -> try id-keyed layers
         if any(l in blank_lots for l in lots):
-            rec.provenance["suppress"] = prov
-            return kind
+            rec.provenance["suppress"] = prov + " + checkLotBlank"
+            return blank_kind
+        if any(l in zero_lots for l in lots):
+            rec.provenance["suppress"] = prov + " + checkLotZero"
+            return zero_kind
     if flag in static_items:
         rec.provenance["suppress"] = "check_lots_table.json[items] (id-keyed)"
         return "static_item_ids"

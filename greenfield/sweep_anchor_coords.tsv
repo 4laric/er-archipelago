@@ -6,7 +6,7 @@
 # an AREA, never with the wording used for an item_grace_coords position.
 # Positions are MAP-LOCAL, the same space as item_grace_coords.
 #
-# EMITTED 621.
+# EMITTED 622.
 # REFUSED 0 AMBIGUOUS SWEEP
 # REFUSED 43 NO ARENA:
 #    7770786 (trigger 12030390)
@@ -51,7 +51,7 @@
 #    7773955 (trigger 2050480811)
 #    ... 3 more
 # REFUSED 0 ARENA AT ORIGIN
-# REFUSED 3435 ALREADY POSITIONED:
+# REFUSED 3437 ALREADY POSITIONED:
 #    7770041
 #    7770047
 #    7770811
@@ -92,7 +92,7 @@
 #    7770885
 #    7770887
 #    7770889
-#    ... 3395 more
+#    ... 3397 more
 ap_location_id	check_flag	trigger_defeat_flag	boss_map	local_x	local_y	local_z	anchor
 7770008	9500	11050800	m11_05_00_00	41.02	65.12	-421.28	sweep_arena
 7770010	9504	35000800	m35_00_00_00	74.54	-298.53	-80.61	sweep_arena
@@ -459,10 +459,11 @@ ap_location_id	check_flag	trigger_defeat_flag	boss_map	local_x	local_y	local_z	a
 7773681	65310	1038480800	m60_38_48_00	-30.17	404.2	-102.92	sweep_arena
 7773683	65410	2049450800	m61_49_45_00	62.85	396.02	123.83	sweep_arena
 7773702	66990	2046380800	m61_46_38_00	-24.9	9.25	-96.83	sweep_arena
+7773703	400020	10000800	m10_00_00_00	-233.64	73.69	349.6	sweep_arena
 7773708	400090	16000800	m16_00_00_00	93.69	-438.87	-118.41	sweep_arena
 7773709	400101	14000850	m14_00_00_00	151.24	110.57	-222.99	sweep_arena
 7773710	400103	14000800	m14_00_00_00	70.4	-838.71	-23.42	sweep_arena
-7773718	400221	10000850	m10_00_00_00	-16.94	-2.75	-17.6	sweep_arena
+7773718	400221	10000800	m10_00_00_00	-233.64	73.69	349.6	sweep_arena
 7773733	400312	1049390800	m60_49_39_00	94.02	83.54	86.54	sweep_arena
 7773740	400430	31110800	m31_11_00_00	-145.79	126.94	135.72	sweep_arena
 7773743	400592	2049450800	m61_49_45_00	62.85	396.02	123.83	sweep_arena
@@ -510,7 +511,7 @@ ap_location_id	check_flag	trigger_defeat_flag	boss_map	local_x	local_y	local_z	a
 7773906	540916	2044470800	m61_44_47_00	-52.12	321.72	112.28	sweep_arena
 7773912	580030	1051570800	m60_51_57_00	78.08	1632.02	210.23	sweep_arena
 7773913	580060	1049390800	m60_49_39_00	94.02	83.54	86.54	sweep_arena
-7773917	10007082	10000800	m10_00_00_00	-233.64	73.69	349.6	sweep_arena
+7773917	10007082	10000850	m10_00_00_00	-16.94	-2.75	-17.6	sweep_arena
 7773935	14007997	14000850	m14_00_00_00	151.24	110.57	-222.99	sweep_arena
 7773936	16007930	16000850	m16_00_00_00	62.32	7.82	-211.48	sweep_arena
 7773952	21027080	2050480860	m61_50_48_00	47.62	541.52	-63.28	sweep_arena

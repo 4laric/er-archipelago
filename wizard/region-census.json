@@ -1187,7 +1187,7 @@
    }
   },
   "Raya Lucaria Academy": {
-   "checks": 108,
+   "checks": 110,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|MajorBoss": 1,
@@ -1229,7 +1229,7 @@
    }
   },
   "Roundtable Hold": {
-   "checks": 136,
+   "checks": 101,
    "combos": {},
    "dlc": false,
    "parent": null,
@@ -1500,5 +1500,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "aed86b708cbe74ebb512596b6a7fb26a5fee5d632c8f138be6ac2cf190cd702f"
+ "source_sha256": "acd6b0657aeea4cc7e85cbff041c2e01e3134d6d9fd45e779a5cac0ceddcfcdc"
 }
