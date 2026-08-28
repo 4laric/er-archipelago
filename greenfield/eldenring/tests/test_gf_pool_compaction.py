@@ -39,10 +39,13 @@ def test_every_bundle_member_is_armor_and_belongs_to_exactly_one_bundle():
 
 def test_armor_family_compacts_to_one_wrapper_including_altered_members():
     seen_weapons, seen_bundles = set(), set()
-    assert compact_name("Carian Knight Helm", seen_weapons, seen_bundles) == "Carian Knight Set"
-    assert compact_name("Carian Knight Armor", seen_weapons, seen_bundles) is None
-    assert compact_name("Carian Knight Armor (Altered)", seen_weapons, seen_bundles) is None
-    assert 0x10000000 | 981100 in ARMOR_BUNDLES["Carian Knight Set"]
+    # Tarnished Edition 1.17 no longer exposes the old Carian Knight Armor (Altered) row. Keep the
+    # property pinned to a family that the current catalog actually contains instead of testing a
+    # stale name that compact_name correctly treats as an unrelated item.
+    assert compact_name("Aristocrat Headband", seen_weapons, seen_bundles) == "Aristocrat Set"
+    assert compact_name("Aristocrat Garb", seen_weapons, seen_bundles) is None
+    assert compact_name("Aristocrat Garb (Altered)", seen_weapons, seen_bundles) is None
+    assert ITEM_CATALOG["Aristocrat Garb (Altered)"] in ARMOR_BUNDLES["Aristocrat Set"]
 
 
 class TightPoolUsesWrappers(WorldTestBase):

@@ -10,11 +10,13 @@ two-player seed on a pre-#860 apworld had a goal-required item parked on one.
 36 are no longer checks at all and `DLC_GATED_SHOP_CHECK_FLAGS` is EMPTY. That emptiness is
 explained, not data loss: every one of the 36 is in `data.NOT_RANDOMIZED` under the
 `enia_vanilla` rule. The #913 machinery stays armed: gen_data still derives and emits the RAW
-set (`DLC_GATED_SHOP_ROW_FLAGS`), so if a DLC-gated hub row ever becomes a check again the
+set (`DLC_GATED_SHOP_ROW_FLAGS`). Elden Ring 1.17 adds eight more raw protector rows behind release
+flag 6953; their FMG names are not present in the current input bundle, so they are not live shop
+checks yet. If any DLC-gated hub row becomes a check, the
 core.py per-seed skip has its input back without re-deriving anything.
 
-THE RULE, not the list: the check set must equal the raw set minus the NOT_RANDOMIZED ledger --
-never pinned independently -- and no raw-set flag may exist in a no-DLC seed.
+THE RULE, not the list: the check set must equal the LIVE raw set minus the NOT_RANDOMIZED ledger;
+an unnamed raw param row is not a location. No raw-set flag may exist in a no-DLC seed.
 """
 import unittest
 
@@ -39,7 +41,7 @@ def _flags_in(world_base):
 
 class TestTheMotivatingCase(unittest.TestCase):
     def test_no_dlc_seed_has_no_dlc_gated_shop_rows(self):
-        """AzoTax's seed shape: DLC off. Not one of the raw 36 may exist as a check."""
+        """AzoTax's seed shape: DLC off. Not one of the raw rows may exist as a check."""
         class _T(WorldTestBase):
             game = GAME
             options = {"num_regions": 0, "enable_dlc": False}
@@ -47,7 +49,7 @@ class TestTheMotivatingCase(unittest.TestCase):
         flags = _flags_in(t)
         # WITNESSES: an empty world or an empty raw set greens the emptiness below for free.
         self.assertGreater(len(flags), 1000, "the no-DLC world built almost nothing")
-        self.assertEqual(len(DLC_GATED_SHOP_ROW_FLAGS), 36,
+        self.assertEqual(len(DLC_GATED_SHOP_ROW_FLAGS), 44,
                          "the raw derived set changed -- see TestTheDerivedSet before "
                          "re-pinning anything")
         present = flags & set(DLC_GATED_SHOP_ROW_FLAGS)
@@ -74,21 +76,22 @@ class TestTheMotivatingCase(unittest.TestCase):
 
 
 class TestTheDerivedSet(unittest.TestCase):
-    def test_the_raw_set_is_the_36(self):
-        """Pinned with its reason: Enia's 15 DLC boss-armor releases, 2 Dancing Lion extras,
-        and 19 remembrance-trade rows = 36. A GROWTH means the derivation started matching new
-        rows -- name them; a SHRINK means a DLC gate stopped being visible to it -- that is
-        AzoTax's bug returning, look before re-pinning."""
-        self.assertEqual(len(DLC_GATED_SHOP_ROW_FLAGS), 36)
+    def test_the_raw_set_is_the_44(self):
+        """The former 36 plus eight 1.17 protector rows (equip ids 5350000-5350300 and
+        5370000-5370300, stock flags below), all released by f6953. Their FMG names are not in the
+        current bundle, so pin their structural ids rather than inventing names."""
+        self.assertEqual(len(DLC_GATED_SHOP_ROW_FLAGS), 44)
+        new_flags = {160660, 160670, 160680, 160690, 170100, 170110, 170120, 170130}
+        self.assertTrue(new_flags <= set(DLC_GATED_SHOP_ROW_FLAGS))
 
     def test_the_check_set_is_the_raw_set_minus_the_ledger(self):
-        """The emptiness of the check set must be EXPLAINED by NOT_RANDOMIZED, never pinned:
-        check == raw minus ledgered flags. With Enia vanilla (#1013) every raw flag carries the
-        `enia_vanilla` rule and the check set is empty; if any raw flag is ever a check again
-        this equality still holds without a re-pin."""
+        """The check set is the raw set intersected with actual named shop locations, minus the
+        NOT_RANDOMIZED ledger. The eight unnamed 1.17 param rows are raw evidence but not checks."""
+        live_shop_flags = set(SHOP_ROW_FLAGS.values())
         self.assertEqual(
             set(DLC_GATED_SHOP_CHECK_FLAGS),
-            {fl for fl in DLC_GATED_SHOP_ROW_FLAGS if fl not in NOT_RANDOMIZED},
+            {fl for fl in DLC_GATED_SHOP_ROW_FLAGS
+             if fl in live_shop_flags and fl not in NOT_RANDOMIZED},
             "a DLC-gated flag left the check set without a NOT_RANDOMIZED entry explaining "
             "why (or vice versa) -- unexplained set drift is the #913 failure mode")
         # And the ledger entries that DO explain it name the rule:

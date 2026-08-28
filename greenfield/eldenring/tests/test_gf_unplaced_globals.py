@@ -270,6 +270,12 @@ class UnplacedGlobals(unittest.TestCase):
         self.assertEqual(("m31_11_00_00", "talk_esd"), by_flag.get(400430))
         self.assertNotIn(400440, by_flag, "common overworld talk bucket is not a placement")
 
+    @unittest.skipIf(not (_TOOL and os.path.isfile(_TOOL)), REPO_ONLY_REASON)
+    def test_incomplete_117_talk_extract_retains_corroborated_awards(self):
+        mod = _dug()
+        self.assertEqual(8, len(mod._CORROBORATED_TALK_AWARD_MAP))
+        self.assertEqual("m31_11_00_00", mod._CORROBORATED_TALK_AWARD_MAP["400430"])
+
 
 
     def test_the_emit_is_idempotent_against_a_placed_world(self):

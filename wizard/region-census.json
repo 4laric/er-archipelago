@@ -176,13 +176,13 @@
    },
    "sweep_slots_max": {
     "all": 81,
-    "bosses": 144,
+    "bosses": 145,
     "minidungeons": 81
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 81,
-     "bosses": 144,
+     "bosses": 145,
      "minidungeons": 81
     },
     "SweepSlotMajor": {
@@ -190,7 +190,7 @@
     },
     "SweepSlotMinor": {
      "all": 81,
-     "bosses": 136,
+     "bosses": 137,
      "minidungeons": 81
     }
    }
@@ -332,7 +332,7 @@
    }
   },
   "Caelid": {
-   "checks": 360,
+   "checks": 361,
    "combos": {
     "Basin": 1,
     "Basin|Boss|FieldBoss": 1,
@@ -377,13 +377,13 @@
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 120,
+    "bosses": 121,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 120,
+     "bosses": 121,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -391,7 +391,7 @@
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 116,
+     "bosses": 117,
      "minidungeons": 55
     }
    }
@@ -1080,7 +1080,7 @@
    }
   },
   "Mt. Gelmir": {
-   "checks": 242,
+   "checks": 243,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 4,
@@ -1187,7 +1187,7 @@
    }
   },
   "Raya Lucaria Academy": {
-   "checks": 106,
+   "checks": 110,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|MajorBoss": 1,
@@ -1229,7 +1229,7 @@
    }
   },
   "Roundtable Hold": {
-   "checks": 135,
+   "checks": 101,
    "combos": {},
    "dlc": false,
    "parent": null,
@@ -1300,7 +1300,7 @@
    }
   },
   "Shadow Keep": {
-   "checks": 117,
+   "checks": 118,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 2,
@@ -1401,7 +1401,7 @@
    }
   },
   "Stormveil": {
-   "checks": 139,
+   "checks": 141,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|MajorBoss|Remembrance": 1,
@@ -1500,5 +1500,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "c1b7eada4e9ae0868959d76266f756a84f3cec0ac07ccf126f5cb56f7b6496ef"
+ "source_sha256": "acd6b0657aeea4cc7e85cbff041c2e01e3134d6d9fd45e779a5cac0ceddcfcdc"
 }

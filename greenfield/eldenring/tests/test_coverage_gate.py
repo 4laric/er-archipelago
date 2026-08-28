@@ -49,12 +49,11 @@ _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relat
 # 4932 -> 4931 (2026-08-07): the item-existence guard learned that FromSoft's cut-content marker
 # also appears as '[ERROR]<real name>', which retired f400081 (goods 8130, "[ERROR]Rya's
 # Necklace"). It was never a second necklace -- the real one is goods 8136 (f400300).
-BASELINE_TOTAL_LOCATIONS = 4940   # 4948 - 8 (2026-08-28, ER 1.17 input refresh): the refreshed talk
-                                  # ESD corpus no longer supports a unique-map claim for eight
-                                  # formerly talk_esd-resolved unplaced globals (f400020, f400090,
-                                  # f400101, f400103, f400221, f400380, f400430, f400612).
-                                  # datamine_unplaced_globals therefore refuses them instead of
-                                  # guessing a region. Coverage remains zero across every gate.
+BASELINE_TOTAL_LOCATIONS = 4915   # 4948 - 33 (2026-08-28, #1097): ShopLineup reference blocks
+                                  # 16001/16004 are starting/caster-kit data, not merchant checks.
+                                  # Their 36 stock flags leave the client shop table; 33 derived
+                                  # shop-only locations leave the pool, while three flags retain
+                                  # their independently placed world locations.
                                   # PREVIOUS: 5048 - 100 (2026-08-24, #1013): Enia's shop is vanilla again.
                                   # Her 100 stock flags left the pool (gen_data._ENIA_SHOP_FLAGS,
                                   # ledgered NOT_RANDOMIZED as enia_vanilla): release-gated armor rows
@@ -114,9 +113,8 @@ BASELINE_TOTAL_LOCATIONS = 4940   # 4948 - 8 (2026-08-28, ER 1.17 input refresh)
                                   # new location covered; detection/award/region/suppression stayed at
                                   # ZERO violations. Prior lineage: 4833 (synthetic-award-guard regen)
                                   # + 10 finale (Ashen Capital, 2026-07-14) + 7 gesture pickups = 4848.
-BASELINE_SHOP_CHECKS = 461   # 462 - 1 (2026-08-28, ER 1.17 input refresh): f400020 was one of the
-                             # eight unplaced globals whose old talk-ESD location claim disappeared;
-                             # it detected on the shop-stock channel. It is refused, not re-pinned.
+BASELINE_SHOP_CHECKS = 426   # 462 - 36 (2026-08-28, #1097): reference-block stock flags are not
+                             # purchases and no longer reach the client shop rewrite table.
                              # PREVIOUS: 562 - 100 (2026-08-24, #1013): Enia's shop is vanilla again -- her
                              # 100 stock flags left the pool (gen_data._ENIA_SHOP_FLAGS). Every one of
                              # them detected on the shop_stock_flag channel, so the shop count takes

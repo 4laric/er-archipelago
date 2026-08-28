@@ -73,7 +73,9 @@ class TestTheMotivatingCase(unittest.TestCase):
             # three Perfume Bottles, and five Hefty Cracked Pots which the old coarse global-reward
             # pass missed. These are physical checks, so they belong in the pool; the hold-cap clamp
             # pays filler for the copies that cannot fit beside the pinned start loadout.
-            "Cracked Pot": (19, 10, 20),
+            # #1097 removes one shop rewrite of a starting-kit pot. It was not an independent
+            # pickup, so the physical pool correctly returns from 20 to 19 copies.
+            "Cracked Pot": (19, 10, 19),
             "Ritual Pot": (9, 4, 10),
             "Perfume Bottle": (9, 9, 11),
             "Hefty Cracked Pot": (10, 9, 10),
@@ -100,7 +102,7 @@ class TestTheMotivatingCase(unittest.TestCase):
                     budget[nm] -= 1
         # #218 adds 2/2/3/5 exact fixed pickups respectively. The clamp is doing more work because
         # the pool got bigger, not because a ceiling or start loadout moved (both pinned above).
-        self.assertEqual(clamped.get("Cracked Pot"), 11)
+        self.assertEqual(clamped.get("Cracked Pot"), 10)
         self.assertEqual(clamped.get("Ritual Pot"), 5)
         self.assertEqual(clamped.get("Perfume Bottle"), 11)
         self.assertEqual(clamped.get("Hefty Cracked Pot"), 9)
@@ -153,8 +155,7 @@ class TestTheClampDoesNotEatDeliberateDuplicates(unittest.TestCase):
             "Cerulean Crystal Tear": (2, 1), "Crimson Crystal Tear": (2, 1),
             "Ruptured Crystal Tear": (2, 1), "Cursemark of Death": (2, 1),
             "Dragon Cult Prayerbook": (2, 1), "Letter from Volcano Manor": (2, 1),
-            "Lord of Blood's Favor": (2, 1), "Note: Flask of Wondrous Physick": (2, 1),
-            "Note: Imp Shades": (2, 1), "Note: Stonedigger Trolls": (2, 1),
+            "Lord of Blood's Favor": (2, 1),
             "Unalloyed Gold Needle": (2, 1), "Whetstone Knife": (2, 1),
             "Memory Stone": (9, 8),
             # +3 (2026-08-13, #191). The widened co-check allowlist mints a SIBLING check for each
@@ -171,8 +172,10 @@ class TestTheClampDoesNotEatDeliberateDuplicates(unittest.TestCase):
             # #218's exact coordinate recovery makes these physical fixed pickups visible. Unlike
             # Hefty Cracked Pot, their pool alone now exceeds the safe hold ceiling; the excess
             # locations remain randomized and pay filler rather than an undeliverable vanilla item.
-            "Cracked Pot": (20, 19), "Ritual Pot": (10, 9),
+            "Ritual Pot": (10, 9),
             "Perfume Bottle": (11, 9),
+            # #1097 also removes the duplicate shop-reference copies of the three Notes that used
+            # to appear here. Their real world pickups remain; only the false second copies leave.
             # 🛑 "Rya's Necklace": (2, 1) WAS pinned here on 2026-08-07 and is now GONE, because
             # the second copy was never a necklace. Diffing by LOCATION NAME said "the re-key
             # recovered a second pickup"; diffing by ITEM ID says otherwise:
@@ -184,9 +187,10 @@ class TestTheClampDoesNotEatDeliberateDuplicates(unittest.TestCase):
             # ⭐ A NAME MATCH IS NOT AN ITEM MATCH -- the same lesson that made the #249 de-dup
             # key on (table, lot) instead of item_name, one table over.
         }
-        # Hefty Cracked Pot remains at its ceiling on pool copies alone (10<=10), and only
-        # overflows when the start loadout is counted. The other three now have enough exact fixed
-        # pickups to bite even in this pool-only view.
+        # Cracked and Hefty Cracked Pots remain at their ceilings on pool copies alone, and only
+        # overflow when the start loadout is counted. The other two have enough exact fixed pickups
+        # to bite even in this pool-only view.
+        self.assertNotIn("Cracked Pot", bites)
         self.assertNotIn("Hefty Cracked Pot", bites)
         self.assertEqual(bites, expected,
                          "the set of items the hold ceiling removes has changed -- if a SPELL is "

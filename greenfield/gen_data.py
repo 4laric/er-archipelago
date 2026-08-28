@@ -4741,8 +4741,20 @@ SHOP_ITEM_FLAGS = {}                # (equip_type, equip_id) -> {stock flags sel
 SHOP_RELEASE_GATED_FLAGS = set()
 _shop_new = []
 if os.path.isfile(_SHOP_ROWS_TSV):
-    _have = {int(r["flag"]) for r in rows if str(r.get("flag", "")).strip().isdigit()}
-    _seen = set()
+    # `shop_reference` marks ShopLineupParam data that is not a merchant location (starting gear,
+    # caster kits, and gallery/reference rows). The authored row filter drops those seeds, but this
+    # recovery pass used to mint them straight back because they looked like missing limited-stock
+    # shop checks (#1097).
+    #
+    # One 100-row ShopLineup block is one storefront, so one curated reference seed proves that the
+    # whole block is reference data. Derive that closure rather than maintaining a sibling-flag list.
+    _shop_reference_seed_flags = {
+        int(_r["flag"]) for _r in _ALLROWS
+        if _r.get("method") == "shop_reference"
+        and str(_r.get("flag", "")).strip().isdigit()
+    }
+    _shop_tsv_rows = []
+    _shop_reference_blocks = set()
     with open(_SHOP_ROWS_TSV, encoding="utf-8") as _f:
         for _line in _f:
             if _line.startswith("#") or _line.startswith("row_id"):
@@ -4750,48 +4762,56 @@ if os.path.isfile(_SHOP_ROWS_TSV):
             _p = _line.rstrip("\n").split("\t")
             if len(_p) < 9:
                 continue
-            _flag = int(_p[5])
-            _wkey = (int(_p[2]), int(_p[3]))            # the ware ledger counts EVERY row (above)
-            SHOP_FLAG_ITEMS.setdefault(_flag, set()).add(_wkey)
-            SHOP_ITEM_FLAGS.setdefault(_wkey, set()).add(_flag)
-            # RESERVED / EXCLUDED flags are excluded from `rows` on purpose, so they look "missing" to
-            # the appender below and it would happily MINT them back -- which is worse than the bug it
-            # fixes. In particular flag 60290 (ShopLineupParam row 101801, the Twin Maidens' Blue Cipher
-            # Ring slot) is RESERVED BY MINIBAKER: the client repurposes that row into the infinite
-            # Stonesword Key vendor, so a check placed on it would be clobbered at runtime -- and the
-            # shop_sell rewrite and the minibaker rewrite would fight over the same row. Honour the same
-            # exclusions the main `rows` filter honours, for the detect table AND the mint.
-            if (_flag in MINIBAKER_VENDOR_FLAGS or _flag in EXCLUDE_FLAGS
-                    or _flag in MAP_REVEAL_FLAGS):
-                continue
-            DERIVED_SHOP_FLAGS.add(_flag)
-            # eventFlag_forRelease != 0 -> the row does not EXIST in the menu until some event fires.
-            # AP reachability answers "is the region open?" -- necessary, but not sufficient here.
-            if len(_p) >= 11 and _p[10].strip() not in ("", "0"):
-                SHOP_RELEASE_GATED_FLAGS.add(_flag)
-            if _flag in _have or _flag in _seen:
-                continue                       # already a location (its world source) -> no duplicate
-            _seen.add(_flag)
-            _nm, _val, _reg = _p[4].strip(), int(_p[7] or 0), _p[8].strip()
-            if not _nm:
-                continue                       # unnamed -> cannot make a legible check
-            # value == 0 => a TRADE/RETURN, not a purchase: Enia's remembrance shop. 65 of those rows
-            # hand back a REMEMBRANCE you already own (a duplication mechanic, not an item source), so
-            # minting a location for one puts a SECOND copy of a unique item in the pool and breaks the
-            # singleton invariant (test_unique_key_items_are_singletons caught exactly this: Remembrance
-            # of Putrescence x3). The other 51 free rows are the trade OUTPUTS (Axe of Godrick, Hand of
-            # Malenia) -- those already have locations, so they mint nothing here and simply keep their
-            # shop-row mapping via DERIVED_SHOP_FLAGS above. Detect: yes. Mint a location: never.
-            if _val <= 0:
-                continue
-            _shop_new.append({
-                "ap_id": "", "flag": str(_flag), "flag_source": "shop", "item_name": _nm,
-                "map": "PENDING",
-                # empty region => not in REGION_MAP => _region_of_raw defaults to HUB and
-                # _region_is_derived() calls it DEFAULTED => barred from carrying progression.
-                "region": _reg if _reg else "Unknown merchant (unresolved block)",
-                "method": "shop_merchant",
-            })
+            _shop_tsv_rows.append(_p)
+            if int(_p[5]) in _shop_reference_seed_flags:
+                _shop_reference_blocks.add(int(_p[1]))
+
+    _have = {int(r["flag"]) for r in rows if str(r.get("flag", "")).strip().isdigit()}
+    _seen = set()
+    for _p in _shop_tsv_rows:
+        _flag = int(_p[5])
+        _wkey = (int(_p[2]), int(_p[3]))            # the ware ledger counts EVERY row (above)
+        SHOP_FLAG_ITEMS.setdefault(_flag, set()).add(_wkey)
+        SHOP_ITEM_FLAGS.setdefault(_wkey, set()).add(_flag)
+        # RESERVED / EXCLUDED flags are excluded from `rows` on purpose, so they look "missing" to
+        # the appender below and it would happily MINT them back -- which is worse than the bug it
+        # fixes. In particular flag 60290 (ShopLineupParam row 101801, the Twin Maidens' Blue Cipher
+        # Ring slot) is RESERVED BY MINIBAKER: the client repurposes that row into the infinite
+        # Stonesword Key vendor, so a check placed on it would be clobbered at runtime -- and the
+        # shop_sell rewrite and the minibaker rewrite would fight over the same row. Honour the same
+        # exclusions the main `rows` filter honours, for the detect table AND the mint.
+        if (int(_p[1]) in _shop_reference_blocks
+                or _flag in MINIBAKER_VENDOR_FLAGS or _flag in EXCLUDE_FLAGS
+                or _flag in MAP_REVEAL_FLAGS):
+            continue
+        DERIVED_SHOP_FLAGS.add(_flag)
+        # eventFlag_forRelease != 0 -> the row does not EXIST in the menu until some event fires.
+        # AP reachability answers "is the region open?" -- necessary, but not sufficient here.
+        if len(_p) >= 11 and _p[10].strip() not in ("", "0"):
+            SHOP_RELEASE_GATED_FLAGS.add(_flag)
+        if _flag in _have or _flag in _seen:
+            continue                       # already a location (its world source) -> no duplicate
+        _seen.add(_flag)
+        _nm, _val, _reg = _p[4].strip(), int(_p[7] or 0), _p[8].strip()
+        if not _nm:
+            continue                       # unnamed -> cannot make a legible check
+        # value == 0 => a TRADE/RETURN, not a purchase: Enia's remembrance shop. 65 of those rows
+        # hand back a REMEMBRANCE you already own (a duplication mechanic, not an item source), so
+        # minting a location for one puts a SECOND copy of a unique item in the pool and breaks the
+        # singleton invariant (test_unique_key_items_are_singletons caught exactly this: Remembrance
+        # of Putrescence x3). The other 51 free rows are the trade OUTPUTS (Axe of Godrick, Hand of
+        # Malenia) -- those already have locations, so they mint nothing here and simply keep their
+        # shop-row mapping via DERIVED_SHOP_FLAGS above. Detect: yes. Mint a location: never.
+        if _val <= 0:
+            continue
+        _shop_new.append({
+            "ap_id": "", "flag": str(_flag), "flag_source": "shop", "item_name": _nm,
+            "map": "PENDING",
+            # empty region => not in REGION_MAP => _region_of_raw defaults to HUB and
+            # _region_is_derived() calls it DEFAULTED => barred from carrying progression.
+            "region": _reg if _reg else "Unknown merchant (unresolved block)",
+            "method": "shop_merchant",
+        })
     rows = rows + _shop_new
 print(f"shop rows: +{len(_shop_new)} DERIVED shop checks region_map had lost "
       f"({len(DERIVED_SHOP_FLAGS)} detectable stock flags)")
@@ -7778,8 +7798,9 @@ with open(OUT_SHOP, "w", newline="\n", encoding="utf-8") as f:
     for _fl in DLC_GATED_SHOP_CHECK_FLAGS:
         f.write(f"    {_fl},\n")
     f.write("})\n\n# RAW DLC-gated stock flags (every ShopLineupParam row meeting the predicate, whether or\n")
-    f.write("# not it is a check). With Enia vanilla (#1013) this is exactly her 36 rows and\n")
-    f.write("# DLC_GATED_SHOP_CHECK_FLAGS above is empty -- kept so the #913 derivation stays\n")
+    f.write("# not it is a check). This includes unnamed raw param rows that have not become\n")
+    f.write("# locations yet; DLC_GATED_SHOP_CHECK_FLAGS above intersects the live shop table.\n")
+    f.write("# With Enia vanilla (#1013) the check set is empty -- kept so the #913 derivation stays\n")
     f.write("# observable and re-arms itself if a gated hub row ever becomes a check again.\n")
     f.write("DLC_GATED_SHOP_ROW_FLAGS = frozenset({\n")
     for _fl in DLC_GATED_SHOP_ROW_FLAGS:

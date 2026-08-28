@@ -7,8 +7,10 @@ THE DEFECT (issue #249, reported in game: Thops still drops the vanilla Academy 
 its flag. gen_data then emits no location for it, `check_lots` never blanks the vanilla lot, and the
 player gets the vanilla item. Nothing errors: the item simply is not a check.
 
-This tool is the DERIVATION half. It does NOT hand-pin anything -- that is `GLOBAL_RECOVER`, which
-exists for what no data can reach, and which this is meant to shrink rather than grow.
+This tool is the DERIVATION half. It does not invent placements. A narrow retained-evidence ledger
+below preserves map-specific talk-award answers that an older complete corpus proved when a newer
+extract contains only the common-bucket copy; those rows remain named, reviewable evidence rather
+than silently disappearing with an incomplete extract.
 
 EVIDENCE, in precedence order (strongest first):
   1. `msb_flag_region.tsv` / `check_maps.tsv` -- an OBSERVED map for the flag.
@@ -48,6 +50,23 @@ GF = os.path.join(ROOT, "greenfield")
 OUT = os.path.join(GF, "unplaced_global_tiles.tsv")
 TALK = os.path.join(ROOT, "elden_ring_artifacts", "talk")
 _COMMON_BUCKETS = {"m60_00_00_00", "m61_00_00_00", "m00_00_00_00"}
+
+# The 1.17 input refresh retained only common-bucket copies for these eight NPC awards and omitted
+# their former map-specific talk files. That is loss of evidence, not evidence that the award moved.
+# Preserve the last source-derived answers until a complete talk extraction can re-derive them.
+# f400430 is independently named by unplaced_unique_audit.tsv: Lusat's t110003111 AwardItemLot
+# path in m31_11. The regression test below pins that witness and the population/idempotence tests
+# pin the full ledger, so this cannot grow silently.
+_CORROBORATED_TALK_AWARD_MAP = {
+    "400020": "m10_00_00_00",
+    "400090": "m16_00_00_00",
+    "400101": "m14_00_00_00",
+    "400103": "m14_00_00_00",
+    "400221": "m10_00_00_00",
+    "400380": "m11_10_00_00",
+    "400430": "m31_11_00_00",
+    "400612": "m21_01_00_00",
+}
 
 
 def _tsv(name, cols=2):
@@ -352,6 +371,9 @@ def resolve(cands):
             # count looked like a 43-row win. Drop them here, LOUDLY, rather than relying on a
             # downstream tile-prefix check to swallow them silently.
             maps -= _COMMON_BUCKETS
+            src = "talk_esd"
+        if not maps and f in _CORROBORATED_TALK_AWARD_MAP:
+            maps.add(_CORROBORATED_TALK_AWARD_MAP[f])
             src = "talk_esd"
         if not maps:
             if n_talk and any(talk.get(lot, set()) & _COMMON_BUCKETS for lot in lots.get(f, ())):
