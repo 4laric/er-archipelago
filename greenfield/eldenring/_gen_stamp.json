@@ -6,7 +6,7 @@
     "regions": 28,
     "sweeps": 211
   },
-  "inputs_hash": "sha256:1bc2d71984689b747d4ca27ad2f6d37985c08041e20ed76d3f94b0b65db7be3f",
+  "inputs_hash": "sha256:909b6a314f316802ae6a37fb7a4e2ea5f34cbfcb1f1b7f18de7a786257cf33f1",
   "modules": {
     "boss_data.py": "sha256:0077a571f7171e92205b81140b7ef0f71cb19abadf80d5095b5bb8e10bdb52b3",
     "boss_sweeps.py": "sha256:60d65b048fc25757966c836fe1ab7a0a38886110047f3d5c98ec8e8ff7a4057d",
@@ -18,7 +18,7 @@
     "region_graces.py": "sha256:6c8eb071ebfb5dfad413ea807c320ddcd978ffecb76a7c99a0ec937fa0cd1617",
     "region_open_flags.py": "sha256:7c2c446ea7da7d4b28ebee77057c34446d7c718c9339a74f69df58eec66fb5b5",
     "region_play_ids.py": "sha256:2bcc6f2fb540d378ac9f8e1a948de34d4d56836c0ef1c4e179bcf28dcbec961e",
-    "shop_data.py": "sha256:c4173dfb8cf58ccf6ce1545fba7e91f97c81d91dbb6984840e024a55c62f1e17",
+    "shop_data.py": "sha256:be2bbc182301394bfe2652ef07a77a6bd1bb7741ac7b42d8c67b7970c2df3f1e",
     "spawn_trap_data.py": "sha256:1979567ffba029e59176478d83fc163315c8b9a8fbfbe613fd49bcdea6cb40f1"
   }
 }
