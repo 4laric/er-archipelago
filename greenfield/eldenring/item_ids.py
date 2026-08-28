@@ -3646,7 +3646,7 @@ LOCATION_ITEM = {
     7770575: "Witch's Glintstone Crown",
     7770576: "Seluvis's Bell Bearing",
     7770577: "Pidia's Bell Bearing",
-    7770578: "Tibia's Summons",
+    7770578: 'Nagakiba',
     7770579: 'Shard of Alexander',
     7770580: 'Warrior Jar Shard',
     7770581: 'Letter to Patches',
@@ -11971,4 +11971,4 @@ JUNK_GEAR_NAMES = [
     'Zamor Mask',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:395a961c611a352a526bf4bcd77728e86da1bd0630128779216f19ff3b551a76', 'module': 'item_ids.py', 'body_sha256': 'sha256:6d518e82e3f3c7f48e261178c84469e6112cdca014b0b163ba0eb14db7999e13'}
+_GEN_STAMP = {'inputs_hash': 'sha256:26b0c604502c186c665701bbb406156440c19d5cc1e166129b5e062462e30b90', 'module': 'item_ids.py', 'body_sha256': 'sha256:babc4a99fe5fa89de91dea2de2535cafafed6c9612fc5ccb770e2970e52bf469'}
