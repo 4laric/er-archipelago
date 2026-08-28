@@ -1257,7 +1257,9 @@ ROW_MAP_REGION_FIX = {
 # CO_CHECK_FLAGS below -- the primary row keeps its scanned name, the sibling gets a registry ap_id,
 # BOTH items are pooled, nothing is deleted). Keep the table for any future genuinely-wrong NAME on a
 # single-lot row; never re-add a shared-flag rename here.
-ROW_ITEM_NAME_FIX = {}
+ROW_ITEM_NAME_FIX = {
+    400163: "Nagakiba with Ash of War: Piercing Fang",
+}
 for _rowfix in _ALLROWS:
     try:
         _ff = int(_rowfix["flag"])
@@ -2487,6 +2489,10 @@ def _resolve_item(_raw):
         if _s and _s not in _tries:
             _tries.append(_s)
     _add(_raw)
+    # EquipParamCustomWeapon names are display composites; AP delivers the base weapon while the
+    # source lot preserves its attached Ash of War. Resolve the catalog identity through that base.
+    if " with Ash of War: " in _raw:
+        _add(_raw.split(" with Ash of War: ", 1)[0])
     _lead = _LEAD_RE.sub("", _raw); _add(_lead); _add(_ANNOT_RE.sub("", _lead))
     _core = _COUNT_RE.sub("", _ANNOT_RE.sub("", _lead)); _add(_core); _add(_PREFIX_RE.sub("", _core))
     for _t in _tries:                            # exact normalized hit -> canonical display name

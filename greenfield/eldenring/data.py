@@ -327,7 +327,7 @@ LOCATIONS = {
         ('Altus :: Tree Surcoat - from Nomadic Merchant [f170700]', 7770423, 170700),
         ('Altus :: Festering Bloody Finger - from Nomadic Merchant [f170710]', 7770424, 170710),
         ('Altus :: Tonic of Forgetfulness - around Road of Iniquity Side Path, may be sweep-granted by Wormface (m60_41_53) [f400070]', 7770563, 400070),
-        ("Altus :: [Sorcery] Tibia's Summons - m60_39_52 (region unconfirmed), may be sweep-granted by Black Knife Assassin (m60_40_52) [f400163]", 7770578, 400163),
+        ('Altus :: Nagakiba with Ash of War: Piercing Fang - m60_39_52 (region unconfirmed), may be sweep-granted by Black Knife Assassin (m60_40_52) [f400163]', 7770578, 400163),
         ('Altus :: Seedbed Curse - m60_44_52 (region unconfirmed), may be sweep-granted by Draconic Tree Sentinel (m60_45_52) [f400308]', 7770596, 400308),
         ('Altus :: Great Stars - around Bower of Bounty, may be sweep-granted by Sanguine Noble (m60_40_53) [f400510]', 7770628, 400510),
         ('Altus :: Omenkiller Rollo - around Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f510740]', 7770679, 510740),
@@ -5524,4 +5524,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:395a961c611a352a526bf4bcd77728e86da1bd0630128779216f19ff3b551a76', 'module': 'data.py', 'body_sha256': 'sha256:a58fbd460eea359812a748aab6f505673a7044f316003de776552ba382fc36e6'}
+_GEN_STAMP = {'inputs_hash': 'sha256:26b0c604502c186c665701bbb406156440c19d5cc1e166129b5e062462e30b90', 'module': 'data.py', 'body_sha256': 'sha256:d4bdcf0b5aba949e83348090d38ed68a873ba0c3b21ab4174db73d131d2ddf07'}
