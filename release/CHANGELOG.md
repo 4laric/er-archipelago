@@ -231,6 +231,15 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 
 ### Fixed
 
+- **Client gitlink -> `d99d81d` (clients#455, clients#467, clients#468).** Bloodborne location
+  checks no longer disappear when a silently dead socket accepts the local write but the server
+  never receives it. The client keeps a server-confirmed checked-location view separate from
+  archipelago-rs's optimistic local cache and resends until `RoomUpdate` acknowledges the check.
+  Retries are per-location and bounded in frequency -- immediate, then 1/2/4/8/16/30 seconds,
+  staying at 30 seconds until confirmation -- with an immediate attempt after reconnect. There is
+  deliberately no terminal attempt count, because one would recreate the lost-check failure after
+  the limit. No Elden Ring gameplay behavior changes in this client bump.
+
 - **Valid progressive no-op and flags-only rungs no longer produce a false client contract warning
   (#465).** The world already accepted the exact `{noop: true}` sentinel used to preserve flask copy
   ordinals and non-empty flags-only bell rungs, while the generated Rust validator required every
