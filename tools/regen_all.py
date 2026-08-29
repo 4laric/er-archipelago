@@ -148,6 +148,10 @@ STEPS = [
          why="repo-side halves (CONTRACT.md, contract.json) ALWAYS; contract_gen.rs only when the "
              "client is checked out -- it skips that half itself, which is why this step is not "
              "flagged needs_client."),
+    Step(TABLES, "tools/gen_latest_json.py",
+         emits=["release/latest.json"],
+         why="committed update verdict derived from CHANNELS.tsv + CONTRACT-VERSIONS.tsv; the "
+             "website deploy installs these reviewed bytes rather than composing JSON on-host."),
     Step(TABLES, "tools/gen_area_tiers.py", ["--check"], needs_client=True,
          why="THE STEP build.ps1 WAS MISSING (issue #699). Its DATA half is tier-2 (needs the "
              "MSBs), so this half only CHECKS: red means re-run without --check and commit."),

@@ -266,6 +266,12 @@ at `$ER_STATIC_DIR/beta/wizard.html`. No Flask change is needed for the static h
   which renders as a blank panel, not an error anyone reports. 🛑 And it checks the fetched file
   actually contains the options-metadata block: a proxy login page and a ref with no wizard both
   arrive as HTTP 200, which `curl -f` cannot see.
+* **`release/latest.json` is a committed projection, not a third release ledger.**
+  `tools/gen_latest_json.py` derives it from the final `stable` row in `CHANNELS.tsv` and that
+  version's row in `CONTRACT-VERSIONS.tsv`; `regen_all.py --phases tables,pages` regenerates it and
+  CI rejects drift. The deploy fetches the reviewed file from `main`, checks all three fields against
+  the two ledgers, then atomically installs it as `/er/latest.json`. This keeps the served bytes in
+  review while failing closed if a promotion forgot its regen.
 * **The page banners itself.** `currentChannel()` reads `location.pathname`; anything under a
   `beta/` segment says so, in the colour of a warning, with a link back to stable. The deploy script
   does not edit the HTML -- a shell script rewriting markup it did not write is wrong the first time

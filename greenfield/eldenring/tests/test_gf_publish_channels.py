@@ -187,15 +187,16 @@ class WizardDeploy(unittest.TestCase):
         self.assertIn("mv -f", text)
         self.assertNotIn('curl -fsSL "${RAW}/${ref}/wizard/wizard.html" -o "$dst"', text)
 
-    def test_latest_json_is_emitted_from_the_ledgers_atomically(self):
+    def test_latest_json_is_deployed_from_the_generated_repo_artifact_atomically(self):
         """/er/latest.json feeds the client's update banner (phase 1 of the updater, 2026-08-21).
         The verdict a player sees ("safe mid-seed" vs "contract moved") is derived by comparing
-        this file's `contract` to the dll's compiled hash -- so the emit must read BOTH ledgers
-        (CHANNELS.tsv for the tag, CONTRACT-VERSIONS.tsv for its contract), never a typed hash,
-        and must install with the same mktemp-sibling + mv discipline as every page."""
+        this file's `contract` to the dll's compiled hash. The committed projection is generated
+        from both ledgers; deployment fetches those reviewed bytes and verifies their fields before
+        the same mktemp-sibling + mv install used by every page."""
         _, script = self._script()
-        # WITNESS: the block exists at all (a deleted emit must fail here, not pass vacuously).
+        # WITNESS: the block and committed source exist (a deleted deploy must fail, not pass).
         self.assertIn("latest.json", script)
+        self.assertIn("release/latest.json", script)
         self.assertIn("CONTRACT-VERSIONS.tsv", script)
         self.assertIn('"$cvledger"', script)
         # The contract comes from the ledger row for the stable version -- the awk join.
@@ -203,10 +204,33 @@ class WizardDeploy(unittest.TestCase):
         # Atomic: a sibling temp file, then mv onto the destination.
         self.assertRegex(script, r'mktemp "\$\{DEST\}/latest\.json\.XXXXXX\.tmp"')
         self.assertRegex(script, r'mv "\$ljtmp" "\$\{DEST\}/latest\.json"')
+        self.assertIn('${RAW}/main/release/latest.json', script)
+        self.assertNotIn("printf '{\"version\"", script)
         # A missing ledger row DIES rather than emitting a lie.
         self.assertIn("latest.json would lie", script)
         # Stable-only artifact: both non-stable modes guard it off.
         self.assertRegex(script, r'\[ "\$BETA_ONLY" = "0" \] && \[ "\$SITE_ONLY" = "0" \]')
+
+    def test_committed_latest_json_matches_both_ledgers(self):
+        import json
+
+        channels = []
+        with open(os.path.join(REPO, "release", "CHANNELS.tsv"), encoding="utf-8") as fh:
+            channels = [line.rstrip("\n").split("\t") for line in fh
+                        if line.strip() and not line.lstrip().startswith("#")]
+        stable_tag = [row[1] for row in channels if row[0] == "stable"][-1]
+        version = stable_tag.lstrip("v")
+        with open(os.path.join(REPO, "release", "CONTRACT-VERSIONS.tsv"), encoding="utf-8") as fh:
+            contracts = {row[0]: row[1] for row in
+                         (line.rstrip("\n").split("\t") for line in fh
+                          if line.strip() and not line.lstrip().startswith("#"))}
+        with open(os.path.join(REPO, "release", "latest.json"), encoding="utf-8") as fh:
+            latest = json.load(fh)
+        self.assertEqual(latest, {
+            "version": version,
+            "contract": contracts[version],
+            "url": "https://github.com/4laric/er-archipelago/releases/tag/%s" % stable_tag,
+        })
 
     def test_the_stable_tag_comes_from_the_ledger(self):
         """Not from an argument: a tag typed on the box is a second source of truth for which build

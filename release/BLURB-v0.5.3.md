@@ -21,6 +21,11 @@ extractor completed all of its semantic checks, then one local full regen failed
 atomically replaces the old table, so it neither opens that destination directly nor leaves a
 half-written corpus when replacement fails (#1110).
 
+**The website's update verdict is now a reviewed repository artifact.** `release/latest.json` is
+generated from the stable-channel and contract ledgers, checked for drift in CI, and deployed only
+after its version, contract, and release URL are verified. The served file remains atomic, but its
+exact bytes are now visible in the promotion commit instead of being composed only on the host.
+
 This window opened at the v0.5.2 tag. `CONTRACT_HASH` stays at `13db0b3a` —
 `abilityUnlockItems` remains the newest slot-data shape — while the exact-version handshake moves
 to 0.5.3. Client half: clients#469.

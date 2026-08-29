@@ -284,9 +284,11 @@ fi
 # ("safe to update mid-seed" vs "contract moved -- finish this seed first") is DERIVED client-side
 # by comparing `contract` to the hash the running dll was compiled against, so this file must name
 # the stable tag's contract from the LEDGER (CONTRACT-VERSIONS.tsv), never a hand-typed hash.
-# Composed on the box, installed with the same mktemp+mv discipline as every page above. Skipped
-# under --beta-only and --site: it describes STABLE, and those modes deliberately do not touch
-# stable artifacts. ASCII only, like everything in this script.
+# Generated and reviewed in the repo from those ledgers, then installed with the same mktemp+mv
+# discipline as every page above. The deploy still checks the fields against the live ledgers: a
+# stale committed projection must fail closed, not publish a plausible lie. Skipped under
+# --beta-only and --site: it describes STABLE, and those modes deliberately do not touch stable
+# artifacts. ASCII only, like everything in this script.
 if [ "$BETA_ONLY" = "0" ] && [ "$SITE_ONLY" = "0" ] && [ -n "$stable_tag" ]; then
   cvledger="$(curl -fsSL "${RAW}/main/release/CONTRACT-VERSIONS.tsv")"     || die "could not fetch release/CONTRACT-VERSIONS.tsv for latest.json"
   stable_ver="${stable_tag#v}"
@@ -294,14 +296,19 @@ if [ "$BETA_ONLY" = "0" ] && [ "$SITE_ONLY" = "0" ] && [ -n "$stable_tag" ]; the
 ' "$cvledger" | awk -F'	' -v v="$stable_ver" '!/^#/ && $1==v { print $2 }' | head -1)"
   [ -n "$stable_contract" ] || die "CONTRACT-VERSIONS.tsv has no row for ${stable_ver} -- latest.json would lie"
   if [ "$DRY" = "1" ]; then
-    say "  DRY   latest.json: {\"version\":\"${stable_ver}\",\"contract\":\"${stable_contract}\"}"
+    say "  DRY   latest.json: release/latest.json from main (${stable_ver} contract/${stable_contract})"
   else
     mkdir -p "$DEST"
     ljtmp="$(mktemp "${DEST}/latest.json.XXXXXX.tmp")"
     CURRENT_TMP="$ljtmp"
-    printf '{"version": "%s", "contract": "%s", "url": "https://github.com/4laric/er-archipelago/releases/tag/%s"}\n' \
-      "$stable_ver" "$stable_contract" "$stable_tag" > "$ljtmp"
-    grep -q '"version"' "$ljtmp" || die "latest.json compose failed"
+    curl -fsSL "${RAW}/main/release/latest.json" -o "$ljtmp" \
+      || die "could not fetch release/latest.json"
+    grep -Fq "\"version\": \"${stable_ver}\"" "$ljtmp" \
+      || die "release/latest.json version does not match stable ${stable_tag} -- latest.json would lie"
+    grep -Fq "\"contract\": \"${stable_contract}\"" "$ljtmp" \
+      || die "release/latest.json contract does not match ${stable_ver} ledger row -- latest.json would lie"
+    grep -Fq "releases/tag/${stable_tag}" "$ljtmp" \
+      || die "release/latest.json URL does not name stable ${stable_tag} -- latest.json would lie"
     mv "$ljtmp" "${DEST}/latest.json"; CURRENT_TMP=""
     say "  OK    latest.json: ${stable_ver} contract/${stable_contract}"
   fi
