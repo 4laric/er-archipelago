@@ -20,6 +20,10 @@ unchanged, but the exact-version handshake moves to 0.5.3. Client half: clients#
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part
 of the release).
 
+- **The pinned client can run audited v0.4.13 seeds after a game/client update.** Compatibility is
+  limited to the exact historical `dc0dc687` contract; every other version/contract mismatch keeps
+  the existing warning and refusal behavior. This lets players whose game updated mid-seed finish
+  without weakening the general paired-version boundary.
 - **Five worldless Shaded Castle lots are no longer advertised as checks (#1077).** Their item-lot
   rows exist, but the complete map/coordinate/script corpus contains no way to acquire them. They
   stay vanilla instead of becoming tracker entries that can never fire.
