@@ -101,11 +101,18 @@ leaves the entire DLC optional.
 
 ## Things that will confuse you the first time
 
-**Your Archipelago character turned up in your normal save.** Whether you get a
-separate save file depends on how you launched, not on the client. The shipped
-`me3` profile asks for one (`AP_me3.sl2`); other loaders do not -- including
-thefifthmatt's randomizer, which is a supported way to run us -- so on those the
-character is created in your ordinary Elden Ring save, next to your real ones.
+**The AP launch shows your vanilla characters.** This is expected the first
+time you use the shipped `me3` profile. To create `AP_me3.sl2`, me3 copies your
+existing `ER0000.sl2`, including its character list. The files are separate
+after that copy: a new character created through `ap.me3` is not visible when
+you launch vanilla Elden Ring. Seeing the old character names in both menus
+does not mean the two launches still share a save.
+
+Whether that separation happens depends on how you launched, not on the
+client. The shipped `me3` profile asks for `AP_me3.sl2`; other loaders do not --
+including thefifthmatt's randomizer, which is a supported way to run us -- so
+on those the AP character is created in your ordinary Elden Ring save. The Alt
+Saves DLL is not needed when launching the shipped `ap.me3` profile.
 
 **If that has happened, do not load your ordinary characters while connected.**
 The client cannot tell one of your existing characters from a new Archipelago
@@ -114,9 +121,10 @@ character is owed every item the room has sent you so far. Load a real character
 with the client connected and it may be granted that backlog. Play the
 Archipelago character, and only that one, in the modded launch.
 
-To check whether you are sharing: open Elden Ring **normally**, with no mods,
-and look at the character list. To separate them -- and for a save backup that
-makes the whole question recoverable -- see
+To check the separation, create a disposable character through `ap.me3`, quit
+cleanly, then open Elden Ring **normally**, with no mods. The disposable
+character should not appear there. To separate another launch path -- and for
+a save backup that makes the whole question recoverable -- see
 `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` in the release folder.
 
 **You got kicked out of a region.** You wandered (or warped) into a region you

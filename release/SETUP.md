@@ -148,10 +148,22 @@ You also need, separately:
    the client is loaded, its overlay **menu bar** is visible in-game.
 
    **Start a new character.** Launched this way -- with the `me3` profile --
-   the game writes to a separate save file (`AP_me3.sl2`), so your normal
-   characters are untouched. That separation is the profile's doing: it comes
-   from the `savefile = "AP_me3.sl2"` line in `ap.me3`, **not** from the client.
-   Launch our dll any other way and it does not apply. See the next step.
+   the game writes to a separate save file (`AP_me3.sl2`). The first time it
+   creates that file, me3 copies your existing `ER0000.sl2`, so the character
+   list initially includes copies of all your vanilla characters. That is
+   expected: seeing those names does **not** mean the two launches still share
+   a save. A new character created through `ap.me3` is written only to
+   `AP_me3.sl2` and will not appear when you launch vanilla Elden Ring.
+
+   Do not load one of the copied vanilla characters while the Archipelago
+   client is connected. A character with no Archipelago identity marker looks
+   like a fresh AP character and may receive the room's item backlog. Create
+   and use a new character for the seed.
+
+   This separation is the profile's doing: it comes from the
+   `savefile = "AP_me3.sl2"` line in `ap.me3`, **not** from the client, and it
+   does not require the Alt Saves DLL. Launch our dll any other way and it does
+   not apply. See the next step.
 
    **Also running matt's randomizer?** Then you do not launch twice. Add
    `eldenring_archipelago.dll` to matt's **Add dll mod** list -- **pointing at the dll

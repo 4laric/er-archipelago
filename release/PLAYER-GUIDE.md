@@ -275,7 +275,11 @@ though. The client does write a small identity marker into your character's
 save data; that is how a reconnect works out which character it is looking at.
 And the separate save file (`AP_me3.sl2`) is the `me3` profile's doing, not
 ours -- load our dll through another launcher and your Archipelago character is
-created in your ordinary save instead. Remove the client and Elden Ring plays
+created in your ordinary save instead. On first use, me3 creates `AP_me3.sl2`
+by copying `ER0000.sl2`, so existing vanilla characters also appear in the AP
+menu; they are copies, not shared slots. A new AP character will not appear in
+a vanilla launch. Do not load a copied vanilla character while connected. The
+shipped profile needs no Alt Saves DLL. Remove the client and Elden Ring plays
 exactly as you left it.
 
 Now go find out which region the seed decided you deserve first.
