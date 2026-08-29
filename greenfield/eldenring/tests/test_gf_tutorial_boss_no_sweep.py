@@ -799,6 +799,12 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # were removed and two added: f1047517010 and f1047517300 move from Altus trigger 1045520800
     # to Mountaintops trigger 1048510800 with their corrected check region. No flag gained or lost
     # an owner; these are the two intended region crossings and no others.
-    assert (digest, n) == ("28555aa6e1d28273", 4104), (  # #1075: 2 intended re-homes
-        "sweep OWNERSHIP changed: (%s, %d), expected (28555aa6e1d28273, 4104). The total alone will "
+    # 2026-08-29 (#1076): 28555aa6e1d28273/4104 -> 08d4874c16980e64/4104. Pairwise against main:
+    # 24 removed / 24 added / 24 flags re-owned, with none lost or gained. Nineteen are the normal
+    # round-robin re-phase and stay within one region. The other five are exactly the Campsite flags
+    # f1038537000/10/30/40/50 moving Altus -> Mt. Gelmir with their corrected check region. The six
+    # Seethewater pickup flags already belonged to trigger 1038520800; that trigger itself is now
+    # correctly labelled Mt. Gelmir, so no pair change is needed for them.
+    assert (digest, n) == ("08d4874c16980e64", 4104), (  # #1076: 5 intended re-homes
+        "sweep OWNERSHIP changed: (%s, %d), expected (08d4874c16980e64, 4104). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
