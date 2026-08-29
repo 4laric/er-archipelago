@@ -44,7 +44,6 @@ WIZARD_HTML = os.path.join(ROOT, "wizard", "wizard.html")
 # generate, and Generate & host 422'd on every click. The option KEYS were metadata-driven and fine;
 # only the three strings carrying the game name were typed, and nothing read them.
 CASES = [
-    {"numRegions": 0, "enableDlc": True, "dlcOnly": False, "enableTarnishedPack": True},
     {"numRegions": 6, "enableDlc": True, "dlcOnly": False},
     {"numRegions": 1, "enableDlc": True, "dlcOnly": False},
     {"numRegions": 12, "enableDlc": True, "dlcOnly": False},
@@ -78,6 +77,9 @@ CASES = [
      "startRegionPool": ["Caelid"]},
     {"numRegions": 4, "enableDlc": True, "dlcOnly": False,
      "startRegionPool": ["Caelid", "Liurnia", "Altus"]},
+    # Optional-location axis: the full-map check and surface totals must include the 11 pack rows.
+    # Appended because the start_region_pool meta-assertions above address cases by stable index.
+    {"numRegions": 0, "enableDlc": True, "dlcOnly": False, "enableTarnishedPack": True},
 ]
 
 
