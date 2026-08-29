@@ -26,6 +26,11 @@ generated from the stable-channel and contract ledgers, checked for drift in CI,
 after its version, contract, and release URL are verified. The served file remains atomic, but its
 exact bytes are now visible in the promotion commit instead of being composed only on the host.
 
+**Tarnished Pack owners can opt its new gear into the pool.** The eight verified player weapons
+and shields plus all 18 pieces across the four armor families join as honorary S-tier pool-builder
+gear. The toggle defaults off for non-owners; NPC-only weapon bases, Spectral Steed attire unlocks,
+and the pack's new checks remain outside this first #1096 slice.
+
 This window opened at the v0.5.2 tag. `CONTRACT_HASH` stays at `13db0b3a` —
 `abilityUnlockItems` remains the newest slot-data shape — while the exact-version handshake moves
 to 0.5.3. Client half: clients#469.

@@ -1,18 +1,18 @@
 {
   "counts": {
     "filler_pool": 249,
-    "item_catalog": 2335,
+    "item_catalog": 2361,
     "locations": 4915,
     "regions": 28,
     "sweeps": 211
   },
-  "inputs_hash": "sha256:b5e394537a41d2eb526061f589e064152b506e1be21c63d6aa254ac74261366f",
+  "inputs_hash": "sha256:7a1919de28f01d245bd1d5fe34ce2a5a0603e88979537647650aeecec9a942e6",
   "modules": {
     "boss_data.py": "sha256:0077a571f7171e92205b81140b7ef0f71cb19abadf80d5095b5bb8e10bdb52b3",
     "boss_sweeps.py": "sha256:a275ed7da3c1c9bb1400aac9a555a910388a144710de7bf84c29b6c6fc91c8e9",
     "data.py": "sha256:d4bdcf0b5aba949e83348090d38ed68a873ba0c3b21ab4174db73d131d2ddf07",
-    "item_ids.py": "sha256:babc4a99fe5fa89de91dea2de2535cafafed6c9612fc5ccb770e2970e52bf469",
-    "item_tiers.py": "sha256:407ade97d34928a5f3d5bf303f7a69df6ba9fad6ac0f8786855a720343452264",
+    "item_ids.py": "sha256:526b05a34a2af3393db8eb43b59490f98b46ebed5383c4d3280b96fd5d7478bc",
+    "item_tiers.py": "sha256:0483e6639712f8de12aa1449a263c017c79e1bb1ae03c7f6a7c72fd95eb87de4",
     "location_tags.py": "sha256:265b3959c27c1e1116827515509d8be1788e5424b798038e57f98ecd99dd6fc0",
     "missable_locations.py": "sha256:6372cc6cc84d15cf6c02a9cc177dd9ee7c63f38f9dd6cbdf3ca19a6108a41fa7",
     "region_graces.py": "sha256:6c8eb071ebfb5dfad413ea807c320ddcd978ffecb76a7c99a0ec937fa0cd1617",

@@ -35,6 +35,13 @@ HUB="Roundtable Hold"
 # in gen-greenfield.ps1). Fallback = empty so gen_data still runs standalone (Boss tag simply empty).
 import importlib.util as _ilu
 try:
+    _tpspec = _ilu.spec_from_file_location(
+        "_tarnished_pack", os.path.join(HERE, "eldenring", "tarnished_pack.py"))
+    _tpmod = _ilu.module_from_spec(_tpspec); _tpspec.loader.exec_module(_tpmod)
+    _TARNISHED_PACK_EQUIPMENT = dict(_tpmod.TARNISHED_PACK_EQUIPMENT)
+except Exception as _e:
+    raise SystemExit("gen_data: Tarnished Pack catalog unavailable: %r" % (_e,))
+try:
     _bspec = _ilu.spec_from_file_location("_boss_drops", os.path.join(HERE, "eldenring", "boss_drops.py"))
     _bmod = _ilu.module_from_spec(_bspec); _bspec.loader.exec_module(_bmod)
     _BOSS_DROP_FLAGS = frozenset(_bmod.BOSS_DROP_FLAGS)
@@ -8114,6 +8121,13 @@ _CRAFTED_DLC_FILLER = sorted(
          or _nm.endswith("Spraymist") or _nm.endswith("Aromatic")))
 for _cn, _cfull in _CRAFTED_DLC_FILLER:
     ITEM_CATALOG.setdefault(_cn, _cfull)
+# Patch 1.17's normal English FMGs omit the paid-pack names. The verified name->FullID join lives
+# beside the ownership gate in tarnished_pack.py; add only those 26 player-equipment rows. This is
+# count-neutral: it widens the pool-builder candidate catalog but adds no checks or locations.
+for _tn, _tfull in _TARNISHED_PACK_EQUIPMENT.items():
+    if _tn in ITEM_CATALOG and ITEM_CATALOG[_tn] != _tfull:
+        raise SystemExit("gen_data: Tarnished Pack name collision for %r" % _tn)
+    ITEM_CATALOG[_tn] = _tfull
 # Crafted-only FOODS (Alaric 2026-07-11): same situation as the pots -- never LOOTED, so never in the
 # placed-item catalog, but valid grantable goods. Resolved BY NAME from GoodsName.fmg.xml via the same
 # _resolve_item map the placed items use, so no ids are hand-guessed (unlike _FINISHED_POTS above, which
@@ -8654,6 +8668,10 @@ if os.path.isfile(_TSV_PATH):
         if _t is not None and _nm in ITEM_CATALOG:
             _tsv_tier[_nm] = _t
 ITEM_TIERS = dict(_param_tier); ITEM_TIERS.update(_tsv_tier)   # TSV precedence; param fills the gaps
+# New paid-pack gear has no community tier-list history yet. Product decision: honorary S tier, so
+# every enabled item participates at every pool-builder intensity until evidence supports curation.
+for _tn in _TARNISHED_PACK_EQUIPMENT:
+    ITEM_TIERS[_tn] = 3
 
 # 🛑 REACHABILITY, SAID OUT LOUD. Registering a name is necessary, not sufficient: pool_builder
 # juices names whose tier clears a FLOOR, and the lowest floor any intensity offers is 1. An added

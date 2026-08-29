@@ -1,13 +1,13 @@
-"""Patch 1.17 (Tarnished Pack) item-pool safety.
+"""Patch 1.17 (Tarnished Pack) item-pool catalog and ownership boundary.
 
-The 2026-08-28 param diff established 31 new base items, but the shipped English FMGs do not yet
-name them and non-owner grant/use behaviour has not been proven. Until #1096 resolves those two
-questions, these items must never enter an Archipelago pool.
+The 2026-08-28 param diff established 31 new rows. The shipped English FMGs do not name them, so
+the 26 player-equipment names below are joined to IDs only where independent acquisition evidence
+settles the mapping: starting loadouts, field/shop lots, or invasion co-awards. Two NPC-only weapon
+bases and three Spectral Steed unlock goods deliberately remain outside the item pool.
 
-IDs, rather than names, are the stable boundary here: the generated catalog maps display names to
-the game's category-qualified ``FullID`` values. When a later FMG refresh makes any of these rows
-visible to the catalog, this module resolves their names and excludes them automatically. On the
-current data the resolution is deliberately empty, so existing seeds are unchanged.
+The equipment is available only when the explicit ownership option is enabled. Non-owner grant/use
+behaviour remains unproven, so default-off is the safety boundary rather than a hopeful runtime
+grant. ``gen_data.py`` adds this roster to the generated catalog and gives it honorary S tier.
 
 Source: clean pre-1.17/current ``gen_inputs.db`` param-table diff recorded on #1096. Weapon rows
 are collapsed through ``originEquipWep`` so reinforcement variants count as one base item.
@@ -40,6 +40,38 @@ TARNISHED_PACK_ARMOR_IDS = frozenset({
 
 TARNISHED_PACK_GOODS_IDS = frozenset({2_009_600, 2_009_610, 2_009_620})
 
+# Player-receivable equipment only. Sources: the verified parameter/MSB census on #1096 plus live
+# menu witnesses; public post-release acquisition guides independently corroborate the display
+# names and routes. 3_910_000 and 13_900_000 are invasion-NPC weapon bases, not separate rewards.
+TARNISHED_PACK_EQUIPMENT = {
+    "Leontiel's Greatsword": 3_560_000,
+    "Hefty Scimitar": 8_530_000,
+    "Golden Order Flail": 13_510_000,
+    "Silver Grooved Shield": 31_540_000,
+    "Ritual Thrusting Shield": 62_520_000,
+    "Reverse-Bladed Sword": 64_530_000,
+    "Reed Great Katana": 66_530_000,
+    "Idus Sword": 67_530_000,
+    "Broken Gold Mask": 0x1000_0000 | 5_340_000,
+    "Gold Tattoo (Chest)": 0x1000_0000 | 5_340_100,
+    "Gold Tattoo (Arm)": 0x1000_0000 | 5_340_200,
+    "Gold Tattoo (Leg)": 0x1000_0000 | 5_340_300,
+    "Silver Grooved Helm": 0x1000_0000 | 5_350_000,
+    "Silver Grooved Armor": 0x1000_0000 | 5_350_100,
+    "Silver Grooved Gauntlets": 0x1000_0000 | 5_350_200,
+    "Silver Grooved Greaves": 0x1000_0000 | 5_350_300,
+    "Silver Grooved Armor (Altered)": 0x1000_0000 | 5_351_100,
+    "Leontiel's Hat": 0x1000_0000 | 5_360_000,
+    "Leontiel's Armor": 0x1000_0000 | 5_360_100,
+    "Leontiel's Leather Gloves": 0x1000_0000 | 5_360_200,
+    "Leontiel's Boots": 0x1000_0000 | 5_360_300,
+    "Leontiel's Hat (Altered)": 0x1000_0000 | 5_361_000,
+    "Steel Helm": 0x1000_0000 | 5_370_000,
+    "Steel Armor": 0x1000_0000 | 5_370_100,
+    "Steel Gauntlets": 0x1000_0000 | 5_370_200,
+    "Steel Greaves": 0x1000_0000 | 5_370_300,
+}
+
 # FullID category tags match ItemId::category in the client and the generated ITEM_CATALOG:
 # weapons=0x0..., armor=0x1..., goods=0x4....
 TARNISHED_PACK_FULL_IDS = frozenset(
@@ -56,11 +88,13 @@ def tarnished_pack_names(item_catalog: Mapping[str, int]) -> "frozenset[str]":
 
 
 def pool_excluded_names(
-        dlc_on: bool, dlc_item_names, item_catalog: Mapping[str, int]) -> "frozenset[str]":
+        dlc_on: bool, dlc_item_names, item_catalog: Mapping[str, int],
+        tarnished_pack_on: bool = False) -> "frozenset[str]":
     """Return names no pool-augmentation path may inject.
 
-    DLC items retain their existing option-dependent behaviour. Patch 1.17 items are excluded
-    unconditionally until an explicit, evidence-backed entitlement option is implemented (#1096).
+    DLC items retain their existing option-dependent behaviour. Tarnished Pack equipment is
+    admitted only when its explicit ownership toggle is on (#1096).
     """
     dlc = frozenset() if dlc_on else frozenset(dlc_item_names)
-    return dlc | tarnished_pack_names(item_catalog)
+    tarnished = frozenset() if tarnished_pack_on else tarnished_pack_names(item_catalog)
+    return dlc | tarnished
