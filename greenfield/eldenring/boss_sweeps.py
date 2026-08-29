@@ -680,4 +680,4 @@ SWEEP_UNSPAWNED_OPEN = {
     1041330800: "unnamed m60_41_33 (Fourth Church of Marika, Weeping) -- the same shape and NOT yet falsified in game, so its 10 members keep their trigger. FALSIFIER: warp to the Fourth Church of Marika and look, by day and at night (the tile's other candidate reading is a night-conditional spawn). Absent -> move it to 'unspawned' here and regen; present -> the datamine owes it a GameAreaParam binding and an MSB position. Issue #540.",
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:06a768e8395ae9a74b201cde9750ded37835c9b82fc4c535db26c9c41eee3fb9', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:2af63e2b31f7de5627fa22cd13b3ba84bda998ad28a46deb0de567d9032ef8f4'}
+_GEN_STAMP = {'inputs_hash': 'sha256:d59f7cdad65d4e51e3a275456bedc7e293e46a0fc326fb5baece0fe4235c090f', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:2af63e2b31f7de5627fa22cd13b3ba84bda998ad28a46deb0de567d9032ef8f4'}
