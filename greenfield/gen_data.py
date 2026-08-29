@@ -9660,6 +9660,16 @@ with open(OUT_TAGS, "w", newline="\n", encoding="utf-8") as f:
     f.write('\n# Region DEFAULTED to the hub (unknown real region) -> BARRED from progression.\n')
     f.write('# A guessed region may not carry progression: see gen_data._region_is_derived().\n')
     f.write('DEFAULTED_REGION_APS = frozenset(' + repr(_defaulted) + ')\n')
+    # #1021: an untagged row filed in the always-open hub has no evidence that its award site is
+    # actually there. ESD-only gestures are the motivating population: their talk map is recorded
+    # but deliberately not trusted as placement. Keep them as ordinary checks, but fail closed for
+    # progression until a source gives them a real region or a trustworthy location class.
+    _hub_unattributed = sorted(
+        aid for (_name, aid, _flag) in buckets.get("Roundtable Hold", ())
+        if not loc_tags.get(aid)
+    )
+    f.write('\n# Untagged hub-filed checks have no trustworthy award-site attribution -> filler only.\n')
+    f.write('HUB_UNATTRIBUTED_APS = frozenset(' + repr(_hub_unattributed) + ')\n')
     # HUB_COLLAPSED_SITE_APS -- the SUBSET of the above whose region is not merely unknown but
     # DISJUNCTIVE: the merchant selling the row stands in several regions, so the row collapsed to the
     # hub (merchant_shops.tsv's "HUB + DEFAULTED" contract). #701 option C bars them like any other

@@ -25,6 +25,11 @@ except ImportError:                                    # pre-regen data: fail OP
     DEFAULTED_REGION_APS = frozenset()
 
 try:
+    from .location_tags import HUB_UNATTRIBUTED_APS  # hub fallback with no award-site evidence
+except ImportError:
+    HUB_UNATTRIBUTED_APS = frozenset()
+
+try:
     # m11_00 (normal Leyndell) -- DESTROYED when Maliketh dies. Same predicate, different cause.
     from .location_tags import ERDTREE_BURN_APS
 except ImportError:
@@ -45,7 +50,8 @@ except ImportError:
 #   SHOP_RELEASE_GATED_APS -- the merchant does not STOCK the row until an unlock event fires. Region
 #                             reachability is necessary but NOT sufficient: the shop can be open and the
 #                             row simply not on the shelf.
-_NO_PROGRESSION_APS = (frozenset(DEFAULTED_REGION_APS) | frozenset(ERDTREE_BURN_APS)
+_NO_PROGRESSION_APS = (frozenset(DEFAULTED_REGION_APS) | frozenset(HUB_UNATTRIBUTED_APS)
+                       | frozenset(ERDTREE_BURN_APS)
                        | frozenset(SHOP_RELEASE_GATED_APS))
 from .region_spine import (compute_kept, describe_kept, GOAL_REGION, DLC_REGIONS,  # noqa: F401 (GOAL_REGION used by tests/features)
                            base_regions, dlc_regions, REGION_PARENT)

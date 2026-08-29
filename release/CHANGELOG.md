@@ -20,6 +20,11 @@ unchanged, but the exact-version handshake moves to 0.5.3. Client half: clients#
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part
 of the release).
 
+- **Untagged checks defaulted to Roundtable Hold can no longer carry progression (#1021).** The
+  generated 1.17 corpus has 53 hub-filed rows with neither a trustworthy region derivation nor a
+  location-class tag, including Rennala's Balled Up gesture and several quest awards. They remain
+  ordinary checks, but now join the permanent filler-only bar instead of looking reachable from
+  the always-open hub to general fill.
 - **The me3 save-separation docs now explain the initial copy.** When
   `AP_me3.sl2` does not exist, me3 creates it by copying `ER0000.sl2`, so seeing
   vanilla character names in the AP menu is expected; subsequent saves are
