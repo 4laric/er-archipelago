@@ -49,7 +49,7 @@ _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relat
 # 4932 -> 4931 (2026-08-07): the item-existence guard learned that FromSoft's cut-content marker
 # also appears as '[ERROR]<real name>', which retired f400081 (goods 8130, "[ERROR]Rya's
 # Necklace"). It was never a second necklace -- the real one is goods 8136 (f400300).
-BASELINE_TOTAL_LOCATIONS = 4915   # 4948 - 33 (2026-08-28, #1097): ShopLineup reference blocks
+BASELINE_TOTAL_LOCATIONS = 4926   # +11 Patch 1.17 limited-stock merchant checks (#1096)
                                   # 16001/16004 are starting/caster-kit data, not merchant checks.
                                   # Their 36 stock flags leave the client shop table; 33 derived
                                   # shop-only locations leave the pool, while three flags retain
@@ -113,7 +113,7 @@ BASELINE_TOTAL_LOCATIONS = 4915   # 4948 - 33 (2026-08-28, #1097): ShopLineup re
                                   # new location covered; detection/award/region/suppression stayed at
                                   # ZERO violations. Prior lineage: 4833 (synthetic-award-guard regen)
                                   # + 10 finale (Ashen Capital, 2026-07-14) + 7 gesture pickups = 4848.
-BASELINE_SHOP_CHECKS = 426   # 462 - 36 (2026-08-28, #1097): reference-block stock flags are not
+BASELINE_SHOP_CHECKS = 437   # +11 Patch 1.17 limited-stock merchant checks (#1096)
                              # purchases and no longer reach the client shop rewrite table.
                              # PREVIOUS: 562 - 100 (2026-08-24, #1013): Enia's shop is vanilla again -- her
                              # 100 stock flags left the pool (gen_data._ENIA_SHOP_FLAGS). Every one of
@@ -453,7 +453,8 @@ if _HAVE_AP:
             # the live join's verdict or the two differ by exactly those 36 on a no-DLC config.
             s_records, s_ctx, s_byname = live_cov.report_coverage(
                 kept=ctx["kept"], finale=ctx["FINALE_REGION"] is not None, printer=None,
-                dlc_on=ctx.get("dlc_on"))
+                dlc_on=ctx.get("dlc_on"),
+                tarnished_pack_on=ctx.get("tarnished_pack_on"))
             self.assertEqual(sorted(records), sorted(s_records),
                              "live and static joins disagree on the emitted location set")
 

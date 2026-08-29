@@ -293,7 +293,8 @@ def _finale_base_game_in_play(regions) -> bool:
     return bool(set(regions) - set(DLC_REGIONS))
 
 
-def build_coverage(world=None, kept=None, _static_table=None, finale=None, dlc_on=None):
+def build_coverage(world=None, kept=None, _static_table=None, finale=None, dlc_on=None,
+                   tarnished_pack_on=None):
     """Build the per-location coverage records for every EMITTED location this gen.
 
     world given  -> scope = HUB + world._kept(); the emitted tables (locationFlags /
@@ -490,14 +491,24 @@ def build_coverage(world=None, kept=None, _static_table=None, finale=None, dlc_o
         _rows_of = world._seed_locations
         if dlc_on is None:
             dlc_on = bool(world._dlc_on()) if hasattr(world, "_dlc_on") else True
-    elif dlc_on is False:
-        try:
-            from .shop_data import DLC_GATED_SHOP_CHECK_FLAGS as _dgs
-        except ImportError:
-            _dgs = frozenset()
-        _rows_of = lambda rn, _d=_dgs: [t for t in LOCATIONS.get(rn, []) if int(t[2]) not in _d]
+        if tarnished_pack_on is None:
+            tarnished_pack_on = bool(getattr(world, "gf_tarnished_pack_on", False))
     else:
-        _rows_of = lambda rn: LOCATIONS.get(rn, [])
+        _excluded = set()
+        if dlc_on is False:
+            try:
+                from .shop_data import DLC_GATED_SHOP_CHECK_FLAGS as _dgs
+                _excluded.update(_dgs)
+            except ImportError:
+                pass
+        if tarnished_pack_on is False:
+            try:
+                from .tarnished_pack import TARNISHED_PACK_LOCATION_FLAGS as _tplf
+                _excluded.update(_tplf)
+            except ImportError:
+                pass
+        _rows_of = lambda rn, _d=frozenset(_excluded): [
+            t for t in LOCATIONS.get(rn, []) if int(t[2]) not in _d]
     for region in scope:
         for (name, ap_id, flag) in _rows_of(region):
             rec = LocationCoverage(ap_id, name, region)
@@ -566,6 +577,7 @@ def build_coverage(world=None, kept=None, _static_table=None, finale=None, dlc_o
 
     ctx = {
         "scope": scope, "kept": scope_kept, "hub": HUB, "dlc_on": dlc_on,
+        "tarnished_pack_on": tarnished_pack_on,
         "GESTURE_AWARD_FLAGS": GESTURE_AWARD_FLAGS,
         "FINALE_REGION": FINALE_REGION if finale_on else None,
         "FINALE_REQUIRES": FINALE_REQUIRES,
@@ -937,11 +949,12 @@ def _flatten(byname):
 # REPORT MODE (no raise) + the raising variant
 # ---------------------------------------------------------------------------------------------------
 def report_coverage(world=None, kept=None, printer=print, _static_table=None, finale=None,
-                    dlc_on=None):
+                    dlc_on=None, tarnished_pack_on=None):
     """Build records, run all checks + the degradation ledger, return
     (records, ctx, violations_by_check). Prints a compact summary; NEVER raises."""
     records, ctx = build_coverage(world, kept=kept, _static_table=_static_table,
-                                 finale=finale, dlc_on=dlc_on)
+                                 finale=finale, dlc_on=dlc_on,
+                                 tarnished_pack_on=tarnished_pack_on)
     byname = all_checks(records, ctx)
     total = sum(len(v) for v in byname.values())
     if printer:

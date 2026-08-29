@@ -22,6 +22,7 @@ import unittest
 
 from test.bases import WorldTestBase
 
+from .. import tarnished_pack as tp
 from ..shop_data import (
     DLC_GATED_SHOP_CHECK_FLAGS,
     DLC_GATED_SHOP_ROW_FLAGS,
@@ -91,7 +92,8 @@ class TestTheDerivedSet(unittest.TestCase):
         self.assertEqual(
             set(DLC_GATED_SHOP_CHECK_FLAGS),
             {fl for fl in DLC_GATED_SHOP_ROW_FLAGS
-             if fl in live_shop_flags and fl not in NOT_RANDOMIZED},
+             if fl in live_shop_flags and fl not in NOT_RANDOMIZED
+             and fl not in tp.TARNISHED_PACK_LOCATION_FLAGS},
             "a DLC-gated flag left the check set without a NOT_RANDOMIZED entry explaining "
             "why (or vice versa) -- unexplained set drift is the #913 failure mode")
         # And the ledger entries that DO explain it name the rule:

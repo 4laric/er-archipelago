@@ -62,6 +62,7 @@ import os
 import re
 import sys
 from collections import defaultdict
+import importlib.util
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -70,6 +71,12 @@ PARAMS = os.path.join(AR, "vanilla_er", "vanilla_er")
 MSG = os.path.join(AR, "msg")
 REGION_MAP = os.path.join(ROOT, "greenfield", "region_map.csv")
 OUT = os.path.join(ROOT, "greenfield", "shop_rows.tsv")
+
+_tp_spec = importlib.util.spec_from_file_location(
+    "_tarnished_pack", os.path.join(ROOT, "greenfield", "eldenring", "tarnished_pack.py"))
+_tp = importlib.util.module_from_spec(_tp_spec)
+_tp_spec.loader.exec_module(_tp)
+TARNISHED_PARAM_NAMES = _tp.TARNISHED_PACK_PARAM_NAMES
 
 # equipType -> FMG basename
 FMG_FOR_TYPE = {0: "WeaponName", 1: "ProtectorName", 2: "AccessoryName", 3: "GoodsName", 4: "GemName"}
@@ -113,6 +120,8 @@ def load_fmg():
 
 def name_of(names, etype, eid):
     """FMG name for a ShopLineupParam (equipType, equipId). Armor indexes at equipId // 10."""
+    if (etype, eid) in TARNISHED_PARAM_NAMES:
+        return TARNISHED_PARAM_NAMES[(etype, eid)]
     for key in ((etype, eid), (etype, eid // 10), (etype, eid // 100)):
         if key in names:
             return names[key]

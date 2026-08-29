@@ -224,6 +224,12 @@ class TestRegionCensusAgainstRealWorlds(unittest.TestCase):
                               or options.get("enable_dlc", True))
                 if not dlc_on:
                     predicted -= int(census.get("hub_dlc_gated_checks") or 0)
+                if not options.get("enable_tarnished_pack", False):
+                    predicted -= int(regions[hub].get("tarnished_pack_checks") or 0)
+                    predicted -= sum(int(regions[r].get("tarnished_pack_checks") or 0)
+                                     for r in kept)
+                    if base_in_play:
+                        predicted -= int(regions[finale].get("tarnished_pack_checks") or 0)
 
                 self.assertEqual(
                     predicted, actual,

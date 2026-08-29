@@ -209,6 +209,7 @@ row_id	shop_block	equip_type	equip_id	item_name	stock_flag	sell_qty	value	region
 100565	1005	0	31100000	Blue-Gold Kite Shield	150650	1	1000	Limgrave	row	0
 100566	1005	0	50040000	St. Trina's Arrow	150660	10	160	Limgrave	block	0
 100567	1005	3	10100	Smithing Stone [1]	150670	3	200	Limgrave	block	0
+100568	1005	0	8530000	Hefty Scimitar	150680	1	2400	Limgrave	block	6953
 100575	1005	3	9321	Armorer's Cookbook [2]	67210	1	600	Limgrave	row	0
 100576	1005	3	8703	Note: Stonedigger Trolls	69630	1	400	Limgrave	block	0
 100585	1005	3	8709	Note: Land Squirts	69690	1	200	Limgrave	row	0
@@ -258,6 +259,10 @@ row_id	shop_block	equip_type	equip_id	item_name	stock_flag	sell_qty	value	region
 100663	1006	0	51000000	Great Arrow	160630	15	300	Weeping Peninsula	block	0
 100664	1006	3	111	Festering Bloody Finger	160640	5	1000	Weeping Peninsula	block	0
 100665	1006	3	10101	Smithing Stone [2]	160650	3	400	Weeping Peninsula	block	0
+100666	1006	1	5370000	Steel Helm	160660	1	1000	Weeping Peninsula	block	6953
+100667	1006	1	5370100	Steel Armor	160670	1	1500	Weeping Peninsula	block	6953
+100668	1006	1	5370200	Steel Gauntlets	160680	1	1000	Weeping Peninsula	block	6953
+100669	1006	1	5370300	Steel Greaves	160690	1	1000	Weeping Peninsula	block	6953
 100675	1006	3	9422	Fevor's Cookbook [2]	68220	1	3500	Weeping Peninsula	row	0
 100676	1006	3	20651	Trina's Lily	160760	3	1000	Weeping Peninsula	block	0
 100678	1006	3	20740	Eye of Yelough	160780	1	1500	Weeping Peninsula	row	0
@@ -278,6 +283,11 @@ row_id	shop_block	equip_type	equip_id	item_name	stock_flag	sell_qty	value	region
 100704	1007	0	40050000	Composite Bow	170040	1	3500	Liurnia of the Lakes	row	0
 100705	1007	0	30110000	Rift Shield	170050	1	1800	Liurnia of the Lakes	row	0
 100706	1007	0	31300000	Blue Crest Heater Shield	170060	1	1500	Liurnia of the Lakes	row	0
+100709	1007	0	31540000	Silver Grooved Shield	170090	1	2000	Liurnia of the Lakes	block	6953
+100710	1007	1	5350000	Silver Grooved Helm	170100	1	1000	Liurnia of the Lakes	block	6953
+100711	1007	1	5350100	Silver Grooved Armor	170110	1	1500	Liurnia of the Lakes	block	6953
+100712	1007	1	5350200	Silver Grooved Gauntlets	170120	1	1000	Liurnia of the Lakes	block	6953
+100713	1007	1	5350300	Silver Grooved Greaves	170130	1	1000	Liurnia of the Lakes	block	6953
 100714	1007	3	190	Rune Arc	170140	3	4000	Liurnia of the Lakes	block	0
 100715	1007	3	3350	Bewitching Branch	170150	5	1600	Liurnia of the Lakes	row	0
 100718	1007	3	1310	Immunizing White Cured Meat	170180	3	2000	Liurnia of the Lakes	row	0
@@ -461,6 +471,7 @@ row_id	shop_block	equip_type	equip_id	item_name	stock_flag	sell_qty	value	region
 101879	1018	3	8500	Crafting Kit	60120	1	500	Roundtable Hold	block	11109775
 101880	1018	3	8590	Whetstone Knife	60130	1	500	Roundtable Hold	block	11109776
 101881	1018	3	10040	Talisman Pouch	60500	1	500	Roundtable Hold	block	11109777
+101896	1018	0	64530000	Reverse-Bladed Sword	280960	1	1000	Roundtable Hold	block	6953
 101898	1018	2	8180	Enraged Divine Beast	280980	1	0	Roundtable Hold	row	0
 101899	1018	4	416000	Ash of War: Divine Beast Frost Stomp	280990	1	0	Roundtable Hold	row	0
 101900	1019	0	15040000	Axe of Godrick	290000	1	0	Roundtable Hold	row	0

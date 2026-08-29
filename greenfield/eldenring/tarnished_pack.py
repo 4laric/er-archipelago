@@ -72,6 +72,26 @@ TARNISHED_PACK_EQUIPMENT = {
     "Steel Greaves": 0x1000_0000 | 5_370_300,
 }
 
+# Typed raw-row lookup for artifact datamines. Patch 1.17's normal English item FMGs do not carry
+# these paid-pack labels, so tools which derive shops/lots must use the same verified name join as
+# the generated item catalog rather than silently emitting blank rows. Types follow ShopLineupParam
+# (0 weapon, 1 protector); ItemLotParam uses 2 weapon / 3 protector and is translated by its caller.
+TARNISHED_PACK_PARAM_NAMES = {
+    (0 if full_id < 0x1000_0000 else 1,
+     full_id if full_id < 0x1000_0000 else full_id & 0x0fff_ffff): name
+    for name, full_id in TARNISHED_PACK_EQUIPMENT.items()
+}
+
+# One-shot acquisition flags admitted by the location half of the ownership option. This first safe
+# slice is the eleven limited-stock merchant rows. These are flags (the
+# third tuple field in LOCATIONS), so the seed-level filter covers region creation, pool accounting,
+# slot data, and reconnect behavior at the same chokepoint.
+TARNISHED_PACK_LOCATION_FLAGS = frozenset({
+    150680, 160660, 160670, 160680, 160690,
+    170090, 170100, 170110, 170120, 170130,
+    280960,
+})
+
 # FullID category tags match ItemId::category in the client and the generated ITEM_CATALOG:
 # weapons=0x0..., armor=0x1..., goods=0x4....
 TARNISHED_PACK_FULL_IDS = frozenset(

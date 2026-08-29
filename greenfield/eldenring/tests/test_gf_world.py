@@ -56,7 +56,7 @@ class GreenfieldWorldTest(WorldTestBase):
                              f"{i.name} must be progression")
 
     def test_pool_fills_all_locations(self):
-        total = sum(len(v) for v in LOCATIONS.values())
+        total = sum(len(self.world._seed_locations(region)) for region in LOCATIONS)
         pool = world_pool_items(self)   # itempool + pre-placed = the location-payers
         self.assertEqual(len(pool), total,
                          "location-payers must equal the number of locations (count-neutral)")
@@ -84,7 +84,7 @@ class GreenfieldWorldTest(WorldTestBase):
         contract.validate_slot_data(sd, strict=True)
         flags = sd.get("locationFlags")
         self.assertIsInstance(flags, dict)
-        total = sum(len(v) for v in LOCATIONS.values())
+        total = sum(len(self.world._seed_locations(region)) for region in LOCATIONS)
         self.assertEqual(len(flags), total, "locationFlags must cover every location")
         # locationFlags is now SCALAR: {str(ap_id) -> int flag}.
         for k, v in flags.items():

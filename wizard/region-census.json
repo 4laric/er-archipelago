@@ -83,7 +83,9 @@
      "all": 8,
      "bosses": 8
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Ainsel River": {
    "checks": 123,
@@ -134,7 +136,9 @@
      "all": 8,
      "bosses": 8
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Altus": {
    "checks": 374,
@@ -193,7 +197,9 @@
      "bosses": 137,
      "minidungeons": 81
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Ancient Ruins": {
    "checks": 60,
@@ -242,7 +248,9 @@
      "all": 8,
      "bosses": 8
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Ashen Capital": {
    "checks": 18,
@@ -289,7 +297,9 @@
      "all": 3,
      "bosses": 3
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Belurat": {
    "checks": 93,
@@ -329,7 +339,9 @@
      "all": 8,
      "bosses": 8
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Caelid": {
    "checks": 361,
@@ -394,7 +406,9 @@
      "bosses": 117,
      "minidungeons": 55
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Cerulean": {
    "checks": 105,
@@ -451,7 +465,9 @@
      "bosses": 40,
      "minidungeons": 8
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Consecrated Snowfield": {
    "checks": 143,
@@ -497,7 +513,9 @@
      "bosses": 45,
      "minidungeons": 29
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Deeproot Depths": {
    "checks": 80,
@@ -543,7 +561,9 @@
      "all": 16,
      "bosses": 16
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Enir Ilim": {
    "checks": 107,
@@ -591,7 +611,9 @@
      "all": 8,
      "bosses": 8
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Ensis": {
    "checks": 41,
@@ -630,7 +652,9 @@
      "all": 8,
      "bosses": 8
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Farum Azula": {
    "checks": 105,
@@ -670,7 +694,9 @@
      "all": 24,
      "bosses": 24
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Gravesite": {
    "checks": 222,
@@ -722,7 +748,9 @@
      "bosses": 44,
      "minidungeons": 28
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Haligtree": {
    "checks": 123,
@@ -762,7 +790,9 @@
      "all": 16,
      "bosses": 16
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Jagged Peak": {
    "checks": 38,
@@ -810,7 +840,9 @@
      "all": 14,
      "bosses": 14
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Leyndell": {
    "checks": 251,
@@ -859,10 +891,12 @@
      "all": 8,
      "bosses": 8
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Limgrave": {
-   "checks": 328,
+   "checks": 329,
    "combos": {
     "Basin": 2,
     "Boss|FieldBoss": 5,
@@ -913,10 +947,12 @@
      "bosses": 88,
      "minidungeons": 28
     }
-   }
+   },
+   "tarnished_pack_checks": 1,
+   "tarnished_pack_combos": {}
   },
   "Liurnia": {
-   "checks": 609,
+   "checks": 614,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -979,7 +1015,9 @@
      "bosses": 142,
      "minidungeons": 45
     }
-   }
+   },
+   "tarnished_pack_checks": 5,
+   "tarnished_pack_combos": {}
   },
   "Mohgwyn": {
    "checks": 67,
@@ -1019,7 +1057,9 @@
      "all": 8,
      "bosses": 8
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Mountaintops of the Giants": {
    "checks": 200,
@@ -1077,7 +1117,9 @@
      "bosses": 43,
      "minidungeons": 22
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Mt. Gelmir": {
    "checks": 243,
@@ -1139,7 +1181,9 @@
      "bosses": 53,
      "minidungeons": 21
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Rauh Base": {
    "checks": 90,
@@ -1184,7 +1228,9 @@
      "bosses": 24,
      "minidungeons": 8
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Raya Lucaria Academy": {
    "checks": 110,
@@ -1226,10 +1272,12 @@
      "all": 16,
      "bosses": 16
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Roundtable Hold": {
-   "checks": 101,
+   "checks": 102,
    "combos": {},
    "dlc": false,
    "parent": null,
@@ -1237,7 +1285,9 @@
    "sweep_slots": {},
    "sweep_slots_by_class": {},
    "sweep_slots_max": {},
-   "sweep_slots_max_by_class": {}
+   "sweep_slots_max_by_class": {},
+   "tarnished_pack_checks": 1,
+   "tarnished_pack_combos": {}
   },
   "Scadu Altus": {
    "checks": 322,
@@ -1297,7 +1347,9 @@
      "bosses": 45,
      "minidungeons": 8
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Shadow Keep": {
    "checks": 118,
@@ -1348,7 +1400,9 @@
      "all": 18,
      "bosses": 18
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Siofra River": {
    "checks": 166,
@@ -1398,7 +1452,9 @@
      "all": 8,
      "bosses": 8
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Stormveil": {
    "checks": 141,
@@ -1439,10 +1495,12 @@
      "all": 16,
      "bosses": 16
     }
-   }
+   },
+   "tarnished_pack_checks": 0,
+   "tarnished_pack_combos": {}
   },
   "Weeping": {
-   "checks": 152,
+   "checks": 156,
    "combos": {
     "Basin": 1,
     "Boss|FieldBoss": 2,
@@ -1495,10 +1553,12 @@
      "bosses": 50,
      "minidungeons": 26
     }
-   }
+   },
+   "tarnished_pack_checks": 4,
+   "tarnished_pack_combos": {}
   }
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "acd6b0657aeea4cc7e85cbff041c2e01e3134d6d9fd45e779a5cac0ceddcfcdc"
+ "source_sha256": "a94efcfa32e69321ccce8178515a794173fe1dd30dc9cc024f2a82262fddb58d"
 }

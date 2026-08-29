@@ -44,6 +44,7 @@ WIZARD_HTML = os.path.join(ROOT, "wizard", "wizard.html")
 # generate, and Generate & host 422'd on every click. The option KEYS were metadata-driven and fine;
 # only the three strings carrying the game name were typed, and nothing read them.
 CASES = [
+    {"numRegions": 0, "enableDlc": True, "dlcOnly": False, "enableTarnishedPack": True},
     {"numRegions": 6, "enableDlc": True, "dlcOnly": False},
     {"numRegions": 1, "enableDlc": True, "dlcOnly": False},
     {"numRegions": 12, "enableDlc": True, "dlcOnly": False},
@@ -127,11 +128,15 @@ def _mulberry32(a):
     return nxt
 
 
-def _combo_hits(region, sel, rung="bosses"):
+def _combo_hits(region, sel, rung="bosses", tarnished_pack_on=False):
     n = 0
     for combo, count in region["combos"].items():
         if sel & set(combo.split("|")):
             n += count
+    if not tarnished_pack_on:
+        for combo, count in (region.get("tarnished_pack_combos") or {}).items():
+            if sel & set(combo.split("|")):
+                n -= count
     # SweepSlot is DERIVED: it carries no tag, so it is not in `combos` and its size depends on
     # dungeon_sweep (64 checks corpus-wide at `minidungeons`, 215 at `bosses`, 0 at `none`). This
     # differential exists precisely to catch a JS/Python split like this one, and the first run after
@@ -165,8 +170,13 @@ def seed_size(census, opts):
     # this census field. Mirrored in ERW.seedSize -- this gate is the parity proof.
     if not opts["dlcOnly"] and not opts["enableDlc"]:
         base -= int(census.get("hub_dlc_gated_checks") or 0)
-    base_surf = (_combo_hits(R[hub], sel, rung)
-                 + (_combo_hits(R[fin], sel, rung) if finale_on else 0))
+    tp_on = bool(opts.get("enableTarnishedPack", False))
+    if not tp_on:
+        base -= int(R[hub].get("tarnished_pack_checks") or 0)
+        if finale_on:
+            base -= int(R[fin].get("tarnished_pack_checks") or 0)
+    base_surf = (_combo_hits(R[hub], sel, rung, tp_on)
+                 + (_combo_hits(R[fin], sel, rung, tp_on) if finale_on else 0))
 
     n = int(opts["numRegions"])
     whole = (n <= 0 or n >= len(eligible))
@@ -197,7 +207,9 @@ def seed_size(census, opts):
         c, s = base, base_surf
         for r in kept_set:
             c += R[r]["checks"]
-            s += _combo_hits(R[r], sel, rung)
+            if not tp_on:
+                c -= int(R[r].get("tarnished_pack_checks") or 0)
+            s += _combo_hits(R[r], sel, rung, tp_on)
         checks.append(c)
         surf.append(s)
         kept.append(len(kept_set))

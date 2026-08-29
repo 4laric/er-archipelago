@@ -41,6 +41,16 @@ class TarnishedPackDecision(unittest.TestCase):
             {0x4000_0000 | row_id for row_id in tp.TARNISHED_PACK_GOODS_IDS}
             & set(tp.TARNISHED_PACK_EQUIPMENT.values()))
 
+    def test_typed_datamine_names_cover_every_player_equipment_row(self):
+        self.assertEqual(len(tp.TARNISHED_PACK_PARAM_NAMES), len(tp.TARNISHED_PACK_EQUIPMENT))
+        self.assertEqual(set(tp.TARNISHED_PACK_PARAM_NAMES.values()),
+                         set(tp.TARNISHED_PACK_EQUIPMENT))
+
+    def test_first_location_slice_has_eleven_shop_flags(self):
+        self.assertEqual(len(tp.TARNISHED_PACK_LOCATION_FLAGS), 11)
+        self.assertTrue({150680, 160660, 170090, 280960}
+                        <= tp.TARNISHED_PACK_LOCATION_FLAGS)
+
     def test_matching_catalog_items_follow_the_ownership_toggle(self):
         catalog = {
             f"Patch item {index}": full_id

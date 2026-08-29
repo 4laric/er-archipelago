@@ -7682,6 +7682,17 @@ LOCATION_ITEM = {
     7774592: 'Sacrificial Twig',
     7774593: 'Sacrificial Twig',
     7774594: 'White Cipher Ring',
+    7774627: 'Hefty Scimitar',
+    7774628: 'Steel Helm',
+    7774629: 'Steel Armor',
+    7774630: 'Steel Gauntlets',
+    7774631: 'Steel Greaves',
+    7774632: 'Silver Grooved Shield',
+    7774633: 'Silver Grooved Helm',
+    7774634: 'Silver Grooved Armor',
+    7774635: 'Silver Grooved Gauntlets',
+    7774636: 'Silver Grooved Greaves',
+    7774637: 'Reverse-Bladed Sword',
     7900000: 'Prayer Room Key',
     7900001: 'Scadutree Fragment',
     7900002: "Messmer's Kindling",
@@ -12019,4 +12030,4 @@ JUNK_GEAR_NAMES = [
     'Zamor Mask',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:7a1919de28f01d245bd1d5fe34ce2a5a0603e88979537647650aeecec9a942e6', 'module': 'item_ids.py', 'body_sha256': 'sha256:526b05a34a2af3393db8eb43b59490f98b46ebed5383c4d3280b96fd5d7478bc'}
+_GEN_STAMP = {'inputs_hash': 'sha256:2f15bb0cc5844020612240a8eaadf3aab48afb064eed1c8b7079c920957418fc', 'module': 'item_ids.py', 'body_sha256': 'sha256:89ee335c36acbcd2f9e2fba13b90a0b9df789e5254712f18297845698b65ce6a'}

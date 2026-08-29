@@ -668,6 +668,12 @@ class GreenfieldEldenRingWorld(World):
         stayed in the pool -- the bell test's count-neutrality caught 1003 items over 967 locations
         (AzoTax, 2026-08-20)."""
         rows = LOCATIONS.get(region_name, [])
+        # Patch 1.17 paid-pack checks are as ownership-sensitive as their items. Filter them at this
+        # same count-neutral chokepoint (not only during region creation), otherwise option-off
+        # seeds would still mint their pool items or publish their flags in slot data.
+        if not getattr(self, "gf_tarnished_pack_on", False):
+            from .tarnished_pack import TARNISHED_PACK_LOCATION_FLAGS as _tplf
+            rows = [t for t in rows if int(t[2]) not in _tplf]
         # #994: drop every merchant-slot check (SHOP_ROW_FLAGS scope, ~562 rows) so no item -- yours
         # or a foreign player's -- is ever gated behind a purchase. Filtered here so region build,
         # pool, count and slot_data all agree the rows are gone; keep_out_of_shops / no_runes_in_shops
