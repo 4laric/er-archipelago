@@ -514,8 +514,6 @@ LOCATIONS = {
         ('Altus :: Gravel Stone - near Capital Rampart, may be sweep-granted by Draconic Tree Sentinel (m60_45_52) [f1045527010]', 7772947, 1045527010),
         ('Altus :: Smithing Stone [6] - near Capital Rampart, may be sweep-granted by Draconic Tree Sentinel (m60_45_52) [f1045527020]', 7772948, 1045527020),
         ('Altus :: Smithing Stone [5] - near Capital Rampart, may be sweep-granted by Draconic Tree Sentinel (m60_45_52) [f1045527030]', 7772949, 1045527030),
-        ('Altus :: Golden Rune [7] - near Forbidden Lands, may be sweep-granted by Draconic Tree Sentinel (m60_45_52) [f1047517010]', 7772993, 1047517010),
-        ('Altus :: Dragonwound Grease - near Forbidden Lands, may be sweep-granted by Draconic Tree Sentinel (m60_45_52) [f1047517300]', 7772994, 1047517300),
         ('Altus :: Crimsonspill Crystal Tear - Wormface, may be sweep-granted by Wormface (m60_41_53) [f65000]', 7773663, 65000),
         ('Altus :: Perfume Bottle - near Shaded Castle Ramparts, may be sweep-granted by Elemer of the Briar (m60_39_54) [f66770]', 7773696, 66770),
         ("Altus :: Hermit Merchant's Bell Bearing [1] - around Hermit Merchant's Shack, may be sweep-granted by Bell Bearing Hunter (m60_43_53) [f400909]", 7773776, 400909),
@@ -3469,6 +3467,8 @@ LOCATIONS = {
         ('Mountaintops of the Giants :: Invigorating White Cured Meat - treasure · Spiritcaller Cave, may be sweep-granted by Spiritcaller Snail (m31_22) [f31227070]', 7772243, 31227070),
         ('Mountaintops of the Giants :: Arteria Leaf - treasure · Spiritcaller Cave, may be sweep-granted by Spiritcaller Snail (m31_22) [f31227080]', 7772244, 31227080),
         ("Mountaintops of the Giants :: Drawstring Fire Grease - near Forbidden Lands, may be sweep-granted by Night's Cavalry (m60_48_51) [f1047517000]", 7772992, 1047517000),
+        ("Mountaintops of the Giants :: Golden Rune [7] - near Forbidden Lands, may be sweep-granted by Night's Cavalry (m60_48_51) [f1047517010]", 7772993, 1047517010),
+        ("Mountaintops of the Giants :: Dragonwound Grease - near Forbidden Lands, may be sweep-granted by Night's Cavalry (m60_48_51) [f1047517300]", 7772994, 1047517300),
         ("Mountaintops of the Giants :: Somber Smithing Stone [7] - near Grand Lift of Rold (region unconfirmed), may be sweep-granted by Night's Cavalry (m60_48_51) [f1048517000]", 7773021, 1048517000),
         ("Mountaintops of the Giants :: Ash of War: Phantom Slash - m60_48_51 (region unconfirmed), may be sweep-granted by Night's Cavalry (m60_48_51) [f1048517700]", 7773022, 1048517700),
         ('Mountaintops of the Giants :: Freezing Grease - near Grand Lift of Rold (region unconfirmed), may be sweep-granted by Black Blade Kindred (m60_49_52) [f1049527000]', 7773062, 1049527000),
@@ -5538,4 +5538,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:4b9d897f54a77804f4b553e8d3110f48215d55fb7aa7791603d66c3ecad026be', 'module': 'data.py', 'body_sha256': 'sha256:331de2b93033ed71753946dc6955e3c5ba3408cf12fa523fc53116f59f49a7f8'}
+_GEN_STAMP = {'inputs_hash': 'sha256:95441044357425cc4c55df205fb534579a5cebce4f01c8063b206c0a6b425cf6', 'module': 'data.py', 'body_sha256': 'sha256:6cb5e8f7632f1b86363e7fc45145e43003cf185cce90267521da9fb0226ce313'}
