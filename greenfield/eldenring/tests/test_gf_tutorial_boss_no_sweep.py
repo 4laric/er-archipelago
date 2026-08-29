@@ -805,6 +805,10 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # f1038537000/10/30/40/50 moving Altus -> Mt. Gelmir with their corrected check region. The six
     # Seethewater pickup flags already belonged to trigger 1038520800; that trigger itself is now
     # correctly labelled Mt. Gelmir, so no pair change is needed for them.
-    assert (digest, n) == ("08d4874c16980e64", 4104), (  # #1076: 5 intended re-homes
-        "sweep OWNERSHIP changed: (%s, %d), expected (08d4874c16980e64, 4104). The total alone will "
+    # 2026-08-29 (#1077): 08d4874c16980e64/4104 -> 120a07dbe4af5fac/4104. The five worldless
+    # Shaded Castle rows were not sweep-owned, so the owned flag set and count are unchanged.
+    # Removing their positional AP ids re-phases later round-robin pools: 148 removed / 148 added /
+    # 148 flags re-owned, with none lost or gained and ZERO region crossings.
+    assert (digest, n) == ("120a07dbe4af5fac", 4104), (  # #1077: positional-id re-phase only
+        "sweep OWNERSHIP changed: (%s, %d), expected (120a07dbe4af5fac, 4104). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
