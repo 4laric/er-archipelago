@@ -3382,6 +3382,10 @@ FLAG_REGION_OVERRIDE = {
     # Forbidden Lands. Corroborated independently by this same regen: grace 76500 (Forbidden Lands)
     # moves Altus -> Mountaintops in region_graces.py off the refreshed grace ground.
     1047517000: "Mountaintops of the Giants",   # Drawstring Fire Grease -- volume: 65000
+    # Same grace and route as the row above; no per-item volume was recovered (#1075). Keep these
+    # per flag because play-region 63003 is reused by unrelated East Altus and Hidden Path graces.
+    1047517010: "Mountaintops of the Giants",   # Golden Rune [7] -- Forbidden Lands grace
+    1047517300: "Mountaintops of the Giants",   # Dragonwound Grease -- Forbidden Lands grace
     # South Raya Lucaria Gate: the gate ground is the Academy's, not Liurnia's.
     1035457000: "Raya Lucaria Academy",   # Celestial Dew -- volume: 14000
     1035457030: "Raya Lucaria Academy",   # Strip of White Flesh -- volume: 14000

@@ -141,7 +141,7 @@
    "tarnished_pack_combos": {}
   },
   "Altus": {
-   "checks": 374,
+   "checks": 372,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss|FieldBoss": 8,
@@ -1066,7 +1066,7 @@
    "tarnished_pack_combos": {}
   },
   "Mountaintops of the Giants": {
-   "checks": 200,
+   "checks": 202,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss|FieldBoss": 6,
@@ -1564,5 +1564,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "c58d8f2be01f137e6cd46f1971844ab8e458e1a8f6a8ad70c0b0eb0ce61ca71a"
+ "source_sha256": "b186931ecc479dea225c74e0adc338f0573dee35a9e021dcbdc62b4c1c555da4"
 }

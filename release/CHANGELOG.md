@@ -25,6 +25,10 @@ of the release).
   location-class tag, including Rennala's Balled Up gesture and several quest awards. They remain
   ordinary checks, but now join the permanent filler-only bar instead of looking reachable from
   the always-open hub to general fill.
+- **The Forbidden Lands pickup trio now agrees on Mountaintops (#1075).** Golden Rune [7] and
+  Dragonwound Grease join the adjacent Drawstring Fire Grease behind the Rold gate instead of
+  remaining in Altus logic. The correction is per flag because play-region 63003 is also reused by
+  unrelated East Altus Divine Tower and Hidden Path graces.
 - **The me3 save-separation docs now explain the initial copy.** When
   `AP_me3.sl2` does not exist, me3 creates it by copying `ER0000.sl2`, so seeing
   vanilla character names in the AP menu is expected; subsequent saves are
