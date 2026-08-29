@@ -3,6 +3,27 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.5.3 — 2026-08-28
+
+### What you need to update
+
+- **Client:** Required — development builds and seeds use the matching v0.5.3 pair.
+- **APWorld:** Host-only — the room host or generator must install the matching APWorld.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — finish an active v0.5.2 seed with its matched v0.5.2
+  pair. No save migration; do not mix versions.
+- **Profile/assets:** No action.
+
+Window opened at the v0.5.2 tag. `CONTRACT_HASH` remains `13db0b3a`; the slot-data shape is
+unchanged, but the exact-version handshake moves to 0.5.3. Client half: clients#469.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part
+of the release).
+
+- **The #1085 questline-DAG regen now replaces its TSV atomically on Windows (#1110).** The
+  generator no longer opens and truncates the existing destination directly, avoiding the observed
+  `OSError: [Errno 22] Invalid argument` and ensuring a failed write cannot leave a partial table.
+
 ## v0.5.2 — 2026-08-27
 
 ### What you need to update

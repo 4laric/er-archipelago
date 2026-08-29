@@ -54,3 +54,5 @@ stable	v0.5.0	2026-08-24	ability lock: name any of jump / crouch / roll / r1 / r
 beta	main	2026-08-24	the open v0.5.1 window
 stable	v0.5.1	2026-08-27	region_sync for seamless co-op (one player opens a region, every opted-in ER slot's door opens with it), full_area_sweeps (a boss hands you the whole area), spawn_traps by enemy NAME, and the progressive ability-lock early-attack fix; also carries the unverified 2.7.0.0 Tarnished candidate offsets ahead of the game update; promoted at its tag as the v0.5.2 window opened
 beta	main	2026-08-27	the open v0.5.2 window
+stable	v0.5.2	2026-08-28	the Tarnished Edition compatibility release: Elden Ring 2.7.0.0 and 2.7.0.1 client support, honest sweep-eligibility wording, corrected Yura and Leyndell Golden Seed labels, and the bounded Tarnished check retry; promoted at its tag as the v0.5.3 window opened
+beta	main	2026-08-28	the open v0.5.3 window
