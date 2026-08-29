@@ -70,6 +70,10 @@ CASES = [
      "surfaceClasses": ["MajorBoss", "SweepSlotMinor"], "dungeonSweep": "bosses"},
     # ...and the DEFAULT surface, which now contains SweepSlot: the case a player actually gets.
     {"numRegions": 6, "enableDlc": True, "dlcOnly": False, "dungeonSweep": "bosses"},
+    # Optional-location axis: the full-map check and surface totals must include the 11 pack rows.
+    # Keep this before the final two cases: the semantic start-region witnesses below intentionally
+    # address those two as js[-2] / js[-1].
+    {"numRegions": 0, "enableDlc": True, "dlcOnly": False, "enableTarnishedPack": True},
     # #841: start_region_pool is ADDITIVE. One candidate can overlap the random draw (0 marginal)
     # or be appended after it (1 marginal); several candidates exercise the full 0..N band and
     # parent closure after the force-keeps.
@@ -77,9 +81,6 @@ CASES = [
      "startRegionPool": ["Caelid"]},
     {"numRegions": 4, "enableDlc": True, "dlcOnly": False,
      "startRegionPool": ["Caelid", "Liurnia", "Altus"]},
-    # Optional-location axis: the full-map check and surface totals must include the 11 pack rows.
-    # Appended because the start_region_pool meta-assertions above address cases by stable index.
-    {"numRegions": 0, "enableDlc": True, "dlcOnly": False, "enableTarnishedPack": True},
 ]
 
 
