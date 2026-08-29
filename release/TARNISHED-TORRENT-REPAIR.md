@@ -1,12 +1,13 @@
 # Tarnished Edition: repair Torrent after running Matt's randomizer
 
 Matt's Elden Ring Randomizer v0.11.4 writes a pre-1.17 `regulation.bin`. Elden Ring 1.17 added four
-`RideParam` rows used by the new Spectral Steed appearances. When those rows are absent, Torrent may
-stop answering the whistle.
+`RideParam` rows and four matching `NpcParam` rows used by the new Spectral Steed appearances. When
+either half is absent, Torrent may stop answering the whistle.
 
-`tarnished-torrent-rideparam-1.17.json` is a Smithbox Param Delta Patch containing only those four
-new rows: `80020`, `80030`, `80040`, and `80050`. A comparison of Matt v0.11.4's exported table with
-vanilla 1.17 found no other added, removed, or modified `RideParam` rows.
+`tarnished-torrent-rideparam-1.17.json` is a Smithbox Param Delta Patch containing the four new
+`RideParam` rows (`80020`, `80030`, `80040`, `80050`) and their four matching `NpcParam` rows
+(`80020000`, `80030000`, `80040000`, `80050000`). A comparison of Matt v0.11.4 with vanilla 1.17
+found the base Torrent rows identical, making these safe clones with the verified 1.17 changes.
 
 ## One-command installer mode
 
@@ -16,17 +17,21 @@ The release's existing Matt installer can patch the rows while it wires in the c
 .\me3\install-into-matts-rando.ps1 -Randomizer "C:\path\to\randomizer" -WithTorrentRepair
 ```
 
-This mode requires Soulstruct 2.3.2's fixed source build. Its PyPI 2.3.2 wheel omitted two
-ParamCrypt metadata files, so install the fixed upstream commit for the same Python first:
+This mode requires Soulstruct 2.3.2's fixed source build. If it is missing, the PowerShell wrapper
+explains the one-time dependency and offers to download the fixed upstream snapshot. Press Enter
+to accept. For unattended installs, add `-InstallTorrentDependency`.
+
+The underlying Python installer never installs dependencies itself. If you run it directly, install
+the fixed source build first (the PyPI 2.3.2 wheel omitted two ParamCrypt metadata files):
 
 ```powershell
 py -m pip install "soulstruct @ git+https://github.com/Grimrukh/soulstruct.git@d59dc41e"
 ```
 
-The installer decrypts the regulation with Soulstruct but rewrites only the raw `RideParam` binder
-entry. It preserves all existing binder entries and RideParam rows byte-for-byte, refuses partial
-or conflicting repairs, verifies the encrypted result, makes a timestamped backup, and replaces
-the target atomically. A second run is an idempotent no-op.
+The installer decrypts the regulation with Soulstruct but rewrites only the raw `RideParam` and
+`NpcParam` binder entries. It preserves every existing binder entry and existing row byte-for-byte,
+refuses partial or conflicting repairs, verifies the encrypted result, makes a timestamped backup,
+and replaces the target atomically. A second run is an idempotent no-op.
 
 ## Manual Smithbox mode
 
@@ -36,8 +41,8 @@ the target atomically. A second run is an idempotent no-op.
 4. Open **Param Editor → Tools → Param Delta Patcher**, then use **Open Delta Folder**.
 5. Copy `tarnished-torrent-rideparam-1.17.json` into that folder and refresh the patch list.
 6. Select the patch. Enable **Include Added Rows**. Leave **Allow Row Overwrite** disabled.
-7. Preview the import: it must show exactly four additions to `RideParam`, with IDs `80020`,
-   `80030`, `80040`, and `80050`. Import it and save the params.
+7. Preview the import: it must show exactly four additions to `RideParam` and four additions to
+   `NpcParam`, with the IDs listed above. Import it and save the params.
 8. Confirm Smithbox wrote the repaired `regulation.bin` into Matt's output, then launch normally.
 
 The delta uses Smithbox's native Param Delta Patcher format. It was generated from the verified
@@ -47,5 +52,5 @@ Reapply after generating a new Matt seed if the randomizer rewrites `regulation.
 output already contains these rows, do not force an overwrite; the repair is obsolete and should be
 skipped.
 
-This file is deliberately a four-row delta, not a redistributed or pre-merged `regulation.bin`, so
+This file is deliberately an eight-row delta, not a redistributed or pre-merged `regulation.bin`, so
 it cannot replace Matt's enemy, boss, class, or balance edits.

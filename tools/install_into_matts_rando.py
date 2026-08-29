@@ -33,10 +33,10 @@ WHAT THIS REFUSES, loudly (exit 1):
   * `config_eldenringrandomizer_dll.toml` exists NEARBY but not in the target folder
     (--randomizer points at the wrong level; the refusal names where it was found).
 
-OPTIONAL TORRENT REPAIR (`--with-torrent-repair`): adds only Elden Ring 1.17's four missing
-Spectral Steed RideParam rows to Matt's regulation.bin. It backs up regulation.bin, preserves
-every existing binder entry and RideParam row byte-for-byte, verifies the encrypted candidate,
-and replaces the target atomically. Soulstruct is required only for this opt-in mode.
+OPTIONAL TORRENT REPAIR (`--with-torrent-repair`): adds Elden Ring 1.17's four missing Spectral
+Steed RideParam rows and their four matching NpcParam rows to Matt's regulation.bin. It backs up
+regulation.bin, preserves every existing binder entry and existing row byte-for-byte, verifies the
+encrypted candidate, and replaces the target atomically. Soulstruct is required only for this mode.
 
 Exit codes: 0 = changed, 2 = already current (idempotent no-op), 1 = refused.
 All output is ASCII. Timestamped backups are written before either owned file changes.
@@ -172,7 +172,7 @@ def run(argv: list[str] | None = None, script_path: Path | None = None) -> int:
     parser.add_argument("--with-flower", action="store_true",
                         help="also run the AP Flower icon installer against the same folder")
     parser.add_argument("--with-torrent-repair", action="store_true",
-                        help="add the four missing Elden Ring 1.17 RideParam rows to regulation.bin")
+                        help="restore Elden Ring 1.17's Torrent RideParam and NpcParam rows")
     args = parser.parse_args(argv)
 
     me3 = bundle_dir(script_path or Path(__file__))
@@ -254,9 +254,9 @@ def _maybe_extras(args, me3: Path, target: Path, rc: int) -> int:
         except (ImportError, TorrentRepairError) as exc:
             raise InstallError("--with-torrent-repair: %s" % exc) from exc
         if state == "current":
-            print("Torrent repair already current: all four 1.17 RideParam rows are present")
+            print("Torrent repair already current: all 1.17 RideParam/NpcParam rows are present")
         else:
-            print("Patched four Elden Ring 1.17 Spectral Steed rows into regulation.bin")
+            print("Patched Elden Ring 1.17 Spectral Steed RideParam/NpcParam rows")
             print("  backup: %s" % backup.name)
             rc = 0
     return rc

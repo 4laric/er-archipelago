@@ -263,6 +263,5147 @@
           "State": 0
         }
       ]
+    },
+    {
+      "Name": "NpcParam",
+      "Rows": [
+        {
+          "ID": 80020000,
+          "Index": 0,
+          "Name": "",
+          "Fields": [
+            {
+              "Field": "disableParam_NT",
+              "Value": "0"
+            },
+            {
+              "Field": "disableParamReserve1",
+              "Value": "0"
+            },
+            {
+              "Field": "disableParamReserve2",
+              "Value": "[0|0|0]"
+            },
+            {
+              "Field": "behaviorVariationId",
+              "Value": "80000"
+            },
+            {
+              "Field": "resistCorrectId_poison",
+              "Value": "-1"
+            },
+            {
+              "Field": "nameId",
+              "Value": "0"
+            },
+            {
+              "Field": "turnVellocity",
+              "Value": "180"
+            },
+            {
+              "Field": "hitHeight",
+              "Value": "1.8"
+            },
+            {
+              "Field": "hitRadius",
+              "Value": "0.6"
+            },
+            {
+              "Field": "weight",
+              "Value": "100"
+            },
+            {
+              "Field": "hitYOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "hp",
+              "Value": "1939"
+            },
+            {
+              "Field": "mp",
+              "Value": "0"
+            },
+            {
+              "Field": "getSoul",
+              "Value": "0"
+            },
+            {
+              "Field": "itemLotId_enemy",
+              "Value": "-1"
+            },
+            {
+              "Field": "itemLotId_map",
+              "Value": "-1"
+            },
+            {
+              "Field": "maxAnkleRollAngle",
+              "Value": "10"
+            },
+            {
+              "Field": "chrHitGroupAndNavimesh",
+              "Value": "4"
+            },
+            {
+              "Field": "faceIconId",
+              "Value": "0"
+            },
+            {
+              "Field": "deactivateDist",
+              "Value": "-1"
+            },
+            {
+              "Field": "chrActivateConditionParamId",
+              "Value": "0"
+            },
+            {
+              "Field": "footIkErrorHeightLimit",
+              "Value": "0.6"
+            },
+            {
+              "Field": "humanityLotId",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID0",
+              "Value": "5400"
+            },
+            {
+              "Field": "spEffectID1",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID2",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID3",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID4",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID5",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID6",
+              "Value": "90000"
+            },
+            {
+              "Field": "spEffectID7",
+              "Value": "90010"
+            },
+            {
+              "Field": "GameClearSpEffectID",
+              "Value": "7500"
+            },
+            {
+              "Field": "physGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "magGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "fireGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "thunGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "animIdOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "lockGazePoint0",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint1",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint2",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint3",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint4",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint5",
+              "Value": "-1"
+            },
+            {
+              "Field": "networkWarpDist",
+              "Value": "16"
+            },
+            {
+              "Field": "dbgBehaviorR1",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorL1",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorR2",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorL2",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRL",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRR",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRD",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRU",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLL",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLR",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLD",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLU",
+              "Value": "-1"
+            },
+            {
+              "Field": "animIdOffset2",
+              "Value": "0"
+            },
+            {
+              "Field": "partsDamageRate1",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate2",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate3",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate4",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate5",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate6",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate7",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate8",
+              "Value": "1"
+            },
+            {
+              "Field": "weakPartsDamageRate",
+              "Value": "1.5"
+            },
+            {
+              "Field": "superArmorRecoverCorrection",
+              "Value": "-1"
+            },
+            {
+              "Field": "superArmorBrakeKnockbackDist",
+              "Value": "0"
+            },
+            {
+              "Field": "stamina",
+              "Value": "50"
+            },
+            {
+              "Field": "staminaRecoverBaseVel",
+              "Value": "21"
+            },
+            {
+              "Field": "def_phys",
+              "Value": "100"
+            },
+            {
+              "Field": "def_slash",
+              "Value": "0"
+            },
+            {
+              "Field": "def_blow",
+              "Value": "0"
+            },
+            {
+              "Field": "def_thrust",
+              "Value": "0"
+            },
+            {
+              "Field": "def_mag",
+              "Value": "100"
+            },
+            {
+              "Field": "def_fire",
+              "Value": "100"
+            },
+            {
+              "Field": "def_thunder",
+              "Value": "100"
+            },
+            {
+              "Field": "defFlickPower",
+              "Value": "0"
+            },
+            {
+              "Field": "resist_poison",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_desease",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_blood",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_curse",
+              "Value": "999"
+            },
+            {
+              "Field": "ghostModelId",
+              "Value": "-1"
+            },
+            {
+              "Field": "normalChangeResouceId",
+              "Value": "-1"
+            },
+            {
+              "Field": "guardAngle",
+              "Value": "0"
+            },
+            {
+              "Field": "slashGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "blowGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "thrustGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "lockGazePoint6",
+              "Value": "-1"
+            },
+            {
+              "Field": "normalChangeTexChrId",
+              "Value": "-1"
+            },
+            {
+              "Field": "dropType",
+              "Value": "0"
+            },
+            {
+              "Field": "knockbackRate",
+              "Value": "0"
+            },
+            {
+              "Field": "knockbackParamId",
+              "Value": "0"
+            },
+            {
+              "Field": "fallDamageDump",
+              "Value": "0"
+            },
+            {
+              "Field": "staminaGuardDef",
+              "Value": "0"
+            },
+            {
+              "Field": "resist_sleep",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_madness",
+              "Value": "999"
+            },
+            {
+              "Field": "sleepGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "madnessGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "lockGazePoint7",
+              "Value": "-1"
+            },
+            {
+              "Field": "mpRecoverBaseVel",
+              "Value": "10"
+            },
+            {
+              "Field": "flickDamageCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "defaultLodParamId",
+              "Value": "11"
+            },
+            {
+              "Field": "drawType",
+              "Value": "0"
+            },
+            {
+              "Field": "npcType",
+              "Value": "0"
+            },
+            {
+              "Field": "teamType",
+              "Value": "10"
+            },
+            {
+              "Field": "moveType",
+              "Value": "4"
+            },
+            {
+              "Field": "lockDist",
+              "Value": "0"
+            },
+            {
+              "Field": "materialSe_Weak1",
+              "Value": "110"
+            },
+            {
+              "Field": "materialSfx_Weak1",
+              "Value": "110"
+            },
+            {
+              "Field": "partsDamageType",
+              "Value": "0"
+            },
+            {
+              "Field": "vowType",
+              "Value": "0"
+            },
+            {
+              "Field": "guardLevel",
+              "Value": "0"
+            },
+            {
+              "Field": "burnSfxType",
+              "Value": "0"
+            },
+            {
+              "Field": "poisonGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "diseaseGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "bloodGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "curseGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "parryAttack",
+              "Value": "0"
+            },
+            {
+              "Field": "parryDefence",
+              "Value": "0"
+            },
+            {
+              "Field": "sfxSize",
+              "Value": "0"
+            },
+            {
+              "Field": "pushOutCamRegionRadius",
+              "Value": "0"
+            },
+            {
+              "Field": "hitStopType",
+              "Value": "0"
+            },
+            {
+              "Field": "ladderEndChkOffsetTop",
+              "Value": "17"
+            },
+            {
+              "Field": "ladderEndChkOffsetLow",
+              "Value": "7"
+            },
+            {
+              "Field": "useRagdollCamHit",
+              "Value": "0"
+            },
+            {
+              "Field": "disableClothRigidHit",
+              "Value": "0"
+            },
+            {
+              "Field": "useUndulationAddAnimFB",
+              "Value": "1"
+            },
+            {
+              "Field": "isWeakA",
+              "Value": "0"
+            },
+            {
+              "Field": "isGhost",
+              "Value": "0"
+            },
+            {
+              "Field": "isNoDamageMotion",
+              "Value": "0"
+            },
+            {
+              "Field": "isUnduration",
+              "Value": "1"
+            },
+            {
+              "Field": "isChangeWanderGhost",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask0",
+              "Value": "1"
+            },
+            {
+              "Field": "modelDispMask1",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask2",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask3",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask4",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask5",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask6",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask7",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask8",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask9",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask10",
+              "Value": "1"
+            },
+            {
+              "Field": "modelDispMask11",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask12",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask13",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask14",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask15",
+              "Value": "0"
+            },
+            {
+              "Field": "isEnableNeckTurn",
+              "Value": "0"
+            },
+            {
+              "Field": "disableRespawn",
+              "Value": "0"
+            },
+            {
+              "Field": "isMoveAnimWait",
+              "Value": "0"
+            },
+            {
+              "Field": "isCrowd",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakB",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakC",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakD",
+              "Value": "0"
+            },
+            {
+              "Field": "doesAlwaysUseSpecialTurn",
+              "Value": "0"
+            },
+            {
+              "Field": "isRideAtkTarget",
+              "Value": "1"
+            },
+            {
+              "Field": "isEnableStepDispInterpolate",
+              "Value": "0"
+            },
+            {
+              "Field": "isStealthTarget",
+              "Value": "1"
+            },
+            {
+              "Field": "disableInitializeDead",
+              "Value": "0"
+            },
+            {
+              "Field": "isHitRumble",
+              "Value": "0"
+            },
+            {
+              "Field": "isSmoothTurn",
+              "Value": "1"
+            },
+            {
+              "Field": "isWeakE",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakF",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask16",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask17",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask18",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask19",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask20",
+              "Value": "1"
+            },
+            {
+              "Field": "modelDispMask21",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask22",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask23",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask24",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask25",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask26",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask27",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask28",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask29",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask30",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask31",
+              "Value": "0"
+            },
+            {
+              "Field": "itemSearchRadius",
+              "Value": "0"
+            },
+            {
+              "Field": "chrHitHeight",
+              "Value": "1.8"
+            },
+            {
+              "Field": "chrHitRadius",
+              "Value": "0.6"
+            },
+            {
+              "Field": "specialTurnType",
+              "Value": "1"
+            },
+            {
+              "Field": "isSoulGetByBoss",
+              "Value": "0"
+            },
+            {
+              "Field": "isBulletOwner_byObject",
+              "Value": "0"
+            },
+            {
+              "Field": "isUseLowHitFootIk",
+              "Value": "0"
+            },
+            {
+              "Field": "isCalculatePvPDamage",
+              "Value": "0"
+            },
+            {
+              "Field": "isHostSyncChr",
+              "Value": "0"
+            },
+            {
+              "Field": "isSkipWeakDamageAnim",
+              "Value": "0"
+            },
+            {
+              "Field": "isKeepHitOnRide",
+              "Value": "0"
+            },
+            {
+              "Field": "isSpCollide",
+              "Value": "0"
+            },
+            {
+              "Field": "def_dark",
+              "Value": "100"
+            },
+            {
+              "Field": "threatLv",
+              "Value": "0"
+            },
+            {
+              "Field": "specialTurnDistanceThreshold",
+              "Value": "4"
+            },
+            {
+              "Field": "autoFootEffectSfxId",
+              "Value": "1"
+            },
+            {
+              "Field": "materialSe1",
+              "Value": "109"
+            },
+            {
+              "Field": "materialSfx1",
+              "Value": "109"
+            },
+            {
+              "Field": "materialSe_Weak2",
+              "Value": "139"
+            },
+            {
+              "Field": "materialSfx_Weak2",
+              "Value": "139"
+            },
+            {
+              "Field": "materialSe2",
+              "Value": "139"
+            },
+            {
+              "Field": "materialSfx2",
+              "Value": "139"
+            },
+            {
+              "Field": "spEffectID8",
+              "Value": "90020"
+            },
+            {
+              "Field": "spEffectID9",
+              "Value": "90030"
+            },
+            {
+              "Field": "spEffectID10",
+              "Value": "90040"
+            },
+            {
+              "Field": "spEffectID11",
+              "Value": "90300"
+            },
+            {
+              "Field": "spEffectID12",
+              "Value": "90060"
+            },
+            {
+              "Field": "spEffectID13",
+              "Value": "90100"
+            },
+            {
+              "Field": "spEffectID14",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID15",
+              "Value": "-1"
+            },
+            {
+              "Field": "autoFootEffectDecalBaseId1",
+              "Value": "121"
+            },
+            {
+              "Field": "toughness",
+              "Value": "0"
+            },
+            {
+              "Field": "toughnessRecoverCorrection",
+              "Value": "0"
+            },
+            {
+              "Field": "neutralDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "slashDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "blowDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "thrustDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "magicDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "fireDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "thunderDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "darkDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "darkGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "clothUpdateOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "npcPlayerWeightType",
+              "Value": "0"
+            },
+            {
+              "Field": "normalChangeModelId",
+              "Value": "-1"
+            },
+            {
+              "Field": "normalChangeAnimChrId",
+              "Value": "8000"
+            },
+            {
+              "Field": "paintRenderTargetSize",
+              "Value": "256"
+            },
+            {
+              "Field": "resistCorrectId_disease",
+              "Value": "-1"
+            },
+            {
+              "Field": "phantomShaderId",
+              "Value": "-1"
+            },
+            {
+              "Field": "multiPlayCorrectionParamId",
+              "Value": "100"
+            },
+            {
+              "Field": "maxAnklePitchAngle",
+              "Value": "30"
+            },
+            {
+              "Field": "resist_freeze",
+              "Value": "999"
+            },
+            {
+              "Field": "freezeGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "hpBurnDamageRate",
+              "Value": "100"
+            },
+            {
+              "Field": "lockCameraParamId",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID16",
+              "Value": "6060"
+            },
+            {
+              "Field": "spEffectID17",
+              "Value": "182"
+            },
+            {
+              "Field": "spEffectID18",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID19",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID20",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID21",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID22",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID23",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID24",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID25",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID26",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID27",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID28",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID29",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID30",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID31",
+              "Value": "-1"
+            },
+            {
+              "Field": "disableLockOnAng",
+              "Value": "0"
+            },
+            {
+              "Field": "clothOffLodLevel",
+              "Value": "2"
+            },
+            {
+              "Field": "isUseFootIKNormalByUnduration",
+              "Value": "1"
+            },
+            {
+              "Field": "attachHitInitializeDead",
+              "Value": "0"
+            },
+            {
+              "Field": "excludeGroupRewardCheck",
+              "Value": "0"
+            },
+            {
+              "Field": "enableAILockDmyPoly_212",
+              "Value": "1"
+            },
+            {
+              "Field": "enableAILockDmyPoly_213",
+              "Value": "1"
+            },
+            {
+              "Field": "enableAILockDmyPoly_214",
+              "Value": "1"
+            },
+            {
+              "Field": "disableActivateOpen_xb1",
+              "Value": "0"
+            },
+            {
+              "Field": "disableActivateLegacy_xb1",
+              "Value": "0"
+            },
+            {
+              "Field": "estusFlaskRecoveryParamId",
+              "Value": "-1"
+            },
+            {
+              "Field": "roleNameId",
+              "Value": "-1"
+            },
+            {
+              "Field": "estusFlaskLotPoint",
+              "Value": "0"
+            },
+            {
+              "Field": "hpEstusFlaskLotPoint",
+              "Value": "0"
+            },
+            {
+              "Field": "mpEstusFlaskLotPoint",
+              "Value": "0"
+            },
+            {
+              "Field": "estusFlaskRecovery_failedLotPointAdd",
+              "Value": "0"
+            },
+            {
+              "Field": "hpEstusFlaskRecovery_failedLotPointAdd",
+              "Value": "0"
+            },
+            {
+              "Field": "mpEstusFlaskRecovery_failedLotPointAdd",
+              "Value": "0"
+            },
+            {
+              "Field": "WanderGhostPhantomId",
+              "Value": "-1"
+            },
+            {
+              "Field": "hearingHeadSize",
+              "Value": "-1"
+            },
+            {
+              "Field": "SoundBankId",
+              "Value": "8000"
+            },
+            {
+              "Field": "forwardUndulationLimit",
+              "Value": "50"
+            },
+            {
+              "Field": "sideUndulationLimit",
+              "Value": "0"
+            },
+            {
+              "Field": "deactiveMoveSpeed",
+              "Value": "0"
+            },
+            {
+              "Field": "deactiveMoveDist",
+              "Value": "180"
+            },
+            {
+              "Field": "enableSoundObjDist",
+              "Value": "-1"
+            },
+            {
+              "Field": "undulationCorrectGain",
+              "Value": "0.1"
+            },
+            {
+              "Field": "autoFootEffectDecalBaseId2",
+              "Value": "-1"
+            },
+            {
+              "Field": "autoFootEffectDecalBaseId3",
+              "Value": "-1"
+            },
+            {
+              "Field": "RetargetReferenceChrId",
+              "Value": "-1"
+            },
+            {
+              "Field": "SfxResBankId",
+              "Value": "-1"
+            },
+            {
+              "Field": "updateActivatePriolity",
+              "Value": "2.5"
+            },
+            {
+              "Field": "chrNavimeshFlag_Alive",
+              "Value": "0"
+            },
+            {
+              "Field": "chrNavimeshFlag_Dead",
+              "Value": "0"
+            },
+            {
+              "Field": "isConsideredUndead",
+              "Value": "0"
+            },
+            {
+              "Field": "wheelRotType",
+              "Value": "0"
+            },
+            {
+              "Field": "wheelRotRadius",
+              "Value": "0"
+            },
+            {
+              "Field": "retargetMoveRate",
+              "Value": "1"
+            },
+            {
+              "Field": "ladderWarpOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "loadAssetId",
+              "Value": "-1"
+            },
+            {
+              "Field": "overlapCameraDmypolyId",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId00",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId01",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId02",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId03",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId04",
+              "Value": "-1"
+            },
+            {
+              "Field": "sleepCollectorItemLotId_enemy",
+              "Value": "-1"
+            },
+            {
+              "Field": "sleepCollectorItemLotId_map",
+              "Value": "-1"
+            },
+            {
+              "Field": "footIkErrorOnGain",
+              "Value": "0.1"
+            },
+            {
+              "Field": "footIkErrorOffGain",
+              "Value": "0.4"
+            },
+            {
+              "Field": "SoundAddBankId",
+              "Value": "-1"
+            },
+            {
+              "Field": "materialVariationValue",
+              "Value": "0"
+            },
+            {
+              "Field": "materialVariationValue_Weak",
+              "Value": "0"
+            },
+            {
+              "Field": "superArmorDurability",
+              "Value": "-1"
+            },
+            {
+              "Field": "saRecoveryRate",
+              "Value": "0.29"
+            },
+            {
+              "Field": "saGuardCutRate",
+              "Value": "100"
+            },
+            {
+              "Field": "resistCorrectId_blood",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_curse",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_freeze",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_sleep",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_madness",
+              "Value": "-1"
+            },
+            {
+              "Field": "chrDeadTutorialFlagId",
+              "Value": "0"
+            },
+            {
+              "Field": "stepDispInterpolateTime",
+              "Value": "0.5"
+            },
+            {
+              "Field": "stepDispInterpolateTriggerValue",
+              "Value": "0.6"
+            },
+            {
+              "Field": "lockScoreOffset",
+              "Value": "-40"
+            },
+            {
+              "Field": "dlcGameClearSpEffectID",
+              "Value": "-1"
+            },
+            {
+              "Field": "pad12",
+              "Value": "[0|0|0|0]"
+            }
+          ],
+          "State": 0
+        },
+        {
+          "ID": 80030000,
+          "Index": 0,
+          "Name": "",
+          "Fields": [
+            {
+              "Field": "disableParam_NT",
+              "Value": "0"
+            },
+            {
+              "Field": "disableParamReserve1",
+              "Value": "0"
+            },
+            {
+              "Field": "disableParamReserve2",
+              "Value": "[0|0|0]"
+            },
+            {
+              "Field": "behaviorVariationId",
+              "Value": "80000"
+            },
+            {
+              "Field": "resistCorrectId_poison",
+              "Value": "-1"
+            },
+            {
+              "Field": "nameId",
+              "Value": "0"
+            },
+            {
+              "Field": "turnVellocity",
+              "Value": "180"
+            },
+            {
+              "Field": "hitHeight",
+              "Value": "1.8"
+            },
+            {
+              "Field": "hitRadius",
+              "Value": "0.6"
+            },
+            {
+              "Field": "weight",
+              "Value": "100"
+            },
+            {
+              "Field": "hitYOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "hp",
+              "Value": "1939"
+            },
+            {
+              "Field": "mp",
+              "Value": "0"
+            },
+            {
+              "Field": "getSoul",
+              "Value": "0"
+            },
+            {
+              "Field": "itemLotId_enemy",
+              "Value": "-1"
+            },
+            {
+              "Field": "itemLotId_map",
+              "Value": "-1"
+            },
+            {
+              "Field": "maxAnkleRollAngle",
+              "Value": "10"
+            },
+            {
+              "Field": "chrHitGroupAndNavimesh",
+              "Value": "4"
+            },
+            {
+              "Field": "faceIconId",
+              "Value": "0"
+            },
+            {
+              "Field": "deactivateDist",
+              "Value": "-1"
+            },
+            {
+              "Field": "chrActivateConditionParamId",
+              "Value": "0"
+            },
+            {
+              "Field": "footIkErrorHeightLimit",
+              "Value": "0.6"
+            },
+            {
+              "Field": "humanityLotId",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID0",
+              "Value": "5400"
+            },
+            {
+              "Field": "spEffectID1",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID2",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID3",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID4",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID5",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID6",
+              "Value": "90000"
+            },
+            {
+              "Field": "spEffectID7",
+              "Value": "90010"
+            },
+            {
+              "Field": "GameClearSpEffectID",
+              "Value": "7500"
+            },
+            {
+              "Field": "physGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "magGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "fireGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "thunGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "animIdOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "lockGazePoint0",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint1",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint2",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint3",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint4",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint5",
+              "Value": "-1"
+            },
+            {
+              "Field": "networkWarpDist",
+              "Value": "16"
+            },
+            {
+              "Field": "dbgBehaviorR1",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorL1",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorR2",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorL2",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRL",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRR",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRD",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRU",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLL",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLR",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLD",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLU",
+              "Value": "-1"
+            },
+            {
+              "Field": "animIdOffset2",
+              "Value": "0"
+            },
+            {
+              "Field": "partsDamageRate1",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate2",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate3",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate4",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate5",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate6",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate7",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate8",
+              "Value": "1"
+            },
+            {
+              "Field": "weakPartsDamageRate",
+              "Value": "1.5"
+            },
+            {
+              "Field": "superArmorRecoverCorrection",
+              "Value": "-1"
+            },
+            {
+              "Field": "superArmorBrakeKnockbackDist",
+              "Value": "0"
+            },
+            {
+              "Field": "stamina",
+              "Value": "50"
+            },
+            {
+              "Field": "staminaRecoverBaseVel",
+              "Value": "21"
+            },
+            {
+              "Field": "def_phys",
+              "Value": "100"
+            },
+            {
+              "Field": "def_slash",
+              "Value": "0"
+            },
+            {
+              "Field": "def_blow",
+              "Value": "0"
+            },
+            {
+              "Field": "def_thrust",
+              "Value": "0"
+            },
+            {
+              "Field": "def_mag",
+              "Value": "100"
+            },
+            {
+              "Field": "def_fire",
+              "Value": "100"
+            },
+            {
+              "Field": "def_thunder",
+              "Value": "100"
+            },
+            {
+              "Field": "defFlickPower",
+              "Value": "0"
+            },
+            {
+              "Field": "resist_poison",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_desease",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_blood",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_curse",
+              "Value": "999"
+            },
+            {
+              "Field": "ghostModelId",
+              "Value": "-1"
+            },
+            {
+              "Field": "normalChangeResouceId",
+              "Value": "-1"
+            },
+            {
+              "Field": "guardAngle",
+              "Value": "0"
+            },
+            {
+              "Field": "slashGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "blowGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "thrustGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "lockGazePoint6",
+              "Value": "-1"
+            },
+            {
+              "Field": "normalChangeTexChrId",
+              "Value": "-1"
+            },
+            {
+              "Field": "dropType",
+              "Value": "0"
+            },
+            {
+              "Field": "knockbackRate",
+              "Value": "0"
+            },
+            {
+              "Field": "knockbackParamId",
+              "Value": "0"
+            },
+            {
+              "Field": "fallDamageDump",
+              "Value": "0"
+            },
+            {
+              "Field": "staminaGuardDef",
+              "Value": "0"
+            },
+            {
+              "Field": "resist_sleep",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_madness",
+              "Value": "999"
+            },
+            {
+              "Field": "sleepGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "madnessGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "lockGazePoint7",
+              "Value": "-1"
+            },
+            {
+              "Field": "mpRecoverBaseVel",
+              "Value": "10"
+            },
+            {
+              "Field": "flickDamageCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "defaultLodParamId",
+              "Value": "11"
+            },
+            {
+              "Field": "drawType",
+              "Value": "0"
+            },
+            {
+              "Field": "npcType",
+              "Value": "0"
+            },
+            {
+              "Field": "teamType",
+              "Value": "10"
+            },
+            {
+              "Field": "moveType",
+              "Value": "4"
+            },
+            {
+              "Field": "lockDist",
+              "Value": "0"
+            },
+            {
+              "Field": "materialSe_Weak1",
+              "Value": "110"
+            },
+            {
+              "Field": "materialSfx_Weak1",
+              "Value": "110"
+            },
+            {
+              "Field": "partsDamageType",
+              "Value": "0"
+            },
+            {
+              "Field": "vowType",
+              "Value": "0"
+            },
+            {
+              "Field": "guardLevel",
+              "Value": "0"
+            },
+            {
+              "Field": "burnSfxType",
+              "Value": "0"
+            },
+            {
+              "Field": "poisonGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "diseaseGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "bloodGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "curseGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "parryAttack",
+              "Value": "0"
+            },
+            {
+              "Field": "parryDefence",
+              "Value": "0"
+            },
+            {
+              "Field": "sfxSize",
+              "Value": "0"
+            },
+            {
+              "Field": "pushOutCamRegionRadius",
+              "Value": "0"
+            },
+            {
+              "Field": "hitStopType",
+              "Value": "0"
+            },
+            {
+              "Field": "ladderEndChkOffsetTop",
+              "Value": "17"
+            },
+            {
+              "Field": "ladderEndChkOffsetLow",
+              "Value": "7"
+            },
+            {
+              "Field": "useRagdollCamHit",
+              "Value": "0"
+            },
+            {
+              "Field": "disableClothRigidHit",
+              "Value": "0"
+            },
+            {
+              "Field": "useUndulationAddAnimFB",
+              "Value": "1"
+            },
+            {
+              "Field": "isWeakA",
+              "Value": "0"
+            },
+            {
+              "Field": "isGhost",
+              "Value": "0"
+            },
+            {
+              "Field": "isNoDamageMotion",
+              "Value": "0"
+            },
+            {
+              "Field": "isUnduration",
+              "Value": "1"
+            },
+            {
+              "Field": "isChangeWanderGhost",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask0",
+              "Value": "1"
+            },
+            {
+              "Field": "modelDispMask1",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask2",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask3",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask4",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask5",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask6",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask7",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask8",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask9",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask10",
+              "Value": "1"
+            },
+            {
+              "Field": "modelDispMask11",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask12",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask13",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask14",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask15",
+              "Value": "0"
+            },
+            {
+              "Field": "isEnableNeckTurn",
+              "Value": "0"
+            },
+            {
+              "Field": "disableRespawn",
+              "Value": "0"
+            },
+            {
+              "Field": "isMoveAnimWait",
+              "Value": "0"
+            },
+            {
+              "Field": "isCrowd",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakB",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakC",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakD",
+              "Value": "0"
+            },
+            {
+              "Field": "doesAlwaysUseSpecialTurn",
+              "Value": "0"
+            },
+            {
+              "Field": "isRideAtkTarget",
+              "Value": "1"
+            },
+            {
+              "Field": "isEnableStepDispInterpolate",
+              "Value": "0"
+            },
+            {
+              "Field": "isStealthTarget",
+              "Value": "1"
+            },
+            {
+              "Field": "disableInitializeDead",
+              "Value": "0"
+            },
+            {
+              "Field": "isHitRumble",
+              "Value": "0"
+            },
+            {
+              "Field": "isSmoothTurn",
+              "Value": "1"
+            },
+            {
+              "Field": "isWeakE",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakF",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask16",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask17",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask18",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask19",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask20",
+              "Value": "1"
+            },
+            {
+              "Field": "modelDispMask21",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask22",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask23",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask24",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask25",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask26",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask27",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask28",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask29",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask30",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask31",
+              "Value": "0"
+            },
+            {
+              "Field": "itemSearchRadius",
+              "Value": "0"
+            },
+            {
+              "Field": "chrHitHeight",
+              "Value": "1.8"
+            },
+            {
+              "Field": "chrHitRadius",
+              "Value": "0.6"
+            },
+            {
+              "Field": "specialTurnType",
+              "Value": "1"
+            },
+            {
+              "Field": "isSoulGetByBoss",
+              "Value": "0"
+            },
+            {
+              "Field": "isBulletOwner_byObject",
+              "Value": "0"
+            },
+            {
+              "Field": "isUseLowHitFootIk",
+              "Value": "0"
+            },
+            {
+              "Field": "isCalculatePvPDamage",
+              "Value": "0"
+            },
+            {
+              "Field": "isHostSyncChr",
+              "Value": "0"
+            },
+            {
+              "Field": "isSkipWeakDamageAnim",
+              "Value": "0"
+            },
+            {
+              "Field": "isKeepHitOnRide",
+              "Value": "0"
+            },
+            {
+              "Field": "isSpCollide",
+              "Value": "0"
+            },
+            {
+              "Field": "def_dark",
+              "Value": "100"
+            },
+            {
+              "Field": "threatLv",
+              "Value": "0"
+            },
+            {
+              "Field": "specialTurnDistanceThreshold",
+              "Value": "4"
+            },
+            {
+              "Field": "autoFootEffectSfxId",
+              "Value": "1"
+            },
+            {
+              "Field": "materialSe1",
+              "Value": "109"
+            },
+            {
+              "Field": "materialSfx1",
+              "Value": "109"
+            },
+            {
+              "Field": "materialSe_Weak2",
+              "Value": "139"
+            },
+            {
+              "Field": "materialSfx_Weak2",
+              "Value": "139"
+            },
+            {
+              "Field": "materialSe2",
+              "Value": "139"
+            },
+            {
+              "Field": "materialSfx2",
+              "Value": "139"
+            },
+            {
+              "Field": "spEffectID8",
+              "Value": "90020"
+            },
+            {
+              "Field": "spEffectID9",
+              "Value": "90030"
+            },
+            {
+              "Field": "spEffectID10",
+              "Value": "90040"
+            },
+            {
+              "Field": "spEffectID11",
+              "Value": "90300"
+            },
+            {
+              "Field": "spEffectID12",
+              "Value": "90060"
+            },
+            {
+              "Field": "spEffectID13",
+              "Value": "90100"
+            },
+            {
+              "Field": "spEffectID14",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID15",
+              "Value": "-1"
+            },
+            {
+              "Field": "autoFootEffectDecalBaseId1",
+              "Value": "121"
+            },
+            {
+              "Field": "toughness",
+              "Value": "0"
+            },
+            {
+              "Field": "toughnessRecoverCorrection",
+              "Value": "0"
+            },
+            {
+              "Field": "neutralDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "slashDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "blowDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "thrustDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "magicDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "fireDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "thunderDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "darkDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "darkGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "clothUpdateOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "npcPlayerWeightType",
+              "Value": "0"
+            },
+            {
+              "Field": "normalChangeModelId",
+              "Value": "-1"
+            },
+            {
+              "Field": "normalChangeAnimChrId",
+              "Value": "8000"
+            },
+            {
+              "Field": "paintRenderTargetSize",
+              "Value": "256"
+            },
+            {
+              "Field": "resistCorrectId_disease",
+              "Value": "-1"
+            },
+            {
+              "Field": "phantomShaderId",
+              "Value": "-1"
+            },
+            {
+              "Field": "multiPlayCorrectionParamId",
+              "Value": "100"
+            },
+            {
+              "Field": "maxAnklePitchAngle",
+              "Value": "30"
+            },
+            {
+              "Field": "resist_freeze",
+              "Value": "999"
+            },
+            {
+              "Field": "freezeGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "hpBurnDamageRate",
+              "Value": "100"
+            },
+            {
+              "Field": "lockCameraParamId",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID16",
+              "Value": "6060"
+            },
+            {
+              "Field": "spEffectID17",
+              "Value": "182"
+            },
+            {
+              "Field": "spEffectID18",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID19",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID20",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID21",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID22",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID23",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID24",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID25",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID26",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID27",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID28",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID29",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID30",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID31",
+              "Value": "-1"
+            },
+            {
+              "Field": "disableLockOnAng",
+              "Value": "0"
+            },
+            {
+              "Field": "clothOffLodLevel",
+              "Value": "2"
+            },
+            {
+              "Field": "isUseFootIKNormalByUnduration",
+              "Value": "1"
+            },
+            {
+              "Field": "attachHitInitializeDead",
+              "Value": "0"
+            },
+            {
+              "Field": "excludeGroupRewardCheck",
+              "Value": "0"
+            },
+            {
+              "Field": "enableAILockDmyPoly_212",
+              "Value": "1"
+            },
+            {
+              "Field": "enableAILockDmyPoly_213",
+              "Value": "1"
+            },
+            {
+              "Field": "enableAILockDmyPoly_214",
+              "Value": "1"
+            },
+            {
+              "Field": "disableActivateOpen_xb1",
+              "Value": "0"
+            },
+            {
+              "Field": "disableActivateLegacy_xb1",
+              "Value": "0"
+            },
+            {
+              "Field": "estusFlaskRecoveryParamId",
+              "Value": "-1"
+            },
+            {
+              "Field": "roleNameId",
+              "Value": "-1"
+            },
+            {
+              "Field": "estusFlaskLotPoint",
+              "Value": "0"
+            },
+            {
+              "Field": "hpEstusFlaskLotPoint",
+              "Value": "0"
+            },
+            {
+              "Field": "mpEstusFlaskLotPoint",
+              "Value": "0"
+            },
+            {
+              "Field": "estusFlaskRecovery_failedLotPointAdd",
+              "Value": "0"
+            },
+            {
+              "Field": "hpEstusFlaskRecovery_failedLotPointAdd",
+              "Value": "0"
+            },
+            {
+              "Field": "mpEstusFlaskRecovery_failedLotPointAdd",
+              "Value": "0"
+            },
+            {
+              "Field": "WanderGhostPhantomId",
+              "Value": "-1"
+            },
+            {
+              "Field": "hearingHeadSize",
+              "Value": "-1"
+            },
+            {
+              "Field": "SoundBankId",
+              "Value": "8000"
+            },
+            {
+              "Field": "forwardUndulationLimit",
+              "Value": "50"
+            },
+            {
+              "Field": "sideUndulationLimit",
+              "Value": "0"
+            },
+            {
+              "Field": "deactiveMoveSpeed",
+              "Value": "0"
+            },
+            {
+              "Field": "deactiveMoveDist",
+              "Value": "180"
+            },
+            {
+              "Field": "enableSoundObjDist",
+              "Value": "-1"
+            },
+            {
+              "Field": "undulationCorrectGain",
+              "Value": "0.1"
+            },
+            {
+              "Field": "autoFootEffectDecalBaseId2",
+              "Value": "-1"
+            },
+            {
+              "Field": "autoFootEffectDecalBaseId3",
+              "Value": "-1"
+            },
+            {
+              "Field": "RetargetReferenceChrId",
+              "Value": "-1"
+            },
+            {
+              "Field": "SfxResBankId",
+              "Value": "-1"
+            },
+            {
+              "Field": "updateActivatePriolity",
+              "Value": "2.5"
+            },
+            {
+              "Field": "chrNavimeshFlag_Alive",
+              "Value": "0"
+            },
+            {
+              "Field": "chrNavimeshFlag_Dead",
+              "Value": "0"
+            },
+            {
+              "Field": "isConsideredUndead",
+              "Value": "0"
+            },
+            {
+              "Field": "wheelRotType",
+              "Value": "0"
+            },
+            {
+              "Field": "wheelRotRadius",
+              "Value": "0"
+            },
+            {
+              "Field": "retargetMoveRate",
+              "Value": "1"
+            },
+            {
+              "Field": "ladderWarpOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "loadAssetId",
+              "Value": "-1"
+            },
+            {
+              "Field": "overlapCameraDmypolyId",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId00",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId01",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId02",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId03",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId04",
+              "Value": "-1"
+            },
+            {
+              "Field": "sleepCollectorItemLotId_enemy",
+              "Value": "-1"
+            },
+            {
+              "Field": "sleepCollectorItemLotId_map",
+              "Value": "-1"
+            },
+            {
+              "Field": "footIkErrorOnGain",
+              "Value": "0.1"
+            },
+            {
+              "Field": "footIkErrorOffGain",
+              "Value": "0.4"
+            },
+            {
+              "Field": "SoundAddBankId",
+              "Value": "-1"
+            },
+            {
+              "Field": "materialVariationValue",
+              "Value": "0"
+            },
+            {
+              "Field": "materialVariationValue_Weak",
+              "Value": "0"
+            },
+            {
+              "Field": "superArmorDurability",
+              "Value": "-1"
+            },
+            {
+              "Field": "saRecoveryRate",
+              "Value": "0.29"
+            },
+            {
+              "Field": "saGuardCutRate",
+              "Value": "100"
+            },
+            {
+              "Field": "resistCorrectId_blood",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_curse",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_freeze",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_sleep",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_madness",
+              "Value": "-1"
+            },
+            {
+              "Field": "chrDeadTutorialFlagId",
+              "Value": "0"
+            },
+            {
+              "Field": "stepDispInterpolateTime",
+              "Value": "0.5"
+            },
+            {
+              "Field": "stepDispInterpolateTriggerValue",
+              "Value": "0.6"
+            },
+            {
+              "Field": "lockScoreOffset",
+              "Value": "-40"
+            },
+            {
+              "Field": "dlcGameClearSpEffectID",
+              "Value": "-1"
+            },
+            {
+              "Field": "pad12",
+              "Value": "[0|0|0|0]"
+            }
+          ],
+          "State": 0
+        },
+        {
+          "ID": 80040000,
+          "Index": 0,
+          "Name": "",
+          "Fields": [
+            {
+              "Field": "disableParam_NT",
+              "Value": "0"
+            },
+            {
+              "Field": "disableParamReserve1",
+              "Value": "0"
+            },
+            {
+              "Field": "disableParamReserve2",
+              "Value": "[0|0|0]"
+            },
+            {
+              "Field": "behaviorVariationId",
+              "Value": "80000"
+            },
+            {
+              "Field": "resistCorrectId_poison",
+              "Value": "-1"
+            },
+            {
+              "Field": "nameId",
+              "Value": "0"
+            },
+            {
+              "Field": "turnVellocity",
+              "Value": "180"
+            },
+            {
+              "Field": "hitHeight",
+              "Value": "1.8"
+            },
+            {
+              "Field": "hitRadius",
+              "Value": "0.6"
+            },
+            {
+              "Field": "weight",
+              "Value": "100"
+            },
+            {
+              "Field": "hitYOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "hp",
+              "Value": "1939"
+            },
+            {
+              "Field": "mp",
+              "Value": "0"
+            },
+            {
+              "Field": "getSoul",
+              "Value": "0"
+            },
+            {
+              "Field": "itemLotId_enemy",
+              "Value": "-1"
+            },
+            {
+              "Field": "itemLotId_map",
+              "Value": "-1"
+            },
+            {
+              "Field": "maxAnkleRollAngle",
+              "Value": "10"
+            },
+            {
+              "Field": "chrHitGroupAndNavimesh",
+              "Value": "4"
+            },
+            {
+              "Field": "faceIconId",
+              "Value": "0"
+            },
+            {
+              "Field": "deactivateDist",
+              "Value": "-1"
+            },
+            {
+              "Field": "chrActivateConditionParamId",
+              "Value": "0"
+            },
+            {
+              "Field": "footIkErrorHeightLimit",
+              "Value": "0.6"
+            },
+            {
+              "Field": "humanityLotId",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID0",
+              "Value": "5400"
+            },
+            {
+              "Field": "spEffectID1",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID2",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID3",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID4",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID5",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID6",
+              "Value": "90000"
+            },
+            {
+              "Field": "spEffectID7",
+              "Value": "90010"
+            },
+            {
+              "Field": "GameClearSpEffectID",
+              "Value": "7500"
+            },
+            {
+              "Field": "physGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "magGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "fireGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "thunGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "animIdOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "lockGazePoint0",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint1",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint2",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint3",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint4",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint5",
+              "Value": "-1"
+            },
+            {
+              "Field": "networkWarpDist",
+              "Value": "16"
+            },
+            {
+              "Field": "dbgBehaviorR1",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorL1",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorR2",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorL2",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRL",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRR",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRD",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRU",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLL",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLR",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLD",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLU",
+              "Value": "-1"
+            },
+            {
+              "Field": "animIdOffset2",
+              "Value": "0"
+            },
+            {
+              "Field": "partsDamageRate1",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate2",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate3",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate4",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate5",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate6",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate7",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate8",
+              "Value": "1"
+            },
+            {
+              "Field": "weakPartsDamageRate",
+              "Value": "1.5"
+            },
+            {
+              "Field": "superArmorRecoverCorrection",
+              "Value": "-1"
+            },
+            {
+              "Field": "superArmorBrakeKnockbackDist",
+              "Value": "0"
+            },
+            {
+              "Field": "stamina",
+              "Value": "50"
+            },
+            {
+              "Field": "staminaRecoverBaseVel",
+              "Value": "21"
+            },
+            {
+              "Field": "def_phys",
+              "Value": "100"
+            },
+            {
+              "Field": "def_slash",
+              "Value": "0"
+            },
+            {
+              "Field": "def_blow",
+              "Value": "0"
+            },
+            {
+              "Field": "def_thrust",
+              "Value": "0"
+            },
+            {
+              "Field": "def_mag",
+              "Value": "100"
+            },
+            {
+              "Field": "def_fire",
+              "Value": "100"
+            },
+            {
+              "Field": "def_thunder",
+              "Value": "100"
+            },
+            {
+              "Field": "defFlickPower",
+              "Value": "0"
+            },
+            {
+              "Field": "resist_poison",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_desease",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_blood",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_curse",
+              "Value": "999"
+            },
+            {
+              "Field": "ghostModelId",
+              "Value": "-1"
+            },
+            {
+              "Field": "normalChangeResouceId",
+              "Value": "-1"
+            },
+            {
+              "Field": "guardAngle",
+              "Value": "0"
+            },
+            {
+              "Field": "slashGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "blowGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "thrustGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "lockGazePoint6",
+              "Value": "-1"
+            },
+            {
+              "Field": "normalChangeTexChrId",
+              "Value": "-1"
+            },
+            {
+              "Field": "dropType",
+              "Value": "0"
+            },
+            {
+              "Field": "knockbackRate",
+              "Value": "0"
+            },
+            {
+              "Field": "knockbackParamId",
+              "Value": "0"
+            },
+            {
+              "Field": "fallDamageDump",
+              "Value": "0"
+            },
+            {
+              "Field": "staminaGuardDef",
+              "Value": "0"
+            },
+            {
+              "Field": "resist_sleep",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_madness",
+              "Value": "999"
+            },
+            {
+              "Field": "sleepGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "madnessGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "lockGazePoint7",
+              "Value": "-1"
+            },
+            {
+              "Field": "mpRecoverBaseVel",
+              "Value": "10"
+            },
+            {
+              "Field": "flickDamageCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "defaultLodParamId",
+              "Value": "11"
+            },
+            {
+              "Field": "drawType",
+              "Value": "0"
+            },
+            {
+              "Field": "npcType",
+              "Value": "0"
+            },
+            {
+              "Field": "teamType",
+              "Value": "10"
+            },
+            {
+              "Field": "moveType",
+              "Value": "4"
+            },
+            {
+              "Field": "lockDist",
+              "Value": "0"
+            },
+            {
+              "Field": "materialSe_Weak1",
+              "Value": "110"
+            },
+            {
+              "Field": "materialSfx_Weak1",
+              "Value": "110"
+            },
+            {
+              "Field": "partsDamageType",
+              "Value": "0"
+            },
+            {
+              "Field": "vowType",
+              "Value": "0"
+            },
+            {
+              "Field": "guardLevel",
+              "Value": "0"
+            },
+            {
+              "Field": "burnSfxType",
+              "Value": "0"
+            },
+            {
+              "Field": "poisonGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "diseaseGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "bloodGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "curseGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "parryAttack",
+              "Value": "0"
+            },
+            {
+              "Field": "parryDefence",
+              "Value": "0"
+            },
+            {
+              "Field": "sfxSize",
+              "Value": "0"
+            },
+            {
+              "Field": "pushOutCamRegionRadius",
+              "Value": "0"
+            },
+            {
+              "Field": "hitStopType",
+              "Value": "0"
+            },
+            {
+              "Field": "ladderEndChkOffsetTop",
+              "Value": "17"
+            },
+            {
+              "Field": "ladderEndChkOffsetLow",
+              "Value": "7"
+            },
+            {
+              "Field": "useRagdollCamHit",
+              "Value": "0"
+            },
+            {
+              "Field": "disableClothRigidHit",
+              "Value": "0"
+            },
+            {
+              "Field": "useUndulationAddAnimFB",
+              "Value": "1"
+            },
+            {
+              "Field": "isWeakA",
+              "Value": "0"
+            },
+            {
+              "Field": "isGhost",
+              "Value": "0"
+            },
+            {
+              "Field": "isNoDamageMotion",
+              "Value": "0"
+            },
+            {
+              "Field": "isUnduration",
+              "Value": "1"
+            },
+            {
+              "Field": "isChangeWanderGhost",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask0",
+              "Value": "1"
+            },
+            {
+              "Field": "modelDispMask1",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask2",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask3",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask4",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask5",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask6",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask7",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask8",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask9",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask10",
+              "Value": "1"
+            },
+            {
+              "Field": "modelDispMask11",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask12",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask13",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask14",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask15",
+              "Value": "0"
+            },
+            {
+              "Field": "isEnableNeckTurn",
+              "Value": "0"
+            },
+            {
+              "Field": "disableRespawn",
+              "Value": "0"
+            },
+            {
+              "Field": "isMoveAnimWait",
+              "Value": "0"
+            },
+            {
+              "Field": "isCrowd",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakB",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakC",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakD",
+              "Value": "0"
+            },
+            {
+              "Field": "doesAlwaysUseSpecialTurn",
+              "Value": "0"
+            },
+            {
+              "Field": "isRideAtkTarget",
+              "Value": "1"
+            },
+            {
+              "Field": "isEnableStepDispInterpolate",
+              "Value": "0"
+            },
+            {
+              "Field": "isStealthTarget",
+              "Value": "1"
+            },
+            {
+              "Field": "disableInitializeDead",
+              "Value": "0"
+            },
+            {
+              "Field": "isHitRumble",
+              "Value": "0"
+            },
+            {
+              "Field": "isSmoothTurn",
+              "Value": "1"
+            },
+            {
+              "Field": "isWeakE",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakF",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask16",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask17",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask18",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask19",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask20",
+              "Value": "1"
+            },
+            {
+              "Field": "modelDispMask21",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask22",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask23",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask24",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask25",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask26",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask27",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask28",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask29",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask30",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask31",
+              "Value": "0"
+            },
+            {
+              "Field": "itemSearchRadius",
+              "Value": "0"
+            },
+            {
+              "Field": "chrHitHeight",
+              "Value": "1.8"
+            },
+            {
+              "Field": "chrHitRadius",
+              "Value": "0.6"
+            },
+            {
+              "Field": "specialTurnType",
+              "Value": "1"
+            },
+            {
+              "Field": "isSoulGetByBoss",
+              "Value": "0"
+            },
+            {
+              "Field": "isBulletOwner_byObject",
+              "Value": "0"
+            },
+            {
+              "Field": "isUseLowHitFootIk",
+              "Value": "0"
+            },
+            {
+              "Field": "isCalculatePvPDamage",
+              "Value": "0"
+            },
+            {
+              "Field": "isHostSyncChr",
+              "Value": "0"
+            },
+            {
+              "Field": "isSkipWeakDamageAnim",
+              "Value": "0"
+            },
+            {
+              "Field": "isKeepHitOnRide",
+              "Value": "0"
+            },
+            {
+              "Field": "isSpCollide",
+              "Value": "0"
+            },
+            {
+              "Field": "def_dark",
+              "Value": "100"
+            },
+            {
+              "Field": "threatLv",
+              "Value": "0"
+            },
+            {
+              "Field": "specialTurnDistanceThreshold",
+              "Value": "4"
+            },
+            {
+              "Field": "autoFootEffectSfxId",
+              "Value": "1"
+            },
+            {
+              "Field": "materialSe1",
+              "Value": "109"
+            },
+            {
+              "Field": "materialSfx1",
+              "Value": "109"
+            },
+            {
+              "Field": "materialSe_Weak2",
+              "Value": "139"
+            },
+            {
+              "Field": "materialSfx_Weak2",
+              "Value": "139"
+            },
+            {
+              "Field": "materialSe2",
+              "Value": "139"
+            },
+            {
+              "Field": "materialSfx2",
+              "Value": "139"
+            },
+            {
+              "Field": "spEffectID8",
+              "Value": "90020"
+            },
+            {
+              "Field": "spEffectID9",
+              "Value": "90030"
+            },
+            {
+              "Field": "spEffectID10",
+              "Value": "90040"
+            },
+            {
+              "Field": "spEffectID11",
+              "Value": "90300"
+            },
+            {
+              "Field": "spEffectID12",
+              "Value": "90060"
+            },
+            {
+              "Field": "spEffectID13",
+              "Value": "90100"
+            },
+            {
+              "Field": "spEffectID14",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID15",
+              "Value": "-1"
+            },
+            {
+              "Field": "autoFootEffectDecalBaseId1",
+              "Value": "121"
+            },
+            {
+              "Field": "toughness",
+              "Value": "0"
+            },
+            {
+              "Field": "toughnessRecoverCorrection",
+              "Value": "0"
+            },
+            {
+              "Field": "neutralDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "slashDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "blowDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "thrustDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "magicDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "fireDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "thunderDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "darkDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "darkGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "clothUpdateOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "npcPlayerWeightType",
+              "Value": "0"
+            },
+            {
+              "Field": "normalChangeModelId",
+              "Value": "-1"
+            },
+            {
+              "Field": "normalChangeAnimChrId",
+              "Value": "8000"
+            },
+            {
+              "Field": "paintRenderTargetSize",
+              "Value": "256"
+            },
+            {
+              "Field": "resistCorrectId_disease",
+              "Value": "-1"
+            },
+            {
+              "Field": "phantomShaderId",
+              "Value": "-1"
+            },
+            {
+              "Field": "multiPlayCorrectionParamId",
+              "Value": "100"
+            },
+            {
+              "Field": "maxAnklePitchAngle",
+              "Value": "30"
+            },
+            {
+              "Field": "resist_freeze",
+              "Value": "999"
+            },
+            {
+              "Field": "freezeGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "hpBurnDamageRate",
+              "Value": "100"
+            },
+            {
+              "Field": "lockCameraParamId",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID16",
+              "Value": "6060"
+            },
+            {
+              "Field": "spEffectID17",
+              "Value": "182"
+            },
+            {
+              "Field": "spEffectID18",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID19",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID20",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID21",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID22",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID23",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID24",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID25",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID26",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID27",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID28",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID29",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID30",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID31",
+              "Value": "-1"
+            },
+            {
+              "Field": "disableLockOnAng",
+              "Value": "0"
+            },
+            {
+              "Field": "clothOffLodLevel",
+              "Value": "2"
+            },
+            {
+              "Field": "isUseFootIKNormalByUnduration",
+              "Value": "1"
+            },
+            {
+              "Field": "attachHitInitializeDead",
+              "Value": "0"
+            },
+            {
+              "Field": "excludeGroupRewardCheck",
+              "Value": "0"
+            },
+            {
+              "Field": "enableAILockDmyPoly_212",
+              "Value": "1"
+            },
+            {
+              "Field": "enableAILockDmyPoly_213",
+              "Value": "1"
+            },
+            {
+              "Field": "enableAILockDmyPoly_214",
+              "Value": "1"
+            },
+            {
+              "Field": "disableActivateOpen_xb1",
+              "Value": "0"
+            },
+            {
+              "Field": "disableActivateLegacy_xb1",
+              "Value": "0"
+            },
+            {
+              "Field": "estusFlaskRecoveryParamId",
+              "Value": "-1"
+            },
+            {
+              "Field": "roleNameId",
+              "Value": "-1"
+            },
+            {
+              "Field": "estusFlaskLotPoint",
+              "Value": "0"
+            },
+            {
+              "Field": "hpEstusFlaskLotPoint",
+              "Value": "0"
+            },
+            {
+              "Field": "mpEstusFlaskLotPoint",
+              "Value": "0"
+            },
+            {
+              "Field": "estusFlaskRecovery_failedLotPointAdd",
+              "Value": "0"
+            },
+            {
+              "Field": "hpEstusFlaskRecovery_failedLotPointAdd",
+              "Value": "0"
+            },
+            {
+              "Field": "mpEstusFlaskRecovery_failedLotPointAdd",
+              "Value": "0"
+            },
+            {
+              "Field": "WanderGhostPhantomId",
+              "Value": "-1"
+            },
+            {
+              "Field": "hearingHeadSize",
+              "Value": "-1"
+            },
+            {
+              "Field": "SoundBankId",
+              "Value": "8000"
+            },
+            {
+              "Field": "forwardUndulationLimit",
+              "Value": "50"
+            },
+            {
+              "Field": "sideUndulationLimit",
+              "Value": "0"
+            },
+            {
+              "Field": "deactiveMoveSpeed",
+              "Value": "0"
+            },
+            {
+              "Field": "deactiveMoveDist",
+              "Value": "180"
+            },
+            {
+              "Field": "enableSoundObjDist",
+              "Value": "-1"
+            },
+            {
+              "Field": "undulationCorrectGain",
+              "Value": "0.1"
+            },
+            {
+              "Field": "autoFootEffectDecalBaseId2",
+              "Value": "-1"
+            },
+            {
+              "Field": "autoFootEffectDecalBaseId3",
+              "Value": "-1"
+            },
+            {
+              "Field": "RetargetReferenceChrId",
+              "Value": "-1"
+            },
+            {
+              "Field": "SfxResBankId",
+              "Value": "-1"
+            },
+            {
+              "Field": "updateActivatePriolity",
+              "Value": "2.5"
+            },
+            {
+              "Field": "chrNavimeshFlag_Alive",
+              "Value": "0"
+            },
+            {
+              "Field": "chrNavimeshFlag_Dead",
+              "Value": "0"
+            },
+            {
+              "Field": "isConsideredUndead",
+              "Value": "0"
+            },
+            {
+              "Field": "wheelRotType",
+              "Value": "0"
+            },
+            {
+              "Field": "wheelRotRadius",
+              "Value": "0"
+            },
+            {
+              "Field": "retargetMoveRate",
+              "Value": "1"
+            },
+            {
+              "Field": "ladderWarpOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "loadAssetId",
+              "Value": "-1"
+            },
+            {
+              "Field": "overlapCameraDmypolyId",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId00",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId01",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId02",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId03",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId04",
+              "Value": "-1"
+            },
+            {
+              "Field": "sleepCollectorItemLotId_enemy",
+              "Value": "-1"
+            },
+            {
+              "Field": "sleepCollectorItemLotId_map",
+              "Value": "-1"
+            },
+            {
+              "Field": "footIkErrorOnGain",
+              "Value": "0.1"
+            },
+            {
+              "Field": "footIkErrorOffGain",
+              "Value": "0.4"
+            },
+            {
+              "Field": "SoundAddBankId",
+              "Value": "-1"
+            },
+            {
+              "Field": "materialVariationValue",
+              "Value": "0"
+            },
+            {
+              "Field": "materialVariationValue_Weak",
+              "Value": "0"
+            },
+            {
+              "Field": "superArmorDurability",
+              "Value": "-1"
+            },
+            {
+              "Field": "saRecoveryRate",
+              "Value": "0.29"
+            },
+            {
+              "Field": "saGuardCutRate",
+              "Value": "100"
+            },
+            {
+              "Field": "resistCorrectId_blood",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_curse",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_freeze",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_sleep",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_madness",
+              "Value": "-1"
+            },
+            {
+              "Field": "chrDeadTutorialFlagId",
+              "Value": "0"
+            },
+            {
+              "Field": "stepDispInterpolateTime",
+              "Value": "0.5"
+            },
+            {
+              "Field": "stepDispInterpolateTriggerValue",
+              "Value": "0.6"
+            },
+            {
+              "Field": "lockScoreOffset",
+              "Value": "-40"
+            },
+            {
+              "Field": "dlcGameClearSpEffectID",
+              "Value": "-1"
+            },
+            {
+              "Field": "pad12",
+              "Value": "[0|0|0|0]"
+            }
+          ],
+          "State": 0
+        },
+        {
+          "ID": 80050000,
+          "Index": 0,
+          "Name": "",
+          "Fields": [
+            {
+              "Field": "disableParam_NT",
+              "Value": "0"
+            },
+            {
+              "Field": "disableParamReserve1",
+              "Value": "0"
+            },
+            {
+              "Field": "disableParamReserve2",
+              "Value": "[0|0|0]"
+            },
+            {
+              "Field": "behaviorVariationId",
+              "Value": "80000"
+            },
+            {
+              "Field": "resistCorrectId_poison",
+              "Value": "-1"
+            },
+            {
+              "Field": "nameId",
+              "Value": "0"
+            },
+            {
+              "Field": "turnVellocity",
+              "Value": "180"
+            },
+            {
+              "Field": "hitHeight",
+              "Value": "1.8"
+            },
+            {
+              "Field": "hitRadius",
+              "Value": "0.6"
+            },
+            {
+              "Field": "weight",
+              "Value": "100"
+            },
+            {
+              "Field": "hitYOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "hp",
+              "Value": "1939"
+            },
+            {
+              "Field": "mp",
+              "Value": "0"
+            },
+            {
+              "Field": "getSoul",
+              "Value": "0"
+            },
+            {
+              "Field": "itemLotId_enemy",
+              "Value": "-1"
+            },
+            {
+              "Field": "itemLotId_map",
+              "Value": "-1"
+            },
+            {
+              "Field": "maxAnkleRollAngle",
+              "Value": "10"
+            },
+            {
+              "Field": "chrHitGroupAndNavimesh",
+              "Value": "4"
+            },
+            {
+              "Field": "faceIconId",
+              "Value": "0"
+            },
+            {
+              "Field": "deactivateDist",
+              "Value": "-1"
+            },
+            {
+              "Field": "chrActivateConditionParamId",
+              "Value": "0"
+            },
+            {
+              "Field": "footIkErrorHeightLimit",
+              "Value": "0.6"
+            },
+            {
+              "Field": "humanityLotId",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID0",
+              "Value": "5400"
+            },
+            {
+              "Field": "spEffectID1",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID2",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID3",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID4",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID5",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID6",
+              "Value": "90000"
+            },
+            {
+              "Field": "spEffectID7",
+              "Value": "90010"
+            },
+            {
+              "Field": "GameClearSpEffectID",
+              "Value": "7500"
+            },
+            {
+              "Field": "physGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "magGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "fireGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "thunGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "animIdOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "lockGazePoint0",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint1",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint2",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint3",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint4",
+              "Value": "-1"
+            },
+            {
+              "Field": "lockGazePoint5",
+              "Value": "-1"
+            },
+            {
+              "Field": "networkWarpDist",
+              "Value": "16"
+            },
+            {
+              "Field": "dbgBehaviorR1",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorL1",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorR2",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorL2",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRL",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRR",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRD",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorRU",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLL",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLR",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLD",
+              "Value": "-1"
+            },
+            {
+              "Field": "dbgBehaviorLU",
+              "Value": "-1"
+            },
+            {
+              "Field": "animIdOffset2",
+              "Value": "0"
+            },
+            {
+              "Field": "partsDamageRate1",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate2",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate3",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate4",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate5",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate6",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate7",
+              "Value": "1"
+            },
+            {
+              "Field": "partsDamageRate8",
+              "Value": "1"
+            },
+            {
+              "Field": "weakPartsDamageRate",
+              "Value": "1.5"
+            },
+            {
+              "Field": "superArmorRecoverCorrection",
+              "Value": "-1"
+            },
+            {
+              "Field": "superArmorBrakeKnockbackDist",
+              "Value": "0"
+            },
+            {
+              "Field": "stamina",
+              "Value": "50"
+            },
+            {
+              "Field": "staminaRecoverBaseVel",
+              "Value": "21"
+            },
+            {
+              "Field": "def_phys",
+              "Value": "100"
+            },
+            {
+              "Field": "def_slash",
+              "Value": "0"
+            },
+            {
+              "Field": "def_blow",
+              "Value": "0"
+            },
+            {
+              "Field": "def_thrust",
+              "Value": "0"
+            },
+            {
+              "Field": "def_mag",
+              "Value": "100"
+            },
+            {
+              "Field": "def_fire",
+              "Value": "100"
+            },
+            {
+              "Field": "def_thunder",
+              "Value": "100"
+            },
+            {
+              "Field": "defFlickPower",
+              "Value": "0"
+            },
+            {
+              "Field": "resist_poison",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_desease",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_blood",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_curse",
+              "Value": "999"
+            },
+            {
+              "Field": "ghostModelId",
+              "Value": "-1"
+            },
+            {
+              "Field": "normalChangeResouceId",
+              "Value": "-1"
+            },
+            {
+              "Field": "guardAngle",
+              "Value": "0"
+            },
+            {
+              "Field": "slashGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "blowGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "thrustGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "lockGazePoint6",
+              "Value": "-1"
+            },
+            {
+              "Field": "normalChangeTexChrId",
+              "Value": "-1"
+            },
+            {
+              "Field": "dropType",
+              "Value": "0"
+            },
+            {
+              "Field": "knockbackRate",
+              "Value": "0"
+            },
+            {
+              "Field": "knockbackParamId",
+              "Value": "0"
+            },
+            {
+              "Field": "fallDamageDump",
+              "Value": "0"
+            },
+            {
+              "Field": "staminaGuardDef",
+              "Value": "0"
+            },
+            {
+              "Field": "resist_sleep",
+              "Value": "999"
+            },
+            {
+              "Field": "resist_madness",
+              "Value": "999"
+            },
+            {
+              "Field": "sleepGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "madnessGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "lockGazePoint7",
+              "Value": "-1"
+            },
+            {
+              "Field": "mpRecoverBaseVel",
+              "Value": "10"
+            },
+            {
+              "Field": "flickDamageCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "defaultLodParamId",
+              "Value": "11"
+            },
+            {
+              "Field": "drawType",
+              "Value": "0"
+            },
+            {
+              "Field": "npcType",
+              "Value": "0"
+            },
+            {
+              "Field": "teamType",
+              "Value": "10"
+            },
+            {
+              "Field": "moveType",
+              "Value": "4"
+            },
+            {
+              "Field": "lockDist",
+              "Value": "0"
+            },
+            {
+              "Field": "materialSe_Weak1",
+              "Value": "110"
+            },
+            {
+              "Field": "materialSfx_Weak1",
+              "Value": "110"
+            },
+            {
+              "Field": "partsDamageType",
+              "Value": "0"
+            },
+            {
+              "Field": "vowType",
+              "Value": "0"
+            },
+            {
+              "Field": "guardLevel",
+              "Value": "0"
+            },
+            {
+              "Field": "burnSfxType",
+              "Value": "0"
+            },
+            {
+              "Field": "poisonGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "diseaseGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "bloodGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "curseGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "parryAttack",
+              "Value": "0"
+            },
+            {
+              "Field": "parryDefence",
+              "Value": "0"
+            },
+            {
+              "Field": "sfxSize",
+              "Value": "0"
+            },
+            {
+              "Field": "pushOutCamRegionRadius",
+              "Value": "0"
+            },
+            {
+              "Field": "hitStopType",
+              "Value": "0"
+            },
+            {
+              "Field": "ladderEndChkOffsetTop",
+              "Value": "17"
+            },
+            {
+              "Field": "ladderEndChkOffsetLow",
+              "Value": "7"
+            },
+            {
+              "Field": "useRagdollCamHit",
+              "Value": "0"
+            },
+            {
+              "Field": "disableClothRigidHit",
+              "Value": "0"
+            },
+            {
+              "Field": "useUndulationAddAnimFB",
+              "Value": "1"
+            },
+            {
+              "Field": "isWeakA",
+              "Value": "0"
+            },
+            {
+              "Field": "isGhost",
+              "Value": "0"
+            },
+            {
+              "Field": "isNoDamageMotion",
+              "Value": "0"
+            },
+            {
+              "Field": "isUnduration",
+              "Value": "1"
+            },
+            {
+              "Field": "isChangeWanderGhost",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask0",
+              "Value": "1"
+            },
+            {
+              "Field": "modelDispMask1",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask2",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask3",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask4",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask5",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask6",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask7",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask8",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask9",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask10",
+              "Value": "1"
+            },
+            {
+              "Field": "modelDispMask11",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask12",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask13",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask14",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask15",
+              "Value": "0"
+            },
+            {
+              "Field": "isEnableNeckTurn",
+              "Value": "0"
+            },
+            {
+              "Field": "disableRespawn",
+              "Value": "0"
+            },
+            {
+              "Field": "isMoveAnimWait",
+              "Value": "0"
+            },
+            {
+              "Field": "isCrowd",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakB",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakC",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakD",
+              "Value": "0"
+            },
+            {
+              "Field": "doesAlwaysUseSpecialTurn",
+              "Value": "0"
+            },
+            {
+              "Field": "isRideAtkTarget",
+              "Value": "1"
+            },
+            {
+              "Field": "isEnableStepDispInterpolate",
+              "Value": "0"
+            },
+            {
+              "Field": "isStealthTarget",
+              "Value": "1"
+            },
+            {
+              "Field": "disableInitializeDead",
+              "Value": "0"
+            },
+            {
+              "Field": "isHitRumble",
+              "Value": "0"
+            },
+            {
+              "Field": "isSmoothTurn",
+              "Value": "1"
+            },
+            {
+              "Field": "isWeakE",
+              "Value": "0"
+            },
+            {
+              "Field": "isWeakF",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask16",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask17",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask18",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask19",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask20",
+              "Value": "1"
+            },
+            {
+              "Field": "modelDispMask21",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask22",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask23",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask24",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask25",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask26",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask27",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask28",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask29",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask30",
+              "Value": "0"
+            },
+            {
+              "Field": "modelDispMask31",
+              "Value": "0"
+            },
+            {
+              "Field": "itemSearchRadius",
+              "Value": "0"
+            },
+            {
+              "Field": "chrHitHeight",
+              "Value": "1.8"
+            },
+            {
+              "Field": "chrHitRadius",
+              "Value": "0.6"
+            },
+            {
+              "Field": "specialTurnType",
+              "Value": "1"
+            },
+            {
+              "Field": "isSoulGetByBoss",
+              "Value": "0"
+            },
+            {
+              "Field": "isBulletOwner_byObject",
+              "Value": "0"
+            },
+            {
+              "Field": "isUseLowHitFootIk",
+              "Value": "0"
+            },
+            {
+              "Field": "isCalculatePvPDamage",
+              "Value": "0"
+            },
+            {
+              "Field": "isHostSyncChr",
+              "Value": "0"
+            },
+            {
+              "Field": "isSkipWeakDamageAnim",
+              "Value": "0"
+            },
+            {
+              "Field": "isKeepHitOnRide",
+              "Value": "0"
+            },
+            {
+              "Field": "isSpCollide",
+              "Value": "0"
+            },
+            {
+              "Field": "def_dark",
+              "Value": "100"
+            },
+            {
+              "Field": "threatLv",
+              "Value": "0"
+            },
+            {
+              "Field": "specialTurnDistanceThreshold",
+              "Value": "4"
+            },
+            {
+              "Field": "autoFootEffectSfxId",
+              "Value": "1"
+            },
+            {
+              "Field": "materialSe1",
+              "Value": "109"
+            },
+            {
+              "Field": "materialSfx1",
+              "Value": "109"
+            },
+            {
+              "Field": "materialSe_Weak2",
+              "Value": "139"
+            },
+            {
+              "Field": "materialSfx_Weak2",
+              "Value": "139"
+            },
+            {
+              "Field": "materialSe2",
+              "Value": "139"
+            },
+            {
+              "Field": "materialSfx2",
+              "Value": "139"
+            },
+            {
+              "Field": "spEffectID8",
+              "Value": "90020"
+            },
+            {
+              "Field": "spEffectID9",
+              "Value": "90030"
+            },
+            {
+              "Field": "spEffectID10",
+              "Value": "90040"
+            },
+            {
+              "Field": "spEffectID11",
+              "Value": "90300"
+            },
+            {
+              "Field": "spEffectID12",
+              "Value": "90060"
+            },
+            {
+              "Field": "spEffectID13",
+              "Value": "90100"
+            },
+            {
+              "Field": "spEffectID14",
+              "Value": "0"
+            },
+            {
+              "Field": "spEffectID15",
+              "Value": "-1"
+            },
+            {
+              "Field": "autoFootEffectDecalBaseId1",
+              "Value": "121"
+            },
+            {
+              "Field": "toughness",
+              "Value": "0"
+            },
+            {
+              "Field": "toughnessRecoverCorrection",
+              "Value": "0"
+            },
+            {
+              "Field": "neutralDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "slashDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "blowDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "thrustDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "magicDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "fireDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "thunderDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "darkDamageCutRate",
+              "Value": "1"
+            },
+            {
+              "Field": "darkGuardCutRate",
+              "Value": "0"
+            },
+            {
+              "Field": "clothUpdateOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "npcPlayerWeightType",
+              "Value": "0"
+            },
+            {
+              "Field": "normalChangeModelId",
+              "Value": "-1"
+            },
+            {
+              "Field": "normalChangeAnimChrId",
+              "Value": "8000"
+            },
+            {
+              "Field": "paintRenderTargetSize",
+              "Value": "256"
+            },
+            {
+              "Field": "resistCorrectId_disease",
+              "Value": "-1"
+            },
+            {
+              "Field": "phantomShaderId",
+              "Value": "-1"
+            },
+            {
+              "Field": "multiPlayCorrectionParamId",
+              "Value": "100"
+            },
+            {
+              "Field": "maxAnklePitchAngle",
+              "Value": "30"
+            },
+            {
+              "Field": "resist_freeze",
+              "Value": "999"
+            },
+            {
+              "Field": "freezeGuardResist",
+              "Value": "0"
+            },
+            {
+              "Field": "hpBurnDamageRate",
+              "Value": "100"
+            },
+            {
+              "Field": "lockCameraParamId",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID16",
+              "Value": "6060"
+            },
+            {
+              "Field": "spEffectID17",
+              "Value": "182"
+            },
+            {
+              "Field": "spEffectID18",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID19",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID20",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID21",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID22",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID23",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID24",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID25",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID26",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID27",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID28",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID29",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID30",
+              "Value": "-1"
+            },
+            {
+              "Field": "spEffectID31",
+              "Value": "-1"
+            },
+            {
+              "Field": "disableLockOnAng",
+              "Value": "0"
+            },
+            {
+              "Field": "clothOffLodLevel",
+              "Value": "2"
+            },
+            {
+              "Field": "isUseFootIKNormalByUnduration",
+              "Value": "1"
+            },
+            {
+              "Field": "attachHitInitializeDead",
+              "Value": "0"
+            },
+            {
+              "Field": "excludeGroupRewardCheck",
+              "Value": "0"
+            },
+            {
+              "Field": "enableAILockDmyPoly_212",
+              "Value": "1"
+            },
+            {
+              "Field": "enableAILockDmyPoly_213",
+              "Value": "1"
+            },
+            {
+              "Field": "enableAILockDmyPoly_214",
+              "Value": "1"
+            },
+            {
+              "Field": "disableActivateOpen_xb1",
+              "Value": "0"
+            },
+            {
+              "Field": "disableActivateLegacy_xb1",
+              "Value": "0"
+            },
+            {
+              "Field": "estusFlaskRecoveryParamId",
+              "Value": "-1"
+            },
+            {
+              "Field": "roleNameId",
+              "Value": "-1"
+            },
+            {
+              "Field": "estusFlaskLotPoint",
+              "Value": "0"
+            },
+            {
+              "Field": "hpEstusFlaskLotPoint",
+              "Value": "0"
+            },
+            {
+              "Field": "mpEstusFlaskLotPoint",
+              "Value": "0"
+            },
+            {
+              "Field": "estusFlaskRecovery_failedLotPointAdd",
+              "Value": "0"
+            },
+            {
+              "Field": "hpEstusFlaskRecovery_failedLotPointAdd",
+              "Value": "0"
+            },
+            {
+              "Field": "mpEstusFlaskRecovery_failedLotPointAdd",
+              "Value": "0"
+            },
+            {
+              "Field": "WanderGhostPhantomId",
+              "Value": "-1"
+            },
+            {
+              "Field": "hearingHeadSize",
+              "Value": "-1"
+            },
+            {
+              "Field": "SoundBankId",
+              "Value": "8000"
+            },
+            {
+              "Field": "forwardUndulationLimit",
+              "Value": "50"
+            },
+            {
+              "Field": "sideUndulationLimit",
+              "Value": "0"
+            },
+            {
+              "Field": "deactiveMoveSpeed",
+              "Value": "0"
+            },
+            {
+              "Field": "deactiveMoveDist",
+              "Value": "180"
+            },
+            {
+              "Field": "enableSoundObjDist",
+              "Value": "-1"
+            },
+            {
+              "Field": "undulationCorrectGain",
+              "Value": "0.1"
+            },
+            {
+              "Field": "autoFootEffectDecalBaseId2",
+              "Value": "-1"
+            },
+            {
+              "Field": "autoFootEffectDecalBaseId3",
+              "Value": "-1"
+            },
+            {
+              "Field": "RetargetReferenceChrId",
+              "Value": "-1"
+            },
+            {
+              "Field": "SfxResBankId",
+              "Value": "-1"
+            },
+            {
+              "Field": "updateActivatePriolity",
+              "Value": "2.5"
+            },
+            {
+              "Field": "chrNavimeshFlag_Alive",
+              "Value": "0"
+            },
+            {
+              "Field": "chrNavimeshFlag_Dead",
+              "Value": "0"
+            },
+            {
+              "Field": "isConsideredUndead",
+              "Value": "0"
+            },
+            {
+              "Field": "wheelRotType",
+              "Value": "0"
+            },
+            {
+              "Field": "wheelRotRadius",
+              "Value": "0"
+            },
+            {
+              "Field": "retargetMoveRate",
+              "Value": "1"
+            },
+            {
+              "Field": "ladderWarpOffset",
+              "Value": "0"
+            },
+            {
+              "Field": "loadAssetId",
+              "Value": "-1"
+            },
+            {
+              "Field": "overlapCameraDmypolyId",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId00",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId01",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId02",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId03",
+              "Value": "-1"
+            },
+            {
+              "Field": "residentMaterialExParamId04",
+              "Value": "-1"
+            },
+            {
+              "Field": "sleepCollectorItemLotId_enemy",
+              "Value": "-1"
+            },
+            {
+              "Field": "sleepCollectorItemLotId_map",
+              "Value": "-1"
+            },
+            {
+              "Field": "footIkErrorOnGain",
+              "Value": "0.1"
+            },
+            {
+              "Field": "footIkErrorOffGain",
+              "Value": "0.4"
+            },
+            {
+              "Field": "SoundAddBankId",
+              "Value": "-1"
+            },
+            {
+              "Field": "materialVariationValue",
+              "Value": "0"
+            },
+            {
+              "Field": "materialVariationValue_Weak",
+              "Value": "0"
+            },
+            {
+              "Field": "superArmorDurability",
+              "Value": "-1"
+            },
+            {
+              "Field": "saRecoveryRate",
+              "Value": "0.29"
+            },
+            {
+              "Field": "saGuardCutRate",
+              "Value": "100"
+            },
+            {
+              "Field": "resistCorrectId_blood",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_curse",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_freeze",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_sleep",
+              "Value": "-1"
+            },
+            {
+              "Field": "resistCorrectId_madness",
+              "Value": "-1"
+            },
+            {
+              "Field": "chrDeadTutorialFlagId",
+              "Value": "0"
+            },
+            {
+              "Field": "stepDispInterpolateTime",
+              "Value": "0.5"
+            },
+            {
+              "Field": "stepDispInterpolateTriggerValue",
+              "Value": "0.6"
+            },
+            {
+              "Field": "lockScoreOffset",
+              "Value": "-40"
+            },
+            {
+              "Field": "dlcGameClearSpEffectID",
+              "Value": "-1"
+            },
+            {
+              "Field": "pad12",
+              "Value": "[0|0|0|0]"
+            }
+          ],
+          "State": 0
+        }
+      ]
     }
   ]
 }
