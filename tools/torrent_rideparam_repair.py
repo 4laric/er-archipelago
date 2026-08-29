@@ -7,6 +7,7 @@ row IDs that a whole-regulation typed round trip would collapse.
 """
 from __future__ import annotations
 
+import argparse
 import datetime
 import hashlib
 import shutil
@@ -327,3 +328,24 @@ def repair_regulation(regulation_path: Path) -> tuple[str, Path | None]:
             if staged.exists():
                 staged.unlink()
         return "missing", backup
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--regulation", required=True, type=Path)
+    args = parser.parse_args(argv)
+    try:
+        state, backup = repair_regulation(args.regulation)
+    except TorrentRepairError as exc:
+        print("REFUSED: %s" % exc, file=sys.stderr)
+        return 1
+    if state == "current":
+        print("Already current: all Elden Ring 1.17 Torrent rows are present")
+        return 2
+    print("Patched Elden Ring 1.17 Spectral Steed RideParam/NpcParam rows")
+    print("  backup: %s" % backup)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
