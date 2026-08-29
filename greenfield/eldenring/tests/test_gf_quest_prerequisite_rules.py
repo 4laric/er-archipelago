@@ -8,6 +8,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 from BaseClasses import ItemClassification  # noqa: E402
 from worlds.eldenring.features.quest_prerequisite_rules import (  # noqa: E402
+    REVIEWED_ITEM_PREREQUISITES,
     REVIEWED_PREREQUISITES,
     _AP_IDS_BY_FLAG,
 )
@@ -19,7 +20,8 @@ class QuestPrerequisitePlacementRules(WorldTestBase):
 
     def test_every_reviewed_pair_rejects_the_same_player_prerequisite(self):
         locations = {loc.address: loc for loc in self.multiworld.get_locations(self.player)}
-        for _source_flag, target_flag, item_name in REVIEWED_PREREQUISITES:
+        reviewed = REVIEWED_PREREQUISITES + REVIEWED_ITEM_PREREQUISITES
+        for _source, target_flag, item_name in reviewed:
             targets = _AP_IDS_BY_FLAG.get(target_flag, set())
             self.assertTrue(targets, f"dependent flag {target_flag} has no generated AP location")
             item = self.world.create_item(item_name)
@@ -39,7 +41,8 @@ class QuestPrerequisitePlacementRules(WorldTestBase):
 
     def test_items_remain_filler_and_unrelated_filler_still_fits(self):
         locations = {loc.address: loc for loc in self.multiworld.get_locations(self.player)}
-        for _source_flag, target_flag, item_name in REVIEWED_PREREQUISITES:
+        reviewed = REVIEWED_PREREQUISITES + REVIEWED_ITEM_PREREQUISITES
+        for _source, target_flag, item_name in reviewed:
             self.assertEqual(self.world.create_item(item_name).classification,
                              ItemClassification.filler, item_name)
             for ap_id in _AP_IDS_BY_FLAG[target_flag]:
@@ -64,3 +67,5 @@ def test_reviewed_pairs_are_backed_by_typed_questline_evidence():
     }
     for source_flag, target_flag, _item_name in REVIEWED_PREREQUISITES:
         assert (f"flag:{source_flag}", f"flag:{target_flag}") in evidence
+    for goods_row, target_flag, _item_name in REVIEWED_ITEM_PREREQUISITES:
+        assert (f"goods:{goods_row}", f"flag:{target_flag}") in evidence

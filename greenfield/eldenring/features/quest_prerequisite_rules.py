@@ -23,6 +23,13 @@ REVIEWED_PREREQUISITES = (
     (114, 400393, "Dark Moon Ring"),
 )
 
+# (goods row, dependent flag, item name).  These are stronger than the flag-to-flag edges above:
+# the path-sensitive ESD slice reaches the inventory test/consumption itself.  Keep them separate so
+# the evidence test cannot accidentally pretend that an item-possession root was a source-check flag.
+REVIEWED_ITEM_PREREQUISITES = (
+    (8975, 400311, "Unalloyed Gold Needle"),
+)
+
 
 _AP_IDS_BY_FLAG = {}
 for _rows in LOCATIONS.values():
@@ -37,6 +44,9 @@ class QuestPrerequisiteRules(Feature):
     def set_rules(self, world) -> None:
         barred_by_ap = {}
         for _source_flag, target_flag, item_name in REVIEWED_PREREQUISITES:
+            for ap_id in _AP_IDS_BY_FLAG.get(target_flag, ()):
+                barred_by_ap.setdefault(ap_id, set()).add(item_name)
+        for _goods_row, target_flag, item_name in REVIEWED_ITEM_PREREQUISITES:
             for ap_id in _AP_IDS_BY_FLAG.get(target_flag, ()):
                 barred_by_ap.setdefault(ap_id, set()).add(item_name)
 
