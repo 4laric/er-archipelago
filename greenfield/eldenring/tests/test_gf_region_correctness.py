@@ -481,6 +481,15 @@ class RegionCorrectness(unittest.TestCase):
             str(len(overlap)) + " flag(s) present in BOTH data.LOCATIONS and data.NOT_RANDOMIZED "
             "(ledger lies about a live check; regen: " + self.REGEN_CMD + "): " + repr(overlap[:10]))
 
+    def test_unused_neutralizing_boluses_award_is_ledgered(self):
+        """f400020 is a real lot row behind a dead ESD branch, not an obtainable check (#1111)."""
+        nr = self._not_randomized()
+        self.assertIn(400020, nr,
+                      "dead Neutralizing Boluses award f400020 escaped the NOT_RANDOMIZED ledger")
+        self.assertTrue(nr[400020].startswith("unused_esd_award:"), nr[400020])
+        self.assertNotIn(400020, self.assigned,
+                         "dead Neutralizing Boluses award f400020 is still an emitted location")
+
     def test_shunning_grounds_is_leyndell(self):
         """Subterranean Shunning-Grounds (m35_00) is LEYNDELL since the 2026-08-20 merge (bucket
         35000 joined Leyndell's group; region-spine v2 had carved it out as 'Sewer'). Keyed on the

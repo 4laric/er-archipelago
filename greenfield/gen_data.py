@@ -1516,6 +1516,12 @@ _GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
 # could strand a progression item on it. You always have Torrent now, so the check earns nothing.
 # Excluded as a start-grant non-check, same class as 60000 (Flask). (Alaric 2026-07-11.)
 _MISC_NON_CHECK = frozenset({60000, 60100, 60210, 590000, 550200, 550250})  # 60000 = Flask of Crimson Tears: the core healing flask (tutorial grant) whose flag fires in m10_00 Stormveil EMEVD -> mis-pinned to Stormveil AND surfaced as a phantom check (in-game 2026-07-10); same class as 60210 Wizened Finger. (The 60020 Flask of Wondrous Physick @ Third Church is a REAL treasure -> kept.) 590000 = empty-item Stormveil check; 60210 Wizened Finger; 550200/550250 = "About ..." tutorial-message popups (not loot, same class as 9100-9125)
+# 400020 = Neutralizing Boluses, lot 100200. The only award site in the complete 2026-08-29
+# ESD/EMEVD corpus is t304001000_x43. Its caller x40 requires f10009335, but that flag has no
+# setter or default anywhere in the ESD, EMEVD, or parameter inputs (the x40 read is its sole
+# occurrence). The branch is therefore dead in shipped game data; leaving its lot-param row as a
+# check creates an unobtainable Stormveil location. Keep the vanilla row, but do not randomize it.
+_UNUSED_ESD_AWARDS = frozenset({400020})
 # ---- THE FINALE (2026-07-14; supersedes the 2026-07-08 "ashen dead" blanket) ---------------------
 # The old _ASHEN_DEAD_FLAGS blanket called the post-Erdtree-burn content "unreachable in a
 # region-lock game". That was a CONDITIONAL truth wearing a blanket exclusion: the Ashen Capital is
@@ -2056,7 +2062,8 @@ if not _ENIA_SHOP_FLAGS:
 print(f"enia: {len(_ENIA_SHOP_FLAGS)} stock flag(s) excluded from randomization -- her shop is vanilla")
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
-                | _SHEET_DROPS | _RADA_WORLDLESS | _WORLDLESS_SINGLES | _ENIA_SHOP_FLAGS)
+                | _SHEET_DROPS | _RADA_WORLDLESS | _WORLDLESS_SINGLES | _ENIA_SHOP_FLAGS
+                | _UNUSED_ESD_AWARDS)
 # Per-flag progression_surface exclusion (Alaric, 2026-07-17): checks that CARRY a surface tag but must
 # NOT host this world's progression (kept as ordinary checks; barred like DEFAULTED_REGION_APS). Emitted
 # as SURFACE_EXCLUDE_APS into location_tags.py, unioned into features/progression_surface barred set.
@@ -5939,6 +5946,10 @@ _NR_RULES = (
     (lambda _fl, _r: _fl in _MISC_NON_CHECK,
      "misc_non_check: tutorial/system grant or empty lot (Flask, Torrent's whistle, Wizened "
      "Finger, 'About...' popups) -- not loot, never a check"),
+    (lambda _fl, _r: _fl in _UNUSED_ESD_AWARDS,
+     "unused_esd_award: award branch is unreachable in shipped game data -- Neutralizing Boluses "
+     "lot 100200 requires f10009335, whose only corpus occurrence is that guard read; no ESD, "
+     "EMEVD, or parameter source sets/defaults it (world#1111)"),
     (lambda _fl, _r: _fl in _RECOVER_PHANTOM_DUPES,
      "recover_phantom_dupe: unplaced global flag naming a unique key item already fully placed "
      "elsewhere; recovering it would duplicate a singleton key"),
@@ -5984,7 +5995,7 @@ _nr_unexplained = EXCLUDE_FLAGS - (MAP_REVEAL_FLAGS | MINIBAKER_VENDOR_FLAGS | f
                                    | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                                    | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD
                                    | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS | _RADA_WORLDLESS
-                                   | _WORLDLESS_SINGLES | _ENIA_SHOP_FLAGS)
+                                   | _WORLDLESS_SINGLES | _ENIA_SHOP_FLAGS | _UNUSED_ESD_AWARDS)
 if _nr_unexplained:
     raise SystemExit("FATAL: EXCLUDE_FLAGS member(s) %r have no NOT_RANDOMIZED ledger rule -- add "
                      "the new exclusion to _NR_RULES (gen_data) so deliberate absence stays "
