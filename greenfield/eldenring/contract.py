@@ -1710,7 +1710,7 @@ mod nested_grants_tests {
 # forget; a derived one cannot go stale. (Same doctrine as the gen-input stamp.)
 import hashlib as _hashlib
 
-APWORLD_VERSION = "0.5.2"
+APWORLD_VERSION = "0.5.3"
 
 def _contract_hash() -> str:
     _mat = "\n".join(

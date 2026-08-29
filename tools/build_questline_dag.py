@@ -216,6 +216,7 @@ import importlib.util
 import os
 import re
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -228,6 +229,26 @@ COLUMNS = ["source_flag", "target_flag", "sense", "evidence", "tool",
            "basis", "alt_group", "group_semantics", "source_kind", "source_region",
            "source_locator",
            "target_region", "cross_region", "target_ap_id", "target_name"]
+
+
+def _write_atomic(path, text):
+    """Replace *path* without opening or partially truncating the destination."""
+    fd, temporary = tempfile.mkstemp(
+        dir=os.path.dirname(path),
+        prefix=".%s." % os.path.basename(path),
+        suffix=".tmp",
+        text=True,
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(text)
+        os.replace(temporary, path)
+    except BaseException:
+        try:
+            os.unlink(temporary)
+        except FileNotFoundError:
+            pass
+        raise
 
 
 # ---- polarity table -----------------------------------------------------------------------------
@@ -1220,8 +1241,7 @@ def main(argv=None):
             return 1
         print("--check: committed table matches a fresh emit")
         return 0
-    with open(OUT, "w", encoding="utf-8", newline="\n") as fh:
-        fh.write(text)
+    _write_atomic(OUT, text)
     print("wrote %s (%d edges)" % (os.path.relpath(OUT, ROOT), len(edges)))
     return 0
 
