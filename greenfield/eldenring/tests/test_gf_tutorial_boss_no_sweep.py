@@ -795,6 +795,10 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # freshly regenerated 125cb747 corpus: 188 removed / 187 added / 187 flags re-owned. Exactly
     # one flag leaves the owned set (f400020), none enters it, and ZERO re-owns cross a region.
     # The otherwise-large churn is the documented positional-id deletion / round-robin re-phase.
-    assert (digest, n) == ("a1b74b51eb1f69da", 4104), (  # #1111: -1 dead ESD award
-        "sweep OWNERSHIP changed: (%s, %d), expected (a1b74b51eb1f69da, 4104). The total alone will "
+    # 2026-08-29 (#1075): a1b74b51eb1f69da/4104 -> 28555aa6e1d28273/4104. Exactly two pairs
+    # were removed and two added: f1047517010 and f1047517300 move from Altus trigger 1045520800
+    # to Mountaintops trigger 1048510800 with their corrected check region. No flag gained or lost
+    # an owner; these are the two intended region crossings and no others.
+    assert (digest, n) == ("28555aa6e1d28273", 4104), (  # #1075: 2 intended re-homes
+        "sweep OWNERSHIP changed: (%s, %d), expected (28555aa6e1d28273, 4104). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
