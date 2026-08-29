@@ -117,6 +117,13 @@ if (Test-Path $readme) {
     Write-Warning "  release\CLIENT-BUNDLE-README.md missing -- bundle ships with no instructions"
 }
 
+foreach ($repairFile in @("TARNISHED-TORRENT-REPAIR.md", "tarnished-torrent-rideparam-1.17.json")) {
+    $repairSource = Join-Path $Repo "release\$repairFile"
+    if (-not (Test-Path $repairSource)) { throw "Torrent repair asset missing: $repairSource" }
+    Copy-Item $repairSource (Join-Path $bundle $repairFile) -Force
+    Write-Host "  $repairFile"
+}
+
 $zip = Join-Path $OutDir "$name.zip"
 if (Test-Path $zip) { Remove-Item $zip -Force }
 Compress-Archive -Path (Join-Path $bundle "*") -DestinationPath $zip

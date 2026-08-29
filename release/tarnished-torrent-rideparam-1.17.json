@@ -1,0 +1,268 @@
+{
+  "ProjectType": 8,
+  "ParamVersion": 11700000,
+  "Tag": "ER Archipelago - Tarnished Edition compatibility",
+  "Params": [
+    {
+      "Name": "RideParam",
+      "Rows": [
+        {
+          "ID": 80020,
+          "Index": 0,
+          "Name": "",
+          "Fields": [
+            {
+              "Field": "atkChrId",
+              "Value": "0"
+            },
+            {
+              "Field": "defChrId",
+              "Value": "8002"
+            },
+            {
+              "Field": "rideCamParamId",
+              "Value": "3010"
+            },
+            {
+              "Field": "atkChrAnimId",
+              "Value": "0"
+            },
+            {
+              "Field": "defChrAnimId",
+              "Value": "0"
+            },
+            {
+              "Field": "defAdjustDmyId",
+              "Value": "900"
+            },
+            {
+              "Field": "defCheckDmyId",
+              "Value": "-1"
+            },
+            {
+              "Field": "diffAngMyToDef",
+              "Value": "180"
+            },
+            {
+              "Field": "dist",
+              "Value": "5"
+            },
+            {
+              "Field": "upperYRange",
+              "Value": "5"
+            },
+            {
+              "Field": "lowerYRange",
+              "Value": "5"
+            },
+            {
+              "Field": "diffAngMin",
+              "Value": "-180"
+            },
+            {
+              "Field": "diffAngMax",
+              "Value": "180"
+            },
+            {
+              "Field": "pad",
+              "Value": "[0|0|0|0|0|0|0|0|0|0|0|0]"
+            }
+          ],
+          "State": 0
+        },
+        {
+          "ID": 80030,
+          "Index": 0,
+          "Name": "",
+          "Fields": [
+            {
+              "Field": "atkChrId",
+              "Value": "0"
+            },
+            {
+              "Field": "defChrId",
+              "Value": "8003"
+            },
+            {
+              "Field": "rideCamParamId",
+              "Value": "3010"
+            },
+            {
+              "Field": "atkChrAnimId",
+              "Value": "0"
+            },
+            {
+              "Field": "defChrAnimId",
+              "Value": "0"
+            },
+            {
+              "Field": "defAdjustDmyId",
+              "Value": "900"
+            },
+            {
+              "Field": "defCheckDmyId",
+              "Value": "-1"
+            },
+            {
+              "Field": "diffAngMyToDef",
+              "Value": "180"
+            },
+            {
+              "Field": "dist",
+              "Value": "5"
+            },
+            {
+              "Field": "upperYRange",
+              "Value": "5"
+            },
+            {
+              "Field": "lowerYRange",
+              "Value": "5"
+            },
+            {
+              "Field": "diffAngMin",
+              "Value": "-180"
+            },
+            {
+              "Field": "diffAngMax",
+              "Value": "180"
+            },
+            {
+              "Field": "pad",
+              "Value": "[0|0|0|0|0|0|0|0|0|0|0|0]"
+            }
+          ],
+          "State": 0
+        },
+        {
+          "ID": 80040,
+          "Index": 0,
+          "Name": "",
+          "Fields": [
+            {
+              "Field": "atkChrId",
+              "Value": "0"
+            },
+            {
+              "Field": "defChrId",
+              "Value": "8004"
+            },
+            {
+              "Field": "rideCamParamId",
+              "Value": "3010"
+            },
+            {
+              "Field": "atkChrAnimId",
+              "Value": "0"
+            },
+            {
+              "Field": "defChrAnimId",
+              "Value": "0"
+            },
+            {
+              "Field": "defAdjustDmyId",
+              "Value": "900"
+            },
+            {
+              "Field": "defCheckDmyId",
+              "Value": "-1"
+            },
+            {
+              "Field": "diffAngMyToDef",
+              "Value": "180"
+            },
+            {
+              "Field": "dist",
+              "Value": "5"
+            },
+            {
+              "Field": "upperYRange",
+              "Value": "5"
+            },
+            {
+              "Field": "lowerYRange",
+              "Value": "5"
+            },
+            {
+              "Field": "diffAngMin",
+              "Value": "-180"
+            },
+            {
+              "Field": "diffAngMax",
+              "Value": "180"
+            },
+            {
+              "Field": "pad",
+              "Value": "[0|0|0|0|0|0|0|0|0|0|0|0]"
+            }
+          ],
+          "State": 0
+        },
+        {
+          "ID": 80050,
+          "Index": 0,
+          "Name": "",
+          "Fields": [
+            {
+              "Field": "atkChrId",
+              "Value": "0"
+            },
+            {
+              "Field": "defChrId",
+              "Value": "8005"
+            },
+            {
+              "Field": "rideCamParamId",
+              "Value": "3010"
+            },
+            {
+              "Field": "atkChrAnimId",
+              "Value": "0"
+            },
+            {
+              "Field": "defChrAnimId",
+              "Value": "0"
+            },
+            {
+              "Field": "defAdjustDmyId",
+              "Value": "900"
+            },
+            {
+              "Field": "defCheckDmyId",
+              "Value": "-1"
+            },
+            {
+              "Field": "diffAngMyToDef",
+              "Value": "180"
+            },
+            {
+              "Field": "dist",
+              "Value": "5"
+            },
+            {
+              "Field": "upperYRange",
+              "Value": "5"
+            },
+            {
+              "Field": "lowerYRange",
+              "Value": "5"
+            },
+            {
+              "Field": "diffAngMin",
+              "Value": "-180"
+            },
+            {
+              "Field": "diffAngMax",
+              "Value": "180"
+            },
+            {
+              "Field": "pad",
+              "Value": "[0|0|0|0|0|0|0|0|0|0|0|0]"
+            }
+          ],
+          "State": 0
+        }
+      ]
+    }
+  ]
+}
