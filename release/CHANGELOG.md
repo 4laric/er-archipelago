@@ -20,6 +20,9 @@ unchanged, but the exact-version handshake moves to 0.5.3. Client half: clients#
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part
 of the release).
 
+- **Thirteen Seethewater/Campsite checks now belong to Mt. Gelmir (#1076).** Their warp anchors
+  stand on Mt. Gelmir ground, so they no longer enter logic with Altus alone. The existing Wyndham
+  Catacombs carve remains Altus; this is a targeted grace-cluster correction, not a tile-wide move.
 - **Untagged checks defaulted to Roundtable Hold can no longer carry progression (#1021).** The
   generated 1.17 corpus has 53 hub-filed rows with neither a trustworthy region derivation nor a
   location-class tag, including Rennala's Balled Up gesture and several quest awards. They remain

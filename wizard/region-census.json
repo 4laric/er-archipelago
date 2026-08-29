@@ -141,7 +141,7 @@
    "tarnished_pack_combos": {}
   },
   "Altus": {
-   "checks": 372,
+   "checks": 358,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss|FieldBoss": 8,
@@ -160,13 +160,13 @@
    "rollable": true,
    "sweep_slots": {
     "all": 12,
-    "bosses": 23,
+    "bosses": 22,
     "minidungeons": 12
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 12,
-     "bosses": 23,
+     "bosses": 22,
      "minidungeons": 12
     },
     "SweepSlotMajor": {
@@ -174,19 +174,19 @@
     },
     "SweepSlotMinor": {
      "all": 12,
-     "bosses": 22,
+     "bosses": 21,
      "minidungeons": 12
     }
    },
    "sweep_slots_max": {
     "all": 81,
-    "bosses": 144,
+    "bosses": 142,
     "minidungeons": 81
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 81,
-     "bosses": 144,
+     "bosses": 142,
      "minidungeons": 81
     },
     "SweepSlotMajor": {
@@ -194,7 +194,7 @@
     },
     "SweepSlotMinor": {
      "all": 81,
-     "bosses": 136,
+     "bosses": 134,
      "minidungeons": 81
     }
    },
@@ -1126,7 +1126,7 @@
    "tarnished_pack_combos": {}
   },
   "Mt. Gelmir": {
-   "checks": 243,
+   "checks": 257,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 4,
@@ -1146,13 +1146,13 @@
    "rollable": true,
    "sweep_slots": {
     "all": 6,
-    "bosses": 9,
+    "bosses": 10,
     "minidungeons": 3
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 6,
-     "bosses": 9,
+     "bosses": 10,
      "minidungeons": 3
     },
     "SweepSlotMajor": {
@@ -1161,19 +1161,19 @@
     },
     "SweepSlotMinor": {
      "all": 4,
-     "bosses": 7,
+     "bosses": 8,
      "minidungeons": 3
     }
    },
    "sweep_slots_max": {
     "all": 45,
-    "bosses": 69,
+    "bosses": 77,
     "minidungeons": 21
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 45,
-     "bosses": 69,
+     "bosses": 77,
      "minidungeons": 21
     },
     "SweepSlotMajor": {
@@ -1182,7 +1182,7 @@
     },
     "SweepSlotMinor": {
      "all": 29,
-     "bosses": 53,
+     "bosses": 61,
      "minidungeons": 21
     }
    },
@@ -1564,5 +1564,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "b186931ecc479dea225c74e0adc338f0573dee35a9e021dcbdc62b4c1c555da4"
+ "source_sha256": "c121f1c8dd3fe57eb26acb7e76e18234916ef2d1591d6d3969b9da8760ef9263"
 }
