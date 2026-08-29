@@ -185,7 +185,16 @@ jobs:
           # The checker still verifies that the DLL embeds the tag's gitlink; only its unrelated
           # "pin equals current main" currency assertion is relaxed.
           ALLOW_STALE_PIN: "1"
-        run: python tools/check_release_pairing.py --dll me3/eldenring_archipelago.dll
+        shell: bash
+        run: |
+          set +e
+          python tools/check_release_pairing.py --dll me3/eldenring_archipelago.dll
+          rc=$?
+          if [ $rc -eq 2 ]; then
+            echo "::warning::the immutable v0.5.2 pin deliberately trails current client main"
+          elif [ $rc -ne 0 ]; then
+            exit $rc
+          fi
         continue-on-error: ${{ github.ref == 'refs/heads/main' || github.event.inputs.unofficial == 'true' }}
 
       - name: Fetch the AP Flower release atlases
