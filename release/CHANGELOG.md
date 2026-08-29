@@ -23,6 +23,10 @@ of the release).
 - **The #1085 questline-DAG regen now replaces its TSV atomically on Windows (#1110).** The
   generator no longer opens and truncates the existing destination directly, avoiding the observed
   `OSError: [Errno 22] Invalid argument` and ensuring a failed write cannot leave a partial table.
+- **The website update verdict is now reviewed and CI-gated.** `release/latest.json` lives in the
+  repo as a generated projection of `CHANNELS.tsv` and `CONTRACT-VERSIONS.tsv`. The deploy installs
+  those exact bytes only after verifying their stable version, contract hash, and release URL, so a
+  stale projection fails closed instead of being silently composed on the host.
 
 ## v0.5.2 — 2026-08-27
 
