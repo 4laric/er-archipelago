@@ -141,7 +141,7 @@
    "tarnished_pack_combos": {}
   },
   "Altus": {
-   "checks": 358,
+   "checks": 353,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss|FieldBoss": 8,
@@ -389,13 +389,13 @@
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 118,
+    "bosses": 121,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 118,
+     "bosses": 121,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -403,7 +403,7 @@
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 114,
+     "bosses": 117,
      "minidungeons": 55
     }
    },
@@ -935,18 +935,18 @@
    },
    "sweep_slots_max": {
     "all": 42,
-    "bosses": 88,
+    "bosses": 89,
     "minidungeons": 28
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 42,
-     "bosses": 88,
+     "bosses": 89,
      "minidungeons": 28
     },
     "SweepSlotMinor": {
      "all": 42,
-     "bosses": 88,
+     "bosses": 89,
      "minidungeons": 28
     }
    },
@@ -1104,13 +1104,13 @@
    },
    "sweep_slots_max": {
     "all": 22,
-    "bosses": 59,
+    "bosses": 60,
     "minidungeons": 22
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 22,
-     "bosses": 59,
+     "bosses": 60,
      "minidungeons": 22
     },
     "SweepSlotMajor": {
@@ -1118,7 +1118,7 @@
     },
     "SweepSlotMinor": {
      "all": 22,
-     "bosses": 43,
+     "bosses": 44,
      "minidungeons": 22
     }
    },
@@ -1564,5 +1564,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "c121f1c8dd3fe57eb26acb7e76e18234916ef2d1591d6d3969b9da8760ef9263"
+ "source_sha256": "7562f670a2705b191d4d05dc6b38023811dc14be7bea8aa59b968a4c112e354f"
 }

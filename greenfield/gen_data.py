@@ -2019,6 +2019,13 @@ _WORLDLESS_SINGLES = frozenset({
     1047557040, 1052557040, 2046407001, 2046407002, 2046407003, 2046407004, 2047447901, 2048467701,
     2049437610, 2049437901, 2049437902, 2049437911, 2049437912, 2050457510,
 })
+# WORLDLESS SHORT-FLAG LOTS -- the short-ID counterpart to the class above (#1077). Short flags are
+# normally excluded from the generic ground-lot cull because they can be boss/NPC/common-event
+# awards. These five are individually proven otherwise: each has a real map-lot row, but zero MSB
+# placement, zero item-grace coordinate, and no scripted award route in the complete corpus. All
+# five were labelled around Shaded Castle Ramparts and independently reported untakeable by 255.
+# Keep this explicit and tiny: the other short flags in that report have MSB placements and remain.
+_WORLDLESS_SHORT_LOTS = frozenset({540504, 540614, 540616, 540632, 540650})
 # ---- ENIA IS VANILLA (Alaric, 2026-08-24, world#1013) ---------------------------------------------
 # Finger Reader Enia's shop is EXCLUDED FROM RANDOMIZATION -- none of her rows is a check. This
 # restores the rule 8c53e955 ("remove enia from big ticket") kept only half of: that took her rows
@@ -2066,7 +2073,8 @@ if not _ENIA_SHOP_FLAGS:
 print(f"enia: {len(_ENIA_SHOP_FLAGS)} stock flag(s) excluded from randomization -- her shop is vanilla")
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
-                | _SHEET_DROPS | _RADA_WORLDLESS | _WORLDLESS_SINGLES | _ENIA_SHOP_FLAGS
+                | _SHEET_DROPS | _RADA_WORLDLESS | _WORLDLESS_SINGLES | _WORLDLESS_SHORT_LOTS
+                | _ENIA_SHOP_FLAGS
                 | _UNUSED_ESD_AWARDS)
 # Per-flag progression_surface exclusion (Alaric, 2026-07-17): checks that CARRY a surface tag but must
 # NOT host this world's progression (kept as ordinary checks; barred like DEFAULTED_REGION_APS). Emitted
@@ -5993,6 +6001,10 @@ _NR_RULES = (
      "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged "
      "against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); "
      "stays a vanilla row"),
+    (lambda _fl, _r: _fl in _WORLDLESS_SHORT_LOTS,
+     "worldless_short_lot: individually audited short-flag map lot with no MSB placement, no "
+     "item-grace coordinate, and no scripted award route (#1077); stays vanilla rather than "
+     "advertise an untakeable Shaded Castle check"),
     (lambda _fl, _r: _fl in _SHEET_DROPS,
      "surface_sheet_drop: dropped on Alaric's 2026-07-17 progression_surface sheet review -- 14007930 "
      "is a phantom SECOND Academy Glintstone Key (the key is a singleton, the overworld pickup "
@@ -6019,7 +6031,8 @@ _nr_unexplained = EXCLUDE_FLAGS - (MAP_REVEAL_FLAGS | MINIBAKER_VENDOR_FLAGS | f
                                    | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
                                    | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD
                                    | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS | _RADA_WORLDLESS
-                                   | _WORLDLESS_SINGLES | _ENIA_SHOP_FLAGS | _UNUSED_ESD_AWARDS)
+                                   | _WORLDLESS_SINGLES | _WORLDLESS_SHORT_LOTS | _ENIA_SHOP_FLAGS
+                                   | _UNUSED_ESD_AWARDS)
 if _nr_unexplained:
     raise SystemExit("FATAL: EXCLUDE_FLAGS member(s) %r have no NOT_RANDOMIZED ledger rule -- add "
                      "the new exclusion to _NR_RULES (gen_data) so deliberate absence stays "
