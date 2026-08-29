@@ -39,6 +39,10 @@ of the release).
   Lake Shore, Ritual Thrusting Shield near the Isolated Merchant's Shack, and Reed Great Katana near
   Fort Faroth are backed by their live 1.17 lot, asset, map, and position joins. Existing merchant
   check IDs remain unchanged; these checks append to the optional Tarnished Pack suffix.
+- **The unobtainable Stormveil Neutralizing Boluses check is removed (#1111).** The complete ESD
+  corpus confirms its only award branch requires flag 10009335, while the combined ESD, EMEVD, and
+  parameter inputs contain no setter or default for that flag. The vanilla lot remains untouched;
+  it is now explicitly ledgered as an unused ESD award instead of entering the randomized pool.
 
 ## v0.5.2 — 2026-08-27
 

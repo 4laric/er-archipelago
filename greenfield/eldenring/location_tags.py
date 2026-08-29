@@ -688,35 +688,36 @@ LOCATION_TAGS = {
     7773680: ['Boss', 'FieldBoss'],
     7773681: ['Boss', 'FieldBoss'],
     7773688: ['Basin'],
-    7773704: ['KeyItem'],
-    7773711: ['KeyItem'],
-    7773713: ['KeyItem'],
-    7773717: ['Seedtree'],
-    7773733: ['Legendary'],
+    7773703: ['KeyItem'],
+    7773710: ['KeyItem'],
+    7773712: ['KeyItem'],
+    7773716: ['Seedtree'],
+    7773732: ['Legendary'],
+    7773739: ['Legendary'],
     7773740: ['Legendary'],
-    7773741: ['Legendary'],
-    7773753: ['KeyItem'],
-    7773760: ['Legendary'],
+    7773752: ['KeyItem'],
+    7773759: ['Legendary'],
+    7773786: ['Boss', 'LegacyBoss'],
     7773787: ['Boss', 'LegacyBoss'],
-    7773788: ['Boss', 'LegacyBoss'],
+    7773788: ['Boss', 'MajorBoss', 'LegacyBoss'],
     7773789: ['Boss', 'MajorBoss', 'LegacyBoss'],
     7773790: ['Boss', 'MajorBoss', 'LegacyBoss'],
     7773791: ['Boss', 'MajorBoss', 'LegacyBoss'],
     7773792: ['Boss', 'MajorBoss', 'LegacyBoss'],
-    7773793: ['Boss', 'MajorBoss', 'LegacyBoss'],
-    7773794: ['Boss', 'MajorBoss', 'MinorDungeonBoss'],
-    7773795: ['Boss', 'Seedtree', 'LegacyBoss'],
-    7773796: ['Boss', 'LegacyBoss'],
+    7773793: ['Boss', 'MajorBoss', 'MinorDungeonBoss'],
+    7773794: ['Boss', 'Seedtree', 'LegacyBoss'],
+    7773795: ['Boss', 'LegacyBoss'],
+    7773796: ['Boss', 'MajorBoss', 'LegacyBoss'],
     7773797: ['Boss', 'MajorBoss', 'LegacyBoss'],
-    7773798: ['Boss', 'MajorBoss', 'LegacyBoss'],
+    7773798: ['Boss', 'LegacyBoss'],
     7773799: ['Boss', 'LegacyBoss'],
-    7773800: ['Boss', 'LegacyBoss'],
-    7773802: ['Boss', 'MinorDungeonBoss'],
+    7773801: ['Boss', 'MinorDungeonBoss'],
+    7773802: ['Boss', 'MajorBoss', 'FieldBoss'],
     7773803: ['Boss', 'MajorBoss', 'FieldBoss'],
-    7773804: ['Boss', 'MajorBoss', 'FieldBoss'],
-    7773805: ['Boss', 'Legendary', 'MajorBoss', 'FieldBoss'],
-    7773806: ['Boss', 'FieldBoss'],
-    7773807: ['Boss', 'MajorBoss', 'FieldBoss'],
+    7773804: ['Boss', 'Legendary', 'MajorBoss', 'FieldBoss'],
+    7773805: ['Boss', 'FieldBoss'],
+    7773806: ['Boss', 'MajorBoss', 'FieldBoss'],
+    7773807: ['Boss', 'MinorDungeonBoss'],
     7773808: ['Boss', 'MinorDungeonBoss'],
     7773809: ['Boss', 'MinorDungeonBoss'],
     7773810: ['Boss', 'MinorDungeonBoss'],
@@ -729,13 +730,13 @@ LOCATION_TAGS = {
     7773817: ['Boss', 'MinorDungeonBoss'],
     7773818: ['Boss', 'MinorDungeonBoss'],
     7773819: ['Boss', 'MinorDungeonBoss'],
-    7773820: ['Boss', 'MinorDungeonBoss'],
-    7773821: ['Boss', 'Seedtree', 'MinorDungeonBoss'],
-    7773822: ['Boss', 'MinorDungeonBoss'],
-    7773823: ['Boss', 'Legendary', 'LegacyBoss'],
+    7773820: ['Boss', 'Seedtree', 'MinorDungeonBoss'],
+    7773821: ['Boss', 'MinorDungeonBoss'],
+    7773822: ['Boss', 'Legendary', 'LegacyBoss'],
+    7773823: ['Boss', 'MinorDungeonBoss'],
     7773824: ['Boss', 'MinorDungeonBoss'],
-    7773825: ['Boss', 'MinorDungeonBoss'],
-    7773826: ['Boss', 'Legendary', 'MinorDungeonBoss'],
+    7773825: ['Boss', 'Legendary', 'MinorDungeonBoss'],
+    7773826: ['Boss', 'MinorDungeonBoss'],
     7773827: ['Boss', 'MinorDungeonBoss'],
     7773828: ['Boss', 'MinorDungeonBoss'],
     7773829: ['Boss', 'MinorDungeonBoss'],
@@ -745,8 +746,8 @@ LOCATION_TAGS = {
     7773833: ['Boss', 'MinorDungeonBoss'],
     7773834: ['Boss', 'MinorDungeonBoss'],
     7773835: ['Boss', 'MinorDungeonBoss'],
-    7773836: ['Boss', 'MinorDungeonBoss'],
-    7773837: ['Boss', 'Legendary', 'MinorDungeonBoss'],
+    7773836: ['Boss', 'Legendary', 'MinorDungeonBoss'],
+    7773837: ['Boss', 'MinorDungeonBoss'],
     7773838: ['Boss', 'MinorDungeonBoss'],
     7773839: ['Boss', 'MinorDungeonBoss'],
     7773840: ['Boss', 'MinorDungeonBoss'],
@@ -758,74 +759,74 @@ LOCATION_TAGS = {
     7773846: ['Boss', 'MinorDungeonBoss'],
     7773847: ['Boss', 'MinorDungeonBoss'],
     7773848: ['Boss', 'MinorDungeonBoss'],
-    7773849: ['Boss', 'MinorDungeonBoss'],
+    7773850: ['Boss', 'MinorDungeonBoss'],
     7773851: ['Boss', 'MinorDungeonBoss'],
     7773852: ['Boss', 'MinorDungeonBoss'],
-    7773853: ['Boss', 'MinorDungeonBoss'],
-    7773855: ['Boss', 'Legendary', 'MinorDungeonBoss'],
+    7773854: ['Boss', 'Legendary', 'MinorDungeonBoss'],
+    7773855: ['Boss', 'FieldBoss'],
     7773856: ['Boss', 'FieldBoss'],
     7773857: ['Boss', 'FieldBoss'],
     7773858: ['Boss', 'FieldBoss'],
     7773859: ['Boss', 'FieldBoss'],
     7773860: ['Boss', 'FieldBoss'],
     7773861: ['Boss', 'FieldBoss'],
-    7773862: ['Boss', 'FieldBoss'],
-    7773863: ['Boss', 'MajorBoss', 'FieldBoss'],
-    7773864: ['Boss', 'FieldBoss'],
-    7773865: ['Boss', 'Legendary'],
-    7773866: ['Legendary', 'MajorBoss', 'Boss'],
-    7773867: ['Legendary'],
+    7773862: ['Boss', 'MajorBoss', 'FieldBoss'],
+    7773863: ['Boss', 'FieldBoss'],
+    7773864: ['Boss', 'Legendary'],
+    7773865: ['Legendary', 'MajorBoss', 'Boss'],
+    7773866: ['Legendary'],
+    7773867: ['Boss', 'FieldBoss'],
     7773868: ['Boss', 'FieldBoss'],
     7773869: ['Boss', 'FieldBoss'],
     7773870: ['Boss', 'FieldBoss'],
     7773871: ['Boss', 'FieldBoss'],
-    7773872: ['Boss', 'FieldBoss'],
-    7773875: ['Boss', 'MajorBoss', 'FieldBoss'],
+    7773874: ['Boss', 'MajorBoss', 'FieldBoss'],
+    7773875: ['Boss', 'FieldBoss'],
     7773876: ['Boss', 'FieldBoss'],
     7773877: ['Boss', 'FieldBoss'],
-    7773878: ['Boss', 'FieldBoss'],
+    7773879: ['Boss', 'FieldBoss'],
     7773880: ['Boss', 'FieldBoss'],
     7773881: ['Boss', 'FieldBoss'],
-    7773882: ['Boss', 'FieldBoss'],
-    7773892: ['Legendary'],
-    7773933: ['Seedtree'],
-    7773942: ['Legendary'],
-    7773945: ['Fragment'],
-    7774018: ['Church'],
-    7774042: ['Legendary'],
-    7774146: ['Seedtree'],
-    7774170: ['Seedtree'],
-    7774190: ['Legendary'],
-    7774206: ['Seedtree'],
-    7774260: ['Legendary'],
-    7774309: ['Seedtree'],
-    7774320: ['Seedtree'],
-    7774327: ['Legendary'],
-    7774358: ['Legendary'],
-    7774453: ['Boss', 'FieldBoss'],
+    7773891: ['Legendary'],
+    7773932: ['Seedtree'],
+    7773941: ['Legendary'],
+    7773944: ['Fragment'],
+    7774017: ['Church'],
+    7774041: ['Legendary'],
+    7774145: ['Seedtree'],
+    7774169: ['Seedtree'],
+    7774189: ['Legendary'],
+    7774205: ['Seedtree'],
+    7774259: ['Legendary'],
+    7774308: ['Seedtree'],
+    7774319: ['Seedtree'],
+    7774326: ['Legendary'],
+    7774357: ['Legendary'],
+    7774452: ['Boss', 'FieldBoss'],
+    7774458: ['Boss', 'FieldBoss'],
     7774459: ['Boss', 'FieldBoss'],
-    7774460: ['Boss', 'FieldBoss'],
-    7774477: ['Boss'],
-    7774478: ['Boss', 'FieldBoss'],
-    7774479: ['Legendary'],
-    7774487: ['Seedtree'],
-    7774503: ['Boss'],
-    7774518: ['Seedtree'],
-    7774519: ['Legendary'],
-    7774534: ['Boss', 'Legendary', 'FieldBoss'],
-    7774541: ['Seedtree'],
+    7774476: ['Boss'],
+    7774477: ['Boss', 'FieldBoss'],
+    7774478: ['Legendary'],
+    7774486: ['Seedtree'],
+    7774502: ['Boss'],
+    7774517: ['Seedtree'],
+    7774518: ['Legendary'],
+    7774533: ['Boss', 'Legendary', 'FieldBoss'],
+    7774540: ['Seedtree'],
+    7774549: ['Fragment'],
     7774550: ['Fragment'],
     7774551: ['Fragment'],
-    7774552: ['Fragment'],
+    7774553: ['Fragment'],
     7774554: ['Fragment'],
     7774555: ['Fragment'],
     7774556: ['Fragment'],
     7774557: ['Fragment'],
     7774558: ['Fragment'],
     7774559: ['Fragment'],
-    7774560: ['Fragment'],
-    7774563: ['Fragment'],
-    7774566: ['Fragment'],
+    7774562: ['Fragment'],
+    7774565: ['Fragment'],
+    7774567: ['Fragment'],
     7774568: ['Fragment'],
     7774569: ['Fragment'],
     7774570: ['Fragment'],
@@ -833,10 +834,10 @@ LOCATION_TAGS = {
     7774572: ['Fragment'],
     7774573: ['Fragment'],
     7774574: ['Fragment'],
-    7774575: ['Fragment'],
-    7774577: ['Fragment'],
+    7774576: ['Fragment'],
+    7774578: ['Fragment'],
     7774579: ['Fragment'],
-    7774580: ['Fragment'],
+    7774580: ['Shop', 'ShopNonSpell'],
     7774581: ['Shop', 'ShopNonSpell'],
     7774582: ['Shop', 'ShopNonSpell'],
     7774583: ['Shop', 'ShopNonSpell'],
@@ -850,7 +851,7 @@ LOCATION_TAGS = {
     7774591: ['Shop', 'ShopNonSpell'],
     7774592: ['Shop', 'ShopNonSpell'],
     7774593: ['Shop', 'ShopNonSpell'],
-    7774594: ['Shop', 'ShopNonSpell'],
+    7774626: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
     7774627: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
     7774628: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
     7774629: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
@@ -861,10 +862,9 @@ LOCATION_TAGS = {
     7774634: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
     7774635: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
     7774636: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
-    7774637: ['Shop', 'Legendary', 'EniaShop', 'ShopNonSpell'],
+    7774637: ['Legendary'],
     7774638: ['Legendary'],
     7774639: ['Legendary'],
-    7774640: ['Legendary'],
     7900000: ['KeyItem'],
     7900001: ['Boss', 'Fragment', 'LegacyBoss'],
     7900002: ['Boss', 'KeyItem', 'LegacyBoss'],
@@ -958,13 +958,13 @@ TAG_COUNTS = {'Basin': 15, 'Boss': 267, 'Church': 13, 'EniaShop': 18, 'FieldBoss
 
 # Region DEFAULTED to the hub (unknown real region) -> BARRED from progression.
 # A guessed region may not carry progression: see gen_data._region_is_derived().
-DEFAULTED_REGION_APS = frozenset([7770015, 7770028, 7770029, 7770030, 7770031, 7770033, 7770035, 7770036, 7770039, 7770083, 7770085, 7770087, 7770098, 7770105, 7770109, 7770113, 7770119, 7770121, 7770134, 7770235, 7770236, 7770237, 7770238, 7770239, 7770240, 7770241, 7770242, 7770243, 7770244, 7770245, 7770246, 7770455, 7770457, 7770459, 7770506, 7770517, 7770518, 7770522, 7770526, 7770545, 7770552, 7770578, 7770596, 7770597, 7770624, 7770666, 7770688, 7770693, 7770696, 7770697, 7770701, 7770704, 7770706, 7770709, 7770712, 7770717, 7770721, 7770723, 7770725, 7770726, 7770730, 7770735, 7770737, 7770744, 7770746, 7770749, 7770752, 7770758, 7770759, 7770760, 7770762, 7770763, 7770801, 7770804, 7770805, 7770806, 7770807, 7772467, 7772468, 7772469, 7772470, 7772471, 7772492, 7772526, 7772527, 7772528, 7772529, 7772530, 7772536, 7772537, 7772538, 7772539, 7772540, 7772541, 7772542, 7772543, 7772544, 7772545, 7772547, 7772553, 7772554, 7772555, 7772556, 7772563, 7772564, 7772565, 7772566, 7772572, 7772573, 7772574, 7772575, 7772576, 7772577, 7772593, 7772602, 7772630, 7772648, 7772649, 7772650, 7772651, 7772652, 7772653, 7772654, 7772655, 7772656, 7772657, 7772658, 7772659, 7772660, 7772661, 7772662, 7772663, 7772664, 7772665, 7772668, 7772669, 7772670, 7772675, 7772676, 7772689, 7772690, 7772691, 7772692, 7772693, 7772694, 7772695, 7772696, 7772722, 7772723, 7772724, 7772725, 7772726, 7772727, 7772728, 7772729, 7772735, 7772736, 7772737, 7772760, 7772761, 7772762, 7772763, 7772764, 7772765, 7772766, 7772778, 7772788, 7772789, 7772790, 7772791, 7772800, 7772801, 7772802, 7772805, 7772806, 7772807, 7772808, 7772809, 7772810, 7772811, 7772812, 7772813, 7772842, 7772843, 7772844, 7772872, 7772882, 7772883, 7772884, 7772885, 7772886, 7772891, 7772892, 7772895, 7772896, 7772899, 7772900, 7772902, 7772903, 7772904, 7772905, 7772907, 7772908, 7772909, 7772910, 7772940, 7772941, 7772942, 7772943, 7772944, 7772950, 7772952, 7772955, 7772956, 7772968, 7772969, 7772970, 7772971, 7772972, 7772973, 7772974, 7772975, 7772976, 7772977, 7772978, 7772979, 7772980, 7772981, 7772982, 7772983, 7772984, 7772985, 7772986, 7772987, 7772988, 7772989, 7773000, 7773001, 7773002, 7773003, 7773004, 7773005, 7773021, 7773022, 7773023, 7773024, 7773025, 7773026, 7773027, 7773028, 7773029, 7773030, 7773031, 7773046, 7773047, 7773048, 7773053, 7773054, 7773055, 7773056, 7773057, 7773058, 7773059, 7773060, 7773061, 7773062, 7773063, 7773078, 7773079, 7773080, 7773081, 7773082, 7773083, 7773084, 7773085, 7773086, 7773088, 7773089, 7773092, 7773093, 7773094, 7773100, 7773101, 7773102, 7773103, 7773104, 7773105, 7773106, 7773107, 7773108, 7773109, 7773122, 7773123, 7773124, 7773129, 7773136, 7773137, 7773138, 7773139, 7773140, 7773141, 7773181, 7773188, 7773189, 7773190, 7773191, 7773192, 7773193, 7773194, 7773195, 7773202, 7773669, 7773670, 7773671, 7773673, 7773674, 7773675, 7773676, 7773695, 7773707, 7773717, 7773735, 7773736, 7773737, 7773745, 7773771, 7773779, 7773854, 7773859, 7773860, 7773862, 7773863, 7773879, 7773884, 7773885, 7773888, 7773889, 7773890, 7773892, 7773893, 7773894, 7773895, 7773896, 7773907, 7773908, 7773910, 7773911, 7773913, 7774114, 7774115, 7774120, 7774121, 7774129, 7774130, 7774143, 7774147, 7774148, 7774195, 7774196, 7774197, 7774201, 7774202, 7774203, 7774204, 7774209, 7774213, 7774214, 7774215, 7774220, 7774221, 7774222, 7774224, 7774225, 7774229, 7774230, 7774231, 7774232, 7774233, 7774255, 7774256, 7774257, 7774258, 7774259, 7774260, 7774286, 7774296, 7774302, 7774303, 7774304, 7774311, 7774312, 7774313, 7774314, 7774315, 7774316, 7774317, 7774318, 7774321, 7774322, 7774323, 7774326, 7774327, 7774328, 7774329, 7774330, 7774331, 7774332, 7774333, 7774334, 7774335, 7774336, 7774337, 7774338, 7774339, 7774340, 7774341, 7774342, 7774343, 7774344, 7774345, 7774346, 7774347, 7774348, 7774349, 7774350, 7774359, 7774360, 7774361, 7774387, 7774388, 7774389, 7774390, 7774391, 7774392, 7774393, 7774394, 7774395, 7774396, 7774397, 7774398, 7774399, 7774400, 7774401, 7774402, 7774403, 7774404, 7774405, 7774406, 7774407, 7774408, 7774409, 7774410, 7774411, 7774412, 7774413, 7774414, 7774415, 7774416, 7774417, 7774418, 7774419, 7774420, 7774421, 7774422, 7774423, 7774424, 7774425, 7774426, 7774439, 7774449, 7774450, 7774451, 7774452, 7774486, 7774489, 7774490, 7774491, 7774492, 7774493, 7774494, 7774495, 7774496, 7774497, 7774507, 7774508, 7774526, 7774527, 7774528, 7774529, 7774537, 7774544, 7774545, 7774546, 7774581, 7774582, 7774583, 7774584, 7774604, 7774639, 7900023, 7900024, 7900148, 7900150, 7900231, 7900232, 7900234, 7900235, 7900244, 7900247, 7900248, 7900249, 7900250, 7900251, 7900252, 7900253, 7900254, 7900255, 7900257, 7900258, 7900259, 7900260, 7900261, 7900262, 7900263, 7900268, 7900269, 7900270, 7900271, 7900272, 7900273, 7900274])
+DEFAULTED_REGION_APS = frozenset([7770015, 7770028, 7770029, 7770030, 7770031, 7770033, 7770035, 7770036, 7770039, 7770083, 7770085, 7770087, 7770098, 7770105, 7770109, 7770113, 7770119, 7770121, 7770134, 7770235, 7770236, 7770237, 7770238, 7770239, 7770240, 7770241, 7770242, 7770243, 7770244, 7770245, 7770246, 7770455, 7770457, 7770459, 7770506, 7770517, 7770518, 7770522, 7770526, 7770545, 7770552, 7770578, 7770596, 7770597, 7770624, 7770666, 7770688, 7770693, 7770696, 7770697, 7770701, 7770704, 7770706, 7770709, 7770712, 7770717, 7770721, 7770723, 7770725, 7770726, 7770730, 7770735, 7770737, 7770744, 7770746, 7770749, 7770752, 7770758, 7770759, 7770760, 7770762, 7770763, 7770801, 7770804, 7770805, 7770806, 7770807, 7772467, 7772468, 7772469, 7772470, 7772471, 7772492, 7772526, 7772527, 7772528, 7772529, 7772530, 7772536, 7772537, 7772538, 7772539, 7772540, 7772541, 7772542, 7772543, 7772544, 7772545, 7772547, 7772553, 7772554, 7772555, 7772556, 7772563, 7772564, 7772565, 7772566, 7772572, 7772573, 7772574, 7772575, 7772576, 7772577, 7772593, 7772602, 7772630, 7772648, 7772649, 7772650, 7772651, 7772652, 7772653, 7772654, 7772655, 7772656, 7772657, 7772658, 7772659, 7772660, 7772661, 7772662, 7772663, 7772664, 7772665, 7772668, 7772669, 7772670, 7772675, 7772676, 7772689, 7772690, 7772691, 7772692, 7772693, 7772694, 7772695, 7772696, 7772722, 7772723, 7772724, 7772725, 7772726, 7772727, 7772728, 7772729, 7772735, 7772736, 7772737, 7772760, 7772761, 7772762, 7772763, 7772764, 7772765, 7772766, 7772778, 7772788, 7772789, 7772790, 7772791, 7772800, 7772801, 7772802, 7772805, 7772806, 7772807, 7772808, 7772809, 7772810, 7772811, 7772812, 7772813, 7772842, 7772843, 7772844, 7772872, 7772882, 7772883, 7772884, 7772885, 7772886, 7772891, 7772892, 7772895, 7772896, 7772899, 7772900, 7772902, 7772903, 7772904, 7772905, 7772907, 7772908, 7772909, 7772910, 7772940, 7772941, 7772942, 7772943, 7772944, 7772950, 7772952, 7772955, 7772956, 7772968, 7772969, 7772970, 7772971, 7772972, 7772973, 7772974, 7772975, 7772976, 7772977, 7772978, 7772979, 7772980, 7772981, 7772982, 7772983, 7772984, 7772985, 7772986, 7772987, 7772988, 7772989, 7773000, 7773001, 7773002, 7773003, 7773004, 7773005, 7773021, 7773022, 7773023, 7773024, 7773025, 7773026, 7773027, 7773028, 7773029, 7773030, 7773031, 7773046, 7773047, 7773048, 7773053, 7773054, 7773055, 7773056, 7773057, 7773058, 7773059, 7773060, 7773061, 7773062, 7773063, 7773078, 7773079, 7773080, 7773081, 7773082, 7773083, 7773084, 7773085, 7773086, 7773088, 7773089, 7773092, 7773093, 7773094, 7773100, 7773101, 7773102, 7773103, 7773104, 7773105, 7773106, 7773107, 7773108, 7773109, 7773122, 7773123, 7773124, 7773129, 7773136, 7773137, 7773138, 7773139, 7773140, 7773141, 7773181, 7773188, 7773189, 7773190, 7773191, 7773192, 7773193, 7773194, 7773195, 7773202, 7773669, 7773670, 7773671, 7773673, 7773674, 7773675, 7773676, 7773695, 7773706, 7773716, 7773734, 7773735, 7773736, 7773744, 7773770, 7773778, 7773853, 7773858, 7773859, 7773861, 7773862, 7773878, 7773883, 7773884, 7773887, 7773888, 7773889, 7773891, 7773892, 7773893, 7773894, 7773895, 7773906, 7773907, 7773909, 7773910, 7773912, 7774113, 7774114, 7774119, 7774120, 7774128, 7774129, 7774142, 7774146, 7774147, 7774194, 7774195, 7774196, 7774200, 7774201, 7774202, 7774203, 7774208, 7774212, 7774213, 7774214, 7774219, 7774220, 7774221, 7774223, 7774224, 7774228, 7774229, 7774230, 7774231, 7774232, 7774254, 7774255, 7774256, 7774257, 7774258, 7774259, 7774285, 7774295, 7774301, 7774302, 7774303, 7774310, 7774311, 7774312, 7774313, 7774314, 7774315, 7774316, 7774317, 7774320, 7774321, 7774322, 7774325, 7774326, 7774327, 7774328, 7774329, 7774330, 7774331, 7774332, 7774333, 7774334, 7774335, 7774336, 7774337, 7774338, 7774339, 7774340, 7774341, 7774342, 7774343, 7774344, 7774345, 7774346, 7774347, 7774348, 7774349, 7774358, 7774359, 7774360, 7774386, 7774387, 7774388, 7774389, 7774390, 7774391, 7774392, 7774393, 7774394, 7774395, 7774396, 7774397, 7774398, 7774399, 7774400, 7774401, 7774402, 7774403, 7774404, 7774405, 7774406, 7774407, 7774408, 7774409, 7774410, 7774411, 7774412, 7774413, 7774414, 7774415, 7774416, 7774417, 7774418, 7774419, 7774420, 7774421, 7774422, 7774423, 7774424, 7774425, 7774438, 7774448, 7774449, 7774450, 7774451, 7774485, 7774488, 7774489, 7774490, 7774491, 7774492, 7774493, 7774494, 7774495, 7774496, 7774506, 7774507, 7774525, 7774526, 7774527, 7774528, 7774536, 7774543, 7774544, 7774545, 7774580, 7774581, 7774582, 7774583, 7774603, 7774638, 7900023, 7900024, 7900148, 7900150, 7900231, 7900232, 7900234, 7900235, 7900244, 7900247, 7900248, 7900249, 7900250, 7900251, 7900252, 7900253, 7900254, 7900255, 7900257, 7900258, 7900259, 7900260, 7900261, 7900262, 7900263, 7900268, 7900269, 7900270, 7900271, 7900272, 7900273, 7900274])
 
 # Hub-COLLAPSED merchant rows: ap id -> the regions its merchant physically stands in
 # (>1, or it would have been pinned). A subset of DEFAULTED_REGION_APS. The seed regions
 # each row to the EARLIEST KEPT of these in region_spine.SPINE order and lifts the bar;
 # with none of them kept the bar stays. See features/progression_surface.collapsed_sites.
-HUB_COLLAPSED_SITE_APS = {7770235: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770236: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770237: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770238: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770239: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770240: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770241: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770242: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770243: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770244: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770245: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770246: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770506: ['Caelid', 'Limgrave'], 7770517: ['Caelid', 'Limgrave'], 7770518: ['Caelid', 'Limgrave'], 7774581: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7774582: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7774583: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7774584: ['Cerulean', 'Limgrave', 'Mt. Gelmir']}
+HUB_COLLAPSED_SITE_APS = {7770235: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770236: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770237: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770238: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770239: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770240: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770241: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770242: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770243: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770244: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770245: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770246: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7770506: ['Caelid', 'Limgrave'], 7770517: ['Caelid', 'Limgrave'], 7770518: ['Caelid', 'Limgrave'], 7774580: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7774581: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7774582: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 7774583: ['Cerulean', 'Limgrave', 'Mt. Gelmir']}
 
 # m11_00 (normal Leyndell) -- DESTROYED when Maliketh dies (common.emevd $Event(900):
 # the Erdtree burns, Leyndell's graces 71100-71110 are switched OFF, and you are warped
@@ -972,12 +972,12 @@ HUB_COLLAPSED_SITE_APS = {7770235: ['Cerulean', 'Limgrave', 'Mt. Gelmir'], 77702
 # Leyndell is still sealed, so the player can burn it with these still uncollected.
 # They stay CHECKS (collect them before you burn and you keep them) but may never carry
 # PROGRESSION: a check the player can put permanently out of reach cannot be required.
-ERDTREE_BURN_APS = frozenset([7770043, 7770056, 7770071, 7770654, 7770768, 7770769, 7770799, 7770915, 7770916, 7770917, 7770918, 7770919, 7770920, 7770921, 7770922, 7770923, 7770924, 7770925, 7770926, 7770927, 7770928, 7770929, 7770930, 7770931, 7770932, 7770933, 7770934, 7770935, 7770936, 7770937, 7770938, 7770939, 7770940, 7770941, 7770942, 7770943, 7770944, 7770945, 7770946, 7770947, 7770948, 7770949, 7770950, 7770951, 7770952, 7770953, 7770954, 7770955, 7770956, 7770957, 7770958, 7770959, 7770960, 7770961, 7770962, 7770963, 7770964, 7770965, 7770966, 7770967, 7770968, 7770969, 7770970, 7770971, 7770972, 7770973, 7770974, 7770975, 7770976, 7770977, 7770978, 7770979, 7770980, 7770981, 7770982, 7770983, 7770984, 7770985, 7770986, 7770987, 7770988, 7770989, 7770990, 7770991, 7770992, 7770993, 7770994, 7770995, 7770996, 7770997, 7770998, 7770999, 7771000, 7771001, 7771002, 7771003, 7771004, 7771005, 7771006, 7771007, 7771008, 7771009, 7771010, 7771011, 7771012, 7771013, 7771014, 7771015, 7771016, 7771017, 7771018, 7771019, 7771020, 7771021, 7771022, 7771023, 7771024, 7771025, 7771026, 7771027, 7771028, 7771029, 7771030, 7771031, 7773694, 7773918, 7773919, 7773920, 7773921, 7773922, 7773923, 7773924, 7773925, 7773926, 7773927, 7773928, 7773929, 7773930, 7773931, 7773932, 7773933, 7774599, 7774610, 7774616, 7774621, 7774626, 7900172, 7900173, 7900174, 7900175, 7900176, 7900177, 7900178, 7900179, 7900180])
+ERDTREE_BURN_APS = frozenset([7770043, 7770056, 7770071, 7770654, 7770768, 7770769, 7770799, 7770915, 7770916, 7770917, 7770918, 7770919, 7770920, 7770921, 7770922, 7770923, 7770924, 7770925, 7770926, 7770927, 7770928, 7770929, 7770930, 7770931, 7770932, 7770933, 7770934, 7770935, 7770936, 7770937, 7770938, 7770939, 7770940, 7770941, 7770942, 7770943, 7770944, 7770945, 7770946, 7770947, 7770948, 7770949, 7770950, 7770951, 7770952, 7770953, 7770954, 7770955, 7770956, 7770957, 7770958, 7770959, 7770960, 7770961, 7770962, 7770963, 7770964, 7770965, 7770966, 7770967, 7770968, 7770969, 7770970, 7770971, 7770972, 7770973, 7770974, 7770975, 7770976, 7770977, 7770978, 7770979, 7770980, 7770981, 7770982, 7770983, 7770984, 7770985, 7770986, 7770987, 7770988, 7770989, 7770990, 7770991, 7770992, 7770993, 7770994, 7770995, 7770996, 7770997, 7770998, 7770999, 7771000, 7771001, 7771002, 7771003, 7771004, 7771005, 7771006, 7771007, 7771008, 7771009, 7771010, 7771011, 7771012, 7771013, 7771014, 7771015, 7771016, 7771017, 7771018, 7771019, 7771020, 7771021, 7771022, 7771023, 7771024, 7771025, 7771026, 7771027, 7771028, 7771029, 7771030, 7771031, 7773694, 7773917, 7773918, 7773919, 7773920, 7773921, 7773922, 7773923, 7773924, 7773925, 7773926, 7773927, 7773928, 7773929, 7773930, 7773931, 7773932, 7774598, 7774609, 7774615, 7774620, 7774625, 7900172, 7900173, 7900174, 7900175, 7900176, 7900177, 7900178, 7900179, 7900180])
 
 # Surface-tagged checks HAND-EXCLUDED from the progression surface (_SURFACE_EXCLUDE_FLAGS
 # in gen_data; Alaric's call). They stay ordinary checks but never host this world's
 # progression -- barred exactly like DEFAULTED_REGION_APS in features/progression_surface.
-SURFACE_EXCLUDE_APS = frozenset([7771310, 7771780, 7771810, 7771955, 7773222, 7773330, 7773334, 7773357, 7773475, 7773555, 7773586, 7773590, 7773787, 7774018, 7774556, 7774579, 7774580, 7900113])
+SURFACE_EXCLUDE_APS = frozenset([7771310, 7771780, 7771810, 7771955, 7773222, 7773330, 7773334, 7773357, 7773475, 7773555, 7773586, 7773590, 7773786, 7774017, 7774555, 7774578, 7774579, 7900113])
 
 # The tile-guess bar's ONLY exception: _REGION_CONFIRMED_FLAGS in gen_data -- a check on a
 # graceless tile that a HUMAN stood in front of and confirmed the region of, in game. It keeps
@@ -985,7 +985,7 @@ SURFACE_EXCLUDE_APS = frozenset([7771310, 7771780, 7771810, 7771955, 7773222, 77
 # without a test re-typing the list: every check whose region derives from a graceless tile is
 # barred, EXCEPT these. PER-FLAG by construction -- confirming a tile would confirm every check
 # on it, which is the wrong arity.
-REGION_CONFIRMED_APS = frozenset([7770086, 7770595, 7772493, 7772494, 7772535, 7772546, 7772631, 7772710, 7772744, 7772767, 7772845, 7772850, 7772897, 7772898, 7772906, 7772951, 7772953, 7772954, 7773087, 7773176, 7774205, 7774206])
+REGION_CONFIRMED_APS = frozenset([7770086, 7770595, 7772493, 7772494, 7772535, 7772546, 7772631, 7772710, 7772744, 7772767, 7772845, 7772850, 7772897, 7772898, 7772906, 7772951, 7772953, 7772954, 7773087, 7773176, 7774204, 7774205])
 
 # Shop rows with eventFlag_forRelease != 0 -- the merchant does not STOCK them until an
 # unlock event fires (bell bearing handed in, boss killed, NPC quest advanced). AP models a
@@ -994,7 +994,7 @@ REGION_CONFIRMED_APS = frozenset([7770086, 7770595, 7772493, 7772494, 7772535, 7
 # when it appears, so these may never carry PROGRESSION. They remain CHECKS.
 # Worst case this guards: the seed puts a key item on one of Enia block-1015 rows, whose
 # release flag is 9107 (ENDGAME) -- required to progress, obtainable only after progressing.
-SHOP_RELEASE_GATED_APS = frozenset([7770011, 7770012, 7770013, 7770014, 7770025, 7770135, 7770207, 7770216, 7770217, 7770218, 7770219, 7770220, 7770221, 7770222, 7770232, 7770233, 7770243, 7770244, 7770245, 7770252, 7770258, 7770266, 7770267, 7770268, 7770269, 7770270, 7770271, 7770273, 7770275, 7770292, 7770293, 7770294, 7770295, 7770296, 7770297, 7770298, 7770299, 7770300, 7770301, 7770302, 7770303, 7770304, 7770305, 7770306, 7770307, 7770308, 7770309, 7770310, 7770311, 7770312, 7770315, 7770316, 7770317, 7770318, 7770319, 7770320, 7770322, 7770323, 7770324, 7770325, 7770326, 7770327, 7770328, 7770329, 7770330, 7770331, 7770332, 7770333, 7770334, 7770335, 7770336, 7770337, 7770338, 7770502, 7770503, 7770504, 7770505, 7770510, 7770511, 7770512, 7770513, 7770519, 7770520, 7770521, 7770535, 7770536, 7770537, 7770538, 7770539, 7770540, 7770541, 7770542, 7770543, 7770544, 7770545, 7770546, 7770548, 7770549, 7770550, 7774583, 7774584, 7774627, 7774628, 7774629, 7774630, 7774631, 7774632, 7774633, 7774634, 7774635, 7774636, 7774637])
+SHOP_RELEASE_GATED_APS = frozenset([7770011, 7770012, 7770013, 7770014, 7770025, 7770135, 7770207, 7770216, 7770217, 7770218, 7770219, 7770220, 7770221, 7770222, 7770232, 7770233, 7770243, 7770244, 7770245, 7770252, 7770258, 7770266, 7770267, 7770268, 7770269, 7770270, 7770271, 7770273, 7770275, 7770292, 7770293, 7770294, 7770295, 7770296, 7770297, 7770298, 7770299, 7770300, 7770301, 7770302, 7770303, 7770304, 7770305, 7770306, 7770307, 7770308, 7770309, 7770310, 7770311, 7770312, 7770315, 7770316, 7770317, 7770318, 7770319, 7770320, 7770322, 7770323, 7770324, 7770325, 7770326, 7770327, 7770328, 7770329, 7770330, 7770331, 7770332, 7770333, 7770334, 7770335, 7770336, 7770337, 7770338, 7770502, 7770503, 7770504, 7770505, 7770510, 7770511, 7770512, 7770513, 7770519, 7770520, 7770521, 7770535, 7770536, 7770537, 7770538, 7770539, 7770540, 7770541, 7770542, 7770543, 7770544, 7770545, 7770546, 7770548, 7770549, 7770550, 7774582, 7774583, 7774626, 7774627, 7774628, 7774629, 7774630, 7774631, 7774632, 7774633, 7774634, 7774635, 7774636])
 
 # ShopSlot pins: MERCHANT (the NPC talk ESD id that calls OpenRegularShop, from
 # merchant_shops.tsv) -> the ONE ap id carrying the ShopSlot tag. Lowest ap among that
@@ -1013,7 +1013,7 @@ SHOP_SLOT_PINS = {'801136000': 7770185, '801146000': 7770050, '801186000': 77700
 # as the pin. Only the pin carries the ShopSlot TAG today; widening the tag is a separate
 # decision (it would take the default surface 156 -> 265), which is why this is DATA and
 # not a tag. Measured 2026-08-02: 139 slots across 15 merchants, median 9, max 16.
-SHOP_SLOT_CANDIDATES = {'801136000': [7770185, 7770361, 7770362, 7770363, 7770364, 7770365, 7770366, 7770367, 7770368], '801146000': [7770050, 7770184, 7770369, 7770370, 7770371, 7770372, 7770373, 7770374, 7770439, 7770440, 7770441, 7770442, 7770443, 7770444, 7774586, 7774587], '801186000': [7770088, 7770401, 7770402, 7770403, 7770404, 7770405, 7770406, 7770407, 7770408], '801196000': [7770073, 7770193, 7770409, 7770410, 7770411, 7770412, 7770413, 7770414, 7770415, 7770416, 7770417], '801206000': [7770131, 7770178, 7770182, 7770418, 7770419, 7770420, 7770421, 7770422, 7770423, 7770424], '801216000': [7770097, 7770425, 7770426, 7770427, 7770428, 7770429, 7770430], '801226000': [7770431, 7770432], '801236000': [7770061, 7770127, 7770186, 7770433, 7770434, 7770435, 7770436, 7770437, 7770438], '801256000': [7770066, 7770177, 7770189, 7770445, 7770446, 7770447, 7770448, 7770449, 7770450, 7770451, 7770452, 7770453, 7770454, 7774593], '801271202': [7770090, 7770100, 7770465, 7770466, 7770467, 7770468, 7770469, 7770470], '801281201': [7770102, 7770129, 7770471, 7770472, 7770473, 7770474, 7770475, 7770476, 7770477], '801291205': [7770478, 7770479, 7770480, 7770481, 7770482]}
+SHOP_SLOT_CANDIDATES = {'801136000': [7770185, 7770361, 7770362, 7770363, 7770364, 7770365, 7770366, 7770367, 7770368], '801146000': [7770050, 7770184, 7770369, 7770370, 7770371, 7770372, 7770373, 7770374, 7770439, 7770440, 7770441, 7770442, 7770443, 7770444, 7774585, 7774586], '801186000': [7770088, 7770401, 7770402, 7770403, 7770404, 7770405, 7770406, 7770407, 7770408], '801196000': [7770073, 7770193, 7770409, 7770410, 7770411, 7770412, 7770413, 7770414, 7770415, 7770416, 7770417], '801206000': [7770131, 7770178, 7770182, 7770418, 7770419, 7770420, 7770421, 7770422, 7770423, 7770424], '801216000': [7770097, 7770425, 7770426, 7770427, 7770428, 7770429, 7770430], '801226000': [7770431, 7770432], '801236000': [7770061, 7770127, 7770186, 7770433, 7770434, 7770435, 7770436, 7770437, 7770438], '801256000': [7770066, 7770177, 7770189, 7770445, 7770446, 7770447, 7770448, 7770449, 7770450, 7770451, 7770452, 7770453, 7770454, 7774592], '801271202': [7770090, 7770100, 7770465, 7770466, 7770467, 7770468, 7770469, 7770470], '801281201': [7770102, 7770129, 7770471, 7770472, 7770473, 7770474, 7770475, 7770476, 7770477], '801291205': [7770478, 7770479, 7770480, 7770481, 7770482]}
 SHOP_SLOT_SKIPS = {'224006000': 'not reachable ungated: every ESD path onto this shop is gated (1034499206, 3765), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302001000': 'not reachable ungated: every ESD path onto this shop is gated (10009356, 10009517, 3269), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302011000': 'not reachable ungated: every ESD path onto this shop is gated (10009356), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302021000': 'not reachable ungated: every ESD path onto this shop is gated (10009356), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302031000': 'not reachable ungated: every ESD path onto this shop is gated (10009356), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302041000': 'not reachable ungated: every ESD path onto this shop is gated (10009356), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302051000': 'not reachable ungated: every ESD path onto this shop is gated (10009356, 10009517, 3269), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '302061000': 'not reachable ungated: every ESD path onto this shop is gated (10009356, 10009517), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '307006000': 'dedicated spell vendor: 10 of its 14 check(s) are sorceries/incantations, so none of its slots may carry progression', '307036000': 'alt-currency merchant (Dragon Communion altar): its wares are paid in a limited consumable, so ALL 4 of its slots are missable and none may carry progression', '307106000': 'not reachable ungated: every ESD path onto this shop is gated (1035509205), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '309001600': 'not reachable ungated: every ESD path onto this shop is gated (16009356, 16009359, 3686, 3687, 3692), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '309003100': 'not reachable ungated: every ESD path onto this shop is gated (16009356, 16009359, 3686, 3687, 3692), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '309006000': 'not reachable ungated: every ESD path onto this shop is gated (16009356, 16009359, 3686, 3687, 3692), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '316006000': 'dedicated spell vendor: 13 of its 13 check(s) are sorceries/incantations, so none of its slots may carry progression', '316206000': 'dedicated spell vendor: 13 of its 13 check(s) are sorceries/incantations, so none of its slots may carry progression', '316211400': 'dedicated spell vendor: 13 of its 13 check(s) are sorceries/incantations, so none of its slots may carry progression', '316301400': 'dedicated spell vendor: 13 of its 13 check(s) are sorceries/incantations, so none of its slots may carry progression', '319006000': 'dedicated spell vendor: 2 of its 2 check(s) are sorceries/incantations, so none of its slots may carry progression', '325001000': 'not reachable ungated: every ESD path onto this shop is gated (10009606, 10009616, 11109505, 11109530), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '326001600': 'not reachable ungated: every ESD path onto this shop is gated (16009457, 3885), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '326006000': 'not reachable ungated: every ESD path onto this shop is gated (16009457, 3885), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '326101600': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '330006000': 'dedicated spell vendor: 26 of its 26 check(s) are sorceries/incantations, so none of its slots may carry progression', '331006000': 'not reachable ungated: every ESD path onto this shop is gated (1036439205, 1036439210, 4146), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '333006000': 'dedicated spell vendor: 3 of its 3 check(s) are sorceries/incantations, so none of its slots may carry progression', '349006000': 'dedicated spell vendor: 4 of its 4 check(s) are sorceries/incantations, so none of its slots may carry progression', '351001100': 'dedicated spell vendor: 29 of its 29 check(s) are sorceries/incantations, so none of its slots may carry progression', '351001105': 'dedicated spell vendor: 29 of its 29 check(s) are sorceries/incantations, so none of its slots may carry progression', '351006000': 'dedicated spell vendor: 29 of its 29 check(s) are sorceries/incantations, so none of its slots may carry progression', '415006100': 'not reachable ungated: every ESD path onto this shop is gated (4385), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '419002200': 'not reachable ungated: every ESD path onto this shop is gated (2048439206, 2048439225, 2048439228, 2048439235), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '419006100': 'not reachable ungated: every ESD path onto this shop is gated (2048439206, 2048439207, 2048439225, 2048439228), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '420006100': 'dedicated spell vendor: 9 of its 9 check(s) are sorceries/incantations, so none of its slots may carry progression', '601006000': 'dedicated spell vendor: 3 of its 3 check(s) are sorceries/incantations, so none of its slots may carry progression', '601016000': 'dedicated spell vendor: 13 of its 13 check(s) are sorceries/incantations, so none of its slots may carry progression', '630006100': 'dedicated spell vendor: 3 of its 3 check(s) are sorceries/incantations, so none of its slots may carry progression', '800001100': 'no exclusive ware: every one of its 37 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800003500': 'no exclusive ware: every one of its 37 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800006000': 'no exclusive ware: every one of its 37 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '800026000': 'not reachable ungated: every ESD path onto this shop is gated (4980, 4982), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '800046000': 'not reachable ungated: every ESD path onto this shop is gated (4980, 4982), so the player must first make the merchant appear -- a slot we cannot ASSERT is reachable may not be REQUIRED', '801116000': 'no exclusive ware: every one of its 8 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801126000': 'no exclusive ware: every one of its 12 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801156000': 'no exclusive ware: every one of its 11 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801166000': 'no exclusive ware: every one of its 11 check(s) is also sold by another FIELD merchant (hub mirror ignored)', '801176000': "region MISMATCH: merchant stands in ['Liurnia'] but its 16 candidate row(s) are filed ['Raya Lucaria Academy'] -- a pin fill would believe is reachable early", '801266000': 'dedicated spell vendor: 1 of its 8 check(s) are sorceries/incantations, so none of its slots may carry progression', '801516000': 'no exclusive ware: every one of its 8 check(s) is also sold by another FIELD merchant (hub mirror ignored)'}
 
-_GEN_STAMP = {'inputs_hash': 'sha256:d59f7cdad65d4e51e3a275456bedc7e293e46a0fc326fb5baece0fe4235c090f', 'module': 'location_tags.py', 'body_sha256': 'sha256:a9401fd46fcd3ee9bef6f23957a85a59e618b7de196f0b0d7fe2d6f082f6dbb0'}
+_GEN_STAMP = {'inputs_hash': 'sha256:6e786569526a11b77a7e69cb6725a437e5be2879d6b128012334be2e8f468d4d', 'module': 'location_tags.py', 'body_sha256': 'sha256:6e0f2eef3a1a7791c6f95facc1a10ef4f38539dd780d80e2cf2c7477f798f80e'}

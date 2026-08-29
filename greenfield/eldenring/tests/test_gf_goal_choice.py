@@ -42,7 +42,7 @@ FINALE_IDS = set(_major_boss_ids(FINALE_REGION))
 # All four AP-id pins in this file moved DOWN by exactly 100 on 2026-08-25 (#1013): the
 # Enia-vanilla exclusion removed her 100 shop checks from the location pool and every later id
 # shifted. Pin by defeat flag if a fifth move is ever needed.
-LORETTA_LOCATION = 7773791  # "[Sorcery] Loretta's Mastery - Loretta (real) [f510190]"
+LORETTA_LOCATION = 7773790  # -1 after dead f400020 left the positional-id pool (#1111)
 
 
 class TestGoalChoiceTable:

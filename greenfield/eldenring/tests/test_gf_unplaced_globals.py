@@ -91,6 +91,12 @@ def _locations():
     return ast.literal_eval(m.group(1))
 
 
+def _not_randomized():
+    txt = open(DATA, encoding="utf-8").read()
+    m = re.search(r"^NOT_RANDOMIZED\s*=\s*(\{.*?\n\})", txt, re.S | re.M)
+    return ast.literal_eval(m.group(1))
+
+
 @unittest.skipIf(not os.path.isfile(TABLE), "unplaced_global_tiles.tsv not beside the package")
 class UnplacedGlobals(unittest.TestCase):
 
@@ -195,7 +201,9 @@ class UnplacedGlobals(unittest.TestCase):
         a row proves nothing about the world having a location."""
         loc = _locations()
         in_world = {f for _r, v in loc.items() for (_n, _a, f) in v}
-        missing = sorted(int(c[0]) for c in _rows() if int(c[0]) not in in_world)
+        not_randomized = _not_randomized()
+        missing = sorted(int(c[0]) for c in _rows()
+                         if int(c[0]) not in in_world and int(c[0]) not in not_randomized)
         self.assertEqual([], missing,
                          "%d flag(s) carry a derived tile but produced NO location -- the table is "
                          "being written and dropped by its own consumer: %s"

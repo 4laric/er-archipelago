@@ -49,7 +49,7 @@ _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relat
 # 4932 -> 4931 (2026-08-07): the item-existence guard learned that FromSoft's cut-content marker
 # also appears as '[ERROR]<real name>', which retired f400081 (goods 8130, "[ERROR]Rya's
 # Necklace"). It was never a second necklace -- the real one is goods 8136 (f400300).
-BASELINE_TOTAL_LOCATIONS = 4929   # +11 Patch 1.17 shops + 3 field pickups (#1096)
+BASELINE_TOTAL_LOCATIONS = 4928   # -1 dead Neutralizing Boluses award (#1111)
                                   # 16001/16004 are starting/caster-kit data, not merchant checks.
                                   # Their 36 stock flags leave the client shop table; 33 derived
                                   # shop-only locations leave the pool, while three flags retain

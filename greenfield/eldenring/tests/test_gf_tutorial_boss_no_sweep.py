@@ -33,8 +33,8 @@ from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E
 #     Stormveil Scion gets no defeat banner, so it is legitimately absent from a banner-derived
 #     corpus and never had a sweep to lose.
 GRAFTED_SCION = 10010800          # boss_healthbars: ('m10_01', 'm10_01', 'legacy', 'Grafted Scion')
-SCION_OWN_DROP_AP = 7773886       # Ornamental Straight Sword, f510030 -- a normal check, must SURVIVE
-GOSTOC_BELL_AP = 7773706           # f400051, MSB-placed in m10_00 while its source map was PENDING
+SCION_OWN_DROP_FLAG = 510030      # Ornamental Straight Sword, a normal check, must SURVIVE
+GOSTOC_BELL_AP = 7773705          # f400051; shifted -1 when dead f400020 left the pool (#1111)
 # (7773843 -> 7773808 on 2026-08-19, #330; 7773808 -> 7773821 same day, full-census regen: +10
 #  restored m21_02 Rada rows and +3 other insertions ahead of it. Flag-verified both times -- the
 #  stale pin was even OWNED by a Liurnia trigger, the exact wrong-check-same-id trap.)
@@ -77,11 +77,12 @@ def test_no_stormveil_sweep_is_keyed_on_a_non_stormveil_boss():
 def test_the_scions_own_drop_is_untouched():
     """The fix removes a sweep, not a check. The boss's own reward is a normal location."""
     from worlds.eldenring.data import LOCATIONS
-    every = {int(ap) for rows in LOCATIONS.values() for (_n, ap, _f) in rows}
-    assert SCION_OWN_DROP_AP in every, (
-        "the Grafted Scion's own drop (Ornamental Straight Sword, ap %d) vanished. The sweep "
-        "exclusion must not remove the boss's reward check -- that is a different mechanism."
-        % SCION_OWN_DROP_AP)
+    names = {name for rows in LOCATIONS.values() for (name, _ap, flag) in rows
+             if flag == SCION_OWN_DROP_FLAG}
+    assert any("Ornamental Straight Sword" in name for name in names), (
+        "the Grafted Scion's own drop (Ornamental Straight Sword, f%d) vanished. The sweep "
+        "exclusion must not remove the boss's reward check -- that is a different mechanism: %r"
+        % (SCION_OWN_DROP_FLAG, sorted(names)))
 
 
 def test_the_sweep_corpus_did_not_shrink():
@@ -536,8 +537,10 @@ def test_the_sweep_corpus_did_not_shrink():
     # 2026-08-29 (#1096): 4102 -> 4105. The three verified Tarnished Pack field corpse pickups
     # join their nearest same-region field-boss sweeps: Idus Sword -> Adan, Ritual Thrusting Shield
     # -> Bell Bearing Hunter, and Reed Great Katana -> Putrid Avatar. No existing member moves.
-    assert total == 4105, (  # +3 (#1096): the three new field pickups join same-region sweeps
-        "sweep corpus is %d, expected 4105. If a sweep was legitimately added or removed, say WHY "
+    # 2026-08-29 (#1111): 4105 -> 4104. The sole removal is dead ESD award f400020; its award
+    # branch requires f10009335, which has no setter/default in the complete input corpus.
+    assert total == 4104, (  # -1 (#1111): unreachable Neutralizing Boluses award
+        "sweep corpus is %d, expected 4104. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -788,6 +791,10 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 2026-08-29 (#1096): 22eeed5e112d8b71/4102 -> 7e13e38125507866/4105. Exactly three pairs
     # were added: (1038410800, f1038417020), (1048410800, f1047427000), and
     # (1051400800, f1050407000). Zero pairs were removed or re-owned.
-    assert (digest, n) == ("7e13e38125507866", 4105), (  # #1096: +3, zero churn
-        "sweep OWNERSHIP changed: (%s, %d), expected (7e13e38125507866, 4105). The total alone will "
+    # 2026-08-29 (#1111): 7e13e38125507866/4105 -> a1b74b51eb1f69da/4104. Pairwise against the
+    # freshly regenerated 125cb747 corpus: 188 removed / 187 added / 187 flags re-owned. Exactly
+    # one flag leaves the owned set (f400020), none enters it, and ZERO re-owns cross a region.
+    # The otherwise-large churn is the documented positional-id deletion / round-robin re-phase.
+    assert (digest, n) == ("a1b74b51eb1f69da", 4104), (  # #1111: -1 dead ESD award
+        "sweep OWNERSHIP changed: (%s, %d), expected (a1b74b51eb1f69da, 4104). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

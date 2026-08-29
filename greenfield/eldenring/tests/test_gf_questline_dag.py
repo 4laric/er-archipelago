@@ -382,11 +382,11 @@ class QuestlineDagGate(unittest.TestCase):
         the sharper slicing showed the root was a SELF-GATE -- a flag the awarding branch sets
         ITSELF, which is bookkeeping ("not already taken"), never a requirement:
 
-          f400020 (Neutralizing Boluses, `talk/.../t304001000.py` machine `_x43`) carried
-            DIALOGUE_STEP(f10009308) and DIALOGUE_STEP(f10009336); both are set BY that branch at
-            :696 and :716. What survives is the goods 8100 it consumes at :711 -- and that survives
-            only because consumption is now PATH-scoped (the consumption's guard stack must be
-            contained in the statement's), which is also what keeps it off the entry-2 arm.
+          f400042 (Glowstone, `talk/.../t800001100.py` machines `_x68` -> `_x69`) carried
+            DIALOGUE_STEP(f11009307), set BY the awarding branch at :1361. What survives is goods
+            1210, consumed in `_x68` at :1319 on the path that calls `_x69` -- and it survives only
+            because consumption is PATH-scoped (the consumption's guard stack must be contained in
+            the statement's).
           f400041 (Perfume Bottle, `t800906000.py` `_x99`) carried DIALOGUE_STEP(f1043379223), a
             flag that occurs ONLY negated (`... and not GetEventFlag(1043379223)` at :1415) and is
             set at :1434, one line above the award at :1436.
@@ -403,8 +403,7 @@ class QuestlineDagGate(unittest.TestCase):
             corpus = list(csv.DictReader(
                 (ln for ln in fh if not ln.lstrip().startswith("#")), delimiter="\t"))
         self.assertTrue(corpus, "the extractor corpus parsed to ZERO rows")
-        for target, bad, why in (("400020", "10009308", "set by the awarding branch at :696"),
-                                 ("400020", "10009336", "set by the awarding branch at :716"),
+        for target, bad, why in (("400042", "11009307", "set by the awarding branch at :1361"),
                                  ("400041", "1043379223", "occurs only NEGATED at :1415, set at "
                                                           ":1434, one line above the award")):
             hits = [r for r in corpus
@@ -416,9 +415,9 @@ class QuestlineDagGate(unittest.TestCase):
                                    % (target, bad, why))
         # ...and the requirement the retraction was careful to KEEP must still be there, or this
         # test would pass just as well against an extractor that had gone blind entirely.
-        self.assertTrue([r for r in corpus if r["target_flag"] == "400020"
-                         and r["source_kind"] == "goods" and r["source_id"] == "8100"],
-                        "f400020 lost ITEM_POSSESSION(goods 8100) -- the retraction dropped the "
+        self.assertTrue([r for r in corpus if r["target_flag"] == "400042"
+                         and r["source_kind"] == "goods" and r["source_id"] == "1210"],
+                        "f400042 lost ITEM_POSSESSION(goods 1210) -- the retraction dropped the "
                         "self-gates and KEPT the consumption; losing both is not the same result.")
 
     # -- D. no drift with the other copy of the region resolver -------------
