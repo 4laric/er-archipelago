@@ -46,10 +46,16 @@ class TarnishedPackDecision(unittest.TestCase):
         self.assertEqual(set(tp.TARNISHED_PACK_PARAM_NAMES.values()),
                          set(tp.TARNISHED_PACK_EQUIPMENT))
 
-    def test_first_location_slice_has_eleven_shop_flags(self):
-        self.assertEqual(len(tp.TARNISHED_PACK_LOCATION_FLAGS), 11)
+    def test_verified_location_slices_have_eleven_shops_and_three_field_pickups(self):
+        self.assertEqual(len(tp.TARNISHED_PACK_LOCATION_FLAGS), 14)
         self.assertTrue({150680, 160660, 170090, 280960}
                         <= tp.TARNISHED_PACK_LOCATION_FLAGS)
+        self.assertTrue({1_038_417_020, 1_047_427_000, 1_050_407_000}
+                        <= tp.TARNISHED_PACK_LOCATION_FLAGS)
+        self.assertEqual(frozenset(tp.TARNISHED_PACK_LOCATION_ORDER),
+                         tp.TARNISHED_PACK_LOCATION_FLAGS)
+        self.assertEqual(tp.TARNISHED_PACK_LOCATION_ORDER[-3:],
+                         (1_038_417_020, 1_047_427_000, 1_050_407_000))
 
     def test_matching_catalog_items_follow_the_ownership_toggle(self):
         catalog = {

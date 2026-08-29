@@ -49,7 +49,7 @@ _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relat
 # 4932 -> 4931 (2026-08-07): the item-existence guard learned that FromSoft's cut-content marker
 # also appears as '[ERROR]<real name>', which retired f400081 (goods 8130, "[ERROR]Rya's
 # Necklace"). It was never a second necklace -- the real one is goods 8136 (f400300).
-BASELINE_TOTAL_LOCATIONS = 4926   # +11 Patch 1.17 limited-stock merchant checks (#1096)
+BASELINE_TOTAL_LOCATIONS = 4929   # +11 Patch 1.17 shops + 3 field pickups (#1096)
                                   # 16001/16004 are starting/caster-kit data, not merchant checks.
                                   # Their 36 stock flags leave the client shop table; 33 derived
                                   # shop-only locations leave the pool, while three flags retain
@@ -244,14 +244,15 @@ class CoverageGateStatic(unittest.TestCase, _BaselineAssertions):
         self.assertGreater(len(tripped["suppression"]), len(clean["suppression"]),
                            "gate did NOT trip on a corrupted suppression table")
 
-    def test_non_goods_lot_zero_counts_as_suppression(self):
-        """1.17 changed f2048467030's lot category from the goods-blank path to the
-        non-goods zero path. The coverage gate must model the same table the client emits."""
+    def test_shared_flag_reports_the_locations_own_lot_suppression(self):
+        """1.17 added an equipment lot beside f2048467030's goods lot. This location remains
+        bound to the goods sibling, so coverage must report its own blank rather than the other
+        sibling's zero; both rows are still emitted to the client suppression table."""
         records, _ctx = self.cov.build_coverage()
         rec = records[7773502]
         self.assertEqual(rec.detect_flag, 2048467030)
-        self.assertEqual(rec.suppress_kind, "lot_zero_map")
-        self.assertIn("checkLotZero", rec.provenance["suppress"])
+        self.assertEqual(rec.suppress_kind, "lot_blank_map")
+        self.assertIn("checkLotBlank", rec.provenance["suppress"])
 
     def test_tripwire_flag_with_no_awarding_lot_is_caught(self):
         """A check keyed on a flag NO ItemLotParam row awards (the phantom synthetic class: flag

@@ -35,6 +35,10 @@ of the release).
   (#1096).** The verified limited-stock purchases for the Hefty Scimitar, Steel set, Silver Grooved
   Shield and set, and Reverse-Bladed Sword join the seed alongside the pack gear. They remain absent
   by default, and are deliberately separate from the Shadow of the Erdtree ownership gate.
+- **Three Tarnished Pack corpse pickups now join enabled seeds (#1096).** Idus Sword near Liurnia
+  Lake Shore, Ritual Thrusting Shield near the Isolated Merchant's Shack, and Reed Great Katana near
+  Fort Faroth are backed by their live 1.17 lot, asset, map, and position joins. Existing merchant
+  check IDs remain unchanged; these checks append to the optional Tarnished Pack suffix.
 
 ## v0.5.2 — 2026-08-27
 

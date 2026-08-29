@@ -344,7 +344,7 @@
    "tarnished_pack_combos": {}
   },
   "Caelid": {
-   "checks": 361,
+   "checks": 363,
    "combos": {
     "Basin": 1,
     "Basin|Boss|FieldBoss": 1,
@@ -358,7 +358,7 @@
     "Boss|MinorDungeonBoss|Seedtree": 1,
     "Church": 1,
     "KeyItem": 1,
-    "Legendary": 4,
+    "Legendary": 5,
     "Seedtree": 3,
     "Shop": 3,
     "Shop|ShopNonSpell": 22,
@@ -389,13 +389,13 @@
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 121,
+    "bosses": 122,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 121,
+     "bosses": 122,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -403,12 +403,14 @@
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 117,
+     "bosses": 118,
      "minidungeons": 55
     }
    },
-   "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_checks": 2,
+   "tarnished_pack_combos": {
+    "Legendary": 1
+   }
   },
   "Cerulean": {
    "checks": 105,
@@ -952,7 +954,7 @@
    "tarnished_pack_combos": {}
   },
   "Liurnia": {
-   "checks": 614,
+   "checks": 615,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -963,7 +965,7 @@
     "Boss|MinorDungeonBoss": 9,
     "Church": 3,
     "KeyItem": 2,
-    "Legendary": 6,
+    "Legendary": 7,
     "Seedtree": 3,
     "Shop": 18,
     "Shop|ShopNonSpell": 32,
@@ -1016,8 +1018,10 @@
      "minidungeons": 45
     }
    },
-   "tarnished_pack_checks": 5,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_checks": 6,
+   "tarnished_pack_combos": {
+    "Legendary": 1
+   }
   },
   "Mohgwyn": {
    "checks": 67,
@@ -1560,5 +1564,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "a94efcfa32e69321ccce8178515a794173fe1dd30dc9cc024f2a82262fddb58d"
+ "source_sha256": "d341b2ea05c929533d17327c835b1b99b1baad47af82b69375b9665d29201216"
 }

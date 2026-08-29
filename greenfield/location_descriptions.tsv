@@ -202,3 +202,8 @@ flag	description
 1044337100	Callu Baptismal Church
 1043357100	Church of Pilgrimmage
 1041337200	Fourth Church of Marika
+# Tarnished Pack field pickups: live Patch 1.17 MSB asset positions, independently joined to the
+# nearest grace on #1096. Keep these explicit until the next full coordinate-table rebuild.
+1038417020	corpse near Liurnia Lake Shore
+1047427000	corpse near Isolated Merchant's Shack
+1050407000	corpse near Fort Faroth

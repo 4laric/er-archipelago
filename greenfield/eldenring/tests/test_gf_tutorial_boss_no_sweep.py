@@ -533,8 +533,11 @@ def test_the_sweep_corpus_did_not_shrink():
     # f14007850 (AP 7900286/7900287), hence +2 members with the same acquisition flag. The restored
     # corroborated talk award f400020 adds the third member. Four existing flags merely re-own
     # between the two tutorial triggers; none leaves its region.
-    assert total == 4102, (  # +73 (2026-08-20, #907): every admissible boss OWN drop joined its own trigger's sweep; +1 (2026-08-21, #940): the Four Belfries key joined the Royal Revenant
-        "sweep corpus is %d, expected 4102. If a sweep was legitimately added or removed, say WHY "
+    # 2026-08-29 (#1096): 4102 -> 4105. The three verified Tarnished Pack field corpse pickups
+    # join their nearest same-region field-boss sweeps: Idus Sword -> Adan, Ritual Thrusting Shield
+    # -> Bell Bearing Hunter, and Reed Great Katana -> Putrid Avatar. No existing member moves.
+    assert total == 4105, (  # +3 (#1096): the three new field pickups join same-region sweeps
+        "sweep corpus is %d, expected 4105. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -782,6 +785,9 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # (trigger, flag): removed 4, added 6. New flags are f400020 and f14007850 (the latter occurs
     # twice because two independently randomized sibling checks share it); f400051, f400221,
     # f10007082 and f10017900 only swap between tutorial triggers, with zero region crossings.
-    assert (digest, n) == ("22eeed5e112d8b71", 4102), (  # 2026-08-28 (#241): +3 real members; four same-region re-owns
-        "sweep OWNERSHIP changed: (%s, %d), expected (22eeed5e112d8b71, 4102). The total alone will "
+    # 2026-08-29 (#1096): 22eeed5e112d8b71/4102 -> 7e13e38125507866/4105. Exactly three pairs
+    # were added: (1038410800, f1038417020), (1048410800, f1047427000), and
+    # (1051400800, f1050407000). Zero pairs were removed or re-owned.
+    assert (digest, n) == ("7e13e38125507866", 4105), (  # #1096: +3, zero churn
+        "sweep OWNERSHIP changed: (%s, %d), expected (7e13e38125507866, 4105). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

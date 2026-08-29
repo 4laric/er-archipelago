@@ -82,15 +82,19 @@ TARNISHED_PACK_PARAM_NAMES = {
     for name, full_id in TARNISHED_PACK_EQUIPMENT.items()
 }
 
-# One-shot acquisition flags admitted by the location half of the ownership option. This first safe
-# slice is the eleven limited-stock merchant rows. These are flags (the
+# One-shot acquisition flags admitted by the location half of the ownership option. The safe
+# slices are the eleven limited-stock merchant rows plus three ordinary, persistent corpse
+# pickups whose lot, asset, map position, and nearest grace were independently joined from the
+# live Patch 1.17 params and MSBs on #1096. These are flags (the
 # third tuple field in LOCATIONS), so the seed-level filter covers region creation, pool accounting,
 # slot data, and reconnect behavior at the same chokepoint.
-TARNISHED_PACK_LOCATION_FLAGS = frozenset({
+TARNISHED_PACK_LOCATION_ORDER = (
     150680, 160660, 160670, 160680, 160690,
     170090, 170100, 170110, 170120, 170130,
     280960,
-})
+    1_038_417_020, 1_047_427_000, 1_050_407_000,
+)
+TARNISHED_PACK_LOCATION_FLAGS = frozenset(TARNISHED_PACK_LOCATION_ORDER)
 
 # FullID category tags match ItemId::category in the client and the generated ITEM_CATALOG:
 # weapons=0x0..., armor=0x1..., goods=0x4....

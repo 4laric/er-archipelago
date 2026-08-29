@@ -1169,6 +1169,8 @@ LOCATIONS = {
         ('Caelid :: Sacrificial Twig - from Isolated Merchant [f180800]', 7774593, 180800),
         ('Caelid :: Polite Bow - around Chamber Outside the Plaza [f60801]', 7774595, 60801),
         ('Caelid :: Desperate Prayer [f60842]', 7774622, 60842),
+        ("Caelid :: Ritual Thrusting Shield - corpse near Isolated Merchant's Shack (region unconfirmed), may be sweep-granted by Bell Bearing Hunter (m60_48_41) [f1047427000]", 7774639, 1047427000),
+        ('Caelid :: Reed Great Katana - corpse near Fort Faroth, may be sweep-granted by Putrid Avatar (m60_51_40) [f1050407000]', 7774640, 1050407000),
         ("Caelid :: Blackguard's Iron Mask - m60_44_52 (region unconfirmed) [f400309]", 7900023, 400309),
         ("Caelid :: Blackguard's Bell Bearing - m60_44_52 (region unconfirmed) [f400309]", 7900024, 400309),
         ("Caelid :: Gowry's Bell Bearing - around Church of the Plague, may be sweep-granted by Night's Cavalry (m60_49_37) [f400312]", 7900025, 400312),
@@ -3331,6 +3333,7 @@ LOCATIONS = {
         ('Liurnia :: Silver Grooved Armor [f170110]', 7774634, 170110),
         ('Liurnia :: Silver Grooved Gauntlets [f170120]', 7774635, 170120),
         ('Liurnia :: Silver Grooved Greaves [f170130]', 7774636, 170130),
+        ('Liurnia :: Idus Sword - corpse near Liurnia Lake Shore, may be sweep-granted by Adan, Thief of Fire (m60_38_41) [f1038417020]', 7774638, 1038417020),
         ("Liurnia :: Rancorcall - around Revenger's Shack, may be sweep-granted by Erdtree Avatar (m60_33_43) [f400061]", 7900005, 400061),
         ("Liurnia :: Preceptor's Big Hat - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]", 7900008, 400148),
         ("Liurnia :: Preceptor's Long Gown - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]", 7900009, 400148),
@@ -5535,4 +5538,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:2f15bb0cc5844020612240a8eaadf3aab48afb064eed1c8b7079c920957418fc', 'module': 'data.py', 'body_sha256': 'sha256:8db1d85eddc5daf6258e6579b2df9b9aa2156de1d476f2127b2976f5243400cb'}
+_GEN_STAMP = {'inputs_hash': 'sha256:06a768e8395ae9a74b201cde9750ded37835c9b82fc4c535db26c9c41eee3fb9', 'module': 'data.py', 'body_sha256': 'sha256:79cd283170df6d06c3d77c7029a0b4a0e08c30341c7e8b2ba182abe2fdcb50ca'}

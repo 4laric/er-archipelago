@@ -5407,8 +5407,16 @@ if _gest_clash:
 # gestures, co-checks) has finished: the Tarnished Pack checks are new in v0.5.3 and must occupy one
 # suffix, never insert into the 4,627-row shipped corpus and renumber existing checks.
 _tp_location_flags = set(_tpmod.TARNISHED_PACK_LOCATION_FLAGS)
+_tp_location_order = {
+    _flag: _index for _index, _flag in enumerate(_tpmod.TARNISHED_PACK_LOCATION_ORDER)
+}
+_tp_rows = {int(r["flag"]): r for r in rows if int(r["flag"]) in _tp_location_flags}
+if set(_tp_rows) != _tp_location_flags:
+    raise SystemExit("FATAL: Tarnished Pack location order and generated rows disagree: "
+                     f"missing={sorted(_tp_location_flags - set(_tp_rows))}, "
+                     f"extra={sorted(set(_tp_rows) - _tp_location_flags)}")
 rows = ([r for r in rows if int(r["flag"]) not in _tp_location_flags]
-        + [r for r in rows if int(r["flag"]) in _tp_location_flags])
+        + sorted(_tp_rows.values(), key=lambda r: _tp_location_order[int(r["flag"])]))
 
 buckets=OrderedDict()
 loc_tags={}
