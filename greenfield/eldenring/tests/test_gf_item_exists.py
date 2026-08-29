@@ -28,6 +28,7 @@ import unittest
 import xml.etree.ElementTree as ET
 
 from ..data import LOCATIONS
+from ..tarnished_pack import TARNISHED_PACK_PARAM_NAMES
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -107,6 +108,14 @@ class TestEveryCheckItemExists(unittest.TestCase):
             if cat not in named:
                 return True                                   # cat 0/6: never judged
             if iid in named[cat]:
+                return True
+            # Patch 1.17's paid-pack equipment rows deliberately have no labels in the ordinary
+            # English FMGs carried by gen_inputs.db. Their names are an explicit, evidence-backed
+            # join in tarnished_pack.py (params + acquisition lots + live menu witnesses), which is
+            # the same authority gen_data uses to put them in ITEM_CATALOG. Keep this exception
+            # typed and finite: ItemLot cat 2/3 corresponds to Shop param type 0/1.
+            base = (iid // 100) * 100 if cat == 2 else iid
+            if cat in (2, 3) and (cat - 2, base) in TARNISHED_PACK_PARAM_NAMES:
                 return True
             # weapons carry their reinforcement in the id: +N == base + N
             return cat == 2 and (iid // 100) * 100 in named[cat]

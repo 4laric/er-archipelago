@@ -7693,6 +7693,9 @@ LOCATION_ITEM = {
     7774635: 'Silver Grooved Gauntlets',
     7774636: 'Silver Grooved Greaves',
     7774637: 'Reverse-Bladed Sword',
+    7774638: 'Idus Sword',
+    7774639: 'Ritual Thrusting Shield',
+    7774640: 'Reed Great Katana',
     7900000: 'Prayer Room Key',
     7900001: 'Scadutree Fragment',
     7900002: "Messmer's Kindling",
@@ -12030,4 +12033,4 @@ JUNK_GEAR_NAMES = [
     'Zamor Mask',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:2f15bb0cc5844020612240a8eaadf3aab48afb064eed1c8b7079c920957418fc', 'module': 'item_ids.py', 'body_sha256': 'sha256:89ee335c36acbcd2f9e2fba13b90a0b9df789e5254712f18297845698b65ce6a'}
+_GEN_STAMP = {'inputs_hash': 'sha256:06a768e8395ae9a74b201cde9750ded37835c9b82fc4c535db26c9c41eee3fb9', 'module': 'item_ids.py', 'body_sha256': 'sha256:50fbdd5be57433ceab39cad9097dc56eb875091dc11c240ed50893f0b11487e0'}

@@ -134,7 +134,8 @@ def _derived_eligible(census):
     return out
 
 
-def py_marginals(census, selected, enable_dlc=True, dlc_only=False, rung="bosses"):
+def py_marginals(census, selected, enable_dlc=True, dlc_only=False, rung="bosses",
+                 tarnished_pack_on=False):
     """Reference implementation of ERW.surfaceMarginals. Exact set arithmetic over tag COMBINATIONS,
     plus the DERIVED classes, which are not combinations at all.
 
@@ -151,6 +152,10 @@ def py_marginals(census, selected, enable_dlc=True, dlc_only=False, rung="bosses
             for combo, cnt in R[name]["combos"].items():
                 if sel & set(combo.split("|")):
                     n += cnt
+            if not tarnished_pack_on:
+                for combo, cnt in (R[name].get("tarnished_pack_combos") or {}).items():
+                    if sel & set(combo.split("|")):
+                        n -= cnt
             sweep_by_class = R[name].get("sweep_slots_by_class") or {}
             if "SweepSlot" in sel:
                 n += (sweep_by_class.get("SweepSlot") or R[name].get("sweep_slots") or {}).get(rung, 0)
@@ -257,7 +262,8 @@ def _run_node_marginals(core, census, cases):
     harness = (core + "\nconst __census = " + json.dumps(census) + ";\n"
                + "const __cases = " + json.dumps(cases) + ";\n"
                + "console.log(JSON.stringify(__cases.map(c => ERW.surfaceMarginals("
-                 "__census, c.selected, {enableDlc: c.enableDlc, dlcOnly: c.dlcOnly}))));\n")
+                 "__census, c.selected, {enableDlc: c.enableDlc, dlcOnly: c.dlcOnly, "
+                 "enableTarnishedPack: c.enableTarnishedPack}))));\n")
     with tempfile.TemporaryDirectory() as d:
         path = os.path.join(d, "marginals.js")
         with open(path, "w", encoding="utf-8", newline="\n") as f:
@@ -436,7 +442,8 @@ def main(argv=None):
         ]
         got = _run_node_marginals(_core(html), census, MG_CASES)
         for case, g in zip(MG_CASES, got):
-            want = py_marginals(census, case["selected"], case["enableDlc"], case["dlcOnly"])
+            want = py_marginals(census, case["selected"], case["enableDlc"], case["dlcOnly"],
+                                tarnished_pack_on=case.get("enableTarnishedPack", False))
             if g != want:
                 bad.append("surfaceMarginals %s: JS != Python\n         JS     %s\n         Python %s"
                            % (case, g, want))
@@ -452,7 +459,8 @@ def main(argv=None):
         else:
             singles = _run_node_marginals(
                 _core(html), census,
-                [{"selected": [c], "enableDlc": True, "dlcOnly": False} for c in classes])
+                [{"selected": [c], "enableDlc": True, "dlcOnly": False,
+                  "enableTarnishedPack": True} for c in classes])
             # 🛑 A DERIVED class is deliberately in the census and deliberately NOT in the tsv: the
             # tsv is a corpus-wide TAG count and SweepSlot has no tag (contract.SURFACE_DERIVED_
             # CLASSES). Skipping it would weaken the chain, so it is cross-checked the other way
@@ -478,7 +486,8 @@ def main(argv=None):
             if hosting is not None:
                 dflt = _run_node_marginals(
                     _core(html), census,
-                    [{"selected": default, "enableDlc": True, "dlcOnly": False}])[0]
+                    [{"selected": default, "enableDlc": True, "dlcOnly": False,
+                      "enableTarnishedPack": True}])[0]
                 # The tsv headline prices the TAGGED half of the default surface only (it says so,
                 # and test_gf_surface_confidence pins the disclosure). So the identity is not
                 # equality any more -- it is equality once the derived half is added, which is a

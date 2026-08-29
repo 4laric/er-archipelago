@@ -5162,3 +5162,6 @@ ap_id,flag,flag_source,item_name,map,region,method
 7005160,2053467600,map_lot,Cerulean Seed Talisman +1,PENDING,Land of Shadow (DLC),flag_prefix
 7005161,2053487000,map_lot,Fingercreeper Ashes,m61_53_48_00,Land of Shadow (DLC),treasure
 7005162,2053487010,map_lot,Shadow Realm Rune [6],m61_53_48_00,Land of Shadow (DLC),treasure
+7005163,1038417020,map_lot,Idus Sword,m60_38_41_00,Liurnia,treasure
+7005164,1047427000,map_lot,Ritual Thrusting Shield,m60_47_42_00,Caelid,treasure
+7005165,1050407000,map_lot,Reed Great Katana,m60_50_40_00,Caelid,treasure

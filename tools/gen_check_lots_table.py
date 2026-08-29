@@ -124,7 +124,9 @@ def name_witnesses():
 
     cat_src = os.path.join(REPO, "greenfield", "eldenring", "item_ids.py")
     text = open(cat_src, encoding="utf-8").read()
-    by_name = {m.group(1): int(m.group(2)) for m in re.finditer(r"'([^']+)'\s*:\s*(\d+),", text)}
+    by_name = {}
+    for m in re.finditer(r"'([^']+)'\s*:\s*(\d+),", text):
+        by_name.setdefault(m.group(1), set()).add(int(m.group(2)))
 
     rm = os.path.join(REPO, "greenfield", "region_map.csv")
     if not os.path.isfile(rm):
@@ -141,12 +143,14 @@ def name_witnesses():
             # So EVERY spell name witness missed, which is exactly why lotItemCategory 6 (sorceries) had
             # no evidence and the derivation kept refusing to guess. It was right to refuse; the witness
             # was simply broken. Stripping the tag resolves 159 more names.
-            full = by_name.get(nm)
-            if full is None:
-                bare = re.sub(r"^\[[^\]]+\]\s*", "", nm)
-                full = by_name.get(bare)
-            if full is None:
+            tagged_spell = nm.startswith("[Sorcery] ") or nm.startswith("[Incantation] ")
+            bare = re.sub(r"^\[[^\]]+\]\s*", "", nm)
+            candidates = by_name.get(nm) or by_name.get(bare) or set()
+            if tagged_spell:
+                candidates = {full for full in candidates if full & 0xF000_0000 == GOODS_NIBBLE}
+            if len(candidates) != 1:
                 continue
+            full = next(iter(candidates))
             out[int(f)] = (full & 0x0FFF_FFFF, full & 0xF000_0000)
     return out
 
