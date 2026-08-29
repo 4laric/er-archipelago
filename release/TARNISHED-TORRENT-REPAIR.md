@@ -8,7 +8,27 @@ stop answering the whistle.
 new rows: `80020`, `80030`, `80040`, and `80050`. A comparison of Matt v0.11.4's exported table with
 vanilla 1.17 found no other added, removed, or modified `RideParam` rows.
 
-## Apply it
+## One-command installer mode
+
+The release's existing Matt installer can patch the rows while it wires in the client:
+
+```powershell
+.\me3\install-into-matts-rando.ps1 -Randomizer "C:\path\to\randomizer" -WithTorrentRepair
+```
+
+This mode requires Soulstruct 2.3.2's fixed source build. Its PyPI 2.3.2 wheel omitted two
+ParamCrypt metadata files, so install the fixed upstream commit for the same Python first:
+
+```powershell
+py -m pip install "soulstruct @ git+https://github.com/Grimrukh/soulstruct.git@d59dc41e"
+```
+
+The installer decrypts the regulation with Soulstruct but rewrites only the raw `RideParam` binder
+entry. It preserves all existing binder entries and RideParam rows byte-for-byte, refuses partial
+or conflicting repairs, verifies the encrypted result, makes a timestamped backup, and replaces
+the target atomically. A second run is an idempotent no-op.
+
+## Manual Smithbox mode
 
 1. Run Matt's randomizer first and close Elden Ring.
 2. Back up Matt's generated `randomizer/regulation.bin`.

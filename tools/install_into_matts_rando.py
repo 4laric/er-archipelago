@@ -33,8 +33,13 @@ WHAT THIS REFUSES, loudly (exit 1):
   * `config_eldenringrandomizer_dll.toml` exists NEARBY but not in the target folder
     (--randomizer points at the wrong level; the refusal names where it was found).
 
+OPTIONAL TORRENT REPAIR (`--with-torrent-repair`): adds only Elden Ring 1.17's four missing
+Spectral Steed RideParam rows to Matt's regulation.bin. It backs up regulation.bin, preserves
+every existing binder entry and RideParam row byte-for-byte, verifies the encrypted candidate,
+and replaces the target atomically. Soulstruct is required only for this opt-in mode.
+
 Exit codes: 0 = changed, 2 = already current (idempotent no-op), 1 = refused.
-All output is ASCII. A timestamped backup of the toml is written before any change.
+All output is ASCII. Timestamped backups are written before either owned file changes.
 """
 from __future__ import annotations
 import argparse
@@ -166,6 +171,8 @@ def run(argv: list[str] | None = None, script_path: Path | None = None) -> int:
                         help="matt's randomizer folder (contains %s)" % EXE_NAME)
     parser.add_argument("--with-flower", action="store_true",
                         help="also run the AP Flower icon installer against the same folder")
+    parser.add_argument("--with-torrent-repair", action="store_true",
+                        help="add the four missing Elden Ring 1.17 RideParam rows to regulation.bin")
     args = parser.parse_args(argv)
 
     me3 = bundle_dir(script_path or Path(__file__))
@@ -197,7 +204,7 @@ def run(argv: list[str] | None = None, script_path: Path | None = None) -> int:
             "  refuses to start or the client does not load, delete it and report the issue."
         )
         _post_edit_notes(created_dll_toml(dll_path))
-        return _maybe_flower(args, me3, target, 0)
+        return _maybe_extras(args, me3, target, 0)
 
     text = toml_path.read_text(encoding="utf-8-sig")
     new_text, action = mutate_dll_toml(text, dll_path)
@@ -216,7 +223,7 @@ def run(argv: list[str] | None = None, script_path: Path | None = None) -> int:
         rc = 0
 
     _post_edit_notes(new_text)
-    return _maybe_flower(args, me3, target, rc)
+    return _maybe_extras(args, me3, target, rc)
 
 
 def _post_edit_notes(toml_text: str) -> None:
@@ -228,7 +235,7 @@ def _post_edit_notes(toml_text: str) -> None:
     )
 
 
-def _maybe_flower(args, me3: Path, target: Path, rc: int) -> int:
+def _maybe_extras(args, me3: Path, target: Path, rc: int) -> int:
     if args.with_flower:
         flower = me3 / "install_ap_flower.py"
         if not flower.is_file():
@@ -240,6 +247,18 @@ def _maybe_flower(args, me3: Path, target: Path, rc: int) -> int:
         if flower_rc != 0:
             print("AP Flower installer exited %d -- see its output above." % flower_rc)
             return 1
+    if args.with_torrent_repair:
+        try:
+            from torrent_rideparam_repair import TorrentRepairError, repair_regulation
+            state, backup = repair_regulation(target / "regulation.bin")
+        except (ImportError, TorrentRepairError) as exc:
+            raise InstallError("--with-torrent-repair: %s" % exc) from exc
+        if state == "current":
+            print("Torrent repair already current: all four 1.17 RideParam rows are present")
+        else:
+            print("Patched four Elden Ring 1.17 Spectral Steed rows into regulation.bin")
+            print("  backup: %s" % backup.name)
+            rc = 0
     return rc
 
 

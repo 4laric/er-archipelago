@@ -212,10 +212,14 @@ def stage(args, stage_dir: str) -> None:
     # bundle_dir() resolves the bundle as "the folder this script runs from".
     matts_installer = os.path.join(REPO, "tools", "install_into_matts_rando.ps1")
     matts_installer_py = os.path.join(REPO, "tools", "install_into_matts_rando.py")
-    if not os.path.isfile(matts_installer) or not os.path.isfile(matts_installer_py):
+    torrent_repair_py = os.path.join(REPO, "tools", "torrent_rideparam_repair.py")
+    if not all(
+        os.path.isfile(path) for path in (matts_installer, matts_installer_py, torrent_repair_py)
+    ):
         die("matt's-randomizer installer is missing")
     shutil.copy2(matts_installer, os.path.join(me3_dst, "install-into-matts-rando.ps1"))
     shutil.copy2(matts_installer_py, os.path.join(me3_dst, "install_into_matts_rando.py"))
+    shutil.copy2(torrent_repair_py, os.path.join(me3_dst, "torrent_rideparam_repair.py"))
     # The phase-2 updater (the banner tells you WHEN; this is what you run). Ships beside the
     # dll because it self-locates its install as its own folder.
     updater = os.path.join(REPO, "tools", "update-er-archipelago.ps1")
