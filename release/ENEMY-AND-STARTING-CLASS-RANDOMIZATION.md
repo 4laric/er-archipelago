@@ -48,6 +48,14 @@ correct thing and the safer thing -- you get the current version, with his insta
    pickup is still an Archipelago check, and Region Locks still arrive
    from the multiworld.
 
+### Tarnished Edition 1.17: repair Torrent after randomizing
+
+Matt v0.11.4's generated `regulation.bin` predates Elden Ring 1.17 and omits the four new
+`RideParam` rows used by Spectral Steed appearances. That can leave Torrent unable to answer the
+whistle. After randomizing, follow `TARNISHED-TORRENT-REPAIR.md` and import the bundled Smithbox
+delta. It adds only rows `80020`, `80030`, `80040`, and `80050`; it does not replace the table or
+touch Matt's randomization.
+
 ## Recommended matt's randomizer settings
 
 Paste this into matt's randomizer (**Options -> Set options from string**):

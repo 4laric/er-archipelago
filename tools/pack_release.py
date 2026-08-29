@@ -109,6 +109,8 @@ DOCS = [
     ("release/ATTRIBUTION.md", True),
     ("release/PROVENANCE.md", True),
     ("release/ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md", True),
+    ("release/TARNISHED-TORRENT-REPAIR.md", True),
+    ("release/tarnished-torrent-rideparam-1.17.json", True),
     ("Elden-Ring-Archipelago-Player-Guide.md", True),
     ("release/SCREENSHOTS.md", False),
     ("release/DISTRIBUTION.md", False),
