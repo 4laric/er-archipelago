@@ -180,6 +180,11 @@ jobs:
       #      there was no .dll on disk yet, and no --dll was passed either. Moving the step below
       #      the download is what makes the comment true.
       - name: The tag's record of what pairs with what
+        env:
+          # This ref exists only to reproduce the immutable v0.5.2 pair after client main moved.
+          # The checker still verifies that the DLL embeds the tag's gitlink; only its unrelated
+          # "pin equals current main" currency assertion is relaxed.
+          ALLOW_STALE_PIN: "1"
         run: python tools/check_release_pairing.py --dll me3/eldenring_archipelago.dll
         continue-on-error: ${{ github.ref == 'refs/heads/main' || github.event.inputs.unofficial == 'true' }}
 
