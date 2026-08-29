@@ -225,7 +225,8 @@ class StartRegionsWired(WorldTestBase):
         for seed in self.SEEDS:
             self.world_setup(seed=seed)
             kept = list(self.world._kept())
-            total = (len(LOCATIONS.get(HUB, [])) + sum(len(LOCATIONS.get(r, [])) for r in kept)
+            total = (len(self.world._seed_locations(HUB))
+                     + sum(len(self.world._seed_locations(r)) for r in kept)
                      + len(getattr(self.world, "gf_extra_locations", ())))
             self.assertEqual(len(world_pool_items(self)), total,
                              f"seed {seed}: pool not count-neutral after three precollects")

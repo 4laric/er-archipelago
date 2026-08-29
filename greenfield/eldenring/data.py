@@ -119,6 +119,7 @@ LOCATIONS = {
         ('Roundtable Hold :: Outer Order [f60846]', 7774624, 60846),
         ('Roundtable Hold :: Inner Order [f60847]', 7774625, 60847),
         ('Roundtable Hold :: Golden Order Totality [f60848]', 7774626, 60848),
+        ('Roundtable Hold :: Reverse-Bladed Sword [f280960]', 7774637, 280960),
         ('Roundtable Hold :: All-Knowing Helm - around Table of Lost Grace [f400282]', 7900020, 400282),
         ('Roundtable Hold :: All-Knowing Armor - around Table of Lost Grace [f400283]', 7900021, 400283),
         ('Roundtable Hold :: All-Knowing Greaves - around Table of Lost Grace [f400285]', 7900022, 400285),
@@ -2742,6 +2743,7 @@ LOCATIONS = {
         ('Limgrave :: Curtsy [f60803]', 7774609, 60803),
         ('Limgrave :: Nod In Thought [f60817]', 7774613, 60817),
         ('Limgrave :: Sitting Sideways [f60835]', 7774617, 60835),
+        ('Limgrave :: Hefty Scimitar [f150680]', 7774627, 150680),
         ('Limgrave :: Cloth Trousers - treasure · Murkwater Cave [f31007010]', 7900210, 31007010),
         ('Limgrave :: Scaled Armor - m60_42_39 (region unconfirmed), may be sweep-granted by Bell Bearing Hunter (m60_42_38) [f1042397500]', 7900253, 1042397500),
         ('Limgrave :: Scaled Gauntlets - m60_42_39 (region unconfirmed), may be sweep-granted by Deathbird (m60_42_38) [f1042397500]', 7900254, 1042397500),
@@ -3324,6 +3326,11 @@ LOCATIONS = {
         ('Liurnia :: Estoc - from Merchant Kalé or Nomadic Merchant [f160330]', 7774588, 160330),
         ("Liurnia :: Fire Spur Me - around Slumbering Wolf's Shack [f60824]", 7774600, 60824),
         ('Liurnia :: Erudition [f60845]', 7774623, 60845),
+        ('Liurnia :: Silver Grooved Shield [f170090]', 7774632, 170090),
+        ('Liurnia :: Silver Grooved Helm [f170100]', 7774633, 170100),
+        ('Liurnia :: Silver Grooved Armor [f170110]', 7774634, 170110),
+        ('Liurnia :: Silver Grooved Gauntlets [f170120]', 7774635, 170120),
+        ('Liurnia :: Silver Grooved Greaves [f170130]', 7774636, 170130),
         ("Liurnia :: Rancorcall - around Revenger's Shack, may be sweep-granted by Erdtree Avatar (m60_33_43) [f400061]", 7900005, 400061),
         ("Liurnia :: Preceptor's Big Hat - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]", 7900008, 400148),
         ("Liurnia :: Preceptor's Long Gown - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]", 7900009, 400148),
@@ -4984,6 +4991,10 @@ LOCATIONS = {
         ('Weeping :: Ballista Bolt - from Isolated Merchant or Merchant Kalé [f160560]', 7774589, 160560),
         ('Weeping :: Sacrificial Twig - from Isolated Merchant or Merchant Kalé [f160570]', 7774590, 160570),
         ('Weeping :: Great Arrow - from Isolated Merchant or Merchant Kalé [f160630]', 7774591, 160630),
+        ('Weeping :: Steel Helm [f160660]', 7774628, 160660),
+        ('Weeping :: Steel Armor [f160670]', 7774629, 160670),
+        ('Weeping :: Steel Gauntlets [f160680]', 7774630, 160680),
+        ('Weeping :: Steel Greaves [f160690]', 7774631, 160690),
         ('Weeping :: Crystal Burst - around Church of Pilgrimage, may be sweep-granted by Ancient Hero of Zamor (m60_42_33) [f1043347400]', 7900256, 1043347400),
         ('Weeping :: Nightrider Flail - m60_44_32 (region unconfirmed) [f1044327410]', 7900257, 1044327410),
     ],
@@ -5524,4 +5535,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:7a1919de28f01d245bd1d5fe34ce2a5a0603e88979537647650aeecec9a942e6', 'module': 'data.py', 'body_sha256': 'sha256:d4bdcf0b5aba949e83348090d38ed68a873ba0c3b21ab4174db73d131d2ddf07'}
+_GEN_STAMP = {'inputs_hash': 'sha256:2f15bb0cc5844020612240a8eaadf3aab48afb064eed1c8b7079c920957418fc', 'module': 'data.py', 'body_sha256': 'sha256:8db1d85eddc5daf6258e6579b2df9b9aa2156de1d476f2127b2976f5243400cb'}

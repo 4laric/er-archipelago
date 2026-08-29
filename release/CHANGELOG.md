@@ -31,6 +31,10 @@ of the release).
   ownership toggle admits the eight verified player weapons/shields and all 18 pieces from the four
   new armor families. Each starts as honorary S tier in the pool builder. The two NPC-only weapon
   bases and three Spectral Steed unlock goods remain excluded; this slice adds items, not locations.
+- **Tarnished Pack merchants now contribute 11 checks when that ownership toggle is enabled
+  (#1096).** The verified limited-stock purchases for the Hefty Scimitar, Steel set, Silver Grooved
+  Shield and set, and Reverse-Bladed Sword join the seed alongside the pack gear. They remain absent
+  by default, and are deliberately separate from the Shadow of the Erdtree ownership gate.
 
 ## v0.5.2 — 2026-08-27
 

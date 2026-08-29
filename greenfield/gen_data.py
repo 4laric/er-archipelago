@@ -2356,6 +2356,13 @@ def _named_item_ids():
 NAMED_ITEM_IDS = _named_item_ids()
 if NAMED_ITEM_IDS is None:
     print("[gen_data] WARNING: item name FMGs absent -- item-existence guard DISABLED")
+else:
+    # The paid Patch 1.17 rows exist in EquipParam and are independently named in the verified
+    # Tarnished census, but their normal English FMGs are blank. Admit those typed ids to the same
+    # existence universe; without this, the guard correctly sees no FMG and drops every new lot.
+    for _tp_full in _TARNISHED_PACK_EQUIPMENT.values():
+        _tp_nib = _tp_full & 0xF0000000
+        NAMED_ITEM_IDS.setdefault(_tp_nib, set()).add(_tp_full & 0x0FFFFFFF)
 
 def _lot_items_by_flag():
     """flag -> [(item_id, lotItemCategory)] across both ItemLotParam tables."""
@@ -2480,6 +2487,18 @@ for _fn, _nib, _dir in _NAME_FMGS:
         _ff = _fold(_nm)
         if _ff not in _fold2full:
             _fold2full[_ff] = _full; _fold2name[_ff] = _nm
+# Publish the same verified typed-name join into the resolver used by locations and shops. This is
+# deliberately before `_resolve_item`: a non-blank input name that cannot resolve is a fatal drift,
+# and Patch 1.17 must pass that guard rather than bypass it downstream.
+for _tp_nm, _tp_full in _TARNISHED_PACK_EQUIPMENT.items():
+    _FULL2NAME_ALL.setdefault(_tp_full, _tp_nm)
+    _name2full.setdefault(_tp_nm, _tp_full)
+    _tp_norm = _norm(_tp_nm)
+    _norm2full.setdefault(_tp_norm, _tp_full)
+    _norm2name.setdefault(_tp_norm, _tp_nm)
+    _tp_fold = _fold(_tp_nm)
+    _fold2full.setdefault(_tp_fold, _tp_full)
+    _fold2name.setdefault(_tp_fold, _tp_nm)
 # annotation strippers (region_map decorates vanilla names with location bread-crumbs)
 _LEAD_RE   = re.compile(r"^[A-Z][A-Za-z0-9/()]*\s*:\s*")           # "LG/(CE): " / "RH: " / "MA/(LER): "
 _ANNOT_RE  = re.compile(r"\s+-\s+.*$")                              # " - to SW up right stairs outside"
@@ -4825,6 +4844,12 @@ if os.path.isfile(_SHOP_ROWS_TSV):
             "region": _reg if _reg else "Unknown merchant (unresolved block)",
             "method": "shop_merchant",
         })
+    # Preserve every previously shipped positional AP id. Newly named Tarnished Pack rows existed
+    # in ShopLineupParam before this option, but were skipped while their FMG names were unknown;
+    # sorting them among the older recovered shops would insert checks into the positional tail and
+    # renumber every later shop check. Keep the legacy recovery order byte-for-byte and append this
+    # optional expansion as one suffix.
+    _tp_location_flags = set(_tpmod.TARNISHED_PACK_LOCATION_FLAGS)
     rows = rows + _shop_new
 print(f"shop rows: +{len(_shop_new)} DERIVED shop checks region_map had lost "
       f"({len(DERIVED_SHOP_FLAGS)} detectable stock flags)")
@@ -5377,6 +5402,13 @@ _gest_clash = sorted(set(GESTURE_AWARD_FLAGS)
 if _gest_clash:
     raise SystemExit(f"FATAL: gesture flags {_gest_clash} now ALSO appear in region_map.csv -- "
                      f"two sources for one check; reconcile (keep exactly one)")
+
+# Positional AP ids are assigned below. Do this after EVERY producer (primary rows, recovered shops,
+# gestures, co-checks) has finished: the Tarnished Pack checks are new in v0.5.3 and must occupy one
+# suffix, never insert into the 4,627-row shipped corpus and renumber existing checks.
+_tp_location_flags = set(_tpmod.TARNISHED_PACK_LOCATION_FLAGS)
+rows = ([r for r in rows if int(r["flag"]) not in _tp_location_flags]
+        + [r for r in rows if int(r["flag"]) in _tp_location_flags])
 
 buckets=OrderedDict()
 loc_tags={}
@@ -7780,10 +7812,11 @@ elif _slp_present:
 # region.
 DLC_GATED_SHOP_ROW_FLAGS = sorted(_flag2dlcgate)
 DLC_GATED_SHOP_CHECK_FLAGS = sorted(
-    _fl for _fl in set(SHOP_ROW_FLAGS.values()) & _flag2dlcgate)
+    _fl for _fl in set(SHOP_ROW_FLAGS.values()) & _flag2dlcgate
+    if _fl not in _tpmod.TARNISHED_PACK_LOCATION_FLAGS)
 _dlc_shop_by_region = Counter(
     SHOP_LOC_REGION[int(_aid)] for _aid, _fl in SHOP_ROW_FLAGS.items()
-    if _fl in _flag2dlcgate and int(_aid) in SHOP_LOC_REGION)
+    if _fl in DLC_GATED_SHOP_CHECK_FLAGS and int(_aid) in SHOP_LOC_REGION)
 print("shop_data: %d DLC-gated stock flag(s) raw, %d shop check flag(s) among them "
       "(skipped per-seed when the DLC is off): %s"
       % (len(DLC_GATED_SHOP_ROW_FLAGS), len(DLC_GATED_SHOP_CHECK_FLAGS),

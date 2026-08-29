@@ -29,7 +29,10 @@ exact bytes are now visible in the promotion commit instead of being composed on
 **Tarnished Pack owners can opt its new gear into the pool.** The eight verified player weapons
 and shields plus all 18 pieces across the four armor families join as honorary S-tier pool-builder
 gear. The toggle defaults off for non-owners; NPC-only weapon bases, Spectral Steed attire unlocks,
-and the pack's new checks remain outside this first #1096 slice.
+and the still-unverified field and invasion grants remain outside this first #1096 slice. Enabling
+the toggle also adds 11 verified limited-stock merchant checks: the Hefty Scimitar, Steel set,
+Silver Grooved Shield and set, and Reverse-Bladed Sword. Those checks stay separate from the
+Shadow of the Erdtree ownership gate.
 
 This window opened at the v0.5.2 tag. `CONTRACT_HASH` stays at `13db0b3a` —
 `abilityUnlockItems` remains the newest slot-data shape — while the exact-version handshake moves

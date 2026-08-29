@@ -597,10 +597,10 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
                 # locations) 50 units do not fit MAX_POOL_SHARE and the clamp wins, exactly as
                 # its own comment always said. That is legal ONLY as stated-and-bounded:
                 assert injected < want  # this arm IS the clamp; anything else fails above
-                from worlds.eldenring.data import HUB, LOCATIONS
+                from worlds.eldenring.data import HUB
                 kept = list(t.world._kept())
-                total = (len(LOCATIONS.get(HUB, []))
-                         + sum(len(LOCATIONS.get(r, [])) for r in kept)
+                total = (len(t.world._seed_locations(HUB))
+                         + sum(len(t.world._seed_locations(r)) for r in kept)
                          + len(getattr(t.world, "gf_extra_locations", ())))
                 ceiling = int(total * ss.MAX_POOL_SHARE)
                 # 1) TIGHT: the shortfall is explained by a NAMED bound, not drift. Either the

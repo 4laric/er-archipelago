@@ -133,6 +133,12 @@ def measure(sc=None):
     parent = dict(spine.REGION_PARENT)
     hub = data.HUB
     finale_region = getattr(data, "FINALE_REGION", None)
+    _tp_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "greenfield",
+                            "eldenring", "tarnished_pack.py")
+    _tp_spec = importlib.util.spec_from_file_location("_tarnished_pack", _tp_path)
+    _tp = importlib.util.module_from_spec(_tp_spec)
+    _tp_spec.loader.exec_module(_tp)
+    tarnished_flags = set(getattr(_tp, "TARNISHED_PACK_LOCATION_FLAGS", ()))
 
     # ---- SweepSlot, the DERIVED class -----------------------------------------------------------
     # It carries no tag, so `combos` cannot see it and the wizard's marginal box would read 0 -- next
@@ -198,7 +204,10 @@ def measure(sc=None):
 
     regions = {}
     for name in sorted(data.LOCATIONS):
+        tarnished_checks = sum(1 for (_n, _ap, _f) in data.LOCATIONS[name]
+                               if int(_f) in tarnished_flags)
         combos = {}
+        tarnished_combos = {}
         for _n, ap, _f in data.LOCATIONS[name]:
             tags = set(lt.get(ap) or ())
             if not tags or (exclude_tags & tags) or ap in barred:
@@ -214,14 +223,20 @@ def measure(sc=None):
             if not key:
                 continue
             combos[key] = combos.get(key, 0) + 1
+            if int(_f) in tarnished_flags:
+                tarnished_combos[key] = tarnished_combos.get(key, 0) + 1
         regions[name] = {
             "checks": len(data.LOCATIONS[name]),
+            # Static superset minus this count is the default seed. Keeping the adjustment
+            # per-region makes partial draws exact instead of treating the pack as a global lump.
+            "tarnished_pack_checks": tarnished_checks,
             # rollable = drawn by num_regions. The hub is always present; the finale is conditional
             # but never rolled. Both are false here and handled by their own top-level rules.
             "rollable": name in rollable,
             "dlc": name in dlc,
             "parent": parent.get(name),
             "combos": dict(sorted(combos.items())),
+            "tarnished_pack_combos": dict(sorted(tarnished_combos.items())),
             # {rung: how many SweepSlot checks this region contributes at that dungeon_sweep value}.
             # Absent rungs are zero. Kept separate from `combos` because it is not a tag combination
             # and must never be summed into one.

@@ -325,7 +325,7 @@ class ProgressiveStoneBellsOn(_BellsOnAssertions, WorldTestBase):
         regions = [HUB] + list(self.world._kept())
         if FINALE_REGION not in regions:
             regions.append(FINALE_REGION)
-        total = sum(len(LOCATIONS.get(r, [])) for r in regions)
+        total = sum(len(self.world._seed_locations(r)) for r in regions)
         # WITNESS: a total of 0 would make the equality below say nothing.
         self.assertGreater(total, 1000, "the location join collapsed -- this comparison is vacuous")
         self.assertEqual(len(_pool_names(self.world)), total)
