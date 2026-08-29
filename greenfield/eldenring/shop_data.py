@@ -1881,6 +1881,7 @@ SPARE_PREVIEW_REDIRECTABLE = 62
 # the client-repaintability bit: only OpenRegularShop menus are repainted at open.
 SHOP_OPEN_SCOPES = (
     ('OpenAshOfWarShop', 112000, 112150),
+    ('OpenChampionsEquipmentShop', 101500, 101574),
     ('OpenDragonCommunionShop', 101950, 101974),
     ('OpenDragonCommunionShop', 101975, 101999),
     ('OpenDragonCommunionShop', 102350, 102351),
@@ -1890,6 +1891,7 @@ SHOP_OPEN_SCOPES = (
     ('OpenDupeShop', 102710, 102730),
     ('OpenDupeShop', 102800, 102830),
     ('OpenPuppetShop', 100300, 100324),
+    ('OpenRegularShop', 100000, 100024),
     ('OpenRegularShop', 100050, 100074),
     ('OpenRegularShop', 100075, 100099),
     ('OpenRegularShop', 100100, 100124),
@@ -1897,9 +1899,11 @@ SHOP_OPEN_SCOPES = (
     ('OpenRegularShop', 100150, 100174),
     ('OpenRegularShop', 100175, 100184),
     ('OpenRegularShop', 100185, 100199),
+    ('OpenRegularShop', 100200, 100224),
     ('OpenRegularShop', 100225, 100249),
     ('OpenRegularShop', 100250, 100274),
     ('OpenRegularShop', 100275, 100299),
+    ('OpenRegularShop', 100300, 100324),
     ('OpenRegularShop', 100325, 100349),
     ('OpenRegularShop', 100350, 100399),
     ('OpenRegularShop', 100400, 100424),
@@ -1919,8 +1923,13 @@ SHOP_OPEN_SCOPES = (
     ('OpenRegularShop', 100775, 100799),
     ('OpenRegularShop', 100800, 100824),
     ('OpenRegularShop', 100825, 100849),
+    ('OpenRegularShop', 100850, 100874),
     ('OpenRegularShop', 100875, 100899),
     ('OpenRegularShop', 100900, 100924),
+    ('OpenRegularShop', 100925, 100949),
+    ('OpenRegularShop', 100950, 100974),
+    ('OpenRegularShop', 100975, 100999),
+    ('OpenRegularShop', 101800, 101897),
     ('OpenRegularShop', 102250, 102289),
     ('OpenRegularShop', 102270, 102289),
     ('OpenRegularShop', 102300, 102310),
@@ -1931,6 +1940,8 @@ SHOP_OPEN_SCOPES = (
     ('OpenRegularShop', 600401, 600450),
     ('OpenRegularShop', 600501, 600550),
     ('OpenTailoringShop', 110000, 110399),
+    ('OpenTailoringShop', 111000, 111399),
+    ('OpenTranspositionShop', 101898, 101949),
 )
 
-_GEN_STAMP = {'inputs_hash': 'sha256:06a768e8395ae9a74b201cde9750ded37835c9b82fc4c535db26c9c41eee3fb9', 'module': 'shop_data.py', 'body_sha256': 'sha256:88cde000f4f5c0aac5025c57deb6ceebdbb9a00b8825dd53d5a2e26ccfe478d0'}
+_GEN_STAMP = {'inputs_hash': 'sha256:d59f7cdad65d4e51e3a275456bedc7e293e46a0fc326fb5baece0fe4235c090f', 'module': 'shop_data.py', 'body_sha256': 'sha256:df8e0d3536d8dd215495b94907e2fa598053b2a0ea4a219b5405c3f7e4cb92d1'}
