@@ -27,6 +27,10 @@ of the release).
   repo as a generated projection of `CHANNELS.tsv` and `CONTRACT-VERSIONS.tsv`. The deploy installs
   those exact bytes only after verifying their stable version, contract hash, and release URL, so a
   stale projection fails closed instead of being silently composed on the host.
+- **Tarnished Pack equipment can now enter the randomized pool (#1096).** A new default-off
+  ownership toggle admits the eight verified player weapons/shields and all 18 pieces from the four
+  new armor families. Each starts as honorary S tier in the pool builder. The two NPC-only weapon
+  bases and three Spectral Steed unlock goods remain excluded; this slice adds items, not locations.
 
 ## v0.5.2 — 2026-08-27
 

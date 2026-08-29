@@ -286,6 +286,13 @@ Elden Ring:
   # far less play.
   enable_dlc: false
 
+  # Include equipment from the paid Tarnished Pack in the randomized item
+  # pool. Off by default so a player who does not own it can never receive an
+  # unusable item. When on, its eight verified player weapons/shields and all
+  # 18 armor pieces are honorary S-tier pool-builder gear. This first slice
+  # does not add the pack's new locations or Spectral Steed attire unlocks.
+  enable_tarnished_pack: false
+
   # ONLY the DLC regions are in play. Implies enable_dlc. The whole base
   # game is sealed, and the goal becomes holding every kept DLC Lock.
   dlc_only: false

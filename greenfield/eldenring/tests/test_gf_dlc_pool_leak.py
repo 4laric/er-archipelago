@@ -29,9 +29,11 @@ except ImportError:  # patch not applied / gen_data.py not re-run yet -> skip cl
                 "run python greenfield/gen_data.py", allow_module_level=True)
 from worlds.eldenring.features.filler_foreign import filler_names  # noqa: E402
 from worlds.eldenring.features.pool_builder import PoolBuilderFeature  # noqa: E402
+from worlds.eldenring.tarnished_pack import TARNISHED_PACK_EQUIPMENT  # noqa: E402
 
 GAME = "Elden Ring"
 _DLC = frozenset(DLC_ITEM_NAMES)
+_TARNISHED = frozenset(TARNISHED_PACK_EQUIPMENT)
 
 # The exact leaky combo from the reported seed: every pool-augmentation path on, DLC off.
 _LEAKY_DLC_OFF = {
@@ -76,8 +78,8 @@ class DLCOffNoPoolLeak(WorldTestBase):
     options = _LEAKY_DLC_OFF
 
     def test_gate_published_and_nonempty(self):
-        self.assertEqual(self.world.gf_dlc_excluded, _DLC,
-                         "DLC-off world must exclude exactly DLC_ITEM_NAMES")
+        self.assertEqual(self.world.gf_dlc_excluded, _DLC | _TARNISHED,
+                         "DLC-off, Tarnished-off world must exclude both ownership rosters")
         self.assertTrue(self.world.gf_dlc_excluded, "exclusion set must be non-empty when DLC off")
 
     def test_no_dlc_item_in_itempool(self):
@@ -100,20 +102,20 @@ class DLCOffNoPoolLeak(WorldTestBase):
 
 
 class DLCOnGateInert(WorldTestBase):
-    """DLC on (default): the exclusion set is empty, so the gate is a no-op (no behavior change)."""
+    """DLC on leaves only the separately-owned, default-off Tarnished roster excluded."""
     game = GAME
     # `pool_builder` retired 2026-07-28 (Options.Removed) -- naming it here would raise.
     options = {"num_regions": 0, "item_shuffle": True, "pool_builder_intensity": "max", "varied_filler": True}
 
     def test_gate_empty_when_dlc_on(self):
-        self.assertEqual(self.world.gf_dlc_excluded, frozenset(),
-                         "DLC-on world must publish an empty exclusion set (gate inert)")
+        self.assertEqual(self.world.gf_dlc_excluded, _TARNISHED,
+                         "DLC-on must not imply ownership of the separate Tarnished Pack")
 
     def test_juice_order_unfiltered_when_dlc_on(self):
-        # Not asserting DLC IS present (depends on the roll), only that the gate did not strip it:
-        # the feature's order equals the unfiltered order when the exclusion set is empty.
+        # DLC names remain admitted; only the separately-owned Tarnished roster is filtered.
         from worlds.eldenring.features.pool_builder import juice_order_for_floor
         feat = PoolBuilderFeature()
         self.assertEqual(feat._juice_order(self.world),
-                         juice_order_for_floor(feat._floor(self.world)),
-                         "with DLC on the juice order must be unfiltered")
+                         [name for name in juice_order_for_floor(feat._floor(self.world))
+                          if name not in _TARNISHED],
+                         "with DLC on only the default-off Tarnished roster is filtered")

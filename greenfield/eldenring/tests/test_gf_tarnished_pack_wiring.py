@@ -28,7 +28,9 @@ class TarnishedExclusionIsPublished(WorldTestBase):
     options = {"num_regions": 6, "enable_dlc": False}
 
     def test_gf_dlc_excluded_is_exactly_the_helper_output(self):
-        want = tp.pool_excluded_names(self.world.gf_dlc_on, DLC_ITEM_NAMES, ITEM_CATALOG)
+        want = tp.pool_excluded_names(
+            self.world.gf_dlc_on, DLC_ITEM_NAMES, ITEM_CATALOG,
+            self.world.gf_tarnished_pack_on)
         self.assertEqual(
             self.world.gf_dlc_excluded, want,
             "gf_dlc_excluded must equal tarnished_pack.pool_excluded_names(gf_dlc_on, "
@@ -42,3 +44,13 @@ class TarnishedExclusionIsPublished(WorldTestBase):
             len(self.world.gf_dlc_excluded), 0,
             "DLC-off seed excluded nothing -- gf_dlc_excluded is empty, so the wiring test compares "
             "two empty sets. DLC_ITEM_NAMES should be non-empty on a real catalog.")
+
+
+class TarnishedOwnershipEnablesEquipment(WorldTestBase):
+    game = GAME
+    options = {"num_regions": 6, "enable_dlc": True, "enable_tarnished_pack": True}
+
+    def test_enabled_equipment_is_not_excluded(self):
+        names = frozenset(tp.TARNISHED_PACK_EQUIPMENT)
+        self.assertTrue(names <= set(ITEM_CATALOG))
+        self.assertFalse(names & self.world.gf_dlc_excluded)
