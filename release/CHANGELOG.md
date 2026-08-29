@@ -20,6 +20,12 @@ unchanged, but the exact-version handshake moves to 0.5.3. Client half: clients#
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part
 of the release).
 
+- **The me3 save-separation docs now explain the initial copy.** When
+  `AP_me3.sl2` does not exist, me3 creates it by copying `ER0000.sl2`, so seeing
+  vanilla character names in the AP menu is expected; subsequent saves are
+  separate. The guides now give a direct verification, warn against loading a
+  copied vanilla character while connected, and make clear that the shipped
+  profile does not require the Alt Saves DLL.
 - **The #1085 questline-DAG regen now replaces its TSV atomically on Windows (#1110).** The
   generator no longer opens and truncates the existing destination directly, avoiding the observed
   `OSError: [Errno 22] Invalid argument` and ensuring a failed write cannot leave a partial table.

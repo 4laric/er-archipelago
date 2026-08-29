@@ -236,6 +236,19 @@ def test_the_separate_save_promise_is_never_unconditional():
             "instructions to launch through matt's randomizer.")
 
 
+def test_the_separate_save_guide_explains_me3_clones_the_vanilla_save():
+    """Seeing old character names in the AP menu must not be diagnosed as sharing.
+
+    me3 creates a missing custom save by copying the base save. Without saying
+    that, "separate save" sounds like a new empty character list and sends
+    players toward an unnecessary Alt Saves installation.
+    """
+    text = _guide_text().lower()
+    assert "copies" in text and "er0000.sl2" in text and "ap_me3.sl2" in text
+    assert "not visible" in text and "vanilla" in text
+    assert "alt" in text and "saves dll" in text and "not needed" in text
+
+
 def test_the_dlc_region_count_the_guide_states_is_the_real_one():
     """#404, and CONTRIBUTING rule 11 again -- the reporter typed the number we gave him.
 

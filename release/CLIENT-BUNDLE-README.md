@@ -42,9 +42,13 @@ the contract is at the bottom of this file.
    ```
 
 Start a **new character**. Launched with `ap.me3` as above, the game writes to a separate save file
-(`AP_me3.sl2`), so your normal saves are not touched. That comes from the profile's `savefile` line
-rather than from the client, so it only holds for this launch path -- load the dll through another
-loader (matt's randomizer, say) and your Archipelago character goes into your ordinary save.
+(`AP_me3.sl2`). When that file does not exist, me3 creates it by copying your current `ER0000.sl2`,
+so your vanilla characters initially appear in the AP character list too. They are copies: after
+creation the files diverge, and a new AP character will not appear in a vanilla launch. Do not load
+a copied vanilla character while connected; create a new character for the seed. The separation
+comes from the profile's `savefile` line, needs no Alt Saves DLL, and only holds for this launch
+path -- load the dll through another loader (matt's randomizer, say) and your Archipelago character
+goes into your ordinary save.
 
 For a standalone ModEngine2 or randomizer output instead of me3, point the installer at that loose
 file root: `.\install-ap-flower.ps1 -Destination "<folder containing regulation.bin>"`. To remove
