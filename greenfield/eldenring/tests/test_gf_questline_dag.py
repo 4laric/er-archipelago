@@ -57,6 +57,7 @@ import csv
 import importlib.util
 import os
 import sys
+import tempfile
 import unittest
 import warnings
 
@@ -561,6 +562,18 @@ class QuestlineDagGate(unittest.TestCase):
                               "missable-tagged: %s" % (len(old), [r["target_flag"] for r in old]))
 
     # -- F. freshness + determinism ----------------------------------------
+    def test_output_replace_does_not_open_existing_destination(self):
+        with tempfile.TemporaryDirectory() as directory:
+            destination = os.path.join(directory, "questline_dag.tsv")
+            with open(destination, "w", encoding="utf-8") as fh:
+                fh.write("old")
+
+            self.tool._write_atomic(destination, "new\n")
+
+            with open(destination, encoding="utf-8", newline="") as fh:
+                self.assertEqual(fh.read(), "new\n")
+            self.assertEqual(os.listdir(directory), ["questline_dag.tsv"])
+
     def test_committed_table_is_not_stale(self):
         fresh = self.tool.emit(self.edges, self.tally, self.notes, path=None)
         with open(TABLE, encoding="utf-8", newline="") as fh:
