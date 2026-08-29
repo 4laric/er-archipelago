@@ -25,10 +25,18 @@ seed -- and the tracker, which knows your seed, still tells you when it is a rea
 4,948 names change; no check moves, no id shifts. Old seeds keep their old wording in spoiler logs
 and hints, and the new client reads both (#936).
 
+**Tarnished Edition works without letting its new item rows corrupt the shuffle.** The client now
+supports both Elden Ring 2.7.0.0 and the Japanese 2.7.0.1 executable on upstream's real address
+tables. Patch 1.17 inserted equipment rows into the middle of several parameter tables, which made
+old row-number assumptions show the wrong weapon name or icon. v0.5.2 recognises the verified new
+rows and keeps them out of Archipelago's item and location pools for now. You can play the new game
+builds; their new equipment simply waits outside the shuffle until its names and placements have a
+complete, tested census (#1096, clients#461).
+
 This window was opened at the v0.5.1 tag with zero commits past it, in the same
 change that promoted stable to v0.5.1; nothing was carried over. `CONTRACT_HASH` stays at
 `13db0b3a` — `abilityUnlockItems` is still the newest slot-data shape, and only the exact-version
-handshake moved to 0.5.2. The client half is clients#459, whose merge commit this change pins.
+handshake moved to 0.5.2. The final client pin is `d99d81d`.
 
 ## What carried over from v0.5.1
 
@@ -41,14 +49,14 @@ kill-gated check.
 
 `stable` moved to v0.5.1 in this same change, at its tag.
 
-## The Tarnished situation
+## A client reliability fix also rides in
 
-Elden Ring 2.7.0.0 (Tarnished Edition) is still the thing standing over this window. v0.5.1
-shipped **candidate** offsets for it — a build that can find out whether it works instead of
-refusing on sight — and they have not been run against the real 2.7.0.0 executable, so the
-in-client warning saying the addresses are unverified still stands. The upstream `eldenring-rs`
-arm for 2.7.0.0 is still pending; the fork pin retires the moment it lands. The Japanese
-Tarnished executable remains unsupported and says so.
+The pinned client also fixes a Bloodborne failure where a location check written into a silently
+dead socket looked locally complete and would not be sent again until relaunch. Checks now remain
+pending until the server confirms them. Retries are immediate, then back off through
+1/2/4/8/16/30 seconds per location and stay at 30 seconds until acknowledgement; reconnecting resets
+the delay for one immediate recovery attempt. There is no terminal retry count, so bounding the
+traffic does not reintroduce a lost-check edge case (clients#455, clients#467, clients#468).
 
 ## For whoever writes the real one
 
