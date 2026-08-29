@@ -65,7 +65,7 @@ POCKET = {
     # 7774246 -> 7774146 and 7772650 -> 7772550 (2026-08-24, #1013): Enia's shop went vanilla and
     # her 100 rows left the pool ahead of BOTH pins; -100 each, flag-verified. Same lesson as
     # 2026-08-19: this time the sibling DOES move with its twin.
-    1035467100: 7774146,   # +5 on the #898 base, +2 more at the 8 audited-tile releases, +1 at the Crimson Hood ruling, +1 at the #940 Four Belfries un-cull, -100 at the #1013 Enia cull; flag-verified   # Golden Seed - near Main Academy Gate (the reported check)
+    1035467100: 7774145,   # -1 after dead f400020 left the positional-id pool (#1111); flag-verified   # Golden Seed - near Main Academy Gate (the reported check)
     1035467700: 7772550,   # Ash of War: Raptor of the Mists - around Main Academy Gate
 }
 ANCHOR_FLAG = 14007990     # Golden Seed - near Schoolhouse Classroom: undisputed academy ground
