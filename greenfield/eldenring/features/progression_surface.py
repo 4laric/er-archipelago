@@ -1370,6 +1370,10 @@ def _world_barred_aps(world):
     except Exception:
         _d = frozenset()
     try:
+        from ..location_tags import HUB_UNATTRIBUTED_APS as _u
+    except Exception:
+        _u = frozenset()
+    try:
         from ..location_tags import SHOP_RELEASE_GATED_APS as _s
     except Exception:
         _s = frozenset()
@@ -1381,12 +1385,12 @@ def _world_barred_aps(world):
     _d = frozenset(_d) - collapsed_lift_aps(world)
     _m = missable_barred_aps(world)
     if getattr(world, "gf_capital_reconciler", False):
-        return frozenset(_d) | frozenset(_s) | _m
+        return frozenset(_d) | frozenset(_u) | frozenset(_s) | _m
     try:
         from ..location_tags import ERDTREE_BURN_APS as _b
     except Exception:
         _b = frozenset()
-    return frozenset(_d) | frozenset(_b) | frozenset(_s) | _m
+    return frozenset(_d) | frozenset(_u) | frozenset(_b) | frozenset(_s) | _m
 
 
 def _open_allowed(world, classes):
