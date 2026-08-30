@@ -578,7 +578,9 @@ class RerollWiresOffSeed(WorldTestBase):
             "restock shelves the yaml said to leave vanilla")
 
     def test_mine_material_wire_absent_when_off(self):
-        leaked = "mineMaterialRoll" in self.world.fill_slot_data()
+        slot_data = self.world.fill_slot_data()
+        assert "versions" in slot_data, "witness: the slot-data producer did not run"
+        leaked = "mineMaterialRoll" in slot_data
         assert not leaked, (
             "mineMaterialRoll emitted with reroll_mine_materials off -- the client would rewrite "
             "mine deposits on a seed whose yaml said to leave them vanilla")
