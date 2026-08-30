@@ -294,7 +294,7 @@ def _finale_base_game_in_play(regions) -> bool:
 
 
 def build_coverage(world=None, kept=None, _static_table=None, finale=None, dlc_on=None,
-                   tarnished_pack_on=None):
+                   tarnished_pack_on=None, excluded_aps=()):
     """Build the per-location coverage records for every EMITTED location this gen.
 
     world given  -> scope = HUB + world._kept(); the emitted tables (locationFlags /
@@ -420,13 +420,17 @@ def build_coverage(world=None, kept=None, _static_table=None, finale=None, dlc_o
         emitted_zero_lots_enemy = {int(k) for k in sd.get(K_CZE, {})}
         flags_src, cif_src = "slot_data." + K_LOC, "slot_data." + K_CIF
     else:
+        excluded_aps = frozenset(int(a) for a in excluded_aps)
         emitted_location_flags = {aid: int(fl)
-                                  for rn in scope for (_n, aid, fl) in LOCATIONS.get(rn, [])}
+                                  for rn in scope for (_n, aid, fl) in LOCATIONS.get(rn, [])
+                                  if int(aid) not in excluded_aps}
         # re-derive checkItemFlags the way features/check_item_flags.py does: every resolvable
         # ware, EXCEPT goods with a repeatable (farm/mine/shop/craft) source.
         emitted_check_item_flags = {}
         for rn in scope:
             for (_n, aid, fl) in LOCATIONS.get(rn, []):
+                if int(aid) in excluded_aps:
+                    continue
                 vn = LOCATION_ITEM.get(aid)
                 full = ITEM_CATALOG.get(vn) if vn is not None else None
                 if full is None:
@@ -507,8 +511,8 @@ def build_coverage(world=None, kept=None, _static_table=None, finale=None, dlc_o
                 _excluded.update(_tplf)
             except ImportError:
                 pass
-        _rows_of = lambda rn, _d=frozenset(_excluded): [
-            t for t in LOCATIONS.get(rn, []) if int(t[2]) not in _d]
+        _rows_of = lambda rn, _d=frozenset(_excluded), _a=excluded_aps: [
+            t for t in LOCATIONS.get(rn, []) if int(t[2]) not in _d and int(t[1]) not in _a]
     for region in scope:
         for (name, ap_id, flag) in _rows_of(region):
             rec = LocationCoverage(ap_id, name, region)
@@ -949,12 +953,13 @@ def _flatten(byname):
 # REPORT MODE (no raise) + the raising variant
 # ---------------------------------------------------------------------------------------------------
 def report_coverage(world=None, kept=None, printer=print, _static_table=None, finale=None,
-                    dlc_on=None, tarnished_pack_on=None):
+                    dlc_on=None, tarnished_pack_on=None, excluded_aps=()):
     """Build records, run all checks + the degradation ledger, return
     (records, ctx, violations_by_check). Prints a compact summary; NEVER raises."""
     records, ctx = build_coverage(world, kept=kept, _static_table=_static_table,
                                  finale=finale, dlc_on=dlc_on,
-                                 tarnished_pack_on=tarnished_pack_on)
+                                 tarnished_pack_on=tarnished_pack_on,
+                                 excluded_aps=excluded_aps)
     byname = all_checks(records, ctx)
     total = sum(len(v) for v in byname.values())
     if printer:
