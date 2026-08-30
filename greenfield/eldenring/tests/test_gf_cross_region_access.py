@@ -15,6 +15,8 @@ def test_unavailable_when_neither_route_exists(monkeypatch):
             return {"Belurat"}
 
     monkeypatch.setattr(cross_access, "_swept_members", lambda _world: set())
+    assert STAGEFRONT_FRAGMENT_AP in cross_access.ALTERNATE_ACCESS
+    assert cross_access.OWNING_REGION[STAGEFRONT_FRAGMENT_AP] == "Belurat"
     assert not cross_access.location_available(World(), STAGEFRONT_FRAGMENT_AP)
 
 

@@ -231,6 +231,20 @@ class TestRegionCensusAgainstRealWorlds(unittest.TestCase):
                     if base_in_play:
                         predicted -= int(regions[finale].get("tarnished_pack_checks") or 0)
 
+                # Cross-region checks are counted under their owning region in the static census,
+                # but a particular seed omits one when neither its physical route nor its sweep
+                # route exists. Mirror the production predicate rather than teaching the static
+                # artifact about a seed-specific option combination.
+                from worlds.eldenring.features import cross_region_access
+                counted_regions = {hub, *kept}
+                if base_in_play:
+                    counted_regions.add(finale)
+                predicted -= sum(
+                    1 for location_id in cross_region_access.ALTERNATE_ACCESS
+                    if cross_region_access.OWNING_REGION[location_id] in counted_regions
+                    and not cross_region_access.location_available(world, location_id)
+                )
+
                 self.assertEqual(
                     predicted, actual,
                     "census says %d checks, the built world has %d (%s; kept %d region(s), "

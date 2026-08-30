@@ -14,6 +14,13 @@ ALTERNATE_ACCESS: Dict[int, str] = {
     7771810: "Enir Ilim",
 }
 
+# Static census ownership is separate from physical access. Keep it explicit so tests and future
+# generated summaries only subtract a conditionally omitted check when its owning region was part
+# of the seed's static count in the first place.
+OWNING_REGION: Dict[int, str] = {
+    7771810: "Belurat",
+}
+
 
 def _swept_members(world) -> Set[int]:
     from .boss_locks import enabled_sweeps
