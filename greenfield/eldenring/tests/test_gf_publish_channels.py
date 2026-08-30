@@ -417,8 +417,19 @@ class SiteTabs(unittest.TestCase):
         """It is chrome. A network call here would put the whole site's navigation behind a
         request that can fail, and on a file:// page it fails by construction."""
         js = self._read("wizard/tabs.js")
-        for bad in ("fetch(", "XMLHttpRequest", "import(", "//cdn", "http://", "https://"):
+        # External anchors are fine (the support link is intentionally one); executable/network
+        # dependencies are not. The strip must render without waiting on another origin.
+        for bad in ("fetch(", "XMLHttpRequest", "import(", "//cdn"):
             self.assertNotIn(bad, js, f"tabs.js reaches outside itself ({bad!r})")
+
+    def test_static_site_tabs_offer_support(self):
+        """The four static Peliarch pages bypass the webgui Jinja chrome, so tabs.js must carry
+        the site-wide support link that templated pages receive from base.html."""
+        js = self._read("wizard/tabs.js")
+        self.assertIn("https://buymeacoffee.com/fazuzu", js)
+        self.assertIn("Support Peliarch", js)
+        self.assertIn('target="_blank"', js)
+        self.assertIn('rel="noopener noreferrer"', js)
 
     def test_the_deploy_script_installs_it(self):
         """A page nothing installs is a page nobody sees. Checked here rather than trusted."""
