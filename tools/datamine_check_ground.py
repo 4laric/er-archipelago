@@ -55,6 +55,7 @@ GF = os.path.join(REPO, "greenfield")
 COORDS = os.path.join(GF, "item_grace_coords.tsv")
 TRIAGE = os.path.join(GF, "check_region_triage.tsv")
 OUT = os.path.join(GF, "check_ground.tsv")
+MIN_TRIAGE_ROWS = 456  # measured from the complete tracked table on 2026-08-30 (#531)
 
 sys.path.insert(0, HERE)
 from datamine_grace_ground import (                      # noqa: E402  the calibrated machinery
@@ -137,6 +138,22 @@ def ground_of(flag, map_id, x, y, z, vols, tile_default, interior):
     return bks, ("interior-map" if bks else "none")
 
 
+def _load_triage(path=TRIAGE):
+    """Load the shipped-label oracle, refusing absence or silent truncation."""
+    if not os.path.isfile(path):
+        raise SystemExit("FATAL: %s missing -- --triage cannot answer without it." % path)
+    shipped = {}
+    with open(path, encoding="utf-8") as fh:
+        for r in csv.DictReader((line for line in fh if not line.startswith("#")), delimiter="\t"):
+            shipped[int(r["flag"])] = r["region"]
+    if len(shipped) < MIN_TRIAGE_ROWS:
+        raise SystemExit(
+            "FATAL: %s has only %d checks (floor %d, measured 2026-08-30) -- refusing a "
+            "vacuous triage result." % (path, len(shipped), MIN_TRIAGE_ROWS)
+        )
+    return shipped
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--emit", action="store_true", help="write %s" % OUT)
@@ -189,11 +206,7 @@ def main():
           % (len(rows), derived, len(rows) - derived, multi))
     if args.triage:
         owner = _play_region_groups()
-        shipped = {}
-        if os.path.isfile(TRIAGE):
-            for r in csv.DictReader((l for l in open(TRIAGE, encoding="utf-8")
-                                     if not l.startswith("#")), delimiter="\t"):
-                shipped[int(r["flag"])] = r["region"]
+        shipped = _load_triage()
         agree = disagree = unknown = 0
         out = []
         for flag, bks, src, map_id, _n in rows:
