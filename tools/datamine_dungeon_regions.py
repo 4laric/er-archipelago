@@ -50,6 +50,12 @@ def _set_artifacts_root(path):
     MSBDIR = artifacts_root.msb_dir(ART) or os.path.join(ART, "mapstudio")
 OUT = os.path.join(REPO, "greenfield", "dungeon_regions.tsv")
 
+# Measured from the complete 1.17 corpus on 2026-08-26. In particular, the connect floor must not
+# be zero: an absent/unreadable MSB corpus previously produced a plausible-looking table with all
+# eleven ConnectCollision-derived maps silently omitted (#531).
+MIN_GRACE_ROWS = 78
+MIN_CONNECT_ROWS = 11
+
 # play_region_id -> greenfield region: imported from THE spine (greenfield/region_groups.py) --
 # this tool used to carry its own overworld copy, which is exactly the drift class the single
 # source exists to kill.
@@ -217,11 +223,22 @@ def main(argv=None):
         _set_artifacts_root(root)
 
     rows = build()
+    src = Counter(r[2] for r in rows)
+    missing = []
+    for source, floor in (("grace", MIN_GRACE_ROWS), ("connect", MIN_CONNECT_ROWS)):
+        found = src[source]
+        if found < floor:
+            missing.append(f"{source}={found} (minimum {floor})")
+    if missing:
+        raise SystemExit(
+            "FATAL: dungeon-region derivation is incomplete: "
+            + ", ".join(missing)
+            + ". Refusing to overwrite dungeon_regions.tsv."
+        )
     with open(OUT, "w", encoding="utf-8", newline="\n") as fh:
         fh.write("map_id\tregion\tsource\tevidence\n")
         for r in rows:
             fh.write("\t".join(r) + "\n")
-    src = Counter(r[2] for r in rows)
     sys.stderr.write(f"dungeon_regions: {len(rows)} maps derived {dict(src)} -> {OUT}\n")
     return 0
 
