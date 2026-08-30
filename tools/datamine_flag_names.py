@@ -75,6 +75,14 @@ EVT = os.environ.get("ER_EVENT_DIR") or os.path.join(ROOT, "elden_ring_artifacts
 GF = os.path.join(ROOT, "greenfield")
 OUT = os.path.join(GF, "flag_names.tsv")
 
+# Measured on the complete 1.17 corpus committed in gen_inputs.db (2026-08-30). These are
+# deliberately independent floors: a uniformly truncated event directory can preserve the named
+# percentage and the two hand-verified exemplar flags while silently deleting thousands of other
+# labels. The writer feeds questline review and must refuse that convincing partial answer.
+MIN_EVENT_FILES = 589
+MIN_EVENTS = 4893
+MIN_LABELLED_FLAGS = 5111
+
 # `// <comment>` immediately above `$Event(<id>, <restart>, function(<params>) {`. The comment is
 # OPTIONAL in the regex on purpose: an unnamed event must be COUNTED, not skipped silently.
 EVENT_RE = re.compile(
@@ -240,12 +248,31 @@ def emit(rows, st, path=OUT):
     return text
 
 
+def validate_complete(rows, st):
+    """Refuse a partial corpus before the tracked table is opened."""
+    measured = (
+        ("event files", st.get("files", 0), MIN_EVENT_FILES),
+        ("events", st.get("events", 0), MIN_EVENTS),
+        ("labelled flags", len(rows), MIN_LABELLED_FLAGS),
+    )
+    short = [f"{name}={actual} (minimum {floor})"
+             for name, actual, floor in measured if actual < floor]
+    if short:
+        sys.exit(
+            "FATAL: flag-name derivation is incomplete: " + ", ".join(short) + ". "
+            "Refusing to overwrite greenfield/flag_names.tsv; an incomplete corpus is UNKNOWN, "
+            "not evidence that the missing flags have no named setter."
+        )
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--probe", action="store_true", help="counts + samples, write nothing")
     ap.add_argument("--emit", action="store_true", help="write greenfield/flag_names.tsv")
     args = ap.parse_args(argv)
     rows, st = build()
+
+    validate_complete(rows, st)
 
     if st["events"] < 1000:
         sys.exit("FATAL: only %d events parsed -- EVENT_RE does not match this corpus." % st["events"])
