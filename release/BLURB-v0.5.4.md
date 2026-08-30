@@ -24,6 +24,10 @@ the full warning in the F6 tracker, you can dismiss its full-width banner for th
 connection. A persistent menu indicator and the full tracker/log details remain, and reconnecting
 shows the banner again; acknowledging it never marks an unsafe pairing safe (#1133, clients#480).
 
+**Setup says the important part first.** The current-YAML upgrade advice and the difference between
+`ap.me3` save separation and Matt's launcher now take fewer detours while preserving the same
+commands, warnings, and verified behavior (#1160).
+
 ## What carried over from v0.5.3
 
 Nothing is owed. The v0.5.3 blurb and changelog were completed before its tag, and this window-opening
