@@ -300,6 +300,16 @@ def test_bell_rungs_set_stock_and_release_gates():
             [280250, 280260, 11109758],
             [280280, 11109759],
         ],
+        pgg.PROG_GRAVE_GLOVEWORT_BELL: [
+            [280290, 280300, 280310, 11109760],
+            [280320, 280330, 280340, 11109761],
+            [280350, 280360, 280370, 11109762],
+        ],
+        pgg.PROG_GHOST_GLOVEWORT_BELL: [
+            [280380, 280390, 280400, 11109763],
+            [280410, 280420, 280430, 11109764],
+            [280440, 280450, 280460, 11109765],
+        ],
     }
     assert {name: [rung["flags"] for rung in rungs]
             for name, rungs in pgg._BELL_GRANTS.items()} == expected
