@@ -75,11 +75,25 @@ OUT = os.path.join(REPO, "greenfield", "achievement_bosses.tsv")
 # reshapes the event fails loudly instead of being parsed into nonsense.
 TROPHY_EVENT = 9300
 _SIG = ("achievementId", "eventFlagId", "timeSeconds")
+MIN_ACHIEVEMENTS = 32
+MIN_BOSS_ACHIEVEMENTS = 29
 
 _DEF = re.compile(r"\$Event\(\s*%d\s*,\s*\w+\s*,\s*function\(([^)]*)\)\s*\{(.*?)\n\}\);"
                   % TROPHY_EVENT, re.S)
 _INIT = re.compile(r"\$InitializeEvent\(\s*\d+\s*,\s*%d\s*,\s*(\d+)\s*,\s*(\d+)\s*,"
                    % TROPHY_EVENT)
+
+
+def validate_census(rows):
+    bosses = sum(r[2] == "boss" for r in rows)
+    short = []
+    if len(rows) < MIN_ACHIEVEMENTS:
+        short.append("achievements=%d (floor %d)" % (len(rows), MIN_ACHIEVEMENTS))
+    if bosses < MIN_BOSS_ACHIEVEMENTS:
+        short.append("boss achievements=%d (floor %d)" % (bosses, MIN_BOSS_ACHIEVEMENTS))
+    if short:
+        raise SystemExit("datamine_achievement_bosses: REFUSED incomplete census: %s. Nothing "
+                         "written." % ", ".join(short))
 
 
 def _load(relpath, modname):
@@ -166,6 +180,7 @@ def derive():
         sys.exit("datamine_achievement_bosses: found the trophy event but ZERO call sites -- an "
                  "empty result is a failure, not a clean run.")
     rows.sort()
+    validate_census(rows)
     return rows
 
 
