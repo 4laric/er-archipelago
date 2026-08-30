@@ -120,6 +120,8 @@ PROG_FLASK = "Progressive Flask Upgrade"
 PROG_STONESWORD_KEY = "Progressive Stonesword Key"
 PROG_SMITHING_BELL = "Progressive Smithing-Stone Miner's Bell Bearing"
 PROG_SOMBER_BELL = "Progressive Somberstone Miner's Bell Bearing"
+PROG_GRAVE_GLOVEWORT_BELL = "Progressive Glovewort Picker's Bell Bearing"
+PROG_GHOST_GLOVEWORT_BELL = "Progressive Ghost-Glovewort Picker's Bell Bearing"
 
 # ---- vanilla goods ladders (RE-EXPRESSED vanilla EquipParamGoods ids; matt-free) --------------
 # Fungible flasks repeat the same good up to the vanilla max; the stonesword key repeats good 8000.
@@ -331,6 +333,10 @@ VANILLA_FLASK_ITEMS = ("Golden Seed", "Sacred Tear")
 VANILLA_BELL_ITEMS: Dict[str, str] = dict(
     [("Smithing-Stone Miner's Bell Bearing [%d]" % i, PROG_SMITHING_BELL) for i in range(1, 5)]
     + [("Somberstone Miner's Bell Bearing [%d]" % i, PROG_SOMBER_BELL) for i in range(1, 6)]
+    + [("Glovewort Picker's Bell Bearing [%d]" % i, PROG_GRAVE_GLOVEWORT_BELL)
+       for i in range(1, 4)]
+    + [("Ghost-Glovewort Picker's Bell Bearing [%d]" % i, PROG_GHOST_GLOVEWORT_BELL)
+       for i in range(1, 4)]
 )
 
 
@@ -374,6 +380,16 @@ _BELL_GRANTS: Dict[str, List[Dict[str, Any]]] = {
         {"flags": [280230, 280240, 11109757]},  # Somber [5],[6]
         {"flags": [280250, 280260, 11109758]},  # Somber [7],[8]
         {"flags": [280280, 11109759]},          # Somber [9]
+    ],
+    PROG_GRAVE_GLOVEWORT_BELL: [
+        {"flags": [280290, 280300, 280310, 11109760]},  # Grave Glovewort [1]-[3]
+        {"flags": [280320, 280330, 280340, 11109761]},  # Grave Glovewort [4]-[6]
+        {"flags": [280350, 280360, 280370, 11109762]},  # Grave Glovewort [7]-[9]
+    ],
+    PROG_GHOST_GLOVEWORT_BELL: [
+        {"flags": [280380, 280390, 280400, 11109763]},  # Ghost Glovewort [1]-[3]
+        {"flags": [280410, 280420, 280430, 11109764]},  # Ghost Glovewort [4]-[6]
+        {"flags": [280440, 280450, 280460, 11109765]},  # Ghost Glovewort [7]-[9]
     ],
 }
 
@@ -437,12 +453,15 @@ def bell_inject_count(world, name: str) -> int:
 _BELL_EARLY_COUNT: Dict[str, int] = {
     PROG_SMITHING_BELL: 1,
     PROG_SOMBER_BELL: 1,
+    PROG_GRAVE_GLOVEWORT_BELL: 1,
+    PROG_GHOST_GLOVEWORT_BELL: 1,
 }
 
 # Which toggle activates which progressive items.
 _FLASK_ITEMS = (PROG_FLASK,)
 _KEY_ITEMS = (PROG_STONESWORD_KEY,)
-_BELL_ITEMS = (PROG_SMITHING_BELL, PROG_SOMBER_BELL)
+_BELL_ITEMS = (PROG_SMITHING_BELL, PROG_SOMBER_BELL,
+               PROG_GRAVE_GLOVEWORT_BELL, PROG_GHOST_GLOVEWORT_BELL)
 
 
 class ProgressiveFlasks(Toggle):
@@ -464,14 +483,14 @@ class ProgressiveStoneswordKeys(Toggle):
 
 
 class ProgressiveStoneBells(Toggle):
-    """Off (default). On: the vanilla Miner's Bell Bearings are replaced by two progressive
-    items -- Progressive Smithing-Stone and Progressive Somberstone Miner's Bell Bearing -- and each
+    """Off (default). On: the vanilla smithing-stone and glovewort shop Bell Bearings are replaced
+    by four progressive items, and each
     copy you receive unlocks the next tier of the Twin Maidens' smithing-stone shop directly (no
     hand-over). One copy of each is forced to sphere 0, so the upgrade ramp opens at the start, and
-    there are exactly as many copies as there are shop tiers to unlock (4 and 5), so no copy is
+    there are exactly as many copies as there are shop tiers to unlock, so no copy is
     wasted and no single pickup skips you to the top. Never gates logic (Region Locks are the only
     progression), so this is always winnable."""
-    display_name = "Progressive Stone Bell Bearings"
+    display_name = "Progressive Upgrade Bell Bearings"
 
 
 @register
@@ -488,6 +507,8 @@ class Progressive(Feature):
         PROG_STONESWORD_KEY: ItemClassification.useful,
         PROG_SMITHING_BELL: ItemClassification.useful,
         PROG_SOMBER_BELL: ItemClassification.useful,
+        PROG_GRAVE_GLOVEWORT_BELL: ItemClassification.useful,
+        PROG_GHOST_GLOVEWORT_BELL: ItemClassification.useful,
     }
 
     # ---- helpers ------------------------------------------------------------------------------

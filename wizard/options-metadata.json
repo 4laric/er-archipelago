@@ -1006,8 +1006,8 @@
   {
    "key": "progressive_stone_bells",
    "class": "ProgressiveStoneBells",
-   "display_name": "Progressive Stone Bell Bearings",
-   "description": "Off (default). On: the vanilla Miner's Bell Bearings are replaced by two progressive\nitems -- Progressive Smithing-Stone and Progressive Somberstone Miner's Bell Bearing -- and each\ncopy you receive unlocks the next tier of the Twin Maidens' smithing-stone shop directly (no\nhand-over). One copy of each is forced to sphere 0, so the upgrade ramp opens at the start, and\nthere are exactly as many copies as there are shop tiers to unlock (4 and 5), so no copy is\nwasted and no single pickup skips you to the top. Never gates logic (Region Locks are the only\nprogression), so this is always winnable.",
+   "display_name": "Progressive Upgrade Bell Bearings",
+   "description": "Off (default). On: the vanilla smithing-stone and glovewort shop Bell Bearings are replaced\nby four progressive items, and each\ncopy you receive unlocks the next tier of the Twin Maidens' smithing-stone shop directly (no\nhand-over). One copy of each is forced to sphere 0, so the upgrade ramp opens at the start, and\nthere are exactly as many copies as there are shop tiers to unlock, so no copy is\nwasted and no single pickup skips you to the top. Never gates logic (Region Locks are the only\nprogression), so this is always winnable.",
    "kind": "toggle",
    "base": "Toggle",
    "default": false,

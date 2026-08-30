@@ -147,9 +147,11 @@ except Exception:
 # FullID and are not in ITEM_CATALOG, so `names_in` cannot find them on its own.
 try:
     from .progressive import (PROG_FLASK, PROG_STONESWORD_KEY,
-                              PROG_SMITHING_BELL, PROG_SOMBER_BELL)
+                              PROG_SMITHING_BELL, PROG_SOMBER_BELL,
+                              PROG_GRAVE_GLOVEWORT_BELL, PROG_GHOST_GLOVEWORT_BELL)
     _PROGRESSIVE_NAMES: List[str] = [PROG_FLASK, PROG_STONESWORD_KEY,
-                                     PROG_SMITHING_BELL, PROG_SOMBER_BELL]
+                                     PROG_SMITHING_BELL, PROG_SOMBER_BELL,
+                                     PROG_GRAVE_GLOVEWORT_BELL, PROG_GHOST_GLOVEWORT_BELL]
 except Exception:
     _PROGRESSIVE_NAMES = []
 
