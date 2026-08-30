@@ -82,6 +82,20 @@ OUT = os.path.join(REPO, "greenfield", "sweep_trigger_npcs.tsv")
 
 HEADER = ["trigger_flag", "map", "tile", "class", "name", "chr_id", "method", "n_candidates",
           "npc_params"]
+MIN_TRIGGERS = 244
+MIN_RESOLVED_TRIGGERS = 235
+
+
+def validate_census(resolved):
+    resolved_count = sum(r["method"] != "UNRESOLVED" for r in resolved.values())
+    short = []
+    if len(resolved) < MIN_TRIGGERS:
+        short.append("triggers=%d (floor %d)" % (len(resolved), MIN_TRIGGERS))
+    if resolved_count < MIN_RESOLVED_TRIGGERS:
+        short.append("resolved=%d (floor %d)" % (resolved_count, MIN_RESOLVED_TRIGGERS))
+    if short:
+        raise SystemExit("datamine_sweep_trigger_npcs: REFUSED incomplete census: %s. Nothing "
+                         "written." % ", ".join(short))
 
 
 def _chr_from_name_id(name_id):
@@ -208,6 +222,7 @@ def main():
     import datamine_boss_healthbars as hb
     bosses = hb.datamine()
     resolved = resolve(bosses, *load_npc_param())
+    validate_census(resolved)
     counts = collections.Counter(r["method"] for r in resolved.values())
 
     if args.list:
