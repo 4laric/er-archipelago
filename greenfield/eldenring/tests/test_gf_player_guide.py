@@ -113,6 +113,7 @@ def test_the_rescue_guide_is_linked_and_covers_the_reported_dead_ends():
         "!warp 11102950",
         "!grace liurnia",
         "!give 0x40001fd4",
+        "!give 0x4000230a",
         "!setflag 71102 1",
         "!setflag 71105 1",
         "pick up any item",
