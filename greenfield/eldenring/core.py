@@ -526,7 +526,8 @@ _OPTION_GROUPS = [
         "pool_builder_pct_armor", "pool_builder_pct_spells", "pool_builder_pct_talismans",
         "pool_builder_pct_ashes_of_war"]),
     ("Multiworld & Placement", [
-        "death_link", "trap_link", "region_sync", "filler_foreign_pct", "progression_surface", "progression_bias",
+        "death_link", "death_link_amnesty_inbound", "death_link_amnesty_outbound",
+        "trap_link", "region_sync", "filler_foreign_pct", "progression_surface", "progression_bias",
         # cross_game_progression reads directly after progression_bias because it only has meaning
         # once that one has released something: bias decides HOW MANY Locks travel, this decides how
         # many of the travellers may leave Elden Ring entirely. Reversed, the second is unanswerable.
@@ -2081,6 +2082,8 @@ class GreenfieldEldenRingWorld(World):
                           or self.options.enable_dlc.value)
         return {
             contract.DEATH_LINK: _opt("death_link"),
+            contract.DEATH_LINK_AMNESTY_INBOUND: _opt("death_link_amnesty_inbound", 1),
+            contract.DEATH_LINK_AMNESTY_OUTBOUND: _opt("death_link_amnesty_outbound", 1),
             contract.TRAP_LINK: _opt("trap_link"),
             contract.ENABLE_DLC: int(dlc_only or enable_dlc),
             contract.NO_WEAPON_REQUIREMENTS: _opt("no_weapon_requirements"),

@@ -24,6 +24,10 @@ the full warning in the F6 tracker, you can dismiss its full-width banner for th
 connection. A persistent menu indicator and the full tracker/log details remain, and reconnecting
 shows the banner again; acknowledging it never marks an unsafe pairing safe (#1133, clients#480).
 
+**DeathLink can forgive incoming and outgoing deaths at different rates.** Seeds can independently
+choose that only every Nth received DeathLink kills you and only every Nth local death is sent.
+Both controls default to every death, and their counters restart on reconnect (#1051, clients#487).
+
 ## What carried over from v0.5.3
 
 Nothing is owed. The v0.5.3 blurb and changelog were completed before its tag, and this window-opening

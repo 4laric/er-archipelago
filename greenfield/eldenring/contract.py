@@ -774,6 +774,12 @@ OPTIONS_SUBKEYS = (
     ContractKey("death_link", "BOOL_OR_INT", True, (GREENFIELD,),
                 "core._options_echo", "er-logic/options.rs parse_death_link",
                 "shared deaths across the multiworld (world.options.death_link)."),
+    ContractKey("death_link_amnesty_inbound", "INT", False, (GREENFIELD,),
+                "core._options_echo", "er-logic/options.rs parse_death_link_amnesty",
+                "one-in-N gate for received DeathLinks; 1 applies every incoming link."),
+    ContractKey("death_link_amnesty_outbound", "INT", False, (GREENFIELD,),
+                "core._options_echo", "er-logic/options.rs parse_death_link_amnesty",
+                "one-in-N gate for local deaths broadcast to the multiworld; 1 sends every death."),
     ContractKey("trap_link", "BOOL_OR_INT", False, (GREENFIELD,),
                 "core._options_echo", "er-logic/options.rs parse_trap_link",
                 "nonzero = advertise TrapLink after slot-data parse, send locally received trap "

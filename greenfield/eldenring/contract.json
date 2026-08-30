@@ -170,6 +170,28 @@
           "doc": "shared deaths across the multiworld (world.options.death_link)."
         },
         {
+          "name": "death_link_amnesty_inbound",
+          "shape": "INT",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo",
+          "consumer": "er-logic/options.rs parse_death_link_amnesty",
+          "doc": "one-in-N gate for received DeathLinks; 1 applies every incoming link."
+        },
+        {
+          "name": "death_link_amnesty_outbound",
+          "shape": "INT",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo",
+          "consumer": "er-logic/options.rs parse_death_link_amnesty",
+          "doc": "one-in-N gate for local deaths broadcast to the multiworld; 1 sends every death."
+        },
+        {
           "name": "trap_link",
           "shape": "BOOL_OR_INT",
           "required": false,
