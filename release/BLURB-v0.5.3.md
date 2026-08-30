@@ -39,9 +39,38 @@ Thrusting Shield near the Isolated Merchant's Shack, and Reed Great Katana near 
 live 1.17 lot and MSB placements are fully joined; the uncertain invasion rewards and Spectral
 Steed attire remain excluded.
 
+**Matt's randomizer can summon Torrent again on Elden Ring 1.17.** Matt's current
+`regulation.bin` predates the four new `RideParam` rows and replaces the complete table, which
+leaves Torrent unable to answer the whistle. The installer now offers an explicit Torrent-repair
+mode that restores only those verified vanilla 1.17 rows. Run it after each randomization, because
+Matt rewrites `regulation.bin` whenever it produces a new seed. The same repair is also published
+as the standalone `torrent-repair-v1.0.0` utility for players stacking the randomizer without AP.
+
+**Two progression dead ends now explain or prevent themselves.** Sellia's Secret requires the
+Unalloyed Gold Needle after Gowry consumes it, so logic no longer permits that same Needle to be
+placed behind the route it opens (#1085). In the F6 tracker, the deliberately withheld finale-region
+Lock now says that it is automatic and not in the pool, lists the exact requirements still owed,
+and confirms when the region opens. Leyndell gets its own compound-gate line showing both
+`Leyndell Lock` held/missing and AP Great Runes received/required, followed by open/closed.
+
+**A game update no longer strands the last supported pre-0.5 seed.** The client accepts v0.4.13
+only when its exact historical `dc0dc687` contract is present. Every other mismatched version or
+contract keeps the existing refusal, so this is a narrow audited bridge for players whose game
+updated mid-seed rather than a weakening of paired releases.
+
+Several corpus corrections remove misleading or unreachable work: five worldless Shaded Castle
+lots and Stormveil's unsettable Neutralizing Boluses award leave the check list; the Forbidden
+Lands pickup trio moves to Mountaintops; thirteen Seethewater/Campsite checks move to Mt. Gelmir;
+and 53 unattributed hub-filed checks become filler-only instead of carrying progression from the
+always-open Roundtable. The me3 guide also explains that the first `AP_me3.sl2` is copied from the
+vanilla save and how to verify that later saves remain separate.
+
 This window opened at the v0.5.2 tag. `CONTRACT_HASH` stays at `13db0b3a` —
 `abilityUnlockItems` remains the newest slot-data shape — while the exact-version handshake moves
 to 0.5.3. Client half: clients#469.
+
+Final client pin for this draft: `7e18a819` (clients#473, #475, and #476 after the window-opening
+clients#469).
 
 ## For whoever writes the real one
 

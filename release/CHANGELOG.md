@@ -68,6 +68,26 @@ of the release).
   corpus confirms its only award branch requires flag 10009335, while the combined ESD, EMEVD, and
   parameter inputs contain no setter or default for that flag. The vanilla lot remains untouched;
   it is now explicitly ledgered as an unused ESD award instead of entering the randomized pool.
+- **Matt's randomizer can restore Torrent on Elden Ring 1.17.** Its current `regulation.bin`
+  replaces the complete `RideParam` table with the older four-row version, so Torrent stops
+  answering the whistle. `install_into_matts_rando.py --with-torrent-repair` restores only the four
+  verified vanilla 1.17 rows after randomization; rerun it whenever Matt generates a new seed. The
+  same focused patcher is published independently as `torrent-repair-v1.0.0`.
+- **Sellia's Secret cannot contain its own consumed Unalloyed Gold Needle (#1085).** The questline
+  extractor proves Gowry consumes the Needle before the route opens, and logic now requires that
+  item for the Sellia's Secret checks instead of allowing it to be placed behind itself.
+- **The F6 tracker explains the deliberately withheld finale-region Lock (#1128).** It identifies
+  the Lock as automatic and absent from the pool, lists the authoritative outstanding goal-gate
+  requirements, and confirms when the region opens. This explanation remains visible even when
+  the paid Lock-hint economy is unavailable.
+- **F6 shows both halves of Leyndell's compound gate (#1130).** The line reports
+  `Leyndell Lock` held/missing, AP Great Runes received/required using the resolved seed threshold,
+  and the resulting open/closed state. It is omitted for lockless and zero-threshold seeds and
+  changes no enforcement behavior.
+- **Client gitlink -> `7e18a819` (clients#473, #475, #476).** This is the release candidate after
+  the v0.5.3 window-opening client: the audited v0.4.13 bridge plus the finale-Lock and Leyndell
+  tracker explanations. The historical bridge accepts only v0.4.13's exact `dc0dc687` contract;
+  arbitrary mismatches remain refused.
 
 ## v0.5.2 — 2026-08-27
 
