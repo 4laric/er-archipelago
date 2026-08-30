@@ -112,6 +112,7 @@ def test_the_rescue_guide_is_linked_and_covers_the_reported_dead_ends():
     for witness in (
         "!warp 11102950",
         "!grace liurnia",
+        "!give 0x40001fd4",
         "!setflag 71102 1",
         "!setflag 71105 1",
         "pick up any item",
@@ -131,7 +132,7 @@ def test_rescue_commands_are_explicitly_scoped_to_the_client_console():
     """
     rescue = _unstuck_text()
     commands = set(re.findall(r"!(?:[a-z]+)", rescue))
-    assert commands == {"!check", "!flag", "!grace", "!help", "!setflag", "!warp"}
+    assert commands == {"!check", "!flag", "!give", "!grace", "!help", "!setflag", "!warp"}
 
 
 def _live_option_names():
