@@ -779,6 +779,12 @@ Elden Ring:
   # checks) are untouched -- this only changes the repeatable farm drops.
   reroll_enemy_drops: true
 
+  # Reroll the repeatable smithing-stone and glovewort deposits inside mines.
+  # All 133 deposits remain respawning, non-check pickups; only their material
+  # reward changes. Deposits that originally shared a material tier also share
+  # one replacement for the seed. Capstone stones and gloveworts are excluded.
+  reroll_mine_materials: true
+
   # Reroll every unlimited-stock merchant slot to a random high-impact
   # consumable, priced at what the item is worth. Merchants stop being a wall
   # of Arrows. (Unlimited slots can never be checks -- there is no way to
