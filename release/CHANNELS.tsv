@@ -56,3 +56,4 @@ stable	v0.5.1	2026-08-27	region_sync for seamless co-op (one player opens a regi
 beta	main	2026-08-27	the open v0.5.2 window
 stable	v0.5.2	2026-08-28	the Tarnished Edition compatibility release: Elden Ring 2.7.0.0 and 2.7.0.1 client support, honest sweep-eligibility wording, corrected Yura and Leyndell Golden Seed labels, and the bounded Tarnished check retry; promoted at its tag as the v0.5.3 window opened
 beta	main	2026-08-28	the open v0.5.3 window
+stable	v0.5.3	2026-08-30	Tarnished Pack gear, merchants, and field pickups; Torrent repair for Matt's randomizer; the audited v0.4.13 compatibility bridge; clearer Leyndell and finale-lock tracking; Sellia progression logic and corpus corrections; promoted at its tag so the updater and public wizard move with the release
