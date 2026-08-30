@@ -54,7 +54,7 @@ REGION_GRACE_LANDMARKS = {
     'Liurnia': [73901, 76200, 76207, 76251],  # Ruin-Strewn Precipice, Lake-Facing Cliffs, East Raya Lucaria Gate, Cathedral of Manus Celes
     'Mohgwyn': [71251],  # Palace Approach Ledge-Road
     'Mountaintops of the Giants': [76500, 76501, 76506],  # Forbidden Lands, Zamor Ruins, Giants' Gravepost
-    'Mt. Gelmir': [71602, 76350],  # Volcano Manor, Bridge of Iniquity
+    'Mt. Gelmir': [71602, 76350, 76354],  # Volcano Manor, Bridge of Iniquity, Seethewater River
     'Rauh Base': [76912],  # Ancient Ruins Base
     'Raya Lucaria Academy': [71402, 76206],  # Church of the Cuckoo, Main Academy Gate
     'Scadu Altus': [72102, 76900],  # Shadow Keep Main Gate, Highroad Cross
@@ -64,4 +64,4 @@ REGION_GRACE_LANDMARKS = {
     'Weeping': [76150],  # Church of Pilgrimage
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:12c1972930dae69b58941a02abc23bc8e9c6865d7452487651baf6fcc6f42010', 'module': 'region_graces.py', 'body_sha256': 'sha256:6c8eb071ebfb5dfad413ea807c320ddcd978ffecb76a7c99a0ec937fa0cd1617'}
+_GEN_STAMP = {'inputs_hash': 'sha256:730c1aa4a764fbf9ae8e2398d4dd736495f5014f376b198965d9416814106f6b', 'module': 'region_graces.py', 'body_sha256': 'sha256:57d8f6beb4a0971a20d4c1fceadf5c1433d9a0d9ebbc37cce5e40b7931f9793f'}

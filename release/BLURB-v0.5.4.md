@@ -17,6 +17,11 @@ only moment anyone remembers why it mattered._
 Nothing yet. This window was opened 1 commit(s) PAST the v0.5.3 tag, so this file exists before its first entry does,
 which is the point of it.
 
+**Mt. Gelmir's landmark-grace mode no longer strands Seethewater behind Altus.** The lower basin
+cannot be reached from the two landmarks the warp menu originally selected without Altus access,
+the Academy abductors, or a particular Patches state. Opening Mt. Gelmir now also grants Seethewater
+River, so an Altus Lock placed in the basin cannot sit behind itself (#1136).
+
 ## What carried over from v0.5.3
 
 Nothing is owed. The v0.5.3 blurb and changelog were completed before its tag, and this window-opening

@@ -285,6 +285,15 @@ def test_landmarks_is_the_middle_setting_where_it_matters():
             "re-baselining this." % (region, len(got)))
 
 
+def test_mt_gelmir_landmarks_reaches_the_seethewater_basin():
+    """The warp menu merges areas that the traversal graph does not (#1136)."""
+    from ..region_graces import REGION_GRACE_LANDMARKS, REGION_GRACE_POINTS
+
+    assert 76354 in REGION_GRACE_LANDMARKS["Mt. Gelmir"], (
+        "Mt. Gelmir landmarks must include Seethewater River so basin checks are reachable")
+    assert set(REGION_GRACE_LANDMARKS["Mt. Gelmir"]) <= set(REGION_GRACE_POINTS["Mt. Gelmir"])
+
+
 # ---------------------------------------------------------------------------------------------
 # no_runes_in_shops -- the combination sweep (added 2026-07-30).
 #
