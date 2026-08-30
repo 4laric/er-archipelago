@@ -72,6 +72,25 @@ These IDs come from the shipped `grace_flags.tsv`. Do not substitute a nearby-lo
 After the write, open the map and fast-travel normally, or use the pasteable command from
 `!grace` if map travel is the thing that is broken.
 
+## Grant a specific Great Rune
+
+Use the exact full item ID when rescuing a missing Great Rune. A name-only grant can match more
+than one record and repeatedly retry the wrong one; these commands are unambiguous:
+
+| Great Rune | Command |
+|---|---|
+| Godrick's Great Rune | `!give 0x40001fd4` |
+| Radahn's Great Rune | `!give 0x40001fd5` |
+| Morgott's Great Rune | `!give 0x40001fd6` |
+| Rykard's Great Rune | `!give 0x40001fd7` |
+| Mohg's Great Rune | `!give 0x40001fd8` |
+| Malenia's Great Rune | `!give 0x40001fd9` |
+| Great Rune of the Unborn | `!give 0x40002760` |
+
+These commands grant inventory items only. The Leyndell entrance reads event flags rather than
+the inventory, so granting two or more Great Runes does not repair a sealed capital gate. Use the
+next section for that symptom.
+
 ## The Leyndell capital gate will not open
 
 The Seal of the Royal Capital reads two flags: the two-great-rune gate (`182`) and its paired
@@ -87,6 +106,20 @@ in, set both, then confirm:
 `182` is the game's "at least two great runes possessed" result, so setting it opens the fogwall
 directly; `105` is the paired condition the seal also checks. This is the standard fix for being
 routinely unable to enter Leyndell.
+
+## The Radagon or Elden Beast arena has no floor
+
+If entering the final arena drops the character into a void, the game's burnt-world state was not
+applied. Confirm flag `300`, set it when absent, then leave and reload the arena:
+
+```text
+!flag 300
+!setflag 300 1
+```
+
+Flag `300` is the world-state flag that makes the game place the arena. It is not a boss-defeat
+flag and does not complete Radagon or the Elden Beast. Capture the current log before changing it;
+on a current client, a missing flag here is a bug worth reporting.
 
 ## A check never registered
 
