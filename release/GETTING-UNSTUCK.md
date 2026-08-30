@@ -91,21 +91,30 @@ These commands grant inventory items only. The Leyndell entrance reads event fla
 the inventory, so granting two or more Great Runes does not repair a sealed capital gate. Use the
 next section for that symptom.
 
-## Grant a specific Whetblade
+## A Whetblade is blocking received items
 
-Whetblades are the other common class where a name-based rescue can select the wrong record and
-retry indefinitely. Use the exact full item ID instead:
+Do **not** try to repair this with `!give`. Current clients already use the exact IDs below, and
+Elden Ring 1.17 can accept the grant without putting the Whetblade in inventory. Repeating the same
+grant cannot advance the receive cursor and may produce three refusal popups after each reload.
 
-| Whetblade | Command |
-|---|---|
-| Iron Whetblade | `!give 0x4000230a` |
-| Red-Hot Whetblade | `!give 0x4000230b` |
-| Sanctified Whetblade | `!give 0x4000230c` |
-| Glintstone Whetblade | `!give 0x4000230d` |
-| Black Whetblade | `!give 0x4000230e` |
+The IDs are useful for identifying the failure in the log, not as rescue commands. The affinity
+flags are the functional unlock and are safe to set manually on an affected build:
 
-These commands grant the tool only. Possession unlocks its affinity choices at a grace; it does
-not set the randomized check flag at the Whetblade's vanilla pickup location.
+| Whetblade | Full item ID | Affinity rescue |
+|---|---|---|
+| Iron Whetblade | `0x4000230a` | `!setflag 65610 1`; `!setflag 65620 1`; `!setflag 65630 1` |
+| Red-Hot Whetblade | `0x4000230b` | `!setflag 65640 1`; `!setflag 65650 1` |
+| Sanctified Whetblade | `0x4000230c` | `!setflag 65660 1`; `!setflag 65670 1` |
+| Glintstone Whetblade | `0x4000230d` | `!setflag 65680 1`; `!setflag 65690 1` |
+| Black Whetblade | `0x4000230e` | `!setflag 65720 1`; `!setflag 65700 1`; `!setflag 65710 1` |
+
+If the log says one of these goods was `accepted 3 grant(s) and was never observable`, the receive
+cursor may still be caught up: `stream=235 cursor=235`, for example, means all 235 items were
+processed. Use the affinity commands above if those choices are absent at a grace, keep the log,
+and update to a client containing the flag-delivery fix. The physical Whetblade may remain absent
+from inventory on the affected build even though its affinities work. Follow
+[client issue #482](https://github.com/4laric/from-software-archipelago-clients/issues/482) for the
+fix and affected-build details.
 
 ## The Leyndell capital gate will not open
 
