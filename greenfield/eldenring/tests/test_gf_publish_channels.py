@@ -549,6 +549,57 @@ class LandingNumbersAreCurrent(unittest.TestCase):
             'data-derived="%s" marker: %r. Wrap it, or the next regen leaves it stale silently.'
             % (self.MARKER, near))
 
+    @staticmethod
+    def _literal_assignment(path, name):
+        """Read one literal assignment without importing the generated world package (AP-free)."""
+        import ast
+        tree = ast.parse(open(path, encoding="utf-8").read(), filename=path)
+        for node in tree.body:
+            if isinstance(node, ast.Assign) and any(
+                    isinstance(target, ast.Name) and target.id == name for target in node.targets):
+                value = node.value
+                if isinstance(value, ast.Call) and isinstance(value.func, ast.Name):
+                    self_name = value.func.id
+                    if self_name in ("set", "frozenset") and len(value.args) == 1:
+                        value = value.args[0]
+                return ast.literal_eval(value)
+        raise AssertionError("%s has no literal %s assignment" % (path, name))
+
+    def _marked_values(self, marker):
+        return re.findall(r'data-derived="%s"[^>]*>([^<]+)<' % marker, self._landing())
+
+    def test_region_counts_match_the_generated_spine(self):
+        spine_path = os.path.join(REPO, "greenfield", "eldenring", "region_spine.py")
+        spine = self._literal_assignment(spine_path, "SPINE")
+        dlc = self._literal_assignment(spine_path, "DLC_REGIONS")
+        expected = {
+            "regions": len(spine),
+            "base-regions": len(spine) - len(dlc),
+            "dlc-regions": len(dlc),
+        }
+        for marker, count in expected.items():
+            values = self._marked_values(marker)
+            self.assertTrue(values, "landing.html has no %s marker" % marker)
+            self.assertEqual([count] * len(values), [self._n(value) for value in values],
+                             "landing.html's %s claim is stale" % marker)
+
+    def test_option_counts_match_the_wizard_metadata(self):
+        import json
+        with open(os.path.join(REPO, "wizard", "options-metadata.json"), encoding="utf-8") as fh:
+            metadata = json.load(fh)
+        expected = {
+            "options": len(metadata["field_order"]),
+            "option-groups": len(metadata["groups"]),
+        }
+        number_words = {"Eight": 8}
+        for marker, count in expected.items():
+            values = self._marked_values(marker)
+            self.assertTrue(values, "landing.html has no %s marker" % marker)
+            converted = [number_words[value] if value in number_words else self._n(value)
+                         for value in values]
+            self.assertEqual([count] * len(values), converted,
+                             "landing.html's %s claim is stale" % marker)
+
 
 if __name__ == "__main__":
     unittest.main()
