@@ -30,6 +30,10 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   basin with areas above cliffs that cannot be climbed, so granting only Volcano Manor and Bridge
   of Iniquity could let an Altus Lock land behind Altus itself. Seethewater River is now an explicit
   landmark, independent of Academy access or Patches quest state.
+- **Version-mismatch warnings can be acknowledged after reading (#1133, clients#480).** The
+  full-width banner then collapses for the current connection while a persistent menu indicator
+  and the full tracker/log details remain. Reconnecting shows the banner again, and acknowledgement
+  never marks an unsafe client/seed pairing safe.
 
 ## v0.5.3 — 2026-08-28
 
