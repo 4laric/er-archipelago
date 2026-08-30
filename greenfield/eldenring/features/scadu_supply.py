@@ -251,7 +251,13 @@ def natural_fragments(world) -> int:
     kept = list(world._kept()) if hasattr(world, "_kept") else []
     n = 0
     for rn in [HUB] + kept:
-        for (_name, ap_id, _flag) in LOCATIONS.get(rn, []):
+        # Core builds the pool from `_seed_locations`, after progression-surface and other
+        # per-seed location filters. Counting raw LOCATIONS here credited fragments on checks that
+        # would never enter the pool; the rolled witness reached 49/50 after one such row was cut.
+        # Fall back only for the tiny pure-test worlds that deliberately provide no core seam.
+        rows = (world._seed_locations(rn) if hasattr(world, "_seed_locations")
+                else LOCATIONS.get(rn, []))
+        for (_name, ap_id, _flag) in rows:
             if LOCATION_ITEM.get(ap_id) == FRAGMENT:
                 n += stacked_vanilla_name(FRAGMENT, ap_id, name_to_id)[1]
     return n

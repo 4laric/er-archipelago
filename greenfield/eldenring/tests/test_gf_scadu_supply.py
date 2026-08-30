@@ -95,6 +95,41 @@ class TestFragmentsToInject:
         assert ss.fragments_to_inject(1, 20, 0, 100, False) == 26
 
 
+def test_natural_supply_reads_the_filtered_seed_locations():
+    """A kept region is not the pool: progression-surface can remove individual checks.
+
+    The planner used to walk raw LOCATIONS while core walked `_seed_locations`; crediting a
+    filtered Fragment made the injector stop one unit early and produced a 49/50 rolled seed.
+    """
+    from types import SimpleNamespace
+    from worlds.eldenring.data import HUB, LOCATIONS
+    from worlds.eldenring.item_ids import LOCATION_ITEM
+    from worlds.eldenring.core import item_name_to_id as catalog_ids, stacked_vanilla_name
+
+    witness = next((region, ap_id) for region, rows in LOCATIONS.items() for _, ap_id, _ in rows
+                   if region != HUB and LOCATION_ITEM.get(ap_id) == ss.FRAGMENT)
+    region, removed_ap = witness
+
+    class World:
+        options = SimpleNamespace(item_shuffle=SimpleNamespace(value=1))
+        gf_dlc_excluded = frozenset()
+        item_name_to_id = catalog_ids
+
+        @staticmethod
+        def _kept():
+            return [region]
+
+        @staticmethod
+        def _seed_locations(name):
+            return [row for row in LOCATIONS.get(name, ()) if row[1] != removed_ap]
+
+    raw_units = sum(stacked_vanilla_name(ss.FRAGMENT, ap, catalog_ids)[1]
+                    for name in (HUB, region) for _, ap, _ in LOCATIONS.get(name, ())
+                    if LOCATION_ITEM.get(ap) == ss.FRAGMENT)
+    removed_units = stacked_vanilla_name(ss.FRAGMENT, removed_ap, catalog_ids)[1]
+    assert ss.natural_fragments(World()) == raw_units - removed_units
+
+
 # ---- the cross-repo constant -------------------------------------------------------------------
 @pytest.mark.skipif(_ROOT is None, reason=REPO_ONLY_REASON)
 def test_scadu_cum_matches_the_client_rung_for_rung():
