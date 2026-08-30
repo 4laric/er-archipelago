@@ -70,7 +70,7 @@ of the release).
   it is now explicitly ledgered as an unused ESD award instead of entering the randomized pool.
 - **Matt's randomizer can restore Torrent on Elden Ring 1.17.** Its current `regulation.bin`
   replaces the complete `RideParam` table with the older four-row version, so Torrent stops
-  answering the whistle. `install_into_matts_rando.py --with-torrent-repair` restores only the four
+  answering the whistle. `tools/install_into_matts_rando.py --with-torrent-repair` restores only the four
   verified vanilla 1.17 rows after randomization; rerun it whenever Matt generates a new seed. The
   same focused patcher is published independently as `torrent-repair-v1.0.0`.
 - **Sellia's Secret cannot contain its own consumed Unalloyed Gold Needle (#1085).** The questline
