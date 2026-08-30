@@ -167,7 +167,7 @@ BOSS_DROP_ENTITY = {
     530375: 1036540800,  # m60_36_54_00 Somber Smithing Stone [6]
     1037427400: 1037420340,  # m60_37_42_00 Red-Feathered Branchsword
     1037467400: 1037460800,  # m60_37_46_00 Meat Peddler's Bell Bearing
-    530300: 1037510800,  # m60_37_51_00 [Incantation] Lansseax's Glaive
+    530300: 1041520800,  # m60_41_52_00 [Incantation] Lansseax's Glaive
     60450: 1037530800,  # m60_37_53_00 Memory Stone
     65180: 1037540810,  # m60_37_54_00 Leaden Hardtear
     530245: 1038410800,  # m60_38_41_00 [Incantation] Flame of the Fell God

@@ -41,6 +41,9 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **The setup guide now states its upgrade and save-file rules more directly (#1160).** It keeps
   the same verified behavior and warnings while making the current-YAML recovery and the
   `ap.me3`-versus-Matt save distinction easier to scan.
+- **Lansseax's final Rampartside kill now pays her sweep (#1164).** The generated owner was her
+  earlier Abandoned Coffin apparition, so defeating her at the real final encounter could leave
+  every Lansseax-labelled tracker check unpaid. The retreat encounter no longer pays early.
 
 ## v0.5.3 — 2026-08-28
 

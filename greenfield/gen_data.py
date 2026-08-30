@@ -201,6 +201,7 @@ _BOSS_HEALTHBAR_EXTRAS = {
 # sweep is never the only path to a check). See the DLC-readiness audit.
 for _hbk, _hbv in _BOSS_HEALTHBAR_EXTRAS.items():
     BOSS_HEALTHBARS.setdefault(_hbk, _hbv)  # setdefault: never clobber a real datamined entry
+
 HUB="Roundtable Hold"
 SKIP={"global","global_filler","shop_reference"}
 # Map-fragment pickups are granted via the RE'd map-reveal FLAG path (the client's reveal_all_maps
@@ -10422,6 +10423,15 @@ assert not _unspawned_stale, (
 _SWEEP_UNSPAWNED = {_e: _r for _e, (_v, _r) in _UNSPAWNED_VERDICTS.items() if _v == "unspawned"}
 _SWEEP_UNSPAWNED_OPEN = {_e: _r for _e, (_v, _r) in _UNSPAWNED_VERDICTS.items() if _v != "unspawned"}
 
+# Healthbar encounters which are real but not terminal kills. They remain in the mined boss corpus
+# (the tracker/debugger should know the encounter exists) but may not own a payout sweep. Lansseax
+# at Abandoned Coffin retreats at the phase boundary; the final Rampartside fight has the separate
+# terminal flag 1041520800. Paying here would make every Lansseax check early, while paying only on
+# the old trigger is the field bug in #1164.
+_SWEEP_NONTERMINAL = {
+    1037510800: "Ancient Dragon Lansseax at Abandoned Coffin; retreats before final Rampartside kill",
+}
+
 DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 # Map-local filler normally belongs to the map's boss sweep. A key-gated check is the exception:
 # sweeping it from an unrelated fight would award an inaccessible check and bypass the key gate.
@@ -10437,6 +10447,7 @@ _SWEEP_EXCLUDED_FLAGS = {
 }
 _sweep_excluded_hits = []
 _sweep_unspawned_hits = []
+_sweep_nonterminal_hits = []
 _sweep_secondary_hits = []
 _dungeon_by_map = defaultdict(list)   # map -> [surviving dungeon trigger,...] for the per-map DIVVY
 _dungeon_divvied = []
@@ -10459,6 +10470,9 @@ if BOSS_HEALTHBARS:
             # filler back to the FIELD NEIGHBORHOOD pass, which re-homes it to the nearest other
             # same-region field boss -- the existing redistribution, not a second mechanism.
             _sweep_unspawned_hits.append((_ent, _tile, _name))
+            continue
+        if _ent in _SWEEP_NONTERMINAL:
+            _sweep_nonterminal_hits.append((_ent, _tile, _name))
             continue
         if _cls == "field":
             # Field sweeps are assigned in the NEIGHBORHOOD pass after this loop (nearest-boss,
@@ -10980,6 +10994,12 @@ if BOSS_HEALTHBARS:
           "field boss in the same region): %s" % (
               len(_sweep_unspawned_hits),
               ", ".join("%s %s/%s" % (e, t, n or "?") for e, t, n in _sweep_unspawned_hits)))
+    assert {e for e, _tile, _name in _sweep_nonterminal_hits} == set(_SWEEP_NONTERMINAL), (
+        "gen_data: non-terminal sweep verdicts did not match the boss corpus exactly; re-audit "
+        "the encounter flags rather than leaving a stale suppression")
+    print("boss_sweeps: suppressed %d non-terminal encounter(s): %s" % (
+        len(_sweep_nonterminal_hits),
+        ", ".join("%d %s" % (e, n or "?") for e, _t, n in _sweep_nonterminal_hits)))
     if _SWEEP_UNSPAWNED_OPEN:
         print("boss_sweeps: %d field boss(es) share the unspawned SHAPE but are UNFALSIFIED in "
               "game, so they KEEP their sweep: %s" % (

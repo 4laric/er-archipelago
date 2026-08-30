@@ -66,7 +66,7 @@ def _class(map_ab):
 
     🛑 m61 (the DLC overworld) is deliberately NOT "field" here. Geographically it is exactly m60:
     open-world tiles, field bosses, tile-encoding entity ids. But the field pass builds a Chebyshev
-    neighbourhood out of `^m60_(\d\d)_(\d\d)$` tiles ONLY (gen_data), so an m61 boss classed
+    neighbourhood out of `^m60_(\\d\\d)_(\\d\\d)$` tiles ONLY (gen_data), so an m61 boss classed
     "field" finds no neighbourhood and gets NO SWEEP AT ALL. Measured 2026-08-02: making it field
     took sweeps from 240 triggers / 3187 member links across 31 regions to 212 / 3040 / 27 -- all 28
     DLC overworld bosses lost their sweep, 0 gained one. Falling through to "legacy" hands them the
@@ -100,16 +100,14 @@ def _geography(map_ab):
     return "legacy"
 
 
-def hb_handlers():
-    """{commonEventId: (entityArgIdx, nameIdArgIdx|None)} for common events that Enable a boss
-    healthbar with a parameter entity. Parsed from common_func so param-order changes don't break it."""
-    cf = open(os.path.join(EVT, "common_func.emevd.dcx.js"), encoding="utf-8").read()
+def _hb_handlers_in(txt):
+    """{eventId: (entityArgIdx, nameIdArgIdx|None)} for parameterized healthbar wrappers."""
     ev = re.compile(r"\$Event\((\d+),\s*\w+,\s*function\(([^)]*)\)\s*\{", re.S)
-    idx = [(m.group(1), m.group(2), m.start()) for m in ev.finditer(cf)]
+    idx = [(m.group(1), m.group(2), m.start()) for m in ev.finditer(txt)]
     out = {}
     for i, (eid, params, start) in enumerate(idx):
-        end = idx[i + 1][2] if i + 1 < len(idx) else len(cf)
-        body = cf[start:end]
+        end = idx[i + 1][2] if i + 1 < len(idx) else len(txt)
+        body = txt[start:end]
         m = re.search(r"DisplayBossHealthBar\(\s*(?:Enabled|1)\s*,\s*(\w+)\s*,\s*\w+\s*,\s*(\w+)", body)
         if not m:
             continue
@@ -118,6 +116,12 @@ def hb_handlers():
             continue
         out[int(eid)] = (pl.index(m.group(1)), pl.index(m.group(2)) if m.group(2) in pl else None)
     return out
+
+
+def hb_handlers():
+    """Common parameterized healthbar handlers, shared by every map."""
+    cf = open(os.path.join(EVT, "common_func.emevd.dcx.js"), encoding="utf-8").read()
+    return _hb_handlers_in(cf)
 
 
 _DEAD_RE = re.compile(r"CharacterDead\((\w+)\)")
@@ -236,12 +240,19 @@ def datamine():
             b = bosses.setdefault(ent, {"map": map_ab, "class": _class(map_ab), "nameId": None})
             if b["nameId"] is None and nid:
                 b["nameId"] = nid
-        for m in _INITC.finditer(t):
+        # Base-overworld maps also use map-local parameterized wrappers. Lansseax's terminal
+        # Rampartside fight is event 1041522320; the common-only pass saw only her Coffin
+        # apparition and left the real kill flag out of every downstream boss/sweep table. Keep
+        # this scoped to m60 field encounters: m61 has bespoke healthbar UI helpers whose literal
+        # quest flags are not terminal boss lifecycles and already has its own audited fallback.
+        local_handlers = _hb_handlers_in(t) if map_ab.startswith("m60") else {}
+        for m in _INIT_RE.finditer(t):
             cid = int(m.group(1))
-            if cid not in handlers:
+            handler = local_handlers.get(cid) or handlers.get(cid)
+            if handler is None:
                 continue
             args = [a.strip() for a in m.group(2).split(",")]
-            ei, ni = handlers[cid]
+            ei, ni = handler
             if ei >= len(args) or not args[ei].lstrip("-").isdigit():
                 continue
             ent = int(args[ei])

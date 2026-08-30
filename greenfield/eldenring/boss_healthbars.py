@@ -175,6 +175,7 @@ BOSS_HEALTHBARS = {
     1041330800: ('m60_41', 'm60_41_33', 'field', ''),
     1041500800: ('m60_41', 'm60_41_50', 'field', 'Fallingstar Beast'),
     1041510800: ('m60_41', 'm60_41_51', 'field', 'Tree Sentinel'),
+    1041520800: ('m60_41', 'm60_41_52', 'field', 'Ancient Dragon Lansseax'),
     1041530800: ('m60_41', 'm60_41_53', 'field', 'Wormface'),
     1042330800: ('m60_42', 'm60_42_33', 'field', 'Ancient Hero of Zamor'),
     1042360800: ('m60_42', 'm60_42_36', 'field', 'Tree Sentinel'),

@@ -40,6 +40,12 @@ OUT  = os.path.join(GF, "eldenring", "boss_drops.py")
 MIN_DROP_ROWS = 88
 MIN_DROP_MAPS = 71
 
+# One reward lot can be initialized at more than one encounter. The general dedup is first-call
+# wins, but Lansseax's lot 30300 is present at both the Coffin apparition and the terminal
+# Rampartside fight. Sweep ownership must follow the terminal kill flag/entity; otherwise killing
+# her normally never pays the sweep. This is deliberately lot-shaped and guarded below.
+_CANONICAL_REUSED_LOT_ENTITY = {30300: 1041520800}
+
 _REMEMBRANCE = ("remembrance",)  # name guards for the excluded major-boss rewards
 def _is_excluded_item(name):
     n = (name or "").lower()
@@ -104,6 +110,9 @@ def datamine():
                 ent, lot = int(args[ei]), int(args[li])
             except (ValueError, IndexError):
                 continue
+            canonical = _CANONICAL_REUSED_LOT_ENTITY.get(lot)
+            if canonical is not None and ent != canonical:
+                continue
             if lot <= 0 or lot in seen_lot:
                 continue
             seen_lot.add(lot)
@@ -115,6 +124,9 @@ def datamine():
     uniq = {}
     for r in rows:
         uniq[r[2]] = r
+    found_canonical = {lot: ent for ent, lot, *_ in rows if lot in _CANONICAL_REUSED_LOT_ENTITY}
+    assert found_canonical == _CANONICAL_REUSED_LOT_ENTITY, (
+        "canonical reused boss lots stopped matching their terminal call sites: %r" % found_canonical)
     return handlers, sorted(uniq.values(), key=lambda r: (r[4], r[3]))
 
 

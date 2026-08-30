@@ -809,6 +809,12 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # Shaded Castle rows were not sweep-owned, so the owned flag set and count are unchanged.
     # Removing their positional AP ids re-phases later round-robin pools: 148 removed / 148 added /
     # 148 flags re-owned, with none lost or gained and ZERO region crossings.
-    assert (digest, n) == ("120a07dbe4af5fac", 4104), (  # #1077: positional-id re-phase only
-        "sweep OWNERSHIP changed: (%s, %d), expected (120a07dbe4af5fac, 4104). The total alone will "
+    # 2026-08-30 (#1164): 120a07dbe4af5fac -> 97c4e4ce676f2093, count UNCHANGED at 4104.
+    # Pairwise in (trigger, flag) space: 36 removed / 36 added / the same 36 flags re-owned;
+    # none gained or lost an owner and ZERO cross a region boundary (every endpoint is Altus).
+    # f530300 moves from the non-terminal Coffin apparition 1037510800 to Lansseax's real final
+    # Rampartside kill 1041520800. Suppressing the old field host and inserting the new one
+    # re-deals the surrounding Altus nearest-boss partitions, producing the other 35 moves.
+    assert (digest, n) == ("97c4e4ce676f2093", 4104), (  # #1164: terminal Lansseax owner
+        "sweep OWNERSHIP changed: (%s, %d), expected (97c4e4ce676f2093, 4104). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

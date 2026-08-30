@@ -32,6 +32,10 @@ Both controls default to every death, and their counters restart on reconnect (#
 `ap.me3` save separation and Matt's launcher now take fewer detours while preserving the same
 commands, warnings, and verified behavior (#1160).
 
+**Killing Lansseax where she actually dies now clears her tracker sweep.** Her Abandoned Coffin
+apparition and final Rampartside fight have separate flags; the generator had attached the payout
+to the retreat encounter. The final kill now owns the sweep, without granting it early (#1164).
+
 ## What carried over from v0.5.3
 
 Nothing is owed. The v0.5.3 blurb and changelog were completed before its tag, and this window-opening
