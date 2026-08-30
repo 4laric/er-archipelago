@@ -35,7 +35,7 @@ A ROSTER ITEM ANOTHER FEATURE HAS TAKEN OVER (#539)
 ---------------------------------------------------
 `progressive_stone_bells` replaces every vanilla bell bearing with a progressive ladder and
 substitutes the vanilla names out of the item-shuffle pool (features/progressive.vanilla_
-substitutions). This floor is the OTHER source of those names, and it is the reason all eight showed
+substitutions). This floor is the OTHER source of those names, and it is the reason every bearing showed
 up in a live seed even where only a few regions were kept: substitution only removes the bearings
 that were ON a kept check, and the floor injected every one that was not. Injecting a vanilla bearing
 under that toggle hands the player the ladder's TOP RUNG as a single pickup -- the ladder is then not
@@ -89,13 +89,15 @@ PHYSICK_DEPTH = [
 ]
 PHYSICK_TEARS = PHYSICK_CORE + PHYSICK_DEPTH
 
-# Vanilla smithing bell-bearing items. Smithing-Stone [1]-[4] + Somberstone [1]-[5] are REQUESTED;
+# Vanilla upgrade bell-bearing items. Weapon and spirit-ash shop bearings are requested;
 # the catalog is the arbiter (a name that does not resolve is dropped -- see _RESOLVED_ROSTER below
 # and the note reported at commit time). Somberstone [1] is NOT in the FMG name catalog (it is not a
 # looted item there), so it is dropped automatically; the eight that resolve are kept.
 BELL_BEARINGS = (
     [f"Smithing-Stone Miner's Bell Bearing [{i}]" for i in range(1, 5)]
     + [f"Somberstone Miner's Bell Bearing [{i}]" for i in range(1, 6)]
+    + [f"Glovewort Picker's Bell Bearing [{i}]" for i in range(1, 4)]
+    + [f"Ghost-Glovewort Picker's Bell Bearing [{i}]" for i in range(1, 4)]
 )
 
 # The requested roster in a fixed, deterministic order (physick tears first, then bell bearings).
@@ -117,9 +119,8 @@ UNRESOLVED: List[str] = [n for n in _RAW_ROSTER if ITEM_CATALOG and n not in ITE
 PRESENCE_FLOOR_ITEMS = frozenset(ROSTER)
 
 # The bell-bearing half of the ROSTER, as a set -- the names another feature can take over. Note the
-# intersection: BELL_BEARINGS is the REQUESTED nine and the roster is the eight that resolve
-# (Somberstone [1] is not in the name catalog), so taking the raw list would put a name in here that
-# the floor could never have injected anyway. Same arbiter as ROSTER, one filter, no second answer.
+# intersection keeps the item catalog as the arbiter, so taking the raw list can never ask the floor
+# to inject a name that does not resolve. Same arbiter as ROSTER, one filter, no second answer.
 BELL_BEARING_ITEMS = frozenset(BELL_BEARINGS) & PRESENCE_FLOOR_ITEMS
 
 

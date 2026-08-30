@@ -49,9 +49,11 @@ except Exception:  # not yet generated -> no real items exist -> feature is a no
 # a future removal of progressive.py degrades this to catalog-only rather than breaking import.
 try:
     from .progressive import (PROG_FLASK, PROG_STONESWORD_KEY,
-                              PROG_SMITHING_BELL, PROG_SOMBER_BELL)
+                              PROG_SMITHING_BELL, PROG_SOMBER_BELL,
+                              PROG_GRAVE_GLOVEWORT_BELL, PROG_GHOST_GLOVEWORT_BELL)
     _PROGRESSIVE_NAMES: List[str] = [PROG_FLASK, PROG_STONESWORD_KEY,
-                                     PROG_SMITHING_BELL, PROG_SOMBER_BELL]
+                                     PROG_SMITHING_BELL, PROG_SOMBER_BELL,
+                                     PROG_GRAVE_GLOVEWORT_BELL, PROG_GHOST_GLOVEWORT_BELL]
 except Exception:
     _PROGRESSIVE_NAMES = []
 
@@ -266,7 +268,8 @@ class LocalItemsFeature(Feature):
         # world. `names_in` cannot express this semantic subtype because all feature-minted items
         # share its broad `progressive` category (which also contains flasks and stonesword keys).
         if "upgrade_bells" in categories:
-            names.update((PROG_SMITHING_BELL, PROG_SOMBER_BELL))
+            names.update((PROG_SMITHING_BELL, PROG_SOMBER_BELL,
+                          PROG_GRAVE_GLOVEWORT_BELL, PROG_GHOST_GLOVEWORT_BELL))
         cap = self._rune_cap(world)
         if cap > 0:
             names.update(n for n in ITEM_CATALOG

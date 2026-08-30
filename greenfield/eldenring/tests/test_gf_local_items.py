@@ -112,3 +112,5 @@ class ProgressiveUpgradeBellsLocal(WorldTestBase):
         local = _local_set(self)
         self.assertIn("Progressive Smithing-Stone Miner's Bell Bearing", local)
         self.assertIn("Progressive Somberstone Miner's Bell Bearing", local)
+        self.assertIn("Progressive Glovewort Picker's Bell Bearing", local)
+        self.assertIn("Progressive Ghost-Glovewort Picker's Bell Bearing", local)
