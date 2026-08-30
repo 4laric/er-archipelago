@@ -1223,6 +1223,11 @@ CONTRACT = (
                 "UNFLAGGED lots only "
                 "(a lot with getItemFlagId > 0 IS a check and is never sent). Only GOODS slots are "
                 "rerolled; lotItemBasePoint (drop weight) is untouched, so drop RATES stay vanilla."),
+    ContractKey("mineMaterialRoll", "SCALAR_INT_MAP", False, (GREENFIELD,),
+                "features/mine_materials.py", "mine_materials.rs configure/run",
+                "Unflagged repeatable ItemLotParam_map lot id (str) -> replacement GOODS row id. "
+                "Only the 11 placed ordinary mine-material templates are eligible. Slot quantity, "
+                "pickup/respawn behavior, flags, AP location count, and capstones remain untouched."),
     ContractKey("shopInfiniteStock", "LISTVAL_INT_MAP", False, (GREENFIELD,),
                 "features/shop_stock.py", "shop_stock.rs configure/run",
                 "ShopLineupParam row id (str) -> [goodsId, equipType(=3), price]. The browsable "
@@ -1716,7 +1721,7 @@ mod nested_grants_tests {
 # forget; a derived one cannot go stale. (Same doctrine as the gen-input stamp.)
 import hashlib as _hashlib
 
-APWORLD_VERSION = "0.5.4"
+APWORLD_VERSION = "0.5.5"
 
 def _contract_hash() -> str:
     _mat = "\n".join(

@@ -303,6 +303,10 @@ OFF_LEDGER = {
                       "test_gf_off_means_off.py::RerollWiresOffSeed"
                       "::test_enemy_drop_wire_absent_when_off",
                       {"reroll_enemy_drops": False}),
+    "mineMaterialRoll": ("off_test",
+                         "test_gf_off_means_off.py::RerollWiresOffSeed"
+                         "::test_mine_material_wire_absent_when_off",
+                         {"reroll_mine_materials": False}),
     "shopInfiniteStock": ("off_test",
                           "test_gf_off_means_off.py::RerollWiresOffSeed"
                           "::test_shop_stock_wire_absent_when_off",
@@ -558,6 +562,7 @@ class RerollWiresOffSeed(WorldTestBase):
     game = GAME
     options = {"num_regions": 0,
                "reroll_enemy_drops": False,
+               "reroll_mine_materials": False,
                "reroll_infinite_shop_stock": False}
 
     def test_enemy_drop_wire_absent_when_off(self):
@@ -571,6 +576,12 @@ class RerollWiresOffSeed(WorldTestBase):
         assert not leaked, (
             "shopInfiniteStock emitted with reroll_infinite_shop_stock off -- the client would "
             "restock shelves the yaml said to leave vanilla")
+
+    def test_mine_material_wire_absent_when_off(self):
+        leaked = "mineMaterialRoll" in self.world.fill_slot_data()
+        assert not leaked, (
+            "mineMaterialRoll emitted with reroll_mine_materials off -- the client would rewrite "
+            "mine deposits on a seed whose yaml said to leave them vanilla")
 
 class AllClientFeatureGatesOffSeed(WorldTestBase):
     """requiresClientFeatures is a UNION key: features/auto_equip.py contributes "auto_equip",
