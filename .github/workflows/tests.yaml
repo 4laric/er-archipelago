@@ -622,6 +622,9 @@ jobs:
       - name: The enemy-drop EntityID generator's XML pairing contract (#1000)
         run: python -m unittest -v tools/test_gen_enemy_drop_entities.py
 
+      - name: The mine-material census preserves asset and capstone provenance (#1095)
+        run: python -m unittest -v tools/test_datamine_mine_material_sources.py
+
       # The ledger BEFORE the loop: the loop below is generated from it, so an unledgered
       # repo-only suite must fail the job before a green loop can imply "everything ran".
       - name: Every repo-only suite is in a CI job or explicitly ledgered
