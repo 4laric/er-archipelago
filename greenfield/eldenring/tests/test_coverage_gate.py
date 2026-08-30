@@ -452,10 +452,16 @@ if _HAVE_AP:
             # dlc_on rides the same seam as finale (see the block comment above): the DLC-gated
             # hub shop rows (AzoTax, 2026-08-20) exist per-SEED, so the static join must be told
             # the live join's verdict or the two differ by exactly those 36 on a no-DLC config.
+            from worlds.eldenring.features import cross_region_access
+            cross_region_excluded = {
+                location_id for location_id in cross_region_access.ALTERNATE_ACCESS
+                if not cross_region_access.location_available(self.world, location_id)
+            }
             s_records, s_ctx, s_byname = live_cov.report_coverage(
                 kept=ctx["kept"], finale=ctx["FINALE_REGION"] is not None, printer=None,
                 dlc_on=ctx.get("dlc_on"),
-                tarnished_pack_on=ctx.get("tarnished_pack_on"))
+                tarnished_pack_on=ctx.get("tarnished_pack_on"),
+                excluded_aps=cross_region_excluded)
             self.assertEqual(sorted(records), sorted(s_records),
                              "live and static joins disagree on the emitted location set")
 
