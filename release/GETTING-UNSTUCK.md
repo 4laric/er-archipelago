@@ -162,6 +162,7 @@ from the last `=== SESSION START` line when reporting the current run.
   contains the loaded `eldenring_archipelago.dll`; its log is in the `log` folder beside that DLL.
   With matt's **Add DLL mod** layout this is normally the randomizer output's DLL folder, not the
   me3 AppData folder.
+- `Elden Ring\Game\log\`
 
 Attach the whole log, your YAML, what you typed, and what happened. The session-start line records
 the client build and the log's early provenance lines name which loader and nearby mods were seen.
