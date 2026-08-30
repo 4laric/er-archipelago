@@ -82,6 +82,12 @@
        on telling two greys apart. */
     "#er-tabs-strip a.on{color:var(--gold,#c8a95a);border-bottom-color:var(--gold,#c8a95a)}",
     "#er-tabs-strip .sp{flex:1}",
+    "#er-tabs-strip a.support{color:#fff;background:var(--gold-dim,#8a7440);",
+    "  border:1px solid var(--gold,#c8a95a);border-radius:999px;margin:6px 10px;padding:5px 13px;",
+    "  align-self:center;text-transform:none;letter-spacing:.02em;font-family:system-ui,sans-serif;",
+    "  font-size:12px;font-weight:600}",
+    "#er-tabs-strip a.support:hover{color:#fff;background:var(--gold,#c8a95a)}",
+    "#er-tabs-strip a:focus-visible{outline:2px solid var(--gold,#c8a95a);outline-offset:2px}",
     "@media(max-width:620px){#er-tabs-strip a{padding:10px 12px;font-size:11.5px}}"
   ].join("");
   document.head.appendChild(css);
@@ -95,6 +101,11 @@
     );
   }
   html.push('<span class="sp"></span>');
+  html.push(
+    '<a class="support" href="https://buymeacoffee.com/fazuzu" target="_blank" ' +
+    'rel="noopener noreferrer" aria-label="Support Peliarch (opens in a new tab)">' +
+    '&#9749; Support Peliarch</a>'
+  );
   html.push("</nav>");
   host.innerHTML = html.join("");
 })();
