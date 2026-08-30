@@ -37,6 +37,8 @@ VV   = os.path.join(AR, "vanilla_er", "vanilla_er")
 EVT  = os.path.join(AR, "event")
 GF   = os.path.join(REPO, "greenfield")
 OUT  = os.path.join(GF, "eldenring", "boss_drops.py")
+MIN_DROP_ROWS = 88
+MIN_DROP_MAPS = 71
 
 _REMEMBRANCE = ("remembrance",)  # name guards for the excluded major-boss rewards
 def _is_excluded_item(name):
@@ -116,11 +118,28 @@ def datamine():
     return handlers, sorted(uniq.values(), key=lambda r: (r[4], r[3]))
 
 
+def require_complete_rows(rows):
+    """Refuse a large-looking result that silently lost a map/event family (#531)."""
+    maps = {row[6] for row in rows}
+    missing = []
+    if len(rows) < MIN_DROP_ROWS:
+        missing.append(f"drops={len(rows)} (minimum {MIN_DROP_ROWS})")
+    if len(maps) < MIN_DROP_MAPS:
+        missing.append(f"maps={len(maps)} (minimum {MIN_DROP_MAPS})")
+    if missing:
+        raise SystemExit(
+            "FATAL: boss-drop derivation is incomplete: "
+            + ", ".join(missing)
+            + ". Refusing to publish an answer."
+        )
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--list", action="store_true", help="print the reviewable list, write nothing")
     a = ap.parse_args()
     handlers, rows = datamine()
+    require_complete_rows(rows)
     flags = sorted({r[2] for r in rows})
     print(f"boss-handler common events: {sorted(handlers)}")
     print(f"Boss-drop AP locations: {len(rows)}  (distinct flags {len(flags)}, items {len({r[3] for r in rows})})")
