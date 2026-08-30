@@ -786,6 +786,10 @@ def rule_text(roots):
 
 
 def run(art, outdir="."):
+    # The documented fixture command accepts a fresh output path.  Keep directory ownership here,
+    # at the shared writer, so both the CLI and fixtures behave the same and callers do not need
+    # to pre-create an otherwise implementation-private directory (#1085).
+    os.makedirs(outdir, exist_ok=True)
     C = Corpus(art)
     setters, boss_flags, band_flags = build_setters(C)
     R = Resolver(C, setters, boss_flags, band_flags)
