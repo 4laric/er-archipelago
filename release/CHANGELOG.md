@@ -41,6 +41,10 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **The setup guide now states its upgrade and save-file rules more directly (#1160).** It keeps
   the same verified behavior and warnings while making the current-YAML recovery and the
   `ap.me3`-versus-Matt save distinction easier to scan.
+- **Progressive upgrade bells now cover spirit ashes as well as weapons (#850).** Enabling the
+  existing option replaces the three Grave and three Ghost Glovewort Picker bearings with two new
+  progressive ladders. One copy of each of the four upgrade ladders is placed early; Great
+  Gloveworts and both Ancient Dragon stone capstones remain discrete.
 
 ## v0.5.3 — 2026-08-28
 

@@ -32,6 +32,10 @@ Both controls default to every death, and their counters restart on reconnect (#
 `ap.me3` save separation and Matt's launcher now take fewer detours while preserving the same
 commands, warnings, and verified behavior (#1160).
 
+**Progressive upgrade shops now include spirit ashes.** The existing bell-bearing option adds
+separate Grave and Ghost Glovewort ladders beside Smithing and Somber stones, with the first rung of
+all four placed early. Great Gloveworts and Ancient Dragon stones remain capstones (#850).
+
 ## What carried over from v0.5.3
 
 Nothing is owed. The v0.5.3 blurb and changelog were completed before its tag, and this window-opening
