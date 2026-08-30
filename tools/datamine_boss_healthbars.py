@@ -44,6 +44,11 @@ MSG  = os.path.join(AR, "msg")
 GF   = os.path.join(REPO, "greenfield")
 OUT  = os.path.join(GF, "eldenring", "boss_healthbars.py")
 
+# Complete 1.17 corpus measured 2026-08-30. Both dimensions matter: a missing EMEVD family can
+# leave a large-looking boss count concentrated in too few maps, which is still not an answer.
+MIN_BOSSES = 244
+MIN_BOSS_MAPS = 118
+
 _MAPFILE = re.compile(r"(m\d\d)_(\d\d)_(\d\d)_\d\d\.emevd\.dcx\.js$")  # mAA_BB (+CC) from a map emevd filename
 _LIT     = re.compile(r"DisplayBossHealthBar\(\s*(?:Enabled|1)\s*,\s*(\d+)\s*,\s*\d+\s*,\s*(\d+)")
 _INITC   = re.compile(r"\$InitializeCommonEvent\(\s*\d+\s*,\s*(\d+)\s*,\s*([^)]*)\)")
@@ -350,11 +355,27 @@ def _write(bosses):
         f.write("}\n")
 
 
+def require_complete_bosses(bosses):
+    maps = {boss["map"] for boss in bosses.values()}
+    missing = []
+    if len(bosses) < MIN_BOSSES:
+        missing.append(f"bosses={len(bosses)} (minimum {MIN_BOSSES})")
+    if len(maps) < MIN_BOSS_MAPS:
+        missing.append(f"maps={len(maps)} (minimum {MIN_BOSS_MAPS})")
+    if missing:
+        raise SystemExit(
+            "FATAL: boss-healthbar derivation is incomplete: "
+            + ", ".join(missing)
+            + ". Refusing to publish an answer."
+        )
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--list", action="store_true", help="print the reviewable list; write nothing")
     a = ap.parse_args()
     bosses = datamine()
+    require_complete_bosses(bosses)
     from collections import Counter
     c = Counter(b["class"] for b in bosses.values())
     print("boss_healthbars: %d entities across %d maps | %s" % (
