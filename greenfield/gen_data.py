@@ -7079,6 +7079,17 @@ with open(OUT_GRACES, "w", newline="\n", encoding="utf-8") as f:
                 _out.append(min(_ow) if _ow else min(_grp))
         return sorted(_out)
     REGION_GRACE_LANDMARKS = {r: _landmarks(r, v) for r, v in REGION_GRACE_POINTS.items()}
+    # Warp-menu subcategories are presentation groups, not a traversal graph. Mt. Gelmir's menu
+    # folds the lower Seethewater basin into a group represented above cliffs, but walking into
+    # that basin requires Altus, the Academy abductors, or quest-state-dependent Patches. That can
+    # put the Altus Lock at North of Seethewater behind itself when landmarks grants only Volcano
+    # Manor and Bridge of Iniquity (#1136). Grace 76354 is Seethewater River: an unconditional warp
+    # inside the disconnected basin.
+    _LANDMARK_TRAVERSAL_OVERRIDES = {"Mt. Gelmir": (76354,)}
+    for _r, _extra in _LANDMARK_TRAVERSAL_OVERRIDES.items():
+        _all = set(REGION_GRACE_POINTS.get(_r, ()))
+        assert set(_extra) <= _all, "%s landmark override names a grace outside its region" % _r
+        REGION_GRACE_LANDMARKS[_r] = sorted(set(REGION_GRACE_LANDMARKS[_r]) | set(_extra))
     _lm = sum(len(v) for v in REGION_GRACE_LANDMARKS.values())
     assert _lm >= len(REGION_GRACE_LANDMARKS), (
         "landmarks tier derived %d graces for %d regions -- the subCategory column is missing from "

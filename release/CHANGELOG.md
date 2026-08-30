@@ -26,6 +26,11 @@ Client half: clients#477. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Mt. Gelmir's landmark graces now reach Seethewater (#1136).** The warp menu groups the lower
+  basin with areas above cliffs that cannot be climbed, so granting only Volcano Manor and Bridge
+  of Iniquity could let an Altus Lock land behind Altus itself. Seethewater River is now an explicit
+  landmark, independent of Academy access or Patches quest state.
+
 ## v0.5.3 — 2026-08-28
 
 ### What you need to update
