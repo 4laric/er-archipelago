@@ -54,6 +54,20 @@ REPO = os.path.dirname(HERE)
 SLP_DIR = os.path.join(REPO, "elden_ring_artifacts", "vanilla_er", "vanilla_er")
 OUT = os.path.join(REPO, "greenfield", "eldenring", "shoplineup_flags.json")
 
+# Measured on the complete Tarnished Edition 1.17 ShopLineupParam.  The 1.17
+# corpus adds eleven stock-flagged rows (833 versus 822 in 1.16); silently
+# accepting the older/truncated table makes foreign-apworld shop checks never
+# fire in the client.
+MIN_STOCK_FLAG_ROWS = 833
+
+
+def validate(table):
+    if len(table) < MIN_STOCK_FLAG_ROWS:
+        raise SystemExit(
+            "REFUSED: ShopLineupParam produced %d stock-flagged rows; complete 1.17 floor is %d. "
+            "Nothing written." % (len(table), MIN_STOCK_FLAG_ROWS)
+        )
+
 
 def derive():
     """{row_id(int): eventFlag_forStock(int)} for every ShopLineupParam row with a nonzero flag."""
@@ -75,6 +89,7 @@ def derive():
                 "ShopLineupParam_Recipe.csv now has %d rows with a stock flag (e.g. %s) -- the "
                 "'recipes contribute nothing' assumption broke; extend derive() to include them."
                 % (len(flagged), flagged[:5]))
+    validate(out)
     return out
 
 
