@@ -159,9 +159,9 @@ footer p{max-width:78ch;margin:10px 0}
 </div>
 
 <div class="nums">
-  <div class="num"><b>29</b><span>regions</span></div>
+  <div class="num"><b data-derived="regions">28</b><span>regions</span></div>
   <div class="num"><b data-derived="checks-catalogued">4,923</b><span>checks catalogued</span></div>
-  <div class="num"><b>56</b><span>options</span></div>
+  <div class="num"><b data-derived="options">70</b><span>options</span></div>
   <div class="num"><b>0</b><span>game files patched</span></div>
 </div>
 
@@ -188,8 +188,8 @@ footer p{max-width:78ch;margin:10px 0}
       <p>Where no exact answer exists it says so instead of printing a figure that never moves.</p>
     </div>
     <div class="card">
-      <h3>All 56 options, explained</h3>
-      <p>Seven tabs, every option described in the words it was written with rather than its
+      <h3>All <span data-derived="options">70</span> options, explained</h3>
+      <p><span data-derived="option-groups">Eight</span> sections, every option described in the words it was written with rather than its
       internal tag name. The yaml it writes records which apworld version it was built for, so
       a host can always tell which build a file came from.</p>
     </div>
@@ -220,7 +220,9 @@ footer p{max-width:78ch;margin:10px 0}
 
 <section>
   <h2>How a run plays</h2>
-  <p>The world is <strong>Shattered</strong>. Its 29 regions &mdash; 17 in the base game, 12 in
+  <p>The world is <strong>Shattered</strong>. Its <span data-derived="regions">28</span> regions
+  &mdash; <span data-derived="base-regions">17</span> in the base game,
+  <span data-derived="dlc-regions">11</span> in
   Shadow of the Erdtree &mdash; are each sealed behind an Archipelago item called a
   <strong>Region Lock</strong>. You start at Roundtable Hold with one region open. When a Lock
   arrives from the multiworld, that region's graces light up on your map and you warp in. Walk
