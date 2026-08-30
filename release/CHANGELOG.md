@@ -38,6 +38,9 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   opt-in one-in-N controls let a seed pardon received DeathLinks and local deaths at different
   rates. Both default to one, preserving normal DeathLink; their session counters restart when the
   client reconnects.
+- **The setup guide now states its upgrade and save-file rules more directly (#1160).** It keeps
+  the same verified behavior and warnings while making the current-YAML recovery and the
+  `ap.me3`-versus-Matt save distinction easier to scan.
 
 ## v0.5.3 — 2026-08-28
 

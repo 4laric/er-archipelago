@@ -28,6 +28,10 @@ shows the banner again; acknowledging it never marks an unsafe pairing safe (#11
 choose that only every Nth received DeathLink kills you and only every Nth local death is sent.
 Both controls default to every death, and their counters restart on reconnect (#1051, clients#487).
 
+**Setup says the important part first.** The current-YAML upgrade advice and the difference between
+`ap.me3` save separation and Matt's launcher now take fewer detours while preserving the same
+commands, warnings, and verified behavior (#1160).
+
 ## What carried over from v0.5.3
 
 Nothing is owed. The v0.5.3 blurb and changelog were completed before its tag, and this window-opening
