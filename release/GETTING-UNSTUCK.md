@@ -91,6 +91,22 @@ These commands grant inventory items only. The Leyndell entrance reads event fla
 the inventory, so granting two or more Great Runes does not repair a sealed capital gate. Use the
 next section for that symptom.
 
+## Grant a specific Whetblade
+
+Whetblades are the other common class where a name-based rescue can select the wrong record and
+retry indefinitely. Use the exact full item ID instead:
+
+| Whetblade | Command |
+|---|---|
+| Iron Whetblade | `!give 0x4000230a` |
+| Red-Hot Whetblade | `!give 0x4000230b` |
+| Sanctified Whetblade | `!give 0x4000230c` |
+| Glintstone Whetblade | `!give 0x4000230d` |
+| Black Whetblade | `!give 0x4000230e` |
+
+These commands grant the tool only. Possession unlocks its affinity choices at a grace; it does
+not set the randomized check flag at the Whetblade's vanilla pickup location.
+
 ## The Leyndell capital gate will not open
 
 The Seal of the Royal Capital reads two flags: the two-great-rune gate (`182`) and its paired
