@@ -1004,6 +1004,15 @@ Elden Ring:
   # Shared deaths in a multiworld. Works in both directions.
   death_link: false
 
+  # Only every Nth DeathLink received from another player kills you. Incoming and outgoing
+  # amnesty use separate counters. Both counters restart when the client reconnects.
+  # 1 preserves the normal DeathLink behavior.
+  death_link_amnesty_inbound: 1
+
+  # Only every Nth local death is sent to the multiworld. The range is 1-100.
+  # 1 preserves the normal DeathLink behavior.
+  death_link_amnesty_outbound: 1
+
   # Share locally received trap items with other TrapLink players. Incoming traps whose names this
   # client does not recognize are ignored; linked traps never echo back onto the network.
   trap_link: false
