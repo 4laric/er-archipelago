@@ -55,6 +55,20 @@ COORDS = [
 ]
 
 
+def test_output_floor_rejects_a_vacuous_mapping():
+    with pytest.raises(SystemExit, match=r"matched only 0 checks \(floor 3761"):
+        bng.require_complete_mapping({}, "nearest_grace.tsv")
+
+
+def test_output_floor_accepts_the_measured_complete_mapping():
+    mapping = {flag: ("Grace", flag) for flag in range(bng.MIN_MATCHED_CHECKS)}
+    bng.require_complete_mapping(mapping, "nearest_grace.tsv")
+
+
+def test_output_floor_has_an_explicit_partial_corpus_escape_hatch():
+    bng.require_complete_mapping({}, "nearest_grace.tsv", force=True)
+
+
 def test_same_map_nearest():
     m = bng.build_map(COORDS)
     assert m[20007620] == "Belurat, Tower Settlement", m
