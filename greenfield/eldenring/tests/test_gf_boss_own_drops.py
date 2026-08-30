@@ -1,8 +1,8 @@
 """#907: a boss's OWN drop rides its own trigger's sweep.
 
-THE MOTIVATING CASE (CptFabulous, Discord 2026-08-20): an in-game hint placed his Liurnia Lock at
-the Lansseax's Glaive check [f530300]. He killed Lansseax's REPLACEMENT (host enemy randomizer) at
-the Abandoned Coffin; the three swept member checks paid, the glaive did not. The vanilla award
+THE ORIGINAL MOTIVATING CASE (CptFabulous, Discord 2026-08-20): an in-game hint placed his Liurnia
+Lock at the Lansseax's Glaive check [f530300]. He killed Lansseax's REPLACEMENT (host enemy
+randomizer) at the Abandoned Coffin; the swept member checks paid, the glaive did not. The vanilla award
 (common event 90005860) is gated on CharacterDead(vanilla chr) -- the replacement's death sets the
 site FLAG (the rando's compat layer), which our sweep watches, but the vanilla character never
 dies, so AwardItemsIncludingClients never runs. A FLAG IS NOT AN AWARD.
@@ -19,7 +19,8 @@ from ..boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION
 from ..data import LOCATIONS
 
 GLAIVE_FLAG = 530300
-GLAIVE_TRIGGER = 1037510800   # m60_37_51, the Abandoned Coffin apparition
+GLAIVE_TRIGGER = 1041520800   # m60_41_52, the terminal Rampartside fight
+COFFIN_TRIGGER = 1037510800   # m60_37_51, the non-terminal apparition
 
 
 def _flag_to_ap_and_region():
@@ -37,15 +38,17 @@ class OwnDropSweeps(unittest.TestCase):
         cls.f2a, cls.f2r = _flag_to_ap_and_region()
 
     def test_the_motivating_case_lansseax(self):
-        """The glaive is a member of the Coffin apparition's sweep, by FLAG identity (never ap)."""
+        """The Glaive rides the terminal fight; the Coffin retreat cannot pay the final sweep."""
         ap = self.f2a.get(GLAIVE_FLAG)
         self.assertIsNotNone(ap, "f530300 is no longer a check?!")
-        self.assertIn(GLAIVE_TRIGGER, DUNGEON_SWEEPS, "the Coffin trigger lost its sweep")
+        self.assertIn(GLAIVE_TRIGGER, DUNGEON_SWEEPS, "the Rampartside trigger lost its sweep")
         self.assertIn(ap, DUNGEON_SWEEPS[GLAIVE_TRIGGER],
                       "f530300 is not swept by its own trigger -- the #907 admission pass "
                       "regressed, and CptFabulous's bug is back")
         self.assertEqual(SWEEP_REGION[GLAIVE_TRIGGER], self.f2r[GLAIVE_FLAG],
                          "the glaive and its sweep disagree on region")
+        self.assertNotIn(COFFIN_TRIGGER, DUNGEON_SWEEPS,
+                         "the non-terminal Coffin encounter must not pay the final Lansseax sweep")
 
     def test_the_rule_not_the_list(self):
         """Every admissible boss_drops row IS swept; every inadmissible one is OUT for a named

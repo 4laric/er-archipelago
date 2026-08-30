@@ -32,6 +32,10 @@ Both controls default to every death, and their counters restart on reconnect (#
 `ap.me3` save separation and Matt's launcher now take fewer detours while preserving the same
 commands, warnings, and verified behavior (#1160).
 
+**Killing Lansseax where she actually dies now clears her tracker sweep.** Her Abandoned Coffin
+apparition and final Rampartside fight have separate flags; the generator had attached the payout
+to the retreat encounter. The final kill now owns the sweep, without granting it early (#1164).
+
 **Progressive upgrade shops now include spirit ashes.** The existing bell-bearing option adds
 separate Grave and Ghost Glovewort ladders beside Smithing and Somber stones, with the first rung of
 all four placed early. Great Gloveworts and Ancient Dragon stones remain capstones (#850).
