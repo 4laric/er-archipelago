@@ -34,6 +34,10 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   full-width banner then collapses for the current connection while a persistent menu indicator
   and the full tracker/log details remain. Reconnecting shows the banner again, and acknowledgement
   never marks an unsafe client/seed pairing safe.
+- **DeathLink can grant separate incoming and outgoing amnesty (#1051, clients#487).** Two new
+  opt-in one-in-N controls let a seed pardon received DeathLinks and local deaths at different
+  rates. Both default to one, preserving normal DeathLink; their session counters restart when the
+  client reconnects.
 - **The setup guide now states its upgrade and save-file rules more directly (#1160).** It keeps
   the same verified behavior and warnings while making the current-YAML recovery and the
   `ap.me3`-versus-Matt save distinction easier to scan.
