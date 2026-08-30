@@ -17,16 +17,16 @@ randomized item. The included `EldenRing.yaml` is already set up for it. Change
 🛑 **On the DLC.** `enable_dlc` is **on** in the apworld's own defaults, and the
 shipped `EldenRing.yaml` turns it **off** (`enable_dlc: false`) because the base
 game is the better-tested path. So: build from the template, or from a wizard
-preset, and you get base game. Generate from a yaml that says nothing about it
--- an empty `Elden Ring: {}` section, or the wizard's blank **Defaults** card --
-and you get all 29 regions, 12 of which need Shadow of the Erdtree.
+preset, and you get base game. A yaml that says nothing about it, such as an
+empty `Elden Ring: {}` section or the wizard's blank **Defaults** card, enables
+all 29 regions. Twelve of those regions need Shadow of the Erdtree.
 
 ---
 
 ## Upgrading from v0.1? Read this first.
 
-**The game id changed.** In v0.1 the game was called `EldenRing`; in v0.2 it is
-**`Elden Ring` -- with a space**. A v0.1 yaml will be rejected at generation
+**The game id changed.** In v0.1 the game was called `EldenRing`. In v0.2 it is
+**`Elden Ring` (with a space)**. A v0.1 yaml will be rejected at generation
 with:
 
 ```
@@ -35,14 +35,12 @@ No world found to handle game EldenRing. Did you mean 'Elden Ring'?
 
 If you see that message, you are feeding v0.2 a v0.1 yaml.
 
-**Do not fix an old yaml by hand -- start from the shipped `EldenRing.yaml`.**
-v0.2 cut the option surface right down; it has grown back to 56 tunable options
-since. Archipelago **warns**
-about each option it does not recognize and then **generates the seed anyway**,
-on defaults -- so an edited v0.1 yaml still gives you a game you did not
-configure; the only sign is a line in the generation output. Copy the new file
-and re-apply your choices there. (If you do reuse an old yaml, read the
-generation output: every dropped option is named.)
+**Start from the shipped `EldenRing.yaml` instead of repairing an old file.**
+The option surface changed substantially after v0.1 and now has 56 tunable
+options. Archipelago warns about each unrecognized option, drops it, and still
+generates the seed with that option's default. Copy the current file and apply
+your choices again. If you reuse an old yaml, read the generation output: it
+names every option that was dropped.
 
 **Mid-run on a v0.1 seed?** Because the game id changed, the v0.1 and v0.2
 worlds can be installed side by side. You can finish your v0.1 seed first, no
@@ -141,14 +139,14 @@ You also need, separately:
    `me3` launcher works.
 
 2. **Drop in the runtime client.** The release ships a ready-to-run `me3/`
-   folder -- launch Elden Ring with its profile:
+   folder. Launch Elden Ring with its profile:
    `me3 launch --profile "<path to me3>\ap.me3"`. Keep the folder intact: the two
    data tables (`check_lots_table.json`, `shoplineup_flags.json`) must sit next to
    the DLL, or checks double-pay the vanilla item and shop checks never fire. When
    the client is loaded, its overlay **menu bar** is visible in-game.
 
-   **Start a new character.** Launched this way -- with the `me3` profile --
-   the game writes to a separate save file (`AP_me3.sl2`). The first time it
+   **Start a new character.** When you use this profile, the game writes to a
+   separate save file (`AP_me3.sl2`). The first time it
    creates that file, me3 copies your existing `ER0000.sl2`, so the character
    list initially includes copies of all your vanilla characters. That is
    expected: seeing those names does **not** mean the two launches still share
@@ -165,17 +163,16 @@ You also need, separately:
    does not require the Alt Saves DLL. Launch our dll any other way and it does
    not apply. See the next step.
 
-   **Also running matt's randomizer?** Then you do not launch twice. Add
-   `eldenring_archipelago.dll` to matt's **Add dll mod** list -- **pointing at the dll
-   inside this release's `me3/` folder, in place; never copy the dll out of it** -- and
-   use his **Launch Elden Ring** button, which loads our client for you. The dll needs
-   its two data tables beside it, and an upgrade should be "replace the folder", not
-   "hunt down stray copies". Unpack the release to a folder without the version in its
-   name so matt's remembered path survives your next update. Full walkthrough, with
-   pictures, in `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md`.
+   **Also running Matt's randomizer?** Add `eldenring_archipelago.dll` to Matt's
+   **Add dll mod** list, then use his **Launch Elden Ring** button. Point the list
+   at the DLL inside this release's `me3/` folder and leave it there. Its two data
+   tables must remain beside it. For easier upgrades, unpack each release over a
+   folder whose name does not contain the version; Matt can keep using the same
+   path. See `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` for the illustrated
+   walkthrough.
 
-   **On that path you do NOT get a separate save.** matt's launcher never reads
-   `ap.me3`, so the `savefile` line above never applies: your Archipelago
+   **Matt's launcher does not select the separate AP save.** It never reads
+   `ap.me3`, so the `savefile` line above does not apply. Your Archipelago
    character is created in your ordinary Elden Ring save, next to your real
    ones. Nothing of yours is overwritten, but the two share one file and one
    backup from then on. If you want them apart, set that up **before** you
