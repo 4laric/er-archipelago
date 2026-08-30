@@ -691,6 +691,14 @@ class GreenfieldEldenRingWorld(World):
                 rows = [t for t in rows if str(t[1]) not in _srf]
             except ImportError:
                 pass
+        # A few checks have a physical route through another region and an independent sweep
+        # route. Filter them here so a seed with neither route cannot retain an impossible check
+        # (and therefore an unmatched pool item).
+        try:
+            from .features.cross_region_access import location_available as _cross_available
+            rows = [t for t in rows if _cross_available(self, int(t[1]))]
+        except ImportError:
+            pass
         if self._dlc_on():
             return rows
         try:
