@@ -294,25 +294,26 @@ The defaults are the recommended run. If you want to stray:
 
 ## If something went wrong
 
+**For any yaml problem, start from the current template.** Copy this release's
+`EldenRing.yaml`, or make a fresh file at <https://peliarch.ca/er/>, then apply
+your choices again. Archipelago warns about unknown options but ignores them
+and continues with their defaults. Editing an old file until it generates can
+therefore produce a valid seed with different settings than you intended.
+
 **`VERSION MISMATCH` in the client log.**
 Your apworld and your client `.dll` are from different builds. The game will
-still boot and connect, and then behave subtly wrong -- the client reads
-`slot_data` in shapes the apworld isn't sending. **Redownload both from the same
-release tag.** Do not report bugs from a mismatched pair; they won't be real.
-(In a multiworld this can also mean the *host* generated with a different apworld
-version than your client expects -- ask them which release they used.)
+still boot and connect, but the two sides can interpret seed data differently.
+**Redownload both from the same release tag.** In a multiworld, ask the host
+which apworld version generated the room; your DLL must match that version.
 
 **"No world found to handle game EldenRing. Did you mean 'Elden Ring'?"**
 You generated with a v0.1 yaml. The game id is now `Elden Ring`, with a
-space. Do not just edit the `game:` line -- start over from the shipped
-`EldenRing.yaml`. Archipelago warns about old option names but generates
-anyway, so your v0.1 settings would be dropped and the seed would still build.
+space. Use the current-template remedy above. Changing only the `game:` line
+can leave old option names that Archipelago ignores.
 
-**The seed generated fine, but the game ignores settings I set.**
-Almost certainly a hand-edited old yaml. Unknown options are silently
-ignored, and the option surface has been renamed and reshaped repeatedly since
-v0.1. Regenerate from the shipped `EldenRing.yaml`, or build a fresh one at
-<https://peliarch.ca/er/>.
+**The seed generated, but the game ignores settings I chose.**
+The yaml probably uses retired option names. Use the current-template remedy
+above and check the generation log for warnings about unknown options.
 
 **Generation fails, or the apworld won't load, and it isn't the game-id message.**
 Check your Archipelago version: this release is built and tested against
@@ -321,11 +322,9 @@ Check your Archipelago version: this release is built and tested against
 
 **The game launches but there's no overlay / nothing connects.**
 The client isn't loaded. Make sure you launched Elden Ring through
-ModEngine3, that `eldenring_archipelago.dll` is where your me3 profile loads
-it. And make
-sure the game files are in a state you expect. A vanilla install always works;
-matt's randomizer alongside it is supported (items OFF). Other mods that rewrite
-item lots or params are not.
+ModEngine3 and that your profile loads `eldenring_archipelago.dll`. A vanilla
+install works; Matt's randomizer is supported with item randomization off.
+Other mods that rewrite item lots or parameters are not supported.
 
 **Checks send fine, but nothing ever arrives.**
 `RandomizerHelper.dll` is loaded. It and our client both hook the routine that
