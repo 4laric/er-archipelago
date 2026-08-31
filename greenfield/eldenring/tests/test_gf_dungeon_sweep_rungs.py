@@ -117,7 +117,7 @@ def test_the_important_checks_inside_sweeps_do_not_grow():
     balance argument, not something to slip in under a test.
 
     Until then this stops the set GROWING, which is the part that would go unnoticed."""
-    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, POST_BOSS_GIFTS
     from worlds.eldenring.location_tags import LOCATION_TAGS
     from worlds.eldenring.boss_reward_lots import BOSS_REWARD_DEFEAT
     from worlds.eldenring.data import LOCATIONS
@@ -142,6 +142,8 @@ def test_the_important_checks_inside_sweeps_do_not_grow():
     own_reward = {ap for trig, members in DUNGEON_SWEEPS.items() for ap in members
                   if BOSS_REWARD_DEFEAT.get(_flag_of.get(ap)) == trig
                   or BOSS_DROP_ENTITY.get(_flag_of.get(ap)) == trig}
+    own_reward |= {ap for trig, members in POST_BOSS_GIFTS.items() for ap in members
+                   if ap in DUNGEON_SWEEPS.get(trig, ())}
     found = {ap for members in DUNGEON_SWEEPS.values() for ap in members
              if important & set(LOCATION_TAGS.get(ap, ()))}
     new = sorted(found - _KNOWN_IMPORTANT_IN_SWEEPS - own_reward)
@@ -254,6 +256,7 @@ def test_ticking_a_class_onto_the_surface_takes_it_back_out_of_the_sweep():
 def test_the_floor_holds_whatever_the_surface_says():
     """No surface selection may put a floor class back into a sweep. The floor is not an option."""
     from worlds.eldenring.features.boss_locks import enabled_sweeps
+    from worlds.eldenring.boss_sweeps import POST_BOSS_GIFTS
     from worlds.eldenring.location_tags import LOCATION_TAGS
     from worlds.eldenring.boss_reward_lots import BOSS_REWARD_DEFEAT
     from worlds.eldenring.data import LOCATIONS
@@ -264,6 +267,8 @@ def test_the_floor_holds_whatever_the_surface_says():
         own_reward = {ap for trig, mem in live.items() for ap in mem
                       if BOSS_REWARD_DEFEAT.get(_flag_of.get(ap)) == trig
                       or BOSS_DROP_ENTITY.get(_flag_of.get(ap)) == trig}
+        own_reward |= {ap for trig, members in POST_BOSS_GIFTS.items() for ap in members
+                       if ap in live.get(trig, ())}
         # WITNESSES, both of them load-bearing: `assert not leaked` passes for free if the payload
         # is empty or if the floor vocabulary stopped matching any tag at all, and either would be
         # a silent hole rather than a green run (test_gf_vacuous_pass's ratchet, shape 2).
@@ -284,7 +289,7 @@ def test_the_floor_holds_whatever_the_surface_says():
 
 def test_the_legacy_pool_specifically_is_clean():
     """The claim that actually bounded the Grafted Scion bug, asserted where it is true."""
-    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, POST_BOSS_GIFTS
     from worlds.eldenring.boss_healthbars import BOSS_HEALTHBARS
     from worlds.eldenring.location_tags import LOCATION_TAGS
     important = set(_SWEEP_NEVER)
@@ -296,7 +301,8 @@ def test_the_legacy_pool_specifically_is_clean():
               for ap in members if important & set(LOCATION_TAGS.get(ap, ()))
               # 2026-08-20 (#907): a legacy-geography boss's OWN drop is not a leak -- the same
               # own-trigger relation the field tests carry.
-              and BOSS_DROP_ENTITY.get(_flag_of.get(ap)) != fl]
+              and BOSS_DROP_ENTITY.get(_flag_of.get(ap)) != fl
+              and ap not in POST_BOSS_GIFTS.get(fl, ())]
     assert not leaked, (
         "the LEGACY sweep pool is supposed to be filler-only by construction (_filler_only), and %d "
         "important check(s) got in: %s" % (len(leaked), leaked[:5]))
@@ -503,6 +509,7 @@ def test_full_area_sweeps_does_not_lift_the_floor():
     with the option ON, because the floor lives in the BAKE and this option only skips the cut: if
     that ever stopped being true, this is where it shows."""
     from worlds.eldenring.features.boss_locks import enabled_sweeps
+    from worlds.eldenring.boss_sweeps import POST_BOSS_GIFTS
     from worlds.eldenring.location_tags import LOCATION_TAGS
     from worlds.eldenring.boss_reward_lots import BOSS_REWARD_DEFEAT
     from worlds.eldenring.boss_drops import BOSS_DROP_ENTITY
@@ -516,6 +523,8 @@ def test_full_area_sweeps_does_not_lift_the_floor():
     own_reward = {ap for trig, mem in live.items() for ap in mem
                   if BOSS_REWARD_DEFEAT.get(_flag_of.get(ap)) == trig
                   or BOSS_DROP_ENTITY.get(_flag_of.get(ap)) == trig}
+    own_reward |= {ap for trig, members in POST_BOSS_GIFTS.items() for ap in members
+                   if ap in live.get(trig, ())}
     leaked = {ap for ap in members if _SWEEP_NEVER & set(LOCATION_TAGS.get(ap, ()))}
     leaked -= own_reward | _KNOWN_IMPORTANT_IN_SWEEPS
     assert not leaked, ("full_area_sweeps let %d floor-tagged check(s) into a sweep: %s"
