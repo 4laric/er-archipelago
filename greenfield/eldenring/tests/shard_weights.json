@@ -41,6 +41,7 @@
   "worlds/eldenring/tests/test_gf_confine_share.py": 29.952,
   "worlds/eldenring/tests/test_gf_consecrated_snowfield_region.py": 0.003,
   "worlds/eldenring/tests/test_gf_contract_versions.py": 0.106,
+  "worlds/eldenring/tests/test_gf_corhyn_multiregion.py": 0.01,
   "worlds/eldenring/tests/test_gf_dane_sweep_trigger_flag.py": 0.008,
   "worlds/eldenring/tests/test_gf_data.py": 0.032,
   "worlds/eldenring/tests/test_gf_defaulted_region_guard.py": 0.023,

@@ -147,6 +147,9 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "corhyn_multiregion": "generated data/location-tags regression for #331; pytest needs the "
+                            "installed world, while the committed merchant corpus is consumed by "
+                            "gen_data and covered by the generator drift gate",
     "rauh_boundary_proven": "#527 regression joins the committed point-in-volume row through "
                               "the repo-root walk-up and checks the generated installed location. "
                               "It is a pytest suite whose evidence half needs the repository, so "

@@ -21,6 +21,11 @@ and its merge commit is pinned by the gitlink in this change.
 
 Entries arrive below as they merge.
 
+- **Brother Corhyn's 29 shop checks no longer disappear with Liurnia (#331).** His wandering
+  inventory now uses the honest Roundtable/defaulted fallback instead of inheriting Seluvis's
+  Liurnia label from their shared shop block. A seed that keeps Leyndell may gate them there;
+  otherwise they remain available as conservative filler-only hub checks.
+
 - **Pinned the latest client fixes (clients#538, clients#542, clients#543).** This includes the
   Bloodborne window paint repair and GUI-v2 rebuild, plus the bounded Elden Ring sustain-delivery
   path that can no longer deadlock ordinary AP item delivery.
