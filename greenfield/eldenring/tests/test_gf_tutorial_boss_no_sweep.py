@@ -539,8 +539,11 @@ def test_the_sweep_corpus_did_not_shrink():
     # -> Bell Bearing Hunter, and Reed Great Katana -> Putrid Avatar. No existing member moves.
     # 2026-08-29 (#1111): 4105 -> 4104. The sole removal is dead ESD award f400020; its award
     # branch requires f10009335, which has no setter/default in the complete input corpus.
-    assert total == 4104, (  # -1 (#1111): unreachable Neutralizing Boluses award
-        "sweep corpus is %d, expected 4104. If a sweep was legitimately added or removed, say WHY "
+    # 2026-08-31 (#1100): 4104 -> 4105. The sole addition is Melina's post-Morgott Rold Medallion
+    # check f400001, attached only to Morgott trigger 11000800. Both golden post-Morgott seals read
+    # that acquisition flag; the exact relation is emitted as POST_BOSS_GIFTS and regression-tested.
+    assert total == 4105, (  # +1 (#1100): post-Morgott vanilla progression gift
+        "sweep corpus is %d, expected 4105. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -815,6 +818,9 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # f530300 moves from the non-terminal Coffin apparition 1037510800 to Lansseax's real final
     # Rampartside kill 1041520800. Suppressing the old field host and inserting the new one
     # re-deals the surrounding Altus nearest-boss partitions, producing the other 35 moves.
-    assert (digest, n) == ("97c4e4ce676f2093", 4104), (  # #1164: terminal Lansseax owner
-        "sweep OWNERSHIP changed: (%s, %d), expected (97c4e4ce676f2093, 4104). The total alone will "
+    # 2026-08-31 (#1100): 97c4e4ce676f2093/4104 -> 974e85fbb772c977/4105. Pairwise against main:
+    # exactly one addition, (Morgott trigger 11000800, Rold gift flag 400001); zero removals and
+    # zero re-ownership. The relation is intentionally exact and cannot absorb another key item.
+    assert (digest, n) == ("974e85fbb772c977", 4105), (  # #1100: Morgott's post-boss gift
+        "sweep OWNERSHIP changed: (%s, %d), expected (974e85fbb772c977, 4105). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
