@@ -56,6 +56,25 @@ from collections import defaultdict
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_OUT = "er-archipelago-check-browser.html"
+MIN_CHECKS = 4_900
+MIN_PLOTTABLE = 2_000
+
+
+def require_complete_payload(checks, meta, out_path):
+    """Refuse a convincing-looking page built from a silently shrunken corpus."""
+    missing = []
+    if len(checks) < MIN_CHECKS:
+        missing.append(f"checks={len(checks)} (minimum {MIN_CHECKS})")
+    if meta["plottable"] < MIN_PLOTTABLE:
+        missing.append(
+            f"plottable={meta['plottable']} (minimum {MIN_PLOTTABLE})"
+        )
+    if missing:
+        raise SystemExit(
+            "FATAL: check-browser corpus is incomplete: "
+            + ", ".join(missing)
+            + f". Refusing to overwrite {out_path}."
+        )
 
 
 def load_module_consts(path, names):
@@ -480,6 +499,7 @@ def main():
     payload = json.dumps({"meta": meta, "checks": checks, "residuals": residuals},
                          separators=(",", ":"), sort_keys=True, ensure_ascii=False)
     html = tpl.replace("/*__DATA__*/null", payload)
+    require_complete_payload(checks, meta, out_path)
     # newline='\n' so a Windows regen and a Linux regen produce the SAME bytes; the CI
     # staleness gate is a git diff and CRLF here would make it red on every platform swap.
     with open(out_path, "w", encoding="utf-8", newline="\n") as fh:
