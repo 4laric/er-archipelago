@@ -67,6 +67,7 @@ class FlaskSurfaceOn(WorldTestBase):
 
     def test_flasks_remain_useful_not_progression(self):
         item = self.world.create_item(progressive.PROG_FLASK)
+        self.assertEqual(item.name, progressive.PROG_FLASK)
         self.assertFalse(item.advancement)
 
 
