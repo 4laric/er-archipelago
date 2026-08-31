@@ -76,6 +76,7 @@ VV = os.path.join(ART, "vanilla_er", "vanilla_er")
 TALK = os.path.join(ART, "talk")
 MAPSTUDIO_ROOTS = artifacts_root.msb_dirs(ART) or [os.path.join(ART, "mapstudio"), os.path.join(ART, "map", "mapstudio")]
 OUT = os.path.join(REPO, "greenfield", "merchant_shops.tsv")
+FLAG_NAMES = os.path.join(REPO, "greenfield", "flag_names.tsv")
 
 # Merchant shop rows are ShopLineupParam ids shopBlock*100+slot in the 1000xx..1029xx band. Ranges an
 # ESD opens live here; other shop menus (enhance/sell/recipe) index other id spaces and simply won't
@@ -129,6 +130,41 @@ def load_shop_ids():
             if SHOP_LO <= rid <= SHOP_HI:
                 ids.add(rid)
     return ids
+
+
+def load_release_owners():
+    """Shop row -> NPC-family prefix, only where FromSoft names its release flag that way."""
+    flag_owner = {}
+    if os.path.isfile(FLAG_NAMES):
+        with open(FLAG_NAMES, encoding="utf-8-sig", newline="") as fh:
+            rd = csv.DictReader((line for line in fh if not line.startswith("#")), delimiter="\t")
+            for row in rd:
+                label = "%s %s" % (row.get("name_en", ""), row.get("name_ja", ""))
+                match = re.search(r"\bNPC(\d{3})\b", label, re.I)
+                if match:
+                    flag_owner[(row.get("flag") or "").strip()] = match.group(1)
+
+    out = {}
+    path = os.path.join(VV, "ShopLineupParam.csv")
+    if not os.path.isfile(path):
+        return out
+    with open(path, newline="", encoding="utf-8-sig", errors="replace") as fh:
+        rd = csv.DictReader(fh)
+        idk = (rd.fieldnames or ["ID"])[0]
+        for row in rd:
+            try:
+                rid = int(row[idk])
+            except (KeyError, TypeError, ValueError):
+                continue
+            owner = flag_owner.get((row.get("eventFlag_forRelease") or "").strip())
+            if owner:
+                out[rid] = owner
+    return out
+
+
+def _release_owner_accepts_talk(talk_id, owner):
+    """Whether an opener is the named owner (or the Twin Maiden bell-bearing re-sell menu)."""
+    return str(talk_id).startswith(owner) or int(talk_id) == 600001110
 
 
 # NpcParam.nameId is an FMG TEXT ID, not a name. The column was emitting the id, so
@@ -357,9 +393,10 @@ def scan_talk(shop_ids, map_filter=None):
 
 # ---------------------------------------------------------------- join + emit
 
-def build(shop_ids, talk_data, talk_maps, talk_npc, npc_names):
+def build(shop_ids, talk_data, talk_maps, talk_npc, npc_names, release_owners=None):
     """row_id -> [ (talk_id, npc_id, merchant_name, map_id, map_source) ]."""
     rows = defaultdict(list)
+    release_owners = release_owners or {}
     for tid, d in talk_data.items():
         msb_maps = talk_maps.get(tid, set())
         binder_maps = d["binder_maps"]
@@ -375,6 +412,9 @@ def build(shop_ids, talk_data, talk_maps, talk_npc, npc_names):
         for (begin, end) in sorted(d["ranges"]):
             for rid in range(begin, end + 1):
                 if rid not in shop_ids:
+                    continue
+                owner = release_owners.get(rid)
+                if owner and not _release_owner_accepts_talk(tid, owner):
                     continue
                 for (mid, src) in maps:
                     rows[rid].append((tid, npc, mname, mid, src))
@@ -439,6 +479,49 @@ def refresh_names(path):
     return 0
 
 
+def refine_release_owners(path):
+    """Remove shared-range claimants contradicted by an NPC-authored row release flag.
+
+    This is deliberately a narrow post-process mode: unlike a full emit it needs no MSB tree or
+    talk binders, so the committed table can be corrected from ``gen_inputs.db`` alone. A later full
+    emit applies the identical filter in ``build`` and must reproduce the same rows.
+    """
+    owners = load_release_owners()
+    if not owners:
+        sys.exit("FATAL: no NPC-authored shop release owners resolved; refusing a no-op rewrite.")
+    with open(path, encoding="utf-8-sig", newline="") as fh:
+        lines = fh.read().splitlines()
+    out, removed = [], Counter()
+    for line in lines:
+        if line.startswith("#") or line.startswith("row_id\t"):
+            out.append(line)
+            continue
+        parts = line.split("\t")
+        if len(parts) < 2:
+            out.append(line)
+            continue
+        try:
+            rid, talk_id = int(parts[0]), int(parts[1])
+        except ValueError:
+            out.append(line)
+            continue
+        owner = owners.get(rid)
+        if owner and not _release_owner_accepts_talk(talk_id, owner):
+            removed[rid] += 1
+            continue
+        out.append(line)
+    if not removed:
+        print("merchant_shops --refine-release-owners: already current (%d owned row ids)"
+              % len(owners))
+        return 0
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("\n".join(out) + "\n")
+    print("merchant_shops --refine-release-owners: removed %d false claimant row(s) across %d "
+          "ShopLineupParam id(s): %s"
+          % (sum(removed.values()), len(removed), sorted(removed.items())))
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=OUT)
@@ -447,6 +530,10 @@ def main():
                     help="rewrite ONLY the merchant_name column of an existing table, from the "
                          "committed npc_name_id + the NpcName FMGs. Needs no MSB/ESD scan, so it "
                          "runs anywhere the msgbnd is unpacked. Idempotent.")
+    ap.add_argument("--refine-release-owners", action="store_true",
+                    help="rewrite ONLY shared-range claimants contradicted by an NPC-authored "
+                         "eventFlag_forRelease name. Needs ShopLineupParam + flag_names.tsv, not "
+                         "the MSB/talk corpus. Idempotent.")
     ap.add_argument("--maps", nargs="*", help="restrict to these map ids (e.g. m60_40_54)")
     ap.add_argument("--probe", action="store_true",
                     help="dump extracted ranges for anchor/ filtered ESDs and exit (no tsv written)")
@@ -462,6 +549,8 @@ def main():
 
     if args.refresh_names:
         return refresh_names(args.out)
+    if args.refine_release_owners:
+        return refine_release_owners(args.out)
     map_filter = set(args.maps) if args.maps else None
     # 🛑 --maps RESTRICTS THE SCAN BUT THE EMIT IS WHOLE-TABLE. A subset run therefore rewrites the
     # tracked tsv with only the rows its two maps could see -- a "sanity pass" silently truncating
@@ -533,7 +622,10 @@ def main():
                   f"msb={sorted(talk_maps.get(tid, []))} npc={talk_npc.get(tid)}")
         return 0
 
-    rows = build(shop_ids, talk_data, talk_maps, talk_npc, npc_names)
+    release_owners = load_release_owners()
+    rows = build(shop_ids, talk_data, talk_maps, talk_npc, npc_names, release_owners)
+    print("merchant_shops: %d shop row(s) have an NPC-authored release owner; shared-range "
+          "claimants outside that talk family were filtered." % len(release_owners))
     _name_texts = load_npc_name_texts()
     if not _name_texts:
         print("WARNING: no NpcName FMG found under elden_ring_artifacts/msg -- merchant_name will be "
