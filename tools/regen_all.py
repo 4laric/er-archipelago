@@ -194,6 +194,11 @@ STEPS = [
          emits=["wizard/region-census.json", "wizard/wizard.html"],
          why="writes both the wizard's external census and its inlined copy. Both are "
              "staleness-gated generated artifacts, so one step deliberately owns both outputs."),
+    Step(PAGES, "tools/build_tarnished_pack_census.py",
+         emits=["docs/TARNISHED-PACK-CENSUS.md"],
+         why="the complete Patch 1.17 disposition ledger (#1096). It is generated from the "
+             "ownership catalog so every admitted or deliberately blocked route stays accounted "
+             "for when that catalog changes."),
 ]
 
 
