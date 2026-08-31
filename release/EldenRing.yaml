@@ -514,6 +514,10 @@ Elden Ring:
   # arrive on a steady cadence instead of 13 silent flat pickups. Off: seeds
   # and tears stay discrete pickups at their shuffled locations.
   progressive_flasks: true
+  # Keep Progressive Flask Upgrades on important checks. Starts with progression_surface and
+  # widens through its reviewed fallback ladder only when the chosen surface cannot host every
+  # copy. They remain useful, not required for logic or victory. Default: false.
+  flask_upgrades_on_progression_surface: false
 
   # Weapon and spirit-ash upgrades by SHOP TIER instead of by luck. On: the
   # Smithing-Stone, Somberstone, Glovewort, and Ghost-Glovewort Bell Bearings

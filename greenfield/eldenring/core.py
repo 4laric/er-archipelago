@@ -545,7 +545,8 @@ _OPTION_GROUPS = [
         # the same kind of constraint-remover and follows. auto_upgrade UNFROZE the same day.
         "auto_equip", "no_equip_load", "auto_upgrade", "no_weapon_requirements",
         "start_with_whetblades",
-        "progressive_flasks", "capital_reconciler", "open_boss_doors"]),
+        "progressive_flasks", "flask_upgrades_on_progression_surface",
+        "capital_reconciler", "open_boss_doors"]),
     # Collapsed = filed under the wizard's Advanced step and folded on AP's page. Both of these
     # invert the randomizer's whole premise (items where vanilla keeps them; vanilla's dependency
     # shape instead of synthetic locks) -- Alaric 2026-08-20: "buried pretty deep, both kind of

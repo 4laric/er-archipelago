@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.5.5",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "9c0de81d749e74a15384ad6273b96f2f155b6d2019b0c9af44269a2ed517d2f0",
+ "source_sha256": "0306bc7a6ef8a8a147c6dbaffcdf560034de298451519d3f255f9a26f1b1f9bc",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -37,6 +37,7 @@
   "pool_builder_pct_ashes_of_war",
   "filler_foreign_pct",
   "natural_progression",
+  "flask_upgrades_on_progression_surface",
   "region_grace_unlock",
   "grace_attunement",
   "grace_attunement_anchor",
@@ -186,6 +187,7 @@
     "no_weapon_requirements",
     "start_with_whetblades",
     "progressive_flasks",
+    "flask_upgrades_on_progression_surface",
     "capital_reconciler",
     "open_boss_doors"
    ]
@@ -900,6 +902,23 @@
    "class": "NaturalProgression",
    "display_name": "Natural Progression",
    "description": "Faithful-vanilla progression: play the whole map with regions gated by REAL vanilla keys +\nboss remembrances (shuffled), in vanilla's dependency SHAPE -- the inverse of The Shattering\n(num_regions). No synthetic region locks. Off (default): normal num_regions behaviour. On: every\nregion opens on its own real key off the start, minus the kept chokepoints (DLC behind Mohg, Gelmir\nbehind Liurnia+Academy, Rauh behind Shadow Keep, the capital behind Altus + 2 Great Runes); the\nwhole eligible map is in play (num_regions is ignored). SPEC-vanilla-progression-20260722.md.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "flask_upgrades_on_progression_surface",
+   "class": "FlaskUpgradesOnProgressionSurface",
+   "display_name": "Flask Upgrades on Progression Surface",
+   "description": "Keep Progressive Flask Upgrades on important checks.\n\nOff (default) preserves ordinary placement.  On starts with your ``progression_surface``\nselection and, only when that surface is too small for every flask copy, widens through its\nexisting reviewed fallback ladder.  Flask upgrades remain useful rather than required: this\naffects placement quality, not logic or the victory condition.",
    "kind": "toggle",
    "base": "Toggle",
    "default": false,

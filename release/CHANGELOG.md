@@ -26,6 +26,10 @@ Entries arrive below as they merge.
   longer provide fixed tiers that bypass progressive bell bearings. Quantities, respawn behavior,
   AP location count, inventory, and Ancient Dragon capstones remain unchanged. Disable
   `reroll_mine_materials` to retain vanilla mine rewards.
+- **Progressive Flask Upgrades can be confined to important checks (#1090).** The new
+  `flask_upgrades_on_progression_surface` option defaults off. When enabled it starts with the
+  selected Progression Surface and widens through the existing reviewed fallback ladder only when
+  needed to fit every copy; flask upgrades remain useful and never become logic or victory gates.
 
 ## v0.5.4 — 2026-08-29
 
