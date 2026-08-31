@@ -21,6 +21,12 @@ and its merge commit is pinned by the gitlink in this change.
 
 Entries arrive below as they merge.
 
+- **Enemy and boss rune payouts can follow sphere difficulty (#1091, clients#536).** The new
+  default-off `scale_rune_rewards` option keeps direct runes-per-effort steadier when randomized
+  progression moves an early enemy late or a late boss early. Golden Rune inventory items are
+  never changed. Loaded regulation values are the immutable baseline, so the runtime pass does not
+  compound Matt's randomizer rewards across region changes.
+
 - **Locked sweep boss names can be revealed without exposing their regions (#1184).** A new default-off YAML option lets the tracker name bosses whose sweep payouts are held behind unopened region locks, while the locked region and pending payout count remain hidden.
 
 - **Mine-stone deposits are rerolled into useful consumables per seed (#1095).** The 133 verified
