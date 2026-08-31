@@ -335,8 +335,9 @@ run rather than tune it.
   without any of this a five-player game turns into four people opening Elden
   Ring consumables.
 - **`keep_local_rune_cap`** -- hold back rune items worth this many runes or
-  fewer and let the big ones travel. `3000` keeps the small change. 0 (the
-  default) is off.
+  fewer and let the big ones travel. The default, `12500`, keeps everything
+  through Numen's Rune at home. `3000` keeps only the small change; `0` turns
+  the cap off and allows every rune item to travel.
 - **`local_item_only`** -- the blunt version of `keep_local`: every real
   vanilla item stays home. `exclude_local_item_only` lets categories back out
   again.

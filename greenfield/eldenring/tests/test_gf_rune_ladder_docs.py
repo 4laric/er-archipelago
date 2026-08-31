@@ -97,6 +97,23 @@ def test_the_shipped_yaml_ladder_matches_the_params():
 
 
 @pytest.mark.skipif(_ROOT is None, reason=REPO_ONLY_REASON)
+def test_the_player_guide_states_the_actual_rune_cap_default():
+    """The option tour repeated the old default-off claim after the option moved to 12,500."""
+    path = os.path.join(_ROOT, "Elden-Ring-Archipelago-Player-Guide.md")
+    text = open(path, encoding="utf-8").read()
+    start = text.find("**`keep_local_rune_cap`**")
+    end = text.find("\n- **`", start + 1)
+    assert start >= 0 and end > start, "the player guide's rune-cap option block is missing"
+    block = text[start:end].lower().replace(",", "")
+    assert str(KeepLocalRuneCap.default) in block, (
+        "the player guide never states the actual rune-cap default (%s)"
+        % KeepLocalRuneCap.default)
+    assert "0 (the default)" not in block, (
+        "the player guide still says the rune cap defaults off; it defaults to %s"
+        % KeepLocalRuneCap.default)
+
+
+@pytest.mark.skipif(_ROOT is None, reason=REPO_ONLY_REASON)
 def test_the_shipped_yaml_has_no_shell_escaping_artifacts():
     """`Hero'''s` and `Lord'''s` shipped to players in the rune-cap comment -- a here-string
     escaping artifact that survived because nothing reads the yaml as prose."""
