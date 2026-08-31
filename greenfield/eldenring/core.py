@@ -514,7 +514,8 @@ _OPTION_GROUPS = [
         "global_scadutree_blessing"]),
     ("Difficulty & Scaling", [
         "enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
-        "difficulty_ramp_speed", "coop_difficulty", "traps", "spawn_traps", "trap_count"]),
+        "difficulty_ramp_speed", "coop_difficulty", "scale_rune_rewards", "traps", "spawn_traps",
+        "trap_count"]),
     ("Checks & Item Pool", [
         "dungeon_sweep", "full_area_sweeps", "reveal_sweep_boss_names",
         "reroll_enemy_drops", "reroll_mine_materials",
