@@ -189,7 +189,7 @@ class RegenEntrypointIsComplete(unittest.TestCase):
         # asks PRODUCERS what they write; it does not enumerate directories or artifact names.
         output_re = re.compile(
             r'^\s*(OUT|OUTPUT|[A-Z][A-Z0-9_]*(?:_OUT|_OUTPUT|_HTML))\s*=\s*os\.path\.join\('
-            r'[^\n]*?["\']([^"\']+\.(?:html|json|tsv|csv|py|rs))["\']\s*\)\s*$', re.MULTILINE)
+            r'[^\n]*?["\']([^"\']+\.(?:html|json|tsv|csv|md|py|rs))["\']\s*\)\s*$', re.MULTILINE)
         by_name = {}
         for root, dirs, files in os.walk(REPO):
             dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
