@@ -60,6 +60,9 @@ class NoEquipLoad(Choice):
     number: it multiplies the WEIGHT side with a silent permanent SpEffect, and logs the equip load
     it actually got so the setting can be checked rather than taken on trust.
 
+    This is a generation-time choice recorded in the seed. It cannot be changed during an existing
+    run; change your YAML and generate a new seed to choose another mode.
+
     `medium` requires a client that supports it, and a seed using it refuses an older one rather
     than connecting -- an old client reads it as "on" and gives you `light`, which is the stronger
     setting you did not ask for. `off` and `light` connect to any client, as they always have."""
