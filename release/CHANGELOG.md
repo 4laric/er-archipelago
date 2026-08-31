@@ -59,6 +59,9 @@ Entries arrive below as they merge.
 - **The Tonic of Forgetfulness stays suppressed across all of its known grant lots (#957).** Both
   shared-flag map lots are pinned to the source-neutralisation table, covering the Rya/Patches ESD
   gift and alternate world-pickup paths without suppressing unrelated copies by item ID.
+- **The Cave of Knowledge Dragon Communion Seal no longer double-pays (#999).** Its Ulcerated Tree
+  Spirit reward is pinned as a weapon slot in the enemy-lot neutralisation table, rather than the
+  unrelated map or goods tables with the same row-shaped data.
 
 ## v0.5.4 — 2026-08-29
 
