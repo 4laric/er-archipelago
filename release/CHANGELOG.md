@@ -56,6 +56,9 @@ Entries arrive below as they merge.
 - **Fia's Mending Rune can no longer hold its own Cursemark prerequisite (#1085).** The placement
   rule now follows the extracted handover, NPC-state, Fortissax, and corpse-award chain and rejects
   a same-player Cursemark of Death at that dependent check.
+- **The Tonic of Forgetfulness stays suppressed across all of its known grant lots (#957).** Both
+  shared-flag map lots are pinned to the source-neutralisation table, covering the Rya/Patches ESD
+  gift and alternate world-pickup paths without suppressing unrelated copies by item ID.
 
 ## v0.5.4 — 2026-08-29
 
