@@ -52,9 +52,10 @@ correct thing and the safer thing -- you get the current version, with his insta
 
 Matt v0.11.4's generated `regulation.bin` predates Elden Ring 1.17 and omits the four new
 `RideParam` rows used by Spectral Steed appearances. That can leave Torrent unable to answer the
-whistle. After randomizing, follow `TARNISHED-TORRENT-REPAIR.md` and import the bundled Smithbox
-delta. It adds only rows `80020`, `80030`, `80040`, and `80050`; it does not replace the table or
-touch Matt's randomization.
+whistle. After randomizing, follow `TARNISHED-TORRENT-REPAIR.md` and run the bundled Python repair.
+It adds only the four verified `RideParam` rows and their four matching `NpcParam` rows; it does not
+replace either table or touch Matt's randomization. Matt rewrites `regulation.bin` on every reroll,
+so repeat the repair after every new seed.
 
 ## Recommended matt's randomizer settings
 
