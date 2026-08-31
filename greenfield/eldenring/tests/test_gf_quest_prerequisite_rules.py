@@ -69,3 +69,8 @@ def test_reviewed_pairs_are_backed_by_typed_questline_evidence():
         assert (f"flag:{source_flag}", f"flag:{target_flag}") in evidence
     for goods_row, target_flag, _item_name in REVIEWED_ITEM_PREREQUISITES:
         assert (f"goods:{goods_row}", f"flag:{target_flag}") in evidence
+
+
+def test_fias_mending_rune_cannot_hold_its_own_cursemark_prerequisite():
+    """The #1085 ESD/state-manager slice stays an explicit reviewed decision, not an incidental row."""
+    assert (8191, 9502, "Cursemark of Death") in REVIEWED_ITEM_PREREQUISITES
