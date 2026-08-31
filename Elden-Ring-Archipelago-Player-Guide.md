@@ -231,15 +231,14 @@ run rather than tune it.
 - **`num_regions`** -- the size of the Shattering. The one option that turns
   Elden Ring into an Archipelago game. 4 for an evening, 6 (the shipped
   default) for a full run you will actually finish, 0 for everything.
-- **`natural_progression`** -- the Shattering's opposite. Off (default) you get
-  Region Locks. On, the whole map is in play from the start and regions open on
-  their *real* vanilla keys -- Dectus halves, the Haligtree medallion, boss
-  remembrances -- still shuffled into the multiworld, so they can be anywhere
-  and anyone's. A few chokepoints are kept (the DLC behind Mohg, Mt. Gelmir
-  behind Liurnia and the Academy, Rauh behind Shadow Keep, the capital behind
-  Altus and two Great Runes). `num_regions` is ignored when this is on. Pick it
-  if you want vanilla's shape with Archipelago's item flow rather than a
-  region-lock progression graph.
+- **`natural_progression`** -- the Shattering's opposite. Off (default), you get
+  Region Locks. On, the whole map is in play and regions open with their real
+  vanilla keys, such as the Dectus halves, Haligtree medallion and boss
+  remembrances. Those keys are still shuffled into the multiworld, so anyone
+  can find them. A few chokepoints remain: the DLC behind Mohg, Mt. Gelmir
+  behind Liurnia and the Academy, Rauh behind Shadow Keep, and the capital
+  behind Altus and two Great Runes. This setting ignores `num_regions`. Pick it
+  for vanilla's world structure with Archipelago's item flow.
 - **`goal`** -- which boss ends the run. `auto` (default) derives it;
   `elden_beast` pins the real ending and forces no regions because the shuffled
   Ashen Capital Lock supplies the burn and finale; `promised_consort` ends on
@@ -247,25 +246,23 @@ run rather than tune it.
   at Haligtree Canopy, leaving the full Loretta-to-Malenia route to clear. A
   goal your other options make unreachable fails generation instead of silently
   downgrading.
-- **`ending_condition`** -- hold every kept Region Lock (default), or chase
-  Great Runes as well. `goal_great_runes` is the COUNT; the seed picks WHICH
-  runes, and only those complete the goal. The client names them at connect
-  (see "The goal" above). Composes with `goal`: you would need the runes AND
-  the boss.
+- **`ending_condition`** -- hold every kept Region Lock (default), or require
+  Great Runes as well. `goal_great_runes` sets how many; the seed chooses which
+  runes count, and the client names them when it connects (see "The goal"
+  above). This combines with `goal`, so you need both the runes and the boss.
 - **`progression_surface`** -- which categories of location are allowed to
   hold progression items. Your in-game tracker stars these, and a star means
   "a progression item can be here" -- yours or another player's -- not "your
   key is here". Shrink the list for a tighter, more predictable hunt; widen it
   to scatter key items further afield.
-- **`progression_bias`** -- how hard your Region Locks are pulled toward your
-  own world. 0 (default) is no pull: every Lock is an ordinary multiworld item
-  and can end up in someone else's game, so you may well be waiting on another
-  player to find your way into Liurnia. That is Archipelago working as intended.
-  100 pins every Lock at home; 40 reserves about 40% of them for you. A Lock in
-  the pool is still curated -- it is held to the same surface everyone's
-  progression is held to, so it lands on somebody's boss rather than on a random
-  crafting material. In a two-slot multiworld expect roughly half your Locks to
-  travel at bias 0; more slots, more travel.
+- **`progression_bias`** -- how strongly your Region Locks are pulled toward
+  your own world. At 0 (default), every Lock is an ordinary multiworld item and
+  can land in someone else's game. You may need another player to find your way
+  into Liurnia; that is normal Archipelago progression. At 100, every Lock stays
+  home. A value of 40 reserves about 40% for you. Locks still follow the same
+  curated placement surface as other progression, keeping them on meaningful
+  checks rather than random crafting materials. In a two-slot game, expect
+  roughly half your Locks to travel at bias 0; more slots mean more travel.
 - **`region_grace_unlock`** -- how many Sites of Grace a region unlock hands
   you. `all` (default) lights every warp point in the region; `entrance` lights
   only the way in and you walk to the rest.
