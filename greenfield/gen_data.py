@@ -6208,7 +6208,12 @@ _pref2maj = {p: c.most_common(1)[0][0] for p, c in _pref2maj.items()}
 #     set independently (EMEVD x BonfireWarpParam, zero shared code) and fails on any gap.
 #   ARENA: arenas with no 9005810 signal in the decompiled corpus -- MSB-placed grace behind a
 #     fog/summon trigger. Playtest/measured set, NOT provably complete.
-_BOSS_GATED_GRACE_FLAGS = frozenset({
+_BOSS_GATED_GRACE_FLAGS = frozenset(
+    int(r["grace_flag"]) for r in csv.DictReader(
+        open(os.path.join(HERE, "boss_gated_graces.tsv"), encoding="utf-8"), delimiter="\t"
+    )
+)
+_LEGACY_BOSS_GATED_GRACE_FLAGS = frozenset({
     # Legacy dungeons / underground -- the 2026-07-06 sweep's 37, oracle-verified both directions.
     76161, 71301, 71302, 72200, 76313, 73500, 76322, 72101, 71210, 73900, 72110, 71600, 71601,
     71220, 71221, 71606, 72500, 71100, 71101, 71230, 72000, 71240, 76232, 72010, 71500, 71120,
@@ -6249,6 +6254,8 @@ _BOSS_GATED_GRACE_FLAGS = frozenset({
             # from the _ARENA hand list; its 2026-07-21 playtest is corroboration, the EMEVD
             # gate is the classification.
 })
+if _BOSS_GATED_GRACE_FLAGS != _LEGACY_BOSS_GATED_GRACE_FLAGS:
+    raise RuntimeError("boss_gated_graces.tsv drifted from the reviewed 49-grace set")
 # HAND list -- graces the DERIVED oracle cannot reach. Kept SMALL and each entry must earn its place:
 # a redundant manual override FAILS (see the _BOSS_DROP_EXTRAS guard). 2026-07-11, once ALL the MSBs were
 # found (they live in elden_ring_artifacts/**map**, 1347 unpacked -- NOT mapstudio/, which has 1034 and is
