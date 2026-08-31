@@ -299,17 +299,19 @@ run rather than tune it.
   cannot make an unreachable check required. Boss rewards, remembrances, Great
   Runes, quest and gate keys, and merchant stock are never swept.
 - **`reroll_enemy_drops` / `reroll_infinite_shop_stock` / `reroll_mine_materials`**
-  (all on) -- reroll what farmable enemies drop, what unlimited-stock merchants
-  sell, and what repeatable Smithing/Somber mine deposits yield. One-time drops
-  -- the actual checks -- are untouched; this randomizes the repeatable economy
-  around them. Mine deposits stay respawning non-check pickups, with Ancient
-  Dragon capstones excluded. All deposits that shared one original stone tier
-  share one replacement for the seed. The shop half covers the 14 unlimited *consumable*
-  shelves -- Kale's Glass Shards, Iji's Somber Smithing Stones, the
-  throwing-knife and poison-dart racks -- and prices each roll at what the new
-  item is worth, so a cheap shelf never becomes an infinite supply of something
-  game-breaking. **Arrow and bolt shelves are left alone**, so ammo builds keep
-  their supply line.
+  (all on) -- control three parts of the repeatable economy. They reroll
+  farmable enemy drops, unlimited merchant stock, and respawning
+  Smithing/Somber mine deposits. One-time drops, including all actual checks,
+  are untouched.
+
+  Mine deposits remain respawning non-check pickups. Ancient Dragon capstones
+  are excluded, and every deposit of the same original stone tier gets the
+  same replacement for the seed. Shop rerolls cover 14 unlimited consumable
+  shelves, including Kale's Glass Shards, Iji's Somber Smithing Stones, and the
+  throwing-knife and poison-dart racks. Each replacement is priced according
+  to its new item, preventing a cheap shelf from becoming an unlimited source
+  of something game-breaking. **Arrow and bolt shelves are left alone**, so
+  ammo builds keep their supply line.
 - **`merchant_bells_on_talk`** (off) -- open a merchant's shop and their Bell
   Bearing is sent to the Twin Maiden Husks, putting that merchant's wares on sale
   at Roundtable Hold. You do not receive the bell itself; it remains a real
@@ -324,10 +326,10 @@ run rather than tune it.
   materials, smithing stones, ghost gloveworts, every consumable and every
   Golden Rune at home while your weapons, armour, talismans, spells, spirit
   ashes and ashes of war go out to other players. Full list of categories in
-  the yaml builder at <https://peliarch.ca/er/>. This matters most when your slot is much bigger than everyone
-  else's: an Elden Ring seed can run to a couple of thousand checks, and
-  without any of this a five-player game turns into four people opening Elden
-  Ring consumables.
+  the yaml builder at <https://peliarch.ca/er/>. This matters most when your
+  slot is much bigger than everyone else's. An Elden Ring seed can run to a
+  couple of thousand checks; without this option, a five-player game can turn
+  into four people opening Elden Ring consumables.
 - **`keep_local_rune_cap`** -- hold back rune items worth this many runes or
   fewer and let the big ones travel. The default, `12500`, keeps everything
   through Numen's Rune at home. `3000` keeps only the small change; `0` turns
