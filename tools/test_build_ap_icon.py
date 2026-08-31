@@ -306,5 +306,24 @@ class SpriteLookup(unittest.TestCase):
         self.assertEqual(bai.find_sprite(self.d, 4242), [])
 
 
+class DeployIntegration(unittest.TestCase):
+    def test_me3_deploy_rebuilds_before_considering_existing_outputs(self):
+        """A cached full atlas from an older patch erases every newly-added icon (#1181)."""
+        with open(os.path.join(os.path.dirname(HERE), "build.ps1"), encoding="utf-8") as fh:
+            script = fh.read()
+        deploy = script[script.index('if ($Me3Deploy) {'):]
+        build = deploy.index(
+            "python $IconTool --icon01 --icon-id 92 --black-to-alpha --bundles hi,low"
+        )
+        copy = deploy.index('$sheet = Join-Path $IconMenu01 "$sub\\01_common.tpf.dcx"')
+        self.assertLess(build, copy, "the cached atlas is consulted before a current-game rebuild")
+        self.assertNotIn(
+            "if (-not $copiedIcon)",
+            deploy,
+            "an existing pre-patch atlas can still bypass the rebuild",
+        )
+        self.assertIn("if ($copiedIconBundles -ne 2)", deploy)
+
+
 if __name__ == "__main__":
     unittest.main()

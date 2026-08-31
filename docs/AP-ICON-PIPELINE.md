@@ -38,9 +38,14 @@ game data.** `gen_inputs.db` and the params are handled the same way.
             v   package_release.ps1  -- HARD FAILS if the sheet is absent
     the release zip
 
-`build.ps1` now **invokes the tool itself** when the sheet is missing, rather than printing the
-command and carrying on. It throws if the tool is absent, if `$GameDir\menu` is absent, or if the
-tool exits 0 but produces nothing (an empty result is a failure, not a clean run).
+`build.ps1` now **invokes the tool on every me3 deploy**. The output is a complete atlas, so a cached
+copy from an older game version would erase icons added by a later patch even though the AP flower
+cell still looked correct. It throws if the tool is absent, if `$GameDir\menu` is absent, or if the
+tool does not produce both the hi and low sheets.
+
+This rebuild is deliberately not timestamp-based. Steam and copied game directories do not provide
+a trustworthy cross-machine timestamp relationship, while rebuilding from the installed source is
+the only direct proof that every non-92 cell belongs to the game version being packaged.
 
 ## Why the packager fails rather than warns
 
