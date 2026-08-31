@@ -821,6 +821,11 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 2026-08-31 (#1100): 97c4e4ce676f2093/4104 -> 974e85fbb772c977/4105. Pairwise against main:
     # exactly one addition, (Morgott trigger 11000800, Rold gift flag 400001); zero removals and
     # zero re-ownership. The relation is intentionally exact and cannot absorb another key item.
-    assert (digest, n) == ("974e85fbb772c977", 4105), (  # #1100: Morgott's post-boss gift
-        "sweep OWNERSHIP changed: (%s, %d), expected (974e85fbb772c977, 4105). The total alone will "
+    # 2026-08-31 (#1054): 974e85fbb772c977 -> 9259758b28cca647, count unchanged at 4105.
+    # f68630 moved Scadu Altus -> Gravesite on exact ground evidence, so its owner moves from
+    # Black Knight Edredd (2049430850) to Gravesite's Ghostflame Dragon (2045440800). Inserting it
+    # into that region's round-robin rephases 11 further flags between the two Gravesite triggers
+    # 2045440800/2046410800: 12 removals, 12 additions, zero unowned flags and zero region crossings.
+    assert (digest, n) == ("9259758b28cca647", 4105), (  # #1054: Pillar Path cookbook
+        "sweep OWNERSHIP changed: (%s, %d), expected (9259758b28cca647, 4105). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
