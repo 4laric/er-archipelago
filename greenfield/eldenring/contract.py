@@ -824,6 +824,12 @@ OPTIONS_SUBKEYS = (
                 "a seed with it ON emits requiresClientFeatures [\"auto_equip\"] -- OPTIONS_SUBKEYS is "
                 "not folded into CONTRACT_HASH, so an older client would report VERSION: OK and then "
                 "never see this key at all."),
+    ContractKey("reveal_sweep_boss_names", "BOOL_OR_INT", False, (GREENFIELD,),
+                "core._options_echo", "core.rs tracker sweep presentation",
+                "default-off presentation preference: allow the tracker to name sweep bosses whose "
+                "rows would otherwise be hidden behind a locked region. Does not change sweep "
+                "membership, firing, placement, or logic; opted-in seeds require the matching "
+                "client feature tag."),
     ContractKey("goal_region_unlock_policy", "INT", False, (GREENFIELD,),
                 "core._options_echo (features/progression_surface.py)",
                 "eldenring-archipelago/core.rs -> region completion goal gate",
