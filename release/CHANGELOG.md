@@ -66,6 +66,9 @@ Entries arrive below as they merge.
 - **The Cave of Knowledge Dragon Communion Seal no longer double-pays (#999).** Its Ulcerated Tree
   Spirit reward is pinned as a weapon slot in the enemy-lot neutralisation table, rather than the
   unrelated map or goods tables with the same row-shaped data.
+- **Ruin-Strewn Precipice's three Golden Rune [6] drops remain randomized checks (#950).** Their
+  concrete MSB entities, generated locations, enemy lots, and emitted source-neutralisation rows
+  are now pinned together so a later phantom-location cull cannot silently restore vanilla drops.
 
 ## v0.5.4 — 2026-08-29
 
