@@ -674,11 +674,14 @@ class BossSweepScoping(unittest.TestCase):
         """Legacy (region-major) sweeps must be FILLER-ONLY now -- felling a region boss auto-grants
         only the region's filler, never an important-tagged check (same cut as field). The
         member list is baked from location tags at gen time; boss_locks.slot_data emits it verbatim."""
+        from worlds.eldenring.boss_sweeps import POST_BOSS_GIFTS
         bad = []
         for ent, info, members in self._members_by_class("legacy"):
             for ap in members:
                 if self.own_drop_of.get(self.ap_flag.get(ap)) == ent:
                     continue  # #907: the boss's own drop, swept by its own trigger
+                if ap in POST_BOSS_GIFTS.get(ent, ()):
+                    continue  # #1100: the boss's own post-defeat vanilla gift
                 hit = FIELD_EXCLUDE & set(self.lt.get(ap, ()))
                 if hit:
                     bad.append((ent, info[3], ap, sorted(hit)))

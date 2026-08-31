@@ -26,6 +26,8 @@ Entries arrive below as they merge.
   progression moves an early enemy late or a late boss early. Golden Rune inventory items are
   never changed. Loaded regulation values are the immutable baseline, so the runtime pass does not
   compound Matt's randomizer rewards across region changes.
+- **Pinned the fix for Leyndell's eastern exit grace leak (#323).** Forbidden Lands stays with
+  Mountaintops, while both Divine Tower of East Altus graces stay with Altus.
 
 - **Boss-gated grace provenance is now generated from game events (#358).** The 49 graces hidden
   behind common event 9005810 now ship with their map, asset, and gate flag instead of living only
@@ -43,6 +45,10 @@ Entries arrive below as they merge.
   `flask_upgrades_on_progression_surface` option defaults off. When enabled it starts with the
   selected Progression Surface and widens through the existing reviewed fallback ladder only when
   needed to fit every copy; flask upgrades remain useful and never become logic or victory gates.
+- **Morgott's randomized arena boss now opens the two post-Morgott golden seals (#1100).** The
+  Morgott sweep credits Melina's post-boss Rold Medallion check and restores its vanilla acquisition
+  flag, opening both the Cathedral bottom seal and the Divine Tower approach without granting the
+  randomized medallion item directly.
 
 ## v0.5.4 — 2026-08-29
 
