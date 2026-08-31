@@ -84,7 +84,7 @@ _NOT_OPTIONS = {
     # VALUES of region_grace_unlock ("all" is already above as a dungeon_sweep value)
     "entrance", "landmarks",
     # VALUES of goal
-    "auto", "elden_beast", "promised_consort",
+    "auto", "elden_beast", "promised_consort", "malenia",
 }
 
 
@@ -183,6 +183,18 @@ def test_the_difficulty_options_are_documented_where_players_will_read_them():
             f"{opt} is a player-facing option and is not mentioned in the SHIPPED player guide "
             f"({os.path.basename(_GUIDE)}). Note there is a second, UNSHIPPED guide at "
             f"release/PLAYER-GUIDE.md -- documenting it there does not reach players.")
+
+
+def test_the_goal_option_tour_matches_the_current_routes():
+    """The guide kept the pre-v0.3.7 claim that Elden Beast forced two regions."""
+    text = _guide_text()
+    start = text.find("**`goal`**")
+    end = text.find("\n- **`", start + 1)
+    assert start >= 0 and end > start, "the player guide's goal option block is missing"
+    block = " ".join(text[start:end].split())
+    assert "`elden_beast`" in block and "forces no regions" in block, block
+    assert all(term in block for term in ("`malenia`", "Haligtree", "Haligtree Canopy")), block
+    assert "forces Farum Azula + Leyndell" not in block, block
 
 
 def test_the_receiving_is_dead_fingerprint_is_documented_where_players_will_read_it():
