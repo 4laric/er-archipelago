@@ -41,6 +41,18 @@ class TarnishedPackDecision(unittest.TestCase):
             {0x4000_0000 | row_id for row_id in tp.TARNISHED_PACK_GOODS_IDS}
             & set(tp.TARNISHED_PACK_EQUIPMENT.values()))
 
+    def test_param_census_is_an_exhaustive_partition(self):
+        admitted_weapon_ids = {
+            full_id for full_id in tp.TARNISHED_PACK_EQUIPMENT.values()
+            if full_id < 0x1000_0000
+        }
+        self.assertEqual(
+            admitted_weapon_ids | tp.TARNISHED_PACK_NPC_ONLY_WEAPON_IDS,
+            tp.TARNISHED_PACK_WEAPON_IDS,
+        )
+        self.assertFalse(admitted_weapon_ids & tp.TARNISHED_PACK_NPC_ONLY_WEAPON_IDS)
+        self.assertEqual(tp.TARNISHED_PACK_TORRENT_ATTIRE_IDS, tp.TARNISHED_PACK_GOODS_IDS)
+
     def test_typed_datamine_names_cover_every_player_equipment_row(self):
         self.assertEqual(len(tp.TARNISHED_PACK_PARAM_NAMES), len(tp.TARNISHED_PACK_EQUIPMENT))
         self.assertEqual(set(tp.TARNISHED_PACK_PARAM_NAMES.values()),
@@ -56,6 +68,26 @@ class TarnishedPackDecision(unittest.TestCase):
                          tp.TARNISHED_PACK_LOCATION_FLAGS)
         self.assertEqual(tp.TARNISHED_PACK_LOCATION_ORDER[-3:],
                          (1_038_417_020, 1_047_427_000, 1_050_407_000))
+
+    def test_route_census_accounts_for_admitted_and_blocked_routes(self):
+        rows = tp.TARNISHED_PACK_ROUTE_CENSUS
+        flags = [row[0] for row in rows]
+        self.assertEqual(len(flags), len(set(flags)))
+        self.assertEqual(
+            {flag for flag, _kind, state, _label in rows if state == "admitted"},
+            tp.TARNISHED_PACK_LOCATION_FLAGS,
+        )
+        self.assertEqual(
+            {flag for flag, kind, _state, _label in rows if kind == "torrent_attire"},
+            {60_101, 60_102, 60_103},
+        )
+        self.assertEqual(
+            {flag for flag, kind, _state, _label in rows if kind == "invasion"},
+            {11_007_952, 1_052_397_500},
+        )
+        self.assertTrue(all(state.startswith("blocked_")
+                            for _flag, _kind, state, _label in rows
+                            if state != "admitted"))
 
     def test_matching_catalog_items_follow_the_ownership_toggle(self):
         catalog = {
