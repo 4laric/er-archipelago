@@ -21,6 +21,9 @@ and its merge commit is pinned by the gitlink in this change.
 
 Entries arrive below as they merge.
 
+- **Jagged Peak's Summit grace now unlocks with its region (#370).** Exact map positions place it
+  outside and well above Bayle's arena anchor; Bayle's separate post-fight grace remains withheld.
+
 - **Pinned the fix for Leyndell's eastern exit grace leak (#323).** Forbidden Lands stays with
   Mountaintops, while both Divine Tower of East Altus graces stay with Altus.
 

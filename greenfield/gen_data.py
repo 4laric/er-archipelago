@@ -6273,11 +6273,13 @@ if _BOSS_GATED_GRACE_FLAGS != _LEGACY_BOSS_GATED_GRACE_FLAGS:
 # (their gating was never MSB-side "no signal"; the signal was in files we had not decompiled).
 # They moved to _BOSS_GATED_GRACE_FLAGS above with their per-flag evidence; the union is
 # UNCHANGED for all five (test_gf_grace_skip_oracle.Regression244 pins them withheld). The 3
+# 76852 Jagged Peak Summit is retired from the hand list by #370: the full corpus has no 9005810
+# gate for it, and the committed position tables put it 100.7 map units from Bayle's arena anchor
+# (73.8 units above it). Bayle's actual post-fight grace is 76853 and remains EMEVD-gated. The two
 # that remain have no 9005810 row in the full 587-file corpus AND sit on maps the arena oracle
 # cannot adjudicate (boss not an MSB Part / no unpacked MSB), so they stay hand-held.
 _ARENA_GRACE_FLAGS = frozenset({
     76508,                 # unadjudicable map, no 9005810 row in the decompiled corpus
-    76852,                 # unadjudicable map, no 9005810 row in the decompiled corpus
     76931,                 # unadjudicable map, no 9005810 row in the decompiled corpus
 })  # Redmane Castle (tile m60_49_39): the plaza grace sits INSIDE the Misbegotten
                     # Warrior + Crucible Knight duo arena (bosses 1049390800/1049390801) -- granting it
