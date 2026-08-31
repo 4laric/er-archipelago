@@ -371,8 +371,8 @@ own pool no matter what you set.
 
 ### Enemy difficulty
 
-Three of them, all `0`-`100`, all defaulting to a standard curve, and on all
-three **higher is harder**:
+These three settings run from `0` to `100`. Their defaults reproduce the
+standard curve, and **higher is harder** for all three:
 
 ```yaml
 minimum_enemy_difficulty: 0     # how hard the EASIEST enemies are
@@ -380,26 +380,23 @@ maximum_enemy_difficulty: 100   # how hard the TOUGHEST ones get
 difficulty_ramp_speed: 0        # how QUICKLY you reach them
 ```
 
-The game has its own ladder of enemy-strength settings, and the client picks a
-rung per region based on how deep that region sits in *your* seed's chain. The
-shallowest is roughly vanilla; the deepest is about **7.4x enemy HP**, the
-strength vanilla saves for its endgame. Rune rewards never change, at any
-setting -- a scaled-up enemy is worth exactly what it was worth before.
+The game has its own ladder of enemy-strength settings. The client picks a rung
+for each region based on its depth in *your* seed's chain. The shallowest is
+roughly vanilla. The deepest has about **7.4x enemy HP**, the strength vanilla
+saves for its endgame. Scaling never changes rune rewards.
 
-- **`enemy_scaling: false`** turns the whole thing off. Every enemy keeps its
-  vanilla strength and the sliders below stop applying -- the item randomizer
-  without the difficulty curve. Note this is not "easy mode": it is the base
-  game's own curve, which in a randomized world can put a late-game area in
-  front of you at level 20.
+- **`enemy_scaling: false`** turns the whole system off. Every enemy keeps its
+  vanilla strength, and the sliders below stop applying. This is not easy mode:
+  randomization can still put a late-game area in front of you at level 20.
 - **`minimum_enemy_difficulty`** raises the floor, so nowhere stays a walkover.
   At `50`, nothing in the game sits below roughly 4x enemy HP however early you
   got there. Use it if the opening hours feel like a formality.
-- **`maximum_enemy_difficulty`** lowers the top. Worth a thought on a **short
-  seed**: with `num_regions: 4` your deepest region arrives fast but is still
-  the end of your run, so it's scaled like one -- you can meet endgame-strength
-  enemies holding a +6 weapon. Capping keeps the curve's shape and lowers its
-  top. (Below `100` this needs an up-to-date client; an older one refuses the
-  seed and says so rather than ignoring your cap.)
+- **`maximum_enemy_difficulty`** lowers the top. This is especially useful on a
+  **short seed**. With `num_regions: 4`, your deepest region arrives quickly but
+  is still scaled as the end of the run. A lower cap preserves the curve while
+  avoiding endgame-strength enemies when you may still have a +6 weapon. Values
+  below `100` require an up-to-date client; older clients refuse the seed rather
+  than ignore the cap.
 - **`difficulty_ramp_speed`** changes *when* the climb happens, not how high it
   goes. At `50` you're at maximum from about halfway and everything after is
   equally hard. It compresses the curve rather than steepening it.
@@ -410,23 +407,23 @@ starts genuinely dangerous and is at full strength before the midpoint; add
 of an escalating one.
 
 > **Renamed in v0.2.12.** These were `completion_scaling_floor` and
-> `completion_scaling_ramp`. An older yaml using those names stops generation
-> with a message -- it won't silently ignore them. The ramp also **flipped
-> direction**: the old `completion_scaling_ramp: 25` is the new
+> `completion_scaling_ramp`. Generation rejects the old names instead of
+> silently ignoring them. The ramp also **flipped direction**: the old
+> `completion_scaling_ramp: 25` is the new
 > `difficulty_ramp_speed: 75`.
 
 ### Making yourself stronger instead of the enemies weaker
 
-The difficulty sliders above move the *enemies*. `global_scadutree_blessing`
-moves *you*.
+The difficulty sliders above change the *enemies*.
+`global_scadutree_blessing` changes *you*.
 
 ```yaml
 global_scadutree_blessing: off   # off | player_only | scaled
 ```
 
-Scadutree Blessing is the Shadow of the Erdtree upgrade track: collect Scadutree
-Fragments, rest at a grace, hit harder and take less. In vanilla it works only
-inside the Land of Shadow.
+Scadutree Blessing is the Shadow of the Erdtree upgrade track. Collect
+Scadutree Fragments and rest at a grace to deal more damage and take less. In
+vanilla, it works only inside the Land of Shadow.
 
 - **`player_only`** makes it work **everywhere**, Limgrave included, driven by
   the fragments you're holding. Enemies are untouched, so this is a plain power
@@ -437,9 +434,8 @@ inside the Land of Shadow.
 The curve is capped at blessing level 12 rather than the full 20: the last eight
 levels cost half the total fragments for roughly 11% more damage.
 
-> **This option used to do nothing outside the DLC**, whatever you set
-> it to -- the game declines to apply the blessing's effect outside the Land of
-> Shadow, and the option only wrote the stored number. It now works as described.
+> **Older clients did not apply this outside the DLC.** The current client
+> applies the blessing as described above.
 
 ### Your weapons keep up on their own
 
@@ -447,29 +443,28 @@ levels cost half the total fragments for roughly 11% more damage.
 auto_upgrade: true   # the default -- this has been every seed's behaviour since v0.2
 ```
 
-Any weapon the game **adds to your bag** is raised to the highest reinforce level
-you already hold on its smithing track (normal and somber are separate; it never
-downgrades and never crosses tracks). That covers three moments:
+Any weapon the game **adds to your bag** is raised to the highest reinforcement
+level you already hold on its smithing track. Normal and somber tracks remain
+separate, and the client never downgrades a weapon. This applies to:
 
 - an **AP grant** arriving from the multiworld,
 - a **world pickup** -- chests, corpses, drops,
 - and anything you **put down and take back**.
 
-That last one is the catch-up move, and it is deliberate: a weapon received
-early sits at the level you had *then*. To bring it to your current tier, drop
-it with **Leave** (not Discard -- Discard destroys) and pick it back up. Same
-gesture as matt's randomizer, same result. Upgrading a weapon at a blacksmith
-still works exactly as in vanilla; auto-upgrade only ever raises to a level you
-have already paid for once on that track.
+The last case is the catch-up move. A weapon received early stays at the level
+you had at the time. To bring it to your current tier, drop it with **Leave**
+and pick it back up. Do not use Discard; Discard destroys the weapon. Blacksmith
+upgrades still work as in vanilla. Auto-upgrade only raises a weapon to a level
+you have already reached on that track.
 
 > If a dropped weapon ever seems to **vanish** on pickup instead, the client
-> noticed: check the log for a `vanilla-suppress ... Rescue:` line -- it names
+> noticed: check the log for a `vanilla-suppress ... Rescue:` line. It names
 > the item and the exact `!give` console command that returns it (it comes back
 > at your current tier). Please also report it; that line is us hunting a rare
 > pickup-identity bug, and a sighting is evidence.
 
-A fully hands-off version -- weapons upgrading **in your bag** the moment your
-tier climbs, no gesture at all -- is planned as a separate yaml option.
+A fully hands-off version, which upgrades weapons already **in your bag** when
+your tier rises, is planned as a separate yaml option.
 
 ## How much of a region an unlock opens
 
