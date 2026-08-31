@@ -1,6 +1,4 @@
-# v0.5.5 — release blurb (draft)
-
-_Draft. Written as the window fills, not at tag time._
+# v0.5.5 — release blurb
 
 ## What you need to update
 

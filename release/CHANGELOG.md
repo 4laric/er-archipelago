@@ -3,7 +3,7 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.5.5 — 2026-08-30
+## v0.5.5 — 2026-08-31
 
 ### What you need to update
 
