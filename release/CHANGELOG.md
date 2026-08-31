@@ -21,6 +21,8 @@ and its merge commit is pinned by the gitlink in this change.
 
 Entries arrive below as they merge.
 
+- **Locked sweep boss names can be revealed without exposing their regions (#1184).** A new default-off YAML option lets the tracker name bosses whose sweep payouts are held behind unopened region locks, while the locked region and pending payout count remain hidden.
+
 - **Mine-stone deposits are rerolled into useful consumables per seed (#1095).** The 133 verified
   repeatable deposits remain ordinary non-check pickups, but their 11 shared reward templates no
   longer provide fixed tiers that bypass progressive bell bearings. Quantities, respawn behavior,
