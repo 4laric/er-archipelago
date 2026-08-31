@@ -10471,6 +10471,23 @@ _SWEEP_EXCLUDED_FLAGS = {
         34117500, 34117710,
     },
 }
+# Vanilla gifts whose acquisition flag is itself post-boss world progression. These are not filler
+# and must never enter the region divvy: each row is attached only to the exact defeat condition
+# which vanilla uses to make the gift available.
+#
+# Morgott / Rold evidence (#1100), all from the committed EMEVD/ESD/param corpus:
+#   * m35_00 event 35002504 (Cathedral bottom seal) and m34_14 event 34142550 (Divine Tower
+#     approach seal) each remove their golden barrier only on EventFlag(400001).
+#   * ItemLotParam_map row 100010 awards Rold Medallion with getItemFlagId=400001, and the ESD labels
+#     this as Melina's post-Morgott gift; its condition cone contains boss flag 9104, set by
+#     m11_00 event 11002800 after Morgott's defeat flag 11000800 fires.
+#   * The AP location is f400001 / ap 7770556 in Leyndell. Adding that exact check to Morgott's
+#     exact sweep means the existing sweep flag-flush asserts 400001 after paying it. It neither
+#     grants nor requires the randomized Rold Medallion item; it restores the vanilla post-boss
+#     world state which the removed Melina conversation used to establish.
+_SWEEP_POST_BOSS_GIFTS = {
+    11000800: {400001},
+}
 _sweep_excluded_hits = []
 _sweep_unspawned_hits = []
 _sweep_nonterminal_hits = []
@@ -10998,6 +11015,37 @@ if BOSS_HEALTHBARS:
         print("boss_sweeps:   own-drop f%d region %r != sweep %r (trigger %d) -- fail closed" % (
             _dfl, _dr, _sr, _dtrig))
 
+    # ---- POST-BOSS VANILLA PROGRESSION GIFTS (#1100) --------------------------------------------
+    # Same fail-closed shape as own-drop admission, but this population is intentionally tiny and
+    # evidence-curated: a gift flag can open world geometry, so guessing one is worse than leaving
+    # the check physical. Assert every declared row resolves, shares the boss's region, and was not
+    # already swept; otherwise the evidence or generated population moved and needs re-derivation.
+    _post_boss_added = []
+    for _trigger, _flags in sorted(_SWEEP_POST_BOSS_GIFTS.items()):
+        assert _trigger in DUNGEON_SWEEPS, (
+            "post-boss gift trigger %d has no sweep -- the #1100 progression repair is inert"
+            % _trigger)
+        for _flag in sorted(_flags):
+            _ap = _flag_apid.get(_flag)
+            assert _ap is not None, (
+                "post-boss gift f%d is no longer a live AP check -- re-derive before removing it"
+                % _flag)
+            assert _bucket_region.get(_ap) == SWEEP_REGION.get(_trigger), (
+                "post-boss gift f%d is in %r but trigger %d sweeps %r -- refusing a cross-region "
+                "progression write" % (_flag, _bucket_region.get(_ap), _trigger,
+                                        SWEEP_REGION.get(_trigger)))
+            assert _ap not in DUNGEON_SWEEPS[_trigger], (
+                "post-boss gift f%d is already in trigger %d -- delete the manual admission and "
+                "let the derived route own it" % (_flag, _trigger))
+            DUNGEON_SWEEPS[_trigger] = sorted(set(DUNGEON_SWEEPS[_trigger]) | {_ap})
+            _post_boss_added.append((_flag, _trigger, _ap))
+    assert len(_post_boss_added) == sum(map(len, _SWEEP_POST_BOSS_GIFTS.values())), (
+        "post-boss gift admission count drifted: %r" % (_post_boss_added,))
+    print("boss_sweeps: post-boss progression gifts (#1100): %d admitted: %s" % (
+        len(_post_boss_added), ", ".join(
+            "f%d -> trigger %d" % (_flag, _trigger)
+            for _flag, _trigger, _ap in _post_boss_added)))
+
     # An exclusion that matches nothing is a lie -- it reads as protection while protecting
     # nothing (the boss_healthbars map string could drift and this would silently stop applying).
     assert not _unregioned_legacy, (
@@ -11396,6 +11444,12 @@ with open(OUT_SWEEP, "w", newline="\n", encoding="utf-8") as f:
     f.write("DUNGEON_SWEEPS = {\n")
     for _fl in sorted(DUNGEON_SWEEPS):
         f.write(f"    {_fl}: {DUNGEON_SWEEPS[_fl]},\n")
+    f.write("}\n\n# Evidence-curated post-boss vanilla gifts. These are progression-tagged but are\n")
+    f.write("# swept only by the exact boss whose defeat makes the vanilla gift available.\n")
+    f.write("POST_BOSS_GIFTS = {\n")
+    for _trigger, _rows in sorted(_SWEEP_POST_BOSS_GIFTS.items()):
+        _aps = sorted(_flag_apid[_flag] for _flag in _rows)
+        f.write(f"    {_trigger}: frozenset({_aps!r}),\n")
     f.write("}\n\nSWEEP_REGION = {\n")
     for _fl in sorted(SWEEP_REGION):
         f.write(f"    {_fl}: {SWEEP_REGION[_fl]!r},\n")

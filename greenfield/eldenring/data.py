@@ -2156,7 +2156,7 @@ LOCATIONS = {
         ("Leyndell :: Perfume Bottle - near Queen's Bedchamber (2), may be sweep-granted by Morgott, the Omen King (m11_00) [f66720]", 7770071, 66720),
         ("Leyndell :: Frenzied's Cookbook [2] - near Cathedral of the Forsaken, may be sweep-granted by Mohg, the Omen (m35_00) [f68410]", 7770139, 68410),
         ("Leyndell :: Note: Miquella's Needle - near Frenzied Flame Proscription, may be sweep-granted by Esgar, Priest of Blood (m35_00) [f69740]", 7770190, 69740),
-        ('Leyndell :: Rold Medallion - talk to Melina after killing Morgott [f400001]', 7770556, 400001),
+        ('Leyndell :: Rold Medallion - talk to Melina after killing Morgott, may be sweep-granted by Morgott, the Omen King (m11_00) [f400001]', 7770556, 400001),
         ('Leyndell :: Frenzied Flame Seal - around Underground Roadside, may be sweep-granted by Mohg, the Omen (m35_00) [f400089]', 7770572, 400089),
         ('Leyndell :: Scepter of the All-Knowing [f400281]', 7770587, 400281),
         ('Leyndell :: All-Knowing Gauntlets [f400284]', 7770590, 400284),
@@ -5538,4 +5538,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:d6d3f22b17170e28b98ed9fa83cb1f9f2c456f32455523324d6f1667de247b10', 'module': 'data.py', 'body_sha256': 'sha256:f624e5911d5a52caf9cf7e155b50badd966813a942c8095cf5bd20cdcc8ba600'}
+_GEN_STAMP = {'inputs_hash': 'sha256:c843a28b036fc5ed57bacca6e1e4ea46d636f28b1efc260724522881d0b013e1', 'module': 'data.py', 'body_sha256': 'sha256:2d24587b24f792f21ec7bf6629a3192e4c14383a1e2766cc1630cc14ecb86ce2'}
