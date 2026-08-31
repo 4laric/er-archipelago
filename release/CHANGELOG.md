@@ -21,6 +21,10 @@ and its merge commit is pinned by the gitlink in this change.
 
 Entries arrive below as they merge.
 
+- **Pinned the latest client fixes (clients#538, clients#542, clients#543).** This includes the
+  Bloodborne window paint repair and GUI-v2 rebuild, plus the bounded Elden Ring sustain-delivery
+  path that can no longer deadlock ordinary AP item delivery.
+
 - **Enemy and boss rune payouts can follow sphere difficulty (#1091, clients#536).** The new
   default-off `scale_rune_rewards` option keeps direct runes-per-effort steadier when randomized
   progression moves an early enemy late or a late boss early. Golden Rune inventory items are
