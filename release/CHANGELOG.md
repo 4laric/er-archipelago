@@ -21,6 +21,10 @@ and its merge commit is pinned by the gitlink in this change.
 
 Entries arrive below as they merge.
 
+- **Greater Potentate's Cookbook [7] now belongs to Gravesite (#1054).** Its exact pickup point
+  and nearest grace both place it at Pillar Path Cross; Scadu Altus no longer creates a check on
+  ground that its lock does not own.
+
 - **Pinned the latest client fixes (clients#538, clients#542, clients#543).** This includes the
   Bloodborne window paint repair and GUI-v2 rebuild, plus the bounded Elden Ring sustain-delivery
   path that can no longer deadlock ordinary AP item delivery.

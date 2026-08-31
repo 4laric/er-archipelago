@@ -3387,9 +3387,14 @@ FLAG_REGION_OVERRIDE = {
     # as the #1054 block above (scan-exact, ground-placed pickup), and it is independent of the
     # sweep move: it was a member of the Drake's group only because the Drake was mis-hosted.
     68750: "Abyssal",         # Mad Craftsman's Cookbook [1], near Divided Falls -- volume: 68600
+    # Greater Potentate's Cookbook [7] is an ordinary treasure corpse, not an NPC relocation.
+    # Its exact spawn point is inside PlayArea 6810000 (bucket 68100 = Gravesite), and its nearest
+    # warp is Gravesite's Pillar Path Cross (76810). The old Scadu Altus label came from the m61
+    # tile fallback and would mint the check for a region whose kick-watch rejects its ground.
+    68630: "Gravesite",       # Greater Potentate's Cookbook [7], Pillar Path Cross -- volume: 6810000
     #
     # -- The rest of the scan-exact, ground-placed queue (#1054 / #1046) --------------------
-    # Same instrument, same evidence class as the ten above: each row's EXACT item_play_regions
+    # Same instrument, same evidence class as the eleven above: each row's EXACT item_play_regions
     # answer disagrees with the nearest-grace derivation, and each is a GROUND-PLACED pickup, so
     # the scan rules. The NPC-relocation families and the two deliberate carves stay withheld.
     # Forbidden Lands. Corroborated independently by this same regen: grace 76500 (Forbidden Lands)
