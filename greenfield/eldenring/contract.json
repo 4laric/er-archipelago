@@ -291,6 +291,17 @@
           "doc": "\"use what you get\": nonzero = the client equips every RECEIVED weapon / armour piece the moment it lands in the bag, clobbering the slot (auto_equip.rs enqueue + tick). NOT required: this key is younger than the released clients that read it, and an absent key parses false, which is exactly the off default. That silence is also why a seed with it ON emits requiresClientFeatures [\"auto_equip\"] -- OPTIONS_SUBKEYS is not folded into CONTRACT_HASH, so an older client would report VERSION: OK and then never see this key at all."
         },
         {
+          "name": "reveal_sweep_boss_names",
+          "shape": "BOOL_OR_INT",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo",
+          "consumer": "core.rs tracker sweep presentation",
+          "doc": "default-off presentation preference: allow the tracker to name sweep bosses whose rows would otherwise be hidden behind a locked region. Does not change sweep membership, firing, placement, or logic; opted-in seeds require the matching client feature tag."
+        },
+        {
           "name": "goal_region_unlock_policy",
           "shape": "INT",
           "required": false,
@@ -654,17 +665,6 @@
       "producer": "features/start_grace.py",
       "consumer": "startgrants.rs as_bool",
       "doc": "reveal the whole world map + underground view (client owns the RE'd flag set)."
-    },
-    {
-      "name": "revealSweepBossNames",
-      "shape": "BOOL",
-      "required": false,
-      "profiles": [
-        "greenfield"
-      ],
-      "producer": "features/boss_locks.py",
-      "consumer": "core.rs tracker sweep presentation",
-      "doc": "default-off presentation preference: allow the tracker to name sweep bosses whose rows would otherwise be hidden behind a locked region. Does not change sweep membership, firing, placement, or logic."
     },
     {
       "name": "progressionSurfaceLocations",

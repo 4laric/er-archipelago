@@ -208,7 +208,7 @@ class SlotDataFixtureRich(WorldTestBase):
         # not just present-and-empty).
         self.assertEqual(sd["world_logic"], "region_lock")
         self.assertTrue(sd["dungeonSweepFlags"], "dungeon_sweep=all must emit sweep flags")
-        self.assertFalse(sd["revealSweepBossNames"],
+        self.assertFalse(sd["options"]["reveal_sweep_boss_names"],
                          "hidden sweep boss names must remain opt-in (#1184)")
         # progressive_* is FROZEN OFF (defaults.py) -> progressiveGrants is emitted but empty.
         self.assertIsInstance(sd["progressiveGrants"], dict)
@@ -274,6 +274,6 @@ class SweepBossNameRevealOptIn(WorldTestBase):
 
     def test_opt_in_is_emitted(self):
         sd = self.world.fill_slot_data()
-        self.assertTrue(sd["revealSweepBossNames"])
+        self.assertTrue(sd["options"]["reveal_sweep_boss_names"])
         self.assertTrue(sd["dungeonSweepFlags"],
                         "the presentation toggle must not disable or replace sweep membership")

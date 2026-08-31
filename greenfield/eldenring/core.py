@@ -2132,6 +2132,7 @@ class GreenfieldEldenRingWorld(World):
             # runtime toggle; the client-feature TAG that stops an older client silently ignoring it
             # is emitted by the feature, because only the feature knows the seed actually uses it.
             contract.AUTO_EQUIP: _opt("auto_equip"),
+            contract.REVEAL_SWEEP_BOSS_NAMES: _opt("reveal_sweep_boss_names"),
             # 0 keeps the possession-based goal gate; 1 requires every progression-surface check
             # in every required non-goal region (with viewed shop rows supplied by the client).
             contract.GOAL_REGION_UNLOCK_POLICY: _opt("goal_region_unlock_policy"),

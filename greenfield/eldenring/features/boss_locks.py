@@ -572,9 +572,6 @@ class BossLocks(Feature):
         boss_locs = {r: [aid for (aid, _f, _n) in REGION_BOSSES[r]]
                      for r in REGION_BOSSES if r in kept}
         sd = {"bossLocations": boss_locs}
-        # Presentation-only tracker preference (#1184).  Emit it even when sweeps are off so the
-        # wire shape is stable and the setting remains inspectable in a generated seed.
-        sd[contract.REVEAL_SWEEP_BOSS_NAMES] = bool(world.options.reveal_sweep_boss_names.value)
         if world.options.reveal_sweep_boss_names.value:
             # A client predating #1184 would silently ignore the chosen spoiler policy. Refuse that
             # pairing loudly only for opted-in seeds; the default remains compatible with old DLLs.
