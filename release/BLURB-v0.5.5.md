@@ -44,5 +44,4 @@ Communion Seal, and Ruin-Strewn Precipice rune checks have explicit source-neutr
 grant can no longer starve ordinary AP deliveries, map loads correctly re-arm sphere-scaled rune
 rewards, and the next teardown or signature mismatch report carries direct timing/byte evidence.
 The bundled Bloodborne client also includes its GUI-v2, live-save binding, compact pickup toasts,
-and debounced contextual guidance. The larger Rescue panel remains outside this release pending its
-Windows visual acceptance pass.
+debounced contextual guidance, Rescue panel, and passive research probes.
