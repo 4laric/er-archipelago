@@ -208,30 +208,27 @@ You also need, separately:
 
    Note the game name in that line: **`Elden Ring`**, with the space.
 
-   **If you get "Connection refused" instead**, do this in order. A wrong slot
-   name, wrong password, wrong game or seed mismatch produces a different,
-   more specific error; re-reading those fields will not fix a refusal.
+   **If the connection fails**, first read the specific error. Wrong slot,
+   password, game, or seed values each produce their own message. The steps
+   below are for a refusal or a timeout.
 
-   1. Open Archipelago's stock **Text Client** and enter
-      `/connect <host>:<port>`. Use the exact address from the Elden Ring form.
-      This is the useful split: if it also fails, investigate the room or
-      network. If it connects, the address and network path work and the fault
-      is specific to `eldenring.exe`; skip to step 4.
-   2. Refresh the hosted room page. archipelago.gg pauses an inactive room
-      after two hours, and loading the page wakes it. Re-copy the displayed
-      port after it wakes -- a restarted room may have a different one.
-   3. Note how long failure takes. An immediate red line is a refusal; a hang
-      of roughly 20 seconds is a timeout. The Elden Ring client currently uses
-      the same sentence for both, so include the timing and client log in a bug
-      report.
-   4. If the Text Client connects but Elden Ring does not, check filters that
-      can treat one process differently: an outbound firewall rule for
-      `eldenring.exe`, third-party antivirus network protection, VPN split
-      tunnelling, and other mods in the active Mod Engine 3 profile that hook
-      WinSock. Elden Ring modding guides commonly recommend blocking the game
-      executable to keep it off FromSoftware's servers; that same rule also
-      blocks Archipelago. In Windows Defender, match the program path rather
-      than the rule name:
+   1. Note the timing. An immediate red line is a refusal. A wait of roughly
+      20 seconds is a timeout. The Elden Ring client currently uses the same
+      sentence for both, so include the timing and client log in a bug report.
+   2. Open Archipelago's stock **Text Client** and enter
+      `/connect <host>:<port>`, using the exact address from the Elden Ring
+      form.
+   3. If the Text Client also fails, refresh the hosted room page.
+      archipelago.gg pauses an inactive room after two hours; loading the page
+      wakes it. Re-copy the displayed port because a restarted room may have a
+      different one. If it still fails, investigate the room or network.
+   4. If the Text Client connects, the address and network path work. Check
+      software that can filter `eldenring.exe` specifically: outbound firewall
+      rules, third-party antivirus network protection, VPN split tunnelling,
+      and other mods in the active Mod Engine 3 profile that hook WinSock.
+      Elden Ring modding guides sometimes recommend blocking the executable to
+      keep it off FromSoftware's servers. That rule also blocks Archipelago.
+      In Windows Defender, match the program path rather than the rule name:
 
       ```powershell
       Get-NetFirewallApplicationFilter -All |
