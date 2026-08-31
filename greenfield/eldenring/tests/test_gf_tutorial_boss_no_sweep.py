@@ -826,6 +826,11 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # Black Knight Edredd (2049430850) to Gravesite's Ghostflame Dragon (2045440800). Inserting it
     # into that region's round-robin rephases 11 further flags between the two Gravesite triggers
     # 2045440800/2046410800: 12 removals, 12 additions, zero unowned flags and zero region crossings.
-    assert (digest, n) == ("9259758b28cca647", 4105), (  # #1054: Pillar Path cookbook
-        "sweep OWNERSHIP changed: (%s, %d), expected (9259758b28cca647, 4105). The total alone will "
+    # 2026-08-31 (#1054, Castle Ensis rune): 9259758b28cca647 -> f450cab3f833dcb1, count
+    # unchanged at 4105. Exactly one pair was removed and one added: f2047447620 moves from
+    # Gravesite's Ghostflame Dragon (2045440800) to Scadu Altus trigger 2047450800 with its
+    # corrected check region. No flag gained or lost an owner; this is the single intended
+    # region crossing and there is no round-robin collateral churn.
+    assert (digest, n) == ("f450cab3f833dcb1", 4105), (  # #1054: Castle Ensis rune
+        "sweep OWNERSHIP changed: (%s, %d), expected (f450cab3f833dcb1, 4105). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

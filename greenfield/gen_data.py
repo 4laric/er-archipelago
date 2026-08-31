@@ -3392,6 +3392,11 @@ FLAG_REGION_OVERRIDE = {
     # warp is Gravesite's Pillar Path Cross (76810). The old Scadu Altus label came from the m61
     # tile fallback and would mint the check for a region whose kick-watch rejects its ground.
     68630: "Gravesite",       # Greater Potentate's Cookbook [7], Pillar Path Cross -- volume: 6810000
+    # Shadow Realm Rune [2] has two ordinary treasure placements, in m61_47_44_00 and its _10
+    # duplicate. Both exact spawn points are inside PlayArea 6900000 (bucket 69000 = Scadu Altus).
+    # The old Gravesite label came from the nearest-grace heuristic across the Castle Ensis seam;
+    # exact point-in-volume evidence wins for a ground pickup.
+    2047447620: "Scadu Altus",  # Shadow Realm Rune [2], Castle Ensis -- volume: 6900000
     #
     # -- The rest of the scan-exact, ground-placed queue (#1054 / #1046) --------------------
     # Same instrument, same evidence class as the eleven above: each row's EXACT item_play_regions
