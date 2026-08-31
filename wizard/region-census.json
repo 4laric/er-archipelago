@@ -897,7 +897,7 @@
    "tarnished_pack_combos": {}
   },
   "Limgrave": {
-   "checks": 304,
+   "checks": 303,
    "combos": {
     "Basin": 2,
     "Boss|FieldBoss": 5,
@@ -909,7 +909,7 @@
     "Legendary": 5,
     "Seedtree": 2,
     "Shop": 2,
-    "Shop|ShopNonSpell": 47,
+    "Shop|ShopNonSpell": 46,
     "Shop|ShopNonSpell|ShopSlot": 1
    },
    "dlc": false,
@@ -1280,7 +1280,7 @@
    "tarnished_pack_combos": {}
   },
   "Roundtable Hold": {
-   "checks": 181,
+   "checks": 182,
    "combos": {},
    "dlc": false,
    "parent": null,
@@ -1563,5 +1563,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "3bf26590003d9d8254f09b933dc3ace0830e1c7a693d273ce4709944fe4c5fb9"
+ "source_sha256": "1d45bfc82109a39c1ca2692cb1639502331dcc9bcb364fb7d8ddbf90c8cc53f0"
 }

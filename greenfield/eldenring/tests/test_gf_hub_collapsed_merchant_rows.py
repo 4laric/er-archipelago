@@ -36,12 +36,13 @@ fill stayed free to place a Lock. So it has to be the DEFAULTED path, which land
 
 WHY BOTH DIRECTIONS ARE ASSERTED HERE. Option C makes #701's stated acceptance test VACUOUS: "must
 not place a progression item on any collapsed Patches row" passes trivially once nothing can be
-placed there, and would pass just as happily if the 14 locations had been DELETED. So every
+placed there, and would pass just as happily if the 15 locations had been DELETED. So every
 negative below is paired with a positive witness -- the rows still exist, still count, still take a
 real item from a real fill -- and the item_rule assertion carries a control location the same rule
 object ACCEPTS, so "rejects everything" cannot masquerade as "rejects progression".
 
-THE POPULATION IS 14: 11 unresolved shared Patches/Thiollier rows plus three Communion rows. Five
+THE POPULATION IS 15: 12 shared Patches/Thiollier rows (including f67600 under #557) plus three
+Communion rows. Five
 other Patches rows left this population under #220 because FromSoft's release flag explicitly names
 NPC309 as their owner; those are no longer a disjunction and may take their Patches-only sites. The
 three Dragon
@@ -74,7 +75,7 @@ _ROOT = find_repo_root(HERE)
 # collision ordinals ride after that, so a whole-name pin would be a second thing to maintain.
 PATCHES = "from Patches or Thiollier"
 COMMUNION = "from Cathedral of Dragon Communion or Church of Dragon Communion"
-EXPECTED_PATCHES = 11
+EXPECTED_PATCHES = 12
 # NAMED, not counted. #557's table stopped at the Patches 16 and these three were "left behind
 # because #557 counted 16" -- the exact failure #701's acceptance criteria calls out.
 COMMUNION_FLAGS = {290500: "Dragonfire", 290750: "Dragonclaw", 290760: "Dragonmaw"}
@@ -121,7 +122,7 @@ class HubCollapsedPopulation(unittest.TestCase):
                       "f110030 is the check Cokeman5 reported; it must be in the population")
 
     def test_every_collapsed_row_is_barred_from_carrying_progression(self):
-        """THE FIX. All 14 in DEFAULTED_REGION_APS -- the bar core._NO_PROGRESSION_APS reads, which is
+        """THE FIX. All 15 in DEFAULTED_REGION_APS -- the bar core._NO_PROGRESSION_APS reads, which is
         the one that reaches the location's item_rule (SURFACE_EXCLUDE_APS does not: #350)."""
         rows = collapsed_rows()
         self.assertEqual(len(rows), EXPECTED_TOTAL, "population changed; fix that first")
@@ -138,7 +139,7 @@ class HubCollapsedPopulation(unittest.TestCase):
         tagged = sorted(c for c in contract.SURFACE_CLASSES
                         if any(contract.has_class(LOCATION_TAGS.get(ap, ()), {c}) for ap in aps))
         self.assertNotEqual(tagged, [],
-                            "the 14 carry Shop/ShopNonSpell tags; if they carry NONE this test has "
+                            "the 15 carry Shop/ShopNonSpell tags; if they carry NONE this test has "
                             "stopped looking at anything")
         leaked = sorted((c, ap) for c in contract.SURFACE_CLASSES
                         for ap in (aps & allowed_ap_ids(LOCATION_TAGS, {c})))

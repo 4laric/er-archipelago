@@ -3,7 +3,7 @@
 Sibling to `test_gf_hub_collapsed_merchant_rows.py`, which asserts the tables. This file asserts the
 thing Cokeman5 actually saw: a generated multiworld whose kept set contains NONE of
 {Limgrave, Mt. Gelmir, Cerulean} -- the three regions Patches / Thiollier stand in -- must not be
-able to put progression on any of the 14 hub-collapsed merchant rows, and must still FILL them.
+able to put progression on any of the 15 hub-collapsed merchant rows, and must still FILL them.
 
 🛑 THE SEED IS SEARCHED, NOT ASSUMED. `num_regions` is a DRAW SIZE, so "base-only, one region" makes
 Limgrave and Mt. Gelmir unlikely, never impossible; `enable_dlc: False` is what seals Cerulean. A
@@ -92,7 +92,7 @@ class HubCollapsedRowsInASeedWithoutPatchesRegions(WorldTestBase):
                            "about the 19" % lock.name)
 
     def test_the_collapsed_rows_still_receive_filler(self):
-        """THE POSITIVE WITNESS. A real fill, and all 14 come out of it holding something."""
+        """THE POSITIVE WITNESS. A real fill, and all 15 come out of it holding something."""
         from Fill import distribute_items_restrictive
         seed, _kept = self._seed_without_patches_regions()
         rows = self._rows()

@@ -46,8 +46,8 @@ Boss	267	0	31	5	1	2	0	0	230	86
 Fragment	46	0	0	0	0	7	0	0	39	85	yes
 Revered	23	0	0	0	0	5	0	0	18	78	yes
 Basin	15	0	7	0	0	0	0	0	8	53
-Shop	419	18	99	27	0	0	96	124	239	57
-ShopNonSpell	305	12	55	9	0	0	33	81	213	70
+Shop	419	18	100	27	0	0	96	125	238	57
+ShopNonSpell	305	12	56	9	0	0	33	82	212	70
 ShopSlot	12	0	0	0	0	0	0	0	12	100	yes
 Legendary	108	18	13	20	6	0	0	0	73	68
 GreatRune	7	0	0	0	0	0	0	0	7	100
