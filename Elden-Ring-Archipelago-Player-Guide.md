@@ -241,9 +241,12 @@ run rather than tune it.
   if you want vanilla's shape with Archipelago's item flow rather than a
   region-lock progression graph.
 - **`goal`** -- which boss ends the run. `auto` (default) derives it;
-  `elden_beast` pins the real ending and forces Farum Azula + Leyndell kept;
-  `promised_consort` ends on PCR and forces Enir Ilim kept. A goal your other
-  options make unreachable fails generation instead of silently downgrading.
+  `elden_beast` pins the real ending and forces no regions because the shuffled
+  Ashen Capital Lock supplies the burn and finale; `promised_consort` ends on
+  PCR and forces Enir Ilim kept; `malenia` forces Haligtree kept and starts you
+  at Haligtree Canopy, leaving the full Loretta-to-Malenia route to clear. A
+  goal your other options make unreachable fails generation instead of silently
+  downgrading.
 - **`ending_condition`** -- hold every kept Region Lock (default), or chase
   Great Runes as well. `goal_great_runes` is the COUNT; the seed picks WHICH
   runes, and only those complete the goal. The client names them at connect
