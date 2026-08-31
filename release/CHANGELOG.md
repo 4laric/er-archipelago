@@ -21,6 +21,10 @@ and its merge commit is pinned by the gitlink in this change.
 
 Entries arrive below as they merge.
 
+- **Greater Potentate's Cookbook [7] now belongs to Gravesite (#1054).** Its exact pickup point
+  and nearest grace both place it at Pillar Path Cross; Scadu Altus no longer creates a check on
+  ground that its lock does not own.
+
 - **Enemy and boss rune payouts can follow sphere difficulty (#1091, clients#536).** The new
   default-off `scale_rune_rewards` option keeps direct runes-per-effort steadier when randomized
   progression moves an early enemy late or a late boss early. Golden Rune inventory items are
