@@ -21,8 +21,8 @@ THE MOTIVATING CASES.
    file is where the ruling becomes state, and a regression that flips 73211 back to Mountaintops
    fails a written decision instead of passing silently.
 
-2. THE TEN MOVERS. 679 checks carry an EXACT (`volume:`/`interior-vol:`/`seam:`/`interior-seam:`)
-   answer in item_play_regions.tsv; 114 disagree with the region they shipped. Only these ten are
+2. THE ELEVEN MOVERS. 679 checks carry an EXACT (`volume:`/`interior-vol:`/`seam:`/`interior-seam:`)
+   answer in item_play_regions.tsv; 114 disagree with the region they shipped. Only these eleven are
    BOTH scan-exact AND ground-placed pickups -- the population the instrument rules on. The
    NPC-relocation families in #1054 are deliberately excluded (a shop/grant flag's scanned point
    is where the NPC ENDED UP, not where the check is), and this file pins two of them as NOT
@@ -48,6 +48,8 @@ IN_REPO = REPO is not None
 
 # flag -> (region it must present as, its item_play_regions.tsv answer)
 MOVERS = {
+    68630: ("Gravesite", "volume: 6810000"),
+    2047447620: ("Scadu Altus", "volume: 6900000 (two placements)"),
     1050567500: ("Mountaintops of the Giants", "volume: 6501000"),
     1050567510: ("Mountaintops of the Giants", "volume: 6501000"),
     1050567520: ("Mountaintops of the Giants", "volume: 6501000"),
@@ -120,6 +122,8 @@ class TheScanMoversLanded(unittest.TestCase):
     def test_no_ap_id_renumbered(self):
         """A region move re-sorts NAMES; it must never renumber an id (#952, #249)."""
         pinned = {
+            68630: 7770146,
+            2047447620: 7773425,
             # 2026-08-26 (#1013, Enia vanilla): these ids moved. NOT because the region moves
             # renumbered -- which is exactly what this test forbids and which still holds -- but
             # because Enia's hundred hub rows left the corpus in the SAME window, and removing a
