@@ -64,7 +64,6 @@ DRIFT step).
 Run:  python -m pytest greenfield/eldenring/tests/test_gf_grace_skip_oracle.py
   or: python greenfield/eldenring/tests/test_gf_grace_skip_oracle.py   (unittest fallback)
 """
-import ast
 import csv
 import glob
 import importlib.util
@@ -96,6 +95,7 @@ EVENT_DIR = os.path.join(ARTIFACTS, "event")
 BONFIRE_CSV = os.path.join(ARTIFACTS, "vanilla_er", "vanilla_er", "BonfireWarpParam.csv")
 REGION_GRACES_PY = os.path.join(GF_PKG, "region_graces.py")
 GEN_DATA_PY = os.path.join(REPO, "greenfield", "gen_data.py")   # repo tree, via the walk-up
+BOSS_GATED_TSV = os.path.join(REPO, "greenfield", "boss_gated_graces.tsv")
 
 # The boss-bonfire common event verified above. $InitializeCommonEvent(slot, 9005810, gate, ef2, chr,
 # assetEntityId, dist): capture gate(arg1) and assetEntityId(arg4). arg4 joins to BonfireWarpParam.
@@ -144,14 +144,11 @@ def _emevd_boss_gated_flags(ent2flag):
 
 
 def _gen_boss_gated_frozenset():
-    """Parse gen_data's `_BOSS_GATED_GRACE_FLAGS = frozenset({...})` literal -- COMPARISON ONLY, never
-    the oracle. Text-parsed (not exec'd) so we don't run the whole generator."""
-    with open(GEN_DATA_PY, encoding="utf-8") as f:
-        src = f.read()
-    m = re.search(r"_BOSS_GATED_GRACE_FLAGS\s*=\s*frozenset\((\{[^}]*\})\)", src)
-    if not m:
+    """Read the generator's reviewed EMEVD-derived input -- comparison only, never the oracle."""
+    if not os.path.isfile(BOSS_GATED_TSV):
         return None
-    return {int(x) for x in ast.literal_eval(m.group(1))}
+    with open(BOSS_GATED_TSV, encoding="utf-8", newline="") as fh:
+        return {int(row["grace_flag"]) for row in csv.DictReader(fh, delimiter="\t")}
 
 
 class BossGatedGraceSkipOracle(unittest.TestCase):
@@ -211,14 +208,24 @@ class BossGatedGraceSkipOracle(unittest.TestCase):
         stands on its own (test_no_boss_gated_grace_emitted_grantable does not consult it)."""
         gen = _gen_boss_gated_frozenset()
         self.assertIsNotNone(
-            gen, "could not parse _BOSS_GATED_GRACE_FLAGS frozenset from gen_data.py (shape changed?)")
+            gen, "could not read greenfield/boss_gated_graces.tsv")
         missed = sorted(self.oracle - gen)
         self.assertEqual(
             missed, [],
             str(len(missed)) + " boss-gated grace(s) present in the independent EMEVD oracle but "
-            "ABSENT from gen_data _BOSS_GATED_GRACE_FLAGS -- gen's hand-list is incomplete and would "
+            "ABSENT from boss_gated_graces.tsv -- the emitted derivation is incomplete and would "
             "emit these as grantable. Flags: " + repr(missed),
         )
+
+    def test_emitted_table_is_exact_and_keeps_gate_provenance(self):
+        with open(BOSS_GATED_TSV, encoding="utf-8", newline="") as fh:
+            rows = {int(row["grace_flag"]): row for row in csv.DictReader(fh, delimiter="\t")}
+        self.assertEqual(set(rows), self.oracle)
+        self.assertEqual(len(rows), 49, "the measured 1.17 EMEVD corpus yields 49 gated graces")
+        self.assertTrue(all(int(row["asset_entity"]) and int(row["gate_flag"]) for row in rows.values()))
+        # Windmill Heights: the issue's illustrative IDs were guesses; the corpus is authoritative.
+        self.assertEqual(rows[76313]["map_tile"], "m60_42_55_00")
+        self.assertEqual(int(rows[76313]["gate_flag"]), 1042550800)
 
     def test_guard_is_not_vacuous(self):
         """Negative control: prove the soft-lock guard actually fires. Inject a known boss-gated grace
@@ -293,7 +300,7 @@ class Regression244(unittest.TestCase):
                 "emission pin still ran; classification is asserted in repo/CI layouts")
         gen = _gen_boss_gated_frozenset()
         self.assertIsNotNone(
-            gen, "could not parse _BOSS_GATED_GRACE_FLAGS from gen_data.py (shape changed?)")
+            gen, "could not read greenfield/boss_gated_graces.tsv")
         missing = sorted(set(_244_OVERWORLD_BOSS_GATED) - gen)
         self.assertEqual(
             missing, [],
