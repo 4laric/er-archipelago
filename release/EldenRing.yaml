@@ -157,7 +157,13 @@ Elden Ring:
   # a region you kept, behind a boss you could already reach.
   # Still never swept, whatever this says: another boss's reward, remembrance
   # or Great Rune, quest/gate key items, and merchant stock.
+
   full_area_sweeps: false
+
+  # Show the names of bosses whose sweep payouts are still hidden behind a region lock.
+  # Off by default so the tracker does not spoil bosses before you enter their regions.
+  # Even when enabled, the locked region and pending payout count stay hidden.
+  reveal_sweep_boss_names: false
 
   # WHICH BOSS ENDS THE RUN.
   #   auto             -- derived (default). On ANY seed with the base game in
