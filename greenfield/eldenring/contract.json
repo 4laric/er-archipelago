@@ -788,6 +788,17 @@
       "doc": "ItemLotParam_enemy lot id (str) -> FLAT pairs [slot, goodsId, slot, goodsId, ...]. UNFLAGGED lots only (a lot with getItemFlagId > 0 IS a check and is never sent). Only GOODS slots are rerolled; lotItemBasePoint (drop weight) is untouched, so drop RATES stay vanilla."
     },
     {
+      "name": "mineMaterialRoll",
+      "shape": "SCALAR_INT_MAP",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/mine_materials.py",
+      "consumer": "mine_materials.rs configure/run",
+      "doc": "Unflagged repeatable ItemLotParam_map lot id (str) -> replacement GOODS row id. Only the 11 placed ordinary mine-material templates are eligible. Slot quantity, pickup/respawn behavior, flags, AP location count, and capstones remain untouched."
+    },
+    {
       "name": "shopInfiniteStock",
       "shape": "LISTVAL_INT_MAP",
       "required": false,

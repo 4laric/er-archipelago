@@ -300,10 +300,13 @@ run rather than tune it.
   Four things are never swept whatever this says: another boss's reward, a
   remembrance or Great Rune, quest and gate key items, and merchant stock --
   those are cut when the sweep is built, and no yaml puts them back.
-- **`reroll_enemy_drops` / `reroll_infinite_shop_stock`** (both on) -- reroll
-  what farmable enemies drop and what unlimited-stock merchants sell. One-time
-  drops -- the actual checks -- are untouched; this randomizes the repeatable
-  economy around them. The shop half covers the 14 unlimited *consumable*
+- **`reroll_enemy_drops` / `reroll_infinite_shop_stock` / `reroll_mine_materials`**
+  (all on) -- reroll what farmable enemies drop, what unlimited-stock merchants
+  sell, and what repeatable Smithing/Somber mine deposits yield. One-time drops
+  -- the actual checks -- are untouched; this randomizes the repeatable economy
+  around them. Mine deposits stay respawning non-check pickups, with Ancient
+  Dragon capstones excluded. All deposits that shared one original stone tier
+  share one replacement for the seed. The shop half covers the 14 unlimited *consumable*
   shelves -- Kale's Glass Shards, Iji's Somber Smithing Stones, the
   throwing-knife and poison-dart racks -- and prices each roll at what the new
   item is worth, so a cheap shelf never becomes an infinite supply of something

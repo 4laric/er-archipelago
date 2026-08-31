@@ -3,6 +3,30 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.5.5 — 2026-08-30
+
+### What you need to update
+
+- **Client:** Required — use the v0.5.5 client with v0.5.5 seeds.
+- **APWorld:** Host-only — the room host or generator must install the matching APWorld.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.** `reroll_mine_materials`
+  defaults on; set it to `false` to retain vanilla mine rewards.
+- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair. The new option
+  affects newly generated seeds only.
+- **Profile/assets:** No action.
+
+Window opened during the unreleased v0.5.4 development window. The contract moves from `13db0b3a`
+to `8397a952` for the new `mineMaterialRoll` seed table; the matching client half is clients#493,
+and its merge commit is pinned by the gitlink in this change.
+
+Entries arrive below as they merge.
+
+- **Mine-stone deposits are rerolled into useful consumables per seed (#1095).** The 133 verified
+  repeatable deposits remain ordinary non-check pickups, but their 11 shared reward templates no
+  longer provide fixed tiers that bypass progressive bell bearings. Quantities, respawn behavior,
+  AP location count, inventory, and Ancient Dragon capstones remain unchanged. Disable
+  `reroll_mine_materials` to retain vanilla mine rewards.
+
 ## v0.5.4 — 2026-08-29
 
 ### What you need to update

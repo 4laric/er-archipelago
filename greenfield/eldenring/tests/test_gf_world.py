@@ -129,7 +129,10 @@ class GreenfieldWorldTest(WorldTestBase):
     # The selector is a seeded `world.random` sample now, so the key varies across seeds and is
     # still byte-identical for the SAME seed -- which test_slot_data_is_deterministic above proves
     # and is the property that actually matters on the wire.
+    # mineMaterialRoll: the 11 repeatable mine-lot templates deliberately receive a seeded
+    # replacement map. The same seed is byte-stable; different seeds should change the wares.
     _SEED_VARYING = {"regionSphereTargetRanges", "shopInfiniteStock", "enemyDropRoll",
+                     "mineMaterialRoll",
                      "progressiveGrants", "shopPreviewGoods", "filler_foreign_localized",
                      "goalRequiredItems"}
 

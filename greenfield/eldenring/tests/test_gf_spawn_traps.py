@@ -619,7 +619,7 @@ class TheNameSurface(unittest.TestCase):
         """🛑 THE PIN. Names are resolved at generation and the emitted slot data is untouched, so
         this change owes no client release. That claim is only worth what this assert is worth."""
         from worlds.eldenring import contract
-        self.assertEqual(contract.CONTRACT_HASH[:8], "13db0b3a")
+        self.assertEqual(contract.CONTRACT_HASH[:8], "8397a952")
 
     def test_a_name_the_game_writes_with_a_comma_is_offered_without_one(self):
         """🛑 A COMMA IS A SEPARATOR WHERE PLAYERS WRITE THESE. `spawn_traps: [Alexander, Warrior
