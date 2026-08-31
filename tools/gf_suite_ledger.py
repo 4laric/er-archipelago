@@ -147,6 +147,11 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "precipice_rune_checks": "pytest regression joins the three committed MSB witnesses through "
+                              "the repo-root walk-up, then checks their installed locations, enemy "
+                              "lot neutralisation, and emitted slot data. The tests job has both "
+                              "the repository and installed world, so its repo-only half must run "
+                              "there rather than skip silently (#950)",
     "jagged_peak_summit_grace": "#370 acceptance test joins committed MSB-derived grace and "
                                  "GameArea positions through the repo-root walk-up, then checks "
                                  "the installed region_graces table and boss-gated provenance. "
