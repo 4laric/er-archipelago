@@ -69,6 +69,9 @@ Entries arrive below as they merge.
 - **Ruin-Strewn Precipice's three Golden Rune [6] drops remain randomized checks (#950).** Their
   concrete MSB entities, generated locations, enemy lots, and emitted source-neutralisation rows
   are now pinned together so a later phantom-location cull cannot silently restore vanilla drops.
+- **Shop-preview spare rows now record and prefer their vanilla inventory caps (#965).** The
+  datamine emits `maxNum` and `maxRepositoryNum`, and rows with generous caps are spent first within
+  each FMG capability tier, reducing cap-one purchase failures on older compatible clients.
 
 ## v0.5.4 — 2026-08-29
 
