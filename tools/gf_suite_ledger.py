@@ -147,6 +147,11 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "jagged_peak_summit_grace": "#370 acceptance test joins committed MSB-derived grace and "
+                                 "GameArea positions through the repo-root walk-up, then checks "
+                                 "the installed region_graces table and boss-gated provenance. "
+                                 "It is a pytest suite with an installed-world half, so it "
+                                 "belongs in TESTS_JOB rather than the AP-free generator loop",
     "region_second_opinion": "pure-stdlib unittest suite over tools/audit_region_second_opinion.py, "
                              "reached through the repo-root walk-up. It is OFFLINE by construction "
                              "-- every wikitext fixture is hand-written synthetic text and no test "

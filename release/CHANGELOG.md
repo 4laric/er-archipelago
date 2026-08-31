@@ -26,6 +26,10 @@ Entries arrive below as they merge.
   progression moves an early enemy late or a late boss early. Golden Rune inventory items are
   never changed. Loaded regulation values are the immutable baseline, so the runtime pass does not
   compound Matt's randomizer rewards across region changes.
+  
+- **Jagged Peak's Summit grace now unlocks with its region (#370).** Exact map positions place it
+  outside and well above Bayle's arena anchor; Bayle's separate post-fight grace remains withheld.
+
 - **Pinned the fix for Leyndell's eastern exit grace leak (#323).** Forbidden Lands stays with
   Mountaintops, while both Divine Tower of East Altus graces stay with Altus.
 
@@ -49,6 +53,9 @@ Entries arrive below as they merge.
   Morgott sweep credits Melina's post-boss Rold Medallion check and restores its vanilla acquisition
   flag, opening both the Cathedral bottom seal and the Divine Tower approach without granting the
   randomized medallion item directly.
+- **Fia's Mending Rune can no longer hold its own Cursemark prerequisite (#1085).** The placement
+  rule now follows the extracted handover, NPC-state, Fortissax, and corpse-award chain and rejects
+  a same-player Cursemark of Death at that dependent check.
 
 ## v0.5.4 — 2026-08-29
 
