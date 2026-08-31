@@ -291,18 +291,13 @@ run rather than tune it.
   could never trigger. You collect its checks on foot instead; nothing is
   missing from the seed.
 - **`full_area_sweeps`** (off) -- "does killing a boss give me *every* item in
-  the area?" Off, the answer is "the ordinary loot, yes". The classes you put
-  on `progression_surface` are held back, because that is exactly where this
-  seed hid its key items -- at the default surface that is Golden Seeds, Sacred
-  Tears, Scadutree Fragments and Revered Spirit Ashes, and you walk to those
-  yourself. Turn it on and nothing is held back: the boss's area arrives whole,
-  progression included, so a boss kill can hand you a region Lock or another
-  player's item. It cannot strand you -- a sweep only ever grants checks in a
-  region you kept, behind a boss you could already reach, so it makes a
-  reachable check arrive *earlier* and never makes an unreachable one required.
-  Four things are never swept whatever this says: another boss's reward, a
-  remembrance or Great Rune, quest and gate key items, and merchant stock --
-  those are cut when the sweep is built, and no yaml puts them back.
+  the area?" Off, bosses sweep ordinary loot but leave your
+  `progression_surface` checks in place. With the default surface, you still
+  walk to Golden Seeds, Sacred Tears, Scadutree Fragments and Revered Spirit
+  Ashes. Turn it on and the whole reachable area arrives, including progression.
+  A sweep can then hand you a Region Lock or another player's key early, but it
+  cannot make an unreachable check required. Boss rewards, remembrances, Great
+  Runes, quest and gate keys, and merchant stock are never swept.
 - **`reroll_enemy_drops` / `reroll_infinite_shop_stock` / `reroll_mine_materials`**
   (all on) -- reroll what farmable enemies drop, what unlimited-stock merchants
   sell, and what repeatable Smithing/Somber mine deposits yield. One-time drops
@@ -316,17 +311,13 @@ run rather than tune it.
   game-breaking. **Arrow and bolt shelves are left alone**, so ammo builds keep
   their supply line.
 - **`merchant_bells_on_talk`** (off) -- open a merchant's shop and their Bell
-  Bearing is handed to the Twin Maiden Husks for you, so their wares are on sale
-  at the Roundtable Hold from then on. You are not given the bell itself: every
-  Bell Bearing is a real multiworld item, and the option unlocks the shop rather
-  than duplicating the item, so the bell is still worth finding -- it just
-  arrives already spent. Your checks do not change either way; the Maidens sell
-  the merchant's *own* shop rows, so a slot bought at the hub fires exactly the
-  check it would have fired out in the world. Covers the roving merchants and
-  the named vendors; the peddlers whose bells stock the Maidens' own shelf are
-  not covered, and it triggers on the regular buy menu only, so an Ash-of-War,
-  tailoring or upgrade counter does not fire it. Needs a client that supports
-  it, and a seed with it on will say so rather than connect and ignore you.
+  Bearing is sent to the Twin Maiden Husks, putting that merchant's wares on sale
+  at Roundtable Hold. You do not receive the bell itself; it remains a real
+  multiworld item worth finding. Buying a row at the Husks fires the same check
+  as buying it from the original merchant. This covers roving merchants and
+  named vendors, and triggers only from their regular buy menu. Ash-of-War,
+  tailoring and upgrade counters do not trigger it. A seed using this option
+  requires a client that supports it and refuses to connect to one that does not.
 - **`keep_local`** -- multiworld manners, by category. List the kinds of item
   you want to stay in your own world and everything else still travels:
   `[consumables, crafting, upgrade_materials, runes]` keeps your crafting
@@ -349,15 +340,9 @@ run rather than tune it.
   `keep_local` is the aimable version and they compose.
 - **`confine_foreign_progression`** -- how much of *other* players' progression
   is held to your progression surface. At 100 (default) a foreign key can only
-  sit on a starred check; lower it and their keys spread across your world.
-  It USED to have an ugly side effect -- at 100 a non-Elden-Ring partner
-  received nothing from you but filler, a fill-order artifact measured at 0%
-  useful -- but that is fixed at its own layer now: a dedicated reservation
-  pass places your fair share of useful gear (weapons, armour, talismans) into
-  partner worlds before the general fill, whatever confine is set to. Measured
-  after the fix: partners receive your pool's own mix, about 1:1
-  useful-to-filler. Lowering confine is now purely about where foreign keys
-  may sit, which is what the name always said.
+  sit on a starred check; lower it to spread foreign keys across more of your
+  world. This setting changes placement only. A separate reservation pass sends
+  partner worlds their share of useful Elden Ring gear regardless of this value.
 
 > **The "anything anywhere" recipe.** If you come from classic ER item rando and
 > want the old feel -- any check can matter, no curation steering keys onto
