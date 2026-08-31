@@ -9,15 +9,22 @@ the whistle.
 
 1. Generate the seed with Matt's randomizer, then close the randomizer and Elden Ring.
 2. Extract this repair anywhere.
-3. In PowerShell, run:
+3. Open PowerShell in the extracted folder and run the Python script directly:
 
 ```powershell
-.\repair-torrent-regulation.ps1 -Randomizer "C:\path\to\randomizer"
+py .\torrent_rideparam_repair.py --regulation "C:\path\to\randomizer\regulation.bin"
 ```
 
-The first run offers to install Soulstruct's regulation reader. The repair makes a timestamped
-backup, changes only the eight verified Torrent rows, verifies the encrypted result, and replaces
-`regulation.bin` atomically. A repeated run without regenerating is a safe no-op.
+If it reports missing `ParamCrypt` metadata, install the fixed Soulstruct source snapshot once, then
+repeat the repair command:
+
+```powershell
+py -m pip install --force-reinstall --no-cache-dir https://github.com/Grimrukh/soulstruct/archive/d59dc41e607ed4221378519c81609557241dce6b.zip
+```
+
+The repair makes a timestamped backup, changes only the eight verified Torrent rows, verifies the
+encrypted result, and replaces `regulation.bin` atomically. A repeated run without regenerating is
+a safe no-op.
 
 Matt rewrites `regulation.bin` whenever it generates a seed, so run this repair again after each
 randomization and before launching the game.

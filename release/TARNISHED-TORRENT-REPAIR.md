@@ -9,29 +9,31 @@ either half is absent, Torrent may stop answering the whistle.
 (`80020000`, `80030000`, `80040000`, `80050000`). A comparison of Matt v0.11.4 with vanilla 1.17
 found the base Torrent rows identical, making these safe clones with the verified 1.17 changes.
 
-## One-command installer mode
+## Recommended post-randomization repair
 
-The release's existing Matt installer can patch the rows while it wires in the client:
-
-```powershell
-.\me3\install-into-matts-rando.ps1 -Randomizer "C:\path\to\randomizer" -WithTorrentRepair
-```
-
-This mode requires Soulstruct 2.3.2's fixed source build. If it is missing, the PowerShell wrapper
-explains the one-time dependency and offers to download the fixed upstream snapshot. Press Enter
-to accept. For unattended installs, add `-InstallTorrentDependency`.
-
-The underlying Python installer never installs dependencies itself. If you run it directly, install
-the fixed source build first (the PyPI 2.3.2 wheel omitted two ParamCrypt metadata files):
+Run Matt's randomizer first. After it finishes, close both the randomizer and Elden Ring, then run
+the repair from the Archipelago release folder:
 
 ```powershell
-py -m pip install "soulstruct @ git+https://github.com/Grimrukh/soulstruct.git@d59dc41e"
+py .\me3\torrent_rideparam_repair.py --regulation "C:\path\to\randomizer\regulation.bin"
 ```
 
-The installer decrypts the regulation with Soulstruct but rewrites only the raw `RideParam` and
+The repair needs Soulstruct's fixed 2.3.2 source build. Install it once if the command reports that
+`ParamCrypt` metadata is missing. The PyPI 2.3.2 wheel is incomplete, so use the fixed upstream
+source snapshot:
+
+```powershell
+py -m pip install --force-reinstall --no-cache-dir https://github.com/Grimrukh/soulstruct/archive/d59dc41e607ed4221378519c81609557241dce6b.zip
+```
+
+Then repeat the repair command. It decrypts the regulation with Soulstruct but rewrites only the raw `RideParam` and
 `NpcParam` binder entries. It preserves every existing binder entry and existing row byte-for-byte,
 refuses partial or conflicting repairs, verifies the encrypted result, makes a timestamped backup,
 and replaces the target atomically. A second run is an idempotent no-op.
+
+**Repeat the repair after every Matt reroll.** Matt rewrites `regulation.bin` whenever it generates
+a seed, so a repair performed before randomizing is immediately replaced. The final repair message
+must say either that the rows were patched or that all eight rows were already present.
 
 ## Manual Smithbox mode
 
