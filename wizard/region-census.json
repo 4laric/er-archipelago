@@ -701,7 +701,7 @@
    "tarnished_pack_combos": {}
   },
   "Gravesite": {
-   "checks": 222,
+   "checks": 197,
    "combos": {
     "Basin": 1,
     "Boss": 5,
@@ -711,8 +711,7 @@
     "Boss|MinorDungeonBoss": 3,
     "Fragment": 6,
     "Legendary": 4,
-    "Revered": 4,
-    "Shop|ShopNonSpell": 11
+    "Revered": 4
    },
    "dlc": true,
    "parent": null,
@@ -898,7 +897,7 @@
    "tarnished_pack_combos": {}
   },
   "Limgrave": {
-   "checks": 329,
+   "checks": 304,
    "combos": {
     "Basin": 2,
     "Boss|FieldBoss": 5,
@@ -909,8 +908,8 @@
     "KeyItem": 1,
     "Legendary": 5,
     "Seedtree": 2,
-    "Shop": 8,
-    "Shop|ShopNonSpell": 57,
+    "Shop": 2,
+    "Shop|ShopNonSpell": 47,
     "Shop|ShopNonSpell|ShopSlot": 1
    },
    "dlc": false,
@@ -954,7 +953,7 @@
    "tarnished_pack_combos": {}
   },
   "Liurnia": {
-   "checks": 615,
+   "checks": 586,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -967,7 +966,7 @@
     "KeyItem": 2,
     "Legendary": 7,
     "Seedtree": 3,
-    "Shop": 18,
+    "Shop": 10,
     "Shop|ShopNonSpell": 32,
     "Shop|ShopNonSpell|ShopSlot": 1
    },
@@ -1281,7 +1280,7 @@
    "tarnished_pack_combos": {}
   },
   "Roundtable Hold": {
-   "checks": 102,
+   "checks": 181,
    "combos": {},
    "dlc": false,
    "parent": null,
@@ -1564,5 +1563,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "262c3dcdab3ea594b5142fb2f81e08a4407a3a93dc4919d1853e1c2302125634"
+ "source_sha256": "3bf26590003d9d8254f09b933dc3ace0830e1c7a693d273ce4709944fe4c5fb9"
 }

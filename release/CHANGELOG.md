@@ -21,6 +21,11 @@ and its merge commit is pinned by the gitlink in this change.
 
 Entries arrive below as they merge.
 
+- **Brother Corhyn's 29 shop checks no longer disappear with Liurnia (#331).** His wandering
+  inventory now uses the honest Roundtable/defaulted fallback instead of inheriting Seluvis's
+  Liurnia label from their shared shop block. A seed that keeps Leyndell may gate them there;
+  otherwise they remain available as conservative filler-only hub checks.
+
 - **The Shadow Realm Rune [2] by Castle Ensis now belongs to Scadu Altus (#1054).** Both copies
   of its treasure placement sit inside the Scadu Altus play-region volume; the old Gravesite label
   came from a nearest-grace guess across the regional seam.

@@ -245,8 +245,8 @@ class CheckGroundRegions(unittest.TestCase):
         """The 2026-08-19 verdict for a multi-site check NONE of whose sites ground in its region.
 
         Every member is a RELOCATING NPC's shop/drop row -- assigned to the FIRST station by the
-        merchant-ESD ground truth, datamined only at LATER stations (Bernahl at Volcano Manor and
-        the Hold, Sellen at the academy and the Hold, the Kale-family rows one tile over). The
+        merchant-ESD ground truth, datamined only at LATER stations (the Kale-family rows one tile
+        over). The
         assignment is unwitnessed, not contradicted: the missing datum is the first station's
         coordinates, and promoting these to MISMATCH would accuse rows the ESD corpus places
         correctly. Pinned by count so the class cannot quietly absorb a real defect: a NEW entry is
@@ -259,10 +259,15 @@ class CheckGroundRegions(unittest.TestCase):
         self.assertEqual(single, [],
                          "SINGLE-site record(s) entered sites_elsewhere -- those are plain "
                          "mismatches: %r" % single[:3])
+        # 2026-08-31 (#331): 76 -> 22. Exactly 54 rows left this audit class when the generator
+        # began honoring its already-derived multi-region merchant set: those rows now use the
+        # honest HUB/defaulted fallback instead of a sibling merchant's legacy block region.
+        # The remaining 22 are the two Kale-family shared inventories listed above.
         self.assertEqual(
-            len(recs), 76,
-            "the sites-elsewhere corpus moved (was 76: Bernahl/Sellen/Kale-family rows). Name the "
-            "new/departed rows and their NPC before re-pinning.")
+            len(recs), 22,
+            "the sites-elsewhere corpus moved (22 Kale-family rows after the 54 proven "
+            "multi-region rows moved to HUB under #331). Name the new/departed rows and their NPC "
+            "before re-pinning.")
 
     def test_ground_audit_coverage_is_stated_out_loud(self):
         """The screen knows it is partial, so it says so on a GREEN run."""

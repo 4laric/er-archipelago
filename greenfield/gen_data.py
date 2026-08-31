@@ -4482,7 +4482,14 @@ def _build_merchant_shop_region():
             _rr = _gt_region(_t)
             if _rr:
                 _flag2sites.setdefault(_fl, set()).add(_rr)
-    _multi_sites = {_fl: tuple(sorted(_flag2sites[_fl])) for _fl in _multi if _flag2sites.get(_fl)}
+    # Preserve EVERY multi-region flag, including the 14 whose instances provide no assertable
+    # option-B site. An empty tuple is meaningful data: multi-region proven, no site safe enough
+    # to lift the option-C fallback bar in any seed. Dropping those keys would make the later
+    # membership test forget they were multi-region at all.
+    _multi_sites = {
+        _fl: tuple(sorted(_flag2sites.get(_fl, ())))
+        for _fl in _multi
+    }
     _no_site = [_fl for _fl in _multi if not _flag2sites.get(_fl)]
     _suspect = sorted(_fl for _fl in _out if _fl in _flag_unresolved)   # pinned, but has an unplaced tile
     # ⭐⭐⭐ A DIAGNOSTIC THAT ITERATES THE SUCCESS SET CANNOT SEE A TOTAL FAILURE. `_suspect` iterates
@@ -4497,7 +4504,8 @@ def _build_merchant_shop_region():
     print(f"  claimants dropped: {_no_msb} line(s) with no MSB placement (map_source=binder), "
           f"{_dropped} row claim(s) from {len(_overreach)} merchant(s) whose ESD range over-ran their "
           f"own bell block")
-    print(f"  option-B sites: {len(_multi_sites)} of {len(_multi)} multi-region flag(s) have at least "
+    print(f"  option-B sites: {sum(bool(_sites) for _sites in _multi_sites.values())} of "
+          f"{len(_multi)} multi-region flag(s) have at least "
           f"one ASSERTABLE site (a merchant instance placed in exactly one map); {len(_no_site)} have "
           f"none and keep the #701 option-C bar unconditionally")
     if _multi:
@@ -4563,6 +4571,12 @@ def _region_of_unfolded(r):
     # the Altus Hermit). v1 carries only single-physical-region flags, so this is a strict correction.
     if _ovfl is not None and r.get('flag_source') == 'shop' and _ovfl in MERCHANT_SHOP_REGION:
         return MERCHANT_SHOP_REGION[_ovfl]
+    # A merchant flag spanning several physical regions cannot inherit one sibling merchant's
+    # block label. Collapse it to the HUB; _region_is_derived marks that answer DEFAULTED, while
+    # option B may later attach an assertable kept site. Empty site tuples stay honestly barred.
+    if (_ovfl is not None and r.get('flag_source') == 'shop'
+            and _ovfl in MERCHANT_SHOP_MULTI_REGION):
+        return HUB
     # SHOP-ROW GROUND TRUTH: a check whose ONLY source is a merchant (flag_source == 'shop') takes
     # the merchant block's region (SHOP_ROW_REGION, from shop_rows.tsv through REGION_MAP). Beats
     # every scan path below: the emevd nearest-neighbour tile and the shop_multi HUB default were
