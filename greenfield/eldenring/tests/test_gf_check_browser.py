@@ -104,6 +104,20 @@ class CheckBrowserTest(unittest.TestCase):
         self.assertEqual(self.data["meta"]["total"], len(self.checks))
         self.assertEqual(len(self.checks), sum(len(v) for v in self.LOCATIONS.values()))
 
+    def test_measured_floors_refuse_a_silently_shrunken_corpus(self):
+        with self.assertRaisesRegex(SystemExit, "Refusing to overwrite"):
+            self.tool.require_complete_payload(
+                self.checks[: self.tool.MIN_CHECKS - 1],
+                {"plottable": self.tool.MIN_PLOTTABLE},
+                "sentinel.html",
+            )
+        with self.assertRaisesRegex(SystemExit, "plottable"):
+            self.tool.require_complete_payload(
+                self.checks,
+                {"plottable": self.tool.MIN_PLOTTABLE - 1},
+                "sentinel.html",
+            )
+
     # -- B. agreement with the generated modules ---------------------------
     def test_tag_histogram_matches_TAG_COUNTS(self):
         declared = self.tool.load_module_consts(
