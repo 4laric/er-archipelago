@@ -38,9 +38,10 @@ Entries arrive below as they merge.
   and nearest grace both place it at Pillar Path Cross; Scadu Altus no longer creates a check on
   ground that its lock does not own.
 
-- **Pinned the latest client fixes (clients#538, clients#542, clients#543).** This includes the
-  Bloodborne window paint repair and GUI-v2 rebuild, plus the bounded Elden Ring sustain-delivery
-  path that can no longer deadlock ordinary AP item delivery.
+- **Pinned the latest green client build (clients#538, #542-#546, #554, #556).** Elden Ring's
+  bounded sustain-delivery path can no longer deadlock ordinary AP items, and teardown/signature
+  failures now capture the evidence needed to diagnose the next live report. The shared bundle also
+  carries Bloodborne's GUI-v2, live-save identity, compact pickup toasts, and contextual guidance.
 
 - **Enemy and boss rune payouts can follow sphere difficulty (#1091, clients#536).** The new
   default-off `scale_rune_rewards` option keeps direct runes-per-effort steadier when randomized
