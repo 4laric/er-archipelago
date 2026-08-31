@@ -33,6 +33,7 @@ import pytest
 
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.location_tags import HUB_COLLAPSED_SITE_APS  # noqa: E402
 
 # Measured on main 2026-07-25, after (a) the Cave of Knowledge map fix and (b) grouping on the
 # grace's own KEY instead of its display name. A RATCHET, not a target: it may only ever go DOWN.
@@ -198,7 +199,14 @@ def _nearest_grace(column=1):
 def _straddles():
     """{grace key -> Counter(region)} for graces whose checks land in more than one region."""
     import collections
-    region = {str(f): r for r, locs in LOCATIONS.items() for (_n, _a, f) in locs}
+    # A hub-collapsed merchant's measured coordinate is one NPC station, while its generated HUB
+    # region deliberately represents a disjunction across stations. Comparing those two answers is
+    # not an independent region oracle: it manufactures the Sellen/Patches false straddles already
+    # documented above. #331 expanded that honest collapse from 19 to 98 rows, making the known
+    # blind spot large enough to breach the ratchet. Exclude exactly the generated collapse class;
+    # ordinary/defaulted checks remain visible.
+    region = {str(f): r for r, locs in LOCATIONS.items() for (_n, ap, f) in locs
+              if ap not in HUB_COLLAPSED_SITE_APS}
     keys = _nearest_grace(column=2)
     assert keys, (
         "nearest_grace.tsv has no grace_key column -- re-emit it with tools/build_nearest_grace.py. "
