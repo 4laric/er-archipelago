@@ -701,7 +701,7 @@
    "tarnished_pack_combos": {}
   },
   "Gravesite": {
-   "checks": 223,
+   "checks": 222,
    "combos": {
     "Basin": 1,
     "Boss": 5,
@@ -1294,7 +1294,7 @@
    "tarnished_pack_combos": {}
   },
   "Scadu Altus": {
-   "checks": 321,
+   "checks": 322,
    "combos": {
     "Boss|FieldBoss": 4,
     "Boss|Fragment|MajorBoss": 1,
@@ -1564,5 +1564,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "53754e01695ef22c7a0a5bafb2c6867b3b106519417b422c2645b0d03e4dd1c8"
+ "source_sha256": "262c3dcdab3ea594b5142fb2f81e08a4407a3a93dc4919d1853e1c2302125634"
 }

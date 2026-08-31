@@ -1881,7 +1881,6 @@ LOCATIONS = {
         ('Gravesite :: Revered Spirit Ash - Statue east of Ellac River Cave, turn left, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f2047437700]', 7773401, 2047437700),
         ('Gravesite :: Horned Bairn - around Ellac River Cave, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f2047437980]', 7773402, 2047437980),
         ('Gravesite :: Spelldrake Talisman +3 - near Castle Front, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f2047447190]', 7773420, 2047447190),
-        ('Gravesite :: Shadow Realm Rune [2] - near Castle Ensis Checkpoint, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f2047447620]', 7773425, 2047447620),
         ('Gravesite :: Starlight Shards - near Castle Ensis Checkpoint, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f2047447730]', 7773428, 2047447730),
         ('Gravesite :: Carian Sorcery Sword - near Castle Ensis Checkpoint, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f2047447820]', 7773430, 2047447820),
         ('Gravesite :: Firespark Perfume Bottle - near Castle Front, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f2047447840]', 7773432, 2047447840),
@@ -4174,6 +4173,7 @@ LOCATIONS = {
         ('Scadu Altus :: Helm of Night - near Bonny Gaol, may be sweep-granted by Curseblade Labirith (m41_01) [f41017300]', 7772444, 41017300),
         ('Scadu Altus :: Silver Horn Tender - near Bonny Gaol, may be sweep-granted by Curseblade Labirith (m41_01) [f41017310]', 7772445, 41017310),
         ('Scadu Altus :: Ancient Meteoric Ore Greatsword - around Ruined Forge of Starfall Past, may be sweep-granted by Rakshasa (m61_51_44) [f42027000]', 7772452, 42027000),
+        ('Scadu Altus :: Shadow Realm Rune [2] - near Castle Ensis Checkpoint, may be sweep-granted by Black Knight Garrew (m61_47_45) [f2047447620]', 7773425, 2047447620),
         ('Scadu Altus :: Black Pyrefly - near Scadu Altus, West, may be sweep-granted by Black Knight Garrew (m61_47_45) [f2047457000]', 7773434, 2047457000),
         ('Scadu Altus :: Smithing Stone [3] - near Scadu Altus, West, may be sweep-granted by Black Knight Garrew (m61_47_45) [f2047457010]', 7773435, 2047457010),
         ('Scadu Altus :: Somber Smithing Stone [2] - near Scadu Altus, West, may be sweep-granted by Black Knight Garrew (m61_47_45) [f2047457020]', 7773436, 2047457020),
@@ -5538,4 +5538,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:8510137a6dd9aa0e6d3e8f29bd6177768cd8e44a15b6ba2c36d2e234d55d776f', 'module': 'data.py', 'body_sha256': 'sha256:9e192b22690bd23182690b211ab6263c9b5bd13b150c5c07183dc19f20ae260d'}
+_GEN_STAMP = {'inputs_hash': 'sha256:fcc2988d0f451b65caf1faff056f6b1738f453f8435a0a0029a778ce6c94ad67', 'module': 'data.py', 'body_sha256': 'sha256:579b4be2ea6c90956f79a15da51e47ce54f5b32145fd1a72ec667ca46ec83a1c'}

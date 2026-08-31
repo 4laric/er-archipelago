@@ -49,6 +49,7 @@ IN_REPO = REPO is not None
 # flag -> (region it must present as, its item_play_regions.tsv answer)
 MOVERS = {
     68630: ("Gravesite", "volume: 6810000"),
+    2047447620: ("Scadu Altus", "volume: 6900000 (two placements)"),
     1050567500: ("Mountaintops of the Giants", "volume: 6501000"),
     1050567510: ("Mountaintops of the Giants", "volume: 6501000"),
     1050567520: ("Mountaintops of the Giants", "volume: 6501000"),
@@ -122,6 +123,7 @@ class TheScanMoversLanded(unittest.TestCase):
         """A region move re-sorts NAMES; it must never renumber an id (#952, #249)."""
         pinned = {
             68630: 7770146,
+            2047447620: 7773425,
             # 2026-08-26 (#1013, Enia vanilla): these ids moved. NOT because the region moves
             # renumbered -- which is exactly what this test forbids and which still holds -- but
             # because Enia's hundred hub rows left the corpus in the SAME window, and removing a

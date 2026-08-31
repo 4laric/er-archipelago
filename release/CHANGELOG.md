@@ -21,6 +21,10 @@ and its merge commit is pinned by the gitlink in this change.
 
 Entries arrive below as they merge.
 
+- **The Shadow Realm Rune [2] by Castle Ensis now belongs to Scadu Altus (#1054).** Both copies
+  of its treasure placement sit inside the Scadu Altus play-region volume; the old Gravesite label
+  came from a nearest-grace guess across the regional seam.
+
 - **Greater Potentate's Cookbook [7] now belongs to Gravesite (#1054).** Its exact pickup point
   and nearest grace both place it at Pillar Path Cross; Scadu Altus no longer creates a check on
   ground that its lock does not own.
