@@ -907,7 +907,7 @@ SHOP_LOC_REGION = {
     7770101: 'Limgrave',
     7770102: 'Ainsel River',
     7770112: 'Liurnia',
-    7770114: 'Limgrave',
+    7770114: 'Roundtable Hold',
     7770115: 'Limgrave',
     7770120: 'Limgrave',
     7770127: 'Caelid',
@@ -1944,4 +1944,4 @@ SHOP_OPEN_SCOPES = (
     ('OpenTranspositionShop', 101898, 101949),
 )
 
-_GEN_STAMP = {'inputs_hash': 'sha256:5812503b49c34707fe62652b2017525a2dab6d53f2b97ff2d19605fe822d2130', 'module': 'shop_data.py', 'body_sha256': 'sha256:2c7cd7a6756c0608aa830c7d13e1fbb522455d0fc9a1d36e1e3927a8ba5d8efe'}
+_GEN_STAMP = {'inputs_hash': 'sha256:b5b9336e1d94595a2b9f5cb6445b74bb3e5ee07ce499d44f98e38666f680eda0', 'module': 'shop_data.py', 'body_sha256': 'sha256:0bca0c64c618ae0dc7c23988cc298308626f17a0514bf2fdaaf5c7d621e58a34'}

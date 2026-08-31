@@ -1,7 +1,7 @@
 """#701 OPTION 2 ("B") -- A COLLAPSED MERCHANT ROW TAKES ITS EARLIEST KEPT SITE (the tables).
 
 Third file on #701. `test_gf_hub_collapsed_merchant_rows.py` and `..._seed.py` are option 3 ("C"):
-the 14 `Roundtable Hold ::` rows whose seller stands in more than one region were in logic AT SPAWN
+the 15 `Roundtable Hold ::` rows whose seller stands in more than one region were in logic AT SPAWN
 in every seed (Cokeman5's Scadu Altus Lock on `Furlcalling Finger Remedy - from Patches or Thiollier
 [f110030]`, 2026-08-15), so C barred them from carrying progression at all. This file is option 2:
 give the row a REAL region -- the EARLIEST of its own sites that the seed KEPT, in `region_spine.SPINE`
@@ -84,7 +84,7 @@ class CollapsedSiteTable(unittest.TestCase):
                          "ap(s) %r carry option-B sites but are NOT in DEFAULTED_REGION_APS -- B is a "
                          "NARROWING of C's bar; a row outside that bar has nothing to narrow" % (outside,))
 
-    def test_the_patches_eleven_have_exactly_the_three_reviewed_regions(self):
+    def test_the_patches_twelve_have_exactly_the_three_reviewed_regions(self):
         patches, _ = _sites_by_family()
         self.assertEqual(len(patches), EXPECTED_PATCHES)
         wrong = sorted((ap, s) for (ap, s) in patches if set(s) != set(PATCHES_REGIONS))

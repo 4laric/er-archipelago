@@ -3299,9 +3299,6 @@ FLAG_REGION_OVERRIDE = {
                                                #   otherwise major-less Jagged Peak a MajorBoss check for the
                                                #   progression_surface restriction. (v0.2; verify in-game.)
     # --- surface-sheet region fixes (Alaric, 2026-07-17, from the progression_surface description sheet) ---
-    67600: "Limgrave",                         # Missionary's Cookbook [2] = PATCHES' stock; Patches stands at
-                                               #   Murkwater Cave (Limgrave), not the Roundtable Hold the
-                                               #   shop-row block region reported.
     # NOTE: the Altus Hermit Merchant's block-1007 stock (Perfume Bottle 66750, Prophet set, Sentry's
     # Torch, Golden Sunflower, Distinguished Greatshield, Upper-Class Robe, Consort's Trousers, Note,
     # Rune Arc -- flags 170350/60/70/80/450/460/470/480/490, 69770) was HAND-PINNED here 2026-07-17..23
@@ -3309,8 +3306,8 @@ FLAG_REGION_OVERRIDE = {
     # OpenRegularShop(100725,100749) on tile m60_43_53 = grace 76311 "Hermit Merchant's Shack", Altus),
     # so the pins were REDUNDANT and were removed -- a redundant manual override hides which path is
     # load-bearing (see the _BOSS_DROP_EXTRAS philosophy up top; the _redundant_shop_pins guard below
-    # enforces it for shop flags now). Patches (67600) stays: he relocates across regions (multi-tile),
-    # so the derivation leaves him to the legacy path and the hand pin is genuinely load-bearing.
+    # enforces it for shop flags now). Patches' f67600 pin left too under #557: the merchant derivation
+    # proves it shares the same multi-region Patches/Thiollier fallback as its 16 sibling rows.
     # ---- Church of Pilgrimage Sacred Tear: Weeping, not Limgrave (Alaric, ground truth
     # 2026-07-31). Surfaced by cross-checking our 13 Sacred Tears against Fextralife's 12
     # (cross-check only, NOT ingested -- PROVENANCE.md): they put Church of Pilgrimage in Weeping
@@ -4539,8 +4536,8 @@ MERCHANT_SHOP_REGION, MERCHANT_SHOP_MULTI_REGION, MERCHANT_BELL_REGIONS = \
 # A REDUNDANT SHOP PIN IS A FAILURE (same rule as _BOSS_DROP_EXTRAS up top): a FLAG_REGION_OVERRIDE entry
 # that the merchant-ESD derivation already reproduces hides which path is load-bearing and silently rots
 # when the derivation drifts. So the moment MERCHANT_SHOP_REGION produces a flag's pinned region, the pin
-# must go. (Pins the derivation DISAGREES with, or does not cover -- Patches 67600 multi-region, Enia
-# 60500 HUB-only -- are load-bearing and stay; they are not flagged here.)
+# must go. (Pins the derivation DISAGREES with, or does not cover -- Enia 60500 HUB-only -- are
+# load-bearing and stay; they are not flagged here.)
 _redundant_shop_pins = sorted(_f for _f, _reg in FLAG_REGION_OVERRIDE.items()
                               if MERCHANT_SHOP_REGION.get(_f) == _reg)
 if _redundant_shop_pins:

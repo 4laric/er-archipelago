@@ -36,6 +36,7 @@ LOCATIONS = {
         ("Roundtable Hold :: Taunter's Tongue - around Table of Lost Grace [f60300]", 7770017, 60300),
         ('Roundtable Hold :: Memory Stone - from Twin Maiden Husks [f60470]', 7770024, 60470),
         ('Roundtable Hold :: Talisman Pouch - from Twin Maiden Husks [f60500]', 7770025, 60500),
+        ("Roundtable Hold :: Missionary's Cookbook [2] - from Patches or Thiollier (region unconfirmed) [f67600]", 7770114, 67600),
         ("Roundtable Hold :: Fevor's Cookbook [3] - from Twin Maiden Husks [f68210]", 7770135, 68210),
         ('Roundtable Hold :: [Sorcery] Glintstone Pebble - from Sorceress Sellen (region unconfirmed) [f100500]', 7770210, 100500),
         ("Roundtable Hold :: [Sorcery] Scholar's Armament - from Sorceress Sellen (region unconfirmed) [f100510]", 7770211, 100510),
@@ -2470,7 +2471,6 @@ LOCATIONS = {
         ("Limgrave :: Armorer's Cookbook [1] - near Murkwater Cave, may be sweep-granted by Bell Bearing Hunter (m60_42_38) [f67200]", 7770094, 67200),
         ("Limgrave :: Armorer's Cookbook [2] - from Nomadic Merchant [f67210]", 7770095, 67210),
         ("Limgrave :: Armorer's Cookbook [3] - from Nomadic Merchant [f67280]", 7770101, 67280),
-        ("Limgrave :: Missionary's Cookbook [2] - from Patches or Thiollier [f67600]", 7770114, 67600),
         ("Limgrave :: Missionary's Cookbook [1] - from Merchant Kalé [f67610]", 7770115, 67610),
         ("Limgrave :: Nomadic Warrior's Cookbook [4] - near Mistwood Outskirts (region unconfirmed), may be sweep-granted by Mad Pumpkin Head (m60_44_36) [f67800]", 7770119, 67800),
         ("Limgrave :: Nomadic Warrior's Cookbook [5] - from Nomadic Merchant [f67830]", 7770120, 67830),
@@ -5538,4 +5538,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:5812503b49c34707fe62652b2017525a2dab6d53f2b97ff2d19605fe822d2130', 'module': 'data.py', 'body_sha256': 'sha256:8221f6d71cd825211d4f7378ce0530e08be53108c53bc5297ddea476d83c8029'}
+_GEN_STAMP = {'inputs_hash': 'sha256:b5b9336e1d94595a2b9f5cb6445b74bb3e5ee07ce499d44f98e38666f680eda0', 'module': 'data.py', 'body_sha256': 'sha256:6f66c100ca4aeb89080bfec01ee78fb9b4e4822a2c1076a56fda489248bdc7bc'}

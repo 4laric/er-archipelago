@@ -47,8 +47,9 @@ from ..tarnished_pack import TARNISHED_PACK_LOCATION_FLAGS
 # optional Tarnished Pack merchant row to the static superset; it is absent from default seeds but
 # must still be barred when the ownership toggle admits it. 2026-08-31 (#331): 49 -> 128 when 79
 # proven multi-region rows began using the generator's documented HUB/defaulted fallback instead
-# of inheriting a sibling merchant's legacy block region.
-_PINNED_BAR = 128
+# of inheriting a sibling merchant's legacy block region. #557 adds the one cookbook that a stale
+# manual Limgrave override had kept outside the same derived family: 128 -> 129.
+_PINNED_BAR = 129
 # Of those, the ones a `Shop`-selecting seed would put on the surface before this bar fires: 83 minus
 # the 63 covered by the other bars (the DEFAULTED / ERDTREE_BURN / SURFACE_EXCLUDE /
 # SHOP_RELEASE_GATED union) = 20. Was 58 before #1013; the 38 that left were Enia's on-surface rows

@@ -21,6 +21,10 @@ and its merge commit is pinned by the gitlink in this change.
 
 Entries arrive below as they merge.
 
+- **Patches' Missionary's Cookbook [2] now follows his other shared-shop checks (#557).** Its stale
+  Limgrave override is gone; the cookbook uses the same Roundtable/defaulted fallback and
+  Patches/Thiollier site set as the rest of their multi-region inventory.
+
 - **Brother Corhyn's 29 shop checks no longer disappear with Liurnia (#331).** His wandering
   inventory now uses the honest Roundtable/defaulted fallback instead of inheriting Seluvis's
   Liurnia label from their shared shop block. A seed that keeps Leyndell may gate them there;
