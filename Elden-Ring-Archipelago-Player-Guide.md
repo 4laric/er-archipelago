@@ -296,37 +296,35 @@ run rather than tune it.
   cannot make an unreachable check required. Boss rewards, remembrances, Great
   Runes, quest and gate keys, and merchant stock are never swept.
 - **`reroll_enemy_drops` / `reroll_infinite_shop_stock` / `reroll_mine_materials`**
-  (all on) -- control three parts of the repeatable economy. They reroll
-  farmable enemy drops, unlimited merchant stock, and respawning
-  Smithing/Somber mine deposits. One-time drops, including all actual checks,
-  are untouched.
+  (all on) -- control the repeatable economy: farmable enemy drops, unlimited
+  merchant stock, and respawning Smithing/Somber mine deposits. One-time drops
+  and all actual checks remain untouched.
 
   Mine deposits remain respawning non-check pickups. Ancient Dragon capstones
   are excluded, and every deposit of the same original stone tier gets the
   same replacement for the seed. Shop rerolls cover 14 unlimited consumable
   shelves, including Kale's Glass Shards, Iji's Somber Smithing Stones, and the
-  throwing-knife and poison-dart racks. Each replacement is priced according
-  to its new item, preventing a cheap shelf from becoming an unlimited source
-  of something game-breaking. **Arrow and bolt shelves are left alone**, so
-  ammo builds keep their supply line.
+  throwing-knife and poison-dart racks. Replacement prices follow the new item,
+  so a cheap shelf cannot become an unlimited source of something game-breaking.
+  **Arrow and bolt shelves are left alone**, preserving ammo supply lines.
 - **`merchant_bells_on_talk`** (off) -- open a merchant's shop and their Bell
-  Bearing is sent to the Twin Maiden Husks, putting that merchant's wares on sale
+  Bearing goes to the Twin Maiden Husks, making that merchant's wares available
   at Roundtable Hold. You do not receive the bell itself; it remains a real
-  multiworld item worth finding. Buying a row at the Husks fires the same check
+  multiworld item worth finding. Buying an item at the Husks fires the same check
   as buying it from the original merchant. This covers roving merchants and
-  named vendors, and triggers only from their regular buy menu. Ash-of-War,
-  tailoring and upgrade counters do not trigger it. A seed using this option
-  requires a client that supports it and refuses to connect to one that does not.
+  named vendors, but only their regular buy menus. Ash-of-War, tailoring and
+  upgrade counters do not trigger it. Seeds using this option refuse clients
+  that do not support it.
 - **`keep_local`** -- multiworld manners, by category. List the kinds of item
   you want to stay in your own world and everything else still travels:
   `[consumables, crafting, upgrade_materials, runes]` keeps your crafting
   materials, smithing stones, ghost gloveworts, every consumable and every
   Golden Rune at home while your weapons, armour, talismans, spells, spirit
-  ashes and ashes of war go out to other players. Full list of categories in
-  the yaml builder at <https://peliarch.ca/er/>. This matters most when your
-  slot is much bigger than everyone else's. An Elden Ring seed can run to a
-  couple of thousand checks; without this option, a five-player game can turn
-  into four people opening Elden Ring consumables.
+  ashes and ashes of war go out to other players. The YAML builder at
+  <https://peliarch.ca/er/> lists every category. This matters most when your
+  slot is much bigger than everyone else's. An Elden Ring seed can contain
+  thousands of checks; without this option, a five-player game can turn into
+  four people opening Elden Ring consumables.
 - **`keep_local_rune_cap`** -- hold back rune items worth this many runes or
   fewer and let the big ones travel. The default, `12500`, keeps everything
   through Numen's Rune at home. `3000` keeps only the small change; `0` turns
