@@ -739,6 +739,16 @@ class CoopDifficulty(Range):
     default = 0
 
 
+class ScaleRuneRewards(Toggle):
+    """Scale direct enemy and boss rune payouts with sphere difficulty (#1091).
+
+    Off by default. When enabled, ordinary `NpcParam.getSoul` and boss `GameAreaParam` payouts
+    follow the same region tier as combat, preserving the vanilla reward differences between
+    enemies. Golden Rune inventory items are deliberately outside the feature."""
+    display_name = "Scale Rune Rewards"
+    default = 0
+
+
 @register
 class Scaling(Feature):
     name = "scaling"
@@ -748,6 +758,7 @@ class Scaling(Feature):
         "maximum_enemy_difficulty": MaximumEnemyDifficulty,
         "difficulty_ramp_speed": DifficultyRampSpeed,
         "coop_difficulty": CoopDifficulty,
+        "scale_rune_rewards": ScaleRuneRewards,
         "scadutree_blessing_scope": ScadutreeBlessingScope,
         "dlc_blessing_catchup": DlcBlessingCatchup,
         # DEPRECATED alias for the two above; translated in generate_early.
@@ -864,6 +875,8 @@ class Scaling(Feature):
         # exactly the gap requiresClientFeatures exists to close.
         if blessing == 3:
             _needs.append("dlc_blessing_catchup")
+        if bool(world.options.scale_rune_rewards.value):
+            _needs.append("rune_reward_scaling")
         if _needs:
             out[contract.REQUIRES_CLIENT_FEATURES] = _needs
         if set(kept_regions) & DLC_REGIONS:

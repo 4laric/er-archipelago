@@ -2161,6 +2161,9 @@ class GreenfieldEldenRingWorld(World):
             # client-feature tag -- a client that ignores this key just plays at un-bumped co-op
             # difficulty. Needs enemy_scaling ON to do anything (no tier to bump otherwise).
             contract.COOP_DIFFICULTY: _opt("coop_difficulty"),
+            # #1091: direct NpcParam/GameAreaParam rune payouts follow the selected combat tier.
+            # Golden Rune goods are not params touched by the client and remain fixed-value items.
+            contract.SCALE_RUNE_REWARDS: _opt("scale_rune_rewards"),
             # Region Sync (#1005): seamless-co-op region sharing. 0 = off. Read straight from the
             # Toggle; the client (region_sync.rs) joins the RegionSync link group, broadcasts this
             # slot's region-opens and applies everyone else's. ACCESS ONLY -- the applied open is

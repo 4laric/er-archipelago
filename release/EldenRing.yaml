@@ -913,6 +913,12 @@ Elden Ring:
   # turned down, or accept spongier-and-harder.
   coop_difficulty: 0
 
+  # Scale runes dropped directly by enemies and bosses to the same sphere tier
+  # as their combat stats. This keeps reward per effort steadier when an early
+  # enemy appears late or a late boss appears early. Golden Rune ITEMS are never
+  # changed. Off by default; requires enemy_scaling to have an effect.
+  scale_rune_rewards: false
+
   # What your equipment WEIGHS, and therefore which roll you get.
   #   off     (default) equipment weighs what it weighs -- your kit is a budget
   #   light   equipment weighs nothing: always light roll, whatever you wear.
