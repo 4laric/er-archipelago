@@ -37,6 +37,10 @@ Entries arrive below as they merge.
   `flask_upgrades_on_progression_surface` option defaults off. When enabled it starts with the
   selected Progression Surface and widens through the existing reviewed fallback ladder only when
   needed to fit every copy; flask upgrades remain useful and never become logic or victory gates.
+- **Morgott's randomized arena boss now opens the two post-Morgott golden seals (#1100).** The
+  Morgott sweep credits Melina's post-boss Rold Medallion check and restores its vanilla acquisition
+  flag, opening both the Cathedral bottom seal and the Divine Tower approach without granting the
+  randomized medallion item directly.
 
 ## v0.5.4 — 2026-08-29
 
