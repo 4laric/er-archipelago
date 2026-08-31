@@ -40,6 +40,12 @@ TARNISHED_PACK_ARMOR_IDS = frozenset({
 
 TARNISHED_PACK_GOODS_IDS = frozenset({2_009_600, 2_009_610, 2_009_620})
 
+# Complete disposition census for rows which are intentionally not player-pool equipment. Keeping
+# these named beside the admitted roster makes the 31-row Patch 1.17 param diff auditable as a
+# partition rather than relying on an issue comment to remember why five IDs are absent.
+TARNISHED_PACK_NPC_ONLY_WEAPON_IDS = frozenset({3_910_000, 13_900_000})
+TARNISHED_PACK_TORRENT_ATTIRE_IDS = TARNISHED_PACK_GOODS_IDS
+
 # Player-receivable equipment only. Sources: the verified parameter/MSB census on #1096 plus live
 # menu witnesses; public post-release acquisition guides independently corroborate the display
 # names and routes. 3_910_000 and 13_900_000 are invasion-NPC weapon bases, not separate rewards.
@@ -95,6 +101,32 @@ TARNISHED_PACK_LOCATION_ORDER = (
     1_038_417_020, 1_047_427_000, 1_050_407_000,
 )
 TARNISHED_PACK_LOCATION_FLAGS = frozenset(TARNISHED_PACK_LOCATION_ORDER)
+
+# Acquisition-route census. ``admitted`` rows are exactly the finite merchant and persistent field
+# checks above. ``blocked_*`` rows are proven Patch 1.17 routes which remain outside generation until
+# their runtime semantics are observed; recording them here prevents a future census from silently
+# treating them as forgotten content. The tuple fields are (flag, route kind, disposition, label).
+TARNISHED_PACK_ROUTE_CENSUS = (
+    (150680, "merchant", "admitted", "Hefty Scimitar"),
+    (160660, "merchant", "admitted", "Steel Helm"),
+    (160670, "merchant", "admitted", "Steel Armor"),
+    (160680, "merchant", "admitted", "Steel Gauntlets"),
+    (160690, "merchant", "admitted", "Steel Greaves"),
+    (170090, "merchant", "admitted", "Silver Grooved Shield"),
+    (170100, "merchant", "admitted", "Silver Grooved Helm"),
+    (170110, "merchant", "admitted", "Silver Grooved Armor"),
+    (170120, "merchant", "admitted", "Silver Grooved Gauntlets"),
+    (170130, "merchant", "admitted", "Silver Grooved Greaves"),
+    (280960, "merchant", "admitted", "Reverse-Bladed Sword"),
+    (1_038_417_020, "field", "admitted", "Idus Sword"),
+    (1_047_427_000, "field", "admitted", "Ritual Thrusting Shield"),
+    (1_050_407_000, "field", "admitted", "Reed Great Katana"),
+    (60101, "torrent_attire", "blocked_activation", "Stormveil attire chest"),
+    (60102, "torrent_attire", "blocked_activation", "Ranni's Rise attire chest"),
+    (60103, "torrent_attire", "blocked_grant", "Capital Outskirts attire pickup"),
+    (11_007_952, "invasion", "blocked_missability", "Leyndell invasion reward"),
+    (1_052_397_500, "invasion", "blocked_missability", "Caelid invasion reward"),
+)
 
 # FullID category tags match ItemId::category in the client and the generated ITEM_CATALOG:
 # weapons=0x0..., armor=0x1..., goods=0x4....
