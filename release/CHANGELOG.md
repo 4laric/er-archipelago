@@ -21,6 +21,12 @@ and its merge commit is pinned by the gitlink in this change.
 
 Entries arrive below as they merge.
 
+- **Enemy and boss rune payouts can follow sphere difficulty (#1091, clients#536).** The new
+  default-off `scale_rune_rewards` option keeps direct runes-per-effort steadier when randomized
+  progression moves an early enemy late or a late boss early. Golden Rune inventory items are
+  never changed. Loaded regulation values are the immutable baseline, so the runtime pass does not
+  compound Matt's randomizer rewards across region changes.
+  
 - **Jagged Peak's Summit grace now unlocks with its region (#370).** Exact map positions place it
   outside and well above Bayle's arena anchor; Bayle's separate post-fight grace remains withheld.
 

@@ -898,6 +898,14 @@ OPTIONS_SUBKEYS = (
                 "folded into CONTRACT_HASH, so this adds no version pairing and an older client "
                 "simply never reads it -- it also needs no requiresClientFeatures, because a client "
                 "that ignores it merely plays at the un-bumped (current) co-op difficulty."),
+    ContractKey("scale_rune_rewards", "INT", False, (GREENFIELD,),
+                "core._options_echo (features/scaling.py)",
+                "er-logic/options.rs parse_bool_option -> rune_rewards.rs",
+                "opt-in direct rune payout scaling (#1091): NpcParam.getSoul and GameAreaParam "
+                "boss rewards follow the current sphere tier. 0 (default) = vanilla payouts. "
+                "Golden Rune goods are never in scope. An enabled seed declares "
+                "requiresClientFeatures [\"rune_reward_scaling\"] so an older client refuses "
+                "instead of silently ignoring the economy setting."),
     ContractKey("region_sync", "BOOL_OR_INT", False, (GREENFIELD,),
                 "core._options_echo (features/region_sync.py)",
                 "er-logic/options.rs parse_region_sync -> region_sync.rs apply_pending",

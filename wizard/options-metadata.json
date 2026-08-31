@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.5.5",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "532420de27168e3d3b4a482eda2a3991ce893558cccbb24cfc18291da4d4fd04",
+ "source_sha256": "19e328aee99c75bcad5c6fa7309c81825cf2d6929af8319c929c9512d5d7f6de",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -63,6 +63,7 @@
   "maximum_enemy_difficulty",
   "difficulty_ramp_speed",
   "coop_difficulty",
+  "scale_rune_rewards",
   "scadutree_blessing_scope",
   "dlc_blessing_catchup",
   "global_scadutree_blessing",
@@ -121,6 +122,7 @@
     "maximum_enemy_difficulty",
     "difficulty_ramp_speed",
     "coop_difficulty",
+    "scale_rune_rewards",
     "traps",
     "spawn_traps",
     "trap_count"
@@ -1778,6 +1780,23 @@
     "start": 0,
     "end": 9
    },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "scale_rune_rewards",
+   "class": "ScaleRuneRewards",
+   "display_name": "Scale Rune Rewards",
+   "description": "Scale direct enemy and boss rune payouts with sphere difficulty (#1091).\n\nOff by default. When enabled, ordinary `NpcParam.getSoul` and boss `GameAreaParam` payouts\nfollow the same region tier as combat, preserving the vanilla reward differences between\nenemies. Golden Rune inventory items are deliberately outside the feature.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
    "valid_keys": null,
    "casefold": false,
    "group": null,
