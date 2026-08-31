@@ -516,7 +516,8 @@ _OPTION_GROUPS = [
         "enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
         "difficulty_ramp_speed", "coop_difficulty", "traps", "spawn_traps", "trap_count"]),
     ("Checks & Item Pool", [
-        "dungeon_sweep", "full_area_sweeps", "reroll_enemy_drops", "reroll_mine_materials",
+        "dungeon_sweep", "full_area_sweeps", "reveal_sweep_boss_names",
+        "reroll_enemy_drops", "reroll_mine_materials",
         "protect_missable_locations", "armor_bundles",
         # vanilla_pool sits directly before curated_filler because it OVERRIDES it (#618): the
         # wizard renders a group in this order, and a player reading the recipe first would edit

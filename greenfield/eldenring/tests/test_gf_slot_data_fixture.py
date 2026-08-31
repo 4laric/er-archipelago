@@ -208,6 +208,8 @@ class SlotDataFixtureRich(WorldTestBase):
         # not just present-and-empty).
         self.assertEqual(sd["world_logic"], "region_lock")
         self.assertTrue(sd["dungeonSweepFlags"], "dungeon_sweep=all must emit sweep flags")
+        self.assertFalse(sd["revealSweepBossNames"],
+                         "hidden sweep boss names must remain opt-in (#1184)")
         # progressive_* is FROZEN OFF (defaults.py) -> progressiveGrants is emitted but empty.
         self.assertIsInstance(sd["progressiveGrants"], dict)
         self.assertTrue(sd["regionGraces"], "region locks must light region graces (bundle)")
@@ -263,3 +265,15 @@ class SlotDataFixtureDefault(WorldTestBase):
         b = self.world.fill_slot_data()
         self.assertEqual(set(a.keys()), set(b.keys()))
         self.assertEqual(a, b)
+
+
+class SweepBossNameRevealOptIn(WorldTestBase):
+    """#1184: the YAML toggle crosses the seed/client boundary without changing sweep data."""
+    game = GAME
+    options = {"reveal_sweep_boss_names": True}
+
+    def test_opt_in_is_emitted(self):
+        sd = self.world.fill_slot_data()
+        self.assertTrue(sd["revealSweepBossNames"])
+        self.assertTrue(sd["dungeonSweepFlags"],
+                        "the presentation toggle must not disable or replace sweep membership")

@@ -253,6 +253,16 @@ class FullAreaSweeps(Toggle):
     exactly zero for a seed with an empty surface -- an empty surface makes no claim, so there was
     nothing being taken back out to restore."""
     display_name = "Full Area Sweeps"
+
+
+class RevealSweepBossNames(Toggle):
+    """Show boss names for tracker sweep rows before their region has been opened.
+
+    Off by default so the tracker does not turn the sweep convenience into a boss spoiler.  This
+    is presentation-only: the emitted sweep groups, their members, and every logic rule are
+    identical either way; the client alone decides whether a locked row may reveal its label.
+    """
+    display_name = "Reveal Hidden Sweep Boss Names"
     default = 0
 
 
@@ -519,6 +529,7 @@ def key_gate_map(world):
 class BossLocks(Feature):
     name = "boss_locks"
     OPTIONS = {"dungeon_sweep": DungeonSweep, "full_area_sweeps": FullAreaSweeps,
+               "reveal_sweep_boss_names": RevealSweepBossNames,
                "boss_lock_placement": BossLockPlacement, "boss_keys": BossKeys}
     ITEMS = {n: ItemClassification.progression for n in _boss_key_names()}
 
@@ -561,6 +572,13 @@ class BossLocks(Feature):
         boss_locs = {r: [aid for (aid, _f, _n) in REGION_BOSSES[r]]
                      for r in REGION_BOSSES if r in kept}
         sd = {"bossLocations": boss_locs}
+        # Presentation-only tracker preference (#1184).  Emit it even when sweeps are off so the
+        # wire shape is stable and the setting remains inspectable in a generated seed.
+        sd[contract.REVEAL_SWEEP_BOSS_NAMES] = bool(world.options.reveal_sweep_boss_names.value)
+        if world.options.reveal_sweep_boss_names.value:
+            # A client predating #1184 would silently ignore the chosen spoiler policy. Refuse that
+            # pairing loudly only for opted-in seeds; the default remains compatible with old DLLs.
+            sd[contract.REQUIRES_CLIENT_FEATURES] = ["reveal_sweep_boss_names"]
         # Mode-A "Felled: <Boss>" trophy tracking (slot_data + client only; zero fill risk). The
         # client mints a 'Felled: <Boss>' trophy when the boss_flag fires; er-logic boss_felled /
         # region.rs read this map keyed by boss-defeat flag. Mode-B 'Boss Key' gate rides on the SAME

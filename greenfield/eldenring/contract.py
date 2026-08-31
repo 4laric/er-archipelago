@@ -1143,6 +1143,11 @@ CONTRACT = (
     ContractKey("reveal_all_maps", "BOOL", False, (BOTH,),
                 "features/start_grace.py", "startgrants.rs as_bool",
                 "reveal the whole world map + underground view (client owns the RE'd flag set)."),
+    ContractKey("revealSweepBossNames", "BOOL", False, (GREENFIELD,),
+                "features/boss_locks.py", "core.rs tracker sweep presentation",
+                "default-off presentation preference: allow the tracker to name sweep bosses whose "
+                "rows would otherwise be hidden behind a locked region. Does not change sweep "
+                "membership, firing, placement, or logic."),
     # --- goal ---
     ContractKey("progressionSurfaceLocations", "INT_LIST", False, (GREENFIELD,),
                 "features/progression_surface.py",

@@ -656,6 +656,17 @@
       "doc": "reveal the whole world map + underground view (client owns the RE'd flag set)."
     },
     {
+      "name": "revealSweepBossNames",
+      "shape": "BOOL",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/boss_locks.py",
+      "consumer": "core.rs tracker sweep presentation",
+      "doc": "default-off presentation preference: allow the tracker to name sweep bosses whose rows would otherwise be hidden behind a locked region. Does not change sweep membership, firing, placement, or logic."
+    },
+    {
       "name": "progressionSurfaceLocations",
       "shape": "INT_LIST",
       "required": false,
