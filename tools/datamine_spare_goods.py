@@ -192,15 +192,20 @@ def main():
         print(f"missing {epg} -- nothing written.", file=sys.stderr)
         return 1
 
-    exists = set()
+    caps = {}
     with open(epg, newline="", encoding="utf-8-sig") as fh:
         rdr = csv.DictReader(fh)
         id_col = rdr.fieldnames[0]                      # first column is the row ID
         for r in rdr:
             try:
-                exists.add(int(r[id_col]))
+                goods_id = int(r[id_col])
+                caps[goods_id] = (
+                    int(r.get("maxNum", 0) or 0),
+                    int(r.get("maxRepositoryNum", 0) or 0),
+                )
             except (ValueError, KeyError, TypeError):
                 continue
+    exists = set(caps)
 
     texts = _fmg_texts([os.path.join(AR, "msg", "item-msgbnd-dcx", "GoodsName.fmg.xml")] +
                        glob.glob(os.path.join(AR, "msg", "item_dlc0*-msgbnd-dcx", "GoodsName*.fmg.xml")))
@@ -328,9 +333,18 @@ def main():
         return 1
     _redirect = {g for g in spares if g in texts}
     _full = {g for g in spares if g in texts and g in _info and g in _cap}
-    _tier2 = sorted(_redirect - _full)
-    _tier3 = sorted(set(spares) - _redirect)
-    spares = sorted(_full) + _tier2 + _tier3
+    # Within each FMG capability tier, prefer rows whose vanilla params already have generous bag
+    # and storage caps (#965). The client raises these caps at runtime, but old contract-compatible
+    # clients do not; spending a high-cap row first makes those clients less likely to strand a
+    # second shop purchase. Keep the id as the final key so the order stays deterministic.
+    def _cap_priority(goods_id):
+        max_num, max_repository_num = caps[goods_id]
+        return (-max_num, -max_repository_num, goods_id)
+
+    _tier1 = sorted(_full, key=_cap_priority)
+    _tier2 = sorted(_redirect - _full, key=_cap_priority)
+    _tier3 = sorted(set(spares) - _redirect, key=_cap_priority)
+    spares = _tier1 + _tier2 + _tier3
     print(f"pool tiers: {len(_full)} redirectable+complete (emitted FIRST), {len(_tier2)} "
           f"redirectable name-only, {len(_tier3)} INSERTABLE (emitted LAST -- the client creates "
           f"their FMG entries, and a seed that spends one declares requiresClientFeatures).",
@@ -348,9 +362,11 @@ def main():
         f.write(f"# name-only; the last {len(_tier3)} are INSERTABLE (fmg_entry=0 -- no vanilla FMG\n")
         f.write("# entry; the client must create it, so a seed spending one of these declares\n")
         f.write("# requiresClientFeatures). shops.py indexes this pool positionally: order IS priority.\n")
-        f.write("goods_id\tfmg_full\tfmg_entry\n")
+        f.write("goods_id\tfmg_full\tfmg_entry\tmax_num\tmax_repository_num\n")
         for g in spares:
-            f.write(f"{g}\t{1 if g in _full else 0}\t{1 if g in _redirect else 0}\n")
+            max_num, max_repository_num = caps[g]
+            f.write(f"{g}\t{1 if g in _full else 0}\t{1 if g in _redirect else 0}\t"
+                    f"{max_num}\t{max_repository_num}\n")
     print(f"wrote {OUT}: {len(spares)} spare goods rows ({len(_redirect)} redirectable + "
           f"{len(_tier3)} insertable; exists={len(exists)} named={len(named)} "
           f"referenced={len(referenced)})")

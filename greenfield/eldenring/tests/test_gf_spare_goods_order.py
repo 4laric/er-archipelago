@@ -61,12 +61,14 @@ class SpareGoodsOrder(unittest.TestCase):
                     parts = ln.split("\t")
                     cls.rows.append((int(parts[0]),
                                      int(parts[1]) if len(parts) > 1 else 0,
-                                     int(parts[2]) if len(parts) > 2 else 1))
+                                     int(parts[2]) if len(parts) > 2 else 1,
+                                     int(parts[3]) if len(parts) > 3 else None,
+                                     int(parts[4]) if len(parts) > 4 else None))
 
     def test_the_table_carries_the_completeness_column(self):
         """Without it the order is unexplained and the next regen will drop it."""
         self.assertTrue(self.rows, "no data rows parsed out of spare_goods.tsv")
-        self.assertTrue(any(full for _g, full, _e in self.rows),
+        self.assertTrue(any(full for _g, full, _e, _m, _r in self.rows),
                         "no row is marked fmg_full -- either the column is gone or the FMG scan "
                         "found nothing, and an empty result is a FAILURE, not a clean run")
 
@@ -74,7 +76,7 @@ class SpareGoodsOrder(unittest.TestCase):
         """The tier-3 rows are the whole point of the 2026-08-20 widening: if every row is
         redirectable, the datamine never relaxed its FMG-entry gate (or the client lost the
         INSERT path that makes tier 3 usable)."""
-        entries = {e for _g, _f, e in self.rows}
+        entries = {e for _g, _f, e, _m, _r in self.rows}
         self.assertIn(0, entries,
                       "no row is marked insertable (fmg_entry=0) -- the pool is back to "
                       "redirect-only, which is the 65-row ceiling issue #937 widened past")
@@ -82,7 +84,7 @@ class SpareGoodsOrder(unittest.TestCase):
     def test_describable_rows_come_first(self):
         """THE assertion. A seed uses the pool positionally, so complete rows must be at the front."""
         seen_incomplete = False
-        for gid, full, _entry in self.rows:
+        for gid, full, _entry, _max_num, _max_repo in self.rows:
             if not full:
                 seen_incomplete = True
             elif seen_incomplete:
@@ -98,7 +100,7 @@ class SpareGoodsOrder(unittest.TestCase):
         break the provably-additive property: tiers 1+2 must reproduce the pre-widening pool
         exactly, so every insertable row sorts after every redirectable one."""
         seen_insertable = False
-        for gid, _full, entry in self.rows:
+        for gid, _full, entry, _max_num, _max_repo in self.rows:
             if entry == 0:
                 seen_insertable = True
             elif seen_insertable:
@@ -108,6 +110,23 @@ class SpareGoodsOrder(unittest.TestCase):
                     "client-creates-entry row first and need the newer client for no reason -- "
                     "and tiers 1+2 would no longer reproduce the pre-widening pool. Emit "
                     "insertable rows LAST (tools/datamine_spare_goods.py)." % gid)
+
+    def test_the_table_records_vanilla_hold_caps(self):
+        self.assertTrue(all(max_num is not None and max_repo is not None
+                            for _g, _f, _e, max_num, max_repo in self.rows),
+                        "spare_goods.tsv must record maxNum/maxRepositoryNum for every row (#965)")
+        self.assertTrue(any(max_num > 1 for _g, _f, _e, max_num, _r in self.rows),
+                        "cap census found no high-cap spare rows -- columns may be parsed wrong")
+
+    def test_high_cap_rows_are_preferred_within_each_fmg_tier(self):
+        tiers = {}
+        for goods_id, full, entry, max_num, max_repo in self.rows:
+            tiers.setdefault((full, entry), []).append((goods_id, max_num, max_repo))
+        for tier, rows in tiers.items():
+            priorities = [(-max_num, -max_repo, goods_id)
+                          for goods_id, max_num, max_repo in rows]
+            self.assertEqual(priorities, sorted(priorities),
+                             "FMG tier %r does not prefer high-cap spare rows (#965)" % (tier,))
 
     def test_the_generated_module_preserves_that_order(self):
         """gen_data used to `sorted(set(...))` this, which silently undoes the ordering.
@@ -123,7 +142,7 @@ class SpareGoodsOrder(unittest.TestCase):
         emitted = list(getattr(mod, "SPARE_PREVIEW_GOODS", ()))
         if not emitted:
             self.skipTest("SPARE_PREVIEW_GOODS empty in this tree")
-        self.assertEqual(emitted, [g for g, _f, _e in self.rows],
+        self.assertEqual(emitted, [g for g, _f, _e, _m, _r in self.rows],
                          "shop_data.SPARE_PREVIEW_GOODS does not match spare_goods.tsv row order -- "
                          "something re-sorted it, and the completeness ordering is lost")
         self.assertNotEqual(emitted, sorted(emitted),
@@ -142,7 +161,7 @@ class SpareGoodsOrder(unittest.TestCase):
         spec.loader.exec_module(mod)
         if not getattr(mod, "SPARE_PREVIEW_GOODS", ()):
             self.skipTest("SPARE_PREVIEW_GOODS empty in this tree")
-        want = sum(1 for _g, _f, e in self.rows if e == 1)
+        want = sum(1 for _g, _f, e, _m, _r in self.rows if e == 1)
         got = getattr(mod, "SPARE_PREVIEW_REDIRECTABLE", None)
         self.assertIsNotNone(got,
                              "shop_data.py has no SPARE_PREVIEW_REDIRECTABLE -- regen with a "
@@ -179,7 +198,7 @@ def bells():
             os.unlink(fixture_path)
         self.assertTrue(set(range(8910, 8966)) <= refs.keys())
         self.assertTrue(set(range(2008900, 2008911)) <= refs.keys())
-        spares = {goods_id for goods_id, _full, _e in self.rows}
+        spares = {goods_id for goods_id, _full, _e, _m, _r in self.rows}
         self.assertFalse(spares & refs.keys(),
                          "spare_goods.tsv contains a goods row inspected by talk ESD")
 

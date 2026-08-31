@@ -134,6 +134,8 @@
   "worlds/eldenring/tests/test_gf_play_region_buckets.py": 0.006,
   "worlds/eldenring/tests/test_gf_playarea_region_moves.py": 0.007,
   "worlds/eldenring/tests/test_gf_player_guide.py": 0.011,
+  "worlds/eldenring/tests/test_gf_precipice_rune_checks.py": 5.42,
+  "worlds/eldenring/tests/test_gf_rauh_boundary_proven.py": 0.01,
   "worlds/eldenring/tests/test_gf_pool_builder_categories.py": 30.342,
   "worlds/eldenring/tests/test_gf_pool_builder_intensity.py": 23.392,
   "worlds/eldenring/tests/test_gf_pool_builder_juice_protected.py": 2.187,
