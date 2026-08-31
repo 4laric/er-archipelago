@@ -43,11 +43,11 @@ LOCATIONS = {
         ('Roundtable Hold :: Gold-Pickled Fowl Foot - from Patches or Thiollier (region unconfirmed) [f110050]', 7770238, 110050),
         ('Roundtable Hold :: Parrying Dagger - from Patches or Thiollier (region unconfirmed) [f110080]', 7770239, 110080),
         ('Roundtable Hold :: Sacrificial Twig - from Patches or Thiollier (region unconfirmed) [f110110]', 7770240, 110110),
-        ('Roundtable Hold :: Festering Bloody Finger - from Patches or Thiollier (region unconfirmed) (1) [f110120]', 7770241, 110120),
+        ('Roundtable Hold :: Festering Bloody Finger - from Patches or Thiollier (region unconfirmed) [f110120]', 7770241, 110120),
         ('Roundtable Hold :: Grace Mimic - from Patches or Thiollier (region unconfirmed) [f110130]', 7770242, 110130),
-        ('Roundtable Hold :: Fan Daggers - from Patches or Thiollier (region unconfirmed) [f110140]', 7770243, 110140),
-        ('Roundtable Hold :: Festering Bloody Finger - from Patches or Thiollier (region unconfirmed) (2) [f110170]', 7770244, 110170),
-        ('Roundtable Hold :: Estoc - from Patches or Thiollier (region unconfirmed) [f110190]', 7770245, 110190),
+        ('Roundtable Hold :: Fan Daggers - from Patches (region unconfirmed) [f110140]', 7770243, 110140),
+        ('Roundtable Hold :: Festering Bloody Finger - from Patches (region unconfirmed) [f110170]', 7770244, 110170),
+        ('Roundtable Hold :: Estoc - from Patches (region unconfirmed) [f110190]', 7770245, 110190),
         ('Roundtable Hold :: Horse Crest Wooden Shield - from Patches or Thiollier (region unconfirmed) [f110220]', 7770246, 110220),
         ('Roundtable Hold :: [Incantation] Dragonfire (region unconfirmed) [f190000]', 7770455, 190000),
         ('Roundtable Hold :: [Incantation] Magma Breath (region unconfirmed) [f190020]', 7770457, 190020),
@@ -100,10 +100,10 @@ LOCATIONS = {
         ('Roundtable Hold :: Cracked Pot - m99_99 (region unconfirmed) [f99997020]', 7774108, 99997020),
         ('Roundtable Hold :: Perfume Bottle - m99_99 (region unconfirmed) [f99997030]', 7774109, 99997030),
         ('Roundtable Hold :: Larval Tear (region unconfirmed) [f1049557700]', 7774480, 1049557700),
-        ('Roundtable Hold :: Great Arrow - from Patches or Thiollier (region unconfirmed) (1) [f110150]', 7774575, 110150),
-        ('Roundtable Hold :: Ballista Bolt - from Patches or Thiollier (region unconfirmed) (1) [f110160]', 7774576, 110160),
-        ('Roundtable Hold :: Great Arrow - from Patches or Thiollier (region unconfirmed) (2) [f110200]', 7774577, 110200),
-        ('Roundtable Hold :: Ballista Bolt - from Patches or Thiollier (region unconfirmed) (2) [f110210]', 7774578, 110210),
+        ('Roundtable Hold :: Great Arrow - from Patches or Thiollier (region unconfirmed) [f110150]', 7774575, 110150),
+        ('Roundtable Hold :: Ballista Bolt - from Patches or Thiollier (region unconfirmed) [f110160]', 7774576, 110160),
+        ('Roundtable Hold :: Great Arrow - from Patches (region unconfirmed) [f110200]', 7774577, 110200),
+        ('Roundtable Hold :: Ballista Bolt - from Patches (region unconfirmed) [f110210]', 7774578, 110210),
         ('Roundtable Hold :: White Cipher Ring - from Twin Maiden Husks [f60280]', 7774588, 60280),
         ('Roundtable Hold :: Rapture - around Table of Lost Grace [f60843]', 7774600, 60843),
         ('Roundtable Hold :: My Lord [f60805]', 7774604, 60805),
@@ -5538,4 +5538,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:e1fd94cf9217a10f81c7d4562611168d7128d73fdbc6a377126e15b9f37e857c', 'module': 'data.py', 'body_sha256': 'sha256:5ba1a91442731be3e2169651be1524784f694b632e11fd8e1293053136dc90d2'}
+_GEN_STAMP = {'inputs_hash': 'sha256:d6d3f22b17170e28b98ed9fa83cb1f9f2c456f32455523324d6f1667de247b10', 'module': 'data.py', 'body_sha256': 'sha256:f624e5911d5a52caf9cf7e155b50badd966813a942c8095cf5bd20cdcc8ba600'}
