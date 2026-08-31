@@ -28,6 +28,11 @@ REVIEWED_PREREQUISITES = (
 # the evidence test cannot accidentally pretend that an item-possession root was a source-check flag.
 REVIEWED_ITEM_PREREQUISITES = (
     (8975, 400311, "Unalloyed Gold Needle"),
+    # Fia's ESD consumes the Cursemark and sets 12039161. Her common-event state manager then
+    # advances 4129 -> 4130; Fortissax's defeat advances 4130 -> 4131, and m12_03 awards lot 103350
+    # (f9502) only at state 4131. Placing the Cursemark on that Mending Rune check is therefore a
+    # direct self-lock, not a cone-level guess (#1085).
+    (8191, 9502, "Cursemark of Death"),
 )
 
 

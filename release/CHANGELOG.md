@@ -44,6 +44,9 @@ Entries arrive below as they merge.
   Morgott sweep credits Melina's post-boss Rold Medallion check and restores its vanilla acquisition
   flag, opening both the Cathedral bottom seal and the Divine Tower approach without granting the
   randomized medallion item directly.
+- **Fia's Mending Rune can no longer hold its own Cursemark prerequisite (#1085).** The placement
+  rule now follows the extracted handover, NPC-state, Fortissax, and corpse-award chain and rejects
+  a same-player Cursemark of Death at that dependent check.
 
 ## v0.5.4 — 2026-08-29
 
