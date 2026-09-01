@@ -3,7 +3,7 @@
 
 This is deliberately a reader only. It does not adjudicate claims or change runtime tables. The
 small checked-in fixture remains available to tests, while the committed page reads the normalized
-current-corpus ledger emitted by #1211. Phase 1 still carries no access evidence.
+current-corpus identity, region, and detection ledger. Phase 1 still carries no access evidence.
 
 Run: python3 tools/build_evidence_browser.py [--check] [--out PATH]
 """
@@ -23,7 +23,8 @@ OUT_HTML = os.path.join(REPO, "er-archipelago-evidence-browser.html")
 
 STATUSES = {"proven", "corroborated", "single_source", "conflicted", "inferred", "unverified"}
 RISKS = {"critical", "high", "medium", "low"}
-CLAIM_KINDS = {"identity", "region"}
+BROWSER_CLAIM_KINDS = {"identity", "region", "detection"}
+REQUIRED_CHECK_KINDS = {"identity", "region"}
 STANCES = {"supports", "contradicts", "silent", "ambiguous"}
 HEADERS = {
     "sources.tsv": ("source_id", "source_kind", "family_id", "title", "game_version",
@@ -101,8 +102,8 @@ def transform(tables: dict[str, list[dict[str, str]]]) -> dict:
         if row["active"] != "true":
             continue
         claim_id, kind = row["claim_id"], row["claim_kind"]
-        if row["subject_kind"] != "check" or kind not in CLAIM_KINDS:
-            raise ValueError(f"Phase 1 browser accepts active check identity/region claims only: {claim_id}")
+        if row["subject_kind"] != "check" or kind not in BROWSER_CLAIM_KINDS:
+            raise ValueError(f"Phase 1 browser does not support this active claim: {claim_id}")
         check_id = int(row["subject_id"])
         if claim_id != f"check:{check_id}/{kind}" or claim_id in seen_claims:
             raise ValueError(f"unstable or duplicate claim_id: {claim_id}")
@@ -121,8 +122,9 @@ def transform(tables: dict[str, list[dict[str, str]]]) -> dict:
         })
     checks = []
     for check_id, claims in sorted(by_check.items()):
-        if {c["claim_kind"] for c in claims} != CLAIM_KINDS:
-            raise ValueError(f"Phase 1 check {check_id} needs exactly identity and region claims")
+        kinds = {c["claim_kind"] for c in claims}
+        if len(kinds) != len(claims) or not REQUIRED_CHECK_KINDS <= kinds:
+            raise ValueError(f"Phase 1 check {check_id} needs unique identity and region claims")
         checks.append({"check_id": check_id, "name": f"Check {check_id}",
                        "claims": sorted(claims, key=lambda c: c["claim_kind"])})
     if not checks:
@@ -178,7 +180,7 @@ input,select,button{{width:100%;padding:9px;border:1px solid var(--line);border-
 .toolbar{{display:flex;gap:8px;align-items:center}} .toolbar button{{width:auto}} .empty{{padding:20px;color:var(--muted)}}
 @media(max-width:900px){{.layout{{display:block}}.queue{{border-right:0;border-bottom:1px solid var(--line)}}.filters{{grid-template-columns:1fr 1fr}}.questions{{grid-template-columns:1fr}}}}
 </style></head><body>
-<header><h1>Evidence audit · Phase 1</h1><div class="muted">Identity and region claims from <code>{contract['dataset']}</code> · reader only · no access evidence · <code>{stamp}</code></div></header>
+<header><h1>Evidence audit · Phase 1</h1><div class="muted">Identity, region, and detection claims from <code>{contract['dataset']}</code> · reader only · no access evidence · <code>{stamp}</code></div></header>
 <main class="layout"><section class="queue"><div class="filters">
 <input id="q" aria-label="Search" placeholder="Search check, claim, value, citation">
 <select id="status" aria-label="Status"><option value="">All statuses</option></select>

@@ -91,8 +91,11 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertGreater(len(subjects), 4000, "production browser fell back to the tiny fixture")
         self.assertEqual(len(data["checks"]), len(subjects))
         self.assertEqual(sum(len(check["claims"]) for check in data["checks"]), len(claims))
-        self.assertTrue(all(claim["status"] == "single_source"
-                            for check in data["checks"] for claim in check["claims"]))
+        self.assertEqual(
+            {row["claim_kind"] for row in claims}, {"identity", "region", "detection"})
+        self.assertEqual(
+            sorted(row["status"] for row in claims),
+            sorted(claim["status"] for check in data["checks"] for claim in check["claims"]))
 
     def test_small_fixture_still_exercises_conflicts_and_family_deduplication(self):
         data = BUILDER.load_fixture()
