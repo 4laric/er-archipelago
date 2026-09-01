@@ -50,7 +50,7 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
         for claim in self.bundle["claims"]:
             claims_by_subject.setdefault(claim["subject_id"], set()).add(claim["claim_kind"])
         self.assertEqual(len(claims_by_subject), self.bundle["diagnostics"]["locations"])
-        self.assertTrue(all(kinds == {"identity", "region"}
+        self.assertTrue(all({"identity", "region"}.issubset(kinds)
                             for kinds in claims_by_subject.values()))
 
     def test_two_transforms_of_one_family_do_not_corroborate(self):
@@ -73,6 +73,24 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
         self.assertTrue(all(json.loads(row["value"])["namespace"] == "flag"
                             for row in identities))
 
+    def test_map_lot_detection_has_exact_citations_and_one_family(self):
+        detections = [row for row in self.bundle["claims"]
+                      if row["claim_kind"] == "detection"]
+        self.assertTrue(detections)
+        self.assertEqual(len(detections), 4285)
+        self.assertTrue(all(row["status"] == "single_source" for row in detections))
+        evidence_by_id = {row["evidence_id"]: row for row in self.bundle["evidence"]}
+        source_by_id = {row["source_id"]: row for row in self.bundle["sources"]}
+        for claim in detections:
+            rows = [evidence_by_id[eid] for eid in claim["evidence_ids"].split(",")]
+            self.assertEqual(
+                {source_by_id[row["source_id"]]["family_id"] for row in rows},
+                {"game:param:ItemLotParam_map"},
+            )
+            self.assertTrue(all("table=map lot=" in row["citation"]
+                                and " getItemFlagId=" in row["citation"]
+                                for row in rows))
+
     def test_checked_in_bundle_validates_and_is_byte_deterministic(self):
         with tempfile.TemporaryDirectory() as tmp:
             first = Path(tmp) / "first"
@@ -88,7 +106,7 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
                              self.adapter.evidence_ledger.summary(first))
             claims = _read_tsv(first / "claims.tsv")
             evidence = _read_tsv(first / "evidence.tsv")
-            self.assertEqual(len(claims), 2 * self.bundle["diagnostics"]["locations"])
+            self.assertEqual(len(claims), len(self.bundle["claims"]))
             self.assertGreaterEqual(len(evidence), len(claims))
 
 

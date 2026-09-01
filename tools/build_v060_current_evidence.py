@@ -82,14 +82,37 @@ def _load_flag_region_overrides(path: Path) -> tuple[dict[int, dict], int]:
     return overrides, non_flag
 
 
-def _source_records(repo: Path, data_path: Path, override_path: Path, stamp: Mapping[str, str]):
+def _load_map_lot_detection(path: Path) -> dict[int, list[dict]]:
+    """Load exact ItemLotParam_map citations, grouped by their acquisition event flag."""
+    by_flag: dict[int, list[dict]] = {}
+    with path.open(encoding="utf-8", newline="") as handle:
+        rows = csv.DictReader(handle, delimiter="\t")
+        for line_number, row in enumerate(rows, start=2):
+            if row["table"] != "map":
+                continue
+            flag = int(row["flag"])
+            lot = int(row["lot"])
+            existing_lots = {entry["lot"] for entry in by_flag.setdefault(flag, [])}
+            if lot not in existing_lots:
+                by_flag[flag].append({"lot": lot, "line": line_number})
+    for rows in by_flag.values():
+        rows.sort(key=lambda row: (row["lot"], row["line"]))
+    return by_flag
+
+
+def _source_records(
+        repo: Path, data_path: Path, override_path: Path, lot_path: Path,
+        stamp: Mapping[str, str]):
     body_hash = str(stamp["body_sha256"])
     family_id = f"project:current-locations:{body_hash.removeprefix('sha256:')}"
     generated_id = f"project:data.py:{body_hash.removeprefix('sha256:')}"
     override_hash = _sha256(override_path)
     override_id = f"project:region-overrides:{override_hash.removeprefix('sha256:')}"
+    lot_hash = _sha256(lot_path)
+    lot_id = f"game:param:ItemLotParam_map:{lot_hash.removeprefix('sha256:')}"
     data_display = data_path.relative_to(repo).as_posix()
     override_display = override_path.relative_to(repo).as_posix()
+    lot_display = lot_path.relative_to(repo).as_posix()
     sources = [
         {
             "source_id": generated_id, "source_kind": "project_derivation",
@@ -97,6 +120,14 @@ def _source_records(repo: Path, data_path: Path, override_path: Path, stamp: Map
             "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE, "revision": body_hash,
             "url_or_path": data_display, "license": "project-derived",
             "environment_id": "", "supersedes": "",
+        },
+        {
+            "source_id": lot_id, "source_kind": "game_data",
+            "family_id": "game:param:ItemLotParam_map",
+            "title": "ItemLotParam_map acquisition flags",
+            "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+            "revision": lot_hash, "url_or_path": lot_display,
+            "license": "private-evidence", "environment_id": "", "supersedes": "",
         },
         {
             "source_id": override_id, "source_kind": "ruling",
@@ -111,20 +142,24 @@ def _source_records(repo: Path, data_path: Path, override_path: Path, stamp: Map
     sources.sort(key=lambda row: row["source_id"])
     return sources, {
         "family_id": family_id, "generated_id": generated_id, "override_id": override_id,
-        "body_hash": body_hash, "override_hash": override_hash,
+        "lot_id": lot_id, "body_hash": body_hash, "override_hash": override_hash,
+        "lot_hash": lot_hash,
     }
 
 
 def build_records(repo: Path) -> dict:
     data_path = repo / "greenfield" / "eldenring" / "data.py"
     override_path = repo / "greenfield" / "region_overrides.tsv"
+    lot_path = repo / "greenfield" / "flag_lots.tsv"
     locations, stamp = _load_generated_locations(data_path)
     overrides, non_flag_overrides = _load_flag_region_overrides(override_path)
-    sources, source = _source_records(repo, data_path, override_path, stamp)
+    map_lots = _load_map_lot_detection(lot_path)
+    sources, source = _source_records(repo, data_path, override_path, lot_path, stamp)
     environments: list[dict] = []
     evidence: list[dict] = []
     claims: list[dict] = []
     matched_override_flags: set[int] = set()
+    matched_map_lot_flags: set[int] = set()
 
     for location in locations:
         ap_id, flag = location["ap_id"], location["flag"]
@@ -157,6 +192,41 @@ def build_records(repo: Path) -> dict:
             "last_reviewed": REVIEW_DATE, "review_issue": "#1211", "active": "true",
             "supersedes": "",
         })
+
+        lot_rows = map_lots.get(flag, [])
+        if lot_rows:
+            matched_map_lot_flags.add(flag)
+            detection_claim_id = f"check:{ap_id}/detection"
+            detection_value = {"mechanism": "ItemLotParam_map.getItemFlagId", "flag": flag}
+            detection_evidence_ids = []
+            for lot_row in lot_rows:
+                evidence_id = (
+                    f"game:param:ItemLotParam_map:{lot_row['lot']}:"
+                    f"getItemFlagId:check-{ap_id}")
+                detection_evidence_ids.append(evidence_id)
+                evidence.append({
+                    "evidence_id": evidence_id, "claim_id": detection_claim_id,
+                    "source_id": source["lot_id"], "stance": "supports",
+                    "value": _json(detection_value),
+                    "citation": (
+                        f"greenfield/flag_lots.tsv:{lot_row['line']} table=map "
+                        f"lot={lot_row['lot']} getItemFlagId={flag}"),
+                    "method": "tools/build_v060_current_evidence.py:map_lot_detection",
+                    "independence_notes": (
+                        "Rows from ItemLotParam_map share one game:param family; multiple lot "
+                        "rows are one witness, not corroboration."),
+                    "valid_from": GAME_VERSION, "valid_to": "",
+                    "notes": "Exact map-lot acquisition flag from the committed param census.",
+                })
+            claims.append({
+                "claim_id": detection_claim_id, "subject_kind": "check",
+                "subject_id": str(ap_id), "claim_kind": "detection",
+                "game_version": GAME_VERSION, "value": _json(detection_value),
+                "status": "single_source", "risk": "high", "adjudication": "automatic",
+                "evidence_ids": ",".join(sorted(detection_evidence_ids)),
+                "last_reviewed": REVIEW_DATE, "review_issue": "#1220", "active": "true",
+                "supersedes": "",
+            })
 
         region_value = location["region"]
         generated_region_evidence_id = (
@@ -231,6 +301,10 @@ def build_records(repo: Path) -> dict:
             "flag_overrides_matched": len(matched_override_flags),
             "flag_overrides_without_current_check": len(set(overrides) - matched_override_flags),
             "non_flag_overrides_out_of_scope": non_flag_overrides,
+            "map_lot_rows": sum(len(rows) for rows in map_lots.values()),
+            "map_lot_flags": len(map_lots),
+            "map_lot_flags_matched": len(matched_map_lot_flags),
+            "map_lot_flags_without_current_check": len(set(map_lots) - matched_map_lot_flags),
         },
     }
 
