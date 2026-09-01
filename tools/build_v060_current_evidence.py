@@ -100,6 +100,33 @@ def _load_map_lot_detection(path: Path) -> dict[int, list[dict]]:
     return by_flag
 
 
+def _load_perfect_order_access(path: Path) -> dict[str, object]:
+    """Load the one exact f9500 WaitFor site; its param join is not a detection witness."""
+    matches = []
+    with path.open(encoding="utf-8", newline="") as handle:
+        header = ""
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip() or line.startswith("#"):
+                continue
+            if not header:
+                header = line
+                continue
+            row = next(csv.DictReader([header, line], delimiter="\t"))
+            if row["check_flag"] != "9500" or row["context"] != "commonarg/WaitFor":
+                continue
+            matches.append({
+                "line": line_number, "gate_flag": int(row["gate_flag"]),
+                "context": row["context"], "event_id": int(row["event_id"]),
+                "source": row["source"], "evidence": row["evidence"],
+                "gate_map": row["gate_map"],
+            })
+    if len(matches) != 1 or matches[0]["gate_flag"] != 11059206:
+        raise RuntimeError(f"f9500 WaitFor corpus changed: {matches!r}")
+    if matches[0]["event_id"] != 90005750:
+        raise RuntimeError(f"f9500 WaitFor event changed: {matches!r}")
+    return matches[0]
+
+
 def _source_records(
         repo: Path, data_path: Path, override_path: Path, lot_path: Path,
         stamp: Mapping[str, str]):
@@ -151,10 +178,23 @@ def build_records(repo: Path) -> dict:
     data_path = repo / "greenfield" / "eldenring" / "data.py"
     override_path = repo / "greenfield" / "region_overrides.tsv"
     lot_path = repo / "greenfield" / "flag_lots.tsv"
+    lot_gates_path = repo / "greenfield" / "lot_gates.tsv"
     locations, stamp = _load_generated_locations(data_path)
     overrides, non_flag_overrides = _load_flag_region_overrides(override_path)
     map_lots = _load_map_lot_detection(lot_path)
+    perfect_order_access = _load_perfect_order_access(lot_gates_path)
     sources, source = _source_records(repo, data_path, override_path, lot_path, stamp)
+    lot_gates_hash = _sha256(lot_gates_path)
+    lot_gates_source_id = f"game:emevd-lot-gates:{lot_gates_hash.removeprefix('sha256:')}"
+    sources.append({
+        "source_id": lot_gates_source_id, "source_kind": "game_data",
+        "family_id": "game:emevd:m11_05_00_00:90005750",
+        "title": "Mending Rune of Perfect Order f9500 WaitFor call site",
+        "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+        "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
+        "license": "private-evidence", "environment_id": "", "supersedes": "",
+    })
+    sources.sort(key=lambda row: row["source_id"])
     environments: list[dict] = []
     evidence: list[dict] = []
     claims: list[dict] = []
@@ -279,6 +319,41 @@ def build_records(repo: Path) -> dict:
             "supersedes": "",
         })
 
+    perfect_order = [row for row in locations if row["flag"] == 9500]
+    if len(perfect_order) != 1:
+        raise RuntimeError(f"expected one current f9500 check, found {perfect_order!r}")
+    perfect_order_ap_id = perfect_order[0]["ap_id"]
+    access_claim_id = f"check:{perfect_order_ap_id}/access"
+    access_value = {"type": "flag", "flag": perfect_order_access["gate_flag"]}
+    access_evidence_id = "game:emevd:m11_05_00_00:90005750:f9500:gate-11059206:access"
+    evidence.append({
+        "evidence_id": access_evidence_id, "claim_id": access_claim_id,
+        "source_id": lot_gates_source_id, "stance": "supports",
+        "value": _json(access_value),
+        "citation": (
+            f"greenfield/lot_gates.tsv:{perfect_order_access['line']} check_flag=9500 "
+            f"gate_flag=11059206; {perfect_order_access['source']} "
+            f"event={perfect_order_access['event_id']} {perfect_order_access['context']} "
+            f"{perfect_order_access['evidence']} {perfect_order_access['gate_map']}"
+        ),
+        "method": "tools/build_v060_current_evidence.py:perfect_order_waitfor_access",
+        "independence_notes": (
+            "The one WaitFor call is one EMEVD family; the f9500 association is joined through "
+            "ItemLotParam/flag_lots and is not independent detection evidence."
+        ),
+        "valid_from": GAME_VERSION, "valid_to": "",
+        "notes": "Positive WaitFor prerequisite; one call site has semantics=single.",
+    })
+    claims.append({
+        "claim_id": access_claim_id, "subject_kind": "check",
+        "subject_id": str(perfect_order_ap_id), "claim_kind": "access",
+        "game_version": GAME_VERSION, "value": _json(access_value),
+        "status": "single_source", "risk": "critical", "adjudication": "automatic",
+        "evidence_ids": access_evidence_id,
+        "last_reviewed": REVIEW_DATE, "review_issue": "#1232", "active": "true",
+        "supersedes": "",
+    })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -305,6 +380,7 @@ def build_records(repo: Path) -> dict:
             "map_lot_flags": len(map_lots),
             "map_lot_flags_matched": len(matched_map_lot_flags),
             "map_lot_flags_without_current_check": len(set(map_lots) - matched_map_lot_flags),
+            "perfect_order_access_claims": 1,
         },
     }
 
