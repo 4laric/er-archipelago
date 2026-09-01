@@ -18,6 +18,7 @@ ROOT = Path(_FOUND) if _FOUND else None
 LEDGER = ROOT / "greenfield/evidence/v060-current" if ROOT else None
 DISPOSITIONS = LEDGER / "access_dispositions.tsv" if LEDGER else None
 SUMMARY = LEDGER / "access_dispositions_summary.json" if LEDGER else None
+BASELINE = LEDGER / "access_dispositions_baseline.json" if LEDGER else None
 access = None
 if RUNNING_FROM_REPO:
     tools = ROOT / "tools"
@@ -52,6 +53,61 @@ class AccessDispositionTests(unittest.TestCase):
         committed = json.loads(SUMMARY.read_text())
         self.assertGreater(generated["checks_total"], 0)
         self.assertEqual(committed, generated)
+
+    def test_current_census_does_not_regress_from_reviewed_baseline(self):
+        current = access.ratchet_snapshot(LEDGER, DISPOSITIONS)
+        baseline = json.loads(BASELINE.read_text())
+        self.assertGreater(current["checks_total"], 0)
+        self.assertEqual(access.compare_ratchet(current, baseline), [])
+
+    def test_ratchet_rejects_more_blockers_or_lost_evidence(self):
+        baseline = access.ratchet_snapshot(LEDGER, DISPOSITIONS)
+        more_blockers = dict(baseline, release_blockers=baseline["release_blockers"] + 1)
+        self.assertIn("release_blockers increased", access.compare_ratchet(more_blockers, baseline))
+        lost = dict(baseline, linked_access_claim_ids=baseline["linked_access_claim_ids"][1:])
+        errors = access.compare_ratchet(lost, baseline)
+        self.assertTrue(any("evidence disappeared" in error for error in errors))
+
+    def test_ratchet_protects_resolved_rows_but_allows_encoding_them(self):
+        baseline = access.ratchet_snapshot(LEDGER, DISPOSITIONS)
+        baseline["resolved_dispositions"] = {"7770008|all": "region_sufficient"}
+        lost = dict(baseline, resolved_dispositions={})
+        errors = access.compare_ratchet(lost, baseline)
+        self.assertTrue(any("resolved disposition regressed" in error for error in errors))
+        encoded = dict(
+            baseline,
+            resolved_dispositions={"7770008|all": "encoded"},
+        )
+        self.assertEqual(access.compare_ratchet(encoded, baseline), [])
+
+    def test_one_unresolved_row_can_split_into_two_resolved_option_rows(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "access_dispositions.tsv"
+            lines = DISPOSITIONS.read_text().splitlines()
+            index = next(i for i, line in enumerate(lines) if "check:7770008/access" in line)
+            fields = lines[index].split("\t")
+            self.assertEqual(fields[2:5], ["unresolved", "critical", "all"])
+            first = fields[:]
+            first[2:5] = ["region_sufficient", "critical", "festival_route"]
+            second = fields[:]
+            second[2:5] = ["region_sufficient", "critical", "quest_route"]
+            lines[index:index + 1] = ["\t".join(first), "\t".join(second)]
+            path.write_text("\n".join(lines) + "\n")
+            baseline = access.ratchet_snapshot(LEDGER, DISPOSITIONS)
+            current = access.ratchet_snapshot(LEDGER, path)
+            self.assertEqual(current["release_blockers"], baseline["release_blockers"] - 1)
+            self.assertEqual(access.compare_ratchet(current, baseline), [])
+
+    def test_all_option_cannot_overlap_specific_option_rows(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "access_dispositions.tsv"
+            lines = DISPOSITIONS.read_text().splitlines()
+            index = next(i for i, line in enumerate(lines) if "check:7770008/access" in line)
+            duplicate = lines[index].replace("\tall", "\tspecific_route", 1)
+            lines.insert(index + 1, duplicate)
+            path.write_text("\n".join(lines) + "\n")
+            with self.assertRaisesRegex(access.AccessDispositionError, "cannot coexist"):
+                access.validate(LEDGER, path)
 
     def test_missing_check_cannot_disappear_from_the_census(self):
         with tempfile.TemporaryDirectory() as td:
