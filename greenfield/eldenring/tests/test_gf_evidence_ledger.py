@@ -483,7 +483,37 @@ class EvidenceLedgerTests(unittest.TestCase):
         self.assertEqual(
             schema["environment_artifacts"]["digest"], "lowercase sha256:<64 hex>"
         )
+        self.assertEqual(
+            schema["typed_values"]["integers"],
+            "exact JSON integers; booleans are forbidden",
+        )
         self.assertEqual({k:tuple(v) for k,v in schema["tables"].items()},ledger.HEADERS)
+
+    def test_noncanonical_json_value_is_rejected_before_hashing(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_status_fixture(td)
+            claims = dst / "claims.tsv"
+            canonical = '{"ap_id":105,"flag":400105,"id":50105,"namespace":"lot"}'
+            reordered = '{"namespace":"lot","id":50105,"flag":400105,"ap_id":105}'
+            self.assertNotEqual(canonical, reordered)
+            self.assertEqual(json.loads(canonical), json.loads(reordered))
+            claims.write_text(claims.read_text().replace(canonical, reordered))
+
+            with self.assertRaisesRegex(ledger.LedgerError, "canonical JSON"):
+                ledger.validate(dst)
+
+    def test_boolean_is_not_an_integer_identifier(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_status_fixture(td)
+            old = '{"ap_id":105,"flag":400105,"id":50105,"namespace":"lot"}'
+            new = '{"ap_id":true,"flag":400105,"id":50105,"namespace":"lot"}'
+            self.assertIs(type(json.loads(new)["ap_id"]), bool)
+            for name in ("claims.tsv", "evidence.tsv"):
+                path = dst / name
+                path.write_text(path.read_text().replace(old, new))
+
+            with self.assertRaisesRegex(ledger.LedgerError, "invalid identity value"):
+                ledger.validate(dst)
 
     def test_flag_is_a_first_class_identity_namespace(self):
         with tempfile.TemporaryDirectory() as td:
