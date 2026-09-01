@@ -80,9 +80,55 @@ class FixtureContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "exact citation"):
             BUILDER.transform(tables)
 
+    def test_external_leads_cannot_promote_core_claims(self):
+        tables = BUILDER.normalized_tables(BUILDER.FIXTURE)
+        sources, leads = BUILDER.wiki_tables()
+        bad = copy.deepcopy(leads[:1])
+        bad[0]["disposition"] = "corroborated"
+        with self.assertRaisesRegex(ValueError, "lead-only boundary"):
+            BUILDER.transform(tables, external_sources=sources, external_leads=bad)
+
+        bad = copy.deepcopy(leads[:1])
+        bad[0]["source_ids"] = "wiki:missing"
+        with self.assertRaisesRegex(ValueError, "dangling sources"):
+            BUILDER.transform(tables, external_sources=sources, external_leads=bad)
+
 
 @unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class OfflineArtifactTests(unittest.TestCase):
+    def test_wiki_leads_are_total_and_partitioned_without_changing_core_status(self):
+        baseline = BUILDER.transform(
+            BUILDER.normalized_tables(BUILDER.CURRENT),
+            BUILDER.validate_access_dispositions(
+                BUILDER.Path(BUILDER.CURRENT),
+                BUILDER.Path(BUILDER.CURRENT, BUILDER.ACCESS_FILE),
+            ),
+        )
+        data = BUILDER.load_ledger()
+        _sources, registry = BUILDER.wiki_tables()
+        linked = [lead for check in data["checks"] for lead in check["external_leads"]]
+        unbound = data["unbound_external_leads"]
+        self.assertEqual(
+            sorted(lead["lead_id"] for lead in linked + unbound),
+            sorted(row["lead_id"] for row in registry),
+        )
+        self.assertEqual(len(linked), sum(row["subject_kind"] == "check" for row in registry))
+        self.assertEqual(len(unbound), sum(row["subject_kind"] != "check" for row in registry))
+        self.assertTrue(all(lead["disposition"] == "lead_only" for lead in linked + unbound))
+        self.assertTrue(all(lead["game_version"] == "unknown" for lead in linked + unbound))
+        self.assertEqual(
+            [(c["claim_id"], c["status"], c["value"])
+             for check in baseline["checks"] for c in check["claims"]],
+            [(c["claim_id"], c["status"], c["value"])
+             for check in data["checks"] for c in check["claims"]],
+        )
+
+    def test_wiki_registries_participate_in_the_content_hash(self):
+        self.assertEqual(BUILDER.load_ledger()["inputs_hash"],
+                         BUILDER.ledger_hash(BUILDER.CURRENT, BUILDER.WIKI_AUDIT))
+        self.assertNotEqual(BUILDER.ledger_hash(BUILDER.CURRENT),
+                            BUILDER.ledger_hash(BUILDER.CURRENT, BUILDER.WIKI_AUDIT))
+
     def test_committed_page_uses_the_full_current_corpus(self):
         data = BUILDER.load_ledger()
         claims = BUILDER.normalized_tables(BUILDER.CURRENT)["claims.tsv"]
@@ -144,7 +190,7 @@ class OfflineArtifactTests(unittest.TestCase):
         html = BUILDER.build().decode("utf-8")
         for facet in (
             'id="status"', 'id="risk"', 'id="kind"', 'id="family"',
-            'id="disposition"', 'id="blocker"',
+            'id="disposition"', 'id="external"', 'id="blocker"',
         ):
             self.assertIn(facet, html)
         for question in (
@@ -169,12 +215,16 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertIn("Access disposition", html)
         self.assertIn("v0.6 release blocker.", html)
         self.assertIn("${blockers} release blockers", html)
+        self.assertIn("External wiki leads", html)
+        self.assertIn("Unbound external leads", html)
+        self.assertIn("Lead only: external agreement does not alter", html)
+        self.assertIn("Immutable citations:", html)
 
     def test_permalink_serialises_every_facet_and_selected_claim(self):
         html = BUILDER.build().decode("utf-8")
         self.assertIn("new URLSearchParams(location.hash.slice(1))", html)
         self.assertIn("history.replaceState(null,'','#'+hashParams(selected).toString())", html)
-        for key in ("q", "status", "risk", "kind", "family", "disposition", "blocker"):
+        for key in ("q", "status", "risk", "kind", "family", "disposition", "external", "blocker"):
             self.assertIn(f"'{key}'", html)
         self.assertIn("p.set('claim',selected)", html)
         self.assertIn("new URL(location.href)", html)
@@ -189,6 +239,8 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertIn("a.check_id-b.check_id||a.claim_kind.localeCompare(b.claim_kind)", html)
         self.assertIn("'access_dispositions','option_sets','release_blocker'", html)
         self.assertIn("'disposition_reasons','disposition_review_issues','permalink'", html)
+        self.assertIn("'external_lead_count','external_lead_ids','external_claim_kinds'", html)
+        self.assertIn("'external_families','external_game_versions','external_dispositions'", html)
         self.assertIn("new Set(c.evidence.map(e=>e.family_id)).size", html)
         self.assertIn("String(value??'').replace(/[\\t\\r\\n]+/g,' ')", html)
         self.assertIn("if(/^[=+\\-@]/.test(s))s=\"'\"+s", html)
