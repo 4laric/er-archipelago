@@ -95,6 +95,8 @@ class EvidenceBaselineValidation(unittest.TestCase):
         reviewed = baseline.load_summary(
             os.path.join(REPO, "greenfield", "evidence", "v060-current-baseline.json")
         )
+        self.assertGreater(current["claims_total"], 0)
+        self.assertEqual(current["claims_total"], reviewed["claims_total"])
         self.assertEqual([], baseline.compare(current, reviewed))
 
     def test_accepts_complete_consistent_summary(self):
