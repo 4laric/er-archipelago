@@ -12,6 +12,12 @@
     "public_locator_scheme": "https",
     "revision_max_chars": 256
   },
+  "environment_artifacts": {
+    "artifact_hashes": "non-empty JSON object",
+    "artifact_id": "canonical relative POSIX path",
+    "digest": "lowercase sha256:<64 hex>",
+    "missing_strength": "lead"
+  },
   "family_source_kinds": {
     "game:": ["game_data"],
     "project:": ["project_derivation", "ruling"],
