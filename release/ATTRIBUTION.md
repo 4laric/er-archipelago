@@ -76,6 +76,12 @@ The two tools compose: matt's rewrites the game's files, ours touches none of th
 `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md` -- and note that item randomization must be OFF
 in matt's, because that part is ours.
 
+Separately, our research tooling uses **ESDLang** (also thefifthmatt) as a decompiler when
+deriving talk-ESD facts from a legitimately owned installation
+(`tools/datamine_esd_gates.py`, `tools/extract_questline_conditions.py`). We ship neither
+ESDLang nor any decompiled source -- only the derived fact tables those tools emit, each row
+carrying its own citation (see `PROVENANCE.md`, *Separately licensed questline evidence*).
+
 ---
 
 *Elden Ring and Shadow of the Erdtree are trademarks of FromSoftware / Bandai

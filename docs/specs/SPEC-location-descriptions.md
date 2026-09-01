@@ -51,8 +51,8 @@ on the Windows datamine having run. `gen_data` loads them (`_load_flag_str_tsv`)
 ## §4 — nearest-grace coordinate datamine (Windows)
 
 Grace-distance used to come from the old C# randomizer's `ap_location_coords` dump; that tool was
-purged in the greenfield restructure, so `tools/build_location_remoteness.py` /
-`Archipelago/worlds/eldenring/location_remoteness.py` are dead relics. The coordinates are re-sourced
+purged in the greenfield restructure, and its last relics (`tools/build_location_remoteness.py`,
+the never-regenerated `location_remoteness.py` it wrote) are now deleted from the tree. The coordinates are re-sourced
 from the witchy'd MSBs, mirroring two verified datamines
 (`datamine_msb_item_regions.py` for flag derivation, `datamine_arena_graces.py` for map-local
 positions):
