@@ -1,0 +1,18 @@
+{
+  "active_conflicts": 0,
+  "by_kind": {
+    "identity": 4923,
+    "region": 4923
+  },
+  "by_risk": {
+    "high": 4923,
+    "medium": 4923
+  },
+  "by_status": {
+    "inferred": 4923,
+    "single_source": 4923
+  },
+  "claims_total": 9846,
+  "content_hash": "sha256:b88fb8c2f5314fdf11e4e50f75040125031d6c28c0d4f64e53d29bd3bb5c787f",
+  "schema_version": "v0.6-phase1-adapter-1"
+}
