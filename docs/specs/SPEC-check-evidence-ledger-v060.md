@@ -2,9 +2,11 @@
 
 **Status:** proposed (2026-08-31)
 
-**Tracks:** [#1208](https://github.com/4laric/er-archipelago/issues/1208)
+**Tracks:** [#1208](https://github.com/4laric/er-archipelago/issues/1208),
+[#1271](https://github.com/4laric/er-archipelago/issues/1271)
 
-**Related:** #1092, #1085, `PROVENANCE.md`, `CONTRIBUTING.md`,
+**Related:** #1092, [#1085](https://github.com/4laric/er-archipelago/issues/1085),
+[#1080](https://github.com/4laric/er-archipelago/issues/1080), `PROVENANCE.md`, `CONTRIBUTING.md`,
 `SPEC-provenance-oracle-20260710.md`, `SPEC-questline-dag-20260728.md`
 
 ## 1. Promise
@@ -251,6 +253,38 @@ ruling can settle `region` when the evidence describes multiple legitimate prese
 claim status is `proven` only as **project policy**, labelled `adjudication=design_ruling`; the
 underlying geography disagreement stays visible.
 
+### 6.3 v0.6 per-check access gate
+
+Region ownership is not access proof. For v0.6, every enabled check needs an active `access` claim
+whose structured value separates the owning region from any additional requirement and records one
+logic disposition:
+
+| disposition | meaning |
+|---|---|
+| `region_sufficient` | reviewed evidence proves that reaching the owning region is sufficient |
+| `encoded` | the accepted access expression is enforced by Archipelago reachability logic |
+| `excluded` | the check is not enabled for the affected option set, with a linked issue/ruling |
+| `waived` | a dated, explicitly reviewed release exception; never inferred from legacy behavior |
+| `unresolved` | requirements or their AND/OR structure are not established |
+
+An absent access claim is `unresolved`, not `region_sufficient`. A location's current region entrance
+rule is not evidence that its item, shop, boss, or quest award can be collected. High- or
+critical-risk `unresolved` access, including a claim below its section 6.1 shipping bar, blocks the
+v0.6 release unless the check is `excluded` or has an explicit `waived` disposition. Exclusions and
+waivers require a review issue, affected option set, reason, owner, and expiry or next-review date;
+a blanket waiver for a region or claim family is invalid.
+
+Only accepted expressions may affect generated reachability. An incomplete quest cone must remain
+`unresolved`: the generator must not turn every observed predecessor into a guessed AND rule, nor
+discard alternative routes and accidentally turn OR into AND. Evidence extraction and expression
+encoding are tracked by #1085 and #1080; #1271 owns the complete per-check audit, disposition, and
+release gate.
+
+Initial regression examples include Lamenter's Gaol keys, Patches' shop state, the alternative
+Radahn Festival routes, Sellen/Jerren endings, transformed map variants, warp-only entrances, bell
+bearings, seals, gestures, and boss/event order. Each example is a class to census, not a licence to
+copy one rule across every member.
+
 ## 7. Pipeline and ownership
 
 ```
@@ -341,6 +375,24 @@ Gate complete coverage in this order:
 Each rung ships only after its exact population and exception list are measured. Exceptions carry
 an issue and expiry/review date; a blank exception is a failure.
 
+For v0.6, rung 2 is a release gate rather than a post-release ratchet: every enabled check must have
+an access claim and logic disposition as defined in section 6.3. The generated report must fail on
+missing dispositions and on unresolved high/critical access claims without a valid exclusion or
+waiver. It must also drift-check the accepted `encoded` expressions against the reachability rules
+shipped by the world.
+
+### Current-corpus access gap (2026-09-01)
+
+The normalized current-corpus ledger at `66d50a54` contains 4,923 region claims but only 8 access
+claims. Therefore **4,915 checks have no access claim at all**. The 8 present access claims are all
+`critical` and `single_source`, below section 6.1's `proven` shipping bar. On the evidence ledger
+alone, **0 of 4,923 checks currently satisfy the full v0.6 access gate**.
+
+This is a migration census, not a finding that 4,923 runtime rules are wrong. Many checks will
+graduate cheaply to `region_sufficient`; the ledger currently has no auditable row saying so. The
+count must be regenerated from `claims.tsv`, split by disposition/risk/option set, and ratcheted in
+release review rather than copied forward as a permanent constant.
+
 ## 10. Migration plan
 
 Each step is independently useful and shippable.
@@ -396,6 +448,11 @@ The v0.6 audit promise is met when:
 
 - every shipped check has ledger rows for `identity`, `region`, `access`, `detection`, and
   `suppression`, including explicit `unverified` rows where necessary;
+- every enabled check has one section 6.3 logic disposition for each applicable option set;
+- every `encoded` access expression is present in generated Archipelago reachability logic and
+  protected by a drift test;
+- no unresolved high/critical region-only check ships unless it has a valid, dated exclusion or
+  waiver linked to its review issue;
 - every progression-bearing check meets the critical/high shipping bars for all applicable claims;
 - every active contradiction is visible in the browser and linked to an issue or ruling;
 - every evidence row has a source snapshot, version scope, exact citation, and independence family;
