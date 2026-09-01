@@ -40,6 +40,11 @@ WIKI_LEAD_HEADERS = (
     "source_ids", "independence_families", "disposition", "game_version",
     "exact_citations", "summary", "limitations",
 )
+ELDENPEDIA_PAGE_HEADERS = (
+    "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1",
+    "title", "canonical_url", "revision_url", "wiki_region", "ap_regions",
+    "notable_loot_links", "disposition",
+)
 
 STATUSES = {"proven", "corroborated", "single_source", "conflicted", "inferred", "unverified"}
 RISKS = {"critical", "high", "medium", "low"}
@@ -102,6 +107,23 @@ def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict
             raise ValueError(f"wiki-audit/{name} has duplicate primary ids")
         return rows
     sources = read("sources.tsv", WIKI_SOURCE_HEADERS)
+    eldenpedia_manifest = os.path.join(path, "eldenpedia-location-pages.tsv")
+    if os.path.exists(eldenpedia_manifest):
+        # The location corpus has page-level immutable revision records rather than pretending 341
+        # revisions are independently authored sources.tsv entries. Adapt only the browser fields.
+        for row in read("eldenpedia-location-pages.tsv", ELDENPEDIA_PAGE_HEADERS):
+            sources.append({
+                "source_id": row["source_id"], "publisher": "Eldenpedia",
+                "author": "Eldenpedia contributors", "title": row["title"],
+                "canonical_url": row["canonical_url"], "revision_url": row["revision_url"],
+                "archived_at": row["revision_timestamp"], "published_at": "unknown",
+                "last_modified": row["revision_timestamp"],
+                "body_sha256": "mediawiki-sha1:" + row["revision_sha1"],
+                "license": "CC BY-SA 4.0",
+                "provenance": "immutable MediaWiki page revision",
+                "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
+                "disposition": row["disposition"],
+            })
     leads = [row for name in wiki_lead_files(path)
              for row in read(name, WIKI_LEAD_HEADERS)]
     lead_ids = [row["lead_id"] for row in leads]
@@ -252,7 +274,10 @@ def ledger_hash(path: str = CURRENT, wiki_path: str | None = None) -> str:
         with open(access_path, "rb") as fh:
             digest.update(fh.read())
     if wiki_path:
-        for name in ("sources.tsv", *wiki_lead_files(wiki_path)):
+        names = ["sources.tsv", *wiki_lead_files(wiki_path)]
+        if os.path.exists(os.path.join(wiki_path, "eldenpedia-location-pages.tsv")):
+            names.append("eldenpedia-location-pages.tsv")
+        for name in sorted(names):
             digest.update(("wiki-audit/" + name).encode() + b"\0")
             with open(os.path.join(wiki_path, name), "rb") as fh:
                 digest.update(fh.read())
