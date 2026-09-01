@@ -27,7 +27,7 @@ SPEC.loader.exec_module(AUDIT)
 
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (4, 5))
+        self.assertEqual(AUDIT.validate(REPO), (7, 7))
 
     def test_lamenter_pilot_preserves_lead_only_scope(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
@@ -65,6 +65,27 @@ class WikiAuditTest(unittest.TestCase):
         self.assertIn('PATCHES_REGIONS = ("Limgrave", "Mt. Gelmir", "Cerulean")', rows_test)
         self.assertIn("Margit's Shackle - from Patches or Thiollier", generated)
         self.assertIn("7770235, 110000", generated)
+
+    def test_sellen_jerren_pilot_keeps_terminal_choices_distinct(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            leads = {row["lead_id"]: row for row in csv.DictReader(handle, delimiter="\t")}
+        sellen = leads["sellen-ending-eccentrics-hood"]
+        jerren = leads["jerren-ending-ancient-dragon-stone"]
+        self.assertEqual((sellen["subject_id"], jerren["subject_id"]),
+                         ("7770618", "7773737"))
+        self.assertIn('"choice":"aid_Sellen_against_Jerren"', sellen["normalized_value"])
+        self.assertIn('"choice":"aid_Jerren_against_Sellen"', jerren["normalized_value"])
+        self.assertIn("speak_to_Jerren_after_battle", jerren["normalized_value"])
+        self.assertNotEqual(sellen["normalized_value"], jerren["normalized_value"])
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in (sellen, jerren)))
+
+    def test_sellen_jerren_report_comparison_still_matches_current_world_inputs(self):
+        generated = (REPO / "greenfield" / "eldenring" / "data.py").read_text(encoding="utf-8")
+        questline = (REPO / "greenfield" / "questline_dag.tsv").read_text(encoding="utf-8")
+        self.assertIn("Raya Lucaria Academy :: Eccentric's Hood", generated)
+        self.assertIn("Caelid :: Ancient Dragon Smithing Stone - around Smoldering Church", generated)
+        self.assertIn("3371\t400400\tset\ttalk 312001400", questline)
 
 
 if __name__ == "__main__":
