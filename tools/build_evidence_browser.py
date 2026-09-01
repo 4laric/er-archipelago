@@ -94,7 +94,14 @@ def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict
         if len(keys) != len(set(keys)):
             raise ValueError(f"wiki-audit/{name} has duplicate primary ids")
         return rows
-    return read("sources.tsv", WIKI_SOURCE_HEADERS), read("leads.tsv", WIKI_LEAD_HEADERS)
+    sources = read("sources.tsv", WIKI_SOURCE_HEADERS)
+    leads = read("leads.tsv", WIKI_LEAD_HEADERS) + read(
+        "walkthrough-check-leads.tsv", WIKI_LEAD_HEADERS
+    )
+    lead_ids = [row["lead_id"] for row in leads]
+    if len(lead_ids) != len(set(lead_ids)):
+        raise ValueError("wiki-audit lead registries have duplicate primary ids across files")
+    return sources, leads
 
 
 def graduation(status: str, risk: str) -> str:
@@ -239,7 +246,7 @@ def ledger_hash(path: str = CURRENT, wiki_path: str | None = None) -> str:
         with open(access_path, "rb") as fh:
             digest.update(fh.read())
     if wiki_path:
-        for name in ("sources.tsv", "leads.tsv"):
+        for name in ("sources.tsv", "leads.tsv", "walkthrough-check-leads.tsv"):
             digest.update(("wiki-audit/" + name).encode() + b"\0")
             with open(os.path.join(wiki_path, name), "rb") as fh:
                 digest.update(fh.read())
