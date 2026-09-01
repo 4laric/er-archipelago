@@ -23,6 +23,11 @@ FIXTURE = (
     if ROOT
     else None
 )
+LIVE_FIXTURE = (
+    ROOT / "greenfield" / "evidence" / "fixtures" / "live_testimony"
+    if ROOT
+    else None
+)
 ledger = None
 if RUNNING_FROM_REPO:
     spec = importlib.util.spec_from_file_location("evidence_ledger", TOOL)
@@ -32,6 +37,44 @@ if RUNNING_FROM_REPO:
 
 @unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class EvidenceLedgerTests(unittest.TestCase):
+    @staticmethod
+    def _copy_live_fixture(directory):
+        dst = Path(directory)
+        shutil.copytree(LIVE_FIXTURE, dst, dirs_exist_ok=True)
+        return dst
+
+    def test_reproducible_testimony_is_one_family_not_proof(self):
+        result = ledger.validate(LIVE_FIXTURE)
+        self.assertEqual(result.statuses["check:200/region"], "single_source")
+
+    def test_testimony_source_version_must_match_its_environment(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_live_fixture(td)
+            sources = dst / "sources.tsv"
+            sources.write_text(sources.read_text().replace("\t1.17\t2026-", "\t1.16\t2026-"))
+            with self.assertRaisesRegex(ledger.LedgerError, "game_version must match"):
+                ledger.validate(dst)
+
+    def test_testimony_citation_names_the_exact_observation_revision(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_live_fixture(td)
+            evidence = dst / "evidence.tsv"
+            evidence.write_text(evidence.read_text().replace("message msg-123", "message msg-1234"))
+            with self.assertRaisesRegex(ledger.LedgerError, "citation must name source revision"):
+                ledger.validate(dst)
+
+    def test_unknown_client_build_keeps_testimony_as_a_lead(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_live_fixture(td)
+            environments = dst / "environments.tsv"
+            environments.write_text(
+                environments.read_text().replace("\tclient-sha-abc\t", "\tunknown\t")
+            )
+            claims = dst / "claims.tsv"
+            claims.write_text(claims.read_text().replace("\tsingle_source\t", "\tunverified\t"))
+            result = ledger.validate(dst)
+            self.assertEqual(result.statuses["check:200/region"], "unverified")
+
     def test_real_failure_shapes_derive_honest_statuses(self):
         result = ledger.validate(FIXTURE)
         self.assertEqual(result.statuses["check:100/region"], "single_source", "two outputs sharing one family are one witness")
@@ -58,6 +101,10 @@ class EvidenceLedgerTests(unittest.TestCase):
         self.assertEqual(schema["schema_version"],1)
         self.assertEqual(schema["claim_kinds"],sorted(ledger.CLAIM_KINDS))
         self.assertEqual(schema["identity_namespaces"], sorted(ledger.IDENTITY_NAMESPACES))
+        self.assertEqual(
+            schema["live_testimony"]["exact_build_fields"],
+            list(ledger.LIVE_EXACT_BUILD_FIELDS),
+        )
         self.assertEqual(schema["statuses"],sorted(ledger.STATUSES))
         self.assertEqual({k:tuple(v) for k,v in schema["tables"].items()},ledger.HEADERS)
 
