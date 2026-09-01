@@ -82,6 +82,39 @@ def _load_flag_region_overrides(path: Path) -> tuple[dict[int, dict], int]:
     return overrides, non_flag
 
 
+def _load_stormhill_access(path: Path) -> list[dict[str, object]]:
+    """Load the exact f400191 WaitFor sites without treating their join as detection evidence."""
+    matches = []
+    with path.open(encoding="utf-8", newline="") as handle:
+        header = ""
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip() or line.startswith("#"):
+                continue
+            if not header:
+                header = line
+                continue
+            row = next(csv.DictReader([header, line], delimiter="\t"))
+            if row["check_flag"] != "400191" or row["context"] != "commonarg/WaitFor":
+                continue
+            matches.append({
+                "line": line_number,
+                "gate_flag": int(row["gate_flag"]),
+                "context": row["context"],
+                "event_id": int(row["event_id"]),
+                "source": row["source"],
+                "evidence": row["evidence"],
+                "gate_map": row["gate_map"],
+                "gate_test_map": row["gate_test_map"],
+            })
+    matches.sort(key=lambda row: int(row["gate_flag"]))
+    expected = [3708, 3709, 1041389414]
+    if [row["gate_flag"] for row in matches] != expected:
+        raise RuntimeError(f"f400191 WaitFor corpus changed: {matches!r}")
+    if {row["event_id"] for row in matches} != {90005750}:
+        raise RuntimeError(f"f400191 WaitFor event changed: {matches!r}")
+    return matches
+
+
 def _source_records(repo: Path, data_path: Path, override_path: Path, stamp: Mapping[str, str]):
     body_hash = str(stamp["body_sha256"])
     family_id = f"project:current-locations:{body_hash.removeprefix('sha256:')}"
@@ -118,9 +151,23 @@ def _source_records(repo: Path, data_path: Path, override_path: Path, stamp: Map
 def build_records(repo: Path) -> dict:
     data_path = repo / "greenfield" / "eldenring" / "data.py"
     override_path = repo / "greenfield" / "region_overrides.tsv"
+    lot_gates_path = repo / "greenfield" / "lot_gates.tsv"
     locations, stamp = _load_generated_locations(data_path)
     overrides, non_flag_overrides = _load_flag_region_overrides(override_path)
     sources, source = _source_records(repo, data_path, override_path, stamp)
+    stormhill_access = _load_stormhill_access(lot_gates_path)
+    lot_gates_hash = _sha256(lot_gates_path)
+    lot_gates_source_id = f"game:emevd-lot-gates:{lot_gates_hash.removeprefix('sha256:')}"
+    sources.append({
+        "source_id": lot_gates_source_id, "source_kind": "game_data",
+        # All three calls use one common-event mechanism. They are alternatives, not witnesses.
+        "family_id": "game:emevd:m60_41_38_00:90005750",
+        "title": "Stormhill Shack f400191 WaitFor call sites",
+        "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+        "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
+        "license": "private-evidence", "environment_id": "", "supersedes": "",
+    })
+    sources.sort(key=lambda row: row["source_id"])
     environments: list[dict] = []
     evidence: list[dict] = []
     claims: list[dict] = []
@@ -209,6 +256,52 @@ def build_records(repo: Path) -> dict:
             "supersedes": "",
         })
 
+    stormhill = [row for row in locations if row["flag"] == 400191]
+    if len(stormhill) != 1:
+        raise RuntimeError(f"expected one current f400191 check, found {stormhill!r}")
+    stormhill_ap_id = stormhill[0]["ap_id"]
+    access_claim_id = f"check:{stormhill_ap_id}/access"
+    access_value = {
+        "type": "any",
+        "conditions": [{"type": "flag", "flag": row["gate_flag"]}
+                       for row in stormhill_access],
+    }
+    access_evidence_ids = []
+    for row in stormhill_access:
+        gate_flag = row["gate_flag"]
+        evidence_id = (
+            f"game:emevd:m60_41_38_00:90005750:f400191:gate-{gate_flag}:access")
+        access_evidence_ids.append(evidence_id)
+        locator = row["gate_map"] or row["gate_test_map"]
+        evidence.append({
+            "evidence_id": evidence_id, "claim_id": access_claim_id,
+            "source_id": lot_gates_source_id, "stance": "supports",
+            "value": _json(access_value),
+            "citation": (
+                f"greenfield/lot_gates.tsv:{row['line']} check_flag=400191 "
+                f"gate_flag={gate_flag}; "
+                f"{row['source']} event={row['event_id']} {row['context']} "
+                f"{row['evidence']} {locator}"
+            ),
+            "method": "tools/build_v060_current_evidence.py:stormhill_waitfor_access",
+            "independence_notes": (
+                "One of three OR arms in the same EMEVD common-event family; the f400191 "
+                "association is joined through ItemLotParam/flag_lots and is not independent "
+                "detection evidence."
+            ),
+            "valid_from": GAME_VERSION, "valid_to": "",
+            "notes": "Positive WaitFor prerequisite; separate call sites form one any group.",
+        })
+    claims.append({
+        "claim_id": access_claim_id, "subject_kind": "check",
+        "subject_id": str(stormhill_ap_id), "claim_kind": "access",
+        "game_version": GAME_VERSION, "value": _json(access_value),
+        "status": "single_source", "risk": "critical", "adjudication": "automatic",
+        "evidence_ids": ",".join(sorted(access_evidence_ids)),
+        "last_reviewed": REVIEW_DATE, "review_issue": "#1226", "active": "true",
+        "supersedes": "",
+    })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -231,6 +324,7 @@ def build_records(repo: Path) -> dict:
             "flag_overrides_matched": len(matched_override_flags),
             "flag_overrides_without_current_check": len(set(overrides) - matched_override_flags),
             "non_flag_overrides_out_of_scope": non_flag_overrides,
+            "stormhill_access_claims": 1,
         },
     }
 
