@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import importlib.util
+import json
 import unittest
 from pathlib import Path
 
@@ -27,7 +28,7 @@ SPEC.loader.exec_module(AUDIT)
 
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (10, 11))
+        self.assertEqual(AUDIT.validate(REPO), (12, 13))
 
     def test_lamenter_pilot_preserves_lead_only_scope(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
@@ -138,6 +139,43 @@ class WikiAuditTest(unittest.TestCase):
         self.assertIn("7770002\tcheck:7770002/access\tregion_sufficient", dispositions)
         self.assertIn("7770665\tcheck:7770665/access\tregion_sufficient", dispositions)
         self.assertIn('""runtime_bypass"":{""flag"":9410', claims)
+
+    def test_carian_pilot_partitions_standard_and_inverted_routes(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            leads = {row["lead_id"]: row for row in csv.DictReader(handle, delimiter="\t")}
+        standard = leads["carian-study-hall-standard-route"]
+        inverted = leads["carian-study-hall-inverted-route"]
+        standard_value = json.loads(standard["normalized_value"])
+        inverted_value = json.loads(inverted["normalized_value"])
+
+        self.assertEqual(standard_value["layout"], "standard")
+        self.assertFalse(standard_value["requires_carian_inverted_statue"])
+        self.assertEqual(inverted_value["layout"], "inverted_bridge_tower")
+        self.assertIn("Carian Inverted Statue", inverted["normalized_value"])
+        self.assertTrue(set(standard_value["ap_ids"]).isdisjoint(inverted_value["ap_ids"]))
+        self.assertEqual(len(standard_value["ap_ids"]), 5)
+        self.assertEqual(len(inverted_value["ap_ids"]), 10)
+        self.assertTrue(all(row["game_version"] == "unknown" for row in (standard, inverted)))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in (standard, inverted)))
+
+    def test_carian_leads_match_current_project_partition_without_becoming_proof(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            leads = {row["lead_id"]: row for row in csv.DictReader(handle, delimiter="\t")}
+        inverted = json.loads(leads["carian-study-hall-inverted-route"]["normalized_value"])
+        standard = json.loads(leads["carian-study-hall-standard-route"]["normalized_value"])
+        feature = (REPO / "greenfield" / "eldenring" / "features" /
+                   "legacy_key_gates.py").read_text(encoding="utf-8")
+        generated = (REPO / "greenfield" / "eldenring" / "data.py").read_text(encoding="utf-8")
+
+        for ap_id in inverted["ap_ids"] + standard["ap_ids"]:
+            self.assertIn(f", {ap_id}, 341", generated)
+        self.assertIn('"Carian Inverted Statue": frozenset({', feature)
+        self.assertIn("# Standard side stays open:", feature)
+        self.assertIn("comparison, not circular evidence", (
+            REPO / "greenfield" / "evidence" / "wiki-audit" /
+            "carian-study-hall.md").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":
