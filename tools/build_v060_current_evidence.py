@@ -82,6 +82,24 @@ def _load_flag_region_overrides(path: Path) -> tuple[dict[int, dict], int]:
     return overrides, non_flag
 
 
+def _load_map_lot_detection(path: Path) -> dict[int, list[dict]]:
+    """Load exact ItemLotParam_map citations, grouped by their acquisition event flag."""
+    by_flag: dict[int, list[dict]] = {}
+    with path.open(encoding="utf-8", newline="") as handle:
+        rows = csv.DictReader(handle, delimiter="\t")
+        for line_number, row in enumerate(rows, start=2):
+            if row["table"] != "map":
+                continue
+            flag = int(row["flag"])
+            lot = int(row["lot"])
+            existing_lots = {entry["lot"] for entry in by_flag.setdefault(flag, [])}
+            if lot not in existing_lots:
+                by_flag[flag].append({"lot": lot, "line": line_number})
+    for rows in by_flag.values():
+        rows.sort(key=lambda row: (row["lot"], row["line"]))
+    return by_flag
+
+
 def _load_stormhill_access(path: Path) -> list[dict[str, object]]:
     """Load the exact f400191 WaitFor sites without treating their join as detection evidence."""
     matches = []
@@ -97,32 +115,32 @@ def _load_stormhill_access(path: Path) -> list[dict[str, object]]:
             if row["check_flag"] != "400191" or row["context"] != "commonarg/WaitFor":
                 continue
             matches.append({
-                "line": line_number,
-                "gate_flag": int(row["gate_flag"]),
-                "context": row["context"],
-                "event_id": int(row["event_id"]),
-                "source": row["source"],
-                "evidence": row["evidence"],
-                "gate_map": row["gate_map"],
-                "gate_test_map": row["gate_test_map"],
+                "line": line_number, "gate_flag": int(row["gate_flag"]),
+                "context": row["context"], "event_id": int(row["event_id"]),
+                "source": row["source"], "evidence": row["evidence"],
+                "gate_map": row["gate_map"], "gate_test_map": row["gate_test_map"],
             })
     matches.sort(key=lambda row: int(row["gate_flag"]))
-    expected = [3708, 3709, 1041389414]
-    if [row["gate_flag"] for row in matches] != expected:
+    if [row["gate_flag"] for row in matches] != [3708, 3709, 1041389414]:
         raise RuntimeError(f"f400191 WaitFor corpus changed: {matches!r}")
     if {row["event_id"] for row in matches} != {90005750}:
         raise RuntimeError(f"f400191 WaitFor event changed: {matches!r}")
     return matches
 
 
-def _source_records(repo: Path, data_path: Path, override_path: Path, stamp: Mapping[str, str]):
+def _source_records(
+        repo: Path, data_path: Path, override_path: Path, lot_path: Path,
+        stamp: Mapping[str, str]):
     body_hash = str(stamp["body_sha256"])
     family_id = f"project:current-locations:{body_hash.removeprefix('sha256:')}"
     generated_id = f"project:data.py:{body_hash.removeprefix('sha256:')}"
     override_hash = _sha256(override_path)
     override_id = f"project:region-overrides:{override_hash.removeprefix('sha256:')}"
+    lot_hash = _sha256(lot_path)
+    lot_id = f"game:param:ItemLotParam_map:{lot_hash.removeprefix('sha256:')}"
     data_display = data_path.relative_to(repo).as_posix()
     override_display = override_path.relative_to(repo).as_posix()
+    lot_display = lot_path.relative_to(repo).as_posix()
     sources = [
         {
             "source_id": generated_id, "source_kind": "project_derivation",
@@ -130,6 +148,14 @@ def _source_records(repo: Path, data_path: Path, override_path: Path, stamp: Map
             "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE, "revision": body_hash,
             "url_or_path": data_display, "license": "project-derived",
             "environment_id": "", "supersedes": "",
+        },
+        {
+            "source_id": lot_id, "source_kind": "game_data",
+            "family_id": "game:param:ItemLotParam_map",
+            "title": "ItemLotParam_map acquisition flags",
+            "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+            "revision": lot_hash, "url_or_path": lot_display,
+            "license": "private-evidence", "environment_id": "", "supersedes": "",
         },
         {
             "source_id": override_id, "source_kind": "ruling",
@@ -144,23 +170,25 @@ def _source_records(repo: Path, data_path: Path, override_path: Path, stamp: Map
     sources.sort(key=lambda row: row["source_id"])
     return sources, {
         "family_id": family_id, "generated_id": generated_id, "override_id": override_id,
-        "body_hash": body_hash, "override_hash": override_hash,
+        "lot_id": lot_id, "body_hash": body_hash, "override_hash": override_hash,
+        "lot_hash": lot_hash,
     }
 
 
 def build_records(repo: Path) -> dict:
     data_path = repo / "greenfield" / "eldenring" / "data.py"
     override_path = repo / "greenfield" / "region_overrides.tsv"
+    lot_path = repo / "greenfield" / "flag_lots.tsv"
     lot_gates_path = repo / "greenfield" / "lot_gates.tsv"
     locations, stamp = _load_generated_locations(data_path)
     overrides, non_flag_overrides = _load_flag_region_overrides(override_path)
-    sources, source = _source_records(repo, data_path, override_path, stamp)
+    map_lots = _load_map_lot_detection(lot_path)
     stormhill_access = _load_stormhill_access(lot_gates_path)
+    sources, source = _source_records(repo, data_path, override_path, lot_path, stamp)
     lot_gates_hash = _sha256(lot_gates_path)
     lot_gates_source_id = f"game:emevd-lot-gates:{lot_gates_hash.removeprefix('sha256:')}"
     sources.append({
         "source_id": lot_gates_source_id, "source_kind": "game_data",
-        # All three calls use one common-event mechanism. They are alternatives, not witnesses.
         "family_id": "game:emevd:m60_41_38_00:90005750",
         "title": "Stormhill Shack f400191 WaitFor call sites",
         "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
@@ -172,6 +200,7 @@ def build_records(repo: Path) -> dict:
     evidence: list[dict] = []
     claims: list[dict] = []
     matched_override_flags: set[int] = set()
+    matched_map_lot_flags: set[int] = set()
 
     for location in locations:
         ap_id, flag = location["ap_id"], location["flag"]
@@ -204,6 +233,41 @@ def build_records(repo: Path) -> dict:
             "last_reviewed": REVIEW_DATE, "review_issue": "#1211", "active": "true",
             "supersedes": "",
         })
+
+        lot_rows = map_lots.get(flag, [])
+        if lot_rows:
+            matched_map_lot_flags.add(flag)
+            detection_claim_id = f"check:{ap_id}/detection"
+            detection_value = {"mechanism": "ItemLotParam_map.getItemFlagId", "flag": flag}
+            detection_evidence_ids = []
+            for lot_row in lot_rows:
+                evidence_id = (
+                    f"game:param:ItemLotParam_map:{lot_row['lot']}:"
+                    f"getItemFlagId:check-{ap_id}")
+                detection_evidence_ids.append(evidence_id)
+                evidence.append({
+                    "evidence_id": evidence_id, "claim_id": detection_claim_id,
+                    "source_id": source["lot_id"], "stance": "supports",
+                    "value": _json(detection_value),
+                    "citation": (
+                        f"greenfield/flag_lots.tsv:{lot_row['line']} table=map "
+                        f"lot={lot_row['lot']} getItemFlagId={flag}"),
+                    "method": "tools/build_v060_current_evidence.py:map_lot_detection",
+                    "independence_notes": (
+                        "Rows from ItemLotParam_map share one game:param family; multiple lot "
+                        "rows are one witness, not corroboration."),
+                    "valid_from": GAME_VERSION, "valid_to": "",
+                    "notes": "Exact map-lot acquisition flag from the committed param census.",
+                })
+            claims.append({
+                "claim_id": detection_claim_id, "subject_kind": "check",
+                "subject_id": str(ap_id), "claim_kind": "detection",
+                "game_version": GAME_VERSION, "value": _json(detection_value),
+                "status": "single_source", "risk": "high", "adjudication": "automatic",
+                "evidence_ids": ",".join(sorted(detection_evidence_ids)),
+                "last_reviewed": REVIEW_DATE, "review_issue": "#1220", "active": "true",
+                "supersedes": "",
+            })
 
         region_value = location["region"]
         generated_region_evidence_id = (
@@ -279,9 +343,8 @@ def build_records(repo: Path) -> dict:
             "value": _json(access_value),
             "citation": (
                 f"greenfield/lot_gates.tsv:{row['line']} check_flag=400191 "
-                f"gate_flag={gate_flag}; "
-                f"{row['source']} event={row['event_id']} {row['context']} "
-                f"{row['evidence']} {locator}"
+                f"gate_flag={gate_flag}; {row['source']} event={row['event_id']} "
+                f"{row['context']} {row['evidence']} {locator}"
             ),
             "method": "tools/build_v060_current_evidence.py:stormhill_waitfor_access",
             "independence_notes": (
@@ -324,6 +387,10 @@ def build_records(repo: Path) -> dict:
             "flag_overrides_matched": len(matched_override_flags),
             "flag_overrides_without_current_check": len(set(overrides) - matched_override_flags),
             "non_flag_overrides_out_of_scope": non_flag_overrides,
+            "map_lot_rows": sum(len(rows) for rows in map_lots.values()),
+            "map_lot_flags": len(map_lots),
+            "map_lot_flags_matched": len(matched_map_lot_flags),
+            "map_lot_flags_without_current_check": len(set(map_lots) - matched_map_lot_flags),
             "stormhill_access_claims": 1,
         },
     }

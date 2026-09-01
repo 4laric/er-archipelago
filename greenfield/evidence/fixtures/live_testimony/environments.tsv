@@ -1,0 +1,2 @@
+environment_id	game_version	dlc_version	apworld_version	client_version	seed_id	yaml_options	launcher	mods	regulation	save_provenance	reproduction_steps	result	artifact_hashes	artifact_location
+env:run-1	1.17	1.17	apworld-0.5.5	client-sha-abc	seed-123	{"num_regions":8}	ap.me3	[]	vanilla-1.17	fresh-copy	Warp to the grace and collect the pickup	Flag 400200 became true	{"screenshot":"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}	private:discord-attachment

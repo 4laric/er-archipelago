@@ -15,6 +15,7 @@ from pathlib import Path
 
 CLAIM_KINDS = {"identity", "region", "access", "detection", "suppression", "sweep_owner", "alternate_acquisition", "description"}
 IDENTITY_NAMESPACES = {"item", "lot", "shop", "entity", "flag"}
+LIVE_EXACT_BUILD_FIELDS = ("game_version", "dlc_version", "apworld_version", "client_version")
 SOURCE_KINDS = {"game_data", "external_reference", "live_testimony", "project_derivation", "ruling"}
 STANCES = {"supports", "contradicts", "silent", "ambiguous"}
 STATUSES = {"proven", "corroborated", "single_source", "conflicted", "inferred", "unverified"}
@@ -73,9 +74,15 @@ def _typed_value(kind: str, value, where: str) -> None:
 def _canon(value) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
+def _citation_names_revision(citation: str, revision: str) -> bool:
+    pattern = rf"(?<![A-Za-z0-9]){re.escape(revision)}(?![A-Za-z0-9])"
+    return re.search(pattern, citation) is not None
+
 def _complete_environment(row: dict[str, str]) -> bool:
     required = ("game_version", "dlc_version", "apworld_version", "client_version", "seed_id", "yaml_options", "launcher", "mods", "regulation", "save_provenance", "reproduction_steps", "result", "artifact_hashes", "artifact_location")
-    return all(row[key].strip() for key in required)
+    if not all(row[key].strip() for key in required):
+        return False
+    return all(row[key].strip().lower() != "unknown" for key in LIVE_EXACT_BUILD_FIELDS)
 
 @dataclass(frozen=True)
 class Result:
@@ -137,7 +144,12 @@ def validate(directory: Path) -> Result:
         if row["retrieved_at"] and not DATE.match(row["retrieved_at"]): raise LedgerError(f"{sid}: invalid retrieved_at")
         if row["source_kind"] not in SOURCE_KINDS: raise LedgerError(f"{sid}: unknown source_kind")
         if not row["family_id"].startswith(FAMILY_PREFIXES): raise LedgerError(f"{sid}: unknown family_id")
-        if row["source_kind"] == "live_testimony" and row["environment_id"] not in envs: raise LedgerError(f"{sid}: live testimony needs a referenced environment")
+        if row["source_kind"] == "live_testimony":
+            if row["environment_id"] not in envs:
+                raise LedgerError(f"{sid}: live testimony needs a referenced environment")
+            environment = envs[row["environment_id"]]
+            if row["game_version"] != environment["game_version"]:
+                raise LedgerError(f"{sid}: testimony game_version must match its environment")
         if row["supersedes"] and row["supersedes"] not in sources: raise LedgerError(f"{sid}: dangling supersedes")
     # Source supersession is a dependency graph; cycles would make 'current' unknowable.
     for sid in sources:
@@ -165,6 +177,11 @@ def validate(directory: Path) -> Result:
         evidence_ids.add(eid)
         if row["claim_id"] not in claims_by_id or row["source_id"] not in sources: raise LedgerError(f"{eid}: dangling claim/source")
         if row["stance"] not in STANCES or not row["citation"].strip() or not row["method"].strip(): raise LedgerError(f"{eid}: invalid stance/citation/method")
+        source = sources[row["source_id"]]
+        if source["source_kind"] == "live_testimony" and not _citation_names_revision(
+            row["citation"], source["revision"]
+        ):
+            raise LedgerError(f"{eid}: testimony citation must name source revision")
         if row["stance"] in {"supports", "contradicts"} and not row["value"]: raise LedgerError(f"{eid}: {row['stance']} evidence requires a value")
         if row["value"]: _typed_value(claims_by_id[row["claim_id"]]["claim_kind"], _json(row["value"], eid), eid)
         evidence_by_claim[row["claim_id"]].append(row)

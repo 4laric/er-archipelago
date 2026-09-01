@@ -1,0 +1,2 @@
+evidence_id	claim_id	source_id	stance	value	citation	method	independence_notes	valid_from	valid_to	notes
+evidence:live-1	check:200/region	source:live-1	supports	"""Limgrave"""	Discord message msg-123 with screenshot sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa	Follow the environment reproduction steps	One player run and its attachment are one family	1.17

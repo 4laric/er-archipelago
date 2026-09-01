@@ -30,7 +30,7 @@
       "corroborated": 0,
       "inferred": 0,
       "proven": 0,
-      "single_source": 0,
+      "single_source": 4285,
       "unverified": 0
     },
     "identity": {
@@ -80,7 +80,7 @@
       "corroborated": 0,
       "inferred": 0,
       "proven": 0,
-      "single_source": 4923,
+      "single_source": 9208,
       "unverified": 0
     },
     "low": {
@@ -105,10 +105,10 @@
     "corroborated": 0,
     "inferred": 0,
     "proven": 0,
-    "single_source": 9847,
+    "single_source": 14132,
     "unverified": 0
   },
-  "claims_total": 9847,
-  "content_hash": "f24d285a564a72904b9692a83d5c1a3dc1a054a08a56a422ca2c577cb8f4d9dc",
+  "claims_total": 14132,
+  "content_hash": "55e1e128b8724dcaa60448a98df83a956e8069b5d8b0cec69c64b6b72f97b141",
   "schema_version": 1
 }
