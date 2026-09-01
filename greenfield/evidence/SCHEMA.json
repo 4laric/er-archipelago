@@ -32,6 +32,10 @@
     "incomplete_environment_strength": "lead"
   },
   "risks": ["critical", "high", "low", "medium"],
+  "row_ids": {
+    "grammar": "[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}",
+    "semantics": "case-sensitive canonical ASCII tokens; foreign keys must match exactly"
+  },
   "source_kinds": ["external_reference", "game_data", "live_testimony", "project_derivation", "ruling"],
   "stances": ["ambiguous", "contradicts", "silent", "supports"],
   "statuses": ["conflicted", "corroborated", "inferred", "proven", "single_source", "unverified"],
