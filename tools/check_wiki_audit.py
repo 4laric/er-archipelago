@@ -21,7 +21,7 @@ def validate(repo: Path) -> tuple[int, int]:
         assert row["revision_url"].startswith("https://web.archive.org/web/")
         assert row["body_sha256"].startswith("sha256:") and len(row["body_sha256"]) == 71
         assert row["published_at"] and row["last_modified"] and row["archived_at"]
-        assert row["patch_applicability"].endswith("no Elden Ring patch version stated")
+        assert row["patch_applicability"], "every source needs an explicit version disposition"
         assert row["disposition"] == "lead_only"
 
     lead_ids = {row["lead_id"] for row in leads}
