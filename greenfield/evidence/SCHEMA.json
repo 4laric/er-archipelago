@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "claim_kinds": ["access", "alternate_acquisition", "description", "detection", "identity", "region", "suppression", "sweep_owner"],
+  "identity_namespaces": ["entity", "flag", "item", "lot", "shop"],
+  "risks": ["critical", "high", "low", "medium"],
+  "source_kinds": ["external_reference", "game_data", "live_testimony", "project_derivation", "ruling"],
+  "stances": ["ambiguous", "contradicts", "silent", "supports"],
+  "statuses": ["conflicted", "corroborated", "inferred", "proven", "single_source", "unverified"],
+  "tables": {
+    "claims.tsv": ["claim_id", "subject_kind", "subject_id", "claim_kind", "game_version", "value", "status", "risk", "adjudication", "evidence_ids", "last_reviewed", "review_issue", "active", "supersedes"],
+    "environments.tsv": ["environment_id", "game_version", "dlc_version", "apworld_version", "client_version", "seed_id", "yaml_options", "launcher", "mods", "regulation", "save_provenance", "reproduction_steps", "result", "artifact_hashes", "artifact_location"],
+    "evidence.tsv": ["evidence_id", "claim_id", "source_id", "stance", "value", "citation", "method", "independence_notes", "valid_from", "valid_to", "notes"],
+    "sources.tsv": ["source_id", "source_kind", "family_id", "title", "game_version", "retrieved_at", "revision", "url_or_path", "license", "environment_id", "supersedes"]
+  }
+}

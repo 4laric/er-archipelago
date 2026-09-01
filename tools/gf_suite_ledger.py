@@ -63,6 +63,10 @@ GENERATORS = [
     # in the generators job where the page staleness diff is enforced.
     "evidence_browser",
     "desc_triage",
+    # v0.6 evidence-ledger schema, validator, status engine, and deterministic summary (#1210).
+    # Loads tools/evidence_ledger.py and the committed fixture quartet by repository path. It is
+    # AP-free and artifact-free, but neither the tool nor fixtures ship beside an installed world.
+    "evidence_ledger",
     # The region second-opinion worksheet page. Same shape as the two above: it loads
     # tools/build_region_second_opinion_page.py BY PATH and diffs the committed root page
     # against a fresh build, and neither the tool nor the page is installed beside the world.

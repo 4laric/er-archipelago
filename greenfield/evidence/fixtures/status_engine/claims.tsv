@@ -1,0 +1,7 @@
+claim_id	subject_kind	subject_id	claim_kind	game_version	value	status	risk	adjudication	evidence_ids	last_reviewed	review_issue	active	supersedes
+check:100/region	check	100	region	1.17	"""Limgrave"""	single_source	high	automatic	evidence:a,evidence:b	2026-08-31	#1210	true
+check:101/region	check	101	region	1.17	"""Liurnia"""	corroborated	high	automatic	evidence:c,evidence:d	2026-08-31	#1210	true
+check:102/region	check	102	region	1.17	"""Altus Plateau"""	conflicted	high	automatic	evidence:e,evidence:f	2026-08-31	#1210	true
+check:103/access	check	103	access	1.17		unverified	critical	automatic		2026-08-31	#1210	true
+check:104/description	check	104	description	1.17	{"precision":"approximate","text":"Near the bridge"}	inferred	low	heuristic	evidence:g	2026-08-31	#1210	true
+check:105/identity	check	105	identity	1.17	{"ap_id":105,"flag":400105,"id":50105,"namespace":"lot"}	proven	medium	automatic	evidence:h	2026-08-31	#1210	true
