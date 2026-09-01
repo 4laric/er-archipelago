@@ -39,6 +39,14 @@ assert GAME8_SPEC and GAME8_SPEC.loader
 GAME8_AUDIT = importlib.util.module_from_spec(GAME8_SPEC)
 GAME8_SPEC.loader.exec_module(GAME8_AUDIT)
 
+ELDENPEDIA_SPEC = importlib.util.spec_from_file_location(
+    "check_eldenpedia_location_leads",
+    REPO / "tools" / "check_eldenpedia_location_leads.py",
+)
+assert ELDENPEDIA_SPEC and ELDENPEDIA_SPEC.loader
+ELDENPEDIA_AUDIT = importlib.util.module_from_spec(ELDENPEDIA_SPEC)
+ELDENPEDIA_SPEC.loader.exec_module(ELDENPEDIA_AUDIT)
+
 
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
@@ -49,6 +57,19 @@ class WikiAuditTest(unittest.TestCase):
 
     def test_game8_check_leads_validate(self):
         self.assertEqual(GAME8_AUDIT.main(), 0)
+
+    def test_eldenpedia_location_check_leads_validate(self):
+        self.assertEqual(ELDENPEDIA_AUDIT.main(), 0)
+
+    def test_eldenpedia_location_leads_never_claim_access(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-location-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertGreaterEqual(len(rows), 315)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
 
     def test_generated_queue_prioritizes_external_coverage_without_promoting_it(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "queue.json"

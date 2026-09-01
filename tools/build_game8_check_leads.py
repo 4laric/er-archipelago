@@ -57,12 +57,10 @@ def render(rows):
  from io import StringIO
  out=StringIO(newline=""); writer=csv.DictWriter(out,fieldnames=FIELDS,delimiter="\t",lineterminator="\n"); writer.writeheader(); writer.writerows(rows); return out.getvalue()
 def main():
- parser=argparse.ArgumentParser(); parser.add_argument("capture_dir",type=Path); parser.add_argument("--output",type=Path,default=DEFAULT_OUT); parser.add_argument("--check",action="store_true"); args=parser.parse_args()
+ parser=argparse.ArgumentParser(); parser.add_argument("capture_dir",type=Path); parser.add_argument("--output",type=Path,default=DEFAULT_OUT); args=parser.parse_args()
  try: rows,stats=build(args.capture_dir)
  except (OSError,UnicodeError,ValueError) as exc: print(f"Game8 lead build failed: {exc}",file=sys.stderr); return 1
  text=render(rows)
- if args.check:
-  if not args.output.exists() or args.output.read_text(encoding="utf-8")!=text: print(f"[FAIL] {args.output.relative_to(ROOT)} is stale",file=sys.stderr); return 1
- else: args.output.parent.mkdir(parents=True,exist_ok=True); args.output.write_text(text,encoding="utf-8")
+ args.output.parent.mkdir(parents=True,exist_ok=True); args.output.write_text(text,encoding="utf-8")
  print(json.dumps(stats,sort_keys=True)); return 0
 if __name__=="__main__": raise SystemExit(main())
