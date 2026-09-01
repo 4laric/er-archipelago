@@ -1,0 +1,135 @@
+{
+  "schema": "evidence-browser-fixture-v1",
+  "checks": [
+    {
+      "check_id": 7770100,
+      "name": "Boundary Cookbook",
+      "claims": [
+        {
+          "claim_id": "check:7770100/identity",
+          "claim_kind": "identity",
+          "value": {"flag": 68630, "namespace": "ItemLotParam_map", "row_id": 2049430400},
+          "status": "proven",
+          "risk": "medium",
+          "last_reviewed": "2026-08-31",
+          "review_issue": "#1212",
+          "graduation": "Already at the Phase 1 bar: retain an exact first-party lot citation when the row changes.",
+          "evidence": [
+            {
+              "evidence_id": "game:param:ItemLotParam_map:2049430400:getItemFlagId",
+              "family_id": "game:param:ItemLotParam_map",
+              "source_title": "ItemLotParam_map row 2049430400",
+              "source_version": "1.17",
+              "stance": "supports",
+              "citation": "ItemLotParam_map[2049430400].getItemFlagId = 68630",
+              "method": "direct parameter field",
+              "lineage": "first-party parameter row"
+            },
+            {
+              "evidence_id": "project:flag-lots:68630",
+              "family_id": "game:param:ItemLotParam_map",
+              "source_title": "flag_lots.tsv projection",
+              "source_version": "1.17",
+              "stance": "supports",
+              "citation": "greenfield/flag_lots.tsv: flag 68630 -> map lot 2049430400",
+              "method": "project projection",
+              "lineage": "derived from the same ItemLotParam_map row; corroborating detail, not an independent vote"
+            }
+          ]
+        },
+        {
+          "claim_id": "check:7770100/region",
+          "claim_kind": "region",
+          "value": "Gravesite",
+          "status": "conflicted",
+          "risk": "high",
+          "last_reviewed": "2026-08-31",
+          "review_issue": "#1054",
+          "graduation": "Resolve the surviving boundary disagreement with a reproducible runtime play-region capture or an explicit design ruling.",
+          "evidence": [
+            {
+              "evidence_id": "game:msb:m61_49_43:Treasure:2049430400",
+              "family_id": "game:msb:m61_49_43",
+              "source_title": "Treasure placement",
+              "source_version": "1.17",
+              "stance": "supports",
+              "citation": "m61_49_43_00 / Treasure 2049430400",
+              "method": "MSB treasure placement",
+              "lineage": "first-party map record"
+            },
+            {
+              "evidence_id": "game:play-region:6810000:68630",
+              "family_id": "game:msb:m61_49_43",
+              "source_title": "PlayArea point-in-volume projection",
+              "source_version": "1.17",
+              "stance": "supports",
+              "citation": "greenfield/item_play_regions.tsv: 68630 m61_49_43_00 6810000 68100",
+              "method": "point-in-volume join",
+              "lineage": "uses the same MSB placement; one family with the treasure record"
+            },
+            {
+              "evidence_id": "project:nearest-grace:68630:76810",
+              "family_id": "project:nearest-grace",
+              "source_title": "Nearest-grace model",
+              "source_version": "1.17",
+              "stance": "contradicts",
+              "citation": "greenfield/nearest_grace.tsv: 68630 -> Pillar Path Cross (76810)",
+              "method": "distance heuristic",
+              "lineage": "project inference; independent of the PlayArea volume for this claim"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "check_id": 7770200,
+      "name": "Single-source Rune",
+      "claims": [
+        {
+          "claim_id": "check:7770200/identity",
+          "claim_kind": "identity",
+          "value": {"flag": 2047447620, "namespace": "ItemLotParam_map", "row_id": 2047440620},
+          "status": "single_source",
+          "risk": "medium",
+          "last_reviewed": "2026-08-31",
+          "review_issue": "#1212",
+          "graduation": "Add a second independent family, such as an exact award instruction or runtime pickup/readback capture.",
+          "evidence": [
+            {
+              "evidence_id": "game:param:ItemLotParam_map:2047440620:getItemFlagId",
+              "family_id": "game:param:ItemLotParam_map",
+              "source_title": "ItemLotParam_map row 2047440620",
+              "source_version": "1.17",
+              "stance": "supports",
+              "citation": "ItemLotParam_map[2047440620].getItemFlagId = 2047447620",
+              "method": "direct parameter field",
+              "lineage": "first-party parameter row"
+            }
+          ]
+        },
+        {
+          "claim_id": "check:7770200/region",
+          "claim_kind": "region",
+          "value": "Scadu Altus",
+          "status": "inferred",
+          "risk": "high",
+          "last_reviewed": "2026-08-31",
+          "review_issue": "#1212",
+          "graduation": "Add an exact first-party placement citation and an independent corroborating family; do not promote the nearest-grace inference itself.",
+          "evidence": [
+            {
+              "evidence_id": "project:nearest-grace:2047447620:76821",
+              "family_id": "project:nearest-grace",
+              "source_title": "Nearest-grace model",
+              "source_version": "1.17",
+              "stance": "supports",
+              "citation": "greenfield/nearest_grace.tsv: 2047447620 -> Castle Ensis Checkpoint (76821)",
+              "method": "distance heuristic",
+              "lineage": "project inference"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
