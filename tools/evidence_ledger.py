@@ -161,7 +161,7 @@ def summary(directory: Path) -> dict:
 def derive_status(claim: dict[str, str], evidence: list[dict[str, str]], sources: dict[str, dict[str, str]], environments: dict[str, dict[str, str]]) -> str:
     if not claim["value"]: return "unverified"
     selected = _canon(_json(claim["value"], claim["claim_id"]))
-    usable = []
+    by_family = defaultdict(list)
     for row in evidence:
         source = sources[row["source_id"]]
         if not _evidence_applies(claim, row, source):
@@ -171,15 +171,24 @@ def derive_status(claim: dict[str, str], evidence: list[dict[str, str]], sources
             or not _complete_environment(environments[source["environment_id"]])
         ):
             continue
-        if row["stance"] in {"supports", "contradicts"}: usable.append((row, source, _canon(_json(row["value"], row["evidence_id"]))))
-    if any(row["stance"] == "contradicts" for row, _, _ in usable): return "conflicted"
-    supported_values = {value for row, _, value in usable if row["stance"] == "supports"}
+        if row["stance"] in {"supports", "contradicts"}:
+            value = _canon(_json(row["value"], row["evidence_id"]))
+            by_family[source["family_id"]].append((row["stance"], value, source))
+    coherent = []
+    for family, positions in by_family.items():
+        unique = {(stance, value) for stance, value, _ in positions}
+        if len(unique) != 1:
+            continue
+        stance, value = next(iter(unique))
+        coherent.append((family, stance, value, positions[0][2]))
+    if any(stance == "contradicts" for _, stance, _, _ in coherent): return "conflicted"
+    supported_values = {value for _, stance, value, _ in coherent if stance == "supports"}
     if any(value != selected for value in supported_values): return "conflicted"
     if claim["adjudication"] == "design_ruling": return "proven"
-    families = {source["family_id"] for row, source, value in usable if row["stance"] == "supports" and value == selected}
+    families = {family for family, stance, value, _ in coherent if stance == "supports" and value == selected}
     if claim["adjudication"] in {"heuristic", "model"}: return "inferred" if families else "unverified"
     if not families: return "unverified"
-    direct = any(source["source_kind"] == "game_data" or source["family_id"].startswith("game:runtime:") for row, source, value in usable if row["stance"] == "supports" and value == selected)
+    direct = any(source["source_kind"] == "game_data" for _, stance, value, source in coherent if stance == "supports" and value == selected)
     if direct and (len(families) >= 2 or claim["risk"] not in {"critical", "high"}): return "proven"
     if len(families) >= 2: return "corroborated"
     return "single_source"

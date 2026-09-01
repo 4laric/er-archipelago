@@ -11,6 +11,7 @@
     "reference:": ["external_reference"],
     "testimony:": ["live_testimony"]
   },
+  "family_disagreement_strength": "lead",
   "identity_namespaces": ["entity", "flag", "item", "lot", "shop"],
   "live_testimony": {
     "citation_link": "source.revision",
