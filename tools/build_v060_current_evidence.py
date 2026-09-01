@@ -42,6 +42,7 @@ FINGER_RUINS_BELL_ACCESS = {
     7773656: (2053467600, "Scadu Altus"),
 }
 METYR_ACCESS = (7770673, 510550, "Scadu Altus")
+STAGEFRONT_FRAGMENT_ACCESS = (7771810, 20007820, "Belurat")
 
 
 def _json(value: object) -> str:
@@ -459,6 +460,20 @@ def build_records(repo: Path) -> dict:
         "game_version": GAME_VERSION, "retrieved_at": "2026-09-01",
         "revision": legacy_gate_hash,
         "url_or_path": "greenfield/eldenring/features/legacy_key_gates.py",
+        "license": "project-derived", "environment_id": "", "supersedes": "",
+    })
+    cross_region_path = (
+        repo / "greenfield" / "eldenring" / "features" / "cross_region_access.py")
+    cross_region_hash = _sha256(cross_region_path)
+    stagefront_source_id = (
+        f"project:stagefront-cross-region:{cross_region_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": stagefront_source_id, "source_kind": "ruling",
+        "family_id": "project:stagefront-cross-region-access-rule",
+        "title": "Archipelago Stagefront Fragment cross-region access rule",
+        "game_version": GAME_VERSION, "retrieved_at": "2026-09-01",
+        "revision": cross_region_hash,
+        "url_or_path": "greenfield/eldenring/features/cross_region_access.py",
         "license": "project-derived", "environment_id": "", "supersedes": "",
     })
     finger_ruins_source_id = (
@@ -1307,6 +1322,60 @@ def build_records(repo: Path) -> dict:
         "review_issue": "#1271", "active": "true", "supersedes": "",
     })
 
+    stagefront_ap_id, stagefront_flag, stagefront_region = STAGEFRONT_FRAGMENT_ACCESS
+    stagefront_location = location_by_ap_id.get(stagefront_ap_id)
+    if stagefront_location is None or (
+        stagefront_location["flag"], stagefront_location["region"]
+    ) != (stagefront_flag, stagefront_region):
+        raise RuntimeError(f"Stagefront Fragment access subject changed: {stagefront_location!r}")
+    stagefront_value = {
+        "type": "all",
+        "conditions": [
+            {"type": "region", "region": stagefront_region},
+            {
+                "type": "any",
+                "conditions": [
+                    {"type": "sweep", "boss": "Divine Beast Dancing Lion"},
+                    {"type": "item", "name": "Enir Ilim Lock"},
+                ],
+            },
+        ],
+    }
+    stagefront_claim_id = f"check:{stagefront_ap_id}/access"
+    stagefront_evidence_id = (
+        f"project:stagefront-cross-region:check-{stagefront_ap_id}:access")
+    evidence.append({
+        "evidence_id": stagefront_evidence_id, "claim_id": stagefront_claim_id,
+        "source_id": stagefront_source_id, "stance": "supports",
+        "value": _json(stagefront_value),
+        "citation": (
+            "greenfield/eldenring/features/cross_region_access.py:ALTERNATE_ACCESS, "
+            "_swept_members, and CrossRegionAccess.set_rules; "
+            "greenfield/eldenring/tests/test_gf_cross_region_access.py:"
+            "TestStagefrontFragmentAccess.test_physical_pickup_requires_enir_ilim_without_sweep "
+            "and TestStagefrontFragmentSweepAccess."
+            "test_dancing_lion_sweep_is_independent_of_enir_ilim"
+        ),
+        "method": "tools/build_v060_current_evidence.py:stagefront_encoded_access",
+        "independence_notes": (
+            "Both regressions exercise branches of the same project rule and are not independent "
+            "game-data witnesses; this claim records implemented Archipelago logic."
+        ),
+        "valid_from": GAME_VERSION, "valid_to": "",
+        "notes": (
+            "Exact generated subject f20007820. The two disposition rows cover the exhaustive "
+            "outcome of whether enabled_sweeps includes this check."
+        ),
+    })
+    claims.append({
+        "claim_id": stagefront_claim_id, "subject_kind": "check",
+        "subject_id": str(stagefront_ap_id), "claim_kind": "access",
+        "game_version": GAME_VERSION, "value": _json(stagefront_value),
+        "status": "proven", "risk": "critical", "adjudication": "design_ruling",
+        "evidence_ids": stagefront_evidence_id, "last_reviewed": "2026-09-01",
+        "review_issue": "#1271", "active": "true", "supersedes": "",
+    })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -1347,6 +1416,7 @@ def build_records(repo: Path) -> dict:
             "carian_statue_access_claims": len(CARIAN_STATUE_ACCESS_AP_IDS),
             "finger_ruins_bell_access_claims": len(FINGER_RUINS_BELL_ACCESS),
             "metyr_access_claims": 1,
+            "stagefront_fragment_access_claims": 1,
         },
     }
 
