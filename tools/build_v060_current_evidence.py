@@ -37,6 +37,11 @@ CARIAN_STATUE_ACCESS_AP_IDS = frozenset({
     7772312, 7772313, 7772314, 7772316, 7772317,
     7772318, 7772319, 7772320, 7772322, 7900218,
 })
+LAMENTERS_GAOL_ACCESS = {
+    7772446: (41027000, ()),
+    7772450: (41027320, ("Gaol Upper Level Key",)),
+    7773852: (520770, ("Gaol Upper Level Key", "Gaol Lower Level Key")),
+}
 FINGER_RUINS_BELL_ACCESS = {
     7773581: (2050407000, "Jagged Peak"),
     7773656: (2053467600, "Scadu Altus"),
@@ -451,6 +456,17 @@ def build_records(repo: Path) -> dict:
     })
     legacy_gate_path = repo / "greenfield" / "eldenring" / "features" / "legacy_key_gates.py"
     legacy_gate_hash = _sha256(legacy_gate_path)
+    lamenters_source_id = (
+        f"project:lamenters-gaol-gate:{legacy_gate_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": lamenters_source_id, "source_kind": "ruling",
+        "family_id": "project:lamenters-gaol-access-rule",
+        "title": "Archipelago Lamenter's Gaol tiered access rule",
+        "game_version": GAME_VERSION, "retrieved_at": "2026-09-01",
+        "revision": legacy_gate_hash,
+        "url_or_path": "greenfield/eldenring/features/legacy_key_gates.py",
+        "license": "project-derived", "environment_id": "", "supersedes": "",
+    })
     carian_statue_source_id = (
         f"project:carian-statue-gate:{legacy_gate_hash.removeprefix('sha256:')}")
     sources.append({
@@ -1215,6 +1231,58 @@ def build_records(repo: Path) -> dict:
             "supersedes": "",
         })
 
+    lamenters_locations = {
+        row["ap_id"]: row for row in locations if row["ap_id"] in LAMENTERS_GAOL_ACCESS
+    }
+    if set(lamenters_locations) != set(LAMENTERS_GAOL_ACCESS):
+        raise RuntimeError(f"Lamenter's Gaol access subjects changed: {lamenters_locations!r}")
+    for ap_id, (flag, keys) in sorted(LAMENTERS_GAOL_ACCESS.items()):
+        row = lamenters_locations[ap_id]
+        if (row["flag"], row["region"]) != (flag, "Cerulean"):
+            raise RuntimeError(f"Lamenter's Gaol access subject changed: {row!r}")
+        value = {
+            "type": "all",
+            "conditions": [
+                {"type": "region", "region": "Cerulean"},
+                *({"type": "item", "name": key} for key in keys),
+            ],
+        }
+        if keys:
+            value["when"] = {
+                "item_shuffle": True,
+                "legacy_dungeon_keys": True,
+                "vanilla_placement": False,
+            }
+        claim_id = f"check:{ap_id}/access"
+        evidence_id = f"project:lamenters-gaol-gate:check-{ap_id}:access"
+        evidence.append({
+            "evidence_id": evidence_id, "claim_id": claim_id,
+            "source_id": lamenters_source_id, "stance": "supports", "value": _json(value),
+            "citation": (
+                "greenfield/eldenring/features/legacy_key_gates.py:"
+                "_MULTI_KEY_GATES['lamenters_gaol'] and LegacyKeyGates.set_rules; "
+                "greenfield/eldenring/tests/test_gf_legacy_key_gate.py:"
+                "LamentersGaolGateOn.test_gaol_checks_follow_the_three_route_tiers"
+            ),
+            "method": "tools/build_v060_current_evidence.py:lamenters_gaol_tiered_access",
+            "independence_notes": (
+                "The regression exercises the same project rule and is not an independent "
+                "game-data witness; this claim records implemented Archipelago logic."
+            ),
+            "valid_from": GAME_VERSION, "valid_to": "",
+            "notes": (
+                f"Exact generated subject f{flag}; the route tier is bounded to the three "
+                "adjudicated checks. Unbound interior checks retain the conservative fallback."
+            ),
+        })
+        claims.append({
+            "claim_id": claim_id, "subject_kind": "check", "subject_id": str(ap_id),
+            "claim_kind": "access", "game_version": GAME_VERSION, "value": _json(value),
+            "status": "proven", "risk": "critical", "adjudication": "design_ruling",
+            "evidence_ids": evidence_id, "last_reviewed": "2026-09-01",
+            "review_issue": "#1271", "active": "true", "supersedes": "",
+        })
+
     finger_ruins_locations = {
         row["ap_id"]: row for row in locations if row["ap_id"] in FINGER_RUINS_BELL_ACCESS
     }
@@ -1414,6 +1482,7 @@ def build_records(repo: Path) -> dict:
             "radahn_access_claims": len(RADAHN_ACCESS_AP_IDS),
             "fingerslayer_access_claims": 1,
             "carian_statue_access_claims": len(CARIAN_STATUE_ACCESS_AP_IDS),
+            "lamenters_gaol_access_claims": len(LAMENTERS_GAOL_ACCESS),
             "finger_ruins_bell_access_claims": len(FINGER_RUINS_BELL_ACCESS),
             "metyr_access_claims": 1,
             "stagefront_fragment_access_claims": 1,

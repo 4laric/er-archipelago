@@ -2456,11 +2456,12 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7772443		unresolved	critical	all
 7772444		unresolved	critical	all
 7772445		unresolved	critical	all
-7772446		unresolved	critical	all
+7772446	check:7772446/access	region_sufficient	critical	all	Upper Key chest is before the first keyed door.	#1271			greenfield/eldenring/tests/test_gf_legacy_key_gate.py	test_lamenters_gaol_route_tiers_cover_exact_key_and_boss_checks
 7772447		unresolved	critical	all
 7772448		unresolved	critical	all
 7772449		unresolved	critical	all
-7772450		unresolved	critical	all
+7772450	check:7772450/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	Lower Key chest requires the Upper Key under the shuffled legacy-key gate.	#1271			greenfield/eldenring/tests/test_gf_legacy_key_gate.py	test_lamenters_gaol_route_tiers_cover_exact_key_and_boss_checks
+7772450	check:7772450/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)	Inactive modes retain their existing physical-door behavior but are not adjudicated by this rule.	#1271
 7772451		unresolved	critical	all
 7772452		unresolved	critical	all
 7772453		unresolved	critical	all
@@ -3864,7 +3865,8 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7773849		unresolved	critical	all
 7773850		unresolved	critical	all
 7773851		unresolved	critical	all
-7773852		unresolved	critical	all
+7773852	check:7773852/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	Lamenter requires both nested gaol keys under the shuffled legacy-key gate.	#1271			greenfield/eldenring/tests/test_gf_legacy_key_gate.py	test_lamenters_gaol_route_tiers_cover_exact_key_and_boss_checks
+7773852	check:7773852/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)	Inactive modes retain their existing physical-door behavior but are not adjudicated by this rule.	#1271
 7773853		unresolved	critical	all
 7773854		unresolved	critical	all
 7773855		unresolved	critical	all
