@@ -27,7 +27,7 @@ SPEC.loader.exec_module(AUDIT)
 
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (7, 7))
+        self.assertEqual(AUDIT.validate(REPO), (8, 9))
 
     def test_lamenter_pilot_preserves_lead_only_scope(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
@@ -86,6 +86,30 @@ class WikiAuditTest(unittest.TestCase):
         self.assertIn("Raya Lucaria Academy :: Eccentric's Hood", generated)
         self.assertIn("Caelid :: Ancient Dragon Smithing Stone - around Smoldering Church", generated)
         self.assertIn("3371\t400400\tset\ttalk 312001400", questline)
+
+    def test_sellian_sealbreaker_pilot_keeps_acquisition_and_use_separate(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            leads = {row["lead_id"]: row for row in csv.DictReader(handle, delimiter="\t")}
+        acquisition = leads["sellian-sealbreaker-acquisition"]
+        use = leads["sellian-sealbreaker-use"]
+        self.assertEqual((acquisition["subject_kind"], acquisition["subject_id"]),
+                         ("game_item", "goods:8169"))
+        self.assertEqual((acquisition["claim_kind"], use["claim_kind"]),
+                         ("acquisition", "use"))
+        self.assertIn('"name":"Comet Azur"', acquisition["normalized_value"])
+        self.assertIn('"name":"Sellia Hideaway"', use["normalized_value"])
+        self.assertIn("GameSpot calls the item Sellian Spellbreaker", acquisition["limitations"])
+
+    def test_sellian_sealbreaker_report_comparison_still_matches_current_inputs(self):
+        gifts = (REPO / "greenfield" / "esd_gifts.tsv").read_text(encoding="utf-8")
+        lots = (REPO / "greenfield" / "flag_lots.tsv").read_text(encoding="utf-8")
+        regions = (REPO / "greenfield" / "region_map.csv").read_text(encoding="utf-8")
+        generated = (REPO / "greenfield" / "eldenring" / "data.py").read_text(encoding="utf-8")
+        self.assertIn("316006000\t1044369218\t1\t101020", gifts)
+        self.assertIn("400102\tmap\t101020\t1\t1\t8169\t1\t1", lots)
+        self.assertIn("7000879,400102,map_lot,Sellian Sealbreaker,PENDING", regions)
+        self.assertNotIn("Sellian Sealbreaker", generated)
 
 
 if __name__ == "__main__":
