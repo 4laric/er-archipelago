@@ -209,6 +209,32 @@ def _load_varres_bouquet_access(path: Path) -> dict[str, object]:
     return matches[0]
 
 
+def _load_taunters_tongue_access(path: Path) -> dict[str, object]:
+    """Load f60300's immediate WaitFor without assigning meaning to its unlabeled gate flag."""
+    matches = []
+    with path.open(encoding="utf-8", newline="") as handle:
+        header = ""
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip() or line.startswith("#"):
+                continue
+            if not header:
+                header = line
+                continue
+            row = next(csv.DictReader([header, line], delimiter="\t"))
+            if row["check_flag"] != "60300" or row["context"] != "commonarg/WaitFor":
+                continue
+            matches.append({
+                "line": line_number, "gate_flag": int(row["gate_flag"]),
+                "context": row["context"], "event_id": int(row["event_id"]),
+                "source": row["source"], "evidence": row["evidence"],
+            })
+    if len(matches) != 1 or matches[0]["gate_flag"] != 11102180:
+        raise RuntimeError(f"f60300 WaitFor corpus changed: {matches!r}")
+    if matches[0]["event_id"] != 90005792:
+        raise RuntimeError(f"f60300 WaitFor event changed: {matches!r}")
+    return matches[0]
+
+
 def _source_records(
         repo: Path, data_path: Path, override_path: Path, lot_path: Path,
         stamp: Mapping[str, str]):
@@ -268,6 +294,7 @@ def build_records(repo: Path) -> dict:
     perfect_order_access = _load_perfect_order_access(lot_gates_path)
     death_prince_access = _load_death_prince_access(lot_gates_path)
     varres_bouquet_access = _load_varres_bouquet_access(lot_gates_path)
+    taunters_tongue_access = _load_taunters_tongue_access(lot_gates_path)
     sources, source = _source_records(repo, data_path, override_path, lot_path, stamp)
     lot_gates_hash = _sha256(lot_gates_path)
     lot_gates_source_id = (
@@ -286,6 +313,16 @@ def build_records(repo: Path) -> dict:
         "source_id": varres_bouquet_source_id, "source_kind": "game_data",
         "family_id": "game:emevd:m12_05_00_00:90005750",
         "title": "Varre's Bouquet f400037 immediate WaitFor call site",
+        "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+        "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
+        "license": "private-evidence", "environment_id": "", "supersedes": "",
+    })
+    taunters_tongue_source_id = (
+        f"game:emevd-lot-gates:m11_10_00_00:{lot_gates_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": taunters_tongue_source_id, "source_kind": "game_data",
+        "family_id": "game:emevd:m11_10_00_00:90005792",
+        "title": "Taunter's Tongue f60300 immediate WaitFor call site",
         "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
         "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
         "license": "private-evidence", "environment_id": "", "supersedes": "",
@@ -596,6 +633,47 @@ def build_records(repo: Path) -> dict:
         "supersedes": "",
     })
 
+    taunters_tongue = [row for row in locations if row["flag"] == 60300]
+    if len(taunters_tongue) != 1:
+        raise RuntimeError(f"expected one current f60300 check, found {taunters_tongue!r}")
+    taunters_tongue_ap_id = taunters_tongue[0]["ap_id"]
+    taunters_tongue_claim_id = f"check:{taunters_tongue_ap_id}/access"
+    taunters_tongue_value = {"type": "flag", "flag": taunters_tongue_access["gate_flag"]}
+    taunters_tongue_evidence_id = (
+        "game:emevd:m11_10_00_00:90005792:f60300:gate-11102180:access")
+    evidence.append({
+        "evidence_id": taunters_tongue_evidence_id,
+        "claim_id": taunters_tongue_claim_id,
+        "source_id": taunters_tongue_source_id, "stance": "supports",
+        "value": _json(taunters_tongue_value),
+        "citation": (
+            f"greenfield/lot_gates.tsv:{taunters_tongue_access['line']} check_flag=60300 "
+            f"gate_flag=11102180; {taunters_tongue_access['source']} "
+            f"event={taunters_tongue_access['event_id']} "
+            f"{taunters_tongue_access['context']} {taunters_tongue_access['evidence']}"
+        ),
+        "method": "tools/build_v060_current_evidence.py:taunters_tongue_immediate_waitfor",
+        "independence_notes": (
+            "The one immediate WaitFor call is one EMEVD family; the f60300 association is "
+            "joined through ItemLotParam/flag_lots and is not independent detection evidence. "
+            "The questline DAG is a correlated projection of this family."
+        ),
+        "valid_from": GAME_VERSION, "valid_to": "",
+        "notes": (
+            "Immediate positive f11102180 prerequisite only; the committed corpus does not label "
+            "that flag, so this claim assigns it no Alberich or Roundtable meaning."
+        ),
+    })
+    claims.append({
+        "claim_id": taunters_tongue_claim_id, "subject_kind": "check",
+        "subject_id": str(taunters_tongue_ap_id), "claim_kind": "access",
+        "game_version": GAME_VERSION, "value": _json(taunters_tongue_value),
+        "status": "single_source", "risk": "critical", "adjudication": "automatic",
+        "evidence_ids": taunters_tongue_evidence_id,
+        "last_reviewed": REVIEW_DATE, "review_issue": "#1248", "active": "true",
+        "supersedes": "",
+    })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -626,6 +704,7 @@ def build_records(repo: Path) -> dict:
             "perfect_order_access_claims": 1,
             "death_prince_access_claims": 1,
             "varres_bouquet_access_claims": 1,
+            "taunters_tongue_access_claims": 1,
         },
     }
 
