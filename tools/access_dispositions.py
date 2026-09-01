@@ -82,6 +82,7 @@ def validate(ledger_dir: Path, disposition_path: Path) -> list[dict[str, str]]:
         raise AccessDispositionError(
             f"disposition population differs from active checks: missing={missing[:5]!r}, extra={extra[:5]!r}"
         )
+    options_by_check: dict[str, set[str]] = {}
     for row in rows:
         check_id = row["check_id"]
         if row["disposition"] not in DISPOSITIONS:
@@ -90,6 +91,7 @@ def validate(ledger_dir: Path, disposition_path: Path) -> list[dict[str, str]]:
             raise AccessDispositionError(f"{check_id}: unknown risk")
         if not row["option_set"] or row["option_set"] != row["option_set"].strip():
             raise AccessDispositionError(f"{check_id}: option_set must be a canonical non-empty value")
+        options_by_check.setdefault(check_id, set()).add(row["option_set"])
         expected_claim = access.get(check_id, {}).get("claim_id", "")
         if row["access_claim_id"] != expected_claim:
             raise AccessDispositionError(
@@ -107,6 +109,11 @@ def validate(ledger_dir: Path, disposition_path: Path) -> list[dict[str, str]]:
                 )
             if not DATE.fullmatch(row["review_by"]):
                 raise AccessDispositionError(f"{check_id}: invalid review_by date")
+    for check_id, options in options_by_check.items():
+        if "all" in options and len(options) > 1:
+            raise AccessDispositionError(
+                f"{check_id}: option_set 'all' cannot coexist with specific option sets"
+            )
     return rows
 
 
@@ -146,6 +153,76 @@ def summary(ledger_dir: Path, disposition_path: Path) -> dict:
     }
 
 
+def ratchet_snapshot(ledger_dir: Path, disposition_path: Path) -> dict:
+    rows = validate(ledger_dir, disposition_path)
+    current = summary(ledger_dir, disposition_path)
+    return {
+        "schema_version": 1,
+        "checks_total": current["checks_total"],
+        "release_blockers": current["release_blockers"],
+        "unresolved": current["by_disposition"]["unresolved"],
+        "without_access_claim": current["without_access_claim"],
+        "linked_access_claim_ids": sorted(
+            {row["access_claim_id"] for row in rows if row["access_claim_id"]}
+        ),
+        "resolved_dispositions": {
+            f"{row['check_id']}|{row['option_set']}": row["disposition"]
+            for row in rows
+            if row["disposition"] != "unresolved"
+        },
+    }
+
+
+def compare_ratchet(current: dict, baseline: dict) -> list[str]:
+    expected = {
+        "schema_version", "checks_total", "release_blockers", "unresolved",
+        "without_access_claim", "linked_access_claim_ids", "resolved_dispositions",
+    }
+    if set(current) != expected or set(baseline) != expected:
+        raise AccessDispositionError("access ratchet has unknown or missing fields")
+    if current["schema_version"] != 1 or baseline["schema_version"] != 1:
+        raise AccessDispositionError("unknown access ratchet schema_version")
+    errors = []
+    for field in ("checks_total", "release_blockers", "unresolved", "without_access_claim"):
+        if type(current[field]) is not int or type(baseline[field]) is not int:
+            raise AccessDispositionError(f"access ratchet {field} must be an integer")
+    for name, value in (("current", current), ("baseline", baseline)):
+        if not isinstance(value["linked_access_claim_ids"], list) or not all(
+            isinstance(item, str) for item in value["linked_access_claim_ids"]
+        ):
+            raise AccessDispositionError(f"{name} linked_access_claim_ids must be a string list")
+        if not isinstance(value["resolved_dispositions"], dict) or not all(
+            isinstance(key, str) and disposition in DISPOSITIONS - {"unresolved"}
+            for key, disposition in value["resolved_dispositions"].items()
+        ):
+            raise AccessDispositionError(f"{name} resolved_dispositions is malformed")
+    if current["checks_total"] < baseline["checks_total"]:
+        errors.append("checks_total decreased")
+    for field in ("release_blockers", "unresolved", "without_access_claim"):
+        if current[field] > baseline[field]:
+            errors.append(f"{field} increased")
+    old_links = set(baseline["linked_access_claim_ids"])
+    new_links = set(current["linked_access_claim_ids"])
+    if len(old_links) != len(baseline["linked_access_claim_ids"]):
+        raise AccessDispositionError("baseline linked_access_claim_ids must be unique")
+    lost = sorted(old_links - new_links)
+    if lost:
+        errors.append(f"linked access evidence disappeared: {lost!r}")
+    allowed = {
+        "encoded": {"encoded"},
+        "region_sufficient": {"region_sufficient", "encoded"},
+        "excluded": {"excluded", "region_sufficient", "encoded"},
+        "waived": {"waived", "region_sufficient", "encoded"},
+    }
+    for key, old_disposition in baseline["resolved_dispositions"].items():
+        new_disposition = current["resolved_dispositions"].get(key)
+        if new_disposition not in allowed.get(old_disposition, set()):
+            errors.append(
+                f"resolved disposition regressed: {key} {old_disposition!r} -> {new_disposition!r}"
+            )
+    return errors
+
+
 def bootstrap(ledger_dir: Path, destination: Path) -> None:
     if destination.exists():
         raise AccessDispositionError(f"refusing to overwrite existing {destination}")
@@ -177,8 +254,10 @@ def main(argv=None) -> int:
     parser.add_argument("--ledger", type=Path, required=True)
     parser.add_argument("--dispositions", type=Path, required=True)
     parser.add_argument("--summary", type=Path)
+    parser.add_argument("--baseline", type=Path)
     parser.add_argument("--bootstrap", action="store_true")
     parser.add_argument("--update-summary", action="store_true")
+    parser.add_argument("--update-baseline", action="store_true")
     args = parser.parse_args(argv)
     try:
         if args.bootstrap:
@@ -191,6 +270,15 @@ def main(argv=None) -> int:
                 committed = json.loads(args.summary.read_text(encoding="utf-8"))
                 if committed != current:
                     raise AccessDispositionError("committed summary differs from current census")
+        if args.baseline:
+            snapshot = ratchet_snapshot(args.ledger, args.dispositions)
+            if args.update_baseline:
+                _write_json(args.baseline, snapshot)
+            else:
+                baseline = json.loads(args.baseline.read_text(encoding="utf-8"))
+                regressions = compare_ratchet(snapshot, baseline)
+                if regressions:
+                    raise AccessDispositionError("; ".join(regressions))
     except (AccessDispositionError, LedgerError, OSError, json.JSONDecodeError) as exc:
         print(f"access dispositions INVALID: {exc}")
         return 1
