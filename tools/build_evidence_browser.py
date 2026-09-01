@@ -14,12 +14,21 @@ import csv
 import hashlib
 import json
 import os
+import sys
 import tempfile
+from pathlib import Path
+
+TOOLS = os.path.dirname(os.path.abspath(__file__))
+if TOOLS not in sys.path:
+    sys.path.insert(0, TOOLS)
+from access_dispositions import summary as access_summary
+from access_dispositions import validate as validate_access_dispositions
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CURRENT = os.path.join(REPO, "greenfield", "evidence", "v060-current")
 FIXTURE = os.path.join(REPO, "greenfield", "evidence", "browser_fixture")
 OUT_HTML = os.path.join(REPO, "er-archipelago-evidence-browser.html")
+ACCESS_FILE = "access_dispositions.tsv"
 
 STATUSES = {"proven", "corroborated", "single_source", "conflicted", "inferred", "unverified"}
 RISKS = {"critical", "high", "medium", "low"}
@@ -76,7 +85,10 @@ def graduation(status: str, risk: str) -> str:
     return "Retain the exact citations and family independence if this claim changes."
 
 
-def transform(tables: dict[str, list[dict[str, str]]]) -> dict:
+def transform(
+    tables: dict[str, list[dict[str, str]]],
+    access_rows: list[dict[str, str]] | None = None,
+) -> dict:
     """Explicit normalized-TSV -> browser payload boundary; no status is derived here."""
     sources = {row["source_id"]: row for row in tables["sources.tsv"]}
     evidence_by_claim: dict[str, list[dict]] = {}
@@ -120,13 +132,30 @@ def transform(tables: dict[str, list[dict[str, str]]]) -> dict:
             "last_reviewed": row["last_reviewed"], "review_issue": row["review_issue"],
             "graduation": graduation(row["status"], row["risk"]), "evidence": evidence,
         })
+    dispositions_by_check: dict[int, list[dict[str, str]]] = {}
+    for row in access_rows or []:
+        dispositions_by_check.setdefault(int(row["check_id"]), []).append({
+            key: row[key] for key in (
+                "access_claim_id", "disposition", "risk", "option_set", "reason",
+                "review_issue", "owner", "review_by",
+            )
+        })
     checks = []
     for check_id, claims in sorted(by_check.items()):
         kinds = {c["claim_kind"] for c in claims}
         if len(kinds) != len(claims) or not REQUIRED_CHECK_KINDS <= kinds:
             raise ValueError(f"Phase 1 check {check_id} needs unique identity and region claims")
-        checks.append({"check_id": check_id, "name": f"Check {check_id}",
-                       "claims": sorted(claims, key=lambda c: c["claim_kind"])})
+        dispositions = dispositions_by_check.get(check_id, [])
+        checks.append({
+            "check_id": check_id,
+            "name": f"Check {check_id}",
+            "claims": sorted(claims, key=lambda c: c["claim_kind"]),
+            "access_dispositions": dispositions,
+            "release_blocker": any(
+                row["disposition"] == "unresolved" and row["risk"] in {"critical", "high"}
+                for row in dispositions
+            ),
+        })
     if not checks:
         raise ValueError("normalized fixture has no active Phase 1 claims")
     return {"schema": "evidence-browser-payload-v1", "checks": checks}
@@ -138,11 +167,27 @@ def ledger_hash(path: str = CURRENT) -> str:
         digest.update(name.encode() + b"\0")
         with open(os.path.join(path, name), "rb") as fh:
             digest.update(fh.read())
+    access_path = os.path.join(path, ACCESS_FILE)
+    if os.path.exists(access_path):
+        digest.update(ACCESS_FILE.encode() + b"\0")
+        with open(access_path, "rb") as fh:
+            digest.update(fh.read())
     return "sha256:" + digest.hexdigest()
 
 
 def load_ledger(path: str = CURRENT) -> dict:
-    contract = transform(normalized_tables(path))
+    dispositions_path = os.path.join(path, ACCESS_FILE)
+    dispositions = None
+    census = None
+    if os.path.exists(dispositions_path):
+        dispositions = validate_access_dispositions(
+            Path(path), Path(dispositions_path)
+        )
+        census = access_summary(
+            Path(path), Path(dispositions_path)
+        )
+    contract = transform(normalized_tables(path), dispositions)
+    contract["access_summary"] = census
     contract["dataset"] = os.path.relpath(path, REPO).replace(os.sep, "/")
     contract["inputs_hash"] = ledger_hash(path)
     return contract
@@ -168,7 +213,7 @@ header{{padding:24px clamp(18px,4vw,54px);border-bottom:1px solid var(--line);ba
 h1{{margin:0 0 6px;font-size:clamp(24px,4vw,38px)}} h2,h3{{margin:.4rem 0}} .muted{{color:var(--muted)}} code{{color:#b9d9ff}}
 .layout{{display:grid;grid-template-columns:minmax(330px,42%) 1fr;min-height:calc(100vh - 126px)}}
 .queue,.detail{{padding:20px;overflow:auto}} .queue{{border-right:1px solid var(--line)}}
-.filters{{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:8px;position:sticky;top:0;background:var(--bg);padding-bottom:14px;z-index:2}}
+.filters{{display:grid;grid-template-columns:2fr repeat(6,1fr);gap:8px;position:sticky;top:0;background:var(--bg);padding-bottom:14px;z-index:2}}
 input,select,button{{width:100%;padding:9px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--text)}} button{{cursor:pointer}}
 .row{{display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px;margin:7px 0;border:1px solid var(--line);border-radius:9px;background:var(--panel);cursor:pointer}}
 .row:hover,.row.active{{border-color:var(--blue);background:var(--panel2)}} .badges{{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}}
@@ -186,27 +231,29 @@ input,select,button{{width:100%;padding:9px;border:1px solid var(--line);border-
 <select id="status" aria-label="Status"><option value="">All statuses</option></select>
 <select id="risk" aria-label="Risk"><option value="">All risks</option></select>
 <select id="kind" aria-label="Claim kind"><option value="">All claim kinds</option></select>
-<select id="family" aria-label="Evidence family"><option value="">All families</option></select></div>
+<select id="family" aria-label="Evidence family"><option value="">All families</option></select>
+<select id="disposition" aria-label="Access disposition"><option value="">All dispositions</option></select>
+<select id="blocker" aria-label="Release blocker"><option value="">All blocker states</option><option value="yes">Release blockers</option><option value="no">Not blockers</option></select></div>
 <div class="toolbar"><strong id="count"></strong><span class="muted">risk-ranked audit queue</span><button id="exportQueue">Export filtered TSV</button></div><div id="rows"></div></section>
 <section class="detail" id="detail"><p class="empty">Select a claim to inspect its evidence.</p></section></main>
 <script id="evidence-payload" type="application/json">{payload}</script>
 <script>
 const DATA=JSON.parse(document.getElementById('evidence-payload').textContent);
-const claims=DATA.checks.flatMap(c=>c.claims.map(x=>({{...x,check_id:c.check_id,check_name:c.name}})));
+const claims=DATA.checks.flatMap(c=>c.claims.map(x=>({{...x,check_id:c.check_id,check_name:c.name,access_dispositions:c.access_dispositions,release_blocker:c.release_blocker}})));
 const riskRank={{critical:0,high:1,medium:2,low:3}}, statusRank={{conflicted:0,unverified:1,inferred:2,single_source:3,corroborated:4,proven:5}};
-const els=Object.fromEntries(['q','status','risk','kind','family','rows','count','detail','exportQueue'].map(x=>[x,document.getElementById(x)]));
-function values(key){{return [...new Set(claims.flatMap(c=>key==='family'?c.evidence.map(e=>e.family_id):[c[key]]))].sort()}}
+const els=Object.fromEntries(['q','status','risk','kind','family','disposition','blocker','rows','count','detail','exportQueue'].map(x=>[x,document.getElementById(x)]));
+function values(key){{return [...new Set(claims.flatMap(c=>key==='family'?c.evidence.map(e=>e.family_id):key==='disposition'?c.access_dispositions.map(d=>d.disposition):[c[key]]))].sort()}}
 function options(el,vals){{for(const v of vals){{const o=document.createElement('option');o.value=v;o.textContent=v;el.append(o)}}}}
-options(els.status,values('status'));options(els.risk,values('risk'));options(els.kind,values('claim_kind'));options(els.family,values('family'));
-function readHash(){{const p=new URLSearchParams(location.hash.slice(1));for(const k of ['q','status','risk','kind','family'])if(p.has(k))els[k].value=p.get(k);return p.get('claim')||''}}
-function hashParams(selected){{const p=new URLSearchParams();for(const k of ['q','status','risk','kind','family'])if(els[k].value)p.set(k,els[k].value);if(selected)p.set('claim',selected);return p}}
+options(els.status,values('status'));options(els.risk,values('risk'));options(els.kind,values('claim_kind'));options(els.family,values('family'));options(els.disposition,values('disposition'));
+function readHash(){{const p=new URLSearchParams(location.hash.slice(1));for(const k of ['q','status','risk','kind','family','disposition','blocker'])if(p.has(k))els[k].value=p.get(k);return p.get('claim')||''}}
+function hashParams(selected){{const p=new URLSearchParams();for(const k of ['q','status','risk','kind','family','disposition','blocker'])if(els[k].value)p.set(k,els[k].value);if(selected)p.set('claim',selected);return p}}
 function writeHash(selected){{history.replaceState(null,'','#'+hashParams(selected).toString())}}
 function claimPermalink(c){{const url=new URL(location.href);url.hash=hashParams(c.claim_id).toString();return url.toString()}}
 function tsvCell(value){{let s=String(value??'').replace(/[\\t\\r\\n]+/g,' ');if(/^[=+\\-@]/.test(s))s="'"+s;return s}}
-function exportRows(rows){{const columns=['claim_id','check_id','claim_kind','status','risk','value','evidence_families','review_issue','permalink'];const body=rows.map(c=>[c.claim_id,c.check_id,c.claim_kind,c.status,c.risk,JSON.stringify(c.value),new Set(c.evidence.map(e=>e.family_id)).size,c.review_issue,claimPermalink(c)].map(tsvCell).join('\\t'));return [columns.join('\\t'),...body].join('\\n')+'\\n'}}
+function exportRows(rows){{const columns=['claim_id','check_id','claim_kind','status','risk','value','evidence_families','review_issue','access_dispositions','option_sets','release_blocker','disposition_reasons','disposition_review_issues','permalink'];const body=rows.map(c=>[c.claim_id,c.check_id,c.claim_kind,c.status,c.risk,JSON.stringify(c.value),new Set(c.evidence.map(e=>e.family_id)).size,c.review_issue,c.access_dispositions.map(d=>d.disposition).join(','),c.access_dispositions.map(d=>d.option_set).join(','),c.release_blocker,c.access_dispositions.map(d=>d.reason).filter(Boolean).join(' | '),c.access_dispositions.map(d=>d.review_issue).filter(Boolean).join(','),claimPermalink(c)].map(tsvCell).join('\\t'));return [columns.join('\\t'),...body].join('\\n')+'\\n'}}
 function downloadQueue(rows){{const blob=new Blob([exportRows(rows)],{{type:'text/tab-separated-values;charset=utf-8'}});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='er-evidence-audit.tsv';a.click();URL.revokeObjectURL(url)}}
 function text(c){{return JSON.stringify(c).toLowerCase()}}
-function filtered(){{const q=els.q.value.trim().toLowerCase();return claims.filter(c=>(!q||text(c).includes(q))&&(!els.status.value||c.status===els.status.value)&&(!els.risk.value||c.risk===els.risk.value)&&(!els.kind.value||c.claim_kind===els.kind.value)&&(!els.family.value||c.evidence.some(e=>e.family_id===els.family.value))).sort((a,b)=>riskRank[a.risk]-riskRank[b.risk]||statusRank[a.status]-statusRank[b.status]||a.check_id-b.check_id||a.claim_kind.localeCompare(b.claim_kind))}}
+function filtered(){{const q=els.q.value.trim().toLowerCase();return claims.filter(c=>(!q||text(c).includes(q))&&(!els.status.value||c.status===els.status.value)&&(!els.risk.value||c.risk===els.risk.value)&&(!els.kind.value||c.claim_kind===els.kind.value)&&(!els.family.value||c.evidence.some(e=>e.family_id===els.family.value))&&(!els.disposition.value||c.access_dispositions.some(d=>d.disposition===els.disposition.value))&&(!els.blocker.value||(c.release_blocker?'yes':'no')===els.blocker.value)).sort((a,b)=>riskRank[a.risk]-riskRank[b.risk]||statusRank[a.status]-statusRank[b.status]||a.check_id-b.check_id||a.claim_kind.localeCompare(b.claim_kind))}}
 function badge(s,extra=''){{return `<span class="badge ${{s}} ${{extra}}">${{escapeHtml(s)}}</span>`}}
 function escapeHtml(s){{return String(s).replace(/[&<>"']/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]))}}
 function show(c){{
@@ -217,17 +264,19 @@ function show(c){{
  const why=identity?`Identity ${{escapeHtml(JSON.stringify(identity.value))}} · ${{identity.status}}`:'No identity claim in this phase.';
  const access=claims.find(x=>x.check_id===c.check_id&&x.claim_kind==='access');
  const reach=access?`Access claim: ${{escapeHtml(JSON.stringify(access.value))}} (${{escapeHtml(access.status)}}).`:region?`No access evidence exists for this check. The region claim files it in ${{escapeHtml(JSON.stringify(region.value))}}, but ownership is not proof that the player can reach or collect it.`:'No access evidence exists for this check.';
+ const dispositionRows=c.access_dispositions.map(d=>`<div class="answer"><strong>${{escapeHtml(d.disposition)}}</strong> · option <code>${{escapeHtml(d.option_set)}}</code> · ${{escapeHtml(d.risk)}}${{d.reason?`<div>${{escapeHtml(d.reason)}}</div>`:''}}${{d.review_issue?`<div class="muted">review ${{escapeHtml(d.review_issue)}}${{d.owner?' · '+escapeHtml(d.owner):''}}${{d.review_by?' · by '+escapeHtml(d.review_by):''}}</div>`:''}}</div>`).join('');
  const disagree=contradictions.length?contradictions.map(e=>`${{e.family_id}}: ${{e.citation}}`).join(' · '):'No active contradiction is represented in this ledger.';
  let html=`<div class="toolbar"><div><h2>${{escapeHtml(c.check_name)}}</h2><div class="muted">${{c.claim_id}} · check ${{c.check_id}}</div></div><button id="copy">Copy permalink</button></div>`;
  html+=`<div class="badges">${{badge(c.claim_kind)}}${{badge(c.status)}}${{badge(c.risk)}}</div>`;
+ if(c.release_blocker)html+=`<div class="alert"><strong>v0.6 release blocker.</strong> This check still has an unresolved critical/high access disposition.</div>`;
  if(c.status==='conflicted')html+=`<div class="alert"><strong>Conflict is active.</strong> Contradicting evidence remains visible below; the current value does not erase it.</div>`;
- html+=`<div class="questions"><div class="answer"><h3>1. Why is this check here?</h3>${{why}}</div><div class="answer"><h3>2. What says the player can reach and collect it?</h3>${{reach}}</div><div class="answer"><h3>3. What disagrees with that answer?</h3>${{escapeHtml(disagree)}}</div><div class="answer"><h3>4. What evidence would graduate it?</h3>${{escapeHtml(c.graduation)}}</div></div>`;
+ html+=`<div class="questions"><div class="answer"><h3>1. Why is this check here?</h3>${{why}}</div><div class="answer"><h3>2. What says the player can reach and collect it?</h3>${{reach}}</div><div class="answer"><h3>3. What disagrees with that answer?</h3>${{escapeHtml(disagree)}}</div><div class="answer"><h3>4. What evidence would graduate it?</h3>${{escapeHtml(c.graduation)}}</div></div><h3>Access disposition</h3>${{dispositionRows||'<p class="empty">No disposition ledger is available for this dataset.</p>'}}`;
  html+=`<div class="answer"><h3>Current claim</h3><strong>${{escapeHtml(JSON.stringify(c.value))}}</strong><div class="muted">reviewed ${{c.last_reviewed}} · ${{escapeHtml(c.review_issue)}}</div></div><h3>Evidence by independent family (${{families.size}})</h3>`;
  for(const [family,rows] of [...families].sort((a,b)=>a[0].localeCompare(b[0]))){{html+=`<div class="family"><strong>${{escapeHtml(family)}}</strong><span class="muted"> · ${{rows.length}} row(s), one witness family</span>`;for(const e of rows)html+=`<div class="evidence"><div>${{badge(e.stance)}} <strong>${{escapeHtml(e.source_title)}}</strong> · version ${{escapeHtml(e.source_version)}}</div><div class="citation">${{escapeHtml(e.citation)}}</div><div class="muted">${{escapeHtml(e.method)}} · ${{escapeHtml(e.lineage)}}<br><code>${{escapeHtml(e.evidence_id)}}</code></div></div>`;html+='</div>'}}
  els.detail.innerHTML=html;document.getElementById('copy').onclick=()=>navigator.clipboard?.writeText(location.href);writeHash(c.claim_id);
 }}
-let selected=readHash();function render(){{const rows=filtered();els.count.textContent=`${{rows.length}} / ${{claims.length}} claims`;els.rows.innerHTML=rows.length?'':'<p class="empty">No claims match this permalink/filter.</p>';for(const c of rows){{const d=document.createElement('div');d.className='row'+(c.claim_id===selected?' active':'');d.innerHTML=`<div><strong>${{escapeHtml(c.check_name)}}</strong><div class="muted">${{c.claim_kind}} · ${{escapeHtml(JSON.stringify(c.value))}}</div><div class="badges">${{badge(c.status)}}${{badge(c.risk)}}${{c.evidence.some(e=>e.stance==='contradicts')?badge('conflict','contradicts'):''}}</div></div><code>${{c.check_id}}</code>`;d.onclick=()=>{{selected=c.claim_id;render();show(c)}};els.rows.append(d)}}if(selected){{const c=claims.find(x=>x.claim_id===selected);if(c)show(c);else els.detail.innerHTML='<div class="alert">This permalink names a claim that is absent from this build.</div>'}}writeHash(selected)}}
-for(const k of ['q','status','risk','kind','family'])els[k].addEventListener(k==='q'?'input':'change',()=>{{selected='';render()}});els.exportQueue.addEventListener('click',()=>downloadQueue(filtered()));window.addEventListener('hashchange',()=>{{selected=readHash();render()}});render();
+let selected=readHash();function render(){{const rows=filtered();const blockers=DATA.access_summary?DATA.access_summary.release_blockers:0;els.count.textContent=`${{rows.length}} / ${{claims.length}} claims · ${{blockers}} release blockers`;els.rows.innerHTML=rows.length?'':'<p class="empty">No claims match this permalink/filter.</p>';for(const c of rows){{const d=document.createElement('div');d.className='row'+(c.claim_id===selected?' active':'');d.innerHTML=`<div><strong>${{escapeHtml(c.check_name)}}</strong><div class="muted">${{c.claim_kind}} · ${{escapeHtml(JSON.stringify(c.value))}}</div><div class="badges">${{badge(c.status)}}${{badge(c.risk)}}${{c.access_dispositions.map(x=>badge(x.disposition)).join('')}}${{c.release_blocker?badge('blocker','critical'):''}}${{c.evidence.some(e=>e.stance==='contradicts')?badge('conflict','contradicts'):''}}</div></div><code>${{c.check_id}}</code>`;d.onclick=()=>{{selected=c.claim_id;render();show(c)}};els.rows.append(d)}}if(selected){{const c=claims.find(x=>x.claim_id===selected);if(c)show(c);else els.detail.innerHTML='<div class="alert">This permalink names a claim that is absent from this build.</div>'}}writeHash(selected)}}
+for(const k of ['q','status','risk','kind','family','disposition','blocker'])els[k].addEventListener(k==='q'?'input':'change',()=>{{selected='';render()}});els.exportQueue.addEventListener('click',()=>downloadQueue(filtered()));window.addEventListener('hashchange',()=>{{selected=readHash();render()}});render();
 </script></body></html>'''
 
 

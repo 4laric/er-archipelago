@@ -97,6 +97,25 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertEqual(
             sorted(row["status"] for row in claims),
             sorted(claim["status"] for check in data["checks"] for claim in check["claims"]))
+        self.assertEqual(len(data["checks"]), data["access_summary"]["checks_total"])
+        self.assertEqual(
+            sum(check["release_blocker"] for check in data["checks"]),
+            data["access_summary"]["release_blockers"],
+        )
+        self.assertTrue(all(check["access_dispositions"] for check in data["checks"]))
+
+    def test_production_browser_uses_validated_disposition_review_metadata(self):
+        data = BUILDER.load_ledger()
+        radahn = next(check for check in data["checks"] if check["check_id"] == 7770002)
+        self.assertFalse(radahn["release_blocker"])
+        self.assertEqual(
+            {row["disposition"] for row in radahn["access_dispositions"]},
+            {"region_sufficient"},
+        )
+        row = radahn["access_dispositions"][0]
+        self.assertEqual(row["option_set"], "all")
+        self.assertEqual(row["review_issue"], "#1271")
+        self.assertIn("festival flag 9410", row["reason"])
 
     def test_small_fixture_still_exercises_conflicts_and_family_deduplication(self):
         data = BUILDER.load_fixture()
@@ -123,7 +142,10 @@ class OfflineArtifactTests(unittest.TestCase):
 
     def test_page_exposes_facets_conflicts_citations_and_the_four_questions(self):
         html = BUILDER.build().decode("utf-8")
-        for facet in ('id="status"', 'id="risk"', 'id="kind"', 'id="family"'):
+        for facet in (
+            'id="status"', 'id="risk"', 'id="kind"', 'id="family"',
+            'id="disposition"', 'id="blocker"',
+        ):
             self.assertIn(facet, html)
         for question in (
             "1. Why is this check here?",
@@ -144,12 +166,15 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertIn("No access evidence exists for this check", html)
         self.assertIn("Access claim:", html)
         self.assertIn("ownership is not proof that the player can reach or collect it", html)
+        self.assertIn("Access disposition", html)
+        self.assertIn("v0.6 release blocker.", html)
+        self.assertIn("${blockers} release blockers", html)
 
     def test_permalink_serialises_every_facet_and_selected_claim(self):
         html = BUILDER.build().decode("utf-8")
         self.assertIn("new URLSearchParams(location.hash.slice(1))", html)
         self.assertIn("history.replaceState(null,'','#'+hashParams(selected).toString())", html)
-        for key in ("q", "status", "risk", "kind", "family"):
+        for key in ("q", "status", "risk", "kind", "family", "disposition", "blocker"):
             self.assertIn(f"'{key}'", html)
         self.assertIn("p.set('claim',selected)", html)
         self.assertIn("new URL(location.href)", html)
@@ -162,7 +187,8 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertIn("riskRank[a.risk]-riskRank[b.risk]", html)
         self.assertIn("statusRank[a.status]-statusRank[b.status]", html)
         self.assertIn("a.check_id-b.check_id||a.claim_kind.localeCompare(b.claim_kind)", html)
-        self.assertIn("['claim_id','check_id','claim_kind','status','risk','value','evidence_families','review_issue','permalink']", html)
+        self.assertIn("'access_dispositions','option_sets','release_blocker'", html)
+        self.assertIn("'disposition_reasons','disposition_review_issues','permalink'", html)
         self.assertIn("new Set(c.evidence.map(e=>e.family_id)).size", html)
         self.assertIn("String(value??'').replace(/[\\t\\r\\n]+/g,' ')", html)
         self.assertIn("if(/^[=+\\-@]/.test(s))s=\"'\"+s", html)
