@@ -235,6 +235,31 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
         self.assertIn("other modes remain unresolved", row["notes"])
         self.assertEqual(self.bundle["diagnostics"]["metyr_access_claims"], 1)
 
+    def test_stagefront_fragment_access_records_both_existing_routes(self):
+        ap_id, flag, region = self.adapter.STAGEFRONT_FRAGMENT_ACCESS
+        claim = next(row for row in self.bundle["claims"]
+                     if row["claim_id"] == f"check:{ap_id}/access")
+        self.assertEqual(json.loads(claim["value"]), {
+            "conditions": [
+                {"region": region, "type": "region"},
+                {
+                    "conditions": [
+                        {"boss": "Divine Beast Dancing Lion", "type": "sweep"},
+                        {"name": "Enir Ilim Lock", "type": "item"},
+                    ],
+                    "type": "any",
+                },
+            ],
+            "type": "all",
+        })
+        evidence = {row["evidence_id"]: row for row in self.bundle["evidence"]}
+        row = evidence[claim["evidence_ids"]]
+        self.assertIn("CrossRegionAccess.set_rules", row["citation"])
+        self.assertIn("test_physical_pickup_requires_enir_ilim_without_sweep", row["citation"])
+        self.assertIn("test_dancing_lion_sweep_is_independent_of_enir_ilim", row["citation"])
+        self.assertIn(f"Exact generated subject f{flag}", row["notes"])
+        self.assertEqual(self.bundle["diagnostics"]["stagefront_fragment_access_claims"], 1)
+
     def test_perfect_order_access_is_one_exact_emevd_witness(self):
         claim = next(row for row in self.bundle["claims"]
                      if row["claim_id"] == "check:7770008/access")

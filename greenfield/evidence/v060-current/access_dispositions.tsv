@@ -1810,7 +1810,8 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7771807		unresolved	critical	all
 7771808		unresolved	critical	all
 7771809		unresolved	critical	all
-7771810		unresolved	critical	all
+7771810	check:7771810/access	encoded	critical	stagefront_fragment_swept=false	CrossRegionAccess.set_rules requires Enir Ilim reachability for the physical pickup when no enabled boss sweep contains this exact check.	#1271			greenfield/eldenring/tests/test_gf_cross_region_access.py	test_physical_pickup_requires_enir_ilim_without_sweep
+7771810	check:7771810/access	encoded	critical	stagefront_fragment_swept=true	The enabled Dancing Lion sweep is an independent Belurat-side route and CrossRegionAccess deliberately does not add the Enir Ilim predicate.	#1271			greenfield/eldenring/tests/test_gf_cross_region_access.py	test_dancing_lion_sweep_is_independent_of_enir_ilim
 7771811		unresolved	critical	all
 7771812		unresolved	critical	all
 7771813		unresolved	critical	all
