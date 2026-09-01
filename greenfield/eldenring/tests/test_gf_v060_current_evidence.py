@@ -91,18 +91,41 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
                                 and " getItemFlagId=" in row["citation"]
                                 for row in rows))
 
+    def test_stormhill_access_preserves_one_emevd_or_group(self):
+        claim = next(row for row in self.bundle["claims"]
+                     if row["claim_id"] == "check:7770583/access")
+        value = json.loads(claim["value"])
+        self.assertEqual(value["type"], "any")
+        self.assertEqual(
+            {row["flag"] for row in value["conditions"]},
+            {3708, 3709, 1041389414},
+        )
+        evidence_by_id = {row["evidence_id"]: row for row in self.bundle["evidence"]}
+        source_by_id = {row["source_id"]: row for row in self.bundle["sources"]}
+        rows = [evidence_by_id[eid] for eid in claim["evidence_ids"].split(",")]
+        self.assertEqual(len(rows), 3)
+        self.assertEqual(
+            {source_by_id[row["source_id"]]["family_id"] for row in rows},
+            {"game:emevd:m60_41_38_00:90005750"},
+        )
+        self.assertEqual((claim["status"], claim["risk"], claim["review_issue"]),
+                         ("single_source", "critical", "#1226"))
+        self.assertTrue(all("not independent detection evidence" in row["independence_notes"]
+                            for row in rows))
+        self.assertTrue(all("event=90005750" in row["citation"] and
+                            "commonarg/WaitFor" in row["citation"] for row in rows))
+
     def test_perfect_order_access_is_one_exact_emevd_witness(self):
         claim = next(row for row in self.bundle["claims"]
-                     if row["claim_kind"] == "access")
+                     if row["claim_id"] == "check:7770008/access")
         self.assertEqual(json.loads(claim["value"]), {"type": "flag", "flag": 11059206})
         evidence_by_id = {row["evidence_id"]: row for row in self.bundle["evidence"]}
         source_by_id = {row["source_id"]: row for row in self.bundle["sources"]}
         row = evidence_by_id[claim["evidence_ids"]]
         self.assertEqual(source_by_id[row["source_id"]]["family_id"],
                          "game:emevd:m11_05_00_00:90005750")
-        self.assertEqual((claim["subject_id"], claim["status"], claim["risk"],
-                          claim["review_issue"]),
-                         ("7770008", "single_source", "critical", "#1232"))
+        self.assertEqual((claim["status"], claim["risk"], claim["review_issue"]),
+                         ("single_source", "critical", "#1232"))
         self.assertIn("not independent detection evidence", row["independence_notes"])
         self.assertIn("greenfield/lot_gates.tsv:18", row["citation"])
         self.assertIn("event=90005750 commonarg/WaitFor", row["citation"])

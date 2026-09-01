@@ -100,6 +100,34 @@ def _load_map_lot_detection(path: Path) -> dict[int, list[dict]]:
     return by_flag
 
 
+def _load_stormhill_access(path: Path) -> list[dict[str, object]]:
+    """Load the exact f400191 WaitFor sites without treating their join as detection evidence."""
+    matches = []
+    with path.open(encoding="utf-8", newline="") as handle:
+        header = ""
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip() or line.startswith("#"):
+                continue
+            if not header:
+                header = line
+                continue
+            row = next(csv.DictReader([header, line], delimiter="\t"))
+            if row["check_flag"] != "400191" or row["context"] != "commonarg/WaitFor":
+                continue
+            matches.append({
+                "line": line_number, "gate_flag": int(row["gate_flag"]),
+                "context": row["context"], "event_id": int(row["event_id"]),
+                "source": row["source"], "evidence": row["evidence"],
+                "gate_map": row["gate_map"], "gate_test_map": row["gate_test_map"],
+            })
+    matches.sort(key=lambda row: int(row["gate_flag"]))
+    if [row["gate_flag"] for row in matches] != [3708, 3709, 1041389414]:
+        raise RuntimeError(f"f400191 WaitFor corpus changed: {matches!r}")
+    if {row["event_id"] for row in matches} != {90005750}:
+        raise RuntimeError(f"f400191 WaitFor event changed: {matches!r}")
+    return matches
+
+
 def _load_perfect_order_access(path: Path) -> dict[str, object]:
     """Load the one exact f9500 WaitFor site; its param join is not a detection witness."""
     matches = []
@@ -182,12 +210,24 @@ def build_records(repo: Path) -> dict:
     locations, stamp = _load_generated_locations(data_path)
     overrides, non_flag_overrides = _load_flag_region_overrides(override_path)
     map_lots = _load_map_lot_detection(lot_path)
+    stormhill_access = _load_stormhill_access(lot_gates_path)
     perfect_order_access = _load_perfect_order_access(lot_gates_path)
     sources, source = _source_records(repo, data_path, override_path, lot_path, stamp)
     lot_gates_hash = _sha256(lot_gates_path)
-    lot_gates_source_id = f"game:emevd-lot-gates:{lot_gates_hash.removeprefix('sha256:')}"
+    lot_gates_source_id = (
+        f"game:emevd-lot-gates:m60_41_38_00:{lot_gates_hash.removeprefix('sha256:')}")
     sources.append({
         "source_id": lot_gates_source_id, "source_kind": "game_data",
+        "family_id": "game:emevd:m60_41_38_00:90005750",
+        "title": "Stormhill Shack f400191 WaitFor call sites",
+        "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+        "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
+        "license": "private-evidence", "environment_id": "", "supersedes": "",
+    })
+    perfect_order_source_id = (
+        f"game:emevd-lot-gates:m11_05_00_00:{lot_gates_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": perfect_order_source_id, "source_kind": "game_data",
         "family_id": "game:emevd:m11_05_00_00:90005750",
         "title": "Mending Rune of Perfect Order f9500 WaitFor call site",
         "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
@@ -319,17 +359,63 @@ def build_records(repo: Path) -> dict:
             "supersedes": "",
         })
 
+    stormhill = [row for row in locations if row["flag"] == 400191]
+    if len(stormhill) != 1:
+        raise RuntimeError(f"expected one current f400191 check, found {stormhill!r}")
+    stormhill_ap_id = stormhill[0]["ap_id"]
+    access_claim_id = f"check:{stormhill_ap_id}/access"
+    access_value = {
+        "type": "any",
+        "conditions": [{"type": "flag", "flag": row["gate_flag"]}
+                       for row in stormhill_access],
+    }
+    access_evidence_ids = []
+    for row in stormhill_access:
+        gate_flag = row["gate_flag"]
+        evidence_id = (
+            f"game:emevd:m60_41_38_00:90005750:f400191:gate-{gate_flag}:access")
+        access_evidence_ids.append(evidence_id)
+        locator = row["gate_map"] or row["gate_test_map"]
+        evidence.append({
+            "evidence_id": evidence_id, "claim_id": access_claim_id,
+            "source_id": lot_gates_source_id, "stance": "supports",
+            "value": _json(access_value),
+            "citation": (
+                f"greenfield/lot_gates.tsv:{row['line']} check_flag=400191 "
+                f"gate_flag={gate_flag}; {row['source']} event={row['event_id']} "
+                f"{row['context']} {row['evidence']} {locator}"
+            ),
+            "method": "tools/build_v060_current_evidence.py:stormhill_waitfor_access",
+            "independence_notes": (
+                "One of three OR arms in the same EMEVD common-event family; the f400191 "
+                "association is joined through ItemLotParam/flag_lots and is not independent "
+                "detection evidence."
+            ),
+            "valid_from": GAME_VERSION, "valid_to": "",
+            "notes": "Positive WaitFor prerequisite; separate call sites form one any group.",
+        })
+    claims.append({
+        "claim_id": access_claim_id, "subject_kind": "check",
+        "subject_id": str(stormhill_ap_id), "claim_kind": "access",
+        "game_version": GAME_VERSION, "value": _json(access_value),
+        "status": "single_source", "risk": "critical", "adjudication": "automatic",
+        "evidence_ids": ",".join(sorted(access_evidence_ids)),
+        "last_reviewed": REVIEW_DATE, "review_issue": "#1226", "active": "true",
+        "supersedes": "",
+    })
+
     perfect_order = [row for row in locations if row["flag"] == 9500]
     if len(perfect_order) != 1:
         raise RuntimeError(f"expected one current f9500 check, found {perfect_order!r}")
     perfect_order_ap_id = perfect_order[0]["ap_id"]
-    access_claim_id = f"check:{perfect_order_ap_id}/access"
-    access_value = {"type": "flag", "flag": perfect_order_access["gate_flag"]}
-    access_evidence_id = "game:emevd:m11_05_00_00:90005750:f9500:gate-11059206:access"
+    perfect_order_claim_id = f"check:{perfect_order_ap_id}/access"
+    perfect_order_value = {"type": "flag", "flag": perfect_order_access["gate_flag"]}
+    perfect_order_evidence_id = (
+        "game:emevd:m11_05_00_00:90005750:f9500:gate-11059206:access")
     evidence.append({
-        "evidence_id": access_evidence_id, "claim_id": access_claim_id,
-        "source_id": lot_gates_source_id, "stance": "supports",
-        "value": _json(access_value),
+        "evidence_id": perfect_order_evidence_id, "claim_id": perfect_order_claim_id,
+        "source_id": perfect_order_source_id, "stance": "supports",
+        "value": _json(perfect_order_value),
         "citation": (
             f"greenfield/lot_gates.tsv:{perfect_order_access['line']} check_flag=9500 "
             f"gate_flag=11059206; {perfect_order_access['source']} "
@@ -345,11 +431,11 @@ def build_records(repo: Path) -> dict:
         "notes": "Positive WaitFor prerequisite; one call site has semantics=single.",
     })
     claims.append({
-        "claim_id": access_claim_id, "subject_kind": "check",
+        "claim_id": perfect_order_claim_id, "subject_kind": "check",
         "subject_id": str(perfect_order_ap_id), "claim_kind": "access",
-        "game_version": GAME_VERSION, "value": _json(access_value),
+        "game_version": GAME_VERSION, "value": _json(perfect_order_value),
         "status": "single_source", "risk": "critical", "adjudication": "automatic",
-        "evidence_ids": access_evidence_id,
+        "evidence_ids": perfect_order_evidence_id,
         "last_reviewed": REVIEW_DATE, "review_issue": "#1232", "active": "true",
         "supersedes": "",
     })
@@ -380,6 +466,7 @@ def build_records(repo: Path) -> dict:
             "map_lot_flags": len(map_lots),
             "map_lot_flags_matched": len(matched_map_lot_flags),
             "map_lot_flags_without_current_check": len(set(map_lots) - matched_map_lot_flags),
+            "stormhill_access_claims": 1,
             "perfect_order_access_claims": 1,
         },
     }

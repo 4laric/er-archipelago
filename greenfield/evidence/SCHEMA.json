@@ -1,6 +1,12 @@
 {
   "schema_version": 1,
   "claim_kinds": ["access", "alternate_acquisition", "description", "detection", "identity", "region", "suppression", "sweep_owner"],
+  "family_source_kinds": {
+    "game:": ["game_data"],
+    "project:": ["project_derivation", "ruling"],
+    "reference:": ["external_reference"],
+    "testimony:": ["live_testimony"]
+  },
   "identity_namespaces": ["entity", "flag", "item", "lot", "shop"],
   "live_testimony": {
     "citation_link": "source.revision",
