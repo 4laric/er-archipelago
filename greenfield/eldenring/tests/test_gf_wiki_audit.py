@@ -27,7 +27,7 @@ SPEC.loader.exec_module(AUDIT)
 
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (2, 3))
+        self.assertEqual(AUDIT.validate(REPO), (4, 5))
 
     def test_lamenter_pilot_preserves_lead_only_scope(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
@@ -41,6 +41,30 @@ class WikiAuditTest(unittest.TestCase):
                       leads["lamenter-boss-access"]["normalized_value"])
         self.assertTrue(all(row["disposition"] == "lead_only" for row in leads.values()))
         self.assertTrue(all(row["game_version"] == "unknown" for row in leads.values()))
+
+    def test_patches_pilot_keeps_routes_disjunctive_and_lead_only(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            leads = {row["lead_id"]: row for row in csv.DictReader(handle, delimiter="\t")}
+        murkwater = leads["patches-murkwater-margits-shackle"]
+        scenic = leads["patches-scenic-isle-margits-shackle"]
+        self.assertEqual((murkwater["subject_id"], scenic["subject_id"]),
+                         ("7770235", "7770235"))
+        self.assertEqual((murkwater["claim_kind"], scenic["claim_kind"]),
+                         ("alternate_acquisition", "alternate_acquisition"))
+        self.assertIn("spared_after_surrender", murkwater["normalized_value"])
+        self.assertIn('"name":"Liurnia"', scenic["normalized_value"])
+        self.assertIn("shared Thiollier row", murkwater["limitations"])
+        self.assertIn("alternate route", scenic["limitations"])
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in (murkwater, scenic)))
+
+    def test_patches_report_comparison_still_matches_current_world_inputs(self):
+        rows_test = (REPO / "greenfield" / "eldenring" / "tests" /
+                     "test_gf_hub_collapsed_merchant_rows.py").read_text(encoding="utf-8")
+        generated = (REPO / "greenfield" / "eldenring" / "data.py").read_text(encoding="utf-8")
+        self.assertIn('PATCHES_REGIONS = ("Limgrave", "Mt. Gelmir", "Cerulean")', rows_test)
+        self.assertIn("Margit's Shackle - from Patches or Thiollier", generated)
+        self.assertIn("7770235, 110000", generated)
 
 
 if __name__ == "__main__":
