@@ -17,7 +17,7 @@ except ImportError:
 
 FOUND = find_repo_root(__file__)
 RUNNING_FROM_REPO = FOUND is not None
-REPO = Path(FOUND or Path(__file__).resolve().parents[2])
+REPO = Path(FOUND) if FOUND else None
 
 
 def _read_tsv(path: Path) -> list[dict[str, str]]:
@@ -26,6 +26,7 @@ def _read_tsv(path: Path) -> list[dict[str, str]]:
 
 
 def _load_adapter():
+    assert REPO is not None
     tools = REPO / "tools"
     sys.path.insert(0, str(tools))
     path = tools / "build_v060_current_evidence.py"
@@ -40,6 +41,7 @@ def _load_adapter():
 class CurrentEvidenceAdapterTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        assert REPO is not None
         cls.adapter = _load_adapter()
         cls.bundle = cls.adapter.build_records(REPO)
 
