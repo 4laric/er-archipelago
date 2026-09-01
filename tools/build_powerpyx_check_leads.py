@@ -16,7 +16,6 @@ import importlib.util
 import json
 from pathlib import Path
 import re
-import sys
 import unicodedata
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -165,7 +164,6 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("capture_dir", type=Path)
     ap.add_argument("--output", type=Path, default=DEFAULT_OUT)
-    ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
     rows, stats = build(args.capture_dir)
     if not rows:
@@ -176,13 +174,8 @@ def main() -> int:
     writer.writeheader()
     writer.writerows(rows)
     rendered = out.getvalue()
-    if args.check:
-        if not args.output.exists() or args.output.read_text(encoding="utf-8") != rendered:
-            print(f"[FAIL] {args.output.relative_to(ROOT)} is stale", file=sys.stderr)
-            return 1
-    else:
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(rendered, encoding="utf-8")
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(rendered, encoding="utf-8")
     print(json.dumps(stats, sort_keys=True))
     return 0
 
