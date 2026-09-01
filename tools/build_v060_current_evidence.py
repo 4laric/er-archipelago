@@ -27,6 +27,8 @@ REVIEW_DATE = "2026-08-31"
 GAME_VERSION = "1.17"
 RADAHN_ACCESS_AP_IDS = (7770002, 7770665)
 RADAHN_FESTIVAL_FLAG = 9410
+FINGERSLAYER_ACCESS_AP_ID = 7771152
+FINGERSLAYER_CHEST_GATE_FLAG = 1034509410
 
 
 def _json(value: object) -> str:
@@ -418,6 +420,17 @@ def build_records(repo: Path) -> dict:
         "family_id": "project:radahn-access-ruling",
         "title": "Archipelago Radahn Festival start-flag bypass",
         "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+        "revision": start_grace_hash,
+        "url_or_path": "greenfield/eldenring/features/start_grace.py",
+        "license": "project-derived", "environment_id": "", "supersedes": "",
+    })
+    fingerslayer_source_id = (
+        f"project:fingerslayer-start-flag:{start_grace_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": fingerslayer_source_id, "source_kind": "ruling",
+        "family_id": "project:fingerslayer-access-ruling",
+        "title": "Archipelago Fingerslayer Blade chest-gate bypass",
+        "game_version": GAME_VERSION, "retrieved_at": "2026-09-01",
         "revision": start_grace_hash,
         "url_or_path": "greenfield/eldenring/features/start_grace.py",
         "license": "project-derived", "environment_id": "", "supersedes": "",
@@ -1057,6 +1070,49 @@ def build_records(repo: Path) -> dict:
             "supersedes": "",
         })
 
+    fingerslayer_location = location_by_ap_id.get(FINGERSLAYER_ACCESS_AP_ID)
+    if fingerslayer_location is None or fingerslayer_location["region"] != "Siofra River":
+        raise RuntimeError(f"Fingerslayer access subject changed: {fingerslayer_location!r}")
+    fingerslayer_claim_id = f"check:{FINGERSLAYER_ACCESS_AP_ID}/access"
+    fingerslayer_evidence_id = (
+        f"project:fingerslayer-start-flag:f{FINGERSLAYER_CHEST_GATE_FLAG}:"
+        f"check-{FINGERSLAYER_ACCESS_AP_ID}:access")
+    fingerslayer_value = {
+        "type": "region", "region": "Siofra River",
+        "runtime_bypass": {
+            "type": "start_flag", "flag": FINGERSLAYER_CHEST_GATE_FLAG,
+        },
+    }
+    evidence.append({
+        "evidence_id": fingerslayer_evidence_id, "claim_id": fingerslayer_claim_id,
+        "source_id": fingerslayer_source_id, "stance": "supports",
+        "value": _json(fingerslayer_value),
+        "citation": (
+            "greenfield/eldenring/features/start_grace.py:StartGrace.slot_data appends "
+            "_FINGERSLAYER_CHEST_GATE=1034509410 unconditionally; "
+            "greenfield/eldenring/tests/test_gf_features_smoke.py:"
+            "FeaturesSmoke.test_fingerslayer_chest_gate_flag_force_set"
+        ),
+        "method": "tools/build_v060_current_evidence.py:fingerslayer_start_flag_access",
+        "independence_notes": (
+            "The regression test checks the same project runtime path and is not an independent "
+            "witness; this is an explicit project access ruling."
+        ),
+        "valid_from": GAME_VERSION, "valid_to": "",
+        "notes": (
+            "The unconditional spawn flag opens the Ranni-gated chest; no additional AP item or "
+            "quest predicate remains once Siofra River is reachable."
+        ),
+    })
+    claims.append({
+        "claim_id": fingerslayer_claim_id, "subject_kind": "check",
+        "subject_id": str(FINGERSLAYER_ACCESS_AP_ID), "claim_kind": "access",
+        "game_version": GAME_VERSION, "value": _json(fingerslayer_value),
+        "status": "proven", "risk": "critical", "adjudication": "design_ruling",
+        "evidence_ids": fingerslayer_evidence_id, "last_reviewed": "2026-09-01",
+        "review_issue": "#1271", "active": "true", "supersedes": "",
+    })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -1093,6 +1149,7 @@ def build_records(repo: Path) -> dict:
             "frenzied_flame_seal_access_claims": 1,
             "witch_crown_access_claims": 1,
             "radahn_access_claims": len(RADAHN_ACCESS_AP_IDS),
+            "fingerslayer_access_claims": 1,
         },
     }
 
