@@ -75,6 +75,25 @@ python tools/check_walkthrough_check_leads.py
 python tools/build_evidence_browser.py
 ```
 
+## Game8 legacy-dungeon corpus
+
+`game8-check-leads.tsv` independently cross-checks the Redmaw pass against five immutable Game8
+legacy-dungeon captures: Raya Lucaria, Redmane Castle, Leyndell, Farum Azula, and the Haligtree.
+The builder verifies each complete response-body SHA-256 before parsing it. It searches only
+walkthrough/loot sections and binds only an exact item name that identifies one current AP check in
+the page's declared AP region. Repeated stones and other ambiguous names are refused.
+
+All five pages share `gameplay-guide:game8`; pages from one publisher are not five independent
+witnesses. Every result remains `lead_only` at `game_version=unknown`, and no route prose becomes
+access logic. Reproduce by downloading the five `revision_url` captures in `sources.tsv` as
+`<archive-id>.html`, then run:
+
+```
+python tools/build_game8_check_leads.py /path/to/game8-captures
+python tools/check_game8_check_leads.py
+python tools/build_evidence_browser.py
+```
+
 ## Eldenpedia location-page coverage
 
 `eldenpedia-location-pages.tsv` inventories the `Category:Locations` corpus without redistributing

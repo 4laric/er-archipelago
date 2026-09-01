@@ -33,6 +33,12 @@ assert WALKTHROUGH_SPEC and WALKTHROUGH_SPEC.loader
 WALKTHROUGH_AUDIT = importlib.util.module_from_spec(WALKTHROUGH_SPEC)
 WALKTHROUGH_SPEC.loader.exec_module(WALKTHROUGH_AUDIT)
 
+GAME8_SPEC = importlib.util.spec_from_file_location(
+    "check_game8_check_leads", REPO / "tools" / "check_game8_check_leads.py")
+assert GAME8_SPEC and GAME8_SPEC.loader
+GAME8_AUDIT = importlib.util.module_from_spec(GAME8_SPEC)
+GAME8_SPEC.loader.exec_module(GAME8_AUDIT)
+
 ELDENPEDIA_SPEC = importlib.util.spec_from_file_location(
     "check_eldenpedia_location_leads",
     REPO / "tools" / "check_eldenpedia_location_leads.py",
@@ -52,10 +58,13 @@ POWERPYX_SPEC.loader.exec_module(POWERPYX_AUDIT)
 
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (19, 16))
+        self.assertEqual(AUDIT.validate(REPO), (24, 16))
 
     def test_broad_walkthrough_check_leads_validate(self):
         self.assertEqual(WALKTHROUGH_AUDIT.main(), 0)
+
+    def test_game8_check_leads_validate(self):
+        self.assertEqual(GAME8_AUDIT.main(), 0)
 
     def test_eldenpedia_location_check_leads_validate(self):
         self.assertEqual(ELDENPEDIA_AUDIT.main(), 0)
