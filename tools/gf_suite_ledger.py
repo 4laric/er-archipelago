@@ -58,6 +58,10 @@ GENERATORS = [
     "sweep_anchor_coords",
     "region_selection",
     "check_browser",
+    # Phase-1 offline evidence browser (#1212): imports its builder and normalized fixture from
+    # the repo, neither of which is installed beside the world. AP-free and deterministic; run it
+    # in the generators job where the page staleness diff is enforced.
+    "evidence_browser",
     "desc_triage",
     # The region second-opinion worksheet page. Same shape as the two above: it loads
     # tools/build_region_second_opinion_page.py BY PATH and diffs the committed root page
