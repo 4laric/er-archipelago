@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Build the v0.6 Phase-1 evidence audit browser from its temporary fixture contract.
+"""Build the v0.6 Phase-1 evidence audit browser from the normalized current ledger.
 
-This is deliberately a reader only. It does not adjudicate claims, adapt a production corpus,
-change runtime tables, or participate in regen_all yet; #1213 owns that integration. The small
-checked-in fixture makes the browser's identity/region display contract reviewable now without
-pretending the future ledger emitter already exists.
+This is deliberately a reader only. It does not adjudicate claims or change runtime tables. The
+small checked-in fixture remains available to tests, while the committed page reads the normalized
+current-corpus identity, region, and detection ledger. Phase 1 still carries no access evidence.
 
 Run: python3 tools/build_evidence_browser.py [--check] [--out PATH]
 """
@@ -18,12 +17,14 @@ import os
 import tempfile
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CURRENT = os.path.join(REPO, "greenfield", "evidence", "v060-current")
 FIXTURE = os.path.join(REPO, "greenfield", "evidence", "browser_fixture")
 OUT_HTML = os.path.join(REPO, "er-archipelago-evidence-browser.html")
 
 STATUSES = {"proven", "corroborated", "single_source", "conflicted", "inferred", "unverified"}
 RISKS = {"critical", "high", "medium", "low"}
-CLAIM_KINDS = {"identity", "region"}
+BROWSER_CLAIM_KINDS = {"identity", "region", "detection"}
+REQUIRED_CHECK_KINDS = {"identity", "region"}
 STANCES = {"supports", "contradicts", "silent", "ambiguous"}
 HEADERS = {
     "sources.tsv": ("source_id", "source_kind", "family_id", "title", "game_version",
@@ -57,7 +58,7 @@ def _rows(path: str, header: tuple[str, ...]) -> list[dict[str, str]]:
     return rows
 
 
-def normalized_tables(path: str = FIXTURE) -> dict[str, list[dict[str, str]]]:
+def normalized_tables(path: str = CURRENT) -> dict[str, list[dict[str, str]]]:
     return {name: _rows(os.path.join(path, name), header) for name, header in HEADERS.items()}
 
 
@@ -101,8 +102,8 @@ def transform(tables: dict[str, list[dict[str, str]]]) -> dict:
         if row["active"] != "true":
             continue
         claim_id, kind = row["claim_id"], row["claim_kind"]
-        if row["subject_kind"] != "check" or kind not in CLAIM_KINDS:
-            raise ValueError(f"Phase 1 browser accepts active check identity/region claims only: {claim_id}")
+        if row["subject_kind"] != "check" or kind not in BROWSER_CLAIM_KINDS:
+            raise ValueError(f"Phase 1 browser does not support this active claim: {claim_id}")
         check_id = int(row["subject_id"])
         if claim_id != f"check:{check_id}/{kind}" or claim_id in seen_claims:
             raise ValueError(f"unstable or duplicate claim_id: {claim_id}")
@@ -121,8 +122,9 @@ def transform(tables: dict[str, list[dict[str, str]]]) -> dict:
         })
     checks = []
     for check_id, claims in sorted(by_check.items()):
-        if {c["claim_kind"] for c in claims} != CLAIM_KINDS:
-            raise ValueError(f"Phase 1 check {check_id} needs exactly identity and region claims")
+        kinds = {c["claim_kind"] for c in claims}
+        if len(kinds) != len(claims) or not REQUIRED_CHECK_KINDS <= kinds:
+            raise ValueError(f"Phase 1 check {check_id} needs unique identity and region claims")
         checks.append({"check_id": check_id, "name": f"Check {check_id}",
                        "claims": sorted(claims, key=lambda c: c["claim_kind"])})
     if not checks:
@@ -130,7 +132,7 @@ def transform(tables: dict[str, list[dict[str, str]]]) -> dict:
     return {"schema": "evidence-browser-payload-v1", "checks": checks}
 
 
-def fixture_hash(path: str = FIXTURE) -> str:
+def ledger_hash(path: str = CURRENT) -> str:
     digest = hashlib.sha256()
     for name in sorted(HEADERS):
         digest.update(name.encode() + b"\0")
@@ -139,10 +141,16 @@ def fixture_hash(path: str = FIXTURE) -> str:
     return "sha256:" + digest.hexdigest()
 
 
-def load_fixture(path: str = FIXTURE) -> dict:
+def load_ledger(path: str = CURRENT) -> dict:
     contract = transform(normalized_tables(path))
-    contract["inputs_hash"] = fixture_hash(path)
+    contract["dataset"] = os.path.relpath(path, REPO).replace(os.sep, "/")
+    contract["inputs_hash"] = ledger_hash(path)
     return contract
+
+
+def load_fixture(path: str = FIXTURE) -> dict:
+    """Load the deliberately small conflict/family fixture used by focused tests."""
+    return load_ledger(path)
 
 
 def render(contract: dict) -> str:
@@ -172,7 +180,7 @@ input,select,button{{width:100%;padding:9px;border:1px solid var(--line);border-
 .toolbar{{display:flex;gap:8px;align-items:center}} .toolbar button{{width:auto}} .empty{{padding:20px;color:var(--muted)}}
 @media(max-width:900px){{.layout{{display:block}}.queue{{border-right:0;border-bottom:1px solid var(--line)}}.filters{{grid-template-columns:1fr 1fr}}.questions{{grid-template-columns:1fr}}}}
 </style></head><body>
-<header><h1>Evidence audit · Phase 1</h1><div class="muted">Identity and region claims from a deterministic fixture contract · reader only · <code>{stamp}</code></div></header>
+<header><h1>Evidence audit · Phase 1</h1><div class="muted">Identity, region, and detection claims from <code>{contract['dataset']}</code> · reader only · no access evidence · <code>{stamp}</code></div></header>
 <main class="layout"><section class="queue"><div class="filters">
 <input id="q" aria-label="Search" placeholder="Search check, claim, value, citation">
 <select id="status" aria-label="Status"><option value="">All statuses</option></select>
@@ -203,7 +211,7 @@ function show(c){{
  const region=claims.find(x=>x.check_id===c.check_id&&x.claim_kind==='region');
  const why=identity?`Identity ${{escapeHtml(JSON.stringify(identity.value))}} · ${{identity.status}}`:'No identity claim in this phase.';
  const reach=region?`No access evidence exists in Phase 1. The region claim files this check in ${{escapeHtml(JSON.stringify(region.value))}}, but ownership is not proof that the player can reach or collect it.`:'No access evidence exists in Phase 1.';
- const disagree=contradictions.length?contradictions.map(e=>`${{e.family_id}}: ${{e.citation}}`).join(' · '):'No active contradiction is represented in this fixture.';
+ const disagree=contradictions.length?contradictions.map(e=>`${{e.family_id}}: ${{e.citation}}`).join(' · '):'No active contradiction is represented in this ledger.';
  let html=`<div class="toolbar"><div><h2>${{escapeHtml(c.check_name)}}</h2><div class="muted">${{c.claim_id}} · check ${{c.check_id}}</div></div><button id="copy">Copy permalink</button></div>`;
  html+=`<div class="badges">${{badge(c.claim_kind)}}${{badge(c.status)}}${{badge(c.risk)}}</div>`;
  if(c.status==='conflicted')html+=`<div class="alert"><strong>Conflict is active.</strong> Contradicting evidence remains visible below; the current value does not erase it.</div>`;
@@ -217,16 +225,18 @@ for(const k of ['q','status','risk','kind','family'])els[k].addEventListener(k==
 </script></body></html>'''
 
 
-def build(out_path: str = OUT_HTML) -> bytes:
-    return render(load_fixture()).encode("utf-8")
+def build(out_path: str = OUT_HTML, ledger_path: str = CURRENT) -> bytes:
+    return render(load_ledger(ledger_path)).encode("utf-8")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default=OUT_HTML)
+    parser.add_argument("--ledger", default=CURRENT,
+                        help="normalized ledger directory (default: v060-current)")
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    blob = build(args.out)
+    blob = build(args.out, args.ledger)
     if args.check:
         try:
             with open(args.out, "rb") as fh:
@@ -247,7 +257,7 @@ def main() -> int:
     finally:
         if os.path.exists(temp_path):
             os.unlink(temp_path)
-    print(f"wrote {args.out} ({len(blob)} bytes; {load_fixture()['inputs_hash']})")
+    print(f"wrote {args.out} ({len(blob)} bytes; {load_ledger(args.ledger)['inputs_hash']})")
     return 0
 
 

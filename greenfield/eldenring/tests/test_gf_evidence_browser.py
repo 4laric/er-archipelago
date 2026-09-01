@@ -39,7 +39,7 @@ def payload(html: str) -> dict:
 @unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class FixtureContractTests(unittest.TestCase):
     def test_fixture_uses_normalized_headers_and_identity_values(self):
-        tables = BUILDER.normalized_tables()
+        tables = BUILDER.normalized_tables(BUILDER.FIXTURE)
         self.assertEqual(set(tables), set(BUILDER.HEADERS))
         for table, rows in tables.items():
             if rows:
@@ -50,7 +50,8 @@ class FixtureContractTests(unittest.TestCase):
             identity = next(c for c in check["claims"] if c["claim_kind"] == "identity")
             self.assertEqual(set(identity["value"]), {"ap_id", "flag", "namespace", "id"})
             self.assertEqual(identity["value"]["ap_id"], check["check_id"])
-            self.assertIn(identity["value"]["namespace"], {"item", "lot", "shop", "entity"})
+            self.assertIn(identity["value"]["namespace"],
+                          {"item", "lot", "shop", "entity", "flag"})
 
     def test_fixture_has_exactly_identity_and_region_claims(self):
         data = BUILDER.load_fixture()
@@ -69,12 +70,12 @@ class FixtureContractTests(unittest.TestCase):
                             for e in claim["evidence"]))
 
     def test_transform_rejects_dangling_evidence_and_blank_citations(self):
-        tables = copy.deepcopy(BUILDER.normalized_tables())
+        tables = copy.deepcopy(BUILDER.normalized_tables(BUILDER.FIXTURE))
         tables["claims.tsv"][0]["evidence_ids"] += ",evidence:missing"
         with self.assertRaisesRegex(ValueError, "evidence_ids do not match"):
             BUILDER.transform(tables)
 
-        tables = copy.deepcopy(BUILDER.normalized_tables())
+        tables = copy.deepcopy(BUILDER.normalized_tables(BUILDER.FIXTURE))
         tables["evidence.tsv"][0]["citation"] = ""
         with self.assertRaisesRegex(ValueError, "exact citation"):
             BUILDER.transform(tables)
@@ -82,6 +83,27 @@ class FixtureContractTests(unittest.TestCase):
 
 @unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class OfflineArtifactTests(unittest.TestCase):
+    def test_committed_page_uses_the_full_current_corpus(self):
+        data = BUILDER.load_ledger()
+        claims = BUILDER.normalized_tables(BUILDER.CURRENT)["claims.tsv"]
+        subjects = {int(row["subject_id"]) for row in claims if row["active"] == "true"}
+        self.assertEqual(data["dataset"], "greenfield/evidence/v060-current")
+        self.assertGreater(len(subjects), 4000, "production browser fell back to the tiny fixture")
+        self.assertEqual(len(data["checks"]), len(subjects))
+        self.assertEqual(sum(len(check["claims"]) for check in data["checks"]), len(claims))
+        self.assertEqual(
+            {row["claim_kind"] for row in claims}, {"identity", "region", "detection"})
+        self.assertEqual(
+            sorted(row["status"] for row in claims),
+            sorted(claim["status"] for check in data["checks"] for claim in check["claims"]))
+
+    def test_small_fixture_still_exercises_conflicts_and_family_deduplication(self):
+        data = BUILDER.load_fixture()
+        self.assertEqual(data["dataset"], "greenfield/evidence/browser_fixture")
+        self.assertEqual(len(data["checks"]), 2)
+        self.assertTrue(any(claim["status"] == "conflicted"
+                            for check in data["checks"] for claim in check["claims"]))
+
     def test_build_is_byte_deterministic_and_committed_page_is_current(self):
         first = BUILDER.build()
         second = BUILDER.build()
@@ -90,11 +112,11 @@ class OfflineArtifactTests(unittest.TestCase):
             self.assertEqual(first, fh.read(),
                              "evidence browser is stale; run tools/build_evidence_browser.py")
 
-    def test_stamp_is_fixture_content_hash_not_a_git_commit(self):
+    def test_fixture_stamp_is_content_hash_not_a_git_commit(self):
         contract = BUILDER.load_fixture()
         stamp = contract["inputs_hash"]
-        self.assertEqual(stamp, BUILDER.fixture_hash())
-        html = BUILDER.build().decode("utf-8")
+        self.assertEqual(stamp, BUILDER.ledger_hash(BUILDER.FIXTURE))
+        html = BUILDER.build(ledger_path=BUILDER.FIXTURE).decode("utf-8")
         self.assertIn(f'<meta name="evidence-inputs-hash" content="{stamp}">', html)
         self.assertEqual(payload(html)["inputs_hash"], stamp)
 
@@ -109,14 +131,15 @@ class OfflineArtifactTests(unittest.TestCase):
             "4. What evidence would graduate it?",
         ):
             self.assertIn(question, html)
-        data = payload(html)
+        data = payload(BUILDER.build(ledger_path=BUILDER.FIXTURE).decode("utf-8"))
         claims = [c for x in data["checks"] for c in x["claims"]]
         conflicted = [c for c in claims if c["status"] == "conflicted"]
         self.assertTrue(conflicted, "witness: fixture no longer exercises an active conflict")
         self.assertTrue(any(e["stance"] == "contradicts" for c in conflicted for e in c["evidence"]))
         self.assertTrue(all(e["citation"].strip() for c in claims for e in c["evidence"]))
-        self.assertIn("Conflict is active.", html)
-        self.assertIn("Evidence by independent family", html)
+        fixture_html = BUILDER.build(ledger_path=BUILDER.FIXTURE).decode("utf-8")
+        self.assertIn("Conflict is active.", fixture_html)
+        self.assertIn("Evidence by independent family", fixture_html)
         self.assertIn("No access evidence exists in Phase 1", html)
         self.assertIn("ownership is not proof that the player can reach or collect it", html)
 
