@@ -1,0 +1,2 @@
+source_id	source_kind	family_id	title	game_version	retrieved_at	revision	url_or_path	license	environment_id	supersedes
+source:live-1	live_testimony	testimony:player:run-1	Player observation	1.17	2026-08-31	msg-123	https://discord.invalid/channels/1/2/123	private-evidence	env:run-1
