@@ -5,6 +5,13 @@
     "predecessor_active": false,
     "preserved_fields": ["subject_kind", "subject_id", "claim_kind"]
   },
+  "citation_contract": {
+    "citation_max_chars": 2048,
+    "local_locator": "canonical relative POSIX path",
+    "private_locator_scheme": "private:",
+    "public_locator_scheme": "https",
+    "revision_max_chars": 256
+  },
   "family_source_kinds": {
     "game:": ["game_data"],
     "project:": ["project_derivation", "ruling"],
