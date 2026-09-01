@@ -1151,7 +1151,7 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7771149		unresolved	critical	all
 7771150		unresolved	critical	all
 7771151		unresolved	critical	all
-7771152		unresolved	critical	all
+7771152	check:7771152/access	region_sufficient	critical	all	Siofra River access suffices because StartGrace.slot_data unconditionally sends chest-gate flag 1034509410; test_fingerslayer_chest_gate_flag_force_set guards the bypass.	#1271
 7771153		unresolved	critical	all
 7771154		unresolved	critical	all
 7771155		unresolved	critical	all

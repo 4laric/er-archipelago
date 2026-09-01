@@ -134,6 +134,24 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
             self.assertIn("no additional AP item or quest predicate", row["notes"])
         self.assertEqual(self.bundle["diagnostics"]["radahn_access_claims"], 2)
 
+    def test_fingerslayer_access_is_region_only_because_chest_gate_is_force_set(self):
+        claim = next(row for row in self.bundle["claims"]
+                     if row["claim_id"] == "check:7771152/access")
+        self.assertEqual(json.loads(claim["value"]), {
+            "region": "Siofra River",
+            "runtime_bypass": {"flag": 1034509410, "type": "start_flag"},
+            "type": "region",
+        })
+        self.assertEqual(
+            (claim["status"], claim["risk"], claim["adjudication"], claim["review_issue"]),
+            ("proven", "critical", "design_ruling", "#1271"),
+        )
+        evidence = {row["evidence_id"]: row for row in self.bundle["evidence"]}
+        row = evidence[claim["evidence_ids"]]
+        self.assertIn("_FINGERSLAYER_CHEST_GATE=1034509410 unconditionally", row["citation"])
+        self.assertIn("no additional AP item or quest predicate", row["notes"])
+        self.assertEqual(self.bundle["diagnostics"]["fingerslayer_access_claims"], 1)
+
     def test_perfect_order_access_is_one_exact_emevd_witness(self):
         claim = next(row for row in self.bundle["claims"]
                      if row["claim_id"] == "check:7770008/access")
