@@ -96,6 +96,16 @@ crashes to tell you.
   *hypothesis* — label it one, and gate the feature on a probe→readback, not on the
   claim.
 
+- **A key item is a contract, not an id.** A goods row alone does not describe every
+  effect the game associates with a key item. The identity, duplicate-named rows,
+  check flags, capability flags, safe reconciliation flags, hold ceiling, and grant
+  status belong in `greenfield/key_item_contracts.tsv`; physical-door predicates stay
+  in `greenfield/key_item_gates.tsv`. Never repair a missing capability by setting a
+  flag that is also a randomized check: that silently completes the check. Such a row
+  is `BLOCKED_DUAL_USE_FLAG` until the two effects can be separated. A consumer that
+  has not been traced to an instruction or measured in game remains `UNVERIFIED` and
+  cannot support a feature claim. History: `docs/history/POSTMORTEM-key-items.md`.
+
 ## Architecture — separate decision from I/O
 
 - **The client must not mix I/O with decision logic.** Networking, memory reads,

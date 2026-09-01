@@ -1,0 +1,25 @@
+# HAND-MAINTAINED. Identity and grant semantics for key-item families with observed grant bugs.
+# Physical-door predicates remain authoritative in key_item_gates.tsv.
+#
+# check_flags: setting these completes randomized checks; never assert them as grant repair.
+# capability_flags: state the vanilla subsystem associates with using/restoring the item.
+# safe_connect_flags: capability flags the client may reconcile without completing a check.
+# recipe: goods_only | goods+safe_flags | BLOCKED_DUAL_USE_FLAG | UNVERIFIED
+# status: verified | blocked | unverified
+# evidence_tier: in_game | datamine | assumed (assumed only for unverified rows)
+#
+item	canonical_goods	twin_goods	check_flags	capability_flags	safe_connect_flags	max_num	max_storage	recipe	status	evidence_tier	evidence
+Godrick's Great Rune	8148	191	171	191	191	1	1	goods+safe_flags	verified	datamine	flag_lots.tsv: flag 171 -> lot 10010 -> goods 8148; restore lot 34100500 awards twin 191; common event 90005110 consumes 8148 and sets restore flag 191; #682
+Radahn's Great Rune	8149	192	172	192	192	1	1	goods+safe_flags	verified	datamine	flag_lots.tsv: flag 172 -> lot 10301 -> goods 8149; Divine Tower restore uses twin/flag 192; #682
+Morgott's Great Rune	8150	193	173	193	193	1	1	goods+safe_flags	verified	datamine	flag_lots.tsv: flag 173 -> lot 10041 -> goods 8150; Divine Tower restore uses twin/flag 193; #682
+Rykard's Great Rune	8151	194	174	194	194	1	1	goods+safe_flags	verified	datamine	flag_lots.tsv: flag 174 -> lot 10221 -> goods 8151; m34_12 common event 90005110 uses restore flag/twin 194; connect reconciliation removes altar-order dependence; #731
+Mohg's Great Rune	8152	195	175	195	195	1	1	goods+safe_flags	verified	datamine	flag_lots.tsv: flag 175 -> lot 10121 -> goods 8152; Divine Tower restore uses twin/flag 195; #682
+Malenia's Great Rune	8153	196	176	196	196	1	1	goods+safe_flags	verified	datamine	flag_lots.tsv: flag 176 -> lot 10201 -> goods 8153; Divine Tower restore uses twin/flag 196; #682
+Great Rune of the Unborn	10080	-	197	-	-	1	1	goods_only	verified	datamine	flag_lots.tsv: flag 197 -> lot 10181 -> goods 10080. No duplicate-named Divine Tower row. Leyndell uses aggregate state 105+182, reconciled separately; #427 and clients#392
+Iron Whetblade	8970	-	65610	65610	-	1	1	BLOCKED_DUAL_USE_FLAG	blocked	datamine	flag_lots.tsv: flag 65610 -> lot 10000420 -> goods 8970. Same flag is randomized check and reported affinity unlock; setting it leaks the check; #239/#240
+Red-Hot Whetblade	8971	-	65640	65640	-	1	1	BLOCKED_DUAL_USE_FLAG	blocked	datamine	flag_lots.tsv: flag 65640 -> lot 1051360070 -> goods 8971; same dual-use conflict; #239/#240
+Sanctified Whetblade	8972	-	65660	65660	-	1	1	BLOCKED_DUAL_USE_FLAG	blocked	datamine	flag_lots.tsv: flag 65660 -> lot 11001010 -> goods 8972; #357/#1156 and #239/#240
+Glintstone Whetblade	8973	-	65680	65680	-	1	1	BLOCKED_DUAL_USE_FLAG	blocked	datamine	flag_lots.tsv: flag 65680 -> lot 14000500 -> goods 8973; #239/#240
+Black Whetblade	8974	-	65720	65720	-	1	1	BLOCKED_DUAL_USE_FLAG	blocked	datamine	flag_lots.tsv: flag 65720 -> lot 12020010 -> goods 8974; #867/#1156 and #239/#240
+Academy Glintstone Key	8109	-	-	-	-	1	1	goods_only	verified	datamine	PlayerHasItem(Goods, 8109) in m60_35_45 event 1035452600, m60_35_46 event 1035462600, and m60_36_47 event 1036472600; #276
+Messmer's Kindling	2008021	-	510460	-	-	1	1	UNVERIFIED	unverified	assumed	EquipParamGoods proves maxNum=1 and maxRepositoryNum=1; full Enir-Ilim grant/consumer recipe remains unmeasured and key_item_gates.tsv keeps it UNVERIFIED
