@@ -75,6 +75,85 @@ class EvidenceLedgerTests(unittest.TestCase):
             result = ledger.validate(dst)
             self.assertEqual(result.statuses["check:200/region"], "unverified")
 
+    def test_source_kind_cannot_spoof_a_runtime_family(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_live_fixture(td)
+            sources = dst / "sources.tsv"
+            sources.write_text(
+                sources.read_text().replace(
+                    "testimony:player:run-1", "game:runtime:env:run-1"
+                )
+            )
+            with self.assertRaisesRegex(ledger.LedgerError, "does not match family_id"):
+                ledger.validate(dst)
+
+    def test_runtime_family_requires_a_referenced_environment(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_live_fixture(td)
+            sources = dst / "sources.tsv"
+            text = sources.read_text()
+            text = text.replace("live_testimony", "game_data")
+            text = text.replace("testimony:player:run-1", "game:runtime:env:run-1")
+            text = text.replace("\tprivate-evidence\tenv:run-1", "\tprivate-evidence")
+            sources.write_text(text)
+            with self.assertRaisesRegex(ledger.LedgerError, "needs a referenced environment"):
+                ledger.validate(dst)
+
+    def test_incomplete_runtime_probe_cannot_make_high_risk_claim_proven(self):
+        claim = {
+            "claim_id": "check:1/region", "value": '"Limgrave"',
+            "adjudication": "automatic", "risk": "high",
+        }
+        evidence = [
+            {"evidence_id": "runtime", "source_id": "runtime", "stance": "supports", "value": '"Limgrave"'},
+            {"evidence_id": "reference", "source_id": "reference", "stance": "supports", "value": '"Limgrave"'},
+        ]
+        sources = {
+            "runtime": {
+                "source_kind": "game_data", "family_id": "game:runtime:env:run-1",
+                "environment_id": "env:run-1",
+            },
+            "reference": {
+                "source_kind": "external_reference", "family_id": "reference:wiki:revision",
+                "environment_id": "",
+            },
+        }
+        environment = {key: "" for key in ledger.HEADERS["environments.tsv"]}
+        environment["environment_id"] = "env:run-1"
+        self.assertEqual(
+            ledger.derive_status(
+                claim, evidence, sources, {"env:run-1": environment}
+            ),
+            "single_source",
+        )
+
+    def test_reproducible_runtime_probe_and_independent_family_can_prove(self):
+        claim = {
+            "claim_id": "check:1/region", "value": '"Limgrave"',
+            "adjudication": "automatic", "risk": "high",
+        }
+        evidence = [
+            {"evidence_id": "runtime", "source_id": "runtime", "stance": "supports", "value": '"Limgrave"'},
+            {"evidence_id": "reference", "source_id": "reference", "stance": "supports", "value": '"Limgrave"'},
+        ]
+        sources = {
+            "runtime": {
+                "source_kind": "game_data", "family_id": "game:runtime:env:run-1",
+                "environment_id": "env:run-1",
+            },
+            "reference": {
+                "source_kind": "external_reference", "family_id": "reference:wiki:revision",
+                "environment_id": "",
+            },
+        }
+        environment = ledger._rows(LIVE_FIXTURE / "environments.tsv")[0]
+        self.assertEqual(
+            ledger.derive_status(
+                claim, evidence, sources, {"env:run-1": environment}
+            ),
+            "proven",
+        )
+
     def test_real_failure_shapes_derive_honest_statuses(self):
         result = ledger.validate(FIXTURE)
         self.assertEqual(result.statuses["check:100/region"], "single_source", "two outputs sharing one family are one witness")
@@ -100,6 +179,10 @@ class EvidenceLedgerTests(unittest.TestCase):
         schema=json.loads((ROOT/"greenfield"/"evidence"/"SCHEMA.json").read_text())
         self.assertEqual(schema["schema_version"],1)
         self.assertEqual(schema["claim_kinds"],sorted(ledger.CLAIM_KINDS))
+        self.assertEqual(
+            schema["family_source_kinds"],
+            {key: sorted(value) for key, value in ledger.FAMILY_SOURCE_KINDS.items()},
+        )
         self.assertEqual(schema["identity_namespaces"], sorted(ledger.IDENTITY_NAMESPACES))
         self.assertEqual(
             schema["live_testimony"]["exact_build_fields"],
