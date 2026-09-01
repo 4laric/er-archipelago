@@ -1,0 +1,41 @@
+# Gameplay-wiki audit pilot: Lamenter's Gaol
+
+This is the bounded pilot for #1273 and the Lamenter's Gaol regression named in #1271. It records
+normalized leads, not accepted v1.17 access evidence. Neither source states an Elden Ring patch
+version, so agreement between them cannot upgrade a claim beyond `lead_only`.
+
+## Reproduction and provenance
+
+The two `revision_url` values in `sources.tsv` are immutable Internet Archive captures. Retrieve a
+capture with `curl --compressed -LsS -A "Mozilla/5.0" REVISION_URL` and compare its SHA-256 with
+`body_sha256`. The digest covers the complete response body; no source text is redistributed here.
+Only short paraphrases and section anchors are committed. Page dates and authors come from the
+captures' own HTML metadata. Both pages are commercial guides with no content-reuse license stated,
+so their text is treated as all-rights-reserved.
+
+The sources are independently authored: Game8 credits its Elden Ring walkthrough team, while Gamer
+Guides credits Shane Williams. Their agreement is useful discovery evidence, but it is not current
+game-version proof. They also do not become independent of each other merely because one route is
+restated in several sections of the same page.
+
+## Findings
+
+Both sources describe the same progression order:
+
+1. The Upper Level Key is in the entrance-side area before the first locked gate.
+2. That key opens the route to the area containing the Lower Level Key.
+3. The Lower Level Key opens the later gate on the route to Lamenter.
+
+That yields three normalized leads in `leads.tsv`: region-only access for the Upper key check, the
+Upper key for the Lower key check, and both keys for the boss. There is no source-to-source
+contradiction in this pilot.
+
+The current implementation is deliberately more conservative: `legacy_key_gates.py` requires both
+keys for every Lamenter's Gaol map-lot check, including the two key locations. The pilot therefore
+identifies a concrete likely over-gating regression, but does not authorize changing world logic.
+Before an accepted v1.17 rule replaces it, the door predicates or a versioned in-game route capture
+must establish the same order. Interior checks also need to be partitioned by which door precedes
+them; the two walkthrough pages do not map every AP check precisely enough to do that.
+
+The Archipelago Lamenter sweep path is a separate alternate-acquisition claim and is not adjudicated
+by these vanilla walkthroughs.
