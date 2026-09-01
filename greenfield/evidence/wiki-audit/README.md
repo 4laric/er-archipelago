@@ -52,3 +52,25 @@ manufactures a contradiction from missing text. A contradiction appears only aft
 an explicit disagreement; alternate routes and incomplete coverage remain routes and gaps.
 Explicit disagreements belong in `contradictions.tsv`; its validator requires at least two known
 leads with different normalized values, so an empty file honestly means “none recorded.”
+
+## Broad walkthrough coverage
+
+`walkthrough-check-leads.tsv` is the first corpus-scale pass. It is derived from Redmaw's immutable
+100% base-game walkthrough capture by `tools/build_walkthrough_check_leads.py`. The capture body is
+not redistributed: each row retains only its section id, step id, item label, source identity, and
+the one current AP check that exact item name identifies inside the section's declared region set.
+
+This deliberately leaves repeated consumables, stones, and runes ambiguous. It also remains
+`lead_only`: one walkthrough mention can externally cross-check an identity and coarse region, but it
+cannot prove access logic, a game event predicate, or the absence of another acquisition route.
+`tools/check_walkthrough_check_leads.py` fails if a bound AP id disappears, its region changes, the
+source becomes dangling, duplicate check coverage appears, or the broad pass unexpectedly collapses.
+
+Reproduce from the immutable capture recorded in `sources.tsv`:
+
+```bash
+curl --compressed -LsS -A 'Mozilla/5.0' REVISION_URL -o /tmp/redmaw-walkthrough.html
+python tools/build_walkthrough_check_leads.py /tmp/redmaw-walkthrough.html
+python tools/check_walkthrough_check_leads.py
+python tools/build_evidence_browser.py
+```
