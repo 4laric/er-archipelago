@@ -37,22 +37,36 @@ class AccessDispositionTests(unittest.TestCase):
             schema["access_dispositions"]["values"], sorted(access.DISPOSITIONS)
         )
 
-    def test_current_census_is_complete_with_two_proven_radahn_checks(self):
+    def test_current_census_is_complete_with_encoded_key_gate_option_rows(self):
         value = access.summary(LEDGER, DISPOSITIONS)
         self.assertEqual(value["checks_total"], 4923)
-        self.assertEqual(value["dispositions_total"], value["checks_total"])
+        self.assertEqual(value["dispositions_total"], value["checks_total"] + 12)
         self.assertEqual(value["by_disposition"]["region_sufficient"], 3)
+        self.assertEqual(value["by_disposition"]["encoded"], 12)
         self.assertEqual(value["by_disposition"]["unresolved"], value["checks_total"] - 3)
         self.assertEqual(value["by_risk"]["critical"]["region_sufficient"], 3)
+        self.assertEqual(value["by_risk"]["critical"]["encoded"], 12)
         self.assertEqual(value["by_option_set"]["all"]["region_sufficient"], 3)
+        self.assertEqual(
+            value["by_option_set"][
+                "item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false"
+            ]["encoded"],
+            12,
+        )
+        self.assertEqual(
+            value["by_option_set"][
+                "not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)"
+            ]["unresolved"],
+            12,
+        )
         self.assertEqual(value["release_blockers"], value["checks_total"] - 3)
-        self.assertEqual(value["with_access_claim"], 12)
-        self.assertEqual(value["without_access_claim"], 4911)
+        self.assertEqual(value["with_access_claim"], 36)
+        self.assertEqual(value["without_access_claim"], 4899)
 
     def test_every_resolved_disposition_has_a_machine_checked_witness(self):
         rows = access.validate(LEDGER, DISPOSITIONS)
         resolved = [row for row in rows if row["disposition"] != "unresolved"]
-        self.assertEqual(len(resolved), 3)
+        self.assertEqual(len(resolved), 15)
         self.assertTrue(all(row["implementation_path"] for row in resolved))
         self.assertTrue(all(row["implementation_symbol"].startswith("test_") for row in resolved))
 

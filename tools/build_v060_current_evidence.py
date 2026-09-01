@@ -29,6 +29,18 @@ RADAHN_ACCESS_AP_IDS = (7770002, 7770665)
 RADAHN_FESTIVAL_FLAG = 9410
 FINGERSLAYER_ACCESS_AP_ID = 7771152
 FINGERSLAYER_CHEST_GATE_FLAG = 1034509410
+CARIAN_STATUE_ACCESS_FLAGS = frozenset({
+    34117100, 34117110, 34117120, 34117400, 34117401,
+    34117402, 34117403, 34117500, 34117710,
+})
+CARIAN_STATUE_ACCESS_AP_IDS = frozenset({
+    7772312, 7772313, 7772314, 7772316, 7772317,
+    7772318, 7772319, 7772320, 7772322, 7900218,
+})
+FINGER_RUINS_BELL_ACCESS = {
+    7773581: (2050407000, "Jagged Peak"),
+    7773656: (2053467600, "Scadu Altus"),
+}
 
 
 def _json(value: object) -> str:
@@ -433,6 +445,30 @@ def build_records(repo: Path) -> dict:
         "game_version": GAME_VERSION, "retrieved_at": "2026-09-01",
         "revision": start_grace_hash,
         "url_or_path": "greenfield/eldenring/features/start_grace.py",
+        "license": "project-derived", "environment_id": "", "supersedes": "",
+    })
+    legacy_gate_path = repo / "greenfield" / "eldenring" / "features" / "legacy_key_gates.py"
+    legacy_gate_hash = _sha256(legacy_gate_path)
+    carian_statue_source_id = (
+        f"project:carian-statue-gate:{legacy_gate_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": carian_statue_source_id, "source_kind": "ruling",
+        "family_id": "project:carian-statue-access-rule",
+        "title": "Archipelago Carian Inverted Statue access rule",
+        "game_version": GAME_VERSION, "retrieved_at": "2026-09-01",
+        "revision": legacy_gate_hash,
+        "url_or_path": "greenfield/eldenring/features/legacy_key_gates.py",
+        "license": "project-derived", "environment_id": "", "supersedes": "",
+    })
+    finger_ruins_source_id = (
+        f"project:hole-laden-necklace-gate:{legacy_gate_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": finger_ruins_source_id, "source_kind": "ruling",
+        "family_id": "project:hole-laden-necklace-access-rule",
+        "title": "Archipelago Hole-Laden Necklace bell access rule",
+        "game_version": GAME_VERSION, "retrieved_at": "2026-09-01",
+        "revision": legacy_gate_hash,
+        "url_or_path": "greenfield/eldenring/features/legacy_key_gates.py",
         "license": "project-derived", "environment_id": "", "supersedes": "",
     })
     lot_gates_hash = _sha256(lot_gates_path)
@@ -1113,6 +1149,110 @@ def build_records(repo: Path) -> dict:
         "review_issue": "#1271", "active": "true", "supersedes": "",
     })
 
+    carian_locations = {
+        row["ap_id"]: row for row in locations if row["flag"] in CARIAN_STATUE_ACCESS_FLAGS
+    }
+    if set(carian_locations) != CARIAN_STATUE_ACCESS_AP_IDS:
+        raise RuntimeError(f"Carian Statue access subjects changed: {carian_locations!r}")
+    carian_value = {
+        "type": "all",
+        "conditions": [
+            {"type": "region", "region": "Liurnia"},
+            {"type": "item", "name": "Carian Inverted Statue"},
+        ],
+        "when": {
+            "item_shuffle": True,
+            "legacy_dungeon_keys": True,
+            "vanilla_placement": False,
+        },
+    }
+    for ap_id in sorted(carian_locations):
+        claim_id = f"check:{ap_id}/access"
+        evidence_id = f"project:carian-statue-gate:check-{ap_id}:access"
+        evidence.append({
+            "evidence_id": evidence_id, "claim_id": claim_id,
+            "source_id": carian_statue_source_id, "stance": "supports",
+            "value": _json(carian_value),
+            "citation": (
+                "greenfield/eldenring/features/legacy_key_gates.py:"
+                "_LEGACY_EXTRA['Carian Inverted Statue'] and LegacyKeyGates.set_rules; "
+                "greenfield/eldenring/tests/test_gf_legacy_key_gate.py:"
+                "LegacyKeyGateOn.test_carian_statue_gates_the_inverted_route_and_not_the_standard_hall"
+            ),
+            "method": "tools/build_v060_current_evidence.py:carian_statue_encoded_access",
+            "independence_notes": (
+                "The regression exercises the same project rule and is not an independent "
+                "game-data witness; this claim records implemented Archipelago logic."
+            ),
+            "valid_from": GAME_VERSION, "valid_to": "",
+            "notes": (
+                f"Exact generated subject f{carian_locations[ap_id]['flag']}; the option guard "
+                "is part of the claim and inactive modes remain unresolved in the census."
+            ),
+        })
+        claims.append({
+            "claim_id": claim_id, "subject_kind": "check", "subject_id": str(ap_id),
+            "claim_kind": "access", "game_version": GAME_VERSION,
+            "value": _json(carian_value), "status": "proven", "risk": "critical",
+            "adjudication": "design_ruling", "evidence_ids": evidence_id,
+            "last_reviewed": "2026-09-01", "review_issue": "#1271", "active": "true",
+            "supersedes": "",
+        })
+
+    finger_ruins_locations = {
+        row["ap_id"]: row for row in locations if row["ap_id"] in FINGER_RUINS_BELL_ACCESS
+    }
+    if set(finger_ruins_locations) != set(FINGER_RUINS_BELL_ACCESS):
+        raise RuntimeError(f"Finger Ruins bell access subjects changed: {finger_ruins_locations!r}")
+    for ap_id, (flag, region) in sorted(FINGER_RUINS_BELL_ACCESS.items()):
+        row = finger_ruins_locations[ap_id]
+        if (row["flag"], row["region"]) != (flag, region):
+            raise RuntimeError(f"Finger Ruins bell subject changed: {row!r}")
+        value = {
+            "type": "all",
+            "conditions": [
+                {"type": "region", "region": region},
+                {"type": "item", "name": "Hole-Laden Necklace"},
+            ],
+            "when": {
+                "item_shuffle": True,
+                "legacy_dungeon_keys": True,
+                "vanilla_placement": False,
+            },
+        }
+        claim_id = f"check:{ap_id}/access"
+        evidence_id = f"project:hole-laden-necklace-gate:check-{ap_id}:access"
+        evidence.append({
+            "evidence_id": evidence_id, "claim_id": claim_id,
+            "source_id": finger_ruins_source_id, "stance": "supports",
+            "value": _json(value),
+            "citation": (
+                "greenfield/eldenring/features/legacy_key_gates.py:"
+                "_LEGACY_EXTRA['Hole-Laden Necklace'] and LegacyKeyGates.set_rules; "
+                "greenfield/eldenring/tests/test_gf_legacy_key_gate.py:"
+                "LegacyKeyGateOn.test_metyr_chain_needs_the_necklace_and_both_region_locks"
+            ),
+            "method": "tools/build_v060_current_evidence.py:finger_ruins_bell_encoded_access",
+            "independence_notes": (
+                "The regression exercises the same project rule and is not an independent "
+                "game-data witness; this claim records implemented Archipelago logic."
+            ),
+            "valid_from": GAME_VERSION, "valid_to": "",
+            "notes": (
+                f"Exact generated subject f{flag}; ordinary {region} reachability supplies the "
+                "region condition. The option guard is part of the claim and inactive modes "
+                "remain unresolved in the census."
+            ),
+        })
+        claims.append({
+            "claim_id": claim_id, "subject_kind": "check", "subject_id": str(ap_id),
+            "claim_kind": "access", "game_version": GAME_VERSION,
+            "value": _json(value), "status": "proven", "risk": "critical",
+            "adjudication": "design_ruling", "evidence_ids": evidence_id,
+            "last_reviewed": "2026-09-01", "review_issue": "#1271", "active": "true",
+            "supersedes": "",
+        })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -1150,6 +1290,8 @@ def build_records(repo: Path) -> dict:
             "witch_crown_access_claims": 1,
             "radahn_access_claims": len(RADAHN_ACCESS_AP_IDS),
             "fingerslayer_access_claims": 1,
+            "carian_statue_access_claims": len(CARIAN_STATUE_ACCESS_AP_IDS),
+            "finger_ruins_bell_access_claims": len(FINGER_RUINS_BELL_ACCESS),
         },
     }
 
