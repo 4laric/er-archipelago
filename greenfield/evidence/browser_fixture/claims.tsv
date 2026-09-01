@@ -1,0 +1,5 @@
+claim_id	subject_kind	subject_id	claim_kind	game_version	value	status	risk	adjudication	evidence_ids	last_reviewed	review_issue	active	supersedes
+check:7770100/identity	check	7770100	identity	1.17	{"ap_id":7770100,"flag":68630,"id":2049430400,"namespace":"lot"}	proven	medium	automatic	evidence:flag-lots-68630,evidence:param-68630	2026-08-31	#1212	true
+check:7770100/region	check	7770100	region	1.17	"""Gravesite"""	conflicted	high	automatic	evidence:item-play-68630,evidence:legacy-region-68630,evidence:treasure-68630	2026-08-31	#1054	true
+check:7770200/identity	check	7770200	identity	1.17	{"ap_id":7770200,"flag":2047447620,"id":2047440620,"namespace":"lot"}	single_source	medium	automatic	evidence:flag-lots-2047447620	2026-08-31	#1212	true
+check:7770200/region	check	7770200	region	1.17	"""Scadu Altus"""	inferred	high	heuristic	evidence:nearest-2047447620	2026-08-31	#1212	true

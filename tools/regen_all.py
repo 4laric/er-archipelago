@@ -170,6 +170,11 @@ STEPS = [
     Step(PAGES, "tools/build_check_browser.py",
          emits=["er-archipelago-check-browser.html"],
          why="embeds inputs_hash -> stale on every stamp move."),
+    Step(PAGES, "tools/build_evidence_browser.py",
+         emits=["er-archipelago-evidence-browser.html"],
+         why="stamped deterministic browser over the normalized Phase-1 fixture. The checked "
+             "builder contract requires every committed page to be reachable from this single "
+             "regen entrypoint; production-corpus replacement remains #1213."),
     Step(PAGES, "tools/build_desc_triage.py",
          emits=["er-archipelago-desc-triage.html"],
          why="embeds inputs_hash -> stale on every stamp move."),

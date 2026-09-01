@@ -58,6 +58,10 @@ GENERATORS = [
     "sweep_anchor_coords",
     "region_selection",
     "check_browser",
+    # Phase-1 offline evidence browser (#1212): imports its builder and normalized fixture from
+    # the repo, neither of which is installed beside the world. AP-free and deterministic; run it
+    # in the generators job where the page staleness diff is enforced.
+    "evidence_browser",
     "desc_triage",
     # v0.6 evidence-ledger schema, validator, status engine, and deterministic summary (#1210).
     # Loads tools/evidence_ledger.py and the committed fixture quartet by repository path. It is
@@ -148,6 +152,11 @@ GENERATORS = [
     # root did not move" would otherwise be witnessed by nothing.
     "artifacts_path",
     "regen_all",
+    # The v0.6 evidence census baseline compares a generated summary against reviewed repo bytes.
+    # Both the comparator under tools/ and the future baseline under greenfield/evidence/ are
+    # intentionally absent from the installed world, so this AP-free suite belongs here rather
+    # than skipping dark in every test shard (#1213).
+    "evidence_baseline",
 ]
 
 # Suites that run in the `tests` job (installed world + ensured artifacts + client at the gitlink).

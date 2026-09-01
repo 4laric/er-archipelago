@@ -1,0 +1,7 @@
+source_id	source_kind	family_id	title	game_version	retrieved_at	revision	url_or_path	license	environment_id	supersedes
+source:flag-lots	project_derivation	game:param:ItemLotParam_map	Flag-lot projection	1.17	2026-08-31	fixture-v1	greenfield/flag_lots.tsv	project-derived
+source:item-lot-2049430400	game_data	game:param:ItemLotParam_map	ItemLotParam_map row 2049430400	1.17	2026-08-31	fixture-v1	greenfield/flag_lots.tsv	private-evidence
+source:item-play-68630	game_data	game:msb:m61_49_43	PlayArea point-in-volume projection	1.17	2026-08-31	fixture-v1	greenfield/item_play_regions.tsv	private-evidence
+source:legacy-data-68630	project_derivation	project:legacy-data	Pre-ruling generated location	1.17	2026-08-31	98bb88bc	greenfield/eldenring/data.py	project-derived
+source:nearest-2047447620	project_derivation	project:nearest-grace	Nearest-grace model	1.17	2026-08-31	fixture-v1	greenfield/nearest_grace.tsv	project-derived
+source:treasure-68630	game_data	game:msb:m61_49_43	Treasure placement	1.17	2026-08-31	fixture-v1	greenfield/msb_flag_region.tsv	private-evidence
