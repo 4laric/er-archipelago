@@ -1,0 +1,344 @@
+{
+  "contradictions": [],
+  "counts": {
+    "contradictions": 0,
+    "covered_targets": 0,
+    "exact_check_linked_leads": 9,
+    "gaps": 7,
+    "leads": 15,
+    "partial_targets": 6,
+    "targets": 7,
+    "unbound_leads": 6,
+    "uncovered_targets": 1
+  },
+  "exact_check_linked_leads": [
+    {
+      "check_ids": [
+        "7772312",
+        "7772313",
+        "7772314",
+        "7772316",
+        "7772317",
+        "7772318",
+        "7772319",
+        "7772320",
+        "7772322",
+        "7900218"
+      ],
+      "claim_kind": "access_partition",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "carian-study-hall-inverted-route"
+    },
+    {
+      "check_ids": [
+        "7772309",
+        "7772310",
+        "7772311",
+        "7772315",
+        "7772321"
+      ],
+      "claim_kind": "access_partition",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "carian-study-hall-standard-route"
+    },
+    {
+      "check_ids": [
+        "7773737"
+      ],
+      "claim_kind": "alternate_acquisition",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "jerren-ending-ancient-dragon-stone"
+    },
+    {
+      "check_ids": [
+        "7773852"
+      ],
+      "claim_kind": "access",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "lamenter-boss-access"
+    },
+    {
+      "check_ids": [
+        "7772450"
+      ],
+      "claim_kind": "access",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "lamenters-gaol-lower-key-access"
+    },
+    {
+      "check_ids": [
+        "7772446"
+      ],
+      "claim_kind": "access",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "lamenters-gaol-upper-key-access"
+    },
+    {
+      "check_ids": [
+        "7770235"
+      ],
+      "claim_kind": "alternate_acquisition",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "patches-murkwater-margits-shackle"
+    },
+    {
+      "check_ids": [
+        "7770235"
+      ],
+      "claim_kind": "alternate_acquisition",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "patches-scenic-isle-margits-shackle"
+    },
+    {
+      "check_ids": [
+        "7770618"
+      ],
+      "claim_kind": "alternate_acquisition",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "sellen-ending-eccentrics-hood"
+    }
+  ],
+  "gaps": [
+    {
+      "kind": "check_partition",
+      "next_evidence": "Mine the door predicates or capture a versioned route and bind every interior AP check to its side of each door.",
+      "priority": "critical",
+      "summary": "The two key checks and boss are linked, but the remaining interior checks are not partitioned by the doors that precede them.",
+      "target_id": "lamenters-gaol"
+    },
+    {
+      "kind": "alternate_routes",
+      "next_evidence": "Map every vanilla and AP award route to the shared check and adjudicate their state predicates from game data.",
+      "priority": "critical",
+      "summary": "Two Patches states are linked to Margit's Shackle, but later states, bell-bearing access, the shared Thiollier row, and sweep alternatives remain outside the lead set.",
+      "target_id": "patches-shop"
+    },
+    {
+      "kind": "ap_override_scope",
+      "next_evidence": "Retain the accepted runtime bypass and use game data only to verify its exact scope across the linked checks.",
+      "priority": "critical",
+      "summary": "The vanilla alternatives are normalized, but the external pages cannot adjudicate Archipelago's unconditional festival-state override.",
+      "target_id": "radahn-festival"
+    },
+    {
+      "kind": "prerequisite_chain",
+      "next_evidence": "Bind the prerequisite ESD states and alternate awards before proposing reachability rules.",
+      "priority": "critical",
+      "summary": "The terminal choices are check-linked, but the preceding multi-region quest chain and AP sweep alternatives are not covered.",
+      "target_id": "sellen-jerren-endings"
+    },
+    {
+      "kind": "check_binding",
+      "next_evidence": "Decide whether the pending Sellian Sealbreaker lot becomes a check, then bind exact acquisition and use predicates.",
+      "priority": "critical",
+      "summary": "The item route is normalized, but neither lead is bound to an enabled AP check.",
+      "target_id": "sellian-sealbreaker"
+    },
+    {
+      "kind": "check_binding",
+      "next_evidence": "Bind the transformed-area check set, then mine or live-capture the AP transition while keeping Maliketh's vanilla requirement out of AP logic.",
+      "priority": "critical",
+      "summary": "The Ashen Capital transition and transport are normalized, but the route leads are not bound to the area's exact AP checks and cannot adjudicate AP's synthetic burn handling.",
+      "target_id": "transformed-areas"
+    },
+    {
+      "kind": "coverage",
+      "next_evidence": "Start with known teleporter and trap routes; record destination-side check IDs and alternatives separately.",
+      "priority": "critical",
+      "summary": "No normalized external lead in the current registry covers one-way entrances or checks reachable only through a warp.",
+      "target_id": "warp-only-access"
+    }
+  ],
+  "policy": {
+    "contradictions_require_explicit_record": true,
+    "external_disposition": "lead_only",
+    "silence_is_evidence": false
+  },
+  "schema_version": 1,
+  "targets": [
+    {
+      "coverage": "partial",
+      "expected_check_ids": [
+        "7772446",
+        "7772450",
+        "7773852"
+      ],
+      "gap": {
+        "kind": "check_partition",
+        "next_evidence": "Mine the door predicates or capture a versioned route and bind every interior AP check to its side of each door.",
+        "summary": "The two key checks and boss are linked, but the remaining interior checks are not partitioned by the doors that precede them."
+      },
+      "lead_ids": [
+        "lamenter-boss-access",
+        "lamenters-gaol-lower-key-access",
+        "lamenters-gaol-upper-key-access"
+      ],
+      "priority": "critical",
+      "regression_class": "key_and_door_order",
+      "target_id": "lamenters-gaol"
+    },
+    {
+      "coverage": "partial",
+      "expected_check_ids": [
+        "7770235"
+      ],
+      "gap": {
+        "kind": "alternate_routes",
+        "next_evidence": "Map every vanilla and AP award route to the shared check and adjudicate their state predicates from game data.",
+        "summary": "Two Patches states are linked to Margit's Shackle, but later states, bell-bearing access, the shared Thiollier row, and sweep alternatives remain outside the lead set."
+      },
+      "lead_ids": [
+        "patches-murkwater-margits-shackle",
+        "patches-scenic-isle-margits-shackle"
+      ],
+      "priority": "critical",
+      "regression_class": "merchant_state_and_alternate_award",
+      "target_id": "patches-shop"
+    },
+    {
+      "coverage": "partial",
+      "expected_check_ids": [
+        "7770002",
+        "7770665"
+      ],
+      "gap": {
+        "kind": "ap_override_scope",
+        "next_evidence": "Retain the accepted runtime bypass and use game data only to verify its exact scope across the linked checks.",
+        "summary": "The vanilla alternatives are normalized, but the external pages cannot adjudicate Archipelago's unconditional festival-state override."
+      },
+      "lead_ids": [
+        "radahn-festival-altus-route",
+        "radahn-festival-ranni-route"
+      ],
+      "priority": "critical",
+      "regression_class": "alternate_route_and_runtime_bypass",
+      "target_id": "radahn-festival"
+    },
+    {
+      "coverage": "partial",
+      "expected_check_ids": [
+        "7770618",
+        "7773737"
+      ],
+      "gap": {
+        "kind": "prerequisite_chain",
+        "next_evidence": "Bind the prerequisite ESD states and alternate awards before proposing reachability rules.",
+        "summary": "The terminal choices are check-linked, but the preceding multi-region quest chain and AP sweep alternatives are not covered."
+      },
+      "lead_ids": [
+        "jerren-ending-ancient-dragon-stone",
+        "sellen-ending-eccentrics-hood"
+      ],
+      "priority": "critical",
+      "regression_class": "quest_choice_and_alternate_award",
+      "target_id": "sellen-jerren-endings"
+    },
+    {
+      "coverage": "partial",
+      "expected_check_ids": [],
+      "gap": {
+        "kind": "check_binding",
+        "next_evidence": "Decide whether the pending Sellian Sealbreaker lot becomes a check, then bind exact acquisition and use predicates.",
+        "summary": "The item route is normalized, but neither lead is bound to an enabled AP check."
+      },
+      "lead_ids": [
+        "sellian-sealbreaker-acquisition",
+        "sellian-sealbreaker-use"
+      ],
+      "priority": "critical",
+      "regression_class": "quest_item_acquisition_and_use",
+      "target_id": "sellian-sealbreaker"
+    },
+    {
+      "coverage": "partial",
+      "expected_check_ids": [],
+      "gap": {
+        "kind": "check_binding",
+        "next_evidence": "Bind the transformed-area check set, then mine or live-capture the AP transition while keeping Maliketh's vanilla requirement out of AP logic.",
+        "summary": "The Ashen Capital transition and transport are normalized, but the route leads are not bound to the area's exact AP checks and cannot adjudicate AP's synthetic burn handling."
+      },
+      "lead_ids": [
+        "ashen-capital-vanilla-transition",
+        "ashen-capital-vanilla-transport"
+      ],
+      "priority": "critical",
+      "regression_class": "transformed_map_variant",
+      "target_id": "transformed-areas"
+    },
+    {
+      "coverage": "uncovered",
+      "expected_check_ids": [],
+      "gap": {
+        "kind": "coverage",
+        "next_evidence": "Start with known teleporter and trap routes; record destination-side check IDs and alternatives separately.",
+        "summary": "No normalized external lead in the current registry covers one-way entrances or checks reachable only through a warp."
+      },
+      "lead_ids": [],
+      "priority": "critical",
+      "regression_class": "one_way_or_warp_only_route",
+      "target_id": "warp-only-access"
+    }
+  ],
+  "unbound_leads": [
+    {
+      "claim_kind": "vanilla_access_route",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "ashen-capital-vanilla-transition",
+      "subject_id": "leyndell-ashen-capital",
+      "subject_kind": "route"
+    },
+    {
+      "claim_kind": "vanilla_transport",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "ashen-capital-vanilla-transport",
+      "subject_id": "leyndell-ashen-capital",
+      "subject_kind": "route"
+    },
+    {
+      "claim_kind": "vanilla_access_route",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "radahn-festival-altus-route",
+      "subject_id": "1051360800",
+      "subject_kind": "boss"
+    },
+    {
+      "claim_kind": "vanilla_access_route",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "radahn-festival-ranni-route",
+      "subject_id": "1051360800",
+      "subject_kind": "boss"
+    },
+    {
+      "claim_kind": "acquisition",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "sellian-sealbreaker-acquisition",
+      "subject_id": "goods:8169",
+      "subject_kind": "game_item"
+    },
+    {
+      "claim_kind": "use",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "sellian-sealbreaker-use",
+      "subject_id": "goods:8169",
+      "subject_kind": "game_item"
+    }
+  ],
+  "uncovered_high_risk_targets": [
+    "warp-only-access"
+  ]
+}

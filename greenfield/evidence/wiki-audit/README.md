@@ -39,3 +39,16 @@ them; the two walkthrough pages do not map every AP check precisely enough to do
 
 The Archipelago Lamenter sweep path is a separate alternate-acquisition claim and is not adjudicated
 by these vanilla walkthroughs.
+
+## Investigation queue
+
+`queue-targets.tsv` is the small curated boundary between normalized leads and the next research
+batch. `tools/build_wiki_audit_queue.py` combines it with `leads.tsv` and the current access
+disposition ledger to produce `queue.json`. The generated report separates exact AP-check bindings,
+unbound route/boss/item leads, uncovered high-risk regression classes, and explicit gaps.
+
+The queue never promotes an external claim: every emitted lead remains `lead_only`. It also never
+manufactures a contradiction from missing text. A contradiction appears only after a curator records
+an explicit disagreement; alternate routes and incomplete coverage remain routes and gaps.
+Explicit disagreements belong in `contradictions.tsv`; its validator requires at least two known
+leads with different normalized values, so an empty file honestly means “none recorded.”

@@ -30,6 +30,35 @@ class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
         self.assertEqual(AUDIT.validate(REPO), (14, 15))
 
+    def test_generated_queue_prioritizes_external_coverage_without_promoting_it(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "queue.json"
+        queue = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(queue["policy"], {
+            "contradictions_require_explicit_record": True,
+            "external_disposition": "lead_only",
+            "silence_is_evidence": False,
+        })
+        self.assertEqual(queue["counts"]["leads"], 15)
+        self.assertEqual(queue["counts"]["exact_check_linked_leads"], 9)
+        self.assertEqual(queue["counts"]["unbound_leads"], 6)
+        self.assertEqual(queue["uncovered_high_risk_targets"], [
+            "warp-only-access"])
+        self.assertEqual(queue["contradictions"], [])
+        self.assertTrue(all(
+            row["disposition"] == "lead_only"
+            for row in queue["exact_check_linked_leads"] + queue["unbound_leads"]
+        ))
+
+    def test_queue_keeps_carian_partition_check_linked_and_radahn_routes_unbound(self):
+        queue = json.loads((REPO / "greenfield" / "evidence" / "wiki-audit" /
+                            "queue.json").read_text(encoding="utf-8"))
+        linked = {row["lead_id"]: row for row in queue["exact_check_linked_leads"]}
+        unbound = {row["lead_id"]: row for row in queue["unbound_leads"]}
+        self.assertEqual(len(linked["carian-study-hall-standard-route"]["check_ids"]), 5)
+        self.assertEqual(len(linked["carian-study-hall-inverted-route"]["check_ids"]), 10)
+        self.assertIn("radahn-festival-altus-route", unbound)
+        self.assertIn("radahn-festival-ranni-route", unbound)
+
     def test_lamenter_pilot_preserves_lead_only_scope(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
         with path.open(encoding="utf-8", newline="") as handle:
