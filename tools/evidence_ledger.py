@@ -11,7 +11,8 @@ import hashlib
 import re
 from collections import defaultdict
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+from urllib.parse import urlsplit
 
 CLAIM_KINDS = {"identity", "region", "access", "detection", "suppression", "sweep_owner", "alternate_acquisition", "description"}
 IDENTITY_NAMESPACES = {"item", "lot", "shop", "entity", "flag"}
@@ -29,6 +30,9 @@ FAMILY_SOURCE_KINDS = {
 }
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2})?(?:Z|[+-]\d{2}:\d{2})?)?$")
 GAME_VERSION = re.compile(r"^\d+(?:\.\d+)*$")
+REVISION_MAX = 256
+CITATION_MAX = 2048
+LOCATOR_MAX = 2048
 
 HEADERS = {
     "sources.tsv": ("source_id", "source_kind", "family_id", "title", "game_version", "retrieved_at", "revision", "url_or_path", "license", "environment_id", "supersedes"),
@@ -59,6 +63,40 @@ def _json(raw: str, where: str):
         return json.loads(raw)
     except json.JSONDecodeError as exc:
         raise LedgerError(f"{where}: invalid JSON: {exc.msg}") from exc
+
+def _bounded_single_line(value: str, where: str, maximum: int) -> None:
+    if not value or len(value) > maximum or any(ord(char) < 32 for char in value):
+        raise LedgerError(f"{where}: must be a non-empty single-line value <= {maximum} chars")
+
+def _source_locator(value: str, where: str) -> None:
+    _bounded_single_line(value, where, LOCATOR_MAX)
+    if value != value.strip():
+        raise LedgerError(f"{where}: source locator must not have surrounding whitespace")
+    parsed = urlsplit(value)
+    if parsed.scheme:
+        if parsed.scheme == "private":
+            if (
+                not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", parsed.path)
+                or parsed.netloc
+                or parsed.query
+                or parsed.fragment
+            ):
+                raise LedgerError(f"{where}: malformed private evidence locator")
+            return
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise LedgerError(f"{where}: public source locator must use absolute HTTPS")
+        if parsed.username is not None or parsed.password is not None:
+            raise LedgerError(f"{where}: source URL must not embed credentials")
+        return
+    path = PurePosixPath(value)
+    if (
+        path.is_absolute()
+        or "\\" in value
+        or ".." in path.parts
+        or value.startswith("./")
+        or str(path) != value
+    ):
+        raise LedgerError(f"{where}: local source locator must be a canonical relative POSIX path")
 
 def _version(raw: str, where: str, *, allow_unknown: bool = False) -> tuple[int, ...] | None:
     if allow_unknown and raw == "unknown":
@@ -198,6 +236,10 @@ def validate(directory: Path) -> Result:
     sources = {r["source_id"]: r for r in tables["sources.tsv"]}; envs = {r["environment_id"]: r for r in tables["environments.tsv"]}
     for sid, row in sources.items():
         if not sid or not row["title"] or not row["game_version"] or not row["revision"] or not row["url_or_path"] or not row["license"]: raise LedgerError(f"{sid or '<blank>'}: incomplete source snapshot")
+        _bounded_single_line(row["revision"], f"{sid}.revision", REVISION_MAX)
+        if any(char.isspace() for char in row["revision"]):
+            raise LedgerError(f"{sid}.revision: must be a stable token without whitespace")
+        _source_locator(row["url_or_path"], f"{sid}.url_or_path")
         _version(row["game_version"], sid, allow_unknown=True)
         if row["retrieved_at"] and not DATE.match(row["retrieved_at"]): raise LedgerError(f"{sid}: invalid retrieved_at")
         if row["source_kind"] not in SOURCE_KINDS: raise LedgerError(f"{sid}: unknown source_kind")
@@ -238,6 +280,7 @@ def validate(directory: Path) -> Result:
         evidence_ids.add(eid)
         if row["claim_id"] not in claims_by_id or row["source_id"] not in sources: raise LedgerError(f"{eid}: dangling claim/source")
         if row["stance"] not in STANCES or not row["citation"].strip() or not row["method"].strip(): raise LedgerError(f"{eid}: invalid stance/citation/method")
+        _bounded_single_line(row["citation"], f"{eid}.citation", CITATION_MAX)
         valid_from = _version(row["valid_from"], eid) if row["valid_from"] else None
         valid_to = _version(row["valid_to"], eid) if row["valid_to"] else None
         if valid_from and valid_to and valid_from > valid_to:

@@ -357,6 +357,50 @@ class EvidenceLedgerTests(unittest.TestCase):
             self.assertEqual(after["by_status"], before["by_status"])
             self.assertEqual(after["content_hash"], before["content_hash"])
 
+    def test_source_locators_reject_escape_and_unstable_url_shapes(self):
+        invalid = (
+            "../secret.tsv",
+            "/etc/passwd",
+            "C:\\Users\\player\\evidence.txt",
+            "greenfield//data.py",
+            "http://example.invalid/source",
+            "https://user:password@example.invalid/source",
+            "private:../secret",
+        )
+        for locator in invalid:
+            with self.subTest(locator=locator):
+                with self.assertRaises(ledger.LedgerError):
+                    ledger._source_locator(locator, "fixture")
+
+    def test_source_locators_accept_repo_https_and_private_evidence(self):
+        valid = (
+            "greenfield/evidence/source.tsv",
+            "https://example.invalid/page?oldid=123#section",
+            "private:discord-attachment-sha256",
+        )
+        for locator in valid:
+            with self.subTest(locator=locator):
+                ledger._source_locator(locator, "fixture")
+                self.assertLessEqual(len(locator), ledger.LOCATOR_MAX)
+
+    def test_traversing_source_path_cannot_validate(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_status_fixture(td)
+            sources = dst / "sources.tsv"
+            sources.write_text(
+                sources.read_text().replace(
+                    "greenfield/eldenring/data.py", "../../outside/data.py", 1
+                )
+            )
+            with self.assertRaisesRegex(ledger.LedgerError, "canonical relative POSIX"):
+                ledger.validate(dst)
+
+    def test_revision_and_citation_are_bounded_single_line_values(self):
+        with self.assertRaisesRegex(ledger.LedgerError, "single-line"):
+            ledger._bounded_single_line("x" * (ledger.REVISION_MAX + 1), "revision", ledger.REVISION_MAX)
+        with self.assertRaisesRegex(ledger.LedgerError, "single-line"):
+            ledger._bounded_single_line("row 1\nrow 2", "citation", ledger.CITATION_MAX)
+
     def test_summary_contract_is_deterministic_and_risk_rankable(self):
         first = ledger.summary(FIXTURE); second = ledger.summary(FIXTURE)
         self.assertEqual(first, second)
@@ -388,6 +432,12 @@ class EvidenceLedgerTests(unittest.TestCase):
         self.assertEqual(
             schema["claim_supersession"]["preserved_fields"],
             ["subject_kind", "subject_id", "claim_kind"],
+        )
+        self.assertEqual(
+            schema["citation_contract"]["citation_max_chars"], ledger.CITATION_MAX
+        )
+        self.assertEqual(
+            schema["citation_contract"]["revision_max_chars"], ledger.REVISION_MAX
         )
         self.assertEqual({k:tuple(v) for k,v in schema["tables"].items()},ledger.HEADERS)
 
