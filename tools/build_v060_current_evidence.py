@@ -315,6 +315,33 @@ def _load_frenzied_flame_seal_access(path: Path) -> dict[str, object]:
     return matches[0]
 
 
+def _load_witch_crown_access(path: Path) -> dict[str, object]:
+    """Load f400107's immediate WaitFor without assigning the NPC state to Sellen."""
+    matches = []
+    with path.open(encoding="utf-8", newline="") as handle:
+        header = ""
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip() or line.startswith("#"):
+                continue
+            if not header:
+                header = line
+                continue
+            row = next(csv.DictReader([header, line], delimiter="\t"))
+            if row["check_flag"] != "400107" or row["context"] != "commonarg/WaitFor":
+                continue
+            matches.append({
+                "line": line_number, "gate_flag": int(row["gate_flag"]),
+                "context": row["context"], "event_id": int(row["event_id"]),
+                "source": row["source"], "evidence": row["evidence"],
+                "gate_test_map": row["gate_test_map"],
+            })
+    if len(matches) != 1 or matches[0]["gate_flag"] != 3469:
+        raise RuntimeError(f"f400107 WaitFor corpus changed: {matches!r}")
+    if matches[0]["event_id"] != 90005750:
+        raise RuntimeError(f"f400107 WaitFor event changed: {matches!r}")
+    return matches[0]
+
+
 def _source_records(
         repo: Path, data_path: Path, override_path: Path, lot_path: Path,
         stamp: Mapping[str, str]):
@@ -378,6 +405,7 @@ def build_records(repo: Path) -> dict:
     purifying_tear_access = _load_purifying_tear_access(lot_gates_path)
     ijis_bell_bearing_access = _load_ijis_bell_bearing_access(lot_gates_path)
     frenzied_flame_seal_access = _load_frenzied_flame_seal_access(lot_gates_path)
+    witch_crown_access = _load_witch_crown_access(lot_gates_path)
     sources, source = _source_records(repo, data_path, override_path, lot_path, stamp)
     lot_gates_hash = _sha256(lot_gates_path)
     lot_gates_source_id = (
@@ -406,6 +434,16 @@ def build_records(repo: Path) -> dict:
         "source_id": frenzied_flame_seal_source_id, "source_kind": "game_data",
         "family_id": "game:emevd:m35_00_00_00:90005750",
         "title": "Frenzied Flame Seal f400089 immediate WaitFor call site",
+        "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+        "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
+        "license": "private-evidence", "environment_id": "", "supersedes": "",
+    })
+    witch_crown_source_id = (
+        f"game:emevd-lot-gates:m14_00_00_00:{lot_gates_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": witch_crown_source_id, "source_kind": "game_data",
+        "family_id": "game:emevd:m14_00_00_00:90005750",
+        "title": "Witch's Glintstone Crown f400107 immediate WaitFor call site",
         "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
         "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
         "license": "private-evidence", "environment_id": "", "supersedes": "",
@@ -918,6 +956,48 @@ def build_records(repo: Path) -> dict:
         "supersedes": "",
     })
 
+    witch_crown = [row for row in locations if row["flag"] == 400107]
+    if len(witch_crown) != 1:
+        raise RuntimeError(f"expected one current f400107 check, found {witch_crown!r}")
+    witch_crown_ap_id = witch_crown[0]["ap_id"]
+    witch_crown_claim_id = f"check:{witch_crown_ap_id}/access"
+    witch_crown_value = {"type": "flag", "flag": witch_crown_access["gate_flag"]}
+    witch_crown_evidence_id = (
+        "game:emevd:m14_00_00_00:90005750:f400107:gate-3469:access")
+    evidence.append({
+        "evidence_id": witch_crown_evidence_id,
+        "claim_id": witch_crown_claim_id,
+        "source_id": witch_crown_source_id, "stance": "supports",
+        "value": _json(witch_crown_value),
+        "citation": (
+            f"greenfield/lot_gates.tsv:{witch_crown_access['line']} check_flag=400107 "
+            f"gate_flag=3469; {witch_crown_access['source']} "
+            f"event={witch_crown_access['event_id']} {witch_crown_access['context']} "
+            f"{witch_crown_access['evidence']} {witch_crown_access['gate_test_map']}"
+        ),
+        "method": "tools/build_v060_current_evidence.py:witch_crown_immediate_waitfor",
+        "independence_notes": (
+            "The one immediate WaitFor call is one EMEVD family; the f400107 association is "
+            "joined through ItemLotParam/flag_lots and is not independent detection evidence. "
+            "The questline DAG and condition cone are correlated projections of this family."
+        ),
+        "valid_from": GAME_VERSION, "valid_to": "",
+        "notes": (
+            "Immediate positive f3469 prerequisite only; the generic NPC state label does not "
+            "prove Sellen's identity, death, or complete quest, and this claim does not describe "
+            "the Archipelago Red Wolf of Radagon boss-sweep alternate."
+        ),
+    })
+    claims.append({
+        "claim_id": witch_crown_claim_id, "subject_kind": "check",
+        "subject_id": str(witch_crown_ap_id), "claim_kind": "access",
+        "game_version": GAME_VERSION, "value": _json(witch_crown_value),
+        "status": "single_source", "risk": "critical", "adjudication": "automatic",
+        "evidence_ids": witch_crown_evidence_id,
+        "last_reviewed": REVIEW_DATE, "review_issue": "#1267", "active": "true",
+        "supersedes": "",
+    })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -952,6 +1032,7 @@ def build_records(repo: Path) -> dict:
             "purifying_tear_access_claims": 1,
             "ijis_bell_bearing_access_claims": 1,
             "frenzied_flame_seal_access_claims": 1,
+            "witch_crown_access_claims": 1,
         },
     }
 
