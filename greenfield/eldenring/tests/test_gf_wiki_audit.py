@@ -47,10 +47,18 @@ assert ELDENPEDIA_SPEC and ELDENPEDIA_SPEC.loader
 ELDENPEDIA_AUDIT = importlib.util.module_from_spec(ELDENPEDIA_SPEC)
 ELDENPEDIA_SPEC.loader.exec_module(ELDENPEDIA_AUDIT)
 
+POWERPYX_SPEC = importlib.util.spec_from_file_location(
+    "check_powerpyx_check_leads",
+    REPO / "tools" / "check_powerpyx_check_leads.py",
+)
+assert POWERPYX_SPEC and POWERPYX_SPEC.loader
+POWERPYX_AUDIT = importlib.util.module_from_spec(POWERPYX_SPEC)
+POWERPYX_SPEC.loader.exec_module(POWERPYX_AUDIT)
+
 
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (21, 16))
+        self.assertEqual(AUDIT.validate(REPO), (24, 16))
 
     def test_broad_walkthrough_check_leads_validate(self):
         self.assertEqual(WALKTHROUGH_AUDIT.main(), 0)
@@ -70,6 +78,9 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
         self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
         self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
+
+    def test_powerpyx_regional_check_leads_validate(self):
+        self.assertEqual(POWERPYX_AUDIT.main(), 0)
 
     def test_generated_queue_prioritizes_external_coverage_without_promoting_it(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "queue.json"
