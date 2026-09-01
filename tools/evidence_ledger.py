@@ -21,6 +21,7 @@ SOURCE_KINDS = {"game_data", "external_reference", "live_testimony", "project_de
 STANCES = {"supports", "contradicts", "silent", "ambiguous"}
 STATUSES = {"proven", "corroborated", "single_source", "conflicted", "inferred", "unverified"}
 RISKS = {"critical", "high", "medium", "low"}
+ADJUDICATIONS = {"automatic", "design_ruling", "heuristic", "model"}
 FAMILY_PREFIXES = ("game:param:", "game:emevd:", "game:esd:", "game:msb:", "game:runtime:", "reference:", "testimony:", "project:")
 FAMILY_SOURCE_KINDS = {
     "game:": {"game_data"},
@@ -318,7 +319,7 @@ def validate(directory: Path) -> Result:
     for row in claims:
         cid=row["claim_id"]
         _version(row["game_version"], cid)
-        if row["claim_kind"] not in CLAIM_KINDS or row["risk"] not in RISKS or row["status"] not in STATUSES: raise LedgerError(f"{cid}: unknown claim vocabulary")
+        if row["claim_kind"] not in CLAIM_KINDS or row["risk"] not in RISKS or row["status"] not in STATUSES or row["adjudication"] not in ADJUDICATIONS: raise LedgerError(f"{cid}: unknown claim vocabulary")
         if row["active"] not in {"true", "false"}: raise LedgerError(f"{cid}: active must be true or false")
         if row["value"]: _typed_json(row["value"], row["claim_kind"], cid)
         if row["active"] == "true":
