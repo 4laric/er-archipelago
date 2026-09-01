@@ -182,6 +182,34 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
             self.assertIn("inactive modes remain unresolved", row["notes"])
         self.assertEqual(self.bundle["diagnostics"]["carian_statue_access_claims"], 10)
 
+    def test_finger_ruins_bell_access_matches_the_exact_encoded_check_set(self):
+        expected = self.adapter.FINGER_RUINS_BELL_ACCESS
+        claims = {
+            int(row["subject_id"]): row for row in self.bundle["claims"]
+            if row["claim_kind"] == "access" and int(row["subject_id"]) in expected
+        }
+        self.assertEqual(set(claims), set(expected))
+        evidence = {row["evidence_id"]: row for row in self.bundle["evidence"]}
+        for ap_id, claim in claims.items():
+            flag, region = expected[ap_id]
+            self.assertEqual(json.loads(claim["value"]), {
+                "conditions": [
+                    {"region": region, "type": "region"},
+                    {"name": "Hole-Laden Necklace", "type": "item"},
+                ],
+                "type": "all",
+                "when": {
+                    "item_shuffle": True,
+                    "legacy_dungeon_keys": True,
+                    "vanilla_placement": False,
+                },
+            })
+            row = evidence[claim["evidence_ids"]]
+            self.assertIn("LegacyKeyGates.set_rules", row["citation"])
+            self.assertIn(f"Exact generated subject f{flag}", row["notes"])
+            self.assertIn("inactive modes remain unresolved", row["notes"])
+        self.assertEqual(self.bundle["diagnostics"]["finger_ruins_bell_access_claims"], 2)
+
     def test_perfect_order_access_is_one_exact_emevd_witness(self):
         claim = next(row for row in self.bundle["claims"]
                      if row["claim_id"] == "check:7770008/access")

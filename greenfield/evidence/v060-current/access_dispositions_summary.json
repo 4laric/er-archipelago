@@ -1,6 +1,6 @@
 {
   "by_disposition": {
-    "encoded": 10,
+    "encoded": 12,
     "excluded": 0,
     "region_sufficient": 3,
     "unresolved": 4920,
@@ -11,11 +11,11 @@
       "encoded": 0,
       "excluded": 0,
       "region_sufficient": 3,
-      "unresolved": 4910,
+      "unresolved": 4908,
       "waived": 0
     },
     "item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false": {
-      "encoded": 10,
+      "encoded": 12,
       "excluded": 0,
       "region_sufficient": 0,
       "unresolved": 0,
@@ -25,13 +25,13 @@
       "encoded": 0,
       "excluded": 0,
       "region_sufficient": 0,
-      "unresolved": 10,
+      "unresolved": 12,
       "waived": 0
     }
   },
   "by_risk": {
     "critical": {
-      "encoded": 10,
+      "encoded": 12,
       "excluded": 0,
       "region_sufficient": 3,
       "unresolved": 4920,
@@ -60,10 +60,10 @@
     }
   },
   "checks_total": 4923,
-  "content_hash": "c60aefe79911d691fcafcaf4abc4e02aca9caf61dc0b093260e00060a17cac0f",
-  "dispositions_total": 4933,
+  "content_hash": "d9a2a1df8c33d4ffff345cffc1e8f549f53adfd5aeaf10658b5e992b8e4f4fc8",
+  "dispositions_total": 4935,
   "release_blockers": 4920,
   "schema_version": 1,
-  "with_access_claim": 32,
-  "without_access_claim": 4901
+  "with_access_claim": 36,
+  "without_access_claim": 4899
 }
