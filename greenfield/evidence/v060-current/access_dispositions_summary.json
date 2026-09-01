@@ -1,6 +1,6 @@
 {
   "by_disposition": {
-    "encoded": 12,
+    "encoded": 13,
     "excluded": 0,
     "region_sufficient": 3,
     "unresolved": 4920,
@@ -11,7 +11,14 @@
       "encoded": 0,
       "excluded": 0,
       "region_sufficient": 3,
-      "unresolved": 4908,
+      "unresolved": 4907,
+      "waived": 0
+    },
+    "item_shuffle=true,jagged_peak=kept,legacy_dungeon_keys=true,vanilla_placement=false": {
+      "encoded": 1,
+      "excluded": 0,
+      "region_sufficient": 0,
+      "unresolved": 0,
       "waived": 0
     },
     "item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false": {
@@ -19,6 +26,13 @@
       "excluded": 0,
       "region_sufficient": 0,
       "unresolved": 0,
+      "waived": 0
+    },
+    "not(item_shuffle=true,jagged_peak=kept,legacy_dungeon_keys=true,vanilla_placement=false)": {
+      "encoded": 0,
+      "excluded": 0,
+      "region_sufficient": 0,
+      "unresolved": 1,
       "waived": 0
     },
     "not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)": {
@@ -31,7 +45,7 @@
   },
   "by_risk": {
     "critical": {
-      "encoded": 12,
+      "encoded": 13,
       "excluded": 0,
       "region_sufficient": 3,
       "unresolved": 4920,
@@ -60,10 +74,10 @@
     }
   },
   "checks_total": 4923,
-  "content_hash": "d9a2a1df8c33d4ffff345cffc1e8f549f53adfd5aeaf10658b5e992b8e4f4fc8",
-  "dispositions_total": 4935,
+  "content_hash": "e8e779d413f4aa92308e437fcd34b1f6f5dc8c5cff5d07ecc9da3f2824fcb16a",
+  "dispositions_total": 4936,
   "release_blockers": 4920,
   "schema_version": 1,
-  "with_access_claim": 36,
-  "without_access_claim": 4899
+  "with_access_claim": 38,
+  "without_access_claim": 4898
 }

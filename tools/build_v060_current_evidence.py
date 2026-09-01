@@ -41,6 +41,7 @@ FINGER_RUINS_BELL_ACCESS = {
     7773581: (2050407000, "Jagged Peak"),
     7773656: (2053467600, "Scadu Altus"),
 }
+METYR_ACCESS = (7770673, 510550, "Scadu Altus")
 
 
 def _json(value: object) -> str:
@@ -465,7 +466,7 @@ def build_records(repo: Path) -> dict:
     sources.append({
         "source_id": finger_ruins_source_id, "source_kind": "ruling",
         "family_id": "project:hole-laden-necklace-access-rule",
-        "title": "Archipelago Hole-Laden Necklace bell access rule",
+        "title": "Archipelago Hole-Laden Necklace access rule",
         "game_version": GAME_VERSION, "retrieved_at": "2026-09-01",
         "revision": legacy_gate_hash,
         "url_or_path": "greenfield/eldenring/features/legacy_key_gates.py",
@@ -1253,6 +1254,59 @@ def build_records(repo: Path) -> dict:
             "supersedes": "",
         })
 
+    metyr_ap_id, metyr_flag, metyr_region = METYR_ACCESS
+    metyr_location = location_by_ap_id.get(metyr_ap_id)
+    if metyr_location is None or (
+        metyr_location["flag"], metyr_location["region"]
+    ) != (metyr_flag, metyr_region):
+        raise RuntimeError(f"Metyr access subject changed: {metyr_location!r}")
+    metyr_value = {
+        "type": "all",
+        "conditions": [
+            {"type": "region", "region": metyr_region},
+            {"type": "item", "name": "Hole-Laden Necklace"},
+            {"type": "item", "name": "Jagged Peak Lock"},
+        ],
+        "when": {
+            "item_shuffle": True,
+            "jagged_peak": "kept",
+            "legacy_dungeon_keys": True,
+            "vanilla_placement": False,
+        },
+    }
+    metyr_claim_id = f"check:{metyr_ap_id}/access"
+    metyr_evidence_id = f"project:hole-laden-necklace-gate:check-{metyr_ap_id}:access"
+    evidence.append({
+        "evidence_id": metyr_evidence_id, "claim_id": metyr_claim_id,
+        "source_id": finger_ruins_source_id, "stance": "supports",
+        "value": _json(metyr_value),
+        "citation": (
+            "greenfield/eldenring/features/legacy_key_gates.py:"
+            "_LEGACY_EXTRA['Hole-Laden Necklace'], _EXTRA_CHECK_LOCKS[510550], and "
+            "LegacyKeyGates.set_rules; greenfield/eldenring/tests/test_gf_legacy_key_gate.py:"
+            "LegacyKeyGateOn.test_metyr_chain_needs_the_necklace_and_both_region_locks"
+        ),
+        "method": "tools/build_v060_current_evidence.py:metyr_encoded_access",
+        "independence_notes": (
+            "The regression exercises the same project rule and is not an independent game-data "
+            "witness; this claim records implemented Archipelago logic."
+        ),
+        "valid_from": GAME_VERSION, "valid_to": "",
+        "notes": (
+            "Exact generated subject f510550. The option guard includes Jagged Peak being kept "
+            "because _EXTRA_CHECK_LOCKS only requires its Lock in that case; other modes remain "
+            "unresolved in the census."
+        ),
+    })
+    claims.append({
+        "claim_id": metyr_claim_id, "subject_kind": "check",
+        "subject_id": str(metyr_ap_id), "claim_kind": "access",
+        "game_version": GAME_VERSION, "value": _json(metyr_value),
+        "status": "proven", "risk": "critical", "adjudication": "design_ruling",
+        "evidence_ids": metyr_evidence_id, "last_reviewed": "2026-09-01",
+        "review_issue": "#1271", "active": "true", "supersedes": "",
+    })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -1292,6 +1346,7 @@ def build_records(repo: Path) -> dict:
             "fingerslayer_access_claims": 1,
             "carian_statue_access_claims": len(CARIAN_STATUE_ACCESS_AP_IDS),
             "finger_ruins_bell_access_claims": len(FINGER_RUINS_BELL_ACCESS),
+            "metyr_access_claims": 1,
         },
     }
 

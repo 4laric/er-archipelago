@@ -210,6 +210,31 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
             self.assertIn("inactive modes remain unresolved", row["notes"])
         self.assertEqual(self.bundle["diagnostics"]["finger_ruins_bell_access_claims"], 2)
 
+    def test_metyr_access_records_both_existing_item_rules(self):
+        ap_id, flag, region = self.adapter.METYR_ACCESS
+        claim = next(row for row in self.bundle["claims"]
+                     if row["claim_id"] == f"check:{ap_id}/access")
+        self.assertEqual(json.loads(claim["value"]), {
+            "conditions": [
+                {"region": region, "type": "region"},
+                {"name": "Hole-Laden Necklace", "type": "item"},
+                {"name": "Jagged Peak Lock", "type": "item"},
+            ],
+            "type": "all",
+            "when": {
+                "item_shuffle": True,
+                "jagged_peak": "kept",
+                "legacy_dungeon_keys": True,
+                "vanilla_placement": False,
+            },
+        })
+        evidence = {row["evidence_id"]: row for row in self.bundle["evidence"]}
+        row = evidence[claim["evidence_ids"]]
+        self.assertIn("_EXTRA_CHECK_LOCKS[510550]", row["citation"])
+        self.assertIn(f"Exact generated subject f{flag}", row["notes"])
+        self.assertIn("other modes remain unresolved", row["notes"])
+        self.assertEqual(self.bundle["diagnostics"]["metyr_access_claims"], 1)
+
     def test_perfect_order_access_is_one_exact_emevd_witness(self):
         claim = next(row for row in self.bundle["claims"]
                      if row["claim_id"] == "check:7770008/access")
