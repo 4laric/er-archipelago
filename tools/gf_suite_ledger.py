@@ -63,6 +63,9 @@ GENERATORS = [
     # Loads tools/evidence_ledger.py and the committed fixture quartet by repository path. It is
     # AP-free and artifact-free, but neither the tool nor fixtures ship beside an installed world.
     "evidence_ledger",
+    # v0.6 current-corpus adapter (#1211). Loads its builder and normalized checked-in census by
+    # repository path; neither ships beside the installed world. AP-free and artifact-free.
+    "v060_current_evidence",
     # The region second-opinion worksheet page. Same shape as the two above: it loads
     # tools/build_region_second_opinion_page.py BY PATH and diffs the committed root page
     # against a fresh build, and neither the tool nor the page is installed beside the world.

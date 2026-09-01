@@ -21,21 +21,10 @@ from collections import Counter
 from pathlib import Path
 from typing import Iterable, Mapping
 
+import evidence_ledger
 
-SCHEMA_VERSION = "v0.6-phase1-adapter-1"
 REVIEW_DATE = "2026-08-31"
-SOURCE_FIELDS = (
-    "source_id", "source_kind", "family_id", "title", "game_version", "retrieved_at",
-    "revision", "url_or_path", "license", "environment_id", "supersedes", "lineage",
-)
-EVIDENCE_FIELDS = (
-    "evidence_id", "claim_id", "source_id", "family_id", "stance", "value", "citation",
-    "method", "independence_notes", "valid_from", "valid_to", "notes", "lineage",
-)
-CLAIM_FIELDS = (
-    "claim_id", "subject_kind", "subject_id", "claim_kind", "value", "status", "risk",
-    "adjudication", "evidence_ids", "last_reviewed", "review_issue",
-)
+GAME_VERSION = "1.17"
 
 
 def _json(value: object) -> str:
@@ -100,26 +89,24 @@ def _source_records(repo: Path, data_path: Path, override_path: Path, stamp: Map
     generated_id = f"project:data.py:{body_hash.removeprefix('sha256:')}"
     override_hash = _sha256(override_path)
     override_id = f"project:region-overrides:{override_hash.removeprefix('sha256:')}"
-    common_lineage = [f"greenfield/gen_inputs.db@{inputs_hash}", "greenfield/gen_data.py"]
     data_display = data_path.relative_to(repo).as_posix()
     override_display = override_path.relative_to(repo).as_posix()
     sources = [
         {
             "source_id": generated_id, "source_kind": "project_derivation",
             "family_id": family_id, "title": "Current generated Elden Ring locations",
-            "game_version": "current-corpus", "retrieved_at": "", "revision": body_hash,
+            "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE, "revision": body_hash,
             "url_or_path": data_display, "license": "project-derived",
             "environment_id": "", "supersedes": "",
-            "lineage": _json(common_lineage + [data_display]),
         },
         {
             "source_id": override_id, "source_kind": "ruling",
             # Same family on purpose: data.py consumes this table.
             "family_id": family_id, "title": "Current project region rulings",
-            "game_version": "current-corpus", "retrieved_at": "", "revision": override_hash,
+            "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+            "revision": override_hash,
             "url_or_path": override_display, "license": "project-derived",
             "environment_id": "", "supersedes": "",
-            "lineage": _json(common_lineage + [override_display, data_display]),
         },
     ]
     sources.sort(key=lambda row: row["source_id"])
@@ -135,6 +122,7 @@ def build_records(repo: Path) -> dict:
     locations, stamp = _load_generated_locations(data_path)
     overrides, non_flag_overrides = _load_flag_region_overrides(override_path)
     sources, source = _source_records(repo, data_path, override_path, stamp)
+    environments: list[dict] = []
     evidence: list[dict] = []
     claims: list[dict] = []
     matched_override_flags: set[int] = set()
@@ -143,63 +131,57 @@ def build_records(repo: Path) -> dict:
         ap_id, flag = location["ap_id"], location["flag"]
         identity_claim_id = f"check:{ap_id}/identity"
         region_claim_id = f"check:{ap_id}/region"
-        generated_lineage = _json([
-            f"greenfield/gen_inputs.db@{source['inputs_hash']}", "greenfield/gen_data.py",
-            f"greenfield/eldenring/data.py@{source['body_hash']}",
-        ])
-        identity_value = {
-            "ap_id": ap_id, "name": location["name"],
-            "acquisition": {"namespace": "event_flag", "id": flag},
-        }
+        # data.LOCATIONS exposes the AP id and event flag, but not a normalized lot/shop id.
+        # Preserve that legacy key without pretending a second derived table is independent.
+        identity_value = {"ap_id": ap_id, "flag": flag, "namespace": "flag", "id": flag}
         identity_evidence_id = (
             f"project:data.py:{source['body_hash'].removeprefix('sha256:')}:"
             f"check-{ap_id}:identity")
         evidence.append({
             "evidence_id": identity_evidence_id, "claim_id": identity_claim_id,
-            "source_id": source["generated_id"], "family_id": source["family_id"],
+            "source_id": source["generated_id"],
             "stance": "supports", "value": _json(identity_value),
             "citation": f"greenfield/eldenring/data.py:LOCATIONS ap_id={ap_id} flag={flag}",
             "method": "tools/build_v060_current_evidence.py:current_locations",
             "independence_notes":
                 "Generated location snapshot; downstream views of data.py are this same family.",
-            "valid_from": "current-corpus", "valid_to": "",
+            "valid_from": GAME_VERSION, "valid_to": "",
             "notes":
-                "Current-corpus identity only; this does not independently prove the vanilla acquisition.",
-            "lineage": generated_lineage,
+                "Legacy current-corpus key: data.py exposes an event flag, not a vanilla lot/shop id.",
         })
         claims.append({
             "claim_id": identity_claim_id, "subject_kind": "check", "subject_id": str(ap_id),
-            "claim_kind": "identity", "value": _json(identity_value),
+            "claim_kind": "identity", "game_version": GAME_VERSION,
+            "value": _json(identity_value),
             "status": "single_source", "risk": "medium",
-            "adjudication": "current_generated_location",
-            "evidence_ids": _json([identity_evidence_id]), "last_reviewed": REVIEW_DATE,
-            "review_issue": "#1211",
+            "adjudication": "automatic", "evidence_ids": identity_evidence_id,
+            "last_reviewed": REVIEW_DATE, "review_issue": "#1211", "active": "true",
+            "supersedes": "",
         })
 
-        region_value = {"region": location["region"]}
+        region_value = location["region"]
         generated_region_evidence_id = (
             f"project:data.py:{source['body_hash'].removeprefix('sha256:')}:"
             f"check-{ap_id}:region")
         region_evidence_ids = [generated_region_evidence_id]
         evidence.append({
             "evidence_id": generated_region_evidence_id, "claim_id": region_claim_id,
-            "source_id": source["generated_id"], "family_id": source["family_id"],
+            "source_id": source["generated_id"],
             "stance": "supports", "value": _json(region_value),
             "citation":
                 f"greenfield/eldenring/data.py:LOCATIONS[{location['region']!r}] ap_id={ap_id}",
             "method": "tools/build_v060_current_evidence.py:current_locations",
             "independence_notes":
                 "Current region is generated; its provenance inputs are not independent witnesses.",
-            "valid_from": "current-corpus", "valid_to": "",
-            "notes": "Current runtime filing, captured as inferred project output.",
-            "lineage": generated_lineage,
+            "valid_from": GAME_VERSION, "valid_to": "",
+            "notes": "Current runtime filing; this adapter does not promote it into generation.",
         })
 
         ruling = overrides.get(flag)
         contradictory = False
         if ruling is not None:
             matched_override_flags.add(flag)
-            ruling_value = {"region": ruling["region"]}
+            ruling_value = ruling["region"]
             contradictory = ruling["region"] != location["region"]
             ruling_evidence_id = (
                 f"project:region-overrides:{source['override_hash'].removeprefix('sha256:')}:"
@@ -207,7 +189,7 @@ def build_records(repo: Path) -> dict:
             region_evidence_ids.append(ruling_evidence_id)
             evidence.append({
                 "evidence_id": ruling_evidence_id, "claim_id": region_claim_id,
-                "source_id": source["override_id"], "family_id": source["family_id"],
+                "source_id": source["override_id"],
                 "stance": "contradicts" if contradictory else "supports",
                 "value": _json(ruling_value),
                 "citation": f"greenfield/region_overrides.tsv:{ruling['line']} flag={flag}",
@@ -215,20 +197,17 @@ def build_records(repo: Path) -> dict:
                 "independence_notes":
                     "Not independent of data.py: gen_data consumes region_overrides.tsv; "
                     "both records share one family and count once.",
-                "valid_from": "current-corpus", "valid_to": "", "notes": ruling["reason"],
-                "lineage": _json([
-                    f"greenfield/region_overrides.tsv@{source['override_hash']}",
-                    "greenfield/gen_data.py",
-                    f"greenfield/eldenring/data.py@{source['body_hash']}",
-                ]),
+                "valid_from": GAME_VERSION, "valid_to": "", "notes": ruling["reason"],
             })
         claims.append({
             "claim_id": region_claim_id, "subject_kind": "check", "subject_id": str(ap_id),
-            "claim_kind": "region", "value": _json(region_value),
-            "status": "conflicted" if contradictory else "inferred", "risk": "high",
-            "adjudication": "current_generated_location",
-            "evidence_ids": _json(sorted(region_evidence_ids)),
-            "last_reviewed": REVIEW_DATE, "review_issue": "#1211",
+            "claim_kind": "region", "game_version": GAME_VERSION,
+            "value": _json(region_value),
+            "status": "conflicted" if contradictory else "single_source", "risk": "high",
+            "adjudication": "automatic",
+            "evidence_ids": ",".join(sorted(region_evidence_ids)),
+            "last_reviewed": REVIEW_DATE, "review_issue": "#1211", "active": "true",
+            "supersedes": "",
         })
 
     evidence.sort(key=lambda row: row["evidence_id"])
@@ -242,18 +221,12 @@ def build_records(repo: Path) -> dict:
     if any(row["claim_id"] not in claim_ids for row in evidence):
         raise RuntimeError("adapter emitted evidence with a dangling claim")
 
-    content = {"sources": sources, "evidence": evidence, "claims": claims}
-    content_hash = "sha256:" + hashlib.sha256(_json(content).encode("utf-8")).hexdigest()
-    summary = {
-        "schema_version": SCHEMA_VERSION, "claims_total": len(claims),
-        "by_status": dict(sorted(Counter(row["status"] for row in claims).items())),
-        "by_kind": dict(sorted(Counter(row["claim_kind"] for row in claims).items())),
-        "by_risk": dict(sorted(Counter(row["risk"] for row in claims).items())),
-        "active_conflicts": sum(row["status"] == "conflicted" for row in claims),
-        "content_hash": content_hash,
+    content = {
+        "sources": sources, "evidence": evidence, "claims": claims,
+        "environments": environments,
     }
     return {
-        **content, "summary": summary,
+        **content,
         "diagnostics": {
             "locations": len(locations), "flag_overrides_total": len(overrides),
             "flag_overrides_matched": len(matched_override_flags),
@@ -265,18 +238,29 @@ def build_records(repo: Path) -> dict:
 
 def _write_tsv(path: Path, fields: Iterable[str], rows: Iterable[Mapping[str, object]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    fields = list(fields)
     with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(
-            handle, fieldnames=list(fields), delimiter="\t", lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(rows)
+        writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+        writer.writerow(fields)
+        for row in rows:
+            values = [row.get(field, "") for field in fields]
+            while values and values[-1] == "":
+                values.pop()
+            writer.writerow(values)
 
 
 def write_bundle(repo: Path, out_dir: Path) -> dict:
     bundle = build_records(repo)
-    _write_tsv(out_dir / "sources.tsv", SOURCE_FIELDS, bundle["sources"])
-    _write_tsv(out_dir / "evidence.tsv", EVIDENCE_FIELDS, bundle["evidence"])
-    _write_tsv(out_dir / "claims.tsv", CLAIM_FIELDS, bundle["claims"])
+    table_rows = {
+        "sources.tsv": bundle["sources"],
+        "evidence.tsv": bundle["evidence"],
+        "claims.tsv": bundle["claims"],
+        "environments.tsv": bundle["environments"],
+    }
+    for name, rows in table_rows.items():
+        _write_tsv(out_dir / name, evidence_ledger.HEADERS[name], rows)
+    evidence_ledger.validate(out_dir)
+    bundle["summary"] = evidence_ledger.summary(out_dir)
     (out_dir / "summary.json").write_text(
         json.dumps(bundle["summary"], indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return bundle
