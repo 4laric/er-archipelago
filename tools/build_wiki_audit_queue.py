@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -24,6 +25,8 @@ GAP_KINDS = {
     "coverage",
     "prerequisite_chain",
 }
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUTPUT = os.path.join(REPO, "greenfield", "evidence", "wiki-audit", "queue.json")
 
 
 def _read_tsv(path: Path) -> list[dict[str, str]]:
@@ -179,9 +182,8 @@ def main() -> int:
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    repo = Path(__file__).resolve().parent.parent
-    output = args.output or (
-        repo / "greenfield" / "evidence" / "wiki-audit" / "queue.json")
+    repo = Path(REPO)
+    output = args.output or Path(OUTPUT)
     rendered = render(build(repo))
     if args.check:
         if not output.is_file() or output.read_text(encoding="utf-8") != rendered:

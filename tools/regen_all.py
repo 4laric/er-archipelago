@@ -166,6 +166,10 @@ STEPS = [
          emits=["greenfield/surface_confidence.tsv"],
          why="staleness-gated confidence table over generated location and surface data. It moved "
              "on #701 but regen_all omitted its producer -- the same hole #700 was meant to close."),
+    Step(TABLES, "tools/build_wiki_audit_queue.py",
+         emits=["greenfield/evidence/wiki-audit/queue.json"],
+         why="risk-ranked #1273 investigation queue derived from normalized external leads and "
+             "the current access-disposition ledger; checked output must move with either input."),
 
     Step(PAGES, "tools/build_check_browser.py",
          emits=["er-archipelago-check-browser.html"],
