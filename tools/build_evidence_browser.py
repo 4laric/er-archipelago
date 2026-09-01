@@ -185,19 +185,24 @@ input,select,button{{width:100%;padding:9px;border:1px solid var(--line);border-
 <select id="risk" aria-label="Risk"><option value="">All risks</option></select>
 <select id="kind" aria-label="Claim kind"><option value="">All claim kinds</option></select>
 <select id="family" aria-label="Evidence family"><option value="">All families</option></select></div>
-<div class="toolbar"><strong id="count"></strong><span class="muted">risk-ranked audit queue</span></div><div id="rows"></div></section>
+<div class="toolbar"><strong id="count"></strong><span class="muted">risk-ranked audit queue</span><button id="exportQueue">Export filtered TSV</button></div><div id="rows"></div></section>
 <section class="detail" id="detail"><p class="empty">Select a claim to inspect its evidence.</p></section></main>
 <script id="evidence-payload" type="application/json">{payload}</script>
 <script>
 const DATA=JSON.parse(document.getElementById('evidence-payload').textContent);
 const claims=DATA.checks.flatMap(c=>c.claims.map(x=>({{...x,check_id:c.check_id,check_name:c.name}})));
 const riskRank={{critical:0,high:1,medium:2,low:3}}, statusRank={{conflicted:0,unverified:1,inferred:2,single_source:3,corroborated:4,proven:5}};
-const els=Object.fromEntries(['q','status','risk','kind','family','rows','count','detail'].map(x=>[x,document.getElementById(x)]));
+const els=Object.fromEntries(['q','status','risk','kind','family','rows','count','detail','exportQueue'].map(x=>[x,document.getElementById(x)]));
 function values(key){{return [...new Set(claims.flatMap(c=>key==='family'?c.evidence.map(e=>e.family_id):[c[key]]))].sort()}}
 function options(el,vals){{for(const v of vals){{const o=document.createElement('option');o.value=v;o.textContent=v;el.append(o)}}}}
 options(els.status,values('status'));options(els.risk,values('risk'));options(els.kind,values('claim_kind'));options(els.family,values('family'));
 function readHash(){{const p=new URLSearchParams(location.hash.slice(1));for(const k of ['q','status','risk','kind','family'])if(p.has(k))els[k].value=p.get(k);return p.get('claim')||''}}
-function writeHash(selected){{const p=new URLSearchParams();for(const k of ['q','status','risk','kind','family'])if(els[k].value)p.set(k,els[k].value);if(selected)p.set('claim',selected);history.replaceState(null,'','#'+p.toString())}}
+function hashParams(selected){{const p=new URLSearchParams();for(const k of ['q','status','risk','kind','family'])if(els[k].value)p.set(k,els[k].value);if(selected)p.set('claim',selected);return p}}
+function writeHash(selected){{history.replaceState(null,'','#'+hashParams(selected).toString())}}
+function claimPermalink(c){{const url=new URL(location.href);url.hash=hashParams(c.claim_id).toString();return url.toString()}}
+function tsvCell(value){{let s=String(value??'').replace(/[\\t\\r\\n]+/g,' ');if(/^[=+\\-@]/.test(s))s="'"+s;return s}}
+function exportRows(rows){{const columns=['claim_id','check_id','claim_kind','status','risk','value','evidence_families','review_issue','permalink'];const body=rows.map(c=>[c.claim_id,c.check_id,c.claim_kind,c.status,c.risk,JSON.stringify(c.value),new Set(c.evidence.map(e=>e.family_id)).size,c.review_issue,claimPermalink(c)].map(tsvCell).join('\\t'));return [columns.join('\\t'),...body].join('\\n')+'\\n'}}
+function downloadQueue(rows){{const blob=new Blob([exportRows(rows)],{{type:'text/tab-separated-values;charset=utf-8'}});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='er-evidence-audit.tsv';a.click();URL.revokeObjectURL(url)}}
 function text(c){{return JSON.stringify(c).toLowerCase()}}
 function filtered(){{const q=els.q.value.trim().toLowerCase();return claims.filter(c=>(!q||text(c).includes(q))&&(!els.status.value||c.status===els.status.value)&&(!els.risk.value||c.risk===els.risk.value)&&(!els.kind.value||c.claim_kind===els.kind.value)&&(!els.family.value||c.evidence.some(e=>e.family_id===els.family.value))).sort((a,b)=>riskRank[a.risk]-riskRank[b.risk]||statusRank[a.status]-statusRank[b.status]||a.check_id-b.check_id||a.claim_kind.localeCompare(b.claim_kind))}}
 function badge(s,extra=''){{return `<span class="badge ${{s}} ${{extra}}">${{escapeHtml(s)}}</span>`}}
@@ -219,7 +224,7 @@ function show(c){{
  els.detail.innerHTML=html;document.getElementById('copy').onclick=()=>navigator.clipboard?.writeText(location.href);writeHash(c.claim_id);
 }}
 let selected=readHash();function render(){{const rows=filtered();els.count.textContent=`${{rows.length}} / ${{claims.length}} claims`;els.rows.innerHTML=rows.length?'':'<p class="empty">No claims match this permalink/filter.</p>';for(const c of rows){{const d=document.createElement('div');d.className='row'+(c.claim_id===selected?' active':'');d.innerHTML=`<div><strong>${{escapeHtml(c.check_name)}}</strong><div class="muted">${{c.claim_kind}} · ${{escapeHtml(JSON.stringify(c.value))}}</div><div class="badges">${{badge(c.status)}}${{badge(c.risk)}}${{c.evidence.some(e=>e.stance==='contradicts')?badge('conflict','contradicts'):''}}</div></div><code>${{c.check_id}}</code>`;d.onclick=()=>{{selected=c.claim_id;render();show(c)}};els.rows.append(d)}}if(selected){{const c=claims.find(x=>x.claim_id===selected);if(c)show(c);else els.detail.innerHTML='<div class="alert">This permalink names a claim that is absent from this build.</div>'}}writeHash(selected)}}
-for(const k of ['q','status','risk','kind','family'])els[k].addEventListener(k==='q'?'input':'change',()=>{{selected='';render()}});window.addEventListener('hashchange',()=>{{selected=readHash();render()}});render();
+for(const k of ['q','status','risk','kind','family'])els[k].addEventListener(k==='q'?'input':'change',()=>{{selected='';render()}});els.exportQueue.addEventListener('click',()=>downloadQueue(filtered()));window.addEventListener('hashchange',()=>{{selected=readHash();render()}});render();
 </script></body></html>'''
 
 
