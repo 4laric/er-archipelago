@@ -484,10 +484,26 @@ class EvidenceLedgerTests(unittest.TestCase):
             schema["environment_artifacts"]["digest"], "lowercase sha256:<64 hex>"
         )
         self.assertEqual(
+            schema["row_ids"]["grammar"],
+            "[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}",
+        )
+        self.assertEqual(
             schema["typed_values"]["integers"],
             "exact JSON integers; booleans are forbidden",
         )
         self.assertEqual({k:tuple(v) for k,v in schema["tables"].items()},ledger.HEADERS)
+
+    def test_primary_row_ids_are_canonical_ascii_tokens(self):
+        malformed = ("trailing-space ", "embedded space", "unicode-\u03b1", "control\x01")
+        for table, header in ledger.HEADERS.items():
+            for row_id in malformed:
+                with self.subTest(table=table, row_id=repr(row_id)), tempfile.TemporaryDirectory() as td:
+                    path = Path(td) / table
+                    row = [row_id] + [""] * (len(header) - 1)
+                    path.write_text("\t".join(header) + "\n" + "\t".join(row) + "\n")
+                    self.assertTrue(row_id)
+                    with self.assertRaisesRegex(ledger.LedgerError, "canonical ASCII token"):
+                        ledger._rows(path)
 
     def test_noncanonical_json_value_is_rejected_before_hashing(self):
         with tempfile.TemporaryDirectory() as td:

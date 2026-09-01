@@ -34,6 +34,7 @@ REVISION_MAX = 256
 CITATION_MAX = 2048
 LOCATOR_MAX = 2048
 SHA256 = re.compile(r"^sha256:[0-9a-f]{64}$")
+ROW_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}")
 
 HEADERS = {
     "sources.tsv": ("source_id", "source_kind", "family_id", "title", "game_version", "retrieved_at", "revision", "url_or_path", "license", "environment_id", "supersedes"),
@@ -55,6 +56,11 @@ def _rows(path: Path) -> list[dict[str, str]]:
         # meaningful; DictReader represents those as None, canonically normalize them to empty.
         rows = [{key: (value or "") for key, value in row.items()} for row in reader]
     keys = [row[expected[0]] for row in rows]
+    for key in keys:
+        if not ROW_ID.fullmatch(key):
+            raise LedgerError(
+                f"{path.name}: {expected[0]} must be a canonical ASCII token <= 256 chars"
+            )
     if keys != sorted(keys) or len(keys) != len(set(keys)):
         raise LedgerError(f"{path.name}: rows must have unique, deterministic sorted keys")
     return rows
