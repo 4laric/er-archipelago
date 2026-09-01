@@ -88,6 +88,15 @@ def _summary(**changes):
 
 @unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class EvidenceBaselineValidation(unittest.TestCase):
+    def test_current_corpus_matches_the_reviewed_baseline(self):
+        current = baseline.load_summary(
+            os.path.join(REPO, "greenfield", "evidence", "v060-current", "summary.json")
+        )
+        reviewed = baseline.load_summary(
+            os.path.join(REPO, "greenfield", "evidence", "v060-current-baseline.json")
+        )
+        self.assertEqual([], baseline.compare(current, reviewed))
+
     def test_accepts_complete_consistent_summary(self):
         self.assertEqual(4, baseline.validate_summary(_summary())["claims_total"])
 
