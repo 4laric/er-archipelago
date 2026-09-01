@@ -1,12 +1,12 @@
 # Elden Ring -- Archipelago client (standalone bundle)
 
-A runtime client for Elden Ring. It hooks the **vanilla, unmodified** game via
-[me3](https://github.com/garyttierney/me3) and talks to an Archipelago server. Nothing is baked: no
-`regulation.bin` edits, no UXM, no patched game files. Delete the folder and your game is untouched.
+A runtime client for Elden Ring. [me3](https://github.com/garyttierney/me3) loads it into the
+**vanilla, unmodified** game, and it connects to an Archipelago server. Nothing is baked into the
+game: no `regulation.bin` edits, UXM, or patched files. Delete the folder and the game is untouched.
 
-The client is **apworld-agnostic**. It will drive any Elden Ring apworld, and it degrades to sensible
-behaviour for anything your slot_data does not send. If you are testing your own apworld against it,
-the contract is at the bottom of this file.
+The client is **apworld-agnostic**. It can drive any Elden Ring apworld and uses sensible fallbacks
+for data absent from `slot_data`. If you are testing your own apworld, the contract is at the bottom
+of this file.
 
 ---
 
@@ -32,23 +32,24 @@ the contract is at the bottom of this file.
    ```json
    { "url": "archipelago.gg:12345", "slot": "YourName", "password": "" }
    ```
-   `12345` stands in for YOUR room's port, which is on the room page and is
-   different for every room -- it is only `38281` if you are running the
-   server yourself, at `localhost:38281`.
-   Leaving it blank is fine -- the client shows a connect form in-game.
+   `12345` stands in for your room's port. Find it on the room page; each room
+   can use a different one. `38281` is only the default for a server you run at
+   `localhost:38281`.
+   Leaving it blank is fine. The client also shows a connect form in-game.
 5. Launch:
    ```
    me3 launch --profile "<path to this folder>\ap.me3"
    ```
 
-Start a **new character**. Launched with `ap.me3` as above, the game writes to a separate save file
-(`AP_me3.sl2`). When that file does not exist, me3 creates it by copying your current `ER0000.sl2`,
-so your vanilla characters initially appear in the AP character list too. They are copies: after
-creation the files diverge, and a new AP character will not appear in a vanilla launch. Do not load
-a copied vanilla character while connected; create a new character for the seed. The separation
-comes from the profile's `savefile` line, needs no Alt Saves DLL, and only holds for this launch
-path -- load the dll through another loader (matt's randomizer, say) and your Archipelago character
-goes into your ordinary save.
+Start a **new character**. When launched through `ap.me3`, the game writes to the separate
+`AP_me3.sl2` save. If that file does not exist, me3 creates it by copying your current
+`ER0000.sl2`, so copies of your vanilla characters initially appear in the AP character list. The
+files diverge after creation, and a new AP character will not appear in a vanilla launch. Do not
+load a copied vanilla character while connected; create a new character for the seed.
+
+The profile's `savefile` line provides this separation without the Alt Saves DLL. It applies only
+when you launch through `ap.me3`. Another loader, including matt's randomizer, puts the Archipelago
+character in your ordinary save unless you configure separate saves there.
 
 For a standalone ModEngine2 or randomizer output instead of me3, point the installer at that loose
 file root: `.\install-ap-flower.ps1 -Destination "<folder containing regulation.bin>"`. To remove
