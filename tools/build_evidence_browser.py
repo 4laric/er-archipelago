@@ -82,6 +82,13 @@ def normalized_tables(path: str = CURRENT) -> dict[str, list[dict[str, str]]]:
     return {name: _rows(os.path.join(path, name), header) for name, header in HEADERS.items()}
 
 
+def wiki_lead_files(path: str = WIKI_AUDIT) -> list[str]:
+    """Return every normalized external-lead registry in deterministic order."""
+    names = {"leads.tsv"}
+    names.update(candidate.name for candidate in Path(path).glob("*-check-leads.tsv"))
+    return sorted(names)
+
+
 def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
     """Read the separately validated lead registry without promoting it into core evidence."""
     def read(name: str, header: tuple[str, ...]) -> list[dict[str, str]]:
@@ -95,9 +102,8 @@ def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict
             raise ValueError(f"wiki-audit/{name} has duplicate primary ids")
         return rows
     sources = read("sources.tsv", WIKI_SOURCE_HEADERS)
-    leads = read("leads.tsv", WIKI_LEAD_HEADERS) + read(
-        "walkthrough-check-leads.tsv", WIKI_LEAD_HEADERS
-    )
+    leads = [row for name in wiki_lead_files(path)
+             for row in read(name, WIKI_LEAD_HEADERS)]
     lead_ids = [row["lead_id"] for row in leads]
     if len(lead_ids) != len(set(lead_ids)):
         raise ValueError("wiki-audit lead registries have duplicate primary ids across files")
@@ -246,7 +252,7 @@ def ledger_hash(path: str = CURRENT, wiki_path: str | None = None) -> str:
         with open(access_path, "rb") as fh:
             digest.update(fh.read())
     if wiki_path:
-        for name in ("sources.tsv", "leads.tsv", "walkthrough-check-leads.tsv"):
+        for name in ("sources.tsv", *wiki_lead_files(wiki_path)):
             digest.update(("wiki-audit/" + name).encode() + b"\0")
             with open(os.path.join(wiki_path, name), "rb") as fh:
                 digest.update(fh.read())
