@@ -1,5 +1,6 @@
 {
   "schema_version": 1,
+  "adjudications": ["automatic", "design_ruling", "heuristic", "model"],
   "claim_kinds": ["access", "alternate_acquisition", "description", "detection", "identity", "region", "suppression", "sweep_owner"],
   "claim_supersession": {
     "predecessor_active": false,

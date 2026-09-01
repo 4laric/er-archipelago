@@ -457,6 +457,7 @@ class EvidenceLedgerTests(unittest.TestCase):
     def test_checked_in_schema_matches_the_validator_contract(self):
         schema=json.loads((ROOT/"greenfield"/"evidence"/"SCHEMA.json").read_text())
         self.assertEqual(schema["schema_version"],1)
+        self.assertEqual(schema["adjudications"], sorted(ledger.ADJUDICATIONS))
         self.assertEqual(schema["claim_kinds"],sorted(ledger.CLAIM_KINDS))
         self.assertEqual(
             schema["family_source_kinds"],
@@ -493,6 +494,17 @@ class EvidenceLedgerTests(unittest.TestCase):
         )
         self.assertEqual(schema["tsv_rows"]["surplus_cells"], "rejected")
         self.assertEqual({k:tuple(v) for k,v in schema["tables"].items()},ledger.HEADERS)
+
+    def test_claim_adjudication_is_required_and_closed(self):
+        for replacement in ("", "automatc", " automatic"):
+            with self.subTest(replacement=repr(replacement)), tempfile.TemporaryDirectory() as td:
+                dst = self._copy_status_fixture(td)
+                claims = dst / "claims.tsv"
+                text = claims.read_text().replace("\tautomatic\t", f"\t{replacement}\t")
+                claims.write_text(text)
+                self.assertNotIn("\tautomatic\t", text)
+                with self.assertRaisesRegex(ledger.LedgerError, "unknown claim vocabulary"):
+                    ledger.validate(dst)
 
     def test_surplus_tsv_cells_are_rejected_by_the_shared_parser(self):
         for table, header in ledger.HEADERS.items():
