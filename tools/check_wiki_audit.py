@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import csv
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 
@@ -34,6 +36,11 @@ def validate(repo: Path) -> tuple[int, int]:
         assert len(families) == len(set(families)) == len(claimed_sources)
         assert row["disposition"] == "lead_only" and row["game_version"] == "unknown"
         assert row["exact_citations"] and row["summary"] and row["limitations"]
+    subprocess.run(
+        [sys.executable, str(repo / "tools" / "build_wiki_audit_queue.py"), "--check"],
+        cwd=repo,
+        check=True,
+    )
     return len(sources), len(leads)
 
 
