@@ -1,0 +1,2 @@
+claim_id	subject_kind	subject_id	claim_kind	game_version	value	status	risk	adjudication	evidence_ids	last_reviewed	review_issue	active	supersedes
+check:200/region	check	200	region	1.17	"""Limgrave"""	single_source	high	automatic	evidence:live-1	2026-08-31	#1225	true

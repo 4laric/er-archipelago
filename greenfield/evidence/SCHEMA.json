@@ -2,6 +2,11 @@
   "schema_version": 1,
   "claim_kinds": ["access", "alternate_acquisition", "description", "detection", "identity", "region", "suppression", "sweep_owner"],
   "identity_namespaces": ["entity", "flag", "item", "lot", "shop"],
+  "live_testimony": {
+    "citation_link": "source.revision",
+    "exact_build_fields": ["game_version", "dlc_version", "apworld_version", "client_version"],
+    "incomplete_environment_strength": "lead"
+  },
   "risks": ["critical", "high", "low", "medium"],
   "source_kinds": ["external_reference", "game_data", "live_testimony", "project_derivation", "ruling"],
   "stances": ["ambiguous", "contradicts", "silent", "supports"],
