@@ -6,7 +6,7 @@
       "corroborated": 0,
       "inferred": 0,
       "proven": 0,
-      "single_source": 4,
+      "single_source": 5,
       "unverified": 0
     },
     "alternate_acquisition": {
@@ -72,7 +72,7 @@
       "corroborated": 0,
       "inferred": 0,
       "proven": 0,
-      "single_source": 4,
+      "single_source": 5,
       "unverified": 0
     },
     "high": {
@@ -105,10 +105,10 @@
     "corroborated": 0,
     "inferred": 0,
     "proven": 0,
-    "single_source": 14135,
+    "single_source": 14136,
     "unverified": 0
   },
-  "claims_total": 14135,
-  "content_hash": "2fbce1da0dfb4e253c63790c3cc64afdad35ca939430d4b55d967f75b3533d30",
+  "claims_total": 14136,
+  "content_hash": "8ee2b935a3a70abf19a30d3d850f0ee0b97adaa80c85ded327a28bea6424c222",
   "schema_version": 1
 }
