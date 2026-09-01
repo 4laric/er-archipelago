@@ -1,0 +1,55 @@
+{
+  "by_disposition": {
+    "encoded": 0,
+    "excluded": 0,
+    "region_sufficient": 0,
+    "unresolved": 4923,
+    "waived": 0
+  },
+  "by_option_set": {
+    "all": {
+      "encoded": 0,
+      "excluded": 0,
+      "region_sufficient": 0,
+      "unresolved": 4923,
+      "waived": 0
+    }
+  },
+  "by_risk": {
+    "critical": {
+      "encoded": 0,
+      "excluded": 0,
+      "region_sufficient": 0,
+      "unresolved": 4923,
+      "waived": 0
+    },
+    "high": {
+      "encoded": 0,
+      "excluded": 0,
+      "region_sufficient": 0,
+      "unresolved": 0,
+      "waived": 0
+    },
+    "low": {
+      "encoded": 0,
+      "excluded": 0,
+      "region_sufficient": 0,
+      "unresolved": 0,
+      "waived": 0
+    },
+    "medium": {
+      "encoded": 0,
+      "excluded": 0,
+      "region_sufficient": 0,
+      "unresolved": 0,
+      "waived": 0
+    }
+  },
+  "checks_total": 4923,
+  "content_hash": "9c066db17e64439d46051f47eee30602d6caaabf47031943445fdefb954023de",
+  "dispositions_total": 4923,
+  "release_blockers": 4923,
+  "schema_version": 1,
+  "with_access_claim": 9,
+  "without_access_claim": 4914
+}

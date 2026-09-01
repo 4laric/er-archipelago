@@ -1,6 +1,10 @@
 {
   "schema_version": 1,
   "adjudications": ["automatic", "design_ruling", "heuristic", "model"],
+  "access_dispositions": {
+    "fields": ["check_id", "access_claim_id", "disposition", "risk", "option_set", "reason", "review_issue", "owner", "review_by"],
+    "values": ["encoded", "excluded", "region_sufficient", "unresolved", "waived"]
+  },
   "claim_kinds": ["access", "alternate_acquisition", "description", "detection", "identity", "region", "suppression", "sweep_owner"],
   "claim_supersession": {
     "predecessor_active": false,
