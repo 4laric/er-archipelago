@@ -2311,17 +2311,26 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7772309		unresolved	critical	all
 7772310		unresolved	critical	all
 7772311		unresolved	critical	all
-7772312		unresolved	critical	all
-7772313		unresolved	critical	all
-7772314		unresolved	critical	all
+7772312	check:7772312/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772312	check:7772312/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
+7772313	check:7772313/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772313	check:7772313/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
+7772314	check:7772314/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772314	check:7772314/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
 7772315		unresolved	critical	all
-7772316		unresolved	critical	all
-7772317		unresolved	critical	all
-7772318		unresolved	critical	all
-7772319		unresolved	critical	all
-7772320		unresolved	critical	all
+7772316	check:7772316/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772316	check:7772316/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
+7772317	check:7772317/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772317	check:7772317/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
+7772318	check:7772318/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772318	check:7772318/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
+7772319	check:7772319/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772319	check:7772319/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
+7772320	check:7772320/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772320	check:7772320/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
 7772321		unresolved	critical	all
-7772322		unresolved	critical	all
+7772322	check:7772322/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772322	check:7772322/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
 7772323		unresolved	critical	all
 7772324		unresolved	critical	all
 7772325		unresolved	critical	all
@@ -4852,7 +4861,8 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7900215		unresolved	critical	all
 7900216		unresolved	critical	all
 7900217		unresolved	critical	all
-7900218		unresolved	critical	all
+7900218	check:7900218/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7900218	check:7900218/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
 7900219		unresolved	critical	all
 7900220		unresolved	critical	all
 7900221		unresolved	critical	all
