@@ -1,0 +1,114 @@
+{
+  "active_conflicts": [],
+  "by_kind": {
+    "access": {
+      "conflicted": 0,
+      "corroborated": 0,
+      "inferred": 0,
+      "proven": 0,
+      "single_source": 0,
+      "unverified": 0
+    },
+    "alternate_acquisition": {
+      "conflicted": 0,
+      "corroborated": 0,
+      "inferred": 0,
+      "proven": 0,
+      "single_source": 0,
+      "unverified": 0
+    },
+    "description": {
+      "conflicted": 0,
+      "corroborated": 0,
+      "inferred": 0,
+      "proven": 0,
+      "single_source": 0,
+      "unverified": 0
+    },
+    "detection": {
+      "conflicted": 0,
+      "corroborated": 0,
+      "inferred": 0,
+      "proven": 0,
+      "single_source": 4285,
+      "unverified": 0
+    },
+    "identity": {
+      "conflicted": 0,
+      "corroborated": 0,
+      "inferred": 0,
+      "proven": 0,
+      "single_source": 4923,
+      "unverified": 0
+    },
+    "region": {
+      "conflicted": 0,
+      "corroborated": 0,
+      "inferred": 0,
+      "proven": 0,
+      "single_source": 4923,
+      "unverified": 0
+    },
+    "suppression": {
+      "conflicted": 0,
+      "corroborated": 0,
+      "inferred": 0,
+      "proven": 0,
+      "single_source": 0,
+      "unverified": 0
+    },
+    "sweep_owner": {
+      "conflicted": 0,
+      "corroborated": 0,
+      "inferred": 0,
+      "proven": 0,
+      "single_source": 0,
+      "unverified": 0
+    }
+  },
+  "by_risk": {
+    "critical": {
+      "conflicted": 0,
+      "corroborated": 0,
+      "inferred": 0,
+      "proven": 0,
+      "single_source": 0,
+      "unverified": 0
+    },
+    "high": {
+      "conflicted": 0,
+      "corroborated": 0,
+      "inferred": 0,
+      "proven": 0,
+      "single_source": 9208,
+      "unverified": 0
+    },
+    "low": {
+      "conflicted": 0,
+      "corroborated": 0,
+      "inferred": 0,
+      "proven": 0,
+      "single_source": 0,
+      "unverified": 0
+    },
+    "medium": {
+      "conflicted": 0,
+      "corroborated": 0,
+      "inferred": 0,
+      "proven": 0,
+      "single_source": 4923,
+      "unverified": 0
+    }
+  },
+  "by_status": {
+    "conflicted": 0,
+    "corroborated": 0,
+    "inferred": 0,
+    "proven": 0,
+    "single_source": 14131,
+    "unverified": 0
+  },
+  "claims_total": 14131,
+  "content_hash": "77f2792da03607a7b0e464f6adcc0d0834b1c722a1dc47666d947320314b2551",
+  "schema_version": 1
+}
