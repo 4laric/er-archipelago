@@ -246,6 +246,15 @@ def validate(directory: Path) -> Result:
         while claims_by_id[cur]["supersedes"]:
             if cur in seen: raise LedgerError(f"{cid}: claim supersedes cycle")
             seen.add(cur); cur=claims_by_id[cur]["supersedes"]
+    for row in claims:
+        if not row["supersedes"]:
+            continue
+        predecessor = claims_by_id[row["supersedes"]]
+        identity = ("subject_kind", "subject_id", "claim_kind")
+        if any(row[field] != predecessor[field] for field in identity):
+            raise LedgerError(f"{row['claim_id']}: supersedes a different claim identity")
+        if predecessor["active"] != "false":
+            raise LedgerError(f"{row['claim_id']}: superseded predecessor must be inactive")
     statuses={}; counts=defaultdict(int)
     for row in claims:
         if row["active"] != "true": continue
