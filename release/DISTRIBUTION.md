@@ -14,8 +14,8 @@ was BUILT against contract/8550ab05. The apworld and the client .dll are from di
 ```
 
 A mismatched pair does not fail loudly at the door. **It boots, connects, and then behaves subtly
-wrong** -- the client reads `slot_data` shapes that are not the ones it is being sent. That is the
-worst failure mode a randomizer can have, and it is entirely preventable at the distribution layer.
+wrong** because the client reads `slot_data` in a different shape from the data it receives. This
+failure is difficult to diagnose and entirely preventable at the distribution layer.
 
 So: **do not let people acquire the two halves separately.** Everything below is downstream of that.
 
@@ -32,16 +32,15 @@ Both come off the **same tag**, so the pairing stays obvious even when someone t
 
 ### And the yaml builder, which is a page rather than a download
 
-<https://peliarch.ca/er/> serves the options wizard: the page most players will actually meet this
-project through, because it is the only surface you can use before deciding whether to install
-anything. `/er/` tracks the released build; `/er/beta/` tracks `main` and says so in a banner.
+<https://peliarch.ca/er/> serves the options wizard. Many players see this page before deciding
+whether to install anything. `/er/` tracks the released build, while `/er/beta/` tracks `main` and
+identifies itself in a banner.
 
-🛑 **It is pinned by nothing.** It is `wizard/wizard.html` copied to a box, on whatever schedule
-somebody copies it, so it can be *ahead* of the newest tag -- and `POST /generate` on the same box
-runs that box's own installed apworld, so it can be *behind* the page it serves. Neither skew is an
-error a player sees: Archipelago drops an option it does not recognise and generates the seed
-anyway, printing one line on a console nobody reads. That is why every yaml the builder writes
-records the apworld version it was written for, and why the page names its channel.
+🛑 **It is not pinned to a tag.** `wizard/wizard.html` is deployed separately, so the page can be
+ahead of the newest tag. The same server's `POST /generate` uses its installed apworld, which can
+lag behind the page. Neither mismatch stops generation: Archipelago drops an option it does not
+recognise and prints a warning. For that reason, every yaml records the apworld version it was
+written for, and the page identifies its channel.
 
 Every release also ships `er-options-wizard.html`, the same page as a file, for anyone who would
 rather not use a website.
