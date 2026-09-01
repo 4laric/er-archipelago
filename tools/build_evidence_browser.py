@@ -3,7 +3,7 @@
 
 This is deliberately a reader only. It does not adjudicate claims or change runtime tables. The
 small checked-in fixture remains available to tests, while the committed page reads the normalized
-current-corpus identity, region, and detection ledger. Phase 1 still carries no access evidence.
+current-corpus identity, region, detection, and access ledger.
 
 Run: python3 tools/build_evidence_browser.py [--check] [--out PATH]
 """
@@ -23,7 +23,7 @@ OUT_HTML = os.path.join(REPO, "er-archipelago-evidence-browser.html")
 
 STATUSES = {"proven", "corroborated", "single_source", "conflicted", "inferred", "unverified"}
 RISKS = {"critical", "high", "medium", "low"}
-BROWSER_CLAIM_KINDS = {"identity", "region", "detection"}
+BROWSER_CLAIM_KINDS = {"identity", "region", "detection", "access"}
 REQUIRED_CHECK_KINDS = {"identity", "region"}
 STANCES = {"supports", "contradicts", "silent", "ambiguous"}
 HEADERS = {
@@ -180,7 +180,7 @@ input,select,button{{width:100%;padding:9px;border:1px solid var(--line);border-
 .toolbar{{display:flex;gap:8px;align-items:center}} .toolbar button{{width:auto}} .empty{{padding:20px;color:var(--muted)}}
 @media(max-width:900px){{.layout{{display:block}}.queue{{border-right:0;border-bottom:1px solid var(--line)}}.filters{{grid-template-columns:1fr 1fr}}.questions{{grid-template-columns:1fr}}}}
 </style></head><body>
-<header><h1>Evidence audit · Phase 1</h1><div class="muted">Identity, region, and detection claims from <code>{contract['dataset']}</code> · reader only · no access evidence · <code>{stamp}</code></div></header>
+<header><h1>Evidence audit · Phase 1</h1><div class="muted">Identity, region, detection, and access claims from <code>{contract['dataset']}</code> · reader only · <code>{stamp}</code></div></header>
 <main class="layout"><section class="queue"><div class="filters">
 <input id="q" aria-label="Search" placeholder="Search check, claim, value, citation">
 <select id="status" aria-label="Status"><option value="">All statuses</option></select>
@@ -215,7 +215,8 @@ function show(c){{
  const identity=claims.find(x=>x.check_id===c.check_id&&x.claim_kind==='identity');
  const region=claims.find(x=>x.check_id===c.check_id&&x.claim_kind==='region');
  const why=identity?`Identity ${{escapeHtml(JSON.stringify(identity.value))}} · ${{identity.status}}`:'No identity claim in this phase.';
- const reach=region?`No access evidence exists in Phase 1. The region claim files this check in ${{escapeHtml(JSON.stringify(region.value))}}, but ownership is not proof that the player can reach or collect it.`:'No access evidence exists in Phase 1.';
+ const access=claims.find(x=>x.check_id===c.check_id&&x.claim_kind==='access');
+ const reach=access?`Access claim: ${{escapeHtml(JSON.stringify(access.value))}} (${{escapeHtml(access.status)}}).`:region?`No access evidence exists for this check. The region claim files it in ${{escapeHtml(JSON.stringify(region.value))}}, but ownership is not proof that the player can reach or collect it.`:'No access evidence exists for this check.';
  const disagree=contradictions.length?contradictions.map(e=>`${{e.family_id}}: ${{e.citation}}`).join(' · '):'No active contradiction is represented in this ledger.';
  let html=`<div class="toolbar"><div><h2>${{escapeHtml(c.check_name)}}</h2><div class="muted">${{c.claim_id}} · check ${{c.check_id}}</div></div><button id="copy">Copy permalink</button></div>`;
  html+=`<div class="badges">${{badge(c.claim_kind)}}${{badge(c.status)}}${{badge(c.risk)}}</div>`;

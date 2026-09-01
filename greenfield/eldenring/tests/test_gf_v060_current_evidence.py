@@ -91,6 +91,30 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
                                 and " getItemFlagId=" in row["citation"]
                                 for row in rows))
 
+    def test_stormhill_access_preserves_one_emevd_or_group(self):
+        claim = next(row for row in self.bundle["claims"]
+                     if row["claim_kind"] == "access")
+        value = json.loads(claim["value"])
+        self.assertEqual(value["type"], "any")
+        self.assertEqual(
+            {row["flag"] for row in value["conditions"]},
+            {3708, 3709, 1041389414},
+        )
+        evidence_by_id = {row["evidence_id"]: row for row in self.bundle["evidence"]}
+        source_by_id = {row["source_id"]: row for row in self.bundle["sources"]}
+        rows = [evidence_by_id[eid] for eid in claim["evidence_ids"].split(",")]
+        self.assertEqual(len(rows), 3)
+        self.assertEqual(
+            {source_by_id[row["source_id"]]["family_id"] for row in rows},
+            {"game:emevd:m60_41_38_00:90005750"},
+        )
+        self.assertEqual((claim["status"], claim["risk"], claim["review_issue"]),
+                         ("single_source", "critical", "#1226"))
+        self.assertTrue(all("not independent detection evidence" in row["independence_notes"]
+                            for row in rows))
+        self.assertTrue(all("event=90005750" in row["citation"] and
+                            "commonarg/WaitFor" in row["citation"] for row in rows))
+
     def test_checked_in_bundle_validates_and_is_byte_deterministic(self):
         with tempfile.TemporaryDirectory() as tmp:
             first = Path(tmp) / "first"

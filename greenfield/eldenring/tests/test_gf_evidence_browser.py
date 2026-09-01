@@ -92,7 +92,8 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertEqual(len(data["checks"]), len(subjects))
         self.assertEqual(sum(len(check["claims"]) for check in data["checks"]), len(claims))
         self.assertEqual(
-            {row["claim_kind"] for row in claims}, {"identity", "region", "detection"})
+            {row["claim_kind"] for row in claims},
+            {"identity", "region", "detection", "access"})
         self.assertEqual(
             sorted(row["status"] for row in claims),
             sorted(claim["status"] for check in data["checks"] for claim in check["claims"]))
@@ -140,7 +141,8 @@ class OfflineArtifactTests(unittest.TestCase):
         fixture_html = BUILDER.build(ledger_path=BUILDER.FIXTURE).decode("utf-8")
         self.assertIn("Conflict is active.", fixture_html)
         self.assertIn("Evidence by independent family", fixture_html)
-        self.assertIn("No access evidence exists in Phase 1", html)
+        self.assertIn("No access evidence exists for this check", html)
+        self.assertIn("Access claim:", html)
         self.assertIn("ownership is not proof that the player can reach or collect it", html)
 
     def test_permalink_serialises_every_facet_and_selected_claim(self):
