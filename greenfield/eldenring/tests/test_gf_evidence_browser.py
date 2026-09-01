@@ -148,11 +148,25 @@ class OfflineArtifactTests(unittest.TestCase):
     def test_permalink_serialises_every_facet_and_selected_claim(self):
         html = BUILDER.build().decode("utf-8")
         self.assertIn("new URLSearchParams(location.hash.slice(1))", html)
-        self.assertIn("history.replaceState(null,'','#'+p.toString())", html)
+        self.assertIn("history.replaceState(null,'','#'+hashParams(selected).toString())", html)
         for key in ("q", "status", "risk", "kind", "family"):
             self.assertIn(f"'{key}'", html)
         self.assertIn("p.set('claim',selected)", html)
+        self.assertIn("new URL(location.href)", html)
+        self.assertIn("hashParams(c.claim_id)", html)
         self.assertIn("This permalink names a claim that is absent from this build.", html)
+
+    def test_export_uses_filtered_risk_order_and_safe_stable_columns(self):
+        html = BUILDER.build().decode("utf-8")
+        self.assertIn("downloadQueue(filtered())", html)
+        self.assertIn("riskRank[a.risk]-riskRank[b.risk]", html)
+        self.assertIn("statusRank[a.status]-statusRank[b.status]", html)
+        self.assertIn("a.check_id-b.check_id||a.claim_kind.localeCompare(b.claim_kind)", html)
+        self.assertIn("['claim_id','check_id','claim_kind','status','risk','value','evidence_families','review_issue','permalink']", html)
+        self.assertIn("new Set(c.evidence.map(e=>e.family_id)).size", html)
+        self.assertIn("String(value??'').replace(/[\\t\\r\\n]+/g,' ')", html)
+        self.assertIn("if(/^[=+\\-@]/.test(s))s=\"'\"+s", html)
+        self.assertIn("text/tab-separated-values;charset=utf-8", html)
 
     def test_check_mode_detects_stale_output(self):
         with tempfile.TemporaryDirectory() as tmp:
