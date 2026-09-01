@@ -1,13 +1,13 @@
 # Elden Ring Archipelago -- Setup
 
-This gets you from nothing to a running seed in about 15 minutes. Two halves:
-**A. Make the seed** (Archipelago side) and **B. Install and play** (game side).
+This guide gets you from nothing to a running seed in about 15 minutes. First
+make the seed in Archipelago, then install the client and play it in Elden Ring.
 
 New to Archipelago? It is a **multiworld** randomizer platform: one or more
-games are shuffled together, and items you find in your game can belong to
-someone else's -- and theirs to you. It works solo too, and a solo base-game
-run is the recommended way to play v0.2. Each player in a multiworld occupies
-a **slot**, configured by a **yaml** -- a plain-text settings file.
+games are shuffled together. Items you find can belong to someone else, and
+their finds can belong to you. It works solo too, and a solo base-game run is
+the recommended way to play v0.2. Each player in a multiworld occupies a
+**slot**, configured by a plain-text **yaml** settings file.
 
 The recommended configuration is **The Shattering**, solo, base game only: the
 Lands Between is broken into regions, and each region's key arrives as a
@@ -98,20 +98,19 @@ You also need, separately:
    `Archipelago/custom_worlds/`.
 
 2. **Build your config.** The fastest way is the **yaml builder** at
-   **<https://peliarch.ca/er/>**. It is a web page -- nothing to install --
-   that walks you through every option in seven tabs, tells you **how big your
-   seed will be** before you generate it (exact check counts, how many can hold
-   progression, how much of your pool travels to other players), and hands you
-   a finished yaml to download. It stamps which apworld version it wrote for
-   into the file, so a host can always see which build a yaml came from.
+   **<https://peliarch.ca/er/>**. There is nothing to install. The page walks
+   through every option in seven tabs and shows the seed size before generation:
+   exact check counts, how many checks can hold progression, and how much of the
+   pool travels to other players. It then provides a finished yaml to download.
+   The file records which apworld version it was written for, so a host can see
+   which build produced it.
 
    🛑 **The page can be ahead of the apworld you installed.** `/er/` tracks the
-   released build and `/er/beta/` tracks what is being built right now, and the
-   banner on each says which. This matters because Archipelago does **not**
-   error on an option your installed apworld has never heard of -- it prints one
-   line among fifty and generates the seed without it. If the builder offers you
-   an option and your seed ignores it, you are on an older apworld: take the
-   newest release.
+   released build, while `/er/beta/` tracks the build in progress. Each page's
+   banner identifies its channel. Archipelago does **not** stop when it sees an
+   option your installed apworld does not recognize. It prints a warning and
+   generates the seed without that option. If the builder offers an option that
+   your seed ignores, install the newest release.
 
    Prefer to edit a file? Copy `EldenRing.yaml` into `Archipelago/Players/`,
    open it and set `name:` to the slot name you want. That is the only edit you
@@ -181,11 +180,10 @@ You also need, separately:
 3. **Connect.** Open the **Connection** entry in the overlay menu bar and
    enter your server address, slot name, and password.
 
-   **The port is not 38281.** If you are playing on archipelago.gg, your room
-   gets its own port when it is created -- it is printed on the room page,
-   next to the server address, and it changes for every room. `38281` is only
-   the default for a server you are running yourself, where the address is
-   `localhost:38281`.
+   **The port is not 38281.** A room on archipelago.gg gets its own port when
+   it is created. The room page prints it next to the server address, and every
+   room can use a different one. `38281` is only the default for a server you
+   run yourself at `localhost:38281`.
 
    The shipped `apconfig.json` says `archipelago.gg:PORT` for that reason: it
    is a placeholder, and the client will not try to connect until you replace

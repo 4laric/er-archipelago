@@ -148,9 +148,9 @@ on a current client, a missing flag here is a bug worth reporting.
 
 ## A check never registered
 
-Some checks are picked up from an enemy, boss, or NPC drop, and their flag can fail to fire -- most
-often under enemy randomization, where the enemy that would have set it never spawns. If you have a
-pickup that "didn't fire", `!check` finds its acquisition flag by name:
+Enemy, boss, and NPC drops can occasionally fail to set their check flag. This happens most often
+with enemy randomization, when the enemy responsible for the flag never spawns. If a pickup did not
+register, use `!check` to find its acquisition flag by name:
 
 ```
 !check larval tear
@@ -162,9 +162,9 @@ The console prints each matching check, whether its flag is set, and a ready `!s
 Ainsel River :: Larval Tear - around Dragonkin Soldier of Nokstella (1): flag 12017965 = false; !setflag 12017965 1
 ```
 
-Copy the `!setflag ...` line to send the check on the next poll. `!check` only lists checks that
-carry a settable flag -- enemy, boss and NPC drops and offline pickups; a normal world pickup fires
-on its own and will not appear.
+Copy the `!setflag ...` line to send the check on the next poll. `!check` only lists checks with a
+settable flag: enemy, boss, and NPC drops, plus offline pickups. Normal world pickups fire on their
+own and do not appear.
 
 Setting a check's flag also drops its vanilla item locally, so use this for a check that never fired,
 not to double up a pickup you can still reach.
@@ -194,17 +194,17 @@ the client build and the log's early provenance lines name which loader and near
 
 ## Appendix: boss defeat flags
 
-If a boss's checks never released -- the sweep did not fire, or enemy randomisation replaced the
-boss so the vanilla kill flag never set -- set its defeat flag and the swept checks report on the
-next poll:
+If a boss's checks never released, its sweep may not have fired. Enemy randomisation can also
+replace the boss before the vanilla kill flag is set. In either case, set the defeat flag and the
+swept checks will report on the next poll:
 
 ```text
 !setflag <defeat flag> 1
 ```
 
-Set a defeat flag only when that fight is genuinely done and its checks are stuck: it marks the boss
-dead. Some names appear more than once -- those are separate arenas or phases; pick the flag for the
-one you are at.
+Set a defeat flag only when the fight is genuinely done and its checks are stuck. The flag marks the
+boss dead. Some names appear more than once because separate arenas or phases use separate flags;
+choose the row for the fight you completed.
 
 | Boss | Defeat flag |
 |---|---:|
