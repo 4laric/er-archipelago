@@ -28,7 +28,7 @@ SPEC.loader.exec_module(AUDIT)
 
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (12, 13))
+        self.assertEqual(AUDIT.validate(REPO), (14, 15))
 
     def test_lamenter_pilot_preserves_lead_only_scope(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
