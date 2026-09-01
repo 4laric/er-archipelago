@@ -9,12 +9,23 @@ import re
 import tempfile
 import unittest
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+try:
+    from ._util import find_repo_root, REPO_ONLY_REASON
+except ImportError:
+    import sys
+
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _util import find_repo_root, REPO_ONLY_REASON
+
+ROOT = find_repo_root(__file__)
+RUNNING_FROM_REPO = ROOT is not None
+ROOT = ROOT or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILDER = None
-spec = importlib.util.spec_from_file_location(
-    "evidence_browser_builder", os.path.join(ROOT, "tools", "build_evidence_browser.py"))
-BUILDER = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(BUILDER)
+if RUNNING_FROM_REPO:
+    spec = importlib.util.spec_from_file_location(
+        "evidence_browser_builder", os.path.join(ROOT, "tools", "build_evidence_browser.py"))
+    BUILDER = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(BUILDER)
 
 
 def payload(html: str) -> dict:
@@ -25,6 +36,7 @@ def payload(html: str) -> dict:
     return json.loads(match.group(1).replace("<\\/", "</"))
 
 
+@unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class FixtureContractTests(unittest.TestCase):
     def test_fixture_uses_normalized_headers_and_identity_values(self):
         tables = BUILDER.normalized_tables()
@@ -68,6 +80,7 @@ class FixtureContractTests(unittest.TestCase):
             BUILDER.transform(tables)
 
 
+@unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class OfflineArtifactTests(unittest.TestCase):
     def test_build_is_byte_deterministic_and_committed_page_is_current(self):
         first = BUILDER.build()
