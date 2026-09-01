@@ -74,3 +74,25 @@ python tools/build_walkthrough_check_leads.py /tmp/redmaw-walkthrough.html
 python tools/check_walkthrough_check_leads.py
 python tools/build_evidence_browser.py
 ```
+
+## PowerPyx regional coverage
+
+`powerpyx-check-leads.tsv` is a second, source-independent corpus pass over three immutable
+PowerPyx regional walkthrough captures: Limgrave, Liurnia, and Raya Lucaria Academy. The builder
+accepts only the registered SHA-256 bodies. It emits a binding only when an exact item name occurs
+in exactly one article block and names exactly one current AP check in that page's declared region.
+Each citation retains the article heading, block ordinal, and a digest of that normalized block;
+the source registry retains the complete response-body digest and immutable revision URL.
+
+This intentionally conservative pass leaves repeated consumables and repeated prose unbound. Its
+rows are `lead_only` and `game_version=unknown`: PowerPyx is independent of Redmaw, but agreement
+between old walkthroughs still cannot prove a v1.17 event predicate, access rule, route order, or
+absence of another acquisition.
+
+Reproduce with the three capture bodies named in `tools/build_powerpyx_check_leads.py`:
+
+```bash
+python tools/build_powerpyx_check_leads.py /path/to/powerpyx-captures
+python tools/check_powerpyx_check_leads.py
+python tools/build_evidence_browser.py
+```
