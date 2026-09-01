@@ -235,6 +235,32 @@ def _load_taunters_tongue_access(path: Path) -> dict[str, object]:
     return matches[0]
 
 
+def _load_purifying_tear_access(path: Path) -> dict[str, object]:
+    """Load f65270's immediate WaitFor without assigning meaning to its unlabeled gate flag."""
+    matches = []
+    with path.open(encoding="utf-8", newline="") as handle:
+        header = ""
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip() or line.startswith("#"):
+                continue
+            if not header:
+                header = line
+                continue
+            row = next(csv.DictReader([header, line], delimiter="\t"))
+            if row["check_flag"] != "65270" or row["context"] != "commonarg/WaitFor":
+                continue
+            matches.append({
+                "line": line_number, "gate_flag": int(row["gate_flag"]),
+                "context": row["context"], "event_id": int(row["event_id"]),
+                "source": row["source"], "evidence": row["evidence"],
+            })
+    if len(matches) != 1 or matches[0]["gate_flag"] != 1039522181:
+        raise RuntimeError(f"f65270 WaitFor corpus changed: {matches!r}")
+    if matches[0]["event_id"] != 90005792:
+        raise RuntimeError(f"f65270 WaitFor event changed: {matches!r}")
+    return matches[0]
+
+
 def _source_records(
         repo: Path, data_path: Path, override_path: Path, lot_path: Path,
         stamp: Mapping[str, str]):
@@ -295,6 +321,7 @@ def build_records(repo: Path) -> dict:
     death_prince_access = _load_death_prince_access(lot_gates_path)
     varres_bouquet_access = _load_varres_bouquet_access(lot_gates_path)
     taunters_tongue_access = _load_taunters_tongue_access(lot_gates_path)
+    purifying_tear_access = _load_purifying_tear_access(lot_gates_path)
     sources, source = _source_records(repo, data_path, override_path, lot_path, stamp)
     lot_gates_hash = _sha256(lot_gates_path)
     lot_gates_source_id = (
@@ -323,6 +350,16 @@ def build_records(repo: Path) -> dict:
         "source_id": taunters_tongue_source_id, "source_kind": "game_data",
         "family_id": "game:emevd:m11_10_00_00:90005792",
         "title": "Taunter's Tongue f60300 immediate WaitFor call site",
+        "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+        "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
+        "license": "private-evidence", "environment_id": "", "supersedes": "",
+    })
+    purifying_tear_source_id = (
+        f"game:emevd-lot-gates:m60_39_52_00:{lot_gates_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": purifying_tear_source_id, "source_kind": "game_data",
+        "family_id": "game:emevd:m60_39_52_00:90005792",
+        "title": "Purifying Crystal Tear f65270 immediate WaitFor call site",
         "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
         "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
         "license": "private-evidence", "environment_id": "", "supersedes": "",
@@ -674,6 +711,48 @@ def build_records(repo: Path) -> dict:
         "supersedes": "",
     })
 
+    purifying_tear = [row for row in locations if row["flag"] == 65270]
+    if len(purifying_tear) != 1:
+        raise RuntimeError(f"expected one current f65270 check, found {purifying_tear!r}")
+    purifying_tear_ap_id = purifying_tear[0]["ap_id"]
+    purifying_tear_claim_id = f"check:{purifying_tear_ap_id}/access"
+    purifying_tear_value = {"type": "flag", "flag": purifying_tear_access["gate_flag"]}
+    purifying_tear_evidence_id = (
+        "game:emevd:m60_39_52_00:90005792:f65270:gate-1039522181:access")
+    evidence.append({
+        "evidence_id": purifying_tear_evidence_id,
+        "claim_id": purifying_tear_claim_id,
+        "source_id": purifying_tear_source_id, "stance": "supports",
+        "value": _json(purifying_tear_value),
+        "citation": (
+            f"greenfield/lot_gates.tsv:{purifying_tear_access['line']} check_flag=65270 "
+            f"gate_flag=1039522181; {purifying_tear_access['source']} "
+            f"event={purifying_tear_access['event_id']} "
+            f"{purifying_tear_access['context']} {purifying_tear_access['evidence']}"
+        ),
+        "method": "tools/build_v060_current_evidence.py:purifying_tear_immediate_waitfor",
+        "independence_notes": (
+            "The one immediate WaitFor call is one EMEVD family; the f65270 association is "
+            "joined through ItemLotParam/flag_lots and is not independent detection evidence. "
+            "The questline DAG is a correlated projection of this family."
+        ),
+        "valid_from": GAME_VERSION, "valid_to": "",
+        "notes": (
+            "Immediate positive f1039522181 prerequisite only; the committed corpus does not "
+            "label that flag, so this claim assigns it no Eleonora or broader quest meaning and "
+            "does not describe the Archipelago Sanguine Noble boss-sweep alternate."
+        ),
+    })
+    claims.append({
+        "claim_id": purifying_tear_claim_id, "subject_kind": "check",
+        "subject_id": str(purifying_tear_ap_id), "claim_kind": "access",
+        "game_version": GAME_VERSION, "value": _json(purifying_tear_value),
+        "status": "single_source", "risk": "critical", "adjudication": "automatic",
+        "evidence_ids": purifying_tear_evidence_id,
+        "last_reviewed": REVIEW_DATE, "review_issue": "#1253", "active": "true",
+        "supersedes": "",
+    })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -705,6 +784,7 @@ def build_records(repo: Path) -> dict:
             "death_prince_access_claims": 1,
             "varres_bouquet_access_claims": 1,
             "taunters_tongue_access_claims": 1,
+            "purifying_tear_access_claims": 1,
         },
     }
 
