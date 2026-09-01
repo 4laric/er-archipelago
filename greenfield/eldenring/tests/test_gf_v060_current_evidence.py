@@ -182,6 +182,24 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
         self.assertIn("greenfield/lot_gates.tsv:21", row["citation"])
         self.assertIn("event=90005792 commonarg/WaitFor", row["citation"])
 
+    def test_purifying_tear_access_excludes_quest_and_sweep_inferences(self):
+        claim = next(row for row in self.bundle["claims"]
+                     if row["claim_id"] == "check:7770039/access")
+        self.assertEqual(json.loads(claim["value"]), {"type": "flag", "flag": 1039522181})
+        evidence_by_id = {row["evidence_id"]: row for row in self.bundle["evidence"]}
+        source_by_id = {row["source_id"]: row for row in self.bundle["sources"]}
+        row = evidence_by_id[claim["evidence_ids"]]
+        self.assertEqual(source_by_id[row["source_id"]]["family_id"],
+                         "game:emevd:m60_39_52_00:90005792")
+        self.assertEqual((claim["status"], claim["risk"], claim["review_issue"]),
+                         ("single_source", "critical", "#1253"))
+        self.assertIn("not independent detection evidence", row["independence_notes"])
+        self.assertIn("assigns it no Eleonora or broader quest meaning", row["notes"])
+        self.assertIn("does not describe the Archipelago Sanguine Noble boss-sweep alternate",
+                      row["notes"])
+        self.assertIn("greenfield/lot_gates.tsv:22", row["citation"])
+        self.assertIn("event=90005792 commonarg/WaitFor", row["citation"])
+
     def test_checked_in_bundle_validates_and_is_byte_deterministic(self):
         with tempfile.TemporaryDirectory() as tmp:
             first = Path(tmp) / "first"
