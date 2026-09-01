@@ -126,6 +126,7 @@ class OfflineArtifactTests(unittest.TestCase):
     def test_wiki_registries_participate_in_the_content_hash(self):
         self.assertEqual(BUILDER.wiki_lead_files(),
                          ["eldenpedia-location-check-leads.tsv", "leads.tsv",
+                          "powerpyx-check-leads.tsv",
                           "walkthrough-check-leads.tsv"])
         self.assertEqual(BUILDER.load_ledger()["inputs_hash"],
                          BUILDER.ledger_hash(BUILDER.CURRENT, BUILDER.WIKI_AUDIT))
