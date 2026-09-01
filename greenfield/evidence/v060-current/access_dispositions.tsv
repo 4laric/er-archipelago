@@ -1,7 +1,7 @@
-check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	review_by
+check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	review_by	implementation_path	implementation_symbol
 7770000		unresolved	critical	all
 7770001		unresolved	critical	all
-7770002	check:7770002/access	region_sufficient	critical	all	Caelid access suffices because StartGrace.slot_data unconditionally sends festival flag 9410; test_radahn_festival_flag_force_set guards the bypass.	#1271
+7770002	check:7770002/access	region_sufficient	critical	all	Caelid access suffices because StartGrace.slot_data unconditionally sends festival flag 9410; test_radahn_festival_flag_force_set guards the bypass.	#1271			greenfield/eldenring/tests/test_gf_features_smoke.py	test_radahn_festival_flag_force_set
 7770003		unresolved	critical	all
 7770004		unresolved	critical	all
 7770005		unresolved	critical	all
@@ -664,7 +664,7 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7770662		unresolved	critical	all
 7770663		unresolved	critical	all
 7770664		unresolved	critical	all
-7770665	check:7770665/access	region_sufficient	critical	all	Caelid access suffices because StartGrace.slot_data unconditionally sends festival flag 9410; test_radahn_festival_flag_force_set guards the bypass.	#1271
+7770665	check:7770665/access	region_sufficient	critical	all	Caelid access suffices because StartGrace.slot_data unconditionally sends festival flag 9410; test_radahn_festival_flag_force_set guards the bypass.	#1271			greenfield/eldenring/tests/test_gf_features_smoke.py	test_radahn_festival_flag_force_set
 7770666		unresolved	critical	all
 7770667		unresolved	critical	all
 7770668		unresolved	critical	all
@@ -1151,7 +1151,7 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7771149		unresolved	critical	all
 7771150		unresolved	critical	all
 7771151		unresolved	critical	all
-7771152	check:7771152/access	region_sufficient	critical	all	Siofra River access suffices because StartGrace.slot_data unconditionally sends chest-gate flag 1034509410; test_fingerslayer_chest_gate_flag_force_set guards the bypass.	#1271
+7771152	check:7771152/access	region_sufficient	critical	all	Siofra River access suffices because StartGrace.slot_data unconditionally sends chest-gate flag 1034509410; test_fingerslayer_chest_gate_flag_force_set guards the bypass.	#1271			greenfield/eldenring/tests/test_gf_features_smoke.py	test_fingerslayer_chest_gate_flag_force_set
 7771153		unresolved	critical	all
 7771154		unresolved	critical	all
 7771155		unresolved	critical	all
