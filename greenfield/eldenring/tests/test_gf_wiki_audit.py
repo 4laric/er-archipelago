@@ -28,7 +28,7 @@ SPEC.loader.exec_module(AUDIT)
 
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (14, 15))
+        self.assertEqual(AUDIT.validate(REPO), (16, 16))
 
     def test_generated_queue_prioritizes_external_coverage_without_promoting_it(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "queue.json"
@@ -205,6 +205,33 @@ class WikiAuditTest(unittest.TestCase):
         self.assertIn("comparison, not circular evidence", (
             REPO / "greenfield" / "evidence" / "wiki-audit" /
             "carian-study-hall.md").read_text(encoding="utf-8"))
+
+    def test_chapel_return_lead_keeps_warp_requirements_together(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            leads = {row["lead_id"]: row for row in csv.DictReader(handle, delimiter="\t")}
+        lead = leads["chapel-anticipation-return-route"]
+        value = json.loads(lead["normalized_value"])
+
+        self.assertEqual(value["type"], "all")
+        self.assertEqual(value["ap_ids"], [7770913, 7770914, 7773786, 7900113])
+        self.assertIn({"name": "Liurnia", "type": "region"}, value["requirements"])
+        self.assertIn({"name": "Imbued Sword Key", "type": "item"}, value["requirements"])
+        self.assertIn("Precipice of Anticipation", lead["normalized_value"])
+        self.assertEqual(lead["disposition"], "lead_only")
+        self.assertEqual(lead["game_version"], "unknown")
+
+    def test_chapel_report_surfaces_current_split_without_changing_logic(self):
+        generated = (REPO / "greenfield" / "eldenring" / "data.py").read_text(encoding="utf-8")
+        report = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                  "chapel-anticipation-return.md").read_text(encoding="utf-8")
+
+        self.assertIn("Liurnia :: Ornamental Straight Sword - m10_01", generated)
+        self.assertIn("Liurnia :: Golden Beast Crest Shield - m10_01", generated)
+        self.assertIn("Stormveil :: The Stormhawk King - m10_01", generated)
+        self.assertIn("Stormveil :: Stormhawk Deenh - m10_01", generated)
+        self.assertIn("current project surface is internally split", report)
+        self.assertIn("changes no world logic or access disposition", report)
 
 
 if __name__ == "__main__":
