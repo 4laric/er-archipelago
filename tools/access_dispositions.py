@@ -8,21 +8,51 @@ import hashlib
 import json
 import re
 from collections import Counter
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from evidence_ledger import LedgerError, _rows as evidence_rows, validate as validate_evidence
 
 HEADERS = (
     "check_id", "access_claim_id", "disposition", "risk", "option_set", "reason",
-    "review_issue", "owner", "review_by",
+    "review_issue", "owner", "review_by", "implementation_path", "implementation_symbol",
 )
 DISPOSITIONS = {"region_sufficient", "encoded", "excluded", "waived", "unresolved"}
 RISKS = {"critical", "high", "medium", "low"}
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+SYMBOL = re.compile(r"[A-Za-z_][A-Za-z0-9_.:-]{0,255}")
+REPO = Path(__file__).resolve().parents[1]
 
 
 class AccessDispositionError(ValueError):
     pass
+
+
+def _implementation_witness(row: dict[str, str]) -> None:
+    check_id = row["check_id"]
+    raw_path = row["implementation_path"]
+    symbol = row["implementation_symbol"]
+    relative = PurePosixPath(raw_path)
+    if (
+        not raw_path
+        or raw_path != relative.as_posix()
+        or relative.is_absolute()
+        or ".." in relative.parts
+    ):
+        raise AccessDispositionError(f"{check_id}: invalid implementation_path")
+    if not SYMBOL.fullmatch(symbol):
+        raise AccessDispositionError(f"{check_id}: invalid implementation_symbol")
+    target = REPO.joinpath(*relative.parts).resolve()
+    if not target.is_relative_to(REPO) or not target.is_file():
+        raise AccessDispositionError(f"{check_id}: implementation_path does not name a repo file")
+    try:
+        content = target.read_text(encoding="utf-8")
+    except UnicodeDecodeError as exc:
+        raise AccessDispositionError(f"{check_id}: implementation witness must be UTF-8 text") from exc
+    token = rf"(?<![A-Za-z0-9_]){re.escape(symbol)}(?![A-Za-z0-9_])"
+    if not re.search(token, content):
+        raise AccessDispositionError(
+            f"{check_id}: implementation_symbol is absent from {raw_path}"
+        )
 
 
 def _read(path: Path) -> list[dict[str, str]]:
@@ -101,6 +131,8 @@ def validate(ledger_dir: Path, disposition_path: Path) -> list[dict[str, str]]:
             raise AccessDispositionError(
                 f"{check_id}: {row['disposition']} requires an active access claim"
             )
+        if row["disposition"] in {"region_sufficient", "encoded"}:
+            _implementation_witness(row)
         if row["disposition"] in {"excluded", "waived"}:
             required = ("reason", "review_issue", "owner", "review_by")
             if not all(row[field].strip() for field in required):
@@ -241,6 +273,8 @@ def bootstrap(ledger_dir: Path, destination: Path) -> None:
                 "review_issue": "",
                 "owner": "",
                 "review_by": "",
+                "implementation_path": "",
+                "implementation_symbol": "",
             }
             handle.write("\t".join(row[field] for field in HEADERS).rstrip("\t") + "\n")
 
