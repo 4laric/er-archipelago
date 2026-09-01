@@ -182,6 +182,33 @@ def _load_death_prince_access(path: Path) -> dict[str, object]:
     return matches[0]
 
 
+def _load_varres_bouquet_access(path: Path) -> dict[str, object]:
+    """Load only f400037's immediate WaitFor; the broader Varre quest remains out of scope."""
+    matches = []
+    with path.open(encoding="utf-8", newline="") as handle:
+        header = ""
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip() or line.startswith("#"):
+                continue
+            if not header:
+                header = line
+                continue
+            row = next(csv.DictReader([header, line], delimiter="\t"))
+            if row["check_flag"] != "400037" or row["context"] != "commonarg/WaitFor":
+                continue
+            matches.append({
+                "line": line_number, "gate_flag": int(row["gate_flag"]),
+                "context": row["context"], "event_id": int(row["event_id"]),
+                "source": row["source"], "evidence": row["evidence"],
+                "gate_test_map": row["gate_test_map"],
+            })
+    if len(matches) != 1 or matches[0]["gate_flag"] != 12059166:
+        raise RuntimeError(f"f400037 WaitFor corpus changed: {matches!r}")
+    if matches[0]["event_id"] != 90005750:
+        raise RuntimeError(f"f400037 WaitFor event changed: {matches!r}")
+    return matches[0]
+
+
 def _source_records(
         repo: Path, data_path: Path, override_path: Path, lot_path: Path,
         stamp: Mapping[str, str]):
@@ -240,6 +267,7 @@ def build_records(repo: Path) -> dict:
     stormhill_access = _load_stormhill_access(lot_gates_path)
     perfect_order_access = _load_perfect_order_access(lot_gates_path)
     death_prince_access = _load_death_prince_access(lot_gates_path)
+    varres_bouquet_access = _load_varres_bouquet_access(lot_gates_path)
     sources, source = _source_records(repo, data_path, override_path, lot_path, stamp)
     lot_gates_hash = _sha256(lot_gates_path)
     lot_gates_source_id = (
@@ -248,6 +276,16 @@ def build_records(repo: Path) -> dict:
         "source_id": lot_gates_source_id, "source_kind": "game_data",
         "family_id": "game:emevd:m60_41_38_00:90005750",
         "title": "Stormhill Shack f400191 WaitFor call sites",
+        "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+        "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
+        "license": "private-evidence", "environment_id": "", "supersedes": "",
+    })
+    varres_bouquet_source_id = (
+        f"game:emevd-lot-gates:m12_05_00_00:{lot_gates_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": varres_bouquet_source_id, "source_kind": "game_data",
+        "family_id": "game:emevd:m12_05_00_00:90005750",
+        "title": "Varre's Bouquet f400037 immediate WaitFor call site",
         "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
         "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
         "license": "private-evidence", "environment_id": "", "supersedes": "",
@@ -516,6 +554,48 @@ def build_records(repo: Path) -> dict:
         "supersedes": "",
     })
 
+    varres_bouquet = [row for row in locations if row["flag"] == 400037]
+    if len(varres_bouquet) != 1:
+        raise RuntimeError(f"expected one current f400037 check, found {varres_bouquet!r}")
+    varres_bouquet_ap_id = varres_bouquet[0]["ap_id"]
+    varres_bouquet_claim_id = f"check:{varres_bouquet_ap_id}/access"
+    varres_bouquet_value = {"type": "flag", "flag": varres_bouquet_access["gate_flag"]}
+    varres_bouquet_evidence_id = (
+        "game:emevd:m12_05_00_00:90005750:f400037:gate-12059166:access")
+    evidence.append({
+        "evidence_id": varres_bouquet_evidence_id,
+        "claim_id": varres_bouquet_claim_id,
+        "source_id": varres_bouquet_source_id, "stance": "supports",
+        "value": _json(varres_bouquet_value),
+        "citation": (
+            f"greenfield/lot_gates.tsv:{varres_bouquet_access['line']} check_flag=400037 "
+            f"gate_flag=12059166; {varres_bouquet_access['source']} "
+            f"event={varres_bouquet_access['event_id']} "
+            f"{varres_bouquet_access['context']} {varres_bouquet_access['evidence']} "
+            f"{varres_bouquet_access['gate_test_map']}"
+        ),
+        "method": "tools/build_v060_current_evidence.py:varres_bouquet_immediate_waitfor",
+        "independence_notes": (
+            "The one immediate WaitFor call is one EMEVD family; the f400037 association is "
+            "joined through ItemLotParam/flag_lots and is not independent detection evidence. "
+            "The questline DAG and condition cone are correlated projections of this family."
+        ),
+        "valid_from": GAME_VERSION, "valid_to": "",
+        "notes": (
+            "Immediate positive f12059166 prerequisite only; this is not the complete Varre "
+            "quest and does not describe the Archipelago Mohg boss-sweep alternate."
+        ),
+    })
+    claims.append({
+        "claim_id": varres_bouquet_claim_id, "subject_kind": "check",
+        "subject_id": str(varres_bouquet_ap_id), "claim_kind": "access",
+        "game_version": GAME_VERSION, "value": _json(varres_bouquet_value),
+        "status": "single_source", "risk": "critical", "adjudication": "automatic",
+        "evidence_ids": varres_bouquet_evidence_id,
+        "last_reviewed": REVIEW_DATE, "review_issue": "#1244", "active": "true",
+        "supersedes": "",
+    })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -545,6 +625,7 @@ def build_records(repo: Path) -> dict:
             "stormhill_access_claims": 1,
             "perfect_order_access_claims": 1,
             "death_prince_access_claims": 1,
+            "varres_bouquet_access_claims": 1,
         },
     }
 
