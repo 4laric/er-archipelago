@@ -1,0 +1,9 @@
+evidence_id	claim_id	source_id	stance	value	citation	method	independence_notes	valid_from	valid_to	notes
+evidence:a	check:100/region	source:a	supports	"""Limgrave"""	data.py row 100	generator	embeds source MSB	1.17
+evidence:b	check:100/region	source:b	supports	"""Limgrave"""	browser row 100	browser export	embeds data.py; same family	1.17
+evidence:c	check:101/region	source:c	supports	"""Liurnia"""	page section A	manual extract	independent publisher	1.17
+evidence:d	check:101/region	source:d	supports	"""Liurnia"""	guide row 2	manual extract	independent publisher	1.17
+evidence:e	check:102/region	source:c	supports	"""Altus Plateau"""	page section B	manual extract	independent publisher	1.17
+evidence:f	check:102/region	source:d	supports	"""Mt. Gelmir"""	guide row 3	manual extract	independent publisher	1.17
+evidence:g	check:104/description	source:c	supports	{"precision":"approximate","text":"Near the bridge"}	page section C	heuristic geocode	model output	1.17
+evidence:h	check:105/identity	source:e	supports	{"ap_id":105,"flag":400105,"id":50105,"namespace":"lot"}	ItemLotParam_map row 50105	param extractor	direct first-party row	1.17

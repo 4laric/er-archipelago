@@ -1,0 +1,6 @@
+source_id	source_kind	family_id	title	game_version	retrieved_at	revision	url_or_path	license	environment_id	supersedes
+source:a	project_derivation	project:data	Generated data A	1.17	2026-08-31	a	greenfield/eldenring/data.py	project-derived
+source:b	project_derivation	project:data	Generated browser B	1.17	2026-08-31	b	greenfield/eldenring/check_browser.html	project-derived
+source:c	external_reference	reference:wiki.gg:original	Wiki revision	1.17	2026-08-31	123	https://example.invalid/wiki	CC-BY-SA
+source:d	external_reference	reference:guide:original	Guide revision	1.17	2026-08-31	456	https://example.invalid/guide	permission
+source:e	game_data	game:param:ItemLotParam_map	Direct param row	1.17	2026-08-31	sha	elden_ring_artifacts/ItemLotParam_map.csv	private-evidence
