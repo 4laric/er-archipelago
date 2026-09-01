@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import copy
-import hashlib
 import importlib.util
 import json
 import os
@@ -27,6 +26,20 @@ def payload(html: str) -> dict:
 
 
 class FixtureContractTests(unittest.TestCase):
+    def test_fixture_uses_normalized_headers_and_identity_values(self):
+        tables = BUILDER.normalized_tables()
+        self.assertEqual(set(tables), set(BUILDER.HEADERS))
+        for table, rows in tables.items():
+            if rows:
+                self.assertEqual(tuple(rows[0]), BUILDER.HEADERS[table])
+
+        data = BUILDER.load_fixture()
+        for check in data["checks"]:
+            identity = next(c for c in check["claims"] if c["claim_kind"] == "identity")
+            self.assertEqual(set(identity["value"]), {"ap_id", "flag", "namespace", "id"})
+            self.assertEqual(identity["value"]["ap_id"], check["check_id"])
+            self.assertIn(identity["value"]["namespace"], {"item", "lot", "shop", "entity"})
+
     def test_fixture_has_exactly_identity_and_region_claims(self):
         data = BUILDER.load_fixture()
         self.assertGreaterEqual(len(data["checks"]), 2, "fixture must exercise more than one check")
@@ -40,19 +53,19 @@ class FixtureContractTests(unittest.TestCase):
         self.assertEqual(len(claim["evidence"]), 2, "witness: the dependent pair disappeared")
         self.assertEqual({e["family_id"] for e in claim["evidence"]},
                          {"game:param:ItemLotParam_map"})
-        self.assertIn("not an independent vote", claim["evidence"][1]["lineage"])
+        self.assertTrue(any("not an independent vote" in e["lineage"]
+                            for e in claim["evidence"]))
 
-    def test_contract_rejects_duplicate_claims_and_blank_citations(self):
-        data = json.loads(BUILDER.canonical_bytes(BUILDER.load_fixture()))
-        data.pop("inputs_hash", None)
-        duplicate = copy.deepcopy(data["checks"][0]["claims"][0])
-        data["checks"][0]["claims"].append(duplicate)
-        with self.assertRaisesRegex(ValueError, "duplicate"):
-            BUILDER.validate(data)
-        data["checks"][0]["claims"].pop()
-        data["checks"][0]["claims"][0]["evidence"][0]["citation"] = ""
+    def test_transform_rejects_dangling_evidence_and_blank_citations(self):
+        tables = copy.deepcopy(BUILDER.normalized_tables())
+        tables["claims.tsv"][0]["evidence_ids"] += ",evidence:missing"
+        with self.assertRaisesRegex(ValueError, "evidence_ids do not match"):
+            BUILDER.transform(tables)
+
+        tables = copy.deepcopy(BUILDER.normalized_tables())
+        tables["evidence.tsv"][0]["citation"] = ""
         with self.assertRaisesRegex(ValueError, "exact citation"):
-            BUILDER.validate(data)
+            BUILDER.transform(tables)
 
 
 class OfflineArtifactTests(unittest.TestCase):
@@ -66,10 +79,8 @@ class OfflineArtifactTests(unittest.TestCase):
 
     def test_stamp_is_fixture_content_hash_not_a_git_commit(self):
         contract = BUILDER.load_fixture()
-        unstamped = dict(contract)
-        stamp = unstamped.pop("inputs_hash")
-        expected = "sha256:" + hashlib.sha256(BUILDER.canonical_bytes(unstamped)).hexdigest()
-        self.assertEqual(stamp, expected)
+        stamp = contract["inputs_hash"]
+        self.assertEqual(stamp, BUILDER.fixture_hash())
         html = BUILDER.build().decode("utf-8")
         self.assertIn(f'<meta name="evidence-inputs-hash" content="{stamp}">', html)
         self.assertEqual(payload(html)["inputs_hash"], stamp)
@@ -93,6 +104,8 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertTrue(all(e["citation"].strip() for c in claims for e in c["evidence"]))
         self.assertIn("Conflict is active.", html)
         self.assertIn("Evidence by independent family", html)
+        self.assertIn("No access evidence exists in Phase 1", html)
+        self.assertIn("ownership is not proof that the player can reach or collect it", html)
 
     def test_permalink_serialises_every_facet_and_selected_claim(self):
         html = BUILDER.build().decode("utf-8")

@@ -11,26 +11,33 @@ Run: python3 tools/build_evidence_browser.py [--check] [--out PATH]
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import os
 import tempfile
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FIXTURE = os.path.join(REPO, "greenfield", "evidence", "browser_fixture.json")
+FIXTURE = os.path.join(REPO, "greenfield", "evidence", "browser_fixture")
 OUT_HTML = os.path.join(REPO, "er-archipelago-evidence-browser.html")
 
 STATUSES = {"proven", "corroborated", "single_source", "conflicted", "inferred", "unverified"}
 RISKS = {"critical", "high", "medium", "low"}
 CLAIM_KINDS = {"identity", "region"}
 STANCES = {"supports", "contradicts", "silent", "ambiguous"}
-REQUIRED_CLAIM = {
-    "claim_id", "claim_kind", "value", "status", "risk", "last_reviewed",
-    "review_issue", "graduation", "evidence",
-}
-REQUIRED_EVIDENCE = {
-    "evidence_id", "family_id", "source_title", "source_version", "stance",
-    "citation", "method", "lineage",
+HEADERS = {
+    "sources.tsv": ("source_id", "source_kind", "family_id", "title", "game_version",
+                    "retrieved_at", "revision", "url_or_path", "license", "environment_id",
+                    "supersedes"),
+    "evidence.tsv": ("evidence_id", "claim_id", "source_id", "stance", "value", "citation",
+                     "method", "independence_notes", "valid_from", "valid_to", "notes"),
+    "claims.tsv": ("claim_id", "subject_kind", "subject_id", "claim_kind", "game_version",
+                   "value", "status", "risk", "adjudication", "evidence_ids", "last_reviewed",
+                   "review_issue", "active", "supersedes"),
+    "environments.tsv": ("environment_id", "game_version", "dlc_version", "apworld_version",
+                         "client_version", "seed_id", "yaml_options", "launcher", "mods",
+                         "regulation", "save_provenance", "reproduction_steps", "result",
+                         "artifact_hashes", "artifact_location"),
 }
 
 
@@ -38,60 +45,103 @@ def canonical_bytes(contract: dict) -> bytes:
     return json.dumps(contract, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
 
 
-def validate(contract: dict) -> None:
-    if contract.get("schema") != "evidence-browser-fixture-v1":
-        raise ValueError("fixture schema must be evidence-browser-fixture-v1")
-    checks = contract.get("checks")
-    if not isinstance(checks, list) or not checks:
-        raise ValueError("fixture must carry a non-empty checks list")
-    seen_checks, seen_claims, seen_evidence = set(), set(), set()
-    for check in checks:
-        check_id = check.get("check_id")
-        if not isinstance(check_id, int) or check_id in seen_checks:
-            raise ValueError(f"check_id must be a unique integer: {check_id!r}")
-        seen_checks.add(check_id)
-        if not str(check.get("name", "")).strip():
-            raise ValueError(f"check {check_id} has no name")
-        kinds = set()
-        for claim in check.get("claims", []):
-            missing = REQUIRED_CLAIM - claim.keys()
-            if missing:
-                raise ValueError(f"check {check_id} claim missing {sorted(missing)}")
-            expected_prefix = f"check:{check_id}/"
-            claim_id = claim["claim_id"]
-            if not claim_id.startswith(expected_prefix) or claim_id in seen_claims:
-                raise ValueError(f"unstable or duplicate claim_id: {claim_id!r}")
-            seen_claims.add(claim_id)
-            kind = claim["claim_kind"]
-            if kind not in CLAIM_KINDS or claim_id != expected_prefix + kind or kind in kinds:
-                raise ValueError(f"bad or duplicate claim kind for check {check_id}: {kind!r}")
-            kinds.add(kind)
-            if claim["status"] not in STATUSES or claim["risk"] not in RISKS:
-                raise ValueError(f"closed vocabulary violation in {claim_id}")
-            evidence = claim["evidence"]
-            if not isinstance(evidence, list):
-                raise ValueError(f"evidence must be a list in {claim_id}")
-            for row in evidence:
-                missing = REQUIRED_EVIDENCE - row.keys()
-                if missing:
-                    raise ValueError(f"{claim_id} evidence missing {sorted(missing)}")
-                if row["stance"] not in STANCES:
-                    raise ValueError(f"unknown evidence stance {row['stance']!r}")
-                if not row["citation"].strip() or not row["family_id"].strip():
-                    raise ValueError(f"{claim_id} evidence needs an exact citation and family")
-                if row["evidence_id"] in seen_evidence:
-                    raise ValueError(f"duplicate evidence_id: {row['evidence_id']}")
-                seen_evidence.add(row["evidence_id"])
-        if kinds != CLAIM_KINDS:
+def _rows(path: str, header: tuple[str, ...]) -> list[dict[str, str]]:
+    with open(path, encoding="utf-8", newline="") as fh:
+        reader = csv.DictReader(fh, delimiter="\t")
+        if tuple(reader.fieldnames or ()) != header:
+            raise ValueError(f"{os.path.basename(path)} does not match the normalized #1210 header")
+        rows = [{key: (value or "") for key, value in row.items()} for row in reader]
+    keys = [row[header[0]] for row in rows]
+    if keys != sorted(keys) or len(keys) != len(set(keys)):
+        raise ValueError(f"{os.path.basename(path)} keys must be unique and sorted")
+    return rows
+
+
+def normalized_tables(path: str = FIXTURE) -> dict[str, list[dict[str, str]]]:
+    return {name: _rows(os.path.join(path, name), header) for name, header in HEADERS.items()}
+
+
+def graduation(status: str, risk: str) -> str:
+    if status == "conflicted":
+        return "Resolve the active contradiction with a reproducible source or explicit design ruling; do not hide the losing evidence."
+    if status == "inferred":
+        return "Add an exact first-party citation and an independent corroborating family; the heuristic cannot promote itself."
+    if status == "single_source":
+        return "Add a genuinely independent evidence family. A second projection of the same source does not count."
+    if status == "unverified":
+        return "Add the first usable, exactly cited source for this claim."
+    if risk in {"critical", "high"} and status != "proven":
+        return "Add the direct authority required for a high-risk claim and resolve every active contradiction."
+    return "Retain the exact citations and family independence if this claim changes."
+
+
+def transform(tables: dict[str, list[dict[str, str]]]) -> dict:
+    """Explicit normalized-TSV -> browser payload boundary; no status is derived here."""
+    sources = {row["source_id"]: row for row in tables["sources.tsv"]}
+    evidence_by_claim: dict[str, list[dict]] = {}
+    seen_evidence = set()
+    for row in tables["evidence.tsv"]:
+        if row["evidence_id"] in seen_evidence or row["source_id"] not in sources:
+            raise ValueError(f"duplicate or dangling evidence: {row['evidence_id']}")
+        if row["stance"] not in STANCES or not row["citation"].strip():
+            raise ValueError(f"evidence needs a valid stance and exact citation: {row['evidence_id']}")
+        seen_evidence.add(row["evidence_id"])
+        source = sources[row["source_id"]]
+        evidence_by_claim.setdefault(row["claim_id"], []).append({
+            "evidence_id": row["evidence_id"], "family_id": source["family_id"],
+            "source_id": row["source_id"], "source_title": source["title"],
+            "source_version": source["game_version"], "stance": row["stance"],
+            "value": json.loads(row["value"]) if row["value"] else None,
+            "citation": row["citation"], "method": row["method"],
+            "lineage": row["independence_notes"],
+        })
+    by_check: dict[int, list[dict]] = {}
+    seen_claims = set()
+    for row in tables["claims.tsv"]:
+        if row["active"] != "true":
+            continue
+        claim_id, kind = row["claim_id"], row["claim_kind"]
+        if row["subject_kind"] != "check" or kind not in CLAIM_KINDS:
+            raise ValueError(f"Phase 1 browser accepts active check identity/region claims only: {claim_id}")
+        check_id = int(row["subject_id"])
+        if claim_id != f"check:{check_id}/{kind}" or claim_id in seen_claims:
+            raise ValueError(f"unstable or duplicate claim_id: {claim_id}")
+        if row["status"] not in STATUSES or row["risk"] not in RISKS:
+            raise ValueError(f"closed vocabulary violation in {claim_id}")
+        evidence = evidence_by_claim.get(claim_id, [])
+        expected = ",".join(sorted(e["evidence_id"] for e in evidence))
+        if row["evidence_ids"] != expected:
+            raise ValueError(f"{claim_id}: evidence_ids do not match normalized evidence rows")
+        seen_claims.add(claim_id)
+        by_check.setdefault(check_id, []).append({
+            "claim_id": claim_id, "claim_kind": kind, "value": json.loads(row["value"]),
+            "status": row["status"], "risk": row["risk"],
+            "last_reviewed": row["last_reviewed"], "review_issue": row["review_issue"],
+            "graduation": graduation(row["status"], row["risk"]), "evidence": evidence,
+        })
+    checks = []
+    for check_id, claims in sorted(by_check.items()):
+        if {c["claim_kind"] for c in claims} != CLAIM_KINDS:
             raise ValueError(f"Phase 1 check {check_id} needs exactly identity and region claims")
+        checks.append({"check_id": check_id, "name": f"Check {check_id}",
+                       "claims": sorted(claims, key=lambda c: c["claim_kind"])})
+    if not checks:
+        raise ValueError("normalized fixture has no active Phase 1 claims")
+    return {"schema": "evidence-browser-payload-v1", "checks": checks}
+
+
+def fixture_hash(path: str = FIXTURE) -> str:
+    digest = hashlib.sha256()
+    for name in sorted(HEADERS):
+        digest.update(name.encode() + b"\0")
+        with open(os.path.join(path, name), "rb") as fh:
+            digest.update(fh.read())
+    return "sha256:" + digest.hexdigest()
 
 
 def load_fixture(path: str = FIXTURE) -> dict:
-    with open(path, encoding="utf-8") as fh:
-        contract = json.load(fh)
-    validate(contract)
-    contract = json.loads(canonical_bytes(contract))
-    contract["inputs_hash"] = "sha256:" + hashlib.sha256(canonical_bytes(contract)).hexdigest()
+    contract = transform(normalized_tables(path))
+    contract["inputs_hash"] = fixture_hash(path)
     return contract
 
 
@@ -152,7 +202,7 @@ function show(c){{
  const identity=claims.find(x=>x.check_id===c.check_id&&x.claim_kind==='identity');
  const region=claims.find(x=>x.check_id===c.check_id&&x.claim_kind==='region');
  const why=identity?`Identity ${{escapeHtml(JSON.stringify(identity.value))}} · ${{identity.status}}`:'No identity claim in this phase.';
- const reach=region?`Filed in ${{escapeHtml(JSON.stringify(region.value))}}. Phase 1 establishes ownership evidence, not the complete access path.`:'No region evidence in this phase.';
+ const reach=region?`No access evidence exists in Phase 1. The region claim files this check in ${{escapeHtml(JSON.stringify(region.value))}}, but ownership is not proof that the player can reach or collect it.`:'No access evidence exists in Phase 1.';
  const disagree=contradictions.length?contradictions.map(e=>`${{e.family_id}}: ${{e.citation}}`).join(' · '):'No active contradiction is represented in this fixture.';
  let html=`<div class="toolbar"><div><h2>${{escapeHtml(c.check_name)}}</h2><div class="muted">${{c.claim_id}} · check ${{c.check_id}}</div></div><button id="copy">Copy permalink</button></div>`;
  html+=`<div class="badges">${{badge(c.claim_kind)}}${{badge(c.status)}}${{badge(c.risk)}}</div>`;
