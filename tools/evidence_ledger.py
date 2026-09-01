@@ -147,15 +147,15 @@ def _typed_value(kind: str, value, where: str) -> None:
     if kind == "region":
         if not isinstance(value, str) or not value.strip(): raise LedgerError(f"{where}: region must be a non-empty string")
     elif kind == "identity":
-        if not isinstance(value, dict) or not isinstance(value.get("ap_id"), int) or not isinstance(value.get("flag"), int) or value.get("namespace") not in IDENTITY_NAMESPACES or not isinstance(value.get("id"), int): raise LedgerError(f"{where}: invalid identity value")
+        if not isinstance(value, dict) or type(value.get("ap_id")) is not int or type(value.get("flag")) is not int or value.get("namespace") not in IDENTITY_NAMESPACES or type(value.get("id")) is not int: raise LedgerError(f"{where}: invalid identity value")
     elif kind == "access":
         if not isinstance(value, dict) or value.get("type") not in {"unknown", "all", "any", "flag", "item", "region", "event"}: raise LedgerError(f"{where}: invalid access expression")
     elif kind == "detection":
-        if not isinstance(value, dict) or not isinstance(value.get("mechanism"), str) or not isinstance(value.get("flag"), int): raise LedgerError(f"{where}: invalid detection value")
+        if not isinstance(value, dict) or not isinstance(value.get("mechanism"), str) or type(value.get("flag")) is not int: raise LedgerError(f"{where}: invalid detection value")
     elif kind == "suppression":
-        if not isinstance(value, dict) or value.get("target_type") not in {"lot", "shop", "gesture", "award"} or not isinstance(value.get("target_id"), int): raise LedgerError(f"{where}: invalid suppression value")
+        if not isinstance(value, dict) or value.get("target_type") not in {"lot", "shop", "gesture", "award"} or type(value.get("target_id")) is not int: raise LedgerError(f"{where}: invalid suppression value")
     elif kind == "sweep_owner":
-        if not isinstance(value, dict) or not isinstance(value.get("trigger_id"), int) or not isinstance(value.get("owner_region"), str): raise LedgerError(f"{where}: invalid sweep_owner value")
+        if not isinstance(value, dict) or type(value.get("trigger_id")) is not int or not isinstance(value.get("owner_region"), str): raise LedgerError(f"{where}: invalid sweep_owner value")
     elif kind == "alternate_acquisition":
         if not isinstance(value, dict) or not isinstance(value.get("equivalence_group"), str) or not isinstance(value.get("members"), list) or not value["members"]: raise LedgerError(f"{where}: invalid alternate_acquisition value")
     elif kind == "description":
@@ -163,6 +163,13 @@ def _typed_value(kind: str, value, where: str) -> None:
 
 def _canon(value) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
+
+def _typed_json(raw: str, kind: str, where: str):
+    value = _json(raw, where)
+    if raw != _canon(value):
+        raise LedgerError(f"{where}: value must use canonical JSON")
+    _typed_value(kind, value, where)
+    return value
 
 def _citation_names_revision(citation: str, revision: str) -> bool:
     pattern = rf"(?<![A-Za-z0-9]){re.escape(revision)}(?![A-Za-z0-9])"
@@ -301,7 +308,7 @@ def validate(directory: Path) -> Result:
         _version(row["game_version"], cid)
         if row["claim_kind"] not in CLAIM_KINDS or row["risk"] not in RISKS or row["status"] not in STATUSES: raise LedgerError(f"{cid}: unknown claim vocabulary")
         if row["active"] not in {"true", "false"}: raise LedgerError(f"{cid}: active must be true or false")
-        if row["value"]: _typed_value(row["claim_kind"], _json(row["value"], cid), cid)
+        if row["value"]: _typed_json(row["value"], row["claim_kind"], cid)
         if row["active"] == "true":
             key=(row["subject_kind"],row["subject_id"],row["claim_kind"],row["game_version"])
             if key in active_keys: raise LedgerError(f"{cid}: duplicate active claim")
@@ -327,7 +334,7 @@ def validate(directory: Path) -> Result:
         ):
             raise LedgerError(f"{eid}: live/runtime citation must name source revision")
         if row["stance"] in {"supports", "contradicts"} and not row["value"]: raise LedgerError(f"{eid}: {row['stance']} evidence requires a value")
-        if row["value"]: _typed_value(claims_by_id[row["claim_id"]]["claim_kind"], _json(row["value"], eid), eid)
+        if row["value"]: _typed_json(row["value"], claims_by_id[row["claim_id"]]["claim_kind"], eid)
         evidence_by_claim[row["claim_id"]].append(row)
     for cid in claims_by_id:
         seen=set(); cur=cid
