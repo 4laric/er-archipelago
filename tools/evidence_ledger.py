@@ -54,7 +54,13 @@ def _rows(path: Path) -> list[dict[str, str]]:
             raise LedgerError(f"{path.name}: header must be {expected!r}")
         # Trailing optional TSV cells may be physically omitted to keep git's whitespace gate
         # meaningful; DictReader represents those as None, canonically normalize them to empty.
-        rows = [{key: (value or "") for key, value in row.items()} for row in reader]
+        rows = []
+        for line_number, row in enumerate(reader, 2):
+            if None in row:
+                raise LedgerError(
+                    f"{path.name}:{line_number}: row has more columns than the header"
+                )
+            rows.append({key: (value or "") for key, value in row.items()})
     keys = [row[expected[0]] for row in rows]
     for key in keys:
         if not ROW_ID.fullmatch(key):

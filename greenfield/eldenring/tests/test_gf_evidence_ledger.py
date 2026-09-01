@@ -491,7 +491,20 @@ class EvidenceLedgerTests(unittest.TestCase):
             schema["typed_values"]["integers"],
             "exact JSON integers; booleans are forbidden",
         )
+        self.assertEqual(schema["tsv_rows"]["surplus_cells"], "rejected")
         self.assertEqual({k:tuple(v) for k,v in schema["tables"].items()},ledger.HEADERS)
+
+    def test_surplus_tsv_cells_are_rejected_by_the_shared_parser(self):
+        for table, header in ledger.HEADERS.items():
+            with self.subTest(table=table), tempfile.TemporaryDirectory() as td:
+                path = Path(td) / table
+                row = ["canonical:id"] + [""] * (len(header) - 1) + ["surplus"]
+                self.assertEqual(len(row), len(header) + 1)
+                path.write_text("\t".join(header) + "\n" + "\t".join(row) + "\n")
+                with self.assertRaisesRegex(
+                    ledger.LedgerError, "more columns than the header"
+                ):
+                    ledger._rows(path)
 
     def test_primary_row_ids_are_canonical_ascii_tokens(self):
         malformed = ("trailing-space ", "embedded space", "unicode-\u03b1", "control\x01")

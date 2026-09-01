@@ -39,6 +39,10 @@
   "source_kinds": ["external_reference", "game_data", "live_testimony", "project_derivation", "ruling"],
   "stances": ["ambiguous", "contradicts", "silent", "supports"],
   "statuses": ["conflicted", "corroborated", "inferred", "proven", "single_source", "unverified"],
+  "tsv_rows": {
+    "omitted_trailing_optional_cells": "normalized to empty strings",
+    "surplus_cells": "rejected"
+  },
   "typed_values": {
     "integers": "exact JSON integers; booleans are forbidden",
     "serialization": "canonical JSON with sorted keys, compact separators, and ASCII escapes"
