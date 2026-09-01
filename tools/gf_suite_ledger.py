@@ -70,6 +70,9 @@ GENERATORS = [
     # v0.6 current-corpus adapter (#1211). Loads its builder and normalized checked-in census by
     # repository path; neither ships beside the installed world. AP-free and artifact-free.
     "v060_current_evidence",
+    # Gameplay-wiki intake pilot (#1273): validates the committed source registry and normalized
+    # lead-only claims. It is AP-free and deliberately performs no network access in CI.
+    "wiki_audit",
     # The region second-opinion worksheet page. Same shape as the two above: it loads
     # tools/build_region_second_opinion_page.py BY PATH and diffs the committed root page
     # against a fresh build, and neither the tool nor the page is installed beside the world.
