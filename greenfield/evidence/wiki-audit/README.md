@@ -74,3 +74,28 @@ python tools/build_walkthrough_check_leads.py /tmp/redmaw-walkthrough.html
 python tools/check_walkthrough_check_leads.py
 python tools/build_evidence_browser.py
 ```
+
+## Eldenpedia location-page coverage
+
+`eldenpedia-location-pages.tsv` inventories the `Category:Locations` corpus without redistributing
+wiki prose. Each row pins the MediaWiki page id, revision id, revision timestamp and revision SHA-1,
+plus the page's infobox-region link and count of links in `Notable Loot`. The `oldid` URL is an
+immutable, human-reviewable capture of the cited revision.
+
+`tools/build_eldenpedia_location_leads.py` binds a loot link only when its exact normalized item
+name identifies one current AP check inside an explicit wiki-region-to-AP-region mapping. A check
+mentioned on more than one location page is refused wholesale; unmatched names and repeated items
+remain gaps. The checked-in `eldenpedia-location-check-leads.tsv` contains no prose and every row
+points to the exact page id, revision id, section and loot-link target.
+
+This track is deliberately external and `lead_only`. It cross-checks check identity and coarse
+region; it does not establish route order, access requirements, v1.17 predicates, completeness, or
+absence. Nothing in this corpus is consumed by world logic or the access disposition ledger.
+
+To refresh from the public MediaWiki API while retaining a same-run local capture for audit:
+
+```bash
+python tools/build_eldenpedia_location_leads.py --write-capture /tmp/eldenpedia-locations.json
+python tools/check_eldenpedia_location_leads.py
+python tools/build_evidence_browser.py
+```
