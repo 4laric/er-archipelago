@@ -21,7 +21,6 @@ import importlib.util
 import json
 from pathlib import Path
 import re
-import sys
 import unicodedata
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -177,7 +176,6 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("html", type=Path, help="immutable Redmaw walkthrough capture body")
     ap.add_argument("--output", type=Path, default=DEFAULT_OUT)
-    ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
     body = args.html.read_bytes()
     digest = hashlib.sha256(body).hexdigest()
@@ -190,14 +188,8 @@ def main() -> int:
     writer = csv.DictWriter(out, fieldnames=fields, delimiter="\t", lineterminator="\n")
     writer.writeheader(); writer.writerows(rows)
     rendered = out.getvalue()
-    if args.check:
-        current = args.output.read_text(encoding="utf-8") if args.output.exists() else ""
-        if current != rendered:
-            print(f"[FAIL] {args.output.relative_to(ROOT)} is stale", file=sys.stderr)
-            return 1
-    else:
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(rendered, encoding="utf-8")
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(rendered, encoding="utf-8")
     print(json.dumps(stats, sort_keys=True))
     return 0
 
