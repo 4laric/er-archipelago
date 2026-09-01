@@ -261,6 +261,33 @@ def _load_purifying_tear_access(path: Path) -> dict[str, object]:
     return matches[0]
 
 
+def _load_ijis_bell_bearing_access(path: Path) -> dict[str, object]:
+    """Load f400240's immediate WaitFor without expanding it into Iji's quest state."""
+    matches = []
+    with path.open(encoding="utf-8", newline="") as handle:
+        header = ""
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip() or line.startswith("#"):
+                continue
+            if not header:
+                header = line
+                continue
+            row = next(csv.DictReader([header, line], delimiter="\t"))
+            if row["check_flag"] != "400240" or row["context"] != "commonarg/WaitFor":
+                continue
+            matches.append({
+                "line": line_number, "gate_flag": int(row["gate_flag"]),
+                "context": row["context"], "event_id": int(row["event_id"]),
+                "source": row["source"], "evidence": row["evidence"],
+                "gate_test_map": row["gate_test_map"],
+            })
+    if len(matches) != 1 or matches[0]["gate_flag"] != 3768:
+        raise RuntimeError(f"f400240 WaitFor corpus changed: {matches!r}")
+    if matches[0]["event_id"] != 90005750:
+        raise RuntimeError(f"f400240 WaitFor event changed: {matches!r}")
+    return matches[0]
+
+
 def _source_records(
         repo: Path, data_path: Path, override_path: Path, lot_path: Path,
         stamp: Mapping[str, str]):
@@ -322,6 +349,7 @@ def build_records(repo: Path) -> dict:
     varres_bouquet_access = _load_varres_bouquet_access(lot_gates_path)
     taunters_tongue_access = _load_taunters_tongue_access(lot_gates_path)
     purifying_tear_access = _load_purifying_tear_access(lot_gates_path)
+    ijis_bell_bearing_access = _load_ijis_bell_bearing_access(lot_gates_path)
     sources, source = _source_records(repo, data_path, override_path, lot_path, stamp)
     lot_gates_hash = _sha256(lot_gates_path)
     lot_gates_source_id = (
@@ -330,6 +358,16 @@ def build_records(repo: Path) -> dict:
         "source_id": lot_gates_source_id, "source_kind": "game_data",
         "family_id": "game:emevd:m60_41_38_00:90005750",
         "title": "Stormhill Shack f400191 WaitFor call sites",
+        "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+        "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
+        "license": "private-evidence", "environment_id": "", "supersedes": "",
+    })
+    ijis_bell_bearing_source_id = (
+        f"game:emevd-lot-gates:m60_34_49_00:{lot_gates_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": ijis_bell_bearing_source_id, "source_kind": "game_data",
+        "family_id": "game:emevd:m60_34_49_00:90005750",
+        "title": "Iji's Bell Bearing f400240 immediate WaitFor call site",
         "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
         "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
         "license": "private-evidence", "environment_id": "", "supersedes": "",
@@ -753,6 +791,50 @@ def build_records(repo: Path) -> dict:
         "supersedes": "",
     })
 
+    ijis_bell_bearing = [row for row in locations if row["flag"] == 400240]
+    if len(ijis_bell_bearing) != 1:
+        raise RuntimeError(f"expected one current f400240 check, found {ijis_bell_bearing!r}")
+    ijis_bell_bearing_ap_id = ijis_bell_bearing[0]["ap_id"]
+    ijis_bell_bearing_claim_id = f"check:{ijis_bell_bearing_ap_id}/access"
+    ijis_bell_bearing_value = {
+        "type": "flag", "flag": ijis_bell_bearing_access["gate_flag"]}
+    ijis_bell_bearing_evidence_id = (
+        "game:emevd:m60_34_49_00:90005750:f400240:gate-3768:access")
+    evidence.append({
+        "evidence_id": ijis_bell_bearing_evidence_id,
+        "claim_id": ijis_bell_bearing_claim_id,
+        "source_id": ijis_bell_bearing_source_id, "stance": "supports",
+        "value": _json(ijis_bell_bearing_value),
+        "citation": (
+            f"greenfield/lot_gates.tsv:{ijis_bell_bearing_access['line']} check_flag=400240 "
+            f"gate_flag=3768; {ijis_bell_bearing_access['source']} "
+            f"event={ijis_bell_bearing_access['event_id']} "
+            f"{ijis_bell_bearing_access['context']} {ijis_bell_bearing_access['evidence']} "
+            f"{ijis_bell_bearing_access['gate_test_map']}"
+        ),
+        "method": "tools/build_v060_current_evidence.py:ijis_bell_bearing_immediate_waitfor",
+        "independence_notes": (
+            "The one immediate WaitFor call is one EMEVD family; the f400240 association is "
+            "joined through ItemLotParam/flag_lots and is not independent detection evidence. "
+            "The questline DAG and condition cone are correlated projections of this family."
+        ),
+        "valid_from": GAME_VERSION, "valid_to": "",
+        "notes": (
+            "Immediate positive f3768 prerequisite only; the generic committed flag label does "
+            "not prove Iji's death or the complete Ranni/Iji quest, and this claim does not "
+            "describe the Archipelago Royal Revenant boss-sweep alternate."
+        ),
+    })
+    claims.append({
+        "claim_id": ijis_bell_bearing_claim_id, "subject_kind": "check",
+        "subject_id": str(ijis_bell_bearing_ap_id), "claim_kind": "access",
+        "game_version": GAME_VERSION, "value": _json(ijis_bell_bearing_value),
+        "status": "single_source", "risk": "critical", "adjudication": "automatic",
+        "evidence_ids": ijis_bell_bearing_evidence_id,
+        "last_reviewed": REVIEW_DATE, "review_issue": "#1259", "active": "true",
+        "supersedes": "",
+    })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -785,6 +867,7 @@ def build_records(repo: Path) -> dict:
             "varres_bouquet_access_claims": 1,
             "taunters_tongue_access_claims": 1,
             "purifying_tear_access_claims": 1,
+            "ijis_bell_bearing_access_claims": 1,
         },
     }
 
