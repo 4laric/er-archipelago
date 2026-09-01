@@ -238,6 +238,25 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
         self.assertIn("greenfield/lot_gates.tsv:42", row["citation"])
         self.assertIn("event=90005750 commonarg/WaitFor", row["citation"])
 
+    def test_witch_crown_access_excludes_quest_and_sweep_inferences(self):
+        claim = next(row for row in self.bundle["claims"]
+                     if row["claim_id"] == "check:7770575/access")
+        self.assertEqual(json.loads(claim["value"]), {"type": "flag", "flag": 3469})
+        evidence_by_id = {row["evidence_id"]: row for row in self.bundle["evidence"]}
+        source_by_id = {row["source_id"]: row for row in self.bundle["sources"]}
+        row = evidence_by_id[claim["evidence_ids"]]
+        self.assertEqual(source_by_id[row["source_id"]]["family_id"],
+                         "game:emevd:m14_00_00_00:90005750")
+        self.assertEqual((claim["status"], claim["risk"], claim["review_issue"]),
+                         ("single_source", "critical", "#1267"))
+        self.assertIn("not independent detection evidence", row["independence_notes"])
+        self.assertIn("correlated projections", row["independence_notes"])
+        self.assertIn("does not prove Sellen's identity, death, or complete quest", row["notes"])
+        self.assertIn("does not describe the Archipelago Red Wolf of Radagon boss-sweep alternate",
+                      row["notes"])
+        self.assertIn("greenfield/lot_gates.tsv:46", row["citation"])
+        self.assertIn("event=90005750 commonarg/WaitFor", row["citation"])
+
     def test_checked_in_bundle_validates_and_is_byte_deterministic(self):
         with tempfile.TemporaryDirectory() as tmp:
             first = Path(tmp) / "first"
