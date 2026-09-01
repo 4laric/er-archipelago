@@ -62,8 +62,23 @@ class EvidenceLedgerTests(unittest.TestCase):
         self.assertEqual({k:tuple(v) for k,v in schema["tables"].items()},ledger.HEADERS)
 
     def test_flag_is_a_first_class_identity_namespace(self):
-        value = {"ap_id": 100, "flag": 200, "namespace": "flag", "id": 200}
-        ledger._typed_value("identity", value, "fixture")
+        with tempfile.TemporaryDirectory() as td:
+            dst = Path(td)
+            shutil.copytree(FIXTURE, dst, dirs_exist_ok=True)
+            old = '{"ap_id":105,"flag":400105,"id":50105,"namespace":"lot"}'
+            new = '{"ap_id":105,"flag":400105,"id":400105,"namespace":"flag"}'
+            for name in ("claims.tsv", "evidence.tsv"):
+                path = dst / name
+                path.write_text(path.read_text().replace(old, new))
+
+            ledger.validate(dst)
+            claim = next(
+                row for row in ledger._rows(dst / "claims.tsv")
+                if row["claim_id"] == "check:105/identity"
+            )
+            value = json.loads(claim["value"])
+            self.assertEqual(value["namespace"], "flag")
+            self.assertEqual(value["id"], value["flag"])
 
     def test_duplicate_active_claim_is_rejected(self):
         with tempfile.TemporaryDirectory() as td:
