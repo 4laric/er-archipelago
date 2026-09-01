@@ -33,6 +33,7 @@ GAME_VERSION = re.compile(r"^\d+(?:\.\d+)*$")
 REVISION_MAX = 256
 CITATION_MAX = 2048
 LOCATOR_MAX = 2048
+SHA256 = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 HEADERS = {
     "sources.tsv": ("source_id", "source_kind", "family_id", "title", "game_version", "retrieved_at", "revision", "url_or_path", "license", "environment_id", "supersedes"),
@@ -97,6 +98,26 @@ def _source_locator(value: str, where: str) -> None:
         or str(path) != value
     ):
         raise LedgerError(f"{where}: local source locator must be a canonical relative POSIX path")
+
+def _artifact_manifest(raw: str, where: str) -> dict[str, str]:
+    value = _json(raw, where)
+    if not isinstance(value, dict) or not value:
+        raise LedgerError(f"{where}: artifact_hashes must be a non-empty object")
+    for artifact_id, digest in value.items():
+        if not isinstance(artifact_id, str) or not artifact_id:
+            raise LedgerError(f"{where}: artifact id must be a non-empty string")
+        path = PurePosixPath(artifact_id)
+        if (
+            path.is_absolute()
+            or "\\" in artifact_id
+            or ".." in path.parts
+            or artifact_id.startswith("./")
+            or str(path) != artifact_id
+        ):
+            raise LedgerError(f"{where}: artifact id must be a canonical relative POSIX path")
+        if not isinstance(digest, str) or not SHA256.fullmatch(digest):
+            raise LedgerError(f"{where}: artifact digest must be lowercase sha256:<64 hex>")
+    return value
 
 def _version(raw: str, where: str, *, allow_unknown: bool = False) -> tuple[int, ...] | None:
     if allow_unknown and raw == "unknown":
@@ -163,7 +184,13 @@ def _complete_environment(row: dict[str, str]) -> bool:
     required = ("game_version", "dlc_version", "apworld_version", "client_version", "seed_id", "yaml_options", "launcher", "mods", "regulation", "save_provenance", "reproduction_steps", "result", "artifact_hashes", "artifact_location")
     if not all(row[key].strip() for key in required):
         return False
-    return all(row[key].strip().lower() != "unknown" for key in LIVE_EXACT_BUILD_FIELDS)
+    if not all(row[key].strip().lower() != "unknown" for key in LIVE_EXACT_BUILD_FIELDS):
+        return False
+    try:
+        _artifact_manifest(row["artifact_hashes"], row["environment_id"])
+    except LedgerError:
+        return False
+    return True
 
 @dataclass(frozen=True)
 class Result:
@@ -234,11 +261,20 @@ def derive_status(claim: dict[str, str], evidence: list[dict[str, str]], sources
 def validate(directory: Path) -> Result:
     tables = {name: _rows(directory / name) for name in HEADERS}
     sources = {r["source_id"]: r for r in tables["sources.tsv"]}; envs = {r["environment_id"]: r for r in tables["environments.tsv"]}
+    for environment_id, row in envs.items():
+        if not environment_id:
+            raise LedgerError("environment_id must not be blank")
+        if row["artifact_hashes"]:
+            _artifact_manifest(row["artifact_hashes"], environment_id)
+        if row["artifact_location"]:
+            _source_locator(row["artifact_location"], f"{environment_id}.artifact_location")
     for sid, row in sources.items():
         if not sid or not row["title"] or not row["game_version"] or not row["revision"] or not row["url_or_path"] or not row["license"]: raise LedgerError(f"{sid or '<blank>'}: incomplete source snapshot")
         _bounded_single_line(row["revision"], f"{sid}.revision", REVISION_MAX)
         if any(char.isspace() for char in row["revision"]):
             raise LedgerError(f"{sid}.revision: must be a stable token without whitespace")
+        if row["revision"].startswith("sha256:") and not SHA256.fullmatch(row["revision"]):
+            raise LedgerError(f"{sid}.revision: malformed SHA-256 digest")
         _source_locator(row["url_or_path"], f"{sid}.url_or_path")
         _version(row["game_version"], sid, allow_unknown=True)
         if row["retrieved_at"] and not DATE.match(row["retrieved_at"]): raise LedgerError(f"{sid}: invalid retrieved_at")

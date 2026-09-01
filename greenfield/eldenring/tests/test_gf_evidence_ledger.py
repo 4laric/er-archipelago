@@ -401,6 +401,47 @@ class EvidenceLedgerTests(unittest.TestCase):
         with self.assertRaisesRegex(ledger.LedgerError, "single-line"):
             ledger._bounded_single_line("row 1\nrow 2", "citation", ledger.CITATION_MAX)
 
+    def test_malformed_live_artifact_manifests_are_rejected(self):
+        digest = "sha256:" + "a" * 64
+        valid = '{"screenshot":"' + digest + '"}'
+        invalid = (
+            "none",
+            "{}",
+            '{"screenshot":"sha256:abc"}',
+            '{"../screenshot":"' + digest + '"}',
+            '{"screenshot":"SHA256:' + "A" * 64 + '"}',
+        )
+        for manifest in invalid:
+            with self.subTest(manifest=manifest):
+                with tempfile.TemporaryDirectory() as td:
+                    dst = self._copy_live_fixture(td)
+                    environments = dst / "environments.tsv"
+                    environments.write_text(
+                        environments.read_text().replace(valid, manifest)
+                    )
+                    with self.assertRaises(ledger.LedgerError):
+                        ledger.validate(dst)
+
+    def test_missing_artifact_manifest_keeps_live_evidence_as_a_lead(self):
+        digest = "sha256:" + "a" * 64
+        manifest = '{"screenshot":"' + digest + '"}'
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_live_fixture(td)
+            environments = dst / "environments.tsv"
+            environments.write_text(environments.read_text().replace(manifest, ""))
+            claims = dst / "claims.tsv"
+            claims.write_text(claims.read_text().replace("\tsingle_source\t", "\tunverified\t"))
+            result = ledger.validate(dst)
+            self.assertEqual(result.statuses["check:200/region"], "unverified")
+
+    def test_sha256_source_revision_must_be_exact(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_status_fixture(td)
+            sources = dst / "sources.tsv"
+            sources.write_text(sources.read_text().replace("\tsha\t", "\tsha256:abc\t"))
+            with self.assertRaisesRegex(ledger.LedgerError, "malformed SHA-256"):
+                ledger.validate(dst)
+
     def test_summary_contract_is_deterministic_and_risk_rankable(self):
         first = ledger.summary(FIXTURE); second = ledger.summary(FIXTURE)
         self.assertEqual(first, second)
@@ -438,6 +479,9 @@ class EvidenceLedgerTests(unittest.TestCase):
         )
         self.assertEqual(
             schema["citation_contract"]["revision_max_chars"], ledger.REVISION_MAX
+        )
+        self.assertEqual(
+            schema["environment_artifacts"]["digest"], "lowercase sha256:<64 hex>"
         )
         self.assertEqual({k:tuple(v) for k,v in schema["tables"].items()},ledger.HEADERS)
 
