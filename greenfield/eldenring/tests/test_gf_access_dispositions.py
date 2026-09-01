@@ -63,6 +63,46 @@ class AccessDispositionTests(unittest.TestCase):
         self.assertEqual(value["with_access_claim"], 32)
         self.assertEqual(value["without_access_claim"], 4901)
 
+    def test_every_resolved_disposition_has_a_machine_checked_witness(self):
+        rows = access.validate(LEDGER, DISPOSITIONS)
+        resolved = [row for row in rows if row["disposition"] != "unresolved"]
+        self.assertEqual(len(resolved), 13)
+        self.assertTrue(all(row["implementation_path"] for row in resolved))
+        self.assertTrue(all(row["implementation_symbol"].startswith("test_") for row in resolved))
+
+    def test_resolved_disposition_rejects_missing_or_spoofed_witnesses(self):
+        original = DISPOSITIONS.read_text()
+        path_token = "greenfield/eldenring/tests/test_gf_features_smoke.py"
+        symbol_token = "test_radahn_festival_flag_force_set"
+        self.assertIn(path_token, original)
+        self.assertIn(symbol_token, original)
+        mutations = (
+            (path_token, "../outside.py", "invalid implementation_path"),
+            (
+                f"\t{symbol_token}\n",
+                "\ttest_symbol_that_does_not_exist\n",
+                "implementation_symbol is absent",
+            ),
+        )
+        for old, new, message in mutations:
+            with self.subTest(new=new), tempfile.TemporaryDirectory() as td:
+                path = Path(td) / "access_dispositions.tsv"
+                path.write_text(original.replace(old, new, 1))
+                with self.assertRaisesRegex(access.AccessDispositionError, message):
+                    access.validate(LEDGER, path)
+
+    def test_resolved_disposition_rejects_omitted_witness_fields(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "access_dispositions.tsv"
+            lines = DISPOSITIONS.read_text().splitlines()
+            index = next(i for i, line in enumerate(lines) if "region_sufficient" in line)
+            fields = lines[index].split("\t")
+            self.assertTrue(fields[9])
+            lines[index] = "\t".join(fields[:7])
+            path.write_text("\n".join(lines) + "\n")
+            with self.assertRaisesRegex(access.AccessDispositionError, "implementation_path"):
+                access.validate(LEDGER, path)
+
     def test_checked_in_summary_is_an_exact_drift_gate(self):
         generated = access.summary(LEDGER, DISPOSITIONS)
         committed = json.loads(SUMMARY.read_text())
@@ -102,6 +142,9 @@ class AccessDispositionTests(unittest.TestCase):
             index = next(i for i, line in enumerate(lines) if "check:7770008/access" in line)
             fields = lines[index].split("\t")
             self.assertEqual(fields[2:5], ["unresolved", "critical", "all"])
+            fields.extend([""] * (len(access.HEADERS) - len(fields)))
+            fields[9] = "greenfield/eldenring/tests/test_gf_features_smoke.py"
+            fields[10] = "test_radahn_festival_flag_force_set"
             first = fields[:]
             first[2:5] = ["region_sufficient", "critical", "festival_route"]
             second = fields[:]

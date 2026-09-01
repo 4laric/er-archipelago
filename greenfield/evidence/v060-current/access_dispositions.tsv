@@ -1,7 +1,7 @@
-check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	review_by
+check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	review_by	implementation_path	implementation_symbol
 7770000		unresolved	critical	all
 7770001		unresolved	critical	all
-7770002	check:7770002/access	region_sufficient	critical	all	Caelid access suffices because StartGrace.slot_data unconditionally sends festival flag 9410; test_radahn_festival_flag_force_set guards the bypass.	#1271
+7770002	check:7770002/access	region_sufficient	critical	all	Caelid access suffices because StartGrace.slot_data unconditionally sends festival flag 9410; test_radahn_festival_flag_force_set guards the bypass.	#1271			greenfield/eldenring/tests/test_gf_features_smoke.py	test_radahn_festival_flag_force_set
 7770003		unresolved	critical	all
 7770004		unresolved	critical	all
 7770005		unresolved	critical	all
@@ -664,7 +664,7 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7770662		unresolved	critical	all
 7770663		unresolved	critical	all
 7770664		unresolved	critical	all
-7770665	check:7770665/access	region_sufficient	critical	all	Caelid access suffices because StartGrace.slot_data unconditionally sends festival flag 9410; test_radahn_festival_flag_force_set guards the bypass.	#1271
+7770665	check:7770665/access	region_sufficient	critical	all	Caelid access suffices because StartGrace.slot_data unconditionally sends festival flag 9410; test_radahn_festival_flag_force_set guards the bypass.	#1271			greenfield/eldenring/tests/test_gf_features_smoke.py	test_radahn_festival_flag_force_set
 7770666		unresolved	critical	all
 7770667		unresolved	critical	all
 7770668		unresolved	critical	all
@@ -1151,7 +1151,7 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7771149		unresolved	critical	all
 7771150		unresolved	critical	all
 7771151		unresolved	critical	all
-7771152	check:7771152/access	region_sufficient	critical	all	Siofra River access suffices because StartGrace.slot_data unconditionally sends chest-gate flag 1034509410; test_fingerslayer_chest_gate_flag_force_set guards the bypass.	#1271
+7771152	check:7771152/access	region_sufficient	critical	all	Siofra River access suffices because StartGrace.slot_data unconditionally sends chest-gate flag 1034509410; test_fingerslayer_chest_gate_flag_force_set guards the bypass.	#1271			greenfield/eldenring/tests/test_gf_features_smoke.py	test_fingerslayer_chest_gate_flag_force_set
 7771153		unresolved	critical	all
 7771154		unresolved	critical	all
 7771155		unresolved	critical	all
@@ -2311,25 +2311,25 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7772309		unresolved	critical	all
 7772310		unresolved	critical	all
 7772311		unresolved	critical	all
-7772312	check:7772312/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772312	check:7772312/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271			greenfield/eldenring/tests/test_gf_legacy_key_gate.py	test_carian_statue_gates_the_inverted_route_and_not_the_standard_hall
 7772312	check:7772312/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
-7772313	check:7772313/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772313	check:7772313/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271			greenfield/eldenring/tests/test_gf_legacy_key_gate.py	test_carian_statue_gates_the_inverted_route_and_not_the_standard_hall
 7772313	check:7772313/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
-7772314	check:7772314/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772314	check:7772314/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271			greenfield/eldenring/tests/test_gf_legacy_key_gate.py	test_carian_statue_gates_the_inverted_route_and_not_the_standard_hall
 7772314	check:7772314/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
 7772315		unresolved	critical	all
-7772316	check:7772316/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772316	check:7772316/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271			greenfield/eldenring/tests/test_gf_legacy_key_gate.py	test_carian_statue_gates_the_inverted_route_and_not_the_standard_hall
 7772316	check:7772316/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
-7772317	check:7772317/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772317	check:7772317/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271			greenfield/eldenring/tests/test_gf_legacy_key_gate.py	test_carian_statue_gates_the_inverted_route_and_not_the_standard_hall
 7772317	check:7772317/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
-7772318	check:7772318/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772318	check:7772318/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271			greenfield/eldenring/tests/test_gf_legacy_key_gate.py	test_carian_statue_gates_the_inverted_route_and_not_the_standard_hall
 7772318	check:7772318/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
-7772319	check:7772319/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772319	check:7772319/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271			greenfield/eldenring/tests/test_gf_legacy_key_gate.py	test_carian_statue_gates_the_inverted_route_and_not_the_standard_hall
 7772319	check:7772319/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
-7772320	check:7772320/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772320	check:7772320/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271			greenfield/eldenring/tests/test_gf_legacy_key_gate.py	test_carian_statue_gates_the_inverted_route_and_not_the_standard_hall
 7772320	check:7772320/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
 7772321		unresolved	critical	all
-7772322	check:7772322/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7772322	check:7772322/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271			greenfield/eldenring/tests/test_gf_legacy_key_gate.py	test_carian_statue_gates_the_inverted_route_and_not_the_standard_hall
 7772322	check:7772322/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
 7772323		unresolved	critical	all
 7772324		unresolved	critical	all
@@ -4861,7 +4861,7 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7900215		unresolved	critical	all
 7900216		unresolved	critical	all
 7900217		unresolved	critical	all
-7900218	check:7900218/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271
+7900218	check:7900218/access	encoded	critical	item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false	LegacyKeyGates.set_rules requires the Carian Inverted Statue for this exact inverted-route check; the regression proves the predicate and excludes standard-layout checks.	#1271			greenfield/eldenring/tests/test_gf_legacy_key_gate.py	test_carian_statue_gates_the_inverted_route_and_not_the_standard_hall
 7900218	check:7900218/access	unresolved	critical	not(item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false)
 7900219		unresolved	critical	all
 7900220		unresolved	critical	all
