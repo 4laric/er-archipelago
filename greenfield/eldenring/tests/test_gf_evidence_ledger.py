@@ -57,8 +57,13 @@ class EvidenceLedgerTests(unittest.TestCase):
         schema=json.loads((ROOT/"greenfield"/"evidence"/"SCHEMA.json").read_text())
         self.assertEqual(schema["schema_version"],1)
         self.assertEqual(schema["claim_kinds"],sorted(ledger.CLAIM_KINDS))
+        self.assertEqual(schema["identity_namespaces"], sorted(ledger.IDENTITY_NAMESPACES))
         self.assertEqual(schema["statuses"],sorted(ledger.STATUSES))
         self.assertEqual({k:tuple(v) for k,v in schema["tables"].items()},ledger.HEADERS)
+
+    def test_flag_is_a_first_class_identity_namespace(self):
+        value = {"ap_id": 100, "flag": 200, "namespace": "flag", "id": 200}
+        ledger._typed_value("identity", value, "fixture")
 
     def test_duplicate_active_claim_is_rejected(self):
         with tempfile.TemporaryDirectory() as td:

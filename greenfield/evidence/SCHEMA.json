@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "claim_kinds": ["access", "alternate_acquisition", "description", "detection", "identity", "region", "suppression", "sweep_owner"],
+  "identity_namespaces": ["entity", "flag", "item", "lot", "shop"],
   "risks": ["critical", "high", "low", "medium"],
   "source_kinds": ["external_reference", "game_data", "live_testimony", "project_derivation", "ruling"],
   "stances": ["ambiguous", "contradicts", "silent", "supports"],
