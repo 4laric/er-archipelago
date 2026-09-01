@@ -44,6 +44,31 @@ class EvidenceLedgerTests(unittest.TestCase):
         return dst
 
     @staticmethod
+    def _add_history_claim(
+        directory, *, claim_id="history:100/region", subject_id="100",
+        claim_kind="region", active="false", evidence_id="",
+    ):
+        value = '"""Limgrave"""' if claim_kind == "region" else '{"type":"unknown"}'
+        row = "\t".join([
+            claim_id, "check", subject_id, claim_kind, "1.16", value, "unverified",
+            "high", "automatic", evidence_id, "2026-08-31", "#1238", active,
+        ])
+        path = Path(directory) / "claims.tsv"
+        lines = path.read_text().splitlines()
+        path.write_text(lines[0] + "\n" + "\n".join(sorted(lines[1:] + [row])) + "\n")
+
+    @staticmethod
+    def _link_successor(directory, predecessor):
+        path = Path(directory) / "claims.tsv"
+        lines = path.read_text().splitlines()
+        lines = [
+            line + "\t" + predecessor
+            if line.startswith("check:100/region\t") else line
+            for line in lines
+        ]
+        path.write_text("\n".join(lines) + "\n")
+
+    @staticmethod
     def _copy_live_fixture(directory):
         dst = Path(directory)
         shutil.copytree(LIVE_FIXTURE, dst, dirs_exist_ok=True)
@@ -234,6 +259,63 @@ class EvidenceLedgerTests(unittest.TestCase):
             with self.assertRaisesRegex(ledger.LedgerError, "valid_from is after valid_to"):
                 ledger.validate(dst)
 
+    def test_supersession_cannot_cross_subject_or_claim_kind(self):
+        cases = (("999", "region"), ("100", "access"))
+        for subject_id, claim_kind in cases:
+            with self.subTest(subject_id=subject_id, claim_kind=claim_kind):
+                with tempfile.TemporaryDirectory() as td:
+                    dst = self._copy_status_fixture(td)
+                    predecessor = f"history:{subject_id}/{claim_kind}"
+                    self._add_history_claim(
+                        dst, claim_id=predecessor, subject_id=subject_id,
+                        claim_kind=claim_kind,
+                    )
+                    self._link_successor(dst, predecessor)
+                    with self.assertRaisesRegex(
+                        ledger.LedgerError, "supersedes a different claim identity"
+                    ):
+                        ledger.validate(dst)
+
+    def test_superseded_predecessor_must_be_inactive(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_status_fixture(td)
+            predecessor = "history:100/region"
+            self._add_history_claim(dst, claim_id=predecessor, active="true")
+            self._link_successor(dst, predecessor)
+            with self.assertRaisesRegex(
+                ledger.LedgerError, "superseded predecessor must be inactive"
+            ):
+                ledger.validate(dst)
+
+    def test_valid_cross_version_replacement_preserves_claim_identity(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_status_fixture(td)
+            predecessor = "history:100/region"
+            self._add_history_claim(dst, claim_id=predecessor)
+            self._link_successor(dst, predecessor)
+            result = ledger.validate(dst)
+            self.assertEqual(result.statuses["check:100/region"], "single_source")
+
+    def test_inactive_history_and_evidence_do_not_change_active_summary(self):
+        before = ledger.summary(FIXTURE)
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_status_fixture(td)
+            self._add_history_claim(
+                dst, claim_id="history:999/region", subject_id="999",
+                evidence_id="evidence:history",
+            )
+            evidence = dst / "evidence.tsv"
+            lines = evidence.read_text().splitlines()
+            row = "\t".join([
+                "evidence:history", "history:999/region", "source:a", "supports",
+                '"""Limgrave"""', "data.py historical row 999", "historical adapter",
+                "inactive history", "1.16",
+            ])
+            evidence.write_text(lines[0] + "\n" + "\n".join(sorted(lines[1:] + [row])) + "\n")
+            after = ledger.summary(dst)
+            self.assertEqual(after["by_status"], before["by_status"])
+            self.assertEqual(after["content_hash"], before["content_hash"])
+
     def test_summary_contract_is_deterministic_and_risk_rankable(self):
         first = ledger.summary(FIXTURE); second = ledger.summary(FIXTURE)
         self.assertEqual(first, second)
@@ -261,6 +343,10 @@ class EvidenceLedgerTests(unittest.TestCase):
         )
         self.assertEqual(schema["statuses"],sorted(ledger.STATUSES))
         self.assertEqual(schema["version_policy"]["out_of_version_strength"], "lead")
+        self.assertEqual(
+            schema["claim_supersession"]["preserved_fields"],
+            ["subject_kind", "subject_id", "claim_kind"],
+        )
         self.assertEqual({k:tuple(v) for k,v in schema["tables"].items()},ledger.HEADERS)
 
     def test_flag_is_a_first_class_identity_namespace(self):
