@@ -69,12 +69,15 @@ players, one section per fix, and it is the honest record.
   Great Rune is rolled into one of its slots. What to do: skip that slot; no
   progression is placed there.
 
-- **A check's name can point at the wrong Site of Grace.** 512 checks read
-  `(region unconfirmed)` in their name, and some DLC descriptors name a grace
-  nowhere near the check they describe (#330, #349, #418, #338). Names are
-  derived from the nearest grace we can prove, which near a border is sometimes
-  across the line. What to do: trust the region prefix over the landmark, and
-  use the tracker.
+- **A check's landmark can be approximate even when the check is real.** Some
+  rewards have no world coordinate at all: they come from a script, merchant,
+  boss, or NPC rather than a placed treasure. Their `near <grace>` wording is a
+  navigation hint, not a measured distance. This can produce several genuine
+  checks with the same grace and a `(1)`, `(2)`, and so on suffix (#695). Other
+  descriptors can choose a grace across a region border, and 512 checks say
+  `(region unconfirmed)` explicitly (#330, #349, #418, #338). **What to do:**
+  trust the region prefix and tracker over the landmark. Repeated numbered rows
+  are separate checks, not padding.
 
 ## Client and platform
 
