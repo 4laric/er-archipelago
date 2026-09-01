@@ -27,7 +27,7 @@ SPEC.loader.exec_module(AUDIT)
 
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (8, 9))
+        self.assertEqual(AUDIT.validate(REPO), (10, 11))
 
     def test_lamenter_pilot_preserves_lead_only_scope(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
@@ -110,6 +110,34 @@ class WikiAuditTest(unittest.TestCase):
         self.assertIn("400102\tmap\t101020\t1\t1\t8169\t1\t1", lots)
         self.assertIn("7000879,400102,map_lot,Sellian Sealbreaker,PENDING", regions)
         self.assertNotIn("Sellian Sealbreaker", generated)
+
+    def test_radahn_pilot_keeps_vanilla_routes_disjunctive_and_lead_only(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            leads = {row["lead_id"]: row for row in csv.DictReader(handle, delimiter="\t")}
+        altus = leads["radahn-festival-altus-route"]
+        ranni = leads["radahn-festival-ranni-route"]
+        self.assertEqual((altus["subject_kind"], altus["subject_id"]),
+                         ("boss", "1051360800"))
+        self.assertEqual((altus["claim_kind"], ranni["claim_kind"]),
+                         ("vanilla_access_route", "vanilla_access_route"))
+        self.assertIn("activate_Altus_site_of_grace", altus["normalized_value"])
+        self.assertIn("Ranni_questline_festival_information", ranni["normalized_value"])
+        self.assertNotEqual(altus["normalized_value"], ranni["normalized_value"])
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in (altus, ranni)))
+
+    def test_radahn_report_preserves_ap_region_sufficient_override(self):
+        start_grace = (REPO / "greenfield" / "eldenring" / "features" /
+                       "start_grace.py").read_text(encoding="utf-8")
+        dispositions = (REPO / "greenfield" / "evidence" / "v060-current" /
+                        "access_dispositions.tsv").read_text(encoding="utf-8")
+        claims = (REPO / "greenfield" / "evidence" / "v060-current" /
+                  "claims.tsv").read_text(encoding="utf-8")
+        self.assertIn("_RADAHN_FESTIVAL = 9410", start_grace)
+        self.assertIn("graces.append(_RADAHN_FESTIVAL)", start_grace)
+        self.assertIn("7770002\tcheck:7770002/access\tregion_sufficient", dispositions)
+        self.assertIn("7770665\tcheck:7770665/access\tregion_sufficient", dispositions)
+        self.assertIn('""runtime_bypass"":{""flag"":9410', claims)
 
 
 if __name__ == "__main__":
