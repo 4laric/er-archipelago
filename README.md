@@ -1,27 +1,26 @@
 # Elden Ring for Archipelago
 
-Vanilla game, an apworld, and an MIT-licensed Rust client. Every meaningful item
-pickup in the Lands Between is a check, what you find goes out to the multiworld,
-and your items show up in your inventory mid-session. Works solo too.
+Elden Ring stays vanilla on disk. An apworld defines the randomizer, and an
+MIT-licensed Rust client runs it. Every meaningful pickup is a check: your finds
+go to the multiworld, and your items arrive in your inventory during play. Solo
+runs work the same way.
 
 **The pool is not a vanilla shuffle.** By default a recipe called
-`curated_filler` spends the whole junk end of the pool -- every check that would
-have paid a Rune or a junk consumable -- and puts roughly two fifths of it back
-as real weapons, armor, spells, talismans and Ashes of War. That means vanilla
-items *will* be missing from your seed, and that is the design rather than a
-defect. You do not turn this on; you reweight it. "What fills
-your junk checks" in `Elden-Ring-Archipelago-Player-Guide.md` is the full
-writeup.
+`curated_filler` reallocates every check that would have paid a Rune or junk
+consumable. Roughly two fifths of that space becomes real weapons, armor,
+spells, talismans, and Ashes of War. Vanilla items therefore *will* be missing
+from the seed by design. This recipe is already active; its weights control the
+result. See "What fills your junk checks" in
+`Elden-Ring-Archipelago-Player-Guide.md` for the full explanation.
 
-**Build your yaml at <https://peliarch.ca/er/>**. It's a web page, nothing to
-install. It walks every option and tells you how big your seed is before you
-generate it.
+**Build your yaml at <https://peliarch.ca/er/>**. There is nothing to install.
+The page explains every option and shows the seed size before generation.
 
-Nothing gets patched. The game on disk stays completely vanilla: no game files
-touched, no `regulation.bin` edits, nothing baked per seed. The client is a Rust
-DLL that ModEngine3 loads. It reads the seed layout off the Archipelago server
-when you connect, then does everything live: spotting checks, granting items,
-lighting graces, enforcing region locks.
+Nothing gets patched. The game on disk stays completely vanilla: no edited game
+files, no `regulation.bin` changes, and nothing baked per seed. ModEngine3 loads
+the Rust client DLL. When you connect, it reads the seed layout from the
+Archipelago server and handles checks, item grants, graces, and region locks at
+runtime.
 
 This tree ships no game assets and contains no code or data from any other
 randomizer project. The world is derived from scratch against vanilla game data.
@@ -73,12 +72,12 @@ The options worth knowing about, all documented inline in the shipped
 
 ## Playing it
 
-Start with `release/SETUP.md`. It's about 15 minutes to a running seed:
-Archipelago 0.6.7, the apworld, the client DLL, ModEngine3. Then
-`Elden-Ring-Archipelago-Player-Guide.md` covers how a run actually plays. Every
-real option has a comment next to it in `release/EldenRing.yaml`, and the rough
-edges are in `release/KNOWN-ISSUES.md`. If a run is already stuck, start with
-`release/GETTING-UNSTUCK.md` for the client's built-in rescue console.
+Start with `release/SETUP.md`; it takes about 15 minutes to install Archipelago
+0.6.7, the apworld, the client DLL, and ModEngine3. Then read
+`Elden-Ring-Archipelago-Player-Guide.md` for how a run plays. Every option has a
+comment in `release/EldenRing.yaml`, and `release/KNOWN-ISSUES.md` lists the
+rough edges. If a run is already stuck, `release/GETTING-UNSTUCK.md` explains
+the client's built-in rescue console.
 
 You need Elden Ring on PC (Steam). The DLC only matters if you turn on the DLC
 regions.
