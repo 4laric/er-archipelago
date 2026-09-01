@@ -28,6 +28,7 @@ FAMILY_SOURCE_KINDS = {
     "project:": {"project_derivation", "ruling"},
 }
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2})?(?:Z|[+-]\d{2}:\d{2})?)?$")
+GAME_VERSION = re.compile(r"^\d+(?:\.\d+)*$")
 
 HEADERS = {
     "sources.tsv": ("source_id", "source_kind", "family_id", "title", "game_version", "retrieved_at", "revision", "url_or_path", "license", "environment_id", "supersedes"),
@@ -58,6 +59,30 @@ def _json(raw: str, where: str):
         return json.loads(raw)
     except json.JSONDecodeError as exc:
         raise LedgerError(f"{where}: invalid JSON: {exc.msg}") from exc
+
+def _version(raw: str, where: str, *, allow_unknown: bool = False) -> tuple[int, ...] | None:
+    if allow_unknown and raw == "unknown":
+        return None
+    if not GAME_VERSION.match(raw):
+        raise LedgerError(f"{where}: invalid game version {raw!r}")
+    return tuple(int(part) for part in raw.split("."))
+
+def _evidence_applies(
+    claim: dict[str, str], evidence: dict[str, str], source: dict[str, str]
+) -> bool:
+    claim_version = _version(claim["game_version"], claim["claim_id"])
+    source_version = _version(source["game_version"], source["source_id"], allow_unknown=True)
+    if source_version is None or source_version != claim_version:
+        return False
+    if evidence["valid_from"] and claim_version < _version(
+        evidence["valid_from"], evidence["evidence_id"]
+    ):
+        return False
+    if evidence["valid_to"] and claim_version > _version(
+        evidence["valid_to"], evidence["evidence_id"]
+    ):
+        return False
+    return True
 
 def _typed_value(kind: str, value, where: str) -> None:
     if kind == "region":
@@ -139,6 +164,8 @@ def derive_status(claim: dict[str, str], evidence: list[dict[str, str]], sources
     usable = []
     for row in evidence:
         source = sources[row["source_id"]]
+        if not _evidence_applies(claim, row, source):
+            continue
         if _requires_environment(source) and (
             not source["environment_id"]
             or not _complete_environment(environments[source["environment_id"]])
@@ -162,6 +189,7 @@ def validate(directory: Path) -> Result:
     sources = {r["source_id"]: r for r in tables["sources.tsv"]}; envs = {r["environment_id"]: r for r in tables["environments.tsv"]}
     for sid, row in sources.items():
         if not sid or not row["title"] or not row["game_version"] or not row["revision"] or not row["url_or_path"] or not row["license"]: raise LedgerError(f"{sid or '<blank>'}: incomplete source snapshot")
+        _version(row["game_version"], sid, allow_unknown=True)
         if row["retrieved_at"] and not DATE.match(row["retrieved_at"]): raise LedgerError(f"{sid}: invalid retrieved_at")
         if row["source_kind"] not in SOURCE_KINDS: raise LedgerError(f"{sid}: unknown source_kind")
         if not row["family_id"].startswith(FAMILY_PREFIXES): raise LedgerError(f"{sid}: unknown family_id")
@@ -183,6 +211,7 @@ def validate(directory: Path) -> Result:
     claims = tables["claims.tsv"]; active_keys=set(); claims_by_id={r["claim_id"]:r for r in claims}
     for row in claims:
         cid=row["claim_id"]
+        _version(row["game_version"], cid)
         if row["claim_kind"] not in CLAIM_KINDS or row["risk"] not in RISKS or row["status"] not in STATUSES: raise LedgerError(f"{cid}: unknown claim vocabulary")
         if row["active"] not in {"true", "false"}: raise LedgerError(f"{cid}: active must be true or false")
         if row["value"]: _typed_value(row["claim_kind"], _json(row["value"], cid), cid)
@@ -200,6 +229,10 @@ def validate(directory: Path) -> Result:
         evidence_ids.add(eid)
         if row["claim_id"] not in claims_by_id or row["source_id"] not in sources: raise LedgerError(f"{eid}: dangling claim/source")
         if row["stance"] not in STANCES or not row["citation"].strip() or not row["method"].strip(): raise LedgerError(f"{eid}: invalid stance/citation/method")
+        valid_from = _version(row["valid_from"], eid) if row["valid_from"] else None
+        valid_to = _version(row["valid_to"], eid) if row["valid_to"] else None
+        if valid_from and valid_to and valid_from > valid_to:
+            raise LedgerError(f"{eid}: valid_from is after valid_to")
         source = sources[row["source_id"]]
         if _requires_environment(source) and not _citation_names_revision(
             row["citation"], source["revision"]
