@@ -38,11 +38,10 @@ class WikiAuditTest(unittest.TestCase):
             "external_disposition": "lead_only",
             "silence_is_evidence": False,
         })
-        self.assertEqual(queue["counts"]["leads"], 15)
-        self.assertEqual(queue["counts"]["exact_check_linked_leads"], 9)
+        self.assertEqual(queue["counts"]["leads"], 16)
+        self.assertEqual(queue["counts"]["exact_check_linked_leads"], 10)
         self.assertEqual(queue["counts"]["unbound_leads"], 6)
-        self.assertEqual(queue["uncovered_high_risk_targets"], [
-            "warp-only-access"])
+        self.assertEqual(queue["uncovered_high_risk_targets"], [])
         self.assertEqual(queue["contradictions"], [])
         self.assertTrue(all(
             row["disposition"] == "lead_only"
@@ -56,6 +55,8 @@ class WikiAuditTest(unittest.TestCase):
         unbound = {row["lead_id"]: row for row in queue["unbound_leads"]}
         self.assertEqual(len(linked["carian-study-hall-standard-route"]["check_ids"]), 5)
         self.assertEqual(len(linked["carian-study-hall-inverted-route"]["check_ids"]), 10)
+        self.assertEqual(linked["chapel-anticipation-return-route"]["check_ids"],
+                         ["7770913", "7770914", "7773786", "7900113"])
         self.assertIn("radahn-festival-altus-route", unbound)
         self.assertIn("radahn-festival-ranni-route", unbound)
 

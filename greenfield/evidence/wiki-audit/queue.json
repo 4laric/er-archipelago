@@ -3,13 +3,13 @@
   "counts": {
     "contradictions": 0,
     "covered_targets": 0,
-    "exact_check_linked_leads": 9,
+    "exact_check_linked_leads": 10,
     "gaps": 7,
-    "leads": 15,
-    "partial_targets": 6,
+    "leads": 16,
+    "partial_targets": 7,
     "targets": 7,
     "unbound_leads": 6,
-    "uncovered_targets": 1
+    "uncovered_targets": 0
   },
   "exact_check_linked_leads": [
     {
@@ -42,6 +42,18 @@
       "disposition": "lead_only",
       "game_version": "unknown",
       "lead_id": "carian-study-hall-standard-route"
+    },
+    {
+      "check_ids": [
+        "7770913",
+        "7770914",
+        "7773786",
+        "7900113"
+      ],
+      "claim_kind": "access_partition",
+      "disposition": "lead_only",
+      "game_version": "unknown",
+      "lead_id": "chapel-anticipation-return-route"
     },
     {
       "check_ids": [
@@ -151,10 +163,10 @@
       "target_id": "transformed-areas"
     },
     {
-      "kind": "coverage",
-      "next_evidence": "Start with known teleporter and trap routes; record destination-side check IDs and alternatives separately.",
+      "kind": "runtime_predicate",
+      "next_evidence": "Mine the sending-gate predicate and continue with other teleporter and trap routes, keeping each destination's alternatives separate.",
       "priority": "critical",
-      "summary": "No normalized external lead in the current registry covers one-way entrances or checks reachable only through a warp.",
+      "summary": "The Four Belfries return route is linked to four Chapel checks, but the sources provide route guidance rather than a v1.17 event predicate and do not cover other one-way or warp-only destinations.",
       "target_id": "warp-only-access"
     }
   ],
@@ -275,14 +287,21 @@
       "target_id": "transformed-areas"
     },
     {
-      "coverage": "uncovered",
-      "expected_check_ids": [],
+      "coverage": "partial",
+      "expected_check_ids": [
+        "7770913",
+        "7770914",
+        "7773786",
+        "7900113"
+      ],
       "gap": {
-        "kind": "coverage",
-        "next_evidence": "Start with known teleporter and trap routes; record destination-side check IDs and alternatives separately.",
-        "summary": "No normalized external lead in the current registry covers one-way entrances or checks reachable only through a warp."
+        "kind": "runtime_predicate",
+        "next_evidence": "Mine the sending-gate predicate and continue with other teleporter and trap routes, keeping each destination's alternatives separate.",
+        "summary": "The Four Belfries return route is linked to four Chapel checks, but the sources provide route guidance rather than a v1.17 event predicate and do not cover other one-way or warp-only destinations."
       },
-      "lead_ids": [],
+      "lead_ids": [
+        "chapel-anticipation-return-route"
+      ],
       "priority": "critical",
       "regression_class": "one_way_or_warp_only_route",
       "target_id": "warp-only-access"
@@ -338,7 +357,5 @@
       "subject_kind": "game_item"
     }
   ],
-  "uncovered_high_risk_targets": [
-    "warp-only-access"
-  ]
+  "uncovered_high_risk_targets": []
 }

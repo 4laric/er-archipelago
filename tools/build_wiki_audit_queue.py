@@ -24,6 +24,7 @@ GAP_KINDS = {
     "check_partition",
     "coverage",
     "prerequisite_chain",
+    "runtime_predicate",
 }
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT = os.path.join(REPO, "greenfield", "evidence", "wiki-audit", "queue.json")
