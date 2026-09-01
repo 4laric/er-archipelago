@@ -83,9 +83,8 @@ def _load_flag_region_overrides(path: Path) -> tuple[dict[int, dict], int]:
 
 
 def _source_records(repo: Path, data_path: Path, override_path: Path, stamp: Mapping[str, str]):
-    inputs_hash = str(stamp["inputs_hash"])
     body_hash = str(stamp["body_sha256"])
-    family_id = f"project:current-locations:{inputs_hash.removeprefix('sha256:')}"
+    family_id = f"project:current-locations:{body_hash.removeprefix('sha256:')}"
     generated_id = f"project:data.py:{body_hash.removeprefix('sha256:')}"
     override_hash = _sha256(override_path)
     override_id = f"project:region-overrides:{override_hash.removeprefix('sha256:')}"
@@ -112,7 +111,7 @@ def _source_records(repo: Path, data_path: Path, override_path: Path, stamp: Map
     sources.sort(key=lambda row: row["source_id"])
     return sources, {
         "family_id": family_id, "generated_id": generated_id, "override_id": override_id,
-        "inputs_hash": inputs_hash, "body_hash": body_hash, "override_hash": override_hash,
+        "body_hash": body_hash, "override_hash": override_hash,
     }
 
 
