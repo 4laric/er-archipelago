@@ -8,13 +8,24 @@ import os
 import tempfile
 import unittest
 
+try:
+    from ._util import find_repo_root, REPO_ONLY_REASON
+except ImportError:
+    import sys
 
-REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _util import find_repo_root, REPO_ONLY_REASON
+
+REPO = find_repo_root(__file__)
+RUNNING_FROM_REPO = REPO is not None
+REPO = REPO or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOL = os.path.join(REPO, "tools", "check_evidence_baseline.py")
-SPEC = importlib.util.spec_from_file_location("_check_evidence_baseline", TOOL)
-baseline = importlib.util.module_from_spec(SPEC)
-assert SPEC.loader is not None
-SPEC.loader.exec_module(baseline)
+baseline = None
+if RUNNING_FROM_REPO:
+    SPEC = importlib.util.spec_from_file_location("_check_evidence_baseline", TOOL)
+    baseline = importlib.util.module_from_spec(SPEC)
+    assert SPEC.loader is not None
+    SPEC.loader.exec_module(baseline)
 
 
 def _summary(**changes):
@@ -75,6 +86,7 @@ def _summary(**changes):
     return value
 
 
+@unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class EvidenceBaselineValidation(unittest.TestCase):
     def test_accepts_complete_consistent_summary(self):
         self.assertEqual(4, baseline.validate_summary(_summary())["claims_total"])
