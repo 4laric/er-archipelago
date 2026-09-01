@@ -14,6 +14,7 @@
     "check:7770665/access",
     "check:7770673/access",
     "check:7771152/access",
+    "check:7771810/access",
     "check:7772312/access",
     "check:7772313/access",
     "check:7772314/access",
@@ -27,12 +28,14 @@
     "check:7773656/access",
     "check:7900218/access"
   ],
-  "release_blockers": 4920,
+  "release_blockers": 4919,
   "resolved_dispositions": {
     "7770002|all": "region_sufficient",
     "7770665|all": "region_sufficient",
     "7770673|item_shuffle=true,jagged_peak=kept,legacy_dungeon_keys=true,vanilla_placement=false": "encoded",
     "7771152|all": "region_sufficient",
+    "7771810|stagefront_fragment_swept=false": "encoded",
+    "7771810|stagefront_fragment_swept=true": "encoded",
     "7772312|item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false": "encoded",
     "7772313|item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false": "encoded",
     "7772314|item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false": "encoded",
@@ -47,6 +50,6 @@
     "7900218|item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false": "encoded"
   },
   "schema_version": 1,
-  "unresolved": 4920,
-  "without_access_claim": 4898
+  "unresolved": 4919,
+  "without_access_claim": 4897
 }
