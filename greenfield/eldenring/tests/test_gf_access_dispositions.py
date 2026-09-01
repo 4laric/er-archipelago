@@ -36,16 +36,17 @@ class AccessDispositionTests(unittest.TestCase):
             schema["access_dispositions"]["values"], sorted(access.DISPOSITIONS)
         )
 
-    def test_current_census_is_complete_and_honestly_unresolved(self):
+    def test_current_census_is_complete_with_two_proven_radahn_checks(self):
         value = access.summary(LEDGER, DISPOSITIONS)
         self.assertEqual(value["checks_total"], 4923)
         self.assertEqual(value["dispositions_total"], value["checks_total"])
-        self.assertEqual(value["by_disposition"]["unresolved"], value["checks_total"])
-        self.assertEqual(value["by_risk"]["critical"]["unresolved"], value["checks_total"])
-        self.assertEqual(value["by_option_set"]["all"]["unresolved"], value["checks_total"])
-        self.assertEqual(value["release_blockers"], value["checks_total"])
-        self.assertEqual(value["with_access_claim"], 9)
-        self.assertEqual(value["without_access_claim"], 4914)
+        self.assertEqual(value["by_disposition"]["region_sufficient"], 2)
+        self.assertEqual(value["by_disposition"]["unresolved"], value["checks_total"] - 2)
+        self.assertEqual(value["by_risk"]["critical"]["region_sufficient"], 2)
+        self.assertEqual(value["by_option_set"]["all"]["region_sufficient"], 2)
+        self.assertEqual(value["release_blockers"], value["checks_total"] - 2)
+        self.assertEqual(value["with_access_claim"], 11)
+        self.assertEqual(value["without_access_claim"], 4912)
 
     def test_checked_in_summary_is_an_exact_drift_gate(self):
         generated = access.summary(LEDGER, DISPOSITIONS)
