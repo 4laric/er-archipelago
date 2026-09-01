@@ -8,14 +8,29 @@ import tempfile
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[3]
-TOOL = ROOT / "tools" / "evidence_ledger.py"
-FIXTURE = ROOT / "greenfield" / "evidence" / "fixtures" / "status_engine"
-spec = importlib.util.spec_from_file_location("evidence_ledger", TOOL)
-ledger = importlib.util.module_from_spec(spec)
-sys.modules[spec.name] = ledger
-spec.loader.exec_module(ledger)
+try:  # package-relative under pytest; plain path when run directly
+    from ._util import REPO_ONLY_REASON, find_repo_root
+except ImportError:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from _util import REPO_ONLY_REASON, find_repo_root
 
+_FOUND = find_repo_root(str(Path(__file__).resolve()))
+RUNNING_FROM_REPO = _FOUND is not None
+ROOT = Path(_FOUND) if _FOUND else None
+TOOL = ROOT / "tools" / "evidence_ledger.py" if ROOT else None
+FIXTURE = (
+    ROOT / "greenfield" / "evidence" / "fixtures" / "status_engine"
+    if ROOT
+    else None
+)
+ledger = None
+if RUNNING_FROM_REPO:
+    spec = importlib.util.spec_from_file_location("evidence_ledger", TOOL)
+    ledger = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = ledger
+    spec.loader.exec_module(ledger)
+
+@unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class EvidenceLedgerTests(unittest.TestCase):
     def test_real_failure_shapes_derive_honest_statuses(self):
         result = ledger.validate(FIXTURE)
