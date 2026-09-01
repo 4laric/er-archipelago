@@ -141,6 +141,11 @@ GENERATORS = [
     # root did not move" would otherwise be witnessed by nothing.
     "artifacts_path",
     "regen_all",
+    # The v0.6 evidence census baseline compares a generated summary against reviewed repo bytes.
+    # Both the comparator under tools/ and the future baseline under greenfield/evidence/ are
+    # intentionally absent from the installed world, so this AP-free suite belongs here rather
+    # than skipping dark in every test shard (#1213).
+    "evidence_baseline",
 ]
 
 # Suites that run in the `tests` job (installed world + ensured artifacts + client at the gitlink).
