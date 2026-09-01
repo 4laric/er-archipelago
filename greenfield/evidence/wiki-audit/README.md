@@ -121,8 +121,10 @@ python tools/build_evidence_browser.py
 
 ## PowerPyx regional coverage
 
-`powerpyx-check-leads.tsv` is a second, source-independent corpus pass over three immutable
-PowerPyx regional walkthrough captures: Limgrave, Liurnia, and Raya Lucaria Academy. The builder
+`powerpyx-check-leads.tsv` is a second, source-independent corpus pass over fifteen immutable
+PowerPyx regional walkthrough captures. It covers Ainsel River, Caelid, Caria Manor, Deeproot
+Depths, Haligtree, Leyndell, Limgrave, Liurnia, Mohgwyn Palace, Mountaintops of the Giants, Raya
+Lucaria Academy, Siofra River, Stormveil Castle, Volcano Manor, and Weeping Peninsula. The builder
 accepts only the registered SHA-256 bodies. It emits a binding only when an exact item name occurs
 in exactly one article block and names exactly one current AP check in that page's declared region.
 Each citation retains the article heading, block ordinal, and a digest of that normalized block;
@@ -133,7 +135,7 @@ rows are `lead_only` and `game_version=unknown`: PowerPyx is independent of Redm
 between old walkthroughs still cannot prove a v1.17 event predicate, access rule, route order, or
 absence of another acquisition.
 
-Reproduce with the three capture bodies named in `tools/build_powerpyx_check_leads.py`:
+Reproduce with the capture bodies named in `tools/build_powerpyx_check_leads.py`:
 
 ```bash
 python tools/build_powerpyx_check_leads.py /path/to/powerpyx-captures

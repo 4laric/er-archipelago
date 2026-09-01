@@ -58,7 +58,7 @@ POWERPYX_SPEC.loader.exec_module(POWERPYX_AUDIT)
 
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (24, 16))
+        self.assertEqual(AUDIT.validate(REPO), (36, 16))
 
     def test_broad_walkthrough_check_leads_validate(self):
         self.assertEqual(WALKTHROUGH_AUDIT.main(), 0)
