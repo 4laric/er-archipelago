@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 CLAIM_KINDS = {"identity", "region", "access", "detection", "suppression", "sweep_owner", "alternate_acquisition", "description"}
+IDENTITY_NAMESPACES = {"item", "lot", "shop", "entity", "flag"}
 SOURCE_KINDS = {"game_data", "external_reference", "live_testimony", "project_derivation", "ruling"}
 STANCES = {"supports", "contradicts", "silent", "ambiguous"}
 STATUSES = {"proven", "corroborated", "single_source", "conflicted", "inferred", "unverified"}
@@ -55,7 +56,7 @@ def _typed_value(kind: str, value, where: str) -> None:
     if kind == "region":
         if not isinstance(value, str) or not value.strip(): raise LedgerError(f"{where}: region must be a non-empty string")
     elif kind == "identity":
-        if not isinstance(value, dict) or not isinstance(value.get("ap_id"), int) or not isinstance(value.get("flag"), int) or value.get("namespace") not in {"item", "lot", "shop", "entity"} or not isinstance(value.get("id"), int): raise LedgerError(f"{where}: invalid identity value")
+        if not isinstance(value, dict) or not isinstance(value.get("ap_id"), int) or not isinstance(value.get("flag"), int) or value.get("namespace") not in IDENTITY_NAMESPACES or not isinstance(value.get("id"), int): raise LedgerError(f"{where}: invalid identity value")
     elif kind == "access":
         if not isinstance(value, dict) or value.get("type") not in {"unknown", "all", "any", "flag", "item", "region", "event"}: raise LedgerError(f"{where}: invalid access expression")
     elif kind == "detection":
