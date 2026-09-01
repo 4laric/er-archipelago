@@ -2,16 +2,16 @@
   "by_disposition": {
     "encoded": 0,
     "excluded": 0,
-    "region_sufficient": 0,
-    "unresolved": 4923,
+    "region_sufficient": 2,
+    "unresolved": 4921,
     "waived": 0
   },
   "by_option_set": {
     "all": {
       "encoded": 0,
       "excluded": 0,
-      "region_sufficient": 0,
-      "unresolved": 4923,
+      "region_sufficient": 2,
+      "unresolved": 4921,
       "waived": 0
     }
   },
@@ -19,8 +19,8 @@
     "critical": {
       "encoded": 0,
       "excluded": 0,
-      "region_sufficient": 0,
-      "unresolved": 4923,
+      "region_sufficient": 2,
+      "unresolved": 4921,
       "waived": 0
     },
     "high": {
@@ -46,10 +46,10 @@
     }
   },
   "checks_total": 4923,
-  "content_hash": "9c066db17e64439d46051f47eee30602d6caaabf47031943445fdefb954023de",
+  "content_hash": "71c0990f35b83720afac64d7a9087dc1a968ba99986846fa9b9c6bdad3b44761",
   "dispositions_total": 4923,
-  "release_blockers": 4923,
+  "release_blockers": 4921,
   "schema_version": 1,
-  "with_access_claim": 9,
-  "without_access_claim": 4914
+  "with_access_claim": 11,
+  "without_access_claim": 4912
 }

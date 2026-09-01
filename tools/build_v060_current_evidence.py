@@ -25,6 +25,8 @@ import evidence_ledger
 
 REVIEW_DATE = "2026-08-31"
 GAME_VERSION = "1.17"
+RADAHN_ACCESS_AP_IDS = (7770002, 7770665)
+RADAHN_FESTIVAL_FLAG = 9410
 
 
 def _json(value: object) -> str:
@@ -407,6 +409,19 @@ def build_records(repo: Path) -> dict:
     frenzied_flame_seal_access = _load_frenzied_flame_seal_access(lot_gates_path)
     witch_crown_access = _load_witch_crown_access(lot_gates_path)
     sources, source = _source_records(repo, data_path, override_path, lot_path, stamp)
+    start_grace_path = repo / "greenfield" / "eldenring" / "features" / "start_grace.py"
+    start_grace_hash = _sha256(start_grace_path)
+    radahn_source_id = (
+        f"project:radahn-start-flag:{start_grace_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": radahn_source_id, "source_kind": "ruling",
+        "family_id": "project:radahn-access-ruling",
+        "title": "Archipelago Radahn Festival start-flag bypass",
+        "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+        "revision": start_grace_hash,
+        "url_or_path": "greenfield/eldenring/features/start_grace.py",
+        "license": "project-derived", "environment_id": "", "supersedes": "",
+    })
     lot_gates_hash = _sha256(lot_gates_path)
     lot_gates_source_id = (
         f"game:emevd-lot-gates:m60_41_38_00:{lot_gates_hash.removeprefix('sha256:')}")
@@ -998,6 +1013,50 @@ def build_records(repo: Path) -> dict:
         "supersedes": "",
     })
 
+    # AP does not model the three vanilla Radahn Festival routes as item/quest logic. The client
+    # receives f9410 unconditionally through startGraces, so reaching the owning Caelid region is
+    # sufficient for both progression-bearing Radahn rewards under every supported option set.
+    radahn_value = {
+        "type": "region", "region": "Caelid",
+        "runtime_bypass": {"type": "start_flag", "flag": RADAHN_FESTIVAL_FLAG},
+    }
+    location_by_ap_id = {row["ap_id"]: row for row in locations}
+    for ap_id in RADAHN_ACCESS_AP_IDS:
+        location = location_by_ap_id.get(ap_id)
+        if location is None or location["region"] != "Caelid":
+            raise RuntimeError(f"Radahn access subject changed: ap_id={ap_id} row={location!r}")
+        claim_id = f"check:{ap_id}/access"
+        evidence_id = f"project:radahn-start-flag:f9410:check-{ap_id}:access"
+        evidence.append({
+            "evidence_id": evidence_id, "claim_id": claim_id,
+            "source_id": radahn_source_id, "stance": "supports",
+            "value": _json(radahn_value),
+            "citation": (
+                "greenfield/eldenring/features/start_grace.py:StartGrace.slot_data "
+                "appends _RADAHN_FESTIVAL=9410 unconditionally; "
+                "greenfield/eldenring/tests/test_gf_features_smoke.py:"
+                "FeaturesSmoke.test_radahn_festival_flag_force_set"
+            ),
+            "method": "tools/build_v060_current_evidence.py:radahn_start_flag_access",
+            "independence_notes": (
+                "The regression test checks the same project runtime path and is not an "
+                "independent witness; this is an explicit project access ruling."
+            ),
+            "valid_from": GAME_VERSION, "valid_to": "",
+            "notes": (
+                "The unconditional spawn flag discharges the vanilla Mistwood, Ranni's Rise, "
+                "and story-flag alternatives; no additional AP item or quest predicate remains."
+            ),
+        })
+        claims.append({
+            "claim_id": claim_id, "subject_kind": "check", "subject_id": str(ap_id),
+            "claim_kind": "access", "game_version": GAME_VERSION,
+            "value": _json(radahn_value), "status": "proven", "risk": "critical",
+            "adjudication": "design_ruling", "evidence_ids": evidence_id,
+            "last_reviewed": "2026-09-01", "review_issue": "#1271", "active": "true",
+            "supersedes": "",
+        })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -1033,6 +1092,7 @@ def build_records(repo: Path) -> dict:
             "ijis_bell_bearing_access_claims": 1,
             "frenzied_flame_seal_access_claims": 1,
             "witch_crown_access_claims": 1,
+            "radahn_access_claims": len(RADAHN_ACCESS_AP_IDS),
         },
     }
 

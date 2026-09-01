@@ -115,6 +115,25 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
         self.assertTrue(all("event=90005750" in row["citation"] and
                             "commonarg/WaitFor" in row["citation"] for row in rows))
 
+    def test_radahn_access_is_region_only_because_festival_is_force_started(self):
+        claims = {row["claim_id"]: row for row in self.bundle["claims"]}
+        evidence = {row["evidence_id"]: row for row in self.bundle["evidence"]}
+        for ap_id in self.adapter.RADAHN_ACCESS_AP_IDS:
+            claim = claims[f"check:{ap_id}/access"]
+            self.assertEqual(json.loads(claim["value"]), {
+                "region": "Caelid",
+                "runtime_bypass": {"flag": 9410, "type": "start_flag"},
+                "type": "region",
+            })
+            self.assertEqual(
+                (claim["status"], claim["risk"], claim["adjudication"], claim["review_issue"]),
+                ("proven", "critical", "design_ruling", "#1271"),
+            )
+            row = evidence[claim["evidence_ids"]]
+            self.assertIn("appends _RADAHN_FESTIVAL=9410 unconditionally", row["citation"])
+            self.assertIn("no additional AP item or quest predicate", row["notes"])
+        self.assertEqual(self.bundle["diagnostics"]["radahn_access_claims"], 2)
+
     def test_perfect_order_access_is_one_exact_emevd_witness(self):
         claim = next(row for row in self.bundle["claims"]
                      if row["claim_id"] == "check:7770008/access")
