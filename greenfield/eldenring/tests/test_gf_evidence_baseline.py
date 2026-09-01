@@ -68,7 +68,7 @@ def _summary(**changes):
             },
             "low": {status: 0 for status in baseline.STATUSES},
         },
-        "active_conflicts": 1,
+        "active_conflicts": ["check:region/3"],
         "content_hash": "a" * 64,
     }
     value.update(changes)
@@ -104,7 +104,7 @@ class EvidenceBaselineValidation(unittest.TestCase):
 
     def test_conflict_counter_is_not_an_independent_claim(self):
         with self.assertRaisesRegex(baseline.BaselineError, "active_conflicts"):
-            baseline.validate_summary(_summary(active_conflicts=0))
+            baseline.validate_summary(_summary(active_conflicts=[]))
 
     def test_compare_reports_every_changed_aggregate_and_hash(self):
         old = baseline.validate_summary(_summary())
@@ -115,7 +115,7 @@ class EvidenceBaselineValidation(unittest.TestCase):
         new_raw["by_kind"]["region"]["proven"] = 1
         new_raw["by_risk"]["high"]["conflicted"] = 0
         new_raw["by_risk"]["high"]["proven"] = 1
-        new_raw["active_conflicts"] = 0
+        new_raw["active_conflicts"] = []
         new = baseline.validate_summary(new_raw)
         fields = [line.split(":", 1)[0] for line in baseline.compare(new, old)]
         self.assertEqual(

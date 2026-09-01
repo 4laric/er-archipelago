@@ -134,9 +134,16 @@ def validate_summary(raw: object) -> dict[str, object]:
     if folded_risk_status != by_status:
         raise BaselineError("by_risk status totals do not agree with by_status")
 
-    conflicts = _non_negative_int(raw["active_conflicts"], "active_conflicts")
-    if conflicts != by_status["conflicted"]:
-        raise BaselineError("active_conflicts must equal by_status.conflicted")
+    conflicts_raw = raw["active_conflicts"]
+    if not isinstance(conflicts_raw, list) or not all(
+        isinstance(claim_id, str) and claim_id for claim_id in conflicts_raw
+    ):
+        raise BaselineError("active_conflicts must be a list of non-empty claim ids")
+    conflicts = sorted(set(conflicts_raw))
+    if conflicts != conflicts_raw:
+        raise BaselineError("active_conflicts must be sorted and unique")
+    if len(conflicts) != by_status["conflicted"]:
+        raise BaselineError("active_conflicts count must equal by_status.conflicted")
 
     content_hash = raw["content_hash"]
     if not isinstance(content_hash, str) or len(content_hash) != 64:
@@ -225,7 +232,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print(
         "evidence baseline: OK -- "
-        f"{current['claims_total']} claims, {current['active_conflicts']} active conflicts"
+        f"{current['claims_total']} claims, {len(current['active_conflicts'])} active conflicts"
     )
     return 0
 
