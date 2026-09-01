@@ -288,6 +288,33 @@ def _load_ijis_bell_bearing_access(path: Path) -> dict[str, object]:
     return matches[0]
 
 
+def _load_frenzied_flame_seal_access(path: Path) -> dict[str, object]:
+    """Load f400089's immediate WaitFor without expanding it into Hyetta's quest."""
+    matches = []
+    with path.open(encoding="utf-8", newline="") as handle:
+        header = ""
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip() or line.startswith("#"):
+                continue
+            if not header:
+                header = line
+                continue
+            row = next(csv.DictReader([header, line], delimiter="\t"))
+            if row["check_flag"] != "400089" or row["context"] != "commonarg/WaitFor":
+                continue
+            matches.append({
+                "line": line_number, "gate_flag": int(row["gate_flag"]),
+                "context": row["context"], "event_id": int(row["event_id"]),
+                "source": row["source"], "evidence": row["evidence"],
+                "gate_test_map": row["gate_test_map"],
+            })
+    if len(matches) != 1 or matches[0]["gate_flag"] != 35009211:
+        raise RuntimeError(f"f400089 WaitFor corpus changed: {matches!r}")
+    if matches[0]["event_id"] != 90005750:
+        raise RuntimeError(f"f400089 WaitFor event changed: {matches!r}")
+    return matches[0]
+
+
 def _source_records(
         repo: Path, data_path: Path, override_path: Path, lot_path: Path,
         stamp: Mapping[str, str]):
@@ -350,6 +377,7 @@ def build_records(repo: Path) -> dict:
     taunters_tongue_access = _load_taunters_tongue_access(lot_gates_path)
     purifying_tear_access = _load_purifying_tear_access(lot_gates_path)
     ijis_bell_bearing_access = _load_ijis_bell_bearing_access(lot_gates_path)
+    frenzied_flame_seal_access = _load_frenzied_flame_seal_access(lot_gates_path)
     sources, source = _source_records(repo, data_path, override_path, lot_path, stamp)
     lot_gates_hash = _sha256(lot_gates_path)
     lot_gates_source_id = (
@@ -368,6 +396,16 @@ def build_records(repo: Path) -> dict:
         "source_id": ijis_bell_bearing_source_id, "source_kind": "game_data",
         "family_id": "game:emevd:m60_34_49_00:90005750",
         "title": "Iji's Bell Bearing f400240 immediate WaitFor call site",
+        "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
+        "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
+        "license": "private-evidence", "environment_id": "", "supersedes": "",
+    })
+    frenzied_flame_seal_source_id = (
+        f"game:emevd-lot-gates:m35_00_00_00:{lot_gates_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": frenzied_flame_seal_source_id, "source_kind": "game_data",
+        "family_id": "game:emevd:m35_00_00_00:90005750",
+        "title": "Frenzied Flame Seal f400089 immediate WaitFor call site",
         "game_version": GAME_VERSION, "retrieved_at": REVIEW_DATE,
         "revision": lot_gates_hash, "url_or_path": "greenfield/lot_gates.tsv",
         "license": "private-evidence", "environment_id": "", "supersedes": "",
@@ -835,6 +873,51 @@ def build_records(repo: Path) -> dict:
         "supersedes": "",
     })
 
+    frenzied_flame_seal = [row for row in locations if row["flag"] == 400089]
+    if len(frenzied_flame_seal) != 1:
+        raise RuntimeError(f"expected one current f400089 check, found {frenzied_flame_seal!r}")
+    frenzied_flame_seal_ap_id = frenzied_flame_seal[0]["ap_id"]
+    frenzied_flame_seal_claim_id = f"check:{frenzied_flame_seal_ap_id}/access"
+    frenzied_flame_seal_value = {
+        "type": "flag", "flag": frenzied_flame_seal_access["gate_flag"]}
+    frenzied_flame_seal_evidence_id = (
+        "game:emevd:m35_00_00_00:90005750:f400089:gate-35009211:access")
+    evidence.append({
+        "evidence_id": frenzied_flame_seal_evidence_id,
+        "claim_id": frenzied_flame_seal_claim_id,
+        "source_id": frenzied_flame_seal_source_id, "stance": "supports",
+        "value": _json(frenzied_flame_seal_value),
+        "citation": (
+            f"greenfield/lot_gates.tsv:{frenzied_flame_seal_access['line']} check_flag=400089 "
+            f"gate_flag=35009211; {frenzied_flame_seal_access['source']} "
+            f"event={frenzied_flame_seal_access['event_id']} "
+            f"{frenzied_flame_seal_access['context']} "
+            f"{frenzied_flame_seal_access['evidence']} "
+            f"{frenzied_flame_seal_access['gate_test_map']}"
+        ),
+        "method": "tools/build_v060_current_evidence.py:frenzied_flame_seal_immediate_waitfor",
+        "independence_notes": (
+            "The one immediate WaitFor call is one EMEVD family; the f400089 association is "
+            "joined through ItemLotParam/flag_lots and is not independent detection evidence. "
+            "The questline DAG and condition cone are correlated projections of this family."
+        ),
+        "valid_from": GAME_VERSION, "valid_to": "",
+        "notes": (
+            "Immediate positive f35009211 prerequisite only; this does not prove the complete "
+            "Hyetta or Frenzied Flame quest, and does not describe the Archipelago Mohg, the "
+            "Omen boss-sweep alternate."
+        ),
+    })
+    claims.append({
+        "claim_id": frenzied_flame_seal_claim_id, "subject_kind": "check",
+        "subject_id": str(frenzied_flame_seal_ap_id), "claim_kind": "access",
+        "game_version": GAME_VERSION, "value": _json(frenzied_flame_seal_value),
+        "status": "single_source", "risk": "critical", "adjudication": "automatic",
+        "evidence_ids": frenzied_flame_seal_evidence_id,
+        "last_reviewed": REVIEW_DATE, "review_issue": "#1264", "active": "true",
+        "supersedes": "",
+    })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -868,6 +951,7 @@ def build_records(repo: Path) -> dict:
             "taunters_tongue_access_claims": 1,
             "purifying_tear_access_claims": 1,
             "ijis_bell_bearing_access_claims": 1,
+            "frenzied_flame_seal_access_claims": 1,
         },
     }
 
