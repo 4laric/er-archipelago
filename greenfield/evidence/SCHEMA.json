@@ -17,6 +17,12 @@
   "source_kinds": ["external_reference", "game_data", "live_testimony", "project_derivation", "ruling"],
   "stances": ["ambiguous", "contradicts", "silent", "supports"],
   "statuses": ["conflicted", "corroborated", "inferred", "proven", "single_source", "unverified"],
+  "version_policy": {
+    "claim": "exact numeric game version",
+    "evidence": "same source version and inside valid_from/valid_to",
+    "out_of_version_strength": "lead",
+    "source": "numeric game version or unknown"
+  },
   "tables": {
     "claims.tsv": ["claim_id", "subject_kind", "subject_id", "claim_kind", "game_version", "value", "status", "risk", "adjudication", "evidence_ids", "last_reviewed", "review_issue", "active", "supersedes"],
     "environments.tsv": ["environment_id", "game_version", "dlc_version", "apworld_version", "client_version", "seed_id", "yaml_options", "launcher", "mods", "regulation", "save_provenance", "reproduction_steps", "result", "artifact_hashes", "artifact_location"],

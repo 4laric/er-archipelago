@@ -38,6 +38,12 @@ if RUNNING_FROM_REPO:
 @unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class EvidenceLedgerTests(unittest.TestCase):
     @staticmethod
+    def _copy_status_fixture(directory):
+        dst = Path(directory)
+        shutil.copytree(FIXTURE, dst, dirs_exist_ok=True)
+        return dst
+
+    @staticmethod
     def _copy_live_fixture(directory):
         dst = Path(directory)
         shutil.copytree(LIVE_FIXTURE, dst, dirs_exist_ok=True)
@@ -102,20 +108,21 @@ class EvidenceLedgerTests(unittest.TestCase):
     def test_incomplete_runtime_probe_cannot_make_high_risk_claim_proven(self):
         claim = {
             "claim_id": "check:1/region", "value": '"Limgrave"',
-            "adjudication": "automatic", "risk": "high",
+            "game_version": "1.17", "adjudication": "automatic", "risk": "high",
         }
         evidence = [
-            {"evidence_id": "runtime", "source_id": "runtime", "stance": "supports", "value": '"Limgrave"'},
-            {"evidence_id": "reference", "source_id": "reference", "stance": "supports", "value": '"Limgrave"'},
+            {"evidence_id": "runtime", "source_id": "runtime", "stance": "supports", "value": '"Limgrave"', "valid_from": "1.17", "valid_to": ""},
+            {"evidence_id": "reference", "source_id": "reference", "stance": "supports", "value": '"Limgrave"', "valid_from": "1.17", "valid_to": ""},
         ]
         sources = {
             "runtime": {
                 "source_kind": "game_data", "family_id": "game:runtime:env:run-1",
-                "environment_id": "env:run-1",
+                "environment_id": "env:run-1", "game_version": "1.17",
+                "source_id": "runtime",
             },
             "reference": {
                 "source_kind": "external_reference", "family_id": "reference:wiki:revision",
-                "environment_id": "",
+                "environment_id": "", "game_version": "1.17", "source_id": "reference",
             },
         }
         environment = {key: "" for key in ledger.HEADERS["environments.tsv"]}
@@ -130,20 +137,21 @@ class EvidenceLedgerTests(unittest.TestCase):
     def test_reproducible_runtime_probe_and_independent_family_can_prove(self):
         claim = {
             "claim_id": "check:1/region", "value": '"Limgrave"',
-            "adjudication": "automatic", "risk": "high",
+            "game_version": "1.17", "adjudication": "automatic", "risk": "high",
         }
         evidence = [
-            {"evidence_id": "runtime", "source_id": "runtime", "stance": "supports", "value": '"Limgrave"'},
-            {"evidence_id": "reference", "source_id": "reference", "stance": "supports", "value": '"Limgrave"'},
+            {"evidence_id": "runtime", "source_id": "runtime", "stance": "supports", "value": '"Limgrave"', "valid_from": "1.17", "valid_to": ""},
+            {"evidence_id": "reference", "source_id": "reference", "stance": "supports", "value": '"Limgrave"', "valid_from": "1.17", "valid_to": ""},
         ]
         sources = {
             "runtime": {
                 "source_kind": "game_data", "family_id": "game:runtime:env:run-1",
-                "environment_id": "env:run-1",
+                "environment_id": "env:run-1", "game_version": "1.17",
+                "source_id": "runtime",
             },
             "reference": {
                 "source_kind": "external_reference", "family_id": "reference:wiki:revision",
-                "environment_id": "",
+                "environment_id": "", "game_version": "1.17", "source_id": "reference",
             },
         }
         environment = ledger._rows(LIVE_FIXTURE / "environments.tsv")[0]
@@ -162,6 +170,69 @@ class EvidenceLedgerTests(unittest.TestCase):
         self.assertEqual(result.statuses["check:103/access"], "unverified")
         self.assertEqual(result.statuses["check:104/description"], "inferred")
         self.assertEqual(result.statuses["check:105/identity"], "proven")
+
+    def test_out_of_version_direct_source_remains_a_lead(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_status_fixture(td)
+            sources = dst / "sources.tsv"
+            lines = sources.read_text().splitlines()
+            lines = [
+                line.replace("\t1.17\t", "\t1.16\t", 1)
+                if line.startswith("source:e\t") else line
+                for line in lines
+            ]
+            sources.write_text("\n".join(lines) + "\n")
+            claims = dst / "claims.tsv"
+            lines = claims.read_text().splitlines()
+            lines = [
+                line.replace("\tproven\tmedium\t", "\tunverified\tmedium\t")
+                if line.startswith("check:105/identity\t") else line
+                for line in lines
+            ]
+            claims.write_text("\n".join(lines) + "\n")
+            result = ledger.validate(dst)
+            self.assertEqual(result.statuses["check:105/identity"], "unverified")
+
+    def test_out_of_version_contradiction_does_not_create_conflict(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_status_fixture(td)
+            sources = dst / "sources.tsv"
+            lines = sources.read_text().splitlines()
+            lines = [
+                line.replace("\t1.17\t", "\t1.16\t", 1)
+                if line.startswith("source:d\t") else line
+                for line in lines
+            ]
+            sources.write_text("\n".join(lines) + "\n")
+            claims = dst / "claims.tsv"
+            lines = claims.read_text().splitlines()
+            lines = [
+                line.replace("\tconflicted\thigh\t", "\tsingle_source\thigh\t")
+                if line.startswith("check:102/region\t") else line
+                for line in lines
+            ]
+            lines = [
+                line.replace("\tcorroborated\thigh\t", "\tsingle_source\thigh\t")
+                if line.startswith("check:101/region\t") else line
+                for line in lines
+            ]
+            claims.write_text("\n".join(lines) + "\n")
+            result = ledger.validate(dst)
+            self.assertEqual(result.statuses["check:102/region"], "single_source")
+
+    def test_reversed_evidence_version_interval_is_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_status_fixture(td)
+            evidence = dst / "evidence.tsv"
+            lines = evidence.read_text().splitlines()
+            lines = [
+                line.replace("\t1.17", "\t1.18\t1.17", 1)
+                if line.startswith("evidence:a\t") else line
+                for line in lines
+            ]
+            evidence.write_text("\n".join(lines) + "\n")
+            with self.assertRaisesRegex(ledger.LedgerError, "valid_from is after valid_to"):
+                ledger.validate(dst)
 
     def test_summary_contract_is_deterministic_and_risk_rankable(self):
         first = ledger.summary(FIXTURE); second = ledger.summary(FIXTURE)
@@ -189,6 +260,7 @@ class EvidenceLedgerTests(unittest.TestCase):
             list(ledger.LIVE_EXACT_BUILD_FIELDS),
         )
         self.assertEqual(schema["statuses"],sorted(ledger.STATUSES))
+        self.assertEqual(schema["version_policy"]["out_of_version_strength"], "lead")
         self.assertEqual({k:tuple(v) for k,v in schema["tables"].items()},ledger.HEADERS)
 
     def test_flag_is_a_first_class_identity_namespace(self):
