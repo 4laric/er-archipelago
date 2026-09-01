@@ -196,6 +196,47 @@ class EvidenceLedgerTests(unittest.TestCase):
         self.assertEqual(result.statuses["check:104/description"], "inferred")
         self.assertEqual(result.statuses["check:105/identity"], "proven")
 
+    def test_same_family_opposite_assertions_do_not_create_conflict(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_status_fixture(td)
+            evidence = dst / "evidence.tsv"
+            lines = evidence.read_text().splitlines()
+            lines = [
+                line.replace(
+                    "\tsupports\t\"\"\"Limgrave\"\"\"\t",
+                    "\tcontradicts\t\"\"\"Liurnia\"\"\"\t",
+                    1,
+                ) if line.startswith("evidence:b\t") else line
+                for line in lines
+            ]
+            evidence.write_text("\n".join(lines) + "\n")
+            claims = dst / "claims.tsv"
+            lines = claims.read_text().splitlines()
+            lines = [
+                line.replace("\tsingle_source\thigh\t", "\tunverified\thigh\t")
+                if line.startswith("check:100/region\t") else line
+                for line in lines
+            ]
+            claims.write_text("\n".join(lines) + "\n")
+            result = ledger.validate(dst)
+            self.assertEqual(result.statuses["check:100/region"], "unverified")
+
+    def test_incomplete_environment_contradiction_remains_a_lead(self):
+        with tempfile.TemporaryDirectory() as td:
+            dst = self._copy_live_fixture(td)
+            environments = dst / "environments.tsv"
+            environments.write_text(
+                environments.read_text().replace("\tclient-sha-abc\t", "\tunknown\t")
+            )
+            evidence = dst / "evidence.tsv"
+            text = evidence.read_text()
+            text = text.replace("\tsupports\t\"\"\"Limgrave\"\"\"\t", "\tcontradicts\t\"\"\"Liurnia\"\"\"\t")
+            evidence.write_text(text)
+            claims = dst / "claims.tsv"
+            claims.write_text(claims.read_text().replace("\tsingle_source\t", "\tunverified\t"))
+            result = ledger.validate(dst)
+            self.assertEqual(result.statuses["check:200/region"], "unverified")
+
     def test_out_of_version_direct_source_remains_a_lead(self):
         with tempfile.TemporaryDirectory() as td:
             dst = self._copy_status_fixture(td)
@@ -307,8 +348,8 @@ class EvidenceLedgerTests(unittest.TestCase):
             evidence = dst / "evidence.tsv"
             lines = evidence.read_text().splitlines()
             row = "\t".join([
-                "evidence:history", "history:999/region", "source:a", "supports",
-                '"""Limgrave"""', "data.py historical row 999", "historical adapter",
+                "evidence:history", "history:999/region", "source:a", "contradicts",
+                '"""Liurnia"""', "data.py historical row 999", "historical adapter",
                 "inactive history", "1.16",
             ])
             evidence.write_text(lines[0] + "\n" + "\n".join(sorted(lines[1:] + [row])) + "\n")
@@ -343,6 +384,7 @@ class EvidenceLedgerTests(unittest.TestCase):
         )
         self.assertEqual(schema["statuses"],sorted(ledger.STATUSES))
         self.assertEqual(schema["version_policy"]["out_of_version_strength"], "lead")
+        self.assertEqual(schema["family_disagreement_strength"], "lead")
         self.assertEqual(
             schema["claim_supersession"]["preserved_fields"],
             ["subject_kind", "subject_id", "claim_kind"],
