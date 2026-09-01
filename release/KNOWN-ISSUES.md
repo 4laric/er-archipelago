@@ -5,11 +5,10 @@ Current as of **v0.4.0** (2026-08-12).
 Everything we currently know about, what it looks like in play, and what (if
 anything) to do about it.
 
-The short version: **no open issue is known to make a seed unwinnable.** Where
-one could in principle, it says so. Most of what follows was reported by players
-on the Nexus page or in Discord -- that loop is the single most useful thing
-anyone does for this project, so if something looks wrong and is *not* on this
-list, we want to hear about it. Bring your YAML and the spoiler log.
+The short version: **no open issue is known to make a seed unwinnable.** Entries
+that could do so in principle say so directly. Most reports came from players on
+Nexus or Discord. If something looks wrong and is *not* on this list, tell us
+and bring your YAML and spoiler log.
 
 For what has been *fixed*, see [CHANGELOG.md](CHANGELOG.md); it is written for
 players, one section per fix, and it is the honest record.
@@ -92,18 +91,14 @@ players, one section per fix, and it is the honest record.
   `Unsupported game version` text, so seeing *this* message means your build is
   one we support.
 
-  **On Windows it is a startup race, not something you did.** The client asks
-  the game for its task scheduler as soon as the game's window exists, which
-  can be a moment before the game has finished registering the objects we look
-  up. Ask too early and the lookup comes back empty, and that empty answer is
-  reported as this message with no second attempt. Anything that shifts startup
-  timing -- a faster disk, a busy machine, another overlay mod loading
-  alongside ours -- can flip it, which is why it can appear on an install that
-  launched fine a few times before. **What to do: quit and launch again.** It
-  usually takes. If it happens every launch, attach `archipelago-<date>.log`
-  from the folder the client sits in -- the file is appended across launches,
-  so the last `SESSION START` block is the one that matters -- and say what
-  else was in your DLL mods list.
+  **On Windows it is a startup race, not something you did.** The client can ask
+  for the game's task scheduler before the game finishes registering it. Disk
+  speed, machine load, or another overlay can shift that timing, so the error
+  may appear after several successful launches. **What to do: quit and launch
+  again.** It usually works on the next attempt. If it happens every launch,
+  attach `archipelago-<date>.log` from the client's folder and list the other
+  DLL mods you loaded. The log appends across launches; use the final
+  `SESSION START` block.
 
   **On Linux it happens every launch** and is a different problem: Proton is
   not supported yet, so play on Windows for now.
@@ -122,11 +117,11 @@ still the less-travelled path: the base game is better tested and remains the
 smoother first run.
 
 🛑 **`enable_dlc` is ON in the apworld's own defaults.** The shipped
-`EldenRing.yaml` sets it to `false`, and four of the six wizard presets pin it
-`false` -- but a yaml with an empty `Elden Ring: {}` section, the wizard's blank
-**Defaults** card, and the `vanilla_deathlink` preset all leave it at the
-apworld default, which means the DLC is in. If you do not own Shadow of the
-Erdtree, say `enable_dlc: false` explicitly rather than relying on a default.
+`EldenRing.yaml` sets it to `false`, and four of the six wizard presets also pin
+it off. An empty `Elden Ring: {}` section, the wizard's blank **Defaults** card,
+and the `vanilla_deathlink` preset leave the apworld default unchanged, so they
+include the DLC. If you do not own Shadow of the Erdtree, set
+`enable_dlc: false` explicitly.
 
 - **The Shadow Keep church-basement grace can warp you in before the water is
   drained** (#123). Fast-travelling to Church District Lower / Scadutree Base
@@ -141,26 +136,27 @@ Erdtree, say `enable_dlc: false` explicitly rather than relying on a default.
 These are deliberate, not bugs -- listed so you can tell them apart from the
 real thing. No report needed for anything below.
 
-- **The item pool is CURATED, so vanilla items will be missing from your seed
-  -- by design, and on the default settings.** This is the most-reported
-  non-bug we have, and it is not something you switched on. Three causes:
-  (1) `curated_filler` spends the entire junk end of the pool on a recipe --
-  every check that would have paid a Rune or a junk consumable is reallocated,
-  by default about two fifths of it to real weapons, armor, spells, talismans
-  and Ashes of War. The vanilla spread of tears, throwables, greases and
-  crafting junk is what paid for that. (2) Farmable enemy drops carry no
-  one-time flag, so they can never be checks in any randomizer; their contents
-  are rerolled per seed at vanilla drop rates, which changes *what* farms give
-  you. (3) The presence floor force-injects a curated set of physick tears and
-  smithing bell bearings when their home regions are sealed -- a floor, not a
-  promise about the rest. What to do: nothing. If you want the vanilla-ish
-  spread back, set `vanilla_pool: true` -- that is the whole switch. Weighting
-  `junk` in `curated_filler` ("keep whatever the check already paid") only does
-  the first half and leaves the presence floor standing. The player guide's **"What fills your junk checks"** has the
-  shipped recipe and every dial. 🛑 Sort it by where the fault is: an item
-  absent from the POOL is this entry and needs no report. A CHECK that hands
-  you the wrong thing -- the vanilla item, or nothing -- is a real defect, and
-  the open ones are listed further up this file (#217, #218, #329).
+- **The item pool is CURATED, so vanilla items are missing by design on default
+  settings.** This is already enabled; it is not an option you accidentally
+  switched on. Three systems change the vanilla spread:
+
+  1. `curated_filler` reallocates every check that would have paid a Rune or
+     junk consumable. By default, about two fifths of that space becomes real
+     weapons, armor, spells, talismans, and Ashes of War.
+  2. Farmable enemy drops have no one-time flag, so they cannot become checks.
+     Their contents are rerolled per seed at vanilla drop rates.
+  3. The presence floor adds selected physick tears and smithing bell bearings
+     when their home regions are sealed. It does not promise the rest of the
+     vanilla pool.
+
+  **What to do:** set `vanilla_pool: true` for a vanilla-like spread. Giving
+  `junk` weight in `curated_filler` only preserves the original contents of
+  those junk checks; the presence floor still applies. The player guide's
+  **"What fills your junk checks"** section explains the full recipe.
+
+  An item absent from the pool matches this by-design entry and needs no report.
+  A check that gives the vanilla item or nothing is a real defect; current cases
+  are listed above under #217, #218, and #329.
 
 - **`merchant_bell_logic` is RESERVED and inert.** The bell-to-shop mapping
   lives in engine code rather than in any param or EMEVD, so it cannot be
