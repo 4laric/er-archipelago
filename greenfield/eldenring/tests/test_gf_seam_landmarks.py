@@ -33,11 +33,11 @@ class SeamLandmarkLedgerTest(unittest.TestCase):
             cls.rows = list(csv.DictReader(handle, delimiter="\t"))
 
     def test_ledger_is_nonempty_and_provenanced(self):
-        self.assertGreaterEqual(len(self.rows), 1)
+        self.assertGreaterEqual(len(self.rows), 2)
         for row in self.rows:
             self.assertTrue(row["landmark"] and row["ruling_source"] and row["ruling_date"])
             self.assertTrue(row["operator"])
-            self.assertEqual(row["not_applicable"], "none")
+            self.assertIn(row["not_applicable"], ("none", "intentional_split"))
 
     def test_every_row_agrees_across_all_shipped_representations(self):
         by_check = {ap_id: region for region, entries in self.data.LOCATIONS.items()
@@ -64,6 +64,9 @@ class SeamLandmarkLedgerTest(unittest.TestCase):
 
     def test_intentional_splits_are_explicit_and_still_owned(self):
         for row in self.rows:
+            if row["intentional_split"] == "not_applicable":
+                self.assertEqual(row["not_applicable"], "intentional_split")
+                continue
             bucket_text, region = row["intentional_split"].split(":", 1)
             bucket = int(bucket_text)
             self.assertIn(bucket, self.region_play_ids.REGION_PLAY_IDS[region])

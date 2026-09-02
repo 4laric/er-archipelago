@@ -20,7 +20,8 @@ Entries arrive below as they merge.
 
 - **Region-boundary rulings now have a cross-representation CI witness (#1319).** The first ledger
   row pins Margit and Castleward Tunnel across check/tracker ownership, sweep host, arena region,
-  kick geometry, and grace bundles while recording the intentional Stormhill cliff split.
+  kick geometry, and grace bundles while recording the intentional Stormhill cliff split. A
+  second witness keeps Fortissax's dream arena under Deeproot rather than Leyndell (#1074).
 
 - **External Memory Stone coverage is now complete at 9/9 checks (#1273).** Testu's Rise and
   Seluvis's Rise anchors in a pinned Eldenpedia revision add the two missing bindings, guarded by
