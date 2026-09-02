@@ -237,6 +237,18 @@ python tools/check_eldenpedia_shabriri_grape_leads.py
 python tools/build_evidence_browser.py
 ```
 
+`eldenpedia-crystal-tear-check-leads.tsv` binds all 18 current Crystal Tear checks through 15
+immutable item-page revisions. Unique item names resolve 12 checks directly; source-local area or
+site links separate the two Cerulean, two Crimson, and two Ruptured Crystal Tears. Every AP flag is
+also checked against the committed ItemLot item id. These rows remain `lead_only` and establish no
+access rule, route, coordinates, or event predicate.
+
+```bash
+python tools/build_eldenpedia_crystal_tear_leads.py
+python tools/check_eldenpedia_crystal_tear_leads.py
+python tools/build_evidence_browser.py
+```
+
 `eldenpedia-sacred-tear-check-leads.tsv` binds 12 church-named Sacred Tear acquisitions from
 Eldenpedia page 13254, revision 99877. Every church link is unique in that revision, and every
 selected AP flag must remain a Sacred Tear in the committed ItemLot corpus. The AP-only

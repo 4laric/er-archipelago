@@ -139,6 +139,7 @@ def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict
                 "disposition": row["disposition"],
             })
     acquisition_manifests = (
+        "eldenpedia-crystal-tear-pages.tsv",
         "eldenpedia-deathroot-pages.tsv",
         "eldenpedia-item-acquisition-pages.tsv",
         "eldenpedia-sacred-tear-pages.tsv",
