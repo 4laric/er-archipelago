@@ -57,6 +57,11 @@ header.top .sub{color:var(--dim);font-size:13px}
   padding-bottom:6px;margin-bottom:8px}
 .grouphead h2{margin:0;font-size:20px}
 .grouphead .count{color:var(--dim);font-size:12px}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));
+  gap:14px 28px;margin:14px 0 4px}
+.metric-grid .desc{max-width:30ch}
+.control-kind{margin:16px 0 2px;color:var(--gold);font-size:14px;letter-spacing:.03em}
+.control-kind:first-of-type{margin-top:10px}
 .opt{padding:12px 4px;border-bottom:1px dotted #33301f}
 .opt:last-child{border-bottom:none}
 .opt .head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
@@ -3524,6 +3529,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 1,
     "bosses": 1
@@ -3553,7 +3559,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Ainsel River": {
    "checks": 123,
@@ -3569,6 +3576,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 9,
    "sweep_slots": {
     "all": 3,
     "bosses": 3
@@ -3606,7 +3614,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Altus": {
    "checks": 353,
@@ -3626,6 +3635,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 21,
    "sweep_slots": {
     "all": 12,
     "bosses": 22,
@@ -3667,7 +3677,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Ancient Ruins": {
    "checks": 60,
@@ -3681,6 +3692,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 2,
     "bosses": 2
@@ -3718,7 +3730,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Ashen Capital": {
    "checks": 18,
@@ -3730,6 +3743,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": false,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 2,
     "bosses": 2
@@ -3767,7 +3781,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Belurat": {
    "checks": 93,
@@ -3780,6 +3795,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 1,
     "bosses": 1
@@ -3809,7 +3825,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Caelid": {
    "checks": 363,
@@ -3835,6 +3852,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 39,
    "sweep_slots": {
     "all": 10,
     "bosses": 21,
@@ -3878,7 +3896,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "tarnished_pack_checks": 2,
    "tarnished_pack_combos": {
     "Legendary": 1
-   }
+   },
+   "tarnished_pack_shop_checks": 0
   },
   "Cerulean": {
    "checks": 105,
@@ -3894,6 +3913,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 6,
     "bosses": 6,
@@ -3937,7 +3957,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Consecrated Snowfield": {
    "checks": 143,
@@ -3950,6 +3971,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 4,
     "bosses": 6,
@@ -3985,7 +4007,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Deeproot Depths": {
    "checks": 80,
@@ -3996,6 +4019,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 3,
     "bosses": 3
@@ -4033,7 +4057,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Enir Ilim": {
    "checks": 107,
@@ -4046,6 +4071,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 2,
     "bosses": 2
@@ -4083,7 +4109,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Ensis": {
    "checks": 41,
@@ -4095,6 +4122,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 1,
     "bosses": 1
@@ -4124,7 +4152,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Farum Azula": {
    "checks": 105,
@@ -4137,6 +4166,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 3,
     "bosses": 3
@@ -4166,7 +4196,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Gravesite": {
    "checks": 197,
@@ -4184,6 +4215,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 6,
     "bosses": 6,
@@ -4219,7 +4251,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Haligtree": {
    "checks": 123,
@@ -4232,6 +4265,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 2,
     "bosses": 2
@@ -4261,7 +4295,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Jagged Peak": {
    "checks": 38,
@@ -4274,6 +4309,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 3,
    "sweep_slots": {
     "all": 3,
     "bosses": 3
@@ -4311,7 +4347,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Leyndell": {
    "checks": 251,
@@ -4325,6 +4362,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": "Altus",
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 3,
     "bosses": 3
@@ -4362,7 +4400,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Limgrave": {
    "checks": 303,
@@ -4383,6 +4422,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 54,
    "sweep_slots": {
     "all": 9,
     "bosses": 16,
@@ -4418,7 +4458,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 1,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 1
   },
   "Liurnia": {
    "checks": 588,
@@ -4441,6 +4482,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 83,
    "sweep_slots": {
     "all": 9,
     "bosses": 24,
@@ -4488,7 +4530,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "tarnished_pack_checks": 6,
    "tarnished_pack_combos": {
     "Legendary": 1
-   }
+   },
+   "tarnished_pack_shop_checks": 5
   },
   "Mohgwyn": {
    "checks": 67,
@@ -4501,6 +4544,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 5,
    "sweep_slots": {
     "all": 1,
     "bosses": 1
@@ -4530,7 +4574,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Mountaintops of the Giants": {
    "checks": 202,
@@ -4549,6 +4594,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 8,
    "sweep_slots": {
     "all": 3,
     "bosses": 8,
@@ -4590,7 +4636,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Mt. Gelmir": {
    "checks": 257,
@@ -4611,6 +4658,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 7,
    "sweep_slots": {
     "all": 6,
     "bosses": 10,
@@ -4654,7 +4702,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Rauh Base": {
    "checks": 90,
@@ -4666,6 +4715,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 3,
     "bosses": 3,
@@ -4701,7 +4751,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Raya Lucaria Academy": {
    "checks": 110,
@@ -4716,6 +4767,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": "Liurnia",
    "rollable": true,
+   "shop_checks": 16,
    "sweep_slots": {
     "all": 2,
     "bosses": 2
@@ -4745,7 +4797,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Roundtable Hold": {
    "checks": 182,
@@ -4753,12 +4806,14 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": false,
+   "shop_checks": 129,
    "sweep_slots": {},
    "sweep_slots_by_class": {},
    "sweep_slots_max": {},
    "sweep_slots_max_by_class": {},
    "tarnished_pack_checks": 1,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 1
   },
   "Scadu Altus": {
    "checks": 322,
@@ -4777,6 +4832,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 9,
    "sweep_slots": {
     "all": 7,
     "bosses": 7,
@@ -4820,7 +4876,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Shadow Keep": {
    "checks": 118,
@@ -4836,6 +4893,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 5,
     "bosses": 5
@@ -4873,7 +4931,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Siofra River": {
    "checks": 166,
@@ -4888,6 +4947,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 8,
    "sweep_slots": {
     "all": 5,
     "bosses": 5
@@ -4925,7 +4985,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Stormveil": {
    "checks": 138,
@@ -4939,6 +5000,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 15,
    "sweep_slots": {
     "all": 2,
     "bosses": 2
@@ -4968,7 +5030,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Weeping": {
    "checks": 156,
@@ -4985,6 +5048,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 31,
    "sweep_slots": {
     "all": 5,
     "bosses": 9,
@@ -5026,12 +5090,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     }
    },
    "tarnished_pack_checks": 4,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 4
   }
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "336d16ac48fc694931391c4c5caef5c91c94d89dd13abed382956172302953fa"
+ "source_sha256": "91ec318e9f7e72d55e4651d9771d2239691c0870d4af0e2b3bb7499d91edd00c"
 }
 </script>
 <div class="wrap">
@@ -5377,15 +5442,17 @@ const ERW = (() => {
      215. Defaulting to "bosses" is the shipped default, not a guess. Without this the SweepSlot box
      would read 0 -- next to a comment promising that 0 means "carrying nothing" -- for a class that
      is ON by default. */
-  function comboHits(region, sel, rung, tarnishedPackOn){
+  function comboHits(region, sel, rung, tarnishedPackOn, shopChecksOn){
     let n = 0;
     for (const combo in region.combos){
       const parts = combo.split("|");
+      if (!shopChecksOn && parts.includes("Shop")) continue;
       for (let i = 0; i < parts.length; i++) if (sel.has(parts[i])){ n += region.combos[combo]; break; }
     }
     if (!tarnishedPackOn){
       for (const combo in (region.tarnished_pack_combos || {})){
         const parts = combo.split("|");
+        if (!shopChecksOn && parts.includes("Shop")) continue;
         for (let i = 0; i < parts.length; i++) if (sel.has(parts[i])){
           n -= region.tarnished_pack_combos[combo]; break;
         }
@@ -5419,15 +5486,17 @@ const ERW = (() => {
        census's hub_dlc_gated_checks there. check_wizard_census_js proves this line matches the
        Python reference. */
     const tpOn = !!opts.enableTarnishedPack;
-    let base = R[census.hub_region].checks + (finaleOn ? R[finaleName].checks : 0)
+    const shopOn = opts.shopChecks !== false;
+    const effectiveChecks = region => region.checks
+      - (tpOn ? 0 : (region.tarnished_pack_checks || 0))
+      - (shopOn ? 0 : (region.shop_checks || 0))
+      + ((!tpOn && !shopOn) ? (region.tarnished_pack_shop_checks || 0) : 0);
+    let base = effectiveChecks(R[census.hub_region])
+               + (finaleOn ? effectiveChecks(R[finaleName]) : 0)
                - ((!opts.dlcOnly && !opts.enableDlc) ? (census.hub_dlc_gated_checks || 0) : 0);
-    if (!tpOn){
-      base -= (R[census.hub_region].tarnished_pack_checks || 0);
-      if (finaleOn) base -= (R[finaleName].tarnished_pack_checks || 0);
-    }
     const rung = opts.dungeonSweep || "bosses";
-    const baseSurf = comboHits(R[census.hub_region], sel, rung, tpOn)
-                   + (finaleOn ? comboHits(R[finaleName], sel, rung, tpOn) : 0);
+    const baseSurf = comboHits(R[census.hub_region], sel, rung, tpOn, shopOn)
+                   + (finaleOn ? comboHits(R[finaleName], sel, rung, tpOn, shopOn) : 0);
 
     const n = opts.numRegions | 0;
     const whole = (n <= 0 || n >= eligible.length);
@@ -5456,8 +5525,8 @@ const ERW = (() => {
       }
       let c = base, s = baseSurf;
       for (const r of keptSet){
-        c += R[r].checks - (tpOn ? 0 : (R[r].tarnished_pack_checks || 0));
-        s += comboHits(R[r], sel, rung, tpOn);
+        c += effectiveChecks(R[r]);
+        s += comboHits(R[r], sel, rung, tpOn, shopOn);
       }
       checks.push(c); surf.push(s); kept.push(keptSet.size); forcedStart.push(addedStart.size);
     }
@@ -5499,12 +5568,13 @@ const ERW = (() => {
     const dlcOnly = !!opts.dlcOnly;
     const enableDlc = opts.enableDlc !== false;
     const tarnishedPackOn = opts.enableTarnishedPack === true;
+    const shopChecksOn = opts.shopChecks !== false;
     /* EVERY region in play, not just the rollable ones -- Roundtable Hold and Ashen Capital are
        rollable:false and still hold checks. dlc_only drops the base game, which takes the finale
        with it. */
     const inPlay = Object.keys(R).filter(n => dlcOnly ? R[n].dlc : (enableDlc || !R[n].dlc));
     const rung = opts.dungeonSweep || "bosses";
-    const hits = set => { let n = 0; for (const r of inPlay) n += comboHits(R[r], set, rung, tarnishedPackOn); return n; };
+    const hits = set => { let n = 0; for (const r of inPlay) n += comboHits(R[r], set, rung, tarnishedPackOn, shopChecksOn); return n; };
     const cur = new Set(selected || []);
     const total = hits(cur);
     const marginal = {};
@@ -6145,9 +6215,9 @@ if (typeof module !== "undefined") module.exports = ERW;
   // OTHER players' progression to that same surface, so a reader who meets it alone has no idea what
   // "the surface" refers to. enable_dlc / dlc_only change which regions are eligible at all, which
   // matters but is usually decided once and left.
-  const SEED_SIZE_OPTIONS = ["num_regions", "start_region_pool", "progression_surface",
-                             "confine_foreign_progression",
-                             "enable_dlc", "dlc_only",
+  const CHECK_COUNT_OPTIONS = ["num_regions", "start_region_pool", "enable_dlc", "dlc_only",
+                               "shop_checks"];
+  const PLACEMENT_OPTIONS = ["progression_surface", "confine_foreign_progression",
                              // the locality knobs -- they move the "what you send out" card below
                              "keep_local", "keep_local_rune_cap",
                              // 🛑 NOT item_shuffle: it is frozen ON and off the yaml surface, so it
@@ -6155,6 +6225,7 @@ if (typeof module !== "undefined") module.exports = ERW;
                              // heading above the list. local_item_only and exclude_local_item_only
                              // were RETIRED 2026-08-14 and are gone from the surface entirely.
                              "filler_foreign_pct"];
+  const SEED_SIZE_OPTIONS = CHECK_COUNT_OPTIONS.concat(PLACEMENT_OPTIONS);
 
   function renderSeedSizeTab(){
     const wrap = el("div", "");
@@ -6169,9 +6240,21 @@ if (typeof module !== "undefined") module.exports = ERW;
     ctl.append(el("div", "grouphead", "<h2>Change the answer</h2>" +
       "<span class='count'>" + SEED_SIZE_OPTIONS.length + " options</span>"));
     ctl.insertAdjacentHTML("beforeend",
-      "<div class='desc' style='margin-bottom:6px'>These are the options the figures above depend " +
-      "on. They appear in their own sections too \u2014 this is the same control, not a copy.</div>");
-    for (const k of SEED_SIZE_OPTIONS){
+      "<div class='desc' style='margin-bottom:6px'>The controls are split by what they actually " +
+      "change. They appear in their own sections too \u2014 this is the same control, not a copy.</div>" +
+      "<div class='control-kind'>Make the seed smaller or larger</div>" +
+      "<div class='desc'><b>Only these controls change how many checks exist.</b> Number of Regions " +
+      "is the main size control; Shop Checks removes merchant locations, and the others change " +
+      "which regions can be selected or force-kept.</div>");
+    for (const k of CHECK_COUNT_OPTIONS){
+      const o = meta.byKey[k];
+      if (o) ctl.append(optRow(o));
+    }
+    ctl.insertAdjacentHTML("beforeend",
+      "<div class='control-kind'>Change what those checks may hold</div>" +
+      "<div class='desc'>These move the progression and multiworld figures, but <b>do not remove " +
+      "a single check</b>. Use them to choose where important items may land and what stays home.</div>");
+    for (const k of PLACEMENT_OPTIONS){
       const o = meta.byKey[k];
       if (o) ctl.append(optRow(o));
     }
@@ -6346,7 +6429,7 @@ if (typeof module !== "undefined") module.exports = ERW;
          matched any digit in the card, and the explanatory prose is full of its own percentages, so
          it passed a mutation that froze the headline while leaving a paragraph in place. Twice.
          Marking the numbers themselves is what makes "did it answer?" checkable at all. */
-      "<div style='display:flex;gap:28px;flex-wrap:wrap;margin:14px 0 4px'>" +
+      "<div class='metric-grid'>" +
       "<div><div class='fig' style='font-size:26px'>" + n(openMid) + "</div>" +
       "<div class='desc'>of your checks a foreign item can land on " +
       "(of ~" + n(checksMid) + ")</div></div>" +
@@ -6458,6 +6541,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const nr = v("num_regions"), dlcOn = !!v("enable_dlc"), only = !!v("dlc_only");
     const size = ERW.seedSize(census, { numRegions: nr, enableDlc: dlcOn, dlcOnly: only,
                                         enableTarnishedPack: !!v("enable_tarnished_pack"),
+                                        shopChecks: v("shop_checks") !== false,
                                         startRegionPool: v("start_region_pool") || [],
                                         surfaceClasses: v("progression_surface") || [],
                                         dungeonSweep: v("dungeon_sweep") });
@@ -6472,7 +6556,7 @@ if (typeof module !== "undefined") module.exports = ERW;
       "<h2>How big is this seed?</h2>" +
       "<div class='desc'>Computed from the region tables, over your current options \u2014 exact, " +
       "not an estimate.</div>" +
-      "<div style='display:flex;gap:28px;flex-wrap:wrap;margin:14px 0 4px'>" +
+      "<div class='metric-grid'>" +
       "<div><div style='font-size:26px'>" + (size.whole ? n(size.checks.median)
         : n(size.checks.p10) + "\u2013" + n(size.checks.p90)) + "</div>" +
       "<div class='desc'>checks" + (size.whole ? "" : " (typical " + n(size.checks.median) + ")") + "</div></div>" +
@@ -6539,6 +6623,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, { numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"),
                                         enableTarnishedPack: !!v("enable_tarnished_pack"),
+                                        shopChecks: v("shop_checks") !== false,
                                         dlcOnly: !!v("dlc_only"),
                                         startRegionPool: v("start_region_pool") || [],
                                         surfaceClasses: v("progression_surface") || [],
@@ -6563,6 +6648,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const v = k => ERW.getVal(meta, state, k);
     const size = ERW.seedSize(census, { numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"),
                                         enableTarnishedPack: !!v("enable_tarnished_pack"),
+                                        shopChecks: v("shop_checks") !== false,
                                         dlcOnly: !!v("dlc_only"),
                                         startRegionPool: v("start_region_pool") || [],
                                         surfaceClasses: v("progression_surface") || [],
@@ -6853,6 +6939,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const size = ERW.seedSize(census, {
       numRegions: v("num_regions"), enableDlc: !!v("enable_dlc"), dlcOnly: !!v("dlc_only"),
       enableTarnishedPack: !!v("enable_tarnished_pack"),
+      shopChecks: v("shop_checks") !== false,
       startRegionPool: v("start_region_pool") || [],
       surfaceClasses: v("progression_surface") || [], dungeonSweep: v("dungeon_sweep")
     });
