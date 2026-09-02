@@ -170,6 +170,13 @@ STEPS = [
          emits=["greenfield/evidence/wiki-audit/queue.json"],
          why="risk-ranked #1273 investigation queue derived from normalized external leads and "
              "the current access-disposition ledger; checked output must move with either input."),
+    Step(TABLES, "tools/build_progression_host_confidence.py",
+         emits=["greenfield/evidence/v060-current/progression_host_confidence.tsv",
+                "greenfield/evidence/v060-current/progression_host_confidence_summary.json",
+                "greenfield/eldenring/evidence_progression_hosts.py"],
+         why="strict two-family external identity/region confidence used by #1358. It reads the "
+             "normalized wiki-audit leads and current generated check population, so both inputs "
+             "must move its HOLD/TRUSTED partition through the single regen entrypoint."),
 
     Step(PAGES, "tools/build_check_browser.py",
          emits=["er-archipelago-check-browser.html"],

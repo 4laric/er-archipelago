@@ -214,6 +214,27 @@ been placed under the best region estimate available, but its exact region has
 not yet been verified. It cannot hold a progression item, so an imperfect
 estimate there cannot strand your run.
 
+### Region Lock hints
+
+Open the tracker with **F6** when you need help finding your next Region Lock.
+Its header shows your Lock-hint balance and the current price in **surface
+checks**: progression-surface checks you complete earn that balance. The price
+is calculated from the size of the seed's progression surface and the room's
+hint-cost setting, so different seeds and rooms can quote different prices.
+
+Choose **Hint next lock** to buy a hint for a still-sealed region whose Lock is
+currently obtainable somewhere you have already opened. The button deliberately
+does not reveal which Lock it selected until after the purchase; learning that
+is what the hint buys. To investigate one particular region instead, expand its
+tracker row and use that region's own hint button.
+
+The purchase creates a normal Archipelago hint for the Lock, visible to the
+room in its **Hints** tab. It spends the tracker's surface-check balance, not
+Archipelago's normal hint points. If no eligible Lock can be found, keep
+checking open regions. A Lock in another player's world is outside the
+tracker's scout data and cannot use this button; use Archipelago's `!hint`
+command for that rare case.
+
 **The overlay is in the way.** Press **F5** to hide the client window, and
 again to bring it back (**F6** does the same for the tracker). Both are on the
 overlay's menu bar too, as `Hide (F5)` and `Tracker (F6)`. Hiding is only

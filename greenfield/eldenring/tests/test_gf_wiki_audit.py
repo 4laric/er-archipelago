@@ -5,68 +5,122 @@ from __future__ import annotations
 import csv
 import importlib.util
 import json
+import os
 import unittest
 from pathlib import Path
 
-REPO_ONLY_REASON = "wiki source registry and validator are repository evidence, not world files"
+try:
+    from ._util import find_repo_root, REPO_ONLY_REASON
+except ImportError:
+    import sys
+
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _util import find_repo_root, REPO_ONLY_REASON
 
 
-def find_repo_root(start: Path) -> Path:
-    for candidate in (start, *start.parents):
-        if (candidate / "tools" / "check_wiki_audit.py").is_file():
-            return candidate
-    raise RuntimeError("repository root not found")
+_REPO = find_repo_root(__file__, marker="tools/check_wiki_audit.py")
+REPO = Path(_REPO) if _REPO is not None else None
 
 
-REPO = find_repo_root(Path(__file__).resolve())
-SPEC = importlib.util.spec_from_file_location(
-    "check_wiki_audit", REPO / "tools" / "check_wiki_audit.py")
-assert SPEC and SPEC.loader
-AUDIT = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(AUDIT)
-
-WALKTHROUGH_SPEC = importlib.util.spec_from_file_location(
-    "check_walkthrough_check_leads",
-    REPO / "tools" / "check_walkthrough_check_leads.py",
-)
-assert WALKTHROUGH_SPEC and WALKTHROUGH_SPEC.loader
-WALKTHROUGH_AUDIT = importlib.util.module_from_spec(WALKTHROUGH_SPEC)
-WALKTHROUGH_SPEC.loader.exec_module(WALKTHROUGH_AUDIT)
-
-GAME8_SPEC = importlib.util.spec_from_file_location(
-    "check_game8_check_leads", REPO / "tools" / "check_game8_check_leads.py")
-assert GAME8_SPEC and GAME8_SPEC.loader
-GAME8_AUDIT = importlib.util.module_from_spec(GAME8_SPEC)
-GAME8_SPEC.loader.exec_module(GAME8_AUDIT)
-
-ELDENPEDIA_SPEC = importlib.util.spec_from_file_location(
-    "check_eldenpedia_location_leads",
-    REPO / "tools" / "check_eldenpedia_location_leads.py",
-)
-assert ELDENPEDIA_SPEC and ELDENPEDIA_SPEC.loader
-ELDENPEDIA_AUDIT = importlib.util.module_from_spec(ELDENPEDIA_SPEC)
-ELDENPEDIA_SPEC.loader.exec_module(ELDENPEDIA_AUDIT)
-
-POWERPYX_SPEC = importlib.util.spec_from_file_location(
-    "check_powerpyx_check_leads",
-    REPO / "tools" / "check_powerpyx_check_leads.py",
-)
-assert POWERPYX_SPEC and POWERPYX_SPEC.loader
-POWERPYX_AUDIT = importlib.util.module_from_spec(POWERPYX_SPEC)
-POWERPYX_SPEC.loader.exec_module(POWERPYX_AUDIT)
+def load_repo_tool(name: str):
+    if REPO is None:
+        return None
+    spec = importlib.util.spec_from_file_location(name, Path(REPO) / "tools" / f"{name}.py")
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
+AUDIT = load_repo_tool("check_wiki_audit")
+
+WALKTHROUGH_AUDIT = load_repo_tool("check_walkthrough_check_leads")
+GAME8_AUDIT = load_repo_tool("check_game8_check_leads")
+ELDENPEDIA_AUDIT = load_repo_tool("check_eldenpedia_location_leads")
+ELDENPEDIA_CRYSTAL_TEAR_AUDIT = load_repo_tool("check_eldenpedia_crystal_tear_leads")
+ELDENPEDIA_DEATHROOT_AUDIT = load_repo_tool("check_eldenpedia_deathroot_leads")
+ELDENPEDIA_GOLDEN_SEED_AUDIT = load_repo_tool("check_eldenpedia_golden_seed_leads")
+ELDENPEDIA_MEMORY_STONE_AUDIT = load_repo_tool("check_eldenpedia_memory_stone_leads")
+ELDENPEDIA_WHETBLADE_AUDIT = load_repo_tool("check_eldenpedia_whetblade_leads")
+ELDENPEDIA_SACRED_TEAR_AUDIT = load_repo_tool("check_eldenpedia_sacred_tear_leads")
+ELDENPEDIA_SEEDBED_AUDIT = load_repo_tool("check_eldenpedia_seedbed_curse_leads")
+ELDENPEDIA_SHABRIRI_AUDIT = load_repo_tool("check_eldenpedia_shabriri_grape_leads")
+ELDENPEDIA_REPEATED_AUDIT = load_repo_tool("check_eldenpedia_repeated_pickup_leads")
+ELDENPEDIA_BOSS_REWARD_AUDIT = load_repo_tool("check_eldenpedia_boss_reward_leads")
+ELDENPEDIA_ITEM_ACQUISITION_AUDIT = load_repo_tool("check_eldenpedia_item_acquisition_leads")
+ELDENPEDIA_UPGRADE_MATERIAL_AUDIT = load_repo_tool("check_eldenpedia_upgrade_material_leads")
+ELDENPEDIA_UPGRADE_LOCATION_ROW_AUDIT = load_repo_tool("check_eldenpedia_upgrade_location_rows")
+POWERPYX_AUDIT = load_repo_tool("check_powerpyx_check_leads")
+REDMAW_CHECKLIST_AUDIT = load_repo_tool("check_redmaw_checklist_leads")
+REDMAW_EMBEDDED_ASH_AUDIT = load_repo_tool("check_redmaw_embedded_ash_leads")
+REDMAW_MERCHANT_AUDIT = load_repo_tool("check_redmaw_merchant_leads")
+REDMAW_LOCATION_AUDIT = load_repo_tool("check_redmaw_location_anchor_leads")
+FEXTRALIFE_AUDIT = load_repo_tool("check_fextralife_item_leads")
+FEXTRALIFE_ACQUISITION_AUDIT = load_repo_tool("check_fextralife_acquisition_leads")
+FEXTRALIFE_LINKED_PLACE_AUDIT = load_repo_tool("check_fextralife_linked_place_leads")
+
+
+@unittest.skipUnless(REPO is not None, REPO_ONLY_REASON)
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (24, 16))
+        self.assertEqual(AUDIT.validate(REPO), (26, 16))
+
+    def test_redmaw_same_step_location_anchors_validate(self):
+        path = (REPO / "greenfield/evidence/wiki-audit" /
+                "redmaw-location-anchor-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 27)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertEqual(REDMAW_LOCATION_AUDIT.main(), 0)
+
+    def test_redmaw_checklist_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "redmaw-checklist-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 1499)
+        self.assertTrue(all(row["claim_kind"] == "identity" for row in rows))
+        self.assertTrue(all("does not prove region" in row["limitations"] for row in rows))
+        self.assertEqual(REDMAW_CHECKLIST_AUDIT.main(), 0)
+
+    def test_redmaw_embedded_ash_aliases_validate(self):
+        path = (REPO / "greenfield/evidence/wiki-audit" /
+                "redmaw-embedded-ash-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 6)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertEqual(REDMAW_EMBEDDED_ASH_AUDIT.main(), 0)
+
+    def test_redmaw_merchant_ambiguities_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "redmaw-merchant-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 157)
+        self.assertTrue(all(row["claim_kind"] == "identity" for row in rows))
+        self.assertTrue(all("does not independently prove AP's region" in row["limitations"]
+                            for row in rows))
+        self.assertEqual(REDMAW_MERCHANT_AUDIT.main(), 0)
 
     def test_broad_walkthrough_check_leads_validate(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "walkthrough-check-leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            self.assertGreaterEqual(len(list(csv.DictReader(handle, delimiter="\t"))), 800)
         self.assertEqual(WALKTHROUGH_AUDIT.main(), 0)
 
     def test_game8_check_leads_validate(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "game8-check-leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            self.assertGreaterEqual(len(list(csv.DictReader(handle, delimiter="\t"))), 30)
         self.assertEqual(GAME8_AUDIT.main(), 0)
 
     def test_eldenpedia_location_check_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-location-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            self.assertGreaterEqual(len(list(csv.DictReader(handle, delimiter="\t"))), 315)
         self.assertEqual(ELDENPEDIA_AUDIT.main(), 0)
 
     def test_eldenpedia_location_leads_never_claim_access(self):
@@ -79,8 +133,175 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
         self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
 
+    def test_eldenpedia_deathroot_check_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-deathroot-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 9)
+        self.assertTrue(all(row["claim_kind"] == "acquisition_identity" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertTrue(all("does not prove v1.17" in row["limitations"] for row in rows))
+        self.assertEqual(ELDENPEDIA_DEATHROOT_AUDIT.main(), 0)
+
+    def test_eldenpedia_golden_seed_leads_preserve_marginal_coverage(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-golden-seed-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 28)
+        self.assertTrue(all(row["claim_kind"] == "acquisition_identity" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(ELDENPEDIA_GOLDEN_SEED_AUDIT.main(), 0)
+
+    def test_eldenpedia_memory_stone_family_is_complete(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-memory-stone-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 2)
+        self.assertTrue(all(row["claim_kind"] == "acquisition_identity" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(ELDENPEDIA_MEMORY_STONE_AUDIT.main(), 0)
+
+    def test_eldenpedia_whetblade_family_is_complete(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-whetblade-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 7)
+        self.assertTrue(all(row["claim_kind"] == "acquisition_identity" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(ELDENPEDIA_WHETBLADE_AUDIT.main(), 0)
+
+    def test_eldenpedia_crystal_tear_check_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-crystal-tear-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 18)
+        self.assertTrue(all(row["claim_kind"] == "acquisition_identity" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(ELDENPEDIA_CRYSTAL_TEAR_AUDIT.main(), 0)
+
+    def test_eldenpedia_shabriri_grape_check_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-shabriri-grape-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 3)
+        self.assertTrue(all(row["claim_kind"] == "acquisition_identity" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertTrue(all("does not prove v1.17" in row["limitations"] for row in rows))
+        self.assertEqual(ELDENPEDIA_SHABRIRI_AUDIT.main(), 0)
+
+    def test_eldenpedia_sacred_tear_check_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-sacred-tear-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 12)
+        self.assertTrue(all(row["claim_kind"] == "acquisition_identity" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertTrue(all("Ruin-Strewn Precipice" in row["limitations"] for row in rows))
+        self.assertEqual(ELDENPEDIA_SACRED_TEAR_AUDIT.main(), 0)
+
+    def test_eldenpedia_seedbed_curse_leads_preserve_refusals(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-seedbed-curse-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(sum(row["subject_kind"] == "check" for row in rows), 2)
+        self.assertEqual(sum(row["subject_kind"] == "acquisition_row" for row in rows), 4)
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(ELDENPEDIA_SEEDBED_AUDIT.main(), 0)
+
+    def test_eldenpedia_repeated_pickup_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-repeated-pickup-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertGreaterEqual(len(rows), 110)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
+        self.assertEqual(ELDENPEDIA_REPEATED_AUDIT.main(), 0)
+
+    def test_eldenpedia_boss_reward_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-boss-reward-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertGreaterEqual(len(rows), 50)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
+        self.assertEqual(ELDENPEDIA_BOSS_REWARD_AUDIT.main(), 0)
+
+    def test_eldenpedia_item_acquisition_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-item-acquisition-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertGreaterEqual(len(rows), 80)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(ELDENPEDIA_ITEM_ACQUISITION_AUDIT.main(), 0)
+
+    def test_eldenpedia_upgrade_material_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-upgrade-material-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertGreaterEqual(len(rows), 12)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(ELDENPEDIA_UPGRADE_MATERIAL_AUDIT.main(), 0)
+
+    def test_eldenpedia_upgrade_location_rows_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-upgrade-location-row-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 3)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(ELDENPEDIA_UPGRADE_LOCATION_ROW_AUDIT.main(), 0)
+
+    def test_fextralife_acquisition_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "fextralife-acquisition-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertGreaterEqual(len(rows), 240)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(FEXTRALIFE_ACQUISITION_AUDIT.main(), 0)
+
+    def test_fextralife_linked_place_leads_validate(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "fextralife-linked-place-check-leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertGreaterEqual(len(rows), 220)
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(FEXTRALIFE_LINKED_PLACE_AUDIT.main(), 0)
+
     def test_powerpyx_regional_check_leads_validate(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "powerpyx-check-leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            self.assertGreaterEqual(len(list(csv.DictReader(handle, delimiter="\t"))), 20)
         self.assertEqual(POWERPYX_AUDIT.main(), 0)
+
+    def test_fextralife_item_check_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "fextralife-item-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertGreaterEqual(len(rows), 1300)
+        self.assertTrue(all(row["claim_kind"] in {"identity", "identity_region"} for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
+        self.assertEqual(FEXTRALIFE_AUDIT.main(), 0)
 
     def test_generated_queue_prioritizes_external_coverage_without_promoting_it(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "queue.json"
@@ -274,17 +495,17 @@ class WikiAuditTest(unittest.TestCase):
         self.assertEqual(lead["disposition"], "lead_only")
         self.assertEqual(lead["game_version"], "unknown")
 
-    def test_chapel_report_surfaces_current_split_without_changing_logic(self):
+    def test_chapel_report_records_the_adjudicated_access_bucket(self):
         generated = (REPO / "greenfield" / "eldenring" / "data.py").read_text(encoding="utf-8")
         report = (REPO / "greenfield" / "evidence" / "wiki-audit" /
                   "chapel-anticipation-return.md").read_text(encoding="utf-8")
 
         self.assertIn("Liurnia :: Ornamental Straight Sword - m10_01", generated)
         self.assertIn("Liurnia :: Golden Beast Crest Shield - m10_01", generated)
-        self.assertIn("Stormveil :: The Stormhawk King - m10_01", generated)
-        self.assertIn("Stormveil :: Stormhawk Deenh - m10_01", generated)
-        self.assertIn("current project surface is internally split", report)
-        self.assertIn("changes no world logic or access disposition", report)
+        self.assertIn("Liurnia :: The Stormhawk King - m10_01", generated)
+        self.assertIn("Liurnia :: Stormhawk Deenh - m10_01", generated)
+        self.assertIn("v1.17 EMEVD", report)
+        self.assertIn("adjudicated as Liurnia", report)
 
 
 if __name__ == "__main__":

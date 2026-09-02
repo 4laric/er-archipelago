@@ -112,7 +112,7 @@ bossLockItems = { str(ap_item_id): {"name": str, "boss_flag": i64, "region": str
 Both trackers already consume `bossLocations`. Add a **Bosses** group keyed off `bossLockItems`, with
 three states: **locked** → **felled** (mode-A `Felled:` trophy received) → **released** (mode-B
 `Boss Key:` applied, stored checks burst out). The in-client tracker (region-grouped, F6) gets a
-per-region boss line; the PopTracker pack gets a Bosses section.
+per-region boss line.
 
 Pair it with **banners at the moment of relevance**, not just on item receipt: on boss defeat while
 sealed → "Godrick felled — 12 checks sealed (Boss Key: Godrick)"; on key receipt → "Unsealed:

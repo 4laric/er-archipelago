@@ -168,3 +168,22 @@ def test_both_release_packagers_share_the_profile_path_gate():
     assert "package_me3_profile.py" in powershell
     assert "configure_release_profile" in portable
     assert "validate_release_profile" in portable
+
+
+@unittest.skipUnless(_FOUND is not None, REPO_ONLY_REASON)
+def test_obsolete_poptracker_is_not_a_live_setup_or_package_path():
+    root = Path(_FOUND)
+    assert not (root / "poptracker").exists()
+
+    # The offline audit pages still need their original SVG/calibration inputs, but those are
+    # repository tooling rather than a player tracker pack.
+    maps = root / "greenfield/maps"
+    assert (maps / "lands_between_map.svg").is_file()
+    assert (maps / "land_of_shadow_map.svg").is_file()
+    assert (maps / "map_calibration.json").is_file()
+    assert (maps / "map_calibration_dlc.json").is_file()
+
+    package_script = (root / "package_release.ps1").read_text(encoding="utf-8")
+    player_guide = (root / "release/PLAYER-GUIDE.md").read_text(encoding="utf-8")
+    assert "PopTracker" not in package_script
+    assert "Press **F6**" in player_guide

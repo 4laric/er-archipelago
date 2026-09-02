@@ -69,7 +69,7 @@ def _payload(html):
 
 
 def _viewbox(name):
-    with open(os.path.join(REPO, "poptracker", "maps", name), encoding="utf-8") as fh:
+    with open(os.path.join(REPO, "greenfield", "maps", name), encoding="utf-8") as fh:
         head = fh.read(400)
     m = re.search(r'viewBox="0 0 ([\d.]+) ([\d.]+)"', head)
     return (float(m.group(1)), float(m.group(2))) if m else None

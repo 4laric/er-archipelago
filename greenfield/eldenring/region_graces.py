@@ -2,7 +2,7 @@
 REGION_GRACE_POINTS = {
     'Abyssal': [76860, 72801, 72802, 72803, 76861, 76863, 76864],
     'Ainsel River': [71211, 71212, 71213, 71214, 71215, 71216, 71218, 71219],
-    'Altus': [76301, 73008, 73010, 73012, 73013, 73118, 73119, 73204, 73205, 73430, 73431, 73432, 73450, 73451, 76300, 76302, 76303, 76304, 76305, 76306, 76307, 76308, 76309, 76310, 76311, 76312, 76320, 73007],
+    'Altus': [76301, 73008, 73010, 73012, 73013, 73118, 73119, 73204, 73205, 73430, 73431, 73432, 76300, 76302, 76303, 76304, 76305, 76306, 76307, 76308, 76309, 76310, 76311, 76312, 76320, 73007],
     'Ancient Ruins': [76940, 76941, 76942, 76943, 76944],
     'Belurat': [72001, 72002, 72003],
     'Caelid': [73207, 73014, 73015, 73016, 73110, 73111, 73120, 73121, 73208, 73257, 73440, 73441, 73460, 76400, 76401, 76402, 76403, 76404, 76405, 76406, 76407, 76409, 76410, 76411, 76413, 76414, 76416, 76417, 76418, 76420, 76450, 76451, 76452, 76453, 76454, 76455, 76456],
@@ -36,7 +36,7 @@ REGION_GRACE_POINTS = {
 REGION_GRACE_LANDMARKS = {
     'Abyssal': [72801, 76860],  # Manse Hall, Abyssal Woods
     'Ainsel River': [71211, 71214, 71216],  # Ainsel River Well Depths, Ainsel River Main, Lake of Rot Shoreside
-    'Altus': [73007, 73450, 76301, 76309],  # Wyndham Catacombs, Divine Tower of East Altus: Gate, Altus Plateau, Outer Wall Phantom Tree
+    'Altus': [73007, 76301, 76309],  # Wyndham Catacombs, Altus Plateau, Outer Wall Phantom Tree
     'Ancient Ruins': [76940],  # Viaduct Minor Tower
     'Belurat': [72001],  # Belurat, Tower Settlement
     'Caelid': [76400, 76406, 76450],  # Smoldering Church, Aeonia Swamp Shore, Dragonbarrow West
@@ -64,4 +64,4 @@ REGION_GRACE_LANDMARKS = {
     'Weeping': [76150],  # Church of Pilgrimage
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:b5b9336e1d94595a2b9f5cb6445b74bb3e5ee07ce499d44f98e38666f680eda0', 'module': 'region_graces.py', 'body_sha256': 'sha256:bbacfd1afa52282f214328ce2880652b2c3b167d3a67bd353d0587e038339db0'}
+_GEN_STAMP = {'inputs_hash': 'sha256:a16f94825d2861d7228cafeaad2e5507d57d7e9faa33f1e21b8ae5e2ce6fd30e', 'module': 'region_graces.py', 'body_sha256': 'sha256:de3ffe4637ad3544d41705b31ec947819d20359d6d45d3ecca7b43d48e59444e'}
