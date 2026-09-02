@@ -22,6 +22,11 @@ Entries arrive below as they merge.
   rewards sharing `f520700` now name their EMEVD-proven dungeon while remaining correctly assigned
   to Gravesite.
 
+- **The player guide now explains Region Lock hints (#1309).** Its stable
+  `#region-lock-hints` section covers the F6 tracker, surface-check balance,
+  frontier selection, aimed hints, and where the resulting Archipelago hint
+  appears.
+
 - **Discarded Palace Key logic follows the Baleful Shadow chain (#1317).** When vanilla items are
   shuffled, Miniature Ranni is progression and must be received before the key check enters logic;
   vanilla Ranni steps absent from the v1.17 appearance predicate are not over-required.

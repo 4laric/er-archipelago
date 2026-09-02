@@ -18,6 +18,14 @@ The Death Knight's Twin Axes and Crimson Amber Medallion +3 checks in Fog Rift C
 say “around Auriza Side Tomb,” sending players to a different dungeon in Altus. Both checks now
 name Fog Rift Catacombs, matching the game event that awards them and their Gravesite assignment.
 
+### Region Lock hints have a permanent home
+
+The F6 tracker's Lock-hint economy is now explained in the player guide instead
+of living only in an old release announcement. The new linkable section says
+what earns surface-check balance, what **Hint next lock** can select, why it
+keeps the selected Lock secret until purchase, and where the room can see the
+resulting Archipelago hint.
+
 Chapel of Anticipation return checks now follow the repeatable Four Belfries route. The two
 Stormhawk ashes are filed with the Scion rewards in Liurnia, and an Imbued Sword Key is required
 when legacy key gates are enabled, preventing Stormveil-only seeds from treating the isolated
