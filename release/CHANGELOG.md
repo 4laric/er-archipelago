@@ -18,6 +18,10 @@ client half is clients#559 and its merge commit is pinned by the gitlink in this
 
 Entries arrive below as they merge.
 
+- **The obsolete PopTracker pack has been removed (#1308).** It was no longer supported and its
+  presence suggested otherwise. The original map inputs still used by repository audit pages now
+  live under `greenfield/maps`; the supported player tracker remains the in-client F6 tracker.
+
 - **Fog Rift Catacombs rewards no longer point players to Auriza Side Tomb (#1305).** Both
   rewards sharing `f520700` now name their EMEVD-proven dungeon while remaining correctly assigned
   to Gravesite.

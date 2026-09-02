@@ -636,7 +636,7 @@ are absent in CI). Know which tier your change is in:
   verdicts). Search there before announcing a "missing check": that residual is where
   "~126 invisible lots" and "27 phantoms" both came from. A blank reason means **nobody recorded
   one** — an honest unknown, not an invitation to guess.
-- **Map tab.** Plots the CURRENT FILTER on the committed poptracker maps, coloured by region, so a
+- **Map tab.** Plots the CURRENT FILTER on the committed browser maps, coloured by region, so a
   misregioned check is a colour outlier instead of a datamine and a tile-straddle question is "look
   at the border". 1930 of 4879 place; the header states the non-plottable interior count every
   time, because a map that quietly omits them implies spatial coverage the data lacks. Uses the
@@ -716,7 +716,7 @@ Placement uses
     pitch = 256 << lod
     world = tile*pitch + local + (pitch-256)/2
 
-then `poptracker/maps/map_calibration*.json`. Two parts are **INFERRED, documented nowhere**: the
+then `greenfield/maps/map_calibration*.json`. Two parts are **INFERRED, documented nowhere**: the
 `(pitch-256)/2` centring term, and "3-field id + low tile = truncated LOD2" (merchant rows lose the
 suffix in `datamine_merchant_shops._map_id`). Evidence for the centring term: without it all 18
 LOD2 rows sit 244–463 m outside the tile their own flag encodes, and with it five coarse merchant

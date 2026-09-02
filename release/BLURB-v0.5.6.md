@@ -12,6 +12,12 @@ _Draft. Written as the window fills, not at tag time._
 
 ## What is in it so far
 
+### One supported tracker
+
+The obsolete PopTracker pack has been removed from the repository. It was no longer supported, but
+its presence made it look like a current setup path. Use the tracker built into the client with
+**F6**; the repository keeps only the generic map inputs used by its offline audit pages.
+
 ### Fog Rift's tracker hint points to Fog Rift
 
 The Death Knight's Twin Axes and Crimson Amber Medallion +3 checks in Fog Rift Catacombs used to

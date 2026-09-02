@@ -59,7 +59,7 @@ def parent_chain(region):
 # Fixed progression path (Limgrave-first). It is BOTH an ordering and, since 2026-08-11, a
 # selection mode again: `num_regions_order: vanilla_order` keeps the first N eligible entries
 # (see compute_kept). It was a selection mode until 2026-08-05, deprecated between those dates.
-# What SPINE decides besides the draw: poptracker display order, the test reference, and
+# What SPINE decides besides the draw: tracker display order, the test reference, and
 # `_SPINE_RANK` -- which features/goal_locations walks deepest-first to pick the region that
 # ENDS the run. Those three are why the LIST survived the period when the draw did not.
 # Must be a permutation of REGIONS, and its TAIL must be exactly DLC_REGIONS (both guarded

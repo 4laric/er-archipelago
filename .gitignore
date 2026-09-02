@@ -50,7 +50,7 @@ gendiag_*.txt
 *.bak
 *.tar.gz
 
-# --- python cache (poptracker generator) ---
+# --- python cache ---
 __pycache__/
 *.pyc
 
