@@ -23,6 +23,15 @@ Entries arrive below as they merge.
   frontier selection, aimed hints, and where the resulting Archipelago hint
   appears.
 
+- **Discarded Palace Key logic follows the Baleful Shadow chain (#1317).** When vanilla items are
+  shuffled, Miniature Ranni is progression and must be received before the key check enters logic;
+  vanilla Ranni steps absent from the v1.17 appearance predicate are not over-required.
+
+- **Chapel of Anticipation return checks now require their real Four Belfries route (#1303).**
+  The Stormhawk ashes join the Scion rewards in Liurnia, and all four checks require an Imbued
+  Sword Key when legacy key gates are enabled. Stormveil alone can no longer put unreachable
+  Chapel checks in logic.
+
 ## v0.5.5 — 2026-08-31
 
 ### What you need to update

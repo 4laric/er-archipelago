@@ -115,6 +115,19 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
         self.assertTrue(all("event=90005750" in row["citation"] and
                             "commonarg/WaitFor" in row["citation"] for row in rows))
 
+    def test_palace_key_access_is_the_narrow_miniature_ranni_rule(self):
+        claim = next(row for row in self.bundle["claims"]
+                     if row["claim_id"] == "check:7773712/access")
+        self.assertEqual(json.loads(claim["value"]), {
+            "type": "all",
+            "conditions": [
+                {"type": "region", "region": "Ainsel River"},
+                {"type": "item", "name": "Miniature Ranni"},
+            ],
+        })
+        self.assertEqual(claim["status"], "proven")
+        self.assertEqual(claim["review_issue"], "#1317")
+
     def test_radahn_access_is_region_only_because_festival_is_force_started(self):
         claims = {row["claim_id"]: row for row in self.bundle["claims"]}
         evidence = {row["evidence_id"]: row for row in self.bundle["evidence"]}
