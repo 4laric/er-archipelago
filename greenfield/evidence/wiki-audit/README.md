@@ -30,12 +30,18 @@ That yields three normalized leads in `leads.tsv`: region-only access for the Up
 Upper key for the Lower key check, and both keys for the boss. There is no source-to-source
 contradiction in this pilot.
 
-The current implementation is deliberately more conservative: `legacy_key_gates.py` requires both
-keys for every Lamenter's Gaol map-lot check, including the two key locations. The pilot therefore
-identifies a concrete likely over-gating regression, but does not authorize changing world logic.
-Before an accepted v1.17 rule replaces it, the door predicates or a versioned in-game route capture
-must establish the same order. Interior checks also need to be partitioned by which door precedes
-them; the two walkthrough pages do not map every AP check precisely enough to do that.
+The v1.17 game-data bundle supplies the missing door predicate family. Map event `m41_02` initializes
+ObjActParam `449008` for the first door and `1449008` for the two later doors; those rows require
+goods `2008005` (Gaol Upper Level Key) and `2008006` (Gaol Lower Level Key), respectively. The map
+lots bind those named goods to f41027000 and f41027320. Combined with the independently authored
+route-order leads, this adjudicates the three exact checks: Upper Key is region-reachable, Lower Key
+requires Upper, and Lamenter requires both. `legacy_key_gates.py` and its regression encode those
+tiers.
+
+The remaining interior checks are intentionally not promoted. The game data proves which goods the
+doors consume, but the bundle has no MSB coordinates to bind each pickup to a side of each door, and
+the two walkthrough pages do not map every AP flag precisely enough. They retain the conservative
+both-key fallback and remain in the investigation queue.
 
 The Archipelago Lamenter sweep path is a separate alternate-acquisition claim and is not adjudicated
 by these vanilla walkthroughs.

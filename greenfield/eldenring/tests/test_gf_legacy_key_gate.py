@@ -219,20 +219,22 @@ def test_chapel_gate_respects_the_existing_option_switches():
 GAOL_KEYS = ("Gaol Upper Level Key", "Gaol Lower Level Key")
 
 
-def test_lamenters_gaol_multi_gate_covers_both_keys_and_boss():
-    """Every Lamenter's Gaol check -- the two Gaol key LOCATIONS and the Lamenter boss reward -- is
-    gated behind BOTH keys (map-lot range 4102xxxx + the f520770 boss-reward extra). Pure over data."""
+def test_lamenters_gaol_route_tiers_cover_exact_key_and_boss_checks():
+    """The three adjudicated checks follow the nested-door route; unbound interior rows retain the
+    conservative both-key fallback rather than inheriting a guessed position."""
     gate = next(g for g in _MULTI_KEY_GATES if g["id"] == "lamenters_gaol")
     gated = _multi_gated_location_ids([gate])
     # Look the checks up by their STABLE flags, not hard-coded ap-ids -- ap-ids are POSITIONAL and
     # renumber whenever a check is added/removed (the tracker-description pass shifted these by 2).
     # Charo's merged into Cerulean 2026-08-10; the gaol checks live there now.
     charos = {int(f): ap for (_n, ap, f) in LOCATIONS.get("Cerulean", ())}
-    for flag in (41027000, 41027320, 520770):  # Upper Key loc, Lower Key loc, Lamenter's Mask (boss)
-        ap = charos.get(flag)
-        assert ap is not None, f"flag {flag} is not a Cerulean (ex-Charo's) location"
-        assert ap in gated, f"gaol check flag {flag} (ap {ap}) not gated"
-    assert all(set(ks) == set(GAOL_KEYS) for ks in gated.values()), "every gaol check needs BOTH keys"
+    upper, lower, boss = (charos.get(flag) for flag in (41027000, 41027320, 520770))
+    assert all(ap is not None for ap in (upper, lower, boss))
+    assert upper not in gated, "Upper Key is before the first locked door"
+    assert gated[lower] == ("Gaol Upper Level Key",)
+    assert gated[boss] == GAOL_KEYS
+    unknown = [ks for ap, ks in gated.items() if ap not in {lower, boss}]
+    assert unknown and all(ks == GAOL_KEYS for ks in unknown)
 
 
 class LamentersGaolGateOn(WorldTestBase):
@@ -242,7 +244,7 @@ class LamentersGaolGateOn(WorldTestBase):
     options = {"item_shuffle": True, "num_regions": 0, "enable_dlc": True,
                "legacy_dungeon_keys": True, "leyndell_runes_required": 0, "accessibility": "minimal"}
 
-    def test_gaol_checks_need_both_keys(self):
+    def test_gaol_checks_follow_the_three_route_tiers(self):
         gate = next(g for g in _MULTI_KEY_GATES if g["id"] == "lamenters_gaol")
         gated = _multi_gated_location_ids([gate])
         locs = {l.address: l for l in self.multiworld.get_locations(1)}
@@ -261,9 +263,13 @@ class LamentersGaolGateOn(WorldTestBase):
             return st
 
         neither, upper_only, both = _state(), _state("Gaol Upper Level Key"), _state(*GAOL_KEYS)
+        by_flag = {int(l.name.rsplit("[f", 1)[1][:-1]): l for l in self.multiworld.get_locations(1)
+                   if "[f" in l.name}
+        upper_loc, lower_loc, boss_loc = (by_flag[f] for f in (41027000, 41027320, 520770))
+        assert upper_loc.can_reach(neither), "Upper Key must be reachable before door 1"
+        assert not lower_loc.can_reach(neither) and lower_loc.can_reach(upper_only)
+        assert not boss_loc.can_reach(upper_only) and boss_loc.can_reach(both)
         for l in sample:
-            assert not l.can_reach(neither), f"{l.name} reachable with NEITHER gaol key"
-            assert not l.can_reach(upper_only), f"{l.name} reachable with only the Upper key"
             assert l.can_reach(both), f"{l.name} blocked WITH both keys"
 
     def test_keys_are_progression_and_seed_winnable(self):
@@ -278,5 +284,5 @@ class LamentersGaolGateOn(WorldTestBase):
             keylocs = [l for l in mw.get_locations(1) if l.item and l.item.name == kn]
             assert keylocs, f"{kn} must be placed"
             assert all(l.address not in gated for l in keylocs), \
-                f"{kn} must be placed OUTSIDE the gaol it gates"
+                f"{kn} must not be placed behind an active gaol door"
         assert mw.can_beat_game(), "a DLC seed with the gaol gate active must be beatable"
