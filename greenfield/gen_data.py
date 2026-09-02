@@ -2086,14 +2086,16 @@ EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
 # DLC Gravesite/Cerulean frags+ash, TEMPORARY off-surface (Alaric, 2026-07-19). Kept as ordinary checks
 # (still collectable), just barred from hosting this world's progression until their reachability is
 # confirmed -- so a region Lock can't strand on a spot that may not exist / may be deeper-gated:
-#   2046457040 = Scadutree Fragment (Gravesite m61_46_45) -- suspected to NOT EXIST in-game.
-#   2046457720 = Revered Spirit Ash (Gravesite m61_46_45) -- suspected reachable only WITH Rauh Base.
+#   RESTORED 2026-09-02: 2046457040 Scadutree Fragment and 2046457720 Revered Spirit Ash.
+#   Independent guides now pin both to Rauh Base landmarks (Temple Town and Greatbridge North);
+#   their generated Rauh Base filing matches, resolving the original existence/access concerns.
 #   2047397070 = Scadutree Fragment (Cerulean m61_47_39) -- at Fissure Cross; kept off until reachability
 #                from the region anchor is confirmed.
 # Scadu Altus vague-descriptor batch, TEMPORARY off-surface (Alaric, 2026-07-19): auto "near/around X"
 # names he can't pin to a real in-game spot -- barred so a lock can't strand on a check he can't locate.
 #   2049447500 = Revered Spirit Ash  (near Bonny Village)
-#   2050437010 = Scadutree Fragment  (near Scaduview Cross (1))
+#   RESTORED 2026-09-02: 2050437010 Scadutree Fragment (Abyssal Woods) -- three external
+#                families plus the exact PlayArea ruling pin this to its generated Abyssal region.
 #   2050437720 = Revered Spirit Ash  (near Scaduview Cross)
 #   2051447500 = Scadutree Fragment  (around Bridge Leading to the Village (1))
 #   2051447510 = Scadutree Fragment  (around Bridge Leading to the Village (2))
@@ -2244,8 +2246,12 @@ _REGION_CONFIRMED_FLAGS = frozenset({
 })
 
 _SURFACE_EXCLUDE_FLAGS = frozenset({
-    21017340, 2046457040, 2046457720, 2047397070,
-    2049447500, 2050437010, 2050437720, 2051447500, 2051447510,
+    # RESTORED 2026-09-02: 2046457040 (Temple Town Fragment), 2046457720 (Greatbridge North Ash),
+    # and 2050437010 (Abyssal Woods Fragment) now have 2-3 independent external identity/region
+    # families in progression_host_confidence.tsv. Their original existence, own-region access,
+    # and vague-location concerns no longer survive the current evidence.
+    21017340, 2047397070,
+    2049447500, 2050437720, 2051447500, 2051447510,
     2048417700, 20007510, 20007820,
     2044467950, 2046477950,
     510030,   # Ornamental Straight Sword (tutorial Grafted Scion drop) -- missable hard fight,
