@@ -45,6 +45,11 @@ ELDENPEDIA_PAGE_HEADERS = (
     "title", "canonical_url", "revision_url", "wiki_region", "ap_regions",
     "notable_loot_links", "disposition",
 )
+FEXTRALIFE_PAGE_HEADERS = (
+    "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1",
+    "title", "canonical_url", "revision_url", "template_fields", "ap_region",
+    "disposition",
+)
 
 STATUSES = {"proven", "corroborated", "single_source", "conflicted", "inferred", "unverified"}
 RISKS = {"critical", "high", "medium", "low"}
@@ -120,6 +125,23 @@ def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict
                 "last_modified": row["revision_timestamp"],
                 "body_sha256": "mediawiki-sha1:" + row["revision_sha1"],
                 "license": "CC BY-SA 4.0",
+                "provenance": "immutable MediaWiki page revision",
+                "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
+                "disposition": row["disposition"],
+            })
+    fextralife_manifest = os.path.join(path, "fextralife-item-pages.tsv")
+    if os.path.exists(fextralife_manifest):
+        # As above, one independently authored wiki remains one family even though each exact
+        # binding pins its own immutable MediaWiki revision.
+        for row in read("fextralife-item-pages.tsv", FEXTRALIFE_PAGE_HEADERS):
+            sources.append({
+                "source_id": row["source_id"], "publisher": "Fextralife",
+                "author": "Fextralife wiki contributors", "title": row["title"],
+                "canonical_url": row["canonical_url"], "revision_url": row["revision_url"],
+                "archived_at": row["revision_timestamp"], "published_at": "unknown",
+                "last_modified": row["revision_timestamp"],
+                "body_sha256": "mediawiki-sha1:" + row["revision_sha1"],
+                "license": "No content-reuse license asserted by this corpus",
                 "provenance": "immutable MediaWiki page revision",
                 "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
                 "disposition": row["disposition"],
@@ -277,6 +299,8 @@ def ledger_hash(path: str = CURRENT, wiki_path: str | None = None) -> str:
         names = ["sources.tsv", *wiki_lead_files(wiki_path)]
         if os.path.exists(os.path.join(wiki_path, "eldenpedia-location-pages.tsv")):
             names.append("eldenpedia-location-pages.tsv")
+        if os.path.exists(os.path.join(wiki_path, "fextralife-item-pages.tsv")):
+            names.append("fextralife-item-pages.tsv")
         for name in sorted(names):
             digest.update(("wiki-audit/" + name).encode() + b"\0")
             with open(os.path.join(wiki_path, name), "rb") as fh:
