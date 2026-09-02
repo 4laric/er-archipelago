@@ -32,9 +32,18 @@ CERTIFIED_KEY_ITEM_APS = frozenset((
 
 # Data review, 2026-09-02: these are named boss rewards in confirmed regions. Great Wyrm
 # Theodorix remains held because its generated region is explicitly unconfirmed.
-CERTIFIED_MAJOR_BOSS_APS = frozenset((
+_CERTIFIED_MAJOR_BOSS_WAVE1_APS = frozenset((
     7773790, 7773792, 7773793, 7773797, 7773802, 7773803, 7773865,
 ))
+
+# Second data review, 2026-09-02: each row has an exact committed boss-kill award chain and stable
+# region: Dragonkin Soldier -> Dragon Halberd (f530620), Golden Hippopotamus -> Aspects of the
+# Crucible: Thorns (f510440), and Loretta -> Loretta's War Sickle (f510190). The other seven
+# effective MajorBoss losses are finale-lifecycle rows and deliberately remain held.
+CERTIFIED_MAJOR_BOSS_WAVE2_APS = frozenset((7770716, 7773799, 7900120))
+CERTIFIED_MAJOR_BOSS_APS = (
+    _CERTIFIED_MAJOR_BOSS_WAVE1_APS | CERTIFIED_MAJOR_BOSS_WAVE2_APS
+)
 
 # Alaric, 2026-08-04: the Golden Seed population was reviewed in game and hand-described. These are
 # the 30 generated-HOLD rows whose region and lifecycle bars are otherwise clear. Deliberately omit
@@ -51,6 +60,18 @@ CERTIFIED_SEEDTREE_APS = frozenset((
 # f39207170 remains excluded: the review instead reported that it was seemingly not a real check.
 CERTIFIED_CHURCH_APS = frozenset((7772710, 7772786, 7772881, 7772917))
 
+# Data review, 2026-09-02: exact Revered Spirit Ash lot rows are joined to their MSB/coordinate
+# placement and uniquely matching Samurai Gamers landmark in the generated region. Keep 7771808
+# held because its landmark is explicitly after the Dancing Lion fight (a deeper internal gate),
+# and 7773212 because region_dispute_worksheet.tsv still records Ancient Ruins|Enir Ilim.
+CERTIFIED_REVERED_APS = frozenset((
+    7771799, 7771812,             # Belurat: tree statue and bridge shadow-pot
+    7771934,                      # Shadow Keep: Storehouse hanging specimen
+    7772023,                      # Abyssal: Manse Hall inquisitor
+    7773236, 7773401,             # Gravesite: Cliffroad and Ellac River Cave statues
+    7773603,                      # Scadu Altus: Village of Flies hill altar
+))
+
 CERTIFIED_PROGRESSION_HOST_APS = (
     CERTIFIED_REMEMBRANCE_APS
     | CERTIFIED_GREAT_RUNE_APS
@@ -58,4 +79,5 @@ CERTIFIED_PROGRESSION_HOST_APS = (
     | CERTIFIED_MAJOR_BOSS_APS
     | CERTIFIED_SEEDTREE_APS
     | CERTIFIED_CHURCH_APS
+    | CERTIFIED_REVERED_APS
 )
