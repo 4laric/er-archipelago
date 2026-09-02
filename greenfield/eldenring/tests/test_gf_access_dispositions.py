@@ -39,7 +39,7 @@ class AccessDispositionTests(unittest.TestCase):
 
     def test_current_census_is_complete_with_encoded_key_gate_option_rows(self):
         value = access.summary(LEDGER, DISPOSITIONS)
-        self.assertEqual(value["checks_total"], 4923)
+        self.assertEqual(value["checks_total"], 4925)  # +2 Senessax stone reward checks (#1296)
         self.assertEqual(value["dispositions_total"], value["checks_total"] + 17)
         self.assertEqual(value["by_disposition"]["region_sufficient"], 5)
         self.assertEqual(value["by_disposition"]["encoded"], 18)
@@ -77,7 +77,7 @@ class AccessDispositionTests(unittest.TestCase):
         self.assertEqual(value["by_option_set"]["not(item_shuffle=true)"]["region_sufficient"], 1)
         self.assertEqual(value["release_blockers"], value["checks_total"] - 6)
         self.assertEqual(value["with_access_claim"], 47)
-        self.assertEqual(value["without_access_claim"], 4893)
+        self.assertEqual(value["without_access_claim"], 4895)
 
     def test_every_resolved_disposition_has_a_machine_checked_witness(self):
         rows = access.validate(LEDGER, DISPOSITIONS)
@@ -217,7 +217,7 @@ class AccessDispositionTests(unittest.TestCase):
             path = Path(td) / "access_dispositions.tsv"
             access.bootstrap(LEDGER, path)
             rows = access.validate(LEDGER, path)
-            self.assertEqual(len(rows), 4923)
+            self.assertEqual(len(rows), 4925)
             self.assertEqual({row["disposition"] for row in rows}, {"unresolved"})
 
 

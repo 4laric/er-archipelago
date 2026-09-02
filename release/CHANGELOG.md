@@ -19,6 +19,10 @@ Existing v0.5.6 seed/client pairs remain compatible with each other.
 
 Entries arrive below as they merge.
 
+- **Ancient Dragon Senessax now randomizes both ancient smithing stones (#1296).** Its regular and
+  somber reward lots are modeled as separate co-firing checks, both vanilla grants are suppressed,
+  and both checks ride Senessax's sweep when boss sweeps are enabled.
+
 - **Region-boundary rulings now have a cross-representation CI witness (#1319).** The first ledger
   row pins Margit and Castleward Tunnel across check/tracker ownership, sweep host, arena region,
   kick geometry, and grace bundles while recording the intentional Stormhill cliff split. A

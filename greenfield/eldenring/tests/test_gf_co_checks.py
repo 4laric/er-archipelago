@@ -35,6 +35,7 @@ COCHECK_BASE = 7900000                               # must match gen_data.COCHE
 # registry-completeness half runs without importing gen_data (which executes the whole pipeline).
 # Widening the allowlist updates BOTH (the pin is the reminder that the registry must grow with it).
 SEEDED_FLAGS = {
+    530805: {("map", 30806)},       # Senessax's somber stone beside the ancient stone primary
     510460: {("map", 10461)},        # Messmer's Kindling beside the Remembrance primary
     510440: {("map", 10441)},        # Scadutree Fragment beside the Thorns primary
     520160: {("map", 20161)},        # Golden Seed beside the Ogha-ash primary

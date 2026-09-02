@@ -132,7 +132,9 @@ class TagDataTests(unittest.TestCase):
         # the tag it always deserved; the predicate did not move. (It also re-homes to Limgrave --
         # Stormhill is where you stand to fight him -- and its name loses a wrong "also granted by
         # Godrick the Grafted" attribution that came from the same missing join.)
-        self.assertEqual(TAG_COUNTS["Boss"], 267)
+        # 267 -> 269 (#1296): Senessax's two shared-flag reward lots are now two co-firing
+        # locations. Both inherit the same boss-drop attribution as the one physical kill.
+        self.assertEqual(TAG_COUNTS["Boss"], 269)
 
     def test_majorboss_is_a_subset_of_boss(self):
         """A major boss is a boss. Definitional, so this is a gate, not a preference (Alaric,
@@ -370,7 +372,9 @@ class TagDataTests(unittest.TestCase):
         # 95 -> 110 (2026-08-13, #191): the FieldBoss half of the same widening. 266 Boss = 52
         # legacy + 110 field + the rest; the split is unchanged, both halves grew with the check
         # population. Same rule: a co-check inherits its primary's tags.
-        self.assertEqual(TAG_COUNTS["FieldBoss"], 110)
+        # 110 -> 112 (#1296): the regular and somber Senessax stones are distinct checks at the
+        # same Jagged Peak field boss.
+        self.assertEqual(TAG_COUNTS["FieldBoss"], 112)
 
     def test_geography_tags_are_subsets_of_boss_and_disjoint(self):
         """Definitional, so these are gates, not preferences: a legacy/field boss IS a boss, and no

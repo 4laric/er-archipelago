@@ -7690,6 +7690,7 @@ LOCATION_ITEM = {
     7774632: 'Idus Sword',
     7774633: 'Ritual Thrusting Shield',
     7774634: 'Reed Great Katana',
+    7774635: 'Ancient Dragon Smithing Stone',
     7900000: 'Prayer Room Key',
     7900001: 'Scadutree Fragment',
     7900002: "Messmer's Kindling",
@@ -7978,6 +7979,7 @@ LOCATION_ITEM = {
     7900285: 'Dryleaf Cuissardes',
     7900286: 'Carian Knight Gauntlets',
     7900287: 'Carian Knight Greaves',
+    7900288: 'Somber Ancient Dragon Smithing Stone',
 }
 
 # ap_id -> copies the vanilla lot slot grants, for the locations that grant more
@@ -12027,4 +12029,4 @@ JUNK_GEAR_NAMES = [
     'Zamor Mask',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:a16f94825d2861d7228cafeaad2e5507d57d7e9faa33f1e21b8ae5e2ce6fd30e', 'module': 'item_ids.py', 'body_sha256': 'sha256:69cebf72fe4fdac20826d7da937e8f5da0c2f22d9e9546132a7cf7102c06f68c'}
+_GEN_STAMP = {'inputs_hash': 'sha256:945613884d917167b5f81fd335cb34bd7aaac54c620fcfe33e0026b98e70a83d', 'module': 'item_ids.py', 'body_sha256': 'sha256:4706f119bcfa0a64ae0333e36a04e335d739a81ee7870b2136f0c2686e754f3d'}

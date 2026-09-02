@@ -38,17 +38,17 @@ class ProgressionHostConfidenceTests(unittest.TestCase):
                             "progression_host_confidence.tsv")
         with open(path, encoding="utf-8", newline="") as handle:
             rows = list(csv.DictReader(handle, delimiter="\t"))
-        self.assertEqual(4_923, len(rows))
+        self.assertEqual(4_925, len(rows))  # +2 Senessax stone reward checks (#1296)
         self.assertEqual({builder.HOLD, builder.TRUSTED},
                          {row["confidence"] for row in rows})
         self.assertTrue(all(row["access_status"] == "unknown" for row in rows))
         self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
         self.assertTrue(all((int(row["external_family_count"]) >= 2) ==
                             (row["confidence"] == builder.TRUSTED) for row in rows))
-        # The resumed PowerPyx corpus corroborates 26 additional hosts with a second external
-        # family, moving them from hold to trusted without changing the check population.
+        # PowerPyx corroborates 26 additional hosts (#1322); the two new Senessax reward checks
+        # remain held until they gain a second independent external family (#1296).
         self.assertEqual(558, sum(row["confidence"] == builder.TRUSTED for row in rows))
-        self.assertEqual(4_365, sum(row["confidence"] == builder.HOLD for row in rows))
+        self.assertEqual(4_367, sum(row["confidence"] == builder.HOLD for row in rows))
 
     def test_generated_runtime_sets_partition_the_current_check_population(self):
         builder = load_builder()

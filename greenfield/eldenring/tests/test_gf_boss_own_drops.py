@@ -21,6 +21,8 @@ from ..data import LOCATIONS
 GLAIVE_FLAG = 530300
 GLAIVE_TRIGGER = 1041520800   # m60_41_52, the terminal Rampartside fight
 COFFIN_TRIGGER = 1037510800   # m60_37_51, the non-terminal apparition
+SENESSAX_FLAG = 530805
+SENESSAX_TRIGGER = 2054390850
 
 
 def _flag_to_ap_and_region():
@@ -50,6 +52,14 @@ class OwnDropSweeps(unittest.TestCase):
         self.assertNotIn(COFFIN_TRIGGER, DUNGEON_SWEEPS,
                          "the non-terminal Coffin encounter must not pay the final Lansseax sweep")
 
+    def test_senessax_pays_both_co_firing_stone_checks(self):
+        """One boss-drop flag drives two reward lots; both AP locations must ride the kill."""
+        aps = [ap for region, locs in LOCATIONS.items() for _name, ap, flag in locs
+               if flag == SENESSAX_FLAG]
+        self.assertEqual(len(aps), 2, "Senessax must expose one check per reward lot")
+        self.assertTrue(set(aps) <= set(DUNGEON_SWEEPS[SENESSAX_TRIGGER]),
+                        "the own-drop admission must not overwrite one co-check with the other")
+
     def test_the_rule_not_the_list(self):
         """Every admissible boss_drops row IS swept; every inadmissible one is OUT for a named
         reason. Re-derived, so gen_data's pass and this test cannot drift apart silently."""
@@ -72,8 +82,8 @@ class OwnDropSweeps(unittest.TestCase):
         # The fail-closed remainder, pinned. A shrink here is the loop working (a suppressed
         # trigger gained a sweep, or a dead row became a check) -- name it. A growth means the
         # sweep builder dropped a trigger and its drop fell out with it: that is a regression.
-        self.assertEqual(len(admitted), 73, "the admitted set moved (was 73, 2026-08-20)")
-        self.assertEqual(sorted(notcheck), [530805, 530861],
+        self.assertEqual(len(admitted), 74, "the admitted set moved (was 74 after #1296)")
+        self.assertEqual(sorted(notcheck), [530861],
                          "the not-a-check remainder moved -- if one became a check it must now "
                          "be swept (the rule above already asserts it); update this pin with why")
         self.assertEqual(len(nosweep), 13,
