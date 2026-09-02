@@ -1,16 +1,23 @@
-# v0.5.6 — release blurb (draft)
+# v0.5.7 — release blurb (draft)
 
 _Draft. Written as the window fills, not at tag time._
 
 ## What you need to update
 
-- **Client:** Required — use the v0.5.6 client with v0.5.6 seeds.
+- **Client:** Required — use the v0.5.7 client with v0.5.7 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
 - **Profile/assets:** No action.
 
 ## What is in it so far
+
+### Foreign-world region Locks can be hinted from the tracker
+
+The F6 tracker now knows the full post-fill coordinate of a region Lock even when that Lock landed
+in another player's game. Buying its hint sends the same owner-qualified request Archipelago uses
+for shop hints, without spending normal AP hint points. Older seeds retain the existing `!hint`
+fallback rather than being misidentified as compatible.
 
 ### Boundary rulings stay in sync
 
