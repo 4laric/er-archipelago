@@ -63,7 +63,7 @@ FEXTRALIFE_LINKED_PLACE_AUDIT = load_repo_tool("check_fextralife_linked_place_le
 @unittest.skipUnless(REPO is not None, REPO_ONLY_REASON)
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (81, 16))
+        self.assertEqual(AUDIT.validate(REPO), (83, 16))
 
     def test_redmaw_same_step_location_anchors_validate(self):
         path = (REPO / "greenfield/evidence/wiki-audit" /
@@ -107,6 +107,25 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all("does not prove v1.17 behavior" in row["limitations"]
                             for row in rows))
         self.assertEqual(REDMAW_MERCHANT_AUDIT.main(), 0)
+
+    def test_dlc_blessing_collectible_second_source_slice(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "dlc-blessing-collectible-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 34)
+        self.assertEqual(len({row["subject_id"] for row in rows}), 34)
+        self.assertEqual(
+            {source: sum(row["source_ids"] == source for row in rows) for source in {
+                "wiki:gamesradar:scadutree-fragments:20260902",
+                "wiki:samurai-gamers:revered-spirit-ash:20260902",
+            }},
+            {
+                "wiki:gamesradar:scadutree-fragments:20260902": 22,
+                "wiki:samurai-gamers:revered-spirit-ash:20260902": 12,
+            },
+        )
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
 
     def test_broad_walkthrough_check_leads_validate(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "walkthrough-check-leads.tsv"
