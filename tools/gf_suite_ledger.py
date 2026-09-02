@@ -164,6 +164,10 @@ GENERATORS = [
     # intentionally absent from the installed world, so this AP-free suite belongs here rather
     # than skipping dark in every test shard (#1213).
     "evidence_baseline",
+    # External-corroboration progression-host confidence reads the repo-only wiki-audit lead
+    # corpus and its builder, then byte-checks the generated TSV, summary, and runtime sets.
+    # It is AP-free and deliberately unavailable in the installed-world test tree.
+    "progression_host_confidence",
 ]
 
 # Suites that run in the `tests` job (installed world + ensured artifacts + client at the gitlink).
