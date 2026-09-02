@@ -177,6 +177,19 @@ python tools/check_eldenpedia_deathroot_leads.py
 python tools/build_evidence_browser.py
 ```
 
+`eldenpedia-shabriri-grape-check-leads.tsv` applies the same immutable-revision discipline to all
+three Shabriri Grapes. Unique linked anchors distinguish the room past Godrick's throne, Purified
+Ruins, and Revenger's Shack rows; each selected AP flag is also required to remain a Shabriri Grape
+in the committed ItemLot corpus. This records Eldenpedia's Limgrave wording for the post-Godrick
+room beside AP's Stormveil bucket and preserves the Edgar row's Weeping quest dependency without
+promoting either observation into region or access logic.
+
+```bash
+python tools/build_eldenpedia_shabriri_grape_leads.py
+python tools/check_eldenpedia_shabriri_grape_leads.py
+python tools/build_evidence_browser.py
+```
+
 ## PowerPyx regional coverage
 
 `powerpyx-check-leads.tsv` is a second, source-independent corpus pass over three immutable

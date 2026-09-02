@@ -45,7 +45,7 @@ ELDENPEDIA_PAGE_HEADERS = (
     "title", "canonical_url", "revision_url", "wiki_region", "ap_regions",
     "notable_loot_links", "disposition",
 )
-ELDENPEDIA_DEATHROOT_PAGE_HEADERS = (
+ELDENPEDIA_ACQUISITION_PAGE_HEADERS = (
     "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1",
     "title", "canonical_url", "revision_url", "acquisition_rows", "disposition",
 )
@@ -133,9 +133,14 @@ def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict
                 "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
                 "disposition": row["disposition"],
             })
-    eldenpedia_deathroot_manifest = os.path.join(path, "eldenpedia-deathroot-pages.tsv")
-    if os.path.exists(eldenpedia_deathroot_manifest):
-        for row in read("eldenpedia-deathroot-pages.tsv", ELDENPEDIA_DEATHROOT_PAGE_HEADERS):
+    acquisition_manifests = (
+        "eldenpedia-deathroot-pages.tsv",
+        "eldenpedia-shabriri-grape-pages.tsv",
+    )
+    for manifest_name in acquisition_manifests:
+        if not os.path.exists(os.path.join(path, manifest_name)):
+            continue
+        for row in read(manifest_name, ELDENPEDIA_ACQUISITION_PAGE_HEADERS):
             sources.append({
                 "source_id": row["source_id"], "publisher": "Eldenpedia",
                 "author": "Eldenpedia contributors", "title": row["title"],

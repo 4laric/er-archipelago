@@ -20,6 +20,8 @@ item labels and stable anchors without copying guide prose or treating a checkli
 All nine repeated Deathroot checks are now independently bound to a pinned Eldenpedia revision by
 their unique boss, dungeon, or nearby-site anchors. The audit also preserves Eldenpedia's Altus
 wording for the Wyndham Catacombs acquisition beside AP's current Mt. Gelmir bucket for review.
+The same method now binds all three Shabriri Grapes by their unique post-Godrick, Purified Ruins,
+and Revenger's Shack anchors, with each AP flag cross-checked against committed ItemLot data.
 Merchant-section context resolves another 141 repeated item labels, while 151 that remain ambiguous
 are explicitly refused. The linked wiki.gg item pages are pinned to immutable revisions.
 

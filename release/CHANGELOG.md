@@ -27,6 +27,10 @@ Entries arrive below as they merge.
   The leads remain discovery-only and expose the Wyndham Altus/Mt. Gelmir boundary difference
   without silently changing region or access logic.
 
+- **All three Shabriri Grape checks now have exact external acquisition leads (#1273).** Unique
+  anchors in a pinned Eldenpedia revision are cross-checked against committed ItemLot identities;
+  the results remain discovery-only and preserve region and quest-boundary differences for review.
+
 - **Merchant context resolves 141 formerly ambiguous external leads (#1273).** Exact merchant
   sections, AP shop descriptions, and 96 pinned wiki.gg item revisions identify those checks;
   another 151 ambiguous merchant labels are deliberately refused.
