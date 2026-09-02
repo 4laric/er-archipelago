@@ -49,6 +49,11 @@ ELDENPEDIA_ACQUISITION_PAGE_HEADERS = (
     "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1",
     "title", "canonical_url", "revision_url", "acquisition_rows", "disposition",
 )
+ELDENPEDIA_COMBATANT_PAGE_HEADERS = (
+    "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1",
+    "title", "canonical_url", "revision_url", "combatant_category", "drop_links",
+    "disposition",
+)
 FEXTRALIFE_PAGE_HEADERS = (
     "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1",
     "title", "canonical_url", "revision_url", "ap_item_name", "template_fields", "ap_region",
@@ -150,6 +155,21 @@ def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict
                 "body_sha256": "mediawiki-sha1:" + row["revision_sha1"],
                 "license": "CC BY-SA 4.0",
                 "provenance": "immutable MediaWiki item-page revision",
+                "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
+                "disposition": row["disposition"],
+            })
+    combatant_manifest = os.path.join(path, "eldenpedia-combatant-pages.tsv")
+    if os.path.exists(combatant_manifest):
+        for row in read("eldenpedia-combatant-pages.tsv", ELDENPEDIA_COMBATANT_PAGE_HEADERS):
+            sources.append({
+                "source_id": row["source_id"], "publisher": "Eldenpedia",
+                "author": "Eldenpedia contributors", "title": row["title"],
+                "canonical_url": row["canonical_url"], "revision_url": row["revision_url"],
+                "archived_at": row["revision_timestamp"], "published_at": "unknown",
+                "last_modified": row["revision_timestamp"],
+                "body_sha256": "mediawiki-sha1:" + row["revision_sha1"],
+                "license": "CC BY-SA 4.0",
+                "provenance": "immutable MediaWiki combatant-page revision",
                 "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
                 "disposition": row["disposition"],
             })
@@ -323,6 +343,8 @@ def ledger_hash(path: str = CURRENT, wiki_path: str | None = None) -> str:
         names = ["sources.tsv", *wiki_lead_files(wiki_path)]
         if os.path.exists(os.path.join(wiki_path, "eldenpedia-location-pages.tsv")):
             names.append("eldenpedia-location-pages.tsv")
+        if os.path.exists(os.path.join(wiki_path, "eldenpedia-combatant-pages.tsv")):
+            names.append("eldenpedia-combatant-pages.tsv")
         if os.path.exists(os.path.join(wiki_path, "fextralife-item-pages.tsv")):
             names.append("fextralife-item-pages.tsv")
         for name in sorted(names):
