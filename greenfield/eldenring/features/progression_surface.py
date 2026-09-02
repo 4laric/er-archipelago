@@ -17,13 +17,13 @@ the tiny surface, and features/boss_locks already keeps them reachable in logic.
 so the GENERAL fill can carry them into partner worlds -- confining them here would keep them home and
 kill the cross-game dependency that is their entire purpose.
 
-FEASIBILITY LADDER (never FillError): a surface smaller than the number of locks to place -- or a seed
+FEASIBILITY LADDER: a surface smaller than the number of locks to place -- or a seed
 with no sphere-0 anchor -- can't host every lock. So strict mode WIDENS the allowed surface one grouped
 rung at a time, highest-confidence first (MajorBoss -> +Remembrance,GreatRune -> +KeyItem -> +Boss ->
-+Legendary -> +Seedtree,Church) and,
-for anything still unplaced, RETURNS it to the pool for normal fill. Because the terminal action is
-"back to the pool", generation can never hard-fail from this feature: worst case it degrades to v0.1
-scatter. (The +Seedtree rung also unlocks the 2 Roundtable-Hold Golden Seeds, an always-reachable
++Legendary -> +Seedtree,Church), then widens once to every enabled externally TRUSTED check regardless
+of tag. HOLD checks are never promoted and required items are never returned to unrestricted fill; a
+seed with no trusted matching refuses deterministically instead of weakening the invariant. (The
++Seedtree rung also unlocks the 2 Roundtable-Hold Golden Seeds, an always-reachable
 sphere-0 bootstrap, so a no-precollect seed can still seed the lock chain.)
 
 BASE-STATE FIX: reachability during the pre-fill is evaluated from mw.get_all_state(False) AFTER the
@@ -32,7 +32,7 @@ region Lock) counts as available, and a Boss-Key-gated boss check doesn't look f
 Placed locks are collected (lock=True) so multiworld progression-balancing can't later move them off the
 surface. Runs from core.pre_fill; supersedes curated_fill when the mode is soft/strict.
 """
-from Options import Choice, NamedRange, OptionSet, Range, Removed
+from Options import Choice, NamedRange, OptionError, OptionSet, Range, Removed
 import hashlib
 
 from ..registry import Feature, register
@@ -1398,14 +1398,35 @@ def _world_barred_aps(world):
 
 
 def _open_allowed(world, classes):
-    """Unfilled locations of this player whose tags put them ON THE SURFACE for `classes`."""
-    ids = surface_ap_ids(world, classes)
+    """Open, TRUSTED locations whose tags put them on the requested surface rung."""
+    ids = surface_ap_ids(world, classes) & _trusted_host_aps()
     out = []
     for loc in world.multiworld.get_locations(world.player):
         ap = getattr(loc, "address", None)
         if ap is not None and ap in ids and loc.item is None:
             out.append(loc)
     return out
+
+
+def _trusted_host_aps():
+    """The generated external-evidence allow-list; absent data admits nothing.
+
+    Fail-closed here is intentional.  This path moves required items.  Treating a missing generated
+    module as "everything is trusted" would turn a stale/incomplete release build into a silent
+    policy bypass.
+    """
+    try:
+        from ..evidence_progression_hosts import TRUSTED_PROGRESSION_HOST_APS
+    except ImportError:
+        return frozenset()
+    return frozenset(TRUSTED_PROGRESSION_HOST_APS)
+
+
+def _open_trusted(world):
+    """Final widening rung: every enabled trusted check, regardless of surface tag."""
+    trusted = _trusted_host_aps()
+    return [loc for loc in world.multiworld.get_locations(world.player)
+            if getattr(loc, "address", None) in trusted and loc.item is None]
 
 
 def _place(world, allowed, to_place, lock):
@@ -1453,7 +1474,7 @@ def _place(world, allowed, to_place, lock):
 
 def apply(world) -> None:
     """core.pre_fill hook. Confine this world's own progression to the selected surface; widen via
-    the ladder; return the remainder to the pool. Never FillErrors.
+    the tag ladder and finally every enabled TRUSTED check. Refuse if no trusted matching exists.
 
     Always strict since progression_surface_mode was retired -- the soft (mark-and-spill) and off
     regimes were unreachable from any yaml for two releases before they were deleted."""
@@ -1496,11 +1517,13 @@ def apply(world) -> None:
     world.gf_released_lock_items = list(released)
     world.gf_released_progression_items = list(travelling)
     n0 = len(to_place)
+    trusted_capacity = len(_open_trusted(world))
     for it in to_place:
         mw.itempool.remove(it)
     strict = True   # the only regime; see ProgressionSurfaceMode's retirement note
     rungs = build_ladder(surface)
     resolved = rungs[0] if rungs else list(surface)
+    world.gf_prog_surface_trusted_fallback = False
     for classes in rungs:
         if not to_place:
             break
@@ -1508,9 +1531,30 @@ def apply(world) -> None:
         world.random.shuffle(allowed)
         resolved = classes
         _place(world, allowed, to_place, lock=strict)
-    # Anything the surface (+ladder) could not host goes back to the pool for normal fill -> winnable.
-    for it in to_place:
-        mw.itempool.append(it)
+    # The tag ladder is a preference, not authority to weaken the evidence invariant. Its terminal
+    # rung is every ENABLED trusted check. HOLD checks never enter this list, even when that means a
+    # sparse seed must refuse instead of silently scattering required items into normal fill.
+    if to_place:
+        allowed = _open_trusted(world)
+        world.random.shuffle(allowed)
+        world.gf_prog_surface_trusted_fallback = True
+        _place(world, allowed, to_place, lock=strict)
+    if to_place:
+        # Put the still-unplaced objects back before raising. Generation stops, but keeping pool
+        # accounting intact makes the refusal deterministic and prevents test teardown/leak reports
+        # from obscuring the actual configuration error.
+        for it in to_place:
+            mw.itempool.append(it)
+        enabled_trusted = sum(
+            getattr(loc, "address", None) in _trusted_host_aps()
+            for loc in world.multiworld.get_locations(world.player))
+        names = ", ".join(sorted(it.name for it in to_place))
+        raise OptionError(
+            "progression_surface cannot place %d restricted-own-progression item(s) after "
+            "widening to all %d enabled TRUSTED checks (%d were open before placement); HOLD "
+            "checks are never promoted. Unplaced: %s. Keep more regions or broaden the enabled "
+            "content."
+            % (len(to_place), enabled_trusted, trusted_capacity, names))
     world.gf_prog_surface_resolved = list(resolved)
     world.gf_prog_surface_spilled = len(to_place)
     world.gf_prog_surface_placed = n0 - len(to_place)
@@ -1543,8 +1587,10 @@ def apply(world) -> None:
         len(world.gf_locks_released), 100 - _released_pct(world),
         (": " + ", ".join(world.gf_locks_released)) if world.gf_locks_released else "")
     logging.getLogger("Greenfield").info(
-        "[greenfield] progression surface: rung %s placed %d/%d; %d SPILLED to normal fill%s",
-        resolved, n0 - len(to_place), n0, len(to_place),
+        "[greenfield] progression surface: rung %s placed %d/%d; trusted fallback %s; "
+        "%d SPILLED to normal fill%s",
+        resolved, n0 - len(to_place), n0,
+        "used" if world.gf_prog_surface_trusted_fallback else "not needed", len(to_place),
         (" (curation only -- winnability is guarded elsewhere): "
          + ", ".join(world.gf_prog_surface_spilled_names)) if to_place else "")
 
