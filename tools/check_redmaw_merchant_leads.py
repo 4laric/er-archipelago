@@ -17,15 +17,17 @@ def main() -> int:
     report = json.loads((AUDIT / "redmaw-merchant-coverage.json").read_text(encoding="utf-8"))
     with (AUDIT / "redmaw-merchant-wikigg-revisions.tsv").open(encoding="utf-8", newline="") as handle:
         revisions = {row["redmaw_url"]: row for row in csv.DictReader(handle, delimiter="\t")}
-    assert len(revisions) == 96
+    assert len(revisions) == 491
     for url, revision in revisions.items():
         assert url.startswith("https://eldenring.wiki.gg/wiki/")
         assert revision["revision_url"].endswith("?oldid=" + revision["revision_id"])
         assert revision["page_id"].isdigit() and revision["revision_id"].isdigit()
         assert revision["revision_timestamp"].endswith("Z")
-    assert len(rows) == report["resolved_checks"] == 141
+    assert len(rows) == report["resolved_checks"] == 157
     assert report["ambiguous_merchant_labels"] == 292
-    assert report["refused_labels"] == 151
+    assert report["matched_labels"] == 167
+    assert report["duplicate_labels"] == 10
+    assert report["refused_labels"] == 135
     assert len({row["lead_id"] for row in rows}) == len(rows)
     assert len({row["subject_id"] for row in rows}) == len(rows)
     for row in rows:
@@ -34,14 +36,15 @@ def main() -> int:
         assert row["independence_families"] == "gameplay-guide:redmaw"
         assert row["disposition"] == "lead_only" and row["game_version"] == "unknown"
         value = json.loads(row["normalized_value"])
-        assert set(value) == {"ap_flag", "item_name", "merchant_anchor", "wiki_url"}
+        assert set(value) == {"ap_flag", "item_name", "merchant_anchor", "shop_row_ids", "wiki_url"}
         assert isinstance(value["ap_flag"], int) and value["ap_flag"] > 0
+        assert value["shop_row_ids"] and all(isinstance(row_id, int) for row_id in value["shop_row_ids"])
         assert value["merchant_anchor"] and value["wiki_url"].startswith("https://eldenring.wiki.gg/wiki/")
         assert row["exact_citations"].endswith(
             ";wiki.gg:" + revisions[value["wiki_url"]]["revision_url"]
         )
         assert "does not independently prove AP's region" in row["limitations"]
-    print(f"Redmaw merchant leads: OK -- {len(rows)} contextual bindings; 151 refused")
+    print(f"Redmaw merchant leads: OK -- {len(rows)} contextual bindings; 135 refused")
     return 0
 
 
