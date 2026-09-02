@@ -134,6 +134,7 @@ class OfflineArtifactTests(unittest.TestCase):
                           "eldenpedia-sacred-tear-check-leads.tsv",
                           "eldenpedia-seedbed-curse-check-leads.tsv",
                           "eldenpedia-shabriri-grape-check-leads.tsv",
+                          "fextralife-acquisition-check-leads.tsv",
                           "fextralife-item-check-leads.tsv", "game8-check-leads.tsv", "leads.tsv",
                           "powerpyx-check-leads.tsv",
                           "redmaw-checklist-check-leads.tsv",
