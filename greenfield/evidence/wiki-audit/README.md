@@ -110,6 +110,33 @@ python tools/check_redmaw_merchant_leads.py
 python tools/build_evidence_browser.py
 ```
 
+## Eldenpedia repeated map-pickup coverage
+
+`eldenpedia-repeated-pickup-check-leads.tsv` resolves a conservative subset of the repeated item
+names that the first location-page pass deliberately refused. It reuses the same 341 immutable
+page revisions pinned by `eldenpedia-location-pages.tsv`; the companion coverage report records the
+full ambiguity/refusal boundary.
+
+A repeated Notable Loot link binds only when the normalized location-page title occurs as a whole
+phrase in exactly one same-region AP description and that check's current v1.17 detection claim
+uses `ItemLotParam_map.getItemFlagId` with the same flag as `data.py`. This joins an external page
+and item identity to committed game-param evidence without guessing between repeated stones,
+runes, keys, grease, or other consumables. Page-title silence and multiple title matches remain
+refusals.
+
+Every result remains `lead_only` at `game_version=unknown`; the pinned wiki revision does not prove
+access, route order, coordinates, completeness, event timing, or alternate-acquisition absence.
+Nothing here is consumed by world logic or the access disposition ledger.
+
+Reproduce from the same-run API capture used by the broad Eldenpedia pass:
+
+```bash
+python tools/build_eldenpedia_location_leads.py --write-capture /tmp/eldenpedia-locations.json
+python tools/build_eldenpedia_repeated_pickup_leads.py /tmp/eldenpedia-locations.json
+python tools/check_eldenpedia_repeated_pickup_leads.py
+python tools/build_evidence_browser.py
+```
+
 ## Game8 legacy-dungeon corpus
 
 `game8-check-leads.tsv` independently cross-checks the Redmaw pass against five immutable Game8
