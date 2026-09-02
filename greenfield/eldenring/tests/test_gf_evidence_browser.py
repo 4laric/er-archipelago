@@ -127,6 +127,7 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertEqual(BUILDER.wiki_lead_files(),
                          ["eldenpedia-deathroot-check-leads.tsv",
                           "eldenpedia-location-check-leads.tsv",
+                          "eldenpedia-repeated-pickup-check-leads.tsv",
                           "eldenpedia-shabriri-grape-check-leads.tsv",
                           "fextralife-item-check-leads.tsv", "game8-check-leads.tsv", "leads.tsv",
                           "powerpyx-check-leads.tsv",
