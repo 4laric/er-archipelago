@@ -12,4 +12,7 @@ _Draft. Written as the window fills, not at tag time._
 
 ## What is in it so far
 
-The window is open. Entries will be added as changes merge.
+Chapel of Anticipation return checks now follow the repeatable Four Belfries route. The two
+Stormhawk ashes are filed with the Scion rewards in Liurnia, and an Imbued Sword Key is required
+when legacy key gates are enabled, preventing Stormveil-only seeds from treating the isolated
+Chapel floor as reachable.

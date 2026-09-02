@@ -3085,6 +3085,10 @@ FLAG_REGION_OVERRIDE = {
                                                #   QUEST_GATED_FLAGS (missable hard fight), so it hosts no
                                                #   progression either way. (Alaric 2026-07-23; re-ruled
                                                #   2026-08-25, #1023.)
+    10017010: "Liurnia",        # The Stormhawk King, Chapel of Anticipation return (#1303).
+                                               #   v1.17 MSB places it in m10_01; the repeatable route is
+                                               #   Liurnia's Four Belfries gate, requiring Goods 8186.
+    10017900: "Liurnia",        # Stormhawk Deenh, same Chapel return route and evidence as f10017010.
     400001: "Leyndell",          # Rold Medallion = GRANTED by Melina at the Elden Throne after Morgott
                                                #   dies -- obtained IN Leyndell, needs Leyndell + Morgott, NOT
                                                #   Altus. Raw pipeline pinned it to Altus off the m34_14
