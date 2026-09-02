@@ -1851,7 +1851,7 @@ LOCATIONS = {
         ("Gravesite :: Loyal Knight's Cookbook - near Castle Ensis Checkpoint, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f68790]", 7770162, 68790),
         ("Gravesite :: Fire Knight's Cookbook [2] - near Castle Front, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f68900]", 7770172, 68900),
         ('Gravesite :: Gourmet Scorpion Stew [f400722]', 7770649, 400722),
-        ("Gravesite :: Death Knight's Twin Axes - around Auriza Side Tomb [f520700]", 7770691, 520700),
+        ("Gravesite :: Death Knight's Twin Axes - in Fog Rift Catacombs [f520700]", 7770691, 520700),
         ('Gravesite :: Grave Glovewort [1] - near Fog Rift Catacombs, may be sweep-granted by Death Knight (m40_00) [f40007000]', 7772425, 40007000),
         ('Gravesite :: Great Ghost Glovewort - near Fog Rift Catacombs, may be sweep-granted by Death Knight (m40_00) [f40007800]', 7772426, 40007800),
         ('Gravesite :: Frozen Maggot - near Belurat Gaol (1), may be sweep-granted by Demi-Human Swordmaster Onze (m41_00) [f41007000]', 7772431, 41007000),
@@ -2030,7 +2030,7 @@ LOCATIONS = {
         ("Gravesite :: Igon's Gauntlets - around Pillar Path Waypoint, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f400711]", 7900105, 400711),
         ("Gravesite :: Igon's Loincloth - around Pillar Path Waypoint, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f400711]", 7900106, 400711),
         ("Gravesite :: Igon's Bell Bearing - around Pillar Path Waypoint, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f400711]", 7900107, 400711),
-        ('Gravesite :: Crimson Amber Medallion +3 - around Auriza Side Tomb [f520700]', 7900143, 520700),
+        ('Gravesite :: Crimson Amber Medallion +3 - in Fog Rift Catacombs [f520700]', 7900143, 520700),
         ('Gravesite :: Helm of Solitude - Blackgaol Knight [f530820]', 7900159, 530820),
         ('Gravesite :: Armor of Solitude - Blackgaol Knight [f530820]', 7900160, 530820),
         ('Gravesite :: Gauntlets of Solitude - Blackgaol Knight [f530820]', 7900161, 530820),
@@ -5538,4 +5538,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:57f90fbd0e9c90fcae51cde93cfd1a61d320a8636504492a63e45a0d364c8348', 'module': 'data.py', 'body_sha256': 'sha256:b75a86551dcb7c10a76668841592f08d24536dd5323312616dfb80aa84d5567d'}
+_GEN_STAMP = {'inputs_hash': 'sha256:57f90fbd0e9c90fcae51cde93cfd1a61d320a8636504492a63e45a0d364c8348', 'module': 'data.py', 'body_sha256': 'sha256:48c209237f3a54dd9e3916cbd8c01174ba050315be1254ae3889f9f3487d61d0'}

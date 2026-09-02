@@ -18,6 +18,10 @@ client half is clients#559 and its merge commit is pinned by the gitlink in this
 
 Entries arrive below as they merge.
 
+- **Fog Rift Catacombs rewards no longer point players to Auriza Side Tomb (#1305).** Both
+  rewards sharing `f520700` now name their EMEVD-proven dungeon while remaining correctly assigned
+  to Gravesite.
+
 - **The player guide now explains Region Lock hints (#1309).** Its stable
   `#region-lock-hints` section covers the F6 tracker, surface-check balance,
   frontier selection, aimed hints, and where the resulting Archipelago hint
