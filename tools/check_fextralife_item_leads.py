@@ -28,7 +28,7 @@ def main() -> int:
         pages = list(csv.DictReader(handle, delimiter="\t"))
     with LEADS.open(encoding="utf-8", newline="") as handle:
         leads = list(csv.DictReader(handle, delimiter="\t"))
-    assert len(pages) >= 290, "Fextralife item corpus unexpectedly collapsed"
+    assert len(pages) >= 1300, "Fextralife item corpus unexpectedly collapsed"
     assert len(leads) == len(pages)
     sources = {}
     for row in pages:
@@ -40,7 +40,7 @@ def main() -> int:
         assert row["canonical_url"] + "?oldid=" + row["revision_id"] == row["revision_url"]
         assert re.fullmatch(r"[0-9a-z]{40}", row["revision_sha1"])
         assert row["revision_timestamp"].endswith("Z")
-        assert row["template_fields"] and row["ap_region"]
+        assert row["ap_item_name"]
         assert row["disposition"] == "lead_only"
 
     spec = importlib.util.spec_from_file_location(
@@ -54,14 +54,24 @@ def main() -> int:
     assert ids == sorted(ids) and len(ids) == len(set(ids))
     assert len(subjects) == len(set(subjects))
     for row in leads:
-        assert row["subject_kind"] == "check" and row["claim_kind"] == "identity_region"
+        assert row["subject_kind"] == "check"
+        assert row["claim_kind"] in {"identity", "identity_region"}
         assert row["subject_id"] in current and row["source_ids"] in sources
         assert row["independence_families"] == "gameplay-wiki:fextralife"
         assert row["disposition"] == "lead_only" and row["game_version"] == "unknown"
         value = json.loads(row["normalized_value"])
-        assert (value["region"], value["item_name"]) == current[row["subject_id"]]
-        assert value["region"] == sources[row["source_ids"]]["ap_region"]
-        assert row["exact_citations"] and "does not prove access" in row["limitations"]
+        region, item_name = current[row["subject_id"]]
+        source = sources[row["source_ids"]]
+        assert value["item_name"] == item_name == source["ap_item_name"]
+        if row["claim_kind"] == "identity_region":
+            assert value["region"] == region == source["ap_region"]
+            assert source["template_fields"]
+            assert "does not prove access" in row["limitations"]
+        else:
+            assert set(value) == {"item_name"}
+            assert not source["ap_region"] and not source["template_fields"]
+            assert "does not prove region" in row["limitations"]
+        assert row["exact_citations"]
     print(f"Fextralife item leads: OK -- {len(pages)} immutable revisions, "
           f"{len(leads)} exact check bindings")
     return 0

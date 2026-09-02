@@ -26,7 +26,8 @@ API = "https://eldenring.wiki.fextralife.com/api.php?"
 USER_AGENT = "er-archipelago evidence audit/1.0 (+https://github.com/4laric/er-archipelago)"
 PAGE_FIELDS = (
     "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1", "title",
-    "canonical_url", "revision_url", "template_fields", "ap_region", "disposition",
+    "canonical_url", "revision_url", "ap_item_name", "template_fields", "ap_region",
+    "disposition",
 )
 LEAD_FIELDS = (
     "lead_id", "subject_kind", "subject_id", "claim_kind", "normalized_value", "source_ids",
@@ -101,6 +102,16 @@ def location_fields(content: str) -> list[tuple[str, str]]:
     return rows
 
 
+def template_item_name(content: str) -> str:
+    match = re.search(r"^\|\s*name\s*=\s*(.*)$", content,
+                      flags=re.MULTILINE | re.IGNORECASE)
+    return clean_field(match.group(1)) if match else ""
+
+
+def norm(value: str) -> str:
+    return " ".join(re.findall(r"[a-z0-9]+", value.casefold().replace("&", " and ")))
+
+
 def resolve_pages(batches: list[dict]) -> tuple[dict[str, dict], dict[str, str]]:
     pages, aliases = {}, {}
     for batch in batches:
@@ -127,7 +138,8 @@ def build(batches: list[dict]) -> tuple[list[dict], list[dict], dict]:
     pages, aliases = resolve_pages(batches)
     manifest, leads = [], []
     stats = {"unique_check_names": len(checks), "resolved_pages": 0,
-             "pages_with_structured_location": 0, "matched_checks": 0}
+             "pages_with_exact_template_name": 0, "pages_with_structured_location": 0,
+             "identity_checks": 0, "identity_region_checks": 0, "matched_checks": 0}
     for item_name in sorted(checks):
         page = resolved(item_name, pages, aliases)
         if not page:
@@ -135,13 +147,14 @@ def build(batches: list[dict]) -> tuple[list[dict], list[dict], dict]:
         stats["resolved_pages"] += 1
         revision = page["revisions"][0]
         content = revision["slots"]["main"]["content"]
+        if norm(template_item_name(content)) != norm(item_name):
+            continue
+        stats["pages_with_exact_template_name"] += 1
         fields = location_fields(content)
         stats["pages_with_structured_location"] += bool(fields)
         region, ap_id = checks[item_name]
         matched = [(field, value) for field, value in fields
                    if region.casefold() in value.casefold()]
-        if not matched:
-            continue
         page_id, revision_id = int(page["pageid"]), int(revision["revid"])
         source_id = f"wiki:fextralife:page-{page_id}:revision-{revision_id}"
         title_slug = page["title"].replace(" ", "_")
@@ -152,26 +165,40 @@ def build(batches: list[dict]) -> tuple[list[dict], list[dict], dict]:
             "canonical_url": "https://eldenring.wiki.fextralife.com/" + title_slug,
             "revision_url": ("https://eldenring.wiki.fextralife.com/" + title_slug
                              + f"?oldid={revision_id}"),
+            "ap_item_name": item_name,
             "template_fields": ",".join(field for field, _value in matched),
-            "ap_region": region, "disposition": "lead_only",
+            "ap_region": region if matched else "", "disposition": "lead_only",
         })
-        citations = ",".join(f"fextralife:pageid-{page_id}:revision-{revision_id}:template-{field}"
-                             for field, _value in matched)
+        citations = [f"fextralife:pageid-{page_id}:revision-{revision_id}:template-name"]
+        citations.extend(f"fextralife:pageid-{page_id}:revision-{revision_id}:template-{field}"
+                         for field, _value in matched)
+        claim_kind = "identity_region" if matched else "identity"
+        value = {"item_name": item_name}
+        if matched:
+            value["region"] = region
+        stats["identity_region_checks" if matched else "identity_checks"] += 1
         leads.append({
             "lead_id": f"fextralife-page-{page_id}-revision-{revision_id}-check-{ap_id}",
-            "subject_kind": "check", "subject_id": str(ap_id), "claim_kind": "identity_region",
-            "normalized_value": json.dumps({"item_name": item_name, "region": region},
-                                           ensure_ascii=False, sort_keys=True,
+            "subject_kind": "check", "subject_id": str(ap_id), "claim_kind": claim_kind,
+            "normalized_value": json.dumps(value, ensure_ascii=False, sort_keys=True,
                                            separators=(",", ":")),
             "source_ids": source_id, "independence_families": "gameplay-wiki:fextralife",
             "disposition": "lead_only", "game_version": "unknown",
-            "exact_citations": citations,
-            "summary": (f"Fextralife revision {revision_id} files {item_name} under a structured "
-                        f"location field naming {region}; that item name identifies one AP check."),
-            "limitations": ("Community-wiki item-page lead matched by a globally unique AP item "
-                            "name and a literal AP-region occurrence in a structured template field. "
-                            "It does not prove access, a v1.17 event predicate, route order, "
-                            "completeness, exact coordinates, or absence of another source."),
+            "exact_citations": ",".join(citations),
+            "summary": ((f"Fextralife revision {revision_id} names {item_name} and files it under "
+                         f"a structured location field naming {region}; that item name identifies "
+                         "one AP check.") if matched else
+                        (f"Fextralife revision {revision_id} uses {item_name} as its structured item "
+                         "name; that exact name identifies one current AP check.")),
+            "limitations": (("Community-wiki item-page lead matched by a globally unique AP item "
+                             "name and a literal AP-region occurrence in a structured template field. "
+                             "It does not prove access, a v1.17 event predicate, route order, "
+                             "completeness, exact coordinates, or absence of another source.")
+                            if matched else
+                            ("Community-wiki item-page lead matched only by a globally unique AP item "
+                             "name and the page's structured name field. It does not prove region. "
+                             "It does not prove access, v1.17 behavior, event predicates, route "
+                             "order, coordinates, completeness, or absence of another source.")),
         })
     manifest.sort(key=lambda row: row["source_id"])
     leads.sort(key=lambda row: row["lead_id"])
