@@ -93,6 +93,24 @@ class FixtureContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "dangling sources"):
             BUILDER.transform(tables, external_sources=sources, external_leads=bad)
 
+    def test_external_leads_accept_semicolon_separated_sources_and_families(self):
+        tables = BUILDER.normalized_tables(BUILDER.FIXTURE)
+        sources, leads = BUILDER.wiki_tables()
+        source_ids = [row["source_id"] for row in sources[:2]]
+        lead = copy.deepcopy(leads[0])
+        lead["lead_id"] = "fixture-semicolon-check-7770100"
+        lead["subject_id"] = "7770100"
+        lead["source_ids"] = ";".join(source_ids)
+        lead["independence_families"] = "gameplay-guide:first;gameplay-guide:second"
+        data = BUILDER.transform(tables, external_sources=sources, external_leads=[lead])
+        rendered = next(
+            candidate for check in data["checks"] for candidate in check["external_leads"]
+            if candidate["lead_id"] == lead["lead_id"]
+        )
+        self.assertEqual([source["source_id"] for source in rendered["sources"]], source_ids)
+        self.assertEqual(rendered["families"],
+                         ["gameplay-guide:first", "gameplay-guide:second"])
+
 
 @unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class OfflineArtifactTests(unittest.TestCase):
@@ -125,7 +143,9 @@ class OfflineArtifactTests(unittest.TestCase):
 
     def test_wiki_registries_participate_in_the_content_hash(self):
         self.assertEqual(BUILDER.wiki_lead_files(),
-                         ["eldenpedia-boss-reward-check-leads.tsv",
+                         ["dlc-blessing-collectible-check-leads.tsv",
+                          "dlc-sparse-region-check-leads.tsv",
+                          "eldenpedia-boss-reward-check-leads.tsv",
                           "eldenpedia-crystal-tear-check-leads.tsv",
                           "eldenpedia-deathroot-check-leads.tsv",
                           "eldenpedia-golden-seed-check-leads.tsv",
@@ -142,7 +162,9 @@ class OfflineArtifactTests(unittest.TestCase):
                           "fextralife-acquisition-check-leads.tsv",
                           "fextralife-item-check-leads.tsv",
                           "fextralife-linked-place-check-leads.tsv",
-                          "game8-check-leads.tsv", "leads.tsv",
+                          "game8-check-leads.tsv",
+                          "game8-dlc-anchor-check-leads.tsv",
+                          "game8-dlc-floor-check-leads.tsv", "leads.tsv",
                           "powerpyx-check-leads.tsv",
                           "redmaw-checklist-check-leads.tsv",
                           "redmaw-embedded-ash-check-leads.tsv",

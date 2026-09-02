@@ -283,7 +283,8 @@ class SurfaceContract(WorldTestBase):
         from worlds.eldenring.location_tags import LOCATION_TAGS
 
         world = self.world
-        classes = ps.selected_surface(ps._selection(world))
+        classes = getattr(world, "gf_prog_surface_resolved",
+                          ps.selected_surface(ps._selection(world)))
         # _world_barred_aps is the SAME per-world no-progression set both apply() and slot_data()
         # read (capital reconciler ON lifts the ERDTREE_BURN bar -- SPEC-capital-reconciler.md);
         # recomputing the surface here must go through it too, or this test would re-create the
@@ -293,6 +294,8 @@ class SurfaceContract(WorldTestBase):
         # second-list drift this test forbids -- it caught exactly that when the derived half was
         # added, reporting ~50 ids the wire had and this recomputation did not.
         placement_surface = ps.surface_ap_ids(world, classes)
+        if getattr(world, "gf_prog_surface_trusted_fallback", False):
+            placement_surface |= ps._trusted_host_aps()
         own = {loc.address for loc in self.multiworld.get_locations(world.player)
                if loc.address is not None}
         expected = {i for i in placement_surface if i in own}

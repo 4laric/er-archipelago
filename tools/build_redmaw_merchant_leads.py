@@ -116,13 +116,14 @@ def build(sheets: Path):
     for checkbox_id, section_id, wiki_url, raw_label in parser.rows:
         label = raw_label.removesuffix(":").strip()
         candidates = index.get(base.norm(label), ())
-        if len(candidates) <= 1:
+        if not candidates:
             continue
-        ambiguous += 1
+        if len(candidates) > 1:
+            ambiguous += 1
         section = by_section.setdefault(
             section_id, {"ambiguous": 0, "matched": 0, "duplicate": 0, "refused": 0}
         )
-        section["ambiguous"] += 1
+        section["ambiguous"] += len(candidates) > 1
         region, merchant_names = MERCHANT_CONTEXT.get(section_id, (None, ()))
         def physical_names(candidate):
             row_ids = shop_data.SHOP_ROW_IDS.get(str(candidate[1]), ())
@@ -134,28 +135,35 @@ def build(sheets: Path):
                        for expected in merchant_names for actual in names)
 
         matches = [candidate for candidate in candidates
-                   if (region is None or candidate[0] == region) and context_matches(candidate)]
+                   if (region is None or candidate[0] == region)
+                   and (len(candidates) == 1 or context_matches(candidate))]
         if len(matches) != 1:
             refused += 1
             section["refused"] += 1
             continue
         ap_region, ap_id, _location, ap_flag = matches[0]
         wiki_revision = wiki_revisions[wiki_url]
+        shop_row_ids = sorted(shop_data.SHOP_ROW_IDS.get(str(ap_id), ()))
+        if not shop_row_ids:
+            refused += 1
+            section["refused"] += 1
+            continue
         matched += 1
         section["matched"] += 1
-        shop_row_ids = sorted(shop_data.SHOP_ROW_IDS.get(str(ap_id), ()))
         provisional.append({
             "lead_id": f"redmaw-merchant-{section_id}-{checkbox_id}-check-{ap_id}",
             "subject_kind": "check",
             "subject_id": str(ap_id),
-            "claim_kind": "identity",
+            "claim_kind": "identity_region" if region is not None else "identity",
             "normalized_value": json.dumps(
                 {"ap_flag": ap_flag, "item_name": label, "merchant_anchor": section_id,
+                 **({"region": ap_region} if region is not None else {}),
                  "shop_row_ids": shop_row_ids, "wiki_url": wiki_url},
                 ensure_ascii=False, sort_keys=True, separators=(",", ":"),
             ),
-            "source_ids": base.SOURCE_ID,
-            "independence_families": "gameplay-guide:redmaw",
+            "source_ids": (base.SOURCE_ID + ";wiki:eldenpedia:merchant-item:revision-"
+                           + wiki_revision["revision_id"]),
+            "independence_families": "gameplay-guide:redmaw;gameplay-wiki:eldenpedia",
             "disposition": "lead_only",
             "game_version": "unknown",
             "exact_citations": (
@@ -165,7 +173,7 @@ def build(sheets: Path):
             "summary": f"Redmaw lists {label} under merchant section {section_id}; that context identifies current AP shop flag {ap_flag}.",
             "limitations": (
                 f"The identity is narrowed by Redmaw's merchant anchor and AP's current flag, shop-row, and physical-merchant evidence ({ap_region}). "
-                "It does not independently prove AP's region, v1.17 behavior, access logic, stock predicates, or shop availability."
+                "It does not prove v1.17 behavior, access logic, stock predicates, or shop availability."
             ),
         })
     subject_counts: dict[str, int] = {}

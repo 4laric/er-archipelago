@@ -65,6 +65,7 @@ from .features import vanilla_placement as _vp  # every item back in its base-ga
 from .features import goal_locations as _gl  # GOAL_CHOICES / forced_regions (the explicit `goal` option)
 from .features import finale as _finale  # ASHEN_LOCK_ITEM / finale_active (SPEC-ashen-capital-lock)
 from .features import progression_surface as _ps  # independent goal-region requirement axis
+from .features import evidence_progression_hosts as _eph  # v0.6 audited progression-host policy
 from .features import traps as _traps  # spawn_item_name -- the spawn-trap id block below
 from .merchant_bell_pool import merchant_bell_pool_allowed
 try:
@@ -1868,14 +1869,15 @@ class GreenfieldEldenRingWorld(World):
                 _prev_a = _loc.access_rule
                 _loc.access_rule = lambda state, _p=_prev_a, _r=_site, _pl=self.player: (
                     state.can_reach(_r, "Region", _pl) and _p(state))
+            # v0.6 evidence invariant: only checks with an audited, generated trust binding may host
+            # advancement. This is an all-owner rule; stranding another world's progression is just
+            # as fatal as stranding ours. Useful/filler stays in normal fill.
+            _eph.apply_location_rule(self, _loc)
             if ap_id in _barred:
                 # Bar ADVANCEMENT only, via item_rule -- do NOT use LocationProgressType.EXCLUDED.
-                # EXCLUDED puts the location in AP's dedicated "Remaining Excluded" filler-only pass
-                # (Fill.py:625), which must fill EVERY excluded location from the plain filler pool; the
-                # weapon/shop slots among these carry their own item_rules that generic filler can't
-                # satisfy, and the pass FillErrors. An item_rule keeps them in the normal fill (they can
-                # still hold useful/filler, including other worlds' non-progression items) while making
-                # them ineligible for anything the seed could ever REQUIRE.
+                # EXCLUDED changes AP fill ordering and classification globally. An item_rule expresses
+                # the actual invariant at the location chokepoint, composes with name/capacity rules,
+                # and keeps useful/filler (including foreign non-progression) in ordinary fill.
                 # Bars advancement from ANY player: progression stranded somewhere unreachable is just
                 # as unwinnable for a foreign world as for ours.
                 # ERDTREE_BURN_APS rides the same rule: killing Maliketh burns the Erdtree, switches

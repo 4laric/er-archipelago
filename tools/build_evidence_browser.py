@@ -14,6 +14,7 @@ import csv
 import hashlib
 import json
 import os
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -121,6 +122,23 @@ def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict
             raise ValueError(f"wiki-audit/{name} has duplicate primary ids")
         return rows
     sources = read("sources.tsv", WIKI_SOURCE_HEADERS)
+    merchant_revisions = os.path.join(path, "redmaw-merchant-wikigg-revisions.tsv")
+    if os.path.exists(merchant_revisions):
+        with open(merchant_revisions, encoding="utf-8", newline="") as handle:
+            for row in csv.DictReader(handle, delimiter="\t"):
+                sources.append({
+                    "source_id": "wiki:eldenpedia:merchant-item:revision-" + row["revision_id"],
+                    "publisher": "Eldenpedia", "author": "Eldenpedia contributors",
+                    "title": row["canonical_url"].rsplit("/", 1)[-1].replace("_", " "),
+                    "canonical_url": row["canonical_url"], "revision_url": row["revision_url"],
+                    "archived_at": row["revision_timestamp"], "published_at": "unknown",
+                    "last_modified": row["revision_timestamp"],
+                    "body_sha256": "mediawiki-revision:" + row["revision_id"],
+                    "license": "CC BY-SA 4.0",
+                    "provenance": "immutable MediaWiki item-page revision",
+                    "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
+                    "disposition": "lead_only",
+                })
     eldenpedia_manifest = os.path.join(path, "eldenpedia-location-pages.tsv")
     if os.path.exists(eldenpedia_manifest):
         # The location corpus has page-level immutable revision records rather than pretending 341
@@ -298,7 +316,10 @@ def transform(
     external_by_check: dict[int, list[dict]] = {}
     unbound_external = []
     for row in external_leads or []:
-        source_ids = [source_id.strip() for source_id in row["source_ids"].split(",") if source_id.strip()]
+        # Check-lead tables use semicolons because citations and normalized values may contain
+        # commas. Accept the original comma separator too so older audit fixtures remain readable.
+        source_ids = [source_id.strip() for source_id in re.split(r"[;,]", row["source_ids"])
+                      if source_id.strip()]
         if row["disposition"] != "lead_only" or row["game_version"] != "unknown":
             raise ValueError(f"external lead crossed the lead-only boundary: {row['lead_id']}")
         if not source_ids or not set(source_ids) <= set(external_source_by_id):
@@ -308,7 +329,9 @@ def transform(
             "subject_id": row["subject_id"], "claim_kind": row["claim_kind"],
             "value": json.loads(row["normalized_value"]),
             "disposition": row["disposition"], "game_version": row["game_version"],
-            "families": [family.strip() for family in row["independence_families"].split(",") if family.strip()],
+            "families": [family.strip() for family in
+                         re.split(r"[;,]", row["independence_families"])
+                         if family.strip()],
             "citations": row["exact_citations"], "summary": row["summary"],
             "limitations": row["limitations"],
             "sources": [{key: external_source_by_id[source_id][key] for key in (

@@ -4,19 +4,37 @@
     "abandoned-merchant": {
       "ambiguous": 7,
       "duplicate": 0,
-      "matched": 5,
+      "matched": 8,
       "refused": 2
+    },
+    "bernahl": {
+      "ambiguous": 0,
+      "duplicate": 0,
+      "matched": 12,
+      "refused": 0
+    },
+    "blackguard": {
+      "ambiguous": 0,
+      "duplicate": 0,
+      "matched": 1,
+      "refused": 0
     },
     "corhyn": {
       "ambiguous": 1,
       "duplicate": 0,
-      "matched": 1,
+      "matched": 12,
+      "refused": 0
+    },
+    "darian": {
+      "ambiguous": 0,
+      "duplicate": 0,
+      "matched": 2,
       "refused": 0
     },
     "dragon-communion": {
       "ambiguous": 1,
       "duplicate": 0,
-      "matched": 1,
+      "matched": 16,
       "refused": 0
     },
     "enia": {
@@ -28,37 +46,37 @@
     "gostoc": {
       "ambiguous": 8,
       "duplicate": 0,
-      "matched": 7,
+      "matched": 12,
       "refused": 1
     },
     "gowry": {
       "ambiguous": 1,
       "duplicate": 0,
-      "matched": 1,
+      "matched": 4,
       "refused": 0
     },
     "hermit-ainsel-river": {
       "ambiguous": 4,
       "duplicate": 0,
-      "matched": 4,
+      "matched": 9,
       "refused": 0
     },
     "hermit-capital-outskirts": {
       "ambiguous": 10,
       "duplicate": 0,
-      "matched": 4,
-      "refused": 6
+      "matched": 11,
+      "refused": 8
     },
     "hermit-mountaintops": {
       "ambiguous": 8,
       "duplicate": 0,
-      "matched": 2,
+      "matched": 7,
       "refused": 6
     },
     "iji": {
       "ambiguous": 4,
       "duplicate": 0,
-      "matched": 2,
+      "matched": 3,
       "refused": 2
     },
     "imprisoned-merchant": {
@@ -70,150 +88,156 @@
     "isolated-dragonbarrow": {
       "ambiguous": 9,
       "duplicate": 0,
-      "matched": 6,
+      "matched": 14,
       "refused": 3
     },
     "isolated-raya-lucaria": {
       "ambiguous": 7,
       "duplicate": 0,
-      "matched": 7,
-      "refused": 0
+      "matched": 16,
+      "refused": 1
     },
     "isolated-weeping-peninsula": {
       "ambiguous": 11,
       "duplicate": 0,
-      "matched": 9,
+      "matched": 11,
       "refused": 2
     },
     "kale": {
       "ambiguous": 5,
       "duplicate": 0,
-      "matched": 2,
+      "matched": 15,
       "refused": 3
     },
     "miriel": {
       "ambiguous": 24,
       "duplicate": 0,
-      "matched": 23,
-      "refused": 1
+      "matched": 26,
+      "refused": 10
     },
     "moore": {
       "ambiguous": 15,
       "duplicate": 4,
-      "matched": 11,
+      "matched": 13,
       "refused": 4
     },
     "nomadic-altus-plateau": {
       "ambiguous": 5,
       "duplicate": 0,
-      "matched": 3,
+      "matched": 10,
       "refused": 2
     },
     "nomadic-east-limgrave": {
       "ambiguous": 9,
       "duplicate": 0,
-      "matched": 6,
+      "matched": 12,
       "refused": 3
     },
     "nomadic-mt-gelmir": {
       "ambiguous": 8,
       "duplicate": 0,
-      "matched": 3,
-      "refused": 5
+      "matched": 7,
+      "refused": 6
     },
     "nomadic-north-caelid": {
       "ambiguous": 7,
       "duplicate": 0,
       "matched": 2,
-      "refused": 5
+      "refused": 6
     },
     "nomadic-north-limgrave": {
       "ambiguous": 5,
       "duplicate": 0,
-      "matched": 2,
+      "matched": 7,
       "refused": 3
     },
     "nomadic-north-liurnia": {
       "ambiguous": 8,
       "duplicate": 0,
-      "matched": 6,
+      "matched": 13,
       "refused": 2
     },
     "nomadic-south-caelid": {
       "ambiguous": 4,
       "duplicate": 0,
-      "matched": 2,
-      "refused": 2
+      "matched": 9,
+      "refused": 3
     },
     "nomadic-south-liurnia": {
       "ambiguous": 6,
       "duplicate": 0,
-      "matched": 4,
+      "matched": 11,
       "refused": 2
     },
     "nomadic-weeping-peninsula": {
       "ambiguous": 9,
       "duplicate": 0,
-      "matched": 6,
+      "matched": 16,
       "refused": 3
     },
     "nomadic-west-limgrave": {
       "ambiguous": 6,
       "duplicate": 0,
-      "matched": 3,
+      "matched": 10,
       "refused": 3
     },
     "patches": {
       "ambiguous": 14,
       "duplicate": 0,
-      "matched": 7,
+      "matched": 11,
       "refused": 7
     },
     "pidia": {
       "ambiguous": 6,
       "duplicate": 0,
-      "matched": 6,
+      "matched": 11,
+      "refused": 0
+    },
+    "rogier": {
+      "ambiguous": 0,
+      "duplicate": 0,
+      "matched": 3,
       "refused": 0
     },
     "sellen": {
       "ambiguous": 3,
       "duplicate": 0,
-      "matched": 3,
+      "matched": 7,
       "refused": 0
     },
     "seluvis": {
       "ambiguous": 2,
       "duplicate": 0,
-      "matched": 2,
+      "matched": 8,
       "refused": 0
     },
     "thiollier": {
       "ambiguous": 9,
       "duplicate": 1,
-      "matched": 9,
-      "refused": 0
+      "matched": 12,
+      "refused": 2
     },
     "thops": {
       "ambiguous": 2,
       "duplicate": 0,
-      "matched": 2,
+      "matched": 3,
       "refused": 0
     },
     "twin-maiden-husks": {
       "ambiguous": 60,
       "duplicate": 5,
-      "matched": 6,
-      "refused": 54
+      "matched": 24,
+      "refused": 69
     },
     "ymir": {
       "ambiguous": 5,
       "duplicate": 0,
-      "matched": 5,
+      "matched": 9,
       "refused": 0
     }
   },
   "duplicate_labels": 10,
-  "matched_labels": 167,
-  "refused_labels": 135,
-  "resolved_checks": 157
+  "matched_labels": 382,
+  "refused_labels": 167,
+  "resolved_checks": 372
 }
