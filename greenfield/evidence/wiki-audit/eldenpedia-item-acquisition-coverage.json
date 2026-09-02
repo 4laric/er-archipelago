@@ -1,13 +1,13 @@
 {
-  "matched_checks": 89,
-  "missing_pages": 37,
-  "pinned_pages": 48,
-  "refused_ambiguous_anchor": 17,
-  "refused_anchor_absent": 1509,
-  "refused_no_acquisition_section": 890,
-  "refused_no_exact_item": 1,
-  "refused_upgrade_material_lane": 567,
-  "refused_weak_anchor_or_detection": 191,
-  "requested_titles": 397,
-  "resolved_pages": 360
+  "matched_checks": 123,
+  "missing_pages": 4,
+  "pinned_pages": 82,
+  "refused_ambiguous_anchor": 13,
+  "refused_anchor_absent": 546,
+  "refused_no_acquisition_section": 330,
+  "refused_no_exact_item": 6,
+  "refused_upgrade_material_lane": 16,
+  "refused_weak_anchor_or_detection": 100,
+  "requested_titles": 377,
+  "resolved_pages": 316
 }
