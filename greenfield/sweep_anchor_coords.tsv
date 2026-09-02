@@ -51,7 +51,7 @@
 #    7773949 (trigger 2050480811)
 #    ... 3 more
 # REFUSED 0 ARENA AT ORIGIN
-# REFUSED 3437 ALREADY POSITIONED:
+# REFUSED 3436 ALREADY POSITIONED:
 #    7770041
 #    7770047
 #    7770811
@@ -92,7 +92,7 @@
 #    7770885
 #    7770887
 #    7770889
-#    ... 3397 more
+#    ... 3396 more
 ap_location_id	check_flag	trigger_defeat_flag	boss_map	local_x	local_y	local_z	anchor
 7770008	9500	11050800	m11_05_00_00	41.02	65.12	-421.28	sweep_arena
 7770010	9504	35000800	m35_00_00_00	74.54	-298.53	-80.61	sweep_arena

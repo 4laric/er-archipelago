@@ -61,12 +61,22 @@ class WikiAuditTest(unittest.TestCase):
         self.assertEqual(AUDIT.validate(REPO), (24, 16))
 
     def test_broad_walkthrough_check_leads_validate(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "walkthrough-check-leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            self.assertGreaterEqual(len(list(csv.DictReader(handle, delimiter="\t"))), 800)
         self.assertEqual(WALKTHROUGH_AUDIT.main(), 0)
 
     def test_game8_check_leads_validate(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "game8-check-leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            self.assertGreaterEqual(len(list(csv.DictReader(handle, delimiter="\t"))), 30)
         self.assertEqual(GAME8_AUDIT.main(), 0)
 
     def test_eldenpedia_location_check_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-location-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            self.assertGreaterEqual(len(list(csv.DictReader(handle, delimiter="\t"))), 315)
         self.assertEqual(ELDENPEDIA_AUDIT.main(), 0)
 
     def test_eldenpedia_location_leads_never_claim_access(self):
@@ -80,6 +90,9 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
 
     def test_powerpyx_regional_check_leads_validate(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "powerpyx-check-leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            self.assertGreaterEqual(len(list(csv.DictReader(handle, delimiter="\t"))), 20)
         self.assertEqual(POWERPYX_AUDIT.main(), 0)
 
     def test_generated_queue_prioritizes_external_coverage_without_promoting_it(self):
@@ -274,17 +287,17 @@ class WikiAuditTest(unittest.TestCase):
         self.assertEqual(lead["disposition"], "lead_only")
         self.assertEqual(lead["game_version"], "unknown")
 
-    def test_chapel_report_surfaces_current_split_without_changing_logic(self):
+    def test_chapel_report_records_the_adjudicated_access_bucket(self):
         generated = (REPO / "greenfield" / "eldenring" / "data.py").read_text(encoding="utf-8")
         report = (REPO / "greenfield" / "evidence" / "wiki-audit" /
                   "chapel-anticipation-return.md").read_text(encoding="utf-8")
 
         self.assertIn("Liurnia :: Ornamental Straight Sword - m10_01", generated)
         self.assertIn("Liurnia :: Golden Beast Crest Shield - m10_01", generated)
-        self.assertIn("Stormveil :: The Stormhawk King - m10_01", generated)
-        self.assertIn("Stormveil :: Stormhawk Deenh - m10_01", generated)
-        self.assertIn("current project surface is internally split", report)
-        self.assertIn("changes no world logic or access disposition", report)
+        self.assertIn("Liurnia :: The Stormhawk King - m10_01", generated)
+        self.assertIn("Liurnia :: Stormhawk Deenh - m10_01", generated)
+        self.assertIn("v1.17 EMEVD", report)
+        self.assertIn("adjudicated as Liurnia", report)
 
 
 if __name__ == "__main__":

@@ -18,6 +18,11 @@ client half is clients#559 and its merge commit is pinned by the gitlink in this
 
 Entries arrive below as they merge.
 
+- **Chapel of Anticipation return checks now require their real Four Belfries route (#1303).**
+  The Stormhawk ashes join the Scion rewards in Liurnia, and all four checks require an Imbued
+  Sword Key when legacy key gates are enabled. Stormveil alone can no longer put unreachable
+  Chapel checks in logic.
+
 ## v0.5.5 — 2026-08-31
 
 ### What you need to update
