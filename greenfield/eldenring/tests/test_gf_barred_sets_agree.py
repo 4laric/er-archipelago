@@ -2,7 +2,7 @@
 
 Two sets answer "may this check hold progression?", and they are computed in different places:
 
-    core._NO_PROGRESSION_APS                    -- what the item_rule fill actually obeys
+    core._NO_PROGRESSION_APS + hold_aps(world)  -- what the item_rule fill actually obeys
     features/progression_surface._world_barred_aps(world)
                                                 -- what the surface math believes
 
@@ -35,7 +35,7 @@ collapse the distinction those rulings protect.
 So this file pins WHICH asymmetries are intentional rather than forbidding all of them:
 
   1. `_world_barred_aps` == `_NO_PROGRESSION_APS`, minus `collapsed_lift_aps`, plus
-     `missable_barred_aps` -- both world-conditional, both documented, and nothing else;
+     `missable_barred_aps`, plus evidence `hold_aps(world)` -- independent documented causes;
   2. `SURFACE_EXCLUDE_APS` is in NEITHER set, deliberately, and IS applied by the selection
      chokepoint -- asserted, so the next reader does not re-derive it as a bug;
   3. a spy, because an equality between two sets that happen to be identical proves nothing.
@@ -51,6 +51,7 @@ from worlds.eldenring import contract as _contract          # noqa: E402
 from worlds.eldenring import core as _core                  # noqa: E402
 from worlds.eldenring.features.progression_surface import (  # noqa: E402
     _world_barred_aps, allowed_ap_ids, collapsed_lift_aps, missable_barred_aps)
+from worlds.eldenring.features.evidence_progression_hosts import hold_aps  # noqa: E402
 from worlds.eldenring.location_tags import (                # noqa: E402
     DEFAULTED_REGION_APS, ERDTREE_BURN_APS, LOCATION_TAGS, SHOP_RELEASE_GATED_APS,
     SURFACE_EXCLUDE_APS)
@@ -73,7 +74,8 @@ class BarredSetsAgree(WorldTestBase):
         `ids - ERDTREE_BURN - SHOP_RELEASE_GATED`, so it cannot reach a row another cause still
         bars. If someone widens the lift to include one, these two stop being equal and this test
         is what says so."""
-        return (frozenset(no_progression) - collapsed_lift_aps(world)) | missable_barred_aps(world)
+        return ((frozenset(no_progression) - collapsed_lift_aps(world))
+                | missable_barred_aps(world) | hold_aps(world))
 
     def _assert_relation(self, armed):
         world = self.world
@@ -97,7 +99,8 @@ class BarredSetsAgree(WorldTestBase):
                 # set is disjoint from the bar set" is false and says something wrong about why;
                 # "the burn cause stops binding" is the claim that holds.
                 burn_only = (frozenset(ERDTREE_BURN_APS) - frozenset(DEFAULTED_REGION_APS)
-                             - frozenset(SHOP_RELEASE_GATED_APS) - frozenset(MISSABLE_LOCATIONS))
+                             - frozenset(SHOP_RELEASE_GATED_APS) - frozenset(MISSABLE_LOCATIONS)
+                             - hold_aps(world))
                 self.assertTrue(burn_only,
                                 "every ERDTREE_BURN_APS row is barred for some other reason too, "
                                 "so this assertion proves nothing about the reconciler")
@@ -134,7 +137,8 @@ class BarredSetsAgree(WorldTestBase):
         sx = frozenset(SURFACE_EXCLUDE_APS)
         self.assertTrue(sx, "SURFACE_EXCLUDE_APS is empty -- this test has lost its subject")
         others = (frozenset(DEFAULTED_REGION_APS) | frozenset(ERDTREE_BURN_APS)
-                  | frozenset(SHOP_RELEASE_GATED_APS) | frozenset(MISSABLE_LOCATIONS))
+                  | frozenset(SHOP_RELEASE_GATED_APS) | frozenset(MISSABLE_LOCATIONS)
+                  | hold_aps(self.world))
         only_sx = sx - others
         self.assertTrue(only_sx,
                         "every SURFACE_EXCLUDE_APS member is also barred for some other reason, so "
@@ -182,7 +186,8 @@ class BarredSetsAgree(WorldTestBase):
         only_rule, only_surface = sorted(want - got)[:8], sorted(got - want)[:8]
         return (
             "the surface's bar set and the item_rule's have diverged beyond the documented "
-            "carve-outs (collapsed_lift_aps subtracted, missable_barred_aps added).\n"
+            "carve-outs (collapsed_lift_aps subtracted; missable_barred_aps and evidence HOLD "
+            "added).\n"
             f"  barred by the item_rule, NOT by the surface ({len(want - got)}): {only_rule}\n"
             "    -> the surface will advertise/star checks fill refuses; surface_confidence.tsv "
             "and regions_with_major_boss both over-count.\n"
@@ -190,4 +195,4 @@ class BarredSetsAgree(WorldTestBase):
             "    -> fill may place progression somewhere the surface promised it would not.\n"
             "If you added a bar: put UNCONDITIONAL ones in allowed_ap_ids (the SURFACE_EXCLUDE_APS "
             "pattern) and WORLD-CONDITIONAL ones in both _world_barred_aps and "
-            "core._NO_PROGRESSION_APS, then say which here.")
+            "core's location rule, then say which here.")
