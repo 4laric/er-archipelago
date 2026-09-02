@@ -36,7 +36,7 @@ def main() -> int:
     subjects = [row["subject_id"] for row in rows]
     assert ids == sorted(ids) and len(ids) == len(set(ids)), "lead ids must be unique and sorted"
     assert len(subjects) == len(set(subjects)), "broad pass emits at most one lead per AP check"
-    assert len(rows) >= 800, "walkthrough coverage unexpectedly collapsed below the 813-check pilot"
+    assert len(rows) >= 1220, "walkthrough coverage unexpectedly collapsed below the pinned corpus"
     for row in rows:
         assert row["subject_kind"] == "check" and row["claim_kind"] == "identity_region"
         assert row["subject_id"] in current, f"walkthrough lead names missing check {row['subject_id']}"

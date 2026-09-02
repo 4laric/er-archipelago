@@ -62,9 +62,14 @@ leads with different normalized values, so an empty file honestly means “none 
 ## Broad walkthrough coverage
 
 `walkthrough-check-leads.tsv` is the first corpus-scale pass. It is derived from Redmaw's immutable
-100% base-game walkthrough capture by `tools/build_walkthrough_check_leads.py`. The capture body is
-not redistributed: each row retains only its section id, step id, item label, source identity, and
-the one current AP check that exact item name identifies inside the section's declared region set.
+base-game and DLC walkthroughs at commit `7281cb6f7f067e71856f12d5e7083b97ad081bb1` by
+`tools/build_walkthrough_check_leads.py`. The source bodies are not redistributed: each row retains
+only its section id, step id, item label, source identity, and the one current AP check that exact
+item name identifies inside the section's declared region set. When an exact name repeats within a
+section, the builder may accept it only if one candidate's complete stored `near`/`around` place
+suffix occurs verbatim in the same checklist step. The pinned pair plus that whole-place rule expand
+the pass from 813 to 1,220 exact check bindings without dropping any earlier binding; 1,386 ambiguous
+and 2,461 unmatched links remain refused.
 
 This deliberately leaves repeated consumables, stones, and runes ambiguous. It also remains
 `lead_only`: one walkthrough mention can externally cross-check an identity and coarse region, but it
@@ -72,11 +77,12 @@ cannot prove access logic, a game event predicate, or the absence of another acq
 `tools/check_walkthrough_check_leads.py` fails if a bound AP id disappears, its region changes, the
 source becomes dangling, duplicate check coverage appears, or the broad pass unexpectedly collapses.
 
-Reproduce from the immutable capture recorded in `sources.tsv`:
+Reproduce from the immutable source commit recorded in `sources.tsv`:
 
 ```bash
-curl --compressed -LsS -A 'Mozilla/5.0' REVISION_URL -o /tmp/redmaw-walkthrough.html
-python tools/build_walkthrough_check_leads.py /tmp/redmaw-walkthrough.html
+git clone https://github.com/rdmaw/elden-ring-completion-sheets.git /tmp/redmaw
+git -C /tmp/redmaw checkout 7281cb6f7f067e71856f12d5e7083b97ad081bb1
+python tools/build_walkthrough_check_leads.py /tmp/redmaw/sheets
 python tools/check_walkthrough_check_leads.py
 python tools/build_evidence_browser.py
 ```
