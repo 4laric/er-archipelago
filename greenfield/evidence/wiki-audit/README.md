@@ -165,3 +165,32 @@ python tools/build_powerpyx_check_leads.py /path/to/powerpyx-captures
 python tools/check_powerpyx_check_leads.py
 python tools/build_evidence_browser.py
 ```
+
+## Fextralife item-page coverage
+
+`fextralife-item-check-leads.tsv` is a broad, source-independent pass over Fextralife's structured
+item pages. The checked-in `fextralife-item-pages.tsv` pins the exact MediaWiki page and revision
+IDs, timestamp, revision SHA-1, and immutable `oldid` URL used by each binding. No wiki prose is
+redistributed.
+
+The builder starts from item names that identify exactly one current AP check globally. It emits a
+row only when that item's wiki page has a structured `location`, `obtained`, or `found` template
+field containing the current AP region literally. This intentionally declines aliases and inferred
+geography rather than maintaining a second region ontology. It also declines repeated AP items.
+
+Every row remains `lead_only` at `game_version=unknown`. A Fextralife page can cross-check identity
+and coarse region, but cannot prove v1.17 access logic, event predicates, route order, coordinates,
+completeness, or alternate-acquisition absence. All pages share one
+`gameplay-wiki:fextralife` family.
+
+The API client batches forty titles per request, waits between uncached requests, identifies itself,
+and can retain each complete JSON response in a cache directory. A same-run aggregate capture makes
+reproduction independent of later edits during review:
+
+```bash
+python tools/build_fextralife_item_leads.py \
+  --cache-dir /tmp/fextralife-api --write-capture /tmp/fextralife-batches.json
+python tools/build_fextralife_item_leads.py --capture /tmp/fextralife-batches.json
+python tools/check_fextralife_item_leads.py
+python tools/build_evidence_browser.py
+```

@@ -39,6 +39,7 @@ GAME8_AUDIT = load_repo_tool("check_game8_check_leads")
 ELDENPEDIA_AUDIT = load_repo_tool("check_eldenpedia_location_leads")
 POWERPYX_AUDIT = load_repo_tool("check_powerpyx_check_leads")
 REDMAW_CHECKLIST_AUDIT = load_repo_tool("check_redmaw_checklist_leads")
+FEXTRALIFE_AUDIT = load_repo_tool("check_fextralife_item_leads")
 
 
 @unittest.skipUnless(REPO is not None, REPO_ONLY_REASON)
@@ -90,6 +91,17 @@ class WikiAuditTest(unittest.TestCase):
         with path.open(encoding="utf-8", newline="") as handle:
             self.assertGreaterEqual(len(list(csv.DictReader(handle, delimiter="\t"))), 20)
         self.assertEqual(POWERPYX_AUDIT.main(), 0)
+
+    def test_fextralife_item_check_leads_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "fextralife-item-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertGreaterEqual(len(rows), 290)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
+        self.assertEqual(FEXTRALIFE_AUDIT.main(), 0)
 
     def test_generated_queue_prioritizes_external_coverage_without_promoting_it(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "queue.json"
