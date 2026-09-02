@@ -12,6 +12,21 @@ the generated-data drift gate verifies it.
 from typing import FrozenSet, Iterable, Optional
 
 
+def certified_aps() -> FrozenSet[int]:
+    """Return direct maintainer adjudications, kept distinct from external corroboration."""
+    try:
+        from ..certified_progression_hosts import CERTIFIED_PROGRESSION_HOST_APS
+    except ImportError:
+        return frozenset()
+    return frozenset(CERTIFIED_PROGRESSION_HOST_APS)
+
+
+def trusted_aps() -> FrozenSet[int]:
+    """Return every externally corroborated or directly adjudicated host."""
+    generated_trusted, _generated_hold = _generated_sets()
+    return frozenset(generated_trusted or ()) | certified_aps()
+
+
 def _generated_sets():
     try:
         from ..evidence_progression_hosts import (HOLD_PROGRESSION_HOST_APS,
@@ -54,13 +69,16 @@ def hold_aps(world, *, trusted: Optional[Iterable[int]] = None,
     del world
     generated_trusted, generated_hold = _generated_sets()
     if trusted is None:
-        trusted = generated_trusted
+        trusted = (frozenset(generated_trusted or ()) | certified_aps()
+                   if generated_trusted is not None else None)
     if trusted is None:
         return frozenset()  # pre-regen bootstrap only
     universe = frozenset(candidates) if candidates is not None else _all_location_aps()
     # The complement makes newly generated, unaudited checks fail closed.  The named HOLD set is
     # retained as an explicit audit result and catches corrupt tables whose rows escaped `data.py`.
-    return ((universe - frozenset(trusted)) | (generated_hold & universe)
+    # A direct adjudication intentionally promotes a row out of the generated HOLD complement.
+    effective_hold = generated_hold - certified_aps()
+    return ((universe - frozenset(trusted)) | (effective_hold & universe)
             | (_always_hold_aps() & universe))
 
 

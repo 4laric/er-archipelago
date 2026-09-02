@@ -51,3 +51,10 @@ def test_untrusted_rule_composes_with_existing_rule():
 
 def test_empty_stub_trust_set_fails_closed():
     assert policy.hold_aps(None, trusted=(), candidates={11, 12}) == {11, 12}
+
+
+def test_certification_promotes_generated_hold_but_not_finale(monkeypatch):
+    monkeypatch.setattr(policy, "_generated_sets", lambda: ({11}, frozenset({12, 13})))
+    monkeypatch.setattr(policy, "certified_aps", lambda: frozenset({12, 13}))
+    monkeypatch.setattr(policy, "_always_hold_aps", lambda: frozenset({13}))
+    assert policy.hold_aps(None, candidates={11, 12, 13, 14}) == {13, 14}

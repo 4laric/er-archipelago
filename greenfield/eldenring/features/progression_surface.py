@@ -1438,17 +1438,17 @@ def _open_allowed(world, classes):
 
 
 def _trusted_host_aps():
-    """The generated external-evidence allow-list; absent data admits nothing.
+    """The corroborated and directly adjudicated allow-list; absent data admits nothing.
 
     Fail-closed here is intentional.  This path moves required items.  Treating a missing generated
     module as "everything is trusted" would turn a stale/incomplete release build into a silent
     policy bypass.
     """
     try:
-        from ..evidence_progression_hosts import TRUSTED_PROGRESSION_HOST_APS
+        from .evidence_progression_hosts import trusted_aps
     except ImportError:
         return frozenset()
-    return frozenset(TRUSTED_PROGRESSION_HOST_APS)
+    return trusted_aps()
 
 
 def _open_trusted(world):
