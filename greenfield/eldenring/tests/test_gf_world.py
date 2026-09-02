@@ -131,10 +131,11 @@ class GreenfieldWorldTest(WorldTestBase):
     # and is the property that actually matters on the wire.
     # mineMaterialRoll: the 11 repeatable mine-lot templates deliberately receive a seeded
     # replacement map. The same seed is byte-stable; different seeds should change the wares.
+    # lockHintPlacements: post-fill coordinates necessarily follow the seeded item placement.
     _SEED_VARYING = {"regionSphereTargetRanges", "shopInfiniteStock", "enemyDropRoll",
                      "mineMaterialRoll",
                      "progressiveGrants", "shopPreviewGoods", "filler_foreign_localized",
-                     "goalRequiredItems"}
+                     "goalRequiredItems", "lockHintPlacements"}
 
     def test_slot_data_is_deterministic(self):
         """Same seed -> byte-identical slot_data (no set-iteration order leaking into the wire)."""

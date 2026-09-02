@@ -1851,7 +1851,7 @@ LOCATIONS = {
         ("Gravesite :: Loyal Knight's Cookbook - near Castle Ensis Checkpoint, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f68790]", 7770162, 68790),
         ("Gravesite :: Fire Knight's Cookbook [2] - near Castle Front, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f68900]", 7770172, 68900),
         ('Gravesite :: Gourmet Scorpion Stew [f400722]', 7770649, 400722),
-        ("Gravesite :: Death Knight's Twin Axes - around Auriza Side Tomb [f520700]", 7770691, 520700),
+        ("Gravesite :: Death Knight's Twin Axes - in Fog Rift Catacombs [f520700]", 7770691, 520700),
         ('Gravesite :: Grave Glovewort [1] - near Fog Rift Catacombs, may be sweep-granted by Death Knight (m40_00) [f40007000]', 7772425, 40007000),
         ('Gravesite :: Great Ghost Glovewort - near Fog Rift Catacombs, may be sweep-granted by Death Knight (m40_00) [f40007800]', 7772426, 40007800),
         ('Gravesite :: Frozen Maggot - near Belurat Gaol (1), may be sweep-granted by Demi-Human Swordmaster Onze (m41_00) [f41007000]', 7772431, 41007000),
@@ -2030,7 +2030,7 @@ LOCATIONS = {
         ("Gravesite :: Igon's Gauntlets - around Pillar Path Waypoint, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f400711]", 7900105, 400711),
         ("Gravesite :: Igon's Loincloth - around Pillar Path Waypoint, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f400711]", 7900106, 400711),
         ("Gravesite :: Igon's Bell Bearing - around Pillar Path Waypoint, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f400711]", 7900107, 400711),
-        ('Gravesite :: Crimson Amber Medallion +3 - around Auriza Side Tomb [f520700]', 7900143, 520700),
+        ('Gravesite :: Crimson Amber Medallion +3 - in Fog Rift Catacombs [f520700]', 7900143, 520700),
         ('Gravesite :: Helm of Solitude - Blackgaol Knight [f530820]', 7900159, 530820),
         ('Gravesite :: Armor of Solitude - Blackgaol Knight [f530820]', 7900160, 530820),
         ('Gravesite :: Gauntlets of Solitude - Blackgaol Knight [f530820]', 7900161, 530820),
@@ -2897,6 +2897,8 @@ LOCATIONS = {
         ('Liurnia :: Somber Smithing Stone [4] - around Ruin-Strewn Precipice, may be sweep-granted by Magma Wyrm Makar (m39_20) [f540290]', 7770754, 540290),
         ('Liurnia :: "Resurrection" Painting - around Artist\'s Shack, may be sweep-granted by Bell Bearing Hunter (m60_37_46) [f580010]', 7770796, 580010),
         ('Liurnia :: Juvenile Scholar Cap - near Manor Upper Level, may be sweep-granted by Onyx Lord (m60_36_50) [f580310]', 7770802, 580310),
+        ('Liurnia :: The Stormhawk King - m10_01 [f10017010]', 7770913, 10017010),
+        ('Liurnia :: Stormhawk Deenh - m10_01 [f10017900]', 7770914, 10017900),
         ("Liurnia :: Root Resin - near Road's End Catacombs, may be sweep-granted by Spiritcaller Snail (m30_03) [f30037000]", 7772033, 30037000),
         ("Liurnia :: Raya Lucaria Soldier Ashes - near Road's End Catacombs, may be sweep-granted by Spiritcaller Snail (m30_03) [f30037010]", 7772034, 30037010),
         ("Liurnia :: Human Bone Shard - near Road's End Catacombs, may be sweep-granted by Spiritcaller Snail (m30_03) [f30037020]", 7772035, 30037020),
@@ -4822,8 +4824,6 @@ LOCATIONS = {
         ('Stormveil :: Curved Sword Talisman - near Rampart Tower, may be sweep-granted by Margit, the Fell Omen (m10_00) [f10007975]', 7770910, 10007975),
         ('Stormveil :: Somber Smithing Stone [2] - near Rampart Tower (2), may be sweep-granted by Godrick the Grafted (m10_00) [f10007980]', 7770911, 10007980),
         ('Stormveil :: Godskin Prayerbook - near Rampart Tower, may be sweep-granted by Margit, the Fell Omen (m10_00) [f10007990]', 7770912, 10007990),
-        ('Stormveil :: The Stormhawk King - m10_01 [f10017010]', 7770913, 10017010),
-        ('Stormveil :: Stormhawk Deenh - m10_01, may be sweep-granted by Margit, the Fell Omen (m10_00) [f10017900]', 7770914, 10017900),
         ('Stormveil :: Warming Stone - near Limgrave Tower Bridge [f34107000]', 7772302, 34107000),
         ('Stormveil :: Soft Cotton - near Limgrave Tower Bridge [f34107010]', 7772303, 34107010),
         ('Stormveil :: Stormhawk Feather - near Divine Tower of Limgrave [f34107070]', 7772304, 34107070),
@@ -5538,4 +5538,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:b5b9336e1d94595a2b9f5cb6445b74bb3e5ee07ce499d44f98e38666f680eda0', 'module': 'data.py', 'body_sha256': 'sha256:6f66c100ca4aeb89080bfec01ee78fb9b4e4822a2c1076a56fda489248bdc7bc'}
+_GEN_STAMP = {'inputs_hash': 'sha256:a16f94825d2861d7228cafeaad2e5507d57d7e9faa33f1e21b8ae5e2ce6fd30e', 'module': 'data.py', 'body_sha256': 'sha256:48c209237f3a54dd9e3916cbd8c01174ba050315be1254ae3889f9f3487d61d0'}

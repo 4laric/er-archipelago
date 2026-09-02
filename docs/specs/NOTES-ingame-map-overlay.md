@@ -3,8 +3,8 @@
 Status: PARKED 2026-07-17 (Alaric: "real overlay goes on the future feature pile"). Goal was to draw
 the AP randomizer's remaining checks onto Elden Ring's *own* map screen (which already shows
 you-are-here), anchored via coordinates — the "anchor around the graces" idea. Feasibility: tractable
-but a multi-hour interactive RE project, not a quick win. The tracker map (PopTracker pack) already
-delivers "every remaining check on a map"; this was the stretch of putting them on the game's map.
+but a multi-hour interactive RE project, not a quick win. The repository's offline check browser
+already plots checks on a map; this was the stretch of putting them on the game's map.
 
 ## What the deliverable actually needs
 

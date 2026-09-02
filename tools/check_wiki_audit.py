@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -20,7 +21,12 @@ def validate(repo: Path) -> tuple[int, int]:
     source_ids = {row["source_id"] for row in sources}
     assert len(source_ids) == len(sources), "duplicate source_id"
     for row in sources:
-        assert row["revision_url"].startswith("https://web.archive.org/web/")
+        revision = row["revision_url"]
+        is_archive = revision.startswith("https://web.archive.org/web/")
+        is_pinned_github_tree = bool(re.fullmatch(
+            r"https://github\.com/[^/]+/[^/]+/tree/[0-9a-f]{40}/.+", revision
+        ))
+        assert is_archive or is_pinned_github_tree, "revision must be an immutable archive or commit"
         assert row["body_sha256"].startswith("sha256:") and len(row["body_sha256"]) == 71
         assert row["published_at"] and row["last_modified"] and row["archived_at"]
         assert row["patch_applicability"], "every source needs an explicit version disposition"

@@ -989,7 +989,7 @@
    "tarnished_pack_shop_checks": 1
   },
   "Liurnia": {
-   "checks": 586,
+   "checks": 588,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -1516,7 +1516,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Stormveil": {
-   "checks": 140,
+   "checks": 138,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|MajorBoss|Remembrance": 1,
@@ -1623,5 +1623,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "13a661a356779611ec092f86983a6dd2b38802af106d4ab495e093e950c326d1"
+ "source_sha256": "91ec318e9f7e72d55e4651d9771d2239691c0870d4af0e2b3bb7499d91edd00c"
 }

@@ -43,6 +43,7 @@ FINGER_RUINS_BELL_ACCESS = {
 }
 METYR_ACCESS = (7770673, 510550, "Scadu Altus")
 STAGEFRONT_FRAGMENT_ACCESS = (7771810, 20007820, "Belurat")
+PALACE_KEY_ACCESS = (7773712, 400159, "Ainsel River")
 
 
 def _json(value: object) -> str:
@@ -474,6 +475,20 @@ def build_records(repo: Path) -> dict:
         "game_version": GAME_VERSION, "retrieved_at": "2026-09-01",
         "revision": cross_region_hash,
         "url_or_path": "greenfield/eldenring/features/cross_region_access.py",
+        "license": "project-derived", "environment_id": "", "supersedes": "",
+    })
+    quest_gate_path = (
+        repo / "greenfield" / "eldenring" / "features" / "questline_check_gates.py")
+    quest_gate_hash = _sha256(quest_gate_path)
+    palace_key_source_id = (
+        f"project:palace-key-quest-gate:{quest_gate_hash.removeprefix('sha256:')}")
+    sources.append({
+        "source_id": palace_key_source_id, "source_kind": "ruling",
+        "family_id": "project:palace-key-access-rule",
+        "title": "Archipelago Discarded Palace Key quest access rule",
+        "game_version": GAME_VERSION, "retrieved_at": "2026-09-02",
+        "revision": quest_gate_hash,
+        "url_or_path": "greenfield/eldenring/features/questline_check_gates.py",
         "license": "project-derived", "environment_id": "", "supersedes": "",
     })
     finger_ruins_source_id = (
@@ -1376,6 +1391,51 @@ def build_records(repo: Path) -> dict:
         "review_issue": "#1271", "active": "true", "supersedes": "",
     })
 
+    palace_ap_id, palace_flag, palace_region = PALACE_KEY_ACCESS
+    palace_location = location_by_ap_id.get(palace_ap_id)
+    if palace_location is None or (
+        palace_location["flag"], palace_location["region"]
+    ) != (palace_flag, palace_region):
+        raise RuntimeError(f"Discarded Palace Key access subject changed: {palace_location!r}")
+    palace_value = {
+        "type": "all",
+        "conditions": [
+            {"type": "region", "region": palace_region},
+            {"type": "item", "name": "Miniature Ranni"},
+        ],
+    }
+    palace_claim_id = f"check:{palace_ap_id}/access"
+    palace_evidence_id = f"project:palace-key-quest-gate:check-{palace_ap_id}:access"
+    evidence.append({
+        "evidence_id": palace_evidence_id, "claim_id": palace_claim_id,
+        "source_id": palace_key_source_id, "stance": "supports",
+        "value": _json(palace_value),
+        "citation": (
+            "greenfield/eldenring/features/questline_check_gates.py:QuestlineCheckGates; "
+            "greenfield/eldenring/tests/test_gf_questline_check_gates.py:"
+            "QuestlineCheckGateOn; v1.17 m12_01 events 12010705/12010706 and common event 3050"
+        ),
+        "method": "tools/build_v060_current_evidence.py:palace_key_encoded_access",
+        "independence_notes": (
+            "The regression exercises the implemented rule and is not independent of it. The "
+            "rule was adjudicated from the committed v1.17 EMEVD/ESD corpus under #1317."
+        ),
+        "valid_from": GAME_VERSION, "valid_to": "",
+        "notes": (
+            "m12_01 event 12010705 spawns the shadow after f12019257; grace talk sets that flag "
+            "only from acquired Miniature Ranni; event 12010706 sets f12019280 on death and "
+            "common event 3050 awards lot 101590."
+        ),
+    })
+    claims.append({
+        "claim_id": palace_claim_id, "subject_kind": "check",
+        "subject_id": str(palace_ap_id), "claim_kind": "access",
+        "game_version": GAME_VERSION, "value": _json(palace_value),
+        "status": "proven", "risk": "critical", "adjudication": "design_ruling",
+        "evidence_ids": palace_evidence_id, "last_reviewed": "2026-09-02",
+        "review_issue": "#1317", "active": "true", "supersedes": "",
+    })
+
     evidence.sort(key=lambda row: row["evidence_id"])
     claims.sort(key=lambda row: row["claim_id"])
     source_ids = {row["source_id"] for row in sources}
@@ -1417,6 +1477,7 @@ def build_records(repo: Path) -> dict:
             "finger_ruins_bell_access_claims": len(FINGER_RUINS_BELL_ACCESS),
             "metyr_access_claims": 1,
             "stagefront_fragment_access_claims": 1,
+            "palace_key_access_claims": 1,
         },
     }
 

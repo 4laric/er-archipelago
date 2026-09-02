@@ -148,6 +148,20 @@ class CheckGroundRegions(unittest.TestCase):
             "kicks the player out of the bucket they sit in (er_logic::region_lock::kick_decision). "
             "Fix the attribution -- do NOT add the row to KNOWN_MISMATCHES: %r" % (len(new), sorted(new)))
 
+    def test_access_route_rulings_are_exact_and_explain_their_mechanism(self):
+        """Only the two Chapel-return checks may outrank their isolated m10_01 ground."""
+        from tools.check_ground_regions import RULED_ACCESS_ROUTES
+        recs = self.a["access_route_ruled"]
+        self.assertEqual(
+            [(row[0], row[1], row[2]) for row in recs],
+            [(10017010, "Liurnia", ["Stormveil"]),
+             (10017900, "Liurnia", ["Stormveil"])],
+            "the access-route-ruling corpus changed; adjudicate the new/vanished check rather "
+            "than broadening this exception")
+        self.assertEqual(set(RULED_ACCESS_ROUTES), {10017010, 10017900})
+        self.assertTrue(all("Four Belfries" in reason and "Goods 8186" in reason
+                            for reason in RULED_ACCESS_ROUTES.values()))
+
     def test_the_pinned_mismatch_list_only_shrinks(self):
         """A pin that can be edited in either direction is a pin that gets edited in the easy one."""
         found = {(flag, region, "/".join(str(g) for g in grounds))

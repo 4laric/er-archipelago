@@ -124,9 +124,10 @@ class _StubItem:
 
 
 class _StubLoc:
-    def __init__(self, address, item):
+    def __init__(self, address, item, player):
         self.address = address
         self.item = item
+        self.player = player
 
 
 class PreviewRepointBranches(WorldTestBase):
@@ -147,7 +148,8 @@ class PreviewRepointBranches(WorldTestBase):
     def _preview_for(self, placements):
         """placements: {ap_id (str) -> (item_name, owning_player)}. Returns the emitted preview map."""
         w = self.world
-        locs = [_StubLoc(int(aid), _StubItem(nm, pl)) for aid, (nm, pl) in placements.items()]
+        locs = [_StubLoc(int(aid), _StubItem(nm, pl), self.player)
+                for aid, (nm, pl) in placements.items()]
         orig = w.multiworld.get_locations
         w.multiworld.get_locations = lambda player=None: locs
         try:
