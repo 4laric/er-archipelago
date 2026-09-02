@@ -253,15 +253,17 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
     def test_world_bar_asymmetries_are_exactly_the_documented_ones(self):
         """A new item-rule bar may not silently miss the surface again (#724).
 
-        `_world_barred_aps` mirrors core's fill bar plus the evidence HOLD bar, except for the two documented per-world
-        operations: lift a collapsed row whose kept merchant site is now known, and add missable
-        rows while their option is armed. The capital reconciler additionally removes the burn bar.
+        `_world_barred_aps` mirrors core's fill bar plus the evidence HOLD and finale-lifecycle bars,
+        except for the two documented per-world operations: lift a collapsed row whose kept merchant
+        site is now known, and add missable rows while their option is armed. The capital reconciler
+        additionally removes the burn bar.
         SURFACE_EXCLUDE_APS is deliberately surface-only -- it is a display/selection ruling, not a
         fill bar -- and is pinned separately so this invariant does not invite that old mistake.
         """
         from types import SimpleNamespace
         from ..core import _NO_PROGRESSION_APS
         from ..evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
+        from ..features.evidence_progression_hosts import _always_hold_aps
         from ..features.progression_surface import (
             _world_barred_aps, collapsed_lift_aps, missable_barred_aps)
         from ..location_tags import ERDTREE_BURN_APS, SURFACE_EXCLUDE_APS
@@ -273,14 +275,15 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
         missable = missable_barred_aps(world)
         self.assertEqual(
             _world_barred_aps(world),
-            (frozenset(_NO_PROGRESSION_APS) - lift) | missable | HOLD_PROGRESSION_HOST_APS,
+            ((frozenset(_NO_PROGRESSION_APS) - lift) | missable
+             | HOLD_PROGRESSION_HOST_APS | _always_hold_aps()),
             "the surface/world bar differs from core's fill bar by an undocumented cause")
 
         world.gf_capital_reconciler = True
         self.assertEqual(
             _world_barred_aps(world),
             (((frozenset(_NO_PROGRESSION_APS) - lift) - frozenset(ERDTREE_BURN_APS))
-             | missable | HOLD_PROGRESSION_HOST_APS),
+             | missable | HOLD_PROGRESSION_HOST_APS | _always_hold_aps()),
             "the reconciler may lift only the burn-strand cause")
 
         surface_only = frozenset(SURFACE_EXCLUDE_APS) - frozenset(_NO_PROGRESSION_APS)
