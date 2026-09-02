@@ -237,6 +237,18 @@ python tools/check_eldenpedia_shabriri_grape_leads.py
 python tools/build_evidence_browser.py
 ```
 
+`eldenpedia-sacred-tear-check-leads.tsv` binds 12 church-named Sacred Tear acquisitions from
+Eldenpedia page 13254, revision 99877. Every church link is unique in that revision, and every
+selected AP flag must remain a Sacred Tear in the committed ItemLot corpus. The AP-only
+Ruin-Strewn Precipice row is deliberately left unbound because the pinned source does not list it;
+the corpus remains `lead_only` and establishes neither completeness nor access logic.
+
+```bash
+python tools/build_eldenpedia_sacred_tear_leads.py
+python tools/check_eldenpedia_sacred_tear_leads.py
+python tools/build_evidence_browser.py
+```
+
 `eldenpedia-seedbed-curse-check-leads.tsv` records all six acquisition rows from page 3879,
 revision 100628. Only Big Boggart and Volcano Manor bind to checks: each has a unique current AP
 region/flag within this item family, and Big Boggart's `f400308` identity is independently tied to

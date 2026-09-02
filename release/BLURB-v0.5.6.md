@@ -24,6 +24,8 @@ The same method now binds all three Shabriri Grapes by their unique post-Godrick
 and Revenger's Shack anchors, with each AP flag cross-checked against committed ItemLot data.
 Two Seedbed Curses are likewise bound at Big Boggart and Volcano Manor. Four same-region Leyndell
 and Haligtree rows stay visibly unbound until a stable source-to-flag join exists.
+Twelve Sacred Tears are now bound by unique church names and committed ItemLot identities. The
+Ruin-Strewn Precipice Sacred Tear stays visibly outside the pinned source's coverage.
 Merchant-section and physical-shop context resolve another 157 repeated item labels, while 135 that
 remain ambiguous or map to shared checks are explicitly refused. The merchant sheet's 491 linked
 wiki.gg item pages are pinned to immutable revisions.

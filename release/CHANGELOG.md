@@ -18,6 +18,10 @@ client half is clients#559 and its merge commit is pinned by the gitlink in this
 
 Entries arrive below as they merge.
 
+- **Twelve church-named Sacred Tear checks now have exact external acquisition leads (#1273).**
+  A pinned Eldenpedia revision and committed ItemLot identities support the bindings; the unlisted
+  Ruin-Strewn Precipice check remains explicitly outside this source's coverage.
+
 - **The external evidence browser now indexes 1,499 Redmaw checklist bindings (#1273).** The
   deterministic intake records exact item labels, sheet sections, checkbox anchors, and wiki.gg
   targets from a pinned source commit. All results remain discovery-only and claim no access logic.
