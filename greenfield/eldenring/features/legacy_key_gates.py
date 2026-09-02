@@ -16,8 +16,8 @@ PROGRESSION (core._class_for reads world.gf_legacy_keys) and at least one vanill
 listed key sits OUTSIDE its dungeon (e.g. the Academy Glintstone Key on the Liurnia overworld at
 flag 1034457100, which is not in the m14 range), so fill always has a reachable slot to place it.
 
-Multi-key gates (features/legacy_key_gates._MULTI_KEY_GATES) handle a sub-dungeon whose checks need
-MORE THAN ONE key ANDed -- DLC Lamenter's Gaol needs BOTH the Gaol Upper and Lower Level Keys.
+Multi-key gates (features/legacy_key_gates._MULTI_KEY_GATES) handle nested sub-dungeon doors -- DLC
+Lamenter's Gaol progresses from no key, to Upper, to Upper+Lower depending on the exact check.
 
 Currently gated:
   Imbued Sword Key       ->  four Chapel of Anticipation return checks, Liurnia;
@@ -103,20 +103,27 @@ _EXTRA_CHECK_LOCKS = {510550: ("Jagged Peak Lock",)}
 _FLAG_BY_AP = {ap_id: int(flag) for locations in LOCATIONS.values()
                for (_name, ap_id, flag) in locations}
 
-# MULTI-KEY gates: a dungeon whose checks need MORE THAN ONE key ANDed (nested cells). DLC Lamenter's
-# Gaol (m41_02, in Charo's): the Gaol Upper + Lower Level Keys open its nested cells, the Lamenter
-# boss sits behind them, and BOTH vanilla key locations sit INSIDE the gaol (flags 41027000 /
-# 41027320) -- so there is no "spare key outside" and the coarse region-lock model would treat the
-# whole gaol (incl. the Lamenter) as reachable on the Charo's Lock alone: softlock (Alaric, playtest
-# 2026-07-16). Require BOTH keys for EVERY gaol check + the boss reward. Conservative on purpose:
-# over-requiring a key (the outer cell may strictly need only the Upper key) never softlocks, and the
-# keys -- forbidden from the gaol via _GATING_ITEMS -- place freely into the rest of the pool.
-# `ranges` are map-lot flag windows [lo, hi); `extra` pins non-map-lot flags (the boss reward).
+# MULTI-KEY gates: nested dungeon doors need a per-check tier, not one blanket conjunction. For
+# Lamenter's Gaol, v1.17 EMEVD m41_02 initializes one ObjAct using ObjActParam 449008 (goods 2008005,
+# Upper Key) and two using 1449008 (goods 2008006, Lower Key). The committed map lots identify the
+# Upper and Lower key checks as f41027000/f41027320. Two independently authored walkthrough leads
+# then agree on their route order (wiki-audit/README.md): Upper is before door 1, Lower is beyond
+# door 1, and Lamenter is beyond door 2. That adjudicates the three exact checks without pretending
+# we have MSB coordinates for every other pickup. Unknown interior checks retain the conservative
+# both-keys fallback until they are individually bound.
+#
+# `requirements` overrides exact acquisition flags. `ranges` + `extra` define the conservative
+# fallback population; an empty tuple means region access alone is sufficient for that check.
 _MULTI_KEY_GATES = (
     {"id": "lamenters_gaol", "region": "Cerulean",   # Charo's merged into Cerulean 2026-08-10
      "keys": ("Gaol Upper Level Key", "Gaol Lower Level Key"),
      "ranges": ((41020000, 41030000),),
-     "extra": frozenset({520770})},   # Lamenter's Mask f520770 = the Lamenter boss reward
+     "extra": frozenset({520770}),
+     "requirements": {
+         41027000: (),                         # Upper Key chest is before the first locked door
+         41027320: ("Gaol Upper Level Key",),  # Lower Key chest is beyond the Upper-key door
+         520770: ("Gaol Upper Level Key", "Gaol Lower Level Key"),
+     }},
 )
 _MULTI_KEYS = frozenset(k for g in _MULTI_KEY_GATES for k in g["keys"])
 
@@ -158,13 +165,15 @@ def _multi_gated_location_ids(gates):
             except (TypeError, ValueError):
                 continue
             if fl in g["extra"] or any(lo <= fl < hi for (lo, hi) in g["ranges"]):
-                out[ap_id] = g["keys"]
+                keys = tuple(g.get("requirements", {}).get(fl, g["keys"]))
+                if keys:
+                    out[ap_id] = keys
     return out
 
 
 class LegacyDungeonKeys(DefaultOnToggle):
     """Gate legacy dungeons behind their vanilla key item in logic (e.g. the inverted Divine Tower
-    checks need the Carian Inverted Statue, and Lamenter's Gaol needs both Gaol keys).
+    checks need the Carian Inverted Statue, and Lamenter's Gaol follows its nested key tiers).
     Keeps fill from placing required progression behind a key it hasn't proven reachable. On by
     default; off restores the region-Lock-only model. Raya Lucaria Academy is NOT gated -- its
     region Lock is the only key it has."""

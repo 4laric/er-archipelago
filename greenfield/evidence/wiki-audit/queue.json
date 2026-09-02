@@ -122,9 +122,9 @@
   "gaps": [
     {
       "kind": "check_partition",
-      "next_evidence": "Mine the door predicates or capture a versioned route and bind every interior AP check to its side of each door.",
+      "next_evidence": "Use MSB coordinates or a versioned flag-by-flag route capture to bind every remaining interior AP check to its side of each door.",
       "priority": "critical",
-      "summary": "The two key checks and boss are linked, but the remaining interior checks are not partitioned by the doors that precede them.",
+      "summary": "The v1.17 door predicates and three route tiers are encoded, but the remaining interior checks are not partitioned by the doors that precede them.",
       "target_id": "lamenters-gaol"
     },
     {
@@ -186,8 +186,8 @@
       ],
       "gap": {
         "kind": "check_partition",
-        "next_evidence": "Mine the door predicates or capture a versioned route and bind every interior AP check to its side of each door.",
-        "summary": "The two key checks and boss are linked, but the remaining interior checks are not partitioned by the doors that precede them."
+        "next_evidence": "Use MSB coordinates or a versioned flag-by-flag route capture to bind every remaining interior AP check to its side of each door.",
+        "summary": "The v1.17 door predicates and three route tiers are encoded, but the remaining interior checks are not partitioned by the doors that precede them."
       },
       "lead_ids": [
         "lamenter-boss-access",
