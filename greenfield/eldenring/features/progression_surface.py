@@ -1276,7 +1276,15 @@ def travelling_progression(items, released, cross_share):
     if cross_share <= 0:
         return out
     seen = {id(it) for it in out}
-    out.extend(it for it in items if id(it) not in seen)
+    # Only NON-Lock restricted items travel under cross_share ("every OTHER restricted advancement
+    # item", per this docstring and #811). A Lock that progression_bias did NOT release stays home.
+    # Extending with every item -- Locks included -- silently overrode the reservation: a bias-100
+    # seed still sent 14 of its 17 Locks abroad because cross_game_progression re-added them here
+    # (ZeeK, seed 66131970066820771725; gen log "0 Lock(s) RELEASED" then "17/17 ... 14 abroad").
+    out.extend(
+        it for it in items
+        if id(it) not in seen and lock_region_name(getattr(it, "name", "")) is None
+    )
     return out
 
 
