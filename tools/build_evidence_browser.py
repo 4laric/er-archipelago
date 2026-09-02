@@ -40,6 +40,25 @@ WIKI_LEAD_HEADERS = (
     "source_ids", "independence_families", "disposition", "game_version",
     "exact_citations", "summary", "limitations",
 )
+ELDENPEDIA_PAGE_HEADERS = (
+    "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1",
+    "title", "canonical_url", "revision_url", "wiki_region", "ap_regions",
+    "notable_loot_links", "disposition",
+)
+ELDENPEDIA_ACQUISITION_PAGE_HEADERS = (
+    "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1",
+    "title", "canonical_url", "revision_url", "acquisition_rows", "disposition",
+)
+ELDENPEDIA_COMBATANT_PAGE_HEADERS = (
+    "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1",
+    "title", "canonical_url", "revision_url", "combatant_category", "drop_links",
+    "disposition",
+)
+FEXTRALIFE_PAGE_HEADERS = (
+    "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1",
+    "title", "canonical_url", "revision_url", "ap_item_name", "template_fields", "ap_region",
+    "disposition",
+)
 
 STATUSES = {"proven", "corroborated", "single_source", "conflicted", "inferred", "unverified"}
 RISKS = {"critical", "high", "medium", "low"}
@@ -82,6 +101,13 @@ def normalized_tables(path: str = CURRENT) -> dict[str, list[dict[str, str]]]:
     return {name: _rows(os.path.join(path, name), header) for name, header in HEADERS.items()}
 
 
+def wiki_lead_files(path: str = WIKI_AUDIT) -> list[str]:
+    """Return every normalized external-lead registry in deterministic order."""
+    names = {"leads.tsv"}
+    names.update(candidate.name for candidate in Path(path).glob("*-check-leads.tsv"))
+    return sorted(names)
+
+
 def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
     """Read the separately validated lead registry without promoting it into core evidence."""
     def read(name: str, header: tuple[str, ...]) -> list[dict[str, str]]:
@@ -94,7 +120,105 @@ def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict
         if len(keys) != len(set(keys)):
             raise ValueError(f"wiki-audit/{name} has duplicate primary ids")
         return rows
-    return read("sources.tsv", WIKI_SOURCE_HEADERS), read("leads.tsv", WIKI_LEAD_HEADERS)
+    sources = read("sources.tsv", WIKI_SOURCE_HEADERS)
+    eldenpedia_manifest = os.path.join(path, "eldenpedia-location-pages.tsv")
+    if os.path.exists(eldenpedia_manifest):
+        # The location corpus has page-level immutable revision records rather than pretending 341
+        # revisions are independently authored sources.tsv entries. Adapt only the browser fields.
+        for row in read("eldenpedia-location-pages.tsv", ELDENPEDIA_PAGE_HEADERS):
+            sources.append({
+                "source_id": row["source_id"], "publisher": "Eldenpedia",
+                "author": "Eldenpedia contributors", "title": row["title"],
+                "canonical_url": row["canonical_url"], "revision_url": row["revision_url"],
+                "archived_at": row["revision_timestamp"], "published_at": "unknown",
+                "last_modified": row["revision_timestamp"],
+                "body_sha256": "mediawiki-sha1:" + row["revision_sha1"],
+                "license": "CC BY-SA 4.0",
+                "provenance": "immutable MediaWiki page revision",
+                "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
+                "disposition": row["disposition"],
+            })
+    acquisition_manifests = (
+        "eldenpedia-crystal-tear-pages.tsv",
+        "eldenpedia-deathroot-pages.tsv",
+        "eldenpedia-golden-seed-pages.tsv",
+        "eldenpedia-item-acquisition-pages.tsv",
+        "eldenpedia-memory-stone-pages.tsv",
+        "eldenpedia-upgrade-material-pages.tsv",
+        "eldenpedia-whetblade-pages.tsv",
+        "eldenpedia-sacred-tear-pages.tsv",
+        "eldenpedia-seedbed-curse-pages.tsv",
+        "eldenpedia-shabriri-grape-pages.tsv",
+    )
+    for manifest_name in acquisition_manifests:
+        if not os.path.exists(os.path.join(path, manifest_name)):
+            continue
+        for row in read(manifest_name, ELDENPEDIA_ACQUISITION_PAGE_HEADERS):
+            sources.append({
+                "source_id": row["source_id"], "publisher": "Eldenpedia",
+                "author": "Eldenpedia contributors", "title": row["title"],
+                "canonical_url": row["canonical_url"], "revision_url": row["revision_url"],
+                "archived_at": row["revision_timestamp"], "published_at": "unknown",
+                "last_modified": row["revision_timestamp"],
+                "body_sha256": "mediawiki-sha1:" + row["revision_sha1"],
+                "license": "CC BY-SA 4.0",
+                "provenance": "immutable MediaWiki item-page revision",
+                "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
+                "disposition": row["disposition"],
+            })
+    combatant_manifest = os.path.join(path, "eldenpedia-combatant-pages.tsv")
+    if os.path.exists(combatant_manifest):
+        for row in read("eldenpedia-combatant-pages.tsv", ELDENPEDIA_COMBATANT_PAGE_HEADERS):
+            sources.append({
+                "source_id": row["source_id"], "publisher": "Eldenpedia",
+                "author": "Eldenpedia contributors", "title": row["title"],
+                "canonical_url": row["canonical_url"], "revision_url": row["revision_url"],
+                "archived_at": row["revision_timestamp"], "published_at": "unknown",
+                "last_modified": row["revision_timestamp"],
+                "body_sha256": "mediawiki-sha1:" + row["revision_sha1"],
+                "license": "CC BY-SA 4.0",
+                "provenance": "immutable MediaWiki combatant-page revision",
+                "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
+                "disposition": row["disposition"],
+            })
+    fextralife_manifest = os.path.join(path, "fextralife-item-pages.tsv")
+    if os.path.exists(fextralife_manifest):
+        # As above, one independently authored wiki remains one family even though each exact
+        # binding pins its own immutable MediaWiki revision.
+        for row in read("fextralife-item-pages.tsv", FEXTRALIFE_PAGE_HEADERS):
+            sources.append({
+                "source_id": row["source_id"], "publisher": "Fextralife",
+                "author": "Fextralife wiki contributors", "title": row["title"],
+                "canonical_url": row["canonical_url"], "revision_url": row["revision_url"],
+                "archived_at": row["revision_timestamp"], "published_at": "unknown",
+                "last_modified": row["revision_timestamp"],
+                "body_sha256": "mediawiki-sha1:" + row["revision_sha1"],
+                "license": "No content-reuse license asserted by this corpus",
+                "provenance": "immutable MediaWiki page revision",
+                "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
+                "disposition": row["disposition"],
+            })
+    fextralife_acquisition = os.path.join(path, "fextralife-acquisition-pages.tsv")
+    if os.path.exists(fextralife_acquisition):
+        for row in read("fextralife-acquisition-pages.tsv", ELDENPEDIA_ACQUISITION_PAGE_HEADERS):
+            sources.append({
+                "source_id": row["source_id"], "publisher": "Fextralife",
+                "author": "Fextralife wiki contributors", "title": row["title"],
+                "canonical_url": row["canonical_url"], "revision_url": row["revision_url"],
+                "archived_at": row["revision_timestamp"], "published_at": "unknown",
+                "last_modified": row["revision_timestamp"],
+                "body_sha256": "mediawiki-sha1:" + row["revision_sha1"],
+                "license": "No content-reuse license asserted by this corpus",
+                "provenance": "immutable MediaWiki acquisition-page revision",
+                "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
+                "disposition": row["disposition"],
+            })
+    leads = [row for name in wiki_lead_files(path)
+             for row in read(name, WIKI_LEAD_HEADERS)]
+    lead_ids = [row["lead_id"] for row in leads]
+    if len(lead_ids) != len(set(lead_ids)):
+        raise ValueError("wiki-audit lead registries have duplicate primary ids across files")
+    return sources, leads
 
 
 def graduation(status: str, risk: str) -> str:
@@ -239,7 +363,16 @@ def ledger_hash(path: str = CURRENT, wiki_path: str | None = None) -> str:
         with open(access_path, "rb") as fh:
             digest.update(fh.read())
     if wiki_path:
-        for name in ("sources.tsv", "leads.tsv"):
+        names = ["sources.tsv", *wiki_lead_files(wiki_path)]
+        if os.path.exists(os.path.join(wiki_path, "eldenpedia-location-pages.tsv")):
+            names.append("eldenpedia-location-pages.tsv")
+        if os.path.exists(os.path.join(wiki_path, "eldenpedia-combatant-pages.tsv")):
+            names.append("eldenpedia-combatant-pages.tsv")
+        if os.path.exists(os.path.join(wiki_path, "fextralife-item-pages.tsv")):
+            names.append("fextralife-item-pages.tsv")
+        if os.path.exists(os.path.join(wiki_path, "fextralife-acquisition-pages.tsv")):
+            names.append("fextralife-acquisition-pages.tsv")
+        for name in sorted(names):
             digest.update(("wiki-audit/" + name).encode() + b"\0")
             with open(os.path.join(wiki_path, name), "rb") as fh:
                 digest.update(fh.read())

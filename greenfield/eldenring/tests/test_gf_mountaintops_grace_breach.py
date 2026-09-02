@@ -23,9 +23,12 @@ def test_leyndell_cannot_grant_eastern_exit_graces() -> None:
 
 
 def test_reported_graces_stay_with_their_measured_regions() -> None:
-    # Both Divine Tower of East Altus graces carry Altus play-region 63003.
-    assert {73450, 73451} <= set(REGION_GRACE_POINTS["Altus"])
-    assert 73450 in REGION_GRACE_LANDMARKS["Altus"]
+    # Both tower graces carry Altus play-region 63003, but are route-gated through Leyndell.
+    # No one-lock bundle can grant them without skipping the other half of that route (#324).
+    all_points = {grace for points in REGION_GRACE_POINTS.values() for grace in points}
+    all_landmarks = {grace for points in REGION_GRACE_LANDMARKS.values() for grace in points}
+    assert {73450, 73451}.isdisjoint(all_points)
+    assert {73450, 73451}.isdisjoint(all_landmarks)
 
     # Forbidden Lands is beyond the Rold gate and is the Mountaintops entry landmark.
     assert 76500 in REGION_GRACE_POINTS["Mountaintops of the Giants"]

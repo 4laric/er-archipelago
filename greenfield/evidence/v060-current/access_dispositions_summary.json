@@ -1,9 +1,9 @@
 {
   "by_disposition": {
-    "encoded": 17,
+    "encoded": 18,
     "excluded": 0,
-    "region_sufficient": 4,
-    "unresolved": 4918,
+    "region_sufficient": 5,
+    "unresolved": 4917,
     "waived": 0
   },
   "by_option_set": {
@@ -11,7 +11,14 @@
       "encoded": 0,
       "excluded": 0,
       "region_sufficient": 4,
-      "unresolved": 4903,
+      "unresolved": 4902,
+      "waived": 0
+    },
+    "item_shuffle=true": {
+      "encoded": 1,
+      "excluded": 0,
+      "region_sufficient": 0,
+      "unresolved": 0,
       "waived": 0
     },
     "item_shuffle=true,jagged_peak=kept,legacy_dungeon_keys=true,vanilla_placement=false": {
@@ -25,6 +32,13 @@
       "encoded": 14,
       "excluded": 0,
       "region_sufficient": 0,
+      "unresolved": 0,
+      "waived": 0
+    },
+    "not(item_shuffle=true)": {
+      "encoded": 0,
+      "excluded": 0,
+      "region_sufficient": 1,
       "unresolved": 0,
       "waived": 0
     },
@@ -59,10 +73,10 @@
   },
   "by_risk": {
     "critical": {
-      "encoded": 17,
+      "encoded": 18,
       "excluded": 0,
-      "region_sufficient": 4,
-      "unresolved": 4918,
+      "region_sufficient": 5,
+      "unresolved": 4917,
       "waived": 0
     },
     "high": {
@@ -88,10 +102,10 @@
     }
   },
   "checks_total": 4923,
-  "content_hash": "dc764d57732bd016e3037236c96868a52a63d33b005aa14e6950f4946a619662",
-  "dispositions_total": 4939,
-  "release_blockers": 4918,
+  "content_hash": "87a4fe986ed046b53f152d4a0fa947f0f3c7fcdf52a0861cd86e97e01957d9c8",
+  "dispositions_total": 4940,
+  "release_blockers": 4917,
   "schema_version": 1,
-  "with_access_claim": 45,
-  "without_access_claim": 4894
+  "with_access_claim": 47,
+  "without_access_claim": 4893
 }

@@ -3085,6 +3085,10 @@ FLAG_REGION_OVERRIDE = {
                                                #   QUEST_GATED_FLAGS (missable hard fight), so it hosts no
                                                #   progression either way. (Alaric 2026-07-23; re-ruled
                                                #   2026-08-25, #1023.)
+    10017010: "Liurnia",        # The Stormhawk King, Chapel of Anticipation return (#1303).
+                                               #   v1.17 MSB places it in m10_01; the repeatable route is
+                                               #   Liurnia's Four Belfries gate, requiring Goods 8186.
+    10017900: "Liurnia",        # Stormhawk Deenh, same Chapel return route and evidence as f10017010.
     400001: "Leyndell",          # Rold Medallion = GRANTED by Melina at the Elden Throne after Morgott
                                                #   dies -- obtained IN Leyndell, needs Leyndell + Morgott, NOT
                                                #   Altus. Raw pipeline pinned it to Altus off the m34_14
@@ -6539,7 +6543,13 @@ else:
 # automatic bundle -- the player reaches the plateau and touches it normally. Do not move its
 # physical checks out of Liurnia, and do not grant it with the Ainsel Lock (that would still skip
 # Astel). Reported by bobler 2026-08-17; #792.
-_ROUTE_GATED_GRACE_FLAGS = frozenset({76250})
+# 73450/73451 Divine Tower of East Altus both stand on Altus play-region 63003, but the
+# tower's only ordinary entrance is the greatbridge from Leyndell's eastern ward (#324).
+# Giving either warp with Altus skips the Leyndell half of the route; giving it with Leyndell
+# skips the Altus runtime bucket. They therefore belong to no single-lock bundle and light
+# naturally after the player reaches the tower with both regions open. Immutable Eldenpedia
+# page 7876 revision 29723 classifies the tower under Leyndell and describes that connection.
+_ROUTE_GATED_GRACE_FLAGS = frozenset({73450, 73451, 76250})
 for _fl in _ROUTE_GATED_GRACE_FLAGS:
     if str(_fl) not in gf:
         raise SystemExit(f"gen_data: route-gated grace {_fl} is absent from grace_flags.tsv -- "
@@ -6548,6 +6558,11 @@ for _fl in _ROUTE_GATED_GRACE_FLAGS:
         raise SystemExit("gen_data: Moonlight Altar route-gate identity drifted -- expected "
                          "76250 @ m60_34_41, got %r @ %r"
                          % (gname.get(_fl), gf[str(_fl)]))
+    if _fl in {73450, 73451} and (
+            gf[str(_fl)] != "m34_14" or greg.get(str(_fl)) != "63003"):
+        raise SystemExit("gen_data: East Altus Tower route-gate identity drifted -- expected "
+                         "%d @ m34_14 / pid 63003, got %r / pid %r"
+                         % (_fl, gf.get(str(_fl)), greg.get(str(_fl))))
 
 _SKIP_GRACE_FLAGS = (_BOSS_GATED_GRACE_FLAGS | _ARENA_GRACE_FLAGS
                      | _DERIVED_ARENA_GRACE_FLAGS

@@ -153,6 +153,32 @@ Any new region lock, gate, or access rule ships with:
   A lock with no early home is how you get the intermittent `FillError`.
 - Coverage in the option matrix and a fill-regression run across seeds.
 
+### Seam landmarks — a boundary ruling is data, or it does not exist
+
+"Where is X" is answered by several independently keyed representations: the check's region
+(`region_of`), the sweep's region (raw `map`), kick geometry (`PlayRegionParam` buckets and
+`region_play_ids.py`), grace bundles (warp ids), and boss/arena tables. A test that pins only one
+representation cannot see the others disagree. Margit demonstrated this after two different human
+rulings and several locally correct fixes; see `docs/history/POSTMORTEM-margit.md`.
+
+Boundary adjudications therefore ship as executable witnesses against every representation the
+ruling is meant to govern. The witness may be a focused checked-in test or a row in a future
+central seam-landmark ledger, but issue prose alone is not durable evidence. Rules that follow:
+
+- **A ruling without an executable witness does not exist.** Land the witness in the same change
+  as the ruling, and cite the issue, date, and decision in the test or data row.
+- **Name every governed representation.** A test of kick geometry does not silently settle check
+  ownership, sweep ownership, grace bundling, or tracker presentation. Pin each required value.
+- **Deliberate splits are explicit.** If kick geometry and warp geography intentionally differ,
+  witness both sides so a future cleanup cannot "fix" the exception.
+- **Witness the configuration that exposes the seam:** each side locked alone, rather than only
+  the everything-open configuration used by most playtests.
+- **"Closes #N" on a multi-case seam issue requires every named case witnessed**, or the issue is
+  split before closure.
+- **Region-lock reports should include the kick-watch line** (`play_region <raw> -> <folded>;
+  range [a,b] flag F`). It identifies the bucket and lock that actually acted. A report without it
+  is still a useful symptom, but it is not enough to adjudicate the boundary.
+
 ## Progression shape — not a billion checks in sphere 0
 
 A seed that generates and is winnable can still be a bad seed. If sphere 0 (what's

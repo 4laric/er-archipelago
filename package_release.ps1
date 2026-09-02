@@ -8,7 +8,7 @@
 #                                    AP-flower installer, install-into-matts-rando (#948)
 #                                    and update-er-archipelago (#954))
 #   3. the flagship yaml + SETUP.md + CHANGELOG.md
-# (The PopTracker pack stays in the repo, not bundled; the built-in F6 tracker ships.)
+# The built-in F6 tracker ships in the client.
 #
 # AP Flower atlases are optional private release inputs under flower-package; the public checkout
 # carries only the authenticated copy installer.
@@ -574,9 +574,7 @@ $ApConfigText = @(
 Info "+ apconfig.json (generic template: archipelago.gg / Player1 -- port is a placeholder)"
 
 # ---------------------------------------------------------------------------
-# 5. Flagship yaml + docs
-#    (PopTracker pack is intentionally NOT bundled -- it lives in the repo for
-#    anyone who wants it; the built-in F6 tracker is the shipped tracker.)
+# 5. Flagship yaml + docs (the built-in F6 tracker ships in the client)
 # ---------------------------------------------------------------------------
 # The REAL doc set. This list required five files that DO NOT EXIST -- LICENSE,
 # EldenRing-Shattering.yaml, HOW-THE-SHATTERING-WORKS.md, CHECKS-AND-PROGRESSION.md and

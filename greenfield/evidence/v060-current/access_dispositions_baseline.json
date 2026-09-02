@@ -28,10 +28,11 @@
     "check:7772450/access",
     "check:7773581/access",
     "check:7773656/access",
+    "check:7773712/access",
     "check:7773852/access",
     "check:7900218/access"
   ],
-  "release_blockers": 4918,
+  "release_blockers": 4917,
   "resolved_dispositions": {
     "7770002|all": "region_sufficient",
     "7770665|all": "region_sufficient",
@@ -52,10 +53,12 @@
     "7772450|item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false": "encoded",
     "7773581|item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false": "encoded",
     "7773656|item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false": "encoded",
+    "7773712|item_shuffle=true": "encoded",
+    "7773712|not(item_shuffle=true)": "region_sufficient",
     "7773852|item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false": "encoded",
     "7900218|item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false": "encoded"
   },
   "schema_version": 1,
-  "unresolved": 4918,
-  "without_access_claim": 4894
+  "unresolved": 4917,
+  "without_access_claim": 4893
 }

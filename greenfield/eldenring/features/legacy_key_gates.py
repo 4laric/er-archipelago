@@ -20,6 +20,7 @@ Multi-key gates (features/legacy_key_gates._MULTI_KEY_GATES) handle nested sub-d
 Lamenter's Gaol progresses from no key, to Upper, to Upper+Lower depending on the exact check.
 
 Currently gated:
+  Imbued Sword Key       ->  four Chapel of Anticipation return checks, Liurnia;
   Carian Inverted Statue ->  inverted Study Hall, Tower Bridge and Divine Tower checks, Liurnia;
   Gaol U+L Level Keys      ->  Lamenter's Gaol (m41_02, Charo's) -- BOTH keys, check-level, incl.
                               the Lamenter boss reward (f520770). See _MULTI_KEY_GATES;
@@ -70,10 +71,17 @@ except Exception:  # pre-regen / standalone import
 # do the precise opposite of this ruling. It also means re-adding the key gate here re-arms the wall
 # by itself.
 _LEGACY_KEYS = {
+    "Imbued Sword Key": ("Liurnia", (0, 0)),  # Four Belfries -> Chapel; exact flags below (#1303)
     "Carian Inverted Statue": ("Liurnia", (0, 0)),  # inverted route; exact flags below
     "Hole-Laden Necklace": ("Scadu Altus", (0, 0)),   # Metyr arena m25_00 -> bucket 6900 (see above)
 }
 _LEGACY_EXTRA = {
+    # The repeatable Chapel of Anticipation route is the Four Belfries sending gate in Liurnia.
+    # v1.17 m60_34_47 event 1034472611 requires Goods 8186, persists unlock 1034470611, removes
+    # one key, and common event 90005605 targets m10_01. Game8 + Eldenpedia independently name
+    # that destination and its key requirement; see evidence/wiki-audit/leads.tsv (#1301/#1303).
+    # f510030 has two co-checks (Scion weapon + shield); the two treasure flags are the ashes.
+    "Imbued Sword Key": frozenset({510030, 10017010, 10017900}),
     # Standard side stays open: f34117010/060 Golden Runes, f34117080 Cerulean Seed Talisman,
     # f34117200 Carian Glintstone Staff, f34117700 Magic Downpour. The inverted side is the Mask,
     # two rafter pickups, second Miriam reward, bridge Godskin set, and both tower-top checks (the

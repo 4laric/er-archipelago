@@ -21,12 +21,15 @@ pytest.importorskip("worlds.eldenring")
 from BaseClasses import ItemClassification as IC, CollectionState  # noqa: E402
 from Fill import distribute_items_restrictive  # noqa: E402
 from worlds.eldenring.features.legacy_key_gates import (  # noqa: E402
-    _gated_location_ids, _multi_gated_location_ids, _MULTI_KEY_GATES, _LEGACY_KEYS, _LEGACY_EXTRA)
+    LegacyKeyGates, _gated_location_ids, _multi_gated_location_ids, _MULTI_KEY_GATES, _LEGACY_KEYS,
+    _LEGACY_EXTRA)
 from worlds.eldenring.data import LOCATIONS  # noqa: E402
 from ._util import world_items  # noqa: E402
 
 GAME = "Elden Ring"
 KEY = "Academy Glintstone Key"
+CHAPEL_KEY = "Imbued Sword Key"
+CHAPEL_FLAGS = (510030, 10017010, 10017900)
 
 
 class LegacyKeyGateOn(WorldTestBase):
@@ -52,6 +55,45 @@ class LegacyKeyGateOn(WorldTestBase):
         assert keys, "the key must still EXIST as an item -- neutralised, not deleted"
         assert not any(it.classification & IC.progression for it in keys), \
             "the key is filler now; nothing in logic may require it"
+
+    def test_chapel_return_checks_need_liurnia_and_the_imbued_key(self):
+        """#1303: the repeatable route is the Liurnia Belfry gate and its consumed key."""
+        w = self.multiworld.worlds[1]
+        rows_by_flag = {}
+        for region, rows in LOCATIONS.items():
+            for _name, ap, flag in rows:
+                rows_by_flag.setdefault(int(flag), []).append((region, ap))
+        for flag in CHAPEL_FLAGS:
+            assert flag in rows_by_flag, f"Chapel flag {flag} vanished"
+            assert all(region == "Liurnia" for region, _ap in rows_by_flag[flag]), \
+                f"Chapel flag {flag} must present as Liurnia"
+
+        gated = _gated_location_ids(list(_LEGACY_KEYS))
+        chapel_aps = {ap for flag in CHAPEL_FLAGS for _region, ap in rows_by_flag[flag]}
+        assert len(chapel_aps) == 4, "three Chapel flags must mint the four known return checks"
+        assert all(gated.get(ap) == CHAPEL_KEY for ap in chapel_aps)
+
+        locs = {loc.address: loc for loc in self.multiworld.get_locations(1)}
+        key = next(item for item in world_items(self) if item.name == CHAPEL_KEY)
+
+        def state(with_key):
+            result = CollectionState(self.multiworld)
+            for item in world_items(self):
+                if item.name == CHAPEL_KEY:
+                    continue
+                if item.classification & IC.progression:
+                    result.collect(item, prevent_sweep=True)
+            if with_key:
+                result.collect(key, prevent_sweep=True)
+            return result
+
+        without_key, with_key = state(False), state(True)
+        for ap in chapel_aps:
+            assert not locs[ap].can_reach(without_key), f"{locs[ap].name} reachable without key"
+            assert locs[ap].can_reach(with_key), f"{locs[ap].name} blocked with Liurnia + key"
+
+        assert CHAPEL_KEY in w.gf_legacy_keys
+        assert key.classification & IC.progression
 
     def test_the_academy_lock_grants_its_graces(self):
         """⭐ The player-visible half, and the reason the change was made.
@@ -151,6 +193,26 @@ class LegacyKeyGateOn(WorldTestBase):
         assert dheo.can_reach(both)
         assert not metyr.can_reach(necklace_only), "Metyr must need the Jagged Peak Lock"
         assert metyr.can_reach(both)
+
+
+def test_chapel_gate_respects_the_existing_option_switches():
+    """The new key follows the feature's established opt-in predicate; no separate always-on rule."""
+    from types import SimpleNamespace
+
+    feature = LegacyKeyGates()
+
+    def world(legacy, shuffled):
+        return SimpleNamespace(
+            options=SimpleNamespace(
+                legacy_dungeon_keys=SimpleNamespace(value=legacy),
+                item_shuffle=SimpleNamespace(value=shuffled),
+            ),
+            _kept=lambda: ["Liurnia"],
+        )
+
+    assert CHAPEL_KEY in feature._active_keys(world(True, True))
+    assert CHAPEL_KEY not in feature._active_keys(world(False, True))
+    assert CHAPEL_KEY not in feature._active_keys(world(True, False))
 
 
 # ---- multi-key gate: DLC Lamenter's Gaol needs BOTH Gaol keys -------------------------------------

@@ -1,0 +1,8 @@
+{
+  "candidate_game_data_joins": 196,
+  "matched_checks": 57,
+  "pinned_pages": 53,
+  "refused_missing_ap_check": 18,
+  "refused_missing_exact_drop": 65,
+  "refused_missing_page": 56
+}
