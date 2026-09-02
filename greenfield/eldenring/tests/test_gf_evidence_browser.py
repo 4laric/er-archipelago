@@ -129,6 +129,7 @@ class OfflineArtifactTests(unittest.TestCase):
                           "leads.tsv",
                           "powerpyx-check-leads.tsv",
                           "redmaw-checklist-check-leads.tsv",
+                          "redmaw-merchant-check-leads.tsv",
                           "walkthrough-check-leads.tsv"])
         self.assertEqual(BUILDER.load_ledger()["inputs_hash"],
                          BUILDER.ledger_hash(BUILDER.CURRENT, BUILDER.WIKI_AUDIT))

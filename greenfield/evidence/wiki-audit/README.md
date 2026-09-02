@@ -90,6 +90,14 @@ rows retain only factual item names and audit anchors, remain `lead_only`, and c
 nor access logic. The completion sheets and walkthrough also share `gameplay-guide:redmaw`; agreement
 between them is not independent corroboration.
 
+The follow-up `redmaw-merchant-check-leads.tsv` revisits the 292 repeated labels in the merchant
+sheet. It accepts a binding only when the pinned merchant section plus the current AP shop
+description select exactly one candidate. This resolves 141 checks and refuses the remaining 151.
+The associated 96 wiki.gg item targets are pinned to revision ids in
+`redmaw-merchant-wikigg-revisions.tsv`, so every accepted row has both an immutable checklist anchor
+and an immutable item-page citation. These remain identity-only leads: the merchant context does not
+independently prove AP's region assignment, stock conditions, or access logic.
+
 Reproduce from the immutable source commit:
 
 ```bash
@@ -97,6 +105,8 @@ git clone https://github.com/rdmaw/elden-ring-completion-sheets.git /tmp/redmaw
 git -C /tmp/redmaw checkout 7281cb6f7f067e71856f12d5e7083b97ad081bb1
 python tools/build_redmaw_checklist_leads.py /tmp/redmaw/sheets
 python tools/check_redmaw_checklist_leads.py
+python tools/build_redmaw_merchant_leads.py /tmp/redmaw/sheets
+python tools/check_redmaw_merchant_leads.py
 python tools/build_evidence_browser.py
 ```
 
