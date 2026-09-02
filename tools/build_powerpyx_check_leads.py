@@ -23,6 +23,11 @@ DATA = ROOT / "greenfield" / "eldenring" / "data.py"
 DEFAULT_OUT = ROOT / "greenfield" / "evidence" / "wiki-audit" / "powerpyx-check-leads.tsv"
 
 CAPTURES = {
+    "elden-ring-ainsel-river-nokstella-walkthrough.html": {
+        "source_id": "wiki:powerpyx:ainsel-river:20241007170713",
+        "sha256": "07a21565ac4c10ed31669bd6972bd572c711652343a80403f0d50f6e604f01d3",
+        "region": "Ainsel River",
+    },
     "elden-ring-limgrave-walkthrough.html": {
         "source_id": "wiki:powerpyx:limgrave:20260519062715",
         "sha256": "565cafd649ec6e842a167eaf33935c4364d5d3a655ac883e992ca2e7795b9521",
@@ -37,6 +42,61 @@ CAPTURES = {
         "source_id": "wiki:powerpyx:academy:20260609174003",
         "sha256": "699859e6a28fb72220335c036a51282665e283c97936b89bb5c487b4317e06d1",
         "region": "Raya Lucaria Academy",
+    },
+    "elden-ring-caelid-walkthrough.html": {
+        "source_id": "wiki:powerpyx:caelid:20241110191718",
+        "sha256": "36f5e4d51b3a8d19df4c21706de2e21d6a0e61172f92e947885cc8a145fd9465",
+        "region": "Caelid",
+    },
+    "elden-ring-caria-manor-walkthrough.html": {
+        "source_id": "wiki:powerpyx:caria-manor:20241007074505",
+        "sha256": "137c121646a29f54b8dcec5c33d43e4386b622ba439336e2dc6ec5b975d9a826",
+        "region": "Liurnia",
+    },
+    "elden-ring-deeproot-depths-walkthrough.html": {
+        "source_id": "wiki:powerpyx:deeproot-depths:20240912232410",
+        "sha256": "6778f396f1c3eae752a221904ee3ea20c234505e79e7c23de13cfde19586f3e6",
+        "region": "Deeproot Depths",
+    },
+    "elden-ring-leyndell-royal-capital-walkthrough.html": {
+        "source_id": "wiki:powerpyx:leyndell:20241113121919",
+        "sha256": "dd035e068d597272d43bf7750c5e6e311ee36b69cbb02a32c80fa0dba56ecc7f",
+        "region": "Leyndell",
+    },
+    "elden-ring-miquellas-haligtree-elphael-walkthrough.html": {
+        "source_id": "wiki:powerpyx:haligtree:20240511052525",
+        "sha256": "cf5a6c3206666b0934e59c6c56198c19b4d9248e4bc26c907480e47f26e3b53a",
+        "region": "Haligtree",
+    },
+    "elden-ring-mohgwyn-palace-walkthrough.html": {
+        "source_id": "wiki:powerpyx:mohgwyn:20240716093203",
+        "sha256": "2ca35626118a1369c08a781e46403cd29fc3fcb5af76ebf2f17f67aa6a32742c",
+        "region": "Mohgwyn",
+    },
+    "elden-ring-mountaintops-of-the-giants-walkthrough.html": {
+        "source_id": "wiki:powerpyx:mountaintops:20241007172524",
+        "sha256": "0f3e6c111e453c11554189e31f704713dcbe9605c1f0cb4d1a9d430bbcddaae9",
+        "region": "Mountaintops of the Giants",
+    },
+    "elden-ring-siofra-river-walkthrough.html": {
+        "source_id": "wiki:powerpyx:siofra-river:20240721223330",
+        "sha256": "b35011c18e95a0676751f85e9104456bd3ba020feb6b319373865366ae9b1bae",
+        "region": "Siofra River",
+    },
+    "elden-ring-stormveil-castle-walkthrough.html": {
+        "source_id": "wiki:powerpyx:stormveil:20240425022751",
+        "sha256": "13f4879f378073cb25d80a535b4a1898f6e1333c517a06193c56d155bacaf586",
+        "region": "Stormveil",
+    },
+    "elden-ring-volcano-manor-walkthrough.html": {
+        "source_id": "wiki:powerpyx:volcano-manor:20240521191819",
+        "sha256": "17fc4fdb71c580d1858f7edf9ca70f3d2ad821aa9a31f2ca48c8a802d619e32d",
+        "region": "Mt. Gelmir",
+    },
+    "elden-ring-weeping-peninsula-walkthrough.html": {
+        "source_id": "wiki:powerpyx:weeping:20240721235735",
+        "sha256": "b38e2910181283347b2592524b705ca75c1c6a18f4ae88bd9a2574913c1fc69b",
+        "region": "Weeping",
     },
 }
 
