@@ -45,6 +45,10 @@ ELDENPEDIA_PAGE_HEADERS = (
     "title", "canonical_url", "revision_url", "wiki_region", "ap_regions",
     "notable_loot_links", "disposition",
 )
+ELDENPEDIA_DEATHROOT_PAGE_HEADERS = (
+    "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1",
+    "title", "canonical_url", "revision_url", "acquisition_rows", "disposition",
+)
 FEXTRALIFE_PAGE_HEADERS = (
     "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1",
     "title", "canonical_url", "revision_url", "ap_item_name", "template_fields", "ap_region",
@@ -126,6 +130,21 @@ def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict
                 "body_sha256": "mediawiki-sha1:" + row["revision_sha1"],
                 "license": "CC BY-SA 4.0",
                 "provenance": "immutable MediaWiki page revision",
+                "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
+                "disposition": row["disposition"],
+            })
+    eldenpedia_deathroot_manifest = os.path.join(path, "eldenpedia-deathroot-pages.tsv")
+    if os.path.exists(eldenpedia_deathroot_manifest):
+        for row in read("eldenpedia-deathroot-pages.tsv", ELDENPEDIA_DEATHROOT_PAGE_HEADERS):
+            sources.append({
+                "source_id": row["source_id"], "publisher": "Eldenpedia",
+                "author": "Eldenpedia contributors", "title": row["title"],
+                "canonical_url": row["canonical_url"], "revision_url": row["revision_url"],
+                "archived_at": row["revision_timestamp"], "published_at": "unknown",
+                "last_modified": row["revision_timestamp"],
+                "body_sha256": "mediawiki-sha1:" + row["revision_sha1"],
+                "license": "CC BY-SA 4.0",
+                "provenance": "immutable MediaWiki item-page revision",
                 "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
                 "disposition": row["disposition"],
             })

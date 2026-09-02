@@ -17,6 +17,9 @@ _Draft. Written as the window fills, not at tag time._
 The developer evidence browser now includes 1,499 exact check identities from Redmaw's completion
 checklists. The intake is pinned, reproducible, and deliberately conservative: it records factual
 item labels and stable anchors without copying guide prose or treating a checklist as access logic.
+All nine repeated Deathroot checks are now independently bound to a pinned Eldenpedia revision by
+their unique boss, dungeon, or nearby-site anchors. The audit also preserves Eldenpedia's Altus
+wording for the Wyndham Catacombs acquisition beside AP's current Mt. Gelmir bucket for review.
 Merchant-section context resolves another 141 repeated item labels, while 151 that remain ambiguous
 are explicitly refused. The linked wiki.gg item pages are pinned to immutable revisions.
 

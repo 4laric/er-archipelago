@@ -22,6 +22,11 @@ Entries arrive below as they merge.
   deterministic intake records exact item labels, sheet sections, checkbox anchors, and wiki.gg
   targets from a pinned source commit. All results remain discovery-only and claim no access logic.
 
+- **All nine Deathroot checks now have exact external acquisition leads (#1273).** A pinned,
+  CC BY-SA Eldenpedia revision binds each repeated item by unique boss, dungeon, or site anchors.
+  The leads remain discovery-only and expose the Wyndham Altus/Mt. Gelmir boundary difference
+  without silently changing region or access logic.
+
 - **Merchant context resolves 141 formerly ambiguous external leads (#1273).** Exact merchant
   sections, AP shop descriptions, and 96 pinned wiki.gg item revisions identify those checks;
   another 151 ambiguous merchant labels are deliberately refused.

@@ -154,6 +154,29 @@ python tools/check_eldenpedia_location_leads.py
 python tools/build_evidence_browser.py
 ```
 
+## Eldenpedia repeated-item acquisition coverage
+
+`eldenpedia-deathroot-check-leads.tsv` covers all nine Deathroot acquisitions from Eldenpedia page
+10213, revision 38369. A repeated item name cannot identify any one check, so the builder requires a
+unique revision-local set of linked anchors: a named boss, dungeon, or nearby site. Each acquisition
+row binds exactly one current Deathroot AP id, and the validator refuses missing, duplicated, or
+changed anchors.
+
+The CC BY-SA 4.0 revision is pinned by page id, revision id, timestamp, and MediaWiki SHA-1 in
+`eldenpedia-deathroot-pages.tsv`; no wiki prose is retained. The leads intentionally record both
+the source's coarse area and the current AP region without declaring them equivalent. In particular,
+the Wyndham Catacombs row records Eldenpedia's Altus Plateau wording beside the current Mt. Gelmir
+bucket, making that boundary difference visible for later adjudication. All nine rows remain
+`lead_only` and do not establish v1.17 behavior or access logic.
+
+Reproduce from the immutable MediaWiki revision:
+
+```bash
+python tools/build_eldenpedia_deathroot_leads.py
+python tools/check_eldenpedia_deathroot_leads.py
+python tools/build_evidence_browser.py
+```
+
 ## PowerPyx regional coverage
 
 `powerpyx-check-leads.tsv` is a second, source-independent corpus pass over three immutable
