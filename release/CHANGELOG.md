@@ -18,6 +18,11 @@ client half is clients#559 and its merge commit is pinned by the gitlink in this
 
 Entries arrive below as they merge.
 
+- **The player guide now explains Region Lock hints (#1309).** Its stable
+  `#region-lock-hints` section covers the F6 tracker, surface-check balance,
+  frontier selection, aimed hints, and where the resulting Archipelago hint
+  appears.
+
 - **Discarded Palace Key logic follows the Baleful Shadow chain (#1317).** When vanilla items are
   shuffled, Miniature Ranni is progression and must be received before the key check enters logic;
   vanilla Ranni steps absent from the v1.17 appearance predicate are not over-required.
