@@ -3,7 +3,7 @@
     "encoded": 16,
     "excluded": 0,
     "region_sufficient": 4,
-    "unresolved": 4918,
+    "unresolved": 4920,
     "waived": 0
   },
   "by_option_set": {
@@ -11,7 +11,7 @@
       "encoded": 0,
       "excluded": 0,
       "region_sufficient": 3,
-      "unresolved": 4905,
+      "unresolved": 4907,
       "waived": 0
     },
     "item_shuffle=true": {
@@ -76,7 +76,7 @@
       "encoded": 16,
       "excluded": 0,
       "region_sufficient": 4,
-      "unresolved": 4918,
+      "unresolved": 4920,
       "waived": 0
     },
     "high": {
@@ -101,11 +101,11 @@
       "waived": 0
     }
   },
-  "checks_total": 4923,
-  "content_hash": "efaaebae5c25b0154ee439471af75b26fd7e68caecdeee8c8f6d4273fc63f410",
-  "dispositions_total": 4938,
-  "release_blockers": 4918,
+  "checks_total": 4925,
+  "content_hash": "c4c062746460b07a3f2a529cef794f2086edc1d2df5e0949dc4815735a7495e0",
+  "dispositions_total": 4940,
+  "release_blockers": 4920,
   "schema_version": 1,
   "with_access_claim": 42,
-  "without_access_claim": 4896
+  "without_access_claim": 4898
 }
