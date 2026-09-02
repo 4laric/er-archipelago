@@ -40,12 +40,14 @@ class AccessDispositionTests(unittest.TestCase):
     def test_current_census_is_complete_with_encoded_key_gate_option_rows(self):
         value = access.summary(LEDGER, DISPOSITIONS)
         self.assertEqual(value["checks_total"], 4923)
-        self.assertEqual(value["dispositions_total"], value["checks_total"] + 14)
-        self.assertEqual(value["by_disposition"]["region_sufficient"], 3)
-        self.assertEqual(value["by_disposition"]["encoded"], 15)
-        self.assertEqual(value["by_disposition"]["unresolved"], value["checks_total"] - 4)
-        self.assertEqual(value["by_risk"]["critical"]["region_sufficient"], 3)
-        self.assertEqual(value["by_risk"]["critical"]["encoded"], 15)
+        # #1317 adds one check with two exhaustive option rows: encoded with item shuffle on,
+        # region-sufficient with it off. Hence +1 row over the prior +14 option-row surplus.
+        self.assertEqual(value["dispositions_total"], value["checks_total"] + 15)
+        self.assertEqual(value["by_disposition"]["region_sufficient"], 4)
+        self.assertEqual(value["by_disposition"]["encoded"], 16)
+        self.assertEqual(value["by_disposition"]["unresolved"], value["checks_total"] - 5)
+        self.assertEqual(value["by_risk"]["critical"]["region_sufficient"], 4)
+        self.assertEqual(value["by_risk"]["critical"]["encoded"], 16)
         self.assertEqual(value["by_option_set"]["all"]["region_sufficient"], 3)
         self.assertEqual(
             value["by_option_set"][
@@ -73,14 +75,16 @@ class AccessDispositionTests(unittest.TestCase):
         )
         self.assertEqual(value["by_option_set"]["stagefront_fragment_swept=false"]["encoded"], 1)
         self.assertEqual(value["by_option_set"]["stagefront_fragment_swept=true"]["encoded"], 1)
-        self.assertEqual(value["release_blockers"], value["checks_total"] - 4)
-        self.assertEqual(value["with_access_claim"], 40)
-        self.assertEqual(value["without_access_claim"], 4897)
+        self.assertEqual(value["by_option_set"]["item_shuffle=true"]["encoded"], 1)
+        self.assertEqual(value["by_option_set"]["not(item_shuffle=true)"]["region_sufficient"], 1)
+        self.assertEqual(value["release_blockers"], value["checks_total"] - 5)
+        self.assertEqual(value["with_access_claim"], 42)
+        self.assertEqual(value["without_access_claim"], 4896)
 
     def test_every_resolved_disposition_has_a_machine_checked_witness(self):
         rows = access.validate(LEDGER, DISPOSITIONS)
         resolved = [row for row in rows if row["disposition"] != "unresolved"]
-        self.assertEqual(len(resolved), 18)
+        self.assertEqual(len(resolved), 20)
         self.assertTrue(all(row["implementation_path"] for row in resolved))
         self.assertTrue(all(row["implementation_symbol"].startswith("test_") for row in resolved))
 
