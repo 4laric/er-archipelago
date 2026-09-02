@@ -1,0 +1,14 @@
+{
+  "ap_checks": 43,
+  "new_exact_bindings": 28,
+  "prior_union_checks": 10,
+  "refused_ap_checks": {
+    "7772847": "one 2x source row cannot select AP slot 1",
+    "7772848": "one 2x source row cannot select AP slot 2",
+    "7772897": "no distinct source row selects this second two-seed lot",
+    "7772898": "no distinct source row selects this second two-seed lot",
+    "7773716": "the source does not distinguish this Roderika/Lake-Facing Cliffs check"
+  },
+  "remaining_unbound": 5,
+  "union_after": 38
+}

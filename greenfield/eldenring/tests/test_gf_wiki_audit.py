@@ -39,6 +39,7 @@ GAME8_AUDIT = load_repo_tool("check_game8_check_leads")
 ELDENPEDIA_AUDIT = load_repo_tool("check_eldenpedia_location_leads")
 ELDENPEDIA_CRYSTAL_TEAR_AUDIT = load_repo_tool("check_eldenpedia_crystal_tear_leads")
 ELDENPEDIA_DEATHROOT_AUDIT = load_repo_tool("check_eldenpedia_deathroot_leads")
+ELDENPEDIA_GOLDEN_SEED_AUDIT = load_repo_tool("check_eldenpedia_golden_seed_leads")
 ELDENPEDIA_SACRED_TEAR_AUDIT = load_repo_tool("check_eldenpedia_sacred_tear_leads")
 ELDENPEDIA_SEEDBED_AUDIT = load_repo_tool("check_eldenpedia_seedbed_curse_leads")
 ELDENPEDIA_SHABRIRI_AUDIT = load_repo_tool("check_eldenpedia_shabriri_grape_leads")
@@ -128,6 +129,16 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
         self.assertTrue(all("does not prove v1.17" in row["limitations"] for row in rows))
         self.assertEqual(ELDENPEDIA_DEATHROOT_AUDIT.main(), 0)
+
+    def test_eldenpedia_golden_seed_leads_preserve_marginal_coverage(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-golden-seed-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 28)
+        self.assertTrue(all(row["claim_kind"] == "acquisition_identity" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(ELDENPEDIA_GOLDEN_SEED_AUDIT.main(), 0)
 
     def test_eldenpedia_crystal_tear_check_leads_validate(self):
         path = (REPO / "greenfield" / "evidence" / "wiki-audit" /

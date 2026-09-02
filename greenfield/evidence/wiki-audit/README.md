@@ -273,6 +273,18 @@ python tools/check_eldenpedia_crystal_tear_leads.py
 python tools/build_evidence_browser.py
 ```
 
+`eldenpedia-golden-seed-check-leads.tsv` adds 28 exact bindings from Golden Seed page 8969,
+revision 99538. This raises the union coverage from 10 to 38 of 43 AP checks. Unique acquisition-row
+anchors and committed ItemLot ids guard every join. Five checks remain explicitly refused: four
+AP slots cannot be selected from the page's single `2x` row, and the Roderika/Lake-Facing Cliffs
+check is not distinguished by the source. All rows remain `lead_only`.
+
+```bash
+python tools/build_eldenpedia_golden_seed_leads.py
+python tools/check_eldenpedia_golden_seed_leads.py
+python tools/build_evidence_browser.py
+```
+
 `eldenpedia-sacred-tear-check-leads.tsv` binds 12 church-named Sacred Tear acquisitions from
 Eldenpedia page 13254, revision 99877. Every church link is unique in that revision, and every
 selected AP flag must remain a Sacred Tear in the committed ItemLot corpus. The AP-only

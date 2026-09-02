@@ -28,6 +28,8 @@ Twelve Sacred Tears are now bound by unique church names and committed ItemLot i
 Ruin-Strewn Precipice Sacred Tear stays visibly outside the pinned source's coverage.
 All 18 Crystal Tears are now independently bound through pinned item-page revisions, source-local
 location anchors, and committed ItemLot ids, including the three names that occur twice.
+Golden Seed union coverage now reaches 38 of 43 checks. Twenty-eight new rows are exact; five
+ambiguous AP slots remain visibly refused rather than being inferred from shared source wording.
 Merchant-section and physical-shop context resolve another 157 repeated item labels, while 135 that
 remain ambiguous or map to shared checks are explicitly refused. The merchant sheet's 491 linked
 wiki.gg item pages are pinned to immutable revisions.

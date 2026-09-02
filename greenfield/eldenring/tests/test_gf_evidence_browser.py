@@ -128,6 +128,7 @@ class OfflineArtifactTests(unittest.TestCase):
                          ["eldenpedia-boss-reward-check-leads.tsv",
                           "eldenpedia-crystal-tear-check-leads.tsv",
                           "eldenpedia-deathroot-check-leads.tsv",
+                          "eldenpedia-golden-seed-check-leads.tsv",
                           "eldenpedia-item-acquisition-check-leads.tsv",
                           "eldenpedia-location-check-leads.tsv",
                           "eldenpedia-repeated-pickup-check-leads.tsv",
