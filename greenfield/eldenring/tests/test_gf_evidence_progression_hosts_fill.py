@@ -193,17 +193,43 @@ class SyntheticFinaleHostsAreGuarded(_NoAdvancementOnHoldMixin, WorldTestBase):
                           if loc.item is None or loc.item.advancement])
 
 
-class TwoPlayerForeignAdvancementPressure:
+class SpecialProgressionFamilies(_NoAdvancementOnHoldMixin, WorldTestBase):
+    """Released Locks take a different placement route from confined region Locks."""
+    game = GAME
+    options = {
+        "num_regions": 0,
+        "enable_dlc": False,
+        "progression_bias": 0,
+    }
+
+    def test_released_locks_are_kept_off_hold(self):
+        held, _live = self._filled_hold_locations()
+        own = [loc for loc in self.multiworld.get_locations(self.player)
+               if loc.item is not None and loc.item.player == self.player]
+        locks = [loc for loc in own if loc.item.name.endswith(" Lock")]
+        self.assertTrue(locks, "special-path row minted no released region Locks")
+        self.assertFalse([loc.name for loc in locks if loc.address in held])
+
+
+class TestTwoPlayerForeignAdvancementPressure:
     """The ordinary multiworld fill, not a hand-built predicate, supplies foreign advancement."""
     def test_foreign_advancement_exists_but_not_on_hold(self):
         from Fill import distribute_items_restrictive
         from test.general import setup_multiworld
+        from test.general import TestWorld
         from worlds.AutoWorld import AutoWorldRegister
 
-        opts = {"num_regions": 3, "enable_dlc": False,
-                "cross_game_progression": "never"}
+        opts = {"num_regions": 3, "enable_dlc": False}
         world_type = AutoWorldRegister.world_types[GAME]
-        multiworld = setup_multiworld([world_type, world_type], options=[opts, opts])
+        multiworld = setup_multiworld([world_type, TestWorld], options=[opts, {}])
+        # TestWorld intentionally contributes no pool. Promote one ER filler into a foreign-owned
+        # advancement probe without changing the pool/location count; ordinary AP fill must consult
+        # the destination's all-owner evidence rule.
+        probe = next(item for item in multiworld.itempool
+                     if item.player == 1 and not item.advancement)
+        probe.player = 2
+        probe.name = "Foreign progression probe"
+        probe.classification = ItemClassification.progression
         distribute_items_restrictive(multiworld)
         world = multiworld.worlds[1]
         held = set(hold_aps(world))
@@ -220,3 +246,21 @@ class TwoPlayerForeignAdvancementPressure:
                    and loc.item.advancement]
         assert foreign, "two-player row placed no foreign advancement in player 1's world"
         assert not [loc.name for loc in foreign if loc.address in held]
+
+
+class TestSyntheticBossKeyPressure:
+    """Boss Keys are currently frozen off, but their normal-fill category must stay covered."""
+    def test_boss_key_probe_is_kept_off_hold(self):
+        from Fill import distribute_items_restrictive
+        from test.general import setup_multiworld
+        from worlds.AutoWorld import AutoWorldRegister
+
+        world_type = AutoWorldRegister.world_types[GAME]
+        multiworld = setup_multiworld([world_type], options=[{"num_regions": 3}])
+        probe = next(item for item in multiworld.itempool if not item.advancement)
+        probe.name = "Boss Key: evidence-host probe"
+        probe.classification = ItemClassification.progression
+        distribute_items_restrictive(multiworld)
+        world = multiworld.worlds[1]
+        location = next(loc for loc in multiworld.get_locations(1) if loc.item is probe)
+        assert location.address not in hold_aps(world), location.name
