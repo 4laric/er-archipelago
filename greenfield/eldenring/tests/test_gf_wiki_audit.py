@@ -53,6 +53,7 @@ REDMAW_MERCHANT_AUDIT = load_repo_tool("check_redmaw_merchant_leads")
 REDMAW_LOCATION_AUDIT = load_repo_tool("check_redmaw_location_anchor_leads")
 FEXTRALIFE_AUDIT = load_repo_tool("check_fextralife_item_leads")
 FEXTRALIFE_ACQUISITION_AUDIT = load_repo_tool("check_fextralife_acquisition_leads")
+FEXTRALIFE_LINKED_PLACE_AUDIT = load_repo_tool("check_fextralife_linked_place_leads")
 
 
 @unittest.skipUnless(REPO is not None, REPO_ONLY_REASON)
@@ -233,6 +234,14 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
         self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
         self.assertEqual(FEXTRALIFE_ACQUISITION_AUDIT.main(), 0)
+
+    def test_fextralife_linked_place_leads_validate(self):
+        path = REPO / "greenfield" / "evidence" / "wiki-audit" / "fextralife-linked-place-check-leads.tsv"
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertGreaterEqual(len(rows), 220)
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(FEXTRALIFE_LINKED_PLACE_AUDIT.main(), 0)
 
     def test_powerpyx_regional_check_leads_validate(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "powerpyx-check-leads.tsv"
