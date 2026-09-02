@@ -3,20 +3,93 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.5.6 — 2026-08-31
+## v0.5.7 — 2026-09-02
 
 ### What you need to update
 
-- **Client:** Required — use the v0.5.6 client with v0.5.6 seeds.
+- **Client:** Required — use the v0.5.7 client with v0.5.7 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
 - **Profile/assets:** No action.
 
-The contract remains `8397a952`; this window moves only the exact-version handshake. The matching
-client half is clients#559 and its merge commit is pinned by the gitlink in this change.
+The contract moves to `ffc0f1b5` to advertise the owner and location of region Locks placed in
+another player's world. The matching client can therefore buy those hints through the F6 tracker.
+Existing v0.5.6 seed/client pairs remain compatible with each other.
 
 Entries arrive below as they merge.
+
+- **Region-boundary rulings now have a cross-representation CI witness (#1319).** The first ledger
+  row pins Margit and Castleward Tunnel across check/tracker ownership, sweep host, arena region,
+  kick geometry, and grace bundles while recording the intentional Stormhill cliff split. A
+  second witness keeps Fortissax's dream arena under Deeproot rather than Leyndell (#1074).
+
+- **External Memory Stone coverage is now complete at 9/9 checks (#1273).** Testu's Rise and
+  Seluvis's Rise anchors in a pinned Eldenpedia revision add the two missing bindings, guarded by
+  committed ItemLot ids and kept discovery-only.
+
+- **External whetblade coverage is now complete at 7/7 checks (#1273).** Six pinned Eldenpedia
+  revisions and committed ItemLot ids cover every whetblade and distinguish both Whetstone Knife
+  acquisitions; this adds the family's one previously uncovered check.
+
+- **Golden Seed external coverage now reaches 38 of 43 checks (#1273).** Twenty-eight new exact
+  acquisition-row bindings are guarded by committed ItemLot ids; five non-selectable checks remain
+  explicit refusals instead of being guessed from a shared `2x` row or Roderika wording.
+
+- **All 18 Crystal Tear checks now have exact external acquisition leads (#1273).** Fifteen pinned
+  Eldenpedia revisions, source-local location anchors, and committed ItemLot ids distinguish even
+  the repeated Cerulean, Crimson, and Ruptured tears without changing gameplay logic.
+
+- **Twelve church-named Sacred Tear checks now have exact external acquisition leads (#1273).**
+  A pinned Eldenpedia revision and committed ItemLot identities support the bindings; the unlisted
+  Ruin-Strewn Precipice check remains explicitly outside this source's coverage.
+
+- **The external evidence browser now indexes 1,499 Redmaw checklist bindings (#1273).** The
+  deterministic intake records exact item labels, sheet sections, checkbox anchors, and wiki.gg
+  targets from a pinned source commit. All results remain discovery-only and claim no access logic.
+
+- **All nine Deathroot checks now have exact external acquisition leads (#1273).** A pinned,
+  CC BY-SA Eldenpedia revision binds each repeated item by unique boss, dungeon, or site anchors.
+  The leads remain discovery-only and expose the Wyndham Altus/Mt. Gelmir boundary difference
+  without silently changing region or access logic.
+
+- **All three Shabriri Grape checks now have exact external acquisition leads (#1273).** Unique
+  anchors in a pinned Eldenpedia revision are cross-checked against committed ItemLot identities;
+  the results remain discovery-only and preserve region and quest-boundary differences for review.
+
+- **Seedbed Curse evidence binds two checks and explicitly refuses four ambiguous rows (#1273).**
+  A pinned Eldenpedia revision, committed ItemLots, and Dung Eater NPC-event evidence identify Big
+  Boggart and Volcano Manor; same-region Leyndell and Haligtree duplicates remain unbound.
+
+- **Merchant context resolves 157 formerly ambiguous external leads (#1273).** Exact merchant
+  sections, AP flags/shop rows, the physical-merchant datamine, and 491 pinned wiki.gg item
+  revisions identify those checks; another 135 ambiguous or shared-shop labels are refused.
+
+- **Named walkthrough anchors resolve 27 repeated map pickups (#1273).** A pinned base/DLC
+  walkthrough step must link both the repeated item and the exact named location, and the selected
+  AP check must carry matching v1.17 map-lot flag evidence. Six near-matches remain refused.
+
+- **The obsolete PopTracker pack has been removed (#1308).** It was no longer supported and its
+  presence suggested otherwise. The original map inputs still used by repository audit pages now
+  live under `greenfield/maps`; the supported player tracker remains the in-client F6 tracker.
+
+- **Fog Rift Catacombs rewards no longer point players to Auriza Side Tomb (#1305).** Both
+  rewards sharing `f520700` now name their EMEVD-proven dungeon while remaining correctly assigned
+  to Gravesite.
+
+- **The player guide now explains Region Lock hints (#1309).** Its stable
+  `#region-lock-hints` section covers the F6 tracker, surface-check balance,
+  frontier selection, aimed hints, and where the resulting Archipelago hint
+  appears.
+
+- **Discarded Palace Key logic follows the Baleful Shadow chain (#1317).** When vanilla items are
+  shuffled, Miniature Ranni is progression and must be received before the key check enters logic;
+  vanilla Ranni steps absent from the v1.17 appearance predicate are not over-required.
+
+- **Chapel of Anticipation return checks now require their real Four Belfries route (#1303).**
+  The Stormhawk ashes join the Scion rewards in Liurnia, and all four checks require an Imbued
+  Sword Key when legacy key gates are enabled. Stormveil alone can no longer put unreachable
+  Chapel checks in logic.
 
 ## v0.5.5 — 2026-08-31
 

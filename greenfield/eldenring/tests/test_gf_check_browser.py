@@ -212,7 +212,7 @@ class CheckBrowserTest(unittest.TestCase):
         self.assertTrue(cal, "no calibration carried -- the map tab has nothing to project with")
         boxes = {}
         for key, svg in (("m60", "lands_between_map.svg"), ("m61", "land_of_shadow_map.svg")):
-            with open(os.path.join(REPO, "poptracker", "maps", svg), encoding="utf-8") as fh:
+            with open(os.path.join(REPO, "greenfield", "maps", svg), encoding="utf-8") as fh:
                 m = re.search(r'viewBox="0 0 ([\d.]+) ([\d.]+)"', fh.read(400))
             boxes[key] = (float(m.group(1)), float(m.group(2)))
         oob, n = [], 0

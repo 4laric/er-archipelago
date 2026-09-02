@@ -37,7 +37,7 @@ OW_RE = re.compile(r"^(m6[01])_(\d\d)_(\d\d)(?:_(\d)(\d))?$")
 
 def world_xz(map_id, x, z):
     """Overworld map-local coords -> (base, gx, gz) in the single folded frame that
-    poptracker/maps/map_calibration*.json is authored in. None for interiors."""
+    greenfield/maps/map_calibration*.json is authored in. None for interiors."""
     m = OW_RE.match(map_id)
     if not m:
         return None

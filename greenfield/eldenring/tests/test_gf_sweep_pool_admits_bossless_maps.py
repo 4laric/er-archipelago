@@ -220,13 +220,12 @@ class NoBosslessInteriorMapIsOrphaned(unittest.TestCase):
                          "%s is orphaned again: %r" % (WEST_RAMPART, rampart_orphans[:3]))
 
 
-class TheChapelOfAnticipationFoldIsStillHalfApplied(unittest.TestCase):
-    """A ratchet on a leak this change does NOT fix, so it cannot widen unnoticed.
+class TheChapelOfAnticipationFoldIsComplete(unittest.TestCase):
+    """The access-region ruling must not reintroduce the Chapel sweep leak.
 
-    `_SWEEP_EXCLUDED_BMAPS` stops the Grafted Scion GRANTING Stormveil's filler (dafranky67, Nexus
-    2026-07-29). It does not stop the reverse: one m10_01 check is a member of Godrick's group on
-    main, and still is here. It arrives via the `method in ("treasure", "emevd")` branch, which has
-    never consulted a map -- so the fold has three consumers and the exception reaches two.
+    `_SWEEP_EXCLUDED_BMAPS` stops the Grafted Scion granting ordinary filler. Issue #1303 also
+    moves the two return-only stormhawk checks into their Liurnia access bucket, so Stormhawk Deenh
+    can no longer leak into Margit's Stormveil sweep through the treasure/EMEVD branch.
 
     🛑 Pinned by NAME, not by ap id, for the #249 renumbering reason. Growing this list means the
     Chapel is being paid out more, which is the reported bug pointing the other way.
@@ -236,17 +235,20 @@ class TheChapelOfAnticipationFoldIsStillHalfApplied(unittest.TestCase):
     # ("Stormveil :: Stormhawk Deenh - m10_01 [f10017900]") and broke the moment #670 appended a
     # sweep clause to every member's description -- a prose edit reddening a test about WHICH check
     # leaks. The flag is the stable identity; the descriptor is presentation and is allowed to move.
-    KNOWN_LEAK = (10017900,)
+    KNOWN_LEAK = ()
 
     def test_exactly_the_known_chapel_member_leaks(self):
+        chapel = tuple(sorted(
+            int(f) for region in data.LOCATIONS.values() for (_name, _ap, f) in region
+            if _map_of(f) == "m10_01"))
+        self.assertTrue(chapel, "WITNESS: no checks decode to m10_01; an empty leak set would be vacuous")
         leaked = tuple(sorted(
             int(f) for region in HOSTED_REGIONS
             for (name, ap, f) in data.LOCATIONS.get(region, ())
             if _map_of(f) == "m10_01" and ap in SWEPT))
         self.assertEqual(leaked, self.KNOWN_LEAK,
-                         "the Chapel of Anticipation leak MOVED -- it was one check via the "
-                         "treasure/emevd branch. New entries mean a sweep now pays out the intro "
-                         "area more widely than main does.")
+                         "the Chapel of Anticipation leak returned. Any entry means a sweep pays "
+                         "out an isolated intro/return-area check from outside that area.")
 
 
 if __name__ == "__main__":
