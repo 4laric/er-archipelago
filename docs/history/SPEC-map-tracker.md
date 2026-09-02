@@ -1,4 +1,8 @@
-# SPEC — Map tracker (PopTracker pack revival)
+# ARCHIVED SPEC — Map tracker (PopTracker pack revival)
+
+Archived 2026-09-02 when the unsupported PopTracker integration was removed in #1308. This document
+is retained as design history only. The supported player tracker is the in-client F6 tracker; the
+generic SVG and calibration inputs still used by repository audit pages live in `greenfield/maps/`.
 
 Status: PLAN 2026-07-17 (Alaric: "let's do it right, and make a proper map tracker"). Supersedes the
 scattered `docs/specs/SPEC-poptracker-*.md` / `HANDOFF-poptracker-*.md` set (recovered from history for
