@@ -18,6 +18,10 @@ client half is clients#559 and its merge commit is pinned by the gitlink in this
 
 Entries arrive below as they merge.
 
+- **All 18 Crystal Tear checks now have exact external acquisition leads (#1273).** Fifteen pinned
+  Eldenpedia revisions, source-local location anchors, and committed ItemLot ids distinguish even
+  the repeated Cerulean, Crimson, and Ruptured tears without changing gameplay logic.
+
 - **Twelve church-named Sacred Tear checks now have exact external acquisition leads (#1273).**
   A pinned Eldenpedia revision and committed ItemLot identities support the bindings; the unlisted
   Ruin-Strewn Precipice check remains explicitly outside this source's coverage.

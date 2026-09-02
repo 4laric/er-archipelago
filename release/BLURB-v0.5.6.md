@@ -26,6 +26,8 @@ Two Seedbed Curses are likewise bound at Big Boggart and Volcano Manor. Four sam
 and Haligtree rows stay visibly unbound until a stable source-to-flag join exists.
 Twelve Sacred Tears are now bound by unique church names and committed ItemLot identities. The
 Ruin-Strewn Precipice Sacred Tear stays visibly outside the pinned source's coverage.
+All 18 Crystal Tears are now independently bound through pinned item-page revisions, source-local
+location anchors, and committed ItemLot ids, including the three names that occur twice.
 Merchant-section and physical-shop context resolve another 157 repeated item labels, while 135 that
 remain ambiguous or map to shared checks are explicitly refused. The merchant sheet's 491 linked
 wiki.gg item pages are pinned to immutable revisions.
