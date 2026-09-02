@@ -121,8 +121,8 @@ class WikiAuditTest(unittest.TestCase):
                 "fextralife-item-check-leads.tsv")
         with path.open(encoding="utf-8", newline="") as handle:
             rows = list(csv.DictReader(handle, delimiter="\t"))
-        self.assertGreaterEqual(len(rows), 290)
-        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertGreaterEqual(len(rows), 1300)
+        self.assertTrue(all(row["claim_kind"] in {"identity", "identity_region"} for row in rows))
         self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
         self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
         self.assertEqual(FEXTRALIFE_AUDIT.main(), 0)
