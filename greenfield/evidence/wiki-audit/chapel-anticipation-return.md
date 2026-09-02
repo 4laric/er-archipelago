@@ -1,9 +1,10 @@
 # Chapel of Anticipation return-route audit
 
 This #1273 follow-up to #1023 records two independently authored external leads for the repeatable
-route back to the Chapel of Anticipation. It changes no world logic or access disposition. Neither
-source establishes Elden Ring v1.17 behavior, so the normalized claim remains `lead_only` with
-`game_version=unknown`.
+route back to the Chapel of Anticipation. Issue #1303 then adjudicated that lead against committed
+v1.17 EMEVD: m60_34_47 event 1034472611 requires Goods 8186, persists the sending-gate unlock, and
+common event 90005605 sends the player to m10_01. The external normalized claim remains `lead_only`
+with `game_version=unknown`; it corroborates rather than substitutes for that game-data evidence.
 
 ## Sources and reproducibility
 
@@ -31,11 +32,12 @@ The lead records Liurnia, an Imbued Sword Key, and the Chapel sending gate as an
 not cover the one-shot prologue attempt, infer that no exploit exists, or promote guide prose into a
 game event predicate.
 
-## Comparison boundary
+## Adjudication
 
-The current project surface is internally split: the Scion pair is filed under Liurnia, while the
-two stormhawk checks are filed under Stormveil. The current region-only model also does not encode
-an Imbued Sword Key requirement for the Scion pair. This comparison makes the external lead useful
-for triage, but it is not evidence that either current rule is wrong. A versioned EMEVD predicate or
-controlled v1.17 observation must adjudicate the sending-gate requirement and exact reward
-partition before logic changes.
+All four checks are now adjudicated as Liurnia access: the Scion pair already used that bucket, and
+#1303 moves The Stormhawk King and Stormhawk Deenh there as well. The latter two remain physically
+authored in m10_01, whose coarse grace join says Stormveil; the ground-region audit therefore keeps
+an exact two-flag access-route ruling rather than teaching the physical map that it moved. The
+Imbued Sword Key is progression when Liurnia is in play and gates these four checks under legacy
+key logic. This ruling covers the repeatable vanilla sending gate, not the one-shot prologue or
+out-of-bounds routes.
