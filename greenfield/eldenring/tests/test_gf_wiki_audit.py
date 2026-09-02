@@ -5,68 +5,59 @@ from __future__ import annotations
 import csv
 import importlib.util
 import json
+import os
 import unittest
 from pathlib import Path
 
-REPO_ONLY_REASON = "wiki source registry and validator are repository evidence, not world files"
+try:
+    from ._util import find_repo_root, REPO_ONLY_REASON
+except ImportError:
+    import sys
+
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from _util import find_repo_root, REPO_ONLY_REASON
 
 
-def find_repo_root(start: Path) -> Path:
-    for candidate in (start, *start.parents):
-        if (candidate / "tools" / "check_wiki_audit.py").is_file():
-            return candidate
-    raise RuntimeError("repository root not found")
+_REPO = find_repo_root(__file__, marker="tools/check_wiki_audit.py")
+REPO = Path(_REPO) if _REPO is not None else None
 
 
-REPO = find_repo_root(Path(__file__).resolve())
-SPEC = importlib.util.spec_from_file_location(
-    "check_wiki_audit", REPO / "tools" / "check_wiki_audit.py")
-assert SPEC and SPEC.loader
-AUDIT = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(AUDIT)
-
-WALKTHROUGH_SPEC = importlib.util.spec_from_file_location(
-    "check_walkthrough_check_leads",
-    REPO / "tools" / "check_walkthrough_check_leads.py",
-)
-assert WALKTHROUGH_SPEC and WALKTHROUGH_SPEC.loader
-WALKTHROUGH_AUDIT = importlib.util.module_from_spec(WALKTHROUGH_SPEC)
-WALKTHROUGH_SPEC.loader.exec_module(WALKTHROUGH_AUDIT)
-
-GAME8_SPEC = importlib.util.spec_from_file_location(
-    "check_game8_check_leads", REPO / "tools" / "check_game8_check_leads.py")
-assert GAME8_SPEC and GAME8_SPEC.loader
-GAME8_AUDIT = importlib.util.module_from_spec(GAME8_SPEC)
-GAME8_SPEC.loader.exec_module(GAME8_AUDIT)
-
-ELDENPEDIA_SPEC = importlib.util.spec_from_file_location(
-    "check_eldenpedia_location_leads",
-    REPO / "tools" / "check_eldenpedia_location_leads.py",
-)
-assert ELDENPEDIA_SPEC and ELDENPEDIA_SPEC.loader
-ELDENPEDIA_AUDIT = importlib.util.module_from_spec(ELDENPEDIA_SPEC)
-ELDENPEDIA_SPEC.loader.exec_module(ELDENPEDIA_AUDIT)
-
-POWERPYX_SPEC = importlib.util.spec_from_file_location(
-    "check_powerpyx_check_leads",
-    REPO / "tools" / "check_powerpyx_check_leads.py",
-)
-assert POWERPYX_SPEC and POWERPYX_SPEC.loader
-POWERPYX_AUDIT = importlib.util.module_from_spec(POWERPYX_SPEC)
-POWERPYX_SPEC.loader.exec_module(POWERPYX_AUDIT)
+def load_repo_tool(name: str):
+    if REPO is None:
+        return None
+    spec = importlib.util.spec_from_file_location(name, Path(REPO) / "tools" / f"{name}.py")
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
+AUDIT = load_repo_tool("check_wiki_audit")
+
+WALKTHROUGH_AUDIT = load_repo_tool("check_walkthrough_check_leads")
+GAME8_AUDIT = load_repo_tool("check_game8_check_leads")
+ELDENPEDIA_AUDIT = load_repo_tool("check_eldenpedia_location_leads")
+POWERPYX_AUDIT = load_repo_tool("check_powerpyx_check_leads")
+
+
+@unittest.skipUnless(REPO is not None, REPO_ONLY_REASON)
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
         self.assertEqual(AUDIT.validate(REPO), (24, 16))
 
     def test_broad_walkthrough_check_leads_validate(self):
+        self.assertGreater((Path(REPO) / "greenfield" / "evidence" / "wiki-audit" /
+                            "walkthrough-check-leads.tsv").stat().st_size, 0)
         self.assertEqual(WALKTHROUGH_AUDIT.main(), 0)
 
     def test_game8_check_leads_validate(self):
+        self.assertGreater((Path(REPO) / "greenfield" / "evidence" / "wiki-audit" /
+                            "game8-check-leads.tsv").stat().st_size, 0)
         self.assertEqual(GAME8_AUDIT.main(), 0)
 
     def test_eldenpedia_location_check_leads_validate(self):
+        self.assertGreater((Path(REPO) / "greenfield" / "evidence" / "wiki-audit" /
+                            "eldenpedia-location-check-leads.tsv").stat().st_size, 0)
         self.assertEqual(ELDENPEDIA_AUDIT.main(), 0)
 
     def test_eldenpedia_location_leads_never_claim_access(self):
@@ -80,6 +71,8 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
 
     def test_powerpyx_regional_check_leads_validate(self):
+        self.assertGreater((Path(REPO) / "greenfield" / "evidence" / "wiki-audit" /
+                            "powerpyx-check-leads.tsv").stat().st_size, 0)
         self.assertEqual(POWERPYX_AUDIT.main(), 0)
 
     def test_generated_queue_prioritizes_external_coverage_without_promoting_it(self):
