@@ -142,6 +142,7 @@ class OfflineArtifactTests(unittest.TestCase):
                           "game8-check-leads.tsv", "leads.tsv",
                           "powerpyx-check-leads.tsv",
                           "redmaw-checklist-check-leads.tsv",
+                          "redmaw-embedded-ash-check-leads.tsv",
                           "redmaw-location-anchor-check-leads.tsv",
                           "redmaw-merchant-check-leads.tsv",
                           "walkthrough-check-leads.tsv"])
