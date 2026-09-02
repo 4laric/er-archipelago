@@ -193,6 +193,21 @@ def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict
                 "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
                 "disposition": row["disposition"],
             })
+    fextralife_acquisition = os.path.join(path, "fextralife-acquisition-pages.tsv")
+    if os.path.exists(fextralife_acquisition):
+        for row in read("fextralife-acquisition-pages.tsv", ELDENPEDIA_ACQUISITION_PAGE_HEADERS):
+            sources.append({
+                "source_id": row["source_id"], "publisher": "Fextralife",
+                "author": "Fextralife wiki contributors", "title": row["title"],
+                "canonical_url": row["canonical_url"], "revision_url": row["revision_url"],
+                "archived_at": row["revision_timestamp"], "published_at": "unknown",
+                "last_modified": row["revision_timestamp"],
+                "body_sha256": "mediawiki-sha1:" + row["revision_sha1"],
+                "license": "No content-reuse license asserted by this corpus",
+                "provenance": "immutable MediaWiki acquisition-page revision",
+                "patch_applicability": "No game patch stated; cannot establish v1.17 applicability",
+                "disposition": row["disposition"],
+            })
     leads = [row for name in wiki_lead_files(path)
              for row in read(name, WIKI_LEAD_HEADERS)]
     lead_ids = [row["lead_id"] for row in leads]
@@ -350,6 +365,8 @@ def ledger_hash(path: str = CURRENT, wiki_path: str | None = None) -> str:
             names.append("eldenpedia-combatant-pages.tsv")
         if os.path.exists(os.path.join(wiki_path, "fextralife-item-pages.tsv")):
             names.append("fextralife-item-pages.tsv")
+        if os.path.exists(os.path.join(wiki_path, "fextralife-acquisition-pages.tsv")):
+            names.append("fextralife-acquisition-pages.tsv")
         for name in sorted(names):
             digest.update(("wiki-audit/" + name).encode() + b"\0")
             with open(os.path.join(wiki_path, name), "rb") as fh:
