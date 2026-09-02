@@ -157,6 +157,26 @@ def test_region_unconfirmed_tracker_label_is_explained_to_players():
     assert "cannot hold a progression item" in text
 
 
+def test_region_lock_hints_have_linkable_player_documentation():
+    """#1309: pin the support answer in the shipped guide, not a historical blurb."""
+    text = _guide_text()
+    assert re.search(r"^### Region Lock hints$", text, re.MULTILINE), (
+        "the shipped guide lost the stable #region-lock-hints heading")
+    section = " ".join(text.split("### Region Lock hints", 1)[1].split("\n### ", 1)[0].split())
+    for witness in (
+        "F6",
+        "surface checks",
+        "Hint next lock",
+        "still-sealed region",
+        "already opened",
+        "does not reveal which Lock",
+        "Hints",
+        "not Archipelago's normal hint points",
+    ):
+        assert witness.lower() in section.lower(), (
+            f"the Region Lock hints section lost #1309's player-facing detail: {witness!r}")
+
+
 def test_every_option_the_guide_names_exists():
     """A renamed option leaves the guide telling players to set a key Archipelago silently ignores.
 

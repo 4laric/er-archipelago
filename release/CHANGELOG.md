@@ -18,6 +18,11 @@ client half is clients#559 and its merge commit is pinned by the gitlink in this
 
 Entries arrive below as they merge.
 
+- **The player guide now explains Region Lock hints (#1309).** Its stable
+  `#region-lock-hints` section covers the F6 tracker, surface-check balance,
+  frontier selection, aimed hints, and where the resulting Archipelago hint
+  appears.
+
 ## v0.5.5 — 2026-08-31
 
 ### What you need to update

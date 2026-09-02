@@ -12,4 +12,10 @@ _Draft. Written as the window fills, not at tag time._
 
 ## What is in it so far
 
-The window is open. Entries will be added as changes merge.
+### Region Lock hints have a permanent home
+
+The F6 tracker's Lock-hint economy is now explained in the player guide instead
+of living only in an old release announcement. The new linkable section says
+what earns surface-check balance, what **Hint next lock** can select, why it
+keeps the selected Lock secret until purchase, and where the room can see the
+resulting Archipelago hint.
