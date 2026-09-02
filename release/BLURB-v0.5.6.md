@@ -30,6 +30,8 @@ All 18 Crystal Tears are now independently bound through pinned item-page revisi
 location anchors, and committed ItemLot ids, including the three names that occur twice.
 Golden Seed union coverage now reaches 38 of 43 checks. Twenty-eight new rows are exact; five
 ambiguous AP slots remain visibly refused rather than being inferred from shared source wording.
+The seven-check whetblade family now has complete pinned external acquisition coverage, including
+separate Gatefront Ruins and Twin Maiden Husks evidence for the two Whetstone Knife checks.
 Merchant-section and physical-shop context resolve another 157 repeated item labels, while 135 that
 remain ambiguous or map to shared checks are explicitly refused. The merchant sheet's 491 linked
 wiki.gg item pages are pinned to immutable revisions.

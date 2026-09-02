@@ -144,6 +144,7 @@ def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict
         "eldenpedia-golden-seed-pages.tsv",
         "eldenpedia-item-acquisition-pages.tsv",
         "eldenpedia-upgrade-material-pages.tsv",
+        "eldenpedia-whetblade-pages.tsv",
         "eldenpedia-sacred-tear-pages.tsv",
         "eldenpedia-seedbed-curse-pages.tsv",
         "eldenpedia-shabriri-grape-pages.tsv",
