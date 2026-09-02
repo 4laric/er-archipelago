@@ -31,6 +31,10 @@ Entries arrive below as they merge.
   anchors in a pinned Eldenpedia revision are cross-checked against committed ItemLot identities;
   the results remain discovery-only and preserve region and quest-boundary differences for review.
 
+- **Seedbed Curse evidence binds two checks and explicitly refuses four ambiguous rows (#1273).**
+  A pinned Eldenpedia revision, committed ItemLots, and Dung Eater NPC-event evidence identify Big
+  Boggart and Volcano Manor; same-region Leyndell and Haligtree duplicates remain unbound.
+
 - **Merchant context resolves 157 formerly ambiguous external leads (#1273).** Exact merchant
   sections, AP flags/shop rows, the physical-merchant datamine, and 491 pinned wiki.gg item
   revisions identify those checks; another 135 ambiguous or shared-shop labels are refused.

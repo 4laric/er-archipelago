@@ -135,6 +135,7 @@ def wiki_tables(path: str = WIKI_AUDIT) -> tuple[list[dict[str, str]], list[dict
             })
     acquisition_manifests = (
         "eldenpedia-deathroot-pages.tsv",
+        "eldenpedia-seedbed-curse-pages.tsv",
         "eldenpedia-shabriri-grape-pages.tsv",
     )
     for manifest_name in acquisition_manifests:
