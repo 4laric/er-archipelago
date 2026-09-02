@@ -297,7 +297,7 @@ def main():
 
     cal = {}
     for key, fn in (("m60", "map_calibration.json"), ("m61", "map_calibration_dlc.json")):
-        p = os.path.join(root, "poptracker", "maps", fn)
+        p = os.path.join(root, "greenfield", "maps", fn)
         if os.path.exists(p):
             with open(p, encoding="utf-8") as fh:
                 cal[key] = json.load(fh)
@@ -490,7 +490,7 @@ def main():
         tpl = fh.read()
     for token, fn in (("__SVG_BASE__", "lands_between_map.svg"),
                       ("__SVG_DLC__", "land_of_shadow_map.svg")):
-        p = os.path.join(root, "poptracker", "maps", fn)
+        p = os.path.join(root, "greenfield", "maps", fn)
         svg = ""
         if os.path.exists(p):
             with open(p, encoding="utf-8") as fh:

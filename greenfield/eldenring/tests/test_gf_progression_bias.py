@@ -214,6 +214,21 @@ class TestTravellingProgression(unittest.TestCase):
         self.assertEqual({it.name for it in out}, {it.name for it in pool})
         self.assertIn("Godrick's Great Rune", {it.name for it in out})
 
+    def test_reserved_locks_do_not_travel_even_with_a_cross_game_share(self):
+        """The bias-100 + cross_game:auto collision (ZeeK, seed 66131970066820771725). At
+        progression_bias 100 no Lock is released, so no Lock may travel -- but a non-zero
+        cross_game share must still carry the non-Lock progression (runes, keys). Extending the
+        travelling set with EVERY restricted item re-added the reserved Locks and sent 14 of 17
+        abroad; this pins that they stay home while the runes/keys still go."""
+        pool = _pool()
+        released = released_locks(pool, 0, _Rng())  # progression_bias 100 -> release nothing
+        self.assertEqual(released, [])
+        out = travelling_progression(pool, released, 50)
+        names = {it.name for it in out}
+        self.assertFalse([n for n in names if lock_region_name(n)],
+                         "a reserved Region Lock leaked into the cross-game candidate pool")
+        self.assertEqual(names, {"Godrick's Great Rune", "Academy Glintstone Key"})
+
     def test_zero_cross_game_share_preserves_non_lock_locality(self):
         pool = _pool()
         released = released_locks(pool, 100, _Rng())

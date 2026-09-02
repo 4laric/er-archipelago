@@ -164,12 +164,19 @@ GENERATORS = [
     # intentionally absent from the installed world, so this AP-free suite belongs here rather
     # than skipping dark in every test shard (#1213).
     "evidence_baseline",
+    # External-corroboration progression-host confidence reads the repo-only wiki-audit lead
+    # corpus and its builder, then byte-checks the generated TSV, summary, and runtime sets.
+    # It is AP-free and deliberately unavailable in the installed-world test tree.
+    "progression_host_confidence",
 ]
 
 # Suites that run in the `tests` job (installed world + ensured artifacts + client at the gitlink).
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "seam_landmarks": "cross-representation boundary witness joins a repo-root provenance TSV "
+                      "to the installed world's location, sweep, arena, grace, and kick tables; "
+                      "the tests job supplies both sides (#1319)",
     "corhyn_multiregion": "generated data/location-tags regression for #331; pytest needs the "
                             "installed world, while the committed merchant corpus is consumed by "
                             "gen_data and covered by the generator drift gate",

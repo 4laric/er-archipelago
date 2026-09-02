@@ -1,0 +1,43 @@
+{
+  "by_confidence": {
+    "hold": 4393,
+    "trusted_identity_region": 532
+  },
+  "by_external_family_count": {
+    "0": 3386,
+    "1": 1007,
+    "2": 470,
+    "3": 61,
+    "4": 1
+  },
+  "checks_total": 4925,
+  "content_sha256": "91727dd2f066a991fe44e4303cff23b66cb6874d472183ada0aa4f7b5647c569",
+  "input_files": {
+    "eldenpedia-boss-reward-check-leads.tsv": "d3c3c9078311f51cfd40da818e0f9dd896b80231ae6a702481c336ed4757a995",
+    "eldenpedia-crystal-tear-check-leads.tsv": "d7a1ab0ad91d1d03d8d8654ce7be0b5e666d0f5fc1490f26619c507329b037c7",
+    "eldenpedia-deathroot-check-leads.tsv": "68d32a6ef92453be2e4b2027496564730f807815f30bc3549997fa02849505a8",
+    "eldenpedia-golden-seed-check-leads.tsv": "8127dfa2cebf66ce1dd4ccdd01f2db2f40c8283898582c6dddb283b263abfb1c",
+    "eldenpedia-item-acquisition-check-leads.tsv": "795af8250092150cd57d17500307995c3669692fade884d40fdee6556365210f",
+    "eldenpedia-location-check-leads.tsv": "6672bc755e4fe67b77eac98ec2263d640cb7c153b0e3681f509ab473926e719b",
+    "eldenpedia-memory-stone-check-leads.tsv": "4e9540d8eeea38d26a38c899fcc9eb630737f6483c41ad6ec7128fcbf0346fc3",
+    "eldenpedia-repeated-pickup-check-leads.tsv": "205ed9d9a60bc91923e7231e43ef0f411add7d05a894d7eb037b156946e74391",
+    "eldenpedia-sacred-tear-check-leads.tsv": "41199f55dd70130969cef11656414388790a147f340c1e681c634f208aa9aa75",
+    "eldenpedia-seedbed-curse-check-leads.tsv": "9168c004657ad62a5c4e8f3ae2c816db8e0b3eee0cfe12c43e32e11300b042c5",
+    "eldenpedia-shabriri-grape-check-leads.tsv": "57f30cd616647a209134b28440ab855d19783b79330280d67d607578636378d3",
+    "eldenpedia-upgrade-location-row-check-leads.tsv": "d99bec638b607e31dda9520ae7df95ac406acdf95db2faf2a48d3abf1bd5b6c0",
+    "eldenpedia-upgrade-material-check-leads.tsv": "dcd98999ba7f0cc5077e1545c88f1374f90defcf424627a366fde0fdb9d98ccd",
+    "eldenpedia-whetblade-check-leads.tsv": "fff183d076bf3826e1235dfa5a562955c7df3a54bed25c9b4bf9014267a1dae5",
+    "fextralife-acquisition-check-leads.tsv": "ec89514ab5db0a5417b1faf77a0913f894f98ef71b1e824d50c61e874815b575",
+    "fextralife-item-check-leads.tsv": "501d1987e6b4cf5c318877de2253e1b2e397519331ef2ac6cb674568626be726",
+    "fextralife-linked-place-check-leads.tsv": "bfa2c366d4b09d9119b83695e4d77e958ff0452eacc1b37cc999399684abff92",
+    "game8-check-leads.tsv": "70463b4cdbed057c4b41df105140d6a9957b51abc9420bf76bec0e365d18f8c6",
+    "powerpyx-check-leads.tsv": "0aa619c82c168e484758888d2f44b0de894a248868e8b5f72aaffb4caf978c6a",
+    "redmaw-checklist-check-leads.tsv": "85120dafcb0413b59aab9e85252f8ea3911a19feb7d93d6b71f76e1d79712f75",
+    "redmaw-embedded-ash-check-leads.tsv": "472a806089d28a78561f88094827e3d33b02706140f5c27f452d554c4a4fb3f7",
+    "redmaw-location-anchor-check-leads.tsv": "b032388991699263a48df86f8df578db5c738732cd4673d8a53f4de18b3566fb",
+    "redmaw-merchant-check-leads.tsv": "449953976121acd3fbdb31191398132e379e89815620f3e84cdaa66334bf988b",
+    "walkthrough-check-leads.tsv": "e3b3b019200b68b3be9601671a9130d3eacb6688f4fb38d73048178b7053bf63"
+  },
+  "minimum_trusted_external_families": 2,
+  "schema_version": 1
+}

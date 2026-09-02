@@ -1,0 +1,76 @@
+{
+  "ambiguous_labels": 432,
+  "by_sheet": {
+    "achievements.html": {
+      "ambiguous": 0,
+      "exact": 29,
+      "labels": 72,
+      "unmatched": 43
+    },
+    "armor.html": {
+      "ambiguous": 28,
+      "exact": 335,
+      "labels": 708,
+      "unmatched": 345
+    },
+    "ashes.html": {
+      "ambiguous": 2,
+      "exact": 178,
+      "labels": 200,
+      "unmatched": 20
+    },
+    "key-items.html": {
+      "ambiguous": 4,
+      "exact": 160,
+      "labels": 198,
+      "unmatched": 34
+    },
+    "merchants.html": {
+      "ambiguous": 292,
+      "exact": 247,
+      "labels": 624,
+      "unmatched": 85
+    },
+    "miscellaneous-items.html": {
+      "ambiguous": 1,
+      "exact": 91,
+      "labels": 123,
+      "unmatched": 31
+    },
+    "new-game-plus.html": {
+      "ambiguous": 2,
+      "exact": 74,
+      "labels": 137,
+      "unmatched": 61
+    },
+    "npc-walkthrough.html": {
+      "ambiguous": 48,
+      "exact": 115,
+      "labels": 334,
+      "unmatched": 171
+    },
+    "spells.html": {
+      "ambiguous": 36,
+      "exact": 160,
+      "labels": 213,
+      "unmatched": 17
+    },
+    "talismans.html": {
+      "ambiguous": 2,
+      "exact": 144,
+      "labels": 154,
+      "unmatched": 8
+    },
+    "weapons.html": {
+      "ambiguous": 17,
+      "exact": 324,
+      "labels": 486,
+      "unmatched": 145
+    }
+  },
+  "duplicate_exact_labels": 358,
+  "exact_labels": 1857,
+  "labels": 3249,
+  "matched_checks": 1499,
+  "unmatched_labels": 960
+}
