@@ -7,6 +7,7 @@ from ..certified_progression_hosts import (
     CERTIFIED_MAJOR_BOSS_WAVE2_APS,
     CERTIFIED_PROGRESSION_HOST_APS,
     CERTIFIED_REMEMBRANCE_APS,
+    CERTIFIED_REVERED_APS,
     CERTIFIED_SEEDTREE_APS,
 )
 from ..features.evidence_progression_hosts import _always_hold_aps
@@ -27,6 +28,8 @@ def test_certified_families_have_the_expected_tags():
     assert len(CERTIFIED_MAJOR_BOSS_APS) == 10
     assert all(has_class(LOCATION_TAGS[ap], {"MajorBoss"})
                for ap in CERTIFIED_MAJOR_BOSS_APS)
+    assert len(CERTIFIED_REVERED_APS) == 7
+    assert all("Revered" in LOCATION_TAGS[ap] for ap in CERTIFIED_REVERED_APS)
 
 
 def test_collectathon_certifications_do_not_override_independent_bars():
@@ -51,6 +54,7 @@ def test_certified_union_is_exact():
         CERTIFIED_REMEMBRANCE_APS | CERTIFIED_GREAT_RUNE_APS | CERTIFIED_KEY_ITEM_APS
         | CERTIFIED_SEEDTREE_APS | CERTIFIED_CHURCH_APS
         | CERTIFIED_MAJOR_BOSS_APS
+        | CERTIFIED_REVERED_APS
     )
 
 
@@ -66,6 +70,29 @@ def test_new_default_surface_certifications_are_stable_and_finale_free():
     assert restored.isdisjoint(SURFACE_EXCLUDE_APS)
     assert restored.isdisjoint(_always_hold_aps())
 
+
+def test_revered_wave_preserves_deeper_gate_and_region_dispute_holds():
+    """The two unresolved effective rows are named, not accidentally omitted."""
+    from ..evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
+    from ..location_tags import SURFACE_EXCLUDE_APS
+
+    deeper_gated = 7771808       # statue after Divine Beast Dancing Lion
+    region_disputed = 7773212    # Ancient Ruins|Enir Ilim in region_dispute_worksheet.tsv
+    assert {deeper_gated, region_disputed}.isdisjoint(CERTIFIED_REVERED_APS)
+    assert {deeper_gated, region_disputed} <= HOLD_PROGRESSION_HOST_APS
+    assert {deeper_gated, region_disputed}.isdisjoint(SURFACE_EXCLUDE_APS)
+
+
+def test_revered_wave_is_exactly_the_other_effective_generated_holds():
+    from ..evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
+    from ..location_tags import SURFACE_EXCLUDE_APS
+
+    effective = {
+        ap for ap, tags in LOCATION_TAGS.items()
+        if "Revered" in tags and ap in HOLD_PROGRESSION_HOST_APS
+        and ap not in SURFACE_EXCLUDE_APS
+    }
+    assert effective == CERTIFIED_REVERED_APS | {7771808, 7773212}
 
 def test_major_boss_wave2_restores_three_and_preserves_seven_finale_rows():
     from ..evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
