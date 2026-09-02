@@ -3,18 +3,19 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.5.6 — 2026-08-31
+## v0.5.7 — 2026-09-02
 
 ### What you need to update
 
-- **Client:** Required — use the v0.5.6 client with v0.5.6 seeds.
+- **Client:** Required — use the v0.5.7 client with v0.5.7 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
 - **Profile/assets:** No action.
 
-The contract remains `8397a952`; this window moves only the exact-version handshake. The matching
-client half is clients#559 and its merge commit is pinned by the gitlink in this change.
+The contract moves to `ffc0f1b5` to advertise the owner and location of region Locks placed in
+another player's world. The matching client can therefore buy those hints through the F6 tracker.
+Existing v0.5.6 seed/client pairs remain compatible with each other.
 
 Entries arrive below as they merge.
 

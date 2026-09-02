@@ -617,9 +617,10 @@ class TheNameSurface(unittest.TestCase):
 
     def test_the_contract_hash_did_not_move(self):
         """🛑 THE PIN. Names are resolved at generation and the emitted slot data is untouched, so
-        this change owes no client release. That claim is only worth what this assert is worth."""
+        this change owed no client release. The later foreign-Lock placement contract move is
+        separately versioned; this pin still proves the spawn-name work added no further shape."""
         from worlds.eldenring import contract
-        self.assertEqual(contract.CONTRACT_HASH[:8], "8397a952")
+        self.assertEqual(contract.CONTRACT_HASH[:8], "ffc0f1b5")
 
     def test_a_name_the_game_writes_with_a_comma_is_offered_without_one(self):
         """🛑 A COMMA IS A SEPARATOR WHERE PLAYERS WRITE THESE. `spawn_traps: [Alexander, Warrior
