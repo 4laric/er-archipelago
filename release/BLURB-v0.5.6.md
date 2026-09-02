@@ -17,7 +17,8 @@ _Draft. Written as the window fills, not at tag time._
 A new cross-representation seam ledger makes adjudicated boundary landmarks executable in CI.
 Its first row pins Margit and Castleward Tunnel to Stormveil across the tracker, sweep host, arena,
 kick geometry, and grace bundle, while preserving the intentional Limgrave ownership of the
-adjacent Stormhill cliff.
+adjacent Stormhill cliff. Fortissax's dream arena is also pinned across those representations to
+Deeproot Depths, preventing the earlier Leyndell-lock routing regression from returning silently.
 
 ### A broader external evidence census
 
