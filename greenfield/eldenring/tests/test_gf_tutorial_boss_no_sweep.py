@@ -542,8 +542,11 @@ def test_the_sweep_corpus_did_not_shrink():
     # 2026-08-31 (#1100): 4104 -> 4105. The sole addition is Melina's post-Morgott Rold Medallion
     # check f400001, attached only to Morgott trigger 11000800. Both golden post-Morgott seals read
     # that acquisition flag; the exact relation is emitted as POST_BOSS_GIFTS and regression-tested.
-    assert total == 4105, (  # +1 (#1100): post-Morgott vanilla progression gift
-        "sweep corpus is %d, expected 4105. If a sweep was legitimately added or removed, say WHY "
+    # 2026-09-01 (#1303): 4105 -> 4104. Stormhawk Deenh (f10017900) moves from Stormveil to
+    # Liurnia because the Four Belfries sending gate is its only repeatable access route. It leaves
+    # Margit's Stormveil sweep (10000850); no other member enters, leaves, or changes owner.
+    assert total == 4104, (  # -1 (#1303): Chapel return is Liurnia-gated
+        "sweep corpus is %d, expected 4104. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -831,6 +834,9 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # Gravesite's Ghostflame Dragon (2045440800) to Scadu Altus trigger 2047450800 with its
     # corrected check region. No flag gained or lost an owner; this is the single intended
     # region crossing and there is no round-robin collateral churn.
-    assert (digest, n) == ("f450cab3f833dcb1", 4105), (  # #1054: Castle Ensis rune
-        "sweep OWNERSHIP changed: (%s, %d), expected (f450cab3f833dcb1, 4105). The total alone will "
+    # 2026-09-01 (#1303): f450cab3f833dcb1/4105 -> 78fe87536fe461c9/4104. Pairwise against main,
+    # exactly (10000850, f10017900) was removed. There are zero additions and zero re-ownerships;
+    # the check is deliberately unswept because Liurnia has no eligible host for this interior.
+    assert (digest, n) == ("78fe87536fe461c9", 4104), (  # #1303: Chapel return access bucket
+        "sweep OWNERSHIP changed: (%s, %d), expected (78fe87536fe461c9, 4104). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

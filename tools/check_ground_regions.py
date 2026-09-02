@@ -87,6 +87,15 @@ RULED_SWEEP_ANCHORS = {
               "is the guaranteed route.",
 }
 
+# ACCESS-ROUTE-RULED: a check can be authored on a map whose ordinary ground belongs to one
+# region while its only repeatable entrance is controlled by another region.  These are explicit
+# adjudications, not a blanket exemption for region_overrides.tsv: every entry must name the
+# access mechanism that makes the assigned region obtainable on its own.
+RULED_ACCESS_ROUTES = {
+    10017010: "Four Belfries sending gate in Liurnia -> Chapel of Anticipation (Goods 8186)",
+    10017900: "Four Belfries sending gate in Liurnia -> Chapel of Anticipation (Goods 8186)",
+}
+
 
 def _load(path, name):
     spec = importlib.util.spec_from_file_location(name, path)
@@ -207,6 +216,7 @@ def audit(repo):
     game data and does not move."""
     data, bucket_region, tile_buckets, coords, sweep_anchor, exact_buckets = load_tables(repo)
     out = {"agree": [], "benign": [], "sweep_anchored": [], "playarea_ruled": [],
+           "access_route_ruled": [],
            "mismatch": [], "ambiguous": [], "sites_elsewhere": [], "no_coord": [],
            "no_bucket_row": []}
     for region, rows in sorted(data.LOCATIONS.items()):
@@ -233,6 +243,11 @@ def audit(repo):
                     continue
                 per_tile[tile] = {bucket_region.get(b) for b in buckets}
                 grounds |= per_tile[tile]
+            if int(flag) in RULED_ACCESS_ROUTES:
+                out["access_route_ruled"].append(
+                    (int(flag), region, sorted(grounds, key=str),
+                     "/".join(sorted(per_tile)), name))
+                continue
             if not per_tile:
                 out["no_bucket_row"].append((int(flag), region, name, _tile_of(map_ids[0])))
                 continue
