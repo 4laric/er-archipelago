@@ -34,7 +34,7 @@ def main() -> int:
     current = {str(ap_id): region for region, checks in mod.LOCATIONS.items()
                for _name, ap_id, _flag in checks}
 
-    assert len(rows) >= 20, "PowerPyx coverage unexpectedly collapsed below the 22-check pilot"
+    assert len(rows) >= 90, "PowerPyx coverage unexpectedly collapsed below the 93-check corpus"
     ids = [row["lead_id"] for row in rows]
     subjects = [row["subject_id"] for row in rows]
     assert ids == sorted(ids) and len(ids) == len(set(ids))

@@ -56,6 +56,7 @@
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 1,
     "bosses": 1
@@ -85,7 +86,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Ainsel River": {
    "checks": 123,
@@ -101,6 +103,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 9,
    "sweep_slots": {
     "all": 3,
     "bosses": 3
@@ -138,7 +141,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Altus": {
    "checks": 353,
@@ -158,6 +162,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 21,
    "sweep_slots": {
     "all": 12,
     "bosses": 22,
@@ -199,7 +204,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Ancient Ruins": {
    "checks": 60,
@@ -213,6 +219,7 @@
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 2,
     "bosses": 2
@@ -250,7 +257,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Ashen Capital": {
    "checks": 18,
@@ -262,6 +270,7 @@
    "dlc": false,
    "parent": null,
    "rollable": false,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 2,
     "bosses": 2
@@ -299,7 +308,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Belurat": {
    "checks": 93,
@@ -312,6 +322,7 @@
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 1,
     "bosses": 1
@@ -341,7 +352,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Caelid": {
    "checks": 363,
@@ -367,6 +379,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 39,
    "sweep_slots": {
     "all": 10,
     "bosses": 21,
@@ -410,7 +423,8 @@
    "tarnished_pack_checks": 2,
    "tarnished_pack_combos": {
     "Legendary": 1
-   }
+   },
+   "tarnished_pack_shop_checks": 0
   },
   "Cerulean": {
    "checks": 105,
@@ -426,6 +440,7 @@
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 6,
     "bosses": 6,
@@ -469,7 +484,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Consecrated Snowfield": {
    "checks": 143,
@@ -482,6 +498,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 4,
     "bosses": 6,
@@ -517,7 +534,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Deeproot Depths": {
    "checks": 80,
@@ -528,6 +546,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 3,
     "bosses": 3
@@ -565,7 +584,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Enir Ilim": {
    "checks": 107,
@@ -578,6 +598,7 @@
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 2,
     "bosses": 2
@@ -615,7 +636,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Ensis": {
    "checks": 41,
@@ -627,6 +649,7 @@
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 1,
     "bosses": 1
@@ -656,7 +679,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Farum Azula": {
    "checks": 105,
@@ -669,6 +693,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 3,
     "bosses": 3
@@ -698,7 +723,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Gravesite": {
    "checks": 197,
@@ -716,6 +742,7 @@
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 6,
     "bosses": 6,
@@ -751,7 +778,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Haligtree": {
    "checks": 123,
@@ -764,6 +792,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 2,
     "bosses": 2
@@ -793,7 +822,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Jagged Peak": {
    "checks": 40,
@@ -806,6 +836,7 @@
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 3,
    "sweep_slots": {
     "all": 3,
     "bosses": 3
@@ -843,7 +874,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Leyndell": {
    "checks": 251,
@@ -857,6 +889,7 @@
    "dlc": false,
    "parent": "Altus",
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 3,
     "bosses": 3
@@ -894,7 +927,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Limgrave": {
    "checks": 303,
@@ -915,6 +949,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 54,
    "sweep_slots": {
     "all": 9,
     "bosses": 16,
@@ -950,7 +985,8 @@
     }
    },
    "tarnished_pack_checks": 1,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 1
   },
   "Liurnia": {
    "checks": 588,
@@ -973,6 +1009,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 83,
    "sweep_slots": {
     "all": 9,
     "bosses": 24,
@@ -1020,7 +1057,8 @@
    "tarnished_pack_checks": 6,
    "tarnished_pack_combos": {
     "Legendary": 1
-   }
+   },
+   "tarnished_pack_shop_checks": 5
   },
   "Mohgwyn": {
    "checks": 67,
@@ -1033,6 +1071,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 5,
    "sweep_slots": {
     "all": 1,
     "bosses": 1
@@ -1062,7 +1101,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Mountaintops of the Giants": {
    "checks": 202,
@@ -1081,6 +1121,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 8,
    "sweep_slots": {
     "all": 3,
     "bosses": 8,
@@ -1122,7 +1163,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Mt. Gelmir": {
    "checks": 257,
@@ -1143,6 +1185,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 7,
    "sweep_slots": {
     "all": 6,
     "bosses": 10,
@@ -1186,7 +1229,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Rauh Base": {
    "checks": 90,
@@ -1198,6 +1242,7 @@
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 3,
     "bosses": 3,
@@ -1233,7 +1278,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Raya Lucaria Academy": {
    "checks": 110,
@@ -1248,6 +1294,7 @@
    "dlc": false,
    "parent": "Liurnia",
    "rollable": true,
+   "shop_checks": 16,
    "sweep_slots": {
     "all": 2,
     "bosses": 2
@@ -1277,7 +1324,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Roundtable Hold": {
    "checks": 182,
@@ -1285,12 +1333,14 @@
    "dlc": false,
    "parent": null,
    "rollable": false,
+   "shop_checks": 129,
    "sweep_slots": {},
    "sweep_slots_by_class": {},
    "sweep_slots_max": {},
    "sweep_slots_max_by_class": {},
    "tarnished_pack_checks": 1,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 1
   },
   "Scadu Altus": {
    "checks": 322,
@@ -1309,6 +1359,7 @@
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 9,
    "sweep_slots": {
     "all": 7,
     "bosses": 7,
@@ -1352,7 +1403,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Shadow Keep": {
    "checks": 118,
@@ -1368,6 +1420,7 @@
    "dlc": true,
    "parent": null,
    "rollable": true,
+   "shop_checks": 0,
    "sweep_slots": {
     "all": 5,
     "bosses": 5
@@ -1405,7 +1458,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Siofra River": {
    "checks": 166,
@@ -1420,6 +1474,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 8,
    "sweep_slots": {
     "all": 5,
     "bosses": 5
@@ -1457,7 +1512,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Stormveil": {
    "checks": 138,
@@ -1471,6 +1527,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 15,
    "sweep_slots": {
     "all": 2,
     "bosses": 2
@@ -1500,7 +1557,8 @@
     }
    },
    "tarnished_pack_checks": 0,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 0
   },
   "Weeping": {
    "checks": 156,
@@ -1517,6 +1575,7 @@
    "dlc": false,
    "parent": null,
    "rollable": true,
+   "shop_checks": 31,
    "sweep_slots": {
     "all": 5,
     "bosses": 9,
@@ -1558,10 +1617,11 @@
     }
    },
    "tarnished_pack_checks": 4,
-   "tarnished_pack_combos": {}
+   "tarnished_pack_combos": {},
+   "tarnished_pack_shop_checks": 4
   }
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "7990447f021b1872a41ecc42b814a7414177f44d02a4464e46298ea1e5f1312c"
+ "source_sha256": "7184a46ba9f4e41635ed31aac8d2df8fbc06daeba7840fed7695796785fd7f8d"
 }

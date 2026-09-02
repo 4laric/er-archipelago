@@ -45,8 +45,10 @@ class ProgressionHostConfidenceTests(unittest.TestCase):
         self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
         self.assertTrue(all((int(row["external_family_count"]) >= 2) ==
                             (row["confidence"] == builder.TRUSTED) for row in rows))
-        self.assertEqual(532, sum(row["confidence"] == builder.TRUSTED for row in rows))
-        self.assertEqual(4_393, sum(row["confidence"] == builder.HOLD for row in rows))
+        # PowerPyx corroborates 26 additional hosts (#1322); the two new Senessax reward checks
+        # remain held until they gain a second independent external family (#1296).
+        self.assertEqual(558, sum(row["confidence"] == builder.TRUSTED for row in rows))
+        self.assertEqual(4_367, sum(row["confidence"] == builder.HOLD for row in rows))
 
     def test_generated_runtime_sets_partition_the_current_check_population(self):
         builder = load_builder()

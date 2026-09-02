@@ -55,6 +55,8 @@ REQUIRED = [
     ("Seed size", "How big is this seed?"),
     ("Seed size", "What are you putting into the multiworld?"),
     ("Seed size", "checks that can hold progression"),
+    ("Seed size", "Only these controls change how many checks exist."),
+    ("Seed size", "do not remove a single check"),
 ]
 
 # ---------------------------------------------------------------------------------------------
@@ -75,7 +77,8 @@ REQUIRED = [
 SIDE_ORDER = ["Your yaml", "Into the multiworld", "Seed size", "Checks", "Generate &amp; host"]
 
 NUMBERS_MOVE = ["filler_foreign_pct", "keep_local",
-                "confine_foreign_progression", "num_regions", "progression_surface"]
+                "confine_foreign_progression", "num_regions", "progression_surface",
+                "shop_checks"]
 # Real effects the card cannot COUNT (the rune cap's share of the runes category depends on which
 # rune items a seed contains). They must still change what the card SAYS -- silence is the failure
 # mode, not imprecision.
