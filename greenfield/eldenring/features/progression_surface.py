@@ -1384,13 +1384,17 @@ def _world_barred_aps(world):
     # other rule still bars. Rows with no kept site are not in the lift and keep option C's bar.
     _d = frozenset(_d) - collapsed_lift_aps(world)
     _m = missable_barred_aps(world)
+    # v0.6: surface math and the location item_rule consume the same evidence policy. Otherwise the
+    # tracker can star (or the ladder can select) a check that fill is forbidden to use.
+    from . import evidence_progression_hosts as _eph
+    _h = _eph.hold_aps(world)
     if getattr(world, "gf_capital_reconciler", False):
-        return frozenset(_d) | frozenset(_u) | frozenset(_s) | _m
+        return frozenset(_d) | frozenset(_u) | frozenset(_s) | _m | _h
     try:
         from ..location_tags import ERDTREE_BURN_APS as _b
     except Exception:
         _b = frozenset()
-    return frozenset(_d) | frozenset(_u) | frozenset(_b) | frozenset(_s) | _m
+    return frozenset(_d) | frozenset(_u) | frozenset(_b) | frozenset(_s) | _m | _h
 
 
 def _open_allowed(world, classes):
