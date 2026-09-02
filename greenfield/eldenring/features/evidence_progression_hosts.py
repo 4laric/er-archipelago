@@ -30,6 +30,18 @@ def _all_location_aps() -> FrozenSet[int]:
     return frozenset(ap for rows in LOCATIONS.values() for _name, ap, _flag in rows)
 
 
+def _always_hold_aps() -> FrozenSet[int]:
+    """Return checks whose lifecycle makes them unsafe hosts despite location corroboration."""
+    try:
+        from .finale import finale_entries
+    except ImportError:
+        return frozenset()
+    # Finale checks are constructed outside the ordinary location loop and sit behind the goal.
+    # External sources can corroborate their identity and region, but never make them safe places
+    # for advancement required to reach that goal.
+    return frozenset(ap for _name, ap, _flag in finale_entries())
+
+
 def hold_aps(world, *, trusted: Optional[Iterable[int]] = None,
              candidates: Optional[Iterable[int]] = None) -> FrozenSet[int]:
     """Return checks that may not host advancement for this world.
@@ -48,7 +60,8 @@ def hold_aps(world, *, trusted: Optional[Iterable[int]] = None,
     universe = frozenset(candidates) if candidates is not None else _all_location_aps()
     # The complement makes newly generated, unaudited checks fail closed.  The named HOLD set is
     # retained as an explicit audit result and catches corrupt tables whose rows escaped `data.py`.
-    return (universe - frozenset(trusted)) | (generated_hold & universe)
+    return ((universe - frozenset(trusted)) | (generated_hold & universe)
+            | (_always_hold_aps() & universe))
 
 
 def apply_location_rule(world, location, *, trusted: Optional[Iterable[int]] = None) -> None:
@@ -61,4 +74,3 @@ def apply_location_rule(world, location, *, trusted: Optional[Iterable[int]] = N
     previous = location.item_rule
     location.item_rule = lambda item, _p=previous: (
         not getattr(item, "advancement", False)) and _p(item)
-

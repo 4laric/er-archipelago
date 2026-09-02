@@ -130,7 +130,16 @@ class WikiAuditTest(unittest.TestCase):
     def test_broad_walkthrough_check_leads_validate(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "walkthrough-check-leads.tsv"
         with path.open(encoding="utf-8", newline="") as handle:
-            self.assertGreaterEqual(len(list(csv.DictReader(handle, delimiter="\t"))), 800)
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertGreaterEqual(len(rows), 1220)
+        by_check = {row["subject_id"]: row for row in rows}
+        # Base-game and DLC exemplars from the Eldenpedia-only queue must survive end to end.
+        self.assertEqual(by_check["7770664"]["exact_citations"],
+                         "redmaw:#ashen-leyndell:w47-21")
+        self.assertEqual(by_check["7773870"]["exact_citations"],
+                         "redmaw:#charos-grave:d6-18")
+        self.assertTrue(all(row["source_ids"] == "wiki:redmaw:walkthroughs:7281cb6f"
+                            for row in rows))
         self.assertEqual(WALKTHROUGH_AUDIT.main(), 0)
 
     def test_game8_check_leads_validate(self):

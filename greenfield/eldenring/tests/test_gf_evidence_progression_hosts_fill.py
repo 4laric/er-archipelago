@@ -89,6 +89,11 @@ def test_trusted_location_preserves_its_existing_rule():
     assert loc.item_rule(_item("Allowed", 1, ItemClassification.progression))
 
 
+def test_finale_checks_stay_held_even_when_external_identity_is_trusted():
+    finale_id = next(ap for _name, ap, _flag in finale_entries())
+    assert finale_id in hold_aps(SimpleNamespace(), trusted={finale_id}, candidates={finale_id})
+
+
 class _NoAdvancementOnHoldMixin:
     def _filled_hold_locations(self):
         from Fill import distribute_items_restrictive
