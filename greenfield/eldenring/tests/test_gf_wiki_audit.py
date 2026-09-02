@@ -64,7 +64,7 @@ class WikiAuditTest(unittest.TestCase):
                 "redmaw-merchant-check-leads.tsv")
         with path.open(encoding="utf-8", newline="") as handle:
             rows = list(csv.DictReader(handle, delimiter="\t"))
-        self.assertEqual(len(rows), 141)
+        self.assertEqual(len(rows), 157)
         self.assertTrue(all(row["claim_kind"] == "identity" for row in rows))
         self.assertTrue(all("does not independently prove AP's region" in row["limitations"]
                             for row in rows))

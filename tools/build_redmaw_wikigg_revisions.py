@@ -4,20 +4,32 @@
 from __future__ import annotations
 
 import csv
+import argparse
+import importlib.util
 import json
 from pathlib import Path
 import urllib.parse
 import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
-LEADS = ROOT / "greenfield/evidence/wiki-audit/redmaw-merchant-check-leads.tsv"
 OUT = ROOT / "greenfield/evidence/wiki-audit/redmaw-merchant-wikigg-revisions.tsv"
 
 
 def main() -> int:
-    with LEADS.open(encoding="utf-8", newline="") as handle:
-        urls = sorted({json.loads(row["normalized_value"])["wiki_url"]
-                       for row in csv.DictReader(handle, delimiter="\t")})
+    parser = argparse.ArgumentParser()
+    parser.add_argument("sheets", type=Path)
+    args = parser.parse_args()
+    spec = importlib.util.spec_from_file_location(
+        "_redmaw_checklists", ROOT / "tools/build_redmaw_checklist_leads.py"
+    )
+    base = importlib.util.module_from_spec(spec)
+    assert spec.loader
+    spec.loader.exec_module(base)
+    base.verify_snapshot(args.sheets)
+    merchant_parser = base.ChecklistParser()
+    merchant_parser.feed((args.sheets / "merchants.html").read_text(encoding="utf-8"))
+    urls = sorted({url for _checkbox, _section, url, _label in merchant_parser.rows
+                   if url.startswith("https://eldenring.wiki.gg/wiki/")})
     titles = {
         urllib.parse.unquote(urllib.parse.urlparse(url).path.removeprefix("/wiki/")).replace("_", " "): url
         for url in urls
