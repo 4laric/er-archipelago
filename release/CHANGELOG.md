@@ -18,6 +18,10 @@ client half is clients#559 and its merge commit is pinned by the gitlink in this
 
 Entries arrive below as they merge.
 
+- **Ancient Dragon Senessax now randomizes both ancient smithing stones (#1296).** Its regular and
+  somber reward lots are modeled as separate co-firing checks, both vanilla grants are suppressed,
+  and both checks ride Senessax's sweep when boss sweeps are enabled.
+
 - **Discarded Palace Key logic follows the Baleful Shadow chain (#1317).** When vanilla items are
   shuffled, Miniature Ranni is progression and must be received before the key check enters logic;
   vanilla Ranni steps absent from the v1.17 appearance predicate are not over-required.
