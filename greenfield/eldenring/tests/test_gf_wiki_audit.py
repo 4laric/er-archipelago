@@ -93,14 +93,18 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
         self.assertEqual(REDMAW_EMBEDDED_ASH_AUDIT.main(), 0)
 
-    def test_redmaw_merchant_ambiguities_validate(self):
+    def test_redmaw_merchant_inventories_validate(self):
         path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
                 "redmaw-merchant-check-leads.tsv")
         with path.open(encoding="utf-8", newline="") as handle:
             rows = list(csv.DictReader(handle, delimiter="\t"))
-        self.assertEqual(len(rows), 157)
-        self.assertTrue(all(row["claim_kind"] == "identity" for row in rows))
-        self.assertTrue(all("does not independently prove AP's region" in row["limitations"]
+        self.assertEqual(len(rows), 372)
+        self.assertEqual(
+            {kind: sum(row["claim_kind"] == kind for row in rows)
+             for kind in ("identity", "identity_region")},
+            {"identity": 84, "identity_region": 288},
+        )
+        self.assertTrue(all("does not prove v1.17 behavior" in row["limitations"]
                             for row in rows))
         self.assertEqual(REDMAW_MERCHANT_AUDIT.main(), 0)
 

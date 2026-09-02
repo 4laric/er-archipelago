@@ -23,28 +23,34 @@ def main() -> int:
         assert revision["revision_url"].endswith("?oldid=" + revision["revision_id"])
         assert revision["page_id"].isdigit() and revision["revision_id"].isdigit()
         assert revision["revision_timestamp"].endswith("Z")
-    assert len(rows) == report["resolved_checks"] == 157
+    assert len(rows) == report["resolved_checks"] == 372
     assert report["ambiguous_merchant_labels"] == 292
-    assert report["matched_labels"] == 167
+    assert report["matched_labels"] == 382
     assert report["duplicate_labels"] == 10
-    assert report["refused_labels"] == 135
+    assert report["refused_labels"] == 167
     assert len({row["lead_id"] for row in rows}) == len(rows)
     assert len({row["subject_id"] for row in rows}) == len(rows)
     for row in rows:
-        assert row["claim_kind"] == "identity"
-        assert row["source_ids"] == "wiki:redmaw:checklists:7281cb6f"
-        assert row["independence_families"] == "gameplay-guide:redmaw"
+        assert row["claim_kind"] in {"identity", "identity_region"}
         assert row["disposition"] == "lead_only" and row["game_version"] == "unknown"
         value = json.loads(row["normalized_value"])
-        assert set(value) == {"ap_flag", "item_name", "merchant_anchor", "shop_row_ids", "wiki_url"}
+        expected = {"ap_flag", "item_name", "merchant_anchor", "shop_row_ids", "wiki_url"}
+        if row["claim_kind"] == "identity_region":
+            expected.add("region")
+        assert set(value) == expected
+        revision = revisions[value["wiki_url"]]
+        assert row["source_ids"] == (
+            "wiki:redmaw:checklists:7281cb6f;wiki:eldenpedia:merchant-item:revision-"
+            + revision["revision_id"])
+        assert row["independence_families"] == (
+            "gameplay-guide:redmaw;gameplay-wiki:eldenpedia")
         assert isinstance(value["ap_flag"], int) and value["ap_flag"] > 0
         assert value["shop_row_ids"] and all(isinstance(row_id, int) for row_id in value["shop_row_ids"])
         assert value["merchant_anchor"] and value["wiki_url"].startswith("https://eldenring.wiki.gg/wiki/")
         assert row["exact_citations"].endswith(
             ";wiki.gg:" + revisions[value["wiki_url"]]["revision_url"]
         )
-        assert "does not independently prove AP's region" in row["limitations"]
-    print(f"Redmaw merchant leads: OK -- {len(rows)} contextual bindings; 135 refused")
+    print(f"Redmaw merchant leads: OK -- {len(rows)} contextual bindings; 167 refused")
     return 0
 
 

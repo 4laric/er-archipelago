@@ -1,17 +1,17 @@
 {
   "by_confidence": {
-    "hold": 4280,
-    "trusted_identity_region": 643
+    "hold": 3994,
+    "trusted_identity_region": 929
   },
   "by_external_family_count": {
-    "0": 3357,
-    "1": 923,
-    "2": 579,
-    "3": 63,
-    "4": 1
+    "0": 3122,
+    "1": 872,
+    "2": 818,
+    "3": 109,
+    "4": 2
   },
   "checks_total": 4923,
-  "content_sha256": "2097fa4fbfe68ff6d3caf584e6fc873a73d28f171619dab61fd3251b92c97b80",
+  "content_sha256": "ca8afc6a94273978c8813ba1269bbb0122ad87ddd095964bda23618f61464690",
   "input_files": {
     "dlc-sparse-region-check-leads.tsv": "ad6683820b1b6088077321262d3c4ee1fe360c7bdf809611ca53d728a0c8ab95",
     "eldenpedia-boss-reward-check-leads.tsv": "d3c3c9078311f51cfd40da818e0f9dd896b80231ae6a702481c336ed4757a995",
@@ -38,7 +38,7 @@
     "redmaw-checklist-check-leads.tsv": "85120dafcb0413b59aab9e85252f8ea3911a19feb7d93d6b71f76e1d79712f75",
     "redmaw-embedded-ash-check-leads.tsv": "472a806089d28a78561f88094827e3d33b02706140f5c27f452d554c4a4fb3f7",
     "redmaw-location-anchor-check-leads.tsv": "b032388991699263a48df86f8df578db5c738732cd4673d8a53f4de18b3566fb",
-    "redmaw-merchant-check-leads.tsv": "449953976121acd3fbdb31191398132e379e89815620f3e84cdaa66334bf988b",
+    "redmaw-merchant-check-leads.tsv": "113697a9ea9da83f42e961f76d62767960b47199f8f921217efd2e24e1b44133",
     "walkthrough-check-leads.tsv": "e3b3b019200b68b3be9601671a9130d3eacb6688f4fb38d73048178b7053bf63"
   },
   "minimum_trusted_external_families": 2,

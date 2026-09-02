@@ -26,6 +26,7 @@ import unittest
 
 from ..location_tags import (LOCATION_TAGS, SHOP_SLOT_PINS, SHOP_SLOT_SKIPS,
                              DEFAULTED_REGION_APS, SHOP_RELEASE_GATED_APS)
+from ..evidence_progression_hosts import TRUSTED_PROGRESSION_HOST_APS
 from ..missable_locations import MISSABLE_LOCATIONS
 from ..shop_data import SHOP_ROW_IDS
 
@@ -134,6 +135,15 @@ class ShopSlotPins(unittest.TestCase):
         self.assertEqual(set(), pinned & set(MISSABLE_LOCATIONS),
                          "a ShopSlot pin is MISSABLE (alt-currency shop / limited consumable) -- "
                          "progression placed there can be spent away")
+
+    def test_every_pin_has_independent_identity_and_region_corroboration(self):
+        pinned = set(SHOP_SLOT_PINS.values())
+        self.assertEqual(
+            set(),
+            pinned - TRUSTED_PROGRESSION_HOST_APS,
+            "a ShopSlot pin lacks the independent identity-and-region evidence required to host "
+            "progression",
+        )
 
     def test_pins_and_skips_are_disjoint_and_reasoned(self):
         self.assertEqual(set(), set(SHOP_SLOT_PINS) & set(SHOP_SLOT_SKIPS),
