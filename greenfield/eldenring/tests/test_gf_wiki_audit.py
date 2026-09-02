@@ -63,7 +63,7 @@ FEXTRALIFE_LINKED_PLACE_AUDIT = load_repo_tool("check_fextralife_linked_place_le
 @unittest.skipUnless(REPO is not None, REPO_ONLY_REASON)
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (26, 16))
+        self.assertEqual(AUDIT.validate(REPO), (81, 16))
 
     def test_redmaw_same_step_location_anchors_validate(self):
         path = (REPO / "greenfield/evidence/wiki-audit" /

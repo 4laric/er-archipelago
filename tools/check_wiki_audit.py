@@ -26,7 +26,13 @@ def validate(repo: Path) -> tuple[int, int]:
         is_pinned_github_tree = bool(re.fullmatch(
             r"https://github\.com/[^/]+/[^/]+/tree/[0-9a-f]{40}/.+", revision
         ))
-        assert is_archive or is_pinned_github_tree, "revision must be an immutable archive or commit"
+        is_declared_live_capture = (
+            revision == row["canonical_url"]
+            and "content-hash pinned but has no immutable archive URL" in row["patch_applicability"]
+        )
+        assert is_archive or is_pinned_github_tree or is_declared_live_capture, (
+            "revision must be an immutable archive/commit or an explicitly limited live capture"
+        )
         assert row["body_sha256"].startswith("sha256:") and len(row["body_sha256"]) == 71
         assert row["published_at"] and row["last_modified"] and row["archived_at"]
         assert row["patch_applicability"], "every source needs an explicit version disposition"
