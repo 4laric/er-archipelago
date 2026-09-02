@@ -210,8 +210,13 @@ class Finale(Feature):
         # across two slots.
         _fsurf = getattr(world, "_foreign_confine_surface", None)
         _fbf = getattr(world, "_foreign_barred_fn", None)
+        # Finale checks are the only addressed locations constructed outside core._add_locations.
+        # Apply the same v0.6 evidence-host policy here so Boss Keys, Ability Unlocks and foreign
+        # advancement cannot bypass it merely because Ashen Capital owns a synthetic Region.
+        from . import evidence_progression_hosts as _eph
         for (name, ap_id, _flag) in finale_entries():
             loc = FinaleLocation(world.player, name, ap_id, region)
+            _eph.apply_location_rule(world, loc)
             if _fsurf is not None and _fbf is not None and ap_id not in _fsurf:
                 _prev = loc.item_rule
                 loc.item_rule = lambda item, _p=_prev, _pl=world.player, _f=_fbf: (
