@@ -27,6 +27,10 @@ Entries arrive below as they merge.
   The leads remain discovery-only and expose the Wyndham Altus/Mt. Gelmir boundary difference
   without silently changing region or access logic.
 
+- **Merchant context resolves 141 formerly ambiguous external leads (#1273).** Exact merchant
+  sections, AP shop descriptions, and 96 pinned wiki.gg item revisions identify those checks;
+  another 151 ambiguous merchant labels are deliberately refused.
+
 - **The obsolete PopTracker pack has been removed (#1308).** It was no longer supported and its
   presence suggested otherwise. The original map inputs still used by repository audit pages now
   live under `greenfield/maps`; the supported player tracker remains the in-client F6 tracker.

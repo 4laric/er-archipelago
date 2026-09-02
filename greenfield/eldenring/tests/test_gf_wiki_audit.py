@@ -40,6 +40,7 @@ ELDENPEDIA_AUDIT = load_repo_tool("check_eldenpedia_location_leads")
 ELDENPEDIA_DEATHROOT_AUDIT = load_repo_tool("check_eldenpedia_deathroot_leads")
 POWERPYX_AUDIT = load_repo_tool("check_powerpyx_check_leads")
 REDMAW_CHECKLIST_AUDIT = load_repo_tool("check_redmaw_checklist_leads")
+REDMAW_MERCHANT_AUDIT = load_repo_tool("check_redmaw_merchant_leads")
 FEXTRALIFE_AUDIT = load_repo_tool("check_fextralife_item_leads")
 
 
@@ -57,6 +58,17 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all(row["claim_kind"] == "identity" for row in rows))
         self.assertTrue(all("does not prove region" in row["limitations"] for row in rows))
         self.assertEqual(REDMAW_CHECKLIST_AUDIT.main(), 0)
+
+    def test_redmaw_merchant_ambiguities_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "redmaw-merchant-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 141)
+        self.assertTrue(all(row["claim_kind"] == "identity" for row in rows))
+        self.assertTrue(all("does not independently prove AP's region" in row["limitations"]
+                            for row in rows))
+        self.assertEqual(REDMAW_MERCHANT_AUDIT.main(), 0)
 
     def test_broad_walkthrough_check_leads_validate(self):
         path = REPO / "greenfield" / "evidence" / "wiki-audit" / "walkthrough-check-leads.tsv"
