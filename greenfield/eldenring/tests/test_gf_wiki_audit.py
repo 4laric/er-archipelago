@@ -49,6 +49,7 @@ ELDENPEDIA_ITEM_ACQUISITION_AUDIT = load_repo_tool("check_eldenpedia_item_acquis
 ELDENPEDIA_UPGRADE_MATERIAL_AUDIT = load_repo_tool("check_eldenpedia_upgrade_material_leads")
 POWERPYX_AUDIT = load_repo_tool("check_powerpyx_check_leads")
 REDMAW_CHECKLIST_AUDIT = load_repo_tool("check_redmaw_checklist_leads")
+REDMAW_EMBEDDED_ASH_AUDIT = load_repo_tool("check_redmaw_embedded_ash_leads")
 REDMAW_MERCHANT_AUDIT = load_repo_tool("check_redmaw_merchant_leads")
 REDMAW_LOCATION_AUDIT = load_repo_tool("check_redmaw_location_anchor_leads")
 FEXTRALIFE_AUDIT = load_repo_tool("check_fextralife_item_leads")
@@ -78,6 +79,15 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all(row["claim_kind"] == "identity" for row in rows))
         self.assertTrue(all("does not prove region" in row["limitations"] for row in rows))
         self.assertEqual(REDMAW_CHECKLIST_AUDIT.main(), 0)
+
+    def test_redmaw_embedded_ash_aliases_validate(self):
+        path = (REPO / "greenfield/evidence/wiki-audit" /
+                "redmaw-embedded-ash-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 6)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertEqual(REDMAW_EMBEDDED_ASH_AUDIT.main(), 0)
 
     def test_redmaw_merchant_ambiguities_validate(self):
         path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
