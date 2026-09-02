@@ -125,7 +125,8 @@ class OfflineArtifactTests(unittest.TestCase):
 
     def test_wiki_registries_participate_in_the_content_hash(self):
         self.assertEqual(BUILDER.wiki_lead_files(),
-                         ["eldenpedia-location-check-leads.tsv", "game8-check-leads.tsv",
+                         ["eldenpedia-deathroot-check-leads.tsv",
+                          "eldenpedia-location-check-leads.tsv", "game8-check-leads.tsv",
                           "leads.tsv",
                           "powerpyx-check-leads.tsv",
                           "redmaw-checklist-check-leads.tsv",

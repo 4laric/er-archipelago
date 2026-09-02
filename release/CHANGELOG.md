@@ -22,6 +22,11 @@ Entries arrive below as they merge.
   deterministic intake records exact item labels, sheet sections, checkbox anchors, and wiki.gg
   targets from a pinned source commit. All results remain discovery-only and claim no access logic.
 
+- **All nine Deathroot checks now have exact external acquisition leads (#1273).** A pinned,
+  CC BY-SA Eldenpedia revision binds each repeated item by unique boss, dungeon, or site anchors.
+  The leads remain discovery-only and expose the Wyndham Altus/Mt. Gelmir boundary difference
+  without silently changing region or access logic.
+
 - **The obsolete PopTracker pack has been removed (#1308).** It was no longer supported and its
   presence suggested otherwise. The original map inputs still used by repository audit pages now
   live under `greenfield/maps`; the supported player tracker remains the in-client F6 tracker.
