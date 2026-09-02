@@ -12,6 +12,12 @@ _Draft. Written as the window fills, not at tag time._
 
 ## What is in it so far
 
+### A broader external evidence census
+
+The developer evidence browser now includes 1,499 exact check identities from Redmaw's completion
+checklists. The intake is pinned, reproducible, and deliberately conservative: it records factual
+item labels and stable anchors without copying guide prose or treating a checklist as access logic.
+
 ### One supported tracker
 
 The obsolete PopTracker pack has been removed from the repository. It was no longer supported, but

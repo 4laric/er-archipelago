@@ -75,6 +75,31 @@ python tools/check_walkthrough_check_leads.py
 python tools/build_evidence_browser.py
 ```
 
+## Redmaw completion-checklist coverage
+
+`redmaw-checklist-check-leads.tsv` binds factual item labels from eleven completion sheets at
+Redmaw commit `7281cb6f7f067e71856f12d5e7083b97ad081bb1`. The builder accepts only the pinned
+SHA-256 for each sheet, retains the sheet section, checkbox id, and linked wiki.gg target, and emits
+a row only when the normalized label identifies exactly one current AP check globally. Its generated
+coverage report records 3,249 labels: 1,857 exact label bindings covering 1,499 distinct checks,
+432 ambiguous labels, and 960 unmatched labels. Of the distinct bindings, 899 were not present in
+the earlier Redmaw walkthrough pass.
+
+The upstream repository states no reuse licence. No HTML or guide prose is redistributed. These
+rows retain only factual item names and audit anchors, remain `lead_only`, and claim neither region
+nor access logic. The completion sheets and walkthrough also share `gameplay-guide:redmaw`; agreement
+between them is not independent corroboration.
+
+Reproduce from the immutable source commit:
+
+```bash
+git clone https://github.com/rdmaw/elden-ring-completion-sheets.git /tmp/redmaw
+git -C /tmp/redmaw checkout 7281cb6f7f067e71856f12d5e7083b97ad081bb1
+python tools/build_redmaw_checklist_leads.py /tmp/redmaw/sheets
+python tools/check_redmaw_checklist_leads.py
+python tools/build_evidence_browser.py
+```
+
 ## Game8 legacy-dungeon corpus
 
 `game8-check-leads.tsv` independently cross-checks the Redmaw pass against five immutable Game8
