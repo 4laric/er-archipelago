@@ -5,7 +5,7 @@
       "conflicted": 0,
       "corroborated": 0,
       "inferred": 0,
-      "proven": 17,
+      "proven": 18,
       "single_source": 9,
       "unverified": 0
     },
@@ -71,7 +71,7 @@
       "conflicted": 0,
       "corroborated": 0,
       "inferred": 0,
-      "proven": 17,
+      "proven": 18,
       "single_source": 9,
       "unverified": 0
     },
@@ -104,11 +104,11 @@
     "conflicted": 0,
     "corroborated": 0,
     "inferred": 0,
-    "proven": 17,
+    "proven": 18,
     "single_source": 14140,
     "unverified": 0
   },
-  "claims_total": 14157,
-  "content_hash": "1f3a5d58e639ad42ac881eb80f0f6af9c14541f4e3fe21466612fb4d53f38566",
+  "claims_total": 14158,
+  "content_hash": "22ede3c90a47430435c0af004b8a6f9dcc54da6c9ff461b60473cb9654dac8ff",
   "schema_version": 1
 }

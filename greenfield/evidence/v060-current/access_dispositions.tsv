@@ -3724,7 +3724,8 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7773709		unresolved	critical	all
 7773710		unresolved	critical	all
 7773711		unresolved	critical	all
-7773712		unresolved	critical	all
+7773712	check:7773712/access	encoded	critical	item_shuffle=true	QuestlineCheckGates requires Miniature Ranni plus ordinary Ainsel access and prevents self-placement at the gated check.	#1317			greenfield/eldenring/tests/test_gf_questline_check_gates.py	test_palace_key_needs_miniature_ranni_but_not_the_whole_vanilla_quest
+7773712	check:7773712/access	region_sufficient	critical	not(item_shuffle=true)	No randomized Miniature Ranni item exists, so the feature deliberately leaves the region-only rule unchanged.	#1317			greenfield/eldenring/tests/test_gf_questline_check_gates.py	test_no_randomized_item_means_no_ap_item_gate
 7773713		unresolved	critical	all
 7773714		unresolved	critical	all
 7773715		unresolved	critical	all

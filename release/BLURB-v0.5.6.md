@@ -16,3 +16,6 @@ Chapel of Anticipation return checks now follow the repeatable Four Belfries rou
 Stormhawk ashes are filed with the Scion rewards in Liurnia, and an Imbued Sword Key is required
 when legacy key gates are enabled, preventing Stormveil-only seeds from treating the isolated
 Chapel floor as reachable.
+
+The Discarded Palace Key now requires Miniature Ranni in logic when vanilla items are shuffled,
+matching the Baleful Shadow appearance and reward chain without requiring bypassed Ranni steps.
