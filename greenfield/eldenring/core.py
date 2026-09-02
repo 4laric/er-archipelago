@@ -8,7 +8,7 @@ Data-derived + matt-free (see ../LESSONS-LEARNED.md): rules keyed by REGION only
 """
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 from dataclasses import fields as dataclass_fields, make_dataclass
 
@@ -639,6 +639,28 @@ class GFWeb(WebWorld):
 # metadata for the wizard dumper, not an attribute WebWorldRegister knows -- assigning it in the
 # body would hand an unknown key to AP's metaclass for no benefit.
 GFWeb.essential_options = _ESSENTIAL_OPTIONS
+
+
+def _lock_hint_placements(locations, receiving_player: int, lock_names: Set[str]) -> Dict[str, Any]:
+    """Return the full AP coordinate for each of this slot's placed region Locks.
+
+    Location ids are only unique inside their owner's game, so the owner travels with the id. The
+    scan is global rather than `get_locations(receiving_player)`: that narrower call is exactly what
+    loses Locks which fill placed in another player's world.
+    """
+    placements = {}
+    for location in locations:
+        item = location.item
+        if (item is None or item.player != receiving_player or item.name not in lock_names
+                or location.address is None):
+            continue
+        if item.name in placements:
+            raise Exception(f"Lock item {item.name!r} has more than one post-fill placement")
+        placements[item.name] = {
+            "player": int(location.player),
+            "location": int(location.address),
+        }
+    return placements
 
 
 class GreenfieldEldenRingWorld(World):
@@ -2328,6 +2350,9 @@ class GreenfieldEldenRingWorld(World):
 
     def fill_slot_data(self) -> Dict[str, Any]:
         sd = registry.merge_slot_data(self._base_slot_data(), _FEATURES, self)
+        sd[contract.LOCK_HINT_PLACEMENTS] = _lock_hint_placements(
+            self.multiworld.get_locations(), self.player,
+            set(sd.get(contract.REGION_OPEN_FLAGS, {})))
         contract.validate_slot_data(sd, strict=True)
         return sd
 

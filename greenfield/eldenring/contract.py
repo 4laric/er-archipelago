@@ -214,6 +214,19 @@ def _chk_options_dict(v):
     return None
 
 
+def _chk_lock_hint_placements(v):
+    """Lock item name -> the foreign-safe AP coordinate of its post-fill placement."""
+    if not isinstance(v, dict):
+        return "expected {lock_name: {player:int, location:int}}"
+    for name, placement in v.items():
+        if (not isinstance(name, str) or not name or not isinstance(placement, dict)
+                or set(placement) != {"player", "location"}
+                or not _is_int(placement["player"]) or placement["player"] <= 0
+                or not _is_int(placement["location"]) or placement["location"] <= 0):
+            return f"invalid lock placement {name!r}: {placement!r}"
+    return None
+
+
 def _chk_any(v):
     return None
 
@@ -236,6 +249,7 @@ SHAPES = {
     "NESTED_GRANTS":   (_chk_nested_grants,   "NestedGrants",  "progressive.rs custom"),
     "FLASK_LADDER":    (_chk_flask_ladder,    "FlaskLadder",   "progressive.rs flask reconcile"),
     "OPTIONS_DICT":    (_chk_options_dict,    "OptionsDict",   "options::parse_*_option sub-dict"),
+    "LOCK_PLACEMENTS": (_chk_lock_hint_placements, "LockPlacements", "lock_hint_economy::parse_placements"),
     "ANY":             (_chk_any,             "Any",           "(diagnostic / foreign profile; unvalidated)"),
 }
 
@@ -962,6 +976,13 @@ CONTRACT = (
                 "lights the way in; for a gated child (region_spine.REGION_PARENT) it is a SYNTHETIC "
                 "client-owned flag instead, because there the same write must disarm the kick "
                 "WITHOUT lighting a warp target past the vanilla wall (#278)."),
+    ContractKey("lockHintPlacements", "LOCK_PLACEMENTS", False, (GREENFIELD,),
+                "core.fill_slot_data (post-fill)", "lock_hint_economy::parse_placements",
+                "Lock item NAME -> {player, location}, where player owns the world containing the "
+                "location. Emitted after fill for this receiving slot's placed region Locks only. "
+                "This narrow coordinate disclosure lets the custom F6 economy call CreateHints for "
+                "a Lock in another game without spending normal AP hint points. Missing for old "
+                "seeds degrades to the client's Spilled/use-!hint fallback."),
     # --- the tracker's region model, SENT rather than BAKED (2026-07-28) -------------------------
     # These two replace er-logic's generated `tracker_regions.rs`, and the reason is correctness
     # before convenience. That table was built from data.LOCATIONS at GENERATOR time, so it
@@ -1666,6 +1687,13 @@ fn shape_ok(shape: Shape, v: &Value) -> bool {
                 && e.get("potency").is_some_and(is_int))
         }),
         Shape::OptionsDict => v.is_object(),
+        Shape::LockPlacements => v.as_object().is_some_and(|o| o.iter().all(|(name, p)| {
+            !name.is_empty() && p.as_object().is_some_and(|p| {
+                p.len() == 2
+                    && p.get("player").and_then(Value::as_u64).is_some_and(|n| n > 0)
+                    && p.get("location").and_then(Value::as_i64).is_some_and(|n| n > 0)
+            })
+        })),
         Shape::Any => true,
     }
 }

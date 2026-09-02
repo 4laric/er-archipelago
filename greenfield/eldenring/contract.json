@@ -64,6 +64,10 @@
       "rust": "OptionsDict",
       "client_parser": "options::parse_*_option sub-dict"
     },
+    "LOCK_PLACEMENTS": {
+      "rust": "LockPlacements",
+      "client_parser": "lock_hint_economy::parse_placements"
+    },
     "ANY": {
       "rust": "Any",
       "client_parser": "(diagnostic / foreign profile; unvalidated)"
@@ -124,6 +128,17 @@
       "producer": "core._base_slot_data",
       "consumer": "region.rs:111 str_to_u32 (absent => empty => no locks)",
       "doc": "'<Region> Lock' -> the region-open event flag set when that lock is received. Keys MUST be exactly '<Region> Lock' matching the coarse lock-item names the client derives from regionCoarseKeys. Usually the region's front-door GRACE, so the Lock lights the way in; for a gated child (region_spine.REGION_PARENT) it is a SYNTHETIC client-owned flag instead, because there the same write must disarm the kick WITHOUT lighting a warp target past the vanilla wall (#278)."
+    },
+    {
+      "name": "lockHintPlacements",
+      "shape": "LOCK_PLACEMENTS",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "core.fill_slot_data (post-fill)",
+      "consumer": "lock_hint_economy::parse_placements",
+      "doc": "Lock item NAME -> {player, location}, where player owns the world containing the location. Emitted after fill for this receiving slot's placed region Locks only. This narrow coordinate disclosure lets the custom F6 economy call CreateHints for a Lock in another game without spending normal AP hint points. Missing for old seeds degrades to the client's Spilled/use-!hint fallback."
     },
     {
       "name": "locationRegions",
