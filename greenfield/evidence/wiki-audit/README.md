@@ -75,6 +75,24 @@ python tools/check_walkthrough_check_leads.py
 python tools/build_evidence_browser.py
 ```
 
+`redmaw-location-anchor-check-leads.tsv` is a narrower repeated-item pass over the pinned current
+base and DLC walkthroughs. It considers only steps that link both a repeated item and a named
+MapGenie location, then requires that exact location phrase to select one current AP candidate in
+the declared section region and that the candidate's flag have a matching v1.17 map-lot detection
+claim. This resolves 27 checks, including repeated smithing stones, Sacred Tears, and Scadutree
+Fragments; six other repeated links with named locations are refused.
+
+Only factual link labels and immutable section/step anchors are retained. Redmaw's prose is not
+redistributed, this pass shares the same `gameplay-guide:redmaw` family as the other Redmaw inputs,
+and every row remains `lead_only`. Same-step placement does not establish access or route order.
+
+```bash
+git -C /tmp/redmaw checkout 7281cb6f7f067e71856f12d5e7083b97ad081bb1
+python tools/build_redmaw_location_anchor_leads.py /tmp/redmaw/sheets
+python tools/check_redmaw_location_anchor_leads.py
+python tools/build_evidence_browser.py
+```
+
 ## Redmaw completion-checklist coverage
 
 `redmaw-checklist-check-leads.tsv` binds factual item labels from eleven completion sheets at

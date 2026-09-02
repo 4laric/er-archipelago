@@ -25,6 +25,8 @@ and Revenger's Shack anchors, with each AP flag cross-checked against committed 
 Merchant-section and physical-shop context resolve another 157 repeated item labels, while 135 that
 remain ambiguous or map to shared checks are explicitly refused. The merchant sheet's 491 linked
 wiki.gg item pages are pinned to immutable revisions.
+Another 27 repeated smithing stones, Sacred Tears, Scadutree Fragments, and dungeon pickups are
+cross-checked only where a pinned walkthrough step names the same location as the AP map-lot flag.
 
 ### One supported tracker
 
