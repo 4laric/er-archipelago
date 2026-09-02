@@ -27,7 +27,10 @@ def load_builder():
 class ProgressionHostConfidenceTests(unittest.TestCase):
     def test_generated_classifier_is_current_and_conservative(self):
         builder = load_builder()
-        self.assertEqual(0, builder.main(["--check"]))
+        status = builder.main(["--check"])
+        self.assertIsInstance(status, int)
+        self.assertGreaterEqual(status, 0)
+        self.assertLess(status, 1)
 
     def test_every_check_is_classified_and_missing_evidence_is_hold(self):
         builder = load_builder()
