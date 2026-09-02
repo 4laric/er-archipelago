@@ -183,9 +183,10 @@ item pages. The checked-in `fextralife-item-pages.tsv` pins the exact MediaWiki 
 IDs, timestamp, revision SHA-1, and immutable `oldid` URL used by each binding. No wiki prose is
 redistributed.
 
-The builder starts from item names that identify exactly one current AP check globally. It emits a
-row only when that item's wiki page has a structured `location`, `obtained`, or `found` template
-field containing the current AP region literally. This intentionally declines aliases and inferred
+The builder starts from item names that identify exactly one current AP check globally. It emits an
+identity row only when the wiki revision's structured `name` field exactly matches that AP item. It
+adds coarse region to the claim only when a structured `location`, `obtained`, or `found` field also
+contains the current AP region literally. This intentionally declines aliases and inferred
 geography rather than maintaining a second region ontology. It also declines repeated AP items.
 
 Every row remains `lead_only` at `game_version=unknown`. A Fextralife page can cross-check identity

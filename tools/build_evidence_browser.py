@@ -47,7 +47,7 @@ ELDENPEDIA_PAGE_HEADERS = (
 )
 FEXTRALIFE_PAGE_HEADERS = (
     "source_id", "page_id", "revision_id", "revision_timestamp", "revision_sha1",
-    "title", "canonical_url", "revision_url", "template_fields", "ap_region",
+    "title", "canonical_url", "revision_url", "ap_item_name", "template_fields", "ap_region",
     "disposition",
 )
 
