@@ -170,6 +170,9 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "seam_landmarks": "cross-representation boundary witness joins a repo-root provenance TSV "
+                      "to the installed world's location, sweep, arena, grace, and kick tables; "
+                      "the tests job supplies both sides (#1319)",
     "corhyn_multiregion": "generated data/location-tags regression for #331; pytest needs the "
                             "installed world, while the committed merchant corpus is consumed by "
                             "gen_data and covered by the generator drift gate",
