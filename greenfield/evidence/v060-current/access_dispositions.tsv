@@ -4648,6 +4648,7 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7774632		unresolved	critical	all
 7774633		unresolved	critical	all
 7774634		unresolved	critical	all
+7774635		unresolved	critical	all	Senessax primary reward; ordinary Jagged Peak boss access	#1296
 7900000		unresolved	critical	all
 7900001		unresolved	critical	all
 7900002		unresolved	critical	all
@@ -4937,3 +4938,4 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7900285		unresolved	critical	all
 7900286		unresolved	critical	all
 7900287		unresolved	critical	all
+7900288		unresolved	critical	all	Senessax co-firing reward; ordinary Jagged Peak boss access	#1296

@@ -1303,6 +1303,8 @@ for _rowfix in _ALLROWS:
 # MEANINGFUL_CATEGORIES), then append the new sibling rows to co_check_ids.tsv (the regen FATALs
 # with the exact lines to add). Seeded with the four hand-verified families (Alaric 2026-07-24):
 CO_CHECK_HAND = frozenset({
+    530805,   # Ancient Dragon Senessax: 30805 Ancient Dragon Smithing Stone (primary) + 30806
+              #          Somber Ancient Dragon Smithing Stone. Both are one boss reward family.
     510460,   # Messmer: lot 10460 Remembrance of the Impaler (primary) + 10461 Messmer's Kindling
               #          (KEY ITEM, goods 2008021; natural_progression gates Enir-Ilim on it)
     510440,   # Golden Hippopotamus: 10440 Aspects of the Crucible: Thorns (primary; nat-prog Shadow
@@ -3717,6 +3719,7 @@ GLOBAL_RECOVER = {
     400710: 'Jagged Peak',
     520710: 'Ancient Ruins',
     530800: 'Gravesite',
+    530805: 'Jagged Peak',  # Ancient Dragon Senessax's paired ancient/somber stone reward lots.
     # Region CORRECTIONS: major-boss drops that WERE checks but auto-recovered to the wrong region
     # (HUB / Altus). Re-pin to the boss's real region so check + detect flag + sweep agree (2026-07-10):
     510810: "Liurnia",  # Royal Knight Loretta (Caria Manor) -- was HUB (Loretta's Greatbow/Slash)
@@ -4742,7 +4745,9 @@ def _recover_row_ok(r):
     if not _item_exists(r):
         return False
     return _recover_tile(_fl) is not None           # auto-recover every DECODABLE global/filler
-_recovered = [r for r in _ALLROWS if _recover_row_ok(r)]
+_LATE_RECOVER_FLAGS = frozenset({530805})
+_recovered = [r for r in _ALLROWS
+              if _recover_row_ok(r) and int(r['flag']) not in _LATE_RECOVER_FLAGS]
 rows = rows + _recovered
 
 # ITEM-EXISTENCE GUARD -- report what the guard ACTUALLY REMOVED FROM THE WORLD, which is the only
@@ -5520,6 +5525,16 @@ def _collapsed_sites_of(_row):
 # The REGION PREFIX is deliberately left intact -- the tracker groups on it and the client's kick
 # geometry uses the same value -- so the marker is a suffix and no group splits.
 REGION_UNCONFIRMED = " (region unconfirmed)"
+# A newly recovered global inserted into `_recovered` renumbers every derived shop/gesture check
+# that follows it, because the legacy BASE_AP namespace is positional. New recovery rulings must
+# therefore append after those established populations. Senessax is the first such ruling made
+# after the namespace shipped; keep this explicit rather than silently changing existing AP IDs.
+_late_recovered = [r for r in _ALLROWS
+                   if int(r['flag']) in _LATE_RECOVER_FLAGS and _recover_row_ok(r)]
+assert {int(r['flag']) for r in _late_recovered} == set(_LATE_RECOVER_FLAGS), (
+    "late recovered flag set is incomplete -- an append-only AP id would silently disappear")
+rows.extend(_late_recovered)
+
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 # These checks ARE the two Finger Ruins bell interactions: the bell event awards the talisman lot and
 # flips the check flag as one operation. Name the action the player performs rather than the contents
@@ -11036,20 +11051,26 @@ if BOSS_HEALTHBARS:
     # _ap_region never covers (they carry no map), yet they present in a real region and are
     # exactly the class this fix exists for.
     _drop_added, _drop_mismatch, _drop_nosweep, _drop_notcheck = [], [], [], []
-    _flag_apid = {_fl: _aid for _aid, _fl in _apid_flag.items()}
+    _flag_apids = defaultdict(list)
+    for _aid, _fl in _apid_flag.items():
+        _flag_apids[_fl].append(_aid)
     _bucket_region = {_aid: _reg for _reg, _locs in buckets.items() for (_nm, _aid, _fl) in _locs}
     for _dfl, _dtrig in sorted(_BOSS_DROP_ENTITY.items()):
-        _dap = _flag_apid.get(_dfl)
-        if _dap is None:
+        _daps = _flag_apids.get(_dfl, [])
+        if not _daps:
             _drop_notcheck.append(_dfl); continue
         if _dtrig not in DUNGEON_SWEEPS:
             _drop_nosweep.append((_dfl, _dtrig)); continue
-        if _bucket_region.get(_dap) != SWEEP_REGION.get(_dtrig):
-            _drop_mismatch.append((_dfl, _dtrig, _bucket_region.get(_dap), SWEEP_REGION.get(_dtrig)))
+        _bad_regions = sorted({_bucket_region.get(_dap) for _dap in _daps
+                               if _bucket_region.get(_dap) != SWEEP_REGION.get(_dtrig)},
+                              key=repr)
+        if _bad_regions:
+            _drop_mismatch.append((_dfl, _dtrig, _bad_regions, SWEEP_REGION.get(_dtrig)))
             continue
-        if _dap not in DUNGEON_SWEEPS[_dtrig]:
-            DUNGEON_SWEEPS[_dtrig] = sorted(set(DUNGEON_SWEEPS[_dtrig]) | {_dap})
-            _drop_added.append((_dfl, _dtrig))
+        _missing = set(_daps) - set(DUNGEON_SWEEPS[_dtrig])
+        if _missing:
+            DUNGEON_SWEEPS[_dtrig] = sorted(set(DUNGEON_SWEEPS[_dtrig]) | _missing)
+            _drop_added.extend((_dfl, _dtrig, _dap) for _dap in sorted(_missing))
     assert _drop_added, (
         "own-drop admission added NOTHING -- boss_drops.py is empty or every row failed a bucket; "
         "the #907 fix is not running and this pass is scenery")
