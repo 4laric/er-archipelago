@@ -131,6 +131,7 @@ class OfflineArtifactTests(unittest.TestCase):
                           "eldenpedia-golden-seed-check-leads.tsv",
                           "eldenpedia-item-acquisition-check-leads.tsv",
                           "eldenpedia-location-check-leads.tsv",
+                          "eldenpedia-memory-stone-check-leads.tsv",
                           "eldenpedia-repeated-pickup-check-leads.tsv",
                           "eldenpedia-sacred-tear-check-leads.tsv",
                           "eldenpedia-seedbed-curse-check-leads.tsv",
