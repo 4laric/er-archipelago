@@ -18,6 +18,10 @@ client half is clients#559 and its merge commit is pinned by the gitlink in this
 
 Entries arrive below as they merge.
 
+- **External Memory Stone coverage is now complete at 9/9 checks (#1273).** Testu's Rise and
+  Seluvis's Rise anchors in a pinned Eldenpedia revision add the two missing bindings, guarded by
+  committed ItemLot ids and kept discovery-only.
+
 - **External whetblade coverage is now complete at 7/7 checks (#1273).** Six pinned Eldenpedia
   revisions and committed ItemLot ids cover every whetblade and distinguish both Whetstone Knife
   acquisitions; this adds the family's one previously uncovered check.

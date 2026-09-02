@@ -40,6 +40,7 @@ ELDENPEDIA_AUDIT = load_repo_tool("check_eldenpedia_location_leads")
 ELDENPEDIA_CRYSTAL_TEAR_AUDIT = load_repo_tool("check_eldenpedia_crystal_tear_leads")
 ELDENPEDIA_DEATHROOT_AUDIT = load_repo_tool("check_eldenpedia_deathroot_leads")
 ELDENPEDIA_GOLDEN_SEED_AUDIT = load_repo_tool("check_eldenpedia_golden_seed_leads")
+ELDENPEDIA_MEMORY_STONE_AUDIT = load_repo_tool("check_eldenpedia_memory_stone_leads")
 ELDENPEDIA_WHETBLADE_AUDIT = load_repo_tool("check_eldenpedia_whetblade_leads")
 ELDENPEDIA_SACRED_TEAR_AUDIT = load_repo_tool("check_eldenpedia_sacred_tear_leads")
 ELDENPEDIA_SEEDBED_AUDIT = load_repo_tool("check_eldenpedia_seedbed_curse_leads")
@@ -152,6 +153,16 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all(row["claim_kind"] == "acquisition_identity" for row in rows))
         self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
         self.assertEqual(ELDENPEDIA_GOLDEN_SEED_AUDIT.main(), 0)
+
+    def test_eldenpedia_memory_stone_family_is_complete(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-memory-stone-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 2)
+        self.assertTrue(all(row["claim_kind"] == "acquisition_identity" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(ELDENPEDIA_MEMORY_STONE_AUDIT.main(), 0)
 
     def test_eldenpedia_whetblade_family_is_complete(self):
         path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
