@@ -1,7 +1,8 @@
-"""presence_floor -- the curated QoL set (physick tears + smithing bell bearings) is ALWAYS in the
-pool: an absent roster item is injected exactly once (count-neutral, `useful`), a present one is never
-duplicated. This is what makes dlc_only (and num_regions seeds that seal a roster item's home region)
-feel like its own mode instead of a run with an amputated flask / upgrade economy.
+"""presence_floor -- curated QoL types and the three-copy Talisman Pouch floor are always present.
+
+An absent roster item is injected exactly once (count-neutral, `useful`), while pouches retain their
+ordinary filler classification and are topped up by copy count. This is what makes dlc_only (and
+num_regions seeds that seal a floor item's home region) feel like a complete standalone mode.
 
 The four cases the deliverable pins:
   (a) an ABSENT roster item gets injected once,
@@ -115,6 +116,56 @@ def test_roster_is_protected_from_junk_seizure():
     # the pool as itself (present -> not injected) instead of being displaced by the filler tail.
     seized = [n for n in pf.ROSTER if fc._is_junk_consumable(n)]
     assert not seized, f"the filler tail would DISPLACE these presence-floor items: {seized}"
+    assert not fc._is_junk_consumable(pf.TALISMAN_POUCH), (
+        "a natural Talisman Pouch can be scrubbed before its copy floor is counted")
+
+
+def test_talisman_pouch_floor_is_bound_to_the_three_game_data_checks():
+    assert pf.TALISMAN_POUCH_APS == {7770025, 7770026, 7770027}
+    assert {ITEM_CATALOG[pf.TALISMAN_POUCH]} == {GOODS | 10040}
+
+
+def test_talisman_pouch_floor_covers_zero_through_three_natural_copies(monkeypatch):
+    """#1360 acceptance matrix: 0/1/2/3 retained pouch checks all finish at exactly three."""
+    class _On:
+        value = 1
+
+    class _Options:
+        item_shuffle = _On()
+
+    class _Item:
+        def __init__(self, name):
+            self.name = name
+            self.classification = ItemClassification.filler
+
+    class _World:
+        options = _Options()
+        item_name_to_id = {pf.TALISMAN_POUCH: 1}
+
+        def __init__(self, kept):
+            self.kept = kept
+
+        def _kept(self):
+            return list(self.kept)
+
+        def create_item(self, name):
+            return _Item(name)
+
+    regions = {f"Pouch {n}": [("pouch", ap, 60500 + n * 10)]
+               for n, ap in enumerate(sorted(pf.TALISMAN_POUCH_APS))}
+    monkeypatch.setattr(pf, "HUB", "Empty Hub")
+    monkeypatch.setattr(pf, "LOCATIONS", regions)
+    monkeypatch.setattr(
+        pf, "LOCATION_ITEM", {ap: pf.TALISMAN_POUCH for ap in pf.TALISMAN_POUCH_APS})
+
+    feature = pf.PresenceFloor()
+    for natural in range(4):
+        world = _World(list(regions)[:natural])
+        injected = [i for i in feature.create_items(world) if i.name == pf.TALISMAN_POUCH]
+        assert pf.natural_talisman_pouches(world) == natural
+        assert len(injected) == 3 - natural
+        assert natural + len(injected) == pf.TALISMAN_POUCH_FLOOR
+        assert all(i.classification == ItemClassification.filler for i in injected)
 
 
 # ---- world-level behaviour ----------------------------------------------------------------------
@@ -139,6 +190,14 @@ class PresenceFloorFullSeed(WorldTestBase):
         w = self.world
         self.assertEqual(len(_pool_items(w)), len(w.multiworld.get_locations(w.player)),
                          "presence-floor injection must be count-neutral (pool == locations)")
+
+    def test_three_natural_pouches_are_not_doubled(self):
+        w = self.world
+        self.assertEqual(pf.natural_talisman_pouches(w), 3)
+        self.assertEqual(pf.talisman_pouch_inject_count(w), 0)
+        pouches = [i for i in _pool_items(w) if i.name == pf.TALISMAN_POUCH]
+        self.assertEqual(len(pouches), 3)
+        self.assertTrue(all(i.classification == ItemClassification.filler for i in pouches))
 
 
 class PresenceFloorDLCOnly(WorldTestBase):
@@ -193,6 +252,18 @@ class PresenceFloorDLCOnly(WorldTestBase):
         w = self.world
         self.assertEqual(len(_pool_items(w)), len(w.multiworld.get_locations(w.player)),
                          "presence-floor injection must be count-neutral under dlc_only too")
+
+    def test_excluding_limgrave_and_leyndell_still_yields_three_pouches(self):
+        """The reported failure: only Roundtable's check remains, so two pool copies are restored."""
+        w = self.world
+        self.assertNotIn("Limgrave", set(w._kept()))
+        self.assertNotIn("Leyndell", set(w._kept()))
+        self.assertEqual(pf.natural_talisman_pouches(w), 1)
+        self.assertEqual(pf.talisman_pouch_inject_count(w), 2)
+        pouches = [i for i in _pool_items(w) if i.name == pf.TALISMAN_POUCH]
+        self.assertEqual(len(pouches), 3)
+        self.assertTrue(all(i.classification == ItemClassification.filler for i in pouches))
+        self.assertEqual(len(_pool_items(w)), len(w.multiworld.get_locations(w.player)))
 
     def test_beatable(self):
         state = self.multiworld.get_all_state(False)
