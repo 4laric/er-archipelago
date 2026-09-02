@@ -201,6 +201,30 @@ python tools/check_eldenpedia_location_leads.py
 python tools/build_evidence_browser.py
 ```
 
+## Eldenpedia upgrade-material acquisition coverage
+
+`eldenpedia-upgrade-material-check-leads.tsv` is the reserved repeated-upgrade-material pass over
+the pinned Eldenpedia item-page corpus. It normalizes bracketed AP tiers such as `Smithing Stone
+[7]` to the wiki's `Smithing Stone 7`, then accepts a row only when an exact multiword acquisition
+anchor selects one current AP check and its flag is independently present as an
+`ItemLotParam_map.getItemFlagId` detection claim. Fourteen checks add new union coverage; 15 safe
+matches already covered by an earlier corpus are counted but not duplicated. The report also keeps
+the full refusal boundary: 721 candidate checks, 591 absent anchors, 84 weak-anchor or non-map-lot
+refusals, and 17 ambiguous anchors.
+
+The seven item pages used by accepted rows are pinned by MediaWiki page id, revision id, timestamp,
+and SHA-1 in `eldenpedia-upgrade-material-pages.tsv`. All output remains `lead_only`; an acquisition
+mention does not establish access, route order, coordinates, completeness, event timing, or the
+absence of another source.
+
+Reproduce from the same pinned-title capture used for the broader acquisition pass:
+
+```bash
+python tools/build_eldenpedia_upgrade_material_leads.py /path/to/eldenpedia-items.json
+python tools/check_eldenpedia_upgrade_material_leads.py
+python tools/build_evidence_browser.py
+```
+
 ## Eldenpedia repeated-item acquisition coverage
 
 `eldenpedia-deathroot-check-leads.tsv` covers all nine Deathroot acquisitions from Eldenpedia page
