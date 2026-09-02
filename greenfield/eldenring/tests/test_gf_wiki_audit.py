@@ -48,6 +48,7 @@ ELDENPEDIA_REPEATED_AUDIT = load_repo_tool("check_eldenpedia_repeated_pickup_lea
 ELDENPEDIA_BOSS_REWARD_AUDIT = load_repo_tool("check_eldenpedia_boss_reward_leads")
 ELDENPEDIA_ITEM_ACQUISITION_AUDIT = load_repo_tool("check_eldenpedia_item_acquisition_leads")
 ELDENPEDIA_UPGRADE_MATERIAL_AUDIT = load_repo_tool("check_eldenpedia_upgrade_material_leads")
+ELDENPEDIA_UPGRADE_LOCATION_ROW_AUDIT = load_repo_tool("check_eldenpedia_upgrade_location_rows")
 POWERPYX_AUDIT = load_repo_tool("check_powerpyx_check_leads")
 REDMAW_CHECKLIST_AUDIT = load_repo_tool("check_redmaw_checklist_leads")
 REDMAW_EMBEDDED_ASH_AUDIT = load_repo_tool("check_redmaw_embedded_ash_leads")
@@ -245,6 +246,16 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
         self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
         self.assertEqual(ELDENPEDIA_UPGRADE_MATERIAL_AUDIT.main(), 0)
+
+    def test_eldenpedia_upgrade_location_rows_validate(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "eldenpedia-upgrade-location-row-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 3)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertEqual(ELDENPEDIA_UPGRADE_LOCATION_ROW_AUDIT.main(), 0)
 
     def test_fextralife_acquisition_leads_validate(self):
         path = (REPO / "greenfield" / "evidence" / "wiki-audit" /

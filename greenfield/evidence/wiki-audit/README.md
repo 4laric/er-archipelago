@@ -240,6 +240,26 @@ python tools/check_eldenpedia_upgrade_material_leads.py
 python tools/build_evidence_browser.py
 ```
 
+### Row-level linked-place refinement
+
+`eldenpedia-upgrade-location-row-check-leads.tsv` narrows the same upgrade family further: it
+requires a single pinned Acquisition bullet to link one named place, that place to select exactly
+one current AP check, and the check's flag to agree with the current map-lot detection claim. This
+adds three union checks. Of 170 inspected source rows, 148 did not select one check, one failed the
+map-lot gate, four candidate matches were refused because multiple source rows selected the same
+check, and 14 safe bindings were already covered elsewhere.
+
+The item revisions are reused from the pinned acquisition manifests and every linked place must
+also occur in `eldenpedia-location-pages.tsv`. Output remains `lead_only`: a linked acquisition row
+does not prove access, route order, coordinates, completeness, event timing, or alternate-source
+absence.
+
+```bash
+python tools/build_eldenpedia_upgrade_location_rows.py /path/to/eldenpedia-items.json
+python tools/check_eldenpedia_upgrade_location_rows.py
+python tools/build_evidence_browser.py
+```
+
 ## Eldenpedia repeated-item acquisition coverage
 
 `eldenpedia-deathroot-check-leads.tsv` covers all nine Deathroot acquisitions from Eldenpedia page
