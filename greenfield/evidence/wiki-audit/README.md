@@ -237,6 +237,20 @@ python tools/check_eldenpedia_shabriri_grape_leads.py
 python tools/build_evidence_browser.py
 ```
 
+`eldenpedia-seedbed-curse-check-leads.tsv` records all six acquisition rows from page 3879,
+revision 100628. Only Big Boggart and Volcano Manor bind to checks: each has a unique current AP
+region/flag within this item family, and Big Boggart's `f400308` identity is independently tied to
+NPC death flag 4143 by the committed questline-condition and FromSoftware flag-name corpora. The
+two Leyndell and two Haligtree rows are retained as four explicit unbound leads because committed
+lots do not distinguish same-region duplicates. Capital Outskirts and AP's Altus bucket remain
+visible side by side rather than being silently normalized.
+
+```bash
+python tools/build_eldenpedia_seedbed_curse_leads.py
+python tools/check_eldenpedia_seedbed_curse_leads.py
+python tools/build_evidence_browser.py
+```
+
 ## PowerPyx regional coverage
 
 `powerpyx-check-leads.tsv` is a second, source-independent corpus pass over three immutable
