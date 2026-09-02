@@ -31,9 +31,17 @@ Entries arrive below as they merge.
   anchors in a pinned Eldenpedia revision are cross-checked against committed ItemLot identities;
   the results remain discovery-only and preserve region and quest-boundary differences for review.
 
+- **Seedbed Curse evidence binds two checks and explicitly refuses four ambiguous rows (#1273).**
+  A pinned Eldenpedia revision, committed ItemLots, and Dung Eater NPC-event evidence identify Big
+  Boggart and Volcano Manor; same-region Leyndell and Haligtree duplicates remain unbound.
+
 - **Merchant context resolves 157 formerly ambiguous external leads (#1273).** Exact merchant
   sections, AP flags/shop rows, the physical-merchant datamine, and 491 pinned wiki.gg item
   revisions identify those checks; another 135 ambiguous or shared-shop labels are refused.
+
+- **Named walkthrough anchors resolve 27 repeated map pickups (#1273).** A pinned base/DLC
+  walkthrough step must link both the repeated item and the exact named location, and the selected
+  AP check must carry matching v1.17 map-lot flag evidence. Six near-matches remain refused.
 
 - **The obsolete PopTracker pack has been removed (#1308).** It was no longer supported and its
   presence suggested otherwise. The original map inputs still used by repository audit pages now

@@ -129,10 +129,12 @@ class OfflineArtifactTests(unittest.TestCase):
                           "eldenpedia-deathroot-check-leads.tsv",
                           "eldenpedia-location-check-leads.tsv",
                           "eldenpedia-repeated-pickup-check-leads.tsv",
+                          "eldenpedia-seedbed-curse-check-leads.tsv",
                           "eldenpedia-shabriri-grape-check-leads.tsv",
                           "fextralife-item-check-leads.tsv", "game8-check-leads.tsv", "leads.tsv",
                           "powerpyx-check-leads.tsv",
                           "redmaw-checklist-check-leads.tsv",
+                          "redmaw-location-anchor-check-leads.tsv",
                           "redmaw-merchant-check-leads.tsv",
                           "walkthrough-check-leads.tsv"])
         self.assertEqual(BUILDER.load_ledger()["inputs_hash"],

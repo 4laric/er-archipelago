@@ -22,9 +22,13 @@ their unique boss, dungeon, or nearby-site anchors. The audit also preserves Eld
 wording for the Wyndham Catacombs acquisition beside AP's current Mt. Gelmir bucket for review.
 The same method now binds all three Shabriri Grapes by their unique post-Godrick, Purified Ruins,
 and Revenger's Shack anchors, with each AP flag cross-checked against committed ItemLot data.
+Two Seedbed Curses are likewise bound at Big Boggart and Volcano Manor. Four same-region Leyndell
+and Haligtree rows stay visibly unbound until a stable source-to-flag join exists.
 Merchant-section and physical-shop context resolve another 157 repeated item labels, while 135 that
 remain ambiguous or map to shared checks are explicitly refused. The merchant sheet's 491 linked
 wiki.gg item pages are pinned to immutable revisions.
+Another 27 repeated smithing stones, Sacred Tears, Scadutree Fragments, and dungeon pickups are
+cross-checked only where a pinned walkthrough step names the same location as the AP map-lot flag.
 
 ### One supported tracker
 
