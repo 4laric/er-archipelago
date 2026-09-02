@@ -44,13 +44,23 @@ ELDENPEDIA_REPEATED_AUDIT = load_repo_tool("check_eldenpedia_repeated_pickup_lea
 POWERPYX_AUDIT = load_repo_tool("check_powerpyx_check_leads")
 REDMAW_CHECKLIST_AUDIT = load_repo_tool("check_redmaw_checklist_leads")
 REDMAW_MERCHANT_AUDIT = load_repo_tool("check_redmaw_merchant_leads")
+REDMAW_LOCATION_AUDIT = load_repo_tool("check_redmaw_location_anchor_leads")
 FEXTRALIFE_AUDIT = load_repo_tool("check_fextralife_item_leads")
 
 
 @unittest.skipUnless(REPO is not None, REPO_ONLY_REASON)
 class WikiAuditTest(unittest.TestCase):
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (25, 16))
+        self.assertEqual(AUDIT.validate(REPO), (26, 16))
+
+    def test_redmaw_same_step_location_anchors_validate(self):
+        path = (REPO / "greenfield/evidence/wiki-audit" /
+                "redmaw-location-anchor-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 27)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertEqual(REDMAW_LOCATION_AUDIT.main(), 0)
 
     def test_redmaw_checklist_leads_validate(self):
         path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
