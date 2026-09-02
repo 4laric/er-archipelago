@@ -1,0 +1,14 @@
+{
+  "already_covered_checks": 15,
+  "candidate_checks": 721,
+  "missing_pages": 37,
+  "new_union_checks": 14,
+  "pinned_pages": 7,
+  "refused_ambiguous_anchor": 17,
+  "refused_anchor_absent": 591,
+  "refused_no_acquisition_section": 0,
+  "refused_weak_anchor_or_detection": 84,
+  "requested_titles": 397,
+  "resolved_pages": 360,
+  "upgrade_pages": 41
+}
