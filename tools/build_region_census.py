@@ -206,6 +206,14 @@ def measure(sc=None):
     for name in sorted(data.LOCATIONS):
         tarnished_checks = sum(1 for (_n, _ap, _f) in data.LOCATIONS[name]
                                if int(_f) in tarnished_flags)
+        # Shop Checks is the other direct seed-size lever besides the region draw. Count it before
+        # the progression-surface bars: hub merchants are deliberately barred from hosting
+        # progression, but they still disappear from the location pool when shop_checks is off.
+        shop_checks = sum(1 for (_n, ap, _f) in data.LOCATIONS[name]
+                          if "Shop" in set(lt.get(ap) or ()))
+        tarnished_shop_checks = sum(
+            1 for (_n, ap, flag) in data.LOCATIONS[name]
+            if int(flag) in tarnished_flags and "Shop" in set(lt.get(ap) or ()))
         combos = {}
         tarnished_combos = {}
         for _n, ap, _f in data.LOCATIONS[name]:
@@ -230,6 +238,8 @@ def measure(sc=None):
             # Static superset minus this count is the default seed. Keeping the adjustment
             # per-region makes partial draws exact instead of treating the pack as a global lump.
             "tarnished_pack_checks": tarnished_checks,
+            "shop_checks": shop_checks,
+            "tarnished_pack_shop_checks": tarnished_shop_checks,
             # rollable = drawn by num_regions. The hub is always present; the finale is conditional
             # but never rolled. Both are false here and handled by their own top-level rules.
             "rollable": name in rollable,
