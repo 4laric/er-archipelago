@@ -2,7 +2,7 @@
 REGION_GRACE_POINTS = {
     'Abyssal': [76860, 72801, 72802, 72803, 76861, 76863, 76864],
     'Ainsel River': [71211, 71212, 71213, 71214, 71215, 71216, 71218, 71219],
-    'Altus': [76301, 73008, 73010, 73012, 73013, 73118, 73119, 73204, 73205, 73430, 73431, 73432, 73450, 73451, 76300, 76302, 76303, 76304, 76305, 76306, 76307, 76308, 76309, 76310, 76311, 76312, 76320, 73007],
+    'Altus': [76301, 73008, 73010, 73012, 73013, 73118, 73119, 73204, 73205, 73430, 73431, 73432, 76300, 76302, 76303, 76304, 76305, 76306, 76307, 76308, 76309, 76310, 76311, 76312, 76320, 73007],
     'Ancient Ruins': [76940, 76941, 76942, 76943, 76944],
     'Belurat': [72001, 72002, 72003],
     'Caelid': [73207, 73014, 73015, 73016, 73110, 73111, 73120, 73121, 73208, 73257, 73440, 73441, 73460, 76400, 76401, 76402, 76403, 76404, 76405, 76406, 76407, 76409, 76410, 76411, 76413, 76414, 76416, 76417, 76418, 76420, 76450, 76451, 76452, 76453, 76454, 76455, 76456],
@@ -15,7 +15,7 @@ REGION_GRACE_POINTS = {
     'Gravesite': [76800, 74000, 74100, 74200, 74300, 74301, 74351, 76801, 76802, 76803, 76804, 76805, 76810, 76811, 76812, 76813, 76830],
     'Haligtree': [71501, 71502, 71503, 71504, 71506, 71507, 71508],
     'Jagged Peak': [76840, 76850, 76851, 76852],
-    'Leyndell': [71102, 71103, 71104, 71105, 71108, 71109, 73501, 73502, 73503, 73504],
+    'Leyndell': [71102, 71103, 71104, 71105, 71108, 71109, 73450, 73451, 73501, 73502, 73503, 73504],
     'Limgrave': [73100, 71800, 71801, 73002, 73004, 73011, 73103, 73115, 73117, 73201, 76100, 76101, 76102, 76103, 76104, 76105, 76106, 76108, 76110, 76111, 76113, 76114, 76116, 76117, 76118, 76119],
     'Liurnia': [73202, 73003, 73005, 73006, 73104, 73105, 73106, 73420, 73421, 73422, 73901, 73902, 76200, 76201, 76202, 76203, 76204, 76205, 76207, 76208, 76209, 76210, 76211, 76212, 76213, 76214, 76215, 76216, 76217, 76218, 76219, 76220, 76221, 76222, 76223, 76224, 76225, 76226, 76227, 76228, 76229, 76230, 76231, 76233, 76234, 76235, 76236, 76237, 76238, 76239, 76240, 76241, 76242, 76243, 76244, 76245, 76251, 76252],
     'Mohgwyn': [71251, 71252, 71253],
@@ -36,7 +36,7 @@ REGION_GRACE_POINTS = {
 REGION_GRACE_LANDMARKS = {
     'Abyssal': [72801, 76860],  # Manse Hall, Abyssal Woods
     'Ainsel River': [71211, 71214, 71216],  # Ainsel River Well Depths, Ainsel River Main, Lake of Rot Shoreside
-    'Altus': [73007, 73450, 76301, 76309],  # Wyndham Catacombs, Divine Tower of East Altus: Gate, Altus Plateau, Outer Wall Phantom Tree
+    'Altus': [73007, 76301, 76309],  # Wyndham Catacombs, Altus Plateau, Outer Wall Phantom Tree
     'Ancient Ruins': [76940],  # Viaduct Minor Tower
     'Belurat': [72001],  # Belurat, Tower Settlement
     'Caelid': [76400, 76406, 76450],  # Smoldering Church, Aeonia Swamp Shore, Dragonbarrow West
@@ -49,7 +49,7 @@ REGION_GRACE_LANDMARKS = {
     'Gravesite': [76800],  # Gravesite Plain
     'Haligtree': [71501, 71506],  # Prayer Room, Haligtree Canopy
     'Jagged Peak': [76840, 76851],  # Grand Altar of Dragon Communion, Jagged Peak Mountainside
-    'Leyndell': [71102, 73501],  # East Capital Rampart, Underground Roadside
+    'Leyndell': [71102, 73450, 73501],  # East Capital Rampart, Divine Tower of East Altus: Gate, Underground Roadside
     'Limgrave': [71800, 76100, 76102],  # Cave of Knowledge, Church of Elleh, Stormhill Shack
     'Liurnia': [73901, 76200, 76207, 76251],  # Ruin-Strewn Precipice, Lake-Facing Cliffs, East Raya Lucaria Gate, Cathedral of Manus Celes
     'Mohgwyn': [71251],  # Palace Approach Ledge-Road
@@ -64,4 +64,4 @@ REGION_GRACE_LANDMARKS = {
     'Weeping': [76150],  # Church of Pilgrimage
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:57f90fbd0e9c90fcae51cde93cfd1a61d320a8636504492a63e45a0d364c8348', 'module': 'region_graces.py', 'body_sha256': 'sha256:bbacfd1afa52282f214328ce2880652b2c3b167d3a67bd353d0587e038339db0'}
+_GEN_STAMP = {'inputs_hash': 'sha256:c63c0a40143dbe90ef2df647eec56cd7f6fcf5e84ffc4a956477cb3fbe79fc68', 'module': 'region_graces.py', 'body_sha256': 'sha256:eecfd5a6816647e4206091b17385c72fbc41fa68b5130b78e325d3d4f45a1bb5'}

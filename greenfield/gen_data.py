@@ -580,6 +580,11 @@ _ARENA_REGION_CURATED = {
     # ground, while the coarse m60_38_52 tile straddles Old Altus. This ruling re-homes the host
     # without moving the tile or the two Old Altus pickups that legitimately share it.
     1038520800: "Mt. Gelmir",
+    # Fell Twins, m34_14 (#324). GameAreaParam's arena bucket says Altus, the same coarse 63003
+    # reuse as the tower graces. The entire tower map is curated to Leyndell below because its only
+    # entrance is Leyndell's eastern greatbridge (pinned Eldenpedia revision 29723). Keep the sweep
+    # host with its m34_14 members; this does not change the arena's runtime kick-watch bucket.
+    34140850: "Leyndell",
 }
 # 🛑 IT DOES NOT WRITE INTO BOSS_AREA_REGION, and that is the whole care in this block.
 # BOSS_AREA_REGION also feeds `region_of` for a boss's own REWARD check (the boss-drop branch), so
@@ -3531,6 +3536,12 @@ DUNGEON_REGION_CURATED = {
     # boundary SET; the ConnectCollision pass now derives it to Mountaintops of the Giants --
     # the same value -- so the override was redundant and went. The guard below enforces that.)
     "m32_04_00_00": "Altus",                # data says 'Mt. Gelmir' -- CURATED override
+    # m34_14 (Divine Tower of East Altus): the grace join reports Altus because both tower graces
+    # reuse play-region bucket 63003, but that is not the region-lock access boundary. The map is
+    # reached only across the greatbridge from Leyndell's eastern ward, and pinned Eldenpedia
+    # revision 29723 explicitly classifies the tower as Leyndell, Royal Capital. All m34_14 checks
+    # move together; per-flag pins would only hide the shared bad map derivation (#324).
+    "m34_14_00_00": "Leyndell",              # data says 'Altus' -- CURATED access override (#324)
     # m21_00 (Shadow Keep main map): the grace join says 'Shadow Keep' and that is not wrong about
     # where the ground sits -- it is wrong about what GUARANTEES the ground. Every swept m21_00 check
     # is granted by the Golden Hippopotamus, whose arena is PlayRegionParam bucket 69000 = Scadu
@@ -6616,6 +6627,11 @@ _foreign_ground_skipped = []
 _open_cand = defaultdict(list)
 _open_cand_ow = defaultdict(list)   # overworld-only (m60/m61) graces: visible + warpable front doors
 _all_cand_ow = defaultdict(list)    # PRE-gate overworld candidates: the region's NATURAL front door
+# Access-bucket corrections where BonfireWarpParam's presentation subgroup is deliberately broader
+# than the region lock that reaches the grace. Both East Altus Tower graces reuse Altus pid 63003,
+# but the m34_14 tower is accessible only from Leyndell's eastern greatbridge (#324; immutable
+# Eldenpedia page 7876 revision 29723). Keep the pair together with the map-level curation above.
+_GRACE_REGION_CURATED = {73450: "Leyndell", 73451: "Leyndell"}
 for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, built at top
     if int(_fl) in _SKIP_GRACE_FLAGS: continue          # boss-gated / arena grace: never force-light
     # The grace's own play_region_id (grace_region_map = ground truth) IS its region: PLAY2AP now
@@ -6625,7 +6641,7 @@ for _fl, _tile in gf.items():          # gf = {warpUnlockFlag(str): mapTile}, bu
     # fallback for the few graces with NO play_region entry; on contested boundary tiles the id
     # still beats the vote (76301 "Altus Plateau" @ (38,50) and 76502 "Grand Lift of Rold" @
     # (49,53) carry 63xxx ids their tiles would mis-vote). _pref2maj is the last resort.
-    _mj = PLAY2AP.get(greg.get(_fl))
+    _mj = _GRACE_REGION_CURATED.get(int(_fl)) or PLAY2AP.get(greg.get(_fl))
     if not _mj:
         _m = re.match(r"m60_(\d\d)_(\d\d)", _tile)
         if _m: _mj = PLAY2AP.get(tile_pr(int(_m.group(1)), int(_m.group(2))))
@@ -11055,6 +11071,27 @@ if BOSS_HEALTHBARS:
     # the check physical. Assert every declared row resolves, shares the boss's region, and was not
     # already swept; otherwise the evidence or generated population moved and needs re-derivation.
     _post_boss_added = []
+    # A same-region legacy sweep may have selected the gift as ordinary region filler before this
+    # curated pass runs. That became visible when East Altus Tower moved into Leyndell (#324): the
+    # Fell Twins claimed Rold Medallion before the explicit Morgott admission below. Remove every
+    # curated gift from every non-owner first; a world-opening gift must have exactly one boss owner.
+    _post_boss_flag_owner = {
+        _flag: _trigger for _trigger, _flags in _SWEEP_POST_BOSS_GIFTS.items() for _flag in _flags
+    }
+    _post_boss_ap_owner = {
+        _flag_apid[_flag]: _trigger for _flag, _trigger in _post_boss_flag_owner.items()
+        if _flag in _flag_apid
+    }
+    _post_boss_evicted = []
+    for _trigger, _members in DUNGEON_SWEEPS.items():
+        _bad = sorted(_ap for _ap in _members
+                      if _ap in _post_boss_ap_owner and _post_boss_ap_owner[_ap] != _trigger)
+        if _bad:
+            DUNGEON_SWEEPS[_trigger] = sorted(set(_members) - set(_bad))
+            _post_boss_evicted.extend((_ap, _trigger) for _ap in _bad)
+    if _post_boss_evicted:
+        print("boss_sweeps: evicted post-boss gift(s) from non-owner sweep(s): %r"
+              % (_post_boss_evicted,))
     for _trigger, _flags in sorted(_SWEEP_POST_BOSS_GIFTS.items()):
         assert _trigger in DUNGEON_SWEEPS, (
             "post-boss gift trigger %d has no sweep -- the #1100 progression repair is inert"

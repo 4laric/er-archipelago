@@ -411,7 +411,6 @@ LOCATIONS = {
         ('Altus :: Nagakiba with Ash of War: Piercing Fang - m60_39_52 (region unconfirmed), may be sweep-granted by Black Knife Assassin (m60_40_52) [f400163]', 7770578, 400163),
         ('Altus :: Seedbed Curse - m60_44_52 (region unconfirmed), may be sweep-granted by Draconic Tree Sentinel (m60_45_52) [f400308]', 7770596, 400308),
         ('Altus :: Great Stars - around Bower of Bounty, may be sweep-granted by Sanguine Noble (m60_40_53) [f400510]', 7770628, 400510),
-        ('Altus :: Omenkiller Rollo - around Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f510740]', 7770679, 510740),
         ("Altus :: [Incantation] Lansseax's Glaive - Ancient Dragon Lansseax, may be sweep-granted by Ancient Dragon Lansseax (m60_41_52) [f530300]", 7770705, 530300),
         ('Altus :: Somber Smithing Stone [5] - Fallingstar Beast (region unconfirmed), may be sweep-granted by Fallingstar Beast (m60_41_50) [f530310]', 7770706, 530310),
         ('Altus :: Dragon Greatclaw - Draconic Tree Sentinel [f530315]', 7770707, 530315),
@@ -506,12 +505,6 @@ LOCATIONS = {
         ('Altus :: Lightning Grease - near Divine Tower of West Altus: Gate, may be sweep-granted by Onyx Lord (m34_12) [f34127150]', 7772335, 34127150),
         ('Altus :: Golden Rune [9] - near Divine Tower of West Altus: Gate, may be sweep-granted by Onyx Lord (m34_12) [f34127160]', 7772336, 34127160),
         ("Altus :: Smithing-Stone Miner's Bell Bearing [2] - near Divine Tower of West Altus: Gate, may be sweep-granted by Onyx Lord (m34_12) [f34127900]", 7772337, 34127900),
-        ('Altus :: Invigorating White Cured Meat - near Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f34147000]', 7772342, 34147000),
-        ("Altus :: Official's Attire - near Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f34147010]", 7772343, 34147010),
-        ('Altus :: Flamedrake Talisman +1 - near Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f34147020]', 7772344, 34147020),
-        ('Altus :: Somber Smithing Stone [6] - around Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f34147720]', 7772345, 34147720),
-        ('Altus :: Golden Rune [9] - near Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f34147800]', 7772346, 34147800),
-        ('Altus :: Blade of Calling - near Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f34147810]', 7772347, 34147810),
         ('Altus :: Smithing Stone [5] - near Abandoned Coffin, may be sweep-granted by Demi-Human Queen Gilika (m60_38_51) [f1037517000]', 7772632, 1037517000),
         ('Altus :: Fulgurbloom - near Abandoned Coffin, may be sweep-granted by Demi-Human Queen Gilika (m60_38_51) [f1037517010]', 7772633, 1037517010),
         ("Altus :: Ruler's Mask - near Abandoned Coffin, may be sweep-granted by Demi-Human Queen Gilika (m60_38_51) [f1037517020]", 7772634, 1037517020),
@@ -2220,6 +2213,7 @@ LOCATIONS = {
         ('Leyndell :: Sword of Milos - around Underground Roadside, may be sweep-granted by Esgar, Priest of Blood (m35_00) [f400381]', 7770613, 400381),
         ('Leyndell :: Omen Helm - around Underground Roadside, may be sweep-granted by Mohg, the Omen (m35_00) [f400382]', 7770614, 400382),
         ('Leyndell :: Remembrance of the Omen King - Morgott [f510040]', 7770654, 510040),
+        ('Leyndell :: Omenkiller Rollo - around Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f510740]', 7770679, 510740),
         ('Leyndell :: [Incantation] Barrier of Gold - around East Capital Rampart, may be sweep-granted by Godfrey, First Elden Lord (m11_00) [f540370]', 7770768, 540370),
         ('Leyndell :: Ash of War: Thunderbolt - around East Capital Rampart, may be sweep-granted by Morgott, the Omen King (m11_00) [f540372]', 7770769, 540372),
         ('Leyndell :: "Flightless Bird" Painting - around East Capital Rampart, may be sweep-granted by Godfrey, First Elden Lord (m11_00) [f580050]', 7770799, 580050),
@@ -2340,6 +2334,12 @@ LOCATIONS = {
         ('Leyndell :: Ritual Shield Talisman - near Divine Bridge, may be sweep-granted by Morgott, the Omen King (m11_00) [f11007996]', 7771029, 11007996),
         ('Leyndell :: Bolt of Gransax - near West Capital Rampart, may be sweep-granted by Godfrey, First Elden Lord (m11_00) [f11007997]', 7771030, 11007997),
         ("Leyndell :: Lord's Rune - around East Capital Rampart, may be sweep-granted by Morgott, the Omen King (m11_00) [f11007998]", 7771031, 11007998),
+        ('Leyndell :: Invigorating White Cured Meat - near Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f34147000]', 7772342, 34147000),
+        ("Leyndell :: Official's Attire - near Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f34147010]", 7772343, 34147010),
+        ('Leyndell :: Flamedrake Talisman +1 - near Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f34147020]', 7772344, 34147020),
+        ('Leyndell :: Somber Smithing Stone [6] - around Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f34147720]', 7772345, 34147720),
+        ('Leyndell :: Golden Rune [9] - near Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f34147800]', 7772346, 34147800),
+        ('Leyndell :: Blade of Calling - near Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f34147810]', 7772347, 34147810),
         ('Leyndell :: Poisonbone Dart - near Underground Roadside, may be sweep-granted by Esgar, Priest of Blood (m35_00) [f35007000]', 7772348, 35007000),
         ('Leyndell :: Glass Shard - around Underground Roadside, may be sweep-granted by Mohg, the Omen (m35_00) [f35007010]', 7772349, 35007010),
         ('Leyndell :: Golden Rune [1] - around Underground Roadside (1), may be sweep-granted by Esgar, Priest of Blood (m35_00) [f35007020]', 7772350, 35007020),
@@ -5538,4 +5538,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:57f90fbd0e9c90fcae51cde93cfd1a61d320a8636504492a63e45a0d364c8348', 'module': 'data.py', 'body_sha256': 'sha256:48c209237f3a54dd9e3916cbd8c01174ba050315be1254ae3889f9f3487d61d0'}
+_GEN_STAMP = {'inputs_hash': 'sha256:c63c0a40143dbe90ef2df647eec56cd7f6fcf5e84ffc4a956477cb3fbe79fc68', 'module': 'data.py', 'body_sha256': 'sha256:3824073b64efab0229bd0e44429eba7006b4586b59c7d1ee2662650401637c24'}

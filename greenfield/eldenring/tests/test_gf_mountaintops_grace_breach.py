@@ -16,16 +16,18 @@ from worlds.eldenring.region_graces import (  # noqa: E402
 
 
 def test_leyndell_cannot_grant_eastern_exit_graces() -> None:
-    reported = {73450, 73451, 76500}
+    reported = {76500}
 
     assert reported.isdisjoint(REGION_GRACE_POINTS["Leyndell"])
     assert reported.isdisjoint(REGION_GRACE_LANDMARKS["Leyndell"])
 
 
 def test_reported_graces_stay_with_their_measured_regions() -> None:
-    # Both Divine Tower of East Altus graces carry Altus play-region 63003.
-    assert {73450, 73451} <= set(REGION_GRACE_POINTS["Altus"])
-    assert 73450 in REGION_GRACE_LANDMARKS["Altus"]
+    # Both Divine Tower of East Altus graces reuse Altus play-region 63003, but the whole m34_14
+    # map is curated to its access bucket Leyndell (#324): the tower is reached over Leyndell's
+    # eastern greatbridge. The landmark tier takes the lower flag from that subcategory.
+    assert {73450, 73451} <= set(REGION_GRACE_POINTS["Leyndell"])
+    assert 73450 in REGION_GRACE_LANDMARKS["Leyndell"]
 
     # Forbidden Lands is beyond the Rold gate and is the Mountaintops entry landmark.
     assert 76500 in REGION_GRACE_POINTS["Mountaintops of the Giants"]

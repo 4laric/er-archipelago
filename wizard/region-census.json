@@ -141,14 +141,14 @@
    "tarnished_pack_combos": {}
   },
   "Altus": {
-   "checks": 353,
+   "checks": 346,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss|FieldBoss": 8,
     "Boss|FieldBoss|Legendary": 1,
     "Boss|FieldBoss|Legendary|MajorBoss": 1,
     "Boss|Legendary|MinorDungeonBoss": 4,
-    "Boss|MinorDungeonBoss": 12,
+    "Boss|MinorDungeonBoss": 11,
     "Church": 2,
     "Legendary": 5,
     "Seedtree": 9,
@@ -159,43 +159,43 @@
    "parent": null,
    "rollable": true,
    "sweep_slots": {
-    "all": 12,
-    "bosses": 22,
-    "minidungeons": 12
+    "all": 11,
+    "bosses": 21,
+    "minidungeons": 11
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 12,
-     "bosses": 22,
-     "minidungeons": 12
+     "all": 11,
+     "bosses": 21,
+     "minidungeons": 11
     },
     "SweepSlotMajor": {
      "bosses": 1
     },
     "SweepSlotMinor": {
-     "all": 12,
-     "bosses": 21,
-     "minidungeons": 12
+     "all": 11,
+     "bosses": 20,
+     "minidungeons": 11
     }
    },
    "sweep_slots_max": {
-    "all": 81,
-    "bosses": 135,
-    "minidungeons": 81
+    "all": 74,
+    "bosses": 128,
+    "minidungeons": 74
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 81,
-     "bosses": 135,
-     "minidungeons": 81
+     "all": 74,
+     "bosses": 128,
+     "minidungeons": 74
     },
     "SweepSlotMajor": {
      "bosses": 8
     },
     "SweepSlotMinor": {
-     "all": 81,
-     "bosses": 127,
-     "minidungeons": 81
+     "all": 74,
+     "bosses": 120,
+     "minidungeons": 74
     }
    },
    "tarnished_pack_checks": 0,
@@ -846,11 +846,12 @@
    "tarnished_pack_combos": {}
   },
   "Leyndell": {
-   "checks": 251,
+   "checks": 258,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|Legendary|MajorBoss": 1,
     "Boss|MajorBoss": 2,
+    "Boss|MinorDungeonBoss": 1,
     "KeyItem": 1,
     "Legendary": 1
    },
@@ -858,39 +859,45 @@
    "parent": "Altus",
    "rollable": true,
    "sweep_slots": {
-    "all": 3,
-    "bosses": 3
+    "all": 4,
+    "bosses": 4,
+    "minidungeons": 1
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 3,
-     "bosses": 3
+     "all": 4,
+     "bosses": 4,
+     "minidungeons": 1
     },
     "SweepSlotMajor": {
      "all": 2,
      "bosses": 2
     },
     "SweepSlotMinor": {
-     "all": 1,
-     "bosses": 1
+     "all": 2,
+     "bosses": 2,
+     "minidungeons": 1
     }
    },
    "sweep_slots_max": {
-    "all": 17,
-    "bosses": 17
+    "all": 24,
+    "bosses": 24,
+    "minidungeons": 7
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 17,
-     "bosses": 17
+     "all": 24,
+     "bosses": 24,
+     "minidungeons": 7
     },
     "SweepSlotMajor": {
      "all": 9,
      "bosses": 9
     },
     "SweepSlotMinor": {
-     "all": 8,
-     "bosses": 8
+     "all": 15,
+     "bosses": 15,
+     "minidungeons": 7
     }
    },
    "tarnished_pack_checks": 0,
@@ -1563,5 +1570,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "336d16ac48fc694931391c4c5caef5c91c94d89dd13abed382956172302953fa"
+ "source_sha256": "1ac721cf3f5365dab74234c706b891b0c2a50e9ed816b92b446bf0c45370ea43"
 }
