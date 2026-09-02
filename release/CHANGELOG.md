@@ -35,6 +35,10 @@ Entries arrive below as they merge.
   sections, AP flags/shop rows, the physical-merchant datamine, and 491 pinned wiki.gg item
   revisions identify those checks; another 135 ambiguous or shared-shop labels are refused.
 
+- **Named walkthrough anchors resolve 27 repeated map pickups (#1273).** A pinned base/DLC
+  walkthrough step must link both the repeated item and the exact named location, and the selected
+  AP check must carry matching v1.17 map-lot flag evidence. Six near-matches remain refused.
+
 - **The obsolete PopTracker pack has been removed (#1308).** It was no longer supported and its
   presence suggested otherwise. The original map inputs still used by repository audit pages now
   live under `greenfield/maps`; the supported player tracker remains the in-client F6 tracker.
