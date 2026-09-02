@@ -17,3 +17,11 @@ _Draft. Written as the window fills, not at tag time._
 The Death Knight's Twin Axes and Crimson Amber Medallion +3 checks in Fog Rift Catacombs used to
 say “around Auriza Side Tomb,” sending players to a different dungeon in Altus. Both checks now
 name Fog Rift Catacombs, matching the game event that awards them and their Gravesite assignment.
+
+Chapel of Anticipation return checks now follow the repeatable Four Belfries route. The two
+Stormhawk ashes are filed with the Scion rewards in Liurnia, and an Imbued Sword Key is required
+when legacy key gates are enabled, preventing Stormveil-only seeds from treating the isolated
+Chapel floor as reachable.
+
+The Discarded Palace Key now requires Miniature Ranni in logic when vanilla items are shuffled,
+matching the Baleful Shadow appearance and reward chain without requiring bypassed Ranni steps.
