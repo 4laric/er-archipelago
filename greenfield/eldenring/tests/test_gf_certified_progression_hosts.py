@@ -4,11 +4,13 @@ from ..certified_progression_hosts import (
     CERTIFIED_GREAT_RUNE_APS,
     CERTIFIED_KEY_ITEM_APS,
     CERTIFIED_MAJOR_BOSS_APS,
+    CERTIFIED_MAJOR_BOSS_WAVE2_APS,
     CERTIFIED_PROGRESSION_HOST_APS,
     CERTIFIED_REMEMBRANCE_APS,
     CERTIFIED_SEEDTREE_APS,
 )
 from ..features.evidence_progression_hosts import _always_hold_aps
+from ..contract import has_class
 from ..location_tags import LOCATION_TAGS
 
 
@@ -22,8 +24,9 @@ def test_certified_families_have_the_expected_tags():
     assert all("Seedtree" in LOCATION_TAGS[ap] for ap in CERTIFIED_SEEDTREE_APS)
     assert len(CERTIFIED_CHURCH_APS) == 4
     assert all("Church" in LOCATION_TAGS[ap] for ap in CERTIFIED_CHURCH_APS)
-    assert len(CERTIFIED_MAJOR_BOSS_APS) == 7
-    assert all("MajorBoss" in LOCATION_TAGS[ap] for ap in CERTIFIED_MAJOR_BOSS_APS)
+    assert len(CERTIFIED_MAJOR_BOSS_APS) == 10
+    assert all(has_class(LOCATION_TAGS[ap], {"MajorBoss"})
+               for ap in CERTIFIED_MAJOR_BOSS_APS)
 
 
 def test_collectathon_certifications_do_not_override_independent_bars():
@@ -57,8 +60,20 @@ def test_new_default_surface_certifications_are_stable_and_finale_free():
     from ..missable_locations import MISSABLE_LOCATIONS
 
     restored = ((CERTIFIED_KEY_ITEM_APS - {7900002}) | CERTIFIED_MAJOR_BOSS_APS)
-    assert len(restored) == 14
+    assert len(restored) == 17
     assert restored.isdisjoint(MISSABLE_LOCATIONS)
     assert restored.isdisjoint(DEFAULTED_REGION_APS)
     assert restored.isdisjoint(SURFACE_EXCLUDE_APS)
     assert restored.isdisjoint(_always_hold_aps())
+
+
+def test_major_boss_wave2_restores_three_and_preserves_seven_finale_rows():
+    from ..evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
+    from ..features.evidence_progression_hosts import hold_aps
+
+    finale_rows = {7770655, 7770664, 7773787, 7900114, 7900115, 7900116, 7900117}
+    assert CERTIFIED_MAJOR_BOSS_WAVE2_APS == {7770716, 7773799, 7900120}
+    assert CERTIFIED_MAJOR_BOSS_WAVE2_APS <= HOLD_PROGRESSION_HOST_APS
+    assert hold_aps(None, candidates=CERTIFIED_MAJOR_BOSS_WAVE2_APS).isdisjoint(
+        CERTIFIED_MAJOR_BOSS_WAVE2_APS)
+    assert finale_rows <= hold_aps(None, candidates=finale_rows)
