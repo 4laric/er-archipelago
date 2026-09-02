@@ -1,12 +1,13 @@
 {
-  "matched_checks": 250,
+  "matched_checks": 304,
+  "matched_numbered_alias_checks": 54,
   "missing_pages": 112,
-  "new_pinned_pages": 119,
-  "refused_ambiguous_anchor": 93,
-  "refused_anchor_absent": 1285,
+  "new_pinned_pages": 139,
+  "refused_ambiguous_anchor": 137,
+  "refused_anchor_absent": 1783,
   "refused_upgrade_material_lane": 94,
-  "refused_weak_anchor_or_detection": 278,
-  "requested_titles": 397,
-  "resolved_pages": 285,
+  "refused_weak_anchor_or_detection": 318,
+  "requested_titles": 420,
+  "resolved_pages": 308,
   "reused_pinned_pages": 0
 }

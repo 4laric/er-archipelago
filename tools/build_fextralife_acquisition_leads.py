@@ -13,6 +13,7 @@ MAP_LOT="ItemLotParam_map.getItemFlagId"
 def mod(n,p):
  s=importlib.util.spec_from_file_location(n,p);m=importlib.util.module_from_spec(s);assert s.loader;s.loader.exec_module(m);return m
 def norm(s):return re.sub(r"[^a-z0-9]+"," ",s.lower()).strip()
+def page_key(s):return norm(re.sub(r"\((\d+)\)",r"\1",s))
 def item(n):return re.sub(r"^\[[^]]+\]\s*","",n.split(" :: ",1)[1].split(" - ",1)[0]).replace("[","").replace("]","")
 def anchor(n):
  if " - " not in n:return ""
@@ -40,7 +41,7 @@ def build(capture):
   for r in csv.DictReader(h,delimiter="\t"):existing[r["source_id"]]=r
  emitted={};new_sources={};stats=Counter(requested_titles=len(capture.get("requested_titles",[])),resolved_pages=len(capture["pages"]),missing_pages=len(capture.get("missing_titles",[])))
  for p in capture["pages"]:
-  k=norm(p["title"]); candidates=checks.get(k,[])
+  k=page_key(p["title"]); candidates=checks.get(k,[])
   if not candidates:stats["refused_no_exact_item"]+=1;continue
   if reserved(k):stats["refused_upgrade_material_lane"]+=len(candidates);continue
   revision=p["revisions"][0]; text=acquisition(content(p))
@@ -59,6 +60,7 @@ def build(capture):
     if existing[sid]["revision_sha1"]!=revision["sha1"]:raise ValueError(f"revision mismatch: {sid}")
    else:new_sources[sid]={"source_id":sid,"page_id":str(pid),"revision_id":str(rid),"revision_timestamp":revision["timestamp"],"revision_sha1":revision["sha1"],"title":p["title"],"canonical_url":"https://eldenring.wiki.fextralife.com/"+p["title"].replace(" ","_"),"revision_url":"https://eldenring.wiki.fextralife.com/"+p["title"].replace(" ","_")+f"?oldid={rid}","acquisition_rows":str(sum(line.lstrip().startswith("*") for line in text.splitlines())),"disposition":"lead_only"}
    value={"acquisition_anchor":phrase,"flag":flag,"item_name":p["title"],"region":region}
+   if re.search(r"\(\d+\)",p["title"]):stats["matched_numbered_alias_checks"]+=1
    emitted[ap]={"lead_id":f"fextralife-acquisition-page-{pid}-revision-{rid}-check-{ap}","subject_kind":"check","subject_id":str(ap),"claim_kind":"identity_region","normalized_value":json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(",",":")),"source_ids":sid,"independence_families":"gameplay-wiki:fextralife","disposition":"lead_only","game_version":"unknown","exact_citations":f"fextralife:pageid-{pid}:revision-{rid}:where-to-find:{phrase};project:check:{ap}/detection;flag-{flag}","summary":f"Fextralife revision {rid} places {p['title']} at {phrase}; that exact anchor selects one current AP map-lot flag ({flag}) in {region}.","limitations":"Community-wiki acquisition lead disambiguated by an exact multiword anchor and matching v1.17 map-lot flag evidence. It does not prove access, route order, coordinates, completeness, event timing, or absence of another acquisition."}
  rows=sorted(emitted.values(),key=lambda x:x["lead_id"]);manifest=sorted(new_sources.values(),key=lambda x:x["source_id"]);stats["matched_checks"]=len(rows);stats["new_pinned_pages"]=len(manifest);stats["reused_pinned_pages"]=len({r["source_ids"] for r in rows}&set(existing));return rows,manifest,dict(sorted(stats.items()))
 def main():
