@@ -1,0 +1,8 @@
+{
+  "already_covered_checks": 14,
+  "new_union_checks": 3,
+  "refused_duplicate_rows": 4,
+  "refused_no_unique_check": 148,
+  "refused_non_map_lot": 1,
+  "source_rows": 170
+}

@@ -136,6 +136,7 @@ class OfflineArtifactTests(unittest.TestCase):
                           "eldenpedia-sacred-tear-check-leads.tsv",
                           "eldenpedia-seedbed-curse-check-leads.tsv",
                           "eldenpedia-shabriri-grape-check-leads.tsv",
+                          "eldenpedia-upgrade-location-row-check-leads.tsv",
                           "eldenpedia-upgrade-material-check-leads.tsv",
                           "eldenpedia-whetblade-check-leads.tsv",
                           "fextralife-acquisition-check-leads.tsv",
