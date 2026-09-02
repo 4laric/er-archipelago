@@ -5568,12 +5568,13 @@ const ERW = (() => {
     const dlcOnly = !!opts.dlcOnly;
     const enableDlc = opts.enableDlc !== false;
     const tarnishedPackOn = opts.enableTarnishedPack === true;
+    const shopChecksOn = opts.shopChecks !== false;
     /* EVERY region in play, not just the rollable ones -- Roundtable Hold and Ashen Capital are
        rollable:false and still hold checks. dlc_only drops the base game, which takes the finale
        with it. */
     const inPlay = Object.keys(R).filter(n => dlcOnly ? R[n].dlc : (enableDlc || !R[n].dlc));
     const rung = opts.dungeonSweep || "bosses";
-    const hits = set => { let n = 0; for (const r of inPlay) n += comboHits(R[r], set, rung, tarnishedPackOn); return n; };
+    const hits = set => { let n = 0; for (const r of inPlay) n += comboHits(R[r], set, rung, tarnishedPackOn, shopChecksOn); return n; };
     const cur = new Set(selected || []);
     const total = hits(cur);
     const marginal = {};
