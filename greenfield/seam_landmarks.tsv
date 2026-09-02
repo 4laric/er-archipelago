@@ -1,0 +1,2 @@
+landmark	ruling_source	ruling_date	operator	check_id	sweep_trigger	expected_region	kick_bucket	grace_flag	intentional_split	not_applicable
+Margit / Castleward Tunnel	https://github.com/4laric/er-archipelago/issues/523#issuecomment-3211783111	2026-08-21	Alaric	7770046	10000850	Stormveil	10000	71002	61010:Limgrave	none

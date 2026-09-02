@@ -12,6 +12,13 @@ _Draft. Written as the window fills, not at tag time._
 
 ## What is in it so far
 
+### Boundary rulings stay in sync
+
+A new cross-representation seam ledger makes adjudicated boundary landmarks executable in CI.
+Its first row pins Margit and Castleward Tunnel to Stormveil across the tracker, sweep host, arena,
+kick geometry, and grace bundle, while preserving the intentional Limgrave ownership of the
+adjacent Stormhill cliff.
+
 ### A broader external evidence census
 
 The developer evidence browser now includes 1,499 exact check identities from Redmaw's completion
