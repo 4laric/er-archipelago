@@ -12,4 +12,8 @@ _Draft. Written as the window fills, not at tag time._
 
 ## What is in it so far
 
-The window is open. Entries will be added as changes merge.
+### Fog Rift's tracker hint points to Fog Rift
+
+The Death Knight's Twin Axes and Crimson Amber Medallion +3 checks in Fog Rift Catacombs used to
+say “around Auriza Side Tomb,” sending players to a different dungeon in Altus. Both checks now
+name Fog Rift Catacombs, matching the game event that awards them and their Gravesite assignment.

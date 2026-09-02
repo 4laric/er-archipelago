@@ -180,6 +180,11 @@ flag	description
 1035507300	on a tree between Manor Upper Level and Loretta
 1037507100	Southwest of Ravine-Veiled Village
 520180	Ulcerated Tree Spirit, Giant's Mountaintop Catacombs
+# 2026-09-01 (#1305). Both rewards on f520700 come from boss flag 9270 in m40_00 (Fog Rift
+# Catacombs): check_maps.tsv, msb_flag_region.tsv and questline_conditions.tsv agree. The stale
+# nearest-grace fallback named Auriza Side Tomb in Altus even after the flag's region was corrected
+# to Gravesite. This flag-level description covers both co-firing rewards.
+520700	in Fog Rift Catacombs
 1052537800	near Foot of the Forge, by two snow trolls
 1049527800	between Forbidden Lands and Grand Lift of Rold
 1048577800	West of Ordina, Liturgical Town
