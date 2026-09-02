@@ -1,17 +1,17 @@
 {
   "by_confidence": {
-    "hold": 3966,
-    "trusted_identity_region": 959
+    "hold": 3932,
+    "trusted_identity_region": 993
   },
   "by_external_family_count": {
     "0": 3089,
-    "1": 877,
-    "2": 811,
+    "1": 843,
+    "2": 845,
     "3": 143,
     "4": 5
   },
   "checks_total": 4925,
-  "content_sha256": "949b8cbce455ebf151da360c8299a09da4f53e86608fe9b967e1448977f5f4b1",
+  "content_sha256": "0bb068f0c0bc2b08587958e2918846134bf1cb1b9e8e848c28936fa82f275877",
   "input_files": {
     "dlc-blessing-collectible-check-leads.tsv": "7b9a04264df1fb7725de5afa78861c1ecde2bdc36d580f3d52c17d049396791e",
     "dlc-sparse-region-check-leads.tsv": "ad6683820b1b6088077321262d3c4ee1fe360c7bdf809611ca53d728a0c8ab95",
@@ -19,7 +19,7 @@
     "eldenpedia-crystal-tear-check-leads.tsv": "d7a1ab0ad91d1d03d8d8654ce7be0b5e666d0f5fc1490f26619c507329b037c7",
     "eldenpedia-deathroot-check-leads.tsv": "68d32a6ef92453be2e4b2027496564730f807815f30bc3549997fa02849505a8",
     "eldenpedia-golden-seed-check-leads.tsv": "8127dfa2cebf66ce1dd4ccdd01f2db2f40c8283898582c6dddb283b263abfb1c",
-    "eldenpedia-item-acquisition-check-leads.tsv": "795af8250092150cd57d17500307995c3669692fade884d40fdee6556365210f",
+    "eldenpedia-item-acquisition-check-leads.tsv": "3cafd6686bf4c1a0cf4cba7054fb883bd2cfb6bb12aafd3f39b99891275279f3",
     "eldenpedia-location-check-leads.tsv": "6672bc755e4fe67b77eac98ec2263d640cb7c153b0e3681f509ab473926e719b",
     "eldenpedia-memory-stone-check-leads.tsv": "4e9540d8eeea38d26a38c899fcc9eb630737f6483c41ad6ec7128fcbf0346fc3",
     "eldenpedia-repeated-pickup-check-leads.tsv": "205ed9d9a60bc91923e7231e43ef0f411add7d05a894d7eb037b156946e74391",
