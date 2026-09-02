@@ -9,13 +9,14 @@ from io import StringIO
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "greenfield/evidence/wiki-audit"
-OUT = ROOT / "greenfield/evidence/v060-current/progression_host_confidence.tsv"
-REPORT = ROOT / "greenfield/evidence/v060-current/progression_host_confidence_summary.json"
-MODULE = ROOT / "greenfield/eldenring/evidence_progression_hosts.py"
+OUT = os.path.join(str(ROOT), "greenfield", "evidence", "v060-current", "progression_host_confidence.tsv")
+SUMMARY_OUTPUT = os.path.join(str(ROOT), "greenfield", "evidence", "v060-current", "progression_host_confidence_summary.json")
+MODULE_OUTPUT = os.path.join(str(ROOT), "greenfield", "eldenring", "evidence_progression_hosts.py")
 FIELDS = ("check_id", "confidence", "access_status", "external_family_count",
           "external_families", "identity_region_lead_ids", "basis", "limitations")
 TRUSTED = "trusted_identity_region"
@@ -131,17 +132,19 @@ def main(argv: list[str] | None = None) -> int:
     module = render_module(rows)
     report = json.dumps(summary(rows, rendered), indent=2, sort_keys=True) + "\n"
     if args.check:
-        if not OUT.is_file() or OUT.read_text(encoding="utf-8") != rendered:
+        if not Path(OUT).is_file() or Path(OUT).read_text(encoding="utf-8") != rendered:
             raise SystemExit(f"STALE: {OUT}; run {Path(__file__).name}")
-        if not REPORT.is_file() or REPORT.read_text(encoding="utf-8") != report:
-            raise SystemExit(f"STALE: {REPORT}; run {Path(__file__).name}")
-        if not MODULE.is_file() or MODULE.read_text(encoding="utf-8") != module:
-            raise SystemExit(f"STALE: {MODULE}; run {Path(__file__).name}")
+        if (not Path(SUMMARY_OUTPUT).is_file()
+                or Path(SUMMARY_OUTPUT).read_text(encoding="utf-8") != report):
+            raise SystemExit(f"STALE: {SUMMARY_OUTPUT}; run {Path(__file__).name}")
+        if (not Path(MODULE_OUTPUT).is_file()
+                or Path(MODULE_OUTPUT).read_text(encoding="utf-8") != module):
+            raise SystemExit(f"STALE: {MODULE_OUTPUT}; run {Path(__file__).name}")
         print(f"progression host confidence: OK -- {len(rows)} checks")
         return 0
-    OUT.write_text(rendered, encoding="utf-8")
-    REPORT.write_text(report, encoding="utf-8")
-    MODULE.write_text(module, encoding="utf-8")
+    Path(OUT).write_text(rendered, encoding="utf-8")
+    Path(SUMMARY_OUTPUT).write_text(report, encoding="utf-8")
+    Path(MODULE_OUTPUT).write_text(module, encoding="utf-8")
     print(json.dumps(summary(rows, rendered), sort_keys=True))
     return 0
 
