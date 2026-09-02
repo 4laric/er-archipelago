@@ -45,10 +45,10 @@ class ProgressionHostConfidenceTests(unittest.TestCase):
         self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
         self.assertTrue(all((int(row["external_family_count"]) >= 2) ==
                             (row["confidence"] == builder.TRUSTED) for row in rows))
-        # The combined merchant, DLC-blessing, and resumed PowerPyx passes move 427 hosts from hold
-        # to trusted; two PowerPyx promotions overlap the earlier evidence rather than double-count.
-        self.assertEqual(959, sum(row["confidence"] == builder.TRUSTED for row in rows))
-        self.assertEqual(3_966, sum(row["confidence"] == builder.HOLD for row in rows))
+        # The merchant, DLC-blessing, PowerPyx, and expanded Redmaw walkthrough passes move 472
+        # hosts from hold to trusted; overlapping evidence never double-counts a host.
+        self.assertEqual(1_004, sum(row["confidence"] == builder.TRUSTED for row in rows))
+        self.assertEqual(3_921, sum(row["confidence"] == builder.HOLD for row in rows))
 
     def test_generated_runtime_sets_partition_the_current_check_population(self):
         builder = load_builder()
