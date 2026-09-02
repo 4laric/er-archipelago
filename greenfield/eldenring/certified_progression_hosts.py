@@ -51,6 +51,18 @@ CERTIFIED_SEEDTREE_APS = frozenset((
 # f39207170 remains excluded: the review instead reported that it was seemingly not a real check.
 CERTIFIED_CHURCH_APS = frozenset((7772710, 7772786, 7772881, 7772917))
 
+# Data review, 2026-09-02: exact Revered Spirit Ash lot rows are joined to their MSB/coordinate
+# placement and uniquely matching Samurai Gamers landmark in the generated region. Keep 7771808
+# held because its landmark is explicitly after the Dancing Lion fight (a deeper internal gate),
+# and 7773212 because region_dispute_worksheet.tsv still records Ancient Ruins|Enir Ilim.
+CERTIFIED_REVERED_APS = frozenset((
+    7771799, 7771812,             # Belurat: tree statue and bridge shadow-pot
+    7771934,                      # Shadow Keep: Storehouse hanging specimen
+    7772023,                      # Abyssal: Manse Hall inquisitor
+    7773236, 7773401,             # Gravesite: Cliffroad and Ellac River Cave statues
+    7773603,                      # Scadu Altus: Village of Flies hill altar
+))
+
 CERTIFIED_PROGRESSION_HOST_APS = (
     CERTIFIED_REMEMBRANCE_APS
     | CERTIFIED_GREAT_RUNE_APS
@@ -58,4 +70,5 @@ CERTIFIED_PROGRESSION_HOST_APS = (
     | CERTIFIED_MAJOR_BOSS_APS
     | CERTIFIED_SEEDTREE_APS
     | CERTIFIED_CHURCH_APS
+    | CERTIFIED_REVERED_APS
 )
