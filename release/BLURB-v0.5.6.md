@@ -17,6 +17,8 @@ _Draft. Written as the window fills, not at tag time._
 The developer evidence browser now includes 1,499 exact check identities from Redmaw's completion
 checklists. The intake is pinned, reproducible, and deliberately conservative: it records factual
 item labels and stable anchors without copying guide prose or treating a checklist as access logic.
+Merchant-section context resolves another 141 repeated item labels, while 151 that remain ambiguous
+are explicitly refused. The linked wiki.gg item pages are pinned to immutable revisions.
 
 ### One supported tracker
 
