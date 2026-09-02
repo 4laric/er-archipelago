@@ -32,9 +32,18 @@ CERTIFIED_KEY_ITEM_APS = frozenset((
 
 # Data review, 2026-09-02: these are named boss rewards in confirmed regions. Great Wyrm
 # Theodorix remains held because its generated region is explicitly unconfirmed.
-CERTIFIED_MAJOR_BOSS_APS = frozenset((
+_CERTIFIED_MAJOR_BOSS_WAVE1_APS = frozenset((
     7773790, 7773792, 7773793, 7773797, 7773802, 7773803, 7773865,
 ))
+
+# Second data review, 2026-09-02: each row has an exact committed boss-kill award chain and stable
+# region: Dragonkin Soldier -> Dragon Halberd (f530620), Golden Hippopotamus -> Aspects of the
+# Crucible: Thorns (f510440), and Loretta -> Loretta's War Sickle (f510190). The other seven
+# effective MajorBoss losses are finale-lifecycle rows and deliberately remain held.
+CERTIFIED_MAJOR_BOSS_WAVE2_APS = frozenset((7770716, 7773799, 7900120))
+CERTIFIED_MAJOR_BOSS_APS = (
+    _CERTIFIED_MAJOR_BOSS_WAVE1_APS | CERTIFIED_MAJOR_BOSS_WAVE2_APS
+)
 
 # Alaric, 2026-08-04: the Golden Seed population was reviewed in game and hand-described. These are
 # the 30 generated-HOLD rows whose region and lifecycle bars are otherwise clear. Deliberately omit
