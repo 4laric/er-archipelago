@@ -261,6 +261,7 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
         fill bar -- and is pinned separately so this invariant does not invite that old mistake.
         """
         from types import SimpleNamespace
+        from ..certified_progression_hosts import CERTIFIED_PROGRESSION_HOST_APS
         from ..core import _NO_PROGRESSION_APS
         from ..evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
         from ..features.evidence_progression_hosts import _always_hold_aps
@@ -273,17 +274,18 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
             options=SimpleNamespace(protect_missable_locations=SimpleNamespace(value=1)))
         lift = collapsed_lift_aps(world)
         missable = missable_barred_aps(world)
+        evidence_hold = HOLD_PROGRESSION_HOST_APS - CERTIFIED_PROGRESSION_HOST_APS
         self.assertEqual(
             _world_barred_aps(world),
             ((frozenset(_NO_PROGRESSION_APS) - lift) | missable
-             | HOLD_PROGRESSION_HOST_APS | _always_hold_aps()),
+             | evidence_hold | _always_hold_aps()),
             "the surface/world bar differs from core's fill bar by an undocumented cause")
 
         world.gf_capital_reconciler = True
         self.assertEqual(
             _world_barred_aps(world),
             (((frozenset(_NO_PROGRESSION_APS) - lift) - frozenset(ERDTREE_BURN_APS))
-             | missable | HOLD_PROGRESSION_HOST_APS | _always_hold_aps()),
+             | missable | evidence_hold | _always_hold_aps()),
             "the reconciler may lift only the burn-strand cause")
 
         surface_only = frozenset(SURFACE_EXCLUDE_APS) - frozenset(_NO_PROGRESSION_APS)
