@@ -93,6 +93,21 @@ python tools/check_redmaw_location_anchor_leads.py
 python tools/build_evidence_browser.py
 ```
 
+`redmaw-embedded-ash-check-leads.tsv` resolves a separate naming gap: six weapon pickups whose AP
+labels append the weapon's innate `with Ash of War: ...` text, while Redmaw links the canonical base
+weapon name. The builder accepts only an exact base-name prefix in the same pinned walkthrough
+region, a unique current AP candidate, and the same v1.17 map-lot flag in the evidence ledger.
+Backhand Blade, Great Katana, Nagakiba, Dryleaf Arts, Dueling Shield, and Igon's Greatbow meet that
+bar. Two Beast Claw links are refused because their walkthrough region does not select the current
+AP candidate. These are still `lead_only` identity/region cross-checks, not access evidence.
+
+```bash
+git -C /tmp/redmaw checkout 7281cb6f7f067e71856f12d5e7083b97ad081bb1
+python tools/build_redmaw_embedded_ash_leads.py /tmp/redmaw/sheets
+python tools/check_redmaw_embedded_ash_leads.py
+python tools/build_evidence_browser.py
+```
+
 ## Redmaw completion-checklist coverage
 
 `redmaw-checklist-check-leads.tsv` binds factual item labels from eleven completion sheets at
