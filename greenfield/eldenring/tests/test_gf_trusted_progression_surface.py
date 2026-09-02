@@ -6,9 +6,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
-from worlds.eldenring.evidence_progression_hosts import (  # noqa: E402
-    TRUSTED_PROGRESSION_HOST_APS,
-)
+from worlds.eldenring.features.evidence_progression_hosts import trusted_aps  # noqa: E402
 from worlds.eldenring.features import progression_surface as surface  # noqa: E402
 
 GAME = "Elden Ring"
@@ -45,7 +43,7 @@ def test_tag_rungs_intersect_the_trusted_ledger(monkeypatch):
 
 class _TrustedRestrictedMixin:
     def test_every_reserved_progression_host_is_trusted_and_nothing_spilled(self):
-        trusted = set(TRUSTED_PROGRESSION_HOST_APS)
+        trusted = set(trusted_aps())
         placed = [loc for loc in self.multiworld.get_locations(self.player)
                   if loc.item is not None and loc.item.player == self.player
                   and surface.is_restricted_progression(loc.item, self.player)]
