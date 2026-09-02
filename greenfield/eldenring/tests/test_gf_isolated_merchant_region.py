@@ -302,13 +302,14 @@ if _HAVE_AP:
                               f"{loc.name}: REGION equality, not membership -- the stock must live "
                               "where the academy anchor lives (er-swept-into-the-wrong-region)")
             lock = f"{reported.parent_region.name} Lock"
-            # The stock may host progression again -- the OLD bar (EXCLUDED-shaped item_rule) must
-            # not have survived the move; the gate is the region now.
+            # The old merchant-specific bar must not survive the move. The global evidence ledger
+            # is now the only host policy, so each row accepts progression exactly when trusted.
+            from worlds.eldenring.evidence_progression_hosts import TRUSTED_PROGRESSION_HOST_APS
             probe = self.world.create_item(lock)
             self.assertTrue(probe.advancement)
             for loc in stock:
-                self.assertTrue(loc.item_rule(probe),
-                                f"{loc.name} still refuses advancement -- a second, stale bar?")
+                self.assertEqual(loc.item_rule(probe), loc.address in TRUSTED_PROGRESSION_HOST_APS,
+                                 f"{loc.name} disagrees with the evidence-host ledger")
             # Locks are PRE-PLACED on rollable checks (the lock chain), not pooled -- an
             # "everything except X" state must harvest placed items as well as the pool.
             everything = (list(self.multiworld.itempool)

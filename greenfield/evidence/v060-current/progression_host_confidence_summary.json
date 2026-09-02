@@ -1,18 +1,19 @@
 {
   "by_confidence": {
-    "hold": 4391,
-    "trusted_identity_region": 532
+    "hold": 4280,
+    "trusted_identity_region": 643
   },
   "by_external_family_count": {
-    "0": 3384,
-    "1": 1007,
-    "2": 470,
-    "3": 61,
+    "0": 3357,
+    "1": 923,
+    "2": 579,
+    "3": 63,
     "4": 1
   },
   "checks_total": 4923,
-  "content_sha256": "2b1211c1bb5a85856a6aef9446f55cdecc3bea9e6e4544cbab95ff6884beed6f",
+  "content_sha256": "2097fa4fbfe68ff6d3caf584e6fc873a73d28f171619dab61fd3251b92c97b80",
   "input_files": {
+    "dlc-sparse-region-check-leads.tsv": "ad6683820b1b6088077321262d3c4ee1fe360c7bdf809611ca53d728a0c8ab95",
     "eldenpedia-boss-reward-check-leads.tsv": "d3c3c9078311f51cfd40da818e0f9dd896b80231ae6a702481c336ed4757a995",
     "eldenpedia-crystal-tear-check-leads.tsv": "d7a1ab0ad91d1d03d8d8654ce7be0b5e666d0f5fc1490f26619c507329b037c7",
     "eldenpedia-deathroot-check-leads.tsv": "68d32a6ef92453be2e4b2027496564730f807815f30bc3549997fa02849505a8",
@@ -31,6 +32,8 @@
     "fextralife-item-check-leads.tsv": "501d1987e6b4cf5c318877de2253e1b2e397519331ef2ac6cb674568626be726",
     "fextralife-linked-place-check-leads.tsv": "bfa2c366d4b09d9119b83695e4d77e958ff0452eacc1b37cc999399684abff92",
     "game8-check-leads.tsv": "70463b4cdbed057c4b41df105140d6a9957b51abc9420bf76bec0e365d18f8c6",
+    "game8-dlc-anchor-check-leads.tsv": "1eb18f74d114e1adf5dc9589d5fdb41445946300f1ec9a259579accc02dc3d60",
+    "game8-dlc-floor-check-leads.tsv": "bded2ed715ce184255e98cd90e4f2acf5aeb32b74a8d60b768540eebff112a2b",
     "powerpyx-check-leads.tsv": "0aa619c82c168e484758888d2f44b0de894a248868e8b5f72aaffb4caf978c6a",
     "redmaw-checklist-check-leads.tsv": "85120dafcb0413b59aab9e85252f8ea3911a19feb7d93d6b71f76e1d79712f75",
     "redmaw-embedded-ash-check-leads.tsv": "472a806089d28a78561f88094827e3d33b02706140f5c27f452d554c4a4fb3f7",

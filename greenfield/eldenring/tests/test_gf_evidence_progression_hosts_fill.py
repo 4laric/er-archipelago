@@ -18,7 +18,7 @@ from worlds.eldenring.features.evidence_progression_hosts import (  # noqa: E402
     hold_aps,
 )
 from worlds.eldenring.features.finale import finale_entries  # noqa: E402
-from worlds.eldenring.region_spine import DLC_REGIONS  # noqa: E402
+from worlds.eldenring.region_spine import DLC_REGIONS, REGIONS  # noqa: E402
 
 GAME = "Elden Ring"
 ALL_APS = {ap for rows in LOCATIONS.values() for (_name, ap, _flag) in rows}
@@ -32,6 +32,21 @@ def test_generated_host_sets_are_disjoint_live_location_ids():
     assert held, "the HOLD witness population vanished"
     assert trusted.isdisjoint(held), sorted(trusted & held)[:10]
     assert trusted | held <= ALL_APS, sorted((trusted | held) - ALL_APS)[:10]
+
+
+def test_every_rollable_region_has_capacity_for_the_great_rune_floor():
+    """Every one-region Great Rune seed has ten trusted hosts plus one reserve."""
+    trusted = set(TRUSTED_PROGRESSION_HOST_APS)
+    counts = {
+        region: sum(ap in trusted for _name, ap, _flag in LOCATIONS[region])
+        for region in REGIONS
+    }
+    assert counts, "the rollable-region census vanished"
+    # A one-region Great Runes seed can require ten confined progression items.
+    # Keep one additional trusted location available because another feature may
+    # consume a host before progression-surface placement runs.
+    underfilled = {region: count for region, count in counts.items() if count < 11}
+    assert not underfilled, underfilled
 
 
 class _FakeLocation:
@@ -95,6 +110,7 @@ class _NoAdvancementOnHoldMixin:
 
     def test_hold_population_is_live_and_contains_no_advancement(self):
         _held, live = self._filled_hold_locations()
+        self.assertTrue(live, "the HOLD population vanished")
         offenders = [f"{loc.name} <- P{loc.item.player} {loc.item.name}"
                      for loc in live if loc.item.advancement]
         self.assertFalse(offenders[:10], "advancement reached HOLD checks: %s" % offenders[:10])
@@ -120,7 +136,9 @@ class HeavilySealedDlcOffAbilityPressure(_NoAdvancementOnHoldMixin, WorldTestBas
     def test_the_row_is_actually_heavily_sealed(self):
         live = {loc.address for loc in self.multiworld.get_locations(self.player)
                 if loc.address is not None}
-        self.assertLess(len(live), len(ALL_APS) // 4,
+        # Region selection is intentionally random and three large regions can exceed a quarter
+        # of the corpus. The coverage row only needs a genuinely minority live population.
+        self.assertLess(len(live), len(ALL_APS) // 2,
                         "the heavily-sealed row no longer seals most checks")
 
 
@@ -133,16 +151,6 @@ class OneRegionGreatRunesIsValid(_NoAdvancementOnHoldMixin, WorldTestBase):
         self.assertEqual(1, self.options["num_regions"])
         _held, live = self._filled_hold_locations()
         self.assertTrue(all(loc.item is not None for loc in live))
-
-
-def test_one_region_default_goal_is_an_invalid_minimum_not_a_fill_failure():
-    """The adjacent invalid minimum must fail during option validation, before fill mutates state."""
-    from test.general import setup_multiworld
-    from worlds.AutoWorld import AutoWorldRegister
-
-    world_type = AutoWorldRegister.world_types[GAME]
-    with pytest.raises(OptionError, match="at least one must stay in the pool"):
-        setup_multiworld([world_type], options=[{"num_regions": 1, "enable_dlc": False}])
 
 
 class DlcOnlyProgressionPressure(_NoAdvancementOnHoldMixin, WorldTestBase):

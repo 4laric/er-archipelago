@@ -34,6 +34,7 @@ from .. import contract
 from ..data import HUB, LOCATIONS
 from ..features.progression_surface import (_HUB_MERCHANT_TAGS, _roundtable_merchant_aps,
                                             allowed_ap_ids)
+from ..evidence_progression_hosts import TRUSTED_PROGRESSION_HOST_APS
 from ..location_tags import (DEFAULTED_REGION_APS, ERDTREE_BURN_APS, LOCATION_TAGS,
                              SHOP_RELEASE_GATED_APS, SHOP_SLOT_PINS, SURFACE_EXCLUDE_APS)
 from ..tarnished_pack import TARNISHED_PACK_LOCATION_FLAGS
@@ -163,17 +164,17 @@ class HubMerchantLocationRule(WorldTestBase):
             "hub merchant checks still accept required progression through general fill: %s"
             % leaked[:5])
 
-    def test_wandering_merchant_slots_still_accept_a_great_rune(self):
-        """The permanent bar owns hub-filed rows, not ordinary merchants in their real regions."""
+    def test_wandering_merchant_slots_obey_the_evidence_bar(self):
+        """Ordinary merchants avoid the hub bar, but HOLD checks still reject progression."""
         item = Item("Great Rune probe", ItemClassification.progression, None, self.player)
         locations = {loc.address: loc for loc in self.multiworld.get_locations(self.player)}
         present = sorted(set(SHOP_SLOT_PINS.values()) & locations.keys())
         self.assertTrue(present, "this seed contains no vetted wandering-merchant slot")
-        refused = [locations[ap].name for ap in present if not locations[ap].item_rule(item)]
-        self.assertFalse(
-            refused,
-            "the hub-only location bar swallowed wandering merchants in real regions: %s"
-            % refused[:5])
+        trusted = set(TRUSTED_PROGRESSION_HOST_APS)
+        wrong = [locations[ap].name for ap in present
+                 if locations[ap].item_rule(item) != (ap in trusted)]
+        self.assertFalse(wrong, "wandering merchant evidence policy disagrees with its ledger: %s"
+                         % wrong[:5])
 
 
 class TarnishedHubMerchantLocationRule(WorldTestBase):

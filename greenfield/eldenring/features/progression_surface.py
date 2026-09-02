@@ -1018,7 +1018,19 @@ def place_released_locks(multiworld, worlds) -> None:
                 "(%d%% share of %d eligible progression, %d game(s), %d open foreign location(s))",
                 legacy_placed, legacy_offered, share, len(legacy_ids), n_games, len(foreign))
 
+    # One matching pass, not "surface then fallback".  Two passes let an early Lock consume the
+    # only host compatible with a later Lock; the fallback could not swap against already-locked
+    # surface placements and reported a false shortage.  Keep the user's surface as the preferred
+    # prefix, then append every other enabled TRUSTED check so fill_restrictive can swap across the
+    # complete bipartite assignment.
+    surface_location_ids = {id(loc) for loc in locations}
+    trusted_locations = []
+    for world in participants:
+        trusted_locations.extend(loc for loc in _open_trusted(world)
+                                 if id(loc) not in surface_location_ids)
     multiworld.random.shuffle(locations)
+    multiworld.random.shuffle(trusted_locations)
+    locations.extend(trusted_locations)
     state = multiworld.get_all_state(False)
     # Same access-check override `_place` documents at length: under accessibility:minimal
     # fill_restrictive stops verifying reachability, which would lock a Lock behind its own gate.
@@ -1033,15 +1045,21 @@ def place_released_locks(multiworld, worlds) -> None:
         for _w, acc, v in saved:
             acc.value = v
 
-    # THE SPILL, and the whole reason this is a fill rather than a rule: anything the surfaces could
-    # not host goes back to the general fill unconstrained. A seed loses CURATION, never generation.
+    # A strict evidence policy cannot silently spill into HOLD. Restore the exact pool objects before
+    # refusing so the diagnostic does not leave a half-mutated generation behind.
     for it in items:
         multiworld.itempool.append(it)
+    if items:
+        names = ", ".join(sorted(it.name for it in items))
+        raise OptionError(
+            "Evidence-confined released progression has no compatible TRUSTED placement for %d "
+            "item(s) after widening across every enabled trusted check: %s"
+            % (len(items), names))
     logging.getLogger("Greenfield").info(
         "[greenfield] progression surface: placed %d/%d RELEASED Lock(s) (%d abroad) across %d "
-        "Elden Ring world(s); %d SPILLED to the general fill%s",
+        "Elden Ring world(s); trusted-only terminal widening left %d unplaced%s",
         n0 - len(items), n0, cross_placed, len(participants), len(items),
-        (" (curation only -- they still travel, just not onto a curated check): "
+        (": "
          + ", ".join(sorted(it.name for it in items))) if items else "")
 
 
@@ -1237,6 +1255,9 @@ def _released_pct(world) -> int:
     yaml or a stubbed world must not silently start releasing. Note that is the opposite endpoint
     from the option's own default of 0 BIAS: absent means "behave as before", not "behave as default".
     """
+    mw = getattr(world, "multiworld", None)
+    if mw is not None and len(getattr(mw, "player_ids", ())) <= 1:
+        return 0
     opt = getattr(getattr(world, "options", None), "progression_bias", None)
     if opt is None:
         return 0
@@ -1522,23 +1543,123 @@ def apply(world) -> None:
         mw.itempool.remove(it)
     strict = True   # the only regime; see ProgressionSurfaceMode's retirement note
     rungs = build_ladder(surface)
-    resolved = rungs[0] if rungs else list(surface)
-    world.gf_prog_surface_trusted_fallback = False
-    for classes in rungs:
-        if not to_place:
-            break
-        allowed = _open_allowed(world, classes)
-        world.random.shuffle(allowed)
-        resolved = classes
-        _place(world, allowed, to_place, lock=strict)
-    # The tag ladder is a preference, not authority to weaken the evidence invariant. Its terminal
-    # rung is every ENABLED trusted check. HOLD checks never enter this list, even when that means a
-    # sparse seed must refuse instead of silently scattering required items into normal fill.
-    if to_place:
-        allowed = _open_trusted(world)
-        world.random.shuffle(allowed)
-        world.gf_prog_surface_trusted_fallback = True
-        _place(world, allowed, to_place, lock=strict)
+    resolved = rungs[-1] if rungs else list(surface)
+    # Match the complete trusted assignment in ONE pass. Sequential tag rungs can lock an early
+    # item onto the only location compatible with a later region Lock; a later all-trusted pass then
+    # cannot swap against that already-locked placement and reports a false capacity shortage.
+    # Ordering still expresses preference: shuffled configured/ladder locations first, every other
+    # enabled TRUSTED location second. fill_restrictive can swap across the full union.
+    preferred = _open_allowed(world, resolved)
+    preferred_ids = {id(loc) for loc in preferred}
+    fallback = [loc for loc in _open_trusted(world) if id(loc) not in preferred_ids]
+    world.random.shuffle(preferred)
+    world.random.shuffle(fallback)
+    placed_item_ids = {id(it) for it in to_place}
+    allowed = preferred + fallback
+
+    # Bootstrap confined progression one item at a time against the ACTUAL reachable state. AP's batch
+    # fill_restrictive deliberately computes reachability with every still-unplaced item swept in;
+    # for mutually gating Region Locks that can manufacture a cycle even when a valid trusted start
+    # anchor exists. Pick the item that opens the most remaining trusted checks, put it on a check
+    # reachable before receiving it, collect it into the placement state, and repeat. Including quest
+    # keys matters: some DLC routes need a key and a Region Lock before the next trusted host opens.
+    state = mw.get_all_state(False)
+    bootstrap_items = list(to_place)
+
+    def progression_plan(current_state, remaining_items, remaining_locations):
+        """Build a reachable prefix without exponential assignment search.
+
+        The normal restrictive fill remains responsible for the complete matching. This prefix only
+        breaks the false all-items-swept-in cycle by collecting one genuinely reachable item at a
+        time. Prefer the item that opens the most trusted hosts, then consume the location useful to
+        the fewest other remaining items so scarce hosts survive for normal fill.
+        """
+        if len(remaining_items) <= 12:
+            failed = set()
+
+            def exact_plan(state, items, locations):
+                if not items:
+                    return []
+                # The collected state is determined by which bootstrap items remain. Location
+                # rules may distinguish otherwise-equivalent hosts, so retain their addresses too.
+                # Caching dead subproblems turns the small exact search from factorial repetition
+                # into a bounded subset search.
+                key = (frozenset(id(item) for item in items),
+                       frozenset(id(location) for location in locations))
+                if key in failed:
+                    return []
+                candidates = []
+                for item in items:
+                    spots = [loc for loc in locations if loc.can_fill(state, item, True)]
+                    if not spots:
+                        continue
+                    opened = state.copy()
+                    opened.collect(item, True)
+                    score = sum(loc.can_reach(opened) for loc in locations)
+                    candidates.append((len(spots), -score, item.name, item, spots, opened))
+                best = []
+                # Most-constrained item and host first. Opening breadth is the secondary signal;
+                # it cannot override a one-host item and accidentally consume that host.
+                for _count, _negative_score, _name, item, spots, opened in sorted(
+                        candidates, key=lambda row: row[:3]):
+                    def competition(location):
+                        return sum(location.can_fill(state, other, True)
+                                   for other in items if other is not item)
+
+                    for location in sorted(spots, key=lambda loc: (competition(loc), loc.name)):
+                        tail = exact_plan(
+                            opened, [other for other in items if other is not item],
+                            [other for other in locations if other is not location])
+                        candidate = [(item, location), *tail]
+                        if len(candidate) > len(best):
+                            best = candidate
+                        if len(best) == len(items):
+                            return best
+                failed.add(key)
+                return best
+
+            return exact_plan(current_state, list(remaining_items), list(remaining_locations))
+
+        plan = []
+        remaining_items = list(remaining_items)
+        remaining_locations = list(remaining_locations)
+        while remaining_items:
+            candidates = []
+            for item in remaining_items:
+                spots = [loc for loc in remaining_locations
+                         if loc.can_fill(current_state, item, True)]
+                if not spots:
+                    continue
+                opened = current_state.copy()
+                opened.collect(item, True)
+                newly_reachable = sum(loc.can_reach(opened) for loc in remaining_locations)
+                candidates.append((newly_reachable, item.name, item, spots, opened))
+            if not candidates:
+                break
+            _score, _name, item, spots, opened = max(candidates, key=lambda row: row[:2])
+
+            def competing_items(location):
+                return sum(location.can_fill(current_state, other, True)
+                           for other in remaining_items if other is not item)
+
+            location = min(spots, key=lambda loc: (competing_items(loc), loc.name))
+            plan.append((item, location))
+            current_state = opened
+            remaining_items.remove(item)
+            remaining_locations.remove(location)
+        return plan
+
+    plan = progression_plan(state, bootstrap_items, allowed)
+    for item, location in plan:
+        location.place_locked_item(item)
+        state.collect(item, True, location)
+        allowed.remove(location)
+        to_place.remove(item)
+
+    _place(world, allowed, to_place, lock=strict)
+    world.gf_prog_surface_trusted_fallback = any(
+        loc.item is not None and id(loc.item) in placed_item_ids and id(loc) not in preferred_ids
+        for loc in fallback)
     if to_place:
         # Put the still-unplaced objects back before raising. Generation stops, but keeping pool
         # accounting intact makes the refusal deterministic and prevents test teardown/leak reports
@@ -1743,8 +1864,12 @@ class ProgressionSurfaceFeature(Feature):
         Emitting the surface itself makes that drift unrepresentable -- "where progression may be"
         and "what the client stars" are now one expression, evaluated once.
         """
-        classes = selected_surface(_selection(world))
+        classes = getattr(world, "gf_prog_surface_resolved", None)
+        if classes is None:
+            classes = selected_surface(_selection(world))
         ids = surface_ap_ids(world, classes)
+        if getattr(world, "gf_prog_surface_trusted_fallback", False):
+            ids |= _trusted_host_aps()
         own = {loc.address for loc in world.multiworld.get_locations(world.player)
                if getattr(loc, "address", None) is not None}
         out = {contract.PROGRESSION_SURFACE_LOCATIONS: sorted(i for i in ids if i in own)}
