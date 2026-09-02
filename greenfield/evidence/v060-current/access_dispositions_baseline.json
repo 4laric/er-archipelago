@@ -1,5 +1,5 @@
 {
-  "checks_total": 4923,
+  "checks_total": 4925,
   "linked_access_claim_ids": [
     "check:7770002/access",
     "check:7770008/access",
@@ -29,7 +29,7 @@
     "check:7773712/access",
     "check:7900218/access"
   ],
-  "release_blockers": 4918,
+  "release_blockers": 4920,
   "resolved_dispositions": {
     "7770002|all": "region_sufficient",
     "7770665|all": "region_sufficient",
@@ -53,6 +53,6 @@
     "7900218|item_shuffle=true,legacy_dungeon_keys=true,vanilla_placement=false": "encoded"
   },
   "schema_version": 1,
-  "unresolved": 4918,
-  "without_access_claim": 4896
+  "unresolved": 4920,
+  "without_access_claim": 4898
 }

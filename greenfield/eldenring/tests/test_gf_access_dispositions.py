@@ -39,7 +39,7 @@ class AccessDispositionTests(unittest.TestCase):
 
     def test_current_census_is_complete_with_encoded_key_gate_option_rows(self):
         value = access.summary(LEDGER, DISPOSITIONS)
-        self.assertEqual(value["checks_total"], 4923)
+        self.assertEqual(value["checks_total"], 4925)
         # #1317 adds one check with two exhaustive option rows: encoded with item shuffle on,
         # region-sufficient with it off. Hence +1 row over the prior +14 option-row surplus.
         self.assertEqual(value["dispositions_total"], value["checks_total"] + 15)
@@ -79,7 +79,7 @@ class AccessDispositionTests(unittest.TestCase):
         self.assertEqual(value["by_option_set"]["not(item_shuffle=true)"]["region_sufficient"], 1)
         self.assertEqual(value["release_blockers"], value["checks_total"] - 5)
         self.assertEqual(value["with_access_claim"], 42)
-        self.assertEqual(value["without_access_claim"], 4896)
+        self.assertEqual(value["without_access_claim"], 4898)
 
     def test_every_resolved_disposition_has_a_machine_checked_witness(self):
         rows = access.validate(LEDGER, DISPOSITIONS)
@@ -219,7 +219,7 @@ class AccessDispositionTests(unittest.TestCase):
             path = Path(td) / "access_dispositions.tsv"
             access.bootstrap(LEDGER, path)
             rows = access.validate(LEDGER, path)
-            self.assertEqual(len(rows), 4923)
+            self.assertEqual(len(rows), 4925)
             self.assertEqual({row["disposition"] for row in rows}, {"unresolved"})
 
 

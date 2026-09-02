@@ -545,8 +545,10 @@ def test_the_sweep_corpus_did_not_shrink():
     # 2026-09-01 (#1303): 4105 -> 4104. Stormhawk Deenh (f10017900) moves from Stormveil to
     # Liurnia because the Four Belfries sending gate is its only repeatable access route. It leaves
     # Margit's Stormveil sweep (10000850); no other member enters, leaves, or changes owner.
-    assert total == 4104, (  # -1 (#1303): Chapel return is Liurnia-gated
-        "sweep corpus is %d, expected 4104. If a sweep was legitimately added or removed, say WHY "
+    # #1296: Senessax's shared reward flag now exposes both stone lots as checks; their ownership
+    # is represented across the applicable sweep rows, adding 12 (trigger, flag) pairs.
+    assert total == 4116, (
+        "sweep corpus is %d, expected 4116. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -837,6 +839,6 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 2026-09-01 (#1303): f450cab3f833dcb1/4105 -> 78fe87536fe461c9/4104. Pairwise against main,
     # exactly (10000850, f10017900) was removed. There are zero additions and zero re-ownerships;
     # the check is deliberately unswept because Liurnia has no eligible host for this interior.
-    assert (digest, n) == ("78fe87536fe461c9", 4104), (  # #1303: Chapel return access bucket
-        "sweep OWNERSHIP changed: (%s, %d), expected (78fe87536fe461c9, 4104). The total alone will "
+    assert (digest, n) == ("97254d5dd68a36ce", 4116), (  # #1296: two Senessax reward checks
+        "sweep OWNERSHIP changed: (%s, %d), expected (97254d5dd68a36ce, 4116). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

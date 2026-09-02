@@ -34,19 +34,19 @@
 #   the extractor corpus: a possession or map-reach requirement is not an event flag, and goods ids
 #   and event flags are different ID SPACES -- the prefix is there so nothing reads one as the other.
 # MEASURED THIS RUN (recomputed on every emit; the tool hard-fails on a degenerate parse):
-#   edges 2060 over 588 target check(s) | sense: set 1914, clear 22, unknown 124
-#   by tool: esd_gifts 111, lot_gates 176, questline_conditions 1761, treasure_enablers 12
-#   source kind: check 5, item 77, map_access 579, npc_state 555, world 844
-#   targets: 555 with a PREREQUISITE (sense=set), 16 with an EXCLUSION (sense=clear)
-#   CORROBORATION, ALL corpora BLENDED (the per-corpus figures below are the ones that mean anything -- see the split): 95 of 588 target check(s) are ALREADY missable-tagged (16%); the tag set holds 288 checks in total
+#   edges 2062 over 589 target check(s) | sense: set 1916, clear 22, unknown 124
+#   by tool: esd_gifts 111, lot_gates 176, questline_conditions 1763, treasure_enablers 12
+#   source kind: check 5, item 77, map_access 580, npc_state 555, world 845
+#   targets: 556 with a PREREQUISITE (sense=set), 16 with an EXCLUSION (sense=clear)
+#   CORROBORATION, ALL corpora BLENDED (the per-corpus figures below are the ones that mean anything -- see the split): 95 of 589 target check(s) are ALREADY missable-tagged (16%); the tag set holds 288 checks in total
 #   CORROBORATION, award-site corpora (the ratchet's population): 87 of 163 target check(s) already missable-tagged (53%)
-#   CORROBORATION, #1085 extractor corpus: 47 of 495 target check(s) already missable-tagged (9%)
+#   CORROBORATION, #1085 extractor corpus: 47 of 496 target check(s) already missable-tagged (9%)
 #   cross-region edges: 375 (132 whose target is NOT missable-tagged)
-#   alt_group semantics: all 2, any 11, single 447, unknown 315 (a group claims OR/AND only where the DATA proves it)
+#   alt_group semantics: all 2, any 11, single 447, unknown 316 (a group claims OR/AND only where the DATA proves it)
 #   edges DEGRADED to unusable by a guard (each is a refusal, not a loss): context-branch-unresolved 7, enabler-not-an-eventflag-test-above-the-enable 2, esd-paths-disagree 3, esd-received-memo 82, lot_gates-senses-disagree 2, treasure-verb-crossproduct 28
-#   source flags LABELLED from FromSoft's own event names: 1133 of 2060 edge(s) (55%); by emevd_batch 11, emevd_event 593, esd_talk 529
-#   source region located by: none 1061, esd_talk_map 144, flag_decode 455, map_id 221, setter_map 164, test_map 15
-#   dropped rows (a filter with no tally is a lie): esd_gifts:duplicate-row 3, esd_gifts:lot-has-no-flag 51, esd_gifts:self-loop 1, esd_gifts:sentinel-source 2, esd_gifts:target-not-a-live-check 130, lot_gates:duplicate-row 51, questline_conditions:cone-unreadable 4377, questline_conditions:duplicate-row 75, questline_conditions:target-not-a-live-check 2783, treasure_enablers:duplicate-row 3, treasure_enablers:no-entity-handle 66
+#   source flags LABELLED from FromSoft's own event names: 1133 of 2062 edge(s) (55%); by emevd_batch 11, emevd_event 593, esd_talk 529
+#   source region located by: none 1062, esd_talk_map 144, flag_decode 456, map_id 221, setter_map 164, test_map 15
+#   dropped rows (a filter with no tally is a lie): esd_gifts:duplicate-row 3, esd_gifts:lot-has-no-flag 51, esd_gifts:self-loop 1, esd_gifts:sentinel-source 2, esd_gifts:target-not-a-live-check 130, lot_gates:duplicate-row 51, questline_conditions:cone-unreadable 4377, questline_conditions:duplicate-row 75, questline_conditions:target-not-a-live-check 2781, treasure_enablers:duplicate-row 3, treasure_enablers:no-entity-handle 66
 #   contexts with NO polarity rule (-> unknown, never guessed): !EventFlag 1, ? 6, EventFlag 1, GotoIf 2, if 1
 # ACCEPTANCE (SPEC §7, asserted on the finished pipeline by name):
 #   [ok] f400191 Golden Seed / Stormhill Shack -- 3 triggers in ONE alt_group with semantics=any (separate call sites of one common event); found gates [3708, 3709, 1041389414] in 1 group(s), semantics ['any']
@@ -1665,6 +1665,8 @@ map:m12_01	530600	set	cone root MAP_ACCESS(m12_01) at m12_01_00_00.emevd.dcx.js:
 map:m12_02	530620	set	cone root MAP_ACCESS(m12_02) at m12_02_00_00.emevd.dcx.js:90005860 set by m12_02_00_00.emevd.dcx.js	questline_conditions					extractor-cone-root	questline_conditions:530620:m12_02_00_00.emevd.dcx.js:90005860:0	unknown	map_access	Siofra River	map_id	Siofra River	no	7770716	Siofra River :: Dragon Halberd - Dragonkin Soldier, may be sweep-granted by Dragonkin Soldier (m12_02) [f530620]
 2052400800	530800	set	cone root BOSS_KILL(2052400800) at m61_52_40_00.emevd.dcx.js:90005860 set by common_func.emevd.dcx.js:90005860	questline_conditions					extractor-cone-root	questline_conditions:530800:m61_52_40_00.emevd.dcx.js:90005860:0	unknown	world	Jagged Peak	flag_decode	Jagged Peak	no	7773863	Jagged Peak :: Dragon Heart - around Foot of the Jagged Peak [f530800]
 map:m61_52	530800	set	cone root MAP_ACCESS(m61_52) at m61_52_40_00.emevd.dcx.js:90005860 set by m61_52_40_00.emevd.dcx.js	questline_conditions					extractor-cone-root	questline_conditions:530800:m61_52_40_00.emevd.dcx.js:90005860:0	unknown	map_access			Jagged Peak	unknown	7773863	Jagged Peak :: Dragon Heart - around Foot of the Jagged Peak [f530800]
+2054390850	530805	set	cone root BOSS_KILL(2054390850) at m61_54_39_00.emevd.dcx.js:90005860 set by common_func.emevd.dcx.js:90005860	questline_conditions					extractor-cone-root	questline_conditions:530805:m61_54_39_00.emevd.dcx.js:90005860:0	unknown	world	Jagged Peak	flag_decode	Jagged Peak	no	7900288	Jagged Peak :: Somber Ancient Dragon Smithing Stone - Ancient Dragon Senessax, may be sweep-granted by Ancient Dragon Senessax (m61_54_39) [f530805]
+map:m61_54	530805	set	cone root MAP_ACCESS(m61_54) at m61_54_39_00.emevd.dcx.js:90005860 set by m61_54_39_00.emevd.dcx.js	questline_conditions					extractor-cone-root	questline_conditions:530805:m61_54_39_00.emevd.dcx.js:90005860:0	unknown	map_access			Jagged Peak	unknown	7900288	Jagged Peak :: Somber Ancient Dragon Smithing Stone - Ancient Dragon Senessax, may be sweep-granted by Ancient Dragon Senessax (m61_54_39) [f530805]
 2046380800	530810	set	cone root BOSS_KILL(2046380800) at m61_46_38_00.emevd.dcx.js:2046382810 set by m61_46_38_00.emevd.dcx.js:2046382800	questline_conditions					extractor-cone-root	questline_conditions:530810:m61_46_38_00.emevd.dcx.js:2046382810:	unknown	world			Cerulean	unknown	7900158	Cerulean :: Dancer's Trousers - Dancer of Ranah [f530810]
 map:m61_46	530810	set	cone root MAP_ACCESS(m61_46) at m61_46_38_00.emevd.dcx.js:2046382800 set by m61_46_38_00.emevd.dcx.js	questline_conditions					extractor-cone-root	questline_conditions:530810:m61_46_38_00.emevd.dcx.js:2046382800:	single	map_access			Cerulean	unknown	7900158	Cerulean :: Dancer's Trousers - Dancer of Ranah [f530810]
 map:m61_46	530810	set	cone root MAP_ACCESS(m61_46) at m61_46_38_00.emevd.dcx.js:2046382810 set by m61_46_38_00.emevd.dcx.js	questline_conditions					extractor-cone-root	questline_conditions:530810:m61_46_38_00.emevd.dcx.js:2046382810:	unknown	map_access			Cerulean	unknown	7900158	Cerulean :: Dancer's Trousers - Dancer of Ranah [f530810]

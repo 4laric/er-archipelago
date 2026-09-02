@@ -38,7 +38,7 @@ class ProgressionHostConfidenceTests(unittest.TestCase):
                             "progression_host_confidence.tsv")
         with open(path, encoding="utf-8", newline="") as handle:
             rows = list(csv.DictReader(handle, delimiter="\t"))
-        self.assertEqual(4_923, len(rows))
+        self.assertEqual(4_925, len(rows))
         self.assertEqual({builder.HOLD, builder.TRUSTED},
                          {row["confidence"] for row in rows})
         self.assertTrue(all(row["access_status"] == "unknown" for row in rows))
@@ -48,7 +48,7 @@ class ProgressionHostConfidenceTests(unittest.TestCase):
         # The combined merchant, DLC-blessing, and resumed PowerPyx passes move 427 hosts from hold
         # to trusted; two PowerPyx promotions overlap the earlier evidence rather than double-count.
         self.assertEqual(959, sum(row["confidence"] == builder.TRUSTED for row in rows))
-        self.assertEqual(3_964, sum(row["confidence"] == builder.HOLD for row in rows))
+        self.assertEqual(3_966, sum(row["confidence"] == builder.HOLD for row in rows))
 
     def test_generated_runtime_sets_partition_the_current_check_population(self):
         builder = load_builder()

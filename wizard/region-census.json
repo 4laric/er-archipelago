@@ -185,13 +185,13 @@
    },
    "sweep_slots_max": {
     "all": 81,
-    "bosses": 135,
+    "bosses": 136,
     "minidungeons": 81
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 81,
-     "bosses": 135,
+     "bosses": 136,
      "minidungeons": 81
     },
     "SweepSlotMajor": {
@@ -199,7 +199,7 @@
     },
     "SweepSlotMinor": {
      "all": 81,
-     "bosses": 127,
+     "bosses": 128,
      "minidungeons": 81
     }
    },
@@ -402,13 +402,13 @@
    },
    "sweep_slots_max": {
     "all": 55,
-    "bosses": 121,
+    "bosses": 122,
     "minidungeons": 55
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 55,
-     "bosses": 121,
+     "bosses": 122,
      "minidungeons": 55
     },
     "SweepSlotMajor": {
@@ -416,7 +416,7 @@
     },
     "SweepSlotMinor": {
      "all": 55,
-     "bosses": 117,
+     "bosses": 118,
      "minidungeons": 55
     }
    },
@@ -826,9 +826,9 @@
    "tarnished_pack_shop_checks": 0
   },
   "Jagged Peak": {
-   "checks": 38,
+   "checks": 40,
    "combos": {
-    "Boss|FieldBoss": 2,
+    "Boss|FieldBoss": 4,
     "Boss|FieldBoss|MajorBoss": 1,
     "Fragment": 1,
     "KeyItem": 1
@@ -856,21 +856,21 @@
     }
    },
    "sweep_slots_max": {
-    "all": 22,
-    "bosses": 22
+    "all": 24,
+    "bosses": 24
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 22,
-     "bosses": 22
+     "all": 24,
+     "bosses": 24
     },
     "SweepSlotMajor": {
      "all": 8,
      "bosses": 8
     },
     "SweepSlotMinor": {
-     "all": 14,
-     "bosses": 14
+     "all": 16,
+     "bosses": 16
     }
    },
    "tarnished_pack_checks": 0,
@@ -1623,5 +1623,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "91ec318e9f7e72d55e4651d9771d2239691c0870d4af0e2b3bb7499d91edd00c"
+ "source_sha256": "7184a46ba9f4e41635ed31aac8d2df8fbc06daeba7840fed7695796785fd7f8d"
 }
