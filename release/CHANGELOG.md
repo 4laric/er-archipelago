@@ -18,6 +18,10 @@ client half is clients#559 and its merge commit is pinned by the gitlink in this
 
 Entries arrive below as they merge.
 
+- **External whetblade coverage is now complete at 7/7 checks (#1273).** Six pinned Eldenpedia
+  revisions and committed ItemLot ids cover every whetblade and distinguish both Whetstone Knife
+  acquisitions; this adds the family's one previously uncovered check.
+
 - **Golden Seed external coverage now reaches 38 of 43 checks (#1273).** Twenty-eight new exact
   acquisition-row bindings are guarded by committed ItemLot ids; five non-selectable checks remain
   explicit refusals instead of being guessed from a shared `2x` row or Roderika wording.

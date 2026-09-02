@@ -285,6 +285,17 @@ python tools/check_eldenpedia_golden_seed_leads.py
 python tools/build_evidence_browser.py
 ```
 
+`eldenpedia-whetblade-check-leads.tsv` binds the complete seven-check whetblade family through six
+immutable item-page revisions. The two Whetstone Knife rows are separated by Gatefront Ruins and
+Twin Maiden Husks anchors; committed ItemLot ids guard all seven bindings. This adds the one
+previously uncovered check and raises union coverage from 6/7 to 7/7, with no refusals.
+
+```bash
+python tools/build_eldenpedia_whetblade_leads.py
+python tools/check_eldenpedia_whetblade_leads.py
+python tools/build_evidence_browser.py
+```
+
 `eldenpedia-sacred-tear-check-leads.tsv` binds 12 church-named Sacred Tear acquisitions from
 Eldenpedia page 13254, revision 99877. Every church link is unique in that revision, and every
 selected AP flag must remain a Sacred Tear in the committed ItemLot corpus. The AP-only
