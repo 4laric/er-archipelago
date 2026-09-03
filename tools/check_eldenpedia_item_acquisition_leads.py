@@ -15,7 +15,7 @@ def main():
     with (ROOT/"greenfield/evidence/v060-current/claims.tsv").open(encoding="utf-8",newline="") as h:
         for row in csv.DictReader(h,delimiter="\t"):
             if row["claim_kind"]=="detection" and row["active"]=="true": detections[row["subject_id"]]=json.loads(row["value"])
-    assert len(rows)>=80
+    assert len(rows)>=164
     assert [r["lead_id"] for r in rows]==sorted(r["lead_id"] for r in rows)
     assert len({r["subject_id"] for r in rows})==len(rows)
     for row in rows:

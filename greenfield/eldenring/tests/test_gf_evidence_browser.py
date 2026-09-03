@@ -170,6 +170,7 @@ class OfflineArtifactTests(unittest.TestCase):
                           "redmaw-embedded-ash-check-leads.tsv",
                           "redmaw-location-anchor-check-leads.tsv",
                           "redmaw-merchant-check-leads.tsv",
+                          "small-guide-tail-corroboration-check-leads.tsv",
                           "walkthrough-check-leads.tsv"])
         self.assertEqual(BUILDER.load_ledger()["inputs_hash"],
                          BUILDER.ledger_hash(BUILDER.CURRENT, BUILDER.WIKI_AUDIT))

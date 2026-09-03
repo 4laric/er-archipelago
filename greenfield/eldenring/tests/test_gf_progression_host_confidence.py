@@ -45,11 +45,10 @@ class ProgressionHostConfidenceTests(unittest.TestCase):
         self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
         self.assertTrue(all((int(row["external_family_count"]) >= 2) ==
                             (row["confidence"] == builder.TRUSTED) for row in rows))
-        # Evidence passes, including the exact Game8 Fragment bindings and the nine
-        # small-guide-tail corroborations, move hosts from hold to trusted; overlapping
-        # evidence never double-counts a host.
-        self.assertEqual(1_055, sum(row["confidence"] == builder.TRUSTED for row in rows))
-        self.assertEqual(3_870, sum(row["confidence"] == builder.HOLD for row in rows))
+        # Independent Redmaw/Eldenpedia acquisition evidence and the nine small-guide-tail
+        # corroborations move hosts from hold to trusted; overlapping families count once.
+        self.assertEqual(1_096, sum(row["confidence"] == builder.TRUSTED for row in rows))
+        self.assertEqual(3_829, sum(row["confidence"] == builder.HOLD for row in rows))
 
     def test_generated_runtime_sets_partition_the_current_check_population(self):
         builder = load_builder()
