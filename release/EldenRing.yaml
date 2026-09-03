@@ -304,15 +304,15 @@ Elden Ring:
   dlc_only: false
 
   # WHERE the Scadutree blessing applies.
-  #   dlc_only -- vanilla (default). It is a Land of Shadow mechanic and does
+  #   dlc_only -- vanilla. It is a Land of Shadow mechanic and does
   #               nothing in Limgrave, exactly as FromSoft shipped it.
-  #   anywhere -- the blessing becomes a GAME-WIDE power curve driven by the
+  #   anywhere -- default. The blessing becomes a GAME-WIDE power curve driven by the
   #               fragments the multiworld sends you. Enemies are untouched,
   #               so this is explicitly a power fantasy.
   # (Vanilla rungs last 50ms and are re-applied by a loop that only runs in
   # the DLC; the client clones the rung onto a row with no expiry to make
   # `anywhere` possible at all.)
-  scadutree_blessing_scope: dlc_only
+  scadutree_blessing_scope: anywhere
 
   # Guarantee each DLC region's expected Scadutree Blessing WHILE YOU STAND IN
   # IT. DLC enemies are tuned around a per-area blessing level, but here the

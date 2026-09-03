@@ -26,6 +26,10 @@ line until v0.6.0 has full check coverage and is ready to release.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Collected Scadutree Fragments strengthen you everywhere by default.** v0.6 defaults
+  `scadutree_blessing_scope` to `anywhere`, while DLC catch-up floors remain off. Existing YAMLs
+  that explicitly select `dlc_only` keep vanilla scope.
+
 - **The full check corpus audit moves to a dedicated v0.6 branch.** Every check is being reconciled
   against game data, independent external references, and player evidence where needed; access
   rules and concise original F6 descriptions will be derived only from facts the audit can defend.
