@@ -42,6 +42,29 @@ Something happened.
 
 @unittest.skipUnless(NOTES is not None, REPO_ONLY_REASON)
 class ReleaseUpdateGuidanceTests(unittest.TestCase):
+    def test_blurb_must_lead_with_the_current_run_answer(self):
+        old_shape = """# v9.9.9 — release blurb (draft)
+
+## What you need to update
+
+Enough prose to clear any unrelated size floor. This deliberately models the old shape where the
+answer players need was reduced to a compatibility row and could disappear from published notes.
+"""
+        errors = NOTES.current_run_guidance_failures(old_shape, "blurb")
+        self.assertEqual(len(errors), 1)
+        self.assertIn("current run", errors[0])
+
+    def test_blurb_accepts_a_resolved_current_run_answer(self):
+        text = """# v9.9.9 — release blurb (draft)
+
+## Will updating affect my current run?
+
+**Do not update a run already in progress.** Keep its old client until it is finished.
+
+## What you need to update
+"""
+        self.assertEqual(NOTES.current_run_guidance_failures(text, "blurb"), [])
+
     def test_valid_block_parses_to_semantic_statuses(self):
         values, errors = NOTES.parse_update_guidance(VALID, 3, "changelog")
         self.assertEqual(errors, [])
@@ -54,10 +77,14 @@ class ReleaseUpdateGuidanceTests(unittest.TestCase):
         values, errors = NOTES.parse_update_guidance(
             "### Features\n\nStuff.\n\n" + VALID, 3, "changelog")
         self.assertIsNone(values)
-        self.assertIn("not `### What you need to update`", errors[0])
+        self.assertIn("where `### What you need to update` belongs", errors[0])
 
     def test_placeholders_and_missing_fields_fail(self):
-        text = """## What you need to update
+        text = """## Will updating affect my current run?
+
+Keep an active run on its old client.
+
+## What you need to update
 
 - **Client:** TODO(open): Required / Optional / No
 - **YAML:** New YAML optional. Existing YAMLs remain valid.
@@ -71,7 +98,9 @@ class ReleaseUpdateGuidanceTests(unittest.TestCase):
     def test_semantic_statuses_expose_document_contradictions(self):
         changelog, errors = NOTES.parse_update_guidance(VALID, 3, "changelog")
         self.assertEqual(errors, [])
-        blurb_text = VALID.replace("###", "##").replace(
+        blurb_text = ("## Will updating affect my current run?\n\n"
+                      "Keep an active run on its old client.\n\n" +
+                      VALID.replace("###", "##")).replace(
             "**Client:** Required", "**Client:** Optional")
         blurb, errors = NOTES.parse_update_guidance(blurb_text, 2, "blurb")
         self.assertEqual(errors, [])

@@ -2,12 +2,19 @@
 
 _Draft. Written as the window fills, not at tag time._
 
+## Will updating affect my current run?
+
+**Do not update a run that is already in progress.** It will not rewrite the seed, but a seed is
+only supported with the client version it was generated for. Finish an existing run with its old
+client, and use v0.5.7 for newly generated seeds.
+
 ## What you need to update
 
 - **Client:** Required — use the v0.5.7 client with v0.5.7 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
-- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
+- **Existing seed/save:** Compatible — keep an active run on its old client; updating is for new
+  v0.5.7 seeds.
 - **Profile/assets:** No action.
 
 ## What is in it so far

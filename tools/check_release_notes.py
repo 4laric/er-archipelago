@@ -52,6 +52,7 @@ MIN_CHANGELOG_LINES = 2
 # Likewise for the blurb: the thinnest shipped one is ~4.5k non-whitespace chars.
 MIN_BLURB_CHARS = 400
 UPDATE_HEADING = "What you need to update"
+CURRENT_RUN_HEADING = "Will updating affect my current run?"
 UPDATE_FIELDS = ("Client", "APWorld", "YAML", "Existing seed/save", "Profile/assets")
 
 # ---- RATCHET ---------------------------------------------------------------------
@@ -97,6 +98,24 @@ def read_version():
 
 def nonws(text):
     return len(re.sub(r"\s", "", text))
+
+
+def current_run_guidance_failures(text, source):
+    """Require the first blurb section to answer the player's actual update question."""
+    sections = list(re.finditer(r"(?m)^##\s+(.+?)\s*$", text))
+    if not sections or sections[0].group(1).strip().lower() != CURRENT_RUN_HEADING.lower():
+        found = sections[0].group(1).strip() if sections else "no section"
+        return [
+            "%s begins with %r, not `## %s`. The first player-facing answer must say plainly "
+            "whether someone already mid-run should update; a compatibility row buried below "
+            "the fold does not answer the question players ask."
+            % (source, found, CURRENT_RUN_HEADING)
+        ]
+    end = sections[1].start() if len(sections) > 1 else len(text)
+    block = text[sections[0].end():end]
+    if re.search(r"(?i)\bTODO(?:\(open\))?\b|\bTBD\b|<[^>]+>", block):
+        return ["%s leaves the current-run answer unresolved." % source]
+    return []
 
 
 def changelog_section(version):
@@ -182,6 +201,7 @@ def check_blurb(version, errs):
             "    A blurb filed under one version and headed with another is how you ship the\n"
             "    wrong notes -- the filename is not evidence about the contents."
             % (rel, version, first, version))
+    errs.extend(current_run_guidance_failures(text, rel))
 
 
 def _plain(text):
@@ -221,13 +241,21 @@ def parse_update_guidance(text, level, source):
             "%s has no `%s %s` section; it must be the first player-facing section."
             % (source, marker, UPDATE_HEADING)
         ]
-    first = headings[0]
+    wanted_index = 1 if level == 2 else 0
+    if len(headings) <= wanted_index:
+        return None, [
+            "%s has no `%s %s` section in its required player-facing position."
+            % (source, marker, UPDATE_HEADING)
+        ]
+    first = headings[wanted_index]
     if first.group(1).strip().lower() != UPDATE_HEADING.lower():
         return None, [
-            "%s begins with `%s %s`, not `%s %s`. Put update instructions first."
+            "%s has `%s %s` where `%s %s` belongs. In a blurb, answer the current-run question "
+            "first and put the update checklist immediately after it; in a changelog, put the "
+            "checklist first."
             % (source, marker, first.group(1).strip(), marker, UPDATE_HEADING)
         ]
-    end = headings[1].start() if len(headings) > 1 else len(text)
+    end = headings[wanted_index + 1].start() if len(headings) > wanted_index + 1 else len(text)
     block = text[first.end():end]
     if re.search(r"(?i)\bTODO(?:\(open\))?\b|\bTBD\b|<[^>]+>", block):
         errs.append("%s leaves an unresolved placeholder in its update instructions." % source)

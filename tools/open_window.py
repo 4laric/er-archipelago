@@ -204,6 +204,11 @@ def skeletons(new_version, prev_tag, past, chash, today):
         "# v%s — release blurb (draft)\n\n"
         "_Draft. Written as the window fills, not at tag time -- the moment a change lands is the\n"
         "only moment anyone remembers why it mattered._\n\n"
+        "## Will updating affect my current run?\n\n"
+        "**%s: Do not update / Update is safe / Migration required.** Answer this in ordinary "
+        "player language before any version or contract detail. Say whether updating changes an "
+        "existing seed, whether the player should keep their old client, and whether the update "
+        "is only for new seeds.\n\n"
         "## What you need to update\n\n"
         "- **Client:** %s: Required / Optional / No — rule on the client download directly.\n"
         "- **APWorld:** %s: Required / Host-only / No — say who must replace it.\n"
@@ -221,7 +226,7 @@ def skeletons(new_version, prev_tag, past, chash, today):
         "The v0.4.3 blurb is the model: lead with what changed at the table, not with the option\n"
         "name. Its opening line -- \"You can get BK'ed now, and that is the point\" -- says what a\n"
         "player will feel before it says what was built, and that is the right order.\n"
-        % (new_version, TODO, TODO, TODO, TODO, TODO, opened, prev_tag, TODO)
+        % (new_version, TODO, TODO, TODO, TODO, TODO, TODO, opened, prev_tag, TODO)
     )
     return ledger, changelog, blurb
 
