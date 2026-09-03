@@ -52,7 +52,7 @@ MIN_CHANGELOG_LINES = 2
 # Likewise for the blurb: the thinnest shipped one is ~4.5k non-whitespace chars.
 MIN_BLURB_CHARS = 400
 UPDATE_HEADING = "What you need to update"
-CURRENT_RUN_HEADING = "Will updating affect my current run?"
+CURRENT_RUN_HEADING = "Can I update the client during a run?"
 UPDATE_FIELDS = ("Client", "APWorld", "YAML", "Existing seed/save", "Profile/assets")
 
 # ---- RATCHET ---------------------------------------------------------------------
@@ -107,7 +107,7 @@ def current_run_guidance_failures(text, source):
         found = sections[0].group(1).strip() if sections else "no section"
         return [
             "%s begins with %r, not `## %s`. The first player-facing answer must say plainly "
-            "whether someone already mid-run should update; a compatibility row buried below "
+            "whether someone already mid-run can replace their client; a compatibility row buried below "
             "the fold does not answer the question players ask."
             % (source, found, CURRENT_RUN_HEADING)
         ]

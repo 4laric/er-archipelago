@@ -2,19 +2,18 @@
 
 _Draft. Written as the window fills, not at tag time._
 
-## Will updating affect my current run?
+## Can I update the client during a run?
 
-**Do not update a run that is already in progress.** It will not rewrite the seed, but a seed is
-only supported with the client version it was generated for. Finish an existing run with its old
-client, and use v0.5.7 for newly generated seeds.
+**No. If you already started a run, keep using its old client until you finish.** Updating will not
+delete your save, but the new client may not send or receive items correctly in an older run. Use
+v0.5.7 when you start your next run.
 
 ## What you need to update
 
 - **Client:** Required — use the v0.5.7 client with v0.5.7 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
-- **Existing seed/save:** Compatible — keep an active run on its old client; updating is for new
-  v0.5.7 seeds.
+- **Existing seed/save:** Compatible — keep its old client until the run is finished.
 - **Profile/assets:** No action.
 
 ## What is in it so far

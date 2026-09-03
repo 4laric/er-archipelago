@@ -52,12 +52,12 @@ answer players need was reduced to a compatibility row and could disappear from 
 """
         errors = NOTES.current_run_guidance_failures(old_shape, "blurb")
         self.assertEqual(len(errors), 1)
-        self.assertIn("current run", errors[0])
+        self.assertIn("during a run", errors[0])
 
     def test_blurb_accepts_a_resolved_current_run_answer(self):
         text = """# v9.9.9 — release blurb (draft)
 
-## Will updating affect my current run?
+## Can I update the client during a run?
 
 **Do not update a run already in progress.** Keep its old client until it is finished.
 
@@ -80,7 +80,7 @@ answer players need was reduced to a compatibility row and could disappear from 
         self.assertIn("where `### What you need to update` belongs", errors[0])
 
     def test_placeholders_and_missing_fields_fail(self):
-        text = """## Will updating affect my current run?
+        text = """## Can I update the client during a run?
 
 Keep an active run on its old client.
 
@@ -98,7 +98,7 @@ Keep an active run on its old client.
     def test_semantic_statuses_expose_document_contradictions(self):
         changelog, errors = NOTES.parse_update_guidance(VALID, 3, "changelog")
         self.assertEqual(errors, [])
-        blurb_text = ("## Will updating affect my current run?\n\n"
+        blurb_text = ("## Can I update the client during a run?\n\n"
                       "Keep an active run on its old client.\n\n" +
                       VALID.replace("###", "##")).replace(
             "**Client:** Required", "**Client:** Optional")
