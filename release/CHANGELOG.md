@@ -3,6 +3,34 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.0 — 2026-09-02
+
+### What you need to update
+
+- **Client:** Required — use the eventual v0.6.0 client with v0.6.0 seeds.
+- **APWorld:** Host-only — the room host or generator must install the matching APWorld.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
+- **Profile/assets:** No action yet.
+
+Window opened 3 commit(s) PAST the v0.5.7 tag.
+
+`CONTRACT_HASH` starts unchanged at `ffc0f1b5`; the branch initially changes only the exact-version
+handshake. Future v0.6 contract changes belong here rather than on the v0.5.x maintenance line.
+
+Client half: clients#597. Its merged commit is pinned by the gitlink in this same change because
+`contract_gen.rs` embeds the exact APWorld version even while the contract hash is unchanged.
+
+No published channel moves to this development branch. `stable` and `beta` remain on the v0.5.x
+line until v0.6.0 has full check coverage and is ready to release.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **The full check corpus audit moves to a dedicated v0.6 branch.** Every check is being reconciled
+  against game data, independent external references, and player evidence where needed; access
+  rules and concise original F6 descriptions will be derived only from facts the audit can defend.
+  Main remains available for focused v0.5.x fixes while this larger body of work converges.
+
 ## v0.5.8 — 2026-09-02
 
 ### What you need to update
