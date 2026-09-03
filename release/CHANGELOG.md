@@ -26,6 +26,25 @@ line until v0.6.0 has full check coverage and is ready to release.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Collected Scadutree Fragments strengthen you everywhere by default.** v0.6 defaults
+  `scadutree_blessing_scope` to `anywhere`, while DLC catch-up floors remain off. The guaranteed
+  fragment supply follows the resolved maximum enemy difficulty, so short `auto` seeds reserve
+  fewer fragments while an explicit 100% ceiling still budgets for blessing level 20. Existing
+  YAMLs that explicitly select `dlc_only` keep vanilla scope. The deprecated
+  `global_scadutree_blessing: off` value is indistinguishable from an omitted default; use
+  `scadutree_blessing_scope: dlc_only` to opt out in v0.6.
+
+- **Scadutree Fragments prefer important checks but cannot break fill.** After required items are
+  placed, remaining fragments try the selected progression surface and spill into normal fill when
+  it is full. In multiworlds, a proportional share is deliberately sent to other games first.
+  Fragments are foreign-eligible by default through the new `scadutree_fragments` item category;
+  add that category to `keep_local` if you want every fragment in your own world.
+
+- **Flask upgrades use the same soft important-check preference.** Golden Seeds, Sacred Tears, and
+  Progressive Flask Upgrades try unused progression-surface checks, then spill into ordinary fill.
+  The old `flask_upgrades_on_progression_surface` YAML line remains accepted for compatibility but
+  is no longer needed and no longer hard-confines every copy or widens the chosen surface.
+
 - **The full check corpus audit moves to a dedicated v0.6 branch.** Every check is being reconciled
   against game data, independent external references, and player evidence where needed; access
   rules and concise original F6 descriptions will be derived only from facts the audit can defend.

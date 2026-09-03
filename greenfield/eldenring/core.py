@@ -1732,12 +1732,20 @@ class GreenfieldEldenRingWorld(World):
         # but before ordinary/useful placement consumes partner items or ER locations.
         from .features import incoming_progression as _incoming
         _incoming.reserve_incoming_progression(multiworld, _worlds)
+        # v0.6 soft-preference category: first give blessing fragments a deliberate proportional
+        # foreign share. Any refused items return to the pool, so this can never make fill fail.
+        from .features import preferred_placement as _preferred
+        _preferred.reserve_foreign_share(multiworld, _worlds)
         # #918's ruling (Alaric 2026-08-20): confine stays 100; the useful-export displacement is
         # fixed by a dedicated reservation pass. BEFORE keep_out finalisation on purpose --
         # exporting an item shrinks what must fit in the owner's own grid, so capacity sees the
         # truer demand. The share is a fixed derivation (uniformity), not a knob.
         from .features import export_reservation as _exr
         _exr.reserve_useful_exports(multiworld, _worlds)
+        # Whatever the foreign reservations did not consume prefers the owner's selected surface.
+        # This is intentionally AFTER exports: a roomy ER surface must not absorb every fragment
+        # before another game gets its fair share.
+        _preferred.place_on_surface(multiworld, _worlds)
         # #903: keep_out_of_shops cannot decide its capacity in set_rules. Missable protection,
         # each world's progression pass, and the cross-world released-Lock pass above all consume
         # non-shop slots after that hook. Finalise against the actual remaining grid, after every

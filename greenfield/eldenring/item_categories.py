@@ -126,11 +126,13 @@ _UPGRADE_BELL_MARKS = ("Smithing-Stone Miner's", "Somberstone Miner's", "Glovewo
 # Every category key, sorted. `progressive` is not a catalog item -- it is the Progressive X upgrade
 # items features/progressive.py registers -- and it has no FullID, so it is added by hand.
 PROGRESSIVE_CATEGORY = "progressive"
+SCADUTREE_FRAGMENTS_CATEGORY = "scadutree_fragments"
+_SCADUTREE_FRAGMENT_NAMES = frozenset({"Scadutree Fragment", "Scadutree Fragment x2"})
 CATEGORIES: List[str] = sorted(
     set(NIBBLE_CATEGORY.values()) - {"goods"}
     | set(GOODS_TYPE_CATEGORY.values())
     | {RUNES_CATEGORY, COOKBOOKS_CATEGORY, UPGRADE_BELLS_CATEGORY, MERCHANT_BELLS_CATEGORY,
-       PROGRESSIVE_CATEGORY}
+       PROGRESSIVE_CATEGORY, SCADUTREE_FRAGMENTS_CATEGORY}
 )
 
 
@@ -229,6 +231,12 @@ GREAT_RUNES_MISSING = tuple(sorted(GREAT_RUNE_GOODS_IDS - set(GREAT_RUNE_BY_GOOD
 def category_of(name: str) -> str:
     """The one category `name` belongs to. Names outside ITEM_CATALOG are the Progressive X items
     (features/progressive.py registers them and they carry no FullID) -> `progressive`."""
+    # Blessing fragments are a placement class in their own right: v0.6 softly prefers them on the
+    # progression surface and deliberately lets them travel. Leaving the catalog copy in `other`
+    # made KeepLocal's shipped default hold every fragment home, defeating that second promise.
+    # The x2 feature-minted form has no catalog row, so name both forms before the catalog lookup.
+    if name in _SCADUTREE_FRAGMENT_NAMES:
+        return SCADUTREE_FRAGMENTS_CATEGORY
     full = ITEM_CATALOG.get(name)
     if full is None:
         return PROGRESSIVE_CATEGORY
@@ -368,6 +376,10 @@ CATEGORY_CLASS: Dict[str, str] = {
     "spells": USEFUL,
     "spirit_ashes": USEFUL,
     "crystal_tears": USEFUL,
+    # v0.6 soft-placement category. The catalog copy used to inherit `other` (filler), while the
+    # feature-minted x2 form declared itself useful. One resource may not change class with its
+    # stack size; both forms are blessing power and belong at the head of ordinary fill.
+    "scadutree_fragments": USEFUL,
     # 🛑 `upgrade_materials` STAYS FILLER, and it is the closest call on this table. A Somber [9] is
     # not junk to a player -- but it is the economy features/filler_budget allocates BY THE HUNDRED
     # into the filler tail, and promoting the category would move that whole tail into the useful

@@ -304,15 +304,15 @@ Elden Ring:
   dlc_only: false
 
   # WHERE the Scadutree blessing applies.
-  #   dlc_only -- vanilla (default). It is a Land of Shadow mechanic and does
+  #   dlc_only -- vanilla. It is a Land of Shadow mechanic and does
   #               nothing in Limgrave, exactly as FromSoft shipped it.
-  #   anywhere -- the blessing becomes a GAME-WIDE power curve driven by the
+  #   anywhere -- default. The blessing becomes a GAME-WIDE power curve driven by the
   #               fragments the multiworld sends you. Enemies are untouched,
   #               so this is explicitly a power fantasy.
   # (Vanilla rungs last 50ms and are re-applied by a loop that only runs in
   # the DLC; the client clones the rung onto a row with no expiry to make
   # `anywhere` possible at all.)
-  scadutree_blessing_scope: dlc_only
+  scadutree_blessing_scope: anywhere
 
   # Guarantee each DLC region's expected Scadutree Blessing WHILE YOU STAND IN
   # IT. DLC enemies are tuned around a per-area blessing level, but here the
@@ -520,9 +520,9 @@ Elden Ring:
   # arrive on a steady cadence instead of 13 silent flat pickups. Off: seeds
   # and tears stay discrete pickups at their shuffled locations.
   progressive_flasks: true
-  # Keep Progressive Flask Upgrades on important checks. Starts with progression_surface and
-  # widens through its reviewed fallback ladder only when the chosen surface cannot host every
-  # copy. They remain useful, not required for logic or victory. Default: false.
+  # Legacy v0.5 spelling, retained so old YAMLs still validate. In v0.6 Golden Seeds, Sacred Tears,
+  # and Progressive Flask Upgrades automatically prefer unused progression-surface checks, then
+  # spill into ordinary fill. They remain useful, not required for logic or victory.
   flask_upgrades_on_progression_surface: false
 
   # Weapon and spirit-ash upgrades by SHOP TIER instead of by luck. On: the

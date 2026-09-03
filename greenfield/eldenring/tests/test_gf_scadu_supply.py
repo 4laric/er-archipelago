@@ -148,32 +148,20 @@ def test_scadu_cum_matches_the_client_rung_for_rung():
 
 
 # ---- every one-region seed, deterministically ---------------------------------------------------
-def test_every_one_region_draw_clears_the_original_cap_under_the_clamp():
-    """SPEC-ashen-capital-lock (2026-08-06) removed the `auto` force-keep of GOAL_REGION, so
-    `num_regions: 1` produces genuinely one-region seeds (hub + one region, 240-360 locations) for
-    the first time -- and on 16 of the 30 possible draws MAX_POOL_SHARE now BINDS: 50 units do not
-    fit a 10% share, injection stops short of SCADU_INJECTION_TARGET, and create_items warns. That
-    degrade is the design (the clamp's comment has said "a seed this small is already being told,
-    loudly, that it cannot reach the target" since it landed); what it must never become is a
-    STARVED blessing. This sweeps every possible draw -- deterministic where test_gf_options'
-    one_region_dlc fixture is one rolled sample -- and pins the floor: natural + injected always
-    reaches at least CLAMP_FLOOR_LEVEL (12, the original shipped cap the 12->20 target raise
-    replaced; worst draw today injects 32 units, level 14). Conservative on purpose: feature
-    extras (gf_extra_locations) only raise the ceiling, so they are counted as 0 here.
+def test_every_one_region_draw_reaches_its_auto_scaled_target():
+    """A one-region `auto` seed budgets for its lower enemy ceiling, not level 20.
 
-    If this fails, region geometry shrank past the point where the clamp starves the blessing
-    below its original cap. That is a premise change -- take it back to a ruling on the
-    clamp-vs-floor trade, not a number to relax. (2026-08-25, #1013: it happened -- Enia's 100
-    hub rows left and the Abyssal draw fell to 22 units. The ruling landed: the floor is now
-    enforced in code as a bounded breach of the share ceiling; see CLAMP_FLOOR_LEVEL. This sweep
-    still gates it, now by construction of the breach bound.)"""
+    Sweep every possible region draw so the small-seed fill regression cannot hide behind one
+    friendly random sample. Feature extras are deliberately omitted; they only make fitting the
+    target easier.
+    """
     from worlds.eldenring import region_spine as rspine
     from worlds.eldenring.data import HUB, LOCATIONS, REGIONS
     from worlds.eldenring.item_ids import LOCATION_ITEM, LOCATION_UNITS
 
     hub = len(LOCATIONS.get(HUB, []))
-    target = ss.SCADU_INJECTION_TARGET
-    floor_units = ss.SCADU_CUM[ss.CLAMP_FLOOR_LEVEL]
+    target = ss.target_for_difficulty(32)  # round(100 * cube_root(1/30))
+    target_units = ss.SCADU_CUM[target]
     clamped, unclamped = set(), set()
     for region in REGIONS:
         kept = [region] + rspine.parent_chain(region)
@@ -188,18 +176,19 @@ def test_every_one_region_draw_clears_the_original_cap_under_the_clamp():
         for mode in (1, 2):
             injected = ss.fragments_to_inject(mode, target, natural, total, False)
             (clamped if injected < want else unclamped).add(region)
-            assert natural + injected >= floor_units, (
+            assert natural + injected >= target_units, (
                 f"{region} (mode {mode}): a one-region seed here carries {natural} natural + "
                 f"{injected} injected = {natural + injected} fragment unit(s), below "
-                f"SCADU_CUM[{ss.CLAMP_FLOOR_LEVEL}] = {floor_units} -- the clamp is starving the "
-                f"blessing below the original cap")
-    # Both arms must actually occur, or the quantifier above is vacuous on the side that matters
-    # (vacuous-quantifier discipline). Measured 2026-08-06: 16 draws clamp, 14 do not. Asserting
-    # the split EXISTS, not its census -- the census moves with geometry and is not the invariant.
-    assert clamped, ("no one-region draw binds the clamp any more -- this sweep has stopped "
-                     "testing the degrade path; if that is a deliberate geometry change, the "
-                     "one_region_dlc arm in test_gf_options is now dead code too")
-    assert unclamped, "every one-region draw clamps -- the full-guarantee path is untested here"
+                f"SCADU_CUM[{target}] = {target_units} -- the short-seed target was not supplied")
+    assert unclamped, "the auto-scaled one-region target should fit without invoking the clamp"
+    assert not clamped, "a one-region auto seed still reserves more fragments than its ceiling needs"
+
+
+def test_blessing_target_tracks_resolved_enemy_ceiling():
+    assert ss.target_for_difficulty(0) == 0
+    assert ss.target_for_difficulty(32) == 7
+    assert ss.target_for_difficulty(58) == 12
+    assert ss.target_for_difficulty(100) == ss.SCADU_INJECTION_TARGET == 20
 
 
 # ---- full seeds ---------------------------------------------------------------------------------
@@ -232,7 +221,7 @@ class ScaduSupplyRolledDefault(WorldTestBase):
                    if i.name in (ss.FRAGMENT, ss.FRAGMENT_X2))
 
     def test_a_rolled_default_seed_reaches_the_target(self):
-        target = ss.SCADU_INJECTION_TARGET
+        _mode, target, _natural, _want, _injected = ss.plan(self.world)
         need = ss.SCADU_CUM[target]
         got = self._pool_fragments()
         assert got >= need, (
@@ -256,7 +245,7 @@ class ScaduSupplyOff(WorldTestBase):
     game = GAME
     run_default_tests = False
     options = {"num_regions": 6, "enable_dlc": 1,
-               "global_scadutree_blessing": 0}
+               "scadutree_blessing_scope": "dlc_only", "dlc_blessing_catchup": False}
 
     def test_mode_off_injects_nothing(self):
         mode, cap, natural, want, injected = ss.plan(self.world)
