@@ -25,6 +25,10 @@ Client half: clients#595. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The public beta site now follows the `v0.6` development branch.** Stable remains on v0.5.7 and
+  v0.5.x fixes remain on `main`; beta wizard, check browser, report page, and questline browser are
+  fetched from the reviewed beta pointer in `CHANNELS.tsv` instead of assuming `main`.
+
 - **Patch release windows cannot skip a number.** The release-opening tool rejects a same-series
   jump such as v0.5.8 to v0.5.10 and names v0.5.9 as the required successor, while still allowing
   an intentional new series such as v0.6.0.
