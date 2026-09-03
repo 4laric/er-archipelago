@@ -550,8 +550,15 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
         auto_construct = False
         # This matrix measures Scadutree supply, including deliberately tiny one-region pools.
         # Keep the unrelated missable-location capacity guard from rejecting those fixtures first.
-        options = dict(extra, global_scadutree_blessing=mode,
-                       protect_missable_locations="off")
+        # Exercise the live split options directly. Legacy value 0 is indistinguishable from an
+        # omitted value, so after v0.6 changed the live scope default to anywhere it can no longer
+        # express mode 0 in a generated options object; `scadutree_blessing_scope: dlc_only` can.
+        options = dict(
+            extra,
+            scadutree_blessing_scope="dlc_only" if mode == 0 else "anywhere",
+            dlc_blessing_catchup=mode == 2,
+            protect_missable_locations="off",
+        )
 
     # Log capture BEFORE setUp: generation happens inside it, and the clamped-injection arm below
     # must see the WARNING scadu_supply emits while the pool is being built.

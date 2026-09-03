@@ -84,11 +84,21 @@ class TheTableIsTotalAndMintsTwoClasses(WorldTestBase):
 #                                            crafting materials.
 #   upgrade_bells                         -- 2026-08-12, Alaric: "upgrade_materials filler is fine
 #                                            as long as we keep the stone bell bearings useful".
-FLIPPED_TO_USEFUL = frozenset({"spells", "spirit_ashes", "crystal_tears", "upgrade_bells"})
+#   scadutree_fragments                   -- 2026-09-03: blessing power belongs in the soft
+#                                            important-check tier and must not read as junk.
+FLIPPED_TO_USEFUL = frozenset({
+    "spells", "spirit_ashes", "crystal_tears", "upgrade_bells", "scadutree_fragments",
+})
 
 # Each flipped category's roster floor, so "the flip is real" is a witness per category rather than
 # one number that a shrunken roster could hide behind.
-_MIN_ROSTER = {"spells": 100, "spirit_ashes": 50, "crystal_tears": 30, "upgrade_bells": 10}
+_MIN_ROSTER = {
+    "spells": 100,
+    "spirit_ashes": 50,
+    "crystal_tears": 30,
+    "upgrade_bells": 10,
+    "scadutree_fragments": 1,
+}
 
 
 class TheDifferenceFromTheNibbleIsDeclared(WorldTestBase):
