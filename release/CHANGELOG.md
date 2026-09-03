@@ -27,8 +27,12 @@ line until v0.6.0 has full check coverage and is ready to release.
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
 - **Collected Scadutree Fragments strengthen you everywhere by default.** v0.6 defaults
-  `scadutree_blessing_scope` to `anywhere`, while DLC catch-up floors remain off. Existing YAMLs
-  that explicitly select `dlc_only` keep vanilla scope.
+  `scadutree_blessing_scope` to `anywhere`, while DLC catch-up floors remain off. The guaranteed
+  fragment supply follows the resolved maximum enemy difficulty, so short `auto` seeds reserve
+  fewer fragments while an explicit 100% ceiling still budgets for blessing level 20. Existing
+  YAMLs that explicitly select `dlc_only` keep vanilla scope. The deprecated
+  `global_scadutree_blessing: off` value is indistinguishable from an omitted default; use
+  `scadutree_blessing_scope: dlc_only` to opt out in v0.6.
 
 - **The full check corpus audit moves to a dedicated v0.6 branch.** Every check is being reconciled
   against game data, independent external references, and player evidence where needed; access
