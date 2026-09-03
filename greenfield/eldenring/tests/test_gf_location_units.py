@@ -246,7 +246,7 @@ class VanillaFragmentUnitsInThePool(WorldTestBase):
     the two tests above are about the table, this one is about what `core.create_items` built."""
     game = "Elden Ring"
     run_default_tests = False
-    options = {"num_regions": 0, "enable_dlc": 1, "global_scadutree_blessing": 0}
+    options = {"num_regions": 0, "enable_dlc": 1, "scadutree_blessing_scope": "dlc_only"}
 
     def test_a_whole_map_seed_carries_the_vanilla_fifty(self):
         try:

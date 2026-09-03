@@ -17,6 +17,8 @@ class TestPreferredPlacementMath(unittest.TestCase):
         self.assertEqual(foreign_unit_target(1, 1, 1000), 1)
 
     def test_no_partner_or_supply_is_zero(self):
+        self.assertGreater(foreign_unit_target(1, 1, 1), 0,
+                           "witness: the target helper can select a real share")
         self.assertEqual(foreign_unit_target(0, 1, 2), 0)
         self.assertEqual(foreign_unit_target(10, 0, 2), 0)
 
