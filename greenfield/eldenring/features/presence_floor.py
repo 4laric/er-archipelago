@@ -1,7 +1,8 @@
-"""presence_floor -- a curated QoL "presence floor": guarantee a set of high-value Wondrous Physick
-crystal tears and smithing bell bearings are ALWAYS in the item pool, by injecting exactly one copy of
-each roster item that is ABSENT this seed (its home-region vanilla check was not kept), and NEVER
-duplicating one that is already present.
+"""presence_floor -- guarantee curated QoL items and all three Talisman Pouches in the item pool.
+
+The tear/bell roster injects exactly one copy of each item TYPE absent because its home region was
+not kept.  Talisman Pouches use a COPY floor: retain every natural pouch whose check survived and
+inject enough ordinary copies to bring the total to three, never duplicating a retained check.
 
 WHY THIS EXISTS
 ---------------
@@ -116,7 +117,18 @@ UNRESOLVED: List[str] = [n for n in _RAW_ROSTER if ITEM_CATALOG and n not in ITE
 # junk seizure, and under progressive_stone_bells no vanilla bearing is in the pool to shield, so the
 # bell entries are simply inert there. Making it world-dependent would buy nothing and would give
 # filler_curation a second, differently-shaped answer to "what is protected".
+# Slot-expansion goods need a COPY floor rather than the roster's presence/absence bit.  The three
+# vanilla Talisman Pouches are the game's complete pouch supply (EquipParamGoods 10040, paid by
+# flags 60500/60510/60520; see flag_lots.tsv).  Region scoping can remove either boss check, so the
+# floor below restores one ordinary pool copy for each missing natural check.  Keep the name in the
+# protection set too: otherwise the vanilla copies are filler-classed key items and the tail
+# allocator is allowed to scrub them before the top-up is counted.
+TALISMAN_POUCH = "Talisman Pouch"
+TALISMAN_POUCH_APS = frozenset({7770025, 7770026, 7770027})
+TALISMAN_POUCH_FLOOR = 3
+
 PRESENCE_FLOOR_ITEMS = frozenset(ROSTER)
+PROTECTED_FLOOR_ITEMS = PRESENCE_FLOOR_ITEMS | frozenset({TALISMAN_POUCH})
 
 # The bell-bearing half of the ROSTER, as a set -- the names another feature can take over. Note the
 # intersection keeps the item catalog as the arbiter, so taking the raw list can never ask the floor
@@ -182,6 +194,39 @@ def absent_roster(world) -> List[str]:
     return [n for n in ROSTER if n not in present and n not in excl and n not in dropped]
 
 
+def natural_talisman_pouches(world) -> int:
+    """Number of the three vanilla pouch checks retained in this seed's shuffled item pool."""
+    if not _shuffle_on(world) or not LOCATION_ITEM:
+        return 0
+    name_to_id = getattr(world, "item_name_to_id", {})
+    if TALISMAN_POUCH not in name_to_id:
+        return 0
+    kept = list(world._kept()) if hasattr(world, "_kept") else []
+    return sum(
+        1
+        for rn in [HUB] + kept
+        for (_name, ap_id, _flag) in LOCATIONS.get(rn, [])
+        if ap_id in TALISMAN_POUCH_APS and LOCATION_ITEM.get(ap_id) == TALISMAN_POUCH
+    )
+
+
+def talisman_pouch_inject_count(world) -> int:
+    """Ordinary copies needed to make natural + injected exactly three.
+
+    `vanilla_pool` owns the no-randomization mode and therefore stands this floor down, matching
+    the rest of this feature.  The bounded assertion turns a drifted AP-id/region join into a loud
+    failure instead of silently minting too many copies.
+    """
+    from . import vanilla_pool as _vp
+    if _vp.is_on(world):
+        return 0
+    natural = natural_talisman_pouches(world)
+    if not 0 <= natural <= TALISMAN_POUCH_FLOOR:
+        raise AssertionError(
+            f"talisman pouch natural count {natural} is outside 0..{TALISMAN_POUCH_FLOOR}")
+    return TALISMAN_POUCH_FLOOR - natural
+
+
 @register
 class PresenceFloor(Feature):
     name = "presence_floor"
@@ -207,4 +252,10 @@ class PresenceFloor(Feature):
             it = world.create_item(name)
             it.classification = ItemClassification.useful
             out.append(it)
+        # Pouches deliberately retain their catalog classification (`filler`): they unlock slots
+        # but gate no access.  Adding them here, before core sizes and cheapest-first trims the
+        # vanilla filler tail, makes every injected copy displace exactly one ordinary filler item.
+        pouch_injected = talisman_pouch_inject_count(world)
+        out.extend(world.create_item(TALISMAN_POUCH) for _ in range(pouch_injected))
+        assert pouch_injected <= TALISMAN_POUCH_FLOOR
         return out

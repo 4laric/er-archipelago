@@ -63,15 +63,14 @@ try:
 except Exception:                            # pre-regen item_ids.py lacks it -> category empty, stacks inert
     AMMO_ITEM_NAMES = []
 try:
-    # The presence-floor roster (physick tears + smithing bell bearings). These are GOODS, so the junk
-    # predicate below would seize them as filler and the tail would displace every one of them -- which
-    # would mean a roster item's KEPT vanilla check could be trimmed out of the pool. Protect them like
-    # the collectathon lines so that when a tear/bell's home region IS kept it survives as itself
-    # (present -> features/presence_floor does not inject a duplicate). Same failure shape as the
-    # Scadutree Fragment / Revered Spirit Ash omission (test_gf_collectathon_protected).
-    from .presence_floor import PRESENCE_FLOOR_ITEMS
+    # The presence-floor goods (physick tears, smithing bell bearings, Talisman Pouches). The junk
+    # predicate below would otherwise let the tail displace a KEPT vanilla copy after the floor had
+    # counted it. Protect them like the collectathon lines so present copies survive as themselves;
+    # missing copies are then injected exactly once. Same failure shape as the Scadutree Fragment /
+    # Revered Spirit Ash omission (test_gf_collectathon_protected).
+    from .presence_floor import PROTECTED_FLOOR_ITEMS
 except Exception:                            # feature not importable yet (standalone unit load) -> inert
-    PRESENCE_FLOOR_ITEMS = frozenset()
+    PROTECTED_FLOOR_ITEMS = frozenset()
 
 
 def _dlc_pots():
@@ -362,7 +361,7 @@ def _is_junk_consumable(name):
     tests/test_gf_quest_gated_boss_arenas.py asserts the set is PRESENT and non-empty instead of
     asserting a behaviour that silently degrades to the bug.
     """
-    if name in FUNNY_JUNK or name in PRESENCE_FLOOR_ITEMS or any(s in name for s in _ECONOMY_SUBSTR):
+    if name in FUNNY_JUNK or name in PROTECTED_FLOOR_ITEMS or any(s in name for s in _ECONOMY_SUBSTR):
         return False
     if name in _KEY_ITEM_GOODS:
         return False

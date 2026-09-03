@@ -12,6 +12,12 @@ _Draft. Written as the window fills, not at tag time._
 
 ## What is in it so far
 
+### Three Talisman Pouches in every run
+
+Region-limited seeds no longer lose talisman slots when Limgrave or Leyndell is outside the draw.
+Each missing natural pouch is restored to the normal shuffled item pool, so every run contains
+exactly three without turning them into progression or changing the pool size.
+
 ### Foreign-world region Locks can be hinted from the tracker
 
 The F6 tracker now knows the full post-fill coordinate of a region Lock even when that Lock landed
