@@ -252,7 +252,7 @@ jobs:
           fail_on_unmatched_files: true
 
       - name: Publish the moving development channel
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event.inputs.tag == ''
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
