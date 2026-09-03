@@ -30,7 +30,8 @@ def _pack_release():
 def _profile(package=None):
     package_block = "" if package is None else f"[[packages]]\npath = '{package}'\n\n"
     return (
-        'profileVersion = "v1"\n\n'
+        'profileVersion = "v1"\n'
+        "mem_patch = false\n\n"
         "[[supports]]\n"
         'game = "eldenring"\n\n'
         f"{package_block}"
@@ -135,6 +136,22 @@ def test_finished_stage_rejects_the_exact_ap_to_flower_name_mismatch(tmp_path):
         pr.gate_stage(str(stage), unofficial=False)
 
 
+@pytest.mark.parametrize("replacement", ["mem_patch = true", ""])
+def test_finished_stage_rejects_missing_or_enabled_me3_allocator_replacement(
+    tmp_path, replacement
+):
+    pr = _pack_release()
+    stage = _minimal_stage(tmp_path)
+    profile = stage / "me3/ap.me3"
+    profile.write_text(
+        profile.read_text(encoding="ascii").replace("mem_patch = false", replacement),
+        encoding="ascii",
+    )
+
+    with pytest.raises(SystemExit):
+        pr.gate_stage(str(stage), unofficial=True)
+
+
 def test_a_generated_fromsoft_atlas_is_rejected(tmp_path):
     pr = _pack_release()
     stage = _minimal_stage(tmp_path, package="flower-package")
@@ -186,6 +203,18 @@ def test_both_release_packagers_share_the_profile_path_gate():
     assert "package_me3_profile.py" in powershell
     assert "configure_release_profile" in portable
     assert "validate_release_profile" in portable
+
+
+@unittest.skipUnless(_FOUND is not None, REPO_ONLY_REASON)
+def test_every_ap_profile_producer_disables_me3_allocator_replacement():
+    root = Path(_FOUND)
+    sources = [
+        root / "me3/ap.me3",
+        root / "build.ps1",
+        root / "tools/package_client_bundle.ps1",
+    ]
+    for source in sources:
+        assert "mem_patch = false" in source.read_text(encoding="utf-8-sig"), source
 
 
 @unittest.skipUnless(_FOUND is not None, REPO_ONLY_REASON)

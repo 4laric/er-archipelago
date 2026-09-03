@@ -60,7 +60,7 @@ only files created by this installer, rerun it with the same destination and `-U
 | file | what it is |
 | --- | --- |
 | `eldenring_archipelago.dll` | the client, loaded by me3 as a native |
-| `ap.me3` | the me3 profile (`disable_arxan = true` -- the client hooks native code Arxan would otherwise revert) |
+| `ap.me3` | the me3 profile (`disable_arxan = true` keeps client hooks intact; `mem_patch = false` avoids ME3's allocator replacement) |
 | `apconfig.json` | server / slot / password. Blank is valid. |
 | `check_lots_table.json` | **vanilla suppression.** See below. |
 | `shoplineup_flags.json` | **shop check detection.** See below. |
