@@ -175,6 +175,7 @@ def test_tag_recovery_builds_the_immutable_pair_and_keeps_release_assets():
     assert "ALLOW_STALE_PIN: ${{ github.event.inputs.allow_stale_pin == 'true' && '1' || '0' }}" in workflow
     assert "(github.ref != 'refs/heads/main' || github.event.inputs.tag != '')" in workflow
     assert "tag_name: ${{ github.event.inputs.tag || github.ref_name }}" in workflow
+    assert "if: github.ref == 'refs/heads/main' && github.event.inputs.tag == ''" in workflow
 
 
 @unittest.skipUnless(_FOUND is not None, REPO_ONLY_REASON)
