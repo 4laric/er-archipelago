@@ -196,6 +196,9 @@ class OfflineArtifactTests(unittest.TestCase):
             data["access_summary"]["release_blockers"],
         )
         self.assertTrue(all(check["access_dispositions"] for check in data["checks"]))
+        self.assertTrue(all(not check["name"].startswith("Check ") for check in data["checks"]))
+        self.assertIn("Dark Moon Ring", next(
+            check["name"] for check in data["checks"] if check["check_id"] == 7770000))
 
     def test_production_browser_uses_validated_disposition_review_metadata(self):
         data = BUILDER.load_ledger()
@@ -266,6 +269,11 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertIn("Unbound external leads", html)
         self.assertIn("Lead only: external agreement does not alter", html)
         self.assertIn("Immutable citations:", html)
+        self.assertIn('id="playerQueue"', html)
+        self.assertIn('id="copyReview"', html)
+        self.assertIn("Can you confirm where this is and everything required to collect it?", html)
+        self.assertIn("els.kind.value='access'", html)
+        self.assertIn("els.disposition.value='unresolved'", html)
 
     def test_permalink_serialises_every_facet_and_selected_claim(self):
         html = BUILDER.build().decode("utf-8")
