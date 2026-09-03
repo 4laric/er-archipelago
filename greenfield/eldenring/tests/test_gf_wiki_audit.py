@@ -285,7 +285,7 @@ class WikiAuditTest(unittest.TestCase):
                 "eldenpedia-item-acquisition-check-leads.tsv")
         with path.open(encoding="utf-8", newline="") as handle:
             rows = list(csv.DictReader(handle, delimiter="\t"))
-        self.assertGreaterEqual(len(rows), 80)
+        self.assertGreaterEqual(len(rows), 164)
         self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
         self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
         self.assertEqual(ELDENPEDIA_ITEM_ACQUISITION_AUDIT.main(), 0)

@@ -159,6 +159,29 @@ python tools/build_evidence_browser.py
 
 ## Eldenpedia repeated map-pickup coverage
 
+The item-acquisition lane also includes a focused pass over the 620 checks that had only the
+Redmaw family in the progression-host confidence report. The refresh requested 598 distinct item
+pages (including the prior pinned acquisition set), and accepted 41 additional checks only where
+an exact multiword acquisition anchor selected one current AP map-lot flag. This raises trusted
+identity-and-region host coverage from 1,046 to 1,087 while leaving 579 members of that Redmaw-only
+queue unpromoted.
+
+The refusal boundary remains deliberate: 1,140 candidate comparisons had no matching acquisition
+anchor, 654 candidates belonged to pages without an Acquisition section, 499 comparisons were
+reserved for the separate upgrade-material lane, 140 had a weak anchor or lacked exact map-lot
+detection, 13 repeated the same anchor ambiguously, and 25 requested titles had no wiki page.
+Repeated pickups are not selected merely because their item page names the right broad region.
+
+Reproduce the focused network capture and deterministic outputs with:
+
+```bash
+python tools/fetch_eldenpedia_redmaw_only_capture.py /tmp/eldenpedia-redmaw-only.json
+python tools/build_eldenpedia_item_acquisition_leads.py /tmp/eldenpedia-redmaw-only.json
+python tools/check_eldenpedia_item_acquisition_leads.py
+python tools/build_progression_host_confidence.py
+python tools/build_evidence_browser.py
+```
+
 `eldenpedia-repeated-pickup-check-leads.tsv` resolves a conservative subset of the repeated item
 names that the first location-page pass deliberately refused. It reuses the same 341 immutable
 page revisions pinned by `eldenpedia-location-pages.tsv`; the companion coverage report records the
