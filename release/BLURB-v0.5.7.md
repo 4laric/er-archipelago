@@ -4,16 +4,17 @@ _Draft. Written as the window fills, not at tag time._
 
 ## Can I update the client during a run?
 
-**No. If you already started a run, keep using its old client until you finish.** Updating will not
-delete your save, but the new client may not send or receive items correctly in an older run. Use
-v0.5.7 when you start your next run.
+**Yes. Updating a v0.5.5 client to v0.5.7 will not break the run or delete the save.** The new
+foreign-world Lock hint button needs data that an older seed does not have, so that one feature
+falls back to `!hint`. The client may show a version warning; keeping the old client avoids the
+warning, but is not required to protect the run.
 
 ## What you need to update
 
 - **Client:** Required — use the v0.5.7 client with v0.5.7 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
-- **Existing seed/save:** Compatible — keep its old client until the run is finished.
+- **Existing seed/save:** Compatible — a v0.5.5 run can continue on the v0.5.7 client.
 - **Profile/assets:** No action.
 
 ## What is in it so far
