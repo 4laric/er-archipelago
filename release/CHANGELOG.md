@@ -10,7 +10,7 @@ The narrative — what this project is and what v0.2 brings — lives in
 - **Client:** Required for v0.5.8 seeds; keep existing runs on their matching client.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
-- **Existing seed/save:** Compatible — keep its old client until the run is finished.
+- **Existing seed/save:** Compatible — a v0.5.7 run can continue on the v0.5.8 client.
 - **Profile/assets:** No action.
 
 Window opened 1 commit(s) PAST the v0.5.7 tag.
@@ -37,7 +37,8 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **Client:** Required — use the v0.5.7 client with v0.5.7 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
-- **Existing seed/save:** Compatible — keep its old client until the run is finished.
+- **Existing seed/save:** Compatible — a v0.5.5 run can continue on the v0.5.7 client; only the new
+  foreign-world Lock hint button falls back to `!hint` because old seeds lack its optional data.
 - **Profile/assets:** No action.
 
 The contract moves to `ffc0f1b5` to advertise the owner and location of region Locks placed in

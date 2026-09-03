@@ -63,7 +63,8 @@ answer players need was reduced to a compatibility row and could disappear from 
 
 ## What you need to update
 """
-        self.assertEqual(NOTES.current_run_guidance_failures(text, "blurb"), [])
+        errors = NOTES.current_run_guidance_failures(text, "blurb")
+        self.assertEqual(len(errors), 0)
 
     def test_valid_block_parses_to_semantic_statuses(self):
         values, errors = NOTES.parse_update_guidance(VALID, 3, "changelog")
