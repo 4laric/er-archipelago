@@ -201,6 +201,14 @@ class OfflineArtifactTests(unittest.TestCase):
             next(check["tags"] for check in data["checks"] if check["check_id"] == 7770002),
             ["Boss", "GreatRune", "MajorBoss"],
         )
+        review = [check for check in data["checks"] if check["needs_review"]]
+        self.assertGreater(len(review), 1000)
+        self.assertLess(len(review), 1500, "targeted review regressed to the full unresolved queue")
+        self.assertTrue(all(check["review_reasons"] for check in review))
+        self.assertTrue(any(
+            "one external family" in reason
+            for check in review for reason in check["review_reasons"]
+        ))
         self.assertIn("Dark Moon Ring", next(
             check["name"] for check in data["checks"] if check["check_id"] == 7770000))
 
@@ -244,7 +252,7 @@ class OfflineArtifactTests(unittest.TestCase):
         html = BUILDER.build().decode("utf-8")
         for facet in (
             'id="status"', 'id="risk"', 'id="kind"', 'id="family"',
-            'id="tag"', 'id="disposition"', 'id="external"', 'id="blocker"',
+            'id="tag"', 'id="review"', 'id="disposition"', 'id="external"', 'id="blocker"',
         ):
             self.assertIn(facet, html)
         for question in (
@@ -258,6 +266,7 @@ class OfflineArtifactTests(unittest.TestCase):
         claims = [c for x in data["checks"] for c in x["claims"]]
         conflicted = [c for c in claims if c["status"] == "conflicted"]
         self.assertTrue(conflicted, "witness: fixture no longer exercises an active conflict")
+        self.assertTrue(any(check["needs_review"] for check in data["checks"]))
         self.assertTrue(any(e["stance"] == "contradicts" for c in conflicted for e in c["evidence"]))
         self.assertTrue(all(e["citation"].strip() for c in claims for e in c["evidence"]))
         fixture_html = BUILDER.build(ledger_path=BUILDER.FIXTURE).decode("utf-8")
@@ -276,8 +285,8 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertIn('id="playerQueue"', html)
         self.assertIn('id="copyReview"', html)
         self.assertIn("Can you confirm where this is and everything required to collect it?", html)
-        self.assertIn("els.kind.value='access'", html)
-        self.assertIn("els.disposition.value='unresolved'", html)
+        self.assertIn("els.review.value='yes'", html)
+        self.assertIn("Human review requested.", html)
 
     def test_permalink_serialises_every_facet_and_selected_claim(self):
         html = BUILDER.build().decode("utf-8")
