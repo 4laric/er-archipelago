@@ -19,6 +19,12 @@ ruling; the release notes must name those versions rather than treating every ol
 
 ## What is in it so far
 
+### Beta is the v0.6 preview
+
+The beta pages now follow the `v0.6` development branch. The normal site remains the v0.5.7 stable
+release, while `/er/beta/` shows the ongoing check-audit and logic work without mixing it into the
+v0.5.x maintenance branch.
+
 ### Patch numbers advance one at a time
 
 Maintenance releases will no longer skip a number by accident. After v0.5.8, the next patch is
