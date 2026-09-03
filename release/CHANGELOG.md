@@ -25,6 +25,11 @@ Client half: clients#595. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **A failed tagged bundle can be rebuilt without moving its immutable client pin.** The release
+  workflow now accepts an existing tag plus an explicit stale-pin override, checks out and builds
+  the client recorded by that tag, retains the normal Flower assets and correctness gates, and
+  attaches the recovered ZIP to the original release.
+
 ## v0.5.7 — 2026-09-02
 
 ### What you need to update

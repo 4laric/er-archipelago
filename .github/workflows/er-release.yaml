@@ -40,12 +40,20 @@ on:
         description: "REQUIRED with unofficial: free-text label, e.g. auto-equip-preview"
         required: false
         default: ""
+      tag:
+        description: "existing immutable tag to rebuild and attach, e.g. v0.5.7"
+        required: false
+        default: ""
+      allow_stale_pin:
+        description: "allow the target tag's recorded client to trail client main"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
 concurrency:
-  group: er-release-${{ github.ref == 'refs/heads/main' && 'dev' || github.ref }}
+  group: er-release-${{ github.event.inputs.tag || (github.ref == 'refs/heads/main' && 'dev' || github.ref) }}
   cancel-in-progress: ${{ github.ref == 'refs/heads/main' }}
 
 jobs:
@@ -58,13 +66,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
           submodules: true
           fetch-depth: 0
 
       # A version tag is an immutable pair and uses its gitlink. The development channel is a
       # moving pair: world main plus client main, with both exact SHAs written into the bundle.
       - name: Use client main for a development build
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event.inputs.tag == ''
         shell: bash
         run: |
           git -C from-software-archipelago-clients fetch origin main
@@ -107,12 +116,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
           submodules: true
           fetch-depth: 0
           fetch-tags: true
 
       - name: Use the exact client commit built by the first job
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && github.event.inputs.tag == ''
         run: |
           git -C from-software-archipelago-clients fetch origin "${{ needs.client-dll.outputs.client_sha }}"
           git -C from-software-archipelago-clients checkout --detach "${{ needs.client-dll.outputs.client_sha }}"
@@ -123,10 +133,10 @@ jobs:
 
       - id: ver
         run: |
-          if [ "${{ github.ref }}" = refs/heads/main ]; then
+          if [ "${{ github.ref }}" = refs/heads/main ] && [ -z "${{ github.event.inputs.tag }}" ]; then
             v=$(python -c 'import json; print(json.load(open("greenfield/eldenring/archipelago.json"))["world_version"])')
           else
-            v="${{ github.event.inputs.version || github.ref_name }}"
+            v="${{ github.event.inputs.version || github.event.inputs.tag || github.ref_name }}"
           fi
           echo "version=${v#v}" >> "$GITHUB_OUTPUT"
 
@@ -180,18 +190,20 @@ jobs:
       #      there was no .dll on disk yet, and no --dll was passed either. Moving the step below
       #      the download is what makes the comment true.
       - name: The tag's record of what pairs with what
+        env:
+          ALLOW_STALE_PIN: ${{ github.event.inputs.allow_stale_pin == 'true' && '1' || '0' }}
         run: python tools/check_release_pairing.py --dll me3/eldenring_archipelago.dll
         continue-on-error: ${{ github.ref == 'refs/heads/main' || github.event.inputs.unofficial == 'true' }}
 
       - name: Fetch the AP Flower release atlases
-        if: github.ref != 'refs/heads/main' && github.event.inputs.unofficial != 'true'
+        if: (github.ref != 'refs/heads/main' || github.event.inputs.tag != '') && github.event.inputs.unofficial != 'true'
         uses: actions/checkout@v4
         with:
           repository: ${{ vars.ICON_REPO }}
           token: ${{ secrets.ICON_REPO_TOKEN }}
           path: .icon
       - name: Stage AP Flower as installer input
-        if: github.ref != 'refs/heads/main' && github.event.inputs.unofficial != 'true'
+        if: (github.ref != 'refs/heads/main' || github.event.inputs.tag != '') && github.event.inputs.unofficial != 'true'
         run: |
           mkdir -p me3/flower-package
           cp -r .icon/ap-package/menu me3/flower-package/menu
@@ -205,7 +217,7 @@ jobs:
         run: |
           set +e
           extra=()
-          if [ "${{ github.ref }}" = refs/heads/main ]; then
+          if [ "${{ github.ref }}" = refs/heads/main ] && [ -z "${{ github.event.inputs.tag }}" ]; then
             extra=(--unofficial --stamp "dev-${GITHUB_SHA::7}")
           elif [ "${{ github.event.inputs.unofficial }}" = true ]; then
             extra=(--unofficial --stamp "${{ github.event.inputs.stamp }}")
@@ -232,10 +244,10 @@ jobs:
 
       # Only a real tag publishes. A workflow_dispatch run leaves the artifact and stops.
       - name: Attach to the release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.tag != ''
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           files: dist/*.zip
           fail_on_unmatched_files: true
 
