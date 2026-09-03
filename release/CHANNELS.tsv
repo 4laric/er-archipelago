@@ -60,4 +60,5 @@ stable	v0.5.3	2026-08-29	Tarnished Pack gear, merchants, and field pickups; Torr
 beta	main	2026-08-29	the open v0.5.4 window
 stable	v0.5.5	2026-08-31	mine-material rerolls, sphere-scaled rune rewards, progression-surface flask upgrades, quest and region corrections, and the matching delivery/diagnostic client fixes; promoted while opening v0.5.6 so the updater and public wizard follow the tagged release
 beta	main	2026-08-31	the open v0.5.6 window
-stable	v0.5.7	2026-09-03	audited progression hosts, restored evidence-backed surface checks, foreign-world Lock hints, stronger delivery recovery, and expanded external evidence coverage; promoted immediately after tagging so the updater and public wizard follow the release
+stable	v0.5.7	2026-09-02	audited progression hosts, restored evidence-backed surface checks, foreign-world Lock hints, stronger delivery recovery, and expanded external evidence coverage; promoted immediately after tagging so the updater and public wizard follow the release
+beta	main	2026-09-02	the open v0.5.8 window
