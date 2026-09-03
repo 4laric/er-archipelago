@@ -73,7 +73,7 @@ td.rg{color:var(--blue);white-space:nowrap;font-size:12px}
 footer{flex:0 0 auto;padding:5px 14px;border-top:1px solid var(--line);background:var(--bg2);
   font:10px/1.4 monospace;color:var(--dim);display:flex;gap:16px;flex-wrap:wrap}
 .btn{background:var(--bg3);border:1px solid var(--line);color:var(--dim);
-  padding:5px 9px;border-radius:4px;cursor:pointer;font:11px/1 inherit}
+  padding:5px 9px;border-radius:4px;cursor:pointer;font:11px/1 inherit;text-decoration:none;display:inline-block}
 .btn:hover{color:var(--gold);border-color:var(--gold)}
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-track{background:var(--bg)}
@@ -101,6 +101,7 @@ footer{flex:0 0 auto;padding:5px 14px;border-top:1px solid var(--line);backgroun
   <button class="btn" id="diffbtn">diff a build</button>
   <button class="btn" id="perma">copy permalink</button>
   <button class="btn" id="csv">export csv</button>
+  <a class="btn" href="review.html">review queue</a>
 </header>
 <main>
   <nav id="facets"></nav>
