@@ -63,6 +63,7 @@ answer players need was reduced to a compatibility row and could disappear from 
 
 ## What you need to update
 """
+        self.assertIn(NOTES.CURRENT_RUN_HEADING, text)
         errors = NOTES.current_run_guidance_failures(text, "blurb")
         self.assertEqual(len(errors), 0)
 
