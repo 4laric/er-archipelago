@@ -95,6 +95,18 @@ def _rel(path):
     return path
 
 
+def patch_sequence_error(current, target):
+    """Reject skipped patch numbers while leaving intentional minor/major windows alone."""
+    old = tuple(int(part) for part in current.split("."))
+    new = tuple(int(part) for part in target.split("."))
+    if new <= old:
+        return "%s does not advance %s" % (target, current)
+    if new[:2] == old[:2] and new[2] != old[2] + 1:
+        return ("patch windows must advance by exactly one: %s -> %d.%d.%d, not %s"
+                % (current, old[0], old[1], old[2] + 1, target))
+    return None
+
+
 def substitution_for(site):
     """The regex whose group(1) IS the version, for writing.
 
@@ -305,6 +317,10 @@ def main(argv=None):
     print("      all readable sites read %s" % was)
     if was == args.to:
         print("ERROR open_window: already at %s" % args.to, file=sys.stderr)
+        return 1
+    sequence_error = patch_sequence_error(was, args.to)
+    if sequence_error:
+        print("ERROR open_window: %s" % sequence_error, file=sys.stderr)
         return 1
 
     prev_tag, past = tag_position()
