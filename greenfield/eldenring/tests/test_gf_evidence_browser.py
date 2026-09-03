@@ -286,6 +286,12 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertIn('id="playerQueue"', html)
         self.assertIn('id="copyReview"', html)
         self.assertIn("Can you confirm where this is and everything required to collect it?", html)
+        self.assertIn('id="rvVerdict"', html)
+        self.assertIn('id="rvAccess"', html)
+        self.assertIn('id="copyAnswer"', html)
+        self.assertIn('id="openReview"', html)
+        self.assertIn("[Evidence review]", html)
+        self.assertIn("Nothing leaves your browser until", html)
         self.assertIn("els.review.value='yes'", html)
         self.assertIn("Human review requested.", html)
 
