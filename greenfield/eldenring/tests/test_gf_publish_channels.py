@@ -271,6 +271,7 @@ class WizardDeploy(unittest.TestCase):
         self.assertIn('Stable was NOT written', text)
         self.assertIn('$1=="beta"', text)
         self.assertIn('install_one "$beta_ref" "$CHK_SRC"', text)
+        self.assertIn('install_one "$beta_ref" "$REVIEW_SRC"', text)
         self.assertIn('install_one "$beta_ref" "$WIZ_SRC"', text)
 
 

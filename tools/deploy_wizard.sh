@@ -13,6 +13,8 @@
 #     /er/beta/wizard.html   <- wizard/wizard.html at the current beta ref
 #     /er/checks.html        <- er-archipelago-check-browser.html at the STABLE tag
 #     /er/beta/checks.html   <- er-archipelago-check-browser.html at the current beta ref
+#     /er/review.html        <- er-archipelago-evidence-browser.html at the STABLE tag
+#     /er/beta/review.html   <- er-archipelago-evidence-browser.html at the current beta ref
 #     /er/report.html        <- wizard/report.html at the STABLE tag
 #     /er/questlines.html    <- er-archipelago-questline-dag.html at the STABLE tag
 #     /er/beta/questlines.html <- er-archipelago-questline-dag.html at the current beta ref
@@ -195,6 +197,9 @@ WIZ_SENTINEL='id="er-options-metadata"'
 CHK_SRC="er-archipelago-check-browser.html"
 # The check browser's own map container -- structural, and nothing a 200-with-a-login-page has.
 CHK_SENTINEL='id="mapslot"'
+REVIEW_SRC="er-archipelago-evidence-browser.html"
+# The page's embedded evidence payload is structural and absent from generic error bodies.
+REVIEW_SENTINEL='id="evidence-payload"'
 # !! THE FREE SET: src:name:sentinel, space-separated. Pages carrying NEITHER an option surface
 # NOR a data stamp, so they cannot skew against a released apworld and may ship from main at any
 # time. Asserted against the files themselves by test_gf_publish_channels -- do not edit without
@@ -244,6 +249,7 @@ if [ "$BETA_ONLY" = "1" ]; then
   install_one "$beta_ref" "$RPT_SRC" "${DEST}/beta/report.html" "$RPT_SENTINEL" "report  beta (${beta_ref})"
   [ "$NO_CHECKS" = "1" ] || {
     install_one "$beta_ref" "$CHK_SRC" "${DEST}/beta/checks.html" "$CHK_SENTINEL" "checks  beta (${beta_ref})"
+    install_one "$beta_ref" "$REVIEW_SRC" "${DEST}/beta/review.html" "$REVIEW_SENTINEL" "review  beta (${beta_ref})"
     install_one "$beta_ref" "$QDAG_SRC" "${DEST}/beta/questlines.html" "$QDAG_SENTINEL" "qdag    beta (${beta_ref})"
   }
   say ""
@@ -256,6 +262,7 @@ install_one "$stable_tag" "$WIZ_SRC" "${DEST}/wizard.html" "$WIZ_SENTINEL" "wiza
 install_one "$stable_tag" "$RPT_SRC" "${DEST}/report.html" "$RPT_SENTINEL" "report  stable (${stable_tag})"
 [ "$NO_CHECKS" = "1" ] || {
   install_one "$stable_tag" "$CHK_SRC" "${DEST}/checks.html" "$CHK_SENTINEL" "checks  stable (${stable_tag})"
+  install_one "$stable_tag" "$REVIEW_SRC" "${DEST}/review.html" "$REVIEW_SENTINEL" "review  stable (${stable_tag})"
   install_one "$stable_tag" "$QDAG_SRC" "${DEST}/questlines.html" "$QDAG_SENTINEL" "qdag    stable (${stable_tag})"
 }
 
@@ -264,6 +271,7 @@ if [ "$STABLE_ONLY" = "0" ]; then
   install_one "$beta_ref" "$RPT_SRC" "${DEST}/beta/report.html" "$RPT_SENTINEL" "report  beta (${beta_ref})"
   [ "$NO_CHECKS" = "1" ] || {
     install_one "$beta_ref" "$CHK_SRC" "${DEST}/beta/checks.html" "$CHK_SENTINEL" "checks  beta (${beta_ref})"
+    install_one "$beta_ref" "$REVIEW_SRC" "${DEST}/beta/review.html" "$REVIEW_SENTINEL" "review  beta (${beta_ref})"
     install_one "$beta_ref" "$QDAG_SRC" "${DEST}/beta/questlines.html" "$QDAG_SENTINEL" "qdag    beta (${beta_ref})"
   }
 fi
