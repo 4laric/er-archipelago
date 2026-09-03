@@ -596,6 +596,7 @@ if ($Me3Deploy) {
 profileVersion = "v1"
 savefile = "AP_me3.sl2"
 disable_arxan = true
+mem_patch = false
 
 [[supports]]
 game = "eldenring"

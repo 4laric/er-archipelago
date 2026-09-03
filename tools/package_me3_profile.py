@@ -94,7 +94,13 @@ def validate_release_profile(
     profile_path: Path, package_root: Path, expected_package: str | None
 ) -> list[str]:
     """Require every package path in the staged profile to be portable and present."""
-    packages = _package_tables(_load(profile_path), profile_path)
+    document = _load(profile_path)
+    if document.get("mem_patch") is not False:
+        raise ProfileError(
+            f"{profile_path} must set mem_patch = false; ME3's allocator replacement is unsafe "
+            "for the AP client teardown path"
+        )
+    packages = _package_tables(document, profile_path)
     paths: list[str] = []
     for index, package in enumerate(packages, 1):
         value = package.get("path")
