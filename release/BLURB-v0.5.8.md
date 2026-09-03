@@ -19,8 +19,10 @@ ruling; the release notes must name those versions rather than treating every ol
 
 ## What is in it so far
 
-Nothing yet. This window opens one promotion commit after the v0.5.7 tag so its first gameplay
-change cannot accidentally be documented under an already shipped release.
+### Patch numbers advance one at a time
+
+Maintenance releases will no longer skip a number by accident. After v0.5.8, the next patch is
+v0.5.9. A deliberate new series such as v0.6.0 remains separate.
 
 ## What carried over from v0.5.7
 
