@@ -34,6 +34,12 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   `global_scadutree_blessing: off` value is indistinguishable from an omitted default; use
   `scadutree_blessing_scope: dlc_only` to opt out in v0.6.
 
+- **Scadutree Fragments prefer important checks but cannot break fill.** After required items are
+  placed, remaining fragments try the selected progression surface and spill into normal fill when
+  it is full. In multiworlds, a proportional share is deliberately sent to other games first.
+  Fragments are foreign-eligible by default through the new `scadutree_fragments` item category;
+  add that category to `keep_local` if you want every fragment in your own world.
+
 - **The full check corpus audit moves to a dedicated v0.6 branch.** Every check is being reconciled
   against game data, independent external references, and player evidence where needed; access
   rules and concise original F6 descriptions will be derived only from facts the audit can defend.
