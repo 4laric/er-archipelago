@@ -40,12 +40,17 @@ def test_collectathon_certifications_do_not_override_independent_bars():
     assert (CERTIFIED_SEEDTREE_APS | CERTIFIED_CHURCH_APS).isdisjoint(barred)
 
 
-def test_collectathon_certifications_restore_exactly_34_generated_holds():
-    from ..evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
+def test_collectathon_certifications_restore_only_the_remaining_generated_holds():
+    from ..evidence_progression_hosts import (
+        HOLD_PROGRESSION_HOST_APS,
+        TRUSTED_PROGRESSION_HOST_APS,
+    )
     from ..features.evidence_progression_hosts import hold_aps
     restored = CERTIFIED_SEEDTREE_APS | CERTIFIED_CHURCH_APS
+    independently_trusted = restored & TRUSTED_PROGRESSION_HOST_APS
     assert len(restored) == 34
-    assert restored <= HOLD_PROGRESSION_HOST_APS
+    assert independently_trusted == {7771149}
+    assert restored - independently_trusted <= HOLD_PROGRESSION_HOST_APS
     assert hold_aps(None, candidates=restored).isdisjoint(restored)
 
 
@@ -92,7 +97,9 @@ def test_revered_wave_is_exactly_the_other_effective_generated_holds():
         if "Revered" in tags and ap in HOLD_PROGRESSION_HOST_APS
         and ap not in SURFACE_EXCLUDE_APS
     }
-    assert effective == CERTIFIED_REVERED_APS | {7771808, 7773212}
+    certified_still_held = CERTIFIED_REVERED_APS & HOLD_PROGRESSION_HOST_APS
+    assert certified_still_held == {7771934}
+    assert effective == certified_still_held | {7771808, 7773212}
 
 def test_major_boss_wave2_restores_three_and_preserves_seven_finale_rows():
     from ..evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
