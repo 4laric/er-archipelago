@@ -1,17 +1,17 @@
 {
   "by_confidence": {
-    "hold": 3879,
-    "trusted_identity_region": 1046
+    "hold": 3868,
+    "trusted_identity_region": 1057
   },
   "by_external_family_count": {
     "0": 2809,
-    "1": 1070,
-    "2": 834,
+    "1": 1059,
+    "2": 845,
     "3": 207,
     "4": 5
   },
   "checks_total": 4925,
-  "content_sha256": "c17ad163f492be50a67d9a187ed441c59c500feafb63c1c22c3ad88402b97204",
+  "content_sha256": "24043578b5d9f594fbf5160a2cca2a8498e47dae5f6be4021dd652403f5e81de",
   "input_files": {
     "dlc-blessing-collectible-check-leads.tsv": "7b9a04264df1fb7725de5afa78861c1ecde2bdc36d580f3d52c17d049396791e",
     "dlc-sparse-region-check-leads.tsv": "ad6683820b1b6088077321262d3c4ee1fe360c7bdf809611ca53d728a0c8ab95",
@@ -32,6 +32,7 @@
     "fextralife-acquisition-check-leads.tsv": "ec89514ab5db0a5417b1faf77a0913f894f98ef71b1e824d50c61e874815b575",
     "fextralife-item-check-leads.tsv": "501d1987e6b4cf5c318877de2253e1b2e397519331ef2ac6cb674568626be726",
     "fextralife-linked-place-check-leads.tsv": "bfa2c366d4b09d9119b83695e4d77e958ff0452eacc1b37cc999399684abff92",
+    "fextralife-redmaw-corroboration-check-leads.tsv": "e63e17bdbef164203919d6a1b06729c88ac156cba34c32b693405fec9e497172",
     "game8-check-leads.tsv": "70463b4cdbed057c4b41df105140d6a9957b51abc9420bf76bec0e365d18f8c6",
     "game8-dlc-anchor-check-leads.tsv": "752fe5d34c8849ad121dd5c837ec609b0aa46aef7776418a8dbf98c194aeebc5",
     "game8-dlc-floor-check-leads.tsv": "bded2ed715ce184255e98cd90e4f2acf5aeb32b74a8d60b768540eebff112a2b",
