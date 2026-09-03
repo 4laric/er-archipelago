@@ -3,6 +3,28 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.5.8 — 2026-09-02
+
+### What you need to update
+
+- **Client:** Required for v0.5.8 seeds; keep existing runs on their matching client.
+- **APWorld:** Host-only — the room host or generator must install the matching APWorld.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
+- **Profile/assets:** No action.
+
+Window opened 1 commit(s) PAST the v0.5.7 tag.
+
+`CONTRACT_HASH` remains `ffc0f1b5`; v0.5.8 opens with no slot-data shape change. The exact-version
+handshake still advances, so a matching client build is required for newly generated v0.5.8 seeds.
+
+Client half: clients#595. Its merged commit is pinned by the gitlink in this same change because
+`contract_gen.rs` embeds the exact APWorld version even when the contract hash does not move.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.5.7 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
 ## v0.5.7 — 2026-09-02
 
 ### What you need to update
