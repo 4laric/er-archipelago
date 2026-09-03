@@ -40,6 +40,11 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   Fragments are foreign-eligible by default through the new `scadutree_fragments` item category;
   add that category to `keep_local` if you want every fragment in your own world.
 
+- **Flask upgrades use the same soft important-check preference.** Golden Seeds, Sacred Tears, and
+  Progressive Flask Upgrades try unused progression-surface checks, then spill into ordinary fill.
+  The old `flask_upgrades_on_progression_surface` YAML line remains accepted for compatibility but
+  is no longer needed and no longer hard-confines every copy or widens the chosen surface.
+
 - **The full check corpus audit moves to a dedicated v0.6 branch.** Every check is being reconciled
   against game data, independent external references, and player evidence where needed; access
   rules and concise original F6 descriptions will be derived only from facts the audit can defend.

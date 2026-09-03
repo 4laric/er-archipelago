@@ -520,9 +520,9 @@ Elden Ring:
   # arrive on a steady cadence instead of 13 silent flat pickups. Off: seeds
   # and tears stay discrete pickups at their shuffled locations.
   progressive_flasks: true
-  # Keep Progressive Flask Upgrades on important checks. Starts with progression_surface and
-  # widens through its reviewed fallback ladder only when the chosen surface cannot host every
-  # copy. They remain useful, not required for logic or victory. Default: false.
+  # Legacy v0.5 spelling, retained so old YAMLs still validate. In v0.6 Golden Seeds, Sacred Tears,
+  # and Progressive Flask Upgrades automatically prefer unused progression-surface checks, then
+  # spill into ordinary fill. They remain useful, not required for logic or victory.
   flask_upgrades_on_progression_surface: false
 
   # Weapon and spirit-ash upgrades by SHOP TIER instead of by luck. On: the

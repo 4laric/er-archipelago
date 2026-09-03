@@ -7,11 +7,15 @@ fill. There is no surface widening and no generation failure: preferred means "i
 import inspect
 import logging
 
+from .progressive import PROG_FLASK, VANILLA_FLASK_ITEMS
 from .scadu_supply import FRAGMENT, FRAGMENT_X2
 
 _LOG = logging.getLogger("eldenring")
 
-PROGRESSION_SURFACE_IF_SPACE = frozenset({FRAGMENT, FRAGMENT_X2})
+PROGRESSION_SURFACE_IF_SPACE = frozenset({
+    FRAGMENT, FRAGMENT_X2, PROG_FLASK, *VANILLA_FLASK_ITEMS,
+})
+FOREIGN_SHARE_ITEMS = frozenset({FRAGMENT, FRAGMENT_X2})
 _UNITS = {FRAGMENT: 1, FRAGMENT_X2: 2}
 
 
@@ -72,7 +76,8 @@ def reserve_foreign_share(multiworld, worlds) -> None:
     for world in worlds:
         local = set(getattr(world.options, "local_items", None)
                     and world.options.local_items.value or ())
-        candidates = [item for item in preferred_items(world) if item.name not in local]
+        candidates = [item for item in preferred_items(world)
+                      if item.name in FOREIGN_SHARE_ITEMS and item.name not in local]
         total_units = sum(_UNITS[item.name] for item in candidates)
         target = foreign_unit_target(total_units, len(foreign_open), len(all_open))
         batch.extend(take_units(candidates, target, world.random))

@@ -197,7 +197,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.6.0",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "19e328aee99c75bcad5c6fa7309c81825cf2d6929af8319c929c9512d5d7f6de",
+ "source_sha256": "e54559cca459e152a65fd4963b2b325ae54475b96e1555579ff166c3d277243d",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -1132,8 +1132,8 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   {
    "key": "flask_upgrades_on_progression_surface",
    "class": "FlaskUpgradesOnProgressionSurface",
-   "display_name": "Flask Upgrades on Progression Surface",
-   "description": "Keep Progressive Flask Upgrades on important checks.\n\nOff (default) preserves ordinary placement.  On starts with your ``progression_surface``\nselection and, only when that surface is too small for every flask copy, widens through its\nexisting reviewed fallback ladder.  Flask upgrades remain useful rather than required: this\naffects placement quality, not logic or the victory condition.",
+   "display_name": "Flask Upgrades on Progression Surface (legacy; now automatic)",
+   "description": "Legacy v0.5 spelling; accepted but unnecessary in v0.6.\n\nFlask upgrades now always prefer unused progression-surface checks and safely spill into normal\nfill. They remain useful rather than required. This value is retained only so an older YAML\ncontaining it does not fail validation.",
    "kind": "toggle",
    "base": "Toggle",
    "default": false,
@@ -1281,6 +1281,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "other",
     "progressive",
     "runes",
+    "scadutree_fragments",
     "spells",
     "spirit_ashes",
     "talismans",
@@ -1318,7 +1319,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "keep_local",
    "class": "KeepLocal",
    "display_name": "Keep Local",
-   "description": "Categories of item to hold in YOUR OWN world, listed one per line. Nothing else is affected,\nso this is the knob for \"keep my consumables and crafting mats, send the gear out\" without\nreaching for Local Items Only (which keeps everything) or Filler Open to Foreign (which picks\nwhich of your filler stays home at random and cannot be aimed at a category).\n\nSame categories as Exclude From Local Items Only, and they compose: this adds to whatever that\npair already localized, it never releases anything.\n\nExample, and the one this was written for:\n    keep_local: [consumables, crafting, upgrade_materials, runes]\n-- crafting materials, smithing stones and ghost gloveworts, every consumable and every rune\nstay yours; weapons, armour, talismans, spells, spirit ashes and ashes of war still travel.\nBell bearings are `key_items`, not `upgrade_materials`, so that example still sends them out.\n\n# Why the default is not empty (#703)\n\n🛑 THIS SHIPS NON-EMPTY, and it is the only locality option that does. The default is the `goods`\numbrella MINUS `runes`, `key_items`, `spells` and `spirit_ashes` -- i.e. hold back the\nconsumables, crafting materials, smithing stones, cookbooks and bell bearings, and let every\nrune, key item, weapon, piece of armour, talisman, ash, spell and spirit ash travel.\n\n🛑 `key_items` IS EXCLUDED ON EVIDENCE, not taste. Holding it was the obvious call, but the\ncategory covers Great Runes -- which `great_runes_required` makes a GOAL condition -- both Dectus\nmedallions and every Remembrance -- so keeping it home took natural_progression's cross-world\nplacements from 12 to ZERO in tools/gf_multiworld_smoke.py. Those are the items a multiworld\nexists to trade. The smoke is the gate that catches this; re-run it before adding the line back.\n\nThe measurement it answers: at the shipped settings, upgrade_materials 23.7% and runes 24.0% of\na 312-item export -- two thirds of what we placed abroad was junk. The export budget is\nSLOT-limited, not willingness-limited, so those items were not extra: they were occupying\nforeign locations that YOUR OWN gear would otherwise have taken.\n\n🛑 THE COST IS NOT THAT THE PARTNER CANNOT USE THEM -- they were never theirs to use. An item\nElden Ring \"sends abroad\" is still YOUR item; what moves is the TRIGGER, into their world, so\nthat their progress is what hands it to you. That is the whole point of a multiworld and it is\nwhy bobler asked for gear to travel in the first place (\"you need to send your friends items to\nauto equip to int them\"). A foreign location holding your Smithing Stone [1] instead of your\nMoonveil is a worse trade for YOU, not a discourtesy to them.\n\n🛑 NAMING ONE CATEGORY DOES ALMOST NOTHING, and that is the finding that shaped this list.\nHolding `runes` alone moved exported filler by ZERO (202 -> 202): whichever large pool stays open\nexpands to fill every available slot, so filler must be closed close to as a CLASS before the mix\nmoves. Measured useful:filler across the lattice -- shipped 0.53:1, `runes` 0.54:1,\n`runes + upgrade_materials` 0.60:1, `goods` minus `consumables` 0.73:1, whole `goods` 2.69:1.\nThere is no category subset that lands near 1:1, which is why the rune cap below carries the\nfine adjustment rather than this list.\n\nAlaric's ruling, 2026-08-15: aim the composition at 1:1 useful:filler.",
+   "description": "Categories of item to hold in YOUR OWN world, listed one per line. Nothing else is affected,\nso this is the knob for \"keep my consumables and crafting mats, send the gear out\" without\nreaching for Local Items Only (which keeps everything) or Filler Open to Foreign (which picks\nwhich of your filler stays home at random and cannot be aimed at a category).\n\nSame categories as Exclude From Local Items Only, and they compose: this adds to whatever that\npair already localized, it never releases anything.\n\nExample, and the one this was written for:\n    keep_local: [consumables, crafting, upgrade_materials, runes]\n-- crafting materials, smithing stones and ghost gloveworts, every consumable and every rune\nstay yours; weapons, armour, talismans, spells, spirit ashes and ashes of war still travel.\nBell bearings are `key_items`, not `upgrade_materials`, so that example still sends them out.\n\n# Why the default is not empty (#703)\n\n🛑 THIS SHIPS NON-EMPTY, and it is the only locality option that does. The default is the `goods`\numbrella MINUS `runes`, `key_items`, `spells`, `spirit_ashes` and `scadutree_fragments` -- i.e. hold back the\nconsumables, crafting materials, smithing stones, cookbooks and bell bearings, and let every\nrune, key item, weapon, piece of armour, talisman, ash, spell and spirit ash travel.\n\n🛑 `key_items` IS EXCLUDED ON EVIDENCE, not taste. Holding it was the obvious call, but the\ncategory covers Great Runes -- which `great_runes_required` makes a GOAL condition -- both Dectus\nmedallions and every Remembrance -- so keeping it home took natural_progression's cross-world\nplacements from 12 to ZERO in tools/gf_multiworld_smoke.py. Those are the items a multiworld\nexists to trade. The smoke is the gate that catches this; re-run it before adding the line back.\n\nThe measurement it answers: at the shipped settings, upgrade_materials 23.7% and runes 24.0% of\na 312-item export -- two thirds of what we placed abroad was junk. The export budget is\nSLOT-limited, not willingness-limited, so those items were not extra: they were occupying\nforeign locations that YOUR OWN gear would otherwise have taken.\n\n🛑 THE COST IS NOT THAT THE PARTNER CANNOT USE THEM -- they were never theirs to use. An item\nElden Ring \"sends abroad\" is still YOUR item; what moves is the TRIGGER, into their world, so\nthat their progress is what hands it to you. That is the whole point of a multiworld and it is\nwhy bobler asked for gear to travel in the first place (\"you need to send your friends items to\nauto equip to int them\"). A foreign location holding your Smithing Stone [1] instead of your\nMoonveil is a worse trade for YOU, not a discourtesy to them.\n\n🛑 NAMING ONE CATEGORY DOES ALMOST NOTHING, and that is the finding that shaped this list.\nHolding `runes` alone moved exported filler by ZERO (202 -> 202): whichever large pool stays open\nexpands to fill every available slot, so filler must be closed close to as a CLASS before the mix\nmoves. Measured useful:filler across the lattice -- shipped 0.53:1, `runes` 0.54:1,\n`runes + upgrade_materials` 0.60:1, `goods` minus `consumables` 0.73:1, whole `goods` 2.69:1.\nThere is no category subset that lands near 1:1, which is why the rune cap below carries the\nfine adjustment rather than this list.\n\nAlaric's ruling, 2026-08-15: aim the composition at 1:1 useful:filler.",
    "kind": "set",
    "base": "OptionSet",
    "default": [
@@ -1348,6 +1349,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "other",
     "progressive",
     "runes",
+    "scadutree_fragments",
     "spells",
     "spirit_ashes",
     "talismans",
@@ -2005,7 +2007,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "description": "WHERE the Scadutree blessing applies. dlc_only = vanilla: the blessing is a Land of Shadow\nmechanic and does nothing in Limgrave, exactly as FromSoft shipped it. anywhere = the blessing\nbecomes a GAME-WIDE power curve driven by the fragments the multiworld has sent you, so it works\neverywhere. Enemies are untouched either way, so `anywhere` is explicitly a power fantasy.\n\nHOW `anywhere` IS POSSIBLE AT ALL. Every vanilla rung 20000100+level carries\neffectEndurance = 0.05 -- 50ms. It is not a persistent buff; a refresher loop that only runs in\nthe Land of Shadow re-applies it every tick. The client clones the rung onto a row of its own\nwith effectEndurance = -1 and applies that (see the client's `scadu_blessing` module and\ndocs/specs/SPEC-global-scadutree-blessing-20260729.md). Measured in-game 2026-07-29.",
    "kind": "choice",
    "base": "Choice",
-   "default": "dlc_only",
+   "default": "anywhere",
    "choices": [
     {
      "name": "dlc_only",
