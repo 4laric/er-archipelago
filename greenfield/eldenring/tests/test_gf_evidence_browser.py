@@ -198,6 +198,10 @@ class OfflineArtifactTests(unittest.TestCase):
         )
         self.assertTrue(all(check["access_dispositions"] for check in data["checks"]))
         self.assertTrue(all(not check["name"].startswith("Check ") for check in data["checks"]))
+        self.assertEqual(
+            next(check["tags"] for check in data["checks"] if check["check_id"] == 7770002),
+            ["Boss", "GreatRune", "MajorBoss"],
+        )
         self.assertIn("Dark Moon Ring", next(
             check["name"] for check in data["checks"] if check["check_id"] == 7770000))
 
@@ -241,7 +245,7 @@ class OfflineArtifactTests(unittest.TestCase):
         html = BUILDER.build().decode("utf-8")
         for facet in (
             'id="status"', 'id="risk"', 'id="kind"', 'id="family"',
-            'id="disposition"', 'id="external"', 'id="blocker"',
+            'id="tag"', 'id="disposition"', 'id="external"', 'id="blocker"',
         ):
             self.assertIn(facet, html)
         for question in (
