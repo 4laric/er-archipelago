@@ -161,6 +161,23 @@ def test_main_publishes_a_named_moving_dev_prerelease():
 
 
 @unittest.skipUnless(_FOUND is not None, REPO_ONLY_REASON)
+def test_tag_recovery_builds_the_immutable_pair_and_keeps_release_assets():
+    """A stale-pin override may waive only the comparison with moving client main.
+
+    Recovery still checks out the named immutable tag, builds that tag's gitlink, stages Flower,
+    and attaches to the named release. Otherwise the tempting workaround is an unofficial dev ZIP
+    whose identity and assets differ from the release it claims to repair.
+    """
+    workflow = (Path(_FOUND) / ".github/workflows/er-release.yaml").read_text(encoding="utf-8")
+    assert "tag:" in workflow
+    assert "allow_stale_pin:" in workflow
+    assert "ref: ${{ github.event.inputs.tag || github.ref }}" in workflow
+    assert "ALLOW_STALE_PIN: ${{ github.event.inputs.allow_stale_pin == 'true' && '1' || '0' }}" in workflow
+    assert "(github.ref != 'refs/heads/main' || github.event.inputs.tag != '')" in workflow
+    assert "tag_name: ${{ github.event.inputs.tag || github.ref_name }}" in workflow
+
+
+@unittest.skipUnless(_FOUND is not None, REPO_ONLY_REASON)
 def test_both_release_packagers_share_the_profile_path_gate():
     root = Path(_FOUND)
     powershell = (root / "package_release.ps1").read_text(encoding="utf-8")
