@@ -19,9 +19,28 @@ Existing v0.5.6 seed/client pairs remain compatible with each other.
 
 Entries arrive below as they merge.
 
+- **Progression placement now requires an audited host (#1359, #1363).** Checks need concrete game
+  data, corroborated external acquisition evidence, or an explicit maintainer certification before
+  they may hold this world's required progression. Uncertain checks remain present and may hold
+  filler; they are not deleted from the seed.
+
+- **The audited surface has been restored to 178 of 201 eligible checks (#1368-#1374).** All clear
+  churches, shops, key items, Golden Seeds, Sacred Tears, and supported boss rewards are back, along
+  with most DLC blessings. The remaining holds are 14 insufficiently corroborated Scadutree
+  Fragments, two access-ambiguous Revered Spirit Ashes, and seven finale-lifecycle rewards.
+
 - **Every seed now contains exactly three Talisman Pouches (#1360).** When Limgrave or Leyndell is
   excluded, its missing natural pouch is restored as an ordinary shuffled pool item, replacing
   low-value filler without becoming progression or increasing the pool size.
+
+- **The matching client makes item delivery more durable (clients#573, #585, #587).** Pickup
+  maintenance no longer starves ordinary delivery, stalled unique-item debt survives restarts, and
+  save-load suppression repairs are measured and retried. Targeted diagnostics expose check-lot
+  leaks without changing successful grants.
+
+- **Newly received hints can appear as in-game toasts (clients#582).** The overlay also gains an
+  Elden Ring-specific theme (clients#578), while region Locks placed in another world can be hinted
+  from F6 using the advertised owner-qualified coordinate (clients#589).
 
 - **Ancient Dragon Senessax now randomizes both ancient smithing stones (#1296).** Its regular and
   somber reward lots are modeled as separate co-firing checks, both vanilla grants are suppressed,

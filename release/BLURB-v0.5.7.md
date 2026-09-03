@@ -61,6 +61,25 @@ wiki.gg item pages are pinned to immutable revisions.
 Another 27 repeated smithing stones, Sacred Tears, Scadutree Fragments, and dungeon pickups are
 cross-checked only where a pinned walkthrough step names the same location as the AP map-lot flag.
 
+### Progression only lands on checks we can defend
+
+Progression placement is now confined to checks backed by game data, corroborated external
+acquisition evidence, or an explicit maintainer ruling. A follow-up restoration pass returned every
+clearly supported church, shop, key-item, Golden Seed, Sacred Tear, boss-reward, and most DLC
+blessing checks to the surface. The resulting default surface retains 178 of 201 eligible checks.
+The 23 checks still held back are narrow, visible audit work: 14 Scadutree Fragments awaiting a
+second source, two Revered Spirit Ashes with access or region ambiguity, and seven finale rewards
+whose shared lifecycle needs dedicated handling. They remain valid checks and filler hosts; they
+are only prevented from carrying this world's required progression.
+
+### Delivery and tracker resilience
+
+The matching client persists stalled unique-item delivery debt instead of losing it across a
+restart, prevents pickup maintenance from starving ordinary item delivery, and repairs suppression
+state after save loads. Newly received hints can appear as in-game toasts, and the F6 tracker can
+purchase hints for region Locks placed in another player's world. Additional diagnostics record
+suppression repairs and check-lot leaks without changing normal play.
+
 ### One supported tracker
 
 The obsolete PopTracker pack has been removed from the repository. It was no longer supported, but
