@@ -162,6 +162,7 @@ class OfflineArtifactTests(unittest.TestCase):
                           "fextralife-acquisition-check-leads.tsv",
                           "fextralife-item-check-leads.tsv",
                           "fextralife-linked-place-check-leads.tsv",
+                          "fextralife-redmaw-corroboration-check-leads.tsv",
                           "game8-check-leads.tsv",
                           "game8-dlc-anchor-check-leads.tsv",
                           "game8-dlc-floor-check-leads.tsv", "leads.tsv",

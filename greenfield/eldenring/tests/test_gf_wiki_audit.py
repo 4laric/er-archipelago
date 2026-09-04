@@ -58,10 +58,20 @@ REDMAW_LOCATION_AUDIT = load_repo_tool("check_redmaw_location_anchor_leads")
 FEXTRALIFE_AUDIT = load_repo_tool("check_fextralife_item_leads")
 FEXTRALIFE_ACQUISITION_AUDIT = load_repo_tool("check_fextralife_acquisition_leads")
 FEXTRALIFE_LINKED_PLACE_AUDIT = load_repo_tool("check_fextralife_linked_place_leads")
+FEXTRALIFE_REDMAW_AUDIT = load_repo_tool("check_fextralife_redmaw_corroboration_leads")
 
 
 @unittest.skipUnless(REPO is not None, REPO_ONLY_REASON)
 class WikiAuditTest(unittest.TestCase):
+    def test_fextralife_corroborates_redmaw_exact_place_slice(self):
+        path = (REPO / "greenfield/evidence/wiki-audit" /
+                "fextralife-redmaw-corroboration-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 11)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertEqual(FEXTRALIFE_REDMAW_AUDIT.main(), 0)
+
     def test_registry_and_normalized_leads_validate(self):
         self.assertEqual(AUDIT.validate(REPO), (95, 16))
 
