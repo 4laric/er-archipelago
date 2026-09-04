@@ -66,6 +66,11 @@ FEXTRALIFE_REDMAW_AUDIT = load_repo_tool("check_fextralife_redmaw_corroboration_
 @unittest.skipUnless(REPO is not None, REPO_ONLY_REASON)
 class WikiAuditTest(unittest.TestCase):
     def test_eldenpedia_invasion_reward_category_validates(self):
+        path = (REPO / "greenfield/evidence/wiki-audit" /
+                "eldenpedia-invasion-reward-category.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 24)
         self.assertEqual(ELDENPEDIA_INVASION_REWARD_AUDIT.main(), 0)
 
     def test_fextralife_corroborates_redmaw_exact_place_slice(self):
