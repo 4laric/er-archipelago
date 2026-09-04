@@ -61,6 +61,23 @@ leads with different normalized values, so an empty file honestly means “none 
 
 ## Broad walkthrough coverage
 
+### Upgrade materials, flask upgrades, and blessing collectibles
+
+`upgrade-blessing-review.tsv` inventories the full upgrade/blessing family rather than selecting
+easy individual rows. It separates repeated Smithing Stone and Glovewort rows from uniquely
+landmark-anchored Golden Seed, Sacred Tear, Scadutree Fragment, and Revered Spirit Ash checks. Each
+row retains its exact event flag and map anchor, external-family count, and separate access
+disposition. Identity and region evidence never implies that a route is logically accessible.
+
+`upgrade-blessing-review-summary.json` reports audited, trusted, held, conflicted, and untouched
+counts per category. Repeated material rows require an exact flag/map-lot or uniquely identifying
+landmark; broad guide order is not enough to bind a repeated item to an AP slot.
+
+```bash
+python tools/build_upgrade_blessing_review_batch.py
+python tools/build_upgrade_blessing_review_batch.py --check
+```
+
 ### Unique dungeon and field pickup review batch
 
 `dungeon-field-unique-review.tsv` is the category-first inventory for unique, map-anchored,
