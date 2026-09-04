@@ -1,0 +1,1017 @@
+check_id	category	region	item_name	flag	map_id	review_status	external_family_count	external_families	next_evidence
+7773653	unique_dungeon_pickup	Abyssal	Frenzyflame Perfume Bottle	2053417000	m28_00	trusted	3	gameplay-guide:eip;gameplay-guide:gameofguides;gameplay-guide:redmaw	none_identity_region_trusted
+7770170	unique_dungeon_pickup	Abyssal	Mad Craftsman's Cookbook [3]	68880	m28_00	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7772021	unique_dungeon_pickup	Abyssal	Nanaya's Torch	28007100	m28_00	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7772017	unique_dungeon_pickup	Abyssal	Surging Frenzied Flame	28007050	m28_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772013	unique_dungeon_pickup	Abyssal	Torn Diary Page	28007010	m28_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7771138	unique_dungeon_pickup	Ainsel River	Ant's Skull Plate	12017970	m12_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771103	unique_dungeon_pickup	Ainsel River	Archer Ashes	12017630	m12_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771111	unique_dungeon_pickup	Ainsel River	Clayman Ashes	12017710	m12_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771140	unique_dungeon_pickup	Ainsel River	Ghost-Glovewort Picker's Bell Bearing [2]	12017980	m12_04	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773784	unique_dungeon_pickup	Ainsel River	Hermit Merchant's Bell Bearing [3]	400918	m12_01	remaining_unreviewed	0		first_independent_identity_region_source
+7771058	unique_dungeon_pickup	Ainsel River	Immunizing Horn Charm	12017180	m12_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771143	unique_dungeon_pickup	Ainsel River	Immunizing Horn Charm +1	12017992	m12_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771073	unique_dungeon_pickup	Ainsel River	Melted Mushroom	12017330	m12_01	remaining_unreviewed	0		first_independent_identity_region_source
+7770617	unique_dungeon_pickup	Ainsel River	Miniature Ranni	400394	m12_01	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771136	unique_dungeon_pickup	Ainsel River	Moon of Nokstella	12017960	m12_04	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7771086	unique_dungeon_pickup	Ainsel River	Mushroom Crown	12017460	m12_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771142	unique_dungeon_pickup	Ainsel River	Nightmaiden & Swordstress Puppets	12017990	m12_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770126	unique_dungeon_pickup	Ainsel River	Nomadic Warrior's Cookbook [22]	67890	m12_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771132	unique_dungeon_pickup	Ainsel River	Scorpion's Stinger	12017920	m12_04	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770130	unique_dungeon_pickup	Altus	Ancient Dragon Apostle's Cookbook [1]	68000	m30_07	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772274	unique_dungeon_pickup	Altus	Arsenal Charm +1	32057030	m32_05	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772076	unique_dungeon_pickup	Altus	Ash of War: Holy Ground	30107100	m30_10	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772205	unique_dungeon_pickup	Altus	Black Hood	31197050	m31_19	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772347	unique_dungeon_pickup	Altus	Blade of Calling	34147810	m34_14	remaining_unreviewed	0		first_independent_identity_region_source
+7772269	unique_dungeon_pickup	Altus	Boltdrake Talisman +1	32047040	m32_04	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772203	unique_dungeon_pickup	Altus	Candletree Wooden Shield	31197030	m31_19	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772052	unique_dungeon_pickup	Altus	Crimson Seed Talisman	30087010	m30_08	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772072	unique_dungeon_pickup	Altus	Crucible Feather Talisman	30107040	m30_10	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772054	unique_dungeon_pickup	Altus	Dragoncrest Shield Talisman +1	30087030	m30_08	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772344	unique_dungeon_pickup	Altus	Flamedrake Talisman +1	34147020	m34_14	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7772073	unique_dungeon_pickup	Altus	Golden Epitaph	30107050	m30_10	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772210	unique_dungeon_pickup	Altus	Golden Great Arrow	31197110	m31_19	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7772053	unique_dungeon_pickup	Altus	Leyndell Soldier Ashes	30087020	m30_08	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772051	unique_dungeon_pickup	Altus	Lightning Scorpion Charm	30077600	m30_07	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772343	unique_dungeon_pickup	Altus	Official's Attire	34147010	m34_14	remaining_unreviewed	0		first_independent_identity_region_source
+7770123	unique_dungeon_pickup	Altus	Perfumer's Cookbook [3]	67860	m30_13	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772081	unique_dungeon_pickup	Altus	"Prattling Pate ""Apologies"""	30127030	m30_12	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772056	unique_dungeon_pickup	Altus	"Prattling Pate ""Let's get to it"""	30087050	m30_08	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772209	unique_dungeon_pickup	Altus	Raptor Talons	31197100	m31_19	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772211	unique_dungeon_pickup	Altus	Raptor's Black Feathers	31197120	m31_19	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772212	unique_dungeon_pickup	Altus	Skeletal Mask	31197130	m31_19	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772337	unique_dungeon_pickup	Altus	Smithing-Stone Miner's Bell Bearing [2]	34127900	m34_12	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7900207	unique_dungeon_pickup	Altus	Tree Sentinel Armor	30107100	m30_10	remaining_unreviewed	0		first_independent_identity_region_source
+7900208	unique_dungeon_pickup	Altus	Tree Sentinel Gauntlets	30107100	m30_10	remaining_unreviewed	0		first_independent_identity_region_source
+7900209	unique_dungeon_pickup	Altus	Tree Sentinel Greaves	30107100	m30_10	remaining_unreviewed	0		first_independent_identity_region_source
+7900206	unique_dungeon_pickup	Altus	Tree Sentinel Helm	30107100	m30_10	remaining_unreviewed	0		first_independent_identity_region_source
+7772270	unique_dungeon_pickup	Altus	Troll's Hammer	32047050	m32_04	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7772075	unique_dungeon_pickup	Altus	Vulgar Militia Ashes	30107080	m30_10	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7772080	unique_dungeon_pickup	Altus	Winged Misbegotten Ashes	30127010	m30_12	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771032	unique_dungeon_pickup	Ashen Capital	Erdtree Heal	11057000	m11_05	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771037	unique_dungeon_pickup	Ashen Capital	Erdtree's Favor +2	11057100	m11_05	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900058	unique_dungeon_pickup	Ashen Capital	Gold Bracelets	400500	m11_05	remaining_unreviewed	0		first_independent_identity_region_source
+7900059	unique_dungeon_pickup	Ashen Capital	Gold Waistwrap	400500	m11_05	remaining_unreviewed	0		first_independent_identity_region_source
+7770627	unique_dungeon_pickup	Ashen Capital	Goldmask's Rags	400500	m11_05	remaining_unreviewed	0		first_independent_identity_region_source
+7770008	unique_dungeon_pickup	Ashen Capital	Mending Rune of Perfect Order	9500	m11_05	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771770	unique_dungeon_pickup	Belurat	Ash of War: Shriek of Sorrow	20007410	m20_00	trusted	2	gameplay-guide:game8;gameplay-wiki:fextralife	none_identity_region_trusted
+7771789	unique_dungeon_pickup	Belurat	Bone Bow	20007600	m20_00	trusted	2	gameplay-guide:game8;gameplay-wiki:fextralife	none_identity_region_trusted
+7770645	unique_dungeon_pickup	Belurat	Crusade Insignia	400694	m20_00	trusted	2	gameplay-guide:game8;gameplay-wiki:fextralife	none_identity_region_trusted
+7771809	unique_dungeon_pickup	Belurat	Divine Beast Head	20007810	m20_00	trusted	2	gameplay-guide:game8;gameplay-guide:powerpyx	none_identity_region_trusted
+7771792	unique_dungeon_pickup	Belurat	Dried Bouquet	20007630	m20_00	trusted	2	gameplay-guide:game8;gameplay-wiki:fextralife	none_identity_region_trusted
+7771762	unique_dungeon_pickup	Belurat	Euporia	20007330	m20_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771814	unique_dungeon_pickup	Belurat	Horned Warrior's Sword	20007993	m20_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771813	unique_dungeon_pickup	Belurat	Immunizing Horn Charm +2	20007991	m20_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770810	unique_dungeon_pickup	Belurat	Message from Leda	580600	m20_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771759	unique_dungeon_pickup	Belurat	Poisoned Hand	20007300	m20_00	trusted	2	gameplay-guide:game8;gameplay-wiki:fextralife	none_identity_region_trusted
+7770647	unique_dungeon_pickup	Belurat	Scorpion Stew	400720	m20_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771811	unique_dungeon_pickup	Belurat	Tower of Shadow Message	20007830	m20_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7770648	unique_dungeon_pickup	Belurat	Watchful Spirit	400721	m20_00	trusted	2	gameplay-guide:game8;gameplay-wiki:fextralife	none_identity_region_trusted
+7772159	unique_dungeon_pickup	Caelid	Bull-Goat's Talisman	31107050	m31_10	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772093	unique_dungeon_pickup	Caelid	Collapsing Stars	30167040	m30_16	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772280	unique_dungeon_pickup	Caelid	Cross-Naginata	32077020	m32_07	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772169	unique_dungeon_pickup	Caelid	Crystal Spear	31117200	m31_11	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7772170	unique_dungeon_pickup	Caelid	Crystalian Ashes	31117220	m31_11	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7772292	unique_dungeon_pickup	Caelid	Faithful's Canvas Talisman	32087120	m32_08	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772341	unique_dungeon_pickup	Caelid	Godslayer's Greatsword	34137900	m34_13	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7772085	unique_dungeon_pickup	Caelid	Imp Head (Wolf)	30147000	m30_14	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770621	unique_dungeon_pickup	Caelid	Lusat's Glintstone Crown	400431	m31_11	remaining_unreviewed	0		first_independent_identity_region_source
+7900051	unique_dungeon_pickup	Caelid	Lusat's Manchettes	400431	m31_11	remaining_unreviewed	0		first_independent_identity_region_source
+7900050	unique_dungeon_pickup	Caelid	Lusat's Robe	400431	m31_11	remaining_unreviewed	0		first_independent_identity_region_source
+7772089	unique_dungeon_pickup	Caelid	Miranda Sprout Ashes	30157000	m30_15	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7900052	unique_dungeon_pickup	Caelid	Old Sorcerer's Legwraps	400431	m31_11	remaining_unreviewed	0		first_independent_identity_region_source
+7772233	unique_dungeon_pickup	Caelid	Pillory Shield	31217210	m31_21	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772091	unique_dungeon_pickup	Caelid	Radahn Soldier Ashes	30167020	m30_16	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772234	unique_dungeon_pickup	Caelid	Regalia of Eochaid	31217350	m31_21	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772294	unique_dungeon_pickup	Caelid	Rock Blaster	32087910	m32_08	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772217	unique_dungeon_pickup	Caelid	Serpent Bow	31207020	m31_20	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773739	unique_dungeon_pickup	Caelid	Stars of Ruin	400430	m31_11	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7772216	unique_dungeon_pickup	Caelid	Venomous Fang	31207010	m31_20	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772225	unique_dungeon_pickup	Caelid	Wakizashi	31217100	m31_21	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774076	unique_dungeon_pickup	Cerulean	Chilling Perfume Bottle	41027100	m41_02	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772448	unique_dungeon_pickup	Cerulean	Clarifying Horn Charm +2	41027210	m41_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772450	unique_dungeon_pickup	Cerulean	Gaol Lower Level Key	41027320	m41_02	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772446	unique_dungeon_pickup	Cerulean	Gaol Upper Level Key	41027000	m41_02	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774079	unique_dungeon_pickup	Cerulean	Lamenting Visage	41027130	m41_02	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772006	unique_dungeon_pickup	Cerulean	Mass of Putrescence	22007210	m22_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772010	unique_dungeon_pickup	Cerulean	Multilayered Ring of Light	22007900	m22_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774075	unique_dungeon_pickup	Cerulean	"Prattling Pate ""Lamentation"""	41027010	m41_02	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770166	unique_dungeon_pickup	Cerulean	St. Trina Disciple's Cookbook [3]	68840	m22_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770652	unique_dungeon_pickup	Cerulean	St. Trina's Blossom	400740	m22_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770639	unique_dungeon_pickup	Cerulean	St. Trina's Smile	400632	m22_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772002	unique_dungeon_pickup	Cerulean	Velvet Sword of St. Trina	22007150	m22_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772109	unique_dungeon_pickup	Consecrated Snowfield	Imp Head (Elder)	30197040	m30_19	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7773985	unique_dungeon_pickup	Consecrated Snowfield	Spelldrake Talisman +2	30207060	m30_20	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7770786	unique_dungeon_pickup	Deeproot Depths	Ash of War: Golden Land	540660	m12_03	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771259	unique_dungeon_pickup	Deeproot Depths	Ash of War: Vacuum Slice	12037140	m12_03	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7900182	unique_dungeon_pickup	Deeproot Depths	Crucible Tree Armor	12037300	m12_03	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771275	unique_dungeon_pickup	Deeproot Depths	Crucible Tree Helm	12037300	m12_03	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771253	unique_dungeon_pickup	Deeproot Depths	Elden Stars	12037080	m12_03	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770603	unique_dungeon_pickup	Deeproot Depths	Fia's Hood	400339	m12_03	remaining_unreviewed	0		first_independent_identity_region_source
+7900026	unique_dungeon_pickup	Deeproot Depths	Fia's Robe	400339	m12_03	remaining_unreviewed	0		first_independent_identity_region_source
+7770604	unique_dungeon_pickup	Deeproot Depths	Inseparable Sword	400348	m12_03	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7771297	unique_dungeon_pickup	Deeproot Depths	Mausoleum Soldier Ashes	12037520	m12_03	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770009	unique_dungeon_pickup	Deeproot Depths	Mending Rune of the Death-Prince	9502	m12_03	trusted	3	gameplay-guide:game8;gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7771309	unique_dungeon_pickup	Deeproot Depths	Prince of Death's Cyst	12037990	m12_03	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771263	unique_dungeon_pickup	Deeproot Depths	Prince of Death's Staff	12037180	m12_03	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771308	unique_dungeon_pickup	Deeproot Depths	Staff of the Avatar	12037960	m12_03	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7900066	unique_dungeon_pickup	Enir Ilim	Braided Arm Wraps	400614	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7900065	unique_dungeon_pickup	Enir Ilim	Braided Cord Robe	400614	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7900064	unique_dungeon_pickup	Enir Ilim	Caterpillar Mask	400614	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7771883	unique_dungeon_pickup	Enir Ilim	Circlet of Light	20017981	m20_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770651	unique_dungeon_pickup	Enir Ilim	Dane's Footwork	400732	m20_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770633	unique_dungeon_pickup	Enir Ilim	Falx	400614	m20_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900061	unique_dungeon_pickup	Enir Ilim	Freyja's Armor	400602	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7900062	unique_dungeon_pickup	Enir Ilim	Freyja's Gauntlets	400602	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7770632	unique_dungeon_pickup	Enir Ilim	Freyja's Greatsword	400602	m20_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900063	unique_dungeon_pickup	Enir Ilim	Freyja's Greaves	400602	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7900060	unique_dungeon_pickup	Enir Ilim	Freyja's Helm	400602	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7900075	unique_dungeon_pickup	Enir Ilim	Furious Blade of Ansbach	400624	m20_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771849	unique_dungeon_pickup	Enir Ilim	Golden Bolt	20017340	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7771865	unique_dungeon_pickup	Enir Ilim	Gravebird Helm	20017500	m20_01	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7771857	unique_dungeon_pickup	Enir Ilim	Horned Warrior Ashes	20017420	m20_01	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7771884	unique_dungeon_pickup	Enir Ilim	Horned Warrior's Greatsword	20017991	m20_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771846	unique_dungeon_pickup	Enir Ilim	Inquisitor Ashes	20017310	m20_01	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7770631	unique_dungeon_pickup	Enir Ilim	Leda's Armor	400598	m20_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770669	unique_dungeon_pickup	Enir Ilim	Leda's Sword	510420	m20_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770641	unique_dungeon_pickup	Enir Ilim	Moore's Bell Bearing	400644	m20_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900074	unique_dungeon_pickup	Enir Ilim	Obsidian Lamina	400624	m20_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900067	unique_dungeon_pickup	Enir Ilim	Soiled Loincloth	400614	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7771838	unique_dungeon_pickup	Enir Ilim	Spira	20017230	m20_01	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7771863	unique_dungeon_pickup	Enir Ilim	Sunwarmth Stone	20017480	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7770640	unique_dungeon_pickup	Enir Ilim	Thiollier's Hidden Needle	400634	m20_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900093	unique_dungeon_pickup	Enir Ilim	Verdigris Armor	400645	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7900094	unique_dungeon_pickup	Enir Ilim	Verdigris Gauntlets	400645	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7770642	unique_dungeon_pickup	Enir Ilim	Verdigris Greatshield	400645	m20_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900095	unique_dungeon_pickup	Enir Ilim	Verdigris Greaves	400645	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7900092	unique_dungeon_pickup	Enir Ilim	Verdigris Helm	400645	m20_01	remaining_unreviewed	0		first_independent_identity_region_source
+7900018	unique_dungeon_pickup	Farum Azula	Alexander's Innards	400174	m13_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770132	unique_dungeon_pickup	Farum Azula	Ancient Dragon Apostle's Cookbook [4]	68020	m13_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7771416	unique_dungeon_pickup	Farum Azula	Ancient Dragon Prayerbook	13007120	m13_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771479	unique_dungeon_pickup	Farum Azula	Azula Beastman Ashes	13007890	m13_00	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770594	unique_dungeon_pickup	Farum Azula	Blasphemous Claw	400292	m13_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771468	unique_dungeon_pickup	Farum Azula	Boltdrake Talisman +2	13007760	m13_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7771483	unique_dungeon_pickup	Farum Azula	Dragon Towershield	13007940	m13_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771447	unique_dungeon_pickup	Farum Azula	Dragoncrest Shield Talisman +2	13007500	m13_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7900188	unique_dungeon_pickup	Farum Azula	Drake Knight Armor	13007920	m13_00	trusted	2	gameplay-guide:game8;gameplay-wiki:fextralife	none_identity_region_trusted
+7900189	unique_dungeon_pickup	Farum Azula	Drake Knight Gauntlets	13007920	m13_00	trusted	2	gameplay-guide:game8;gameplay-wiki:fextralife	none_identity_region_trusted
+7900190	unique_dungeon_pickup	Farum Azula	Drake Knight Greaves	13007920	m13_00	trusted	2	gameplay-guide:game8;gameplay-wiki:fextralife	none_identity_region_trusted
+7771482	unique_dungeon_pickup	Farum Azula	Drake Knight Helm	13007920	m13_00	trusted	2	gameplay-guide:game8;gameplay-wiki:fextralife	none_identity_region_trusted
+7771481	unique_dungeon_pickup	Farum Azula	Glovewort Picker's Bell Bearing [3]	13007910	m13_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7770793	unique_dungeon_pickup	Farum Azula	Golden Lightning Fortification	540772	m13_00	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7900191	unique_dungeon_pickup	Farum Azula	Malformed Dragon Armor	13007995	m13_00	trusted	2	gameplay-guide:game8;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7900192	unique_dungeon_pickup	Farum Azula	Malformed Dragon Gauntlets	13007995	m13_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900193	unique_dungeon_pickup	Farum Azula	Malformed Dragon Greaves	13007995	m13_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771489	unique_dungeon_pickup	Farum Azula	Malformed Dragon Helm	13007995	m13_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771484	unique_dungeon_pickup	Farum Azula	Old Lord's Talisman	13007950	m13_00	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771474	unique_dungeon_pickup	Farum Azula	Pearldrake Talisman	13007830	m13_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770579	unique_dungeon_pickup	Farum Azula	Shard of Alexander	400174	m13_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7771419	unique_dungeon_pickup	Farum Azula	Somberstone Miner's Bell Bearing [4]	13007150	m13_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7771470	unique_dungeon_pickup	Farum Azula	Somberstone Miner's Bell Bearing [5]	13007790	m13_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7770580	unique_dungeon_pickup	Farum Azula	Warrior Jar Shard	400175	m13_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770157	unique_dungeon_pickup	Gravesite	Ancient Dragon Knight's Cookbook [1]	68740	m40_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774028	unique_dungeon_pickup	Gravesite	Ash of War: Blinkbolt	40007900	m40_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774026	unique_dungeon_pickup	Gravesite	Black Knight Commander Andreas	40007810	m40_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774022	unique_dungeon_pickup	Gravesite	Electrocharge	40007090	m40_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770149	unique_dungeon_pickup	Gravesite	Greater Potentate's Cookbook [11]	68660	m41_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774060	unique_dungeon_pickup	Gravesite	Greatjar	41007250	m41_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771624	unique_dungeon_pickup	Haligtree	Cleanrot Knight Finlay	15007580	m15_00	trusted	3	gameplay-guide:game8;gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7771659	unique_dungeon_pickup	Haligtree	Dragoncrest Greatshield Talisman	15007930	m15_00	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7771574	unique_dungeon_pickup	Haligtree	Envoy Crown	15007080	m15_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771579	unique_dungeon_pickup	Haligtree	Flaming Bolt	15007130	m15_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771657	unique_dungeon_pickup	Haligtree	Ghost-Glovewort Picker's Bell Bearing [3]	15007910	m15_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771648	unique_dungeon_pickup	Haligtree	Haligtree Knight Helm	15007820	m15_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771635	unique_dungeon_pickup	Haligtree	Haligtree Soldier Ashes	15007690	m15_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771646	unique_dungeon_pickup	Haligtree	Marika's Soreseal	15007800	m15_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770600	unique_dungeon_pickup	Haligtree	Millicent's Prosthesis	400323	m15_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771619	unique_dungeon_pickup	Haligtree	Miquellan Knight's Sword	15007530	m15_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7771583	unique_dungeon_pickup	Haligtree	Oracle Envoy Ashes	15007170	m15_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771588	unique_dungeon_pickup	Haligtree	Pearldrake Talisman +2	15007220	m15_00	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7771577	unique_dungeon_pickup	Haligtree	"Prattling Pate ""My beloved"""	15007110	m15_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771652	unique_dungeon_pickup	Haligtree	Rotten Crystal Sword	15007860	m15_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771559	unique_dungeon_pickup	Haligtree	Rotten Staff	15001280	m15_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770625	unique_dungeon_pickup	Haligtree	Rotten Winged Sword Insignia	400480	m15_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7900196	unique_dungeon_pickup	Haligtree	Traveler's Boots	15007980	m15_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771664	unique_dungeon_pickup	Haligtree	Traveler's Clothes	15007980	m15_00	remaining_unreviewed	0		first_independent_identity_region_source
+7900195	unique_dungeon_pickup	Haligtree	Traveler's Manchettes	15007980	m15_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771622	unique_dungeon_pickup	Haligtree	Triple Rings of Light	15007560	m15_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771601	unique_dungeon_pickup	Haligtree	Viridian Amber Medallion +2	15007350	m15_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770799	unique_dungeon_pickup	Leyndell	"""Flightless Bird"" Painting"	580050	m11_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7900173	unique_dungeon_pickup	Leyndell	Alberich's Bracers	11007005	m11_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7770916	unique_dungeon_pickup	Leyndell	Alberich's Pointed Hat	11007005	m11_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900172	unique_dungeon_pickup	Leyndell	Alberich's Robe	11007005	m11_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900174	unique_dungeon_pickup	Leyndell	Alberich's Trousers	11007005	m11_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7770769	unique_dungeon_pickup	Leyndell	Ash of War: Thunderbolt	540372	m11_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770768	unique_dungeon_pickup	Leyndell	Barrier of Gold	540370	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7770995	unique_dungeon_pickup	Leyndell	Black Bow	11007670	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7771028	unique_dungeon_pickup	Leyndell	Blessed Dew Talisman	11007994	m11_00	trusted	2	gameplay-guide:game8;gameplay-guide:powerpyx	none_identity_region_trusted
+7771025	unique_dungeon_pickup	Leyndell	Blessing of the Erdtree	11007991	m11_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7772353	unique_dungeon_pickup	Leyndell	Bloodsoaked Manchettes	35007050	m35_00	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7900219	unique_dungeon_pickup	Leyndell	Bloodsoaked Mask	35007050	m35_00	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7771030	unique_dungeon_pickup	Leyndell	Bolt of Gransax	11007997	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7770936	unique_dungeon_pickup	Leyndell	Cane Sword	11007115	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7770925	unique_dungeon_pickup	Leyndell	Cave Moss	11007050	m11_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771020	unique_dungeon_pickup	Leyndell	Coded Sword	11007970	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7770612	unique_dungeon_pickup	Leyndell	Corhyn's Bell Bearing	400370	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7900040	unique_dungeon_pickup	Leyndell	Corhyn's Robe	400370	m11_00	remaining_unreviewed	0		first_independent_identity_region_source
+7772351	unique_dungeon_pickup	Leyndell	Crimson Amber Medallion +2	35007030	m35_00	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7772416	unique_dungeon_pickup	Leyndell	Crucible Scale Talisman	35007940	m35_00	trusted	2	gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7770922	unique_dungeon_pickup	Leyndell	Deathbed Dress	11007035	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7770918	unique_dungeon_pickup	Leyndell	Erdtree Bow	11007015	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7772406	unique_dungeon_pickup	Leyndell	Erdtree's Favor +1	35007700	m35_00	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7772408	unique_dungeon_pickup	Leyndell	Fingerprint Stone Shield	35007720	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770572	unique_dungeon_pickup	Leyndell	Frenzied Flame Seal	400089	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770139	unique_dungeon_pickup	Leyndell	Frenzied's Cookbook [2]	68410	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771023	unique_dungeon_pickup	Leyndell	Gargoyle's Halberd	11007987	m11_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7772378	unique_dungeon_pickup	Leyndell	Golden Centipede	35007340	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771014	unique_dungeon_pickup	Leyndell	Golden Order Principia	11007910	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7771024	unique_dungeon_pickup	Leyndell	Gravel Stone Seal	11007989	m11_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772417	unique_dungeon_pickup	Leyndell	Haligdrake Talisman +1	35007950	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770926	unique_dungeon_pickup	Leyndell	Hammer	11007055	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7770965	unique_dungeon_pickup	Leyndell	Imp Head (Corpse)	11007320	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7772405	unique_dungeon_pickup	Leyndell	Inescapable Frenzy	35007680	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7900175	unique_dungeon_pickup	Leyndell	Lionel's Armor	11007045	m11_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900176	unique_dungeon_pickup	Leyndell	Lionel's Gauntlets	11007045	m11_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900177	unique_dungeon_pickup	Leyndell	Lionel's Greaves	11007045	m11_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7770924	unique_dungeon_pickup	Leyndell	Lionel's Helm	11007045	m11_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7770010	unique_dungeon_pickup	Leyndell	Mending Rune of the Fell Curse	9504	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7772375	unique_dungeon_pickup	Leyndell	Mohg's Shackle	35007310	m35_00	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7772372	unique_dungeon_pickup	Leyndell	Nomad Ashes	35007270	m35_00	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7772407	unique_dungeon_pickup	Leyndell	Nomadic Merchant's Chapeau	35007710	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7900220	unique_dungeon_pickup	Leyndell	Nomadic Merchant's Finery	35007710	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7900221	unique_dungeon_pickup	Leyndell	Nomadic Merchant's Trousers	35007710	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770190	unique_dungeon_pickup	Leyndell	Note: Miquella's Needle	69740	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7900041	unique_dungeon_pickup	Leyndell	Omen Armor	400382	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7772420	unique_dungeon_pickup	Leyndell	Omen Bairn	35007990	m35_00	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7900042	unique_dungeon_pickup	Leyndell	Omen Gauntlets	400382	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7900043	unique_dungeon_pickup	Leyndell	Omen Greaves	400382	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770614	unique_dungeon_pickup	Leyndell	Omen Helm	400382	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771026	unique_dungeon_pickup	Leyndell	Omensmirk Mask	11007992	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7900178	unique_dungeon_pickup	Leyndell	Raging Wolf Armor	11007985	m11_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900179	unique_dungeon_pickup	Leyndell	Raging Wolf Gauntlets	11007985	m11_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900180	unique_dungeon_pickup	Leyndell	Raging Wolf Greaves	11007985	m11_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771022	unique_dungeon_pickup	Leyndell	Raging Wolf Helm	11007985	m11_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7772363	unique_dungeon_pickup	Leyndell	Rainbow Stone Arrow (Fletched)	35007170	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771029	unique_dungeon_pickup	Leyndell	Ritual Shield Talisman	11007996	m11_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770556	unique_dungeon_pickup	Leyndell	Rold Medallion	400001	m11_00	trusted	3	gameplay-guide:game8;gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7770043	unique_dungeon_pickup	Leyndell	Sanctified Whetblade	65660	m11_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772385	unique_dungeon_pickup	Leyndell	Shadow Bait	35007420	m35_00	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7771012	unique_dungeon_pickup	Leyndell	Star Fist	11007880	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7770613	unique_dungeon_pickup	Leyndell	Sword of Milos	400381	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770997	unique_dungeon_pickup	Leyndell	Two Fingers' Prayerbook	11007690	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7773936	unique_dungeon_pickup	Limgrave	Dragon Communion Seal	18007700	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771728	unique_dungeon_pickup	Limgrave	Erdtree Greatbow	18007900	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771727	unique_dungeon_pickup	Limgrave	Erdtree's Favor	18007050	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773935	unique_dungeon_pickup	Limgrave	Haligdrake Talisman	18007070	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772842	unique_dungeon_pickup	Limgrave	Lance	1042397010	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772822	unique_dungeon_pickup	Limgrave	Lordsworn's Greatsword	1042377070	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772032	unique_dungeon_pickup	Limgrave	"Prattling Pate ""Hello"""	30027030	m30_02	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7772193	unique_dungeon_pickup	Limgrave	Shamshir	31177080	m31_17	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773661	unique_dungeon_pickup	Limgrave	Tarnished's Furled Finger	60220	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772079	unique_dungeon_pickup	Limgrave	Uchigatana	30117020	m30_11	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772031	unique_dungeon_pickup	Limgrave	Wandering Noble Ashes	30027020	m30_02	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7900222	unique_dungeon_pickup	Liurnia	Bull-Goat Armor	39207500	m39_20	remaining_unreviewed	0		first_independent_identity_region_source
+7900223	unique_dungeon_pickup	Liurnia	Bull-Goat Gauntlets	39207500	m39_20	remaining_unreviewed	0		first_independent_identity_region_source
+7900224	unique_dungeon_pickup	Liurnia	Bull-Goat Greaves	39207500	m39_20	remaining_unreviewed	0		first_independent_identity_region_source
+7772424	unique_dungeon_pickup	Liurnia	Bull-Goat Helm	39207500	m39_20	remaining_unreviewed	0		first_independent_identity_region_source
+7772264	unique_dungeon_pickup	Liurnia	Crystal Knife	32027900	m32_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772144	unique_dungeon_pickup	Liurnia	Crystal Staff	31067030	m31_06	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772044	unique_dungeon_pickup	Liurnia	Nox Mirrorhelm	30067010	m30_06	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772045	unique_dungeon_pickup	Liurnia	Page Ashes	30067030	m30_06	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772049	unique_dungeon_pickup	Liurnia	"Prattling Pate ""Wonderful"""	30067080	m30_06	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772034	unique_dungeon_pickup	Liurnia	Raya Lucaria Soldier Ashes	30037010	m30_03	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772039	unique_dungeon_pickup	Liurnia	Rosus' Axe	30057000	m30_05	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772132	unique_dungeon_pickup	Liurnia	Sage Hood	31047060	m31_04	remaining_unreviewed	0		first_independent_identity_region_source
+7900211	unique_dungeon_pickup	Liurnia	Sage Robe	31047060	m31_04	remaining_unreviewed	0		first_independent_identity_region_source
+7900212	unique_dungeon_pickup	Liurnia	Sage Trousers	31047060	m31_04	remaining_unreviewed	0		first_independent_identity_region_source
+7772048	unique_dungeon_pickup	Liurnia	Scythe	30067070	m30_06	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773999	unique_dungeon_pickup	Liurnia	Serpent-God's Curved Sword	39207040	m39_20	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772263	unique_dungeon_pickup	Liurnia	Shatter Earth	32027070	m32_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772142	unique_dungeon_pickup	Liurnia	Spear Talisman	31057100	m31_05	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772037	unique_dungeon_pickup	Liurnia	Watchdog's Staff	30037040	m30_03	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770792	unique_dungeon_pickup	Mohgwyn	Ash of War: Blood Tax	540686	m12_05	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771320	unique_dungeon_pickup	Mohgwyn	Drawstring Blood Grease	12057120	m12_05	remaining_unreviewed	0		first_independent_identity_region_source
+7771341	unique_dungeon_pickup	Mohgwyn	Haligdrake Talisman +2	12057370	m12_05	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771316	unique_dungeon_pickup	Mohgwyn	Hero's Rune [3]	12057080	m12_05	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773785	unique_dungeon_pickup	Mohgwyn	Imprisoned Merchant's Bell Bearing	400919	m12_05	remaining_unreviewed	0		first_independent_identity_region_source
+7770128	unique_dungeon_pickup	Mohgwyn	Nomadic Warrior's Cookbook [24]	67910	m12_05	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771319	unique_dungeon_pickup	Mohgwyn	Swarm of Flies	12057110	m12_05	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7770560	unique_dungeon_pickup	Mohgwyn	Varre's Bouquet	400037	m12_05	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7900186	unique_dungeon_pickup	Mohgwyn	War Surgeon Gloves	12057950	m12_05	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900185	unique_dungeon_pickup	Mohgwyn	War Surgeon Gown (Altered)	12057950	m12_05	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900187	unique_dungeon_pickup	Mohgwyn	War Surgeon Trousers	12057950	m12_05	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771358	unique_dungeon_pickup	Mohgwyn	White Mask	12057950	m12_05	trusted	2	gameplay-guide:game8;gameplay-wiki:fextralife	none_identity_region_trusted
+7772094	unique_dungeon_pickup	Mountaintops of the Giants	Cranial Vessel Candlestand	30177000	m30_17	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772103	unique_dungeon_pickup	Mountaintops of the Giants	Fire Monk Ashes	30187070	m30_18	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772095	unique_dungeon_pickup	Mountaintops of the Giants	Flame, Protect Me	30177010	m30_17	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772097	unique_dungeon_pickup	Mountaintops of the Giants	Giant's Seal	30177030	m30_17	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772236	unique_dungeon_pickup	Mountaintops of the Giants	White Reed Armor	31227000	m31_22	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900216	unique_dungeon_pickup	Mountaintops of the Giants	White Reed Gauntlets	31227000	m31_22	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900217	unique_dungeon_pickup	Mountaintops of the Giants	White Reed Greaves	31227000	m31_22	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900197	unique_dungeon_pickup	Mt. Gelmir	Albinauric Mask	16007430	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771702	unique_dungeon_pickup	Mt. Gelmir	Albinauric Staff	16007430	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771668	unique_dungeon_pickup	Mt. Gelmir	Ash of War: Royal Knight's Resolve	16007020	m16_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771720	unique_dungeon_pickup	Mt. Gelmir	Aspects of the Crucible: Breath	16007950	m16_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771723	unique_dungeon_pickup	Mt. Gelmir	Bloodhound Claws	16007980	m16_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900203	unique_dungeon_pickup	Mt. Gelmir	Bloodhound Knight Armor	30097800	m30_09	remaining_unreviewed	0		first_independent_identity_region_source
+7900204	unique_dungeon_pickup	Mt. Gelmir	Bloodhound Knight Gauntlets	30097800	m30_09	remaining_unreviewed	0		first_independent_identity_region_source
+7900205	unique_dungeon_pickup	Mt. Gelmir	Bloodhound Knight Greaves	30097800	m30_09	remaining_unreviewed	0		first_independent_identity_region_source
+7772068	unique_dungeon_pickup	Mt. Gelmir	Bloodhound Knight Helm	30097800	m30_09	remaining_unreviewed	0		first_independent_identity_region_source
+7772156	unique_dungeon_pickup	Mt. Gelmir	Coil Shield	31097040	m31_09	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771707	unique_dungeon_pickup	Mt. Gelmir	Commoner's Headband	16007510	m16_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770564	unique_dungeon_pickup	Mt. Gelmir	Consort's Mask	400071	m16_00	remaining_unreviewed	0		first_independent_identity_region_source
+7900006	unique_dungeon_pickup	Mt. Gelmir	Consort's Robe	400071	m16_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771710	unique_dungeon_pickup	Mt. Gelmir	Crimson Amber Medallion +1	16007540	m16_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771704	unique_dungeon_pickup	Mt. Gelmir	Crimson Tear Scarab	16007480	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7900007	unique_dungeon_pickup	Mt. Gelmir	Daedicar's Woe	400091	m16_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771714	unique_dungeon_pickup	Mt. Gelmir	Dagger Talisman	16007620	m16_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771667	unique_dungeon_pickup	Mt. Gelmir	Depraved Perfumer Carmaan	16007010	m16_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771718	unique_dungeon_pickup	Mt. Gelmir	Eye Surcoat	16007730	m16_00	remaining_unreviewed	0		first_independent_identity_region_source
+7900200	unique_dungeon_pickup	Mt. Gelmir	Gelmir Knight Armor	30097050	m30_09	remaining_unreviewed	0		first_independent_identity_region_source
+7900201	unique_dungeon_pickup	Mt. Gelmir	Gelmir Knight Gauntlets	30097050	m30_09	remaining_unreviewed	0		first_independent_identity_region_source
+7900202	unique_dungeon_pickup	Mt. Gelmir	Gelmir Knight Greaves	30097050	m30_09	remaining_unreviewed	0		first_independent_identity_region_source
+7772064	unique_dungeon_pickup	Mt. Gelmir	Gelmir Knight Helm	30097050	m30_09	remaining_unreviewed	0		first_independent_identity_region_source
+7770593	unique_dungeon_pickup	Mt. Gelmir	Gelmir's Fury	400291	m16_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771719	unique_dungeon_pickup	Mt. Gelmir	Ghiza's Wheel	16007940	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770592	unique_dungeon_pickup	Mt. Gelmir	Letter to Bernahl	400290	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770581	unique_dungeon_pickup	Mt. Gelmir	Letter to Patches	400180	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770569	unique_dungeon_pickup	Mt. Gelmir	Magma Shot	400076	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771708	unique_dungeon_pickup	Mt. Gelmir	Man-Serpent Ashes	16007520	m16_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772067	unique_dungeon_pickup	Mt. Gelmir	Mantis Blade	30097700	m30_09	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770093	unique_dungeon_pickup	Mt. Gelmir	Missionary's Cookbook [6]	67130	m16_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900214	unique_dungeon_pickup	Mt. Gelmir	Mushroom Arms	31077030	m31_07	remaining_unreviewed	0		first_independent_identity_region_source
+7900213	unique_dungeon_pickup	Mt. Gelmir	Mushroom Body	31077030	m31_07	remaining_unreviewed	0		first_independent_identity_region_source
+7772148	unique_dungeon_pickup	Mt. Gelmir	Mushroom Head	31077030	m31_07	remaining_unreviewed	0		first_independent_identity_region_source
+7900215	unique_dungeon_pickup	Mt. Gelmir	Mushroom Legs	31077030	m31_07	remaining_unreviewed	0		first_independent_identity_region_source
+7770092	unique_dungeon_pickup	Mt. Gelmir	Nomadic Warrior's Cookbook [21]	67120	m16_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770016	unique_dungeon_pickup	Mt. Gelmir	Recusant Finger	60260	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770568	unique_dungeon_pickup	Mt. Gelmir	Red Letter	400075	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7772062	unique_dungeon_pickup	Mt. Gelmir	Ringed Finger	30097010	m30_09	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771717	unique_dungeon_pickup	Mt. Gelmir	Serpent's Amnion	16007710	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771715	unique_dungeon_pickup	Mt. Gelmir	Serpent-Hunter	16007690	m16_00	audited_one_family	1	gameplay-guide:powerpyx	second_independent_identity_region_source
+7770570	unique_dungeon_pickup	Mt. Gelmir	Serpentbone Blade	400077	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771713	unique_dungeon_pickup	Mt. Gelmir	Smoldering Shield	16007610	m16_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770571	unique_dungeon_pickup	Mt. Gelmir	Taker's Cameo	400078	m16_00	remaining_unreviewed	0		first_independent_identity_region_source
+7773707	unique_dungeon_pickup	Mt. Gelmir	Volcano Manor Invitation	400090	m16_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770573	unique_dungeon_pickup	Mt. Gelmir	Zorayas's Letter	400091	m16_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770161	unique_dungeon_pickup	Rauh Base	Ancient Dragon Knight's Cookbook [2]	68780	m40_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774033	unique_dungeon_pickup	Rauh Base	Black Knight Captain Huw	40017050	m40_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774035	unique_dungeon_pickup	Rauh Base	Imp Head (Lion)	40017070	m40_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774036	unique_dungeon_pickup	Rauh Base	Knight's Lightning Spear	40017080	m40_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774037	unique_dungeon_pickup	Rauh Base	Yellow Fulgurbloom	40017090	m40_01	remaining_unreviewed	0		first_independent_identity_region_source
+7772550	unique_dungeon_pickup	Raya Lucaria Academy	Ash of War: Raptor of the Mists	1035467700	m14_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770753	unique_dungeon_pickup	Raya Lucaria Academy	Ash of War: Spectral Lance	540272	m14_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771508	unique_dungeon_pickup	Raya Lucaria Academy	Avionette Soldier Ashes	14007290	m14_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771542	unique_dungeon_pickup	Raya Lucaria Academy	Azur's Glintstone Staff	14007840	m14_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7900194	unique_dungeon_pickup	Raya Lucaria Academy	Carian Knight Armor	14007850	m14_00	trusted	2	gameplay-guide:game8;gameplay-wiki:fextralife	none_identity_region_trusted
+7900286	unique_dungeon_pickup	Raya Lucaria Academy	Carian Knight Gauntlets	14007850	m14_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900287	unique_dungeon_pickup	Raya Lucaria Academy	Carian Knight Greaves	14007850	m14_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771543	unique_dungeon_pickup	Raya Lucaria Academy	Carian Knight Helm	14007850	m14_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771552	unique_dungeon_pickup	Raya Lucaria Academy	Carian Knight's Shield	14007980	m14_00	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771546	unique_dungeon_pickup	Raya Lucaria Academy	Comet	14007880	m14_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771513	unique_dungeon_pickup	Raya Lucaria Academy	Conspectus Scroll	14007360	m14_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770000	unique_dungeon_pickup	Raya Lucaria Academy	Dark Moon Ring	114	m14_00	remaining_unreviewed	0		first_independent_identity_region_source
+7900044	unique_dungeon_pickup	Raya Lucaria Academy	Eccentric's Armor	400401	m14_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900046	unique_dungeon_pickup	Raya Lucaria Academy	Eccentric's Breeches	400401	m14_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7770618	unique_dungeon_pickup	Raya Lucaria Academy	Eccentric's Hood	400401	m14_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900045	unique_dungeon_pickup	Raya Lucaria Academy	Eccentric's Manchettes	400401	m14_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771551	unique_dungeon_pickup	Raya Lucaria Academy	Full Moon Crossbow	14007970	m14_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770107	unique_dungeon_pickup	Raya Lucaria Academy	Glintstone Craftsman's Cookbook [5]	67420	m14_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773708	unique_dungeon_pickup	Raya Lucaria Academy	Glintstone Kris	400101	m14_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771548	unique_dungeon_pickup	Raya Lucaria Academy	Glintstone Scarab	14007910	m14_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770044	unique_dungeon_pickup	Raya Lucaria Academy	Glintstone Whetblade	65680	m14_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771547	unique_dungeon_pickup	Raya Lucaria Academy	Graven-School Talisman	14007890	m14_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771554	unique_dungeon_pickup	Raya Lucaria Academy	Gravity Well	14007995	m14_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771496	unique_dungeon_pickup	Raya Lucaria Academy	Karolos Glintstone Crown	14007035	m14_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771494	unique_dungeon_pickup	Raya Lucaria Academy	Lazuli Glintstone Crown	14007025	m14_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771510	unique_dungeon_pickup	Raya Lucaria Academy	Longtail Cat Talisman	14007320	m14_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771501	unique_dungeon_pickup	Raya Lucaria Academy	Marionette Soldier Ashes	14007150	m14_00	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7772549	unique_dungeon_pickup	Raya Lucaria Academy	Meeting Place Map	1035457100	m14_00	audited_one_family	1	gameplay-guide:game8	second_independent_identity_region_source
+7771534	unique_dungeon_pickup	Raya Lucaria Academy	Meteor Bolt	14007660	m14_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771492	unique_dungeon_pickup	Raya Lucaria Academy	Olivinus Glintstone Crown	14007015	m14_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771550	unique_dungeon_pickup	Raya Lucaria Academy	Radagon Icon	14007940	m14_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7770574	unique_dungeon_pickup	Raya Lucaria Academy	Sellen's Bell Bearing	400106	m14_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771541	unique_dungeon_pickup	Raya Lucaria Academy	Shattering Crystal	14007770	m14_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771549	unique_dungeon_pickup	Raya Lucaria Academy	Terra Magica	14007920	m14_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770611	unique_dungeon_pickup	Raya Lucaria Academy	Thops's Barrier	400362	m14_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770610	unique_dungeon_pickup	Raya Lucaria Academy	Thops's Bell Bearing	400360	m14_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771491	unique_dungeon_pickup	Raya Lucaria Academy	Twinsage Glintstone Crown	14007005	m14_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770575	unique_dungeon_pickup	Raya Lucaria Academy	Witch's Glintstone Crown	400107	m14_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770800	unique_dungeon_pickup	Scadu Altus	"""Domain of Dragons"" Painting"	580120	m21_00	remaining_unreviewed	0		first_independent_identity_region_source
+7900228	unique_dungeon_pickup	Scadu Altus	Armor of Night	41017300	m41_01	remaining_unreviewed	0		first_independent_identity_region_source
+7770629	unique_dungeon_pickup	Scadu Altus	Ash of War: Swift Slash	400594	m21_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771900	unique_dungeon_pickup	Scadu Altus	Bone Dart	21007170	m21_00	remaining_unreviewed	0		first_independent_identity_region_source
+7900227	unique_dungeon_pickup	Scadu Altus	Death Knight Greaves	40027130	m21_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771931	unique_dungeon_pickup	Scadu Altus	Death Mask Helm	21007995	m21_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770643	unique_dungeon_pickup	Scadu Altus	Fire Knight Queelign	400690	m21_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771925	unique_dungeon_pickup	Scadu Altus	Fire Knight's Seal	21007650	m21_00	remaining_unreviewed	0		first_independent_identity_region_source
+7900229	unique_dungeon_pickup	Scadu Altus	Gauntlets of Night	41017300	m41_01	remaining_unreviewed	0		first_independent_identity_region_source
+7900230	unique_dungeon_pickup	Scadu Altus	Greaves of Night	41017300	m41_01	remaining_unreviewed	0		first_independent_identity_region_source
+7772444	unique_dungeon_pickup	Scadu Altus	Helm of Night	41017300	m41_01	remaining_unreviewed	0		first_independent_identity_region_source
+7771887	unique_dungeon_pickup	Scadu Altus	Main-gauche	21007020	m21_00	remaining_unreviewed	0		first_independent_identity_region_source
+7771929	unique_dungeon_pickup	Scadu Altus	Mantle of Thorns	21007991	m21_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770644	unique_dungeon_pickup	Scadu Altus	Queelign's Greatsword	400692	m21_00	remaining_unreviewed	0		first_independent_identity_region_source
+7772442	unique_dungeon_pickup	Scadu Altus	Shield of Night	41017220	m41_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772435	unique_dungeon_pickup	Scadu Altus	Stalwart Horn Charm +2	41017020	m41_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771891	unique_dungeon_pickup	Scadu Altus	Talisman of Lord's Bestowal	21007070	m21_00	remaining_unreviewed	0		first_independent_identity_region_source
+7774045	unique_dungeon_pickup	Scadu Altus	Viridian Amber Medallion +3	40027020	m21_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7900198	unique_dungeon_pickup	Shadow Keep	Ash of War: Flame Spear	21017991	m21_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771941	unique_dungeon_pickup	Shadow Keep	Boltdrake Talisman +3	21017100	m21_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771970	unique_dungeon_pickup	Shadow Keep	Carian Thrusting Shield	21017620	m21_01	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771946	unique_dungeon_pickup	Shadow Keep	Dueling Shield with Ash of War: Shield Strike	21017150	m21_01	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7771981	unique_dungeon_pickup	Shadow Keep	Fire Knight Hilde	21017800	m21_01	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771973	unique_dungeon_pickup	Shadow Keep	Fire Serpent	21017650	m21_01	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771967	unique_dungeon_pickup	Shadow Keep	Impenetrable Thorns	21017510	m21_01	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771943	unique_dungeon_pickup	Shadow Keep	Pearldrake Talisman +3	21017120	m21_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771949	unique_dungeon_pickup	Shadow Keep	Storehouse Cross Message	21017180	m21_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771982	unique_dungeon_pickup	Shadow Keep	Winged Serpent Helm	21017991	m21_01	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771979	unique_dungeon_pickup	Shadow Keep	Wrath from Afar	21017780	m21_01	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773783	unique_dungeon_pickup	Siofra River	Abandoned Merchant's Bell Bearing	400917	m12_02	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771153	unique_dungeon_pickup	Siofra River	Ancestral Infant's Head	12027090	m12_02	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770103	unique_dungeon_pickup	Siofra River	Armorer's Cookbook [6]	67300	m12_02	remaining_unreviewed	0		first_independent_identity_region_source
+7770783	unique_dungeon_pickup	Siofra River	Ash of War: Enchanted Shot	540646	m12_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770781	unique_dungeon_pickup	Siofra River	Ash of War: Square Off	540630	m12_02	remaining_unreviewed	0		first_independent_identity_region_source
+7770045	unique_dungeon_pickup	Siofra River	Black Whetblade	65720	m12_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771192	unique_dungeon_pickup	Siofra River	Clarifying Horn Charm	12027470	m12_02	remaining_unreviewed	0		first_independent_identity_region_source
+7771194	unique_dungeon_pickup	Siofra River	Clarifying Horn Charm +1	12027490	m12_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771187	unique_dungeon_pickup	Siofra River	Crucible Hornshield	12027435	m12_02	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771389	unique_dungeon_pickup	Siofra River	Ghost-Glovewort Picker's Bell Bearing [1]	12077400	m12_09	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771399	unique_dungeon_pickup	Siofra River	Ghostflame Torch	12077500	m12_09	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770780	unique_dungeon_pickup	Siofra River	Great Oracular Bubble	540610	m12_02	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771393	unique_dungeon_pickup	Siofra River	Greatshield Soldier Ashes	12077440	m12_08	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771185	unique_dungeon_pickup	Siofra River	Horn Bow	12027420	m12_02	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771157	unique_dungeon_pickup	Siofra River	Inverted Hawk Heater Shield	12027140	m12_02	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771150	unique_dungeon_pickup	Siofra River	Marika's Scarseal	12027050	m12_02	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771232	unique_dungeon_pickup	Siofra River	Mimic Tear Ashes	12027880	m12_02	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770116	unique_dungeon_pickup	Siofra River	Missionary's Cookbook [5]	67630	m12_02	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771147	unique_dungeon_pickup	Siofra River	Mottled Necklace	12027000	m12_02	remaining_unreviewed	0		first_independent_identity_region_source
+7771207	unique_dungeon_pickup	Siofra River	Mottled Necklace +1	12027620	m12_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771235	unique_dungeon_pickup	Siofra River	Nox Flowing Hammer	12027910	m12_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770785	unique_dungeon_pickup	Siofra River	Oracle Bubbles	540652	m12_08	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7770784	unique_dungeon_pickup	Siofra River	Order Healing	540648	m12_02	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770798	unique_dungeon_pickup	Stormveil	"""Prophecy"" Painting"	580040	m10_00	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7770867	unique_dungeon_pickup	Stormveil	Arbalest	10007550	m10_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770731	unique_dungeon_pickup	Stormveil	Ash of War: Storm Assault	540170	m10_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770732	unique_dungeon_pickup	Stormveil	Ash of War: Stormcaller	540172	m10_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770843	unique_dungeon_pickup	Stormveil	Aspects of the Crucible: Horns	10007295	m10_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770815	unique_dungeon_pickup	Stormveil	Brick Hammer	10007035	m10_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770858	unique_dungeon_pickup	Stormveil	Chrysalids' Memento	10007450	m10_00	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7770836	unique_dungeon_pickup	Stormveil	Claw Talisman	10007230	m10_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770868	unique_dungeon_pickup	Stormveil	Commoner's Simple Garb	10007560	m10_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770910	unique_dungeon_pickup	Stormveil	Curved Sword Talisman	10007975	m10_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770912	unique_dungeon_pickup	Stormveil	Godskin Prayerbook	10007990	m10_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770908	unique_dungeon_pickup	Stormveil	Godslayer's Seal	10007965	m10_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773705	unique_dungeon_pickup	Stormveil	Gostoc's Bell Bearing	400051	m10_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770812	unique_dungeon_pickup	Stormveil	Hawk Crest Wooden Shield	10007015	m10_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770848	unique_dungeon_pickup	Stormveil	Highland Axe	10007340	m10_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770830	unique_dungeon_pickup	Stormveil	Hookclaws	10007180	m10_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770041	unique_dungeon_pickup	Stormveil	Iron Whetblade	65610	m10_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770821	unique_dungeon_pickup	Stormveil	Manor Towershield	10007090	m10_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770822	unique_dungeon_pickup	Stormveil	Marred Leather Shield	10007100	m10_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770846	unique_dungeon_pickup	Stormveil	Marred Wooden Shield	10007320	m10_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770909	unique_dungeon_pickup	Stormveil	Mimic's Veil	10007970	m10_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770813	unique_dungeon_pickup	Stormveil	Misericorde	10007025	m10_00	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7770084	unique_dungeon_pickup	Stormveil	Nomadic Warrior's Cookbook [10]	67030	m10_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770874	unique_dungeon_pickup	Stormveil	Pike	10007620	m10_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770905	unique_dungeon_pickup	Stormveil	Prince of Death's Pustule	10007940	m10_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770811	unique_dungeon_pickup	Stormveil	Wooden Greatshield	10007005	m10_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770794	unique_dungeon_pickup	Weeping	About Stakes of Marika	550050	m30_00	remaining_unreviewed	0		first_independent_identity_region_source
+7770125	unique_dungeon_pickup	Weeping	Nomadic Warrior's Cookbook [8]	67880	m31_02	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770108	unique_dungeon_pickup	Weeping	Nomadic Warrior's Cookbook [9]	67430	m30_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772028	unique_dungeon_pickup	Weeping	"Prattling Pate ""Please help"""	30017020	m30_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772026	unique_dungeon_pickup	Weeping	"Prattling Pate ""Thank you"""	30007040	m30_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774281	unique_field_pickup	Altus	Amber Starlight	1040527000	m60_40_52	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7770742	unique_field_pickup	Altus	Ash of War: Barbaric Roar	540224	m60_38_51	remaining_unreviewed	0		first_independent_identity_region_source
+7770758	unique_field_pickup	Altus	Ash of War: Blood Blade	540306	m60_40_52	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770757	unique_field_pickup	Altus	Ash of War: Earthshaker	540304	m60_39_51	remaining_unreviewed	0		first_independent_identity_region_source
+7770763	unique_field_pickup	Altus	Ash of War: Golden Parry	540316	m60_44_53	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770759	unique_field_pickup	Altus	Ash of War: Golden Slam	540308	m60_41_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770760	unique_field_pickup	Altus	Ash of War: Lightning Ram	540310	m60_41_51	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770764	unique_field_pickup	Altus	Ash of War: Lightning Slash	540318	m60_43_53	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7770762	unique_field_pickup	Altus	Ash of War: Prayerful Strike	540314	m60_45_52	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770755	unique_field_pickup	Altus	Ash of War: Sacred Order	540300	m60_38_51	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770756	unique_field_pickup	Altus	Ash of War: Shield Crash	540302	m60_38_51	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7900249	unique_field_pickup	Altus	Battlemage Legwraps	1040557700	m60_39_54	remaining_unreviewed	0		first_independent_identity_region_source
+7900248	unique_field_pickup	Altus	Battlemage Manchettes	1040557700	m60_39_54	remaining_unreviewed	0		first_independent_identity_region_source
+7900247	unique_field_pickup	Altus	Battlemage Robe	1040557700	m60_39_54	remaining_unreviewed	0		first_independent_identity_region_source
+7772769	unique_field_pickup	Altus	Bloody Helice	1040537010	m60_40_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772851	unique_field_pickup	Altus	Celebrant's Skull	1042557000	m60_42_55	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774254	unique_field_pickup	Altus	Eleonora's Poleblade	1039527700	m60_40_52	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770709	unique_field_pickup	Altus	Erdtree Greatshield	530335	m60_41_51	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770806	unique_field_pickup	Altus	Fire's Deadly Sin	580350	m60_43_53	remaining_unreviewed	0		first_independent_identity_region_source
+7772849	unique_field_pickup	Altus	Gargoyle's Great Axe	1042517900	m60_41_52	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7772778	unique_field_pickup	Altus	Giant Rat Ashes	1040557000	m60_39_54	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774321	unique_field_pickup	Altus	Giant-Crusher	1042507000	m60_41_51	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772893	unique_field_pickup	Altus	Golden Order Seal	1043507000	m60_41_51	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774336	unique_field_pickup	Altus	Greatbow	1042547060	m60_42_55	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774231	unique_field_pickup	Altus	Greatshield Talisman	1038517030	m60_38_51	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774290	unique_field_pickup	Altus	Haima Glintstone Crown	1040557700	m60_39_54	remaining_unreviewed	0		first_independent_identity_region_source
+7770803	unique_field_pickup	Altus	Harp Bow	580320	m60_41_52	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773776	unique_field_pickup	Altus	Hermit Merchant's Bell Bearing [1]	400909	m60_43_53	remaining_unreviewed	0		first_independent_identity_region_source
+7774312	unique_field_pickup	Altus	Icon Shield	1041537080	m60_41_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770117	unique_field_pickup	Altus	Missionary's Cookbook [4]	67640	m60_41_51	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770578	unique_field_pickup	Altus	Nagakiba with Ash of War: Piercing Fang	400163	m60_40_52	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774317	unique_field_pickup	Altus	Navy Hood	1041557020	m60_42_55	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7900251	unique_field_pickup	Altus	Noble's Gloves	1041557020	m60_42_55	remaining_unreviewed	0		first_independent_identity_region_source
+7900250	unique_field_pickup	Altus	Noble's Traveling Garb	1041557020	m60_42_55	remaining_unreviewed	0		first_independent_identity_region_source
+7900252	unique_field_pickup	Altus	Noble's Trousers	1041557020	m60_42_55	remaining_unreviewed	0		first_independent_identity_region_source
+7773777	unique_field_pickup	Altus	Nomadic Merchant's Bell Bearing [7]	400910	m60_40_52	remaining_unreviewed	0		first_independent_identity_region_source
+7770122	unique_field_pickup	Altus	Perfumer's Cookbook [2]	67850	m60_39_54	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770761	unique_field_pickup	Altus	Protection of the Erdtree	540312	m60_41_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770039	unique_field_pickup	Altus	Purifying Crystal Tear	65270	m60_40_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772777	unique_field_pickup	Altus	Radiant Gold Mask	1040547090	m60_41_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7774233	unique_field_pickup	Altus	Ritual Sword Talisman	1038517050	m60_38_51	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772634	unique_field_pickup	Altus	Ruler's Mask	1037517020	m60_38_51	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900239	unique_field_pickup	Altus	Ruler's Robe	1037517020	m60_38_51	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7770563	unique_field_pickup	Altus	Tonic of Forgetfulness	400070	m60_41_53	remaining_unreviewed	0		first_independent_identity_region_source
+7774237	unique_field_pickup	Altus	Troll's Golden Sword	1038517090	m60_38_51	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770036	unique_field_pickup	Altus	Twiggy Cracked Tear	65190	m60_44_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774315	unique_field_pickup	Altus	Twinned Knight Swords	1041557000	m60_42_55	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774277	unique_field_pickup	Altus	Valkyrie's Prosthesis	1039547300	m60_39_54	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772899	unique_field_pickup	Altus	Viridian Amber Medallion +1	1043527500	m60_44_53	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770033	unique_field_pickup	Altus	Winged Crystal Tear	65120	m60_44_53	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774307	unique_field_pickup	Altus	Wrath of Gold	1041537020	m60_41_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773447	unique_field_pickup	Ancient Ruins	Ancient Ruins Cross Message	2047477000	m61_46_46	trusted	3	gameplay-guide:eip;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773352	unique_field_pickup	Ancient Ruins	Ash of War: Dryleaf Whirlwind	2046477150	m61_46_46	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7773454	unique_field_pickup	Ancient Ruins	Bloodfiend's Sacred Spear	2047477950	m61_46_46	remaining_unreviewed	0		first_independent_identity_region_source
+7773361	unique_field_pickup	Ancient Ruins	Bondstone	2046487010	m61_46_46	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773221	unique_field_pickup	Ancient Ruins	Divine Bird Feathers	2044467110	m61_44_45	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770147	unique_field_pickup	Ancient Ruins	Greater Potentate's Cookbook [9]	68640	m61_44_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773453	unique_field_pickup	Ancient Ruins	Pearl Shield Talisman	2047477900	m61_46_46	remaining_unreviewed	0		first_independent_identity_region_source
+7773216	unique_field_pickup	Ancient Ruins	Pest-Thread Spears	2044467040	m61_44_45	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773220	unique_field_pickup	Ancient Ruins	Scarlet Bud	2044467080	m61_44_45	remaining_unreviewed	0		first_independent_identity_region_source
+7773343	unique_field_pickup	Ancient Ruins	Spider Scorpion Ashes	2046477020	m61_46_46	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773210	unique_field_pickup	Ancient Ruins	Talisman of All Crucibles	2044457900	m61_44_45	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7773355	unique_field_pickup	Ancient Ruins	Verdigris Discus	2046477720	m61_46_46	remaining_unreviewed	0		first_independent_identity_region_source
+7773907	unique_field_pickup	Caelid	"""Redmane"" Painting"	580060	m60_51_40	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770133	unique_field_pickup	Caelid	Ancient Dragon Apostle's Cookbook [3]	68030	m60_49_37	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770099	unique_field_pickup	Caelid	Armorer's Cookbook [4]	67260	m60_51_36	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770104	unique_field_pickup	Caelid	Armorer's Cookbook [5]	67310	m60_51_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773074	unique_field_pickup	Caelid	Arrow's Sting Talisman	1050367900	m60_51_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773884	unique_field_pickup	Caelid	Ash of War: Cragblade	540414	m60_49_37	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773886	unique_field_pickup	Caelid	Ash of War: Double Slash	540418	m60_49_39	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770773	unique_field_pickup	Caelid	Ash of War: Flame of the Redmanes	540410	m60_48_40	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773883	unique_field_pickup	Caelid	Ash of War: Flaming Strike	540408	m60_51_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770771	unique_field_pickup	Caelid	Ash of War: Lifesteal Fist	540402	m60_49_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7772986	unique_field_pickup	Caelid	Ash of War: Lion's Claw	1047387700	m60_48_37	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770772	unique_field_pickup	Caelid	Ash of War: Poisonous Mist	540406	m60_48_37	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770807	unique_field_pickup	Caelid	Ash of War: Rain of Arrows	580360	m60_51_40	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770722	unique_field_pickup	Caelid	Ash of War: Sacred Blade	540118	m60_47_40	remaining_unreviewed	0		first_independent_identity_region_source
+7773882	unique_field_pickup	Caelid	Ash of War: Sacred Ring of Light	540404	m60_49_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770774	unique_field_pickup	Caelid	Ash of War: Sky Shot	540412	m60_48_41	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773727	unique_field_pickup	Caelid	Beast Eye	400239	m60_51_43	remaining_unreviewed	0		first_independent_identity_region_source
+7773887	unique_field_pickup	Caelid	Bestial Constitution	540420	m60_52_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773085	unique_field_pickup	Caelid	Cerulean Tear Scarab	1050397070	m60_49_39	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774510	unique_field_pickup	Caelid	Cinquedea	1051417010	m60_52_41	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774511	unique_field_pickup	Caelid	Dragoncrest Shield Talisman	1051417030	m60_52_41	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772966	unique_field_pickup	Caelid	Drawstring Lightning Grease	1046407060	m60_47_40	trusted	2	gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7774465	unique_field_pickup	Caelid	Eternal Darkness	1049387800	m60_49_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774427	unique_field_pickup	Caelid	Explosive Bolt	1047407040	m60_47_40	remaining_unreviewed	0		first_independent_identity_region_source
+7773120	unique_field_pickup	Caelid	Flamberge	1051367130	m60_51_36	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772984	unique_field_pickup	Caelid	Flame, Grant Me Strength	1047387120	m60_48_37	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773732	unique_field_pickup	Caelid	Flock's Canvas Talisman	400312	m60_49_38	remaining_unreviewed	0		first_independent_identity_region_source
+7900025	unique_field_pickup	Caelid	Gowry's Bell Bearing	400312	m60_49_37	remaining_unreviewed	0		first_independent_identity_region_source
+7770624	unique_field_pickup	Caelid	Great-Jar's Arsenal	400470	m60_47_40	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7774431	unique_field_pickup	Caelid	Greatsword	1047407920	m60_47_40	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773781	unique_field_pickup	Caelid	Isolated Merchant's Bell Bearing [3]	400915	m60_48_41	remaining_unreviewed	0		first_independent_identity_region_source
+7772989	unique_field_pickup	Caelid	Katar	1047387920	m60_48_37	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774473	unique_field_pickup	Caelid	Lusat's Glintstone Staff	1049397900	m60_49_39	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772988	unique_field_pickup	Caelid	Meteoric Ore Blade	1047387910	m60_48_37	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7770118	unique_field_pickup	Caelid	Missionary's Cookbook [3]	67650	m60_47_40	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7773088	unique_field_pickup	Caelid	Night Comet	1050397900	m60_49_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773780	unique_field_pickup	Caelid	Nomadic Merchant's Bell Bearing [10]	400913	m60_49_37	remaining_unreviewed	0		first_independent_identity_region_source
+7773779	unique_field_pickup	Caelid	Nomadic Merchant's Bell Bearing [9]	400912	m60_49_39	remaining_unreviewed	0		first_independent_identity_region_source
+7770124	unique_field_pickup	Caelid	Nomadic Warrior's Cookbook [14]	67870	m60_47_40	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7773885	unique_field_pickup	Caelid	Poison Armament	540416	m60_49_39	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773127	unique_field_pickup	Caelid	Radagon's Soreseal	1051397060	m60_52_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770042	unique_field_pickup	Caelid	Red-Hot Whetblade	65640	m60_51_36	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774634	unique_field_pickup	Caelid	Reed Great Katana	1050407000	m60_51_40	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774633	unique_field_pickup	Caelid	Ritual Thrusting Shield	1047427000	m60_48_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773019	unique_field_pickup	Caelid	Rock Sling	1048397900	m60_49_39	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774470	unique_field_pickup	Caelid	Rotten Stray Ashes	1049397040	m60_49_39	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772967	unique_field_pickup	Caelid	Sacred Scorpion Charm	1046407700	m60_47_40	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7774474	unique_field_pickup	Caelid	Spelldrake Talisman +1	1049397910	m60_49_39	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774439	unique_field_pickup	Caelid	Spiked Palisade Shield	1048407060	m60_48_40	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774469	unique_field_pickup	Caelid	Staff of Loss	1049397030	m60_49_39	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772987	unique_field_pickup	Caelid	Starscourge Heirloom	1047387900	m60_48_37	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774430	unique_field_pickup	Caelid	Sword of St. Trina	1047407910	m60_47_40	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774440	unique_field_pickup	Caelid	Visage Shield	1048407900	m60_48_40	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770770	unique_field_pickup	Caelid	Whirl, O Flame!	540400	m60_47_40	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770034	unique_field_pickup	Caelid	Windy Crystal Tear	65150	m60_49_37	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773380	unique_field_pickup	Cerulean	Beast Claw with Ash of War: Savage Claws	2047407980	m61_46_40	remaining_unreviewed	0		first_independent_identity_region_source
+7770173	unique_field_pickup	Cerulean	Finger-Weaver's Cookbook [1]	68920	m61_48_38	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773370	unique_field_pickup	Cerulean	Ghostflame Bloom	2047397050	m61_47_39	remaining_unreviewed	0		first_independent_identity_region_source
+7770175	unique_field_pickup	Cerulean	Grave Keeper's Cookbook [1]	68940	m61_46_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773303	unique_field_pickup	Cerulean	Gravebird Ashes	2046397040	m61_46_38	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770154	unique_field_pickup	Cerulean	Greater Potentate's Cookbook [14]	68710	m61_47_39	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773469	unique_field_pickup	Cerulean	Lightning Perfume Bottle	2048407000	m61_47_39	remaining_unreviewed	0		first_independent_identity_region_source
+7773387	unique_field_pickup	Cerulean	Mushroom-Seller's Bell Bearing [2]	2047417110	m61_46_40	remaining_unreviewed	0		first_independent_identity_region_source
+7773299	unique_field_pickup	Cerulean	Perfumed Oil of Ranah	2046387070	m61_46_38	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773468	unique_field_pickup	Cerulean	Rings of Spectral Light	2048397050	m61_47_39	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773470	unique_field_pickup	Cerulean	Spirit Glaive	2048407010	m61_47_39	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773368	unique_field_pickup	Cerulean	Spirit Sword	2047397000	m61_47_39	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770159	unique_field_pickup	Cerulean	St. Trina Disciple's Cookbook [1]	68760	m61_48_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770176	unique_field_pickup	Cerulean	St. Trina Disciple's Cookbook [2]	68950	m61_47_39	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770169	unique_field_pickup	Cerulean	Tibia's Cookbook	68870	m61_48_38	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773893	unique_field_pickup	Consecrated Snowfield	Ash of War: White Shadow's Lure	540524	m60_48_55	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900264	unique_field_pickup	Consecrated Snowfield	Black Knife Armor	1048577810	m60_48_57	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900265	unique_field_pickup	Consecrated Snowfield	Black Knife Gauntlets	1048577810	m60_48_57	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900266	unique_field_pickup	Consecrated Snowfield	Black Knife Greaves	1048577810	m60_48_57	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7773045	unique_field_pickup	Consecrated Snowfield	Black Knife Hood	1048577810	m60_48_57	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7774478	unique_field_pickup	Consecrated Snowfield	Fire Blossom	1049557320	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
+7770109	unique_field_pickup	Consecrated Snowfield	Glintstone Craftsman's Cookbook [8]	67440	m60_50_56	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770804	unique_field_pickup	Consecrated Snowfield	Greathood	580330	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
+7900272	unique_field_pickup	Consecrated Snowfield	Hoslow's Armor	1050567700	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
+7900273	unique_field_pickup	Consecrated Snowfield	Hoslow's Gauntlets	1050567700	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
+7900274	unique_field_pickup	Consecrated Snowfield	Hoslow's Greaves	1050567700	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
+7900271	unique_field_pickup	Consecrated Snowfield	Hoslow's Helm	1050567700	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
+7774501	unique_field_pickup	Consecrated Snowfield	Hoslow's Petal Whip	1050567700	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
+7900261	unique_field_pickup	Consecrated Snowfield	Night's Cavalry Armor	1048557710	m60_48_55	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900262	unique_field_pickup	Consecrated Snowfield	Night's Cavalry Gauntlets	1048557710	m60_48_55	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900263	unique_field_pickup	Consecrated Snowfield	Night's Cavalry Greaves	1048557710	m60_48_55	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7774445	unique_field_pickup	Consecrated Snowfield	Night's Cavalry Helm	1048557710	m60_48_55	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7770089	unique_field_pickup	Consecrated Snowfield	Nomadic Warrior's Cookbook [23]	67090	m60_48_55	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772996	unique_field_pickup	Consecrated Snowfield	Rimed Rowa	1047557010	m60_48_55	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7774443	unique_field_pickup	Consecrated Snowfield	Rotten Battle Hammer	1048547990	m60_48_55	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7774452	unique_field_pickup	Consecrated Snowfield	Rotten Duelist Greaves	1048577990	m60_48_57	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900260	unique_field_pickup	Consecrated Snowfield	Rotten Duelist Helm	1048547990	m60_48_55	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7900267	unique_field_pickup	Consecrated Snowfield	Rotten Greataxe	1048577990	m60_48_57	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773003	unique_field_pickup	Consecrated Snowfield	Sanguine Noble Hood	1047567700	m60_48_55	remaining_unreviewed	0		first_independent_identity_region_source
+7900258	unique_field_pickup	Consecrated Snowfield	Sanguine Noble Robe	1047567700	m60_48_57	remaining_unreviewed	0		first_independent_identity_region_source
+7900259	unique_field_pickup	Consecrated Snowfield	Sanguine Noble Waistcloth	1047567700	m60_48_55	remaining_unreviewed	0		first_independent_identity_region_source
+7773007	unique_field_pickup	Consecrated Snowfield	Silver Mirrorshield	1047587800	m60_48_57	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773029	unique_field_pickup	Consecrated Snowfield	Stalwart Horn Charm +1	1048557600	m60_48_55	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772999	unique_field_pickup	Consecrated Snowfield	Unendurable Frenzy	1047557900	m60_48_55	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773896	unique_field_pickup	Ensis	Ash of War: Piercing Throw	540902	m61_48_44	remaining_unreviewed	0		first_independent_identity_region_source
+7773497	unique_field_pickup	Ensis	Ash of War: Wing Stance	2048447810	m61_48_44	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773427	unique_field_pickup	Ensis	Castle Cross Message	2047447710	m61_48_44	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773421	unique_field_pickup	Ensis	Drawstring Royal Magic Grease	2047447200	m61_48_44	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7773411	unique_field_pickup	Ensis	Glintblade Trio	2047447090	m61_48_44	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773429	unique_field_pickup	Ensis	Milady	2047447800	m61_48_44	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773426	unique_field_pickup	Ensis	Rellana's Cameo	2047447700	m61_48_44	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773431	unique_field_pickup	Ensis	Wolf Crest Shield	2047447830	m61_48_44	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773320	unique_field_pickup	Gravesite	Ailment Talisman	2046447030	m61_45_44	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772451	unique_field_pickup	Gravesite	Anvil Hammer	42007000	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773243	unique_field_pickup	Gravesite	Ash of War: Savage Lion's Claw	2045437700	m61_45_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773393	unique_field_pickup	Gravesite	Backhand Blade with Ash of War: Blind Spot	2047427700	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773389	unique_field_pickup	Gravesite	Blade of Mercy	2047417800	m61_46_41	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773310	unique_field_pickup	Gravesite	Blessed Blue Dew Talisman	2046407700	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773240	unique_field_pickup	Gravesite	Bloodfiend's Arm	2045417950	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773430	unique_field_pickup	Gravesite	Carian Sorcery Sword	2047447820	m61_45_44	remaining_unreviewed	0		first_independent_identity_region_source
+7770172	unique_field_pickup	Gravesite	Fire Knight's Cookbook [2]	68900	m61_45_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773432	unique_field_pickup	Gravesite	Firespark Perfume Bottle	2047447840	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773246	unique_field_pickup	Gravesite	Gravebird Armor	2045447020	m61_45_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773479	unique_field_pickup	Gravesite	Gravebird Bracelets	2048427020	m61_46_41	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773245	unique_field_pickup	Gravesite	Great Katana with Ash of War: Overhead Stance	2045447010	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770148	unique_field_pickup	Gravesite	Greater Potentate's Cookbook [10]	68650	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770145	unique_field_pickup	Gravesite	Greater Potentate's Cookbook [12]	68620	m61_46_41	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770153	unique_field_pickup	Gravesite	Greater Potentate's Cookbook [13]	68700	m61_46_41	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770142	unique_field_pickup	Gravesite	Greater Potentate's Cookbook [1]	68590	m61_46_41	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770156	unique_field_pickup	Gravesite	Greater Potentate's Cookbook [2]	68730	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770144	unique_field_pickup	Gravesite	Greater Potentate's Cookbook [5]	68610	m61_46_41	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770146	unique_field_pickup	Gravesite	Greater Potentate's Cookbook [7]	68630	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773378	unique_field_pickup	Gravesite	Herbalist's Bell Bearing	2047407710	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773402	unique_field_pickup	Gravesite	Horned Bairn	2047437980	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770162	unique_field_pickup	Gravesite	Loyal Knight's Cookbook	68790	m61_45_44	remaining_unreviewed	0		first_independent_identity_region_source
+7773872	unique_field_pickup	Gravesite	Moonrithyll's Knight Sword	530865	m61_45_44	remaining_unreviewed	0		first_independent_identity_region_source
+7773325	unique_field_pickup	Gravesite	Mushroom-Seller's Bell Bearing [1]	2046447710	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773238	unique_field_pickup	Gravesite	Outer God Heirloom	2045417800	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773306	unique_field_pickup	Gravesite	Pata	2046407000	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773910	unique_field_pickup	Gravesite	Serpent Crest Shield	580400	m61_45_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774087	unique_field_pickup	Gravesite	Smithscript Dagger	42007150	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773420	unique_field_pickup	Gravesite	Spelldrake Talisman +3	2047447190	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773396	unique_field_pickup	Gravesite	Spread Crossbow	2047437010	m61_45_44	remaining_unreviewed	0		first_independent_identity_region_source
+7773237	unique_field_pickup	Gravesite	String-Seller's Bell Bearing	2045417710	m61_46_41	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773398	unique_field_pickup	Gravesite	Swift Spear	2047437030	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773517	unique_field_pickup	Gravesite	Talisman of the Dread	2049427000	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773327	unique_field_pickup	Gravesite	Two-Headed Turtle Talisman	2046457000	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773477	unique_field_pickup	Jagged Peak	Black Steel Greathammer	2048417980	m61_49_41	remaining_unreviewed	0		first_independent_identity_region_source
+7773513	unique_field_pickup	Jagged Peak	Dragon Communion Grease	2049387020	m61_49_41	remaining_unreviewed	0		first_independent_identity_region_source
+7900102	unique_field_pickup	Jagged Peak	Flowerstone Gavel	400704	m61_49_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770167	unique_field_pickup	Jagged Peak	Grave Keeper's Cookbook [2]	68850	m61_49_41	remaining_unreviewed	0		first_independent_identity_region_source
+7770164	unique_field_pickup	Jagged Peak	Igon's Cookbook [1]	68810	m61_49_41	trusted	2	gameplay-guide:eip;gameplay-guide:game8	none_identity_region_trusted
+7770140	unique_field_pickup	Jagged Peak	Igon's Cookbook [2]	68570	m61_54_39	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7773763	unique_field_pickup	Jagged Peak	Igon's Furled Finger	400710	m61_54_39	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7773765	unique_field_pickup	Jagged Peak	Igon's Greatbow with Ash of War: Igon's Drake Hunt	400712	m61_54_39	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7773762	unique_field_pickup	Jagged Peak	Priestess Heart	400704	m61_49_41	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7770809	unique_field_pickup	Jagged Peak	Rock Heart	580420	m61_54_39	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7770795	unique_field_pickup	Limgrave	"""Homing Instinct"" Painting"	580000	m60_43_37	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770094	unique_field_pickup	Limgrave	Armorer's Cookbook [1]	67200	m60_42_38	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772823	unique_field_pickup	Limgrave	Arrow's Reach Talisman	1042377300	m60_42_37	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772955	unique_field_pickup	Limgrave	Ash of War: Bloody Slash	1046367700	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770719	unique_field_pickup	Limgrave	Ash of War: Determination	540108	m60_43_37	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774352	unique_field_pickup	Limgrave	Ash of War: Golden Vow	1043397500	m60_42_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7774345	unique_field_pickup	Limgrave	Ash of War: Gravitas	1043357500	m60_43_36	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770721	unique_field_pickup	Limgrave	Ash of War: Ground Slam	540116	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770723	unique_field_pickup	Limgrave	Ash of War: Stamp (Sweep)	540120	m60_42_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7774319	unique_field_pickup	Limgrave	Ash of War: Storm Stomp	1042377110	m60_42_37	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770717	unique_field_pickup	Limgrave	Ash of War: Storm Wall	540100	m60_42_37	remaining_unreviewed	0		first_independent_identity_region_source
+7770720	unique_field_pickup	Limgrave	Ash of War: Unsheathe	540112	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770718	unique_field_pickup	Limgrave	Ash of War: Wild Strikes	540104	m60_42_38	remaining_unreviewed	0		first_independent_identity_region_source
+7774398	unique_field_pickup	Limgrave	Axe Talisman	1045377100	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774320	unique_field_pickup	Limgrave	Beast Crest Heater Shield	1042397900	m60_42_38	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7773729	unique_field_pickup	Limgrave	Bernahl's Bell Bearing	400299	m60_42_38	remaining_unreviewed	0		first_independent_identity_region_source
+7770015	unique_field_pickup	Limgrave	Duelist's Furled Finger	60240	m60_42_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770134	unique_field_pickup	Limgrave	Fevor's Cookbook [1]	68200	m60_45_39	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774380	unique_field_pickup	Limgrave	Glintstone Staff	1044367700	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774302	unique_field_pickup	Limgrave	Godrick Soldier Ashes	1041387050	m60_42_37	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7774378	unique_field_pickup	Limgrave	Great Epee	1044357900	m60_44_35	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774379	unique_field_pickup	Limgrave	Greataxe	1044367200	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774417	unique_field_pickup	Limgrave	Green Turtle Talisman	1045397120	m60_45_39	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772844	unique_field_pickup	Limgrave	Hammer Talisman	1042397700	m60_42_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770801	unique_field_pickup	Limgrave	Incantation Scarab	580300	m60_43_36	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773704	unique_field_pickup	Limgrave	Kalé's Bell Bearing	400049	m60_42_36	remaining_unreviewed	0		first_independent_identity_region_source
+7772892	unique_field_pickup	Limgrave	Lance Talisman	1043407010	m60_42_38	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773768	unique_field_pickup	Limgrave	Nomadic Merchant's Bell Bearing [1]	400901	m60_45_39	remaining_unreviewed	0		first_independent_identity_region_source
+7773769	unique_field_pickup	Limgrave	Nomadic Merchant's Bell Bearing [2]	400902	m60_44_36	remaining_unreviewed	0		first_independent_identity_region_source
+7773770	unique_field_pickup	Limgrave	Nomadic Merchant's Bell Bearing [3]	400903	m60_42_36	remaining_unreviewed	0		first_independent_identity_region_source
+7770119	unique_field_pickup	Limgrave	Nomadic Warrior's Cookbook [4]	67800	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770083	unique_field_pickup	Limgrave	Nomadic Warrior's Cookbook [6]	67020	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770085	unique_field_pickup	Limgrave	Nomadic Warrior's Cookbook [7]	67050	m60_42_38	remaining_unreviewed	0		first_independent_identity_region_source
+7772824	unique_field_pickup	Limgrave	Reduvia	1042377700	m60_43_37	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774371	unique_field_pickup	Limgrave	Royal House Scroll	1044357010	m60_44_35	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7900253	unique_field_pickup	Limgrave	Scaled Armor	1042397500	m60_42_38	remaining_unreviewed	0		first_independent_identity_region_source
+7900254	unique_field_pickup	Limgrave	Scaled Gauntlets	1042397500	m60_42_38	remaining_unreviewed	0		first_independent_identity_region_source
+7900255	unique_field_pickup	Limgrave	Scaled Greaves	1042397500	m60_42_38	remaining_unreviewed	0		first_independent_identity_region_source
+7772843	unique_field_pickup	Limgrave	Scaled Helm	1042397500	m60_42_38	remaining_unreviewed	0		first_independent_identity_region_source
+7773671	unique_field_pickup	Limgrave	Spiked Cracked Tear	65140	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773674	unique_field_pickup	Limgrave	Strength-knot Crystal Tear	65210	m60_42_38	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772886	unique_field_pickup	Limgrave	Twinblade	1043367110	m60_43_36	remaining_unreviewed	0		first_independent_identity_region_source
+7770805	unique_field_pickup	Limgrave	Warhawk Ashes	580340	m60_43_36	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770796	unique_field_pickup	Liurnia	"""Resurrection"" Painting"	580010	m60_37_46	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772711	unique_field_pickup	Liurnia	Academy Scroll	1039407000	m60_38_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774206	unique_field_pickup	Liurnia	Albinauric Ashes	1036507030	m60_36_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774150	unique_field_pickup	Liurnia	Ash of War: Carian Grandeur	1035507090	m60_35_50	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770735	unique_field_pickup	Liurnia	Ash of War: Charge Forth	540202	m60_36_45	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770734	unique_field_pickup	Liurnia	Ash of War: Chilling Mist	540200	m60_34_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770736	unique_field_pickup	Liurnia	Ash of War: Hoarfrost Stomp	540204	m60_36_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770739	unique_field_pickup	Liurnia	Ash of War: Shield Bash	540210	m60_36_48	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770744	unique_field_pickup	Liurnia	Ash of War: Sword Dance	540238	m60_33_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770737	unique_field_pickup	Liurnia	Ash of War: Thops's Barrier	540206	m60_38_41	remaining_unreviewed	0		first_independent_identity_region_source
+7770738	unique_field_pickup	Liurnia	Ash of War: Vow of the Indomitable	540208	m60_35_42	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7772525	unique_field_pickup	Liurnia	Black Wolf Mask	1034507090	m60_34_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900012	unique_field_pickup	Liurnia	Blaidd's Armor	400158	m60_34_50	remaining_unreviewed	0		first_independent_identity_region_source
+7900013	unique_field_pickup	Liurnia	Blaidd's Gauntlets	400158	m60_34_50	remaining_unreviewed	0		first_independent_identity_region_source
+7900014	unique_field_pickup	Liurnia	Blaidd's Greaves	400158	m60_34_50	remaining_unreviewed	0		first_independent_identity_region_source
+7770740	unique_field_pickup	Liurnia	Bloodflame Blade	540218	m60_34_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900048	unique_field_pickup	Liurnia	Blue Silver Bracelets	400412	m60_35_42	remaining_unreviewed	0		first_independent_identity_region_source
+7900047	unique_field_pickup	Liurnia	Blue Silver Mail Armor	400412	m60_37_42	remaining_unreviewed	0		first_independent_identity_region_source
+7773738	unique_field_pickup	Liurnia	Blue Silver Mail Hood	400412	m60_35_42	remaining_unreviewed	0		first_independent_identity_region_source
+7900049	unique_field_pickup	Liurnia	Blue Silver Mail Skirt	400412	m60_37_42	remaining_unreviewed	0		first_independent_identity_region_source
+7772547	unique_field_pickup	Liurnia	Blue-White Wooden Shield	1035447120	m60_36_45	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7772736	unique_field_pickup	Liurnia	Cannon of Haima	1039487100	m60_38_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772670	unique_field_pickup	Liurnia	Carian Glintblade Staff	1038427020	m60_37_42	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772475	unique_field_pickup	Liurnia	Carian Knight's Sword	1033477200	m60_34_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770741	unique_field_pickup	Liurnia	Carian Piercer	540220	m60_35_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772529	unique_field_pickup	Liurnia	Cerulean Amber Medallion +2	1035417100	m60_35_42	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770623	unique_field_pickup	Liurnia	Companion Jar	400460	m60_39_44	remaining_unreviewed	0		first_independent_identity_region_source
+7774201	unique_field_pickup	Liurnia	Crystal Cave Moss	1036457020	m60_36_45	remaining_unreviewed	0		first_independent_identity_region_source
+7772482	unique_field_pickup	Liurnia	Crystal Sword	1034427050	m60_34_42	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770616	unique_field_pickup	Liurnia	Dark Moon Greatsword	400393	m60_35_42	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773675	unique_field_pickup	Liurnia	Dexterity-knot Crystal Tear	65220	m60_37_42	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7772626	unique_field_pickup	Liurnia	Finger Maiden Fillet	1037497030	m60_36_50	remaining_unreviewed	0		first_independent_identity_region_source
+7900236	unique_field_pickup	Liurnia	Finger Maiden Robe	1037497030	m60_36_48	remaining_unreviewed	0		first_independent_identity_region_source
+7900237	unique_field_pickup	Liurnia	Finger Maiden Shoes	1037497030	m60_36_50	remaining_unreviewed	0		first_independent_identity_region_source
+7772629	unique_field_pickup	Liurnia	Fingerprint Grape	1037497300	m60_36_50	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772578	unique_field_pickup	Liurnia	Fire Monks' Prayerbook	1036417000	m60_35_42	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7772678	unique_field_pickup	Liurnia	Flame, Cleanse Me	1038457010	m60_37_46	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770743	unique_field_pickup	Liurnia	Frenzied Burst	540236	m60_38_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770138	unique_field_pickup	Liurnia	Frenzied's Cookbook [1]	68400	m60_38_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770745	unique_field_pickup	Liurnia	Frozen Armament	540250	m60_35_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772514	unique_field_pickup	Liurnia	Frozen Needle	1034487100	m60_34_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900244	unique_field_pickup	Liurnia	Gavel of Haima	1039487100	m60_38_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770106	unique_field_pickup	Liurnia	Glintstone Craftsman's Cookbook [1]	67410	m60_38_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770110	unique_field_pickup	Liurnia	Glintstone Craftsman's Cookbook [2]	67450	m60_38_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770113	unique_field_pickup	Liurnia	Glintstone Craftsman's Cookbook [3]	67480	m60_39_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770105	unique_field_pickup	Liurnia	Glintstone Craftsman's Cookbook [4]	67400	m60_36_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770111	unique_field_pickup	Liurnia	Glintstone Craftsman's Cookbook [6]	67460	m60_35_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772607	unique_field_pickup	Liurnia	Gold Sewing Needle	1037467000	m60_37_46	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772628	unique_field_pickup	Liurnia	Great Mace	1037497200	m60_36_48	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774227	unique_field_pickup	Liurnia	Howl of Shabriri	1038497900	m60_38_48	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772558	unique_field_pickup	Liurnia	Ice Crest Shield	1035507200	m60_35_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772491	unique_field_pickup	Liurnia	Icerind Hatchet	1034447900	m60_33_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774632	unique_field_pickup	Liurnia	Idus Sword	1038417020	m60_38_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770585	unique_field_pickup	Liurnia	Iji's Bell Bearing	400240	m60_34_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770586	unique_field_pickup	Liurnia	Iji's Mirrorhelm	400241	m60_34_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773676	unique_field_pickup	Liurnia	Intelligence-knot Crystal Tear	65230	m60_34_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773774	unique_field_pickup	Liurnia	Isolated Merchant's Bell Bearing [2]	400907	m60_34_45	remaining_unreviewed	0		first_independent_identity_region_source
+7774127	unique_field_pickup	Liurnia	Ivory Sickle	1035427040	m60_35_42	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774117	unique_field_pickup	Liurnia	Jellyfish Shield	1033467040	m60_34_45	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770802	unique_field_pickup	Liurnia	Juvenile Scholar Cap	580310	m60_36_50	remaining_unreviewed	0		first_independent_identity_region_source
+7900171	unique_field_pickup	Liurnia	Juvenile Scholar Robe	580310	m60_36_50	remaining_unreviewed	0		first_independent_identity_region_source
+7772676	unique_field_pickup	Liurnia	Land Squirt Ashes	1038447040	m60_39_43	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770619	unique_field_pickup	Liurnia	Latenna the Albinauric	400410	m60_37_42	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772721	unique_field_pickup	Liurnia	Lucerne	1039427050	m60_39_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900019	unique_field_pickup	Liurnia	Miriel's Bell Bearing	400209	m60_37_46	remaining_unreviewed	0		first_independent_identity_region_source
+7773772	unique_field_pickup	Liurnia	Nomadic Merchant's Bell Bearing [5]	400905	m60_38_41	remaining_unreviewed	0		first_independent_identity_region_source
+7773775	unique_field_pickup	Liurnia	Nomadic Merchant's Bell Bearing [6]	400908	m60_36_48	remaining_unreviewed	0		first_independent_identity_region_source
+7770086	unique_field_pickup	Liurnia	Nomadic Warrior's Cookbook [12]	67060	m60_34_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770192	unique_field_pickup	Liurnia	Note: The Lord of Frenzied Flame	69760	m60_38_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900235	unique_field_pickup	Liurnia	Omenkiller Boots	1036517700	m60_36_50	remaining_unreviewed	0		first_independent_identity_region_source
+7900234	unique_field_pickup	Liurnia	Omenkiller Long Gloves	1036517700	m60_35_50	remaining_unreviewed	0		first_independent_identity_region_source
+7774208	unique_field_pickup	Liurnia	Omenkiller Robe	1036517700	m60_35_50	remaining_unreviewed	0		first_independent_identity_region_source
+7770121	unique_field_pickup	Liurnia	Perfumer's Cookbook [1]	67840	m60_36_50	remaining_unreviewed	0		first_independent_identity_region_source
+7770577	unique_field_pickup	Liurnia	Pidia's Bell Bearing	400149	m60_35_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900008	unique_field_pickup	Liurnia	Preceptor's Big Hat	400148	m60_34_50	remaining_unreviewed	0		first_independent_identity_region_source
+7900010	unique_field_pickup	Liurnia	Preceptor's Gloves	400148	m60_34_50	remaining_unreviewed	0		first_independent_identity_region_source
+7900009	unique_field_pickup	Liurnia	Preceptor's Long Gown	400148	m60_34_50	remaining_unreviewed	0		first_independent_identity_region_source
+7900011	unique_field_pickup	Liurnia	Preceptor's Trousers	400148	m60_34_50	remaining_unreviewed	0		first_independent_identity_region_source
+7772466	unique_field_pickup	Liurnia	Ranni's Dark Moon	1033407100	m60_33_42	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773711	unique_field_pickup	Liurnia	Royal Greatsword	400158	m60_34_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772583	unique_field_pickup	Liurnia	Sanctuary Stone	1036487000	m60_36_48	remaining_unreviewed	0		first_independent_identity_region_source
+7770576	unique_field_pickup	Liurnia	Seluvis's Bell Bearing	400148	m60_34_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772683	unique_field_pickup	Liurnia	Shabriri's Woe	1038487100	m60_38_48	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772526	unique_field_pickup	Liurnia	Snow Witch Hat	1034517900	m60_34_50	remaining_unreviewed	0		first_independent_identity_region_source
+7900231	unique_field_pickup	Liurnia	Snow Witch Robe	1034517900	m60_35_50	remaining_unreviewed	0		first_independent_identity_region_source
+7900232	unique_field_pickup	Liurnia	Snow Witch Skirt	1034517900	m60_34_50	remaining_unreviewed	0		first_independent_identity_region_source
+7772613	unique_field_pickup	Liurnia	Spiralhorn Shield	1037477030	m60_36_48	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7772612	unique_field_pickup	Liurnia	Stalwart Horn Charm	1037477020	m60_38_48	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7774184	unique_field_pickup	Liurnia	Sword of Night and Flame	1035507900	m60_35_50	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7774280	unique_field_pickup	Liurnia	Treespear	1040407000	m60_38_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774185	unique_field_pickup	Liurnia	Troll Knight's Sword	1035507990	m60_35_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774246	unique_field_pickup	Liurnia	Two Fingers Heirloom	1039417100	m60_38_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774156	unique_field_pickup	Liurnia	Urumi	1035507150	m60_35_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900238	unique_field_pickup	Liurnia	Vyke's War Spear	1037497300	m60_38_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774212	unique_field_pickup	Liurnia	Wraith Calling Bell	1037427900	m60_37_42	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773906	unique_field_pickup	Mountaintops of the Giants	"""Sorcerer"" Painting"	580030	m60_51_57	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773022	unique_field_pickup	Mountaintops of the Giants	Ash of War: Phantom Slash	1048517700	m60_48_51	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773892	unique_field_pickup	Mountaintops of the Giants	Ash of War: Prelate's Charge	540516	m60_53_56	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773890	unique_field_pickup	Mountaintops of the Giants	Ash of War: Seppuku	540510	m60_53_56	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773094	unique_field_pickup	Mountaintops of the Giants	Briars of Punishment	1050547810	m60_49_52	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773157	unique_field_pickup	Mountaintops of the Giants	Cerulean Amber Medallion +1	1051577070	m60_51_57	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770037	unique_field_pickup	Mountaintops of the Giants	Crimsonwhorl Bubbletear	65200	m60_52_52	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773175	unique_field_pickup	Mountaintops of the Giants	Eclipse Shotel	1051577600	m60_51_57	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774537	unique_field_pickup	Mountaintops of the Giants	Founding Rain of Stars	1052577900	m60_53_56	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773195	unique_field_pickup	Mountaintops of the Giants	Giant's Prayerbook	1052557900	m60_53_56	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774525	unique_field_pickup	Mountaintops of the Giants	Helphen's Steeple	1051577720	m60_51_57	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773782	unique_field_pickup	Mountaintops of the Giants	Hermit Merchant's Bell Bearing [2]	400916	m60_50_57	remaining_unreviewed	0		first_independent_identity_region_source
+7773713	unique_field_pickup	Mountaintops of the Giants	Iron Kasa	400164	m60_49_52	remaining_unreviewed	0		first_independent_identity_region_source
+7900275	unique_field_pickup	Mountaintops of the Giants	Okina Mask	1051537500	m60_52_52	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7774531	unique_field_pickup	Mountaintops of the Giants	One-Eyed Shield	1052557700	m60_53_56	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773149	unique_field_pickup	Mountaintops of the Giants	Primal Glintstone Blade	1051567900	m60_51_57	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774513	unique_field_pickup	Mountaintops of the Giants	Rivers of Blood	1051537500	m60_52_52	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7900015	unique_field_pickup	Mountaintops of the Giants	Ronin's Armor	400164	m60_49_52	remaining_unreviewed	0		first_independent_identity_region_source
+7900016	unique_field_pickup	Mountaintops of the Giants	Ronin's Gauntlets	400164	m60_49_52	remaining_unreviewed	0		first_independent_identity_region_source
+7900017	unique_field_pickup	Mountaintops of the Giants	Ronin's Greaves	400164	m60_49_52	remaining_unreviewed	0		first_independent_identity_region_source
+7773069	unique_field_pickup	Mountaintops of the Giants	Smithing-Stone Miner's Bell Bearing [3]	1049537900	m60_49_52	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773204	unique_field_pickup	Mountaintops of the Giants	Somberstone Miner's Bell Bearing [3]	1054557310	m60_53_56	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7900270	unique_field_pickup	Mountaintops of the Giants	Traveling Maiden Boots	1050567620	m60_50_57	remaining_unreviewed	0		first_independent_identity_region_source
+7900269	unique_field_pickup	Mountaintops of the Giants	Traveling Maiden Gloves	1050567620	m60_51_57	remaining_unreviewed	0		first_independent_identity_region_source
+7773105	unique_field_pickup	Mountaintops of the Giants	Traveling Maiden Hood	1050567620	m60_51_57	remaining_unreviewed	0		first_independent_identity_region_source
+7900268	unique_field_pickup	Mountaintops of the Giants	Traveling Maiden Robe	1050567620	m60_50_57	remaining_unreviewed	0		first_independent_identity_region_source
+7773067	unique_field_pickup	Mountaintops of the Giants	Zamor Ice Storm	1049537030	m60_49_52	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772707	unique_field_pickup	Mt. Gelmir	Antspur Rapier	1038547100	m60_37_54	remaining_unreviewed	0		first_independent_identity_region_source
+7770098	unique_field_pickup	Mt. Gelmir	Armorer's Cookbook [7]	67250	m60_35_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770766	unique_field_pickup	Mt. Gelmir	Ash of War: Barrage	540332	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
+7770767	unique_field_pickup	Mt. Gelmir	Ash of War: Through and Through	540334	m60_36_54	remaining_unreviewed	0		first_independent_identity_region_source
+7770622	unique_field_pickup	Mt. Gelmir	Azur's Glintstone Crown	400441	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
+7900053	unique_field_pickup	Mt. Gelmir	Azur's Glintstone Robe	400441	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
+7900054	unique_field_pickup	Mt. Gelmir	Azur's Manchettes	400441	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
+7772588	unique_field_pickup	Mt. Gelmir	Budding Cave Moss	1036527020	m60_35_53	remaining_unreviewed	0		first_independent_identity_region_source
+7772754	unique_field_pickup	Mt. Gelmir	Crepus's Vial	1039537700	m60_38_52	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900240	unique_field_pickup	Mt. Gelmir	Errant Sorcerer Boots	1037527100	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
+7772643	unique_field_pickup	Mt. Gelmir	Errant Sorcerer Manchettes	1037527100	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
+7900241	unique_field_pickup	Mt. Gelmir	Errant Sorcerer Robe (Altered)	1037527100	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
+7772575	unique_field_pickup	Mt. Gelmir	Fire Scorpion Charm	1035547050	m60_36_54	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772651	unique_field_pickup	Mt. Gelmir	Herba	1037547030	m60_37_54	remaining_unreviewed	0		first_independent_identity_region_source
+7772642	unique_field_pickup	Mt. Gelmir	Hierodas Glintstone Crown	1037527090	m60_37_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7900242	unique_field_pickup	Mt. Gelmir	Marais Mask	1038547100	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
+7900243	unique_field_pickup	Mt. Gelmir	Marais Robe	1038547100	m60_37_54	remaining_unreviewed	0		first_independent_identity_region_source
+7772753	unique_field_pickup	Mt. Gelmir	Mirage Riddle	1039537080	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
+7773778	unique_field_pickup	Mt. Gelmir	Nomadic Merchant's Bell Bearing [8]	400911	m60_37_54	remaining_unreviewed	0		first_independent_identity_region_source
+7772689	unique_field_pickup	Mt. Gelmir	Pearldrake Talisman +1	1038527000	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
+7772587	unique_field_pickup	Mt. Gelmir	Perfumer's Talisman	1036527010	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
+7772640	unique_field_pickup	Mt. Gelmir	"Prattling Pate ""You're beautiful"""	1037527070	m60_37_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774189	unique_field_pickup	Mt. Gelmir	Prelate's Inferno Crozier	1035547700	m60_36_54	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772708	unique_field_pickup	Mt. Gelmir	Pulley Bow	1038547110	m60_37_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7772592	unique_field_pickup	Mt. Gelmir	Pulley Crossbow	1036527060	m60_35_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772591	unique_field_pickup	Mt. Gelmir	Roiling Magma	1036527050	m60_37_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772709	unique_field_pickup	Mt. Gelmir	Sacred Butchering Knife	1038547700	m60_37_54	remaining_unreviewed	0		first_independent_identity_region_source
+7772663	unique_field_pickup	Mt. Gelmir	Scavenger's Curved Sword	1037547150	m60_37_54	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772750	unique_field_pickup	Mt. Gelmir	Unseen Blade	1039537050	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
+7900245	unique_field_pickup	Mt. Gelmir	Unseen Form	1039537050	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
+7773899	unique_field_pickup	Rauh Base	Ash of War: Scattershot Throw	540910	m61_46_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773900	unique_field_pickup	Rauh Base	Ash of War: The Poison Flower Blooms Twice	540916	m61_44_47	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773264	unique_field_pickup	Rauh Base	Aspects of the Crucible: Bloom	2045477040	m61_44_47	remaining_unreviewed	0		first_independent_identity_region_source
+7900280	unique_field_pickup	Rauh Base	Crucible Hammer-Helm	2045477400	m61_44_47	remaining_unreviewed	0		first_independent_identity_region_source
+7773268	unique_field_pickup	Rauh Base	Devonia's Hammer	2045477400	m61_44_47	remaining_unreviewed	0		first_independent_identity_region_source
+7773336	unique_field_pickup	Rauh Base	Divine Bird Warrior Ornis	2046457920	m61_46_45	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7900167	unique_field_pickup	Rauh Base	Fang Helm	530900	m61_46_45	remaining_unreviewed	0		first_independent_identity_region_source
+7773292	unique_field_pickup	Rauh Base	Fine Crucible Feather Talisman	2045487000	m61_44_47	remaining_unreviewed	0		first_independent_identity_region_source
+7900277	unique_field_pickup	Rauh Base	Gloried Attire	2044477010	m61_44_47	remaining_unreviewed	0		first_independent_identity_region_source
+7773255	unique_field_pickup	Rauh Base	Gravebird's Blackquill Armor	2045467070	m61_46_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770151	unique_field_pickup	Rauh Base	Greater Potentate's Cookbook [8]	68680	m61_44_47	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7900168	unique_field_pickup	Rauh Base	Iron Rivet Armor	530900	m61_46_45	remaining_unreviewed	0		first_independent_identity_region_source
+7900169	unique_field_pickup	Rauh Base	Iron Rivet Gauntlets	530900	m61_46_45	remaining_unreviewed	0		first_independent_identity_region_source
+7900170	unique_field_pickup	Rauh Base	Iron Rivet Greaves	530900	m61_46_45	remaining_unreviewed	0		first_independent_identity_region_source
+7773224	unique_field_pickup	Rauh Base	Leather Headband	2044477010	m61_44_47	remaining_unreviewed	0		first_independent_identity_region_source
+7773259	unique_field_pickup	Rauh Base	Mottled Necklace +2	2045467900	m61_46_45	remaining_unreviewed	0		first_independent_identity_region_source
+7773873	unique_field_pickup	Rauh Base	Red Bear's Claw	530900	m61_46_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772454	unique_field_pickup	Rauh Base	Smithscript Axe	42037100	m61_44_47	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7772460	unique_field_pickup	Rauh Base	Smithscript Greathammer	42037160	m61_44_47	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7772456	unique_field_pickup	Rauh Base	Smithscript Shield	42037120	m61_44_47	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7770808	unique_field_pickup	Rauh Base	Spiraltree Seal	580410	m61_46_45	remaining_unreviewed	0		first_independent_identity_region_source
+7772453	unique_field_pickup	Rauh Base	Taylew the Golem Smith	42037000	m61_46_45	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7773335	unique_field_pickup	Rauh Base	Two-Handed Sword Talisman	2046457910	m61_46_45	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773627	unique_field_pickup	Scadu Altus	Aged One's Exultation	2051417700	m61_49_43	remaining_unreviewed	0		first_independent_identity_region_source
+7772452	unique_field_pickup	Scadu Altus	Ancient Meteoric Ore Greatsword	42027000	m61_51_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773444	unique_field_pickup	Scadu Altus	Arrow's Soaring Sting Talisman	2047457910	m61_47_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773895	unique_field_pickup	Scadu Altus	Ash of War: Carian Sovereignty	540900	m61_49_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770646	unique_field_pickup	Scadu Altus	Ash of War: Flame Skewer	400696	m61_52_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773898	unique_field_pickup	Scadu Altus	Ash of War: Raging Beast	540906	m61_51_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773897	unique_field_pickup	Scadu Altus	Ash of War: Rolling Sparks	540904	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
+7770165	unique_field_pickup	Scadu Altus	Battlefield Priest's Cookbook [2]	68820	m61_49_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770171	unique_field_pickup	Scadu Altus	Battlefield Priest's Cookbook [3]	68890	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
+7772430	unique_field_pickup	Scadu Altus	Bigmouth Imp Ashes	40027220	m61_47_45	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773509	unique_field_pickup	Scadu Altus	Black Steel Twinblade	2048467710	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
+7773596	unique_field_pickup	Scadu Altus	Bonny Butchering Knife	2050447050	m61_49_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773756	unique_field_pickup	Scadu Altus	Cherishing Fingers	400666	m61_49_44	remaining_unreviewed	0		first_independent_identity_region_source
+7773759	unique_field_pickup	Scadu Altus	Claws of Night	400672	m61_51_44	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7773683	unique_field_pickup	Scadu Altus	Crimsonburst Dried Tear	65410	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
+7900225	unique_field_pickup	Scadu Altus	Death Knight Armor	40027130	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7900226	unique_field_pickup	Scadu Altus	Death Knight Gauntlets	40027130	m61_49_43	remaining_unreviewed	0		first_independent_identity_region_source
+7774049	unique_field_pickup	Scadu Altus	Death Knight Helm	40027130	m61_50_43	remaining_unreviewed	0		first_independent_identity_region_source
+7773504	unique_field_pickup	Scadu Altus	Drawstring Messmerfire Grease	2048467050	m61_47_45	remaining_unreviewed	0		first_independent_identity_region_source
+7900284	unique_field_pickup	Scadu Altus	Dryleaf Arm Wraps	2050447720	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7773767	unique_field_pickup	Scadu Altus	Dryleaf Arts with Ash of War: Palm Blast	400730	m61_49_44	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7900285	unique_field_pickup	Scadu Altus	Dryleaf Cuissardes	2050447720	m61_49_43	remaining_unreviewed	0		first_independent_identity_region_source
+7773605	unique_field_pickup	Scadu Altus	Dryleaf Robe	2050447720	m61_49_43	remaining_unreviewed	0		first_independent_identity_region_source
+7773609	unique_field_pickup	Scadu Altus	Dryleaf Seal	2050457020	m61_49_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770141	unique_field_pickup	Scadu Altus	Finger-Weaver's Cookbook [2]	68580	m61_49_44	remaining_unreviewed	0		first_independent_identity_region_source
+7773642	unique_field_pickup	Scadu Altus	Fingerprint Nostrum	2051477030	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
+7770160	unique_field_pickup	Scadu Altus	Fire Knight's Cookbook [1]	68770	m61_49_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773528	unique_field_pickup	Scadu Altus	Flamedrake Talisman +3	2049437270	m61_49_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773574	unique_field_pickup	Scadu Altus	Furnace Keeper's Note	2049477000	m61_47_45	remaining_unreviewed	0		first_independent_identity_region_source
+7773623	unique_field_pickup	Scadu Altus	Giant Golden Arc	2050467910	m61_49_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773634	unique_field_pickup	Scadu Altus	Glinting Nail	2051457000	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7773556	unique_field_pickup	Scadu Altus	Golden Arcs	2049447900	m61_49_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773644	unique_field_pickup	Scadu Altus	Golden Braid	2051477510	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
+7773562	unique_field_pickup	Scadu Altus	Gravebird Anklets	2049467010	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
+7773638	unique_field_pickup	Scadu Altus	Greasemonger's Bell Bearing	2051467500	m61_51_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770152	unique_field_pickup	Scadu Altus	Greater Potentate's Cookbook [3]	68690	m61_47_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770143	unique_field_pickup	Scadu Altus	Greater Potentate's Cookbook [4]	68600	m61_51_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770155	unique_field_pickup	Scadu Altus	Greater Potentate's Cookbook [6]	68720	m61_52_43	remaining_unreviewed	0		first_independent_identity_region_source
+7773561	unique_field_pickup	Scadu Altus	Heal from Afar	2049457500	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
+7900100	unique_field_pickup	Scadu Altus	High Priest Gloves	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7900098	unique_field_pickup	Scadu Altus	High Priest Hat	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7900099	unique_field_pickup	Scadu Altus	High Priest Robe	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7900101	unique_field_pickup	Scadu Altus	High Priest Undergarments	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7900281	unique_field_pickup	Scadu Altus	Highland Attire	2049457200	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
+7773741	unique_field_pickup	Scadu Altus	Lacerating Crossed-Tree	400590	m61_47_45	remaining_unreviewed	0		first_independent_identity_region_source
+7773560	unique_field_pickup	Scadu Altus	Leather Crown	2049457200	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
+7770150	unique_field_pickup	Scadu Altus	Mad Craftsman's Cookbook [2]	68670	m61_49_43	remaining_unreviewed	0		first_independent_identity_region_source
+7773648	unique_field_pickup	Scadu Altus	Madding Hand	2052427500	m61_52_43	remaining_unreviewed	0		first_independent_identity_region_source
+7773604	unique_field_pickup	Scadu Altus	Man-Fly Ashes	2050447710	m61_51_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900097	unique_field_pickup	Scadu Altus	Maternal Staff	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7773524	unique_field_pickup	Scadu Altus	Messmer Soldier Ashes	2049437230	m61_49_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773643	unique_field_pickup	Scadu Altus	Minor Erdtree	2051477500	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
+7773606	unique_field_pickup	Scadu Altus	Moldmonger's Bell Bearing	2050447730	m61_49_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773499	unique_field_pickup	Scadu Altus	Monk's Missive	2048457510	m61_49_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773641	unique_field_pickup	Scadu Altus	Pearlescent Scale	2051477020	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
+7773639	unique_field_pickup	Scadu Altus	Rabbath's Cannon	2051467900	m61_49_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900164	unique_field_pickup	Scadu Altus	Rakshasa Armor	530830	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7900165	unique_field_pickup	Scadu Altus	Rakshasa Gauntlets	530830	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7900166	unique_field_pickup	Scadu Altus	Rakshasa Greaves	530830	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7900163	unique_field_pickup	Scadu Altus	Rakshasa Helm	530830	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7773866	unique_field_pickup	Scadu Altus	Rakshasa's Great Katana	530830	m61_51_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773520	unique_field_pickup	Scadu Altus	Repeating Crossbow	2049437000	m61_49_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773742	unique_field_pickup	Scadu Altus	Retaliatory Crossed-Tree	400592	m61_49_44	remaining_unreviewed	0		first_independent_identity_region_source
+7773443	unique_field_pickup	Scadu Altus	Serpent Flail	2047457900	m61_47_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773554	unique_field_pickup	Scadu Altus	Shattered Stone Talisman	2049447090	m61_49_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774093	unique_field_pickup	Scadu Altus	Smithing Talisman	42027030	m61_49_45	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7774096	unique_field_pickup	Scadu Altus	Smithscript Cirque	42027060	m61_50_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774095	unique_field_pickup	Scadu Altus	Smithscript Spear	42027050	m61_52_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773637	unique_field_pickup	Scadu Altus	Spellmachinist's Bell Bearing	2051467020	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
+7773758	unique_field_pickup	Scadu Altus	Sword of Night	400671	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7773630	unique_field_pickup	Scadu Altus	Tooth Whip	2051447000	m61_51_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773755	unique_field_pickup	Scadu Altus	Ymir's Bell Bearing	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7771984	unique_field_pickup	Shadow Keep	Ash of War: Wall of Sparks	21027020	m61_49_48	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770174	unique_field_pickup	Shadow Keep	Battlefield Priest's Cookbook [4]	68930	m61_50_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773657	unique_field_pickup	Shadow Keep	Fingercreeper Ashes	2053487000	m61_52_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773577	unique_field_pickup	Shadow Keep	Gaius's Greaves	2049490900	m61_50_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900199	unique_field_pickup	Shadow Keep	Rain of Fire	21027991	m61_50_48	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771995	unique_field_pickup	Shadow Keep	Salza's Hood	21027991	m61_50_48	remaining_unreviewed	0		first_independent_identity_region_source
+7773578	unique_field_pickup	Shadow Keep	Sharpshot Talisman	2049497510	m61_50_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770727	unique_field_pickup	Weeping	Ash of War: Mighty Shot	540140	m60_44_32	remaining_unreviewed	0		first_independent_identity_region_source
+7772871	unique_field_pickup	Weeping	Claymore	1043317910	m60_43_30	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7900256	unique_field_pickup	Weeping	Crystal Burst	1043347400	m60_42_33	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772877	unique_field_pickup	Weeping	Demi-Human Queen's Staff	1043347400	m60_43_33	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770724	unique_field_pickup	Weeping	Divine Fortification	540132	m60_42_33	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772803	unique_field_pickup	Weeping	Eclipse Crest Heater Shield	1042337000	m60_42_33	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770038	unique_field_pickup	Weeping	Faith-knot Crystal Tear	65240	m60_42_33	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772911	unique_field_pickup	Weeping	Flame Crest Wooden Shield	1044337000	m60_44_32	remaining_unreviewed	0		first_independent_identity_region_source
+7772908	unique_field_pickup	Weeping	Great Turtle Shell	1044327040	m60_44_32	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7774370	unique_field_pickup	Weeping	Hand Ballista	1044347100	m60_43_33	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773706	unique_field_pickup	Weeping	Irina's Letter	400080	m60_44_32	remaining_unreviewed	0		first_independent_identity_region_source
+7773773	unique_field_pickup	Weeping	Isolated Merchant's Bell Bearing [1]	400906	m60_42_33	remaining_unreviewed	0		first_independent_identity_region_source
+7774369	unique_field_pickup	Weeping	Large Club	1044347080	m60_43_33	remaining_unreviewed	0		first_independent_identity_region_source
+7770725	unique_field_pickup	Weeping	Lightning Strike	540136	m60_43_33	remaining_unreviewed	0		first_independent_identity_region_source
+7772919	unique_field_pickup	Weeping	Morning Star	1044337210	m60_43_33	remaining_unreviewed	0		first_independent_identity_region_source
+7773771	unique_field_pickup	Weeping	Nomadic Merchant's Bell Bearing [4]	400904	m60_43_33	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7770726	unique_field_pickup	Weeping	Poison Mist	540138	m60_44_32	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7772876	unique_field_pickup	Weeping	Shield of the Guilty	1043347100	m60_42_33	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772865	unique_field_pickup	Weeping	Steel-Wire Torch	1043317330	m60_43_30	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772916	unique_field_pickup	Weeping	The Flame of Frenzy	1044337080	m60_43_33	remaining_unreviewed	0		first_independent_identity_region_source
+7772870	unique_field_pickup	Weeping	Twinblade Talisman	1043317900	m60_44_32	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772868	unique_field_pickup	Weeping	Whip	1043317370	m60_43_30	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772809	unique_field_pickup	Weeping	Winged Scythe	1042347100	m60_42_33	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source

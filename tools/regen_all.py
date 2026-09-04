@@ -177,6 +177,16 @@ STEPS = [
          why="strict two-family external identity/region confidence used by #1358. It reads the "
              "normalized wiki-audit leads and current generated check population, so both inputs "
              "must move its HOLD/TRUSTED partition through the single regen entrypoint."),
+    Step(TABLES, "tools/build_generic_pickup_review.py",
+         emits=["greenfield/evidence/wiki-audit/generic-pickup-review.tsv",
+                "greenfield/evidence/wiki-audit/generic-pickup-review-coverage.json"],
+         why="complete repeated/generic field-pickup inventory partitioned by committed detection "
+             "mechanism, route anchor, and map tile for player review."),
+    Step(TABLES, "tools/build_dungeon_field_review_batch.py",
+         emits=["greenfield/evidence/wiki-audit/dungeon-field-unique-review.tsv",
+                "greenfield/evidence/wiki-audit/dungeon-field-unique-review-summary.json"],
+         why="category-first dungeon/field review queue derived from current locations, tags, and "
+             "progression-host confidence; it must regenerate after its confidence input."),
 
     Step(PAGES, "tools/build_check_browser.py",
          emits=["er-archipelago-check-browser.html"],

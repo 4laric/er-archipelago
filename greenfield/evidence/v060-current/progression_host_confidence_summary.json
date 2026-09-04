@@ -1,17 +1,17 @@
 {
   "by_confidence": {
-    "hold": 3804,
-    "trusted_identity_region": 1121
+    "hold": 3799,
+    "trusted_identity_region": 1126
   },
   "by_external_family_count": {
     "0": 2807,
-    "1": 997,
-    "2": 908,
+    "1": 992,
+    "2": 913,
     "3": 208,
     "4": 5
   },
   "checks_total": 4925,
-  "content_sha256": "50a751fe74315d66f6bc2c56740d0f1dec944ad27537e69769614b3464808b70",
+  "content_sha256": "4f12927e80b6ec9c2493ef4de29f218d1848b530fd0e25777f6b8c76ebe3f876",
   "input_files": {
     "dlc-blessing-collectible-check-leads.tsv": "7b9a04264df1fb7725de5afa78861c1ecde2bdc36d580f3d52c17d049396791e",
     "dlc-sparse-region-check-leads.tsv": "ad6683820b1b6088077321262d3c4ee1fe360c7bdf809611ca53d728a0c8ab95",
@@ -40,6 +40,7 @@
     "game8-dlc-floor-check-leads.tsv": "bded2ed715ce184255e98cd90e4f2acf5aeb32b74a8d60b768540eebff112a2b",
     "powerpyx-check-leads.tsv": "3c61d757dc6f30f4cc321ec40a8565fb499dd1267c38faa71ceeec8930efba02",
     "powerpyx-dlc-npc-quest-reward-check-leads.tsv": "80c9154f6518aa35dd18d9bb4eddc5a0aabd90106c4186e7b623d114ac8e32eb",
+    "powerpyx-golden-rune-anchor-check-leads.tsv": "5e5f689c37bc515e1434baaf902a00f4e9d4f17de48843064c66ad5c2022fd4c",
     "powerpyx-revered-corroboration-check-leads.tsv": "a914469ccbe33f78ad6d5e21fa999c722e49e728497976eb5ea81807cd198f53",
     "powerpyx-scadutree-corroboration-check-leads.tsv": "aa5f40f6caef0bac1c203d15d0ca624a82783eac7a1e16a211c375da927bd47b",
     "powerpyx-talisman-corroboration-check-leads.tsv": "e7c6c64ef15567006edb9fd3b66334283da3b0a9a5a289f1adb59e2985b5b02d",
