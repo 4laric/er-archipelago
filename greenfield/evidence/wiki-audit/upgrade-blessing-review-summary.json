@@ -1,0 +1,79 @@
+{
+  "by_category": {
+    "glovewort": {
+      "audited": 92,
+      "audited_one_family": 19,
+      "conflicted": 0,
+      "held": 85,
+      "remaining_unreviewed": 66,
+      "repeated_material_rows": 85,
+      "trusted": 7,
+      "uniquely_anchored_collectibles": 0
+    },
+    "golden_seed": {
+      "audited": 43,
+      "audited_one_family": 7,
+      "conflicted": 0,
+      "held": 34,
+      "remaining_unreviewed": 27,
+      "repeated_material_rows": 0,
+      "trusted": 9,
+      "uniquely_anchored_collectibles": 43
+    },
+    "revered_spirit_ash": {
+      "audited": 23,
+      "audited_one_family": 1,
+      "conflicted": 0,
+      "held": 5,
+      "remaining_unreviewed": 4,
+      "repeated_material_rows": 0,
+      "trusted": 18,
+      "uniquely_anchored_collectibles": 23
+    },
+    "sacred_tear": {
+      "audited": 13,
+      "audited_one_family": 3,
+      "conflicted": 0,
+      "held": 5,
+      "remaining_unreviewed": 2,
+      "repeated_material_rows": 0,
+      "trusted": 8,
+      "uniquely_anchored_collectibles": 13
+    },
+    "scadutree_fragment": {
+      "audited": 46,
+      "audited_one_family": 2,
+      "conflicted": 2,
+      "held": 13,
+      "remaining_unreviewed": 9,
+      "repeated_material_rows": 0,
+      "trusted": 33,
+      "uniquely_anchored_collectibles": 46
+    },
+    "smithing_stone": {
+      "audited": 571,
+      "audited_one_family": 72,
+      "conflicted": 0,
+      "held": 550,
+      "remaining_unreviewed": 478,
+      "repeated_material_rows": 570,
+      "trusted": 21,
+      "uniquely_anchored_collectibles": 0
+    }
+  },
+  "policy": {
+    "access": "reported separately and never inferred from identity or region",
+    "collectibles": "retain exact flag and map anchor; guide order alone does not prove access",
+    "identity_region_trust": "two independent external source families",
+    "repeated_material_rows": "require an exact flag/map-lot or unique landmark binding"
+  },
+  "schema_version": 1,
+  "scope": "upgrade materials, flask upgrades, and DLC blessing collectibles",
+  "totals": {
+    "audited": 788,
+    "conflicted": 2,
+    "held": 692,
+    "remaining_unreviewed": 586,
+    "trusted": 96
+  }
+}
