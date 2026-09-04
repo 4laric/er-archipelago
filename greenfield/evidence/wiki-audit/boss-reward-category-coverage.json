@@ -1,0 +1,1231 @@
+{
+  "categories": {
+    "all_boss_reward_checks": {
+      "hold": 113,
+      "hold_by_external_family_count": {
+        "0": 45,
+        "1": 68
+      },
+      "remaining_check_ids": [
+        7770002,
+        7770004,
+        7770029,
+        7770655,
+        7770679,
+        7770682,
+        7770683,
+        7770684,
+        7770685,
+        7770686,
+        7770688,
+        7770696,
+        7770697,
+        7770699,
+        7770701,
+        7770703,
+        7770706,
+        7770707,
+        7770710,
+        7770711,
+        7770712,
+        7770713,
+        7770714,
+        7770716,
+        7771724,
+        7772465,
+        7772470,
+        7772471,
+        7772485,
+        7772582,
+        7772584,
+        7772609,
+        7772742,
+        7772888,
+        7772909,
+        7772944,
+        7773672,
+        7773786,
+        7773787,
+        7773790,
+        7773792,
+        7773793,
+        7773797,
+        7773799,
+        7773801,
+        7773802,
+        7773803,
+        7773820,
+        7773821,
+        7773823,
+        7773825,
+        7773826,
+        7773827,
+        7773828,
+        7773835,
+        7773839,
+        7773841,
+        7773845,
+        7773848,
+        7773856,
+        7773857,
+        7773859,
+        7773862,
+        7773863,
+        7773864,
+        7773865,
+        7773869,
+        7773871,
+        7773875,
+        7773877,
+        7773879,
+        7773880,
+        7774472,
+        7774497,
+        7774635,
+        7900002,
+        7900003,
+        7900113,
+        7900114,
+        7900115,
+        7900116,
+        7900117,
+        7900120,
+        7900122,
+        7900124,
+        7900125,
+        7900126,
+        7900129,
+        7900130,
+        7900131,
+        7900132,
+        7900133,
+        7900134,
+        7900135,
+        7900136,
+        7900144,
+        7900145,
+        7900147,
+        7900148,
+        7900151,
+        7900152,
+        7900153,
+        7900154,
+        7900155,
+        7900156,
+        7900157,
+        7900158,
+        7900159,
+        7900160,
+        7900161,
+        7900162,
+        7900233,
+        7900288
+      ],
+      "total": 269,
+      "trusted_identity_region": 156
+    },
+    "fixed_boss_drop": {
+      "hold": 110,
+      "hold_by_external_family_count": {
+        "0": 44,
+        "1": 66
+      },
+      "remaining_check_ids": [
+        7770029,
+        7770679,
+        7770682,
+        7770683,
+        7770684,
+        7770685,
+        7770686,
+        7770688,
+        7770696,
+        7770697,
+        7770699,
+        7770701,
+        7770703,
+        7770706,
+        7770707,
+        7770710,
+        7770711,
+        7770712,
+        7770713,
+        7770714,
+        7770716,
+        7771724,
+        7772465,
+        7772470,
+        7772471,
+        7772485,
+        7772582,
+        7772584,
+        7772609,
+        7772742,
+        7772888,
+        7772909,
+        7772944,
+        7773672,
+        7773786,
+        7773787,
+        7773790,
+        7773792,
+        7773793,
+        7773797,
+        7773799,
+        7773801,
+        7773802,
+        7773803,
+        7773820,
+        7773821,
+        7773823,
+        7773825,
+        7773826,
+        7773827,
+        7773828,
+        7773835,
+        7773839,
+        7773841,
+        7773845,
+        7773848,
+        7773856,
+        7773857,
+        7773859,
+        7773862,
+        7773863,
+        7773864,
+        7773865,
+        7773869,
+        7773871,
+        7773875,
+        7773877,
+        7773879,
+        7773880,
+        7774472,
+        7774497,
+        7774635,
+        7900002,
+        7900003,
+        7900113,
+        7900114,
+        7900115,
+        7900116,
+        7900117,
+        7900120,
+        7900122,
+        7900124,
+        7900125,
+        7900126,
+        7900129,
+        7900130,
+        7900131,
+        7900132,
+        7900133,
+        7900134,
+        7900135,
+        7900136,
+        7900144,
+        7900145,
+        7900147,
+        7900148,
+        7900151,
+        7900152,
+        7900153,
+        7900154,
+        7900155,
+        7900156,
+        7900157,
+        7900158,
+        7900159,
+        7900160,
+        7900161,
+        7900162,
+        7900233,
+        7900288
+      ],
+      "total": 237,
+      "trusted_identity_region": 127
+    },
+    "great_rune": {
+      "hold": 2,
+      "hold_by_external_family_count": {
+        "0": 1,
+        "1": 1
+      },
+      "remaining_check_ids": [
+        7770002,
+        7770004
+      ],
+      "total": 7,
+      "trusted_identity_region": 5
+    },
+    "major_boss": {
+      "hold": 11,
+      "hold_by_external_family_count": {
+        "0": 2,
+        "1": 9
+      },
+      "remaining_check_ids": [
+        7770002,
+        7770004,
+        7770655,
+        7773790,
+        7773792,
+        7773793,
+        7773797,
+        7773802,
+        7773803,
+        7773862,
+        7773865
+      ],
+      "total": 52,
+      "trusted_identity_region": 41
+    },
+    "remembrance": {
+      "hold": 1,
+      "hold_by_external_family_count": {
+        "1": 1
+      },
+      "remaining_check_ids": [
+        7770655
+      ],
+      "total": 25,
+      "trusted_identity_region": 24
+    }
+  },
+  "limitations": [
+    "Trusted means two independent external families corroborate identity and region only.",
+    "No row in this report is proof of access, route order, event timing, progression-host safety, or exclusion.",
+    "Finale lifecycle and disputed-region holds remain independent and authoritative."
+  ],
+  "remaining_checks": {
+    "7770002": {
+      "check_id": 7770002,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Caelid :: Radahn's Great Rune - Starscourge Radahn [f172]",
+      "region": "Caelid"
+    },
+    "7770004": {
+      "check_id": 7770004,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mt. Gelmir :: Rykard's Great Rune - Rykard [f174]",
+      "region": "Mt. Gelmir"
+    },
+    "7770029": {
+      "check_id": 7770029,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Cerulean Crystal Tear - Erdtree Avatar (region unconfirmed), may be sweep-granted by Erdtree Avatar (m60_33_43) [f65040]",
+      "region": "Liurnia"
+    },
+    "7770655": {
+      "check_id": 7770655,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Ashen Capital :: Remembrance of Hoarah Loux - Hoarah Loux [f510070]",
+      "region": "Ashen Capital"
+    },
+    "7770679": {
+      "check_id": 7770679,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Altus :: Omenkiller Rollo - around Divine Tower of East Altus: Gate, may be sweep-granted by Fell Twin (m34_14) [f510740]",
+      "region": "Altus"
+    },
+    "7770682": {
+      "check_id": 7770682,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Weeping :: Demi-Human Ashes - around Castleward Tunnel [f520010]",
+      "region": "Weeping"
+    },
+    "7770683": {
+      "check_id": 7770683,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Limgrave :: Noble Sorcerer Ashes - around Elden Throne [f520020]",
+      "region": "Limgrave"
+    },
+    "7770684": {
+      "check_id": 7770684,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Limgrave :: Assassin's Crimson Dagger - around South Raya Lucaria Gate [f520030]",
+      "region": "Limgrave"
+    },
+    "7770685": {
+      "check_id": 7770685,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Limgrave :: Banished Knight Engvall - around Study Hall Entrance [f520040]",
+      "region": "Limgrave"
+    },
+    "7770686": {
+      "check_id": 7770686,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Consecrated Snowfield :: Blackflame Monk Amon - around Altar South [f520200]",
+      "region": "Consecrated Snowfield"
+    },
+    "7770688": {
+      "check_id": 7770688,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Weeping :: Viridian Amber Medallion - m60_33_42 (region unconfirmed) [f520300]",
+      "region": "Weeping"
+    },
+    "7770696": {
+      "check_id": 7770696,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Limgrave :: Deathroot - Tibia Mariner (region unconfirmed), may be sweep-granted by Tibia Mariner (m60_45_39) [f530170]",
+      "region": "Limgrave"
+    },
+    "7770697": {
+      "check_id": 7770697,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Dragon Heart - Glintstone Dragon Smarag (region unconfirmed), may be sweep-granted by Glintstone Dragon Smarag (m60_34_45) [f530210]",
+      "region": "Liurnia"
+    },
+    "7770699": {
+      "check_id": 7770699,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Deathroot - Tibia Mariner, may be sweep-granted by Tibia Mariner (m60_39_44) [f530240]",
+      "region": "Liurnia"
+    },
+    "7770701": {
+      "check_id": 7770701,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: [Sorcery] Greatblade Phalanx - Bols, Carian Knight (region unconfirmed), may be sweep-granted by Bols, Carian Knight (m60_33_45) [f530250]",
+      "region": "Liurnia"
+    },
+    "7770703": {
+      "check_id": 7770703,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Dragon Heart - Glintstone Dragon Adula, may be sweep-granted by Glintstone Dragon Adula (m60_34_42) [f530260]",
+      "region": "Liurnia"
+    },
+    "7770706": {
+      "check_id": 7770706,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Altus :: Somber Smithing Stone [5] - Fallingstar Beast (region unconfirmed), may be sweep-granted by Fallingstar Beast (m60_41_50) [f530310]",
+      "region": "Altus"
+    },
+    "7770707": {
+      "check_id": 7770707,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Altus :: Dragon Greatclaw - Draconic Tree Sentinel, may be sweep-granted by Draconic Tree Sentinel (m60_45_52) [f530315]",
+      "region": "Altus"
+    },
+    "7770710": {
+      "check_id": 7770710,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Altus :: Black Knife - Black Knife Assassin, may be sweep-granted by Black Knife Assassin (m60_40_52) [f530350]",
+      "region": "Altus"
+    },
+    "7770711": {
+      "check_id": 7770711,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mt. Gelmir :: Somber Smithing Stone [6] - Full-Grown Fallingstar Beast, may be sweep-granted by Full-Grown Fallingstar Beast (m60_36_54) [f530375]",
+      "region": "Mt. Gelmir"
+    },
+    "7770712": {
+      "check_id": 7770712,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mt. Gelmir :: Deathroot - near Seethewater River (region unconfirmed) [f530385]",
+      "region": "Mt. Gelmir"
+    },
+    "7770713": {
+      "check_id": 7770713,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Mt. Gelmir :: Dragon Heart - Magma Wyrm, may be sweep-granted by Magma Wyrm (m60_35_53) [f530390]",
+      "region": "Mt. Gelmir"
+    },
+    "7770714": {
+      "check_id": 7770714,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Caelid :: Dragon Heart - Decaying Ekzykes, may be sweep-granted by Decaying Ekzykes (m60_48_37) [f530400]",
+      "region": "Caelid"
+    },
+    "7770716": {
+      "check_id": 7770716,
+      "external_families": [
+        "gameplay-wiki:fextralife"
+      ],
+      "external_family_count": 1,
+      "name": "Siofra River :: Dragon Halberd - Dragonkin Soldier, may be sweep-granted by Dragonkin Soldier (m12_02) [f530620]",
+      "region": "Siofra River"
+    },
+    "7771724": {
+      "check_id": 7771724,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mt. Gelmir :: Dragon Heart - around Volcano Manor [f16007999]",
+      "region": "Mt. Gelmir"
+    },
+    "7772465": {
+      "check_id": 7772465,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Gravesite :: Dragon Heart - around Dragon's Pit, may be sweep-granted by Ancient Dragon-Man (m43_01) [f43017900]",
+      "region": "Gravesite"
+    },
+    "7772470": {
+      "check_id": 7772470,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Liurnia :: Dragon Heart - m60_33_41 (region unconfirmed) (1) [f1033417400]",
+      "region": "Liurnia"
+    },
+    "7772471": {
+      "check_id": 7772471,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Liurnia :: Dragon Heart - m60_33_41 (region unconfirmed) (2) [f1033417410]",
+      "region": "Liurnia"
+    },
+    "7772485": {
+      "check_id": 7772485,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Liurnia :: Dragon Heart - around Village of the Albinaurics [f1034427400]",
+      "region": "Liurnia"
+    },
+    "7772582": {
+      "check_id": 7772582,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: [Sorcery] Ancient Death Rancor - around Gate Town North [f1036457400]",
+      "region": "Liurnia"
+    },
+    "7772584": {
+      "check_id": 7772584,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Ash of War: Giant Hunt - around East Raya Lucaria Gate [f1036487400]",
+      "region": "Liurnia"
+    },
+    "7772609": {
+      "check_id": 7772609,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Liurnia :: Meat Peddler's Bell Bearing - Bell Bearing Hunter, may be sweep-granted by Bell Bearing Hunter (m60_37_46) [f1037467400]",
+      "region": "Liurnia"
+    },
+    "7772742": {
+      "check_id": 7772742,
+      "external_families": [
+        "gameplay-wiki:fextralife"
+      ],
+      "external_family_count": 1,
+      "name": "Altus :: Ash of War: Shared Order - Night's Cavalry, may be sweep-granted by Night's Cavalry (m60_39_51) [f1039517200]",
+      "region": "Altus"
+    },
+    "7772888": {
+      "check_id": 7772888,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Limgrave :: Ash of War: Repeating Thrust - around Murkwater Cave [f1043377400]",
+      "region": "Limgrave"
+    },
+    "7772909": {
+      "check_id": 7772909,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Weeping :: Sacrificial Axe - m60_44_32 (region unconfirmed) [f1044327400]",
+      "region": "Weeping"
+    },
+    "7772944": {
+      "check_id": 7772944,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Altus :: Twinbird Kite Shield - Deathbird (region unconfirmed), may be sweep-granted by Deathbird (m60_44_53) [f1044537300]",
+      "region": "Altus"
+    },
+    "7773672": {
+      "check_id": 7773672,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Ruptured Crystal Tear - Erdtree Avatar, may be sweep-granted by Erdtree Avatar (m60_33_43) [f65160]",
+      "region": "Liurnia"
+    },
+    "7773786": {
+      "check_id": 7773786,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Ornamental Straight Sword - m10_01 [f510030]",
+      "region": "Liurnia"
+    },
+    "7773787": {
+      "check_id": 7773787,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Ashen Capital :: Scepter of the All-Knowing - around Elden Throne [f510060]",
+      "region": "Ashen Capital"
+    },
+    "7773790": {
+      "check_id": 7773790,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Haligtree :: [Sorcery] Loretta's Mastery - Loretta (real) [f510190]",
+      "region": "Haligtree"
+    },
+    "7773792": {
+      "check_id": 7773792,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Leyndell :: [Incantation] Bloodflame Talons - Sewer Mohg [f510250]",
+      "region": "Leyndell"
+    },
+    "7773793": {
+      "check_id": 7773793,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Magma Wyrm's Scalesword - Makkar [f510260]",
+      "region": "Liurnia"
+    },
+    "7773797": {
+      "check_id": 7773797,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Siofra River :: Larval Tear - around Siofra River Bank (1) [f510340]",
+      "region": "Siofra River"
+    },
+    "7773799": {
+      "check_id": 7773799,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Scadu Altus :: [Incantation] Aspects of the Crucible: Thorns - Hippo [f510440]",
+      "region": "Scadu Altus"
+    },
+    "7773801": {
+      "check_id": 7773801,
+      "external_families": [
+        "gameplay-wiki:fextralife"
+      ],
+      "external_family_count": 1,
+      "name": "Caelid :: Godskin Apostle Hood - around Divine Tower of Caelid: Basement [f510730]",
+      "region": "Caelid"
+    },
+    "7773802": {
+      "check_id": 7773802,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Weeping :: Grafted Blade Greatsword - Leonine Misbegotten, Castle Morne Boss [f510800]",
+      "region": "Weeping"
+    },
+    "7773803": {
+      "check_id": 7773803,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: [Sorcery] Loretta's Greatbow - around Main Caria Manor Gate [f510810]",
+      "region": "Liurnia"
+    },
+    "7773820": {
+      "check_id": 7773820,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mountaintops of the Giants :: Golden Seed - Ulcerated Tree Spirit, Giant's Mountaintop Catacombs [f520180]",
+      "region": "Mountaintops of the Giants"
+    },
+    "7773821": {
+      "check_id": 7773821,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Consecrated Snowfield :: Great Grave Glovewort - m30_19 [f520190]",
+      "region": "Consecrated Snowfield"
+    },
+    "7773823": {
+      "check_id": 7773823,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Weeping :: Spelldrake Talisman - around Earthbore Cave [f520310]",
+      "region": "Weeping"
+    },
+    "7773825": {
+      "check_id": 7773825,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Winged Sword Insignia - around Stillwater Cave [f520360]",
+      "region": "Liurnia"
+    },
+    "7773826": {
+      "check_id": 7773826,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Cerulean Amber Medallion - around Lakeside Crystal Cave [f520370]",
+      "region": "Liurnia"
+    },
+    "7773827": {
+      "check_id": 7773827,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: [Sorcery] Crystal Release - around Academy Crystal Cave [f520380]",
+      "region": "Liurnia"
+    },
+    "7773828": {
+      "check_id": 7773828,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Mt. Gelmir :: Kindred of Rot's Exultation - around Seethewater Cave [f520390]",
+      "region": "Mt. Gelmir"
+    },
+    "7773835": {
+      "check_id": 7773835,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Caelid :: [Sorcery] Crystal Torrent - around Sellia Hideaway [f520460]",
+      "region": "Caelid"
+    },
+    "7773839": {
+      "check_id": 7773839,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Weeping :: Rusted Anchor - around Morne Tunnel [f520600]",
+      "region": "Weeping"
+    },
+    "7773841": {
+      "check_id": 7773841,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Smithing-Stone Miner's Bell Bearing [1] - Raya Lucaria Crystal Tunnel [f520620]",
+      "region": "Liurnia"
+    },
+    "7773845": {
+      "check_id": 7773845,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Caelid :: Dragon Heart - around Rear Gael Tunnel Entrance [f520660]",
+      "region": "Caelid"
+    },
+    "7773848": {
+      "check_id": 7773848,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Rauh Base :: Death Knight's Longhaft Axe - around Scorpion River Catacombs [f520710]",
+      "region": "Rauh Base"
+    },
+    "7773856": {
+      "check_id": 7773856,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Caelid :: Dragon Heart - Flying Dragon Greyll, may be sweep-granted by Flying Dragon Greyll (m60_52_41) [f530420]",
+      "region": "Caelid"
+    },
+    "7773857": {
+      "check_id": 7773857,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Caelid :: Gargoyle's Blackblade - Black Blade Kindred, may be sweep-granted by Black Blade Kindred (m60_51_43) [f530425]",
+      "region": "Caelid"
+    },
+    "7773859": {
+      "check_id": 7773859,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Mountaintops of the Giants :: Dragon Heart - m60_54_56 (region unconfirmed) [f530510]",
+      "region": "Mountaintops of the Giants"
+    },
+    "7773862": {
+      "check_id": 7773862,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Consecrated Snowfield :: Dragon Heart - Great Wyrm Theodorix (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f530550]",
+      "region": "Consecrated Snowfield"
+    },
+    "7773863": {
+      "check_id": 7773863,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Jagged Peak :: Dragon Heart - around Foot of the Jagged Peak [f530800]",
+      "region": "Jagged Peak"
+    },
+    "7773864": {
+      "check_id": 7773864,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Cerulean :: Dancing Blade of Ranah - Dancer of Ranah [f530810]",
+      "region": "Cerulean"
+    },
+    "7773865": {
+      "check_id": 7773865,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Gravesite :: Greatsword of Solitude - Blackgaol Knight [f530820]",
+      "region": "Gravesite"
+    },
+    "7773869": {
+      "check_id": 7773869,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Jagged Peak :: Dragon Heart - Jagged Peak Drake, may be sweep-granted by Jagged Peak Drake (m61_49_41) [f530850]",
+      "region": "Jagged Peak"
+    },
+    "7773871": {
+      "check_id": 7773871,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Gravesite :: Dragon Heart - Ghostflame Dragon, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f530860]",
+      "region": "Gravesite"
+    },
+    "7773875": {
+      "check_id": 7773875,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Scadu Altus :: Pelt of Ralva - Ralva the Great Red Bear, may be sweep-granted by Ralva the Great Red Bear (m61_49_45) [f530930]",
+      "region": "Scadu Altus"
+    },
+    "7773877": {
+      "check_id": 7773877,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Scadu Altus :: Dragon Heart - around Moorth Highway, South [f530945]",
+      "region": "Scadu Altus"
+    },
+    "7773879": {
+      "check_id": 7773879,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Scadu Altus :: Black Steel Greatshield - Black Knight Garrew, may be sweep-granted by Black Knight Garrew (m61_47_45) [f530955]",
+      "region": "Scadu Altus"
+    },
+    "7773880": {
+      "check_id": 7773880,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Shadow Keep :: [Sorcery] Gravitational Missile - Fallingstar Beast, may be sweep-granted by Fallingstar Beast (m61_52_48) [f530960]",
+      "region": "Shadow Keep"
+    },
+    "7774472": {
+      "check_id": 7774472,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Caelid :: Battlemage Hugues - Battlemage Hugues, may be sweep-granted by Battlemage Hugues (m60_49_39) [f1049397850]",
+      "region": "Caelid"
+    },
+    "7774497": {
+      "check_id": 7774497,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Caelid :: Dragon Heart - around Dragonbarrow Fork [f1050407800]",
+      "region": "Caelid"
+    },
+    "7774635": {
+      "check_id": 7774635,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Jagged Peak :: Ancient Dragon Smithing Stone - Ancient Dragon Senessax, may be sweep-granted by Ancient Dragon Senessax (m61_54_39) [f530805]",
+      "region": "Jagged Peak"
+    },
+    "7900002": {
+      "check_id": 7900002,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Shadow Keep :: Messmer's Kindling - Messmer [f510460]",
+      "region": "Shadow Keep"
+    },
+    "7900003": {
+      "check_id": 7900003,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Caelid :: Golden Seed - Putrid Tree-Spirit drop in War-Dead Catacombs [f520160]",
+      "region": "Caelid"
+    },
+    "7900113": {
+      "check_id": 7900113,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Golden Beast Crest Shield - m10_01 [f510030]",
+      "region": "Liurnia"
+    },
+    "7900114": {
+      "check_id": 7900114,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Ashen Capital :: All-Knowing Helm - around Elden Throne [f510060]",
+      "region": "Ashen Capital"
+    },
+    "7900115": {
+      "check_id": 7900115,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Ashen Capital :: All-Knowing Armor - around Elden Throne [f510060]",
+      "region": "Ashen Capital"
+    },
+    "7900116": {
+      "check_id": 7900116,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Ashen Capital :: All-Knowing Gauntlets - around Elden Throne [f510060]",
+      "region": "Ashen Capital"
+    },
+    "7900117": {
+      "check_id": 7900117,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Ashen Capital :: All-Knowing Greaves - around Elden Throne [f510060]",
+      "region": "Ashen Capital"
+    },
+    "7900120": {
+      "check_id": 7900120,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Haligtree :: Loretta's War Sickle - Loretta (real) [f510190]",
+      "region": "Haligtree"
+    },
+    "7900122": {
+      "check_id": 7900122,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Liurnia :: Dragon Heart - Makkar [f510260]",
+      "region": "Liurnia"
+    },
+    "7900124": {
+      "check_id": 7900124,
+      "external_families": [
+        "gameplay-wiki:fextralife"
+      ],
+      "external_family_count": 1,
+      "name": "Caelid :: Godskin Apostle Robe - around Divine Tower of Caelid: Basement [f510730]",
+      "region": "Caelid"
+    },
+    "7900125": {
+      "check_id": 7900125,
+      "external_families": [
+        "gameplay-wiki:fextralife"
+      ],
+      "external_family_count": 1,
+      "name": "Caelid :: Godskin Apostle Bracelets - around Divine Tower of Caelid: Basement [f510730]",
+      "region": "Caelid"
+    },
+    "7900126": {
+      "check_id": 7900126,
+      "external_families": [
+        "gameplay-wiki:fextralife"
+      ],
+      "external_family_count": 1,
+      "name": "Caelid :: Godskin Apostle Trousers - around Divine Tower of Caelid: Basement [f510730]",
+      "region": "Caelid"
+    },
+    "7900129": {
+      "check_id": 7900129,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Altus :: Crucible Axe Helm - around Auriza Hero's Grave [f520100]",
+      "region": "Altus"
+    },
+    "7900130": {
+      "check_id": 7900130,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Altus :: Crucible Axe Armor - around Auriza Hero's Grave [f520100]",
+      "region": "Altus"
+    },
+    "7900131": {
+      "check_id": 7900131,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Altus :: Crucible Gauntlets - around Auriza Hero's Grave [f520100]",
+      "region": "Altus"
+    },
+    "7900132": {
+      "check_id": 7900132,
+      "external_families": [
+        "gameplay-wiki:eldenpedia"
+      ],
+      "external_family_count": 1,
+      "name": "Altus :: Crucible Greaves - around Auriza Hero's Grave [f520100]",
+      "region": "Altus"
+    },
+    "7900133": {
+      "check_id": 7900133,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mountaintops of the Giants :: Zamor Mask - m30_17 [f520170]",
+      "region": "Mountaintops of the Giants"
+    },
+    "7900134": {
+      "check_id": 7900134,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mountaintops of the Giants :: Zamor Armor - m30_17 [f520170]",
+      "region": "Mountaintops of the Giants"
+    },
+    "7900135": {
+      "check_id": 7900135,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mountaintops of the Giants :: Zamor Bracelets - m30_17 [f520170]",
+      "region": "Mountaintops of the Giants"
+    },
+    "7900136": {
+      "check_id": 7900136,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mountaintops of the Giants :: Zamor Legwraps - m30_17 [f520170]",
+      "region": "Mountaintops of the Giants"
+    },
+    "7900144": {
+      "check_id": 7900144,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Adula's Moonblade - Glintstone Dragon Adula, may be sweep-granted by Glintstone Dragon Adula (m60_34_42) [f530260]",
+      "region": "Liurnia"
+    },
+    "7900145": {
+      "check_id": 7900145,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Altus :: Dragonclaw Shield - Draconic Tree Sentinel, may be sweep-granted by Draconic Tree Sentinel (m60_45_52) [f530315]",
+      "region": "Altus"
+    },
+    "7900147": {
+      "check_id": 7900147,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Mt. Gelmir :: Fallingstar Beast Jaw - Full-Grown Fallingstar Beast, may be sweep-granted by Full-Grown Fallingstar Beast (m60_36_54) [f530375]",
+      "region": "Mt. Gelmir"
+    },
+    "7900148": {
+      "check_id": 7900148,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mt. Gelmir :: Tibia's Summons - near Seethewater River (region unconfirmed) [f530385]",
+      "region": "Mt. Gelmir"
+    },
+    "7900151": {
+      "check_id": 7900151,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mountaintops of the Giants :: Fingerprint Helm - Roundtable Knight Vyke, may be sweep-granted by Roundtable Knight Vyke (m60_53_56) [f530515]",
+      "region": "Mountaintops of the Giants"
+    },
+    "7900152": {
+      "check_id": 7900152,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mountaintops of the Giants :: Fingerprint Armor - Roundtable Knight Vyke, may be sweep-granted by Roundtable Knight Vyke (m60_53_56) [f530515]",
+      "region": "Mountaintops of the Giants"
+    },
+    "7900153": {
+      "check_id": 7900153,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mountaintops of the Giants :: Fingerprint Gauntlets - Roundtable Knight Vyke, may be sweep-granted by Roundtable Knight Vyke (m60_53_56) [f530515]",
+      "region": "Mountaintops of the Giants"
+    },
+    "7900154": {
+      "check_id": 7900154,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Mountaintops of the Giants :: Fingerprint Greaves - Roundtable Knight Vyke, may be sweep-granted by Roundtable Knight Vyke (m60_53_56) [f530515]",
+      "region": "Mountaintops of the Giants"
+    },
+    "7900155": {
+      "check_id": 7900155,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Cerulean :: Dancer's Hood - Dancer of Ranah [f530810]",
+      "region": "Cerulean"
+    },
+    "7900156": {
+      "check_id": 7900156,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Cerulean :: Dancer's Dress - Dancer of Ranah [f530810]",
+      "region": "Cerulean"
+    },
+    "7900157": {
+      "check_id": 7900157,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Cerulean :: Dancer's Bracer - Dancer of Ranah [f530810]",
+      "region": "Cerulean"
+    },
+    "7900158": {
+      "check_id": 7900158,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Cerulean :: Dancer's Trousers - Dancer of Ranah [f530810]",
+      "region": "Cerulean"
+    },
+    "7900159": {
+      "check_id": 7900159,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Gravesite :: Helm of Solitude - Blackgaol Knight [f530820]",
+      "region": "Gravesite"
+    },
+    "7900160": {
+      "check_id": 7900160,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Gravesite :: Armor of Solitude - Blackgaol Knight [f530820]",
+      "region": "Gravesite"
+    },
+    "7900161": {
+      "check_id": 7900161,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Gravesite :: Gauntlets of Solitude - Blackgaol Knight [f530820]",
+      "region": "Gravesite"
+    },
+    "7900162": {
+      "check_id": 7900162,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Gravesite :: Greaves of Solitude - Blackgaol Knight [f530820]",
+      "region": "Gravesite"
+    },
+    "7900233": {
+      "check_id": 7900233,
+      "external_families": [
+        "gameplay-guide:redmaw"
+      ],
+      "external_family_count": 1,
+      "name": "Liurnia :: Nightrider Glaive - around East Raya Lucaria Gate [f1036487400]",
+      "region": "Liurnia"
+    },
+    "7900288": {
+      "check_id": 7900288,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Jagged Peak :: Somber Ancient Dragon Smithing Stone - Ancient Dragon Senessax, may be sweep-granted by Ancient Dragon Senessax (m61_54_39) [f530805]",
+      "region": "Jagged Peak"
+    }
+  },
+  "schema_version": 1,
+  "scope": "v0.6 boss, remembrance, great-rune, and fixed boss-drop checks"
+}

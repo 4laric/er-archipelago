@@ -174,6 +174,11 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "boss_reward_category_coverage": "category-wide boss and remembrance coverage regression "
+                                     "imports its repo-only builder and committed summary through "
+                                     "the repo-root walk-up. It is an AP-free pytest suite without "
+                                     "a script entry point, so it belongs in TESTS_JOB rather than "
+                                     "the generator script loop",
     "upgrade_blessing_review_batch": "category-first upgrade/flask/blessing review regression "
                                      "imports its repo-only builder and committed artifacts through "
                                      "the repo-root walk-up. It is an AP-free pytest suite with no "
