@@ -4,18 +4,18 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7772021	unique_dungeon_pickup	Abyssal	Nanaya's Torch	28007100	m28_00	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
 7772017	unique_dungeon_pickup	Abyssal	Surging Frenzied Flame	28007050	m28_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772013	unique_dungeon_pickup	Abyssal	Torn Diary Page	28007010	m28_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
-7771138	unique_dungeon_pickup	Ainsel River	Ant's Skull Plate	12017970	m12_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771138	unique_dungeon_pickup	Ainsel River	Ant's Skull Plate	12017970	m12_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7771103	unique_dungeon_pickup	Ainsel River	Archer Ashes	12017630	m12_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
-7771111	unique_dungeon_pickup	Ainsel River	Clayman Ashes	12017710	m12_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771111	unique_dungeon_pickup	Ainsel River	Clayman Ashes	12017710	m12_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7771140	unique_dungeon_pickup	Ainsel River	Ghost-Glovewort Picker's Bell Bearing [2]	12017980	m12_04	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773784	unique_dungeon_pickup	Ainsel River	Hermit Merchant's Bell Bearing [3]	400918	m12_01	remaining_unreviewed	0		first_independent_identity_region_source
 7771058	unique_dungeon_pickup	Ainsel River	Immunizing Horn Charm	12017180	m12_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
-7771143	unique_dungeon_pickup	Ainsel River	Immunizing Horn Charm +1	12017992	m12_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771143	unique_dungeon_pickup	Ainsel River	Immunizing Horn Charm +1	12017992	m12_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7771073	unique_dungeon_pickup	Ainsel River	Melted Mushroom	12017330	m12_01	remaining_unreviewed	0		first_independent_identity_region_source
 7770617	unique_dungeon_pickup	Ainsel River	Miniature Ranni	400394	m12_01	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7771136	unique_dungeon_pickup	Ainsel River	Moon of Nokstella	12017960	m12_04	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
-7771086	unique_dungeon_pickup	Ainsel River	Mushroom Crown	12017460	m12_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7771142	unique_dungeon_pickup	Ainsel River	Nightmaiden & Swordstress Puppets	12017990	m12_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771086	unique_dungeon_pickup	Ainsel River	Mushroom Crown	12017460	m12_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7771142	unique_dungeon_pickup	Ainsel River	Nightmaiden & Swordstress Puppets	12017990	m12_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770126	unique_dungeon_pickup	Ainsel River	Nomadic Warrior's Cookbook [22]	67890	m12_01	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7771132	unique_dungeon_pickup	Ainsel River	Scorpion's Stinger	12017920	m12_04	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770130	unique_dungeon_pickup	Altus	Ancient Dragon Apostle's Cookbook [1]	68000	m30_07	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
