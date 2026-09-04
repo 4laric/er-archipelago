@@ -42,7 +42,7 @@ def main() -> int:
     current = {str(ap_id): region for region, checks in mod.LOCATIONS.items()
                for _name, ap_id, _flag in checks}
 
-    assert len(rows) >= 99, "PowerPyx coverage unexpectedly collapsed below the 99-check corpus"
+    assert len(rows) >= 100, "PowerPyx coverage unexpectedly collapsed below the 100-check corpus"
     ids = [row["lead_id"] for row in rows]
     subjects = [row["subject_id"] for row in rows]
     assert len(ids) == len(set(ids))
@@ -66,7 +66,8 @@ def main() -> int:
     }
     revered = [row for row in rows if row["source_ids"] ==
                "wiki:powerpyx:revered-spirit-ash:20260904"]
-    assert len(revered) == 1 and revered[0]["subject_id"] == "7771808"
+    assert len(revered) == 2
+    assert {row["subject_id"] for row in revered} == {"7771808", "7773357"}
     talismans = [row for row in rows if row["source_ids"] ==
                  "wiki:powerpyx:talismans:20260904"]
     assert len(talismans) == 1 and talismans[0]["subject_id"] == "7771028"
