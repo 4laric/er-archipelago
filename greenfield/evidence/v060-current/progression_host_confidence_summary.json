@@ -1,17 +1,17 @@
 {
   "by_confidence": {
-    "hold": 3795,
-    "trusted_identity_region": 1130
+    "hold": 3790,
+    "trusted_identity_region": 1135
   },
   "by_external_family_count": {
     "0": 2807,
-    "1": 988,
-    "2": 917,
+    "1": 983,
+    "2": 922,
     "3": 208,
     "4": 5
   },
   "checks_total": 4925,
-  "content_sha256": "44cb9aa25dba56ab08dc849fa242fb20f19b7a2be2e667086a391015c79f3460",
+  "content_sha256": "c2b2de8f22be2c73b5ab8143503f74499699bd8f7686380706779fbc0cad3bf3",
   "input_files": {
     "dlc-blessing-collectible-check-leads.tsv": "7b9a04264df1fb7725de5afa78861c1ecde2bdc36d580f3d52c17d049396791e",
     "dlc-sparse-region-check-leads.tsv": "ad6683820b1b6088077321262d3c4ee1fe360c7bdf809611ca53d728a0c8ab95",
@@ -23,6 +23,7 @@
     "eldenpedia-invasion-reward-check-leads.tsv": "390096cf0cf9cf20800c2f036d1a02c26647c479e58f295e1ce5ce4d3b4b06aa",
     "eldenpedia-item-acquisition-check-leads.tsv": "720f555559cf644c92842867f45c5bc7a8740420f5d25daec2c555a479c56072",
     "eldenpedia-location-check-leads.tsv": "6672bc755e4fe67b77eac98ec2263d640cb7c153b0e3681f509ab473926e719b",
+    "eldenpedia-m12-unique-check-leads.tsv": "a23cb68f6bf859b8f3ca194736de38cfbf4500b465db8f2a62f1444b337abdd9",
     "eldenpedia-malformed-dragon-check-leads.tsv": "c87950774635ebdf00be5c106af8c565889f714f8a1fbcfc31a2eb5ec39338b8",
     "eldenpedia-memory-stone-check-leads.tsv": "4e9540d8eeea38d26a38c899fcc9eb630737f6483c41ad6ec7128fcbf0346fc3",
     "eldenpedia-repeated-pickup-check-leads.tsv": "205ed9d9a60bc91923e7231e43ef0f411add7d05a894d7eb037b156946e74391",
