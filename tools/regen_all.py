@@ -177,6 +177,11 @@ STEPS = [
          why="strict two-family external identity/region confidence used by #1358. It reads the "
              "normalized wiki-audit leads and current generated check population, so both inputs "
              "must move its HOLD/TRUSTED partition through the single regen entrypoint."),
+    Step(TABLES, "tools/build_upgrade_blessing_review_batch.py",
+         emits=["greenfield/evidence/wiki-audit/upgrade-blessing-review.tsv",
+                "greenfield/evidence/wiki-audit/upgrade-blessing-review-summary.json"],
+         why="category-first upgrade/flask/blessing review queue derived from current locations, "
+             "access dispositions, and progression-host confidence."),
 
     Step(PAGES, "tools/build_check_browser.py",
          emits=["er-archipelago-check-browser.html"],
