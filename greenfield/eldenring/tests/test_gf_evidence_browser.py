@@ -169,6 +169,7 @@ class OfflineArtifactTests(unittest.TestCase):
                           "powerpyx-check-leads.tsv",
                           "powerpyx-revered-corroboration-check-leads.tsv",
                           "powerpyx-scadutree-corroboration-check-leads.tsv",
+                          "powerpyx-talisman-corroboration-check-leads.tsv",
                           "redmaw-checklist-check-leads.tsv",
                           "redmaw-embedded-ash-check-leads.tsv",
                           "redmaw-location-anchor-check-leads.tsv",
