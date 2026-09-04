@@ -174,6 +174,15 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "generic_pickup_review": "category-wide generic pickup review regression imports its repo-only "
+                             "builder and committed review artifacts through the repo-root walk-up. "
+                             "It is an AP-free unittest suite without a script entry point, so it "
+                             "belongs in TESTS_JOB rather than the generator script loop",
+    "dungeon_field_review_batch": "category-first unique dungeon/field review regression imports "
+                                  "its repo-only builder and committed confidence ledger through "
+                                  "the repo-root walk-up. It is an AP-free pytest suite with no "
+                                  "script entry point, so it belongs in TESTS_JOB rather than the "
+                                  "generator script loop",
     "seam_landmarks": "cross-representation boundary witness joins a repo-root provenance TSV "
                       "to the installed world's location, sweep, arena, grace, and kick tables; "
                       "the tests job supplies both sides (#1319)",

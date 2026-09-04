@@ -51,6 +51,7 @@ ELDENPEDIA_ITEM_ACQUISITION_AUDIT = load_repo_tool("check_eldenpedia_item_acquis
 ELDENPEDIA_UPGRADE_MATERIAL_AUDIT = load_repo_tool("check_eldenpedia_upgrade_material_leads")
 ELDENPEDIA_UPGRADE_LOCATION_ROW_AUDIT = load_repo_tool("check_eldenpedia_upgrade_location_rows")
 POWERPYX_AUDIT = load_repo_tool("check_powerpyx_check_leads")
+POWERPYX_GOLDEN_RUNE_AUDIT = load_repo_tool("check_powerpyx_golden_rune_anchor_leads")
 REDMAW_CHECKLIST_AUDIT = load_repo_tool("check_redmaw_checklist_leads")
 REDMAW_EMBEDDED_ASH_AUDIT = load_repo_tool("check_redmaw_embedded_ash_leads")
 REDMAW_MERCHANT_AUDIT = load_repo_tool("check_redmaw_merchant_leads")
@@ -73,7 +74,7 @@ class WikiAuditTest(unittest.TestCase):
         self.assertEqual(FEXTRALIFE_REDMAW_AUDIT.main(), 0)
 
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (101, 16))
+        self.assertEqual(AUDIT.validate(REPO), (102, 16))
 
     def test_redmaw_same_step_location_anchors_validate(self):
         path = (REPO / "greenfield/evidence/wiki-audit" /
@@ -268,6 +269,15 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
         self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
         self.assertEqual(ELDENPEDIA_REPEATED_AUDIT.main(), 0)
+
+    def test_powerpyx_golden_rune_anchor_batch_validates(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "powerpyx-golden-rune-anchor-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(len(rows), 5)
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertEqual(POWERPYX_GOLDEN_RUNE_AUDIT.main(), 0)
 
     def test_eldenpedia_boss_reward_leads_validate(self):
         path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
