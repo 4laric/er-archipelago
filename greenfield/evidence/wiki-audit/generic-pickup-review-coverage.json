@@ -1,0 +1,38 @@
+{
+  "ambiguous_or_conflicted": 8,
+  "by_confidence": {
+    "hold": 2685,
+    "trusted_identity_region": 199
+  },
+  "by_external_family_count": {
+    "0": 2170,
+    "1": 515,
+    "2": 176,
+    "3": 23
+  },
+  "by_partition": {
+    "ambiguous_map_lot": 8,
+    "exact_route_anchor": 2740,
+    "non_map_lot": 136
+  },
+  "category": "repeated_generic_field_pickups_and_consumables",
+  "checks_total": 2884,
+  "definition": "item name occurs at least twice after special acquisition tags are excluded",
+  "excluded_tags": [
+    "Basin",
+    "Boss",
+    "Church",
+    "Fragment",
+    "GreatRune",
+    "KeyItem",
+    "Legendary",
+    "MajorBoss",
+    "Remembrance",
+    "Revered",
+    "Seedtree",
+    "Shop"
+  ],
+  "item_names": 287,
+  "remaining_held": 2685,
+  "schema_version": 1
+}
