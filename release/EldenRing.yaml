@@ -963,6 +963,13 @@ Elden Ring:
   # keep weapons at their found level and spend the stones yourself.
   auto_upgrade: true
 
+  # How many Smithing Stones each normal-weapon upgrade costs. The default 2
+  # keeps the current faster ladder. Set 1 to make normal weapons advance at
+  # roughly the same one-stone-per-level pace as Somber weapons. Set 0 for the
+  # vanilla 2/4/6 costs; values 3 and 4 make upgrades progressively dearer.
+  # The final +25 upgrade still needs an Ancient Dragon Smithing Stone.
+  flatten_regular_upgrades: 2
+
   # Start with all five whetblades (Iron, Red-Hot, Sanctified, Glintstone,
   # Black), so every Ash-of-War affinity is selectable at any grace from the
   # opening instead of hunting the vanilla pickups. Grants the ITEMS only --

@@ -155,6 +155,22 @@ class TestAutoUpgradeUnfreeze(unittest.TestCase):
                              "auto_upgrade is frozen AND defaulted -- pick one")
 
 
+class TestFlattenRegularUpgradesUnfreeze(unittest.TestCase):
+    """#1413: expose the supported cost value without changing default seeds."""
+
+    def test_the_default_is_the_ex_frozen_value(self):
+        with open(os.path.join(REPO, "greenfield", "eldenring", "features", "upgrades.py"),
+                  encoding="utf-8") as f:
+            src = f.read()
+        body = src.split("class FlattenRegularUpgrades", 1)[1].split("class ", 1)[0]
+        self.assertIn("default = 2", body,
+                      "omitting the newly exposed option must preserve the former fixed value")
+        with open(os.path.join(REPO, "greenfield", "eldenring", "defaults.py"),
+                  encoding="utf-8") as f:
+            self.assertNotIn('"flatten_regular_upgrades": (', f.read(),
+                             "flatten_regular_upgrades is frozen AND defaulted -- pick one")
+
+
 class TestEssentialsTier(unittest.TestCase):
     """The essentials tier (core._ESSENTIAL_OPTIONS -> metadata `essential`) stays honest.
 

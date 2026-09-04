@@ -26,6 +26,12 @@ line until v0.6.0 has full check coverage and is ready to release.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Normal weapons can use one Smithing Stone per upgrade.** The existing two-stone ladder remains
+  the default, but `flatten_regular_upgrades` is now a YAML and wizard setting: choose `1` for
+  Somber-like pacing, `0` for vanilla 2/4/6 costs, or `2` through `4` for a uniform cost. This
+  changes upgrade prices rather than multiplying item deliveries, so foreign-world items and
+  stacked vanilla pickups are not double-counted.
+
 - **Collected Scadutree Fragments strengthen you everywhere by default.** v0.6 defaults
   `scadutree_blessing_scope` to `anywhere`, while DLC catch-up floors remain off. The guaranteed
   fragment supply follows the resolved maximum enemy difficulty, so short `auto` seeds reserve

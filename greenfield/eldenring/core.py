@@ -546,7 +546,8 @@ _OPTION_GROUPS = [
         # turn auto_equip on, "do you want a guaranteed medium roll so a random drop cannot
         # overload you?" is the next question, so it sits right there. no_weapon_requirements is
         # the same kind of constraint-remover and follows. auto_upgrade UNFROZE the same day.
-        "auto_equip", "no_equip_load", "auto_upgrade", "no_weapon_requirements",
+        "auto_equip", "no_equip_load", "auto_upgrade", "flatten_regular_upgrades",
+        "no_weapon_requirements",
         "start_with_whetblades",
         "progressive_flasks", "flask_upgrades_on_progression_surface",
         "capital_reconciler", "open_boss_doors"]),
