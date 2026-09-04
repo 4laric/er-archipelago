@@ -1,13 +1,13 @@
 {
   "ambiguous_or_conflicted": 8,
   "by_confidence": {
-    "hold": 2685,
-    "trusted_identity_region": 199
+    "hold": 2684,
+    "trusted_identity_region": 200
   },
   "by_external_family_count": {
     "0": 2170,
-    "1": 515,
-    "2": 176,
+    "1": 514,
+    "2": 177,
     "3": 23
   },
   "by_partition": {
@@ -33,6 +33,6 @@
     "Shop"
   ],
   "item_names": 287,
-  "remaining_held": 2685,
+  "remaining_held": 2684,
   "schema_version": 1
 }
