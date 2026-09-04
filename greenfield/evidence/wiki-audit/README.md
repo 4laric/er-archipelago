@@ -61,6 +61,24 @@ leads with different normalized values, so an empty file honestly means “none 
 
 ## Broad walkthrough coverage
 
+### Unique dungeon and field pickup review batch
+
+`dungeon-field-unique-review.tsv` is the category-first inventory for unique, map-anchored,
+non-shop, non-boss pickups. It partitions interior map families (`m10` through `m59`) from
+open-world map families (`m60` and `m61`) and records trusted, one-family-audited, and untouched
+counts. The queue deliberately refuses repeated item names: those cannot be assigned to one AP
+slot by a broad item-page or regional-walkthrough mention and belong in a location-anchor lane.
+
+The generated summary is a coverage measurement, not a new evidence source. A check remains held
+until two independent external identity-and-region families support it; the next coherent passes
+should therefore target the 145 dungeon and 192 field checks that already have exactly one family,
+before opening a new source lane for the 300 untouched checks.
+
+```bash
+python tools/build_dungeon_field_review_batch.py
+python tools/build_dungeon_field_review_batch.py --check
+```
+
 `walkthrough-check-leads.tsv` is the first corpus-scale pass. It is derived from Redmaw's immutable
 base-game and DLC walkthroughs at commit `7281cb6f7f067e71856f12d5e7083b97ad081bb1` by
 `tools/build_walkthrough_check_leads.py`. The source bodies are not redistributed: each row retains
