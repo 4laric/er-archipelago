@@ -437,18 +437,18 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7771187	unique_dungeon_pickup	Siofra River	Crucible Hornshield	12027435	m12_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7771389	unique_dungeon_pickup	Siofra River	Ghost-Glovewort Picker's Bell Bearing [1]	12077400	m12_09	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7771399	unique_dungeon_pickup	Siofra River	Ghostflame Torch	12077500	m12_09	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
-7770780	unique_dungeon_pickup	Siofra River	Great Oracular Bubble	540610	m12_02	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7770780	unique_dungeon_pickup	Siofra River	Great Oracular Bubble	540610	m12_02	trusted	2	gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
 7771393	unique_dungeon_pickup	Siofra River	Greatshield Soldier Ashes	12077440	m12_08	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
-7771185	unique_dungeon_pickup	Siofra River	Horn Bow	12027420	m12_02	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771185	unique_dungeon_pickup	Siofra River	Horn Bow	12027420	m12_02	trusted	2	gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
 7771157	unique_dungeon_pickup	Siofra River	Inverted Hawk Heater Shield	12027140	m12_02	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
-7771150	unique_dungeon_pickup	Siofra River	Marika's Scarseal	12027050	m12_02	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771150	unique_dungeon_pickup	Siofra River	Marika's Scarseal	12027050	m12_02	trusted	2	gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
 7771232	unique_dungeon_pickup	Siofra River	Mimic Tear Ashes	12027880	m12_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770116	unique_dungeon_pickup	Siofra River	Missionary's Cookbook [5]	67630	m12_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7771147	unique_dungeon_pickup	Siofra River	Mottled Necklace	12027000	m12_02	remaining_unreviewed	0		first_independent_identity_region_source
 7771207	unique_dungeon_pickup	Siofra River	Mottled Necklace +1	12027620	m12_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7771235	unique_dungeon_pickup	Siofra River	Nox Flowing Hammer	12027910	m12_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770785	unique_dungeon_pickup	Siofra River	Oracle Bubbles	540652	m12_08	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
-7770784	unique_dungeon_pickup	Siofra River	Order Healing	540648	m12_02	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770784	unique_dungeon_pickup	Siofra River	Order Healing	540648	m12_02	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770798	unique_dungeon_pickup	Stormveil	"""Prophecy"" Painting"	580040	m10_00	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
 7770867	unique_dungeon_pickup	Stormveil	Arbalest	10007550	m10_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770731	unique_dungeon_pickup	Stormveil	Ash of War: Storm Assault	540170	m10_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
