@@ -6,8 +6,8 @@ playtest yaml just IS the behaviour, and half-built modes are frozen OFF rather 
 The option CLASSES stay declared in their features on purpose. They still document the knob, and --
 critically -- the features still EMIT their slot_data / options-echo keys, just with a constant
 value. So collapsing the yaml surface costs ZERO client churn: the contract the built Rust client
-validates on connect is unchanged (completion_scaling_floor, global_scadutree_blessing, auto_upgrade
-and flatten_regular_upgrades are REQUIRED options-echo keys -- they keep being emitted).
+validates on connect is unchanged (completion_scaling_floor and global_scadutree_blessing are
+REQUIRED options-echo keys -- they keep being emitted).
 
 Mechanism: the names below are (a) filtered out of GFOptions so no yaml can set them, and
 (b) injected back onto world.options as frozen stand-ins in generate_early, before any feature reads
@@ -111,11 +111,9 @@ FROZEN_OPTIONS = {
     # knob that quietly does nothing is the exact failure class this whole change exists to kill.
     #   "pool_builder_juice_pct"  -> the `juice` weight IS the share (Removed stub)
 
-    # 2, not the playtest yaml's 3: at 2 the starting upgrade level still REQUIRES stones, which keeps
-    # smithing stones meaningful as checks. It errs generous. (3 made regular weapons so cheap to bring
-    # up that the 2026-07 playtest ran almost exclusively SOMBER weapons.) -- Alaric 2026-07-11
     "stone_ramp": (0, None),                   # mechanism DELETED (see core.post_fill); class inert
-    "flatten_regular_upgrades": (2, None),
+    # `flatten_regular_upgrades` UNFROZE 2026-09-04 for #1413. Its class default moved to the
+    # former frozen value (2), so omitted YAMLs retain the exact shipping ladder.
     # "auto_upgrade" UNFROZE 2026-08-20 (Alaric: "auto_upgrade prominent" for the wizard's QoL
     # essentials). The class default moved to the frozen value (1) in the same commit, so a yaml
     # that does not name it gets exactly the behaviour every seed has had since the freeze; the

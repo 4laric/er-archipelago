@@ -197,7 +197,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.6.0",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "e54559cca459e152a65fd4963b2b325ae54475b96e1555579ff166c3d277243d",
+ "source_sha256": "6df8c048166ff17d0a602b534a975859883e4e953362188971bc5ab57cc2aef7",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -273,6 +273,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "trap_count",
   "spawn_traps",
   "auto_upgrade",
+  "flatten_regular_upgrades",
   "vanilla_pool",
   "no_weapon_requirements"
  ],
@@ -382,6 +383,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "auto_equip",
     "no_equip_load",
     "auto_upgrade",
+    "flatten_regular_upgrades",
     "no_weapon_requirements",
     "start_with_whetblades",
     "progressive_flasks",
@@ -2755,6 +2757,26 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group_collapsed": false,
    "special_values": null,
    "essential": true
+  },
+  {
+   "key": "flatten_regular_upgrades",
+   "class": "FlattenRegularUpgrades",
+   "display_name": "Flatten Regular Upgrades (stones/level)",
+   "description": "Stones per +level for STANDARD weapon reinforcement -- the client flattens the vanilla 2/4/6\nladder to a uniform cost. 0 = off (vanilla 2/4/6); 1..4 = uniform N stones per level (lower =\nweapons upgrade faster). The upgrade-curve analyzer found 3 best matches the smoothstep difficulty\nscaling (0/vanilla undershoots the target, 1 overshoots it). The default is 2, preserving the\nfixed cost used by existing releases. Somber weapons\n(1 stone/level) and the +25 Ancient Dragon step are unaffected.",
+   "kind": "range",
+   "base": "Range",
+   "default": 2,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 4
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "vanilla_pool",

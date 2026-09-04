@@ -17,6 +17,9 @@ Every check is getting a defensible identity, region, access rule, and player-fa
 The corpus audit combines committed game data, multiple external references, and player testimony
 without copying guide prose. Uncertain claims remain visibly held instead of becoming logic.
 
+Normal weapons can now be set to cost one Smithing Stone per upgrade, matching the pace of Somber
+weapons. The current two-stone cost stays the default, so existing YAMLs keep their behavior.
+
 ## What carried over from v0.5.7
 
 Nothing is owed from v0.5.7. The stable release remains supported on main, while this branch carries
