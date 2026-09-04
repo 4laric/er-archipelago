@@ -149,6 +149,7 @@ class OfflineArtifactTests(unittest.TestCase):
                           "eldenpedia-crystal-tear-check-leads.tsv",
                           "eldenpedia-deathroot-check-leads.tsv",
                           "eldenpedia-golden-seed-check-leads.tsv",
+                          "eldenpedia-guide-check-leads.tsv",
                           "eldenpedia-item-acquisition-check-leads.tsv",
                           "eldenpedia-location-check-leads.tsv",
                           "eldenpedia-malformed-dragon-check-leads.tsv",
