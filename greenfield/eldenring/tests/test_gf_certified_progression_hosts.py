@@ -76,16 +76,15 @@ def test_new_default_surface_certifications_are_stable_and_finale_free():
     assert restored.isdisjoint(_always_hold_aps())
 
 
-def test_revered_wave_preserves_deeper_gate_and_region_dispute_holds():
-    """The two unresolved effective rows are named, not accidentally omitted."""
+def test_revered_wave_preserves_region_dispute_hold():
+    """The remaining unresolved effective row is named, not accidentally omitted."""
     from ..evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
     from ..location_tags import SURFACE_EXCLUDE_APS
 
-    deeper_gated = 7771808       # statue after Divine Beast Dancing Lion
     region_disputed = 7773212    # Ancient Ruins|Enir Ilim in region_dispute_worksheet.tsv
-    assert {deeper_gated, region_disputed}.isdisjoint(CERTIFIED_REVERED_APS)
-    assert {deeper_gated, region_disputed} <= HOLD_PROGRESSION_HOST_APS
-    assert {deeper_gated, region_disputed}.isdisjoint(SURFACE_EXCLUDE_APS)
+    assert region_disputed not in CERTIFIED_REVERED_APS
+    assert region_disputed in HOLD_PROGRESSION_HOST_APS
+    assert region_disputed not in SURFACE_EXCLUDE_APS
 
 
 def test_revered_wave_is_exactly_the_other_effective_generated_holds():
@@ -99,7 +98,7 @@ def test_revered_wave_is_exactly_the_other_effective_generated_holds():
     }
     certified_still_held = CERTIFIED_REVERED_APS & HOLD_PROGRESSION_HOST_APS
     assert certified_still_held == {7771934}
-    assert effective == certified_still_held | {7771808, 7773212}
+    assert effective == certified_still_held | {7773212}
 
 def test_major_boss_wave2_restores_three_and_preserves_seven_finale_rows():
     from ..evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS

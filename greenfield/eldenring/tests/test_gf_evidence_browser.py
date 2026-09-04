@@ -167,6 +167,7 @@ class OfflineArtifactTests(unittest.TestCase):
                           "game8-dlc-anchor-check-leads.tsv",
                           "game8-dlc-floor-check-leads.tsv", "leads.tsv",
                           "powerpyx-check-leads.tsv",
+                          "powerpyx-revered-corroboration-check-leads.tsv",
                           "powerpyx-scadutree-corroboration-check-leads.tsv",
                           "redmaw-checklist-check-leads.tsv",
                           "redmaw-embedded-ash-check-leads.tsv",
