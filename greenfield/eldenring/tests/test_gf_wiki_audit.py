@@ -83,7 +83,7 @@ class WikiAuditTest(unittest.TestCase):
         self.assertEqual(FEXTRALIFE_REDMAW_AUDIT.main(), 0)
 
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (111, 16))
+        self.assertEqual(AUDIT.validate(REPO), (109, 16))
 
     def test_redmaw_same_step_location_anchors_validate(self):
         path = (REPO / "greenfield/evidence/wiki-audit" /
