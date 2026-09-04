@@ -691,9 +691,9 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7770167	unique_field_pickup	Jagged Peak	Grave Keeper's Cookbook [2]	68850	m61_49_41	remaining_unreviewed	0		first_independent_identity_region_source
 7770164	unique_field_pickup	Jagged Peak	Igon's Cookbook [1]	68810	m61_49_41	trusted	2	gameplay-guide:eip;gameplay-guide:game8	none_identity_region_trusted
 7770140	unique_field_pickup	Jagged Peak	Igon's Cookbook [2]	68570	m61_54_39	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
-7773763	unique_field_pickup	Jagged Peak	Igon's Furled Finger	400710	m61_54_39	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773763	unique_field_pickup	Jagged Peak	Igon's Furled Finger	400710	m61_54_39	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
 7773765	unique_field_pickup	Jagged Peak	Igon's Greatbow with Ash of War: Igon's Drake Hunt	400712	m61_54_39	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
-7773762	unique_field_pickup	Jagged Peak	Priestess Heart	400704	m61_49_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773762	unique_field_pickup	Jagged Peak	Priestess Heart	400704	m61_49_41	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
 7770809	unique_field_pickup	Jagged Peak	Rock Heart	580420	m61_54_39	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
 7770795	unique_field_pickup	Limgrave	"""Homing Instinct"" Painting"	580000	m60_43_37	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770094	unique_field_pickup	Limgrave	Armorer's Cookbook [1]	67200	m60_42_38	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source

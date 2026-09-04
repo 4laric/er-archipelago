@@ -11,13 +11,16 @@ import argparse
 import csv
 import importlib.util
 import json
+import os
 import re
 from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "greenfield/evidence/wiki-audit/dungeon-field-unique-review.tsv"
-SUMMARY = ROOT / "greenfield/evidence/wiki-audit/dungeon-field-unique-review-summary.json"
+OUT = os.path.join(str(ROOT), "greenfield", "evidence", "wiki-audit", "dungeon-field-unique-review.tsv")
+SUMMARY_OUTPUT = os.path.join(str(ROOT), "greenfield", "evidence", "wiki-audit", "dungeon-field-unique-review-summary.json")
+OUT_PATH = Path(OUT)
+SUMMARY_PATH = Path(SUMMARY_OUTPUT)
 FIELDS = ("check_id", "category", "region", "item_name", "flag", "map_id",
           "review_status", "external_family_count", "external_families", "next_evidence")
 
@@ -126,14 +129,14 @@ def main() -> int:
     tsv = render_tsv(rows)
     report = json.dumps(summary, indent=2, sort_keys=True) + "\n"
     if args.check:
-        if not OUT.is_file() or OUT.read_text(encoding="utf-8") != tsv:
-            raise SystemExit(f"STALE: {OUT.relative_to(ROOT)}")
-        if not SUMMARY.is_file() or SUMMARY.read_text(encoding="utf-8") != report:
-            raise SystemExit(f"STALE: {SUMMARY.relative_to(ROOT)}")
+        if not OUT_PATH.is_file() or OUT_PATH.read_text(encoding="utf-8") != tsv:
+            raise SystemExit(f"STALE: {OUT_PATH.relative_to(ROOT)}")
+        if not SUMMARY_PATH.is_file() or SUMMARY_PATH.read_text(encoding="utf-8") != report:
+            raise SystemExit(f"STALE: {SUMMARY_PATH.relative_to(ROOT)}")
         print(f"dungeon/field unique review: OK -- {len(rows)} checks")
         return 0
-    OUT.write_text(tsv, encoding="utf-8", newline="\n")
-    SUMMARY.write_text(report, encoding="utf-8", newline="\n")
+    OUT_PATH.write_text(tsv, encoding="utf-8", newline="\n")
+    SUMMARY_PATH.write_text(report, encoding="utf-8", newline="\n")
     print(json.dumps(summary, sort_keys=True))
     return 0
 

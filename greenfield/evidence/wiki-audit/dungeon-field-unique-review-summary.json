@@ -9,12 +9,12 @@
       "trusted": 219
     },
     "unique_field_pickup": {
-      "audited_one_family": 192,
+      "audited_one_family": 190,
       "conflicted": 0,
-      "held": 375,
+      "held": 373,
       "remaining_unreviewed": 183,
       "total": 535,
-      "trusted": 160
+      "trusted": 162
     }
   },
   "excluded": {
