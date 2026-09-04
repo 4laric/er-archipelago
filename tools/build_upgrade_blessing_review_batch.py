@@ -7,13 +7,16 @@ import csv
 import importlib.util
 import io
 import json
+import os
 import re
 from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT_PATH = ROOT / "greenfield/evidence/wiki-audit/upgrade-blessing-review.tsv"
-SUMMARY_PATH = ROOT / "greenfield/evidence/wiki-audit/upgrade-blessing-review-summary.json"
+OUT = os.path.join(str(ROOT), "greenfield", "evidence", "wiki-audit", "upgrade-blessing-review.tsv")
+SUMMARY_OUTPUT = os.path.join(str(ROOT), "greenfield", "evidence", "wiki-audit", "upgrade-blessing-review-summary.json")
+OUT_PATH = Path(OUT)
+SUMMARY_PATH = Path(SUMMARY_OUTPUT)
 FIELDS = ("check_id", "category", "acquisition_class", "region", "item_name", "flag",
           "map_id", "review_status", "external_family_count", "external_families",
           "access_disposition", "next_evidence")
