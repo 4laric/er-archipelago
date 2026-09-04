@@ -45,10 +45,11 @@ class ProgressionHostConfidenceTests(unittest.TestCase):
         self.assertTrue(all("does not prove access" in row["limitations"] for row in rows))
         self.assertTrue(all((int(row["external_family_count"]) >= 2) ==
                             (row["confidence"] == builder.TRUSTED) for row in rows))
-        # Independent Redmaw/Eldenpedia, Fextralife/Redmaw, and small-guide-tail
-        # corroborations move hosts from hold to trusted; overlapping families count once.
-        self.assertEqual(1_115, sum(row["confidence"] == builder.TRUSTED for row in rows))
-        self.assertEqual(3_810, sum(row["confidence"] == builder.HOLD for row in rows))
+        # Independent Redmaw/Eldenpedia, Fextralife/Redmaw, small-guide-tail, and
+        # PowerPyx/Redmaw quest-reward corroborations move hosts from hold to trusted;
+        # overlapping families count once.
+        self.assertEqual(1_119, sum(row["confidence"] == builder.TRUSTED for row in rows))
+        self.assertEqual(3_806, sum(row["confidence"] == builder.HOLD for row in rows))
 
     def test_generated_runtime_sets_partition_the_current_check_population(self):
         builder = load_builder()
