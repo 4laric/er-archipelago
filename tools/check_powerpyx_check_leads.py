@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "greenfield" / "evidence" / "wiki-audit"
 LEADS = AUDIT / "powerpyx-check-leads.tsv"
+DLC_BOSS_LEADS = AUDIT / "powerpyx-dlc-boss-reward-check-leads.tsv"
 SCADUTREE_LEADS = AUDIT / "powerpyx-scadutree-corroboration-check-leads.tsv"
 REVERED_LEADS = AUDIT / "powerpyx-revered-corroboration-check-leads.tsv"
 TALISMAN_LEADS = AUDIT / "powerpyx-talisman-corroboration-check-leads.tsv"
@@ -25,7 +26,7 @@ def main() -> int:
     with (AUDIT / "sources.tsv").open(encoding="utf-8", newline="") as fh:
         sources = {row["source_id"]: row for row in csv.DictReader(fh, delimiter="\t")}
     rows = []
-    for path in (LEADS, SCADUTREE_LEADS, REVERED_LEADS, TALISMAN_LEADS):
+    for path in (LEADS, DLC_BOSS_LEADS, SCADUTREE_LEADS, REVERED_LEADS, TALISMAN_LEADS):
         with path.open(encoding="utf-8", newline="") as fh:
             reader = csv.DictReader(fh, delimiter="\t")
             assert tuple(reader.fieldnames or ()) == HEADERS
@@ -71,6 +72,12 @@ def main() -> int:
     talismans = [row for row in rows if row["source_ids"] ==
                  "wiki:powerpyx:talismans:20260904"]
     assert len(talismans) == 1 and talismans[0]["subject_id"] == "7771028"
+    dlc_bosses = [row for row in rows if row["source_ids"] ==
+                  "wiki:powerpyx:dlc-bosses:20260904"]
+    assert len(dlc_bosses) == 3
+    assert {row["subject_id"] for row in dlc_bosses} == {
+        "7770670", "7770671", "7770676",
+    }
     print(f"PowerPyx check leads: OK -- {len(rows)} exact check bindings")
     return 0
 

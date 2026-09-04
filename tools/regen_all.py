@@ -177,6 +177,10 @@ STEPS = [
          why="strict two-family external identity/region confidence used by #1358. It reads the "
              "normalized wiki-audit leads and current generated check population, so both inputs "
              "must move its HOLD/TRUSTED partition through the single regen entrypoint."),
+    Step(TABLES, "tools/build_boss_reward_category_coverage.py",
+         emits=["greenfield/evidence/wiki-audit/boss-reward-category-coverage.json"],
+         why="category-first v0.6 boss-reward inventory derived from current tags and external "
+             "confidence; prevents isolated easy-row work from hiding an incomplete category."),
 
     Step(PAGES, "tools/build_check_browser.py",
          emits=["er-archipelago-check-browser.html"],
