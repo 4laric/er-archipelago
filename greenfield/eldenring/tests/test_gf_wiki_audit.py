@@ -73,7 +73,7 @@ class WikiAuditTest(unittest.TestCase):
         self.assertEqual(FEXTRALIFE_REDMAW_AUDIT.main(), 0)
 
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (99, 16))
+        self.assertEqual(AUDIT.validate(REPO), (101, 16))
 
     def test_redmaw_same_step_location_anchors_validate(self):
         path = (REPO / "greenfield/evidence/wiki-audit" /
@@ -333,6 +333,24 @@ class WikiAuditTest(unittest.TestCase):
         with path.open(encoding="utf-8", newline="") as handle:
             self.assertGreaterEqual(len(list(csv.DictReader(handle, delimiter="\t"))), 20)
         self.assertEqual(POWERPYX_AUDIT.main(), 0)
+
+    def test_powerpyx_dlc_npc_quest_reward_batch_is_exact_and_lead_only(self):
+        path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
+                "powerpyx-dlc-npc-quest-reward-check-leads.tsv")
+        with path.open(encoding="utf-8", newline="") as handle:
+            rows = list(csv.DictReader(handle, delimiter="\t"))
+
+        self.assertEqual({int(row["subject_id"]) for row in rows},
+                         {7773749, 7773751, 7773762, 7773763})
+        self.assertEqual({row["source_ids"] for row in rows}, {
+            "wiki:powerpyx:igon-quest:20260904",
+            "wiki:powerpyx:moore-quest:20260904",
+        })
+        self.assertTrue(all(row["claim_kind"] == "identity_region" for row in rows))
+        self.assertTrue(all(row["independence_families"] == "gameplay-guide:powerpyx"
+                            for row in rows))
+        self.assertTrue(all(row["disposition"] == "lead_only" for row in rows))
+        self.assertTrue(all("does not prove access logic" in row["limitations"] for row in rows))
 
     def test_fextralife_item_check_leads_validate(self):
         path = (REPO / "greenfield" / "evidence" / "wiki-audit" /
