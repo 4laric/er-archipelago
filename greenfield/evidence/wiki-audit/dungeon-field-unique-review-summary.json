@@ -1,0 +1,34 @@
+{
+  "by_category": {
+    "unique_dungeon_pickup": {
+      "audited_one_family": 145,
+      "conflicted": 0,
+      "held": 262,
+      "remaining_unreviewed": 117,
+      "total": 481,
+      "trusted": 219
+    },
+    "unique_field_pickup": {
+      "audited_one_family": 190,
+      "conflicted": 0,
+      "held": 373,
+      "remaining_unreviewed": 183,
+      "total": 535,
+      "trusted": 162
+    }
+  },
+  "excluded": {
+    "boss": 66,
+    "no_map_anchor": 844,
+    "repeated_item_name": 2999
+  },
+  "policy": {
+    "dungeon": "descriptor map family m10 through m59",
+    "excluded": "repeated names, shops, bosses, and rows without a map anchor",
+    "field": "descriptor map family m60 or m61",
+    "trust": "at least two independent external identity_region families",
+    "unique": "normalized AP item name occurs once in the current corpus"
+  },
+  "schema_version": 1,
+  "scope": "unique non-shop non-boss map-anchored pickups"
+}
