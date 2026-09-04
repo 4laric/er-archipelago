@@ -1,17 +1,17 @@
 {
   "by_confidence": {
-    "hold": 3801,
-    "trusted_identity_region": 1124
+    "hold": 3799,
+    "trusted_identity_region": 1126
   },
   "by_external_family_count": {
-    "0": 2809,
+    "0": 2807,
     "1": 992,
-    "2": 912,
-    "3": 207,
+    "2": 913,
+    "3": 208,
     "4": 5
   },
   "checks_total": 4925,
-  "content_sha256": "ec695fa32f1525b6a9ebb2898e7f989cbb1776a93d98fc116546d64e2477d6e2",
+  "content_sha256": "4f12927e80b6ec9c2493ef4de29f218d1848b530fd0e25777f6b8c76ebe3f876",
   "input_files": {
     "dlc-blessing-collectible-check-leads.tsv": "7b9a04264df1fb7725de5afa78861c1ecde2bdc36d580f3d52c17d049396791e",
     "dlc-sparse-region-check-leads.tsv": "ad6683820b1b6088077321262d3c4ee1fe360c7bdf809611ca53d728a0c8ab95",
@@ -19,6 +19,7 @@
     "eldenpedia-crystal-tear-check-leads.tsv": "d7a1ab0ad91d1d03d8d8654ce7be0b5e666d0f5fc1490f26619c507329b037c7",
     "eldenpedia-deathroot-check-leads.tsv": "68d32a6ef92453be2e4b2027496564730f807815f30bc3549997fa02849505a8",
     "eldenpedia-golden-seed-check-leads.tsv": "8127dfa2cebf66ce1dd4ccdd01f2db2f40c8283898582c6dddb283b263abfb1c",
+    "eldenpedia-invasion-reward-check-leads.tsv": "390096cf0cf9cf20800c2f036d1a02c26647c479e58f295e1ce5ce4d3b4b06aa",
     "eldenpedia-item-acquisition-check-leads.tsv": "720f555559cf644c92842867f45c5bc7a8740420f5d25daec2c555a479c56072",
     "eldenpedia-location-check-leads.tsv": "6672bc755e4fe67b77eac98ec2263d640cb7c153b0e3681f509ab473926e719b",
     "eldenpedia-malformed-dragon-check-leads.tsv": "c87950774635ebdf00be5c106af8c565889f714f8a1fbcfc31a2eb5ec39338b8",
