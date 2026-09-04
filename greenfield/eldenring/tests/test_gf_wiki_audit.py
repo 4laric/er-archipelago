@@ -48,6 +48,7 @@ ELDENPEDIA_SHABRIRI_AUDIT = load_repo_tool("check_eldenpedia_shabriri_grape_lead
 ELDENPEDIA_REPEATED_AUDIT = load_repo_tool("check_eldenpedia_repeated_pickup_leads")
 ELDENPEDIA_BOSS_REWARD_AUDIT = load_repo_tool("check_eldenpedia_boss_reward_leads")
 ELDENPEDIA_ITEM_ACQUISITION_AUDIT = load_repo_tool("check_eldenpedia_item_acquisition_leads")
+ELDENPEDIA_INVASION_REWARD_AUDIT = load_repo_tool("check_eldenpedia_invasion_reward_leads")
 ELDENPEDIA_UPGRADE_MATERIAL_AUDIT = load_repo_tool("check_eldenpedia_upgrade_material_leads")
 ELDENPEDIA_UPGRADE_LOCATION_ROW_AUDIT = load_repo_tool("check_eldenpedia_upgrade_location_rows")
 POWERPYX_AUDIT = load_repo_tool("check_powerpyx_check_leads")
@@ -63,6 +64,9 @@ FEXTRALIFE_REDMAW_AUDIT = load_repo_tool("check_fextralife_redmaw_corroboration_
 
 @unittest.skipUnless(REPO is not None, REPO_ONLY_REASON)
 class WikiAuditTest(unittest.TestCase):
+    def test_eldenpedia_invasion_reward_category_validates(self):
+        self.assertEqual(ELDENPEDIA_INVASION_REWARD_AUDIT.main(), 0)
+
     def test_fextralife_corroborates_redmaw_exact_place_slice(self):
         path = (REPO / "greenfield/evidence/wiki-audit" /
                 "fextralife-redmaw-corroboration-check-leads.tsv")
@@ -73,7 +77,7 @@ class WikiAuditTest(unittest.TestCase):
         self.assertEqual(FEXTRALIFE_REDMAW_AUDIT.main(), 0)
 
     def test_registry_and_normalized_leads_validate(self):
-        self.assertEqual(AUDIT.validate(REPO), (101, 16))
+        self.assertEqual(AUDIT.validate(REPO), (107, 16))
 
     def test_redmaw_same_step_location_anchors_validate(self):
         path = (REPO / "greenfield/evidence/wiki-audit" /
