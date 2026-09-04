@@ -179,6 +179,10 @@ TESTS_JOB = {
                                      "the repo-root walk-up. It is an AP-free pytest suite without "
                                      "a script entry point, so it belongs in TESTS_JOB rather than "
                                      "the generator script loop",
+    "upgrade_blessing_review_batch": "category-first upgrade/flask/blessing review regression "
+                                     "imports its repo-only builder and committed artifacts through "
+                                     "the repo-root walk-up. It is an AP-free pytest suite with no "
+                                     "script entry point, so it belongs in TESTS_JOB",
     "generic_pickup_review": "category-wide generic pickup review regression imports its repo-only "
                              "builder and committed review artifacts through the repo-root walk-up. "
                              "It is an AP-free unittest suite without a script entry point, so it "

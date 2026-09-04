@@ -24,7 +24,7 @@ SPEC.loader.exec_module(BUILDER)
 
 
 def test_boss_reward_category_inventory_is_current_and_complete():
-    committed = json.loads(BUILDER.OUTPUT.read_text(encoding="utf-8"))
+    committed = json.loads(BUILDER.OUTPUT_PATH.read_text(encoding="utf-8"))
     assert committed == BUILDER.build()
     categories = committed["categories"]
     assert categories["all_boss_reward_checks"]["total"] == 269
@@ -34,6 +34,6 @@ def test_boss_reward_category_inventory_is_current_and_complete():
 
 
 def test_dlc_boss_guide_closes_one_coherent_remembrance_tail():
-    remaining = set(json.loads(BUILDER.OUTPUT.read_text(encoding="utf-8"))
+    remaining = set(json.loads(BUILDER.OUTPUT_PATH.read_text(encoding="utf-8"))
                     ["categories"]["remembrance"]["remaining_check_ids"])
     assert remaining == {7770655}

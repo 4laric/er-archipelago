@@ -332,7 +332,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7900202	unique_dungeon_pickup	Mt. Gelmir	Gelmir Knight Greaves	30097050	m30_09	remaining_unreviewed	0		first_independent_identity_region_source
 7772064	unique_dungeon_pickup	Mt. Gelmir	Gelmir Knight Helm	30097050	m30_09	remaining_unreviewed	0		first_independent_identity_region_source
 7770593	unique_dungeon_pickup	Mt. Gelmir	Gelmir's Fury	400291	m16_00	remaining_unreviewed	0		first_independent_identity_region_source
-7771719	unique_dungeon_pickup	Mt. Gelmir	Ghiza's Wheel	16007940	m16_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7771719	unique_dungeon_pickup	Mt. Gelmir	Ghiza's Wheel	16007940	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770592	unique_dungeon_pickup	Mt. Gelmir	Letter to Bernahl	400290	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770581	unique_dungeon_pickup	Mt. Gelmir	Letter to Patches	400180	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770569	unique_dungeon_pickup	Mt. Gelmir	Magma Shot	400076	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
@@ -718,7 +718,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7774378	unique_field_pickup	Limgrave	Great Epee	1044357900	m60_44_35	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7774379	unique_field_pickup	Limgrave	Greataxe	1044367200	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7774417	unique_field_pickup	Limgrave	Green Turtle Talisman	1045397120	m60_45_39	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7772844	unique_field_pickup	Limgrave	Hammer Talisman	1042397700	m60_42_38	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772844	unique_field_pickup	Limgrave	Hammer Talisman	1042397700	m60_42_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770801	unique_field_pickup	Limgrave	Incantation Scarab	580300	m60_43_36	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7773704	unique_field_pickup	Limgrave	Kalé's Bell Bearing	400049	m60_42_36	remaining_unreviewed	0		first_independent_identity_region_source
 7772892	unique_field_pickup	Limgrave	Lance Talisman	1043407010	m60_42_38	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
@@ -728,7 +728,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7770119	unique_field_pickup	Limgrave	Nomadic Warrior's Cookbook [4]	67800	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770083	unique_field_pickup	Limgrave	Nomadic Warrior's Cookbook [6]	67020	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770085	unique_field_pickup	Limgrave	Nomadic Warrior's Cookbook [7]	67050	m60_42_38	remaining_unreviewed	0		first_independent_identity_region_source
-7772824	unique_field_pickup	Limgrave	Reduvia	1042377700	m60_43_37	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7772824	unique_field_pickup	Limgrave	Reduvia	1042377700	m60_43_37	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7774371	unique_field_pickup	Limgrave	Royal House Scroll	1044357010	m60_44_35	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7900253	unique_field_pickup	Limgrave	Scaled Armor	1042397500	m60_42_38	remaining_unreviewed	0		first_independent_identity_region_source
 7900254	unique_field_pickup	Limgrave	Scaled Gauntlets	1042397500	m60_42_38	remaining_unreviewed	0		first_independent_identity_region_source
@@ -926,7 +926,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773509	unique_field_pickup	Scadu Altus	Black Steel Twinblade	2048467710	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
 7773596	unique_field_pickup	Scadu Altus	Bonny Butchering Knife	2050447050	m61_49_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773756	unique_field_pickup	Scadu Altus	Cherishing Fingers	400666	m61_49_44	remaining_unreviewed	0		first_independent_identity_region_source
-7773759	unique_field_pickup	Scadu Altus	Claws of Night	400672	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
+7773759	unique_field_pickup	Scadu Altus	Claws of Night	400672	m61_51_44	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
 7773683	unique_field_pickup	Scadu Altus	Crimsonburst Dried Tear	65410	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
 7900225	unique_field_pickup	Scadu Altus	Death Knight Armor	40027130	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
 7900226	unique_field_pickup	Scadu Altus	Death Knight Gauntlets	40027130	m61_49_43	remaining_unreviewed	0		first_independent_identity_region_source

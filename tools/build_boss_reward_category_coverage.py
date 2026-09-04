@@ -7,12 +7,14 @@ from collections import Counter
 import csv
 import importlib.util
 import json
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORLD = ROOT / "greenfield/eldenring"
 CONFIDENCE = ROOT / "greenfield/evidence/v060-current/progression_host_confidence.tsv"
-OUTPUT = ROOT / "greenfield/evidence/wiki-audit/boss-reward-category-coverage.json"
+OUTPUT = os.path.join(str(ROOT), "greenfield", "evidence", "wiki-audit", "boss-reward-category-coverage.json")
+OUTPUT_PATH = Path(OUTPUT)
 
 
 def load_module(name: str):
@@ -87,11 +89,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     rendered = json.dumps(build(), indent=2, sort_keys=True) + "\n"
     if args.check:
-        if not OUTPUT.is_file() or OUTPUT.read_text(encoding="utf-8") != rendered:
+        if not OUTPUT_PATH.is_file() or OUTPUT_PATH.read_text(encoding="utf-8") != rendered:
             raise SystemExit(f"STALE: {OUTPUT}; run {Path(__file__).name}")
         print("boss reward category coverage: OK")
         return 0
-    OUTPUT.write_text(rendered, encoding="utf-8")
+    OUTPUT_PATH.write_text(rendered, encoding="utf-8")
     print("boss reward category coverage: updated")
     return 0
 
