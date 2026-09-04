@@ -181,6 +181,16 @@ STEPS = [
          emits=["greenfield/evidence/wiki-audit/boss-reward-category-coverage.json"],
          why="category-first v0.6 boss-reward inventory derived from current tags and external "
              "confidence; prevents isolated easy-row work from hiding an incomplete category."),
+    Step(TABLES, "tools/build_generic_pickup_review.py",
+         emits=["greenfield/evidence/wiki-audit/generic-pickup-review.tsv",
+                "greenfield/evidence/wiki-audit/generic-pickup-review-coverage.json"],
+         why="complete repeated/generic field-pickup inventory partitioned by committed detection "
+             "mechanism, route anchor, and map tile for player review."),
+    Step(TABLES, "tools/build_dungeon_field_review_batch.py",
+         emits=["greenfield/evidence/wiki-audit/dungeon-field-unique-review.tsv",
+                "greenfield/evidence/wiki-audit/dungeon-field-unique-review-summary.json"],
+         why="category-first dungeon/field review queue derived from current locations, tags, and "
+             "progression-host confidence; it must regenerate after its confidence input."),
 
     Step(PAGES, "tools/build_check_browser.py",
          emits=["er-archipelago-check-browser.html"],
