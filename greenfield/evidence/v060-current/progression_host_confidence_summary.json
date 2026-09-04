@@ -1,17 +1,17 @@
 {
   "by_confidence": {
-    "hold": 3818,
-    "trusted_identity_region": 1107
+    "hold": 3814,
+    "trusted_identity_region": 1111
   },
   "by_external_family_count": {
     "0": 2809,
-    "1": 1009,
-    "2": 895,
+    "1": 1005,
+    "2": 899,
     "3": 207,
     "4": 5
   },
   "checks_total": 4925,
-  "content_sha256": "fa67056e8db30f8aec14ba0680b40a7524444e80ccda8884f0f2ae08f9d13f73",
+  "content_sha256": "9066f0af23676d2b443a8597f61a591deaa7bedb1c0f0a3c6b230a8362459e16",
   "input_files": {
     "dlc-blessing-collectible-check-leads.tsv": "7b9a04264df1fb7725de5afa78861c1ecde2bdc36d580f3d52c17d049396791e",
     "dlc-sparse-region-check-leads.tsv": "ad6683820b1b6088077321262d3c4ee1fe360c7bdf809611ca53d728a0c8ab95",
@@ -37,6 +37,7 @@
     "game8-dlc-anchor-check-leads.tsv": "752fe5d34c8849ad121dd5c837ec609b0aa46aef7776418a8dbf98c194aeebc5",
     "game8-dlc-floor-check-leads.tsv": "bded2ed715ce184255e98cd90e4f2acf5aeb32b74a8d60b768540eebff112a2b",
     "powerpyx-check-leads.tsv": "3c61d757dc6f30f4cc321ec40a8565fb499dd1267c38faa71ceeec8930efba02",
+    "powerpyx-scadutree-corroboration-check-leads.tsv": "aa5f40f6caef0bac1c203d15d0ca624a82783eac7a1e16a211c375da927bd47b",
     "redmaw-checklist-check-leads.tsv": "85120dafcb0413b59aab9e85252f8ea3911a19feb7d93d6b71f76e1d79712f75",
     "redmaw-embedded-ash-check-leads.tsv": "472a806089d28a78561f88094827e3d33b02706140f5c27f452d554c4a4fb3f7",
     "redmaw-location-anchor-check-leads.tsv": "b032388991699263a48df86f8df578db5c738732cd4673d8a53f4de18b3566fb",
