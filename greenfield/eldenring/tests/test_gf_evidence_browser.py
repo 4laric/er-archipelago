@@ -153,6 +153,7 @@ class OfflineArtifactTests(unittest.TestCase):
                           "eldenpedia-invasion-reward-check-leads.tsv",
                           "eldenpedia-item-acquisition-check-leads.tsv",
                           "eldenpedia-location-check-leads.tsv",
+                          "eldenpedia-m12-deeproot-armor-check-leads.tsv",
                           "eldenpedia-m12-siofra-check-leads.tsv",
                           "eldenpedia-m12-siofra-tail-check-leads.tsv",
                           "eldenpedia-m12-unique-check-leads.tsv",
