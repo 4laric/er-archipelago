@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "greenfield" / "evidence" / "wiki-audit"
 LEADS = AUDIT / "powerpyx-check-leads.tsv"
 SCADUTREE_LEADS = AUDIT / "powerpyx-scadutree-corroboration-check-leads.tsv"
+REVERED_LEADS = AUDIT / "powerpyx-revered-corroboration-check-leads.tsv"
 HEADERS = (
     "lead_id", "subject_kind", "subject_id", "claim_kind", "normalized_value",
     "source_ids", "independence_families", "disposition", "game_version",
@@ -23,7 +24,7 @@ def main() -> int:
     with (AUDIT / "sources.tsv").open(encoding="utf-8", newline="") as fh:
         sources = {row["source_id"]: row for row in csv.DictReader(fh, delimiter="\t")}
     rows = []
-    for path in (LEADS, SCADUTREE_LEADS):
+    for path in (LEADS, SCADUTREE_LEADS, REVERED_LEADS):
         with path.open(encoding="utf-8", newline="") as fh:
             reader = csv.DictReader(fh, delimiter="\t")
             assert tuple(reader.fieldnames or ()) == HEADERS
@@ -40,7 +41,7 @@ def main() -> int:
     current = {str(ap_id): region for region, checks in mod.LOCATIONS.items()
                for _name, ap_id, _flag in checks}
 
-    assert len(rows) >= 97, "PowerPyx coverage unexpectedly collapsed below the 97-check corpus"
+    assert len(rows) >= 98, "PowerPyx coverage unexpectedly collapsed below the 98-check corpus"
     ids = [row["lead_id"] for row in rows]
     subjects = [row["subject_id"] for row in rows]
     assert len(ids) == len(set(ids))
@@ -62,6 +63,9 @@ def main() -> int:
     assert {row["subject_id"] for row in scadutree} == {
         "7771810", "7774544", "7774551", "7774560",
     }
+    revered = [row for row in rows if row["source_ids"] ==
+               "wiki:powerpyx:revered-spirit-ash:20260904"]
+    assert len(revered) == 1 and revered[0]["subject_id"] == "7771808"
     print(f"PowerPyx check leads: OK -- {len(rows)} exact check bindings")
     return 0
 
