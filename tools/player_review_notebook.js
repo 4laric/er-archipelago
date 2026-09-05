@@ -106,9 +106,12 @@ function create(data,options={}){
    const current=entries.get(row.id),different=current&&JSON.stringify(cleanForm(current))!==JSON.stringify(row.form);
    if(different&&decisions[row.id]!=='replace'||row.status==='conflict'&&decisions[row.id]!=='replace'||row.status==='same'&&!different){kept++;continue;}
    if(different){
-    const previous=record(row.id,current),reason='Notes before an explicitly approved replacement.';
+    const currentSnapshot=JSON.stringify(current),previous=record(row.id,current),reason='Notes before an explicitly approved replacement.';
     retain(previous,reason);
     await write('recovery:'+JSON.stringify(previous),{kind:'recovery',record:previous,reason});
+    // A player can type while the recovery transaction is pending. Their newer
+    // edit was not part of the replacement decision and must remain untouched.
+    if(JSON.stringify(entries.get(row.id))!==currentSnapshot){kept++;continue;}
    }
    origins.set(row.id,[...(origins.get(row.id)||[]),row.source]);
    await api.save(row.id,row.form);imported++;

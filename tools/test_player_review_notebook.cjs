@@ -70,3 +70,15 @@ test('an unrelated successful write does not hide another record storage failure
  await a.save(1,form);await a.save(2,{RawNotes:'fine'});assert.equal(a.hasPendingChanges,true);assert.equal(statuses.at(-1).durable,false);
  broken=false;await a.save(1,form);assert.equal(a.hasPendingChanges,false);assert.equal(statuses.at(-1).durable,true);
 });
+
+test('editing during replacement archive write preserves the newer player notes',async()=>{
+ const callbacks=[],a=create(data,{indexedDB:fakeIDB(false,callbacks)});await a.init();
+ const initial=a.save(1,{RawNotes:'before'});await new Promise(r=>setImmediate(r));callbacks.shift()();await initial;
+ const b=notebook();await b.save(1,{RawNotes:'imported'});const preview=a.previewImport(b.exportNotebook());
+ const applying=a.applyImport(preview,{1:'replace'});await new Promise(r=>setImmediate(r));
+ const editing=a.save(1,{RawNotes:'typed while archive pending'});
+ callbacks.shift()();const result=await applying;
+ assert.equal(result.imported,0);assert.equal(result.kept,1);assert.equal(a.get(1).RawNotes,'typed while archive pending');
+ await new Promise(r=>setImmediate(r));callbacks.shift()();await editing;
+ assert.ok(a.recoveryRecords.some(x=>x.record.form.RawNotes==='before'));
+});
