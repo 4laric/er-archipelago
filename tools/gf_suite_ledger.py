@@ -62,6 +62,8 @@ GENERATORS = [
     # the repo, neither of which is installed beside the world. AP-free and deterministic; run it
     # in the generators job where the page staleness diff is enforced.
     "evidence_browser",
+    # Whole-guide candidates and player labels are repository tooling, AP-free (#1412).
+    "bulk_check_review",
     "desc_triage",
     # v0.6 evidence-ledger schema, validator, status engine, and deterministic summary (#1210).
     # Loads tools/evidence_ledger.py and the committed fixture quartet by repository path. It is

@@ -1,0 +1,17 @@
+{
+  "by_reason": {
+    "area_only": 1377,
+    "one_landmark_candidate": 5,
+    "region_disagreement": 533,
+    "shared_landmark": 2,
+    "source_area_unmapped": 61
+  },
+  "held_checks_with_new_family_candidates": 2071,
+  "item_mentions": 3353,
+  "limitations": "Suggestions only. Linked items can be mentions, not acquisitions. Guide area and catalog anchors are not independent proof of AP ownership. No quantity, position, mechanism or access is inferred.",
+  "one_source_checks_with_second_family_candidates": 244,
+  "review_observations": 1978,
+  "schema_version": 1,
+  "source_steps": 3928,
+  "trusted_promotions": 0
+}

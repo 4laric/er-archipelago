@@ -1,17 +1,17 @@
 {
   "by_confidence": {
-    "hold": 3782,
-    "trusted_identity_region": 1143
+    "hold": 3774,
+    "trusted_identity_region": 1151
   },
   "by_external_family_count": {
     "0": 2807,
-    "1": 975,
-    "2": 930,
+    "1": 967,
+    "2": 938,
     "3": 208,
     "4": 5
   },
   "checks_total": 4925,
-  "content_sha256": "096c946226f0c1e1669d92d45965cd7fffded4be3f78cbfbb35f4a40550893b5",
+  "content_sha256": "6ced1303e69ff46bf04b56fc7bdc7ef80cbf00b3dae203f570f89661d701246f",
   "input_files": {
     "dlc-blessing-collectible-check-leads.tsv": "7b9a04264df1fb7725de5afa78861c1ecde2bdc36d580f3d52c17d049396791e",
     "dlc-sparse-region-check-leads.tsv": "ad6683820b1b6088077321262d3c4ee1fe360c7bdf809611ca53d728a0c8ab95",
@@ -54,7 +54,8 @@
     "redmaw-location-anchor-check-leads.tsv": "b032388991699263a48df86f8df578db5c738732cd4673d8a53f4de18b3566fb",
     "redmaw-merchant-check-leads.tsv": "113697a9ea9da83f42e961f76d62767960b47199f8f921217efd2e24e1b44133",
     "small-guide-tail-corroboration-check-leads.tsv": "84e642bc3a8b4df80efd68aa7a70b562cea03f3aafafab681bbb6cbfdd9f085e",
-    "walkthrough-check-leads.tsv": "0f5e4e34bff25f6d6f1b73b081e03cd6e0d6fb6e943be1c9af9fe0c2f8d379f3"
+    "walkthrough-check-leads.tsv": "0f5e4e34bff25f6d6f1b73b081e03cd6e0d6fb6e943be1c9af9fe0c2f8d379f3",
+    "walkthrough-reviewed-landmark-check-leads.tsv": "20591979e0289b96310fefbb43cc56200a4465ad2c3c713c02e5e8a919f07b39"
   },
   "minimum_trusted_external_families": 2,
   "schema_version": 1

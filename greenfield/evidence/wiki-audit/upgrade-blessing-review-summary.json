@@ -52,12 +52,12 @@
     },
     "smithing_stone": {
       "audited": 571,
-      "audited_one_family": 72,
+      "audited_one_family": 71,
       "conflicted": 0,
-      "held": 550,
+      "held": 549,
       "remaining_unreviewed": 478,
       "repeated_material_rows": 570,
-      "trusted": 21,
+      "trusted": 22,
       "uniquely_anchored_collectibles": 0
     }
   },
@@ -72,8 +72,8 @@
   "totals": {
     "audited": 788,
     "conflicted": 2,
-    "held": 692,
+    "held": 691,
     "remaining_unreviewed": 586,
-    "trusted": 96
+    "trusted": 97
   }
 }

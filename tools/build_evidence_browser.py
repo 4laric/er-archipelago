@@ -23,6 +23,7 @@ from pathlib import Path
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 if TOOLS not in sys.path:
     sys.path.insert(0, TOOLS)
+from player_check_review import player_check
 from access_dispositions import summary as access_summary
 from access_dispositions import validate as validate_access_dispositions
 
@@ -480,6 +481,10 @@ def ledger_hash(path: str = CURRENT, wiki_path: str | None = None) -> str:
         with open(access_path, "rb") as fh:
             digest.update(fh.read())
     if os.path.abspath(path) == os.path.abspath(CURRENT):
+        for extra in ("greenfield/nearest_grace.tsv",
+                      "greenfield/evidence/wiki-audit/bulk-check-review.json"):
+            digest.update(extra.encode() + b"\0")
+            digest.update((Path(REPO) / extra).read_bytes())
         digest.update(b"greenfield/eldenring/location_tags.py\0")
         with open(GENERATED_LOCATION_TAGS, "rb") as fh:
             digest.update(fh.read())
@@ -526,6 +531,20 @@ def load_ledger(path: str = CURRENT, wiki_path: str | None = None) -> dict:
         progression_host_confidence()
         if os.path.abspath(path) == os.path.abspath(CURRENT) else None,
     )
+    if os.path.abspath(path) == os.path.abspath(CURRENT):
+        contract["bulk_review"] = json.loads(
+            (Path(WIKI_AUDIT) / "bulk-check-review.json").read_text(encoding="utf-8"))
+        with (Path(REPO) / "greenfield/nearest_grace.tsv").open(encoding="utf-8", newline="") as handle:
+            graces = {int(row["flag"]): row["grace_name"] for row in csv.DictReader(
+                (line for line in handle if not line.startswith("#")), delimiter="	")}
+        confidence = progression_host_confidence()
+    else:
+        contract["bulk_review"] = {"observations": [], "summary": {}}
+        graces, confidence = {}, {}
+    for check in contract["checks"]:
+        identity = next(c for c in check["claims"] if c["claim_kind"] == "identity")
+        check["player"] = player_check(check, confidence.get(check["check_id"]),
+                                       graces.get(identity["value"].get("flag"), ""))
     contract["access_summary"] = census
     contract["dataset"] = os.path.relpath(path, REPO).replace(os.sep, "/")
     contract["inputs_hash"] = ledger_hash(path, wiki_path)
@@ -541,11 +560,12 @@ def render(contract: dict) -> str:
     payload = json.dumps(contract, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     payload = payload.replace("</", "<\\/")
     stamp = contract["inputs_hash"]
-    return f'''<!doctype html>
+    html = f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="evidence-inputs-hash" content="{stamp}">
-<title>ER Archipelago evidence audit</title>
+<title>ER Archipelago player reviews</title>
 <style>
+[hidden]{{display:none!important}}
 :root{{--bg:#0b1118;--panel:#121b25;--panel2:#182431;--line:#2b3b4d;--text:#e8eef5;--muted:#9fb0c2;--gold:#e8bd62;--red:#ff786f;--green:#75d69c;--blue:#75baff}}
 *{{box-sizing:border-box}} body{{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,sans-serif}}
 header{{padding:24px clamp(18px,4vw,54px);border-bottom:1px solid var(--line);background:linear-gradient(120deg,#152537,#0b1118)}}
@@ -568,7 +588,7 @@ input,select,textarea,button{{width:100%;padding:9px;border:1px solid var(--line
 .reviewform textarea{{min-height:76px;resize:vertical}} .reviewactions{{display:flex;gap:8px;margin-top:10px}} .reviewactions button{{width:auto}}
 @media(max-width:900px){{.layout{{display:block}}.queue{{border-right:0;border-bottom:1px solid var(--line)}}.filters{{grid-template-columns:1fr 1fr}}.questions{{grid-template-columns:1fr}}}}
 </style></head><body>
-<header><h1>Evidence audit · Phase 1</h1><div class="muted">Identity, region, detection, and access claims from <code>{contract['dataset']}</code> · reader only · <code>{stamp}</code></div></header>
+<div id="maintainerView" hidden><header><h1>Evidence audit · Phase 1</h1><div class="muted">Identity, region, detection, and access claims from <code>{contract['dataset']}</code> · reader only · <code>{stamp}</code></div></header>
 <main class="layout"><section class="queue"><div class="filters">
 <input id="q" aria-label="Search" placeholder="Search check, claim, value, citation">
 <select id="status" aria-label="Status"><option value="">All statuses</option></select>
@@ -583,6 +603,7 @@ input,select,textarea,button{{width:100%;padding:9px;border:1px solid var(--line
 <div class="toolbar"><strong id="count"></strong><span class="muted">risk-ranked audit queue</span><button id="playerQueue">Player review queue</button><button id="exportQueue">Export filtered TSV</button></div><div id="rows"></div></section>
 <section class="detail" id="detail"><p class="empty">Select a claim to inspect its evidence.</p></section></main>
 <section class="detail" id="unbound"><h2>Unbound external leads</h2><p class="muted">Route, boss, and game-item leads stay here until an exact check mapping is justified. They are leads only and do not change claim status or runtime logic.</p><div id="unboundRows"></div></section>
+</div>
 <script id="evidence-payload" type="application/json">{payload}</script>
 <script>
 const DATA=JSON.parse(document.getElementById('evidence-payload').textContent);
@@ -593,7 +614,7 @@ function values(key){{return [...new Set(claims.flatMap(c=>key==='tag'?c.tags:ke
 function options(el,vals){{for(const v of vals){{const o=document.createElement('option');o.value=v;o.textContent=v;el.append(o)}}}}
 options(els.status,values('status'));options(els.risk,values('risk'));options(els.kind,values('claim_kind'));options(els.tag,values('tag'));options(els.family,values('family'));options(els.disposition,values('disposition'));
 function readHash(){{const p=new URLSearchParams(location.hash.slice(1));for(const k of ['q','status','risk','kind','tag','review','family','disposition','external','blocker'])if(p.has(k))els[k].value=p.get(k);return p.get('claim')||''}}
-function hashParams(selected){{const p=new URLSearchParams();for(const k of ['q','status','risk','kind','tag','review','family','disposition','external','blocker'])if(els[k].value)p.set(k,els[k].value);if(selected)p.set('claim',selected);return p}}
+function hashParams(selected){{const p=new URLSearchParams();p.set('mode','maintainer');for(const k of ['q','status','risk','kind','tag','review','family','disposition','external','blocker'])if(els[k].value)p.set(k,els[k].value);if(selected)p.set('claim',selected);return p}}
 function writeHash(selected){{history.replaceState(null,'','#'+hashParams(selected).toString())}}
 function claimPermalink(c){{const url=new URL(location.href);url.hash=hashParams(c.claim_id).toString();return url.toString()}}
 function playerPrompt(c){{const access=claims.find(x=>x.check_id===c.check_id&&x.claim_kind==='access');const region=claims.find(x=>x.check_id===c.check_id&&x.claim_kind==='region');return `ER check review\n${{c.check_name}}\nCheck ID: ${{c.check_id}}\nCurrent region: ${{region?JSON.stringify(region.value):'unknown'}}\nCurrent access rule: ${{access?JSON.stringify(access.value):'unresolved'}}\n\nCan you confirm where this is and everything required to collect it? Please include required regions, bosses, keys, quests or NPC state; your game/AP version; and a screenshot or log if available.\n\n${{claimPermalink(c)}}`}}
@@ -634,9 +655,11 @@ function show(c){{
  for(const [family,rows] of [...families].sort((a,b)=>a[0].localeCompare(b[0]))){{html+=`<div class="family"><strong>${{escapeHtml(family)}}</strong><span class="muted"> · ${{rows.length}} row(s), one witness family</span>`;for(const e of rows)html+=`<div class="evidence"><div>${{badge(e.stance)}} <strong>${{escapeHtml(e.source_title)}}</strong> · version ${{escapeHtml(e.source_version)}}</div><div class="citation">${{escapeHtml(e.citation)}}</div><div class="muted">${{escapeHtml(e.method)}} · ${{escapeHtml(e.lineage)}}<br><code>${{escapeHtml(e.evidence_id)}}</code></div></div>`;html+='</div>'}}
  els.detail.innerHTML=html;document.getElementById('copy').onclick=()=>navigator.clipboard?.writeText(location.href);document.getElementById('copyReview').onclick=()=>navigator.clipboard?.writeText(playerPrompt(c));document.getElementById('copyAnswer').onclick=()=>navigator.clipboard?.writeText(reviewAnswer(c)).then(()=>document.getElementById('reviewStatus').textContent='Copied. Paste this into the Discord support thread.');document.getElementById('openReview').onclick=()=>{{const title=`[Evidence review] ${{c.check_name}}`;const url='https://github.com/4laric/er-archipelago/issues/new?labels=evidence&title='+encodeURIComponent(title)+'&body='+encodeURIComponent(reviewAnswer(c));window.open(url,'_blank','noopener')}};writeHash(c.claim_id);
 }}
-let selected=readHash();function render(){{const rows=filtered();const blockers=DATA.access_summary?DATA.access_summary.release_blockers:0;els.count.textContent=`${{rows.length}} / ${{claims.length}} claims · ${{blockers}} release blockers`;els.rows.innerHTML=rows.length?'':'<p class="empty">No claims match this permalink/filter.</p>';for(const c of rows){{const d=document.createElement('div');d.className='row'+(c.claim_id===selected?' active':'');d.innerHTML=`<div><strong>${{escapeHtml(c.check_name)}}</strong><div class="muted">${{c.claim_kind}} · ${{escapeHtml(JSON.stringify(c.value))}}</div><div class="badges">${{badge(c.status)}}${{badge(c.risk)}}${{c.needs_review?badge('needs review','critical'):''}}${{c.access_dispositions.map(x=>badge(x.disposition)).join('')}}${{c.external_leads.length?badge(c.external_leads.length+' external lead'+(c.external_leads.length===1?'':'s'),'external'):''}}${{c.release_blocker?badge('blocker','critical'):''}}${{c.evidence.some(e=>e.stance==='contradicts')?badge('conflict','contradicts'):''}}</div></div><code>${{c.check_id}}</code>`;d.onclick=()=>{{selected=c.claim_id;render();show(c)}};els.rows.append(d)}}if(selected){{const c=claims.find(x=>x.claim_id===selected);if(c)show(c);else els.detail.innerHTML='<div class="alert">This permalink names a claim that is absent from this build.</div>'}}writeHash(selected)}}
-for(const k of ['q','status','risk','kind','tag','review','family','disposition','external','blocker'])els[k].addEventListener(k==='q'?'input':'change',()=>{{selected='';render()}});els.playerQueue.addEventListener('click',()=>{{els.review.value='yes';els.kind.value='';els.disposition.value='';els.blocker.value='';selected='';render()}});els.exportQueue.addEventListener('click',()=>downloadQueue(filtered()));window.addEventListener('hashchange',()=>{{selected=readHash();render()}});renderUnbound();render();
+let selected=readHash();function render(){{const rows=filtered();const blockers=DATA.access_summary?DATA.access_summary.release_blockers:0;els.count.textContent=`${{rows.length}} / ${{claims.length}} claims · ${{blockers}} release blockers`;els.rows.innerHTML=rows.length?'':'<p class="empty">No claims match this permalink/filter.</p>';for(const c of rows.slice(0,200)){{const d=document.createElement('div');d.className='row'+(c.claim_id===selected?' active':'');d.innerHTML=`<div><strong>${{escapeHtml(c.check_name)}}</strong><div class="muted">${{c.claim_kind}} · ${{escapeHtml(JSON.stringify(c.value))}}</div><div class="badges">${{badge(c.status)}}${{badge(c.risk)}}${{c.needs_review?badge('needs review','critical'):''}}${{c.access_dispositions.map(x=>badge(x.disposition)).join('')}}${{c.external_leads.length?badge(c.external_leads.length+' external lead'+(c.external_leads.length===1?'':'s'),'external'):''}}${{c.release_blocker?badge('blocker','critical'):''}}${{c.evidence.some(e=>e.stance==='contradicts')?badge('conflict','contradicts'):''}}</div></div><code>${{c.check_id}}</code>`;d.onclick=()=>{{selected=c.claim_id;render();show(c)}};els.rows.append(d)}}if(rows.length>200)els.rows.insertAdjacentHTML('beforeend','<p class="empty">Showing the first 200 claims. Refine filters to see more.</p>');if(selected){{const c=claims.find(x=>x.claim_id===selected);if(c)show(c);else els.detail.innerHTML='<div class="alert">This permalink names a claim that is absent from this build.</div>'}}writeHash(selected)}}
+for(const k of ['q','status','risk','kind','tag','review','family','disposition','external','blocker'])els[k].addEventListener(k==='q'?'input':'change',()=>{{selected='';render()}});els.playerQueue.addEventListener('click',()=>{{els.review.value='yes';els.kind.value='';els.disposition.value='';els.blocker.value='';selected='';render()}});els.exportQueue.addEventListener('click',()=>downloadQueue(filtered()));window.addEventListener('hashchange',()=>{{const p=new URLSearchParams(location.hash.slice(1));if(p.has('claim')||p.get('mode')==='maintainer'){{selected=readHash();render()}}}});if(new URLSearchParams(location.hash.slice(1)).has('claim')||new URLSearchParams(location.hash.slice(1)).get('mode')==='maintainer'){{renderUnbound();render();}}
 </script></body></html>'''
+    template = (Path(TOOLS) / "player_review_template.html").read_text(encoding="utf-8")
+    return html.replace("</body>", template + chr(10) + "</body>")
 
 
 def build(out_path: str = OUT_HTML, ledger_path: str = CURRENT) -> bytes:

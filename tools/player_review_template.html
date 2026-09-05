@@ -1,0 +1,168 @@
+<style>
+#playerReview{--panel:#20221b;--line:#3b4032;--text:#f2f1e7;--muted:#b6bca8;background:#141510;color:var(--text);font:16px/1.55 system-ui,sans-serif;min-height:100vh}
+#playerReview header{background:#141510;padding:24px 5%;display:flex;align-items:center;justify-content:space-between;gap:20px}
+#playerReview h1{font:500 clamp(24px,3vw,34px)/1.2 Georgia,serif;margin:0 0 8px}
+#playerReview h2{font-size:24px;line-height:1.3}#playerReview h3{font-size:18px}#playerReview p{margin:8px 0 16px}
+#playerReview button,#playerReview select,#playerReview input,#playerReview textarea{font:inherit;min-height:44px;color:var(--text);background:var(--panel);border:1px solid var(--line);padding:10px 12px;border-radius:6px}
+#playerReview button:hover{border-color:#dfbf78}
+#playerReview :focus-visible{outline:3px solid #dfbf78;outline-offset:3px}
+#playerReview a{color:#f0ce83}#playerReview .primary{background:#e3c17b;color:#16180e;border-color:#e3c17b;font-weight:650}
+#playerReview .p-muted{color:var(--muted);font-size:14px}
+#playerReview .p-filters{padding:18px 5%;border-block:1px solid var(--line);display:grid;grid-template-columns:2fr 1fr 1fr 1.3fr;gap:12px;background:#191c15}
+#playerReview label{display:block;font-size:14px;margin:0 0 5px}
+#playerReview .p-body{display:grid;grid-template-columns:minmax(300px,38%) minmax(0,1fr);max-width:1500px;margin:auto}
+#playerReview .p-list{padding:24px;border-right:1px solid var(--line);max-height:80vh;overflow:auto}
+#playerReview .p-detail{padding:32px;min-width:0}
+#playerReview .p-card{text-align:left;display:block;margin:10px 0;padding:16px;width:100%}
+#playerReview .p-card[aria-pressed=true]{border-color:#dfbf78;background:#2d3023}
+#playerReview .p-card strong,#playerReview .p-card span{display:block}
+#playerReview .p-card strong{font-size:17px}
+#playerReview .p-count{display:flex;justify-content:space-between;align-items:center;gap:12px}
+#playerReview .p-count button,#playerReview header button{width:auto;flex-shrink:0}
+#playerReview .p-note{padding:14px 16px;background:#292a1c;border-left:3px solid #dfbf78;margin:16px 0}
+#playerReview .p-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+#playerReview textarea{min-height:100px;resize:vertical}
+#playerReview .p-actions{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+#playerReview .p-actions button{width:auto}
+#playerReview details{border-top:1px solid var(--line);padding:16px 0;overflow-wrap:anywhere}
+#playerReview summary{cursor:pointer;font-size:16px}
+#playerReview .p-source{border:1px solid var(--line);border-radius:6px;padding:16px;margin:12px 0}
+#playerReview .p-source li{margin:6px 0}
+#playerReview .p-status{min-height:26px;color:#e7cc8c}
+#backToPlayers{position:sticky;top:8px;z-index:5;width:auto;margin:12px;background:#e3c17b;color:#16180e;font-size:16px}
+@media(max-width:900px){#playerReview .p-filters{grid-template-columns:1fr 1fr}#playerReview .p-body{grid-template-columns:1fr}#playerReview .p-list{border-right:0;border-bottom:1px solid var(--line);max-height:48vh;overflow:auto}#playerReview .p-detail{padding:24px}}
+@media(max-width:540px){#playerReview header{align-items:flex-start;flex-direction:column}#playerReview .p-filters,#playerReview .p-grid{grid-template-columns:1fr}#playerReview .p-filters{padding:16px}#playerReview .p-detail,#playerReview .p-list{padding:16px}#playerReview .p-actions button{width:100%}}
+</style>
+<div id="playerReview">
+<header><div><h1>Help check the Lands Between</h1><p class="p-muted">Pick a place you know. Tell us what you found and how you got there.</p></div><button id="pMaintainer">Details for maintainers</button></header>
+<div class="p-filters">
+<div><label for="pSearch">Find an item or place</label><input id="pSearch" type="search" placeholder="Search item, dungeon, or nearby grace"></div>
+<div><label for="pArea">Area</label><select id="pArea"><option value="">All areas</option></select></div>
+<div><label for="pKind">What you collect</label><select id="pKind"><option value="">Everything</option></select></div>
+<div><label for="pNeed">Where you can help</label><select id="pNeed"><option value="pending">Needs confirmation</option><option value="second_source">Needs another source</option><option value="first_source">Needs a first source</option><option value="conflict">Reports disagree</option><option value="suggestions">Has a guide to compare</option><option value="">All locations</option></select></div>
+</div>
+<div class="p-body">
+<section class="p-list" aria-label="Locations"><div class="p-count"><span id="pCount" aria-live="polite"></span><button id="pReset">Reset filters</button></div><div id="pRows"></div><button id="pMore" hidden>Show more locations</button></section>
+<section class="p-detail" id="pDetail" aria-label="Selected location"><h2>Choose a location</h2><p>Select an area or search for something you recognise.</p><p class="p-muted">You don't need to know how the mod works. An exact place, route, or guide link is useful.</p></section>
+</div></div>
+<script>
+(() => {
+'use strict';
+const el=id=>document.getElementById(id), esc=escapeHtml;
+const player=el('playerReview'), maintainer=el('maintainerView');
+const back=document.createElement('button');back.id='backToPlayers';back.textContent='Back to player reviews';maintainer.prepend(back);
+const params=()=>new URLSearchParams(location.hash.slice(1));
+const isAudit=()=>params().get('mode')==='maintainer'||params().has('claim');
+const needs={second_source:'Needs another source',first_source:'Needs a first source',conflict:'Reports disagree',confirmed:'Item and area corroborated'};
+const reasonText={one_landmark_candidate:'The item and a named place match this location.',shared_landmark:'Several pickups share this landmark.',area_only:'The item and general area match; the exact spot is still uncertain.',region_disagreement:'The guide area and our catalog disagree.',source_area_unmapped:'The guide area has not been matched to our catalog.'};
+const byId=new Map(DATA.checks.map(c=>[c.check_id,c]));
+const observations=DATA.bulk_review?.observations||[], suggestions=new Map();
+for(const o of observations)for(const id of o.new_family_candidate_ids){if(!suggestions.has(id))suggestions.set(id,[]);suggestions.get(id).push(o)}
+const drafts=new Map();let current=null, cap=60, visible=[];
+const controls={search:el('pSearch'),area:el('pArea'),kind:el('pKind'),need:el('pNeed')};
+for(const [key,field] of [['area','region'],['kind','kind']]){
+ for(const value of [...new Set(DATA.checks.map(c=>c.player[field]).filter(Boolean))].sort()){
+  const option=document.createElement('option');option.value=value;option.textContent=value;controls[key].append(option);
+ }
+}
+function link(id){
+ const p=new URLSearchParams();p.set('mode','player');if(id)p.set('check',id);
+ for(const [key,el] of Object.entries(controls))if(el.value||key==='need')p.set('p_'+key,el.value);
+ const url=new URL(location.href);url.hash=p.toString();return url.toString();
+}
+function safeUrl(value){try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:null}catch{return null}}
+function download(name,content,type){
+ const url=URL.createObjectURL(new Blob([content],{type})),a=document.createElement('a');
+ a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function saveDraft(){
+ if(!current||!el('pForm'))return;
+ const form={};for(const key of ['Finding','Item','Region','Route','Evidence','Version','Context'])form[key]=el('p'+key).value;
+ drafts.set(current.check_id,form);
+}
+function loadHash(){
+ const p=params();for(const [key,el] of Object.entries(controls))el.value=p.get('p_'+key)??(key==='need'?'pending':'');
+ const invalid=Object.entries(controls).filter(([key,el])=>p.has('p_'+key)&&el.value!==p.get('p_'+key));
+ const requested=p.get('check');current=requested?byId.get(Number(requested))||null:null;draw();
+ if(requested&&!current)el('pDetail').innerHTML='<h2>Location not in this build</h2><p>This review link may refer to an older catalog. Try searching by item or place.</p>';
+ if(invalid.length)el('pCount').textContent='Some saved filters are no longer available. Reset filters to continue.';
+ if(current)show(current);else if(!requested)el('pDetail').innerHTML='<h2>Choose a location</h2><p>Select an area or search for something you recognise.</p>';
+}
+function draw(){
+ const query=controls.search.value.trim().toLowerCase(),need=controls.need.value;
+ visible=DATA.checks.filter(c=>{
+  const p=c.player;return (!query||[p.item,p.place,p.region,p.nearby_grace].join(' ').toLowerCase().includes(query))
+   &&(!controls.area.value||p.region===controls.area.value)&&(!controls.kind.value||p.kind===controls.kind.value)
+   &&(!need||(need==='pending'?p.need!=='confirmed':need==='suggestions'?suggestions.has(c.check_id):p.need===need));
+ }).sort((a,b)=>({conflict:0,second_source:1,first_source:2,confirmed:3}[a.player.need]-{conflict:0,second_source:1,first_source:2,confirmed:3}[b.player.need])
+ ||Number(suggestions.has(b.check_id))-Number(suggestions.has(a.check_id))
+ ||a.player.region.localeCompare(b.player.region)||a.player.item.localeCompare(b.player.item)||a.check_id-b.check_id);
+ el('pCount').textContent=visible.length.toLocaleString()+' locations'+(visible.length>cap?' · showing '+cap:'');
+ el('pRows').innerHTML=visible.slice(0,cap).map(c=>'<button class="p-card" data-check="'+c.check_id+'" aria-pressed="'+(current?.check_id===c.check_id)+'"><strong>'+esc(c.player.item)+'</strong><span>'+esc(c.player.region)+' · '+esc(c.player.place)+'</span><span class="p-muted">'+needs[c.player.need]+(suggestions.has(c.check_id)?' · Guide available':'')+'</span>'+(drafts.has(c.check_id)?'<span class="p-muted">Draft kept in this tab</span>':'')+'</button>').join('')||'<p>No locations match. Try another area or reset the filters.</p>';
+ for(const button of el('pRows').querySelectorAll('button'))button.onclick=()=>{saveDraft();current=byId.get(Number(button.dataset.check));draw();show(current);if(innerWidth<=900)el('pDetail').scrollIntoView({block:'start'});history.replaceState(null,'',link(current.check_id));};
+ el('pMore').hidden=visible.length<=cap;
+}
+function sourceHtml(o){
+ const source=safeUrl(o.source_url),guide=safeUrl(o.guide_url),alternatives=o.candidate_ids.map(id=>byId.get(id)).filter(Boolean);
+ return '<div class="p-source"><strong>'+esc(o.item_name)+' · '+esc(o.section.replaceAll('-',' '))+'</strong><p>'+esc(reasonText[o.reason]||o.reason)+' This is a possible match, not a confirmation.</p><p>'+
+ (guide?'<a href="'+esc(guide)+'" target="_blank" rel="noreferrer">Read guide step '+esc(o.step)+'</a>':'')+' · '+(source?'<a href="'+esc(source)+'" target="_blank" rel="noreferrer">Pinned source version</a>':'')+'</p><p class="p-muted">Check that the guide describes collecting this item here, rather than merely mentioning it. Match the container, enemy, quantity, or precise spot.</p><details><summary>'+alternatives.length+' possible location(s) · compare</summary><ul>'+
+ alternatives.map(c=>'<li><button type="button" data-alternative="'+c.check_id+'">'+esc(c.player.region)+' · '+esc(c.player.item)+' — '+esc(c.player.place)+'</button></li>').join('')+'</ul><p class="p-muted">'+o.competing_observation_count+' guide observation(s) overlap these candidates. They share one source family.</p></details></div>';
+}
+function show(c){
+ const p=c.player,d=drafts.get(c.check_id)||{},sourceRows=suggestions.get(c.check_id)||[];
+ const message=p.need==='confirmed'?'Independent sources agree on the item and area. Corrections are still welcome.':p.need==='conflict'?'Tell us what you observed. Existing reports disagree.':p.need==='second_source'?'We have one source. An independent guide or exact observation would help.':'We still need an exact source or observation for this location.';
+ el('pDetail').innerHTML='<p class="p-muted">'+esc(p.region)+' / '+esc(p.kind)+'</p><h2>'+esc(p.item)+'</h2><p>'+esc(p.place)+'</p>'+
+ (p.nearby_grace?'<p class="p-muted">Nearby grace: '+esc(p.nearby_grace)+'. This is a catalog hint, not a verified route.</p>':'')+
+ '<div class="p-note"><strong>'+needs[p.need]+'</strong><br>'+message+'<br><span class="p-muted">'+(p.access_reviewed?'Collection requirements have been reviewed for the recorded settings.':'Collection requirements still need review.')+'</span></div>'+
+ '<details><summary>Compare with a guide'+(sourceRows.length?' ('+sourceRows.length+')':'')+'</summary>'+(sourceRows.length?sourceRows.map(sourceHtml).join(''):'<p>No new guide match has been queued for this location. You can still add your own observation or source.</p>')+'</details>'+
+ '<form id="pForm"><h3>What did you find?</h3><p class="p-muted">Describe your observation. A report stays a lead until reviewed.</p>'+
+ '<label for="pFinding">Your finding</label><select id="pFinding" required><option value="">Choose an answer</option><option>I found it here</option><option>Something is different</option><option>I have a guide to compare</option><option>I am not sure</option></select>'+
+ '<div class="p-grid"><div><label for="pItem">Item you actually received</label><input id="pItem" placeholder="Leave blank if you did not collect it"></div><div><label for="pRegion">Where you found it</label><input id="pRegion" placeholder="Place, landmark, or nearby grace"></div></div>'+
+ '<label for="pRoute">How did you get there?</label><textarea id="pRoute" placeholder="Describe your route and any key, boss, or quest step you used. It is fine if you do not know every requirement."></textarea>'+
+ '<label for="pEvidence">Observation or evidence link</label><textarea id="pEvidence" required placeholder="What you saw, or a link to a guide, screenshot, or recording. For guides, name the section or step."></textarea>'+
+ '<div class="p-grid"><div><label for="pVersion">Game, mod and client versions (if known)</label><input id="pVersion" placeholder="From your title screen or client"></div><div><label for="pContext">What were you playing?</label><select id="pContext"><option value="">Choose if known</option><option>Unrandomized Elden Ring</option><option>Archipelago with randomized items</option><option>Archipelago without randomized items</option><option>Other mods</option><option>Guide only / not playing</option></select></div></div>'+
+ '<p class="p-muted">In a randomized game, the item you receive may differ from this location&#39;s original item. A boss reward that completes nearby checks does not confirm you visited those pickups.</p>'+
+ '<div class="p-actions"><button class="primary" type="submit">Save review file</button><button type="button" id="pCopy">Copy review</button><button type="button" id="pIssue">Prepare GitHub report</button></div><p class="p-status" id="pStatus" role="status"></p>'+
+ '<p class="p-muted">Nothing is sent automatically. Save or copy your review, then share it with the project. Drafts survive switching locations in this tab, but not closing or reloading it.</p></form>'+
+ '<details><summary>Existing sources and technical details</summary><p class="p-muted">Location reference: '+c.check_id+'. The catalog location is not an independent observation.</p>'+
+ (c.external_leads.length?c.external_leads.flatMap(l=>l.sources).filter((s,i,a)=>a.findIndex(x=>x.source_id===s.source_id)===i).map(s=>{const u=safeUrl(s.revision_url);return u?'<p><a href="'+esc(u)+'" target="_blank" rel="noreferrer">'+esc(s.title)+'</a> · '+esc(s.publisher)+'</p>':''}).join(''):'<p>No external sources are attached yet.</p>')+
+ '<button type="button" id="pTechnical">Open maintainer evidence</button><button type="button" id="pPermalink">Copy location link</button></details>';
+ for(const key of ['Finding','Item','Region','Route','Evidence','Version','Context'])el('p'+key).value=d[key]||'';
+ el('pForm').addEventListener('input',saveDraft);
+ function report(){
+  saveDraft();const f=drafts.get(c.check_id);return {schema:'er-player-review-v1',check_id:c.check_id,catalog_hash:DATA.inputs_hash,
+   catalog:{item:p.item,region:p.region,place:p.place},finding:f.Finding,observed_item:f.Item,observed_place:f.Region,route:f.Route,
+   evidence:f.Evidence,versions:f.Version,environment:f.Context,observation_scope:'player_report_not_adjudicated',permalink:link(c.check_id)};
+ }
+ function textReport(){
+  const r=report();return ['## Player location review','','**Catalog location:** '+p.item+' — '+p.region+' / '+p.place,
+   '**Finding:** '+r.finding,'**Observed item:** '+(r.observed_item||'Not specified'),'**Observed place:** '+(r.observed_place||'Not specified'),
+   '**Route:** '+(r.route||'Not specified'),'**Evidence:** '+r.evidence,'**Versions:** '+(r.versions||'Unknown'),
+   '**Environment:** '+(r.environment||'Unknown'),'','Location reference: '+r.check_id,'Catalog snapshot: '+r.catalog_hash,
+   'This is a player report, not an accepted validation.',r.permalink].join('\n');
+ }
+ function valid(){return el('pForm').reportValidity()}
+ el('pForm').onsubmit=e=>{e.preventDefault();if(!valid())return;download('er-review-'+c.check_id+'.json',JSON.stringify(report(),null,2)+'\n','application/json');el('pStatus').textContent='Review file prepared. Share it with the project; it has not been submitted.'};
+ el('pCopy').onclick=async()=>{if(valid())await copy(textReport(),'Review copied. Paste it into your message to the project.')};
+ el('pIssue').onclick=()=>{if(!valid())return;const body=textReport();if(body.length>6000){el('pStatus').textContent='This review is too long for a GitHub link. Save the review file and attach it to your report.';return}window.open('https://github.com/4laric/er-archipelago/issues/new?title='+encodeURIComponent('[Player review] '+p.item)+'&body='+encodeURIComponent(body),'_blank','noopener');el('pStatus').textContent='GitHub report prepared. Review it there before submitting.'};
+ el('pTechnical').onclick=()=>openAudit(c);el('pPermalink').onclick=()=>copy(link(c.check_id),'Location link copied.');
+ for(const button of el('pDetail').querySelectorAll('[data-alternative]'))button.onclick=()=>{saveDraft();current=byId.get(Number(button.dataset.alternative));show(current);draw();history.replaceState(null,'',link(current.check_id))};
+}
+async function copy(text,message){
+ try{if(!navigator.clipboard)throw new Error('unavailable');await navigator.clipboard.writeText(text);el('pStatus').textContent=message}
+ catch{el('pStatus').textContent='Clipboard unavailable. Use Save review file instead.'}
+}
+function openAudit(c){
+ saveDraft();player.hidden=true;maintainer.hidden=false;
+ if(c){selected=c.claims.find(x=>x.claim_kind==='region').claim_id;els.q.value=String(c.check_id);}else selected='';
+ renderUnbound();render();if(!selected)history.replaceState(null,'','#mode=maintainer');window.scrollTo(0,0);
+}
+el('pMaintainer').onclick=()=>openAudit(current);
+back.onclick=()=>{maintainer.hidden=true;player.hidden=false;history.replaceState(null,'',link(current?.check_id));draw();window.scrollTo(0,0)};
+el('pMore').onclick=()=>{cap+=60;draw()};
+el('pReset').onclick=()=>{saveDraft();for(const [k,el]of Object.entries(controls))el.value=k==='need'?'pending':'';cap=60;draw();history.replaceState(null,'',link(current?.check_id))};
+for(const el of Object.values(controls))el.addEventListener(el===controls.search?'input':'change',()=>{saveDraft();cap=60;draw();history.replaceState(null,'',link(current?.check_id))});
+window.addEventListener('hashchange',()=>{saveDraft();if(isAudit()){player.hidden=true;maintainer.hidden=false}else{player.hidden=false;maintainer.hidden=true;loadHash()}});
+if(isAudit()){player.hidden=true;maintainer.hidden=false}else{loadHash()}
+})();
+</script>

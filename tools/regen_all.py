@@ -197,6 +197,12 @@ STEPS = [
          why="category-first dungeon/field review queue derived from current locations, tags, and "
              "progression-host confidence; it must regenerate after its confidence input."),
 
+    Step(TABLES, "tools/build_bulk_check_review.py",
+         emits=["greenfield/evidence/wiki-audit/bulk-check-review.json",
+                "greenfield/evidence/wiki-audit/bulk-check-review-summary.json"],
+         why="whole-guide candidates rebuilt against current confidence and catalog; "
+             "suggestions never promote evidence or change runtime logic."),
+
     Step(PAGES, "tools/build_check_browser.py",
          emits=["er-archipelago-check-browser.html"],
          why="embeds inputs_hash -> stale on every stamp move."),

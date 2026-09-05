@@ -26,6 +26,19 @@ line until v0.6.0 has full check coverage and is ready to release.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Player reviews start with the item and place.** The review browser now defaults to a
+  plain-language location list, with area/search filters, possible guide comparisons, and a form
+  for the item, route and evidence you actually observed. Save or copy a report to share it;
+  nothing is submitted automatically. Maintainer evidence and old claim links remain available.
+  Checks link directly to their review. No client, APWorld, YAML or existing-save update is needed.
+
+- **Whole-guide candidates no longer disappear when they are ambiguous.** A reproducible review
+  queue retains linked-item observations from the pinned base-game and DLC walkthroughs, including
+  alternate same-name pickups and disagreements about the area. These are suggestions, never
+  accepted corroboration. Separately, eight boss-reward passages were reviewed against\n  their existing independent source, raising identity/area corroboration from 1,143 to 1,151\n  of 4,925 checks. This widens the existing trusted-host set; access rules do not change. Numbered
+  duplicates and sweep-boss map tiles no longer create false exact anchors in the repeated-pickup
+  queue.
+
 - **Normal weapons can use one Smithing Stone per upgrade.** The existing two-stone ladder remains
   the default, but `flatten_regular_upgrades` is now a YAML and wizard setting: choose `1` for
   Somber-like pacing, `0` for vanilla 2/4/6 costs, or `2` through `4` for a uniform cost. This
