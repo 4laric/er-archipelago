@@ -13,6 +13,10 @@ only moment anyone remembers why it mattered._
 
 ## What is in it so far
 
+The player notebook shows acquisition flags beside checks, with a copy button and flag search.
+Use Send notes to the project for the file handoff steps; browser autosave alone does not
+share notes. Keep the sent message or submitted GitHub issue as the receipt.
+
 Every check is getting a defensible identity, region, access rule, and player-facing description.
 The corpus audit combines committed game data, multiple external references, and player testimony
 without copying guide prose. Uncertain claims remain visibly held instead of becoming logic.

@@ -4,6 +4,9 @@ import re
 
 
 def player_check(check: dict, confidence: dict | None = None, grace: str = "") -> dict:
+    identity = next((c for c in check["claims"] if c["claim_kind"] == "identity"), {})
+    flag = identity.get("value", {}).get("flag")
+    flag = flag if type(flag) is int and flag > 0 else None
     name = check["name"].split(" :: ", 1)[-1]
     name = name.split(", may be sweep-granted", 1)[0]
     name = re.sub(r"\s*\[f\d+\]\s*$", "", name).strip()
@@ -24,7 +27,7 @@ def player_check(check: dict, confidence: dict | None = None, grace: str = "") -
             else "second_source" if count == 1 else "first_source")
     if not place or re.fullmatch(r"m\d\d(?:_\d\d){1,3}(?:.*)?", place):
         place = "Exact spot still needs a description"
-    return {"item": item, "place": place, "region": region, "kind": kind,
+    return {"acquisition_flag": flag, "item": item, "place": place, "region": region, "kind": kind,
             "nearby_grace": grace, "need": need, "family_count": count,
             "access_reviewed": bool(check["access_dispositions"]) and all(
                 d["disposition"] in {"encoded", "region_sufficient"}

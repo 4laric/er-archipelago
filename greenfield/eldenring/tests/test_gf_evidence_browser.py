@@ -255,6 +255,16 @@ class OfflineArtifactTests(unittest.TestCase):
             self.assertEqual(first, fh.read(),
                              "evidence browser is stale; run tools/build_evidence_browser.py")
 
+    def test_player_flags_are_source_backed_and_not_parsed_from_names(self):
+        from player_check_review import player_check
+        check = {"name": "Misleading [f999]", "tags": [], "access_dispositions": [],
+                 "claims": [{"claim_kind": "region", "value": {"region": "Place"}, "status": "unknown"},
+                            {"claim_kind": "identity", "value": {"flag": 114}, "status": "unknown"}]}
+        self.assertEqual(player_check(check)["acquisition_flag"], 114)
+        for invalid in [None, 0, -1, True, "114"]:
+            check["claims"][1]["value"]["flag"] = invalid
+            self.assertIsNone(player_check(check)["acquisition_flag"])
+
     def test_player_map_joins_recorded_positions_and_keeps_missing_locations(self):
         data = BUILDER.load_ledger()
         by_id = {c["check_id"]: c for c in data["checks"]}
