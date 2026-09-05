@@ -53,8 +53,8 @@ const player=el('playerReview'), maintainer=el('maintainerView');
 const back=document.createElement('button');back.id='backToPlayers';back.textContent='Back to player reviews';maintainer.prepend(back);
 const params=()=>new URLSearchParams(location.hash.slice(1));
 const isAudit=()=>params().get('mode')==='maintainer'||params().has('claim');
-const needs={second_source:'Needs another source',first_source:'Needs a first source',conflict:'Reports disagree',confirmed:'Item and area corroborated'};
-const reasonText={one_landmark_candidate:'The item and a named place match this location.',shared_landmark:'Several pickups share this landmark.',area_only:'The item and general area match; the exact spot is still uncertain.',region_disagreement:'The guide area and our catalog disagree.',source_area_unmapped:'The guide area has not been matched to our catalog.'};
+const needs={second_source:'Needs another source',first_source:'Needs a first source',conflict:'Reports disagree',confirmed:'Item and area confirmed by sources'};
+const reasonText={one_landmark_candidate:'The item and a named place match this location.',shared_landmark:'Several pickups share this landmark.',area_only:'The item and general area match; the exact spot is still uncertain.',region_disagreement:'The guide and our list name different areas.',source_area_unmapped:'We have not matched this guide section to an area yet.'};
 const byId=new Map(DATA.checks.map(c=>[c.check_id,c]));
 const observations=DATA.bulk_review?.observations||[], suggestions=new Map();
 for(const o of observations)for(const id of o.new_family_candidate_ids){if(!suggestions.has(id))suggestions.set(id,[]);suggestions.get(id).push(o)}
@@ -84,7 +84,7 @@ function loadHash(){
  const p=params();for(const [key,el] of Object.entries(controls))el.value=p.get('p_'+key)??(key==='need'?'pending':'');
  const invalid=Object.entries(controls).filter(([key,el])=>p.has('p_'+key)&&el.value!==p.get('p_'+key));
  const requested=p.get('check');current=requested?byId.get(Number(requested))||null:null;draw();
- if(requested&&!current)el('pDetail').innerHTML='<h2>Location not in this build</h2><p>This review link may refer to an older catalog. Try searching by item or place.</p>';
+ if(requested&&!current)el('pDetail').innerHTML='<h2>Location not in this build</h2><p>This review link may refer to an older version of the location list. Try searching by item or place.</p>';
  if(invalid.length)el('pCount').textContent='Some saved filters are no longer available. Reset filters to continue.';
  if(current)show(current);else if(!requested)el('pDetail').innerHTML='<h2>Choose a location</h2><p>Select an area or search for something you recognise.</p>';
 }
@@ -106,16 +106,16 @@ function sourceHtml(o){
  const source=safeUrl(o.source_url),guide=safeUrl(o.guide_url),alternatives=o.candidate_ids.map(id=>byId.get(id)).filter(Boolean);
  return '<div class="p-source"><strong>'+esc(o.item_name)+' · '+esc(o.section.replaceAll('-',' '))+'</strong><p>'+esc(reasonText[o.reason]||o.reason)+' This is a possible match, not a confirmation.</p><p>'+
  (guide?'<a href="'+esc(guide)+'" target="_blank" rel="noreferrer">Read guide step '+esc(o.step)+'</a>':'')+' · '+(source?'<a href="'+esc(source)+'" target="_blank" rel="noreferrer">Pinned source version</a>':'')+'</p><p class="p-muted">Check that the guide describes collecting this item here, rather than merely mentioning it. Match the container, enemy, quantity, or precise spot.</p><details><summary>'+alternatives.length+' possible location(s) · compare</summary><ul>'+
- alternatives.map(c=>'<li><button type="button" data-alternative="'+c.check_id+'">'+esc(c.player.region)+' · '+esc(c.player.item)+' — '+esc(c.player.place)+'</button></li>').join('')+'</ul><p class="p-muted">'+o.competing_observation_count+' guide observation(s) overlap these candidates. They share one source family.</p></details></div>';
+ alternatives.map(c=>'<li><button type="button" data-alternative="'+c.check_id+'">'+esc(c.player.region)+' · '+esc(c.player.item)+' — '+esc(c.player.place)+'</button></li>').join('')+'</ul><p class="p-muted">'+o.competing_observation_count+' guide steps overlap these possible locations. They all come from the same guide and count as one source.</p></details></div>';
 }
 function show(c){
  const p=c.player,d=drafts.get(c.check_id)||{},sourceRows=suggestions.get(c.check_id)||[];
  const message=p.need==='confirmed'?'Independent sources agree on the item and area. Corrections are still welcome.':p.need==='conflict'?'Tell us what you observed. Existing reports disagree.':p.need==='second_source'?'We have one source. An independent guide or exact observation would help.':'We still need an exact source or observation for this location.';
  el('pDetail').innerHTML='<p class="p-muted">'+esc(p.region)+' / '+esc(p.kind)+'</p><h2>'+esc(p.item)+'</h2><p>'+esc(p.place)+'</p>'+
- (p.nearby_grace?'<p class="p-muted">Nearby grace: '+esc(p.nearby_grace)+'. This is a catalog hint, not a verified route.</p>':'')+
+ (p.nearby_grace?'<p class="p-muted">Nearby grace: '+esc(p.nearby_grace)+'. This is a nearby landmark, not a confirmed route.</p>':'')+
  '<div class="p-note"><strong>'+needs[p.need]+'</strong><br>'+message+'<br><span class="p-muted">'+(p.access_reviewed?'Collection requirements have been reviewed for the recorded settings.':'Collection requirements still need review.')+'</span></div>'+
  '<details><summary>Compare with a guide'+(sourceRows.length?' ('+sourceRows.length+')':'')+'</summary>'+(sourceRows.length?sourceRows.map(sourceHtml).join(''):'<p>No new guide match has been queued for this location. You can still add your own observation or source.</p>')+'</details>'+
- '<form id="pForm"><h3>What did you find?</h3><p class="p-muted">Describe your observation. A report stays a lead until reviewed.</p>'+
+ '<form id="pForm"><h3>What did you find?</h3><p class="p-muted">Describe what you observed. A maintainer will review your report before marking anything confirmed.</p>'+
  '<label for="pFinding">Your finding</label><select id="pFinding" required><option value="">Choose an answer</option><option>I found it here</option><option>Something is different</option><option>I have a guide to compare</option><option>I am not sure</option></select>'+
  '<div class="p-grid"><div><label for="pItem">Item you actually received</label><input id="pItem" placeholder="Leave blank if you did not collect it"></div><div><label for="pRegion">Where you found it</label><input id="pRegion" placeholder="Place, landmark, or nearby grace"></div></div>'+
  '<label for="pRoute">How did you get there?</label><textarea id="pRoute" placeholder="Describe your route and any key, boss, or quest step you used. It is fine if you do not know every requirement."></textarea>'+
