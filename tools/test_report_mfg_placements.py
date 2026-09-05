@@ -70,6 +70,20 @@ class PlacementTests(unittest.TestCase):
         result = run([check(sites=[site(), site('m10_00_00_00')])], refs)
         self.assertEqual(result['checks'][0]['status'], 'agreement_partial_map')
 
+    def test_every_match_is_corroborated_regardless_of_spatial_status(self):
+        cases = [([check()], [reference()]),
+                 ([check(sites=[site()])], [reference(x=100)]),
+                 ([check(), check(ap_id=2)], [reference()])]
+        for checks, refs in cases:
+            with self.subTest(checks=len(checks)):
+                result = run(checks, refs)
+                self.assertEqual(result['corroborated_check_count'], len(checks))
+                self.assertTrue(all(c['corroborated'] for c in result['checks']))
+        result = run([check(table='enemy')], [reference()])
+        self.assertEqual(result['corroborated_check_count'], 0)
+        self.assertFalse(result['checks'][0]['corroborated'])
+        self.assertEqual(result['region_comparison'], 'not_inferred')
+
     def test_invalid_input_fails(self):
         for row in [reference(x=float('nan')), reference(lotSource='enemy_guess'), reference(map='bad'), reference(itemLotId=True)]:
             with self.subTest(row=row), self.assertRaises(ValueError):

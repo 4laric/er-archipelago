@@ -1,7 +1,11 @@
 # Accepted Map for Goblins placement comparison — 2026-09-05
 
 Map for Goblins is the user-accepted placement reference for this audit. No
-additional wiki confirmation is required. Joining a pin to an acquisition-flag
+additional wiki confirmation is required. By explicit user ruling on 2026-09-05,
+**all 3,847 matched checks count as corroborated**, including the 219 with shared
+identity ambiguity and the six with differing/additional sites. Corroboration is
+recorded separately from spatial comparison and access-rule status. The remaining
+1,078 checks are not corroborated by this M4G source. Joining a pin to an acquisition-flag
 family remains distinct from proving one particular pickup belongs to one AP check.
 
 ## Reproduced results

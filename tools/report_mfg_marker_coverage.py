@@ -88,10 +88,13 @@ def report(manifest, marker_csv):
 
     return {
         "schema_version": 1,
-        "evidence_kind": "static_baked_marker_candidates_not_live_or_corroborated",
+        "evidence_kind": "mapforgoblins_pin_match_corroboration",
         "marker_csv_sha256": hashlib.sha256(marker_csv).hexdigest(),
         "registry_sources_sha256": manifest["sources_sha256"],
         "total_checks": len(all_checks),
+        "corroborated_check_count": len(matched_checks),
+        "corroborated_ap_ids": sorted(matched_checks),
+        "corroboration_scope": "matched pin evidence; identity ambiguity and access completeness remain separate",
         "checks_with_candidate_markers": sorted(matched_checks),
         "checks_without_candidate_markers": sorted(all_checks - matched_checks),
         "total_markers": len(markers),

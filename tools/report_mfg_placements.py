@@ -115,7 +115,7 @@ def report(manifest, records, profile, horizontal=2.0, vertical=2.0):
         ids = [ap for g in identity['groups'] for ap in g['ap_ids']]
         obs = dict(reference_id=ref_id, reference_position=pos, lot_table=table,
                    lot_row=lot, source=row.get('source'), reference_metadata={k: v for k, v in row.items() if k not in ('x', 'y', 'z')}, identity_status=identity['status'],
-                   candidate_ap_ids=ids, comparisons=[])
+                   candidate_ap_ids=ids, corroborated=bool(ids), comparisons=[])
         for ap_id in ids:
             check = by_id[ap_id]
             comparison = compare(pos, check['physical_sites'], horizontal, vertical)
@@ -139,10 +139,14 @@ def report(manifest, records, profile, horizontal=2.0, vertical=2.0):
         else:
             status = 'mixed_reference_sites'
         checks.append(dict(ap_id=ap_id, name=check['name'], ap_assigned_region=check['region'],
-                           status=status, reference_site_count=len(rows),
+                           status=status, corroborated=bool(rows),
+                           corroboration_source='mapforgoblins' if rows else None,
+                           reference_site_count=len(rows),
                            ap_site_count=len(check['physical_sites']), comparisons=rows))
     return dict(schema_version=1, reference_authority='accepted_mapforgoblins_placement',
                 region_comparison='not_inferred', profile=profile,
+                corroboration_policy='Any AP check matched to an M4G pin is corroborated by user ruling; identity ambiguity, spatial discrepancies and access completeness remain separate.',
+                corroborated_check_count=sum(c['corroborated'] for c in checks),
                 registry_sources_sha256=manifest['sources_sha256'],
                 tolerances=dict(horizontal=horizontal, vertical=vertical),
                 total_checks=len(checks), total_reference_records=len(records),
@@ -172,7 +176,7 @@ def main():
     except (ValueError, KeyError, TypeError) as error:
         parser.error(str(error))
     args.out.write_text(json.dumps(result, indent=2, sort_keys=True, allow_nan=False) + '\n', encoding='utf-8')
-    print(json.dumps({k: result[k] for k in ('total_checks', 'total_reference_records', 'check_status_counts', 'identity_status_counts')}, sort_keys=True))
+    print(json.dumps({k: result[k] for k in ('total_checks', 'total_reference_records', 'corroborated_check_count', 'check_status_counts', 'identity_status_counts')}, sort_keys=True))
 
 
 if __name__ == '__main__':
