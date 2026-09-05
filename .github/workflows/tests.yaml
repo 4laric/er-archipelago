@@ -483,6 +483,9 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
 
+      - name: Player notebook persistence and import regressions
+        run: node --test tools/test_player_review_notebook.cjs
+
       # THE CLIENT IS CHECKED OUT AT THE GITLINK -- the commit this repo actually pins -- and NOT at
       # client `main`. Until 2026-08-02 it was the other way round, under a comment arguing that a
       # gitlink diff would be "a permanent red herring". It is the exact opposite: the gitlink diff is

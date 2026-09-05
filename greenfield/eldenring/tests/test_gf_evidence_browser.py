@@ -255,6 +255,23 @@ class OfflineArtifactTests(unittest.TestCase):
             self.assertEqual(first, fh.read(),
                              "evidence browser is stale; run tools/build_evidence_browser.py")
 
+    def test_player_map_joins_recorded_positions_and_keeps_missing_locations(self):
+        data = BUILDER.load_ledger()
+        by_id = {c["check_id"]: c for c in data["checks"]}
+        self.assertTrue(by_id[7772822]["player"]["positions"])  # Gatefront carriage
+        self.assertFalse(by_id[7770000]["player"]["positions"])  # interior Dark Moon Ring
+        self.assertEqual(len(by_id), 4925)
+        self.assertGreater(sum(bool(c["player"]["positions"]) for c in by_id.values()), 2000)
+        self.assertEqual(set(data["player_maps"]), {"m60", "m61"})
+        for check in by_id.values():
+            for point in check["player"]["positions"]:
+                self.assertIn(point["map"], data["player_maps"])
+
+    def test_fixture_does_not_acquire_real_world_map_positions(self):
+        data = BUILDER.load_fixture()
+        self.assertEqual(data["player_maps"], {})
+        self.assertTrue(all(not c["player"]["positions"] for c in data["checks"]))
+
     def test_fixture_stamp_is_content_hash_not_a_git_commit(self):
         contract = BUILDER.load_fixture()
         stamp = contract["inputs_hash"]
