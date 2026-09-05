@@ -44,7 +44,7 @@
 <div><label for="pNeed">Project evidence</label><select id="pNeed"><option value="">All locations — including confirmed</option><option value="pending">Needs confirmation</option><option value="second_source">Needs another source</option><option value="first_source">Needs a first source</option><option value="conflict">Reports disagree</option><option value="suggestions">Has a guide to compare</option></select></div>
 <div><label for="pProgress">My progress</label><select id="pProgress"><option value="">Everything</option><option value="notstarted">Not started</option><option value="draft">Notes in progress</option><option value="reviewed">Reviewed by me</option></select></div>
 </div>
-<section class="p-map" aria-label="Notebook storage"><div class="p-actions"><button id="pExport" class="primary">Download all notes / backup</button><button id="pImport">Import notes or restore backup</button><input id="pImportFile" type="file" accept=".json,application/json" hidden></div><p id="pStorageStatus" role="status">Opening this device’s notebook…</p><p class="p-muted">Notes save in this browser on this device. Nothing is sent automatically. Download a backup to share the whole batch or move devices. Your reviewed status does not change project confirmation.</p><details><summary>Defaults for my next notes (optional)</summary><div class="p-grid"><div><label for="pDefaultReviewer">Your name or handle</label><input id="pDefaultReviewer"></div><div><label for="pDefaultVersion">Game / mod version</label><input id="pDefaultVersion"></div><div><label for="pDefaultContext">Playthrough context</label><select id="pDefaultContext"><option value="">Choose if known</option><option>Unrandomized Elden Ring</option><option>Archipelago with randomized items</option><option>Archipelago without randomized items</option><option>Other mods</option><option>Guide only / not playing</option></select></div></div></details><section id="pRecovery" hidden></section><section id="pImportPreview" hidden></section></section>
+<section class="p-map" aria-label="Notebook storage"><div class="p-actions"><button id="pExport" class="primary">Download all notes / backup</button><button id="pSendNotes">Send notes to the project</button><button id="pImport">Import notes or restore backup</button><input id="pImportFile" type="file" accept=".json,application/json" hidden></div><section id="pSendHelp" hidden><h3>Send your notebook</h3><ol><li>Use <strong>Download all notes / backup</strong> above.</li><li>Send that JSON file to Alaric in your existing conversation, or <a href="https://github.com/4laric/er-archipelago/issues/new?title=%5BPlayer%20notebook%5D%20Review%20notes&amp;body=Attach%20your%20downloaded%20er-player-notebook.json%20file%20here%2C%20then%20submit%20this%20issue." target="_blank" rel="noopener noreferrer">open a GitHub report</a>, attach the file and submit it.</li><li>Keep the sent message or submitted issue link as your receipt. Downloading a file or opening the report does not submit your notes.</li></ol><p>The project cannot see notes saved only in your browser. GitHub reports and their attachments are public.</p></section><p id="pStorageStatus" role="status">Opening this device’s notebook…</p><p class="p-muted">Notes save in this browser on this device and normally survive refreshes. Nothing is sent automatically. Download a backup to share the whole batch or move devices. Your reviewed status does not change project confirmation.</p><details><summary>Defaults for my next notes (optional)</summary><div class="p-grid"><div><label for="pDefaultReviewer">Your name or handle</label><input id="pDefaultReviewer"></div><div><label for="pDefaultVersion">Game / mod version</label><input id="pDefaultVersion"></div><div><label for="pDefaultContext">Playthrough context</label><select id="pDefaultContext"><option value="">Choose if known</option><option>Unrandomized Elden Ring</option><option>Archipelago with randomized items</option><option>Archipelago without randomized items</option><option>Other mods</option><option>Guide only / not playing</option></select></div></div></details><section id="pRecovery" hidden></section><section id="pImportPreview" hidden></section></section>
 <div class="p-map"><button id="pMapToggle" aria-expanded="false" aria-controls="pMapPanel">Find locations on a map</button>
 <section id="pMapPanel" hidden aria-label="Location map">
 <p>Choose a pin, then tell us whether the location is right. Gold pins need confirmation; green pins have source agreement; white is your selection.</p>
@@ -94,10 +94,10 @@ function download(name,content,type){
 }
 function saveDraft(){
  if(!current||!el('pForm'))return;
- const form={};for(const key of ['Finding','Item','Region','Route','Evidence','Version','Context','RawNotes','Reviewer'])form[key]=el('p'+key).value;
+ const form={};for(const key of ['Finding','Item','Region','LockRegion','Route','Evidence','Version','Context','RawNotes','Reviewer'])form[key]=el('p'+key).value;
  form.Reviewed=el("pReviewed").checked;
- if(form.Reviewed&&!["Finding","Item","Region","Route","Evidence","RawNotes"].some(k=>form[k].trim())){el("pReviewed").checked=false;form.Reviewed=false;el("pStatus").textContent="Add a finding or a note before marking this location reviewed.";}
- if(!drafts.has(current.check_id)&&!form.Reviewed&&!["Finding","Item","Region","Route","Evidence","RawNotes"].some(k=>form[k]))return;
+ if(form.Reviewed&&!["Finding","Item","Region","LockRegion","Route","Evidence","RawNotes"].some(k=>form[k].trim())){el("pReviewed").checked=false;form.Reviewed=false;el("pStatus").textContent="Add a finding or a note before marking this location reviewed.";}
+ if(!drafts.has(current.check_id)&&!form.Reviewed&&!["Finding","Item","Region","LockRegion","Route","Evidence","RawNotes"].some(k=>form[k]))return;
  if(JSON.stringify(drafts.get(current.check_id))===JSON.stringify(form))return;
  notebook.save(current.check_id,form).catch(error=>{el("pStorageStatus").textContent="Could not save: "+error.message+". Download a backup before leaving."});
 }
@@ -125,12 +125,12 @@ function updateNavigation(){
 function draw(){
  const query=controls.search.value.trim().toLowerCase(),need=controls.need.value;
  visible=DATA.checks.filter(c=>{
-  const p=c.player;return (!query||[p.item,p.place,p.region,p.nearby_grace].join(' ').toLowerCase().includes(query))
+  const p=c.player;return (!query||[p.item,p.place,p.region,p.nearby_grace,p.acquisition_flag??""].join(' ').toLowerCase().includes(query))
    &&(!controls.area.value||p.region===controls.area.value)&&(!controls.kind.value||p.kind===controls.kind.value)
    &&(!need||(need==='pending'?p.need!=='confirmed':need==='suggestions'?suggestions.has(c.check_id):p.need===need)) &&(!controls.progress.value||progress(c.check_id)===controls.progress.value);
  }).sort(compareLocations);
  el('pCount').textContent=visible.length.toLocaleString()+' locations · '+[...drafts.values()].filter(f=>f.Reviewed).length+' reviewed by me'+(visible.length>cap?' · showing '+cap:'');
- el('pRows').innerHTML=visible.slice(0,cap).map(c=>'<button class="p-card" data-check="'+c.check_id+'" aria-pressed="'+(current?.check_id===c.check_id)+'"><strong>'+esc(c.player.item)+'</strong><span>'+esc(c.player.region)+' · '+esc(c.player.place)+'</span><span class="p-muted">'+needs[c.player.need]+(suggestions.has(c.check_id)?' · Guide available':'')+'</span>'+'<span class="p-muted">'+progressLabel(c.check_id)+'</span>'+'</button>').join('')||'<p>No locations match. Try another area or reset the filters.</p>';
+ el('pRows').innerHTML=visible.slice(0,cap).map(c=>'<button class="p-card" data-check="'+c.check_id+'" aria-pressed="'+(current?.check_id===c.check_id)+'"><strong>'+esc(c.player.item)+'</strong><span>'+esc(c.player.region)+' · '+esc(c.player.place)+'</span><span class="p-muted">'+needs[c.player.need]+(suggestions.has(c.check_id)?' · Guide available':'')+'</span>'+'<span class="p-muted">Flag: '+esc(c.player.acquisition_flag??'Unknown')+' · '+progressLabel(c.check_id)+'</span>'+'</button>').join('')||'<p>No locations match. Try another area or reset the filters.</p>';
  for(const button of el('pRows').querySelectorAll('button'))button.onclick=()=>{saveDraft();current=byId.get(Number(button.dataset.check));draw();show(current);if(innerWidth<=900)el('pDetail').scrollIntoView({block:'start'});history.replaceState(null,'',link(current.check_id));};
  el('pMore').hidden=visible.length<=cap;renderPlayerMap();updateNavigation();
 }
@@ -147,16 +147,20 @@ function show(c){
  const p=c.player,d=drafts.get(c.check_id)||notebook.getDefaults()||{},sourceRows=suggestions.get(c.check_id)||[];
  const message=p.need==='confirmed'?'Independent sources agree on the item and area. Corrections are still welcome.':p.need==='conflict'?'Tell us what you observed. Existing reports disagree.':p.need==='second_source'?'We have one source. An independent guide or exact observation would help.':'We still need an exact source or observation for this location.';
  el('pDetail').innerHTML='<p class="p-muted">'+esc(p.region)+' / '+esc(p.kind)+'</p><h2>'+esc(p.item)+'</h2><p>'+esc(p.place)+'</p>'+
+ '<p>Acquisition flag: <strong>'+esc(p.acquisition_flag??'Unknown')+'</strong>'+(p.acquisition_flag? ' <button type="button" id="pCopyFlag">Copy flag</button>':'')+' <span class="p-muted">Check ID: '+c.check_id+'. A flag can be shared by several checks.</span></p>'+
  (p.nearby_grace?'<p class="p-muted">Nearby grace: '+esc(p.nearby_grace)+'. This is a nearby landmark, not a confirmed route.</p>':'')+
  '<div class="p-note"><strong>'+needs[p.need]+'</strong><br>'+message+'<br><span class="p-muted">'+(p.access_reviewed?'Collection requirements have been reviewed for the recorded settings.':'Collection requirements still need review.')+'</span></div>'+
  '<button type="button" id="pShowMap">'+(p.positions?.length?'Show this location on the map':'No outdoor pin recorded')+'</button>'+
  '<details><summary>Compare with a guide'+(sourceRows.length?' ('+sourceRows.length+')':'')+'</summary>'+(sourceRows.length?sourceRows.map(sourceHtml).join(''):'<p>No new guide match has been queued for this location. You can still add your own observation or source.</p>')+'</details>'+
  '<div class="p-actions"><button id="pPrevious">Previous location</button><button id="pNext">Next location</button></div><form id="pForm"><h3>Your notes for this location</h3><p class="p-muted">Describe what you observed. A maintainer will review your report before marking anything confirmed.</p>'+
- '<label for="pRawNotes">Paste your existing notes</label><textarea id="pRawNotes" placeholder="Keep your original notes here, exactly as you wrote them. Add details below when useful."></textarea><label for="pReviewer">Your name or handle (optional)</label><input id="pReviewer">'+
- '<label for="pFinding">Your finding</label><select id="pFinding"><option value="">Choose an answer</option><option>I found it here</option><option>Something is different</option><option>I have a guide to compare</option><option>I am not sure</option></select>'+
- '<div class="p-grid"><div><label for="pItem">Item you actually received</label><input id="pItem" placeholder="Leave blank if you did not collect it"></div><div><label for="pRegion">Where you found it</label><input id="pRegion" placeholder="Place, landmark, or nearby grace"></div></div>'+
- '<label for="pRoute">How did you get there?</label><textarea id="pRoute" placeholder="Describe your route and any key, boss, or quest step you used. It is fine if you do not know every requirement."></textarea>'+
- '<label for="pEvidence">Observation or evidence link</label><textarea id="pEvidence" placeholder="What you saw, or a link to a guide, screenshot, or recording. For guides, name the section or step."></textarea>'+
+ '<label for="pFinding">Is this location correct?</label><select id="pFinding"><option value="">Choose an answer</option><option>Correct</option><option>Needs correction</option><option>Unused or unobtainable</option><option>Unsure</option></select>'+
+ '<label for="pLockRegion">Region-lock region</label><input id="pLockRegion" placeholder="Which AP region-lock region should this check belong to?"><p class="p-muted">Name the region assignment you observed or recommend correcting. Describe the precise pickup spot separately below.</p>'+
+ '<label for="pRegion">Exact location or correction</label><input id="pRegion" placeholder="Describe the pickup, container or enemy and its landmark or nearby grace.">'+
+ '<label for="pRoute">Requirements and route</label><textarea id="pRoute" placeholder="Describe the route and any keys, bosses, gestures or quest steps required. If it is unobtainable, explain what prevents collection."></textarea>'+
+ '<label for="pEvidence">Notes or evidence</label><textarea id="pEvidence" placeholder="What you observed, or a guide, screenshot or recording. For guides, name the section or step."></textarea>'+
+ '<label for="pRawNotes">Original notes (optional)</label><textarea id="pRawNotes" placeholder="Paste existing notes here without reformatting them."></textarea>'+
+ '<details'+(d.Item?' open':'')+'><summary>Item-name correction or previous item observation (optional)</summary><label for="pItem">Item-name note</label><input id="pItem" placeholder="Only if the catalog item name needs correcting"><p class="p-muted">Existing item observations are preserved here unchanged. A different randomized reward does not mean the catalog name is wrong.</p></details>'+
+ '<label for="pReviewer">Your name or handle (optional)</label><input id="pReviewer">'+
  '<div class="p-grid"><div><label for="pVersion">Game, mod and client versions (if known)</label><input id="pVersion" placeholder="From your title screen or client"></div><div><label for="pContext">What were you playing?</label><select id="pContext"><option value="">Choose if known</option><option>Unrandomized Elden Ring</option><option>Archipelago with randomized items</option><option>Archipelago without randomized items</option><option>Other mods</option><option>Guide only / not playing</option></select></div></div>'+
  '<p class="p-muted">In a randomized game, the item you receive may differ from this location&#39;s original item. A boss reward that completes nearby checks does not confirm you visited those pickups.</p>'+
  '<label><input type="checkbox" id="pReviewed"> I have reviewed this location</label><div class="p-actions"><button class="primary" type="button" id="pSaveNext">Save and next location</button><button type="submit">Download this note</button><button type="button" id="pCopy">Copy review</button><button type="button" id="pIssue">Prepare GitHub report</button></div><p class="p-status" id="pStatus" role="status"></p>'+
@@ -164,7 +168,7 @@ function show(c){
  '<details><summary>Existing sources and technical details</summary><p class="p-muted">Location reference: '+c.check_id+'. The catalog location is not an independent observation.</p>'+
  (c.external_leads.length?c.external_leads.flatMap(l=>l.sources).filter((s,i,a)=>a.findIndex(x=>x.source_id===s.source_id)===i).map(s=>{const u=safeUrl(s.revision_url);return u?'<p><a href="'+esc(u)+'" target="_blank" rel="noreferrer">'+esc(s.title)+'</a> · '+esc(s.publisher)+'</p>':''}).join(''):'<p>No external sources are attached yet.</p>')+
  '<button type="button" id="pTechnical">Open maintainer evidence</button><button type="button" id="pPermalink">Copy location link</button></details>';
- for(const key of ['Finding','Item','Region','Route','Evidence','Version','Context','RawNotes','Reviewer']){
+ for(const key of ['Finding','Item','Region','LockRegion','Route','Evidence','Version','Context','RawNotes','Reviewer']){
  const input=el('p'+key),value=d[key]||'';
  if(input.tagName==='SELECT'&&value&&![...input.options].some(o=>o.value===value)){const option=document.createElement('option');option.value=value;option.textContent=value;input.append(option)}
  input.value=value;
@@ -174,15 +178,16 @@ function show(c){
  updateNavigation();
  el('pPrevious').onclick=()=>move(-1);el('pNext').onclick=()=>move(1);el('pSaveNext').onclick=()=>move(1);
  el('pShowMap').onclick=()=>showOnMap(c);
+ if(el('pCopyFlag'))el('pCopyFlag').onclick=()=>copy(String(p.acquisition_flag),'Acquisition flag copied.');
  el('pForm').addEventListener('input',saveDraft);
  function report(){
   saveDraft();const f=drafts.get(c.check_id)||{};return {schema:'er-player-review-v1',check_id:c.check_id,catalog_hash:DATA.inputs_hash,
-   catalog:{item:p.item,region:p.region,place:p.place},finding:f.Finding,observed_item:f.Item,observed_place:f.Region,route:f.Route,
+   catalog:{item:p.item,region:p.region,place:p.place},acquisition_flag:p.acquisition_flag,finding:f.Finding,observed_item:f.Item,observed_place:f.Region,region_lock_region:f.LockRegion,route:f.Route,
    evidence:f.Evidence,raw_notes:f.RawNotes,reviewer:f.Reviewer,reviewed:!!f.Reviewed,versions:f.Version,environment:f.Context,observation_scope:'player_report_not_adjudicated',permalink:link(c.check_id)};
  }
  function textReport(){
   const r=report();return ['## Player location review','','**Catalog location:** '+p.item+' — '+p.region+' / '+p.place,
-   '**Finding:** '+r.finding,'**Observed item:** '+(r.observed_item||'Not specified'),'**Observed place:** '+(r.observed_place||'Not specified'),
+   '**Acquisition flag:** '+(p.acquisition_flag??'Unknown'),'**Finding:** '+r.finding,'**Item-name note / previous item observation:** '+(r.observed_item||'Not specified'),'**Region-lock region:** '+(r.region_lock_region||'Not specified'),'**Exact location or correction:** '+(r.observed_place||'Not specified'),
    '**Original notes:** '+(r.raw_notes||'Not specified'),'**Reviewer:** '+(r.reviewer||'Not specified'),'**Route:** '+(r.route||'Not specified'),'**Evidence:** '+r.evidence,'**Versions:** '+(r.versions||'Unknown'),
    '**Environment:** '+(r.environment||'Unknown'),'','Location reference: '+r.check_id,'Catalog snapshot: '+r.catalog_hash,
    'This is a player report, not an accepted validation.',r.permalink].join('\n');
@@ -217,6 +222,7 @@ for(const key of ['Reviewer','Version','Context']){
  control.value=value;
  el('pDefault'+key).onchange=()=>{const defaults={};for(const k of ['Reviewer','Version','Context'])defaults[k]=el('pDefault'+k).value;notebook.saveDefaults(defaults)};
 }
+el('pSendNotes').onclick=()=>{saveDraft();el('pSendHelp').hidden=false;el('pSendHelp').scrollIntoView({block:'nearest'})};
 el('pExport').onclick=()=>{saveDraft();download('er-player-notebook.json',JSON.stringify(notebook.exportNotebook(),null,2)+'\n','application/json')};
 el('pImport').onclick=()=>el('pImportFile').click();
 el('pImportFile').onchange=async()=>{
@@ -225,7 +231,7 @@ el('pImportFile').onchange=async()=>{
  try{
   const preview=notebook.previewImport(await file.text());
   const statusLabels={new:'Ready to add',same:'Already in your notebook',conflict:'Choose which note to keep',rejected:'Cannot import'};
-  const fieldLabels={RawNotes:'Original notes',Finding:'Your finding',Item:'Item received',Region:'Where you found it',Route:'Route and requirements',Evidence:'Observation or evidence',Reviewer:'Reviewer',Version:'Game / mod versions',Context:'Playthrough context'};
+  const fieldLabels={RawNotes:'Original notes',Finding:'Your finding',Item:'Item-name note / previous item observation',Region:'Exact location or correction',LockRegion:'Region-lock region',Route:'Route and requirements',Evidence:'Observation or evidence',Reviewer:'Reviewer',Version:'Game / mod versions',Context:'Playthrough context'};
   function readableNote(form){if(!form)return '';return Object.entries(fieldLabels).filter(([key])=>form[key]).map(([key,label])=>'<p><strong>'+label+'</strong></p><p style="white-space:pre-wrap">'+esc(form[key])+'</p>').join('')+'<p>Reviewed by you: '+(form.Reviewed?'Yes':'Not yet')+'</p>'}
   const counts=Object.keys(statusLabels).map(status=>preview.rows.filter(row=>row.status===status).length+' '+statusLabels[status].toLowerCase()).join(' · ');
   panel.innerHTML='<h3>Review your import</h3><p>Nothing has changed yet. Existing notes are kept unless you choose to replace them. Rejected entries cannot be imported.</p>'+

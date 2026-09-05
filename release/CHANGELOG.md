@@ -5,6 +5,11 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.0 — 2026-09-02
 
+- Player notebook: location-first review form with a separate region-lock correction field, including unused/unobtainable checks; item-name notes are optional and existing notes remain intact.
+- Player notebook: source-backed acquisition flags are visible, searchable and copyable.
+  Clear file-sharing instructions explain how to send a notebook and retain a receipt;
+  local browser saving is explicitly separate from submitting notes.
+
 - Opt-in F6 player reviews: Review and Map actions for remaining and completed locations.
   The v0.6 client with these controls is pinned with this update.
   The player review page adds a filtered outdoor map with selectable pins, zoom and pan.
