@@ -1,10 +1,10 @@
 {
   "categories": {
     "all_boss_reward_checks": {
-      "hold": 113,
+      "hold": 103,
       "hold_by_external_family_count": {
         "0": 45,
-        "1": 68
+        "1": 58
       },
       "remaining_check_ids": [
         7770002,
@@ -18,18 +18,11 @@
         7770685,
         7770686,
         7770688,
-        7770696,
-        7770697,
-        7770699,
         7770701,
-        7770703,
-        7770706,
         7770707,
         7770710,
         7770711,
         7770712,
-        7770713,
-        7770714,
         7770716,
         7771724,
         7772465,
@@ -66,15 +59,12 @@
         7773841,
         7773845,
         7773848,
-        7773856,
         7773857,
         7773859,
-        7773862,
         7773863,
         7773864,
         7773865,
         7773869,
-        7773871,
         7773875,
         7773877,
         7773879,
@@ -122,13 +112,13 @@
         7900288
       ],
       "total": 269,
-      "trusted_identity_region": 156
+      "trusted_identity_region": 166
     },
     "fixed_boss_drop": {
-      "hold": 110,
+      "hold": 100,
       "hold_by_external_family_count": {
         "0": 44,
-        "1": 66
+        "1": 56
       },
       "remaining_check_ids": [
         7770029,
@@ -139,18 +129,11 @@
         7770685,
         7770686,
         7770688,
-        7770696,
-        7770697,
-        7770699,
         7770701,
-        7770703,
-        7770706,
         7770707,
         7770710,
         7770711,
         7770712,
-        7770713,
-        7770714,
         7770716,
         7771724,
         7772465,
@@ -187,15 +170,12 @@
         7773841,
         7773845,
         7773848,
-        7773856,
         7773857,
         7773859,
-        7773862,
         7773863,
         7773864,
         7773865,
         7773869,
-        7773871,
         7773875,
         7773877,
         7773879,
@@ -243,7 +223,7 @@
         7900288
       ],
       "total": 237,
-      "trusted_identity_region": 127
+      "trusted_identity_region": 137
     },
     "great_rune": {
       "hold": 2,
@@ -259,10 +239,10 @@
       "trusted_identity_region": 5
     },
     "major_boss": {
-      "hold": 11,
+      "hold": 10,
       "hold_by_external_family_count": {
         "0": 2,
-        "1": 9
+        "1": 8
       },
       "remaining_check_ids": [
         7770002,
@@ -274,11 +254,10 @@
         7773797,
         7773802,
         7773803,
-        7773862,
         7773865
       ],
       "total": 52,
-      "trusted_identity_region": 41
+      "trusted_identity_region": 42
     },
     "remembrance": {
       "hold": 1,
@@ -389,33 +368,6 @@
       "name": "Weeping :: Viridian Amber Medallion - m60_33_42 (region unconfirmed) [f520300]",
       "region": "Weeping"
     },
-    "7770696": {
-      "check_id": 7770696,
-      "external_families": [
-        "gameplay-wiki:eldenpedia"
-      ],
-      "external_family_count": 1,
-      "name": "Limgrave :: Deathroot - Tibia Mariner (region unconfirmed), may be sweep-granted by Tibia Mariner (m60_45_39) [f530170]",
-      "region": "Limgrave"
-    },
-    "7770697": {
-      "check_id": 7770697,
-      "external_families": [
-        "gameplay-wiki:eldenpedia"
-      ],
-      "external_family_count": 1,
-      "name": "Liurnia :: Dragon Heart - Glintstone Dragon Smarag (region unconfirmed), may be sweep-granted by Glintstone Dragon Smarag (m60_34_45) [f530210]",
-      "region": "Liurnia"
-    },
-    "7770699": {
-      "check_id": 7770699,
-      "external_families": [
-        "gameplay-wiki:eldenpedia"
-      ],
-      "external_family_count": 1,
-      "name": "Liurnia :: Deathroot - Tibia Mariner, may be sweep-granted by Tibia Mariner (m60_39_44) [f530240]",
-      "region": "Liurnia"
-    },
     "7770701": {
       "check_id": 7770701,
       "external_families": [
@@ -424,24 +376,6 @@
       "external_family_count": 1,
       "name": "Liurnia :: [Sorcery] Greatblade Phalanx - Bols, Carian Knight (region unconfirmed), may be sweep-granted by Bols, Carian Knight (m60_33_45) [f530250]",
       "region": "Liurnia"
-    },
-    "7770703": {
-      "check_id": 7770703,
-      "external_families": [
-        "gameplay-wiki:eldenpedia"
-      ],
-      "external_family_count": 1,
-      "name": "Liurnia :: Dragon Heart - Glintstone Dragon Adula, may be sweep-granted by Glintstone Dragon Adula (m60_34_42) [f530260]",
-      "region": "Liurnia"
-    },
-    "7770706": {
-      "check_id": 7770706,
-      "external_families": [
-        "gameplay-wiki:eldenpedia"
-      ],
-      "external_family_count": 1,
-      "name": "Altus :: Somber Smithing Stone [5] - Fallingstar Beast (region unconfirmed), may be sweep-granted by Fallingstar Beast (m60_41_50) [f530310]",
-      "region": "Altus"
     },
     "7770707": {
       "check_id": 7770707,
@@ -474,24 +408,6 @@
       "external_family_count": 0,
       "name": "Mt. Gelmir :: Deathroot - near Seethewater River (region unconfirmed) [f530385]",
       "region": "Mt. Gelmir"
-    },
-    "7770713": {
-      "check_id": 7770713,
-      "external_families": [
-        "gameplay-wiki:eldenpedia"
-      ],
-      "external_family_count": 1,
-      "name": "Mt. Gelmir :: Dragon Heart - Magma Wyrm, may be sweep-granted by Magma Wyrm (m60_35_53) [f530390]",
-      "region": "Mt. Gelmir"
-    },
-    "7770714": {
-      "check_id": 7770714,
-      "external_families": [
-        "gameplay-wiki:eldenpedia"
-      ],
-      "external_family_count": 1,
-      "name": "Caelid :: Dragon Heart - Decaying Ekzykes, may be sweep-granted by Decaying Ekzykes (m60_48_37) [f530400]",
-      "region": "Caelid"
     },
     "7770716": {
       "check_id": 7770716,
@@ -799,15 +715,6 @@
       "name": "Rauh Base :: Death Knight's Longhaft Axe - around Scorpion River Catacombs [f520710]",
       "region": "Rauh Base"
     },
-    "7773856": {
-      "check_id": 7773856,
-      "external_families": [
-        "gameplay-wiki:eldenpedia"
-      ],
-      "external_family_count": 1,
-      "name": "Caelid :: Dragon Heart - Flying Dragon Greyll, may be sweep-granted by Flying Dragon Greyll (m60_52_41) [f530420]",
-      "region": "Caelid"
-    },
     "7773857": {
       "check_id": 7773857,
       "external_families": [
@@ -825,15 +732,6 @@
       "external_family_count": 1,
       "name": "Mountaintops of the Giants :: Dragon Heart - m60_54_56 (region unconfirmed) [f530510]",
       "region": "Mountaintops of the Giants"
-    },
-    "7773862": {
-      "check_id": 7773862,
-      "external_families": [
-        "gameplay-wiki:eldenpedia"
-      ],
-      "external_family_count": 1,
-      "name": "Consecrated Snowfield :: Dragon Heart - Great Wyrm Theodorix (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f530550]",
-      "region": "Consecrated Snowfield"
     },
     "7773863": {
       "check_id": 7773863,
@@ -866,15 +764,6 @@
       "external_family_count": 0,
       "name": "Jagged Peak :: Dragon Heart - Jagged Peak Drake, may be sweep-granted by Jagged Peak Drake (m61_49_41) [f530850]",
       "region": "Jagged Peak"
-    },
-    "7773871": {
-      "check_id": 7773871,
-      "external_families": [
-        "gameplay-wiki:eldenpedia"
-      ],
-      "external_family_count": 1,
-      "name": "Gravesite :: Dragon Heart - Ghostflame Dragon, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f530860]",
-      "region": "Gravesite"
     },
     "7773875": {
       "check_id": 7773875,

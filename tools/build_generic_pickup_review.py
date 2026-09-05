@@ -46,7 +46,12 @@ def route_anchor(location: str) -> str:
         return ""
     tail = location.split(" - ", 1)[1]
     tail = tail.split(", may be sweep-granted", 1)[0]
-    return re.sub(r"\s*\[f\d+\]\s*$", "", tail).strip()
+    tail = re.sub(r"\s*\[f\d+\]\s*$", "", tail).strip()
+    tail = re.sub(r"\s*\(\d+\)\s*$", "", tail).strip()
+    tail = tail.replace("(region unconfirmed)", "").strip()
+    if re.fullmatch(r"m\d\d(?:_\d\d){1,3}", tail):
+        return ""
+    return tail
 
 
 def build() -> tuple[list[dict[str, str]], dict]:
@@ -79,7 +84,7 @@ def build() -> tuple[list[dict[str, str]], dict]:
     prepared = []
     for region, location, ap_id, flag, item in family:
         anchor = route_anchor(location)
-        match = re.search(r"\((m\d\d(?:_\d\d){1,3})\)", location)
+        match = re.search(r"\((m\d\d(?:_\d\d){1,3})\)", location.split(", may be sweep-granted", 1)[0])
         tile = match.group(1) if match else ""
         anchors[(region, item, anchor)] += 1
         tiles[(region, item, tile)] += 1

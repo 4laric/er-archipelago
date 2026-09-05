@@ -47,9 +47,9 @@ class ProgressionHostConfidenceTests(unittest.TestCase):
                             (row["confidence"] == builder.TRUSTED) for row in rows))
         # Independent Redmaw/Eldenpedia, Fextralife/Redmaw, small-guide-tail, and
         # PowerPyx/Redmaw quest-reward, Eldenpedia invasion-reward, and Ainsel-family
-        # corroborations move hosts from hold to trusted; overlapping families count once.
-        self.assertEqual(1_143, sum(row["confidence"] == builder.TRUSTED for row in rows))
-        self.assertEqual(3_782, sum(row["confidence"] == builder.HOLD for row in rows))
+        # and reviewed walkthrough boss-reward corroborations move hosts from hold to trusted; overlapping families count once.
+        self.assertEqual(1_153, sum(row["confidence"] == builder.TRUSTED for row in rows))
+        self.assertEqual(3_772, sum(row["confidence"] == builder.HOLD for row in rows))
 
     def test_generated_runtime_sets_partition_the_current_check_population(self):
         builder = load_builder()
