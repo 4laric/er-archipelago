@@ -1,5 +1,11 @@
 # Map tracker live validation — 2026-09-05
 
+> **Policy update, 2026-09-05:** By explicit user ruling, every AP check matched
+> to a Map for Goblins pin counts as **corroborated**. This supersedes earlier
+> statements below that matches cannot count as corroboration. Shared identities,
+> coordinate disagreements, physical visits and access-rule completeness remain
+> separate facts; the ruling does not resolve them automatically.
+
 These are bounded observations from Alaric's test session, not a promotion of
 the source-corroboration ledger or proof of every map pin.
 

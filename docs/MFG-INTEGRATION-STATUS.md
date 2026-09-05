@@ -1,5 +1,11 @@
 # Optional map tracker: integration status and acceptance
 
+> **Policy update, 2026-09-05:** By explicit user ruling, every AP check matched
+> to a Map for Goblins pin counts as **corroborated**. This supersedes earlier
+> statements below that matches cannot count as corroboration. Shared identities,
+> coordinate disagreements, physical visits and access-rule completeness remain
+> separate facts; the ruling does not resolve them automatically.
+
 The map engine and AP client are separate components. A source-built engine with
 the read-only v1 exports is required; the client never loads a map DLL itself.
 The performance experiment is independent of the matching and UI work.

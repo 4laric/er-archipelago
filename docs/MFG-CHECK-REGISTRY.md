@@ -1,5 +1,11 @@
 # Check/source registry: first implementation milestone
 
+> **Policy update, 2026-09-05:** By explicit user ruling, every AP check matched
+> to a Map for Goblins pin counts as **corroborated**. This supersedes earlier
+> statements below that matches cannot count as corroboration. Shared identities,
+> coordinate disagreements, physical visits and access-rule completeness remain
+> separate facts; the ruling does not resolve them automatically.
+
 Build a development manifest from committed inputs, without game files or AP installed:
 
     python3 tools/export_mfg_check_registry.py --out /tmp/mfg-check-registry.json
