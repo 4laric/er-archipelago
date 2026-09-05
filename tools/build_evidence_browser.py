@@ -664,6 +664,7 @@ for(const k of ['q','status','risk','kind','tag','review','family','disposition'
 </script></body></html>'''
     template = (Path(TOOLS) / "player_review_template.html").read_text(encoding="utf-8")
     template = template.replace("/*PLAYER_MAP*/", (Path(TOOLS) / "player_review_map.js").read_text(encoding="utf-8"))
+    template = template.replace("/*PLAYER_NOTEBOOK*/", (Path(TOOLS) / "player_review_notebook.js").read_text(encoding="utf-8"))
     return html.replace("</body>", template + chr(10) + "</body>")
 
 
