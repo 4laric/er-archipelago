@@ -108,12 +108,45 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(result["checks_without_candidate_markers"], [3])
         self.assertEqual(result["marker_status_counts"], {
             "shared_flag_candidates": 2, "unknown_identity": 1, "unmatched": 1})
+        self.assertEqual(result["marker_status_counts_by_table"], {
+            "0": {"unknown_identity": 1},
+            "1": {"shared_flag_candidates": 1, "unmatched": 1},
+            "2": {"shared_flag_candidates": 1},
+        })
+        self.assertEqual(result["candidate_check_status_counts"], {
+            "no_candidate_marker": 1, "shared_flag_candidate": 2,
+        })
+        self.assertEqual(result["checks_by_candidate_status"], {
+            "no_candidate_marker": [3], "shared_flag_candidate": [1, 2],
+        })
         self.assertEqual(result["registry_sources_sha256"], data["sources_sha256"])
         self.assertEqual(result["markers"][0]["groups"][0]["ap_ids"], [1, 2])
         # Same numeric row in the wrong namespace must not match.
         data["checks"][0]["source_identity"]["item_lots"] = [{"table": "map", "row_id": 20}]
         data["checks"][1]["source_identity"]["item_lots"] = [{"table": "map", "row_id": 20}]
         self.assertEqual(report(data, csv)["markers"][1]["status"], "unmatched")
+
+    def test_candidate_classification_keeps_cross_flag_ambiguity(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.fixture(root)
+            data = registry.build(root)
+        data["checks"].append({
+            "ap_id": 4,
+            "original_acquisition_flag": 11,
+            "source_identity": {"item_lots": [{"table": "map", "row_id": 20}]},
+        })
+        marker_csv = b"marker_row_id,lot_table,lot_row\n1,1,20\n2,2,20\n"
+        result = report(data, marker_csv)
+        self.assertEqual(result["marker_status_counts"], {
+            "multiple_flag_candidates": 1, "shared_flag_candidates": 1,
+        })
+        self.assertEqual(result["candidate_check_status_counts"], {
+            "multiple_flag_candidate": 3, "no_candidate_marker": 1,
+        })
+        self.assertEqual(result["checks_by_candidate_status"], {
+            "multiple_flag_candidate": [1, 2, 4], "no_candidate_marker": [3],
+        })
 
     def test_native_marker_inventory_rejects_malformed_and_unknown_pairs(self):
         data = registry.build()

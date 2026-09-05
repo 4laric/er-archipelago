@@ -5,9 +5,11 @@ Build a development manifest from committed inputs, without game files or AP ins
     python3 tools/export_mfg_check_registry.py --out /tmp/mfg-check-registry.json
     python3 tools/export_mfg_check_registry.py --out /tmp/mfg-check-registry.json --check
 
-This does not install a native map bridge, change slot data, or add a player feature.
+This does not change slot data or add a player feature.
 The generated file is an explicit development output, not a checked-in release asset.
-The native consumer remains to be implemented.
+The source-built map engine exports read-only marker identities (table and lot row).
+Client PR #628 consumes them in F6 with connected-seed filtering and player-review
+links. This exporter supplies the static registry; it does not install either component.
 
 Schema version 1 contains every AP location in LOCATIONS, sorted by AP ID, and SHA-256
 fingerprints of all four source files. Missing files, invalid coordinate kinds,
@@ -98,3 +100,24 @@ Shared-flag siblings stay together. Unknown identity and a known identity withou
 a catalog match are separate counts. The exact CSV bytes and registry input files
 are SHA-256 stamped. There is no spatial, exact-site or live-game validation claim.
 A regenerated profile may move these counts; inspect provenance before comparing.
+
+### Bounded marker audit (2026-09-05)
+
+The source-built vanilla profile used for the first live validation contained 7,031
+markers (CSV SHA-256 `ce93110fbd4a2ec1e7328a8b71f2273c270323f5b63fd29c3a2a523331b309a3`).
+The marker-level result was:
+
+| marker status | count | action |
+| --- | ---: | --- |
+| `single_check_candidate` | 3,735 | show the one static AP candidate, subject to connected-seed filtering |
+| `shared_flag_candidates` | 223 | retain every sibling in the original flag group; require review |
+| `unmatched` | 94 (40 map, 54 enemy) | retain as an unresolved native lot; do not infer from names or proximity |
+| `unknown_identity` | 2,979 | retain as unknown; wait for a later exact identity source |
+
+At check level, 3,628 checks had only single candidates, 219 were touched by a
+shared-flag candidate, and 1,078 had no candidate marker. No marker in this profile
+produced multiple original flag groups. These are static candidate classifications,
+not corroboration or physical-visit claims. The report now emits
+`checks_by_candidate_status` and `marker_status_counts_by_table` so the native
+consumer can act on each class without turning the 3,847/4,925 candidate figure
+into a confidence score.

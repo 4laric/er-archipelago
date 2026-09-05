@@ -44,6 +44,8 @@ def report(manifest, marker_csv):
                 check["original_acquisition_flag"]].add(ap_id)
     matched_checks = set()
     counts = defaultdict(int)
+    check_statuses = defaultdict(set)
+    status_by_table = defaultdict(lambda: defaultdict(int))
     mappings = []
     for marker_id, table, lot in sorted(markers):
         groups = candidates.get(({1: "map", 2: "enemy"}.get(table), lot), {})
@@ -59,13 +61,31 @@ def report(manifest, marker_csv):
         else:
             status = "multiple_flag_candidates"
         counts[status] += 1
+        status_by_table[table][status] += 1
         matched_checks.update(ids)
+        for ap_id in ids:
+            check_statuses[ap_id].add(status)
         mappings.append({
             "marker_row_id": marker_id, "lot_table": table, "lot_row": lot,
             "status": status,
             "groups": [{"original_acquisition_flag": flag, "ap_ids": sorted(ap_ids)}
                        for flag, ap_ids in sorted(groups.items())],
         })
+    checks_by_candidate_status = defaultdict(list)
+    for ap_id in sorted(all_checks):
+        statuses = check_statuses.get(ap_id, set())
+        if not statuses:
+            status = "no_candidate_marker"
+        elif "multiple_flag_candidates" in statuses:
+            status = "multiple_flag_candidate"
+        elif "shared_flag_candidates" in statuses:
+            status = "shared_flag_candidate"
+        elif statuses == {"single_check_candidate"}:
+            status = "single_check_candidate"
+        else:
+            raise ValueError("Unexpected candidate status set: " + repr(sorted(statuses)))
+        checks_by_candidate_status[status].append(ap_id)
+
     return {
         "schema_version": 1,
         "evidence_kind": "static_baked_marker_candidates_not_live_or_corroborated",
@@ -76,6 +96,15 @@ def report(manifest, marker_csv):
         "checks_without_candidate_markers": sorted(all_checks - matched_checks),
         "total_markers": len(markers),
         "marker_status_counts": dict(sorted(counts.items())),
+        "marker_status_counts_by_table": {
+            str(table): dict(sorted(statuses.items()))
+            for table, statuses in sorted(status_by_table.items())
+        },
+        "checks_by_candidate_status": dict(sorted(checks_by_candidate_status.items())),
+        "candidate_check_status_counts": {
+            status: len(ap_ids)
+            for status, ap_ids in sorted(checks_by_candidate_status.items())
+        },
         "markers": mappings,
     }
 
@@ -95,6 +124,7 @@ def main():
         "checks_with_candidate_markers": len(result["checks_with_candidate_markers"]),
         "checks_without_candidate_markers": len(result["checks_without_candidate_markers"]),
         "marker_status_counts": result["marker_status_counts"],
+        "candidate_check_status_counts": result["candidate_check_status_counts"],
     }, sort_keys=True))
 
 
