@@ -22,6 +22,7 @@ if ROOT:
     SPEC.loader.exec_module(registry)
     sys.path.insert(0, str(ROOT / "tools"))
     from resolve_mfg_hover import resolve
+    from report_mfg_marker_coverage import report
 
 
 @unittest.skipUnless(ROOT, REPO_ONLY_REASON)
@@ -94,6 +95,36 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(resolve(data, 197, "map", 10180)["groups"],
                          [{"original_acquisition_flag": 197, "ap_ids": [7770007, 7900004]}])
         self.assertEqual(resolve(data, 114, "enemy", 14000960)["status"], "unmatched")
+
+    def test_native_marker_coverage_preserves_groups_and_namespaces(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.fixture(root)
+            data = registry.build(root)
+        csv = (b"marker_row_id,lot_table,lot_row\n"
+               b"1,1,20\n2,2,20\n3,0,0\n4,1,99\n")
+        result = report(data, csv)
+        self.assertEqual(result["checks_with_candidate_markers"], [1, 2])
+        self.assertEqual(result["checks_without_candidate_markers"], [3])
+        self.assertEqual(result["marker_status_counts"], {
+            "shared_flag_candidates": 2, "unknown_identity": 1, "unmatched": 1})
+        self.assertEqual(result["registry_sources_sha256"], data["sources_sha256"])
+        self.assertEqual(result["markers"][0]["groups"][0]["ap_ids"], [1, 2])
+        # Same numeric row in the wrong namespace must not match.
+        data["checks"][0]["source_identity"]["item_lots"] = [{"table": "map", "row_id": 20}]
+        data["checks"][1]["source_identity"]["item_lots"] = [{"table": "map", "row_id": 20}]
+        self.assertEqual(report(data, csv)["markers"][1]["status"], "unmatched")
+
+    def test_native_marker_inventory_rejects_malformed_and_unknown_pairs(self):
+        data = registry.build()
+        header = b"marker_row_id,lot_table,lot_row\n"
+        for rows in (b"", b"1,0,2\n", b"1,1,0\n", b"1,3,2\n",
+                     b"1,1,20\n1,2,20\n", b"bad,1,2\n", b"1,2\n",
+                     b"1,2,3,4\n", b"-1,1,2\n"):
+            with self.subTest(rows=rows), self.assertRaises(ValueError):
+                report(data, header + rows)
+        with self.assertRaises(ValueError):
+            report(data, b"wrong,header\n")
 
     def test_actual_catalog_totality_determinism_and_provenance(self):
         data = registry.build()

@@ -80,3 +80,21 @@ The tool calls the same pure resolve function exercised by the tests. Its respon
 single_candidate, ambiguous_candidates, or unmatched, with every candidate grouped
 by original acquisition flag. A native consumer must additionally restrict this to
 the connected seed and reject stale runtime handles before presenting a result.
+
+## Measure a generated native profile
+
+Compile the source fork's tools/export_ap_marker_lots.cpp against its generated
+profile and save its CSV, then run:
+
+    python3 tools/report_mfg_marker_coverage.py marker-lots.csv --out coverage.json
+
+The CSV contract is marker_row_id,lot_table,lot_row; table 0 is unknown and must
+pair with lot 0, table 1 is map, table 2 is enemy. Duplicate marker IDs, empty input,
+malformed rows and inconsistent unknown pairs fail before a report is written.
+
+The report inventories every catalog check as with or without candidate baked
+markers, every native marker by matching status, and all candidate flag groups.
+Shared-flag siblings stay together. Unknown identity and a known identity without
+a catalog match are separate counts. The exact CSV bytes and registry input files
+are SHA-256 stamped. There is no spatial, exact-site or live-game validation claim.
+A regenerated profile may move these counts; inspect provenance before comparing.
