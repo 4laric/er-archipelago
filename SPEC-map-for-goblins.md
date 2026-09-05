@@ -1,5 +1,9 @@
 # SPEC — Map for Goblins integration
 
+**Next stage (2026-09-05):** [Integrated F6 and MapForGoblins tracker](SPEC-integrated-map-tracker.md)
+sets out the source-build path from the public 2.0.6 source and supplied 2.1.3 DLL.
+This older document remains the historical companion-mod proposal.
+
 **Status:** SPECCED 2026-08-26, on a verified artifact. Supersedes the K3 recon
 (RECON-map-for-goblins, 2026-08-26) whose §1 identified the wrong package — see §2. Every claim
 here is labelled VERIFIED (read from the binary/ini/license in the zip bobler linked, md5 below)
