@@ -64,6 +64,9 @@ GENERATORS = [
     "evidence_browser",
     # Whole-guide candidates and player labels are repository tooling, AP-free (#1412).
     "bulk_check_review",
+    # AP-free native hover identity resolver and all-check source manifest; reads
+    # repository tooling and committed data, neither installed with the world.
+    "mfg_registry",
     "desc_triage",
     # v0.6 evidence-ledger schema, validator, status engine, and deterministic summary (#1210).
     # Loads tools/evidence_ledger.py and the committed fixture quartet by repository path. It is
