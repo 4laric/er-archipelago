@@ -94,10 +94,10 @@ function download(name,content,type){
 }
 function saveDraft(){
  if(!current||!el('pForm'))return;
- const form={};for(const key of ['Finding','Item','Region','Route','Evidence','Version','Context','RawNotes','Reviewer'])form[key]=el('p'+key).value;
+ const form={};for(const key of ['Finding','Item','Region','LockRegion','Route','Evidence','Version','Context','RawNotes','Reviewer'])form[key]=el('p'+key).value;
  form.Reviewed=el("pReviewed").checked;
- if(form.Reviewed&&!["Finding","Item","Region","Route","Evidence","RawNotes"].some(k=>form[k].trim())){el("pReviewed").checked=false;form.Reviewed=false;el("pStatus").textContent="Add a finding or a note before marking this location reviewed.";}
- if(!drafts.has(current.check_id)&&!form.Reviewed&&!["Finding","Item","Region","Route","Evidence","RawNotes"].some(k=>form[k]))return;
+ if(form.Reviewed&&!["Finding","Item","Region","LockRegion","Route","Evidence","RawNotes"].some(k=>form[k].trim())){el("pReviewed").checked=false;form.Reviewed=false;el("pStatus").textContent="Add a finding or a note before marking this location reviewed.";}
+ if(!drafts.has(current.check_id)&&!form.Reviewed&&!["Finding","Item","Region","LockRegion","Route","Evidence","RawNotes"].some(k=>form[k]))return;
  if(JSON.stringify(drafts.get(current.check_id))===JSON.stringify(form))return;
  notebook.save(current.check_id,form).catch(error=>{el("pStorageStatus").textContent="Could not save: "+error.message+". Download a backup before leaving."});
 }
@@ -154,6 +154,7 @@ function show(c){
  '<details><summary>Compare with a guide'+(sourceRows.length?' ('+sourceRows.length+')':'')+'</summary>'+(sourceRows.length?sourceRows.map(sourceHtml).join(''):'<p>No new guide match has been queued for this location. You can still add your own observation or source.</p>')+'</details>'+
  '<div class="p-actions"><button id="pPrevious">Previous location</button><button id="pNext">Next location</button></div><form id="pForm"><h3>Your notes for this location</h3><p class="p-muted">Describe what you observed. A maintainer will review your report before marking anything confirmed.</p>'+
  '<label for="pFinding">Is this location correct?</label><select id="pFinding"><option value="">Choose an answer</option><option>Correct</option><option>Needs correction</option><option>Unused or unobtainable</option><option>Unsure</option></select>'+
+ '<label for="pLockRegion">Region-lock region</label><input id="pLockRegion" placeholder="Which AP region-lock region should this check belong to?"><p class="p-muted">Name the region assignment you observed or recommend correcting. Describe the precise pickup spot separately below.</p>'+
  '<label for="pRegion">Exact location or correction</label><input id="pRegion" placeholder="Describe the pickup, container or enemy and its landmark or nearby grace.">'+
  '<label for="pRoute">Requirements and route</label><textarea id="pRoute" placeholder="Describe the route and any keys, bosses, gestures or quest steps required. If it is unobtainable, explain what prevents collection."></textarea>'+
  '<label for="pEvidence">Notes or evidence</label><textarea id="pEvidence" placeholder="What you observed, or a guide, screenshot or recording. For guides, name the section or step."></textarea>'+
@@ -167,7 +168,7 @@ function show(c){
  '<details><summary>Existing sources and technical details</summary><p class="p-muted">Location reference: '+c.check_id+'. The catalog location is not an independent observation.</p>'+
  (c.external_leads.length?c.external_leads.flatMap(l=>l.sources).filter((s,i,a)=>a.findIndex(x=>x.source_id===s.source_id)===i).map(s=>{const u=safeUrl(s.revision_url);return u?'<p><a href="'+esc(u)+'" target="_blank" rel="noreferrer">'+esc(s.title)+'</a> · '+esc(s.publisher)+'</p>':''}).join(''):'<p>No external sources are attached yet.</p>')+
  '<button type="button" id="pTechnical">Open maintainer evidence</button><button type="button" id="pPermalink">Copy location link</button></details>';
- for(const key of ['Finding','Item','Region','Route','Evidence','Version','Context','RawNotes','Reviewer']){
+ for(const key of ['Finding','Item','Region','LockRegion','Route','Evidence','Version','Context','RawNotes','Reviewer']){
  const input=el('p'+key),value=d[key]||'';
  if(input.tagName==='SELECT'&&value&&![...input.options].some(o=>o.value===value)){const option=document.createElement('option');option.value=value;option.textContent=value;input.append(option)}
  input.value=value;
@@ -181,12 +182,12 @@ function show(c){
  el('pForm').addEventListener('input',saveDraft);
  function report(){
   saveDraft();const f=drafts.get(c.check_id)||{};return {schema:'er-player-review-v1',check_id:c.check_id,catalog_hash:DATA.inputs_hash,
-   catalog:{item:p.item,region:p.region,place:p.place},acquisition_flag:p.acquisition_flag,finding:f.Finding,observed_item:f.Item,observed_place:f.Region,route:f.Route,
+   catalog:{item:p.item,region:p.region,place:p.place},acquisition_flag:p.acquisition_flag,finding:f.Finding,observed_item:f.Item,observed_place:f.Region,region_lock_region:f.LockRegion,route:f.Route,
    evidence:f.Evidence,raw_notes:f.RawNotes,reviewer:f.Reviewer,reviewed:!!f.Reviewed,versions:f.Version,environment:f.Context,observation_scope:'player_report_not_adjudicated',permalink:link(c.check_id)};
  }
  function textReport(){
   const r=report();return ['## Player location review','','**Catalog location:** '+p.item+' — '+p.region+' / '+p.place,
-   '**Acquisition flag:** '+(p.acquisition_flag??'Unknown'),'**Finding:** '+r.finding,'**Item-name note / previous item observation:** '+(r.observed_item||'Not specified'),'**Exact location or correction:** '+(r.observed_place||'Not specified'),
+   '**Acquisition flag:** '+(p.acquisition_flag??'Unknown'),'**Finding:** '+r.finding,'**Item-name note / previous item observation:** '+(r.observed_item||'Not specified'),'**Region-lock region:** '+(r.region_lock_region||'Not specified'),'**Exact location or correction:** '+(r.observed_place||'Not specified'),
    '**Original notes:** '+(r.raw_notes||'Not specified'),'**Reviewer:** '+(r.reviewer||'Not specified'),'**Route:** '+(r.route||'Not specified'),'**Evidence:** '+r.evidence,'**Versions:** '+(r.versions||'Unknown'),
    '**Environment:** '+(r.environment||'Unknown'),'','Location reference: '+r.check_id,'Catalog snapshot: '+r.catalog_hash,
    'This is a player report, not an accepted validation.',r.permalink].join('\n');
@@ -230,7 +231,7 @@ el('pImportFile').onchange=async()=>{
  try{
   const preview=notebook.previewImport(await file.text());
   const statusLabels={new:'Ready to add',same:'Already in your notebook',conflict:'Choose which note to keep',rejected:'Cannot import'};
-  const fieldLabels={RawNotes:'Original notes',Finding:'Your finding',Item:'Item received',Region:'Where you found it',Route:'Route and requirements',Evidence:'Observation or evidence',Reviewer:'Reviewer',Version:'Game / mod versions',Context:'Playthrough context'};
+  const fieldLabels={RawNotes:'Original notes',Finding:'Your finding',Item:'Item-name note / previous item observation',Region:'Exact location or correction',LockRegion:'Region-lock region',Route:'Route and requirements',Evidence:'Observation or evidence',Reviewer:'Reviewer',Version:'Game / mod versions',Context:'Playthrough context'};
   function readableNote(form){if(!form)return '';return Object.entries(fieldLabels).filter(([key])=>form[key]).map(([key,label])=>'<p><strong>'+label+'</strong></p><p style="white-space:pre-wrap">'+esc(form[key])+'</p>').join('')+'<p>Reviewed by you: '+(form.Reviewed?'Yes':'Not yet')+'</p>'}
   const counts=Object.keys(statusLabels).map(status=>preview.rows.filter(row=>row.status===status).length+' '+statusLabels[status].toLowerCase()).join(' · ');
   panel.innerHTML='<h3>Review your import</h3><p>Nothing has changed yet. Existing notes are kept unless you choose to replace them. Rejected entries cannot be imported.</p>'+

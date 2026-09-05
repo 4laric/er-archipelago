@@ -2,8 +2,8 @@
 (function(root){
 'use strict';
 const SCHEMA='er-player-notebook-v1';
-const fields=['Finding','Item','Region','Route','Evidence','Version','Context','RawNotes','Reviewer'];
-const legacy={finding:'Finding',observed_item:'Item',observed_place:'Region',route:'Route',evidence:'Evidence',versions:'Version',environment:'Context',raw_notes:'RawNotes',reviewer:'Reviewer'};
+const fields=['Finding','Item','Region','LockRegion','Route','Evidence','Version','Context','RawNotes','Reviewer'];
+const legacy={finding:'Finding',observed_item:'Item',observed_place:'Region',region_lock_region:'LockRegion',route:'Route',evidence:'Evidence',versions:'Version',environment:'Context',raw_notes:'RawNotes',reviewer:'Reviewer'};
 function cleanForm(value){
  if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Missing review fields');
  const form={};for(const key of fields){if(value[key]!==undefined&&typeof value[key]!=='string')throw Error('Invalid '+key);form[key]=value[key]||'';}

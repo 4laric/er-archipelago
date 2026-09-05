@@ -82,3 +82,17 @@ test('editing during replacement archive write preserves the newer player notes'
  await new Promise(r=>setImmediate(r));callbacks.shift()();await editing;
  assert.ok(a.recoveryRecords.some(x=>x.record.form.RawNotes==='before'));
 });
+
+test('region-lock corrections stay separate from exact places and survive restore',async()=>{
+ const db=fakeIDB(),a=create(data,{indexedDB:db});await a.init();
+ await a.save(1,{Finding:'Needs correction',Region:'Behind the carriage',LockRegion:'Limgrave'});
+ const b=create(data,{indexedDB:db});await b.init();
+ assert.equal(b.get(1).LockRegion,'Limgrave');assert.equal(b.get(1).Region,'Behind the carriage');
+ const c=notebook();await c.applyImport(c.previewImport(b.exportNotebook()));
+ assert.equal(c.get(1).LockRegion,'Limgrave');
+ const old=notebook();await old.save(2,{Finding:'I found it here',Region:'Original location',Item:'Old item note'});
+ const oldBackup=old.exportNotebook();delete oldBackup.reviews[0].form.LockRegion;
+ const restored=notebook();await restored.applyImport(restored.previewImport(oldBackup));
+ assert.equal(restored.get(2).Region,'Original location');assert.equal(restored.get(2).Item,'Old item note');
+ assert.equal(restored.get(2).Finding,'I found it here');assert.equal(restored.get(2).LockRegion,'');
+});
