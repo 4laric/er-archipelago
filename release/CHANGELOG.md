@@ -5,6 +5,12 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.0 — 2026-09-02
 
+- Opt-in F6 player reviews: Review and Map actions for remaining and completed locations.
+  The player review page adds a filtered outdoor map with selectable pins, zoom and pan.
+  Missing positions remain visible in the list; map positions are not independent validation.
+  Tracker links check the original location name before allowing a report against that ID.
+
+
 ### What you need to update
 
 - **Client:** Required — use the eventual v0.6.0 client with v0.6.0 seeds.

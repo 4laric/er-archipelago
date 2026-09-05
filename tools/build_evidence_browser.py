@@ -24,6 +24,7 @@ TOOLS = os.path.dirname(os.path.abspath(__file__))
 if TOOLS not in sys.path:
     sys.path.insert(0, TOOLS)
 from player_check_review import player_check
+from player_review_map import load_map, INPUTS as MAP_INPUTS
 from access_dispositions import summary as access_summary
 from access_dispositions import validate as validate_access_dispositions
 
@@ -481,7 +482,7 @@ def ledger_hash(path: str = CURRENT, wiki_path: str | None = None) -> str:
         with open(access_path, "rb") as fh:
             digest.update(fh.read())
     if os.path.abspath(path) == os.path.abspath(CURRENT):
-        for extra in ("greenfield/nearest_grace.tsv",
+        for extra in (*MAP_INPUTS, "greenfield/nearest_grace.tsv",
                       "greenfield/evidence/wiki-audit/bulk-check-review.json"):
             digest.update(extra.encode() + b"\0")
             digest.update((Path(REPO) / extra).read_bytes())
@@ -538,13 +539,16 @@ def load_ledger(path: str = CURRENT, wiki_path: str | None = None) -> dict:
             graces = {int(row["flag"]): row["grace_name"] for row in csv.DictReader(
                 (line for line in handle if not line.startswith("#")), delimiter="	")}
         confidence = progression_host_confidence()
+        positions, contract["player_maps"] = load_map(REPO)
     else:
         contract["bulk_review"] = {"observations": [], "summary": {}}
         graces, confidence = {}, {}
+        positions, contract["player_maps"] = {}, {}
     for check in contract["checks"]:
         identity = next(c for c in check["claims"] if c["claim_kind"] == "identity")
         check["player"] = player_check(check, confidence.get(check["check_id"]),
                                        graces.get(identity["value"].get("flag"), ""))
+        check["player"]["positions"] = positions.get(identity["value"].get("flag"), [])
     contract["access_summary"] = census
     contract["dataset"] = os.path.relpath(path, REPO).replace(os.sep, "/")
     contract["inputs_hash"] = ledger_hash(path, wiki_path)
@@ -659,6 +663,7 @@ let selected=readHash();function render(){{const rows=filtered();const blockers=
 for(const k of ['q','status','risk','kind','tag','review','family','disposition','external','blocker'])els[k].addEventListener(k==='q'?'input':'change',()=>{{selected='';render()}});els.playerQueue.addEventListener('click',()=>{{els.review.value='yes';els.kind.value='';els.disposition.value='';els.blocker.value='';selected='';render()}});els.exportQueue.addEventListener('click',()=>downloadQueue(filtered()));window.addEventListener('hashchange',()=>{{const p=new URLSearchParams(location.hash.slice(1));if(p.has('claim')||p.get('mode')==='maintainer'){{selected=readHash();render()}}}});if(new URLSearchParams(location.hash.slice(1)).has('claim')||new URLSearchParams(location.hash.slice(1)).get('mode')==='maintainer'){{renderUnbound();render();}}
 </script></body></html>'''
     template = (Path(TOOLS) / "player_review_template.html").read_text(encoding="utf-8")
+    template = template.replace("/*PLAYER_MAP*/", (Path(TOOLS) / "player_review_map.js").read_text(encoding="utf-8"))
     return html.replace("</body>", template + chr(10) + "</body>")
 
 

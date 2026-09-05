@@ -10,6 +10,8 @@
 #playerReview .p-muted{color:var(--muted);font-size:14px}
 #playerReview .p-filters{padding:18px 5%;border-block:1px solid var(--line);display:grid;grid-template-columns:2fr 1fr 1fr 1.3fr;gap:12px;background:#191c15}
 #playerReview label{display:block;font-size:14px;margin:0 0 5px}
+#playerReview .p-map{padding:20px 5%;border-bottom:1px solid var(--line)}
+#pMapDrawing svg{width:100%;height:auto;max-height:620px;background:#181b15}
 #playerReview .p-body{display:grid;grid-template-columns:minmax(300px,38%) minmax(0,1fr);max-width:1500px;margin:auto}
 #playerReview .p-list{padding:24px;border-right:1px solid var(--line);max-height:80vh;overflow:auto}
 #playerReview .p-detail{padding:32px;min-width:0}
@@ -41,6 +43,14 @@
 <div><label for="pKind">What you collect</label><select id="pKind"><option value="">Everything</option></select></div>
 <div><label for="pNeed">Where you can help</label><select id="pNeed"><option value="pending">Needs confirmation</option><option value="second_source">Needs another source</option><option value="first_source">Needs a first source</option><option value="conflict">Reports disagree</option><option value="suggestions">Has a guide to compare</option><option value="">All locations</option></select></div>
 </div>
+<div class="p-map"><button id="pMapToggle" aria-expanded="false" aria-controls="pMapPanel">Find locations on a map</button>
+<section id="pMapPanel" hidden aria-label="Location map">
+<p>Choose a pin, then tell us whether the location is right. Gold pins need confirmation; green pins have source agreement; white is your selection.</p>
+<p class="p-muted">These are recorded outdoor positions, not verified routes or your live game. The map includes places outside your seed and may reveal unexplored locations. MapForGoblins is not required.</p>
+<div class="p-actions"><select id="pMapWorld" aria-label="World"><option value="m60">Lands Between</option><option value="m61">Land of Shadow</option></select>
+<button id="pMapFit">Show whole map</button><button id="pMapIn" aria-label="Zoom in">+</button><button id="pMapOut" aria-label="Zoom out">−</button>
+<button id="pMapLeft" aria-label="Move west">←</button><button id="pMapRight" aria-label="Move east">→</button><button id="pMapUp" aria-label="Move north">↑</button><button id="pMapDown" aria-label="Move south">↓</button></div>
+<p id="pMapCount" class="p-muted" aria-live="polite"></p><div id="pMapDrawing"></div></section></div>
 <div class="p-body">
 <section class="p-list" aria-label="Locations"><div class="p-count"><span id="pCount" aria-live="polite"></span><button id="pReset">Reset filters</button></div><div id="pRows"></div><button id="pMore" hidden>Show more locations</button></section>
 <section class="p-detail" id="pDetail" aria-label="Selected location"><h2>Choose a location</h2><p>Select an area or search for something you recognise.</p><p class="p-muted">You don't need to know how the mod works. An exact place, route, or guide link is useful.</p></section>
@@ -68,6 +78,8 @@ for(const [key,field] of [['area','region'],['kind','kind']]){
 function link(id){
  const p=new URLSearchParams();p.set('mode','player');if(id)p.set('check',id);
  for(const [key,el] of Object.entries(controls))if(el.value||key==='need')p.set('p_'+key,el.value);
+ if(mapOpen)p.set('p_map','1');
+ if(Number(id)===launch.id&&launch.from==='f6'){p.set('from','f6');if(launch.name)p.set('expected_name',launch.name)}
  const url=new URL(location.href);url.hash=p.toString();return url.toString();
 }
 function safeUrl(value){try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)?u.href:null}catch{return null}}
@@ -81,13 +93,14 @@ function saveDraft(){
  drafts.set(current.check_id,form);
 }
 function loadHash(){
- const p=params();for(const [key,el] of Object.entries(controls))el.value=p.get('p_'+key)??(key==='need'?'pending':'');
+ const p=params();launch={id:Number(p.get('check')),name:p.get('expected_name'),from:p.get('from')};mapOpen=p.get('p_map')==='1';for(const [key,el] of Object.entries(controls))el.value=p.get('p_'+key)??(key==='need'?'pending':'');
  const invalid=Object.entries(controls).filter(([key,el])=>p.has('p_'+key)&&el.value!==p.get('p_'+key));
  const requested=p.get('check');current=requested?byId.get(Number(requested))||null:null;draw();
  if(requested&&!current)el('pDetail').innerHTML='<h2>Location not in this build</h2><p>This review link may refer to an older version of the location list. Try searching by item or place.</p>';
  if(invalid.length)el('pCount').textContent='Some saved filters are no longer available. Reset filters to continue.';
- if(current)show(current);else if(!requested)el('pDetail').innerHTML='<h2>Choose a location</h2><p>Select an area or search for something you recognise.</p>';
+ if(current){show(current);if(params().get('p_map')==='1'&&!identityMismatch(current))showOnMap(current)}else if(!requested)el('pDetail').innerHTML='<h2>Choose a location</h2><p>Select an area or search for something you recognise.</p>';
 }
+/*PLAYER_MAP*/
 function draw(){
  const query=controls.search.value.trim().toLowerCase(),need=controls.need.value;
  visible=DATA.checks.filter(c=>{
@@ -100,7 +113,7 @@ function draw(){
  el('pCount').textContent=visible.length.toLocaleString()+' locations'+(visible.length>cap?' · showing '+cap:'');
  el('pRows').innerHTML=visible.slice(0,cap).map(c=>'<button class="p-card" data-check="'+c.check_id+'" aria-pressed="'+(current?.check_id===c.check_id)+'"><strong>'+esc(c.player.item)+'</strong><span>'+esc(c.player.region)+' · '+esc(c.player.place)+'</span><span class="p-muted">'+needs[c.player.need]+(suggestions.has(c.check_id)?' · Guide available':'')+'</span>'+(drafts.has(c.check_id)?'<span class="p-muted">Draft kept in this tab</span>':'')+'</button>').join('')||'<p>No locations match. Try another area or reset the filters.</p>';
  for(const button of el('pRows').querySelectorAll('button'))button.onclick=()=>{saveDraft();current=byId.get(Number(button.dataset.check));draw();show(current);if(innerWidth<=900)el('pDetail').scrollIntoView({block:'start'});history.replaceState(null,'',link(current.check_id));};
- el('pMore').hidden=visible.length<=cap;
+ el('pMore').hidden=visible.length<=cap;renderPlayerMap();
 }
 function sourceHtml(o){
  const source=safeUrl(o.source_url),guide=safeUrl(o.guide_url),alternatives=o.candidate_ids.map(id=>byId.get(id)).filter(Boolean);
@@ -109,11 +122,15 @@ function sourceHtml(o){
  alternatives.map(c=>'<li><button type="button" data-alternative="'+c.check_id+'">'+esc(c.player.region)+' · '+esc(c.player.item)+' — '+esc(c.player.place)+'</button></li>').join('')+'</ul><p class="p-muted">'+o.competing_observation_count+' guide steps overlap these possible locations. They all come from the same guide and count as one source.</p></details></div>';
 }
 function show(c){
+ if(identityMismatch(c)){
+ el('pDetail').innerHTML='<h2>This location list differs from your game</h2><p>The tracker names this location:</p><p>'+esc(launch.name)+'</p><p>Search for that item or place before writing a review. We have not treated the catalog match as certain.</p>';return;
+ }
  const p=c.player,d=drafts.get(c.check_id)||{},sourceRows=suggestions.get(c.check_id)||[];
  const message=p.need==='confirmed'?'Independent sources agree on the item and area. Corrections are still welcome.':p.need==='conflict'?'Tell us what you observed. Existing reports disagree.':p.need==='second_source'?'We have one source. An independent guide or exact observation would help.':'We still need an exact source or observation for this location.';
  el('pDetail').innerHTML='<p class="p-muted">'+esc(p.region)+' / '+esc(p.kind)+'</p><h2>'+esc(p.item)+'</h2><p>'+esc(p.place)+'</p>'+
  (p.nearby_grace?'<p class="p-muted">Nearby grace: '+esc(p.nearby_grace)+'. This is a nearby landmark, not a confirmed route.</p>':'')+
  '<div class="p-note"><strong>'+needs[p.need]+'</strong><br>'+message+'<br><span class="p-muted">'+(p.access_reviewed?'Collection requirements have been reviewed for the recorded settings.':'Collection requirements still need review.')+'</span></div>'+
+ '<button type="button" id="pShowMap">'+(p.positions?.length?'Show this location on the map':'No outdoor pin recorded')+'</button>'+
  '<details><summary>Compare with a guide'+(sourceRows.length?' ('+sourceRows.length+')':'')+'</summary>'+(sourceRows.length?sourceRows.map(sourceHtml).join(''):'<p>No new guide match has been queued for this location. You can still add your own observation or source.</p>')+'</details>'+
  '<form id="pForm"><h3>What did you find?</h3><p class="p-muted">Describe what you observed. A maintainer will review your report before marking anything confirmed.</p>'+
  '<label for="pFinding">Your finding</label><select id="pFinding" required><option value="">Choose an answer</option><option>I found it here</option><option>Something is different</option><option>I have a guide to compare</option><option>I am not sure</option></select>'+
@@ -128,6 +145,7 @@ function show(c){
  (c.external_leads.length?c.external_leads.flatMap(l=>l.sources).filter((s,i,a)=>a.findIndex(x=>x.source_id===s.source_id)===i).map(s=>{const u=safeUrl(s.revision_url);return u?'<p><a href="'+esc(u)+'" target="_blank" rel="noreferrer">'+esc(s.title)+'</a> · '+esc(s.publisher)+'</p>':''}).join(''):'<p>No external sources are attached yet.</p>')+
  '<button type="button" id="pTechnical">Open maintainer evidence</button><button type="button" id="pPermalink">Copy location link</button></details>';
  for(const key of ['Finding','Item','Region','Route','Evidence','Version','Context'])el('p'+key).value=d[key]||'';
+ el('pShowMap').onclick=()=>showOnMap(c);
  el('pForm').addEventListener('input',saveDraft);
  function report(){
   saveDraft();const f=drafts.get(c.check_id);return {schema:'er-player-review-v1',check_id:c.check_id,catalog_hash:DATA.inputs_hash,

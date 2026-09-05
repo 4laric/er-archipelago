@@ -30,3 +30,13 @@ the deliberately larger and slower corpus project toward complete coverage.
 The v0.4.3 blurb is the model: lead with what changed at the table, not with the option
 name. Its opening line -- "You can get BK'ed now, and that is the point" -- says what a
 player will feel before it says what was built, and that is the right order.
+
+
+### Review a place from the tracker or map
+
+Enable **Help verify locations (this session)** in F6 to reveal Review and Map buttons.
+They open the player review page; nothing is submitted automatically. Completed locations
+can also be reviewed, but a boss sweep is not evidence that you visited every pickup.
+The browser map plots recorded outdoor positions and keeps locations without pins in the
+list. It includes the full catalog, so it can reveal places outside your seed.
+This does not yet control MapForGoblins' native pins.
