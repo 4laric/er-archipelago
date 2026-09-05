@@ -13,6 +13,8 @@ only moment anyone remembers why it mattered._
 
 ## What is in it so far
 
+Reviews now focus on the exact location, collection requirements and evidence, including unused or unobtainable checks. Item-name corrections are optional, and older entries are preserved.
+
 The player notebook shows acquisition flags beside checks, with a copy button and flag search.
 Use Send notes to the project for the file handoff steps; browser autosave alone does not
 share notes. Keep the sent message or submitted GitHub issue as the receipt.
