@@ -17,7 +17,7 @@ ROOT = Path(found_root) if found_root else None
 registry = None
 if ROOT:
     SPEC = importlib.util.spec_from_file_location(
-        "mfg_registry", ROOT / "tools/build_mfg_check_registry.py")
+        "mfg_registry", ROOT / "tools/export_mfg_check_registry.py")
     registry = importlib.util.module_from_spec(SPEC)
     SPEC.loader.exec_module(registry)
     sys.path.insert(0, str(ROOT / "tools"))

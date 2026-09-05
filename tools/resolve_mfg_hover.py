@@ -2,7 +2,7 @@
 """Resolve copied native identities against static source data, never live flags."""
 import argparse
 import json
-from build_mfg_check_registry import build
+from export_mfg_check_registry import build
 
 
 def resolve(manifest, original_flag=0, lot_table=None, lot_row=None):

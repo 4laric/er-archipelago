@@ -8,7 +8,7 @@ import io
 import json
 from pathlib import Path
 
-from build_mfg_check_registry import ROOT, build
+from export_mfg_check_registry import ROOT, build
 
 
 def report(manifest, marker_csv):

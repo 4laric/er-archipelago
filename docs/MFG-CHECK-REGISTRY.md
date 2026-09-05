@@ -2,8 +2,8 @@
 
 Build a development manifest from committed inputs, without game files or AP installed:
 
-    python3 tools/build_mfg_check_registry.py --out /tmp/mfg-check-registry.json
-    python3 tools/build_mfg_check_registry.py --out /tmp/mfg-check-registry.json --check
+    python3 tools/export_mfg_check_registry.py --out /tmp/mfg-check-registry.json
+    python3 tools/export_mfg_check_registry.py --out /tmp/mfg-check-registry.json --check
 
 This does not install a native map bridge, change slot data, or add a player feature.
 The generated file is an explicit development output, not a checked-in release asset.
