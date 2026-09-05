@@ -63,7 +63,7 @@ class BulkReviewTests(unittest.TestCase):
 
     def test_committed_queue_is_reproducible_and_not_a_promotion(self):
         data, report = bulk.build()
-        self.assertEqual(data, json.loads(bulk.OUT.read_text()))
+        self.assertEqual(data, json.loads(Path(bulk.OUT).read_text()))
         self.assertEqual(report, json.loads(bulk.REPORT.read_text()))
         self.assertEqual(report["trusted_promotions"], 0)
         ids = set()

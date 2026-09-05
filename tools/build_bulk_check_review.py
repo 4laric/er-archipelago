@@ -11,6 +11,7 @@ from collections import Counter, defaultdict
 import csv
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 
@@ -26,8 +27,9 @@ REGIONS = {key: tuple(sorted(set(ANCHOR_REGIONS.get(key, ()))
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "greenfield/evidence/wiki-audit"
 SNAPSHOT = AUDIT / "walkthrough-review-observations.json"
-OUT = AUDIT / "bulk-check-review.json"
-REPORT = AUDIT / "bulk-check-review-summary.json"
+OUT = os.path.join(AUDIT, "bulk-check-review.json")
+SUMMARY_OUT = os.path.join(AUDIT, "bulk-check-review-summary.json")
+REPORT = Path(SUMMARY_OUT)
 FAMILY = "gameplay-guide:redmaw"
 
 
@@ -194,7 +196,7 @@ def main():
             parser.error("--capture cannot be used with --check")
         SNAPSHOT.write_text(render(capture(args.capture)), encoding="utf-8")
     data, summary = build()
-    for path, value in ((OUT, data), (REPORT, summary)):
+    for path, value in ((Path(OUT), data), (REPORT, summary)):
         text = render(value)
         if args.check:
             if not path.is_file() or path.read_text(encoding="utf-8") != text:
