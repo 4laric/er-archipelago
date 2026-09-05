@@ -30,17 +30,26 @@ class ExportTests(unittest.TestCase):
         for text in (SAMPLE.replace('COUNT = 1', 'COUNT = 2'),
                      SAMPLE.replace('456u, 1', '456u, 0'),
                      SAMPLE.replace('456u, 1', '456u, 3'),
-                     SAMPLE.replace('Category::', 'Other::')):
+                     SAMPLE.replace('Category::', 'Other::'),
+                     SAMPLE.replace('.posY = -2.0f,', '.posY = -2.0f'),
+                     SAMPLE.replace('.posY = -2.0f,', 'unsupported_field = 2,')):
             with self.assertRaises(ValueError):
                 parse_generated(text)
+    def test_manifest_requires_consumed_file(self):
+        for entries in ([], [{'path':'unrelated', 'bytes':0, 'sha256':'unused'}]):
+            with self.assertRaises(ValueError):
+                verify_manifest(Path('.'), {'profile':'vanilla','files':entries})
     def test_manifest_hash_and_path_validation(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / 'input').write_bytes(b'abc')
-            manifest = {'profile':'vanilla', 'files':[{'path':'input', 'bytes':3,
+            name = 'src/generated_vanilla/goblin_map_data.cpp'
+            target = root / name
+            target.parent.mkdir(parents=True)
+            target.write_bytes(b'abc')
+            manifest = {'profile':'vanilla', 'files':[{'path':name, 'bytes':3,
                 'sha256':hashlib.sha256(b'abc').hexdigest()}]}
             verify_manifest(root, manifest)
-            (root / 'input').write_bytes(b'abd')
+            target.write_bytes(b'abd')
             with self.assertRaises(ValueError):
                 verify_manifest(root, manifest)
             manifest['files'][0]['path'] = '../outside'

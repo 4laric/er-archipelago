@@ -31,6 +31,8 @@ def parse_generated(text: str) -> list[dict]:
             raise ValueError(f'Invalid or duplicate marker identity: {rid}')
         ids.add(rid)
         fields = {}
+        if FIELD.sub('', match['fields']).strip():
+            raise ValueError(f'Unparsed generated field content: {rid}')
         for key, raw in FIELD.findall(match['fields']):
             if key in fields:
                 raise ValueError(f'Duplicate field {key}: {rid}')
@@ -71,7 +73,15 @@ def parse_generated(text: str) -> list[dict]:
 def verify_manifest(root: Path, manifest: dict) -> None:
     if manifest.get('profile') != 'vanilla':
         raise ValueError('Expected an explicitly vanilla profile')
-    for entry in manifest['files']:
+    entries = manifest.get('files')
+    if not isinstance(entries, list) or not entries:
+        raise ValueError('Manifest must list input files')
+    paths = [entry['path'] for entry in entries]
+    if len(set(paths)) != len(paths):
+        raise ValueError('Duplicate manifest paths')
+    if 'src/generated_vanilla/goblin_map_data.cpp' not in paths:
+        raise ValueError('Consumed map-data file is missing from manifest')
+    for entry in entries:
         path = (root / entry['path']).resolve()
         if not path.is_relative_to(root.resolve()):
             raise ValueError('Manifest path escapes bundle')
