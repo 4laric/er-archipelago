@@ -15,6 +15,12 @@ if ROOT:
 
 @unittest.skipUnless(ROOT, REPO_ONLY_REASON)
 class BulkReviewTests(unittest.TestCase):
+    def test_stack_quantities_are_not_part_of_item_identity(self):
+        self.assertEqual(bulk.item_mention("Smithing Stone [7] x2"),
+                         ("Smithing Stone [7]", 2))
+        self.assertEqual(bulk.item_mention("Rune Arc × 3"), ("Rune Arc", 3))
+        self.assertEqual(bulk.item_mention("Golden Rune [5]"), ("Golden Rune [5]", None))
+
     def test_section_aliases_preserve_disagreements(self):
         self.assertEqual(bulk.REGIONS["ainsel"], ("Ainsel River",))
         self.assertEqual(set(bulk.REGIONS["belurat"]), {"Belurat", "Gravesite"})

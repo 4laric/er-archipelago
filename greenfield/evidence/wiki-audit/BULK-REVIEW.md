@@ -19,7 +19,9 @@ Both original SHA-256 hashes must match the source registry.
 
 ## What the matcher can establish
 
-Exact normalized item names select all same-name AP checks. The declared guide section
+Exact normalized item names select all same-name AP checks. A trailing stack quantity such
+as "x2" is recorded separately, so it does not prevent item-name matching. Quantities remain
+source mentions; they are never used to infer AP pickup ownership. The declared guide section
 can narrow the region; an explicitly linked landmark can narrow it further. Numbered
 suffixes, flags, and sweep-boss map tiles are not independent landmarks. Already corroborated
 alternatives are retained rather than subtracted to manufacture a unique result.
@@ -30,26 +32,26 @@ and is explicitly marked weak. Even a single remaining candidate is only a sugge
 a linked item can be an incidental mention instead of a collection instruction. The matcher
 does not infer quantity, coordinates, event predicates, quest requirements, or item ownership.
 
-The current queue has 1,978 observations touching 2,071 held checks. Of those checks, 244
+The current queue has 2,868 observations touching 2,629 held checks. Of those checks, 351
 already have one external family and could benefit from an independently reviewed Redmaw
-match. These are overlapping candidates, not 2,071 validated pickups. Source-area mappings
+match. These are overlapping candidates, not 2,629 validated pickups. Source-area mappings
 combine both existing Redmaw importers, keeping the union when they disagree; mismatches
 remain visible for review. Resolving section aliases such as Ainsel narrows the initial
 candidate population without counting any new confirmation.
 
 ## First reviewed batch
 
-The initial pass had 2,004 observations and 2,210 held candidates. Reading the pinned
-acquisition passages resolved eight boss rewards that already had Eldenpedia evidence:
-two Tibia Mariners, Smarag, Ekzykes, Greyll, the Mt. Gelmir Magma Wyrm, the Altus Fallingstar
-Beast, and the Gravesite Ghostflame Dragon. Their explicit item/boss/area statements are
-recorded separately in walkthrough-reviewed-landmark-check-leads.tsv, with immutable
-line citations and step ids. The existing confidence builder therefore rises from
-1,143 to 1,151 trusted identity/region checks out of 4,925. No access claim is promoted.
+Ten explicitly reviewed boss-reward passages add a Redmaw source to checks with existing
+Eldenpedia evidence: two Tibia Mariners, Smarag, Ekzykes, Greyll, Adula, Theodorix,
+the Mt. Gelmir Magma Wyrm, the Altus Fallingstar Beast, and the Gravesite Ghostflame Dragon.
+Their item/boss/area statements are recorded separately in
+walkthrough-reviewed-landmark-check-leads.tsv, with immutable line citations and step ids.
+The existing confidence builder rises from 1,143 to 1,153 trusted identity/region checks out
+of 4,925. No access claim is promoted.
 
-The remaining five single-landmark observations are deliberately still candidates. In particular,
-the Jagged Peak Drake passage describes one of multiple drakes; a superficially unique
-catalog label is not enough to resolve boss ownership.
+The remaining seven single-landmark observations are deliberately still candidates. In
+particular, the Jagged Peak Drake passage describes one of multiple drakes; a superficially
+unique catalog label is not enough to resolve boss ownership.
 
 ## Player review workflow
 

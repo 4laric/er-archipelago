@@ -1,10 +1,10 @@
 {
   "categories": {
     "all_boss_reward_checks": {
-      "hold": 105,
+      "hold": 103,
       "hold_by_external_family_count": {
         "0": 45,
-        "1": 60
+        "1": 58
       },
       "remaining_check_ids": [
         7770002,
@@ -19,7 +19,6 @@
         7770686,
         7770688,
         7770701,
-        7770703,
         7770707,
         7770710,
         7770711,
@@ -62,7 +61,6 @@
         7773848,
         7773857,
         7773859,
-        7773862,
         7773863,
         7773864,
         7773865,
@@ -114,13 +112,13 @@
         7900288
       ],
       "total": 269,
-      "trusted_identity_region": 164
+      "trusted_identity_region": 166
     },
     "fixed_boss_drop": {
-      "hold": 102,
+      "hold": 100,
       "hold_by_external_family_count": {
         "0": 44,
-        "1": 58
+        "1": 56
       },
       "remaining_check_ids": [
         7770029,
@@ -132,7 +130,6 @@
         7770686,
         7770688,
         7770701,
-        7770703,
         7770707,
         7770710,
         7770711,
@@ -175,7 +172,6 @@
         7773848,
         7773857,
         7773859,
-        7773862,
         7773863,
         7773864,
         7773865,
@@ -227,7 +223,7 @@
         7900288
       ],
       "total": 237,
-      "trusted_identity_region": 135
+      "trusted_identity_region": 137
     },
     "great_rune": {
       "hold": 2,
@@ -243,10 +239,10 @@
       "trusted_identity_region": 5
     },
     "major_boss": {
-      "hold": 11,
+      "hold": 10,
       "hold_by_external_family_count": {
         "0": 2,
-        "1": 9
+        "1": 8
       },
       "remaining_check_ids": [
         7770002,
@@ -258,11 +254,10 @@
         7773797,
         7773802,
         7773803,
-        7773862,
         7773865
       ],
       "total": 52,
-      "trusted_identity_region": 41
+      "trusted_identity_region": 42
     },
     "remembrance": {
       "hold": 1,
@@ -380,15 +375,6 @@
       ],
       "external_family_count": 1,
       "name": "Liurnia :: [Sorcery] Greatblade Phalanx - Bols, Carian Knight (region unconfirmed), may be sweep-granted by Bols, Carian Knight (m60_33_45) [f530250]",
-      "region": "Liurnia"
-    },
-    "7770703": {
-      "check_id": 7770703,
-      "external_families": [
-        "gameplay-wiki:eldenpedia"
-      ],
-      "external_family_count": 1,
-      "name": "Liurnia :: Dragon Heart - Glintstone Dragon Adula, may be sweep-granted by Glintstone Dragon Adula (m60_34_42) [f530260]",
       "region": "Liurnia"
     },
     "7770707": {
@@ -746,15 +732,6 @@
       "external_family_count": 1,
       "name": "Mountaintops of the Giants :: Dragon Heart - m60_54_56 (region unconfirmed) [f530510]",
       "region": "Mountaintops of the Giants"
-    },
-    "7773862": {
-      "check_id": 7773862,
-      "external_families": [
-        "gameplay-wiki:eldenpedia"
-      ],
-      "external_family_count": 1,
-      "name": "Consecrated Snowfield :: Dragon Heart - Great Wyrm Theodorix (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f530550]",
-      "region": "Consecrated Snowfield"
     },
     "7773863": {
       "check_id": 7773863,

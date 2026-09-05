@@ -35,7 +35,7 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **Whole-guide candidates no longer disappear when they are ambiguous.** A reproducible review
   queue retains linked-item observations from the pinned base-game and DLC walkthroughs, including
   alternate same-name pickups and disagreements about the area. These are suggestions, never
-  accepted corroboration. Separately, eight boss-reward passages were reviewed against\n  their existing independent source, raising identity/area corroboration from 1,143 to 1,151\n  of 4,925 checks. This widens the existing trusted-host set; access rules do not change. Numbered
+  accepted corroboration. Separately, ten boss-reward passages were reviewed against\n  their existing independent source, raising identity/area corroboration from 1,143 to 1,153\n  of 4,925 checks. This widens the existing trusted-host set; access rules do not change. Numbered
   duplicates and sweep-boss map tiles no longer create false exact anchors in the repeated-pickup
   queue.
 

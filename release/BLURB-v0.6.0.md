@@ -17,7 +17,7 @@ Every check is getting a defensible identity, region, access rule, and player-fa
 The corpus audit combines committed game data, multiple external references, and player testimony
 without copying guide prose. Uncertain claims remain visibly held instead of becoming logic.
 
-Player reviews now begin with an item and a place, rather than evidence terminology. Pick a\nlocation you know, compare a suggested guide, and save or copy what you observed. The whole-guide\nreview queue keeps ambiguous matches visible; eight reviewed boss rewards add a second source\nwithout treating the rest of the suggestions as confirmations.\n\nNormal weapons can now be set to cost one Smithing Stone per upgrade, matching the pace of Somber
+Player reviews now begin with an item and a place, rather than evidence terminology. Pick a\nlocation you know, compare a suggested guide, and save or copy what you observed. The whole-guide\nreview queue keeps ambiguous matches visible; ten reviewed boss rewards add a second source\nwithout treating the rest of the suggestions as confirmations.\n\nNormal weapons can now be set to cost one Smithing Stone per upgrade, matching the pace of Somber
 weapons. The current two-stone cost stays the default, so existing YAMLs keep their behavior.
 
 ## What carried over from v0.5.7

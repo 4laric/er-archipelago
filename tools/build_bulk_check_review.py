@@ -61,6 +61,12 @@ def capture(sheets: Path) -> dict:
     }
 
 
+def item_mention(label: str) -> tuple[str, int | None]:
+    """A linked stack count is source data, not part of the catalog item name."""
+    match = re.fullmatch(r"(.+?)\s+[x×]\s*(\d+)", label)
+    return (match.group(1), int(match.group(2))) if match else (label, None)
+
+
 def anchor(name: str) -> str:
     """An ordinal, map id or fallback region is not a source-visible landmark."""
     tail = name.split(" - ", 1)[1] if " - " in name else ""
@@ -134,7 +140,11 @@ def build(snapshot: dict | None = None) -> tuple[dict, dict]:
     item_mentions = 0
     for step in snapshot["steps"]:
         labels = sorted({link["label"] for link in step["links"]})
-        for item in sorted({walkthrough.norm(label) for label in labels} & index.keys()):
+        mentions = defaultdict(list)
+        for label in labels:
+            name, quantity = item_mention(label)
+            mentions[walkthrough.norm(name)].append((name, quantity))
+        for item in sorted(mentions.keys() & index.keys()):
             item_mentions += 1
             key = (step["file"], step["step"], item)
             if key in seen:
@@ -144,7 +154,8 @@ def build(snapshot: dict | None = None) -> tuple[dict, dict]:
             observation = {
                 "observation_id": oid, "source_id": snapshot["source_id"], "family": FAMILY,
                 "revision": snapshot["revision"], "game_version": "unknown",
-                "item_name": next(label for label in labels if walkthrough.norm(label) == item),
+                "item_name": mentions[item][0][0],
+                "mentioned_quantities": sorted({q for _, q in mentions[item] if q is not None}),
                 "file": step["file"], "section": step["section"], "step": step["step"],
                 "regions": list(REGIONS.get(step["section"], ())),
                 "context_labels": labels,
