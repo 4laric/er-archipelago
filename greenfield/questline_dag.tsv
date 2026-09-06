@@ -38,7 +38,7 @@
 #   by tool: esd_gifts 111, lot_gates 176, questline_conditions 1769, treasure_enablers 12
 #   source kind: check 5, item 77, map_access 586, npc_state 555, world 845
 #   targets: 562 with a PREREQUISITE (sense=set), 16 with an EXCLUSION (sense=clear)
-#   CORROBORATION, ALL corpora BLENDED (the per-corpus figures below are the ones that mean anything -- see the split): 95 of 595 target check(s) are ALREADY missable-tagged (16%); the tag set holds 288 checks in total
+#   CORROBORATION, ALL corpora BLENDED (the per-corpus figures below are the ones that mean anything -- see the split): 95 of 595 target check(s) are ALREADY missable-tagged (16%); the tag set holds 289 checks in total
 #   CORROBORATION, award-site corpora (the ratchet's population): 87 of 163 target check(s) already missable-tagged (53%)
 #   CORROBORATION, #1085 extractor corpus: 47 of 502 target check(s) already missable-tagged (9%)
 #   cross-region edges: 375 (132 whose target is NOT missable-tagged)
