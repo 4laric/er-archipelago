@@ -4666,6 +4666,7 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7774648		unresolved	critical	all	M4G reward placement corroborated; complete access audit pending	#1437
 7774649		unresolved	critical	all	Bernahl invasion reward; questline missability bars progression pending full access audit	#1437
 7774650		unresolved	critical	all
+7774651		unresolved	critical	all	Jarburg NPC reward; missability bars progression while quest access remains unresolved	#1437
 7900000		unresolved	critical	all
 7900001		unresolved	critical	all
 7900002		unresolved	critical	all

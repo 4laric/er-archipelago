@@ -3330,6 +3330,7 @@ LOCATIONS = {
         ('Liurnia :: Silver Grooved Greaves [f170130]', 7774630, 170130),
         ('Liurnia :: Idus Sword - corpse near Liurnia Lake Shore, may be sweep-granted by Adan, Thief of Fire (m60_38_41) [f1038417020]', 7774632, 1038417020),
         ("Liurnia :: Briars of Sin - around Artist's Shack [f1038457500]", 7774641, 1038457500),
+        ("Liurnia :: Numen's Rune - Diallos at Jarburg [f400452]", 7774651, 400452),
         ("Liurnia :: Rancorcall - around Revenger's Shack, may be sweep-granted by Erdtree Avatar (m60_33_43) [f400061]", 7900005, 400061),
         ("Liurnia :: Preceptor's Big Hat - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]", 7900008, 400148),
         ("Liurnia :: Preceptor's Long Gown - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]", 7900009, 400148),
@@ -5549,4 +5550,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:794eb1b2dcb72edc6961c4ea3c1f612f8d06ef606b12bd7eb434eff719a35d28', 'module': 'data.py', 'body_sha256': 'sha256:86fbce283211a837ffde46fa3d090834d33cf9cd19a4fe42448526a8e92d51b2'}
+_GEN_STAMP = {'inputs_hash': 'sha256:445dd5fd315ec295762206123a95c4e1cd77a050f75531251701f0cd49371c20', 'module': 'data.py', 'body_sha256': 'sha256:c07cb4602be47979cef977445a69e2fa63c5671d35f049715698b08880b4ab39'}

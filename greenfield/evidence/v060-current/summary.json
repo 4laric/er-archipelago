@@ -30,7 +30,7 @@
       "corroborated": 0,
       "inferred": 0,
       "proven": 0,
-      "single_source": 4301,
+      "single_source": 4302,
       "unverified": 0
     },
     "identity": {
@@ -38,7 +38,7 @@
       "corroborated": 0,
       "inferred": 0,
       "proven": 0,
-      "single_source": 4940,
+      "single_source": 4941,
       "unverified": 0
     },
     "region": {
@@ -46,7 +46,7 @@
       "corroborated": 0,
       "inferred": 0,
       "proven": 0,
-      "single_source": 4940,
+      "single_source": 4941,
       "unverified": 0
     },
     "suppression": {
@@ -80,7 +80,7 @@
       "corroborated": 0,
       "inferred": 0,
       "proven": 0,
-      "single_source": 9241,
+      "single_source": 9243,
       "unverified": 0
     },
     "low": {
@@ -96,7 +96,7 @@
       "corroborated": 0,
       "inferred": 0,
       "proven": 0,
-      "single_source": 4940,
+      "single_source": 4941,
       "unverified": 0
     }
   },
@@ -105,10 +105,10 @@
     "corroborated": 0,
     "inferred": 0,
     "proven": 21,
-    "single_source": 14190,
+    "single_source": 14193,
     "unverified": 0
   },
-  "claims_total": 14211,
-  "content_hash": "cae34caa842ed068b315c6872672ba7c71a37a2ca1f9df95811ae65a8d07c8f7",
+  "claims_total": 14214,
+  "content_hash": "1ea40f6428908cb2f90c2c657a364686bfe86dc174a1ac1c119b79bbb4aedb2c",
   "schema_version": 1
 }

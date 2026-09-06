@@ -1844,6 +1844,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7770021	Liurnia	Memory Stone	60430	ItemLotParam_map.getItemFlagId		near Manor Lower Level	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772716	Liurnia	Mushroom	1039427000	ItemLotParam_map.getItemFlagId		near Liurnia Highway North	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772630	Liurnia	Neutralizing Boluses	1037507000	ItemLotParam_map.getItemFlagId		near Ravine-Veiled Village	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7774651	Liurnia	Numen's Rune	400452	ItemLotParam_map.getItemFlagId		Diallos at Jarburg	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772046	Liurnia	Old Fang	30067050	ItemLotParam_map.getItemFlagId		near Cliffbottom Catacombs	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772553	Liurnia	Old Fang	1035487010	ItemLotParam_map.getItemFlagId		near Sorcerer's Isle	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774159	Liurnia	Old Fang	1035507180	ItemLotParam_map.getItemFlagId		near Manor Lower Level	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
