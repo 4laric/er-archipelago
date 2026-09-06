@@ -1829,9 +1829,10 @@ _RECOVER_PHANTOM_DUPES = frozenset({})
 #   Silver Scarab 30207900 restored (#1437): ordinary traversal from the supported Hidden Path
 #   grace crosses the invisible walkway and illusory wall; no imp seal or inventory gate.
 #   See evidence/mfg_silver_scarab.json and test_gf_mfg_silver_scarab.py.
-#   1050567820 = Graven-Mass Talisman: the reward inside Albinauric Rise (Consecrated Snowfield,
-#     folded into Mountaintops), sealed by the invisible-sniper imp seal (bewitching branch / fanged
-#     imp ashes) -- not openable from the grace side, so the check is unreachable.
+#   1050567820 = Graven-Mass Talisman: Albinauric Rise in Consecrated Snowfield.
+#     Event 1050562250 requires a qualifying character death with effects 17170 AND 17171.
+#     The supported summon/combat capability guarantee remains unresolved; keep excluded
+#     until logic can model a reliable route (see mfg_talisman_access_followup.md).
 # NOTE: Fingerslayer Blade (12027080, Nokron/Eternal Cities) was briefly excluded here -- its chest is
 # vanilla-gated behind Ranni's questline flag 1034509410 ("You are not destined to open this yet").
 # Instead of dropping the check we now FORCE-SET 1034509410 at spawn (features/start_grace.py rides it
