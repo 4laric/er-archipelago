@@ -3802,7 +3802,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7003800,1038457000,map_lot,Smoldering Butterfly,m60_38_45_00,Overworld m60_38_45_00,treasure
 7003801,1038457010,map_lot,"[Incantation] Flame, Cleanse Me",m60_38_45_00,Overworld m60_38_45_00,treasure
 7003802,1038457020,map_lot,Smithing Stone [4],m60_38_45_00,Overworld m60_38_45_00,treasure
-7003803,1038457500,synthetic,LL/GTB: Smithing Stone [2] x3 - to S in gazebo E of HLT,PENDING,Liurnia of the Lakes,synthetic_areacode
+7003803,1038457500,enemy_lot,Briars of Sin,m60_38_45_00,Liurnia of the Lakes,mfg_native_pin
 7003804,1038467000,map_lot,Immunizing White Cured Meat,m60_38_46_00,Overworld m60_38_46_00,treasure
 7003805,1038467400,map_lot,Golden Rune [1],PENDING,Global / Filler (scattered by design),global_filler
 7003806,1038467990,enemy_lot,Smoldering Butterfly,PENDING,Global / Common-event (unplaced),global

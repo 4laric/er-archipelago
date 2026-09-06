@@ -23,14 +23,15 @@ players, one section per fix, and it is the honest record.
   progression is not blocked -- only the rune's passive buff is missing. Do **not** use
   `!give 0x400000c0`-style commands on a real save to work around it: whether that row lands
   on Tarnished Edition is the open question, and the probe belongs on a throwaway character.
-  What to do: nothing; the fix direction is being settled in client #316.
+  The delivery change remains tracked in client #316.
 
-- **Fixed in the next client: a rune received minutes before a Twin Maiden Husks or Miriel
-  hand-in "vanished" and was re-granted with three refusal popups after every load.** It never
-  left the inventory; the client's key-item walk stopped one entry short. Old builds print
-  `[reconcile] INERT: goods 0x40001fd4..d9`; fixed builds print `observed at key-list index N >=
-  key_items_len` once and go quiet. On an old build, receiving any two more key items (a bell
-  bearing, a cookbook) makes the rune "reappear".
+- **Inventory detection fix (client #638, included in the v0.6.1 client update):**
+  after a Twin Maiden Husks or Miriel hand-in, the old scan could miss occupied
+  slots beyond the key list's live-entry count. A held rune then appeared absent
+  to the client, causing repeated refused re-grants after loads. Check the game's
+  Key Items tab before trying `!give`. Updated builds inspect the allocated list
+  and log a detected item with `observed at key-list index N >= key_items_len`.
+  This diagnosis does not mean every missing-item report has the same cause.
 
 ## Region locks and reachability
 
