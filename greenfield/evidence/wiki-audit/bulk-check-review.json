@@ -103481,47 +103481,6 @@
     },
     {
       "all_candidate_ids": [
-        7770593
-      ],
-      "candidate_ids": [
-        7770593
-      ],
-      "competing_observation_count": 1,
-      "context_labels": [
-        "Gelmir's Fury"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-133",
-      "item_name": "Gelmir's Fury",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770593
-      ],
-      "observation_id": "walkthrough:2e638bd3ba8df6409629",
-      "reason": "region_disagreement",
-      "regions": [
-        "Leyndell"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "leyndell",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w35-133"
-    },
-    {
-      "all_candidate_ids": [
         7770806
       ],
       "candidate_ids": [
@@ -127895,6 +127854,50 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w35-13"
+    },
+    {
+      "all_candidate_ids": [
+        7770593,
+        7774649
+      ],
+      "candidate_ids": [
+        7770593,
+        7774649
+      ],
+      "competing_observation_count": 1,
+      "context_labels": [
+        "Gelmir's Fury"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-133",
+      "item_name": "Gelmir's Fury",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770593,
+        7774649
+      ],
+      "observation_id": "walkthrough:2e638bd3ba8df6409629",
+      "reason": "region_disagreement",
+      "regions": [
+        "Leyndell"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "leyndell",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w35-133"
     },
     {
       "all_candidate_ids": [
@@ -222548,7 +222551,7 @@
       "shared_landmark": 3,
       "source_area_unmapped": 82
     },
-    "held_checks_with_new_family_candidates": 2638,
+    "held_checks_with_new_family_candidates": 2639,
     "item_mentions": 4279,
     "limitations": "Suggestions only. Linked items can be mentions, not acquisitions. Guide area and catalog anchors are not independent proof of AP ownership. No quantity, position, mechanism or access is inferred.",
     "one_source_checks_with_second_family_candidates": 351,

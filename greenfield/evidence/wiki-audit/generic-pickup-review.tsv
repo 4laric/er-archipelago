@@ -1379,6 +1379,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7771420	Farum Azula	Somber Smithing Stone [9]	13007170	ItemLotParam_map.getItemFlagId		near Crumbling Beast Grave Depths	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7771444	Farum Azula	Somber Smithing Stone [9]	13007470	ItemLotParam_map.getItemFlagId		near Dragon Temple Lift	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771435	Farum Azula	Stonesword Key	13007350	ItemLotParam_map.getItemFlagId		near Dragon Temple Altar	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
+7774649	Farum Azula	[Sorcery] Gelmir's Fury	400295	ItemLotParam_map.getItemFlagId		defeat Recusant Bernahl in Crumbling Farum Azula	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773312	Gravesite	Ballista Bolt	2046437000	ItemLotParam_map.getItemFlagId		near Castle Front	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773230	Gravesite	Beast Blood	2045417000	ItemLotParam_map.getItemFlagId		near Cliffroad Terminus	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773323	Gravesite	Black Pyrefly	2046447070	ItemLotParam_map.getItemFlagId		near Greatbridge, North	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -2138,6 +2139,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773963	Mt. Gelmir	Stonesword Key	30097040	ItemLotParam_map.getItemFlagId		near Gelmir Hero's Grave	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7772637	Mt. Gelmir	String	1037527040	ItemLotParam_map.getItemFlagId		near Primeval Sorcerer Azur	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772704	Mt. Gelmir	Throwing Dagger	1038547070	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7770593	Mt. Gelmir	[Sorcery] Gelmir's Fury	400291	ItemLotParam_map.getItemFlagId		around Volcano Manor	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773328	Rauh Base	Arrow	2046457020	ItemLotParam_map.getItemFlagId		near Temple Town Ruins	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773225	Rauh Base	Beast Blood	2044477020	ItemLotParam_map.getItemFlagId		near Ravine North	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773329	Rauh Base	Beast Blood	2046457030	ItemLotParam_map.getItemFlagId		near Temple Town Ruins	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
