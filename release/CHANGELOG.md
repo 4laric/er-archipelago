@@ -28,6 +28,8 @@ The narrative — what this project is and what v0.2 brings — lives in
 - Correct Eleonora’s Poleblade to the real invasion reward; the unused ground-lot copy no longer stands in for it. Requires a newly generated seed.
 - Recover the separate Gelmir's Fury reward from Bernahl's Farum Azula invasion. It remains barred from progression placement because NPC access is not fully modeled.
 
+- Recover Diallos's Numen's Rune at Jarburg as a separate check, with questline progression protection.
+
 - **`maximum_enemy_difficulty: auto` resolves lower on every seed short of a full map.** The
   curve was derived against 30 regions; with the live total of 28 a 5-region seed had drifted to
   4.84x enemy HP and a 10-region seed to 6.56x, almost the full-map cap after a third of the map.
