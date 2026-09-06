@@ -9,7 +9,7 @@ import unittest
 ROOT = next(p for p in Path(__file__).resolve().parents
             if (p / "greenfield/gen_data.py").is_file())
 GF = ROOT / "greenfield"
-PKG = Path(__file__).resolve().parents[1]
+PKG = Path(__file__).resolve().parent.parent
 
 
 class SomberRecoveries(unittest.TestCase):
