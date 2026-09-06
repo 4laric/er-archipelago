@@ -234,21 +234,31 @@ class AutoDifficultyCeiling(unittest.TestCase):
     def setUpClass(cls):
         cls.mod = _load_ladder()
 
-    def test_five_regions_is_the_old_cap_plus_exactly_one_rung(self):
+    def test_five_regions_sits_ON_the_playtested_rung(self):
         """THE MOTIVATING CASE, by name (CONTRIBUTING rule 11). Alaric playtested the pre-2026-07-27
-        ladder -- which topped out at 3.703x -- and said of num_regions 5: "felt pretty close, if it
-        was a bit harder we get there". So `auto` at 5 regions must land ONE rung above 3.703x."""
+        ladder -- which topped out at 3.703x -- and said of num_regions 5: "felt pretty close". The
+        first curve put 5 regions one rung ABOVE that on purpose; then the region total moved from
+        30 to 28 and pushed it up a second rung, to 4.844x, with nothing to say so. Recalibrated
+        2026-09-06: `auto` at 5 regions lands exactly on the playtested rung, against the LIVE
+        total -- pinned at both 28 and 30 so a moving total cannot silently re-tune the datum."""
         m = self.mod
         ladder = m.SCALING_HP_LADDER
         old_top = 3.703
         self.assertIn(old_top, ladder, "the old ladder's top rung is gone from the ladder")
         old_rung = ladder.index(old_top)
-        pct = m.auto_ceiling_pct(5, 30)
-        got = m.ceiling_multiplier(pct)
-        self.assertEqual(ladder.index(got), old_rung + 1,
-                         "auto at 5 regions gave %.3fx (rung %d); the old cap was %.3fx (rung %d) "
-                         "and 'a bit harder' means exactly one rung above it"
-                         % (got, ladder.index(got), old_top, old_rung))
+        for total in (28, 30):
+            got = m.ceiling_multiplier(m.auto_ceiling_pct(5, total))
+            self.assertEqual(ladder.index(got), old_rung,
+                             "auto at 5 of %d regions gave %.3fx (rung %d); the playtested cap is "
+                             "%.3fx (rung %d)" % (total, got, ladder.index(got), old_top, old_rung))
+
+    def test_the_recalibrated_table_against_the_live_total(self):
+        """The whole 2026-09-06 table, so 'a scosh down' is a number and not a memory. 10 regions
+        used to resolve to 6.563x, almost 90% of the full-map cap after a third of the map."""
+        m = self.mod
+        want = {5: 3.703, 10: 5.484, 15: 6.688, 20: 7.047, 28: 7.422}
+        got = {n: m.ceiling_multiplier(m.auto_ceiling_pct(n, 28)) for n in want}
+        self.assertEqual(got, want)
 
     def test_num_regions_zero_means_ALL_regions_not_none(self):
         """THE TRAP. core.NumRegions: "0 = all regions (full Shattering)". Read as zero, the cube root
@@ -272,21 +282,36 @@ class AutoDifficultyCeiling(unittest.TestCase):
         for a, b in zip(pcts, pcts[1:]):
             self.assertLessEqual(a, b, "auto is not monotonic: %r" % pcts)
 
-    def test_multiplier_space_would_have_been_a_NO_OP(self):
+    def test_multiplier_space_is_not_the_same_curve(self):
         """WHY THE CURVE IS IN INDEX SPACE, pinned so nobody 'simplifies' it back.
 
-        The client's search takes the last rung NO STRONGER than the value. The multiplier-space
-        answer for 5 regions is 7.422 * (5/30)**(1/3) = 4.084x, which resolves DOWN to rung 9 --
-        3.703x, the OLD cap. That version of this function would have shipped a change that did
-        nothing at all and looked correct in review."""
+        The client's search takes the last rung NO STRONGER than the value, so a curve computed in
+        multiplier space resolves DOWN through that search. Over the live total it disagrees with
+        the index-space curve at more than one run length; a rewrite that lands on the multiplier
+        answer everywhere has changed the difficulty of every short seed while looking equivalent."""
         m = self.mod
-        naive = m.SCALING_HP_LADDER[-1] * (5.0 / 30.0) ** (1.0 / 3.0)
-        self.assertEqual(m.tier_for_ceiling_multiplier(naive),
-                         m.SCALING_HP_LADDER.index(3.703),
-                         "the multiplier-space target no longer collapses onto the old cap; if the "
-                         "ladder changed, re-derive the curve rather than deleting this test")
-        self.assertNotEqual(m.ceiling_multiplier(m.auto_ceiling_pct(5, 30)),
-                            m.SCALING_HP_LADDER[m.tier_for_ceiling_multiplier(naive)])
+        top = m.SCALING_HP_LADDER[-1]
+        differ = 0
+        for n in range(1, 29):
+            naive = top * (n / 28.0) ** m.AUTO_CEILING_EXPONENT
+            if m.ceiling_multiplier(m.auto_ceiling_pct(n, 28)) !=                     m.SCALING_HP_LADDER[m.tier_for_ceiling_multiplier(naive)]:
+                differ += 1
+        self.assertGreater(differ, 3, "the index-space and multiplier-space curves now coincide; "
+                                      "re-derive the curve rather than deleting this test")
+
+    def test_rounding_is_half_up_like_the_wizards_Math_round(self):
+        """The wizard previews this curve in JavaScript. Python's round() is half-to-even and
+        Math.round is half-up; at an exact .5 they disagree by a whole percent, and one percent can
+        be a rung. The formula therefore rounds half-up by hand: 100 * (n/total)**k hits exactly
+        .5 only by coincidence, so pin the direction on a synthetic case instead."""
+        m = self.mod
+        import math
+        # Find any n/total whose raw value sits within 1e-9 of .5 and check it went UP; failing
+        # that, assert the implementation is floor(x + 0.5) against a direct evaluation.
+        for total in range(1, 61):
+            for n in range(1, total + 1):
+                raw = 100.0 * (n / total) ** m.AUTO_CEILING_EXPONENT
+                self.assertEqual(m.auto_ceiling_pct(n, total), int(math.floor(raw + 0.5)))
 
     def test_auto_never_lands_below_an_explicit_floor(self):
         """The player typed the floor and did NOT type the ceiling, so the floor wins and generation
@@ -311,6 +336,45 @@ class AutoDifficultyCeiling(unittest.TestCase):
         for bad in (0, -3):
             with self.assertRaises(ValueError):
                 m.auto_ceiling_pct(5, bad)
+
+
+class WizardPreviewMirrorTests(unittest.TestCase):
+    """wizard/wizard.html previews the cap in JavaScript from its OWN copy of the ladder and the
+    `auto` exponent (ERW.scalingPreview). A re-tuned curve that leaves the page behind shows the
+    player one rung and gives them another, silently -- so the page's constants are parsed here
+    against the Python source. AP-free, like the rest of this file."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_ladder()
+        p = _find_up(os.path.join("wizard", "wizard.html"), HERE)
+        cls.html = open(p, encoding="utf-8").read() if p else None
+
+    def test_the_wizards_ladder_is_the_python_ladder(self):
+        if self.html is None:
+            self.skipTest("wizard/wizard.html not beside the source tree")
+        m = re.search(r"const SCALING_HP_LADDER = \[([^\]]+)\];", self.html)
+        self.assertIsNotNone(m, "wizard.html no longer carries SCALING_HP_LADDER")
+        js = tuple(float(x) for x in m.group(1).replace("\n", " ").split(","))
+        self.assertEqual(js, self.mod.SCALING_HP_LADDER)
+
+    def test_the_wizards_exponent_is_the_python_exponent(self):
+        if self.html is None:
+            self.skipTest("wizard/wizard.html not beside the source tree")
+        m = re.search(r"const AUTO_CEILING_EXPONENT = ([0-9.]+);", self.html)
+        self.assertIsNotNone(m, "wizard.html no longer carries AUTO_CEILING_EXPONENT")
+        self.assertEqual(float(m.group(1)), self.mod.AUTO_CEILING_EXPONENT)
+
+    def test_the_two_roundings_agree_over_every_run_length(self):
+        """JS Math.round is half-up; the Python side rounds half-up by hand. Evaluate the JS formula
+        as written, in Python, and compare -- no node needed."""
+        import math
+        m = self.mod
+        for total in (28, 30):
+            for n in range(0, total + 1):
+                nn = total if n <= 0 else min(n, total)
+                js = math.floor(100 * (nn / total) ** m.AUTO_CEILING_EXPONENT + 0.5)
+                self.assertEqual(m.auto_ceiling_pct(n, total), js, (n, total))
 
 
 if __name__ == "__main__":

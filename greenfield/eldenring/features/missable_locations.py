@@ -101,10 +101,28 @@ def reserve_filler(world) -> None:
                  if loc.item is None and getattr(loc, "address", None) in MISSABLE_LOCATIONS]
     if not locations:
         return
-    candidates = [item for item in world.multiworld.itempool
-                  if item.player == world.player
-                  and not (item.classification
-                           & (ItemClassification.progression | ItemClassification.useful))]
+    # 🛑 LEAVE THE EARLY GUARANTEE TO AP. `filler_budget.declare_early_items` registers the early
+    # stones as `local_early_items`, which AP's fill places in start-reachable locations. This
+    # pass runs BEFORE that and used to draw from every filler copy in the pool, so it could lock
+    # the very copies the guarantee had just counted onto missable checks that are NOT reachable
+    # from the start: on a 1-region seed (probe 2026-09-06, seed 1044) both Somber Smithing Stone
+    # [2] went to Ashen Capital, sphere 1, and "guaranteed 2 reachable from the start" delivered 0
+    # with no warning, because the pool HAD held them when the guarantee looked. The declared
+    # copies are withheld from the candidate set; the matcher sees only the surplus.
+    early_left = {}
+    for src in (world.multiworld.early_items[world.player],
+                world.multiworld.local_early_items[world.player]):
+        for name, n in src.items():
+            early_left[name] = early_left.get(name, 0) + n
+    candidates = []
+    for item in world.multiworld.itempool:
+        if item.player != world.player or (item.classification
+                                           & (ItemClassification.progression | ItemClassification.useful)):
+            continue
+        if early_left.get(item.name, 0) > 0:
+            early_left[item.name] -= 1
+            continue
+        candidates.append(item)
 
     # Seed-derived order avoids publishing one permanent filler allocation while the augmenting
     # matcher, unlike a greedy pass, proves whether a complete assignment exists.

@@ -26,6 +26,8 @@ percent-facing option is OURS and could be redesigned; the multiplier on the wir
 a client release and a compatibility story for every seed already rolled.
 """
 
+import math
+
 # Mirror of `er-logic/src/scaling.rs::SCALING_TIERS` -- the vanilla `SpEffectParam` rows 7010..7100
 # the client applies to an enemy, ascending. Only the HP rate is mirrored: it is the key the client's
 # `floor_tier_from_multiplier` searches on, so it is the only column gen needs to speak.
@@ -96,6 +98,10 @@ def ceiling_multiplier(pct):
 # it can never be mistaken for one.
 AUTO_CEILING = -1
 
+# The exponent of the `auto` curve, in ladder-index space. Mirrored by the yaml wizard's live
+# preview (wizard/wizard.html ERW.autoCeilingPct); tests/test_gf_scaling_floor_units.py pins the two.
+AUTO_CEILING_EXPONENT = 0.45
+
 
 def auto_ceiling_pct(num_regions, total_regions):
     """`auto` -> the `maximum_enemy_difficulty` PERCENT for a seed of this size.
@@ -107,20 +113,36 @@ def auto_ceiling_pct(num_regions, total_regions):
     backwards for a short seed. This lowers the top of the curve with the length of the run.
 
     THE CURVE, and where its single calibration point comes from. Alaric playtested the pre-2026-07-27
-    ladder, which topped out at 3.703x, and at num_regions 5 that "felt pretty close, if it was a bit
-    harder we get there". The DLC rungs were then found and the ladder grew from 10 rungs to 20
-    (top 7.422x). So, a cube root in LADDER-INDEX space:
+    ladder, which topped out at 3.703x, and at num_regions 5 that "felt pretty close". The DLC rungs
+    were then found and the ladder grew from 10 rungs to 20 (top 7.422x). So, a power law in
+    LADDER-INDEX space:
 
-        pct = round(100 * (n / total) ** (1/3))
+        pct = round(100 * (n / total) ** AUTO_CEILING_EXPONENT)
 
-    n=5 of 30 -> 55% -> rung 10 -> 4.125x: his datum plus exactly one rung, which is what "a bit
-    harder" asked for. n=total -> 100% -> the top rung, so a FULL map is unchanged from before.
+    RECALIBRATED 2026-09-06 (Alaric: "bring those numbers down a scosh"). The first cut was a cube
+    root, derived against 30 total regions, and it put 5 regions ONE rung above the playtest (rung
+    10, 4.125x) on purpose -- "if it was a bit harder we get there". Two things then moved under it:
+    the region total became 28, which pushed 5 regions up another rung to 4.844x, and the same cube
+    root put 10 regions at 6.563x -- almost 90% of the FULL-MAP cap after a third of the map. The
+    exponent is now 0.45, which lands 5 regions exactly ON the playtested rung and pulls everything
+    between there and a full map down one or two rungs, against the live total of 28:
+
+        regions    5      10     15     20     28
+        pct        46     63     76     86     100
+        rung       9      12     14     16     19
+        HP         3.70x  5.48x  6.69x  7.05x  7.42x
+
+    n=total -> 100% -> the top rung, so a FULL map is unchanged from before.
 
     🛑 INDEX SPACE, NOT MULTIPLIER SPACE, and that is not a preference. `ceiling_multiplier` is
     `LADDER[round(pct/100 * (N-1))]`, and the client's search takes the last rung NO STRONGER than
-    the value. Target 4.084x -- the multiplier-space answer for n=5 -- therefore resolves DOWN to rung
-    9, which is 3.703x, the old cap. That version of this function would have shipped a change that
-    did nothing whatsoever and looked correct in review.
+    the value. Working in multiplier space would resolve DOWN through that search and cap a rung
+    short of what the curve says; see test_multiplier_space_is_not_the_same_curve.
+
+    🛑 ROUNDING IS HALF-UP, NOT PYTHON'S HALF-TO-EVEN. The yaml wizard previews this curve in
+    JavaScript, whose Math.round is half-up; `round()` here would disagree with it at an exact .5
+    and the page would show a different rung than the seed gets. The check in
+    tests/test_gf_scaling_floor_units.py pins both halves to this one formula.
 
     ⚠️ ONE PLAYTESTED POINT. Only ~3.7x at 5 regions has actually been played; everything above is
     extrapolation over rungs nobody has fought. Note also that the ladder's top 7 rungs
@@ -136,7 +158,7 @@ def auto_ceiling_pct(num_regions, total_regions):
         raise ValueError("total_regions must be positive; got %r" % (total_regions,))
     n = int(num_regions)
     n = total if n <= 0 else min(n, total)          # 0 == all regions
-    return int(round(100.0 * (float(n) / total) ** (1.0 / 3.0)))
+    return int(math.floor(100.0 * (float(n) / total) ** AUTO_CEILING_EXPONENT + 0.5))
 
 
 def resolve_max_difficulty_pct(raw, num_regions, total_regions, floor_pct=0):

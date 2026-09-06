@@ -26,3 +26,11 @@ does not claim those reports are fixed.
 
 Eleonora’s Poleblade now checks the real invasion reward instead of an unused copy. Generate a new seed to receive this correction.
 Bernahl's Farum Azula Gelmir's Fury reward is now a check, separately from his Volcano Manor reward. New seeds are required.
+
+## Difficulty and early upgrades
+
+The automatic enemy cap is gentler on shorter runs, and the YAML builder now previews
+the resolved enemy strength. It also warns when DLC-strength enemies would appear
+outside the DLC while blessings remain DLC-only. Early upgrade guarantees now keep
+their reserved stones available for start-reachable placement. These generation
+changes apply to new seeds; existing rooms keep their original scaling.

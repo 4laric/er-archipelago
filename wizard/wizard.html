@@ -1924,7 +1924,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "maximum_enemy_difficulty",
    "class": "MaximumEnemyDifficulty",
    "display_name": "Maximum Enemy Difficulty",
-   "description": "How hard the TOUGHEST enemies get.\n\n  auto  scale the cap to the LENGTH of your run        (default)\n   100  no cap -- the deepest region hits the game's maximum, about 7.4x enemy HP\n    75  nothing above about 5.5x enemy HP\n    50  nothing above about 4x\n    25  nothing above about 2x\n\n`auto` exists because the curve is relative and your gear is not. Scaling ramps over the ORDER\nyour regions unlock, so the deepest one is \"the end of the run\" whether that is 30 regions or 5 --\nbut Somber +10 still needs a Somber [9]. On a short seed you therefore meet endgame-strength\nenemies on a mid-game weapon, and fewer regions makes the ramp steeper rather than gentler.\n`auto` lowers the top of the curve with the length of the run: about 4.1x at 5 regions, the full\n7.4x at 30. Give a number instead to pick the cap yourself.\n\n⚠️ The `auto` curve has ONE playtested point -- about 3.7x at 5 regions, where the ladder used to\ntop out. Above that it is extrapolation, so treat the high end as untested.\n\nMust be at least Minimum Enemy Difficulty; generation refuses the inverted pair rather than\nquietly picking one.\n\n⚠️ Needs a client that understands it. A seed setting this below 100 tells the client so at\nconnect, and an older client refuses with a message rather than ignoring the cap.",
+   "description": "How hard the TOUGHEST enemies get.\n\n  auto  scale the cap to the LENGTH of your run        (default)\n   100  no cap -- the deepest region hits the game's maximum, about 7.4x enemy HP\n    75  nothing above about 5.5x enemy HP\n    50  nothing above about 4x\n    25  nothing above about 2x\n\n`auto` exists because the curve is relative and your gear is not. Scaling ramps over the ORDER\nyour regions unlock, so the deepest one is \"the end of the run\" whether that is 30 regions or 5 --\nbut Somber +10 still needs a Somber [9]. On a short seed you therefore meet endgame-strength\nenemies on a mid-game weapon, and fewer regions makes the ramp steeper rather than gentler.\n`auto` lowers the top of the curve with the length of the run: about 3.7x at 5 regions, 5.5x at\n10, 6.7x at 15, the full 7.4x on the whole map. Give a number instead to pick the cap yourself;\nthe yaml builder shows what either choice resolves to as you move the slider.\n\n⚠️ The `auto` curve has ONE playtested point -- about 3.7x at 5 regions, where the ladder used to\ntop out. Above that it is extrapolation, so treat the high end as untested. (Recalibrated\n2026-09-06: the first curve sat one to two rungs higher everywhere below a full map.)\n\nMust be at least Minimum Enemy Difficulty; generation refuses the inverted pair rather than\nquietly picking one.\n\n⚠️ Needs a client that understands it. A seed setting this below 100 tells the client so at\nconnect, and an older client refuses with a message rather than ignoring the cap.",
    "kind": "range",
    "base": "NamedRange",
    "default": -1,
@@ -5426,10 +5426,32 @@ const ERW = (() => {
     }
 
     // features/scaling.py: the two sliders are a range, and min above max is not a range.
-    if (has("minimum_enemy_difficulty") && has("maximum_enemy_difficulty") &&
-        v("minimum_enemy_difficulty") > v("maximum_enemy_difficulty"))
-      err("minimum_enemy_difficulty", "Minimum enemy difficulty is above the maximum \u2014 that is " +
-          "not a range.");
+    // \ud83d\uded1 Compare against the RESOLVED cap, not the raw value: `auto` is the sentinel -1, so the raw
+    // comparison read "0 > -1" and raised this error on every default yaml from 2026-07-30 to
+    // 2026-09-06. Gen never fails an auto seed over the floor (resolve_max_difficulty_pct raises
+    // auto to it), so only an EXPLICIT cap below the floor is an error.
+    if (has("minimum_enemy_difficulty") && has("maximum_enemy_difficulty")){
+      const sp = scalingPreview(meta, state);
+      if (sp && !sp.off && !sp.auto && v("minimum_enemy_difficulty") > sp.pct)
+        err("minimum_enemy_difficulty", "Minimum enemy difficulty is above the maximum \u2014 that is " +
+            "not a range.");
+    }
+
+    // scaling_ladder.SCALING_HP_LADDER: every rung above 3.703x is the DLC's own re-emission of the
+    // enemy ladder, tuned for a player who is also carrying a Scadutree Blessing. ScadutreeBlessingScope
+    // docstring: dlc_only "does nothing in Limgrave, exactly as FromSoft shipped it" -- so base-game
+    // regions deep in the order meet DLC-strength enemies with no blessing to answer them.
+    // scalingPreview resolves `auto` the way features/scaling.resolved_max_difficulty does.
+    if (has("scadutree_blessing_scope") && v("scadutree_blessing_scope") === "dlc_only" &&
+        has("maximum_enemy_difficulty")){
+      const sp = scalingPreview(meta, state);
+      if (sp && !sp.off && sp.dlcRungs)
+        warn("scadutree_blessing_scope", "Your enemy cap resolves to " + sp.mult.toFixed(2) +
+             "x HP" + (sp.auto ? " (auto, " + sp.draw + " regions)" : "") + ", which is DLC-strength " +
+             "scaling, but the Scadutree Blessing stays DLC-only \u2014 base-game regions deep in " +
+             "your order get DLC enemies with no blessing to answer them. Set the scope to " +
+             "`anywhere`, or cap maximum_enemy_difficulty at 47 or lower (about 3.7x).");
+    }
 
     // region_spine.compute_kept: N is a DRAW SIZE. The Seed size panel shows the resulting spread,
     // so this points at it rather than restating a number that is only true for one draw.
@@ -5698,9 +5720,68 @@ const ERW = (() => {
     return out;
   }
 
+  /* ---- enemy-scaling cap preview (greenfield/eldenring/scaling_ladder.py) -------------------
+     🛑 CROSS-FILE DUPLICATED CONSTANTS. The ladder mirrors SCALING_HP_LADDER (itself a mirror of
+     the client's er-logic SCALING_TIERS) and the exponent mirrors AUTO_CEILING_EXPONENT; the
+     Python side of test_gf_scaling_floor_units.py parses this block and fails on divergence, so a
+     re-tuned curve cannot leave the page previewing the old one. The maths is the gen-side formula
+     verbatim: `auto` resolves from the num_regions DRAW SIZE against the option's own range end
+     (features/scaling.resolved_max_difficulty reads nr.value and nr.range_end), NOT from the seed
+     size panel's kept-region spread -- previewing the spread here would show a different rung than
+     the seed actually gets. Rounding is half-up on both sides (Math.round / floor(x+0.5)). */
+  const SCALING_HP_LADDER = [1.141, 1.281, 1.656, 1.813, 1.953, 2.266, 2.406, 2.688, 3.25, 3.703,
+                             4.125, 4.844, 5.484, 6.563, 6.688, 6.875, 7.047, 7.203, 7.328, 7.422];
+  const AUTO_CEILING_EXPONENT = 0.45;
+  // Rungs from here up are the DLC's own re-emission of the ladder (SpEffect 7110..7200): every
+  // multiplier above the base game's 3.703x top. See scaling_ladder.py "EXTENDED 2026-07-27".
+  const DLC_RUNG_START = SCALING_HP_LADDER.indexOf(3.703) + 1;
+  function autoCeilingPct(numRegions, totalRegions){
+    const total = totalRegions | 0;
+    if (total <= 0) return 100;
+    let n = numRegions | 0;
+    n = n <= 0 ? total : Math.min(n, total);          // 0 == all regions
+    return Math.floor(100 * Math.pow(n / total, AUTO_CEILING_EXPONENT) + 0.5);
+  }
+  function ceilingRung(pct){
+    pct = Math.max(0, Math.min(100, pct | 0));
+    return Math.round(pct / 100 * (SCALING_HP_LADDER.length - 1));
+  }
+  function floorRung(pct){
+    // MIRROR of tier_for_floor_multiplier over floor_multiplier: the FIRST rung at least as strong
+    // as the percent's ladder position. 0 = no floor.
+    pct = Math.max(0, Math.min(100, pct | 0));
+    if (pct === 0) return 0;
+    const mult = SCALING_HP_LADDER[Math.round(pct / 100 * (SCALING_HP_LADDER.length - 1))];
+    for (let i = 0; i < SCALING_HP_LADDER.length; i++) if (SCALING_HP_LADDER[i] >= mult) return i;
+    return SCALING_HP_LADDER.length - 1;
+  }
+  /* What THIS yaml's cap resolves to. {off:true} when enemy_scaling is off (nothing scales, so
+     there is no cap to preview). Otherwise {auto, pct, rung, mult, dlcRungs, floorPct, floorMult,
+     draw, total}: `pct` is the percent gen will use (auto raised to an explicit floor, exactly as
+     resolve_max_difficulty_pct does), `dlcRungs` says the cap reaches into DLC-strength rungs. */
+  function scalingPreview(meta, state){
+    const v = k => getVal(meta, state, k);
+    const has = k => !!meta.byKey[k];
+    if (has("enemy_scaling") && !v("enemy_scaling")) return { off: true };
+    const maxO = meta.byKey["maximum_enemy_difficulty"], nrO = meta.byKey["num_regions"];
+    if (!maxO) return null;
+    const floorPct = has("minimum_enemy_difficulty") ? (v("minimum_enemy_difficulty") | 0) : 0;
+    const raw = v("maximum_enemy_difficulty") | 0;
+    const auto = raw === maxO.default && raw < (maxO.range ? maxO.range.start : 0);
+    const draw = nrO ? (v("num_regions") | 0) : 0;
+    const total = nrO && nrO.range ? nrO.range.end : 0;
+    const pct = auto ? Math.max(floorPct, autoCeilingPct(draw, total)) : raw;
+    const rung = ceilingRung(pct);
+    return { auto, pct, rung, mult: SCALING_HP_LADDER[rung], dlcRungs: rung >= DLC_RUNG_START,
+             floorPct, floorMult: floorPct ? SCALING_HP_LADDER[floorRung(floorPct)] : 0,
+             draw: draw <= 0 ? total : Math.min(draw, total), total };
+  }
+
   return { loadMeta, newState, applyPreset, getVal, setVal, isDefault, deviations,
            buildYaml, findings, pretty, sanitizeName, seedSize, surfaceCoverage,
-           surfaceTree, surfaceMarginals, isPlainObject, fmtDefault, AP_CORE };
+           surfaceTree, surfaceMarginals, isPlainObject, fmtDefault, AP_CORE,
+           SCALING_HP_LADDER, AUTO_CEILING_EXPONENT, DLC_RUNG_START, autoCeilingPct, ceilingRung,
+           floorRung, scalingPreview };
 })();
 if (typeof module !== "undefined") module.exports = ERW;
 </script>
@@ -5760,10 +5841,33 @@ if (typeof module !== "undefined") module.exports = ERW;
     if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; };
   const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 
+  // Player-facing explanations of the relationship between these controls. Keep the
+  // generated option reference below as expandable detail; these paragraphs stay visible.
+  const sweepSurfaceHelp = {
+    progression_surface: [
+      "Choose which kinds of checks may hold progression, such as region Locks. A selected check is eligible; it is not guaranteed to contain progression. The choices describe the original location, not the randomized item you will receive.",
+      "Normally, selected collectible types stay out of boss sweeps so you collect them yourself. For example, selecting Golden Seeds keeps those pickup locations separate from the boss payout, even when the randomized reward there is something else.",
+      "The exception is ‘One check per dungeon sweep’ (or its major/minor boss choices). This makes one existing check in each enabled sweep eligible for progression and leaves it in the sweep. Defeat the sweep’s boss to receive it; you do not need to hunt down that pickup. Collecting it yourself first also checks it off, and the boss will not award it twice.",
+      "Full Area Sweeps lets the boss grant those selected collectibles too, where they belong to its sweep. With sweeps set to none, you collect every check directly and the one-check-per-sweep choices add nothing.",
+      "Removing the one-check-per-sweep choice is not a universal ban on progression in sweeps: Full Area Sweeps, an empty surface, or generation widening an undersized selection can still allow it. An empty surface removes the placement restriction; it does not remove progression items."
+    ],
+    dungeon_sweep: [
+      "Choose which bosses automatically collect their assigned area checks when defeated. You receive each check’s randomized reward, not necessarily its original item.",
+      "Progression Surface normally keeps your selected collectible types out of these payouts so you collect them yourself. Its ‘One check per dungeon sweep’ choice is different: that check stays in the boss payout and may hold progression. Full Area Sweeps also puts the selected collectibles back into eligible sweeps."
+    ],
+    full_area_sweeps: [
+      "Off: collectible types selected on Progression Surface stay separate from the boss payout. You still collect them yourself. A ‘One check per dungeon sweep’ selection remains part of the boss payout either way.",
+      "On: selected collectibles that belong to an enabled sweep are granted when its boss dies, including any progression placed there. This changes how you collect them, not whether every check contains progression.",
+      "This does not enable additional sweep bosses or sweep another boss’s own reward, Remembrances, Great Runes, gate/quest key items, or merchant purchases. Checks outside an eligible sweep still need to be collected directly."
+    ]
+  };
+
   function descBlocks(o){
     const paras = o.description.split(/\n\s*\n/);
-    const first = paras[0], rest = paras.slice(1).join("\n\n");
-    let h = "<div class='desc'>" + esc(first) + "</div>";
+    const first = paras[0], rest = (sweepSurfaceHelp[o.key] ? paras : paras.slice(1)).join("\n\n");
+    const help = sweepSurfaceHelp[o.key];
+    let h = help ? help.map(p => "<p class='desc'>" + esc(p) + "</p>").join("")
+                 : "<div class='desc'>" + esc(first) + "</div>";
     if (rest.trim())
       h += "<details class='more'><summary>more…</summary><div class='desc'>" +
            esc(rest) + "</div></details>";
@@ -5818,11 +5922,16 @@ if (typeof module !== "undefined") module.exports = ERW;
          current value when it has a name, and clicking the word for an out-of-range special value
          (auto) commits it directly since the slider cannot reach it. */
       const specials = o.special_values || [];
-      const nameOf = n => { const hit = specials.find(sv => sv[1] === n); return hit && hit[0]; };
+      /* 🛑 special_values are OBJECTS ({name, value}) -- that is the dumper's shape and what
+         yamlOptionValue / the importer read. This branch indexed them as [name, value] TUPLES
+         from 2026-08-20 to 2026-09-06, so `nameOf` never matched, the "auto" word never painted,
+         the out-of-range chip never rendered, and the box read "0" next to "(default -1)" -- the
+         exact mess the chip was written to fix. Nothing threw: `sv[1]` on an object is undefined. */
+      const nameOf = n => { const hit = specials.find(sv => sv.value === n); return hit && hit.name; };
       const sl = Object.assign(document.createElement("input"),
         {type:"range", min:start, max:end, value:Math.max(start, Math.min(end, v))});
       const num = Object.assign(document.createElement("input"),
-        {type:"number", min:Math.min(start, ...specials.map(sv => sv[1])), max:end, value:v});
+        {type:"number", min:Math.min(start, ...specials.map(sv => sv.value)), max:end, value:v});
       num.style.width = "80px";
       const word = el("span", "bounds");
       const paintWord = n => {
@@ -5834,21 +5943,27 @@ if (typeof module !== "undefined") module.exports = ERW;
       sl.addEventListener("input", () => { num.value = sl.value; paintWord(+sl.value); commit(+sl.value); });
       num.addEventListener("change", () => {
         let n = +num.value;
-        if (!specials.some(sv => sv[1] === n)) n = Math.max(start, Math.min(end, n || start));
+        if (!specials.some(sv => sv.value === n)) n = Math.max(start, Math.min(end, n || start));
         num.value = n; sl.value = Math.max(start, Math.min(end, n)); paintWord(n); commit(n);
       });
       const defName = nameOf(o.default);
-      const chips = specials.filter(sv => sv[1] < start || sv[1] > end).map(sv => {
-        const c = el("button", "reset", sv[0]);
+      const chips = specials.filter(sv => sv.value < start || sv.value > end).map(sv => {
+        const c = el("button", "reset", sv.name);
         c.addEventListener("click", () => {
-          num.value = sv[1]; sl.value = Math.max(start, Math.min(end, sv[1]));
-          paintWord(sv[1]); commit(sv[1]);
+          num.value = sv.value; sl.value = Math.max(start, Math.min(end, sv.value));
+          paintWord(sv.value); commit(sv.value);
         });
         return c;
       });
       wrap.append(sl, num, word, ...chips,
         el("span", "bounds", start + "–" + end + " (default " +
            (defName ? defName : o.default) + ")"));
+      /* Live readout of what the cap RESOLVES to (Alaric, 2026-09-06): a percent is a rung on a
+         20-rung ladder and `auto` is a curve over the run length, and neither is legible from the
+         slider. Painted by paintScalingReadouts on every refresh; the picks card carries the same
+         line so it reads the same wherever the player is looking. */
+      if (o.key === "maximum_enemy_difficulty")
+        wrap.append(el("div", "small scaling-readout", ""));
     } else if (o.kind === "set" || o.kind === "list"){
       /* THE SELECTION IS ALWAYS COMMITTED IN valid_keys ORDER, in both branches below. That list
          is sorted by the dumper and is the only stable order available -- the display order is a
@@ -7091,7 +7206,26 @@ if (typeof module !== "undefined") module.exports = ERW;
       row.append(d);
     }
     card.append(row);
+    card.append(el("div", "small scaling-readout", ""));
     return card;
+  }
+  /* One sentence, every `.scaling-readout` on the page. ERW.scalingPreview owns the maths. */
+  function scalingReadoutText(){
+    const sp = ERW.scalingPreview(meta, state);
+    if (!sp) return "";
+    if (sp.off) return "Enemy scaling is off: every enemy keeps its vanilla strength.";
+    const top = ERW.SCALING_HP_LADDER.length - 1;
+    let t = "Cap resolves to about " + sp.mult.toFixed(2) + "x enemy HP (rung " + sp.rung + " of " +
+            top + ")";
+    t += sp.auto ? " \u2014 auto, from a " + sp.draw + "-region draw of " + sp.total + "."
+                 : " \u2014 from " + sp.pct + "%.";
+    if (sp.floorMult) t += " Floor " + sp.floorMult.toFixed(2) + "x.";
+    if (sp.dlcRungs) t += " That is DLC-strength scaling.";
+    return t;
+  }
+  function paintScalingReadouts(){
+    const t = scalingReadoutText();
+    document.querySelectorAll(".scaling-readout").forEach(d => { d.textContent = t; });
   }
   function paintScalingPicks(){
     const act = activeScalingPick();
@@ -7099,6 +7233,7 @@ if (typeof module !== "undefined") module.exports = ERW;
       const d = $("#sp-" + pk.id);
       if (d) d.className = "preset" + (act === pk.id ? " sel" : "");
     }
+    paintScalingReadouts();
   }
 
   function paintSectionCounts(){

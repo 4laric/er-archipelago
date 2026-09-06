@@ -117,6 +117,27 @@ class MissableGuardOn(WorldTestBase):
                                  f"progression/useful item landed on missable location {l.name}")
 
 
+class MissableReservationLeavesTheEarlyGuarantee(WorldTestBase):
+    """THE MOTIVATING CASE (CONTRIBUTING rule 11). `reserve_filler` runs in pre_fill, BEFORE AP's
+    early-items pass, and drew from every filler copy in the pool. On a 1-region seed (seed 1044,
+    2026-09-06) it locked both Somber Smithing Stone [2] onto two Ashen Capital sweep checks --
+    sphere 1 -- so `filler_budget`'s "2 reachable from the start" guarantee, which had counted those
+    very copies, delivered 0 with no warning. The declared copies must survive pre_fill in the pool
+    so AP's local_early_items pass has something to place."""
+    game = GAME
+    options = {"num_regions": 1, "num_regions_order": "vanilla_order", "item_shuffle": True,
+               "enable_dlc": True, "ending_condition": "great_runes"}
+
+    def test_declared_early_copies_are_still_in_the_pool_after_pre_fill(self):
+        from collections import Counter
+        early = dict(self.multiworld.local_early_items[self.world.player])
+        self.assertTrue(early, "no early guarantee was declared -- the premise of this test is gone")
+        held = Counter(i.name for i in self.multiworld.itempool if i.player == self.world.player)
+        short = {nm: (n, held[nm]) for nm, n in early.items() if held[nm] < n}
+        self.assertFalse(short, "pre_fill spent early-guaranteed copies before AP's early pass "
+                                "could place them (name: (declared, left in pool)): %r" % (short,))
+
+
 class MissableProgressionOnly(WorldTestBase):
     game = GAME
     options = {"num_regions": 0, "item_shuffle": True,
