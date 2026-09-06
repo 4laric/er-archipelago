@@ -55,29 +55,32 @@ For a standalone ModEngine2 or randomizer output instead of me3, point the insta
 file root: `.\install-ap-flower.ps1 -Destination "<folder containing regulation.bin>"`. To remove
 only files created by this installer, rerun it with the same destination and `-Uninstall`.
 
-## Optional map integration in the v0.6 release
+## Map integration in the v0.6 release
 
 The release archive includes `MapForGoblins.dll`, `MapForGoblins.ini`,
 `MFG-LICENSE.txt` and `MFG-PROVENANCE.json` beside the AP client. Its `ap.me3`
 loads the map engine. The Matt-output installer adds that native entry when both
 DLLs are present. Updates preserve an existing map INI instead of resetting preferences.
 
-In F6, expand **Map pin test (optional)** and select **Enable map filters (this session)**.
-Following or coloring pins also shares check states. The map's check-only default hides
-pins without a match in the connected seed; gathering nodes are hidden by the fresh
-preset, while actual crafting-material treasure checks remain eligible. Optional
-progression-only and in-logic-only filters use progression-surface eligibility and
-tracker region access, not hidden item contents or additional quest/puzzle requirements.
+Connect and open the map: check sharing and pin coloring are on by default, without
+opening F6. The fresh preset shows only pins matched to your seed, hides gathering
+nodes and retains crafting-material treasure checks. Yellow rings mark known hints;
+orange rings mark progression targets.
+
+Use **F10 → Archipelago** for optional progression-only and in-logic-only filters
+(both off by default), checks-only (on), and highlight size (1.5×). In-logic uses
+tracker region access, not additional quest/puzzle requirements. Existing INI settings
+are preserved on update. F6 pin following and player-review tools remain off by default.
 Map progression excludes enabled sweep-member pickups and highlights their granting boss;
 F6 stars and F5 `[P]` keep the original seed-surface meaning. Halos default to 1.5x.
 F10 opens MapForGoblins settings without triggering the client stamina diagnostic.
 
-Disabling session filters does not disable the DLL; turn off following and coloring too
-to stop sharing. To disable the engine, exit the game and remove or disable only the
+F6 → **Map integration** has session opt-outs; turn off sharing and coloring, and leave
+following off, to stop sending map data. Defaults return on the next launch. To disable the engine, exit the game and remove or disable only the
 MapForGoblins `[[natives]]` entry in the profile, preserving the AP client and other mods.
 Restart through that profile. Checks without resolved map pins remain listed in F6.
 A granting boss without a native MapForGoblins pin cannot receive a map highlight;
-its check remains available in F6.
+the associated checks remain available in F6.
 
 ## What is in the folder
 

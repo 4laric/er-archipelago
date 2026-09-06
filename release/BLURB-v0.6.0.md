@@ -4,9 +4,10 @@ The v0.6 release puts the AP tracker onto MapForGoblins' in-game map. The bundle
 matching client and map-engine builds, with gathering-node clutter hidden in its preset.
 Your actual treasure checks remain eligible, including crafting-material pickups.
 
-Enable a session map workflow in F6: following map pins, coloring pins, or sharing check
-states. Check-only filtering then shows pins matched to your connected seed. You can also
-select progression-only or in-logic-only, and enlarge progression highlights. Progression
+Connect and open the map: check sharing and pin coloring start automatically. The
+fresh preset shows only pins matched to your connected seed. Use F10 → Archipelago for
+optional progression-only and in-logic-only filters or to resize progression highlights.
+Following map pins and player-review tools remain off by default in F6. Progression
 marks progression-surface places, excluding pickups granted by an enabled boss sweep;
 the map highlights the granting boss instead. F6 stars and F5 `[P]` still describe the
 original seed surface. None of these marks reveals an unhinted item's contents.

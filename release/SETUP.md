@@ -136,19 +136,29 @@ You also need, separately:
 ## MapForGoblins in the v0.6 release
 
 The release's `me3/ap.me3` loads both the AP client and `MapForGoblins.dll`. Use the
-matching DLL and INI from the archive. When installing into Matt's randomizer output,
+matching DLLs from the archive; the supplied INI is the fresh-install preset. When
+installing into Matt's randomizer output,
 the packaged installer adds the map-engine native entry when both DLLs are present.
 The updater preserves an existing `MapForGoblins.ini`; its preferences may differ from
 the fresh release preset, which hides gathering nodes and keeps crafting-material treasures.
 
-After connecting, open F6, expand **Map pin test (optional)** and select
-**Enable map filters (this session)**. Following or coloring map pins also enables
-check-state sharing. Check-only is the map engine's default while sharing is active;
-progression-only and in-logic-only are optional map settings. In-logic uses tracker
-region access, not additional quest, key or puzzle requirements. Unmatched pins can
-still represent real checks; use F6 for the complete check list.
-A granting boss without a native MapForGoblins pin cannot receive a map highlight;
-its check remains available in F6.
+Connect to your seed and open the map. Check sharing and pin coloring start automatically;
+there is no F6 activation step. With the fresh preset, the map shows pins matched to your
+seed, yellow rings for known hints and orange rings for progression targets.
+
+Press **F10 → Archipelago** to customize the map:
+
+| Setting | Fresh-install default | Effect |
+| --- | --- | --- |
+| Checks only | On | Hide pins without a match in your connected seed. |
+| Progression only | Off | Show progression targets, including granting bosses instead of sweep pickups. |
+| In logic only | Off | Show checks whose tracker region is accessible. |
+| Progression highlight size | 1.5× | Adjust the orange ring size from 1× to 3×. |
+
+Progression-only and in-logic-only can be combined. In-logic does not evaluate additional
+quest, key or puzzle requirements. Unmatched pins can still represent real checks; use
+F6 for the complete check list. A boss without a native map pin cannot receive a halo.
+Following map pins and player-review tools remain optional and off by default in F6.
 
 Map progression highlights and progression-only filtering exclude pickups granted by an
 enabled boss sweep and highlight the granting boss instead. F6 stars and F5 `[P]` retain
@@ -156,8 +166,10 @@ the original seed-surface meaning, so a sweep-member pickup can still have a tra
 The default highlight size is 1.5x. Press F10 for MapForGoblins settings; the client no
 longer runs its stamina diagnostic on that key.
 
-Turning off the session filter checkbox does not unload the map engine. To stop sharing,
-also turn off pin following and coloring. To disable MapForGoblins itself, exit the game
+F6 → **Map integration** contains session opt-outs for sharing and coloring. To stop
+sharing completely, turn off both and leave following off. These switches reset to their
+defaults on the next launch; F10 map preferences are saved in the INI. To disable
+MapForGoblins itself, exit the game
 and remove or disable only its `[[natives]]` entry in the loader profile; preserve the
 AP client and other native entries. Restart through the edited profile.
 

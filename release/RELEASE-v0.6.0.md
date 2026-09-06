@@ -8,8 +8,8 @@ promotion have not happened; record them only when completed.
 ## Scope and expectations
 
 The release bundles the source-built MapForGoblins engine and matching AP client.
-Gathering nodes are hidden by the preset. Check-only is the default while a session map
-workflow is active; progression-only and tracker-region in-logic-only remain optional.
+Gathering nodes are hidden by the preset. Check sharing and coloring start automatically when connected, without opening F6.
+Check-only is on in the fresh preset; progression-only and tracker-region in-logic-only remain optional.
 Map progression excludes enabled sweep-member pickups and highlights their granting boss;
 F6 stars and F5 `[P]` keep the raw seed-surface meaning. Halos default to 1.5x.
 The map also has larger progression highlights, and F5 has concise names, AP/UT item colors,
@@ -26,7 +26,7 @@ The release is assembled by `tools/pack_release.py` and the `er-release` workflo
 Legacy `build.ps1 -Me3Deploy` and `package_release.ps1` remain local client-only
 routes; they do not produce this release's bundled map-engine release.
 
-Current candidate builds: client `cf6bb11` (client PR #633), map engine `81613ec`.
+Current candidate builds: client `9127694` (client PR #633), map engine `81613ec`.
 Land engine PR #7 and client PR #633 before world PR #1431. After the client merge,
 refresh the world gitlink to the resulting client `main` SHA and rerun pairing checks;
 the merge may produce a different SHA. Pin complete commits and final hashes in provenance.
@@ -53,7 +53,8 @@ These boxes deliberately remain open until someone runs the assembled bundle.
 
 - [ ] Launch through the archived profile and connect to a matching v0.6.0 seed; open the
       native map and F5/F6 without a crash or duplicate engine.
-- [ ] In F6, expand **Map pin test (optional)** and select **Enable map filters (this session)**. Gathering-node Trina's Lily pins stay hidden, while
+- [ ] Without opening F6, connect and open the map: check filters and colored rings work.
+      Gathering-node Trina's Lily pins stay hidden, while
       an actual Lily treasure check in the seed remains visible. A neutral check stays visible.
 - [ ] A pin outside the connected seed is hidden, including when category focus is selected.
 - [ ] Progression-only hides neutral checks; larger halos appear on eligible progression
@@ -66,7 +67,9 @@ These boxes deliberately remain open until someone runs the assembled bundle.
       requires the same candidate check to satisfy both conditions.
 - [ ] Change region access, toggle filters, close/reopen the map and warp. Visibility updates
       without stale hidden pins or floating halos; collecting a known pickup still hides it.
-- [ ] Disconnect, change seed and disable all session map workflows. Old state is withdrawn;
+- [ ] F10 → Archipelago holds optional progression-only/in-logic-only controls; F6 pin
+      following and reviews remain disabled until explicitly selected.
+- [ ] Disconnect, change seed and use F6 session opt-outs to disable sharing/coloring/following. Old state is withdrawn;
       an interrupted client update expires rather than applying the old seed indefinitely.
 - [ ] F5 shows clean pickup names, the expected classification colors and correct session
       `[P]`/`[S]` markers. A physical pickup is distinguishable from a sweep completion.

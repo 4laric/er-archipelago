@@ -7,8 +7,9 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 - **The v0.6 release bundles MapForGoblins with the matching AP client.** The release profile
   loads the source-built map engine; material gathering nodes are hidden by the preset.
-  Enable a session map workflow in F6 to show only pins matched to checks in the connected
-  seed by default. Actual treasure checks containing crafting materials remain eligible.
+  Check sharing and pin coloring start automatically when connected; no F6 activation is
+  needed. The fresh preset shows only pins matched to checks in the connected seed.
+  Optional filters live in F10 → Archipelago; following pins and reviews stay off by default. Actual treasure checks containing crafting materials remain eligible.
 - **Map filters and progression highlights.** Optional progression-only and in-logic-only
   controls work together; larger progression halos make eligible checks easier to spot.
   Map progression excludes pickups granted by an enabled boss sweep and highlights the
