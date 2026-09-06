@@ -389,11 +389,32 @@ def reserve_forbidden_items(multiworld, worlds) -> None:
     if not forbidden_by_player:
         return
 
-    items = [
-        item for item in multiworld.itempool
-        if item.player in forbidden_by_player
-        and item.name in forbidden_by_player[item.player]
-    ]
+    # 🛑 LEAVE THE EARLY GUARANTEE TO AP. `filler_budget.declare_early_items` registers the early
+    # stones as `local_early_items`, which AP's fill places in start-reachable locations -- through
+    # fill_restrictive, so the shop item rules still hold. This reservation ran BEFORE that pass and
+    # took every forbidden copy out of the pool, so AP's early scan found nothing to place: on a
+    # 1-region seed (probe 2026-09-06, seed 1044) both Somber [2] were locked onto Ashen Capital,
+    # sphere 1, and the "guaranteed 2 reachable from the start" promise delivered 0 with no warning,
+    # because the pool HAD held the copies when the guarantee counted them. The declared copies stay
+    # in the pool; only the surplus above the guarantee is reserved here.
+    early_left = {}
+    for world in worlds:
+        if world.player not in forbidden_by_player:
+            continue
+        for src in (multiworld.early_items[world.player],
+                    multiworld.local_early_items[world.player]):
+            for name, n in src.items():
+                early_left[(world.player, name)] = early_left.get((world.player, name), 0) + n
+
+    items = []
+    for item in multiworld.itempool:
+        if item.player not in forbidden_by_player                 or item.name not in forbidden_by_player[item.player]:
+            continue
+        key = (item.player, item.name)
+        if early_left.get(key, 0) > 0:
+            early_left[key] -= 1
+            continue
+        items.append(item)
     if not items:
         return
 
