@@ -62,3 +62,4 @@ stable	v0.5.5	2026-08-31	mine-material rerolls, sphere-scaled rune rewards, prog
 beta	main	2026-08-31	the open v0.5.6 window
 stable	v0.5.7	2026-09-02	audited progression hosts, restored evidence-backed surface checks, foreign-world Lock hints, stronger delivery recovery, and expanded external evidence coverage; promoted immediately after tagging so the updater and public wizard follow the release
 beta	main	2026-09-02	the open v0.5.8 window
+beta	v0.6	2026-09-03	the long-running v0.6 check-audit and logic-development channel; v0.5.x fixes remain on main

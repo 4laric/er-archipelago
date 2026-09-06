@@ -114,7 +114,7 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **Client:** Required for v0.5.8 seeds; keep existing runs on their matching client.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
-- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
+- **Existing seed/save:** Compatible — a v0.5.7 run can continue on the v0.5.8 client.
 - **Profile/assets:** No action.
 
 Window opened 1 commit(s) PAST the v0.5.7 tag.
@@ -129,6 +129,14 @@ Client half: clients#595. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The public beta site now follows the `v0.6` development branch.** Stable remains on v0.5.7 and
+  v0.5.x fixes remain on `main`; beta wizard, check browser, report page, and questline browser are
+  fetched from the reviewed beta pointer in `CHANNELS.tsv` instead of assuming `main`.
+
+- **Patch release windows cannot skip a number.** The release-opening tool rejects a same-series
+  jump such as v0.5.8 to v0.5.10 and names v0.5.9 as the required successor, while still allowing
+  an intentional new series such as v0.6.0.
+
 - **A failed tagged bundle can be rebuilt without moving its immutable client pin.** The release
   workflow now accepts an existing tag plus an explicit stale-pin override, checks out and builds
   the client recorded by that tag, retains the normal Flower assets and correctness gates, and
@@ -141,7 +149,8 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **Client:** Required — use the v0.5.7 client with v0.5.7 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
-- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
+- **Existing seed/save:** Compatible — a v0.5.5 run can continue on the v0.5.7 client; only the new
+  foreign-world Lock hint button falls back to `!hint` because old seeds lack its optional data.
 - **Profile/assets:** No action.
 
 The contract moves to `ffc0f1b5` to advertise the owner and location of region Locks placed in

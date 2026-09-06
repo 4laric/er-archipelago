@@ -10,12 +10,14 @@
 # So: two channels, both built from a REF rather than from whatever was lying around.
 #
 #     /er/wizard.html        <- wizard/wizard.html at the STABLE tag (release/CHANNELS.tsv)
-#     /er/beta/wizard.html   <- wizard/wizard.html at main
+#     /er/beta/wizard.html   <- wizard/wizard.html at the current beta ref
 #     /er/checks.html        <- er-archipelago-check-browser.html at the STABLE tag
-#     /er/beta/checks.html   <- er-archipelago-check-browser.html at main
+#     /er/beta/checks.html   <- er-archipelago-check-browser.html at the current beta ref
+#     /er/review.html        <- er-archipelago-evidence-browser.html at the STABLE tag
+#     /er/beta/review.html   <- er-archipelago-evidence-browser.html at the current beta ref
 #     /er/report.html        <- wizard/report.html at the STABLE tag
 #     /er/questlines.html    <- er-archipelago-questline-dag.html at the STABLE tag
-#     /er/beta/questlines.html <- er-archipelago-questline-dag.html at main
+#     /er/beta/questlines.html <- er-archipelago-questline-dag.html at the current beta ref
 #     /er/landing.html       <- wizard/landing.html at the STABLE tag       (--landing only)
 #     /er/tabs.js            <- wizard/tabs.js at the STABLE tag
 #
@@ -76,7 +78,7 @@
 #   ./tools/deploy_wizard.sh --stable-only          # promote stable, leave beta alone
 #   ./tools/deploy_wizard.sh --beta-only            # baked stable: update only the mounted beta/
 #
-# Cron it if you like -- `beta` tracks main, so on a daily-stable project this wants to run at least
+# Cron it if you like -- `beta` tracks the moving ref in CHANNELS.tsv, so this wants to run at least
 # as often as you merge:
 #   */15 * * * *  ER_STATIC_DIR=/srv/er /opt/er/deploy_wizard.sh >>/var/log/er-deploy.log 2>&1
 #
@@ -125,14 +127,17 @@ die() { printf 'deploy_wizard: %s\n' "$*" >&2; exit 1; }
 # ---- which tag is stable? Read it from the ledger AT MAIN, so the answer comes from the same place
 # the repo records it and a promotion is a commit rather than an argument typed on a box.
 stable_tag=""
+beta_ref=""
+ledger="$(curl -fsSL "${RAW}/main/release/CHANNELS.tsv")" \
+  || die "could not fetch release/CHANNELS.tsv"
+beta_ref="$(printf '%s\n' "$ledger" | awk -F'\t' '!/^#/ && $1=="beta" { t=$2 } END { print t }')"
+[ -n "$beta_ref" ] || die "no beta row in release/CHANNELS.tsv"
 if [ "$BETA_ONLY" = "1" ]; then
-  say "channels: stable -> baked image (UNTOUCHED) | beta -> main"
+  say "channels: stable -> baked image (UNTOUCHED) | beta -> ${beta_ref}"
 else
-  ledger="$(curl -fsSL "${RAW}/main/release/CHANNELS.tsv")" \
-    || die "could not fetch release/CHANNELS.tsv"
   stable_tag="$(printf '%s\n' "$ledger" | awk -F'\t' '!/^#/ && $1=="stable" { t=$2 } END { print t }')"
   [ -n "$stable_tag" ] || die "no stable row in release/CHANNELS.tsv"
-  say "channels: stable -> ${stable_tag} | beta -> main"
+  say "channels: stable -> ${stable_tag} | beta -> ${beta_ref}"
 fi
 
 # ---- fetch + install one file, atomically, and only if it looks like the thing we asked for.
@@ -159,8 +164,8 @@ install_one() {  # ref, source path in repo, destination path, sentinel, label
   local http
   http="$(curl -sSL -w '%{http_code}' -o "$tmp" "${RAW}/${ref}/${src}")" || http="000"
   if [ "$http" = "404" ]; then
-    if [ "$ref" = "main" ]; then
-      die "${src} is MISSING at main -- that is this repo's own tree, so this is a bug, not a gap"
+    if [ "$ref" = "main" ] || [ "$ref" = "$beta_ref" ]; then
+      die "${src} is MISSING at ${ref} -- that is a moving channel, so this is a bug, not a release gap"
     fi
     say "  SKIP ${label}: ${src} is not in ${ref} yet (added after that tag was cut)"
     SKIPPED_ARTIFACTS=$((SKIPPED_ARTIFACTS + 1))
@@ -192,6 +197,9 @@ WIZ_SENTINEL='id="er-options-metadata"'
 CHK_SRC="er-archipelago-check-browser.html"
 # The check browser's own map container -- structural, and nothing a 200-with-a-login-page has.
 CHK_SENTINEL='id="mapslot"'
+REVIEW_SRC="er-archipelago-evidence-browser.html"
+# The page's embedded evidence payload is structural and absent from generic error bodies.
+REVIEW_SENTINEL='id="evidence-payload"'
 # !! THE FREE SET: src:name:sentinel, space-separated. Pages carrying NEITHER an option surface
 # NOR a data stamp, so they cannot skew against a released apworld and may ship from main at any
 # time. Asserted against the files themselves by test_gf_publish_channels -- do not edit without
@@ -237,11 +245,12 @@ fi
 # page -- exactly #863. This explicit mode updates only the directory that layout serves and says
 # plainly that stable remains owned by the immutable image pin.
 if [ "$BETA_ONLY" = "1" ]; then
-  install_one "main" "$WIZ_SRC" "${DEST}/beta/wizard.html" "$WIZ_SENTINEL" "wizard  beta (main)"
-  install_one "main" "$RPT_SRC" "${DEST}/beta/report.html" "$RPT_SENTINEL" "report  beta (main)"
+  install_one "$beta_ref" "$WIZ_SRC" "${DEST}/beta/wizard.html" "$WIZ_SENTINEL" "wizard  beta (${beta_ref})"
+  install_one "$beta_ref" "$RPT_SRC" "${DEST}/beta/report.html" "$RPT_SENTINEL" "report  beta (${beta_ref})"
   [ "$NO_CHECKS" = "1" ] || {
-    install_one "main" "$CHK_SRC" "${DEST}/beta/checks.html" "$CHK_SENTINEL" "checks  beta (main)"
-    install_one "main" "$QDAG_SRC" "${DEST}/beta/questlines.html" "$QDAG_SENTINEL" "qdag    beta (main)"
+    install_one "$beta_ref" "$CHK_SRC" "${DEST}/beta/checks.html" "$CHK_SENTINEL" "checks  beta (${beta_ref})"
+    install_one "$beta_ref" "$REVIEW_SRC" "${DEST}/beta/review.html" "$REVIEW_SENTINEL" "review  beta (${beta_ref})"
+    install_one "$beta_ref" "$QDAG_SRC" "${DEST}/beta/questlines.html" "$QDAG_SENTINEL" "qdag    beta (${beta_ref})"
   }
   say ""
   say "Stable was NOT written: this mode is for hosts whose stable pages are baked into the image."
@@ -253,15 +262,17 @@ install_one "$stable_tag" "$WIZ_SRC" "${DEST}/wizard.html" "$WIZ_SENTINEL" "wiza
 install_one "$stable_tag" "$RPT_SRC" "${DEST}/report.html" "$RPT_SENTINEL" "report  stable (${stable_tag})"
 [ "$NO_CHECKS" = "1" ] || {
   install_one "$stable_tag" "$CHK_SRC" "${DEST}/checks.html" "$CHK_SENTINEL" "checks  stable (${stable_tag})"
+  install_one "$stable_tag" "$REVIEW_SRC" "${DEST}/review.html" "$REVIEW_SENTINEL" "review  stable (${stable_tag})"
   install_one "$stable_tag" "$QDAG_SRC" "${DEST}/questlines.html" "$QDAG_SENTINEL" "qdag    stable (${stable_tag})"
 }
 
 if [ "$STABLE_ONLY" = "0" ]; then
-  install_one "main" "$WIZ_SRC" "${DEST}/beta/wizard.html" "$WIZ_SENTINEL" "wizard  beta (main)"
-  install_one "main" "$RPT_SRC" "${DEST}/beta/report.html" "$RPT_SENTINEL" "report  beta (main)"
+  install_one "$beta_ref" "$WIZ_SRC" "${DEST}/beta/wizard.html" "$WIZ_SENTINEL" "wizard  beta (${beta_ref})"
+  install_one "$beta_ref" "$RPT_SRC" "${DEST}/beta/report.html" "$RPT_SENTINEL" "report  beta (${beta_ref})"
   [ "$NO_CHECKS" = "1" ] || {
-    install_one "main" "$CHK_SRC" "${DEST}/beta/checks.html" "$CHK_SENTINEL" "checks  beta (main)"
-    install_one "main" "$QDAG_SRC" "${DEST}/beta/questlines.html" "$QDAG_SENTINEL" "qdag    beta (main)"
+    install_one "$beta_ref" "$CHK_SRC" "${DEST}/beta/checks.html" "$CHK_SENTINEL" "checks  beta (${beta_ref})"
+    install_one "$beta_ref" "$REVIEW_SRC" "${DEST}/beta/review.html" "$REVIEW_SENTINEL" "review  beta (${beta_ref})"
+    install_one "$beta_ref" "$QDAG_SRC" "${DEST}/beta/questlines.html" "$QDAG_SENTINEL" "qdag    beta (${beta_ref})"
   }
 fi
 
