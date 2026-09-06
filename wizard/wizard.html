@@ -5760,10 +5760,33 @@ if (typeof module !== "undefined") module.exports = ERW;
     if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; };
   const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 
+  // Player-facing explanations of the relationship between these controls. Keep the
+  // generated option reference below as expandable detail; these paragraphs stay visible.
+  const sweepSurfaceHelp = {
+    progression_surface: [
+      "Choose which kinds of checks may hold progression, such as region Locks. A selected check is eligible; it is not guaranteed to contain progression. The choices describe the original location, not the randomized item you will receive.",
+      "Normally, selected collectible types stay out of boss sweeps so you collect them yourself. For example, selecting Golden Seeds keeps those pickup locations separate from the boss payout, even when the randomized reward there is something else.",
+      "The exception is ‘One check per dungeon sweep’ (or its major/minor boss choices). This makes one existing check in each enabled sweep eligible for progression and leaves it in the sweep. Defeat the sweep’s boss to receive it; you do not need to hunt down that pickup. Collecting it yourself first also checks it off, and the boss will not award it twice.",
+      "Full Area Sweeps lets the boss grant those selected collectibles too, where they belong to its sweep. With sweeps set to none, you collect every check directly and the one-check-per-sweep choices add nothing.",
+      "Removing the one-check-per-sweep choice is not a universal ban on progression in sweeps: Full Area Sweeps, an empty surface, or generation widening an undersized selection can still allow it. An empty surface removes the placement restriction; it does not remove progression items."
+    ],
+    dungeon_sweep: [
+      "Choose which bosses automatically collect their assigned area checks when defeated. You receive each check’s randomized reward, not necessarily its original item.",
+      "Progression Surface normally keeps your selected collectible types out of these payouts so you collect them yourself. Its ‘One check per dungeon sweep’ choice is different: that check stays in the boss payout and may hold progression. Full Area Sweeps also puts the selected collectibles back into eligible sweeps."
+    ],
+    full_area_sweeps: [
+      "Off: collectible types selected on Progression Surface stay separate from the boss payout. You still collect them yourself. A ‘One check per dungeon sweep’ selection remains part of the boss payout either way.",
+      "On: selected collectibles that belong to an enabled sweep are granted when its boss dies, including any progression placed there. This changes how you collect them, not whether every check contains progression.",
+      "This does not enable additional sweep bosses or sweep another boss’s own reward, Remembrances, Great Runes, gate/quest key items, or merchant purchases. Checks outside an eligible sweep still need to be collected directly."
+    ]
+  };
+
   function descBlocks(o){
     const paras = o.description.split(/\n\s*\n/);
-    const first = paras[0], rest = paras.slice(1).join("\n\n");
-    let h = "<div class='desc'>" + esc(first) + "</div>";
+    const first = paras[0], rest = (sweepSurfaceHelp[o.key] ? paras : paras.slice(1)).join("\n\n");
+    const help = sweepSurfaceHelp[o.key];
+    let h = help ? help.map(p => "<p class='desc'>" + esc(p) + "</p>").join("")
+                 : "<div class='desc'>" + esc(first) + "</div>";
     if (rest.trim())
       h += "<details class='more'><summary>more…</summary><div class='desc'>" +
            esc(rest) + "</div></details>";
