@@ -723,3 +723,25 @@ def test_auto_equip_combinations_generate_clean(label, extra):
     assert required == sorted(required), (
         "%s: requiresClientFeatures %r is not sorted; the wire would depend on feature import "
         "order rather than on the options." % (label, required))
+
+
+@pytest.mark.parametrize("seed", [1437, 1438])
+@pytest.mark.parametrize("dlc", [False, True])
+def test_mfg_recovered_pickups_follow_dlc_scope(dlc, seed):
+    """New physical checks obey DLC scope and remain count-neutral (#1437)."""
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"num_regions": 0, "enable_dlc": dlc}
+
+    t = _T()
+    t.world_setup(seed)
+    try:
+        locations = t.multiworld.get_locations(t.player)
+        recovered = {7774636, 7774637, 7774638, 7774639, 7774640}
+        present = {loc.address for loc in locations} & recovered
+        assert present == (recovered if dlc else set())
+        from ._util import world_pool_items
+        assert len(world_pool_items(t)) == len(locations)
+    finally:
+        del locations
+        t.tearDown()
