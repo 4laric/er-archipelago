@@ -4754,7 +4754,9 @@ def _recover_row_ok(r):
     if not _item_exists(r):
         return False
     return _recover_tile(_fl) is not None           # auto-recover every DECODABLE global/filler
-_LATE_RECOVER_FLAGS = frozenset({530805})
+_MFG_SOMBER_ORDER = (530861, 540424, 540428, 540912, 540914, 540920, 540922)
+_MFG_SOMBER_FLAGS = frozenset(_MFG_SOMBER_ORDER)
+_LATE_RECOVER_FLAGS = frozenset({530805}) | _MFG_SOMBER_FLAGS
 _recovered = [r for r in _ALLROWS
               if _recover_row_ok(r) and int(r['flag']) not in _LATE_RECOVER_FLAGS]
 rows = rows + _recovered
@@ -5539,8 +5541,8 @@ REGION_UNCONFIRMED = " (region unconfirmed)"
 # therefore append after those established populations. Senessax is the first such ruling made
 # after the namespace shipped; keep this explicit rather than silently changing existing AP IDs.
 _late_recovered = [r for r in _ALLROWS
-                   if int(r['flag']) in _LATE_RECOVER_FLAGS and _recover_row_ok(r)]
-assert {int(r['flag']) for r in _late_recovered} == set(_LATE_RECOVER_FLAGS), (
+                   if int(r['flag']) in _LATE_RECOVER_FLAGS - _MFG_SOMBER_FLAGS and _recover_row_ok(r)]
+assert {int(r['flag']) for r in _late_recovered} == set(_LATE_RECOVER_FLAGS - _MFG_SOMBER_FLAGS), (
     "late recovered flag set is incomplete -- an append-only AP id would silently disappear")
 rows.extend(_late_recovered)
 # Accepted M4G ground recoveries enter after the shipped populations, just like
@@ -5554,6 +5556,13 @@ assert {int(r['flag']) for r in _mfg_recovery_rows} == _mfg_recovery_flags
 assert len(_mfg_recovery_rows) == len(_mfg_recovery_flags)
 _mfg_recovery_rows.sort(key=lambda r: _mfg_recovery_order.index(int(r["flag"])))
 rows = [r for r in rows if int(r['flag']) not in _mfg_recovery_flags] + _mfg_recovery_rows
+
+# Append accepted one-time stone rewards after the earlier M4G/Briars recoveries.
+_somber_rows = [r for r in _ALLROWS if int(r['flag']) in _MFG_SOMBER_FLAGS and _recover_row_ok(r)]
+assert {int(r['flag']) for r in _somber_rows} == _MFG_SOMBER_FLAGS
+assert len(_somber_rows) == len(_MFG_SOMBER_FLAGS)
+_somber_rows.sort(key=lambda r: _MFG_SOMBER_ORDER.index(int(r["flag"])))
+rows.extend(_somber_rows)
 
 # #1437: the shipped Eleonora position used an unused ground-lot copy. Preserve its
 # positional AP id while binding it to the actual invasion award (101620 block,

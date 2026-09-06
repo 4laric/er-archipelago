@@ -63,19 +63,26 @@ flag	map_id	source	item_name
 530840	m61_48_38	observed	Dragon Heart
 530845	m61_46_40	observed	Star-Lined Sword
 530860	m61_45_44	observed	Dragon Heart
+530861	m61_45_44	mfg_pin	Somber Ancient Dragon Smithing Stone
 530865	m61_47_44	observed	Moonrithyll's Knight Sword
 530900	m61_46_45	observed	Red Bear's Claw
 530945	m61_49_43	observed	Dragon Heart
 540408	m60_51_35	observed	Ash of War: Flaming Strike
 540416	m60_49_39	observed	[Incantation] Poison Armament
 540418	m60_49_39	observed	Ash of War: Double Slash
+540424	m60_49_36	observed	Somber Smithing Stone [4]
+540428	m60_51_42	observed	Somber Smithing Stone [9]
 540516	m60_52_55	observed	Ash of War: Prelate's Charge
 540524	m60_48_56	observed	Ash of War: White Shadow's Lure
 540902	m61_48_44	observed	Ash of War: Piercing Throw
 540904	m61_48_46	observed	Ash of War: Rolling Sparks
 540906	m61_51_45	observed	Ash of War: Raging Beast
 540910	m61_48_47	observed	Ash of War: Scattershot Throw
+540912	m61_48_47	observed	Somber Smithing Stone [9]
+540914	m61_48_47	observed	Somber Smithing Stone [7]
 540916	m61_45_47	observed	Ash of War: The Poison Flower Blooms Twice
+540920	m61_48_44	observed	Somber Smithing Stone [8]
+540922	m61_48_44	observed	Somber Smithing Stone [8]
 580030	m60_51_57	observed	"Sorcerer" Painting
 580060	m60_50_39	observed	"Redmane" Painting
 580110	m61_47_42_00	event_call	"The Sacred Tower" Painting

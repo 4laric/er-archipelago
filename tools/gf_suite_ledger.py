@@ -387,6 +387,7 @@ TESTS_JOB = {
     "isolated_merchant_region": "committed gen_data.py/data.py/location_tags.py read by walk-up; "
                                 "the fill-binding half needs the installed world (tests job has it)",
     "unplaced_globals": "bundle-covered EMEVD corpus",
+    "mfg_somber_recoveries": "committed M4G identities and bundle-covered EMEVD award calls; tests job materializes the inputs",
     "chapel_return_region": "#1023's acceptance test. The region halves read only the installed "
                             "data.py and never skip; the three that pin the MECHANISM read "
                             "gen_data.py and region_overrides.tsv, which are NOT copied in beside "

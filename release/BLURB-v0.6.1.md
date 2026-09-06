@@ -19,7 +19,8 @@ an existing room. Use the matching v0.6.1 client when testing a v0.6.1 seed.
 Four Oathseeker Knight armor pieces and Royal Magic Grease return as checks, backed
 by Map for Goblins placement evidence. Briars of Sin is recovered from its actual
 enemy drop, replacing a wrongly identified synthetic source. Existing check IDs
-are preserved. Further
+are preserved. Seven Somber stone rewards are also restored: six one-time scarabs
+and the Gravesite Ghostflame Dragon’s stone alongside its Dragon Heart. Further
 NPC, enemy-drop, and access-rule investigations remain open under #1437; this draft
 does not claim those reports are fixed.
 

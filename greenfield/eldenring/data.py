@@ -1230,6 +1230,8 @@ LOCATIONS = {
         ('Caelid :: Desperate Prayer [f60842]', 7774616, 60842),
         ("Caelid :: Ritual Thrusting Shield - corpse near Isolated Merchant's Shack (region unconfirmed), may be sweep-granted by Bell Bearing Hunter (m60_48_41) [f1047427000]", 7774633, 1047427000),
         ('Caelid :: Reed Great Katana - corpse near Fort Faroth, may be sweep-granted by Putrid Avatar (m60_51_40) [f1050407000]', 7774634, 1050407000),
+        ('Caelid :: Somber Smithing Stone [4] - m60_49_36 (region unconfirmed), may be sweep-granted by Death Rite Bird (m60_49_37) [f540424]', 7774643, 540424),
+        ('Caelid :: Somber Smithing Stone [9] - m60_51_42 (region unconfirmed), may be sweep-granted by Black Blade Kindred (m60_51_43) [f540428]', 7774644, 540428),
         ("Caelid :: Blackguard's Iron Mask - m60_44_52 (region unconfirmed) [f400309]", 7900023, 400309),
         ("Caelid :: Blackguard's Bell Bearing - m60_44_52 (region unconfirmed) [f400309]", 7900024, 400309),
         ("Caelid :: Gowry's Bell Bearing - around Church of the Plague, may be sweep-granted by Night's Cavalry (m60_49_37) [f400312]", 7900025, 400312),
@@ -1730,6 +1732,8 @@ LOCATIONS = {
         ("Ensis :: Ash of War: Piercing Throw - around Castle-Lord's Chamber, may be sweep-granted by Rellana, Twin Moon Knight (m61_48_44) [f540902]", 7773896, 540902),
         ('Ensis :: Scadutree Fragment - Castle Ensis Checkpoint cross [f2047447720]', 7774553, 2047447720),
         ('Ensis :: Royal Magic Grease - around Castle Front, may be sweep-granted by Rellana, Twin Moon Knight (m61_48_44) [f2047447901]', 7774640, 2047447901),
+        ("Ensis :: Somber Smithing Stone [8] - around Castle-Lord's Chamber (1), may be sweep-granted by Rellana, Twin Moon Knight (m61_48_44) [f540920]", 7774647, 540920),
+        ("Ensis :: Somber Smithing Stone [8] - around Castle-Lord's Chamber (2), may be sweep-granted by Rellana, Twin Moon Knight (m61_48_44) [f540922]", 7774648, 540922),
     ],
     'Farum Azula': [
         ("Farum Azula :: Ancient Dragon Apostle's Cookbook [4] - near Tempest-Facing Balcony, may be sweep-granted by Maliketh, the Black Blade (m13_00) [f68020]", 7770132, 68020),
@@ -2027,6 +2031,7 @@ LOCATIONS = {
         ('Gravesite :: Oathseeker Knight Armor - around Gravesite Plain, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f2046407002]', 7774637, 2046407002),
         ('Gravesite :: Oathseeker Knight Gauntlets - around Gravesite Plain, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f2046407003]', 7774638, 2046407003),
         ('Gravesite :: Oathseeker Knight Greaves - around Gravesite Plain, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f2046407004]', 7774639, 2046407004),
+        ('Gravesite :: Somber Ancient Dragon Smithing Stone - Ghostflame Dragon, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f530861]', 7774642, 530861),
         ("Gravesite :: Thiollier's Garb [f400636]", 7900089, 400636),
         ("Gravesite :: Thiollier's Gloves [f400636]", 7900090, 400636),
         ("Gravesite :: Thiollier's Trousers [f400636]", 7900091, 400636),
@@ -3972,6 +3977,8 @@ LOCATIONS = {
         ('Rauh Base :: Ghost Glovewort [8] - near Scorpion River Catacombs, may be sweep-granted by Death Knight (m40_01) [f40017130]', 7774041, 40017130),
         ('Rauh Base :: Shadow Realm Rune [4] - near Scorpion River Catacombs, may be sweep-granted by Death Knight (m40_01) [f40017140]', 7774042, 40017140),
         ('Rauh Base :: Broken Rune - near Scorpion River Catacombs, may be sweep-granted by Death Knight (m40_01) [f40017150]', 7774043, 40017150),
+        ('Rauh Base :: Somber Smithing Stone [9] - around Ancient Ruins Base, may be sweep-granted by Red Bear (m61_46_45) [f540912]', 7774645, 540912),
+        ('Rauh Base :: Somber Smithing Stone [7] - around Ancient Ruins Base, may be sweep-granted by Red Bear (m61_46_45) [f540914]', 7774646, 540914),
         ('Rauh Base :: Fang Helm - m61_46_45, may be sweep-granted by Red Bear (m61_46_45) [f530900]', 7900167, 530900),
         ('Rauh Base :: Iron Rivet Armor - m61_46_45, may be sweep-granted by Red Bear (m61_46_45) [f530900]', 7900168, 530900),
         ('Rauh Base :: Iron Rivet Gauntlets - m61_46_45, may be sweep-granted by Red Bear (m61_46_45) [f530900]', 7900169, 530900),
@@ -5541,4 +5548,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:ef8f34fdb8e691a048396af8acdcdbf7d50d20add27bd5a106cf0a8896fcc908', 'module': 'data.py', 'body_sha256': 'sha256:04b9a310e7fbeb79d5432a2add4a7f0d68e82250a7bd11a3c098527a24f17fd6'}
+_GEN_STAMP = {'inputs_hash': 'sha256:f6362516d442ba3f24397517568ad92260404dcee719d0714477b9545dddd316', 'module': 'data.py', 'body_sha256': 'sha256:9d40940c20958c804bb2e4d19b7be7d9574f24fd2a074610e58389bfcbc51ab8'}

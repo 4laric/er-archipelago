@@ -5,6 +5,8 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.1 — 2026-09-06
 
+- Recover seven Somber stone checks: six one-time scarab rewards and the Gravesite Ghostflame Dragon’s stone alongside its Dragon Heart (#1437).
+
 - Recover Briars of Sin from its real enemy lot; preserve existing check IDs and
   the guard against falsely identified synthetic pickups (#1437).
 

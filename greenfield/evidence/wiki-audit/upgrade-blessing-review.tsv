@@ -310,12 +310,14 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7774456	smithing_stone	repeated_material_row	Caelid	Somber Smithing Stone [4]	1049387010	m60_49_38	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774503	smithing_stone	repeated_material_row	Caelid	Somber Smithing Stone [4]	1051367700	m60_51_36	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774504	smithing_stone	repeated_material_row	Caelid	Somber Smithing Stone [4]	1051367800	m60_51_36	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7774643	smithing_stone	repeated_material_row	Caelid	Somber Smithing Stone [4]	540424	m60_49_37	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772232	smithing_stone	repeated_material_row	Caelid	Somber Smithing Stone [5]	31217200	m31_21	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773016	smithing_stone	repeated_material_row	Caelid	Somber Smithing Stone [5]	1048397010	m60_48_40	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773119	smithing_stone	repeated_material_row	Caelid	Somber Smithing Stone [5]	1051367110	m60_51_36	audited_one_family	1	gameplay-wiki:eldenpedia	unresolved	second_independent_exact_landmark_source
 7773846	smithing_stone	repeated_material_row	Caelid	Somber Smithing Stone [6]	520670		trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	unresolved	none_identity_region_trusted
 7773888	smithing_stone	repeated_material_row	Caelid	Somber Smithing Stone [8]	540426	m60_48_40	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7773060	smithing_stone	repeated_material_row	Caelid	Somber Smithing Stone [9]	1049417090	m60_48_40	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	unresolved	none_identity_region_trusted
+7774644	smithing_stone	repeated_material_row	Caelid	Somber Smithing Stone [9]	540428	m60_51_43	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773515	smithing_stone	repeated_material_row	Cerulean	Smithing Stone [2]	2049387060	m61_48_38	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773372	smithing_stone	repeated_material_row	Cerulean	Smithing Stone [6]	2047397090	m61_47_39	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773957	smithing_stone	repeated_material_row	Cerulean	Smithing Stone [6]	22007190	m22_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -375,6 +377,8 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7773491	smithing_stone	repeated_material_row	Ensis	Somber Smithing Stone [5]	2048447050	m61_48_44	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7773410	smithing_stone	repeated_material_row	Ensis	Somber Smithing Stone [6]	2047447080	m61_48_44	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773492	smithing_stone	repeated_material_row	Ensis	Somber Smithing Stone [6]	2048447060	m61_48_44	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7774647	smithing_stone	repeated_material_row	Ensis	Somber Smithing Stone [8]	540920	m61_48_44	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7774648	smithing_stone	repeated_material_row	Ensis	Somber Smithing Stone [8]	540922	m61_48_44	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773433	smithing_stone	repeated_material_row	Ensis	Somber Smithing Stone [9]	2047447900	m61_48_44	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7771445	smithing_stone	repeated_material_row	Farum Azula	Ancient Dragon Smithing Stone	13007480	m13_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771480	smithing_stone	repeated_material_row	Farum Azula	Ancient Dragon Smithing Stone	13007900	m13_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -424,6 +428,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7774547	smithing_stone	repeated_material_row	Gravesite	Smithing Stone [6]	2046437040	m61_45_44	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774086	smithing_stone	repeated_material_row	Gravesite	Smithing Stone [7]	42007140	m61_46_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773394	smithing_stone	repeated_material_row	Gravesite	Smithing Stone [8]	2047427950	m61_46_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7774642	smithing_stone	repeated_material_row	Gravesite	Somber Ancient Dragon Smithing Stone	530861	m61_45_44	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774089	smithing_stone	repeated_material_row	Gravesite	Somber Smithing Stone [2]	42007170	m61_45_44	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773233	smithing_stone	repeated_material_row	Gravesite	Somber Smithing Stone [4]	2045417030	m61_46_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773391	smithing_stone	repeated_material_row	Gravesite	Somber Smithing Stone [4]	2047427030	m61_46_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -676,7 +681,9 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7773228	smithing_stone	repeated_material_row	Rauh Base	Somber Smithing Stone [1]	2044477050	m61_44_47	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772457	smithing_stone	repeated_material_row	Rauh Base	Somber Smithing Stone [3]	42037130	m61_46_45	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773332	smithing_stone	repeated_material_row	Rauh Base	Somber Smithing Stone [3]	2046457060	m61_46_45	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7774646	smithing_stone	repeated_material_row	Rauh Base	Somber Smithing Stone [7]	540914	m61_46_45	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772458	smithing_stone	repeated_material_row	Rauh Base	Somber Smithing Stone [8]	42037140	m61_44_47	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
+7774645	smithing_stone	repeated_material_row	Rauh Base	Somber Smithing Stone [9]	540912	m61_46_45	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771537	smithing_stone	repeated_material_row	Raya Lucaria Academy	Smithing Stone [3]	14007720	m14_00	audited_one_family	1	gameplay-guide:game8	unresolved	second_independent_exact_landmark_source
 7771499	smithing_stone	repeated_material_row	Raya Lucaria Academy	Smithing Stone [4]	14007090	m14_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771514	smithing_stone	repeated_material_row	Raya Lucaria Academy	Smithing Stone [4]	14007370	m14_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
