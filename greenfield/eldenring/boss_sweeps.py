@@ -61,7 +61,7 @@ DUNGEON_SWEEPS = {
     30170800: [7772094, 7772095, 7772096, 7772097, 7772098, 7772099],
     30180800: [7772100, 7772101, 7772102, 7772103, 7772104, 7773692, 7773973, 7773974, 7773975, 7773976, 7773977, 7773978],
     30190800: [7772105, 7772106, 7772107, 7772108, 7772109, 7773979],
-    30200800: [7772110, 7772111, 7773980, 7773981, 7773982, 7773983, 7773984, 7773985],
+    30200800: [7772110, 7772111, 7773980, 7773981, 7773982, 7773983, 7773984, 7773985, 7774650],
     31000800: [7770582, 7772113, 7900210],
     31000850: [7772112, 7772114],
     31010800: [7772115, 7772116, 7772117, 7772118, 7772119, 7772120],
@@ -686,4 +686,4 @@ SWEEP_UNSPAWNED_OPEN = {
     1041330800: "unnamed m60_41_33 (Fourth Church of Marika, Weeping) -- the same shape and NOT yet falsified in game, so its 10 members keep their trigger. FALSIFIER: warp to the Fourth Church of Marika and look, by day and at night (the tile's other candidate reading is a night-conditional spawn). Absent -> move it to 'unspawned' here and regen; present -> the datamine owes it a GameAreaParam binding and an MSB position. Issue #540.",
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:f6362516d442ba3f24397517568ad92260404dcee719d0714477b9545dddd316', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:5dfaa76bf64e957e3804c105e841a15e7abece4bcb19c4c1169ae9fa5f7984b3'}
+_GEN_STAMP = {'inputs_hash': 'sha256:bcf27d864e0f74c8701c0af73388f39b4e21fcc14839ccd7eeea4c226d1bdb21', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:afe65a5bd51948b2206b8b8717b2811fc54e39ddfd87a62a7b2226307e86d3d8'}

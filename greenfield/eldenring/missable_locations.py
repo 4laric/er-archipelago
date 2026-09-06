@@ -211,6 +211,8 @@ MISSABLE_LOCATIONS = {
     7774618: 'questline',
     7774619: 'questline',
     7774620: 'questline',
+    7774649: 'questline',
+    7774651: 'questline',
     7900000: 'questline',
     7900005: 'questline',
     7900006: 'questline',
@@ -294,4 +296,4 @@ MISSABLE_LOCATIONS = {
     7900274: 'questline',
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:f6362516d442ba3f24397517568ad92260404dcee719d0714477b9545dddd316', 'module': 'missable_locations.py', 'body_sha256': 'sha256:ef58583fd3475ddd1618cc5d3828c2498424f129b6d3eb6a1679b4b8729acce9'}
+_GEN_STAMP = {'inputs_hash': 'sha256:bcf27d864e0f74c8701c0af73388f39b4e21fcc14839ccd7eeea4c226d1bdb21', 'module': 'missable_locations.py', 'body_sha256': 'sha256:1ad777c66e15dc3996a2bd7b72c675804ab8113b121c9324cb76b4f0b711ca3a'}

@@ -1482,6 +1482,7 @@ LOCATIONS = {
         ('Consecrated Snowfield :: Somber Smithing Stone [8] - m60_49_57 (region unconfirmed), may be sweep-granted by Putrid Avatar (m60_50_57) [f1049577710]', 7774490, 1049577710),
         ('Consecrated Snowfield :: Somber Smithing Stone [9] - m60_49_57 (region unconfirmed), may be sweep-granted by Death Rite Bird (m60_48_57) [f1049577720]', 7774491, 1049577720),
         ("Consecrated Snowfield :: Hoslow's Petal Whip - near Consecrated Snowfield Catacombs (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f1050567700]", 7774501, 1050567700),
+        ('Consecrated Snowfield :: Silver Scarab - near Hidden Path to the Haligtree, may be sweep-granted by Stray Mimic Tear (m30_20) [f30207900]', 7774650, 30207900),
         ('Consecrated Snowfield :: Rotten Gravekeeper Cloak - m30_19 [f520190]', 7900138, 520190),
         ('Consecrated Snowfield :: Sanguine Noble Robe - m60_47_56 (region unconfirmed), may be sweep-granted by Death Rite Bird (m60_48_57) [f1047567700]', 7900258, 1047567700),
         ("Consecrated Snowfield :: Sanguine Noble Waistcloth - m60_47_56 (region unconfirmed), may be sweep-granted by Night's Cavalry (Glaive) (m60_48_55) [f1047567700]", 7900259, 1047567700),
@@ -1833,6 +1834,7 @@ LOCATIONS = {
         ('Farum Azula :: Ancient Dragon Smithing Stone - around Crumbling Beast Grave (2), may be sweep-granted by Godskin Duo (m13_00) [f13007993]', 7771488, 13007993),
         ('Farum Azula :: Malformed Dragon Helm - around Crumbling Beast Grave, may be sweep-granted by Maliketh, the Black Blade (m13_00) [f13007995]', 7771489, 13007995),
         ("Farum Azula :: Smithing-Stone Miner's Bell Bearing [4] - around Crumbling Beast Grave [f510140]", 7773789, 510140),
+        ("Farum Azula :: [Sorcery] Gelmir's Fury - defeat Recusant Bernahl in Crumbling Farum Azula [f400295]", 7774649, 400295),
         ("Farum Azula :: Alexander's Innards - around Crumbling Beast Grave, may be sweep-granted by Dragonlord Placidusax (m13_00) [f400174]", 7900018, 400174),
         ('Farum Azula :: Ash of War: Black Flame Tornado - around Crumbling Beast Grave [f510140]', 7900119, 510140),
         ('Farum Azula :: Drake Knight Armor - near Dragon Temple Rooftop, may be sweep-granted by Godskin Duo (m13_00) [f13007920]', 7900188, 13007920),
@@ -3328,6 +3330,7 @@ LOCATIONS = {
         ('Liurnia :: Silver Grooved Greaves [f170130]', 7774630, 170130),
         ('Liurnia :: Idus Sword - corpse near Liurnia Lake Shore, may be sweep-granted by Adan, Thief of Fire (m60_38_41) [f1038417020]', 7774632, 1038417020),
         ("Liurnia :: Briars of Sin - around Artist's Shack [f1038457500]", 7774641, 1038457500),
+        ("Liurnia :: Numen's Rune - Diallos at Jarburg [f400452]", 7774651, 400452),
         ("Liurnia :: Rancorcall - around Revenger's Shack, may be sweep-granted by Erdtree Avatar (m60_33_43) [f400061]", 7900005, 400061),
         ("Liurnia :: Preceptor's Big Hat - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]", 7900008, 400148),
         ("Liurnia :: Preceptor's Long Gown - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]", 7900009, 400148),
@@ -5437,7 +5440,6 @@ NOT_RANDOMIZED = {
     30127000: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     30127900: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     30177060: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
-    30207900: 'unreachable_dead: physically gated behind mechanics a warp-grace region-lock shuffle cannot guarantee (Alaric 2026-07-09); a placed item would strand',
     35007750: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     35007920: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     35007960: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
@@ -5548,4 +5550,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:f6362516d442ba3f24397517568ad92260404dcee719d0714477b9545dddd316', 'module': 'data.py', 'body_sha256': 'sha256:9d40940c20958c804bb2e4d19b7be7d9574f24fd2a074610e58389bfcbc51ab8'}
+_GEN_STAMP = {'inputs_hash': 'sha256:bcf27d864e0f74c8701c0af73388f39b4e21fcc14839ccd7eeea4c226d1bdb21', 'module': 'data.py', 'body_sha256': 'sha256:456550b1aca9440b51facdc4797946ad76dd30785df08eea505aa6d8a5ff953e'}

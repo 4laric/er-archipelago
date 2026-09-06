@@ -13,6 +13,9 @@ The narrative — what this project is and what v0.2 brings — lives in
   unequippable, with no Divine Tower prompt (client #316). See KNOWN-ISSUES.md and
   GETTING-UNSTUCK.md before attempting a rescue command.
 
+- Restore Silver Scarab in the Hidden Path to the Haligtree; correct the old
+  imp-gate exclusion using the supported grace route and M4G pin (#1437).
+
 - Recover seven Somber stone checks: six one-time scarab rewards and the Gravesite Ghostflame Dragon’s stone alongside its Dragon Heart (#1437).
 
 - Recover Briars of Sin from its real enemy lot; preserve existing check IDs and
@@ -31,6 +34,9 @@ The narrative — what this project is and what v0.2 brings — lives in
   Map for Goblins placement evidence (#1437). Existing check IDs remain unchanged.
 
 - Correct Eleonora’s Poleblade to the real invasion reward; the unused ground-lot copy no longer stands in for it. Requires a newly generated seed.
+- Recover the separate Gelmir's Fury reward from Bernahl's Farum Azula invasion. It remains barred from progression placement because NPC access is not fully modeled.
+
+- Recover Diallos's Numen's Rune at Jarburg as a separate check, with questline progression protection.
 
 - **`maximum_enemy_difficulty: auto` resolves lower on every seed short of a full map.** The
   curve was derived against 30 regions; with the live total of 28 a 5-region seed had drifted to

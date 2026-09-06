@@ -179,6 +179,7 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "mfg_silver_scarab": "Recovered chest evidence and region/grace/kick witnesses require the repository-aware pytest job",
     "mfg_briars": "Briars source/identity regression reads committed evidence and generator AST; runs in the repository-aware pytest job",
     "boss_reward_category_coverage": "category-wide boss and remembrance coverage regression "
                                      "imports its repo-only builder and committed summary through "
@@ -387,6 +388,7 @@ TESTS_JOB = {
     "isolated_merchant_region": "committed gen_data.py/data.py/location_tags.py read by walk-up; "
                                 "the fill-binding half needs the installed world (tests job has it)",
     "unplaced_globals": "bundle-covered EMEVD corpus",
+    "mfg_numen_reward": "committed NpcParam/map-lot namespace witness from gen_inputs.db; tests job materializes inputs",
     "mfg_somber_recoveries": "committed M4G identities and bundle-covered EMEVD award calls; tests job materializes the inputs",
     "chapel_return_region": "#1023's acceptance test. The region halves read only the installed "
                             "data.py and never skip; the three that pin the MECHANISM read "
