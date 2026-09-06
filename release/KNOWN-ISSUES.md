@@ -65,6 +65,17 @@ players, one section per fix, and it is the honest record.
 - **Dropping an item and picking it back up does not return it** (#225).
   What to do: do not drop multiworld items.
 
+- **Miriel does not reliably learn from prayerbooks and scrolls; Brother Corhyn
+  does.** Reported from a large async (2026-09-03): handing a prayerbook to
+  Miriel in the Church of Vows did not unlock the incantations in her shop,
+  while the same books handed to Corhyn worked. Not yet reproduced on our side
+  and the cause is unknown. Sellen and Seluvis are unverified either way. What
+  to do: give every prayerbook to **Brother Corhyn** (Roundtable Hold, later
+  Altus Highway junction and Goldmask's side) and every scroll to a sorcerer
+  whose shop you have confirmed grows; keep Miriel as the fallback only. A
+  book already given to Miriel is not lost to the multiworld -- the check fired
+  on pickup -- but the spells it teaches may stay off her list.
+
 - **Dragon Communion can ask an absurd number of Dragon Hearts** (#231) when a
   Great Rune is rolled into one of its slots. What to do: skip that slot; no
   progression is placed there.

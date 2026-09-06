@@ -18,6 +18,7 @@ worlds/eldenring/options.py (the EROptions dataclass), so adding an option in
 options.py automatically teaches the linter about it. Pure stdlib + PyYAML.
 """
 from __future__ import annotations
+import json
 import os, re, sys, glob
 from difflib import get_close_matches
 
@@ -110,6 +111,7 @@ CHOICE = {
     "dungeon_sweep": {"none":0,"minidungeons":1,"all":2,"bosses":3},
     "location_pool": {"all":0,"trimmed":1,},
     "global_scadutree_blessing": {"off":0,"player_only":1,"scaled":2},
+    "scadutree_blessing_scope": {"dlc_only":0,"anywhere":1},
     "crafting_kit_option": {"randomize":0,"early":1,"do_not_randomize":2,"start_with":3},
     "map_option": {"randomize":0,"give":1,"do_not_randomize":2},
     "smithing_bell_bearing_option": {"randomize":0,"progression_randomize":1,"do_not_randomize":2},
@@ -128,6 +130,7 @@ DEFAULT = {
     "ending_condition":"final_boss","world_logic":"region_lock","region_access":"geographic",
     "dlc_only":False,"enable_dlc":False,"enemy_rando":False,"grace_rando":True,
     "num_regions":0,"num_regions_order":"rolled","minimum_enemy_difficulty":0,"graces_per_region":3,
+    "maximum_enemy_difficulty":"auto","enemy_scaling":True,"scadutree_blessing_scope":"anywhere",
     "pool_builder":False,"pool_builder_dlc_gear":False,"soft_progression":False,
     "dlc_only_chain":False,"messmer_kindle":False,"quick_start":False,
     "dlc_only_rune_catchup":False,"num_regions_chain":False,
@@ -223,6 +226,55 @@ class Cfg:
         return str(v).strip().lower()
 
 # ---- the rules --------------------------------------------------------------
+def _scaling_ladder():
+    """greenfield/eldenring/scaling_ladder.py, loaded by path: it is dependency-free on purpose and
+    this linter must stay AP-free. None when the source tree is not beside us (installed copy)."""
+    import importlib.util
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "greenfield", "eldenring",
+                     "scaling_ladder.py")
+    if not os.path.isfile(p):
+        return None
+    spec = importlib.util.spec_from_file_location("_er_scaling_ladder", p)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+# The num_regions range end IS the region total gen resolves `auto` against (NumRegions.range_end ==
+# len(REGIONS)); read from the wizard metadata so it moves with the world, not with this file.
+def _region_total():
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "wizard", "options-metadata.json")
+    try:
+        for o in json.load(open(p, encoding="utf-8"))["options"]:
+            if o["key"] == "num_regions":
+                return int(o["range"]["end"])
+    except (OSError, KeyError, ValueError, TypeError):
+        pass
+    return 0
+
+def _scaling_cap(c):
+    """What maximum_enemy_difficulty RESOLVES to for this block, the way features/scaling does:
+    auto -> scaling_ladder.auto_ceiling_pct(draw size, total), raised to an explicit floor."""
+    sl = _scaling_ladder()
+    total = _region_total()
+    if sl is None or total <= 0:
+        return None
+    raw = c.raw("maximum_enemy_difficulty", "auto")
+    auto = isinstance(raw, str) and raw.strip().lower() == "auto"
+    floor_pct = c.num("minimum_enemy_difficulty")
+    draw = c.num("num_regions")
+    if auto:
+        pct = max(floor_pct, sl.auto_ceiling_pct(draw, total))
+    else:
+        try:
+            pct = int(raw)
+        except (TypeError, ValueError):
+            return None
+    mult = sl.ceiling_multiplier(pct)
+    rung = sl.SCALING_HP_LADDER.index(mult)
+    return {"auto": auto, "pct": pct, "rung": rung, "mult": mult,
+            "dlc_rungs": rung > sl.SCALING_HP_LADDER.index(3.703),
+            "draw": total if draw <= 0 else min(draw, total)}
+
 def lint_block(block: dict) -> list[Finding]:
     c = Cfg(block)
     out: list[Finding] = []
@@ -320,6 +372,21 @@ def lint_block(block: dict) -> list[Finding]:
         if c.cval(_old) is not None:
             warn(_old, f"RENAMED to {_new}; generation will refuse this key"
                        + (" (and the ramp INVERTED: higher is now harder)" if "ramp" in _old else ""))
+
+    # 3b) DLC-strength cap with a DLC-only blessing. scaling_ladder.SCALING_HP_LADDER: every rung
+    #     above 3.703x is the DLC's own re-emission of the enemy ladder, tuned for a player carrying
+    #     a Scadutree Blessing; ScadutreeBlessingScope docstring: dlc_only "does nothing in Limgrave".
+    #     Mirrors the wizard's rule (ERW.findings); the maths is scaling_ladder's, loaded AP-free.
+    if c.truthy("enemy_scaling") and c.cval("scadutree_blessing_scope") == "dlc_only":
+        sp = _scaling_cap(c)
+        if sp and sp["dlc_rungs"]:
+            warn("scadutree_blessing_scope",
+                 f"enemy cap resolves to {sp['mult']:.2f}x HP"
+                 + (f" (auto, {sp['draw']} regions)" if sp["auto"] else "")
+                 + " -- DLC-strength scaling, but the blessing stays DLC-only, so base-game regions "
+                   "deep in your order get DLC enemies with no blessing to answer them. Set "
+                   "scadutree_blessing_scope: anywhere, or cap maximum_enemy_difficulty at 47 or "
+                   "lower (about 3.7x)")
 
     # 4) dlc_only gates
     if not c.truthy("dlc_only"):
