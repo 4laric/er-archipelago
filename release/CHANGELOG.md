@@ -5,6 +5,11 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.0 — 2026-09-02
 
+**Temporary icon fallback:** v0.6.0 omits the Flower atlas override to avoid wrong weapon
+icons and missing class previews. AP placeholders use the Telescope icon; AP names
+and gameplay still work. Existing installs must disable or restore old Flower overrides
+as described in SETUP.md.
+
 - **The v0.6 release bundles MapForGoblins with the matching AP client.** The release profile
   loads the source-built map engine; material gathering nodes are hidden by the preset.
   Check sharing and pin coloring start automatically when connected; no F6 activation is

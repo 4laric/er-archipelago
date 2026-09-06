@@ -71,7 +71,8 @@ class MfgPackageTests(unittest.TestCase):
                 self.assertIs(profile['mem_patch'], False)
                 self.assertEqual([n['path'] for n in profile['natives']],
                                  ['eldenring_archipelago.dll', 'MapForGoblins.dll'])
-                self.assertEqual([n['path'] for n in profile['packages']], ['flower-package'])
+                self.assertEqual(profile.get('packages', []), [])
+                self.assertFalse(any('flower-package/' in n or n.endswith('.tpf.dcx') for n in names))
                 prefix = profile_name.removesuffix('ap.me3')
                 for name in ['MFG-PROVENANCE.json', 'MFG-LICENSE.txt', 'MapForGoblins.ini',
                              'check_lots_table.json', 'shoplineup_flags.json']:

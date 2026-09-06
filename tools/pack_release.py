@@ -244,7 +244,9 @@ def stage(args, stage_dir: str) -> None:
     shutil.copy2(updater_py, os.path.join(me3_dst, "update_er_archipelago.py"))
     flower_package = os.path.join(args.me3, "flower-package")
     staged_package: str | None = None
-    if os.path.isdir(flower_package):
+    if args.version.lstrip("vV") == "0.6.0":
+        info("AP Flower omitted for v0.6.0; native Telescope icon retained")
+    elif os.path.isdir(flower_package):
         flower_manifest(flower_package, args.version)
         shutil.copytree(flower_package, os.path.join(me3_dst, "flower-package"))
         staged_package = "flower-package"
@@ -295,7 +297,7 @@ def stage(args, stage_dir: str) -> None:
             die(f"missing required file: {rel}")
 
 
-def gate_stage(stage_dir: str, unofficial: bool) -> None:
+def gate_stage(stage_dir: str, unofficial: bool, version: str = "") -> None:
     """Everything below is a CORRECTNESS gate and stays hard even for --unofficial."""
     me3 = os.path.join(stage_dir, "me3")
 
@@ -317,13 +319,15 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
     if not os.path.isfile(installer_py):
         die("no install_ap_flower.py in the stage")
     package = os.path.join(me3, "flower-package")
+    if version == "0.6.0" and os.path.isdir(package):
+        die("v0.6.0 must not ship the Flower atlas override")
     if os.path.isdir(package):
         try:
             from install_ap_flower import load_package
             load_package(Path(package))
         except Exception as exc:
             die(f"invalid packaged AP Flower assets: {exc}")
-    elif not unofficial:
+    elif not unofficial and version != "0.6.0":
         die("stable stage has no authenticated flower-package")
     info("AP flower: packaged-asset installer present")
 
@@ -406,7 +410,7 @@ def main() -> int:
     stage(args, stage_dir)
 
     print("== correctness gates ==")
-    gate_stage(stage_dir, args.unofficial)
+    gate_stage(stage_dir, args.unofficial, version)
 
     if args.unofficial:
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ")
