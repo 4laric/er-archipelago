@@ -3,9 +3,9 @@
     "unique_dungeon_pickup": {
       "audited_one_family": 131,
       "conflicted": 0,
-      "held": 247,
-      "remaining_unreviewed": 116,
-      "total": 480,
+      "held": 248,
+      "remaining_unreviewed": 117,
+      "total": 481,
       "trusted": 233
     },
     "unique_field_pickup": {
@@ -19,7 +19,7 @@
   },
   "excluded": {
     "boss": 66,
-    "no_map_anchor": 849,
+    "no_map_anchor": 848,
     "repeated_item_name": 3007
   },
   "policy": {

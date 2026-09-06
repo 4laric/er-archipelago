@@ -10251,7 +10251,10 @@ for _i, _r in enumerate(rows):
         # their maps -- was what kept them out of those dungeons' sweeps
         # (test_gf_boss_sweeps::test_no_dungeon_mapped_filler_is_left_unswept). A method is how a
         # row was DISCOVERED, not where it lives; the map conditions below stay the arbiter.
-        _r["method"] in ("flag_prefix", "global", "global_filler", "cookbook")
+        # Accepted native M4G dungeon pins use the same filler and physical-map guards.
+        # Overworld recovery is deliberately outside this dungeon-only admission.
+        (_r["method"] in ("flag_prefix", "global", "global_filler", "cookbook")
+         or (_r["method"] == "mfg_native_pin" and _is_dungeon(_mp2(_r["map"]))))
         and (_is_dungeon(_mp2(_r["map"])) or _is_interior_member_map(_mp2(_r["map"]))
              # ...and a row that already names an OVERWORLD TILE (piece A). Without this the m61
              # neighbourhood pass has nothing to assign: `_mem_tile` is fed from rows that passed

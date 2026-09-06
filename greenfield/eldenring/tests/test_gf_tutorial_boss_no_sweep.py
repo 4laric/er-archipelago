@@ -550,8 +550,9 @@ def test_the_sweep_corpus_did_not_shrink():
     # #1437: remove the unused Poleblade copy from Wormface (1040520800).
     # The live invasion flag400162 is intentionally not a Wormface sweep reward.
     assert all(7774254 not in members for members in DUNGEON_SWEEPS.values())
-    assert total == 4127, (
-        "sweep corpus is %d, expected 4127. If a sweep was legitimately added or removed, say WHY "
+    # Native M4G dungeon admission adds only Silver Scarab to Stray Mimic Tear.
+    assert total == 4128, (
+        "sweep corpus is %d, expected 4128. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -847,6 +848,7 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # (1049370850, 540424), (1051430800, 540428), (2045440800, 530861),
     # (2046450800, 540912), (2046450800, 540914), (2048440800, 540920),
     # (2048440800, 540922). Zero removals or re-ownership relative to the NPC base.
-    assert (digest, n) == ("1aa15e05d1307ec9", 4127), (  # #1437: then remove exactly (1040520800, 1039527700), no new owner
-        "sweep OWNERSHIP changed: (%s, %d), expected (1aa15e05d1307ec9, 4127). The total alone will "
+    # Exactly (30200800, 30207900) added; no removals or re-ownership.
+    assert (digest, n) == ("10e98be68f92e19f", 4128), (  # #1437: then remove exactly (1040520800, 1039527700), no new owner
+        "sweep OWNERSHIP changed: (%s, %d), expected (10e98be68f92e19f, 4128). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
