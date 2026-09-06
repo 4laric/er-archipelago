@@ -35,7 +35,9 @@ class MfgRecoveredPickups(unittest.TestCase):
         expected = {2046407001: "Gravesite", 2046407002: "Gravesite",
                     2046407003: "Gravesite", 2046407004: "Gravesite", 2047447901: "Ensis"}
         self.assertEqual({r["flag"] for r in evidence["rows"]}, set(expected))
-        original = sorted((flag, aid) for flag, values in by_flag.items() if flag not in expected
+        # #1437 corrected one flag identity without changing its shipped AP id.
+        # The dedicated Eleonora test asserts the live400162 binding.
+        original = sorted((1039527700 if (flag, aid) == (400162, 7774254) else flag, aid) for flag, values in by_flag.items() if flag not in expected
                           for _, _, aid in values)
         self.assertEqual(len(original), 4925)
         self.assertEqual(hashlib.sha256(json.dumps(original, separators=(",", ":")).encode()).hexdigest(),

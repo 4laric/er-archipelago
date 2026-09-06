@@ -13,13 +13,13 @@
       "conflicted": 0,
       "held": 377,
       "remaining_unreviewed": 187,
-      "total": 540,
-      "trusted": 163
+      "total": 539,
+      "trusted": 162
     }
   },
   "excluded": {
     "boss": 66,
-    "no_map_anchor": 844,
+    "no_map_anchor": 845,
     "repeated_item_name": 2999
   },
   "policy": {

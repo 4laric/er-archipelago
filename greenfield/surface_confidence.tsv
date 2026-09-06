@@ -49,7 +49,7 @@ Basin	15	0	7	0	0	0	0	0	8	53
 Shop	419	18	100	27	0	0	96	125	238	57
 ShopNonSpell	305	12	56	9	0	0	33	82	212	70
 ShopSlot	12	0	0	0	0	0	0	0	12	100	yes
-Legendary	108	18	13	20	6	0	0	0	73	68
+Legendary	108	18	13	21	6	0	0	0	73	68
 GreatRune	7	0	0	0	0	0	0	0	7	100
 KeyItem	22	0	0	4	0	2	0	0	16	73	yes
 MajorBoss	74	0	2	4	1	2	0	0	67	91	yes

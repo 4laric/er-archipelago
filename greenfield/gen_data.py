@@ -5551,6 +5551,20 @@ assert {int(r['flag']) for r in _mfg_recovery_rows} == _mfg_recovery_flags
 assert len(_mfg_recovery_rows) == len(_mfg_recovery_flags)
 rows = [r for r in rows if int(r['flag']) not in _mfg_recovery_flags] + _mfg_recovery_rows
 
+# #1437: the shipped Eleonora position used an unused ground-lot copy. Preserve its
+# positional AP id while binding it to the actual invasion award (101620 block,
+# sibling 101621, flag 400162). M4G pin 2400148 and m60_39_52 event 90005792
+# independently identify the live source. Do not add a second check for the same weapon.
+_reward_flag_corrections = {1039527700: 400162}
+for _old_flag, _live_flag in _reward_flag_corrections.items():
+    _positions = [i for i, r in enumerate(rows) if int(r['flag']) == _old_flag]
+    _live_rows = [r for r in _ALLROWS if int(r['flag']) == _live_flag]
+    assert len(_positions) == len(_live_rows) == 1
+    assert not any(int(r['flag']) == _live_flag for r in rows)
+    _replacement = dict(_live_rows[0])
+    _replacement.update(map='m60_39_52', region='Altus Plateau', method='mfg_reward')
+    rows[_positions[0]] = _replacement
+
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 # These checks ARE the two Finger Ruins bell interactions: the bell event awards the talisman lot and
 # flips the check flag as one operation. Name the action the player performs rather than the contents
@@ -6015,6 +6029,8 @@ _NR_PHANTOM_FLAGS = {int(_r3['flag']) for _r3 in _PHANTOM_DROPPED}
 _NR_ITEMLESS_FLAGS = {int(_r3['flag']) for _r3 in _ITEMLESS_DROPPED}
 _NR_SYN_FLAGS = {int(_r3['flag']) for _r3 in _SYN_DROPPED}
 _NR_RULES = (
+    (lambda _fl, _r: _fl in _reward_flag_corrections,
+     "unused_reward_copy: replaced by the live invasion award at the same AP id (#1437)"),
     (lambda _fl, _r: _fl in MAP_REVEAL_FLAGS,
      "map_reveal: map-fragment stele lot; the client's map-reveal flag path sets these exact flags "
      "(startgrants MAP_REVEAL_FLAGS), so a check here would be tripped en masse at reveal"),

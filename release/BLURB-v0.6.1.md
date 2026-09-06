@@ -20,3 +20,5 @@ Four Oathseeker Knight armor pieces and Royal Magic Grease return as checks, bac
 by Map for Goblins placement evidence. Existing check IDs are preserved. Further
 NPC, enemy-drop, and access-rule investigations remain open under #1437; this draft
 does not claim those reports are fixed.
+
+Eleonora’s Poleblade now checks the real invasion reward instead of an unused copy. Generate a new seed to receive this correction.
