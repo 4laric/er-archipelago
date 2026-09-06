@@ -13,6 +13,25 @@ and bring your YAML and spoiler log.
 For what has been *fixed*, see [CHANGELOG.md](CHANGELOG.md); it is written for
 players, one section per fix, and it is the honest record.
 
+## Great Runes
+
+- **A received Great Rune cannot be equipped at a grace, and its Divine Tower shows no
+  prompt** (client #316). The client delivers the row the boss drops (the unrestored key item)
+  and sets the "restored" flag; the grace menu only lists the equippable row the Divine Tower
+  would award, and the pre-set flag is what makes the tower's altar skip its prompt. The rune
+  counts for Leyndell and for the goal (both read names and flags, not the equip menu), so
+  progression is not blocked -- only the rune's passive buff is missing. Do **not** use
+  `!give 0x400000c0`-style commands on a real save to work around it: whether that row lands
+  on Tarnished Edition is the open question, and the probe belongs on a throwaway character.
+  What to do: nothing; the fix direction is being settled in client #316.
+
+- **Fixed in the next client: a rune received minutes before a Twin Maiden Husks or Miriel
+  hand-in "vanished" and was re-granted with three refusal popups after every load.** It never
+  left the inventory; the client's key-item walk stopped one entry short. Old builds print
+  `[reconcile] INERT: goods 0x40001fd4..d9`; fixed builds print `observed at key-list index N >=
+  key_items_len` once and go quiet. On an old build, receiving any two more key items (a bell
+  bearing, a cookbook) makes the rune "reappear".
+
 ## Region locks and reachability
 
 - **Leyndell can open on one Great Rune** (#427). The capital's wall counts the

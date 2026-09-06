@@ -3,6 +3,29 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## Unreleased
+
+- **Fixed (client): a just-received Great Rune -- or any recently received key item -- no longer
+  "vanishes" after handing something in at the Twin Maiden Husks or Miriel, and the client no
+  longer re-grants a rune the game already holds 1-2 seconds after every load.** The game's key
+  item list keeps a live-entry COUNT, not a high-water mark: a hand-in clears a lower slot and
+  decrements it, so the newest key item sits past the count. The client walked only up to the
+  count, read the rune as absent, re-added it, and the game refused the duplicate -- three refusal
+  popups per load, for days (Tako, 2026-09-05/06; `INERT: goods 0x40001fd6` / `0x40001fd5`). Every
+  key-item walk now covers the whole allocated list. On an affected save the first load prints
+  `observed at key-list index N >= key_items_len` for each rune and the `INERT` lines stop; nothing
+  is re-granted and nothing was ever lost. New log lines name the cause on the next report:
+  `[reconcile] key-list @epoch`, `goods gate CLOSED/OPEN`, a key-list delta stamped with the ESD
+  command, `[reattach] great rune ...` with both row families and the altar's two flags, and the
+  game's own add verdict (`egd_result`) on every grant and in the `!give` reply.
+- **Known and unchanged: a received Great Rune still cannot be equipped, and its Divine Tower shows
+  no prompt.** The grace's "Great Runes" entry is gated on holding a goodsType-15 good (rows
+  191-196); the client delivers the boss-drop row (8148-8153) and pre-sets the restore flag, which
+  is also exactly what makes the altar event end before it can offer a prompt. The name is the same
+  in both families, which is why the rune reads as "Restored". Delivering the equippable row is
+  gated on an in-game probe (`!give 0x400000c0` on a throwaway character, now with the verdict
+  readout) and on reversing the client #392 ruling; tracked in client #316.
+
 ## v0.6.0 — 2026-09-02
 
 **Temporary icon fallback:** v0.6.0 omits the Flower atlas override to avoid wrong weapon
