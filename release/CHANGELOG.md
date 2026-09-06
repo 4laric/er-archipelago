@@ -5,6 +5,25 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.0 — 2026-09-02
 
+- **The v0.6 alpha bundles MapForGoblins with the matching AP client.** The alpha profile
+  loads the source-built map engine; material gathering nodes are hidden by the preset.
+  Enable a session map workflow in F6 to show only pins matched to checks in the connected
+  seed by default. Actual treasure checks containing crafting materials remain eligible.
+- **Map filters and progression highlights.** Optional progression-only and in-logic-only
+  controls work together; larger progression halos make eligible checks easier to spot.
+  Progression means the seed's progression surface, not a reveal of the item inside.
+  In-logic filtering uses tracker region access and does not evaluate additional quest,
+  key or puzzle requirements. Pins with unresolved identities can be hidden by check-only mode.
+- **F5 activity is easier to read.** Short location labels remove repeated region and sweep
+  boilerplate from the display while original names remain available to the protocol and logs.
+  Item text uses AP/Universal Tracker classification colors. Session display markers identify
+  progression-surface checks with `[P]` and sweep completions with `[S]`.
+- **MapForGoblins is an accepted placement reference for the location audit.** Placement
+  agreement, new positions, shared identities and disagreements remain separately recorded.
+  Placement acceptance does not certify every access rule; the overall access audit is unfinished.
+  The matching client update is included in this alpha's gitlink bump.
+
+
 - Player notebook: location-first review form with a separate region-lock correction field, including unused/unobtainable checks; item-name notes are optional and existing notes remain intact.
 - Player notebook: source-backed acquisition flags are visible, searchable and copyable.
   Clear file-sharing instructions explain how to send a notebook and retain a receipt;
@@ -19,11 +38,11 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** Required — use the eventual v0.6.0 client with v0.6.0 seeds.
+- **Client:** Required — use the client bundled with the v0.6.0 alpha for v0.6.0 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
-- **Profile/assets:** No action yet.
+- **Profile/assets:** Reinstall or replace with the alpha bundle's matching map-engine DLL, configuration and loader profile.
 
 Window opened 3 commit(s) PAST the v0.5.7 tag.
 
@@ -33,8 +52,8 @@ handshake. Future v0.6 contract changes belong here rather than on the v0.5.x ma
 Client half: clients#597. Its merged commit is pinned by the gitlink in this same change because
 `contract_gen.rs` embeds the exact APWorld version even while the contract hash is unchanged.
 
-No published channel moves to this development branch. `stable` and `beta` remain on the v0.5.x
-line until v0.6.0 has full check coverage and is ready to release.
+The alpha is a separate prerelease; it does not promote the stable or beta channel.
+The full check/access audit remains in progress before a stable v0.6 release.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 

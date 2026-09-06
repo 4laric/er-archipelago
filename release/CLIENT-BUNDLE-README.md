@@ -55,6 +55,25 @@ For a standalone ModEngine2 or randomizer output instead of me3, point the insta
 file root: `.\install-ap-flower.ps1 -Destination "<folder containing regulation.bin>"`. To remove
 only files created by this installer, rerun it with the same destination and `-Uninstall`.
 
+## Optional map integration in the v0.6 alpha
+
+The alpha archive includes `MapForGoblins.dll`, `MapForGoblins.ini`,
+`MFG-LICENSE.txt` and `MFG-PROVENANCE.json` beside the AP client. Its `ap.me3`
+loads the map engine. The Matt-output installer adds that native entry when both
+DLLs are present. Updates preserve an existing map INI instead of resetting preferences.
+
+In F6, expand **Map pin test (optional)** and select **Enable map filters (this session)**.
+Following or coloring pins also shares check states. The map's check-only default hides
+pins without a match in the connected seed; gathering nodes are hidden by the fresh
+preset, while actual crafting-material treasure checks remain eligible. Optional
+progression-only and in-logic-only filters use progression-surface eligibility and
+tracker region access, not hidden item contents or additional quest/puzzle requirements.
+
+Disabling session filters does not disable the DLL; turn off following and coloring too
+to stop sharing. To disable the engine, exit the game and remove or disable only the
+MapForGoblins `[[natives]]` entry in the profile, preserving the AP client and other mods.
+Restart through that profile. Checks without resolved map pins remain listed in F6.
+
 ## What is in the folder
 
 | file | what it is |

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "source_repository": "https://github.com/4laric/ERR-MapForGoblins-DLL",
+  "source_commit": "14e5e9e72a7b5ddca27c1e76ef3c9e07fd84725b",
+  "profile": "vanilla",
+  "input_sha256": "0a7b8fa931609fe0d778b356fff5259e150d667a0ee2c8daeed38c4285fddc39",
+  "input_release": {
+    "repository": "4laric/er-ap-icon-private",
+    "tag": "mfg-vanilla-transfer-20260905",
+    "asset": "mfg-vanilla-inputs-20260905.zip"
+  }
+}

@@ -94,6 +94,33 @@ class SwapTests(unittest.TestCase):
             # and the stamp names the version for the already-current fast path
             self.assertEqual((install / upd.STAMP).read_text().strip(), "0.4.10")
 
+    def test_mfg_update_preserves_existing_settings_and_incoming_bytes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            install, new = self._fixture(Path(tmp))
+            personal = b"[Archipelago]\r\nap_checks_only = false\r\n"
+            incoming = b"[Archipelago]\nap_checks_only = true\n"
+            (install / "MapForGoblins.ini").write_bytes(personal)
+            (install / "MapForGoblins.dll").write_bytes(b"old map")
+            (new / "MapForGoblins.ini").write_bytes(incoming)
+            (new / "MapForGoblins.dll").write_bytes(b"new map")
+            replaced, added, backed = upd.swap_in(install, new, "0.6.0")
+            self.assertEqual((install / "MapForGoblins.ini").read_bytes(), personal)
+            self.assertEqual((new / "MapForGoblins.ini").read_bytes(), incoming)
+            self.assertEqual((install / "MapForGoblins.dll").read_bytes(), b"new map")
+            self.assertEqual((replaced, added), (4, 1))
+            self.assertNotIn("MapForGoblins.ini", backed)
+            self.assertIn("MapForGoblins.dll", backed)
+
+    def test_mfg_first_install_receives_supplied_preset(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            install, new = self._fixture(Path(tmp))
+            preset = b"[Archipelago]\nap_checks_only = true\n"
+            (new / "MapForGoblins.ini").write_bytes(preset)
+            (new / "MapForGoblins.dll").write_bytes(b"map dll")
+            replaced, added, _ = upd.swap_in(install, new, "0.6.0")
+            self.assertEqual((install / "MapForGoblins.ini").read_bytes(), preset)
+            self.assertEqual((replaced, added), (3, 3))
+
     def test_a_bundle_missing_a_table_refuses_before_any_write(self):
         with tempfile.TemporaryDirectory() as t:
             install, new = self._fixture(Path(t))

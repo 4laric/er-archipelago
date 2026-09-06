@@ -21,7 +21,8 @@ WHAT IT DOES, in order, each step loud:
      zip's own integrity table;
   6. swaps in the NEW bundle's `me3/` payload file-by-file: every replaced file is backed up
      first (into `.er-updater-backup-<timestamp>/`), and NOTHING outside the payload is touched
-     -- `apconfig.json`, `ap_save_*.json`, `log/`, `reconcile.json` and anything else you or
+     -- `apconfig.json`, existing `MapForGoblins.ini`, `ap_save_*.json`, `log/`,
+     `reconcile.json` and anything else you or
      the client wrote stay exactly where they are;
   7. stamps `.er-updater-version` so the next run can say "already current" without a 120 MB
      download, and reminds matt's-launcher users to re-run `install-into-matts-rando`.
@@ -142,6 +143,7 @@ def payload_files(extracted_me3: Path) -> list[Path]:
 
 def swap_in(install: Path, new_me3: Path, stamp_version: str) -> tuple[int, int, list[str]]:
     """Replace the payload, back up what it replaces, touch nothing else.
+    Existing MapForGoblins.ini settings are preserved; absent ones receive the preset.
     Returns (replaced, added, backed_up_names)."""
     files = payload_files(new_me3)
     # The bundle-intact rule, enforced BEFORE any write: a payload missing the dll or either
@@ -157,6 +159,10 @@ def swap_in(install: Path, new_me3: Path, stamp_version: str) -> tuple[int, int,
     for src in files:
         rel = src.relative_to(new_me3)
         dst = install / rel
+        # The incoming package stays intact for integrity verification. Preserve
+        # existing player settings only at installation; a new install gets the preset.
+        if len(rel.parts) == 1 and rel.name.lower() == "mapforgoblins.ini" and dst.is_file():
+            continue
         if dst.exists():
             bak = backup_root / rel
             bak.parent.mkdir(parents=True, exist_ok=True)

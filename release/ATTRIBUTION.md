@@ -23,6 +23,21 @@ your own copy of Elden Ring; this release ships **no FromSoftware game assets**.
 - **The Archipelago project and community** -- for the multiworld framework, the
   MIT-licensed core, and the ecosystem conventions this release follows.
 
+## MapForGoblins alpha companion
+
+The v0.6 alpha bundles a source-built vanilla-profile version of
+[4laric's MapForGoblins fork](https://github.com/4laric/ERR-MapForGoblins-DLL),
+based on [VirusAlex's DLL edition](https://github.com/VirusAlex/ERR-MapForGoblins-DLL).
+Credit also belongs to Gacsam's Goblin-ERR lineage and the dependencies named in the
+upstream license. The full upstream notices are retained verbatim in
+`me3/MFG-LICENSE.txt`; keep that file with redistributed copies. The exact source/build
+identity and artifact hashes are recorded in `me3/MFG-PROVENANCE.json`.
+
+This companion is separately attributed upstream software, not original AP client code.
+Its inclusion does not change the licensing of the APWorld or the separately licensed
+wiki evidence below. MapForGoblins placements are accepted reference data for the
+location audit; that does not establish every check's access conditions.
+
 ## Elden Ring Wiki quest evidence
 
 `greenfield/questline_cc_wiki.tsv`, the CC-wiki rows in
@@ -59,7 +74,7 @@ out in full — the five non-negotiables and how CI enforces them — in
 
 The runtime client is original work that reads only public param data to map
 checks to event flags. Because the shipped apworld is data-derived and the client
-is original MIT code, the whole release is redistributable under MIT.
+is original MIT code, those two components are redistributable under MIT. The companion and evidence notices above also apply.
 
 ## thefifthmatt -- Elden Ring Item and Enemy Randomizer
 
