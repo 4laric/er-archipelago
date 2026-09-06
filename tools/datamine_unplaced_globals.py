@@ -36,6 +36,8 @@ Run:
     python3 tools/datamine_unplaced_globals.py --emit     # write greenfield/unplaced_global_tiles.tsv
 """
 import argparse
+import json
+from functools import lru_cache
 import ast
 import collections
 import csv
@@ -168,6 +170,14 @@ def _existing_table():
     return out
 
 
+@lru_cache(maxsize=1)
+def mfg_filler_recoveries():
+    """Audited filler award identities; admitting all scattered filler revives dead rows."""
+    with open(os.path.join(GF, "evidence", "mfg_somber_recoveries.json"), encoding="utf-8") as fh:
+        records = json.load(fh)["recoveries"]
+    return {str(r["flag"]): r["map"] for r in records}
+
+
 def candidates():
     """Unplaced rows that are not a check AND do not re-award an EXISTING check's ItemLotParam row.
 
@@ -229,7 +239,7 @@ def candidates():
     tally = collections.Counter()
     out = []
     for r in rows:
-        if "unplaced" not in r["region"]:
+        if "unplaced" not in r["region"] and r["flag"] not in mfg_filler_recoveries():
             continue
         tally["unplaced rows"] += 1
         if r["flag"] in in_world:
@@ -375,6 +385,9 @@ def resolve(cands):
         if not maps and f in _CORROBORATED_TALK_AWARD_MAP:
             maps.add(_CORROBORATED_TALK_AWARD_MAP[f])
             src = "talk_esd"
+        if not maps and f in mfg_filler_recoveries():
+            maps.add(mfg_filler_recoveries()[f])
+            src = "mfg_pin"
         if not maps:
             if n_talk and any(talk.get(lot, set()) & _COMMON_BUCKETS for lot in lots.get(f, ())):
                 refused["talk ESD names ONLY a common bucket (not a place)"] += 1

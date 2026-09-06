@@ -1,0 +1,140 @@
+{
+  "source_asset": "mfg-vanilla-inputs-20260905.zip",
+  "source_sha256": "0a7b8fa931609fe0d778b356fff5259e150d667a0ee2c8daeed38c4285fddc39",
+  "policy": "Accepted M4G reward pins corroborate placement. Display flags are not acquisition flags. Each distinct map lot below has its own acquisition flag; 30861 is a sibling reward in the Ghostflame Dragon 30860 award batch, whose Dragon Heart is already tracked.",
+  "recoveries": [
+    {
+      "flag": 530861,
+      "map": "m61_45_44",
+      "pin_id": "3800018",
+      "lot": 30861,
+      "table": "map",
+      "display_flag": 530861,
+      "xyz": [
+        59.097,
+        256.415,
+        -73.887
+      ],
+      "item": "Somber Ancient Dragon Smithing Stone",
+      "enemy_model": "c5860",
+      "part_name": "c5860_9000",
+      "defeat_flag": 2045440800,
+      "event_id": 90005860,
+      "award_base_lot": 30860
+    },
+    {
+      "flag": 540424,
+      "map": "m60_49_36",
+      "pin_id": "5100295",
+      "lot": 40424,
+      "table": "map",
+      "display_flag": 1049360291,
+      "xyz": [
+        -93.553,
+        53.604,
+        40.499
+      ],
+      "item": "Somber Smithing Stone [4]",
+      "enemy_model": "c4191",
+      "part_name": "c4191_9001",
+      "defeat_flag": 1049360291,
+      "event_id": 90005300,
+      "award_base_lot": 40424
+    },
+    {
+      "flag": 540428,
+      "map": "m60_51_42",
+      "pin_id": "4600142",
+      "lot": 40428,
+      "table": "map",
+      "display_flag": 1051420299,
+      "xyz": [
+        46.269,
+        249.117,
+        18.247
+      ],
+      "item": "Somber Smithing Stone [9]",
+      "enemy_model": "c4191",
+      "part_name": "c4191_9000",
+      "defeat_flag": 1051420299,
+      "event_id": 90005300,
+      "award_base_lot": 40428
+    },
+    {
+      "flag": 540912,
+      "map": "m61_48_47",
+      "pin_id": "4600192",
+      "lot": 40912,
+      "table": "map",
+      "display_flag": 2048470501,
+      "xyz": [
+        -20.376,
+        366.515,
+        162.899
+      ],
+      "item": "Somber Smithing Stone [9]",
+      "enemy_model": "c6201",
+      "part_name": "c6201_9001",
+      "defeat_flag": 2048470501,
+      "event_id": 90005301,
+      "award_base_lot": 40912
+    },
+    {
+      "flag": 540914,
+      "map": "m61_48_47",
+      "pin_id": "4600191",
+      "lot": 40914,
+      "table": "map",
+      "display_flag": 2048470502,
+      "xyz": [
+        -33.465,
+        339.037,
+        20.422
+      ],
+      "item": "Somber Smithing Stone [7]",
+      "enemy_model": "c6201",
+      "part_name": "c6201_9002",
+      "defeat_flag": 2048470502,
+      "event_id": 90005301,
+      "award_base_lot": 40914
+    },
+    {
+      "flag": 540920,
+      "map": "m61_48_44",
+      "pin_id": "4600188",
+      "lot": 40920,
+      "table": "map",
+      "display_flag": 2048440393,
+      "xyz": [
+        118.369,
+        364.49,
+        -48.646
+      ],
+      "item": "Somber Smithing Stone [8]",
+      "enemy_model": "c6201",
+      "part_name": "c6201_9003",
+      "defeat_flag": 2048440393,
+      "event_id": 90005300,
+      "award_base_lot": 40920
+    },
+    {
+      "flag": 540922,
+      "map": "m61_48_44",
+      "pin_id": "4600187",
+      "lot": 40922,
+      "table": "map",
+      "display_flag": 2048440398,
+      "xyz": [
+        80.259,
+        375.503,
+        -125.988
+      ],
+      "item": "Somber Smithing Stone [8]",
+      "enemy_model": "c6201",
+      "part_name": "c6201_9008",
+      "defeat_flag": 2048440398,
+      "event_id": 90005300,
+      "award_base_lot": 40922
+    }
+  ]
+}

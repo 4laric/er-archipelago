@@ -4754,7 +4754,8 @@ def _recover_row_ok(r):
     if not _item_exists(r):
         return False
     return _recover_tile(_fl) is not None           # auto-recover every DECODABLE global/filler
-_LATE_RECOVER_FLAGS = frozenset({530805})
+_MFG_SOMBER_FLAGS = frozenset({530861, 540424, 540428, 540912, 540914, 540920, 540922})
+_LATE_RECOVER_FLAGS = frozenset({530805}) | _MFG_SOMBER_FLAGS
 _recovered = [r for r in _ALLROWS
               if _recover_row_ok(r) and int(r['flag']) not in _LATE_RECOVER_FLAGS]
 rows = rows + _recovered
@@ -5539,8 +5540,8 @@ REGION_UNCONFIRMED = " (region unconfirmed)"
 # therefore append after those established populations. Senessax is the first such ruling made
 # after the namespace shipped; keep this explicit rather than silently changing existing AP IDs.
 _late_recovered = [r for r in _ALLROWS
-                   if int(r['flag']) in _LATE_RECOVER_FLAGS and _recover_row_ok(r)]
-assert {int(r['flag']) for r in _late_recovered} == set(_LATE_RECOVER_FLAGS), (
+                   if int(r['flag']) in _LATE_RECOVER_FLAGS - _MFG_SOMBER_FLAGS and _recover_row_ok(r)]
+assert {int(r['flag']) for r in _late_recovered} == set(_LATE_RECOVER_FLAGS - _MFG_SOMBER_FLAGS), (
     "late recovered flag set is incomplete -- an append-only AP id would silently disappear")
 rows.extend(_late_recovered)
 # Accepted M4G ground recoveries enter after the shipped populations, just like
@@ -5555,19 +5556,11 @@ assert len(_mfg_recovery_rows) == len(_mfg_recovery_flags)
 _mfg_recovery_rows.sort(key=lambda r: _mfg_recovery_order.index(int(r["flag"])))
 rows = [r for r in rows if int(r['flag']) not in _mfg_recovery_flags] + _mfg_recovery_rows
 
-# #1437: the shipped Eleonora position used an unused ground-lot copy. Preserve its
-# positional AP id while binding it to the actual invasion award (101620 block,
-# sibling 101621, flag 400162). M4G pin 2400148 and m60_39_52 event 90005792
-# independently identify the live source. Do not add a second check for the same weapon.
-_reward_flag_corrections = {1039527700: 400162}
-for _old_flag, _live_flag in _reward_flag_corrections.items():
-    _positions = [i for i, r in enumerate(rows) if int(r['flag']) == _old_flag]
-    _live_rows = [r for r in _ALLROWS if int(r['flag']) == _live_flag]
-    assert len(_positions) == len(_live_rows) == 1
-    assert not any(int(r['flag']) == _live_flag for r in rows)
-    _replacement = dict(_live_rows[0])
-    _replacement.update(map='m60_39_52', region='Altus Plateau', method='mfg_reward')
-    rows[_positions[0]] = _replacement
+# Append accepted one-time stone rewards after the earlier M4G/Briars recoveries.
+_somber_rows = [r for r in _ALLROWS if int(r['flag']) in _MFG_SOMBER_FLAGS and _recover_row_ok(r)]
+assert {int(r['flag']) for r in _somber_rows} == _MFG_SOMBER_FLAGS
+assert len(_somber_rows) == len(_MFG_SOMBER_FLAGS)
+rows.extend(_somber_rows)
 
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 # These checks ARE the two Finger Ruins bell interactions: the bell event awards the talisman lot and
