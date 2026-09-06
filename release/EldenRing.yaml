@@ -882,8 +882,9 @@ Elden Ring:
   # the run" whether that is 30 regions or 5 -- but Somber +10 still needs a
   # Somber [9]. On a short seed you meet endgame enemies on a mid-game weapon,
   # and FEWER regions makes the ramp steeper, not gentler. auto lowers the top
-  # of the curve with the length of the run: about 4.1x at 5 regions, the full
-  # 7.4x at 30. Give a number instead to choose the cap yourself.
+  # of the curve with the length of the run: about 3.7x at 5 regions, 5.5x at
+  # 10, 6.7x at 15, the full 7.4x on the whole map. Give a number instead to
+  # choose the cap yourself; the yaml builder shows what it resolves to.
   # Must be >= minimum_enemy_difficulty (auto is raised to it rather than
   # failing the seed, since you did not choose the cap).
   # NOTE: a cap below 100 needs an up-to-date client. An older one refuses the

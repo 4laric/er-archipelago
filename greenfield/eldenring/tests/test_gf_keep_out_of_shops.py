@@ -375,3 +375,24 @@ def test_the_skip_line_drops_the_cumulative_clause_when_nothing_was_enforced():
     assert "68" in line and "52" in line, line
     assert "still free once" not in line, (
         "with nothing enforced there is no cumulative claim to explain: %r" % line)
+
+
+class ReservationLeavesTheEarlyGuarantee(WorldTestBase):
+    """Same defect class as test_gf_missable.MissableReservationLeavesTheEarlyGuarantee, on the
+    OTHER pre-fill reservation. `reserve_forbidden_items` took every forbidden copy out of the pool
+    before AP's early-items pass, so a ban on `upgrade_materials` could lock the early-guaranteed
+    stones anywhere non-shop, including checks not reachable from the start. The declared early
+    copies must still be in the pool after pre_fill; only the surplus is reserved here."""
+    game = GAME
+    options = {"num_regions": 1, "num_regions_order": "vanilla_order", "item_shuffle": True,
+               "enable_dlc": True, "ending_condition": "great_runes",
+               "keep_out_of_shops": ["upgrade_materials"]}
+
+    def test_declared_early_copies_are_still_in_the_pool_after_pre_fill(self):
+        from collections import Counter
+        early = dict(self.multiworld.local_early_items[self.world.player])
+        self.assertTrue(early, "no early guarantee was declared -- the premise of this test is gone")
+        held = Counter(i.name for i in self.multiworld.itempool if i.player == self.world.player)
+        short = {nm: (n, held[nm]) for nm, n in early.items() if held[nm] < n}
+        self.assertFalse(short, "pre_fill spent early-guaranteed copies before AP's early pass "
+                                "could place them (name: (declared, left in pool)): %r" % (short,))

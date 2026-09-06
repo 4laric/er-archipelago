@@ -22,6 +22,27 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 - Correct Eleonora’s Poleblade to the real invasion reward; the unused ground-lot copy no longer stands in for it. Requires a newly generated seed.
 
+- **`maximum_enemy_difficulty: auto` resolves lower on every seed short of a full map.** The
+  curve was derived against 30 regions; with the live total of 28 a 5-region seed had drifted to
+  4.84x enemy HP and a 10-region seed to 6.56x, almost the full-map cap after a third of the map.
+  Recalibrated so 5 regions land on the one playtested value (3.70x), 10 on 5.48x, 15 on 6.69x,
+  20 on 7.05x; a full map is unchanged at 7.42x. Explicit percents are untouched.
+- **The yaml builder shows what the cap resolves to.** A live line under Maximum Enemy
+  Difficulty and on the difficulty picks card reads the multiplier and ladder rung for the current
+  slider or `auto`, from the same formula generation uses.
+- **The builder and `er_yaml_lint.py` warn when the cap reaches DLC-strength rungs (above 3.7x)
+  while `scadutree_blessing_scope` is `dlc_only`.** Base-game regions deep in the order would meet
+  DLC enemies with no blessing to answer them.
+- **Fixed: two pre-fill reservations could spend the early stone guarantee.** The missable-check
+  filler reservation and the keep-out-of-shops reservation both drew from every filler copy in
+  the pool before Archipelago's early-items pass ran, so the Somber Smithing Stone copies the
+  early guarantee had just counted could be locked onto checks that are not reachable from the
+  start (seen on a 1-region seed: both Somber [2] on Ashen Capital, guarantee delivered 0, no
+  warning). Declared early copies now stay in the pool for that pass.
+- **Fixed: the builder's `auto` chip never rendered.** The range control read special values as
+  tuples while the metadata stores objects, so Maximum Enemy Difficulty and Cross Game Progression
+  showed `0` beside "(default -1)" with no way to pick `auto` except leaving the slider alone.
+
 ## v0.6.0 — 2026-09-02
 
 
