@@ -34,6 +34,9 @@ Leave `CHANNELS.tsv` on its current stable tag while preparing this release: its
 rejects a future tag. Promote that ledger only after `v0.6.0` actually exists. These
 instructions describe the remaining handoff; no merge or tag is claimed here.
 
+The v0.6.0 package omits Flower atlases. AP placeholders temporarily use the Telescope
+icon. Verify inventory weapon icons and class previews with old Flower overrides disabled.
+
 ## Package gates
 
 - [ ] World PR records the exact merged client gitlink and map-engine source/build identity.
