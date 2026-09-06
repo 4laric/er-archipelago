@@ -101408,6 +101408,47 @@
     },
     {
       "all_candidate_ids": [
+        7774650
+      ],
+      "candidate_ids": [
+        7774650
+      ],
+      "competing_observation_count": 1,
+      "context_labels": [
+        "Silver Scarab"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w40-71",
+      "item_name": "Silver Scarab",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7774650
+      ],
+      "observation_id": "walkthrough:2a6504e0bec121d6d4a8",
+      "reason": "region_disagreement",
+      "regions": [
+        "Mountaintops of the Giants"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "east-mountaintops",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w40-71"
+    },
+    {
+      "all_candidate_ids": [
         7770276,
         7770947,
         7771004,
@@ -222547,15 +222588,15 @@
     "by_reason": {
       "area_only": 2186,
       "one_landmark_candidate": 8,
-      "region_disagreement": 593,
+      "region_disagreement": 594,
       "shared_landmark": 3,
       "source_area_unmapped": 82
     },
-    "held_checks_with_new_family_candidates": 2639,
-    "item_mentions": 4279,
+    "held_checks_with_new_family_candidates": 2640,
+    "item_mentions": 4280,
     "limitations": "Suggestions only. Linked items can be mentions, not acquisitions. Guide area and catalog anchors are not independent proof of AP ownership. No quantity, position, mechanism or access is inferred.",
     "one_source_checks_with_second_family_candidates": 351,
-    "review_observations": 2872,
+    "review_observations": 2873,
     "schema_version": 1,
     "source_steps": 3928,
     "trusted_promotions": 0

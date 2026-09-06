@@ -1826,17 +1826,19 @@ print(f"capital: world-burn state flag {_CAPITAL_WORLD_BURN} (read by "
 _RECOVER_PHANTOM_DUPES = frozenset({})
 # UNREACHABLE important checks -- EXCLUDED AS DEAD (Alaric 2026-07-09). Physically gated behind
 # mechanics a warp-grace region-lock shuffle can't guarantee, so a placed multiworld item strands.
-#   30207900 = Silver Scarab: end of the Hidden Path to the Haligtree (m30_20), behind an imp-statue /
-#     illusory-wall gate reachable only from the far side of the grace anchor.
-#   1050567820 = Graven-Mass Talisman: the reward inside Albinauric Rise (Consecrated Snowfield,
-#     folded into Mountaintops), sealed by the invisible-sniper imp seal (bewitching branch / fanged
-#     imp ashes) -- not openable from the grace side, so the check is unreachable.
+#   Silver Scarab 30207900 restored (#1437): ordinary traversal from the supported Hidden Path
+#   grace crosses the invisible walkway and illusory wall; no imp seal or inventory gate.
+#   See evidence/mfg_silver_scarab.json and test_gf_mfg_silver_scarab.py.
+#   1050567820 = Graven-Mass Talisman: Albinauric Rise in Consecrated Snowfield.
+#     Event 1050562250 requires a qualifying character death with effects 17170 AND 17171.
+#     The supported summon/combat capability guarantee remains unresolved; keep excluded
+#     until logic can model a reliable route (see mfg_talisman_access_followup.md).
 # NOTE: Fingerslayer Blade (12027080, Nokron/Eternal Cities) was briefly excluded here -- its chest is
 # vanilla-gated behind Ranni's questline flag 1034509410 ("You are not destined to open this yet").
 # Instead of dropping the check we now FORCE-SET 1034509410 at spawn (features/start_grace.py rides it
 # on the startGraces flag list), so the chest opens and the check stays live. Do NOT re-add it here.
 # Dropping these renumbers downstream ap-ids (needs a full regen) and removes the vanilla shuffle copy.
-_UNREACHABLE_DEAD = frozenset({30207900, 1050567820})
+_UNREACHABLE_DEAD = frozenset({1050567820})
 # UNPLACEABLE DLC cookbooks (2026-07-14): 8 DLC crafting cookbooks whose ItemLotParam_map lot is a
 # short/common id that does NOT encode a map (unlike the 25 DLC cookbooks we region from their lot's
 # 20XXYY/AABBxxxx map id). They are not MSB treasures, merchant sales, enemy drops, or EMEVD awards --
@@ -5587,6 +5589,11 @@ _npc_recovered = [r for r in _ALLROWS
 assert {int(r['flag']) for r in _npc_recovered} == _MFG_NPC_RECOVER_FLAGS
 assert len(_npc_recovered) == len(_MFG_NPC_RECOVER_FLAGS)
 rows.extend(_npc_recovered)
+# Append the verified Hidden Path chest after earlier recovery batches; keep shipped IDs.
+_silver_scarab_rows = [r for r in rows if int(r['flag']) == 30207900]
+assert len(_silver_scarab_rows) == 1
+rows = [r for r in rows if int(r['flag']) != 30207900] + _silver_scarab_rows
+
 
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 # These checks ARE the two Finger Ruins bell interactions: the bell event awards the talisman lot and
@@ -10237,7 +10244,10 @@ for _i, _r in enumerate(rows):
         # their maps -- was what kept them out of those dungeons' sweeps
         # (test_gf_boss_sweeps::test_no_dungeon_mapped_filler_is_left_unswept). A method is how a
         # row was DISCOVERED, not where it lives; the map conditions below stay the arbiter.
-        _r["method"] in ("flag_prefix", "global", "global_filler", "cookbook")
+        # Accepted native M4G dungeon pins use the same filler and physical-map guards.
+        # Overworld recovery is deliberately outside this dungeon-only admission.
+        (_r["method"] in ("flag_prefix", "global", "global_filler", "cookbook")
+         or (_r["method"] == "mfg_native_pin" and _is_dungeon(_mp2(_r["map"]))))
         and (_is_dungeon(_mp2(_r["map"])) or _is_interior_member_map(_mp2(_r["map"]))
              # ...and a row that already names an OVERWORLD TILE (piece A). Without this the m61
              # neighbourhood pass has nothing to assign: `_mem_tile` is fed from rows that passed
