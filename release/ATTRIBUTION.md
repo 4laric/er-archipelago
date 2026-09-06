@@ -23,9 +23,9 @@ your own copy of Elden Ring; this release ships **no FromSoftware game assets**.
 - **The Archipelago project and community** -- for the multiworld framework, the
   MIT-licensed core, and the ecosystem conventions this release follows.
 
-## MapForGoblins alpha companion
+## MapForGoblins companion
 
-The v0.6 alpha bundles a source-built vanilla-profile version of
+The v0.6 release bundles a source-built vanilla-profile version of
 [4laric's MapForGoblins fork](https://github.com/4laric/ERR-MapForGoblins-DLL),
 based on [VirusAlex's DLL edition](https://github.com/VirusAlex/ERR-MapForGoblins-DLL).
 Credit also belongs to Gacsam's Goblin-ERR lineage and the dependencies named in the

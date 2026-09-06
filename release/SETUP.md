@@ -54,7 +54,7 @@ rush.
 |---|---|
 | `eldenring.apworld` | The Archipelago world -- the package that teaches Archipelago about Elden Ring. Goes in your Archipelago install. |
 | `me3/` | The runtime client folder. Holds `eldenring_archipelago.dll`, `ap.me3`, `apconfig.json`, the AP Flower installer and two **required** data tables. After generating Matt's randomizer output, run `install-ap-flower.ps1 -Destination <randomizer-folder>` on Windows or `python3 install_ap_flower.py --destination <randomizer-folder>` on Linux/Proton, then restart Elden Ring. The installer only copies authenticated assets from `flower-package`; it never modifies or unpacks the base game. |
-| `me3/MapForGoblins.dll`, `MapForGoblins.ini` | The v0.6 alpha's bundled map engine and preset. Its license notices and build identity are in `MFG-LICENSE.txt` and `MFG-PROVENANCE.json` beside it. |
+| `me3/MapForGoblins.dll`, `MapForGoblins.ini` | The v0.6 release's bundled map engine and preset. Its license notices and build identity are in `MFG-LICENSE.txt` and `MFG-PROVENANCE.json` beside it. |
 | `EldenRing.yaml` | The player config template (The Shattering). Copy it, set `name:`, generate. Or build one at <https://peliarch.ca/er/>. |
 | `er-options-wizard.html` | An **offline copy of the yaml builder**. The live one at <https://peliarch.ca/er/> is the one to use -- it can hand your seed straight to a host -- but this file works with no network at all. |
 | `SETUP.md` | This file. |
@@ -133,13 +133,13 @@ You also need, separately:
 
 ---
 
-## MapForGoblins in the v0.6 alpha
+## MapForGoblins in the v0.6 release
 
-The alpha's `me3/ap.me3` loads both the AP client and `MapForGoblins.dll`. Use the
+The release's `me3/ap.me3` loads both the AP client and `MapForGoblins.dll`. Use the
 matching DLL and INI from the archive. When installing into Matt's randomizer output,
 the packaged installer adds the map-engine native entry when both DLLs are present.
 The updater preserves an existing `MapForGoblins.ini`; its preferences may differ from
-the fresh alpha preset, which hides gathering nodes and keeps crafting-material treasures.
+the fresh release preset, which hides gathering nodes and keeps crafting-material treasures.
 
 After connecting, open F6, expand **Map pin test (optional)** and select
 **Enable map filters (this session)**. Following or coloring map pins also enables
@@ -147,6 +147,14 @@ check-state sharing. Check-only is the map engine's default while sharing is act
 progression-only and in-logic-only are optional map settings. In-logic uses tracker
 region access, not additional quest, key or puzzle requirements. Unmatched pins can
 still represent real checks; use F6 for the complete check list.
+A granting boss without a native MapForGoblins pin cannot receive a map highlight;
+its check remains available in F6.
+
+Map progression highlights and progression-only filtering exclude pickups granted by an
+enabled boss sweep and highlight the granting boss instead. F6 stars and F5 `[P]` retain
+the original seed-surface meaning, so a sweep-member pickup can still have a tracker star.
+The default highlight size is 1.5x. Press F10 for MapForGoblins settings; the client no
+longer runs its stamina diagnostic on that key.
 
 Turning off the session filter checkbox does not unload the map engine. To stop sharing,
 also turn off pin following and coloring. To disable MapForGoblins itself, exit the game

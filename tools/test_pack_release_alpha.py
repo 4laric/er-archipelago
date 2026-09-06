@@ -1,4 +1,4 @@
-"""An alpha is a paired player bundle with strict stable-version identity gates."""
+"""Stable and prerelease bundles keep strict paired MFG and version identity gates."""
 import contextlib
 import io
 import json
@@ -16,8 +16,14 @@ import pack_release as pack
 import package_mfg as mfg
 
 
-class AlphaPackageTests(unittest.TestCase):
+class MfgPackageTests(unittest.TestCase):
+    def test_stable_archive_loads_pinned_mfg_and_keeps_numeric_handshake(self):
+        self.check_archive("")
+
     def test_alpha_archive_loads_pinned_mfg_and_keeps_numeric_handshake(self):
+        self.check_archive("alpha.1")
+
+    def check_archive(self, prerelease):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             me3, artifact = root / 'me3', root / 'mfg'
@@ -42,9 +48,11 @@ class AlphaPackageTests(unittest.TestCase):
             mfg.record_artifact(artifact, Path(pack.REL, 'MFG-VERSION.json'))
             apworld = root / 'eldenring.apworld'
             apworld.write_bytes(b'fixture')
-            argv = ['pack_release', '--version', '0.6.0', '--prerelease', 'alpha.1',
+            argv = ['pack_release', '--version', '0.6.0',
                     '--mfg', str(artifact), '--me3', str(me3), '--apworld', str(apworld),
                     '--out', str(root / 'out')]
+            if prerelease:
+                argv += ["--prerelease", prerelease]
             pack.WARNINGS.clear()
             with patch.object(sys, 'argv', argv), patch.object(pack, 'gate_changelog') as notes, \
                     patch.object(pack, 'gate_version_lockstep') as versions, \
@@ -52,8 +60,12 @@ class AlphaPackageTests(unittest.TestCase):
                 self.assertEqual(pack.main(), 0)
             notes.assert_called_once_with('0.6.0', True)
             versions.assert_called_once_with('0.6.0', None, True)
-            with zipfile.ZipFile(next((root / 'out').glob('ER-Archipelago-v0.6.0-alpha.1-*.zip'))) as archive:
+            label = '0.6.0' + ('-' + prerelease if prerelease else '')
+            with zipfile.ZipFile(next((root / 'out').glob(f'ER-Archipelago-v{label}-*.zip'))) as archive:
                 names = archive.namelist()
+                build = json.loads(archive.read("RELEASE-BUILD.json"))
+                self.assertEqual(build["prerelease"], prerelease or None)
+                self.assertEqual(build["version"], "0.6.0")
                 profile_name = next(n for n in names if n == 'me3/ap.me3')
                 profile = tomllib.loads(archive.read(profile_name).decode())
                 self.assertEqual([n['path'] for n in profile['natives']],
@@ -64,6 +76,12 @@ class AlphaPackageTests(unittest.TestCase):
                              'check_lots_table.json', 'shoplineup_flags.json']:
                     self.assertIn(prefix + name, names)
                 self.assertIsNone(archive.testzip())
+
+    def test_stable_cannot_omit_mfg(self):
+        argv = ["pack_release", "--version", "0.6.0", "--apworld", "unused"]
+        with patch.object(sys, "argv", argv), self.assertRaises(SystemExit), \
+                contextlib.redirect_stderr(io.StringIO()):
+            pack.main()
 
     def test_alpha_cannot_omit_mfg_or_relax_identity_gates(self):
         for extra in ([], ['--unofficial', '--stamp', 'test'], ['--prerelease', '../bad']):

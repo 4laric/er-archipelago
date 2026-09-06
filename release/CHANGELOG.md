@@ -5,15 +5,21 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.0 — 2026-09-02
 
-- **The v0.6 alpha bundles MapForGoblins with the matching AP client.** The alpha profile
+- **The v0.6 release bundles MapForGoblins with the matching AP client.** The release profile
   loads the source-built map engine; material gathering nodes are hidden by the preset.
   Enable a session map workflow in F6 to show only pins matched to checks in the connected
   seed by default. Actual treasure checks containing crafting materials remain eligible.
 - **Map filters and progression highlights.** Optional progression-only and in-logic-only
   controls work together; larger progression halos make eligible checks easier to spot.
-  Progression means the seed's progression surface, not a reveal of the item inside.
+  Map progression excludes pickups granted by an enabled boss sweep and highlights the
+  granting boss instead. F6 stars and F5 `[P]` retain the original seed-surface meaning;
+  neither display reveals the item inside. The default halo scale remains 1.5x.
   In-logic filtering uses tracker region access and does not evaluate additional quest,
   key or puzzle requirements. Pins with unresolved identities can be hidden by check-only mode.
+- **Map labels remain readable when a live item name is unavailable.** The engine keeps
+  the valid original label instead of showing an unresolved `[ERROR]` name. An active
+  check snapshot also prevents outdated orange styles from overriding current progression.
+  F10 opens MapForGoblins settings without triggering the client stamina diagnostic.
 - **F5 activity is easier to read.** Short location labels remove repeated region and sweep
   boilerplate from the display while original names remain available to the protocol and logs.
   Item text uses AP/Universal Tracker classification colors. Session display markers identify
@@ -21,7 +27,7 @@ The narrative — what this project is and what v0.2 brings — lives in
 - **MapForGoblins is an accepted placement reference for the location audit.** Placement
   agreement, new positions, shared identities and disagreements remain separately recorded.
   Placement acceptance does not certify every access rule; the overall access audit is unfinished.
-  The matching client update is included in this alpha's gitlink bump.
+  The matching client update is included in this release's gitlink bump.
 
 
 - Player notebook: location-first review form with a separate region-lock correction field, including unused/unobtainable checks; item-name notes are optional and existing notes remain intact.
@@ -38,11 +44,11 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** Required — use the client bundled with the v0.6.0 alpha for v0.6.0 seeds.
+- **Client:** Required — use the client bundled with the v0.6.0 release for v0.6.0 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
-- **Profile/assets:** Reinstall or replace with the alpha bundle's matching map-engine DLL, configuration and loader profile.
+- **Profile/assets:** Reinstall or replace with the release bundle's matching map-engine DLL, configuration and loader profile.
 
 Window opened 3 commit(s) PAST the v0.5.7 tag.
 
@@ -52,8 +58,8 @@ handshake. Future v0.6 contract changes belong here rather than on the v0.5.x ma
 Client half: clients#597. Its merged commit is pinned by the gitlink in this same change because
 `contract_gen.rs` embeds the exact APWorld version even while the contract hash is unchanged.
 
-The alpha is a separate prerelease; it does not promote the stable or beta channel.
-The full check/access audit remains in progress before a stable v0.6 release.
+This release is prepared as stable v0.6.0. Publication and channel promotion are pending;
+the full check/access audit remains in progress independently of release-channel status.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 

@@ -108,7 +108,7 @@ DOCS = [
     ("release/CHANGELOG.md", True),
     ("release/KNOWN-ISSUES.md", True),
     ("release/ATTRIBUTION.md", True),
-    ("release/ALPHA-v0.6.0.md", True),
+    ("release/RELEASE-v0.6.0.md", True),
     ("release/BLURB-v0.6.0.md", True),
     ("release/MFG-VERSION.json", True),
     ("release/PROVENANCE.md", True),
@@ -383,8 +383,8 @@ def main() -> int:
         die("--prerelease must be alpha.N, beta.N or rc.N (N >= 1)")
     if args.prerelease and args.unofficial:
         die("an official prerelease cannot also be --unofficial")
-    if args.prerelease and not args.mfg:
-        die("the v0.6 prerelease requires --mfg with its pinned vanilla artifact")
+    if (args.prerelease or (version == "0.6.0" and not args.unofficial)) and not args.mfg:
+        die("the v0.6 release requires --mfg with its pinned vanilla artifact")
     if args.unofficial and not args.stamp:
         die("--stamp is REQUIRED with --unofficial: the label is the whole point, so a bug report "
             "against a preview build can be tied back to a build")
