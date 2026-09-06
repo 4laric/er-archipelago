@@ -1,0 +1,37 @@
+{
+  "issue": 1437,
+  "ap_id": 7774651,
+  "flag": 400452,
+  "map": "m60_39_44",
+  "region": "Liurnia",
+  "source": "accepted vanilla M4G transfer20260905",
+  "pin": {
+    "id": 3900138,
+    "itemLotId": 104512,
+    "lotSource": "enemy",
+    "xyz": [
+      43.275,
+      212.172,
+      4.794
+    ]
+  },
+  "resolved_lot_table": "map",
+  "npc_param": {
+    "id": 523140220,
+    "itemLotId_map": 104510,
+    "itemLotId_enemy": -1
+  },
+  "batch": [
+    104510,
+    104511,
+    104512
+  ],
+  "reward": {
+    "lot": 104512,
+    "flag": 400452,
+    "category": 1,
+    "goods_id": 2913,
+    "quantity": 1
+  },
+  "limitation": "M4G enemy label describes actor context and does not match the actual map lot namespace. This world recovery does not establish runtime map pin matching."
+}

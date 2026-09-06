@@ -3625,6 +3625,9 @@ for _rr in _ALLROWS:
 # to the boss/location region they drop from) are recovered as real checks. Empty = none recovered
 # (globals stay excluded, no hub sphere-0 balloon). {flag(int): region}.
 GLOBAL_RECOVER = {
+    # M4G3900138, NPC523140220 map-lot104510 batch, sibling104512 flag400452.
+    # The NPC corpse is at Jarburg; the enemy pin category is not an enemy lot table.
+    400452: "Liurnia",
     # M4G 3100003 / map lot102926; m13_00 invasion event awards block102920.
     # Distinct acquisition flag from the Mt. Gelmir dialogue reward400291.
     400295: "Farum Azula",
@@ -3892,7 +3895,7 @@ QUEST_GATED_FLAGS = {
     400293, 400295, 400299, 400308, 400310, 400311, 400312, 400321, 400323, 400324,
     400331, 400333, 400339, 400348, 400349, 400356, 400358, 400359, 400360,
     400361, 400362, 400370, 400381, 400382, 400391, 400392, 400393, 400394,
-    400410, 400430, 400451, 400460, 400480, 400500, 400595, 400596, 400598,
+    400410, 400430, 400451, 400452, 400460, 400480, 400500, 400595, 400596, 400598,
     400602, 400630, 400632, 400634, 400636, 400644, 400664, 400666, 400670,
     400671, 400672, 400692, 400700, 400702, 400704, 400710, 400711, 400732,
     400740, 510030, 510420, 520400,
@@ -4761,7 +4764,7 @@ def _recover_row_ok(r):
     return _recover_tile(_fl) is not None           # auto-recover every DECODABLE global/filler
 _MFG_SOMBER_ORDER = (530861, 540424, 540428, 540912, 540914, 540920, 540922)
 _MFG_SOMBER_FLAGS = frozenset(_MFG_SOMBER_ORDER)
-_MFG_NPC_RECOVER_FLAGS = frozenset({400295})
+_MFG_NPC_RECOVER_FLAGS = frozenset({400295, 400452})
 _LATE_RECOVER_FLAGS = frozenset({530805}) | _MFG_SOMBER_FLAGS | _MFG_NPC_RECOVER_FLAGS
 _recovered = [r for r in _ALLROWS
               if _recover_row_ok(r) and int(r['flag']) not in _LATE_RECOVER_FLAGS]
@@ -5593,6 +5596,10 @@ rows.extend(_npc_recovered)
 _silver_scarab_rows = [r for r in rows if int(r['flag']) == 30207900]
 assert len(_silver_scarab_rows) == 1
 rows = [r for r in rows if int(r['flag']) != 30207900] + _silver_scarab_rows
+# Numen's Rune is the next reviewed recovery; keep it after the Silver Scarab ID.
+_numen_rows = [r for r in rows if int(r['flag']) == 400452]
+assert len(_numen_rows) == 1
+rows = [r for r in rows if int(r['flag']) != 400452] + _numen_rows
 
 
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
