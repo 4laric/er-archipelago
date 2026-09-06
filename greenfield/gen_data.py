@@ -2676,7 +2676,7 @@ for _r in _SYN_DROPPED:
     print(f"synthetic award guard: DROPPED flag={_r['flag']} {_r['item_name']!r} -- invented flag "
           f"collides with a real id but does not award the claimed item")
 print(f"synthetic award guard: dropped {len(_SYN_DROPPED)} collision survivors "
-      f"(expected 3 on the 2026-07-14 region_map: 177, 320820, 1038457500)")
+      f"(expected 2 after Briars source correction: 177, 320820)")
 
 # ---- EMEVD/common-event region AUDIT + POST-PROCESS (matt-free) -------------------------------
 # region_map.csv pins many emevd/global-method flags to a map/region taken from where the flag ID was
@@ -5545,10 +5545,14 @@ assert {int(r['flag']) for r in _late_recovered} == set(_LATE_RECOVER_FLAGS), (
 rows.extend(_late_recovered)
 # Accepted M4G ground recoveries enter after the shipped populations, just like
 # late globals above: restoring a culled row must not renumber existing checks.
-_mfg_recovery_flags = {2046407001, 2046407002, 2046407003, 2046407004, 2047447901}
+# Append order is the shipped AP identity order, not input CSV order.
+# Briars of Sin: accepted enemy pin 3100027 / lot 438100012 (issue #1437).
+_mfg_recovery_order = (2046407001, 2046407002, 2046407003, 2046407004, 2047447901, 1038457500)
+_mfg_recovery_flags = set(_mfg_recovery_order)
 _mfg_recovery_rows = [r for r in rows if int(r['flag']) in _mfg_recovery_flags]
 assert {int(r['flag']) for r in _mfg_recovery_rows} == _mfg_recovery_flags
 assert len(_mfg_recovery_rows) == len(_mfg_recovery_flags)
+_mfg_recovery_rows.sort(key=lambda r: _mfg_recovery_order.index(int(r["flag"])))
 rows = [r for r in rows if int(r['flag']) not in _mfg_recovery_flags] + _mfg_recovery_rows
 
 # #1437: the shipped Eleonora position used an unused ground-lot copy. Preserve its

@@ -35,7 +35,7 @@
 #   PLUS SweepSlot -- DERIVED, not priced here: one check per enabled dungeon sweep, decided per
 #   seed (55 on a 4-region seed, ~170 on the full map). So the DEFAULT SURFACE hosting
 #   number below is the TAGGED half only.
-#   checks 4930 total, 947 carry any tag
+#   checks 4931 total, 947 carry any tag
 #   DEFAULT SURFACE: tag union 230 | hosting 201 | hosting w/ reconciler armed 204 | hosting if missable guard OFF 208
 #
 class	total	tag_excluded	guessed_region	missable	erdtree_burn	surface_excluded	release_gated	hub_merchant	eligible	eligible_pct	in_default
