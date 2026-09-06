@@ -3623,6 +3623,9 @@ for _rr in _ALLROWS:
 # to the boss/location region they drop from) are recovered as real checks. Empty = none recovered
 # (globals stay excluded, no hub sphere-0 balloon). {flag(int): region}.
 GLOBAL_RECOVER = {
+    # M4G 3100003 / map lot102926; m13_00 invasion event awards block102920.
+    # Distinct acquisition flag from the Mt. Gelmir dialogue reward400291.
+    400295: "Farum Azula",
     # Tailoring Tools are the m31_15 Coastal Cave / Demi-Human Chief reward.  The old broad talk
     # number scan accidentally placed f60140 in Deeproot; the award itself is not an ESD gift.
     # m31_15's boss/game-area/grace data all agree on Limgrave, so keep the unique tool randomized
@@ -3884,7 +3887,7 @@ QUEST_GATED_FLAGS = {
     400190,   # Spirit Jellyfish Ashes -- Roderika's handover (recovered above, 2026-07-26). Her
               # neighbour 400189 (Patches' Bell Bearing) was already here; the ashes were not,
               # because a flag that is a check NOWHERE never needed a missable tag.
-    400293, 400299, 400308, 400310, 400311, 400312, 400321, 400323, 400324,
+    400293, 400295, 400299, 400308, 400310, 400311, 400312, 400321, 400323, 400324,
     400331, 400333, 400339, 400348, 400349, 400356, 400358, 400359, 400360,
     400361, 400362, 400370, 400381, 400382, 400391, 400392, 400393, 400394,
     400410, 400430, 400451, 400460, 400480, 400500, 400595, 400596, 400598,
@@ -4756,7 +4759,8 @@ def _recover_row_ok(r):
     return _recover_tile(_fl) is not None           # auto-recover every DECODABLE global/filler
 _MFG_SOMBER_ORDER = (530861, 540424, 540428, 540912, 540914, 540920, 540922)
 _MFG_SOMBER_FLAGS = frozenset(_MFG_SOMBER_ORDER)
-_LATE_RECOVER_FLAGS = frozenset({530805}) | _MFG_SOMBER_FLAGS
+_MFG_NPC_RECOVER_FLAGS = frozenset({400295})
+_LATE_RECOVER_FLAGS = frozenset({530805}) | _MFG_SOMBER_FLAGS | _MFG_NPC_RECOVER_FLAGS
 _recovered = [r for r in _ALLROWS
               if _recover_row_ok(r) and int(r['flag']) not in _LATE_RECOVER_FLAGS]
 rows = rows + _recovered
@@ -5541,8 +5545,8 @@ REGION_UNCONFIRMED = " (region unconfirmed)"
 # therefore append after those established populations. Senessax is the first such ruling made
 # after the namespace shipped; keep this explicit rather than silently changing existing AP IDs.
 _late_recovered = [r for r in _ALLROWS
-                   if int(r['flag']) in _LATE_RECOVER_FLAGS - _MFG_SOMBER_FLAGS and _recover_row_ok(r)]
-assert {int(r['flag']) for r in _late_recovered} == set(_LATE_RECOVER_FLAGS - _MFG_SOMBER_FLAGS), (
+                   if int(r['flag']) in _LATE_RECOVER_FLAGS - _MFG_SOMBER_FLAGS - _MFG_NPC_RECOVER_FLAGS and _recover_row_ok(r)]
+assert {int(r['flag']) for r in _late_recovered} == set(_LATE_RECOVER_FLAGS - _MFG_SOMBER_FLAGS - _MFG_NPC_RECOVER_FLAGS), (
     "late recovered flag set is incomplete -- an append-only AP id would silently disappear")
 rows.extend(_late_recovered)
 # Accepted M4G ground recoveries enter after the shipped populations, just like
@@ -5577,6 +5581,12 @@ for _old_flag, _live_flag in _reward_flag_corrections.items():
     _replacement = dict(_live_rows[0])
     _replacement.update(map='m60_39_52', region='Altus Plateau', method='mfg_reward')
     rows[_positions[0]] = _replacement
+# Keep later NPC recovery IDs after the already-reviewed stone population.
+_npc_recovered = [r for r in _ALLROWS
+                  if int(r['flag']) in _MFG_NPC_RECOVER_FLAGS and _recover_row_ok(r)]
+assert {int(r['flag']) for r in _npc_recovered} == _MFG_NPC_RECOVER_FLAGS
+assert len(_npc_recovered) == len(_MFG_NPC_RECOVER_FLAGS)
+rows.extend(_npc_recovered)
 
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 # These checks ARE the two Finger Ruins bell interactions: the bell event awards the talisman lot and

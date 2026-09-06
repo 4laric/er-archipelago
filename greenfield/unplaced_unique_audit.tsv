@@ -14,7 +14,7 @@ flag	item	verdict	canonical_flag	region	evidence
 400189	Patches' Bell Bearing	excluded_multisite			merchant_shops.tsv places Patches in m16_00, m31_00 and several overworld tiles; no single region is truthful
 400293	Devourer's Scepter	excluded_multisite			flag_lots contains the two Bernahl drop lots 102921/112901; merchant_shops.tsv places Bernahl in Limgrave and Mt. Gelmir
 400294	Beast Champion Helm	excluded_multisite			flag_lots contains multiple Bernahl drop variants; merchant_shops.tsv places Bernahl in Limgrave and Mt. Gelmir
-400295	Gelmir's Fury	duplicate	400291	Mt. Gelmir	data.py already has the same sorcery at f400291
+400295	Gelmir's Fury	generated	400295	Farum Azula	M4G pin3100003 and m13_00 invasion block102920 award lot102926, independent flag from Mt. Gelmir dialogue lot102910/f400291
 400361	Academy Glintstone Staff	generated	400361	Raya Lucaria Academy	first-hand issue #249 report pairs the vanilla staff drop with Thops's generated f400360 Bell Bearing in Raya Academy
 400395	Fingerslayer Blade	duplicate	12027080	Siofra River	data.py already has the same key item at f12027080
 400421	Stormhawk Axe	duplicate	11007105	Leyndell	data.py already has Stormhawk Axe checks at f11007105 and f1051577220
