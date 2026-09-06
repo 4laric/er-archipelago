@@ -132,7 +132,9 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773081	Caelid	Smithing Stone [7]	1050397030	ItemLotParam_map.getItemFlagId		near Sellia Backstreets	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7774503	Caelid	Somber Smithing Stone [4]	1051367700	ItemLotParam_map.getItemFlagId		around Chamber Outside the Plaza	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7774504	Caelid	Somber Smithing Stone [4]	1051367800	ItemLotParam_map.getItemFlagId		around Chamber Outside the Plaza	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7774643	Caelid	Somber Smithing Stone [4]	540424	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773888	Caelid	Somber Smithing Stone [8]	540426	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	1	gameplay-guide:redmaw	same-name candidates survive the committed anchor/tile joins; player ruling needed
+7774644	Caelid	Somber Smithing Stone [9]	540428	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773460	Cerulean	Grave Cricket	2048387000	ItemLotParam_map.getItemFlagId		near Cerulean Coast	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773464	Cerulean	Grave Cricket	2048397010	ItemLotParam_map.getItemFlagId		near Cerulean Coast	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773367	Cerulean	Grave Glovewort [9]	2047387010	ItemLotParam_map.getItemFlagId		near Cerulean Coast	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
@@ -230,6 +232,8 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7771880	Enir Ilim	Somber Smithing Stone [5]	20017650	ItemLotParam_map.getItemFlagId		near First Rise	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773422	Ensis	Knot Resin	2047447210	ItemLotParam_map.getItemFlagId		near Castle Ensis Checkpoint	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773486	Ensis	Knot Resin	2048447000	ItemLotParam_map.getItemFlagId		near Castle Ensis Checkpoint	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7774647	Ensis	Somber Smithing Stone [8]	540920	ItemLotParam_map.getItemFlagId		around Castle-Lord's Chamber	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7774648	Ensis	Somber Smithing Stone [8]	540922	ItemLotParam_map.getItemFlagId		around Castle-Lord's Chamber	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771487	Farum Azula	Ancient Dragon Smithing Stone	13007991	ItemLotParam_map.getItemFlagId		around Crumbling Beast Grave	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771488	Farum Azula	Ancient Dragon Smithing Stone	13007993	ItemLotParam_map.getItemFlagId		around Crumbling Beast Grave	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771432	Farum Azula	Golden Rune [12]	13007310	ItemLotParam_map.getItemFlagId		near Dragon Temple	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
@@ -2168,7 +2172,9 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773228	Rauh Base	Somber Smithing Stone [1]	2044477050	ItemLotParam_map.getItemFlagId		near Ravine North	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772457	Rauh Base	Somber Smithing Stone [3]	42037130	ItemLotParam_map.getItemFlagId		near Taylew's Ruined Forge	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773332	Rauh Base	Somber Smithing Stone [3]	2046457060	ItemLotParam_map.getItemFlagId		near Temple Town Ruins	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7774646	Rauh Base	Somber Smithing Stone [7]	540914	ItemLotParam_map.getItemFlagId		around Ancient Ruins Base	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772458	Rauh Base	Somber Smithing Stone [8]	42037140	ItemLotParam_map.getItemFlagId		near Taylew's Ruined Forge	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
+7774645	Rauh Base	Somber Smithing Stone [9]	540912	ItemLotParam_map.getItemFlagId		around Ancient Ruins Base	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773227	Rauh Base	Throwing Dagger	2044477040	ItemLotParam_map.getItemFlagId		near Ravine North	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773256	Rauh Base	Whiteflesh Mushroom	2045467080	ItemLotParam_map.getItemFlagId		near Temple Town Ruins	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772548	Raya Lucaria Academy	Celestial Dew	1035457000	ItemLotParam_map.getItemFlagId		near South Raya Lucaria Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
