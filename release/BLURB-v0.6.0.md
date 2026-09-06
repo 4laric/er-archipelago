@@ -1,48 +1,56 @@
-# v0.6.0 — release blurb (draft)
+# v0.6.0 — release blurb
 
-_Draft. Written as the window fills, not at tag time -- the moment a change lands is the
-only moment anyone remembers why it mattered._
+The v0.6 release puts the AP tracker onto MapForGoblins' in-game map. The bundle includes
+matching client and map-engine builds, with gathering-node clutter hidden in its preset.
+Your actual treasure checks remain eligible, including crafting-material pickups.
+
+Connect and open the map: check sharing and pin coloring start automatically. The
+fresh preset shows only pins matched to your connected seed. Use F10 → Archipelago for
+optional progression-only and in-logic-only filters or to resize progression highlights.
+Following map pins and player-review tools remain off by default in F6. Progression
+marks progression-surface places, excluding pickups granted by an enabled boss sweep;
+the map highlights the granting boss instead. F6 stars and F5 `[P]` still describe the
+original seed surface. None of these marks reveals an unhinted item's contents.
+In-logic means tracker region access. Extra quest, key and puzzle requirements are still
+outside that filter, and checks with unresolved pin identities may not appear.
+A granting boss without a native MapForGoblins pin cannot receive a map highlight;
+the associated checks remain available in F6.
+
+The default highlight size is 1.5x. F10 opens MapForGoblins settings without the client
+stamina diagnostic. Missing live item names keep a valid original label instead of
+showing `[ERROR]`, and current check states take precedence over old orange highlights.
+
+F5 activity now uses shorter location labels and AP/Universal Tracker item colors:
+plum for progression items, blue for useful items, salmon for traps and cyan for filler.
+Session display markers distinguish progression-surface checks (`[P]`) and sweep completions
+(`[S]`). A sweep completion does not mean you physically visited that pickup.
+
+MapForGoblins is an accepted placement reference for our location audit. That gives us much
+more concrete placement coverage, while ambiguous identities and disagreements remain
+visible for follow-up. The overall access audit remains unfinished; stable release status
+does not certify every access rule or imply complete map-pin coverage.
 
 ## What you need to update
 
-- **Client:** Required — use the eventual v0.6.0 client with v0.6.0 seeds.
+- **Client:** Required — use the client bundled with this release for v0.6.0 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
-- **Profile/assets:** No action yet.
+- **Profile/assets:** Reinstall or replace with this release's matching DLLs, configuration and loader profile.
+- **Release channel:** Stable v0.6.0.
 
-## What is in it so far
+## Other changes in the v0.6 window
 
-Reviews now focus on the region-lock assignment, exact location, collection requirements and evidence, including unused or unobtainable checks. Item-name corrections are optional, and older entries are preserved.
+Normal weapons can cost one Smithing Stone per upgrade; the existing two-stone default
+remains available. Collected Scadutree Fragments strengthen you everywhere by default,
+with the explicit DLC-only option retained. Flask and fragment placement uses a soft
+preference for important checks rather than making fill fail when that surface is full.
 
-The player notebook shows acquisition flags beside checks, with a copy button and flag search.
-Use Send notes to the project for the file handoff steps; browser autosave alone does not
-share notes. Keep the sent message or submitted GitHub issue as the receipt.
+The player notebook focuses on the place, region-lock assignment and collection requirements,
+including unused or unobtainable checks. Acquisition flags are searchable and copyable.
+Enable **Help verify locations (this session)** in F6 to reveal Review and Map actions,
+including for completed checks. These open the notebook; they do not submit a report.
+Save or copy your notes and follow the sharing instructions to send them to the project.
 
-Every check is getting a defensible identity, region, access rule, and player-facing description.
-The corpus audit combines committed game data, multiple external references, and player testimony
-without copying guide prose. Uncertain claims remain visibly held instead of becoming logic.
-
-Player reviews now begin with an item and a place, rather than evidence terminology. Pick a\nlocation you know, compare a suggested guide, and save or copy what you observed. The whole-guide\nreview queue keeps ambiguous matches visible; ten reviewed boss rewards add a second source\nwithout treating the rest of the suggestions as confirmations.\n\nNormal weapons can now be set to cost one Smithing Stone per upgrade, matching the pace of Somber
-weapons. The current two-stone cost stays the default, so existing YAMLs keep their behavior.
-
-## What carried over from v0.5.7
-
-Nothing is owed from v0.5.7. The stable release remains supported on main, while this branch carries
-the deliberately larger and slower corpus project toward complete coverage.
-
-## For whoever writes the real one
-
-The v0.4.3 blurb is the model: lead with what changed at the table, not with the option
-name. Its opening line -- "You can get BK'ed now, and that is the point" -- says what a
-player will feel before it says what was built, and that is the right order.
-
-
-### Review a place from the tracker or map
-
-Enable **Help verify locations (this session)** in F6 to reveal Review and Map buttons.
-They open the player review page; nothing is submitted automatically. Completed locations
-can also be reviewed, but a boss sweep is not evidence that you visited every pickup.
-The browser map plots recorded outdoor positions and keeps locations without pins in the
-list. It includes the full catalog, so it can reveal places outside your seed.
-This does not yet control MapForGoblins' native pins.
+Release packaging and live smoke results belong in `RELEASE-v0.6.0.md`. Publication remains
+pending until the release checklist has been completed.

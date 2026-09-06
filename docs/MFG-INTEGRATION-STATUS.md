@@ -10,6 +10,14 @@ The map engine and AP client are separate components. A source-built engine with
 the read-only v1 exports is required; the client never loads a map DLL itself.
 The performance experiment is independent of the matching and UI work.
 
+## v0.6 player defaults
+
+Check sharing and coloring start automatically when connected with the bundled MFG
+engine loaded. No F6 activation is needed. F10 → Archipelago owns optional map filters
+and halo size. F6 → Map integration retains session opt-outs and optional pin following;
+following, capture and player-review tools do not turn on automatically. See
+[the setup guide](../release/SETUP.md#mapforgoblins-in-the-v06-release).
+
 ## What each result means
 
 - A native marker identity can select candidate AP checks through its original

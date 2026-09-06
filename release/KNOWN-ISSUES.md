@@ -198,3 +198,10 @@ real thing. No report needed for anything below.
 Useful reports include: your YAML, the spoiler log, the client log, and -- if
 the game crashed -- the `crash-<pid>.txt` written next to the client. The single
 most valuable thing you can say is what you did immediately before it happened.
+
+
+## Map progression rings during pan and zoom
+
+Progression rings can lag behind native pins while panning or zooming, despite starting
+in the correct positions. This visual issue is non-blocking for v0.6 and is tracked in
+[issue #1432](https://github.com/4laric/er-archipelago/issues/1432).

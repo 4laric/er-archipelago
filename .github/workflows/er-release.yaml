@@ -107,12 +107,88 @@ jobs:
     outputs:
       client_sha: ${{ steps.pin.outputs.sha }}
 
+  mfg-dll:
+    if: github.ref != 'refs/heads/main' || github.event.inputs.tag != ''
+    outputs:
+      enabled: ${{ steps.mfg-pin.outputs.enabled }}
+    runs-on: windows-2022
+    env:
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+      - id: mfg-pin
+        shell: bash
+        run: |
+          if [ -f release/MFG-VERSION.json ]; then echo "enabled=true" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch the pinned engine and vanilla inputs
+        if: steps.mfg-pin.outputs.enabled == 'true'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.ICON_REPO_TOKEN }}
+        run: |
+          $pin = Get-Content release/MFG-VERSION.json -Raw | ConvertFrom-Json
+          git clone --no-checkout $pin.source_repository .mfg
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          git -C .mfg checkout --detach $pin.source_commit
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          gh release download $pin.input_release.tag --repo $pin.input_release.repository --pattern $pin.input_release.asset --dir .mfg-inputs
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $archive = Join-Path .mfg-inputs $pin.input_release.asset
+          if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $pin.input_sha256) {
+            throw "Pinned MFG vanilla input archive hash mismatch"
+          }
+          Expand-Archive -LiteralPath $archive -DestinationPath .mfg-inputs/verified
+          Copy-Item .mfg-inputs/verified/src/generated_vanilla .mfg/src/generated_vanilla -Recurse
+      - name: Build the vanilla map engine
+        if: steps.mfg-pin.outputs.enabled == 'true'
+        shell: pwsh
+        run: |
+          python -m pip install pillow==12.3.0 cmake==3.31.6
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Push-Location .mfg
+          foreach ($generator in @("generate_logo", "generate_map_icons", "generate_overlay_icons", "generate_i18n")) {
+            python "tools/$generator.py"
+            if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          }
+          cmake -S . -B builds/release -G "Visual Studio 17 2022" -A x64 -DGENERATED_SUBDIR=generated_vanilla
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          cmake --build builds/release --config Release --parallel 2
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Pop-Location
+      - name: Stage the AP preset and source identity
+        if: steps.mfg-pin.outputs.enabled == 'true'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory mfg-artifact | Out-Null
+          Copy-Item .mfg/builds/release/Release/MapForGoblins.dll mfg-artifact/
+          Copy-Item .mfg/LICENSE.txt mfg-artifact/
+          .mfg/builds/release/Release/mfg_inigen.exe mfg-artifact/stock.ini --vanilla
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          python .mfg/tools/make_ap_ini.py mfg-artifact/stock.ini mfg-artifact/MapForGoblins.ini
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Remove-Item -LiteralPath mfg-artifact/stock.ini
+          python tools/package_mfg.py --record-artifact mfg-artifact --lock release/MFG-VERSION.json
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: steps.mfg-pin.outputs.enabled == 'true'
+        with:
+          name: mfg-dll
+          path: mfg-artifact/
+          if-no-files-found: error
+          retention-days: 7
+
   # -----------------------------------------------------------------------------------------------
   # Everything else. Linux, because none of it needs Windows once the .dll exists.
   # -----------------------------------------------------------------------------------------------
   bundle:
     runs-on: ubuntu-latest
-    needs: [client-dll]
+    needs: [client-dll, mfg-dll]
+    if: always() && needs.client-dll.result == 'success' && (needs.mfg-dll.result == 'success' || needs.mfg-dll.result == 'skipped')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -136,9 +212,13 @@ jobs:
           if [ "${{ github.ref }}" = refs/heads/main ] && [ -z "${{ github.event.inputs.tag }}" ]; then
             v=$(python -c 'import json; print(json.load(open("greenfield/eldenring/archipelago.json"))["world_version"])')
           else
-            v="${{ github.event.inputs.version || github.event.inputs.tag || github.ref_name }}"
+            v="${{ github.event.inputs.tag || github.event.inputs.version || github.ref_name }}"
           fi
-          echo "version=${v#v}" >> "$GITHUB_OUTPUT"
+          v="${v#v}"
+          echo "version=${v%%-*}" >> "$GITHUB_OUTPUT"
+          if [[ "$v" == *-* ]]; then
+            echo "prerelease=${v#*-}" >> "$GITHUB_OUTPUT"
+          fi
 
       # 🛑 AP'S OWN REQUIREMENTS ARE THE WORKFLOW'S JOB, AND THIS FILE DID NOT DO IT.
       # `gf_zip_gen_smoke.py` bootstraps the pinned Archipelago checkout for itself, which reads
@@ -172,6 +252,12 @@ jobs:
         with:
           name: client-dll
           path: me3
+
+      - uses: actions/download-artifact@v4
+        if: needs.mfg-dll.outputs.enabled == 'true'
+        with:
+          name: mfg-dll
+          path: mfg-artifact
 
       # Identity of the pair. Structural here (see the header) but the tool also checks the SHA
       # baked into the .dll, which is the half a gitlink cannot assert.
@@ -222,6 +308,10 @@ jobs:
           elif [ "${{ github.event.inputs.unofficial }}" = true ]; then
             extra=(--unofficial --stamp "${{ github.event.inputs.stamp }}")
           fi
+          if [ -d mfg-artifact ]; then extra+=(--mfg mfg-artifact); fi
+          if [ -n "${{ steps.ver.outputs.prerelease }}" ]; then
+            extra+=(--prerelease "${{ steps.ver.outputs.prerelease }}")
+          fi
           python tools/pack_release.py \
             --version "${{ steps.ver.outputs.version }}" \
             --apworld dist/eldenring.apworld \
@@ -248,6 +338,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          prerelease: ${{ contains(github.event.inputs.tag || github.ref_name, '-') }}
+          make_latest: ${{ contains(github.event.inputs.tag || github.ref_name, '-') && 'false' || ((github.event.inputs.tag || github.ref_name) == 'v0.6.0' && 'true' || 'legacy') }}
           files: dist/*.zip
           fail_on_unmatched_files: true
 

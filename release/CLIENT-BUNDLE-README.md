@@ -55,6 +55,33 @@ For a standalone ModEngine2 or randomizer output instead of me3, point the insta
 file root: `.\install-ap-flower.ps1 -Destination "<folder containing regulation.bin>"`. To remove
 only files created by this installer, rerun it with the same destination and `-Uninstall`.
 
+## Map integration in the v0.6 release
+
+The release archive includes `MapForGoblins.dll`, `MapForGoblins.ini`,
+`MFG-LICENSE.txt` and `MFG-PROVENANCE.json` beside the AP client. Its `ap.me3`
+loads the map engine. The Matt-output installer adds that native entry when both
+DLLs are present. Updates preserve an existing map INI instead of resetting preferences.
+
+Connect and open the map: check sharing and pin coloring are on by default, without
+opening F6. The fresh preset shows only pins matched to your seed, hides gathering
+nodes and retains crafting-material treasure checks. Yellow rings mark known hints;
+orange rings mark progression targets.
+
+Use **F10 → Archipelago** for optional progression-only and in-logic-only filters
+(both off by default), checks-only (on), and highlight size (1.5×). In-logic uses
+tracker region access, not additional quest/puzzle requirements. Existing INI settings
+are preserved on update. F6 pin following and player-review tools remain off by default.
+Map progression excludes enabled sweep-member pickups and highlights their granting boss;
+F6 stars and F5 `[P]` keep the original seed-surface meaning. Halos default to 1.5x.
+F10 opens MapForGoblins settings without triggering the client stamina diagnostic.
+
+F6 → **Map integration** has session opt-outs; turn off sharing and coloring, and leave
+following off, to stop sending map data. Defaults return on the next launch. To disable the engine, exit the game and remove or disable only the
+MapForGoblins `[[natives]]` entry in the profile, preserving the AP client and other mods.
+Restart through that profile. Checks without resolved map pins remain listed in F6.
+A granting boss without a native MapForGoblins pin cannot receive a map highlight;
+the associated checks remain available in F6.
+
 ## What is in the folder
 
 | file | what it is |
