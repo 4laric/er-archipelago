@@ -1,0 +1,60 @@
+{
+  "issue": 1437,
+  "source": "accepted M4G vanilla input mfg-vanilla-inputs-20260905.zip",
+  "source_sha256": "0a7b8fa931609fe0d778b356fff5259e150d667a0ee2c8daeed38c4285fddc39",
+  "flag": 1038457500,
+  "name": "Briars of Sin",
+  "witnesses": [
+    {
+      "pin": {
+        "reference_id": "3100027",
+        "map": "m60_38_45",
+        "x": -28.624,
+        "y": 310.997,
+        "z": 59.27,
+        "coordinate_frame": "map_local",
+        "map_precision": "three_fields",
+        "itemLotId": 438100012,
+        "generated_xyz": [
+          -28.624,
+          310.997,
+          59.27
+        ],
+        "coordinate_transform": null,
+        "lotSource": "enemy",
+        "lot_source_status": "generated_profile",
+        "source": "native_generated_pin",
+        "category": "MagicSorceries",
+        "param_fields": {
+          "iconId": 52,
+          "dispMask00": true,
+          "areaNo": 60,
+          "gridXNo": 38,
+          "gridZNo": 45,
+          "posX": -28.624,
+          "posY": 310.997,
+          "posZ": 59.27,
+          "textId1": 500004900,
+          "textDisableFlagId1": 1038457500,
+          "textId2": 904381004,
+          "textDisableFlagId2": 1038457500,
+          "selectMinZoomStep": 1
+        },
+        "object_name": null
+      },
+      "rows": [
+        {
+          "flag": "1038457500",
+          "table": "enemy",
+          "lot": "438100012",
+          "slot": "2",
+          "category": "1",
+          "item_id": "4900",
+          "num": "1",
+          "goods_type": "5",
+          "name": ""
+        }
+      ]
+    }
+  ]
+}

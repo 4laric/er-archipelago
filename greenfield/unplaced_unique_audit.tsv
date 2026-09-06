@@ -9,7 +9,7 @@ flag	item	verdict	canonical_flag	region	evidence
 400104	Comet Azur	duplicate	400440	Mt. Gelmir	flag_lots has the same item; t111006000 is the actual AwardItemLot(104400) path and f400440 is generated
 400105	Stars of Ruin	duplicate	400430	Caelid	flag_lots has the same item; t110003111 in m31_11 is the actual AwardItemLot(104300) path and f400430 is generated
 400159	Discarded Palace Key	generated	400159	Ainsel River	common event 3050 awards lot 101590 after f12019280; lot_gates.tsv gives the single m12_01 setter map
-400162	Eleonora's Poleblade	duplicate	1039527700	Altus	data.py already has the same weapon at f1039527700
+400162	Eleonora's Poleblade	generated	400162	Altus	#1437 live invasion award block101620 (map lot101621), M4G pin2400148; replaces unused f1039527700 at the existing AP id
 400173	Alexander's Innards	duplicate	400174	Farum Azula	data.py already has the same key item as a co-check at f400174
 400189	Patches' Bell Bearing	excluded_multisite			merchant_shops.tsv places Patches in m16_00, m31_00 and several overworld tiles; no single region is truthful
 400293	Devourer's Scepter	excluded_multisite			flag_lots contains the two Bernahl drop lots 102921/112901; merchant_shops.tsv places Bernahl in Limgrave and Mt. Gelmir

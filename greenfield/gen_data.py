@@ -2005,6 +2005,9 @@ _RADA_WORLDLESS = frozenset({
 # known screen gap, not new doctrine. Culling it also regressed the gear_one_region fill
 # (Fill.FillError, one weapon over the hub's non-shop capacity), which is the in-repo witness.
 # Keeper: test_gf_worldless_singles.RULED_LIVE_MAP_FLAGS.
+# M4G recovery (#1437, 2026-09-06): Oathseeker 2046407001..4 and Royal Magic
+# Grease 2047447901 have accepted native pins. See evidence/mfg_recovered_pickups.json
+# and test_gf_mfg_recovered_pickups.py; the older absence-only census is superseded.
 _WORLDLESS_SINGLES = frozenset({
     11007995, 12027840, 12037560, 12037570, 12037580, 12037590, 12037900,
     12037910, 12057220, 12057230, 12057260, 12057270, 12057380, 12057390, 12057420,
@@ -2019,7 +2022,7 @@ _WORLDLESS_SINGLES = frozenset({
     # so the tsv is a corpus this rule must consult (the keeper test now subtracts it).
     39207200, 1036477100, 1036487100, 1037487100,
     1038467400, 1038477100, 1042337200, 1043317500,
-    1047557040, 1052557040, 2046407001, 2046407002, 2046407003, 2046407004, 2047447901, 2048467701,
+    1047557040, 1052557040, 2048467701,
     2049437610, 2049437901, 2049437902, 2049437911, 2049437912, 2050457510,
 })
 # WORLDLESS SHORT-FLAG LOTS -- the short-ID counterpart to the class above (#1077). Short flags are
@@ -2673,7 +2676,7 @@ for _r in _SYN_DROPPED:
     print(f"synthetic award guard: DROPPED flag={_r['flag']} {_r['item_name']!r} -- invented flag "
           f"collides with a real id but does not award the claimed item")
 print(f"synthetic award guard: dropped {len(_SYN_DROPPED)} collision survivors "
-      f"(expected 3 on the 2026-07-14 region_map: 177, 320820, 1038457500)")
+      f"(expected 2 after Briars source correction: 177, 320820)")
 
 # ---- EMEVD/common-event region AUDIT + POST-PROCESS (matt-free) -------------------------------
 # region_map.csv pins many emevd/global-method flags to a map/region taken from where the flag ID was
@@ -5540,6 +5543,31 @@ _late_recovered = [r for r in _ALLROWS
 assert {int(r['flag']) for r in _late_recovered} == set(_LATE_RECOVER_FLAGS), (
     "late recovered flag set is incomplete -- an append-only AP id would silently disappear")
 rows.extend(_late_recovered)
+# Accepted M4G ground recoveries enter after the shipped populations, just like
+# late globals above: restoring a culled row must not renumber existing checks.
+# Append order is the shipped AP identity order, not input CSV order.
+# Briars of Sin: accepted enemy pin 3100027 / lot 438100012 (issue #1437).
+_mfg_recovery_order = (2046407001, 2046407002, 2046407003, 2046407004, 2047447901, 1038457500)
+_mfg_recovery_flags = set(_mfg_recovery_order)
+_mfg_recovery_rows = [r for r in rows if int(r['flag']) in _mfg_recovery_flags]
+assert {int(r['flag']) for r in _mfg_recovery_rows} == _mfg_recovery_flags
+assert len(_mfg_recovery_rows) == len(_mfg_recovery_flags)
+_mfg_recovery_rows.sort(key=lambda r: _mfg_recovery_order.index(int(r["flag"])))
+rows = [r for r in rows if int(r['flag']) not in _mfg_recovery_flags] + _mfg_recovery_rows
+
+# #1437: the shipped Eleonora position used an unused ground-lot copy. Preserve its
+# positional AP id while binding it to the actual invasion award (101620 block,
+# sibling 101621, flag 400162). M4G pin 2400148 and m60_39_52 event 90005792
+# independently identify the live source. Do not add a second check for the same weapon.
+_reward_flag_corrections = {1039527700: 400162}
+for _old_flag, _live_flag in _reward_flag_corrections.items():
+    _positions = [i for i, r in enumerate(rows) if int(r['flag']) == _old_flag]
+    _live_rows = [r for r in _ALLROWS if int(r['flag']) == _live_flag]
+    assert len(_positions) == len(_live_rows) == 1
+    assert not any(int(r['flag']) == _live_flag for r in rows)
+    _replacement = dict(_live_rows[0])
+    _replacement.update(map='m60_39_52', region='Altus Plateau', method='mfg_reward')
+    rows[_positions[0]] = _replacement
 
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 # These checks ARE the two Finger Ruins bell interactions: the bell event awards the talisman lot and
@@ -6005,6 +6033,8 @@ _NR_PHANTOM_FLAGS = {int(_r3['flag']) for _r3 in _PHANTOM_DROPPED}
 _NR_ITEMLESS_FLAGS = {int(_r3['flag']) for _r3 in _ITEMLESS_DROPPED}
 _NR_SYN_FLAGS = {int(_r3['flag']) for _r3 in _SYN_DROPPED}
 _NR_RULES = (
+    (lambda _fl, _r: _fl in _reward_flag_corrections,
+     "unused_reward_copy: replaced by the live invasion award at the same AP id (#1437)"),
     (lambda _fl, _r: _fl in MAP_REVEAL_FLAGS,
      "map_reveal: map-fragment stele lot; the client's map-reveal flag path sets these exact flags "
      "(startgrants MAP_REVEAL_FLAGS), so a check here would be tripped en masse at reveal"),
