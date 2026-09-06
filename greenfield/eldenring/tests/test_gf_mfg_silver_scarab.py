@@ -34,3 +34,9 @@ class SilverScarabRecovery(unittest.TestCase):
         self.assertNotIn(30207900, assignments(world / 'data.py')['NOT_RANDOMIZED'])
         # The other talisman's actual scripted combat gate remains unresolved.
         self.assertIn(1050567820, assignments(world / 'data.py')['NOT_RANDOMIZED'])
+
+
+def test_silver_scarab_uses_its_own_dungeon_sweep():
+    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION
+    assert [boss for boss, members in DUNGEON_SWEEPS.items() if 7774650 in members] == [30200800]
+    assert SWEEP_REGION[30200800] == "Consecrated Snowfield"

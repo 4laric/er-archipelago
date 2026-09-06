@@ -101,6 +101,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7770639	unique_dungeon_pickup	Cerulean	St. Trina's Smile	400632	m22_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772002	unique_dungeon_pickup	Cerulean	Velvet Sword of St. Trina	22007150	m22_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772109	unique_dungeon_pickup	Consecrated Snowfield	Imp Head (Elder)	30197040	m30_19	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7774650	unique_dungeon_pickup	Consecrated Snowfield	Silver Scarab	30207900	m30_20	remaining_unreviewed	0		first_independent_identity_region_source
 7773985	unique_dungeon_pickup	Consecrated Snowfield	Spelldrake Talisman +2	30207060	m30_20	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
 7770786	unique_dungeon_pickup	Deeproot Depths	Ash of War: Golden Land	540660	m12_03	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7771259	unique_dungeon_pickup	Deeproot Depths	Ash of War: Vacuum Slice	12037140	m12_03	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted

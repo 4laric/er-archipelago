@@ -1482,7 +1482,7 @@ LOCATIONS = {
         ('Consecrated Snowfield :: Somber Smithing Stone [8] - m60_49_57 (region unconfirmed), may be sweep-granted by Putrid Avatar (m60_50_57) [f1049577710]', 7774490, 1049577710),
         ('Consecrated Snowfield :: Somber Smithing Stone [9] - m60_49_57 (region unconfirmed), may be sweep-granted by Death Rite Bird (m60_48_57) [f1049577720]', 7774491, 1049577720),
         ("Consecrated Snowfield :: Hoslow's Petal Whip - near Consecrated Snowfield Catacombs (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f1050567700]", 7774501, 1050567700),
-        ('Consecrated Snowfield :: Silver Scarab - near Hidden Path to the Haligtree [f30207900]', 7774650, 30207900),
+        ('Consecrated Snowfield :: Silver Scarab - near Hidden Path to the Haligtree, may be sweep-granted by Stray Mimic Tear (m30_20) [f30207900]', 7774650, 30207900),
         ('Consecrated Snowfield :: Rotten Gravekeeper Cloak - m30_19 [f520190]', 7900138, 520190),
         ('Consecrated Snowfield :: Sanguine Noble Robe - m60_47_56 (region unconfirmed), may be sweep-granted by Death Rite Bird (m60_48_57) [f1047567700]', 7900258, 1047567700),
         ("Consecrated Snowfield :: Sanguine Noble Waistcloth - m60_47_56 (region unconfirmed), may be sweep-granted by Night's Cavalry (Glaive) (m60_48_55) [f1047567700]", 7900259, 1047567700),
@@ -5549,4 +5549,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:794eb1b2dcb72edc6961c4ea3c1f612f8d06ef606b12bd7eb434eff719a35d28', 'module': 'data.py', 'body_sha256': 'sha256:86fbce283211a837ffde46fa3d090834d33cf9cd19a4fe42448526a8e92d51b2'}
+_GEN_STAMP = {'inputs_hash': 'sha256:ac8feccf4da890897dcaa46b2602686c89cf00f0956006ad091a86e4c8460862', 'module': 'data.py', 'body_sha256': 'sha256:c662e0cbac6a956986dfefe78b81097341fab40eb8bdebb9ee3c15f31310174e'}
