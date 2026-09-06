@@ -59,6 +59,7 @@ first, because the leak guard is the stronger constraint and a silent leak is wo
 no-op. Flagged for a ruling rather than silently picked.
 """
 from typing import List
+import math
 
 from BaseClasses import ItemClassification
 from ..registry import Feature, register
@@ -217,10 +218,23 @@ def fragments_to_inject(mode: int, target: int, natural: int, total_locations: i
     # starve the TARGET, not the original cap. The breach is bounded at floor units, and it only
     # fires on a REAL pool -- a zero ceiling means a pool too small to charge (total < 10), where
     # injecting 26 units would BE the pool. No real seed is that small (the hub alone is not).
-    floor_want = SCADU_CUM[CLAMP_FLOOR_LEVEL] - max(0, natural)
+    floor_level = min(CLAMP_FLOOR_LEVEL, target)
+    floor_want = SCADU_CUM[floor_level] - max(0, natural)
     if ceiling > 0 and want < floor_want:
         want = floor_want
     return want
+
+
+def target_for_difficulty(maximum_difficulty_pct: int) -> int:
+    """Resolved enemy ceiling -> guaranteed blessing level.
+
+    The automatic enemy ceiling already scales with run length. Reuse that resolved percentage so
+    a short seed does not reserve the full 50-fragment budget needed only by an uncapped run. An
+    explicit maximum follows the same conversion, so explicitly selecting 100 still requests 20.
+    Round upward: the supply must not land below the ceiling it is intended to counterweight.
+    """
+    pct = max(0, min(100, int(maximum_difficulty_pct)))
+    return int(math.ceil((len(SCADU_CUM) - 1) * pct / 100.0))
 
 
 def natural_fragments(world) -> int:
@@ -279,7 +293,7 @@ def plan(world):
     # would see 0 for every player who used the new names and this seed would inject nothing while
     # the blessing was on -- silently reproducing the exact supply bug this whole file exists to fix.
     mode = scaling.blessing_mode(world)
-    target = SCADU_INJECTION_TARGET
+    target = target_for_difficulty(scaling.resolved_max_difficulty(world))
     excluded = FRAGMENT in getattr(world, "gf_dlc_excluded", frozenset())
     natural = natural_fragments(world)
     total = _total_locations(world)

@@ -3,6 +3,110 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.0 — 2026-09-02
+
+- **The v0.6 release bundles MapForGoblins with the matching AP client.** The release profile
+  loads the source-built map engine; material gathering nodes are hidden by the preset.
+  Check sharing and pin coloring start automatically when connected; no F6 activation is
+  needed. The fresh preset shows only pins matched to checks in the connected seed.
+  Optional filters live in F10 → Archipelago; following pins and reviews stay off by default. Actual treasure checks containing crafting materials remain eligible.
+- **Map filters and progression highlights.** Optional progression-only and in-logic-only
+  controls work together; larger progression halos make eligible checks easier to spot.
+  Map progression excludes pickups granted by an enabled boss sweep and highlights the
+  granting boss instead. F6 stars and F5 `[P]` retain the original seed-surface meaning;
+  neither display reveals the item inside. The default halo scale remains 1.5x.
+  In-logic filtering uses tracker region access and does not evaluate additional quest,
+  key or puzzle requirements. Pins with unresolved identities can be hidden by check-only mode.
+- **Map labels remain readable when a live item name is unavailable.** The engine keeps
+  the valid original label instead of showing an unresolved `[ERROR]` name. An active
+  check snapshot also prevents outdated orange styles from overriding current progression.
+  F10 opens MapForGoblins settings without triggering the client stamina diagnostic.
+- **F5 activity is easier to read.** Short location labels remove repeated region and sweep
+  boilerplate from the display while original names remain available to the protocol and logs.
+  Item text uses AP/Universal Tracker classification colors. Session display markers identify
+  progression-surface checks with `[P]` and sweep completions with `[S]`.
+- **MapForGoblins is an accepted placement reference for the location audit.** Placement
+  agreement, new positions, shared identities and disagreements remain separately recorded.
+  Placement acceptance does not certify every access rule; the overall access audit is unfinished.
+  The matching client update is included in this release's gitlink bump.
+
+
+- Player notebook: location-first review form with a separate region-lock correction field, including unused/unobtainable checks; item-name notes are optional and existing notes remain intact.
+- Player notebook: source-backed acquisition flags are visible, searchable and copyable.
+  Clear file-sharing instructions explain how to send a notebook and retain a receipt;
+  local browser saving is explicitly separate from submitting notes.
+
+- Opt-in F6 player reviews: Review and Map actions for remaining and completed locations.
+  The v0.6 client with these controls is pinned with this update.
+  The player review page adds a filtered outdoor map with selectable pins, zoom and pan.
+  Missing positions remain visible in the list; map positions are not independent validation.
+  Tracker links check the original location name before allowing a report against that ID.
+
+
+### What you need to update
+
+- **Client:** Required — use the client bundled with the v0.6.0 release for v0.6.0 seeds.
+- **APWorld:** Host-only — the room host or generator must install the matching APWorld.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
+- **Profile/assets:** Reinstall or replace with the release bundle's matching map-engine DLL, configuration and loader profile.
+
+Window opened 3 commit(s) PAST the v0.5.7 tag.
+
+`CONTRACT_HASH` starts unchanged at `ffc0f1b5`; the branch initially changes only the exact-version
+handshake. Future v0.6 contract changes belong here rather than on the v0.5.x maintenance line.
+
+Client half: clients#597. Its merged commit is pinned by the gitlink in this same change because
+`contract_gen.rs` embeds the exact APWorld version even while the contract hash is unchanged.
+
+This release is prepared as stable v0.6.0. Publication and channel promotion are pending;
+the full check/access audit remains in progress independently of release-channel status.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **Player reviews start with the item and place.** The review browser now defaults to a
+  plain-language location list, with area/search filters, possible guide comparisons, and a form
+  for the item, route and evidence you actually observed. Save or copy a report to share it;
+  nothing is submitted automatically. Maintainer evidence and old claim links remain available.
+  Checks link directly to their review. No client, APWorld, YAML or existing-save update is needed.
+
+- **Whole-guide candidates no longer disappear when they are ambiguous.** A reproducible review
+  queue retains linked-item observations from the pinned base-game and DLC walkthroughs, including
+  alternate same-name pickups and disagreements about the area. These are suggestions, never
+  accepted corroboration. Separately, ten boss-reward passages were reviewed against\n  their existing independent source, raising identity/area corroboration from 1,143 to 1,153\n  of 4,925 checks. This widens the existing trusted-host set; access rules do not change. Numbered
+  duplicates and sweep-boss map tiles no longer create false exact anchors in the repeated-pickup
+  queue.
+
+- **Normal weapons can use one Smithing Stone per upgrade.** The existing two-stone ladder remains
+  the default, but `flatten_regular_upgrades` is now a YAML and wizard setting: choose `1` for
+  Somber-like pacing, `0` for vanilla 2/4/6 costs, or `2` through `4` for a uniform cost. This
+  changes upgrade prices rather than multiplying item deliveries, so foreign-world items and
+  stacked vanilla pickups are not double-counted.
+
+- **Collected Scadutree Fragments strengthen you everywhere by default.** v0.6 defaults
+  `scadutree_blessing_scope` to `anywhere`, while DLC catch-up floors remain off. The guaranteed
+  fragment supply follows the resolved maximum enemy difficulty, so short `auto` seeds reserve
+  fewer fragments while an explicit 100% ceiling still budgets for blessing level 20. Existing
+  YAMLs that explicitly select `dlc_only` keep vanilla scope. The deprecated
+  `global_scadutree_blessing: off` value is indistinguishable from an omitted default; use
+  `scadutree_blessing_scope: dlc_only` to opt out in v0.6.
+
+- **Scadutree Fragments prefer important checks but cannot break fill.** After required items are
+  placed, remaining fragments try the selected progression surface and spill into normal fill when
+  it is full. In multiworlds, a proportional share is deliberately sent to other games first.
+  Fragments are foreign-eligible by default through the new `scadutree_fragments` item category;
+  add that category to `keep_local` if you want every fragment in your own world.
+
+- **Flask upgrades use the same soft important-check preference.** Golden Seeds, Sacred Tears, and
+  Progressive Flask Upgrades try unused progression-surface checks, then spill into ordinary fill.
+  The old `flask_upgrades_on_progression_surface` YAML line remains accepted for compatibility but
+  is no longer needed and no longer hard-confines every copy or widens the chosen surface.
+
+- **The full check corpus audit moves to a dedicated v0.6 branch.** Every check is being reconciled
+  against game data, independent external references, and player evidence where needed; access
+  rules and concise original F6 descriptions will be derived only from facts the audit can defend.
+  Main remains available for focused v0.5.x fixes while this larger body of work converges.
+
 ## v0.5.8 — 2026-09-02
 
 ### What you need to update

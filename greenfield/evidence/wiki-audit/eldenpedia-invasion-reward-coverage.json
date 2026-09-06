@@ -1,0 +1,17 @@
+{
+  "category_pages": 24,
+  "conflicted_checks": 0,
+  "directly_bound_checks": 7,
+  "held_checks_after_batch": 2,
+  "page_dispositions": {
+    "blocked_tarnished_runtime": 2,
+    "bound": 6,
+    "multi_encounter_region_ambiguous": 3,
+    "not_a_direct_invasion_reward": 2,
+    "quest_or_multi_encounter": 9,
+    "set_alias_unresolved": 2
+  },
+  "remaining_pages": 18,
+  "schema_version": 1,
+  "trusted_checks_after_batch": 5
+}

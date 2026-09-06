@@ -115,7 +115,7 @@ class KeepLocal(OptionSet):
     # Why the default is not empty (#703)
 
     🛑 THIS SHIPS NON-EMPTY, and it is the only locality option that does. The default is the `goods`
-    umbrella MINUS `runes`, `key_items`, `spells` and `spirit_ashes` -- i.e. hold back the
+    umbrella MINUS `runes`, `key_items`, `spells`, `spirit_ashes` and `scadutree_fragments` -- i.e. hold back the
     consumables, crafting materials, smithing stones, cookbooks and bell bearings, and let every
     rune, key item, weapon, piece of armour, talisman, ash, spell and spirit ash travel.
 
@@ -148,7 +148,7 @@ class KeepLocal(OptionSet):
     Alaric's ruling, 2026-08-15: aim the composition at 1:1 useful:filler."""
     display_name = "Keep Local"
     valid_keys = frozenset(SELECTABLE)
-    # The `goods` umbrella minus runes/spells/spirit_ashes. Written out rather than computed: a
+    # The `goods` umbrella minus runes/key_items/spells/spirit_ashes/scadutree_fragments. Written out rather than computed: a
     # default a player reads in their yaml has to be a literal list they can edit and shorten, and
     # deriving it would make `keep_local:` mean something different after a catalog change with
     # nothing in the diff to say so. test_gf_local_defaults pins it against the live umbrella.

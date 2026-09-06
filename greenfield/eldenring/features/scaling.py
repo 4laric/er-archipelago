@@ -606,7 +606,7 @@ class ScadutreeBlessingScope(Choice):
     display_name = "Scadutree Blessing Scope"
     option_dlc_only = 0
     option_anywhere = 1
-    default = 0
+    default = 1
 
 
 class DlcBlessingCatchup(Toggle):
@@ -681,7 +681,8 @@ def resolve_legacy_blessing(world) -> None:
     have = (int(world.options.scadutree_blessing_scope.value),
             int(world.options.dlc_blessing_catchup.value))
     legacy_name = world.options.global_scadutree_blessing.current_key
-    if have != (0, 0) and have != want:
+    defaults = (ScadutreeBlessingScope.default, DlcBlessingCatchup.default)
+    if have != defaults and have != want:
         raise OptionError(
             f"global_scadutree_blessing ({legacy_name}) contradicts the options that replaced it. "
             f"It means scadutree_blessing_scope="

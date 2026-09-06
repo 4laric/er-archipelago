@@ -1,17 +1,17 @@
 {
   "by_confidence": {
-    "hold": 3879,
-    "trusted_identity_region": 1046
+    "hold": 3772,
+    "trusted_identity_region": 1153
   },
   "by_external_family_count": {
-    "0": 2809,
-    "1": 1070,
-    "2": 834,
-    "3": 207,
+    "0": 2807,
+    "1": 965,
+    "2": 940,
+    "3": 208,
     "4": 5
   },
   "checks_total": 4925,
-  "content_sha256": "c17ad163f492be50a67d9a187ed441c59c500feafb63c1c22c3ad88402b97204",
+  "content_sha256": "43626b8902f7d996d812f1ee7373e4c99e06ae200def70aede7a832485431b5c",
   "input_files": {
     "dlc-blessing-collectible-check-leads.tsv": "7b9a04264df1fb7725de5afa78861c1ecde2bdc36d580f3d52c17d049396791e",
     "dlc-sparse-region-check-leads.tsv": "ad6683820b1b6088077321262d3c4ee1fe360c7bdf809611ca53d728a0c8ab95",
@@ -19,8 +19,14 @@
     "eldenpedia-crystal-tear-check-leads.tsv": "d7a1ab0ad91d1d03d8d8654ce7be0b5e666d0f5fc1490f26619c507329b037c7",
     "eldenpedia-deathroot-check-leads.tsv": "68d32a6ef92453be2e4b2027496564730f807815f30bc3549997fa02849505a8",
     "eldenpedia-golden-seed-check-leads.tsv": "8127dfa2cebf66ce1dd4ccdd01f2db2f40c8283898582c6dddb283b263abfb1c",
-    "eldenpedia-item-acquisition-check-leads.tsv": "3cafd6686bf4c1a0cf4cba7054fb883bd2cfb6bb12aafd3f39b99891275279f3",
+    "eldenpedia-guide-check-leads.tsv": "4b66fe4a623a0ec8da7266c5c2a4c3bc857d41f7e8268ecd7ce23bbcc0a6f57d",
+    "eldenpedia-invasion-reward-check-leads.tsv": "390096cf0cf9cf20800c2f036d1a02c26647c479e58f295e1ce5ce4d3b4b06aa",
+    "eldenpedia-item-acquisition-check-leads.tsv": "720f555559cf644c92842867f45c5bc7a8740420f5d25daec2c555a479c56072",
     "eldenpedia-location-check-leads.tsv": "6672bc755e4fe67b77eac98ec2263d640cb7c153b0e3681f509ab473926e719b",
+    "eldenpedia-m12-siofra-check-leads.tsv": "cca79d7f28fe65fa2ba77c7099302749066c6d2df61af929bc755c512656df29",
+    "eldenpedia-m12-siofra-tail-check-leads.tsv": "c8eea27855ffe279de6e8feeec4003359f64cf31cbcb8756a57e4eda1bb441c7",
+    "eldenpedia-m12-unique-check-leads.tsv": "a23cb68f6bf859b8f3ca194736de38cfbf4500b465db8f2a62f1444b337abdd9",
+    "eldenpedia-malformed-dragon-check-leads.tsv": "c87950774635ebdf00be5c106af8c565889f714f8a1fbcfc31a2eb5ec39338b8",
     "eldenpedia-memory-stone-check-leads.tsv": "4e9540d8eeea38d26a38c899fcc9eb630737f6483c41ad6ec7128fcbf0346fc3",
     "eldenpedia-repeated-pickup-check-leads.tsv": "205ed9d9a60bc91923e7231e43ef0f411add7d05a894d7eb037b156946e74391",
     "eldenpedia-sacred-tear-check-leads.tsv": "41199f55dd70130969cef11656414388790a147f340c1e681c634f208aa9aa75",
@@ -32,15 +38,24 @@
     "fextralife-acquisition-check-leads.tsv": "ec89514ab5db0a5417b1faf77a0913f894f98ef71b1e824d50c61e874815b575",
     "fextralife-item-check-leads.tsv": "501d1987e6b4cf5c318877de2253e1b2e397519331ef2ac6cb674568626be726",
     "fextralife-linked-place-check-leads.tsv": "bfa2c366d4b09d9119b83695e4d77e958ff0452eacc1b37cc999399684abff92",
+    "fextralife-redmaw-corroboration-check-leads.tsv": "e63e17bdbef164203919d6a1b06729c88ac156cba34c32b693405fec9e497172",
     "game8-check-leads.tsv": "70463b4cdbed057c4b41df105140d6a9957b51abc9420bf76bec0e365d18f8c6",
     "game8-dlc-anchor-check-leads.tsv": "752fe5d34c8849ad121dd5c837ec609b0aa46aef7776418a8dbf98c194aeebc5",
     "game8-dlc-floor-check-leads.tsv": "bded2ed715ce184255e98cd90e4f2acf5aeb32b74a8d60b768540eebff112a2b",
     "powerpyx-check-leads.tsv": "3c61d757dc6f30f4cc321ec40a8565fb499dd1267c38faa71ceeec8930efba02",
+    "powerpyx-dlc-boss-reward-check-leads.tsv": "b1d3f0b8c99911b4c3f9d5ecc7b2c5b9918de0f3cf063dd6085d9c0540bfda22",
+    "powerpyx-dlc-npc-quest-reward-check-leads.tsv": "80c9154f6518aa35dd18d9bb4eddc5a0aabd90106c4186e7b623d114ac8e32eb",
+    "powerpyx-golden-rune-anchor-check-leads.tsv": "5e5f689c37bc515e1434baaf902a00f4e9d4f17de48843064c66ad5c2022fd4c",
+    "powerpyx-revered-corroboration-check-leads.tsv": "a914469ccbe33f78ad6d5e21fa999c722e49e728497976eb5ea81807cd198f53",
+    "powerpyx-scadutree-corroboration-check-leads.tsv": "aa5f40f6caef0bac1c203d15d0ca624a82783eac7a1e16a211c375da927bd47b",
+    "powerpyx-talisman-corroboration-check-leads.tsv": "e7c6c64ef15567006edb9fd3b66334283da3b0a9a5a289f1adb59e2985b5b02d",
     "redmaw-checklist-check-leads.tsv": "85120dafcb0413b59aab9e85252f8ea3911a19feb7d93d6b71f76e1d79712f75",
     "redmaw-embedded-ash-check-leads.tsv": "472a806089d28a78561f88094827e3d33b02706140f5c27f452d554c4a4fb3f7",
     "redmaw-location-anchor-check-leads.tsv": "b032388991699263a48df86f8df578db5c738732cd4673d8a53f4de18b3566fb",
     "redmaw-merchant-check-leads.tsv": "113697a9ea9da83f42e961f76d62767960b47199f8f921217efd2e24e1b44133",
-    "walkthrough-check-leads.tsv": "0f5e4e34bff25f6d6f1b73b081e03cd6e0d6fb6e943be1c9af9fe0c2f8d379f3"
+    "small-guide-tail-corroboration-check-leads.tsv": "84e642bc3a8b4df80efd68aa7a70b562cea03f3aafafab681bbb6cbfdd9f085e",
+    "walkthrough-check-leads.tsv": "0f5e4e34bff25f6d6f1b73b081e03cd6e0d6fb6e943be1c9af9fe0c2f8d379f3",
+    "walkthrough-reviewed-landmark-check-leads.tsv": "3625486cbcfa248294e0242d6dbcf4f81c7ceb5ed402c045df84eb3a77a9c4b9"
   },
   "minimum_trusted_external_families": 2,
   "schema_version": 1

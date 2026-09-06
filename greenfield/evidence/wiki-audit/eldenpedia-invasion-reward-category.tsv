@@ -1,0 +1,25 @@
+page_id	revision_id	title	disposition	check_ids	notes
+74	100545	Dung Eater	quest_or_multi_encounter		Page combines Roundtable and Leyndell states; direct invasion reward cannot be isolated from the infobox.
+660	66999	Sanguine Noble (Invader)	set_alias_unresolved		Infobox names a set rather than the individual AP armor rows and files the encounter under a coarse legacy region.
+1760	99999	Okina	multi_encounter_region_ambiguous		Page combines the living Caelid NPC and Mountaintops invasion; reward identity is clear but the infobox does not bind each state to a region.
+2263	100519	Crucible Knight	not_a_direct_invasion_reward		Category membership covers hostile NPC use broadly; no direct invasion-drop binding is asserted.
+2596	100527	Knight Bernahl	quest_or_multi_encounter		Page combines merchant, summon and invasion states; reward timing remains quest-dependent.
+2681	99938	Fire Knight Queelign (NPC)	quest_or_multi_encounter		Page combines two invasions and a later quest disposition; encounter-specific rewards need section-level adjudication.
+3300	69601	Bloody Finger Nerijus	bound	7772824	Infobox and walkthrough bind Reduvia to the Murkwater Cave invasion in Limgrave.
+4368	100750	Millicent	quest_or_multi_encounter		Page combines friendly quest states and the player-choice invasion branch.
+4901	83371	Eleonora, Violet Bloody Finger	bound	7770039;7774254	Single Altus invasion; infobox names both direct rewards.
+5980	70112	Swordhand of Night Anna	bound	7773759	Infobox identifies the Finger Ruins invasion and Claws of Night reward in Scadu Altus.
+6779	97677	Recusant Henricus	bound	7772844	Single Limgrave invasion; infobox names Hammer Talisman.
+6815	97352	Thiollier	quest_or_multi_encounter		Page combines ally and hostile quest states; no direct region-safe reward binding is asserted.
+7447	100592	Anastasia, Tarnished-Eater	multi_encounter_region_ambiguous		Three invasions and three rewards are listed, but the infobox does not pair each reward to one region.
+7531	99465	Nameless White Mask	set_alias_unresolved		Infobox uses a set alias and does not identify the one rewarding member of the repeated invasion family precisely enough.
+8751	95233	Hornsent (NPC)	quest_or_multi_encounter		Page combines summon, invasion and endgame battle outcomes.
+9293	99765	Vyke	multi_encounter_region_ambiguous		Page combines Festering Fingerprint Vyke with Roundtable Knight Vyke; infobox rewards are not invasion-specific.
+9392	99355	Invader	not_a_direct_invasion_reward		Mechanic overview, not a reward-bearing character page.
+10872	100017	Inquisitor Ghiza	bound	7771719	Single Volcano Manor invasion; infobox names Ghiza's Wheel.
+11398	100521	White Mask Varré	quest_or_multi_encounter		Page combines NPC, summon and player-invasion outcomes.
+12571	100585	Castellan Edgar	quest_or_multi_encounter		Page combines Castle Morne and Revenger states; direct reward attribution remains quest-dependent.
+13090	100072	Mad Tongue Alberich	bound	7770017	Single Roundtable invasion; infobox names Taunter's Tongue.
+13887	100531	Ensha of the Royal Remains	quest_or_multi_encounter		Page combines Roundtable NPC and invasion aftermath; corpse loot timing is not a direct invader drop.
+33964	101107	Knight Leontiel	blocked_tarnished_runtime		Patch 1.17 route is separately recorded as blocked_missability pending runtime cutoff evidence.
+33998	101109	The Noble Broken Mask	blocked_tarnished_runtime		Patch 1.17 route is separately recorded as blocked_missability pending runtime cutoff evidence.

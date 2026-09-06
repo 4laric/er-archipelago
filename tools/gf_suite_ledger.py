@@ -62,6 +62,11 @@ GENERATORS = [
     # the repo, neither of which is installed beside the world. AP-free and deterministic; run it
     # in the generators job where the page staleness diff is enforced.
     "evidence_browser",
+    # Whole-guide candidates and player labels are repository tooling, AP-free (#1412).
+    "bulk_check_review",
+    # AP-free native hover identity resolver and all-check source manifest; reads
+    # repository tooling and committed data, neither installed with the world.
+    "mfg_registry",
     "desc_triage",
     # v0.6 evidence-ledger schema, validator, status engine, and deterministic summary (#1210).
     # Loads tools/evidence_ledger.py and the committed fixture quartet by repository path. It is
@@ -174,6 +179,24 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "boss_reward_category_coverage": "category-wide boss and remembrance coverage regression "
+                                     "imports its repo-only builder and committed summary through "
+                                     "the repo-root walk-up. It is an AP-free pytest suite without "
+                                     "a script entry point, so it belongs in TESTS_JOB rather than "
+                                     "the generator script loop",
+    "upgrade_blessing_review_batch": "category-first upgrade/flask/blessing review regression "
+                                     "imports its repo-only builder and committed artifacts through "
+                                     "the repo-root walk-up. It is an AP-free pytest suite with no "
+                                     "script entry point, so it belongs in TESTS_JOB",
+    "generic_pickup_review": "category-wide generic pickup review regression imports its repo-only "
+                             "builder and committed review artifacts through the repo-root walk-up. "
+                             "It is an AP-free unittest suite without a script entry point, so it "
+                             "belongs in TESTS_JOB rather than the generator script loop",
+    "dungeon_field_review_batch": "category-first unique dungeon/field review regression imports "
+                                  "its repo-only builder and committed confidence ledger through "
+                                  "the repo-root walk-up. It is an AP-free pytest suite with no "
+                                  "script entry point, so it belongs in TESTS_JOB rather than the "
+                                  "generator script loop",
     "seam_landmarks": "cross-representation boundary witness joins a repo-root provenance TSV "
                       "to the installed world's location, sweep, arena, grace, and kick tables; "
                       "the tests job supplies both sides (#1319)",

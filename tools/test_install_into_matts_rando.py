@@ -1,5 +1,6 @@
 import importlib.util, tempfile, unittest
 from pathlib import Path
+from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 SPEC = importlib.util.spec_from_file_location("install_into_matts_rando",
@@ -95,7 +96,8 @@ class _Fixture:
 
 class EndToEndTests(unittest.TestCase):
     def _run(self, fx):
-        return matts.run(["--randomizer", str(fx.rando)], script_path=fx.script)
+        with patch.object(matts, "app_is_running", return_value=False):
+            return matts.run(["--randomizer", str(fx.rando)], script_path=fx.script)
 
     def test_changed_then_current_and_a_backup_exists(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -107,6 +109,60 @@ class EndToEndTests(unittest.TestCase):
             self.assertEqual(self._run(fx), 2, "second run is the idempotent no-op")
             self.assertEqual(len(list(fx.rando.glob(matts.TOML_NAME + ".bak-*"))), 1,
                              "a no-op writes no second backup")
+
+    def test_bundled_mfg_registers_both_in_place_and_is_idempotent(self):
+        for existing in (False, True):
+            with self.subTest(existing=existing), tempfile.TemporaryDirectory() as tmp:
+                fx = _Fixture(Path(tmp), with_toml=existing)
+                for name in matts.MFG_FILES:
+                    (fx.me3 / name).write_bytes(b"bundled")
+                self.assertEqual(self._run(fx), 0)
+                path = fx.rando / matts.TOML_NAME
+                once = path.read_text()
+                self.assertEqual(once.count("MapForGoblins.dll"), 1)
+                self.assertIn(matts._toml_quote(str(fx.me3.resolve() / "MapForGoblins.dll")), once)
+                self.assertIn(matts._toml_quote(str(fx.me3.resolve() / matts.DLL_NAME)), once)
+                self.assertFalse((fx.rando / "MapForGoblins.dll").exists())
+                if existing:
+                    self.assertIn("RandomizerCrashFix.dll", once)
+                    self.assertEqual(once.splitlines()[1], LIVE.splitlines()[1])
+                self.assertEqual(self._run(fx), 2)
+                self.assertEqual(path.read_text(), once)
+
+    def test_mfg_upgrade_repoints_existing_map_entry_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            old = LIVE.replace("RandomizerCrashFix.dll", "MapForGoblins.dll")
+            fx = _Fixture(Path(tmp), toml_text=old)
+            for name in matts.MFG_FILES:
+                (fx.me3 / name).write_bytes(b"bundled")
+            self.assertEqual(self._run(fx), 0)
+            text = (fx.rando / matts.TOML_NAME).read_text()
+            self.assertEqual(text.count("MapForGoblins.dll"), 1)
+            self.assertIn(matts._toml_quote(str(fx.me3.resolve() / "MapForGoblins.dll")), text)
+
+    def test_partial_or_empty_mfg_refuses_before_launcher_write(self):
+        for absent in matts.MFG_FILES:
+            for empty in (False, True):
+                with self.subTest(absent=absent, empty=empty), tempfile.TemporaryDirectory() as tmp:
+                    fx = _Fixture(Path(tmp))
+                    for name in matts.MFG_FILES:
+                        if name != absent:
+                            (fx.me3 / name).write_bytes(b"bundled")
+                        elif empty:
+                            (fx.me3 / name).write_bytes(b"")
+                    before = (fx.rando / matts.TOML_NAME).read_bytes()
+                    with self.assertRaisesRegex(matts.InstallError, "incomplete bundled MapForGoblins"):
+                        self._run(fx)
+                    self.assertEqual((fx.rando / matts.TOML_NAME).read_bytes(), before)
+                    self.assertEqual(list(fx.rando.glob(matts.TOML_NAME + ".bak-*")), [])
+
+    def test_non_mfg_bundle_keeps_existing_external_map_choice(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            old = LIVE.replace("RandomizerCrashFix.dll", "MapForGoblins.dll")
+            fx = _Fixture(Path(tmp), toml_text=old)
+            before_entry = old.split('"')[3]
+            self.assertEqual(self._run(fx), 0)
+            self.assertIn(before_entry, (fx.rando / matts.TOML_NAME).read_text())
 
     def test_missing_exe_refuses(self):
         with tempfile.TemporaryDirectory() as tmp:

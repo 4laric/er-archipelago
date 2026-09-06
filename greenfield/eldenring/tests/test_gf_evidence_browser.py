@@ -149,8 +149,14 @@ class OfflineArtifactTests(unittest.TestCase):
                           "eldenpedia-crystal-tear-check-leads.tsv",
                           "eldenpedia-deathroot-check-leads.tsv",
                           "eldenpedia-golden-seed-check-leads.tsv",
+                          "eldenpedia-guide-check-leads.tsv",
+                          "eldenpedia-invasion-reward-check-leads.tsv",
                           "eldenpedia-item-acquisition-check-leads.tsv",
                           "eldenpedia-location-check-leads.tsv",
+                          "eldenpedia-m12-siofra-check-leads.tsv",
+                          "eldenpedia-m12-siofra-tail-check-leads.tsv",
+                          "eldenpedia-m12-unique-check-leads.tsv",
+                          "eldenpedia-malformed-dragon-check-leads.tsv",
                           "eldenpedia-memory-stone-check-leads.tsv",
                           "eldenpedia-repeated-pickup-check-leads.tsv",
                           "eldenpedia-sacred-tear-check-leads.tsv",
@@ -162,15 +168,24 @@ class OfflineArtifactTests(unittest.TestCase):
                           "fextralife-acquisition-check-leads.tsv",
                           "fextralife-item-check-leads.tsv",
                           "fextralife-linked-place-check-leads.tsv",
+                          "fextralife-redmaw-corroboration-check-leads.tsv",
                           "game8-check-leads.tsv",
                           "game8-dlc-anchor-check-leads.tsv",
                           "game8-dlc-floor-check-leads.tsv", "leads.tsv",
                           "powerpyx-check-leads.tsv",
+                          "powerpyx-dlc-boss-reward-check-leads.tsv",
+                          "powerpyx-dlc-npc-quest-reward-check-leads.tsv",
+                          "powerpyx-golden-rune-anchor-check-leads.tsv",
+                          "powerpyx-revered-corroboration-check-leads.tsv",
+                          "powerpyx-scadutree-corroboration-check-leads.tsv",
+                          "powerpyx-talisman-corroboration-check-leads.tsv",
                           "redmaw-checklist-check-leads.tsv",
                           "redmaw-embedded-ash-check-leads.tsv",
                           "redmaw-location-anchor-check-leads.tsv",
                           "redmaw-merchant-check-leads.tsv",
-                          "walkthrough-check-leads.tsv"])
+                          "small-guide-tail-corroboration-check-leads.tsv",
+                          "walkthrough-check-leads.tsv",
+                          "walkthrough-reviewed-landmark-check-leads.tsv"])
         self.assertEqual(BUILDER.load_ledger()["inputs_hash"],
                          BUILDER.ledger_hash(BUILDER.CURRENT, BUILDER.WIKI_AUDIT))
         self.assertNotEqual(BUILDER.ledger_hash(BUILDER.CURRENT),
@@ -196,6 +211,21 @@ class OfflineArtifactTests(unittest.TestCase):
             data["access_summary"]["release_blockers"],
         )
         self.assertTrue(all(check["access_dispositions"] for check in data["checks"]))
+        self.assertTrue(all(not check["name"].startswith("Check ") for check in data["checks"]))
+        self.assertEqual(
+            next(check["tags"] for check in data["checks"] if check["check_id"] == 7770002),
+            ["Boss", "GreatRune", "MajorBoss"],
+        )
+        review = [check for check in data["checks"] if check["needs_review"]]
+        self.assertGreater(len(review), 1000)
+        self.assertLess(len(review), 1500, "targeted review regressed to the full unresolved queue")
+        self.assertTrue(all(check["review_reasons"] for check in review))
+        self.assertTrue(any(
+            "one external family" in reason
+            for check in review for reason in check["review_reasons"]
+        ))
+        self.assertIn("Dark Moon Ring", next(
+            check["name"] for check in data["checks"] if check["check_id"] == 7770000))
 
     def test_production_browser_uses_validated_disposition_review_metadata(self):
         data = BUILDER.load_ledger()
@@ -225,6 +255,33 @@ class OfflineArtifactTests(unittest.TestCase):
             self.assertEqual(first, fh.read(),
                              "evidence browser is stale; run tools/build_evidence_browser.py")
 
+    def test_player_flags_are_source_backed_and_not_parsed_from_names(self):
+        from player_check_review import player_check
+        check = {"name": "Misleading [f999]", "tags": [], "access_dispositions": [],
+                 "claims": [{"claim_kind": "region", "value": {"region": "Place"}, "status": "unknown"},
+                            {"claim_kind": "identity", "value": {"flag": 114}, "status": "unknown"}]}
+        self.assertEqual(player_check(check)["acquisition_flag"], 114)
+        for invalid in [None, 0, -1, True, "114"]:
+            check["claims"][1]["value"]["flag"] = invalid
+            self.assertIsNone(player_check(check)["acquisition_flag"])
+
+    def test_player_map_joins_recorded_positions_and_keeps_missing_locations(self):
+        data = BUILDER.load_ledger()
+        by_id = {c["check_id"]: c for c in data["checks"]}
+        self.assertTrue(by_id[7772822]["player"]["positions"])  # Gatefront carriage
+        self.assertFalse(by_id[7770000]["player"]["positions"])  # interior Dark Moon Ring
+        self.assertEqual(len(by_id), 4925)
+        self.assertGreater(sum(bool(c["player"]["positions"]) for c in by_id.values()), 2000)
+        self.assertEqual(set(data["player_maps"]), {"m60", "m61"})
+        for check in by_id.values():
+            for point in check["player"]["positions"]:
+                self.assertIn(point["map"], data["player_maps"])
+
+    def test_fixture_does_not_acquire_real_world_map_positions(self):
+        data = BUILDER.load_fixture()
+        self.assertEqual(data["player_maps"], {})
+        self.assertTrue(all(not c["player"]["positions"] for c in data["checks"]))
+
     def test_fixture_stamp_is_content_hash_not_a_git_commit(self):
         contract = BUILDER.load_fixture()
         stamp = contract["inputs_hash"]
@@ -237,7 +294,7 @@ class OfflineArtifactTests(unittest.TestCase):
         html = BUILDER.build().decode("utf-8")
         for facet in (
             'id="status"', 'id="risk"', 'id="kind"', 'id="family"',
-            'id="disposition"', 'id="external"', 'id="blocker"',
+            'id="tag"', 'id="review"', 'id="disposition"', 'id="external"', 'id="blocker"',
         ):
             self.assertIn(facet, html)
         for question in (
@@ -251,6 +308,7 @@ class OfflineArtifactTests(unittest.TestCase):
         claims = [c for x in data["checks"] for c in x["claims"]]
         conflicted = [c for c in claims if c["status"] == "conflicted"]
         self.assertTrue(conflicted, "witness: fixture no longer exercises an active conflict")
+        self.assertTrue(any(check["needs_review"] for check in data["checks"]))
         self.assertTrue(any(e["stance"] == "contradicts" for c in conflicted for e in c["evidence"]))
         self.assertTrue(all(e["citation"].strip() for c in claims for e in c["evidence"]))
         fixture_html = BUILDER.build(ledger_path=BUILDER.FIXTURE).decode("utf-8")
@@ -266,6 +324,17 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertIn("Unbound external leads", html)
         self.assertIn("Lead only: external agreement does not alter", html)
         self.assertIn("Immutable citations:", html)
+        self.assertIn('id="playerQueue"', html)
+        self.assertIn('id="copyReview"', html)
+        self.assertIn("Can you confirm where this is and everything required to collect it?", html)
+        self.assertIn('id="rvVerdict"', html)
+        self.assertIn('id="rvAccess"', html)
+        self.assertIn('id="copyAnswer"', html)
+        self.assertIn('id="openReview"', html)
+        self.assertIn("[Evidence review]", html)
+        self.assertIn("Nothing leaves your browser until", html)
+        self.assertIn("els.review.value='yes'", html)
+        self.assertIn("Human review requested.", html)
 
     def test_permalink_serialises_every_facet_and_selected_claim(self):
         html = BUILDER.build().decode("utf-8")

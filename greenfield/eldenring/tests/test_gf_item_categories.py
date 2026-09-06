@@ -185,17 +185,23 @@ class DefaultsAimAtTheOneToOneMix(WorldTestBase):
             {"consumables", "cookbooks", "crafting", "crystal_tears",
              "merchant_bells", "other", "upgrade_bells", "upgrade_materials"})
 
-    def test_the_default_set_is_goods_minus_the_three_we_release(self):
+    def test_the_default_set_is_goods_minus_the_categories_we_release(self):
         """Pinned against the LIVE umbrella rather than a second copy of the list. `goods` is derived
         from the catalog nibble, so a new goods category tomorrow lands here as a red test asking
         whether it should be held or released -- which is the reviewed diff we want, instead of the
         default silently meaning something new."""
-        released = {"runes", "key_items", "spells", "spirit_ashes"}
+        released = {"runes", "key_items", "spells", "spirit_ashes", "scadutree_fragments"}
         self.assertEqual(set(self.world.options.keep_local.value),
                          set(ic.UMBRELLAS["goods"]) - released)
         # WITNESS: the umbrella really does contain what we claim to be subtracting, so the equality
         # above is a subtraction that happened rather than two empty-ish sets agreeing.
         self.assertTrue(released <= set(ic.UMBRELLAS["goods"]))
+
+    def test_scadutree_fragments_are_useful_and_foreign_eligible_by_default(self):
+        self.assertEqual(ic.category_of("Scadutree Fragment"), "scadutree_fragments")
+        self.assertEqual(ic.category_of("Scadutree Fragment x2"), "scadutree_fragments")
+        self.assertEqual(ic.class_of("Scadutree Fragment"), ic.USEFUL)
+        self.assertNotIn("scadutree_fragments", self.world.options.keep_local.value)
 
     def test_the_rune_ladder_is_capped_not_localized(self):
         """🛑 The surviving half of the old objection. Runes are the one large filler category left

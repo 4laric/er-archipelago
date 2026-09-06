@@ -11,6 +11,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "greenfield" / "evidence" / "wiki-audit"
 LEADS = AUDIT / "powerpyx-check-leads.tsv"
+DLC_BOSS_LEADS = AUDIT / "powerpyx-dlc-boss-reward-check-leads.tsv"
+SCADUTREE_LEADS = AUDIT / "powerpyx-scadutree-corroboration-check-leads.tsv"
+REVERED_LEADS = AUDIT / "powerpyx-revered-corroboration-check-leads.tsv"
+TALISMAN_LEADS = AUDIT / "powerpyx-talisman-corroboration-check-leads.tsv"
 HEADERS = (
     "lead_id", "subject_kind", "subject_id", "claim_kind", "normalized_value",
     "source_ids", "independence_families", "disposition", "game_version",
@@ -21,10 +25,15 @@ HEADERS = (
 def main() -> int:
     with (AUDIT / "sources.tsv").open(encoding="utf-8", newline="") as fh:
         sources = {row["source_id"]: row for row in csv.DictReader(fh, delimiter="\t")}
-    with LEADS.open(encoding="utf-8", newline="") as fh:
-        reader = csv.DictReader(fh, delimiter="\t")
-        assert tuple(reader.fieldnames or ()) == HEADERS
-        rows = list(reader)
+    rows = []
+    for path in (LEADS, DLC_BOSS_LEADS, SCADUTREE_LEADS, REVERED_LEADS, TALISMAN_LEADS):
+        with path.open(encoding="utf-8", newline="") as fh:
+            reader = csv.DictReader(fh, delimiter="\t")
+            assert tuple(reader.fieldnames or ()) == HEADERS
+            file_rows = list(reader)
+            assert [row["lead_id"] for row in file_rows] == sorted(
+                row["lead_id"] for row in file_rows)
+            rows.extend(file_rows)
 
     spec = importlib.util.spec_from_file_location(
         "_powerpyx_check_data", ROOT / "greenfield" / "eldenring" / "data.py")
@@ -34,10 +43,10 @@ def main() -> int:
     current = {str(ap_id): region for region, checks in mod.LOCATIONS.items()
                for _name, ap_id, _flag in checks}
 
-    assert len(rows) >= 90, "PowerPyx coverage unexpectedly collapsed below the 93-check corpus"
+    assert len(rows) >= 100, "PowerPyx coverage unexpectedly collapsed below the 100-check corpus"
     ids = [row["lead_id"] for row in rows]
     subjects = [row["subject_id"] for row in rows]
-    assert ids == sorted(ids) and len(ids) == len(set(ids))
+    assert len(ids) == len(set(ids))
     assert len(subjects) == len(set(subjects))
     for row in rows:
         assert row["subject_kind"] == "check" and row["claim_kind"] == "identity_region"
@@ -50,6 +59,25 @@ def main() -> int:
         assert row["exact_citations"].startswith("powerpyx:#")
         assert ":block-" in row["exact_citations"] and ":sha256-" in row["exact_citations"]
         assert row["summary"] and row["limitations"]
+    scadutree = [row for row in rows if row["source_ids"] ==
+                 "wiki:powerpyx:scadutree-fragments:20260904"]
+    assert len(scadutree) == 4
+    assert {row["subject_id"] for row in scadutree} == {
+        "7771810", "7774544", "7774551", "7774560",
+    }
+    revered = [row for row in rows if row["source_ids"] ==
+               "wiki:powerpyx:revered-spirit-ash:20260904"]
+    assert len(revered) == 2
+    assert {row["subject_id"] for row in revered} == {"7771808", "7773357"}
+    talismans = [row for row in rows if row["source_ids"] ==
+                 "wiki:powerpyx:talismans:20260904"]
+    assert len(talismans) == 1 and talismans[0]["subject_id"] == "7771028"
+    dlc_bosses = [row for row in rows if row["source_ids"] ==
+                  "wiki:powerpyx:dlc-bosses:20260904"]
+    assert len(dlc_bosses) == 3
+    assert {row["subject_id"] for row in dlc_bosses} == {
+        "7770670", "7770671", "7770676",
+    }
     print(f"PowerPyx check leads: OK -- {len(rows)} exact check bindings")
     return 0
 

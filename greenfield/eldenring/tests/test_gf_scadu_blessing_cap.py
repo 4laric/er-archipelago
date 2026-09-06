@@ -115,7 +115,7 @@ def test_an_off_seed_emits_nothing_new():
 
 
 def test_the_option_is_reachable_from_yaml():
-    """UNFROZEN 2026-07-31, default still `off`. The freeze had an effect nobody intended: the option
+    """UNFROZEN 2026-07-31. The freeze had an effect nobody intended: the option
     could not be set from yaml at all, so the feature could never be playtested, so the fact that it
     did nothing outside the DLC went unnoticed for its entire life. A knob that cannot be turned on
     cannot be tested.
@@ -133,18 +133,29 @@ def test_the_option_is_reachable_from_yaml():
     assert sc.Scaling.OPTIONS["dlc_blessing_catchup"] is sc.DlcBlessingCatchup
 
 
-def test_the_default_is_still_off():
-    """Unfreezing is NOT a balance change. The 2026-07-18 call (the DLC floor made the DLC too easy)
-    stands as the default; unfreezing only makes the other values reachable.
-
-    🛑 `er-unfreezing-an-option-needs-the-class-default`: a shipped yaml that pins the value MASKS a
-    rotted class default, so this pins the DEFAULT rather than the template."""
+def test_v060_defaults_to_game_wide_blessing_without_catchup_floors():
+    """v0.6 makes collected fragments useful everywhere without manufacturing regional floors."""
     assert sc.GlobalScadutreeBlessing.default == 0
     assert sc.GlobalScadutreeBlessing.option_off == 0
-    # ...and the replacements default to the same behaviour, so the split is not a balance change
-    # smuggled in as a rename.
-    assert sc.ScadutreeBlessingScope.default == sc.ScadutreeBlessingScope.option_dlc_only == 0
+    assert sc.ScadutreeBlessingScope.default == sc.ScadutreeBlessingScope.option_anywhere == 1
     assert sc.DlcBlessingCatchup.default == 0
+
+
+def test_legacy_scaled_can_override_the_new_default_pair():
+    """An old yaml selecting `scaled` must still turn catch-up on after the scope default changes."""
+    class Option:
+        def __init__(self, value, key=""):
+            self.value = value
+            self.current_key = key
+
+    world = type("World", (), {})()
+    world.options = type("Options", (), {})()
+    world.options.global_scadutree_blessing = Option(2, "scaled")
+    world.options.scadutree_blessing_scope = Option(1, "anywhere")
+    world.options.dlc_blessing_catchup = Option(0, "off")
+    sc.resolve_legacy_blessing(world)
+    assert world.options.scadutree_blessing_scope.value == 1
+    assert world.options.dlc_blessing_catchup.value == 1
 
 
 def test_no_mode_emits_a_ceiling_any_more():
