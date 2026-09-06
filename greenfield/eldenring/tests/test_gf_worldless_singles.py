@@ -120,6 +120,13 @@ class WorldlessSingles(unittest.TestCase):
                                "audited-tile subtraction would be vacuous")
         derived -= tiles
         derived -= RULED_LIVE_MAP_FLAGS
+        # Accepted M4G placements supersede the older absence-only ground census (#1437).
+        import json
+        with open(os.path.join(REPO, "greenfield", "evidence", "mfg_recovered_pickups.json"),
+                  encoding="utf-8") as fh:
+            mfg_flags = {row["flag"] for row in json.load(fh)["rows"]}
+        self.assertEqual(len(mfg_flags), 5)
+        derived -= mfg_flags
         only_frozen = sorted(self.frozen - derived - self.flags)
         # a frozen flag may legitimately leave the DERIVED set only by leaving the corpus (it is
         # excluded, so the audit cannot see it); one that RE-ENTERS the corpus while still frozen
@@ -156,8 +163,8 @@ class WorldlessSingles(unittest.TestCase):
         # 86 -> 78 (2026-08-19, same day): #898's audited unplaced_global_tiles.tsv placed 8 of
         # them -- the derivation below now subtracts that corpus, which is exactly the shrink
         # this message asks to be named.
-        self.assertEqual(len(self.frozen), 77,
-                         "the cull corpus moved (was 77, ruled 2026-08-19; EMEVD screen -40, audited tiles -8, "
+        self.assertEqual(len(self.frozen), 72,
+                         "the cull corpus moved (was 72 after five M4G recoveries, ruled 2026-08-19; EMEVD screen -40, audited tiles -8, "
                          "RULED_LIVE -1 off the original 126). A shrink after a "
                          "census improvement is the loop working -- name the released rows; a "
                          "growth needs its own ruling.")

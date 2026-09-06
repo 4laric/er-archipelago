@@ -3,6 +3,11 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## Unreleased
+
+- Recover four Oathseeker Knight armor checks and Royal Magic Grease using accepted
+  Map for Goblins placement evidence (#1437). Existing check IDs remain unchanged.
+
 ## v0.6.0 — 2026-09-02
 
 **Temporary icon fallback:** v0.6.0 omits the Flower atlas override to avoid wrong weapon

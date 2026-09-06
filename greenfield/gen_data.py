@@ -2005,6 +2005,9 @@ _RADA_WORLDLESS = frozenset({
 # known screen gap, not new doctrine. Culling it also regressed the gear_one_region fill
 # (Fill.FillError, one weapon over the hub's non-shop capacity), which is the in-repo witness.
 # Keeper: test_gf_worldless_singles.RULED_LIVE_MAP_FLAGS.
+# M4G recovery (#1437, 2026-09-06): Oathseeker 2046407001..4 and Royal Magic
+# Grease 2047447901 have accepted native pins. See evidence/mfg_recovered_pickups.json
+# and test_gf_mfg_recovered_pickups.py; the older absence-only census is superseded.
 _WORLDLESS_SINGLES = frozenset({
     11007995, 12027840, 12037560, 12037570, 12037580, 12037590, 12037900,
     12037910, 12057220, 12057230, 12057260, 12057270, 12057380, 12057390, 12057420,
@@ -2019,7 +2022,7 @@ _WORLDLESS_SINGLES = frozenset({
     # so the tsv is a corpus this rule must consult (the keeper test now subtracts it).
     39207200, 1036477100, 1036487100, 1037487100,
     1038467400, 1038477100, 1042337200, 1043317500,
-    1047557040, 1052557040, 2046407001, 2046407002, 2046407003, 2046407004, 2047447901, 2048467701,
+    1047557040, 1052557040, 2048467701,
     2049437610, 2049437901, 2049437902, 2049437911, 2049437912, 2050457510,
 })
 # WORLDLESS SHORT-FLAG LOTS -- the short-ID counterpart to the class above (#1077). Short flags are
@@ -5540,6 +5543,13 @@ _late_recovered = [r for r in _ALLROWS
 assert {int(r['flag']) for r in _late_recovered} == set(_LATE_RECOVER_FLAGS), (
     "late recovered flag set is incomplete -- an append-only AP id would silently disappear")
 rows.extend(_late_recovered)
+# Accepted M4G ground recoveries enter after the shipped populations, just like
+# late globals above: restoring a culled row must not renumber existing checks.
+_mfg_recovery_flags = {2046407001, 2046407002, 2046407003, 2046407004, 2047447901}
+_mfg_recovery_rows = [r for r in rows if int(r['flag']) in _mfg_recovery_flags]
+assert {int(r['flag']) for r in _mfg_recovery_rows} == _mfg_recovery_flags
+assert len(_mfg_recovery_rows) == len(_mfg_recovery_flags)
+rows = [r for r in rows if int(r['flag']) not in _mfg_recovery_flags] + _mfg_recovery_rows
 
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 # These checks ARE the two Finger Ruins bell interactions: the bell event awards the talisman lot and

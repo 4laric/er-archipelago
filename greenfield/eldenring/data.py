@@ -1729,6 +1729,7 @@ LOCATIONS = {
         ("Ensis :: Ash of War: Wing Stance - near Castle-Lord's Chamber, may be sweep-granted by Rellana, Twin Moon Knight (m61_48_44) [f2048447810]", 7773497, 2048447810),
         ("Ensis :: Ash of War: Piercing Throw - around Castle-Lord's Chamber, may be sweep-granted by Rellana, Twin Moon Knight (m61_48_44) [f540902]", 7773896, 540902),
         ('Ensis :: Scadutree Fragment - Castle Ensis Checkpoint cross [f2047447720]', 7774553, 2047447720),
+        ('Ensis :: Royal Magic Grease - around Castle Front, may be sweep-granted by Rellana, Twin Moon Knight (m61_48_44) [f2047447901]', 7774640, 2047447901),
     ],
     'Farum Azula': [
         ("Farum Azula :: Ancient Dragon Apostle's Cookbook [4] - near Tempest-Facing Balcony, may be sweep-granted by Maliketh, the Black Blade (m13_00) [f68020]", 7770132, 68020),
@@ -2022,6 +2023,10 @@ LOCATIONS = {
         ('Gravesite :: Smithing Stone [6] - near Greatbridge, North, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f2046437040]', 7774547, 2046437040),
         ('Gravesite :: Scadutree Fragment - Shadowpot East of Scorched Ruins [f2047417995]', 7774552, 2047417995),
         ('Gravesite :: Scadutree Fragment - Encampment in front of Castle Ensis, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f2047447750]', 7774554, 2047447750),
+        ('Gravesite :: Oathseeker Knight Helm - around Gravesite Plain, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f2046407001]', 7774636, 2046407001),
+        ('Gravesite :: Oathseeker Knight Armor - around Gravesite Plain, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f2046407002]', 7774637, 2046407002),
+        ('Gravesite :: Oathseeker Knight Gauntlets - around Gravesite Plain, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f2046407003]', 7774638, 2046407003),
+        ('Gravesite :: Oathseeker Knight Greaves - around Gravesite Plain, may be sweep-granted by Knight of the Solitary Gaol (m61_46_41) [f2046407004]', 7774639, 2046407004),
         ("Gravesite :: Thiollier's Garb [f400636]", 7900089, 400636),
         ("Gravesite :: Thiollier's Gloves [f400636]", 7900090, 400636),
         ("Gravesite :: Thiollier's Trousers [f400636]", 7900091, 400636),
@@ -5450,11 +5455,6 @@ NOT_RANDOMIZED = {
     1048387030: "item_nonexistent: every item its lot awards resolves to no in-game name (no param row, or FromSoft's '[ERROR]'/'%null%' cut content); the flag may never fire (item-existence guard)",
     1050567820: 'unreachable_dead: physically gated behind mechanics a warp-grace region-lock shuffle cannot guarantee (Alaric 2026-07-09); a placed item would strand',
     1052557040: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
-    2046407001: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
-    2046407002: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
-    2046407003: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
-    2046407004: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
-    2047447901: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     2048467701: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     2049437610: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     2049437901: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
@@ -5540,4 +5540,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:33a5cb5b5533b9adc623ef9c4c72d5b5686d2d8adb339da1d8fe562ac51d53e2', 'module': 'data.py', 'body_sha256': 'sha256:ec934f1e188ca18611e9e542360a2b3a94600fc66b7b36b93cbaf9ec39ae9992'}
+_GEN_STAMP = {'inputs_hash': 'sha256:bd1cf7441aa19e1161b902af6c86413d28afbaec8e546b61ab1e94fc4027b9f6', 'module': 'data.py', 'body_sha256': 'sha256:7d867db131ba1f1f4a49f9e3e7758f303b5012fe61a9668181030bc84aa5279e'}
