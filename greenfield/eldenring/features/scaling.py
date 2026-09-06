@@ -524,11 +524,13 @@ class MaximumEnemyDifficulty(NamedRange):
     your regions unlock, so the deepest one is "the end of the run" whether that is 30 regions or 5 --
     but Somber +10 still needs a Somber [9]. On a short seed you therefore meet endgame-strength
     enemies on a mid-game weapon, and fewer regions makes the ramp steeper rather than gentler.
-    `auto` lowers the top of the curve with the length of the run: about 4.1x at 5 regions, the full
-    7.4x at 30. Give a number instead to pick the cap yourself.
+    `auto` lowers the top of the curve with the length of the run: about 3.7x at 5 regions, 5.5x at
+    10, 6.7x at 15, the full 7.4x on the whole map. Give a number instead to pick the cap yourself;
+    the yaml builder shows what either choice resolves to as you move the slider.
 
     ⚠️ The `auto` curve has ONE playtested point -- about 3.7x at 5 regions, where the ladder used to
-    top out. Above that it is extrapolation, so treat the high end as untested.
+    top out. Above that it is extrapolation, so treat the high end as untested. (Recalibrated
+    2026-09-06: the first curve sat one to two rungs higher everywhere below a full map.)
 
     Must be at least Minimum Enemy Difficulty; generation refuses the inverted pair rather than
     quietly picking one.

@@ -31,3 +31,11 @@ The paired client update fixes repeated re-grants of Great Runes or other key it
 that were already held but missed by the inventory scan after an NPC hand-in.
 This does not change rune delivery: the separate unequippable-rune issue remains
 tracked in client #316. See KNOWN-ISSUES.md before attempting rescue commands.
+
+## Difficulty and early upgrades
+
+The automatic enemy cap is gentler on shorter runs, and the YAML builder now previews
+the resolved enemy strength. It also warns when DLC-strength enemies would appear
+outside the DLC while blessings remain DLC-only. Early upgrade guarantees now keep
+their reserved stones available for start-reachable placement. These generation
+changes apply to new seeds; existing rooms keep their original scaling.
