@@ -1,0 +1,411 @@
+{
+  "issue": 1437,
+  "source_release": "https://github.com/4laric/er-ap-icon-private/releases/tag/mfg-vanilla-transfer-20260905",
+  "manifest": {
+    "profile": "vanilla",
+    "engine_source_commit": "9550ce34a9782579f3b01b70ea7506956376230f",
+    "files": [
+      {
+        "path": "data/vanilla/items_database.json",
+        "bytes": 16270765,
+        "sha256": "34d8d52324bd440a3c5676fba3763ffbea02be498f061dd1ea29658dacd1ff7a"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_enemy_names.cpp",
+        "bytes": 370054,
+        "sha256": "5e2dc6d146c5ab2b75dd8ffb9414de9d0cd03e69f6f3f81cc48079907c3e1a21"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_enemy_names.hpp",
+        "bytes": 984,
+        "sha256": "e45485eee3b3c71beea1f16017753b4885b2658db9da09fbf0206c906c737ca3"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_geof_models.cpp",
+        "bytes": 372,
+        "sha256": "0de28d7f67c1da22772db93aa858255a36aa6d6a429f6e9e09371a3c8fa86cc2"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_geof_models.hpp",
+        "bytes": 725,
+        "sha256": "1212b998b59ad9f3afc4376000f7c0dce73b9b7f0dd82b7a04eaac20f84eccf6"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_item_fallback.cpp",
+        "bytes": 92832,
+        "sha256": "5212e87288d7bed03271a28a301fefaac58907791d245be04ede334a04ef914c"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_item_fallback.hpp",
+        "bytes": 1040,
+        "sha256": "ee4d48f1574313cac2fd539a5d25edb7056c5dac6a4f21646b9bc1969b2561ab"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_item_icons.cpp",
+        "bytes": 80700,
+        "sha256": "357be898027b9257d5989c727d12bd577c67cd5d0ab9755edbed0e3b011c2c46"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_item_icons.hpp",
+        "bytes": 1213,
+        "sha256": "8e774d1855731719647e938ab90ab4138853f8a3d5fdf1b66701e0514f2e585a"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_legacy_conv.hpp",
+        "bytes": 6202,
+        "sha256": "4deccc9cae57ff469c651f3f79e22e79da8e34546b446cfc91fb778ca2a34b3c"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_location_alt.cpp",
+        "bytes": 13810,
+        "sha256": "c7652078d44d445b9a55615256a00e405e9ed49f8c5d9c939b942f8eef2bdc12"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_location_alt.hpp",
+        "bytes": 1738,
+        "sha256": "a86a88dbe5d6823bd0250e81bc5bbcfdde0dbd5a0c6e1cd34ccc4ec73b0ba6b6"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_map_data.cpp",
+        "bytes": 3164314,
+        "sha256": "d64e94bf9b2483f3e7e77f550eb4aa4bc2b69f8d1ca7c7febf9cd094c659ee0e"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_map_data.hpp",
+        "bytes": 2745,
+        "sha256": "5d8783abadaad3ff9a6856b59f7a920440eb0329378577b5ad93aca740b49a7f"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_region_map.cpp",
+        "bytes": 341,
+        "sha256": "3733ffe5f238a5c186ee9b894f3c5be3eca660431b76ffcf04c9fd8ec955797e"
+      },
+      {
+        "path": "src/generated_vanilla/goblin_region_map.hpp",
+        "bytes": 597,
+        "sha256": "6821b52c2b2b5effd21acef2b8f4ecff3e10fc42777011f88bdf77bf4de125ae"
+      }
+    ]
+  },
+  "rows": [
+    {
+      "flag": 2046407001,
+      "pin": {
+        "reference_id": "2500206",
+        "map": "m61_46_40",
+        "x": 16.663,
+        "y": 365.02,
+        "z": -35.855,
+        "coordinate_frame": "map_local",
+        "map_precision": "three_fields",
+        "itemLotId": 2046400001,
+        "generated_xyz": [
+          16.663,
+          365.02,
+          -35.855
+        ],
+        "coordinate_transform": null,
+        "lotSource": "map",
+        "lot_source_status": "generated_profile",
+        "source": "native_generated_pin",
+        "category": "EquipArmour",
+        "param_fields": {
+          "iconId": 3,
+          "dispMask02": true,
+          "areaNo": 61,
+          "gridXNo": 46,
+          "gridZNo": 40,
+          "posX": 16.663,
+          "posY": 365.02,
+          "posZ": -43.855,
+          "textId1": 205000000,
+          "textDisableFlagId1": 2046407001,
+          "selectMinZoomStep": 1
+        },
+        "object_name": null
+      },
+      "item": {
+        "map": "m61_46_40_00",
+        "x": 16.663,
+        "y": 365.02,
+        "z": -35.855,
+        "areaNo": 61,
+        "gridX": 46,
+        "gridZ": 40,
+        "dispMask": "pad2_0",
+        "itemLotId": 2046400001,
+        "eventFlag": 2046407001,
+        "partName": "AEG463_600_9000",
+        "items": [
+          {
+            "id": 5000000,
+            "category": 3,
+            "num": 1,
+            "name": "Oathseeker Knight Helm",
+            "broad_category": "armour",
+            "sub_category": "armour"
+          }
+        ],
+        "primary_category": "armour",
+        "source": "treasure",
+        "guaranteed": true
+      }
+    },
+    {
+      "flag": 2046407002,
+      "pin": {
+        "reference_id": "2500207",
+        "map": "m61_46_40",
+        "x": 16.663,
+        "y": 365.02,
+        "z": -35.855,
+        "coordinate_frame": "map_local",
+        "map_precision": "three_fields",
+        "itemLotId": 2046400002,
+        "generated_xyz": [
+          16.663,
+          365.02,
+          -35.855
+        ],
+        "coordinate_transform": null,
+        "lotSource": "map",
+        "lot_source_status": "generated_profile",
+        "source": "native_generated_pin",
+        "category": "EquipArmour",
+        "param_fields": {
+          "iconId": 3,
+          "dispMask02": true,
+          "areaNo": 61,
+          "gridXNo": 46,
+          "gridZNo": 40,
+          "posX": 24.663,
+          "posY": 365.02,
+          "posZ": -35.855,
+          "textId1": 205002100,
+          "textDisableFlagId1": 2046407002,
+          "selectMinZoomStep": 1
+        },
+        "object_name": null
+      },
+      "item": {
+        "map": "m61_46_40_00",
+        "x": 16.663,
+        "y": 365.02,
+        "z": -35.855,
+        "areaNo": 61,
+        "gridX": 46,
+        "gridZ": 40,
+        "dispMask": "pad2_0",
+        "itemLotId": 2046400002,
+        "eventFlag": 2046407002,
+        "partName": "AEG463_600_9000",
+        "items": [
+          {
+            "id": 5002100,
+            "category": 3,
+            "num": 1,
+            "name": "Oathseeker Knight Armor",
+            "broad_category": "armour",
+            "sub_category": "armour"
+          }
+        ],
+        "primary_category": "armour",
+        "source": "treasure",
+        "guaranteed": true
+      }
+    },
+    {
+      "flag": 2046407003,
+      "pin": {
+        "reference_id": "2500208",
+        "map": "m61_46_40",
+        "x": 16.663,
+        "y": 365.02,
+        "z": -35.855,
+        "coordinate_frame": "map_local",
+        "map_precision": "three_fields",
+        "itemLotId": 2046400003,
+        "generated_xyz": [
+          16.663,
+          365.02,
+          -35.855
+        ],
+        "coordinate_transform": null,
+        "lotSource": "map",
+        "lot_source_status": "generated_profile",
+        "source": "native_generated_pin",
+        "category": "EquipArmour",
+        "param_fields": {
+          "iconId": 3,
+          "dispMask02": true,
+          "areaNo": 61,
+          "gridXNo": 46,
+          "gridZNo": 40,
+          "posX": 24.663,
+          "posY": 365.02,
+          "posZ": -27.855,
+          "textId1": 205000200,
+          "textDisableFlagId1": 2046407003,
+          "selectMinZoomStep": 1
+        },
+        "object_name": null
+      },
+      "item": {
+        "map": "m61_46_40_00",
+        "x": 16.663,
+        "y": 365.02,
+        "z": -35.855,
+        "areaNo": 61,
+        "gridX": 46,
+        "gridZ": 40,
+        "dispMask": "pad2_0",
+        "itemLotId": 2046400003,
+        "eventFlag": 2046407003,
+        "partName": "AEG463_600_9000",
+        "items": [
+          {
+            "id": 5000200,
+            "category": 3,
+            "num": 1,
+            "name": "Oathseeker Knight Gauntlets",
+            "broad_category": "armour",
+            "sub_category": "armour"
+          }
+        ],
+        "primary_category": "armour",
+        "source": "treasure",
+        "guaranteed": true
+      }
+    },
+    {
+      "flag": 2046407004,
+      "pin": {
+        "reference_id": "2500209",
+        "map": "m61_46_40",
+        "x": 16.663,
+        "y": 365.02,
+        "z": -35.855,
+        "coordinate_frame": "map_local",
+        "map_precision": "three_fields",
+        "itemLotId": 2046400004,
+        "generated_xyz": [
+          16.663,
+          365.02,
+          -35.855
+        ],
+        "coordinate_transform": null,
+        "lotSource": "map",
+        "lot_source_status": "generated_profile",
+        "source": "native_generated_pin",
+        "category": "EquipArmour",
+        "param_fields": {
+          "iconId": 3,
+          "dispMask02": true,
+          "areaNo": 61,
+          "gridXNo": 46,
+          "gridZNo": 40,
+          "posX": 16.663,
+          "posY": 365.02,
+          "posZ": -27.855,
+          "textId1": 205000300,
+          "textDisableFlagId1": 2046407004,
+          "selectMinZoomStep": 1
+        },
+        "object_name": null
+      },
+      "item": {
+        "map": "m61_46_40_00",
+        "x": 16.663,
+        "y": 365.02,
+        "z": -35.855,
+        "areaNo": 61,
+        "gridX": 46,
+        "gridZ": 40,
+        "dispMask": "pad2_0",
+        "itemLotId": 2046400004,
+        "eventFlag": 2046407004,
+        "partName": "AEG463_600_9000",
+        "items": [
+          {
+            "id": 5000300,
+            "category": 3,
+            "num": 1,
+            "name": "Oathseeker Knight Greaves",
+            "broad_category": "armour",
+            "sub_category": "armour"
+          }
+        ],
+        "primary_category": "armour",
+        "source": "treasure",
+        "guaranteed": true
+      }
+    },
+    {
+      "flag": 2047447901,
+      "pin": {
+        "reference_id": "5400118",
+        "map": "m61_47_44",
+        "x": 11.578,
+        "y": 314.032,
+        "z": 16.227,
+        "coordinate_frame": "map_local",
+        "map_precision": "three_fields",
+        "itemLotId": 2047440901,
+        "generated_xyz": [
+          11.578,
+          314.032,
+          16.227
+        ],
+        "coordinate_transform": null,
+        "lotSource": "map",
+        "lot_source_status": "generated_profile",
+        "source": "native_generated_pin",
+        "category": "LootGreases",
+        "param_fields": {
+          "iconId": 21,
+          "dispMask02": true,
+          "areaNo": 61,
+          "gridXNo": 47,
+          "gridZNo": 44,
+          "posX": 11.578,
+          "posY": 314.032,
+          "posZ": 8.227,
+          "textId1": 502001420,
+          "textDisableFlagId1": 2047447901,
+          "selectMinZoomStep": 1
+        },
+        "object_name": null
+      },
+      "item": {
+        "map": "m61_47_44_00",
+        "x": 11.578,
+        "y": 314.032,
+        "z": 16.227,
+        "areaNo": 61,
+        "gridX": 47,
+        "gridZ": 44,
+        "dispMask": "pad2_0",
+        "itemLotId": 2047440901,
+        "eventFlag": 2047447901,
+        "partName": "c5391_9001",
+        "items": [
+          {
+            "id": 2001420,
+            "category": 1,
+            "num": 3,
+            "name": "Royal Magic Grease",
+            "broad_category": "consumable",
+            "sub_category": "consumable"
+          }
+        ],
+        "primary_category": "consumable",
+        "source": "emevd",
+        "guaranteed": true,
+        "enemyModel": "c5391",
+        "npcParamId": 53910082,
+        "defeatFlag": 2047440310,
+        "emevdEventId": 90005301
+      }
+    }
+  ]
+}

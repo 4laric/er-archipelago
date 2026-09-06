@@ -475,23 +475,23 @@ def ledger_hash(path: str = CURRENT, wiki_path: str | None = None) -> str:
     for name in sorted(HEADERS):
         digest.update(name.encode() + b"\0")
         with open(os.path.join(path, name), "rb") as fh:
-            digest.update(fh.read())
+            digest.update(fh.read().replace(b"\r\n", b"\n"))
     access_path = os.path.join(path, ACCESS_FILE)
     if os.path.exists(access_path):
         digest.update(ACCESS_FILE.encode() + b"\0")
         with open(access_path, "rb") as fh:
-            digest.update(fh.read())
+            digest.update(fh.read().replace(b"\r\n", b"\n"))
     if os.path.abspath(path) == os.path.abspath(CURRENT):
         for extra in (*MAP_INPUTS, "greenfield/nearest_grace.tsv",
                       "greenfield/evidence/wiki-audit/bulk-check-review.json"):
             digest.update(extra.encode() + b"\0")
-            digest.update((Path(REPO) / extra).read_bytes())
+            digest.update((Path(REPO) / extra).read_bytes().replace(b"\r\n", b"\n"))
         digest.update(b"greenfield/eldenring/location_tags.py\0")
         with open(GENERATED_LOCATION_TAGS, "rb") as fh:
-            digest.update(fh.read())
+            digest.update(fh.read().replace(b"\r\n", b"\n"))
         digest.update(b"greenfield/evidence/v060-current/progression_host_confidence.tsv\0")
         with open(PROGRESSION_HOST_CONFIDENCE, "rb") as fh:
-            digest.update(fh.read())
+            digest.update(fh.read().replace(b"\r\n", b"\n"))
     if wiki_path:
         names = ["sources.tsv", *wiki_lead_files(wiki_path)]
         if os.path.exists(os.path.join(wiki_path, "eldenpedia-location-pages.tsv")):
@@ -505,7 +505,7 @@ def ledger_hash(path: str = CURRENT, wiki_path: str | None = None) -> str:
         for name in sorted(names):
             digest.update(("wiki-audit/" + name).encode() + b"\0")
             with open(os.path.join(wiki_path, name), "rb") as fh:
-                digest.update(fh.read())
+                digest.update(fh.read().replace(b"\r\n", b"\n"))
     return "sha256:" + digest.hexdigest()
 
 

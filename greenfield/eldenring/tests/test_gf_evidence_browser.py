@@ -247,6 +247,17 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertTrue(any(claim["status"] == "conflicted"
                             for check in data["checks"] for claim in check["claims"]))
 
+    def test_freshness_hash_ignores_checkout_line_endings(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as directory:
+            for name in BUILDER.HEADERS:
+                (Path(directory) / name).write_bytes(b"header\nvalue\n")
+            before = BUILDER.ledger_hash(directory)
+            for name in BUILDER.HEADERS:
+                (Path(directory) / name).write_bytes(b"header\r\nvalue\r\n")
+            self.assertEqual(before, BUILDER.ledger_hash(directory))
+
     def test_build_is_byte_deterministic_and_committed_page_is_current(self):
         first = BUILDER.build()
         second = BUILDER.build()
@@ -270,7 +281,7 @@ class OfflineArtifactTests(unittest.TestCase):
         by_id = {c["check_id"]: c for c in data["checks"]}
         self.assertTrue(by_id[7772822]["player"]["positions"])  # Gatefront carriage
         self.assertFalse(by_id[7770000]["player"]["positions"])  # interior Dark Moon Ring
-        self.assertEqual(len(by_id), 4925)
+        self.assertEqual(len(by_id), 4930)
         self.assertGreater(sum(bool(c["player"]["positions"]) for c in by_id.values()), 2000)
         self.assertEqual(set(data["player_maps"]), {"m60", "m61"})
         for check in by_id.values():
