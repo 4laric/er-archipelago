@@ -27,8 +27,8 @@ def test_boss_reward_category_inventory_is_current_and_complete():
     committed = json.loads(BUILDER.OUTPUT_PATH.read_text(encoding="utf-8"))
     assert committed == BUILDER.build()
     categories = committed["categories"]
-    assert categories["all_boss_reward_checks"]["total"] == 269
-    assert categories["fixed_boss_drop"]["total"] == 237
+    assert categories["all_boss_reward_checks"]["total"] == 270
+    assert categories["fixed_boss_drop"]["total"] == 238
     assert categories["remembrance"]["total"] == 25
     assert categories["great_rune"]["total"] == 7
 
