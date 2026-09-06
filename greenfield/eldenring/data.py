@@ -625,7 +625,7 @@ LOCATIONS = {
         ('Altus :: Golden Rune [4] - near Altus Highway Junction (region unconfirmed), may be sweep-granted by Godefroy the Grafted (m60_39_50) [f1039507020]', 7774251, 1039507020),
         ('Altus :: Human Bone Shard - near Old Altus Tunnel (region unconfirmed), may be sweep-granted by Demi-Human Queen Gilika (m60_38_51) [f1039527000]', 7774252, 1039527000),
         ("Altus :: Magic Grease - near Old Altus Tunnel (region unconfirmed), may be sweep-granted by Night's Cavalry (m60_39_51) [f1039527020]", 7774253, 1039527020),
-        ("Altus :: Eleonora's Poleblade - m60_39_52 (region unconfirmed), may be sweep-granted by Black Knife Assassin (m60_40_52) [f1039527700]", 7774254, 1039527700),
+        ("Altus :: Eleonora's Poleblade - defeat Eleonora at the Second Church of Marika (region unconfirmed) [f400162]", 7774254, 400162),
         ('Altus :: Golden Rune [3] - near Shaded Castle Ramparts, may be sweep-granted by Elemer of the Briar (m60_39_54) [f1039547010]', 7774256, 1039547010),
         ('Altus :: Smithing Stone [5] - near Shaded Castle Ramparts (1), may be sweep-granted by Elemer of the Briar (m60_39_54) [f1039547020]', 7774257, 1039547020),
         ('Altus :: Poisonbloom - near Shaded Castle Ramparts, may be sweep-granted by Elemer of the Briar (m60_39_54) [f1039547030]', 7774258, 1039547030),
@@ -5444,6 +5444,7 @@ NOT_RANDOMIZED = {
     1038457500: 'synthetic_unproven_award: synthetic_areacode row whose invented flag collides with a real id but does not award the claimed item (params ground truth 2026-07-14; synthetic award guard)',
     1038467400: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     1038477100: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
+    1039527700: 'unused_reward_copy: replaced by the live invasion award at the same AP id (#1437)',
     1042337200: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     1042377020: "item_nonexistent: every item its lot awards resolves to no in-game name (no param row, or FromSoft's '[ERROR]'/'%null%' cut content); the flag may never fire (item-existence guard)",
     1042377111: 'phantom_flag: acquisition flag exists in NO game data (invented upstream); it can never fire, so it must not be a check (phantom-flag guard)',
@@ -5540,4 +5541,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:bd1cf7441aa19e1161b902af6c86413d28afbaec8e546b61ab1e94fc4027b9f6', 'module': 'data.py', 'body_sha256': 'sha256:7d867db131ba1f1f4a49f9e3e7758f303b5012fe61a9668181030bc84aa5279e'}
+_GEN_STAMP = {'inputs_hash': 'sha256:744b2f0552b335b2a31d60147ab94521d3882851cb099d845fb1e0872621f416', 'module': 'data.py', 'body_sha256': 'sha256:e2393daafee4ce5dc5b6cb3bc30fffa24e66562e9d9b81a424f7ec39d12b4516'}

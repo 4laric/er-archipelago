@@ -17,7 +17,10 @@ The narrative — what this project is and what v0.2 brings — lives in
 - Recover four Oathseeker Knight armor checks and Royal Magic Grease using accepted
   Map for Goblins placement evidence (#1437). Existing check IDs remain unchanged.
 
+- Correct Eleonora’s Poleblade to the real invasion reward; the unused ground-lot copy no longer stands in for it. Requires a newly generated seed.
+
 ## v0.6.0 — 2026-09-02
+
 
 **Temporary icon fallback:** v0.6.0 omits the Flower atlas override to avoid wrong weapon
 icons and missing class previews. AP placeholders use the Telescope icon; AP names

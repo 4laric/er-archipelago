@@ -496,7 +496,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7900247	unique_field_pickup	Altus	Battlemage Robe	1040557700	m60_39_54	remaining_unreviewed	0		first_independent_identity_region_source
 7772769	unique_field_pickup	Altus	Bloody Helice	1040537010	m60_40_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772851	unique_field_pickup	Altus	Celebrant's Skull	1042557000	m60_42_55	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
-7774254	unique_field_pickup	Altus	Eleonora's Poleblade	1039527700	m60_40_52	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770709	unique_field_pickup	Altus	Erdtree Greatshield	530335	m60_41_51	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770806	unique_field_pickup	Altus	Fire's Deadly Sin	580350	m60_43_53	remaining_unreviewed	0		first_independent_identity_region_source
 7772849	unique_field_pickup	Altus	Gargoyle's Great Axe	1042517900	m60_41_52	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
