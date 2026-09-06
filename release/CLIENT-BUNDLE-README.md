@@ -17,10 +17,8 @@ of this file.
 2. Unzip this folder anywhere.
 3. If using Matt's randomizer, generate its output normally. Skip Flower installation
    for v0.6.0; see the fallback and upgrade notes below.
-   On Tarnished Edition 1.17 with Matt v0.11.4, also apply
-   `tarnished-torrent-rideparam-1.17.json` using the instructions in
-   `TARNISHED-TORRENT-REPAIR.md`; it restores the four missing Torrent rows without replacing
-   Matt's other parameter edits.
+   Update Matt's randomizer to its patched release for Torrent support; no separate
+   Torrent repair is bundled or required.
 4. (Optional) Put your server details in `apconfig.json`:
    ```json
    { "url": "archipelago.gg:12345", "slot": "YourName", "password": "" }
@@ -98,8 +96,6 @@ the associated checks remain available in F6.
 | `install-ap-flower.ps1` | thin Windows launcher for the packaged-asset installer |
 | `install_ap_flower.py` | authenticated, transactional installer for Windows and Linux/Proton |
 | `flower-package/` | Not shipped in v0.6.0; native Telescope icons are used temporarily. |
-| `tarnished-torrent-rideparam-1.17.json` | four-row Smithbox delta restoring Tarnished Edition's Torrent variants after Matt v0.11.4 |
-| `TARNISHED-TORRENT-REPAIR.md` | guarded Smithbox import instructions for that delta |
 
 **Both JSON tables are derived from the game's own params -- game data, not seed data.** That is why
 one static copy works for every apworld and every seed. Keep them next to the DLL.

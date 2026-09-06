@@ -77,6 +77,7 @@ class MfgPackageTests(unittest.TestCase):
                 for name in ['MFG-PROVENANCE.json', 'MFG-LICENSE.txt', 'MapForGoblins.ini',
                              'check_lots_table.json', 'shoplineup_flags.json']:
                     self.assertIn(prefix + name, names)
+                self.assertFalse(any("torrent_rideparam_repair" in n.lower() or "tarnished-torrent" in n.lower() for n in names))
                 self.assertIsNone(archive.testzip())
 
     def test_stable_cannot_omit_mfg(self):

@@ -10,6 +10,9 @@ icons and missing class previews. AP placeholders use the Telescope icon; AP nam
 and gameplay still work. Existing installs must disable or restore old Flower overrides
 as described in SETUP.md.
 
+The separate Torrent repair is no longer bundled. Update Matt's randomizer to its
+patched release before generating output.
+
 - **The v0.6 release bundles MapForGoblins with the matching AP client.** The release profile
   loads the source-built map engine; material gathering nodes are hidden by the preset.
   Check sharing and pin coloring start automatically when connected; no F6 activation is
