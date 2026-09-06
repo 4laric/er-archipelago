@@ -8,7 +8,8 @@ downloaded the wrong thing.
 
 WHAT IT ASSERTS, and why each one is here rather than assumed:
 
-  1. Every `tag` column value is a REAL git tag (or the literal `main`, which only `beta` may use).
+  1. Every `tag` column value is a REAL git tag (or an approved moving branch, which only `beta`
+     may use).
      A typo'd tag is the whole failure mode -- the ledger still parses, still renders, still looks
      right, and points at nothing.
   2. `stable` is not AHEAD of the newest tag. Stable naming a tag that does not exist yet is how a
@@ -29,7 +30,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LEDGER = os.path.join(ROOT, "release", "CHANNELS.tsv")
 CHANNELS = ("stable", "beta")
-MOVING = "main"          # only `beta` may name a moving ref
+MOVING = {"main", "v0.6"}  # only `beta` may name an approved moving ref
 
 
 def rows(path=None):
@@ -88,9 +89,9 @@ def check(path=None, tags=None):
         if chan not in CHANNELS:
             bad.append("line %d: unknown channel %r (expected one of %s)" % (n, chan, ", ".join(CHANNELS)))
             continue
-        if tag == MOVING:
+        if tag in MOVING:
             if chan != "beta":
-                bad.append("line %d: only `beta` may point at `%s`; %r must name a tag" % (n, MOVING, chan))
+                bad.append("line %d: only `beta` may point at moving ref %r; %r must name a tag" % (n, tag, chan))
         elif not shallow and tag not in tags:
             bad.append("line %d: %s points at %r, which is not a tag in this repo" % (n, chan, tag))
         if chan in last_date and date < last_date[chan]:
@@ -101,7 +102,7 @@ def check(path=None, tags=None):
     for chan in CHANNELS:
         if chan not in current:
             bad.append("no row for channel %r" % chan)
-    if not shallow and current.get("stable") and current["stable"] != MOVING:
+    if not shallow and current.get("stable") and current["stable"] not in MOVING:
         sv = _ver(current["stable"])
         newest = max((v for v in (_ver(t) for t in tags) if v), default=None)
         if sv and newest and sv > newest:

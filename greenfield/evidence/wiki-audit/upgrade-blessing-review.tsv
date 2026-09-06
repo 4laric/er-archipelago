@@ -263,7 +263,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7772334	smithing_stone	repeated_material_row	Altus	Smithing Stone [6]	34127130	m34_12	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772948	smithing_stone	repeated_material_row	Altus	Smithing Stone [6]	1045527020	m60_45_52	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772267	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [4]	32047020	m32_04	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	unresolved	none_identity_region_trusted
-7770706	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [5]	530310	m60_41_50	audited_one_family	1	gameplay-wiki:eldenpedia	unresolved	second_independent_exact_landmark_source
+7770706	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [5]	530310	m60_41_50	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	unresolved	none_identity_region_trusted
 7770765	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [5]	540320	m60_40_53	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774262	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [5]	1039547080	m60_39_54	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774329	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [5]	1042537010	m60_41_52	remaining_unreviewed	0		unresolved	first_exact_landmark_source

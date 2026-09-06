@@ -95,6 +95,18 @@ def _rel(path):
     return path
 
 
+def patch_sequence_error(current, target):
+    """Reject skipped patch numbers while leaving intentional minor/major windows alone."""
+    old = tuple(int(part) for part in current.split("."))
+    new = tuple(int(part) for part in target.split("."))
+    if new <= old:
+        return "%s does not advance %s" % (target, current)
+    if new[:2] == old[:2] and new[2] != old[2] + 1:
+        return ("patch windows must advance by exactly one: %s -> %d.%d.%d, not %s"
+                % (current, old[0], old[1], old[2] + 1, target))
+    return None
+
+
 def substitution_for(site):
     """The regex whose group(1) IS the version, for writing.
 
@@ -204,6 +216,11 @@ def skeletons(new_version, prev_tag, past, chash, today):
         "# v%s — release blurb (draft)\n\n"
         "_Draft. Written as the window fills, not at tag time -- the moment a change lands is the\n"
         "only moment anyone remembers why it mattered._\n\n"
+        "## Can I update the client during a run?\n\n"
+        "**%s: No / Yes / Migration required.** Answer the literal question in the first word, "
+        "before any version or contract detail. Say whether the player should keep their old "
+        "client, whether their save is at risk, and exactly which older release(s) the ruling "
+        "covers. Do not turn an unaudited general rule into a blanket No.\n\n"
         "## What you need to update\n\n"
         "- **Client:** %s: Required / Optional / No — rule on the client download directly.\n"
         "- **APWorld:** %s: Required / Host-only / No — say who must replace it.\n"
@@ -221,7 +238,7 @@ def skeletons(new_version, prev_tag, past, chash, today):
         "The v0.4.3 blurb is the model: lead with what changed at the table, not with the option\n"
         "name. Its opening line -- \"You can get BK'ed now, and that is the point\" -- says what a\n"
         "player will feel before it says what was built, and that is the right order.\n"
-        % (new_version, TODO, TODO, TODO, TODO, TODO, opened, prev_tag, TODO)
+        % (new_version, TODO, TODO, TODO, TODO, TODO, TODO, opened, prev_tag, TODO)
     )
     return ledger, changelog, blurb
 
@@ -300,6 +317,10 @@ def main(argv=None):
     print("      all readable sites read %s" % was)
     if was == args.to:
         print("ERROR open_window: already at %s" % args.to, file=sys.stderr)
+        return 1
+    sequence_error = patch_sequence_error(was, args.to)
+    if sequence_error:
+        print("ERROR open_window: %s" % sequence_error, file=sys.stderr)
         return 1
 
     prev_tag, past = tag_position()

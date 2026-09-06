@@ -100,6 +100,13 @@ class ApworldPacker(unittest.TestCase):
 
 @unittest.skipUnless(HAVE_REPO, REPO_ONLY)
 class ChannelLedger(unittest.TestCase):
+    def test_beta_tracks_main_after_v060_release(self):
+        cc = _load("check_channels")
+        current = {channel: ref for _line, channel, ref, _date, error in cc.rows()
+                   if not error and channel in cc.CHANNELS}
+        self.assertEqual(current["beta"], "main")
+        self.assertIn("main", cc.MOVING)
+
     def test_ledger_passes_its_own_gate(self):
         # WITNESS: an empty ledger passes every rule vacuously, so assert it has rows before
         # asserting they are good. Both channels must be present or the pointer points nowhere.
@@ -262,6 +269,10 @@ class WizardDeploy(unittest.TestCase):
         self.assertIn("--beta-only", text)
         self.assertIn('stable -> baked image (UNTOUCHED)', text)
         self.assertIn('Stable was NOT written', text)
+        self.assertIn('$1=="beta"', text)
+        self.assertIn('install_one "$beta_ref" "$CHK_SRC"', text)
+        self.assertIn('install_one "$beta_ref" "$REVIEW_SRC"', text)
+        self.assertIn('install_one "$beta_ref" "$WIZ_SRC"', text)
 
 
 

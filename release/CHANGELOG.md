@@ -3,15 +3,81 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.6.0 — 2026-09-02
+## v0.6.1 — 2026-09-06
+
+- Recover Briars of Sin from its real enemy lot; preserve existing check IDs and
+  the guard against falsely identified synthetic pickups (#1437).
 
 ### What you need to update
 
-- **Client:** Required — use the eventual v0.6.0 client with v0.6.0 seeds.
+- **Client:** Required — use the matching v0.6.1 client for new seeds.
+- **APWorld:** Host-only — install v0.6.1 when generating a new room.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair; new checks require a new seed.
+- **Profile/assets:** No action — keep the M4G assets and use the matching client DLL.
+
+
+- Recover four Oathseeker Knight armor checks and Royal Magic Grease using accepted
+  Map for Goblins placement evidence (#1437). Existing check IDs remain unchanged.
+
+- Correct Eleonora’s Poleblade to the real invasion reward; the unused ground-lot copy no longer stands in for it. Requires a newly generated seed.
+
+## v0.6.0 — 2026-09-02
+
+
+**Temporary icon fallback:** v0.6.0 omits the Flower atlas override to avoid wrong weapon
+icons and missing class previews. AP placeholders use the Telescope icon; AP names
+and gameplay still work. Existing installs must disable or restore old Flower overrides
+as described in SETUP.md.
+
+The separate Torrent repair is no longer bundled. Update Matt's randomizer to its
+patched release before generating output.
+
+- **The v0.6 release bundles MapForGoblins with the matching AP client.** The release profile
+  loads the source-built map engine; material gathering nodes are hidden by the preset.
+  Check sharing and pin coloring start automatically when connected; no F6 activation is
+  needed. The fresh preset shows only pins matched to checks in the connected seed.
+  Optional filters live in F10 → Archipelago; following pins and reviews stay off by default. Actual treasure checks containing crafting materials remain eligible.
+- **Map filters and progression highlights.** Optional progression-only and in-logic-only
+  controls work together; larger progression halos make eligible checks easier to spot.
+  Map progression excludes pickups granted by an enabled boss sweep and highlights the
+  granting boss instead. F6 stars and F5 `[P]` retain the original seed-surface meaning;
+  neither display reveals the item inside. The default halo scale remains 1.5x.
+  In-logic filtering uses tracker region access and does not evaluate additional quest,
+  key or puzzle requirements. Pins with unresolved identities can be hidden by check-only mode.
+- **Map labels remain readable when a live item name is unavailable.** The engine keeps
+  the valid original label instead of showing an unresolved `[ERROR]` name. An active
+  check snapshot also prevents outdated orange styles from overriding current progression.
+  F10 opens MapForGoblins settings without triggering the client stamina diagnostic.
+- **F5 activity is easier to read.** Short location labels remove repeated region and sweep
+  boilerplate from the display while original names remain available to the protocol and logs.
+  Item text uses AP/Universal Tracker classification colors. Session display markers identify
+  progression-surface checks with `[P]` and sweep completions with `[S]`.
+- **MapForGoblins is an accepted placement reference for the location audit.** Placement
+  agreement, new positions, shared identities and disagreements remain separately recorded.
+  Placement acceptance does not certify every access rule; the overall access audit is unfinished.
+  The matching client update is included in this release's gitlink bump.
+
+
+- Player notebook: location-first review form with a separate region-lock correction field, including unused/unobtainable checks; item-name notes are optional and existing notes remain intact.
+- Player notebook: source-backed acquisition flags are visible, searchable and copyable.
+  Clear file-sharing instructions explain how to send a notebook and retain a receipt;
+  local browser saving is explicitly separate from submitting notes.
+
+- Opt-in F6 player reviews: Review and Map actions for remaining and completed locations.
+  The v0.6 client with these controls is pinned with this update.
+  The player review page adds a filtered outdoor map with selectable pins, zoom and pan.
+  Missing positions remain visible in the list; map positions are not independent validation.
+  Tracker links check the original location name before allowing a report against that ID.
+
+
+### What you need to update
+
+- **Client:** Required — use the client bundled with the v0.6.0 release for v0.6.0 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
-- **Profile/assets:** No action yet.
+- **Profile/assets:** Reinstall or replace with the release bundle's matching map-engine DLL, configuration and loader profile.
 
 Window opened 3 commit(s) PAST the v0.5.7 tag.
 
@@ -21,10 +87,23 @@ handshake. Future v0.6 contract changes belong here rather than on the v0.5.x ma
 Client half: clients#597. Its merged commit is pinned by the gitlink in this same change because
 `contract_gen.rs` embeds the exact APWorld version even while the contract hash is unchanged.
 
-No published channel moves to this development branch. `stable` and `beta` remain on the v0.5.x
-line until v0.6.0 has full check coverage and is ready to release.
+This release is prepared as stable v0.6.0. Publication and channel promotion are pending;
+the full check/access audit remains in progress independently of release-channel status.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **Player reviews start with the item and place.** The review browser now defaults to a
+  plain-language location list, with area/search filters, possible guide comparisons, and a form
+  for the item, route and evidence you actually observed. Save or copy a report to share it;
+  nothing is submitted automatically. Maintainer evidence and old claim links remain available.
+  Checks link directly to their review. No client, APWorld, YAML or existing-save update is needed.
+
+- **Whole-guide candidates no longer disappear when they are ambiguous.** A reproducible review
+  queue retains linked-item observations from the pinned base-game and DLC walkthroughs, including
+  alternate same-name pickups and disagreements about the area. These are suggestions, never
+  accepted corroboration. Separately, ten boss-reward passages were reviewed against\n  their existing independent source, raising identity/area corroboration from 1,143 to 1,153\n  of 4,925 checks. This widens the existing trusted-host set; access rules do not change. Numbered
+  duplicates and sweep-boss map tiles no longer create false exact anchors in the repeated-pickup
+  queue.
 
 - **Normal weapons can use one Smithing Stone per upgrade.** The existing two-stone ladder remains
   the default, but `flatten_regular_upgrades` is now a YAML and wizard setting: choose `1` for
@@ -63,7 +142,7 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **Client:** Required for v0.5.8 seeds; keep existing runs on their matching client.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
-- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
+- **Existing seed/save:** Compatible — a v0.5.7 run can continue on the v0.5.8 client.
 - **Profile/assets:** No action.
 
 Window opened 1 commit(s) PAST the v0.5.7 tag.
@@ -78,6 +157,14 @@ Client half: clients#595. Its merged commit is pinned by the gitlink in this sam
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The public beta site now follows the `v0.6` development branch.** Stable remains on v0.5.7 and
+  v0.5.x fixes remain on `main`; beta wizard, check browser, report page, and questline browser are
+  fetched from the reviewed beta pointer in `CHANNELS.tsv` instead of assuming `main`.
+
+- **Patch release windows cannot skip a number.** The release-opening tool rejects a same-series
+  jump such as v0.5.8 to v0.5.10 and names v0.5.9 as the required successor, while still allowing
+  an intentional new series such as v0.6.0.
+
 - **A failed tagged bundle can be rebuilt without moving its immutable client pin.** The release
   workflow now accepts an existing tag plus an explicit stale-pin override, checks out and builds
   the client recorded by that tag, retains the normal Flower assets and correctness gates, and
@@ -90,7 +177,8 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **Client:** Required — use the v0.5.7 client with v0.5.7 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
-- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
+- **Existing seed/save:** Compatible — a v0.5.5 run can continue on the v0.5.7 client; only the new
+  foreign-world Lock hint button falls back to `!hint` because old seeds lack its optional data.
 - **Profile/assets:** No action.
 
 The contract moves to `ffc0f1b5` to advertise the owner and location of region Locks placed in

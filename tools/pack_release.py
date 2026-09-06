@@ -30,6 +30,7 @@ from pathlib import Path
 import re
 import shutil
 import sys
+import subprocess
 import zipfile
 from datetime import datetime, timezone
 
@@ -97,7 +98,7 @@ ME3_ALLOW = ("ap.me3", "eldenring_archipelago.dll", "check_lots_table.json",
              "shoplineup_flags.json")
 
 # The only binary we ship. Anything else matching *.dll/*.exe/*.asi in the stage is a hard failure.
-OUR_BINARIES = ("eldenring_archipelago.dll",)
+OUR_BINARIES = ("eldenring_archipelago.dll", "MapForGoblins.dll")
 
 DOCS = [
     ("release/LICENSE", True),
@@ -107,10 +108,11 @@ DOCS = [
     ("release/CHANGELOG.md", True),
     ("release/KNOWN-ISSUES.md", True),
     ("release/ATTRIBUTION.md", True),
+    ("release/RELEASE-v0.6.0.md", True),
+    ("release/BLURB-v0.6.0.md", True),
+    ("release/MFG-VERSION.json", True),
     ("release/PROVENANCE.md", True),
     ("release/ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md", True),
-    ("release/TARNISHED-TORRENT-REPAIR.md", True),
-    ("release/tarnished-torrent-rideparam-1.17.json", True),
     ("Elden-Ring-Archipelago-Player-Guide.md", True),
     ("release/SCREENSHOTS.md", False),
     ("release/DISTRIBUTION.md", False),
@@ -200,6 +202,16 @@ def stage(args, stage_dir: str) -> None:
         dst = os.path.join(me3_dst, name)
         shutil.copytree(src, dst, dirs_exist_ok=True) if os.path.isdir(src) else shutil.copy2(src, dst)
         copied += 1
+    # Clean CI checkouts have no ignored local me3 deployment. Stage the canonical template
+    # and detection tables rather than relying on the maintainer's installation.
+    for name, source in (
+        ("ap.me3", Path(REL, "ap.me3")),
+        ("check_lots_table.json", Path(REPO, "greenfield/eldenring/check_lots_table.json")),
+        ("shoplineup_flags.json", Path(REPO, "greenfield/eldenring/shoplineup_flags.json")),
+    ):
+        target = Path(me3_dst, name)
+        if not target.exists():
+            shutil.copy2(source, target)
     info(f"+ me3/ (allowlisted {copied} of {len(ME3_ALLOW)})")
 
     icon_installer = os.path.join(REPO, "tools", "install_ap_flower.ps1")
@@ -212,14 +224,12 @@ def stage(args, stage_dir: str) -> None:
     # bundle_dir() resolves the bundle as "the folder this script runs from".
     matts_installer = os.path.join(REPO, "tools", "install_into_matts_rando.ps1")
     matts_installer_py = os.path.join(REPO, "tools", "install_into_matts_rando.py")
-    torrent_repair_py = os.path.join(REPO, "tools", "torrent_rideparam_repair.py")
     if not all(
-        os.path.isfile(path) for path in (matts_installer, matts_installer_py, torrent_repair_py)
+        os.path.isfile(path) for path in (matts_installer, matts_installer_py)
     ):
         die("matt's-randomizer installer is missing")
     shutil.copy2(matts_installer, os.path.join(me3_dst, "install-into-matts-rando.ps1"))
     shutil.copy2(matts_installer_py, os.path.join(me3_dst, "install_into_matts_rando.py"))
-    shutil.copy2(torrent_repair_py, os.path.join(me3_dst, "torrent_rideparam_repair.py"))
     # The phase-2 updater (the banner tells you WHEN; this is what you run). Ships beside the
     # dll because it self-locates its install as its own folder.
     updater = os.path.join(REPO, "tools", "update-er-archipelago.ps1")
@@ -230,7 +240,9 @@ def stage(args, stage_dir: str) -> None:
     shutil.copy2(updater_py, os.path.join(me3_dst, "update_er_archipelago.py"))
     flower_package = os.path.join(args.me3, "flower-package")
     staged_package: str | None = None
-    if os.path.isdir(flower_package):
+    if args.version.lstrip("vV") == "0.6.0":
+        info("AP Flower omitted for v0.6.0; native Telescope icon retained")
+    elif os.path.isdir(flower_package):
         flower_manifest(flower_package, args.version)
         shutil.copytree(flower_package, os.path.join(me3_dst, "flower-package"))
         staged_package = "flower-package"
@@ -248,6 +260,10 @@ def stage(args, stage_dir: str) -> None:
     except ProfileError as exc:
         die(f"could not configure staged me3 profile: {exc}")
     info(f"+ me3/ap.me3 package = {configured[0] if configured else '<none>'}")
+    if getattr(args, "mfg", None):
+        from package_mfg import stage_mfg
+        stage_mfg(Path(args.mfg), Path(me3_dst), Path(REL, "MFG-VERSION.json"))
+        info("+ pinned Map for Goblins vanilla DLL, AP preset, notices and provenance")
 
     if os.path.isdir(args.me3):
         extra = [n for n in os.listdir(args.me3)
@@ -277,7 +293,7 @@ def stage(args, stage_dir: str) -> None:
             die(f"missing required file: {rel}")
 
 
-def gate_stage(stage_dir: str, unofficial: bool) -> None:
+def gate_stage(stage_dir: str, unofficial: bool, version: str = "") -> None:
     """Everything below is a CORRECTNESS gate and stays hard even for --unofficial."""
     me3 = os.path.join(stage_dir, "me3")
 
@@ -299,13 +315,15 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
     if not os.path.isfile(installer_py):
         die("no install_ap_flower.py in the stage")
     package = os.path.join(me3, "flower-package")
+    if version == "0.6.0" and os.path.isdir(package):
+        die("v0.6.0 must not ship the Flower atlas override")
     if os.path.isdir(package):
         try:
             from install_ap_flower import load_package
             load_package(Path(package))
         except Exception as exc:
             die(f"invalid packaged AP Flower assets: {exc}")
-    elif not unofficial:
+    elif not unofficial and version != "0.6.0":
         die("stable stage has no authenticated flower-package")
     info("AP flower: packaged-asset installer present")
 
@@ -315,6 +333,10 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
     except ProfileError as exc:
         die(f"staged me3 profile/package mismatch: {exc}")
     info(f"me3 profile package: {profile_packages[0] if profile_packages else '<none>'} -- exists")
+
+    if Path(me3, "MapForGoblins.dll").exists():
+        from package_mfg import validate_staged_mfg
+        validate_staged_mfg(Path(me3), Path(REL, "MFG-VERSION.json"))
 
     # Walk once for the remaining two content gates.
     leaked, foreign, loose_atlases = [], [], []
@@ -328,7 +350,10 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
                 loose_atlases.append(os.path.relpath(os.path.join(root, f), stage_dir))
             # Case-INSENSITIVE on purpose. It was implicitly so on Windows; a naive port makes it
             # case-sensitive and `Eldenring_Archipelago.dll` newly trips this gate.
-            if low.endswith((".dll", ".exe", ".asi")) and low not in [b.lower() for b in OUR_BINARIES]:
+            if low.endswith((".dll", ".exe", ".asi")) and (
+                low not in [b.lower() for b in OUR_BINARIES]
+                or (low == "mapforgoblins.dll" and Path(root).resolve() != Path(me3).resolve())
+            ):
                 foreign.append(os.path.relpath(os.path.join(root, f), stage_dir))
     if leaked:
         die(f"player save state staged: {', '.join(leaked)}")
@@ -336,7 +361,7 @@ def gate_stage(stage_dir: str, unofficial: bool) -> None:
         die(f"third-party binaries staged: {', '.join(foreign)}")
     if loose_atlases:
         die(f"AP Flower atlas outside authenticated flower-package: {', '.join(loose_atlases)}")
-    info("no save state, no third-party binaries")
+    info("no save state or unapproved binaries")
 
 
 def main() -> int:
@@ -347,16 +372,27 @@ def main() -> int:
     ap.add_argument("--client-dir", default=None, help="client repo tree, for the version site")
     ap.add_argument("--out", default=os.path.join(REPO, "dist"))
     ap.add_argument("--unofficial", action="store_true")
+    ap.add_argument("--prerelease", default="", help="release label, e.g. alpha.1; keeps exact version gates")
+    ap.add_argument("--mfg", help="validated vanilla MFG artifact directory")
     ap.add_argument("--stamp", default="")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
     version = args.version.lstrip("vV")
+    if args.prerelease and not re.fullmatch(r"(?:alpha|beta|rc)\.[1-9][0-9]*", args.prerelease):
+        die("--prerelease must be alpha.N, beta.N or rc.N (N >= 1)")
+    if args.prerelease and args.unofficial:
+        die("an official prerelease cannot also be --unofficial")
+    if (args.prerelease or (version == "0.6.0" and not args.unofficial)) and not args.mfg:
+        die("the v0.6 release requires --mfg with its pinned vanilla artifact")
     if args.unofficial and not args.stamp:
         die("--stamp is REQUIRED with --unofficial: the label is the whole point, so a bug report "
             "against a preview build can be tied back to a build")
     stamp = re.sub(r"[^A-Za-z0-9._-]", "-", args.stamp)
-    name = f"ER-Archipelago-v{version}" + (f"-UNOFFICIAL-{stamp}" if args.unofficial else "")
+    name = f"ER-Archipelago-v{version}"
+    if args.prerelease:
+        name += f"-{args.prerelease}"
+    name += f"-UNOFFICIAL-{stamp}" if args.unofficial else ""
 
     hard = not args.unofficial
     print("== identity gates ==")
@@ -370,7 +406,7 @@ def main() -> int:
     stage(args, stage_dir)
 
     print("== correctness gates ==")
-    gate_stage(stage_dir, args.unofficial)
+    gate_stage(stage_dir, args.unofficial, version)
 
     if args.unofficial:
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ")
@@ -384,6 +420,27 @@ def main() -> int:
                   encoding="ascii", errors="replace", newline="\r\n") as f:
             f.write("\n".join(body) + "\n")
         info("+ UNOFFICIAL-BUILD.txt")
+
+    def git_value(*command):
+        result = subprocess.run(["git", "-C", REPO, *command], capture_output=True, text=True)
+        return result.stdout.strip() if result.returncode == 0 else None
+
+    pin_line = git_value("ls-tree", "HEAD", "from-software-archipelago-clients")
+    record = {
+        "schema_version": 1,
+        "version": version,
+        "prerelease": args.prerelease or None,
+        "world_commit": git_value("rev-parse", "HEAD"),
+        "world_dirty": bool(git_value("status", "--porcelain", "--untracked-files=no")),
+        "client_pin": pin_line.split()[2] if pin_line else None,
+        "files": [],
+    }
+    for path in sorted(Path(stage_dir).rglob("*")):
+        if path.is_file():
+            record["files"].append({"path": path.relative_to(stage_dir).as_posix(),
+                                    "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
+    Path(stage_dir, "RELEASE-BUILD.json").write_text(
+        json.dumps(record, indent=2) + "\n", encoding="utf-8")
 
     if args.dry_run:
         print(f"== dry run: staged at {stage_dir}, not zipping ==")

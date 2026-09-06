@@ -185,7 +185,8 @@ class OfflineArtifactTests(unittest.TestCase):
                           "redmaw-location-anchor-check-leads.tsv",
                           "redmaw-merchant-check-leads.tsv",
                           "small-guide-tail-corroboration-check-leads.tsv",
-                          "walkthrough-check-leads.tsv"])
+                          "walkthrough-check-leads.tsv",
+                          "walkthrough-reviewed-landmark-check-leads.tsv"])
         self.assertEqual(BUILDER.load_ledger()["inputs_hash"],
                          BUILDER.ledger_hash(BUILDER.CURRENT, BUILDER.WIKI_AUDIT))
         self.assertNotEqual(BUILDER.ledger_hash(BUILDER.CURRENT),
@@ -247,6 +248,17 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertTrue(any(claim["status"] == "conflicted"
                             for check in data["checks"] for claim in check["claims"]))
 
+    def test_freshness_hash_ignores_checkout_line_endings(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as directory:
+            for name in BUILDER.HEADERS:
+                (Path(directory) / name).write_bytes(b"header\nvalue\n")
+            before = BUILDER.ledger_hash(directory)
+            for name in BUILDER.HEADERS:
+                (Path(directory) / name).write_bytes(b"header\r\nvalue\r\n")
+            self.assertEqual(before, BUILDER.ledger_hash(directory))
+
     def test_build_is_byte_deterministic_and_committed_page_is_current(self):
         first = BUILDER.build()
         second = BUILDER.build()
@@ -254,6 +266,33 @@ class OfflineArtifactTests(unittest.TestCase):
         with open(BUILDER.OUT_HTML, "rb") as fh:
             self.assertEqual(first, fh.read(),
                              "evidence browser is stale; run tools/build_evidence_browser.py")
+
+    def test_player_flags_are_source_backed_and_not_parsed_from_names(self):
+        from player_check_review import player_check
+        check = {"name": "Misleading [f999]", "tags": [], "access_dispositions": [],
+                 "claims": [{"claim_kind": "region", "value": {"region": "Place"}, "status": "unknown"},
+                            {"claim_kind": "identity", "value": {"flag": 114}, "status": "unknown"}]}
+        self.assertEqual(player_check(check)["acquisition_flag"], 114)
+        for invalid in [None, 0, -1, True, "114"]:
+            check["claims"][1]["value"]["flag"] = invalid
+            self.assertIsNone(player_check(check)["acquisition_flag"])
+
+    def test_player_map_joins_recorded_positions_and_keeps_missing_locations(self):
+        data = BUILDER.load_ledger()
+        by_id = {c["check_id"]: c for c in data["checks"]}
+        self.assertTrue(by_id[7772822]["player"]["positions"])  # Gatefront carriage
+        self.assertFalse(by_id[7770000]["player"]["positions"])  # interior Dark Moon Ring
+        self.assertEqual(len(by_id), 4931)
+        self.assertGreater(sum(bool(c["player"]["positions"]) for c in by_id.values()), 2000)
+        self.assertEqual(set(data["player_maps"]), {"m60", "m61"})
+        for check in by_id.values():
+            for point in check["player"]["positions"]:
+                self.assertIn(point["map"], data["player_maps"])
+
+    def test_fixture_does_not_acquire_real_world_map_positions(self):
+        data = BUILDER.load_fixture()
+        self.assertEqual(data["player_maps"], {})
+        self.assertTrue(all(not c["player"]["positions"] for c in data["checks"]))
 
     def test_fixture_stamp_is_content_hash_not_a_git_commit(self):
         contract = BUILDER.load_fixture()

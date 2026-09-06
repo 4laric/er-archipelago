@@ -15,8 +15,8 @@ beside `EldenRingRandomizer.exe` -- a small machine-written TOML. The adjacent
 `config_eldenringrandomizer.toml` is hash-guarded and AUTO-GENERATED ("DO NOT MODIFY");
 the app regenerates it and merges the dll list at launch. This script therefore writes ONLY
 the `_dll.toml`, and performs exactly one mutation: ensure its `external_dlls` array names
-OUR `eldenring_archipelago.dll` -- by absolute path, IN PLACE inside the release's `me3/`
-folder, where its two data tables live beside it.
+OUR `eldenring_archipelago.dll` and, when bundled, `MapForGoblins.dll` -- by absolute
+path, IN PLACE inside the release's `me3/` folder, beside their data and configuration.
 
 Replace-by-basename IS the upgrade path: re-running after a release repoints a stale
 versioned-folder path in one command (the frozen-pointer failure this exists to kill --
@@ -33,10 +33,8 @@ WHAT THIS REFUSES, loudly (exit 1):
   * `config_eldenringrandomizer_dll.toml` exists NEARBY but not in the target folder
     (--randomizer points at the wrong level; the refusal names where it was found).
 
-OPTIONAL TORRENT REPAIR (`--with-torrent-repair`): adds Elden Ring 1.17's four missing Spectral
-Steed RideParam rows and their four matching NpcParam rows to Matt's regulation.bin. It backs up
-regulation.bin, preserves every existing binder entry and existing row byte-for-byte, verifies the
-encrypted candidate, and replaces the target atomically. Soulstruct is required only for this mode.
+The legacy --with-torrent-repair flag is accepted only to explain that the repair
+has retired: update Matt's randomizer instead. It never edits regulation.bin.
 
 Exit codes: 0 = changed, 2 = already current (idempotent no-op), 1 = refused.
 All output is ASCII. Timestamped backups are written before either owned file changes.
@@ -51,6 +49,7 @@ import sys
 from pathlib import Path
 
 DLL_NAME = "eldenring_archipelago.dll"
+MFG_FILES = ("MapForGoblins.dll", "MapForGoblins.ini")
 TOML_NAME = "config_eldenringrandomizer_dll.toml"
 EXE_NAME = "EldenRingRandomizer.exe"
 # The dll is inert without these beside it (double-pay / dead shop checks).
@@ -77,7 +76,7 @@ def _entry_basename(entry: str) -> str:
     return inner.replace("/", "\\").rsplit("\\", 1)[-1].lower()
 
 
-def mutate_dll_toml(text: str, dll_path: str) -> tuple[str, str]:
+def mutate_dll_toml(text: str, dll_path: str, owned_name: str = DLL_NAME) -> tuple[str, str]:
     """The one mutation, pure. Returns (new_text, action) with action in
     {"replaced", "appended", "current"}. Preserves every other entry, the array's
     single-line emission style, and the surrounding structure byte-for-byte."""
@@ -93,7 +92,7 @@ def mutate_dll_toml(text: str, dll_path: str) -> tuple[str, str]:
     new_entry = _toml_quote(dll_path)
     action = "appended"
     for i, entry in enumerate(entries):
-        if _entry_basename(entry) == DLL_NAME:
+        if _entry_basename(entry) == owned_name.lower():
             if entry == new_entry:
                 return text, "current"
             entries[i] = new_entry
@@ -141,6 +140,27 @@ def bundle_dir(script_path: Path) -> Path:
     return root
 
 
+def bundled_dll_paths(root: Path) -> list[Path]:
+    """Optional MFG is all-or-nothing before any launcher file is changed."""
+    paths = [root / DLL_NAME]
+    if any((root / name).exists() for name in MFG_FILES):
+        missing = [name for name in MFG_FILES
+                   if not (root / name).is_file() or not (root / name).stat().st_size]
+        if missing:
+            raise InstallError("incomplete bundled MapForGoblins: missing or empty " + ", ".join(missing))
+        paths.append(root / MFG_FILES[0])
+    return paths
+
+
+def mutate_bundle_toml(text: str, paths: list[Path]) -> tuple[str, bool]:
+    """Prepare every owned path before the single write; preserve other choices."""
+    changed = False
+    for path in paths:
+        text, action = mutate_dll_toml(text, str(path), path.name)
+        changed = changed or action != "current"
+    return text, changed
+
+
 def randomizer_dir(path: Path) -> Path:
     root = path.resolve()
     if not (root / EXE_NAME).is_file():
@@ -172,10 +192,11 @@ def run(argv: list[str] | None = None, script_path: Path | None = None) -> int:
     parser.add_argument("--with-flower", action="store_true",
                         help="also run the AP Flower icon installer against the same folder")
     parser.add_argument("--with-torrent-repair", action="store_true",
-                        help="restore Elden Ring 1.17's Torrent RideParam and NpcParam rows")
+                        help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
 
     me3 = bundle_dir(script_path or Path(__file__))
+    dll_paths = bundled_dll_paths(me3)
     target = randomizer_dir(Path(args.randomizer))
     if app_is_running():
         raise InstallError(
@@ -184,7 +205,6 @@ def run(argv: list[str] | None = None, script_path: Path | None = None) -> int:
         )
 
     toml_path = target / TOML_NAME
-    dll_path = str(me3 / DLL_NAME)
     if not toml_path.is_file():
         elsewhere = find_toml_nearby(target)
         if elsewhere is not None:
@@ -196,29 +216,32 @@ def run(argv: list[str] | None = None, script_path: Path | None = None) -> int:
         # Genuinely absent: a fresh install. The app does NOT write this file just from opening
         # the 'Add dll mod' dialog (measured 2026-08-21), so waiting for it strands first-time
         # installs. Create it, carrying only the line this tool owns, in the app's own style.
-        toml_path.write_text(created_dll_toml(dll_path), encoding="utf-8")
+        new_text, _ = mutate_bundle_toml("", dll_paths)
+        toml_path.write_text(new_text, encoding="utf-8")
         print("Created %s (it did not exist -- fresh install)" % TOML_NAME)
-        print("  now loading: %s" % dll_path)
+        for dll_path in dll_paths:
+            print("  now loading: %s" % dll_path)
         print(
             "  NOTE: this file was created by the installer, not by matt's app. If the app\n"
             "  refuses to start or the client does not load, delete it and report the issue."
         )
-        _post_edit_notes(created_dll_toml(dll_path))
+        _post_edit_notes(new_text)
         return _maybe_extras(args, me3, target, 0)
 
     text = toml_path.read_text(encoding="utf-8-sig")
-    new_text, action = mutate_dll_toml(text, dll_path)
+    new_text, changed = mutate_bundle_toml(text, dll_paths)
 
-    if action == "current":
-        print("Already current: %s already points at %s" % (TOML_NAME, dll_path))
+    if not changed:
+        print("Already current: %s points at all bundled DLLs" % TOML_NAME)
         rc = 2
     else:
         stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         backup = toml_path.with_name(toml_path.name + ".bak-" + stamp)
         shutil.copy2(toml_path, backup)
         toml_path.write_text(new_text, encoding="utf-8")
-        print("%s the client entry in %s" % (action.capitalize(), TOML_NAME))
-        print("  now loading: %s" % dll_path)
+        print("Updated bundled DLL entries in %s" % TOML_NAME)
+        for dll_path in dll_paths:
+            print("  now loading: %s" % dll_path)
         print("  backup: %s" % backup.name)
         rc = 0
 
@@ -248,17 +271,8 @@ def _maybe_extras(args, me3: Path, target: Path, rc: int) -> int:
             print("AP Flower installer exited %d -- see its output above." % flower_rc)
             return 1
     if args.with_torrent_repair:
-        try:
-            from torrent_rideparam_repair import TorrentRepairError, repair_regulation
-            state, backup = repair_regulation(target / "regulation.bin")
-        except (ImportError, TorrentRepairError) as exc:
-            raise InstallError("--with-torrent-repair: %s" % exc) from exc
-        if state == "current":
-            print("Torrent repair already current: all 1.17 RideParam/NpcParam rows are present")
-        else:
-            print("Patched Elden Ring 1.17 Spectral Steed RideParam/NpcParam rows")
-            print("  backup: %s" % backup.name)
-            rc = 0
+        print("Torrent repair is no longer included. Update Matt's randomizer to the current "
+              "patched version; regulation.bin was not changed by this installer.")
     return rc
 
 

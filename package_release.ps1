@@ -483,7 +483,9 @@ Copy-Item $IconInstaller (Join-Path $Me3Dst "install-ap-flower.ps1") -Force
 $FlowerPackage = Join-Path $Repo "flower-package"
 $FlowerPackageDest = Join-Path $Me3Dst "flower-package"
 $ProfilePackage = $null
-if (Test-Path $FlowerPackage -PathType Container) {
+if ($Version -eq "0.6.0") {
+    Info "AP Flower omitted for v0.6.0; native Telescope icon retained"
+} elseif (Test-Path $FlowerPackage -PathType Container) {
     Copy-Item $FlowerPackage $FlowerPackageDest -Recurse -Force
     $ProfilePackage = "flower-package"
 } elseif (-not $Unofficial) {

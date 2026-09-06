@@ -101,7 +101,7 @@ footer{flex:0 0 auto;padding:5px 14px;border-top:1px solid var(--line);backgroun
   <button class="btn" id="diffbtn">diff a build</button>
   <button class="btn" id="perma">copy permalink</button>
   <button class="btn" id="csv">export csv</button>
-  <a class="btn" href="review.html">review queue</a>
+  <a class="btn" id="playerReviews" href="review.html">Help review locations</a>
 </header>
 <main>
   <nav id="facets"></nav>
@@ -129,6 +129,12 @@ footer{flex:0 0 auto;padding:5px 14px;border-top:1px solid var(--line);backgroun
 <script>
 const DATA = /*__DATA__*/null;
 const CHECKS = DATA.checks, META = DATA.meta, RESIDUALS = DATA.residuals;
+function playerReviewUrl(id){
+ const local=location.pathname.endsWith('er-archipelago-check-browser.html');
+ return (local?'er-archipelago-evidence-browser.html':'review.html')+'#mode=player'+(id?'&check='+id:'');
+}
+document.getElementById('playerReviews').href=playerReviewUrl();
+
 
 /* ---------- facet definitions ---------- */
 const FACETS = [
@@ -391,6 +397,7 @@ function showDetail(c){
   const rows=(arr,fn)=>arr&&arr.length?`<div class="rows">${arr.map(fn).join('')}</div>`:'<div style="color:var(--dim)">none</div>';
   d.innerHTML = `
    <h2>${esc(c.n)}</h2>
+   <p><a class="btn" href="${playerReviewUrl(c.id)}">Found this? Help review this location</a></p>
    <div class="sub">${esc(c.full)}</div>
    <div class="sec"><h3>Identity</h3><dl class="kv">
      <dt>Region</dt><dd>${esc(c.r)}</dd>

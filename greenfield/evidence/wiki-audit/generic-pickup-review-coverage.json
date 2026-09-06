@@ -1,5 +1,5 @@
 {
-  "ambiguous_or_conflicted": 8,
+  "ambiguous_or_conflicted": 776,
   "by_confidence": {
     "hold": 2684,
     "trusted_identity_region": 200
@@ -11,8 +11,8 @@
     "3": 23
   },
   "by_partition": {
-    "ambiguous_map_lot": 8,
-    "exact_route_anchor": 2740,
+    "ambiguous_map_lot": 776,
+    "exact_route_anchor": 1972,
     "non_map_lot": 136
   },
   "category": "repeated_generic_field_pickups_and_consumables",

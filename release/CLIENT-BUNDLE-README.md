@@ -15,19 +15,10 @@ of this file.
 1. Install **me3** (link above). It launches the retail exe; you do **not** need UXM or modified
    game files. If you have previously UXM-patched Elden Ring, restore vanilla files first.
 2. Unzip this folder anywhere.
-3. Run Matt's randomizer, then run `powershell -ExecutionPolicy Bypass -File
-   .\install-ap-flower.ps1 -Destination <randomizer-folder>`. It copies the authenticated hi/low
-   overrides from `flower-package` into the folder Matt actually loads. It never downloads tools,
-   unpacks Elden Ring, or writes into the stock game. Restart Elden Ring after installing.
-
-   On Linux/Proton, run `python3 ./install_ap_flower.py --destination <randomizer-folder>`.
-   Existing unowned atlas mods are refused unless you deliberately pass `--replace-existing`,
-   which backs them up for a later `--uninstall`. If automatic detection cannot find Matt's output,
-   an interactive run asks for the folder; non-interactive use must pass `--destination`.
-   On Tarnished Edition 1.17 with Matt v0.11.4, also apply
-   `tarnished-torrent-rideparam-1.17.json` using the instructions in
-   `TARNISHED-TORRENT-REPAIR.md`; it restores the four missing Torrent rows without replacing
-   Matt's other parameter edits.
+3. If using Matt's randomizer, generate its output normally. Skip Flower installation
+   for v0.6.0; see the fallback and upgrade notes below.
+   Update Matt's randomizer to its patched release for Torrent support; no separate
+   Torrent repair is bundled or required.
 4. (Optional) Put your server details in `apconfig.json`:
    ```json
    { "url": "archipelago.gg:12345", "slot": "YourName", "password": "" }
@@ -51,24 +42,60 @@ The profile's `savefile` line provides this separation without the Alt Saves DLL
 when you launch through `ap.me3`. Another loader, including matt's randomizer, puts the Archipelago
 character in your ordinary save unless you configure separate saves there.
 
-For a standalone ModEngine2 or randomizer output instead of me3, point the installer at that loose
-file root: `.\install-ap-flower.ps1 -Destination "<folder containing regulation.bin>"`. To remove
-only files created by this installer, rerun it with the same destination and `-Uninstall`.
+## AP icon fallback in v0.6.0
+
+The Flower atlas override is temporarily omitted because it caused incorrect weapon
+icons and missing starter-class previews. AP placeholders use the native Telescope
+icon for now; AP names, checks, receiving and M4G integration continue to work.
+No UXM extraction or Flower installation is needed. Do not use `--with-flower` for this release.
+
+For an existing installation, exit the game and disable only the loader package entry
+that loads the old Flower atlas. Keep the AP/M4G DLLs and unrelated mod packages.
+If Flower was copied directly into Matt's output, disabling a separate package will
+not remove it: restore those two menu atlases from a verified pre-Flower backup or
+regenerate that randomizer output. Do not delete an entire shared mod package or
+restore a backup over subsequently modified files. The updater does not remove old
+atlas files automatically. Restart after changing the effective assets.
+
+## Map integration in the v0.6 release
+
+The release archive includes `MapForGoblins.dll`, `MapForGoblins.ini`,
+`MFG-LICENSE.txt` and `MFG-PROVENANCE.json` beside the AP client. Its `ap.me3`
+loads the map engine. The Matt-output installer adds that native entry when both
+DLLs are present. Updates preserve an existing map INI instead of resetting preferences.
+
+Connect and open the map: check sharing and pin coloring are on by default, without
+opening F6. The fresh preset shows only pins matched to your seed, hides gathering
+nodes and retains crafting-material treasure checks. Yellow rings mark known hints;
+orange rings mark progression targets.
+
+Use **F10 → Archipelago** for optional progression-only and in-logic-only filters
+(both off by default), checks-only (on), and highlight size (1.5×). In-logic uses
+tracker region access, not additional quest/puzzle requirements. Existing INI settings
+are preserved on update. F6 pin following and player-review tools remain off by default.
+Map progression excludes enabled sweep-member pickups and highlights their granting boss;
+F6 stars and F5 `[P]` keep the original seed-surface meaning. Halos default to 1.5x.
+F10 opens MapForGoblins settings without triggering the client stamina diagnostic.
+
+F6 → **Map integration** has session opt-outs; turn off sharing and coloring, and leave
+following off, to stop sending map data. Defaults return on the next launch. To disable the engine, exit the game and remove or disable only the
+MapForGoblins `[[natives]]` entry in the profile, preserving the AP client and other mods.
+Restart through that profile. Checks without resolved map pins remain listed in F6.
+A granting boss without a native MapForGoblins pin cannot receive a map highlight;
+the associated checks remain available in F6.
 
 ## What is in the folder
 
 | file | what it is |
 | --- | --- |
 | `eldenring_archipelago.dll` | the client, loaded by me3 as a native |
-| `ap.me3` | the me3 profile (`disable_arxan = true` -- the client hooks native code Arxan would otherwise revert) |
+| `ap.me3` | the me3 profile (`disable_arxan = true` keeps client hooks intact; `mem_patch = false` avoids ME3's allocator replacement) |
 | `apconfig.json` | server / slot / password. Blank is valid. |
 | `check_lots_table.json` | **vanilla suppression.** See below. |
 | `shoplineup_flags.json` | **shop check detection.** See below. |
 | `install-ap-flower.ps1` | thin Windows launcher for the packaged-asset installer |
 | `install_ap_flower.py` | authenticated, transactional installer for Windows and Linux/Proton |
-| `flower-package/` | release-only manifest plus complete hi/low AP Flower overrides; may be absent from dev bundles |
-| `tarnished-torrent-rideparam-1.17.json` | four-row Smithbox delta restoring Tarnished Edition's Torrent variants after Matt v0.11.4 |
-| `TARNISHED-TORRENT-REPAIR.md` | guarded Smithbox import instructions for that delta |
+| `flower-package/` | Not shipped in v0.6.0; native Telescope icons are used temporarily. |
 
 **Both JSON tables are derived from the game's own params -- game data, not seed data.** That is why
 one static copy works for every apworld and every seed. Keep them next to the DLL.

@@ -1,32 +1,73 @@
-# v0.6.0 — release blurb (draft)
+# v0.6.0 — release blurb
 
-_Draft. Written as the window fills, not at tag time -- the moment a change lands is the
-only moment anyone remembers why it mattered._
+## Can I update the client during a run?
+
+**Yes, for an existing v0.6.0 run using the matching seed-data contract.** Exit the
+game and replace the paired client and map DLLs; keep your save and map settings.
+For a v0.5.x run, keep its matching client/APWorld pair rather than upgrading it to
+v0.6.0 mid-run. Install the v0.6.0 APWorld when generating a new v0.6.0 seed.
 
 ## What you need to update
 
-- **Client:** Required — use the eventual v0.6.0 client with v0.6.0 seeds.
+- **Client:** Required — use the client bundled with this release for v0.6.0 seeds.
 - **APWorld:** Host-only — the room host or generator must install the matching APWorld.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
-- **Profile/assets:** No action yet.
+- **Profile/assets:** Reinstall or replace with this release's matching DLLs, configuration and loader profile.
+- **Release channel:** Stable v0.6.0.
 
-## What is in it so far
+## Bundled map integration
 
-Every check is getting a defensible identity, region, access rule, and player-facing description.
-The corpus audit combines committed game data, multiple external references, and player testimony
-without copying guide prose. Uncertain claims remain visibly held instead of becoming logic.
+**Temporary icon fallback:** v0.6.0 omits the Flower atlas override to avoid wrong weapon
+icons and missing class previews. AP placeholders use the Telescope icon; AP names
+and gameplay still work. Existing installs must disable or restore old Flower overrides
+as described in SETUP.md.
 
-Normal weapons can now be set to cost one Smithing Stone per upgrade, matching the pace of Somber
-weapons. The current two-stone cost stays the default, so existing YAMLs keep their behavior.
+The separate Torrent repair is no longer bundled. Update Matt's randomizer to its
+patched release before generating output.
 
-## What carried over from v0.5.7
+The v0.6 release puts the AP tracker onto MapForGoblins' in-game map. The bundle includes
+matching client and map-engine builds, with gathering-node clutter hidden in its preset.
+Your actual treasure checks remain eligible, including crafting-material pickups.
 
-Nothing is owed from v0.5.7. The stable release remains supported on main, while this branch carries
-the deliberately larger and slower corpus project toward complete coverage.
+Connect and open the map: check sharing and pin coloring start automatically. The
+fresh preset shows only pins matched to your connected seed. Use F10 → Archipelago for
+optional progression-only and in-logic-only filters or to resize progression highlights.
+Following map pins and player-review tools remain off by default in F6. Progression
+marks progression-surface places, excluding pickups granted by an enabled boss sweep;
+the map highlights the granting boss instead. F6 stars and F5 `[P]` still describe the
+original seed surface. None of these marks reveals an unhinted item's contents.
+In-logic means tracker region access. Extra quest, key and puzzle requirements are still
+outside that filter, and checks with unresolved pin identities may not appear.
+A granting boss without a native MapForGoblins pin cannot receive a map highlight;
+the associated checks remain available in F6.
 
-## For whoever writes the real one
+The default highlight size is 1.5x. F10 opens MapForGoblins settings without the client
+stamina diagnostic. Missing live item names keep a valid original label instead of
+showing `[ERROR]`, and current check states take precedence over old orange highlights.
 
-The v0.4.3 blurb is the model: lead with what changed at the table, not with the option
-name. Its opening line -- "You can get BK'ed now, and that is the point" -- says what a
-player will feel before it says what was built, and that is the right order.
+F5 activity now uses shorter location labels and AP/Universal Tracker item colors:
+plum for progression items, blue for useful items, salmon for traps and cyan for filler.
+Session display markers distinguish progression-surface checks (`[P]`) and sweep completions
+(`[S]`). A sweep completion does not mean you physically visited that pickup.
+
+MapForGoblins is an accepted placement reference for our location audit. That gives us much
+more concrete placement coverage, while ambiguous identities and disagreements remain
+visible for follow-up. The overall access audit remains unfinished; stable release status
+does not certify every access rule or imply complete map-pin coverage.
+
+## Other changes in the v0.6 window
+
+Normal weapons can cost one Smithing Stone per upgrade; the existing two-stone default
+remains available. Collected Scadutree Fragments strengthen you everywhere by default,
+with the explicit DLC-only option retained. Flask and fragment placement uses a soft
+preference for important checks rather than making fill fail when that surface is full.
+
+The player notebook focuses on the place, region-lock assignment and collection requirements,
+including unused or unobtainable checks. Acquisition flags are searchable and copyable.
+Enable **Help verify locations (this session)** in F6 to reveal Review and Map actions,
+including for completed checks. These open the notebook; they do not submit a report.
+Save or copy your notes and follow the sharing instructions to send them to the project.
+
+Release packaging and live smoke results belong in `RELEASE-v0.6.0.md`. Publication remains
+pending until the release checklist has been completed.

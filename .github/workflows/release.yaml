@@ -182,6 +182,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          prerelease: ${{ contains(github.event.inputs.tag || github.ref_name, '-') }}
+          make_latest: ${{ contains(github.event.inputs.tag || github.ref_name, '-') && 'false' || ((github.event.inputs.tag || github.ref_name) == 'v0.6.0' && 'true' || 'legacy') }}
           files: |
             dist/eldenring.apworld
             dist/er-options-wizard.html
