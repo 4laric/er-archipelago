@@ -989,7 +989,7 @@
    "tarnished_pack_shop_checks": 1
   },
   "Liurnia": {
-   "checks": 588,
+   "checks": 589,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -1625,5 +1625,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "1f037010cbd233b3ee5d97c370386d5d76e7f4012488b6156e49c54b7fafd445"
+ "source_sha256": "52b22bd7f58175d6bd93dfcec0b9a703147bebee00ba3062b82540974ce0c18f"
 }

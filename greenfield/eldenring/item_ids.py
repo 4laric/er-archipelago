@@ -392,6 +392,7 @@ ITEM_CATALOG = {
     'Briar Greaves': 268645756,
     'Briar Helm': 268645456,
     'Briars of Punishment': 1073746734,
+    'Briars of Sin': 1073746724,
     'Brick Hammer': 12190000,
     'Broadsword': 2020000,
     'Broken Gold Mask': 273775456,
@@ -7697,6 +7698,7 @@ LOCATION_ITEM = {
     7774638: 'Oathseeker Knight Gauntlets',
     7774639: 'Oathseeker Knight Greaves',
     7774640: 'Royal Magic Grease',
+    7774641: 'Briars of Sin',
     7900000: 'Prayer Room Key',
     7900001: 'Scadutree Fragment',
     7900002: "Messmer's Kindling",
@@ -10441,6 +10443,7 @@ GOODS_TYPE = {
     "Bone Peddler's Bell Bearing": 1,
     "Borealis's Mist": 16,
     'Briars of Punishment': 5,
+    'Briars of Sin': 5,
     'Broken Rune': 0,
     'Budding Cave Moss': 2,
     'Budding Horn': 2,
@@ -12040,4 +12043,4 @@ JUNK_GEAR_NAMES = [
     'Zamor Mask',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:744b2f0552b335b2a31d60147ab94521d3882851cb099d845fb1e0872621f416', 'module': 'item_ids.py', 'body_sha256': 'sha256:218aff7f65348c79255ac876974a1e4e63cf0d2aef421d16c2d87b59d818ff15'}
+_GEN_STAMP = {'inputs_hash': 'sha256:ef8f34fdb8e691a048396af8acdcdbf7d50d20add27bd5a106cf0a8896fcc908', 'module': 'item_ids.py', 'body_sha256': 'sha256:9d6bdc6d93cb2a8bfaca5aaa7d9eacae86ad2e49c054508f5090c4f5cd56ee41'}

@@ -5,6 +5,9 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.1 — 2026-09-06
 
+- Recover Briars of Sin from its real enemy lot; preserve existing check IDs and
+  the guard against falsely identified synthetic pickups (#1437).
+
 ### What you need to update
 
 - **Client:** Required — use the matching v0.6.1 client for new seeds.

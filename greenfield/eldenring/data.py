@@ -3322,6 +3322,7 @@ LOCATIONS = {
         ('Liurnia :: Silver Grooved Gauntlets [f170120]', 7774629, 170120),
         ('Liurnia :: Silver Grooved Greaves [f170130]', 7774630, 170130),
         ('Liurnia :: Idus Sword - corpse near Liurnia Lake Shore, may be sweep-granted by Adan, Thief of Fire (m60_38_41) [f1038417020]', 7774632, 1038417020),
+        ("Liurnia :: Briars of Sin - around Artist's Shack [f1038457500]", 7774641, 1038457500),
         ("Liurnia :: Rancorcall - around Revenger's Shack, may be sweep-granted by Erdtree Avatar (m60_33_43) [f400061]", 7900005, 400061),
         ("Liurnia :: Preceptor's Big Hat - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]", 7900008, 400148),
         ("Liurnia :: Preceptor's Long Gown - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]", 7900009, 400148),
@@ -5441,7 +5442,6 @@ NOT_RANDOMIZED = {
     1036487100: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     1037487100: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     1038417100: "item_nonexistent: every item its lot awards resolves to no in-game name (no param row, or FromSoft's '[ERROR]'/'%null%' cut content); the flag may never fire (item-existence guard)",
-    1038457500: 'synthetic_unproven_award: synthetic_areacode row whose invented flag collides with a real id but does not award the claimed item (params ground truth 2026-07-14; synthetic award guard)',
     1038467400: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     1038477100: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     1039527700: 'unused_reward_copy: replaced by the live invasion award at the same AP id (#1437)',
@@ -5541,4 +5541,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:744b2f0552b335b2a31d60147ab94521d3882851cb099d845fb1e0872621f416', 'module': 'data.py', 'body_sha256': 'sha256:e2393daafee4ce5dc5b6cb3bc30fffa24e66562e9d9b81a424f7ec39d12b4516'}
+_GEN_STAMP = {'inputs_hash': 'sha256:ef8f34fdb8e691a048396af8acdcdbf7d50d20add27bd5a106cf0a8896fcc908', 'module': 'data.py', 'body_sha256': 'sha256:04b9a310e7fbeb79d5432a2add4a7f0d68e82250a7bd11a3c098527a24f17fd6'}
