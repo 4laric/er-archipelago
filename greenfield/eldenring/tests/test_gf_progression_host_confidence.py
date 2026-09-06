@@ -38,7 +38,7 @@ class ProgressionHostConfidenceTests(unittest.TestCase):
                             "progression_host_confidence.tsv")
         with open(path, encoding="utf-8", newline="") as handle:
             rows = list(csv.DictReader(handle, delimiter="\t"))
-        self.assertEqual(4_938, len(rows))
+        self.assertEqual(4_939, len(rows))
         self.assertEqual({builder.HOLD, builder.TRUSTED},
                          {row["confidence"] for row in rows})
         self.assertTrue(all(row["access_status"] == "unknown" for row in rows))
@@ -49,7 +49,7 @@ class ProgressionHostConfidenceTests(unittest.TestCase):
         # PowerPyx/Redmaw quest-reward, Eldenpedia invasion-reward, and Ainsel-family
         # and reviewed walkthrough boss-reward corroborations move hosts from hold to trusted; overlapping families count once.
         self.assertEqual(1_153, sum(row["confidence"] == builder.TRUSTED for row in rows))
-        self.assertEqual(3_785, sum(row["confidence"] == builder.HOLD for row in rows))
+        self.assertEqual(3_786, sum(row["confidence"] == builder.HOLD for row in rows))
 
     def test_generated_runtime_sets_partition_the_current_check_population(self):
         builder = load_builder()
