@@ -6078,13 +6078,15 @@
         7773344,
         7773433,
         7774476,
-        7774491
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
         7771968,
         7771994
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 3,
       "context_labels": [
         "Somber Smithing Stone [9]"
       ],
@@ -6189,13 +6191,15 @@
         7773344,
         7773433,
         7774476,
-        7774491
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
         7771968,
         7771994
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 3,
       "context_labels": [
         "Somber Smithing Stone [9]"
       ],
@@ -11737,13 +11741,14 @@
         7771867,
         7773650,
         7774446,
+        7774642,
         7900288
       ],
       "candidate_ids": [
         7770620,
         7774446
       ],
-      "competing_observation_count": 6,
+      "competing_observation_count": 4,
       "context_labels": [
         "Somber Ancient Dragon Smithing Stone"
       ],
@@ -11881,13 +11886,14 @@
         7771867,
         7773650,
         7774446,
+        7774642,
         7900288
       ],
       "candidate_ids": [
         7770620,
         7774446
       ],
-      "competing_observation_count": 6,
+      "competing_observation_count": 4,
       "context_labels": [
         "Anastasia, Tarnished-Eater",
         "Somber Ancient Dragon Smithing Stone"
@@ -19134,14 +19140,16 @@
         7773344,
         7773433,
         7774476,
-        7774491
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
         7773006,
         7774476,
         7774491
       ],
-      "competing_observation_count": 7,
+      "competing_observation_count": 5,
       "context_labels": [
         "Somber Smithing Stone [9]"
       ],
@@ -19791,14 +19799,16 @@
         7773344,
         7773433,
         7774476,
-        7774491
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
         7773006,
         7774476,
         7774491
       ],
-      "competing_observation_count": 7,
+      "competing_observation_count": 5,
       "context_labels": [
         "Hero's Rune [5]",
         "Smithing Stone [8]",
@@ -20244,14 +20254,16 @@
         7773344,
         7773433,
         7774476,
-        7774491
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
         7773006,
         7774476,
         7774491
       ],
-      "competing_observation_count": 7,
+      "competing_observation_count": 5,
       "context_labels": [
         "Somber Smithing Stone [9]"
       ],
@@ -20391,14 +20403,16 @@
         7773344,
         7773433,
         7774476,
-        7774491
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
         7773006,
         7774476,
         7774491
       ],
-      "competing_observation_count": 7,
+      "competing_observation_count": 5,
       "context_labels": [
         "Somber Smithing Stone [9]"
       ],
@@ -21210,7 +21224,8 @@
         7774455,
         7774456,
         7774503,
-        7774504
+        7774504,
+        7774643
       ],
       "candidate_ids": [
         7770257,
@@ -23359,7 +23374,9 @@
         7773344,
         7773433,
         7774476,
-        7774491
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
         7771420,
@@ -23367,7 +23384,7 @@
         7771444,
         7771477
       ],
-      "competing_observation_count": 7,
+      "competing_observation_count": 5,
       "context_labels": [
         "Somber Smithing Stone [9]"
       ],
@@ -23428,7 +23445,9 @@
         7773344,
         7773433,
         7774476,
-        7774491
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
         7771420,
@@ -23436,7 +23455,7 @@
         7771444,
         7771477
       ],
-      "competing_observation_count": 7,
+      "competing_observation_count": 5,
       "context_labels": [
         "Gravel Stone x3",
         "Somber Smithing Stone [9]"
@@ -23498,7 +23517,9 @@
         7773344,
         7773433,
         7774476,
-        7774491
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
         7771420,
@@ -23506,7 +23527,7 @@
         7771444,
         7771477
       ],
-      "competing_observation_count": 7,
+      "competing_observation_count": 5,
       "context_labels": [
         "Somber Smithing Stone [9]"
       ],
@@ -23567,7 +23588,9 @@
         7773344,
         7773433,
         7774476,
-        7774491
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
         7771420,
@@ -23575,7 +23598,7 @@
         7771444,
         7771477
       ],
-      "competing_observation_count": 7,
+      "competing_observation_count": 5,
       "context_labels": [
         "Somber Smithing Stone [9]"
       ],
@@ -26421,7 +26444,8 @@
         7774455,
         7774456,
         7774503,
-        7774504
+        7774504,
+        7774643
       ],
       "candidate_ids": [
         7770257,
@@ -26495,7 +26519,8 @@
         7774455,
         7774456,
         7774503,
-        7774504
+        7774504,
+        7774643
       ],
       "candidate_ids": [
         7770257,
@@ -26567,7 +26592,8 @@
         7774455,
         7774456,
         7774503,
-        7774504
+        7774504,
+        7774643
       ],
       "candidate_ids": [
         7770257,
@@ -31008,7 +31034,9 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7773161,
@@ -31017,7 +31045,7 @@
         7774514,
         7774524
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Somber Smithing Stone [8]"
       ],
@@ -31753,7 +31781,9 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7773161,
@@ -31762,7 +31792,7 @@
         7774514,
         7774524
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Somber Smithing Stone [8]"
       ],
@@ -31890,7 +31920,9 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7773161,
@@ -31899,7 +31931,7 @@
         7774514,
         7774524
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Somber Smithing Stone [8]"
       ],
@@ -33145,7 +33177,9 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7773161,
@@ -33154,7 +33188,7 @@
         7774514,
         7774524
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Golden Rune [13]",
         "Somber Smithing Stone [8]"
@@ -33285,7 +33319,9 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7773161,
@@ -33294,7 +33330,7 @@
         7774514,
         7774524
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Somber Smithing Stone [8]"
       ],
@@ -41662,514 +41698,6 @@
     },
     {
       "all_candidate_ids": [
-        7770257,
-        7770754,
-        7770775,
-        7771021,
-        7771391,
-        7771540,
-        7771740,
-        7772165,
-        7772267,
-        7772289,
-        7772977,
-        7773233,
-        7773298,
-        7773391,
-        7773400,
-        7773493,
-        7774141,
-        7774190,
-        7774209,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "competing_observation_count": 11,
-      "context_labels": [
-        "Beast Blood",
-        "Old Fang x2",
-        "Somber Smithing Stone [4]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w19-104",
-      "item_name": "Somber Smithing Stone [4]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "observation_id": "walkthrough:71a721677bb0baffcfe4",
-      "reason": "area_only",
-      "regions": [
-        "Caelid"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772165,
-        7772289
-      ],
-      "section": "caelid",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w19-104"
-    },
-    {
-      "all_candidate_ids": [
-        7770257,
-        7770754,
-        7770775,
-        7771021,
-        7771391,
-        7771540,
-        7771740,
-        7772165,
-        7772267,
-        7772289,
-        7772977,
-        7773233,
-        7773298,
-        7773391,
-        7773400,
-        7773493,
-        7774141,
-        7774190,
-        7774209,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "competing_observation_count": 11,
-      "context_labels": [
-        "Somber Smithing Stone [4]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w19-110",
-      "item_name": "Somber Smithing Stone [4]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "observation_id": "walkthrough:089eb862468fcd1bee27",
-      "reason": "area_only",
-      "regions": [
-        "Caelid"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772165,
-        7772289
-      ],
-      "section": "caelid",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w19-110"
-    },
-    {
-      "all_candidate_ids": [
-        7770257,
-        7770754,
-        7770775,
-        7771021,
-        7771391,
-        7771540,
-        7771740,
-        7772165,
-        7772267,
-        7772289,
-        7772977,
-        7773233,
-        7773298,
-        7773391,
-        7773400,
-        7773493,
-        7774141,
-        7774190,
-        7774209,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "competing_observation_count": 11,
-      "context_labels": [
-        "Somber Smithing Stone [4]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w19-35",
-      "item_name": "Somber Smithing Stone [4]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "observation_id": "walkthrough:884aa0de269a66e0bf14",
-      "reason": "area_only",
-      "regions": [
-        "Caelid"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772165,
-        7772289
-      ],
-      "section": "caelid",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w19-35"
-    },
-    {
-      "all_candidate_ids": [
-        7770257,
-        7770754,
-        7770775,
-        7771021,
-        7771391,
-        7771540,
-        7771740,
-        7772165,
-        7772267,
-        7772289,
-        7772977,
-        7773233,
-        7773298,
-        7773391,
-        7773400,
-        7773493,
-        7774141,
-        7774190,
-        7774209,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "competing_observation_count": 11,
-      "context_labels": [
-        "Somber Smithing Stone [4]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w19-49",
-      "item_name": "Somber Smithing Stone [4]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "observation_id": "walkthrough:2d9c932ac18f193df058",
-      "reason": "area_only",
-      "regions": [
-        "Caelid"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772165,
-        7772289
-      ],
-      "section": "caelid",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w19-49"
-    },
-    {
-      "all_candidate_ids": [
-        7770257,
-        7770754,
-        7770775,
-        7771021,
-        7771391,
-        7771540,
-        7771740,
-        7772165,
-        7772267,
-        7772289,
-        7772977,
-        7773233,
-        7773298,
-        7773391,
-        7773400,
-        7773493,
-        7774141,
-        7774190,
-        7774209,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "competing_observation_count": 11,
-      "context_labels": [
-        "Cross-Naginata",
-        "Smithing Stone [4]",
-        "Somber Smithing Stone [4]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w19-55",
-      "item_name": "Somber Smithing Stone [4]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "observation_id": "walkthrough:0c213bf125a36c14897d",
-      "reason": "area_only",
-      "regions": [
-        "Caelid"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772165,
-        7772289
-      ],
-      "section": "caelid",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w19-55"
-    },
-    {
-      "all_candidate_ids": [
-        7770257,
-        7770754,
-        7770775,
-        7771021,
-        7771391,
-        7771540,
-        7771740,
-        7772165,
-        7772267,
-        7772289,
-        7772977,
-        7773233,
-        7773298,
-        7773391,
-        7773400,
-        7773493,
-        7774141,
-        7774190,
-        7774209,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "competing_observation_count": 11,
-      "context_labels": [
-        "Somber Smithing Stone [4]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w19-70",
-      "item_name": "Somber Smithing Stone [4]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "observation_id": "walkthrough:38ef737b177ee364adba",
-      "reason": "area_only",
-      "regions": [
-        "Caelid"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772165,
-        7772289
-      ],
-      "section": "caelid",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w19-70"
-    },
-    {
-      "all_candidate_ids": [
         7770991,
         7771003,
         7771121,
@@ -44743,346 +44271,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w46-94"
-    },
-    {
-      "all_candidate_ids": [
-        7770257,
-        7770754,
-        7770775,
-        7771021,
-        7771391,
-        7771540,
-        7771740,
-        7772165,
-        7772267,
-        7772289,
-        7772977,
-        7773233,
-        7773298,
-        7773391,
-        7773400,
-        7773493,
-        7774141,
-        7774190,
-        7774209,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "competing_observation_count": 11,
-      "context_labels": [
-        "Beast Blood",
-        "Old Fang x2",
-        "Somber Smithing Stone [4]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w21-7",
-      "item_name": "Somber Smithing Stone [4]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "observation_id": "walkthrough:f895aa52c9ad961df462",
-      "reason": "area_only",
-      "regions": [
-        "Caelid"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772165,
-        7772289
-      ],
-      "section": "redmane-castle",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w21-7"
-    },
-    {
-      "all_candidate_ids": [
-        7770257,
-        7770754,
-        7770775,
-        7771021,
-        7771391,
-        7771540,
-        7771740,
-        7772165,
-        7772267,
-        7772289,
-        7772977,
-        7773233,
-        7773298,
-        7773391,
-        7773400,
-        7773493,
-        7774141,
-        7774190,
-        7774209,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "competing_observation_count": 11,
-      "context_labels": [
-        "Smithing Stone [5]",
-        "Somber Smithing Stone [4]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w20-16",
-      "item_name": "Somber Smithing Stone [4]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "observation_id": "walkthrough:2dd63854e7b1b311ffb5",
-      "reason": "area_only",
-      "regions": [
-        "Caelid"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772165,
-        7772289
-      ],
-      "section": "sellia",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w20-16"
-    },
-    {
-      "all_candidate_ids": [
-        7770257,
-        7770754,
-        7770775,
-        7771021,
-        7771391,
-        7771540,
-        7771740,
-        7772165,
-        7772267,
-        7772289,
-        7772977,
-        7773233,
-        7773298,
-        7773391,
-        7773400,
-        7773493,
-        7774141,
-        7774190,
-        7774209,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "competing_observation_count": 11,
-      "context_labels": [
-        "Somber Smithing Stone [4]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w20-19",
-      "item_name": "Somber Smithing Stone [4]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "observation_id": "walkthrough:877141f9af1da18a697f",
-      "reason": "area_only",
-      "regions": [
-        "Caelid"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772165,
-        7772289
-      ],
-      "section": "sellia",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w20-19"
-    },
-    {
-      "all_candidate_ids": [
-        7770257,
-        7770754,
-        7770775,
-        7771021,
-        7771391,
-        7771540,
-        7771740,
-        7772165,
-        7772267,
-        7772289,
-        7772977,
-        7773233,
-        7773298,
-        7773391,
-        7773400,
-        7773493,
-        7774141,
-        7774190,
-        7774209,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "competing_observation_count": 11,
-      "context_labels": [
-        "Dragonwound Grease",
-        "Somber Smithing Stone [4]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w20-20",
-      "item_name": "Somber Smithing Stone [4]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "observation_id": "walkthrough:eea9eb024b1bd65e4d96",
-      "reason": "area_only",
-      "regions": [
-        "Caelid"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772165,
-        7772289
-      ],
-      "section": "sellia",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w20-20"
     },
     {
       "all_candidate_ids": [
@@ -48268,6 +47456,182 @@
     },
     {
       "all_candidate_ids": [
+        7770257,
+        7770754,
+        7770775,
+        7771021,
+        7771391,
+        7771540,
+        7771740,
+        7772165,
+        7772267,
+        7772289,
+        7772977,
+        7773233,
+        7773298,
+        7773391,
+        7773400,
+        7773493,
+        7774141,
+        7774190,
+        7774209,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "competing_observation_count": 11,
+      "context_labels": [
+        "Beast Blood",
+        "Old Fang x2",
+        "Somber Smithing Stone [4]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w19-104",
+      "item_name": "Somber Smithing Stone [4]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "observation_id": "walkthrough:71a721677bb0baffcfe4",
+      "reason": "area_only",
+      "regions": [
+        "Caelid"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772165,
+        7772289
+      ],
+      "section": "caelid",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w19-104"
+    },
+    {
+      "all_candidate_ids": [
+        7770257,
+        7770754,
+        7770775,
+        7771021,
+        7771391,
+        7771540,
+        7771740,
+        7772165,
+        7772267,
+        7772289,
+        7772977,
+        7773233,
+        7773298,
+        7773391,
+        7773400,
+        7773493,
+        7774141,
+        7774190,
+        7774209,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "competing_observation_count": 11,
+      "context_labels": [
+        "Somber Smithing Stone [4]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w19-110",
+      "item_name": "Somber Smithing Stone [4]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "observation_id": "walkthrough:089eb862468fcd1bee27",
+      "reason": "area_only",
+      "regions": [
+        "Caelid"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772165,
+        7772289
+      ],
+      "section": "caelid",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w19-110"
+    },
+    {
+      "all_candidate_ids": [
         7770404,
         7770410,
         7770460,
@@ -48738,6 +48102,93 @@
     },
     {
       "all_candidate_ids": [
+        7770257,
+        7770754,
+        7770775,
+        7771021,
+        7771391,
+        7771540,
+        7771740,
+        7772165,
+        7772267,
+        7772289,
+        7772977,
+        7773233,
+        7773298,
+        7773391,
+        7773400,
+        7773493,
+        7774141,
+        7774190,
+        7774209,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "competing_observation_count": 11,
+      "context_labels": [
+        "Somber Smithing Stone [4]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w19-35",
+      "item_name": "Somber Smithing Stone [4]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "observation_id": "walkthrough:884aa0de269a66e0bf14",
+      "reason": "area_only",
+      "regions": [
+        "Caelid"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772165,
+        7772289
+      ],
+      "section": "caelid",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w19-35"
+    },
+    {
+      "all_candidate_ids": [
         7770870,
         7770888,
         7771203,
@@ -48845,6 +48296,93 @@
     },
     {
       "all_candidate_ids": [
+        7770257,
+        7770754,
+        7770775,
+        7771021,
+        7771391,
+        7771540,
+        7771740,
+        7772165,
+        7772267,
+        7772289,
+        7772977,
+        7773233,
+        7773298,
+        7773391,
+        7773400,
+        7773493,
+        7774141,
+        7774190,
+        7774209,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "competing_observation_count": 11,
+      "context_labels": [
+        "Somber Smithing Stone [4]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w19-49",
+      "item_name": "Somber Smithing Stone [4]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "observation_id": "walkthrough:2d9c932ac18f193df058",
+      "reason": "area_only",
+      "regions": [
+        "Caelid"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772165,
+        7772289
+      ],
+      "section": "caelid",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w19-49"
+    },
+    {
+      "all_candidate_ids": [
         7770870,
         7770888,
         7771203,
@@ -48949,6 +48487,95 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w19-53"
+    },
+    {
+      "all_candidate_ids": [
+        7770257,
+        7770754,
+        7770775,
+        7771021,
+        7771391,
+        7771540,
+        7771740,
+        7772165,
+        7772267,
+        7772289,
+        7772977,
+        7773233,
+        7773298,
+        7773391,
+        7773400,
+        7773493,
+        7774141,
+        7774190,
+        7774209,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "competing_observation_count": 11,
+      "context_labels": [
+        "Cross-Naginata",
+        "Smithing Stone [4]",
+        "Somber Smithing Stone [4]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w19-55",
+      "item_name": "Somber Smithing Stone [4]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "observation_id": "walkthrough:0c213bf125a36c14897d",
+      "reason": "area_only",
+      "regions": [
+        "Caelid"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772165,
+        7772289
+      ],
+      "section": "caelid",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w19-55"
     },
     {
       "all_candidate_ids": [
@@ -49069,6 +48696,93 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w19-68"
+    },
+    {
+      "all_candidate_ids": [
+        7770257,
+        7770754,
+        7770775,
+        7771021,
+        7771391,
+        7771540,
+        7771740,
+        7772165,
+        7772267,
+        7772289,
+        7772977,
+        7773233,
+        7773298,
+        7773391,
+        7773400,
+        7773493,
+        7774141,
+        7774190,
+        7774209,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "competing_observation_count": 11,
+      "context_labels": [
+        "Somber Smithing Stone [4]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w19-70",
+      "item_name": "Somber Smithing Stone [4]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "observation_id": "walkthrough:38ef737b177ee364adba",
+      "reason": "area_only",
+      "regions": [
+        "Caelid"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772165,
+        7772289
+      ],
+      "section": "caelid",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w19-70"
     },
     {
       "all_candidate_ids": [
@@ -49670,6 +49384,95 @@
     },
     {
       "all_candidate_ids": [
+        7770257,
+        7770754,
+        7770775,
+        7771021,
+        7771391,
+        7771540,
+        7771740,
+        7772165,
+        7772267,
+        7772289,
+        7772977,
+        7773233,
+        7773298,
+        7773391,
+        7773400,
+        7773493,
+        7774141,
+        7774190,
+        7774209,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "competing_observation_count": 11,
+      "context_labels": [
+        "Beast Blood",
+        "Old Fang x2",
+        "Somber Smithing Stone [4]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w21-7",
+      "item_name": "Somber Smithing Stone [4]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "observation_id": "walkthrough:f895aa52c9ad961df462",
+      "reason": "area_only",
+      "regions": [
+        "Caelid"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772165,
+        7772289
+      ],
+      "section": "redmane-castle",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w21-7"
+    },
+    {
+      "all_candidate_ids": [
         7770870,
         7770888,
         7771203,
@@ -50006,6 +49809,269 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w20-14"
+    },
+    {
+      "all_candidate_ids": [
+        7770257,
+        7770754,
+        7770775,
+        7771021,
+        7771391,
+        7771540,
+        7771740,
+        7772165,
+        7772267,
+        7772289,
+        7772977,
+        7773233,
+        7773298,
+        7773391,
+        7773400,
+        7773493,
+        7774141,
+        7774190,
+        7774209,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "competing_observation_count": 11,
+      "context_labels": [
+        "Smithing Stone [5]",
+        "Somber Smithing Stone [4]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w20-16",
+      "item_name": "Somber Smithing Stone [4]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "observation_id": "walkthrough:2dd63854e7b1b311ffb5",
+      "reason": "area_only",
+      "regions": [
+        "Caelid"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772165,
+        7772289
+      ],
+      "section": "sellia",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w20-16"
+    },
+    {
+      "all_candidate_ids": [
+        7770257,
+        7770754,
+        7770775,
+        7771021,
+        7771391,
+        7771540,
+        7771740,
+        7772165,
+        7772267,
+        7772289,
+        7772977,
+        7773233,
+        7773298,
+        7773391,
+        7773400,
+        7773493,
+        7774141,
+        7774190,
+        7774209,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "competing_observation_count": 11,
+      "context_labels": [
+        "Somber Smithing Stone [4]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w20-19",
+      "item_name": "Somber Smithing Stone [4]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "observation_id": "walkthrough:877141f9af1da18a697f",
+      "reason": "area_only",
+      "regions": [
+        "Caelid"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772165,
+        7772289
+      ],
+      "section": "sellia",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w20-19"
+    },
+    {
+      "all_candidate_ids": [
+        7770257,
+        7770754,
+        7770775,
+        7771021,
+        7771391,
+        7771540,
+        7771740,
+        7772165,
+        7772267,
+        7772289,
+        7772977,
+        7773233,
+        7773298,
+        7773391,
+        7773400,
+        7773493,
+        7774141,
+        7774190,
+        7774209,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "competing_observation_count": 11,
+      "context_labels": [
+        "Dragonwound Grease",
+        "Somber Smithing Stone [4]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w20-20",
+      "item_name": "Somber Smithing Stone [4]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "observation_id": "walkthrough:eea9eb024b1bd65e4d96",
+      "reason": "area_only",
+      "regions": [
+        "Caelid"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772165,
+        7772289
+      ],
+      "section": "sellia",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w20-20"
     },
     {
       "all_candidate_ids": [
@@ -50717,77 +50783,6 @@
     },
     {
       "all_candidate_ids": [
-        7770602,
-        7770620,
-        7771033,
-        7771357,
-        7771402,
-        7771625,
-        7771627,
-        7771867,
-        7773650,
-        7774446,
-        7900288
-      ],
-      "candidate_ids": [
-        7770602,
-        7770620,
-        7771033,
-        7771357,
-        7771402,
-        7771625,
-        7771627,
-        7771867,
-        7773650,
-        7774446,
-        7900288
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Dragon Heart",
-        "Ghostflame Dragon",
-        "Somber Ancient Dragon Smithing Stone"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d5-19",
-      "item_name": "Somber Ancient Dragon Smithing Stone",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770602,
-        7770620,
-        7771625,
-        7771627,
-        7773650,
-        7774446,
-        7900288
-      ],
-      "observation_id": "walkthrough:9e48ce3cbfd50c7bbe8c",
-      "reason": "region_disagreement",
-      "regions": [
-        "Cerulean"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7770620
-      ],
-      "section": "cerulean-coast",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d5-19"
-    },
-    {
-      "all_candidate_ids": [
         7770928,
         7771776,
         7771926,
@@ -50864,220 +50859,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d13-24"
-    },
-    {
-      "all_candidate_ids": [
-        7770602,
-        7770620,
-        7771033,
-        7771357,
-        7771402,
-        7771625,
-        7771627,
-        7771867,
-        7773650,
-        7774446,
-        7900288
-      ],
-      "candidate_ids": [
-        7770602,
-        7770620,
-        7771033,
-        7771357,
-        7771402,
-        7771625,
-        7771627,
-        7771867,
-        7773650,
-        7774446,
-        7900288
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Smithing Stone [8] x3",
-        "Somber Ancient Dragon Smithing Stone",
-        "Strip of White Flesh"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d4-21",
-      "item_name": "Somber Ancient Dragon Smithing Stone",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770602,
-        7770620,
-        7771625,
-        7771627,
-        7773650,
-        7774446,
-        7900288
-      ],
-      "observation_id": "walkthrough:c67a7cc6723be6c3b9b4",
-      "reason": "region_disagreement",
-      "regions": [
-        "Cerulean",
-        "Gravesite"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7770620
-      ],
-      "section": "ellac-river",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d4-21"
-    },
-    {
-      "all_candidate_ids": [
-        7770602,
-        7770620,
-        7771033,
-        7771357,
-        7771402,
-        7771625,
-        7771627,
-        7771867,
-        7773650,
-        7774446,
-        7900288
-      ],
-      "candidate_ids": [
-        7770602,
-        7770620,
-        7771033,
-        7771357,
-        7771402,
-        7771625,
-        7771627,
-        7771867,
-        7773650,
-        7774446,
-        7900288
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Dragon Heart",
-        "Ghostflame Dragon",
-        "Somber Ancient Dragon Smithing Stone"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-67",
-      "item_name": "Somber Ancient Dragon Smithing Stone",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770602,
-        7770620,
-        7771625,
-        7771627,
-        7773650,
-        7774446,
-        7900288
-      ],
-      "observation_id": "walkthrough:0d0544cf90e543494bdc",
-      "reason": "region_disagreement",
-      "regions": [
-        "Scadu Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7770620
-      ],
-      "section": "scadu-west",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d8-67"
-    },
-    {
-      "all_candidate_ids": [
-        7770602,
-        7770620,
-        7771033,
-        7771357,
-        7771402,
-        7771625,
-        7771627,
-        7771867,
-        7773650,
-        7774446,
-        7900288
-      ],
-      "candidate_ids": [
-        7770602,
-        7770620,
-        7771033,
-        7771357,
-        7771402,
-        7771625,
-        7771627,
-        7771867,
-        7773650,
-        7774446,
-        7900288
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Dragon Heart",
-        "Ghostflame Dragon",
-        "Somber Ancient Dragon Smithing Stone"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d1-60",
-      "item_name": "Somber Ancient Dragon Smithing Stone",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770602,
-        7770620,
-        7771625,
-        7771627,
-        7773650,
-        7774446,
-        7900288
-      ],
-      "observation_id": "walkthrough:4f3bf8b8ccf07674579d",
-      "reason": "region_disagreement",
-      "regions": [
-        "Gravesite"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7770620
-      ],
-      "section": "west-gravesite",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d1-60"
     },
     {
       "all_candidate_ids": [
@@ -53619,6 +53400,80 @@
     },
     {
       "all_candidate_ids": [
+        7770602,
+        7770620,
+        7771033,
+        7771357,
+        7771402,
+        7771625,
+        7771627,
+        7771867,
+        7773650,
+        7774446,
+        7774642,
+        7900288
+      ],
+      "candidate_ids": [
+        7770602,
+        7770620,
+        7771033,
+        7771357,
+        7771402,
+        7771625,
+        7771627,
+        7771867,
+        7773650,
+        7774446,
+        7774642,
+        7900288
+      ],
+      "competing_observation_count": 5,
+      "context_labels": [
+        "Dragon Heart",
+        "Ghostflame Dragon",
+        "Somber Ancient Dragon Smithing Stone"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d5-19",
+      "item_name": "Somber Ancient Dragon Smithing Stone",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770602,
+        7770620,
+        7771625,
+        7771627,
+        7773650,
+        7774446,
+        7774642,
+        7900288
+      ],
+      "observation_id": "walkthrough:9e48ce3cbfd50c7bbe8c",
+      "reason": "region_disagreement",
+      "regions": [
+        "Cerulean"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7770620
+      ],
+      "section": "cerulean-coast",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d5-19"
+    },
+    {
+      "all_candidate_ids": [
         7771791,
         7771810,
         7771850,
@@ -54248,6 +54103,80 @@
     },
     {
       "all_candidate_ids": [
+        7770602,
+        7770620,
+        7771033,
+        7771357,
+        7771402,
+        7771625,
+        7771627,
+        7771867,
+        7773650,
+        7774446,
+        7774642,
+        7900288
+      ],
+      "candidate_ids": [
+        7770602,
+        7770620,
+        7771033,
+        7771357,
+        7771402,
+        7771625,
+        7771627,
+        7771867,
+        7773650,
+        7774446,
+        7774642,
+        7900288
+      ],
+      "competing_observation_count": 5,
+      "context_labels": [
+        "Dragon Heart",
+        "Ghostflame Dragon",
+        "Somber Ancient Dragon Smithing Stone"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-67",
+      "item_name": "Somber Ancient Dragon Smithing Stone",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770602,
+        7770620,
+        7771625,
+        7771627,
+        7773650,
+        7774446,
+        7774642,
+        7900288
+      ],
+      "observation_id": "walkthrough:0d0544cf90e543494bdc",
+      "reason": "region_disagreement",
+      "regions": [
+        "Scadu Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7770620
+      ],
+      "section": "scadu-west",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d8-67"
+    },
+    {
+      "all_candidate_ids": [
         7770209,
         7770236,
         7770369,
@@ -54379,98 +54308,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w3-51"
-    },
-    {
-      "all_candidate_ids": [
-        7770257,
-        7770754,
-        7770775,
-        7771021,
-        7771391,
-        7771540,
-        7771740,
-        7772165,
-        7772267,
-        7772289,
-        7772977,
-        7773233,
-        7773298,
-        7773391,
-        7773400,
-        7773493,
-        7774141,
-        7774190,
-        7774209,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "candidate_ids": [
-        7770257,
-        7770754,
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774141,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "competing_observation_count": 11,
-      "context_labels": [
-        "Aeonian Butterfly",
-        "Somber Smithing Stone [4]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w3-77",
-      "item_name": "Somber Smithing Stone [4]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770754,
-        7770775,
-        7772165,
-        7772289,
-        7772977,
-        7774141,
-        7774426,
-        7774455,
-        7774456,
-        7774503,
-        7774504
-      ],
-      "observation_id": "walkthrough:29b7916a2daea86da195",
-      "reason": "area_only",
-      "regions": [
-        "Caelid",
-        "Liurnia"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772165,
-        7772289,
-        7774141
-      ],
-      "section": "early-liurnia",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w3-77"
     },
     {
       "all_candidate_ids": [
@@ -57061,6 +56898,101 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w12-57"
+    },
+    {
+      "all_candidate_ids": [
+        7770257,
+        7770754,
+        7770775,
+        7771021,
+        7771391,
+        7771540,
+        7771740,
+        7772165,
+        7772267,
+        7772289,
+        7772977,
+        7773233,
+        7773298,
+        7773391,
+        7773400,
+        7773493,
+        7774141,
+        7774190,
+        7774209,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "candidate_ids": [
+        7770257,
+        7770754,
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774141,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "competing_observation_count": 11,
+      "context_labels": [
+        "Aeonian Butterfly",
+        "Somber Smithing Stone [4]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w3-77",
+      "item_name": "Somber Smithing Stone [4]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770754,
+        7770775,
+        7772165,
+        7772289,
+        7772977,
+        7774141,
+        7774426,
+        7774455,
+        7774456,
+        7774503,
+        7774504,
+        7774643
+      ],
+      "observation_id": "walkthrough:29b7916a2daea86da195",
+      "reason": "area_only",
+      "regions": [
+        "Caelid",
+        "Liurnia"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772165,
+        7772289,
+        7774141
+      ],
+      "section": "early-liurnia",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w3-77"
     },
     {
       "all_candidate_ids": [
@@ -67492,101 +67424,6 @@
     },
     {
       "all_candidate_ids": [
-        7771048,
-        7771318,
-        7771420,
-        7771438,
-        7771444,
-        7771477,
-        7771598,
-        7771611,
-        7771628,
-        7771642,
-        7771815,
-        7771968,
-        7771994,
-        7773006,
-        7773060,
-        7773142,
-        7773344,
-        7773433,
-        7774476,
-        7774491
-      ],
-      "candidate_ids": [
-        7771048,
-        7771318,
-        7771420,
-        7771438,
-        7771444,
-        7771477,
-        7771598,
-        7771611,
-        7771628,
-        7771642,
-        7771815,
-        7771968,
-        7771994,
-        7773006,
-        7773060,
-        7773142,
-        7773344,
-        7773433,
-        7774476,
-        7774491
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Somber Smithing Stone [9]",
-        "Surging Frenzied Flame"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-8",
-      "item_name": "Somber Smithing Stone [9]",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771420,
-        7771438,
-        7771444,
-        7771477,
-        7771611,
-        7771628,
-        7771642,
-        7771968,
-        7771994,
-        7773006,
-        7774476,
-        7774491
-      ],
-      "observation_id": "walkthrough:e9e8e46d2f6805b4f48d",
-      "reason": "region_disagreement",
-      "regions": [
-        "Abyssal"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7771420,
-        7771994,
-        7773006
-      ],
-      "section": "abyssal-woods",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d16-8"
-    },
-    {
-      "all_candidate_ids": [
         7770706,
         7770765,
         7770776,
@@ -67877,195 +67714,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d2-35"
-    },
-    {
-      "all_candidate_ids": [
-        7771048,
-        7771318,
-        7771420,
-        7771438,
-        7771444,
-        7771477,
-        7771598,
-        7771611,
-        7771628,
-        7771642,
-        7771815,
-        7771968,
-        7771994,
-        7773006,
-        7773060,
-        7773142,
-        7773344,
-        7773433,
-        7774476,
-        7774491
-      ],
-      "candidate_ids": [
-        7771048,
-        7771318,
-        7771420,
-        7771438,
-        7771444,
-        7771477,
-        7771598,
-        7771611,
-        7771628,
-        7771642,
-        7771815,
-        7771968,
-        7771994,
-        7773006,
-        7773060,
-        7773142,
-        7773344,
-        7773433,
-        7774476,
-        7774491
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Somber Smithing Stone [9]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d9-10",
-      "item_name": "Somber Smithing Stone [9]",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771420,
-        7771438,
-        7771444,
-        7771477,
-        7771611,
-        7771628,
-        7771642,
-        7771968,
-        7771994,
-        7773006,
-        7774476,
-        7774491
-      ],
-      "observation_id": "walkthrough:5107ef5cc1e3be5c50a3",
-      "reason": "region_disagreement",
-      "regions": [
-        "Rauh Base"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7771420,
-        7771994,
-        7773006
-      ],
-      "section": "rauh-base",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d9-10"
-    },
-    {
-      "all_candidate_ids": [
-        7771048,
-        7771318,
-        7771420,
-        7771438,
-        7771444,
-        7771477,
-        7771598,
-        7771611,
-        7771628,
-        7771642,
-        7771815,
-        7771968,
-        7771994,
-        7773006,
-        7773060,
-        7773142,
-        7773344,
-        7773433,
-        7774476,
-        7774491
-      ],
-      "candidate_ids": [
-        7771048,
-        7771318,
-        7771420,
-        7771438,
-        7771444,
-        7771477,
-        7771598,
-        7771611,
-        7771628,
-        7771642,
-        7771815,
-        7771968,
-        7771994,
-        7773006,
-        7773060,
-        7773142,
-        7773344,
-        7773433,
-        7774476,
-        7774491
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Smithing Stone [5]",
-        "Somber Smithing Stone [9]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d9-24",
-      "item_name": "Somber Smithing Stone [9]",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771420,
-        7771438,
-        7771444,
-        7771477,
-        7771611,
-        7771628,
-        7771642,
-        7771968,
-        7771994,
-        7773006,
-        7774476,
-        7774491
-      ],
-      "observation_id": "walkthrough:3c2ce7df1df4f8617bdd",
-      "reason": "region_disagreement",
-      "regions": [
-        "Rauh Base"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7771420,
-        7771994,
-        7773006
-      ],
-      "section": "rauh-base",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d9-24"
     },
     {
       "all_candidate_ids": [
@@ -69203,62 +68851,63 @@
     },
     {
       "all_candidate_ids": [
-        7771042,
-        7771128,
-        7771460,
-        7771473,
-        7771594,
-        7771899,
-        7771978,
-        7772367,
-        7772458,
-        7772484,
-        7773098,
-        7773161,
-        7773169,
-        7773198,
-        7773354,
-        7773607,
-        7773888,
-        7774094,
-        7774475,
-        7774490,
-        7774514,
-        7774524
+        7771048,
+        7771318,
+        7771420,
+        7771438,
+        7771444,
+        7771477,
+        7771598,
+        7771611,
+        7771628,
+        7771642,
+        7771815,
+        7771968,
+        7771994,
+        7773006,
+        7773060,
+        7773142,
+        7773344,
+        7773433,
+        7774476,
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
-        7771042,
-        7771128,
-        7771460,
-        7771473,
-        7771594,
-        7771899,
-        7771978,
-        7772367,
-        7772458,
-        7772484,
-        7773098,
-        7773161,
-        7773169,
-        7773198,
-        7773354,
-        7773607,
-        7773888,
-        7774094,
-        7774475,
-        7774490,
-        7774514,
-        7774524
+        7771048,
+        7771318,
+        7771420,
+        7771438,
+        7771444,
+        7771477,
+        7771598,
+        7771611,
+        7771628,
+        7771642,
+        7771815,
+        7771968,
+        7771994,
+        7773006,
+        7773060,
+        7773142,
+        7773344,
+        7773433,
+        7774476,
+        7774491,
+        7774644,
+        7774645
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 5,
       "context_labels": [
-        "Somber Smithing Stone [8]"
+        "Somber Smithing Stone [9]",
+        "Surging Frenzied Flame"
       ],
       "family": "gameplay-guide:redmaw",
       "file": "dlc-walkthrough.html",
       "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d7-28",
-      "item_name": "Somber Smithing Stone [8]",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-8",
+      "item_name": "Somber Smithing Stone [9]",
       "matched_on": [
         "item_name"
       ],
@@ -69269,237 +68918,37 @@
         "quantity_or_position"
       ],
       "new_family_candidate_ids": [
-        7771042,
-        7771128,
-        7771460,
-        7771473,
-        7771899,
-        7772367,
-        7773098,
-        7773161,
-        7773169,
-        7773198,
-        7773607,
-        7774094,
-        7774490,
-        7774514,
-        7774524
+        7771420,
+        7771438,
+        7771444,
+        7771477,
+        7771611,
+        7771628,
+        7771642,
+        7771968,
+        7771994,
+        7773006,
+        7774476,
+        7774491,
+        7774644,
+        7774645
       ],
-      "observation_id": "walkthrough:bde976eb1f99d80e1cea",
+      "observation_id": "walkthrough:e9e8e46d2f6805b4f48d",
       "reason": "region_disagreement",
       "regions": [
-        "Ensis"
+        "Abyssal"
       ],
       "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
       "second_family_candidate_ids": [
-        7772367,
-        7773161
+        7771420,
+        7771994,
+        7773006
       ],
-      "section": "castle-ensis",
+      "section": "abyssal-woods",
       "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
-      "step": "d7-28"
-    },
-    {
-      "all_candidate_ids": [
-        7771042,
-        7771128,
-        7771460,
-        7771473,
-        7771594,
-        7771899,
-        7771978,
-        7772367,
-        7772458,
-        7772484,
-        7773098,
-        7773161,
-        7773169,
-        7773198,
-        7773354,
-        7773607,
-        7773888,
-        7774094,
-        7774475,
-        7774490,
-        7774514,
-        7774524
-      ],
-      "candidate_ids": [
-        7771042,
-        7771128,
-        7771460,
-        7771473,
-        7771594,
-        7771899,
-        7771978,
-        7772367,
-        7772458,
-        7772484,
-        7773098,
-        7773161,
-        7773169,
-        7773198,
-        7773354,
-        7773607,
-        7773888,
-        7774094,
-        7774475,
-        7774490,
-        7774514,
-        7774524
-      ],
-      "competing_observation_count": 9,
-      "context_labels": [
-        "Somber Smithing Stone [8]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d20-28",
-      "item_name": "Somber Smithing Stone [8]",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771042,
-        7771128,
-        7771460,
-        7771473,
-        7771899,
-        7772367,
-        7773098,
-        7773161,
-        7773169,
-        7773198,
-        7773607,
-        7774094,
-        7774490,
-        7774514,
-        7774524
-      ],
-      "observation_id": "walkthrough:a23ee987a2a040098134",
-      "reason": "region_disagreement",
-      "regions": [
-        "Enir Ilim"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772367,
-        7773161
-      ],
-      "section": "enir-ilim",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d20-28"
-    },
-    {
-      "all_candidate_ids": [
-        7771042,
-        7771128,
-        7771460,
-        7771473,
-        7771594,
-        7771899,
-        7771978,
-        7772367,
-        7772458,
-        7772484,
-        7773098,
-        7773161,
-        7773169,
-        7773198,
-        7773354,
-        7773607,
-        7773888,
-        7774094,
-        7774475,
-        7774490,
-        7774514,
-        7774524
-      ],
-      "candidate_ids": [
-        7771042,
-        7771128,
-        7771460,
-        7771473,
-        7771594,
-        7771899,
-        7771978,
-        7772367,
-        7772458,
-        7772484,
-        7773098,
-        7773161,
-        7773169,
-        7773198,
-        7773354,
-        7773607,
-        7773888,
-        7774094,
-        7774475,
-        7774490,
-        7774514,
-        7774524
-      ],
-      "competing_observation_count": 9,
-      "context_labels": [
-        "Somber Smithing Stone [8]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d20-7",
-      "item_name": "Somber Smithing Stone [8]",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771042,
-        7771128,
-        7771460,
-        7771473,
-        7771899,
-        7772367,
-        7773098,
-        7773161,
-        7773169,
-        7773198,
-        7773607,
-        7774094,
-        7774490,
-        7774514,
-        7774524
-      ],
-      "observation_id": "walkthrough:14823bf91dc9b1f4cb8a",
-      "reason": "region_disagreement",
-      "regions": [
-        "Enir Ilim"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772367,
-        7773161
-      ],
-      "section": "enir-ilim",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d20-7"
+      "step": "d16-8"
     },
     {
       "all_candidate_ids": [
@@ -69713,106 +69162,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w5-59"
-    },
-    {
-      "all_candidate_ids": [
-        7771042,
-        7771128,
-        7771460,
-        7771473,
-        7771594,
-        7771899,
-        7771978,
-        7772367,
-        7772458,
-        7772484,
-        7773098,
-        7773161,
-        7773169,
-        7773198,
-        7773354,
-        7773607,
-        7773888,
-        7774094,
-        7774475,
-        7774490,
-        7774514,
-        7774524
-      ],
-      "candidate_ids": [
-        7771042,
-        7771128,
-        7771460,
-        7771473,
-        7771594,
-        7771899,
-        7771978,
-        7772367,
-        7772458,
-        7772484,
-        7773098,
-        7773161,
-        7773169,
-        7773198,
-        7773354,
-        7773607,
-        7773888,
-        7774094,
-        7774475,
-        7774490,
-        7774514,
-        7774524
-      ],
-      "competing_observation_count": 9,
-      "context_labels": [
-        "Somber Smithing Stone [8]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w36-36",
-      "item_name": "Somber Smithing Stone [8]",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771042,
-        7771128,
-        7771460,
-        7771473,
-        7771899,
-        7772367,
-        7773098,
-        7773161,
-        7773169,
-        7773198,
-        7773607,
-        7774094,
-        7774490,
-        7774514,
-        7774524
-      ],
-      "observation_id": "walkthrough:320bbbdda06c6caade75",
-      "reason": "region_disagreement",
-      "regions": [
-        "Sewer"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772367,
-        7773161
-      ],
-      "section": "shunning-grounds",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w36-36"
     },
     {
       "all_candidate_ids": [
@@ -70337,6 +69686,218 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w18-32"
+    },
+    {
+      "all_candidate_ids": [
+        7771042,
+        7771128,
+        7771460,
+        7771473,
+        7771594,
+        7771899,
+        7771978,
+        7772367,
+        7772458,
+        7772484,
+        7773098,
+        7773161,
+        7773169,
+        7773198,
+        7773354,
+        7773607,
+        7773888,
+        7774094,
+        7774475,
+        7774490,
+        7774514,
+        7774524,
+        7774647,
+        7774648
+      ],
+      "candidate_ids": [
+        7771042,
+        7771128,
+        7771460,
+        7771473,
+        7771594,
+        7771899,
+        7771978,
+        7772367,
+        7772458,
+        7772484,
+        7773098,
+        7773161,
+        7773169,
+        7773198,
+        7773354,
+        7773607,
+        7773888,
+        7774094,
+        7774475,
+        7774490,
+        7774514,
+        7774524,
+        7774647,
+        7774648
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Somber Smithing Stone [8]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d20-28",
+      "item_name": "Somber Smithing Stone [8]",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7771042,
+        7771128,
+        7771460,
+        7771473,
+        7771899,
+        7772367,
+        7773098,
+        7773161,
+        7773169,
+        7773198,
+        7773607,
+        7774094,
+        7774490,
+        7774514,
+        7774524,
+        7774647,
+        7774648
+      ],
+      "observation_id": "walkthrough:a23ee987a2a040098134",
+      "reason": "region_disagreement",
+      "regions": [
+        "Enir Ilim"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772367,
+        7773161
+      ],
+      "section": "enir-ilim",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d20-28"
+    },
+    {
+      "all_candidate_ids": [
+        7771042,
+        7771128,
+        7771460,
+        7771473,
+        7771594,
+        7771899,
+        7771978,
+        7772367,
+        7772458,
+        7772484,
+        7773098,
+        7773161,
+        7773169,
+        7773198,
+        7773354,
+        7773607,
+        7773888,
+        7774094,
+        7774475,
+        7774490,
+        7774514,
+        7774524,
+        7774647,
+        7774648
+      ],
+      "candidate_ids": [
+        7771042,
+        7771128,
+        7771460,
+        7771473,
+        7771594,
+        7771899,
+        7771978,
+        7772367,
+        7772458,
+        7772484,
+        7773098,
+        7773161,
+        7773169,
+        7773198,
+        7773354,
+        7773607,
+        7773888,
+        7774094,
+        7774475,
+        7774490,
+        7774514,
+        7774524,
+        7774647,
+        7774648
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Somber Smithing Stone [8]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d20-7",
+      "item_name": "Somber Smithing Stone [8]",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7771042,
+        7771128,
+        7771460,
+        7771473,
+        7771899,
+        7772367,
+        7773098,
+        7773161,
+        7773169,
+        7773198,
+        7773607,
+        7774094,
+        7774490,
+        7774514,
+        7774524,
+        7774647,
+        7774648
+      ],
+      "observation_id": "walkthrough:14823bf91dc9b1f4cb8a",
+      "reason": "region_disagreement",
+      "regions": [
+        "Enir Ilim"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772367,
+        7773161
+      ],
+      "section": "enir-ilim",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d20-7"
     },
     {
       "all_candidate_ids": [
@@ -71381,6 +70942,112 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w14-60"
+    },
+    {
+      "all_candidate_ids": [
+        7771042,
+        7771128,
+        7771460,
+        7771473,
+        7771594,
+        7771899,
+        7771978,
+        7772367,
+        7772458,
+        7772484,
+        7773098,
+        7773161,
+        7773169,
+        7773198,
+        7773354,
+        7773607,
+        7773888,
+        7774094,
+        7774475,
+        7774490,
+        7774514,
+        7774524,
+        7774647,
+        7774648
+      ],
+      "candidate_ids": [
+        7771042,
+        7771128,
+        7771460,
+        7771473,
+        7771594,
+        7771899,
+        7771978,
+        7772367,
+        7772458,
+        7772484,
+        7773098,
+        7773161,
+        7773169,
+        7773198,
+        7773354,
+        7773607,
+        7773888,
+        7774094,
+        7774475,
+        7774490,
+        7774514,
+        7774524,
+        7774647,
+        7774648
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Somber Smithing Stone [8]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w36-36",
+      "item_name": "Somber Smithing Stone [8]",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7771042,
+        7771128,
+        7771460,
+        7771473,
+        7771899,
+        7772367,
+        7773098,
+        7773161,
+        7773169,
+        7773198,
+        7773607,
+        7774094,
+        7774490,
+        7774514,
+        7774524,
+        7774647,
+        7774648
+      ],
+      "observation_id": "walkthrough:320bbbdda06c6caade75",
+      "reason": "region_disagreement",
+      "regions": [
+        "Sewer"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772367,
+        7773161
+      ],
+      "section": "shunning-grounds",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w36-36"
     },
     {
       "all_candidate_ids": [
@@ -88357,12 +88024,13 @@
         7771867,
         7773650,
         7774446,
+        7774642,
         7900288
       ],
       "candidate_ids": [
         7900288
       ],
-      "competing_observation_count": 6,
+      "competing_observation_count": 4,
       "context_labels": [
         "Ancient Dragon Senessax",
         "Ancient Dragon Smithing Stone",
@@ -88516,6 +88184,61 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d12-78"
+    },
+    {
+      "all_candidate_ids": [
+        7770602,
+        7770620,
+        7771033,
+        7771357,
+        7771402,
+        7771625,
+        7771627,
+        7771867,
+        7773650,
+        7774446,
+        7774642,
+        7900288
+      ],
+      "candidate_ids": [
+        7774642
+      ],
+      "competing_observation_count": 4,
+      "context_labels": [
+        "Dragon Heart",
+        "Ghostflame Dragon",
+        "Somber Ancient Dragon Smithing Stone"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d1-60",
+      "item_name": "Somber Ancient Dragon Smithing Stone",
+      "matched_on": [
+        "item_name",
+        "guide_area",
+        "linked_landmark"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7774642
+      ],
+      "observation_id": "walkthrough:4f3bf8b8ccf07674579d",
+      "reason": "one_landmark_candidate",
+      "regions": [
+        "Gravesite"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "west-gravesite",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d1-60"
     },
     {
       "all_candidate_ids": [
@@ -91436,6 +91159,62 @@
     },
     {
       "all_candidate_ids": [
+        7770602,
+        7770620,
+        7771033,
+        7771357,
+        7771402,
+        7771625,
+        7771627,
+        7771867,
+        7773650,
+        7774446,
+        7774642,
+        7900288
+      ],
+      "candidate_ids": [
+        7774642
+      ],
+      "competing_observation_count": 4,
+      "context_labels": [
+        "Smithing Stone [8] x3",
+        "Somber Ancient Dragon Smithing Stone",
+        "Strip of White Flesh"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d4-21",
+      "item_name": "Somber Ancient Dragon Smithing Stone",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7774642
+      ],
+      "observation_id": "walkthrough:c67a7cc6723be6c3b9b4",
+      "reason": "area_only",
+      "regions": [
+        "Cerulean",
+        "Gravesite"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "ellac-river",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d4-21"
+    },
+    {
+      "all_candidate_ids": [
         7771751,
         7771774,
         7771790,
@@ -92497,6 +92276,69 @@
     },
     {
       "all_candidate_ids": [
+        7771048,
+        7771318,
+        7771420,
+        7771438,
+        7771444,
+        7771477,
+        7771598,
+        7771611,
+        7771628,
+        7771642,
+        7771815,
+        7771968,
+        7771994,
+        7773006,
+        7773060,
+        7773142,
+        7773344,
+        7773433,
+        7774476,
+        7774491,
+        7774644,
+        7774645
+      ],
+      "candidate_ids": [
+        7774645
+      ],
+      "competing_observation_count": 3,
+      "context_labels": [
+        "Somber Smithing Stone [9]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d9-10",
+      "item_name": "Somber Smithing Stone [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7774645
+      ],
+      "observation_id": "walkthrough:5107ef5cc1e3be5c50a3",
+      "reason": "area_only",
+      "regions": [
+        "Rauh Base"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "rauh-base",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d9-10"
+    },
+    {
+      "all_candidate_ids": [
         7771315,
         7771350,
         7771401,
@@ -92660,6 +92502,70 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d9-22"
+    },
+    {
+      "all_candidate_ids": [
+        7771048,
+        7771318,
+        7771420,
+        7771438,
+        7771444,
+        7771477,
+        7771598,
+        7771611,
+        7771628,
+        7771642,
+        7771815,
+        7771968,
+        7771994,
+        7773006,
+        7773060,
+        7773142,
+        7773344,
+        7773433,
+        7774476,
+        7774491,
+        7774644,
+        7774645
+      ],
+      "candidate_ids": [
+        7774645
+      ],
+      "competing_observation_count": 3,
+      "context_labels": [
+        "Smithing Stone [5]",
+        "Somber Smithing Stone [9]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d9-24",
+      "item_name": "Somber Smithing Stone [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7774645
+      ],
+      "observation_id": "walkthrough:3c2ce7df1df4f8617bdd",
+      "reason": "area_only",
+      "regions": [
+        "Rauh Base"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "rauh-base",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d9-24"
     },
     {
       "all_candidate_ids": [
@@ -93327,6 +93233,88 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d9-62"
+    },
+    {
+      "all_candidate_ids": [
+        7771078,
+        7771110,
+        7771118,
+        7771129,
+        7771134,
+        7771144,
+        7771268,
+        7771269,
+        7771270,
+        7771278,
+        7771298,
+        7771426,
+        7771469,
+        7771472,
+        7771675,
+        7772387,
+        7772419,
+        7772421,
+        7773021,
+        7773090,
+        7774092,
+        7774489,
+        7774498,
+        7774499,
+        7774500,
+        7774515,
+        7774516,
+        7774517,
+        7774518,
+        7774519,
+        7774520,
+        7774521,
+        7774522,
+        7774523,
+        7774526,
+        7774527,
+        7774529,
+        7774530,
+        7774559,
+        7774570,
+        7774646
+      ],
+      "candidate_ids": [
+        7774646
+      ],
+      "competing_observation_count": 12,
+      "context_labels": [
+        "Somber Smithing Stone [7]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d9-8",
+      "item_name": "Somber Smithing Stone [7]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7774646
+      ],
+      "observation_id": "walkthrough:7728a5d49072e6ee3f6f",
+      "reason": "area_only",
+      "regions": [
+        "Rauh Base"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "rauh-base",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d9-8"
     },
     {
       "all_candidate_ids": [
@@ -101420,6 +101408,47 @@
     },
     {
       "all_candidate_ids": [
+        7774650
+      ],
+      "candidate_ids": [
+        7774650
+      ],
+      "competing_observation_count": 1,
+      "context_labels": [
+        "Silver Scarab"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w40-71",
+      "item_name": "Silver Scarab",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7774650
+      ],
+      "observation_id": "walkthrough:2a6504e0bec121d6d4a8",
+      "reason": "region_disagreement",
+      "regions": [
+        "Mountaintops of the Giants"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "east-mountaintops",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w40-71"
+    },
+    {
+      "all_candidate_ids": [
         7770276,
         7770947,
         7771004,
@@ -103490,47 +103519,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w35-117"
-    },
-    {
-      "all_candidate_ids": [
-        7770593
-      ],
-      "candidate_ids": [
-        7770593
-      ],
-      "competing_observation_count": 1,
-      "context_labels": [
-        "Gelmir's Fury"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-133",
-      "item_name": "Gelmir's Fury",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770593
-      ],
-      "observation_id": "walkthrough:2e638bd3ba8df6409629",
-      "reason": "region_disagreement",
-      "regions": [
-        "Leyndell"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "leyndell",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w35-133"
     },
     {
       "all_candidate_ids": [
@@ -110490,6 +110478,73 @@
     },
     {
       "all_candidate_ids": [
+        7771042,
+        7771128,
+        7771460,
+        7771473,
+        7771594,
+        7771899,
+        7771978,
+        7772367,
+        7772458,
+        7772484,
+        7773098,
+        7773161,
+        7773169,
+        7773198,
+        7773354,
+        7773607,
+        7773888,
+        7774094,
+        7774475,
+        7774490,
+        7774514,
+        7774524,
+        7774647,
+        7774648
+      ],
+      "candidate_ids": [
+        7774647,
+        7774648
+      ],
+      "competing_observation_count": 4,
+      "context_labels": [
+        "Somber Smithing Stone [8]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d7-28",
+      "item_name": "Somber Smithing Stone [8]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7774647,
+        7774648
+      ],
+      "observation_id": "walkthrough:bde976eb1f99d80e1cea",
+      "reason": "area_only",
+      "regions": [
+        "Ensis"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "castle-ensis",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d7-28"
+    },
+    {
+      "all_candidate_ids": [
         7770711,
         7770778,
         7770779,
@@ -113193,13 +113248,14 @@
         7771867,
         7773650,
         7774446,
+        7774642,
         7900288
       ],
       "candidate_ids": [
         7773650,
         7900288
       ],
-      "competing_observation_count": 6,
+      "competing_observation_count": 4,
       "context_labels": [
         "Somber Ancient Dragon Smithing Stone"
       ],
@@ -114574,13 +114630,14 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7774092,
         7774570
       ],
-      "competing_observation_count": 14,
+      "competing_observation_count": 13,
       "context_labels": [
         "Scadutree Fragment",
         "Somber Smithing Stone [7]"
@@ -115212,13 +115269,14 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7774092,
         7774570
       ],
-      "competing_observation_count": 14,
+      "competing_observation_count": 13,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -120339,6 +120397,73 @@
     },
     {
       "all_candidate_ids": [
+        7771048,
+        7771318,
+        7771420,
+        7771438,
+        7771444,
+        7771477,
+        7771598,
+        7771611,
+        7771628,
+        7771642,
+        7771815,
+        7771968,
+        7771994,
+        7773006,
+        7773060,
+        7773142,
+        7773344,
+        7773433,
+        7774476,
+        7774491,
+        7774644,
+        7774645
+      ],
+      "candidate_ids": [
+        7773060,
+        7774644
+      ],
+      "competing_observation_count": 3,
+      "context_labels": [
+        "Arteria Leaf x2",
+        "Dragonwound Grease",
+        "Rune Arc",
+        "Somber Smithing Stone [9]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w19-2",
+      "item_name": "Somber Smithing Stone [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7774644
+      ],
+      "observation_id": "walkthrough:09bfd5724850255a37ec",
+      "reason": "area_only",
+      "regions": [
+        "Caelid"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "caelid",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w19-2"
+    },
+    {
+      "all_candidate_ids": [
         7770046,
         7770047,
         7770048,
@@ -123261,6 +123386,70 @@
     },
     {
       "all_candidate_ids": [
+        7771048,
+        7771318,
+        7771420,
+        7771438,
+        7771444,
+        7771477,
+        7771598,
+        7771611,
+        7771628,
+        7771642,
+        7771815,
+        7771968,
+        7771994,
+        7773006,
+        7773060,
+        7773142,
+        7773344,
+        7773433,
+        7774476,
+        7774491,
+        7774644,
+        7774645
+      ],
+      "candidate_ids": [
+        7773060,
+        7774644
+      ],
+      "competing_observation_count": 3,
+      "context_labels": [
+        "Somber Smithing Stone [9]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w41-6",
+      "item_name": "Somber Smithing Stone [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7774644
+      ],
+      "observation_id": "walkthrough:c40975fe2f5fceb3f0b4",
+      "reason": "area_only",
+      "regions": [
+        "Caelid"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "dragonbarrow",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w41-6"
+    },
+    {
+      "all_candidate_ids": [
         7770354,
         7770853,
         7770892,
@@ -125716,13 +125905,15 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7771460,
         7771473
       ],
-      "competing_observation_count": 6,
+      "competing_observation_count": 5,
       "context_labels": [
         "Smithing Stone [8]",
         "Somber Smithing Stone [8]"
@@ -125971,13 +126162,15 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7771460,
         7771473
       ],
-      "competing_observation_count": 6,
+      "competing_observation_count": 5,
       "context_labels": [
         "Somber Smithing Stone [8]"
       ],
@@ -127427,13 +127620,15 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7771042,
         7771128
       ],
-      "competing_observation_count": 6,
+      "competing_observation_count": 5,
       "context_labels": [
         "Somber Smithing Stone [8]"
       ],
@@ -127492,13 +127687,15 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7771042,
         7771128
       ],
-      "competing_observation_count": 6,
+      "competing_observation_count": 5,
       "context_labels": [
         "Somber Smithing Stone [8]"
       ],
@@ -127698,6 +127895,50 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w35-13"
+    },
+    {
+      "all_candidate_ids": [
+        7770593,
+        7774649
+      ],
+      "candidate_ids": [
+        7770593,
+        7774649
+      ],
+      "competing_observation_count": 1,
+      "context_labels": [
+        "Gelmir's Fury"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-133",
+      "item_name": "Gelmir's Fury",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770593,
+        7774649
+      ],
+      "observation_id": "walkthrough:2e638bd3ba8df6409629",
+      "reason": "region_disagreement",
+      "regions": [
+        "Leyndell"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "leyndell",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w35-133"
     },
     {
       "all_candidate_ids": [
@@ -130606,7 +130847,8 @@
         7774455,
         7774456,
         7774503,
-        7774504
+        7774504,
+        7774643
       ],
       "candidate_ids": [
         7774190,
@@ -140710,14 +140952,16 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7771899,
         7773607,
         7774094
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Somber Smithing Stone [8]"
       ],
@@ -141240,14 +141484,16 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7771899,
         7773607,
         7774094
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Somber Smithing Stone [8]"
       ],
@@ -141307,14 +141553,16 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7771899,
         7773607,
         7774094
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Somber Smithing Stone [8]"
       ],
@@ -141374,14 +141622,16 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7771899,
         7773607,
         7774094
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Smithing Stone [3]",
         "Somber Smithing Stone [8]"
@@ -141442,14 +141692,16 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7771899,
         7773607,
         7774094
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Somber Smithing Stone [8]"
       ],
@@ -147965,6 +148217,7 @@
         7771867,
         7773650,
         7774446,
+        7774642,
         7900288
       ],
       "candidate_ids": [
@@ -147972,7 +148225,7 @@
         7771625,
         7771627
       ],
-      "competing_observation_count": 7,
+      "competing_observation_count": 5,
       "context_labels": [
         "Somber Ancient Dragon Smithing Stone"
       ],
@@ -148021,7 +148274,8 @@
         7771580,
         7771626,
         7771663,
-        7773061
+        7773061,
+        7774651
       ],
       "candidate_ids": [
         7771580,
@@ -148078,6 +148332,7 @@
         7771867,
         7773650,
         7774446,
+        7774642,
         7900288
       ],
       "candidate_ids": [
@@ -148085,7 +148340,7 @@
         7771625,
         7771627
       ],
-      "competing_observation_count": 7,
+      "competing_observation_count": 5,
       "context_labels": [
         "Numen's Rune",
         "Somber Ancient Dragon Smithing Stone"
@@ -148181,7 +148436,8 @@
         7771580,
         7771626,
         7771663,
-        7773061
+        7773061,
+        7774651
       ],
       "candidate_ids": [
         7771580,
@@ -148286,6 +148542,7 @@
         7771867,
         7773650,
         7774446,
+        7774642,
         7900288
       ],
       "candidate_ids": [
@@ -148293,7 +148550,7 @@
         7771625,
         7771627
       ],
-      "competing_observation_count": 7,
+      "competing_observation_count": 5,
       "context_labels": [
         "Miquella's Needle",
         "Somber Ancient Dragon Smithing Stone"
@@ -148542,14 +148799,15 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771426,
         7771469,
         7771472
       ],
-      "competing_observation_count": 15,
+      "competing_observation_count": 14,
       "context_labels": [
         "Golden Rune [9]",
         "Somber Smithing Stone [7]"
@@ -148758,14 +149016,15 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771426,
         7771469,
         7771472
       ],
-      "competing_observation_count": 15,
+      "competing_observation_count": 14,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -148908,14 +149167,15 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771426,
         7771469,
         7771472
       ],
-      "competing_observation_count": 15,
+      "competing_observation_count": 14,
       "context_labels": [
         "Golden Rune [12]",
         "Somber Smithing Stone [7]"
@@ -149355,7 +149615,8 @@
         7771580,
         7771626,
         7771663,
-        7773061
+        7773061,
+        7774651
       ],
       "candidate_ids": [
         7771580,
@@ -153733,14 +153994,16 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7773098,
         7774475,
         7774490
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Explosive Stone Clump x6",
         "Somber Smithing Stone [8]"
@@ -153800,14 +154063,16 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7773098,
         7774475,
         7774490
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Hero's Rune [5]",
         "Smithing Stone [8]",
@@ -153988,14 +154253,16 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7773098,
         7774475,
         7774490
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Somber Smithing Stone [8]"
       ],
@@ -154431,14 +154698,16 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7773098,
         7774475,
         7774490
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Somber Smithing Stone [8]"
       ],
@@ -154497,14 +154766,16 @@
         7774475,
         7774490,
         7774514,
-        7774524
+        7774524,
+        7774647,
+        7774648
       ],
       "candidate_ids": [
         7773098,
         7774475,
         7774490
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 8,
       "context_labels": [
         "Somber Smithing Stone [7]",
         "Somber Smithing Stone [8]"
@@ -164995,7 +165266,9 @@
         7773344,
         7773433,
         7774476,
-        7774491
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
         7771598,
@@ -165003,7 +165276,7 @@
         7771628,
         7771642
       ],
-      "competing_observation_count": 6,
+      "competing_observation_count": 4,
       "context_labels": [
         "Pickled Turtle Neck",
         "Somber Smithing Stone [9]"
@@ -165249,7 +165522,9 @@
         7773344,
         7773433,
         7774476,
-        7774491
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
         7771598,
@@ -165257,7 +165532,7 @@
         7771628,
         7771642
       ],
-      "competing_observation_count": 6,
+      "competing_observation_count": 4,
       "context_labels": [
         "Somber Smithing Stone [9]"
       ],
@@ -166539,7 +166814,9 @@
         7773344,
         7773433,
         7774476,
-        7774491
+        7774491,
+        7774644,
+        7774645
       ],
       "candidate_ids": [
         7771598,
@@ -166547,7 +166824,7 @@
         7771628,
         7771642
       ],
-      "competing_observation_count": 6,
+      "competing_observation_count": 4,
       "context_labels": [
         "Somber Smithing Stone [9]"
       ],
@@ -175106,7 +175383,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771268,
@@ -175115,7 +175393,7 @@
         7771278,
         7771298
       ],
-      "competing_observation_count": 17,
+      "competing_observation_count": 16,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -175293,7 +175571,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771268,
@@ -175302,7 +175581,7 @@
         7771278,
         7771298
       ],
-      "competing_observation_count": 17,
+      "competing_observation_count": 16,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -175480,7 +175759,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771268,
@@ -175489,7 +175769,7 @@
         7771278,
         7771298
       ],
-      "competing_observation_count": 17,
+      "competing_observation_count": 16,
       "context_labels": [
         "Lightning Greatbolt x6",
         "Somber Smithing Stone [7]"
@@ -175570,7 +175850,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771268,
@@ -175579,7 +175860,7 @@
         7771278,
         7771298
       ],
-      "competing_observation_count": 17,
+      "competing_observation_count": 16,
       "context_labels": [
         "Fan Daggers x4",
         "Golden Rune [8]",
@@ -175661,7 +175942,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771268,
@@ -175670,7 +175952,7 @@
         7771278,
         7771298
       ],
-      "competing_observation_count": 17,
+      "competing_observation_count": 16,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -183143,7 +183425,8 @@
         7771580,
         7771626,
         7771663,
-        7773061
+        7773061,
+        7774651
       ],
       "candidate_ids": [
         7771301,
@@ -183206,7 +183489,8 @@
         7771580,
         7771626,
         7771663,
-        7773061
+        7773061,
+        7774651
       ],
       "candidate_ids": [
         7771301,
@@ -185111,7 +185395,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -185121,7 +185406,7 @@
         7771134,
         7771144
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -185202,7 +185487,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -185212,7 +185498,7 @@
         7771134,
         7771144
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -186794,7 +187080,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -186804,7 +187091,7 @@
         7771134,
         7771144
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -186885,7 +187172,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -186895,7 +187183,7 @@
         7771134,
         7771144
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Larval Tear",
         "Somber Smithing Stone [7]"
@@ -186977,7 +187265,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -186987,7 +187276,7 @@
         7771134,
         7771144
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -187068,7 +187357,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -187078,7 +187368,7 @@
         7771134,
         7771144
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -206636,76 +206926,6 @@
     },
     {
       "all_candidate_ids": [
-        7771301,
-        7771302,
-        7771303,
-        7771304,
-        7771305,
-        7771306,
-        7771351,
-        7771580,
-        7771626,
-        7771663,
-        7773061
-      ],
-      "candidate_ids": [
-        7771301,
-        7771302,
-        7771303,
-        7771304,
-        7771305,
-        7771306,
-        7771351,
-        7771580,
-        7771626,
-        7771663,
-        7773061
-      ],
-      "competing_observation_count": 5,
-      "context_labels": [
-        "Numen's Rune",
-        "Rune Arc"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w36-75",
-      "item_name": "Numen's Rune",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771301,
-        7771302,
-        7771303,
-        7771304,
-        7771305,
-        7771306,
-        7771580,
-        7771626,
-        7771663
-      ],
-      "observation_id": "walkthrough:cca958957824bfb0f56b",
-      "reason": "region_disagreement",
-      "regions": [
-        "Sewer"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "shunning-grounds",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w36-75"
-    },
-    {
-      "all_candidate_ids": [
         7770196,
         7770241,
         7770244,
@@ -206769,77 +206989,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w10-30"
-    },
-    {
-      "all_candidate_ids": [
-        7771301,
-        7771302,
-        7771303,
-        7771304,
-        7771305,
-        7771306,
-        7771351,
-        7771580,
-        7771626,
-        7771663,
-        7773061
-      ],
-      "candidate_ids": [
-        7771301,
-        7771302,
-        7771303,
-        7771304,
-        7771305,
-        7771306,
-        7771351,
-        7771580,
-        7771626,
-        7771663,
-        7773061
-      ],
-      "competing_observation_count": 5,
-      "context_labels": [
-        "Diallos's Mask",
-        "Hoslow's Petal Whip",
-        "Numen's Rune"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w33-31",
-      "item_name": "Numen's Rune",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771301,
-        7771302,
-        7771303,
-        7771304,
-        7771305,
-        7771306,
-        7771580,
-        7771626,
-        7771663
-      ],
-      "observation_id": "walkthrough:d9fd3158e0ff138e8766",
-      "reason": "region_disagreement",
-      "regions": [
-        "Mt. Gelmir"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "volcano-manor",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w33-31"
     },
     {
       "all_candidate_ids": [
@@ -208715,6 +208864,79 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w43-34"
+    },
+    {
+      "all_candidate_ids": [
+        7771301,
+        7771302,
+        7771303,
+        7771304,
+        7771305,
+        7771306,
+        7771351,
+        7771580,
+        7771626,
+        7771663,
+        7773061,
+        7774651
+      ],
+      "candidate_ids": [
+        7771301,
+        7771302,
+        7771303,
+        7771304,
+        7771305,
+        7771306,
+        7771351,
+        7771580,
+        7771626,
+        7771663,
+        7773061,
+        7774651
+      ],
+      "competing_observation_count": 5,
+      "context_labels": [
+        "Numen's Rune",
+        "Rune Arc"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w36-75",
+      "item_name": "Numen's Rune",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7771301,
+        7771302,
+        7771303,
+        7771304,
+        7771305,
+        7771306,
+        7771580,
+        7771626,
+        7771663,
+        7774651
+      ],
+      "observation_id": "walkthrough:cca958957824bfb0f56b",
+      "reason": "region_disagreement",
+      "regions": [
+        "Sewer"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "shunning-grounds",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w36-75"
     },
     {
       "all_candidate_ids": [
@@ -210678,6 +210900,80 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w8-99"
+    },
+    {
+      "all_candidate_ids": [
+        7771301,
+        7771302,
+        7771303,
+        7771304,
+        7771305,
+        7771306,
+        7771351,
+        7771580,
+        7771626,
+        7771663,
+        7773061,
+        7774651
+      ],
+      "candidate_ids": [
+        7771301,
+        7771302,
+        7771303,
+        7771304,
+        7771305,
+        7771306,
+        7771351,
+        7771580,
+        7771626,
+        7771663,
+        7773061,
+        7774651
+      ],
+      "competing_observation_count": 5,
+      "context_labels": [
+        "Diallos's Mask",
+        "Hoslow's Petal Whip",
+        "Numen's Rune"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w33-31",
+      "item_name": "Numen's Rune",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7771301,
+        7771302,
+        7771303,
+        7771304,
+        7771305,
+        7771306,
+        7771580,
+        7771626,
+        7771663,
+        7774651
+      ],
+      "observation_id": "walkthrough:d9fd3158e0ff138e8766",
+      "reason": "region_disagreement",
+      "regions": [
+        "Mt. Gelmir"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "volcano-manor",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w33-31"
     },
     {
       "all_candidate_ids": [
@@ -214220,7 +214516,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7773021,
@@ -214242,7 +214539,7 @@
         7774529,
         7774530
       ],
-      "competing_observation_count": 16,
+      "competing_observation_count": 15,
       "context_labels": [
         "Beast Blood",
         "Old Fang x2",
@@ -214337,7 +214634,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7773021,
@@ -214359,7 +214657,7 @@
         7774529,
         7774530
       ],
-      "competing_observation_count": 16,
+      "competing_observation_count": 15,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -214452,7 +214750,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7773021,
@@ -214474,7 +214773,7 @@
         7774529,
         7774530
       ],
-      "competing_observation_count": 16,
+      "competing_observation_count": 15,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -214567,7 +214866,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7773021,
@@ -214589,7 +214889,7 @@
         7774529,
         7774530
       ],
-      "competing_observation_count": 16,
+      "competing_observation_count": 15,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -220575,7 +220875,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -220617,9 +220918,10 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Golden Horn Tender x2",
         "Silver Horn Tender x2",
@@ -220677,7 +220979,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "observation_id": "walkthrough:6bc0cf00647dc1933ffc",
       "reason": "region_disagreement",
@@ -220734,7 +221037,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -220776,9 +221080,10 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -220834,7 +221139,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "observation_id": "walkthrough:b0e283455e700b2bfed0",
       "reason": "region_disagreement",
@@ -220890,7 +221196,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -220932,9 +221239,10 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Somber Smithing Stone [6]",
         "Somber Smithing Stone [7]"
@@ -220991,7 +221299,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "observation_id": "walkthrough:48529ad3032449dfad1c",
       "reason": "region_disagreement",
@@ -221047,7 +221356,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -221089,9 +221399,10 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -221147,7 +221458,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "observation_id": "walkthrough:c604091b72ffb7a49618",
       "reason": "region_disagreement",
@@ -221203,7 +221515,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -221245,9 +221558,10 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -221303,7 +221617,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "observation_id": "walkthrough:fb232257d054c9477437",
       "reason": "region_disagreement",
@@ -221359,7 +221674,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -221401,9 +221717,10 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Smithing Stone [3]",
         "Smithing Stone [4]",
@@ -221461,7 +221778,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "observation_id": "walkthrough:ee34543b75e2315f21ef",
       "reason": "region_disagreement",
@@ -221517,7 +221835,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -221559,9 +221878,10 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Somber Smithing Stone [7]"
       ],
@@ -221617,7 +221937,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "observation_id": "walkthrough:332a4d6022f1d4db65aa",
       "reason": "region_disagreement",
@@ -221673,7 +221994,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -221715,165 +222037,10 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
-      "competing_observation_count": 18,
-      "context_labels": [
-        "Somber Smithing Stone [7]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d9-8",
-      "item_name": "Somber Smithing Stone [7]",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771078,
-        7771110,
-        7771118,
-        7771129,
-        7771134,
-        7771144,
-        7771268,
-        7771269,
-        7771270,
-        7771278,
-        7771298,
-        7771426,
-        7771469,
-        7771472,
-        7772387,
-        7772419,
-        7772421,
-        7773021,
-        7773090,
-        7774092,
-        7774498,
-        7774499,
-        7774500,
-        7774515,
-        7774516,
-        7774517,
-        7774518,
-        7774519,
-        7774520,
-        7774521,
-        7774522,
-        7774523,
-        7774526,
-        7774527,
-        7774529,
-        7774530,
-        7774559,
-        7774570
-      ],
-      "observation_id": "walkthrough:7728a5d49072e6ee3f6f",
-      "reason": "region_disagreement",
-      "regions": [
-        "Rauh Base"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "rauh-base",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d9-8"
-    },
-    {
-      "all_candidate_ids": [
-        7771078,
-        7771110,
-        7771118,
-        7771129,
-        7771134,
-        7771144,
-        7771268,
-        7771269,
-        7771270,
-        7771278,
-        7771298,
-        7771426,
-        7771469,
-        7771472,
-        7771675,
-        7772387,
-        7772419,
-        7772421,
-        7773021,
-        7773090,
-        7774092,
-        7774489,
-        7774498,
-        7774499,
-        7774500,
-        7774515,
-        7774516,
-        7774517,
-        7774518,
-        7774519,
-        7774520,
-        7774521,
-        7774522,
-        7774523,
-        7774526,
-        7774527,
-        7774529,
-        7774530,
-        7774559,
-        7774570
-      ],
-      "candidate_ids": [
-        7771078,
-        7771110,
-        7771118,
-        7771129,
-        7771134,
-        7771144,
-        7771268,
-        7771269,
-        7771270,
-        7771278,
-        7771298,
-        7771426,
-        7771469,
-        7771472,
-        7771675,
-        7772387,
-        7772419,
-        7772421,
-        7773021,
-        7773090,
-        7774092,
-        7774489,
-        7774498,
-        7774499,
-        7774500,
-        7774515,
-        7774516,
-        7774517,
-        7774518,
-        7774519,
-        7774520,
-        7774521,
-        7774522,
-        7774523,
-        7774526,
-        7774527,
-        7774529,
-        7774530,
-        7774559,
-        7774570
-      ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Perfumer's Bolt x20",
         "Somber Smithing Stone [7]"
@@ -221930,7 +222097,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "observation_id": "walkthrough:05abb39785f4c74236d2",
       "reason": "region_disagreement",
@@ -221986,7 +222154,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -222028,9 +222197,10 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Lost Ashes of War",
         "Somber Smithing Stone [7]"
@@ -222087,7 +222257,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "observation_id": "walkthrough:f5f6aee4a0a3629d51b9",
       "reason": "region_disagreement",
@@ -222143,7 +222314,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -222185,9 +222357,10 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Smithing Stone [7] x2",
         "Somber Smithing Stone [7]"
@@ -222244,7 +222417,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "observation_id": "walkthrough:c880c5c65a8ed48b3643",
       "reason": "region_disagreement",
@@ -222300,7 +222474,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "candidate_ids": [
         7771078,
@@ -222342,9 +222517,10 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
-      "competing_observation_count": 18,
+      "competing_observation_count": 17,
       "context_labels": [
         "Glass Shard x5",
         "Somber Smithing Stone [7]"
@@ -222401,7 +222577,8 @@
         7774529,
         7774530,
         7774559,
-        7774570
+        7774570,
+        7774646
       ],
       "observation_id": "walkthrough:95c5e02ae2a576001226",
       "reason": "region_disagreement",
@@ -222420,17 +222597,17 @@
   "schema_version": 1,
   "summary": {
     "by_reason": {
-      "area_only": 2179,
-      "one_landmark_candidate": 7,
-      "region_disagreement": 599,
+      "area_only": 2186,
+      "one_landmark_candidate": 8,
+      "region_disagreement": 594,
       "shared_landmark": 3,
       "source_area_unmapped": 82
     },
-    "held_checks_with_new_family_candidates": 2631,
-    "item_mentions": 4279,
+    "held_checks_with_new_family_candidates": 2641,
+    "item_mentions": 4280,
     "limitations": "Suggestions only. Linked items can be mentions, not acquisitions. Guide area and catalog anchors are not independent proof of AP ownership. No quantity, position, mechanism or access is inferred.",
     "one_source_checks_with_second_family_candidates": 351,
-    "review_observations": 2870,
+    "review_observations": 2873,
     "schema_version": 1,
     "source_steps": 3928,
     "trusted_promotions": 0

@@ -14,16 +14,16 @@ flag	item	verdict	canonical_flag	region	evidence
 400189	Patches' Bell Bearing	excluded_multisite			merchant_shops.tsv places Patches in m16_00, m31_00 and several overworld tiles; no single region is truthful
 400293	Devourer's Scepter	excluded_multisite			flag_lots contains the two Bernahl drop lots 102921/112901; merchant_shops.tsv places Bernahl in Limgrave and Mt. Gelmir
 400294	Beast Champion Helm	excluded_multisite			flag_lots contains multiple Bernahl drop variants; merchant_shops.tsv places Bernahl in Limgrave and Mt. Gelmir
-400295	Gelmir's Fury	duplicate	400291	Mt. Gelmir	data.py already has the same sorcery at f400291
+400295	Gelmir's Fury	generated	400295	Farum Azula	M4G pin3100003 and m13_00 invasion block102920 award lot102926, independent flag from Mt. Gelmir dialogue lot102910/f400291
 400361	Academy Glintstone Staff	generated	400361	Raya Lucaria Academy	first-hand issue #249 report pairs the vanilla staff drop with Thops's generated f400360 Bell Bearing in Raya Academy
 400395	Fingerslayer Blade	duplicate	12027080	Siofra River	data.py already has the same key item at f12027080
 400421	Stormhawk Axe	duplicate	11007105	Leyndell	data.py already has Stormhawk Axe checks at f11007105 and f1051577220
 400451	Hoslow's Petal Whip	duplicate	1050567700	Mountaintops of the Giants	data.py already has the same weapon at f1050567700
-400452	Numen's Rune	duplicate	12037800	Deeproot Depths	data.py contains multiple ordinary Numen's Rune checks; this common reward is not unique
+400452	Numen's Rune	generated	400452	Liurnia	M4G3900138 Jarburg; NpcParam523140220 itemLotId_map104510 batch includes map104512/400452; ordinary rune flags are separate rewards
 540514	Flame, Protect Me	duplicate	30177010	Mountaintops of the Giants	data.py already has the same incantation at f30177010
 580110	The Sacred Tower Painting	generated	580110	Gravesite	m61_47_42 event initializer carries both f580110 and lot 80110
 580400	Serpent Crest Shield	generated	580400	Gravesite	item_grace_coords.tsv has an exact f580400 entity on m61_45_43
-30207900	Silver Scarab	excluded_dead			gen_data._UNREACHABLE_DEAD: cut/unreachable Hidden Path imp-gate reward row
+30207900	Silver Scarab	generated	30207900	Consecrated Snowfield	#1437: native pin2600045 and ordinary route from Hidden Path grace73020; earlier imp-gate exclusion reversed
 59930000	Veteran's Helm	excluded_enia_vanilla	250290	Roundtable Hold	was 'duplicate' of Enia shop check f250290 until #1013 made Enia vanilla: her shelf is not randomized, so f250290 is no longer a generated check and the helm sits on a vanilla shelf out of the pool's scope
 1033477020	Imbued Sword Key	generated	1033477020	Liurnia	treasure_assets.tsv (asset 1033471601), msb_flag_region.tsv (m60_33_47 lot 1033470020 treasure) and item_grace_coords.tsv all place it: the REAL Four Belfries chest -- #940 reversed the phantom ruling
 1038417100	Ash of War: Gravitas	excluded_itemless			itemless_flags.tsv and gen_data item-existence guard: lot item is an unnamed/cut placeholder

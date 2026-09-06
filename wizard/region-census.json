@@ -356,7 +356,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Caelid": {
-   "checks": 363,
+   "checks": 365,
    "combos": {
     "Basin": 1,
     "Basin|Boss|FieldBoss": 1,
@@ -488,11 +488,12 @@
    "tarnished_pack_shop_checks": 0
   },
   "Consecrated Snowfield": {
-   "checks": 143,
+   "checks": 144,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|Legendary|MinorDungeonBoss": 1,
     "Boss|MinorDungeonBoss": 4,
+    "Legendary": 1,
     "Seedtree": 2
    },
    "dlc": false,
@@ -640,7 +641,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Ensis": {
-   "checks": 42,
+   "checks": 44,
    "combos": {
     "Boss|FieldBoss|MajorBoss|Remembrance": 1,
     "Fragment": 2,
@@ -683,7 +684,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Farum Azula": {
-   "checks": 105,
+   "checks": 106,
    "combos": {
     "Boss|MajorBoss": 2,
     "Boss|MajorBoss|Remembrance": 2,
@@ -727,11 +728,11 @@
    "tarnished_pack_shop_checks": 0
   },
   "Gravesite": {
-   "checks": 201,
+   "checks": 202,
    "combos": {
     "Basin": 1,
     "Boss": 5,
-    "Boss|FieldBoss": 1,
+    "Boss|FieldBoss": 2,
     "Boss|Legendary|MajorBoss": 1,
     "Boss|Legendary|MinorDungeonBoss": 1,
     "Boss|MinorDungeonBoss": 3,
@@ -989,7 +990,7 @@
    "tarnished_pack_shop_checks": 1
   },
   "Liurnia": {
-   "checks": 589,
+   "checks": 590,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -1233,7 +1234,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Rauh Base": {
-   "checks": 90,
+   "checks": 92,
    "combos": {
     "Boss|FieldBoss|MajorBoss": 1,
     "Boss|MinorDungeonBoss": 1,
@@ -1625,5 +1626,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "52b22bd7f58175d6bd93dfcec0b9a703147bebee00ba3062b82540974ce0c18f"
+ "source_sha256": "bc1ac1e16e560127709c72d39391088ebd777287aad58380b5a85244d72ac11b"
 }

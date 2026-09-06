@@ -2977,7 +2977,7 @@ ap_id,flag,flag_source,item_name,map,region,method
 7002975,30207040,map_lot,Root Resin,PENDING,Global / Common-event (unplaced),global
 7002976,30207050,map_lot,Freezing Grease,PENDING,Global / Common-event (unplaced),global
 7002977,30207060,map_lot,Spelldrake Talisman +2,PENDING,Global / Common-event (unplaced),global
-7002978,30207900,map_lot,Silver Scarab,PENDING,Global / Common-event (unplaced),global
+7002978,30207900,map_lot,Silver Scarab,m30_20_00_00,Consecrated Snowfield,mfg_native_pin
 7002979,30207910,map_lot,Deathroot,m30_20_00_00,Hero's Graves (Catacombs),emevd
 7002980,31007000,map_lot,Mushroom,m31_00_00_00,Caves,treasure
 7002981,31007010,map_lot,Cloth Garb,m31_00_00_00,Caves,treasure

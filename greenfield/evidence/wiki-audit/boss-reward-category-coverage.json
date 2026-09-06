@@ -1,9 +1,9 @@
 {
   "categories": {
     "all_boss_reward_checks": {
-      "hold": 103,
+      "hold": 104,
       "hold_by_external_family_count": {
-        "0": 45,
+        "0": 46,
         "1": 58
       },
       "remaining_check_ids": [
@@ -72,6 +72,7 @@
         7774472,
         7774497,
         7774635,
+        7774642,
         7900002,
         7900003,
         7900113,
@@ -111,13 +112,13 @@
         7900233,
         7900288
       ],
-      "total": 269,
+      "total": 270,
       "trusted_identity_region": 166
     },
     "fixed_boss_drop": {
-      "hold": 100,
+      "hold": 101,
       "hold_by_external_family_count": {
-        "0": 44,
+        "0": 45,
         "1": 56
       },
       "remaining_check_ids": [
@@ -183,6 +184,7 @@
         7774472,
         7774497,
         7774635,
+        7774642,
         7900002,
         7900003,
         7900113,
@@ -222,7 +224,7 @@
         7900233,
         7900288
       ],
-      "total": 237,
+      "total": 238,
       "trusted_identity_region": 137
     },
     "great_rune": {
@@ -823,6 +825,13 @@
       "external_family_count": 0,
       "name": "Jagged Peak :: Ancient Dragon Smithing Stone - Ancient Dragon Senessax, may be sweep-granted by Ancient Dragon Senessax (m61_54_39) [f530805]",
       "region": "Jagged Peak"
+    },
+    "7774642": {
+      "check_id": 7774642,
+      "external_families": [],
+      "external_family_count": 0,
+      "name": "Gravesite :: Somber Ancient Dragon Smithing Stone - Ghostflame Dragon, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f530861]",
+      "region": "Gravesite"
     },
     "7900002": {
       "check_id": 7900002,

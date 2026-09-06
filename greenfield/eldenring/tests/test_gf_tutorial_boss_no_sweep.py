@@ -550,8 +550,9 @@ def test_the_sweep_corpus_did_not_shrink():
     # #1437: remove the unused Poleblade copy from Wormface (1040520800).
     # The live invasion flag400162 is intentionally not a Wormface sweep reward.
     assert all(7774254 not in members for members in DUNGEON_SWEEPS.values())
-    assert total == 4120, (
-        "sweep corpus is %d, expected 4120. If a sweep was legitimately added or removed, say WHY "
+    # Native M4G dungeon admission adds only Silver Scarab to Stray Mimic Tear.
+    assert total == 4128, (
+        "sweep corpus is %d, expected 4128. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -843,6 +844,11 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # exactly (10000850, f10017900) was removed. There are zero additions and zero re-ownerships;
     # the check is deliberately unswept because Liurnia has no eligible host for this interior.
     # #1437: five M4G recoveries add [(2046410800, 2046407001), (2046410800, 2046407002), (2046410800, 2046407003), (2046410800, 2046407004), (2048440800, 2047447901)]; zero removals.
-    assert (digest, n) == ("7df27befe1b4d94c", 4120), (  # #1437: then remove exactly (1040520800, 1039527700), no new owner
-        "sweep OWNERSHIP changed: (%s, %d), expected (7df27befe1b4d94c, 4120). The total alone will "
+    # Seven Somber recoveries add exactly (trigger, acquisition flag):
+    # (1049370850, 540424), (1051430800, 540428), (2045440800, 530861),
+    # (2046450800, 540912), (2046450800, 540914), (2048440800, 540920),
+    # (2048440800, 540922). Zero removals or re-ownership relative to the NPC base.
+    # Exactly (30200800, 30207900) added; no removals or re-ownership.
+    assert (digest, n) == ("10e98be68f92e19f", 4128), (  # #1437: then remove exactly (1040520800, 1039527700), no new owner
+        "sweep OWNERSHIP changed: (%s, %d), expected (10e98be68f92e19f, 4128). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

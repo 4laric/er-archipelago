@@ -51,12 +51,12 @@
       "uniquely_anchored_collectibles": 46
     },
     "smithing_stone": {
-      "audited": 571,
+      "audited": 578,
       "audited_one_family": 71,
       "conflicted": 0,
-      "held": 549,
-      "remaining_unreviewed": 478,
-      "repeated_material_rows": 570,
+      "held": 556,
+      "remaining_unreviewed": 485,
+      "repeated_material_rows": 577,
       "trusted": 22,
       "uniquely_anchored_collectibles": 0
     }
@@ -70,10 +70,10 @@
   "schema_version": 1,
   "scope": "upgrade materials, flask upgrades, and DLC blessing collectibles",
   "totals": {
-    "audited": 788,
+    "audited": 795,
     "conflicted": 2,
-    "held": 691,
-    "remaining_unreviewed": 586,
+    "held": 698,
+    "remaining_unreviewed": 593,
     "trusted": 97
   }
 }

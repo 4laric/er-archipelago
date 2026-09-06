@@ -7699,6 +7699,16 @@ LOCATION_ITEM = {
     7774639: 'Oathseeker Knight Greaves',
     7774640: 'Royal Magic Grease',
     7774641: 'Briars of Sin',
+    7774642: 'Somber Ancient Dragon Smithing Stone',
+    7774643: 'Somber Smithing Stone [4]',
+    7774644: 'Somber Smithing Stone [9]',
+    7774645: 'Somber Smithing Stone [9]',
+    7774646: 'Somber Smithing Stone [7]',
+    7774647: 'Somber Smithing Stone [8]',
+    7774648: 'Somber Smithing Stone [8]',
+    7774649: "Gelmir's Fury",
+    7774650: 'Silver Scarab',
+    7774651: "Numen's Rune",
     7900000: 'Prayer Room Key',
     7900001: 'Scadutree Fragment',
     7900002: "Messmer's Kindling",
@@ -12043,4 +12053,4 @@ JUNK_GEAR_NAMES = [
     'Zamor Mask',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:ef8f34fdb8e691a048396af8acdcdbf7d50d20add27bd5a106cf0a8896fcc908', 'module': 'item_ids.py', 'body_sha256': 'sha256:9d6bdc6d93cb2a8bfaca5aaa7d9eacae86ad2e49c054508f5090c4f5cd56ee41'}
+_GEN_STAMP = {'inputs_hash': 'sha256:bcf27d864e0f74c8701c0af73388f39b4e21fcc14839ccd7eeea4c226d1bdb21', 'module': 'item_ids.py', 'body_sha256': 'sha256:daaaf0db59f5e5924617444a226e641cca1d33c747c6c6fceb285d2b2959d438'}

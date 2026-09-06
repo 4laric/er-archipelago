@@ -82,8 +82,8 @@ class OwnDropSweeps(unittest.TestCase):
         # The fail-closed remainder, pinned. A shrink here is the loop working (a suppressed
         # trigger gained a sweep, or a dead row became a check) -- name it. A growth means the
         # sweep builder dropped a trigger and its drop fell out with it: that is a regression.
-        self.assertEqual(len(admitted), 74, "the admitted set moved (was 74 after #1296)")
-        self.assertEqual(sorted(notcheck), [530861],
+        self.assertEqual(len(admitted), 75, "#1437 recovered Ghostflame stone530861: 74 -> 75")
+        self.assertEqual(sorted(notcheck), [],
                          "the not-a-check remainder moved -- if one became a check it must now "
                          "be swept (the rule above already asserts it); update this pin with why")
         self.assertEqual(len(nosweep), 13,

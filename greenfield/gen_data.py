@@ -1826,17 +1826,19 @@ print(f"capital: world-burn state flag {_CAPITAL_WORLD_BURN} (read by "
 _RECOVER_PHANTOM_DUPES = frozenset({})
 # UNREACHABLE important checks -- EXCLUDED AS DEAD (Alaric 2026-07-09). Physically gated behind
 # mechanics a warp-grace region-lock shuffle can't guarantee, so a placed multiworld item strands.
-#   30207900 = Silver Scarab: end of the Hidden Path to the Haligtree (m30_20), behind an imp-statue /
-#     illusory-wall gate reachable only from the far side of the grace anchor.
-#   1050567820 = Graven-Mass Talisman: the reward inside Albinauric Rise (Consecrated Snowfield,
-#     folded into Mountaintops), sealed by the invisible-sniper imp seal (bewitching branch / fanged
-#     imp ashes) -- not openable from the grace side, so the check is unreachable.
+#   Silver Scarab 30207900 restored (#1437): ordinary traversal from the supported Hidden Path
+#   grace crosses the invisible walkway and illusory wall; no imp seal or inventory gate.
+#   See evidence/mfg_silver_scarab.json and test_gf_mfg_silver_scarab.py.
+#   1050567820 = Graven-Mass Talisman: Albinauric Rise in Consecrated Snowfield.
+#     Event 1050562250 requires a qualifying character death with effects 17170 AND 17171.
+#     The supported summon/combat capability guarantee remains unresolved; keep excluded
+#     until logic can model a reliable route (see mfg_talisman_access_followup.md).
 # NOTE: Fingerslayer Blade (12027080, Nokron/Eternal Cities) was briefly excluded here -- its chest is
 # vanilla-gated behind Ranni's questline flag 1034509410 ("You are not destined to open this yet").
 # Instead of dropping the check we now FORCE-SET 1034509410 at spawn (features/start_grace.py rides it
 # on the startGraces flag list), so the chest opens and the check stays live. Do NOT re-add it here.
 # Dropping these renumbers downstream ap-ids (needs a full regen) and removes the vanilla shuffle copy.
-_UNREACHABLE_DEAD = frozenset({30207900, 1050567820})
+_UNREACHABLE_DEAD = frozenset({1050567820})
 # UNPLACEABLE DLC cookbooks (2026-07-14): 8 DLC crafting cookbooks whose ItemLotParam_map lot is a
 # short/common id that does NOT encode a map (unlike the 25 DLC cookbooks we region from their lot's
 # 20XXYY/AABBxxxx map id). They are not MSB treasures, merchant sales, enemy drops, or EMEVD awards --
@@ -3623,6 +3625,12 @@ for _rr in _ALLROWS:
 # to the boss/location region they drop from) are recovered as real checks. Empty = none recovered
 # (globals stay excluded, no hub sphere-0 balloon). {flag(int): region}.
 GLOBAL_RECOVER = {
+    # M4G3900138, NPC523140220 map-lot104510 batch, sibling104512 flag400452.
+    # The NPC corpse is at Jarburg; the enemy pin category is not an enemy lot table.
+    400452: "Liurnia",
+    # M4G 3100003 / map lot102926; m13_00 invasion event awards block102920.
+    # Distinct acquisition flag from the Mt. Gelmir dialogue reward400291.
+    400295: "Farum Azula",
     # Tailoring Tools are the m31_15 Coastal Cave / Demi-Human Chief reward.  The old broad talk
     # number scan accidentally placed f60140 in Deeproot; the award itself is not an ESD gift.
     # m31_15's boss/game-area/grace data all agree on Limgrave, so keep the unique tool randomized
@@ -3884,10 +3892,10 @@ QUEST_GATED_FLAGS = {
     400190,   # Spirit Jellyfish Ashes -- Roderika's handover (recovered above, 2026-07-26). Her
               # neighbour 400189 (Patches' Bell Bearing) was already here; the ashes were not,
               # because a flag that is a check NOWHERE never needed a missable tag.
-    400293, 400299, 400308, 400310, 400311, 400312, 400321, 400323, 400324,
+    400293, 400295, 400299, 400308, 400310, 400311, 400312, 400321, 400323, 400324,
     400331, 400333, 400339, 400348, 400349, 400356, 400358, 400359, 400360,
     400361, 400362, 400370, 400381, 400382, 400391, 400392, 400393, 400394,
-    400410, 400430, 400451, 400460, 400480, 400500, 400595, 400596, 400598,
+    400410, 400430, 400451, 400452, 400460, 400480, 400500, 400595, 400596, 400598,
     400602, 400630, 400632, 400634, 400636, 400644, 400664, 400666, 400670,
     400671, 400672, 400692, 400700, 400702, 400704, 400710, 400711, 400732,
     400740, 510030, 510420, 520400,
@@ -4754,7 +4762,10 @@ def _recover_row_ok(r):
     if not _item_exists(r):
         return False
     return _recover_tile(_fl) is not None           # auto-recover every DECODABLE global/filler
-_LATE_RECOVER_FLAGS = frozenset({530805})
+_MFG_SOMBER_ORDER = (530861, 540424, 540428, 540912, 540914, 540920, 540922)
+_MFG_SOMBER_FLAGS = frozenset(_MFG_SOMBER_ORDER)
+_MFG_NPC_RECOVER_FLAGS = frozenset({400295, 400452})
+_LATE_RECOVER_FLAGS = frozenset({530805}) | _MFG_SOMBER_FLAGS | _MFG_NPC_RECOVER_FLAGS
 _recovered = [r for r in _ALLROWS
               if _recover_row_ok(r) and int(r['flag']) not in _LATE_RECOVER_FLAGS]
 rows = rows + _recovered
@@ -5539,8 +5550,8 @@ REGION_UNCONFIRMED = " (region unconfirmed)"
 # therefore append after those established populations. Senessax is the first such ruling made
 # after the namespace shipped; keep this explicit rather than silently changing existing AP IDs.
 _late_recovered = [r for r in _ALLROWS
-                   if int(r['flag']) in _LATE_RECOVER_FLAGS and _recover_row_ok(r)]
-assert {int(r['flag']) for r in _late_recovered} == set(_LATE_RECOVER_FLAGS), (
+                   if int(r['flag']) in _LATE_RECOVER_FLAGS - _MFG_SOMBER_FLAGS - _MFG_NPC_RECOVER_FLAGS and _recover_row_ok(r)]
+assert {int(r['flag']) for r in _late_recovered} == set(_LATE_RECOVER_FLAGS - _MFG_SOMBER_FLAGS - _MFG_NPC_RECOVER_FLAGS), (
     "late recovered flag set is incomplete -- an append-only AP id would silently disappear")
 rows.extend(_late_recovered)
 # Accepted M4G ground recoveries enter after the shipped populations, just like
@@ -5555,6 +5566,13 @@ assert len(_mfg_recovery_rows) == len(_mfg_recovery_flags)
 _mfg_recovery_rows.sort(key=lambda r: _mfg_recovery_order.index(int(r["flag"])))
 rows = [r for r in rows if int(r['flag']) not in _mfg_recovery_flags] + _mfg_recovery_rows
 
+# Append accepted one-time stone rewards after the earlier M4G/Briars recoveries.
+_somber_rows = [r for r in _ALLROWS if int(r['flag']) in _MFG_SOMBER_FLAGS and _recover_row_ok(r)]
+assert {int(r['flag']) for r in _somber_rows} == _MFG_SOMBER_FLAGS
+assert len(_somber_rows) == len(_MFG_SOMBER_FLAGS)
+_somber_rows.sort(key=lambda r: _MFG_SOMBER_ORDER.index(int(r["flag"])))
+rows.extend(_somber_rows)
+
 # #1437: the shipped Eleonora position used an unused ground-lot copy. Preserve its
 # positional AP id while binding it to the actual invasion award (101620 block,
 # sibling 101621, flag 400162). M4G pin 2400148 and m60_39_52 event 90005792
@@ -5568,6 +5586,21 @@ for _old_flag, _live_flag in _reward_flag_corrections.items():
     _replacement = dict(_live_rows[0])
     _replacement.update(map='m60_39_52', region='Altus Plateau', method='mfg_reward')
     rows[_positions[0]] = _replacement
+# Keep later NPC recovery IDs after the already-reviewed stone population.
+_npc_recovered = [r for r in _ALLROWS
+                  if int(r['flag']) in _MFG_NPC_RECOVER_FLAGS and _recover_row_ok(r)]
+assert {int(r['flag']) for r in _npc_recovered} == _MFG_NPC_RECOVER_FLAGS
+assert len(_npc_recovered) == len(_MFG_NPC_RECOVER_FLAGS)
+rows.extend(_npc_recovered)
+# Append the verified Hidden Path chest after earlier recovery batches; keep shipped IDs.
+_silver_scarab_rows = [r for r in rows if int(r['flag']) == 30207900]
+assert len(_silver_scarab_rows) == 1
+rows = [r for r in rows if int(r['flag']) != 30207900] + _silver_scarab_rows
+# Numen's Rune is the next reviewed recovery; keep it after the Silver Scarab ID.
+_numen_rows = [r for r in rows if int(r['flag']) == 400452]
+assert len(_numen_rows) == 1
+rows = [r for r in rows if int(r['flag']) != 400452] + _numen_rows
+
 
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 # These checks ARE the two Finger Ruins bell interactions: the bell event awards the talisman lot and
@@ -10218,7 +10251,10 @@ for _i, _r in enumerate(rows):
         # their maps -- was what kept them out of those dungeons' sweeps
         # (test_gf_boss_sweeps::test_no_dungeon_mapped_filler_is_left_unswept). A method is how a
         # row was DISCOVERED, not where it lives; the map conditions below stay the arbiter.
-        _r["method"] in ("flag_prefix", "global", "global_filler", "cookbook")
+        # Accepted native M4G dungeon pins use the same filler and physical-map guards.
+        # Overworld recovery is deliberately outside this dungeon-only admission.
+        (_r["method"] in ("flag_prefix", "global", "global_filler", "cookbook")
+         or (_r["method"] == "mfg_native_pin" and _is_dungeon(_mp2(_r["map"]))))
         and (_is_dungeon(_mp2(_r["map"])) or _is_interior_member_map(_mp2(_r["map"]))
              # ...and a row that already names an OVERWORLD TILE (piece A). Without this the m61
              # neighbourhood pass has nothing to assign: `_mem_tile` is fed from rows that passed
