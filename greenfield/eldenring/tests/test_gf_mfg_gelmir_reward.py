@@ -3,7 +3,7 @@ from pathlib import Path
 import runpy
 import unittest
 
-PKG = Path(__file__).resolve().parents[1]
+PKG = Path(__file__).resolve().parent.parent
 
 class GelmirReward(unittest.TestCase):
     def test_farums_reward_is_separate_from_volcano_manor(self):
