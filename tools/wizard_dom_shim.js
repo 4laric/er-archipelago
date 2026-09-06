@@ -74,6 +74,14 @@ function makeDocument(staticIds){
       return NODES.find(n => n.id === m[1] && attached(n)) || null;
     },
     execCommand: () => true,
+    /* `.cls` only -- paintScalingReadouts paints every `.scaling-readout` on the page. Attached
+       nodes only, same rule as querySelector, so a readout in a detached tree stays invisible. */
+    querySelectorAll: sel => {
+      const m = /^\.([\w-]+)$/.exec(String(sel));
+      if (!m) return [];
+      return NODES.filter(n => attached(n) &&
+        String(n.className || "").split(/\s+/).includes(m[1]));
+    },
   };
   doc.body = new El("body"); doc.body._static = true;
   for (const id of staticIds){
