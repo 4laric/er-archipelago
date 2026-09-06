@@ -207,6 +207,13 @@ but you might miss a filler item. Details in `KNOWN-ISSUES.md`. Note this is a
 real defect and the entry above is not -- a wrong item *in a check* is worth
 reporting; an item absent from the pool is the curation doing its job.
 
+**Give prayerbooks to Corhyn, not Miriel.** A book you hand an NPC is a
+vanilla hand-in, not a check -- the check was the pickup. But a report from a
+large async found that Miriel does not reliably add the spells from a
+prayerbook to her shop, while Brother Corhyn does. We have not tracked down
+why. Until then, hand prayerbooks to Corhyn, and keep Miriel as the fallback
+only. Details in `KNOWN-ISSUES.md`.
+
 **Where do I even stand with my checks?** Press **F6**. The in-game tracker
 lists checks by region with done/total counts, dims locked regions, and names
 the item that opens each one. A check labelled **`(region unconfirmed)`** has
@@ -415,9 +422,13 @@ saves for its endgame. Scaling never changes rune rewards.
 - **`maximum_enemy_difficulty`** lowers the top. This is especially useful on a
   **short seed**. With `num_regions: 4`, your deepest region arrives quickly but
   is still scaled as the end of the run. A lower cap preserves the curve while
-  avoiding endgame-strength enemies when you may still have a +6 weapon. Values
-  below `100` require an up-to-date client; older clients refuse the seed rather
-  than ignore the cap.
+  avoiding endgame-strength enemies when you may still have a +6 weapon. The
+  default, `auto`, does this for you from the run's length: about 3.7x enemy HP
+  at 5 regions, 5.5x at 10, 6.7x at 15, the full 7.4x on the whole map. A
+  percent picks a rung on a 20-rung ladder, so `50` is about 4.1x and `47` about
+  3.7x; the yaml builder shows what any value resolves to. Values below `100`
+  require an up-to-date client; older clients refuse the seed rather than
+  ignore the cap.
 - **`difficulty_ramp_speed`** changes *when* the climb happens, not how high it
   goes. At `50` you're at maximum from about halfway and everything after is
   equally hard. It compresses the curve rather than steepening it.
