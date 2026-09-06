@@ -32,6 +32,13 @@ walkway and illusory wall need ordinary traversal, with no additional item gate.
 
 Diallos's Numen's Rune at Jarburg is now tracked separately; its NPC quest restrictions keep it out of progression placement.
 
+## Great Rune inventory detection
+
+The paired client update fixes repeated re-grants of Great Runes or other key items
+that were already held but missed by the inventory scan after an NPC hand-in.
+This does not change rune delivery: the separate unequippable-rune issue remains
+tracked in client #316. See KNOWN-ISSUES.md before attempting rescue commands.
+
 ## Difficulty and early upgrades
 
 The automatic enemy cap is gentler on shorter runs, and the YAML builder now previews

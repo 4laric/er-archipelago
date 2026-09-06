@@ -5,6 +5,14 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.1 — 2026-09-06
 
+- **Client: stop re-granting Great Runes and other key items that are already held after
+  an NPC hand-in.** The inventory scan now checks occupied slots across the allocated
+  key-item list, including slots beyond its live-entry count (client #638). This fixes
+  the reported repeated duplicate refusals after loads; no item delivery policy changes.
+- **Known issue:** received Great Runes can count for progression while remaining
+  unequippable, with no Divine Tower prompt (client #316). See KNOWN-ISSUES.md and
+  GETTING-UNSTUCK.md before attempting a rescue command.
+
 - Restore Silver Scarab in the Hidden Path to the Haligtree; correct the old
   imp-gate exclusion using the supported grace route and M4G pin (#1437).
 
