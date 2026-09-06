@@ -3,7 +3,7 @@ import ast
 from pathlib import Path
 import unittest
 
-PKG = Path(__file__).resolve().parents[1]
+PKG = Path(__file__).resolve().parent.parent
 
 def value(file, name):
     for node in ast.parse((PKG / file).read_text(encoding="utf-8")).body:
