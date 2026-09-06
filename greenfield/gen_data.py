@@ -4754,7 +4754,8 @@ def _recover_row_ok(r):
     if not _item_exists(r):
         return False
     return _recover_tile(_fl) is not None           # auto-recover every DECODABLE global/filler
-_MFG_SOMBER_FLAGS = frozenset({530861, 540424, 540428, 540912, 540914, 540920, 540922})
+_MFG_SOMBER_ORDER = (530861, 540424, 540428, 540912, 540914, 540920, 540922)
+_MFG_SOMBER_FLAGS = frozenset(_MFG_SOMBER_ORDER)
 _LATE_RECOVER_FLAGS = frozenset({530805}) | _MFG_SOMBER_FLAGS
 _recovered = [r for r in _ALLROWS
               if _recover_row_ok(r) and int(r['flag']) not in _LATE_RECOVER_FLAGS]
@@ -5560,6 +5561,7 @@ rows = [r for r in rows if int(r['flag']) not in _mfg_recovery_flags] + _mfg_rec
 _somber_rows = [r for r in _ALLROWS if int(r['flag']) in _MFG_SOMBER_FLAGS and _recover_row_ok(r)]
 assert {int(r['flag']) for r in _somber_rows} == _MFG_SOMBER_FLAGS
 assert len(_somber_rows) == len(_MFG_SOMBER_FLAGS)
+_somber_rows.sort(key=lambda r: _MFG_SOMBER_ORDER.index(int(r["flag"])))
 rows.extend(_somber_rows)
 
 # #1437: the shipped Eleonora position used an unused ground-lot copy. Preserve its
