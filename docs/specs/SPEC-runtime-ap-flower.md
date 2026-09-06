@@ -11,8 +11,9 @@ Flower restored the icons; M4G pins were correct. This isolates the installed Fl
 override as the trigger, but does not establish whether its original atlas, layout
 compatibility or repacking was wrong.
 
-The current package replaces whole `menu/{hi,low}/01_common.tpf.dcx` files to change
-one sprite. Replace that dependency with a client-owned runtime patch of the atlas
+The former Flower package replaced whole `menu/{hi,low}/01_common.tpf.dcx` files
+to change one sprite. v0.6.0 omits that package and uses the Telescope icon.
+This proposal replaces the old dependency with a client-owned runtime patch of the atlas
 actually loaded by the game. Players should need neither UXM extraction nor an ME3
 asset override for Flower. Continue using the normal DLL loader for the AP client.
 
@@ -162,7 +163,9 @@ successful compile alone do not establish this feature works.
 
 ## Packaging migration
 
-Only after the runtime gates pass:
+v0.6.0 already omits the atlas package as a temporary fallback. That release does
+not depend on this proposal. For a future runtime implementation, only after its
+gates pass:
 
 1. Embed the project-owned payload in the client; record its hash and source.
 2. Remove the requirement to fetch, ship and install full Flower atlases. Update both
