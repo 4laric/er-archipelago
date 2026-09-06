@@ -1833,6 +1833,7 @@ LOCATIONS = {
         ('Farum Azula :: Ancient Dragon Smithing Stone - around Crumbling Beast Grave (2), may be sweep-granted by Godskin Duo (m13_00) [f13007993]', 7771488, 13007993),
         ('Farum Azula :: Malformed Dragon Helm - around Crumbling Beast Grave, may be sweep-granted by Maliketh, the Black Blade (m13_00) [f13007995]', 7771489, 13007995),
         ("Farum Azula :: Smithing-Stone Miner's Bell Bearing [4] - around Crumbling Beast Grave [f510140]", 7773789, 510140),
+        ("Farum Azula :: [Sorcery] Gelmir's Fury - defeat Recusant Bernahl in Crumbling Farum Azula [f400295]", 7774649, 400295),
         ("Farum Azula :: Alexander's Innards - around Crumbling Beast Grave, may be sweep-granted by Dragonlord Placidusax (m13_00) [f400174]", 7900018, 400174),
         ('Farum Azula :: Ash of War: Black Flame Tornado - around Crumbling Beast Grave [f510140]', 7900119, 510140),
         ('Farum Azula :: Drake Knight Armor - near Dragon Temple Rooftop, may be sweep-granted by Godskin Duo (m13_00) [f13007920]', 7900188, 13007920),
@@ -5548,4 +5549,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:f6362516d442ba3f24397517568ad92260404dcee719d0714477b9545dddd316', 'module': 'data.py', 'body_sha256': 'sha256:9d40940c20958c804bb2e4d19b7be7d9574f24fd2a074610e58389bfcbc51ab8'}
+_GEN_STAMP = {'inputs_hash': 'sha256:c7f2242f57c473be18d1173b574e51dac6c54aa3aab5b905c429aa299512dd8d', 'module': 'data.py', 'body_sha256': 'sha256:05fa0ea76bc7142220d0f310f774f0e1ea72981970548cfce414a034191fb6cb'}
