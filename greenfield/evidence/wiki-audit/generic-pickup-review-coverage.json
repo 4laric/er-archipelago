@@ -1,22 +1,22 @@
 {
-  "ambiguous_or_conflicted": 776,
+  "ambiguous_or_conflicted": 780,
   "by_confidence": {
-    "hold": 2684,
+    "hold": 2690,
     "trusted_identity_region": 200
   },
   "by_external_family_count": {
-    "0": 2170,
+    "0": 2176,
     "1": 514,
     "2": 177,
     "3": 23
   },
   "by_partition": {
-    "ambiguous_map_lot": 776,
-    "exact_route_anchor": 1972,
+    "ambiguous_map_lot": 780,
+    "exact_route_anchor": 1974,
     "non_map_lot": 136
   },
   "category": "repeated_generic_field_pickups_and_consumables",
-  "checks_total": 2884,
+  "checks_total": 2890,
   "definition": "item name occurs at least twice after special acquisition tags are excluded",
   "excluded_tags": [
     "Basin",
@@ -33,6 +33,6 @@
     "Shop"
   ],
   "item_names": 287,
-  "remaining_held": 2684,
+  "remaining_held": 2690,
   "schema_version": 1
 }

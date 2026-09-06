@@ -1577,7 +1577,7 @@ def write_bundle(repo: Path, out_dir: Path) -> dict:
     evidence_ledger.validate(out_dir)
     bundle["summary"] = evidence_ledger.summary(out_dir)
     (out_dir / "summary.json").write_text(
-        json.dumps(bundle["summary"], indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        json.dumps(bundle["summary"], indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
     return bundle
 
 
