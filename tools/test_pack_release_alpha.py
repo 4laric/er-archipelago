@@ -68,6 +68,7 @@ class MfgPackageTests(unittest.TestCase):
                 self.assertEqual(build["version"], "0.6.0")
                 profile_name = next(n for n in names if n == 'me3/ap.me3')
                 profile = tomllib.loads(archive.read(profile_name).decode())
+                self.assertIs(profile['mem_patch'], False)
                 self.assertEqual([n['path'] for n in profile['natives']],
                                  ['eldenring_archipelago.dll', 'MapForGoblins.dll'])
                 self.assertEqual([n['path'] for n in profile['packages']], ['flower-package'])

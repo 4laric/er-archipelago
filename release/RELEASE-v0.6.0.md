@@ -26,10 +26,9 @@ The release is assembled by `tools/pack_release.py` and the `er-release` workflo
 Legacy `build.ps1 -Me3Deploy` and `package_release.ps1` remain local client-only
 routes; they do not produce this release's bundled map-engine release.
 
-Current candidate builds: client `9127694` (client PR #633), map engine `81613ec`.
-Land engine PR #7 and client PR #633 before world PR #1431. After the client merge,
-refresh the world gitlink to the resulting client `main` SHA and rerun pairing checks;
-the merge may produce a different SHA. Pin complete commits and final hashes in provenance.
+Release client: merged `feacd44` (client PR #633); map engine `81613ec`.
+The world gitlink records the merged client commit. Release CI builds that exact pin;
+retain full source commits and artifact hashes in provenance.
 
 Leave `CHANNELS.tsv` on its current stable tag while preparing this release: its gate
 rejects a future tag. Promote that ledger only after `v0.6.0` actually exists. These

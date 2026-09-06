@@ -1,5 +1,23 @@
 # v0.6.0 — release blurb
 
+## Can I update the client during a run?
+
+**Yes, for an existing v0.6.0 run using the matching seed-data contract.** Exit the
+game and replace the paired client and map DLLs; keep your save and map settings.
+For a v0.5.x run, keep its matching client/APWorld pair rather than upgrading it to
+v0.6.0 mid-run. Install the v0.6.0 APWorld when generating a new v0.6.0 seed.
+
+## What you need to update
+
+- **Client:** Required — use the client bundled with this release for v0.6.0 seeds.
+- **APWorld:** Host-only — the room host or generator must install the matching APWorld.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
+- **Profile/assets:** Reinstall or replace with this release's matching DLLs, configuration and loader profile.
+- **Release channel:** Stable v0.6.0.
+
+## Bundled map integration
+
 The v0.6 release puts the AP tracker onto MapForGoblins' in-game map. The bundle includes
 matching client and map-engine builds, with gathering-node clutter hidden in its preset.
 Your actual treasure checks remain eligible, including crafting-material pickups.
@@ -29,15 +47,6 @@ MapForGoblins is an accepted placement reference for our location audit. That gi
 more concrete placement coverage, while ambiguous identities and disagreements remain
 visible for follow-up. The overall access audit remains unfinished; stable release status
 does not certify every access rule or imply complete map-pin coverage.
-
-## What you need to update
-
-- **Client:** Required — use the client bundled with this release for v0.6.0 seeds.
-- **APWorld:** Host-only — the room host or generator must install the matching APWorld.
-- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
-- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair.
-- **Profile/assets:** Reinstall or replace with this release's matching DLLs, configuration and loader profile.
-- **Release channel:** Stable v0.6.0.
 
 ## Other changes in the v0.6 window
 
