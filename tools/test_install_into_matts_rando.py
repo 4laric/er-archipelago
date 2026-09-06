@@ -99,6 +99,24 @@ class EndToEndTests(unittest.TestCase):
         with patch.object(matts, "app_is_running", return_value=False):
             return matts.run(["--randomizer", str(fx.rando)], script_path=fx.script)
 
+    def test_retired_torrent_flag_installs_without_helper_or_regulation_edits(self):
+        import io
+        import sys
+        from contextlib import redirect_stdout
+        with tempfile.TemporaryDirectory() as tmp:
+            fx = _Fixture(Path(tmp))
+            regulation = fx.rando / "regulation.bin"
+            regulation.write_bytes(b"existing randomized regulation")
+            output = io.StringIO()
+            with patch.object(matts, "app_is_running", return_value=False),                  patch.dict(sys.modules, {"torrent_rideparam_repair": None}),                  redirect_stdout(output):
+                arguments = ["--randomizer", str(fx.rando), "--with-torrent-repair"]
+                self.assertEqual(matts.run(arguments, script_path=fx.script), 0)
+                self.assertEqual(matts.run(arguments, script_path=fx.script), 2)
+            self.assertEqual(regulation.read_bytes(), b"existing randomized regulation")
+            self.assertIn("Update Matt's randomizer", output.getvalue())
+            self.assertIn("no longer included", output.getvalue())
+            self.assertFalse(list(fx.rando.glob("regulation.bin*bak*")))
+
     def test_changed_then_current_and_a_backup_exists(self):
         with tempfile.TemporaryDirectory() as tmp:
             fx = _Fixture(Path(tmp))

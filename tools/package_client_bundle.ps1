@@ -75,8 +75,6 @@ mem_patch = false
 [[supports]]
 game = "eldenring"
 
-[[packages]]
-path = 'ap-package'
 
 [[natives]]
 path = 'eldenring_archipelago.dll'
@@ -104,10 +102,7 @@ if (-not (Test-Path $iconInstaller)) { throw "AP flower installer missing: $icon
 if (-not (Test-Path $iconInstallerPy)) { throw "AP flower Python installer missing: $iconInstallerPy" }
 Copy-Item $iconInstaller (Join-Path $bundle "install-ap-flower.ps1") -Force
 Copy-Item $iconInstallerPy (Join-Path $bundle "install_ap_flower.py") -Force
-$flowerPackage = Join-Path $Repo "flower-package"
-if (Test-Path $flowerPackage -PathType Container) {
-    Copy-Item $flowerPackage (Join-Path $bundle "flower-package") -Recurse -Force
-}
+# Whole-atlas Flower overrides are suspended; retain tools for existing installs.
 Write-Host "  AP flower packaged-asset installers"
 
 $readme = Join-Path $Repo "release\CLIENT-BUNDLE-README.md"
@@ -116,13 +111,6 @@ if (Test-Path $readme) {
     Write-Host "  README.md"
 } else {
     Write-Warning "  release\CLIENT-BUNDLE-README.md missing -- bundle ships with no instructions"
-}
-
-foreach ($repairFile in @("TARNISHED-TORRENT-REPAIR.md", "tarnished-torrent-rideparam-1.17.json")) {
-    $repairSource = Join-Path $Repo "release\$repairFile"
-    if (-not (Test-Path $repairSource)) { throw "Torrent repair asset missing: $repairSource" }
-    Copy-Item $repairSource (Join-Path $bundle $repairFile) -Force
-    Write-Host "  $repairFile"
 }
 
 $zip = Join-Path $OutDir "$name.zip"

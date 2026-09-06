@@ -18,6 +18,14 @@ v0.6.0 mid-run. Install the v0.6.0 APWorld when generating a new v0.6.0 seed.
 
 ## Bundled map integration
 
+**Temporary icon fallback:** v0.6.0 omits the Flower atlas override to avoid wrong weapon
+icons and missing class previews. AP placeholders use the Telescope icon; AP names
+and gameplay still work. Existing installs must disable or restore old Flower overrides
+as described in SETUP.md.
+
+The separate Torrent repair is no longer bundled. Update Matt's randomizer to its
+patched release before generating output.
+
 The v0.6 release puts the AP tracker onto MapForGoblins' in-game map. The bundle includes
 matching client and map-engine builds, with gathering-node clutter hidden in its preset.
 Your actual treasure checks remain eligible, including crafting-material pickups.

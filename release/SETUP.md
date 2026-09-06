@@ -53,7 +53,7 @@ rush.
 | File | What it is |
 |---|---|
 | `eldenring.apworld` | The Archipelago world -- the package that teaches Archipelago about Elden Ring. Goes in your Archipelago install. |
-| `me3/` | The runtime client folder. Holds `eldenring_archipelago.dll`, `ap.me3`, `apconfig.json`, the AP Flower installer and two **required** data tables. After generating Matt's randomizer output, run `install-ap-flower.ps1 -Destination <randomizer-folder>` on Windows or `python3 install_ap_flower.py --destination <randomizer-folder>` on Linux/Proton, then restart Elden Ring. The installer only copies authenticated assets from `flower-package`; it never modifies or unpacks the base game. |
+| `me3/` | Runtime client, loader profile, configuration and required detection tables. v0.6.0 omits Flower atlases; no Flower installation is needed. |
 | `me3/MapForGoblins.dll`, `MapForGoblins.ini` | The v0.6 release's bundled map engine and preset. Its license notices and build identity are in `MFG-LICENSE.txt` and `MFG-PROVENANCE.json` beside it. |
 | `EldenRing.yaml` | The player config template (The Shattering). Copy it, set `name:`, generate. Or build one at <https://peliarch.ca/er/>. |
 | `er-options-wizard.html` | An **offline copy of the yaml builder**. The live one at <https://peliarch.ca/er/> is the one to use -- it can hand your seed straight to a host -- but this file works with no network at all. |
@@ -132,6 +132,21 @@ You also need, separately:
    **port** -- you will enter them in-game in part B.
 
 ---
+
+## AP icon fallback in v0.6.0
+
+The Flower atlas override is temporarily omitted because it caused incorrect weapon
+icons and missing starter-class previews. AP placeholders use the native Telescope
+icon for now; AP names, checks, receiving and M4G integration continue to work.
+No UXM extraction or Flower installation is needed. Do not use `--with-flower` for this release.
+
+For an existing installation, exit the game and disable only the loader package entry
+that loads the old Flower atlas. Keep the AP/M4G DLLs and unrelated mod packages.
+If Flower was copied directly into Matt's output, disabling a separate package will
+not remove it: restore those two menu atlases from a verified pre-Flower backup or
+regenerate that randomizer output. Do not delete an entire shared mod package or
+restore a backup over subsequently modified files. The updater does not remove old
+atlas files automatically. Restart after changing the effective assets.
 
 ## MapForGoblins in the v0.6 release
 
