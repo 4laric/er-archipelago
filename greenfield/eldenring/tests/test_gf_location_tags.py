@@ -134,7 +134,9 @@ class TagDataTests(unittest.TestCase):
         # Godrick the Grafted" attribution that came from the same missing join.)
         # 267 -> 269 (#1296): Senessax's two shared-flag reward lots are now two co-firing
         # locations. Both inherit the same boss-drop attribution as the one physical kill.
-        self.assertEqual(TAG_COUNTS["Boss"], 269)
+        # Recovered Ghostflame Dragon stone is a distinct boss reward (#1442).
+        self.assertEqual(TAG_COUNTS["Boss"], 270)
+        self.assertIn("Boss", LOCATION_TAGS[7774642])
 
     def test_majorboss_is_a_subset_of_boss(self):
         """A major boss is a boss. Definitional, so this is a gate, not a preference (Alaric,
@@ -374,7 +376,8 @@ class TagDataTests(unittest.TestCase):
         # population. Same rule: a co-check inherits its primary's tags.
         # 110 -> 112 (#1296): the regular and somber Senessax stones are distinct checks at the
         # same Jagged Peak field boss.
-        self.assertEqual(TAG_COUNTS["FieldBoss"], 112)
+        self.assertEqual(TAG_COUNTS["FieldBoss"], 113)
+        self.assertIn("FieldBoss", LOCATION_TAGS[7774642])
 
     def test_geography_tags_are_subsets_of_boss_and_disjoint(self):
         """Definitional, so these are gates, not preferences: a legacy/field boss IS a boss, and no
