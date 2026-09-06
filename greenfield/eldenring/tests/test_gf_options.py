@@ -742,7 +742,7 @@ def test_mfg_recovered_pickups_follow_dlc_scope(dlc, seed):
         assert present == (recovered if dlc else set())
         # Both Caelid scarabs remain in base-game scope; the other five are DLC.
         addresses = {loc.address for loc in locations}
-        assert {7774643, 7774644} <= addresses
+        assert {7774643, 7774644, 7774650} <= addresses
         dlc_stones = {7774642, 7774645, 7774646, 7774647, 7774648}
         assert addresses & dlc_stones == (dlc_stones if dlc else set())
         from ._util import world_pool_items

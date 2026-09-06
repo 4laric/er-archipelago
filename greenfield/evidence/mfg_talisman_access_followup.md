@@ -20,15 +20,12 @@ one consumable as reusable capability. The wiki also reports Crystal Darts:
 https://eldenring.wiki.gg/wiki/Albinauric_Rise
 That is a route lead; the effect-source chain is not yet verified here.
 
-## Silver Scarab (30207900)
+## Silver Scarab (30207900) — recovered
 
-The existing exclusion's imp-gate explanation has not been substantiated.
-The committed treasure asset is 30201670 / lot 30200900 in m30_20, and the
-accepted pin corroborates its physical placement. The vanilla map event
-initializes common event 90005650 for *different* assets 30201540/30201541;
-that alone cannot establish that the Silver Scarab chest requires the imp gate.
-
-Restore after checking the route from the supported Hidden Path grace, including
-invisible floors and illusory wall, against randomized access. Absence of a chest
-lock instruction is not proof that the terrain route is reachable. Keep this
-separate from Graven-Mass's confirmed scripted seal.
+The route is now corroborated from the supported Hidden Path grace: downstairs,
+central platform, invisible walkway, south room, illusory wall, chest. This is
+ordinary traversal with no inventory requirement. See `mfg_silver_scarab.json`
+for the walkthrough, exact native pin, game-data identity and region witnesses.
+The old imp-gate explanation was incorrect. The separate boss-door event is
+lever-driven and its route is later in the walkthrough. Graven-Mass remains
+excluded pending the combat/summon capability work above.

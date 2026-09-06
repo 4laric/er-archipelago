@@ -1944,4 +1944,4 @@ SHOP_OPEN_SCOPES = (
     ('OpenTranspositionShop', 101898, 101949),
 )
 
-_GEN_STAMP = {'inputs_hash': 'sha256:c7f2242f57c473be18d1173b574e51dac6c54aa3aab5b905c429aa299512dd8d', 'module': 'shop_data.py', 'body_sha256': 'sha256:0bca0c64c618ae0dc7c23988cc298308626f17a0514bf2fdaaf5c7d621e58a34'}
+_GEN_STAMP = {'inputs_hash': 'sha256:6649ccc1df240aa19a6ee62c446cd99a62aff39180e301bd726091a767e3e5e8', 'module': 'shop_data.py', 'body_sha256': 'sha256:0bca0c64c618ae0dc7c23988cc298308626f17a0514bf2fdaaf5c7d621e58a34'}

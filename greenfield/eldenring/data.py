@@ -1482,6 +1482,7 @@ LOCATIONS = {
         ('Consecrated Snowfield :: Somber Smithing Stone [8] - m60_49_57 (region unconfirmed), may be sweep-granted by Putrid Avatar (m60_50_57) [f1049577710]', 7774490, 1049577710),
         ('Consecrated Snowfield :: Somber Smithing Stone [9] - m60_49_57 (region unconfirmed), may be sweep-granted by Death Rite Bird (m60_48_57) [f1049577720]', 7774491, 1049577720),
         ("Consecrated Snowfield :: Hoslow's Petal Whip - near Consecrated Snowfield Catacombs (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f1050567700]", 7774501, 1050567700),
+        ('Consecrated Snowfield :: Silver Scarab - near Hidden Path to the Haligtree [f30207900]', 7774650, 30207900),
         ('Consecrated Snowfield :: Rotten Gravekeeper Cloak - m30_19 [f520190]', 7900138, 520190),
         ('Consecrated Snowfield :: Sanguine Noble Robe - m60_47_56 (region unconfirmed), may be sweep-granted by Death Rite Bird (m60_48_57) [f1047567700]', 7900258, 1047567700),
         ("Consecrated Snowfield :: Sanguine Noble Waistcloth - m60_47_56 (region unconfirmed), may be sweep-granted by Night's Cavalry (Glaive) (m60_48_55) [f1047567700]", 7900259, 1047567700),
@@ -5438,7 +5439,6 @@ NOT_RANDOMIZED = {
     30127000: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     30127900: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     30177060: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
-    30207900: 'unreachable_dead: physically gated behind mechanics a warp-grace region-lock shuffle cannot guarantee (Alaric 2026-07-09); a placed item would strand',
     35007750: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     35007920: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     35007960: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
@@ -5549,4 +5549,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:c7f2242f57c473be18d1173b574e51dac6c54aa3aab5b905c429aa299512dd8d', 'module': 'data.py', 'body_sha256': 'sha256:05fa0ea76bc7142220d0f310f774f0e1ea72981970548cfce414a034191fb6cb'}
+_GEN_STAMP = {'inputs_hash': 'sha256:6649ccc1df240aa19a6ee62c446cd99a62aff39180e301bd726091a767e3e5e8', 'module': 'data.py', 'body_sha256': 'sha256:86fbce283211a837ffde46fa3d090834d33cf9cd19a4fe42448526a8e92d51b2'}
