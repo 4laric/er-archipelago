@@ -247,6 +247,17 @@ class OfflineArtifactTests(unittest.TestCase):
         self.assertTrue(any(claim["status"] == "conflicted"
                             for check in data["checks"] for claim in check["claims"]))
 
+    def test_freshness_hash_ignores_checkout_line_endings(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as directory:
+            for name in BUILDER.HEADERS:
+                (Path(directory) / name).write_bytes(b"header\nvalue\n")
+            before = BUILDER.ledger_hash(directory)
+            for name in BUILDER.HEADERS:
+                (Path(directory) / name).write_bytes(b"header\r\nvalue\r\n")
+            self.assertEqual(before, BUILDER.ledger_hash(directory))
+
     def test_build_is_byte_deterministic_and_committed_page_is_current(self):
         first = BUILDER.build()
         second = BUILDER.build()

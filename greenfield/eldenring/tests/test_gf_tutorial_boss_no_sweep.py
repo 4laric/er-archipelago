@@ -547,8 +547,8 @@ def test_the_sweep_corpus_did_not_shrink():
     # Margit's Stormveil sweep (10000850); no other member enters, leaves, or changes owner.
     # #1296: Senessax's shared reward flag now exposes both stone lots as checks; their ownership
     # is represented across the applicable sweep rows, adding 12 (trigger, flag) pairs.
-    assert total == 4116, (
-        "sweep corpus is %d, expected 4116. If a sweep was legitimately added or removed, say WHY "
+    assert total == 4121, (
+        "sweep corpus is %d, expected 4121. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -839,6 +839,7 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 2026-09-01 (#1303): f450cab3f833dcb1/4105 -> 78fe87536fe461c9/4104. Pairwise against main,
     # exactly (10000850, f10017900) was removed. There are zero additions and zero re-ownerships;
     # the check is deliberately unswept because Liurnia has no eligible host for this interior.
-    assert (digest, n) == ("97254d5dd68a36ce", 4116), (  # #1296: two Senessax reward checks
-        "sweep OWNERSHIP changed: (%s, %d), expected (97254d5dd68a36ce, 4116). The total alone will "
+    # #1437: five M4G recoveries add [(2046410800, 2046407001), (2046410800, 2046407002), (2046410800, 2046407003), (2046410800, 2046407004), (2048440800, 2047447901)]; zero removals.
+    assert (digest, n) == ("e0e70901d5147159", 4121), (  # #1437: five recovered physical pickups, existing ownership unchanged
+        "sweep OWNERSHIP changed: (%s, %d), expected (e0e70901d5147159, 4121). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

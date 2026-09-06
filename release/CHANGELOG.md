@@ -3,7 +3,16 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## Unreleased
+## v0.6.1 — 2026-09-06
+
+### What you need to update
+
+- **Client:** Required — use the matching v0.6.1 client for new seeds.
+- **APWorld:** Host-only — install v0.6.1 when generating a new room.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair; new checks require a new seed.
+- **Profile/assets:** No action — keep the M4G assets and use the matching client DLL.
+
 
 - Recover four Oathseeker Knight armor checks and Royal Magic Grease using accepted
   Map for Goblins placement evidence (#1437). Existing check IDs remain unchanged.
