@@ -4,8 +4,12 @@ from pathlib import Path
 import runpy
 import unittest
 
-PKG = Path(__file__).resolve().parents[1]
-ROOT = next(p for p in Path(__file__).resolve().parents if (p / "greenfield/gen_data.py").is_file())
+PKG = Path(__file__).resolve().parent.parent
+try:
+    from ._util import find_repo_root
+except ImportError:
+    from _util import find_repo_root
+ROOT = Path(find_repo_root(__file__))
 
 class NumenReward(unittest.TestCase):
     def test_distinct_rune_flag_and_map_replacement(self):
