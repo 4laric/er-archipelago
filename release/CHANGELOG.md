@@ -59,11 +59,12 @@ selection and the regenerated `contract_gen.rs`. The gitlink rides in this same 
   It is now tagged bedrock-only and no longer emitted. The live greenfield sweep wire is the
   flag-keyed `dungeonSweepFlags` beside it, untouched.
 - **Multiworld smoke: the two 2026-09-07 multiworld defects are now guarded.** A new shape (2x
-  Elden Ring + The Wind Waker + DOOM on episode 3 only) asserts from the generation log that the
-  export reservation skipped a partner still holding its own pre-fill items (#1457), and from the
-  spoiler that a partner's declared early item, if it lands in Elden Ring, sits in the hub or that
-  slot's starting region (#1456). Both guards are proven able to go red in `--self-test`; a
-  `--shape` flag runs one shape for triage.
+  Elden Ring + The Wind Waker + DOOM on episode 3 only) asserts that a released Lock reaches The
+  Wind Waker, a partner that pre-fills its own dungeons in its stage hook, so our cross-world
+  passes are proven to run after it and to still reach it (#1457, #1470), and from the spoiler that
+  a partner's declared early item, if it lands in Elden Ring, sits in the hub or that slot's
+  starting region (#1456). Both guards are proven able to go red in `--self-test`; a `--shape`
+  flag runs one shape for triage.
 - **The AP game name is typed in exactly one place (#1465).** Archipelago keys the data
   package, every yaml, the wizard and the poptracker pack on the string `Elden Ring`, and it was
   typed at ~20 Python sites, three Rust sites and every shipped yaml. That is how the v0.1 -> v0.2
@@ -83,6 +84,23 @@ selection and the regenerated `contract_gen.rs`. The gitlink rides in this same 
   `latest.json` regenerated, and the world half opened as a draft PR listing every prose
   marker the tool leaves behind. Default next version is fixpack plus one; a minor or major bump is
   a dispatch input. Needs the `CLIENT_REPO_TOKEN` secret.
+- **Fixed: our cross-world placements now run in Archipelago's fill hook.** Every pass that puts
+  Elden Ring items on another game's checks — the released-Lock progression share, the incoming
+  `cross_game_progression` reservation, the blessing-fragment preference, the useful-export
+  reservation and the `keep_out_of_shops` finalisation — moved from `stage_pre_fill` to
+  `stage_fill_hook`, which Archipelago calls after every world has run its own pre-fill and after
+  the early-items pass. That is the hook this shape was always meant to use: both v0.6.0.2
+  workarounds (leaving alone any partner that still held its own pre-fill items, and skipping the
+  copies a partner had declared early) were compensating for running too soon, and both are
+  deleted rather than kept as belt-and-braces. A partner that confines its own keys is now simply
+  finished before we start, so its full share is offered again instead of falling back to the
+  Elden Ring surfaces, and the "still holds N pre-fill item(s)" log line is gone. One measured
+  consequence, and it is the truer number: the export and preferred shares are derived from open
+  location counts, which are now taken after early items, so on a seed with many early
+  declarations the derived count moves by a few items. Not compensated for. Applies to new seeds
+  only; nothing in the seed contract moved. (Under the non-default `flood` fill algorithm, which
+  our YAML template does not offer, Archipelago never calls this hook at all; generation warns
+  once and leaves the seed uncurated.)
 
 ## v0.6.0.2 — 2026-09-07
 

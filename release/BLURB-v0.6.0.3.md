@@ -23,6 +23,15 @@ you do not have to touch a run already going.
 
 ## What is in it so far
 
+**Generating beside another game got quieter, and fairer.** Everything Elden Ring places in other
+players' worlds — the shared progression, another game's keys reserved on your checks, blessing
+fragments, the useful items we export — now happens at the moment Archipelago set aside for it,
+after every other game has finished placing its own items and after all the sphere-1 items are
+down. The two guards shipped in v0.6.0.2 for that (skipping a partner that was still placing its
+own keys, and skipping copies a partner wanted early) existed only because we were going first;
+they are gone, and the partner now gets its full share of our progression instead of watching it
+fall back onto Elden Ring checks. New seeds only; a running seed is unaffected.
+
 **The seed now says what it is.** (#1463) The client has always had two ways to work out which
 event flag a check corresponds to — ours, and the one Matt's randomizer uses — and it decided
 between them by looking to see whether a particular key happened to be in the slot data. That

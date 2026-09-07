@@ -397,17 +397,20 @@ def test_keep_out_of_shops_combinations_fill_clean(label, opts, seed, expected_r
         assert t.world._kept() == [expected_region], (
             "%s no longer draws its acceptance region: %r" % (label, t.world._kept()))
 
-    # Read the post-progression decision. Before #903 the option decided in set_rules and this test
-    # reconstructed that stale pre-fill grid, thereby agreeing with the bug instead of seeing it.
     cats = expand(opts["keep_out_of_shops"])
     by_cat = {c: set(names_in([c], _PROGRESSIVE_NAMES)) for c in cats}
-    enforced = list(t.world._gf_keep_out_of_shops_enforced)
 
+    distribute_items_restrictive(t.multiworld)
+
+    # Read the post-progression decision, and read it AFTER the fill: `finalize_rules` now runs in
+    # `stage_fill_hook` (SPEC-fill-hook-migration-20260907), which is inside
+    # `distribute_items_restrictive`, not in `world_setup`'s pre_fill. Before #903 the option
+    # decided in set_rules and this test reconstructed that stale pre-fill grid, thereby agreeing
+    # with the bug instead of seeing it.
+    enforced = list(t.world._gf_keep_out_of_shops_enforced)
     assert enforced, (
         "%s: the gate armed NOTHING, so the check below is vacuous -- either this combo's shape "
         "drifted or the gate is broken. Fix the combo or the gate, do not delete the case." % label)
-
-    distribute_items_restrictive(t.multiworld)
 
     armed = set(enforced)
     # THE ORACLE IS THE BAN SET, NOT `category_of`. `category_of` answers `progressive` for every

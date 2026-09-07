@@ -31,7 +31,6 @@ pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.features.progression_surface import (  # noqa: E402
     ProgressionBias, released_locks, lock_region_name, place_released_locks,
     CrossGameProgression, cross_game_share, travelling_progression, _foreign_open_locations,
-    players_still_prefilling,
 )
 
 
@@ -157,7 +156,7 @@ class TestReleasedLocks(unittest.TestCase):
 
 
 class TestThePlacerContract(unittest.TestCase):
-    """`place_released_locks` -- the stage_pre_fill pass, and the two things about it that are not
+    """`place_released_locks` -- the stage_fill_hook pass, and the two things about it that are not
     obvious from reading it.
 
     It REPLACED an item_rule bar (`released_lock_barred`) that worked and had no spill: `apply()` is
@@ -404,19 +403,21 @@ class TestForeignOpenLocations(unittest.TestCase):
         # work and not an empty input.
         self.assertTrue([loc for loc in locs if loc.player == 1])
 
-    def test_a_partner_still_holding_its_own_pre_fill_items_keeps_all_its_locations(self):
-        """Oracle of Seasons confines dungeon keys to dungeons in ITS stage_pre_fill, which runs
-        after ours (class-name order). Take its slots first and its fill dies with "No more spots"
-        -- 6 of 8 seeds, 2026-09-07. `get_pre_fill_items` is AP's declaration of that intent."""
+    def test_a_partner_with_pending_pre_fill_items_is_still_offered_its_locations(self):
+        """The INVERSE of the #1457 filter, on purpose. That filter existed because we ran in
+        `stage_pre_fill`, ahead of partners whose own stage hook had yet to confine its items. We
+        run in `stage_fill_hook` now, after every `pre_fill` and `stage_pre_fill`, so a non-empty
+        `get_pre_fill_items()` at this point is a STALE declaration -- the world has already had
+        its turn -- and honouring it would hand back locations nobody is going to use."""
         locs = self._all() + [_Loc("keysanity-off partner open", 3)]
         mw = self._MW(locs)
         mw.worlds = {
             2: SimpleNamespace(game="Done", get_pre_fill_items=lambda: []),
             3: SimpleNamespace(game="OoS", get_pre_fill_items=lambda: [object()]),
         }
-        self.assertEqual(players_still_prefilling(mw), {3})
         out = _foreign_open_locations(mw, {1})
-        self.assertEqual([loc.name for loc in out], ["theirs open"])
+        self.assertEqual([loc.name for loc in out],
+                         ["theirs open", "keysanity-off partner open"])
 
     def test_a_multiworld_without_a_worlds_table_filters_nothing_new(self):
         out = _foreign_open_locations(self._MW(self._all()), {1})

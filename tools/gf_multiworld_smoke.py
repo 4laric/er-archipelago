@@ -28,8 +28,8 @@ spread: ~100, ~200 and ~350 locations per slot.
 🛑 THE FIGURES THAT USED TO BE CITED HERE WERE RETIRED, 2026-08-15. This paragraph quoted a sweep of
 `region_locks_anywhere` putting released Locks in the partner at 0.30%-3.50% by partner size. That
 option no longer exists anywhere in the repo: those numbers describe the ORIGINAL item_rule design
-that #491 replaced with `stage_pre_fill`, under which the measured answer was not a small share but
-ZERO -- see #703. Left in place they read as evidence that Locks already travel cross-game, which is
+that #491 replaced with the cross-world stage pass (now `stage_fill_hook`), under which the measured
+answer was not a small share but ZERO -- see #703. Left in place they read as evidence that Locks already travel cross-game, which is
 the precise belief #703 had to disprove. Check 2c below now asserts the thing they appeared to.
 
 🛑 TWO PARTNERS WERE TRIED AND REJECTED, and not for generating badly. Meritous (104 locations, 9
@@ -82,17 +82,18 @@ WHAT IT ASSERTS, and none of it is "it generated". Every item runs ONCE PER PART
           for the whole generation, so any cross-slot cache hands slot 2 slot 1's tables -- and
           that is invisible to every single-slot gate we have.
 
-  5. A PARTNER STILL HOLDING ITS OWN PRE-FILL ITEMS KEEPS ALL ITS LOCATIONS (#1457, 2026-09-07).
-     AP runs stage_pre_fill hooks in class-name order and GreenfieldEldenRingWorld sorts before
-     most partners. Our two foreign placement passes locked ~48 of Oracle of Seasons' ~280 open
-     checks before Oracle had placed its dungeon keys (11-15 checks per dungeon, 5-8 confined), and
-     6 of 8 seeds died in ITS pre-fill with "No more spots to place N items" -- reported at the
-     table as "not enough locations". The fix skips any partner whose `get_pre_fill_items()` is
-     non-empty and LOGS it. Oracle does not ship with AP; The Wind Waker does, sorts after us
-     (TWWWorld), and confines 29 dungeon items in its stage hook by default. The guard reads the
-     generation log for the skip line naming The Wind Waker: a green here proves the mechanism was
-     REACHED on a real partner, not merely that generation survived (TWW's dungeons are roomy
-     enough that it survived without the fix, which is exactly why "it generated" is not the test).
+  5. A PARTNER THAT PRE-FILLS ITS OWN DUNGEONS STILL GETS ITS SHARE OF OUR LOCKS (#1457,
+     #1470). Our cross-world passes used to run in `stage_pre_fill`, which AP orders by CLASS NAME,
+     so they ran before most partners had placed their own confined items: 6 of 8 Oracle of
+     Seasons seeds died in ITS pre-fill (#1457). v0.6.0.2 skipped any partner still holding
+     `get_pre_fill_items()`, which kept Oracle alive but sent our Locks back onto Elden Ring
+     surfaces. #1470 moved the passes to `stage_fill_hook`, which core runs after every world's
+     pre-fill and after the early-items pass, and deleted the skip. The Wind Waker ships with AP,
+     sorts after us (TWWWorld) and confines 29 dungeon items in its stage hook by default, so it is
+     the partner here, and the guard is check 2c pointed at it: a released Lock must land in The
+     Wind Waker. Under the old skip that number was structurally zero (TWW's slots were withheld),
+     and under the old ordering generation could die outright -- so this reads both regressions,
+     which "it generated" alone cannot (TWW's dungeons are roomy enough to survive being raided).
   6. A PARTNER'S DECLARED EARLY ITEM STAYS EARLY (#1456, 2026-09-07). The balanced incoming
      reservation drew from every foreign advancement copy in the pool, including the ones a
      partner declared in `early_items`; a copy we lock onto a deep Elden Ring check is one AP's
@@ -238,8 +239,7 @@ def _er_yaml(name, natural, confine=None):
 def generate(ap_dir, players_dir, out_dir):
     """Run Generate.py. `--spoiler 1` = placements WITHOUT the playthrough calculation, which is the
     expensive half and which this test does not read. -> archive path. The generation LOG is kept
-    in `generate.last_log` for guards that read what the world SAID (check 5), not only what it
-    placed."""
+    in `generate.last_log` for triage (no guard reads it since #1470 retired the pre-fill skip)."""
     env = dict(os.environ, AP_NONINTERACTIVE="1", SKIP_REQUIREMENTS_UPDATE="1")
     cmd = [sys.executable, "Generate.py", "--player_files_path", players_dir,
            "--outputpath", out_dir, "--spoiler", "1", "--seed", SEED]
@@ -625,33 +625,20 @@ def check_locks_reach_a_partner(rows, er, foreign_slots, partner_game, report):
     return bad
 
 
-_PREFILL_SKIP = re.compile(r"export-reservation: (?P<game>.+?) \(P\d+\) still holds (?P<n>\d+) "
-                           r"pre-fill item\(s\) of its own; its locations are left to it")
+def check_prefilling_partner_gets_its_share(rows, er, partner_slots, partner_game, report):
+    """5. THE PARTNER THAT PRE-FILLS ITS OWN DUNGEONS STILL RECEIVES OUR LOCKS (#1457 / #1470).
 
-
-def check_partner_prefill_respected(gen_log, partner_game, report):
-    """5. THE PARTNER THAT STILL HAS ITS OWN PRE-FILL TO DO IS LEFT ALONE (#1457).
-
-    Reads the generation LOG, not the placements: the placements of a roomy partner look the same
-    with and without the skip (TWW generated clean before the fix), so only the world's own
-    statement that it skipped the partner proves the mechanism was reached. A partner that stops
-    declaring pre-fill items, or a skip that is removed, both read as "the line is missing" -- and
-    both are the same defect from this test's point of view: nothing is guarding Oracle's dungeons.
+    Check 2c, aimed at the one partner whose stage hook confines items to its own dungeons. Two
+    regressions read here: the passes moving back ahead of the partner's pre-fill (generation
+    dies, or the partner's dungeons come up short), and the v0.6.0.2 skip coming back (the partner
+    generates fine and receives none of our Locks, because its locations were withheld from the
+    share). A green means our passes ran AFTER the partner placed its own items and still reached
+    it -- the ordering #1470 moved to `stage_fill_hook` for.
     """
-    hits = {m.group("game"): int(m.group("n")) for m in _PREFILL_SKIP.finditer(gen_log or "")}
-    if partner_game in hits:
-        report("pre-fill respect: %s still held %d pre-fill item(s) and kept all its locations"
-               % (partner_game, hits[partner_game]))
-        if hits[partner_game] <= 0:
-            return ["%s was reported as still pre-filling with ZERO items, which cannot be right "
-                    "-- the skip fired on an empty list." % partner_game]
-        return []
-    return ["the export-reservation never reported skipping %s, so either the partner no longer "
-            "declares pre-fill items (get_pre_fill_items empty: check its dungeon-item defaults) "
-            "or the still-prefilling skip in export_reservation.py is gone. Without it a partner "
-            "that confines items to a subset of its own locations in ITS stage_pre_fill (Oracle of "
-            "Seasons' dungeons) can find no room left and die with \"No more spots\" -- 6 of 8 "
-            "seeds, 2026-09-07 (#1457). Lines seen: %s" % (partner_game, sorted(hits) or "none")]
+    if not partner_slots:
+        return ["no %s slot in the seed, so the pre-filling-partner guard checked nothing"
+                % partner_game]
+    return check_locks_reach_a_partner(rows, er, partner_slots, partner_game, report)
 
 
 _START_LOCK = re.compile(r"^(?P<region>.+?) Lock \((?P<player>[^)]+)\)\r?$", re.M)
@@ -936,16 +923,21 @@ def self_test():
     else:
         print("  ok    %-52s fails as designed" % "one game receives no ER item")
 
-    # Checks 5 and 6 (#1456 / #1457). Each gets the clean shape and the fault that motivated it.
-    log_ok = ("[greenfield] export-reservation: The Wind Waker (P4) still holds 29 pre-fill "
-              "item(s) of its own; its locations are left to it.\n")
-    prefill_cases = [
-        ("partner skip line present", log_ok, None),
-        ("skip line missing (fix removed or partner stopped declaring)", "", "never reported"),
-        ("skip fired on an empty list", log_ok.replace("29", "0"), "ZERO items"),
+    # Checks 5 and 6 (#1456 / #1457 / #1470). Each gets the clean shape and the fault it guards.
+    tww_ok = [("Windfall Island - Chest", "Wind1", "Liurnia Lock", "ErdtreeOne"),
+              ("Roundtable Hold :: Talisman Pouch [f60500]", "ErdtreeOne", "Rune", "ErdtreeOne")]
+    tww_withheld = [("Roundtable Hold :: Talisman Pouch [f60500]", "ErdtreeOne", "Liurnia Lock",
+                     "ErdtreeTwo"),
+                    ("Windfall Island - Chest", "Wind1", "Rune", "ErdtreeOne")]
+    share_cases = [
+        ("a Lock reached the pre-filling partner", tww_ok, {"Wind1"}, None),
+        ("Locks travelled but the partner's slots were withheld (the old skip)", tww_withheld,
+         {"Wind1"}, "NOT ONE of"),
+        ("no partner slot in the seed", tww_ok, set(), "checked nothing"),
     ]
-    for name, log, want in prefill_cases:
-        got = check_partner_prefill_respected(log, "The Wind Waker", lambda _m: None)
+    for name, rows_, slots, want in share_cases:
+        got = check_prefilling_partner_gets_its_share(rows_, {"ErdtreeOne", "ErdtreeTwo"}, slots,
+                                                      "The Wind Waker", lambda _m: None)
         if want is None and got:
             problems.append("%-52s expected PASS, got: %s" % (name, got[0][:90]))
         elif want is None:
@@ -1122,10 +1114,12 @@ def run_shape_cases(ap_dir, keep, only=None):
                              check_gear_reaches_the_partner(si, locs,
                                                             lambda m: print("  " + m))]
             elif label == "pre-fill and early partners":
+                er_names = {i.name for i in si.values() if i.game == GAME}
+                tww_names = {i.name for i in si.values() if i.game == _PREFILL_PARTNER.game}
                 failures += ["[%s] %s" % (label, f) for f in
-                             check_partner_prefill_respected(generate.last_log,
-                                                             _PREFILL_PARTNER.game,
-                                                             lambda m: print("  " + m))]
+                             check_prefilling_partner_gets_its_share(
+                                 rows, er_names, tww_names, _PREFILL_PARTNER.game,
+                                 lambda m: print("  " + m))]
                 spoiler = zipfile.ZipFile(zip_path)
                 text = spoiler.read([n for n in spoiler.namelist() if "Spoiler" in n][0]
                                     ).decode("utf-8", errors="replace")
