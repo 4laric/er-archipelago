@@ -77,7 +77,7 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
         detections = [row for row in self.bundle["claims"]
                       if row["claim_kind"] == "detection"]
         self.assertTrue(detections)
-        self.assertEqual(len(detections), 4287)  # +2 Senessax stone reward checks (#1296)
+        self.assertEqual(len(detections), 4292)  # +5 M4G physical reward recoveries (#1437)
         self.assertTrue(all(row["status"] == "single_source" for row in detections))
         evidence_by_id = {row["evidence_id"]: row for row in self.bundle["evidence"]}
         source_by_id = {row["source_id"]: row for row in self.bundle["sources"]}
