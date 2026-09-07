@@ -87,7 +87,7 @@ def _gen_data_literal(name):
 
 def _data_locations():
     """data.py's LOCATIONS dict, parsed from source (AP-free)."""
-    src = os.path.join(_ROOT, "greenfield", "eldenring", "tables", "tables/data.py")
+    src = os.path.join(_ROOT, "greenfield", "eldenring", "tables/data.py")
     with open(src, encoding="utf-8") as fh:
         tree = ast.parse(fh.read(), filename=src)
     for node in ast.walk(tree):

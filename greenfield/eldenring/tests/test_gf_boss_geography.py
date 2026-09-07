@@ -80,7 +80,7 @@ class ClassIsNotGeography(unittest.TestCase):
 
 
 def _load_healthbars():
-    p = os.path.join(REPO, "greenfield", "eldenring", "tables", "tables/boss_healthbars.py")
+    p = os.path.join(REPO, "greenfield", "eldenring", "tables/boss_healthbars.py")
     g = {}
     exec(compile(open(p, encoding="utf-8").read(), p, "exec"), g)
     return g["BOSS_HEALTHBARS"]

@@ -40,7 +40,7 @@ except ImportError:
 # repo -- `gf_test.py --ap-dir` accepts any path, and every path but one reproduces this.)
 ROOT = find_repo_root(os.path.abspath(__file__))
 TSV = os.path.join(ROOT, "greenfield", "arena_graces.tsv") if ROOT else ""
-GRACES = os.path.join(ROOT, "greenfield", "eldenring", "tables", "tables/region_graces.py") if ROOT else ""
+GRACES = os.path.join(ROOT, "greenfield", "eldenring", "tables/region_graces.py") if ROOT else ""
 
 RULED_NOT_AN_ARENA = {
     76118: "Warmaster's Shack (Bell Bearing Hunter, night-only)",

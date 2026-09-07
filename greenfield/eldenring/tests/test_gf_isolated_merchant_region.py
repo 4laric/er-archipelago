@@ -142,7 +142,7 @@ def _surface_excluded():
 
 
 def _data_locations():
-    src = os.path.join(_ROOT, "greenfield", "eldenring", "tables", "tables/data.py")
+    src = os.path.join(_ROOT, "greenfield", "eldenring", "tables/data.py")
     with open(src, encoding="utf-8") as fh:
         tree = ast.parse(fh.read(), filename=src)
     for node in ast.walk(tree):
@@ -224,7 +224,7 @@ def test_the_generated_world_files_the_stock_in_the_academy():
 def test_the_shipped_tags_no_longer_surface_exclude_the_stock():
     """location_tags.py (the shipped projection of the gen_data set): the 16 AP ids are out of
     SURFACE_EXCLUDE_APS, so the surface math and the region agree about who gates these checks."""
-    src = os.path.join(_ROOT, "greenfield", "eldenring", "tables", "tables/location_tags.py")
+    src = os.path.join(_ROOT, "greenfield", "eldenring", "tables/location_tags.py")
     with open(src, encoding="utf-8") as fh:
         tree = ast.parse(fh.read(), filename=src)
     for node in ast.walk(tree):

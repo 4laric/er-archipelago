@@ -53,7 +53,7 @@ class ProgressionHostConfidenceTests(unittest.TestCase):
 
     def test_generated_runtime_sets_partition_the_current_check_population(self):
         builder = load_builder()
-        path = os.path.join(REPO, "greenfield", "eldenring", "tables", "tables/evidence_progression_hosts.py")
+        path = os.path.join(REPO, "greenfield", "eldenring", "tables/evidence_progression_hosts.py")
         spec = importlib.util.spec_from_file_location("generated_host_confidence", path)
         generated = importlib.util.module_from_spec(spec)
         assert spec and spec.loader

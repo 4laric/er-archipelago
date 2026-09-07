@@ -57,17 +57,17 @@ def _load(name, path):
 
 
 def _tags():
-    return _load("_gf_location_tags_under_test", _gf("eldenring", "tables", "tables/location_tags.py"))
+    return _load("_gf_location_tags_under_test", _gf("eldenring", "tables/location_tags.py"))
 
 
 def _shop_row_ids():
-    return _load("_gf_shop_data_under_test", _gf("eldenring", "tables", "tables/shop_data.py")).SHOP_ROW_IDS
+    return _load("_gf_shop_data_under_test", _gf("eldenring", "tables/shop_data.py")).SHOP_ROW_IDS
 
 
 def _names():
     """ap -> location name. The name carries the [Sorcery]/[Incantation] prefix; the canonical item
     name does not (_resolve_item strips it), which is why the raw name is the only complete signal."""
-    src = open(_gf("eldenring", "tables", "tables/data.py"), encoding="utf-8").read()
+    src = open(_gf("eldenring", "tables/data.py"), encoding="utf-8").read()
     pat = r"\(\s*('(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")\s*,\s*(\d+)\s*,\s*(\d+)\s*\)"
     return {int(m.group(2)): ast.literal_eval(m.group(1)) for m in re.finditer(pat, src)}
 
