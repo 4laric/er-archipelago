@@ -389,7 +389,10 @@ class EvidenceLedgerTests(unittest.TestCase):
             sources = dst / "sources.tsv"
             sources.write_text(
                 sources.read_text().replace(
-                    "greenfield/eldenring/tables/data.py", "../../outside/data.py", 1
+                    # The status_engine fixture is a RECORDED ledger and still names the pre-#1464
+                    # path; a replace that matches nothing injects no traversal and the assertion
+                    # below passes for the wrong reason (it did, once).
+                    "greenfield/eldenring/data.py", "../../outside/data.py", 1
                 )
             )
             with self.assertRaisesRegex(ledger.LedgerError, "canonical relative POSIX"):
