@@ -23,6 +23,15 @@ handshake accepts any pairing of v0.6.0, v0.6.0.1 and v0.6.0.2 clients and apwor
 The version moved, so the client half moved with it: clients PR "Stamp the paired client as
 0.6.0+f2" regenerates `contract_gen.rs` at 0.6.0.2, and the gitlink rides in this same commit.
 
+- **Fixed: the incoming progression reservation could take a partner's early item deep.** Under
+  `cross_game_progression: auto`, stage pre-fill reserves a share of every partner game's
+  advancement onto this slot's checks, locked, before Archipelago's own early-items pass runs.
+  It drew from every advancement copy in the pool, including the ones the partner had declared
+  in `early_items` or `local_early_items`, so a key the partner asked to see in sphere 1 could
+  be locked behind a late-sphere boss with nothing for the early pass to place (a test seed put
+  an APQuest Key on a Liurnia check from a Stormveil start; reported at the table as a Dragon
+  Quest IX key behind a 10-of-15 Astel). Declared early copies now stay in the pool. Applies to
+  new seeds only.
 - **Release pipeline: a tag rebuild no longer fails because the MapForGoblins fork moved after
   the tag.** The `mfg-dll` job's pin check is strict on main and on fresh dispatches, and
   warns-only when rebuilding an existing tag: the pin recorded in a tag is the pin that tag
