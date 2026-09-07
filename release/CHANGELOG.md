@@ -26,8 +26,12 @@ commit.
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.2 in this same commit.
 
-Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of
-the release).
+- **Release pipeline: the next window is opened by a workflow.** `open-window.yaml` runs after
+  a tag's `er-release` goes green: `tools/open_window.py` on the runner with the client
+  submodule at client main, the client half pushed as its own PR, stable promoted and
+  `latest.json` regenerated, and the world half opened as a draft PR listing every prose
+  marker the tool leaves behind. Default next version is fixpack plus one; a minor or major bump is
+  a dispatch input. Needs the `CLIENT_REPO_TOKEN` secret.
 
 ## v0.6.0.2 — 2026-09-07
 

@@ -1,0 +1,234 @@
+# open-window.yaml -- open the next release window as a DRAFT pull request, after a tag ships.
+#
+# WHAT A WINDOW OPEN IS. Seven version sites across two repos, a stable-channel promotion, a
+# regenerated latest.json, and the notes skeletons -- `tools/open_window.py` already does every
+# mechanical part from the ONE site list (`check_version_sites.SITES`) and refuses to write the
+# prose. This workflow runs it on a runner, pushes the client half as its own PR, and opens the
+# world half as a draft with the `TODO(open)` prose markers still in it. A human writes three
+# sentences and merges two PRs. `open_window.py --check-notes` (run by the `tests` job through
+# check_release_notes) keeps the draft from merging while any marker survives.
+#
+# WHAT IT DECIDES ON ITS OWN. The next version is the shipped tag's fixpack plus one (v0.6.0.2
+# opens 0.6.0.3): a fixpack is the default because a client on the same V.R.M plays every seed of
+# the line, so it is always a safe window to open. A minor or major bump is a HUMAN decision --
+# pass `to` on a manual dispatch.
+#
+# WHAT IT NEEDS. `CLIENT_REPO_TOKEN`: a fine-grained PAT with Contents + Pull requests write on
+# BOTH 4laric/er-archipelago and 4laric/from-software-archipelago-clients. GITHUB_TOKEN cannot
+# push to the client repo, and pull requests it creates do not trigger `tests` on this repo (the
+# documented GitHub rule against workflow recursion), so the world PR is pushed with the PAT too.
+#
+# 🛑 PRECONDITION IT INHERITS FROM open_window.py: every site agrees BEFORE the bump, client
+# included. So the previous window's client PR must be merged to client main before this runs;
+# otherwise step [1] of the tool refuses and this job goes red with the exact site named. That is
+# the right failure: opening a window on a client that trails its own world is how the pin record
+# broke at v0.2.17, v0.3.1, v0.3.5, v0.3.7 and v0.3.11.
+name: open-window
+
+on:
+  workflow_run:
+    workflows: [er-release]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      to:
+        description: "version to open (V.R.M or V.R.M.F); default = shipped tag's fixpack + 1"
+        required: false
+        default: ""
+      from_tag:
+        description: "the tag just shipped, e.g. v0.6.0.2 (default: newest v* tag on main)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: open-window
+  cancel-in-progress: false
+
+jobs:
+  open:
+    runs-on: ubuntu-latest
+    # workflow_run fires for every er-release completion, including the main-branch development
+    # build and failed runs. Only a green run of a v* tag opens a window.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       startsWith(github.event.workflow_run.head_branch, 'v'))
+    steps:
+      - name: The PAT is present
+        env:
+          TOKEN: ${{ secrets.CLIENT_REPO_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::error::CLIENT_REPO_TOKEN is not set. It needs Contents + Pull requests write on both repos; see the header of this file."
+            exit 1
+          fi
+
+      # The window opens on main, whatever ref the triggering run had: a tag is cut from main and
+      # the window commit lands on main. fetch-depth 0 because open_window's tag_position() and
+      # the fixpack+1 default both read the tag list.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          fetch-tags: true
+          submodules: true
+          token: ${{ secrets.CLIENT_REPO_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Work out which tag shipped and which version opens
+        id: v
+        env:
+          TO: ${{ github.event.inputs.to }}
+          FROM_TAG: ${{ github.event.inputs.from_tag || github.event.workflow_run.head_branch }}
+        run: |
+          python - <<'EOF'
+          import os, subprocess, sys
+          sys.path.insert(0, "tools")
+          import vrmf
+          from_tag = os.environ.get("FROM_TAG") or ""
+          if not from_tag.startswith("v"):
+              tags = subprocess.run(["git", "tag", "--list", "v*", "--merged", "main"],
+                                    capture_output=True, text=True, check=True).stdout.split()
+              tags = [t for t in tags if vrmf.is_version(t[1:])]
+              from_tag = max(tags, key=lambda t: vrmf.parse(t[1:]))
+          shipped = from_tag[1:]
+          if not vrmf.is_version(shipped):
+              sys.exit("not a V.R.M[.F] tag: %s" % from_tag)
+          to = (os.environ.get("TO") or "").strip()
+          if not to:
+              v, r, m, f = vrmf.parse(shipped)
+              to = "%d.%d.%d.%d" % (v, r, m, (f or 0) + 1)
+          to = vrmf.canonical(to)
+          err = vrmf.sequence_error(shipped, to)
+          if err:
+              sys.exit(err)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write("from_tag=%s\nto=%s\n" % (from_tag, to))
+          print("shipped %s -> opening %s" % (from_tag, to))
+          EOF
+
+      - name: Refuse to open a window twice
+        run: |
+          if git ls-remote --exit-code --heads origin "open-${{ steps.v.outputs.to }}" >/dev/null; then
+            echo "::error::branch open-${{ steps.v.outputs.to }} already exists on origin -- the window is already open (or the draft was never merged)."
+            exit 1
+          fi
+
+      # The client half is applied IN the submodule by open_window.py, so the submodule has to be
+      # a real branch at client main, not the detached gitlink: the tool commits there.
+      - name: Put the client submodule on client main
+        run: |
+          git -C from-software-archipelago-clients fetch origin main
+          git -C from-software-archipelago-clients checkout -B main origin/main
+          git -C from-software-archipelago-clients config user.name "github-actions[bot]"
+          git -C from-software-archipelago-clients config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Same three steps as tests.yaml: the wizard metadata generator inside open_window needs the
+      # pinned upstream Archipelago with the world installed into it.
+      - name: Read the Archipelago pin
+        id: ap
+        run: echo "version=$(cat .ap-version)" >> "$GITHUB_OUTPUT"
+      - name: Check out stock upstream Archipelago
+        uses: actions/checkout@v4
+        with:
+          repository: ArchipelagoMW/Archipelago
+          ref: ${{ steps.ap.outputs.version }}
+          path: _ap
+      - name: Install Archipelago's requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install "setuptools<80"
+          pip install -r _ap/requirements.txt
+
+      - name: Open the window (bump every site, regenerate, lay down the skeletons, commit the client half)
+        env:
+          SKIP_REQUIREMENTS_UPDATE: "1"
+          AP_NONINTERACTIVE: "1"
+          PYTHONIOENCODING: utf-8
+        run: |
+          python tools/open_window.py --to "${{ steps.v.outputs.to }}" --ap-dir _ap
+          # The metadata generator re-emits presets/*.yaml as a side effect; a window open has
+          # never shipped a preset change (git log -- presets/), so keep the commit to the window.
+          git checkout -- presets/
+
+      - name: Push the client half and open its PR
+        id: client
+        working-directory: from-software-archipelago-clients
+        env:
+          GH_TOKEN: ${{ secrets.CLIENT_REPO_TOKEN }}
+        run: |
+          branch="$(git branch --show-current)"
+          case "$branch" in chore/open-v*-window-client) ;; *)
+            echo "::error::open_window.py did not commit a client half (branch is '$branch'); the client sites may already be current, which means the previous window's client PR was never merged -- or the tool changed its branch name."
+            exit 1;;
+          esac
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/4laric/from-software-archipelago-clients.git"
+          git push -u origin "$branch"
+          url="$(gh pr create --repo 4laric/from-software-archipelago-clients --base main --head "$branch" \
+            --title "Stamp the paired client for the v${{ steps.v.outputs.to }} window" \
+            --body "Client half of the v${{ steps.v.outputs.to }} window open, committed by tools/open_window.py from er-archipelago's open-window workflow. The world PR pins its gitlink at this branch head; move it to the merge commit after merging if you want the ledger to name the merge.")"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Promote stable, regenerate latest.json, prove the tree
+        run: |
+          # open_window.py appended the stable row for the shipped tag (note still TODO(open)) and
+          # the beta row for the new window. latest.json derives from the stable row.
+          python tools/gen_latest_json.py
+          python tools/gen_latest_json.py --check
+          python tools/check_version_sites.py
+          python tools/check_contract_version.py
+          python tools/mfg_pin.py --check --allow-behind
+
+      - name: Commit and open the draft world PR
+        env:
+          GH_TOKEN: ${{ secrets.CLIENT_REPO_TOKEN }}
+        run: |
+          to="${{ steps.v.outputs.to }}"
+          from_tag="${{ steps.v.outputs.from_tag }}"
+          git checkout -b "open-$to"
+          git add -A -- greenfield/eldenring/contract.py release wizard from-software-archipelago-clients
+          git status --short
+          git commit -F - <<EOF
+          Open the v$to window, promote stable to $from_tag, regenerate latest.json
+
+          Opened by the open-window workflow after $from_tag shipped. Every version site
+          moved by tools/open_window.py; the client half is on the submodule at
+          ${{ steps.client.outputs.sha }} (${{ steps.client.outputs.url }}). The prose
+          carries TODO(open) markers for a human; check_release_notes holds this draft
+          until they are gone.
+          EOF
+          git push -u origin "open-$to"
+          todos="$(grep -rn 'TODO(open)' release/ | sed 's/^/    /' | cut -c1-160)"
+          gh pr create --draft --base main --head "open-$to" \
+            --title "Open the v$to window, promote stable to $from_tag, regenerate latest.json" \
+            --body "$(cat <<EOF
+          Opened automatically after **$from_tag** shipped (er-release green).
+
+          ## Done by the workflow
+          - Every version site at $to via \`tools/open_window.py\` (contract.py, wizard blob and its inlined copy; archipelago.json stays at the 3-tuple).
+          - Client half: ${{ steps.client.outputs.url }} -- gitlink pinned at its branch head.
+          - \`release/CHANNELS.tsv\`: stable promoted to $from_tag, beta row for the open window; \`release/latest.json\` regenerated.
+          - Skeletons for the changelog section, ledger row and blurb.
+
+          ## Yours before this can merge
+          Replace every marker below (\`python tools/open_window.py --check-notes\` must pass):
+
+          \`\`\`
+          $todos
+          \`\`\`
+
+          Then merge the client PR first, then this one. The host cron's deploy_wizard.sh picks up the stable promotion on its own.
+
+          🤖 Opened by .github/workflows/open-window.yaml
+          EOF
+          )"

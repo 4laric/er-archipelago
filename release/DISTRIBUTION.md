@@ -73,6 +73,22 @@ Bump the pin in the same PR that lands a fork change the world depends on, so th
 that follows builds it. v0.6.0.1 is why this paragraph exists: the fork merged the rings
 default, the packager began requiring the key, and the pin still named the commit before.
 
+### And the next window, which a workflow opens
+
+`.github/workflows/open-window.yaml` runs when `er-release` finishes green on a `v*` tag (or on
+dispatch with a `to` input). It runs `tools/open_window.py` on the runner with the client
+submodule at client main, so every version site moves from the one list and the client half is
+committed in the submodule; pushes that client branch and opens its PR; promotes `stable` in
+`release/CHANNELS.tsv` to the shipped tag and regenerates `release/latest.json`; and opens the
+world half as a DRAFT PR whose body lists every `TODO(open)` prose marker. The default next
+version is the shipped tag's fixpack plus one; a minor or major bump is a dispatch decision.
+
+What stays human: the three prose sites (changelog intro, ledger row, channel note), which
+`check_release_notes` holds the draft on until they are written, and the two merges. It needs
+the `CLIENT_REPO_TOKEN` secret (a fine-grained PAT with Contents + Pull requests write on both
+repos) and the previous window's client PR merged, or `open_window.py`'s "sites agree before the
+bump" precondition refuses and the job goes red naming the site.
+
 ## What we do NOT do
 
 **No mirrors.** Not on Nexus, not in a Discord pin, not a re-upload "for convenience". A mirror
