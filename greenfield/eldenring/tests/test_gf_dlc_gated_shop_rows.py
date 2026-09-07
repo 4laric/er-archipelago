@@ -23,12 +23,12 @@ import unittest
 from test.bases import WorldTestBase
 
 from .. import tarnished_pack as tp
-from ..shop_data import (
+from ..tables.shop_data import (
     DLC_GATED_SHOP_CHECK_FLAGS,
     DLC_GATED_SHOP_ROW_FLAGS,
     SHOP_ROW_FLAGS,
 )
-from ..data import LOCATIONS, NOT_RANDOMIZED
+from ..tables.data import LOCATIONS, NOT_RANDOMIZED
 
 GAME = "Elden Ring"
 

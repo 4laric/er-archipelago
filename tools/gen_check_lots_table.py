@@ -122,7 +122,7 @@ def name_witnesses():
     """
     import re
 
-    cat_src = os.path.join(REPO, "greenfield", "eldenring", "item_ids.py")
+    cat_src = os.path.join(REPO, "greenfield", "eldenring", "tables", "item_ids.py")
     text = open(cat_src, encoding="utf-8").read()
     by_name = {}
     for m in re.finditer(r"'([^']+)'\s*:\s*(\d+),", text):
@@ -213,7 +213,7 @@ def derive_category_nibble(rows_by_cat, known, named=None):
 
 def _catalog_raw_to_nibbles():
     import re
-    src = os.path.join(REPO, "greenfield", "eldenring", "item_ids.py")
+    src = os.path.join(REPO, "greenfield", "eldenring", "tables", "item_ids.py")
     text = open(src, encoding="utf-8").read()
     known = {}
     for m in re.finditer(r"'[^']+'\s*:\s*(\d+),", text):

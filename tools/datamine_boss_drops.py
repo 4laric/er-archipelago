@@ -15,7 +15,7 @@ rewardLot); (3) rewardLot -> ItemLotParam_map (base + consecutive rows) -> getIt
 AP location; (4) drop remembrance/great-rune rewards (major bosses). Handlers WITHOUT an itemLotId
 (9005840 Demigod) are major bosses with no item drop -> naturally excluded.
 
-Emits greenfield/eldenring/boss_drops.py: BOSS_DROP_FLAGS (getItemFlagId set) + BOSS_DROP_AP (ap ids).
+Emits greenfield/eldenring/tables/boss_drops.py: BOSS_DROP_FLAGS (getItemFlagId set) + BOSS_DROP_AP (ap ids).
 gen_data.py tags these 'Boss' (retiring the old boss_arena->Boss). Run on Windows (fast local I/O):
     python tools/datamine_boss_drops.py            # regenerate boss_drops.py
     python tools/datamine_boss_drops.py --list      # print the reviewable list, write nothing
@@ -36,7 +36,7 @@ AR   = os.path.join(REPO, "elden_ring_artifacts")
 VV   = os.path.join(AR, "vanilla_er", "vanilla_er")
 EVT  = os.path.join(AR, "event")
 GF   = os.path.join(REPO, "greenfield")
-OUT  = os.path.join(GF, "eldenring", "boss_drops.py")
+OUT  = os.path.join(GF, "eldenring", "tables", "boss_drops.py")
 MIN_DROP_ROWS = 88
 MIN_DROP_MAPS = 71
 

@@ -26,7 +26,7 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring.features.rune_pricing import is_rune_item, rune_worth, PRICE_MULT  # noqa: E402
-from worlds.eldenring.item_ids import ITEM_CATALOG  # noqa: E402
+from worlds.eldenring.tables.item_ids import ITEM_CATALOG  # noqa: E402
 
 GAME = "Elden Ring"
 _GOODS = 0x40000000
@@ -45,7 +45,7 @@ def _direct_rune_ratios(seed, draws=50):
     """
     import random
     from worlds.eldenring.features import shop_stock
-    from worlds.eldenring.shop_stock_data import RUNE_PAYOUT
+    from worlds.eldenring.tables.shop_stock_data import RUNE_PAYOUT
     rng = random.Random(seed)
     out = []
     # 🛑 ITERATE THE DATUM, NOT THE PREDICATE. This loop used to walk ITEM_CATALOG and `continue` on
@@ -117,7 +117,7 @@ def test_the_roll_actually_reaches_the_cheap_end():
 def test_both_pricing_paths_agree_on_what_a_rune_is_worth():
     """The two paths must divide out the same 10x, or one of them reprices every rune by an order
     of magnitude while the other looks fine."""
-    from worlds.eldenring.shop_stock_data import GOODS_PRICE
+    from worlds.eldenring.tables.shop_stock_data import GOODS_PRICE
     checked = 0
     for name, full in ITEM_CATALOG.items():
         if not is_rune_item(name) or (full & 0xF0000000) != _GOODS:

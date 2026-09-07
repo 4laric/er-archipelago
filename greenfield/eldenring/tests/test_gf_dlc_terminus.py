@@ -25,7 +25,7 @@ import pytest
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.region_spine import (SPINE, compute_kept, base_regions,  # noqa: E402
                                            dlc_regions, REGION_PARENT)
-from worlds.eldenring.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS  # noqa: E402
 from worlds.eldenring.features.goal_locations import (  # noqa: E402
     DLC_TERMINUS_REGION, auto_forced_regions, dlc_terminus_active, terminal_goal_ids,
     _major_boss_ids)

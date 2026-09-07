@@ -73,11 +73,11 @@ from Options import Toggle
 from ..registry import Feature, register
 
 try:
-    from ..data import REGIONS, LOCATIONS
+    from ..tables.data import REGIONS, LOCATIONS
 except Exception:  # pragma: no cover -- pre-regen data
     REGIONS, LOCATIONS = [], {}
 try:
-    from ..item_ids import ITEM_CATALOG, LOCATION_ITEM
+    from ..tables.item_ids import ITEM_CATALOG, LOCATION_ITEM
     from .. import item_categories as _ic
 except Exception:  # pre-regen / standalone import
     ITEM_CATALOG, LOCATION_ITEM = {}, {}
@@ -85,7 +85,7 @@ except Exception:  # pre-regen / standalone import
     class _ic:  # type: ignore[no-redef]  # no catalog -> no runes
         GREAT_RUNES: list = []
 try:
-    from ..region_open_flags import REGION_OPEN_FLAGS
+    from ..tables.region_open_flags import REGION_OPEN_FLAGS
 except Exception:
     REGION_OPEN_FLAGS = {}
 

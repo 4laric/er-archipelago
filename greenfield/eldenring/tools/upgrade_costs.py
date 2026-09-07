@@ -53,8 +53,14 @@ except ImportError:  # minimal fallbacks so the module imports without the gener
 def _derive_rune_values() -> Dict[str, int]:
     _GOODS_NIBBLE, _ROW_MASK = 0x40000000, 0x0FFFFFFF
     try:
-        _here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        sys.path.insert(0, _here)
+        # The generated tables moved into eldenring/tables/ (#1464). This module is loaded BY PATH
+        # (see the test's `_upgrade_costs`), not as a package member, so it resolves them off
+        # sys.path by bare name -- which means the move made both imports fail, the `except` below
+        # swallowed it, and RUNE_VALUE silently became {}. That is the exact "degrade to an empty
+        # table" failure #1464 set out to end, so point at the package dir and keep the names bare.
+        _pkg = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        sys.path.insert(0, os.path.join(_pkg, "tables"))
+        sys.path.insert(0, _pkg)
         from shop_stock_data import RUNE_PAYOUT   # noqa: PLC0415 -- generated leaf
         from item_ids import ITEM_CATALOG         # noqa: PLC0415 -- generated leaf
     except ImportError:

@@ -396,7 +396,7 @@ def crosscheck_gifts(gift_rows, repo):
         Sellen chain, Seluvis's Potion, ...).
 
     Buckets (each lot counted once, first match wins):
-      live_check      -- a flag of the lot is in eldenring/data.py LOCATIONS (a live AP check)
+      live_check      -- a flag of the lot is in eldenring/tables/data.py LOCATIONS (a live AP check)
       not_randomized  -- in data.py NOT_RANDOMIZED (deliberately dropped; e.g. Spectral Steed Whistle)
       pending         -- in region_map.csv with map == PENDING (unplaced; the prize, see above)
       placed_not_live -- in region_map.csv placed but neither live nor NOT_RANDOMIZED (should be 0;
@@ -406,7 +406,7 @@ def crosscheck_gifts(gift_rows, repo):
     """
     fl_path = os.path.join(repo, "greenfield", "flag_lots.tsv")
     rm_path = os.path.join(repo, "greenfield", "region_map.csv")
-    dp_path = os.path.join(repo, "greenfield", "eldenring", "data.py")
+    dp_path = os.path.join(repo, "greenfield", "eldenring", "tables", "data.py")
     missing = [p for p in (fl_path, rm_path, dp_path) if not os.path.exists(p)]
     if missing:
         # A missing input must not silently disable the guard (the sibling tool once lost every
@@ -432,7 +432,7 @@ def crosscheck_gifts(gift_rows, repo):
         elif n.targets[0].id == "NOT_RANDOMIZED":
             notrand = {int(k) for k in ast.literal_eval(n.value)}
     if not loc_flags:
-        sys.exit("FATAL: no LOCATIONS flags parsed from eldenring/data.py -- the generated shape "
+        sys.exit("FATAL: no LOCATIONS flags parsed from eldenring/tables/data.py -- the generated shape "
                  "moved; the no-new-checks cross-check cannot run. Nothing written.")
     rm_pending, rm_placed = set(), set()
     import csv as _csv

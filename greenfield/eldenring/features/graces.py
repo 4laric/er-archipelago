@@ -59,15 +59,15 @@ from ..registry import Feature, register
 from . import vanilla_placement as _vp
 from .. import contract
 from ..region_spine import REGION_PARENT
-from ..region_open_flags import REGION_OPEN_FLAGS
-from ..data import FINALE_REGION as _FINALE_REGION
+from ..tables.region_open_flags import REGION_OPEN_FLAGS
+from ..tables.data import FINALE_REGION as _FINALE_REGION
 
 try:
-    from ..region_graces import REGION_GRACE_POINTS
+    from ..tables.region_graces import REGION_GRACE_POINTS
 except Exception:  # not yet generated
     REGION_GRACE_POINTS = {}
 try:
-    from ..region_graces import REGION_GRACE_LANDMARKS
+    from ..tables.region_graces import REGION_GRACE_LANDMARKS
 except ImportError:      # table predates the landmarks tier -- see _bundle_for()
     REGION_GRACE_LANDMARKS = {}
 

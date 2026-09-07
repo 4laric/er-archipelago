@@ -26,7 +26,7 @@ PLAY_BUCKET = "69400"
 
 class RauhBoundaryProvenRow(unittest.TestCase):
     def test_generated_location_uses_the_measured_region(self):
-        from .. import data
+        from ..tables import data
 
         rows = [(region, name, ap) for region, locations in data.LOCATIONS.items()
                 for name, ap, flag in locations if flag == FLAG]

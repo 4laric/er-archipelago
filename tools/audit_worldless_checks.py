@@ -47,7 +47,7 @@ SCRIPTED_CORPORA = ("esd_gifts.tsv", "esd_flags.tsv", "lot_gates.tsv", "questlin
 
 
 def _load_locations():
-    spec = importlib.util.spec_from_file_location("_awc_data", os.path.join(GF, "eldenring", "data.py"))
+    spec = importlib.util.spec_from_file_location("_awc_data", os.path.join(GF, "eldenring", "tables", "data.py"))
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
     out = {}

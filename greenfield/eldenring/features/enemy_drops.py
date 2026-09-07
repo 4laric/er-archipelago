@@ -39,17 +39,17 @@ from ..registry import Feature, register
 from .. import contract
 
 try:
-    from ..enemy_drops_data import REROLLABLE_ENEMY_SLOTS
+    from ..tables.enemy_drops_data import REROLLABLE_ENEMY_SLOTS
 except ImportError:                      # pre-regen: inert
     REROLLABLE_ENEMY_SLOTS = {}
 
 try:
-    from ..item_ids import ITEM_CATALOG
+    from ..tables.item_ids import ITEM_CATALOG
 except ImportError:
     ITEM_CATALOG = {}
 
 try:
-    from ..repeatable_goods import REPEATABLE_GOODS
+    from ..tables.repeatable_goods import REPEATABLE_GOODS
 except ImportError:
     REPEATABLE_GOODS = frozenset()
 

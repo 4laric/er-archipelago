@@ -12,7 +12,7 @@ def main():
  for name in ("fextralife-acquisition-pages.tsv","fextralife-item-pages.tsv"):
   with (AUDIT/name).open(encoding="utf-8",newline="") as h:
    for r in csv.DictReader(h,delimiter="\t"):sources[r["source_id"]]=r
- data=load("_data",ROOT/"greenfield/eldenring/data.py");current={str(ap):(region,flag) for region,entries in data.LOCATIONS.items() for _name,ap,flag in entries};detections={}
+ data=load("_data",ROOT/"greenfield/eldenring/tables/data.py");current={str(ap):(region,flag) for region,entries in data.LOCATIONS.items() for _name,ap,flag in entries};detections={}
  with (ROOT/"greenfield/evidence/v060-current/claims.tsv").open(encoding="utf-8",newline="") as h:
   for r in csv.DictReader(h,delimiter="\t"):
    if r["claim_kind"]=="detection" and r["active"]=="true":detections[r["subject_id"]]=json.loads(r["value"])

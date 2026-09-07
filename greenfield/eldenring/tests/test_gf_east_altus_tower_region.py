@@ -3,9 +3,9 @@
 import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
-from worlds.eldenring.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS  # noqa: E402
 from worlds.eldenring.features import cross_region_access as cross_access  # noqa: E402
-from worlds.eldenring.region_graces import REGION_GRACE_POINTS  # noqa: E402
+from worlds.eldenring.tables.region_graces import REGION_GRACE_POINTS  # noqa: E402
 
 
 TOWER_AP_IDS = {7770679, 7772342, 7772343, 7772344, 7772345, 7772346, 7772347}

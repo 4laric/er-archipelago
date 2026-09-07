@@ -636,7 +636,7 @@ def sweep_slot_skips(healthbars=None, arena_regions=None, member_regions=None, t
     skips = runtime_sweep_skips()
     if healthbars is None:
         try:
-            from .boss_healthbars import BOSS_HEALTHBARS as _bh  # noqa: PLC0415 -- data leaf
+            from .tables.boss_healthbars import BOSS_HEALTHBARS as _bh  # noqa: PLC0415 -- data leaf
             healthbars = _bh
         except Exception:
             healthbars = None

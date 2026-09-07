@@ -16,7 +16,7 @@ import os
 
 import pytest
 
-_DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data.py")
+_DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tables/data.py")
 
 # flag -> expected region. Each is a merchant whose PHYSICAL location differs from its shop block's
 # region and was verified against ground truth (grace / release-flag self-encoding) in the Fable review.

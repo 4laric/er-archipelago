@@ -444,7 +444,7 @@ class WikiAuditTest(unittest.TestCase):
     def test_patches_report_comparison_still_matches_current_world_inputs(self):
         rows_test = (REPO / "greenfield" / "eldenring" / "tests" /
                      "test_gf_hub_collapsed_merchant_rows.py").read_text(encoding="utf-8")
-        generated = (REPO / "greenfield" / "eldenring" / "data.py").read_text(encoding="utf-8")
+        generated = (REPO / "greenfield" / "eldenring" / "tables/data.py").read_text(encoding="utf-8")
         self.assertIn('PATCHES_REGIONS = ("Limgrave", "Mt. Gelmir", "Cerulean")', rows_test)
         self.assertIn("Margit's Shackle - from Patches or Thiollier", generated)
         self.assertIn("7770235, 110000", generated)
@@ -464,7 +464,7 @@ class WikiAuditTest(unittest.TestCase):
         self.assertTrue(all(row["disposition"] == "lead_only" for row in (sellen, jerren)))
 
     def test_sellen_jerren_report_comparison_still_matches_current_world_inputs(self):
-        generated = (REPO / "greenfield" / "eldenring" / "data.py").read_text(encoding="utf-8")
+        generated = (REPO / "greenfield" / "eldenring" / "tables/data.py").read_text(encoding="utf-8")
         questline = (REPO / "greenfield" / "questline_dag.tsv").read_text(encoding="utf-8")
         self.assertIn("Raya Lucaria Academy :: Eccentric's Hood", generated)
         self.assertIn("Caelid :: Ancient Dragon Smithing Stone - around Smoldering Church", generated)
@@ -488,7 +488,7 @@ class WikiAuditTest(unittest.TestCase):
         gifts = (REPO / "greenfield" / "esd_gifts.tsv").read_text(encoding="utf-8")
         lots = (REPO / "greenfield" / "flag_lots.tsv").read_text(encoding="utf-8")
         regions = (REPO / "greenfield" / "region_map.csv").read_text(encoding="utf-8")
-        generated = (REPO / "greenfield" / "eldenring" / "data.py").read_text(encoding="utf-8")
+        generated = (REPO / "greenfield" / "eldenring" / "tables/data.py").read_text(encoding="utf-8")
         self.assertIn("316006000\t1044369218\t1\t101020", gifts)
         self.assertIn("400102\tmap\t101020\t1\t1\t8169\t1\t1", lots)
         self.assertIn("7000879,400102,map_lot,Sellian Sealbreaker,PENDING", regions)
@@ -549,7 +549,7 @@ class WikiAuditTest(unittest.TestCase):
         standard = json.loads(leads["carian-study-hall-standard-route"]["normalized_value"])
         feature = (REPO / "greenfield" / "eldenring" / "features" /
                    "legacy_key_gates.py").read_text(encoding="utf-8")
-        generated = (REPO / "greenfield" / "eldenring" / "data.py").read_text(encoding="utf-8")
+        generated = (REPO / "greenfield" / "eldenring" / "tables/data.py").read_text(encoding="utf-8")
 
         for ap_id in inverted["ap_ids"] + standard["ap_ids"]:
             self.assertIn(f", {ap_id}, 341", generated)
@@ -575,7 +575,7 @@ class WikiAuditTest(unittest.TestCase):
         self.assertEqual(lead["game_version"], "unknown")
 
     def test_chapel_report_records_the_adjudicated_access_bucket(self):
-        generated = (REPO / "greenfield" / "eldenring" / "data.py").read_text(encoding="utf-8")
+        generated = (REPO / "greenfield" / "eldenring" / "tables/data.py").read_text(encoding="utf-8")
         report = (REPO / "greenfield" / "evidence" / "wiki-audit" /
                   "chapel-anticipation-return.md").read_text(encoding="utf-8")
 

@@ -9,7 +9,7 @@ def main():
  with (AUDIT/"sources.tsv").open(encoding="utf-8",newline="") as fh: sources={r["source_id"] for r in csv.DictReader(fh,delimiter="\t")}
  with (AUDIT/"game8-check-leads.tsv").open(encoding="utf-8",newline="") as fh:
   reader=csv.DictReader(fh,delimiter="\t"); assert tuple(reader.fieldnames or ())==HEADERS; rows=list(reader)
- spec=importlib.util.spec_from_file_location("_game8_check_data",ROOT/"greenfield/eldenring/data.py"); mod=importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(mod)
+ spec=importlib.util.spec_from_file_location("_game8_check_data",ROOT/"greenfield/eldenring/tables/data.py"); mod=importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(mod)
  current={str(ap):(region,name) for region,checks in mod.LOCATIONS.items() for name,ap,_flag in checks}
  ids=[r["lead_id"] for r in rows]; subjects=[r["subject_id"] for r in rows]
  assert ids==sorted(ids) and len(ids)==len(set(ids)); assert len(subjects)==len(set(subjects))

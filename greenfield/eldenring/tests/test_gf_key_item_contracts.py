@@ -38,7 +38,7 @@ def _awards_by_flag():
 
 
 def _catalog():
-    spec = importlib.util.spec_from_file_location("gf_contract_item_ids", GF_PKG / "item_ids.py")
+    spec = importlib.util.spec_from_file_location("gf_contract_item_ids", GF_PKG / "tables/item_ids.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module.ITEM_CATALOG

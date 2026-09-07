@@ -15,7 +15,7 @@ DRAGON_SEAL_LOT = 301000010
 
 
 def test_dragon_seal_enemy_weapon_slot_is_repointed():
-    from worlds.eldenring.check_lots_data import CHECK_LOT_ZERO_ENEMY
+    from worlds.eldenring.tables.check_lots_data import CHECK_LOT_ZERO_ENEMY
 
     assert CHECK_LOT_ZERO_ENEMY.get(DRAGON_SEAL_LOT) == [1]
 

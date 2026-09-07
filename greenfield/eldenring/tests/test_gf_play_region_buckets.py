@@ -43,7 +43,7 @@ ARTIFACT = _first(os.path.join(GF_PKG, "play_region_buckets.tsv"),
                   os.path.join(GREENFIELD, "play_region_buckets.tsv"))
 SPINE = _first(os.path.join(GF_PKG, "region_groups.py"),
                os.path.join(GREENFIELD, "region_groups.py"))
-DATA = os.path.join(GF_PKG, "data.py")
+DATA = os.path.join(GF_PKG, "tables/data.py")
 DUNGEONS = _first(os.path.join(GF_PKG, "dungeon_regions.tsv"),
                   os.path.join(GREENFIELD, "dungeon_regions.tsv"))
 
@@ -242,7 +242,7 @@ class TestPlayRegionBuckets(unittest.TestCase):
                       "wire at all -- which is exactly how it shipped vanilla (bobler, 2026-08-15).")
 
         # 4. The generated tables the world actually imports say the same thing.
-        gen = _load(os.path.join(GF_PKG, "region_play_ids.py"), "gf_region_play_ids_under_test")
+        gen = _load(os.path.join(GF_PKG, "tables/region_play_ids.py"), "gf_region_play_ids_under_test")
         self.assertEqual(buckets(gen.REGION_PLAY_IDS), kick_src,
                          "generated REGION_PLAY_IDS is stale -- regenerate")
         self.assertEqual(buckets(gen.SCALING_PLAY_IDS), ramp_src,

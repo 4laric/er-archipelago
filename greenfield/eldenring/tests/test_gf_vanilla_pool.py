@@ -43,11 +43,11 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
-from worlds.eldenring.data import HUB, LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.data import HUB, LOCATIONS  # noqa: E402
 from worlds.eldenring.features import filler_budget as fb  # noqa: E402
 from worlds.eldenring.features import presence_floor as pf  # noqa: E402
 from worlds.eldenring.features import vanilla_pool as vp  # noqa: E402
-from worlds.eldenring.item_ids import LOCATION_ITEM  # noqa: E402
+from worlds.eldenring.tables.item_ids import LOCATION_ITEM  # noqa: E402
 
 GAME = "Elden Ring"
 

@@ -22,8 +22,8 @@ import pytest
 pytest.importorskip("worlds.eldenring")
 from Options import OptionError  # noqa: E402
 from worlds.eldenring.features import shop_stock as ss  # noqa: E402
-from worlds.eldenring.shop_stock_data import INFINITE_SHOP_ROWS, GOODS_PRICE  # noqa: E402
-from worlds.eldenring.item_ids import ITEM_CATALOG  # noqa: E402
+from worlds.eldenring.tables.shop_stock_data import INFINITE_SHOP_ROWS, GOODS_PRICE  # noqa: E402
+from worlds.eldenring.tables.item_ids import ITEM_CATALOG  # noqa: E402
 from worlds.eldenring import contract  # noqa: E402
 
 _GOODS = 0x40000000

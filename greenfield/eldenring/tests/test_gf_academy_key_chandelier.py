@@ -18,7 +18,7 @@ CHANDELIER_FLAG = 14007930         # MSB-object acquisition flag (stays in _SHEE
 
 def test_chandelier_lot_is_in_the_goods_blank_table():
     # AP-free: the neutralise-only entry is present so the client blanks the duplicate-key lot.
-    from worlds.eldenring.check_lots_data import CHECK_LOT_SLOTS_MAP
+    from worlds.eldenring.tables.check_lots_data import CHECK_LOT_SLOTS_MAP
     assert CHECK_LOT_SLOTS_MAP.get(CHANDELIER_LOT) == [1], (
         "chandelier lot %d goods slot must be blanked (neutralise-only, #1001)" % CHANDELIER_LOT)
 

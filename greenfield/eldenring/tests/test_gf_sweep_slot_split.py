@@ -24,11 +24,11 @@ import pytest
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring import contract  # noqa: E402
-from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, MAJOR_SWEEP_TRIGGERS  # noqa: E402
+from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS, MAJOR_SWEEP_TRIGGERS  # noqa: E402
 from worlds.eldenring.features import progression_surface as ps  # noqa: E402
 
 try:
-    from worlds.eldenring.boss_healthbars import BOSS_HEALTHBARS
+    from worlds.eldenring.tables.boss_healthbars import BOSS_HEALTHBARS
 except Exception:                                        # pragma: no cover - data leaf must exist
     BOSS_HEALTHBARS = {}
 

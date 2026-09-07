@@ -19,7 +19,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.region_spine import GOAL_REGION, REGIONS, parent_chain  # noqa: E402
-from worlds.eldenring.data import FINALE_REGION  # noqa: E402
+from worlds.eldenring.tables.data import FINALE_REGION  # noqa: E402
 from ._util import assert_goal_reachable, world_item_names  # noqa: E402
 
 GAME = "Elden Ring"

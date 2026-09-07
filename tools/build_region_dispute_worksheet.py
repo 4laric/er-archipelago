@@ -72,7 +72,7 @@ def _literal(path, name):
 
 def _flag_region():
     """flag -> AP region, from the committed data.py LOCATIONS table."""
-    src = open(os.path.join(GF, "eldenring", "data.py"), encoding="utf-8").read()
+    src = open(os.path.join(GF, "eldenring", "tables", "data.py"), encoding="utf-8").read()
     out, cur = {}, None
     for ln in src.splitlines():
         m = re.match(r"""\s*['"]([^'"]+)['"]: \[$""", ln)
@@ -105,7 +105,7 @@ def main():
 
     surface = frozenset(_literal(os.path.join(GF, "eldenring", "contract.py"),
                                  "SURFACE_DEFAULT_CLASSES"))
-    LOCATION_TAGS = _literal(os.path.join(GF, "eldenring", "location_tags.py"), "LOCATION_TAGS")
+    LOCATION_TAGS = _literal(os.path.join(GF, "eldenring", "tables", "location_tags.py"), "LOCATION_TAGS")
 
     flag_region = _flag_region()
     tile = {int(p[0]): p[1] for p in _tsv("check_maps.tsv") if len(p) > 1 and p[1].startswith("m")}

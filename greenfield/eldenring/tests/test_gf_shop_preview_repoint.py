@@ -46,7 +46,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.features import shops as shops_feature  # noqa: E402
-from worlds.eldenring.shop_data import SHOP_PREVIEW_GOODS  # noqa: E402
+from worlds.eldenring.tables.shop_data import SHOP_PREVIEW_GOODS  # noqa: E402
 
 GAME = "Elden Ring"
 

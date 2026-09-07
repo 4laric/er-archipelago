@@ -75,7 +75,7 @@ MIN_ADJUDICATED_MAPS = 100
 
 def _boss_names():
     """{entity: name} from the generated boss_healthbars module (committed, no artifacts needed)."""
-    p = os.path.join(GF, "eldenring", "boss_healthbars.py")
+    p = os.path.join(GF, "eldenring", "tables", "boss_healthbars.py")
     src = open(p, encoding="utf-8").read()
     return {int(e): n for e, n in
             re.findall(r"(\d+):\s*\('[^']*',\s*'[^']*',\s*'[^']*',\s*'([^']*)'\)", src)}
@@ -83,7 +83,7 @@ def _boss_names():
 
 def _sweep_trigger():
     """{ap_id: trigger flag} and {ap_id: check flag} from the generated modules."""
-    src = open(os.path.join(GF, "eldenring", "boss_sweeps.py"), encoding="utf-8").read()
+    src = open(os.path.join(GF, "eldenring", "tables", "boss_sweeps.py"), encoding="utf-8").read()
     i = src.index("DUNGEON_SWEEPS = {")
     j = src.index("\n}", i)
     trig = {}
@@ -91,7 +91,7 @@ def _sweep_trigger():
         for ap in m.group(2).replace("\n", "").split(","):
             if ap.strip():
                 trig[int(ap)] = int(m.group(1))
-    data = open(os.path.join(GF, "eldenring", "data.py"), encoding="utf-8").read()
+    data = open(os.path.join(GF, "eldenring", "tables", "data.py"), encoding="utf-8").read()
     # data.py rows are (label, ap_id, flag); the label may be single- OR double-quoted
     # (Charo's had an apostrophe), so match both or the region column comes out empty.
     flag_of = {}

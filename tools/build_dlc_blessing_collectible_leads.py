@@ -75,7 +75,7 @@ def _render(rows):
 
 
 def main():
-    data = _module(ROOT / "greenfield/eldenring/data.py")
+    data = _module(ROOT / "greenfield/eldenring/tables/data.py")
     checks = {ap_id: (region, name) for region, entries in data.LOCATIONS.items()
               for name, ap_id, _flag in entries}
     rows = []

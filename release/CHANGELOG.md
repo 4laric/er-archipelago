@@ -43,6 +43,17 @@ selection and the regenerated `contract_gen.rs`. The gitlink rides in this same 
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.2 in this same commit.
 
+- **The generated tables sit behind a loader (#1464).** `data.py`, `item_ids.py`, `shop_data.py`
+  and the other AUTO-GENERATED modules moved into `greenfield/eldenring/tables/`, and `core.py`
+  reads them through `table_loader.load()` (`world.tables`) instead of importing them by name; the
+  id bases (locations 7,770,000; locks 7,780,000; real items 7,790,000; ability unlocks 7,900,000)
+  moved with them. A tables-less build now refuses to register with a message naming what is
+  missing instead of an ImportError mid-`core.py`. Generation output, option semantics and contract
+  keys are unchanged -- this is layering only. One slot_data field does move: `versions` carries the
+  gen-input stamp as a `data/` segment, and `gen_data.py` is itself a declared gen input, so the
+  `data/` segment seeds report changes with this release. That segment is provenance for bug
+  reports; the handshake gates on `contract/`, which this change does not
+  move, so no client pairing changes. Every other slot_data field is byte-identical.
 - **Contract: the world says which profile it speaks; the client stops guessing.** (#1463) The
   client had two ways to resolve a location — the matt slot-key table and our `locationFlags`
   table — and picked between them by checking whether `locationIdsToKeys` happened to be in the

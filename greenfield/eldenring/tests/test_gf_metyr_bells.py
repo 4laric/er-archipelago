@@ -37,7 +37,7 @@ def test_only_a_sealed_regions_bell_is_forced():
 
 def test_rakshasa_cannot_pay_the_necklace_gated_rhia_reward():
     """The #664 bypass: a broad regional sweep used to grant Rhia's reward for killing Rakshasa."""
-    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+    from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS
     from worlds.eldenring.features.legacy_key_gates import _LEGACY_EXTRA
 
     assert _RHIA_REWARD_AP not in DUNGEON_SWEEPS[_RAKSHASA_SWEEP]
@@ -45,8 +45,8 @@ def test_rakshasa_cannot_pay_the_necklace_gated_rhia_reward():
 
 
 def test_bell_checks_are_named_and_tagged_as_the_actions():
-    from worlds.eldenring.data import LOCATIONS
-    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring.tables.data import LOCATIONS
+    from worlds.eldenring.tables.location_tags import LOCATION_TAGS
 
     by_flag = {int(flag): (name, ap) for locations in LOCATIONS.values()
                for (name, ap, flag) in locations}

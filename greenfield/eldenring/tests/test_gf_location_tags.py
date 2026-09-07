@@ -15,8 +15,8 @@ only the two WorldTestBase suites that exercised the deleted item_rule.
 """
 import unittest
 
-from worlds.eldenring.data import LOCATIONS
-from worlds.eldenring.location_tags import LOCATION_TAGS, TAG_COUNTS, DEFAULTED_REGION_APS
+from worlds.eldenring.tables.data import LOCATIONS
+from worlds.eldenring.tables.location_tags import LOCATION_TAGS, TAG_COUNTS, DEFAULTED_REGION_APS
 from worlds.eldenring.contract import (SURFACE_EXCLUDE_TAGS, SURFACE_CLASSES,
                                        SURFACE_DEFAULT_CLASSES)
 
@@ -270,7 +270,7 @@ class TagDataTests(unittest.TestCase):
         Not asserting the clash is EMPTY -- it legitimately is not, and pretending otherwise would
         re-hide it. Asserting it is KNOWN and small, so a jump gets looked at.
         """
-        from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS
+        from worlds.eldenring.tables.missable_locations import MISSABLE_LOCATIONS
         clash = sorted(a for a in MISSABLE_LOCATIONS
                        if set(SURFACE_DEFAULT_CLASSES) & set(LOCATION_TAGS.get(a, ())))
         # Not asserting the clash is EMPTY -- it legitimately is not, and pretending otherwise

@@ -8,7 +8,7 @@ import pytest
 
 pytest.importorskip("worlds.eldenring")
 
-from worlds.eldenring.region_graces import REGION_GRACE_POINTS  # noqa: E402
+from worlds.eldenring.tables.region_graces import REGION_GRACE_POINTS  # noqa: E402
 
 try:
     from ._util import find_repo_root

@@ -56,7 +56,7 @@ from ..registry import Feature, register
 from .rune_pricing import is_rune_item
 
 try:
-    from ..shop_data import SHOP_ROW_FLAGS
+    from ..tables.shop_data import SHOP_ROW_FLAGS
 except Exception:  # not yet generated -> no shop scope -> feature can only warn
     SHOP_ROW_FLAGS = {}
 

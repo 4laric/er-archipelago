@@ -18,7 +18,11 @@ OUTPUT_PATH = Path(OUTPUT)
 
 
 def load_module(name: str):
-    path = WORLD / f"{name}.py"
+    # Generated tables live in eldenring/tables/ since #1464; hand-written modules stay beside
+    # the package. Look in both, tables first.
+    path = WORLD / "tables" / f"{name}.py"
+    if not path.is_file():
+        path = WORLD / f"{name}.py"
     spec = importlib.util.spec_from_file_location(f"_boss_coverage_{name}", path)
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader

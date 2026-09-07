@@ -33,8 +33,8 @@ import os
 import re
 import unittest
 
-from ..data import LOCATIONS
-from ..location_tags import LOCATION_TAGS, DEFAULTED_REGION_APS, REGION_CONFIRMED_APS
+from ..tables.data import LOCATIONS
+from ..tables.location_tags import LOCATION_TAGS, DEFAULTED_REGION_APS, REGION_CONFIRMED_APS
 from ..features.progression_surface import allowed_ap_ids
 from .. import contract
 

@@ -17,7 +17,7 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.data import HUB, REGIONS, LOCATIONS, FINALE_REGION  # noqa: E402
+from worlds.eldenring.tables.data import HUB, REGIONS, LOCATIONS, FINALE_REGION  # noqa: E402
 from worlds.eldenring import contract  # noqa: E402
 from BaseClasses import ItemClassification  # noqa: E402
 from ._util import world_items, world_pool_items  # noqa: E402

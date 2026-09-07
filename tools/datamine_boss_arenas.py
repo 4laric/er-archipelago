@@ -89,7 +89,7 @@ FORCE_DEATH_RE = re.compile(r"ForceCharacterDeath\((\d+)\s*,")
 
 def _load_healthbars():
     """BOSS_HEALTHBARS without importing the eldenring package (which needs Archipelago on sys.path)."""
-    path = os.path.join(GF, "eldenring", "boss_healthbars.py")
+    path = os.path.join(GF, "eldenring", "tables", "boss_healthbars.py")
     spec = importlib.util.spec_from_file_location("_bh", path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)

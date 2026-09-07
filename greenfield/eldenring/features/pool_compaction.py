@@ -11,11 +11,11 @@ Vanilla placement deliberately does not call this helper: that mode promises the
 from typing import Optional, Set
 
 try:
-    from ..item_tiers import ITEM_TIER_CATEGORY
+    from ..tables.item_tiers import ITEM_TIER_CATEGORY
 except Exception:
     ITEM_TIER_CATEGORY = {}
 try:
-    from ..item_ids import ARMOR_NAME_TO_BUNDLE
+    from ..tables.item_ids import ARMOR_NAME_TO_BUNDLE
 except Exception:
     ARMOR_NAME_TO_BUNDLE = {}
 

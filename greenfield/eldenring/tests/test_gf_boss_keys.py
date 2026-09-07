@@ -49,7 +49,7 @@ def test_the_freeze_tripwire_boss_keys_is_still_off_the_yaml_surface():
         "feature, then delete this tripwire and the module skipif.")
 from worlds.eldenring import contract  # noqa: E402
 from ._util import world_items, world_pool_items  # noqa: E402
-from worlds.eldenring.boss_data import REGION_BOSSES  # noqa: E402
+from worlds.eldenring.tables.boss_data import REGION_BOSSES  # noqa: E402
 from worlds.eldenring.region_spine import DLC_REGIONS  # noqa: E402
 from worlds.eldenring.features.boss_locks import (  # noqa: E402
     _boss_label, _boss_key_names, _sweep_lock_gates)

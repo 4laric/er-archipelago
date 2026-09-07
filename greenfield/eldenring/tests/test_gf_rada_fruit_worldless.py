@@ -69,7 +69,7 @@ class RadaFruitWorldless(unittest.TestCase):
         if REPO not in sys.path:
             sys.path.insert(0, REPO)
         cls.derived, cls.all_rada = _derive_worldless(REPO)
-        from .. import data
+        from ..tables import data
         cls.flags = {int(flag) for rows in data.LOCATIONS.values() for (_n, _a, flag) in rows}
         cls.names = {int(flag): name for rows in data.LOCATIONS.values()
                      for (name, _a, flag) in rows}

@@ -52,10 +52,10 @@ from worlds.eldenring import core as _core                  # noqa: E402
 from worlds.eldenring.features.progression_surface import (  # noqa: E402
     _world_barred_aps, allowed_ap_ids, collapsed_lift_aps, missable_barred_aps)
 from worlds.eldenring.features.evidence_progression_hosts import hold_aps  # noqa: E402
-from worlds.eldenring.location_tags import (                # noqa: E402
+from worlds.eldenring.tables.location_tags import (                # noqa: E402
     DEFAULTED_REGION_APS, ERDTREE_BURN_APS, LOCATION_TAGS, SHOP_RELEASE_GATED_APS,
     SURFACE_EXCLUDE_APS)
-from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
 
 GAME = "Elden Ring"
 

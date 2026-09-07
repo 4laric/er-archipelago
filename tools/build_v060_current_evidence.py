@@ -414,7 +414,7 @@ def _source_records(
 
 
 def build_records(repo: Path) -> dict:
-    data_path = repo / "greenfield" / "eldenring" / "data.py"
+    data_path = repo / "greenfield" / "eldenring" / "tables" / "data.py"
     override_path = repo / "greenfield" / "region_overrides.tsv"
     lot_path = repo / "greenfield" / "flag_lots.tsv"
     lot_gates_path = repo / "greenfield" / "lot_gates.tsv"
@@ -630,6 +630,9 @@ def build_records(repo: Path) -> dict:
             "evidence_id": identity_evidence_id, "claim_id": identity_claim_id,
             "source_id": source["generated_id"],
             "stance": "supports", "value": _json(identity_value),
+            # A LABEL that is hashed into committed ledger ids, not a path to open (data_path above is
+            # the path). It keeps the string it has always been even though the module moved to
+            # eldenring/tables/ (#1464); changing it restamps every row of the checked-in bundle.
             "citation": f"greenfield/eldenring/data.py:LOCATIONS ap_id={ap_id} flag={flag}",
             "method": "tools/build_v060_current_evidence.py:current_locations",
             "independence_notes":
@@ -693,7 +696,7 @@ def build_records(repo: Path) -> dict:
             "source_id": source["generated_id"],
             "stance": "supports", "value": _json(region_value),
             "citation":
-                f"greenfield/eldenring/data.py:LOCATIONS[{location['region']!r}] ap_id={ap_id}",
+                f"greenfield/eldenring/data.py:LOCATIONS[{location['region']!r}] ap_id={ap_id}",  # label, see above
             "method": "tools/build_v060_current_evidence.py:current_locations",
             "independence_notes":
                 "Current region is generated; its provenance inputs are not independent witnesses.",

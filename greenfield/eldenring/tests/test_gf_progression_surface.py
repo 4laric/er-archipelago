@@ -54,9 +54,9 @@ if "eldenring" not in sys.modules:
 
 contract = _load("eldenring.contract", "contract.py")
 _load("eldenring.registry", "registry.py")
-location_tags = _load("eldenring.location_tags", "location_tags.py")
-data = _load("eldenring.data", "data.py")
-boss_data = _load("eldenring.boss_data", "boss_data.py")
+location_tags = _load("eldenring.location_tags", "tables/location_tags.py")
+data = _load("eldenring.data", "tables/data.py")
+boss_data = _load("eldenring.boss_data", "tables/boss_data.py")
 ps = _load("eldenring.features.progression_surface", "features/progression_surface.py")
 
 
@@ -137,7 +137,7 @@ def _reward_flags_of(defeat_flag):
     """The acquisition flag(s) a boss's DEATH grants. BOSS_REWARD_DEFEAT is {reward: defeat}, so
     this is its inverse -- the same hop gen_data makes, and the reason the roster can be keyed on a
     defeat flag while the tags are keyed on an acquisition flag."""
-    rl = _load("eldenring.boss_reward_lots", "boss_reward_lots.py")
+    rl = _load("eldenring.boss_reward_lots", "tables/boss_reward_lots.py")
     return [rf for rf, df in rl.BOSS_REWARD_DEFEAT.items() if df == defeat_flag]
 
 

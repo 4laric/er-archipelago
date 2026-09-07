@@ -23,7 +23,7 @@ from Options import Choice, OptionError
 from ..registry import Feature, register
 
 try:
-    from ..missable_locations import MISSABLE_LOCATIONS
+    from ..tables.missable_locations import MISSABLE_LOCATIONS
 except Exception:  # not yet generated
     MISSABLE_LOCATIONS = {}
 

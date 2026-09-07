@@ -3,14 +3,14 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.item_ids import ITEM_CATALOG  # noqa: E402
+from worlds.eldenring.tables.item_ids import ITEM_CATALOG  # noqa: E402
 
 GAME = "Elden Ring"
 
 
 def test_yura_reward_uses_custom_weapon_name():
     """#1082: the curated region row must not overwrite custom weapon lot 5030 with Tibia Summons."""
-    from worlds.eldenring.data import LOCATIONS
+    from worlds.eldenring.tables.data import LOCATIONS
 
     names = [name for rows in LOCATIONS.values() for name, _ap_id, flag in rows if flag == 400163]
     assert len(names) == 1
@@ -34,7 +34,7 @@ class ItemShuffleOn(WorldTestBase):
         # a curated bundle even when no source lot carries exactly five.
         from worlds.eldenring.features.lot_stacks import MINTED
         from worlds.eldenring.features.scadu_supply import FRAGMENT_X2
-        from worlds.eldenring.item_ids import ARMOR_BUNDLES
+        from worlds.eldenring.tables.item_ids import ARMOR_BUNDLES
 
         self.assertTrue(ITEM_CATALOG, "item_ids.py must be generated")
         _not_vanilla = {"Rune", PROG_FLASK, FRAGMENT_X2} | set(MINTED) | set(ARMOR_BUNDLES)
@@ -51,7 +51,7 @@ def test_filler_pool_includes_smithing_stones():
     goods, so they now land in FILLER_POOL and varied_filler distributes them as upgrade materials.
     pool_builder only juices equippables (goods omitted from tiers), so without this they'd be in
     no pool at all."""
-    from worlds.eldenring.item_ids import FILLER_POOL
+    from worlds.eldenring.tables.item_ids import FILLER_POOL
     fp = set(FILLER_POOL)
     for i in range(1, 9):
         assert f"Smithing Stone [{i}]" in fp, f"Smithing Stone [{i}] must be in FILLER_POOL"
@@ -63,7 +63,7 @@ def test_filler_pool_excludes_capped_and_endtier():
     """The rarity<=1 gate keeps capped resources (Golden Seed, Sacred Tear, Scadutree Fragment,
     Revered Spirit Ash -- all rarity 2) and the end-tier Ancient Dragon (Somber) stones (rarity 3)
     OUT of the varied filler, so A doesn't mint uncapped flask/blessing mats or trivialize max upgrade."""
-    from worlds.eldenring.item_ids import FILLER_POOL
+    from worlds.eldenring.tables.item_ids import FILLER_POOL
     fp = set(FILLER_POOL)
     for n in ("Golden Seed", "Sacred Tear", "Scadutree Fragment", "Revered Spirit Ash",
               "Ancient Dragon Smithing Stone", "Somber Ancient Dragon Smithing Stone"):

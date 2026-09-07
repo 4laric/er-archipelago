@@ -15,11 +15,11 @@ from worlds.eldenring import contract  # noqa: E402
 from worlds.eldenring.features.capital import (  # noqa: E402
     BURN_FLAG, BURN_DONE_FLAG, RELEASE_ROWS, capital_partition,
     _FALLBACK_BURN_FLAG, _FALLBACK_BURN_DONE_FLAG, _FALLBACK_RELEASE_ROWS)
-from worlds.eldenring.region_play_ids import REGION_PLAY_IDS  # noqa: E402
-from worlds.eldenring.location_tags import (  # noqa: E402
+from worlds.eldenring.tables.region_play_ids import REGION_PLAY_IDS  # noqa: E402
+from worlds.eldenring.tables.location_tags import (  # noqa: E402
     ERDTREE_BURN_APS, DEFAULTED_REGION_APS, SHOP_RELEASE_GATED_APS)
-from worlds.eldenring.data import LOCATIONS, FINALE_REGION  # noqa: E402
-from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS, FINALE_REGION  # noqa: E402
+from worlds.eldenring.tables.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
 
 GAME = "Elden Ring"
 
@@ -78,7 +78,7 @@ class TestCapitalPins:
         generated values -- a fallback that drifts from the derivation is a lie about why the
         code works and must fail, not linger (CONTRIBUTING: redundant manual override)."""
         try:
-            from worlds.eldenring.data import (CAPITAL_BURN_FLAG, CAPITAL_BURN_DONE_FLAG,
+            from worlds.eldenring.tables.data import (CAPITAL_BURN_FLAG, CAPITAL_BURN_DONE_FLAG,
                                                CAPITAL_RELEASE_ROWS)
         except ImportError:
             pytest.skip("data.py predates the capital regen (fallbacks are the live values)")
@@ -95,7 +95,7 @@ class TestCapitalPins:
         # re-key with the checks would strand the vanilla Maliketh set on a Royal-only row.
         assert all(frm == BURN_FLAG and to == BURN_DONE_FLAG for (_r, frm, to) in RELEASE_ROWS)
         assert [r for (r, _f, _t) in RELEASE_ROWS] == [101516, 101517, 101518, 101519]
-        from worlds.eldenring.data import NOT_RANDOMIZED
+        from worlds.eldenring.tables.data import NOT_RANDOMIZED
         all_flags = {f for locs in LOCATIONS.values() for (_n, _a, f) in locs}
         for stock in (250160, 250170, 250180, 250190):
             assert stock not in all_flags, \

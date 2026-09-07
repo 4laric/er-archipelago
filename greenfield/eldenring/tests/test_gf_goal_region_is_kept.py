@@ -14,7 +14,7 @@ worse, cannot even be generated.
 import random
 import unittest
 
-from ..data import FINALE_REGION, HUB, REGIONS
+from ..tables.data import FINALE_REGION, HUB, REGIONS
 from ..features.finale import finale_active
 from ..features.goal_locations import terminal_goal_ids
 from ..region_spine import GOAL_REGION, DLC_REGIONS, compute_kept

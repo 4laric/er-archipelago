@@ -92,7 +92,7 @@ class DescTriageTest(unittest.TestCase):
 
     # -- A. the ranking -----------------------------------------------------
     def test_every_location_name_parses(self):
-        LOC = self.tool.load_module_consts(os.path.join(GF_PKG, "data.py"), {"LOCATIONS"})["LOCATIONS"]
+        LOC = self.tool.load_module_consts(os.path.join(GF_PKG, "tables/data.py"), {"LOCATIONS"})["LOCATIONS"]
         total = sum(len(v) for v in LOC.values())
         bad = [n for v in LOC.values() for (n, _a, _f) in v if self.tool.split_name(n) is None]
         self.assertFalse(bad, f"{len(bad)} location name(s) did not parse, e.g. {bad[:3]}")

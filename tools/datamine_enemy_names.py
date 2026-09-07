@@ -58,7 +58,7 @@ exists in the base game.
 
 USAGE
 -----
-    python tools/datamine_enemy_names.py            # regenerate greenfield/eldenring/enemy_names.py
+    python tools/datamine_enemy_names.py            # regenerate greenfield/eldenring/tables/enemy_names.py
     python tools/datamine_enemy_names.py --check    # drift gate: exit 1 if the module is stale
 
 Artifacts: reads `elden_ring_artifacts/` under the repo, the same staging every other datamine tool
@@ -78,7 +78,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 AR = os.path.join(REPO, "elden_ring_artifacts")
 PARAMS = os.path.join(AR, "vanilla_er", "vanilla_er")
 SPAWN_TSV = os.path.join(REPO, "greenfield", "spawn_traps.tsv")
-OUT = os.path.join(REPO, "greenfield", "eldenring", "enemy_names.py")
+OUT = os.path.join(REPO, "greenfield", "eldenring", "tables", "enemy_names.py")
 
 #: chr_id -> a name this PROJECT has already published for that model, and may therefore quote back
 #: without inventing anything. Every entry is already a public string:

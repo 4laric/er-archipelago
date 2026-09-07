@@ -59,7 +59,7 @@ from ..registry import Feature, register
 from .. import contract
 
 try:
-    from ..shop_stock_data import INFINITE_SHOP_ROWS, GOODS_PRICE
+    from ..tables.shop_stock_data import INFINITE_SHOP_ROWS, GOODS_PRICE
 except ImportError:                      # pre-regen: feature is simply inert
     INFINITE_SHOP_ROWS, GOODS_PRICE = [], {}
 
@@ -71,7 +71,7 @@ except ImportError:                      # rune_pricing absent -> vanilla price,
     _PRICE_MULT = 1   # keep in step with rune_pricing.PRICE_MULT
 
 try:
-    from ..item_ids import ITEM_CATALOG
+    from ..tables.item_ids import ITEM_CATALOG
 except ImportError:
     ITEM_CATALOG = {}
 
@@ -84,7 +84,7 @@ except ImportError:                      # feature absent -> no categories are f
 _NAME_OF = {v: k for k, v in (ITEM_CATALOG or {}).items()}
 
 try:
-    from ..repeatable_goods import REPEATABLE_GOODS
+    from ..tables.repeatable_goods import REPEATABLE_GOODS
 except ImportError:
     REPEATABLE_GOODS = frozenset()
 

@@ -4,8 +4,8 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring.features.pool_compaction import CUT_NAMES, compact_name  # noqa: E402
-from worlds.eldenring.item_ids import ARMOR_BUNDLES, ARMOR_NAME_TO_BUNDLE, ITEM_CATALOG  # noqa: E402
-from worlds.eldenring.item_tiers import ITEM_TIER_CATEGORY  # noqa: E402
+from worlds.eldenring.tables.item_ids import ARMOR_BUNDLES, ARMOR_NAME_TO_BUNDLE, ITEM_CATALOG  # noqa: E402
+from worlds.eldenring.tables.item_tiers import ITEM_TIER_CATEGORY  # noqa: E402
 
 GAME = "Elden Ring"
 

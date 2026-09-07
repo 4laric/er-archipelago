@@ -37,14 +37,14 @@ import pytest
 
 pytest.importorskip("worlds.eldenring")
 
-from worlds.eldenring.check_lots_data import LOCATION_LOT  # noqa: E402
-from worlds.eldenring.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.check_lots_data import LOCATION_LOT  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS  # noqa: E402
 from worlds.eldenring.features import filler_curation as fc  # noqa: E402
 from worlds.eldenring.features import scadu_supply as ss  # noqa: E402
-from worlds.eldenring.item_ids import ITEM_CATALOG, LOCATION_ITEM  # noqa: E402
+from worlds.eldenring.tables.item_ids import ITEM_CATALOG, LOCATION_ITEM  # noqa: E402
 
 try:
-    from worlds.eldenring.item_ids import LOCATION_UNITS  # noqa: E402
+    from worlds.eldenring.tables.item_ids import LOCATION_UNITS  # noqa: E402
 except ImportError:
     # DELIBERATELY TOLERANT. A tree whose `item_ids.py` predates #616 has no LOCATION_UNITS, and a
     # bare import would turn this file into a COLLECTION ERROR -- which reads as a broken checkout

@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "greenfield/evidence/wiki-audit"
 OUT = os.path.join(str(ROOT), "greenfield", "evidence", "v060-current", "progression_host_confidence.tsv")
 SUMMARY_OUTPUT = os.path.join(str(ROOT), "greenfield", "evidence", "v060-current", "progression_host_confidence_summary.json")
-MODULE_OUTPUT = os.path.join(str(ROOT), "greenfield", "eldenring", "evidence_progression_hosts.py")
+MODULE_OUTPUT = os.path.join(str(ROOT), "greenfield", "eldenring", "tables", "evidence_progression_hosts.py")
 FIELDS = ("check_id", "confidence", "access_status", "external_family_count",
           "external_families", "identity_region_lead_ids", "basis", "limitations")
 TRUSTED = "trusted_identity_region"
@@ -25,7 +25,7 @@ EXTERNAL_PREFIXES = ("gameplay-guide:", "gameplay-wiki:")
 
 
 def load_current_check_ids() -> list[int]:
-    path = ROOT / "greenfield/eldenring/data.py"
+    path = ROOT / "greenfield/eldenring/tables/data.py"
     spec = importlib.util.spec_from_file_location("_host_confidence_data", path)
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader

@@ -22,7 +22,7 @@ import pytest
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring.features import filler_curation as fc  # noqa: E402
-from worlds.eldenring.item_ids import ITEM_CATALOG  # noqa: E402
+from worlds.eldenring.tables.item_ids import ITEM_CATALOG  # noqa: E402
 
 GOODS = 0x40000000
 

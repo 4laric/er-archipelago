@@ -27,7 +27,7 @@ import os
 import unittest
 import xml.etree.ElementTree as ET
 
-from ..data import LOCATIONS
+from ..tables.data import LOCATIONS
 from ..tarnished_pack import TARNISHED_PACK_PARAM_NAMES
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

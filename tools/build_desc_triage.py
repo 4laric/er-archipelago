@@ -143,8 +143,8 @@ def main():
     er = os.path.join(gf, "eldenring")
     out_path = args.out or os.path.join(root, DEFAULT_OUT)
 
-    LOCATIONS = load_module_consts(os.path.join(er, "data.py"), {"LOCATIONS"})["LOCATIONS"]
-    TAGS = load_module_consts(os.path.join(er, "location_tags.py"), {"LOCATION_TAGS"})["LOCATION_TAGS"]
+    LOCATIONS = load_module_consts(os.path.join(er, "tables", "data.py"), {"LOCATIONS"})["LOCATIONS"]
+    TAGS = load_module_consts(os.path.join(er, "tables", "location_tags.py"), {"LOCATION_TAGS"})["LOCATION_TAGS"]
     overrides = {int(r["flag"]): r["description"]
                  for r in read_tsv(os.path.join(gf, "location_descriptions.tsv"))}
 
@@ -227,7 +227,7 @@ def main():
 
     meta = {
         "total": len(recs),
-        "stamp": data_stamp(os.path.join(er, "data.py")),
+        "stamp": data_stamp(os.path.join(er, "tables", "data.py")),
         "have_override": sum(1 for r in recs if "have" in r),
         "ambiguous": sum(1 for r in recs if r["ord"]),
         "families": sum(1 for v in fam.values() if len(v) > 1),

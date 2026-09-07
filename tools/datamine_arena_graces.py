@@ -115,7 +115,7 @@ _NOT_AN_ARENA = {
 
 def _boss_meta():
     """{entity: (class, name)} from the generated boss_healthbars module."""
-    p = os.path.join(ROOT, "greenfield", "eldenring", "boss_healthbars.py")
+    p = os.path.join(ROOT, "greenfield", "eldenring", "tables", "boss_healthbars.py")
     if not os.path.isfile(p):
         return {}
     return {int(e): (c, n) for e, _g, _t, c, n in re.findall(
@@ -190,7 +190,7 @@ def _boss_label(ent):
 
 
 def _healthbar_bosses():
-    """{map_id: {entity}} from the GENERATED greenfield/eldenring/boss_healthbars.py.
+    """{map_id: {entity}} from the GENERATED greenfield/eldenring/tables/boss_healthbars.py.
 
     🛑 WHY THIS EXISTS (2026-08-10). The literal sweep below matches
     `DisplayBossHealthBar(Enabled, <id>, ...)` written out in the tile's own EMEVD. **72 of the 231
@@ -204,7 +204,7 @@ def _healthbar_bosses():
     and is committed, so this needs no artifacts. Union, never replace -- the literal sweep stays as
     the independent read of the corpus.
     """
-    p = os.path.join(ROOT, "greenfield", "eldenring", "boss_healthbars.py")
+    p = os.path.join(ROOT, "greenfield", "eldenring", "tables", "boss_healthbars.py")
     out = defaultdict(set)
     if not os.path.isfile(p):
         return out

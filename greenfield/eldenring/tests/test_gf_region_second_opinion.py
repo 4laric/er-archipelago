@@ -163,7 +163,7 @@ class AreaMappingTests(unittest.TestCase):
         # data.py is loaded BY PATH: importing the package pulls in AP's BaseClasses, and
         # this suite must stay AP-free so it can never be the reason the job needs a world.
         spec = importlib.util.spec_from_file_location(
-            "region_vocab_probe", os.path.join(ROOT, "greenfield", "eldenring", "data.py"))
+            "region_vocab_probe", os.path.join(ROOT, "greenfield", "eldenring", "tables/data.py"))
         data = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(data)
         regions = set(data.REGIONS)

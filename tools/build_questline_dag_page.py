@@ -106,7 +106,7 @@ def _cc_panel():
 def _inputs_hash():
     """data.py's _GEN_STAMP.inputs_hash -- a content id stable across commits, never the
     commit sha (which would make every page rebuild a diff)."""
-    path = os.path.join(ROOT, "greenfield", "eldenring", "data.py")
+    path = os.path.join(ROOT, "greenfield", "eldenring", "tables", "data.py")
     text = open(path, encoding="utf-8").read()
     m = re.search(r"_GEN_STAMP\s*=\s*(\{.*?\})", text, re.S)
     return ast.literal_eval(m.group(1)).get("inputs_hash", "") if m else ""

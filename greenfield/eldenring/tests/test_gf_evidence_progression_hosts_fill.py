@@ -8,8 +8,8 @@ pytest.importorskip("worlds.eldenring")
 
 from BaseClasses import ItemClassification  # noqa: E402
 from Options import OptionError  # noqa: E402
-from worlds.eldenring.data import LOCATIONS  # noqa: E402
-from worlds.eldenring.evidence_progression_hosts import (  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.evidence_progression_hosts import (  # noqa: E402
     HOLD_PROGRESSION_HOST_APS,
     TRUSTED_PROGRESSION_HOST_APS,
 )

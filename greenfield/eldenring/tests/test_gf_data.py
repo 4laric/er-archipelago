@@ -16,7 +16,9 @@ import sys
 import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DATA_PY = os.path.join(os.path.dirname(HERE), "data.py")
+GF_PKG = os.path.dirname(HERE)                       # .../eldenring
+# The generated tables live in the `tables/` subpackage since #1464.
+DATA_PY = os.path.join(GF_PKG, "tables", "data.py")
 
 try:  # package import (pytest from the repo)
     from ._util import find_repo_root, REPO_ONLY_REASON
@@ -53,7 +55,7 @@ def _registered_cocheck_ids():
     ships the registry next to data.py; the raw source tree keeps it one level up in greenfield/. An
     empty result means 'no registry here' -- only meaningful when the data ALSO has no co-check band
     (the pre-regen source tree), which the caller checks."""
-    eldenring_dir = os.path.dirname(DATA_PY)
+    eldenring_dir = GF_PKG
     candidates = [os.path.join(eldenring_dir, "co_check_ids.tsv"),
                   os.path.join(os.path.dirname(eldenring_dir), "co_check_ids.tsv")]
     for p in candidates:
@@ -162,7 +164,7 @@ class GreenfieldRegionOpenFlags(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.d = _load_data()
-        cls.path = os.path.join(os.path.dirname(DATA_PY), "region_open_flags.py")
+        cls.path = os.path.join(GF_PKG, "tables", "region_open_flags.py")
         cls.present = os.path.exists(cls.path)
         if cls.present:
             spec = importlib.util.spec_from_file_location("gf_open_flags", cls.path)
@@ -221,10 +223,17 @@ class GreenfieldSpine(unittest.TestCase):
     def setUpClass(cls):
         import types
         cls.d = _load_data()
-        pkg = types.ModuleType("gf_stub"); pkg.__path__ = [os.path.dirname(DATA_PY)]
-        sys.modules["gf_stub"] = pkg; sys.modules["gf_stub.data"] = cls.d
+        # data.py lives in the `tables/` subpackage since #1464; region_spine.py is one level up
+        # and imports `.tables.data`, so the stub package needs both levels.
+        tables_dir = os.path.dirname(DATA_PY)
+        pkg_dir = os.path.dirname(tables_dir)
+        pkg = types.ModuleType("gf_stub"); pkg.__path__ = [pkg_dir]
+        tbl = types.ModuleType("gf_stub.tables"); tbl.__path__ = [tables_dir]; tbl.data = cls.d
+        sys.modules["gf_stub"] = pkg
+        sys.modules["gf_stub.tables"] = tbl
+        sys.modules["gf_stub.tables.data"] = cls.d
         spec = importlib.util.spec_from_file_location(
-            "gf_stub.region_spine", os.path.join(os.path.dirname(DATA_PY), "region_spine.py"))
+            "gf_stub.region_spine", os.path.join(pkg_dir, "region_spine.py"))
         cls.rs = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.rs)
 
     def test_spine_is_permutation_of_regions(self):
@@ -317,7 +326,7 @@ class GreenfieldRegistry(unittest.TestCase):
     imports only typing, so it loads standalone with synthetic features -- no Archipelago needed."""
     @classmethod
     def setUpClass(cls):
-        path = os.path.join(os.path.dirname(DATA_PY), "registry.py")
+        path = os.path.join(GF_PKG, "registry.py")
         spec = importlib.util.spec_from_file_location("gf_registry", path)
         cls.reg = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.reg)
 

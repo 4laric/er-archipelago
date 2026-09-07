@@ -99,23 +99,23 @@ from ..registry import Feature, register
 from . import vanilla_placement as _vp
 from .. import contract
 from ..region_spine import SPINE
-from ..data import FINALE_REGION
+from ..tables.data import FINALE_REGION
 from .finale import finale_active, base_game_in_play
 
 try:
-    from ..boss_data import REGION_BOSSES
+    from ..tables.boss_data import REGION_BOSSES
 except Exception:  # not yet generated
     REGION_BOSSES = {}
 try:
-    from ..data import LOCATIONS
+    from ..tables.data import LOCATIONS
 except Exception:
     LOCATIONS = {}
 try:
-    from ..location_tags import LOCATION_TAGS
+    from ..tables.location_tags import LOCATION_TAGS
 except Exception:
     LOCATION_TAGS = {}
 try:
-    from ..missable_locations import MISSABLE_LOCATIONS
+    from ..tables.missable_locations import MISSABLE_LOCATIONS
 except Exception:
     MISSABLE_LOCATIONS = {}
 

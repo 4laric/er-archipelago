@@ -279,7 +279,7 @@ def measure(sc=None):
             import importlib.util as _ilu
             _sp = _ilu.spec_from_file_location(
                 "_shop_data", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
-                                           "greenfield", "eldenring", "shop_data.py"))
+                                           "greenfield", "eldenring", "tables", "shop_data.py"))
             _shop = _ilu.module_from_spec(_sp); _sp.loader.exec_module(_shop)
         _hub_flags = {int(fl) for (_n, _a, fl) in data.LOCATIONS.get(hub, [])}
         hub_dlc_gated = len(set(getattr(_shop, "DLC_GATED_SHOP_CHECK_FLAGS", ())) & _hub_flags)

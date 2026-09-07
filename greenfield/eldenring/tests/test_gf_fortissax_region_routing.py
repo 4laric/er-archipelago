@@ -4,10 +4,10 @@ The player report was a Leyndell-lock screen at the portal after Fia's Champions
 independent input to the region-lock decision so a future regen cannot silently recreate it.
 """
 
-from ..boss_reward_lots import BOSS_REWARD_TILE
-from ..data import LOCATIONS
-from ..region_open_flags import REGION_OPEN_FLAGS
-from ..region_play_ids import REGION_PLAY_IDS
+from ..tables.boss_reward_lots import BOSS_REWARD_TILE
+from ..tables.data import LOCATIONS
+from ..tables.region_open_flags import REGION_OPEN_FLAGS
+from ..tables.region_play_ids import REGION_PLAY_IDS
 
 
 FORTISSAX_REWARD_FLAG = 510110

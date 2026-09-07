@@ -33,7 +33,7 @@ def main() -> int:
                            for row in csv.DictReader(handle, delimiter="\t"))
     with (AUDIT / "eldenpedia-location-pages.tsv").open(encoding="utf-8", newline="") as handle:
         places = {row["title"] for row in csv.DictReader(handle, delimiter="\t")}
-    data = load("_upgrade_row_check_data", ROOT / "greenfield/eldenring/data.py")
+    data = load("_upgrade_row_check_data", ROOT / "greenfield/eldenring/tables/data.py")
     builder = load("_upgrade_row_check_builder",
                    ROOT / "tools/build_eldenpedia_upgrade_material_leads.py")
     current = {str(ap_id): (region, flag, builder.norm(builder.item_name(location)))

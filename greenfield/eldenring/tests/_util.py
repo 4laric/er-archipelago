@@ -100,7 +100,7 @@ def assert_goal_reachable(test, world=None, label=""):
 
     That last one is the winnability property in full. The previous spelling only ever checked
     that ONE item existed; this checks the whole requirement can actually be met."""
-    from worlds.eldenring.data import FINALE_REGION
+    from worlds.eldenring.tables.data import FINALE_REGION
     from worlds.eldenring.features.finale import finale_requirement_locks
     w = world if world is not None else test.world
     tag = (" [%s]" % label) if label else ""

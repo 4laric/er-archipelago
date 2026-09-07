@@ -1,9 +1,9 @@
 """#1021 -- hub fallback is not evidence that an award is reachable from the hub."""
 
 from ..core import _NO_PROGRESSION_APS
-from ..data import HUB, LOCATIONS
+from ..tables.data import HUB, LOCATIONS
 from ..features.progression_surface import _world_barred_aps
-from ..location_tags import HUB_UNATTRIBUTED_APS, LOCATION_TAGS
+from ..tables.location_tags import HUB_UNATTRIBUTED_APS, LOCATION_TAGS
 
 
 def test_hub_unattributed_census_is_nonempty_and_exact():

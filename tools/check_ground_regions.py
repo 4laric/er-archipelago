@@ -115,9 +115,9 @@ def _tile_of(map_id):
 
 def load_tables(repo):
     gf = os.path.join(repo, "greenfield")
-    data = _load(os.path.join(gf, "eldenring", "data.py"), "_cgr_data")
+    data = _load(os.path.join(gf, "eldenring", "tables", "data.py"), "_cgr_data")
     groups = _load(os.path.join(gf, "region_groups.py"), "_cgr_groups")
-    sweeps = _load(os.path.join(gf, "eldenring", "boss_sweeps.py"), "_cgr_sweeps")
+    sweeps = _load(os.path.join(gf, "eldenring", "tables", "boss_sweeps.py"), "_cgr_sweeps")
 
     # ap -> (trigger, arena_region) for every member of a RULED trigger (RULED_SWEEP_ANCHORS) that
     # has an AUDITED arena region. Used by the SWEEP-ANCHORED verdict; an unruled or unmeasured

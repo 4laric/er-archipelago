@@ -29,7 +29,7 @@ index against the real anchor grid so a coarse LOD index is REJECTED rather than
 """
 import unittest
 
-from ..data import LOCATIONS
+from ..tables.data import LOCATIONS
 
 
 # The six checks whose region column carries a LOD-suffixed tile. Region here is GROUND TRUTH:

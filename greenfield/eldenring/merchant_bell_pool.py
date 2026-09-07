@@ -5,12 +5,12 @@ A bell whose merchants are all sealed opens a wholly vanilla Twin-Maiden menu, s
 filler instead. Bells absent from the table are release-only/non-merchant bells and remain unchanged.
 """
 try:
-    from .item_ids import ITEM_CATALOG
+    from .tables.item_ids import ITEM_CATALOG
 except Exception:
     ITEM_CATALOG = {}
 
 try:
-    from .shop_data import MERCHANT_BELL_REGIONS
+    from .tables.shop_data import MERCHANT_BELL_REGIONS
 except Exception:
     MERCHANT_BELL_REGIONS = {}
 

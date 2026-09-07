@@ -38,7 +38,7 @@ Handlers are AUTO-DISCOVERED (any common.emevd $Event whose body awards an item 
 is (eventFlagId, itemLotId, itemLotId2, eventFlagId2)) rather than hardcoded to 1100/1200, so a sibling
 handler cannot hide from this tool the way this family hid from the other one.
 
-Emits greenfield/eldenring/boss_reward_lots.py:
+Emits greenfield/eldenring/tables/boss_reward_lots.py:
     BOSS_REWARD_TILE  {getItemFlagId: "mBB_SS"}   -- gen_data._recover_tile decodes the family with this
     BOSS_REWARD_LOT   {getItemFlagId: itemLotId}  -- provenance / audit
 
@@ -52,7 +52,7 @@ REPO = os.environ.get("ER_REPO") or os.path.dirname(HERE)
 AR   = os.path.join(REPO, "elden_ring_artifacts")
 EVT  = os.path.join(AR, "event")
 GF   = os.path.join(REPO, "greenfield")
-OUT  = os.path.join(GF, "eldenring", "boss_reward_lots.py")
+OUT  = os.path.join(GF, "eldenring", "tables", "boss_reward_lots.py")
 
 # (eventFlagId, itemLotId, itemLotId2, eventFlagId2) -- the shape of the award handlers we accept.
 _SIG = ("eventFlagId", "itemLotId", "itemLotId2", "eventFlagId2")

@@ -71,7 +71,7 @@ def _catalog_names():
     """FullID -> display name, from the committed greenfield catalog (item_ids.py). Best-effort: only
     pooled items are here, so a ride-along item absent from the pool gets an empty name (the Windows
     regen resolves the rest via FMG; the name column is legibility, not load-bearing)."""
-    src = os.path.join(REPO, "greenfield", "eldenring", "item_ids.py")
+    src = os.path.join(REPO, "greenfield", "eldenring", "tables", "item_ids.py")
     if not os.path.isfile(src):
         return {}
     text = open(src, encoding="utf-8").read()

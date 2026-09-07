@@ -72,9 +72,9 @@ class TestGraceGround(unittest.TestCase):
                 c = ln.rstrip("\n").split("\t")
                 if len(c) >= 2 and c[1] != "-":
                     cls.ground[int(c[0])] = tuple(int(b) for b in c[1].split(";"))
-        cls.play_ids = _load(os.path.join(GF_PKG, "region_play_ids.py"), "_gg_play_ids").REGION_PLAY_IDS
-        cls.graces = _load(os.path.join(GF_PKG, "region_graces.py"), "_gg_graces").REGION_GRACE_POINTS
-        cls.open_flags = _load(os.path.join(GF_PKG, "region_open_flags.py"), "_gg_open").REGION_OPEN_FLAGS
+        cls.play_ids = _load(os.path.join(GF_PKG, "tables/region_play_ids.py"), "_gg_play_ids").REGION_PLAY_IDS
+        cls.graces = _load(os.path.join(GF_PKG, "tables/region_graces.py"), "_gg_graces").REGION_GRACE_POINTS
+        cls.open_flags = _load(os.path.join(GF_PKG, "tables/region_open_flags.py"), "_gg_open").REGION_OPEN_FLAGS
         cls.owner = {pid: reg for reg, pids in cls.play_ids.items() for pid in pids}
         cls.parent = _region_parent()
 

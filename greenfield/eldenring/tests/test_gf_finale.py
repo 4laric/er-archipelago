@@ -17,7 +17,7 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.data import (LOCATIONS, REGIONS, HUB, FINALE_REGION,  # noqa: E402
+from worlds.eldenring.tables.data import (LOCATIONS, REGIONS, HUB, FINALE_REGION,  # noqa: E402
                                    FINALE_REQUIRES, FINALE_HOST_REGION, FINALE_BURN_REGION,
                                    FINALE_KICK_OWNER, NOT_RANDOMIZED)
 from worlds.eldenring.features.finale import (finale_active, finale_entries,  # noqa: E402
@@ -109,7 +109,7 @@ class TestFinaleData:
         the old mis-regioning never stranded anybody. It is not a substitute for the region being
         right: a missable in the wrong region still lies to the tracker and to any future rule
         that trusts data.py."""
-        from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS
+        from worlds.eldenring.tables.missable_locations import MISSABLE_LOCATIONS
         here = {f: a for (_n, a, f) in LOCATIONS[FINALE_REGION]}
         for flag in sorted(FINALE_EVENT_AWARD_FLAGS):
             assert flag in here, f"event award {flag} is not in the Ashen Capital bucket"

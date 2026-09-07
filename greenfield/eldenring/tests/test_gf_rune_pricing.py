@@ -12,10 +12,10 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.features import rune_pricing as rp  # noqa: E402
-from worlds.eldenring.shop_data import SHOP_ROW_FLAGS, SHOP_ROW_IDS  # noqa: E402
-from worlds.eldenring.shop_stock_data import GOODS_PRICE  # noqa: E402
-from worlds.eldenring.item_ids import ITEM_CATALOG  # noqa: E402
-from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.shop_data import SHOP_ROW_FLAGS, SHOP_ROW_IDS  # noqa: E402
+from worlds.eldenring.tables.shop_stock_data import GOODS_PRICE  # noqa: E402
+from worlds.eldenring.tables.item_ids import ITEM_CATALOG  # noqa: E402
+from worlds.eldenring.tables.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
 
 GAME = "Elden Ring"
 _ROW_MASK = 0x0FFFFFFF

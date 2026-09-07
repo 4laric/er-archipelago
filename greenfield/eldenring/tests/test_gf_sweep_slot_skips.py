@@ -25,6 +25,13 @@ import os
 import re
 import unittest
 
+
+def _gf_mod_path(_pkg, _name):
+    """Path to a module in the world package. The GENERATED tables moved into `tables/` (#1464);
+    hand-written modules (contract, tarnished_pack, ...) stayed put, so try the subpackage first."""
+    _t = os.path.join(_pkg, "tables", _name + ".py")
+    return _t if os.path.isfile(_t) else os.path.join(_pkg, _name + ".py")
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 GF_PKG = os.path.dirname(HERE)
 
@@ -32,7 +39,7 @@ GF_PKG = os.path.dirname(HERE)
 def _load(name):
     """Load a leaf data/contract module by path, so this runs with no AP install."""
     spec = importlib.util.spec_from_file_location(
-        "gf_" + name + "_skipcheck", os.path.join(GF_PKG, name + ".py"))
+        "gf_" + name + "_skipcheck", _gf_mod_path(GF_PKG, name))
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
     return m
@@ -48,7 +55,7 @@ HEALTHBARS = _load("boss_healthbars").BOSS_HEALTHBARS
 # bobler's two, resolved from data.py by FLAG rather than hard-coded ap-id: #249 renumbered the ap
 # ids once already, and a test that pins the old number would pass for the wrong reason.
 _TRIPLE = re.compile(r'\(\s*([\'"])(.*?)\1\s*,\s*(\d+)\s*,\s*(\d+)\s*\)')
-with open(os.path.join(GF_PKG, "data.py"), encoding="utf-8", errors="replace") as fh:
+with open(os.path.join(GF_PKG, "tables/data.py"), encoding="utf-8", errors="replace") as fh:
     _AP_BY_FLAG = {t[3]: int(t[2]) for t in _TRIPLE.findall(fh.read())}
 
 MUSHROOM_AP = _AP_BY_FLAG["31007000"]      # Murkwater Cave, swept by Patches

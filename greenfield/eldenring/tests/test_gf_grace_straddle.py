@@ -32,8 +32,8 @@ import os
 import pytest
 
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.data import LOCATIONS  # noqa: E402
-from worlds.eldenring.location_tags import HUB_COLLAPSED_SITE_APS  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.location_tags import HUB_COLLAPSED_SITE_APS  # noqa: E402
 
 # Measured on main 2026-07-25, after (a) the Cave of Knowledge map fix and (b) grouping on the
 # grace's own KEY instead of its display name. A RATCHET, not a target: it may only ever go DOWN.

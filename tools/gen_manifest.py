@@ -48,9 +48,9 @@ FILE_INPUTS = [
                                         # re-deriving, so a stale or hand-edited tsv would
                                         # otherwise reach the apworld with a valid stamp.
     "greenfield/region_overrides.tsv",                 # optional (SPEC-provenance-oracle); ABSENT-ok
-    "greenfield/eldenring/boss_drops.py",
-    "greenfield/eldenring/boss_healthbars.py",
-    "greenfield/eldenring/boss_reward_lots.py",   # gen_data IMPORTS it; omitting it means a stale
+    "greenfield/eldenring/tables/boss_drops.py",
+    "greenfield/eldenring/tables/boss_healthbars.py",
+    "greenfield/eldenring/tables/boss_reward_lots.py",   # gen_data IMPORTS it; omitting it means a stale
                                                   # boss-reward table would not invalidate the stamp
     "greenfield/grace_flags.tsv",                  # DERIVED + TRACKED (was artifacts-only; a
     "greenfield/grace_region_map.tsv",             # git clean -xdf deleted both, no copy existed)

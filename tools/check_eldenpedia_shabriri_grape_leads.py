@@ -30,7 +30,7 @@ def main() -> int:
     assert page["acquisition_rows"] == "3" and page["disposition"] == "lead_only"
 
     spec = importlib.util.spec_from_file_location(
-        "_eldenpedia_shabriri_check_data", ROOT / "greenfield" / "eldenring" / "data.py")
+        "_eldenpedia_shabriri_check_data", ROOT / "greenfield" / "eldenring" / "tables" / "data.py")
     module = importlib.util.module_from_spec(spec)
     assert spec.loader
     spec.loader.exec_module(module)

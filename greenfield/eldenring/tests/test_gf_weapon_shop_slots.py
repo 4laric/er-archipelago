@@ -28,8 +28,8 @@ regression guard.
 import unittest
 import pytest
 
-from worlds.eldenring.shop_data import SHOP_PREVIEW_GOODS
-from worlds.eldenring.item_ids import ITEM_CATALOG
+from worlds.eldenring.tables.shop_data import SHOP_PREVIEW_GOODS
+from worlds.eldenring.tables.item_ids import ITEM_CATALOG
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")

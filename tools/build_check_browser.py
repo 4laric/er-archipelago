@@ -11,9 +11,9 @@ AP-FREE and import-free: the generated .py modules are read with ast.literal_eva
 imported, so this runs with a bare python3 and no Archipelago on sys.path.
 
 INPUTS (all committed; none are game files):
-  greenfield/eldenring/data.py              LOCATIONS: region -> [(name, ap_id, flag)]
-  greenfield/eldenring/location_tags.py     LOCATION_TAGS + DEFAULTED/BURN ap-id sets
-  greenfield/eldenring/missable_locations.py MISSABLE_LOCATIONS: ap_id -> reason
+  greenfield/eldenring/tables/data.py              LOCATIONS: region -> [(name, ap_id, flag)]
+  greenfield/eldenring/tables/location_tags.py     LOCATION_TAGS + DEFAULTED/BURN ap-id sets
+  greenfield/eldenring/tables/missable_locations.py MISSABLE_LOCATIONS: ap_id -> reason
   greenfield/check_maps.tsv                 flag -> physical map tile(s)
   greenfield/nearest_grace.tsv              flag -> nearest Site of Grace
   greenfield/lot_gates.tsv                  flag -> gate flag(s)
@@ -157,13 +157,13 @@ def main():
     gf = os.path.join(root, "greenfield")
     er = os.path.join(gf, "eldenring")
 
-    d = load_module_consts(os.path.join(er, "data.py"), {"LOCATIONS", "REGIONS", "HUB", "NOT_RANDOMIZED"})
+    d = load_module_consts(os.path.join(er, "tables", "data.py"), {"LOCATIONS", "REGIONS", "HUB", "NOT_RANDOMIZED"})
     tagmod = load_module_consts(
-        os.path.join(er, "location_tags.py"),
+        os.path.join(er, "tables", "location_tags.py"),
         {"LOCATION_TAGS", "TAG_COUNTS", "DEFAULTED_REGION_APS", "ERDTREE_BURN_APS",
          "SHOP_RELEASE_GATED_APS", "SURFACE_EXCLUDE_APS"},
     )
-    miss = load_module_consts(os.path.join(er, "missable_locations.py"), {"MISSABLE_LOCATIONS"})
+    miss = load_module_consts(os.path.join(er, "tables", "missable_locations.py"), {"MISSABLE_LOCATIONS"})
 
     LOCATIONS = d["LOCATIONS"]
     TAGS = tagmod.get("LOCATION_TAGS", {})
@@ -481,7 +481,7 @@ def main():
         "tile_regions": {t: sorted(rs) for t, rs in sorted(tile_regions.items())
                          if len({r for r in rs if r != "Roundtable Hold"}) > 1},
         # NOT the git commit -- see DETERMINISM in the module docstring.
-        "stamp": data_stamp(os.path.join(er, "data.py")),
+        "stamp": data_stamp(os.path.join(er, "tables", "data.py")),
     }
 
     tpl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),

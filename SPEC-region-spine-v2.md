@@ -16,7 +16,7 @@ world's locks by matching its lock item names against `"<Region> Lock"` over OUR
 with zero client changes.
 
 **One source now.** `greenfield/region_groups.py` holds the bucket->region grouping and the names.
-Consumers: `gen_data.py` (PLAY2AP + the generated `eldenring/region_play_ids.py`),
+Consumers: `gen_data.py` (PLAY2AP + the generated `eldenring/tables/region_play_ids.py`),
 `features/area_locks.py` (imports the generated module; its hand REGION_PLAY_IDS table is GONE —
 it had drifted: stale `Raya Lucaria Academy`/`Leyndell` keys, 6940/6950 bucketed backwards),
 `tools/gen_region_locks.py` (bakes the client table), `tools/datamine_dungeon_regions.py` and

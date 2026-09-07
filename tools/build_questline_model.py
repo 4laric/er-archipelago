@@ -28,7 +28,7 @@ OUT = os.path.join(GF, "questline_model.tsv")
 sys.path.insert(0, HERE)
 import build_questline_dag as dag  # noqa: E402
 
-ITEMS = dag._load_module("gf_item_ids", os.path.join(GF, "eldenring", "item_ids.py"))
+ITEMS = dag._load_module("gf_item_ids", os.path.join(GF, "eldenring", "tables", "item_ids.py"))
 
 COLUMNS = [
     "source_node", "target_node", "relation", "group_id", "group_semantics",

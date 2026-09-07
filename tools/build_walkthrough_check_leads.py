@@ -25,7 +25,7 @@ import re
 import unicodedata
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "greenfield" / "eldenring" / "data.py"
+DATA = ROOT / "greenfield" / "eldenring" / "tables" / "data.py"
 DEFAULT_OUT = ROOT / "greenfield" / "evidence" / "wiki-audit" / "walkthrough-check-leads.tsv"
 
 REDMAW_SOURCE_ID = "wiki:redmaw:walkthroughs:7281cb6f"

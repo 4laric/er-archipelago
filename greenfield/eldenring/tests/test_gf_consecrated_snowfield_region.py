@@ -1,8 +1,8 @@
 """Issue #868: Consecrated Snowfield is a first-class region, not a Mountaintops fold."""
 
-from .. import boss_sweeps, data, region_graces, region_open_flags, region_play_ids
+from ..tables import boss_sweeps, data, region_graces, region_open_flags, region_play_ids
 from ..features import natural_progression
-from ..location_tags import DEFAULTED_REGION_APS
+from ..tables.location_tags import DEFAULTED_REGION_APS
 from ..region_spine import SPINE
 
 

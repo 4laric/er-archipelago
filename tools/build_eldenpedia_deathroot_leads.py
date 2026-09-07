@@ -78,7 +78,7 @@ def acquisition_rows(text: str) -> list[tuple[int, set[str], str]]:
 
 
 def load_locations():
-    path = ROOT / "greenfield" / "eldenring" / "data.py"
+    path = ROOT / "greenfield" / "eldenring" / "tables" / "data.py"
     spec = importlib.util.spec_from_file_location("_eldenpedia_deathroot_data", path)
     module = importlib.util.module_from_spec(spec)
     assert spec.loader

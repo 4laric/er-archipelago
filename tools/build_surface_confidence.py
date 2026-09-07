@@ -86,7 +86,11 @@ def _load():
     sys.modules["_sc_gf"] = shim
     out = {}
     for name in _MODULES:
-        path = os.path.join(PKG, name + ".py")
+        # Generated tables live in eldenring/tables/ since #1464; hand-written modules (contract,
+        # boss_healthbars) stay beside the package. Look in both, tables first.
+        path = os.path.join(PKG, "tables", name + ".py")
+        if not os.path.isfile(path):
+            path = os.path.join(PKG, name + ".py")
         if not os.path.isfile(path):
             raise SystemExit(
                 "build_surface_confidence: %s is missing. The generated data is not present in this "

@@ -59,7 +59,7 @@ BUCKETS_TSV = _first(os.path.join(GF_PKG, "play_region_buckets.tsv"),
                      os.path.join(GREENFIELD, "play_region_buckets.tsv"))
 SPINE = _first(os.path.join(GF_PKG, "region_groups.py"),
                os.path.join(GREENFIELD, "region_groups.py"))
-DATA = os.path.join(GF_PKG, "data.py")
+DATA = os.path.join(GF_PKG, "tables/data.py")
 
 # The tile the report is about, and every check the datamine places on it. All nine were Cerulean
 # before 2026-08-09 except the two that carried a hand pin (68710, 2047397040) -- listed here TOGETHER

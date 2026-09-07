@@ -41,7 +41,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from Options import OptionError                                                 # noqa: E402
-from worlds.eldenring.data import HUB, REGIONS, LOCATIONS                       # noqa: E402
+from worlds.eldenring.tables.data import HUB, REGIONS, LOCATIONS                       # noqa: E402
 from worlds.eldenring.region_spine import (  # noqa: E402
     DLC_REGIONS, GOAL_REGION, REGION_PARENT)
 from worlds.eldenring.features.start_grace import (  # noqa: E402

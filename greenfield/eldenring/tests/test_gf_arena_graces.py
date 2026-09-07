@@ -27,7 +27,7 @@ fallback -- 172 granted graces share a tile with a boss (all 7 Stormveil graces 
 """
 import unittest
 
-from ..region_graces import REGION_GRACE_POINTS
+from ..tables.region_graces import REGION_GRACE_POINTS
 
 # Derived arena graces that were being GRANTED before the oracle landed (2026-07-11).
 # Each is within 40m of a boss spawn; granting them warps the player onto a live boss.

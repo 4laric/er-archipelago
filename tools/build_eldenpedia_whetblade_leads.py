@@ -29,7 +29,7 @@ def section(text):
  if not m:raise ValueError("missing Acquisition section")
  return m.group(1)
 def locations():
- s=importlib.util.spec_from_file_location("_whetblade_data",ROOT/"greenfield"/"eldenring"/"data.py");m=importlib.util.module_from_spec(s);assert s.loader;s.loader.exec_module(m)
+ s=importlib.util.spec_from_file_location("_whetblade_data",ROOT/"greenfield"/"eldenring"/"tables"/"data.py");m=importlib.util.module_from_spec(s);assert s.loader;s.loader.exec_module(m)
  return {i:(r,n,f) for r,cs in m.LOCATIONS.items() for n,i,f in cs}
 def lots():
  with (ROOT/"greenfield"/"flag_lots.tsv").open(encoding="utf-8",newline="") as h:return {(int(r["flag"]),int(r["item_id"]),r["name"]) for r in csv.DictReader(h,delimiter="\t")}

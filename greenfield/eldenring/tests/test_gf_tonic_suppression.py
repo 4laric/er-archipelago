@@ -15,7 +15,7 @@ TONIC_LOTS = (100700, 100726)
 
 
 def test_both_tonic_lots_are_goods_blanked_at_the_source():
-    from worlds.eldenring.check_lots_data import CHECK_LOT_SLOTS_MAP
+    from worlds.eldenring.tables.check_lots_data import CHECK_LOT_SLOTS_MAP
 
     assert {lot: CHECK_LOT_SLOTS_MAP.get(lot) for lot in TONIC_LOTS} == {
         100700: [1],

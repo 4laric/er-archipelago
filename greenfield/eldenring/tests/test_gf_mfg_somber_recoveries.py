@@ -23,9 +23,9 @@ class SomberRecoveries(unittest.TestCase):
         if ROOT is None:
             self.skipTest(REPO_ONLY_REASON)
         records = json.loads((GF / "evidence/mfg_somber_recoveries.json").read_text())["recoveries"]
-        data = runpy.run_path(str(PKG / "data.py"))
+        data = runpy.run_path(str(PKG / "tables/data.py"))
         by_flag = {f: (region, ap) for region, rows in data["LOCATIONS"].items() for _, ap, f in rows}
-        slots = runpy.run_path(str(PKG / "check_lots_data.py"))["CHECK_LOT_SLOTS_MAP"]
+        slots = runpy.run_path(str(PKG / "tables/check_lots_data.py"))["CHECK_LOT_SLOTS_MAP"]
         with (GF / "flag_lots.tsv").open() as fh:
             lots = list(csv.DictReader(fh, delimiter="\t"))
         expected_ids = {530861: 7774642, 540424: 7774643, 540428: 7774644,

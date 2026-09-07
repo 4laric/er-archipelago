@@ -22,7 +22,7 @@ REPO = find_repo_root(__file__, marker="greenfield/seam_landmarks.tsv")
 class SeamLandmarkLedgerTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        from worlds.eldenring import boss_sweeps, data, region_graces, region_play_ids
+        from worlds.eldenring.tables import boss_sweeps, data, region_graces, region_play_ids
 
         cls.boss_sweeps = boss_sweeps
         cls.data = data

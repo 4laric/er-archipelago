@@ -34,19 +34,19 @@ from ..registry import Feature, register
 from .. import contract
 
 try:
-    from ..shop_data import SHOP_ROW_FLAGS, SHOP_ROW_IDS
+    from ..tables.shop_data import SHOP_ROW_FLAGS, SHOP_ROW_IDS
 except Exception:  # not yet generated
     SHOP_ROW_FLAGS, SHOP_ROW_IDS = {}, {}
 try:
-    from ..shop_stock_data import GOODS_PRICE, RUNE_PAYOUT
+    from ..tables.shop_stock_data import GOODS_PRICE, RUNE_PAYOUT
 except Exception:  # not yet generated
     GOODS_PRICE, RUNE_PAYOUT = {}, {}
 try:
-    from ..item_ids import ITEM_CATALOG
+    from ..tables.item_ids import ITEM_CATALOG
 except Exception:  # not yet generated
     ITEM_CATALOG = {}
 try:
-    from ..missable_locations import MISSABLE_LOCATIONS
+    from ..tables.missable_locations import MISSABLE_LOCATIONS
 except Exception:  # not yet generated
     MISSABLE_LOCATIONS = {}
 

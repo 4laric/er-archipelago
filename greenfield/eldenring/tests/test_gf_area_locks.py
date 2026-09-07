@@ -8,7 +8,7 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.region_open_flags import REGION_OPEN_FLAGS  # noqa: E402
+from worlds.eldenring.tables.region_open_flags import REGION_OPEN_FLAGS  # noqa: E402
 from worlds.eldenring.features.area_locks import REGION_PLAY_IDS  # noqa: E402
 
 GAME = "Elden Ring"

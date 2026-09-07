@@ -39,7 +39,7 @@ from ..registry import Feature, register
 from .. import contract
 
 try:
-    from ..location_tags import LOCATION_TAGS
+    from ..tables.location_tags import LOCATION_TAGS
 except Exception:  # not yet generated -> feature is a no-op
     LOCATION_TAGS = {}
 
@@ -578,8 +578,8 @@ def _roundtable_merchant_aps():
     failure `collapsed_lift_aps` documents as "ONE CAUSE AT A TIME"). `allowed_ap_ids` unions the
     bars and is the only place that should mix them."""
     try:
-        from ..data import LOCATIONS, HUB
-        from ..location_tags import LOCATION_TAGS as _lt
+        from ..tables.data import LOCATIONS, HUB
+        from ..tables.location_tags import LOCATION_TAGS as _lt
     except Exception:
         return frozenset()
     return frozenset(ap for (_n, ap, _f) in LOCATIONS.get(HUB, ())
@@ -599,13 +599,13 @@ def allowed_ap_ids(tags_map, classes, defaulted=None):
     sel = set(classes)
     if defaulted is None:
         try:
-            from ..location_tags import DEFAULTED_REGION_APS as _d
+            from ..tables.location_tags import DEFAULTED_REGION_APS as _d
         except Exception:
             _d = frozenset()
         try:
             # m11_00 (normal Leyndell): destroyed when Maliketh dies (the Erdtree burns). Same rule --
             # a check the player can put permanently out of reach may not carry progression.
-            from ..location_tags import ERDTREE_BURN_APS as _b
+            from ..tables.location_tags import ERDTREE_BURN_APS as _b
         except Exception:
             _b = frozenset()
         defaulted = frozenset(_d) | frozenset(_b)
@@ -616,11 +616,11 @@ def allowed_ap_ids(tags_map, classes, defaulted=None):
     # rows are likewise unconditional: a row absent from the shelf cannot host progression even
     # when its region is known and open (#724).
     try:
-        from ..location_tags import SURFACE_EXCLUDE_APS as _sx
+        from ..tables.location_tags import SURFACE_EXCLUDE_APS as _sx
     except Exception:
         _sx = frozenset()
     try:
-        from ..location_tags import SHOP_RELEASE_GATED_APS as _sg
+        from ..tables.location_tags import SHOP_RELEASE_GATED_APS as _sg
     except Exception:
         _sg = frozenset()
     barred = (frozenset(defaulted) | _roundtable_merchant_aps()
@@ -674,7 +674,7 @@ def sweep_slot_aps(world, classes, tag_ids=frozenset()):
     except Exception:
         return frozenset()
     try:
-        from ..location_tags import SURFACE_EXCLUDE_APS as _sx
+        from ..tables.location_tags import SURFACE_EXCLUDE_APS as _sx
     except Exception:
         _sx = frozenset()
     barred = (frozenset(_world_barred_aps(world)) | _roundtable_merchant_aps() | frozenset(_sx))
@@ -687,8 +687,8 @@ def sweep_slot_aps(world, classes, tag_ids=frozenset()):
     # production path must not depend on an import that is allowed to fail; the census tool, which
     # has no world, keeps the lazy default.
     try:
-        from ..boss_healthbars import BOSS_HEALTHBARS  # noqa: PLC0415 -- data leaf
-        from ..boss_sweeps import SWEEP_ARENA_REGION, SWEEP_REGION  # noqa: PLC0415 -- data leaf
+        from ..tables.boss_healthbars import BOSS_HEALTHBARS  # noqa: PLC0415 -- data leaf
+        from ..tables.boss_sweeps import SWEEP_ARENA_REGION, SWEEP_REGION  # noqa: PLC0415 -- data leaf
         skips = contract.sweep_slot_skips(healthbars=BOSS_HEALTHBARS,
                                           arena_regions=SWEEP_ARENA_REGION,
                                           member_regions=SWEEP_REGION,
@@ -711,7 +711,7 @@ def sweep_slot_aps(world, classes, tag_ids=frozenset()):
     # nominates exactly what it did before, byte for byte, and one selecting both subclasses gets
     # the same set by a different route (they partition it; there is no third bucket).
     try:
-        from ..boss_sweeps import MAJOR_SWEEP_TRIGGERS  # noqa: PLC0415 -- data leaf
+        from ..tables.boss_sweeps import MAJOR_SWEEP_TRIGGERS  # noqa: PLC0415 -- data leaf
     except Exception:
         # 🛑 DEGRADE TO THE WHOLE SET, NOT TO EMPTY. Without the table the split cannot be honoured;
         # nominating nothing would silently shrink a surface the player asked to widen, and an
@@ -1179,7 +1179,7 @@ def regions_with_major_boss(region_names, tags_map=None, locations=None, barred=
     tm = LOCATION_TAGS if tags_map is None else tags_map
     if locations is None:
         try:
-            from ..data import LOCATIONS as locations
+            from ..tables.data import LOCATIONS as locations
         except Exception:
             locations = {}
     locs = locations
@@ -1306,7 +1306,7 @@ def missable_barred_aps(world):
     if opt is not None and not opt.value:
         return frozenset()
     try:
-        from ..missable_locations import MISSABLE_LOCATIONS
+        from ..tables.missable_locations import MISSABLE_LOCATIONS
     except Exception:
         return frozenset()
     return frozenset(MISSABLE_LOCATIONS)
@@ -1341,7 +1341,7 @@ def collapsed_site_regions(world):
     if cached is not None:
         return cached
     try:
-        from ..location_tags import HUB_COLLAPSED_SITE_APS as _sites
+        from ..tables.location_tags import HUB_COLLAPSED_SITE_APS as _sites
     except Exception:                                   # pre-regen data -> feature inert, C's bar stands
         _sites = {}
     out = {}
@@ -1372,11 +1372,11 @@ def collapsed_lift_aps(world):
     if not ids:
         return frozenset()
     try:
-        from ..location_tags import ERDTREE_BURN_APS as _b
+        from ..tables.location_tags import ERDTREE_BURN_APS as _b
     except Exception:
         _b = frozenset()
     try:
-        from ..location_tags import SHOP_RELEASE_GATED_APS as _g
+        from ..tables.location_tags import SHOP_RELEASE_GATED_APS as _g
     except Exception:
         _g = frozenset()
     return ids - frozenset(_b) - frozenset(_g)
@@ -1390,15 +1390,15 @@ def _world_barred_aps(world):
     item_rule carve-out; the two must agree or the surface would star checks the item_rule forbids
     (or vice versa) -- which is exactly what it did for every missable check until 2026-07-28."""
     try:
-        from ..location_tags import DEFAULTED_REGION_APS as _d
+        from ..tables.location_tags import DEFAULTED_REGION_APS as _d
     except Exception:
         _d = frozenset()
     try:
-        from ..location_tags import HUB_UNATTRIBUTED_APS as _u
+        from ..tables.location_tags import HUB_UNATTRIBUTED_APS as _u
     except Exception:
         _u = frozenset()
     try:
-        from ..location_tags import SHOP_RELEASE_GATED_APS as _s
+        from ..tables.location_tags import SHOP_RELEASE_GATED_APS as _s
     except Exception:
         _s = frozenset()
     # #701 option B: a hub-collapsed merchant row THIS SEED could region to a kept site is no longer a
@@ -1415,7 +1415,7 @@ def _world_barred_aps(world):
     if getattr(world, "gf_capital_reconciler", False):
         return frozenset(_d) | frozenset(_u) | frozenset(_s) | _m | _h
     try:
-        from ..location_tags import ERDTREE_BURN_APS as _b
+        from ..tables.location_tags import ERDTREE_BURN_APS as _b
     except Exception:
         _b = frozenset()
     return frozenset(_d) | frozenset(_u) | frozenset(_b) | frozenset(_s) | _m | _h

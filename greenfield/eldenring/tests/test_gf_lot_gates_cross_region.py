@@ -63,8 +63,8 @@ import warnings
 import pytest
 
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.data import LOCATIONS  # noqa: E402
-from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
 
 # WHAT THIS SCREEN DEMANDS, and why it is not "zero".
 # The 8 checks it first caught (2026-07-25) are all NPC-QUESTLINE drops -- item in region A,

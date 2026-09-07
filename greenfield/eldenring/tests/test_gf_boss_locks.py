@@ -4,7 +4,7 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.boss_data import REGION_BOSSES  # noqa: E402
+from worlds.eldenring.tables.boss_data import REGION_BOSSES  # noqa: E402
 
 GAME = "Elden Ring"
 
@@ -79,7 +79,7 @@ class DungeonSweepFlags(WorldTestBase):
     options = {"num_regions": 0, "dungeon_sweep": "all"}
 
     def test_sweep_flags_present_and_scoped(self):
-        from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+        from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS
         self.assertTrue(DUNGEON_SWEEPS, "boss_sweeps.py must be generated")
         sd = self.world.fill_slot_data()
         sw = sd["dungeonSweepFlags"]
@@ -133,7 +133,7 @@ class FullAreaSweepsOneRegionSeed(WorldTestBase):
                "dungeon_sweep": "bosses", "full_area_sweeps": True}
 
     def test_every_baked_member_is_paid_out(self):
-        from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+        from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS
         sd = self.world.fill_slot_data()
         sw = sd.get("dungeonSweepFlags", {})
         self.assertTrue(sw, "a one-region seed at the widest rung must still emit sweeps")
@@ -154,7 +154,7 @@ class FullAreaSweepsOffSeed(WorldTestBase):
                "dungeon_sweep": "bosses"}
 
     def test_the_surface_cut_still_runs(self):
-        from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+        from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS
         from worlds.eldenring.features.boss_locks import sweep_surface_cut
         sd = self.world.fill_slot_data()
         sw = sd.get("dungeonSweepFlags", {})

@@ -98,7 +98,7 @@ def build(sheets: Path):
                 (region, ap_id, location, flag)
             )
 
-    shop_data = load_repo_module("_redmaw_shop_data", ROOT / "greenfield/eldenring/shop_data.py")
+    shop_data = load_repo_module("_redmaw_shop_data", ROOT / "greenfield/eldenring/tables/shop_data.py")
     physical_merchants: dict[int, list[str]] = {}
     with MERCHANT_SHOPS.open(encoding="utf-8", newline="") as handle:
         rows = (line for line in handle if not line.startswith("#"))

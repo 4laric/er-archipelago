@@ -44,7 +44,7 @@ def _boss_label(reward):
 
 
 def _all_boss_labels():
-    boss_data = _load_by_path("gf_boss_data_under_test", "boss_data.py")
+    boss_data = _load_by_path("gf_boss_data_under_test", "tables/boss_data.py")
     labels = set()
     for lst in boss_data.REGION_BOSSES.values():
         for (_aid, _fl, reward) in lst:

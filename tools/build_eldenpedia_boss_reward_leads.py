@@ -53,10 +53,10 @@ def render(rows: list[dict[str, str]], fields: tuple[str, ...]) -> str:
 
 
 def build(capture: dict[str, list[dict]]) -> tuple[list[dict[str, str]], list[dict[str, str]], dict]:
-    boss_drops = module("_boss_drops", ROOT / "greenfield/eldenring/boss_drops.py")
-    boss_rewards = module("_boss_rewards", ROOT / "greenfield/eldenring/boss_reward_lots.py")
-    healthbars = module("_healthbars", ROOT / "greenfield/eldenring/boss_healthbars.py")
-    data = module("_data", ROOT / "greenfield/eldenring/data.py")
+    boss_drops = module("_boss_drops", ROOT / "greenfield/eldenring/tables/boss_drops.py")
+    boss_rewards = module("_boss_rewards", ROOT / "greenfield/eldenring/tables/boss_reward_lots.py")
+    healthbars = module("_healthbars", ROOT / "greenfield/eldenring/tables/boss_healthbars.py")
+    data = module("_data", ROOT / "greenfield/eldenring/tables/data.py")
     pages = {int(page["pageid"]): (category, page) for category, entries in capture.items()
              for page in entries}
     by_title = {norm(page["title"]): (category, page) for category, page in pages.values()}

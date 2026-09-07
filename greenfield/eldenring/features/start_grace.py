@@ -18,7 +18,7 @@ from Options import DefaultOnToggle, OptionSet, Range, Toggle
 from ..registry import Feature, register
 from . import catacomb_doors as _doors
 from .. import contract
-from ..data import HUB
+from ..tables.data import HUB
 from ..region_spine import REGIONS
 
 _ROUNDTABLE_GRACE = 71190       # Roundtable Hold, Table of Lost Grace (m11_10) warp-unlock flag

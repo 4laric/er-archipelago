@@ -363,8 +363,8 @@ class World(object):
     """The generated side: which flags are live checks, where they are, what is already protected."""
 
     def __init__(self):
-        data = _load_module("gf_data", os.path.join(PKG, "data.py"))
-        miss = _load_module("gf_missable", os.path.join(PKG, "missable_locations.py"))
+        data = _load_module("gf_data", os.path.join(PKG, "tables", "data.py"))
+        miss = _load_module("gf_missable", os.path.join(PKG, "tables", "missable_locations.py"))
         self.flag_ap, self.flag_name, self.flag_region = {}, {}, {}
         for region, locs in data.LOCATIONS.items():
             for name, ap_id, flag in locs:

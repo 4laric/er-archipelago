@@ -127,7 +127,7 @@ def page_region(text: str) -> str:
 
 
 def load_locations():
-    path = ROOT / "greenfield" / "eldenring" / "data.py"
+    path = ROOT / "greenfield" / "eldenring" / "tables" / "data.py"
     spec = importlib.util.spec_from_file_location("_eldenpedia_data", path)
     mod = importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(mod)
     return mod.LOCATIONS

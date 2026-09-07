@@ -73,7 +73,7 @@ def acquisition_rows(text: str) -> list[tuple[int, str, str, set[str]]]:
 
 def load_locations() -> dict[int, tuple[str, str, int]]:
     spec = importlib.util.spec_from_file_location(
-        "_eldenpedia_seedbed_data", ROOT / "greenfield" / "eldenring" / "data.py")
+        "_eldenpedia_seedbed_data", ROOT / "greenfield" / "eldenring" / "tables" / "data.py")
     module = importlib.util.module_from_spec(spec)
     assert spec.loader
     spec.loader.exec_module(module)

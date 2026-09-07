@@ -86,7 +86,7 @@ def rows(text: str) -> list[tuple[int, str, str]]:
 
 
 def locations() -> dict[int, tuple[str, str, int]]:
-    spec = importlib.util.spec_from_file_location("_golden_seed_data", ROOT / "greenfield" / "eldenring" / "data.py")
+    spec = importlib.util.spec_from_file_location("_golden_seed_data", ROOT / "greenfield" / "eldenring" / "tables" / "data.py")
     module = importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(module)
     return {ap_id: (region, name, flag) for region, checks in module.LOCATIONS.items() for name, ap_id, flag in checks}
 

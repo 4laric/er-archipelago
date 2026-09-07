@@ -26,12 +26,12 @@ class MfgRecoveredPickups(unittest.TestCase):
                     if (p / "greenfield/gen_data.py").is_file())
         world = root / "greenfield/eldenring"
         evidence = json.loads((root / "greenfield/evidence/mfg_recovered_pickups.json").read_text())
-        locations = assignments(world / "data.py")["LOCATIONS"]
+        locations = assignments(world / "tables/data.py")["LOCATIONS"]
         by_flag = {}
         for region, rows in locations.items():
             for name, ap_id, flag in rows:
                 by_flag.setdefault(flag, []).append((region, name, ap_id))
-        blanks = assignments(world / "check_lots_data.py")
+        blanks = assignments(world / "tables/check_lots_data.py")
         expected = {2046407001: "Gravesite", 2046407002: "Gravesite",
                     2046407003: "Gravesite", 2046407004: "Gravesite", 2047447901: "Ensis"}
         self.assertEqual({r["flag"] for r in evidence["rows"]}, set(expected))
@@ -52,7 +52,7 @@ class MfgRecoveredPickups(unittest.TestCase):
                 region, name, ap_id = by_flag[flag][0]
                 self.assertEqual(region, expected[flag])
                 self.assertIn(item["items"][0]["name"], name)
-                self.assertEqual(assignments(world / "item_ids.py")["LOCATION_ITEM"][ap_id],
+                self.assertEqual(assignments(world / "tables/item_ids.py")["LOCATION_ITEM"][ap_id],
                                  item["items"][0]["name"])
                 table = "CHECK_LOT_SLOTS_MAP" if flag == 2047447901 else "CHECK_LOT_ZERO_MAP"
                 self.assertIn(1, blanks[table].get(pin["itemLotId"], []))

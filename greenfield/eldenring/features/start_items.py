@@ -247,7 +247,7 @@ def start_hold_counts(world):
     stackable good with a ceiling.
     """
     try:
-        from ..item_ids import ITEM_CATALOG
+        from ..tables.item_ids import ITEM_CATALOG
     except Exception:                                   # pragma: no cover - generated module absent
         return {}
     by_id = {}

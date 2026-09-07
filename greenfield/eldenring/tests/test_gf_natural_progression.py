@@ -108,7 +108,7 @@ class NaturalProgressionTest(WorldTestBase):
         (2026-07-24): Leyndell/Sewer bloom on the Nth Great Rune, exactly when the vanilla wall opens
         (the 2026-07-24 playtest showed the areaLock seal does NOT open on the game's own wall). This
         is the guard that would have caught the first playtest's born-softlocked Limgrave."""
-        from worlds.eldenring.region_open_flags import REGION_OPEN_FLAGS
+        from worlds.eldenring.tables.region_open_flags import REGION_OPEN_FLAGS
         world = self.multiworld.worlds[self.player]
         trig = world.fill_slot_data().get("naturalKeyTriggers", {})
         sealed_no_opener = [r for r in world._kept()

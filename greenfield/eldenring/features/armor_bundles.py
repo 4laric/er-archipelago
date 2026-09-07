@@ -11,7 +11,7 @@ from Options import Toggle
 from BaseClasses import ItemClassification
 
 from ..registry import Feature, register
-from ..item_ids import ARMOR_BUNDLES
+from ..tables.item_ids import ARMOR_BUNDLES
 
 
 class ArmorBundles(Toggle):

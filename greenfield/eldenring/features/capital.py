@@ -47,10 +47,10 @@ from Options import DefaultOnToggle
 
 from ..registry import Feature, register
 from .. import contract
-from ..data import FINALE_REGION as _FINALE_REGION
+from ..tables.data import FINALE_REGION as _FINALE_REGION
 
 try:
-    from ..region_play_ids import REGION_PLAY_IDS
+    from ..tables.region_play_ids import REGION_PLAY_IDS
 except Exception:  # pragma: no cover -- pre-regen data
     REGION_PLAY_IDS = {}
 
@@ -59,17 +59,17 @@ except Exception:  # pragma: no cover -- pre-regen data
 # Windows regen -- same numbers, provenance cited, and test_gf_capital_reconciler pins them equal
 # once data.py carries them (a redundant fallback that DRIFTS must fail, not linger).
 try:
-    from ..data import CAPITAL_BURN_FLAG as _GEN_BURN_FLAG
-    from ..data import CAPITAL_BURN_DONE_FLAG as _GEN_BURN_DONE_FLAG
-    from ..data import CAPITAL_RELEASE_ROWS as _GEN_RELEASE_ROWS
+    from ..tables.data import CAPITAL_BURN_FLAG as _GEN_BURN_FLAG
+    from ..tables.data import CAPITAL_BURN_DONE_FLAG as _GEN_BURN_DONE_FLAG
+    from ..tables.data import CAPITAL_RELEASE_ROWS as _GEN_RELEASE_ROWS
 except Exception:
     _GEN_BURN_FLAG = _GEN_BURN_DONE_FLAG = _GEN_RELEASE_ROWS = None
 # SPEC-ashen-capital-lock. No pinned fallback for these two ON PURPOSE: unlike 9116/118 they have
 # never shipped, so an absent value means "regenerate", not "assume". A hand fallback here would be
 # a hardcoded game id that nobody would ever notice had gone stale.
 try:
-    from ..data import CAPITAL_WORLD_BURN_FLAG as WORLD_BURN_FLAG
-    from ..data import CAPITAL_PRE_BURN_FLAG as PRE_BURN_FLAG
+    from ..tables.data import CAPITAL_WORLD_BURN_FLAG as WORLD_BURN_FLAG
+    from ..tables.data import CAPITAL_PRE_BURN_FLAG as PRE_BURN_FLAG
 except Exception:  # pragma: no cover -- pre-regen data
     WORLD_BURN_FLAG = PRE_BURN_FLAG = None
 
@@ -175,7 +175,7 @@ def burn_reveal_flags():
 # join over generated data rather than a hand list; the empty fallback keeps a pre-regen checkout
 # emitting the two flags that matter (300 and the latch) instead of raising.
 try:
-    from ..data import CAPITAL_BURN_SIDE_EFFECT_FLAGS as _BURN_SIDE_EFFECT_FLAGS
+    from ..tables.data import CAPITAL_BURN_SIDE_EFFECT_FLAGS as _BURN_SIDE_EFFECT_FLAGS
 except Exception:  # pragma: no cover -- pre-regen data
     _BURN_SIDE_EFFECT_FLAGS = ()
 

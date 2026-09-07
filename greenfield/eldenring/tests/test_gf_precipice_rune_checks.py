@@ -16,7 +16,7 @@ ROWS = {
 
 
 def test_precipice_runes_keep_their_msb_witnesses_and_generated_locations():
-    from worlds.eldenring.data import LOCATIONS
+    from worlds.eldenring.tables.data import LOCATIONS
     from worlds.eldenring.tests._util import find_repo_root
 
     flags = {int(flag) for region in LOCATIONS.values() for _name, _ap_id, flag in region}
@@ -37,7 +37,7 @@ def test_precipice_runes_keep_their_msb_witnesses_and_generated_locations():
 
 
 def test_precipice_rune_enemy_lots_are_source_neutralised():
-    from worlds.eldenring.check_lots_data import CHECK_LOT_SLOTS_ENEMY
+    from worlds.eldenring.tables.check_lots_data import CHECK_LOT_SLOTS_ENEMY
 
     assert {lot: CHECK_LOT_SLOTS_ENEMY.get(lot) for lot, _entity in ROWS.values()} == {
         420126020: [1],

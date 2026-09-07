@@ -9,7 +9,7 @@ import pytest
 
 pytest.importorskip("worlds.eldenring")
 
-from worlds.eldenring.region_graces import (  # noqa: E402
+from worlds.eldenring.tables.region_graces import (  # noqa: E402
     REGION_GRACE_LANDMARKS,
     REGION_GRACE_POINTS,
 )

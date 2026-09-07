@@ -50,7 +50,7 @@ def render(rows, fields):
     writer.writeheader(); writer.writerows(rows); return out.getvalue()
 
 def build(capture):
-    data = module("_data", ROOT / "greenfield/eldenring/data.py")
+    data = module("_data", ROOT / "greenfield/eldenring/tables/data.py")
     detections = {}
     with CLAIMS.open(encoding="utf-8", newline="") as handle:
         for row in csv.DictReader(handle, delimiter="\t"):

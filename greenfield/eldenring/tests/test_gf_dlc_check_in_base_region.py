@@ -22,7 +22,7 @@ import re
 import pytest
 
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.data import LOCATIONS, REGIONS  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS, REGIONS  # noqa: E402
 from worlds.eldenring.region_spine import DLC_REGIONS  # noqa: E402
 
 _HERE = os.path.dirname(os.path.abspath(__file__))

@@ -25,16 +25,16 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from Options import OptionError  # noqa: E402
 from worlds.eldenring import contract  # noqa: E402
-from worlds.eldenring.data import (LOCATIONS, REGIONS, HUB, FINALE_REGION,  # noqa: E402
+from worlds.eldenring.tables.data import (LOCATIONS, REGIONS, HUB, FINALE_REGION,  # noqa: E402
                                    FINALE_BURN_REGION, FINALE_KICK_OWNER,
                                    CAPITAL_WORLD_BURN_FLAG, CAPITAL_PRE_BURN_FLAG,
                                    CAPITAL_BURN_FLAG, CAPITAL_BURN_DONE_FLAG,
                                    CAPITAL_BURN_SIDE_EFFECT_FLAGS,
                                    CAPITAL_WORLD_BURN_READER_MAPS)
 from worlds.eldenring.region_spine import parent_chain  # noqa: E402
-from worlds.eldenring.region_open_flags import REGION_OPEN_FLAGS  # noqa: E402
-from worlds.eldenring.region_graces import REGION_GRACE_POINTS  # noqa: E402
-from worlds.eldenring.region_play_ids import REGION_PLAY_IDS  # noqa: E402
+from worlds.eldenring.tables.region_open_flags import REGION_OPEN_FLAGS  # noqa: E402
+from worlds.eldenring.tables.region_graces import REGION_GRACE_POINTS  # noqa: E402
+from worlds.eldenring.tables.region_play_ids import REGION_PLAY_IDS  # noqa: E402
 from worlds.eldenring.features.finale import ASHEN_LOCK_ITEM  # noqa: E402
 from worlds.eldenring.features import capital as _capital  # noqa: E402
 
@@ -140,7 +140,7 @@ class TestTheGeometryIsItsOwn:
         HERE, beside its ashen twin, because the two are one ruling and were separated only by the
         order the maps got their bundles -- a future edit that restores one should trip on the
         other rather than leaving the pair half-applied."""
-        from ..region_graces import REGION_GRACE_POINTS as _rgp
+        from ..tables.region_graces import REGION_GRACE_POINTS as _rgp
 
         leyndell = set(_rgp.get("Leyndell", []))
         assert leyndell, "Leyndell has no grace bundle -- this assertion has stopped measuring"

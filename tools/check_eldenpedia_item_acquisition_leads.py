@@ -9,7 +9,7 @@ def load(name, path):
 def main():
     with (AUDIT/"eldenpedia-item-acquisition-check-leads.tsv").open(encoding="utf-8",newline="") as h: rows=list(csv.DictReader(h,delimiter="\t"))
     with (AUDIT/"eldenpedia-item-acquisition-pages.tsv").open(encoding="utf-8",newline="") as h: sources={r["source_id"]:r for r in csv.DictReader(h,delimiter="\t")}
-    data=load("_data",ROOT/"greenfield/eldenring/data.py")
+    data=load("_data",ROOT/"greenfield/eldenring/tables/data.py")
     current={str(ap):(region,flag) for region,entries in data.LOCATIONS.items() for _name,ap,flag in entries}
     detections={}
     with (ROOT/"greenfield/evidence/v060-current/claims.tsv").open(encoding="utf-8",newline="") as h:

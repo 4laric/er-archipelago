@@ -87,7 +87,7 @@ def _gen_data_literal(name):
 
 def _data_locations():
     """data.py's LOCATIONS dict, parsed from source (AP-free)."""
-    src = os.path.join(_ROOT, "greenfield", "eldenring", "data.py")
+    src = os.path.join(_ROOT, "greenfield", "eldenring", "tables/data.py")
     with open(src, encoding="utf-8") as fh:
         tree = ast.parse(fh.read(), filename=src)
     for node in ast.walk(tree):
@@ -157,7 +157,7 @@ def test_the_surface_bar_stays_off_the_pocket():
 try:
     from test.bases import WorldTestBase
     from BaseClasses import CollectionState
-    from worlds.eldenring.data import REGIONS
+    from worlds.eldenring.tables.data import REGIONS
     _HAVE_AP = True
 except ImportError:
     _HAVE_AP = False

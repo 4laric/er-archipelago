@@ -28,7 +28,7 @@ def main() -> int:
                 if isinstance(value, dict) and "flag" in value and "mechanism" in value:
                     detections[row["subject_id"]] = value
     spec = importlib.util.spec_from_file_location(
-        "_repeated_pickup_data", ROOT / "greenfield" / "eldenring" / "data.py")
+        "_repeated_pickup_data", ROOT / "greenfield" / "eldenring" / "tables" / "data.py")
     mod = importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(mod)
     current = {str(ap_id): (region, flag) for region, checks in mod.LOCATIONS.items()
                for _location, ap_id, flag in checks}

@@ -27,7 +27,7 @@ def load(name: str, path: Path):
 
 
 def main() -> int:
-    data = load("_golden_rune_data", ROOT / "greenfield/eldenring/data.py")
+    data = load("_golden_rune_data", ROOT / "greenfield/eldenring/tables/data.py")
     current = {ap_id: (region, name, flag) for region, locations in data.LOCATIONS.items()
                for name, ap_id, flag in locations}
     with LEADS.open(encoding="utf-8", newline="") as handle:

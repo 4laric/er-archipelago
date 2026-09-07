@@ -11,7 +11,7 @@ from types import SimpleNamespace
 from ._util import world_items  # noqa: E402
 import pytest
 
-from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS
+from worlds.eldenring.tables.missable_locations import MISSABLE_LOCATIONS
 from worlds.eldenring.features.missable_locations import (
     MissableLocationsFeature, ProtectMissableLocations)
 

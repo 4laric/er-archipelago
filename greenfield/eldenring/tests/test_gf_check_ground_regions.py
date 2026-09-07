@@ -229,7 +229,7 @@ class CheckGroundRegions(unittest.TestCase):
         # trigger (rec[5]); its arena must be the region the check is filed in.
         import importlib.util
         _spec = importlib.util.spec_from_file_location(
-            "_cgr_sweeps_test", os.path.join(REPO, "greenfield", "eldenring", "boss_sweeps.py"))
+            "_cgr_sweeps_test", os.path.join(REPO, "greenfield", "eldenring", "tables/boss_sweeps.py"))
         _sw = importlib.util.module_from_spec(_spec)
         _spec.loader.exec_module(_sw)
         crossed = [(rec[0], rec[1], rec[5], _sw.SWEEP_ARENA_REGION.get(rec[5]))

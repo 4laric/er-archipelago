@@ -86,7 +86,7 @@ def main():
     gf = os.path.join(args.repo, "greenfield")
     er = os.path.join(gf, "eldenring")
 
-    LOCATIONS = load_module_consts(os.path.join(er, "data.py"), {"LOCATIONS"})["LOCATIONS"]
+    LOCATIONS = load_module_consts(os.path.join(er, "tables", "data.py"), {"LOCATIONS"})["LOCATIONS"]
     # A handful of flags carry TWO ap_ids (the co-check band), so location COUNT != flag COUNT.
     # Keying a dict on flag silently loses those; report both numbers rather than one wrong one.
     n_locations = sum(len(v) for v in LOCATIONS.values())

@@ -19,7 +19,7 @@ def main() -> int:
     page = pages[0]; assert page["source_id"] == "wiki:eldenpedia:page-13254:revision-99877"
     assert page["revision_sha1"] == "c7a13f72bb1579728cba9811dfbdddf1a97de308"
     assert page["acquisition_rows"] == "12" and page["disposition"] == "lead_only"
-    spec = importlib.util.spec_from_file_location("_sacred_tear_check_data", ROOT / "greenfield" / "eldenring" / "data.py")
+    spec = importlib.util.spec_from_file_location("_sacred_tear_check_data", ROOT / "greenfield" / "eldenring" / "tables" / "data.py")
     module = importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(module)
     current = {str(ap_id): (region, name, flag) for region, checks in module.LOCATIONS.items() for name, ap_id, flag in checks}
     assert {r["subject_id"] for r in leads} == set(EXPECTED)

@@ -39,7 +39,7 @@ ARENA = "Scadu Altus"
 class HippoPresentsAsScaduAltusEverywhere(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        from .. import boss_sweeps, data
+        from ..tables import boss_sweeps, data
         cls.boss_sweeps = boss_sweeps
         cls.data = data
         cls.by_ap = {}

@@ -96,7 +96,7 @@ from Options import Choice, OptionError
 from ..registry import Feature, register
 
 try:
-    from ..item_ids import LOCATION_ITEM
+    from ..tables.item_ids import LOCATION_ITEM
 except Exception:  # pragma: no cover -- pre-regen data
     LOCATION_ITEM = {}
 
@@ -199,7 +199,7 @@ def pins(world):
     to `<name> x<n>` -- so on a DLC-off seed, or on the four `Scadutree Fragment` lots that grant
     two, it disagrees with the pool by design. `core.create_items` publishes the RESOLVED pairing as
     `world.gf_vanilla_pins` and `apply()` reads that; nothing in the shipped path calls this."""
-    from ..data import LOCATIONS
+    from ..tables.data import LOCATIONS
     from ..core import HUB
     out = []
     for rn in [HUB] + list(world._kept()):

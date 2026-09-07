@@ -65,11 +65,11 @@ from BaseClasses import ItemClassification
 from ..registry import Feature, register
 
 try:
-    from ..item_ids import ITEM_CATALOG, LOCATION_ITEM
+    from ..tables.item_ids import ITEM_CATALOG, LOCATION_ITEM
 except Exception:  # pre-regen: no catalog -> nothing resolves, feature is inert
     ITEM_CATALOG, LOCATION_ITEM = {}, {}
 try:
-    from ..data import HUB, LOCATIONS
+    from ..tables.data import HUB, LOCATIONS
 except Exception:
     HUB, LOCATIONS = "Roundtable Hold", {}
 

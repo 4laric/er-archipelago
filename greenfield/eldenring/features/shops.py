@@ -31,33 +31,33 @@ dicts remain a valid no-op contract if shop_data.py is absent.
 from Options import DefaultOnToggle, Choice
 from ..registry import Feature, register
 from .. import contract
-from ..data import HUB
+from ..tables.data import HUB
 
 try:
-    from ..shop_data import (SHOP_ROW_FLAGS, SHOP_ROW_IDS, SHOP_LOC_REGION,
+    from ..tables.shop_data import (SHOP_ROW_FLAGS, SHOP_ROW_IDS, SHOP_LOC_REGION,
                              SHOP_PREVIEW_GOODS)
 except Exception:  # not yet generated
     SHOP_ROW_FLAGS, SHOP_ROW_IDS, SHOP_LOC_REGION, SHOP_PREVIEW_GOODS = {}, {}, {}, {}
 
 try:
-    from ..shop_data import SPARE_PREVIEW_GOODS      # datamined pool (tools/datamine_spare_goods.py)
+    from ..tables.shop_data import SPARE_PREVIEW_GOODS      # datamined pool (tools/datamine_spare_goods.py)
 except Exception:                                   # predates the spare-goods emit
     SPARE_PREVIEW_GOODS = ()
 
 try:
-    from ..shop_data import SPARE_PREVIEW_REDIRECTABLE  # tier boundary (issue #937): rows past it
+    from ..tables.shop_data import SPARE_PREVIEW_REDIRECTABLE  # tier boundary (issue #937): rows past it
 except Exception:                                       # need the client's FMG INSERT; predates it
     SPARE_PREVIEW_REDIRECTABLE = len(SPARE_PREVIEW_GOODS)  # old shop_data: all redirectable
 
 try:
-    from ..shop_data import SHOP_OPEN_SCOPES         # menu display scopes (issue #937 coloring)
+    from ..tables.shop_data import SHOP_OPEN_SCOPES         # menu display scopes (issue #937 coloring)
 except Exception:                                   # predates the scopes emit: coloring falls back
     SHOP_OPEN_SCOPES = ()                           # to per-block buckets, all slots private
 
 from ..shop_coloring import color_spare_rows        # pure, host-tested (tests/test_shop_coloring.py)
 
 try:
-    from ..item_ids import ITEM_CATALOG              # item NAME -> ER FullID (generated)
+    from ..tables.item_ids import ITEM_CATALOG              # item NAME -> ER FullID (generated)
 except Exception:                                   # not yet generated
     ITEM_CATALOG = {}
 

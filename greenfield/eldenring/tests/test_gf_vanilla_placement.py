@@ -14,7 +14,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from Options import OptionError  # noqa: E402
-from worlds.eldenring.item_ids import LOCATION_ITEM  # noqa: E402
+from worlds.eldenring.tables.item_ids import LOCATION_ITEM  # noqa: E402
 from worlds.eldenring.features import vanilla_placement as _vp  # noqa: E402
 
 GAME = "Elden Ring"

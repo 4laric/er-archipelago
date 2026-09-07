@@ -117,10 +117,10 @@ def test_the_important_checks_inside_sweeps_do_not_grow():
     balance argument, not something to slip in under a test.
 
     Until then this stops the set GROWING, which is the part that would go unnoticed."""
-    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, POST_BOSS_GIFTS
-    from worlds.eldenring.location_tags import LOCATION_TAGS
-    from worlds.eldenring.boss_reward_lots import BOSS_REWARD_DEFEAT
-    from worlds.eldenring.data import LOCATIONS
+    from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS, POST_BOSS_GIFTS
+    from worlds.eldenring.tables.location_tags import LOCATION_TAGS
+    from worlds.eldenring.tables.boss_reward_lots import BOSS_REWARD_DEFEAT
+    from worlds.eldenring.tables.data import LOCATIONS
     important = set(_SWEEP_NEVER)
     # ⭐⭐⭐ THE BOSS'S OWN DROP IS NOT DEBT -- and it is DERIVED, not listed.
     # 2026-08-08: attributing the second reward mechanism to `Boss` put three checks in this set --
@@ -138,7 +138,7 @@ def test_the_important_checks_inside_sweeps_do_not_grow():
     # own-drop map (boss_drops.py), admitted into sweeps by gen_data's own-drop pass because the
     # vanilla award waits on CharacterDead and a host enemy randomizer breaks it. Same property as
     # BOSS_REWARD_DEFEAT: satisfied only by the flag's OWN trigger, never by adding an id here.
-    from worlds.eldenring.boss_drops import BOSS_DROP_ENTITY
+    from worlds.eldenring.tables.boss_drops import BOSS_DROP_ENTITY
     own_reward = {ap for trig, members in DUNGEON_SWEEPS.items() for ap in members
                   if BOSS_REWARD_DEFEAT.get(_flag_of.get(ap)) == trig
                   or BOSS_DROP_ENTITY.get(_flag_of.get(ap)) == trig}
@@ -212,7 +212,7 @@ def test_the_default_surface_sweeps_legendaries_and_still_protects_the_collectat
     OUTPUT of enabled_sweeps rather than on the bake, because the bake contains all six and a cut
     that silently stopped running would leave every one of these classes in the payload."""
     from worlds.eldenring.features.boss_locks import enabled_sweeps
-    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring.tables.location_tags import LOCATION_TAGS
     from worlds.eldenring import contract
     live = enabled_sweeps(_FakeWorld(contract.SURFACE_DEFAULT_CLASSES))
     members = {ap for mem in live.values() for ap in mem}
@@ -229,7 +229,7 @@ def test_an_empty_surface_cuts_nothing_and_the_full_bake_shows_up():
     classes really are in the baked member lists, so a green default-surface run is a statement
     about the CUT and not about an empty bake."""
     from worlds.eldenring.features.boss_locks import enabled_sweeps
-    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring.tables.location_tags import LOCATION_TAGS
     live = enabled_sweeps(_FakeWorld(set()))
     members = {ap for mem in live.values() for ap in mem}
     got = _classes_in(members, LOCATION_TAGS)
@@ -242,7 +242,7 @@ def test_ticking_a_class_onto_the_surface_takes_it_back_out_of_the_sweep():
     """The knob, one class at a time. Each cuttable class, selected ALONE, must vanish from the
     payload and leave the other five untouched -- so the cut is per class and not a mood."""
     from worlds.eldenring.features.boss_locks import enabled_sweeps
-    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring.tables.location_tags import LOCATION_TAGS
     baseline = _classes_in({ap for mem in enabled_sweeps(_FakeWorld(set())).values() for ap in mem},
                            LOCATION_TAGS)
     for cls in sorted(_CUTTABLE):
@@ -256,12 +256,12 @@ def test_ticking_a_class_onto_the_surface_takes_it_back_out_of_the_sweep():
 def test_the_floor_holds_whatever_the_surface_says():
     """No surface selection may put a floor class back into a sweep. The floor is not an option."""
     from worlds.eldenring.features.boss_locks import enabled_sweeps
-    from worlds.eldenring.boss_sweeps import POST_BOSS_GIFTS
-    from worlds.eldenring.location_tags import LOCATION_TAGS
-    from worlds.eldenring.boss_reward_lots import BOSS_REWARD_DEFEAT
-    from worlds.eldenring.data import LOCATIONS
+    from worlds.eldenring.tables.boss_sweeps import POST_BOSS_GIFTS
+    from worlds.eldenring.tables.location_tags import LOCATION_TAGS
+    from worlds.eldenring.tables.boss_reward_lots import BOSS_REWARD_DEFEAT
+    from worlds.eldenring.tables.data import LOCATIONS
     _flag_of = {ap: int(fl) for locs in LOCATIONS.values() for (_n, ap, fl) in locs}
-    from worlds.eldenring.boss_drops import BOSS_DROP_ENTITY
+    from worlds.eldenring.tables.boss_drops import BOSS_DROP_ENTITY
     for surface in (set(), _CUTTABLE, {"Legendary"}):
         live = enabled_sweeps(_FakeWorld(surface))
         own_reward = {ap for trig, mem in live.items() for ap in mem
@@ -289,12 +289,12 @@ def test_the_floor_holds_whatever_the_surface_says():
 
 def test_the_legacy_pool_specifically_is_clean():
     """The claim that actually bounded the Grafted Scion bug, asserted where it is true."""
-    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, POST_BOSS_GIFTS
-    from worlds.eldenring.boss_healthbars import BOSS_HEALTHBARS
-    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS, POST_BOSS_GIFTS
+    from worlds.eldenring.tables.boss_healthbars import BOSS_HEALTHBARS
+    from worlds.eldenring.tables.location_tags import LOCATION_TAGS
     important = set(_SWEEP_NEVER)
-    from worlds.eldenring.data import LOCATIONS
-    from worlds.eldenring.boss_drops import BOSS_DROP_ENTITY
+    from worlds.eldenring.tables.data import LOCATIONS
+    from worlds.eldenring.tables.boss_drops import BOSS_DROP_ENTITY
     _flag_of = {ap: int(fl) for locs in LOCATIONS.values() for (_n, ap, fl) in locs}
     leaked = [ap for fl, members in DUNGEON_SWEEPS.items()
               if (BOSS_HEALTHBARS.get(fl) or (None, None, None))[2] == "legacy"
@@ -380,7 +380,7 @@ def test_no_sweep_grants_a_check_its_trigger_is_not_gated_behind():
     "trigger has []". Mis-scoped windows need a different instrument; do not read a green here as
     "the gates are right", only as "the sweeps do not cross them".
     """
-    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+    from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS
 
     req = _key_requirements()
     bad, gated_sweeps = [], 0
@@ -405,8 +405,8 @@ def test_no_sweep_grants_a_check_its_trigger_is_not_gated_behind():
 
 def test_carian_inverted_checks_stay_out_of_the_standard_layout_sweep():
     """The ordinary Study Hall fight must not pay out checks from the inverted layout."""
-    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
-    from worlds.eldenring.data import LOCATIONS
+    from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS
+    from worlds.eldenring.tables.data import LOCATIONS
     from worlds.eldenring.features import legacy_key_gates as lkg
 
     statue_flags = set(lkg._LEGACY_EXTRA["Carian Inverted Statue"])
@@ -432,7 +432,7 @@ def test_full_area_sweeps_makes_any_surface_pay_out_the_whole_bake():
     EVERY surface, including the default one that protects the collectathon, the payload is the
     whole bake at that rung."""
     from worlds.eldenring.features.boss_locks import enabled_sweeps
-    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring.tables.location_tags import LOCATION_TAGS
     from worlds.eldenring import contract
     whole = enabled_sweeps(_FakeWorld(set()))
     for surface in (set(), contract.SURFACE_DEFAULT_CLASSES, _CUTTABLE, {"Seedtree"}):
@@ -478,9 +478,9 @@ def test_full_area_sweeps_delta_is_exactly_the_surface_cut():
     absorbed by another moving the other way."""
     import collections
     from worlds.eldenring.features.boss_locks import enabled_sweeps
-    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring.tables.location_tags import LOCATION_TAGS
     from worlds.eldenring import contract
-    from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS
+    from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS
     off = enabled_sweeps(_FakeWorld(contract.SURFACE_DEFAULT_CLASSES))
     on = enabled_sweeps(_FakeWorld(contract.SURFACE_DEFAULT_CLASSES, full_area=True))
     assert set(on) == set(off), (
@@ -509,11 +509,11 @@ def test_full_area_sweeps_does_not_lift_the_floor():
     with the option ON, because the floor lives in the BAKE and this option only skips the cut: if
     that ever stopped being true, this is where it shows."""
     from worlds.eldenring.features.boss_locks import enabled_sweeps
-    from worlds.eldenring.boss_sweeps import POST_BOSS_GIFTS
-    from worlds.eldenring.location_tags import LOCATION_TAGS
-    from worlds.eldenring.boss_reward_lots import BOSS_REWARD_DEFEAT
-    from worlds.eldenring.boss_drops import BOSS_DROP_ENTITY
-    from worlds.eldenring.data import LOCATIONS
+    from worlds.eldenring.tables.boss_sweeps import POST_BOSS_GIFTS
+    from worlds.eldenring.tables.location_tags import LOCATION_TAGS
+    from worlds.eldenring.tables.boss_reward_lots import BOSS_REWARD_DEFEAT
+    from worlds.eldenring.tables.boss_drops import BOSS_DROP_ENTITY
+    from worlds.eldenring.tables.data import LOCATIONS
     from worlds.eldenring import contract
     _flag_of = {ap: int(fl) for locs in LOCATIONS.values() for (_n, ap, fl) in locs}
     live = enabled_sweeps(_FakeWorld(contract.SURFACE_DEFAULT_CLASSES, full_area=True))

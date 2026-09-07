@@ -27,8 +27,8 @@ import csv
 import os
 import unittest
 
-from ..location_tags import SHOP_RELEASE_GATED_APS
-from ..data import LOCATIONS, HUB
+from ..tables.location_tags import SHOP_RELEASE_GATED_APS
+from ..tables.data import LOCATIONS, HUB
 
 # shop_rows.tsv is gen_data's INPUT: in the SOURCE tree it sits beside the package (GREENFIELD/), and
 # the world-install step copies it INTO the installed package (GF_PKG/) so this gate also runs in the
@@ -125,7 +125,7 @@ class TestShopReleaseGate(unittest.TestCase):
     def test_hub_has_a_progression_surface_at_all(self):
         """Broader backstop: whatever else is barred, the START region must retain checks that can hold
         progression, or fill has nowhere to seed sphere 0."""
-        from ..location_tags import DEFAULTED_REGION_APS
+        from ..tables.location_tags import DEFAULTED_REGION_APS
         barred = frozenset(SHOP_RELEASE_GATED_APS) | frozenset(DEFAULTED_REGION_APS)
         usable = [n for (n, ap, _f) in LOCATIONS.get(HUB, []) if ap not in barred]
         self.assertTrue(usable, f"start region {HUB!r} has NO progression-capable location left")

@@ -296,7 +296,7 @@ def test_the_dlc_region_count_the_guide_states_is_the_real_one():
     later must move the doc, and a gate written as `== 30` would be the same typed-literal mistake
     this issue is about.
     """
-    from worlds.eldenring.data import REGIONS
+    from worlds.eldenring.tables.data import REGIONS
 
     claims = [int(n) for n in re.findall(r"(\d+) with the DLC", _guide_text())]
     assert claims, (

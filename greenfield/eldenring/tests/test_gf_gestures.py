@@ -31,7 +31,7 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.data import HUB, LOCATIONS, REGIONS, GESTURE_AWARD_FLAGS  # noqa: E402
+from worlds.eldenring.tables.data import HUB, LOCATIONS, REGIONS, GESTURE_AWARD_FLAGS  # noqa: E402
 from worlds.eldenring import coverage as cov  # noqa: E402
 
 GAME = "Elden Ring"
@@ -181,7 +181,7 @@ class TestGestureData:
     def test_wares_stay_out_of_the_pool_tables(self):
         # no verified client grant path for a gesture-linked goods id -> not in LOCATION_ITEM (the
         # shuffle pool source) and not armed by checkItemFlags.
-        from worlds.eldenring.item_ids import LOCATION_ITEM
+        from worlds.eldenring.tables.item_ids import LOCATION_ITEM
         for (_r, _n, ap_id, _f) in _gesture_locs():
             assert ap_id not in LOCATION_ITEM
 

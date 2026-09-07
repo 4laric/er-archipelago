@@ -57,7 +57,7 @@ def covered_subjects() -> set[int]:
 
 
 def build(capture: dict) -> tuple[list[dict[str, str]], dict]:
-    data = upgrades.module("_upgrade_row_data", ROOT / "greenfield/eldenring/data.py")
+    data = upgrades.module("_upgrade_row_data", ROOT / "greenfield/eldenring/tables/data.py")
     detections = repeated.detection_claims()
     candidates = defaultdict(list)
     for region, entries in data.LOCATIONS.items():
