@@ -73,6 +73,7 @@
       "client_parser": "(diagnostic / foreign profile; unvalidated)"
     }
   },
+  "game": "Elden Ring",
   "keys": [
     {
       "name": "apIdsToItemIds",
@@ -895,11 +896,11 @@
       "shape": "ANY",
       "required": false,
       "profiles": [
-        "both"
+        "bedrock"
       ],
-      "producer": "features/boss_locks.py ({} today; location-keyed variant)",
-      "consumer": "region.rs",
-      "doc": "location-keyed dungeon sweep spec (needs boss-reward-location join); greenfield emits {} until wired -- flag-keyed dungeonSweepFlags is the live path."
+      "producer": "(bedrock apworld)",
+      "consumer": "flagpoll.rs parse_dungeon_sweeps / region.rs",
+      "doc": "location-keyed dungeon sweep spec {str(trigger AP loc): [member AP locs]}. Greenfield does not emit it (its sweeps are flag-keyed: dungeonSweepFlags)."
     },
     {
       "name": "sweepLockGates",
@@ -988,6 +989,17 @@
       "producer": "features/scaling.py (NOT a duplicate: this is the player-facing PERCENT)",
       "consumer": "(no client consumer; the client reads options.completion_scaling_floor)",
       "doc": "the raw yaml PERCENT (0..100) the player set -- a different UNIT SPACE from the same-named options.* key, which carries the HP multiplier the client parses. Informational / spoiler-side only. Do not 'unify' the two without reading features/scaling.floor_multiplier first."
+    },
+    {
+      "name": "profile",
+      "shape": "STR",
+      "required": true,
+      "profiles": [
+        "both"
+      ],
+      "producer": "core._base_slot_data",
+      "consumer": "eldenring-archipelago profile.rs select_profile",
+      "doc": "which contract this seed speaks: 'greenfield' or 'bedrock'. The client selects its location-resolution path from this instead of sniffing for `locationIdsToKeys`; a profile whose required keys are missing, or a foreign-profile key present under the other profile, is a connect-time validation error naming the key."
     },
     {
       "name": "versions",
@@ -1170,11 +1182,11 @@
       "shape": "ANY",
       "required": false,
       "profiles": [
-        "bedrock"
+        "both"
       ],
-      "producer": "(bedrock apworld)",
+      "producer": "features/natural_progression.py (greenfield) / bedrock apworld",
       "consumer": "key_resolver.rs / region.rs",
-      "doc": "bedrock natural key triggers."
+      "doc": "natural key triggers: {'<Region> Lock': {'anyOf': [clause, ...]}}, each clause either {items, flags} or {countItems, count}; the client blooms that region's open flag when one is satisfied. GREENFIELD emits it whenever natural_progression is ON -- one clause per live region gate, plus the count gates and the vacuous always-open fallback for kept regions with no clause. It was tagged bedrock-only until #1463's cross-profile check fired on a real greenfield gen and proved otherwise: the tag was inherited from the 2026-07-12 sweep, which correctly demoted these keys to optional but read this one as 'ours, not his' from the CLIENT side only and never checked who emits it. Absent/empty is inert on either path."
     },
     {
       "name": "lockGrantItems",

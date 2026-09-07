@@ -9,6 +9,11 @@ games.  The outgoing half lives beside the existing cross-game pass in progressi
 `aggregate`/explicit-percent/`never` all bypass this module entirely (see
 progression_surface.balance_active -- #929's draft toggle was folded into auto, Alaric 2026-08-20).
 
+This pass runs from `stage_fill_hook`, so by the time it samples the pool every item the owner
+declared `early_items` / `local_early_items` has already been placed on a sphere-1 location by
+`distribute_early_items`; there is nothing here to skip and no way to strand an early copy on a
+deep Elden Ring check (#1456, docs/specs/SPEC-fill-hook-migration-20260907.md).
+
 This is a PLACEMENT guarantee, not a playthrough guarantee.  The spoiler's reduced playthrough may
 later prune an advancement item whose route proved redundant.
 """
@@ -54,28 +59,13 @@ def fair_sample_by_player(items, count: int, rng):
     return chosen
 
 
-def _declared_early(multiworld, player):
-    """{item name: copies} the owner asked Archipelago to place in sphere 1 (`early_items` plus
-    `local_early_items`). AP's own early pass runs INSIDE distribute_items_restrictive, i.e. after
-    every pre_fill, and it can only place what is still in the pool -- so a copy this reservation
-    locks onto a deep Elden Ring check is a copy the early pass never sees. Measured 2026-09-07:
-    an APQuest Key declared early landed locked on a Liurnia check (Stormveil start), and the
-    early pass, with 262 sphere-1 locations open, had nothing left to place. Reported at the
-    table as a Dragon Quest IX key behind a 10-of-15 Astel."""
-    early = {}
-    for table in ("early_items", "local_early_items"):
-        rows = getattr(multiworld, table, None) or {}
-        for name, count in dict(rows.get(player, {}) or {}).items():
-            if count:
-                early[name] = early.get(name, 0) + int(count)
-    return early
-
-
 def _eligible_by_game(multiworld, er_players):
-    """Foreign advancement still in the pool, excluding owner-local item names and the copies the
-    owner declared early (those belong to AP's sphere-1 pass, which runs after us)."""
+    """Foreign advancement still in the pool, excluding owner-local item names.
+
+    There is no declared-early skip any more: this runs in `stage_fill_hook`, AFTER
+    `distribute_early_items`, so every copy an owner declared early is already on a sphere-1
+    location and is not in the pool for us to take (#1456, SPEC-fill-hook-migration-20260907)."""
     out = defaultdict(list)
-    early_left = {}
     for item in multiworld.itempool:
         if item.player in er_players or not item.advancement:
             continue
@@ -84,18 +74,12 @@ def _eligible_by_game(multiworld, er_players):
         local = set(getattr(local_opt, "value", local_opt or ()))
         if item.name in local:
             continue
-        if item.player not in early_left:
-            early_left[item.player] = _declared_early(multiworld, item.player)
-        remaining = early_left[item.player].get(item.name, 0)
-        if remaining > 0:
-            early_left[item.player][item.name] = remaining - 1
-            continue
         out[owner.game].append(item)
     return out
 
 
 def reserve_incoming_progression(multiworld, worlds) -> None:
-    """Stage-pre-fill reservation for every ER world whose cross_game_progression is `auto`."""
+    """`stage_fill_hook` reservation for every ER world whose cross_game_progression is `auto`."""
     # Imports stay local so the pure quota/sampling helpers remain cheap to test without an AP fill.
     from .progression_surface import balance_active
 

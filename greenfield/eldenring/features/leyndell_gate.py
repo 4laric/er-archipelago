@@ -45,9 +45,10 @@ import logging
 
 from Options import OptionError, Range
 
+from ..gamename import GAME as _GAME  # the AP game name is typed once (#1465)
 from ..registry import Feature, register
 
-_log = logging.getLogger("Elden Ring")
+_log = logging.getLogger(_GAME)
 
 try:
     from ..region_spine import GOAL_REGION

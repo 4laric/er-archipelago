@@ -47,7 +47,7 @@ def _shop_locs(world, mw):
 def _own_item_in(world, categories):
     """An item of this world whose name is in one of `categories`, or None.
 
-    #903 reserves the constrained subset during ``stage_pre_fill``, so an enforced-category item
+    #903 reserves the constrained subset during ``stage_fill_hook``, so an enforced-category item
     may already be locked to a location instead of remaining in the general item pool. Either is a
     valid object for probing the installed location rules.
     """
@@ -378,21 +378,45 @@ def test_the_skip_line_drops_the_cumulative_clause_when_nothing_was_enforced():
 
 
 class ReservationLeavesTheEarlyGuarantee(WorldTestBase):
-    """Same defect class as test_gf_missable.MissableReservationLeavesTheEarlyGuarantee, on the
-    OTHER pre-fill reservation. `reserve_forbidden_items` took every forbidden copy out of the pool
-    before AP's early-items pass, so a ban on `upgrade_materials` could lock the early-guaranteed
-    stones anywhere non-shop, including checks not reachable from the start. The declared early
-    copies must still be in the pool after pre_fill; only the surplus is reserved here."""
+    """Same defect class as test_gf_missable.MissableReservationLeavesTheEarlyGuarantee, from the
+    other side. `reserve_forbidden_items` used to run in `stage_pre_fill`, BEFORE AP's early-items
+    pass, and took every forbidden copy out of the pool -- so a ban on `upgrade_materials` could
+    lock the early-guaranteed stones anywhere non-shop, including checks not reachable from the
+    start (seed 1044, 2026-09-06), and the pass carried a per-name skip to compensate. It runs in
+    `stage_fill_hook` now, after `distribute_early_items`, so the guarantee is structural: the
+    placed copies are simply not in the pool this reservation samples, and the skip is deleted."""
     game = GAME
     options = {"num_regions": 1, "num_regions_order": "vanilla_order", "item_shuffle": True,
                "enable_dlc": True, "ending_condition": "great_runes",
                "keep_out_of_shops": ["upgrade_materials"]}
 
-    def test_declared_early_copies_are_still_in_the_pool_after_pre_fill(self):
-        from collections import Counter
-        early = dict(self.multiworld.local_early_items[self.world.player])
+    def test_early_placed_copies_are_not_in_the_pool_the_reservation_samples(self):
+        """Stand in for AP's `distribute_early_items` -- which really does run before our hook --
+        and then run the reservation: none of the placed copies is in the pool it samples, and
+        each stays where the early pass put it."""
+        from worlds.eldenring.features import keep_out_of_shops as kos
+        world, mw = self.world, self.multiworld
+        early = dict(mw.local_early_items[world.player])
         self.assertTrue(early, "no early guarantee was declared -- the premise of this test is gone")
-        held = Counter(i.name for i in self.multiworld.itempool if i.player == self.world.player)
-        short = {nm: (n, held[nm]) for nm, n in early.items() if held[nm] < n}
-        self.assertFalse(short, "pre_fill spent early-guaranteed copies before AP's early pass "
-                                "could place them (name: (declared, left in pool)): %r" % (short,))
+
+        open_locs = [loc for loc in mw.get_unfilled_locations(world.player)
+                     if getattr(loc, "address", None) is not None]
+        placed = []
+        for name, count in early.items():
+            for _ in range(int(count)):
+                item = next((i for i in mw.itempool
+                             if i.player == world.player and i.name == name), None)
+                self.assertIsNotNone(item, "early-declared %r was not in the pool at all" % name)
+                mw.itempool.remove(item)
+                open_locs.pop().place_locked_item(item)
+                placed.append(item)
+
+        kos.finalize_rules(world)
+        sampled = list(mw.itempool)
+        kos.reserve_forbidden_items(mw, [world])
+
+        self.assertFalse([i for i in placed if any(i is other for other in sampled)],
+                         "the reservation sampled a copy the early pass had already placed")
+        for item in placed:
+            self.assertIsNotNone(item.location,
+                                 "%s lost the location the early pass gave it" % item.name)

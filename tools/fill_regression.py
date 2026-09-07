@@ -236,7 +236,8 @@ def check_yamls(suite, live, frozen=frozenset()):
     stale_frozen -- names in defaults.FROZEN_OPTIONS: ignored, not broken. A note.
 
     🛑 A yaml's TOP-LEVEL keys are not options. They are `name`, `description`, and the GAME
-    SECTION ("Elden Ring" / "EldenRing"), whose value is the dict of real options. The first version
+    SECTION (the game name, or its retired v0.1 spelling), whose value is the dict of real
+    options. The first version
     unioned the top level into the option set and duly reported `EldenRing` as a dead option name in
     all nine files -- a confident wrong answer in the very check written to catch confident wrong
     answers. Only the game block's keys are options."""

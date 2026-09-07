@@ -10,12 +10,17 @@ Usage:  edit HOST/SLOT/GAME/PASSWORD/SOURCE below, then:  python send_deathlink.
   - local server:      HOST = "localhost:38281"        (scheme ws://)
   - archipelago.gg:    HOST = "archipelago.gg:XXXXX"   (scheme wss://, auto-detected)
 """
-import asyncio, json, ssl, sys, time
+import asyncio, json, os, ssl, sys, time
+
+# The AP game name comes from the world, never a literal (#1465). `gamename.py` imports
+# nothing, so this costs no Archipelago import.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "greenfield", "eldenring"))
+from gamename import GAME  # noqa: E402
 import websockets
 
 HOST     = "localhost:38281"     # host:port of the AP room
 SLOT     = "Alaric"             # YOUR slot name (connect as it; multiple conns per slot are allowed)
-GAME     = "Elden Ring"          # must match the slot's game
+# GAME (imported above) must match the slot's game, so it is the world's own constant.
 PASSWORD = None                  # room password, or None
 SOURCE   = "TestBot"             # shown as the killer; MUST differ from SLOT to beat the self-guard
 AP_VER   = {"major": 0, "minor": 6, "build": 7, "class": "Version"}   # matches .ap-version 0.6.7

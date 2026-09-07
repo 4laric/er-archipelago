@@ -266,7 +266,12 @@ def _suite_files():
 # 2026-08-14: 154 -> 153. test_gf_contract_versions' tag-derived rewrite retired one
 # witnessless test (test_every_tagged_version_is_recorded_as_shipped) and added two that
 # DO carry witnesses -- net -1. Lowered here in the same PR, per the line above.
-_WITNESSLESS_CEILING = 153
+# 2026-09-07: 153 -> 152. #1463 landed test_gf_profile_declaration.py with two witnessless
+# collect-and-assert-empty tests, which put the branch at 154 over a 153 ceiling -- red, and paid
+# here rather than by moving the number up. #1466 gave all of them real witnesses (each now pins a
+# key every seed emits, so a fill_slot_data that returned {} can no longer read as "no foreign
+# keys") and added three more tests that carry witnesses from the start. Net -1 against main.
+_WITNESSLESS_CEILING = 152
 
 
 def test_no_new_witnessless_empty_assertions():

@@ -16,7 +16,8 @@ Design (matches the other greenfield WorldTestBase suites):
     runs once the world is installed under Archipelago/worlds/.
   * option keys/values mirror the feature option classes in core.py + features/*.py:
       - item_shuffle (Toggle)               -> True
-      - dungeon_sweep (Choice)              -> "all"   (emits dungeonSweepFlags/dungeonSweeps/sweepLockGates)
+      - dungeon_sweep (Choice)              -> "all"   (emits dungeonSweepFlags/sweepLockGates;
+                                                       dungeonSweeps went bedrock-only in #1463)
       - pool_builder_intensity (Choice)     -> max     (widest juice catalog; the option was
                                                        unfrozen 2026-07-28, `pool_builder` itself is retired)
       - ending_condition (Choice)           -> "great_runes" + great_runes_required=2
@@ -58,7 +59,6 @@ INFORMATIONAL_EXTRAS = {
     "ending_condition",           # str  : "region_locks" | "great_runes"
     "great_runes_required",       # int  : effective (clamped) rune requirement
     "bossLocations",              # dict[str region] -> list[int]
-    "dungeonSweeps",              # dict (location-keyed variant; {} for now)
     "sweepLockGates",             # dict ({} for now)
     "pool_builder",               # bool
     "pool_builder_juice_added",   # int
@@ -91,6 +91,15 @@ _CONTRACT_NOT_EMITTED = {"enable_dlc", "runeGatedGraces", "greatRuneItemIds",
                          # and default fixture seeds are static-mode, so it is justified-not-emitted
                          # here; test_gf_ability_unlock covers the progressive keyset directly.
                          "abilityUnlockItems",
+                         # naturalKeyTriggers is emitted ONLY under `natural_progression` (#1466),
+                         # which is a whole progression MODE rather than a feature toggle: turning
+                         # it on here would delete the synthetic region locks these fixtures exist
+                         # to pin, so RICH cannot satisfy its condition the way it satisfies
+                         # grace_attunement's. Same shape as abilityUnlockItems above -- the mode's
+                         # own suite owns the key (test_gf_natural_progression.py asserts it is
+                         # emitted and well-formed), and its absence off-mode is asserted and
+                         # ledgered in test_gf_profile_declaration / test_gf_off_means_off.
+                         "naturalKeyTriggers",
                          # NO SEED EMITS A BLESSING CEILING any more (2026-08-06). The only ceiling
                          # is the vanilla ladder's 20, which is what an ABSENT key has always meant
                          # on the client side -- so absence is now the answer at every mode, not a
@@ -119,7 +128,7 @@ REQUIRED_KEYS = {k.name for k in contract.CONTRACT if k.required and k.in_profil
 # seed must NOT carry it. That is asserted positively over in
 # test_gf_grace_attunement.py::AttunementOff and ledgered in test_gf_off_means_off.py; here it just
 # has to stay out of the always-present set.
-ALWAYS_KEYS = EXPECTED_KEYS - {"dungeonSweepFlags", "dungeonSweeps", "sweepLockGates",
+ALWAYS_KEYS = EXPECTED_KEYS - {"dungeonSweepFlags", "sweepLockGates",
                               "checkLotBlank", "checkLotBlankMap", "checkLotBlankEnemy",
                               "requiresClientFeatures", "graceAttunement"}
 

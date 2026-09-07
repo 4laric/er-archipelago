@@ -27,6 +27,33 @@ To add a key: add ONE ContractKey below. To swap to Bedrock compatibility: emit 
 `bedrock` and validate with profile="bedrock"; the two contracts are diffable in this one file.
 """
 
+# The AP game name. Imported, never typed (#1465): this module is the thing that MIRRORS it into
+# the client (`to_rust` emits `pub const GAME`), so a literal here would be the one copy that could
+# drift from the world's own name without any gate noticing.
+#
+# THREE LOAD PATHS, and the third is the one that bites. This file is imported as a package member
+# by the world, as a BARE MODULE by gen_contract.py (sys.path -> greenfield/eldenring) -- and BY
+# PATH, with importlib and no package and no sys.path entry, by tools/check_contract_version.py,
+# which does that deliberately so the version gate stays AP-free. Under that third form both import
+# statements below fail, and the gate exits 2 instead of the 1 it must exit to be a gate. (Measured:
+# test_gf_contract_versions::test_gate_actually_goes_red_when_the_contract_moves went red on the
+# first version of this block, which is exactly the "a gate that cannot go red" case that test
+# exists to catch.) So the last resort loads gamename.py from THIS FILE'S OWN DIRECTORY, which is
+# true in all three.
+try:
+    from .gamename import GAME
+except ImportError:  # bare module (gen_contract.py) or loaded by path (check_contract_version.py)
+    try:
+        from gamename import GAME
+    except ImportError:
+        import importlib.util as _ilu
+        import os as _os
+        _gn = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "gamename.py")
+        _spec = _ilu.spec_from_file_location("_er_gamename", _gn)
+        _mod = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_mod)
+        GAME = _mod.GAME
+
 # ---------------------------------------------------------------------------------------------------
 # SHAPES -- each corresponds to exactly one client-side parser. The python `check` mirrors the Rust
 # parser's expectation; `rust` is the generated-mirror variant + the parser it documents.
@@ -1297,10 +1324,17 @@ CONTRACT = (
     ContractKey("dungeonSweepFlags", "LISTVAL_INT_MAP", False, (BOTH,),
                 "features/boss_sweeps (P3b client patch)", "region.rs:104 as_object",
                 "dungeon trigger flag (str) -> the member AP location ids auto-registered on clear."),
-    ContractKey("dungeonSweeps", "ANY", False, (BOTH,),
-                "features/boss_locks.py ({} today; location-keyed variant)", "region.rs",
-                "location-keyed dungeon sweep spec (needs boss-reward-location join); greenfield "
-                "emits {} until wired -- flag-keyed dungeonSweepFlags is the live path."),
+    # BEDROCK-ONLY as of #1463. This was tagged BOTH with producer "features/boss_locks.py ({}
+    # today)" -- a tag describing an INTENTION, not an emission: boss_locks emitted `{}` and nothing
+    # else ever wrote it, so the "greenfield produces this" half of the tag was false for its whole
+    # life (RECON-contract-keys-20260706 filed it as a profile blemish). An always-empty key is
+    # indistinguishable from an absent one to flagpoll.rs's location-keyed loop, so greenfield now
+    # stops emitting it and the tag says what is true: only a bedrock apworld produces it. The
+    # live greenfield sweep wire is the flag-keyed `dungeonSweepFlags` beside it, untouched.
+    ContractKey("dungeonSweeps", "ANY", False, (BEDROCK,),
+                "(bedrock apworld)", "flagpoll.rs parse_dungeon_sweeps / region.rs",
+                "location-keyed dungeon sweep spec {str(trigger AP loc): [member AP locs]}. "
+                "Greenfield does not emit it (its sweeps are flag-keyed: dungeonSweepFlags)."),
     ContractKey("sweepLockGates", "STR_MAP", False, (BOTH,),
                 "features/boss_locks.py ({} today)", "region.rs sweep gates",
                 "{str(i64 sweep trigger flag): '<Region> Lock'} -- gates a dungeon sweep behind "
@@ -1356,6 +1390,24 @@ CONTRACT = (
     # `completion_scaling_floor` keys above are annotated to avoid. Removed here, in scaling.py's
     # emitter, and from the client's slot_data fixture in the same change. CONTRACT_HASH moves; it
     # was moving anyway for scaduBlessingCap, so the removal rides along for free.
+    # --- profile declaration ---
+    # THE WORLD SAYS WHICH CONTRACT IT SPEAKS (#1463). Before this key the client chose between the
+    # matt-key resolver and the greenfield locationFlags table by SNIFFING for `locationIdsToKeys`
+    # (core.rs, key_resolver.rs). A path chosen by sniffing is a path nobody validates: a seed
+    # carrying both key families, or neither, takes whichever branch the sniff lands on and the
+    # mismatch shows up in-game as checks that never fire. Declaring the profile makes the branch a
+    # STATEMENT the client can validate against -- a bedrock seed with no `locationIdsToKeys`, or a
+    # greenfield seed carrying one, is a connect-time error naming the key rather than a silent
+    # switch. BOTH + required: every profile has to say what it is. The client bridges seeds rolled
+    # before this key existed by falling back to the old sniff with one warning line (one release).
+    ContractKey("profile", "STR", True, (BOTH,),
+                "core._base_slot_data", "eldenring-archipelago profile.rs select_profile",
+                # NB: no pipe character in this doc string -- to_markdown renders it into a
+                # table cell, and a literal `|` would split the row.
+                "which contract this seed speaks: 'greenfield' or 'bedrock'. The client selects its "
+                "location-resolution path from this instead of sniffing for `locationIdsToKeys`; a "
+                "profile whose required keys are missing, or a foreign-profile key present under the "
+                "other profile, is a connect-time validation error naming the key."),
     # --- version handshake ---
     # GREENFIELD-only: core.rs logs a warning and continues when a foreign apworld sends no
     # `versions` ("it predates the version handshake"). Requiring it of everyone was a lie.
@@ -1423,6 +1475,12 @@ CONTRACT = (
     # apworld (fswap/archipelago@er) emits apIdsToItemIds + locationIdsToKeys + goal, and NONE
     # of naturalKeyTriggers / lockGrantItems / randomStart* / fogWalls -- those are OUR runtime
     # features, not his. Nothing ever validated profile="bedrock", so the fiction survived.
+    # CAVEAT (#1466): "OUR runtime features" describes the CLIENT side, and it does not follow that
+    # greenfield never EMITS them. naturalKeyTriggers is emitted by features/natural_progression
+    # whenever Vanilla Progression is on; it sat here mistagged until #1463's own cross-profile
+    # check rejected a real greenfield gen, and it is now tagged BOTH below, beside itemCounts.
+    # Before tagging any key BEDROCK-only, look for a greenfield emitter --
+    # tests/test_gf_profile_declaration.py::NoBedrockOnlyKeyHasAGreenfieldEmitter does that walk.
     # `required` now means what it says: THE CLIENT CANNOT FUNCTION WITHOUT IT. It functions
     # without every one of these (each parse degrades to a vanilla default; region.rs and
     # fogwall.rs have foreign_apworld_degrade tests proving it).
@@ -1433,9 +1491,19 @@ CONTRACT = (
                 "core._base_slot_data (greenfield) / bedrock apworld", "core.rs receive.rs itemCounts",
                 "per-item quantity map {str(ap_item_id): qty}; client grants full_id x qty. Greenfield "
                 "emits stack sizes for throwables (x10) and finished pots (x4) (features/filler_curation)."),
-    ContractKey("naturalKeyTriggers", "ANY", False, (BEDROCK,),
-                "(bedrock apworld)", "key_resolver.rs / region.rs",
-                "bedrock natural key triggers."),
+    ContractKey("naturalKeyTriggers", "ANY", False, (BOTH,),
+                "features/natural_progression.py (greenfield) / bedrock apworld",
+                "key_resolver.rs / region.rs",
+                "natural key triggers: {'<Region> Lock': {'anyOf': [clause, ...]}}, each clause "
+                "either {items, flags} or {countItems, count}; the client blooms that region's open "
+                "flag when one is satisfied. "
+                "GREENFIELD emits it whenever natural_progression is ON -- one clause per live "
+                "region gate, plus the count gates and the vacuous always-open fallback for kept "
+                "regions with no clause. It was tagged bedrock-only until #1463's cross-profile "
+                "check fired on a real greenfield gen and proved otherwise: the tag was inherited "
+                "from the 2026-07-12 sweep, which correctly demoted these keys to optional but read "
+                "this one as 'ours, not his' from the CLIENT side only and never checked who emits "
+                "it. Absent/empty is inert on either path."),
     ContractKey("lockGrantItems", "ANY", False, (BEDROCK,),
                 "(bedrock apworld)", "region.rs",
                 "items granted on a region lock receipt (bedrock)."),
@@ -1483,7 +1551,8 @@ def validate_slot_data(sd, profile=GREENFIELD, strict=True):
     greenfield gen). Three checks per profile key: MISSING (required only), SHAPE, and -- for keys
     with subkeys (the `options` echo) -- the same two per declared sub-key plus UNDECLARED sub-key
     rejection. Finally (F2 fix) any emitted TOP-LEVEL key not declared in the contract AT ALL is
-    rejected: an undeclared emission is exactly how features go silently dark, so it fails at gen."""
+    rejected, and (#1463) so is any DECLARED key belonging only to the OTHER profile -- the key is
+    named, because a foreign emission is what made the client's old path-sniff ambiguous."""
     problems = []
     for key in CONTRACT:
         if not key.in_profile(profile):
@@ -1518,6 +1587,16 @@ def validate_slot_data(sd, profile=GREENFIELD, strict=True):
         if name not in BY_NAME:
             problems.append(f"UNDECLARED key {name!r} emitted -- declare it in contract.py "
                             f"(name/shape/profile/producer) before emitting")
+            continue
+        # FOREIGN-PROFILE EMISSION (#1463). Declared, shaped, and belonging to the OTHER profile:
+        # a greenfield gen emitting a BEDROCK-only key (or vice versa) is how a seed ends up
+        # carrying both key families, and the client's old path sniff would then pick a branch by
+        # accident. Now that the world DECLARES its profile, the emission has to agree with it, and
+        # the key is named so the fix is one grep rather than a diff of two contracts.
+        key = BY_NAME[name]
+        if not key.in_profile(profile):
+            problems.append(f"FOREIGN key {name!r} emitted under profile {profile!r} -- it is "
+                            f"declared for {'+'.join(key.profiles)} only (producer {key.producer})")
     if strict and problems:
         raise ContractError("slot_data contract violation:\n  " + "\n  ".join(problems))
     return problems
@@ -1539,6 +1618,7 @@ def to_json():
     import json
     return json.dumps({
         "shapes": {n: {"rust": SHAPES[n][1], "client_parser": SHAPES[n][2]} for n in SHAPES},
+        "game": GAME,
         "keys": [_key_json(k) for k in CONTRACT],
     }, indent=2)
 
@@ -1591,9 +1671,10 @@ def to_rust():
 
     def key_row(k):
         gf = "true" if (BOTH in k.profiles or GREENFIELD in k.profiles) else "false"
+        bd = "true" if (BOTH in k.profiles or BEDROCK in k.profiles) else "false"
         req = "true" if k.required else "false"
         return (f'    ContractKey {{ name: "{k.name}", shape: Shape::{SHAPES[k.shape][1]}, '
-                f"required: {req}, greenfield: {gf} }},")
+                f"required: {req}, greenfield: {gf}, bedrock: {bd} }},")
 
     L = []
     # The `@generated` marker is LOAD-BEARING: the client's rustfmt.toml sets format_generated_files =
@@ -1607,6 +1688,12 @@ def to_rust():
     L.append("// The apworld<->client slot_data contract, mirrored so the client validates the same shapes.")
     L.append("use serde_json::Value;")
     L.append("")
+    L.append("/// The AP game name, mirrored from the apworld (greenfield/eldenring/gamename.py).")
+    L.append("/// The client must NOT type this string: it is the key Archipelago hands out the data")
+    L.append("/// package under and the name the handshake announces, so a client-side copy that")
+    L.append("/// drifted from the world would connect to a game the server does not have. #1465.")
+    L.append(f'pub const GAME: &str = "{GAME}";')
+    L.append("")
     L.append("#[derive(Clone, Copy, Debug, PartialEq, Eq)]")
     L.append("pub enum Shape {")
     for v in variants:
@@ -1618,6 +1705,9 @@ def to_rust():
     L.append("    pub shape: Shape,")
     L.append("    pub required: bool,")
     L.append("    pub greenfield: bool,")
+    # BOTH flags, not one: `!greenfield` alone cannot tell a BEDROCK-only key from a BOTH key, and
+    # profile.rs needs exactly that distinction to name a FOREIGN key (#1463).
+    L.append("    pub bedrock: bool,")
     L.append("}")
     L.append("")
     L.append("pub const CONTRACT: &[ContractKey] = &[")

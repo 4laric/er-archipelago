@@ -6,23 +6,40 @@ The narrative — what this project is and what v0.2 brings — lives in
 ## v0.6.0.3 — 2026-09-07
 
 The third fixpack on the v0.6.0 line, opened at the v0.6.0.2 tag with nothing past it. Versions
-are V.R.M.F: a client on the 0.6.0 line plays every seed the line generated, in both directions.
+are V.R.M.F: a client on the 0.6.0 line plays every seed the line generated. That is the direction
+the rule promises and the one this window keeps; the reverse stopped holding here, because the
+contract hash moved (#1463), so an older client will name the mismatch on a v0.6.0.3 seed.
 
 ### What you need to update
 
-- **Client:** Optional — nothing in this window yet changes the client; any 0.6.0-line client
-  (v0.6.0, v0.6.0.1, v0.6.0.2) keeps playing every 0.6.0-line seed.
+- **Client:** Required for seeds rolled on v0.6.0.3 — the contract hash moved, so an older
+  0.6.0-line client logs a version mismatch against a v0.6.0.3 seed. The update is safe to take
+  mid-run in the other direction: the v0.6.0.3 client plays every 0.6.0-line seed, yours
+  included, so a run already going needs nothing but the new binary.
 - **APWorld:** Host-only — install v0.6.0.3 when generating a new room once it ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
 - **Profile/assets:** No action — the MapForGoblins build and preset are unchanged from v0.6.0.2.
 
-`CONTRACT_HASH` is `ffc0f1b5`, read by loading contract.py: unmoved since v0.6.0, so the
-handshake accepts any pairing of 0.6.0-line clients and apworlds.
+`CONTRACT_HASH` MOVED to `613fb438` (from `ffc0f1b5`, which stood from v0.5.7 through v0.6.0.2),
+read by loading contract.py. It moves on a FIXPACK, which is allowed by exactly one rule and only
+because that rule's condition is met: the paired client BRIDGES the older contract. Every
+0.6.0-line seed predates the new `profile` key, and `profile::select` reads its absence as
+"older seed", falls back to the key-presence sniff this release replaces, and says so once; the
+0.6.0 hash is also listed in the client's audited `is_legacy_contract_compatible` pairs. So a
+v0.6.0.3 client still plays every 0.6.0 seed, which is what the F in V.R.M.F promises.
+
+Two keys moved the hash on the way in (`profile`, `dungeonSweeps`) and a third moved it again
+inside the same unreleased fixpack: `naturalKeyTriggers` is now tagged for BOTH profiles rather
+than for bedrock alone. The new cross-profile check is what found it -- `features/natural_progression`
+has always emitted the key whenever Vanilla Progression is on, so the bedrock-only tag was simply
+false, and the check correctly rejected a real greenfield seed. Retagging is the whole fix; nothing
+about what the world sends or what the client reads changed. Because 0.6.0.3 has not shipped, this
+is still one hash move and not two: `613fb438` is the only value a released 0.6.0.3 seed carries.
 
 The version moved, so the client half moved with it: clients PR #647 "Stamp the paired
-client as 0.6.0+f3" moves the three client version sites, and the gitlink rides in this same
-commit.
+client as 0.6.0+f3" moves the three client version sites, and clients PR #649 carries the profile
+selection and the regenerated `contract_gen.rs`. The gitlink rides in this same commit.
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.2 in this same commit.
 
@@ -35,14 +52,66 @@ commit.
   keys are unchanged -- this is layering only. One slot_data field does move: `versions` carries the
   gen-input stamp as a `data/` segment, and `gen_data.py` is itself a declared gen input, so seeds
   generated from this apworld read `data/007a5dc3eb77ab96` where v0.6.0.2 read `data/bcf27d864e0f74c8`.
-  That segment is provenance for bug reports; the handshake gates on `contract/`, unmoved at
-  `ffc0f1b5`, so no client pairing changes. Every other slot_data field is byte-identical.
+  That segment is provenance for bug reports; the handshake gates on `contract/`, which this change does not
+  move, so no client pairing changes. Every other slot_data field is byte-identical.
+- **Contract: the world says which profile it speaks; the client stops guessing.** (#1463) The
+  client had two ways to resolve a location — the matt slot-key table and our `locationFlags`
+  table — and picked between them by checking whether `locationIdsToKeys` happened to be in the
+  slot data. Nothing validated that guess, so a seed carrying both key families, or a seed whose
+  key table failed to serialize, took whichever branch the sniff landed on and then quietly
+  resolved nothing; the player found out hours later, as checks that never fire. The apworld now
+  emits `profile` (`greenfield`), the contract declares it required for both profiles, and the
+  client validates the seed against what it declares: a foreign-contract key under the wrong
+  profile is a connect-time error that names the key, in the log, at connect, instead of a branch
+  taken by accident. Generation refuses it too — `validate_slot_data` now fails a greenfield gen
+  that emits a bedrock-only key and vice versa. Nothing a player sets changes.
+- **`dungeonSweeps` stops being a lie.** The contract claimed the greenfield world produced this
+  key; the world only ever emitted `{}` for it, which reads identically to absent on the client.
+  It is now tagged bedrock-only and no longer emitted. The live greenfield sweep wire is the
+  flag-keyed `dungeonSweepFlags` beside it, untouched.
+- **Multiworld smoke: the two 2026-09-07 multiworld defects are now guarded.** A new shape (2x
+  Elden Ring + The Wind Waker + DOOM on episode 3 only) asserts that a released Lock reaches The
+  Wind Waker, a partner that pre-fills its own dungeons in its stage hook, so our cross-world
+  passes are proven to run after it and to still reach it (#1457, #1470), and from the spoiler that
+  a partner's declared early item, if it lands in Elden Ring, sits in the hub or that slot's
+  starting region (#1456). Both guards are proven able to go red in `--self-test`; a `--shape`
+  flag runs one shape for triage.
+- **The AP game name is typed in exactly one place (#1465).** Archipelago keys the data
+  package, every yaml, the wizard and the poptracker pack on the string `Elden Ring`, and it was
+  typed at ~20 Python sites, three Rust sites and every shipped yaml. That is how the v0.1 -> v0.2
+  rename shipped three separate bugs: `er_yaml_lint` kept matching the old key (all fifteen of its
+  rules dead on every real yaml), the shipped `release/EldenRing.yaml` named a game Archipelago
+  does not have (a player's first action failed), and the wizard emitted the old spelling on every
+  Copy/Download. The name now lives in `greenfield/eldenring/gamename.py`, which imports nothing so
+  the AP-free tools can read it; the client mirrors it through the generated `contract_gen.rs` and
+  `core.rs` reads that. `test_gf_game_name_single_source` greps both repos and fails on any second
+  copy, and checks every shipped/preset/tester yaml's `game:` line against the constant. Nothing a
+  player sees changes -- the name is the same string; this is what makes the next rename one line.
+  The client half is clients PR (`single-source-game-name`), and the gitlink rides in this commit.
+
 - **Release pipeline: the next window is opened by a workflow.** `open-window.yaml` runs after
   a tag's `er-release` goes green: `tools/open_window.py` on the runner with the client
   submodule at client main, the client half pushed as its own PR, stable promoted and
   `latest.json` regenerated, and the world half opened as a draft PR listing every prose
   marker the tool leaves behind. Default next version is fixpack plus one; a minor or major bump is
   a dispatch input. Needs the `CLIENT_REPO_TOKEN` secret.
+- **Fixed: our cross-world placements now run in Archipelago's fill hook.** Every pass that puts
+  Elden Ring items on another game's checks — the released-Lock progression share, the incoming
+  `cross_game_progression` reservation, the blessing-fragment preference, the useful-export
+  reservation and the `keep_out_of_shops` finalisation — moved from `stage_pre_fill` to
+  `stage_fill_hook`, which Archipelago calls after every world has run its own pre-fill and after
+  the early-items pass. That is the hook this shape was always meant to use: both v0.6.0.2
+  workarounds (leaving alone any partner that still held its own pre-fill items, and skipping the
+  copies a partner had declared early) were compensating for running too soon, and both are
+  deleted rather than kept as belt-and-braces. A partner that confines its own keys is now simply
+  finished before we start, so its full share is offered again instead of falling back to the
+  Elden Ring surfaces, and the "still holds N pre-fill item(s)" log line is gone. One measured
+  consequence, and it is the truer number: the export and preferred shares are derived from open
+  location counts, which are now taken after early items, so on a seed with many early
+  declarations the derived count moves by a few items. Not compensated for. Applies to new seeds
+  only; nothing in the seed contract moved. (Under the non-default `flood` fill algorithm, which
+  our YAML template does not offer, Archipelago never calls this hook at all; generation warns
+  once and leaves the seed uncurated.)
 
 ## v0.6.0.2 — 2026-09-07
 

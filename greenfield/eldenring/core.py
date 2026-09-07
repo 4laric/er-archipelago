@@ -17,6 +17,7 @@ from worlds.AutoWorld import World, WebWorld
 from Options import (PerGameCommonOptions, Range, Choice, Toggle, DefaultOnToggle,
                      OptionError, OptionGroup)
 
+from .gamename import GAME as _GAME
 # THE data tables (#1464). ONE call, and it is the FIRST world-local import on purpose: a tree with
 # no `tables/` package fails HERE, with MissingTablesError naming the modules, rather than from the
 # middle of this file (or, worse, in one of the tolerant `except ImportError` fallbacks that used to
@@ -76,7 +77,7 @@ DLC_ITEM_NAMES = TABLES.dlc_item_names        # DLC-only catalog names; excluded
 from .tarnished_pack import pool_excluded_names  # Tarnished Pack (2026-08-28) pool exclusion (#241)
 LOCATION_UNITS = TABLES.location_units        # (#616): ap_id -> copies its lot grants; absent = 1
 
-GAME = "Elden Ring"
+GAME = _GAME  # the AP game name lives in gamename.py (#1465); this stays the world-side alias
 FILLER = "Rune"
 
 
@@ -1661,6 +1662,22 @@ class GreenfieldEldenRingWorld(World):
         self.multiworld.itempool += pool
 
     def pre_fill(self) -> None:
+        # 🛑 `flood` never calls `stage_fill_hook` (`Fill.py:673`), and that is where every one of
+        # our cross-world placement passes now lives. Say so ONCE, loudly, rather than let a seed
+        # come out silently uncurated: an option that changes what runs without a line is the
+        # failure mode this project keeps rediscovering. `balanced` is the default and the only
+        # algorithm these passes have ever run under; `flood` is not in our yaml template.
+        if (getattr(self.multiworld, "algorithm", "balanced") != "balanced"
+                and not getattr(self.multiworld, "_gf_fill_algorithm_warned", False)):
+            self.multiworld._gf_fill_algorithm_warned = True   # once for the table, not per slot
+            logging.getLogger("Greenfield").warning(
+                "[eldenring:%s] fill algorithm is %r, not 'balanced': Archipelago calls "
+                "stage_fill_hook only under 'balanced', so NONE of the cross-world placement "
+                "passes will run -- released-Lock progression sharing, incoming progression "
+                "(cross_game_progression), preferred placement (blessing fragments), the useful "
+                "export reservation, keep_out_of_shops capacity finalisation and its forbidden-item "
+                "reservation. The seed will generate; it will not be curated.",
+                self.player, getattr(self.multiworld, "algorithm", None))
         if _vp.is_on(self):
             # EVERY location is locked to its own vanilla item, so there is no fill left to do --
             # and nothing for progression_surface to confine (its whole job is choosing WHERE this
@@ -1687,50 +1704,74 @@ class GreenfieldEldenRingWorld(World):
         # surface). One surface, one definition, and now only one code path to it.
 
     @classmethod
-    def stage_pre_fill(cls, multiworld) -> None:
-        """Place every Elden Ring world's RELEASED region Locks across every Elden Ring world's
-        progression surface, once, after all the per-world `pre_fill`s have run.
+    def stage_fill_hook(cls, multiworld, progitempool, usefulitempool, filleritempool,
+                        fill_locations) -> None:
+        """Every pass that places Elden Ring items onto OTHER worlds' locations, once, from core's
+        fill hook.
 
-        🛑 IT HAS TO BE A STAGE HOOK. `AutoWorld.call_all` walks `multiworld.player_ids` IN PLAYER
-        ORDER, so doing this from `pre_fill` would give player 1 first pick of everyone's surface and
-        player 2 the leftovers -- curation decided by slot number. It is also out of spec; TUNIC's
-        own `stage_pre_fill` raises specifically at worlds that fill other worlds' locations during
-        `pre_fill`. `stage_pre_fill` runs once for the whole multiworld, which is what makes the
-        placement symmetric, and TUNIC uses it for this same gather-across-slots shape.
+        🛑 IT HAS TO BE A STAGE HOOK, and it has to be THIS one. `AutoWorld.call_all` walks
+        `multiworld.player_ids` IN PLAYER ORDER, so placing foreign items from `pre_fill` would give
+        player 1 first pick of everyone's surface and player 2 the leftovers -- curation decided by
+        slot number (TUNIC's own `stage_pre_fill` raises at exactly that). But `stage_pre_fill` is
+        wrong too: it runs in CLASS-NAME order, and we sort before most of the alphabet, so we were
+        taking locations from partners that had not yet confined their own items, and locking away
+        copies the owner had declared `early_items`. `stage_fill_hook`
+        (`Fill.distribute_items_restrictive:517`) runs after EVERY world's `pre_fill` and
+        `stage_pre_fill` and after `distribute_early_items`, and before the priority and progression
+        fills: every partner has placed what it needed, every early item is on a sphere-1 location,
+        and nothing else has placed anything yet. Four shipped worlds use it and core tests the
+        contract (`test/general/test_fill.py:628`). That is what deleted `players_still_prefilling`
+        (#1457) and the declared-early skips (#1456, seed 1044).
+        See docs/specs/SPEC-fill-hook-migration-20260907.md.
 
-        The work is in features/progression_surface so the feature owns its own mechanism; core only
-        supplies the world list, because `get_game_worlds` needs the GAME constant and features may
-        not import core."""
+        THE SHIM. Core hands us the unplaced items already split into three classified pools, and
+        `multiworld.itempool` is dead from here on -- but our passes pop from it, return leftovers
+        to it, and build reachability with `get_all_state`, which collects it. `pool_view` presents
+        the three pools as `multiworld.itempool` for the body and, on the way out, filters each pool
+        and `fill_locations` by what we placed, so core's order and classification survive. One
+        adapter instead of seven rewrites; see features/fill_hook_shim.
+
+        🛑 CAVEAT: `flood` never calls this hook (`Fill.py:673`), so under that algorithm none of
+        these passes run at all. `balanced` is the default and the only algorithm they have ever
+        run under; `flood` is not offered in our yaml template, and `pre_fill` warns if it is set.
+
+        The work is in the features so each owns its own mechanism; core only supplies the world
+        list, because `get_game_worlds` needs the GAME constant and features may not import core."""
+        from .features import fill_hook_shim as _shim
         from .features import progression_surface as _psf  # local, like pre_fill/post_fill do
-        _worlds = list(multiworld.get_game_worlds(GAME))
-        _psf.place_released_locks(multiworld, _worlds)
-        # #927: optionally reserve a 1/N share of every partner game's advancement on each opted-in
-        # ER slot. Run after ER's own released-progression pass so both see the final open surface,
-        # but before ordinary/useful placement consumes partner items or ER locations.
-        from .features import incoming_progression as _incoming
-        _incoming.reserve_incoming_progression(multiworld, _worlds)
-        # v0.6 soft-preference category: first give blessing fragments a deliberate proportional
-        # foreign share. Any refused items return to the pool, so this can never make fill fail.
-        from .features import preferred_placement as _preferred
-        _preferred.reserve_foreign_share(multiworld, _worlds)
-        # #918's ruling (Alaric 2026-08-20): confine stays 100; the useful-export displacement is
-        # fixed by a dedicated reservation pass. BEFORE keep_out finalisation on purpose --
-        # exporting an item shrinks what must fit in the owner's own grid, so capacity sees the
-        # truer demand. The share is a fixed derivation (uniformity), not a knob.
-        from .features import export_reservation as _exr
-        _exr.reserve_useful_exports(multiworld, _worlds)
-        # Whatever the foreign reservations did not consume prefers the owner's selected surface.
-        # This is intentionally AFTER exports: a roomy ER surface must not absorb every fragment
-        # before another game gets its fair share.
-        _preferred.place_on_surface(multiworld, _worlds)
-        # #903: keep_out_of_shops cannot decide its capacity in set_rules. Missable protection,
-        # each world's progression pass, and the cross-world released-Lock pass above all consume
-        # non-shop slots after that hook. Finalise against the actual remaining grid, after every
-        # progression placement and before AP's general fill.
-        from .features import keep_out_of_shops as _kos
-        for _world in _worlds:
-            _kos.finalize_rules(_world)
-        _kos.reserve_forbidden_items(multiworld, _worlds)
+        with _shim.pool_view(multiworld, progitempool, usefulitempool, filleritempool,
+                             fill_locations):
+            _worlds = list(multiworld.get_game_worlds(GAME))
+            _psf.place_released_locks(multiworld, _worlds)
+            # #927: optionally reserve a 1/N share of every partner game's advancement on each
+            # opted-in ER slot. Run after ER's own released-progression pass so both see the final
+            # open surface, but before ordinary/useful placement consumes partner items or ER
+            # locations.
+            from .features import incoming_progression as _incoming
+            _incoming.reserve_incoming_progression(multiworld, _worlds)
+            # v0.6 soft-preference category: first give blessing fragments a deliberate
+            # proportional foreign share. Any refused items return to the pool, so this can never
+            # make fill fail.
+            from .features import preferred_placement as _preferred
+            _preferred.reserve_foreign_share(multiworld, _worlds)
+            # #918's ruling (Alaric 2026-08-20): confine stays 100; the useful-export displacement
+            # is fixed by a dedicated reservation pass. BEFORE keep_out finalisation on purpose --
+            # exporting an item shrinks what must fit in the owner's own grid, so capacity sees the
+            # truer demand. The share is a fixed derivation (uniformity), not a knob.
+            from .features import export_reservation as _exr
+            _exr.reserve_useful_exports(multiworld, _worlds)
+            # Whatever the foreign reservations did not consume prefers the owner's selected
+            # surface. This is intentionally AFTER exports: a roomy ER surface must not absorb
+            # every fragment before another game gets its fair share.
+            _preferred.place_on_surface(multiworld, _worlds)
+            # #903: keep_out_of_shops cannot decide its capacity in set_rules. Missable protection,
+            # each world's progression pass, and the cross-world released-Lock pass above all
+            # consume non-shop slots after that hook. Finalise against the actual remaining grid,
+            # after every progression placement and before AP's general fill.
+            from .features import keep_out_of_shops as _kos
+            for _world in _worlds:
+                _kos.finalize_rules(_world)
+            _kos.reserve_forbidden_items(multiworld, _worlds)
 
     def post_fill(self) -> None:
         # ---- COVERAGE GATE (RAISING as of 2026-07-14) ------------------------------------------
@@ -2022,7 +2063,7 @@ class GreenfieldEldenRingWorld(World):
                 if getattr(self, "gf_finale_active", False):
                     _built.add(FINALE_REGION)
                 goal = _derived if _derived in _built else HUB
-                logging.getLogger("Elden Ring").info(
+                logging.getLogger(GAME).info(
                     "[greenfield] %s is not in this seed's kept regions; natural-progression goal "
                     "derived from the kept set instead: %s", GOAL_REGION, goal)
             if required:
@@ -2308,6 +2349,11 @@ class GreenfieldEldenRingWorld(World):
         required = self._required_runes()
         required_count = self._great_runes_required_count()
         return {
+            # WHICH CONTRACT THIS SEED SPEAKS (#1463). The client used to infer it by sniffing for
+            # `locationIdsToKeys`; it now reads this and validates the seed against the profile it
+            # names, so a seed carrying the wrong key family is a connect-time error instead of a
+            # silently mis-chosen branch.
+            contract.PROFILE: contract.GREENFIELD,
             contract.VERSIONS: versions,           # apworld/contract/data identity -- the skew gate
             contract.WORLD_LOGIC: "region_lock",
             contract.LOCATION_FLAGS: loc_flags,
