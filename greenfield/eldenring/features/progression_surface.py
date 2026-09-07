@@ -751,10 +751,38 @@ def is_restricted_progression(item, player):
     return not (name.startswith(_BOSS_KEY_PREFIX) or name.startswith(_ABILITY_UNLOCK_PREFIX))
 
 
+def players_still_prefilling(multiworld):
+    """Players whose world still holds items it intends to place ITSELF, i.e. whose
+    `get_pre_fill_items()` is non-empty when we look.
+
+    AP runs every world's `stage_pre_fill` in CLASS-NAME order, and GreenfieldEldenRingWorld sorts
+    before most of the alphabet. A partner that confines dungeon keys to its own dungeons in ITS
+    stage hook (Oracle of Seasons; the OoT / LADX / ALttP family has the same shape) has not run
+    yet when we lock foreign locations, and it cannot tell us WHICH of its locations it needs --
+    only that it needs some. Measured 2026-09-07, two ER regions + Oracle of Seasons 20.1.13 on
+    AP 0.6.7: we locked ~48 of its ~280 open checks uniformly, its dungeons hold 11-15 checks and
+    need 5-8 of them, and 6 of 8 seeds died in ITS pre-fill with "No more spots to place N items"
+    (Allrounder's "not enough locations" report). `get_pre_fill_items` is AP's own declaration of
+    exactly this intent, so it is the signal: leave such a world's locations alone entirely, and
+    let the share fall back to the Elden Ring surfaces the way the capacity cap already does."""
+    out = set()
+    for player, world in (getattr(multiworld, "worlds", None) or {}).items():
+        try:
+            pending = world.get_pre_fill_items()
+        except Exception:
+            pending = ()
+        if pending:
+            out.add(player)
+    return out
+
+
 def _foreign_open_locations(multiworld, er_players):
     """Every location in a NON-Elden-Ring player's world that we may honestly offer a Lock.
 
-    Four filters, and each one is load-bearing:
+    Five filters, and each one is load-bearing:
+
+    * **not still pre-filling** -- `players_still_prefilling`: a partner whose own stage hook has
+      yet to place its confined items gets none of its locations taken first (see that helper).
 
     * **not ours** -- `er_players` is every slot this hook is running for. An Elden Ring location is
       the other pass's business.
@@ -775,9 +803,11 @@ def _foreign_open_locations(multiworld, er_players):
         excluded = LocationProgressType.EXCLUDED
     except Exception:      # a BaseClasses without the enum: filter nothing rather than crash
         excluded = object()
+    prefilling = players_still_prefilling(multiworld)
     return [
         loc for loc in multiworld.get_locations()
         if loc.player not in er_players
+        and loc.player not in prefilling
         and loc.item is None
         and not getattr(loc, "locked", False)
         and getattr(loc, "progress_type", None) is not excluded

@@ -69,9 +69,22 @@ def reserve_useful_exports(multiworld, worlds) -> None:
     if not foreign_players:
         return  # ER-only multiworld: the artifact does not exist (ER-to-ER measured healthy)
 
+    from .progression_surface import players_still_prefilling
+
     all_open = [loc for loc in multiworld.get_unfilled_locations()
                 if getattr(loc, "address", None) is not None]
-    foreign_open = [loc for loc in all_open if loc.player in set(foreign_players)]
+    # A partner whose own stage_pre_fill has not run yet (class-name order) and still holds items
+    # it will confine to its own locations gets NONE of them taken first -- Oracle of Seasons'
+    # dungeon keys, 2026-09-07. See progression_surface.players_still_prefilling.
+    prefilling = players_still_prefilling(multiworld)
+    for player in sorted(prefilling):
+        if player in foreign_players:
+            _LOG.info("[greenfield] export-reservation: %s (P%s) still holds %d pre-fill item(s) "
+                      "of its own; its locations are left to it.",
+                      multiworld.worlds[player].game, player,
+                      len(multiworld.worlds[player].get_pre_fill_items()))
+    foreign_open = [loc for loc in all_open
+                    if loc.player in set(foreign_players) and loc.player not in prefilling]
     if not foreign_open:
         return
 
