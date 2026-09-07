@@ -28,6 +28,11 @@ every copy in the pool, including the ones the other game had asked to see in sp
 another player needed at their start could be locked behind a 10-of-15 Astel with nothing left
 for the early pass to place. Those copies now stay in the pool. New seeds only.
 
+**Elden Ring beside Oracle of Seasons (and other keysanity-off games) generates again.** Our
+pre-fill was taking a partner's dungeon slots before the partner had placed its own keys, and the
+partner's fill failed with "not enough locations". We now leave alone any game that still has its
+own pre-fill items to place. New seeds only.
+
 Also pipeline work: the release job no longer refuses to rebuild a tag because the MapForGoblins
 fork moved after the tag was cut; the pin recorded in a tag is what that tag ships.
 

@@ -21,6 +21,7 @@ never touch an item that is not a Lock. `travelling_progression` is the separate
 cross-game progression is armed, required Great Runes and legacy keys join those released Locks.
 """
 import random
+from types import SimpleNamespace
 import unittest
 
 import pytest
@@ -30,6 +31,7 @@ pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.features.progression_surface import (  # noqa: E402
     ProgressionBias, released_locks, lock_region_name, place_released_locks,
     CrossGameProgression, cross_game_share, travelling_progression, _foreign_open_locations,
+    players_still_prefilling,
 )
 
 
@@ -401,6 +403,24 @@ class TestForeignOpenLocations(unittest.TestCase):
         # WITNESS: player 1 really had a location in the scan, so "none of ours" is a filter doing
         # work and not an empty input.
         self.assertTrue([loc for loc in locs if loc.player == 1])
+
+    def test_a_partner_still_holding_its_own_pre_fill_items_keeps_all_its_locations(self):
+        """Oracle of Seasons confines dungeon keys to dungeons in ITS stage_pre_fill, which runs
+        after ours (class-name order). Take its slots first and its fill dies with "No more spots"
+        -- 6 of 8 seeds, 2026-09-07. `get_pre_fill_items` is AP's declaration of that intent."""
+        locs = self._all() + [_Loc("keysanity-off partner open", 3)]
+        mw = self._MW(locs)
+        mw.worlds = {
+            2: SimpleNamespace(game="Done", get_pre_fill_items=lambda: []),
+            3: SimpleNamespace(game="OoS", get_pre_fill_items=lambda: [object()]),
+        }
+        self.assertEqual(players_still_prefilling(mw), {3})
+        out = _foreign_open_locations(mw, {1})
+        self.assertEqual([loc.name for loc in out], ["theirs open"])
+
+    def test_a_multiworld_without_a_worlds_table_filters_nothing_new(self):
+        out = _foreign_open_locations(self._MW(self._all()), {1})
+        self.assertEqual([loc.name for loc in out], ["theirs open"])
 
     def test_a_location_another_world_already_filled_is_never_overwritten(self):
         """A partner's own `pre_fill` runs BEFORE this stage hook. Its placements are decisions."""
