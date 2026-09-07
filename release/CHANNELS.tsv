@@ -65,3 +65,5 @@ beta	main	2026-09-02	the open v0.5.8 window
 beta	v0.6	2026-09-03	the long-running v0.6 check-audit and logic-development channel; v0.5.x fixes remain on main
 stable	v0.6.0	2026-09-06	bundled MapForGoblins with automatic check sharing and colors; Flower atlas override and standalone Torrent repair omitted; release assets verified published
 beta	main	2026-09-06	v0.6 merged into main; development follows main after the stable v0.6.0 release
+stable	v0.6.0.1	2026-09-07	first fixpack on the 0.6.0 line: auto enemy cap holds base-game regions at Haligtree unless the blessing is everywhere, wizard previews the cap, early stone guarantee survives pre-fill, recovered M4G checks, progression rings off by default, Great Rune re-grant fix; V.R.M.F adopted. Promoted in the window-open commit so latest.json and the wizard's stable channel move with the tag rather than on a later morning.
+beta	main	2026-09-07	the open v0.6.0.2 window
