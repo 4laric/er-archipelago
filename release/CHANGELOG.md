@@ -27,6 +27,15 @@ commit.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **A generated `!give` item ID reference (`release/ITEM-IDS.md`).** `GETTING-UNSTUCK.md` listed
+  the ids a rescue had already needed — the seven Great Runes, the whetblades — and every other id
+  lived only in the world's generated Python catalog, so "what is the id for X" was a question for
+  the thread. The new page renders that same catalog (2363 vanilla items: 973 Goods, 620 Armour,
+  514 Weapons, 151 Talismans, 105 Ashes of War / gems) with hex and decimal columns, alongside how
+  `!give` parses its argument and why it is a rescue probe rather than a cheat menu. It is written
+  by `tools/gen_item_ids_doc.py` from the table itself and its `--check` runs in CI, so the page
+  cannot drift from what the world ships. Docs only: no contract, seed, world-logic or client
+  effect, and nothing to update.
 - **A read-only second opinion on the check tables (`tools/matt_oracle.py`).** Host-side developer
   tooling only: **nothing in this bullet changes the contract, the client, generation, or any
   seed** — it is a gate that reads our tables and reports. It cross-checks

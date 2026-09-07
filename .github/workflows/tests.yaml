@@ -663,6 +663,13 @@ jobs:
           # Archipelago installed); this job holds the committed modules' READERS to them.
           python tools/regen_all.py --phases tables,pages
 
+          # The `!give` id reference (release/ITEM-IDS.md) is one of regen_all's TABLES steps, so
+          # the byte-diff below already catches a stale copy. Naming its `--check` here is what
+          # gen_latest_json.py --check does in the open-window job, and it buys the same thing: a
+          # `--check` says WHICH generator drifted and how to fix it, where the diff --stat below
+          # only prints a filename.
+          python tools/gen_item_ids_doc.py --check
+
           # These suites test REPO TOOLING (tools/ + the committed pages), so they only run
           # from a repo checkout -- gf_test.py installs the world into _ap/worlds/eldenring with no
           # tools/ alongside, where they correctly SKIP. This is the job that has the real tree, so
