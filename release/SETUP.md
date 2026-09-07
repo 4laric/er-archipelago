@@ -159,7 +159,9 @@ the fresh release preset, which hides gathering nodes and keeps crafting-materia
 
 Connect to your seed and open the map. Check sharing and pin coloring start automatically;
 there is no F6 activation step. With the fresh preset, the map shows pins matched to your
-seed, yellow rings for known hints and orange rings for progression targets.
+seed and yellow rings for known hints. Orange rings around progression targets are off by
+default: on most seeds the progression surface is a large share of the map, and the rings
+buried the pins they were meant to lift. Turn them on under F10 if you want them.
 
 Press **F10 → Archipelago** to customize the map:
 
@@ -168,7 +170,8 @@ Press **F10 → Archipelago** to customize the map:
 | Checks only | On | Hide pins without a match in your connected seed. |
 | Progression only | Off | Show progression targets, including granting bosses instead of sweep pickups. |
 | In logic only | Off | Show checks whose tracker region is accessible. |
-| Progression highlight size | 1.5× | Adjust the orange ring size from 1× to 3×. |
+| Progression rings | Off | Draw orange rings around progression targets. Hint rings stay on regardless. |
+| Progression highlight size | 1.5× | Adjust the orange ring size from 1× to 3× (with progression rings on). |
 
 Progression-only and in-logic-only can be combined. In-logic does not evaluate additional
 quest, key or puzzle requirements. Unmatched pins can still represent real checks; use

@@ -67,14 +67,16 @@ DLLs are present. Updates preserve an existing map INI instead of resetting pref
 Connect and open the map: check sharing and pin coloring are on by default, without
 opening F6. The fresh preset shows only pins matched to your seed, hides gathering
 nodes and retains crafting-material treasure checks. Yellow rings mark known hints;
-orange rings mark progression targets.
+orange rings around progression targets are off by default (F10 → Archipelago → Progression
+rings turns them on).
 
 Use **F10 → Archipelago** for optional progression-only and in-logic-only filters
 (both off by default), checks-only (on), and highlight size (1.5×). In-logic uses
 tracker region access, not additional quest/puzzle requirements. Existing INI settings
 are preserved on update. F6 pin following and player-review tools remain off by default.
 Map progression excludes enabled sweep-member pickups and highlights their granting boss;
-F6 stars and F5 `[P]` keep the original seed-surface meaning. Halos default to 1.5x.
+F6 stars and F5 `[P]` keep the original seed-surface meaning. Progression rings default
+off; when on, their size defaults to 1.5x.
 F10 opens MapForGoblins settings without triggering the client stamina diagnostic.
 
 F6 → **Map integration** has session opt-outs; turn off sharing and coloring, and leave

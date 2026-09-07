@@ -5,6 +5,11 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.1 — 2026-09-06
 
+- **Map progression rings are off by default.** The orange rings MapForGoblins drew around
+  every progression target covered most of the map on a normal seed. The fresh preset now ships
+  `ap_progression_rings = false`; yellow hint rings are unchanged, and the F6 tracker and the
+  Progression only filter still carry the progression meaning. F10 → Archipelago turns the rings
+  back on. Needs the matching MapForGoblins build.
 - **Client: stop re-granting Great Runes and other key items that are already held after
   an NPC hand-in.** The inventory scan now checks occupied slots across the allocated
   key-item list, including slots beyond its live-entry count (client #638). This fixes
