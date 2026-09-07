@@ -61,6 +61,30 @@ def test_owner_local_advancement_is_excluded_before_quota():
     assert _eligible_by_game(mw, {1}) == {"Partner": [travelling]}
 
 
+def test_owner_declared_early_copies_are_left_for_aps_early_pass():
+    """A partner's `early_items` / `local_early_items` copies stay in the pool. AP's sphere-1 pass
+    runs after every pre_fill and can only place what is still there; a copy we lock onto a deep
+    check is a sphere-1 promise silently broken (the 10-of-15 Astel report, 2026-09-07)."""
+    key_a = SimpleNamespace(player=2, name="Key", advancement=True)
+    key_b = SimpleNamespace(player=2, name="Key", advancement=True)
+    sword = SimpleNamespace(player=2, name="Sword", advancement=True)
+    hammer = SimpleNamespace(player=2, name="Hammer", advancement=True)
+    owner = SimpleNamespace(game="Partner", options=SimpleNamespace(
+        local_items=SimpleNamespace(value=set())))
+    mw = SimpleNamespace(itempool=[key_a, key_b, sword, hammer], worlds={2: owner},
+                         early_items={2: {"Key": 1}}, local_early_items={2: {"Hammer": 1}})
+    # One Key copy is spoken for, the other is ordinary; the Hammer is local-early and spoken for.
+    assert _eligible_by_game(mw, {1}) == {"Partner": [key_b, sword]}
+
+
+def test_a_world_without_early_tables_is_unaffected():
+    key = SimpleNamespace(player=2, name="Key", advancement=True)
+    owner = SimpleNamespace(game="Partner", options=SimpleNamespace(
+        local_items=SimpleNamespace(value=set())))
+    mw = SimpleNamespace(itempool=[key], worlds={2: owner})
+    assert _eligible_by_game(mw, {1}) == {"Partner": [key]}
+
+
 def test_insufficient_surface_capacity_caps_the_share_loudly(monkeypatch, caplog):
     """The DERIVED cap: 5 eligible at a two-game table asks for 3, one open surface slot caps it
     at 1 -- generation proceeds (the shipped two-game smoke measured 135 requested vs 134 open;

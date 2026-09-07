@@ -21,9 +21,15 @@ you want.
 
 ## What is in it so far
 
-Only pipeline work. The release job no longer refuses to rebuild a tag because the MapForGoblins
-fork moved after the tag was cut; the pin recorded in a tag is what that tag ships. Nothing here
-changes a seed or a client yet.
+**A partner's early item can no longer end up behind a late boss in your world.** With the default
+`cross_game_progression: auto`, generation reserves a share of every other game's progression on
+your checks before Archipelago's own early-items pass runs. That reservation used to draw from
+every copy in the pool, including the ones the other game had asked to see in sphere 1, so a key
+another player needed at their start could be locked behind a 10-of-15 Astel with nothing left
+for the early pass to place. Those copies now stay in the pool. New seeds only.
+
+Also pipeline work: the release job no longer refuses to rebuild a tag because the MapForGoblins
+fork moved after the tag was cut; the pin recorded in a tag is what that tag ships.
 
 ## What carried over from v0.6.0.1
 

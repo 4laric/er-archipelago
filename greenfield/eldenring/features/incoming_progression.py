@@ -54,9 +54,28 @@ def fair_sample_by_player(items, count: int, rng):
     return chosen
 
 
+def _declared_early(multiworld, player):
+    """{item name: copies} the owner asked Archipelago to place in sphere 1 (`early_items` plus
+    `local_early_items`). AP's own early pass runs INSIDE distribute_items_restrictive, i.e. after
+    every pre_fill, and it can only place what is still in the pool -- so a copy this reservation
+    locks onto a deep Elden Ring check is a copy the early pass never sees. Measured 2026-09-07:
+    an APQuest Key declared early landed locked on a Liurnia check (Stormveil start), and the
+    early pass, with 262 sphere-1 locations open, had nothing left to place. Reported at the
+    table as a Dragon Quest IX key behind a 10-of-15 Astel."""
+    early = {}
+    for table in ("early_items", "local_early_items"):
+        rows = getattr(multiworld, table, None) or {}
+        for name, count in dict(rows.get(player, {}) or {}).items():
+            if count:
+                early[name] = early.get(name, 0) + int(count)
+    return early
+
+
 def _eligible_by_game(multiworld, er_players):
-    """Foreign advancement still in the pool, excluding owner-local item names."""
+    """Foreign advancement still in the pool, excluding owner-local item names and the copies the
+    owner declared early (those belong to AP's sphere-1 pass, which runs after us)."""
     out = defaultdict(list)
+    early_left = {}
     for item in multiworld.itempool:
         if item.player in er_players or not item.advancement:
             continue
@@ -64,6 +83,12 @@ def _eligible_by_game(multiworld, er_players):
         local_opt = getattr(getattr(owner, "options", None), "local_items", None)
         local = set(getattr(local_opt, "value", local_opt or ()))
         if item.name in local:
+            continue
+        if item.player not in early_left:
+            early_left[item.player] = _declared_early(multiworld, item.player)
+        remaining = early_left[item.player].get(item.name, 0)
+        if remaining > 0:
+            early_left[item.player][item.name] = remaining - 1
             continue
         out[owner.game].append(item)
     return out
