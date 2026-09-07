@@ -43,11 +43,17 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 - Recover Diallos's Numen's Rune at Jarburg as a separate check, with questline progression protection.
 
-- **`maximum_enemy_difficulty: auto` resolves lower on every seed short of a full map.** The
-  curve was derived against 30 regions; with the live total of 28 a 5-region seed had drifted to
-  4.84x enemy HP and a 10-region seed to 6.56x, almost the full-map cap after a third of the map.
-  Recalibrated so 5 regions land on the one playtested value (3.70x), 10 on 5.48x, 15 on 6.69x,
-  20 on 7.05x; a full map is unchanged at 7.42x. Explicit percents are untouched.
+- **`maximum_enemy_difficulty: auto` uses the DLC rungs only where the Scadutree Blessing
+  applies.** Every ladder rung above 3.70x (vanilla Haligtree) is the DLC's own enemy ladder,
+  tuned for a player carrying a blessing. A 13-region default run met Caelid at close to
+  Haligtree strength. Under `auto`, DLC regions may climb into those rungs, and base-game regions
+  may only when `scadutree_blessing_scope` is `anywhere` (the default) and the DLC is on so
+  fragments can enter the pool; a seed with neither holds at 47 (3.70x) everywhere. The per-region
+  cap rides the existing per-bucket targets on the wire, so no client change is needed. The climb
+  itself was also recalibrated against the live 28-region total: 5 regions 3.70x, 10 regions
+  5.48x, 15 regions 6.69x, 20 regions 7.05x, a whole map unchanged at 7.42x. Explicit percents
+  are untouched and apply to every region. A seed rolled from the shipped yaml (DLC off) now has
+  a cap below 100 and needs a client that understands capping, which every current client does.
 - **The yaml builder shows what the cap resolves to.** A live line under Maximum Enemy
   Difficulty and on the difficulty picks card reads the multiplier and ladder rung for the current
   slider or `auto`, from the same formula generation uses.

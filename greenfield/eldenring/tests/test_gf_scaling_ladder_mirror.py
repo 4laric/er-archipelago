@@ -247,7 +247,7 @@ class AutoDifficultyCeiling(unittest.TestCase):
         self.assertIn(old_top, ladder, "the old ladder's top rung is gone from the ladder")
         old_rung = ladder.index(old_top)
         for total in (28, 30):
-            got = m.ceiling_multiplier(m.auto_ceiling_pct(5, total))
+            got = m.ceiling_multiplier(m.auto_ceiling_curve_pct(5, total))
             self.assertEqual(ladder.index(got), old_rung,
                              "auto at 5 of %d regions gave %.3fx (rung %d); the playtested cap is "
                              "%.3fx (rung %d)" % (total, got, ladder.index(got), old_top, old_rung))
@@ -257,7 +257,7 @@ class AutoDifficultyCeiling(unittest.TestCase):
         used to resolve to 6.563x, almost 90% of the full-map cap after a third of the map."""
         m = self.mod
         want = {5: 3.703, 10: 5.484, 15: 6.688, 20: 7.047, 28: 7.422}
-        got = {n: m.ceiling_multiplier(m.auto_ceiling_pct(n, 28)) for n in want}
+        got = {n: m.ceiling_multiplier(m.auto_ceiling_curve_pct(n, 28)) for n in want}
         self.assertEqual(got, want)
 
     def test_num_regions_zero_means_ALL_regions_not_none(self):
@@ -265,20 +265,20 @@ class AutoDifficultyCeiling(unittest.TestCase):
         returns pct 0 -- the BOTTOM rung -- which would cap every enemy in a default seed at 1.141x
         and make the whole game trivial while looking like a tuning change."""
         m = self.mod
-        self.assertEqual(m.auto_ceiling_pct(0, 30), 100,
+        self.assertEqual(m.auto_ceiling_curve_pct(0, 30), 100,
                          "num_regions 0 must mean ALL regions, i.e. an uncapped run")
-        self.assertEqual(m.ceiling_multiplier(m.auto_ceiling_pct(0, 30)), m.SCALING_HP_LADDER[-1])
+        self.assertEqual(m.ceiling_multiplier(m.auto_ceiling_curve_pct(0, 30)), m.SCALING_HP_LADDER[-1])
 
     def test_a_full_map_is_unchanged(self):
         """No silent behaviour change for the seeds people already play: 30 of 30 is still uncapped."""
         m = self.mod
-        self.assertEqual(m.auto_ceiling_pct(30, 30), 100)
-        self.assertEqual(m.ceiling_multiplier(m.auto_ceiling_pct(30, 30)), m.SCALING_HP_LADDER[-1])
+        self.assertEqual(m.auto_ceiling_curve_pct(30, 30), 100)
+        self.assertEqual(m.ceiling_multiplier(m.auto_ceiling_curve_pct(30, 30)), m.SCALING_HP_LADDER[-1])
 
     def test_the_curve_is_monotonic_in_run_length(self):
         """A longer run may never be capped lower than a shorter one."""
         m = self.mod
-        pcts = [m.auto_ceiling_pct(n, 30) for n in range(1, 31)]
+        pcts = [m.auto_ceiling_curve_pct(n, 30) for n in range(1, 31)]
         for a, b in zip(pcts, pcts[1:]):
             self.assertLessEqual(a, b, "auto is not monotonic: %r" % pcts)
 
@@ -294,7 +294,7 @@ class AutoDifficultyCeiling(unittest.TestCase):
         differ = 0
         for n in range(1, 29):
             naive = top * (n / 28.0) ** m.AUTO_CEILING_EXPONENT
-            if m.ceiling_multiplier(m.auto_ceiling_pct(n, 28)) !=                     m.SCALING_HP_LADDER[m.tier_for_ceiling_multiplier(naive)]:
+            if m.ceiling_multiplier(m.auto_ceiling_curve_pct(n, 28)) !=                     m.SCALING_HP_LADDER[m.tier_for_ceiling_multiplier(naive)]:
                 differ += 1
         self.assertGreater(differ, 3, "the index-space and multiplier-space curves now coincide; "
                                       "re-derive the curve rather than deleting this test")
@@ -311,20 +311,21 @@ class AutoDifficultyCeiling(unittest.TestCase):
         for total in range(1, 61):
             for n in range(1, total + 1):
                 raw = 100.0 * (n / total) ** m.AUTO_CEILING_EXPONENT
-                self.assertEqual(m.auto_ceiling_pct(n, total), int(math.floor(raw + 0.5)))
+                self.assertEqual(m.auto_ceiling_curve_pct(n, total), int(math.floor(raw + 0.5)))
 
     def test_auto_never_lands_below_an_explicit_floor(self):
         """The player typed the floor and did NOT type the ceiling, so the floor wins and generation
         proceeds. Failing a seed over a value nobody chose would be the wrong call."""
         m = self.mod
-        self.assertEqual(m.resolve_max_difficulty_pct(m.AUTO_CEILING, 5, 30, 80), 80)
-        self.assertEqual(m.resolve_max_difficulty_pct(m.AUTO_CEILING, 5, 30, 0),
-                         m.auto_ceiling_pct(5, 30))
+        self.assertEqual(m.resolve_max_difficulty_pct(m.AUTO_CEILING, 5, 30, 80, True), 80)
+        self.assertEqual(m.resolve_max_difficulty_pct(m.AUTO_CEILING, 5, 30, 0, True),
+                         m.auto_ceiling_pct(5, 30, True))
 
     def test_explicit_values_pass_straight_through(self):
         m = self.mod
         for pct in (0, 25, 50, 75, 100):
-            self.assertEqual(m.resolve_max_difficulty_pct(pct, 5, 30, 0), pct)
+            for blessed in (False, True):
+                self.assertEqual(m.resolve_max_difficulty_pct(pct, 5, 30, 0, blessed), pct)
 
     def test_the_sentinel_can_never_be_read_as_a_percent(self):
         m = self.mod
@@ -335,7 +336,7 @@ class AutoDifficultyCeiling(unittest.TestCase):
         m = self.mod
         for bad in (0, -3):
             with self.assertRaises(ValueError):
-                m.auto_ceiling_pct(5, bad)
+                m.auto_ceiling_curve_pct(5, bad)
 
 
 class WizardPreviewMirrorTests(unittest.TestCase):
@@ -374,7 +375,81 @@ class WizardPreviewMirrorTests(unittest.TestCase):
             for n in range(0, total + 1):
                 nn = total if n <= 0 else min(n, total)
                 js = math.floor(100 * (nn / total) ** m.AUTO_CEILING_EXPONENT + 0.5)
-                self.assertEqual(m.auto_ceiling_pct(n, total), js, (n, total))
+                self.assertEqual(m.auto_ceiling_curve_pct(n, total), js, (n, total))
+
+
+class BaseGameGateTests(unittest.TestCase):
+    """THE GATE (Alaric, 2026-09-06): `auto` is the base game's top unless the Scadutree Blessing
+    applies everywhere and its fragments can enter the pool. 0xtako's 13-region default run met
+    Caelid at Haligtree strength; the rungs above 3.703x are the DLC's ladder and assume a blessing."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.mod = _load_ladder()
+
+    def test_the_base_game_top_is_derived_not_chosen(self):
+        """47 is the LARGEST percent that still resolves to 3.703x; 48 would be the same rung, and
+        the constant is pinned to the boundary so the ladder rounding cannot drift under it."""
+        m = self.mod
+        top = m.SCALING_HP_LADDER.index(3.703)
+        self.assertEqual(m.tier_for_ceiling_multiplier(m.ceiling_multiplier(m.BASE_GAME_CEILING_PCT)), top)
+        # the first DLC rung is the next rung up, and 50 reaches it
+        self.assertEqual(m.tier_for_ceiling_multiplier(m.ceiling_multiplier(50)), top + 1)
+
+    def test_without_dlc_rungs_eligible_auto_is_flat_at_the_base_game_top(self):
+        m = self.mod
+        for n in (0, 1, 5, 13, 28):
+            self.assertEqual(m.auto_ceiling_pct(n, 28, False), m.BASE_GAME_CEILING_PCT, n)
+            self.assertEqual(m.ceiling_multiplier(m.auto_ceiling_pct(n, 28, False)), 3.703)
+
+    def test_with_dlc_rungs_eligible_auto_follows_the_curve_from_the_base_game_top(self):
+        m = self.mod
+        for n in range(1, 29):
+            self.assertEqual(m.auto_ceiling_pct(n, 28, True),
+                             max(m.BASE_GAME_CEILING_PCT, m.auto_ceiling_curve_pct(n, 28)), n)
+        self.assertEqual(m.auto_ceiling_pct(0, 28, True), 100, "a whole map with the blessing is uncapped")
+        self.assertEqual(m.auto_ceiling_pct(1, 28, True), m.BASE_GAME_CEILING_PCT,
+                         "the curve never drops a blessed seed below the base-game top")
+
+    def test_base_game_target_cap_holds_under_both_client_formulas(self):
+        """For every band the seed can hold, a target at the cap lands on BASE_GAME_TOP_TIER or
+        lower under the band formula (clients since 2026-08-08) AND the older whole-ladder
+        formula; one target above the cap does not, so the cap is tight, not merely safe."""
+        m = self.mod
+        n_top = len(m.SCALING_HP_LADDER) - 1
+        top = m.BASE_GAME_TOP_TIER
+        mx = 10000
+        band = lambda t, f, c: min(f + round(t / mx * (c - f)), c)
+        ladder = lambda t, f, c: min(max(round(t / mx * n_top), f), c)
+        for c in range(0, n_top + 1):
+            for f in range(0, c + 1):
+                cap = m.base_game_target_cap(mx, f, c)
+                if c <= top:
+                    self.assertEqual(cap, mx, (f, c))
+                    continue
+                if f >= top:
+                    self.assertEqual(cap, 0, (f, c))
+                    continue
+                self.assertLessEqual(band(cap, f, c), top, (f, c, cap))
+                self.assertLessEqual(ladder(cap, f, c), top, (f, c, cap))
+                # TIGHT TO WITHIN ONE RUNG-STEP, rounding-mode-agnostic: the cap is an integer
+                # floor, so a target one above it can still round down, and Python rounds an
+                # exact .5 to even where Rust rounds it away from zero. One full step above the
+                # cap the RAW product clears top + 0.5 under at least one formula, so any
+                # rounding lands on a DLC rung there.
+                step = mx // min(c - f, n_top) + 1
+                over = cap + step
+                raw_band = f + over / mx * (c - f)
+                raw_ladder = over / mx * n_top
+                self.assertTrue(raw_band > top + 0.5 or raw_ladder > top + 0.5,
+                                "cap %d is not tight for band (%d, %d)" % (cap, f, c))
+
+    def test_the_motivating_thirteen_region_run(self):
+        """13 of 28 with the DLC and the blessing everywhere still climbs (fragments are injected
+        for it); the same yaml with the DLC off is vanilla Haligtree, not 6.56x."""
+        m = self.mod
+        self.assertEqual(m.ceiling_multiplier(m.auto_ceiling_pct(13, 28, True)), 6.563)
+        self.assertEqual(m.ceiling_multiplier(m.auto_ceiling_pct(13, 28, False)), 3.703)
 
 
 if __name__ == "__main__":

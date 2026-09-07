@@ -251,6 +251,15 @@ def _region_total():
         pass
     return 0
 
+def _blessing_everywhere(c):
+    """features/scaling.blessing_everywhere: scope anywhere (or the deprecated key saying so) AND
+    the DLC on, since the fragment is a DLC item and is pool-excluded without it."""
+    scope_anywhere = c.cval("scadutree_blessing_scope") == "anywhere"
+    legacy = c.cval("global_scadutree_blessing")
+    if legacy not in (None, "off"):
+        scope_anywhere = True
+    return scope_anywhere and (c.truthy("enable_dlc") or c.truthy("dlc_only"))
+
 def _scaling_cap(c):
     """What maximum_enemy_difficulty RESOLVES to for this block, the way features/scaling does:
     auto -> scaling_ladder.auto_ceiling_pct(draw size, total), raised to an explicit floor."""
@@ -263,7 +272,10 @@ def _scaling_cap(c):
     floor_pct = c.num("minimum_enemy_difficulty")
     draw = c.num("num_regions")
     if auto:
-        pct = max(floor_pct, sl.auto_ceiling_pct(draw, total))
+        # gen: the blessing everywhere OR a DLC region kept; the linter cannot see the draw, so the
+        # DLC toggle stands in for "may keep one" (features/scaling.dlc_rungs_eligible).
+        eligible = _blessing_everywhere(c) or c.truthy("enable_dlc") or c.truthy("dlc_only")
+        pct = max(floor_pct, sl.auto_ceiling_pct(draw, total, eligible))
     else:
         try:
             pct = int(raw)
@@ -377,16 +389,17 @@ def lint_block(block: dict) -> list[Finding]:
     #     above 3.703x is the DLC's own re-emission of the enemy ladder, tuned for a player carrying
     #     a Scadutree Blessing; ScadutreeBlessingScope docstring: dlc_only "does nothing in Limgrave".
     #     Mirrors the wizard's rule (ERW.findings); the maths is scaling_ladder's, loaded AP-free.
-    if c.truthy("enemy_scaling") and c.cval("scadutree_blessing_scope") == "dlc_only":
+    #     Under `auto` every base-game region is held at the base-game top on the wire
+    #     (features/scaling.base_game_bucket_clamp), so only an EXPLICIT percent above 47 can trip this.
+    if c.truthy("enemy_scaling") and not _blessing_everywhere(c):
         sp = _scaling_cap(c)
-        if sp and sp["dlc_rungs"]:
-            warn("scadutree_blessing_scope",
-                 f"enemy cap resolves to {sp['mult']:.2f}x HP"
-                 + (f" (auto, {sp['draw']} regions)" if sp["auto"] else "")
-                 + " -- DLC-strength scaling, but the blessing stays DLC-only, so base-game regions "
-                   "deep in your order get DLC enemies with no blessing to answer them. Set "
-                   "scadutree_blessing_scope: anywhere, or cap maximum_enemy_difficulty at 47 or "
-                   "lower (about 3.7x)")
+        if sp and sp["dlc_rungs"] and not sp["auto"]:
+            warn("maximum_enemy_difficulty",
+                 f"enemy cap {sp['pct']}% resolves to {sp['mult']:.2f}x HP -- DLC-strength scaling, "
+                 "but the Scadutree Blessing is not in play everywhere (needs "
+                 "scadutree_blessing_scope: anywhere AND the DLC on), so base-game regions deep in "
+                 "your order get DLC enemies with no blessing to answer them. Use 47 or lower "
+                 "(about 3.7x), or leave it on auto")
 
     # 4) dlc_only gates
     if not c.truthy("dlc_only"):

@@ -99,12 +99,12 @@ def ceiling_multiplier(pct):
 AUTO_CEILING = -1
 
 # The exponent of the `auto` curve, in ladder-index space. Mirrored by the yaml wizard's live
-# preview (wizard/wizard.html ERW.autoCeilingPct); tests/test_gf_scaling_floor_units.py pins the two.
+# preview (wizard/wizard.html ERW.autoCeilingCurvePct); test_gf_scaling_ladder_mirror.py pins the two.
 AUTO_CEILING_EXPONENT = 0.45
 
 
-def auto_ceiling_pct(num_regions, total_regions):
-    """`auto` -> the `maximum_enemy_difficulty` PERCENT for a seed of this size.
+def auto_ceiling_curve_pct(num_regions, total_regions):
+    """The run-length CURVE behind `auto` -- see auto_ceiling_pct for when it applies at all.
 
     WHY AT ALL. The scaling target is a region's POSITION in the seed's unlock order, normalized so
     the deepest kept region reaches the top. That is RELATIVE; player power is ABSOLUTE (Somber +10
@@ -161,7 +161,84 @@ def auto_ceiling_pct(num_regions, total_regions):
     return int(math.floor(100.0 * (float(n) / total) ** AUTO_CEILING_EXPONENT + 0.5))
 
 
-def resolve_max_difficulty_pct(raw, num_regions, total_regions, floor_pct=0):
+# The largest percent that still resolves to the base game's top rung, 3.703x (`ceiling_multiplier`
+# rounds pct/100 * 19: 47 -> 8.93 -> rung 9; 50 -> 9.5 -> rung 10, the first DLC rung). DERIVED and
+# pinned by tests/test_gf_scaling_ladder_mirror.py, not chosen: it is "vanilla Haligtree", the
+# strongest thing the base game ever asks of a player with no Scadutree Blessing.
+BASE_GAME_CEILING_PCT = 47
+
+
+# The base game's top rung: 3.703x, SpEffect 7100. Every rung above it is the DLC's own ladder.
+BASE_GAME_TOP_TIER = SCALING_HP_LADDER.index(3.703)
+
+
+def base_game_target_cap(max_target, floor_tier, ceiling_tier):
+    """The largest per-bucket TARGET (0..max_target) that still resolves to BASE_GAME_TOP_TIER or
+    lower on the client, for a seed whose band is [floor_tier, ceiling_tier].
+
+    WHY A TARGET AND NOT A SECOND CEILING (Alaric, 2026-09-06). The DLC rungs are eligible where
+    the Scadutree Blessing applies: DLC buckets always, base-game buckets only when the seed scopes
+    the blessing everywhere. On a seed that keeps DLC regions WITHOUT the blessing everywhere, the
+    DLC buckets may climb and the base-game buckets may not -- a per-bucket rule, and the wire
+    already carries one target per bucket that the client turns into a tier. So gen caps base-game
+    buckets by capping what it sends -- no new contract key, no client release.
+
+    🛑 `max_target` IS THE POST-CLAMP MAX, NOT TARGET_MAX. The client divides by the largest target
+    it is sent. Capping the base-game buckets can lower that maximum (the finale is base game and
+    sits at the top of the order), and a cap computed against the old maximum would then be
+    re-normalised upward past the base-game top. Callers pass the deepest DLC bucket's target, which
+    the clamp never touches and which therefore IS the maximum after it.
+
+    THE CLIENT'S ARITHMETIC (er-logic scaling.rs tier_for_target, since 2026-08-08):
+        tier = floor + round(target / max_target * (ceiling - floor))
+    so the cap is the target at which that product is EXACTLY (top - floor); an integer floor of
+    the division keeps it at or below, and round() cannot carry it past. Clients older than
+    2026-08-08 normalised to the whole ladder first, round(frac * 19), then clamped -- the cap is
+    also held under that formula so an old client cannot land a base bucket on a DLC rung either.
+
+    Returns max_target unchanged when the band never reaches a DLC rung (nothing to cap).
+    """
+    n_top = len(SCALING_HP_LADDER) - 1
+    top = BASE_GAME_TOP_TIER
+    ceiling = min(int(ceiling_tier), n_top)
+    floor = min(max(int(floor_tier), 0), ceiling)
+    if ceiling <= top or max_target <= 0:
+        return int(max_target)
+    if floor >= top:
+        return 0
+    band_cap = (int(max_target) * (top - floor)) // (ceiling - floor)
+    ladder_cap = (int(max_target) * top) // n_top
+    return min(band_cap, ladder_cap)
+
+
+def auto_ceiling_pct(num_regions, total_regions, dlc_rungs_eligible):
+    """`auto` -> the `maximum_enemy_difficulty` PERCENT for this seed.
+
+    THE GATE (Alaric, 2026-09-06, after 0xtako's 13-region default run met Caelid at Haligtree
+    strength): every ladder rung above 3.703x is the DLC's own re-emission of the enemy ladder,
+    tuned for a player who is also carrying a Scadutree Blessing. Those rungs are eligible exactly
+    where the blessing applies: in DLC buckets always (the blessing is a Land of Shadow mechanic),
+    and in base-game buckets only on a seed that scopes the blessing everywhere. So:
+
+      * `dlc_rungs_eligible` False -> BASE_GAME_CEILING_PCT, flat, whatever the run length. No
+        bucket in this seed can carry a blessing; the deepest region is vanilla Haligtree.
+      * `dlc_rungs_eligible` True  -> the run-length curve (auto_ceiling_curve_pct), never below
+        the base-game top, up to the full ladder on a whole map. Which BUCKETS may use the rungs
+        above the base game is decided per bucket on the wire (features/scaling
+        base_game_bucket_clamp): all of them when the blessing is everywhere, DLC buckets only
+        otherwise. scadu_supply sizes the fragment injection from this same resolved percent.
+
+    `dlc_rungs_eligible` = the blessing applies everywhere (scope `anywhere` AND the DLC on, so
+    its fragments can enter the pool) OR the seed keeps a DLC region. features/scaling
+    .dlc_rungs_eligible derives it; callers must not guess.
+    """
+    if not dlc_rungs_eligible:
+        return BASE_GAME_CEILING_PCT
+    return max(BASE_GAME_CEILING_PCT, auto_ceiling_curve_pct(num_regions, total_regions))
+
+
+def resolve_max_difficulty_pct(raw, num_regions, total_regions, floor_pct=0,
+                               dlc_rungs_eligible=False):
     """The ONE place `auto` becomes a number. Both callers -- features/scaling.generate_early and
     core._options_echo -- come through here, so what is validated is what the client is told.
 
@@ -171,7 +248,7 @@ def resolve_max_difficulty_pct(raw, num_regions, total_regions, floor_pct=0):
     """
     if int(raw) != AUTO_CEILING:
         return int(raw)
-    return max(int(floor_pct), auto_ceiling_pct(num_regions, total_regions))
+    return max(int(floor_pct), auto_ceiling_pct(num_regions, total_regions, dlc_rungs_eligible))
 
 
 def ramped_target(position, span, target_max, ramp_pct=100):
