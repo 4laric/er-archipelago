@@ -6,10 +6,14 @@ import unittest
 
 PKG = Path(__file__).resolve().parent.parent
 try:
-    from ._util import find_repo_root
+    from ._util import find_repo_root, REPO_ONLY_REASON
 except ImportError:
-    from _util import find_repo_root
-ROOT = Path(find_repo_root(__file__))
+    from _util import find_repo_root, REPO_ONLY_REASON
+# None when the world is installed into an AP checkout OUTSIDE the repo (gf_test --ap-dir elsewhere):
+# find_repo_root's contract is "return None rather than a wrong path", and Path(None) at import time
+# turned that into a collection error that took the whole file -- and every collection -- down.
+_ROOT = find_repo_root(__file__)
+ROOT = Path(_ROOT) if _ROOT else None
 
 class NumenReward(unittest.TestCase):
     def test_distinct_rune_flag_and_map_replacement(self):
@@ -23,6 +27,8 @@ class NumenReward(unittest.TestCase):
         self.assertEqual(runpy.run_path(str(PKG / "missable_locations.py"))["MISSABLE_LOCATIONS"][7774651], "questline")
 
     def test_npc_batch_namespace_from_committed_params(self):
+        if ROOT is None:
+            self.skipTest(REPO_ONLY_REASON)
         path = ROOT / "elden_ring_artifacts/vanilla_er/vanilla_er/NpcParam.csv"
         if not path.exists():
             self.skipTest("committed gen_inputs.db not extracted")
