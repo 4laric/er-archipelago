@@ -26,6 +26,12 @@ commit.
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.2 in this same commit.
 
+- **Multiworld smoke: the two 2026-09-07 multiworld defects are now guarded.** A new shape (2x
+  Elden Ring + The Wind Waker + DOOM on episode 3 only) asserts from the generation log that the
+  export reservation skipped a partner still holding its own pre-fill items (#1457), and from the
+  spoiler that a partner's declared early item, if it lands in Elden Ring, sits in the hub or that
+  slot's starting region (#1456). Both guards are proven able to go red in `--self-test`; a
+  `--shape` flag runs one shape for triage.
 - **Release pipeline: the next window is opened by a workflow.** `open-window.yaml` runs after
   a tag's `er-release` goes green: `tools/open_window.py` on the runner with the client
   submodule at client main, the client half pushed as its own PR, stable promoted and

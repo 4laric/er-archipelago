@@ -82,6 +82,28 @@ WHAT IT ASSERTS, and none of it is "it generated". Every item runs ONCE PER PART
           for the whole generation, so any cross-slot cache hands slot 2 slot 1's tables -- and
           that is invisible to every single-slot gate we have.
 
+  5. A PARTNER STILL HOLDING ITS OWN PRE-FILL ITEMS KEEPS ALL ITS LOCATIONS (#1457, 2026-09-07).
+     AP runs stage_pre_fill hooks in class-name order and GreenfieldEldenRingWorld sorts before
+     most partners. Our two foreign placement passes locked ~48 of Oracle of Seasons' ~280 open
+     checks before Oracle had placed its dungeon keys (11-15 checks per dungeon, 5-8 confined), and
+     6 of 8 seeds died in ITS pre-fill with "No more spots to place N items" -- reported at the
+     table as "not enough locations". The fix skips any partner whose `get_pre_fill_items()` is
+     non-empty and LOGS it. Oracle does not ship with AP; The Wind Waker does, sorts after us
+     (TWWWorld), and confines 29 dungeon items in its stage hook by default. The guard reads the
+     generation log for the skip line naming The Wind Waker: a green here proves the mechanism was
+     REACHED on a real partner, not merely that generation survived (TWW's dungeons are roomy
+     enough that it survived without the fix, which is exactly why "it generated" is not the test).
+  6. A PARTNER'S DECLARED EARLY ITEM STAYS EARLY (#1456, 2026-09-07). The balanced incoming
+     reservation drew from every foreign advancement copy in the pool, including the ones a
+     partner declared in `early_items`; a copy we lock onto a deep Elden Ring check is one AP's
+     sphere-1 pass never sees. Measured: an APQuest Key declared early landed locked on a Liurnia
+     check from a Stormveil start with 262 sphere-1 locations open. Reported at the table as a
+     Dragon Quest IX key behind a 10-of-15 Astel. DOOM declares an early weapon (Shotgun or
+     Chaingun) when ONLY episode 3 is enabled, so the shape below runs DOOM that way and asserts:
+     if either weapon lands on an Elden Ring check, that check is in the Roundtable hub or in that
+     slot's STARTING region (the `<Region> Lock` under "Starting Items" in the spoiler). Anywhere
+     else is a sphere-1 promise broken.
+
   🛑 WHAT USED TO BE HERE. Item 4 was "NO AP-ID COLLISION between the two ER slots -- each slot's
   ids are its own." The code behind it parsed `[f12345]` out of location NAMES -- those are EVENT
   FLAGS, not AP ids -- and then, if the two sets were equal, printed `note: ... (expected)` and
@@ -209,7 +231,9 @@ def _er_yaml(name, natural, confine=None):
 
 def generate(ap_dir, players_dir, out_dir):
     """Run Generate.py. `--spoiler 1` = placements WITHOUT the playthrough calculation, which is the
-    expensive half and which this test does not read."""
+    expensive half and which this test does not read. -> archive path. The generation LOG is kept
+    in `generate.last_log` for guards that read what the world SAID (check 5), not only what it
+    placed."""
     env = dict(os.environ, AP_NONINTERACTIVE="1", SKIP_REQUIREMENTS_UPDATE="1")
     cmd = [sys.executable, "Generate.py", "--player_files_path", players_dir,
            "--outputpath", out_dir, "--spoiler", "1", "--seed", SEED]
@@ -218,10 +242,14 @@ def generate(ap_dir, players_dir, out_dir):
     if p.returncode != 0:
         tail = "\n".join(p.stdout.strip().split("\n")[-25:])
         sys.exit("FAIL: multiworld generation exited %d.\n%s" % (p.returncode, tail))
+    generate.last_log = p.stdout
     zips = glob.glob(os.path.join(out_dir, "*.zip"))
     if not zips:
         sys.exit("FAIL: generation reported success but wrote no archive.")
     return zips[0]
+
+
+generate.last_log = ""
 
 
 # AP location flags bitfield: bit 0 = advancement (progression). Read from the multidata rather than
@@ -591,6 +619,85 @@ def check_locks_reach_a_partner(rows, er, foreign_slots, partner_game, report):
     return bad
 
 
+_PREFILL_SKIP = re.compile(r"export-reservation: (?P<game>.+?) \(P\d+\) still holds (?P<n>\d+) "
+                           r"pre-fill item\(s\) of its own; its locations are left to it")
+
+
+def check_partner_prefill_respected(gen_log, partner_game, report):
+    """5. THE PARTNER THAT STILL HAS ITS OWN PRE-FILL TO DO IS LEFT ALONE (#1457).
+
+    Reads the generation LOG, not the placements: the placements of a roomy partner look the same
+    with and without the skip (TWW generated clean before the fix), so only the world's own
+    statement that it skipped the partner proves the mechanism was reached. A partner that stops
+    declaring pre-fill items, or a skip that is removed, both read as "the line is missing" -- and
+    both are the same defect from this test's point of view: nothing is guarding Oracle's dungeons.
+    """
+    hits = {m.group("game"): int(m.group("n")) for m in _PREFILL_SKIP.finditer(gen_log or "")}
+    if partner_game in hits:
+        report("pre-fill respect: %s still held %d pre-fill item(s) and kept all its locations"
+               % (partner_game, hits[partner_game]))
+        if hits[partner_game] <= 0:
+            return ["%s was reported as still pre-filling with ZERO items, which cannot be right "
+                    "-- the skip fired on an empty list." % partner_game]
+        return []
+    return ["the export-reservation never reported skipping %s, so either the partner no longer "
+            "declares pre-fill items (get_pre_fill_items empty: check its dungeon-item defaults) "
+            "or the still-prefilling skip in export_reservation.py is gone. Without it a partner "
+            "that confines items to a subset of its own locations in ITS stage_pre_fill (Oracle of "
+            "Seasons' dungeons) can find no room left and die with \"No more spots\" -- 6 of 8 "
+            "seeds, 2026-09-07 (#1457). Lines seen: %s" % (partner_game, sorted(hits) or "none")]
+
+
+_START_LOCK = re.compile(r"^(?P<region>.+?) Lock \((?P<player>[^)]+)\)\r?$", re.M)
+
+
+def starting_regions(spoiler_text):
+    """{player name: {region, ...}} from the spoiler's "Starting Items" block -- the precollected
+    `<Region> Lock` items are the ONLY thing that makes an Elden Ring region base-reachable."""
+    start = spoiler_text.find("Starting Items:")
+    end = spoiler_text.find("Locations:", start)
+    if start < 0 or end < 0:
+        return {}
+    out = collections.defaultdict(set)
+    for m in _START_LOCK.finditer(spoiler_text[start:end]):
+        out[m.group("player")].add(m.group("region"))
+    return dict(out)
+
+
+def check_early_items_stay_early(rows, starts, early, er_slots, report):
+    """6. A PARTNER'S DECLARED EARLY ITEM IS NOT DEEP IN ELDEN RING (#1456).
+
+    `early` = {owner slot name: (item names,)} the partner declared to AP's early pass. AP places
+    those in a base-reachable location of SOME world; if that world is one of ours, the location
+    must be in the hub or one of that slot's starting regions (`starts`), because those are the
+    only Elden Ring locations reachable with nothing found yet. A named item elsewhere in ER is the
+    reservation having taken it before the early pass could -- the 10-of-15 Astel report.
+    """
+    bad = []
+    seen = 0
+    for loc, loc_player, item, item_player in rows:
+        names = early.get(item_player, ())
+        if item not in names or loc_player not in er_slots:
+            continue
+        seen += 1
+        region = loc.split(" :: ", 1)[0] if " :: " in loc else loc
+        allowed = {"Roundtable Hold"} | set(starts.get(loc_player, ()))
+        if region in allowed:
+            report("early item: %s's %s landed on %s in %s (a starting region) -- fine"
+                   % (item_player, item, loc_player, region))
+        else:
+            bad.append("%s's declared-early %s landed on an Elden Ring check in %s (%s), which is "
+                       "not the hub and not one of %s's starting regions %s. AP's early pass can "
+                       "only place what is still in the pool; the incoming reservation took this "
+                       "copy first and locked it deep (#1456, the Astel report)."
+                       % (item_player, item, region, loc_player, loc_player,
+                          sorted(starts.get(loc_player, ())) or "(none found)"))
+    if not seen:
+        report("early item: no declared-early partner item landed in Elden Ring this seed (placed "
+               "in the partner's own or another world, which is also sphere 1)")
+    return bad
+
+
 def check(rows, natural, report, partner):
     """-> list of failure strings. Every check names what a green would have hidden."""
     bad = []
@@ -823,6 +930,58 @@ def self_test():
     else:
         print("  ok    %-52s fails as designed" % "one game receives no ER item")
 
+    # Checks 5 and 6 (#1456 / #1457). Each gets the clean shape and the fault that motivated it.
+    log_ok = ("[greenfield] export-reservation: The Wind Waker (P4) still holds 29 pre-fill "
+              "item(s) of its own; its locations are left to it.\n")
+    prefill_cases = [
+        ("partner skip line present", log_ok, None),
+        ("skip line missing (fix removed or partner stopped declaring)", "", "never reported"),
+        ("skip fired on an empty list", log_ok.replace("29", "0"), "ZERO items"),
+    ]
+    for name, log, want in prefill_cases:
+        got = check_partner_prefill_respected(log, "The Wind Waker", lambda _m: None)
+        if want is None and got:
+            problems.append("%-52s expected PASS, got: %s" % (name, got[0][:90]))
+        elif want is None:
+            print("  ok    %-52s passes" % name)
+        elif not any(want in f for f in got):
+            problems.append("%-52s did not fire the expected guard: %s" % (name, got or "PASS"))
+        else:
+            print("  ok    %-52s fails as designed" % name)
+
+    spoiler = ("Starting Items:\r\n\r\nHell Keep (E3M1) (Doomguy1)\r\nAltus Lock (ErdtreeOne)\r\n"
+               "Liurnia Lock (ErdtreeTwo)\r\n\r\nLocations:\r\n")
+    starts = starting_regions(spoiler)
+    if starts != {"ErdtreeOne": {"Altus"}, "ErdtreeTwo": {"Liurnia"}}:
+        problems.append("starting_regions misread the spoiler block: %r" % (starts,))
+    else:
+        print("  ok    %-52s reads the Lock rows only" % "starting regions parse")
+    er = {"ErdtreeOne", "ErdtreeTwo"}
+    early = {"Doomguy1": ("Shotgun", "Chaingun")}
+    in_start = [("Liurnia :: Imbued Sword Key - near The Four Belfries [f1]", "ErdtreeTwo",
+                 "Chaingun", "Doomguy1")]
+    in_hub = [("Roundtable Hold :: Talisman Pouch - from Twin Maiden Husks [f60500]", "ErdtreeOne",
+               "Shotgun", "Doomguy1")]
+    deep = [("Liurnia :: Ash of War: Carian Grandeur - near Manor Lower Level [f2]", "ErdtreeOne",
+             "Shotgun", "Doomguy1")]
+    abroad = [("Hell Keep (E3M1) - Shotgun", "Doomguy1", "Shotgun", "Doomguy1")]
+    early_cases = [
+        ("early weapon in that slot's starting region", in_start, None),
+        ("early weapon in the hub", in_hub, None),
+        ("early weapon kept in the partner's own world", abroad, None),
+        ("early weapon deep in another region (the Astel case)", deep, "not one of"),
+    ]
+    for name, rows_, want in early_cases:
+        got = check_early_items_stay_early(rows_, starts, early, er, lambda _m: None)
+        if want is None and got:
+            problems.append("%-52s expected PASS, got: %s" % (name, got[0][:90]))
+        elif want is None:
+            print("  ok    %-52s passes" % name)
+        elif not any(want in f for f in got):
+            problems.append("%-52s did not fire the expected guard: %s" % (name, got or "PASS"))
+        else:
+            print("  ok    %-52s fails as designed" % name)
+
     # THE PARTNER LIST ITSELF IS DATA, and a typo in it degrades this whole file to a SKIP rather
     # than a failure -- so it is checked here, where no Archipelago is needed. Duplicate slot
     # prefixes are the sharp one: `check()` selects the partner's slots by name prefix, so two
@@ -844,7 +1003,7 @@ def self_test():
             print("  * %s" % pr)
         return 1
     print("SELF-TEST: PASS -- %d guard(s) proven able to go red\n"
-          % (len(cases) - 1 + len(lock_cases) - 1 + 4))
+          % (len(cases) - 1 + len(lock_cases) - 1 + 4 + 2 + 1))
     return 0
 
 
@@ -887,13 +1046,37 @@ def run_partner(ap_dir, partner, keep):
     return failures
 
 
-def run_shape_cases(ap_dir, keep):
-    """The two #636 shapes that are not "two ER + two copies of one partner"."""
+# The partners for checks 5 and 6. Neither is in PARTNERS: The Wind Waker is here for its
+# stage_pre_fill (dungeon items confined in a hook that sorts AFTER ours), not for its size, and
+# DOOM is configured to ONE episode so that its world declares an early weapon -- a shape the
+# partner matrix must not carry, because it shrinks DOOM to ~30 locations and the matrix's size
+# bracket is the point of that list.
+_PREFILL_PARTNER = _Partner("tww", "The Wind Waker", "Wind", """  progression_balancing: 0
+  accessibility: minimal
+""")
+_EARLY_PARTNER = _Partner("doom_1993", "DOOM 1993", "Doomguy", """  progression_balancing: 0
+  accessibility: minimal
+  episode1: false
+  episode2: false
+  episode3: true
+  episode4: false
+""")
+_EARLY_ITEMS = ("Shotgun", "Chaingun")   # doom_1993 picks one of these at random; both are checked
+
+
+def run_shape_cases(ap_dir, keep, only=None):
+    """The two #636 shapes that are not "two ER + two copies of one partner", plus the #1456/#1457
+    shape (2x ER + one pre-filling partner + one early-declaring partner)."""
     failures = []
     cases = [
         ("four games", [(p, 1) for p in PARTNERS], (100, PARTIAL_CONFINE)),
         ("all-default two-game stress", [(PARTNERS[0], 2)], (100, 100)),
+        ("pre-fill and early partners", [(_PREFILL_PARTNER, 1), (_EARLY_PARTNER, 1)], (100, 100)),
     ]
+    if only:
+        cases = [c for c in cases if c[0] == only]
+        if not cases:
+            sys.exit("FAIL: no shape named %r" % only)
     for label, partner_counts, confines in cases:
         desc = " + ".join("%dx %s" % (count, p.game) for p, count in partner_counts)
         print("\n=== multiworld shape: 2x Elden Ring + %s -- %s ===" % (desc, label))
@@ -932,6 +1115,21 @@ def run_shape_cases(ap_dir, keep):
                 failures += ["[%s] %s" % (label, f) for f in
                              check_gear_reaches_the_partner(si, locs,
                                                             lambda m: print("  " + m))]
+            elif label == "pre-fill and early partners":
+                failures += ["[%s] %s" % (label, f) for f in
+                             check_partner_prefill_respected(generate.last_log,
+                                                             _PREFILL_PARTNER.game,
+                                                             lambda m: print("  " + m))]
+                spoiler = zipfile.ZipFile(zip_path)
+                text = spoiler.read([n for n in spoiler.namelist() if "Spoiler" in n][0]
+                                    ).decode("utf-8", errors="replace")
+                er_slots = {i.name for i in si.values() if i.game == "Elden Ring"}
+                doom_slots = {i.name for i in si.values() if i.game == _EARLY_PARTNER.game}
+                failures += ["[%s] %s" % (label, f) for f in
+                             check_early_items_stay_early(
+                                 rows, starting_regions(text),
+                                 {d: _EARLY_ITEMS for d in doom_slots}, er_slots,
+                                 lambda m: print("  " + m))]
             else:
                 failures += ["[%s] %s" % (label, f) for f in
                              check(rows, False, lambda m: print("  " + m), PARTNERS[0])]
@@ -959,6 +1157,8 @@ def main(argv=None):
     ap.add_argument("--keep", action="store_true", help="leave the generated output on disk")
     ap.add_argument("--partner", help="run only this partner (its worlds/ dir, e.g. hk). For "
                                       "triage -- CI runs the whole list.")
+    ap.add_argument("--shape", help="run only this shape case (e.g. 'pre-fill and early partners'). "
+                                    "For triage -- CI runs everything.")
     ap.add_argument("--self-test", action="store_true",
                     help="fire every slot_data guard on a hand-built fault and exit. Needs no "
                          "Archipelago and no generation; proves the guards can go RED.")
@@ -999,11 +1199,16 @@ def main(argv=None):
         return 4
 
     failures = []
+    if args.shape:
+        # Triage entry: one shape, no partner matrix. Presence of the shape's OWN partners is
+        # checked by generation itself (an absent game fails yaml validation loudly).
+        failures = run_shape_cases(ap_dir, args.keep, only=args.shape)
+        present = []
     for partner in present:
         failures += run_partner(ap_dir, partner, args.keep)
-    if not args.partner and len(present) == len(PARTNERS):
+    if not args.partner and not args.shape and len(present) == len(PARTNERS):
         failures += run_shape_cases(ap_dir, args.keep)
-    elif not args.partner:
+    elif not args.partner and not args.shape:
         print("note: wide/stress #636 shapes skipped because they require all %d partner worlds; "
               "found %d" % (len(PARTNERS), len(present)))
 
@@ -1013,13 +1218,17 @@ def main(argv=None):
         for f in failures:
             print("  * %s" % f)
         return 1
+    if args.shape:
+        print("MULTIWORLD SMOKE: PASS for shape %r only (triage run, not the full gate)." % args.shape)
+        return 0
     print("MULTIWORLD SMOKE: PASS over %d partner(s) -- %s.\n"
           "      Cross-world flow works in both directions, ER reaches a foreign game AND sends it "
           "real gear,\n      natural_progression keys are placeable in other players' worlds, "
           "foreign progression lands\n      only on the progression surface at confine 100 and is "
           "genuinely released at %d,\n      and each slot's checkItemFlags is collectable, "
           "unshared, and its own. The full run also covers a four-game seed and an all-default "
-          "identical-options stress control."
+          "identical-options stress control, and the pre-fill/early-item partner shape (#1456, "
+          "#1457)."
           % (len(present), ", ".join(p.game for p in present), PARTIAL_CONFINE))
     return 0
 
