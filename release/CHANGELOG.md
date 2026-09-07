@@ -32,6 +32,16 @@ The version moved, so the client half moved with it: clients PR "Stamp the paire
   an APQuest Key on a Liurnia check from a Stormveil start; reported at the table as a Dragon
   Quest IX key behind a 10-of-15 Astel). Declared early copies now stay in the pool. Applies to
   new seeds only.
+- **Fixed: generating beside a keysanity-off game could fail in that game's pre-fill.** Archipelago
+  runs stage pre-fills in class-name order and ours runs before most partners'. Our two foreign
+  placement passes (the cross-game Lock share and the useful-export reservation) locked items onto
+  a partner's locations uniformly before the partner had placed its own dungeon keys, so a game
+  that confines keys to its dungeons in its own stage pre-fill could find a dungeon with no room
+  left and die with "No more spots to place N items" (reported as "not enough locations": two
+  Elden Ring regions beside Oracle of Seasons 20.1.13 failed 6 of 8 seeds, both with the default
+  share and with `cross_game_progression: never`). Both passes now skip any partner whose
+  `get_pre_fill_items` is still non-empty, log it, and let that share fall back to the Elden Ring
+  surfaces; 8 of 8 seeds generate. New seeds only.
 - **Release pipeline: a tag rebuild no longer fails because the MapForGoblins fork moved after
   the tag.** The `mfg-dll` job's pin check is strict on main and on fresh dispatches, and
   warns-only when rebuilding an existing tag: the pin recorded in a tag is the pin that tag
