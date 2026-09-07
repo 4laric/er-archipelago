@@ -43,6 +43,18 @@ selection and the regenerated `contract_gen.rs`. The gitlink rides in this same 
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.2 in this same commit.
 
+- **Named NPCs' arena bodies no longer over-scale (clients #652).** From play on 2026-09-06: the
+  host enemy randomizer put Fia's Champions in the Ashen Capital boss slot and the area tier took
+  them from 833 HP to 5726, attack 3.64x, on a base the randomizer had already retuned. Rogier was
+  spared because he is named; the two Champion bodies and Lionel carry no name on their arena rows,
+  so the per-name carve-out did not know them. The native-tier derivation now carves out a whole
+  human family when a nameless, reward-less row sits beside a named or rewarded sibling: 23 rows
+  join the exclusion set, all in the under-scaled direction (Fia's Champion, Lionel, Adan's arena
+  body, Bernahl's Farum Azula row, and the quest-stage renames of Hyetta, Diallos, Shabriri, D and
+  Corhyn now scale with their character). Client-side only; no seed changes. The gitlink moves to
+  client main, which also carries Bloodborne-only work (clients #654, #655) with no Elden Ring
+  effect.
+
 - **The generated tables sit behind a loader (#1464).** `data.py`, `item_ids.py`, `shop_data.py`
   and the other AUTO-GENERATED modules moved into `greenfield/eldenring/tables/`, and `core.py`
   reads them through `table_loader.load()` (`world.tables`) instead of importing them by name; the
