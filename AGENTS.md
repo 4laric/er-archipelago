@@ -778,6 +778,45 @@ layer). It also retired the 18 matches the 2000 m cap was catching at 8.7-10.4 k
 🛑 Still true and NOT fixed: the 134 checks that render a bare map id are starved of COORDINATES,
 not of a join -- zero of them have a `nearest_grace` row even now. That half of #338 stands.
 
+### MATT ORACLE — a read-only second opinion on the generated tables
+
+`tools/matt_oracle.py` cross-checks `greenfield/eldenring/tables/` against
+**thefifthmatt/SoulsRandomizers**, whose Elden Ring item-slot table (`diste/Base/itemslots.txt`) is
+hand-curated over the same event-flag number space as our `[fFLAG]`. Two independent tables of the
+same game: a disagreement is evidence, and it is the only second opinion our generated data has.
+It gates two classes and reports the rest:
+
+- **A. ITEM IDENTITY** — `item_ids.LOCATION_ITEM` vs the vanilla item his DebugText records for the
+  same flag. 3977/4084 agree; the 107 disagreements are allowlisted by cause in the tool.
+- **B. MISSING SLOTS** — his Event-scope flags `data.LOCATIONS` has no row for, after excluding his
+  `norandom` / `ignore` / `tarnished` / `enemy*` vocabulary. 80 remain, allowlisted by cause.
+
+Region assignment, missable tagging, shop granularity and DLC membership are **report-only**
+(`--report`): the two models differ structurally there, so equality would be noise, not signal.
+
+```bash
+python tools/matt_oracle.py --souls-rando-dir <checkout>   # exit 1 on a NEW disagreement
+SOULS_RANDO_DIR=<checkout> python tools/matt_oracle.py --report --json oracle.json
+python tools/matt_oracle.py                                # no checkout -> "SKIP: ...", exit 0
+```
+
+🛑 **LICENCE BOUNDARY — nothing of his is ever committed here.** SoulsRandomizers is *"mostly all
+rights reserved"*; its licence permits viewing/reproducing the sources and private non-conveyed use
+of what they produce, and forbids CONVEYING the software, its parts or its derived output. So:
+**no** slot rows, **no** location `Text` (his prose, copyrighted in that file's own header), **no**
+area names, **no** tag strings as expectation data, **no** file copies. The allowlists are **bare
+integer event flags with comments we wrote** — a flag id is a fact about the game, not an excerpt of
+his table. Diagnostics print OUR name/ap_id/flag plus HIS flag id and the tag names used as filter
+vocabulary, never his descriptions. The **shipped apworld never imports the tool or his data**.
+
+`.github/workflows/matt-oracle.yaml` runs it weekly and on demand, cloning his repo at a **pinned
+sha** into `$RUNNER_TEMP` (outside the workspace) and uploading only our own JSON verdict. It is
+deliberately **not on `pull_request`**: a gate whose dependency is a third party's repository is a
+gate nobody can fix, and one nobody can fix is one everybody merges past.
+
+`test_gf_matt_oracle.py` gates the tool's logic against a **synthetic** itemslots fixture written
+for the test, so it needs no checkout of his. 🛑 Do not "improve" that fixture with real rows.
+
 ## 6. The truncation gate (why edits are safe)
 
 The sandbox mount can silently truncate/NUL-pad large writes. Tools guard against it:

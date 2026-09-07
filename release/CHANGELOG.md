@@ -36,6 +36,19 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   by `tools/gen_item_ids_doc.py` from the table itself and its `--check` runs in CI, so the page
   cannot drift from what the world ships. Docs only: no contract, seed, world-logic or client
   effect, and nothing to update.
+- **A read-only second opinion on the check tables (`tools/matt_oracle.py`).** Host-side developer
+  tooling only: **nothing in this bullet changes the contract, the client, generation, or any
+  seed** — it is a gate that reads our tables and reports. It cross-checks
+  `item_ids.LOCATION_ITEM` and `data.LOCATIONS` against thefifthmatt/SoulsRandomizers' independently
+  curated Elden Ring slot table, joined on the event flag both sides key on. 3977 of 4084 comparable
+  item rows agree; the 107 that do not, and the 80 slots he carries that we have no row for, are
+  triaged and allowlisted by cause in the tool, so a NEW disagreement fails and a known one does
+  not. It runs weekly and on demand (`.github/workflows/matt-oracle.yaml`) against a pinned sha,
+  never on a PR, and prints `SKIP` with exit 0 when no checkout is present. 🛑 **Nothing from his
+  repository is vendored** — the allowlists are bare integer event flags with our own comments, and
+  the shipped apworld never imports the tool or his data. It leaves 103 item rows and 45 missing
+  slots on the record as OPEN findings to adjudicate later, chiefly a DLC upgrade-material tier
+  disagreement across 99 flags.
 
 ## v0.6.0.3 — 2026-09-07
 

@@ -88,6 +88,12 @@ GENERATORS = [
     # AP-free, no artifacts, no client -- and it belongs in the job whose byte-diff would
     # otherwise be the only witness that the page had gone stale.
     "region_second_opinion_page",
+    # The matt-oracle logic gate (tools/matt_oracle.py). It loads the tool BY PATH and runs it as a
+    # subprocess against a SYNTHETIC itemslots fixture it writes itself, so it needs the repo tree
+    # but never a SoulsRandomizers checkout -- the oracle's own verdict is a manual/scheduled job
+    # (.github/workflows/matt-oracle.yaml), deliberately not on pull_request. AP-free; needs PyYAML,
+    # which this job already installs for the shipping-yaml gate.
+    "matt_oracle",
     "provenance_gate",
     "questline_dag",
     "questline_model",
