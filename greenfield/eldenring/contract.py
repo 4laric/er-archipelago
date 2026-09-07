@@ -1297,10 +1297,17 @@ CONTRACT = (
     ContractKey("dungeonSweepFlags", "LISTVAL_INT_MAP", False, (BOTH,),
                 "features/boss_sweeps (P3b client patch)", "region.rs:104 as_object",
                 "dungeon trigger flag (str) -> the member AP location ids auto-registered on clear."),
-    ContractKey("dungeonSweeps", "ANY", False, (BOTH,),
-                "features/boss_locks.py ({} today; location-keyed variant)", "region.rs",
-                "location-keyed dungeon sweep spec (needs boss-reward-location join); greenfield "
-                "emits {} until wired -- flag-keyed dungeonSweepFlags is the live path."),
+    # BEDROCK-ONLY as of #1463. This was tagged BOTH with producer "features/boss_locks.py ({}
+    # today)" -- a tag describing an INTENTION, not an emission: boss_locks emitted `{}` and nothing
+    # else ever wrote it, so the "greenfield produces this" half of the tag was false for its whole
+    # life (RECON-contract-keys-20260706 filed it as a profile blemish). An always-empty key is
+    # indistinguishable from an absent one to flagpoll.rs's location-keyed loop, so greenfield now
+    # stops emitting it and the tag says what is true: only a bedrock apworld produces it. The
+    # live greenfield sweep wire is the flag-keyed `dungeonSweepFlags` beside it, untouched.
+    ContractKey("dungeonSweeps", "ANY", False, (BEDROCK,),
+                "(bedrock apworld)", "flagpoll.rs parse_dungeon_sweeps / region.rs",
+                "location-keyed dungeon sweep spec {str(trigger AP loc): [member AP locs]}. "
+                "Greenfield does not emit it (its sweeps are flag-keyed: dungeonSweepFlags)."),
     ContractKey("sweepLockGates", "STR_MAP", False, (BOTH,),
                 "features/boss_locks.py ({} today)", "region.rs sweep gates",
                 "{str(i64 sweep trigger flag): '<Region> Lock'} -- gates a dungeon sweep behind "
@@ -1356,6 +1363,24 @@ CONTRACT = (
     # `completion_scaling_floor` keys above are annotated to avoid. Removed here, in scaling.py's
     # emitter, and from the client's slot_data fixture in the same change. CONTRACT_HASH moves; it
     # was moving anyway for scaduBlessingCap, so the removal rides along for free.
+    # --- profile declaration ---
+    # THE WORLD SAYS WHICH CONTRACT IT SPEAKS (#1463). Before this key the client chose between the
+    # matt-key resolver and the greenfield locationFlags table by SNIFFING for `locationIdsToKeys`
+    # (core.rs, key_resolver.rs). A path chosen by sniffing is a path nobody validates: a seed
+    # carrying both key families, or neither, takes whichever branch the sniff lands on and the
+    # mismatch shows up in-game as checks that never fire. Declaring the profile makes the branch a
+    # STATEMENT the client can validate against -- a bedrock seed with no `locationIdsToKeys`, or a
+    # greenfield seed carrying one, is a connect-time error naming the key rather than a silent
+    # switch. BOTH + required: every profile has to say what it is. The client bridges seeds rolled
+    # before this key existed by falling back to the old sniff with one warning line (one release).
+    ContractKey("profile", "STR", True, (BOTH,),
+                "core._base_slot_data", "eldenring-archipelago profile.rs select_profile",
+                # NB: no pipe character in this doc string -- to_markdown renders it into a
+                # table cell, and a literal `|` would split the row.
+                "which contract this seed speaks: 'greenfield' or 'bedrock'. The client selects its "
+                "location-resolution path from this instead of sniffing for `locationIdsToKeys`; a "
+                "profile whose required keys are missing, or a foreign-profile key present under the "
+                "other profile, is a connect-time validation error naming the key."),
     # --- version handshake ---
     # GREENFIELD-only: core.rs logs a warning and continues when a foreign apworld sends no
     # `versions` ("it predates the version handshake"). Requiring it of everyone was a lie.
@@ -1483,7 +1508,8 @@ def validate_slot_data(sd, profile=GREENFIELD, strict=True):
     greenfield gen). Three checks per profile key: MISSING (required only), SHAPE, and -- for keys
     with subkeys (the `options` echo) -- the same two per declared sub-key plus UNDECLARED sub-key
     rejection. Finally (F2 fix) any emitted TOP-LEVEL key not declared in the contract AT ALL is
-    rejected: an undeclared emission is exactly how features go silently dark, so it fails at gen."""
+    rejected, and (#1463) so is any DECLARED key belonging only to the OTHER profile -- the key is
+    named, because a foreign emission is what made the client's old path-sniff ambiguous."""
     problems = []
     for key in CONTRACT:
         if not key.in_profile(profile):
@@ -1518,6 +1544,16 @@ def validate_slot_data(sd, profile=GREENFIELD, strict=True):
         if name not in BY_NAME:
             problems.append(f"UNDECLARED key {name!r} emitted -- declare it in contract.py "
                             f"(name/shape/profile/producer) before emitting")
+            continue
+        # FOREIGN-PROFILE EMISSION (#1463). Declared, shaped, and belonging to the OTHER profile:
+        # a greenfield gen emitting a BEDROCK-only key (or vice versa) is how a seed ends up
+        # carrying both key families, and the client's old path sniff would then pick a branch by
+        # accident. Now that the world DECLARES its profile, the emission has to agree with it, and
+        # the key is named so the fix is one grep rather than a diff of two contracts.
+        key = BY_NAME[name]
+        if not key.in_profile(profile):
+            problems.append(f"FOREIGN key {name!r} emitted under profile {profile!r} -- it is "
+                            f"declared for {'+'.join(key.profiles)} only (producer {key.producer})")
     if strict and problems:
         raise ContractError("slot_data contract violation:\n  " + "\n  ".join(problems))
     return problems
@@ -1591,9 +1627,10 @@ def to_rust():
 
     def key_row(k):
         gf = "true" if (BOTH in k.profiles or GREENFIELD in k.profiles) else "false"
+        bd = "true" if (BOTH in k.profiles or BEDROCK in k.profiles) else "false"
         req = "true" if k.required else "false"
         return (f'    ContractKey {{ name: "{k.name}", shape: Shape::{SHAPES[k.shape][1]}, '
-                f"required: {req}, greenfield: {gf} }},")
+                f"required: {req}, greenfield: {gf}, bedrock: {bd} }},")
 
     L = []
     # The `@generated` marker is LOAD-BEARING: the client's rustfmt.toml sets format_generated_files =
@@ -1618,6 +1655,9 @@ def to_rust():
     L.append("    pub shape: Shape,")
     L.append("    pub required: bool,")
     L.append("    pub greenfield: bool,")
+    # BOTH flags, not one: `!greenfield` alone cannot tell a BEDROCK-only key from a BOTH key, and
+    # profile.rs needs exactly that distinction to name a FOREIGN key (#1463).
+    L.append("    pub bedrock: bool,")
     L.append("}")
     L.append("")
     L.append("pub const CONTRACT: &[ContractKey] = &[")

@@ -6,26 +6,50 @@ The narrative — what this project is and what v0.2 brings — lives in
 ## v0.6.0.3 — 2026-09-07
 
 The third fixpack on the v0.6.0 line, opened at the v0.6.0.2 tag with nothing past it. Versions
-are V.R.M.F: a client on the 0.6.0 line plays every seed the line generated, in both directions.
+are V.R.M.F: a client on the 0.6.0 line plays every seed the line generated. That is the direction
+the rule promises and the one this window keeps; the reverse stopped holding here, because the
+contract hash moved (#1463), so an older client will name the mismatch on a v0.6.0.3 seed.
 
 ### What you need to update
 
-- **Client:** Optional — nothing in this window yet changes the client; any 0.6.0-line client
-  (v0.6.0, v0.6.0.1, v0.6.0.2) keeps playing every 0.6.0-line seed.
+- **Client:** Required for seeds rolled on v0.6.0.3 — the contract hash moved, so an older
+  0.6.0-line client logs a version mismatch against a v0.6.0.3 seed. The update is safe to take
+  mid-run in the other direction: the v0.6.0.3 client plays every 0.6.0-line seed, yours
+  included, so a run already going needs nothing but the new binary.
 - **APWorld:** Host-only — install v0.6.0.3 when generating a new room once it ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
 - **Profile/assets:** No action — the MapForGoblins build and preset are unchanged from v0.6.0.2.
 
-`CONTRACT_HASH` is `ffc0f1b5`, read by loading contract.py: unmoved since v0.6.0, so the
-handshake accepts any pairing of 0.6.0-line clients and apworlds.
+`CONTRACT_HASH` MOVED to `f6250382` (from `ffc0f1b5`, which stood from v0.5.7 through v0.6.0.2),
+read by loading contract.py. It moves on a FIXPACK, which is allowed by exactly one rule and only
+because that rule's condition is met: the paired client BRIDGES the older contract. Every
+0.6.0-line seed predates the new `profile` key, and `profile::select` reads its absence as
+"older seed", falls back to the key-presence sniff this release replaces, and says so once; the
+0.6.0 hash is also listed in the client's audited `is_legacy_contract_compatible` pairs. So a
+v0.6.0.3 client still plays every 0.6.0 seed, which is what the F in V.R.M.F promises.
 
 The version moved, so the client half moved with it: clients PR #647 "Stamp the paired
-client as 0.6.0+f3" moves the three client version sites, and the gitlink rides in this same
-commit.
+client as 0.6.0+f3" moves the three client version sites, and clients PR #649 carries the profile
+selection and the regenerated `contract_gen.rs`. The gitlink rides in this same commit.
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.2 in this same commit.
 
+- **Contract: the world says which profile it speaks; the client stops guessing.** (#1463) The
+  client had two ways to resolve a location — the matt slot-key table and our `locationFlags`
+  table — and picked between them by checking whether `locationIdsToKeys` happened to be in the
+  slot data. Nothing validated that guess, so a seed carrying both key families, or a seed whose
+  key table failed to serialize, took whichever branch the sniff landed on and then quietly
+  resolved nothing; the player found out hours later, as checks that never fire. The apworld now
+  emits `profile` (`greenfield`), the contract declares it required for both profiles, and the
+  client validates the seed against what it declares: a foreign-contract key under the wrong
+  profile is a connect-time error that names the key, in the log, at connect, instead of a branch
+  taken by accident. Generation refuses it too — `validate_slot_data` now fails a greenfield gen
+  that emits a bedrock-only key and vice versa. Nothing a player sets changes.
+- **`dungeonSweeps` stops being a lie.** The contract claimed the greenfield world produced this
+  key; the world only ever emitted `{}` for it, which reads identically to absent on the client.
+  It is now tagged bedrock-only and no longer emitted. The live greenfield sweep wire is the
+  flag-keyed `dungeonSweepFlags` beside it, untouched.
 - **Release pipeline: the next window is opened by a workflow.** `open-window.yaml` runs after
   a tag's `er-release` goes green: `tools/open_window.py` on the runner with the client
   submodule at client main, the client half pushed as its own PR, stable promoted and

@@ -16,7 +16,8 @@ Design (matches the other greenfield WorldTestBase suites):
     runs once the world is installed under Archipelago/worlds/.
   * option keys/values mirror the feature option classes in core.py + features/*.py:
       - item_shuffle (Toggle)               -> True
-      - dungeon_sweep (Choice)              -> "all"   (emits dungeonSweepFlags/dungeonSweeps/sweepLockGates)
+      - dungeon_sweep (Choice)              -> "all"   (emits dungeonSweepFlags/sweepLockGates;
+                                                       dungeonSweeps went bedrock-only in #1463)
       - pool_builder_intensity (Choice)     -> max     (widest juice catalog; the option was
                                                        unfrozen 2026-07-28, `pool_builder` itself is retired)
       - ending_condition (Choice)           -> "great_runes" + great_runes_required=2
@@ -58,7 +59,6 @@ INFORMATIONAL_EXTRAS = {
     "ending_condition",           # str  : "region_locks" | "great_runes"
     "great_runes_required",       # int  : effective (clamped) rune requirement
     "bossLocations",              # dict[str region] -> list[int]
-    "dungeonSweeps",              # dict (location-keyed variant; {} for now)
     "sweepLockGates",             # dict ({} for now)
     "pool_builder",               # bool
     "pool_builder_juice_added",   # int
@@ -119,7 +119,7 @@ REQUIRED_KEYS = {k.name for k in contract.CONTRACT if k.required and k.in_profil
 # seed must NOT carry it. That is asserted positively over in
 # test_gf_grace_attunement.py::AttunementOff and ledgered in test_gf_off_means_off.py; here it just
 # has to stay out of the always-present set.
-ALWAYS_KEYS = EXPECTED_KEYS - {"dungeonSweepFlags", "dungeonSweeps", "sweepLockGates",
+ALWAYS_KEYS = EXPECTED_KEYS - {"dungeonSweepFlags", "sweepLockGates",
                               "checkLotBlank", "checkLotBlankMap", "checkLotBlankEnemy",
                               "requiresClientFeatures", "graceAttunement"}
 

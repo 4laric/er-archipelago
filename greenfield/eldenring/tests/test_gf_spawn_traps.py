@@ -620,7 +620,11 @@ class TheNameSurface(unittest.TestCase):
         this change owed no client release. The later foreign-Lock placement contract move is
         separately versioned; this pin still proves the spawn-name work added no further shape."""
         from worlds.eldenring import contract
-        self.assertEqual(contract.CONTRACT_HASH[:8], "ffc0f1b5")
+        # ffc0f1b5 -> f6250382 in #1463 (the `profile` declaration + the dungeonSweeps retag),
+        # which is a contract move this file did not cause and does not object to. The pin is
+        # re-anchored rather than deleted: its claim is that the SPAWN-NAME work adds no shape,
+        # and it can only keep making that claim from a current value.
+        self.assertEqual(contract.CONTRACT_HASH[:8], "f6250382")
 
     def test_a_name_the_game_writes_with_a_comma_is_offered_without_one(self):
         """🛑 A COMMA IS A SEPARATOR WHERE PLAYERS WRITE THESE. `spawn_traps: [Alexander, Warrior
