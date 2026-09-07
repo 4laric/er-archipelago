@@ -21,6 +21,9 @@ disagreement unable to produce a publishable bundle, by asserting one equality c
  == DLL   the staged dll contains TREE[:12] and not TREE[:12]+"-dirty"
 
 PIN==TREE is the v0.3.11 failure -- record versus artifact -- and takes NO override. PIN==MAIN is
+compared by TREE when the shas differ: a merge-commit merge of the client PR leaves main one sha past
+the pin with byte-identical code, and that is a current record, not a stale one (v0.6.0.2's bundle
+job failed on exactly this and had to be re-dispatched by hand). A genuinely different tree is
 staleness, which can be a legitimate shipping decision, so it takes ALLOW_STALE_PIN=1; that has to be
 typed, which is the point. TREE-clean is hard: a bundle from a dirty tree is the unrecoverable-record
 problem in its worst form. The DLL scan is the artifact identifying itself -- `build.rs` already bakes
@@ -61,6 +64,11 @@ class Facts:
     tree_present: bool = True
     main: str = ""
     main_present: bool = True
+    # Tree ids behind PIN and MAIN, resolved only when the two commits differ. A merge-commit merge
+    # of the client PR makes MAIN a commit whose TREE is the PIN's tree exactly; the record is not
+    # stale then, it names the same code by its other sha (v0.6.0.2, 2026-09-07).
+    pin_tree: str = ""
+    main_tree: str = ""
     dll_name: str = ""
     dll_bytes: bytes = b""
     dll_present: bool = False
@@ -70,6 +78,31 @@ class Facts:
 def _run(args, cwd=None):
     p = subprocess.run(args, cwd=cwd, capture_output=True, text=True)
     return p.returncode, p.stdout.strip(), p.stderr.strip()
+
+
+def _trees_of(client: str | None, shas: list[str]) -> dict[str, str]:
+    """{sha: tree id} for each sha, from the checked-out submodule when it has them, else from a
+    throwaway shallow fetch of exactly those commits. Missing entries mean "could not resolve";
+    the caller treats that as "not the same tree", never as agreement."""
+    import tempfile
+    out: dict[str, str] = {}
+
+    def _read(cwd):
+        for sha in shas:
+            if sha in out:
+                continue
+            rc, tree, _ = _run(["git", "rev-parse", "--verify", "-q", sha + "^{tree}"], cwd=cwd)
+            if rc == 0 and tree:
+                out[sha] = tree
+
+    if client and os.path.exists(os.path.join(client, ".git")):
+        _read(client)
+    if len(out) < len(shas):
+        with tempfile.TemporaryDirectory() as tmp:
+            if _run(["git", "init", "-q"], cwd=tmp)[0] == 0:
+                _run(["git", "fetch", "-q", "--depth=1", CLIENT_URL, *shas], cwd=tmp)
+                _read(tmp)
+    return out
 
 
 def gather(repo: str, dll: str | None, allow_no_remote: bool = False) -> Facts:
@@ -104,6 +137,10 @@ def gather(repo: str, dll: str | None, allow_no_remote: bool = False) -> Facts:
         if not allow_no_remote:
             f.notes.append("network failure blocks packaging on purpose; -AllowStalePin is the "
                            "conscious escape")
+
+    if f.pin and f.main and f.pin != f.main:
+        trees = _trees_of(client if f.tree_present else None, [f.pin, f.main])
+        f.pin_tree, f.main_tree = trees.get(f.pin, ""), trees.get(f.main, "")
 
     if dll:
         f.dll_name = dll
@@ -153,6 +190,12 @@ def check(f: Facts, allow_stale: bool) -> tuple[int, list]:
         else:
             lines.append("FAIL   : client main could not be read, so the pin cannot be shown current.")
             return HARD, lines
+    elif f.pin != f.main and f.pin_tree and f.pin_tree == f.main_tree:
+        # Not staleness: the same code under two shas. The usual cause is a merge-commit merge of
+        # the client PR after the gitlink was taken at the branch tip.
+        lines.append("NOTE   : the pin (%s) is not client main (%s) by sha, but both name the"
+                     % (f.pin[:12], f.main[:12]))
+        lines.append("         same tree (%s). The record is current." % f.pin_tree[:12])
     elif f.pin != f.main:
         if allow_stale:
             lines.append("WARN   : the pin (%s) trails client main (%s), allowed by" % (f.pin[:12], f.main[:12]))
