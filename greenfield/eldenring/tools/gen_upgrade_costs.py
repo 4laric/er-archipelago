@@ -22,7 +22,9 @@ OUT = os.path.join(HERE, "upgrade_costs_data.py")
 
 def _catalog():
     ns = {}
-    exec(open(os.path.join(GF, "item_ids.py"), encoding="utf-8").read(), ns)
+    # eldenring/tables/item_ids.py since #1464 (this reads the generated module as TEXT, so the
+    # path is the whole dependency -- there is no import to fail loudly).
+    exec(open(os.path.join(GF, "tables", "item_ids.py"), encoding="utf-8").read(), ns)
     return {(v & 0x0FFFFFFF): k for k, v in ns["ITEM_CATALOG"].items() if (v & 0xF0000000) == 0x40000000}
 
 

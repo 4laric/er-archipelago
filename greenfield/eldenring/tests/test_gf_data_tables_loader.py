@@ -81,6 +81,13 @@ def _imported_table_modules(path):
 
 class CoreImportsNoDataModule(unittest.TestCase):
     def test_core_imports_no_generated_table(self):
+        # WITNESS (test_gf_vacuous_pass ratchet): "core.py imports none" is only a claim if the
+        # scanner can still SEE an import. Point it at a file that definitely has one first -- if
+        # the AST walk or GENERATED went stale, this fails here instead of passing an empty core.
+        self.assertTrue(GENERATED, "GENERATED_MODULES is empty -- the scan matches nothing")
+        witness = _imported_table_modules(os.path.join(FEATURES_DIR, "traps.py"))
+        self.assertTrue(witness, "the scanner no longer sees features/traps.py's table imports, "
+                                 "so a clean core.py below would prove nothing")
         hits = sorted(_imported_table_modules(CORE_PY))
         self.assertEqual(hits, [], "core.py imports generated data modules directly: %s. "
                                    "Read them off table_loader.load() / world.tables instead "
@@ -100,6 +107,11 @@ class CoreImportsNoDataModule(unittest.TestCase):
         for fn in sorted(os.listdir(FEATURES_DIR)):
             if fn.endswith(".py") and _imported_table_modules(os.path.join(FEATURES_DIR, fn)):
                 actual.add(fn)
+        # WITNESS (test_gf_vacuous_pass ratchet): an `actual` that collapsed to nothing -- a moved
+        # features dir, a scanner that stopped matching -- would satisfy "no unlisted feature"
+        # vacuously, and would then blame the allowlist in the second assertion rather than itself.
+        self.assertTrue(actual, "the scan found NO feature importing a table; features/ is at %s"
+                                % FEATURES_DIR)
         self.assertEqual(sorted(actual - FEATURE_ALLOWLIST), [],
                          "new feature importing a generated table directly -- use world.tables")
         self.assertEqual(sorted(FEATURE_ALLOWLIST - actual), [],
