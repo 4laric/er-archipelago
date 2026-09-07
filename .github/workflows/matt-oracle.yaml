@@ -1,0 +1,92 @@
+name: matt oracle
+
+# A READ-ONLY SECOND OPINION on greenfield/eldenring/tables, from thefifthmatt/SoulsRandomizers.
+#
+# Why it is its own workflow, and NOT a job in tests.yaml:
+#
+#   * NOT ON pull_request, ever. The oracle depends on a third-party repository staying cloneable
+#     at a pinned sha. That is a dependency no PR author can fix, and a gate nobody can fix is a
+#     gate everyone learns to merge past. Manual + weekly instead: it reports drift, it does not
+#     block anyone.
+#   * LICENCE. SoulsRandomizers is "mostly all rights reserved" (its LICENSE.md). Cloning and
+#     reading is expressly licensed; CONVEYING is not. So his tree lands in a temp directory, is
+#     read, and is thrown away with the runner. Nothing from it enters this repository, and the
+#     artifact uploaded below is our tool's own verdict -- counts, our location ids, and flag
+#     numbers -- never his rows, descriptions or area names. See the licence section in
+#     tools/matt_oracle.py and the MATT ORACLE section of AGENTS.md.
+#   * THE SHA IS PINNED HERE. Pinning is what makes this a regression detector rather than a
+#     weather report: an unpinned clone would go red when HE changes his table, which says nothing
+#     about our tables. Bumping the pin is a deliberate commit, and its diff is the review.
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Weekly, Mondays 05:41 UTC. Off-peak and off the hour; nothing downstream waits on it.
+    - cron: "41 5 * * 1"
+
+permissions:
+  contents: read
+
+env:
+  # dc643124be5990e5a9dbe29177ed26dea3642171 -- thefifthmatt/SoulsRandomizers, authored 2026-09-01,
+  # the commit the 2026-09 oracle study and every allowlist entry in tools/matt_oracle.py was
+  # triaged against. Bump deliberately, never automatically.
+  SOULS_RANDO_SHA: dc643124be5990e5a9dbe29177ed26dea3642171
+
+jobs:
+  oracle:
+    name: Cross-check the tables against the oracle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # PyYAML only. The tool reads our generated tables as plain modules and his itemslots.txt as
+      # YAML; it imports no Archipelago and needs none.
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      # INTO THE RUNNER TEMP, not the workspace. A clone under the repo tree would put his files
+      # one `git add -A` away from being committed, which is the exact thing the licence forbids.
+      # $RUNNER_TEMP is outside the checkout and is destroyed with the runner.
+      #
+      # A full clone, then a hard checkout of the pin: `actions/checkout` with `repository:` would
+      # work too, but this keeps the pin's resolution visible in the log and the tree unambiguously
+      # outside the workspace.
+      - name: Clone SoulsRandomizers at the pinned commit
+        run: |
+          git clone --quiet https://github.com/thefifthmatt/SoulsRandomizers "$RUNNER_TEMP/souls"
+          git -C "$RUNNER_TEMP/souls" checkout --quiet "$SOULS_RANDO_SHA"
+          have="$(git -C "$RUNNER_TEMP/souls" rev-parse HEAD)"
+          test "$have" = "$SOULS_RANDO_SHA" \
+            || { echo "::error::SoulsRandomizers HEAD $have is not the pinned $SOULS_RANDO_SHA"; exit 1; }
+          echo "oracle at the pin: $have"
+
+      # The checkout must be REAL, not merely present. Without this the tool would print SKIP and
+      # exit 0 -- a green tick over nothing, which is the failure mode this repo's CI comments keep
+      # coming back to. A SKIP is correct on a dev box; here it means the clone silently changed
+      # shape and the job must say so.
+      - name: The oracle's data is actually there (a SKIP here would gate nothing)
+        run: |
+          test -f "$RUNNER_TEMP/souls/diste/Base/itemslots.txt" \
+            || { echo "::error::no diste/Base/itemslots.txt -- the oracle would SKIP and check nothing"; exit 1; }
+
+      - name: Cross-check
+        run: |
+          python tools/matt_oracle.py \
+            --souls-rando-dir "$RUNNER_TEMP/souls" \
+            --report \
+            --json matt-oracle.json
+
+      # Uploaded even on failure -- the failing run is the one whose diff someone wants to read.
+      # OUR verdict only: counts, our ap_ids and location names, and bare flag numbers.
+      - name: Upload the verdict
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matt-oracle
+          path: matt-oracle.json
+          if-no-files-found: warn
