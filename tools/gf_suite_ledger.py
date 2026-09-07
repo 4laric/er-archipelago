@@ -164,6 +164,13 @@ GENERATORS = [
     # root did not move" would otherwise be witnessed by nothing.
     "artifacts_path",
     "regen_all",
+    # THE AP GAME NAME, typed once (#1465). Greps BOTH repos' source for the quoted literal
+    # outside gamename.py and the generated mirrors, checks every shipped/preset/tester yaml's
+    # `game:` and options key against the constant, and proves the client reads the generated
+    # mirror rather than its own copy. It needs the repo tree (er_yaml_lint, the yaml fleet) AND
+    # the client checkout, so it can only be live in THIS job -- which is the one that has the
+    # client at the gitlink. AP-free, no artifacts.
+    "game_name_single_source",
     # The v0.6 evidence census baseline compares a generated summary against reviewed repo bytes.
     # Both the comparator under tools/ and the future baseline under greenfield/evidence/ are
     # intentionally absent from the installed world, so this AP-free suite belongs here rather

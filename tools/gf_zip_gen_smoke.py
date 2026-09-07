@@ -38,11 +38,16 @@ import zipfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+# The AP game name comes from the world, never a literal (#1465). `gamename.py` imports
+# nothing, so this costs no Archipelago import.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "greenfield", "eldenring"))
+from gamename import GAME  # noqa: E402
+
 import gf_test  # reuse REPO / ap_pin / ensure_ap / install_world -- ONE definition of "the built world"
 
 # A bare, all-defaults solo seed. The crash was option-independent (the coverage gate runs on every
 # seed), so the minimal config is the strongest signal: if THIS won't generate from a zip, nothing will.
-BASE_YAML = 'name: ZipSmoke\ngame: "Elden Ring"\n"Elden Ring": {}\n'
+BASE_YAML = 'name: ZipSmoke\ngame: "%s"\n"%s": {}\n' % (GAME, GAME)
 
 # ModuleUpdate.update() prompts to pip-install missing deps (interactive) -- neutered so the run is
 # non-interactive. AP still skips any *other* world whose deps are absent; Elden Ring only needs what
