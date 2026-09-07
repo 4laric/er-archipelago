@@ -46,7 +46,8 @@ from typing import Any, Dict
 
 from BaseClasses import ItemClassification
 
-_LOG = "Elden Ring"
+# The logger name IS the AP game name, typed once (#1465).
+from .gamename import GAME as _LOG
 
 
 def _classify(item) -> str:

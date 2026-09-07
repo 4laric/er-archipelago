@@ -139,6 +139,12 @@ import zipfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 _AP_DIR = []   # set in main(); multidata() needs the AP root importable for Utils
 ROOT = os.path.dirname(HERE)
+
+# The AP game name comes from the world, never a literal (#1465). `gamename.py` imports
+# nothing, so this costs no Archipelago import.
+sys.path.insert(0, os.path.join(ROOT, "greenfield", "eldenring"))
+from gamename import GAME  # noqa: E402
+
 SEED = "20260728"
 
 # A spoiler line in a MULTIWORLD is `Location (Owner): Item (Owner)`; in a solo seed it has no
@@ -297,7 +303,7 @@ def check_foreign_confinement(slot_info, slot_data, locations, report):
     bad = []
     strict_seen = partial_seen = False
     for player, info in sorted(slot_info.items()):
-        if info.game != "Elden Ring":
+        if info.game != GAME:
             continue
         strict = info.name == "ErdtreeOne"
         share = 100 if strict else PARTIAL_CONFINE
@@ -369,7 +375,7 @@ def check_gear_reaches_the_partner(slot_info, locations, report):
     lever is pulled; it cannot attribute the gear to a slot, and it should not pretend to.
     """
     bad = []
-    er = {p for p, i in slot_info.items() if i.game == "Elden Ring"}
+    er = {p for p, i in slot_info.items() if i.game == GAME}
     to_partner = [(lid, holder, ip, fl)
                   for holder, rows in locations.items() if holder not in er
                   for lid, (_iid, ip, fl) in rows.items() if ip in er]
@@ -417,7 +423,7 @@ def check_identical_er_balance(slot_info, locations, report):
     per-slot sweep interpreted as an option effect, and the all-default stress seed holds every
     other input constant. Counts are read from multidata classification flags, never item names.
     """
-    er = sorted(p for p, info in slot_info.items() if info.game == "Elden Ring")
+    er = sorted(p for p, info in slot_info.items() if info.game == GAME)
     if len(er) != 2:
         return ["identical-options control expected exactly 2 Elden Ring slots; saw %d" % len(er)]
     counts = {}
@@ -451,9 +457,9 @@ def check_identical_er_balance(slot_info, locations, report):
 def check_many_game_flow(slot_info, locations, partner_games, report):
     """#636: every named partner participates in BOTH directions in one >2-game seed."""
     bad = []
-    er = {p for p, info in slot_info.items() if info.game == "Elden Ring"}
+    er = {p for p, info in slot_info.items() if info.game == GAME}
     games = {info.game for info in slot_info.values()}
-    expected = {"Elden Ring"} | set(partner_games)
+    expected = {GAME} | set(partner_games)
     missing = sorted(expected - games)
     if missing:
         return ["wide multiworld is missing game(s) %s; saw %s"
@@ -481,7 +487,7 @@ def check_slot_data_tables(slot_info, slot_data, report):
     """The three slot_data properties a SOLO harness cannot pose. Reads the multidata, so these are
     the same bytes the client parses at connect -- not the world object's in-process view."""
     bad = []
-    er = [(p, slot_data.get(p) or {}) for p, i in sorted(slot_info.items()) if i.game == "Elden Ring"]
+    er = [(p, slot_data.get(p) or {}) for p, i in sorted(slot_info.items()) if i.game == GAME]
     if len(er) < 2:
         return ["expected at least 2 Elden Ring slots in the multidata; saw %d" % len(er)]
 
@@ -789,7 +795,7 @@ def self_test():
             self.game = game
             self.name = name or game
 
-    ER = {1: _Info("Elden Ring"), 2: _Info("Elden Ring"), 3: _Info("Hollow Knight")}
+    ER = {1: _Info(GAME), 2: _Info(GAME), 3: _Info("Hollow Knight")}
 
     def sd(cif, locflags, locks):
         return {"checkItemFlags": cif, "locationFlags": locflags, "regionOpenFlags": locks}
@@ -885,7 +891,7 @@ def self_test():
     # all-zero receive case is separate because a 0/0 "perfect balance" is the cheapest vacuous
     # pass this comparison could accidentally grow.
     shape_info = {
-        1: _Info("Elden Ring", "ErdtreeOne"), 2: _Info("Elden Ring", "ErdtreeTwo"),
+        1: _Info(GAME, "ErdtreeOne"), 2: _Info(GAME, "ErdtreeTwo"),
         3: _Info("Hollow Knight", "Hallownest1"),
         4: _Info("Bumper Stickers", "Bumpstik1"), 5: _Info("DOOM 1993", "Doomguy1")}
 
@@ -1103,8 +1109,8 @@ def run_shape_cases(ap_dir, keep, only=None):
                 failures += ["[%s] %s" % (label, f) for f in
                              check_many_game_flow(si, locs, partner_games,
                                                   lambda m: print("  " + m))]
-                er_names = {i.name for i in si.values() if i.game == "Elden Ring"}
-                foreign_names = {i.name for i in si.values() if i.game != "Elden Ring"}
+                er_names = {i.name for i in si.values() if i.game == GAME}
+                foreign_names = {i.name for i in si.values() if i.game != GAME}
                 failures += ["[%s] %s" % (label, f) for f in
                              check_locks_reach_a_partner(rows, er_names, foreign_names,
                                                          "the partner games",
@@ -1123,7 +1129,7 @@ def run_shape_cases(ap_dir, keep, only=None):
                 spoiler = zipfile.ZipFile(zip_path)
                 text = spoiler.read([n for n in spoiler.namelist() if "Spoiler" in n][0]
                                     ).decode("utf-8", errors="replace")
-                er_slots = {i.name for i in si.values() if i.game == "Elden Ring"}
+                er_slots = {i.name for i in si.values() if i.game == GAME}
                 doom_slots = {i.name for i in si.values() if i.game == _EARLY_PARTNER.game}
                 failures += ["[%s] %s" % (label, f) for f in
                              check_early_items_stay_early(
