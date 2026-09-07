@@ -48,6 +48,12 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# The AP game name comes from the world, never a literal (#1465). `gamename.py` imports
+# nothing, so this costs no Archipelago import.
+sys.path.insert(0, os.path.join(ROOT, "greenfield", "eldenring"))
+from gamename import GAME  # noqa: E402
+
 OUT = os.path.join(ROOT, "wizard", "pool-composition.json")
 WIZARD_HTML = os.path.join(ROOT, "wizard", "wizard.html")
 SCRIPT_ID = "er-pool-composition"
@@ -83,7 +89,7 @@ def measure(samples):
         cat_pcts = collections.defaultdict(list)
         for _ in range(samples):
             class _T(WorldTestBase):
-                game = "Elden Ring"
+                game = GAME
                 options = dict(case["options"])
                 def runTest(self):
                     pass

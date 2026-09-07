@@ -45,7 +45,9 @@ REPO_ROOT = os.path.dirname(HERE)
 sys.path.insert(0, REPO_ROOT)
 import gen_fuzz_yamls as gz  # noqa: E402
 
-GAME = "Elden Ring"
+# The AP game name comes from the world, never a literal (#1465).
+sys.path.insert(0, os.path.join(HERE, "eldenring"))
+from gamename import GAME  # noqa: E402
 
 
 def load_gf_options_dataclass():

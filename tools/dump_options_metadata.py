@@ -48,7 +48,10 @@ ROOT = os.path.dirname(HERE) if os.path.basename(HERE) == "tools" else HERE
 OUT_JSON = os.path.join(ROOT, "wizard", "options-metadata.json")
 WIZARD_HTML = os.path.join(ROOT, "wizard", "wizard.html")
 PRESETS_DIR = os.path.join(ROOT, "presets")
-GAME = "Elden Ring"
+# The AP game name comes from the world, never a literal (#1465). `gamename.py` imports
+# nothing, so this costs no Archipelago import.
+sys.path.insert(0, os.path.join(ROOT, "greenfield", "eldenring"))
+from gamename import GAME  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # PRESETS -- the wizard's starting points, also written as presets/*.yaml.

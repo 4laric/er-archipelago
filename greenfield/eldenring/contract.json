@@ -73,6 +73,7 @@
       "client_parser": "(diagnostic / foreign profile; unvalidated)"
     }
   },
+  "game": "Elden Ring",
   "keys": [
     {
       "name": "apIdsToItemIds",

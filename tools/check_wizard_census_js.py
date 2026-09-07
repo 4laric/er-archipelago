@@ -39,7 +39,8 @@ WIZARD_HTML = os.path.join(ROOT, "wizard", "wizard.html")
 # (the finale must drop out); and a narrowed + widened progression surface, which is the axis the
 # combination union exists for.
 # The yaml the wizard hands a player has to name a game Archipelago actually has. `buildYaml` carried
-# the game name as a LITERAL ("EldenRing") while the world has been "Elden Ring" for months, so every
+# the game name as a LITERAL (the retired v0.1 spelling) while the world had been renamed months
+# earlier, so every
 # emitted yaml named a game that does not exist -- Copy/Download produced a file that cannot
 # generate, and Generate & host 422'd on every click. The option KEYS were metadata-driven and fine;
 # only the three strings carrying the game name were typed, and nothing read them.

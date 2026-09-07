@@ -27,6 +27,33 @@ To add a key: add ONE ContractKey below. To swap to Bedrock compatibility: emit 
 `bedrock` and validate with profile="bedrock"; the two contracts are diffable in this one file.
 """
 
+# The AP game name. Imported, never typed (#1465): this module is the thing that MIRRORS it into
+# the client (`to_rust` emits `pub const GAME`), so a literal here would be the one copy that could
+# drift from the world's own name without any gate noticing.
+#
+# THREE LOAD PATHS, and the third is the one that bites. This file is imported as a package member
+# by the world, as a BARE MODULE by gen_contract.py (sys.path -> greenfield/eldenring) -- and BY
+# PATH, with importlib and no package and no sys.path entry, by tools/check_contract_version.py,
+# which does that deliberately so the version gate stays AP-free. Under that third form both import
+# statements below fail, and the gate exits 2 instead of the 1 it must exit to be a gate. (Measured:
+# test_gf_contract_versions::test_gate_actually_goes_red_when_the_contract_moves went red on the
+# first version of this block, which is exactly the "a gate that cannot go red" case that test
+# exists to catch.) So the last resort loads gamename.py from THIS FILE'S OWN DIRECTORY, which is
+# true in all three.
+try:
+    from .gamename import GAME
+except ImportError:  # bare module (gen_contract.py) or loaded by path (check_contract_version.py)
+    try:
+        from gamename import GAME
+    except ImportError:
+        import importlib.util as _ilu
+        import os as _os
+        _gn = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "gamename.py")
+        _spec = _ilu.spec_from_file_location("_er_gamename", _gn)
+        _mod = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_mod)
+        GAME = _mod.GAME
+
 # ---------------------------------------------------------------------------------------------------
 # SHAPES -- each corresponds to exactly one client-side parser. The python `check` mirrors the Rust
 # parser's expectation; `rust` is the generated-mirror variant + the parser it documents.
@@ -1591,6 +1618,7 @@ def to_json():
     import json
     return json.dumps({
         "shapes": {n: {"rust": SHAPES[n][1], "client_parser": SHAPES[n][2]} for n in SHAPES},
+        "game": GAME,
         "keys": [_key_json(k) for k in CONTRACT],
     }, indent=2)
 
@@ -1659,6 +1687,12 @@ def to_rust():
     # right here, and hand-fixing contract_gen.rs would have been silently undone by the next regen.
     L.append("// The apworld<->client slot_data contract, mirrored so the client validates the same shapes.")
     L.append("use serde_json::Value;")
+    L.append("")
+    L.append("/// The AP game name, mirrored from the apworld (greenfield/eldenring/gamename.py).")
+    L.append("/// The client must NOT type this string: it is the key Archipelago hands out the data")
+    L.append("/// package under and the name the handshake announces, so a client-side copy that")
+    L.append("/// drifted from the world would connect to a game the server does not have. #1465.")
+    L.append(f'pub const GAME: &str = "{GAME}";')
     L.append("")
     L.append("#[derive(Clone, Copy, Debug, PartialEq, Eq)]")
     L.append("pub enum Shape {")

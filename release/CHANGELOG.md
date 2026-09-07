@@ -58,6 +58,25 @@ selection and the regenerated `contract_gen.rs`. The gitlink rides in this same 
   key; the world only ever emitted `{}` for it, which reads identically to absent on the client.
   It is now tagged bedrock-only and no longer emitted. The live greenfield sweep wire is the
   flag-keyed `dungeonSweepFlags` beside it, untouched.
+- **Multiworld smoke: the two 2026-09-07 multiworld defects are now guarded.** A new shape (2x
+  Elden Ring + The Wind Waker + DOOM on episode 3 only) asserts from the generation log that the
+  export reservation skipped a partner still holding its own pre-fill items (#1457), and from the
+  spoiler that a partner's declared early item, if it lands in Elden Ring, sits in the hub or that
+  slot's starting region (#1456). Both guards are proven able to go red in `--self-test`; a
+  `--shape` flag runs one shape for triage.
+- **The AP game name is typed in exactly one place (#1465).** Archipelago keys the data
+  package, every yaml, the wizard and the poptracker pack on the string `Elden Ring`, and it was
+  typed at ~20 Python sites, three Rust sites and every shipped yaml. That is how the v0.1 -> v0.2
+  rename shipped three separate bugs: `er_yaml_lint` kept matching the old key (all fifteen of its
+  rules dead on every real yaml), the shipped `release/EldenRing.yaml` named a game Archipelago
+  does not have (a player's first action failed), and the wizard emitted the old spelling on every
+  Copy/Download. The name now lives in `greenfield/eldenring/gamename.py`, which imports nothing so
+  the AP-free tools can read it; the client mirrors it through the generated `contract_gen.rs` and
+  `core.rs` reads that. `test_gf_game_name_single_source` greps both repos and fails on any second
+  copy, and checks every shipped/preset/tester yaml's `game:` line against the constant. Nothing a
+  player sees changes -- the name is the same string; this is what makes the next rename one line.
+  The client half is clients PR (`single-source-game-name`), and the gitlink rides in this commit.
+
 - **Release pipeline: the next window is opened by a workflow.** `open-window.yaml` runs after
   a tag's `er-release` goes green: `tools/open_window.py` on the runner with the client
   submodule at client main, the client half pushed as its own PR, stable promoted and
