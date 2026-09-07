@@ -1,22 +1,24 @@
 # v0.6.0.1 — release blurb (draft)
 
-## What a fixpack means
+## Can I update the client during a run?
 
-Versions are now V.R.M.F. A client on the same V.R.M plays every seed that line generated, so
-you can put the v0.6.0.1 client on a room rolled with the v0.6.0 apworld and keep going; a
+Yes. Versions are now V.R.M.F, and a client on the same V.R.M plays every seed that line
+generated: put the v0.6.0.1 client on a room rolled with the v0.6.0 apworld and keep going. A
 v0.6.0 client also plays a v0.6.0.1 seed. The seed contract did not change. Everything that
 changes how a seed is generated applies to new seeds only; existing rooms keep their checks and
 their scaling.
 
 ## What you need to update
 
-- **Client:** Recommended, drop-in mid-run. It carries the key-item re-grant fix and parks short
-  deliveries instead of marking them delivered.
-- **APWorld:** Host-only. Install v0.6.0.1 when generating a new room.
-- **YAML:** No new YAML required. Existing YAMLs remain valid.
-- **Existing seed/save:** Compatible either way.
-- **Map assets:** Use the MapForGoblins build in this release; its preset turns the orange
-  progression rings off by default (F10 → Archipelago turns them back on).
+- **Client:** Optional — a v0.6.0.1 client can replace a v0.6.0 client on a running seed and
+  carries the key-item and delivery fixes; a v0.6.0 client still plays v0.6.0.1 seeds.
+- **APWorld:** Host-only — install v0.6.0.1 when generating a new room to get the scaling, fill
+  and recovered-check changes.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — new checks and the new scaling apply to newly generated
+  seeds only.
+- **Profile/assets:** Reinstall or replace — use the MapForGoblins build and preset shipped with
+  this release; the progression-rings default lives in that preset.
 
 ## Enemy scaling on auto
 

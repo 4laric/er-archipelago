@@ -10,6 +10,18 @@ V.R.M plays every seed that line generated, so a v0.6.0.1 client can be swapped 
 v0.6.0 seed, and a v0.6.0 client still plays a v0.6.0.1 seed. The seed contract is unchanged
 (`ffc0f1b5`). Everything below that changes generation applies to **new** seeds only.
 
+### What you need to update
+
+- **Client:** Optional — a v0.6.0.1 client can replace a v0.6.0 client on a running seed and
+  carries the key-item and delivery fixes; a v0.6.0 client still plays v0.6.0.1 seeds.
+- **APWorld:** Host-only — install v0.6.0.1 when generating a new room to get the scaling, fill
+  and recovered-check changes.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — new checks and the new scaling apply to newly generated
+  seeds only.
+- **Profile/assets:** Reinstall or replace — use the MapForGoblins build and preset shipped with
+  this release; the progression-rings default lives in that preset.
+
 ### Enemy scaling
 
 - **`maximum_enemy_difficulty: auto` uses the DLC rungs only where the Scadutree Blessing
@@ -83,18 +95,6 @@ v0.6.0 seed, and a v0.6.0 client still plays a v0.6.0.1 seed. The seed contract 
 - **Known issue:** received Great Runes can count for progression while remaining unequippable,
   with no Divine Tower prompt (client #316). See KNOWN-ISSUES.md and GETTING-UNSTUCK.md before
   attempting a rescue command.
-
-### What you need to update
-
-- **Client:** Recommended. A v0.6.0.1 client can replace a v0.6.0 client on a running seed; it
-  carries the key-item and delivery fixes above. A v0.6.0 client still plays v0.6.0.1 seeds.
-- **APWorld:** Host-only. Install v0.6.0.1 when generating a new room to get the scaling, fill
-  and recovered-check changes.
-- **YAML:** No new YAML required. Existing YAMLs remain valid.
-- **Existing seed/save:** Compatible. New checks and the new scaling apply to newly generated
-  seeds only.
-- **Map assets:** Use the MapForGoblins build shipped with this release; the rings default lives
-  in its preset.
 
 ## v0.6.0 — 2026-09-02
 
