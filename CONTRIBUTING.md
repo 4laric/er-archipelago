@@ -440,6 +440,8 @@ Run through this before a change lands (PR or direct):
       player-invisible version-lockstep bump carries the exact commit trailer
       `Client-Gitlink-Notes: no-player-visible-change`. An unchanged changelog is not an exemption;
       `python tools/check_release_notes.py` enforces this per bump (#709).
+- [ ] MapForGoblins fork change the release depends on? `release/MFG-VERSION.json` bumped in the
+      SAME PR (`python tools/mfg_pin.py --bump`); `python tools/mfg_pin.py --check` is green.
 - [ ] Contract change (a key added/removed/reshaped, or required-ness flipped)? `APWORLD_VERSION`
       bumped in the SAME commit, a new row appended to `release/CONTRACT-VERSIONS.tsv`, and the
       client bumped in lockstep -- `python tools/check_contract_version.py` is green (rule 15).

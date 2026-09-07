@@ -746,6 +746,22 @@ jobs:
   #                                                  already in flight), or a generated file was
   #                                                  hand-edited, which CONTRIBUTING forbids.
   # ---------------------------------------------------------------------------------------------
+  # The MapForGoblins engine pin gets the same treatment as the client gitlink: main goes red
+  # when release/MFG-VERSION.json trails the fork's head, or when the world's preset table and
+  # the fork's make_ap_ini.py disagree. v0.6.0.1: the fork merged the rings default, the packager
+  # started requiring the key, the pin still named the commit before it, and nothing was red
+  # until packaging. tools/mfg_pin.py is the whole check; no secrets, the fork is public.
+  mfg-pin-drift:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: The pinned MapForGoblins commit is the fork's head and the preset tables agree
+        run: python tools/mfg_pin.py --check
+
   client-main-drift:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
