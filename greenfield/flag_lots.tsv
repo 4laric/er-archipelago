@@ -13,7 +13,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 195	map	34140710	1	1	195	1	15	
 196	map	34150000	1	1	196	1	15	
 197	map	10180	1	1	2959	1	3	Remembrance of the Full Moon Queen
-197	map	10181	1	1	10080	1	1	
+197	map	10181	1	1	10080	1	1	Great Rune of the Unborn
 6700	map	2700	1	1	251	1	9	
 9500	map	4900	1	1	8182	1	1	Mending Rune of Perfect Order
 9502	map	4910	1	1	8183	1	1	Mending Rune of the Death-Prince
@@ -25,10 +25,13 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 60000	map	2001	1	1	1051	1	0	
 60020	map	1046380300	1	1	250	1	9	Flask of Wondrous Physick
 60100	map	100000	1	1	130	1	0	
+60101	map	10000995	1	1	2009600	1	1	
+60102	map	1034500300	1	1	2009610	1	1	
+60103	map	1044520300	1	1	2009620	1	1	
 60110	map	103900	1	1	8158	1	1	Spirit Calling Bell
 60130	map	1042371010	1	1	8590	1	1	Whetstone Knife
-60140	map	20341	1	1	8163	1	1	
-60140	map	102700	1	1	8163	1	1	
+60140	map	20341	1	1	8163	1	1	Tailoring Tools
+60140	map	102700	1	1	8163	1	1	Tailoring Tools
 60150	map	1037460001	1	1	8188	1	1	Golden Tailoring Tools
 60210	map	10010000	1	1	106	1	0	
 60220	map	18000080	1	1	100	1	0	
@@ -78,8 +81,8 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 65010	map	1045370301	1	1	11001	1	10	Greenspill Crystal Tear
 65020	map	1046380301	1	1	11002	1	10	Crimson Crystal Tear
 65030	map	1044530200	1	1	11003	1	10	
-65040	map	30205	1	1	11004	1	10	Cerulean Crystal Tear
-65050	map	30525	1	1	11005	1	10	
+65040	map	30205	1	1	11004	1	10	
+65050	map	30525	1	1	11005	1	10	Cerulean Crystal Tear
 65060	map	30320	1	1	11006	1	10	Speckled Hardtear
 65070	map	30526	1	1	11007	1	10	Crimson Bubbletear
 65080	map	30186	1	1	11008	1	10	Opaline Bubbletear
@@ -90,8 +93,8 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 65130	map	30555	1	1	11013	1	10	Thorny Cracked Tear
 65140	map	1045370300	1	1	11014	1	10	Spiked Cracked Tear
 65150	map	1049370000	1	1	11015	1	10	Windy Crystal Tear
-65160	map	30206	1	1	11016	1	10	Ruptured Crystal Tear
-65170	map	30556	1	1	11017	1	10	
+65160	map	30206	1	1	11016	1	10	
+65170	map	30556	1	1	11017	1	10	Ruptured Crystal Tear
 65180	map	30380	1	1	11018	1	10	Leaden Hardtear
 65190	map	1044530201	1	1	11019	1	10	Twiggy Cracked Tear
 65200	map	1052540790	1	1	11020	1	10	Crimsonwhorl Bubbletear
@@ -287,8 +290,8 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 400071	map	100712	1	3	960300	1		
 400072	map	100720	1	1	8134	1	1	Drawing-Room Key
 400072	map	100725	1	1	8134	1	1	Drawing-Room Key
-400073	map	100730	1	1	8127	1	12	Letter from Volcano Manor
-400074	map	100740	1	1	8132	1	12	
+400073	map	100730	1	1	8127	1	12	
+400074	map	100740	1	1	8132	1	12	Letter from Volcano Manor
 400075	map	100750	1	1	8133	1	12	Red Letter
 400076	map	100760	1	1	4800	1	5	Magma Shot
 400077	map	100770	1	2	9080000	1		Serpentbone Blade
@@ -301,7 +304,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 400089	map	100890	1	2	34090000	1		Frenzied Flame Seal
 400089	map	100891	1	1	3311	5	0	Frenzyflame Stone
 400089	map	110810	1	1	3311	3	0	Frenzyflame Stone
-400090	map	100900	1	1	8137	1	12	
+400090	map	100900	1	1	8137	1	12	Volcano Manor Invitation
 400091	map	100910	1	1	8221	1	12	
 400091	map	100911	1	4	6060	1	18	Flame, Protect Me
 400091	map	110910	1	4	6060	1	18	Flame, Protect Me
@@ -347,7 +350,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 400158	map	111501	1	3	170100	1		
 400158	map	111502	1	3	170200	1		
 400158	map	111503	1	3	170300	1		
-400159	map	101590	1	1	8199	1	1	
+400159	map	101590	1	1	8199	1	1	Discarded Palace Key
 400161	map	101610	1	1	10104	1	14	Smithing Stone [5]
 400162	map	101621	1	2	10050000	1		
 400163	map	101630	1	6	5030	1	5	
@@ -387,7 +390,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 400189	map	111812	1	3	1400100	1		
 400189	map	111813	1	3	1400200	1		
 400189	map	111814	1	3	1400300	1		
-400190	map	101900	1	1	236000	1	7	
+400190	map	101900	1	1	236000	1	7	Spirit Jellyfish Ashes
 400191	map	101910	1	1	10010	1	14	Golden Seed
 400209	map	111900	1	1	2030	1	0	Glowstone
 400209	map	112000	1	1	8917	1	1	
@@ -455,15 +458,15 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 400309	map	113011	1	1	8942	1	1	
 400309	map	113012	1	6	5040	1	16	Death Lightning
 400309	map	113013	1	3	891000	1		
-400310	map	103100	1	1	8976	1	1	
+400310	map	103100	1	1	8976	1	1	Unalloyed Gold Needle
 400311	map	103110	1	1	8978	1	12	
 400312	map	103120	1	4	3050	1	0	Glintstone Scrap
 400312	map	103121	1	1	8944	1	1	
 400312	map	113120	1	4	3050	1	0	Glintstone Scrap
 400312	map	113121	1	1	8944	1	1	
 400320	map	103200	1	4	1070	1	0	
-400321	map	103210	1	1	8196	1	1	Unalloyed Gold Needle
-400321	map	113210	1	1	8196	1	1	Unalloyed Gold Needle
+400321	map	103210	1	1	8196	1	1	
+400321	map	113210	1	1	8196	1	1	
 400323	map	103220	1	4	1250	1		
 400323	map	113200	1	4	1250	1		
 400324	map	103240	1	1	2190	1	0	
@@ -520,7 +523,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 400370	map	113700	1	1	8943	1	1	
 400370	map	113701	1	2	13010000	1		Flail
 400370	map	113702	1	3	620100	1		
-400380	map	103800	1	1	8197	1	1	
+400380	map	103800	1	1	8197	1	1	Sewer-Gaol Key
 400381	map	103824	1	2	3160000	1		Sword of Milos
 400381	map	113800	1	2	3160000	1		Sword of Milos
 400381	map	113820	1	2	3160000	1		Sword of Milos
@@ -719,10 +722,10 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 400714	map	107123	1	3	5100200	1		
 400714	map	107124	1	3	5100300	1		
 400714	map	107125	1	1	2008907	1	1	
-400720	map	107210	1	1	2001202	1	0	
+400720	map	107210	1	1	2001202	1	0	Scorpion Stew
 400721	map	107211	1	1	2007600	1	16	Watchful Spirit
-400722	map	107220	1	1	2001201	1	0	Gourmet Scorpion Stew
-400723	map	107230	1	1	2001203	1	0	
+400722	map	107220	1	1	2001201	1	0	
+400723	map	107230	1	1	2001203	1	0	Gourmet Scorpion Stew
 400730	map	107300	1	6	4401055	1		
 400730	map	107301	1	3	3000000	1		Bastard Sword
 400732	map	107310	1	2	60510000	1		
@@ -753,11 +756,11 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 400918	map	119085	1	1	8938	1	1	
 400919	map	119090	1	1	8939	1	1	
 500010	map	2010	1	1	400	1	0	
-500020	map	2020	1	1	12	1	0	
-500520	map	2520	1	1	12	1	0	
+500020	map	2020	1	1	12	1	0	s Song" Painting
+500520	map	2520	1	1	12	1	0	s Song" Painting
 510010	map	10011	1	1	2950	1	3	Remembrance of the Grafted
 510030	map	10030	1	2	2060000	1		Ornamental Straight Sword
-510030	map	10031	1	2	32090000	1		
+510030	map	10031	1	2	32090000	1		Golden Beast Crest Shield
 510040	map	10040	1	1	2952	1	3	Remembrance of the Omen King
 510060	map	10060	1	2	11110000	1		Scepter of the All-Knowing
 510060	map	10061	1	3	590000	1		
@@ -779,7 +782,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 510190	map	10191	1	2	18100000	1		
 510200	map	10200	1	1	2954	1	3	Remembrance of the Rot Goddess
 510210	map	10210	1	2	6010000	1		Godskin Stitcher
-510210	map	10211	1	1	6270	1	16	
+510210	map	10211	1	1	6270	1	16	Noble Presence
 510220	map	10220	1	1	2953	1	3	Remembrance of the Blasphemous
 510230	map	10230	1	1	2963	1	3	Elden Remembrance
 510250	map	10250	1	1	6300	1	16	Bloodflame Talons
@@ -820,7 +823,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 510810	map	10810	1	1	4380	1	5	
 510810	map	10811	1	5	11800	1		
 510820	map	10820	1	2	3150000	1		
-510820	map	10821	1	2	32050000	1		
+510820	map	10821	1	2	32050000	1		Briar Greatshield
 510830	map	10830	1	2	4080000	1		Ruins Greatsword
 510840	map	10840	1	2	21120000	1		
 510900	map	10900	1	1	2002903	1	3	Remembrance of the Twin Moon Knight
@@ -844,7 +847,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 520130	map	20130	1	1	246000	1	7	Soldjars of Fortune Ashes
 520140	map	20140	1	1	243000	1	7	Mad Pumpkin Head Ashes
 520150	map	20150	1	1	224000	1	7	Kindred of Rot Ashes
-520160	map	20160	1	1	257000	1	8	
+520160	map	20160	1	1	257000	1	8	Redmane Knight Ogha
 520160	map	20161	1	1	10010	1	14	Golden Seed
 520170	map	20170	1	2	8050000	1		Zamor Curved Sword
 520170	map	20171	1	3	1070000	1		Glintstone Kris
@@ -877,7 +880,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 520460	map	20460	1	1	4520	1	5	Crystal Torrent
 520470	map	20470	1	2	3170000	1		Golden Order Greatsword
 520480	map	20480	1	4	5040	1	16	Death Lightning
-520480	map	20481	1	1	6240	1	16	
+520480	map	20481	1	1	6240	1	16	Black Flame Ritual
 520490	map	20490	1	2	13020000	1		Family Heads
 520600	map	20600	1	2	15060000	1		Rusted Anchor
 520610	map	20610	1	4	2190	1	0	
@@ -923,9 +926,9 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 530310	map	30312	1	1	3060	10	0	Gravity Stone Fan
 530310	map	30313	1	1	3070	10	0	Gravity Stone Chunk
 530315	map	30315	1	2	23060000	1		Dragon Greatclaw
-530315	map	30316	1	2	32040000	1		
+530315	map	30316	1	2	32040000	1		Dragonclaw Shield
 530325	map	30325	1	2	10010000	1		Godskin Peeler
-530325	map	30326	1	1	6230	1	16	
+530325	map	30326	1	1	6230	1	16	Scouring Black Flame
 530335	map	30335	1	2	32080000	1		Erdtree Greatshield
 530335	map	30336	1	1	2914	1	0	
 530350	map	30350	1	2	1010000	1		Black Knife
@@ -1058,7 +1061,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 540410	map	40410	1	5	50500	1		
 540412	map	40412	1	5	40500	1		
 540414	map	40414	1	5	60700	1		
-540416	map	40416	1	1	7230	1	18	
+540416	map	40416	1	1	7230	1	18	Poison Armament
 540418	map	40418	1	5	11200	1		
 540420	map	40420	1	1	6850	1	18	Bestial Constitution
 540422	map	40422	1	1	10163	1	14	Somber Smithing Stone [4]
@@ -1159,12 +1162,12 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 580000	map	80000	1	1	8200	1	12	"Homing Instinct" Painting
 580010	map	80010	1	1	8201	1	12	"Resurrection" Painting
 580020	map	80020	1	1	8202	1	12	s Song" Painting
-580030	map	80030	1	1	8203	1	12	
+580030	map	80030	1	1	8203	1	12	"Sorcerer" Painting
 580040	map	80040	1	1	8204	1	12	"Prophecy" Painting
 580050	map	80050	1	1	8205	1	12	"Flightless Bird" Painting
-580060	map	80060	1	1	8206	1	12	
+580060	map	80060	1	1	8206	1	12	"Redmane" Painting
 580100	map	80100	1	1	2008200	1	12	"Incursion" Painting
-580110	map	80110	1	1	2008201	1	12	
+580110	map	80110	1	1	2008201	1	12	"The Sacred Tower" Painting
 580120	map	80120	1	1	2008202	1	12	"Domain of Dragons" Painting
 580300	map	80300	1	3	1901000	1		
 580310	map	80310	1	3	1030000	1		Mis\xe9ricorde
@@ -1175,7 +1178,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 580340	map	80340	1	1	237000	1	7	Warhawk Ashes
 580350	map	80350	1	1	7900	1	16	
 580360	map	80360	1	5	40600	1		
-580400	map	80400	1	2	31520000	1		
+580400	map	80400	1	2	31520000	1		Serpent Crest Shield
 580410	map	80410	1	2	34520000	1		Spiraltree Seal
 580420	map	80420	1	1	2002010	1	0	Rock Heart
 580600	map	80600	1	1	2008034	1	12	Message from Leda
@@ -1421,6 +1424,11 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 11007930	map	11000930	1	1	1430	6	0	Holy Grease
 11007940	map	11000940	1	1	1430	5	0	Holy Grease
 11007950	map	11000950	1	1	190	1	0	Rune Arc
+11007952	map	11001952	1	2	13510000	1		Golden Order Flail
+11007952	map	11001953	1	3	5340000	1		
+11007952	map	11001954	1	3	5340100	1		
+11007952	map	11001955	1	3	5340200	1		
+11007952	map	11001956	1	3	5340300	1		
 11007960	map	11000960	1	2	34070000	1		Erdtree Seal
 11007970	map	11000970	1	2	2110000	1		Coded Sword
 11007980	map	11000980	1	1	8000	1	1	Stonesword Key
@@ -1438,7 +1446,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 11007993	map	11001193	1	1	10010	1	14	Golden Seed
 11007994	map	11001020	1	4	5020	1	17	
 11007995	map	11001195	1	1	10166	1	14	Somber Smithing Stone [7]
-11007996	map	11001030	1	4	4090	1	5	
+11007996	map	11001030	1	4	4090	1	5	Crystal Burst
 11007997	map	11001040	1	2	16090000	1		Bolt of Gransax
 11007998	map	11001198	1	1	2919	1	0	
 11057000	map	11050000	1	1	6424	1	18	Erdtree Heal
@@ -2029,7 +2037,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 14007880	map	14000880	1	1	4021	1	5	Comet
 14007890	map	14000890	1	4	3000	1	0	
 14007910	map	14000910	1	3	1902000	1		
-14007920	map	14000920	1	1	4130	1	17	
+14007920	map	14000920	1	1	4130	1	17	Terra Magica
 14007930	map	14000930	1	1	8174	1	1	
 14007940	map	14000940	1	4	3070	1	0	Gravity Stone Chunk
 14007970	map	14000970	1	2	43060000	1		Full Moon Crossbow
@@ -2233,12 +2241,14 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 20007030	map	20000030	1	1	900	1	0	Neutralizing Boluses
 20007040	map	20000040	1	1	2020004	3	2	Knot Resin
 20007050	map	20000050	1	1	930	1	0	Stimulating Boluses
-20007060	map	20000060	1	1	10162	1	14	Somber Smithing Stone [3]
+20007060	map	20000060	1	1	10164	1	14	Somber Smithing Stone [5]
 20007070	map	20000070	1	1	2001400	1	0	Messmerfire Grease
 20007080	map	20000080	1	1	2020006	3	2	Black Pyrefly
 20007090	map	20000090	1	1	2001220	1	0	Silver Horn Tender
 20007100	map	20000100	1	1	2001220	1	0	Silver Horn Tender
-20007110	map	20000110	1	1	10163	1	14	Somber Smithing Stone [4]
+20007110	map	20000110	1	1	2001220	2	0	Silver Horn Tender
+20007110	map	20000111	1	1	2001230	2	0	Golden Horn Tender
+20007110	map	20000112	1	1	10166	1	14	Somber Smithing Stone [7]
 20007120	map	20000120	1	1	2020001	1	2	Rada Fruit
 20007130	map	20000130	1	1	2020001	1	2	Rada Fruit
 20007140	map	20000140	1	1	2020001	1	2	Rada Fruit
@@ -2248,11 +2258,11 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 20007180	map	20000180	1	1	2020001	1	2	Rada Fruit
 20007190	map	20000190	1	1	2020001	1	2	Rada Fruit
 20007200	map	20000200	1	1	2001400	1	0	Messmerfire Grease
-20007210	map	20000210	1	1	10101	2	14	Smithing Stone [2]
+20007210	map	20000210	1	1	10105	4	14	Smithing Stone [6]
 20007220	map	20000220	1	1	15340	8	2	Thin Beast Bones
 20007230	map	20000230	1	1	15000	2	2	Sliver of Meat
 20007240	map	20000240	1	1	2002951	1	0	Broken Rune
-20007250	map	20000250	1	1	10102	1	14	Smithing Stone [3]
+20007250	map	20000250	1	1	10104	2	14	Smithing Stone [5]
 20007260	map	20000260	1	1	1720	8	0	Poisonbone Dart
 20007270	map	20000270	1	1	900	1	0	Neutralizing Boluses
 20007280	map	20000280	1	2	50020000	8		Serpent Arrow
@@ -2280,7 +2290,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 20007500	map	20000500	1	1	2020003	6	2	Whiteflesh Mushroom
 20007510	map	20000510	1	1	2008004	1	1	Well Depths Key
 20007520	map	20000520	1	1	15060	4	2	Flight Pinion
-20007530	map	20000530	1	1	10101	3	14	Smithing Stone [2]
+20007530	map	20000530	1	1	10105	2	14	Smithing Stone [6]
 20007540	map	20000540	1	1	2020001	1	2	Rada Fruit
 20007550	map	20000550	1	1	2020001	1	2	Rada Fruit
 20007560	map	20000560	1	1	2020001	1	2	Rada Fruit
@@ -2298,7 +2308,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 20007680	map	20000680	1	1	2002951	1	0	Broken Rune
 20007690	map	20000690	1	1	2020006	4	2	Black Pyrefly
 20007700	map	20000700	1	1	2010100	1	14	Revered Spirit Ash
-20007710	map	20000710	1	1	10160	1	14	Somber Smithing Stone [1]
+20007710	map	20000710	1	1	10164	1	14	Somber Smithing Stone [5]
 20007730	map	20000730	1	1	2020006	3	2	Black Pyrefly
 20007740	map	20000740	1	1	2020001	1	2	Rada Fruit
 20007750	map	20000750	1	1	2020001	1	2	Rada Fruit
@@ -2318,7 +2328,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 20017010	map	20010010	1	1	2020001	1	2	Rada Fruit
 20017020	map	20010020	1	1	2020001	1	2	Rada Fruit
 20017030	map	20010030	1	1	2001400	1	0	Messmerfire Grease
-20017040	map	20010040	1	1	10164	1	14	Somber Smithing Stone [5]
+20017040	map	20010040	1	1	10167	1	14	Somber Smithing Stone [8]
 20017050	map	20010050	1	1	2020001	1	2	Rada Fruit
 20017060	map	20010060	1	1	2020001	1	2	Rada Fruit
 20017070	map	20010070	1	1	2020001	1	2	Rada Fruit
@@ -2352,7 +2362,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 20017350	map	20010350	1	1	2010000	1	14	Scadutree Fragment
 20017360	map	20010360	1	1	2020001	1	2	Rada Fruit
 20017370	map	20010370	1	1	2020001	1	2	Rada Fruit
-20017380	map	20010380	1	1	10107	2	14	Smithing Stone [8]
+20017380	map	20010380	1	1	10107	5	14	Smithing Stone [8]
 20017390	map	20010390	1	1	2020001	1	2	Rada Fruit
 20017400	map	20010400	1	1	2010100	1	14	Revered Spirit Ash
 20017410	map	20010410	1	1	2001220	1	0	Silver Horn Tender
@@ -2363,7 +2373,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 20017460	map	20010460	1	1	2020001	1	2	Rada Fruit
 20017470	map	20010470	1	1	2010000	1	14	Scadutree Fragment
 20017480	map	20010480	1	1	2003310	2	0	Sunwarmth Stone
-20017490	map	20010490	1	1	10165	1	14	Somber Smithing Stone [6]
+20017490	map	20010490	1	1	10166	1	14	Somber Smithing Stone [7]
 20017500	map	20010500	1	3	5230000	1		
 20017510	map	20010510	1	1	2020001	1	2	Rada Fruit
 20017520	map	20010520	1	1	10168	1	14	Somber Ancient Dragon Smithing Stone
@@ -2377,9 +2387,9 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 20017600	map	20010600	1	1	2001130	2	0	Fireproof Pickled Liver
 20017610	map	20010610	1	1	2020001	1	2	Rada Fruit
 20017620	map	20010620	1	1	2001150	1	0	Holyproof Pickled Liver
-20017630	map	20010630	1	1	10107	2	14	Smithing Stone [8]
+20017630	map	20010630	1	1	10107	3	14	Smithing Stone [8]
 20017640	map	20010640	1	2	52080000	10		
-20017650	map	20010650	1	1	10164	1	14	Somber Smithing Stone [5]
+20017650	map	20010650	1	1	10167	1	14	Somber Smithing Stone [8]
 20017660	map	20010660	1	1	2001130	1	0	Fireproof Pickled Liver
 20017670	map	20010670	1	1	2020001	1	2	Rada Fruit
 20017680	map	20010680	1	1	2020001	1	2	Rada Fruit
@@ -2388,23 +2398,23 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 20017981	map	20011981	1	3	5272000	1		
 20017991	map	20011991	1	2	8520000	1		
 21007000	map	21000000	1	1	2001600	1	0	Festive Grease
-21007010	map	21000010	1	1	10100	6	14	Smithing Stone [1]
+21007010	map	21000010	1	1	10106	3	14	Smithing Stone [7]
 21007020	map	21000020	1	2	1500000	1		Main-gauche
 21007030	map	21000030	1	1	2020002	7	2	Redflesh Mushroom
-21007040	map	21000040	1	1	2003170	1	0	
+21007040	map	21000040	1	1	2003170	1	0	Golden Vow
 21007050	map	21000050	1	1	2002957	1	0	Shadow Realm Rune [6]
-21007060	map	21000060	1	1	10104	5	14	Smithing Stone [5]
+21007060	map	21000060	1	1	10107	3	14	Smithing Stone [8]
 21007070	map	21000070	1	4	8200	1	12	"Homing Instinct" Painting
 21007080	map	21000080	1	1	10107	2	14	Smithing Stone [8]
-21007090	map	21000090	1	1	2003170	3	0	
-21007100	map	21000100	1	1	10100	4	14	Smithing Stone [1]
+21007090	map	21000090	1	1	2003170	3	0	Golden Vow
+21007100	map	21000100	1	1	10107	2	14	Smithing Stone [8]
 21007110	map	21000110	1	1	2001150	1	0	Holyproof Pickled Liver
 21007120	map	21000120	1	1	2001400	1	0	Messmerfire Grease
 21007130	map	21000130	1	1	2001530	1	0	Drawstring Golden Grease
 21007140	map	21000140	1	1	10107	3	14	Smithing Stone [8]
 21007160	map	21000160	1	1	10167	1	14	Somber Smithing Stone [8]
 21007170	map	21000170	1	1	1710	8	0	Bone Dart
-21007180	map	21000180	1	1	10101	8	14	Smithing Stone [2]
+21007180	map	21000180	1	1	10106	2	14	Smithing Stone [7]
 21007190	map	21000190	1	1	1190	1	0	Silver-Pickled Fowl Foot
 21007200	map	21000200	1	1	2020001	1	2	Rada Fruit
 21007210	map	21000210	1	1	2020001	1	2	Rada Fruit
@@ -2441,14 +2451,14 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 21007520	map	21000520	1	1	2020001	1	2	Rada Fruit
 21007530	map	21000530	1	1	2020001	1	2	Rada Fruit
 21007540	map	21000540	1	1	2020001	1	2	Rada Fruit
-21007550	map	21000550	1	1	10164	1	14	Somber Smithing Stone [5]
+21007550	map	21000550	1	1	10200	1	14	Somber Smithing Stone [9]
 21007560	map	21000560	1	1	2001170	1	0	Well-Pickled Turtle Neck
 21007570	map	21000570	1	1	15130	2	2	Crab Eggs
-21007580	map	21000580	1	1	10910	1	14	Ghost Glovewort [1]
-21007590	map	21000590	1	1	10164	1	14	Somber Smithing Stone [5]
+21007580	map	21000580	1	1	10916	1	14	Ghost Glovewort [7]
+21007590	map	21000590	1	1	10166	1	14	Somber Smithing Stone [7]
 21007600	map	21000600	1	1	2002956	1	0	Shadow Realm Rune [5]
 21007610	map	21000610	1	1	1730	6	0	Kukri
-21007620	map	21000620	1	1	10103	4	14	Smithing Stone [4]
+21007620	map	21000620	1	1	10107	5	14	Smithing Stone [8]
 21007630	map	21000630	1	1	15130	2	2	Crab Eggs
 21007640	map	21000640	1	1	2020009	3	2	Shadow Sunflower
 21007650	map	21000650	1	2	34510000	1		
@@ -2497,7 +2507,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 21017060	map	21010060	1	1	10107	5	14	Smithing Stone [8]
 21017070	map	21010070	1	1	2020006	4	2	Black Pyrefly
 21017080	map	21010080	1	1	2015000	4	2	Beast Horn
-21017090	map	21010090	1	1	10104	3	14	Smithing Stone [5]
+21017090	map	21010090	1	1	10106	4	14	Smithing Stone [7]
 21017100	map	21010100	1	4	7110	1		
 21017110	map	21010110	1	1	2015000	1	2	Beast Horn
 21017120	map	21010120	1	4	7130	1		
@@ -2527,9 +2537,9 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 21017370	map	21010370	1	1	2020001	1	2	Rada Fruit
 21017380	map	21010380	1	1	2020001	1	2	Rada Fruit
 21017390	map	21010390	1	1	2020001	1	2	Rada Fruit
-21017400	map	21010400	1	1	10105	2	14	Smithing Stone [6]
+21017400	map	21010400	1	1	10106	4	14	Smithing Stone [7]
 21017410	map	21010410	1	1	2003180	2	0	Fire Coil
-21017420	map	21010420	1	1	10106	3	14	Smithing Stone [7]
+21017420	map	21010420	1	1	10107	3	14	Smithing Stone [8]
 21017430	map	21010430	1	1	1190	1	0	Silver-Pickled Fowl Foot
 21017440	map	21010440	1	1	2015010	1	2	Spirit Calculus
 21017450	map	21010450	1	1	15000	2	2	Sliver of Meat
@@ -2551,7 +2561,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 21017610	map	21010610	1	1	2020007	3	2	Glintslab Firefly
 21017620	map	21010620	1	2	62510000	1		Carian Thrusting Shield
 21017630	map	21010630	1	1	2003180	3	0	Fire Coil
-21017640	map	21010640	1	1	10912	1	14	Ghost Glovewort [3]
+21017640	map	21010640	1	1	10916	1	14	Ghost Glovewort [7]
 21017650	map	21010650	1	1	2007800	1	16	Fire Serpent
 21017660	map	21010660	1	1	2020009	6	2	Shadow Sunflower
 21017670	map	21010670	1	1	2020031	1	2	Blessed Bone Shard
@@ -2563,7 +2573,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 21017730	map	21010730	1	1	2020001	1	2	Rada Fruit
 21017740	map	21010740	1	1	2020001	1	2	Rada Fruit
 21017750	map	21010750	1	1	15340	7	2	Thin Beast Bones
-21017760	map	21010760	1	1	10106	4	14	Smithing Stone [7]
+21017760	map	21010760	1	1	10107	4	14	Smithing Stone [8]
 21017770	map	21010770	1	1	10167	1	14	Somber Smithing Stone [8]
 21017780	map	21010780	1	1	2006690	1	16	Wrath from Afar
 21017790	map	21010790	1	1	2002959	1	0	Rune of an Unsung Hero
@@ -2607,13 +2617,13 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 21027170	map	21020170	1	1	2020001	1	2	Rada Fruit
 21027180	map	21020180	1	1	2020001	1	2	Rada Fruit
 21027190	map	21020190	1	1	2020001	1	2	Rada Fruit
-21027200	map	21020200	1	1	10102	1	14	Smithing Stone [3]
+21027200	map	21020200	1	1	10106	3	14	Smithing Stone [7]
 21027210	map	21020210	1	1	15010	3	2	Beast Liver
 21027220	map	21020220	1	1	15030	3	2	Beast Blood
-21027230	map	21020230	1	1	10103	2	14	Smithing Stone [4]
+21027230	map	21020230	1	1	10106	3	14	Smithing Stone [7]
 21027240	map	21020240	1	1	2020002	5	2	Redflesh Mushroom
 21027250	map	21020250	1	1	15340	8	2	Thin Beast Bones
-21027260	map	21020260	1	1	10161	1	14	Somber Smithing Stone [2]
+21027260	map	21020260	1	1	10165	1	14	Somber Smithing Stone [6]
 21027270	map	21020270	1	1	10200	1	14	Somber Smithing Stone [9]
 21027280	map	21020280	1	1	2020001	1	2	Rada Fruit
 21027290	map	21020290	1	1	2020001	1	2	Rada Fruit
@@ -2631,7 +2641,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 21027985	enemy	575098701	1	1	15410	1	2	Living Jar Shard
 21027985	enemy	575098702	1	1	1235	1	0	Raw Meat Dumpling
 21027991	map	21021991	1	3	5184000	1		
-21027991	map	21021992	1	1	2007810	1	16	
+21027991	map	21021992	1	1	2007810	1	16	Rain of Fire
 22007000	map	22000000	1	1	2010000	1	14	Scadutree Fragment
 22007100	map	22000100	1	1	2020026	5	2	Congealed Putrescence
 22007110	map	22000110	1	2	50040000	10		
@@ -2639,14 +2649,14 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 22007130	map	22000130	1	1	2002954	1	0	Shadow Realm Rune [3]
 22007140	map	22000140	1	1	10907	1	14	Grave Glovewort [8]
 22007150	map	22000150	1	2	2510000	1		Velvet Sword of St. Trina
-22007160	map	22000160	1	1	10902	1	14	Grave Glovewort [3]
-22007170	map	22000170	1	1	10901	1	14	Grave Glovewort [2]
-22007190	map	22000190	1	1	10105	2	14	Smithing Stone [6]
+22007160	map	22000160	1	1	10907	1	14	Grave Glovewort [8]
+22007170	map	22000170	1	1	10904	1	14	Grave Glovewort [5]
+22007190	map	22000190	1	1	10105	3	14	Smithing Stone [6]
 22007200	map	22000200	1	1	10906	1	14	Grave Glovewort [7]
 22007210	map	22000210	1	1	2006210	1	5	Mass of Putrescence
 22007220	map	22000220	1	1	2020026	2	2	Congealed Putrescence
 22007230	map	22000230	1	1	2020005	3	2	Dewgem
-22007240	map	22000240	1	1	10905	1	14	Grave Glovewort [6]
+22007240	map	22000240	1	1	10906	1	14	Grave Glovewort [7]
 22007900	map	22000900	1	1	2006710	1	16	Multilayered Ring of Light
 22007910	enemy	559100701	1	1	10107	7	14	Smithing Stone [8]
 22007910	enemy	559100702	1	1	2020026	5	2	Congealed Putrescence
@@ -3165,15 +3175,15 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 39207970	enemy	420126020	1	1	2905	1	0	Golden Rune [6]
 39207980	enemy	420126010	1	1	2905	1	0	Golden Rune [6]
 39207990	enemy	420126000	1	1	2905	1	0	Golden Rune [6]
-40007000	map	40000000	1	1	10900	1	14	Grave Glovewort [1]
+40007000	map	40000000	1	1	10904	1	14	Grave Glovewort [5]
 40007020	map	40000020	1	1	2020004	3	2	Knot Resin
 40007040	map	40000040	1	1	2001410	2	0	Dragonbolt Grease
-40007050	map	40000050	1	1	10901	1	14	Grave Glovewort [2]
+40007050	map	40000050	1	1	10905	1	14	Grave Glovewort [6]
 40007060	map	40000060	1	1	10000	1	0	Glass Shard
 40007070	map	40000070	1	1	2002951	1	0	Broken Rune
-40007080	map	40000080	1	1	10913	1	14	Ghost Glovewort [4]
+40007080	map	40000080	1	1	10914	1	14	Ghost Glovewort [5]
 40007090	map	40000090	1	1	2006920	1	16	Electrocharge
-40007100	map	40000100	1	1	10914	1	14	Ghost Glovewort [5]
+40007100	map	40000100	1	1	10915	1	14	Ghost Glovewort [6]
 40007110	map	40000110	1	1	10906	1	14	Grave Glovewort [7]
 40007120	map	40000120	1	1	2020001	4	2	Rada Fruit
 40007800	map	40000800	1	1	10919	1	14	Great Ghost Glovewort
@@ -3181,25 +3191,25 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 40007820	map	40000820	1	1	2002954	1	0	Shadow Realm Rune [3]
 40007900	map	40000900	1	5	413000	1		
 40017000	map	40010000	1	1	950	3	0	Rejuvenating Boluses
-40017010	map	40010010	1	1	10902	1	14	Grave Glovewort [3]
+40017010	map	40010010	1	1	10906	1	14	Grave Glovewort [7]
 40017020	map	40010020	1	1	2020002	5	2	Redflesh Mushroom
-40017030	map	40010030	1	1	10914	1	14	Ghost Glovewort [5]
-40017040	map	40010040	1	1	10912	1	14	Ghost Glovewort [3]
+40017030	map	40010030	1	1	10916	1	14	Ghost Glovewort [7]
+40017040	map	40010040	1	1	10915	1	14	Ghost Glovewort [6]
 40017050	map	40010050	1	1	2209000	1	8	Black Knight Captain Huw
-40017060	map	40010060	1	1	10915	1	14	Ghost Glovewort [6]
+40017060	map	40010060	1	1	10918	1	14	Ghost Glovewort [9]
 40017070	map	40010070	1	3	5330000	1		
 40017080	map	40010080	1	1	2006900	1	16	
 40017090	map	40010090	1	1	2020008	6	2	Yellow Fulgurbloom
-40017100	map	40010100	1	1	10903	1	14	Grave Glovewort [4]
+40017100	map	40010100	1	1	10906	1	14	Grave Glovewort [7]
 40017110	map	40010110	1	1	950	2	0	Rejuvenating Boluses
 40017120	map	40010120	1	1	10919	1	14	Great Ghost Glovewort
 40017130	map	40010130	1	1	10917	1	14	Ghost Glovewort [8]
 40017140	map	40010140	1	1	2002955	1	0	Shadow Realm Rune [4]
 40017150	map	40010150	1	1	2002951	1	0	Broken Rune
-40027000	map	40020000	1	1	10904	1	14	Grave Glovewort [5]
-40027010	map	40020010	1	1	10900	1	14	Grave Glovewort [1]
+40027000	map	40020000	1	1	10905	1	14	Grave Glovewort [6]
+40027010	map	40020010	1	1	10906	1	14	Grave Glovewort [7]
 40027020	map	40020020	1	4	7020	1	16	Dragonice
-40027100	map	40020100	1	1	10911	1	14	Ghost Glovewort [2]
+40027100	map	40020100	1	1	10916	1	14	Ghost Glovewort [7]
 40027110	map	40020110	1	1	15340	4	2	Thin Beast Bones
 40027120	map	40020120	1	1	2002956	1	0	Shadow Realm Rune [5]
 40027130	map	40020130	1	3	5200000	1		
@@ -3208,7 +3218,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 40027130	map	40020133	1	3	5200300	1		
 40027140	map	40020140	1	1	10918	1	14	Ghost Glovewort [9]
 40027200	map	40020200	1	1	10917	1	14	Ghost Glovewort [8]
-40027210	map	40020210	1	1	10913	1	14	Ghost Glovewort [4]
+40027210	map	40020210	1	1	10919	1	14	Great Ghost Glovewort
 40027220	map	40020220	1	1	2210000	1	7	Bigmouth Imp Ashes
 40027900	enemy	587200700	1	1	10919	1	14	Great Ghost Glovewort
 41007000	map	41000000	1	1	2020013	6	2	Frozen Maggot
@@ -3218,10 +3228,10 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 41007110	map	41000110	1	1	920	1	0	Thawfrost Boluses
 41007120	map	41000120	1	1	2002954	1	0	Shadow Realm Rune [3]
 41007130	map	41000130	1	1	10000	1	0	Glass Shard
-41007200	map	41000200	1	1	10105	2	14	Smithing Stone [6]
+41007200	map	41000200	1	1	10105	3	14	Smithing Stone [6]
 41007210	map	41000210	1	1	2001700	1	0	Innard Meat
 41007250	map	41000250	1	3	5320000	1		
-41007260	map	41000260	1	1	10102	2	14	Smithing Stone [3]
+41007260	map	41000260	1	1	10105	4	14	Smithing Stone [6]
 41007270	map	41000270	1	1	10070	1	1	Lost Ashes of War
 41007970	enemy	575080751	1	1	15410	1	2	Living Jar Shard
 41007970	enemy	575080752	1	1	1235	1	0	Raw Meat Dumpling
@@ -3239,7 +3249,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 41017020	map	41010020	1	4	7040	1	16	Glintstone Breath
 41017030	map	41010030	1	1	2020013	8	2	Frozen Maggot
 41017100	map	41010100	1	1	2002951	1	0	Broken Rune
-41017110	map	41010110	1	1	10101	4	14	Smithing Stone [2]
+41017110	map	41010110	1	1	10107	2	14	Smithing Stone [8]
 41017120	map	41010120	1	1	1120	1	0	Invigorating Cured Meat
 41017130	map	41010130	1	1	2002951	1	0	Broken Rune
 41017200	map	41010200	1	1	2002951	1	0	Broken Rune
@@ -3280,34 +3290,34 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 41027995	enemy	575084702	1	1	1235	1	0	Raw Meat Dumpling
 42007000	map	42000000	1	2	12510000	1		Anvil Hammer
 42007000	map	42000001	1	1	10140	1	14	Ancient Dragon Smithing Stone
-42007100	map	42000100	1	1	10104	4	14	Smithing Stone [5]
-42007110	map	42000110	1	1	10101	7	14	Smithing Stone [2]
-42007130	map	42000130	1	1	10103	2	14	Smithing Stone [4]
+42007100	map	42000100	1	1	10105	6	14	Smithing Stone [6]
+42007110	map	42000110	1	1	10104	4	14	Smithing Stone [5]
+42007130	map	42000130	1	1	10106	5	14	Smithing Stone [7]
 42007140	map	42000140	1	1	10106	3	14	Smithing Stone [7]
 42007150	map	42000150	1	2	63500000	1		Smithscript Dagger
-42007160	map	42000160	1	1	10165	1	14	Somber Smithing Stone [6]
-42007170	map	42000170	1	1	10161	1	14	Somber Smithing Stone [2]
+42007160	map	42000160	1	1	10166	1	14	Somber Smithing Stone [7]
+42007170	map	42000170	1	1	10164	1	14	Somber Smithing Stone [5]
 42007180	map	42000180	1	1	10000	1	0	Glass Shard
 42027000	map	42020000	1	2	4500000	1		Ancient Meteoric Ore Greatsword
 42027000	map	42020001	1	1	10140	1	14	Ancient Dragon Smithing Stone
 42027010	map	42020010	1	1	10000	1	0	Glass Shard
-42027020	map	42020020	1	1	10166	1	14	Somber Smithing Stone [7]
+42027020	map	42020020	1	1	10167	1	14	Somber Smithing Stone [8]
 42027030	map	42020030	1	4	8110	1		
 42027040	map	42020040	1	1	10167	1	14	Somber Smithing Stone [8]
 42027050	map	42020050	1	2	16500000	1		Smithscript Spear
 42027060	map	42020060	1	2	64510000	1		Smithscript Cirque
-42027070	map	42020070	1	1	10102	5	14	Smithing Stone [3]
-42027080	map	42020080	1	1	10107	2	14	Smithing Stone [8]
+42027070	map	42020070	1	1	10105	5	14	Smithing Stone [6]
+42027080	map	42020080	1	1	10107	3	14	Smithing Stone [8]
 42037000	map	42030000	1	1	2212000	1	8	Taylew the Golem Smith
 42037000	map	42030001	1	1	10140	1	14	Ancient Dragon Smithing Stone
 42037100	map	42030100	1	2	14500000	1		Smithscript Axe
 42037110	map	42030110	1	1	10140	1	14	Ancient Dragon Smithing Stone
 42037120	map	42030120	1	2	30510000	1		Smithscript Shield
-42037130	map	42030130	1	1	10162	1	14	Somber Smithing Stone [3]
+42037130	map	42030130	1	1	10200	1	14	Somber Smithing Stone [9]
 42037140	map	42030140	1	1	10167	1	14	Somber Smithing Stone [8]
 42037150	map	42030150	1	1	2002954	1	0	Shadow Realm Rune [3]
 42037160	map	42030160	1	2	12500000	1		Smithscript Greathammer
-42037170	map	42030170	1	1	10103	5	14	Smithing Stone [4]
+42037170	map	42030170	1	1	10107	2	14	Smithing Stone [8]
 42037180	map	42030180	1	1	10107	3	14	Smithing Stone [8]
 43007000	map	43000000	1	1	15000	3	2	Sliver of Meat
 43007010	map	43000010	1	1	15341	2	2	Hefty Beast Bone
@@ -3315,11 +3325,11 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 43007030	map	43000030	1	1	2020012	6	2	Sanguine Amaryllis
 43007040	map	43000040	1	1	2001210	3	0	Sacred Bloody Flesh
 43007050	map	43000050	1	1	2001210	1	0	Sacred Bloody Flesh
-43017000	map	43010000	1	1	10100	6	14	Smithing Stone [1]
+43017000	map	43010000	1	1	10106	4	14	Smithing Stone [7]
 43017010	map	43010010	1	1	2002953	1	0	Shadow Realm Rune [2]
 43017020	map	43010020	1	1	2020004	4	2	Knot Resin
-43017030	map	43010030	1	1	10104	2	14	Smithing Stone [5]
-43017040	map	43010040	1	1	10103	2	14	Smithing Stone [4]
+43017030	map	43010030	1	1	10104	3	14	Smithing Stone [5]
+43017040	map	43010040	1	1	10106	3	14	Smithing Stone [7]
 43017900	map	43010900	1	1	10060	1	1	Dragon Heart
 43017900	map	43010901	1	1	10140	1	14	Ancient Dragon Smithing Stone
 53000700	enemy	70010000	1	1	386	1		
@@ -3692,7 +3702,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 1038457000	map	1038450000	1	1	20802	8	2	Smoldering Butterfly
 1038457010	map	1038450010	1	1	6040	1	18	Flame, Cleanse Me
 1038457020	map	1038450020	1	1	10103	1	14	Smithing Stone [4]
-1038457500	enemy	438100012	2	1	4900	1	5	
+1038457500	enemy	438100012	2	1	4900	1	5	Briars of Sin
 1038467000	map	1038460000	1	1	1310	1	0	Immunizing White Cured Meat
 1038467400	map	1038460400	1	1	2900	1	0	Golden Rune [1]
 1038467990	enemy	446002011	1	1	20802	5	2	Smoldering Butterfly
@@ -3741,7 +3751,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 1038547010	map	1038540010	1	2	53020000	5		Explosive Greatbolt
 1038547020	map	1038540020	1	1	2907	1	0	Golden Rune [8]
 1038547030	map	1038540030	1	2	50010000	10		Fire Arrow
-1038547050	map	1038540050	1	1	6600	1	18	Golden Vow
+1038547050	map	1038540050	1	1	6600	1	18	
 1038547060	map	1038540060	1	1	20691	2	2	Arteria Leaf
 1038547070	map	1038540070	1	1	1700	6	0	Throwing Dagger
 1038547080	map	1038540080	1	1	15030	1	2	Beast Blood
@@ -3786,7 +3796,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 1039447990	enemy	449020012	1	1	1235	1	0	Raw Meat Dumpling
 1039487000	map	1039480000	1	1	1740	3	0	Crystal Dart
 1039487100	map	1039480100	1	1	4080	1	5	Cannon of Haima
-1039487100	map	1039480101	1	1	4120	1	5	
+1039487100	map	1039480101	1	1	4120	1	5	Gavel of Haima
 1039507000	map	1039500000	1	1	15341	2	2	Hefty Beast Bone
 1039507010	map	1039500010	1	1	8000	1	1	Stonesword Key
 1039507020	map	1039500020	1	1	2903	1	0	Golden Rune [4]
@@ -3807,7 +3817,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 1039537030	map	1039530030	1	1	20653	1	2	
 1039537040	map	1039530040	1	1	20800	1	2	Nascent Butterfly
 1039537050	map	1039530050	1	1	4660	1	17	Unseen Blade
-1039537050	map	1039530051	1	1	4670	1	17	
+1039537050	map	1039530051	1	1	4670	1	17	Unseen Form
 1039537060	map	1039530060	1	1	15120	5	2	Slumbering Egg
 1039537070	map	1039530070	1	1	2902	1	0	Golden Rune [3]
 1039537080	map	1039530080	1	1	8660	1	12	Mirage Riddle
@@ -4040,7 +4050,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 1043347050	map	1043340050	1	1	15400	5	2	String
 1043347100	map	1043340100	1	2	31170000	1		Shield of the Guilty
 1043347400	map	1043340400	1	2	33060000	1		
-1043347400	map	1043340401	1	1	4090	1	5	
+1043347400	map	1043340401	1	1	4090	1	5	Crystal Burst
 1043357000	map	1043350000	1	1	15130	1	2	Crab Eggs
 1043357010	map	1043350010	1	1	2900	1	0	Golden Rune [1]
 1043357030	map	1043350030	1	1	15120	1	2	Slumbering Egg
@@ -4249,10 +4259,10 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 1047407080	map	1047400080	1	1	20802	3	2	Smoldering Butterfly
 1047407900	map	1047400900	1	1	190	1	0	Rune Arc
 1047407910	map	1047400910	1	2	2190000	1		Sword of St. Trina
-1047427000	map	1047420000	1	2	62520000	1		Ritual Thrusting Shield
 1047407920	map	1047400920	1	2	4000000	1		Greatsword
 1047407990	enemy	446040031	1	1	20802	5	2	Smoldering Butterfly
 1047407990	enemy	446040032	1	1	20682	3	2	Fire Blossom
+1047427000	map	1047420000	1	2	62520000	1		Ritual Thrusting Shield
 1047517000	map	1047510000	1	1	1500	2	0	Drawstring Fire Grease
 1047517010	map	1047510010	1	1	2906	1	0	Golden Rune [7]
 1047517300	map	1047510300	1	1	1480	1	0	Dragonwound Grease
@@ -4347,7 +4357,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 1048577910	map	1048570910	1	1	10918	1	14	Ghost Glovewort [9]
 1048577920	map	1048570920	1	1	10918	1	14	Ghost Glovewort [9]
 1048577930	map	1048570930	1	1	10918	1	14	Ghost Glovewort [9]
-1048577990	enemy	340052100	1	3	2000300	1	0	
+1048577990	enemy	340052100	1	3	2000300	1	0	Hefty Fire Pot
 1048577990	enemy	340052101	1	2	23150000	1		Rotten Greataxe
 1048587300	map	1048580300	1	1	2912	1	0	Golden Rune [13]
 1049367000	map	1049360000	1	1	20802	3	2	Smoldering Butterfly
@@ -4576,6 +4586,11 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 1051577810	map	1051570811	1	1	15030	1	2	Beast Blood
 1051577810	map	1051570812	1	1	15040	2	2	Old Fang
 1051587800	map	1051580800	1	1	8175	1	1	Haligtree Secret Medallion (Left)
+1052397500	map	1052390500	1	2	3560000	1		
+1052397500	map	1052390501	1	3	5360000	1		
+1052397500	map	1052390502	1	3	5360100	1		
+1052397500	map	1052390503	1	3	5360200	1		
+1052397500	map	1052390504	1	3	5360300	1		
 1052417000	map	1052410000	1	1	2907	1	0	Golden Rune [8]
 1052417010	map	1052410010	1	1	2905	1	0	Golden Rune [6]
 1052417020	map	1052410020	1	1	2902	1	0	Golden Rune [3]
@@ -4622,7 +4637,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 1054557000	map	1054550000	1	1	10106	3	14	Smithing Stone [7]
 1054557310	map	1054550310	1	1	8957	1	1	
 1054557800	map	1054550800	1	1	10020	1	14	Sacred Tear
-2044417000	map	2044410000	1	1	10913	1	14	Ghost Glovewort [4]
+2044417000	map	2044410000	1	1	10914	1	14	Ghost Glovewort [5]
 2044417995	enemy	524080714	1	1	2010000	1	14	Scadutree Fragment
 2044417995	enemy	524080715	1	1	2001220	1	0	Silver Horn Tender
 2044457000	map	2044450000	1	1	2010000	1	14	Scadutree Fragment
@@ -4636,13 +4651,13 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2044467030	map	2044460030	1	1	2002955	1	0	Shadow Realm Rune [4]
 2044467040	map	2044460040	1	1	2007210	1	16	Pest-Thread Spears
 2044467050	map	2044460050	1	1	2020004	3	2	Knot Resin
-2044467060	map	2044460060	1	1	10101	8	14	Smithing Stone [2]
+2044467060	map	2044460060	1	1	10107	6	14	Smithing Stone [8]
 2044467070	map	2044460070	1	1	2015040	4	2	Fly Mold
 2044467080	map	2044460080	1	1	2020011	6	2	Scarlet Bud
 2044467110	map	2044460110	1	1	2007740	1	16	Divine Bird Feathers
 2044467950	enemy	524094744	1	1	2010100	1	14	Revered Spirit Ash
 2044467950	enemy	524094745	1	1	2001220	1	0	Silver Horn Tender
-2044477000	map	2044470000	1	1	10911	1	14	Ghost Glovewort [2]
+2044477000	map	2044470000	1	1	10915	1	14	Ghost Glovewort [6]
 2044477010	map	2044470010	1	3	5190000	1		
 2044477010	map	2044470011	1	3	5190100	1		
 2044477010	map	2044470012	1	3	5190200	1		
@@ -4650,20 +4665,21 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2044477020	map	2044470020	1	1	15030	2	2	Beast Blood
 2044477030	map	2044470030	1	1	15020	3	2	Lump of Flesh
 2044477040	map	2044470040	1	1	1700	5	0	Throwing Dagger
-2044477050	map	2044470050	1	1	10160	1	14	Somber Smithing Stone [1]
+2044477050	map	2044470050	1	1	10200	1	14	Somber Smithing Stone [9]
 2044477900	map	2044470900	1	1	2008033	1	1	
 2045417000	map	2045410000	1	1	15030	2	2	Beast Blood
 2045417010	map	2045410010	1	1	2020003	3	2	Whiteflesh Mushroom
 2045417020	map	2045410020	1	1	2020012	2	2	Sanguine Amaryllis
-2045417030	map	2045410030	1	1	10163	1	14	Somber Smithing Stone [4]
-2045417040	map	2045410040	1	1	10103	4	14	Smithing Stone [4]
+2045417030	map	2045410030	1	1	10165	1	14	Somber Smithing Stone [6]
+2045417040	map	2045410040	1	1	2001210	2	0	Sacred Bloody Flesh
+2045417040	map	2045410041	1	1	10104	4	14	Smithing Stone [5]
 2045417050	map	2045410050	1	2	51000000	10		Great Arrow
 2045417700	map	2045410700	1	1	2010100	1	14	Revered Spirit Ash
 2045417710	map	2045410710	1	1	2008909	1	1	
 2045417800	map	2045410800	1	4	8020	1		
 2045417900	map	2045410900	1	1	2008033	1	1	
 2045417950	enemy	508000702	1	2	12530000	1		
-2045427000	map	2045420000	1	1	10102	3	14	Smithing Stone [3]
+2045427000	map	2045420000	1	1	10104	4	14	Smithing Stone [5]
 2045427700	map	2045420700	1	1	2010000	1	14	Scadutree Fragment
 2045437000	map	2045430000	1	1	2002952	1	0	Shadow Realm Rune [1]
 2045437700	map	2045430700	1	5	415000	1		
@@ -4671,13 +4687,13 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2045447010	map	2045440010	1	6	4411061	1		
 2045447020	map	2045440020	1	3	5231100	1		
 2045457000	map	2045450000	1	1	1730	6	0	Kukri
-2045457010	map	2045450010	1	1	10904	1	14	Grave Glovewort [5]
+2045457010	map	2045450010	1	1	10907	1	14	Grave Glovewort [8]
 2045457020	map	2045450020	1	1	2015010	1	2	Spirit Calculus
 2045467000	map	2045460000	1	1	2015000	2	2	Beast Horn
-2045467020	map	2045460020	1	1	10106	2	14	Smithing Stone [7]
+2045467020	map	2045460020	1	1	10106	3	14	Smithing Stone [7]
 2045467040	map	2045460040	1	1	2001230	1	0	Golden Horn Tender
 2045467050	map	2045460050	1	1	2002958	1	0	Shadow Realm Rune [7]
-2045467060	map	2045460060	1	1	10106	2	14	Smithing Stone [7]
+2045467060	map	2045460060	1	1	10106	3	14	Smithing Stone [7]
 2045467070	map	2045460070	1	3	5230100	1		
 2045467080	map	2045460080	1	1	2020003	5	2	Whiteflesh Mushroom
 2045467090	map	2045460090	1	1	940	2	0	Preserving Boluses
@@ -4722,9 +4738,9 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2046387020	map	2046380020	1	1	15400	3	2	String
 2046387030	map	2046380030	1	1	2020028	2	2	Spiritgrave Stone
 2046387040	map	2046380040	1	1	15130	2	2	Crab Eggs
-2046387050	map	2046380050	1	1	10163	1	14	Somber Smithing Stone [4]
+2046387050	map	2046380050	1	1	10165	1	14	Somber Smithing Stone [6]
 2046387070	map	2046380070	1	1	2003140	1	0	Perfumed Oil of Ranah
-2046397000	map	2046390000	1	1	10901	1	14	Grave Glovewort [2]
+2046397000	map	2046390000	1	1	10905	1	14	Grave Glovewort [6]
 2046397020	map	2046390020	1	1	10909	1	14	Great Grave Glovewort
 2046397030	map	2046390030	1	1	2001130	1	0	Fireproof Pickled Liver
 2046397040	map	2046390040	1	1	2202000	1	7	Gravebird Ashes
@@ -4736,7 +4752,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2046407003	map	2046400003	1	3	5000200	1		
 2046407004	map	2046400004	1	3	5000300	1		
 2046407040	map	2046400040	1	1	10909	1	14	Great Grave Glovewort
-2046407050	map	2046400050	1	1	10916	1	14	Ghost Glovewort [7]
+2046407050	map	2046400050	1	1	10917	1	14	Ghost Glovewort [8]
 2046407060	map	2046400060	1	1	10918	1	14	Ghost Glovewort [9]
 2046407700	map	2046400700	1	4	8000	1	1	Stonesword Key
 2046427700	map	2046420700	1	1	2010000	1	14	Scadutree Fragment
@@ -4762,8 +4778,8 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2046457030	map	2046450030	1	1	15030	3	2	Beast Blood
 2046457040	map	2046450040	1	1	2010000	1	14	Scadutree Fragment
 2046457050	map	2046450050	1	1	2020028	3	2	Spiritgrave Stone
-2046457060	map	2046450060	1	1	10162	1	14	Somber Smithing Stone [3]
-2046457070	map	2046450070	1	1	10102	2	14	Smithing Stone [3]
+2046457060	map	2046450060	1	1	10165	1	14	Somber Smithing Stone [6]
+2046457070	map	2046450070	1	1	10104	6	14	Smithing Stone [5]
 2046457720	map	2046450720	1	1	2010100	1	14	Revered Spirit Ash
 2046457910	map	2046450910	1	4	8040	1		
 2046457920	map	2046450920	1	1	2213000	1	8	Divine Bird Warrior Ornis
@@ -4778,7 +4794,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2046477020	map	2046470020	1	1	2204000	1	7	Spider Scorpion Ashes
 2046477030	map	2046470030	1	1	10200	1	14	Somber Smithing Stone [9]
 2046477060	map	2046470060	1	1	2003190	1	0	Fire Spritestone
-2046477070	map	2046470070	1	1	10165	1	14	Somber Smithing Stone [6]
+2046477070	map	2046470070	1	1	10167	1	14	Somber Smithing Stone [8]
 2046477090	map	2046470090	1	1	2020005	2	2	Dewgem
 2046477100	map	2046470100	1	1	15340	8	2	Thin Beast Bones
 2046477120	map	2046470120	1	1	15000	2	2	Sliver of Meat
@@ -4786,7 +4802,8 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2046477140	map	2046470140	1	1	10000	1	0	Glass Shard
 2046477150	map	2046470150	1	5	200000	1	8	Black Knife Tiche
 2046477160	map	2046470160	1	1	2015000	2	2	Beast Horn
-2046477700	map	2047470000	1	1	10167	1	14	Somber Smithing Stone [8]
+2046477700	map	2047470000	1	1	2001210	3	0	Sacred Bloody Flesh
+2046477700	map	2047470001	1	1	10167	1	14	Somber Smithing Stone [8]
 2046477720	map	2046470720	1	4	8210	1		
 2046477750	map	2046470750	1	1	2010000	1	14	Scadutree Fragment
 2046477950	enemy	524094734	1	1	2010100	1	14	Revered Spirit Ash
@@ -4808,7 +4825,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2047397050	map	2047390050	1	1	2020021	4	2	Ghostflame Bloom
 2047397070	map	2047390070	1	1	2010000	1	14	Scadutree Fragment
 2047397080	map	2047390080	1	1	10908	1	14	Grave Glovewort [9]
-2047397090	map	2047390090	1	1	10105	3	14	Smithing Stone [6]
+2047397090	map	2047390090	1	1	10105	4	14	Smithing Stone [6]
 2047397995	enemy	581000704	1	1	1290	1	0	Starlight Shards
 2047407000	map	2047400000	1	1	10000	1	0	Glass Shard
 2047407010	map	2047400010	1	1	2020006	1	2	Black Pyrefly
@@ -4829,32 +4846,32 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2047417800	map	2047410800	1	4	8230	1		
 2047417995	enemy	524080704	1	1	2010000	1	14	Scadutree Fragment
 2047417995	enemy	524080705	1	1	2001220	1	0	Silver Horn Tender
-2047427000	map	2047420000	1	1	10902	1	14	Grave Glovewort [3]
-2047427030	map	2047420030	1	1	10163	1	14	Somber Smithing Stone [4]
-2047427040	map	2047420040	1	1	10165	1	14	Somber Smithing Stone [6]
+2047427000	map	2047420000	1	1	10904	1	14	Grave Glovewort [5]
+2047427030	map	2047420030	1	1	10165	1	14	Somber Smithing Stone [6]
+2047427040	map	2047420040	1	1	10168	1	14	Somber Ancient Dragon Smithing Stone
 2047427700	map	2047420700	1	6	4409058	1		
 2047427950	enemy	563000704	1	1	10107	3	14	Smithing Stone [8]
 2047437000	map	2047430000	1	1	10904	1	14	Grave Glovewort [5]
 2047437010	map	2047430010	1	2	43510000	1		Spread Crossbow
-2047437020	map	2047430020	1	1	10104	3	14	Smithing Stone [5]
+2047437020	map	2047430020	1	1	10105	3	14	Smithing Stone [6]
 2047437030	map	2047430030	1	2	16520000	1		Swift Spear
 2047437040	map	2047430040	1	1	2002953	1	0	Shadow Realm Rune [2]
 2047437050	map	2047430050	1	1	10163	1	14	Somber Smithing Stone [4]
 2047437700	map	2047430700	1	1	2010100	1	14	Revered Spirit Ash
 2047437980	map	2047430980	1	1	2003130	1	0	Horned Bairn
 2047447010	map	2047440010	1	1	2020006	3	2	Black Pyrefly
-2047447020	map	2047440020	1	1	10160	1	14	Somber Smithing Stone [1]
+2047447020	map	2047440020	1	1	10164	1	14	Somber Smithing Stone [5]
 2047447030	map	2047440030	1	1	2002951	1	0	Broken Rune
 2047447040	map	2047440040	1	1	2020007	3	2	Glintslab Firefly
 2047447050	map	2047440050	1	1	15060	2	2	Flight Pinion
 2047447060	map	2047440060	1	1	1190	1	0	Silver-Pickled Fowl Foot
-2047447070	map	2047440070	1	1	10162	1	14	Somber Smithing Stone [3]
-2047447080	map	2047440080	1	1	10165	1	14	Somber Smithing Stone [6]
+2047447070	map	2047440070	1	1	10165	1	14	Somber Smithing Stone [6]
+2047447080	map	2047440080	1	1	10166	1	14	Somber Smithing Stone [7]
 2047447090	map	2047440090	1	1	2004310	1	5	Glintblade Trio
-2047447100	map	2047440100	1	1	10161	1	14	Somber Smithing Stone [2]
+2047447100	map	2047440100	1	1	10167	1	14	Somber Smithing Stone [8]
 2047447110	map	2047440110	1	1	2020007	1	2	Glintslab Firefly
 2047447120	map	2047440120	1	1	2020005	3	2	Dewgem
-2047447130	map	2047440130	1	1	10160	1	14	Somber Smithing Stone [1]
+2047447130	map	2047440130	1	1	10164	1	14	Somber Smithing Stone [5]
 2047447140	map	2047440140	1	2	50000000	10		Arrow
 2047447150	map	2047440150	1	2	52000000	10		Bolt
 2047447160	map	2047440160	1	1	2002953	1	0	Shadow Realm Rune [2]
@@ -4877,17 +4894,19 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2047447900	map	2047440900	1	1	10200	1	14	Somber Smithing Stone [9]
 2047447901	map	2047440901	1	1	2001420	3	0	Royal Magic Grease
 2047457000	map	2047450000	1	1	2020006	5	2	Black Pyrefly
-2047457010	map	2047450010	1	1	10102	3	14	Smithing Stone [3]
-2047457020	map	2047450020	1	1	10161	1	14	Somber Smithing Stone [2]
+2047457010	map	2047450010	1	1	2001400	1	0	Messmerfire Grease
+2047457010	map	2047450011	1	1	10106	3	14	Smithing Stone [7]
+2047457020	map	2047450020	1	1	10166	1	14	Somber Smithing Stone [7]
 2047457040	map	2047450040	1	1	2001400	1	0	Messmerfire Grease
 2047457070	map	2047450070	1	1	2020002	8	2	Redflesh Mushroom
 2047457080	map	2047450080	1	2	50010000	10		Fire Arrow
-2047457180	map	2047440180	1	1	10903	1	14	Grave Glovewort [4]
+2047457180	map	2047440180	1	1	10907	1	14	Grave Glovewort [8]
 2047457700	map	2047450700	1	1	10107	9	14	Smithing Stone [8]
 2047457800	map	2047450800	1	1	2008033	1	1	
 2047457900	map	2047450900	1	2	13500000	1		Serpent Flail
 2047457910	map	2047450910	1	4	8070	1		
-2047457920	map	2047450920	1	1	10106	8	14	Smithing Stone [7]
+2047457920	map	2047450920	1	1	2020031	3	2	Blessed Bone Shard
+2047457920	map	2047450921	1	1	10107	6	14	Smithing Stone [8]
 2047467000	map	2047460000	1	1	190	1	0	Rune Arc
 2047467010	map	2047460010	1	1	2020029	1	2	Rauh Burrow
 2047467030	map	2047460030	1	1	2020029	1	2	Rauh Burrow
@@ -4897,7 +4916,8 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2047477020	map	2047470020	1	1	2015010	1	2	Spirit Calculus
 2047477030	map	2047470030	1	1	2001210	5	0	Sacred Bloody Flesh
 2047477040	map	2047470040	1	1	2020012	5	2	Sanguine Amaryllis
-2047477050	map	2047470050	1	1	10106	4	14	Smithing Stone [7]
+2047477050	map	2047470050	1	1	2001210	3	0	Sacred Bloody Flesh
+2047477050	map	2047470051	1	1	10106	4	14	Smithing Stone [7]
 2047477070	map	2047470070	1	1	2002954	1	0	Shadow Realm Rune [3]
 2047477900	map	2047470900	1	4	8090	1		
 2047477950	enemy	508095202	1	2	16550000	1		
@@ -4913,14 +4933,14 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2048397010	map	2048390010	1	1	2020022	6	2	Grave Cricket
 2048397020	map	2048390020	1	1	15100	1	2	Human Bone Shard
 2048397030	map	2048390030	1	1	2003150	1	0	Call of Tibia
-2048397040	map	2048390040	1	1	10906	1	14	Grave Glovewort [7]
+2048397040	map	2048390040	1	1	10908	1	14	Grave Glovewort [9]
 2048397050	map	2048390050	1	1	2005000	1	5	Rings of Spectral Light
 2048407000	map	2048400000	1	2	61530000	1		Lightning Perfume Bottle
 2048407010	map	2048400010	1	2	18500000	1		Spirit Glaive
 2048407020	map	2048400020	1	1	2020035	1	2	Furnace Visage
 2048417000	map	2048410000	1	1	2003180	2	0	Fire Coil
 2048417010	map	2048410010	1	1	2000900	1	0	Blessing of Marika
-2048417030	map	2048410030	1	1	10101	3	14	Smithing Stone [2]
+2048417030	map	2048410030	1	1	10105	4	14	Smithing Stone [6]
 2048417700	map	2048410700	1	1	2010000	2	14	Scadutree Fragment
 2048417800	map	2048410800	1	1	10140	1	14	Ancient Dragon Smithing Stone
 2048417980	map	2048410980	1	2	12520000	1		Black Steel Greathammer
@@ -4937,9 +4957,9 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2048447020	map	2048440020	1	1	15341	4	2	Hefty Beast Bone
 2048447030	map	2048440030	1	1	15400	3	2	String
 2048447040	map	2048440040	1	1	15020	2	2	Lump of Flesh
-2048447050	map	2048440050	1	1	10164	1	14	Somber Smithing Stone [5]
+2048447050	map	2048440050	1	1	10166	1	14	Somber Smithing Stone [7]
 2048447060	map	2048440060	1	1	10165	1	14	Somber Smithing Stone [6]
-2048447070	map	2048440070	1	1	10163	1	14	Somber Smithing Stone [4]
+2048447070	map	2048440070	1	1	10166	1	14	Somber Smithing Stone [7]
 2048447080	map	2048440080	1	1	10916	1	14	Ghost Glovewort [7]
 2048447500	map	2048440500	1	1	2010000	1	14	Scadutree Fragment
 2048447800	map	2048440800	1	1	8186	1	1	Imbued Sword Key
@@ -4947,11 +4967,12 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2048457000	map	2048450000	1	1	2020006	3	2	Black Pyrefly
 2048457510	map	2048450510	1	1	2008029	1	12	
 2048457520	map	2048450520	1	1	2010000	1	14	Scadutree Fragment
-2048467010	map	2048460010	1	1	2003170	2	0	
-2048467030	map	2048460030	1	1	10165	1	14	Somber Smithing Stone [6]
+2048467010	map	2048460010	1	1	2003170	2	0	Golden Vow
+2048467030	map	2048460030	1	2	52020000	20		
+2048467030	map	2048460031	1	1	10166	1	14	Somber Smithing Stone [7]
 2048467040	map	2048460040	1	1	2020030	6	2	Ember of Messmer
 2048467050	map	2048460050	1	1	2001500	1	0	Drawstring Messmerfire Grease
-2048467060	map	2048460060	1	1	10102	5	14	Smithing Stone [3]
+2048467060	map	2048460060	1	1	10106	2	14	Smithing Stone [7]
 2048467090	map	2048460090	1	1	2020009	2	2	Shadow Sunflower
 2048467500	map	2048460500	1	1	2002955	1	0	Shadow Realm Rune [4]
 2048467510	map	2048460510	1	1	2010000	1	14	Scadutree Fragment
@@ -4962,10 +4983,10 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2049387010	map	2049380010	1	1	2001710	1	0	Dragon Communion Harpoon
 2049387020	map	2049380020	1	1	2001480	1	0	Dragon Communion Grease
 2049387030	map	2049380030	1	1	2001710	1	0	Dragon Communion Harpoon
-2049387060	map	2049380060	1	1	10101	6	14	Smithing Stone [2]
+2049387060	map	2049380060	1	1	10105	3	14	Smithing Stone [6]
 2049397000	map	2049390000	1	1	2020032	3	2	Red Fulgurbloom
 2049427000	map	2049420000	1	4	8170	1		
-2049427010	map	2049420010	1	1	10166	1	14	Somber Smithing Stone [7]
+2049427010	map	2049420010	1	1	10909	1	14	Great Grave Glovewort
 2049427700	map	2049420700	1	1	2020017	1	2	Swollen Grape
 2049427720	map	2049420720	1	1	2020017	1	2	Swollen Grape
 2049437000	map	2049430000	1	2	43500000	1		Repeating Crossbow
@@ -4982,15 +5003,16 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2049437300	map	2049430300	1	1	2001130	1	0	Fireproof Pickled Liver
 2049437310	map	2049430310	1	1	2020031	1	2	Blessed Bone Shard
 2049437320	map	2049430320	1	1	2002951	1	0	Broken Rune
-2049437330	map	2049430330	1	1	10910	1	14	Ghost Glovewort [1]
+2049437330	map	2049430330	1	1	10915	1	14	Ghost Glovewort [6]
 2049437340	map	2049430340	1	1	2002951	1	0	Broken Rune
 2049437350	map	2049430350	1	1	2020002	5	2	Redflesh Mushroom
 2049437360	map	2049430360	1	1	1700	8	0	Throwing Dagger
 2049437370	map	2049430370	1	1	2002955	1	0	Shadow Realm Rune [4]
 2049437380	map	2049430380	1	1	2001600	2	0	Festive Grease
-2049437500	map	2049430500	1	1	10105	8	14	Smithing Stone [6]
-2049437520	map	2049430520	1	1	10107	4	14	Smithing Stone [8]
-2049437600	map	2049430600	1	1	10104	7	14	Smithing Stone [5]
+2049437500	map	2049430500	1	1	2003310	3	0	Sunwarmth Stone
+2049437500	map	2049430501	1	1	10106	6	14	Smithing Stone [7]
+2049437520	map	2049430520	1	1	10140	1	14	Ancient Dragon Smithing Stone
+2049437600	map	2049430600	1	1	10105	6	14	Smithing Stone [6]
 2049437610	map	2049430610	1	1	2001130	1	0	Fireproof Pickled Liver
 2049437620	map	2049430620	1	1	2000900	1	0	Blessing of Marika
 2049437900	enemy	597000700	1	1	2002951	5	0	Broken Rune
@@ -5018,7 +5040,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2049447040	map	2049440040	1	1	2002954	1	0	Shadow Realm Rune [3]
 2049447050	map	2049440050	1	1	2001230	1	0	Golden Horn Tender
 2049447060	map	2049440060	1	1	2020003	3	2	Whiteflesh Mushroom
-2049447070	map	2049440070	1	1	10100	4	14	Smithing Stone [1]
+2049447070	map	2049440070	1	1	10106	2	14	Smithing Stone [7]
 2049447090	map	2049440090	1	4	8030	1		
 2049447500	map	2049440500	1	1	2010100	1	14	Revered Spirit Ash
 2049447530	map	2049440530	1	1	2010000	1	14	Scadutree Fragment
@@ -5064,11 +5086,12 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2050427700	map	2050420700	1	1	2020017	1	2	Swollen Grape
 2050437000	map	2050430000	1	1	2001220	1	0	Silver Horn Tender
 2050437010	map	2050430010	1	1	2010000	1	14	Scadutree Fragment
-2050437040	map	2050430040	1	1	10106	2	14	Smithing Stone [7]
+2050437040	map	2050430040	1	1	1130	2	0	
+2050437040	map	2050430041	1	1	10106	2	14	Smithing Stone [7]
 2050437220	map	2050430220	1	1	10105	8	14	Smithing Stone [6]
 2050437500	map	2050430500	1	1	2010000	1	14	Scadutree Fragment
 2050437720	map	2050430720	1	1	2010100	1	14	Revered Spirit Ash
-2050447000	map	2050440000	1	1	10102	2	14	Smithing Stone [3]
+2050447000	map	2050440000	1	1	10106	2	14	Smithing Stone [7]
 2050447010	map	2050440010	1	1	2002955	1	0	Shadow Realm Rune [4]
 2050447020	map	2050440020	1	1	15410	3	2	Living Jar Shard
 2050447030	map	2050440030	1	1	15410	2	2	Living Jar Shard
@@ -5091,7 +5114,7 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2050457020	map	2050450720	1	2	34500000	1		Dryleaf Seal
 2050457060	map	2050450060	1	1	2015040	4	2	Fly Mold
 2050457080	map	2050450080	1	1	10166	1	14	Somber Smithing Stone [7]
-2050457510	map	2050450510	1	1	2009004	1	0	O Mother
+2050457510	map	2050450510	1	1	2009004	1	0	
 2050457730	map	2050450730	1	1	2010000	1	14	Scadutree Fragment
 2050467000	map	2050460000	1	1	10107	3	14	Smithing Stone [8]
 2050467020	map	2050460020	1	1	10070	1	1	Lost Ashes of War
@@ -5106,15 +5129,16 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2050467800	map	2050460800	1	1	2008033	1	1	
 2050467900	map	2050460900	1	2	2540000	1		Stone-Sheathed Sword
 2050467910	map	2050460910	1	1	2007710	1	16	Giant Golden Arc
-2050477010	map	2050470010	1	1	10905	1	14	Grave Glovewort [6]
+2050477010	map	2050470010	1	1	10906	1	14	Grave Glovewort [7]
 2050477020	map	2050470020	1	1	2020031	1	2	Blessed Bone Shard
-2051417000	map	2051410000	1	1	10916	1	14	Ghost Glovewort [7]
+2051417000	map	2051410000	1	1	1130	2	0	
+2051417000	map	2051410001	1	1	10918	1	14	Ghost Glovewort [9]
 2051417700	map	2051410700	1	4	8060	1		
 2051417710	map	2051410710	1	1	2020017	1	2	Swollen Grape
 2051427000	map	2051420000	1	1	2002958	1	0	Shadow Realm Rune [7]
 2051447000	map	2051440000	1	2	20500000	1		Tooth Whip
 2051447010	map	2051440010	1	1	20800	2	2	Nascent Butterfly
-2051447020	map	2051440020	1	1	10100	6	14	Smithing Stone [1]
+2051447020	map	2051440020	1	1	10107	4	14	Smithing Stone [8]
 2051447030	map	2051440030	1	1	2015040	3	2	Fly Mold
 2051447040	map	2051440040	1	1	2015030	4	2	Scorpion Liver
 2051447500	map	2051440500	1	1	2010000	1	14	Scadutree Fragment
@@ -5130,7 +5154,8 @@ flag	table	lot	slot	category	item_id	num	goods_type	name
 2051477030	map	2051470030	1	1	2001110	2	0	Fingerprint Nostrum
 2051477500	map	2051470500	1	1	2006670	1	18	Minor Erdtree
 2051477510	map	2051470510	1	4	7120	1		
-2052407010	map	2052400010	1	1	10165	1	14	Somber Smithing Stone [6]
+2052407010	map	2052400010	1	1	2003160	1	0	Surging Frenzied Flame
+2052407010	map	2052400011	1	1	10200	1	14	Somber Smithing Stone [9]
 2052417000	map	2052410000	1	1	2002958	1	0	Shadow Realm Rune [7]
 2052417010	map	2052410010	1	1	960	1	0	Clarifying Boluses
 2052427500	map	2052420500	1	2	21530000	1		Madding Hand
