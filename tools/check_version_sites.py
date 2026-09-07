@@ -66,7 +66,8 @@ SITES = [
         "kind": "regex",
         # The FIRST `version =` under [package]. Anchored to line start so a dependency's
         # `version = "1.2"` three lines down cannot be mistaken for the crate's own.
-        "rx": re.compile(r'^version\s*=\s*"(\d+(?:\.\d+)+)"', re.M),
+        # `+f<N>` is the Cargo spelling of a fixpack (tools/vrmf.py): Cargo needs a semver core.
+        "rx": re.compile(r'^version\s*=\s*"(\d+(?:\.\d+)+(?:\+f\d+)?)"', re.M),
         "optional": True,
     },
     {
@@ -78,7 +79,7 @@ SITES = [
         # on someone else's machine. cargo rewrites it on the next build, which is precisely
         # why it gets forgotten. package_release.ps1 does not check this site at all.
         "rx": re.compile(
-            r'^name = "eldenring-archipelago"\s*\nversion = "(\d+(?:\.\d+)+)"', re.M
+            r'^name = "eldenring-archipelago"\s*\nversion = "(\d+(?:\.\d+)+(?:\+f\d+)?)"', re.M
         ),
         "optional": True,
     },
