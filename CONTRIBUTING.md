@@ -225,6 +225,20 @@ correct — does not count.
   cautionary tale: incoming was confirmed while outgoing sat unverified for a
   long time. Send *and* receive each need a live demonstration before the
   feature is called done.
+- **A claim about what generation does is proven by a seed, not a reading.**
+  "Fill never places X there" or "our pre-fill only touches our own items" is a
+  measurement: build the smallest multiworld that exercises it (two slots, a
+  partner world from the AP checkout, the option in the mode being asked
+  about) and look at where the item landed and who placed it.
+  `fill_restrictive`'s `name=` argument is in the log for exactly this.
+  2026-09-07: the incoming-progression reservation was declared not to exist
+  from a reading of progression_surface.py; the mechanism lived in
+  incoming_progression.py, one call further down `stage_pre_fill`, and a
+  two-slot probe found it in under a minute (#1456).
+- **An option's docstring describes one mode of it.** Before answering for the
+  shipped default, find the code path for that value.
+  `cross_game_progression: aggregate` has no incoming reservation; `auto`, the
+  default, does.
 
 ## Runtime visibility — a feature is armed, or it says why not
 
