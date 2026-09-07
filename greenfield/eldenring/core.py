@@ -17,6 +17,7 @@ from worlds.AutoWorld import World, WebWorld
 from Options import (PerGameCommonOptions, Range, Choice, Toggle, DefaultOnToggle,
                      OptionError, OptionGroup)
 
+from .gamename import GAME as _GAME
 from .data import HUB, REGIONS, LOCATIONS, FINALE_REGION, FINALE_HOST_REGION
 from . import item_categories
 try:
@@ -94,7 +95,7 @@ try:
 except Exception:
     LOCATION_UNITS = {}
 
-GAME = "Elden Ring"
+GAME = _GAME  # the AP game name lives in gamename.py (#1465); this stays the world-side alias
 FILLER = "Rune"
 
 
@@ -2086,7 +2087,7 @@ class GreenfieldEldenRingWorld(World):
                 if getattr(self, "gf_finale_active", False):
                     _built.add(FINALE_REGION)
                 goal = _derived if _derived in _built else HUB
-                logging.getLogger("Elden Ring").info(
+                logging.getLogger(GAME).info(
                     "[greenfield] %s is not in this seed's kept regions; natural-progression goal "
                     "derived from the kept set instead: %s", GOAL_REGION, goal)
             if required:
@@ -2372,6 +2373,11 @@ class GreenfieldEldenRingWorld(World):
         required = self._required_runes()
         required_count = self._great_runes_required_count()
         return {
+            # WHICH CONTRACT THIS SEED SPEAKS (#1463). The client used to infer it by sniffing for
+            # `locationIdsToKeys`; it now reads this and validates the seed against the profile it
+            # names, so a seed carrying the wrong key family is a connect-time error instead of a
+            # silently mis-chosen branch.
+            contract.PROFILE: contract.GREENFIELD,
             contract.VERSIONS: versions,           # apworld/contract/data identity -- the skew gate
             contract.WORLD_LOGIC: "region_lock",
             contract.LOCATION_FLAGS: loc_flags,

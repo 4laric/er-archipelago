@@ -70,12 +70,12 @@ except Exception:  # pragma: no cover
 # convention in the codebase keep working on it unchanged.
 ASHEN_LOCK_ITEM = f"{FINALE_REGION} Lock"
 
+from ..gamename import GAME as _GAME  # the AP game name is typed once (#1465)
+
 try:
     from ..item_ids import LOCATION_ITEM
 except Exception:  # not yet generated
     LOCATION_ITEM = {}
-
-_GAME = "Elden Ring"
 
 
 class FinaleLocation(Location):

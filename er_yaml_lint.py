@@ -42,6 +42,10 @@ except ImportError:
 # Retired options are deliberately NOT here -- they belong in REMOVED below, which gives the player
 # the replacement instead of a bare "unknown".
 _HERE = os.path.dirname(os.path.abspath(__file__))
+# The AP game name comes from the world, never a literal (#1465). `gamename.py` imports
+# nothing, so the linter still costs no Archipelago import.
+sys.path.insert(0, os.path.join(_HERE, "greenfield", "eldenring"))
+from gamename import GAME, YAML_GAME_KEYS  # noqa: E402
 _METADATA = os.path.join(_HERE, "wizard", "options-metadata.json")
 _DEFAULTS = os.path.join(_HERE, "greenfield", "eldenring", "defaults.py")
 
@@ -499,6 +503,56 @@ def lint_block(block: dict) -> list[Finding]:
 
     return out
 
+# ---- the game-name gate (#1465) ---------------------------------------------
+# THE YAMLS ARE DATA, SO THEY ARE CHECKED RATHER THAN GENERATED. Every yaml this repo ships --
+# release/EldenRing.yaml, presets/, greenfield/presets/, testers/, greenfield/playtest-yamls/ --
+# names the game twice: the `game:` scalar Archipelago dispatches on, and the top-level block key
+# holding the options. Both were typed. When the game was renamed at v0.2 the fleet was updated by
+# hand and `er_yaml_lint` itself was left behind on the old spelling, which is how all fifteen of
+# its rules came to be no-ops on every file anyone played.
+#
+# `GAME_MISMATCH` findings are ERRORs, not warnings: a yaml naming a game Archipelago does not have
+# does not generate at all. The retired v0.1 key stays LINTABLE (YAML_GAME_KEYS above) so a player's
+# old file still gets its migration messages -- but a file WE ship carrying it is a stale artifact,
+# so this gate accepts only GAME.
+def check_game_name(path: str) -> list[Finding]:
+    """Compare a shipped yaml's `game:` scalar and top-level game key against the constant."""
+    findings = []
+    try:
+        with open(path, "r", encoding="utf-8-sig") as fh:
+            text = fh.read()
+    except OSError as e:
+        return [Finding("ERROR", "<file>", f"could not read: {e}")]
+    try:
+        docs = [d for d in yaml.safe_load_all(text) if isinstance(d, dict)]
+    except Exception as e:
+        return [Finding("ERROR", "<file>", f"could not parse yaml: {e}")]
+    if not docs:
+        return [Finding("ERROR", "<file>", "no yaml document")]
+    for doc in docs:
+        named = doc.get("game")
+        # `game:` may be a weights MAPPING ({"Elden Ring": 1}) in a multi-game yaml; both forms
+        # have to name the constant, so normalise to the set of games named.
+        named_set = set(named) if isinstance(named, dict) else ({named} if named is not None else set())
+        if named_set != {GAME}:
+            findings.append(Finding("ERROR", "game",
+                                    f"`game:` is {named!r}; every shipped yaml must name {GAME!r} "
+                                    f"(greenfield/eldenring/gamename.py)"))
+        # The options block. A yaml may carry blocks for OTHER games (a multi-game template), so we
+        # only require that OUR block is spelled correctly: exactly one of the accepted keys is
+        # present, and it is the current one.
+        present = [k for k in YAML_GAME_KEYS if k in doc]
+        if GAME not in doc:
+            findings.append(Finding("ERROR", "game",
+                                    f"no top-level {GAME!r} options block"
+                                    + (f" (found the retired key {present[0]!r})" if present else "")))
+        for stale in present:
+            if stale != GAME:
+                findings.append(Finding("ERROR", "game",
+                                        f"retired top-level game key {stale!r}; use {GAME!r}"))
+    return findings
+
+
 # ---- driver -----------------------------------------------------------------
 def lint_file(path: str) -> list[Finding]:
     try:
@@ -518,7 +572,7 @@ def lint_file(path: str) -> list[Finding]:
         # Caught 2026-08-14 by injecting `local_item_only: true` into a preset and watching the
         # linter report OK. Keep the old key: a v0.1 yaml is precisely the one that most needs the
         # REMOVED migration messages.
-        for key in ("Elden Ring", "EldenRing"):
+        for key in YAML_GAME_KEYS:
             if isinstance(doc.get(key), dict):
                 findings += lint_block(doc[key])
     return findings

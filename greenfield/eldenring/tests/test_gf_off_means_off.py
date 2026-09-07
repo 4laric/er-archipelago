@@ -216,9 +216,23 @@ _CHECK_LOT_REASON = (
 
 OFF_LEDGER = {
     # --- the 2026-08-04 audit's motivating trio (finding P1) ---
+    # The trio is a PAIR now. `dungeonSweeps` was dropped in #1463: greenfield never really produced
+    # it (boss_locks.py wrote `{}` into it for its whole life), so it is no longer emitted and no
+    # longer a greenfield contract key at all. An absent-when-off row for a key that is absent when
+    # ON is not a weaker guarantee that got deleted for green -- it is a row with nothing left to
+    # say, and the stronger statement now lives in
+    # test_gf_profile_declaration.py::ProfileIsEmitted::test_dungeon_sweeps_is_not_emitted_even_with_sweeps_on,
+    # which pins the absence under `dungeon_sweep: all` rather than under the off state.
     "dungeonSweepFlags": _SWEEP_OFF,
-    "dungeonSweeps": _SWEEP_OFF,
     "sweepLockGates": _SWEEP_OFF,
+    # naturalKeyTriggers (#1466): emitted by features/natural_progression.slot_data, which
+    # early-returns {} when the mode is off. It reached this ledger by being RETAGGED -- it was
+    # declared bedrock-only while greenfield emitted it, and #1463's cross-profile check is what
+    # exposed that. Now that it is a greenfield key it owes an off-state assertion like any other.
+    "naturalKeyTriggers": ("off_test",
+                           "test_gf_profile_declaration.py::ForeignKeysNaturalProgressionOff"
+                           "::test_natural_key_triggers_is_absent_when_the_mode_is_off",
+                           {"natural_progression": False}),
     # --- option-gated keys that already had a real off-test (verified, now ratcheted) ---
     "graceAttunement": ("off_test",
                         "test_gf_grace_attunement.py::AttunementOff"
@@ -498,7 +512,10 @@ def test_the_scan_still_sees_the_motivating_gate():
     """Anchor: the P1 gate (`if world.options.dungeon_sweep.value != 0`) must classify CONDITIONAL.
     If this fails, survey() rotted -- every other green in this file is then meaningless."""
     conditional, evidence = _SURVEY
-    for key in ("dungeonSweepFlags", "dungeonSweeps", "sweepLockGates"):
+    # `dungeonSweeps` left this list in #1463 -- greenfield stopped emitting it entirely, so the
+    # scan has no site to classify and asking for one is asking about a key that is gone. The gate
+    # itself is unchanged and the two keys it still writes anchor it exactly as well.
+    for key in ("dungeonSweepFlags", "sweepLockGates"):
         assert key in conditional, (
             "%s no longer classifies as conditionally emitted: %s" % (key, evidence[key]))
     assert any("dungeon_sweep" in s for s in evidence["dungeonSweepFlags"])

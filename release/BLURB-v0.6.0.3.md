@@ -6,13 +6,16 @@ only moment anyone remembers why it mattered._
 ## Can I update the client during a run?
 
 **Yes.** Versions are V.R.M.F and this is the 0.6.0 line: a v0.6.0.3 client plays every seed
-rolled by any 0.6.0-line apworld, and the older 0.6.0-line clients play v0.6.0.3 seeds. The seed
-contract is unchanged. Keep whichever client you have unless a change below names a fix you want.
+rolled by any 0.6.0-line apworld, your run included. What changed this window is the other
+direction — the contract hash moved (#1463), so an OLDER 0.6.0-line client on a seed rolled by
+the v0.6.0.3 apworld logs a version mismatch. Update the binary before you generate a new room;
+you do not have to touch a run already going.
 
 ## What you need to update
 
-- **Client:** Optional — nothing in this window yet changes the client; any 0.6.0-line client
-  (v0.6.0, v0.6.0.1, v0.6.0.2) keeps playing every 0.6.0-line seed.
+- **Client:** Required for seeds rolled on v0.6.0.3 — an older 0.6.0-line client reports a
+  version mismatch against one. Safe to take mid-run: the v0.6.0.3 client plays every
+  0.6.0-line seed, so a run already going needs nothing but the new binary.
 - **APWorld:** Host-only — install v0.6.0.3 when generating a new room once it ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
@@ -28,6 +31,16 @@ down. The two guards shipped in v0.6.0.2 for that (skipping a partner that was s
 own keys, and skipping copies a partner wanted early) existed only because we were going first;
 they are gone, and the partner now gets its full share of our progression instead of watching it
 fall back onto Elden Ring checks. New seeds only; a running seed is unaffected.
+
+**The seed now says what it is.** (#1463) The client has always had two ways to work out which
+event flag a check corresponds to — ours, and the one Matt's randomizer uses — and it decided
+between them by looking to see whether a particular key happened to be in the slot data. That
+guess was never checked against anything. When it landed wrong the game did not complain: checks
+simply stopped firing, and you found out an hour into the run. The apworld now states which
+contract the seed speaks, and the client validates the seed against the statement instead of
+inferring it, naming the offending key at connect if the two disagree. Generation refuses the
+same mismatch from the other side. If everything was already working for you, nothing about your
+seeds changes — this is the failure that used to be invisible becoming a line in the log.
 
 ## What carried over from v0.6.0.2
 

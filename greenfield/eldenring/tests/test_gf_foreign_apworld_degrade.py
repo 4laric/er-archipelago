@@ -43,9 +43,19 @@ class TestForeignApworldDegrades(unittest.TestCase):
             if k.required and k.in_profile(contract.BEDROCK) and not k.in_profile(contract.GREENFIELD)
         ]
         # (that set is bedrock-only keys, which he does emit -- fine.) The real trap is the reverse:
+        # ONE DOCUMENTED EXEMPTION, and it is an ASK rather than an assumption (#1463). `profile`
+        # is required of both contracts because the whole point of it is that a seed SAYS which one
+        # it speaks -- a declaration only our side sends is a declaration the client can never rely
+        # on. A foreign apworld does not send it yet, and we do not strand it for that: the client
+        # reads an absent `profile` as "seed predates the declaration" and falls back to the
+        # key-presence sniff this replaces, warning once (eldenring-archipelago/src/profile.rs).
+        # 🛑 That is the ONLY thing that makes this exemption legitimate. If the bridge is ever
+        # removed, this exemption becomes the lie the rest of this file exists to prevent, and the
+        # key must move to GREENFIELD in the same change.
+        _BRIDGED_BY_THE_CLIENT = {"profile"}
         both_required = [
             k.name for k in contract.CONTRACT
-            if k.required and contract.BOTH in k.profiles
+            if k.required and contract.BOTH in k.profiles and k.name not in _BRIDGED_BY_THE_CLIENT
         ]
         for name in both_required:
             self.assertIn(
@@ -66,10 +76,31 @@ class TestForeignApworldDegrades(unittest.TestCase):
                 f"stop being able to drive their world.")
 
     def test_a_bedrock_shaped_slot_data_validates(self):
-        """The whole point: his slot_data must pass OUR validator under the bedrock profile."""
+        """The whole point: his slot_data must pass OUR validator under the bedrock profile.
+
+        Since #1463 the observed fixture falls short of the contract by EXACTLY ONE key -- the
+        `profile` declaration he does not send yet -- and that gap is asserted by name below rather
+        than tolerated by a loosened assertion. Declare it on his behalf and everything else he
+        emits validates unchanged, which is the claim this test has always made."""
         problems = contract.validate_slot_data(
             BEDROCK_SHAPED_SLOT_DATA, profile=contract.BEDROCK, strict=False)
+        self.assertEqual(
+            problems, ["MISSING required key 'profile' (producer core._base_slot_data)"],
+            f"a foreign apworld's slot_data does not validate: {problems}. It must -- apart from the "
+            f"one declaration we are asking foreign worlds to adopt, and which our client bridges "
+            f"when it is absent -- or we are telling players their seed is broken when it is our "
+            f"contract that is wrong.")
+
+        declared = dict(BEDROCK_SHAPED_SLOT_DATA, profile=contract.BEDROCK)
         self.assertFalse(
-            problems,
-            f"a foreign apworld's slot_data does not validate: {problems}. It must, or we are telling "
-            f"players their seed is broken when it is our contract that is wrong.")
+            contract.validate_slot_data(declared, profile=contract.BEDROCK, strict=False),
+            "a foreign apworld that DOES declare its profile must validate with nothing left over: "
+            "the declaration is the only thing we are asking of it.")
+
+    def test_a_foreign_apworld_emitting_one_of_our_keys_is_named(self):
+        """The other direction of the same rule (#1463): a bedrock seed carrying a greenfield-only
+        key is a seed the client would have resolved down the wrong path, so it fails and the key is
+        NAMED. Unnamed, the report is 'contract violation' and the fix is a diff of two contracts."""
+        sd = dict(BEDROCK_SHAPED_SLOT_DATA, profile=contract.BEDROCK, locationFlags={})
+        problems = contract.validate_slot_data(sd, profile=contract.BEDROCK, strict=False)
+        self.assertTrue(any("FOREIGN" in p and "locationFlags" in p for p in problems), problems)

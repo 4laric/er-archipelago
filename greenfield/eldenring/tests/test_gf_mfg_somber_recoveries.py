@@ -6,14 +6,22 @@ from pathlib import Path
 import runpy
 import unittest
 
-ROOT = next(p for p in Path(__file__).resolve().parents
-            if (p / "greenfield/gen_data.py").is_file())
-GF = ROOT / "greenfield"
+try:
+    from ._util import find_repo_root, REPO_ONLY_REASON
+except ImportError:
+    from _util import find_repo_root, REPO_ONLY_REASON
+# None when the world is installed into an AP checkout OUTSIDE the repo. The `next(...)` this
+# replaced raised StopIteration at import time there and took the whole file down at collection.
+_ROOT = find_repo_root(__file__)
+ROOT = Path(_ROOT) if _ROOT else None
+GF = ROOT / "greenfield" if ROOT else None
 PKG = Path(__file__).resolve().parent.parent
 
 
 class SomberRecoveries(unittest.TestCase):
     def test_distinct_acquisition_flags_replace_all_seven_native_lots(self):
+        if ROOT is None:
+            self.skipTest(REPO_ONLY_REASON)
         records = json.loads((GF / "evidence/mfg_somber_recoveries.json").read_text())["recoveries"]
         data = runpy.run_path(str(PKG / "data.py"))
         by_flag = {f: (region, ap) for region, rows in data["LOCATIONS"].items() for _, ap, f in rows}
@@ -36,6 +44,8 @@ class SomberRecoveries(unittest.TestCase):
         self.assertNotEqual(by_flag[530860][1], by_flag[530861][1])
 
     def test_corroborated_filler_candidates_resolve_without_reviving_all_filler(self):
+        if ROOT is None:
+            self.skipTest(REPO_ONLY_REASON)
         spec = importlib.util.spec_from_file_location("unplaced_somber", ROOT / "tools/datamine_unplaced_globals.py")
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
@@ -48,6 +58,8 @@ class SomberRecoveries(unittest.TestCase):
         self.assertNotIn("11007995", rows)
 
     def test_scarab_event_calls_match_the_pin_identity(self):
+        if ROOT is None:
+            self.skipTest(REPO_ONLY_REASON)
         records = json.loads((GF / "evidence/mfg_somber_recoveries.json").read_text())["recoveries"]
         events = ROOT / "elden_ring_artifacts/event"
         if not events.is_dir():

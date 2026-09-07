@@ -49,6 +49,12 @@ means most incoming foreign progression is no longer on a starred check.
 import argparse, collections, glob, os, re, subprocess, sys, tempfile, zipfile, zlib, json
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# The AP game name comes from the world, never a literal (#1465). `gamename.py` imports
+# nothing, so this costs no Archipelago import.
+sys.path.insert(0, os.path.join(ROOT, "greenfield", "eldenring"))
+from gamename import GAME  # noqa: E402
+
 ADV, USEFUL, TRAP = 0b001, 0b010, 0b100
 
 
@@ -175,7 +181,7 @@ def main():
         for p, rows in md["locations"].items():
             _lc[si[p].game] = _lc.get(si[p].game, 0) + len(rows)
         print("   locations by game: %s" % _lc)
-        er = {p for p, i in si.items() if i.game == "Elden Ring"}
+        er = {p for p, i in si.items() if i.game == GAME}
         # CURATION SIDE: foreign advancement landing in an ER world -- how much of it sits on that
         # world's progression surface? That is what confine buys, and what lowering it spends.
         sd = md.get("slot_data", {})
