@@ -686,6 +686,10 @@ writing blurbs; the price of starting one just kept going up until it was always
   `release/CHANGELOG.md`, under the current
   `## v<version> — <date>` heading. Not "before the tag", not "when the window closes": the same
   commit, because that is the only commit whose author has both the change and the reason.
+- **The window itself is opened by `.github/workflows/open-window.yaml`** after a tag's release
+  run goes green: it runs `tools/open_window.py`, pushes the client half, promotes stable and
+  opens a draft world PR with the `TODO(open)` markers listed. Write the prose in that draft
+  rather than opening a second window by hand (release/DISTRIBUTION.md, "the next window").
 - **The blurb is drafted as the window FILLS, not at tag time.**
   `release/BLURB-v<version>.md` opens on the first change of a version and grows with it. A
   blurb written from scratch afterwards is the reconstruction above, wearing a deadline.
