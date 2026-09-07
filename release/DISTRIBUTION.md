@@ -53,6 +53,26 @@ handled where it can be: the handshake catches it, and it is documented as a sym
 > If you see `VERSION MISMATCH` in the client log, that is what it means. Redownload both from the
 > same release. Do not report bugs from a mismatched pair -- they will not be real.
 
+### And the map engine, which is built by the release, not by hand
+
+The MapForGoblins DLL in the bundle is not a checked-in binary. `er-release.yaml`'s `mfg-dll`
+job clones [our fork](https://github.com/4laric/ERR-MapForGoblins-DLL) at the commit pinned in
+`release/MFG-VERSION.json`, fetches the pinned vanilla inputs from the private inputs release,
+builds the vanilla profile, writes the AP preset with the fork's `tools/make_ap_ini.py`, and
+records the provenance the packager then verifies (`tools/package_mfg.py`). The one thing a
+human still owns is the pin:
+
+- `python tools/mfg_pin.py --check` -- fails when the pin trails the fork's head, or when the
+  world's preset table (`package_mfg.PRESET`) and the fork's preset script disagree. Runs on
+  main (`mfg-pin-drift`) and at the top of the release build, where only the `allow_stale_mfg`
+  dispatch input lets a stale pin through.
+- `python tools/mfg_pin.py --bump` -- moves `source_commit` to the fork's head. The inputs pin
+  (`input_release`, `input_sha256`) is separate and only moves when the private inputs do.
+
+Bump the pin in the same PR that lands a fork change the world depends on, so the release
+that follows builds it. v0.6.0.1 is why this paragraph exists: the fork merged the rings
+default, the packager began requiring the key, and the pin still named the commit before.
+
 ## What we do NOT do
 
 **No mirrors.** Not on Nexus, not in a Discord pin, not a re-upload "for convenience". A mirror

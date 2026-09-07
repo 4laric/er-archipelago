@@ -48,6 +48,10 @@ on:
         description: "allow the target tag's recorded client to trail client main"
         type: boolean
         default: false
+      allow_stale_mfg:
+        description: "allow release/MFG-VERSION.json to trail the MapForGoblins fork's head"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -125,6 +129,17 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # The job builds EXACTLY what the pin names. A pin that trails the fork's head ships the
+      # old engine with a straight face (v0.6.0.1), so refuse unless the dispatcher said so.
+      - name: The pin is the fork's head (or allow_stale_mfg was set)
+        if: steps.mfg-pin.outputs.enabled == 'true'
+        shell: bash
+        run: |
+          if [ "${{ github.event.inputs.allow_stale_mfg }}" = "true" ]; then
+            python tools/mfg_pin.py --check --allow-behind
+          else
+            python tools/mfg_pin.py --check
+          fi
       - name: Fetch the pinned engine and vanilla inputs
         if: steps.mfg-pin.outputs.enabled == 'true'
         shell: pwsh
