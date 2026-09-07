@@ -1,0 +1,74 @@
+{
+  "issue": 1437,
+  "flag": 30207900,
+  "pin": {
+    "reference_id": "2600045",
+    "map": "m30_20_00",
+    "x": -67.797,
+    "y": 1308.187,
+    "z": -176.058,
+    "coordinate_frame": "map_local",
+    "map_precision": "three_fields",
+    "itemLotId": 30200900,
+    "generated_xyz": [
+      -67.797,
+      1308.187,
+      -176.058
+    ],
+    "coordinate_transform": null,
+    "lotSource": "map",
+    "lot_source_status": "generated_profile",
+    "source": "native_generated_pin",
+    "category": "EquipTalismans",
+    "param_fields": {
+      "iconId": 60,
+      "dispMask00": true,
+      "areaNo": 30,
+      "gridXNo": 20,
+      "posX": -67.797,
+      "posY": 1308.187,
+      "posZ": -176.058,
+      "textId1": 300001100,
+      "textDisableFlagId1": 30207900,
+      "textId2": 30200,
+      "textDisableFlagId2": 30207900,
+      "selectMinZoomStep": 1
+    },
+    "object_name": null
+  },
+  "identity": {
+    "table": "map",
+    "lot": 30200900,
+    "slot": 1,
+    "category": 4,
+    "item_id": 1100,
+    "full_id": 536872012,
+    "name": "Silver Scarab"
+  },
+  "access": {
+    "region": "Consecrated Snowfield",
+    "grace": 73020,
+    "play_region": 30200,
+    "inventory_requirements": [],
+    "route": [
+      "Hidden Path to the Haligtree grace",
+      "downstairs to central platform",
+      "drop onto invisible walkway",
+      "enter south room",
+      "strike illusory wall",
+      "open chest"
+    ],
+    "route_source": "https://gamerpillar.com/hidden-path-to-the-haligtree-elden-ring/",
+    "route_source_date": "2022-03-24",
+    "reviewed": "2026-09-06"
+  },
+  "game_witnesses": [
+    "treasure_assets.tsv: flag30207900/lot30200900/asset30201670/m30_20",
+    "item_grace_coords.tsv: exact pin coordinate match",
+    "item_play_regions.tsv:3020002;3020003 ->30200",
+    "m30_20_00_00 event0 registers bonfire30200000/entity30201950",
+    "m30_20_00_00 event30202200 disables statue30201200",
+    "common_func event90005650 opens separate boss door on ObjActEventFlag; not an inventory predicate"
+  ],
+  "limits": "Ordinary traversal assumption, as for neighboring dungeon checks. No live-game randomizer smoke claimed. The legacy flag_lots name Pickled Turtle Neck is a category-name collision: category4 row1100 is the talisman, not goods1100."
+}

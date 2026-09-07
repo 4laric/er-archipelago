@@ -91,6 +91,18 @@ These commands grant inventory items only. The Leyndell entrance reads event fla
 the inventory, so granting two or more Great Runes does not repair a sealed capital gate. Use the
 next section for that symptom.
 
+Before rescuing, read the log. A rune that "vanished" after a bell-bearing or prayerbook hand-in
+and now prints `[reconcile] INERT: goods 0x40001fd4..d9` after every load may still be
+in the inventory: the old client scan could miss occupied key-item slots. Client #638
+fixes that scan in the v0.6.1 client update. Open the Key Items tab first; if the rune is listed, do not `!give` it -- the game
+refuses the duplicate and the command changes nothing. On an updated client, diagnostics show where an item was observed, including
+slots beyond the live-entry count. The `egd_result` field is diagnostic and may be
+marked `UNVERIFIED-FIELD`; do not treat it alone as proof that a grant succeeded.
+
+These IDs are the boss-drop rows. They cannot be equipped at a grace (the menu wants rows
+191-196, the Divine Tower's award), and the restore flag the client sets means the tower will not
+offer to convert them. That is client #316, not a rescue.
+
 ## A Whetblade is blocking received items
 
 Do **not** try to repair this with `!give`. Current clients already use the exact IDs below, and

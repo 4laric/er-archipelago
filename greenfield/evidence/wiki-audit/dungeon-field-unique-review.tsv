@@ -101,11 +101,12 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7770639	unique_dungeon_pickup	Cerulean	St. Trina's Smile	400632	m22_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772002	unique_dungeon_pickup	Cerulean	Velvet Sword of St. Trina	22007150	m22_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772109	unique_dungeon_pickup	Consecrated Snowfield	Imp Head (Elder)	30197040	m30_19	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7774650	unique_dungeon_pickup	Consecrated Snowfield	Silver Scarab	30207900	m30_20	remaining_unreviewed	0		first_independent_identity_region_source
 7773985	unique_dungeon_pickup	Consecrated Snowfield	Spelldrake Talisman +2	30207060	m30_20	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
 7770786	unique_dungeon_pickup	Deeproot Depths	Ash of War: Golden Land	540660	m12_03	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7771259	unique_dungeon_pickup	Deeproot Depths	Ash of War: Vacuum Slice	12037140	m12_03	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
-7900182	unique_dungeon_pickup	Deeproot Depths	Crucible Tree Armor	12037300	m12_03	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
-7771275	unique_dungeon_pickup	Deeproot Depths	Crucible Tree Helm	12037300	m12_03	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900182	unique_dungeon_pickup	Deeproot Depths	Crucible Tree Armor	12037300	m12_03	trusted	2	gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7771275	unique_dungeon_pickup	Deeproot Depths	Crucible Tree Helm	12037300	m12_03	trusted	2	gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
 7771253	unique_dungeon_pickup	Deeproot Depths	Elden Stars	12037080	m12_03	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770603	unique_dungeon_pickup	Deeproot Depths	Fia's Hood	400339	m12_03	remaining_unreviewed	0		first_independent_identity_region_source
 7900026	unique_dungeon_pickup	Deeproot Depths	Fia's Robe	400339	m12_03	remaining_unreviewed	0		first_independent_identity_region_source
@@ -331,7 +332,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7900201	unique_dungeon_pickup	Mt. Gelmir	Gelmir Knight Gauntlets	30097050	m30_09	remaining_unreviewed	0		first_independent_identity_region_source
 7900202	unique_dungeon_pickup	Mt. Gelmir	Gelmir Knight Greaves	30097050	m30_09	remaining_unreviewed	0		first_independent_identity_region_source
 7772064	unique_dungeon_pickup	Mt. Gelmir	Gelmir Knight Helm	30097050	m30_09	remaining_unreviewed	0		first_independent_identity_region_source
-7770593	unique_dungeon_pickup	Mt. Gelmir	Gelmir's Fury	400291	m16_00	remaining_unreviewed	0		first_independent_identity_region_source
 7771719	unique_dungeon_pickup	Mt. Gelmir	Ghiza's Wheel	16007940	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770592	unique_dungeon_pickup	Mt. Gelmir	Letter to Bernahl	400290	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770581	unique_dungeon_pickup	Mt. Gelmir	Letter to Patches	400180	m16_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted

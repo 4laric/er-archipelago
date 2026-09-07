@@ -153,6 +153,7 @@ class OfflineArtifactTests(unittest.TestCase):
                           "eldenpedia-invasion-reward-check-leads.tsv",
                           "eldenpedia-item-acquisition-check-leads.tsv",
                           "eldenpedia-location-check-leads.tsv",
+                          "eldenpedia-m12-deeproot-armor-check-leads.tsv",
                           "eldenpedia-m12-siofra-check-leads.tsv",
                           "eldenpedia-m12-siofra-tail-check-leads.tsv",
                           "eldenpedia-m12-unique-check-leads.tsv",
@@ -281,7 +282,7 @@ class OfflineArtifactTests(unittest.TestCase):
         by_id = {c["check_id"]: c for c in data["checks"]}
         self.assertTrue(by_id[7772822]["player"]["positions"])  # Gatefront carriage
         self.assertFalse(by_id[7770000]["player"]["positions"])  # interior Dark Moon Ring
-        self.assertEqual(len(by_id), 4931)
+        self.assertEqual(len(by_id), 4941)
         self.assertGreater(sum(bool(c["player"]["positions"]) for c in by_id.values()), 2000)
         self.assertEqual(set(data["player_maps"]), {"m60", "m61"})
         for check in by_id.values():
