@@ -1181,11 +1181,11 @@
       "shape": "ANY",
       "required": false,
       "profiles": [
-        "bedrock"
+        "both"
       ],
-      "producer": "(bedrock apworld)",
+      "producer": "features/natural_progression.py (greenfield) / bedrock apworld",
       "consumer": "key_resolver.rs / region.rs",
-      "doc": "bedrock natural key triggers."
+      "doc": "natural key triggers: {'<Region> Lock': {'anyOf': [clause, ...]}}, each clause either {items, flags} or {countItems, count}; the client blooms that region's open flag when one is satisfied. GREENFIELD emits it whenever natural_progression is ON -- one clause per live region gate, plus the count gates and the vacuous always-open fallback for kept regions with no clause. It was tagged bedrock-only until #1463's cross-profile check fired on a real greenfield gen and proved otherwise: the tag was inherited from the 2026-07-12 sweep, which correctly demoted these keys to optional but read this one as 'ours, not his' from the CLIENT side only and never checked who emits it. Absent/empty is inert on either path."
     },
     {
       "name": "lockGrantItems",

@@ -621,10 +621,12 @@ class TheNameSurface(unittest.TestCase):
         separately versioned; this pin still proves the spawn-name work added no further shape."""
         from worlds.eldenring import contract
         # ffc0f1b5 -> f6250382 in #1463 (the `profile` declaration + the dungeonSweeps retag),
-        # which is a contract move this file did not cause and does not object to. The pin is
-        # re-anchored rather than deleted: its claim is that the SPAWN-NAME work adds no shape,
-        # and it can only keep making that claim from a current value.
-        self.assertEqual(contract.CONTRACT_HASH[:8], "f6250382")
+        # then f6250382 -> 613fb438 in #1466, which retagged `naturalKeyTriggers` BEDROCK-only ->
+        # BOTH once #1463's own cross-profile check proved greenfield emits it. Neither move is a
+        # contract move this file caused, and it objects to neither. The pin is re-anchored rather
+        # than deleted: its claim is that the SPAWN-NAME work adds no shape, and it can only keep
+        # making that claim from a current value.
+        self.assertEqual(contract.CONTRACT_HASH[:8], "613fb438")
 
     def test_a_name_the_game_writes_with_a_comma_is_offered_without_one(self):
         """🛑 A COMMA IS A SEPARATOR WHERE PLAYERS WRITE THESE. `spawn_traps: [Alexander, Warrior

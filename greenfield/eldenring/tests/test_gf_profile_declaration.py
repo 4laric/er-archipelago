@@ -20,6 +20,13 @@ What this file guards, in the order it matters:
      (RECON-contract-keys-20260706 filed it as a profile blemish); an always-empty dict reads
      identically to absent on the client, so the tag was describing an intention, not an emission.
 
+  5. NO bedrock-only key has a greenfield emitter, checked by reading greenfield's CODE rather
+     than by rolling options -- and the emission half is run under `natural_progression` on AND
+     off. Both were added by #1466, which is #1463 landing with `naturalKeyTriggers` mistagged
+     bedrock-only while features/natural_progression.py emitted it. Guard 2 above was already
+     here and did not catch it: it only ever saw one option set, and not that one. A cross-profile
+     check that fires only on the options a test happens to roll is a check that ships broken.
+
 Rule 8, applied here: what would make these pass while the bug is back? Only re-tagging the key as
 greenfield, which is the change these tests exist to make someone argue for.
 
@@ -28,8 +35,11 @@ anywhere; the emission half is a WorldTestBase suite and skips until the world i
 
 Run:  python -m pytest greenfield/eldenring/tests/test_gf_profile_declaration.py
 """
+import ast
 import importlib.util
+import io
 import os
+import tokenize
 import unittest
 
 import pytest
@@ -107,7 +117,9 @@ class ForeignKeysAreRefused(unittest.TestCase):
 
     def test_a_clean_greenfield_slot_data_has_no_profile_problems(self):
         # The control. Without it, a test below could "pass" because everything fails.
-        problems = self._problems(_minimal(contract.GREENFIELD), contract.GREENFIELD)
+        sd = _minimal(contract.GREENFIELD)
+        self.assertIn(contract.PROFILE, sd, "the minimal fixture built nothing to validate")
+        problems = self._problems(sd, contract.GREENFIELD)
         self.assertEqual([p for p in problems if "FOREIGN" in p], [])
 
     def test_greenfield_emitting_a_bedrock_key_fails_and_names_it(self):
@@ -150,6 +162,104 @@ class DungeonSweepsIsBedrockOnly(unittest.TestCase):
         self.assertTrue(contract.BY_NAME["dungeonSweepFlags"].in_profile(contract.GREENFIELD))
 
 
+class NoBedrockOnlyKeyHasAGreenfieldEmitter(unittest.TestCase):
+    """The tag audit, done by reading greenfield's source rather than by rolling options.
+
+    This is the test that would have caught #1466 before CI did. `naturalKeyTriggers` was tagged
+    BEDROCK-only while features/natural_progression.py returned it under `natural_progression`, and
+    the emission suite below never noticed, because the emission suite only ever sees the options a
+    given test rolls -- and no test in it rolled that one. A cross-profile check that fires on an
+    option nobody exercises is a check that ships broken.
+
+    So this walks the SOURCE instead: every BEDROCK-only wire name, looked for in the CODE of every
+    module under greenfield/. Code, not text -- comments and docstrings are stripped first, because
+    both core.py and boss_locks.py legitimately *discuss* bedrock-only keys in prose ("dungeonSweeps:
+    NOT emitted (#1463)") and a scan that counted those would be a scan people silence with an
+    allow-list until it means nothing. String literals are deliberately KEPT: `sd["fogWalls"] = ...`
+    is exactly the emission being hunted, and it is a string.
+    """
+
+    # The two generators that render the declaration itself. Everything else is fair game.
+    _NOT_EMITTERS = {"contract.py", "gen_contract.py", "gen_handoff.py"}
+
+    @staticmethod
+    def _code_only(text):
+        """`text` with comments and docstrings blanked, so a mention in prose is not an emission."""
+        lines = text.splitlines()
+        blank = set()
+        for tok in tokenize.generate_tokens(io.StringIO(text).readline):
+            if tok.type == tokenize.COMMENT:
+                blank.update(range(tok.start[0], tok.end[0] + 1))
+        tree = ast.parse(text)
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.Module, ast.ClassDef,
+                                     ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            body = getattr(node, "body", None)
+            if (body and isinstance(body[0], ast.Expr)
+                    and isinstance(body[0].value, ast.Constant)
+                    and isinstance(body[0].value.value, str)):
+                blank.update(range(body[0].lineno, body[0].end_lineno + 1))
+        return "\n".join("" if i + 1 in blank else ln for i, ln in enumerate(lines))
+
+    def _greenfield_sources(self):
+        # The APWORLD PACKAGE, not its parent. In the repo that is greenfield/eldenring; once
+        # gf_test.py installs the world it is Archipelago/worlds/eldenring -- and the parent there
+        # is `worlds/`, i.e. every other AP world, which is neither ours to audit nor even all
+        # parseable (MuseDash's presets carry a BOM). Anchoring on the package makes the scan the
+        # same set of files in both layouts, which is the only way its result means one thing.
+        root = os.path.dirname(_HERE)
+        for base, dirs, files in os.walk(root):
+            dirs[:] = [d for d in dirs if d not in ("tests", "__pycache__", "handoff")]
+            for f in files:
+                if f.endswith(".py") and f not in self._NOT_EMITTERS:
+                    yield os.path.join(base, f)
+
+    def test_the_stripper_keeps_code_and_drops_prose(self):
+        # Rule 8: a scan that silently stripped everything would pass forever. Pin both halves.
+        sample = ('"""a docstring naming fogWalls."""\n'
+                  '# a comment naming lockGrantItems\n'
+                  'sd["randomStartAreaId"] = 1\n')
+        stripped = self._code_only(sample)
+        self.assertNotIn("fogWalls", stripped)
+        self.assertNotIn("lockGrantItems", stripped)
+        self.assertIn("randomStartAreaId", stripped, "a real emission must survive stripping")
+
+    def test_bedrock_only_names_appear_in_no_greenfield_code(self):
+        bedrock_only = sorted(k.name for k in contract.CONTRACT
+                              if not k.in_profile(contract.GREENFIELD))
+        self.assertTrue(bedrock_only, "the contract must still have bedrock-only keys to audit")
+        hits, scanned = {}, 0
+        for path in self._greenfield_sources():
+            with open(path, encoding="utf-8") as fh:
+                text = fh.read()
+            scanned += 1
+            code = self._code_only(text)
+            for name in bedrock_only:
+                if name in code:
+                    hits.setdefault(name, []).append(os.path.basename(path))
+        # WITNESS: an empty `hits` means nothing if the walk found no files. It has found ~40 for
+        # this package's whole life; 20 is a floor that only a broken anchor can cross.
+        self.assertGreater(scanned, 20,
+                           f"the walk scanned only {scanned} module(s) -- it has lost the package")
+        self.assertEqual(
+            hits, {},
+            "these keys are tagged BEDROCK-only but greenfield CODE names them. If the module emits "
+            "the key, the tag is the bug -- retag it BOTH, which is exactly what #1466 was for "
+            f"naturalKeyTriggers. Hits: {hits}")
+
+    def test_natural_key_triggers_is_tagged_for_both(self):
+        # The specific regression. Named separately so the failure reads as itself, not as a
+        # generic audit hit.
+        key = contract.BY_NAME["naturalKeyTriggers"]
+        self.assertTrue(key.in_profile(contract.GREENFIELD),
+                        "features/natural_progression.py emits naturalKeyTriggers whenever "
+                        "natural_progression is ON -- it is not bedrock-only (#1466)")
+        self.assertTrue(key.in_profile(contract.BEDROCK))
+        self.assertIn("natural_progression", key.producer,
+                      "the producer string must name the greenfield module that emits it")
+
+
 # --------------------------------------------------------------------------------------------
 # The EMISSION half: needs the world installed under Archipelago/worlds (gf_test.py's job).
 # --------------------------------------------------------------------------------------------
@@ -167,6 +277,7 @@ class ProfileIsEmitted(WorldTestBase):
 
     def test_slot_data_carries_no_bedrock_only_key(self):
         sd = self.world.fill_slot_data()
+        self.assertIn("locationFlags", sd, "this seed emitted no locationFlags at all")
         foreign = sorted(
             name for name in sd
             if name in contract.BY_NAME
@@ -179,3 +290,61 @@ class ProfileIsEmitted(WorldTestBase):
         sd = self.world.fill_slot_data()
         self.assertNotIn("dungeonSweeps", sd)
         self.assertIn("dungeonSweepFlags", sd, "the live flag-keyed sweep wire must still be sent")
+
+
+class _NoForeignKeyUnderTheseOptions:
+    """Mixin: assert the full emission under one option set carries no bedrock-only key.
+
+    The source scan above is the durable guard; this is the live one, and it exists because a
+    feature can compose a key name rather than write it (`sd[contract.SOMETHING]`, an f-string, a
+    dict merged in from data). Each subclass is one option set the cross-profile check has to
+    survive, and `natural_progression` on/off is here by name: ON is the combination that failed
+    CI on #1466, OFF is the control that passed it and therefore hid the bug.
+    """
+
+    game = GAME
+
+    def test_no_bedrock_only_key_is_emitted(self):
+        sd = self.world.fill_slot_data()
+        foreign = sorted(name for name in sd
+                         if name in contract.BY_NAME
+                         and not contract.BY_NAME[name].in_profile(contract.GREENFIELD))
+        # WITNESS: "no foreign keys" is also what an empty slot_data says. Pin a greenfield key
+        # that every seed emits, so a fill_slot_data that returned {} cannot read as a pass.
+        self.assertIn("locationFlags", sd, "this seed emitted no locationFlags at all")
+        self.assertEqual(foreign, [],
+                         f"options={self.options!r} emitted foreign key(s): {foreign}")
+
+    def test_the_emission_validates_as_greenfield(self):
+        # The end-to-end statement: not just "no foreign key" but "the contract accepts this",
+        # which is what the server-side assertion actually runs.
+        contract.validate_slot_data(self.world.fill_slot_data(),
+                                    profile=contract.GREENFIELD, strict=True)
+
+
+class ForeignKeysNaturalProgressionOn(_NoForeignKeyUnderTheseOptions, WorldTestBase):
+    options = {"natural_progression": True, "num_regions": 0}
+
+
+class ForeignKeysNaturalProgressionOff(_NoForeignKeyUnderTheseOptions, WorldTestBase):
+    options = {"natural_progression": False}
+
+    def test_natural_key_triggers_is_absent_when_the_mode_is_off(self):
+        """The off half of the #1466 retag, and the row test_gf_off_means_off ledgers.
+
+        `naturalKeyTriggers` became a greenfield key because natural_progression emits it. That
+        makes it CONDITIONAL, and this project's rule for a conditional key is that its absence is
+        asserted somewhere rather than assumed -- otherwise "off" is only ever tested by nobody
+        looking. features/natural_progression.slot_data early-returns {} when the mode is off, so
+        a default seed must not carry the key at all.
+        """
+        sd = self.world.fill_slot_data()
+        self.assertIn("locationFlags", sd, "this seed emitted no locationFlags at all")
+        self.assertNotIn("naturalKeyTriggers", sd)
+
+
+class ForeignKeysNaturalProgressionOnWithDlcAndSweeps(_NoForeignKeyUnderTheseOptions, WorldTestBase):
+    # The two features that own bedrock-adjacent wires (natural keys, sweeps) turned on together,
+    # with the DLC in play so the DLC-only branches of both are exercised.
+    options = {"natural_progression": True, "num_regions": 0,
+               "enable_dlc": True, "dungeon_sweep": "all"}

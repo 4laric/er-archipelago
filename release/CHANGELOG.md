@@ -21,13 +21,21 @@ contract hash moved (#1463), so an older client will name the mismatch on a v0.6
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
 - **Profile/assets:** No action — the MapForGoblins build and preset are unchanged from v0.6.0.2.
 
-`CONTRACT_HASH` MOVED to `f6250382` (from `ffc0f1b5`, which stood from v0.5.7 through v0.6.0.2),
+`CONTRACT_HASH` MOVED to `613fb438` (from `ffc0f1b5`, which stood from v0.5.7 through v0.6.0.2),
 read by loading contract.py. It moves on a FIXPACK, which is allowed by exactly one rule and only
 because that rule's condition is met: the paired client BRIDGES the older contract. Every
 0.6.0-line seed predates the new `profile` key, and `profile::select` reads its absence as
 "older seed", falls back to the key-presence sniff this release replaces, and says so once; the
 0.6.0 hash is also listed in the client's audited `is_legacy_contract_compatible` pairs. So a
 v0.6.0.3 client still plays every 0.6.0 seed, which is what the F in V.R.M.F promises.
+
+Two keys moved the hash on the way in (`profile`, `dungeonSweeps`) and a third moved it again
+inside the same unreleased fixpack: `naturalKeyTriggers` is now tagged for BOTH profiles rather
+than for bedrock alone. The new cross-profile check is what found it -- `features/natural_progression`
+has always emitted the key whenever Vanilla Progression is on, so the bedrock-only tag was simply
+false, and the check correctly rejected a real greenfield seed. Retagging is the whole fix; nothing
+about what the world sends or what the client reads changed. Because 0.6.0.3 has not shipped, this
+is still one hash move and not two: `613fb438` is the only value a released 0.6.0.3 seed carries.
 
 The version moved, so the client half moved with it: clients PR #647 "Stamp the paired
 client as 0.6.0+f3" moves the three client version sites, and clients PR #649 carries the profile

@@ -1448,6 +1448,12 @@ CONTRACT = (
     # apworld (fswap/archipelago@er) emits apIdsToItemIds + locationIdsToKeys + goal, and NONE
     # of naturalKeyTriggers / lockGrantItems / randomStart* / fogWalls -- those are OUR runtime
     # features, not his. Nothing ever validated profile="bedrock", so the fiction survived.
+    # CAVEAT (#1466): "OUR runtime features" describes the CLIENT side, and it does not follow that
+    # greenfield never EMITS them. naturalKeyTriggers is emitted by features/natural_progression
+    # whenever Vanilla Progression is on; it sat here mistagged until #1463's own cross-profile
+    # check rejected a real greenfield gen, and it is now tagged BOTH below, beside itemCounts.
+    # Before tagging any key BEDROCK-only, look for a greenfield emitter --
+    # tests/test_gf_profile_declaration.py::NoBedrockOnlyKeyHasAGreenfieldEmitter does that walk.
     # `required` now means what it says: THE CLIENT CANNOT FUNCTION WITHOUT IT. It functions
     # without every one of these (each parse degrades to a vanilla default; region.rs and
     # fogwall.rs have foreign_apworld_degrade tests proving it).
@@ -1458,9 +1464,19 @@ CONTRACT = (
                 "core._base_slot_data (greenfield) / bedrock apworld", "core.rs receive.rs itemCounts",
                 "per-item quantity map {str(ap_item_id): qty}; client grants full_id x qty. Greenfield "
                 "emits stack sizes for throwables (x10) and finished pots (x4) (features/filler_curation)."),
-    ContractKey("naturalKeyTriggers", "ANY", False, (BEDROCK,),
-                "(bedrock apworld)", "key_resolver.rs / region.rs",
-                "bedrock natural key triggers."),
+    ContractKey("naturalKeyTriggers", "ANY", False, (BOTH,),
+                "features/natural_progression.py (greenfield) / bedrock apworld",
+                "key_resolver.rs / region.rs",
+                "natural key triggers: {'<Region> Lock': {'anyOf': [clause, ...]}}, each clause "
+                "either {items, flags} or {countItems, count}; the client blooms that region's open "
+                "flag when one is satisfied. "
+                "GREENFIELD emits it whenever natural_progression is ON -- one clause per live "
+                "region gate, plus the count gates and the vacuous always-open fallback for kept "
+                "regions with no clause. It was tagged bedrock-only until #1463's cross-profile "
+                "check fired on a real greenfield gen and proved otherwise: the tag was inherited "
+                "from the 2026-07-12 sweep, which correctly demoted these keys to optional but read "
+                "this one as 'ours, not his' from the CLIENT side only and never checked who emits "
+                "it. Absent/empty is inert on either path."),
     ContractKey("lockGrantItems", "ANY", False, (BEDROCK,),
                 "(bedrock apworld)", "region.rs",
                 "items granted on a region lock receipt (bedrock)."),
