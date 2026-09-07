@@ -87,6 +87,11 @@ def ensure_ap(ap, pin):
     sh("git", "-C", str(ap), "checkout", "--force", pin)
 
 
+# 🛑 ONE --ap-dir PER CONCURRENT RUN. install_world() copies the world into the checkout before
+# pytest starts, so two runs sharing an --ap-dir from different branches interleave: the second
+# install lands under the first run's pytest and it tests the wrong code with a straight face.
+# Measured 2026-09-07: a run against a shared checkout reported 155 witnessless tests and an old
+# assertion message that neither branch contained. Give each agent or terminal its own checkout.
 def install_world(ap):
     dst = ap / "worlds" / "eldenring"
     if dst.exists():

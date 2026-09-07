@@ -469,7 +469,9 @@ def test_no_new_witnessless_empty_assertions():
         "%d test(s) assert a collection is empty without any assertion that the scan SAW anything, "
         "up from the %d ceiling. A test whose filter stops matching then passes for the same reason "
         "it would pass if the code were right. Add a witness -- assert the candidate set is "
-        "non-empty -- or say here why this one cannot have it. New offenders: %r"
+        "non-empty -- or say here why this one cannot have it. This ratchet COUNTS, it does not "
+        "diff: the tests listed here are the last six by filename, NOT necessarily the new ones. "
+        "Look in the test files your branch added or touched. Last six: %r"
         % (len(witnessless), _WITNESSLESS_CEILING, witnessless[-6:]))
 
 
