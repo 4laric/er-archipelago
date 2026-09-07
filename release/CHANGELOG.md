@@ -3,6 +3,30 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.0.4 — 2026-09-07
+
+### What you need to update
+
+- **Client:** Optional — nothing in this window yet changes the client; a v0.6.0.3 client keeps
+  playing every 0.6.0-line seed, and the contract hash has not moved since v0.6.0.3.
+- **APWorld:** Host-only — install v0.6.0.4 when generating a new room once it ships.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — a fixpack never strands a running seed.
+- **Profile/assets:** No action — the MapForGoblins build and preset are unchanged from v0.6.0.3.
+Window opened AT THE TAG of v0.6.0.3 with ZERO commits past it.
+
+`CONTRACT_HASH` is `613fb438`, read by loading contract.py: unmoved since v0.6.0.3, so a
+v0.6.0.3 client and a v0.6.0.4 apworld pair without a mismatch in either direction. Versions are
+V.R.M.F: a client on the 0.6.0 line from v0.6.0.3 on plays every seed the line generates.
+
+The version moved, so the client half moved with it: clients PR #657 "Stamp the paired client
+for the v0.6.0.4 window" moves the three client version sites, and the gitlink rides in this same
+commit.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.6.0.3 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
 ## v0.6.0.3 — 2026-09-07
 
 The third fixpack on the v0.6.0 line, opened at the v0.6.0.2 tag with nothing past it. Versions
