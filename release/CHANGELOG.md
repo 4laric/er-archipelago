@@ -3,6 +3,36 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.0.2 — 2026-09-07
+
+The second fixpack on the v0.6.0 line, opened at the v0.6.0.1 tag with nothing past it. Versions
+are V.R.M.F: a client on the 0.6.0 line plays every seed the line generated, in both directions.
+
+### What you need to update
+
+- **Client:** Optional — nothing in this window yet changes the client; a v0.6.0.1 client keeps
+  playing every 0.6.0-line seed.
+- **APWorld:** Host-only — install v0.6.0.2 when generating a new room once it ships.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — a fixpack never strands a running seed.
+- **Profile/assets:** No action — the MapForGoblins build and preset are unchanged from v0.6.0.1.
+
+`CONTRACT_HASH` is `ffc0f1b5`, read by loading contract.py: unmoved since v0.6.0, so the
+handshake accepts any pairing of v0.6.0, v0.6.0.1 and v0.6.0.2 clients and apworlds.
+
+The version moved, so the client half moved with it: clients PR "Stamp the paired client as
+0.6.0+f2" regenerates `contract_gen.rs` at 0.6.0.2, and the gitlink rides in this same commit.
+
+- **Release pipeline: a tag rebuild no longer fails because the MapForGoblins fork moved after
+  the tag.** The `mfg-dll` job's pin check is strict on main and on fresh dispatches, and
+  warns-only when rebuilding an existing tag: the pin recorded in a tag is the pin that tag
+  ships, whatever the fork did since. v0.6.0.1's first release run failed on exactly that after
+  fork PR #9 merged minutes after the tag.
+- MapForGoblins pin moved to the fork's head (`84109f2`, PR #9), which names
+  `ap_progression_rings` in its preset script explicitly; the built preset is unchanged.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.6.0.1 in this same commit.
+
 ## v0.6.0.1 — 2026-09-07
 
 The first **fixpack** on the v0.6.0 line. Versions are now V.R.M.F: a client on the same

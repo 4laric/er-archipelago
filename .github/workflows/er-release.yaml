@@ -131,11 +131,16 @@ jobs:
           python-version: "3.12"
       # The job builds EXACTLY what the pin names. A pin that trails the fork's head ships the
       # old engine with a straight face (v0.6.0.1), so refuse unless the dispatcher said so.
-      - name: The pin is the fork's head (or allow_stale_mfg was set)
+      # Strict on main and on a fresh dispatch; warn-only when REBUILDING A TAG. A tag records the
+      # pin it ships, and the fork moving afterwards does not change that -- v0.6.0.1's first run
+      # failed here because fork PR #9 merged minutes after the tag was cut.
+      - name: The pin is the fork's head (strict), or this is a tag rebuild / allow_stale_mfg
         if: steps.mfg-pin.outputs.enabled == 'true'
         shell: bash
         run: |
-          if [ "${{ github.event.inputs.allow_stale_mfg }}" = "true" ]; then
+          if [ "${{ github.event.inputs.allow_stale_mfg }}" = "true" ] \
+             || [ -n "${{ github.event.inputs.tag }}" ] \
+             || [[ "${{ github.ref }}" == refs/tags/* ]]; then
             python tools/mfg_pin.py --check --allow-behind
           else
             python tools/mfg_pin.py --check
