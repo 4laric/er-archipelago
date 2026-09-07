@@ -415,6 +415,12 @@ def client_gitlink_note_failures(repo=REPO, rev_range=None):
         # v0.5.1 section ("Client gitlink -> 3e62e09"). The note EXISTS on main; only the
         # commit-granularity pairing is broken, same ruling as #925 (2026-08-26).
         "b131d034ef5d94e17f42b95b7bb22f8c15a9a0d6",
+        # #1471 (the tables loader, 2026-09-07): 6492c7f7 re-pinned the gitlink to clients#653,
+        # a header-only regeneration of region_locks.rs (the generator stamps its source path,
+        # which moved to eldenring/tables/). No player-visible change; the trailer was omitted
+        # and the branch had already been pushed, so the ruling is recorded here rather than
+        # rewriting the pushed branch (same shape as #925).
+        "6492c7f74e885fae6cddbdc47741ec996d734b22",
     }
     failures = []
     bumps = 0

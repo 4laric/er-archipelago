@@ -50,9 +50,9 @@ selection and the regenerated `contract_gen.rs`. The gitlink rides in this same 
   moved with them. A tables-less build now refuses to register with a message naming what is
   missing instead of an ImportError mid-`core.py`. Generation output, option semantics and contract
   keys are unchanged -- this is layering only. One slot_data field does move: `versions` carries the
-  gen-input stamp as a `data/` segment, and `gen_data.py` is itself a declared gen input, so seeds
-  generated from this apworld read `data/007a5dc3eb77ab96` where v0.6.0.2 read `data/bcf27d864e0f74c8`.
-  That segment is provenance for bug reports; the handshake gates on `contract/`, which this change does not
+  gen-input stamp as a `data/` segment, and `gen_data.py` is itself a declared gen input, so the
+  `data/` segment seeds report changes with this release. That segment is provenance for bug
+  reports; the handshake gates on `contract/`, which this change does not
   move, so no client pairing changes. Every other slot_data field is byte-identical.
 - **Contract: the world says which profile it speaks; the client stops guessing.** (#1463) The
   client had two ways to resolve a location — the matt slot-key table and our `locationFlags`
