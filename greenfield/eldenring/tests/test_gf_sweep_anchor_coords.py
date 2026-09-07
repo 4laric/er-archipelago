@@ -96,11 +96,13 @@ class SweepAnchorCoords(unittest.TestCase):
             shutil.copy(TOOL, os.path.join(td, "tools"))
             for f in ("game_areas.tsv", "item_grace_coords.tsv"):
                 shutil.copy(os.path.join(GF, f), os.path.join(td, "greenfield", f))
+            os.makedirs(os.path.join(td, "greenfield", "eldenring", "tables"), exist_ok=True)
             shutil.copy(os.path.join(GF, "eldenring", "tables/data.py"),
-                        os.path.join(td, "greenfield", "eldenring"))
+                        os.path.join(td, "greenfield", "eldenring", "tables"))
             text = open(sweeps_src, encoding="utf-8").read()
             hurt = re.sub(r"(^\s*%s: \[)" % pair[1], r"\g<1>%s, " % victim, text, count=1, flags=re.M)
             self.assertNotEqual(hurt, text, "failed to inject the double-claim")
+            os.makedirs(os.path.join(td, "greenfield", "eldenring", "tables"), exist_ok=True)
             open(os.path.join(td, "greenfield", "eldenring", "tables/boss_sweeps.py"), "w",
                  encoding="utf-8").write(hurt)
 
