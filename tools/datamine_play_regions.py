@@ -183,7 +183,7 @@ def load_votes():
     data module). Every silent-degradation channel measured here hard-fails below its floor."""
     # data.py is generated and imports nothing: load it BY PATH. Importing the package would pull in
     # Archipelago (eldenring/__init__.py -> core.py -> BaseClasses).
-    data = load_module(os.path.join(REPO, "greenfield", "eldenring", "data.py"), "_gf_data")
+    data = load_module(os.path.join(REPO, "greenfield", "eldenring", "tables", "data.py"), "_gf_data")
 
     flag_region = {}
     for region, locs in data.LOCATIONS.items():
@@ -277,7 +277,7 @@ def current_groups():
     region_groups.py holds TWO tables, deliberately:
 
       * `PLAY_REGION_GROUPS` -- PlayRegionParam buckets. THE ONE THIS TOOL SPEAKS. Drives the kick
-        geometry (`region_play_ids()` -> eldenring/region_play_ids.py -> areaLockFlags -> client).
+        geometry (`region_play_ids()` -> eldenring/tables/region_play_ids.py -> areaLockFlags -> client).
       * `REGION_GROUPS`      -- BonfireWarpParam.bonfireSubCategoryId WARP-menu ids. Drives PLAY2AP,
         which regions CHECKS by joining grace_region_map.tsv. Same places, different numbers.
 

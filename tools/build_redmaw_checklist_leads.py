@@ -21,7 +21,7 @@ import re
 import unicodedata
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "greenfield" / "eldenring" / "data.py"
+DATA = ROOT / "greenfield" / "eldenring" / "tables" / "data.py"
 DEFAULT_OUT = ROOT / "greenfield" / "evidence" / "wiki-audit" / "redmaw-checklist-check-leads.tsv"
 DEFAULT_REPORT = ROOT / "greenfield" / "evidence" / "wiki-audit" / "redmaw-checklist-coverage.json"
 

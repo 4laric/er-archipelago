@@ -55,8 +55,8 @@ def route_anchor(location: str) -> str:
 
 
 def build() -> tuple[list[dict[str, str]], dict]:
-    data = load("_generic_review_data", ROOT / "greenfield/eldenring/data.py")
-    tags = load("_generic_review_tags", ROOT / "greenfield/eldenring/location_tags.py")
+    data = load("_generic_review_data", ROOT / "greenfield/eldenring/tables/data.py")
+    tags = load("_generic_review_tags", ROOT / "greenfield/eldenring/tables/location_tags.py")
     candidates = []
     for region, locations in data.LOCATIONS.items():
         for location, ap_id, flag in locations:

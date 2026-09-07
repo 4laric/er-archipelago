@@ -30,7 +30,7 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 from Options import OptionError  # noqa: E402
-from worlds.eldenring.shop_data import SHOP_ROW_FLAGS  # noqa: E402
+from worlds.eldenring.tables.shop_data import SHOP_ROW_FLAGS  # noqa: E402
 from worlds.eldenring.features.keep_out_of_shops import (  # noqa: E402
     forbidden_goods_rows, forbidden_names, plan, safe_forbid_capacity, skip_line)
 from worlds.eldenring.item_categories import category_of, names_in  # noqa: E402
@@ -74,7 +74,7 @@ class DefaultIsEmptyAndInstallsNoRule(WorldTestBase):
         assert gear is not None, "no own weapon/armour in a default pool -- the probe is broken"
         shops = _shop_locs(self.world, self.multiworld)
         assert shops, "no shop-row locations in a default seed -- scope table missing?"
-        from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS
+        from worlds.eldenring.tables.missable_locations import MISSABLE_LOCATIONS
         # #582 deliberately makes the missable subset filler-only by default. This test owns the
         # keep_out_of_shops default, so probe only rows outside that independent protection.
         ordinary_shops = [l for l in shops if l.address not in MISSABLE_LOCATIONS]

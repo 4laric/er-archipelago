@@ -42,7 +42,7 @@ AR   = os.path.join(REPO, "elden_ring_artifacts")
 EVT  = os.path.join(AR, "event")
 MSG  = os.path.join(AR, "msg")
 GF   = os.path.join(REPO, "greenfield")
-OUT  = os.path.join(GF, "eldenring", "boss_healthbars.py")
+OUT  = os.path.join(GF, "eldenring", "tables", "boss_healthbars.py")
 
 # Complete 1.17 corpus measured 2026-08-30. Both dimensions matter: a missing EMEVD family can
 # leave a large-looking boss count concentrated in too few maps, which is still not an answer.

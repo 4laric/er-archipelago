@@ -71,7 +71,7 @@ ART = os.path.join(REPO, "elden_ring_artifacts")
 PYDIR_DEFAULT = os.path.join(ART, "talk")
 OUT = os.path.join(REPO, "greenfield", "esd_gestures.tsv")
 ESD_FLAGS_TSV = os.path.join(REPO, "greenfield", "esd_flags.tsv")
-DATA_PY = os.path.join(REPO, "greenfield", "eldenring", "data.py")
+DATA_PY = os.path.join(REPO, "greenfield", "eldenring", "tables", "data.py")
 
 sys.path.insert(0, HERE)
 import datamine_esd_flags as esdf   # noqa: E402  -- the reviewed ESD call-graph resolver
@@ -313,7 +313,7 @@ def main():
     # ---- POSITIVE CONTROL: rows the EMEVD scan already knows the answer to -----------------------
     committed = _committed_gesture_flags()
     if not committed:
-        print("WARNING: greenfield/eldenring/data.py not readable -- the positive control did NOT "
+        print("WARNING: greenfield/eldenring/tables/data.py not readable -- the positive control did NOT "
               "run, so nothing here is corroborated. Treat the output as unverified.")
     else:
         shared = sorted(set(by_flag) & set(committed))

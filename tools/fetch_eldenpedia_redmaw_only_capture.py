@@ -40,7 +40,7 @@ def requested_titles() -> list[str]:
             if row["external_family_count"] == "1"
             and row["external_families"] == "gameplay-guide:redmaw"
         }
-    data = load_module("_eldenring_data", ROOT / "greenfield/eldenring/data.py")
+    data = load_module("_eldenring_data", ROOT / "greenfield/eldenring/tables/data.py")
     titles = {
         item_name(location)
         for entries in data.LOCATIONS.values()

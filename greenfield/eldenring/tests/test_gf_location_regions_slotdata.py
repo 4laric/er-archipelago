@@ -26,6 +26,13 @@ import os
 import sys
 import unittest
 
+
+def _gf_mod_path(_pkg, _name):
+    """Path to a module in the world package. The GENERATED tables moved into `tables/` (#1464);
+    hand-written modules (contract, tarnished_pack, ...) stayed put, so try the subpackage first."""
+    _t = os.path.join(_pkg, "tables", _name + ".py")
+    return _t if os.path.isfile(_t) else os.path.join(_pkg, _name + ".py")
+
 try:
     from ._util import find_repo_root, REPO_ONLY_REASON
 except ImportError:
@@ -41,7 +48,7 @@ GF = os.path.join(REPO, "greenfield") if _FOUND else os.path.dirname(os.path.dir
 
 def _load(name):
     import importlib.util
-    path = os.path.join(GF, "eldenring", name + ".py")
+    path = _gf_mod_path(os.path.join(GF, "eldenring"), name)
     spec = importlib.util.spec_from_file_location("_gf_" + name, path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -59,7 +66,7 @@ def _load_pkg(name, data_mod):
     pkg.__path__ = [os.path.join(GF, "eldenring")]
     sys.modules["_gf_pkg"] = pkg
     sys.modules["_gf_pkg.data"] = data_mod
-    path = os.path.join(GF, "eldenring", name + ".py")
+    path = _gf_mod_path(os.path.join(GF, "eldenring"), name)
     spec = importlib.util.spec_from_file_location("_gf_pkg." + name, path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)

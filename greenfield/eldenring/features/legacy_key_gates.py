@@ -38,11 +38,11 @@ from ..registry import Feature, register
 from . import vanilla_placement as _vp
 
 try:
-    from ..data import LOCATIONS
+    from ..tables.data import LOCATIONS
 except Exception:  # pragma: no cover
     LOCATIONS = {}
 try:
-    from ..item_ids import ITEM_CATALOG
+    from ..tables.item_ids import ITEM_CATALOG
     from .. import item_categories as _ic
 except Exception:  # pre-regen / standalone import
     ITEM_CATALOG = {}

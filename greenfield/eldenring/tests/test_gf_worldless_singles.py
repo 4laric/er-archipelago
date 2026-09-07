@@ -81,7 +81,7 @@ class WorldlessSingles(unittest.TestCase):
         cls.a = audit()
         cls.frozen = _gen_literal("_WORLDLESS_SINGLES")
         cls.rada = _gen_literal("_RADA_WORLDLESS")
-        from .. import data
+        from ..tables import data
         cls.flags = {int(flag) for rows in data.LOCATIONS.values() for (_n, _a, flag) in rows}
 
     def test_the_frozen_class_matches_the_rule(self):

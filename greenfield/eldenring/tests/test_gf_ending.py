@@ -314,7 +314,7 @@ def test_every_great_rune_is_reachable_as_a_check():
     actually be in the pool. Each rune must sit on exactly one location, or `great_runes_required:
     7` advertises a goal no seed can satisfy -- which is the reporter's original complaint."""
     from worlds.eldenring import item_categories
-    from worlds.eldenring.item_ids import LOCATION_ITEM
+    from worlds.eldenring.tables.item_ids import LOCATION_ITEM
 
     placed = {}
     for ap_id, name in LOCATION_ITEM.items():

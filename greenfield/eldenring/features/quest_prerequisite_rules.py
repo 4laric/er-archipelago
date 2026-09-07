@@ -6,7 +6,7 @@ self-lock the pickup.  Each dependent location rejects that one prerequisite and
 rule it already had; the item remains ordinary filler everywhere else.
 """
 
-from ..data import LOCATIONS
+from ..tables.data import LOCATIONS
 from ..registry import Feature, register
 
 

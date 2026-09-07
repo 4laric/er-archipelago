@@ -33,10 +33,17 @@ import re
 import os
 import unittest
 
+
+def _gf_mod_path(_pkg, _name):
+    """Path to a module in the world package. The GENERATED tables moved into `tables/` (#1464);
+    hand-written modules (contract, tarnished_pack, ...) stayed put, so try the subpackage first."""
+    _t = os.path.join(_pkg, "tables", _name + ".py")
+    return _t if os.path.isfile(_t) else os.path.join(_pkg, _name + ".py")
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 GF_PKG = os.path.dirname(HERE)                 # .../greenfield/eldenring
 GREENFIELD = os.path.dirname(GF_PKG)           # .../greenfield
-DATA_PY = os.path.join(GF_PKG, "data.py")
+DATA_PY = os.path.join(GF_PKG, "tables/data.py")
 # region_map.csv is gen_data's INPUT; in the SOURCE tree it sits beside the package (GREENFIELD/), and
 # the world-install step copies it INTO the installed package (GF_PKG/) so this oracle RUNS in the
 # installed-world pytest too. Resolve from either -- first existing wins.
@@ -70,7 +77,7 @@ def _load_region_map():
 
 
 def _load_location_tags():
-    lt = os.path.join(GF_PKG, "location_tags.py")
+    lt = os.path.join(GF_PKG, "tables/location_tags.py")
     if not os.path.isfile(lt):
         return {}
     spec = importlib.util.spec_from_file_location("gf_loctags_check", lt)
@@ -81,7 +88,7 @@ def _load_location_tags():
 
 def _load_module(name):
     """Load a generated eldenring/<name>.py module by path (None if absent)."""
-    path = os.path.join(GF_PKG, name + ".py")
+    path = _gf_mod_path(GF_PKG, name)
     if not os.path.isfile(path):
         return None
     spec = importlib.util.spec_from_file_location("gf_" + name + "_check", path)
@@ -547,7 +554,7 @@ class RegionCorrectness(unittest.TestCase):
         (Rebaselined 2026-07-11 when the derived shop rows added ~41 unresolved-merchant-block checks.)"""
         hub_all = self.d.LOCATIONS.get(self.d.HUB, [])
         try:
-            from ..location_tags import DEFAULTED_REGION_APS as _defaulted
+            from ..tables.location_tags import DEFAULTED_REGION_APS as _defaulted
         except ImportError:
             _defaulted = frozenset()
         claimed = [l for l in hub_all if l[1] not in _defaulted]

@@ -1,6 +1,6 @@
 """#1077 -- five short-flag lots have no world or scripted acquisition route."""
 
-from ..data import LOCATIONS, NOT_RANDOMIZED
+from ..tables.data import LOCATIONS, NOT_RANDOMIZED
 
 
 FLAGS = {540504, 540614, 540616, 540632, 540650}

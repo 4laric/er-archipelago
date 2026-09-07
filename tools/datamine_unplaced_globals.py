@@ -200,7 +200,7 @@ def candidates():
     for a row we cannot prove distinctness, so those fall back to the old name rule and are counted
     separately -- conservative exactly where the evidence runs out."""
     rows = list(csv.DictReader(open(os.path.join(GF, "region_map.csv"), encoding="utf-8")))
-    data = open(os.path.join(GF, "eldenring", "data.py"), encoding="utf-8").read()
+    data = open(os.path.join(GF, "eldenring", "tables", "data.py"), encoding="utf-8").read()
     loc = ast.literal_eval(re.search(r"^LOCATIONS\s*=\s*(\{.*?\n\})", data, re.S | re.M).group(1))
     in_world = {str(f) for _r, v in loc.items() for (_n, _a, f) in v}
     # 🛑 SELF-EXCLUSION, or this tool ERASES ITS OWN TABLE.

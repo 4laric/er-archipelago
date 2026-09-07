@@ -162,7 +162,7 @@ def load(db, gf):
             enemy[r['flag']] = (int(r['lot']), r['item_id'], r['name'])
     ap = {}
     for m in re.finditer(r"\(\s*'[^']*\[f(\d+)\]'\s*,\s*(\d+)\s*,\s*(\d+)\s*\)",
-                         open(f'{gf}/eldenring/data.py', encoding='utf-8').read()):
+                         open(f'{gf}/eldenring/tables/data.py', encoding='utf-8').read()):
         ap[m.group(1)] = int(m.group(2))
     npc_by_base = {}
     for r in param('NpcParam.csv'):

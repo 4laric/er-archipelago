@@ -23,14 +23,14 @@ class MfgBriarsRecovery(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["flag_source"], "enemy_lot")
         self.assertEqual(rows[0]["item_name"], "Briars of Sin")
-        data = assignments(world / "data.py")
+        data = assignments(world / "tables/data.py")
         checks = [(region, name, aid) for region, values in data["LOCATIONS"].items()
                   for name, aid, flag in values if flag == 1038457500]
         self.assertEqual(len(checks), 1)
         self.assertEqual(checks[0][0], "Liurnia")
         self.assertEqual(checks[0][2], 7774641)
-        self.assertEqual(assignments(world / "item_ids.py")["LOCATION_ITEM"][7774641], "Briars of Sin")
-        self.assertEqual(assignments(world / "check_lots_data.py")["CHECK_LOT_SLOTS_ENEMY"][438100012], [2])
+        self.assertEqual(assignments(world / "tables/item_ids.py")["LOCATION_ITEM"][7774641], "Briars of Sin")
+        self.assertEqual(assignments(world / "tables/check_lots_data.py")["CHECK_LOT_SLOTS_ENEMY"][438100012], [2])
         # Execute the actual synthetic predicate with controlled award/name evidence.
         # The historical false stone claim must remain rejected after source correction.
         tree = ast.parse((root / "greenfield/gen_data.py").read_text(encoding="utf-8"))

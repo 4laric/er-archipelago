@@ -10,7 +10,7 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring import contract  # noqa: E402
-from worlds.eldenring.item_ids import ARMOR_BUNDLES  # noqa: E402
+from worlds.eldenring.tables.item_ids import ARMOR_BUNDLES  # noqa: E402
 
 GAME = "Elden Ring"
 

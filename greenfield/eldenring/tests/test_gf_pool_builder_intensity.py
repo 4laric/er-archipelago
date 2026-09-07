@@ -39,7 +39,7 @@ def test_a_higher_floor_is_a_strictly_smaller_catalog():
 
 def test_juice_order_is_best_first():
     """Order is load-bearing: a truncated budget takes a PREFIX, so prefix == the best items."""
-    from worlds.eldenring.item_tiers import ITEM_TIERS
+    from worlds.eldenring.tables.item_tiers import ITEM_TIERS
     order = juice_order_for_floor(INTENSITY_FLOOR["max"])
     ranks = [ITEM_TIERS[n] for n in order if n in ITEM_TIERS]
     # Tiers are S=3 A=2 B=1 (HIGHER is better), so best-first is DESCENDING. Asserting ascending
@@ -58,7 +58,7 @@ def test_the_default_is_max_which_is_what_the_frozen_option_shipped():
 # ---- the wiring test: the option must reach the composer ---------------------------------------
 def _juice_names(world):
     from worlds.eldenring.features.filler_budget import plan, budget_slots
-    from worlds.eldenring.item_tiers import ITEM_TIER_CATEGORY
+    from worlds.eldenring.tables.item_tiers import ITEM_TIER_CATEGORY
     return [n for n in plan(world, budget_slots(world)) if n and n in ITEM_TIER_CATEGORY]
 
 

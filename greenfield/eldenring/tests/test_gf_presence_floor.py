@@ -23,7 +23,7 @@ pytest.importorskip("worlds.eldenring")
 from BaseClasses import ItemClassification  # noqa: E402
 from worlds.eldenring.features import presence_floor as pf  # noqa: E402
 from worlds.eldenring.features import filler_curation as fc  # noqa: E402
-from worlds.eldenring.item_ids import ITEM_CATALOG  # noqa: E402
+from worlds.eldenring.tables.item_ids import ITEM_CATALOG  # noqa: E402
 
 GAME = "Elden Ring"
 GOODS = 0x40000000

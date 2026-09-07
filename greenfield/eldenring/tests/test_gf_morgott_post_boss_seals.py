@@ -4,7 +4,7 @@ import pytest
 
 pytest.importorskip("worlds.eldenring")
 
-from worlds.eldenring import boss_sweeps, data
+from worlds.eldenring.tables import boss_sweeps, data
 
 
 MORGOTT_DEFEAT = 11_000_800

@@ -21,18 +21,18 @@ from Options import OptionDict
 from ..registry import Feature, register
 
 try:
-    from ..item_ids import ITEM_CATALOG
+    from ..tables.item_ids import ITEM_CATALOG
 except Exception:
     ITEM_CATALOG = {}
 try:  # generated (gen_data): catalog equippables at param rarity 0. Empty pre-regen -> category inert.
-    from ..item_ids import JUNK_GEAR_NAMES
+    from ..tables.item_ids import JUNK_GEAR_NAMES
 except Exception:
     JUNK_GEAR_NAMES = []
 try:
     # KEY ITEMS, param-derived (gen_data.py: EquipParamGoods.goodsType == 1). The game's own answer to
     # "is this a key item"; `_is_junk_consumable` subtracts it. Empty on a pre-regen item_ids.py --
     # which is INERT, not safe: see that predicate's docstring.
-    from ..item_ids import KEY_ITEM_GOODS
+    from ..tables.item_ids import KEY_ITEM_GOODS
 except Exception:
     KEY_ITEM_GOODS = []
 
@@ -49,8 +49,8 @@ def _gate_key_items():
     predicate subtracts -- not a hand list bolted on, and not one source pretending to be complete.
     """
     try:
-        from ..location_tags import LOCATION_TAGS
-        from ..item_ids import LOCATION_ITEM
+        from ..tables.location_tags import LOCATION_TAGS
+        from ..tables.item_ids import LOCATION_ITEM
     except Exception:
         return frozenset()
     return frozenset(nm for ap, tags in LOCATION_TAGS.items()
@@ -59,7 +59,7 @@ def _gate_key_items():
 
 _KEY_ITEM_GOODS = frozenset(KEY_ITEM_GOODS) | _gate_key_items()
 try:
-    from ..item_ids import AMMO_ITEM_NAMES   # param-derived (EquipParamWeapon.wepType); see gen_data.py
+    from ..tables.item_ids import AMMO_ITEM_NAMES   # param-derived (EquipParamWeapon.wepType); see gen_data.py
 except Exception:                            # pre-regen item_ids.py lacks it -> category empty, stacks inert
     AMMO_ITEM_NAMES = []
 try:

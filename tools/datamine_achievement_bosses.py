@@ -123,12 +123,12 @@ def _boss_flags():
     """
     hb = _load("boss_healthbars.py", "_hb")
     if hb is None:
-        sys.exit("datamine_achievement_bosses: greenfield/eldenring/boss_healthbars.py is missing -- "
+        sys.exit("datamine_achievement_bosses: greenfield/eldenring/tables/boss_healthbars.py is missing -- "
                  "without it nearly every row would classify as 'collection' and the roster would "
                  "come out near-empty while reporting success. Run datamine_boss_healthbars.py.")
     rl = _load("boss_reward_lots.py", "_rl")
     if rl is None:
-        sys.exit("datamine_achievement_bosses: greenfield/eldenring/boss_reward_lots.py is missing "
+        sys.exit("datamine_achievement_bosses: greenfield/eldenring/tables/boss_reward_lots.py is missing "
                  "-- it is the second half of the classifier (the Fire Giant is only in that one). "
                  "Run datamine_boss_reward_lots.py.")
 

@@ -133,7 +133,7 @@ class SpareGoodsOrder(unittest.TestCase):
 
         The datamine can be perfect and the pipeline still ship the bug, one stage downstream."""
         import importlib.util
-        path = os.path.join(_FOUND, "greenfield", "eldenring", "shop_data.py")
+        path = os.path.join(_FOUND, "greenfield", "eldenring", "tables", "tables/shop_data.py")
         if not os.path.isfile(path):
             self.skipTest("shop_data.py not generated here")
         spec = importlib.util.spec_from_file_location("_gf_shop_data", path)
@@ -153,7 +153,7 @@ class SpareGoodsOrder(unittest.TestCase):
         """shops.py can only declare `requiresClientFeatures` when it spends an insertable row if
         it KNOWS where the insertable tier starts -- that is SPARE_PREVIEW_REDIRECTABLE, and it
         must equal the tsv's fmg_entry=1 count (insertable-last makes that the boundary index)."""
-        path = os.path.join(_FOUND, "greenfield", "eldenring", "shop_data.py")
+        path = os.path.join(_FOUND, "greenfield", "eldenring", "tables", "tables/shop_data.py")
         if not os.path.isfile(path):
             self.skipTest("shop_data.py not generated here")
         spec = importlib.util.spec_from_file_location("_gf_shop_data", path)

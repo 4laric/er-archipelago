@@ -15,8 +15,8 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring import contract  # noqa: E402
-from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS  # noqa: E402
-from worlds.eldenring.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS  # noqa: E402
 
 
 PATCHES = 31000850

@@ -43,8 +43,8 @@ from Options import OptionError, OptionSet, Range
 
 from ..registry import Feature, register
 from .. import contract
-from ..enemy_names import ENEMY_NAMES
-from ..spawn_trap_data import SPAWN_TRAPS, SPAWN_TRAP_KEYS
+from ..tables.enemy_names import ENEMY_NAMES
+from ..tables.spawn_trap_data import SPAWN_TRAPS, SPAWN_TRAP_KEYS
 
 #: 🛑 CROSS-REPO CONTRACT with `er_logic::traps::LABEL_CAP`. The client retains a spawn label INLINE
 #: so its `SpawnSpec` can stay `Copy`, and REFUSES a longer one rather than truncating -- a

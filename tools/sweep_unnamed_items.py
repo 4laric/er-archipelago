@@ -115,7 +115,7 @@ def main():
     er = os.path.join(gf, "eldenring")
 
     # --- the population: checks rendering with no item name -------------------------
-    LOCATIONS = load_module_consts(os.path.join(er, "data.py"), {"LOCATIONS"})["LOCATIONS"]
+    LOCATIONS = load_module_consts(os.path.join(er, "tables", "data.py"), {"LOCATIONS"})["LOCATIONS"]
     unnamed_flags = {}
     for region, v in LOCATIONS.items():
         for name, _ap, flag in v:
@@ -257,7 +257,7 @@ def main():
         fh.write("# for it. A '-' means SEARCHED AND ABSENT, not 'not looked at'.\n")
         fh.write("# 🛑 msb_searched is NO for every row: the witchy'd MSBs stay on the Windows\n")
         fh.write("#    box. That half is a NAMED GAP, not a silence.\n")
-        fh.write("# data.py inputs_hash at sweep time: %s\n" % data_stamp(os.path.join(er, "data.py")))
+        fh.write("# data.py inputs_hash at sweep time: %s\n" % data_stamp(os.path.join(er, "tables", "data.py")))
         fh.write("# Re-run: python tools/gen_inputs.py --extract && python tools/sweep_unnamed_items.py\n")
         # 🛑 AN EMPTY WORKLIST MUST SAY SO. This repo treats an empty result as a failure until
         # proven otherwise (gen_data rule 2), and a tsv holding a comment block and nothing else

@@ -14,9 +14,9 @@ cannot silently stop matching (a consumer is not a capture -- this is the captur
 """
 import unittest
 
-from ..boss_drops import BOSS_DROP_ENTITY
-from ..boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION
-from ..data import LOCATIONS
+from ..tables.boss_drops import BOSS_DROP_ENTITY
+from ..tables.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION
+from ..tables.data import LOCATIONS
 
 GLAIVE_FLAG = 530300
 GLAIVE_TRIGGER = 1041520800   # m60_41_52, the terminal Rampartside fight

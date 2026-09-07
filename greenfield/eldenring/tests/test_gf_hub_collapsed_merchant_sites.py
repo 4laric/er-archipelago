@@ -48,7 +48,7 @@ import unittest
 
 import pytest
 
-from ..location_tags import DEFAULTED_REGION_APS, HUB_COLLAPSED_SITE_APS, SHOP_RELEASE_GATED_APS
+from ..tables.location_tags import DEFAULTED_REGION_APS, HUB_COLLAPSED_SITE_APS, SHOP_RELEASE_GATED_APS
 from ..region_spine import SPINE, earliest_kept_site
 from .test_gf_hub_collapsed_merchant_rows import (
     COMMUNION, COMMUNION_FLAGS, EXPECTED_PATCHES, EXPECTED_TOTAL, PATCHES, PATCHES_REGIONS,

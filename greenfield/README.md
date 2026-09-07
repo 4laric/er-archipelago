@@ -9,10 +9,12 @@ The model in one line: the world is Shattered into **30 regions (17 base game +
 13 Shadow of the Erdtree)**, each sealed behind a **"\<Region\> Lock"** AP item;
 you start at Roundtable Hold, and Leyndell is the goal region.
 
-**The data modules are GENERATED — never hand-edit them.** `eldenring/data.py`
-and its siblings (`region_open_flags.py`, `boss_data.py`, `region_graces.py`,
-`shop_data.py`, `item_ids.py`, `item_tiers.py`, ...) are written by
-`gen_data.py`. Regenerate with `python greenfield/gen_data.py` (or
+**The data modules are GENERATED — never hand-edit them.** They live in the
+`eldenring/tables/` package: `data.py` and its siblings (`region_open_flags.py`,
+`boss_data.py`, `region_graces.py`, `shop_data.py`, `item_ids.py`,
+`item_tiers.py`, ...) are written by `gen_data.py`. The World does not import
+them by name — `eldenring/table_loader.py` loads the set and `core.py` reads
+`world.tables` (#1464). Regenerate with `python greenfield/gen_data.py` (or
 `.\build.ps1 -Greenfield`, which regenerates, installs, and gens); a gen-input
 stamp (`tools/gen_manifest.py`) gates stale data out of packaging and CI.
 
@@ -21,7 +23,9 @@ stamp (`tools/gen_manifest.py`) gates stale data out of packaging and CI.
 greenfield/
   eldenring/              # the world package (ships as eldenring.apworld via build.ps1 -Apworld)
     core.py               # options, regions, rules, goal, slot_data
-    data.py               # GENERATED: HUB, REGIONS (30: 17 base + 13 DLC), LOCATIONS {region: [(name, ap_id, flag)]}
+    table_loader.py       # load() -> Tables: THE way in to the generated tables + the id bases
+    tables/               # GENERATED data package (data.py, item_ids.py, shop_data.py, boss_*.py, ...)
+    tables/data.py        # GENERATED: HUB, REGIONS (30: 17 base + 13 DLC), LOCATIONS {region: [(name, ap_id, flag)]}
     region_spine.py       # SPINE progression order, GOAL_REGION (Leyndell), DLC_REGIONS
     features/             # feature modules (graces, boss locks, pool builder, scaling, upgrades, ...)
     tests/                # the test suite (see tests/README.md)

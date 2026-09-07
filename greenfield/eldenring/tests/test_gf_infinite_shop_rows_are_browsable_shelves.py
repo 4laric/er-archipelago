@@ -131,7 +131,7 @@ def _i(r, k, d=0):
 
 def _emitted():
     import importlib.util
-    path = os.path.join(GF, "eldenring", "shop_stock_data.py")
+    path = os.path.join(GF, "eldenring", "tables", "tables/shop_stock_data.py")
     spec = importlib.util.spec_from_file_location("_gf_shop_stock_data", path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)

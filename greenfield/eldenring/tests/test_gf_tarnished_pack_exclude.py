@@ -5,6 +5,13 @@ import os
 import unittest
 
 
+def _gf_mod_path(_pkg, _name):
+    """Path to a module in the world package. The GENERATED tables moved into `tables/` (#1464);
+    hand-written modules (contract, tarnished_pack, ...) stayed put, so try the subpackage first."""
+    _t = os.path.join(_pkg, "tables", _name + ".py")
+    return _t if os.path.isfile(_t) else os.path.join(_pkg, _name + ".py")
+
+
 _HERE = os.path.dirname(os.path.abspath(__file__))
 try:  # installed apworld (CI)
     from worlds.eldenring import tarnished_pack as tp  # type: ignore
@@ -112,7 +119,7 @@ class TarnishedPackDecision(unittest.TestCase):
     def test_generated_equipment_is_honorary_s_tier_in_the_right_category(self):
         def load(name):
             spec = importlib.util.spec_from_file_location(
-                name, os.path.join(_HERE, "..", name + ".py"))
+                name, _gf_mod_path(os.path.join(_HERE, ".."), name))
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             return module

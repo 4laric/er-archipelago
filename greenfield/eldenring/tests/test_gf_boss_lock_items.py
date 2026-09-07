@@ -15,7 +15,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from worlds.eldenring import contract  # noqa: E402
-from worlds.eldenring.boss_data import REGION_BOSSES  # noqa: E402
+from worlds.eldenring.tables.boss_data import REGION_BOSSES  # noqa: E402
 from worlds.eldenring.region_spine import DLC_REGIONS  # noqa: E402
 from worlds.eldenring.features.boss_locks import _boss_label  # noqa: E402
 

@@ -35,7 +35,7 @@ ownership digest 991951420a8525a4 -> 5847d65898b36345, re-owned 33 member links,
 MAJOR_SWEEP_TRIGGERS 40 -> 41). That is a lot of movement to buy for a sweep the logs show working.
 
 METHOD (so the completeness claim can be re-run and disputed). Every key of
-`greenfield/eldenring/boss_healthbars.py` -- which is exactly the key space of
+`greenfield/eldenring/tables/boss_healthbars.py` -- which is exactly the key space of
 `boss_sweeps.DUNGEON_SWEEPS` plus the members-less entries -- is classified against every
 `elden_ring_artifacts/event/*.emevd.dcx.js`:
 

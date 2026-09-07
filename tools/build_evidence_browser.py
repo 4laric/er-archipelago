@@ -34,9 +34,9 @@ FIXTURE = os.path.join(REPO, "greenfield", "evidence", "browser_fixture")
 OUT_HTML = os.path.join(REPO, "er-archipelago-evidence-browser.html")
 ACCESS_FILE = "access_dispositions.tsv"
 WIKI_AUDIT = os.path.join(REPO, "greenfield", "evidence", "wiki-audit")
-GENERATED_DATA = os.path.join(REPO, "greenfield", "eldenring", "data.py")
+GENERATED_DATA = os.path.join(REPO, "greenfield", "eldenring", "tables", "data.py")
 GENERATED_LOCATION_TAGS = os.path.join(
-    REPO, "greenfield", "eldenring", "location_tags.py")
+    REPO, "greenfield", "eldenring", "tables", "location_tags.py")
 PROGRESSION_HOST_CONFIDENCE = os.path.join(
     CURRENT, "progression_host_confidence.tsv")
 WIKI_SOURCE_HEADERS = (
@@ -486,6 +486,9 @@ def ledger_hash(path: str = CURRENT, wiki_path: str | None = None) -> str:
                       "greenfield/evidence/wiki-audit/bulk-check-review.json"):
             digest.update(extra.encode() + b"\0")
             digest.update((Path(REPO) / extra).read_bytes().replace(b"\r\n", b"\n"))
+        # A LABEL hashed into the committed ledger id, not a path to open (that is
+        # GENERATED_LOCATION_TAGS, just below). It stays the string it has always been even though
+        # the module moved to eldenring/tables/ (#1464) -- changing it would restamp every ledger.
         digest.update(b"greenfield/eldenring/location_tags.py\0")
         with open(GENERATED_LOCATION_TAGS, "rb") as fh:
             digest.update(fh.read().replace(b"\r\n", b"\n"))

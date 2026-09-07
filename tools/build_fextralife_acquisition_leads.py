@@ -26,7 +26,7 @@ def render(rows,fields):
  out=StringIO(newline="");w=csv.DictWriter(out,fieldnames=fields,delimiter="\t",lineterminator="\n");w.writeheader();w.writerows(rows);return out.getvalue()
 def reserved(k):return k.startswith(("smithing stone ","somber smithing stone ","ancient dragon smithing stone","somber ancient dragon smithing stone","ghost glovewort ","grave glovewort ")) or k in {"scadutree fragment","revered spirit ash"}
 def build(capture):
- data=mod("_data",ROOT/"greenfield/eldenring/data.py"); checks=defaultdict(list)
+ data=mod("_data",ROOT/"greenfield/eldenring/tables/data.py"); checks=defaultdict(list)
  vague={norm(x) for x in data.LOCATIONS}|{"altus plateau","liurnia of the lakes","weeping peninsula","volcano manor","consecrated snowfield","crumbling farum azula","realm of shadow","lands between"}
  for region,entries in data.LOCATIONS.items():
   for name,ap,flag in entries:checks[norm(item(name))].append((ap,flag,region,name,anchor(name)))

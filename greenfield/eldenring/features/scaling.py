@@ -41,7 +41,7 @@ import random
 from Options import Range, Choice, Removed, OptionError, NamedRange, Toggle
 from ..registry import Feature, register
 from ..region_spine import SPINE, DLC_REGIONS
-from ..data import FINALE_REGION
+from ..tables.data import FINALE_REGION
 from .. import contract
 from ..scaling_ladder import (AUTO_CEILING, BASE_GAME_TOP_TIER, SCALING_HP_LADDER,  # noqa: F401 (re-export)
                               base_game_target_cap, ceiling_multiplier,
@@ -49,7 +49,7 @@ from ..scaling_ladder import (AUTO_CEILING, BASE_GAME_TOP_TIER, SCALING_HP_LADDE
                               resolve_max_difficulty_pct,
                               tier_for_ceiling_multiplier, tier_for_floor_multiplier)
 # GEOMETRY: the SCALING tables, which are NOT the kick table (#688, bobler playtest 2026-08-15).
-# All of it is generated into eldenring/region_play_ids.py from the one grouping in
+# All of it is generated into eldenring/tables/region_play_ids.py from the one grouping in
 # greenfield/region_groups.py. This module read features/area_locks.REGION_PLAY_IDS -- the KICK
 # table -- until #688, so every bucket the kick was exempted from (18000 Fringefolk Hero's Grave /
 # Stranded Graveyard, 10010 the Chapel intro, 11100 the Roundtable) was also absent from
@@ -60,7 +60,7 @@ from ..scaling_ladder import (AUTO_CEILING, BASE_GAME_TOP_TIER, SCALING_HP_LADDE
 #   SCALING_FLOOR_PLAY_IDS buckets PINNED at target 0 in every seed (_floor_triples below).
 # Nothing is scaling-exempt: the two together cover the whole bucket universe, asserted at gen.
 try:
-    from ..region_play_ids import SCALING_FLOOR_PLAY_IDS, SCALING_PLAY_IDS
+    from ..tables.region_play_ids import SCALING_FLOOR_PLAY_IDS, SCALING_PLAY_IDS
 except Exception:  # not yet generated -> no geometry -> no wire (client leaves everything vanilla)
     SCALING_PLAY_IDS, SCALING_FLOOR_PLAY_IDS = {}, frozenset()
 

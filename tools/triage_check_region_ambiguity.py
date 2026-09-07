@@ -92,7 +92,7 @@ def main():
             if t.strip():
                 kick_tile[t.strip()].add(int(p[0]))
 
-    data = open(os.path.join(GF, "eldenring", "data.py"), encoding="utf-8").read()
+    data = open(os.path.join(GF, "eldenring", "tables", "data.py"), encoding="utf-8").read()
     checks = [(m.group(1), int(m.group(2)), int(m.group(3)))
               for m in re.finditer(r"\('([^']*)',\s*(\d+),\s*(\d+)\)", data)]
 

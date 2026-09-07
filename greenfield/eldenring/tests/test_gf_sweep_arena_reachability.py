@@ -90,11 +90,11 @@ if "eldenring" not in sys.modules:
 
 _load("eldenring.contract", "contract.py")
 _load("eldenring.registry", "registry.py")
-_load("eldenring.data", "data.py")
+_load("eldenring.data", "tables/data.py")
 _load("eldenring.region_spine", "region_spine.py")
-_load("eldenring.boss_data", "boss_data.py")
-_load("eldenring.boss_sweeps", "boss_sweeps.py")
-_load("eldenring.boss_healthbars", "boss_healthbars.py")
+_load("eldenring.boss_data", "tables/boss_data.py")
+_load("eldenring.boss_sweeps", "tables/boss_sweeps.py")
+_load("eldenring.boss_healthbars", "tables/boss_healthbars.py")
 _load("eldenring.features.legible_keys", "features/legible_keys.py")
 bl = _load("eldenring.features.boss_locks", "features/boss_locks.py")
 sw = sys.modules["eldenring.boss_sweeps"]
@@ -495,7 +495,7 @@ class MargitArenaAndTunnelAreStormveil(unittest.TestCase):
         # buckets), the table the kick actually reads -- and it is inside the eldenring package, so
         # it loads in the installed apworld. (region_groups.PLAY_REGION_GROUPS is a top-level
         # greenfield gen-input, NOT packaged, and is warp-menu ids anyway.)
-        cls.play_ids = _load("eldenring.region_play_ids", "region_play_ids.py").REGION_PLAY_IDS
+        cls.play_ids = _load("eldenring.region_play_ids", "tables/region_play_ids.py").REGION_PLAY_IDS
 
     def _owners(self, bucket):
         return [r for r, buckets in self.play_ids.items() if bucket in buckets]

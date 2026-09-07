@@ -24,12 +24,19 @@ import os
 import re
 import unittest
 
+
+def _gf_mod_path(_pkg, _name):
+    """Path to a module in the world package. The GENERATED tables moved into `tables/` (#1464);
+    hand-written modules (contract, tarnished_pack, ...) stayed put, so try the subpackage first."""
+    _t = os.path.join(_pkg, "tables", _name + ".py")
+    return _t if os.path.isfile(_t) else os.path.join(_pkg, _name + ".py")
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 GF_PKG = os.path.dirname(HERE)
 
 
 def _mod(name):
-    spec = importlib.util.spec_from_file_location("_v_" + name, os.path.join(GF_PKG, name + ".py"))
+    spec = importlib.util.spec_from_file_location("_v_" + name, _gf_mod_path(GF_PKG, name))
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
     return m

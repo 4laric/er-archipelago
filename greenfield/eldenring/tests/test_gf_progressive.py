@@ -113,7 +113,7 @@ def test_vanilla_bell_items_covers_every_bearing_the_vanilla_data_has():
     stated reason -- "it is not a looted item" -- was wrong. It hangs off flag 520670 as lot 20673,
     a SIBLING of a shared-flag family, and the catalog is CHECK-derived, so until the co-check
     allowlist widened no check ever named it. It is looted. See the somber-floor ruling below."""
-    from worlds.eldenring.item_ids import ITEM_CATALOG, LOCATION_ITEM
+    from worlds.eldenring.tables.item_ids import ITEM_CATALOG, LOCATION_ITEM
     in_data = _vanilla_bearings(LOCATION_ITEM.values())
     assert in_data, "no bell bearing in LOCATION_ITEM -- this comparison would be vacuous"
     assert sorted(VANILLA_BELL_ITEMS) == in_data, (
@@ -163,7 +163,7 @@ class _BellsOnAssertions:
         """THE MOTIVATING CASE (CONTRIBUTING rule 11). boblerrr, live playtest 2026-08-10: a vanilla
         `Somberstone Miner's Bell Bearing [5]` paid out and handed over the top rung of a ladder
         that had barely started. With the ladder on, not one vanilla bearing may be in the pool."""
-        from worlds.eldenring.item_ids import LOCATION_ITEM
+        from worlds.eldenring.tables.item_ids import LOCATION_ITEM
         names = _pool_names(self.world)
         # WITNESS (test_gf_vacuous_pass's ratchet, and the reason it exists): "zero vanilla bearings"
         # is only evidence if the scan can see a pool AND the filter still matches the real names. A
@@ -326,7 +326,7 @@ class ProgressiveStoneBellsOn(_BellsOnAssertions, WorldTestBase):
         before that existed, and its total was 12 short of the pool for exactly that reason (4919 vs
         4931 -- and the Ashen Capital ships 12 checks). Same omission the coverage gate had to be
         taught. Revalidated 2026-08-10 when the freeze expired."""
-        from worlds.eldenring.data import HUB, LOCATIONS, FINALE_REGION
+        from worlds.eldenring.tables.data import HUB, LOCATIONS, FINALE_REGION
         regions = [HUB] + list(self.world._kept())
         if FINALE_REGION not in regions:
             regions.append(FINALE_REGION)

@@ -87,7 +87,7 @@ def covered_subjects() -> set[int]:
 
 
 def build(capture: dict) -> tuple[list[dict[str, str]], list[dict[str, str]], dict]:
-    data = module("_upgrade_material_data", ROOT / "greenfield/eldenring/data.py")
+    data = module("_upgrade_material_data", ROOT / "greenfield/eldenring/tables/data.py")
     detections = {}
     with CLAIMS.open(encoding="utf-8", newline="") as handle:
         for row in csv.DictReader(handle, delimiter="\t"):

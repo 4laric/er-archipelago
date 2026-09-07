@@ -6,7 +6,7 @@ apworld's item-pool composition over many pinned seeds and report WHAT the pool 
 generates -- but every matt-derived input is gone:
 
   * game is "Elden Ring" (the clean base), not "EldenRing".
-  * item quality comes from the param-derived numeric rarity in eldenring/item_tiers.py
+  * item quality comes from the param-derived numeric rarity in eldenring/tables/item_tiers.py
     (0 trivial / 1 common / 2 rare / 3 legendary, from the vanilla EquipParam `rarity`
     column), NOT from a hand-curated S/A/B/C/D/F tier list.
   * the knobs swept are greenfield's real options (num_regions, pool_builder_intensity,
@@ -111,7 +111,7 @@ if AP_ROOT not in sys.path:
 
 from test.bases import WorldTestBase                                      # noqa: E402
 from BaseClasses import ItemClassification                               # noqa: E402
-from worlds.eldenring.item_tiers import ITEM_TIERS                    # noqa: E402
+from worlds.eldenring.tables.item_tiers import ITEM_TIERS                    # noqa: E402
 from worlds.eldenring.features.pool_builder import (                  # noqa: E402
     PoolBuilderFeature, juice_order_for_floor, INTENSITY_FLOOR,
 )

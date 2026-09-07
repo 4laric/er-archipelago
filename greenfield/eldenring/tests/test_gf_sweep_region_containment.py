@@ -67,7 +67,7 @@ ARENA_COVERAGE_FLOOR = 185
 class NoSweepGrantsOutsideItsArenaRegion(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        from .. import boss_sweeps, data
+        from ..tables import boss_sweeps, data
         cls.sweeps = boss_sweeps.DUNGEON_SWEEPS
         cls.sweep_region = boss_sweeps.SWEEP_REGION
         cls.arena_region = getattr(boss_sweeps, "SWEEP_ARENA_REGION", {})
@@ -147,7 +147,7 @@ class NoSweepGrantsOutsideItsArenaRegion(unittest.TestCase):
     def test_ledas_message_is_not_a_containment_violation(self):
         """Lilith's report, adjudicated rather than swept in. m20_00 IS Belurat, so the Dancing
         Lion grant is contained; the Shadow Keep placement is the #320/#502 multisite family."""
-        from .. import data
+        from ..tables import data
         rows = [(r, n, ap) for r, rows_ in data.LOCATIONS.items()
                 for (n, ap, flag) in rows_ if int(flag) == LEDA]
         self.assertTrue(rows, "f%d is no longer a check" % LEDA)

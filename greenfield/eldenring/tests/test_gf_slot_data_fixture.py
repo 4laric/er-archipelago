@@ -28,7 +28,7 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.data import HUB, LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.data import HUB, LOCATIONS  # noqa: E402
 from worlds.eldenring import contract  # noqa: E402
 
 GAME = "Elden Ring"

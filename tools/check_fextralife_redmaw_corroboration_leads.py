@@ -27,7 +27,7 @@ def _norm(value: str) -> str:
 
 
 def _locations() -> dict[int, tuple[str, str, int]]:
-    path = ROOT / "greenfield/eldenring/data.py"
+    path = ROOT / "greenfield/eldenring/tables/data.py"
     spec = importlib.util.spec_from_file_location("_fextra_redmaw_data", path)
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader

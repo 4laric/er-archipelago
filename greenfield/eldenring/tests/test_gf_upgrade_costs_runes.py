@@ -28,8 +28,8 @@ import unittest
 import pytest
 
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.item_ids import ITEM_CATALOG              # noqa: E402
-from worlds.eldenring.shop_stock_data import RUNE_PAYOUT        # noqa: E402
+from worlds.eldenring.tables.item_ids import ITEM_CATALOG              # noqa: E402
+from worlds.eldenring.tables.shop_stock_data import RUNE_PAYOUT        # noqa: E402
 import worlds.eldenring as _pkg                                 # noqa: E402
 
 _GOODS_NIBBLE, _ROW_MASK = 0x40000000, 0x0FFFFFFF

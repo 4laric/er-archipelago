@@ -53,7 +53,7 @@ GF_PKG = os.path.dirname(HERE)                     # .../greenfield/eldenring
 GREENFIELD = os.path.dirname(GF_PKG)               # .../greenfield
 REPO = os.path.dirname(GREENFIELD)                 # .../er-archipelago
 ARTIFACTS = os.path.join(REPO, "elden_ring_artifacts")
-REGION_GRACES_PY = os.path.join(GF_PKG, "region_graces.py")
+REGION_GRACES_PY = os.path.join(GF_PKG, "tables/region_graces.py")
 GRACE_FLAGS_TSV = os.path.join(ARTIFACTS, "grace_flags.tsv")
 
 # Emitted OVERWORLD region -> its overworld cluster (thousands prefix of the play_region_id space).

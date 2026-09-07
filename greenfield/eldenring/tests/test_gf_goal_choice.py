@@ -26,7 +26,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from Options import OptionError  # noqa: E402
-from worlds.eldenring.data import FINALE_REGION, FINALE_REQUIRES  # noqa: E402
+from worlds.eldenring.tables.data import FINALE_REGION, FINALE_REQUIRES  # noqa: E402
 from worlds.eldenring.region_spine import (SPINE, REGIONS, GOAL_REGION, compute_kept,  # noqa: E402
                                            base_regions, dlc_regions, parent_chain)
 from worlds.eldenring.features.finale import finale_active, finale_entries  # noqa: E402

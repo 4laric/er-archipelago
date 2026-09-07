@@ -1,6 +1,6 @@
 """#1075 -- the three pickups at Forbidden Lands belong behind the Rold gate together."""
 
-from ..data import LOCATIONS
+from ..tables.data import LOCATIONS
 
 FLAGS = {1047517000, 1047517010, 1047517300}
 

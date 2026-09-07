@@ -38,9 +38,9 @@ from ._util import world_items  # noqa: E402
 
 pytest.importorskip("worlds.eldenring")
 
-from worlds.eldenring.data import LOCATIONS                       # noqa: E402
-from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
-from worlds.eldenring.location_tags import LOCATION_TAGS, DEFAULTED_REGION_APS  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS                       # noqa: E402
+from worlds.eldenring.tables.missable_locations import MISSABLE_LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.location_tags import LOCATION_TAGS, DEFAULTED_REGION_APS  # noqa: E402
 from worlds.eldenring.contract import SURFACE_DEFAULT_CLASSES     # noqa: E402
 from worlds.eldenring.features.progression_surface import allowed_ap_ids  # noqa: E402
 from worlds.eldenring.features import filler_curation as fc       # noqa: E402
@@ -152,7 +152,7 @@ class KeyItemsSurviveTheFillerTail(unittest.TestCase):
         """The class, not the case: every check the world tags KeyItem hands over a gate/travel key.
         None of those may be displaceable, or the key can be deleted from the pool while the door it
         opens stays in logic."""
-        from worlds.eldenring.item_ids import LOCATION_ITEM
+        from worlds.eldenring.tables.item_ids import LOCATION_ITEM
 
         class _Filler:
             """A world whose classification promotes NOTHING -- the worst case. features/
@@ -326,7 +326,7 @@ class SurfaceCountsOnlyHostableChecks(WorldTestBase):
         and saying otherwise is how a claim outlives the check it was built on."""
         from worlds.eldenring.features.progression_surface import (
             _world_barred_aps, regions_with_major_boss)
-        from worlds.eldenring.data import LOCATIONS as _LOCS
+        from worlds.eldenring.tables.data import LOCATIONS as _LOCS
         barred = _world_barred_aps(self.world)
         eligible = regions_with_major_boss(list(_LOCS), barred=barred)
         f2a = _flag_to_ap()

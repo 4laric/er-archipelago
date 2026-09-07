@@ -32,7 +32,7 @@ PKG = os.path.dirname(HERE)
 TABLE = os.path.join(PKG, "unplaced_global_tiles.tsv")
 if not os.path.isfile(TABLE) and _ROOT:
     TABLE = os.path.join(_ROOT, "greenfield", "unplaced_global_tiles.tsv")
-DATA = os.path.join(PKG, "data.py")
+DATA = os.path.join(PKG, "tables/data.py")
 AUDIT = os.path.join(PKG, "unplaced_unique_audit.tsv")
 if not os.path.isfile(AUDIT) and _ROOT:
     AUDIT = os.path.join(_ROOT, "greenfield", "unplaced_unique_audit.tsv")

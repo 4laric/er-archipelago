@@ -11,7 +11,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-INPUTS = ("greenfield/eldenring/data.py", "greenfield/flag_lots.tsv",
+INPUTS = ("greenfield/eldenring/tables/data.py", "greenfield/flag_lots.tsv",
           "greenfield/shop_rows.tsv", "greenfield/item_grace_coords.tsv")
 
 

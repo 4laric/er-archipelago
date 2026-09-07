@@ -56,8 +56,8 @@ import unittest
 
 import pytest
 
-from ..data import HUB, LOCATIONS
-from ..location_tags import LOCATION_TAGS, DEFAULTED_REGION_APS
+from ..tables.data import HUB, LOCATIONS
+from ..tables.location_tags import LOCATION_TAGS, DEFAULTED_REGION_APS
 from ..features.progression_surface import allowed_ap_ids
 from .. import contract
 

@@ -84,7 +84,7 @@ YELOUGH_QUEUE_FLAGS = (
 
 
 def _by_flag():
-    from .. import data
+    from ..tables import data
     out = {}
     for region, rows in data.LOCATIONS.items():
         for (name, ap, flag) in rows:
@@ -161,7 +161,7 @@ class YeloughAnixIsConsecratedSnowfield(unittest.TestCase):
 
     def test_the_grace_itself_rides_the_snowfield_bundle(self):
         """The checks follow the grace, so the grace is the thing to pin."""
-        from .. import region_graces
+        from ..tables import region_graces
         self.assertIn(
             YELOUGH_GRACE, region_graces.REGION_GRACE_POINTS[YELOUGH_REGION],
             "grace %d (Yelough Anix Tunnel) must ride the %s bundle"

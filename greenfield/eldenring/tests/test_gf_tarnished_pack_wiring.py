@@ -16,8 +16,8 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring import tarnished_pack as tp  # noqa: E402
-from worlds.eldenring.data import LOCATIONS  # noqa: E402
-from worlds.eldenring.item_ids import DLC_ITEM_NAMES, ITEM_CATALOG  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.item_ids import DLC_ITEM_NAMES, ITEM_CATALOG  # noqa: E402
 
 GAME = "Elden Ring"
 

@@ -84,7 +84,7 @@ ARTIFACTS = os.path.join(REPO, "elden_ring_artifacts")
 EVENT_DIR = os.path.join(ARTIFACTS, "event")
 BONFIRE_CSV = os.path.join(ARTIFACTS, "vanilla_er", "vanilla_er", "BonfireWarpParam.csv")
 GRACE_TSV = os.path.join(ARTIFACTS, "grace_flags.tsv")
-REGION_GRACES_PY = os.path.join(GF_PKG, "region_graces.py")
+REGION_GRACES_PY = os.path.join(GF_PKG, "tables/region_graces.py")
 GEN_DATA_PY = os.path.join(GREENFIELD, "gen_data.py")
 
 # Playtest leaks of 2026-07-07 -- the non-vacuity anchors each oracle MUST re-find on its own.

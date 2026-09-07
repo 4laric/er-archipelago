@@ -19,7 +19,7 @@ import pytest
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring.features.graces import _bundle_for, entrance_grace  # noqa: E402
-from worlds.eldenring.region_graces import REGION_GRACE_POINTS  # noqa: E402
+from worlds.eldenring.tables.region_graces import REGION_GRACE_POINTS  # noqa: E402
 
 # flag -> the PlaceName the game shows for that warp point. Derived (BonfireWarpParam.textId1 ->
 # PlaceName FMG, 351/351 resolve), transcribed here so the assertion is legible without the artifacts.
@@ -97,7 +97,7 @@ def test_only_the_ruled_entrances_match_their_open_anchors():
     If someone swaps the derivation for `REGION_GRACE_POINTS[r][0]` (which IS REGION_OPEN_FLAGS, and
     is one line shorter) every test above would still need to fail loudly. It does: for the
     overworld regions the anchor is a cave and the entrance is not."""
-    from worlds.eldenring.region_open_flags import REGION_OPEN_FLAGS
+    from worlds.eldenring.tables.region_open_flags import REGION_OPEN_FLAGS
     differing = [r for r in ("Limgrave", "Liurnia", "Caelid", "Altus", "Weeping")
                  if r in REGION_GRACE_POINTS
                  and entrance_grace(REGION_GRACE_POINTS[r], r) != REGION_OPEN_FLAGS.get(r)]

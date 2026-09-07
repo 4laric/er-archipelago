@@ -24,11 +24,11 @@ import collections
 import os
 import unittest
 
-from ..location_tags import (LOCATION_TAGS, SHOP_SLOT_PINS, SHOP_SLOT_SKIPS,
+from ..tables.location_tags import (LOCATION_TAGS, SHOP_SLOT_PINS, SHOP_SLOT_SKIPS,
                              DEFAULTED_REGION_APS, SHOP_RELEASE_GATED_APS)
-from ..evidence_progression_hosts import TRUSTED_PROGRESSION_HOST_APS
-from ..missable_locations import MISSABLE_LOCATIONS
-from ..shop_data import SHOP_ROW_IDS
+from ..tables.evidence_progression_hosts import TRUSTED_PROGRESSION_HOST_APS
+from ..tables.missable_locations import MISSABLE_LOCATIONS
+from ..tables.shop_data import SHOP_ROW_IDS
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _GF_PKG = os.path.dirname(_HERE)

@@ -42,8 +42,8 @@ def item_name(location: str) -> str:
 
 
 def build() -> tuple[list[dict[str, str]], dict[str, object]]:
-    data = load_module(ROOT / "greenfield/eldenring/data.py", "_df_data")
-    tags = load_module(ROOT / "greenfield/eldenring/location_tags.py", "_df_tags")
+    data = load_module(ROOT / "greenfield/eldenring/tables/data.py", "_df_data")
+    tags = load_module(ROOT / "greenfield/eldenring/tables/location_tags.py", "_df_tags")
     checks = [(region, name, int(ap), int(flag)) for region, entries in data.LOCATIONS.items()
               for name, ap, flag in entries]
     name_counts = Counter(item_name(name).casefold() for _, name, _, _ in checks)

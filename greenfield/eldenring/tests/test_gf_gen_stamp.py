@@ -57,6 +57,12 @@ COUNT_FLOORS = {"locations": 2000, "regions": 15, "item_catalog": 1000, "filler_
 _SENTINEL = "\n_GEN_STAMP = "
 
 
+def _mod_path(modname):
+    """Path to a generated module. They live in the `tables/` subpackage since #1464; the KEYS in
+    _gen_stamp.json stay bare basenames, so only the lookup path moved."""
+    return os.path.join(GF_PKG, "tables", modname)
+
+
 def _read(path):
     with open(path, "r", encoding="utf-8") as fh:
         return fh.read()
@@ -78,11 +84,11 @@ def _body_sha(body_text):
 class GenStampGate(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.missing = [m for m in MODULES if not os.path.isfile(os.path.join(GF_PKG, m))]
+        cls.missing = [m for m in MODULES if not os.path.isfile(_mod_path(m))]
         cls.have_json = os.path.isfile(STAMP_JSON)
         cls.stamps = {}
         for m in MODULES:
-            p = os.path.join(GF_PKG, m)
+            p = _mod_path(m)
             if os.path.isfile(p):
                 cls.stamps[m] = _split_stamp(_read(p))     # (body, stamp)
 

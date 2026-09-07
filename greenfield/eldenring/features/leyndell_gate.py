@@ -54,11 +54,11 @@ try:
 except Exception:  # pragma: no cover
     GOAL_REGION = "Altus Plateau"
 try:
-    from ..data import LOCATIONS
+    from ..tables.data import LOCATIONS
 except Exception:
     LOCATIONS = {}
 try:
-    from ..item_ids import ITEM_CATALOG
+    from ..tables.item_ids import ITEM_CATALOG
     from .. import item_categories as _ic
 except Exception:  # pre-regen / standalone import
     ITEM_CATALOG = {}

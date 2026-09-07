@@ -92,7 +92,7 @@ def _find_up(rel, start=GF_PKG):
 
 MSB_TSV = _find_up("msb_flag_region.tsv") or _find_up(os.path.join("greenfield", "msb_flag_region.tsv")) or ""
 OVERRIDES_TSV = _find_up("region_overrides.tsv") or _find_up(os.path.join("greenfield", "region_overrides.tsv")) or ""
-DATA_PY = os.path.join(GF_PKG, "data.py")
+DATA_PY = os.path.join(GF_PKG, "tables/data.py")
 ORACLE_PY = _find_up(os.path.join("tools", "map_region_oracle.py")) or ""
 
 

@@ -6,7 +6,7 @@ map. flag_lots.tsv records two co-firing rewards. The old description survived a
 because neither reward had a flag-level description and both fell through to a stale grace join.
 """
 
-from ..data import LOCATIONS
+from ..tables.data import LOCATIONS
 
 
 FLAG = 520700

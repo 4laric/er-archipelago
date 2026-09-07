@@ -44,7 +44,7 @@ def main() -> int:
         assert row["disposition"] == "lead_only"
 
     spec = importlib.util.spec_from_file_location(
-        "_fextralife_check_data", ROOT / "greenfield" / "eldenring" / "data.py")
+        "_fextralife_check_data", ROOT / "greenfield" / "eldenring" / "tables" / "data.py")
     mod = importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(mod)
     current = {str(ap_id): (region, ap_item_name(location))
                for region, checks in mod.LOCATIONS.items()

@@ -47,13 +47,13 @@ from typing import Dict, List, Optional
 from BaseClasses import ItemClassification
 from Options import OptionError
 
-from ..item_ids import ITEM_CATALOG
-from ..data import HUB, LOCATIONS
-from ..item_ids import LOCATION_ITEM
+from ..tables.item_ids import ITEM_CATALOG
+from ..tables.data import HUB, LOCATIONS
+from ..tables.item_ids import LOCATION_ITEM
 from .filler_curation import (CATEGORIES, JUICE, RECIPE_KEYS, curated_stack_name,
                               displaceable_filler)
 from .pool_builder import juice_order_for_floor, INTENSITY_FLOOR, CATEGORY_OPTION
-from ..item_tiers import ITEM_TIER_CATEGORY
+from ..tables.item_tiers import ITEM_TIER_CATEGORY
 
 # `juice` is a first-class recipe category now. It has no private budget any more -- if you want gear
 # injection you weight it like anything else, and it competes with stones on the same tail.

@@ -238,7 +238,7 @@ class RegionSecondOpinionPageTest(unittest.TestCase):
     def test_stamp_is_the_data_inputs_hash_not_a_commit(self):
         stamp = self.data["meta"]["stamp"]
         self.assertTrue(stamp.startswith("sha256:"), "stamp is not a content hash: %r" % stamp)
-        self.assertEqual(stamp, self.tool.data_stamp(os.path.join(GF_PKG, "data.py")))
+        self.assertEqual(stamp, self.tool.data_stamp(os.path.join(GF_PKG, "tables/data.py")))
 
     # -- E. offline --------------------------------------------------------
     def test_the_page_makes_no_external_request(self):

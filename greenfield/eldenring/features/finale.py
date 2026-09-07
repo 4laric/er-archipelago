@@ -54,11 +54,11 @@ from BaseClasses import Region, Location
 
 from ..registry import Feature, register
 from . import vanilla_placement as _vp
-from ..data import LOCATIONS, FINALE_REGION, FINALE_REQUIRES, FINALE_HOST_REGION
+from ..tables.data import LOCATIONS, FINALE_REGION, FINALE_REQUIRES, FINALE_HOST_REGION
 from . import natural_progression as _np
 
 try:
-    from ..data import FINALE_BURN_REGION, FINALE_KICK_OWNER
+    from ..tables.data import FINALE_BURN_REGION, FINALE_KICK_OWNER
 except Exception:  # pre-regen data.py
     FINALE_BURN_REGION, FINALE_KICK_OWNER = "Farum Azula", "Leyndell"
 try:
@@ -71,7 +71,7 @@ except Exception:  # pragma: no cover
 ASHEN_LOCK_ITEM = f"{FINALE_REGION} Lock"
 
 try:
-    from ..item_ids import LOCATION_ITEM
+    from ..tables.item_ids import LOCATION_ITEM
 except Exception:  # not yet generated
     LOCATION_ITEM = {}
 

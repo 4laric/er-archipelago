@@ -59,9 +59,9 @@ if "eldenring" not in sys.modules:
 
 contract = _load("eldenring.contract", "contract.py")
 _load("eldenring.registry", "registry.py")
-data = _load("eldenring.data", "data.py")
-sw = _load("eldenring.boss_sweeps", "boss_sweeps.py")
-tags_mod = _load("eldenring.location_tags", "location_tags.py")
+data = _load("eldenring.data", "tables/data.py")
+sw = _load("eldenring.boss_sweeps", "tables/boss_sweeps.py")
+tags_mod = _load("eldenring.location_tags", "tables/location_tags.py")
 
 DS = sw.DUNGEON_SWEEPS
 SR = sw.SWEEP_REGION

@@ -19,23 +19,23 @@ from ..region_spine import DLC_REGIONS   # canonical base/DLC partition (also us
 from . import legible_keys   # synthetic Boss Key -> vanilla key display-name layer (naming only)
 
 try:
-    from ..boss_data import REGION_BOSSES
+    from ..tables.boss_data import REGION_BOSSES
 except Exception:  # not yet generated
     REGION_BOSSES = {}
 try:
-    from ..boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION
+    from ..tables.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION
 except Exception:
     DUNGEON_SWEEPS, SWEEP_REGION = {}, {}
 try:
-    from ..boss_sweeps import SWEEP_ARENA_REGION   # trigger -> region the BOSS is fought in (#445)
+    from ..tables.boss_sweeps import SWEEP_ARENA_REGION   # trigger -> region the BOSS is fought in (#445)
 except Exception:
     SWEEP_ARENA_REGION = {}
 try:
-    from ..boss_healthbars import BOSS_HEALTHBARS   # flag -> (map, tile, CLASS, name)
+    from ..tables.boss_healthbars import BOSS_HEALTHBARS   # flag -> (map, tile, CLASS, name)
 except Exception:
     BOSS_HEALTHBARS = {}
 try:
-    from ..location_tags import LOCATION_TAGS       # ap id -> [surface class, ...]
+    from ..tables.location_tags import LOCATION_TAGS       # ap id -> [surface class, ...]
 except Exception:  # not yet generated -> the per-seed surface cut is a no-op
     LOCATION_TAGS = {}
 

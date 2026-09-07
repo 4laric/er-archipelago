@@ -33,25 +33,25 @@ from collections import defaultdict
 
 from ..registry import Feature, register
 from .. import contract
-from ..data import HUB, LOCATIONS
+from ..tables.data import HUB, LOCATIONS
 
 try:
-    from ..data import GESTURE_AWARD_FLAGS   # detect-only gesture pickups (EMEVD AwardGesture)
+    from ..tables.data import GESTURE_AWARD_FLAGS   # detect-only gesture pickups (EMEVD AwardGesture)
 except ImportError:                           # pre-regen data
     GESTURE_AWARD_FLAGS = {}
 
 try:
-    from ..item_ids import ITEM_CATALOG, LOCATION_ITEM
+    from ..tables.item_ids import ITEM_CATALOG, LOCATION_ITEM
 except Exception:  # not yet generated
     ITEM_CATALOG, LOCATION_ITEM = {}, {}
 
 try:
-    from ..repeatable_goods import REPEATABLE_GOODS
+    from ..tables.repeatable_goods import REPEATABLE_GOODS
 except Exception:  # not yet generated -> old (over-broad) behaviour
     REPEATABLE_GOODS = frozenset()
 
 try:
-    from ..check_lots_data import CHECK_LOT_FLAGS
+    from ..tables.check_lots_data import CHECK_LOT_FLAGS
 except ImportError:  # check_lots_data predates the flag set -> arm everything, as before
     CHECK_LOT_FLAGS = frozenset()
 

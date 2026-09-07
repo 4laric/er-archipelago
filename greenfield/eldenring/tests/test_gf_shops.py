@@ -12,7 +12,7 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.shop_data import (  # noqa: E402
+from worlds.eldenring.tables.shop_data import (  # noqa: E402
     SHOP_ROW_FLAGS, SHOP_LOC_REGION, SHOP_PREVIEW_GOODS,
 )
 
@@ -89,7 +89,7 @@ class ShopScopedSealed(WorldTestBase):
     def test_scoped_to_kept_plus_hub(self):
         # hub is always in play; kept() is the spokes. Every emitted preview (ap-id keyed) must live
         # in that scope -- this is the ap-id side, which is what SHOP_LOC_REGION indexes.
-        from worlds.eldenring.data import HUB
+        from worlds.eldenring.tables.data import HUB
         sd = self.world.fill_slot_data()
         spg = sd["shopPreviewGoods"]
         scope = {HUB} | set(self.world._kept())

@@ -32,7 +32,7 @@ INPUTS (all committed; nothing is fetched, nothing needs game files):
   tools/overworld_fold.py                 THE tile fold (LOD-aware) -- never re-implement it
   greenfield/grace_region_map.tsv         grace -> warp-menu play_region
   greenfield/grace_ground.tsv             grace -> the play_region BUCKET of the ground it is on
-  greenfield/eldenring/region_play_ids.py REGION_PLAY_IDS: play ids -> our region vocabulary
+  greenfield/eldenring/tables/region_play_ids.py REGION_PLAY_IDS: play ids -> our region vocabulary
 
 THE ANCHOR CLASS THAT LIES (`SUSPECT-ANCHOR`). A grace's region is read from the warp menu
 first; where the warp menu names a play_region we do not own, we fall back to the BUCKET of the
@@ -72,7 +72,7 @@ COORDS = os.path.join("greenfield", "item_grace_coords.tsv")
 GRACE_REGION_MAP = os.path.join("greenfield", "grace_region_map.tsv")
 GRACE_GROUND = os.path.join("greenfield", "grace_ground.tsv")
 PLAY_REGIONS = os.path.join("greenfield", "item_play_regions.tsv")
-REGION_PLAY_IDS_PY = os.path.join("greenfield", "eldenring", "region_play_ids.py")
+REGION_PLAY_IDS_PY = os.path.join("greenfield", "eldenring", "tables", "region_play_ids.py")
 
 # The calibration sentence. It is repeated verbatim into the tsv header and the worksheet page
 # because a number that travels without its caveat becomes an authority (CONTRIBUTING rule 10).
@@ -369,7 +369,7 @@ def calibrate(repo=REPO, voter=None):
     """
     voter = voter or Voter.from_repo(repo)
     regions, unconfirmed = {}, set()
-    with open(os.path.join(repo, "greenfield", "eldenring", "data.py"), encoding="utf-8") as fh:
+    with open(os.path.join(repo, "greenfield", "eldenring", "tables", "data.py"), encoding="utf-8") as fh:
         text = fh.read()
     for region, body, flag in LABEL_RE.findall(text):
         regions.setdefault(flag, set()).add(region)

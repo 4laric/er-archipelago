@@ -23,7 +23,7 @@ from Fill import distribute_items_restrictive  # noqa: E402
 from worlds.eldenring.features.legacy_key_gates import (  # noqa: E402
     LegacyKeyGates, _gated_location_ids, _multi_gated_location_ids, _MULTI_KEY_GATES, _LEGACY_KEYS,
     _LEGACY_EXTRA)
-from worlds.eldenring.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS  # noqa: E402
 from ._util import world_items  # noqa: E402
 
 GAME = "Elden Ring"

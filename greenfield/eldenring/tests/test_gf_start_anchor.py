@@ -36,7 +36,7 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.data import HUB, REGIONS, LOCATIONS                       # noqa: E402
+from worlds.eldenring.tables.data import HUB, REGIONS, LOCATIONS                       # noqa: E402
 from worlds.eldenring.region_spine import (  # noqa: E402
     DLC_REGIONS, REGION_PARENT, base_regions, dlc_regions)
 from worlds.eldenring.features.start_grace import pick_anchor_region            # noqa: E402

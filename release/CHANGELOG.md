@@ -26,6 +26,13 @@ commit.
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.2 in this same commit.
 
+- **The generated tables sit behind a loader (#1464).** `data.py`, `item_ids.py`, `shop_data.py`
+  and the other AUTO-GENERATED modules moved into `greenfield/eldenring/tables/`, and `core.py`
+  reads them through `table_loader.load()` (`world.tables`) instead of importing them by name; the
+  id bases (locations 7,770,000; locks 7,780,000; real items 7,790,000; ability unlocks 7,900,000)
+  moved with them. A tables-less build now refuses to register with a message naming what is
+  missing instead of an ImportError mid-`core.py`. Generation, option semantics, contract keys and
+  slot_data are unchanged -- this is layering only.
 - **Release pipeline: the next window is opened by a workflow.** `open-window.yaml` runs after
   a tag's `er-release` goes green: `tools/open_window.py` on the runner with the client
   submodule at client main, the client half pushed as its own PR, stable promoted and

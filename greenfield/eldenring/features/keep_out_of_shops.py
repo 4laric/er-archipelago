@@ -134,12 +134,12 @@ from ..registry import Feature, register
 from ..item_categories import SELECTABLE, expand, names_in
 
 try:
-    from ..shop_data import SHOP_ROW_FLAGS
+    from ..tables.shop_data import SHOP_ROW_FLAGS
 except Exception:  # not yet generated -> no shop scope -> the feature can only warn
     SHOP_ROW_FLAGS = {}
 
 try:
-    from ..item_ids import ITEM_CATALOG
+    from ..tables.item_ids import ITEM_CATALOG
 except Exception:
     ITEM_CATALOG = {}
 

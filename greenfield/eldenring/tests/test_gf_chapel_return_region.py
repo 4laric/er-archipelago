@@ -75,7 +75,7 @@ TUTORIAL_REGION = "Limgrave"
 class ChapelReturnIsLiurnia(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        from .. import data
+        from ..tables import data
         cls.by_ap = {}
         cls.by_flag = {}
         for region, rows in data.LOCATIONS.items():
@@ -138,7 +138,7 @@ class TheTutorialMapDidNotMove(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        from .. import data
+        from ..tables import data
         cls.by_flag = {}
         for region, rows in data.LOCATIONS.items():
             for (name, ap, flag) in rows:

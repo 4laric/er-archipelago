@@ -16,9 +16,9 @@ def main() -> int:
         rows = list(csv.DictReader(h, delimiter="\t"))
     with (AUDIT / "eldenpedia-combatant-pages.tsv").open(encoding="utf-8", newline="") as h:
         sources = {r["source_id"]: r for r in csv.DictReader(h, delimiter="\t")}
-    data = load("_data", ROOT / "greenfield/eldenring/data.py")
-    drops = load("_drops", ROOT / "greenfield/eldenring/boss_drops.py").BOSS_DROP_ENTITY
-    rewards = load("_rewards", ROOT / "greenfield/eldenring/boss_reward_lots.py").BOSS_REWARD_DEFEAT
+    data = load("_data", ROOT / "greenfield/eldenring/tables/data.py")
+    drops = load("_drops", ROOT / "greenfield/eldenring/tables/boss_drops.py").BOSS_DROP_ENTITY
+    rewards = load("_rewards", ROOT / "greenfield/eldenring/tables/boss_reward_lots.py").BOSS_REWARD_DEFEAT
     current = {str(ap): (region, flag) for region, entries in data.LOCATIONS.items()
                for _name, ap, flag in entries}
     assert len(rows) >= 20

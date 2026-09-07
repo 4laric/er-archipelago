@@ -28,7 +28,7 @@ def main() -> int:
         rows = list(reader)
 
     spec = importlib.util.spec_from_file_location(
-        "_redmaw_checklist_data", ROOT / "greenfield" / "eldenring" / "data.py"
+        "_redmaw_checklist_data", ROOT / "greenfield" / "eldenring" / "tables" / "data.py"
     )
     module = importlib.util.module_from_spec(spec)
     assert spec.loader

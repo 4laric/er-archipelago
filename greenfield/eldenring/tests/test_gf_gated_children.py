@@ -32,12 +32,12 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 from Fill import distribute_items_restrictive  # noqa: E402
 from BaseClasses import CollectionState  # noqa: E402
-from worlds.eldenring.data import REGIONS, LOCATIONS, HUB  # noqa: E402
+from worlds.eldenring.tables.data import REGIONS, LOCATIONS, HUB  # noqa: E402
 from worlds.eldenring.region_spine import (  # noqa: E402
     REGION_PARENT, GOAL_REGION, SPINE, DLC_REGIONS, compute_kept, parent_chain, base_regions)
-from worlds.eldenring.region_graces import REGION_GRACE_POINTS  # noqa: E402
-from worlds.eldenring.region_open_flags import REGION_OPEN_FLAGS  # noqa: E402
-from worlds.eldenring.region_play_ids import REGION_PLAY_IDS  # noqa: E402
+from worlds.eldenring.tables.region_graces import REGION_GRACE_POINTS  # noqa: E402
+from worlds.eldenring.tables.region_open_flags import REGION_OPEN_FLAGS  # noqa: E402
+from worlds.eldenring.tables.region_play_ids import REGION_PLAY_IDS  # noqa: E402
 from worlds.eldenring.features.graces import WALL_ARMED  # noqa: E402
 from worlds.eldenring.features.legacy_key_gates import _LEGACY_KEYS  # noqa: E402
 from worlds.eldenring.features.start_grace import pick_anchor_region  # noqa: E402
@@ -483,7 +483,7 @@ class SewerRuneRegressionSeed(WorldTestBase):
                "leyndell_runes_required": 2, "accessibility": "minimal"}
 
     def test_gating_items_barred_from_the_whole_walled_subtree(self):
-        from worlds.eldenring.data import FINALE_REGION
+        from worlds.eldenring.tables.data import FINALE_REGION
         from worlds.eldenring.features.leyndell_gate import (
             _GATING_ITEMS, _gated_region_names)
         gated = _gated_region_names(self.world)

@@ -15,8 +15,8 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring import contract  # noqa: E402
-from worlds.eldenring.region_graces import REGION_GRACE_POINTS  # noqa: E402
-from worlds.eldenring.region_open_flags import REGION_OPEN_FLAGS  # noqa: E402
+from worlds.eldenring.tables.region_graces import REGION_GRACE_POINTS  # noqa: E402
+from worlds.eldenring.tables.region_open_flags import REGION_OPEN_FLAGS  # noqa: E402
 from worlds.eldenring.region_spine import REGION_PARENT  # noqa: E402
 
 GAME = "Elden Ring"

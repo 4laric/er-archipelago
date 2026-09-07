@@ -142,7 +142,7 @@ def _surface_excluded():
 
 
 def _data_locations():
-    src = os.path.join(_ROOT, "greenfield", "eldenring", "data.py")
+    src = os.path.join(_ROOT, "greenfield", "eldenring", "tables", "tables/data.py")
     with open(src, encoding="utf-8") as fh:
         tree = ast.parse(fh.read(), filename=src)
     for node in ast.walk(tree):
@@ -224,7 +224,7 @@ def test_the_generated_world_files_the_stock_in_the_academy():
 def test_the_shipped_tags_no_longer_surface_exclude_the_stock():
     """location_tags.py (the shipped projection of the gen_data set): the 16 AP ids are out of
     SURFACE_EXCLUDE_APS, so the surface math and the region agree about who gates these checks."""
-    src = os.path.join(_ROOT, "greenfield", "eldenring", "location_tags.py")
+    src = os.path.join(_ROOT, "greenfield", "eldenring", "tables", "tables/location_tags.py")
     with open(src, encoding="utf-8") as fh:
         tree = ast.parse(fh.read(), filename=src)
     for node in ast.walk(tree):
@@ -257,7 +257,7 @@ def test_the_reported_check_is_covered_end_to_end():
 try:
     from test.bases import WorldTestBase
     from BaseClasses import CollectionState
-    from worlds.eldenring.data import REGIONS
+    from worlds.eldenring.tables.data import REGIONS
     _HAVE_AP = True
 except ImportError:
     _HAVE_AP = False
@@ -304,7 +304,7 @@ if _HAVE_AP:
             lock = f"{reported.parent_region.name} Lock"
             # The old merchant-specific bar must not survive the move. The global evidence ledger
             # is now the only host policy, so each row accepts progression exactly when trusted.
-            from worlds.eldenring.evidence_progression_hosts import TRUSTED_PROGRESSION_HOST_APS
+            from worlds.eldenring.tables.evidence_progression_hosts import TRUSTED_PROGRESSION_HOST_APS
             probe = self.world.create_item(lock)
             self.assertTrue(probe.advancement)
             for loc in stock:

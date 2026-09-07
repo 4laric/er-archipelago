@@ -3,7 +3,7 @@
 """derive_sweep_anchor_coords.py -- anchor a coordinate-less check at its SWEEP BOSS's arena.
 
 Emits greenfield/sweep_anchor_coords.tsv. AP-free, MSB-free: reads only the committed
-game_areas.tsv, item_grace_coords.tsv and greenfield/eldenring/boss_sweeps.py.
+game_areas.tsv, item_grace_coords.tsv and greenfield/eldenring/tables/boss_sweeps.py.
 
 WHY THIS EXISTS, AND WHY IT IS NOT derive_boss_reward_coords.py
 --------------------------------------------------------------
@@ -87,7 +87,7 @@ def load_positioned():
 def load_sweeps():
     """trigger flag -> [ap location ids], read TEXTUALLY. Importing boss_sweeps would drag in the
     package __init__ -> core -> BaseClasses, and this tool is deliberately AP-free."""
-    src = open(os.path.join(GF, "eldenring", "boss_sweeps.py"), encoding="utf-8").read()
+    src = open(os.path.join(GF, "eldenring", "tables", "boss_sweeps.py"), encoding="utf-8").read()
     body = src.split("DUNGEON_SWEEPS = {", 1)[1]
     sweeps = {}
     for flag, members in re.findall(r"^\s*(\d+): \[([\d, ]*)\],", body, re.M):
@@ -96,7 +96,7 @@ def load_sweeps():
 
 
 def load_loc_flags():
-    src = open(os.path.join(GF, "eldenring", "data.py"), encoding="utf-8").read()
+    src = open(os.path.join(GF, "eldenring", "tables", "data.py"), encoding="utf-8").read()
     return {lid: flag for _d, lid, flag in
             re.findall(r"\(['\"](.+?)['\"], (\d+), (\d+)\)", src)}
 

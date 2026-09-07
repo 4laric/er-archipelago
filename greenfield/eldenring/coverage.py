@@ -86,10 +86,22 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _PATH_CACHE = {}
 
 
+# The generated tables moved into the `tables/` subpackage (#1464). This module reaches them by
+# NAME (a string), not by import, and degrades to None -- so it keeps taking the bare module name
+# and re-homes it here rather than making every call site spell out the package.
+try:
+    from . import table_loader as _table_loader
+    _GENERATED = frozenset(_table_loader.GENERATED_MODULES)
+except Exception:  # standalone file-path run: the loader is a sibling file, not a package member
+    _GENERATED = frozenset()
+
+
 def _load(modname):
     """Import a sibling module. Prefer the CANONICAL already-imported module (sys.modules) when the
     world is installed -- so a caller that mutates e.g. coverage_quarantine sees the same object --
     then the package-relative import, then a file-path fallback (source-tree static run)."""
+    if modname in _GENERATED or os.path.isfile(os.path.join(_HERE, "tables", modname + ".py")):
+        modname = "tables." + modname
     if __package__:
         fq = __package__ + "." + modname
         mod = sys.modules.get(fq)
@@ -101,7 +113,7 @@ def _load(modname):
             pass
     if modname in _PATH_CACHE:
         return _PATH_CACHE[modname]
-    path = os.path.join(_HERE, modname + ".py")
+    path = os.path.join(_HERE, *modname.split(".")) + ".py"
     if not os.path.isfile(path):
         return None
     try:
@@ -501,7 +513,7 @@ def build_coverage(world=None, kept=None, _static_table=None, finale=None, dlc_o
         _excluded = set()
         if dlc_on is False:
             try:
-                from .shop_data import DLC_GATED_SHOP_CHECK_FLAGS as _dgs
+                from .tables.shop_data import DLC_GATED_SHOP_CHECK_FLAGS as _dgs
                 _excluded.update(_dgs)
             except ImportError:
                 pass

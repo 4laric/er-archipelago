@@ -16,13 +16,13 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.data import LOCATIONS  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS  # noqa: E402
 from worlds.eldenring.region_spine import SPINE, GOAL_REGION, compute_kept, base_regions, dlc_regions  # noqa: E402
 from worlds.eldenring.features.goal_locations import (terminal_goal_ids, _major_boss_ids,  # noqa: E402
                                                       _by_depth, _is_terminus,
                                                       DLC_TERMINUS_REGION)
 from worlds.eldenring.features.finale import finale_active  # noqa: E402
-from worlds.eldenring.data import FINALE_REGION, FINALE_REQUIRES  # noqa: E402
+from worlds.eldenring.tables.data import FINALE_REGION, FINALE_REQUIRES  # noqa: E402
 
 FINALE_IDS = set(_major_boss_ids(FINALE_REGION))
 
@@ -103,7 +103,7 @@ class TestTerminalGoalPure:
         assert region == "Altus" and ids, "majorless fallback must clear the terminal region"
         altus_ids = {aid for (_n, aid, _f) in LOCATIONS.get("Altus", ())}
         assert set(ids) <= altus_ids
-        from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS
+        from worlds.eldenring.tables.missable_locations import MISSABLE_LOCATIONS
         assert not (set(ids) & set(MISSABLE_LOCATIONS)),             "a missable check may never be part of the goal (permanently losable)"
 
 

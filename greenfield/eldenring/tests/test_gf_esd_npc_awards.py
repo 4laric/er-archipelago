@@ -60,8 +60,8 @@ import unittest
 HERE = os.path.dirname(os.path.abspath(__file__))
 ELDENRING_DIR = os.path.dirname(HERE)
 GREENFIELD_DIR = os.path.dirname(ELDENRING_DIR)
-DATA_PY = os.path.join(ELDENRING_DIR, "data.py")
-MISSABLE_PY = os.path.join(ELDENRING_DIR, "missable_locations.py")
+DATA_PY = os.path.join(ELDENRING_DIR, "tables/data.py")
+MISSABLE_PY = os.path.join(ELDENRING_DIR, "tables/missable_locations.py")
 
 # ---- the only literals in this file: two ItemLotParam_map lot ids, cited above ------------------
 LOT_SPIRIT_JELLYFISH_ASHES = 101900   # flag_lots.tsv -> flag 400190, goods 236000

@@ -101,11 +101,11 @@ from ..registry import Feature, register
 from .. import contract
 
 try:  # the flask leveled-ladder length follows the kept Golden Seed / Sacred Tear checks
-    from ..data import HUB, LOCATIONS
+    from ..tables.data import HUB, LOCATIONS
 except Exception:
     HUB, LOCATIONS = "Roundtable Hold", {}
 try:
-    from ..item_ids import LOCATION_ITEM
+    from ..tables.item_ids import LOCATION_ITEM
 except Exception:
     LOCATION_ITEM = {}
 

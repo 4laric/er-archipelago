@@ -47,7 +47,7 @@ def _mod():
 
 
 def _data():
-    from worlds.eldenring import spawn_trap_data
+    from worlds.eldenring.tables import spawn_trap_data
     return spawn_trap_data
 
 
@@ -582,7 +582,7 @@ class TheNameSurface(unittest.TestCase):
         """🛑 THREE NAMES ARE ON TWO MODELS EACH (one NPC, two bodies). A name that resolved to
         'whichever the dict emitted first' would make the same yaml build different seeds across
         runs; the rule is the LOWEST id and `enemy_names.ENEMY_NAME_COLLISIONS` records the rows."""
-        from worlds.eldenring.enemy_names import ENEMY_NAMES, ENEMY_NAME_COLLISIONS
+        from worlds.eldenring.tables.enemy_names import ENEMY_NAMES, ENEMY_NAME_COLLISIONS
         t = _mod()
         self.assertTrue(ENEMY_NAME_COLLISIONS, "witness: the collision table must not be empty")
         for chr_id, (name, others) in ENEMY_NAME_COLLISIONS.items():
@@ -594,7 +594,7 @@ class TheNameSurface(unittest.TestCase):
     def test_every_named_model_is_spawnable_and_every_name_resolves(self):
         """A name for a model this world refuses to spawn would be a yaml value that gens dirty --
         the id problem inverted. WITNESSED by the length assert so an empty table cannot pass."""
-        from worlds.eldenring.enemy_names import ENEMY_NAMES
+        from worlds.eldenring.tables.enemy_names import ENEMY_NAMES
         t, rows = _mod(), _data().SPAWN_TRAPS
         self.assertGreater(len(ENEMY_NAMES), 30)
         for chr_id, name in ENEMY_NAMES.items():
@@ -627,7 +627,7 @@ class TheNameSurface(unittest.TestCase):
         Jar]` is TWO yaml values, and the wizard's box splits on commas so pasting a list works, so
         an accepted value carrying one cannot survive being typed. Six names carry one; the offered
         spelling drops it and the game's spelling still resolves."""
-        from worlds.eldenring.enemy_names import ENEMY_NAMES
+        from worlds.eldenring.tables.enemy_names import ENEMY_NAMES
         t = _mod()
         commad = [n for n in ENEMY_NAMES.values() if "," in n]
         self.assertGreaterEqual(len(commad), 5, "witness: the comma'd population must not be empty")

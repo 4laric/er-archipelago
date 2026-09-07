@@ -7,8 +7,8 @@ legacy Liurnia label.
 """
 import unittest
 
-from .. import data
-from ..location_tags import DEFAULTED_REGION_APS, HUB_COLLAPSED_SITE_APS
+from ..tables import data
+from ..tables.location_tags import DEFAULTED_REGION_APS, HUB_COLLAPSED_SITE_APS
 
 
 CORHYN_FLAGS = frozenset(range(130500, 130781, 10))

@@ -43,7 +43,7 @@ INPUTS (all committed; none are game files, none are fetched here):
   greenfield/check_region_second_opinion.tsv  the audit verdicts AND the msb_vote_* columns
                                               (produced offline, by hand run)
   greenfield/check_region_triage.tsv          how the region was decided (GUESSED / CONFLICT)
-  greenfield/eldenring/data.py                _GEN_STAMP.inputs_hash, for the freshness stamp
+  greenfield/eldenring/tables/data.py                _GEN_STAMP.inputs_hash, for the freshness stamp
 
 LICENSES ARE IN THE PAGE, NOT JUST HERE. The footer names Eldenpedia (CC BY-SA 4.0) and the
 Fandom Elden Ring Wiki (CC BY-SA 3.0), and states that Fextralife was deliberately not
@@ -378,7 +378,7 @@ def build(root):
     )
 
     meta = {
-        "stamp": data_stamp(os.path.join(er, "data.py")),
+        "stamp": data_stamp(os.path.join(er, "tables", "data.py")),
         "vote_counts": vote_counts,
         "vote_sides": [list(p) for p in VOTE_SIDES],
         # Verbatim from the tool that computed the votes -- paraphrasing a calibration is how a

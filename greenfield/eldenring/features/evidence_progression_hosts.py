@@ -29,7 +29,7 @@ def trusted_aps() -> FrozenSet[int]:
 
 def _generated_sets():
     try:
-        from ..evidence_progression_hosts import (HOLD_PROGRESSION_HOST_APS,
+        from ..tables.evidence_progression_hosts import (HOLD_PROGRESSION_HOST_APS,
                                                   TRUSTED_PROGRESSION_HOST_APS)
     except ImportError:
         return None, frozenset()
@@ -39,7 +39,7 @@ def _generated_sets():
 
 def _all_location_aps() -> FrozenSet[int]:
     try:
-        from ..data import LOCATIONS
+        from ..tables.data import LOCATIONS
     except ImportError:
         return frozenset()
     return frozenset(ap for rows in LOCATIONS.values() for _name, ap, _flag in rows)

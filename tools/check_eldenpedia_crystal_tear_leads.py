@@ -17,7 +17,7 @@ def main() -> int:
     assert len(pages) == 15 and len(leads) == 18
     assert all(row["source_id"].startswith("wiki:eldenpedia:page-") for row in pages)
     assert all(row["disposition"] == "lead_only" for row in pages + leads)
-    spec = importlib.util.spec_from_file_location("_crystal_tear_check_data", ROOT / "greenfield" / "eldenring" / "data.py")
+    spec = importlib.util.spec_from_file_location("_crystal_tear_check_data", ROOT / "greenfield" / "eldenring" / "tables" / "data.py")
     module = importlib.util.module_from_spec(spec)
     assert spec.loader
     spec.loader.exec_module(module)

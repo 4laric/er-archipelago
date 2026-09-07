@@ -5,7 +5,7 @@ import argparse, csv, hashlib, importlib.util, json, re, sys, unicodedata
 from html.parser import HTMLParser
 from pathlib import Path
 
-ROOT=Path(__file__).resolve().parents[1]; DATA=ROOT/"greenfield/eldenring/data.py"
+ROOT=Path(__file__).resolve().parents[1]; DATA=ROOT/"greenfield/eldenring/tables/data.py"
 DEFAULT_OUT=ROOT/"greenfield/evidence/wiki-audit/game8-check-leads.tsv"
 PAGES={
  "369673":("20260316153255","0ee6a591482b0ad2bf8ca9eabc623a54e73161ddafb4cd60c0f663b42be759d7","Raya Lucaria Academy","Academy of Raya Lucaria"),

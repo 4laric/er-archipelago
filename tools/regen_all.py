@@ -108,10 +108,10 @@ STEPS = [
              "with '6 DECLARED input(s) are missing'."),
 
     Step(MODULES, "tools/datamine_boss_drops.py",
-         emits=["greenfield/eldenring/boss_drops.py"],
+         emits=["greenfield/eldenring/tables/boss_drops.py"],
          why="a DECLARED input of the stamp, and gen_data imports it -- so it runs first."),
     Step(MODULES, "tools/datamine_boss_healthbars.py",
-         emits=["greenfield/eldenring/boss_healthbars.py"],
+         emits=["greenfield/eldenring/tables/boss_healthbars.py"],
          why="same: FILE_INPUTS entry, consumed by gen_data."),
     Step(MODULES, "tools/datamine_achievement_bosses.py",
          emits=["greenfield/achievement_bosses.tsv"],
@@ -173,7 +173,7 @@ STEPS = [
     Step(TABLES, "tools/build_progression_host_confidence.py",
          emits=["greenfield/evidence/v060-current/progression_host_confidence.tsv",
                 "greenfield/evidence/v060-current/progression_host_confidence_summary.json",
-                "greenfield/eldenring/evidence_progression_hosts.py"],
+                "greenfield/eldenring/tables/evidence_progression_hosts.py"],
          why="strict two-family external identity/region confidence used by #1358. It reads the "
              "normalized wiki-audit leads and current generated check population, so both inputs "
              "must move its HOLD/TRUSTED partition through the single regen entrypoint."),

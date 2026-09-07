@@ -35,7 +35,7 @@ def main() -> int:
         assert row["disposition"] == "lead_only"
 
     spec = importlib.util.spec_from_file_location(
-        "_eldenpedia_check_data", ROOT / "greenfield" / "eldenring" / "data.py")
+        "_eldenpedia_check_data", ROOT / "greenfield" / "eldenring" / "tables" / "data.py")
     mod = importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(mod)
     current = {str(ap_id): (region, name) for region, checks in mod.LOCATIONS.items()
                for name, ap_id, _flag in checks}

@@ -20,7 +20,7 @@ def acquisition(c):
  m=re.search(r"(?ims)Where to (?:find|Find).*?(?=^==[^=]|\Z)",c);return m.group(0) if m else ""
 def reserved(k):return k.startswith(("smithing stone ","somber smithing stone ","ancient dragon smithing stone","somber ancient dragon smithing stone","ghost glovewort ","grave glovewort ")) or k in {"scadutree fragment","revered spirit ash"}
 def build(capture):
- data=mod("_data",ROOT/"greenfield/eldenring/data.py");idx=defaultdict(list);vague={norm(x) for x in data.LOCATIONS}|{"altus plateau","liurnia of the lakes","weeping peninsula","volcano manor","consecrated snowfield","crumbling farum azula","realm of shadow","lands between","limgrave","caelid","mt gelmir"}
+ data=mod("_data",ROOT/"greenfield/eldenring/tables/data.py");idx=defaultdict(list);vague={norm(x) for x in data.LOCATIONS}|{"altus plateau","liurnia of the lakes","weeping peninsula","volcano manor","consecrated snowfield","crumbling farum azula","realm of shadow","lands between","limgrave","caelid","mt gelmir"}
  for region,entries in data.LOCATIONS.items():
   for name,ap,flag in entries:idx[norm(item(name))].append((ap,flag,region,name,anchor(name)))
  det={}

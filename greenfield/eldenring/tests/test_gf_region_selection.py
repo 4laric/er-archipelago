@@ -20,6 +20,13 @@ import random
 import sys
 import unittest
 
+
+def _gf_mod_path(_pkg, _name):
+    """Path to a module in the world package. The GENERATED tables moved into `tables/` (#1464);
+    hand-written modules (contract, tarnished_pack, ...) stayed put, so try the subpackage first."""
+    _t = os.path.join(_pkg, "tables", _name + ".py")
+    return _t if os.path.isfile(_t) else os.path.join(_pkg, _name + ".py")
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 try:
     from ._util import find_repo_root, REPO_ONLY_REASON
@@ -41,7 +48,7 @@ def _load_spine():
 
     def sub(name):
         spec = importlib.util.spec_from_file_location("_gfsel." + name,
-                                                      os.path.join(pkg_dir, name + ".py"))
+                                                      _gf_mod_path(pkg_dir, name))
         mod = importlib.util.module_from_spec(spec)
         sys.modules["_gfsel." + name] = mod
         spec.loader.exec_module(mod)

@@ -21,9 +21,9 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
-from worlds.eldenring.item_ids import ITEM_CATALOG  # noqa: E402
+from worlds.eldenring.tables.item_ids import ITEM_CATALOG  # noqa: E402
 try:
-    from worlds.eldenring.item_ids import DLC_ITEM_NAMES
+    from worlds.eldenring.tables.item_ids import DLC_ITEM_NAMES
 except ImportError:  # patch not applied / gen_data.py not re-run yet -> skip cleanly, don't error CI
     pytest.skip("DLC_ITEM_NAMES not generated yet -- apply patch_greenfield_dlc_leak.py then "
                 "run python greenfield/gen_data.py", allow_module_level=True)

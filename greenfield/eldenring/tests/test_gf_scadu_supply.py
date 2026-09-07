@@ -102,8 +102,8 @@ def test_natural_supply_reads_the_filtered_seed_locations():
     filtered Fragment made the injector stop one unit early and produced a 49/50 rolled seed.
     """
     from types import SimpleNamespace
-    from worlds.eldenring.data import HUB, LOCATIONS
-    from worlds.eldenring.item_ids import LOCATION_ITEM
+    from worlds.eldenring.tables.data import HUB, LOCATIONS
+    from worlds.eldenring.tables.item_ids import LOCATION_ITEM
     from worlds.eldenring.core import item_name_to_id as catalog_ids, stacked_vanilla_name
 
     witness = next((region, ap_id) for region, rows in LOCATIONS.items() for _, ap_id, _ in rows
@@ -156,8 +156,8 @@ def test_every_one_region_draw_reaches_its_auto_scaled_target():
     target easier.
     """
     from worlds.eldenring import region_spine as rspine
-    from worlds.eldenring.data import HUB, LOCATIONS, REGIONS
-    from worlds.eldenring.item_ids import LOCATION_ITEM, LOCATION_UNITS
+    from worlds.eldenring.tables.data import HUB, LOCATIONS, REGIONS
+    from worlds.eldenring.tables.item_ids import LOCATION_ITEM, LOCATION_UNITS
 
     hub = len(LOCATIONS.get(HUB, []))
     target = ss.target_for_difficulty(32)  # round(100 * cube_root(1/30))

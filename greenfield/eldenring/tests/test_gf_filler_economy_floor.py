@@ -49,8 +49,8 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
-from worlds.eldenring.data import LOCATIONS, HUB  # noqa: E402
-from worlds.eldenring.item_ids import ITEM_CATALOG, LOCATION_ITEM  # noqa: E402
+from worlds.eldenring.tables.data import LOCATIONS, HUB  # noqa: E402
+from worlds.eldenring.tables.item_ids import ITEM_CATALOG, LOCATION_ITEM  # noqa: E402
 from worlds.eldenring.features import filler_curation as fc  # noqa: E402
 from worlds.eldenring.features import filler_budget as fb  # noqa: E402
 

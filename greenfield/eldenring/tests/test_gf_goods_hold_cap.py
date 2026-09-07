@@ -41,7 +41,7 @@ except ImportError:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from _util import find_repo_root
 
-from ..item_ids import GOODS_HOLD_CAP, ITEM_CATALOG, LOCATION_ITEM
+from ..tables.item_ids import GOODS_HOLD_CAP, ITEM_CATALOG, LOCATION_ITEM
 from ..hold_cap import hold_budget, hold_slot_available
 
 _GOODS_NIBBLE = 0x40000000

@@ -200,7 +200,7 @@ def test_region_grace_unlock_combinations_generate_clean(label, mode, extra):
                 "normally means one front door, but #806 requires two for Ainsel's disconnected "
                 "lower-well and Lake of Rot/Astel halves." % (label, over, expected))
         elif mode == "landmarks":
-            from worlds.eldenring.region_graces import (
+            from worlds.eldenring.tables.region_graces import (
                 REGION_GRACE_LANDMARKS, REGION_GRACE_POINTS)
             for k, got in rg.items():
                 if not got:
@@ -287,7 +287,7 @@ def test_landmarks_is_the_middle_setting_where_it_matters():
 
 def test_mt_gelmir_landmarks_reaches_the_seethewater_basin():
     """The warp menu merges areas that the traversal graph does not (#1136)."""
-    from ..region_graces import REGION_GRACE_LANDMARKS, REGION_GRACE_POINTS
+    from ..tables.region_graces import REGION_GRACE_LANDMARKS, REGION_GRACE_POINTS
 
     assert 76354 in REGION_GRACE_LANDMARKS["Mt. Gelmir"], (
         "Mt. Gelmir landmarks must include Seethewater River so basin checks are reachable")
@@ -316,7 +316,7 @@ _NRIS_COMBOS = (
 @pytest.mark.parametrize("label,opts", _NRIS_COMBOS, ids=[c[0] for c in _NRIS_COMBOS])
 def test_no_runes_in_shops_combinations_fill_clean(label, opts):
     from Fill import distribute_items_restrictive
-    from worlds.eldenring.shop_data import SHOP_ROW_FLAGS
+    from worlds.eldenring.tables.shop_data import SHOP_ROW_FLAGS
     from worlds.eldenring.features.rune_pricing import is_rune_item
 
     class _T(WorldTestBase):
@@ -381,7 +381,7 @@ def test_keep_out_of_shops_combinations_fill_clean(label, opts, seed, expected_r
     every purchase menu. Asserting only "it genned" would pass just as happily on an option that
     skipped everything, every time."""
     from Fill import distribute_items_restrictive
-    from worlds.eldenring.shop_data import SHOP_ROW_FLAGS
+    from worlds.eldenring.tables.shop_data import SHOP_ROW_FLAGS
     from worlds.eldenring.features.keep_out_of_shops import _PROGRESSIVE_NAMES
     from worlds.eldenring.item_categories import expand, names_in
 
@@ -613,7 +613,7 @@ def test_scadutree_blessing_combinations_generate_clean(mode, label, extra):
                 # locations) 50 units do not fit MAX_POOL_SHARE and the clamp wins, exactly as
                 # its own comment always said. That is legal ONLY as stated-and-bounded:
                 assert injected < want  # this arm IS the clamp; anything else fails above
-                from worlds.eldenring.data import HUB
+                from worlds.eldenring.tables.data import HUB
                 kept = list(t.world._kept())
                 total = (len(t.world._seed_locations(HUB))
                          + sum(len(t.world._seed_locations(r)) for r in kept)

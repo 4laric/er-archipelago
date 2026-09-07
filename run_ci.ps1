@@ -295,21 +295,21 @@ if (-not $SkipGreenfield) {
 if (-not $SkipGreenfield) {
     Invoke-CiStep "GREENFIELD (drift + unit tests + isolated gen)" {
         $gfDir  = Join-Path $Repo "greenfield"
-        $dataPy = Join-Path $gfDir "eldenring\data.py"
+        $dataPy = Join-Path $gfDir "eldenring\tables\data.py"
         # (a) DATA DRIFT: regenerate from the backbone (region_map.csv + grace anchors); fail if
         #     data.py or region_open_flags.py differ from what is committed. Compared line-ending-
         #     NORMALIZED: gen_data writes CRLF on Windows / LF elsewhere -- only content matters.
-        $openPy = Join-Path $gfDir "eldenring\region_open_flags.py"
+        $openPy = Join-Path $gfDir "eldenring\tables\region_open_flags.py"
         $gfNorm = { param($p) if (Test-Path $p) { [IO.File]::ReadAllText($p).Replace("`r","") } else { "" } }
         $beforeData = & $gfNorm $dataPy
         $beforeOpen = & $gfNorm $openPy
         python (Join-Path $gfDir "gen_data.py")
         if ($LASTEXITCODE -ne 0) { throw "GREENFIELD: gen_data.py failed (exit $LASTEXITCODE)" }
         if ((& $gfNorm $dataPy) -ne $beforeData) {
-            throw "GREENFIELD: eldenring\data.py is stale -- gen_data.py regenerated different data; commit it."
+            throw "GREENFIELD: eldenring\tables\data.py is stale -- gen_data.py regenerated different data; commit it."
         }
         if ((& $gfNorm $openPy) -ne $beforeOpen) {
-            throw "GREENFIELD: eldenring\region_open_flags.py is stale -- regenerated different flags; commit it."
+            throw "GREENFIELD: eldenring\tables\region_open_flags.py is stale -- regenerated different flags; commit it."
         }
         # (b) PURE UNIT: structural invariants on data.py (no AP import). Run as a DIRECT
         #     unittest script, NOT pytest -- pytest would import the parent eldenring

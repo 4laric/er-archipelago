@@ -36,6 +36,13 @@ import sys
 import types
 import unittest
 
+
+def _gf_mod_path(_pkg, _name):
+    """Path to a module in the world package. The GENERATED tables moved into `tables/` (#1464);
+    hand-written modules (contract, tarnished_pack, ...) stayed put, so try the subpackage first."""
+    _t = os.path.join(_pkg, "tables", _name + ".py")
+    return _t if os.path.isfile(_t) else os.path.join(_pkg, _name + ".py")
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 GF_PKG = os.path.dirname(HERE)
 _PKG = "cov_gate_test_pkg"  # synthetic package so path-loaded modules can relative-import siblings
@@ -155,7 +162,7 @@ def _path_load(modname):
     fq = _PKG + "." + modname
     if fq in sys.modules:
         return sys.modules[fq]
-    spec = importlib.util.spec_from_file_location(fq, os.path.join(GF_PKG, modname + ".py"))
+    spec = importlib.util.spec_from_file_location(fq, _gf_mod_path(GF_PKG, modname))
     mod = importlib.util.module_from_spec(spec)
     sys.modules[fq] = mod
     try:

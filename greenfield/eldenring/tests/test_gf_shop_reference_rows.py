@@ -6,8 +6,8 @@ checks, producing the v0.4.10 tracker's starting-class and caster-kit rows (#109
 """
 import unittest
 
-from ..data import LOCATIONS
-from ..shop_data import SHOP_ROW_FLAGS
+from ..tables.data import LOCATIONS
+from ..tables.shop_data import SHOP_ROW_FLAGS
 
 
 # Complete limited-stock flag populations of reference blocks 16001 and 16004. The generator

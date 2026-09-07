@@ -31,11 +31,11 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 from BaseClasses import Item, ItemClassification
 
 from .. import contract
-from ..data import HUB, LOCATIONS
+from ..tables.data import HUB, LOCATIONS
 from ..features.progression_surface import (_HUB_MERCHANT_TAGS, _roundtable_merchant_aps,
                                             allowed_ap_ids)
-from ..evidence_progression_hosts import TRUSTED_PROGRESSION_HOST_APS
-from ..location_tags import (DEFAULTED_REGION_APS, ERDTREE_BURN_APS, LOCATION_TAGS,
+from ..tables.evidence_progression_hosts import TRUSTED_PROGRESSION_HOST_APS
+from ..tables.location_tags import (DEFAULTED_REGION_APS, ERDTREE_BURN_APS, LOCATION_TAGS,
                              SHOP_RELEASE_GATED_APS, SHOP_SLOT_PINS, SURFACE_EXCLUDE_APS)
 from ..tarnished_pack import TARNISHED_PACK_LOCATION_FLAGS
 

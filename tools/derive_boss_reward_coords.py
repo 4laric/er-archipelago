@@ -92,7 +92,7 @@ def main():
 
     positioned = {int(r["key"]) for r in read_tsv(os.path.join(gf, "item_grace_coords.tsv"))
                   if r.get("kind") == "item" and r.get("key", "").isdigit()}
-    LOC = load_module_consts(os.path.join(gf, "eldenring", "data.py"), {"LOCATIONS"})["LOCATIONS"]
+    LOC = load_module_consts(os.path.join(gf, "eldenring", "tables", "data.py"), {"LOCATIONS"})["LOCATIONS"]
     checks = {f for v in LOC.values() for (_n, _a, f) in v}
 
     # 🛑 ONE CHECK, SEVERAL PLACES. A relocating NPC's drop is attributed to EVERY map he can be

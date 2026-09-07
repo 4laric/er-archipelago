@@ -2,7 +2,7 @@
 
 Every fact of the form "play_region X belongs to region R" lives HERE and only here. Consumers:
   * greenfield/gen_data.py           -- check regioning (PLAY2AP), grace bundles, open flags, and
-                                        the generated eldenring/region_play_ids.py, which carries
+                                        the generated eldenring/tables/region_play_ids.py, which carries
                                         TWO inversions of this table: REGION_PLAY_IDS (kick
                                         geometry -> features/area_locks.py and the client's baked
                                         region_locks.rs) and SCALING_PLAY_IDS (difficulty geometry
@@ -232,7 +232,7 @@ def _grouped_play_ids(excluded):
 
 def region_play_ids():
     """region -> [play_region ids] for KICK geometry: spoke regions only (no HUB), minus the
-    kick-excluded buckets. This is what gen_data bakes into eldenring/region_play_ids.py as
+    kick-excluded buckets. This is what gen_data bakes into eldenring/tables/region_play_ids.py as
     REGION_PLAY_IDS, and what features/area_locks.py turns into areaLockFlags."""
     return _grouped_play_ids(KICK_EXCLUDED_PLAY_IDS)
 
@@ -241,7 +241,7 @@ def scaling_play_ids():
     """region -> [play_region ids] for RAMPED scaling geometry: spoke regions only (no HUB), minus
     the floor-pinned buckets, which do not take their region's order position -- see
     SCALING_FLOOR_PLAY_IDS, and features/scaling._floor_triples, which puts them back on the wire at
-    target 0. Baked by gen_data into eldenring/region_play_ids.py as SCALING_PLAY_IDS;
+    target 0. Baked by gen_data into eldenring/tables/region_play_ids.py as SCALING_PLAY_IDS;
     features/scaling.py wires it into regionSphereTargetRanges (and the DLC blessing floors /
     dlcRegionBuckets, which read the same geometry).
 

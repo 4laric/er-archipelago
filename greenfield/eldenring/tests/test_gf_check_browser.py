@@ -86,7 +86,7 @@ class CheckBrowserTest(unittest.TestCase):
         cls.data = _payload(cls.html)
         cls.checks = cls.data["checks"]
         consts = cls.tool.load_module_consts(
-            os.path.join(GF_PKG, "data.py"), {"LOCATIONS"})
+            os.path.join(GF_PKG, "tables/data.py"), {"LOCATIONS"})
         cls.LOCATIONS = consts["LOCATIONS"]
 
     # -- A. totality ------------------------------------------------------
@@ -121,20 +121,20 @@ class CheckBrowserTest(unittest.TestCase):
     # -- B. agreement with the generated modules ---------------------------
     def test_tag_histogram_matches_TAG_COUNTS(self):
         declared = self.tool.load_module_consts(
-            os.path.join(GF_PKG, "location_tags.py"), {"TAG_COUNTS"})["TAG_COUNTS"]
+            os.path.join(GF_PKG, "tables/location_tags.py"), {"TAG_COUNTS"})["TAG_COUNTS"]
         got = Counter(t for c in self.checks for t in c["t"])
         self.assertEqual(dict(sorted(got.items())), dict(sorted(declared.items())))
 
     def test_every_missable_is_carried(self):
         declared = self.tool.load_module_consts(
-            os.path.join(GF_PKG, "missable_locations.py"), {"MISSABLE_LOCATIONS"})["MISSABLE_LOCATIONS"]
+            os.path.join(GF_PKG, "tables/missable_locations.py"), {"MISSABLE_LOCATIONS"})["MISSABLE_LOCATIONS"]
         got = {c["id"]: c["miss"] for c in self.checks if "miss" in c}
         self.assertEqual(got, dict(declared))
 
     def test_stamp_is_the_data_inputs_hash_not_a_commit(self):
         stamp = self.data["meta"]["stamp"]
         self.assertTrue(stamp.startswith("sha256:"), f"stamp is not a content hash: {stamp!r}")
-        self.assertEqual(stamp, self.tool.data_stamp(os.path.join(GF_PKG, "data.py")))
+        self.assertEqual(stamp, self.tool.data_stamp(os.path.join(GF_PKG, "tables/data.py")))
 
     # -- C. determinism ----------------------------------------------------
     def test_two_builds_are_byte_identical(self):
@@ -548,7 +548,7 @@ class SweepClauseIsEligibilityNotAPromise(unittest.TestCase):
         # every corpus name carrying the clause must come back with a boss on the `sw` row.
         corpus_opener = self._corpus_opener()
         locs = self.tool.load_module_consts(
-            os.path.join(GF_PKG, "data.py"), {"LOCATIONS"})["LOCATIONS"]
+            os.path.join(GF_PKG, "tables/data.py"), {"LOCATIONS"})["LOCATIONS"]
         baked = {a for v in locs.values() for (n, a, _f) in v if corpus_opener in n}
         self.assertGreater(len(baked), 3000, "the corpus stopped baking the clause?")
         lost = sorted(a for a in baked if not self.by_id[a]["sw"])

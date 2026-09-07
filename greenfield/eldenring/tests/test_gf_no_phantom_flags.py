@@ -83,7 +83,7 @@ class NoPhantomFlags(unittest.TestCase):
         universe = _real_flag_universe(PARAMS)
         if not universe:
             self.skipTest("ItemLotParam not readable")
-        spec = importlib.util.spec_from_file_location("_gfdata", os.path.join(GF_PKG, "data.py"))
+        spec = importlib.util.spec_from_file_location("_gfdata", os.path.join(GF_PKG, "tables/data.py"))
         data = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(data)
         # DERIVED gesture pickups (data.GESTURE_AWARD_FLAGS) are EMEVD-allocated: their existence

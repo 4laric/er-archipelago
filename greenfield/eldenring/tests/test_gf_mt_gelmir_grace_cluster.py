@@ -1,7 +1,7 @@
 """#1076 -- Seethewater and First Mt. Gelmir Campsite checks follow their Gelmir graces."""
 
-from ..data import LOCATIONS
-from ..boss_sweeps import SWEEP_REGION
+from ..tables.data import LOCATIONS
+from ..tables.boss_sweeps import SWEEP_REGION
 
 
 FLAGS = {

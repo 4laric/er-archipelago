@@ -21,7 +21,7 @@ from worlds.eldenring.features.filler_foreign import (                  # noqa: 
     FillerForeignFeature, FillerForeignPct, filler_names, FILLER_NAME, NO_CHANGE_PCT)
 from worlds.eldenring.item_categories import (                          # noqa: E402
     FILLER as FILLER_CLASS, category_of, class_of)
-from worlds.eldenring.missable_locations import MISSABLE_LOCATIONS      # noqa: E402
+from worlds.eldenring.tables.missable_locations import MISSABLE_LOCATIONS      # noqa: E402
 
 GAME = "Elden Ring"
 

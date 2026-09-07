@@ -29,7 +29,7 @@ from worlds.eldenring.region_spine import (  # noqa: E402
 )
 from worlds.eldenring.features.goal_locations import DLC_TERMINUS_REGION  # noqa: E402
 from worlds.eldenring.core import GREAT_RUNES  # noqa: E402
-from worlds.eldenring.data import FINALE_REGION  # noqa: E402
+from worlds.eldenring.tables.data import FINALE_REGION  # noqa: E402
 from ._util import assert_goal_reachable  # noqa: E402
 
 GAME = "Elden Ring"

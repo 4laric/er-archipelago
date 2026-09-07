@@ -52,7 +52,7 @@ def main():
     gf = os.path.join(args.repo, "greenfield")
     er = os.path.join(gf, "eldenring")
 
-    LOC = load_module_consts(os.path.join(er, "data.py"), {"LOCATIONS"})["LOCATIONS"]
+    LOC = load_module_consts(os.path.join(er, "tables", "data.py"), {"LOCATIONS"})["LOCATIONS"]
     flag_region, flag_names = {}, defaultdict(list)
     for region, v in LOC.items():
         for name, _ap, f in v:
@@ -60,7 +60,7 @@ def main():
             flag_names[f].append(name)
 
     try:
-        MISS = load_module_consts(os.path.join(er, "missable_locations.py"),
+        MISS = load_module_consts(os.path.join(er, "tables", "missable_locations.py"),
                                   {"MISSABLE_LOCATIONS"})["MISSABLE_LOCATIONS"]
     except Exception:
         MISS = {}

@@ -11,7 +11,7 @@ import pytest
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
-from worlds.eldenring.item_tiers import ITEM_TIER_CATEGORY  # noqa: E402
+from worlds.eldenring.tables.item_tiers import ITEM_TIER_CATEGORY  # noqa: E402
 
 GAME = "Elden Ring"
 

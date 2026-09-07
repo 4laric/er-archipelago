@@ -61,7 +61,7 @@ def category_for(item: str) -> str | None:
 
 
 def build() -> tuple[list[dict[str, str]], dict[str, object]]:
-    data = load_module(ROOT / "greenfield/eldenring/data.py")
+    data = load_module(ROOT / "greenfield/eldenring/tables/data.py")
     checks = [(region, name, int(ap), int(flag)) for region, entries in data.LOCATIONS.items()
               for name, ap, flag in entries]
     item_counts = Counter(normalized_item(name) for _, name, _, _ in checks)

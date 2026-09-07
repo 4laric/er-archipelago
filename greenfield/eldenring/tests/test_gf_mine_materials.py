@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 from worlds.eldenring import contract
 from worlds.eldenring.features import mine_materials
-from worlds.eldenring.mine_material_data import MINE_MATERIAL_LOTS
+from worlds.eldenring.tables.mine_material_data import MINE_MATERIAL_LOTS
 
 
 class _World:
@@ -40,7 +40,7 @@ def test_roll_is_idempotent_and_seeded_without_shared_rng_state():
 
 
 def test_replacements_are_repeatable_goods_not_upgrade_materials_or_keys():
-    from worlds.eldenring.item_ids import ITEM_CATALOG
+    from worlds.eldenring.tables.item_ids import ITEM_CATALOG
 
     names = {full & 0x0FFFFFFF: name for name, full in ITEM_CATALOG.items()}
     replacement_names = {names[gid] for gid in mine_materials.pool(_World("pool"))}

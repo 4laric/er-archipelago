@@ -41,7 +41,7 @@ ROOT = find_repo_root(os.path.abspath(__file__))
 GEN = os.path.join(ROOT, "greenfield", "gen_data.py") if ROOT else ""
 TOOL = os.path.join(ROOT, "tools", "datamine_arena_graces.py") if ROOT else ""
 GRACE_FLAGS = os.path.join(ROOT, "greenfield", "grace_flags.tsv") if ROOT else ""
-HEALTHBARS = os.path.join(ROOT, "greenfield", "eldenring", "boss_healthbars.py") if ROOT else ""
+HEALTHBARS = os.path.join(ROOT, "greenfield", "eldenring", "tables", "tables/boss_healthbars.py") if ROOT else ""
 
 # The motivating case, spelled out rather than read from the table it guards -- a pin that sources
 # itself from its subject cannot fail when the subject is deleted.

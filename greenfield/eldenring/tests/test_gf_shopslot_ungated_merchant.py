@@ -51,7 +51,7 @@ def _gf(*parts):
 
 def _tags():
     spec = importlib.util.spec_from_file_location(
-        "_gf_location_tags_ungated_test", _gf("eldenring", "location_tags.py"))
+        "_gf_location_tags_ungated_test", _gf("eldenring", "tables", "tables/location_tags.py"))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod

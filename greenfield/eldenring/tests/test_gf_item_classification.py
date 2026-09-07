@@ -28,7 +28,7 @@ pytest.importorskip("worlds.eldenring")
 from BaseClasses import ItemClassification                     # noqa: E402
 from worlds.eldenring import core                              # noqa: E402
 from worlds.eldenring import item_categories as ic             # noqa: E402
-from worlds.eldenring.item_ids import ITEM_CATALOG, GOODS_TYPE  # noqa: E402
+from worlds.eldenring.tables.item_ids import ITEM_CATALOG, GOODS_TYPE  # noqa: E402
 from worlds.eldenring.features.progressive import PROG_FLASK   # noqa: E402
 from worlds.eldenring.features.traps import TRAPS              # noqa: E402
 

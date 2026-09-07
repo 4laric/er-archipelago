@@ -24,7 +24,7 @@ WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 pytest.importorskip("worlds.eldenring")
 
 from Options import OptionError  # noqa: E402
-from worlds.eldenring.shop_data import SHOP_ROW_FLAGS  # noqa: E402
+from worlds.eldenring.tables.shop_data import SHOP_ROW_FLAGS  # noqa: E402
 from worlds.eldenring.features.no_runes_in_shops import _skip_reason  # noqa: E402
 from worlds.eldenring.features.rune_pricing import is_rune_item  # noqa: E402
 
@@ -141,7 +141,7 @@ def _shelf_roll(seed, ban):
 
 
 def _is_rune_gid(gid):
-    from worlds.eldenring.shop_stock_data import RUNE_PAYOUT
+    from worlds.eldenring.tables.shop_stock_data import RUNE_PAYOUT
     return gid in RUNE_PAYOUT
 
 

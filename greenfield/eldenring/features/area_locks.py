@@ -15,7 +15,7 @@ CLIENT CONTRACT (read-only shape, crates/eldenring-archipelago/src/region.rs):
   (stops kicking) exactly when its "<Region> Lock" is received. We emit ONE triple per play_region
   id belonging to a kept region (lo == hi), keyed to that region's REGION_OPEN_FLAGS value.
 
-DERIVATION (matt-free): REGION_PLAY_IDS is GENERATED into eldenring/region_play_ids.py by
+DERIVATION (matt-free): REGION_PLAY_IDS is GENERATED into eldenring/tables/region_play_ids.py by
 gen_data.py as the inverse of greenfield/region_groups.py (THE bucket->region spine, curated
 against elden_ring_artifacts/REGION_ID_MAP.md -- BonfireWarpParam.bonfireSubCategoryId == the
 runtime play_region_id). All 54 non-system buckets are covered; 11100 (Roundtable HUB) and 18000
@@ -41,17 +41,17 @@ except Exception:  # pragma: no cover
 _DLC_MAP_REVEAL_FLAGS = (62080, 62081, 62082, 62083, 62084)
 
 try:
-    from ..region_open_flags import REGION_OPEN_FLAGS
+    from ..tables.region_open_flags import REGION_OPEN_FLAGS
 except Exception:  # not yet generated -> no open flags -> no ranges (regions stay unlocked)
     REGION_OPEN_FLAGS = {}
 
-# Region -> physical play_region ids. GENERATED (eldenring/region_play_ids.py, emitted by
+# Region -> physical play_region ids. GENERATED (eldenring/tables/region_play_ids.py, emitted by
 # gen_data.py as the inverse of greenfield/region_groups.py -- THE spine). The hand table that
 # lived here drifted from PLAY2AP exactly as hand copies always do (it still carried
 # 'Raya Lucaria Academy'/'Leyndell' keys from before those were regions, and had 6940/6950
 # bucketed backwards); one source now.
 try:
-    from ..region_play_ids import REGION_PLAY_IDS
+    from ..tables.region_play_ids import REGION_PLAY_IDS
 except Exception:  # not yet generated -> no geometry -> no ranges (regions stay unlocked)
     REGION_PLAY_IDS = {}
 

@@ -47,7 +47,7 @@ def ap_item_name(location: str) -> str:
 
 def load_unique_checks() -> dict[str, tuple[str, int]]:
     spec = importlib.util.spec_from_file_location(
-        "_fextralife_data", ROOT / "greenfield" / "eldenring" / "data.py")
+        "_fextralife_data", ROOT / "greenfield" / "eldenring" / "tables" / "data.py")
     mod = importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(mod)
     by_name: dict[str, list[tuple[str, int]]] = defaultdict(list)
     for region, checks in mod.LOCATIONS.items():

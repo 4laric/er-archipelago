@@ -56,21 +56,21 @@ import logging
 
 from ..registry import Feature, register
 from .. import contract
-from ..data import HUB, LOCATIONS
+from ..tables.data import HUB, LOCATIONS
 
 try:
-    from ..check_lots_data import (CHECK_LOT_SLOTS_MAP, CHECK_LOT_SLOTS_ENEMY,
+    from ..tables.check_lots_data import (CHECK_LOT_SLOTS_MAP, CHECK_LOT_SLOTS_ENEMY,
                                    AP_PLACEHOLDER_GOODS)
     _LEGACY = {}
 except ImportError:                       # check_lots_data predates the map/enemy split
     CHECK_LOT_SLOTS_MAP, CHECK_LOT_SLOTS_ENEMY = {}, {}
     try:
-        from ..check_lots_data import CHECK_LOT_SLOTS as _LEGACY, AP_PLACEHOLDER_GOODS
+        from ..tables.check_lots_data import CHECK_LOT_SLOTS as _LEGACY, AP_PLACEHOLDER_GOODS
     except ImportError:                   # no generated data at all: inert
         _LEGACY, AP_PLACEHOLDER_GOODS = {}, 0
 
 try:                                       # non-goods check slots to ZERO (predates -> empty, inert)
-    from ..check_lots_data import CHECK_LOT_ZERO_MAP, CHECK_LOT_ZERO_ENEMY
+    from ..tables.check_lots_data import CHECK_LOT_ZERO_MAP, CHECK_LOT_ZERO_ENEMY
 except ImportError:
     CHECK_LOT_ZERO_MAP, CHECK_LOT_ZERO_ENEMY = {}, {}
 

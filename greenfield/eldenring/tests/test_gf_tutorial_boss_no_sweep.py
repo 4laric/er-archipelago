@@ -22,7 +22,7 @@ import pytest
 
 pytest.importorskip("worlds.eldenring")
 
-from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E402
+from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E402
 
 # 🛑 THERE ARE TWO GRAFTED SCIONS AND THEY ARE NOT THE SAME FIGHT (Alaric, 2026-07-29). Stormveil
 # Castle has its own Grafted Scion, distinct from the intro one. Only the INTRO one is excluded here.
@@ -61,7 +61,7 @@ def test_no_stormveil_sweep_is_keyed_on_a_non_stormveil_boss():
     its grace geography is Limgrave (#202, Alaric ruling 2026-08-17). m10_01 remains the bad fold
     this test was created to catch.
     """
-    from worlds.eldenring.boss_healthbars import BOSS_HEALTHBARS
+    from worlds.eldenring.tables.boss_healthbars import BOSS_HEALTHBARS
     wrong = []
     for flag, region in SWEEP_REGION.items():
         if region != "Stormveil":
@@ -76,7 +76,7 @@ def test_no_stormveil_sweep_is_keyed_on_a_non_stormveil_boss():
 
 def test_the_scions_own_drop_is_untouched():
     """The fix removes a sweep, not a check. The boss's own reward is a normal location."""
-    from worlds.eldenring.data import LOCATIONS
+    from worlds.eldenring.tables.data import LOCATIONS
     names = {name for rows in LOCATIONS.values() for (name, _ap, flag) in rows
              if flag == SCION_OWN_DROP_FLAG}
     assert any("Ornamental Straight Sword" in name for name in names), (
@@ -562,7 +562,7 @@ def _sweep_digest():
     🛑 NEVER on the ap id. Positional ap ids renumber whenever a location is added or removed
     earlier in the table, so an ap-keyed digest would fire on every unrelated change and be switched
     off inside a month. The flag is the invariant."""
-    from worlds.eldenring.data import LOCATIONS
+    from worlds.eldenring.tables.data import LOCATIONS
     flag_of = {ap: fl for _r, v in LOCATIONS.items() for (_n, ap, fl) in v}
     pairs = sorted((int(trig), int(flag_of[m])) for trig, ms in DUNGEON_SWEEPS.items()
                    for m in ms if m in flag_of)

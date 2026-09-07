@@ -254,7 +254,7 @@ def main():
         if x["lot"].isdigit():
             lot2flag[x["lot"]].add(x["flag"])
     msb = {x["flag"]: x for x in (load_tsv("msb_flag_region.tsv") or [])}
-    data_py = os.path.join(REPO, "greenfield", "eldenring", "data.py")
+    data_py = os.path.join(REPO, "greenfield", "eldenring", "tables", "data.py")
     live = set(re.findall(r"\[f(\d+)\]", open(data_py, encoding="utf-8").read())) \
         if os.path.exists(data_py) else set()
     if fl is None or not live:

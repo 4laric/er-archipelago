@@ -134,7 +134,7 @@ def main():
     os.chdir(a.ap_dir)
 
     from worlds.eldenring.core import item_name_to_id  # noqa
-    from worlds.eldenring import item_ids as II
+    from worlds.eldenring.tables import item_ids as II
     from worlds.eldenring import item_categories as IC
     id2name = {v: k for k, v in item_name_to_id.items()}
 

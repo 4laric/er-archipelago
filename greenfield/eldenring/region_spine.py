@@ -5,7 +5,7 @@ down to N regions; `compute_kept` decides which N -- by random draw, never by th
 in the data-invariant gate. Keyed by REGION name only (greenfield's own names), never an imported
 set -- this is the re-keyed port of the eldenring region spine (SPEC-PARITY.md P1).
 """
-from .data import REGIONS
+from .tables.data import REGIONS
 
 # Lock always required (capital ending). Always kept so the seed stays winnable at any num_regions.
 # Region-spine v2: Leyndell is a first-class region again (buckets 11000 Royal + 11050 Ashen fold +

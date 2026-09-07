@@ -187,7 +187,7 @@ def main():
     tri = [r for r in csv.DictReader((l for l in open(tri_p, encoding="utf-8")
                                       if not l.startswith("#")), delimiter="\t")]
 
-    sw = open(os.path.join(GF, "eldenring", "boss_sweeps.py"), encoding="utf-8").read()
+    sw = open(os.path.join(GF, "eldenring", "tables", "boss_sweeps.py"), encoding="utf-8").read()
     i, j = sw.index("DUNGEON_SWEEPS = {"), sw.index("\n}", sw.index("DUNGEON_SWEEPS = {"))
     trig, members = {}, Counter()
     for m in re.finditer(r"(\d+):\s*\[([^\]]*)\]", sw[i:j]):
@@ -197,7 +197,7 @@ def main():
             trig[a] = int(m.group(1))
     SR, SAR = _tbl(sw, "SWEEP_REGION"), _tbl(sw, "SWEEP_ARENA_REGION")
 
-    hb = open(os.path.join(GF, "eldenring", "boss_healthbars.py"), encoding="utf-8").read()
+    hb = open(os.path.join(GF, "eldenring", "tables", "boss_healthbars.py"), encoding="utf-8").read()
     META = {int(e): (t, c, n) for e, _g, t, c, n in re.findall(
         r"(\d+):\s*\('([^']*)',\s*'([^']*)',\s*'([^']*)',\s*'([^']*)'\)", hb)}
     graced = {l.split("\t")[1] for l in open(os.path.join(GF, "grace_flags.tsv"), encoding="utf-8")

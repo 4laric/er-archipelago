@@ -28,7 +28,7 @@ from worlds.eldenring.features.progression_surface import (             # noqa: 
     ProgressionSurface, selected_surface, build_ladder,
     surface_class_meta, class_containment, SURFACE_CLASS_FAMILIES, SURFACE_CLASS_LABELS,
 )
-from worlds.eldenring.location_tags import LOCATION_TAGS                # noqa: E402
+from worlds.eldenring.tables.location_tags import LOCATION_TAGS                # noqa: E402
 
 # The TAGGED classes audited for v0.2. Still the whole tag half of the default surface.
 #

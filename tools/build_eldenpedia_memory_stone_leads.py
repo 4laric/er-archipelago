@@ -16,7 +16,7 @@ def fetch():
  q={"action":"query","format":"json","formatversion":"2","revids":str(RID),"prop":"revisions","rvprop":"ids|timestamp|sha1|content","rvslots":"main"};r=Request("https://eldenring.wiki.gg/api.php?"+urlencode(q),headers={"User-Agent":"er-archipelago-v060-evidence-audit/1.0"})
  with urlopen(r,timeout=60) as h:return json.load(h)["query"]["pages"][0]
 def locations():
- s=importlib.util.spec_from_file_location("_memory_stone_data",ROOT/"greenfield"/"eldenring"/"data.py");m=importlib.util.module_from_spec(s);assert s.loader;s.loader.exec_module(m);return {i:(r,n,f) for r,cs in m.LOCATIONS.items() for n,i,f in cs}
+ s=importlib.util.spec_from_file_location("_memory_stone_data",ROOT/"greenfield"/"eldenring"/"tables"/"data.py");m=importlib.util.module_from_spec(s);assert s.loader;s.loader.exec_module(m);return {i:(r,n,f) for r,cs in m.LOCATIONS.items() for n,i,f in cs}
 def build(p):
  rv=p["revisions"][0]
  if (p["pageid"],p["title"],rv["revid"],rv["sha1"])!=(PID,"Memory Stone",RID,SHA):raise ValueError("unregistered revision")

@@ -53,7 +53,7 @@ def test_every_boss_check_is_reachable_by_a_class_narrower_than_Boss():
     named classes are disjoint from each other, so the tree's parent/child counts can be trusted.
     """
     from worlds.eldenring import contract
-    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring.tables.location_tags import LOCATION_TAGS
 
     def tagged(t):
         return {ap for ap, tags in LOCATION_TAGS.items() if t in tags}
@@ -117,7 +117,7 @@ def test_the_default_surface_admits_nothing_it_does_not_need():
     LOCATIONS; if that ever stops holding, the two belong back in the set and this test says so.
     """
     from worlds.eldenring import contract
-    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring.tables.location_tags import LOCATION_TAGS
 
     defaults = set(contract.SURFACE_DEFAULT_CLASSES)
     with_both = defaults | {"Remembrance", "GreatRune"}
@@ -158,7 +158,7 @@ def test_a_class_that_contains_another_is_the_reason_this_can_happen():
     weight in the default set by construction.
     """
     from worlds.eldenring import contract
-    from worlds.eldenring.location_tags import LOCATION_TAGS
+    from worlds.eldenring.tables.location_tags import LOCATION_TAGS
 
     sets = {c: {ap for ap, t in LOCATION_TAGS.items() if c in t}
             for c in contract.SURFACE_DEFAULT_CLASSES}
@@ -280,7 +280,7 @@ class SurfaceContract(WorldTestBase):
         """apply() (where locks go) and slot_data() (what the client stars) must resolve the SAME
         selection. They read it through one helper for exactly this reason; assert it, so a future
         refactor cannot quietly give them different answers."""
-        from worlds.eldenring.location_tags import LOCATION_TAGS
+        from worlds.eldenring.tables.location_tags import LOCATION_TAGS
 
         world = self.world
         classes = getattr(world, "gf_prog_surface_resolved",

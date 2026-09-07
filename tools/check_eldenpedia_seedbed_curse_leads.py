@@ -26,7 +26,7 @@ def main() -> int:
     assert page["revision_sha1"] == "2472387a6d4b9b62f475bae74e1ef9b539e7d21a"
     assert page["acquisition_rows"] == "6" and page["disposition"] == "lead_only"
     spec = importlib.util.spec_from_file_location(
-        "_eldenpedia_seedbed_check_data", ROOT / "greenfield" / "eldenring" / "data.py")
+        "_eldenpedia_seedbed_check_data", ROOT / "greenfield" / "eldenring" / "tables" / "data.py")
     module = importlib.util.module_from_spec(spec)
     assert spec.loader
     spec.loader.exec_module(module)

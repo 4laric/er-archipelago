@@ -17,17 +17,17 @@ from .. import contract
 from ..registry import Feature, register
 
 try:
-    from ..item_ids import ITEM_CATALOG
+    from ..tables.item_ids import ITEM_CATALOG
 except ImportError:
     ITEM_CATALOG = {}
 
 try:
-    from ..mine_material_data import MINE_MATERIAL_LOTS
+    from ..tables.mine_material_data import MINE_MATERIAL_LOTS
 except ImportError:
     MINE_MATERIAL_LOTS = ()
 
 try:
-    from ..repeatable_goods import REPEATABLE_GOODS
+    from ..tables.repeatable_goods import REPEATABLE_GOODS
 except ImportError:
     REPEATABLE_GOODS = frozenset()
 

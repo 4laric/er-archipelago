@@ -38,7 +38,7 @@ class SweepAnchorCoords(unittest.TestCase):
     def test_dungeon_sweeps_is_still_a_partition(self):
         """THE PREMISE behind the ambiguous-refusal zero. Measured 2026-08-15: 4045 slots, 4045
         distinct members. If this ever fails, #363 is back and the anchor tool may be guessing."""
-        sw = _sweeps(open(os.path.join(GF, "eldenring", "boss_sweeps.py"), encoding="utf-8").read())
+        sw = _sweeps(open(os.path.join(GF, "eldenring", "tables", "tables/boss_sweeps.py"), encoding="utf-8").read())
         slots = [m for members in sw.values() for m in members]
         self.assertTrue(slots, "no sweep members parsed -- an empty result is a failure")
         dupes = len(slots) - len(set(slots))
@@ -55,7 +55,7 @@ class SweepAnchorCoords(unittest.TestCase):
         import shutil
         import tempfile
 
-        sweeps_src = os.path.join(GF, "eldenring", "boss_sweeps.py")
+        sweeps_src = os.path.join(GF, "eldenring", "tables", "tables/boss_sweeps.py")
         sw = _sweeps(open(sweeps_src, encoding="utf-8").read())
         arena_flags = set()
         for line in open(os.path.join(GF, "game_areas.tsv"), encoding="utf-8"):
@@ -96,12 +96,12 @@ class SweepAnchorCoords(unittest.TestCase):
             shutil.copy(TOOL, os.path.join(td, "tools"))
             for f in ("game_areas.tsv", "item_grace_coords.tsv"):
                 shutil.copy(os.path.join(GF, f), os.path.join(td, "greenfield", f))
-            shutil.copy(os.path.join(GF, "eldenring", "data.py"),
+            shutil.copy(os.path.join(GF, "eldenring", "tables", "tables/data.py"),
                         os.path.join(td, "greenfield", "eldenring"))
             text = open(sweeps_src, encoding="utf-8").read()
             hurt = re.sub(r"(^\s*%s: \[)" % pair[1], r"\g<1>%s, " % victim, text, count=1, flags=re.M)
             self.assertNotEqual(hurt, text, "failed to inject the double-claim")
-            open(os.path.join(td, "greenfield", "eldenring", "boss_sweeps.py"), "w",
+            open(os.path.join(td, "greenfield", "eldenring", "tables", "tables/boss_sweeps.py"), "w",
                  encoding="utf-8").write(hurt)
 
             subprocess.check_call([sys.executable, os.path.join(td, "tools", os.path.basename(TOOL))],

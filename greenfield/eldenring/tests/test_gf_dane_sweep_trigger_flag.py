@@ -57,8 +57,8 @@ import pytest
 
 pytest.importorskip("worlds.eldenring")
 
-from worlds.eldenring.boss_healthbars import BOSS_HEALTHBARS  # noqa: E402
-from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E402
+from worlds.eldenring.tables.boss_healthbars import BOSS_HEALTHBARS  # noqa: E402
+from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # noqa: E402
 
 DANE_DEFEAT_FLAGS = {2049440800: "m61_49_44", 2050430800: "m61_50_43"}
 DANE_ENTITY_IDS = (2049440710, 2050430710)

@@ -109,7 +109,7 @@ class Phase7RegionLockOn(WorldTestBase):
     options = {"num_regions": 0, "start_with_region_lock": True}
 
     def test_exactly_one_region_lock_precollected(self):
-        from worlds.eldenring.data import FINALE_REGION
+        from worlds.eldenring.tables.data import FINALE_REGION
         pre = [i.name for i in self.multiworld.precollected_items[self.player] if i.name.endswith(" Lock")]
         self.assertEqual(len(pre), 1, "exactly one region lock precollected when enabled")
         self.assertNotIn(f"{FINALE_REGION} Lock", pre,

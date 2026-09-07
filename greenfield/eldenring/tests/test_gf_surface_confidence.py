@@ -191,8 +191,8 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
     def setUpClass(cls):
         try:
             from ..features.progression_surface import allowed_ap_ids
-            from ..location_tags import LOCATION_TAGS
-            from ..missable_locations import MISSABLE_LOCATIONS
+            from ..tables.location_tags import LOCATION_TAGS
+            from ..tables.missable_locations import MISSABLE_LOCATIONS
             from ..contract import SURFACE_CLASSES, SURFACE_DERIVED_CLASSES, has_class
         except Exception as e:  # AP absent -> the feature module cannot import Options
             raise unittest.SkipTest("progression_surface needs Archipelago (%r)" % (e,))
@@ -263,11 +263,11 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
         from types import SimpleNamespace
         from ..certified_progression_hosts import CERTIFIED_PROGRESSION_HOST_APS
         from ..core import _NO_PROGRESSION_APS
-        from ..evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
+        from ..tables.evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
         from ..features.evidence_progression_hosts import _always_hold_aps
         from ..features.progression_surface import (
             _world_barred_aps, collapsed_lift_aps, missable_barred_aps)
-        from ..location_tags import ERDTREE_BURN_APS, SURFACE_EXCLUDE_APS
+        from ..tables.location_tags import ERDTREE_BURN_APS, SURFACE_EXCLUDE_APS
 
         world = SimpleNamespace(
             gf_kept=(), gf_capital_reconciler=False,

@@ -53,7 +53,7 @@ def main() -> int:
     }
 
     spec = importlib.util.spec_from_file_location(
-        "_invasion_reward_data", ROOT / "greenfield/eldenring/data.py")
+        "_invasion_reward_data", ROOT / "greenfield/eldenring/tables/data.py")
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
     spec.loader.exec_module(module)

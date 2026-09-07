@@ -36,7 +36,7 @@ def main() -> int:
             rows.extend(file_rows)
 
     spec = importlib.util.spec_from_file_location(
-        "_powerpyx_check_data", ROOT / "greenfield" / "eldenring" / "data.py")
+        "_powerpyx_check_data", ROOT / "greenfield" / "eldenring" / "tables" / "data.py")
     mod = importlib.util.module_from_spec(spec)
     assert spec.loader
     spec.loader.exec_module(mod)

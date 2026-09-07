@@ -33,7 +33,7 @@ import pytest
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
 
-from worlds.eldenring.check_lots_data import CHECK_LOT_FLAGS  # noqa: E402
+from worlds.eldenring.tables.check_lots_data import CHECK_LOT_FLAGS  # noqa: E402
 
 
 def _flagset(flags):

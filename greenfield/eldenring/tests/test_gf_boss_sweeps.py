@@ -24,6 +24,13 @@ import os
 import re
 import unittest
 
+
+def _gf_mod_path(_pkg, _name):
+    """Path to a module in the world package. The GENERATED tables moved into `tables/` (#1464);
+    hand-written modules (contract, tarnished_pack, ...) stayed put, so try the subpackage first."""
+    _t = os.path.join(_pkg, "tables", _name + ".py")
+    return _t if os.path.isfile(_t) else os.path.join(_pkg, _name + ".py")
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 GF_PKG = os.path.dirname(HERE)
 GREENFIELD = os.path.dirname(GF_PKG)
@@ -90,7 +97,7 @@ KEY_GATED_SWEEP_EXCLUDE_FLAGS = frozenset({
 
 
 def _mod(name):
-    path = os.path.join(GF_PKG, name + ".py")
+    path = _gf_mod_path(GF_PKG, name)
     if not os.path.isfile(path):
         return None
     spec = importlib.util.spec_from_file_location("gf_" + name + "_sweepcheck", path)
@@ -674,7 +681,7 @@ class BossSweepScoping(unittest.TestCase):
         """Legacy (region-major) sweeps must be FILLER-ONLY now -- felling a region boss auto-grants
         only the region's filler, never an important-tagged check (same cut as field). The
         member list is baked from location tags at gen time; boss_locks.slot_data emits it verbatim."""
-        from worlds.eldenring.boss_sweeps import POST_BOSS_GIFTS
+        from worlds.eldenring.tables.boss_sweeps import POST_BOSS_GIFTS
         bad = []
         for ent, info, members in self._members_by_class("legacy"):
             for ap in members:

@@ -3,13 +3,13 @@ import unittest
 
 import pytest
 
-from ..item_ids import ITEM_CATALOG
+from ..tables.item_ids import ITEM_CATALOG
 from ..merchant_bell_pool import merchant_bell_pool_allowed
-from ..shop_data import MERCHANT_BELL_REGIONS
+from ..tables.shop_data import MERCHANT_BELL_REGIONS
 
 WorldTestBase = pytest.importorskip("test.bases").WorldTestBase
-from ..data import HUB, LOCATIONS  # noqa: E402
-from ..item_ids import LOCATION_ITEM  # noqa: E402
+from ..tables.data import HUB, LOCATIONS  # noqa: E402
+from ..tables.item_ids import LOCATION_ITEM  # noqa: E402
 
 
 class MerchantBellPoolPolicy(unittest.TestCase):

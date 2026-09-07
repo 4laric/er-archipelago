@@ -47,6 +47,13 @@ import os
 import re
 import unittest
 
+
+def _gf_mod_path(_pkg, _name):
+    """Path to a module in the world package. The GENERATED tables moved into `tables/` (#1464);
+    hand-written modules (contract, tarnished_pack, ...) stayed put, so try the subpackage first."""
+    _t = os.path.join(_pkg, "tables", _name + ".py")
+    return _t if os.path.isfile(_t) else os.path.join(_pkg, _name + ".py")
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 GF_PKG = os.path.dirname(HERE)
 GREENFIELD = os.path.dirname(GF_PKG)
@@ -64,7 +71,7 @@ def _beside(name):
 
 
 def _mod(name):
-    path = os.path.join(GF_PKG, name + ".py")
+    path = _gf_mod_path(GF_PKG, name)
     if not os.path.isfile(path):
         return None
     spec = importlib.util.spec_from_file_location("gf_" + name + "_unspawned", path)
@@ -356,7 +363,7 @@ class _MtGelmirOnlySeed:
                   % (self.SEEDS, GELMIR))
 
     def test_every_former_member_is_reachable_on_a_gelmir_seed(self):
-        from worlds.eldenring.data import LOCATIONS
+        from worlds.eldenring.tables.data import LOCATIONS
 
         seed = self._setup_a_gelmir_seed()
         ap_of = {int(f): int(a) for rows in LOCATIONS.values() for (_n, a, f) in rows}
@@ -379,7 +386,7 @@ class _MtGelmirOnlySeed:
     def test_no_kept_sweep_on_a_gelmir_seed_is_paid_by_a_boss_that_does_not_exist(self):
         """The general form, scoped to the seed: every trigger that can grant a kept check must be
         a boss someone can actually kill."""
-        from worlds.eldenring.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION, SWEEP_UNSPAWNED
+        from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION, SWEEP_UNSPAWNED
 
         self._setup_a_gelmir_seed()
         kept = set(self.world._kept())

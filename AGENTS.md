@@ -396,8 +396,10 @@ cp greenfield/region_map.csv "$AP/worlds/eldenring/region_map.csv"   # gen INPUT
 cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 "$PY" -m pytest -q -p no:cacheprovider worlds/eldenring/tests/
 ```
 
-Generated files (`eldenring/data.py`, `boss_data.py`, `boss_sweeps.py`, `region_open_flags.py`,
-`item_ids.py`, `location_tags.py`, `region_play_ids.py`, …) are **regenerated, never hand-edited** —
+Generated files (`eldenring/tables/data.py`, `boss_data.py`, `boss_sweeps.py`, `region_open_flags.py`,
+`item_ids.py`, `location_tags.py`, `region_play_ids.py`, …) all live in **`greenfield/eldenring/tables/`**
+since #1464 — `core.py` reads them through `eldenring/table_loader.py` (`world.tables`), never by
+import — and are **regenerated, never hand-edited** —
 change `gen_data.py` and regen — **on Windows** (§5 above). The generator is deterministic, so the same
 artifacts + generator byte-match wherever they run and the DATA DRIFT gate reconciles if they don't; that
 is why committing regenerated data is fine when the regen was real. It is not a licence to produce one
