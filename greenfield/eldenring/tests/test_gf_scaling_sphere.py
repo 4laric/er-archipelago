@@ -191,7 +191,8 @@ class SphereScalingRolled(WorldTestBase):
                 _finale,
                 f"seed={seed}: a base-game seed built no finale, so the appended-tail branch is "
                 f"untested here (an oracle that measures nothing is a lie).")
-            expected = sc._ranges_from_targets(sc._targets_from_order(order + [_finale]))
+            expected = sc.base_game_bucket_clamp(
+                sc._ranges_from_targets(sc._targets_from_order(order + [_finale])), world)
             wire = world.fill_slot_data()[contract.REGION_SPHERE_TARGET_RANGES]
             self.assertEqual(
                 _tuples(wire), _tuples(expected),
@@ -281,6 +282,70 @@ class DlcOffSeed(WorldTestBase):
 # "region 11050 is not in the sphere wire -- left VANILLA (no tier, no down-state)" nine times.
 # The client's degrade for an unwired bucket is the FLOOR tier and an INFO line, so this could only
 # ever be caught here.
+# ---------------------------------------------------------------------------------------------
+# DLC RUNGS ARE ELIGIBLE WHERE THE BLESSING APPLIES (Alaric, 2026-09-06): DLC buckets always,
+# base-game buckets only on a seed with the blessing everywhere. 0xtako's 13-region default run met
+# Caelid at Haligtree strength; scaling_ladder.base_game_target_cap has the arithmetic and
+# features/scaling.base_game_bucket_clamp is the one place it is applied.
+def _band_tiers(world, wire):
+    floor_t, ceil_t = sc.resolved_tier_band(world)
+    mx = max(t for _lo, _hi, t in wire)
+    return {lo: min(floor_t + round(t / mx * (ceil_t - floor_t)), ceil_t) for lo, _hi, t in wire}
+
+
+class BaseGameBucketsHoldWithoutTheBlessingEverywhere(WorldTestBase):
+    """Whole map, DLC on, blessing scoped DLC-only: the band reaches the top rung, DLC buckets get
+    there, every base-game bucket (finale included) stays at or below rung 9, and the max emitted
+    target is the deepest DLC bucket's, untouched."""
+    game = GAME
+    options = {"num_regions": 0, "enable_dlc": True, "scadutree_blessing_scope": "dlc_only"}
+
+    def test_dlc_buckets_climb_and_base_buckets_do_not(self):
+        world = self.world
+        wire = world.fill_slot_data()[contract.REGION_SPHERE_TARGET_RANGES]
+        tiers = _band_tiers(world, wire)
+        dlc = set(sc.dlc_region_buckets(world._kept()))
+        self.assertTrue(dlc, "precondition: no DLC bucket on a DLC-on whole-map seed")
+        base_over = {lo: t for lo, t in tiers.items() if lo not in dlc and t > sc.BASE_GAME_TOP_TIER}
+        self.assertFalse(base_over, "base-game buckets above the base-game top: %r" % (base_over,))
+        self.assertGreater(max(tiers[lo] for lo in dlc), sc.BASE_GAME_TOP_TIER,
+                           "no DLC bucket climbs past the base-game top -- the clamp ate the DLC too")
+        unclamped = sc._ranges_from_targets(sc._targets_from_order(
+            sc._order_from_spheres(sc._region_fill_spheres(world), sc._order_rng(world))
+            + [sc._finale_for_wire(world)]))
+        dlc_max = max(t for lo, _hi, t in unclamped if lo in dlc)
+        self.assertEqual(max(t for _lo, _hi, t in wire), dlc_max,
+                         "the max emitted target is not the deepest DLC bucket's")
+
+
+class BlessedSeedsClimbEverywhere(WorldTestBase):
+    """Whole map, DLC on, blessing everywhere (the default): the blessing answers the DLC rungs in
+    every bucket, so nothing is clamped and the finale sits on the top rung."""
+    game = GAME
+    options = {"num_regions": 0, "enable_dlc": True}
+
+    def test_no_clamp_with_the_blessing_everywhere(self):
+        world = self.world
+        wire = world.fill_slot_data()[contract.REGION_SPHERE_TARGET_RANGES]
+        dlc = set(sc.dlc_region_buckets(world._kept()))
+        self.assertEqual(max(t for lo, _hi, t in wire if lo not in dlc), sc.TARGET_MAX,
+                         "the deepest base-game bucket lost the top target on a blessed seed")
+
+
+class AnExplicitCapIsHonouredEverywhere(WorldTestBase):
+    """The player typed the cap, so base-game buckets follow it into the DLC rungs even with a
+    DLC-only blessing."""
+    game = GAME
+    options = {"num_regions": 0, "enable_dlc": True, "scadutree_blessing_scope": "dlc_only",
+               "maximum_enemy_difficulty": 100}
+
+    def test_no_clamp_under_an_explicit_percent(self):
+        wire = self.world.fill_slot_data()[contract.REGION_SPHERE_TARGET_RANGES]
+        dlc = set(sc.dlc_region_buckets(self.world._kept()))
+        self.assertEqual(max(t for lo, _hi, t in wire if lo not in dlc), sc.TARGET_MAX,
+                         "an explicit 100 must leave the deepest base-game bucket at the top target")
+
+
 _FINALE_REGION = "Ashen Capital"
 
 

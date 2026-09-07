@@ -425,11 +425,12 @@ saves for its endgame. Scaling never changes rune rewards.
   avoiding endgame-strength enemies when you may still have a +6 weapon. The
   default, `auto`, holds the run at the base game's own top, about 3.7x enemy HP
   (vanilla Haligtree). Everything above that is the DLC's enemy ladder, which
-  assumes a Scadutree Blessing, so `auto` only climbs into it when the blessing
-  applies everywhere (`scadutree_blessing_scope: anywhere`, the default) and the
-  DLC is on so fragments can enter the pool; then it grows with the run's
-  length, about 5.5x at 10 regions, 6.7x at 15, the full 7.4x on the whole map,
-  and the seed adds the fragments that pay for it. A percent picks a rung on a
+  assumes a Scadutree Blessing, so `auto` lets a region climb into it only where
+  the blessing applies: DLC regions always, base-game regions only when the
+  blessing applies everywhere (`scadutree_blessing_scope: anywhere`, the
+  default) and the DLC is on so fragments can enter the pool. Where it climbs
+  it grows with the run's length, about 5.5x at 10 regions, 6.7x at 15, the
+  full 7.4x on the whole map, and the seed adds the fragments that pay for it. A percent picks a rung on a
   20-rung ladder, so `50` is about 4.1x and `47` about 3.7x; the yaml builder
   shows what any value resolves to. Values below `100`
   require an up-to-date client; older clients refuse the seed rather than

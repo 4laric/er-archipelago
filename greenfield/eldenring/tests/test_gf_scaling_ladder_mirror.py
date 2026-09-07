@@ -396,13 +396,13 @@ class BaseGameGateTests(unittest.TestCase):
         # the first DLC rung is the next rung up, and 50 reaches it
         self.assertEqual(m.tier_for_ceiling_multiplier(m.ceiling_multiplier(50)), top + 1)
 
-    def test_without_the_blessing_everywhere_auto_is_flat_at_the_base_game_top(self):
+    def test_without_dlc_rungs_eligible_auto_is_flat_at_the_base_game_top(self):
         m = self.mod
         for n in (0, 1, 5, 13, 28):
             self.assertEqual(m.auto_ceiling_pct(n, 28, False), m.BASE_GAME_CEILING_PCT, n)
             self.assertEqual(m.ceiling_multiplier(m.auto_ceiling_pct(n, 28, False)), 3.703)
 
-    def test_with_the_blessing_everywhere_auto_follows_the_curve_from_the_base_game_top(self):
+    def test_with_dlc_rungs_eligible_auto_follows_the_curve_from_the_base_game_top(self):
         m = self.mod
         for n in range(1, 29):
             self.assertEqual(m.auto_ceiling_pct(n, 28, True),
@@ -410,6 +410,39 @@ class BaseGameGateTests(unittest.TestCase):
         self.assertEqual(m.auto_ceiling_pct(0, 28, True), 100, "a whole map with the blessing is uncapped")
         self.assertEqual(m.auto_ceiling_pct(1, 28, True), m.BASE_GAME_CEILING_PCT,
                          "the curve never drops a blessed seed below the base-game top")
+
+    def test_base_game_target_cap_holds_under_both_client_formulas(self):
+        """For every band the seed can hold, a target at the cap lands on BASE_GAME_TOP_TIER or
+        lower under the band formula (clients since 2026-08-08) AND the older whole-ladder
+        formula; one target above the cap does not, so the cap is tight, not merely safe."""
+        m = self.mod
+        n_top = len(m.SCALING_HP_LADDER) - 1
+        top = m.BASE_GAME_TOP_TIER
+        mx = 10000
+        band = lambda t, f, c: min(f + round(t / mx * (c - f)), c)
+        ladder = lambda t, f, c: min(max(round(t / mx * n_top), f), c)
+        for c in range(0, n_top + 1):
+            for f in range(0, c + 1):
+                cap = m.base_game_target_cap(mx, f, c)
+                if c <= top:
+                    self.assertEqual(cap, mx, (f, c))
+                    continue
+                if f >= top:
+                    self.assertEqual(cap, 0, (f, c))
+                    continue
+                self.assertLessEqual(band(cap, f, c), top, (f, c, cap))
+                self.assertLessEqual(ladder(cap, f, c), top, (f, c, cap))
+                # TIGHT TO WITHIN ONE RUNG-STEP, rounding-mode-agnostic: the cap is an integer
+                # floor, so a target one above it can still round down, and Python rounds an
+                # exact .5 to even where Rust rounds it away from zero. One full step above the
+                # cap the RAW product clears top + 0.5 under at least one formula, so any
+                # rounding lands on a DLC rung there.
+                step = mx // min(c - f, n_top) + 1
+                over = cap + step
+                raw_band = f + over / mx * (c - f)
+                raw_ladder = over / mx * n_top
+                self.assertTrue(raw_band > top + 0.5 or raw_ladder > top + 0.5,
+                                "cap %d is not tight for band (%d, %d)" % (cap, f, c))
 
     def test_the_motivating_thirteen_region_run(self):
         """13 of 28 with the DLC and the blessing everywhere still climbs (fragments are injected

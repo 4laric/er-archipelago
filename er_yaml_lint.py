@@ -272,7 +272,10 @@ def _scaling_cap(c):
     floor_pct = c.num("minimum_enemy_difficulty")
     draw = c.num("num_regions")
     if auto:
-        pct = max(floor_pct, sl.auto_ceiling_pct(draw, total, _blessing_everywhere(c)))
+        # gen: the blessing everywhere OR a DLC region kept; the linter cannot see the draw, so the
+        # DLC toggle stands in for "may keep one" (features/scaling.dlc_rungs_eligible).
+        eligible = _blessing_everywhere(c) or c.truthy("enable_dlc") or c.truthy("dlc_only")
+        pct = max(floor_pct, sl.auto_ceiling_pct(draw, total, eligible))
     else:
         try:
             pct = int(raw)
@@ -386,11 +389,11 @@ def lint_block(block: dict) -> list[Finding]:
     #     above 3.703x is the DLC's own re-emission of the enemy ladder, tuned for a player carrying
     #     a Scadutree Blessing; ScadutreeBlessingScope docstring: dlc_only "does nothing in Limgrave".
     #     Mirrors the wizard's rule (ERW.findings); the maths is scaling_ladder's, loaded AP-free.
-    #     `auto` holds itself at the base-game top without the blessing everywhere, so only an
-    #     EXPLICIT percent above 47 can trip this.
+    #     Under `auto` every base-game region is held at the base-game top on the wire
+    #     (features/scaling.base_game_bucket_clamp), so only an EXPLICIT percent above 47 can trip this.
     if c.truthy("enemy_scaling") and not _blessing_everywhere(c):
         sp = _scaling_cap(c)
-        if sp and sp["dlc_rungs"]:
+        if sp and sp["dlc_rungs"] and not sp["auto"]:
             warn("maximum_enemy_difficulty",
                  f"enemy cap {sp['pct']}% resolves to {sp['mult']:.2f}x HP -- DLC-strength scaling, "
                  "but the Scadutree Blessing is not in play everywhere (needs "

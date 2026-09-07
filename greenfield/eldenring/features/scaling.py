@@ -43,7 +43,8 @@ from ..registry import Feature, register
 from ..region_spine import SPINE, DLC_REGIONS
 from ..data import FINALE_REGION
 from .. import contract
-from ..scaling_ladder import (AUTO_CEILING, SCALING_HP_LADDER, ceiling_multiplier,  # noqa: F401 (re-export)
+from ..scaling_ladder import (AUTO_CEILING, BASE_GAME_TOP_TIER, SCALING_HP_LADDER,  # noqa: F401 (re-export)
+                              base_game_target_cap, ceiling_multiplier,
                               floor_multiplier, ramped_target,
                               resolve_max_difficulty_pct,
                               tier_for_ceiling_multiplier, tier_for_floor_multiplier)
@@ -189,6 +190,50 @@ def _finale_for_wire(world):
     if not getattr(world, "gf_finale_active", False):
         return None
     return FINALE_REGION if SCALING_PLAY_IDS.get(FINALE_REGION) else None
+
+
+def resolved_tier_band(world):
+    """(floor_tier, ceiling_tier) exactly as the client will hold them: the option percents through
+    the same conversions core._options_echo emits and er-logic inverts."""
+    floor_t = tier_for_floor_multiplier(floor_multiplier(
+        int(world.options.minimum_enemy_difficulty.value)))
+    ceil_t = tier_for_ceiling_multiplier(ceiling_multiplier(resolved_max_difficulty(world)))
+    return floor_t, max(floor_t, ceil_t)
+
+
+def base_game_bucket_clamp(ranges, world):
+    """Hold every NON-DLC bucket at or below the base game's top rung when the blessing is NOT in
+    play everywhere. DLC rungs are eligible where the blessing applies (Alaric, 2026-09-06): in DLC
+    buckets always, in base-game buckets only on a seed with the blessing everywhere -- so on a
+    seed that keeps DLC regions with a DLC-only blessing, Enir Ilim climbs and Caelid does not.
+
+    scaling_ladder.base_game_target_cap has the arithmetic. This is the ONE place it is applied, so
+    the slot_data wire and every test mirror of it go through the same function. Pure over its
+    inputs: a new list, never a mutation of `ranges`.
+
+    ONLY UNDER `auto`. An explicit percent is the player's stated cap for the whole run, DLC rungs
+    included -- someone who typed 100 on a base-game seed asked for 7.4x Leyndell and gets it.
+
+    NORMALISATION. The client divides by the largest target it is sent. The clamp never touches a
+    DLC bucket, so the deepest DLC target is the post-clamp maximum, and the cap is computed
+    against THAT (see base_game_target_cap's 🛑). Two deep base-game regions may share the capped
+    target; that is the rule working, not the order ramp regressing -- both are "as hard as the
+    base game gets".
+    """
+    out = [list(t) for t in ranges]
+    if int(world.options.maximum_enemy_difficulty.value) != AUTO_CEILING:
+        return out
+    if blessing_everywhere(world):
+        return out
+    dlc = set(dlc_region_buckets(world._kept()))
+    dlc_max = max((t for lo, _hi, t in out if lo in dlc), default=0)
+    if not dlc_max:
+        return out                      # no DLC bucket: the ceiling gate already holds the band
+    floor_t, ceil_t = resolved_tier_band(world)
+    cap = base_game_target_cap(dlc_max, floor_t, ceil_t)
+    if cap >= dlc_max:
+        return out
+    return [[lo, hi, (t if lo in dlc else min(t, cap))] for lo, hi, t in out]
 
 
 def _assert_wire_covers(ranges, world):
@@ -509,7 +554,20 @@ def resolved_max_difficulty(world):
         int(nr.value) if nr is not None else 0,
         int(nr.range_end) if nr is not None else 30,
         int(world.options.minimum_enemy_difficulty.value),
-        blessing_everywhere(world))
+        dlc_rungs_eligible(world))
+
+
+def dlc_rungs_eligible(world) -> bool:
+    """Whether ANY bucket in this seed may use the rungs above the base game: the blessing applies
+    everywhere, or a DLC region is kept (the blessing is native there). scaling_ladder
+    .auto_ceiling_pct explains the gate; base_game_bucket_clamp decides WHICH buckets.
+
+    `_kept` is core's draw, published by core.generate_early before any feature's generate_early
+    runs; the getattr fallback is for pure-test worlds that never ran core at all."""
+    if blessing_everywhere(world):
+        return True
+    kept = world._kept() if hasattr(world, "_kept") else []
+    return bool(dlc_region_buckets(kept))
 
 
 def blessing_everywhere(world) -> bool:
@@ -544,12 +602,13 @@ class MaximumEnemyDifficulty(NamedRange):
 
     `auto` caps the run at the strongest thing the BASE GAME ever asks of you: about 3.7x enemy HP,
     vanilla Haligtree. Every rung above that is the DLC's own enemy ladder, tuned for a player who
-    is also carrying a Scadutree Blessing, so `auto` only climbs into those rungs when the blessing
-    applies everywhere (`scadutree_blessing_scope: anywhere`, the default) AND the DLC is on so its
-    fragments can enter the pool. Then the cap grows with the length of the run -- about 3.7x at 5
-    regions, 5.5x at 10, 6.7x at 15, the full 7.4x on the whole map -- and the seed injects the
-    fragments that pay for it. Give a number instead to pick the cap yourself; the yaml builder
-    shows what either choice resolves to as you move the slider.
+    is also carrying a Scadutree Blessing, so `auto` lets a region climb into those rungs only
+    where the blessing applies: DLC regions always, base-game regions only when the blessing is
+    scoped everywhere (`scadutree_blessing_scope: anywhere`, the default) and the DLC is on so its
+    fragments can enter the pool. Where it climbs, the cap grows with the length of the run --
+    about 3.7x at 5 regions, 5.5x at 10, 6.7x at 15, the full 7.4x on the whole map -- and the seed
+    injects the fragments that pay for it. Give a number instead to pick the cap yourself, for
+    every region; the yaml builder shows what either choice resolves to as you move the slider.
 
     ⚠️ Above 3.7x the curve is extrapolation over rungs nobody has playtested at length. A
     13-region default run with the DLC on met Caelid at close to Haligtree strength (2026-09-06),
@@ -844,6 +903,8 @@ class Scaling(Feature):
             ranges = _ranges_from_targets(_targets_from_order(order, ramp))
         else:
             ranges = sphere_target_ranges(world._kept(), ramp, finale=_finale)
+        # Base-game buckets never climb into the DLC rungs under `auto` -- see base_game_bucket_clamp.
+        ranges = base_game_bucket_clamp(ranges, world)
         _assert_wire_covers(ranges, world)
         blessing = blessing_mode(world)
         kept_regions = world._kept()
@@ -942,8 +1003,10 @@ class Scaling(Feature):
             resolved_max_difficulty(world)))
         _targets = [t for _lo, _hi, t in ranges]
         _mx = max(_targets) if _targets else 0
+        # The client's band formula (er-logic tier_for_target): floor + round(frac * (ceiling - floor)).
         _tiers = sorted(
-            min(max(round(t / _mx * (_n - 1)) if _mx else 0, _floor_t), _ceil_t) for t in _targets)
+            min(_floor_t + (round(t / _mx * (_ceil_t - _floor_t)) if _mx else 0), _ceil_t)
+            for t in _targets)
         import logging
         logging.getLogger("Greenfield").info(
             "[greenfield] enemy scaling: %d buckets, tiers %d..%d of %d (floor %d, ceiling %d), "

@@ -881,12 +881,13 @@ Elden Ring:
   # `auto` caps the run at the strongest thing the BASE GAME ever asks of you,
   # about 3.7x enemy HP (vanilla Haligtree). Every rung above that is the DLC's
   # own enemy ladder, tuned for a player carrying a Scadutree Blessing, so auto
-  # only climbs into it when scadutree_blessing_scope is `anywhere` AND the DLC
-  # is on (its fragments are DLC items). Then the cap grows with the length of
-  # the run -- about 3.7x at 5 regions, 5.5x at 10, 6.7x at 15, the full 7.4x on
-  # the whole map -- and the seed injects the fragments that pay for it. Give a
-  # number instead to choose the cap yourself; the yaml builder shows what it
-  # resolves to.
+  # lets a region climb into it only where the blessing applies: DLC regions
+  # always, base-game regions only when scadutree_blessing_scope is `anywhere`
+  # AND the DLC is on (its fragments are DLC items). Where it climbs, the cap
+  # grows with the length of the run -- about 3.7x at 5 regions, 5.5x at 10,
+  # 6.7x at 15, the full 7.4x on the whole map -- and the seed injects the
+  # fragments that pay for it. Give a number instead to choose the cap yourself,
+  # for every region; the yaml builder shows what it resolves to.
   # Must be >= minimum_enemy_difficulty (auto is raised to it rather than
   # failing the seed, since you did not choose the cap).
   # NOTE: a cap below 100 needs an up-to-date client. An older one refuses the
