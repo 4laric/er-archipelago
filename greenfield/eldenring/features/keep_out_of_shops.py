@@ -101,7 +101,7 @@ call it directly both ways: no realistic corpus seed exercises every branch, and
 never triggers is untested.
 
 Capacity only becomes real AFTER every progression pre-fill. `set_rules` therefore installs a
-provisional ban for progression curation, `stage_pre_fill` narrows it to what the remaining grid can
+provisional ban for progression curation, `stage_fill_hook` narrows it to what the remaining grid can
 actually support, then AP's reachability-aware restrictive filler reserves those items before the
 cheap general filler runs. The last step matters even when the count fits: #903's Ensis witness had
 six spare non-shop slots and still stranded Cipher Pata opposite Enia because `remaining_fill` only
@@ -308,7 +308,7 @@ def finalize_rules(world) -> None:
 
     ``set_rules`` installs the requested ban early so progression curation cannot put a selected
     key item on a shop.  Capacity is not true yet at that point: missable protection and both
-    progression-surface passes still consume non-shop locations.  ``stage_pre_fill`` calls this
+    progression-surface passes still consume non-shop locations.  ``stage_fill_hook`` calls this
     after those passes, immediately before AP's general fill, and this function relaxes any
     category that no longer fits.
 
@@ -380,6 +380,11 @@ def reserve_forbidden_items(multiworld, worlds) -> None:
     restrictive fill for this constrained subset, across the whole multiworld in one pass.  That
     preserves cross-world placement freedom; the only locations removed are the owner's shops,
     exactly the option's promise.
+
+    The early guarantee needs no guard here. This runs in `stage_fill_hook`, after
+    `distribute_early_items`, so the copies `filler_budget.declare_early_items` declared are
+    already on start-reachable locations and are not in the pool we sample -- which is what the
+    deleted seed-1044 skip was faking (docs/specs/SPEC-fill-hook-migration-20260907.md).
     """
     forbidden_by_player = {
         world.player: getattr(world, "_gf_keep_out_of_shops_forbidden", set())
@@ -389,30 +394,9 @@ def reserve_forbidden_items(multiworld, worlds) -> None:
     if not forbidden_by_player:
         return
 
-    # 🛑 LEAVE THE EARLY GUARANTEE TO AP. `filler_budget.declare_early_items` registers the early
-    # stones as `local_early_items`, which AP's fill places in start-reachable locations -- through
-    # fill_restrictive, so the shop item rules still hold. This reservation ran BEFORE that pass and
-    # took every forbidden copy out of the pool, so AP's early scan found nothing to place: on a
-    # 1-region seed (probe 2026-09-06, seed 1044) both Somber [2] were locked onto Ashen Capital,
-    # sphere 1, and the "guaranteed 2 reachable from the start" promise delivered 0 with no warning,
-    # because the pool HAD held the copies when the guarantee counted them. The declared copies stay
-    # in the pool; only the surplus above the guarantee is reserved here.
-    early_left = {}
-    for world in worlds:
-        if world.player not in forbidden_by_player:
-            continue
-        for src in (multiworld.early_items[world.player],
-                    multiworld.local_early_items[world.player]):
-            for name, n in src.items():
-                early_left[(world.player, name)] = early_left.get((world.player, name), 0) + n
-
     items = []
     for item in multiworld.itempool:
         if item.player not in forbidden_by_player                 or item.name not in forbidden_by_player[item.player]:
-            continue
-        key = (item.player, item.name)
-        if early_left.get(key, 0) > 0:
-            early_left[key] -= 1
             continue
         items.append(item)
     if not items:
@@ -515,7 +499,7 @@ class KeepOutOfShopsFeature(Feature):
                 shop_locs.append(loc)
 
         # Prohibit every requested category while progression is curated. The exact capacity does
-        # not exist until stage_pre_fill: missable protection and the progression surface still
+        # not exist until stage_fill_hook: missable protection and the progression surface still
         # consume non-shop locations after set_rules. finalize_rules mutates this captured set down
         # to the categories the remaining grid can actually support.
         forbidden = set(forbidden_names(world))

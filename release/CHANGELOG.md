@@ -32,6 +32,23 @@ commit.
   `latest.json` regenerated, and the world half opened as a draft PR listing every prose
   marker the tool leaves behind. Default next version is fixpack plus one; a minor or major bump is
   a dispatch input. Needs the `CLIENT_REPO_TOKEN` secret.
+- **Fixed: our cross-world placements now run in Archipelago's fill hook.** Every pass that puts
+  Elden Ring items on another game's checks — the released-Lock progression share, the incoming
+  `cross_game_progression` reservation, the blessing-fragment preference, the useful-export
+  reservation and the `keep_out_of_shops` finalisation — moved from `stage_pre_fill` to
+  `stage_fill_hook`, which Archipelago calls after every world has run its own pre-fill and after
+  the early-items pass. That is the hook this shape was always meant to use: both v0.6.0.2
+  workarounds (leaving alone any partner that still held its own pre-fill items, and skipping the
+  copies a partner had declared early) were compensating for running too soon, and both are
+  deleted rather than kept as belt-and-braces. A partner that confines its own keys is now simply
+  finished before we start, so its full share is offered again instead of falling back to the
+  Elden Ring surfaces, and the "still holds N pre-fill item(s)" log line is gone. One measured
+  consequence, and it is the truer number: the export and preferred shares are derived from open
+  location counts, which are now taken after early items, so on a seed with many early
+  declarations the derived count moves by a few items. Not compensated for. Applies to new seeds
+  only; nothing in the seed contract moved. (Under the non-default `flood` fill algorithm, which
+  our YAML template does not offer, Archipelago never calls this hook at all; generation warns
+  once and leaves the seed uncurated.)
 
 ## v0.6.0.2 — 2026-09-07
 

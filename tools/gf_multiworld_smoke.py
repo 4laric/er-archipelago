@@ -28,8 +28,8 @@ spread: ~100, ~200 and ~350 locations per slot.
 🛑 THE FIGURES THAT USED TO BE CITED HERE WERE RETIRED, 2026-08-15. This paragraph quoted a sweep of
 `region_locks_anywhere` putting released Locks in the partner at 0.30%-3.50% by partner size. That
 option no longer exists anywhere in the repo: those numbers describe the ORIGINAL item_rule design
-that #491 replaced with `stage_pre_fill`, under which the measured answer was not a small share but
-ZERO -- see #703. Left in place they read as evidence that Locks already travel cross-game, which is
+that #491 replaced with the cross-world stage pass (now `stage_fill_hook`), under which the measured
+answer was not a small share but ZERO -- see #703. Left in place they read as evidence that Locks already travel cross-game, which is
 the precise belief #703 had to disprove. Check 2c below now asserts the thing they appeared to.
 
 🛑 TWO PARTNERS WERE TRIED AND REJECTED, and not for generating badly. Meritous (104 locations, 9

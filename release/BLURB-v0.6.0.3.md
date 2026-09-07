@@ -20,8 +20,14 @@ contract is unchanged. Keep whichever client you have unless a change below name
 
 ## What is in it so far
 
-Nothing yet. This window was opened at the v0.6.0.2 tag with zero commits past it, so this file
-exists before its first entry does, which is the point of it.
+**Generating beside another game got quieter, and fairer.** Everything Elden Ring places in other
+players' worlds — the shared progression, another game's keys reserved on your checks, blessing
+fragments, the useful items we export — now happens at the moment Archipelago set aside for it,
+after every other game has finished placing its own items and after all the sphere-1 items are
+down. The two guards shipped in v0.6.0.2 for that (skipping a partner that was still placing its
+own keys, and skipping copies a partner wanted early) existed only because we were going first;
+they are gone, and the partner now gets its full share of our progression instead of watching it
+fall back onto Elden Ring checks. New seeds only; a running seed is unaffected.
 
 ## What carried over from v0.6.0.2
 
