@@ -94,7 +94,7 @@ next section for that symptom.
 Before rescuing, read the log. A rune that "vanished" after a bell-bearing or prayerbook hand-in
 and now prints `[reconcile] INERT: goods 0x40001fd4..d9` after every load may still be
 in the inventory: the old client scan could miss occupied key-item slots. Client #638
-fixes that scan in the v0.6.1 client update. Open the Key Items tab first; if the rune is listed, do not `!give` it -- the game
+fixes that scan in the v0.6.0.1 client update. Open the Key Items tab first; if the rune is listed, do not `!give` it -- the game
 refuses the duplicate and the command changes nothing. On an updated client, diagnostics show where an item was observed, including
 slots beyond the live-entry count. The `egd_result` field is diagnostic and may be
 marked `UNVERIFIED-FIELD`; do not treat it alone as proof that a grant succeeded.

@@ -35,7 +35,8 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CLIENT = os.path.join(REPO, "from-software-archipelago-clients")
-SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import vrmf  # noqa: E402  -- the three spellings of one V.R.M.F, and the one comparison
 
 # 🛑 THE LIST. `package_release.ps1` carries the same one; when that script becomes Python
 # this becomes the single copy. Adding a site here is what "adding a version site" means --
@@ -47,6 +48,7 @@ SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 SITES = [
     {
         "what": "archipelago.json world_version",
+        "form": "manifest",      # V.R.M only -- AP unpacks it into a 3-field tuple (tools/vrmf.py)
         "path": os.path.join(REPO, "greenfield", "eldenring", "archipelago.json"),
         "kind": "json",
         "key": "world_version",
@@ -59,6 +61,7 @@ SITES = [
     },
     {
         "what": "client Cargo.toml version",
+        "form": "cargo",         # V.R.M+fF -- Cargo needs a semver core; F rides build metadata
         "path": os.path.join(CLIENT, "crates", "eldenring-archipelago", "Cargo.toml"),
         "kind": "regex",
         # The FIRST `version =` under [package]. Anchored to line start so a dependency's
@@ -68,6 +71,7 @@ SITES = [
     },
     {
         "what": "client Cargo.lock eldenring-archipelago",
+        "form": "cargo",
         "path": os.path.join(CLIENT, "Cargo.lock"),
         "kind": "regex",
         # The lock is TRACKED, so a bumped Cargo.toml with an unbumped lock is a dirty tree
@@ -143,15 +147,17 @@ def read_site(site):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--expect", metavar="X.Y.Z",
-                    help="require every site to read this exact version")
+    ap.add_argument("--expect", metavar="V.R.M[.F]",
+                    help="require every site to read this exact release version")
     ap.add_argument("--check", action="store_true",
                     help="no-op alias; the house convention for repo-level gates")
     args = ap.parse_args(argv)
 
-    if args.expect and not SEMVER.match(args.expect):
-        print("check_version_sites: --expect %r is not X.Y.Z" % args.expect, file=sys.stderr)
+    if args.expect and not vrmf.is_version(args.expect):
+        print("check_version_sites: --expect %r is not V.R.M[.F]" % args.expect, file=sys.stderr)
         return 2
+    if args.expect:
+        args.expect = vrmf.canonical(args.expect)
 
     errors, skipped, found = [], [], {}
     for site in SITES:
@@ -166,8 +172,12 @@ def main(argv=None):
             errors.append("%s: %s (%s)"
                           % (site["what"], note, os.path.relpath(site["path"], REPO)))
             continue
+        # Each site holds ONE spelling of the version (tools/vrmf.py SITE_FORM). A site that
+        # carries only V.R.M (the manifest) agrees with any fixpack on that line; a site that
+        # carries the full V.R.M.F must match it exactly. Compare in the site's own form.
         found[site["what"]] = version
-        print("  %-42s %s" % (site["what"], version))
+        print("  %-42s %s%s" % (site["what"], version,
+                                 "   (%s form)" % site["form"] if site.get("form") else ""))
 
     if errors:
         for e in errors:
@@ -180,15 +190,24 @@ def main(argv=None):
               "checked NOTHING and must not report success.", file=sys.stderr)
         return 1
 
-    distinct = sorted(set(found.values()))
-    target = args.expect or (distinct[0] if len(distinct) == 1 else None)
+    # The release version is what the FULL-form sites say; a manifest/cargo site is read in its
+    # own form and can only confirm or contradict, never name a fixpack on its own.
+    forms = {s["what"]: s.get("form") for s in SITES}
+    full = sorted({vrmf.canonical(v) for w, v in found.items()
+                   if not forms.get(w) and vrmf.is_version(v)})
+    unparsable = sorted(w for w, v in found.items() if not vrmf.is_version(v))
+    target = args.expect or (full[0] if len(full) == 1 else None)
+    stale_forms = sorted(w for w, v in found.items()
+                         if target and vrmf.is_version(v) and not vrmf.agrees(v, target, forms.get(w)))
+    distinct = full + (["?"] if unparsable or stale_forms else [])
 
-    if len(distinct) > 1 or (args.expect and distinct != [args.expect]):
+    if len(distinct) > 1 or (args.expect and full != [args.expect]) or unparsable or stale_forms:
         print("", file=sys.stderr)
         print("ERROR check_version_sites: the version sites disagree.", file=sys.stderr)
         if target:
             # A target is known, so "stale" is a fact about each site and can be marked.
-            stale = {w: v for w, v in found.items() if v != target}
+            stale = {w: v for w, v in found.items()
+                     if not vrmf.is_version(v) or not vrmf.agrees(v, target, forms.get(w))}
             print("  expected v%s (--expect)" % args.expect, file=sys.stderr)
             for what, version in sorted(found.items()):
                 mark = "  STALE ->" if what in stale else "        ok"

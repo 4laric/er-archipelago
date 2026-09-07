@@ -88,7 +88,14 @@ class TestApworldManifest(unittest.TestCase):
         here = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
         with open(_os.path.join(here, "archipelago.json"), encoding="utf-8") as fh:
             manifest = _json.load(fh)
+        # V.R.M ONLY in the manifest (tools/vrmf.py): AP's Utils.tuplize_version unpacks
+        # world_version into a THREE-field NamedTuple, so a fourth (fixpack) part is a TypeError
+        # at apworld load. The fixpack lives in APWORLD_VERSION and the seed's `versions` string.
         self.assertEqual(
-            str(manifest["world_version"]), _contract.APWORLD_VERSION,
-            "archipelago.json world_version and contract.APWORLD_VERSION disagree -- the apworld "
-            "would announce one version to Archipelago and a different one to the client.")
+            str(manifest["world_version"]), ".".join(_contract.APWORLD_VERSION.split(".")[:3]),
+            "archipelago.json world_version and contract.APWORLD_VERSION disagree on V.R.M -- the "
+            "apworld would announce one line to Archipelago and a different one to the client.")
+        self.assertEqual(
+            len(str(manifest["world_version"]).split(".")), 3,
+            "archipelago.json world_version must be three parts: AP unpacks it into Version(major, "
+            "minor, build) and a fourth part does not load.")

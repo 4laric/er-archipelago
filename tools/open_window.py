@@ -54,7 +54,7 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CLIENT = os.path.join(REPO, "from-software-archipelago-clients")
-SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
+import vrmf  # noqa: E402  -- V.R.M.F spellings and the sequence rule (tools/vrmf.py)
 TODO = "TODO(open)"
 
 sys.path.insert(0, os.path.join(REPO, "tools"))
@@ -96,15 +96,9 @@ def _rel(path):
 
 
 def patch_sequence_error(current, target):
-    """Reject skipped patch numbers while leaving intentional minor/major windows alone."""
-    old = tuple(int(part) for part in current.split("."))
-    new = tuple(int(part) for part in target.split("."))
-    if new <= old:
-        return "%s does not advance %s" % (target, current)
-    if new[:2] == old[:2] and new[2] != old[2] + 1:
-        return ("patch windows must advance by exactly one: %s -> %d.%d.%d, not %s"
-                % (current, old[0], old[1], old[2] + 1, target))
-    return None
+    """Reject skipped patch numbers and skipped fixpacks while leaving intentional minor/major
+    windows alone. The rule lives in tools/vrmf.py so the gates and this tool cannot drift."""
+    return vrmf.sequence_error(current, target)
 
 
 def substitution_for(site):
@@ -133,13 +127,16 @@ def write_site(site, new_version, dry_run):
     m = rx.search(text)
     if not m:
         return "failed", "pattern no longer matches -- the site is UNCHECKED, not clean"
-    if m.group(group) == new_version:
-        return "unchanged", "already " + new_version
+    # Each site holds its own SPELLING of the version (tools/vrmf.py SITE_FORM): the manifest
+    # carries V.R.M only, the client crate carries V.R.M+fF, everything else the full V.R.M.F.
+    new_value = vrmf.site_value(new_version, site.get("form"))
+    if m.group(group) == new_value:
+        return "unchanged", "already " + new_value
     start, end = m.span(group)
     if not dry_run:
         with open(path, "w", encoding="utf-8") as fh:
-            fh.write(text[:start] + new_version + text[end:])
-    return "written", "%s -> %s" % (m.group(group), new_version)
+            fh.write(text[:start] + new_value + text[end:])
+    return "written", "%s -> %s" % (m.group(group), new_value)
 
 
 def contract_hash():
@@ -277,7 +274,9 @@ def check_notes():
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--to", metavar="X.Y.Z", help="the version this window opens")
+    ap.add_argument("--to", metavar="V.R.M[.F]",
+                    help="the version this window opens (a fourth part is a fixpack: same V.R.M, "
+                         "a client can be swapped onto seeds from that line)")
     ap.add_argument("--ap-dir", default="_ap",
                     help="Archipelago checkout, for the wizard metadata generator")
     ap.add_argument("--dry-run", action="store_true", help="print every step, write nothing")
@@ -287,9 +286,10 @@ def main(argv=None):
 
     if args.check_notes:
         return check_notes()
-    if not args.to or not SEMVER.match(args.to):
-        print("open_window: --to X.Y.Z is required", file=sys.stderr)
+    if not args.to or not vrmf.is_version(args.to):
+        print("open_window: --to V.R.M[.F] is required", file=sys.stderr)
         return 2
+    args.to = vrmf.canonical(args.to)
 
     dry = args.dry_run
     today = _dt.date.today().isoformat()
@@ -307,7 +307,10 @@ def main(argv=None):
                 continue
             print("ERROR open_window: %s: %s" % (site["what"], note), file=sys.stderr)
             return 1
-        current.setdefault(version, []).append(site["what"])
+        if site.get("form"):
+            continue                      # manifest / cargo sites spell V.R.M[+fF]; the full sites decide
+        current.setdefault(vrmf.canonical(version) if vrmf.is_version(version) else version,
+                           []).append(site["what"])
     if len(current) != 1:
         print("ERROR open_window: the sites disagree before the bump: %s"
               % ", ".join(sorted(current)), file=sys.stderr)
