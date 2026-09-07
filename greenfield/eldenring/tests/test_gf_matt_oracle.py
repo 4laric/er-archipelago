@@ -22,6 +22,13 @@ verdict:
 names from the base game's own name table. Not one row, description or area name comes from his
 repo. Do not "improve" this fixture by pasting real rows into it.
 
+PROVENANCE-OK: this file writes the `<sortPrefix>,<Type>:<flag>::` key GRAMMAR, because a parser
+test that does not exercise the real key shape tests nothing. The nine keys below are SYNTHETIC --
+flags 90001-90013 and shop ids 90100/90101 are invented numbers in a range the game does not use,
+and every DebugText line was written for this test. Grammar only, no foreign data. (The marker is
+what tools/check_integrity.py's foreign-location-list guard reads; declaring it in-file puts the
+claim in the diff, where a reviewer can check it, instead of in a filename allowlist.)
+
 Run:  python -m pytest greenfield/eldenring/tests/test_gf_matt_oracle.py
 """
 import importlib.util
@@ -155,8 +162,17 @@ class MattOracleLogic(unittest.TestCase):
         self.assertEqual(by[90001]["item_names"], ["Smithing Stone [1]"])
         # A multi-item lot yields one name per DebugText line, in order.
         self.assertEqual(by[90003]["item_names"], ["Golden Seed", "Sacred Tear"])
-        # A slot with no DebugText yields no names -- the "not comparable" path.
-        self.assertEqual(by[90004]["item_names"], [])
+        # A slot with no DebugText yields no names -- the "not comparable" path. Asserted as a
+        # COUNT MAP over every parsed slot rather than as `== []` on the one slot: an empty-list
+        # assertion passes just as happily when the parser stopped early and saw nothing, whereas
+        # this shape names how many item names each flag produced and so cannot be satisfied by a
+        # dead parser.
+        self.assertEqual(
+            {f: len(r["item_names"]) for f, r in by.items()},
+            {90001: 1, 90002: 1, 90003: 2, 90004: 0,
+             90010: 1, 90011: 1, 90012: 1, 90013: 1},
+        )
+        self.assertEqual(by[90004]["tags"], frozenset({"boss"}))
 
     # --- B. item identity ------------------------------------------------
     def test_B_item_identity_agree_disagree_and_not_comparable(self):
@@ -246,6 +262,11 @@ class MattOracleLogic(unittest.TestCase):
                                 % (name, flag, reason, vocab))
 
     def test_E_class_sets_are_disjoint_and_land_in_their_table(self):
+        # WITNESS FIRST: "these two sets do not overlap" is trivially true of two empty sets, so
+        # assert they are populated before asserting they are disjoint.
+        self.assertGreater(len(self.M._A_OPEN_DLC_MATERIAL), 50)
+        self.assertGreater(len(self.M._B_SCOPE_MAP_FRAGMENT), 10)
+        self.assertGreater(len(self.M._B_OPEN), 10)
         self.assertFalse(self.M._B_SCOPE_MAP_FRAGMENT & self.M._B_OPEN)
         for f in self.M._A_OPEN_DLC_MATERIAL:
             self.assertIn(f, self.M.ITEM_IDENTITY_KNOWN)
