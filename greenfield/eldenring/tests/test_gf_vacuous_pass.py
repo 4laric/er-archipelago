@@ -17,12 +17,19 @@ TWO guards, because the two shapes need different instruments:
    spy in `conftest.py` (the one buildable guard from the 08-04 list that had not been built). The
    tests here are that spy's own red cases.
 2. The `for ... bad.append(...)` / `assertEqual(bad, [])` shape cannot be judged statically -- a
-   filter matching nothing today may be perfectly correct. What CAN be required is a WITNESS: some
-   other assertion showing the scan saw something. 154 of this suite's 266 empty-assertions have
-   none, which is too many to fix in one pass and exactly why this is a RATCHET on the count rather
-   than an exemption list of names. The number may go DOWN freely. It may not go up.
+   filter matching nothing today may be perfectly correct. What CAN be required is a WITNESS: an
+   assertion showing the scan saw something. Since 2026-09-07 the witness has to be TIED TO THAT
+   SCAN -- it must mention the iterable, a loop variable, a counter, or an input the filter reads
+   (see "what tied to the scan means" below). Before that any positive assertion counted, and 31
+   tests on main were green on a decorative `assertTrue` about something else, which is the
+   ratchet being satisfied instead of the test being fixed. 177 of this suite's 559
+   empty-assertions have no tied witness, which is too many to fix in one pass and exactly why this
+   is a RATCHET on the count rather than an exemption list of names. The number may go DOWN freely.
+   It may not go up -- and going up by one for a genuinely new test is a one-line edit here with a
+   dated note, not a reason to add an assertion that proves nothing.
 """
 import ast
+import builtins
 import glob
 import importlib.util
 import os
@@ -182,6 +189,12 @@ def test_every_waiver_is_documented():
 _EMPTY_ASSERTS = ("assertEqual", "assertListEqual", "assertSetEqual", "assertCountEqual")
 _POSITIVE = ("assertTrue", "assertIn", "assertGreater", "assertGreaterEqual", "assertNotEqual",
              "assertIsNotNone", "assertLess", "assertLessEqual")
+# Calls that merely re-shape the collection under test: `assertEqual(sorted(bad), [])` is about
+# `bad`. A call to anything else is code under test, and every name in it is part of the scan.
+_WRAPPERS = frozenset({"sorted", "list", "set", "len", "tuple", "dict", "frozenset", "sum", "bool"})
+_MUTATORS = frozenset({"append", "add", "extend", "update", "setdefault", "insert", "discard",
+                       "remove"})
+_IGNORED_ROOTS = frozenset(dir(builtins)) | {"self", "cls"}
 
 
 def _is_empty_literal(node):
@@ -192,42 +205,208 @@ def _is_empty_literal(node):
     return isinstance(node, ast.Constant) and node.value == 0 and node.value is not False
 
 
+def _is_not(node):
+    return isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not)
+
+
+def _empty_side(a, b):
+    """The expression `a` asserts EMPTY against literal `b`, or None. A bare `0` counts only
+    against `len(x)`/`sum(x)` (the subject is then `x`): `assertEqual(tool.main(), 0)` is an exit
+    code, not an emptiness claim, and reading it as one flagged 75 tests for the wrong reason."""
+    if not _is_empty_literal(b):
+        return None
+    if isinstance(b, ast.Constant) and b.value == 0:
+        if isinstance(a, ast.Call) and isinstance(a.func, ast.Name) \
+                and a.func.id in ("len", "sum") and a.args:
+            return ast.unparse(a.args[0])
+        return None
+    return ast.unparse(a)
+
+
 def _empty_assert_subjects(fn):
     """Expressions this test asserts are EMPTY -- the ones that pass when the scan saw nothing."""
     out = []
     for n in ast.walk(fn):
         if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute):
             if n.func.attr in _EMPTY_ASSERTS and len(n.args) >= 2:
-                if _is_empty_literal(n.args[1]):
-                    out.append(ast.unparse(n.args[0]))
-                elif _is_empty_literal(n.args[0]):
-                    out.append(ast.unparse(n.args[1]))
+                subject = _empty_side(n.args[0], n.args[1]) or _empty_side(n.args[1], n.args[0])
+                if subject:
+                    out.append(subject)
             elif n.func.attr == "assertFalse" and n.args:
                 out.append(ast.unparse(n.args[0]))
-        elif isinstance(n, ast.Assert) and isinstance(n.test, ast.UnaryOp) \
-                and isinstance(n.test.op, ast.Not):
+        elif isinstance(n, ast.Assert) and _is_not(n.test):
             out.append(ast.unparse(n.test.operand))
     return out
 
 
-def _has_witness(fn, subjects):
-    """Any assertion about something OTHER than the empty-checked collection.
+# ---------------------------------------------------------------- what "tied to the scan" means
+#
+# A witness has to say the SCAN saw candidates -- not that some unrelated thing is truthy. So the
+# lint first works out what the scan IS, as a set of dotted names, and then only an assertion that
+# mentions one of them counts. In order:
+#
+#   seeds     every name in the empty-asserted expression except the accumulator itself
+#             (`assertEqual(trap_items(w), [])` -> {trap_items, w}); for a local accumulator, the
+#             iterable, loop targets and everything READ in the body of any loop that feeds it
+#             (`for r in rows: if bad(r): out.append(r)` -> {rows, r, bad}), plus the right-hand
+#             side of any assignment to it; reads inside a nested helper the loop calls count too.
+#   closure   names co-assigned with a seed, forwards (`n = len(rows)`) and one step backwards
+#             (`missing = surface - block` pulls in surface and block), through `for` targets and
+#             `with ... as` bindings, until nothing new appears.
+#
+# Builtins and bare `self`/`cls` are never names in this sense, so `len`, `set` and `self.assertX`
+# cannot tie anything to anything. `self.groups` can: dotted attribute chains are keys.
 
-    Deliberately generous: a bare `assert <expr>`, or any positive unittest assertion whose subject
-    is not the collection under test, counts. The point is not to grade the witness -- it is that
-    SOMETHING in the test says "I saw candidates", so a scan that silently stops matching goes red."""
+
+def _key(node):
+    parts = []
+    while isinstance(node, ast.Attribute):
+        parts.append(node.attr)
+        node = node.value
+    if isinstance(node, ast.Name):
+        parts.append(node.id)
+        return ".".join(reversed(parts))
+    return None
+
+
+def _keys(node):
+    """Dotted names read anywhere under `node`, minus builtins and a bare self/cls."""
+    out = set()
+    for n in ast.walk(node):
+        if isinstance(n, (ast.Name, ast.Attribute)):
+            k = _key(n)
+            if not k or k in ("self", "cls"):
+                continue
+            root = k.split(".")[0]
+            if root in ("self", "cls") or root not in _IGNORED_ROOTS:
+                out.add(k)
+    return out
+
+
+def _targets(node):
+    return {k for k in (_key(n) for n in ast.walk(node)
+                        if isinstance(n, (ast.Name, ast.Attribute))) if k}
+
+
+def _locals_of(fn):
+    out = set()
+    for n in ast.walk(fn):
+        if isinstance(n, ast.Assign):
+            for t in n.targets:
+                out |= _targets(t)
+        elif isinstance(n, (ast.AugAssign, ast.AnnAssign, ast.For, ast.comprehension)):
+            out |= _targets(n.target)
+        elif isinstance(n, ast.withitem) and n.optional_vars is not None:
+            out |= _targets(n.optional_vars)
+    return out
+
+
+def _accumulator(expr):
+    """The local collection an emptiness assertion is about, unwrapped from sorted()/list()/len()
+    and subscripts; None when the subject is a call into code under test."""
+    while isinstance(expr, ast.Call) and isinstance(expr.func, ast.Name) \
+            and expr.func.id in _WRAPPERS and expr.args:
+        expr = expr.args[0]
+    if isinstance(expr, ast.Call):
+        return None
+    while isinstance(expr, ast.Subscript):
+        expr = expr.value
+    return _key(expr)
+
+
+def _assigns_to(node, acc):
+    if isinstance(node, ast.Assign):
+        return any(_targets(t) & acc for t in node.targets)
+    return isinstance(node, ast.AugAssign) and bool(_targets(node.target) & acc)
+
+
+def _scan_names(fn, subjects):
+    """(accumulators, seed names) for this test -- see the block comment above."""
+    local = _locals_of(fn)
+    helpers = {n.name: n for n in ast.walk(fn) if isinstance(n, ast.FunctionDef) and n is not fn}
+    acc, seeds = set(), set()
+    for text in subjects:
+        expr = ast.parse(text, mode="eval").body
+        a = _accumulator(expr)
+        if a is not None and a in local:
+            acc.add(a)
+        seeds |= _keys(expr) - {a}
+    for n in ast.walk(fn):
+        if isinstance(n, ast.For):
+            feeds = any((isinstance(c, ast.Call) and isinstance(c.func, ast.Attribute)
+                         and c.func.attr in _MUTATORS and _key(c.func.value) in acc)
+                        or _assigns_to(c, acc)
+                        for b in n.body for c in ast.walk(b))
+            if feeds:
+                seeds |= _keys(n.iter) | _targets(n.target)
+                for b in n.body:
+                    seeds |= _keys(b)
+                    for c in ast.walk(b):
+                        if isinstance(c, ast.Assign):
+                            for t in c.targets:
+                                seeds |= _targets(t)
+                        elif isinstance(c, (ast.AugAssign, ast.For)):
+                            seeds |= _targets(c.target)
+                for name in list(seeds):
+                    if name in helpers:
+                        seeds |= _keys(helpers[name])
+        elif _assigns_to(n, acc):
+            seeds |= _keys(n.value)
+            if isinstance(n, ast.Assign):
+                for t in n.targets:
+                    seeds |= _targets(t)
+            for c in ast.walk(n.value):
+                if isinstance(c, ast.comprehension):
+                    seeds |= _keys(c.iter) | _targets(c.target)
+    return acc, seeds - acc
+
+
+def _closure(fn, names, acc):
+    changed = True
+    while changed:
+        changed = False
+        for n in ast.walk(fn):
+            if isinstance(n, ast.Assign):
+                ts = set().union(*(_targets(t) for t in n.targets))
+                vs = _keys(n.value)
+                if vs & names or ts & names:
+                    new = (ts | vs) - names - acc
+                    if new:
+                        names |= new
+                        changed = True
+            elif isinstance(n, ast.For) and _keys(n.iter) & names:
+                new = _targets(n.target) - names - acc
+                if new:
+                    names |= new
+                    changed = True
+            elif isinstance(n, ast.withitem) and n.optional_vars is not None \
+                    and _keys(n.context_expr) & names:
+                new = _targets(n.optional_vars) - names - acc
+                if new:
+                    names |= new
+                    changed = True
+    return names
+
+
+def _has_witness(fn, subjects):
+    """A positive assertion that mentions the scan the empty-checked collection came from.
+
+    Before 2026-09-07 ANY positive assertion counted, and the ratchet could be kept green by a
+    decorative `assertTrue` about something else. 31 tests on main had exactly that shape."""
+    acc, names = _scan_names(fn, subjects)
+    names = _closure(fn, names, acc)
     subs = set(subjects)
     for n in ast.walk(fn):
         if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute):
-            if n.func.attr in _POSITIVE and n.args and ast.unparse(n.args[0]) not in subs:
+            if n.func.attr in _POSITIVE and n.args and ast.unparse(n.args[0]) not in subs \
+                    and _keys(n) & names:
                 return True
             if n.func.attr in _EMPTY_ASSERTS and len(n.args) >= 2 \
                     and not _is_empty_literal(n.args[0]) and not _is_empty_literal(n.args[1]) \
-                    and ast.unparse(n.args[0]) not in subs:
+                    and ast.unparse(n.args[0]) not in subs and _keys(n) & names:
                 return True
-        elif isinstance(n, ast.Assert):
-            if not (isinstance(n.test, ast.UnaryOp) and isinstance(n.test.op, ast.Not)):
-                return True
+        elif isinstance(n, ast.Assert) and not _is_not(n.test) and _keys(n.test) & names:
+            return True
     return False
 
 
@@ -271,7 +450,13 @@ def _suite_files():
 # here rather than by moving the number up. #1466 gave all of them real witnesses (each now pins a
 # key every seed emits, so a fill_slot_data that returned {} can no longer read as "no foreign
 # keys") and added three more tests that carry witnesses from the start. Net -1 against main.
-_WITNESSLESS_CEILING = 152
+# 2026-09-07: 152 -> 177, a RE-BASELINE, not a regression. The witness now has to be tied to the
+# scan (block comment above _has_witness). Two things moved at once: `== 0` against anything but
+# len()/sum() stopped counting as an emptiness claim (exit codes; 75 tests left the population,
+# 634 -> 559), and 31 tests whose only witness was about something else stopped counting as
+# witnessed. Measured by this scan on main @ 3f5c9d13. Every one of the 31 is a real gap: the
+# test would pass identically if its scan matched nothing.
+_WITNESSLESS_CEILING = 177
 
 
 def test_no_new_witnessless_empty_assertions():
@@ -295,6 +480,33 @@ def test_the_lint_flags_a_planted_witnessless_body(tmp_path):
                  "    assert not bad\n", encoding="utf-8")
     total, witnessless = _scan([str(p)])
     assert total == 1 and len(witnessless) == 1, (total, witnessless)
+
+
+def test_the_lint_rejects_a_decorative_witness(tmp_path):
+    """RED CASE for the tie: a positive assertion about something UNRELATED to the scan is not a
+    witness. This is the body that kept the old ratchet green while proving nothing."""
+    p = tmp_path / "test_planted_decorative.py"
+    p.write_text("def test_x():\n    cands = []\n    other = [1]\n    bad = []\n    for i in cands:\n"
+                 "        bad.append(i)\n    assert other, 'decorative'\n    assert not bad\n",
+                 encoding="utf-8")
+    total, witnessless = _scan([str(p)])
+    assert total == 1 and len(witnessless) == 1, (total, witnessless)
+
+
+def test_the_lint_ties_through_assignment_and_helpers(tmp_path):
+    """The witness may sit one hop away: on a counter kept in the loop, on an input the filter
+    reads, or on the operands the accumulator was computed from."""
+    p = tmp_path / "test_planted_tied.py"
+    p.write_text(
+        "def test_counter():\n    seen = 0\n    bad = []\n    for r in rows():\n        seen += 1\n"
+        "        bad.append(r)\n    assert seen > 10\n    assert not bad\n"
+        "def test_operands():\n    surface, block = a(), b()\n"
+        "    missing = sorted(set(surface) - set(block))\n    assert len(surface) > 40\n"
+        "    assert not missing\n"
+        "def test_exit_code_is_not_emptiness():\n    assert tool.main() == 0\n",
+        encoding="utf-8")
+    total, witnessless = _scan([str(p)])
+    assert total == 2 and witnessless == [], (total, witnessless)
 
 
 def test_the_lint_accepts_a_witnessed_body(tmp_path):
