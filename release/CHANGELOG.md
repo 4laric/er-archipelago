@@ -31,8 +31,12 @@ commit.
   reads them through `table_loader.load()` (`world.tables`) instead of importing them by name; the
   id bases (locations 7,770,000; locks 7,780,000; real items 7,790,000; ability unlocks 7,900,000)
   moved with them. A tables-less build now refuses to register with a message naming what is
-  missing instead of an ImportError mid-`core.py`. Generation, option semantics, contract keys and
-  slot_data are unchanged -- this is layering only.
+  missing instead of an ImportError mid-`core.py`. Generation output, option semantics and contract
+  keys are unchanged -- this is layering only. One slot_data field does move: `versions` carries the
+  gen-input stamp as a `data/` segment, and `gen_data.py` is itself a declared gen input, so seeds
+  generated from this apworld read `data/007a5dc3eb77ab96` where v0.6.0.2 read `data/bcf27d864e0f74c8`.
+  That segment is provenance for bug reports; the handshake gates on `contract/`, unmoved at
+  `ffc0f1b5`, so no client pairing changes. Every other slot_data field is byte-identical.
 - **Release pipeline: the next window is opened by a workflow.** `open-window.yaml` runs after
   a tag's `er-release` goes green: `tools/open_window.py` on the runner with the client
   submodule at client main, the client half pushed as its own PR, stable promoted and
