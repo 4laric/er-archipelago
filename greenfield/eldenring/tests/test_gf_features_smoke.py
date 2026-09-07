@@ -10,7 +10,10 @@ pytest.importorskip("worlds.eldenring")
 GAME = "Elden Ring"
 _OPTS = ("completion_scaling_floor", "global_scadutree_blessing", "dungeon_sweep",
          "boss_lock_placement", "merchant_bell_logic")
-_KEYS = ("completion_scaling", "dungeonSweeps", "sweepLockGates", "shopRowFlags",
+# dungeonSweeps left this list in #1463: it was tagged as greenfield-produced while boss_locks.py
+# only ever wrote {} into it, so it is now bedrock-only and greenfield does not emit it. The live
+# flag-keyed wire it was standing next to is dungeonSweepFlags, checked by test_gf_boss_sweeps.
+_KEYS = ("completion_scaling", "sweepLockGates", "shopRowFlags",
          "shopPreviewGoods", "regionGraces", "startGraces")
 
 

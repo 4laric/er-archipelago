@@ -629,7 +629,11 @@ class BossLocks(Feature):
                                          for fl in sorted(_dropped, key=lambda x: -len(_live[x]))))
                      if _dropped else "",
                      len(_unaudited)))
-            sd[contract.DUNGEON_SWEEPS] = {}     # location-keyed variant (needs boss-reward-location join)
+            # dungeonSweeps: NOT emitted (#1463). The location-keyed variant needs a
+            # boss-reward-location join we never built, so this line only ever wrote `{}` -- which
+            # reads identically to absent on the client (flagpoll.rs parse_dungeon_sweeps) while
+            # making the contract claim greenfield produces a bedrock key. The key is now tagged
+            # BEDROCK-only and emitting it here would fail validate_slot_data's foreign-key check.
             # sweepLockGates: non-empty under boss_keys, base + DLC. Per-boss PRECISE where the sweep
             # trigger flag is itself a boss-defeat flag, else the region-representative fallback (the
             # documented coarsening gap). See _sweep_lock_gates. Sound either way -- client-side

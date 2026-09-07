@@ -2333,6 +2333,11 @@ class GreenfieldEldenRingWorld(World):
         required = self._required_runes()
         required_count = self._great_runes_required_count()
         return {
+            # WHICH CONTRACT THIS SEED SPEAKS (#1463). The client used to infer it by sniffing for
+            # `locationIdsToKeys`; it now reads this and validates the seed against the profile it
+            # names, so a seed carrying the wrong key family is a connect-time error instead of a
+            # silently mis-chosen branch.
+            contract.PROFILE: contract.GREENFIELD,
             contract.VERSIONS: versions,           # apworld/contract/data identity -- the skew gate
             contract.WORLD_LOGIC: "region_lock",
             contract.LOCATION_FLAGS: loc_flags,
