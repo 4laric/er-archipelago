@@ -5,43 +5,12 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.0.1 — 2026-09-07
 
-- **Map progression rings are off by default.** The orange rings MapForGoblins drew around
-  every progression target covered most of the map on a normal seed. The fresh preset now ships
-  `ap_progression_rings = false`; yellow hint rings are unchanged, and the F6 tracker and the
-  Progression only filter still carry the progression meaning. F10 → Archipelago turns the rings
-  back on. Needs the matching MapForGoblins build.
-- **Client: stop re-granting Great Runes and other key items that are already held after
-  an NPC hand-in.** The inventory scan now checks occupied slots across the allocated
-  key-item list, including slots beyond its live-entry count (client #638). This fixes
-  the reported repeated duplicate refusals after loads; no item delivery policy changes.
-- **Known issue:** received Great Runes can count for progression while remaining
-  unequippable, with no Divine Tower prompt (client #316). See KNOWN-ISSUES.md and
-  GETTING-UNSTUCK.md before attempting a rescue command.
+The first **fixpack** on the v0.6.0 line. Versions are now V.R.M.F: a client on the same
+V.R.M plays every seed that line generated, so a v0.6.0.1 client can be swapped onto a running
+v0.6.0 seed, and a v0.6.0 client still plays a v0.6.0.1 seed. The seed contract is unchanged
+(`ffc0f1b5`). Everything below that changes generation applies to **new** seeds only.
 
-- Restore Silver Scarab in the Hidden Path to the Haligtree; correct the old
-  imp-gate exclusion using the supported grace route and M4G pin (#1437).
-
-- Recover seven Somber stone checks: six one-time scarab rewards and the Gravesite Ghostflame Dragon’s stone alongside its Dragon Heart (#1437).
-
-- Recover Briars of Sin from its real enemy lot; preserve existing check IDs and
-  the guard against falsely identified synthetic pickups (#1437).
-
-### What you need to update
-
-- **Client:** Required — use the matching v0.6.1 client for new seeds.
-- **APWorld:** Host-only — install v0.6.1 when generating a new room.
-- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
-- **Existing seed/save:** Compatible when kept on its matching client/APWorld pair; new checks require a new seed.
-- **Profile/assets:** No action — keep the M4G assets and use the matching client DLL.
-
-
-- Recover four Oathseeker Knight armor checks and Royal Magic Grease using accepted
-  Map for Goblins placement evidence (#1437). Existing check IDs remain unchanged.
-
-- Correct Eleonora’s Poleblade to the real invasion reward; the unused ground-lot copy no longer stands in for it. Requires a newly generated seed.
-- Recover the separate Gelmir's Fury reward from Bernahl's Farum Azula invasion. It remains barred from progression placement because NPC access is not fully modeled.
-
-- Recover Diallos's Numen's Rune at Jarburg as a separate check, with questline progression protection.
+### Enemy scaling
 
 - **`maximum_enemy_difficulty: auto` uses the DLC rungs only where the Scadutree Blessing
   applies.** Every ladder rung above 3.70x (vanilla Haligtree) is the DLC's own enemy ladder,
@@ -56,19 +25,76 @@ The narrative — what this project is and what v0.2 brings — lives in
   a cap below 100 and needs a client that understands capping, which every current client does.
 - **The yaml builder shows what the cap resolves to.** A live line under Maximum Enemy
   Difficulty and on the difficulty picks card reads the multiplier and ladder rung for the current
-  slider or `auto`, from the same formula generation uses.
-- **The builder and `er_yaml_lint.py` warn when the cap reaches DLC-strength rungs (above 3.7x)
-  while `scadutree_blessing_scope` is `dlc_only`.** Base-game regions deep in the order would meet
-  DLC enemies with no blessing to answer them.
+  slider or `auto`, from the same formula generation uses, and says which regions may climb.
+- **The builder and `er_yaml_lint.py` warn when an explicit cap reaches DLC-strength rungs
+  (above 3.7x) while the Scadutree Blessing is not in play everywhere.** Base-game regions deep in
+  the order would meet DLC enemies with no blessing to answer them; `auto` holds them instead.
+- **Fixed: the builder's `auto` chip never rendered.** The range control read special values as
+  tuples while the metadata stores objects, so Maximum Enemy Difficulty and Cross Game Progression
+  showed `0` beside "(default -1)" with no way to pick `auto` except leaving the slider alone. The
+  builder also raised a bogus "minimum above maximum" error on every default yaml for the same
+  reason.
+
+### Fill
+
 - **Fixed: two pre-fill reservations could spend the early stone guarantee.** The missable-check
   filler reservation and the keep-out-of-shops reservation both drew from every filler copy in
   the pool before Archipelago's early-items pass ran, so the Somber Smithing Stone copies the
   early guarantee had just counted could be locked onto checks that are not reachable from the
   start (seen on a 1-region seed: both Somber [2] on Ashen Capital, guarantee delivered 0, no
   warning). Declared early copies now stay in the pool for that pass.
-- **Fixed: the builder's `auto` chip never rendered.** The range control read special values as
-  tuples while the metadata stores objects, so Maximum Enemy Difficulty and Cross Game Progression
-  showed `0` beside "(default -1)" with no way to pick `auto` except leaving the slider alone.
+
+### Recovered checks (#1437)
+
+- Four Oathseeker Knight armor checks and Royal Magic Grease, using accepted Map for Goblins
+  placement evidence. Existing check IDs remain unchanged.
+- Briars of Sin, from its real enemy lot; the guard against falsely identified synthetic
+  pickups is preserved.
+- Seven Somber stone checks: six one-time scarab rewards and the Gravesite Ghostflame Dragon's
+  stone alongside its Dragon Heart.
+- Silver Scarab in the Hidden Path to the Haligtree; the old imp-gate exclusion is corrected
+  using the supported grace route and M4G pin.
+- Eleonora's Poleblade now checks the real invasion reward; the unused ground-lot copy no longer
+  stands in for it.
+- Bernahl's Farum Azula Gelmir's Fury reward is a check of its own, separate from his Volcano
+  Manor reward. It stays barred from progression placement because NPC access is not fully
+  modeled.
+- Diallos's Numen's Rune at Jarburg is a separate check, with questline progression protection.
+
+### Map
+
+- **Progression rings are off by default.** The orange rings MapForGoblins drew around every
+  progression target covered most of the map on a normal seed. The fresh preset now ships
+  `ap_progression_rings = false`; yellow hint rings are unchanged, and the F6 tracker and the
+  Progression only filter still carry the progression meaning. F10 → Archipelago turns the rings
+  back on. Needs the MapForGoblins build that knows the key.
+
+### Client
+
+- **Stop re-granting Great Runes and other key items that are already held after an NPC
+  hand-in.** The inventory scan now checks occupied slots across the allocated key-item list,
+  including slots beyond its live-entry count (client #638). This fixes the repeated duplicate
+  refusals after loads; no item delivery policy changes.
+- **A delivery whose read-back comes up short is parked, not acknowledged** (client #644). An
+  executed grant that read back below its expected count used to be marked delivered on the
+  assumption of a storage-routing bug since fixed; a Third Umbilical Cord delivered while one was
+  held was discarded by the game and recorded as delivered. It now falls through to verify polling
+  and parks as failed with the evidence and the retry path; surplus read-backs are unchanged.
+- **Known issue:** received Great Runes can count for progression while remaining unequippable,
+  with no Divine Tower prompt (client #316). See KNOWN-ISSUES.md and GETTING-UNSTUCK.md before
+  attempting a rescue command.
+
+### What you need to update
+
+- **Client:** Recommended. A v0.6.0.1 client can replace a v0.6.0 client on a running seed; it
+  carries the key-item and delivery fixes above. A v0.6.0 client still plays v0.6.0.1 seeds.
+- **APWorld:** Host-only. Install v0.6.0.1 when generating a new room to get the scaling, fill
+  and recovered-check changes.
+- **YAML:** No new YAML required. Existing YAMLs remain valid.
+- **Existing seed/save:** Compatible. New checks and the new scaling apply to newly generated
+  seeds only.
+- **Map assets:** Use the MapForGoblins build shipped with this release; the rings default lives
+  in its preset.
 
 ## v0.6.0 — 2026-09-02
 
