@@ -1,15 +1,15 @@
-# v0.6.1 — release blurb (draft)
+# v0.6.0.1 — release blurb (draft)
 
 ## Can I update the client during a run?
 
-Keep an existing v0.6.0 run on its matching client and APWorld. The v0.6.1 development
+Keep an existing v0.6.0 run on its matching client and APWorld. The v0.6.0.1 development
 window adds checks for newly generated seeds; replacing a DLL does not add them to
-an existing room. Use the matching v0.6.1 client when testing a v0.6.1 seed.
+an existing room. Use the matching v0.6.0.1 client when testing a v0.6.0.1 seed.
 
 ## What you need to update
 
-- **Client:** Required — use the matching v0.6.1 client for new seeds.
-- **APWorld:** Host-only — install v0.6.1 when generating a new room.
+- **Client:** Required — use the matching v0.6.0.1 client for new seeds.
+- **APWorld:** Host-only — install v0.6.0.1 when generating a new room.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible when kept on its matching client/APWorld pair; new checks require a new seed.
 - **Profile/assets:** No action — keep the M4G assets and use the matching client DLL.

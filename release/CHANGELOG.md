@@ -3,7 +3,7 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.6.1 — 2026-09-06
+## v0.6.0.1 — 2026-09-07
 
 - **Map progression rings are off by default.** The orange rings MapForGoblins drew around
   every progression target covered most of the map on a normal seed. The fresh preset now ships

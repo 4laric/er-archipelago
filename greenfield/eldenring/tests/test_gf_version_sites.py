@@ -95,7 +95,7 @@ import check_version_sites  # noqa: E402  -- THE list. A plain import: it lives 
 # passes by finding nothing. A scan that under-reports is the same failure as the list it polices.
 VERSION_LINE = re.compile(
     r'(APWORLD_VERSION(?:_EXPECTED)?|apworld_version|world_version)"?\s*[:=]\s*'
-    r'(?:&str\s*=\s*)?"(\d+\.\d+\.\d+)"')
+    r'(?:&str\s*=\s*)?"(\d+\.\d+\.\d+(?:\.\d+)?)"')   # V.R.M or V.R.M.F (tools/vrmf.py)
 
 
 def _current_version():

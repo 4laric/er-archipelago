@@ -683,6 +683,19 @@ writing blurbs; the price of starting one just kept going up until it was always
 **15. If the CONTRACT changes, the RELEASE version changes with it.**
 The 2026-08-03 rule, and the one with the most evidence already sitting in the repo.
 
+> **Versions are V.R.M.F** (2026-09-06; `tools/vrmf.py` holds the spellings and the sequence
+> rule). V.R.M is the seed-compatibility line the apworld and client share. F is a **fixpack**,
+> and its bar is one sentence: *a client on the same V.R.M can be swapped onto any seed that
+> line generated.* Either side may change in a fixpack so long as that holds -- an apworld-only
+> change that alters new seeds (the auto enemy cap, say) is fixpack-eligible. The contract hash
+> may move on a fixpack **only** when the new client bridges the older contract
+> (`is_legacy_contract_compatible`); `check_contract_version.py` prints that obligation on any
+> fixpack whose hash differs from its line. Three spellings, one number: `0.6.0.1` in
+> `APWORLD_VERSION`, the seed's `versions` string, headings, blurbs, ledger rows and tags;
+> `0.6.0` in `archipelago.json` (AP unpacks `world_version` into a three-field tuple, so a
+> fourth part does not load); `0.6.0+f1` in the client crate (Cargo needs a semver core).
+> `check_version_sites.py` compares each site in its own form.
+
 > `CONTRACT_HASH` is *derived* from the contract keys, so it moves the instant a key is
 > added, removed, reshaped, or flips required-ness. `APWORLD_VERSION` is hand-held, so it
 > moves only when somebody remembers. Loading `contract.py` at every tag shows what happens

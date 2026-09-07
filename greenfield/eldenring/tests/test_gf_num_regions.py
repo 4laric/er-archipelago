@@ -146,7 +146,14 @@ def test_the_gen_log_states_the_breakdown_when_the_draw_grows(caplog):
                    "ending_condition": "great_runes"}
 
     t = _T()
+    # 🛑 SEED THE BOOTSTRAP TOO. `setUp()` builds a world on a FRESH RANDOM seed before the seeded
+    # loop below ever runs, and that draw can be an ungenerable shape (Enir Ilim plus one tiny region
+    # cannot place seven Great Runes on its trusted surface -> OptionError in pre_fill). It failed
+    # 2-for-2 in CI on 2026-09-07 and 1-in-10 locally, from line 149, with the 24 seeded draws below
+    # never at fault. The loop re-seeds every iteration, so the bootstrap's seed is free to be fixed.
+    t.auto_construct = False
     t.setUp()
+    t.world_setup(seed=0)
     try:
         for seed in range(24):
             caplog.clear()

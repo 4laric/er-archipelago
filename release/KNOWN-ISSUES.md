@@ -25,7 +25,7 @@ players, one section per fix, and it is the honest record.
   on Tarnished Edition is the open question, and the probe belongs on a throwaway character.
   The delivery change remains tracked in client #316.
 
-- **Inventory detection fix (client #638, included in the v0.6.1 client update):**
+- **Inventory detection fix (client #638, included in the v0.6.0.1 client update):**
   after a Twin Maiden Husks or Miriel hand-in, the old scan could miss occupied
   slots beyond the key list's live-entry count. A held rune then appeared absent
   to the client, causing repeated refused re-grants after loads. Check the game's

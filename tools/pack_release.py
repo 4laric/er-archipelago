@@ -143,7 +143,7 @@ def gate_changelog(version: str, hard: bool) -> None:
     p = os.path.join(REL, "CHANGELOG.md")
     if not os.path.isfile(p):
         die("CHANGELOG.md not found -- it ships as a required doc")
-    m = re.search(r"^## v(\d+\.\d+(?:\.\d+)?)", read(p), re.M)
+    m = re.search(r"^## v(\d+\.\d+(?:\.\d+){0,2})", read(p), re.M)
     if not m:
         soft("CHANGELOG.md has no `## vX.Y.Z` heading", hard)
     elif m.group(1) != version:
@@ -159,16 +159,20 @@ def gate_version_lockstep(version: str, client_dir: str | None, hard: bool) -> N
     site is OPTIONAL and skips loudly when the tree is absent -- silently skipping it is how
     v0.2.17 passed a VERSION: OK check against a 0.2.15 dll.
     """
+    # Each site spells the version in its own form (tools/vrmf.py): the manifest carries V.R.M
+    # only (AP unpacks it into a 3-tuple), the client crate V.R.M+fF, contract.py the full V.R.M.F.
+    import vrmf
     sites = [
-        ("greenfield/eldenring/archipelago.json", r'"world_version"\s*:\s*"([^"]+)"', REPO),
-        ("greenfield/eldenring/contract.py", r'APWORLD_VERSION\s*=\s*"([^"]+)"', REPO),
+        ("greenfield/eldenring/archipelago.json", r'"world_version"\s*:\s*"([^"]+)"', REPO, "manifest"),
+        ("greenfield/eldenring/contract.py", r'APWORLD_VERSION\s*=\s*"([^"]+)"', REPO, None),
     ]
     if client_dir:
-        sites.append(("crates/eldenring-archipelago/Cargo.toml", r'^version\s*=\s*"([^"]+)"', client_dir))
+        sites.append(("crates/eldenring-archipelago/Cargo.toml", r'^version\s*=\s*"([^"]+)"',
+                      client_dir, "cargo"))
     else:
         warn("client tree absent -- the Cargo.toml version site was NOT checked")
 
-    for rel, pat, root in sites:
+    for rel, pat, root, form in sites:
         p = os.path.join(root, rel)
         if not os.path.isfile(p):
             soft(f"version site missing: {rel}", hard)
@@ -176,7 +180,7 @@ def gate_version_lockstep(version: str, client_dir: str | None, hard: bool) -> N
         m = re.search(pat, read(p), re.M)
         if not m:
             soft(f"version site unreadable: {rel}", hard)
-        elif m.group(1) != version:
+        elif not vrmf.is_version(m.group(1)) or not vrmf.agrees(m.group(1), version, form):
             soft(f"{rel} says {m.group(1)}, packaging {version}", hard)
         else:
             info(f"version site OK: {rel}")
