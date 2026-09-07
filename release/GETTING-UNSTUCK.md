@@ -87,6 +87,9 @@ than one record and repeatedly retry the wrong one; these commands are unambiguo
 | Malenia's Great Rune | `!give 0x40001fd9` |
 | Great Rune of the Unborn | `!give 0x40002760` |
 
+For any other item, [ITEM-IDS.md](ITEM-IDS.md) is the generated `!give` reference: every vanilla
+item name in the world's own catalog, with its hex and decimal full ID.
+
 These commands grant inventory items only. The Leyndell entrance reads event flags rather than
 the inventory, so granting two or more Great Runes does not repair a sealed capital gate. Use the
 next section for that symptom.

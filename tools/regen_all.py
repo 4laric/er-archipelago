@@ -152,6 +152,13 @@ STEPS = [
          emits=["release/latest.json"],
          why="committed update verdict derived from CHANNELS.tsv + CONTRACT-VERSIONS.tsv; the "
              "website deploy installs these reviewed bytes rather than composing JSON on-host."),
+    Step(TABLES, "tools/gen_item_ids_doc.py",
+         emits=["release/ITEM-IDS.md"],
+         why="the player-facing `!give` id reference, rendered from "
+             "greenfield/eldenring/tables/item_ids.py. It is a committed artifact of a GENERATED "
+             "table, so any gen_data run that moves the catalog re-stales it -- exactly the "
+             "#699/#708 shape, and the reason it is in this entrypoint rather than run by hand. "
+             "AFTER gen_data (MODULES), which writes the table it reads."),
     Step(TABLES, "tools/gen_area_tiers.py", ["--check"], needs_client=True,
          why="THE STEP build.ps1 WAS MISSING (issue #699). Its DATA half is tier-2 (needs the "
              "MSBs), so this half only CHECKS: red means re-run without --check and commit."),
