@@ -97,6 +97,27 @@ class TestReleasePairing(unittest.TestCase):
         self.assertIn("KNOWN-STALE", out)
         self.assertNotIn("PASS", out)
 
+    def test_a_pin_that_is_the_same_tree_as_client_main_passes(self):
+        """v0.6.0.2: the gitlink was the client PR's branch tip and client main was the merge
+        commit of that PR -- two shas, one tree. That is a current record and must not need
+        ALLOW_STALE_PIN (its bundle job failed and was re-dispatched by hand, 2026-09-07)."""
+        code, out = self._check(_facts(pin=V0311_MAIN, tree=V0311_MAIN, main=V0311_PIN,
+                                       pin_tree="t" * 40, main_tree="t" * 40))
+        self.assertEqual(code, 0, out)
+        self.assertIn("NOTE   :", out)
+        self.assertIn("same tree", out)
+        self.assertIn("PASS", out)
+
+    def test_a_pin_with_a_different_tree_is_still_refused(self):
+        """Tree comparison must not soften the real case: different code is stale, full stop.
+        An unresolved tree (empty) also counts as different -- never agreement by default."""
+        code, out = self._check(_facts(pin=V0311_MAIN, tree=V0311_MAIN, main=V0311_PIN,
+                                       pin_tree="a" * 40, main_tree="b" * 40))
+        self.assertEqual(code, 1, out)
+        code, out = self._check(_facts(pin=V0311_MAIN, tree=V0311_MAIN, main=V0311_PIN,
+                                       pin_tree="", main_tree=""))
+        self.assertEqual(code, 1, out)
+
     def test_a_dirty_client_tree_is_refused(self):
         """A bundle from a dirty tree corresponds to no commit at all -- the unrecoverable-record
         problem in its worst form, so no override."""
