@@ -99,12 +99,12 @@ def ceiling_multiplier(pct):
 AUTO_CEILING = -1
 
 # The exponent of the `auto` curve, in ladder-index space. Mirrored by the yaml wizard's live
-# preview (wizard/wizard.html ERW.autoCeilingPct); tests/test_gf_scaling_floor_units.py pins the two.
+# preview (wizard/wizard.html ERW.autoCeilingCurvePct); test_gf_scaling_ladder_mirror.py pins the two.
 AUTO_CEILING_EXPONENT = 0.45
 
 
-def auto_ceiling_pct(num_regions, total_regions):
-    """`auto` -> the `maximum_enemy_difficulty` PERCENT for a seed of this size.
+def auto_ceiling_curve_pct(num_regions, total_regions):
+    """The run-length CURVE behind `auto` -- see auto_ceiling_pct for when it applies at all.
 
     WHY AT ALL. The scaling target is a region's POSITION in the seed's unlock order, normalized so
     the deepest kept region reaches the top. That is RELATIVE; player power is ABSOLUTE (Somber +10
@@ -161,7 +161,40 @@ def auto_ceiling_pct(num_regions, total_regions):
     return int(math.floor(100.0 * (float(n) / total) ** AUTO_CEILING_EXPONENT + 0.5))
 
 
-def resolve_max_difficulty_pct(raw, num_regions, total_regions, floor_pct=0):
+# The largest percent that still resolves to the base game's top rung, 3.703x (`ceiling_multiplier`
+# rounds pct/100 * 19: 47 -> 8.93 -> rung 9; 50 -> 9.5 -> rung 10, the first DLC rung). DERIVED and
+# pinned by tests/test_gf_scaling_ladder_mirror.py, not chosen: it is "vanilla Haligtree", the
+# strongest thing the base game ever asks of a player with no Scadutree Blessing.
+BASE_GAME_CEILING_PCT = 47
+
+
+def auto_ceiling_pct(num_regions, total_regions, blessing_everywhere):
+    """`auto` -> the `maximum_enemy_difficulty` PERCENT for this seed.
+
+    THE GATE (Alaric, 2026-09-06, after 0xtako's 13-region default run met Caelid at Haligtree
+    strength): every ladder rung above 3.703x is the DLC's own re-emission of the enemy ladder,
+    tuned for a player who is also carrying a Scadutree Blessing. Handing those rungs to a seed
+    that has no blessing to answer them is not a difficulty curve, it is an accidental difficulty
+    mod. So:
+
+      * `blessing_everywhere` False -> BASE_GAME_CEILING_PCT, flat, whatever the run length. The
+        deepest region is vanilla Haligtree.
+      * `blessing_everywhere` True  -> the run-length curve (auto_ceiling_curve_pct), never below
+        the base-game top, up to the full ladder on a whole map. scadu_supply sizes the fragment
+        injection from the SAME resolved percent (target_for_difficulty), so the rungs above the
+        base game arrive with the fragments that pay for them.
+
+    `blessing_everywhere` means the blessing is scoped `anywhere` AND fragments can enter the pool
+    (the Scadutree Fragment is a DLC item: with the DLC off it is pool-excluded and `anywhere` has
+    nothing to apply). features/scaling.blessing_everywhere derives it; callers must not guess.
+    """
+    if not blessing_everywhere:
+        return BASE_GAME_CEILING_PCT
+    return max(BASE_GAME_CEILING_PCT, auto_ceiling_curve_pct(num_regions, total_regions))
+
+
+def resolve_max_difficulty_pct(raw, num_regions, total_regions, floor_pct=0,
+                               blessing_everywhere=False):
     """The ONE place `auto` becomes a number. Both callers -- features/scaling.generate_early and
     core._options_echo -- come through here, so what is validated is what the client is told.
 
@@ -171,7 +204,7 @@ def resolve_max_difficulty_pct(raw, num_regions, total_regions, floor_pct=0):
     """
     if int(raw) != AUTO_CEILING:
         return int(raw)
-    return max(int(floor_pct), auto_ceiling_pct(num_regions, total_regions))
+    return max(int(floor_pct), auto_ceiling_pct(num_regions, total_regions, blessing_everywhere))
 
 
 def ramped_target(position, span, target_max, ramp_pct=100):

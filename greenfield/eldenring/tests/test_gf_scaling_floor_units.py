@@ -153,10 +153,13 @@ def test_ceiling_option_is_reachable_and_defaults_to_auto():
 
 def test_auto_on_a_full_map_is_still_uncapped():
     """The compatibility promise, at the unit level: num_regions 0 means ALL regions, so a yaml that
-    configures nothing resolves to 100 -- no cap, and therefore no client-feature handshake."""
-    assert scaling_ladder.auto_ceiling_pct(0, 30) == 100
+    configures nothing (apworld defaults: DLC on, blessing anywhere) resolves to 100 -- no cap, and
+    therefore no client-feature handshake. Without the blessing everywhere the same map is held at
+    the base-game top instead (scaling_ladder.auto_ceiling_pct)."""
+    assert scaling_ladder.auto_ceiling_pct(0, 30, True) == 100
     assert scaling_ladder.resolve_max_difficulty_pct(
-        scaling_ladder.AUTO_CEILING, 0, 30, 0) == 100
+        scaling_ladder.AUTO_CEILING, 0, 30, 0, True) == 100
+    assert scaling_ladder.auto_ceiling_pct(0, 30, False) == scaling_ladder.BASE_GAME_CEILING_PCT
 
 
 @pytest.mark.parametrize("pct", [0, 25, 50, 75, 100])

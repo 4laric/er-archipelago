@@ -871,20 +871,22 @@ Elden Ring:
   enemy_scaling: true
 
   # How hard the TOUGHEST enemies get.
-  #  auto   scale the cap to the LENGTH of your run        (default)
+  #  auto   the base game's top (about 3.7x), or higher with the blessing (default)
   #   100   no cap -- your deepest region reaches the game's own maximum,
   #         roughly 7.4x enemy HP, what vanilla saves for its endgame
   #    75   nothing above about 5.5x enemy HP
   #    50   nothing above about 4x
+  #    47   the base game's own top -- vanilla Haligtree
   #    25   nothing above about 2x
-  # `auto` is here because the curve is relative and your gear is not. Scaling
-  # ramps over the ORDER your regions unlock, so the deepest one is "the end of
-  # the run" whether that is 30 regions or 5 -- but Somber +10 still needs a
-  # Somber [9]. On a short seed you meet endgame enemies on a mid-game weapon,
-  # and FEWER regions makes the ramp steeper, not gentler. auto lowers the top
-  # of the curve with the length of the run: about 3.7x at 5 regions, 5.5x at
-  # 10, 6.7x at 15, the full 7.4x on the whole map. Give a number instead to
-  # choose the cap yourself; the yaml builder shows what it resolves to.
+  # `auto` caps the run at the strongest thing the BASE GAME ever asks of you,
+  # about 3.7x enemy HP (vanilla Haligtree). Every rung above that is the DLC's
+  # own enemy ladder, tuned for a player carrying a Scadutree Blessing, so auto
+  # only climbs into it when scadutree_blessing_scope is `anywhere` AND the DLC
+  # is on (its fragments are DLC items). Then the cap grows with the length of
+  # the run -- about 3.7x at 5 regions, 5.5x at 10, 6.7x at 15, the full 7.4x on
+  # the whole map -- and the seed injects the fragments that pay for it. Give a
+  # number instead to choose the cap yourself; the yaml builder shows what it
+  # resolves to.
   # Must be >= minimum_enemy_difficulty (auto is raised to it rather than
   # failing the seed, since you did not choose the cap).
   # NOTE: a cap below 100 needs an up-to-date client. An older one refuses the

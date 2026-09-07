@@ -508,29 +508,52 @@ def resolved_max_difficulty(world):
         int(world.options.maximum_enemy_difficulty.value),
         int(nr.value) if nr is not None else 0,
         int(nr.range_end) if nr is not None else 30,
-        int(world.options.minimum_enemy_difficulty.value))
+        int(world.options.minimum_enemy_difficulty.value),
+        blessing_everywhere(world))
+
+
+def blessing_everywhere(world) -> bool:
+    """Whether `auto` may climb past the base-game top: the blessing applies everywhere AND the
+    fragments that pay for the DLC rungs can enter this seed's pool. scaling_ladder.auto_ceiling_pct
+    explains the gate; this is the ONE derivation of its input.
+
+    The fragment is a DLC item, so with the DLC off it is pool-excluded (core.gf_dlc_excluded) and
+    scadu_supply injects nothing whatever the scope says -- `anywhere` with nothing to apply. Read
+    the resolved DLC flag core publishes rather than the raw option, and fall back to the option
+    for the pure-test worlds that never ran core.generate_early.
+    """
+    if blessing_mode(world) not in (1, 2):
+        return False
+    dlc_on = getattr(world, "gf_dlc_on", None)
+    if dlc_on is None:
+        _dlc = getattr(world, "_dlc_on", None)
+        dlc_on = bool(_dlc()) if callable(_dlc) else bool(
+            getattr(getattr(world.options, "enable_dlc", None), "value", False))
+    return bool(dlc_on)
 
 
 class MaximumEnemyDifficulty(NamedRange):
     """How hard the TOUGHEST enemies get.
 
-      auto  scale the cap to the LENGTH of your run        (default)
+      auto  base-game top (about 3.7x), or higher with the blessing  (default)
        100  no cap -- the deepest region hits the game's maximum, about 7.4x enemy HP
         75  nothing above about 5.5x enemy HP
         50  nothing above about 4x
+        47  the base game's own top -- vanilla Haligtree
         25  nothing above about 2x
 
-    `auto` exists because the curve is relative and your gear is not. Scaling ramps over the ORDER
-    your regions unlock, so the deepest one is "the end of the run" whether that is 30 regions or 5 --
-    but Somber +10 still needs a Somber [9]. On a short seed you therefore meet endgame-strength
-    enemies on a mid-game weapon, and fewer regions makes the ramp steeper rather than gentler.
-    `auto` lowers the top of the curve with the length of the run: about 3.7x at 5 regions, 5.5x at
-    10, 6.7x at 15, the full 7.4x on the whole map. Give a number instead to pick the cap yourself;
-    the yaml builder shows what either choice resolves to as you move the slider.
+    `auto` caps the run at the strongest thing the BASE GAME ever asks of you: about 3.7x enemy HP,
+    vanilla Haligtree. Every rung above that is the DLC's own enemy ladder, tuned for a player who
+    is also carrying a Scadutree Blessing, so `auto` only climbs into those rungs when the blessing
+    applies everywhere (`scadutree_blessing_scope: anywhere`, the default) AND the DLC is on so its
+    fragments can enter the pool. Then the cap grows with the length of the run -- about 3.7x at 5
+    regions, 5.5x at 10, 6.7x at 15, the full 7.4x on the whole map -- and the seed injects the
+    fragments that pay for it. Give a number instead to pick the cap yourself; the yaml builder
+    shows what either choice resolves to as you move the slider.
 
-    ⚠️ The `auto` curve has ONE playtested point -- about 3.7x at 5 regions, where the ladder used to
-    top out. Above that it is extrapolation, so treat the high end as untested. (Recalibrated
-    2026-09-06: the first curve sat one to two rungs higher everywhere below a full map.)
+    ⚠️ Above 3.7x the curve is extrapolation over rungs nobody has playtested at length. A
+    13-region default run with the DLC on met Caelid at close to Haligtree strength (2026-09-06),
+    which is what put the base-game gate here.
 
     Must be at least Minimum Enemy Difficulty; generation refuses the inverted pair rather than
     quietly picking one.
@@ -786,15 +809,17 @@ class Scaling(Feature):
         # sentinel (-1) against a floor would raise on EVERY DEFAULT SEED, since every floor exceeds
         # -1. total_regions comes off the option's own bound (NumRegions.range_end == len(REGIONS)),
         # which cannot drift from it.
+        # The deprecated blessing key becomes the two live ones FIRST: `auto` now reads the
+        # resolved blessing scope (blessing_everywhere), so translating after this line would
+        # resolve a legacy `player_only`/`scaled` yaml at the base-game cap and then emit the
+        # fragments for a higher one.
+        resolve_legacy_blessing(world)
         hi = resolved_max_difficulty(world)
         if raw != AUTO_CEILING and lo > hi:
             raise OptionError(
                 f"minimum_enemy_difficulty ({lo}) is above maximum_enemy_difficulty ({hi}) -- the "
                 f"weakest enemies would be stronger than the strongest. Set the minimum at or below "
                 f"the maximum (both are 0-100, higher = harder).")
-        # The deprecated blessing key becomes the two live ones here -- before slot_data,
-        # _options_echo or any test reads either. See resolve_legacy_blessing.
-        resolve_legacy_blessing(world)
 
     def slot_data(self, world):
         # ORDER RAMP (2026-07-15): the fill spheres (TRUE per-seed reachability, 2026-07-07) are

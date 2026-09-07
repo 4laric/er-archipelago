@@ -1924,7 +1924,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "key": "maximum_enemy_difficulty",
    "class": "MaximumEnemyDifficulty",
    "display_name": "Maximum Enemy Difficulty",
-   "description": "How hard the TOUGHEST enemies get.\n\n  auto  scale the cap to the LENGTH of your run        (default)\n   100  no cap -- the deepest region hits the game's maximum, about 7.4x enemy HP\n    75  nothing above about 5.5x enemy HP\n    50  nothing above about 4x\n    25  nothing above about 2x\n\n`auto` exists because the curve is relative and your gear is not. Scaling ramps over the ORDER\nyour regions unlock, so the deepest one is \"the end of the run\" whether that is 30 regions or 5 --\nbut Somber +10 still needs a Somber [9]. On a short seed you therefore meet endgame-strength\nenemies on a mid-game weapon, and fewer regions makes the ramp steeper rather than gentler.\n`auto` lowers the top of the curve with the length of the run: about 3.7x at 5 regions, 5.5x at\n10, 6.7x at 15, the full 7.4x on the whole map. Give a number instead to pick the cap yourself;\nthe yaml builder shows what either choice resolves to as you move the slider.\n\n⚠️ The `auto` curve has ONE playtested point -- about 3.7x at 5 regions, where the ladder used to\ntop out. Above that it is extrapolation, so treat the high end as untested. (Recalibrated\n2026-09-06: the first curve sat one to two rungs higher everywhere below a full map.)\n\nMust be at least Minimum Enemy Difficulty; generation refuses the inverted pair rather than\nquietly picking one.\n\n⚠️ Needs a client that understands it. A seed setting this below 100 tells the client so at\nconnect, and an older client refuses with a message rather than ignoring the cap.",
+   "description": "How hard the TOUGHEST enemies get.\n\n  auto  base-game top (about 3.7x), or higher with the blessing  (default)\n   100  no cap -- the deepest region hits the game's maximum, about 7.4x enemy HP\n    75  nothing above about 5.5x enemy HP\n    50  nothing above about 4x\n    47  the base game's own top -- vanilla Haligtree\n    25  nothing above about 2x\n\n`auto` caps the run at the strongest thing the BASE GAME ever asks of you: about 3.7x enemy HP,\nvanilla Haligtree. Every rung above that is the DLC's own enemy ladder, tuned for a player who\nis also carrying a Scadutree Blessing, so `auto` only climbs into those rungs when the blessing\napplies everywhere (`scadutree_blessing_scope: anywhere`, the default) AND the DLC is on so its\nfragments can enter the pool. Then the cap grows with the length of the run -- about 3.7x at 5\nregions, 5.5x at 10, 6.7x at 15, the full 7.4x on the whole map -- and the seed injects the\nfragments that pay for it. Give a number instead to pick the cap yourself; the yaml builder\nshows what either choice resolves to as you move the slider.\n\n⚠️ Above 3.7x the curve is extrapolation over rungs nobody has playtested at length. A\n13-region default run with the DLC on met Caelid at close to Haligtree strength (2026-09-06),\nwhich is what put the base-game gate here.\n\nMust be at least Minimum Enemy Difficulty; generation refuses the inverted pair rather than\nquietly picking one.\n\n⚠️ Needs a client that understands it. A seed setting this below 100 tells the client so at\nconnect, and an older client refuses with a message rather than ignoring the cap.",
    "kind": "range",
    "base": "NamedRange",
    "default": -1,
@@ -5442,15 +5442,18 @@ const ERW = (() => {
     // docstring: dlc_only "does nothing in Limgrave, exactly as FromSoft shipped it" -- so base-game
     // regions deep in the order meet DLC-strength enemies with no blessing to answer them.
     // scalingPreview resolves `auto` the way features/scaling.resolved_max_difficulty does.
-    if (has("scadutree_blessing_scope") && v("scadutree_blessing_scope") === "dlc_only" &&
-        has("maximum_enemy_difficulty")){
+    // `auto` can no longer get here (scalingPreview holds it at the base-game top without the
+    // blessing everywhere); an EXPLICIT percent above 47 still can, and that is the player's
+    // choice to be told about, not overridden.
+    if (has("maximum_enemy_difficulty")){
       const sp = scalingPreview(meta, state);
-      if (sp && !sp.off && sp.dlcRungs)
-        warn("scadutree_blessing_scope", "Your enemy cap resolves to " + sp.mult.toFixed(2) +
-             "x HP" + (sp.auto ? " (auto, " + sp.draw + " regions)" : "") + ", which is DLC-strength " +
-             "scaling, but the Scadutree Blessing stays DLC-only \u2014 base-game regions deep in " +
-             "your order get DLC enemies with no blessing to answer them. Set the scope to " +
-             "`anywhere`, or cap maximum_enemy_difficulty at 47 or lower (about 3.7x).");
+      if (sp && !sp.off && sp.dlcRungs && !sp.blessed)
+        warn("maximum_enemy_difficulty", "Your enemy cap of " + sp.pct + "% resolves to " +
+             sp.mult.toFixed(2) + "x HP, which is DLC-strength scaling, but the Scadutree Blessing " +
+             "is not in play everywhere (it needs scadutree_blessing_scope: anywhere AND the DLC on, " +
+             "so its fragments can enter the pool) \u2014 base-game regions deep in your order get " +
+             "DLC enemies with no blessing to answer them. Use 47 or lower (about 3.7x), or leave it " +
+             "on auto.");
     }
 
     // region_spine.compute_kept: N is a DRAW SIZE. The Seed size panel shows the resulting spread,
@@ -5735,12 +5738,31 @@ const ERW = (() => {
   // Rungs from here up are the DLC's own re-emission of the ladder (SpEffect 7110..7200): every
   // multiplier above the base game's 3.703x top. See scaling_ladder.py "EXTENDED 2026-07-27".
   const DLC_RUNG_START = SCALING_HP_LADDER.indexOf(3.703) + 1;
-  function autoCeilingPct(numRegions, totalRegions){
+  // scaling_ladder.BASE_GAME_CEILING_PCT: the largest percent still resolving to 3.703x.
+  const BASE_GAME_CEILING_PCT = 47;
+  function autoCeilingCurvePct(numRegions, totalRegions){
     const total = totalRegions | 0;
     if (total <= 0) return 100;
     let n = numRegions | 0;
     n = n <= 0 ? total : Math.min(n, total);          // 0 == all regions
     return Math.floor(100 * Math.pow(n / total, AUTO_CEILING_EXPONENT) + 0.5);
+  }
+  // scaling_ladder.auto_ceiling_pct: the base-game top unless the blessing applies everywhere
+  // and its fragments can enter the pool, then the run-length curve, never below that top.
+  function autoCeilingPct(numRegions, totalRegions, blessingEverywhere){
+    if (!blessingEverywhere) return BASE_GAME_CEILING_PCT;
+    return Math.max(BASE_GAME_CEILING_PCT, autoCeilingCurvePct(numRegions, totalRegions));
+  }
+  /* features/scaling.blessing_everywhere: scope `anywhere` (or the deprecated
+     global_scadutree_blessing saying player_only/scaled) AND the DLC on, because the Scadutree
+     Fragment is a DLC item and is pool-excluded without it. Absent options mean their defaults. */
+  function blessingEverywhere(meta, state){
+    const v = k => getVal(meta, state, k);
+    const has = k => !!meta.byKey[k];
+    let scopeAnywhere = has("scadutree_blessing_scope") ? v("scadutree_blessing_scope") === "anywhere" : true;
+    if (has("global_scadutree_blessing") && v("global_scadutree_blessing") !== "off") scopeAnywhere = true;
+    const dlcOn = (has("enable_dlc") ? !!v("enable_dlc") : true) || (has("dlc_only") && !!v("dlc_only"));
+    return scopeAnywhere && dlcOn;
   }
   function ceilingRung(pct){
     pct = Math.max(0, Math.min(100, pct | 0));
@@ -5770,9 +5792,10 @@ const ERW = (() => {
     const auto = raw === maxO.default && raw < (maxO.range ? maxO.range.start : 0);
     const draw = nrO ? (v("num_regions") | 0) : 0;
     const total = nrO && nrO.range ? nrO.range.end : 0;
-    const pct = auto ? Math.max(floorPct, autoCeilingPct(draw, total)) : raw;
+    const blessed = blessingEverywhere(meta, state);
+    const pct = auto ? Math.max(floorPct, autoCeilingPct(draw, total, blessed)) : raw;
     const rung = ceilingRung(pct);
-    return { auto, pct, rung, mult: SCALING_HP_LADDER[rung], dlcRungs: rung >= DLC_RUNG_START,
+    return { auto, blessed, pct, rung, mult: SCALING_HP_LADDER[rung], dlcRungs: rung >= DLC_RUNG_START,
              floorPct, floorMult: floorPct ? SCALING_HP_LADDER[floorRung(floorPct)] : 0,
              draw: draw <= 0 ? total : Math.min(draw, total), total };
   }
@@ -5780,8 +5803,9 @@ const ERW = (() => {
   return { loadMeta, newState, applyPreset, getVal, setVal, isDefault, deviations,
            buildYaml, findings, pretty, sanitizeName, seedSize, surfaceCoverage,
            surfaceTree, surfaceMarginals, isPlainObject, fmtDefault, AP_CORE,
-           SCALING_HP_LADDER, AUTO_CEILING_EXPONENT, DLC_RUNG_START, autoCeilingPct, ceilingRung,
-           floorRung, scalingPreview };
+           SCALING_HP_LADDER, AUTO_CEILING_EXPONENT, BASE_GAME_CEILING_PCT, DLC_RUNG_START,
+           autoCeilingCurvePct, autoCeilingPct, blessingEverywhere, ceilingRung, floorRung,
+           scalingPreview };
 })();
 if (typeof module !== "undefined") module.exports = ERW;
 </script>
@@ -7194,10 +7218,13 @@ if (typeof module !== "undefined") module.exports = ERW;
     const top = ERW.SCALING_HP_LADDER.length - 1;
     let t = "Cap resolves to about " + sp.mult.toFixed(2) + "x enemy HP (rung " + sp.rung + " of " +
             top + ")";
-    t += sp.auto ? " \u2014 auto, from a " + sp.draw + "-region draw of " + sp.total + "."
-                 : " \u2014 from " + sp.pct + "%.";
+    if (!sp.auto) t += " \u2014 from " + sp.pct + "%.";
+    else if (sp.blessed) t += " \u2014 auto, from a " + sp.draw + "-region draw of " + sp.total +
+                              " with the Scadutree Blessing everywhere; fragments are added to pay for it.";
+    else t += " \u2014 auto, held at the base game's top (vanilla Haligtree) because the Scadutree " +
+              "Blessing is not in play everywhere.";
     if (sp.floorMult) t += " Floor " + sp.floorMult.toFixed(2) + "x.";
-    if (sp.dlcRungs) t += " That is DLC-strength scaling.";
+    if (sp.dlcRungs) t += " Above 3.70x is DLC-strength scaling.";
     return t;
   }
   function paintScalingReadouts(){
