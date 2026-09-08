@@ -99,11 +99,18 @@ WHAT IT ASSERTS, and none of it is "it generated". Every item runs ONCE PER PART
      partner declared in `early_items`; a copy we lock onto a deep Elden Ring check is one AP's
      sphere-1 pass never sees. Measured: an APQuest Key declared early landed locked on a Liurnia
      check from a Stormveil start with 262 sphere-1 locations open. Reported at the table as a
-     Dragon Quest IX key behind a 10-of-15 Astel. DOOM declares an early weapon (Shotgun or
-     Chaingun) when ONLY episode 3 is enabled, so the shape below runs DOOM that way and asserts:
-     if either weapon lands on an Elden Ring check, that check is in the Roundtable hub or in that
-     slot's STARTING region (the `<Region> Lock` under "Starting Items" in the spoiler). Anywhere
-     else is a sphere-1 promise broken.
+     Dragon Quest IX key behind a 10-of-15 Astel. Heretic declares a FIXED early item -- "The
+     Docks (E1M1) - Yellow key", one copy -- when ONLY episode 1 is enabled, so the shape below
+     runs Heretic that way and asserts: if that key lands on an Elden Ring check, that check is in
+     the Roundtable hub or in that slot's STARTING region (the `<Region> Lock` under "Starting
+     Items" in the spoiler). Anywhere else is a sphere-1 promise broken.
+
+     🛑 THE NAME LIST MUST BE EXACTLY WHAT THE PARTNER DECLARED (#1485, 2026-09-08). This ran
+     against DOOM with BOTH of its candidate weapons listed, but doom_1993 declares only ONE of
+     them, drawn per seed -- so the guard judged an item AP had never been asked to place early and
+     went red on 3 of 6 main seeds with no defect behind any of them. A guard that fires on a
+     promise nobody made teaches the table to disbelieve it, which is worse than not having it.
+     See `_EARLY_PARTNER` for the measurements and the self-test case that pins the rule.
 
   🛑 WHAT USED TO BE HERE. Item 4 was "NO AP-ID COLLISION between the two ER slots -- each slot's
   ids are its own." The code behind it parsed `[f12345]` out of location NAMES -- those are EVENT
@@ -665,6 +672,12 @@ def check_early_items_stay_early(rows, starts, early, er_slots, report):
     must be in the hub or one of that slot's starting regions (`starts`), because those are the
     only Elden Ring locations reachable with nothing found yet. A named item elsewhere in ER is the
     reservation having taken it before the early pass could -- the 10-of-15 Astel report.
+
+    🛑 `early` MUST HOLD ONLY NAMES THE PARTNER ACTUALLY DECLARED, and only names whose pool holds
+    ONE copy. Every other advancement item of that partner -- including a second copy of a declared
+    one, and including the candidate a partner considered and did not pick -- is fill's to place
+    wherever it likes, deep Elden Ring regions included. Feeding this a candidate list instead of a
+    declaration list is what made #1485's red herring (see `_EARLY_PARTNER`).
     """
     bad = []
     seen = 0
@@ -947,7 +960,7 @@ def self_test():
         else:
             print("  ok    %-52s fails as designed" % name)
 
-    spoiler = ("Starting Items:\r\n\r\nHell Keep (E3M1) (Doomguy1)\r\nAltus Lock (ErdtreeOne)\r\n"
+    spoiler = ("Starting Items:\r\n\r\nThe Docks (E1M1) (Corvus1)\r\nAltus Lock (ErdtreeOne)\r\n"
                "Liurnia Lock (ErdtreeTwo)\r\n\r\nLocations:\r\n")
     starts = starting_regions(spoiler)
     if starts != {"ErdtreeOne": {"Altus"}, "ErdtreeTwo": {"Liurnia"}}:
@@ -955,19 +968,25 @@ def self_test():
     else:
         print("  ok    %-52s reads the Lock rows only" % "starting regions parse")
     er = {"ErdtreeOne", "ErdtreeTwo"}
-    early = {"Doomguy1": ("Shotgun", "Chaingun")}
+    key = _EARLY_ITEMS[0]
+    early = {"Corvus1": _EARLY_ITEMS}
     in_start = [("Liurnia :: Imbued Sword Key - near The Four Belfries [f1]", "ErdtreeTwo",
-                 "Chaingun", "Doomguy1")]
+                 key, "Corvus1")]
     in_hub = [("Roundtable Hold :: Talisman Pouch - from Twin Maiden Husks [f60500]", "ErdtreeOne",
-               "Shotgun", "Doomguy1")]
+               key, "Corvus1")]
     deep = [("Liurnia :: Ash of War: Carian Grandeur - near Manor Lower Level [f2]", "ErdtreeOne",
-             "Shotgun", "Doomguy1")]
-    abroad = [("Hell Keep (E3M1) - Shotgun", "Doomguy1", "Shotgun", "Doomguy1")]
+             key, "Corvus1")]
+    abroad = [("The Docks (E1M1) - Yellow key", "Corvus1", key, "Corvus1")]
+    # #1485's REGRESSION. An advancement item of the SAME partner that the partner never declared
+    # early is fill's to place anywhere; judging it is how this guard went red on a healthy seed.
+    undeclared_deep = [("Farum Azula :: Golden Seed - among pillars [f13007980]", "ErdtreeTwo",
+                        "Chaingun", "Corvus1")]
     early_cases = [
-        ("early weapon in that slot's starting region", in_start, None),
-        ("early weapon in the hub", in_hub, None),
-        ("early weapon kept in the partner's own world", abroad, None),
-        ("early weapon deep in another region (the Astel case)", deep, "not one of"),
+        ("declared early item in that slot's starting region", in_start, None),
+        ("declared early item in the hub", in_hub, None),
+        ("declared early item kept in the partner's own world", abroad, None),
+        ("declared early item deep in another region (the Astel case)", deep, "not one of"),
+        ("UNdeclared partner item deep in ER is not judged (#1485)", undeclared_deep, None),
     ]
     for name, rows_, want in early_cases:
         got = check_early_items_stay_early(rows_, starts, early, er, lambda _m: None)
@@ -1046,20 +1065,35 @@ def run_partner(ap_dir, partner, keep):
 
 # The partners for checks 5 and 6. Neither is in PARTNERS: The Wind Waker is here for its
 # stage_pre_fill (dungeon items confined in a hook that sorts AFTER ours), not for its size, and
-# DOOM is configured to ONE episode so that its world declares an early weapon -- a shape the
-# partner matrix must not carry, because it shrinks DOOM to ~30 locations and the matrix's size
-# bracket is the point of that list.
+# the early partner is configured to ONE episode so that its world declares an early item -- a
+# shape the partner matrix must not carry, because it shrinks that game to ~30 locations and the
+# matrix's size bracket is the point of that list.
 _PREFILL_PARTNER = _Partner("tww", "The Wind Waker", "Wind", """  progression_balancing: 0
   accessibility: minimal
 """)
-_EARLY_PARTNER = _Partner("doom_1993", "DOOM 1993", "Doomguy", """  progression_balancing: 0
+# 🛑 THE EARLY PARTNER WAS DOOM 1993 UNTIL 2026-09-08, AND THAT WAS A GUARD BUG (#1485).
+# doom_1993 declares `self.random.choice(["Shotgun", "Chaingun"])` -- ONE of the two, chosen per
+# seed, count 1 -- but `_EARLY_ITEMS` named BOTH, so check 6 judged a weapon AP had never been
+# asked to place early. The other weapon is an ordinary advancement item that AP's general fill may
+# legitimately put anywhere, deep Elden Ring regions included. Measured on the pinned seed: DOOM
+# declared Shotgun (which landed in Altus, a starting region -- correct) while the UNDECLARED
+# Chaingun landed in Farum Azula and failed the guard; instrumenting the reservation showed it took
+# neither weapon, and after our whole fill hook only the Shotgun was placed at all. Across 6 seeds
+# the guard fired on 3 of 6 on main and 4 of 6 on the #1485 tree with ZERO real breaches.
+# Heretic is the same engine family, ships with AP, and under episode 1 alone declares a FIXED,
+# uniquely-named, single-copy item -- so the name list below is exactly what was declared, on every
+# seed, and the guard can no longer accuse fill of a promise nobody made.
+_EARLY_PARTNER = _Partner("heretic", "Heretic", "Corvus", """  progression_balancing: 0
   accessibility: minimal
-  episode1: false
+  episode1: true
   episode2: false
-  episode3: true
+  episode3: false
   episode4: false
+  episode5: false
 """)
-_EARLY_ITEMS = ("Shotgun", "Chaingun")   # doom_1993 picks one of these at random; both are checked
+# Exactly what worlds/heretic declares in `early_items` for the option block above. One name, one
+# copy, no coin flip: anything else here re-opens #1485.
+_EARLY_ITEMS = ("The Docks (E1M1) - Yellow key",)
 
 
 def run_shape_cases(ap_dir, keep, only=None):
@@ -1124,11 +1158,11 @@ def run_shape_cases(ap_dir, keep, only=None):
                 text = spoiler.read([n for n in spoiler.namelist() if "Spoiler" in n][0]
                                     ).decode("utf-8", errors="replace")
                 er_slots = {i.name for i in si.values() if i.game == GAME}
-                doom_slots = {i.name for i in si.values() if i.game == _EARLY_PARTNER.game}
+                early_slots = {i.name for i in si.values() if i.game == _EARLY_PARTNER.game}
                 failures += ["[%s] %s" % (label, f) for f in
                              check_early_items_stay_early(
                                  rows, starting_regions(text),
-                                 {d: _EARLY_ITEMS for d in doom_slots}, er_slots,
+                                 {d: _EARLY_ITEMS for d in early_slots}, er_slots,
                                  lambda m: print("  " + m))]
             else:
                 failures += ["[%s] %s" % (label, f) for f in

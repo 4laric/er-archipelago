@@ -45,6 +45,23 @@ nothing in it touches Elden Ring.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The multiworld smoke's early-item guard judged an item no partner had declared early
+  (#1485).** Check 6 named BOTH of DOOM 1993's candidate early weapons, but `worlds/doom_1993`
+  declares `random.choice(["Shotgun", "Chaingun"])` — one of them, per seed, one copy. The other
+  weapon is ordinary advancement that AP's fill may put anywhere, so the guard went red on healthy
+  seeds: measured 3 of 6 seeds on `main` and 4 of 6 on #1485's tree, with ZERO real breaches in
+  any of them. On the pinned seed DOOM declared the Shotgun, AP's early pass put it in Altus (a
+  starting region — correct), and the UNDECLARED Chaingun landed in Farum Azula; instrumenting
+  `incoming_progression` showed our reservation took neither weapon, and after the whole
+  `stage_fill_hook` only the Shotgun was placed. #1485's Altus→Leyndell region move changed
+  nothing but the fill RNG. The early partner is now Heretic on episode 1 alone, which declares a
+  fixed, uniquely-named, single-copy item, so the guard's name list is exactly the declaration;
+  the self-test gains a case proving an UNdeclared partner item deep in Elden Ring is not judged.
+  **No world code changed and no seed moves** — this is tooling only, and #1456 stays closed.
+  🛑 Filed under v0.6.0.5 because the v0.6.0.6 window (#1491) had not merged when this landed; move
+  the bullet if it opens first.
+
+- **Elden Ring 2.7.1.0 is supported (clients #662, 4laric/fromsoftware-rs `tarnished-2710`).**
 - _(Written under `## v0.6.0.5` by #1489 after the v0.6.0.5 tag; moved here, because this is the
   version that ships it.)_ **Elden Ring 2.7.1.0 is supported (clients #662, 4laric/fromsoftware-rs `tarnished-2710`).**
   Steam build 25080141 (2026-09-08) moved the executable to 2.7.1.0 and the gate refused it, as
