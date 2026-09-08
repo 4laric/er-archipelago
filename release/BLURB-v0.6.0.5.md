@@ -8,42 +8,21 @@ only moment anyone remembers why it mattered._
 **Yes.** Versions are V.R.M.F and this is the 0.6.0 line: a v0.6.0.5 client plays every seed
 rolled by any 0.6.0-line apworld, your run included, and the contract hash has not moved since
 v0.6.0.3, so a v0.6.0.3 or v0.6.0.4 client also plays every v0.6.0.5 seed. Your save is not at
-risk either way. If Steam has updated your game to 2.7.1.0, you HAVE to update: older clients
-switch themselves off on that executable.
+risk either way. Nothing in this window yet asks you to update.
 
 ## What you need to update
 
-- **Client:** **Required on Elden Ring 2.7.1.0** (the 2026-09-08 Steam update); optional
-  otherwise — a v0.6.0.4 client keeps playing every 0.6.0-line seed on 2.6.2.x or 2.7.0.x, and
-  the contract hash has not moved since v0.6.0.3.
+- **Client:** Optional — nothing in this window yet changes the client; a v0.6.0.4 client keeps
+  playing every 0.6.0-line seed, and the contract hash has not moved since v0.6.0.3.
 - **APWorld:** Host-only — install v0.6.0.5 when generating a new room once it ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
-- **Profile/assets:** **Reinstall or replace** — use the MapForGoblins build and preset shipped
-  with this release: it carries a crash fix and new map defaults.
+- **Profile/assets:** No action — the MapForGoblins build and preset are unchanged from v0.6.0.4.
 
 ## What is in it so far
 
-**Elden Ring updated to 2.7.1.0 on September 8th, and this client follows it.** Older clients
-show the "unsupported game version" box and switch themselves off; your save is untouched
-either way. The new addresses come from the same generator upstream uses, run against the real
-executable, and the patch itself changed nothing in the game's item tables -- so nothing about
-your seed moves. Players still on 2.6.2.x or 2.7.0.x keep working. What has NOT happened yet is
-a live run on 2.7.1.0; until one is logged, treat this as a build that should work rather than
-one that has.
-
-**The in-game map stops crashing and stops lagging.** A use-after-free on the map overlay
-thread, caught in a v0.6.0 player log, is fixed. Late-game map opens are faster because pins
-hidden by a setting or by collection are no longer built at all; the trade is that unhiding a
-marker takes effect on the next map open. Two defaults changed with it: **"In logic only" is
-now on**, so the map pins only checks your tracker says you can reach right now (turn it off
-under F10 for everything), and **the orange progression rings are gone** along with their size
-slider -- they buried the pins they were meant to lift.
-
-**Bookkeeping you will not feel:** the flag-to-lot table behind multi-copy checks was
-re-derived against the current param corpus and its datamine is now gated in CI, and the
-patch-day runbook grew a name-stripping tool so the next Elden Ring update is diffed in
-minutes instead of a morning.
+Nothing yet. This window was opened AT THE TAG of v0.6.0.4 with ZERO commits past it, so this file exists before its first entry does,
+which is the point of it.
 
 The Divine Tower of East Altus is Leyndell now. Two players, a month apart, said the same thing
 about it -- boblerrr on the Nexus page in August, Sinon this morning: the tower's loot was counted
