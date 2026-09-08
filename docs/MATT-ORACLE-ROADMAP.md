@@ -56,9 +56,19 @@ every step: read his checkout locally, commit only our own flags, names and reas
      `matt_oracle.py --report` class C, report-only: his `enemy*` family is 413 slots today, not
      393, and the flag join is 169 both / 5 ours-only / 244 his-only. **No AP locations were added**
      — whether flagged enemy drops become checks is still the product ruling this item flagged.
-   - Boss taxonomy (overworld / minidungeon / cave / catacomb / dragon / furnace golem) from our own
-     map data, histogram-checked against his tags.
-   - Reachability: use his 174-area graph only as a coverage counter. Author the logic ourselves.
+   - ~~Boss taxonomy (overworld / minidungeon / cave / catacomb / dragon / furnace golem) from our own
+     map data, histogram-checked against his tags.~~ **DONE**: `tools/gen_boss_taxonomy.py` ->
+     `tables/boss_taxonomy.py`, 245 bosses over 11 classes, printed as report class **D**.
+     Evergaols are EMEVD-derived (the arena-seal common-event family), not a hand-typed list.
+     ONE class is still open and is emitted empty on purpose: `furnace_golem`, because no boss
+     healthbar, no `NpcName` row and no MSB in the artifact bundle leaves nothing of ours to
+     enumerate. His `furnacegolem` tag carries 16 slots, so that is a real ~10-boss family we do
+     not model. Deriving it needs c4900 placements added to the artifact bundle.
+   - ~~Reachability: use his 174-area graph only as a coverage counter. Author the logic
+     ourselves.~~ **DONE (counter only)**: report class **E** prints `our graph reaches 30 regions
+     / 56 grace-warp groups; his reaches 174 areas`, his side computed at run time and never
+     committed. The counter is the whole of it — authoring finer logic of our own is still open,
+     and the ratio is what says how much finer it would have to get.
 
 ## Operating rules
 

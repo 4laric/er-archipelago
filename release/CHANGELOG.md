@@ -209,6 +209,38 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   `eventFlag_forStock` or `eventFlag_forRelease`. Closes items 1, 2 and 6 of
   `docs/MATT-ORACLE-ROADMAP.md`.
 
+- **Every boss we know now carries a CLASS, in a new generated table.** `boss_healthbars.py` has
+  always had a geography column, but it answers "which derivation found this boss", not "what kind
+  of fight is it": the whole DLC overworld was filed as `legacy`, five different mini-dungeon
+  families shared one bucket called `dungeon`, hero's graves were catacombs, and an evergaol looked
+  like any other field boss. So anything that wanted boss KIND re-derived it inline, differently
+  each time. `tools/gen_boss_taxonomy.py` (a new `tools/regen_all.py` step, after `gen_data.py`
+  because it reads `boss_sweeps`) derives it once into
+  `greenfield/eldenring/tables/boss_taxonomy.py`: 245 bosses across `remembrance_main` 40,
+  `overworld_field` 74, `legacy_dungeon` 34, `cave` 33, `catacomb` 24, `dragon` 15, `evergaol` 10,
+  `tunnel` 8, `heros_grave` 4, `gaol` 3. Evergaols are **derived, not listed** — the EMEVD family
+  that seals an evergaol arena (`90005880`–`90005885`) takes the boss's defeat flag as its first
+  argument, so the roster comes out of our own decompiled events instead of a hand-typed list of
+  twelve names that goes stale on a patch. `furnace_golem` is emitted **empty and explained**:
+  furnace golems display no boss healthbar, appear in no `NpcName` FMG, and the artifact bundle
+  carries no MSB, so there is no our-data roster to derive today, and `test_gf_boss_taxonomy.py`
+  fails the day someone derives one without dropping the gap note. **Nothing player-visible moves**
+  — no location, no logic, no tag, no contract-hash change; the table has exactly one consumer so
+  far, the report below.
+
+- **`tools/matt_oracle.py --report` gained two more count-only comparisons.** *D. BOSS TAXONOMY* prints
+  our per-class boss histogram beside the number of his slots carrying the equivalent tag name, and
+  says in the report itself that the two count different things (bosses vs item slots) so nobody
+  reads it as an equality gate; it is looking for a whole family missing on one side, which is how
+  the `furnace_golem` gap surfaces as a 16-slot shortfall. *E. REACHABILITY COVERAGE* prints one
+  line — `our graph reaches 30 regions / 56 grace-warp groups; his reaches 174 areas` — where our
+  two numbers come from `region_groups.REGION_GROUPS` and `region_graces.REGION_GRACE_LANDMARKS`
+  and his is `len(Areas)` computed from his checkout at run time. Both are **report-only and gate
+  nothing**, and the licence boundary is unchanged: his tag NAMES act as filter vocabulary exactly
+  as `EXCLUDED_TAGS` already did, and the area count is an integer — no `Req` expression, area name
+  or row of his is read, adapted, printed or committed. Closes the second and third bullets of
+  `docs/MATT-ORACLE-ROADMAP.md` item 7.
+
 
 ## v0.6.0.5 — 2026-09-07
 
