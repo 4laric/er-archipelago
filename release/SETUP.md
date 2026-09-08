@@ -159,9 +159,10 @@ the fresh release preset, which hides gathering nodes and keeps crafting-materia
 
 Connect to your seed and open the map. Check sharing and pin coloring start automatically;
 there is no F6 activation step. With the fresh preset, the map shows pins matched to your
-seed and yellow rings for known hints. Orange rings around progression targets are off by
-default: on most seeds the progression surface is a large share of the map, and the rings
-buried the pins they were meant to lift. Turn them on under F10 if you want them.
+seed and yellow rings for known hints. Only checks whose tracker region is currently
+reachable are pinned by default; turn **In logic only** off under F10 to see every matched
+check. The orange progression rings are gone from this build: on most seeds the progression
+surface is a large share of the map, and the rings buried the pins they were meant to lift.
 
 Press **F10 → Archipelago** to customize the map:
 
@@ -169,9 +170,7 @@ Press **F10 → Archipelago** to customize the map:
 | --- | --- | --- |
 | Checks only | On | Hide pins without a match in your connected seed. |
 | Progression only | Off | Show progression targets, including granting bosses instead of sweep pickups. |
-| In logic only | Off | Show checks whose tracker region is accessible. |
-| Progression rings | Off | Draw orange rings around progression targets. Hint rings stay on regardless. |
-| Progression highlight size | 1.5× | Adjust the orange ring size from 1× to 3× (with progression rings on). |
+| In logic only | On | Show only checks whose tracker region is accessible. |
 
 Progression-only and in-logic-only can be combined. In-logic does not evaluate additional
 quest, key or puzzle requirements. Unmatched pins can still represent real checks; use
@@ -181,8 +180,11 @@ Following map pins and player-review tools remain optional and off by default in
 Map progression highlights and progression-only filtering exclude pickups granted by an
 enabled boss sweep and highlight the granting boss instead. F6 stars and F5 `[P]` retain
 the original seed-surface meaning, so a sweep-member pickup can still have a tracker star.
-The default highlight size is 1.5x. Press F10 for MapForGoblins settings; the client no
-longer runs its stamina diagnostic on that key.
+Press F10 for MapForGoblins settings; the client no longer runs its stamina diagnostic on
+that key. Pins hidden by a setting, by collection or by a filter are now pruned when the map
+is built rather than hidden per frame, which is what makes a late-game map open quickly;
+the cost is that turning a category back on or unhiding a marker takes effect on the next
+map open.
 
 F6 → **Map integration** contains session opt-outs for sharing and coloring. To stop
 sharing completely, turn off both and leave following off. These switches reset to their
