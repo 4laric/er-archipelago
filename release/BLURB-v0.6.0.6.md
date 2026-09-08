@@ -41,6 +41,17 @@ now on**, so the map pins only checks your tracker says you can reach right now 
 under F10 for everything), and **the orange progression rings are gone** along with their size
 slider -- they buried the pins they were meant to lift.
 
+**The Divine Tower of East Altus is Leyndell now.** Two players, a month apart, said the same
+thing about it -- boblerrr on the Nexus page in August, Sinon on the 7th: the tower's loot was
+counted as Altus, and the tower is not Altus. You reach its gate one way, over the greatbridge out
+of Leyndell's eastern ward that opens after Morgott, so an Altus-only seed was steering people at
+seven checks they could not walk to while a Leyndell seed walked them past all seven. The checks,
+the Fell Twins' sweep and the tower's own kick geometry all moved together, which is the part that
+matters: the region lock now ejects the player who has no business up there and lets in the one who
+does. Its two graces stay out of every warp bundle -- owning Leyndell buys you the walk, not a
+shortcut past Morgott. Altus loses seven checks and Leyndell gains them, so seeds roll differently;
+nothing about the client, the contract or a save in progress changes.
+
 **Bookkeeping you will not feel:** the flag-to-lot table behind multi-copy checks was
 re-derived against the current param corpus and its datamine is now gated in CI, and the
 patch-day runbook grew a name-stripping tool so the next Elden Ring update is diffed in

@@ -87,6 +87,26 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   world's preset table follows the fork (`tools/package_mfg.py`), `SETUP.md` describes the new
   defaults, and `tools/mfg_pin.py --check` is green again. #11 is fork-side CI only.
 
+- **The Divine Tower of East Altus is Leyndell, not Altus.** Its seven checks (the six ground
+  pickups around the gate plus Omenkiller Rollo, the Fell Twins' drop) were filed under Altus, and
+  so were the Fell Twins' sweep and the tower's runtime kick/scaling bucket. In game the tower gate
+  is reached only from Leyndell's eastern ward, over the greatbridge past the Erdtree Sanctuary that
+  opens after Morgott — an Altus-only player cannot reach any of them, while a Leyndell player walks
+  past all of them. Reported independently by **boblerrr** (2026-08-03, #324) and **Sinon**
+  (2026-09-07); the SoulsRandomizers logic graph agrees. The checks, the sweep, and play-region
+  bucket `34140` all move to Leyndell, so the kick-watch now ejects an Altus-only lock holder at the
+  tower and admits a Leyndell one. The two tower graces stay out of every lock's warp bundle: the
+  region move fixes who can reach the ground, not who may skip Morgott to warp onto it. The
+  stop-gap that used to bolt a Leyndell requirement onto Altus-filed checks is retired with it, and
+  Rold Medallion keeps Morgott as its only sweep granter. **Contract hash does not move** — it stays
+  `613fb438` and no wire field changes, so a v0.6.0.3 client pairs with this apworld as before.
+  **Seeds do change**: Altus loses 7 checks and Leyndell gains them, which moves both regions'
+  check counts, the fill, and the difficulty ramp for the tower's ground. The gitlink moves to
+  **clients #661**, which regenerates the client's baked `region_locks.rs` with the same move; that
+  table is only consulted for seeds shipping neither `regionOpenFlags` nor `areaLockFlags` (a
+  foreign apworld's), since slot data wins whenever it is present — so an Elden Ring player's
+  behaviour here comes from this apworld, not from the client bump.
+
 
 ## v0.6.0.5 — 2026-09-07
 
@@ -134,26 +154,6 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   `_lot_units` returns `(1, False)` for a no-match and only tallies genuine ambiguity — and which
   side is wrong (our curated names, or a game-version difference in the corpus) is left OPEN
   alongside the oracle finding rather than guessed at here.
-
-- **The Divine Tower of East Altus is Leyndell, not Altus.** Its seven checks (the six ground
-  pickups around the gate plus Omenkiller Rollo, the Fell Twins' drop) were filed under Altus, and
-  so were the Fell Twins' sweep and the tower's runtime kick/scaling bucket. In game the tower gate
-  is reached only from Leyndell's eastern ward, over the greatbridge past the Erdtree Sanctuary that
-  opens after Morgott — an Altus-only player cannot reach any of them, while a Leyndell player walks
-  past all of them. Reported independently by **boblerrr** (2026-08-03, #324) and **Sinon**
-  (2026-09-07); the SoulsRandomizers logic graph agrees. The checks, the sweep, and play-region
-  bucket `34140` all move to Leyndell, so the kick-watch now ejects an Altus-only lock holder at the
-  tower and admits a Leyndell one. The two tower graces stay out of every lock's warp bundle: the
-  region move fixes who can reach the ground, not who may skip Morgott to warp onto it. The
-  stop-gap that used to bolt a Leyndell requirement onto Altus-filed checks is retired with it, and
-  Rold Medallion keeps Morgott as its only sweep granter. **Contract hash does not move** — it stays
-  `613fb438` and no wire field changes, so a v0.6.0.3 client pairs with this apworld as before.
-  **Seeds do change**: Altus loses 7 checks and Leyndell gains them, which moves both regions'
-  check counts, the fill, and the difficulty ramp for the tower's ground. The gitlink moves to
-  **clients #661**, which regenerates the client's baked `region_locks.rs` with the same move; that
-  table is only consulted for seeds shipping neither `regionOpenFlags` nor `areaLockFlags` (a
-  foreign apworld's), since slot data wins whenever it is present — so an Elden Ring player's
-  behaviour here comes from this apworld, not from the client bump.
 
 ## v0.6.0.4 — 2026-09-07
 
