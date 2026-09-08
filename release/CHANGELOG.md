@@ -71,10 +71,6 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   `_lot_units` returns `(1, False)` for a no-match and only tallies genuine ambiguity — and which
   side is wrong (our curated names, or a game-version difference in the corpus) is left OPEN
   alongside the oracle finding rather than guessed at here.
-- **`tools/datamine_achievement_bosses.py` reads the generated boss tables again.** Its `_load`
-  looked under `greenfield/eldenring/` for `boss_healthbars.py` and `boss_reward_lots.py`, which
-  moved to `greenfield/eldenring/tables/` — and the loader returns `None` on a miss, so the datamine
-  had been quietly running without them instead of failing. Found by running the full regen.
 
 ## v0.6.0.3 — 2026-09-07
 

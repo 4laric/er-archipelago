@@ -97,7 +97,7 @@ def validate_census(rows):
 
 
 def _load(relpath, modname):
-    p = os.path.join(REPO, "greenfield", "eldenring", "tables", relpath)
+    p = os.path.join(REPO, "greenfield", "eldenring", relpath)
     if not os.path.isfile(p):
         return None
     spec = importlib.util.spec_from_file_location(modname, p)
