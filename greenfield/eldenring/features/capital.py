@@ -130,7 +130,11 @@ def capital_partition(play_ids=None):
     # list, so the client's latch ignores sewer ground instead of mis-flipping 9116 from a well.
     # Named explicitly (not "whatever is left over") so the hard-fail below still catches a future
     # regen adding a bucket nobody has ruled on.
-    neutral = sorted(b for b in ids if b // 1000 == 35)
+    # 34140 (m34_14, the Divine Tower of East Altus) joined Leyndell 2026-09-07 (#324) and is
+    # NEUTRAL for the same reason as m35: it is its own map, untouched by the 9116 map-version
+    # flag (which governs m11 only), so it exists identically in the royal and the ashen capital
+    # and standing in the tower says nothing about which one the player is in.
+    neutral = sorted(b for b in ids if b // 1000 in (34, 35))
     leftover = sorted(set(ids) - set(royal) - set(ashen) - set(neutral))
     if leftover or not royal or not ashen:
         raise contract.ContractError(

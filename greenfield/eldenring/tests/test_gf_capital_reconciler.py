@@ -45,14 +45,19 @@ class TestCapitalPartition:
         # 2026-08-20: the union gained 35000 (the Sewer merge) and the partition deliberately
         # claims it for NEITHER side -- m35 is capital-version-neutral ground, so the reconciler
         # must ignore it (standing in the sewer says nothing about which capital is loaded).
-        assert set(royal) | set(ashen) | {35000} == set(REGION_PLAY_IDS["Leyndell"]) | set(
+        # 2026-09-07 (#324): the union gained 34140, the Divine Tower of East Altus, and it is
+        # NEUTRAL for the same reason -- m34_14 is its own map, untouched by the 9116 map-version
+        # flag, so it exists identically in both capitals.
+        assert set(royal) | set(ashen) | {34140, 35000} == set(REGION_PLAY_IDS["Leyndell"]) | set(
             REGION_PLAY_IDS[FINALE_REGION])
-        assert 35000 not in set(royal) | set(ashen), (
-            "35000 must stay NEUTRAL: classifying sewer ground as Royal or Ashen lets a well "
-            "walk rewrite the capital's map-version flags")
-        # Leyndell's list minus the NEUTRAL sewer bucket (2026-08-20 merge): the region KICKS on
-        # 35000 but the reconciler must never read it as Royal ground.
-        assert set(royal) == set(REGION_PLAY_IDS["Leyndell"]) - {35000}
+        assert not ({34140, 35000} & (set(royal) | set(ashen))), (
+            "35000 and 34140 must stay NEUTRAL: classifying sewer ground or the East Altus tower "
+            "as Royal or Ashen lets a well walk, or a trip up the tower, rewrite the capital's "
+            "map-version flags")
+        # Leyndell's list minus the NEUTRAL buckets (35000 the 2026-08-20 Sewer merge, 34140 the
+        # 2026-09-07 tower move): the region KICKS on both but the reconciler must never read
+        # either as Royal ground.
+        assert set(royal) == set(REGION_PLAY_IDS["Leyndell"]) - {34140, 35000}
         assert set(ashen) == set(REGION_PLAY_IDS[FINALE_REGION])
 
     def test_unclaimed_bucket_fails_generation(self):

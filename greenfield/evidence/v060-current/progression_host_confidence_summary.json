@@ -22,7 +22,7 @@
     "eldenpedia-guide-check-leads.tsv": "4b66fe4a623a0ec8da7266c5c2a4c3bc857d41f7e8268ecd7ce23bbcc0a6f57d",
     "eldenpedia-invasion-reward-check-leads.tsv": "390096cf0cf9cf20800c2f036d1a02c26647c479e58f295e1ce5ce4d3b4b06aa",
     "eldenpedia-item-acquisition-check-leads.tsv": "720f555559cf644c92842867f45c5bc7a8740420f5d25daec2c555a479c56072",
-    "eldenpedia-location-check-leads.tsv": "6672bc755e4fe67b77eac98ec2263d640cb7c153b0e3681f509ab473926e719b",
+    "eldenpedia-location-check-leads.tsv": "6449e0dae222683774df0a2df065845f5990981c6bd89cfb9a2d4470f6b1be45",
     "eldenpedia-m12-deeproot-armor-check-leads.tsv": "831da1cff7ef7791c12d624a6883ba7e6d66c9c703ee6f04e96318373d39a5cb",
     "eldenpedia-m12-siofra-check-leads.tsv": "cca79d7f28fe65fa2ba77c7099302749066c6d2df61af929bc755c512656df29",
     "eldenpedia-m12-siofra-tail-check-leads.tsv": "c8eea27855ffe279de6e8feeec4003359f64cf31cbcb8756a57e4eda1bb441c7",
@@ -55,7 +55,7 @@
     "redmaw-location-anchor-check-leads.tsv": "b032388991699263a48df86f8df578db5c738732cd4673d8a53f4de18b3566fb",
     "redmaw-merchant-check-leads.tsv": "113697a9ea9da83f42e961f76d62767960b47199f8f921217efd2e24e1b44133",
     "small-guide-tail-corroboration-check-leads.tsv": "84e642bc3a8b4df80efd68aa7a70b562cea03f3aafafab681bbb6cbfdd9f085e",
-    "walkthrough-check-leads.tsv": "0f5e4e34bff25f6d6f1b73b081e03cd6e0d6fb6e943be1c9af9fe0c2f8d379f3",
+    "walkthrough-check-leads.tsv": "4647ffb76b3e219a36250d6b287145eb92f39eec6ac91f8051c6045bcd4480eb",
     "walkthrough-reviewed-landmark-check-leads.tsv": "3625486cbcfa248294e0242d6dbcf4f81c7ceb5ed402c045df84eb3a77a9c4b9"
   },
   "minimum_trusted_external_families": 2,
