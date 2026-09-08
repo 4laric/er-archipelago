@@ -228,11 +228,11 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   — no location, no logic, no tag, no contract-hash change; the table has exactly one consumer so
   far, the report below.
 
-- **`tools/matt_oracle.py --report` gained two count-only comparisons.** *C. BOSS TAXONOMY* prints
+- **`tools/matt_oracle.py --report` gained two more count-only comparisons.** *D. BOSS TAXONOMY* prints
   our per-class boss histogram beside the number of his slots carrying the equivalent tag name, and
   says in the report itself that the two count different things (bosses vs item slots) so nobody
   reads it as an equality gate; it is looking for a whole family missing on one side, which is how
-  the `furnace_golem` gap surfaces as a 16-slot shortfall. *D. REACHABILITY COVERAGE* prints one
+  the `furnace_golem` gap surfaces as a 16-slot shortfall. *E. REACHABILITY COVERAGE* prints one
   line — `our graph reaches 30 regions / 56 grace-warp groups; his reaches 174 areas` — where our
   two numbers come from `region_groups.REGION_GROUPS` and `region_graces.REGION_GRACE_LANDMARKS`
   and his is `len(Areas)` computed from his checkout at run time. Both are **report-only and gate
