@@ -150,6 +150,14 @@ STEPS = [
          ["--verify", "greenfield/eldenring/_gen_stamp.json"],
          why="prove the stamp on disk equals a fresh manifest -- catches the 'edited a source file "
              "AFTER regenerating' trap, which cost six CI rounds on world PR #481."),
+    Step(MODULES, "tools/gen_boss_taxonomy.py",
+         emits=["greenfield/eldenring/tables/boss_taxonomy.py"],
+         why="one CLASS per boss (overworld field / evergaol / cave / catacomb / hero's grave / "
+             "tunnel / gaol / legacy / dragon / remembrance), derived from our map tiles, our "
+             "major-boss roster and our decompiled EMEVD. AFTER gen_data, never before: its "
+             "inputs are boss_sweeps.MAJOR_SWEEP_TRIGGERS and SWEEP_ARENA_REGION, which gen_data "
+             "writes. It is NOT a gen_data input and carries no stamp, so nothing below re-stales "
+             "because of it. Report-only today (tools/matt_oracle.py --report)."),
 
     Step(TABLES, "tools/build_v060_current_evidence.py",
          emits=["greenfield/evidence/v060-current/claims.tsv",

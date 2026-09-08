@@ -50,9 +50,19 @@ every step: read his checkout locally, commit only our own flags, names and reas
 7. **Derive new tables, validate against him.**
    - `enemy_drops` from NpcParam / ItemLotParam_enemy, count-checked against his 393 `enemy` slots
      (`docs/history/TODO-baker-era.md:394`).
-   - Boss taxonomy (overworld / minidungeon / cave / catacomb / dragon / furnace golem) from our own
-     map data, histogram-checked against his tags.
-   - Reachability: use his 174-area graph only as a coverage counter. Author the logic ourselves.
+   - ~~Boss taxonomy (overworld / minidungeon / cave / catacomb / dragon / furnace golem) from our own
+     map data, histogram-checked against his tags.~~ **DONE**: `tools/gen_boss_taxonomy.py` ->
+     `tables/boss_taxonomy.py`, 245 bosses over 11 classes, printed as report class **C**.
+     Evergaols are EMEVD-derived (the arena-seal common-event family), not a hand-typed list.
+     ONE class is still open and is emitted empty on purpose: `furnace_golem`, because no boss
+     healthbar, no `NpcName` row and no MSB in the artifact bundle leaves nothing of ours to
+     enumerate. His `furnacegolem` tag carries 16 slots, so that is a real ~10-boss family we do
+     not model. Deriving it needs c4900 placements added to the artifact bundle.
+   - ~~Reachability: use his 174-area graph only as a coverage counter. Author the logic
+     ourselves.~~ **DONE (counter only)**: report class **D** prints `our graph reaches 30 regions
+     / 56 grace-warp groups; his reaches 174 areas`, his side computed at run time and never
+     committed. The counter is the whole of it — authoring finer logic of our own is still open,
+     and the ratio is what says how much finer it would have to get.
 
 ## Operating rules
 
