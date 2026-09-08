@@ -8,7 +8,7 @@ evidence about the GAME, and it is the only second opinion our generated tables 
 six discrepancy classes surveyed in the 2026-09 oracle study are tight enough to gate on:
 
   A. ITEM IDENTITY -- `item_ids.LOCATION_ITEM[ap_id]` vs the vanilla item his DebugText records for
-     the same flag. 97.4% agreement over ~4100 comparable rows. Wrong vanilla item is the highest
+     the same flag. 99.8% agreement over ~4100 comparable rows. Wrong vanilla item is the highest
      blast radius defect we have: it feeds item tier, which feeds logic.
   B. MISSING SLOTS -- his Type-0 (Event-scope) flags that `data.LOCATIONS` has no row for at all.
 
@@ -60,30 +60,9 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # ---------------------------------------------------------------------------
 # --- CLASS SETS. Every flag below resolves to exactly one reason string via the merges at the end
 # of this block. The bulk classes are grouped rather than repeated line-by-line because their reason
-# IS the class: 99 copies of the same sentence is not 99 pieces of evidence.
-
-_A_OPEN_DLC_MATERIAL = frozenset({    # 99 flags
-    20007060, 20007110, 20007210, 20007250, 20007530,
-    20007710, 20017040, 20017490, 20017650, 21007010,
-    21007060, 21007100, 21007180, 21007550, 21007580,
-    21007590, 21007620, 21017090, 21017400, 21017420,
-    21017640, 21017760, 21027200, 21027230, 21027260,
-    22007160, 22007170, 22007240, 40007000, 40007050,
-    40007080, 40007100, 40017010, 40017030, 40017040,
-    40017060, 40017100, 40027000, 40027010, 40027100,
-    40027210, 41007260, 41017110, 42007100, 42007110,
-    42007130, 42007160, 42007170, 42027020, 42027070,
-    42037130, 42037170, 43017000, 43017040, 2044417000,
-    2044467060, 2044477000, 2044477050, 2045417030, 2045417040,
-    2045427000, 2045457010, 2046387050, 2046397000, 2046407050,
-    2046457060, 2046457070, 2046477070, 2047427000, 2047427030,
-    2047427040, 2047437020, 2047447020, 2047447070, 2047447080,
-    2047447100, 2047447130, 2047457010, 2047457020, 2047457180,
-    2047457920, 2048397040, 2048417030, 2048447050, 2048447070,
-    2048467030, 2048467060, 2049387060, 2049427010, 2049437330,
-    2049437500, 2049437520, 2049437600, 2049447070, 2050447000,
-    2050477010, 2051417000, 2051447020, 2052407010,
-})
+# IS the class: 45 copies of the same sentence is not 45 pieces of evidence. Class A no longer has
+# one: `_A_OPEN_DLC_MATERIAL`'s 99 DLC upgrade-material rows were the stale `region_map.csv`
+# `item_name` capture, not a datamine question, and gen_data's lot-reconcile pass closed all 99.
 
 _B_SCOPE_MAP_FRAGMENT = frozenset({    # 24 flags
     62010, 62011, 62012, 62020, 62021, 62022,
@@ -117,26 +96,26 @@ ITEM_IDENTITY_KNOWN = {
     # Remembrance and the Great Rune of the Unborn onto 197. Same pickup, different filing.
     197: "KEYING: his 177/197 split -- we carry both Rennala awards on flag 197",
 
-    # --- OPEN (4). Our LOCATION_ITEM names an armour piece / sorcery where he names a completely
-    # different item on the same flag. No modelling difference explains these; they look like OUR
-    # rows being wrong. Allowlisted so the gate is green and the debt is VISIBLE, not silent.
-    400282: "OPEN: we say All-Knowing Helm, he says an incantation -- our row is likely wrong",
-    400283: "OPEN: we say All-Knowing Armor, he says an incantation -- our row is likely wrong",
-    400285: "OPEN: we say All-Knowing Greaves, he says an incantation -- our row is likely wrong",
-    400358: "OPEN: we say a sorcery, he says a weapon -- our row is likely wrong",
+    # --- BUNDLE (3 more), adjudicated against ItemLotParam 2026-09-08. Read as "our rows are
+    # likely wrong" when the tool landed; they are not. Each of these three flags fires TWO map
+    # lots -- an incantation AND one All-Knowing armour piece (102820+102861, 102830+102862,
+    # 102850+102864). Both members are real awards of the one flag, he names one and we name the
+    # other, so this is the same modelling difference as 400061/400209/400309, not a wrong row.
+    400282: "BUNDLE: flag fires two map lots (an incantation and an armour piece); he names the "
+            "other member -- verified against ItemLotParam_map",
+    400283: "BUNDLE: flag fires two map lots (an incantation and an armour piece); he names the "
+            "other member -- verified against ItemLotParam_map",
+    400285: "BUNDLE: flag fires two map lots (an incantation and an armour piece); he names the "
+            "other member -- verified against ItemLotParam_map",
+
+    # --- OPEN (1), narrowed by the same adjudication. Both of this flag's map lots (103500, 103580)
+    # award the SAME goods id, and that id is the sorcery our row names -- so OUR side is corroborated
+    # by the param and it is HIS row that names something the flag does not award. Left OPEN rather
+    # than closed because "his table is wrong" is a claim about HIS data, which this tool is not
+    # entitled to make; the disagreement is real and stays visible.
+    400358: "OPEN: both of this flag's map lots award the sorcery we name (verified against "
+            "ItemLotParam_map); his row names a weapon the flag does not award",
 }
-# --- OPEN, DLC UPGRADE MATERIAL (99). Same flag, same item lot id, same item FAMILY, different
-# TIER (and different stack size): e.g. flag 21007010 -> lot 21000010, ours Smithing Stone [1] x6,
-# his Smithing Stone [7] x3. 253 other DLC material rows AGREE, so this is not a uniform offset --
-# it is a subset of DLC ItemLotParam rows on which our `greenfield/flag_lots.tsv` (from
-# tools/datamine_flag_lots.py) and his table disagree, most likely because one side's regulation
-# snapshot predates a DLC retune. Adjudicating it needs a fresh datamine against a known patch,
-# which is not a change to a committed generator input, so it stays OPEN rather than "fixed".
-ITEM_IDENTITY_KNOWN.update(
-    {f: "OPEN: DLC upgrade-material tier/stack disagreement on the same lot (flag_lots.tsv vs his "
-        "ItemLotParam read); needs a fresh datamine to adjudicate"
-     for f in _A_OPEN_DLC_MATERIAL}
-)
 
 
 MISSING_SLOT_KNOWN = {

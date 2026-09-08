@@ -787,7 +787,9 @@ same game: a disagreement is evidence, and it is the only second opinion our gen
 It gates two classes and reports the rest:
 
 - **A. ITEM IDENTITY** — `item_ids.LOCATION_ITEM` vs the vanilla item his DebugText records for the
-  same flag. 3977/4084 agree; the 107 disagreements are allowlisted by cause in the tool.
+  same flag. 4076/4084 agree; the 8 disagreements are allowlisted by cause in the tool. (It was
+  3977/4084 when the gate landed: 99 of the 107 were `region_map.csv`'s stale `item_name` capture
+  naming the wrong DLC upgrade-material tier, closed by gen_data's lot-reconcile pass.)
 - **B. MISSING SLOTS** — his Event-scope flags `data.LOCATIONS` has no row for, after excluding his
   `norandom` / `ignore` / `tarnished` / `enemy*` vocabulary. 80 remain, allowlisted by cause.
 

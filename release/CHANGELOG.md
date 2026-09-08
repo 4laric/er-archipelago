@@ -147,6 +147,49 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   desynchronise them. **Contract hash does not move** -- it stays `613fb438`. **Seeds do change**:
   the bell is a KeyItem-shaped gate check, so region logic now requires Shadow Keep access for it
   and for Metyr's remembrance, not Jagged Peak.
+- **The check's own item lot now decides which item it holds — 99 checks were naming the wrong
+  thing, and 99 stack quantities had gone missing with them.** `region_map.csv`'s `item_name` is an
+  upstream CAPTURE, not a verdict, and it had gone stale against `ItemLotParam`: 99 rows — almost
+  all DLC upgrade material — named a different TIER of the same family than the lot their flag
+  actually fires (`Smithing Stone [1]` where lot 21000010 grants `Smithing Stone [7] x3`). Two
+  things broke per stale row, not one. `LOCATION_ITEM` named the wrong item, which feeds filler
+  weight and, for stones, upgrade gating. And `LOCATION_UNITS` **silently paid x1**, because its
+  join is on FullID and a name resolving to the wrong FullID matches no lot slot — no error, no
+  count, no gate, exactly the failure mode the `#616` note in `gen_data` warned about for a
+  different cause. `gen_data` now runs a **lot-reconcile pass** over `region_map.csv` before
+  anything reads it, so the fix lands once and the check's display name, its `LOCATION_ITEM` and
+  its `LOCATION_UNITS` can no longer disagree with each other. It is deliberately narrow, two arms
+  only: a single-item lot simply wins, and on a multi-item lot it adopts a same-family slot when
+  exactly one exists (`Somber Smithing Stone [4]` -> `[7]`, the tier bracket being the only thing
+  that moved). The genuine BUNDLE case — a multi-item lot the curated name is no longer in, with no
+  single same-family stand-in — is left alone, because picking "the" item there would be a guess.
+  **Count-neutral:** 4941 locations before and after, identical ap ids and flags. 105 location
+  display names change (the 99, plus six disambiguation suffixes that renumber around them) and
+  fifteen more units enter the pool across four checks, so **trackers and in-flight seed spoilers
+  will show the new names** — the apworld is host-only and the contract hash does not move
+  (`613fb438`). Five items leave `ITEM_CATALOG` with the stale names that invented them —
+  `Grave Glovewort [2]/[3]/[4]` and `Ghost Glovewort [1]/[3]`, which no check in the game actually
+  awards. The catalog is check-derived, so they had only ever been in the pool because five checks
+  were misnamed; `LOCATION_ITEM` still has exactly 4880 entries.
+- **`tools/matt_oracle.py` class A: 107 disagreements -> 8, agreement 97.4% -> 99.8%.** The 99 above
+  were its entire `_A_OPEN_DLC_MATERIAL` bulk class, whose allowlist reason said adjudicating them
+  "needs a fresh datamine". It did not; it needed the generator to stop trusting a stale capture
+  over the param beside it. That set is deleted rather than shrunk. The four remaining `OPEN` rows
+  were adjudicated against `ItemLotParam_map` directly: **400282/400283/400285 are not our rows
+  being wrong** — each flag fires TWO map lots, an incantation *and* one All-Knowing armour piece
+  (102820+102861, 102830+102862, 102850+102864) — so they are reclassified `OPEN` -> `BUNDLE`,
+  the same modelling difference as 400061/400209/400309. **400358** is corroborated on our side:
+  both of its lots (103500, 103580) award the sorcery we name, so it stays `OPEN` with the finding
+  inverted rather than closed, since "his table is wrong" is a claim about his data that this tool
+  is not entitled to make.
+- **Shop scope is written down where it is decided.** `shop_data.py`'s generated header now states
+  that a shop check is a `ShopLineupParam` row carrying an `eventFlag_forStock`, and that the
+  flagless infinite-stock ids (arrows, pots, crafting materials — no flag to watch, never exhaust)
+  are out of scope **by design, not by omission**; a randomizer modelling them either invents a
+  flag or sends the same location forever. Recorded with it: none of 400282, 400283, 400285 or
+  400390 is a shop row — no `ShopLineupParam` row in the vanilla params names any of the four in
+  `eventFlag_forStock` or `eventFlag_forRelease`. Closes items 1, 2 and 6 of
+  `docs/MATT-ORACLE-ROADMAP.md`.
 
 
 ## v0.6.0.5 — 2026-09-07
