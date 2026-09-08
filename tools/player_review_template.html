@@ -41,7 +41,7 @@
 <div><label for="pSearch">Find an item or place</label><input id="pSearch" type="search" placeholder="Search item, dungeon, or nearby grace"></div>
 <div><label for="pArea">Area</label><select id="pArea"><option value="">All areas</option></select></div>
 <div><label for="pKind">What you collect</label><select id="pKind"><option value="">Everything</option></select></div>
-<div><label for="pNeed">Project evidence</label><select id="pNeed"><option value="">All locations — including confirmed</option><option value="pending">Needs confirmation</option><option value="second_source">Needs another source</option><option value="first_source">Needs a first source</option><option value="conflict">Reports disagree</option><option value="suggestions">Has a guide to compare</option></select></div>
+<div><label for="pNeed">Project evidence</label><select id="pNeed"><option value="">All locations — including confirmed</option><option value="pending">Needs confirmation</option><option value="second_source">Needs another source</option><option value="first_source">Needs a first source</option><option value="conflict">Reports disagree</option><option value="suggestions">Has a guide to compare</option><option value="oracle_region">Oracle region review queue</option><option value="oracle_region_open">Oracle region review queue — still open</option><option value="oracle_missable">Oracle missable review queue</option><option value="oracle_missable_open">Oracle missable review queue — still open</option></select></div>
 <div><label for="pProgress">My progress</label><select id="pProgress"><option value="">Everything</option><option value="notstarted">Not started</option><option value="draft">Notes in progress</option><option value="reviewed">Reviewed by me</option></select></div>
 </div>
 <section class="p-map" aria-label="Notebook storage"><div class="p-actions"><button id="pExport" class="primary">Download all notes / backup</button><button id="pSendNotes">Send notes to the project</button><button id="pImport">Import notes or restore backup</button><input id="pImportFile" type="file" accept=".json,application/json" hidden></div><section id="pSendHelp" hidden><h3>Send your notebook</h3><ol><li>Use <strong>Download all notes / backup</strong> above.</li><li>Send that JSON file to Alaric in your existing conversation, or <a href="https://github.com/4laric/er-archipelago/issues/new?title=%5BPlayer%20notebook%5D%20Review%20notes&amp;body=Attach%20your%20downloaded%20er-player-notebook.json%20file%20here%2C%20then%20submit%20this%20issue." target="_blank" rel="noopener noreferrer">open a GitHub report</a>, attach the file and submit it.</li><li>Keep the sent message or submitted issue link as your receipt. Downloading a file or opening the report does not submit your notes.</li></ol><p>The project cannot see notes saved only in your browser. GitHub reports and their attachments are public.</p></section><p id="pStorageStatus" role="status">Opening this device’s notebook…</p><p class="p-muted">Notes save in this browser on this device and normally survive refreshes. Nothing is sent automatically. Download a backup to share the whole batch or move devices. Your reviewed status does not change project confirmation.</p><details><summary>Defaults for my next notes (optional)</summary><div class="p-grid"><div><label for="pDefaultReviewer">Your name or handle</label><input id="pDefaultReviewer"></div><div><label for="pDefaultVersion">Game / mod version</label><input id="pDefaultVersion"></div><div><label for="pDefaultContext">Playthrough context</label><select id="pDefaultContext"><option value="">Choose if known</option><option>Unrandomized Elden Ring</option><option>Archipelago with randomized items</option><option>Archipelago without randomized items</option><option>Other mods</option><option>Guide only / not playing</option></select></div></div></details><section id="pRecovery" hidden></section><section id="pImportPreview" hidden></section></section>
@@ -94,10 +94,13 @@ function download(name,content,type){
 }
 function saveDraft(){
  if(!current||!el('pForm'))return;
- const form={};for(const key of ['Finding','Item','Region','LockRegion','Route','Evidence','Version','Context','RawNotes','Reviewer'])form[key]=el('p'+key).value;
+ // pOracleVerdict is rendered only for locations in the region review queue, so read every field
+ // defensively: an absent control means "this location has no such field", not an error.
+ const form={};for(const key of ['Finding','Item','Region','LockRegion','Route','Evidence','Version','Context','RawNotes','Reviewer','OracleVerdict','OracleMissableVerdict','OracleMissableReason'])form[key]=el('p'+key)?.value||'';
  form.Reviewed=el("pReviewed").checked;
- if(form.Reviewed&&!["Finding","Item","Region","LockRegion","Route","Evidence","RawNotes"].some(k=>form[k].trim())){el("pReviewed").checked=false;form.Reviewed=false;el("pStatus").textContent="Add a finding or a note before marking this location reviewed.";}
- if(!drafts.has(current.check_id)&&!form.Reviewed&&!["Finding","Item","Region","LockRegion","Route","Evidence","RawNotes"].some(k=>form[k]))return;
+ const written=["Finding","Item","Region","LockRegion","Route","Evidence","RawNotes","OracleVerdict","OracleMissableVerdict"];
+ if(form.Reviewed&&!written.some(k=>form[k].trim())){el("pReviewed").checked=false;form.Reviewed=false;el("pStatus").textContent="Add a finding or a note before marking this location reviewed.";}
+ if(!drafts.has(current.check_id)&&!form.Reviewed&&!written.some(k=>form[k]))return;
  if(JSON.stringify(drafts.get(current.check_id))===JSON.stringify(form))return;
  notebook.save(current.check_id,form).catch(error=>{el("pStorageStatus").textContent="Could not save: "+error.message+". Download a backup before leaving."});
 }
@@ -127,10 +130,15 @@ function draw(){
  visible=DATA.checks.filter(c=>{
   const p=c.player;return (!query||[p.item,p.place,p.region,p.nearby_grace,p.acquisition_flag??""].join(' ').toLowerCase().includes(query))
    &&(!controls.area.value||p.region===controls.area.value)&&(!controls.kind.value||p.kind===controls.kind.value)
-   &&(!need||(need==='pending'?p.need!=='confirmed':need==='suggestions'?suggestions.has(c.check_id):p.need===need)) &&(!controls.progress.value||progress(c.check_id)===controls.progress.value);
+   &&(!need||(need==='pending'?p.need!=='confirmed':need==='suggestions'?suggestions.has(c.check_id)
+     :need==='oracle_region'?!!p.oracle_region
+     :need==='oracle_region_open'?p.oracle_region?.status==='open'&&!drafts.get(c.check_id)?.OracleVerdict
+     :need==='oracle_missable'?!!p.oracle_missable
+     :need==='oracle_missable_open'?p.oracle_missable?.status==='open'&&!drafts.get(c.check_id)?.OracleMissableVerdict
+     :p.need===need)) &&(!controls.progress.value||progress(c.check_id)===controls.progress.value);
  }).sort(compareLocations);
  el('pCount').textContent=visible.length.toLocaleString()+' locations · '+[...drafts.values()].filter(f=>f.Reviewed).length+' reviewed by me'+(visible.length>cap?' · showing '+cap:'');
- el('pRows').innerHTML=visible.slice(0,cap).map(c=>'<button class="p-card" data-check="'+c.check_id+'" aria-pressed="'+(current?.check_id===c.check_id)+'"><strong>'+esc(c.player.item)+'</strong><span>'+esc(c.player.region)+' · '+esc(c.player.place)+'</span><span class="p-muted">'+needs[c.player.need]+(suggestions.has(c.check_id)?' · Guide available':'')+'</span>'+'<span class="p-muted">Flag: '+esc(c.player.acquisition_flag??'Unknown')+' · '+progressLabel(c.check_id)+'</span>'+'</button>').join('')||'<p>No locations match. Try another area or reset the filters.</p>';
+ el('pRows').innerHTML=visible.slice(0,cap).map(c=>'<button class="p-card" data-check="'+c.check_id+'" aria-pressed="'+(current?.check_id===c.check_id)+'"><strong>'+esc(c.player.item)+'</strong><span>'+esc(c.player.region)+' · '+esc(c.player.place)+'</span><span class="p-muted">'+needs[c.player.need]+(suggestions.has(c.check_id)?' · Guide available':'')+(c.player.oracle_region?' · Region review: '+esc(drafts.get(c.check_id)?.OracleVerdict||c.player.oracle_region.status):'')+(c.player.oracle_missable?' · Missable review: '+esc(drafts.get(c.check_id)?.OracleMissableVerdict||c.player.oracle_missable.status):'')+'</span>'+'<span class="p-muted">Flag: '+esc(c.player.acquisition_flag??'Unknown')+' · '+progressLabel(c.check_id)+'</span>'+'</button>').join('')||'<p>No locations match. Try another area or reset the filters.</p>';
  for(const button of el('pRows').querySelectorAll('button'))button.onclick=()=>{saveDraft();current=byId.get(Number(button.dataset.check));draw();show(current);if(innerWidth<=900)el('pDetail').scrollIntoView({block:'start'});history.replaceState(null,'',link(current.check_id));};
  el('pMore').hidden=visible.length<=cap;renderPlayerMap();updateNavigation();
 }
@@ -139,6 +147,61 @@ function sourceHtml(o){
  return '<div class="p-source"><strong>'+esc(o.item_name)+' · '+esc(o.section.replaceAll('-',' '))+'</strong><p>'+esc(reasonText[o.reason]||o.reason)+' This is a possible match, not a confirmation.</p><p>'+
  (o.mentioned_quantities?.length?'<span class="p-muted">Guide quantities: '+o.mentioned_quantities.join(', ')+'. These may describe multiple pickups.</span><br>':'')+(guide?'<a href="'+esc(guide)+'" target="_blank" rel="noreferrer">Read guide step '+esc(o.step)+'</a>':'')+' · '+(source?'<a href="'+esc(source)+'" target="_blank" rel="noreferrer">Pinned source version</a>':'')+'</p><p class="p-muted">Check that the guide describes collecting this item here, rather than merely mentioning it. Match the container, enemy, quantity, or precise spot.</p><details><summary>'+alternatives.length+' possible location(s) · compare</summary><ul>'+
  alternatives.map(c=>'<li><button type="button" data-alternative="'+c.check_id+'">'+esc(c.player.region)+' · '+esc(c.player.item)+' — '+esc(c.player.place)+'</button></li>').join('')+'</ul><p class="p-muted">'+o.competing_observation_count+' guide steps overlap these possible locations. They all come from the same guide and count as one source.</p></details></div>';
+}
+/* ORACLE REGION REVIEW QUEUE -- the reviewer's panel.
+   A second, independently curated table of the same game partitions these pickups into areas
+   differently than we do. Where a check falls outside its own cluster, it is queued here for two
+   people to look at. The queue records only THAT the second source disagrees: it never says what
+   that source calls the place, and nothing of its wording is in this page or in the tsv behind it.
+   So everything shown below is OUR own recorded evidence, and a reviewer rules from that. */
+function oracleHtml(p){
+ const q=p.oracle_region;if(!q)return '';
+ const why=q.basis==='second-source-dlc-membership-disagrees'
+  ?'A second source files this pickup on the other side of the base-game / DLC line.'
+  :'A second source’s own grouping puts this pickup outside the region its neighbours sit in.';
+ const cand=q.candidate_region
+  ?'<strong>'+esc(q.candidate_region)+'</strong> — different from the region we assigned, so it is worth checking.'
+  :q.grace_region?esc(q.grace_region)+' — the same region we assigned, so it confirms nothing.'
+  :'No candidate: the checks near this grace do not agree on one region.';
+ const so=q.second_opinion
+  ?'<li>Wiki second opinion: <strong>'+esc(q.second_opinion.verdict)+'</strong>'
+   +(q.second_opinion.external_regions?' — names '+esc(q.second_opinion.external_regions):'')
+   +(q.second_opinion.source?' ('+esc(q.second_opinion.source)+')':'')+'</li>'
+  :'<li>Wiki second opinion: none recorded for this location.</li>';
+ return '<div class="p-note"><strong>Region review queue — '+esc(q.status)+'</strong><br>'+why+
+  ' A disagreement is a question, not a mistake: “our region is right” is just as useful an answer.'+
+  '<ul><li>Region we assigned: <strong>'+esc(p.region)+'</strong></li>'+
+  '<li>How that region was decided: '+(q.decided_by?esc(q.decided_by):'from first-hand evidence for its map area')+'</li>'+
+  '<li>Map area: '+(q.map_tiles.length?esc(q.map_tiles.join(', ')):'no recorded position')+'</li>'+
+  '<li>Nearest grace: '+(p.nearby_grace?esc(p.nearby_grace):'unknown')+'</li>'+
+  '<li>Region that grace maps to: '+cand+'</li>'+so+'</ul>'+
+  (q.reviewer?'<span class="p-muted">Recorded verdict: '+esc(q.reviewer)+(q.note?' — '+esc(q.note):'')+'</span>':
+   '<span class="p-muted">Two reviewers work this queue. Put your name in “Your name or handle” so the verdicts can be told apart.</span>')+
+  '</div>';
+}
+/* ORACLE MISSABLE REVIEW QUEUE -- the reviewer's panel.
+   MISSABLE means the project forbids required progression behind this pickup, because it can be
+   permanently lost. A second, independently curated table of the same game calls this pickup
+   missable and our own table does not -- AND our own questline-condition extraction independently
+   shows the award gated on something a player can lose for good. That coincidence is what puts it
+   here; the second source's own words are in neither this page nor the tsv behind it.
+   Getting this wrong is expensive in BOTH directions: a missing tag can strand a seed behind a
+   consumable the player already spent, and a spurious one narrows the fill for nothing. So
+   "not missable" is a real, useful answer, and it is the FIRST one offered. */
+function missableHtml(p){
+ const q=p.oracle_missable;if(!q)return '';
+ const conds=(q.conditions||[]).map(r=>'<li>'+esc(r.label)+' \u2014 waits on <strong>'+esc(r.depends_on)+'</strong>'+(r.note?' <span class="p-muted">('+esc(r.note)+')</span>':'')+'</li>').join('');
+ const feats=(q.features||[]).length?esc(q.features.join(', ')):'';
+ return '<div class="p-note"><strong>Missable review queue \u2014 '+esc(q.status)+'</strong><br>'+
+  'A second source calls this pickup missable and our table does not \u2014 and our own reading of the quest conditions shows it waiting on something that can be lost for good. '+
+  '<span class="p-muted">A disagreement is a question: \u201cit is not missable\u201d is just as useful an answer, and marking a location missable that is not narrows the shuffle for nothing.</span>'+
+  '<ul><li>Our current missable status: <strong>'+esc(q.our_status||'not missable')+'</strong></li>'+
+  '<li>Region: '+esc(p.region)+'</li>'+
+  '<li>What the quest conditions say this award waits on:'+(conds?'<ul>'+conds+'</ul>':' <span class="p-muted">no readable condition rows</span>')+'</li>'+
+  '<li>Quest logic that mentions this flag: '+(feats||'<span class="p-muted">none</span>')+'</li></ul>'+
+  (q.reviewer?'<span class="p-muted">Recorded verdict: '+esc(q.reviewer)+(q.note?' \u2014 '+esc(q.note):'')+'</span>':
+   '<span class="p-muted">Two reviewers work this queue. Put your name in \u201cYour name or handle\u201d so the verdicts can be told apart.</span>')+
+  '</div>';
 }
 function show(c){
  if(identityMismatch(c)){
@@ -150,10 +213,15 @@ function show(c){
  '<p>Acquisition flag: <strong>'+esc(p.acquisition_flag??'Unknown')+'</strong>'+(p.acquisition_flag? ' <button type="button" id="pCopyFlag">Copy flag</button>':'')+' <span class="p-muted">Check ID: '+c.check_id+'. A flag can be shared by several checks.</span></p>'+
  (p.nearby_grace?'<p class="p-muted">Nearby grace: '+esc(p.nearby_grace)+'. This is a nearby landmark, not a confirmed route.</p>':'')+
  '<div class="p-note"><strong>'+needs[p.need]+'</strong><br>'+message+'<br><span class="p-muted">'+(p.access_reviewed?'Collection requirements have been reviewed for the recorded settings.':'Collection requirements still need review.')+'</span></div>'+
+ oracleHtml(p)+
+ missableHtml(p)+
  '<button type="button" id="pShowMap">'+(p.positions?.length?'Show this location on the map':'No outdoor pin recorded')+'</button>'+
  '<details><summary>Compare with a guide'+(sourceRows.length?' ('+sourceRows.length+')':'')+'</summary>'+(sourceRows.length?sourceRows.map(sourceHtml).join(''):'<p>No new guide match has been queued for this location. You can still add your own observation or source.</p>')+'</details>'+
  '<div class="p-actions"><button id="pPrevious">Previous location</button><button id="pNext">Next location</button></div><form id="pForm"><h3>Your notes for this location</h3><p class="p-muted">Describe what you observed. A maintainer will review your report before marking anything confirmed.</p>'+
  '<label for="pFinding">Is this location correct?</label><select id="pFinding"><option value="">Choose an answer</option><option>Correct</option><option>Needs correction</option><option>Unused or unobtainable</option><option>Unsure</option></select>'+
+ (p.oracle_region?'<label for="pOracleVerdict">Region review queue verdict</label><select id="pOracleVerdict"><option value="">Not ruled yet</option><option value="confirmed-ours">Our region is right — keep it</option><option value="moved">Our region is wrong — it belongs elsewhere</option></select><p class="p-muted">This location is in the region review queue. Choosing “belongs elsewhere” does not move it: name the region below, and a maintainer applies the change through the normal derivation steps.</p>':'')+
+ (p.oracle_missable?'<label for="pOracleMissableVerdict">Missable review queue verdict</label><select id="pOracleMissableVerdict"><option value="">Not ruled yet</option><option value="confirmed-not-missable">Not missable — it can always be collected</option><option value="missable">Missable — it can be permanently lost</option></select>'+
+  '<label for="pOracleMissableReason">How it is lost</label><select id="pOracleMissableReason"><option value="">Choose one</option><option value="limited-consumable">A limited consumable is spent to get it</option><option value="killable-npc">An NPC who awards it can be killed</option><option value="questline-progress">A questline can be walked past it</option></select><p class="p-muted">Required when you answer “Missable”: the project records missable locations by mechanism, so a verdict without one cannot be applied. Choosing “Missable” does not tag the location — a maintainer applies it through the normal derivation.</p>':'')+
  '<label for="pLockRegion">Region-lock region</label><input id="pLockRegion" placeholder="Which AP region-lock region should this check belong to?"><p class="p-muted">Name the region assignment you observed or recommend correcting. Describe the precise pickup spot separately below.</p>'+
  '<label for="pRegion">Exact location or correction</label><input id="pRegion" placeholder="Describe the pickup, container or enemy and its landmark or nearby grace.">'+
  '<label for="pRoute">Requirements and route</label><textarea id="pRoute" placeholder="Describe the route and any keys, bosses, gestures or quest steps required. If it is unobtainable, explain what prevents collection."></textarea>'+
@@ -168,8 +236,9 @@ function show(c){
  '<details><summary>Existing sources and technical details</summary><p class="p-muted">Location reference: '+c.check_id+'. The catalog location is not an independent observation.</p>'+
  (c.external_leads.length?c.external_leads.flatMap(l=>l.sources).filter((s,i,a)=>a.findIndex(x=>x.source_id===s.source_id)===i).map(s=>{const u=safeUrl(s.revision_url);return u?'<p><a href="'+esc(u)+'" target="_blank" rel="noreferrer">'+esc(s.title)+'</a> · '+esc(s.publisher)+'</p>':''}).join(''):'<p>No external sources are attached yet.</p>')+
  '<button type="button" id="pTechnical">Open maintainer evidence</button><button type="button" id="pPermalink">Copy location link</button></details>';
- for(const key of ['Finding','Item','Region','LockRegion','Route','Evidence','Version','Context','RawNotes','Reviewer']){
+ for(const key of ['Finding','Item','Region','LockRegion','Route','Evidence','Version','Context','RawNotes','Reviewer','OracleVerdict','OracleMissableVerdict','OracleMissableReason']){
  const input=el('p'+key),value=d[key]||'';
+ if(!input)continue;
  if(input.tagName==='SELECT'&&value&&![...input.options].some(o=>o.value===value)){const option=document.createElement('option');option.value=value;option.textContent=value;input.append(option)}
  input.value=value;
  }
@@ -182,12 +251,12 @@ function show(c){
  el('pForm').addEventListener('input',saveDraft);
  function report(){
   saveDraft();const f=drafts.get(c.check_id)||{};return {schema:'er-player-review-v1',check_id:c.check_id,catalog_hash:DATA.inputs_hash,
-   catalog:{item:p.item,region:p.region,place:p.place},acquisition_flag:p.acquisition_flag,finding:f.Finding,observed_item:f.Item,observed_place:f.Region,region_lock_region:f.LockRegion,route:f.Route,
+   catalog:{item:p.item,region:p.region,place:p.place},acquisition_flag:p.acquisition_flag,finding:f.Finding,observed_item:f.Item,observed_place:f.Region,region_lock_region:f.LockRegion,oracle_verdict:f.OracleVerdict,oracle_missable_verdict:f.OracleMissableVerdict,oracle_missable_reason:f.OracleMissableReason,route:f.Route,
    evidence:f.Evidence,raw_notes:f.RawNotes,reviewer:f.Reviewer,reviewed:!!f.Reviewed,versions:f.Version,environment:f.Context,observation_scope:'player_report_not_adjudicated',permalink:link(c.check_id)};
  }
  function textReport(){
   const r=report();return ['## Player location review','','**Catalog location:** '+p.item+' — '+p.region+' / '+p.place,
-   '**Acquisition flag:** '+(p.acquisition_flag??'Unknown'),'**Finding:** '+r.finding,'**Item-name note / previous item observation:** '+(r.observed_item||'Not specified'),'**Region-lock region:** '+(r.region_lock_region||'Not specified'),'**Exact location or correction:** '+(r.observed_place||'Not specified'),
+   '**Acquisition flag:** '+(p.acquisition_flag??'Unknown'),'**Finding:** '+r.finding,'**Item-name note / previous item observation:** '+(r.observed_item||'Not specified'),'**Region-lock region:** '+(r.region_lock_region||'Not specified'),'**Region review queue verdict:** '+(r.oracle_verdict||'Not ruled'),'**Missable review queue verdict:** '+(r.oracle_missable_verdict||'Not ruled')+(r.oracle_missable_reason?' ('+r.oracle_missable_reason+')':''),'**Exact location or correction:** '+(r.observed_place||'Not specified'),
    '**Original notes:** '+(r.raw_notes||'Not specified'),'**Reviewer:** '+(r.reviewer||'Not specified'),'**Route:** '+(r.route||'Not specified'),'**Evidence:** '+r.evidence,'**Versions:** '+(r.versions||'Unknown'),
    '**Environment:** '+(r.environment||'Unknown'),'','Location reference: '+r.check_id,'Catalog snapshot: '+r.catalog_hash,
    'This is a player report, not an accepted validation.',r.permalink].join('\n');

@@ -232,6 +232,226 @@ class MattOracleLogic(unittest.TestCase):
         finally:
             del self.M.MISSING_SLOT_KNOWN[90001]
 
+    # --- C2. region queue ------------------------------------------------
+    # The queue exists so two humans can work the ~218 rows a second source's own partition
+    # disagrees with. Its licence boundary is IN THE ALGORITHM: his area label is an equivalence
+    # key, the mapping it produces is built from OUR regions, and the label is discarded before
+    # anything is written. These tests assert that, not just the arithmetic.
+    def test_C2_area_maps_to_our_region_by_strict_plurality(self):
+        rows = [
+            {"stype": 0, "flag": 1, "area": "alpha"},
+            {"stype": 0, "flag": 2, "area": "alpha"},
+            {"stype": 0, "flag": 3, "area": "alpha"},
+            {"stype": 0, "flag": 4, "area": "split"},
+            {"stype": 0, "flag": 5, "area": "split"},
+            {"stype": 3, "flag": 0, "area": "shoponly"},       # no flag: contributes nothing
+        ]
+        by_flag = {
+            1: [("Limgrave", "n", 11)], 2: [("Limgrave", "n", 12)], 3: [("Caelid", "n", 13)],
+            4: [("Limgrave", "n", 14)], 5: [("Caelid", "n", 15)],
+        }
+        mapped, areas = self.M.region_area_map(rows, by_flag)
+        self.assertEqual(areas, 2)                     # 'shoponly' never became a cluster
+        self.assertEqual(mapped, {"alpha": "Limgrave"})
+        # A cluster split evenly says nothing about any row in it, so it maps to NOTHING rather
+        # than to whichever region sorted first. Silence, not a coin flip.
+        self.assertNotIn("split", mapped)
+
+    def test_C2_queue_is_the_rows_outside_their_own_cluster(self):
+        rows = [{"stype": 0, "flag": f, "area": "alpha"} for f in (1, 2, 3)]
+        rows.append({"stype": 0, "flag": 4, "area": "split"})
+        rows.append({"stype": 0, "flag": 5, "area": "split"})
+        by_flag = {
+            1: [("Limgrave", "n", 11)], 2: [("Limgrave", "n", 12)], 3: [("Caelid", "n", 13)],
+            4: [("Limgrave", "n", 14)], 5: [("Caelid", "n", 15)],
+        }
+        queue, joined, areas, mapped = self.M.check_region_queue(rows, by_flag)
+        self.assertEqual((joined, areas, mapped), (3, 2, 1))   # only 'alpha' contributes rows
+        self.assertEqual([(q["flag"], q["ap_id"], q["our_region"]) for q in queue],
+                         [(3, 13, "Caelid")])
+        self.assertEqual(queue[0]["basis"], self.M.BASIS_REGION)
+        # 🛑 THE LICENCE GUARD. Nothing of his may leave this function: no area label, no field
+        # beyond the four we write. Asserted as an EXACT key set so a future edit that carries
+        # "area" along for debugging fails here rather than shipping it into the committed tsv.
+        self.assertEqual(set(queue[0]), {"flag", "ap_id", "our_region", "basis"})
+        for value in queue[0].values():
+            self.assertNotIn("alpha", str(value))
+
+    def test_C2_dlc_membership_rows_are_queued_unconditionally(self):
+        # 520800 / 530950 are the two base-vs-DLC membership rows from the roadmap. They are queued
+        # even when the partition happens to AGREE, which is the point: a model difference that
+        # cancels out is not evidence that the row is right.
+        flags = sorted(self.M.DLC_MEMBERSHIP_FLAGS)
+        rows = [{"stype": 0, "flag": f, "area": "alpha"} for f in flags]
+        by_flag = {f: [("Roundtable Hold", "n", 900 + i)] for i, f in enumerate(flags)}
+        queue, _, _, _ = self.M.check_region_queue(rows, by_flag)
+        self.assertEqual([q["flag"] for q in queue], flags)
+        self.assertTrue(all(q["basis"] == self.M.BASIS_DLC for q in queue))
+
+    def test_C2_refresh_preserves_verdicts_and_drops_resolved_rows(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "queue.tsv")
+            first = [{"flag": 1, "ap_id": 11, "our_region": "Limgrave",
+                      "basis": self.M.BASIS_REGION},
+                     {"flag": 2, "ap_id": 12, "our_region": "Caelid",
+                      "basis": self.M.BASIS_REGION}]
+            self.M.write_region_queue(path, first, {})
+            back = self.M.read_region_queue(path)
+            self.assertEqual(sorted(back), [(1, 11), (2, 12)])
+            self.assertEqual(back[(1, 11)]["status"], "open")
+
+            back[(1, 11)].update(status="confirmed-ours", reviewer="alaric", note="ours is right")
+            # flag 2 stopped disagreeing; flag 3 is new.
+            second = [first[0], {"flag": 3, "ap_id": 13, "our_region": "Altus",
+                                 "basis": self.M.BASIS_DLC}]
+            kept, added, dropped = self.M.write_region_queue(path, second, back)
+            self.assertEqual((kept, added, dropped), (1, 1, [(2, 12)]))
+            final = self.M.read_region_queue(path)
+            self.assertEqual(final[(1, 11)]["status"], "confirmed-ours")
+            self.assertEqual(final[(1, 11)]["reviewer"], "alaric")
+            self.assertEqual(final[(1, 11)]["note"], "ours is right")
+            self.assertEqual(final[(3, 13)]["status"], "open")
+            self.assertNotIn((2, 12), final)
+            # newline='\n' on both platforms -- the committed file is diff-gated in CI.
+            with open(path, "rb") as fh:
+                self.assertNotIn(b"\r\n", fh.read())
+
+    def test_C2_committed_queue_carries_nothing_but_our_own_columns(self):
+        # The shipped file is the licence surface. Every cell must be an int of ours, one of OUR
+        # region names, one of two basis tokens, a status from the documented vocabulary, or free
+        # text a reviewer wrote. A stray column is how a foreign area name would arrive.
+        path = os.path.join(REPO, "greenfield", "evidence", "oracle-region-queue.tsv")
+        rows = self.M.read_region_queue(path)
+        self.assertGreater(len(rows), 100)
+        by_flag, _ = self.M.load_ours(REPO)
+        regions = {r for entries in by_flag.values() for r, _n, _a in entries}
+        for (flag, ap_id), row in rows.items():
+            self.assertEqual(sorted(row), sorted(self.M.QUEUE_COLUMNS))
+            self.assertIn(row["basis"], (self.M.BASIS_REGION, self.M.BASIS_DLC))
+            self.assertIn(row["status"], self.M.QUEUE_STATUSES)
+            self.assertIn(row["our_region"], regions)
+            # the (flag, ap_id) pair must be a REAL row of ours, not just two plausible integers
+            self.assertIn(ap_id, {a for _r, _n, a in by_flag.get(flag, ())})
+        for flag in self.M.DLC_MEMBERSHIP_FLAGS:
+            self.assertTrue(any(f == flag for f, _ in rows), "flag %d left the queue" % flag)
+
+    # --- C3. the MISSABLE queue's membership rule ------------------------
+    def _missable_rows(self):
+        """Four flags his `missable` tag covers, plus two his tag does not reach."""
+        return [{"stype": 0, "flag": f, "tags": frozenset({"missable"})} for f in (1, 2, 3, 4)] + [
+            {"stype": 0, "flag": 5, "tags": frozenset({"chest"})},        # he does NOT tag it
+            {"stype": 3, "flag": 6, "tags": frozenset({"missable"})},     # not Event scope
+        ]
+
+    _MB_BY_FLAG = {
+        1: [("Limgrave", "one", 11)],     # queued: he tags it, we do not, we see a losable gate
+        2: [("Limgrave", "two", 12)],     # we ALREADY call it missable -> the models agree
+        3: [("Limgrave", "three", 13)],   # no qualifying condition class on our side
+        5: [("Limgrave", "five", 15)],
+    }                                     # flag 4 has no row of ours at all (class B, not this)
+
+    def test_C3_queue_is_the_three_way_intersection(self):
+        queue, theirs, ours, joinable = self.M.check_missable_queue(
+            self._missable_rows(), self._MB_BY_FLAG,
+            missable_aps={12},
+            conditions={1: ("DIALOGUE_STEP", "NPC_STATE"), 2: ("NPC_STATE",),
+                        5: ("DIALOGUE_STEP",)})
+        self.assertEqual((theirs, ours, joinable), (4, 1, 3))
+        self.assertEqual([(q["flag"], q["ap_id"]) for q in queue], [(1, 11)])
+        self.assertEqual(queue[0]["our_conditions"], "DIALOGUE_STEP+NPC_STATE")
+        self.assertEqual(queue[0]["basis"], self.M.BASIS_MISSABLE)
+        # 🛑 THE LICENCE GUARD, same shape as the region queue's. Nothing of his may leave this
+        # function: no tag, no field beyond the five we write. An EXACT key set, so a future edit
+        # that carries his tags along for debugging fails here rather than shipping them.
+        self.assertEqual(set(queue[0]), {"flag", "ap_id", "our_name", "our_conditions", "basis"})
+
+    def test_C3_a_bare_tag_disagreement_is_not_enough(self):
+        # WITNESS: flag 3 is a tag disagreement with NO qualifying condition class of ours. There
+        # are dozens of those, and queueing them would bury the rows where our OWN extraction
+        # independently agrees there is something losable -- which is the entire signal here.
+        rows, by_flag = self._missable_rows(), self._MB_BY_FLAG
+        # WITNESS FIRST: the inputs really do carry tagged rows that join to ours, and the SAME
+        # rows with a qualifying condition DO produce a queue. Without this, the empty assertion
+        # below would pass just as happily if the join were dead or the fixture empty.
+        self.assertTrue([r for r in rows if r["stype"] == 0 and r["flag"] in by_flag])
+        queue, _t, _o, _j = self.M.check_missable_queue(
+            rows, by_flag, missable_aps=set(), conditions={1: ("NPC_STATE",)})
+        self.assertEqual([q["flag"] for q in queue], [1])
+        # ...and now the same call with the condition table empty: no roots, no rows.
+        queue, _t, _o, _j = self.M.check_missable_queue(
+            rows, by_flag, missable_aps=set(), conditions={})
+        self.assertEqual(queue, [])
+
+    def test_C3_a_non_losable_condition_class_does_not_qualify(self):
+        # BOSS_KILL / REGION_ACCESS gates stay satisfiable, so they say nothing about missability.
+        # Only the three classes describing a permanently losable gate admit a row.
+        queue, _t, _o, _j = self.M.check_missable_queue(
+            self._missable_rows(), self._MB_BY_FLAG, missable_aps=set(),
+            conditions={1: ("BOSS_KILL",)})
+        self.assertEqual(queue, [])
+        for cls in self.M.MISSABLE_CONDITION_CLASSES:
+            queue, _t, _o, _j = self.M.check_missable_queue(
+                self._missable_rows(), self._MB_BY_FLAG, missable_aps=set(),
+                conditions={1: (cls,)})
+            self.assertEqual([q["flag"] for q in queue], [1], cls)
+
+    def test_C3_condition_classes_come_from_our_own_committed_table(self):
+        classes = self.M.questline_condition_classes(REPO)
+        self.assertTrue(classes)
+        for flag, cls in classes.items():
+            self.assertIsInstance(flag, int)
+            self.assertEqual(cls, tuple(sorted(cls)))     # deterministic: it lands in the tsv
+            for c in cls:
+                self.assertIn(c, self.M.MISSABLE_CONDITION_CLASSES)
+
+    def test_C3_refresh_preserves_verdicts_and_drops_resolved_rows(self):
+        # The SHARED writer, exercised through the missable queue's own column list -- which is
+        # the whole point of there being one mechanism rather than two.
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "queue.tsv")
+            first = [{"flag": 1, "ap_id": 11, "our_name": "one", "our_conditions": "NPC_STATE",
+                      "basis": self.M.BASIS_MISSABLE},
+                     {"flag": 2, "ap_id": 12, "our_name": "two", "our_conditions": "NPC_STATE",
+                      "basis": self.M.BASIS_MISSABLE}]
+            self.M.write_missable_queue(path, first, {})
+            back = self.M.read_queue(path)
+            self.assertEqual(back[(1, 11)]["status"], "open")
+            back[(1, 11)].update(status="confirmed-not-missable", reviewer="alaric",
+                                 note="always collectable")
+            second = [first[0], {"flag": 3, "ap_id": 13, "our_name": "three",
+                                 "our_conditions": "DIALOGUE_STEP",
+                                 "basis": self.M.BASIS_MISSABLE}]
+            kept, added, dropped = self.M.write_missable_queue(path, second, back)
+            self.assertEqual((kept, added, dropped), (1, 1, [(2, 12)]))
+            final = self.M.read_queue(path)
+            self.assertEqual(final[(1, 11)]["status"], "confirmed-not-missable")
+            self.assertEqual(final[(1, 11)]["reviewer"], "alaric")
+            self.assertEqual(final[(3, 13)]["status"], "open")
+            self.assertNotIn((2, 12), final)
+            with open(path, "rb") as fh:
+                self.assertNotIn(b"\r\n", fh.read())
+
+    def test_C3_committed_queue_carries_nothing_but_our_own_columns(self):
+        # The shipped file is the licence surface. Every cell must be an int of ours, one of OUR
+        # location names, OUR condition classes, the one basis token, a status from the documented
+        # vocabulary, or free text a reviewer wrote.
+        path = os.path.join(REPO, "greenfield", "evidence", "oracle-missable-queue.tsv")
+        rows = self.M.read_queue(path)
+        self.assertGreater(len(rows), 20)
+        by_flag, _ = self.M.load_ours(REPO)
+        for (flag, ap_id), row in rows.items():
+            self.assertEqual(sorted(row), sorted(self.M.MISSABLE_QUEUE_COLUMNS))
+            self.assertEqual(row["basis"], self.M.BASIS_MISSABLE)
+            self.assertIn(row["status"], self.M.MISSABLE_QUEUE_STATUSES)
+            for cls in row["our_conditions"].split("+"):
+                self.assertIn(cls, self.M.MISSABLE_CONDITION_CLASSES)
+            # the (flag, ap_id) pair and the name must be a REAL row of ours
+            self.assertIn((ap_id, row["our_name"]),
+                          {(a, n) for _r, n, a in by_flag.get(flag, ())})
+        # ...and every queued check must currently be ABSENT from MISSABLE_LOCATIONS: the moment
+        # one is tagged, the disagreement is over and the row must leave on the next refresh.
+        self.assertFalse({ap for _f, ap in rows} & self.M.load_missable_aps(REPO))
+
     # --- D. skip ---------------------------------------------------------
     def test_D_missing_checkout_skips_with_exit_zero(self):
         for arg in (os.path.join(self.dir.name, "nope"), self.dir.name + "-absent"):

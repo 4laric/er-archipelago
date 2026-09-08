@@ -1,0 +1,64 @@
+# oracle-missable-queue.tsv -- HUMAN REVIEW QUEUE for the checks a second source tags MISSABLE,
+# ours does not, and OUR OWN questline-condition extraction shows gated on a permanently losable
+# root. AUTO-REFRESHED by `tools/matt_oracle.py --missable-queue` against a LOCAL
+# thefifthmatt/SoulsRandomizers checkout; the status/reviewer/note columns are the only hand-edited
+# ones and are carried across a refresh by (flag, ap_id).
+#
+# 🛑 LICENCE BOUNDARY. Nothing in this file is his. Every column is OUR flag, OUR ap_id, OUR
+# location name, OUR questline-condition root classes, or a reviewer's own words. The `basis`
+# column records ONLY that a second source tags this flag missable and we do not -- never its Text,
+# never its area, never any other tag it carries. Rule from OUR evidence (the questline_conditions
+# rows and what they depend on, the quest features that reference the flag), not from his sheet.
+# See AGENTS.md "MATT ORACLE".
+#
+# THIS FILE IS NOT A DEFECT LIST. Two models drew the missable line in different places; a row here
+# is a question. `confirmed-not-missable` is as real an outcome as `missable`.
+#
+# our_conditions: OUR questline_conditions.tsv root classes on this award site, '+'-joined. A root
+#   is a gate our extractor SAW, never a proof that the check is missable -- see that file's header.
+# status:   open | confirmed-not-missable | missable
+# reviewer: who ruled it (free text; two reviewers work the queue, so say which one)
+# note:     the reviewer's own reason. A `missable` verdict must name the MECHANISM in our own
+#   words -- limited-consumable / killable-npc / questline-progress -- because gen_data's
+#   MISSABLE_LOCATIONS values are a closed vocabulary (deathroot, alt_currency:N, gesture_award,
+#   questline, questline_item) and a verdict that does not map onto one cannot be applied.
+#
+# 🛑 A `missable` verdict is APPLIED ELSEWHERE, in a later change, through the normal missable
+# derivation in greenfield/gen_data.py. Never by editing tables/missable_locations.py, and never
+# from this file: it is a review record, not a second missable source.
+flag	ap_id	our_name	our_conditions	basis	status	reviewer	note
+60500	7770025	Roundtable Hold :: Talisman Pouch - from Twin Maiden Husks [f60500]	DIALOGUE_STEP+NPC_STATE	second-source-missable-disagrees	open		
+400031	7770557	Liurnia :: Lord of Blood's Favor - m10_01 (1) [f400031]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400050	7770561	Limgrave :: Grace Mimic - around Waypoint Ruins Cellar, may be sweep-granted by Mad Pumpkin Head (m60_44_36) [f400050]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400073	7770566	Mt. Gelmir :: Letter from Volcano Manor - around Volcano Manor (1), may be sweep-granted by Abductor Virgin (Swinging Sickle) (m16_00) [f400073]	DIALOGUE_STEP+NPC_STATE	second-source-missable-disagrees	open		
+400074	7770567	Mt. Gelmir :: Letter from Volcano Manor - around Volcano Manor (2), may be sweep-granted by Rykard, Lord of Blasphemy (m16_00) [f400074]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400075	7770568	Mt. Gelmir :: Red Letter - around Volcano Manor, may be sweep-granted by Godskin Noble (m16_00) [f400075]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400090	7773707	Mt. Gelmir :: Volcano Manor Invitation - around Volcano Manor, may be sweep-granted by Rykard, Lord of Blasphemy (m16_00) [f400090]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400101	7773708	Raya Lucaria Academy :: Glintstone Kris - around Church of the Cuckoo, may be sweep-granted by Red Wolf of Radagon (m14_00) [f400101]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400148	7770576	Liurnia :: Seluvis's Bell Bearing - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400148	7900008	Liurnia :: Preceptor's Big Hat - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400148	7900009	Liurnia :: Preceptor's Long Gown - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400148	7900010	Liurnia :: Preceptor's Gloves - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400148	7900011	Liurnia :: Preceptor's Trousers - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400149	7770577	Liurnia :: Pidia's Bell Bearing - near Royal Moongazing Grounds, may be sweep-granted by Royal Knight Loretta (m60_35_50) [f400149]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400163	7770578	Altus :: Nagakiba with Ash of War: Piercing Fang - m60_39_52 (region unconfirmed), may be sweep-granted by Black Knife Assassin (m60_40_52) [f400163]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400180	7770581	Mt. Gelmir :: Letter to Patches - around Volcano Manor, may be sweep-granted by Rykard, Lord of Blasphemy (m16_00) [f400180]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400285	7770591	Roundtable Hold :: [Incantation] Law of Causality - around Table of Lost Grace [f400285]	DIALOGUE_STEP	second-source-missable-disagrees	open		
+400285	7900022	Roundtable Hold :: All-Knowing Greaves - around Table of Lost Grace [f400285]	DIALOGUE_STEP	second-source-missable-disagrees	open		
+400290	7770592	Mt. Gelmir :: Letter to Bernahl - around Volcano Manor, may be sweep-granted by Godskin Noble (m16_00) [f400290]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400291	7770593	Mt. Gelmir :: [Sorcery] Gelmir's Fury - around Volcano Manor, may be sweep-granted by Abductor Virgin (Swinging Sickle) (m16_00) [f400291]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400320	7770598	Haligtree :: Prosthesis-Wearer Heirloom [f400320]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400380	7773734	Roundtable Hold :: Sewer-Gaol Key - around Table of Lost Grace (region unconfirmed) [f400380]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400411	7770620	Consecrated Snowfield :: Somber Ancient Dragon Smithing Stone - around Apostate Derelict, may be sweep-granted by Death Rite Bird (m60_48_57) [f400411]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400600	7773744	Enir Ilim :: Golden Lion Shield - m60_49_40 (region unconfirmed) [f400600]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400620	7770634	Shadow Keep :: Letter for Freyja - around Storehouse, First Floor, may be sweep-granted by Base Serpent Messmer (m21_01) [f400620]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400661	7773753	Scadu Altus :: Ruins Map (2nd) [f400661]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400661	7900096	Scadu Altus :: Beloved Stardust [f400661]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400690	7770643	Scadu Altus :: Fire Knight Queelign - around Shadow Keep Main Gate, may be sweep-granted by Golden Hippopotamus (m21_00) [f400690]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400712	7773765	Jagged Peak :: Igon's Greatbow with Ash of War: Igon's Drake Hunt - near Foot of the Jagged Peak, may be sweep-granted by Ancient Dragon Senessax (m61_54_39) [f400712]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400720	7770647	Belurat :: Scorpion Stew - around Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f400720]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400721	7770648	Belurat :: [Sorcery] Watchful Spirit - around Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f400721]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400722	7770649	Gravesite :: Gourmet Scorpion Stew [f400722]	DIALOGUE_STEP	second-source-missable-disagrees	open		
+400723	7770650	Belurat :: Gourmet Scorpion Stew - near Theatre of the Divine Beast, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f400723]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+2050407000	7773581	Shadow Keep :: Ring the Finger Ruins of Dheo bell - m61_50_40 [f2050407000]	ITEM_POSSESSION	second-source-missable-disagrees	open		
+2053467600	7773656	Scadu Altus :: Ring the Finger Ruins of Rhia bell - m61_53_46 [f2053467600]	ITEM_POSSESSION	second-source-missable-disagrees	open		

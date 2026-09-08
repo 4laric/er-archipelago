@@ -94,6 +94,21 @@ GENERATORS = [
     # (.github/workflows/matt-oracle.yaml), deliberately not on pull_request. AP-free; needs PyYAML,
     # which this job already installs for the shipping-yaml gate.
     "matt_oracle",
+    # The oracle region review queue's HUMAN half: tools/apply_oracle_verdicts.py (the
+    # notebook-backup -> queue.tsv round trip) and build_evidence_browser's evidence join. Both are
+    # loaded BY PATH from tools/, which is not installed beside the world, and the join is exercised
+    # against a synthetic queue in a temp tree. AP-free, no artifacts, no client, and NEVER a
+    # SoulsRandomizers checkout -- the committed queue tsv is the only input, which is the whole
+    # reason this one CAN run on pull_request while the oracle's own verdict cannot.
+    "oracle_region_verdicts",
+    # Its sibling, the MISSABLE review queue's human half: the same tools/apply_oracle_verdicts.py
+    # round trip under --queue missable, plus build_evidence_browser's missable evidence join. Same
+    # standing and the same reason for it -- loaded BY PATH from tools/, exercised against a
+    # synthetic queue in a temp tree, AP-free, no artifacts, no client, and NEVER a SoulsRandomizers
+    # checkout. Ledgered SEPARATELY rather than folded into the row above: the two suites can go
+    # dark independently, and one ledger name standing for two suites is exactly how the 2026-08
+    # inert-test audit lost one.
+    "oracle_missable_verdicts",
     "provenance_gate",
     "questline_dag",
     "questline_model",

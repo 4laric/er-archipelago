@@ -2,8 +2,18 @@
 (function(root){
 'use strict';
 const SCHEMA='er-player-notebook-v1';
-const fields=['Finding','Item','Region','LockRegion','Route','Evidence','Version','Context','RawNotes','Reviewer'];
-const legacy={finding:'Finding',observed_item:'Item',observed_place:'Region',region_lock_region:'LockRegion',route:'Route',evidence:'Evidence',versions:'Version',environment:'Context',raw_notes:'RawNotes',reviewer:'Reviewer'};
+/* The two ORACLE REVIEW QUEUE rulings. Both ride the SAME notebook record as every other field,
+   so they round-trip through the existing backup file and tools/apply_oracle_verdicts.py writes
+   them into greenfield/evidence/oracle-{region,missable}-queue.tsv. There is no server, and adding
+   a field is backward compatible: cleanForm defaults an absent one to '', so older backups import.
+     OracleVerdict          region queue:   '' | 'confirmed-ours' | 'moved'
+     OracleMissableVerdict  missable queue: '' | 'confirmed-not-missable' | 'missable'
+     OracleMissableReason   the MECHANISM behind a 'missable' ruling, in our own words
+                            ('limited-consumable' | 'killable-npc' | 'questline-progress').
+   Two separate verdict fields, not one: a check can sit in BOTH queues, and a shared field would
+   silently let a ruling about its region stand in for a ruling about its missability. */
+const fields=['Finding','Item','Region','LockRegion','Route','Evidence','Version','Context','RawNotes','Reviewer','OracleVerdict','OracleMissableVerdict','OracleMissableReason'];
+const legacy={finding:'Finding',observed_item:'Item',observed_place:'Region',region_lock_region:'LockRegion',route:'Route',evidence:'Evidence',versions:'Version',environment:'Context',raw_notes:'RawNotes',reviewer:'Reviewer',oracle_verdict:'OracleVerdict',oracle_missable_verdict:'OracleMissableVerdict',oracle_missable_reason:'OracleMissableReason'};
 function cleanForm(value){
  if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Missing review fields');
  const form={};for(const key of fields){if(value[key]!==undefined&&typeof value[key]!=='string')throw Error('Invalid '+key);form[key]=value[key]||'';}

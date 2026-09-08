@@ -103,6 +103,67 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   text, area name or tag string of his is committed, and the new test fixture is synthetic like
   the two before it. Roadmap item 5 in `docs/MATT-ORACLE-ROADMAP.md`.
 
+- **The 218 region disagreements the matt oracle reports now have a review queue instead of a
+  paragraph.** The oracle's third class is region assignment, and it has always been report-only
+  because the two tables partition the world differently — but "218 rows disagree" written in a
+  roadmap is not something two people can work through. `matt_oracle.py --region-queue` now writes
+  `greenfield/evidence/oracle-region-queue.tsv`: one row per disagreeing check, keyed on OUR flag
+  and ap_id, with `status` (open / confirmed-ours / moved), `reviewer` and `note`, carried across
+  a refresh so a verdict is never lost to a re-run. The two DLC-membership flags (520800, 530950)
+  are queued unconditionally, because a model difference that happens to cancel out is not
+  evidence the row is right. The check browser gains an **Oracle region review** facet and the
+  player review notebook a **queue view**, both putting OUR OWN evidence beside each row — the
+  assigned region, the derivation step that assigned it, the map tile, the nearest grace and the
+  region that grace maps to (47 of the 218 have a grace candidate that differs from the
+  assignment), and the `check_region_second_opinion.tsv` wiki row where one exists (12). A
+  reviewer rules in the notebook, downloads the notebook backup they already use, and
+  `tools/apply_oracle_verdicts.py` folds the verdicts back into the tsv — no server, and no
+  second way to lose a reviewer's work. It refuses an unattributed verdict (two people work this
+  queue) and refuses to silently overwrite a DISAGREEING recorded one, because two reviewers
+  disagreeing is the finding rather than an import-order accident.
+  🛑 **Licence boundary, unchanged and now asserted in the tests.** The queue file records only
+  THAT a second source's partition disagrees for a flag. His area names, `Text` and tags are not
+  in it, are not in either page, and never reach disk: the area label is an equivalence key inside
+  the process and the mapping it produces is built from OUR region names. Both browsers read the
+  committed tsv only, so **CI never needs his checkout** and the generators diff gate stays
+  deterministic. 🛑 **This PR queues; it does not fix.** Ruled rows move through the normal
+  derivation ladder (`M61_TILE_CURATED`, `DUNGEON_REGION_CURATED`, `region_overrides.tsv` last) in
+  later changes, and a row that stops disagreeing leaves the queue on the next refresh.
+  **No seed, pool or contract effect** — one new generator input, two reader pages, and docs.
+- **The same review mechanism now carries a second queue: 29 flags where a second source calls a
+  pickup missable and we do not.** `MISSABLE_LOCATIONS` decides where the generator refuses to put
+  required progression, and it is wrong-in-both-directions expensive: a missing tag can strand a
+  seed behind a consumable the player already spent, a spurious one narrows the fill for nothing.
+  It has exactly one second opinion, and ~68 joinable flags disagree — too many to be a signal on
+  their own, because the two models simply draw the missable line in different places. So a row is
+  queued only when a THIRD, independent thing agrees: OUR OWN
+  `greenfield/questline_conditions.tsv` shows the award gated on a `DIALOGUE_STEP`, `NPC_STATE` or
+  `ITEM_POSSESSION` root — the three condition classes describing a gate a player can lose for
+  good. That intersection is 29 flags (35 `(flag, ap_id)` rows), and
+  `matt_oracle.py --missable-queue` writes them to
+  `greenfield/evidence/oracle-missable-queue.tsv`.
+  It is deliberately **not a parallel mechanism**: the same writer, the same `(flag, ap_id)` key
+  and verdict carry-over, the same round trip. `tools/apply_oracle_region_verdicts.py` becomes
+  `tools/apply_oracle_verdicts.py --queue region|missable`, the check browser gains an **Oracle
+  missable review** facet beside the region one, and the notebook gains an **Oracle missable
+  review queue** filter and panel showing OUR evidence per flag: that we do not currently tag it,
+  the condition rows and what each one waits on (named with our own `flag_names`), the quest
+  features that mention the flag, and the region. Verdicts are `confirmed-not-missable` /
+  `missable`, and a `missable` one must also name the mechanism — limited consumable / killable NPC
+  / questline progress — because gen_data's missable classes are a closed vocabulary and a verdict
+  mapping onto none of them could never be applied. `confirmed-not-missable` needs no mechanism: it
+  is the claim that none applies, and it is the cheap common answer this queue most needs to keep
+  easy. The two queues use **separate** notebook fields, since a check can sit in both and a shared
+  field would let a ruling about its region stand in for a ruling about its missability.
+  🛑 **Licence boundary.** His `missable` tag is filter vocabulary — it selects which of OUR flags
+  to look at — and every column written is ours: our flag, ap_id, location name and condition
+  classes, plus a reviewer's own words. `basis` records only THAT a second source disagrees. Both
+  browsers read the committed tsv only, so **CI never needs his checkout**.
+  🛑 **This PR queues; it does not tag.** A `missable` verdict is applied in a later change through
+  the normal missable derivation in `greenfield/gen_data.py`, never by editing
+  `tables/missable_locations.py`. **No seed, pool or contract effect** — one new generator input,
+  two reader surfaces, and one renamed tool.
+
 - **The v0.6 evidence bundle is regenerated by `tools/regen_all.py`, not by hand.**
   `tools/build_v060_current_evidence.py` was outside the single regen entrypoint even though
   every claim and evidence row embeds the sha256 of its source module, so any edit to `data.py`

@@ -55,11 +55,40 @@ every step: read his checkout locally, commit only our own flags, names and reas
    never by writing his area names into the tree. Escalate that subset from report to FAIL once
    cleared. The two DLC-membership rows (520800, 530950) belong here.
 
+   **The review queue is built** (`--region-queue`, 2026-09-08). 218 rows in
+   `greenfield/evidence/oracle-region-queue.tsv`, each with `status` (open / confirmed-ours /
+   moved), `reviewer` and `note`. The check browser has an **Oracle region review** facet and the
+   player review notebook a queue view; both put OUR evidence beside each row — assigned region,
+   the derivation step that assigned it, map tile, nearest grace and the region that grace maps to
+   (47 rows have a grace candidate that differs from the assignment), and the
+   `check_region_second_opinion.tsv` wiki row where one exists (12 rows). A reviewer rules in the
+   notebook, downloads the notebook backup, and `tools/apply_oracle_verdicts.py` writes the
+   verdicts back into the tsv. 🛑 The queue file carries nothing of his: it records only THAT a
+   second source disagrees for that flag. **Still open:** working the 218, then the ladder fixes
+   for the `moved` rows, then the escalation to FAIL.
+
 5. **Missable tagging.**
    Semantics differ, so no blanket gate. Two clean sub-classes: mark the three Furnace Golem crystal
    tears (65430/65450/65460) missable; reconsider 60510 (Talisman Pouch) which we call questline and
    he calls a plain boss drop. Target: raise `missable_locations.py` toward his 168 joinable rows
    with a curated fail-list.
+
+   **The review queue is built** (`--missable-queue`, 2026-09-08), on the SAME mechanism as item 4
+   rather than a parallel one. The bare tag disagreement is ~68 joinable flags, which is not a
+   signal — the two models draw the missable line in different places. So a row is queued only on
+   the three-way intersection: he tags it missable, our `MISSABLE_LOCATIONS` does not, AND our own
+   `questline_conditions.tsv` shows a `DIALOGUE_STEP` / `NPC_STATE` / `ITEM_POSSESSION` root on the
+   award site. That is **29 flags / 35 rows** in `greenfield/evidence/oracle-missable-queue.tsv`,
+   each with `status` (open / confirmed-not-missable / missable), `reviewer` and `note`. The check
+   browser has an **Oracle missable review** facet and the notebook a matching queue view; both put
+   OUR evidence beside each row — our current missable status, the condition rows and what each one
+   waits on (named with our own `flag_names`), the quest features that mention the flag, and the
+   region. `tools/apply_oracle_verdicts.py --queue missable` writes the verdicts back, refusing a
+   `missable` verdict that does not name a mechanism (`limited-consumable` / `killable-npc` /
+   `questline-progress`), since gen_data's missable classes are a closed vocabulary.
+   🛑 The queue file carries nothing of his: it records only THAT a second source disagrees.
+   **Still open:** working the 29, then applying the `missable` rows through the normal derivation
+   in `greenfield/gen_data.py`, then the two named sub-classes above (65430/65450/65460, 60510).
 
 6. ~~4 shop-vs-lot flags (400282/400283/400285/400390).~~ **Done 2026-09-08** -- none of them is
    a shop row, and the flagless infinite-stock shop ids are now recorded as out of scope by
