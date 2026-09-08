@@ -350,19 +350,33 @@ class MissableEvidenceJoin(unittest.TestCase):
     def test_B_a_flag_that_is_only_a_substring_is_not_a_mention(self):
         # 12345678 contains "1234". A naive substring match would claim quest logic references
         # this flag when it references a different one -- a false lead pointed at the reviewer.
-        root = self._repo(
-            ["1234\t11\tA thing\tNPC_STATE\t%s\topen\t\t" % BASIS],
-            feature=("other_quest", "FLAGS = {12345678: 'a different step'}\n"))
+        # WITNESS FIRST: the same scan over the same module DOES find the flag when it really
+        # appears. Without it, "no features" would pass identically if the scan matched nothing at
+        # all -- which is exactly the bug this test is meant to be able to see.
+        row = ["1234\t11\tA thing\tNPC_STATE\t%s\topen\t\t" % BASIS]
+        hit = self._repo(row, feature=("other_quest", "FLAGS = {1234: 'this step'}\n"))
+        checks = [self._check(11, "Limgrave", 1234)]
+        self.B.attach_oracle_missable_queue(checks, repo=hit)
+        self.assertEqual(checks[0]["player"]["oracle_missable"]["features"], ["other_quest"])
+        # ...and now the ONLY difference: the digits are a substring of a longer flag.
+        root = self._repo(row, feature=("other_quest", "FLAGS = {12345678: 'a different step'}\n"))
         checks = [self._check(11, "Limgrave", 1234)]
         self.B.attach_oracle_missable_queue(checks, repo=root)
-        self.assertEqual(checks[0]["player"]["oracle_missable"]["features"], [])
+        found = checks[0]["player"]["oracle_missable"]["features"]
+        self.assertEqual(found, [])
 
     def test_B_no_condition_rows_is_a_silence_not_a_crash(self):
         root = self._repo(["1\t11\tA thing\tDIALOGUE_STEP\t%s\topen\t\t" % BASIS])
         checks = [self._check(11, "Limgrave", 1)]
         summary = self.B.attach_oracle_missable_queue(checks, repo=root)
-        self.assertEqual(summary, {"queued": 1, "with_conditions": 0})
-        self.assertEqual(checks[0]["player"]["oracle_missable"]["conditions"], [])
+        # WITNESS: the row IS joined and carries its queue evidence, so the empty condition list
+        # below is a real silence about this check rather than the join having skipped it.
+        self.assertEqual(summary["queued"], 1)
+        q = checks[0]["player"]["oracle_missable"]
+        self.assertEqual(q["condition_classes"], "DIALOGUE_STEP")
+        self.assertEqual(q["our_status"], "not missable")
+        self.assertEqual(summary["with_conditions"], 0)
+        self.assertEqual(q["conditions"], [])
 
     def test_B_an_empty_queue_is_a_zero_summary_not_a_crash(self):
         root = self._repo([])

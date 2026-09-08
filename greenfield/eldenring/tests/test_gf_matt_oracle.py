@@ -361,8 +361,17 @@ class MattOracleLogic(unittest.TestCase):
         # WITNESS: flag 3 is a tag disagreement with NO qualifying condition class of ours. There
         # are dozens of those, and queueing them would bury the rows where our OWN extraction
         # independently agrees there is something losable -- which is the entire signal here.
+        rows, by_flag = self._missable_rows(), self._MB_BY_FLAG
+        # WITNESS FIRST: the inputs really do carry tagged rows that join to ours, and the SAME
+        # rows with a qualifying condition DO produce a queue. Without this, the empty assertion
+        # below would pass just as happily if the join were dead or the fixture empty.
+        self.assertTrue([r for r in rows if r["stype"] == 0 and r["flag"] in by_flag])
         queue, _t, _o, _j = self.M.check_missable_queue(
-            self._missable_rows(), self._MB_BY_FLAG, missable_aps=set(), conditions={})
+            rows, by_flag, missable_aps=set(), conditions={1: ("NPC_STATE",)})
+        self.assertEqual([q["flag"] for q in queue], [1])
+        # ...and now the same call with the condition table empty: no roots, no rows.
+        queue, _t, _o, _j = self.M.check_missable_queue(
+            rows, by_flag, missable_aps=set(), conditions={})
         self.assertEqual(queue, [])
 
     def test_C3_a_non_losable_condition_class_does_not_qualify(self):
