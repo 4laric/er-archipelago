@@ -36,6 +36,7 @@ claim in the diff, where a reviewer can check it, instead of in a filename allow
 Run:  python -m pytest greenfield/eldenring/tests/test_gf_matt_oracle.py
 """
 import importlib.util
+import itertools
 import os
 import subprocess
 import sys
@@ -274,11 +275,25 @@ class MattOracleLogic(unittest.TestCase):
         # Class A's own invariants are covered by the reason-vocabulary test above, which walks
         # ITEM_IDENTITY_KNOWN itself and so would also cover any future bulk set merged into it.
         self.assertGreater(len(self.M.ITEM_IDENTITY_KNOWN), 0)
-        self.assertGreater(len(self.M._B_SCOPE_MAP_FRAGMENT), 10)
-        self.assertGreater(len(self.M._B_OPEN), 10)
-        self.assertFalse(self.M._B_SCOPE_MAP_FRAGMENT & self.M._B_OPEN)
-        for f in self.M._B_SCOPE_MAP_FRAGMENT | self.M._B_OPEN:
-            self.assertIn(f, self.M.MISSING_SLOT_KNOWN)
+        # The class-B sets. `_B_OPEN` was retired by the roadmap-item-3 triage; these replaced it,
+        # and each must stay POPULATED for the disjointness below to mean anything.
+        b_sets = {
+            "_B_SCOPE_MAP_FRAGMENT": self.M._B_SCOPE_MAP_FRAGMENT,
+            "_B_SCOPE_FORAGER_BROOD": self.M._B_SCOPE_FORAGER_BROOD,
+            "_B_SCOPE_UNPLACED_GLOBAL": self.M._B_SCOPE_UNPLACED_GLOBAL,
+            "_B_SCOPE_SCATTERED_FILLER": self.M._B_SCOPE_SCATTERED_FILLER,
+            "_B_SCOPE_NOT_FINDABLE": self.M._B_SCOPE_NOT_FINDABLE,
+        }
+        self.assertFalse(hasattr(self.M, "_B_OPEN"),
+                         "_B_OPEN is retired -- a flag belongs in a CLASSIFIED set, not a bin")
+        for name, s in b_sets.items():
+            self.assertTrue(s, name + " is empty")
+        for a, b in itertools.combinations(sorted(b_sets), 2):
+            self.assertFalse(b_sets[a] & b_sets[b],
+                             "%s and %s overlap -- a flag gets exactly ONE reason" % (a, b))
+        for s in b_sets.values():
+            for f in s:
+                self.assertIn(f, self.M.MISSING_SLOT_KNOWN)
 
     def test_E_excluded_tag_vocabulary_is_lowercase_words(self):
         for t in self.M.EXCLUDED_TAGS:

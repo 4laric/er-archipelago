@@ -45,6 +45,26 @@ nothing in it touches Elden Ring.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The matt oracle's 45 unexplained missing slots are triaged; the `_B_OPEN` bin is retired.** Roadmap item 3
+  asked which of his Event-scope flags `data.LOCATIONS` has no row for are REAL GAPS. Answer, from
+  `greenfield/region_map.csv`, `flag_lots.tsv`, `tools/datamine_unplaced_globals.py` and gen_data's
+  own exclusion sets: **1 KEYING, 44 SCOPE, 0 addable**. Every one of the 45 already has a named,
+  comment-documented reason to be absent — the seven Forager Brood Cookbooks and their six paired
+  material gifts are `_UNPLACEABLE_DLC_COOKBOOKS` (ESD gifts no corpus places, kept vanilla); 26 are
+  `Global / Common-event (unplaced)` rows whose flag encodes no map tile and which the region
+  derivation examined and REFUSED by name (common bucket / relocating NPC / no evidence); three are
+  `global_filler` stones scattered across many sites on one flag; two are `_UNREACHABLE_DEAD` and
+  `_WORLDLESS_SINGLES`, each with a keeper test; and the m14 Academy Glintstone Key is a phantom
+  duplicate of the one key we already ship on flag 1034457100. 🛑 **The roadmap's expected gap list
+  did not survive the evidence** — it was written against his table, not against gen_data's
+  exclusions. The residual real-gap debt is real but is 26 flags needing a *witness*, not a bin:
+  each would need a hand pin in `GLOBAL_RECOVER`, and inventing a region for one is exactly what the
+  ladder refuses to do. 530935 (the second Blessing of Marika) already has its in-game witness and
+  still has no region; it is the best-evidenced of the 26. **Tooling and allowlist reasons only: no
+  location was added, so no seed, pool, check count or contract effect**, and the class counts are
+  unchanged: class A 4076 agree / 8 allowlisted (post-#1497) and class B 80 allowlisted, with zero
+  unexplained and zero stale entries on either side.
+
 - **There is now a real `enemy_drops` table, derived from our own params.** The only enemy-drop
   data in the tree was `tables/enemy_drops_data.py` (`REROLLABLE_ENEMY_SLOTS`) — the *inverse*
   population, the unflagged farmable lots the reroll feature may touch — so nothing said which

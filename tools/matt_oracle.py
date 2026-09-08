@@ -81,17 +81,51 @@ _B_SCOPE_MAP_FRAGMENT = frozenset({    # 24 flags
     62064, 62080, 62081, 62082, 62083, 62084,
 })
 
-_B_OPEN = frozenset({    # 45 flags
-    60270, 68510, 68520, 68530, 68540,
-    68550, 68560, 68830, 400030, 400060,
-    400069, 400100, 400102, 400140, 400141,
-    400143, 400145, 400150, 400161, 400170,
-    400171, 400172, 400181, 400182, 400189,
-    400271, 400293, 400294, 400331, 400332,
-    400334, 400420, 400421, 400422, 400451,
-    400750, 400751, 400752, 400753, 400754,
-    400755, 530935, 14007930, 1050567820, 2048467701,
+# `_B_OPEN` is GONE, not emptied (roadmap item 3). Every one of its 45 flags is classified
+# below; an empty set named OPEN would read as "nothing found yet" instead of "triaged".
+
+# --- SCOPE, FORAGER BROOD GIFTS (13). One NPC-gift family, split across two flag bands. The seven
+# cookbook flags are gen_data's `_UNPLACEABLE_DLC_COOKBOOKS`: ESD/scripted gifts that no DLC
+# datamine ever places (no MSB treasure, no merchant row, no enemy lot, no EMEVD award), so rather
+# than strand them at a guessed Gravesite region or lie to the logic via HUB they stay VANILLA
+# pickups. The six 4007xx flags are the MATERIAL half of the same gifts and pair with the cookbook
+# lots one-for-one in flag_lots.tsv -- 107501/107511/107521/107531/107541/107551 against cookbook
+# lots 107500/107510/107520/107530/107540/107550 -- so they inherit the same ruling; the derivation
+# refuses them too ("no evidence in ANY corpus").
+_B_SCOPE_FORAGER_BROOD = frozenset({
+    68510, 68520, 68530, 68540, 68550, 68560, 68830,
+    400750, 400751, 400752, 400753, 400754, 400755,
 })
+
+# --- SCOPE, UNPLACED COMMON-EVENT AWARDS (26). region_map.csv files each of these
+# `Global / Common-event (unplaced)`, method `global`. A 4xxxxx/5xxxxx flag self-encodes no map, so
+# gen_data's `_recover_tile` returns None and `_recover_row_ok` drops the row. The escape hatches
+# are a DERIVED tile (tools/datamine_unplaced_globals.py -> unplaced_global_tiles.tsv) or a hand pin
+# in gen_data.GLOBAL_RECOVER backed by a concrete game-data or in-game witness. Every one of these
+# 26 is a CANDIDATE the derivation examined and REFUSED, by its own three reasons:
+#   * talk ESD names only a common bucket, and m60_00_00_00 is not a place (9)
+#   * ambiguous across 2-5 maps -- an NPC that relocates, refused rather than guessed (14)
+#   * no evidence in ANY corpus (3)
+# These are the ONLY residual REAL-GAP debt in class B, and the bar to closing one is a witness, not
+# a bin. 530935 already has its witness (boblerrr, 2026-08-07: he collected lots 30935 and 30950 on
+# one character and got a check from the first only) and still has no region.
+_B_SCOPE_UNPLACED_GLOBAL = frozenset({
+    60270, 400030, 400060, 400069, 400100, 400102, 400140, 400141, 400143,
+    400145, 400170, 400171, 400172, 400181, 400182, 400189, 400271, 400293,
+    400294, 400331, 400332, 400334, 400420, 400421, 400451, 530935,
+})
+
+# --- SCOPE, SCATTERED FILLER (3). Filed `Global / Filler (scattered by design)`, method
+# `global_filler`: an upgrade stone the game hands out from many sites on one shared flag. Not
+# "unplaced" -- unplaced_globals does not even take them as candidates -- and not one site we could
+# name. gen_data's SKIP set drops the method by design.
+_B_SCOPE_SCATTERED_FILLER = frozenset({400150, 400161, 400422})
+
+# --- SCOPE, RULED NOT-FINDABLE (2). Both already carry a named gen_data ruling with a keeper test:
+#   1050567820 Graven-Mass Talisman (Albinauric Rise) -- `_UNREACHABLE_DEAD`, excluded as dead.
+#   2048467701 Furnace Visage -- `_WORLDLESS_SINGLES`, the re-derived not-findable census
+#              (test_gf_worldless_singles.py rebuilds the class every run).
+_B_SCOPE_NOT_FINDABLE = frozenset({1050567820, 2048467701})
 
 
 ITEM_IDENTITY_KNOWN = {
@@ -157,15 +191,37 @@ MISSING_SLOT_KNOWN.update(
     {f: "SCOPE: map fragment -- gen_data guards `Map:` out of the item pool by design"
      for f in _B_SCOPE_MAP_FRAGMENT}
 )
-# --- OPEN (45). Slots he carries and we do not, with no scoping story that covers them: the seven
-# Forager Brood Cookbooks (a DLC cookbook line absent from our catalog entirely), ~33 quest/NPC
-# reward flags in the 400xxx band (we model much of that band, so "we don't do quest rewards" is not
-# the explanation), a second Blessing of Marika, a second Academy Glintstone Key, a Rise talisman,
-# and one Furnace Golem drop. These are candidate REAL GAPS in data.LOCATIONS. Allowlisted so the
-# gate is green and the debt is visible; each is an open finding on the PR that added this tool.
+# --- The class-B triage (roadmap item 3). The 45 flags that were `_B_OPEN` resolved to 1 KEYING and
+# 44 SCOPE. NONE of them is addable through the derivation ladder today, and the reason is the same
+# in every group: gen_data already refuses each one under a NAMED, comment-documented exclusion, or
+# the region derivation examined it and refused to guess. Writing a region by hand for any of them
+# would be inventing the one fact the ladder says it does not have.
 MISSING_SLOT_KNOWN.update(
-    {f: "OPEN: slot he carries that data.LOCATIONS has no row for; candidate real gap"
-     for f in _B_OPEN}
+    {f: "SCOPE: Forager Brood NPC gift -- gen_data._UNPLACEABLE_DLC_COOKBOOKS keeps this family "
+        "vanilla; no corpus places it"
+     for f in _B_SCOPE_FORAGER_BROOD}
+)
+MISSING_SLOT_KNOWN.update(
+    {f: "SCOPE: unplaced common-event award -- flag encodes no map tile and "
+        "datamine_unplaced_globals REFUSES it (common bucket / ambiguous / no evidence); a hand pin "
+        "in GLOBAL_RECOVER needs a witness we do not have"
+     for f in _B_SCOPE_UNPLACED_GLOBAL}
+)
+MISSING_SLOT_KNOWN.update(
+    {f: "SCOPE: global_filler -- one shared flag scattered across many sites by design; gen_data's "
+        "SKIP set drops the method"
+     for f in _B_SCOPE_SCATTERED_FILLER}
+)
+MISSING_SLOT_KNOWN.update(
+    {f: "SCOPE: ruled not-findable -- gen_data._UNREACHABLE_DEAD / _WORLDLESS_SINGLES, each with a "
+        "keeper test"
+     for f in _B_SCOPE_NOT_FINDABLE}
+)
+# --- KEYING (1). gen_data._SHEET_DROPS: there is exactly ONE Academy Glintstone Key in the game and
+# we carry it as the Liurnia overworld pickup on flag 1034457100. The m14 flag is a phantom
+# duplicate, dropped so the key stays a singleton -- a row here would make it two.
+MISSING_SLOT_KNOWN[14007930] = (
+    "KEYING: phantom second Academy Glintstone Key -- we carry the game's only one on flag 1034457100"
 )
 
 
