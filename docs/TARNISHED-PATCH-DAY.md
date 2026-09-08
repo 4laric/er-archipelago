@@ -136,3 +136,44 @@ Those rows are covered by the informational row diff instead — on patch day ru
 `python tools/diff_gen_inputs.py old.db gen_inputs.db --only SpEffectParam` and read the changed-row
 list for anything in `7000..7999` by eye. The DLC block (`20007000..20007750`, ladder AND band) has
 no such collision problem and IS watched.
+
+---
+
+## 6. The second run: Elden Ring 2.7.1.0, 2026-09-08 (#1486)
+
+Steam build 25080141 moved `eldenring.exe` to **2.7.1.0** (sha256 `1a354710…597891`) and touched
+`regulation.bin` AND `Data0.bdt`/`Data0.bhd` in the same push; no patch notes were up that morning.
+Recorded here so the third run is a diff against this, the way this one was against §1.
+
+| fact | 1.17 (2026-08-28) | 2.7.1.0 (2026-09-08) |
+|---|---|---|
+| exe FileVersion | 2.7.0.0 | 2.7.1.0 |
+| depot 1245621 manifest | (see #241) | 3886039026718227526, previous 8950790353897081369 |
+| `gen_inputs.db` baseline commit | `0ee7fbf4` | **not re-committed** -- see below |
+| `SpEffectParam` | 11 354 x 373 | 11 354 x 373 |
+| `EquipParamProtector` | 838 x 253 | 838 x 285 (paramdef split `pad404`, rows identical) |
+| `EquipParamGoods` / `EquipParamWeapon` | 2 329 / 3 636 | same |
+| `CharaInitParam` | 3 273 x 119 | same |
+| claimed rows 20012080 / 20010827 / 20012081 / 20012082 | eligible | eligible, same verdicts |
+
+**Verdict: the 2.7.1.0 regulation is data-identical to the 1.17 dump across all 239 tables.** The
+one non-Name cell that differed (`NetworkParam.quickMatchSearchTimeout`, `1133903872` -> `300`) is
+`0x43960000` = float 300.0 re-typed by a newer paramdef. So no pool exclusion, no
+`TARNISHED_PACK_ITEM_NAMES` entry, no regen, and the bundle was deliberately NOT re-emitted: a
+re-emit would have moved `inputs_hash` and declared pre/post seeds incomparable for zero data change.
+
+What the run actually cost, and the two rules that come out of it:
+
+1. **Strip row names before diffing.** Smithbox 2.2.5 exported NAMES into column two; every prior
+   dump had that column empty (or `null`). Names carry commas, unbalanced quotes and newlines, so
+   `diff_gen_inputs.py` reported every row changed and crashed on `FaceParam`. Now:
+   `python tools/strip_param_names.py <export> elden_ring_artifacts/vanilla_er/vanilla_er` first.
+2. **A `COLUMN LAYOUT CHANGED` line is not yet a game change.** Smithbox's paramdef moved between
+   dumps (`pad404` -> `unk404_*`). Compare the SHARED columns row by row before believing the
+   header; on this run that comparison is what produced the verdict above.
+
+Still open from this run: `Data0.bdt` changed too, and the FMG/EMEVD/MSB side of the artifacts is
+the 1.17 extraction -- nothing re-checked it. And the client half (clients #662) had its addresses
+generated with upstream's own `tools/binary-mapper` against the real exe (five of 107 moved, all
++0x70) plus a `_SIG`/dataref re-location of the client's eight; the §4 live smoke test is the
+only proof that counts, and it had not been run when this section was written.
