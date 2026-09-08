@@ -3,19 +3,101 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.0.6 — 2026-09-08
+
+### What you need to update
+
+- **Client:** **Required on Elden Ring 2.7.1.0.** Steam pushed 2.7.1.0 on 2026-09-08, after
+  v0.6.0.5 was tagged, and every client built before this one refuses that executable at the
+  version gate (clients #662 below) — so a player whose Steam has already updated the game needs
+  a v0.6.0.6 client to play at all. Optional on 2.6.2.x or 2.7.0.x: a v0.6.0.4 or v0.6.0.5 client
+  keeps playing every 0.6.0-line seed there, and the contract hash has not moved since v0.6.0.3.
+- **APWorld:** Host-only — install v0.6.0.6 when generating a new room once it ships.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — a fixpack never strands a running seed.
+- **Profile/assets:** **Reinstall or replace** — use the MapForGoblins build and preset shipped
+  with v0.6.0.6: it fixes an overlay-thread crash and changes the map defaults (below).
+
+Window opened TWO commits past the v0.6.0.5 tag, not at it — the first window on this line that
+was not opened at a tag. #1487 and #1489 merged after `v0.6.0.5` was cut at `48fa3f4f`, and both
+wrote their entries under the already-tagged `## v0.6.0.5` heading; that is what left
+`check_release_notes.py` red on `main` until this commit. **Both entries move into this section
+here**, so the v0.6.0.5 section is again exactly what v0.6.0.5 shipped and the two changes are
+announced by the version that will actually carry them. `release/BLURB-v0.6.0.5.md` is reverted
+to its tagged text for the same reason; its post-tag prose is now `release/BLURB-v0.6.0.6.md`.
+The stable row for v0.6.0.5 in `release/CHANNELS.tsv` therefore summarises the tagged section
+only — the `flag_lots.tsv` re-derivation — and says nothing about 2.7.1.0 or MapForGoblins,
+which did not ship in it.
+
+`CONTRACT_HASH` is `613fb438`, read by loading contract.py: unmoved since v0.6.0.3, so a
+v0.6.0.3 client and a v0.6.0.6 apworld pair without a mismatch in either direction. Versions are
+V.R.M.F: a client on the 0.6.0 line from v0.6.0.3 on plays every seed the line generates. The
+2.7.1.0 support below does not touch that — it changes which `eldenring.exe` the client will
+attach to, not anything a seed carries.
+
+The version moved, so the client half moved with it: clients PR #665 "Stamp the paired
+client for the v0.6.0.6 window" moves the three client version sites, and the gitlink rides in
+this same commit. The gitlink advances from `45b4c752` to that branch head, picking up client
+main's `2f1ee16` on the way (clients #664, a Bloodborne Windows-resource version string);
+nothing in it touches Elden Ring.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.6.0.5 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **The multiworld smoke's early-item guard judged an item no partner had declared early
+  (#1485).** Check 6 named BOTH of DOOM 1993's candidate early weapons, but `worlds/doom_1993`
+  declares `random.choice(["Shotgun", "Chaingun"])` — one of them, per seed, one copy. The other
+  weapon is ordinary advancement that AP's fill may put anywhere, so the guard went red on healthy
+  seeds: measured 3 of 6 seeds on `main` and 4 of 6 on #1485's tree, with ZERO real breaches in
+  any of them. On the pinned seed DOOM declared the Shotgun, AP's early pass put it in Altus (a
+  starting region — correct), and the UNDECLARED Chaingun landed in Farum Azula; instrumenting
+  `incoming_progression` showed our reservation took neither weapon, and after the whole
+  `stage_fill_hook` only the Shotgun was placed. #1485's Altus→Leyndell region move changed
+  nothing but the fill RNG. The early partner is now Heretic on episode 1 alone, which declares a
+  fixed, uniquely-named, single-copy item, so the guard's name list is exactly the declaration;
+  the self-test gains a case proving an UNdeclared partner item deep in Elden Ring is not judged.
+  **No world code changed and no seed moves** — this is tooling only, and #1456 stays closed.
+  🛑 Filed under v0.6.0.5 because the v0.6.0.6 window (#1491) had not merged when this landed; move
+  the bullet if it opens first.
+
+- **Elden Ring 2.7.1.0 is supported (clients #662, 4laric/fromsoftware-rs `tarnished-2710`).**
+- _(Written under `## v0.6.0.5` by #1489 after the v0.6.0.5 tag; moved here, because this is the
+  version that ships it.)_ **Elden Ring 2.7.1.0 is supported (clients #662, 4laric/fromsoftware-rs `tarnished-2710`).**
+  Steam build 25080141 (2026-09-08) moved the executable to 2.7.1.0 and the gate refused it, as
+  designed. The crate's 107 addresses were generated with upstream's own `binary-mapper` against
+  the real executable (five moved from 2.7.0.0, all by +0x70); the client's eight private
+  addresses were re-located against it (seven unchanged, `fmg_search` +0x70). 2.6.2.0, 2.6.2.1,
+  2.7.0.0 and 2.7.0.1 keep working; no Japanese 2.7.1.x executable has been seen. 🛑 The
+  2.7.1.0 addresses are mapper-generated and prologue-checked, **not yet executed in a game**:
+  the live smoke test (gate silent, connect, one check, one item) is owed before `stable` moves.
+  The 2.7.1.0 `regulation.bin` is data-identical to the 1.17 dump across all 239 params, so no
+  seed, pool or contract change rides with this (#1486, #1487). **The gitlink moved to client main
+  `45b4c752` in #1489** (and advances again here with the v0.6.0.6 version stamp); that move also
+  carried clients #661: the baked fallback
+  region-lock table files the Divine Tower of East Altus under Leyndell. That table only serves
+  seeds that ship no lock flags in slot data; 4laric seeds are unaffected until the world half
+  (#1485) merges.
+- _(Written under `## v0.6.0.5` by #1489 after the v0.6.0.5 tag; moved here.)_ **MapForGoblins
+  engine moved to fork `c015cb3f` (fork PRs #10, #11, #12).** #12 fixes a
+  use-after-free on the overlay thread that produced three access violations in a v0.6.0 player
+  log. #10 prunes hidden pins at map build instead of hiding them per frame (late-game map opens
+  stop lagging; unhiding a marker now takes effect on the next map open), **removes the orange
+  AP progression rings and their size slider**, and **defaults "In logic only" to ON**. The
+  world's preset table follows the fork (`tools/package_mfg.py`), `SETUP.md` describes the new
+  defaults, and `tools/mfg_pin.py --check` is green again. #11 is fork-side CI only.
+
+
 ## v0.6.0.5 — 2026-09-07
 
 ### What you need to update
 
-- **Client:** **Required on Elden Ring 2.7.1.0.** Steam pushed 2.7.1.0 on 2026-09-08 and every
-  earlier client refuses it at the version gate (clients #662 below). On 2.6.2.x or 2.7.0.x a
-  v0.6.0.4 client keeps playing every 0.6.0-line seed; the contract hash has not moved since
-  v0.6.0.3.
+- **Client:** Optional — nothing in this window yet changes the client; a v0.6.0.4 client keeps
+  playing every 0.6.0-line seed, and the contract hash has not moved since v0.6.0.3.
 - **APWorld:** Host-only — install v0.6.0.5 when generating a new room once it ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
-- **Profile/assets:** **Reinstall or replace** — use the MapForGoblins build and preset shipped
-  with v0.6.0.5: it fixes an overlay-thread crash and changes the map defaults (below).
+- **Profile/assets:** No action — the MapForGoblins build and preset are unchanged from v0.6.0.4.
 Window opened AT THE TAG of v0.6.0.4 with ZERO commits past it.
 
 `CONTRACT_HASH` is `613fb438`, read by loading contract.py: unmoved since v0.6.0.3, so a
@@ -29,28 +111,6 @@ commit.
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.4 in this same commit.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
-
-- **Elden Ring 2.7.1.0 is supported (clients #662, 4laric/fromsoftware-rs `tarnished-2710`).**
-  Steam build 25080141 (2026-09-08) moved the executable to 2.7.1.0 and the gate refused it, as
-  designed. The crate's 107 addresses were generated with upstream's own `binary-mapper` against
-  the real executable (five moved from 2.7.0.0, all by +0x70); the client's eight private
-  addresses were re-located against it (seven unchanged, `fmg_search` +0x70). 2.6.2.0, 2.6.2.1,
-  2.7.0.0 and 2.7.0.1 keep working; no Japanese 2.7.1.x executable has been seen. 🛑 The
-  2.7.1.0 addresses are mapper-generated and prologue-checked, **not yet executed in a game**:
-  the live smoke test (gate silent, connect, one check, one item) is owed before `stable` moves.
-  The 2.7.1.0 `regulation.bin` is data-identical to the 1.17 dump across all 239 params, so no
-  seed, pool or contract change rides with this (#1486, #1487). **The gitlink moves to client
-  main `45b4c752` in this same commit**, which also carries clients #661: the baked fallback
-  region-lock table files the Divine Tower of East Altus under Leyndell. That table only serves
-  seeds that ship no lock flags in slot data; 4laric seeds are unaffected until the world half
-  (#1485) merges.
-- **MapForGoblins engine moved to fork `c015cb3f` (fork PRs #10, #11, #12).** #12 fixes a
-  use-after-free on the overlay thread that produced three access violations in a v0.6.0 player
-  log. #10 prunes hidden pins at map build instead of hiding them per frame (late-game map opens
-  stop lagging; unhiding a marker now takes effect on the next map open), **removes the orange
-  AP progression rings and their size slider**, and **defaults "In logic only" to ON**. The
-  world's preset table follows the fork (`tools/package_mfg.py`), `SETUP.md` describes the new
-  defaults, and `tools/mfg_pin.py --check` is green again. #11 is fork-side CI only.
 
 - **`greenfield/flag_lots.tsv` re-derived against the committed param corpus, and the datamine that
   writes it wired into the regen entrypoint and CI.** The 2026-09-03 param re-export landed in
