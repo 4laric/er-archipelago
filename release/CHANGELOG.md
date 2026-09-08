@@ -7,12 +7,15 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** Optional — nothing in this window yet changes the client; a v0.6.0.4 client keeps
-  playing every 0.6.0-line seed, and the contract hash has not moved since v0.6.0.3.
+- **Client:** **Required on Elden Ring 2.7.1.0.** Steam pushed 2.7.1.0 on 2026-09-08 and every
+  earlier client refuses it at the version gate (clients #662 below). On 2.6.2.x or 2.7.0.x a
+  v0.6.0.4 client keeps playing every 0.6.0-line seed; the contract hash has not moved since
+  v0.6.0.3.
 - **APWorld:** Host-only — install v0.6.0.5 when generating a new room once it ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
-- **Profile/assets:** No action — the MapForGoblins build and preset are unchanged from v0.6.0.4.
+- **Profile/assets:** **Reinstall or replace** — use the MapForGoblins build and preset shipped
+  with v0.6.0.5: it fixes an overlay-thread crash and changes the map defaults (below).
 Window opened AT THE TAG of v0.6.0.4 with ZERO commits past it.
 
 `CONTRACT_HASH` is `613fb438`, read by loading contract.py: unmoved since v0.6.0.3, so a
@@ -26,6 +29,28 @@ commit.
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.4 in this same commit.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **Elden Ring 2.7.1.0 is supported (clients #662, 4laric/fromsoftware-rs `tarnished-2710`).**
+  Steam build 25080141 (2026-09-08) moved the executable to 2.7.1.0 and the gate refused it, as
+  designed. The crate's 107 addresses were generated with upstream's own `binary-mapper` against
+  the real executable (five moved from 2.7.0.0, all by +0x70); the client's eight private
+  addresses were re-located against it (seven unchanged, `fmg_search` +0x70). 2.6.2.0, 2.6.2.1,
+  2.7.0.0 and 2.7.0.1 keep working; no Japanese 2.7.1.x executable has been seen. 🛑 The
+  2.7.1.0 addresses are mapper-generated and prologue-checked, **not yet executed in a game**:
+  the live smoke test (gate silent, connect, one check, one item) is owed before `stable` moves.
+  The 2.7.1.0 `regulation.bin` is data-identical to the 1.17 dump across all 239 params, so no
+  seed, pool or contract change rides with this (#1486, #1487). **The gitlink moves to client
+  main `45b4c752` in this same commit**, which also carries clients #661: the baked fallback
+  region-lock table files the Divine Tower of East Altus under Leyndell. That table only serves
+  seeds that ship no lock flags in slot data; 4laric seeds are unaffected until the world half
+  (#1485) merges.
+- **MapForGoblins engine moved to fork `c015cb3f` (fork PRs #10, #11, #12).** #12 fixes a
+  use-after-free on the overlay thread that produced three access violations in a v0.6.0 player
+  log. #10 prunes hidden pins at map build instead of hiding them per frame (late-game map opens
+  stop lagging; unhiding a marker now takes effect on the next map open), **removes the orange
+  AP progression rings and their size slider**, and **defaults "In logic only" to ON**. The
+  world's preset table follows the fork (`tools/package_mfg.py`), `SETUP.md` describes the new
+  defaults, and `tools/mfg_pin.py --check` is green again. #11 is fork-side CI only.
 
 - **`greenfield/flag_lots.tsv` re-derived against the committed param corpus, and the datamine that
   writes it wired into the regen entrypoint and CI.** The 2026-09-03 param re-export landed in
