@@ -47,26 +47,26 @@ except ImportError:  # direct/unittest fallback
 _ROOT = find_repo_root(HERE)
 
 POCKET = {
-    # 7774386 -> 7774402 (2026-08-07): +16 unplaced-global rows landed BEFORE this one, and ap ids
+    # 7774376 -> 7774392 (2026-08-07): +16 unplaced-global rows landed BEFORE this one, and ap ids
     # are positional (BASE_AP + index). NOTE its sibling below did NOT move -- the shift applies
     # only to locations after the insertion point, so do not blanket-add 16 to a pinned id.
-    # 7774402 -> 7774401 (2026-08-07): one cut-content check (f400081) retired ahead of it.
+    # 7774392 -> 7774391 (2026-08-07): one cut-content check (f400081) retired ahead of it.
     # Its sibling below does NOT move -- it sits before the removal, so never blanket-apply a delta.
-    # 7774401 -> 7774277 and 7772688 -> 7772653 (2026-08-19, #330): 124 worldless Rada Fruit rows
+    # 7774391 -> 7774267 and 7772686 -> 7772651 (2026-08-19, #330): 124 worldless Rada Fruit rows
     # left the corpus (_RADA_WORLDLESS); both pins sit after removals this time, and by different
     # amounts (124 vs 35), which is the same never-blanket-a-delta lesson from the other direction.
-    # 7774277 -> 7774287 -> 7774237 (2026-08-19: +10 restored Rada rows, then -65 from the
+    # 7774267 -> 7774277 -> 7774227 (2026-08-19: +10 restored Rada rows, then -65 from the
     # worldless-singles cull). Flag-verified each time.
-    # 7772653 -> 7772649 (2026-08-19, the cull): the sibling that "never moves" finally moved --
+    # 7772651 -> 7772647 (2026-08-19, the cull): the sibling that "never moves" finally moved --
     # 4 culled flags sat before it. There is no pinned id the corpus cannot renumber.
-    # 7774245 -> 7774246 (2026-08-21, #940): the un-culled Four Belfries key (f1033477020) inserted
-    # at ap 7774225, ahead of this pin; the sibling below (7772650) sits BEFORE the insertion and
+    # 7774235 -> 7774236 (2026-08-21, #940): the un-culled Four Belfries key (f1033477020) inserted
+    # at ap 7774215, ahead of this pin; the sibling below (7772648) sits BEFORE the insertion and
     # does not move. Flag-verified, never blanket-applied.
-    # 7774246 -> 7774146 and 7772650 -> 7772550 (2026-08-24, #1013): Enia's shop went vanilla and
+    # 7774236 -> 7774138 and 7772648 -> 7772549 (2026-08-24, #1013): Enia's shop went vanilla and
     # her 100 rows left the pool ahead of BOTH pins; -100 each, flag-verified. Same lesson as
     # 2026-08-19: this time the sibling DOES move with its twin.
-    1035467100: 7774140,   # -5 worldless Shaded Castle lots (#1077); flag-verified   # Golden Seed - near Main Academy Gate (the reported check)
-    1035467700: 7772550,   # Ash of War: Raptor of the Mists - around Main Academy Gate
+    1035467100: 7774132,   # -5 worldless Shaded Castle lots (#1077); flag-verified   # Golden Seed - near Main Academy Gate (the reported check)
+    1035467700: 7772549,   # Ash of War: Raptor of the Mists - around Main Academy Gate
 }
 ANCHOR_FLAG = 14007990     # Golden Seed - near Schoolhouse Classroom: undisputed academy ground
 ACADEMY = "Raya Lucaria Academy"

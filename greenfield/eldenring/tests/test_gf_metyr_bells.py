@@ -9,10 +9,10 @@ override hid the fact that the real prerequisite was never met.
 
 THE OTHER HALF of the case is why we do not simply force both bells. A preset bell flag makes its
 tile's event award the lot on load:
-    Rhia  2053460600 -> lot 2053460600 -> check flag 2053467600  (Cerulean Seed Talisman +1, 7773806)
-    Dheo  2050400600 -> lot 2050400000 -> check flag 2050407000  (Crimson Seed Talisman +1,  7773730)
+    Rhia  2053460600 -> lot 2053460600 -> check flag 2053467600  (Cerulean Seed Talisman +1, 7773804)
+    Dheo  2050400600 -> lot 2050400000 -> check flag 2050407000  (Crimson Seed Talisman +1,  7773728)
 so a forced bell SPENDS its check -- the same trap as 2051450180, whose forcing awards lot 106720
-and popped check 7773893 on the spot when it was set by hand in a playtest save (2026-08-13).
+and popped check 7773891 on the spot when it was set by hand in a playtest save (2026-08-13).
 """
 import pytest
 
@@ -26,7 +26,7 @@ _DERIVED_9440 = 9440
 _FREE_CHECK_TRAP = 2051450180
 _RAKSHASA_SWEEP = 2051440800
 _RHIA_REWARD_FLAG = 2053467600
-_RHIA_REWARD_AP = 7773806
+_RHIA_REWARD_AP = 7773804
 
 
 def test_only_a_sealed_regions_bell_is_forced():

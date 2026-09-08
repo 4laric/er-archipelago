@@ -17,10 +17,10 @@ physically spawns wherever it actually lives. If that place is behind a region L
 
 REAL SEED (Alaric, AP_55352390472076588352, 2026-07-11, Caelid start):
     flag 400220, a Golden Seed, method=global_filler, region='PENDING'  -> quarantined to the HUB
-    fill placed the STORMVEIL CASTLE LOCK on it (ap 7773853, sphere 1)
+    fill placed the STORMVEIL CASTLE LOCK on it (ap 7773851, sphere 1)
     ground truth (msb_flag_region.tsv, enemy chain): m10_00 = Stormveil, m60_46_36 = Limgrave
 =>  the Stormveil key was inside Stormveil. Circular. Unwinnable.
-    Confirmed in the client log: `AP scout-proof: location 7773853 -> Stormveil Castle Lock`.
+    Confirmed in the client log: `AP scout-proof: location 7773851 -> Stormveil Castle Lock`.
 
 Quarantining to the HUB remains fine for DETECTION -- the flag fires wherever the item really is. It
 is simply not a licence to assert reachability. Note the rule is NOT "PENDING map => unjustified":
@@ -123,8 +123,8 @@ class TestDefaultedRegionGuard(unittest.TestCase):
         """The exact check that killed AP_55352390472076588352: Golden Seed f400220, really in
         Stormveil, quarantined to the HUB, given the Stormveil Castle Lock.
 
-        Keyed by FLAG, not ap-id: the ap-ids these used to pin (7773853 / 7773916) drifted the moment
-        the boss-reward family was recovered (+37 rows), and 7773916 silently became a DIFFERENT,
+        Keyed by FLAG, not ap-id: the ap-ids these used to pin (7773851 / 7773909) drifted the moment
+        the boss-reward family was recovered (+37 rows), and 7773909 silently became a DIFFERENT,
         legitimately-unbarred Liurnia check -- so the assertion started failing while the property it
         guards was still perfectly true. A guard that pins a positional id is a guard with a half-life.
         """

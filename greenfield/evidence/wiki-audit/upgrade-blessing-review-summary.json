@@ -4,60 +4,60 @@
       "audited": 93,
       "audited_one_family": 19,
       "conflicted": 0,
-      "held": 78,
-      "remaining_unreviewed": 59,
+      "held": 86,
+      "remaining_unreviewed": 67,
       "repeated_material_rows": 85,
-      "trusted": 15,
+      "trusted": 7,
       "uniquely_anchored_collectibles": 0
     },
     "golden_seed": {
       "audited": 43,
-      "audited_one_family": 11,
+      "audited_one_family": 7,
       "conflicted": 0,
-      "held": 33,
-      "remaining_unreviewed": 22,
+      "held": 34,
+      "remaining_unreviewed": 27,
       "repeated_material_rows": 0,
-      "trusted": 10,
+      "trusted": 9,
       "uniquely_anchored_collectibles": 43
     },
     "revered_spirit_ash": {
       "audited": 23,
       "audited_one_family": 1,
       "conflicted": 0,
-      "held": 19,
-      "remaining_unreviewed": 18,
+      "held": 5,
+      "remaining_unreviewed": 4,
       "repeated_material_rows": 0,
-      "trusted": 4,
+      "trusted": 18,
       "uniquely_anchored_collectibles": 23
     },
     "sacred_tear": {
       "audited": 13,
       "audited_one_family": 3,
       "conflicted": 0,
-      "held": 12,
-      "remaining_unreviewed": 9,
+      "held": 5,
+      "remaining_unreviewed": 2,
       "repeated_material_rows": 0,
-      "trusted": 1,
+      "trusted": 8,
       "uniquely_anchored_collectibles": 13
     },
     "scadutree_fragment": {
       "audited": 46,
-      "audited_one_family": 6,
+      "audited_one_family": 4,
       "conflicted": 0,
-      "held": 33,
-      "remaining_unreviewed": 27,
+      "held": 13,
+      "remaining_unreviewed": 9,
       "repeated_material_rows": 0,
-      "trusted": 13,
+      "trusted": 33,
       "uniquely_anchored_collectibles": 46
     },
     "smithing_stone": {
       "audited": 577,
-      "audited_one_family": 105,
+      "audited_one_family": 71,
       "conflicted": 0,
-      "held": 482,
-      "remaining_unreviewed": 377,
+      "held": 555,
+      "remaining_unreviewed": 484,
       "repeated_material_rows": 576,
-      "trusted": 95,
+      "trusted": 22,
       "uniquely_anchored_collectibles": 0
     }
   },
@@ -72,8 +72,8 @@
   "totals": {
     "audited": 795,
     "conflicted": 0,
-    "held": 657,
-    "remaining_unreviewed": 512,
-    "trusted": 138
+    "held": 698,
+    "remaining_unreviewed": 593,
+    "trusted": 97
   }
 }

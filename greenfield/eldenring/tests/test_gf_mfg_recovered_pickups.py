@@ -36,9 +36,9 @@ class MfgRecoveredPickups(unittest.TestCase):
                     2046407003: "Gravesite", 2046407004: "Gravesite", 2047447901: "Ensis"}
         self.assertEqual({r["flag"] for r in evidence["rows"]}, set(expected))
         # Preserve the shipped identity hash, normalizing Eleonora's corrected flag.
-        original = sorted((1039527700 if (flag, aid) == (400162, 7774254) else flag, aid)
+        original = sorted((1039527700 if (flag, aid) == (400162, 7774244) else flag, aid)
                           for flag, values in by_flag.items() for _, _, aid in values
-                          if aid <= 7774635 or aid >= 7900000)
+                          if aid <= 7774625 or aid >= 7900000)
         self.assertEqual(len(original), 4925)
         self.assertEqual(hashlib.sha256(json.dumps(original, separators=(",", ":")).encode()).hexdigest(),
                          "0c479eeae9fe422f2c1d4403cb68b856abe66a0052736484b5ad61f8bd2b9309")

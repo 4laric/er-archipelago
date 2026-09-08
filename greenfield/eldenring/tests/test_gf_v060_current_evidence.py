@@ -117,7 +117,7 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
 
     def test_palace_key_access_is_the_narrow_miniature_ranni_rule(self):
         claim = next(row for row in self.bundle["claims"]
-                     if row["claim_id"] == "check:7773712/access")
+                     if row["claim_id"] == "check:7773710/access")
         self.assertEqual(json.loads(claim["value"]), {
             "type": "all",
             "conditions": [
@@ -149,7 +149,7 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
 
     def test_fingerslayer_access_is_region_only_because_chest_gate_is_force_set(self):
         claim = next(row for row in self.bundle["claims"]
-                     if row["claim_id"] == "check:7771152/access")
+                     if row["claim_id"] == "check:7771151/access")
         self.assertEqual(json.loads(claim["value"]), {
             "region": "Siofra River",
             "runtime_bypass": {"flag": 1034509410, "type": "start_flag"},

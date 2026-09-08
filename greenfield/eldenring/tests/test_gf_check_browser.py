@@ -493,7 +493,7 @@ class SweepClauseIsEligibilityNotAPromise(unittest.TestCase):
     `dungeonSweepFlags` and filters the clause outright -- er_logic::sweep_clause.)
     """
 
-    COLOMBIUS_AP = 7773183
+    COLOMBIUS_AP = 7773181
     COLOMBIUS_FLAG = 1052537800
     # The OLD wording -- used as a guard to make sure it does not sneak back into names.
     OPENER = ", also granted by "

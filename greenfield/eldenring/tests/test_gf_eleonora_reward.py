@@ -17,7 +17,7 @@ class EleonoraReward(unittest.TestCase):
         rows = [(region, name, ap, flag) for region, group in locations.items() for name, ap, flag in group]
         actual = [r for r in rows if r[3] == 400162]
         self.assertEqual(len(actual), 1)
-        self.assertEqual((actual[0][0], actual[0][2]), ("Altus", 7774254))
+        self.assertEqual((actual[0][0], actual[0][2]), ("Altus", 7774244))
         self.assertFalse(any(r[3] == 1039527700 for r in rows))
 
     def test_only_the_live_weapon_lot_is_replaced(self):

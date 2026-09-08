@@ -29,7 +29,7 @@ from .. import contract
 BEDROCK_SHAPED_SLOT_DATA = {
     "apIdsToItemIds": {"7770001": 1073750026},
     "locationIdsToKeys": {"7770001": "301200,0:0000520110::"},
-    "goalLocations": [7770875, 7770876, 7770885],
+    "goalLocations": [7770874, 7770875, 7770884],
     "itemCounts": {"7770001": 1},
 }
 

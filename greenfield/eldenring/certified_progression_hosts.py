@@ -22,25 +22,25 @@ CERTIFIED_GREAT_RUNE_APS = frozenset((7770002, 7770004))
 # represented by exact access claims in v060-current/evidence.tsv. Questline-missable checks,
 # Secret Rite Scroll's explicit surface exclusion, and every unresolved predicate stay out.
 CERTIFIED_KEY_ITEM_APS = frozenset((
-    7772446, 7772450,             # Lamenter's Gaol key chests
-    7772954,                      # Dectus Medallion (Left), Fort Haight chest
-    7773581, 7773656,             # Finger Ruins bell interactions
-    7773710,                      # Haligtree Secret Medallion (Right), Albus
-    7773752,                      # Hole-Laden Necklace
+    7772445, 7772449,             # Lamenter's Gaol key chests
+    7772952,                      # Dectus Medallion (Left), Fort Haight chest
+    7773579, 7773654,             # Finger Ruins bell interactions
+    7773708,                      # Haligtree Secret Medallion (Right), Albus
+    7773750,                      # Hole-Laden Necklace
     7900002,                      # Messmer's Kindling
 ))
 
 # Data review, 2026-09-02: these are named boss rewards in confirmed regions. Great Wyrm
 # Theodorix remains held because its generated region is explicitly unconfirmed.
 _CERTIFIED_MAJOR_BOSS_WAVE1_APS = frozenset((
-    7773790, 7773792, 7773793, 7773797, 7773802, 7773803, 7773865,
+    7773788, 7773790, 7773791, 7773795, 7773800, 7773801, 7773863,
 ))
 
 # Second data review, 2026-09-02: each row has an exact committed boss-kill award chain and stable
 # region: Dragonkin Soldier -> Dragon Halberd (f530620), Golden Hippopotamus -> Aspects of the
 # Crucible: Thorns (f510440), and Loretta -> Loretta's War Sickle (f510190). The other seven
 # effective MajorBoss losses are finale-lifecycle rows and deliberately remain held.
-CERTIFIED_MAJOR_BOSS_WAVE2_APS = frozenset((7770716, 7773799, 7900120))
+CERTIFIED_MAJOR_BOSS_WAVE2_APS = frozenset((7770716, 7773797, 7900120))
 CERTIFIED_MAJOR_BOSS_APS = (
     _CERTIFIED_MAJOR_BOSS_WAVE1_APS | CERTIFIED_MAJOR_BOSS_WAVE2_APS
 )
@@ -50,26 +50,26 @@ CERTIFIED_MAJOR_BOSS_APS = (
 # the missable Roderika seed, both pre-burn Leyndell seeds, the two defaulted-region seeds, and the
 # separately excluded Mohgwyn seed; those independent bars remain authoritative.
 CERTIFIED_SEEDTREE_APS = frozenset((
-    7770832, 7770885, 7771049, 7771145, 7771149, 7771485, 7771486, 7771553,
-    7772601, 7772631, 7772647, 7772688, 7772743, 7772845, 7772847, 7772848,
-    7772850, 7772897, 7772898, 7772953, 7773050, 7773087, 7773183, 7773820,
-    7774164, 7774314, 7774481, 7774512, 7774535, 7900003,
+    7770831, 7770884, 7771048, 7771144, 7771148, 7771484, 7771485, 7771552,
+    7772599, 7772629, 7772645, 7772686, 7772741, 7772843, 7772845, 7772846,
+    7772848, 7772895, 7772896, 7772951, 7773048, 7773085, 7773181, 7773818,
+    7774156, 7774304, 7774471, 7774502, 7774525, 7900003,
 ))
 
 # The same 2026-08-04 in-game pass named these four generated-HOLD Sacred Tears at their churches.
 # f39207170 remains excluded: the review instead reported that it was seemingly not a real check.
-CERTIFIED_CHURCH_APS = frozenset((7772710, 7772786, 7772881, 7772917))
+CERTIFIED_CHURCH_APS = frozenset((7772708, 7772784, 7772879, 7772915))
 
 # Data review, 2026-09-02: exact Revered Spirit Ash lot rows are joined to their MSB/coordinate
-# placement and uniquely matching Samurai Gamers landmark in the generated region. Keep 7771808
+# placement and uniquely matching Samurai Gamers landmark in the generated region. Keep 7771807
 # held because its landmark is explicitly after the Dancing Lion fight (a deeper internal gate),
-# and 7773212 because region_dispute_worksheet.tsv still records Ancient Ruins|Enir Ilim.
+# and 7773210 because region_dispute_worksheet.tsv still records Ancient Ruins|Enir Ilim.
 CERTIFIED_REVERED_APS = frozenset((
-    7771799, 7771812,             # Belurat: tree statue and bridge shadow-pot
-    7771934,                      # Shadow Keep: Storehouse hanging specimen
-    7772023,                      # Abyssal: Manse Hall inquisitor
-    7773236, 7773401,             # Gravesite: Cliffroad and Ellac River Cave statues
-    7773603,                      # Scadu Altus: Village of Flies hill altar
+    7771798, 7771811,             # Belurat: tree statue and bridge shadow-pot
+    7771933,                      # Shadow Keep: Storehouse hanging specimen
+    7772022,                      # Abyssal: Manse Hall inquisitor
+    7773234, 7773399,             # Gravesite: Cliffroad and Ellac River Cave statues
+    7773601,                      # Scadu Altus: Village of Flies hill altar
 ))
 
 CERTIFIED_PROGRESSION_HOST_APS = (
