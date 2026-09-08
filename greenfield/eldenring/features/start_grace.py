@@ -18,7 +18,7 @@ from Options import DefaultOnToggle, OptionSet, Range, Toggle
 from ..registry import Feature, register
 from . import catacomb_doors as _doors
 from .. import contract
-from ..tables.data import HUB
+from ..tables.data import HUB, LOCATIONS
 from ..region_spine import REGIONS
 
 _ROUNDTABLE_GRACE = 71190       # Roundtable Hold, Table of Lost Grace (m11_10) warp-unlock flag
@@ -55,7 +55,9 @@ _RADAHN_FESTIVAL = 9410
 #     $Event(9440): WaitFor(EventFlag(2053460600) && EventFlag(2050400600));
 #                   SetNetworkconnectedEventFlagID(9440, ON);
 # 🛑 THOSE TWO TILES ARE IN DIFFERENT REGIONS -- 2053460600 is m61_53_46 (Scadu Altus) and
-# 2050400600 is m61_50_40 (JAGGED PEAK). So a seed that keeps Scadu Altus and seals Jagged Peak can
+# 2050400600 is m61_50_40 (SHADOW KEEP since 2026-09-07; the tile shipped as Jagged Peak until the
+# Dheo ruins were curated onto Scaduview/Shadow Keep -- the module reads the live name off data.py,
+# see _BELL_DHEO_REGION). So a seed that keeps Scadu Altus and seals Dheo's region can
 # never set 9440: the door never enables, and Metyr's remembrance (510550, tagged Remembrance +
 # MajorBoss) is UNREACHABLE while AP believes her region is open -- fill can strand a region Lock on
 # it. Identical shape to the Radahn festival above, except the dependency crosses a REGION boundary
@@ -93,14 +95,22 @@ _RADAHN_FESTIVAL = 9410
 #     Rhia  2053460600 -> lot 2053460600 -> check flag 2053467600, "Cerulean Seed Talisman +1" (7773806)
 #     Dheo  2050400600 -> lot 2050400000 -> check flag 2050407000, "Crimson Seed Talisman +1"  (7773730)
 # So a forced bell SPENDS its check. #665 replaces the bypass with the honest logic model: both bell
-# checks require the Hole-Laden Necklace, and Metyr requires both Scadu Altus and Jagged Peak. Neither
-# live bell flag is ever a start grant: if Jagged Peak is sealed, Dheo's check is absent and its flag
-# is forced so Scadu Altus's Metyr check remains playable; if Jagged Peak is kept, the player must ring
+# checks require the Hole-Laden Necklace, and Metyr requires both Scadu Altus and Dheo's own region.
+# Neither live bell flag is ever a start grant: if Dheo's region is sealed, its check is absent and its
+# flag is forced so Scadu Altus's Metyr check remains playable; if that region is kept, the player must ring
 # it. Rhia is never forced because Metyr cannot exist without Scadu Altus. Keep the set named so tests
 # reject accidental additions without duplicating numbers.
 _BELL_RHIA = 2053460600
 _BELL_DHEO = 2050400600
-_BELL_DHEO_REGION = "Jagged Peak"
+# DHEO'S REGION IS DERIVED, NEVER TYPED. The bypass has to name the region that HOLDS Dheo's check,
+# and that region is whatever gen_data's tile derivation shipped for m61_50_40 -- it was Jagged Peak
+# until 2026-09-07, when the tile was curated onto Shadow Keep (Alaric's ruling: the Dheo ruins are
+# Scaduview ground, and Scaduview folded into Shadow Keep 2026-07-19). A typed name here silently
+# desynchronises from data.py on the next such move and re-opens the softlock this module exists to
+# close, so read it back out of the shipped table instead.
+_BELL_DHEO_CHECK = 2050407000   # the check flag the Dheo bell ObjAct awards (lot 2050400000)
+_BELL_DHEO_REGION = next((_reg for _reg, _locs in LOCATIONS.items()
+                          for (_n, _ap, _fl) in _locs if int(_fl) == _BELL_DHEO_CHECK), HUB)
 _METYR_BELL_FLAGS = frozenset({_BELL_RHIA, _BELL_DHEO})
 
 

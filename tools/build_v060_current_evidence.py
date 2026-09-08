@@ -43,7 +43,10 @@ LAMENTERS_GAOL_ACCESS = {
     7773852: (520770, ("Gaol Upper Level Key", "Gaol Lower Level Key")),
 }
 FINGER_RUINS_BELL_ACCESS = {
-    7773581: (2050407000, "Jagged Peak"),
+    # Dheo moved Jagged Peak -> Shadow Keep 2026-09-07: m61_50_40 is graceless, so the tile
+    # derivation had nearest-neighboured it onto 6851 (Foot of the Jagged Peak). Alaric ruled it
+    # Scaduview ground, and Scaduview folded into Shadow Keep 2026-07-19.
+    7773581: (2050407000, "Shadow Keep"),
     7773656: (2053467600, "Scadu Altus"),
 }
 METYR_ACCESS = (7770673, 510550, "Scadu Altus")

@@ -52,6 +52,15 @@ does. Its two graces stay out of every warp bundle -- owning Leyndell buys you t
 shortcut past Morgott. Altus loses seven checks and Leyndell gains them, so seeds roll differently;
 nothing about the client, the contract or a save in progress changes.
 
+**The Finger Ruins of Dheo bell is Shadow Keep ground, not Jagged Peak.** The bell is a gate
+check, so a seed was asking for Jagged Peak access to reach something you only ever walk to
+through the Keep -- and Metyr's remembrance inherited the same wrong requirement. Nothing was
+mis-typed by hand: the tile the bell sits on has no grace, no region row and no boss, so the
+derivation hopped to its nearest neighbour and landed one diagonal step away on Jagged Peak
+ground. It is pinned now, and the two places that had the region written out in code read it off
+the shipped table instead. Exactly one check moves -- Jagged Peak 40 to 39, Shadow Keep 118 to
+119 -- so seeds roll differently; the client, the contract and a save in progress are untouched.
+
 **Bookkeeping you will not feel:** the flag-to-lot table behind multi-copy checks was
 re-derived against the current param corpus and its datamine is now gated in CI, and the
 patch-day runbook grew a name-stripping tool so the next Elden Ring update is diffed in
