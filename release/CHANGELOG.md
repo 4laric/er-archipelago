@@ -50,6 +50,28 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   side is wrong (our curated names, or a game-version difference in the corpus) is left OPEN
   alongside the oracle finding rather than guessed at here.
 
+- **The Finger Ruins of Dheo bell moves from Jagged Peak to Shadow Keep.** Alaric ruled the Dheo
+  ruins are SCADUVIEW ground, and Scaduview (bucket 6920, the Hinterland) was FOLDED into Shadow
+  Keep on 2026-07-19 -- `region_groups.py`'s own fold note says the Hinterland's content includes
+  "one Finger Ruins -- every one entered THROUGH the Keep" -- so the target region is Shadow Keep.
+  The DERIVATION, not the row, is what was wrong: `m61_50_40` is graceless, `PlayRegionParam`
+  carries no row for it and no boss stands on it, so `_m61_tile_region` fell all the way through to
+  its nearest-neighbour hop and landed one diagonal step away on `m61_49_39`, whose grace buckets
+  6851 (Foot of the Jagged Peak / Dragon Communion Altar) = Jagged Peak. That is precisely the
+  "confident answer about ground it has never seen" the tile derivation warns about. Fixed with an
+  `M61_TILE_CURATED[(50, 40)]` entry -- the derivation's own mechanism for a hop that crosses a
+  border the checks do not, and one `gen_data` hard-errors on the day the grace evidence makes it
+  redundant. No `region_overrides.tsv` row was needed. Tile grain is safe here: `f2050407000` is the
+  only check on the tile, so nothing rides along -- **exactly one location row moves** (`7773581`,
+  ap id and `KeyItem` tag unchanged; Jagged Peak 40 -> 39 checks, Shadow Keep 118 -> 119). Two
+  places had TYPED "Jagged Peak" as Dheo's region -- `start_grace._BELL_DHEO_REGION` (which decides
+  whether the bell flag may be force-set for a sealed region) and
+  `legacy_key_gates._EXTRA_CHECK_LOCKS` (which makes Metyr's remembrance demand that region's Lock)
+  -- and both now READ the region off the shipped table, so the next such correction cannot
+  desynchronise them. **Contract hash does not move** -- it stays `613fb438`. **Seeds do change**:
+  the bell is a KeyItem-shaped gate check, so region logic now requires Shadow Keep access for it
+  and for Metyr's remembrance, not Jagged Peak.
+
 ## v0.6.0.4 — 2026-09-07
 
 ### What you need to update

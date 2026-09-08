@@ -165,14 +165,22 @@ class LegacyKeyGateOn(WorldTestBase):
             assert loc.can_reach(with_statue), f"{loc.name} blocked with the statue"
 
     def test_metyr_chain_needs_the_necklace_and_both_region_locks(self):
-        """Rhia + Dheo are necklace-gated; Metyr additionally needs Jagged Peak's Lock."""
+        """Rhia + Dheo are necklace-gated; Metyr additionally needs DHEO'S region Lock.
+
+        WHICH region that is comes off the shipped table, never typed here: the Dheo tile
+        m61_50_40 shipped as Jagged Peak until 2026-09-07 and is Shadow Keep (= Scaduview, folded
+        into the Keep 2026-07-19) since. The invariant under test is the cross-region conjunction,
+        not the name of the region on the far side of it.
+        """
         world = self.multiworld
         items = world_items(self)
         loc_by_flag = {int(flag): world.get_location(name, 1)
                        for locations in LOCATIONS.values() for (name, _ap, flag) in locations
                        if int(flag) in {2053467600, 2050407000, 510550}}
+        dheo_region = next(reg for reg, locations in LOCATIONS.items()
+                           for (_n, _ap, flag) in locations if int(flag) == 2050407000)
         necklace = next(it for it in items if it.name == "Hole-Laden Necklace")
-        jagged = next(it for it in items if it.name == "Jagged Peak Lock")
+        jagged = next(it for it in items if it.name == "%s Lock" % dheo_region)
 
         def _state(*extras):
             st = CollectionState(world)
@@ -191,7 +199,7 @@ class LegacyKeyGateOn(WorldTestBase):
         assert not rhia.can_reach(no_keys) and rhia.can_reach(necklace_only)
         assert not dheo.can_reach(jagged_only), "Dheo must still need the necklace"
         assert dheo.can_reach(both)
-        assert not metyr.can_reach(necklace_only), "Metyr must need the Jagged Peak Lock"
+        assert not metyr.can_reach(necklace_only), "Metyr must need %s's Lock" % dheo_region
         assert metyr.can_reach(both)
 
 

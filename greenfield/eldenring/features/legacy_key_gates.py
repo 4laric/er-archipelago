@@ -93,15 +93,25 @@ _LEGACY_EXTRA = {
         34117500, 34117710,
     }),
     # Metyr's remembrance plus BOTH Finger Ruins bell rewards. Extras are looked up globally rather
-    # than only in the key's parent region because Dheo lives in Jagged Peak (#665).
+    # than only in the key's parent region because Dheo does not live in Metyr's region (#665).
     "Hole-Laden Necklace": frozenset({510550, 2050407000, 2053467600}),
 }
 
-# Additional region Locks required by an explicit check. Metyr lives in Scadu Altus (so that Lock is
-# already implied by ordinary region reachability), but her throne also needs Dheo rung in Jagged Peak.
-_EXTRA_CHECK_LOCKS = {510550: ("Jagged Peak Lock",)}
+_METYR_REMEMBRANCE = 510550
+_DHEO_BELL_CHECK = 2050407000
 _FLAG_BY_AP = {ap_id: int(flag) for locations in LOCATIONS.values()
                for (_name, ap_id, flag) in locations}
+_REGION_BY_FLAG = {int(flag): region for region, locations in LOCATIONS.items()
+                   for (_name, _ap, flag) in locations}
+# Additional region Locks required by an explicit check. Metyr lives in Scadu Altus (so that Lock is
+# already implied by ordinary region reachability), but her throne also needs the Dheo bell rung --
+# and Dheo is in a DIFFERENT region. DERIVE that region from the shipped table rather than typing it:
+# the Dheo tile m61_50_40 shipped as Jagged Peak until 2026-09-07 and is Shadow Keep (= Scaduview,
+# folded into the Keep 2026-07-19) since, and a typed name here would quietly demand the wrong Lock
+# after any such move. Empty when the Dheo check is absent (its region sealed) -- start_grace then
+# forces the bell flag, so no Lock conjunct is owed at all.
+_DHEO_REGION = _REGION_BY_FLAG.get(_DHEO_BELL_CHECK)
+_EXTRA_CHECK_LOCKS = ({_METYR_REMEMBRANCE: ("%s Lock" % _DHEO_REGION,)} if _DHEO_REGION else {})
 
 # MULTI-KEY gates: nested dungeon doors need a per-check tier, not one blanket conjunction. For
 # Lamenter's Gaol, v1.17 EMEVD m41_02 initializes one ObjAct using ObjActParam 449008 (goods 2008005,
@@ -264,10 +274,11 @@ class LegacyKeyGates(Feature):
             if mk is not None:
                 keys = keys + tuple(mk)
             extra_locks = _EXTRA_CHECK_LOCKS.get(_FLAG_BY_AP.get(ap, -1), ())
-            # A sealed Jagged Peak has no Lock and no Dheo check; start_grace conditionally supplies
+            # A sealed Dheo region has no Lock and no Dheo check; start_grace conditionally supplies
             # that otherwise-impossible conjunct. Require the Lock only when the region is live.
-            if "Jagged Peak" not in set(world._kept()):
-                extra_locks = tuple(k for k in extra_locks if k != "Jagged Peak Lock")
+            # The region NAME is _DHEO_REGION, read off data.py -- see _EXTRA_CHECK_LOCKS above.
+            if _DHEO_REGION is not None and _DHEO_REGION not in set(world._kept()):
+                extra_locks = tuple(k for k in extra_locks if k != "%s Lock" % _DHEO_REGION)
             if not keys and not extra_locks:
                 continue
             prev = loc.access_rule

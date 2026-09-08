@@ -2191,7 +2191,6 @@ LOCATIONS = {
         ('Jagged Peak :: Red Fulgurbloom - near Grand Altar of Dragon Communion, may be sweep-granted by Jagged Peak Drake (m61_49_41) [f2049397000]', 7773516, 2049397000),
         ('Jagged Peak :: Swollen Grape - m61_49_42 (1), may be sweep-granted by Jagged Peak Drake (m61_49_41) [f2049427700]', 7773518, 2049427700),
         ('Jagged Peak :: Swollen Grape - m61_49_42 (2), may be sweep-granted by Jagged Peak Drake (m61_49_41) [f2049427720]', 7773519, 2049427720),
-        ('Jagged Peak :: Ring the Finger Ruins of Dheo bell - m61_50_40 [f2050407000]', 7773581, 2050407000),
         ('Jagged Peak :: Shadow Realm Rune [7] - near Church Ruins, may be sweep-granted by Bayle the Dread (m61_54_39) [f2052417000]', 7773646, 2052417000),
         ('Jagged Peak :: Ancient Dragon Smithing Stone - near Jagged Peak Summit, may be sweep-granted by Ancient Dragon Senessax (m61_54_39) [f2053397000]', 7773649, 2053397000),
         ('Jagged Peak :: Somber Ancient Dragon Smithing Stone - near Jagged Peak Mountainside, may be sweep-granted by Bayle the Dread (m61_54_39) [f2053397010]', 7773650, 2053397010),
@@ -4504,6 +4503,7 @@ LOCATIONS = {
         ("Shadow Keep :: Salza's Hood - around West Rampart, may be sweep-granted by Scadutree Avatar (m61_50_48) [f21027991]", 7771995, 21027991),
         ("Shadow Keep :: Gaius's Greaves - m61_49_49, may be sweep-granted by Scadutree Avatar (m61_50_48) [f2049490900]", 7773577, 2049490900),
         ('Shadow Keep :: Sharpshot Talisman - near Scaduview, may be sweep-granted by Scadutree Avatar (m61_50_48) [f2049497510]', 7773578, 2049497510),
+        ('Shadow Keep :: Ring the Finger Ruins of Dheo bell - m61_50_40 [f2050407000]', 7773581, 2050407000),
         ('Shadow Keep :: Furnace Visage - m61_50_46 (1), may be sweep-granted by Tree Sentinel (m61_50_47) [f2050467500]', 7773615, 2050467500),
         ('Shadow Keep :: Furnace Visage - m61_50_46 (2), may be sweep-granted by Tree Sentinel (m61_50_47) [f2050467510]', 7773616, 2050467510),
         ('Shadow Keep :: Fingercreeper Ashes - near Fingerstone Hill, may be sweep-granted by Fallingstar Beast (m61_52_48) [f2053487000]', 7773657, 2053487000),
@@ -5550,4 +5550,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:e37ef453818b940e0e1e1460d4745c231839819a9f32fc80ef77a91bc6b48622', 'module': 'data.py', 'body_sha256': 'sha256:456550b1aca9440b51facdc4797946ad76dd30785df08eea505aa6d8a5ff953e'}
+_GEN_STAMP = {'inputs_hash': 'sha256:f1402adc277de2ff8786502be4d5158fd2a28b8b66fdf55700debaa4e67b074c', 'module': 'data.py', 'body_sha256': 'sha256:0a77478636bec8d85ff7611c10efbcb3fa372c847b43eb71c52e85882e23ef26'}

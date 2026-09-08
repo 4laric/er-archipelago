@@ -19,7 +19,7 @@ import pytest
 pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring.features.start_grace import (  # noqa: E402
-    _METYR_BELL_FLAGS, _BELL_DHEO, metyr_bells_to_force,
+    _METYR_BELL_FLAGS, _BELL_DHEO, _BELL_DHEO_REGION, metyr_bells_to_force,
 )
 
 _DERIVED_9440 = 9440
@@ -30,8 +30,15 @@ _RHIA_REWARD_AP = 7773806
 
 
 def test_only_a_sealed_regions_bell_is_forced():
-    """Dheo is real logic when Jagged Peak exists, and a cost-free bypass only when it does not."""
-    assert metyr_bells_to_force(["Scadu Altus", "Jagged Peak"]) == []
+    """Dheo is real logic when its own region exists, and a cost-free bypass only when it does not.
+
+    The region NAME is read off the shipped table (start_grace._BELL_DHEO_REGION), not typed here:
+    m61_50_40 shipped as Jagged Peak until 2026-09-07 and is Shadow Keep (= Scaduview, folded into
+    the Keep 2026-07-19) since, and a typed name would have made this test the thing that has to
+    move every time the tile derivation is corrected.
+    """
+    assert _BELL_DHEO_REGION not in ("Roundtable Hold",), "Dheo's check must have a real region"
+    assert metyr_bells_to_force(["Scadu Altus", _BELL_DHEO_REGION]) == []
     assert metyr_bells_to_force(["Scadu Altus"]) == [_BELL_DHEO]
 
 

@@ -2774,6 +2774,19 @@ M61_TILE_CURATED = {
     # Graceless land bridge toward the Jagged Peak ascent; nearest grace anchor is Cerulean's
     # coast, which is across a cliff line. Hand audit filed it under Jagged Peak. Keep it.
     (49, 38): 'Jagged Peak',
+    # THE FINGER RUINS OF DHEO. The tile is graceless, PlayRegionParam carries no row for it and no
+    # boss stands on it, so _m61_tile_region fell all the way through to the nearest-neighbour hop --
+    # one diagonal step onto m61_49_39, whose grace buckets 6851 (Foot of the Jagged Peak / Dragon
+    # Communion Altar) = Jagged Peak. That is exactly the "confident answer about ground it has never
+    # seen" this file warns about: the hop crosses a border the CHECK does not.
+    # Alaric ruled 2026-09-07 that the Dheo ruins are SCADUVIEW ground, and Scaduview (bucket 6920,
+    # the Hinterland) was FOLDED INTO SHADOW KEEP on 2026-07-19 -- region_groups.py's own fold note
+    # says the Hinterland's content includes "one Finger Ruins -- every one entered THROUGH the
+    # Keep". Route: Scaduview Cross -> Hinterland -> Finger Ruins of Dheo, entered through the Keep.
+    # So the region is Shadow Keep (= Scaduview since the fold).
+    # Tile grain is safe here: f2050407000 (the Dheo bell) is the ONLY check on this tile, so the
+    # override drags nothing else along.
+    (50, 40): 'Shadow Keep',
 }
 for _xy, _creg in M61_TILE_CURATED.items():
     _ev = ANCHOR61.get(_xy)

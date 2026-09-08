@@ -827,12 +827,11 @@
    "tarnished_pack_shop_checks": 0
   },
   "Jagged Peak": {
-   "checks": 40,
+   "checks": 39,
    "combos": {
     "Boss|FieldBoss": 4,
     "Boss|FieldBoss|MajorBoss": 1,
-    "Fragment": 1,
-    "KeyItem": 1
+    "Fragment": 1
    },
    "dlc": true,
    "parent": null,
@@ -1410,13 +1409,14 @@
    "tarnished_pack_shop_checks": 0
   },
   "Shadow Keep": {
-   "checks": 118,
+   "checks": 119,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 2,
     "Boss|KeyItem|MajorBoss": 1,
     "Boss|MajorBoss|Remembrance": 1,
     "Fragment": 8,
+    "KeyItem": 1,
     "Legendary": 1,
     "Revered": 2
    },
@@ -1626,5 +1626,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "bc1ac1e16e560127709c72d39391088ebd777287aad58380b5a85244d72ac11b"
+ "source_sha256": "2a186e0aa44a8d6847aa48b645f726ad5587b8d93e00f13d643459bdb5176c00"
 }
