@@ -49,7 +49,6 @@ flag	ap_id	our_name	our_conditions	basis	status	reviewer	note
 400291	7770593	Mt. Gelmir :: [Sorcery] Gelmir's Fury - around Volcano Manor, may be sweep-granted by Abductor Virgin (Swinging Sickle) (m16_00) [f400291]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400320	7770598	Haligtree :: Prosthesis-Wearer Heirloom [f400320]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400380	7773734	Roundtable Hold :: Sewer-Gaol Key - around Table of Lost Grace (region unconfirmed) [f400380]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
-400411	7770620	Consecrated Snowfield :: Somber Ancient Dragon Smithing Stone - around Apostate Derelict, may be sweep-granted by Death Rite Bird (m60_48_57) [f400411]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400600	7773744	Enir Ilim :: Golden Lion Shield - m60_49_40 (region unconfirmed) [f400600]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400620	7770634	Shadow Keep :: Letter for Freyja - around Storehouse, First Floor, may be sweep-granted by Base Serpent Messmer (m21_01) [f400620]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400661	7773753	Scadu Altus :: Ruins Map (2nd) [f400661]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
