@@ -210,6 +210,14 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="replace the baseline with the validated current summary",
     )
+    parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="update the baseline ONLY when content_hash is the sole difference; any census "
+             "movement is still reported as DRIFT. This is the form tools/regen_all.py runs, "
+             "so a mechanical bundle rebuild does not need a human, while a real change to the "
+             "audit population still stops the entrypoint and asks for review.",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -220,6 +228,10 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         baseline = load_summary(args.baseline)
         differences = compare(current, baseline)
+        if args.refresh and differences and all(d.startswith("content_hash:") for d in differences):
+            atomic_write(args.baseline, render_summary(current))
+            print(f"evidence baseline: refreshed content_hash in {args.baseline}")
+            return 0
     except BaselineError as exc:
         print(f"evidence baseline: INVALID: {exc}", file=sys.stderr)
         return 2
