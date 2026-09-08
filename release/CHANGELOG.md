@@ -208,6 +208,17 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   400390 is a shop row — no `ShopLineupParam` row in the vanilla params names any of the four in
   `eventFlag_forStock` or `eventFlag_forRelease`. Closes items 1, 2 and 6 of
   `docs/MATT-ORACLE-ROADMAP.md`.
+- **`enemy_drops.tsv` re-derived, and its `--check` now prints the diff.** The `generators` job
+  went red on `main` the moment #1495 (the new table) and #1497 (which re-derived every check's
+  vanilla item from its own lot, rewriting catalog entries) merged within a minute of each other:
+  each branch was green alone, and together the tsv's `item_name` column named 124 items the
+  rebuilt `ITEM_CATALOG` no longer spells the same way. Nothing environmental, nothing about the
+  params — a semantic merge conflict between two committed tables, of exactly the kind this
+  `--check` exists to catch. The table is regenerated against current `main`; `item_name` is the
+  only column that moves. `datamine_enemy_drops.py --check` now prints line counts on both sides,
+  the first 20 differing lines paired up, and **the set of columns that moved**, so the next
+  failure is diagnosable from the CI log instead of costing a local repro — the old message named
+  only the tool to re-run, which is useless on a runner that throws the tree away.
 
 - **Every boss we know now carries a CLASS, in a new generated table.** `boss_healthbars.py` has
   always had a geography column, but it answers "which derivation found this boss", not "what kind
