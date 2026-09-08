@@ -73,6 +73,12 @@ _YAML = next((p for p in (os.path.join(_GF_PKG, "EldenRing.yaml"),
 # an option, which is the whole defect this set was created to bound.
 _TEMPLATE_DEBT = set()
 
+# Deliberate product policy, not documentation debt: compatibility-only settings and the
+# exceptional vanilla-placement mode are imported from old YAML, never suggested in templates.
+_TEMPLATE_EXCLUDED = {"vanilla_placement", "flask_upgrades_on_progression_surface",
+                      "global_scadutree_blessing", "merchant_bell_logic"}
+
+
 class TestShippingYaml(unittest.TestCase):
 
     def test_the_template_is_actually_present(self):
@@ -145,13 +151,17 @@ class TestShippingYaml(unittest.TestCase):
         # time an option lands.
         assert len(surface) > 40, f"only {len(surface)} options found -- the surface scan is blind"
         assert len(block) > 25, f"only {len(block)} template keys parsed -- the yaml scan is blind"
-        missing = sorted(set(surface) - set(block))
+        missing = sorted(set(surface) - _TEMPLATE_EXCLUDED - set(block))
         undocumented = [k for k in missing if k not in _TEMPLATE_DEBT]
         self.assertEqual(
             [], undocumented,
             f"{len(undocumented)} option(s) exist but are not in the shipped template: "
             f"{undocumented}. A player who does not use the wizard cannot set them and cannot find "
             f"out they exist. Add a commented block to release/EldenRing.yaml.")
+
+    def test_deliberate_template_exclusions_still_exist_and_are_not_offered(self):
+        self.assertTrue(_TEMPLATE_EXCLUDED <= self._world_option_names())
+        self.assertFalse(_TEMPLATE_EXCLUDED & set(self._game_block_keys()))
 
     def test_the_template_debt_list_has_no_stale_entries(self):
         """A drained debt entry must LEAVE this list. CONTRIBUTING: a redundant manual override is a

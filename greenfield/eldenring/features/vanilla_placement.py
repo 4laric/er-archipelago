@@ -85,13 +85,13 @@ checks at connect -- a randomizer behaviour in a mode whose premise is that noth
 the player would have watched happen in the log.
 
 The vanilla-inherent missables ARE inherited as-is: the Erdtree burn still strands Leyndell's checks
-exactly as the base game does. Documented in presets/vanilla-deathlink.yaml rather than guarded --
+exactly as the base game does. Documented in this advanced option's help text rather than guarded --
 guarding vanilla against itself is out of scope for a mode whose entire premise is "change
 nothing".
 """
 import logging
 
-from Options import Choice, OptionError
+from Options import Choice, OptionError, Visibility
 
 from ..registry import Feature, register
 
@@ -126,6 +126,8 @@ class VanillaPlacement(Choice):
     automatically and still ignore their stat requirements. So this is vanilla PLACEMENT and a
     vanilla START, not vanilla BALANCE. It also inherits the base game's own missables -- burning the
     Erdtree still strands Leyndell's checks."""
+    # Importable and visible in detailed tools/spoilers, never suggested in a new YAML.
+    visibility = Visibility.all & ~Visibility.template
     display_name = "Vanilla Placement"
     option_off = 0
     option_all = 1

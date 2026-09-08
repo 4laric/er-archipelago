@@ -100,11 +100,21 @@ You also need, separately:
 
 2. **Build your config.** The fastest way is the **yaml builder** at
    **<https://peliarch.ca/er/>**. There is nothing to install. The page walks
-   through every option in seven tabs and shows the seed size before generation:
-   exact check counts, how many checks can hold progression, and how much of the
-   pool travels to other players. It then provides a finished yaml to download.
+   offers profiles for content, run size, combat, Boss Rush, rewards, travel and
+   multiplayer. Change one profile without resetting the others, then customize
+   individual options if needed. The seed-size preview shows estimated check
+   counts and how much of the pool can travel to other players. It provides a
+   finished YAML to download.
    The file records which apworld version it was written for, so a host can see
    which build produced it.
+
+   **Base-game regions with DLC gear** is a separate content choice: it keeps DLC
+   regions, checks and locks out of the run while allowing DLC gear in the item pool.
+   **Useful consumables** takes inspiration from Nightreign's emphasis on supplies
+   worth using, using Elden Ring's existing items and mechanics. **Boss Rush**
+   groups the boss loot and progression-location settings; check its summary to see
+   which pickups still need a visit. Vanilla placement is an advanced special mode,
+   absent from starting templates. Original item pool still randomizes placement.
 
    🛑 **The page can be ahead of the apworld you installed.** `/er/` tracks the
    released build, while `/er/beta/` tracks the build in progress. Each page's

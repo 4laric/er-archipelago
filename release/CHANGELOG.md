@@ -45,6 +45,17 @@ nothing in it touches Elden Ring.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The options wizard offers independent run profiles.** Content, run size, Boss Rush,
+  rewards, travel and multiplayer can be chosen without resetting the other settings;
+  individual customization remains available and existing option names are unchanged.
+  Base-game regions can now include DLC gear with `enable_dlc_gear: true`, without adding
+  DLC regions, checks or locks. The option defaults off, preserving existing YAML behavior.
+  Useful-consumable rewards take inspiration from Nightreign using Elden Ring's own items.
+  Vanilla placement is absent from starting templates and remains an advanced special mode.
+  Compatibility-only settings are retained for old YAML imports rather than offered as new
+  choices. The landing page and setup instructions explain the profiles and correct stale
+  preset and item-sharing descriptions.
+
 - **The matt oracle's 45 unexplained missing slots are triaged; the `_B_OPEN` bin is retired.** Roadmap item 3
   asked which of his Event-scope flags `data.LOCATIONS` has no row for are REAL GAPS. Answer, from
   `greenfield/region_map.csv`, `flag_lots.tsv`, `tools/datamine_unplaced_globals.py` and gen_data's

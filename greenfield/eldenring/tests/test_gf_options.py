@@ -753,3 +753,52 @@ def test_mfg_recovered_pickups_follow_dlc_scope(dlc, seed):
     finally:
         del locations
         t.tearDown()
+
+
+@pytest.mark.parametrize("seed", [601, 602, 603])
+@pytest.mark.parametrize("extra", [
+    {}, {"enable_dlc_gear": True},
+    {"enable_dlc_gear": True, "enable_dlc": True},
+    {"enable_dlc_gear": True, "dlc_only": True},
+    {"enable_dlc_gear": True, "vanilla_pool": True},
+])
+def test_dlc_gear_can_be_mixed_without_enabling_dlc_regions(extra, seed):
+    from worlds.eldenring import item_categories
+    from worlds.eldenring.core import DLC_ITEM_NAMES
+    from worlds.eldenring.features.pool_builder import juice_order_for_floor
+    from ._util import world_pool_items
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"num_regions": 6, "enable_dlc": False, **extra}
+
+    t = _T()
+    t.world_setup(seed)
+    pool = None
+    try:
+        w = t.world
+        gear_categories = {"weapons", "armor", "talismans", "ashes", "spells",
+                           "spirit_ashes", "crystal_tears"}
+        gear = {name for name in DLC_ITEM_NAMES
+                if item_categories.category_of(name) in gear_categories}
+        assert gear, "real DLC equipment is needed to witness this option"
+        if not w.gf_dlc_on:
+            assert not any(region in w.gf_eligible for region in
+                           ("Land of Shadow", "Belurat", "Scadu Altus", "Shadow Keep"))
+            assert (set(DLC_ITEM_NAMES) - gear) <= w.gf_dlc_excluded
+            if extra.get("enable_dlc_gear"):
+                assert not (gear & w.gf_dlc_excluded)
+                # The normal reward builder actually has DLC candidates to draw from.
+                assert gear & set(juice_order_for_floor(0))
+            else:
+                assert set(DLC_ITEM_NAMES) <= w.gf_dlc_excluded
+        else:
+            assert not (set(DLC_ITEM_NAMES) & w.gf_dlc_excluded)
+        pool = world_pool_items(t)
+        assert not ({item.name for item in pool} & w.gf_dlc_excluded)
+        if extra.get("enable_dlc_gear") and not extra.get("vanilla_pool"):
+            assert gear & {item.name for item in pool}, "the seeded pool should contain DLC gear"
+        assert len(pool) == len(t.multiworld.get_locations(t.player))
+    finally:
+        del w, pool
+        t.tearDown()

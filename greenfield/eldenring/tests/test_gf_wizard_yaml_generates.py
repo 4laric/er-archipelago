@@ -30,9 +30,9 @@ NODE, because `buildYaml` is JavaScript and the point is to test THE function th
 runs, not a Python reimplementation of it. A port would be a second source of truth and would have
 agreed with itself about "EldenRing".
 
-Cost: one generation per case, ~2-4 s each in CI. Kept to three -- defaults plus two presets --
-because this is a smoke test of the seam, not a matrix; option coverage lives in the option-matrix
-suites.
+Coverage: defaults and two legacy presets, plus five actual browser-profile compositions
+across three seeds each. Values come from the JavaScript profile definitions; broader option
+coverage lives in the option-matrix suites.
 """
 
 import glob
@@ -65,18 +65,24 @@ def _wizard_html():
 
 def _core_and_meta(html):
     core = re.search(r'<script id="wizard-core">(.*?)</script>', html, re.S)
-    meta = re.search(r'<script id="er-options-metadata" type="application/json">\n(.*?)</script>',
+    meta = re.search(r'<script id="er-options-metadata" type="application/json">\r?\n(.*?)</script>',
                      html, re.S)
     return (core.group(1) if core else None), (json.loads(meta.group(1)) if meta else None)
 
 
-def _build_yaml(core, meta, preset):
+def _build_yaml(core, meta, preset=None, profiles=None):
     """Run the wizard's OWN buildYaml under node. Returns the yaml text."""
     js = (core + "\nconst __meta = " + json.dumps(meta) + ";\n"
           + "const m = ERW.loadMeta(__meta);\n"
           + "let st = { name:'CI', presetId:null, presetTitle:'Defaults', values:{} };\n"
           + ("" if preset is None else
              "st = ERW.applyPreset(m, st, %s);\n" % json.dumps(preset))
+          + "const selections = " + json.dumps(profiles or {}) + ";\n"
+          + "for (const [groupId,pickId] of Object.entries(selections)){\n"
+          + " const group=ERW.profiles(m).find(g=>g.id===groupId);\n"
+          + " const pick=group && group.picks.find(p=>p.id===pickId);\n"
+          + " if(!pick) throw new Error(groupId + ':' + pickId);\n"
+          + " ERW.applyProfile(m,st,pick);\n}\n"
           + "console.log(JSON.stringify(ERW.buildYaml(m, st)));\n")
     with tempfile.TemporaryDirectory() as d:
         path = os.path.join(d, "b.js")
@@ -117,7 +123,7 @@ class WizardYamlGenerates(unittest.TestCase):
             raise AssertionError("wizard.html is missing wizard-core or its metadata blob -- this "
                                  "test cannot see the wizard and must not pass quietly.")
 
-    def _generate(self, yaml_text, label):
+    def _generate(self, yaml_text, label, seed=1):
         with tempfile.TemporaryDirectory() as work:
             players, out = os.path.join(work, "p"), os.path.join(work, "o")
             os.makedirs(players)
@@ -130,7 +136,7 @@ class WizardYamlGenerates(unittest.TestCase):
                         "HOME": work, "TMPDIR": work})
             r = subprocess.run(
                 [sys.executable, "Generate.py", "--player_files_path", players,
-                 "--outputpath", out, "--seed", "1", "--spoiler", "1"],
+                 "--outputpath", out, "--seed", str(seed), "--spoiler", "1"],
                 cwd=self.ap, env=env, stdin=subprocess.DEVNULL,
                 capture_output=True, text=True)
             tail = (r.stdout or "")[-2500:] + (r.stderr or "")[-2500:]
@@ -152,6 +158,21 @@ class WizardYamlGenerates(unittest.TestCase):
                               "the emitted yaml does not name the metadata's game")
                 self._generate(yaml_text, label)
 
+    def test_profile_compositions_generate(self):
+        # IDs select the actual JS pick definitions, never a parallel Python recipe.
+        cases = [
+            {"content": "base", "size": "short", "exploration": "rush", "rewards": "supplies", "travel": "explore", "multiplayer": "local"},
+            {"content": "base-gear", "size": "standard", "exploration": "balanced", "rewards": "gear", "travel": "landmarks", "multiplayer": "share"},
+            {"content": "all", "size": "standard", "exploration": "thorough", "rewards": "original", "travel": "all"},
+            {"content": "dlc", "size": "short", "exploration": "rush", "rewards": "balanced", "travel": "landmarks"},
+            {"content": "base-gear", "size": "short", "rewards": "original"},
+        ]
+        for picks in cases:
+            yaml_text = _build_yaml(self.core, self.meta, profiles=picks)
+            for seed in (1, 7, 19):
+                with self.subTest(profiles=picks, seed=seed):
+                    self._generate(yaml_text, str(picks), seed)
+
     def test_the_yaml_writes_every_option_down(self):
         """#732. The wizard emitted the DEVIATIONS only, so an untouched run produced
         `Elden Ring: {}` -- a file that generates a correct seed and documents nothing. Generation
@@ -170,7 +191,7 @@ class WizardYamlGenerates(unittest.TestCase):
                         "options metadata carries no options; every assertion below is vacuous")
         self.assertTrue(emitted,
                         "the yaml emitted no option lines at all -- the builder or this regex moved")
-        missing = [o["key"] for o in self.meta["options"] if o["key"] not in emitted]
+        missing = [o["key"] for o in self.meta["options"] if not o.get("compatibility_only") and o["key"] not in emitted]
         self.assertFalse(missing,
                          "the wizard's yaml is silent about %d live option(s) it configures: %s"
                          % (len(missing), ", ".join(missing)))

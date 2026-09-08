@@ -23,7 +23,7 @@ class El {
     this.tagName = String(tag || "div").toUpperCase();
     this.id = ""; this.className = ""; this._html = ""; this._text = "";
     this.kids = []; this.parent = null; this.style = {}; this.listeners = {};
-    this._static = false;
+    this._static = false; this.attributes = {};
     NODES.push(this);
   }
   set innerHTML(h){ this._html = String(h); this.kids = []; this._adopt(h); }  // children go
@@ -50,9 +50,18 @@ class El {
   addEventListener(ev, fn){ (this.listeners[ev] = this.listeners[ev] || []).push(fn); }
   fire(ev){ for (const fn of (this.listeners[ev] || [])) fn({ target: this, closest: () => null }); }
   closest(){ return null; }
-  querySelector(){ return null; }
+  setAttribute(key, value){ this.attributes[key] = String(value); }
+  getAttribute(key){ return this.attributes[key] ?? null; }
+  querySelector(sel){ return this.querySelectorAll(sel)[0] || null; }
+  querySelectorAll(sel){ return NODES.filter(n => { let p = n.parent; while(p){ if(p === this) return matches(n, sel); p = p.parent; } return false; }); }
 }
 
+const matches = (n, sel) => String(sel).split(",").some(part => {
+  part = part.trim();
+  if (part.startsWith(".")) return String(n.className || "").split(/\s+/).includes(part.slice(1));
+  if (/^\[[\w-]+\]$/.test(part)) return n.getAttribute(part.slice(1,-1)) !== null;
+  return n.tagName.toLowerCase() === part.toLowerCase();
+});
 const stripTags = s => String(s).replace(/<[^>]*>/g, " ");
 const attached = n => { let p = n; while (p){ if (p._static) return true; p = p.parent; } return false; };
 
@@ -77,10 +86,7 @@ function makeDocument(staticIds){
     /* `.cls` only -- paintScalingReadouts paints every `.scaling-readout` on the page. Attached
        nodes only, same rule as querySelector, so a readout in a detached tree stays invisible. */
     querySelectorAll: sel => {
-      const m = /^\.([\w-]+)$/.exec(String(sel));
-      if (!m) return [];
-      return NODES.filter(n => attached(n) &&
-        String(n.className || "").split(/\s+/).includes(m[1]));
+      return NODES.filter(n => attached(n) && matches(n, sel));
     },
   };
   doc.body = new El("body"); doc.body._static = true;
