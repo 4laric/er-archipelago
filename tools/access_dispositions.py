@@ -1,5 +1,21 @@
 #!/usr/bin/env python3
-"""Validate and census the v0.6 per-check access disposition ledger."""
+"""Validate and census the v0.6 per-check access disposition ledger.
+
+🛑 `check_id` IS A POSITIONAL AP ID, AND A CORPUS REMOVAL RENUMBERS IT.
+gen_data hands out ap ids as ``BASE_AP + index into rows``, so dropping any check renumbers every
+check after it. This table is keyed on that id and carries curated rows (dispositions, reasons,
+implementation witnesses) -- and `access_claim_id` embeds the id a second time, as
+``check:<ap_id>/access``. Fixing only the POPULATION after a removal (delete the ids that vanished)
+therefore looks right and silently re-points every curated row after the gap at a different check.
+
+The migration is: map old ap -> flag against the previous `data.py`
+(``git show <base>:greenfield/eldenring/tables/data.py``), map flag -> new ap against the current
+one, rewrite `check_id` AND the ids embedded in `access_claim_id`, drop the rows whose flag left the
+corpus, and add default `unresolved/critical/all` rows for any flag that entered it. `validate()`
+below catches both halves if you get it wrong -- the population check and the claim-id pairing check
+are the two tripwires. (Learned on world#1515/#1518, 2026-09-08, the first removal since this table
+was bootstrapped: 10 checks left and 58 curated rows had to move with their flags.)
+"""
 from __future__ import annotations
 
 import argparse
