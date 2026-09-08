@@ -525,6 +525,12 @@ def report_taxonomy_and_reach(repo, souls_dir, rows):
             note = "UNDERIVED -- " + taxonomy.UNDERIVED_CLASSES[cls].split(":", 1)[0]
         elif tag is None:
             note = "no equivalent tag"
+        elif k is None:
+            # The tag exists in his vocabulary but no slot in THIS checkout carries it, so there is
+            # no count to diverge from. Say so and render the count as a dash, rather than letting
+            # the divergence arithmetic meet a None. Always the case on a synthetic fixture, which
+            # is exactly why D must survive it instead of taking E and F down with it.
+            note = "n/a -- no slot of his carries the tag"
         elif max(n, k) and abs(n - k) > CLASS_DIVERGENCE * max(n, k):
             note = "DIVERGES >%d%%" % int(CLASS_DIVERGENCE * 100)
             diverged.append((cls, n, tag, k))

@@ -21,6 +21,9 @@ verdict:
   E. ALLOWLIST HYGIENE -- both allowlists are bare ints with non-empty reasons in the documented
      vocabulary, and disjointness of the class sets. This is the licence guard in test form: if a
      future edit ever put one of his strings in there, "bare int keys" fails.
+  G. FULL REPORT -- `--report` over the synthetic fixture runs to completion and prints every
+     section header, A through F. The report-only sections D, E and F have no other end-to-end
+     cover, and a crash in an early one silently swallows every section after it.
 
 🛑 THE FIXTURE IS OURS. Every slot below is made up -- invented flags, invented placements, item
 names from the base game's own name table. Not one row, description or area name comes from his
@@ -302,6 +305,35 @@ class MattOracleLogic(unittest.TestCase):
         self.assertTrue(self.M._excluded_by_tags(frozenset({"enemygem"})))
         self.assertFalse(self.M._excluded_by_tags(frozenset({"missable", "chest"})))
 
+    # --- G. the full report runs end to end ------------------------------
+    def test_G_full_report_prints_every_section(self):
+        """`--report` over the synthetic fixture must reach the LAST section.
+
+        Section D's divergence arithmetic used to meet a None boss-class count -- which is what a
+        made-up fixture always produces, since no slot of his carries any boss tag -- and raise
+        TypeError, taking E and F down with it. Asserting the headers as a SET, in order, rather
+        than just "no traceback": a section that stops printing is the failure this guards.
+        """
+        out = subprocess.run(
+            [sys.executable, TOOL, "--souls-rando-dir", self.dir.name, "--report"],
+            capture_output=True, text=True,
+            env=dict(os.environ, PYTHONIOENCODING="utf-8"),
+        )
+        self.assertNotIn("Traceback", out.stderr, out.stderr)
+        self.assertEqual(out.stderr.strip(), "", out.stderr)
+        # Exit 1 is CORRECT here: the fixture's flag 90012 is an unexplained missing slot. What is
+        # under test is that the report is complete, not that it passes.
+        self.assertEqual(out.returncode, 1, out.stdout + out.stderr)
+        headers = ["== A. ", "== B. ", "== C. ", "== D. ", "== E. ", "== F. "]
+        at = -1
+        for h in headers:
+            i = out.stdout.find(h)
+            self.assertGreater(i, at, "section %r missing or out of order:\n%s" % (h, out.stdout))
+            at = i
+        # And the None counts render as a dash with a reason, not as "None".
+        self.assertIn("n/a -- no slot of his carries the tag", out.stdout)
+        self.assertNotIn("None", out.stdout)
+
 
 # A SECOND synthetic fixture, for the report-only missable join. Flags 90021-90025 and shop id 90102
 # are invented numbers in a range the game does not use; every DebugText line was written for this
@@ -405,10 +437,10 @@ class MattOracleMissableJoin(unittest.TestCase):
         self.assertTrue(flags <= all_flags)
 
     def test_F_section_letter_is_registered_in_the_tool(self):
-        """The section header the report prints, asserted against the tool's SOURCE rather than by
-        running it end-to-end. An end-to-end --report over a synthetic fixture cannot be used here:
-        section D (boss taxonomy) raises TypeError when a class count is None, which it always is
-        for an invented fixture -- a pre-existing edge in THAT section, untouched by this one."""
+        """The section header the report prints, plus the call that fills it, asserted against the
+        tool's SOURCE. The end-to-end complement is test_G_full_report_prints_every_section, which
+        checks that F is actually REACHED; this one checks it is wired to check_missable and that
+        nothing it computes leaks into the gated tail."""
         src = open(TOOL, encoding="utf-8").read()
         self.assertIn('"== F. MISSABLE (report-only, no gate) =="', src)
         self.assertIn("check_missable(rows, by_flag, ours_flags)", src)
