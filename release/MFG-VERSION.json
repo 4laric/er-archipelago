@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source_repository": "https://github.com/4laric/ERR-MapForGoblins-DLL",
-  "source_commit": "84109f2adf4ae7674a2b9ed7f3d2b661306ab5b3",
+  "source_commit": "c015cb3fce6195dd39e489a6c1263b50ea55a75e",
   "profile": "vanilla",
   "input_sha256": "0a7b8fa931609fe0d778b356fff5259e150d667a0ee2c8daeed38c4285fddc39",
   "input_release": {

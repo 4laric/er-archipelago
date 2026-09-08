@@ -14,9 +14,11 @@ import tomllib
 IDENTITY = ('schema_version', 'source_repository', 'source_commit', 'profile', 'input_sha256')
 FILES = {'dll_sha256': 'MapForGoblins.dll', 'ini_sha256': 'MapForGoblins.ini', 'license_sha256': 'LICENSE.txt'}
 PRESET = {'Loot': {'show_material_nodes': 'false', 'show_crafting_materials': 'true'},
+          # One preset written twice: this table and the fork's tools/make_ap_ini.py must agree
+          # (tools/mfg_pin.py --check). Fork PR #10 (c015cb3f) defaulted in-logic-only ON and
+          # removed the AP progression rings and their scale key outright, so neither is here.
           'Archipelago': {'ap_checks_only': 'true', 'ap_progression_only': 'false',
-                         'ap_in_logic_only': 'false', 'ap_progression_rings': 'false',
-                         'ap_progression_scale': '1.5'}}
+                         'ap_in_logic_only': 'true'}}
 MANIFEST = 'MFG-PROVENANCE.json'
 
 
