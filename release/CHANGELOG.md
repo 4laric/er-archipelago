@@ -14,8 +14,8 @@ The narrative — what this project is and what v0.2 brings — lives in
 - **APWorld:** Host-only — install v0.6.0.5 when generating a new room once it ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
-- **Profile/assets:** **Reinstall the MapForGoblins build and preset** shipped with v0.6.0.5: it
-  fixes an overlay-thread crash and changes the map defaults (below).
+- **Profile/assets:** **Reinstall or replace** — use the MapForGoblins build and preset shipped
+  with v0.6.0.5: it fixes an overlay-thread crash and changes the map defaults (below).
 Window opened AT THE TAG of v0.6.0.4 with ZERO commits past it.
 
 `CONTRACT_HASH` is `613fb438`, read by loading contract.py: unmoved since v0.6.0.3, so a

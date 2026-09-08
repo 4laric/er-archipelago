@@ -19,8 +19,8 @@ switch themselves off on that executable.
 - **APWorld:** Host-only — install v0.6.0.5 when generating a new room once it ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
-- **Profile/assets:** **Reinstall the MapForGoblins build and preset** from this release: it
-  carries a crash fix and new map defaults.
+- **Profile/assets:** **Reinstall or replace** — use the MapForGoblins build and preset shipped
+  with this release: it carries a crash fix and new map defaults.
 
 ## What is in it so far
 
