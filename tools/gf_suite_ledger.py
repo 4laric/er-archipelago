@@ -94,6 +94,13 @@ GENERATORS = [
     # (.github/workflows/matt-oracle.yaml), deliberately not on pull_request. AP-free; needs PyYAML,
     # which this job already installs for the shipping-yaml gate.
     "matt_oracle",
+    # The oracle region review queue's HUMAN half: tools/apply_oracle_region_verdicts.py (the
+    # notebook-backup -> queue.tsv round trip) and build_evidence_browser's evidence join. Both are
+    # loaded BY PATH from tools/, which is not installed beside the world, and the join is exercised
+    # against a synthetic queue in a temp tree. AP-free, no artifacts, no client, and NEVER a
+    # SoulsRandomizers checkout -- the committed queue tsv is the only input, which is the whole
+    # reason this one CAN run on pull_request while the oracle's own verdict cannot.
+    "oracle_region_verdicts",
     "provenance_gate",
     "questline_dag",
     "questline_model",
