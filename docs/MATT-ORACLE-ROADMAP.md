@@ -37,6 +37,18 @@ every step: read his checkout locally, commit only our own flags, names and reas
    never by writing his area names into the tree. Escalate that subset from report to FAIL once
    cleared. The two DLC-membership rows (520800, 530950) belong here.
 
+   **The review queue is built** (`--region-queue`, 2026-09-08). 218 rows in
+   `greenfield/evidence/oracle-region-queue.tsv`, each with `status` (open / confirmed-ours /
+   moved), `reviewer` and `note`. The check browser has an **Oracle region review** facet and the
+   player review notebook a queue view; both put OUR evidence beside each row — assigned region,
+   the derivation step that assigned it, map tile, nearest grace and the region that grace maps to
+   (47 rows have a grace candidate that differs from the assignment), and the
+   `check_region_second_opinion.tsv` wiki row where one exists (12 rows). A reviewer rules in the
+   notebook, downloads the notebook backup, and `tools/apply_oracle_region_verdicts.py` writes the
+   verdicts back into the tsv. 🛑 The queue file carries nothing of his: it records only THAT a
+   second source disagrees for that flag. **Still open:** working the 218, then the ladder fixes
+   for the `moved` rows, then the escalation to FAIL.
+
 5. **Missable tagging.**
    Semantics differ, so no blanket gate. Two clean sub-classes: mark the three Furnace Golem crystal
    tears (65430/65450/65460) missable; reconsider 60510 (Talisman Pouch) which we call questline and

@@ -224,6 +224,109 @@ class MattOracleLogic(unittest.TestCase):
         finally:
             del self.M.MISSING_SLOT_KNOWN[90001]
 
+    # --- C2. region queue ------------------------------------------------
+    # The queue exists so two humans can work the ~218 rows a second source's own partition
+    # disagrees with. Its licence boundary is IN THE ALGORITHM: his area label is an equivalence
+    # key, the mapping it produces is built from OUR regions, and the label is discarded before
+    # anything is written. These tests assert that, not just the arithmetic.
+    def test_C2_area_maps_to_our_region_by_strict_plurality(self):
+        rows = [
+            {"stype": 0, "flag": 1, "area": "alpha"},
+            {"stype": 0, "flag": 2, "area": "alpha"},
+            {"stype": 0, "flag": 3, "area": "alpha"},
+            {"stype": 0, "flag": 4, "area": "split"},
+            {"stype": 0, "flag": 5, "area": "split"},
+            {"stype": 3, "flag": 0, "area": "shoponly"},       # no flag: contributes nothing
+        ]
+        by_flag = {
+            1: [("Limgrave", "n", 11)], 2: [("Limgrave", "n", 12)], 3: [("Caelid", "n", 13)],
+            4: [("Limgrave", "n", 14)], 5: [("Caelid", "n", 15)],
+        }
+        mapped, areas = self.M.region_area_map(rows, by_flag)
+        self.assertEqual(areas, 2)                     # 'shoponly' never became a cluster
+        self.assertEqual(mapped, {"alpha": "Limgrave"})
+        # A cluster split evenly says nothing about any row in it, so it maps to NOTHING rather
+        # than to whichever region sorted first. Silence, not a coin flip.
+        self.assertNotIn("split", mapped)
+
+    def test_C2_queue_is_the_rows_outside_their_own_cluster(self):
+        rows = [{"stype": 0, "flag": f, "area": "alpha"} for f in (1, 2, 3)]
+        rows.append({"stype": 0, "flag": 4, "area": "split"})
+        rows.append({"stype": 0, "flag": 5, "area": "split"})
+        by_flag = {
+            1: [("Limgrave", "n", 11)], 2: [("Limgrave", "n", 12)], 3: [("Caelid", "n", 13)],
+            4: [("Limgrave", "n", 14)], 5: [("Caelid", "n", 15)],
+        }
+        queue, joined, areas, mapped = self.M.check_region_queue(rows, by_flag)
+        self.assertEqual((joined, areas, mapped), (3, 2, 1))   # only 'alpha' contributes rows
+        self.assertEqual([(q["flag"], q["ap_id"], q["our_region"]) for q in queue],
+                         [(3, 13, "Caelid")])
+        self.assertEqual(queue[0]["basis"], self.M.BASIS_REGION)
+        # 🛑 THE LICENCE GUARD. Nothing of his may leave this function: no area label, no field
+        # beyond the four we write. Asserted as an EXACT key set so a future edit that carries
+        # "area" along for debugging fails here rather than shipping it into the committed tsv.
+        self.assertEqual(set(queue[0]), {"flag", "ap_id", "our_region", "basis"})
+        for value in queue[0].values():
+            self.assertNotIn("alpha", str(value))
+
+    def test_C2_dlc_membership_rows_are_queued_unconditionally(self):
+        # 520800 / 530950 are the two base-vs-DLC membership rows from the roadmap. They are queued
+        # even when the partition happens to AGREE, which is the point: a model difference that
+        # cancels out is not evidence that the row is right.
+        flags = sorted(self.M.DLC_MEMBERSHIP_FLAGS)
+        rows = [{"stype": 0, "flag": f, "area": "alpha"} for f in flags]
+        by_flag = {f: [("Roundtable Hold", "n", 900 + i)] for i, f in enumerate(flags)}
+        queue, _, _, _ = self.M.check_region_queue(rows, by_flag)
+        self.assertEqual([q["flag"] for q in queue], flags)
+        self.assertTrue(all(q["basis"] == self.M.BASIS_DLC for q in queue))
+
+    def test_C2_refresh_preserves_verdicts_and_drops_resolved_rows(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "queue.tsv")
+            first = [{"flag": 1, "ap_id": 11, "our_region": "Limgrave",
+                      "basis": self.M.BASIS_REGION},
+                     {"flag": 2, "ap_id": 12, "our_region": "Caelid",
+                      "basis": self.M.BASIS_REGION}]
+            self.M.write_region_queue(path, first, {})
+            back = self.M.read_region_queue(path)
+            self.assertEqual(sorted(back), [(1, 11), (2, 12)])
+            self.assertEqual(back[(1, 11)]["status"], "open")
+
+            back[(1, 11)].update(status="confirmed-ours", reviewer="alaric", note="ours is right")
+            # flag 2 stopped disagreeing; flag 3 is new.
+            second = [first[0], {"flag": 3, "ap_id": 13, "our_region": "Altus",
+                                 "basis": self.M.BASIS_DLC}]
+            kept, added, dropped = self.M.write_region_queue(path, second, back)
+            self.assertEqual((kept, added, dropped), (1, 1, [(2, 12)]))
+            final = self.M.read_region_queue(path)
+            self.assertEqual(final[(1, 11)]["status"], "confirmed-ours")
+            self.assertEqual(final[(1, 11)]["reviewer"], "alaric")
+            self.assertEqual(final[(1, 11)]["note"], "ours is right")
+            self.assertEqual(final[(3, 13)]["status"], "open")
+            self.assertNotIn((2, 12), final)
+            # newline='\n' on both platforms -- the committed file is diff-gated in CI.
+            with open(path, "rb") as fh:
+                self.assertNotIn(b"\r\n", fh.read())
+
+    def test_C2_committed_queue_carries_nothing_but_our_own_columns(self):
+        # The shipped file is the licence surface. Every cell must be an int of ours, one of OUR
+        # region names, one of two basis tokens, a status from the documented vocabulary, or free
+        # text a reviewer wrote. A stray column is how a foreign area name would arrive.
+        path = os.path.join(REPO, "greenfield", "evidence", "oracle-region-queue.tsv")
+        rows = self.M.read_region_queue(path)
+        self.assertGreater(len(rows), 100)
+        by_flag, _ = self.M.load_ours(REPO)
+        regions = {r for entries in by_flag.values() for r, _n, _a in entries}
+        for (flag, ap_id), row in rows.items():
+            self.assertEqual(sorted(row), sorted(self.M.QUEUE_COLUMNS))
+            self.assertIn(row["basis"], (self.M.BASIS_REGION, self.M.BASIS_DLC))
+            self.assertIn(row["status"], self.M.QUEUE_STATUSES)
+            self.assertIn(row["our_region"], regions)
+            # the (flag, ap_id) pair must be a REAL row of ours, not just two plausible integers
+            self.assertIn(ap_id, {a for _r, _n, a in by_flag.get(flag, ())})
+        for flag in self.M.DLC_MEMBERSHIP_FLAGS:
+            self.assertTrue(any(f == flag for f, _ in rows), "flag %d left the queue" % flag)
+
     # --- D. skip ---------------------------------------------------------
     def test_D_missing_checkout_skips_with_exit_zero(self):
         for arg in (os.path.join(self.dir.name, "nope"), self.dir.name + "-absent"):

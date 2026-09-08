@@ -1,0 +1,239 @@
+# oracle-region-queue.tsv -- HUMAN REVIEW QUEUE for the checks whose region the second source's
+# own partition disagrees with. AUTO-REFRESHED by `tools/matt_oracle.py --region-queue` against a
+# LOCAL thefifthmatt/SoulsRandomizers checkout; the status/reviewer/note columns are the only
+# hand-edited ones and are carried across a refresh by (flag, ap_id).
+#
+# 🛑 LICENCE BOUNDARY. Nothing in this file is his. Every column is OUR flag, OUR ap_id, OUR region
+# name, or a reviewer's own words. The `basis` column records ONLY that a second source's partition
+# disagrees for that flag -- never which area it names, never its Text, never its tags. Rule from
+# OUR evidence (map tile, nearest grace and the region that grace maps to, wiki second opinion in
+# check_region_second_opinion.tsv), not from his sheet. See AGENTS.md "MATT ORACLE".
+#
+# THIS FILE IS NOT A DEFECT LIST and not a fix list. A disagreement is a question. `confirmed-ours`
+# is as real an outcome as `moved`, and the two DLC-membership rows are queued unconditionally.
+#
+# status:   open | confirmed-ours | moved
+# reviewer: who ruled it (free text; two reviewers work the queue, so say which one)
+# note:     the reviewer's own reason, in our words
+#
+# Ruled rows are FIXED elsewhere: the normal derivation ladder (M61_TILE_CURATED,
+# DUNGEON_REGION_CURATED, region_overrides.tsv only as a last resort). Never by editing data.py.
+flag	ap_id	our_region	basis	status	reviewer	note
+65420	7773684	Scadu Altus	second-source-region-disagrees	open		
+65460	7773688	Gravesite	second-source-region-disagrees	open		
+66730	7773695	Liurnia	second-source-region-disagrees	open		
+66740	7770072	Mt. Gelmir	second-source-region-disagrees	open		
+67650	7770118	Caelid	second-source-region-disagrees	open		
+67840	7770121	Liurnia	second-source-region-disagrees	open		
+68670	7770150	Scadu Altus	second-source-region-disagrees	open		
+68720	7770155	Scadu Altus	second-source-region-disagrees	open		
+68790	7770162	Gravesite	second-source-region-disagrees	open		
+68800	7770163	Shadow Keep	second-source-region-disagrees	open		
+68850	7770167	Jagged Peak	second-source-region-disagrees	open		
+400050	7770561	Limgrave	second-source-region-disagrees	open		
+400070	7770563	Altus	second-source-region-disagrees	open		
+400090	7773707	Mt. Gelmir	second-source-region-disagrees	open		
+400103	7773709	Raya Lucaria Academy	second-source-region-disagrees	open		
+400106	7770574	Raya Lucaria Academy	second-source-region-disagrees	open		
+400163	7770578	Altus	second-source-region-disagrees	open		
+400175	7770580	Farum Azula	second-source-region-disagrees	open		
+400221	7773717	Stormveil	second-source-region-disagrees	open		
+400260	7773728	Caelid	second-source-region-disagrees	open		
+400281	7770587	Leyndell	second-source-region-disagrees	open		
+400309	7770597	Caelid	second-source-region-disagrees	open		
+400309	7900023	Caelid	second-source-region-disagrees	open		
+400309	7900024	Caelid	second-source-region-disagrees	open		
+400320	7770598	Haligtree	second-source-region-disagrees	open		
+400357	7770607	Leyndell	second-source-region-disagrees	open		
+400391	7773735	Roundtable Hold	second-source-region-disagrees	open		
+400400	7773737	Caelid	second-source-region-disagrees	open		
+400600	7773744	Enir Ilim	second-source-region-disagrees	open		
+400612	7773747	Shadow Keep	second-source-region-disagrees	open		
+400645	7770642	Enir Ilim	second-source-region-disagrees	open		
+400645	7900092	Enir Ilim	second-source-region-disagrees	open		
+400645	7900093	Enir Ilim	second-source-region-disagrees	open		
+400645	7900094	Enir Ilim	second-source-region-disagrees	open		
+400645	7900095	Enir Ilim	second-source-region-disagrees	open		
+400722	7770649	Gravesite	second-source-region-disagrees	open		
+400907	7773774	Liurnia	second-source-region-disagrees	open		
+520800	7773853	Roundtable Hold	second-source-dlc-membership-disagrees	open		
+530385	7770712	Mt. Gelmir	second-source-region-disagrees	open		
+530385	7900148	Mt. Gelmir	second-source-region-disagrees	open		
+530865	7773872	Gravesite	second-source-region-disagrees	open		
+530950	7773878	Roundtable Hold	second-source-dlc-membership-disagrees	open		
+530960	7773880	Shadow Keep	second-source-region-disagrees	open		
+540118	7770722	Caelid	second-source-region-disagrees	open		
+540512	7773891	Mountaintops of the Giants	second-source-region-disagrees	open		
+540902	7773896	Ensis	second-source-region-disagrees	open		
+540920	7774647	Ensis	second-source-region-disagrees	open		
+540922	7774648	Ensis	second-source-region-disagrees	open		
+580100	7773908	Belurat	second-source-region-disagrees	open		
+580330	7770804	Consecrated Snowfield	second-source-region-disagrees	open		
+580600	7770810	Belurat	second-source-region-disagrees	open		
+10007452	7770859	Roundtable Hold	second-source-region-disagrees	open		
+11007195	7770950	Leyndell	second-source-region-disagrees	open		
+14007920	7771549	Raya Lucaria Academy	second-source-region-disagrees	open		
+35007030	7772351	Leyndell	second-source-region-disagrees	open		
+1035457000	7772548	Raya Lucaria Academy	second-source-region-disagrees	open		
+1035457030	7774138	Raya Lucaria Academy	second-source-region-disagrees	open		
+1035457100	7772549	Raya Lucaria Academy	second-source-region-disagrees	open		
+1035467700	7772550	Raya Lucaria Academy	second-source-region-disagrees	open		
+1036517000	7774207	Liurnia	second-source-region-disagrees	open		
+1036517700	7774208	Liurnia	second-source-region-disagrees	open		
+1036517700	7900234	Liurnia	second-source-region-disagrees	open		
+1036517700	7900235	Liurnia	second-source-region-disagrees	open		
+1036527000	7772586	Mt. Gelmir	second-source-region-disagrees	open		
+1036527010	7772587	Mt. Gelmir	second-source-region-disagrees	open		
+1036527020	7772588	Mt. Gelmir	second-source-region-disagrees	open		
+1036527030	7772589	Mt. Gelmir	second-source-region-disagrees	open		
+1036527040	7772590	Mt. Gelmir	second-source-region-disagrees	open		
+1036527050	7772591	Mt. Gelmir	second-source-region-disagrees	open		
+1036527060	7772592	Mt. Gelmir	second-source-region-disagrees	open		
+1037527020	7772635	Mt. Gelmir	second-source-region-disagrees	open		
+1037527030	7772636	Mt. Gelmir	second-source-region-disagrees	open		
+1037527040	7772637	Mt. Gelmir	second-source-region-disagrees	open		
+1037527050	7772638	Mt. Gelmir	second-source-region-disagrees	open		
+1037527060	7772639	Mt. Gelmir	second-source-region-disagrees	open		
+1037527080	7772641	Mt. Gelmir	second-source-region-disagrees	open		
+1037527090	7772642	Mt. Gelmir	second-source-region-disagrees	open		
+1037527100	7772643	Mt. Gelmir	second-source-region-disagrees	open		
+1037527100	7900240	Mt. Gelmir	second-source-region-disagrees	open		
+1037527100	7900241	Mt. Gelmir	second-source-region-disagrees	open		
+1038527000	7772689	Mt. Gelmir	second-source-region-disagrees	open		
+1038527010	7772690	Mt. Gelmir	second-source-region-disagrees	open		
+1038527020	7772691	Mt. Gelmir	second-source-region-disagrees	open		
+1038527040	7772693	Mt. Gelmir	second-source-region-disagrees	open		
+1038527060	7772695	Mt. Gelmir	second-source-region-disagrees	open		
+1038527070	7772696	Mt. Gelmir	second-source-region-disagrees	open		
+1038537000	7772697	Mt. Gelmir	second-source-region-disagrees	open		
+1038537010	7774238	Mt. Gelmir	second-source-region-disagrees	open		
+1038537020	7774239	Mt. Gelmir	second-source-region-disagrees	open		
+1038537030	7774240	Mt. Gelmir	second-source-region-disagrees	open		
+1038537040	7774241	Mt. Gelmir	second-source-region-disagrees	open		
+1038537050	7774242	Mt. Gelmir	second-source-region-disagrees	open		
+1038547000	7772698	Mt. Gelmir	second-source-region-disagrees	open		
+1038547010	7772699	Mt. Gelmir	second-source-region-disagrees	open		
+1038547020	7772700	Mt. Gelmir	second-source-region-disagrees	open		
+1038547030	7772701	Mt. Gelmir	second-source-region-disagrees	open		
+1038547050	7772702	Mt. Gelmir	second-source-region-disagrees	open		
+1038547060	7772703	Mt. Gelmir	second-source-region-disagrees	open		
+1038547070	7772704	Mt. Gelmir	second-source-region-disagrees	open		
+1038547080	7772705	Mt. Gelmir	second-source-region-disagrees	open		
+1038547090	7772706	Mt. Gelmir	second-source-region-disagrees	open		
+1038547100	7772707	Mt. Gelmir	second-source-region-disagrees	open		
+1038547100	7900242	Mt. Gelmir	second-source-region-disagrees	open		
+1038547100	7900243	Mt. Gelmir	second-source-region-disagrees	open		
+1038547110	7772708	Mt. Gelmir	second-source-region-disagrees	open		
+1038547700	7772709	Mt. Gelmir	second-source-region-disagrees	open		
+1039537000	7772745	Mt. Gelmir	second-source-region-disagrees	open		
+1039537010	7772746	Mt. Gelmir	second-source-region-disagrees	open		
+1039537020	7772747	Mt. Gelmir	second-source-region-disagrees	open		
+1039537030	7772748	Mt. Gelmir	second-source-region-disagrees	open		
+1039537040	7772749	Mt. Gelmir	second-source-region-disagrees	open		
+1039537050	7772750	Mt. Gelmir	second-source-region-disagrees	open		
+1039537050	7900245	Mt. Gelmir	second-source-region-disagrees	open		
+1039537060	7772751	Mt. Gelmir	second-source-region-disagrees	open		
+1039537070	7772752	Mt. Gelmir	second-source-region-disagrees	open		
+1039537080	7772753	Mt. Gelmir	second-source-region-disagrees	open		
+1039537700	7772754	Mt. Gelmir	second-source-region-disagrees	open		
+1039537700	7900246	Mt. Gelmir	second-source-region-disagrees	open		
+1039537750	7774255	Mt. Gelmir	second-source-region-disagrees	open		
+1043347000	7772873	Weeping	second-source-region-disagrees	open		
+1043347040	7772874	Weeping	second-source-region-disagrees	open		
+1043347050	7772875	Weeping	second-source-region-disagrees	open		
+1043527750	7774354	Altus	second-source-region-disagrees	open		
+1043527760	7774355	Altus	second-source-region-disagrees	open		
+1044347000	7772920	Weeping	second-source-region-disagrees	open		
+1044347010	7774364	Weeping	second-source-region-disagrees	open		
+1044347040	7774365	Weeping	second-source-region-disagrees	open		
+1044347050	7774366	Weeping	second-source-region-disagrees	open		
+1044347060	7774367	Weeping	second-source-region-disagrees	open		
+1044347070	7774368	Weeping	second-source-region-disagrees	open		
+1044347080	7774369	Weeping	second-source-region-disagrees	open		
+1046397000	7772959	Caelid	second-source-region-disagrees	open		
+1046397010	7772960	Caelid	second-source-region-disagrees	open		
+1046397020	7772961	Caelid	second-source-region-disagrees	open		
+1046407000	7772962	Caelid	second-source-region-disagrees	open		
+1046407010	7772963	Caelid	second-source-region-disagrees	open		
+1046407020	7772964	Caelid	second-source-region-disagrees	open		
+1046407040	7772965	Caelid	second-source-region-disagrees	open		
+1046407060	7772966	Caelid	second-source-region-disagrees	open		
+1046407700	7772967	Caelid	second-source-region-disagrees	open		
+1049557700	7774480	Roundtable Hold	second-source-region-disagrees	open		
+1050567300	7773100	Consecrated Snowfield	second-source-region-disagrees	open		
+1050567600	7773104	Consecrated Snowfield	second-source-region-disagrees	open		
+1050567700	7774501	Consecrated Snowfield	second-source-region-disagrees	open		
+1050567700	7900271	Consecrated Snowfield	second-source-region-disagrees	open		
+1050567700	7900272	Consecrated Snowfield	second-source-region-disagrees	open		
+1050567700	7900273	Consecrated Snowfield	second-source-region-disagrees	open		
+1050567700	7900274	Consecrated Snowfield	second-source-region-disagrees	open		
+1050567800	7773106	Consecrated Snowfield	second-source-region-disagrees	open		
+1051557300	7773138	Consecrated Snowfield	second-source-region-disagrees	open		
+1051557310	7773139	Consecrated Snowfield	second-source-region-disagrees	open		
+1051557320	7773140	Consecrated Snowfield	second-source-region-disagrees	open		
+2044477050	7773228	Rauh Base	second-source-region-disagrees	open		
+2045467020	7773251	Rauh Base	second-source-region-disagrees	open		
+2045467040	7773252	Rauh Base	second-source-region-disagrees	open		
+2045467995	7773261	Rauh Base	second-source-region-disagrees	open		
+2045477010	7773262	Rauh Base	second-source-region-disagrees	open		
+2045477040	7773264	Rauh Base	second-source-region-disagrees	open		
+2045477050	7773265	Rauh Base	second-source-region-disagrees	open		
+2045477060	7773266	Rauh Base	second-source-region-disagrees	open		
+2045477070	7773267	Rauh Base	second-source-region-disagrees	open		
+2045477400	7773268	Rauh Base	second-source-region-disagrees	open		
+2045477400	7900280	Rauh Base	second-source-region-disagrees	open		
+2045477500	7773269	Rauh Base	second-source-region-disagrees	open		
+2045477510	7773270	Rauh Base	second-source-region-disagrees	open		
+2045477520	7773271	Rauh Base	second-source-region-disagrees	open		
+2045477530	7773272	Rauh Base	second-source-region-disagrees	open		
+2045477540	7773273	Rauh Base	second-source-region-disagrees	open		
+2045477550	7773274	Rauh Base	second-source-region-disagrees	open		
+2045477560	7773275	Rauh Base	second-source-region-disagrees	open		
+2045477570	7773276	Rauh Base	second-source-region-disagrees	open		
+2045477580	7773277	Rauh Base	second-source-region-disagrees	open		
+2045477590	7773278	Rauh Base	second-source-region-disagrees	open		
+2045477600	7773279	Rauh Base	second-source-region-disagrees	open		
+2046467020	7773339	Ancient Ruins	second-source-region-disagrees	open		
+2046477970	7773359	Ancient Ruins	second-source-region-disagrees	open		
+2047407010	7773375	Cerulean	second-source-region-disagrees	open		
+2047407020	7773376	Cerulean	second-source-region-disagrees	open		
+2047407980	7773380	Cerulean	second-source-region-disagrees	open		
+2047417110	7773387	Cerulean	second-source-region-disagrees	open		
+2047447730	7773428	Gravesite	second-source-region-disagrees	open		
+2047447820	7773430	Gravesite	second-source-region-disagrees	open		
+2047457000	7773434	Scadu Altus	second-source-region-disagrees	open		
+2047457010	7773435	Scadu Altus	second-source-region-disagrees	open		
+2047457180	7773440	Gravesite	second-source-region-disagrees	open		
+2047467010	7773445	Scadu Altus	second-source-region-disagrees	open		
+2047467030	7773446	Scadu Altus	second-source-region-disagrees	open		
+2047477030	7773450	Ancient Ruins	second-source-region-disagrees	open		
+2047477040	7773451	Ancient Ruins	second-source-region-disagrees	open		
+2047477050	7774558	Ancient Ruins	second-source-region-disagrees	open		
+2047477070	7773452	Ancient Ruins	second-source-region-disagrees	open		
+2047477900	7773453	Ancient Ruins	second-source-region-disagrees	open		
+2047477950	7773454	Ancient Ruins	second-source-region-disagrees	open		
+2047477995	7773455	Ancient Ruins	second-source-region-disagrees	open		
+2048407000	7773469	Cerulean	second-source-region-disagrees	open		
+2048407020	7773471	Cerulean	second-source-region-disagrees	open		
+2048417800	7773476	Jagged Peak	second-source-region-disagrees	open		
+2048417980	7773477	Jagged Peak	second-source-region-disagrees	open		
+2048447010	7773487	Ensis	second-source-region-disagrees	open		
+2048447020	7773488	Ensis	second-source-region-disagrees	open		
+2048447040	7773490	Ensis	second-source-region-disagrees	open		
+2048447080	7773494	Ensis	second-source-region-disagrees	open		
+2048447500	7773495	Ensis	second-source-region-disagrees	open		
+2049427010	7774559	Jagged Peak	second-source-region-disagrees	open		
+2049427700	7773518	Jagged Peak	second-source-region-disagrees	open		
+2049427720	7773519	Jagged Peak	second-source-region-disagrees	open		
+2050407000	7773581	Shadow Keep	second-source-region-disagrees	open		
+2050417010	7773582	Scadu Altus	second-source-region-disagrees	open		
+2050417700	7773583	Scadu Altus	second-source-region-disagrees	open		
+2050467500	7773615	Shadow Keep	second-source-region-disagrees	open		
+2050467510	7773616	Shadow Keep	second-source-region-disagrees	open		
+2051417000	7773626	Scadu Altus	second-source-region-disagrees	open		
+2051417700	7773627	Scadu Altus	second-source-region-disagrees	open		
+2051417710	7773628	Scadu Altus	second-source-region-disagrees	open		
+2052417000	7773646	Jagged Peak	second-source-region-disagrees	open		
+2052427500	7773648	Scadu Altus	second-source-region-disagrees	open		
+2053487000	7773657	Shadow Keep	second-source-region-disagrees	open		
+2053487010	7773658	Shadow Keep	second-source-region-disagrees	open		

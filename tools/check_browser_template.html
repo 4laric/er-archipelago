@@ -164,6 +164,22 @@ const FACETS = [
       return p.length?[...new Set(p)]:['(no gate evidence)'];
   }},
   {key:'maps',label:'Map tile',  get:c=>c.maps.length?c.maps:['(none)']},
+  /* ORACLE REGION REVIEW. The ~218 checks a SECOND SOURCE's own partition disagrees with, read
+     from greenfield/evidence/oracle-region-queue.tsv (refreshed by hand with
+     tools/matt_oracle.py --region-queue; this page never needs that checkout).
+     🛑 Being queued is a QUESTION, not a defect: the two models partition the world differently,
+     so `confirmed-ours` is as real an outcome as `moved`. The tsv records only THAT a second
+     source disagrees -- never what it calls the place -- so every value below is ours. Rule from
+     the "Oracle region review" panel in the detail pane, not from the fact of being listed. */
+  {key:'oracle',label:'Oracle region review', get:c=>{
+      if(!c.oq) return ['(not queued)'];
+      const p=['queued: '+c.oq];
+      if(c.oqb==='second-source-dlc-membership-disagrees') p.push('DLC membership');
+      p.push(c.grc?'nearest-grace candidate: '+c.gr
+                  :(c.gr?'nearest grace agrees':'no nearest-grace candidate'));
+      if(c.so) p.push('has wiki second opinion');
+      return p;
+  }},
 ];
 const active = {}; FACETS.forEach(f=>active[f.key]=new Set());
 
@@ -420,8 +436,52 @@ function showDetail(c){
      ${rows(c.lots,l=>`<div>${esc(l.table)} <b>${esc(l.lot)}</b>.${esc(l.slot)} cat${esc(l.cat)} id${esc(l.item)} ×${esc(l.n)}<br><span style="color:var(--gold2)">${esc(l.name)}</span></div>`)}</div>
    ${(c.shop||[]).length?`<div class="sec"><h3>Shop rows (${c.shop.length})</h3>
      ${rows(c.shop,s=>`<div>row <b>${esc(s.row)}</b> — ${esc(s.item)} · ${esc(s.value)} runes<br><span style="color:var(--dim)">${esc(s.where)}</span></div>`)}</div>`:''}
+   ${oracleSection(c)}
    ${gateSection(c)}
   `;
+}
+
+/* ---------- oracle region review: OUR OWN evidence, side by side ----------------------
+   Rendered only for the queued rows. Everything here is a committed generator output of ours:
+   the assigned region, the derivation step that assigned it, the map tile, the nearest grace and
+   the region that grace maps to, and our wiki second opinion. NOTHING from the second source
+   beyond the bare fact that its partition disagrees -- that is the whole licence boundary, and it
+   is why a reviewer must rule from this panel rather than from the queue membership.
+
+   🛑 The nearest-grace candidate is a RANKING signal. It is built from the same nearest-neighbour
+   geometry that produced many of these regions, so it corroborates nothing when it agrees, and
+   when it disagrees it is a place to look, not a verdict. Fixes go through the derivation ladder
+   (M61_TILE_CURATED, DUNGEON_REGION_CURATED, region_overrides.tsv last) in a separate change. */
+function oracleSection(c){
+  if(!c.oq) return '';
+  const dim=s=>`<span style="color:var(--dim)">${s}</span>`;
+  const basis = c.oqb==='second-source-dlc-membership-disagrees'
+    ? 'a second source files this pickup on the other side of the base/DLC line'
+    : 'a second source’s own partition puts this row outside the region its neighbours sit in';
+  const cand = c.grc
+    ? `<b style="color:var(--gold2)">${esc(c.gr)}</b> — differs from the assigned region, so it is
+       a CANDIDATE to check`
+    : (c.gr ? `${esc(c.gr)} ${dim('— agrees with the assigned region, so it corroborates nothing')}`
+            : dim('no candidate: this grace’s checks do not agree on one region, or there is no nearest grace'));
+  const so = c.so
+    ? `<dt>Wiki second opinion</dt><dd><b>${esc(c.so.verdict)}</b>${c.so.ext?` · names ${esc(c.so.ext)}`:''}
+       ${c.so.src?` · ${esc(c.so.src)}`:''}${c.so.page?` · “${esc(c.so.page)}”`:''}
+       ${c.so.vote?`<br>${dim('MSB grace vote: '+esc(c.so.vote)+(c.so.note?' ('+esc(c.so.note)+')':''))}`:''}</dd>`
+    : `<dt>Wiki second opinion</dt><dd>${dim('no row in check_region_second_opinion.tsv')}</dd>`;
+  return `<div class="sec"><h3>Oracle region review — ${esc(c.oq)}</h3><dl class="kv">
+    <dt>Why queued</dt><dd>${basis}. ${dim('A disagreement is a question, not a defect.')}</dd>
+    <dt>Assigned region</dt><dd><b>${esc(c.r)}</b></dd>
+    <dt>Decided by</dt><dd>${c.how?`<b>${esc(c.how)}</b> ${dim('(check_region_triage)')}`
+      :dim('not in check_region_triage: the region came from first-hand evidence for its tile')}</dd>
+    <dt>Map tile(s)</dt><dd>${c.maps.length?c.maps.map(m=>`<span class="tag">${esc(m)}</span>`).join(''):dim('no position')}</dd>
+    <dt>Nearest grace</dt><dd>${esc(c.g)||dim('unknown')}</dd>
+    <dt>That grace’s region</dt><dd>${cand}</dd>
+    ${so}
+    ${c.oqw?`<dt>Reviewer</dt><dd>${esc(c.oqw)}</dd>`:''}
+    ${c.oqn?`<dt>Verdict note</dt><dd>${esc(c.oqn)}</dd>`:''}
+    <dt>Record a verdict</dt><dd><a class="btn" href="${playerReviewUrl(c.id)}">open this check in the review notebook ↗</a>
+      <br>${dim('Rule it there, download the notebook JSON, then run tools/apply_oracle_region_verdicts.py to write status/reviewer/note back into greenfield/evidence/oracle-region-queue.tsv.')}</dd>
+  </dl></div>`;
 }
 
 /* ---------- gate evidence: FOUR corpora, each with its own caveats ---------- */

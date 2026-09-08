@@ -52,7 +52,7 @@ import json
 import os
 import re
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_OUT = "er-archipelago-check-browser.html"
@@ -195,6 +195,41 @@ def main():
              "cat": r.get("category", ""), "item": r.get("item_id", ""),
              "n": r.get("num", ""), "name": r.get("name", "")}
         )
+
+    # --- ORACLE REGION REVIEW QUEUE ------------------------------------------------
+    # greenfield/evidence/oracle-region-queue.tsv is a COMMITTED generator input, refreshed by
+    # hand with `tools/matt_oracle.py --region-queue` against a local second-source checkout that
+    # CI does not have. This build must therefore never need that checkout -- it reads the tsv and
+    # nothing else, so the page stays a pure function of committed files (see DETERMINISM above).
+    # 🛑 The tsv carries OUR flag/ap_id/region and a reviewer's own words. It records only THAT a
+    # second source's partition disagrees, never what that source names the place. A reviewer rules
+    # from the evidence panels beside it (tile, nearest grace, wiki second opinion), not from it.
+    queue_by_ap = {}
+    queue_path = os.path.join(gf, "evidence", "oracle-region-queue.tsv")
+    if os.path.exists(queue_path):
+        for r in read_tsv(queue_path):
+            try:
+                queue_by_ap[int(r["ap_id"])] = {
+                    "status": r.get("status", "open") or "open",
+                    "basis": r.get("basis", ""),
+                    "reviewer": r.get("reviewer", ""),
+                    "note": r.get("note", ""),
+                }
+            except (KeyError, ValueError):
+                continue
+
+    # Second opinion from our own wiki audit, for the reviewer panel. Region names in this table
+    # are from OUR vocabulary (see the tsv's own header); no wiki prose is reproduced.
+    second_by_ap = {}
+    for r in read_tsv(os.path.join(gf, "check_region_second_opinion.tsv")):
+        try:
+            second_by_ap.setdefault(int(r["ap_id"]), {
+                "verdict": r.get("verdict", ""), "ext": r.get("external_regions", ""),
+                "src": r.get("source", ""), "page": r.get("page_title", ""),
+                "vote": r.get("msb_vote_region", ""), "note": r.get("vote_note", ""),
+            })
+        except (KeyError, ValueError):
+            continue
 
     map_names = {r["tile"]: r["name"] for r in read_tsv(os.path.join(gf, "map_names.tsv"))}
     # #599: how check_region_triage describes each region decision (GUESSED / CONFLICT / ...).
@@ -398,6 +433,49 @@ def main():
 
     checks.sort(key=lambda c: (c["r"], c["n"]))
 
+    # --- ORACLE REGION REVIEW: the evidence a reviewer needs, joined onto the queued rows -----
+    # nearest_grace.tsv names the closest Site of Grace; it does NOT say which region that grace
+    # is in, and there is no committed grace->region table. So derive it from OUR OWN corpus: the
+    # region the other checks sharing that grace sit in, by strict plurality. Rows currently IN the
+    # queue are excluded from their own vote, so the candidate a reviewer sees is independent of
+    # the assignment under review rather than a restatement of it. A grace whose checks split
+    # evenly maps to nothing and yields NO candidate -- silence, not a guess.
+    # 🛑 A candidate is a QUESTION, not a verdict. The same nearest-neighbour hop that produced
+    # many of these regions in the first place is what this vote is made of; it ranks, it does not
+    # adjudicate. Fixes go through the derivation ladder in a later PR, never from this page.
+    grace_votes = defaultdict(Counter)
+    for c in checks:
+        if c["g"] and c["id"] not in queue_by_ap:
+            grace_votes[c["g"]][c["r"]] += 1
+    grace_region = {}
+    for g, counter in grace_votes.items():
+        top = counter.most_common(2)
+        if len(top) == 1 or top[0][1] > top[1][1]:
+            grace_region[g] = top[0][0]
+
+    queued_checks = 0
+    grace_candidates = 0
+    for c in checks:
+        q = queue_by_ap.get(c["id"])
+        if not q:
+            continue
+        queued_checks += 1
+        c["oq"] = q["status"]
+        c["oqb"] = q["basis"]
+        if q["reviewer"]:
+            c["oqw"] = q["reviewer"]
+        if q["note"]:
+            c["oqn"] = q["note"]
+        gr = grace_region.get(c["g"])
+        if gr:
+            c["gr"] = gr
+            if gr != c["r"]:
+                c["grc"] = 1          # the nearest grace's region is a CANDIDATE for this row
+                grace_candidates += 1
+        so = second_by_ap.get(c["id"])
+        if so:
+            c["so"] = so
+
     # --- NEGATIVE SPACE ---------------------------------------------------------------
     # Every wrong claim this project has produced lived in a JOIN RESIDUAL: rows that
     # exist in a side table but are not checks. "~126 invisible lots" was 98 already-
@@ -469,6 +547,15 @@ def main():
                         if c["gates"] or c["enab"] or c["gift"] or c["eshop"]),
         "residuals": len(residuals),
         "plottable": sum(1 for c in checks if c["pos"]),
+        # The "Oracle region review" facet. `queued` is what the committed tsv holds; the
+        # per-status split and the grace-candidate count are what the facet's header states, so a
+        # reviewer can see how much of the queue is still open without counting rows by eye.
+        "oracle_queue": {
+            "queued": queued_checks,
+            "status": dict(sorted(Counter(c["oq"] for c in checks if "oq" in c).items())),
+            "grace_candidate": grace_candidates,
+            "second_opinion": sum(1 for c in checks if "oq" in c and "so" in c),
+        },
         "cal": cal,
         "caveats": {n: tsv_caveats(n + ".tsv") for n in
                     ("treasure_enablers", "esd_gates", "esd_gifts",

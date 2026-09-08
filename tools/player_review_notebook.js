@@ -2,8 +2,13 @@
 (function(root){
 'use strict';
 const SCHEMA='er-player-notebook-v1';
-const fields=['Finding','Item','Region','LockRegion','Route','Evidence','Version','Context','RawNotes','Reviewer'];
-const legacy={finding:'Finding',observed_item:'Item',observed_place:'Region',region_lock_region:'LockRegion',route:'Route',evidence:'Evidence',versions:'Version',environment:'Context',raw_notes:'RawNotes',reviewer:'Reviewer'};
+/* OracleVerdict is the reviewer's ruling on the oracle region review queue: '' (undecided),
+   'confirmed-ours' or 'moved'. It rides the SAME notebook record as every other field, so it
+   round-trips through the existing backup file and tools/apply_oracle_region_verdicts.py writes
+   it into greenfield/evidence/oracle-region-queue.tsv. There is no server, and adding a field is
+   backward compatible: cleanForm defaults an absent one to '', so older backups still import. */
+const fields=['Finding','Item','Region','LockRegion','Route','Evidence','Version','Context','RawNotes','Reviewer','OracleVerdict'];
+const legacy={finding:'Finding',observed_item:'Item',observed_place:'Region',region_lock_region:'LockRegion',route:'Route',evidence:'Evidence',versions:'Version',environment:'Context',raw_notes:'RawNotes',reviewer:'Reviewer',oracle_verdict:'OracleVerdict'};
 function cleanForm(value){
  if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Missing review fields');
  const form={};for(const key of fields){if(value[key]!==undefined&&typeof value[key]!=='string')throw Error('Invalid '+key);form[key]=value[key]||'';}

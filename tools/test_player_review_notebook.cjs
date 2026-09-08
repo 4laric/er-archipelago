@@ -96,3 +96,27 @@ test('region-lock corrections stay separate from exact places and survive restor
  assert.equal(restored.get(2).Region,'Original location');assert.equal(restored.get(2).Item,'Old item note');
  assert.equal(restored.get(2).Finding,'I found it here');assert.equal(restored.get(2).LockRegion,'');
 });
+
+/* The oracle region review queue's verdict rides this same record: that is the whole round trip.
+   A reviewer rules in the page, presses the backup button they already use, and
+   tools/apply_oracle_region_verdicts.py reads OracleVerdict out of the exported file. If the field
+   stopped surviving a save/restore or stopped appearing in the export, the queue would simply
+   never gain verdicts and nothing would say so -- hence a test, not a comment. */
+test('oracle region verdicts survive restore, reach the export, and default empty on old backups',async()=>{
+ const db=fakeIDB(),a=create(data,{indexedDB:db});await a.init();
+ await a.save(1,{OracleVerdict:'confirmed-ours',Reviewer:'alaric',LockRegion:'Limgrave'});
+ const b=create(data,{indexedDB:db});await b.init();
+ assert.equal(b.get(1).OracleVerdict,'confirmed-ours');assert.equal(b.get(1).Reviewer,'alaric');
+ assert.equal(b.exportNotebook().reviews[0].form.OracleVerdict,'confirmed-ours');
+ const c=notebook();await c.applyImport(c.previewImport(b.exportNotebook()));
+ assert.equal(c.get(1).OracleVerdict,'confirmed-ours');
+ // A backup written before this field existed must still import, with the verdict simply absent.
+ const older=b.exportNotebook();delete older.reviews[0].form.OracleVerdict;
+ const d=notebook();await d.applyImport(d.previewImport(older));
+ assert.equal(d.get(1).OracleVerdict,'');assert.equal(d.get(1).Reviewer,'alaric');
+ // ...and so must a legacy single-report file, through the oracle_verdict alias.
+ const e=notebook(),legacy={schema:'er-player-review-v1',check_id:2,catalog_hash:'abc',catalog:data.checks[1].player,
+  oracle_verdict:'moved',reviewer:'second',observation_scope:'player_report_not_adjudicated'};
+ await e.applyImport(e.previewImport([legacy]));
+ assert.equal(e.get(2).OracleVerdict,'moved');assert.equal(e.get(2).Reviewer,'second');
+});

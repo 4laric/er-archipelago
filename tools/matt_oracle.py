@@ -49,6 +49,7 @@ from collections import Counter, defaultdict
 
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_REGION_QUEUE = os.path.join(REPO, "greenfield", "evidence", "oracle-region-queue.tsv")
 
 
 # ---------------------------------------------------------------------------
@@ -233,6 +234,12 @@ def parse_itemslots(path):
                 "shop_ids": [int(x) for x in shops.split(",") if x],
                 "tags": frozenset((slot.get("Tags") or "").split()),
                 "item_names": names,
+                # 🛑 `area` is his area TOKEN, held in memory as a PARTITION LABEL only -- the same
+                # standing `tags` already has as filter vocabulary. It is never printed, never
+                # written to JSON and never written to the queue tsv: check_region_queue folds it
+                # away into an opaque cluster id before anything leaves this process. See
+                # region_area_map() for why the label itself carries no information we keep.
+                "area": (slot.get("Area") or "").strip(),
             }
         )
     return rows
@@ -321,6 +328,146 @@ def check_missing_slots(rows, by_flag):
     return sorted(missing, key=lambda m: m["flag"]), excluded
 
 
+# ---------------------------------------------------------------------------
+# C. REGION QUEUE (report-only, and the input to a HUMAN review queue)
+#
+# The two tables partition the same flags into areas/regions by two different models, so equality
+# is not the test and never will be. What IS evidence is a row that falls OUTSIDE its own cluster:
+# take his partition as an unlabelled clustering, ask which of OUR regions the rest of the cluster
+# sits in, and a row that disagrees with its own neighbours is a row worth a human look.
+#
+# 🛑 LICENCE BOUNDARY, in the shape of the algorithm. His area label is used as an EQUIVALENCE KEY
+# and nothing else -- the mapping it produces is built from OUR regions, and the label is discarded
+# before any output. The queue records, per OUR ap_id, only the bare fact "the second source's
+# partition disagrees here". No area name, no Text, no tags, no counts of his. A reviewer rules
+# from our own evidence (map tile, nearest grace, wiki second opinion), never from his sheet.
+# ---------------------------------------------------------------------------
+# The two DLC-membership rows: base-game Roundtable Hold on our side, DLC on his. They are queued
+# unconditionally so a partition that happens to agree cannot drop them (roadmap item 4).
+DLC_MEMBERSHIP_FLAGS = frozenset({520800, 530950})
+
+BASIS_REGION = "second-source-region-disagrees"
+BASIS_DLC = "second-source-dlc-membership-disagrees"
+
+QUEUE_STATUSES = ("open", "confirmed-ours", "moved")
+QUEUE_COLUMNS = ("flag", "ap_id", "our_region", "basis", "status", "reviewer", "note")
+
+
+def region_area_map(rows, by_flag):
+    """His area key -> the ONE of our regions its joined rows mostly sit in.
+
+    A strict plurality is required: a cluster split evenly between two of our regions says nothing
+    about any single row in it, so it maps to nothing and contributes no queue entries.
+    """
+    votes = defaultdict(Counter)
+    for r in rows:
+        if r["stype"] != SCOPE_EVENT or not r["flag"] or not r["area"]:
+            continue
+        for region, _name, _ap in by_flag.get(r["flag"], ()):
+            votes[r["area"]][region] += 1
+    mapped = {}
+    for area, counter in votes.items():
+        top = counter.most_common(2)
+        if len(top) == 1 or top[0][1] > top[1][1]:
+            mapped[area] = top[0][0]
+    return mapped, len(votes)
+
+
+def check_region_queue(rows, by_flag):
+    """(queue, joined, areas, mapped_areas). Queue entries are OURS ONLY:
+    {flag, ap_id, our_region, basis}."""
+    mapped, areas = region_area_map(rows, by_flag)
+    seen_area = {}
+    for r in rows:
+        if r["stype"] == SCOPE_EVENT and r["flag"] and r["area"]:
+            seen_area.setdefault(r["flag"], r["area"])
+    queue, joined = {}, 0
+    for flag, area in seen_area.items():
+        theirs = mapped.get(area)
+        if theirs is None:
+            continue
+        for region, _name, ap_id in by_flag.get(flag, ()):
+            joined += 1
+            if region != theirs:
+                queue[(flag, ap_id)] = {"flag": flag, "ap_id": ap_id, "our_region": region,
+                                        "basis": BASIS_REGION}
+    for flag in sorted(DLC_MEMBERSHIP_FLAGS):
+        for region, _name, ap_id in by_flag.get(flag, ()):
+            queue[(flag, ap_id)] = {"flag": flag, "ap_id": ap_id, "our_region": region,
+                                    "basis": BASIS_DLC}
+    return [queue[k] for k in sorted(queue)], joined, areas, len(mapped)
+
+
+QUEUE_HEADER = """# oracle-region-queue.tsv -- HUMAN REVIEW QUEUE for the checks whose region the second source's
+# own partition disagrees with. AUTO-REFRESHED by `tools/matt_oracle.py --region-queue` against a
+# LOCAL thefifthmatt/SoulsRandomizers checkout; the status/reviewer/note columns are the only
+# hand-edited ones and are carried across a refresh by (flag, ap_id).
+#
+# 🛑 LICENCE BOUNDARY. Nothing in this file is his. Every column is OUR flag, OUR ap_id, OUR region
+# name, or a reviewer's own words. The `basis` column records ONLY that a second source's partition
+# disagrees for that flag -- never which area it names, never its Text, never its tags. Rule from
+# OUR evidence (map tile, nearest grace and the region that grace maps to, wiki second opinion in
+# check_region_second_opinion.tsv), not from his sheet. See AGENTS.md "MATT ORACLE".
+#
+# THIS FILE IS NOT A DEFECT LIST and not a fix list. A disagreement is a question. `confirmed-ours`
+# is as real an outcome as `moved`, and the two DLC-membership rows are queued unconditionally.
+#
+# status:   open | confirmed-ours | moved
+# reviewer: who ruled it (free text; two reviewers work the queue, so say which one)
+# note:     the reviewer's own reason, in our words
+#
+# Ruled rows are FIXED elsewhere: the normal derivation ladder (M61_TILE_CURATED,
+# DUNGEON_REGION_CURATED, region_overrides.tsv only as a last resort). Never by editing data.py.
+"""
+
+
+def read_region_queue(path):
+    """Committed queue -> {(flag, ap_id): row}. Missing file is an empty queue, not an error."""
+    out = {}
+    if not os.path.isfile(path):
+        return out
+    with open(path, encoding="utf-8") as fh:
+        header = None
+        for line in fh:
+            if line.startswith("#"):
+                continue
+            line = line.rstrip("\n")
+            if not line:
+                continue
+            parts = line.split("\t")
+            if header is None:
+                header = parts
+                continue
+            row = dict(zip(header, parts))
+            try:
+                out[(int(row["flag"]), int(row["ap_id"]))] = row
+            except (KeyError, ValueError):
+                continue
+    return out
+
+
+def write_region_queue(path, queue, previous):
+    """Refresh the queue in place, preserving verdicts. Returns (kept, added, dropped)."""
+    lines = [QUEUE_HEADER.rstrip("\n"), "\t".join(QUEUE_COLUMNS)]
+    added = 0
+    for entry in queue:
+        old = previous.get((entry["flag"], entry["ap_id"]))
+        if old is None:
+            added += 1
+        lines.append("\t".join([
+            str(entry["flag"]), str(entry["ap_id"]), entry["our_region"], entry["basis"],
+            (old or {}).get("status") or "open",
+            (old or {}).get("reviewer", ""),
+            (old or {}).get("note", ""),
+        ]))
+    live = {(e["flag"], e["ap_id"]) for e in queue}
+    dropped = sorted(k for k in previous if k not in live)
+    # newline='\n' so a Windows refresh and a Linux refresh produce the SAME bytes.
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("\n".join(lines) + "\n")
+    return len(queue) - added, added, dropped
+
+
 def stale_entries(dis_flags, by_flag):
     """Allowlisted flags that no longer disagree -- warn so the lists shrink over time."""
     stale = []
@@ -346,6 +493,12 @@ def main(argv=None):
     ap.add_argument("--repo", default=REPO, help="er-archipelago checkout (default: this one)")
     ap.add_argument("--report", action="store_true", help="print every diff, allowlisted or not")
     ap.add_argument("--json", dest="json_out", default=None, help="write a JSON summary here")
+    ap.add_argument(
+        "--region-queue", dest="region_queue", nargs="?", const=DEFAULT_REGION_QUEUE, default=None,
+        metavar="PATH",
+        help="refresh the human region-review queue tsv (default: %s). Verdict columns are "
+             "preserved by (flag, ap_id)." % os.path.relpath(DEFAULT_REGION_QUEUE, REPO),
+    )
     args = ap.parse_args(argv)
 
     d = args.souls_rando_dir
@@ -405,6 +558,25 @@ def main(argv=None):
         print("  [%s] flag %s  his tags [%s]" % (mark, m["flag"], " ".join(m["tags"]) or "-"))
     print()
 
+    # --- C ---
+    rq, rq_joined, rq_areas, rq_mapped = check_region_queue(rows, by_flag)
+    print("== C. REGION (report-only; the human review queue) ==")
+    print("joinable rows %d over %d second-source clusters (%d with a single-region plurality): "
+          "%d disagree" % (rq_joined, rq_areas, rq_mapped, len(rq)))
+    print("  by OUR region: " + ", ".join(
+        "%s %d" % (r, n) for r, n in sorted(Counter(e["our_region"] for e in rq).items())))
+    print("  🛑 report-only by design: the two models partition differently, so a disagreement is a "
+          "QUESTION for a reviewer, not a defect. --region-queue writes it out for review.")
+    if args.region_queue:
+        previous = read_region_queue(args.region_queue)
+        kept, added, droppedq = write_region_queue(args.region_queue, rq, previous)
+        print("  wrote %s: %d rows (%d carried over, %d new, %d no longer disagreeing)"
+              % (args.region_queue, len(rq), kept, added, len(droppedq)))
+        for k in droppedq:
+            print("    resolved: flag %d ap%d (was %s)"
+                  % (k[0], k[1], previous[k].get("status", "?")))
+    print()
+
     stale = stale_entries({d_["flag"] for d_ in dis}, by_flag)
     for which, flag, reason in stale:
         print("WARN: stale allowlist entry %s[%d] -- now agrees; drop it (%s)"
@@ -429,6 +601,12 @@ def main(argv=None):
                 "excluded_by_tag": excluded,
                 "unexplained": [{"flag": m["flag"], "tags": m["tags"]} for m in unknown_missing],
                 "allowlisted": len(missing) - len(unknown_missing),
+            },
+            "region_queue": {
+                "joinable_rows": rq_joined,
+                "queued": len(rq),
+                # OUR ap ids and OUR region names only -- see the licence note on check_region_queue
+                "rows": rq,
             },
             "stale_allowlist": [{"list": w, "flag": f} for w, f, _ in stale],
         }

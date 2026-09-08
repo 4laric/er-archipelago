@@ -512,6 +512,107 @@ def ledger_hash(path: str = CURRENT, wiki_path: str | None = None) -> str:
     return "sha256:" + digest.hexdigest()
 
 
+def _tsv_rows(path: str) -> list[dict[str, str]]:
+    """A '#'-commented tsv as dicts. Absent file -> no rows, not an error."""
+    if not os.path.exists(path):
+        return []
+    with open(path, encoding="utf-8", newline="") as handle:
+        return list(csv.DictReader(
+            (line for line in handle if not line.startswith("#")), delimiter="\t"))
+
+
+def attach_oracle_region_queue(checks: list[dict], repo: str = REPO) -> dict:
+    """Join the ORACLE REGION REVIEW QUEUE and OUR OWN supporting evidence onto the checks.
+
+    The queue is greenfield/evidence/oracle-region-queue.tsv, a COMMITTED generator input
+    refreshed by hand with `tools/matt_oracle.py --region-queue`. This build never needs the
+    second-source checkout: it reads the tsv and our own tables, so the page stays reproducible
+    in CI.
+
+    🛑 LICENCE BOUNDARY. The queue records only THAT a second source's partition disagrees for a
+    flag. Nothing here names that source's area, prose or tags. Every field below -- assigned
+    region, the derivation step that assigned it, map tile, nearest grace and the region that
+    grace maps to, our wiki second opinion -- is ours, and a reviewer rules from those.
+
+    The nearest-grace candidate is derived from OUR corpus: the region the other checks sharing
+    that grace sit in, by strict plurality, with the queued rows excluded from their own vote so
+    the candidate does not restate the assignment under review. A grace whose checks split evenly
+    yields NO candidate. It RANKS; it never adjudicates -- it is made of the same nearest-neighbour
+    geometry that produced many of these regions in the first place.
+
+    Returns the summary counts (also useful to the tests).
+    """
+    gf = os.path.join(repo, "greenfield")
+    queue = {}
+    for row in _tsv_rows(os.path.join(gf, "evidence", "oracle-region-queue.tsv")):
+        try:
+            queue[int(row["ap_id"])] = row
+        except (KeyError, ValueError, TypeError):
+            continue
+    if not queue:
+        return {"queued": 0, "grace_candidate": 0}
+
+    tiles: dict[int, list[str]] = {}
+    for row in _tsv_rows(os.path.join(gf, "check_maps.tsv")):
+        try:
+            tiles.setdefault(int(row["flag"]), [])
+        except (KeyError, ValueError, TypeError):
+            continue
+        if row["map_id"] not in tiles[int(row["flag"])]:
+            tiles[int(row["flag"])].append(row["map_id"])
+    how = {int(r["flag"]): r["how"] for r in _tsv_rows(os.path.join(gf, "check_region_triage.tsv"))
+           if (r.get("flag") or "").isdigit() and r.get("how")}
+    second = {}
+    for row in _tsv_rows(os.path.join(gf, "check_region_second_opinion.tsv")):
+        try:
+            second.setdefault(int(row["ap_id"]), row)
+        except (KeyError, ValueError, TypeError):
+            continue
+
+    votes: dict[str, dict[str, int]] = {}
+    for check in checks:
+        grace, region = check["player"].get("nearby_grace"), check["player"].get("region")
+        if grace and region and check["check_id"] not in queue:
+            votes.setdefault(grace, {})
+            votes[grace][region] = votes[grace].get(region, 0) + 1
+    grace_region = {}
+    for grace, counter in votes.items():
+        ranked = sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))
+        if len(ranked) == 1 or ranked[0][1] > ranked[1][1]:
+            grace_region[grace] = ranked[0][0]
+
+    queued = candidates = 0
+    for check in checks:
+        row = queue.get(check["check_id"])
+        if not row:
+            continue
+        queued += 1
+        player = check["player"]
+        flag = player.get("acquisition_flag")
+        mapped = grace_region.get(player.get("nearby_grace") or "")
+        candidate = mapped if mapped and mapped != player.get("region") else ""
+        if candidate:
+            candidates += 1
+        opinion = second.get(check["check_id"]) or {}
+        player["oracle_region"] = {
+            "status": row.get("status") or "open",
+            "basis": row.get("basis", ""),
+            "reviewer": row.get("reviewer", ""),
+            "note": row.get("note", ""),
+            "decided_by": how.get(flag, "") if flag else "",
+            "map_tiles": tiles.get(flag, []) if flag else [],
+            "grace_region": mapped or "",
+            "candidate_region": candidate,
+            "second_opinion": {
+                "verdict": opinion.get("verdict", ""),
+                "external_regions": opinion.get("external_regions", ""),
+                "source": opinion.get("source", ""),
+                "page_title": opinion.get("page_title", ""),
+            } if opinion else None,
+        }
+    return {"queued": queued, "grace_candidate": candidates}
+
+
 def load_ledger(path: str = CURRENT, wiki_path: str | None = None) -> dict:
     if wiki_path is None and os.path.abspath(path) == os.path.abspath(CURRENT):
         wiki_path = WIKI_AUDIT
@@ -552,6 +653,9 @@ def load_ledger(path: str = CURRENT, wiki_path: str | None = None) -> dict:
         check["player"] = player_check(check, confidence.get(check["check_id"]),
                                        graces.get(identity["value"].get("flag"), ""))
         check["player"]["positions"] = positions.get(identity["value"].get("flag"), [])
+    # The queue is only meaningful over the real corpus; the small fixture carries no rows for it
+    # and attach_oracle_region_queue then returns a zero summary rather than inventing one.
+    contract["oracle_region_queue"] = attach_oracle_region_queue(contract["checks"])
     contract["access_summary"] = census
     contract["dataset"] = os.path.relpath(path, REPO).replace(os.sep, "/")
     contract["inputs_hash"] = ledger_hash(path, wiki_path)

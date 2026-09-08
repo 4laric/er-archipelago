@@ -794,9 +794,27 @@ It gates two classes and reports the rest:
 Region assignment, missable tagging, shop granularity and DLC membership are **report-only**
 (`--report`): the two models differ structurally there, so equality would be noise, not signal.
 
+- **C. REGION** — report-only, and the input to a **human review queue**. His areas are treated as
+  an unlabelled clustering: each cluster maps to the one of OUR regions its rows mostly sit in
+  (strict plurality; an evenly split cluster maps to nothing), and a row outside its own cluster is
+  queued. 218 of 4291 joinable rows, plus the two DLC-membership flags 520800/530950 which are
+  queued unconditionally. `--region-queue` refreshes
+  `greenfield/evidence/oracle-region-queue.tsv`, carrying `status`/`reviewer`/`note` across by
+  `(flag, ap_id)`. 🛑 That file contains **our** flag, ap_id and region and a reviewer's own words,
+  and records only **that** a second source disagrees — never his area, Text or tags. His area
+  label is an equivalence key inside the process and is discarded before anything is written.
+  Reviewers rule from OUR evidence in the check browser's "Oracle region review" facet and the
+  review notebook's queue view (map tile, nearest grace and the region that grace maps to,
+  `check_region_second_opinion.tsv`), then `tools/apply_oracle_region_verdicts.py <notebook.json>`
+  writes the verdicts back. Both browsers read only the committed tsv, so **CI never needs the
+  checkout**. Ruled rows are fixed through the normal derivation ladder (`M61_TILE_CURATED`,
+  `DUNGEON_REGION_CURATED`, `region_overrides.tsv` last) in a separate change — never from the
+  queue, which is a review record and not a second region source.
+
 ```bash
 python tools/matt_oracle.py --souls-rando-dir <checkout>   # exit 1 on a NEW disagreement
 SOULS_RANDO_DIR=<checkout> python tools/matt_oracle.py --report --json oracle.json
+SOULS_RANDO_DIR=<checkout> python tools/matt_oracle.py --region-queue   # refresh the queue tsv
 python tools/matt_oracle.py                                # no checkout -> "SKIP: ...", exit 0
 ```
 
