@@ -789,7 +789,10 @@ It gates two classes and reports the rest:
 - **A. ITEM IDENTITY** — `item_ids.LOCATION_ITEM` vs the vanilla item his DebugText records for the
   same flag. 3977/4084 agree; the 107 disagreements are allowlisted by cause in the tool.
 - **B. MISSING SLOTS** — his Event-scope flags `data.LOCATIONS` has no row for, after excluding his
-  `norandom` / `ignore` / `tarnished` / `enemy*` vocabulary. 80 remain, allowlisted by cause.
+  `norandom` / `ignore` / `tarnished` / `enemy*` vocabulary. 80 remain, allowlisted by cause --
+  and since the roadmap-item-3 triage every one of the 80 carries a CLASSIFIED reason (KEYING or
+  SCOPE, each naming the gen_data exclusion or the derivation refusal that explains it). There is
+  no OPEN bin in class B any more: a new missing slot fails the gate rather than joining a list.
 
 Region assignment, missable tagging, shop granularity and DLC membership are **report-only**
 (`--report`): the two models differ structurally there, so equality would be noise, not signal.
