@@ -267,7 +267,6 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7770765	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [5]	540320	m60_40_53	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774262	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [5]	1039547080	m60_39_54	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774329	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [5]	1042537010	m60_41_52	remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7772345	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [6]	34147720	m34_14	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7773218	smithing_stone	repeated_material_row	Ancient Ruins	Smithing Stone [2]	2044467060	m61_44_45	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774558	smithing_stone	repeated_material_row	Ancient Ruins	Smithing Stone [7]	2047477050	m61_46_46	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773339	smithing_stone	repeated_material_row	Ancient Ruins	Smithing Stone [8]	2046467020	m61_46_46	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -497,6 +496,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7770950	smithing_stone	repeated_material_row	Leyndell	Somber Smithing Stone [6]	11007195	m11_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7770975	smithing_stone	repeated_material_row	Leyndell	Somber Smithing Stone [6]	11007440	m11_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7770989	smithing_stone	repeated_material_row	Leyndell	Somber Smithing Stone [6]	11007610	m11_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7772345	smithing_stone	repeated_material_row	Leyndell	Somber Smithing Stone [6]	34147720	m34_14	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7772383	smithing_stone	repeated_material_row	Leyndell	Somber Smithing Stone [6]	35007400	m35_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772418	smithing_stone	repeated_material_row	Leyndell	Somber Smithing Stone [6]	35007970	m35_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772387	smithing_stone	repeated_material_row	Leyndell	Somber Smithing Stone [7]	35007450	m35_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source

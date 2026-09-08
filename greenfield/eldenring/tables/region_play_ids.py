@@ -16,7 +16,7 @@ unenforced, but a bucket missing from the scaling wire ships VANILLA (#688)."""
 REGION_PLAY_IDS = {
     'Abyssal': [68600],
     'Ainsel River': [12010],
-    'Altus': [30070, 30080, 30100, 30120, 30130, 31180, 31190, 32040, 32050, 34120, 34140, 63000, 63010],
+    'Altus': [30070, 30080, 30100, 30120, 30130, 31180, 31190, 32040, 32050, 34120, 63000, 63010],
     'Ancient Ruins': [69400, 69410],
     'Ashen Capital': [11050, 19000],
     'Belurat': [20000],
@@ -30,7 +30,7 @@ REGION_PLAY_IDS = {
     'Gravesite': [40000, 41000, 42000, 43000, 43010, 68000, 68100],
     'Haligtree': [15000],
     'Jagged Peak': [68410, 68500],
-    'Leyndell': [11000, 35000],
+    'Leyndell': [11000, 34140, 35000],
     'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 61000, 61010],
     'Liurnia': [30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110, 39200, 62000, 62010, 62020],
     'Mohgwyn': [12050],
@@ -57,7 +57,7 @@ REGIONS_PENDING_BUCKET = frozenset([])
 SCALING_PLAY_IDS = {
     'Abyssal': [68600],
     'Ainsel River': [12010],
-    'Altus': [30070, 30080, 30100, 30120, 30130, 31180, 31190, 32040, 32050, 34120, 34140, 63000, 63010],
+    'Altus': [30070, 30080, 30100, 30120, 30130, 31180, 31190, 32040, 32050, 34120, 63000, 63010],
     'Ancient Ruins': [69400, 69410],
     'Ashen Capital': [11050, 19000],
     'Belurat': [20000],
@@ -71,7 +71,7 @@ SCALING_PLAY_IDS = {
     'Gravesite': [40000, 41000, 42000, 43000, 43010, 68000, 68100],
     'Haligtree': [15000],
     'Jagged Peak': [68410, 68500],
-    'Leyndell': [11000, 35000],
+    'Leyndell': [11000, 34140, 35000],
     'Limgrave': [30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010, 61000, 61010],
     'Liurnia': [30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110, 39200, 62000, 62010, 62020],
     'Mohgwyn': [12050],
@@ -93,4 +93,4 @@ SCALING_PLAY_IDS = {
 # always sufficient (the client cannot scale DOWN an enemy it cannot place).
 SCALING_FLOOR_PLAY_IDS = frozenset([10010, 11100, 18000])
 
-_GEN_STAMP = {'inputs_hash': 'sha256:f1402adc277de2ff8786502be4d5158fd2a28b8b66fdf55700debaa4e67b074c', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:2bcc6f2fb540d378ac9f8e1a948de34d4d56836c0ef1c4e179bcf28dcbec961e'}
+_GEN_STAMP = {'inputs_hash': 'sha256:0dfc9d5a08514fa5e8a601fb26f0b9bd1418f3db4103986e78a54d1bc52a6885', 'module': 'region_play_ids.py', 'body_sha256': 'sha256:2a5e1f1d360044d878292dc94fb8fb020ee7e8126da1a9a224356da6383b2ad4'}

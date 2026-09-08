@@ -315,7 +315,7 @@ SWEEP_REGION = {
     34110800: 'Liurnia',
     34120800: 'Altus',
     34130800: 'Caelid',
-    34140850: 'Altus',
+    34140850: 'Leyndell',
     35000800: 'Leyndell',
     35000850: 'Leyndell',
     39200800: 'Liurnia',
@@ -577,7 +577,7 @@ SWEEP_ARENA_REGION = {
     34110800: 'Liurnia',
     34120800: 'Altus',
     34130800: 'Caelid',
-    34140850: 'Altus',
+    34140850: 'Leyndell',
     35000800: 'Leyndell',
     35000850: 'Leyndell',
     39200800: 'Liurnia',
@@ -686,4 +686,4 @@ SWEEP_UNSPAWNED_OPEN = {
     1041330800: "unnamed m60_41_33 (Fourth Church of Marika, Weeping) -- the same shape and NOT yet falsified in game, so its 10 members keep their trigger. FALSIFIER: warp to the Fourth Church of Marika and look, by day and at night (the tile's other candidate reading is a night-conditional spawn). Absent -> move it to 'unspawned' here and regen; present -> the datamine owes it a GameAreaParam binding and an MSB position. Issue #540.",
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:f1402adc277de2ff8786502be4d5158fd2a28b8b66fdf55700debaa4e67b074c', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:afe65a5bd51948b2206b8b8717b2811fc54e39ddfd87a62a7b2226307e86d3d8'}
+_GEN_STAMP = {'inputs_hash': 'sha256:0dfc9d5a08514fa5e8a601fb26f0b9bd1418f3db4103986e78a54d1bc52a6885', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:992c88d5ce9c52102a9e8b13ed08a670993440bf6369bd3e9a2d36866b8cfeda'}

@@ -88275,7 +88275,7 @@
       "candidate_ids": [
         7770711
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
       "context_labels": [
         "Fallingstar Beast Jaw",
         "Full-Grown Fallingstar Beast",
@@ -99759,6 +99759,53 @@
     },
     {
       "all_candidate_ids": [
+        7770407,
+        7772243,
+        7772342,
+        7773102,
+        7773136,
+        7774308
+      ],
+      "candidate_ids": [
+        7774308
+      ],
+      "competing_observation_count": 1,
+      "context_labels": [
+        "Invigorating White Cured Meat"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w30-34",
+      "item_name": "Invigorating White Cured Meat",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7774308
+      ],
+      "observation_id": "walkthrough:7142a08231ccc16c7dbb",
+      "reason": "area_only",
+      "regions": [
+        "Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "central-altus",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w30-34"
+    },
+    {
+      "all_candidate_ids": [
         7770474,
         7772791
       ],
@@ -110579,7 +110626,7 @@
         7773410,
         7773492
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 11,
       "context_labels": [
         "Somber Smithing Stone [6]",
         "Somber Smithing Stone [7]"
@@ -110652,7 +110699,7 @@
         7773410,
         7773492
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 11,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -112509,7 +112556,7 @@
         7773392,
         7774088
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 11,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -117966,7 +118013,7 @@
         7773392,
         7774088
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 11,
       "context_labels": [
         "Sanguine Amaryllis x2",
         "Somber Smithing Stone [6]"
@@ -122311,55 +122358,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w30-27"
-    },
-    {
-      "all_candidate_ids": [
-        7770407,
-        7772243,
-        7772342,
-        7773102,
-        7773136,
-        7774308
-      ],
-      "candidate_ids": [
-        7772342,
-        7774308
-      ],
-      "competing_observation_count": 1,
-      "context_labels": [
-        "Invigorating White Cured Meat"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w30-34",
-      "item_name": "Invigorating White Cured Meat",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7772342,
-        7774308
-      ],
-      "observation_id": "walkthrough:7142a08231ccc16c7dbb",
-      "reason": "area_only",
-      "regions": [
-        "Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "central-altus",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w30-34"
     },
     {
       "all_candidate_ids": [
@@ -144870,6 +144868,173 @@
     },
     {
       "all_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7771085,
+        7771289,
+        7771403,
+        7771427,
+        7771671,
+        7771681,
+        7771683,
+        7771693,
+        7771696,
+        7772336,
+        7772346,
+        7772391,
+        7772477,
+        7773026,
+        7773096,
+        7773170,
+        7774327,
+        7774356,
+        7774421,
+        7774492,
+        7774493,
+        7774494,
+        7774495,
+        7774496,
+        7774502,
+        7774505,
+        7774506,
+        7774507,
+        7774508
+      ],
+      "candidate_ids": [
+        7772336,
+        7774327,
+        7774356
+      ],
+      "competing_observation_count": 3,
+      "context_labels": [
+        "Golden Rune [9]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w34-28",
+      "item_name": "Golden Rune [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772336,
+        7774327,
+        7774356
+      ],
+      "observation_id": "walkthrough:60a41bca9e56c0b415d7",
+      "reason": "area_only",
+      "regions": [
+        "Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "capital-outskirts",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w34-28"
+    },
+    {
+      "all_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7771085,
+        7771289,
+        7771403,
+        7771427,
+        7771671,
+        7771681,
+        7771683,
+        7771693,
+        7771696,
+        7772336,
+        7772346,
+        7772391,
+        7772477,
+        7773026,
+        7773096,
+        7773170,
+        7774327,
+        7774356,
+        7774421,
+        7774492,
+        7774493,
+        7774494,
+        7774495,
+        7774496,
+        7774502,
+        7774505,
+        7774506,
+        7774507,
+        7774508
+      ],
+      "candidate_ids": [
+        7772336,
+        7774327,
+        7774356
+      ],
+      "competing_observation_count": 3,
+      "context_labels": [
+        "Golden Rune [10]",
+        "Golden Rune [9]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w34-41",
+      "item_name": "Golden Rune [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772336,
+        7774327,
+        7774356
+      ],
+      "observation_id": "walkthrough:7e3b0ccb70e227740b70",
+      "reason": "area_only",
+      "regions": [
+        "Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "capital-outskirts",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w34-41"
+    },
+    {
+      "all_candidate_ids": [
         7770276,
         7770947,
         7771004,
@@ -146443,6 +146608,89 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w31-10"
+    },
+    {
+      "all_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7771085,
+        7771289,
+        7771403,
+        7771427,
+        7771671,
+        7771681,
+        7771683,
+        7771693,
+        7771696,
+        7772336,
+        7772346,
+        7772391,
+        7772477,
+        7773026,
+        7773096,
+        7773170,
+        7774327,
+        7774356,
+        7774421,
+        7774492,
+        7774493,
+        7774494,
+        7774495,
+        7774496,
+        7774502,
+        7774505,
+        7774506,
+        7774507,
+        7774508
+      ],
+      "candidate_ids": [
+        7772336,
+        7774327,
+        7774356
+      ],
+      "competing_observation_count": 3,
+      "context_labels": [
+        "Golden Rune [9]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w31-2",
+      "item_name": "Golden Rune [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772336,
+        7774327,
+        7774356
+      ],
+      "observation_id": "walkthrough:06f006f035e9a1cdfc94",
+      "reason": "area_only",
+      "regions": [
+        "Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "east-altus",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w31-2"
     },
     {
       "all_candidate_ids": [
@@ -149970,7 +150218,7 @@
         7770779,
         7771092
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 12,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -152435,7 +152683,7 @@
         7770779,
         7771092
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 12,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -152719,7 +152967,7 @@
         7770779,
         7771092
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 12,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -163114,177 +163362,6 @@
     },
     {
       "all_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7771085,
-        7771289,
-        7771403,
-        7771427,
-        7771671,
-        7771681,
-        7771683,
-        7771693,
-        7771696,
-        7772336,
-        7772346,
-        7772391,
-        7772477,
-        7773026,
-        7773096,
-        7773170,
-        7774327,
-        7774356,
-        7774421,
-        7774492,
-        7774493,
-        7774494,
-        7774495,
-        7774496,
-        7774502,
-        7774505,
-        7774506,
-        7774507,
-        7774508
-      ],
-      "candidate_ids": [
-        7772336,
-        7772346,
-        7774327,
-        7774356
-      ],
-      "competing_observation_count": 3,
-      "context_labels": [
-        "Golden Rune [9]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w34-28",
-      "item_name": "Golden Rune [9]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7772336,
-        7772346,
-        7774327,
-        7774356
-      ],
-      "observation_id": "walkthrough:60a41bca9e56c0b415d7",
-      "reason": "area_only",
-      "regions": [
-        "Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "capital-outskirts",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w34-28"
-    },
-    {
-      "all_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7771085,
-        7771289,
-        7771403,
-        7771427,
-        7771671,
-        7771681,
-        7771683,
-        7771693,
-        7771696,
-        7772336,
-        7772346,
-        7772391,
-        7772477,
-        7773026,
-        7773096,
-        7773170,
-        7774327,
-        7774356,
-        7774421,
-        7774492,
-        7774493,
-        7774494,
-        7774495,
-        7774496,
-        7774502,
-        7774505,
-        7774506,
-        7774507,
-        7774508
-      ],
-      "candidate_ids": [
-        7772336,
-        7772346,
-        7774327,
-        7774356
-      ],
-      "competing_observation_count": 3,
-      "context_labels": [
-        "Golden Rune [10]",
-        "Golden Rune [9]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w34-41",
-      "item_name": "Golden Rune [9]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7772336,
-        7772346,
-        7774327,
-        7774356
-      ],
-      "observation_id": "walkthrough:7e3b0ccb70e227740b70",
-      "reason": "area_only",
-      "regions": [
-        "Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "capital-outskirts",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w34-41"
-    },
-    {
-      "all_candidate_ids": [
         7770046,
         7770047,
         7770048,
@@ -164096,7 +164173,7 @@
         7771272,
         7771300
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -164263,7 +164340,7 @@
         7771272,
         7771300
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -164339,7 +164416,7 @@
         7771272,
         7771300
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -164415,7 +164492,7 @@
         7771272,
         7771300
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
       "context_labels": [
         "Elden Stars",
         "Somber Smithing Stone [6]"
@@ -164701,91 +164778,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w41-24"
-    },
-    {
-      "all_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7771085,
-        7771289,
-        7771403,
-        7771427,
-        7771671,
-        7771681,
-        7771683,
-        7771693,
-        7771696,
-        7772336,
-        7772346,
-        7772391,
-        7772477,
-        7773026,
-        7773096,
-        7773170,
-        7774327,
-        7774356,
-        7774421,
-        7774492,
-        7774493,
-        7774494,
-        7774495,
-        7774496,
-        7774502,
-        7774505,
-        7774506,
-        7774507,
-        7774508
-      ],
-      "candidate_ids": [
-        7772336,
-        7772346,
-        7774327,
-        7774356
-      ],
-      "competing_observation_count": 3,
-      "context_labels": [
-        "Golden Rune [9]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w31-2",
-      "item_name": "Golden Rune [9]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7772336,
-        7772346,
-        7774327,
-        7774356
-      ],
-      "observation_id": "walkthrough:06f006f035e9a1cdfc94",
-      "reason": "area_only",
-      "regions": [
-        "Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "east-altus",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w31-2"
     },
     {
       "all_candidate_ids": [
@@ -168053,7 +168045,7 @@
         7771709,
         7774242
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -171641,7 +171633,7 @@
         7771709,
         7774242
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -171717,7 +171709,7 @@
         7771709,
         7774242
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -191274,172 +191266,6 @@
     },
     {
       "all_candidate_ids": [
-        7770711,
-        7770778,
-        7770779,
-        7770787,
-        7770788,
-        7770940,
-        7770948,
-        7770950,
-        7770975,
-        7770989,
-        7771092,
-        7771189,
-        7771272,
-        7771300,
-        7771684,
-        7771709,
-        7771864,
-        7772345,
-        7772383,
-        7772418,
-        7773346,
-        7773392,
-        7773410,
-        7773492,
-        7773502,
-        7773645,
-        7773846,
-        7774088,
-        7774242
-      ],
-      "candidate_ids": [
-        7770940,
-        7770948,
-        7770950,
-        7770975,
-        7770989,
-        7772383,
-        7772418
-      ],
-      "competing_observation_count": 9,
-      "context_labels": [
-        "Beast Blood",
-        "Old Fang x2",
-        "Somber Smithing Stone [6]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-25",
-      "item_name": "Somber Smithing Stone [6]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770940,
-        7770948,
-        7770950,
-        7770975,
-        7770989,
-        7772383,
-        7772418
-      ],
-      "observation_id": "walkthrough:b5320b043c813bb6fc74",
-      "reason": "area_only",
-      "regions": [
-        "Leyndell"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "leyndell",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w35-25"
-    },
-    {
-      "all_candidate_ids": [
-        7770711,
-        7770778,
-        7770779,
-        7770787,
-        7770788,
-        7770940,
-        7770948,
-        7770950,
-        7770975,
-        7770989,
-        7771092,
-        7771189,
-        7771272,
-        7771300,
-        7771684,
-        7771709,
-        7771864,
-        7772345,
-        7772383,
-        7772418,
-        7773346,
-        7773392,
-        7773410,
-        7773492,
-        7773502,
-        7773645,
-        7773846,
-        7774088,
-        7774242
-      ],
-      "candidate_ids": [
-        7770940,
-        7770948,
-        7770950,
-        7770975,
-        7770989,
-        7772383,
-        7772418
-      ],
-      "competing_observation_count": 9,
-      "context_labels": [
-        "Somber Smithing Stone [6]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-56",
-      "item_name": "Somber Smithing Stone [6]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770940,
-        7770948,
-        7770950,
-        7770975,
-        7770989,
-        7772383,
-        7772418
-      ],
-      "observation_id": "walkthrough:54a029ba527558826894",
-      "reason": "area_only",
-      "regions": [
-        "Leyndell"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "leyndell",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w35-56"
-    },
-    {
-      "all_candidate_ids": [
         7770944,
         7770959,
         7771311,
@@ -191509,88 +191335,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w35-69"
-    },
-    {
-      "all_candidate_ids": [
-        7770711,
-        7770778,
-        7770779,
-        7770787,
-        7770788,
-        7770940,
-        7770948,
-        7770950,
-        7770975,
-        7770989,
-        7771092,
-        7771189,
-        7771272,
-        7771300,
-        7771684,
-        7771709,
-        7771864,
-        7772345,
-        7772383,
-        7772418,
-        7773346,
-        7773392,
-        7773410,
-        7773492,
-        7773502,
-        7773645,
-        7773846,
-        7774088,
-        7774242
-      ],
-      "candidate_ids": [
-        7770940,
-        7770948,
-        7770950,
-        7770975,
-        7770989,
-        7772383,
-        7772418
-      ],
-      "competing_observation_count": 9,
-      "context_labels": [
-        "Somber Smithing Stone [6]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-80",
-      "item_name": "Somber Smithing Stone [6]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770940,
-        7770948,
-        7770950,
-        7770975,
-        7770989,
-        7772383,
-        7772418
-      ],
-      "observation_id": "walkthrough:c22094507e074810b045",
-      "reason": "area_only",
-      "regions": [
-        "Leyndell"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "leyndell",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w35-80"
     },
     {
       "all_candidate_ids": [
@@ -193523,6 +193267,257 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w13-60"
+    },
+    {
+      "all_candidate_ids": [
+        7770711,
+        7770778,
+        7770779,
+        7770787,
+        7770788,
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7771092,
+        7771189,
+        7771272,
+        7771300,
+        7771684,
+        7771709,
+        7771864,
+        7772345,
+        7772383,
+        7772418,
+        7773346,
+        7773392,
+        7773410,
+        7773492,
+        7773502,
+        7773645,
+        7773846,
+        7774088,
+        7774242
+      ],
+      "candidate_ids": [
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7772345,
+        7772383,
+        7772418
+      ],
+      "competing_observation_count": 12,
+      "context_labels": [
+        "Beast Blood",
+        "Old Fang x2",
+        "Somber Smithing Stone [6]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-25",
+      "item_name": "Somber Smithing Stone [6]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7772383,
+        7772418
+      ],
+      "observation_id": "walkthrough:b5320b043c813bb6fc74",
+      "reason": "area_only",
+      "regions": [
+        "Leyndell"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "leyndell",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w35-25"
+    },
+    {
+      "all_candidate_ids": [
+        7770711,
+        7770778,
+        7770779,
+        7770787,
+        7770788,
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7771092,
+        7771189,
+        7771272,
+        7771300,
+        7771684,
+        7771709,
+        7771864,
+        7772345,
+        7772383,
+        7772418,
+        7773346,
+        7773392,
+        7773410,
+        7773492,
+        7773502,
+        7773645,
+        7773846,
+        7774088,
+        7774242
+      ],
+      "candidate_ids": [
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7772345,
+        7772383,
+        7772418
+      ],
+      "competing_observation_count": 12,
+      "context_labels": [
+        "Somber Smithing Stone [6]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-56",
+      "item_name": "Somber Smithing Stone [6]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7772383,
+        7772418
+      ],
+      "observation_id": "walkthrough:54a029ba527558826894",
+      "reason": "area_only",
+      "regions": [
+        "Leyndell"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "leyndell",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w35-56"
+    },
+    {
+      "all_candidate_ids": [
+        7770711,
+        7770778,
+        7770779,
+        7770787,
+        7770788,
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7771092,
+        7771189,
+        7771272,
+        7771300,
+        7771684,
+        7771709,
+        7771864,
+        7772345,
+        7772383,
+        7772418,
+        7773346,
+        7773392,
+        7773410,
+        7773492,
+        7773502,
+        7773645,
+        7773846,
+        7774088,
+        7774242
+      ],
+      "candidate_ids": [
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7772345,
+        7772383,
+        7772418
+      ],
+      "competing_observation_count": 12,
+      "context_labels": [
+        "Somber Smithing Stone [6]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-80",
+      "item_name": "Somber Smithing Stone [6]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7772383,
+        7772418
+      ],
+      "observation_id": "walkthrough:c22094507e074810b045",
+      "reason": "area_only",
+      "regions": [
+        "Leyndell"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "leyndell",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w35-80"
     },
     {
       "all_candidate_ids": [
@@ -203127,298 +203122,6 @@
     },
     {
       "all_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7771085,
-        7771289,
-        7771403,
-        7771427,
-        7771671,
-        7771681,
-        7771683,
-        7771693,
-        7771696,
-        7772336,
-        7772346,
-        7772391,
-        7772477,
-        7773026,
-        7773096,
-        7773170,
-        7774327,
-        7774356,
-        7774421,
-        7774492,
-        7774493,
-        7774494,
-        7774495,
-        7774496,
-        7774502,
-        7774505,
-        7774506,
-        7774507,
-        7774508
-      ],
-      "candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "competing_observation_count": 8,
-      "context_labels": [
-        "Golden Rune [9]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-31",
-      "item_name": "Golden Rune [9]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "observation_id": "walkthrough:d550428831c9ec4d7cd3",
-      "reason": "area_only",
-      "regions": [
-        "Leyndell"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "leyndell",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w35-31"
-    },
-    {
-      "all_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7771085,
-        7771289,
-        7771403,
-        7771427,
-        7771671,
-        7771681,
-        7771683,
-        7771693,
-        7771696,
-        7772336,
-        7772346,
-        7772391,
-        7772477,
-        7773026,
-        7773096,
-        7773170,
-        7774327,
-        7774356,
-        7774421,
-        7774492,
-        7774493,
-        7774494,
-        7774495,
-        7774496,
-        7774502,
-        7774505,
-        7774506,
-        7774507,
-        7774508
-      ],
-      "candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "competing_observation_count": 8,
-      "context_labels": [
-        "Golden Rune [9]",
-        "Hero's Rune [5]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-32",
-      "item_name": "Golden Rune [9]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "observation_id": "walkthrough:947a58f94aa4faceef29",
-      "reason": "area_only",
-      "regions": [
-        "Leyndell"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "leyndell",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w35-32"
-    },
-    {
-      "all_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7771085,
-        7771289,
-        7771403,
-        7771427,
-        7771671,
-        7771681,
-        7771683,
-        7771693,
-        7771696,
-        7772336,
-        7772346,
-        7772391,
-        7772477,
-        7773026,
-        7773096,
-        7773170,
-        7774327,
-        7774356,
-        7774421,
-        7774492,
-        7774493,
-        7774494,
-        7774495,
-        7774496,
-        7774502,
-        7774505,
-        7774506,
-        7774507,
-        7774508
-      ],
-      "candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "competing_observation_count": 8,
-      "context_labels": [
-        "Golden Rune [9]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-33",
-      "item_name": "Golden Rune [9]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "observation_id": "walkthrough:383bcdf69119ecf5383a",
-      "reason": "area_only",
-      "regions": [
-        "Leyndell"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "leyndell",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w35-33"
-    },
-    {
-      "all_candidate_ids": [
         7770968,
         7770982,
         7770993,
@@ -203524,204 +203227,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w35-36"
-    },
-    {
-      "all_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7771085,
-        7771289,
-        7771403,
-        7771427,
-        7771671,
-        7771681,
-        7771683,
-        7771693,
-        7771696,
-        7772336,
-        7772346,
-        7772391,
-        7772477,
-        7773026,
-        7773096,
-        7773170,
-        7774327,
-        7774356,
-        7774421,
-        7774492,
-        7774493,
-        7774494,
-        7774495,
-        7774496,
-        7774502,
-        7774505,
-        7774506,
-        7774507,
-        7774508
-      ],
-      "candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "competing_observation_count": 8,
-      "context_labels": [
-        "Golden Rune [9]",
-        "Imp Head (Corpse)"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-37",
-      "item_name": "Golden Rune [9]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "observation_id": "walkthrough:e2b57eec7eb4e501cade",
-      "reason": "area_only",
-      "regions": [
-        "Leyndell"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "leyndell",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w35-37"
-    },
-    {
-      "all_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7771085,
-        7771289,
-        7771403,
-        7771427,
-        7771671,
-        7771681,
-        7771683,
-        7771693,
-        7771696,
-        7772336,
-        7772346,
-        7772391,
-        7772477,
-        7773026,
-        7773096,
-        7773170,
-        7774327,
-        7774356,
-        7774421,
-        7774492,
-        7774493,
-        7774494,
-        7774495,
-        7774496,
-        7774502,
-        7774505,
-        7774506,
-        7774507,
-        7774508
-      ],
-      "candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "competing_observation_count": 8,
-      "context_labels": [
-        "Golden Rune [9]",
-        "Gravel Stone",
-        "Smithing Stone [4]",
-        "Stonesword Key"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-39",
-      "item_name": "Golden Rune [9]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "observation_id": "walkthrough:2415a3c4972bca2b2c6a",
-      "reason": "area_only",
-      "regions": [
-        "Leyndell"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "leyndell",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w35-39"
     },
     {
       "all_candidate_ids": [
@@ -203943,103 +203448,6 @@
     },
     {
       "all_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7771085,
-        7771289,
-        7771403,
-        7771427,
-        7771671,
-        7771681,
-        7771683,
-        7771693,
-        7771696,
-        7772336,
-        7772346,
-        7772391,
-        7772477,
-        7773026,
-        7773096,
-        7773170,
-        7774327,
-        7774356,
-        7774421,
-        7774492,
-        7774493,
-        7774494,
-        7774495,
-        7774496,
-        7774502,
-        7774505,
-        7774506,
-        7774507,
-        7774508
-      ],
-      "candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "competing_observation_count": 8,
-      "context_labels": [
-        "Golden Rune [9]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-58",
-      "item_name": "Golden Rune [9]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "observation_id": "walkthrough:ef663628b52a85edbb40",
-      "reason": "area_only",
-      "regions": [
-        "Leyndell"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "leyndell",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w35-58"
-    },
-    {
-      "all_candidate_ids": [
         7770968,
         7770982,
         7770993,
@@ -204145,103 +203553,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w35-66"
-    },
-    {
-      "all_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7771085,
-        7771289,
-        7771403,
-        7771427,
-        7771671,
-        7771681,
-        7771683,
-        7771693,
-        7771696,
-        7772336,
-        7772346,
-        7772391,
-        7772477,
-        7773026,
-        7773096,
-        7773170,
-        7774327,
-        7774356,
-        7774421,
-        7774492,
-        7774493,
-        7774494,
-        7774495,
-        7774496,
-        7774502,
-        7774505,
-        7774506,
-        7774507,
-        7774508
-      ],
-      "candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "competing_observation_count": 8,
-      "context_labels": [
-        "Golden Rune [9]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-71",
-      "item_name": "Golden Rune [9]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "observation_id": "walkthrough:fdd7ddf2aec75d4ab2d3",
-      "reason": "area_only",
-      "regions": [
-        "Leyndell"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "leyndell",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w35-71"
     },
     {
       "all_candidate_ids": [
@@ -204351,103 +203662,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w35-74"
-    },
-    {
-      "all_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7771085,
-        7771289,
-        7771403,
-        7771427,
-        7771671,
-        7771681,
-        7771683,
-        7771693,
-        7771696,
-        7772336,
-        7772346,
-        7772391,
-        7772477,
-        7773026,
-        7773096,
-        7773170,
-        7774327,
-        7774356,
-        7774421,
-        7774492,
-        7774493,
-        7774494,
-        7774495,
-        7774496,
-        7774502,
-        7774505,
-        7774506,
-        7774507,
-        7774508
-      ],
-      "candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "competing_observation_count": 8,
-      "context_labels": [
-        "Golden Rune [9]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-83",
-      "item_name": "Golden Rune [9]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770962,
-        7770963,
-        7770966,
-        7770969,
-        7770976,
-        7770979,
-        7770994,
-        7770998,
-        7771008,
-        7772391
-      ],
-      "observation_id": "walkthrough:26a6f472723f4ecb79bb",
-      "reason": "area_only",
-      "regions": [
-        "Leyndell"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "leyndell",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w35-83"
     },
     {
       "all_candidate_ids": [
@@ -206526,6 +205740,803 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w19-43"
+    },
+    {
+      "all_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7771085,
+        7771289,
+        7771403,
+        7771427,
+        7771671,
+        7771681,
+        7771683,
+        7771693,
+        7771696,
+        7772336,
+        7772346,
+        7772391,
+        7772477,
+        7773026,
+        7773096,
+        7773170,
+        7774327,
+        7774356,
+        7774421,
+        7774492,
+        7774493,
+        7774494,
+        7774495,
+        7774496,
+        7774502,
+        7774505,
+        7774506,
+        7774507,
+        7774508
+      ],
+      "candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Golden Rune [9]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-31",
+      "item_name": "Golden Rune [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "observation_id": "walkthrough:d550428831c9ec4d7cd3",
+      "reason": "area_only",
+      "regions": [
+        "Leyndell"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "leyndell",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w35-31"
+    },
+    {
+      "all_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7771085,
+        7771289,
+        7771403,
+        7771427,
+        7771671,
+        7771681,
+        7771683,
+        7771693,
+        7771696,
+        7772336,
+        7772346,
+        7772391,
+        7772477,
+        7773026,
+        7773096,
+        7773170,
+        7774327,
+        7774356,
+        7774421,
+        7774492,
+        7774493,
+        7774494,
+        7774495,
+        7774496,
+        7774502,
+        7774505,
+        7774506,
+        7774507,
+        7774508
+      ],
+      "candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Golden Rune [9]",
+        "Hero's Rune [5]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-32",
+      "item_name": "Golden Rune [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "observation_id": "walkthrough:947a58f94aa4faceef29",
+      "reason": "area_only",
+      "regions": [
+        "Leyndell"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "leyndell",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w35-32"
+    },
+    {
+      "all_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7771085,
+        7771289,
+        7771403,
+        7771427,
+        7771671,
+        7771681,
+        7771683,
+        7771693,
+        7771696,
+        7772336,
+        7772346,
+        7772391,
+        7772477,
+        7773026,
+        7773096,
+        7773170,
+        7774327,
+        7774356,
+        7774421,
+        7774492,
+        7774493,
+        7774494,
+        7774495,
+        7774496,
+        7774502,
+        7774505,
+        7774506,
+        7774507,
+        7774508
+      ],
+      "candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Golden Rune [9]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-33",
+      "item_name": "Golden Rune [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "observation_id": "walkthrough:383bcdf69119ecf5383a",
+      "reason": "area_only",
+      "regions": [
+        "Leyndell"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "leyndell",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w35-33"
+    },
+    {
+      "all_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7771085,
+        7771289,
+        7771403,
+        7771427,
+        7771671,
+        7771681,
+        7771683,
+        7771693,
+        7771696,
+        7772336,
+        7772346,
+        7772391,
+        7772477,
+        7773026,
+        7773096,
+        7773170,
+        7774327,
+        7774356,
+        7774421,
+        7774492,
+        7774493,
+        7774494,
+        7774495,
+        7774496,
+        7774502,
+        7774505,
+        7774506,
+        7774507,
+        7774508
+      ],
+      "candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Golden Rune [9]",
+        "Imp Head (Corpse)"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-37",
+      "item_name": "Golden Rune [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "observation_id": "walkthrough:e2b57eec7eb4e501cade",
+      "reason": "area_only",
+      "regions": [
+        "Leyndell"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "leyndell",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w35-37"
+    },
+    {
+      "all_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7771085,
+        7771289,
+        7771403,
+        7771427,
+        7771671,
+        7771681,
+        7771683,
+        7771693,
+        7771696,
+        7772336,
+        7772346,
+        7772391,
+        7772477,
+        7773026,
+        7773096,
+        7773170,
+        7774327,
+        7774356,
+        7774421,
+        7774492,
+        7774493,
+        7774494,
+        7774495,
+        7774496,
+        7774502,
+        7774505,
+        7774506,
+        7774507,
+        7774508
+      ],
+      "candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Golden Rune [9]",
+        "Gravel Stone",
+        "Smithing Stone [4]",
+        "Stonesword Key"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-39",
+      "item_name": "Golden Rune [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "observation_id": "walkthrough:2415a3c4972bca2b2c6a",
+      "reason": "area_only",
+      "regions": [
+        "Leyndell"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "leyndell",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w35-39"
+    },
+    {
+      "all_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7771085,
+        7771289,
+        7771403,
+        7771427,
+        7771671,
+        7771681,
+        7771683,
+        7771693,
+        7771696,
+        7772336,
+        7772346,
+        7772391,
+        7772477,
+        7773026,
+        7773096,
+        7773170,
+        7774327,
+        7774356,
+        7774421,
+        7774492,
+        7774493,
+        7774494,
+        7774495,
+        7774496,
+        7774502,
+        7774505,
+        7774506,
+        7774507,
+        7774508
+      ],
+      "candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Golden Rune [9]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-58",
+      "item_name": "Golden Rune [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "observation_id": "walkthrough:ef663628b52a85edbb40",
+      "reason": "area_only",
+      "regions": [
+        "Leyndell"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "leyndell",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w35-58"
+    },
+    {
+      "all_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7771085,
+        7771289,
+        7771403,
+        7771427,
+        7771671,
+        7771681,
+        7771683,
+        7771693,
+        7771696,
+        7772336,
+        7772346,
+        7772391,
+        7772477,
+        7773026,
+        7773096,
+        7773170,
+        7774327,
+        7774356,
+        7774421,
+        7774492,
+        7774493,
+        7774494,
+        7774495,
+        7774496,
+        7774502,
+        7774505,
+        7774506,
+        7774507,
+        7774508
+      ],
+      "candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Golden Rune [9]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-71",
+      "item_name": "Golden Rune [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "observation_id": "walkthrough:fdd7ddf2aec75d4ab2d3",
+      "reason": "area_only",
+      "regions": [
+        "Leyndell"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "leyndell",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w35-71"
+    },
+    {
+      "all_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7771085,
+        7771289,
+        7771403,
+        7771427,
+        7771671,
+        7771681,
+        7771683,
+        7771693,
+        7771696,
+        7772336,
+        7772346,
+        7772391,
+        7772477,
+        7773026,
+        7773096,
+        7773170,
+        7774327,
+        7774356,
+        7774421,
+        7774492,
+        7774493,
+        7774494,
+        7774495,
+        7774496,
+        7774502,
+        7774505,
+        7774506,
+        7774507,
+        7774508
+      ],
+      "candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Golden Rune [9]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w35-83",
+      "item_name": "Golden Rune [9]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770962,
+        7770963,
+        7770966,
+        7770969,
+        7770976,
+        7770979,
+        7770994,
+        7770998,
+        7771008,
+        7772346,
+        7772391
+      ],
+      "observation_id": "walkthrough:26a6f472723f4ecb79bb",
+      "reason": "area_only",
+      "regions": [
+        "Leyndell"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "leyndell",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w35-83"
     },
     {
       "all_candidate_ids": [
@@ -215587,7 +215598,7 @@
         7774088,
         7774242
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -215708,7 +215719,7 @@
         7774088,
         7774242
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -215829,7 +215840,132 @@
         7774088,
         7774242
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
+      "context_labels": [
+        "Furlcalling Finger Remedy",
+        "Great Stars",
+        "Magnus the Beast Claw",
+        "Rune Arc",
+        "Somber Smithing Stone [6]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w31-46",
+      "item_name": "Somber Smithing Stone [6]",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770711,
+        7770778,
+        7770779,
+        7770787,
+        7770788,
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7771092,
+        7771272,
+        7771300,
+        7771684,
+        7771709,
+        7771864,
+        7772383,
+        7772418,
+        7773392,
+        7773410,
+        7773492,
+        7773502,
+        7773645,
+        7774088,
+        7774242
+      ],
+      "observation_id": "walkthrough:ca4c9b9e3633c5325f55",
+      "reason": "region_disagreement",
+      "regions": [
+        "Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "east-altus",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w31-46"
+    },
+    {
+      "all_candidate_ids": [
+        7770711,
+        7770778,
+        7770779,
+        7770787,
+        7770788,
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7771092,
+        7771189,
+        7771272,
+        7771300,
+        7771684,
+        7771709,
+        7771864,
+        7772345,
+        7772383,
+        7772418,
+        7773346,
+        7773392,
+        7773410,
+        7773492,
+        7773502,
+        7773645,
+        7773846,
+        7774088,
+        7774242
+      ],
+      "candidate_ids": [
+        7770711,
+        7770778,
+        7770779,
+        7770787,
+        7770788,
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7771092,
+        7771189,
+        7771272,
+        7771300,
+        7771684,
+        7771709,
+        7771864,
+        7772345,
+        7772383,
+        7772418,
+        7773346,
+        7773392,
+        7773410,
+        7773492,
+        7773502,
+        7773645,
+        7773846,
+        7774088,
+        7774242
+      ],
+      "competing_observation_count": 13,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -215950,7 +216086,7 @@
         7774088,
         7774242
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -216071,7 +216207,7 @@
         7774088,
         7774242
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
       "context_labels": [
         "Somber Smithing Stone [6]"
       ],
@@ -216192,7 +216328,7 @@
         7774088,
         7774242
       ],
-      "competing_observation_count": 10,
+      "competing_observation_count": 13,
       "context_labels": [
         "Smithing Stone [7]",
         "Somber Smithing Stone [6]"
@@ -216250,6 +216386,250 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w36-5"
+    },
+    {
+      "all_candidate_ids": [
+        7770711,
+        7770778,
+        7770779,
+        7770787,
+        7770788,
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7771092,
+        7771189,
+        7771272,
+        7771300,
+        7771684,
+        7771709,
+        7771864,
+        7772345,
+        7772383,
+        7772418,
+        7773346,
+        7773392,
+        7773410,
+        7773492,
+        7773502,
+        7773645,
+        7773846,
+        7774088,
+        7774242
+      ],
+      "candidate_ids": [
+        7770711,
+        7770778,
+        7770779,
+        7770787,
+        7770788,
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7771092,
+        7771189,
+        7771272,
+        7771300,
+        7771684,
+        7771709,
+        7771864,
+        7772345,
+        7772383,
+        7772418,
+        7773346,
+        7773392,
+        7773410,
+        7773492,
+        7773502,
+        7773645,
+        7773846,
+        7774088,
+        7774242
+      ],
+      "competing_observation_count": 13,
+      "context_labels": [
+        "Smithing Stone [5]",
+        "Somber Smithing Stone [6]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w28-82",
+      "item_name": "Somber Smithing Stone [6]",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770711,
+        7770778,
+        7770779,
+        7770787,
+        7770788,
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7771092,
+        7771272,
+        7771300,
+        7771684,
+        7771709,
+        7771864,
+        7772383,
+        7772418,
+        7773392,
+        7773410,
+        7773492,
+        7773502,
+        7773645,
+        7774088,
+        7774242
+      ],
+      "observation_id": "walkthrough:17e2e837b7e57ffa9852",
+      "reason": "region_disagreement",
+      "regions": [
+        "Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "west-altus",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w28-82"
+    },
+    {
+      "all_candidate_ids": [
+        7770711,
+        7770778,
+        7770779,
+        7770787,
+        7770788,
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7771092,
+        7771189,
+        7771272,
+        7771300,
+        7771684,
+        7771709,
+        7771864,
+        7772345,
+        7772383,
+        7772418,
+        7773346,
+        7773392,
+        7773410,
+        7773492,
+        7773502,
+        7773645,
+        7773846,
+        7774088,
+        7774242
+      ],
+      "candidate_ids": [
+        7770711,
+        7770778,
+        7770779,
+        7770787,
+        7770788,
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7771092,
+        7771189,
+        7771272,
+        7771300,
+        7771684,
+        7771709,
+        7771864,
+        7772345,
+        7772383,
+        7772418,
+        7773346,
+        7773392,
+        7773410,
+        7773492,
+        7773502,
+        7773645,
+        7773846,
+        7774088,
+        7774242
+      ],
+      "competing_observation_count": 13,
+      "context_labels": [
+        "Smithing Stone [5]",
+        "Somber Smithing Stone [6]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w28-87",
+      "item_name": "Somber Smithing Stone [6]",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770711,
+        7770778,
+        7770779,
+        7770787,
+        7770788,
+        7770940,
+        7770948,
+        7770950,
+        7770975,
+        7770989,
+        7771092,
+        7771272,
+        7771300,
+        7771684,
+        7771709,
+        7771864,
+        7772383,
+        7772418,
+        7773392,
+        7773410,
+        7773492,
+        7773502,
+        7773645,
+        7774088,
+        7774242
+      ],
+      "observation_id": "walkthrough:f19bf7e417b8cd85e663",
+      "reason": "region_disagreement",
+      "regions": [
+        "Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "west-altus",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w28-87"
     },
     {
       "all_candidate_ids": [
@@ -222599,15 +222979,15 @@
     "by_reason": {
       "area_only": 2186,
       "one_landmark_candidate": 8,
-      "region_disagreement": 594,
+      "region_disagreement": 597,
       "shared_landmark": 3,
       "source_area_unmapped": 82
     },
-    "held_checks_with_new_family_candidates": 2641,
+    "held_checks_with_new_family_candidates": 2640,
     "item_mentions": 4280,
     "limitations": "Suggestions only. Linked items can be mentions, not acquisitions. Guide area and catalog anchors are not independent proof of AP ownership. No quantity, position, mechanism or access is inferred.",
     "one_source_checks_with_second_family_candidates": 351,
-    "review_observations": 2873,
+    "review_observations": 2876,
     "schema_version": 1,
     "source_steps": 3928,
     "trusted_promotions": 0

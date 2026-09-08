@@ -584,6 +584,17 @@ _ARENA_REGION_CURATED = {
     # ground, while the coarse m60_38_52 tile straddles Old Altus. This ruling re-homes the host
     # without moving the tile or the two Old Altus pickups that legitimately share it.
     1038520800: "Mt. Gelmir",
+    # 34140850 Fell Twin (Divine Tower of East Altus, #324). There is NO measured row for this
+    # trigger, so its arena label came from the THIRD source below -- the arena map's first-hand
+    # dungeon_regions.tsv row, which reads 'Altus' off the tower graces' warp group 63003. That
+    # warp group is real but it is not who owns the ground: the tower is entered only from
+    # Leyndell's eastern ward after Morgott, so m34_14 is curated to Leyndell in
+    # DUNGEON_REGION_CURATED and its runtime bucket 34140 moved to Leyndell in
+    # region_groups.PLAY_REGION_GROUPS. The third source deliberately reads the raw grace/connect
+    # rows only (its comment explains why: tile decode would make the #445 screen a tautology), so
+    # the map curation cannot reach it and the arena label is set here instead. Without this the
+    # #1059 containment gate hard-fails: members=Leyndell, arena=Altus.
+    34140850: "Leyndell",
 }
 # 🛑 IT DOES NOT WRITE INTO BOSS_AREA_REGION, and that is the whole care in this block.
 # BOSS_AREA_REGION also feeds `region_of` for a boss's own REWARD check (the boss-drop branch), so
@@ -3570,6 +3581,19 @@ DUNGEON_REGION_CURATED = {
     # Hippo and everything it grants present as Scadu Altus, members included. This supersedes the
     # 2026-07-21 region_overrides.tsv ruling that kept the post-death floor at Shadow Keep.
     "m21_00_00_00": "Scadu Altus",          # data says 'Shadow Keep' -- CURATED override (#885)
+    # m34_14 (Divine Tower of East Altus): the grace join says 'Altus' and it is telling the truth
+    # about the WARP GROUP -- 73450/73451 carry bonfireSubCategoryId 63003, which is East Altus and
+    # the Forbidden Lands. It is wrong about who OWNS the ground. The tower's only ordinary entrance
+    # is the greatbridge out of Leyndell's eastern ward (Erdtree Sanctuary side, on the way to the
+    # Forbidden Lands), and that bridge opens after Morgott -- so an Altus-only player cannot reach
+    # any of these checks, while a Leyndell player walks past all of them. Same curation shape as
+    # #202's m34_10 -> Stormveil: the tower goes with the region whose route buys the door, and its
+    # runtime bucket 34140 moves with it in region_groups.PLAY_REGION_GROUPS so the kick agrees.
+    # EVIDENCE: boblerrr (Nexus mod page, 2026-08-03, #324) and Sinon (2026-09-07) independently;
+    # the SoulsRandomizers logic graph agrees (its East-Altus-tower area requires Leyndell plus
+    # Morgott, and its Forbidden Lands start requires the tower). The two tower graces stay
+    # route-gated (_ROUTE_GATED_GRACE_FLAGS): no single lock may force-light a warp past Morgott.
+    "m34_14_00_00": "Leyndell",             # data says 'Altus' -- CURATED override (#324)
 }
 
 
@@ -6644,12 +6668,16 @@ else:
 # automatic bundle -- the player reaches the plateau and touches it normally. Do not move its
 # physical checks out of Liurnia, and do not grant it with the Ainsel Lock (that would still skip
 # Astel). Reported by bobler 2026-08-17; #792.
-# 73450/73451 Divine Tower of East Altus both stand on Altus play-region 63003, but the
-# tower's only ordinary entrance is the greatbridge from Leyndell's eastern ward (#324).
-# Giving either warp with Altus skips the Leyndell half of the route; giving it with Leyndell
-# skips the Altus runtime bucket. They therefore belong to no single-lock bundle and light
-# naturally after the player reaches the tower with both regions open. Immutable Eldenpedia
-# page 7876 revision 29723 classifies the tower under Leyndell and describes that connection.
+# 73450/73451 Divine Tower of East Altus both carry the East-Altus WARP group 63003 (which is
+# also the Forbidden Lands' and the Grand Lift of Rold's), but the tower's only ordinary
+# entrance is the greatbridge from Leyndell's eastern ward, and that bridge opens after Morgott
+# (#324). Giving either warp with Altus skips the whole Leyndell route; giving it with Leyndell
+# skips Morgott. They therefore belong to no single-lock bundle and light naturally when the
+# player reaches the tower on foot. Immutable Eldenpedia page 7876 revision 29723 classifies the
+# tower under Leyndell and describes that connection.
+# 2026-09-07 (#324): the tower's CHECKS and its runtime bucket 34140 moved to Leyndell
+# (DUNGEON_REGION_CURATED + region_groups.PLAY_REGION_GROUPS). The graces stay route-gated --
+# the region move fixes who can reach the ground, not who may skip Morgott to warp onto it.
 _ROUTE_GATED_GRACE_FLAGS = frozenset({73450, 73451, 76250})
 for _fl in _ROUTE_GATED_GRACE_FLAGS:
     if str(_fl) not in gf:
@@ -10619,6 +10647,15 @@ _SWEEP_EXCLUDED_FLAGS = {
         34117400, 34117401, 34117402, 34117403,
         34117500, 34117710,
     },
+    # 34140850 Fell Twin (m34_14, Divine Tower of East Altus). f400001 Rold Medallion is a
+    # _SWEEP_POST_BOSS_GIFTS row (below): its whole point is that it hangs on the EXACT defeat
+    # condition vanilla uses, Morgott's 11000800, and "must never enter the region divvy". Its
+    # flag's map is m34_14 only because the GRANT EVENT lives in that EMEVD (34142550, the tower
+    # approach seal, reads EventFlag(400001)) -- the same bad join region_overrides already fixed
+    # for its region. While m34_14 was an Altus dungeon the map-local pass never saw it; the #324
+    # move to Leyndell put them in the same divvy, and the medallion started being offered by the
+    # tower's boss as well as by Morgott. Excluded so the gift keeps exactly one granter.
+    34140850: {400001},
 }
 # Vanilla gifts whose acquisition flag is itself post-boss world progression. These are not filler
 # and must never enter the region divvy: each row is attached only to the exact defeat condition

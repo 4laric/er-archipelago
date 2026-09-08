@@ -12,18 +12,13 @@ ALTERNATE_ACCESS: Dict[int, str] = {
     # Listed under Belurat, but physically accessible only from Enir-Ilim. Divine Beast
     # Dancing Lion's sweep is the independent Belurat-side route.
     7771810: "Enir Ilim",
-    # Divine Tower of East Altus physically belongs to Altus's runtime bucket, but its only
-    # ordinary entrance is the greatbridge from Leyndell's eastern ward (#324). Keep these checks
-    # in Altus so the kick-watch agrees with their ground, then require Leyndell as the second half
-    # of the route. The Fell Twins sweep is not an independent route: killing the twins already
-    # required crossing that bridge.
-    7770679: "Leyndell",
-    7772342: "Leyndell",
-    7772343: "Leyndell",
-    7772344: "Leyndell",
-    7772345: "Leyndell",
-    7772346: "Leyndell",
-    7772347: "Leyndell",
+    # The seven Divine Tower of East Altus checks lived here from 2026-08 until 2026-09-07 (#324):
+    # they were filed under Altus and this table bolted a Leyndell requirement onto them. The tower
+    # is now Leyndell's outright -- its checks, its Fell Twin sweep and its runtime bucket 34140 all
+    # moved (gen_data.DUNGEON_REGION_CURATED + region_groups.PLAY_REGION_GROUPS) -- so the second
+    # half of the route IS the owning region and there is nothing left for this table to add. A
+    # cross-region rule that duplicates the region lock is not belt-and-braces: it makes the census
+    # subtract checks the seed did create.
 }
 
 # Only these checks have a boss-sweep route that genuinely avoids their physical route.
@@ -34,13 +29,6 @@ SWEEP_INDEPENDENT = frozenset({7771810})
 # of the seed's static count in the first place.
 OWNING_REGION: Dict[int, str] = {
     7771810: "Belurat",
-    7770679: "Altus",
-    7772342: "Altus",
-    7772343: "Altus",
-    7772344: "Altus",
-    7772345: "Altus",
-    7772346: "Altus",
-    7772347: "Altus",
 }
 
 
