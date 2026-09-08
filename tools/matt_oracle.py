@@ -185,8 +185,12 @@ MISSING_SLOT_KNOWN.update(
 # outside the set of checks we model at all, so their absence from data.LOCATIONS is by design:
 #   norandom / ignore -- his own "never put a randomized check here" vocabulary
 #   tarnished         -- Tarnished-Pack mod content; not vanilla Elden Ring
-#   enemy*            -- enemy-drop slots (enemyweapon/enemygem/enemysorcery/... subtypes). Our
-#                        enemy_drops table is a stub; a separate derivation, not a gap in LOCATIONS.
+#   enemy*            -- enemy-drop slots (enemyweapon/enemygem/enemysorcery/... subtypes). A
+#                        separate derivation, not a gap in LOCATIONS: ours is
+#                        `greenfield/enemy_drops.tsv` (tools/datamine_enemy_drops.py), from
+#                        NpcParam/ItemLotParam_enemy. `--report` COUNT-CHECKS the two (class C
+#                        below) rather than demanding row equality -- his slot is a randomiser
+#                        placement, ours is a param row, and they do not partition the same way.
 # NOTE ON GESTURES: he has no `gesture` tag, because he does not model gestures as slots at all.
 # The gesture asymmetry runs the OTHER way (OUR flags he lacks) and is report-only.
 EXCLUDED_TAGS = frozenset({"norandom", "ignore", "tarnished"})
@@ -483,6 +487,44 @@ def stale_entries(dis_flags, by_flag):
 
 
 # ---------------------------------------------------------------------------
+def enemy_drop_counts(rows, repo=REPO):
+    """CLASS C -- ENEMY DROPS, REPORT-ONLY COUNT CHECK (roadmap item 7, first bullet).
+
+    OUR side: the ONE-TIME (flagged) rows of `greenfield/enemy_drops.tsv` -- `getItemFlagId > 0` on
+    a lot reachable from some `NpcParam.itemLotId_enemy`. HIS side: the slots tagged `enemy*`, the
+    same vocabulary `_excluded_by_tags` already filters class B on.
+
+    WHY THIS IS A COUNT AND NOT A GATE. His `enemy` tag marks a slot he chose to treat as an
+    enemy drop for randomisation; ours is every param row the game flags one-time. Neither is a
+    subset of the other by construction -- he tags event-awarded drops we file under a map lot, and
+    we carry flagged NPC lots he never placed. Equality would be noise. What IS signal is the
+    magnitude and the flag-join overlap: a large disagreement means one of us is reading the game
+    wrong, and it is cheap to look at.
+
+    🛑 LICENCE. Returns COUNTS from his side and OUR flag ids only -- never his flags, rows or
+    prose. The `theirs_*` numbers are cardinalities, which are facts about the game, not his table.
+    """
+    src = os.path.join(repo, "tools", "datamine_enemy_drops.py")
+    tsv = os.path.join(repo, "greenfield", "enemy_drops.tsv")
+    if not os.path.isfile(src) or not os.path.isfile(tsv):
+        return None
+    spec = importlib.util.spec_from_file_location("_matt_oracle_enemy_drops", src)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    ours = mod.flagged_flags(tsv)
+
+    theirs_slots = [r for r in rows if any(t.startswith("enemy") for t in r["tags"])]
+    theirs_flags = {r["flag"] for r in theirs_slots if r["flag"]}
+    return {
+        "ours_flags": ours,
+        "theirs_slots": len(theirs_slots),
+        "theirs_flags": len(theirs_flags),
+        "overlap": ours & theirs_flags,
+        "ours_only": ours - theirs_flags,
+        "theirs_only": len(theirs_flags - ours),
+    }
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument(
@@ -576,6 +618,20 @@ def main(argv=None):
             print("    resolved: flag %d ap%d (was %s)"
                   % (k[0], k[1], previous[k].get("status", "?")))
     print()
+    # --- C (report-only) ---
+    ed = enemy_drop_counts(rows) if args.report else None
+    if ed is not None:
+        print("== C. ENEMY DROPS (greenfield/enemy_drops.tsv) -- REPORT ONLY, never a gate ==")
+        print("ours: %d ONE-TIME (flagged) enemy-drop flags from NpcParam/ItemLotParam_enemy"
+              % len(ed["ours_flags"]))
+        print("his:  %d slots tagged enemy*, over %d distinct Event-scope flags"
+              % (ed["theirs_slots"], ed["theirs_flags"]))
+        print("flag join: %d in both, %d ours-only, %d his-only"
+              % (len(ed["overlap"]), len(ed["ours_only"]), ed["theirs_only"]))
+        # OUR flag ids only -- his stay counts (licence boundary, module header).
+        print("  ours-only flags: %s"
+              % (" ".join(str(f) for f in sorted(ed["ours_only"])) or "-"))
+        print()
 
     stale = stale_entries({d_["flag"] for d_ in dis}, by_flag)
     for which, flag, reason in stale:
@@ -610,6 +666,16 @@ def main(argv=None):
             },
             "stale_allowlist": [{"list": w, "flag": f} for w, f, _ in stale],
         }
+        if ed is not None:
+            # counts from his side, OUR flag ids from ours (licence boundary).
+            payload["enemy_drops"] = {
+                "ours_flags": len(ed["ours_flags"]),
+                "theirs_slots": ed["theirs_slots"],
+                "theirs_flags": ed["theirs_flags"],
+                "overlap": len(ed["overlap"]),
+                "ours_only": sorted(ed["ours_only"]),
+                "theirs_only": ed["theirs_only"],
+            }
         with open(args.json_out, "w", encoding="utf-8") as fh:
             json.dump(payload, fh, indent=2, sort_keys=True)
         print("wrote %s" % args.json_out)

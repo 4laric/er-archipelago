@@ -60,8 +60,13 @@ every step: read his checkout locally, commit only our own flags, names and reas
    ids he tracks are out of scope by design and should be written down as such in `shop_data.py`.
 
 7. **Derive new tables, validate against him.**
-   - `enemy_drops` from NpcParam / ItemLotParam_enemy, count-checked against his 393 `enemy` slots
-     (`docs/history/TODO-baker-era.md:394`).
+   - ~~`enemy_drops` from NpcParam / ItemLotParam_enemy, count-checked against his 393 `enemy`
+     slots (`docs/history/TODO-baker-era.md:394`).~~ **DONE 2026-09-08.**
+     `tools/datamine_enemy_drops.py` -> `greenfield/enemy_drops.tsv` (16,151 rows; 244 ONE-TIME
+     flagged rows over 174 flags, 173 of which are already `LOCATIONS` flags). The count check is
+     `matt_oracle.py --report` class C, report-only: his `enemy*` family is 413 slots today, not
+     393, and the flag join is 169 both / 5 ours-only / 244 his-only. **No AP locations were added**
+     — whether flagged enemy drops become checks is still the product ruling this item flagged.
    - Boss taxonomy (overworld / minidungeon / cave / catacomb / dragon / furnace golem) from our own
      map data, histogram-checked against his tags.
    - Reachability: use his 174-area graph only as a coverage counter. Author the logic ourselves.
