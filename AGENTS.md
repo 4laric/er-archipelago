@@ -790,6 +790,12 @@ It gates two classes and reports the rest:
   same flag. 3977/4084 agree; the 107 disagreements are allowlisted by cause in the tool.
 - **B. MISSING SLOTS** — his Event-scope flags `data.LOCATIONS` has no row for, after excluding his
   `norandom` / `ignore` / `tarnished` / `enemy*` vocabulary. 80 remain, allowlisted by cause.
+- **C. ENEMY DROPS** — **report-only, never a gate.** Our ONE-TIME (flagged) enemy-drop flags from
+  `greenfield/enemy_drops.tsv` (`tools/datamine_enemy_drops.py`, derived from NpcParam /
+  ItemLotParam_enemy) counted against his `enemy*`-tagged slots, with the flag-join overlap. His
+  slot is a randomiser placement and ours is a param row: neither is a subset of the other, so
+  equality would be noise and only the magnitudes are signal. Prints counts from his side and OUR
+  flag ids from ours.
 
 Region assignment, missable tagging, shop granularity and DLC membership are **report-only**
 (`--report`): the two models differ structurally there, so equality would be noise, not signal.
