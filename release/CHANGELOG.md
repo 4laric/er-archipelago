@@ -272,6 +272,22 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   or row of his is read, adapted, printed or committed. Closes the second and third bullets of
   `docs/MATT-ORACLE-ROADMAP.md` item 7.
 
+- **`matt_oracle.py --report` died in section D, so E and F never printed on a fixture.** The
+  boss-taxonomy histogram's divergence arithmetic ran `max(n, k)` where `k` is the count of HIS
+  slots carrying the class's tag — and `Counter.get` returns `None`, not `0`, for a tag no slot
+  in the checkout carries, so the comparison raised `TypeError` and took the rest of the report
+  down with it. Real runs never hit it (every boss tag has slots), but a synthetic fixture always
+  does, which is why the report had no end-to-end test and #1503 had to assert its own section
+  header against the tool's SOURCE instead of by running it. Such a class now prints its count as
+  a dash with the note `n/a -- no slot of his carries the tag`, beside the existing
+  `no equivalent tag` and `UNDERIVED` notes, and the test suite gains a **G. FULL REPORT** case
+  that runs `--report` end to end over the synthetic fixture and asserts headers A through F
+  appear, in order, with no traceback. The real report's output is **byte-identical** before and
+  after (verified against a local checkout at the pinned sha), so nothing that has ever printed
+  changes. Tooling and tests only: **no seed, pool, logic or contract effect**, and the licence
+  boundary is untouched — the fix reads a count that is already ours to read and commits nothing
+  of his.
+
 
 ## v0.6.0.5 — 2026-09-07
 
