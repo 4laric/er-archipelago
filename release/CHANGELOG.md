@@ -3,12 +3,60 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.0.5 — 2026-09-07
+
+### What you need to update
+
+- **Client:** Optional — nothing in this window yet changes the client; a v0.6.0.4 client keeps
+  playing every 0.6.0-line seed, and the contract hash has not moved since v0.6.0.3.
+- **APWorld:** Host-only — install v0.6.0.5 when generating a new room once it ships.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — a fixpack never strands a running seed.
+- **Profile/assets:** No action — the MapForGoblins build and preset are unchanged from v0.6.0.4.
+Window opened AT THE TAG of v0.6.0.4 with ZERO commits past it.
+
+`CONTRACT_HASH` is `613fb438`, read by loading contract.py: unmoved since v0.6.0.3, so a
+v0.6.0.3 client and a v0.6.0.5 apworld pair without a mismatch in either direction. Versions are
+V.R.M.F: a client on the 0.6.0 line from v0.6.0.3 on plays every seed the line generates.
+
+The version moved, so the client half moved with it: clients PR #660 "Stamp the paired client
+for the v0.6.0.5 window" moves the three client version sites, and the gitlink rides in this same
+commit.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.6.0.4 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **`greenfield/flag_lots.tsv` re-derived against the committed param corpus, and the datamine that
+  writes it wired into the regen entrypoint and CI.** The 2026-09-03 param re-export landed in
+  `gen_inputs.db` and the tsv was never re-run against it, so for four days the repo carried fresh
+  inputs beside a table that disagreed with them. It went unnoticed because
+  `tools/datamine_flag_lots.py` was named by no entrypoint and no job — its `--check` does exit 1 on
+  drift, nothing ever called it. It is now a MODULES step in `tools/regen_all.py` and an explicit
+  `--check` in the `generators` job, for the same reason `gen_item_ids_doc.py --check` is there.
+  The refresh moves 157 rows (63 item id, 9 quantity, 39 both, 46 legibility-only) and adds 25;
+  nothing is removed. **Contract hash does not move** — it stays `613fb438`, `data.py`'s
+  `body_sha256` is byte-identical, and no location name, item tier, check-lot suppression or wire
+  field changes, so a v0.6.0.3 client pairs with this apworld exactly as before. **Seeds do change**:
+  the only downstream table that moves is `item_ids.LOCATION_UNITS`, which joins on FullID and so
+  now reads 885 multi-copy locations paying 2871 extra units instead of 922 / 2982. Every one of
+  those 46 rows is a DLC smithing stone. 🛑 **This does NOT explain the oracle's 99-flag DLC
+  upgrade-material finding above** — that reads `LOCATION_ITEM`, which is built from the curated
+  `item_name` column and is byte-identical before and after this refresh; the oracle still reports
+  107 item-identity disagreements, all allowlisted, 0 unexplained. What the refresh does is expose
+  the divergence: on 37 of those checks the curated name no longer names any item the flag's lot
+  actually grants, so the units join finds nothing and falls back to x1. That fallback is silent —
+  `_lot_units` returns `(1, False)` for a no-match and only tallies genuine ambiguity — and which
+  side is wrong (our curated names, or a game-version difference in the corpus) is left OPEN
+  alongside the oracle finding rather than guessed at here.
+
 ## v0.6.0.4 — 2026-09-07
 
 ### What you need to update
 
-- **Client:** Optional — nothing in this window yet changes the client; a v0.6.0.3 client keeps
-  playing every 0.6.0-line seed, and the contract hash has not moved since v0.6.0.3.
+- **Client:** **Recommended.** The client fix below (clients #659) stops a received key item
+  being reported as its own check. A v0.6.0.3 client still plays every 0.6.0-line seed, and the
+  contract hash has not moved since v0.6.0.3.
 - **APWorld:** Host-only — install v0.6.0.4 when generating a new room once it ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
@@ -49,28 +97,15 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   the shipped apworld never imports the tool or his data. It leaves 103 item rows and 45 missing
   slots on the record as OPEN findings to adjudicate later, chiefly a DLC upgrade-material tier
   disagreement across 99 flags.
-- **`greenfield/flag_lots.tsv` re-derived against the committed param corpus, and the datamine that
-  writes it wired into the regen entrypoint and CI.** The 2026-09-03 param re-export landed in
-  `gen_inputs.db` and the tsv was never re-run against it, so for four days the repo carried fresh
-  inputs beside a table that disagreed with them. It went unnoticed because
-  `tools/datamine_flag_lots.py` was named by no entrypoint and no job — its `--check` does exit 1 on
-  drift, nothing ever called it. It is now a MODULES step in `tools/regen_all.py` and an explicit
-  `--check` in the `generators` job, for the same reason `gen_item_ids_doc.py --check` is there.
-  The refresh moves 157 rows (63 item id, 9 quantity, 39 both, 46 legibility-only) and adds 25;
-  nothing is removed. **Contract hash does not move** — it stays `613fb438`, `data.py`'s
-  `body_sha256` is byte-identical, and no location name, item tier, check-lot suppression or wire
-  field changes, so a v0.6.0.3 client pairs with this apworld exactly as before. **Seeds do change**:
-  the only downstream table that moves is `item_ids.LOCATION_UNITS`, which joins on FullID and so
-  now reads 885 multi-copy locations paying 2871 extra units instead of 922 / 2982. Every one of
-  those 46 rows is a DLC smithing stone. 🛑 **This does NOT explain the oracle's 99-flag DLC
-  upgrade-material finding above** — that reads `LOCATION_ITEM`, which is built from the curated
-  `item_name` column and is byte-identical before and after this refresh; the oracle still reports
-  107 item-identity disagreements, all allowlisted, 0 unexplained. What the refresh does is expose
-  the divergence: on 37 of those checks the curated name no longer names any item the flag's lot
-  actually grants, so the units join finds nothing and falls back to x1. That fallback is silent —
-  `_lot_units` returns `(1, False)` for a no-match and only tallies genuine ambiguity — and which
-  side is wrong (our curated names, or a game-version difference in the corpus) is left OPEN
-  alongside the oracle finding rather than guessed at here.
+- **A received key item no longer pays its own check (clients #659).** Reported 2026-09-07: a
+  player killed Black Knight Garrew, the boss sweep sent its members, and `Leyndell :: Rold
+  Medallion` went out too, never checked. Flag 400001 is both that location's poll flag and the
+  "obtained" flag the client sets when the Rold Medallion **item** arrives, so the receive read
+  back as a pickup; the sweep merely returned the medallion as one of its items. The Spirit
+  Calling Bell, Whetstone Knife and Crafting Kit share the shape. The poll now suppresses a
+  detection only when the client itself wrote that flag this session, so a genuine acquisition
+  (Melina after Morgott, Kalé's shop) still pays exactly once. Client only: no contract, seed or
+  world-logic change. The gitlink moves to client main `e3d7e42` in this same commit.
 
 ## v0.6.0.3 — 2026-09-07
 
