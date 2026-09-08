@@ -45,9 +45,16 @@ class MissableDataTests(unittest.TestCase):
         # the Fingerslayer Blade's Nokron CHEST "questline" would be false about the mechanism.
         # This identity is the assertion that matters -- it fails the moment a label is minted
         # without being registered here, which is exactly how it caught this one.
+        # 2026-09-08: 'multisite' and 'cross_region_prereq' joined the label set. Both used to be
+        # emitted as "questline" because they are members of the same QUEST_GATED_FLAGS union -- but
+        # a multi-site flag (e.g. 60510, set from m10_00 AND m11_00) is missable because the pickup
+        # exists at several sites and the visit order decides which one still has it, and the
+        # enabler class is missable because another REGION's flag gates the treasure. No questline
+        # touches either. Same doctrine as gesture_award/questline_item: the label says WHY.
         self.assertEqual(len(MISSABLE_LOCATIONS),
                          10 + len(alt) + vals.count("questline") + vals.count("gesture_award")
-                         + vals.count("questline_item"))
+                         + vals.count("questline_item") + vals.count("multisite")
+                         + vals.count("cross_region_prereq"))
 
     def test_both_dragon_communion_currencies_are_tagged(self):
         """The bug this guards: ONE altar can mix cost types. Caelid's shelf is costType 1, the DLC
@@ -60,9 +67,20 @@ class MissableDataTests(unittest.TestCase):
 
     def test_only_known_sources(self):
         for v in set(MISSABLE_LOCATIONS.values()):
-            self.assertTrue(v in ("deathroot", "questline", "gesture_award", "questline_item")
+            self.assertTrue(v in ("deathroot", "questline", "gesture_award", "questline_item",
+                                  "multisite", "cross_region_prereq")
                             or v.startswith("alt_currency:"),
                             "unknown missable source label %r" % v)
+
+    def test_multisite_label_is_not_questline(self):
+        """The defect this guards: the five missable derivations were unioned into one set and the
+        whole union was emitted as "questline", so a flag set from several maps claimed a quest
+        gated it. The label is a claim about the mechanism -- if the multi-site class exists at all
+        it must say so. (Those checks stay MISSABLE on purpose: tagging costs a filler slot, being
+        wrong costs an unwinnable seed.)"""
+        self.assertIn("multisite", set(MISSABLE_LOCATIONS.values()),
+                      "no check carries the multisite reason -- either the screen stopped "
+                      "contributing or its members collapsed back into 'questline'")
 
     def test_ap_ids_are_ints(self):
         for aid in MISSABLE_LOCATIONS:

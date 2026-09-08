@@ -59,7 +59,7 @@ each section.
 
 Key items, crafting materials, consumables, bell bearings, spells, notes.
 
-973 items, category nibble `0x4`.
+968 items, category nibble `0x4`.
 
 | Name | Hex | Decimal |
 | --- | --- | --- |
@@ -362,9 +362,7 @@ Key items, crafting materials, consumables, bell bearings, spells, notes.
 | Gaol Upper Level Key | `0x401EA3C5` | `1075749829` |
 | Gavel of Haima | `0x40001018` | `1073745944` |
 | Gelmir's Fury | `0x400012CA` | `1073746634` |
-| Ghost Glovewort [1] | `0x40002A9E` | `1073752734` |
 | Ghost Glovewort [2] | `0x40002A9F` | `1073752735` |
-| Ghost Glovewort [3] | `0x40002AA0` | `1073752736` |
 | Ghost Glovewort [4] | `0x40002AA1` | `1073752737` |
 | Ghost Glovewort [5] | `0x40002AA2` | `1073752738` |
 | Ghost Glovewort [6] | `0x40002AA3` | `1073752739` |
@@ -445,9 +443,6 @@ Key items, crafting materials, consumables, bell bearings, spells, notes.
 | Grace Mimic | `0x40000802` | `1073743874` |
 | Grave Cricket | `0x401ED2B6` | `1075761846` |
 | Grave Glovewort [1] | `0x40002A94` | `1073752724` |
-| Grave Glovewort [2] | `0x40002A95` | `1073752725` |
-| Grave Glovewort [3] | `0x40002A96` | `1073752726` |
-| Grave Glovewort [4] | `0x40002A97` | `1073752727` |
 | Grave Glovewort [5] | `0x40002A98` | `1073752728` |
 | Grave Glovewort [6] | `0x40002A99` | `1073752729` |
 | Grave Glovewort [7] | `0x40002A9A` | `1073752730` |
