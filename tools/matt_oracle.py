@@ -14,7 +14,17 @@ six discrepancy classes surveyed in the 2026-09 oracle study are tight enough to
 
 Everything else (region assignment, missable tagging, shop granularity, DLC membership) is
 report-only and lives in `--report`, because the two models differ structurally there rather than
-factually.
+factually. `--report` also prints count-only comparisons that gate nothing:
+
+  D. BOSS TAXONOMY -- our per-class boss histogram (`boss_taxonomy.BOSS_CLASS_COUNTS`, derived
+     from OUR map tiles / roster / EMEVD) beside the number of HIS SLOTS carrying the equivalent
+     tag name. Ours counts bosses, his counts item slots; the point is to notice a MISSING FAMILY.
+  E. REACHABILITY COVERAGE -- one line: how many regions and grace-warp groups our logic graph can
+     express reaching, against how many areas his graph has. His number is an integer computed at
+     run time from his checkout; nothing of his graph is read beyond its length.
+  F. MISSABLE -- our `MISSABLE_LOCATIONS` flags against his Event-scope slots tagged `missable`.
+     Never a gate: he tags a SLOT ("do not randomize into oblivion"), we tag a CHECK ("may not host
+     REQUIRED progression"), so a one-sided flag is a worklist entry, not a disagreement.
 
 🛑 LICENCE BOUNDARY -- NON-NEGOTIABLE. SoulsRandomizers is "mostly all rights reserved" (LICENSE.md,
 "SoulsRandomizers License, Version 1.0", Matthew Gruen). Clause 3 licenses viewing and reproducing
@@ -230,6 +240,80 @@ MISSING_SLOT_KNOWN[14007930] = (
 EXCLUDED_TAGS = frozenset({"norandom", "ignore", "tarnished"})
 EXCLUDED_TAG_PREFIXES = ("enemy",)
 
+# ---------------------------------------------------------------------------
+# D. BOSS TAXONOMY -- report-only histogram (docs/MATT-ORACLE-ROADMAP.md item 7, second bullet).
+#
+# OUR class (boss_taxonomy.BOSS_CLASS_COUNTS, derived from our map tiles / roster / EMEVD) beside
+# the number of HIS SLOTS carrying the equivalent tag. The tag NAMES are filter vocabulary, exactly
+# as EXCLUDED_TAGS above already uses them -- no row, Text or area name of his is read or printed.
+#
+# 🛑 THE TWO NUMBERS COUNT DIFFERENT THINGS AND THE REPORT SAYS SO. Ours is BOSSES (one row per
+# defeat flag). His is ITEM SLOTS carrying the tag, so a boss that drops three tagged items counts
+# three times and a boss that drops nothing counts zero. This is a SANITY check on the shape of the
+# roster -- "did we miss a whole family" -- and never an equality gate.
+BOSS_TAG_FOR_CLASS = {
+    "remembrance_main": "remembranceboss",
+    "dragon": "dragonboss",
+    "furnace_golem": "furnacegolem",
+    "evergaol": "evergaol",
+    "overworld_field": "overworldboss",
+    "legacy_dungeon": None,        # he has no legacy-dungeon tag; his `boss`/`altboss` span both
+    "catacomb": "catacombboss",
+    "heros_grave": "graveboss",
+    "cave": "caveboss",
+    "tunnel": "tunnelboss",
+    "gaol": "gaolboss",
+}
+# His umbrella tag over the five mini-dungeon families, kept as one extra line rather than folded
+# into any single class: it is the aggregate our cave+catacomb+grave+tunnel+gaol classes answer.
+MINIDUNGEON_TAG = "minidungeonboss"
+
+# The fraction of divergence worth a line of prose in the report.
+CLASS_DIVERGENCE = 0.10
+
+
+def boss_tag_counts(rows, tags):
+    """tag name -> number of his slots carrying it. Counts only, never his rows."""
+    out = Counter()
+    for r in rows:
+        for t in tags:
+            if t in r["tags"]:
+                out[t] += 1
+    return out
+
+
+def his_area_count(souls_dir):
+    """K -- how many areas his logic graph has, computed at RUN TIME from his checkout.
+
+    🛑 The ONLY thing this oracle takes from his graph. It is an integer, it is never written to a
+    file in this repo, and no Req expression or area name is read, adapted or printed. Authoring
+    our own logic is the whole point of the roadmap item; the count is a coverage yardstick.
+    """
+    import yaml
+
+    path = os.path.join(souls_dir, "diste", "Base", "annotations.txt")
+    if not os.path.isfile(path):
+        return None
+    with open(path, encoding="utf-8") as fh:
+        doc = yaml.safe_load(fh)
+    areas = doc.get("Areas") or []
+    return len(areas)
+
+
+def our_reach():
+    """(regions, grace-warp groups) our logic graph can express reaching.
+
+    Regions are `region_groups.REGION_GROUPS` -- every node core.py can build and gate, the hub
+    included. Grace-warp groups are `region_graces.REGION_GRACE_LANDMARKS` flattened: one warp
+    grace per warp-menu sub-area, which is the finest granularity our region locks address.
+    """
+    rg_path = os.path.join(REPO, "greenfield", "region_groups.py")
+    spec = importlib.util.spec_from_file_location("_matt_oracle_region_groups", rg_path)
+    rg = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rg)
+    graces = _load_table(REPO, "region_graces")
+    return len(rg.REGION_GROUPS), sum(len(v) for v in graces.REGION_GRACE_LANDMARKS.values())
+
 
 def _excluded_by_tags(tags):
     if tags & EXCLUDED_TAGS:
@@ -286,6 +370,51 @@ def _load_table(repo, name):
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
+
+def load_missable_flags(repo=REPO, by_flag=None):
+    """(flags, n_rows) -- the FLAGS our missable_locations table tags, via data.LOCATIONS.
+
+    MISSABLE_LOCATIONS is keyed on ap_id; the join below is on the flag number space, so map each
+    tagged ap_id back to its flag. Rows whose ap_id has no LOCATIONS entry (there should be none)
+    are dropped rather than guessed at.
+    """
+    miss = _load_table(repo, "missable_locations")
+    data = _load_table(repo, "data")
+    ap_flag = {}
+    for entries in data.LOCATIONS.values():
+        for _name, ap_id, flag in entries:
+            ap_flag[ap_id] = flag
+    flags, n_rows = set(), 0
+    for ap_id in miss.MISSABLE_LOCATIONS:
+        n_rows += 1
+        if ap_id in ap_flag:
+            flags.add(ap_flag[ap_id])
+    return flags, n_rows
+
+
+# `missable` is used here as FILTER VOCABULARY ONLY -- the same way EXCLUDED_TAGS is. No tag string
+# of his is stored as expectation data, and nothing but bare flag integers is printed.
+MISSABLE_TAG = "missable"
+
+
+def check_missable(rows, by_flag, ours_flags):
+    """Report-only join: our missable flags vs his Event-scope slots tagged `missable`.
+
+    Structural, not factual: he tags a SLOT, we tag a CHECK, and the two curations were built for
+    different jobs (his for "don't randomize this into oblivion", ours for "this may not host
+    REQUIRED progression"). So this never gates -- it is a worklist, not an expectation.
+
+    Returns (joinable, agree, his_only, ours_only): joinable is his missable-tagged flags that
+    data.LOCATIONS carries a row for; agree is the intersection with ours; his_only / ours_only are
+    the two one-sided sets, as sorted flag ids.
+    """
+    his = {r["flag"] for r in rows
+           if r["stype"] == SCOPE_EVENT and r["flag"] and MISSABLE_TAG in r["tags"]}
+    joinable = his & set(by_flag)
+    agree = joinable & ours_flags
+    return (sorted(joinable), sorted(agree), sorted(joinable - ours_flags),
+            sorted(ours_flags - agree))
 
 
 def load_ours(repo=REPO):
@@ -375,6 +504,57 @@ def stale_entries(dis_flags, by_flag):
 
 
 # ---------------------------------------------------------------------------
+def report_taxonomy_and_reach(repo, souls_dir, rows):
+    """Print D (boss-class histogram) and E (reachability coverage). Returns the JSON payload."""
+    taxonomy = _load_table(repo, "boss_taxonomy")
+    ours = dict(taxonomy.BOSS_CLASS_COUNTS)
+    wanted = [t for t in BOSS_TAG_FOR_CLASS.values() if t] + [MINIDUNGEON_TAG]
+    theirs = boss_tag_counts(rows, wanted)
+
+    print("== D. BOSS TAXONOMY (boss_taxonomy.BOSS_CLASS_COUNTS) -- REPORT ONLY ==")
+    print("ours = BOSSES (one per defeat flag); his = SLOTS carrying the tag. Not comparable as an")
+    print("equality; a whole family missing on either side is what this is looking for.")
+    print("  %-17s %6s  %-16s %6s  %s" % ("our class", "bosses", "his tag", "slots", "note"))
+    diverged = []
+    for cls in taxonomy.BOSS_CLASSES:
+        n = ours.get(cls, 0)
+        tag = BOSS_TAG_FOR_CLASS.get(cls)
+        k = theirs.get(tag) if tag else None
+        note = ""
+        if cls in taxonomy.UNDERIVED_CLASSES:
+            note = "UNDERIVED -- " + taxonomy.UNDERIVED_CLASSES[cls].split(":", 1)[0]
+        elif tag is None:
+            note = "no equivalent tag"
+        elif max(n, k) and abs(n - k) > CLASS_DIVERGENCE * max(n, k):
+            note = "DIVERGES >%d%%" % int(CLASS_DIVERGENCE * 100)
+            diverged.append((cls, n, tag, k))
+        print("  %-17s %6d  %-16s %6s  %s" % (cls, n, tag or "-", "-" if k is None else k, note))
+    mini = sum(ours.get(c, 0) for c in ("cave", "catacomb", "heros_grave", "tunnel", "gaol"))
+    print("  %-17s %6d  %-16s %6d  our five mini-dungeon classes vs his umbrella tag"
+          % ("(mini-dungeon)", mini, MINIDUNGEON_TAG, theirs.get(MINIDUNGEON_TAG, 0)))
+    print("  total bosses classified: %d" % sum(ours.values()))
+    print()
+
+    print("== E. REACHABILITY COVERAGE -- REPORT ONLY ==")
+    regions, groups = our_reach()
+    areas = his_area_count(souls_dir)
+    print("our graph reaches %d regions / %d grace-warp groups; his reaches %s areas"
+          % (regions, groups, "?" if areas is None else areas))
+    print("(his count is computed from his checkout at run time and is never committed here; no")
+    print(" Req expression or area name of his is read, adapted or stored -- see the LICENCE note.)")
+    print()
+
+    return {
+        "boss_classes": {c: ours.get(c, 0) for c in taxonomy.BOSS_CLASSES},
+        "his_boss_tag_slots": dict(theirs),
+        "underived_classes": sorted(taxonomy.UNDERIVED_CLASSES),
+        "diverged_classes": [
+            {"class": c, "ours": n, "his_tag": t, "his_slots": k} for c, n, t, k in diverged
+        ],
+        "reach": {"our_regions": regions, "our_grace_warp_groups": groups, "his_areas": areas},
+    }
+
+
 def enemy_drop_counts(rows, repo=REPO):
     """CLASS C -- ENEMY DROPS, REPORT-ONLY COUNT CHECK (roadmap item 7, first bullet).
 
@@ -497,6 +677,28 @@ def main(argv=None):
               % (" ".join(str(f) for f in sorted(ed["ours_only"])) or "-"))
         print()
 
+    # --- D + E: report-only, and only under --report ---
+    taxonomy_report = None
+    if args.report:
+        taxonomy_report = report_taxonomy_and_reach(args.repo, d, rows)
+
+    if args.report:
+        ours_flags, n_miss_rows = load_missable_flags(args.repo, by_flag)
+        joinable, agree, his_only, ours_only = check_missable(rows, by_flag, ours_flags)
+        print("== F. MISSABLE (report-only, no gate) ==")
+        print("ours: %d MISSABLE_LOCATIONS row(s), %d distinct flag(s)" % (n_miss_rows, len(ours_flags)))
+        print("his `%s`-tagged Event flags that data.LOCATIONS carries a row for: %d joinable"
+              % (MISSABLE_TAG, len(joinable)))
+        print("  agree     %d" % len(agree))
+        print("  his-only  %d (he tags missable, we do not)" % len(his_only))
+        print("  ours-only %d (we tag missable, his slot is not tagged)" % len(ours_only))
+        print("  his-only flags:  %s" % " ".join(str(f) for f in his_only))
+        print("  ours-only flags: %s" % " ".join(str(f) for f in ours_only))
+        print("NOTE: the two curations answer different questions (his slot-level 'do not randomize'"
+              " vs our check-level 'must not host REQUIRED progression'), so a one-sided flag is a"
+              " worklist entry, not a defect. Report-only by design.")
+        print()
+
     stale = stale_entries({d_["flag"] for d_ in dis}, by_flag)
     for which, flag, reason in stale:
         print("WARN: stale allowlist entry %s[%d] -- now agrees; drop it (%s)"
@@ -524,6 +726,8 @@ def main(argv=None):
             },
             "stale_allowlist": [{"list": w, "flag": f} for w, f, _ in stale],
         }
+        if taxonomy_report is not None:
+            payload["boss_taxonomy"] = taxonomy_report
         if ed is not None:
             # counts from his side, OUR flag ids from ours (licence boundary).
             payload["enemy_drops"] = {

@@ -63,7 +63,13 @@ Emits `greenfield/enemy_drops.tsv` (tab-separated, utf-8, \n, sorted by npc_id,l
                  DERIVED by gen_check_lots_table.derive_category_nibble, never declared here; that
                  function refuses to guess a category it cannot see, and hardcoding this mapping is
                  exactly how the vanilla-ware suppression bug shipped once already.
-  * item_name  = ITEM_CATALOG reverse for full_id, else "" (only pooled items are in the catalog)
+  * item_name  = ITEM_CATALOG reverse for full_id, else "" (only pooled items are in the catalog).
+                 🛑 This column is a join against a COMMITTED table (tables/item_ids.py), not
+                 against the params, so a catalog change alone makes this tsv stale. That is how
+                 #1495 and #1497 turned main red the day both merged: each was green on its own
+                 branch, and #1497 renamed the catalog entries #1495 had already baked in here.
+                 `--check` prints the differing lines and the columns that moved so the log alone
+                 tells you which of the two inputs shifted.
   * num        = lotItemNum0N (quantity awarded)
   * chance_pct = 100 * lotItemBasePoint0N / sum(lotItemBasePoint01..08), 4 dp
   * flag       = getItemFlagId when > 0 (one-time), else "" (farmable) -- see POLARITY above
@@ -303,6 +309,46 @@ def render(rows):
     return "\n".join(body) + "\n"
 
 
+def stale_diff(committed, fresh, limit=20):
+    """The first `limit` differing lines of two rendered tables, with line numbers and counts.
+
+    WHY A REAL DIFF. `--check` used to print only "STALE ... re-run the tool", which on a machine
+    that HAS the artifacts is fine (re-run it, read `git diff`) and on CI is a dead end: the runner
+    throws the tree away and the only evidence of WHAT moved dies with it. The first failure
+    (2026-09-08, run 34240106714) cost a full local repro to learn the answer was one column. This
+    prints enough to name the column from the log alone: line counts on both sides, the differing
+    lines paired up, then the set of COLUMNS that actually moved -- which separates "the params
+    changed" from "a committed lookup table changed under us".
+    """
+    a = committed.split("\n")
+    b = fresh.split("\n")
+    out = ["  committed: %d lines / fresh: %d lines" % (len(a), len(b))]
+    cols = set()
+    shown = 0
+    ndiff = 0
+    for i in range(max(len(a), len(b))):
+        x = a[i] if i < len(a) else None
+        y = b[i] if i < len(b) else None
+        if x == y:
+            continue
+        ndiff += 1
+        if x is not None and y is not None:
+            for j, (p, q) in enumerate(zip(x.split("\t"), y.split("\t"))):
+                if p != q:
+                    cols.add(COLUMNS[j] if j < len(COLUMNS) else "col%d" % j)
+        if shown < limit:
+            shown += 1
+            out.append("  line %d:" % (i + 1))
+            out.append("    committed: %s" % ("<missing>" if x is None else x))
+            out.append("    fresh    : %s" % ("<missing>" if y is None else y))
+    out.append("  %d differing line(s)%s"
+               % (ndiff, "" if shown >= ndiff else " (first %d shown)" % shown))
+    if cols:
+        out.append("  columns that moved: %s"
+                   % ", ".join(sorted(cols, key=lambda c: COLUMNS.index(c) if c in COLUMNS else 99)))
+    return "\n".join(out)
+
+
 def _summary(rows):
     """(rows, npcs, lots, flagged rows, distinct flags, flags with a single placement)."""
     flagged = [r for r in rows if r[11]]
@@ -368,6 +414,7 @@ def main(argv=None):
         if cur != text:
             print("STALE: enemy_drops.tsv differs from a fresh datamine. Run: "
                   "python tools/datamine_enemy_drops.py", file=sys.stderr)
+            print(stale_diff(cur, text), file=sys.stderr)
             return 1
         print("enemy_drops.tsv up to date (%d rows, %d npcs, %d lots, %d one-time rows over %d "
               "flags, %d flags placed)" % (n, n_npc, n_lot, n_flagged, n_flags, n_placed))
