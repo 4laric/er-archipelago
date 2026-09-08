@@ -327,6 +327,114 @@ class MattOracleLogic(unittest.TestCase):
         for flag in self.M.DLC_MEMBERSHIP_FLAGS:
             self.assertTrue(any(f == flag for f, _ in rows), "flag %d left the queue" % flag)
 
+    # --- C3. the MISSABLE queue's membership rule ------------------------
+    def _missable_rows(self):
+        """Four flags his `missable` tag covers, plus two his tag does not reach."""
+        return [{"stype": 0, "flag": f, "tags": frozenset({"missable"})} for f in (1, 2, 3, 4)] + [
+            {"stype": 0, "flag": 5, "tags": frozenset({"chest"})},        # he does NOT tag it
+            {"stype": 3, "flag": 6, "tags": frozenset({"missable"})},     # not Event scope
+        ]
+
+    _MB_BY_FLAG = {
+        1: [("Limgrave", "one", 11)],     # queued: he tags it, we do not, we see a losable gate
+        2: [("Limgrave", "two", 12)],     # we ALREADY call it missable -> the models agree
+        3: [("Limgrave", "three", 13)],   # no qualifying condition class on our side
+        5: [("Limgrave", "five", 15)],
+    }                                     # flag 4 has no row of ours at all (class B, not this)
+
+    def test_C3_queue_is_the_three_way_intersection(self):
+        queue, theirs, ours, joinable = self.M.check_missable_queue(
+            self._missable_rows(), self._MB_BY_FLAG,
+            missable_aps={12},
+            conditions={1: ("DIALOGUE_STEP", "NPC_STATE"), 2: ("NPC_STATE",),
+                        5: ("DIALOGUE_STEP",)})
+        self.assertEqual((theirs, ours, joinable), (4, 1, 3))
+        self.assertEqual([(q["flag"], q["ap_id"]) for q in queue], [(1, 11)])
+        self.assertEqual(queue[0]["our_conditions"], "DIALOGUE_STEP+NPC_STATE")
+        self.assertEqual(queue[0]["basis"], self.M.BASIS_MISSABLE)
+        # 🛑 THE LICENCE GUARD, same shape as the region queue's. Nothing of his may leave this
+        # function: no tag, no field beyond the five we write. An EXACT key set, so a future edit
+        # that carries his tags along for debugging fails here rather than shipping them.
+        self.assertEqual(set(queue[0]), {"flag", "ap_id", "our_name", "our_conditions", "basis"})
+
+    def test_C3_a_bare_tag_disagreement_is_not_enough(self):
+        # WITNESS: flag 3 is a tag disagreement with NO qualifying condition class of ours. There
+        # are dozens of those, and queueing them would bury the rows where our OWN extraction
+        # independently agrees there is something losable -- which is the entire signal here.
+        queue, _t, _o, _j = self.M.check_missable_queue(
+            self._missable_rows(), self._MB_BY_FLAG, missable_aps=set(), conditions={})
+        self.assertEqual(queue, [])
+
+    def test_C3_a_non_losable_condition_class_does_not_qualify(self):
+        # BOSS_KILL / REGION_ACCESS gates stay satisfiable, so they say nothing about missability.
+        # Only the three classes describing a permanently losable gate admit a row.
+        queue, _t, _o, _j = self.M.check_missable_queue(
+            self._missable_rows(), self._MB_BY_FLAG, missable_aps=set(),
+            conditions={1: ("BOSS_KILL",)})
+        self.assertEqual(queue, [])
+        for cls in self.M.MISSABLE_CONDITION_CLASSES:
+            queue, _t, _o, _j = self.M.check_missable_queue(
+                self._missable_rows(), self._MB_BY_FLAG, missable_aps=set(),
+                conditions={1: (cls,)})
+            self.assertEqual([q["flag"] for q in queue], [1], cls)
+
+    def test_C3_condition_classes_come_from_our_own_committed_table(self):
+        classes = self.M.questline_condition_classes(REPO)
+        self.assertTrue(classes)
+        for flag, cls in classes.items():
+            self.assertIsInstance(flag, int)
+            self.assertEqual(cls, tuple(sorted(cls)))     # deterministic: it lands in the tsv
+            for c in cls:
+                self.assertIn(c, self.M.MISSABLE_CONDITION_CLASSES)
+
+    def test_C3_refresh_preserves_verdicts_and_drops_resolved_rows(self):
+        # The SHARED writer, exercised through the missable queue's own column list -- which is
+        # the whole point of there being one mechanism rather than two.
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "queue.tsv")
+            first = [{"flag": 1, "ap_id": 11, "our_name": "one", "our_conditions": "NPC_STATE",
+                      "basis": self.M.BASIS_MISSABLE},
+                     {"flag": 2, "ap_id": 12, "our_name": "two", "our_conditions": "NPC_STATE",
+                      "basis": self.M.BASIS_MISSABLE}]
+            self.M.write_missable_queue(path, first, {})
+            back = self.M.read_queue(path)
+            self.assertEqual(back[(1, 11)]["status"], "open")
+            back[(1, 11)].update(status="confirmed-not-missable", reviewer="alaric",
+                                 note="always collectable")
+            second = [first[0], {"flag": 3, "ap_id": 13, "our_name": "three",
+                                 "our_conditions": "DIALOGUE_STEP",
+                                 "basis": self.M.BASIS_MISSABLE}]
+            kept, added, dropped = self.M.write_missable_queue(path, second, back)
+            self.assertEqual((kept, added, dropped), (1, 1, [(2, 12)]))
+            final = self.M.read_queue(path)
+            self.assertEqual(final[(1, 11)]["status"], "confirmed-not-missable")
+            self.assertEqual(final[(1, 11)]["reviewer"], "alaric")
+            self.assertEqual(final[(3, 13)]["status"], "open")
+            self.assertNotIn((2, 12), final)
+            with open(path, "rb") as fh:
+                self.assertNotIn(b"\r\n", fh.read())
+
+    def test_C3_committed_queue_carries_nothing_but_our_own_columns(self):
+        # The shipped file is the licence surface. Every cell must be an int of ours, one of OUR
+        # location names, OUR condition classes, the one basis token, a status from the documented
+        # vocabulary, or free text a reviewer wrote.
+        path = os.path.join(REPO, "greenfield", "evidence", "oracle-missable-queue.tsv")
+        rows = self.M.read_queue(path)
+        self.assertGreater(len(rows), 20)
+        by_flag, _ = self.M.load_ours(REPO)
+        for (flag, ap_id), row in rows.items():
+            self.assertEqual(sorted(row), sorted(self.M.MISSABLE_QUEUE_COLUMNS))
+            self.assertEqual(row["basis"], self.M.BASIS_MISSABLE)
+            self.assertIn(row["status"], self.M.MISSABLE_QUEUE_STATUSES)
+            for cls in row["our_conditions"].split("+"):
+                self.assertIn(cls, self.M.MISSABLE_CONDITION_CLASSES)
+            # the (flag, ap_id) pair and the name must be a REAL row of ours
+            self.assertIn((ap_id, row["our_name"]),
+                          {(a, n) for _r, n, a in by_flag.get(flag, ())})
+        # ...and every queued check must currently be ABSENT from MISSABLE_LOCATIONS: the moment
+        # one is tagged, the disagreement is over and the row must leave on the next refresh.
+        self.assertFalse({ap for _f, ap in rows} & self.M.load_missable_aps(REPO))
+
     # --- D. skip ---------------------------------------------------------
     def test_D_missing_checkout_skips_with_exit_zero(self):
         for arg in (os.path.join(self.dir.name, "nope"), self.dir.name + "-absent"):

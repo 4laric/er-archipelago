@@ -50,6 +50,7 @@ from collections import Counter, defaultdict
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_REGION_QUEUE = os.path.join(REPO, "greenfield", "evidence", "oracle-region-queue.tsv")
+DEFAULT_MISSABLE_QUEUE = os.path.join(REPO, "greenfield", "evidence", "oracle-missable-queue.tsv")
 
 
 # ---------------------------------------------------------------------------
@@ -425,8 +426,13 @@ QUEUE_HEADER = """# oracle-region-queue.tsv -- HUMAN REVIEW QUEUE for the checks
 """
 
 
-def read_region_queue(path):
-    """Committed queue -> {(flag, ap_id): row}. Missing file is an empty queue, not an error."""
+def read_queue(path):
+    """Committed queue -> {(flag, ap_id): row}. Missing file is an empty queue, not an error.
+
+    Shared by BOTH review queues: the (flag, ap_id) key and the three hand-edited columns are the
+    whole mechanism, and the derived columns in between differ per queue. Reading off the file's
+    own header row rather than a constant is what lets one reader serve both.
+    """
     out = {}
     if not os.path.isfile(path):
         return out
@@ -450,26 +456,193 @@ def read_region_queue(path):
     return out
 
 
-def write_region_queue(path, queue, previous):
-    """Refresh the queue in place, preserving verdicts. Returns (kept, added, dropped)."""
-    lines = [QUEUE_HEADER.rstrip("\n"), "\t".join(QUEUE_COLUMNS)]
+# The three HAND-EDITED columns, identical in both queues. Everything before them is derived and
+# is overwritten on every refresh; these three are the reviewer's and are carried across by
+# (flag, ap_id). Splitting the column list this way is what makes one writer serve both queues.
+CARRIED_COLUMNS = ("status", "reviewer", "note")
+
+
+def write_queue(path, queue, previous, header, columns):
+    """Refresh a review queue in place, preserving verdicts. Returns (kept, added, dropped).
+
+    `columns` is the queue's full column order, ending in CARRIED_COLUMNS. Derived cells come from
+    the freshly computed `queue` entries; the carried ones come from `previous`, keyed on
+    (flag, ap_id), so a reviewer's ruling survives a refresh and a row that stops disagreeing
+    simply leaves. A row's verdict is NOT resurrected if it comes back: it returns as `open`,
+    because the evidence that produced it was recomputed.
+    """
+    derived = [c for c in columns if c not in CARRIED_COLUMNS]
+    lines = [header.rstrip("\n"), "\t".join(columns)]
     added = 0
     for entry in queue:
         old = previous.get((entry["flag"], entry["ap_id"]))
         if old is None:
             added += 1
-        lines.append("\t".join([
-            str(entry["flag"]), str(entry["ap_id"]), entry["our_region"], entry["basis"],
-            (old or {}).get("status") or "open",
-            (old or {}).get("reviewer", ""),
-            (old or {}).get("note", ""),
-        ]))
+        lines.append("\t".join(
+            [str(entry[c]) for c in derived]
+            + [(old or {}).get("status") or "open",
+               (old or {}).get("reviewer", ""),
+               (old or {}).get("note", "")]))
     live = {(e["flag"], e["ap_id"]) for e in queue}
     dropped = sorted(k for k in previous if k not in live)
     # newline='\n' so a Windows refresh and a Linux refresh produce the SAME bytes.
     with open(path, "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(lines) + "\n")
     return len(queue) - added, added, dropped
+
+
+# Names kept for the region queue's own callers and tests; the mechanism is the pair above.
+read_region_queue = read_queue
+
+
+def write_region_queue(path, queue, previous):
+    return write_queue(path, queue, previous, QUEUE_HEADER, QUEUE_COLUMNS)
+
+
+# ---------------------------------------------------------------------------
+# D. MISSABLE QUEUE (report-only, and the input to the SECOND human review queue)
+#
+# Same mechanism as C, different evidence. `MISSABLE_LOCATIONS` is the set of checks behind which
+# gen_data forbids required progression, and getting it WRONG IN EITHER DIRECTION is expensive: a
+# missing tag can strand a seed behind a consumable a player already spent, and a spurious one
+# permanently narrows the fill for no reason. It has exactly one second opinion -- his `missable`
+# tag -- and the two were curated from the same game by different people.
+#
+# The queue is the intersection of three things, all of which must hold:
+#   1. a second source tags the flag missable,   2. OUR MISSABLE_LOCATIONS does not, and
+#   3. OUR OWN greenfield/questline_conditions.tsv shows the award gated on a DIALOGUE_STEP,
+#      NPC_STATE or ITEM_POSSESSION root -- the three condition classes that describe a gate a
+#      player can permanently lose (an NPC's dialogue advanced past it, an NPC dead, an item spent).
+#
+# Condition 3 is what makes the row a QUESTION rather than noise. Without it, a bare tag
+# disagreement is just two models drawing the missable line in different places, of which there are
+# ~68; with it, our OWN extraction independently says there is a losable gate here, and the second
+# source agrees, and our table does not. That is a disagreement worth a person's time.
+#
+# 🛑 LICENCE BOUNDARY, again in the shape of the algorithm. His `missable` tag is used as FILTER
+# VOCABULARY and nothing else -- the same standing EXCLUDED_TAGS already has. It selects which of
+# OUR flags to look at; every column written out is then ours (our flag, our ap_id, our location
+# name, our condition classes), and `basis` records only THAT a second source disagrees.
+# ---------------------------------------------------------------------------
+MISSABLE_TAG = "missable"
+BASIS_MISSABLE = "second-source-missable-disagrees"
+
+# The three questline-condition root classes that describe a PERMANENTLY LOSABLE gate. Every other
+# root class in questline_conditions.tsv (BOSS_KILL, REGION_ACCESS, FLAG_BAND, ...) describes a
+# gate that stays satisfiable, so it says nothing about missability and does not qualify a row.
+MISSABLE_CONDITION_CLASSES = ("DIALOGUE_STEP", "ITEM_POSSESSION", "NPC_STATE")
+
+MISSABLE_QUEUE_STATUSES = ("open", "confirmed-not-missable", "missable")
+MISSABLE_QUEUE_COLUMNS = ("flag", "ap_id", "our_name", "our_conditions", "basis",
+                          "status", "reviewer", "note")
+
+
+def load_missable_aps(repo=REPO):
+    """OUR MISSABLE_LOCATIONS, as a set of ap_ids. Loaded as a plain module, never through AP."""
+    return frozenset(_load_table(repo, "missable_locations").MISSABLE_LOCATIONS)
+
+
+def questline_condition_classes(repo=REPO, classes=MISSABLE_CONDITION_CLASSES):
+    """OUR questline_conditions.tsv -> {target flag: (qualifying root classes, sorted)}.
+
+    🛑 A ROW IS A COND ROOT, NOT A VERDICT (that table's own header). A qualifying class means our
+    extractor SAW a losable gate on the award site, not that the check is missable -- which is
+    exactly why this feeds a review queue and not a derivation.
+    """
+    wanted, out = frozenset(classes), defaultdict(set)
+    path = os.path.join(repo, "greenfield", "questline_conditions.tsv")
+    if not os.path.isfile(path):
+        return {}
+    with open(path, encoding="utf-8") as fh:
+        header = None
+        for line in fh:
+            if line.startswith("#"):
+                continue
+            parts = line.rstrip("\n").split("\t")
+            if header is None:
+                header = parts
+                continue
+            row = dict(zip(header, parts))
+            if row.get("root_class") not in wanted:
+                continue
+            try:
+                out[int(row["target_flag"])].add(row["root_class"])
+            except (KeyError, ValueError, TypeError):
+                continue
+    return {flag: tuple(sorted(cls)) for flag, cls in out.items()}
+
+
+def check_missable_queue(rows, by_flag, repo=REPO, missable_aps=None, conditions=None):
+    """(queue, theirs, ours, joinable). Queue entries are OURS ONLY:
+    {flag, ap_id, our_name, our_conditions, basis}.
+
+    `missable_aps` / `conditions` are injectable so the tests can drive this without loading the
+    real tables; both default to ours on disk.
+    """
+    if missable_aps is None:
+        missable_aps = load_missable_aps(repo)
+    if conditions is None:
+        conditions = questline_condition_classes(repo)
+    theirs = {r["flag"] for r in rows
+              if r["stype"] == SCOPE_EVENT and r["flag"] and MISSABLE_TAG in r["tags"]}
+    queue, joinable = {}, 0
+    for flag in sorted(theirs):
+        entries = by_flag.get(flag)
+        if not entries:
+            continue                      # class B territory (missing slot), not this queue's
+        joinable += 1
+        # We already call some check on this flag missable: the two models AGREE about the flag,
+        # and a per-ap difference here is our own multi-award granularity, not a second opinion.
+        if any(ap_id in missable_aps for _region, _name, ap_id in entries):
+            continue
+        # The qualifying-class rule is applied HERE, not left to whoever built `conditions`.
+        # It is part of the membership rule -- "our own extraction sees a permanently losable
+        # gate" -- so a caller that hands over a wider table must not be able to widen the queue.
+        # sorted() so the cell is a function of the SET, not of the input's iteration order: the
+        # tsv is byte-diffed in CI, and a reordered cell would read as a real change.
+        classes = tuple(sorted(c for c in conditions.get(flag, ())
+                               if c in MISSABLE_CONDITION_CLASSES))
+        if not classes:
+            continue                      # no losable gate visible on OUR side: nothing to review
+        for _region, name, ap_id in entries:
+            queue[(flag, ap_id)] = {"flag": flag, "ap_id": ap_id, "our_name": name,
+                                    "our_conditions": "+".join(classes), "basis": BASIS_MISSABLE}
+    return [queue[k] for k in sorted(queue)], len(theirs), len(missable_aps), joinable
+
+
+MISSABLE_QUEUE_HEADER = """# oracle-missable-queue.tsv -- HUMAN REVIEW QUEUE for the checks a second source tags MISSABLE,
+# ours does not, and OUR OWN questline-condition extraction shows gated on a permanently losable
+# root. AUTO-REFRESHED by `tools/matt_oracle.py --missable-queue` against a LOCAL
+# thefifthmatt/SoulsRandomizers checkout; the status/reviewer/note columns are the only hand-edited
+# ones and are carried across a refresh by (flag, ap_id).
+#
+# 🛑 LICENCE BOUNDARY. Nothing in this file is his. Every column is OUR flag, OUR ap_id, OUR
+# location name, OUR questline-condition root classes, or a reviewer's own words. The `basis`
+# column records ONLY that a second source tags this flag missable and we do not -- never its Text,
+# never its area, never any other tag it carries. Rule from OUR evidence (the questline_conditions
+# rows and what they depend on, the quest features that reference the flag), not from his sheet.
+# See AGENTS.md "MATT ORACLE".
+#
+# THIS FILE IS NOT A DEFECT LIST. Two models drew the missable line in different places; a row here
+# is a question. `confirmed-not-missable` is as real an outcome as `missable`.
+#
+# our_conditions: OUR questline_conditions.tsv root classes on this award site, '+'-joined. A root
+#   is a gate our extractor SAW, never a proof that the check is missable -- see that file's header.
+# status:   open | confirmed-not-missable | missable
+# reviewer: who ruled it (free text; two reviewers work the queue, so say which one)
+# note:     the reviewer's own reason. A `missable` verdict must name the MECHANISM in our own
+#   words -- limited-consumable / killable-npc / questline-progress -- because gen_data's
+#   MISSABLE_LOCATIONS values are a closed vocabulary (deathroot, alt_currency:N, gesture_award,
+#   questline, questline_item) and a verdict that does not map onto one cannot be applied.
+#
+# 🛑 A `missable` verdict is APPLIED ELSEWHERE, in a later change, through the normal missable
+# derivation in greenfield/gen_data.py. Never by editing tables/missable_locations.py, and never
+# from this file: it is a review record, not a second missable source.
+"""
+
+
+def write_missable_queue(path, queue, previous):
+    return write_queue(path, queue, previous, MISSABLE_QUEUE_HEADER, MISSABLE_QUEUE_COLUMNS)
 
 
 def stale_entries(dis_flags, by_flag):
@@ -540,6 +713,12 @@ def main(argv=None):
         metavar="PATH",
         help="refresh the human region-review queue tsv (default: %s). Verdict columns are "
              "preserved by (flag, ap_id)." % os.path.relpath(DEFAULT_REGION_QUEUE, REPO),
+    )
+    ap.add_argument(
+        "--missable-queue", dest="missable_queue", nargs="?", const=DEFAULT_MISSABLE_QUEUE,
+        default=None, metavar="PATH",
+        help="refresh the human missable-review queue tsv (default: %s). Verdict columns are "
+             "preserved by (flag, ap_id)." % os.path.relpath(DEFAULT_MISSABLE_QUEUE, REPO),
     )
     args = ap.parse_args(argv)
 
@@ -618,6 +797,27 @@ def main(argv=None):
             print("    resolved: flag %d ap%d (was %s)"
                   % (k[0], k[1], previous[k].get("status", "?")))
     print()
+
+    # --- D ---
+    mq, mq_theirs, mq_ours, mq_joinable = check_missable_queue(rows, by_flag, args.repo)
+    print("== D. MISSABLE (report-only; the second human review queue) ==")
+    print("his missable-tagged Event flags %d (%d joinable to ours); OUR MISSABLE_LOCATIONS %d "
+          "checks: %d queued" % (mq_theirs, mq_joinable, mq_ours, len(mq)))
+    print("  by OUR questline-condition classes: " + (", ".join(
+        "%s %d" % (c, n) for c, n in sorted(Counter(e["our_conditions"] for e in mq).items()))
+        or "-"))
+    print("  🛑 a tag disagreement alone is NOT queued: a row is here only when OUR OWN "
+          "questline_conditions.tsv also shows a %s root." % "/".join(MISSABLE_CONDITION_CLASSES))
+    if args.missable_queue:
+        previous = read_queue(args.missable_queue)
+        kept, added, droppedq = write_missable_queue(args.missable_queue, mq, previous)
+        print("  wrote %s: %d rows (%d carried over, %d new, %d no longer disagreeing)"
+              % (args.missable_queue, len(mq), kept, added, len(droppedq)))
+        for k in droppedq:
+            print("    resolved: flag %d ap%d (was %s)"
+                  % (k[0], k[1], previous[k].get("status", "?")))
+    print()
+
     # --- C (report-only) ---
     ed = enemy_drop_counts(rows) if args.report else None
     if ed is not None:
@@ -663,6 +863,14 @@ def main(argv=None):
                 "queued": len(rq),
                 # OUR ap ids and OUR region names only -- see the licence note on check_region_queue
                 "rows": rq,
+            },
+            "missable_queue": {
+                "theirs_tagged": mq_theirs,
+                "joinable": mq_joinable,
+                "ours_missable": mq_ours,
+                "queued": len(mq),
+                # OUR flag/ap_id/name and OUR condition classes only -- see check_missable_queue.
+                "rows": mq,
             },
             "stale_allowlist": [{"list": w, "flag": f} for w, f, _ in stale],
         }

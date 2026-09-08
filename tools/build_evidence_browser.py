@@ -613,6 +613,136 @@ def attach_oracle_region_queue(checks: list[dict], repo: str = REPO) -> dict:
     return {"queued": queued, "grace_candidate": candidates}
 
 
+# The three questline-condition root classes that describe a gate a player can lose FOR GOOD, and
+# how to say each of them to a reviewer who is playing the game rather than reading the EMEVD.
+_MISSABLE_COND_LABEL = {
+    "DIALOGUE_STEP": "a dialogue step must have been reached",
+    "NPC_STATE": "an NPC must be in a particular state (alive, moved, or quest-advanced)",
+    "ITEM_POSSESSION": "an item must be held (or have been handed over)",
+}
+
+
+def _missable_features(repo: str, flags: set) -> dict:
+    """{flag: [feature module names that mention it]} over greenfield/eldenring/features/*.py.
+
+    A grep, deliberately: the point is to show a reviewer WHERE this flag already carries weight in
+    our own quest logic, and a flag literal in one of those modules is exactly that. It is our own
+    source, so there is no licence question, and a false positive (the same digits meaning something
+    else) costs a reviewer one glance -- whereas a miss would hide a real dependency.
+    """
+    out: dict = {}
+    directory = os.path.join(repo, "greenfield", "eldenring", "features")
+    if not os.path.isdir(directory):
+        return out
+    needles = {f: re.compile(r"(?<![0-9])%d(?![0-9])" % f) for f in flags}
+    for name in sorted(os.listdir(directory)):
+        if not name.endswith(".py") or name == "__init__.py":
+            continue
+        with open(os.path.join(directory, name), encoding="utf-8") as handle:
+            body = handle.read()
+        for flag, needle in needles.items():
+            if needle.search(body):
+                out.setdefault(flag, []).append(name[:-3])
+    return out
+
+
+def attach_oracle_missable_queue(checks: list[dict], repo: str = REPO) -> dict:
+    """Join the ORACLE MISSABLE REVIEW QUEUE and OUR OWN supporting evidence onto the checks.
+
+    The queue is greenfield/evidence/oracle-missable-queue.tsv, a COMMITTED generator input
+    refreshed by hand with `tools/matt_oracle.py --missable-queue`. As with the region queue, this
+    build never needs the second-source checkout: it reads the tsv and our own tables.
+
+    🛑 LICENCE BOUNDARY. The queue records only THAT a second source tags a flag missable while we
+    do not. Nothing here reproduces that source's tags, area or prose. Every field below is ours:
+    our current missable status for the check, the questline_conditions rows behind the award and
+    what each one waits on (named with OUR flag_names), and the quest features that mention the
+    flag. A reviewer rules from those.
+
+    🛑 A CONDITION ROW IS NOT A VERDICT. questline_conditions.tsv says our extractor SAW a gate on
+    the award site -- its own header is emphatic that a root is never a proven conjunction. So the
+    panel reports the roots and lets a person decide; it never scores or ranks them.
+
+    Returns the summary counts (also useful to the tests).
+    """
+    gf = os.path.join(repo, "greenfield")
+    queue = {}
+    for row in _tsv_rows(os.path.join(gf, "evidence", "oracle-missable-queue.tsv")):
+        try:
+            queue[int(row["ap_id"])] = row
+        except (KeyError, ValueError, TypeError):
+            continue
+    if not queue:
+        return {"queued": 0, "with_conditions": 0}
+
+    flags = set()
+    for check in checks:
+        if check["check_id"] in queue:
+            flag = check["player"].get("acquisition_flag")
+            if flag is not None:
+                flags.add(int(flag))
+
+    # The condition rows behind each queued award, de-duplicated on (root class, what it waits on).
+    # questline_conditions is one row per (award site, cone root), so the same NPC can appear under
+    # several call sites; a reviewer wants the distinct dependencies, not the call-site census.
+    # 🛑 flag_names' own header: `name_en` NAMES THE EVENT THAT SETS THE FLAG, not the flag, and it
+    # is a machine translation carried in the decompiled comment rather than a FromSoft string. It
+    # is an attribution -- "set by the thing called X" -- which is exactly the right strength here:
+    # it tells a reviewer WHO the gate is about so they can go and look, and claims nothing more.
+    # A flag with no gloss keeps its bare number rather than being dropped: "we cannot name this
+    # one" is information, and silently omitting the row would hide a real dependency.
+    names = {int(r["flag"]): r["name_en"] for r in _tsv_rows(os.path.join(gf, "flag_names.tsv"))
+             if (r.get("flag") or "").isdigit() and (r.get("name_en") or "").strip()}
+    conditions: dict = {}
+    for row in _tsv_rows(os.path.join(gf, "questline_conditions.tsv")):
+        label = _MISSABLE_COND_LABEL.get(row.get("root_class") or "")
+        if not label:
+            continue
+        try:
+            flag = int(row["target_flag"])
+        except (KeyError, ValueError, TypeError):
+            continue
+        if flag not in flags:
+            continue
+        source = (row.get("source_id") or "").strip()
+        depends = names.get(int(source), source) if source.isdigit() else (source or "unnamed")
+        # 🛑 budget_capped / unreadable is the extractor's own confidence, and it is load-bearing
+        # here: a capped cone can MISS a prerequisite, so an absent row is never "no gate".
+        note = row.get("cone_completeness", "")
+        note = "" if note == "complete" else ("our reading of this gate was %s" % note if note
+                                              else "")
+        conditions.setdefault(flag, {})[(label, depends, note)] = None
+
+    features = _missable_features(repo, flags)
+    queued = with_conditions = 0
+    for check in checks:
+        row = queue.get(check["check_id"])
+        if not row:
+            continue
+        queued += 1
+        player = check["player"]
+        flag = player.get("acquisition_flag")
+        flag = int(flag) if flag is not None else None
+        rows = list(conditions.get(flag, {})) if flag is not None else []
+        if rows:
+            with_conditions += 1
+        player["oracle_missable"] = {
+            "status": row.get("status") or "open",
+            "basis": row.get("basis", ""),
+            "reviewer": row.get("reviewer", ""),
+            "note": row.get("note", ""),
+            # The queue exists BECAUSE we do not call this missable; saying so plainly is the
+            # baseline a reviewer is being asked to change, and leaving it implied invites the
+            # reading that the row is already a defect.
+            "our_status": "not missable",
+            "condition_classes": row.get("our_conditions", ""),
+            "conditions": [{"label": label, "depends_on": depends, "note": note}
+                           for label, depends, note in rows],
+            "features": features.get(flag, []) if flag is not None else [],
+        }
+    return {"queued": queued, "with_conditions": with_conditions}
+
+
 def load_ledger(path: str = CURRENT, wiki_path: str | None = None) -> dict:
     if wiki_path is None and os.path.abspath(path) == os.path.abspath(CURRENT):
         wiki_path = WIKI_AUDIT
@@ -656,6 +786,7 @@ def load_ledger(path: str = CURRENT, wiki_path: str | None = None) -> dict:
     # The queue is only meaningful over the real corpus; the small fixture carries no rows for it
     # and attach_oracle_region_queue then returns a zero summary rather than inventing one.
     contract["oracle_region_queue"] = attach_oracle_region_queue(contract["checks"])
+    contract["oracle_missable_queue"] = attach_oracle_missable_queue(contract["checks"])
     contract["access_summary"] = census
     contract["dataset"] = os.path.relpath(path, REPO).replace(os.sep, "/")
     contract["inputs_hash"] = ledger_hash(path, wiki_path)

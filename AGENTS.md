@@ -811,11 +811,30 @@ Region assignment, missable tagging, shop granularity and DLC membership are **r
   label is an equivalence key inside the process and is discarded before anything is written.
   Reviewers rule from OUR evidence in the check browser's "Oracle region review" facet and the
   review notebook's queue view (map tile, nearest grace and the region that grace maps to,
-  `check_region_second_opinion.tsv`), then `tools/apply_oracle_region_verdicts.py <notebook.json>`
+  `check_region_second_opinion.tsv`), then `tools/apply_oracle_verdicts.py <notebook.json>`
   writes the verdicts back. Both browsers read only the committed tsv, so **CI never needs the
   checkout**. Ruled rows are fixed through the normal derivation ladder (`M61_TILE_CURATED`,
   `DUNGEON_REGION_CURATED`, `region_overrides.tsv` last) in a separate change — never from the
   queue, which is a review record and not a second region source.
+- **D. MISSABLE** — report-only, and the input to the **second human review queue**, built on the
+  same mechanism (same writer, same `(flag, ap_id)` key, same carry-over, same round trip). His
+  `missable` tag is FILTER VOCABULARY: it selects which of OUR flags to look at. A flag is queued
+  only where all three hold — he tags it missable, OUR `MISSABLE_LOCATIONS` does not, and OUR OWN
+  `greenfield/questline_conditions.tsv` shows a `DIALOGUE_STEP` / `NPC_STATE` / `ITEM_POSSESSION`
+  root on the award site (the three classes describing a gate a player can lose for good). The bare
+  tag disagreement is ~68 joinable flags and is NOT queued on its own: the two models just draw the
+  missable line in different places. The three-way intersection is 29 flags / 35 rows.
+  `--missable-queue` refreshes `greenfield/evidence/oracle-missable-queue.tsv`. 🛑 Every column is
+  ours (flag, ap_id, location name, condition classes) plus a reviewer's words; `basis` records
+  only **that** a second source disagrees. Reviewers rule from the check browser's "Oracle missable
+  review" facet and the notebook's missable queue view (our current missable status, the
+  questline_conditions rows and what each waits on, the quest features mentioning the flag), then
+  `tools/apply_oracle_verdicts.py --queue missable <notebook.json>` writes the verdicts back.
+  Verdicts are `confirmed-not-missable` / `missable`, and a `missable` one must also name the
+  mechanism (`limited-consumable` / `killable-npc` / `questline-progress`) because gen_data's
+  missable classes are a closed vocabulary. Ruled rows are applied through the normal missable
+  derivation in `greenfield/gen_data.py` in a separate change — never from the queue, and never by
+  editing `tables/missable_locations.py`.
 
 ```bash
 python tools/matt_oracle.py --souls-rando-dir <checkout>   # exit 1 on a NEW disagreement

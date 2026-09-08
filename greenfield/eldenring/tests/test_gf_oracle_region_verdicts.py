@@ -3,7 +3,7 @@
 The queue itself (which rows are in it, and the licence boundary on what may be written) is gated
 by test_gf_matt_oracle.py. This suite covers the two pieces a reviewer touches:
 
-  A. THE ROUND TRIP -- tools/apply_oracle_region_verdicts.py folds the player review notebook's own
+  A. THE ROUND TRIP -- tools/apply_oracle_verdicts.py folds the player review notebook's own
      backup file into greenfield/evidence/oracle-region-queue.tsv. There is deliberately NO server:
      the notebook has always shared work as a downloaded JSON file, and a second submission path
      would be a second way to lose a reviewer's work. So the tool must accept exactly the shapes
@@ -67,7 +67,7 @@ def notebook(*reviews):
 class VerdictRoundTrip(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.T = _load("apply_oracle_region_verdicts")
+        cls.T = _load("apply_oracle_verdicts")
 
     def setUp(self):
         self.dir = tempfile.TemporaryDirectory()
@@ -80,7 +80,9 @@ class VerdictRoundTrip(unittest.TestCase):
         nb = os.path.join(self.dir.name, "nb.json")
         with open(nb, "w", encoding="utf-8") as fh:
             json.dump(payload, fh)
-        code = self.T.main([nb, "--queue", self.path, *extra])
+        # --queue now names the QUEUE KIND (region|missable) and --path the file, because one
+        # tool serves both queues. The region queue is the default kind.
+        code = self.T.main([nb, "--path", self.path, *extra])
         _c, _cols, rows = self.T.read_queue(self.path)
         return code, {int(r["ap_id"]): r for r in rows}
 
@@ -271,7 +273,7 @@ class NotebookField(unittest.TestCase):
         self.assertIn("oracle_verdict:'OracleVerdict'", js)
 
     def test_the_page_offers_only_the_documented_verdicts(self):
-        M = _load("apply_oracle_region_verdicts")
+        M = _load("apply_oracle_verdicts")
         html = open(os.path.join(TOOLS, "player_review_template.html"), encoding="utf-8").read()
         self.assertIn('id="pOracleVerdict"', html)
         for verdict in M.VERDICTS:

@@ -180,6 +180,19 @@ const FACETS = [
       if(c.so) p.push('has wiki second opinion');
       return p;
   }},
+  /* ORACLE MISSABLE REVIEW. The checks a SECOND SOURCE tags missable, OUR MISSABLE_LOCATIONS does
+     not, and OUR OWN questline_conditions.tsv shows gated on a permanently losable root
+     (DIALOGUE_STEP / NPC_STATE / ITEM_POSSESSION). Read from
+     greenfield/evidence/oracle-missable-queue.tsv (refreshed by hand with
+     tools/matt_oracle.py --missable-queue; this page never needs that checkout).
+     🛑 A row is a QUESTION, and a costly one in BOTH directions: a missing missable tag can strand
+     a seed behind a consumable the player already spent, and a spurious one narrows the fill for
+     nothing. So `confirmed-not-missable` is as real an outcome as `missable`. The tsv records only
+     THAT a second source disagrees; the condition classes faceted below are OURS. */
+  {key:'missable',label:'Oracle missable review', get:c=>{
+      if(!c.mq) return ['(not queued)'];
+      return ['queued: '+c.mq].concat((c.mqc||'').split('+').filter(Boolean).map(x=>'gate: '+x));
+  }},
 ];
 const active = {}; FACETS.forEach(f=>active[f.key]=new Set());
 
@@ -437,6 +450,7 @@ function showDetail(c){
    ${(c.shop||[]).length?`<div class="sec"><h3>Shop rows (${c.shop.length})</h3>
      ${rows(c.shop,s=>`<div>row <b>${esc(s.row)}</b> — ${esc(s.item)} · ${esc(s.value)} runes<br><span style="color:var(--dim)">${esc(s.where)}</span></div>`)}</div>`:''}
    ${oracleSection(c)}
+   ${missableSection(c)}
    ${gateSection(c)}
   `;
 }
@@ -480,7 +494,46 @@ function oracleSection(c){
     ${c.oqw?`<dt>Reviewer</dt><dd>${esc(c.oqw)}</dd>`:''}
     ${c.oqn?`<dt>Verdict note</dt><dd>${esc(c.oqn)}</dd>`:''}
     <dt>Record a verdict</dt><dd><a class="btn" href="${playerReviewUrl(c.id)}">open this check in the review notebook ↗</a>
-      <br>${dim('Rule it there, download the notebook JSON, then run tools/apply_oracle_region_verdicts.py to write status/reviewer/note back into greenfield/evidence/oracle-region-queue.tsv.')}</dd>
+      <br>${dim('Rule it there, download the notebook JSON, then run tools/apply_oracle_verdicts.py to write status/reviewer/note back into greenfield/evidence/oracle-region-queue.tsv.')}</dd>
+  </dl></div>`;
+}
+
+/* ---------- oracle missable review: OUR OWN evidence, side by side -------------------
+   Rendered only for the queued rows. MISSABLE means gen_data forbids required progression behind
+   the check because it can be permanently lost, and the tag is wrong-in-both-directions expensive:
+   a missing one can strand a seed behind a consumable already spent, a spurious one narrows the
+   fill for nothing.
+
+   Everything shown is ours: the questline-condition root classes OUR extractor found on the award
+   site, and the region and gate evidence already on this page. NOTHING from the second source
+   beyond the bare fact that its `missable` tag disagrees with our table.
+
+   🛑 A CONDITION ROOT IS NOT A VERDICT. questline_conditions.tsv's own header says a root is a
+   gate that was SEEN, over a cone that may have been budget-capped, and never a proven
+   conjunction. So this panel names the classes and stops -- it does not score them. A `missable`
+   verdict is applied in a separate change through the normal missable derivation in
+   greenfield/gen_data.py, never by editing tables/missable_locations.py and never from here. */
+function missableSection(c){
+  if(!c.mq) return '';
+  const dim=s=>`<span style="color:var(--dim)">${s}</span>`;
+  const CLASS_WORDS={
+    DIALOGUE_STEP:'a dialogue step must have been reached',
+    NPC_STATE:'an NPC must be in a particular state (alive, moved, or quest-advanced)',
+    ITEM_POSSESSION:'an item must be held, or have been handed over'};
+  const gates=(c.mqc||'').split('+').filter(Boolean);
+  return `<div class="sec"><h3>Oracle missable review — ${esc(c.mq)}</h3><dl class="kv">
+    <dt>Why queued</dt><dd>a second source tags this pickup missable and our MISSABLE_LOCATIONS
+      does not, and our own questline-condition reading shows a permanently losable gate on it.
+      ${dim('A disagreement is a question; “not missable” is as real an answer as “missable”.')}</dd>
+    <dt>Our missable status</dt><dd><b>not missable</b> ${dim('(no MISSABLE_LOCATIONS row — that is what is under review)')}</dd>
+    <dt>Losable gates we found</dt><dd>${gates.length
+      ? gates.map(g=>`<div><span class="tag">${esc(g)}</span> ${dim(CLASS_WORDS[g]||'')}</div>`).join('')
+      : dim('none recorded')}<br>${dim('from greenfield/questline_conditions.tsv — a root is a gate we SAW, over a cone that may have been budget-capped, never a proof.')}</dd>
+    <dt>Region</dt><dd>${esc(c.r)}</dd>
+    ${c.mqw?`<dt>Reviewer</dt><dd>${esc(c.mqw)}</dd>`:''}
+    ${c.mqn?`<dt>Verdict note</dt><dd>${esc(c.mqn)}</dd>`:''}
+    <dt>Record a verdict</dt><dd><a class="btn" href="${playerReviewUrl(c.id)}">open this check in the review notebook ↗</a>
+      <br>${dim('Rule it there — a “missable” verdict must also name the mechanism (limited consumable / killable NPC / questline progress) — then download the notebook JSON and run tools/apply_oracle_verdicts.py --queue missable to write status/reviewer/note back into greenfield/evidence/oracle-missable-queue.tsv.')}</dd>
   </dl></div>`;
 }
 

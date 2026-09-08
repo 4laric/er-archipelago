@@ -120,3 +120,37 @@ test('oracle region verdicts survive restore, reach the export, and default empt
  await e.applyImport(e.previewImport([legacy]));
  assert.equal(e.get(2).OracleVerdict,'moved');assert.equal(e.get(2).Reviewer,'second');
 });
+
+/* The MISSABLE queue's verdict rides the same record, in its OWN field, with a mechanism beside
+   it. Two things need a test rather than a comment. First, the mechanism must survive the round
+   trip too: a `missable` verdict without one is REFUSED by apply_oracle_verdicts.py, so losing
+   just that half would turn a reviewer's completed ruling into a warning. Second, the two queues'
+   fields must stay INDEPENDENT -- a check can be in both, and if a region ruling bled into the
+   missable field a reviewer would silently tag locations they never looked at. */
+test('missable verdicts and their mechanism round-trip, and stay separate from region verdicts',async()=>{
+ const db=fakeIDB(),a=create(data,{indexedDB:db});await a.init();
+ await a.save(1,{OracleVerdict:'moved',OracleMissableVerdict:'missable',
+  OracleMissableReason:'killable-npc',Reviewer:'alaric'});
+ const b=create(data,{indexedDB:db});await b.init();
+ assert.equal(b.get(1).OracleMissableVerdict,'missable');
+ assert.equal(b.get(1).OracleMissableReason,'killable-npc');
+ assert.equal(b.get(1).OracleVerdict,'moved');            // the two coexist, neither overwrites
+ const form=b.exportNotebook().reviews[0].form;
+ assert.equal(form.OracleMissableVerdict,'missable');assert.equal(form.OracleMissableReason,'killable-npc');
+ const c=notebook();await c.applyImport(c.previewImport(b.exportNotebook()));
+ assert.equal(c.get(1).OracleMissableVerdict,'missable');assert.equal(c.get(1).OracleVerdict,'moved');
+ // A region-only ruling must leave the missable fields EMPTY, never inherit the region verdict.
+ const d=create(data,{indexedDB:fakeIDB()});await d.init();
+ await d.save(2,{OracleVerdict:'confirmed-ours',Reviewer:'second'});
+ assert.equal(d.get(2).OracleMissableVerdict,'');assert.equal(d.get(2).OracleMissableReason,'');
+ // ...and a backup written before these fields existed must still import, with them absent.
+ const older=b.exportNotebook();
+ delete older.reviews[0].form.OracleMissableVerdict;delete older.reviews[0].form.OracleMissableReason;
+ const e2=notebook();await e2.applyImport(e2.previewImport(older));
+ assert.equal(e2.get(1).OracleMissableVerdict,'');assert.equal(e2.get(1).OracleVerdict,'moved');
+ // ...as must a legacy single-report file, through the oracle_missable_* aliases.
+ const f=notebook(),legacy2={schema:'er-player-review-v1',check_id:2,catalog_hash:'abc',catalog:data.checks[1].player,
+  oracle_missable_verdict:'confirmed-not-missable',reviewer:'second',observation_scope:'player_report_not_adjudicated'};
+ await f.applyImport(f.previewImport([legacy2]));
+ assert.equal(f.get(2).OracleMissableVerdict,'confirmed-not-missable');
+});

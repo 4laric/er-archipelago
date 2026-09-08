@@ -218,6 +218,27 @@ def main():
             except (KeyError, ValueError):
                 continue
 
+    # --- ORACLE MISSABLE REVIEW QUEUE ----------------------------------------------
+    # greenfield/evidence/oracle-missable-queue.tsv, the region queue's sibling and the same kind
+    # of committed generator input (`tools/matt_oracle.py --missable-queue`). Same determinism
+    # rule: the tsv is the only thing read, so no second-source checkout is ever needed here.
+    # 🛑 It records only THAT a second source tags a flag missable while OUR MISSABLE_LOCATIONS
+    # does not -- never that source's tags or prose. `our_conditions` is OUR OWN
+    # questline_conditions.tsv root classes, and a root is a gate we SAW, never a proof.
+    missable_by_ap = {}
+    missable_path = os.path.join(gf, "evidence", "oracle-missable-queue.tsv")
+    if os.path.exists(missable_path):
+        for r in read_tsv(missable_path):
+            try:
+                missable_by_ap[int(r["ap_id"])] = {
+                    "status": r.get("status", "open") or "open",
+                    "conds": r.get("our_conditions", ""),
+                    "reviewer": r.get("reviewer", ""),
+                    "note": r.get("note", ""),
+                }
+            except (KeyError, ValueError):
+                continue
+
     # Second opinion from our own wiki audit, for the reviewer panel. Region names in this table
     # are from OUR vocabulary (see the tsv's own header); no wiki prose is reproduced.
     second_by_ap = {}
@@ -476,6 +497,24 @@ def main():
         if so:
             c["so"] = so
 
+    # --- ORACLE MISSABLE REVIEW: the same treatment for the second queue --------------------
+    # No derived ranking signal here, deliberately. The region queue has a nearest-grace vote
+    # because geometry offers one; missability has no such neighbour to ask, so the panel carries
+    # OUR condition roots and the quest features that mention the flag, and stops there rather
+    # than inventing a score out of a row count.
+    missable_checks = 0
+    for c in checks:
+        m = missable_by_ap.get(c["id"])
+        if not m:
+            continue
+        missable_checks += 1
+        c["mq"] = m["status"]
+        c["mqc"] = m["conds"]
+        if m["reviewer"]:
+            c["mqw"] = m["reviewer"]
+        if m["note"]:
+            c["mqn"] = m["note"]
+
     # --- NEGATIVE SPACE ---------------------------------------------------------------
     # Every wrong claim this project has produced lived in a JOIN RESIDUAL: rows that
     # exist in a side table but are not checks. "~126 invisible lots" was 98 already-
@@ -555,6 +594,13 @@ def main():
             "status": dict(sorted(Counter(c["oq"] for c in checks if "oq" in c).items())),
             "grace_candidate": grace_candidates,
             "second_opinion": sum(1 for c in checks if "oq" in c and "so" in c),
+        },
+        # The "Oracle missable review" facet's header. Same shape as the region one above: what
+        # the committed tsv holds, and how much of it is still open.
+        "oracle_missable_queue": {
+            "queued": missable_checks,
+            "status": dict(sorted(Counter(c["mq"] for c in checks if "mq" in c).items())),
+            "conditions": dict(sorted(Counter(c["mqc"] for c in checks if "mq" in c).items())),
         },
         "cal": cal,
         "caveats": {n: tsv_caveats(n + ".tsv") for n in
