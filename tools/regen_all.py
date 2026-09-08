@@ -126,6 +126,16 @@ STEPS = [
              "cannot leave a check permanently unpayable. Reads the event corpus, so after "
              "INPUTS; independent of gen_data."),
 
+    Step(MODULES, "tools/datamine_flag_lots.py",
+         emits=["greenfield/flag_lots.tsv"],
+         why="the faithful flag->lots capture, and a DECLARED gen_data input -- FLAG_LOTS drives "
+             "the co-check projection and the LOCATION_UNITS FullID join. It was the one datamine "
+             "this entrypoint never named, so nothing re-derived it when the param corpus moved: "
+             "the 2026-09-03 re-export landed in the committed gen_inputs.db while the tsv stayed "
+             "at its earlier vintage, and 157 rows read wrong because the only thing that "
+             "could have noticed -- its own --check -- was wired into neither this file nor CI. "
+             "Reads the param CSVs, so after INPUTS; before gen_data, which reads the tsv."),
+
     Step(MODULES, "tools/datamine_shop_open_ranges.py",
          emits=["greenfield/shop_open_ranges.tsv"],
          why="shop-menu display scopes (issue #937): gen_data REFUSES to emit shop_data.py without "

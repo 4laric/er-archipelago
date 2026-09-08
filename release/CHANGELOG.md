@@ -27,6 +27,29 @@ commit.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **`greenfield/flag_lots.tsv` re-derived against the committed param corpus, and the datamine that
+  writes it wired into the regen entrypoint and CI.** The 2026-09-03 param re-export landed in
+  `gen_inputs.db` and the tsv was never re-run against it, so for four days the repo carried fresh
+  inputs beside a table that disagreed with them. It went unnoticed because
+  `tools/datamine_flag_lots.py` was named by no entrypoint and no job — its `--check` does exit 1 on
+  drift, nothing ever called it. It is now a MODULES step in `tools/regen_all.py` and an explicit
+  `--check` in the `generators` job, for the same reason `gen_item_ids_doc.py --check` is there.
+  The refresh moves 157 rows (63 item id, 9 quantity, 39 both, 46 legibility-only) and adds 25;
+  nothing is removed. **Contract hash does not move** — it stays `613fb438`, `data.py`'s
+  `body_sha256` is byte-identical, and no location name, item tier, check-lot suppression or wire
+  field changes, so a v0.6.0.3 client pairs with this apworld exactly as before. **Seeds do change**:
+  the only downstream table that moves is `item_ids.LOCATION_UNITS`, which joins on FullID and so
+  now reads 885 multi-copy locations paying 2871 extra units instead of 922 / 2982. Every one of
+  those 46 rows is a DLC smithing stone. 🛑 **This does NOT explain the oracle's 99-flag DLC
+  upgrade-material finding above** — that reads `LOCATION_ITEM`, which is built from the curated
+  `item_name` column and is byte-identical before and after this refresh; the oracle still reports
+  107 item-identity disagreements, all allowlisted, 0 unexplained. What the refresh does is expose
+  the divergence: on 37 of those checks the curated name no longer names any item the flag's lot
+  actually grants, so the units join finds nothing and falls back to x1. That fallback is silent —
+  `_lot_units` returns `(1, False)` for a no-match and only tallies genuine ambiguity — and which
+  side is wrong (our curated names, or a game-version difference in the corpus) is left OPEN
+  alongside the oracle finding rather than guessed at here.
+
 ## v0.6.0.4 — 2026-09-07
 
 ### What you need to update
