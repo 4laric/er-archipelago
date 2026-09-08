@@ -884,7 +884,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7774362	Altus	Golden Rune [7]	1043537060	ItemLotParam_map.getItemFlagId		near Outer Wall Battleground	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772792	Altus	Golden Rune [8]	1041527000	ItemLotParam_map.getItemFlagId		near Rampartside Path	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772336	Altus	Golden Rune [9]	34127160	ItemLotParam_map.getItemFlagId		near Divine Tower of West Altus: Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7772346	Altus	Golden Rune [9]	34147800	ItemLotParam_map.getItemFlagId		near Divine Tower of East Altus: Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774356	Altus	Golden Rune [9]	1043537000	ItemLotParam_map.getItemFlagId		near Hermit Merchant's Shack	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772332	Altus	Grace Mimic	34127110	ItemLotParam_map.getItemFlagId		near Divine Tower of West Altus: Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774358	Altus	Grace Mimic	1043537020	ItemLotParam_map.getItemFlagId		near Hermit Merchant's Shack	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -906,7 +905,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7774332	Altus	Holyproof Dried Liver	1042547020	ItemLotParam_map.getItemFlagId		near Windmill Heights	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772057	Altus	Human Bone Shard	30087060	ItemLotParam_map.getItemFlagId		near Sainted Hero's Grave	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7774252	Altus	Human Bone Shard	1039527000	ItemLotParam_map.getItemFlagId		near Old Altus Tunnel	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7772342	Altus	Invigorating White Cured Meat	34147000	ItemLotParam_map.getItemFlagId		near Divine Tower of East Altus: Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774308	Altus	Invigorating White Cured Meat	1041537030	ItemLotParam_map.getItemFlagId		near Forest-Spanning Greatbridge	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772798	Altus	Land Octopus Ovary	1041527080	ItemLotParam_map.getItemFlagId		near Rampartside Path	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772333	Altus	Large Glintstone Scrap	34127120	ItemLotParam_map.getItemFlagId		near Divine Tower of West Altus: Gate	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
@@ -956,7 +954,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7770765	Altus	Somber Smithing Stone [5]	540320	ItemLotParam_map.getItemFlagId		around Bower of Bounty	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774262	Altus	Somber Smithing Stone [5]	1039547080	ItemLotParam_map.getItemFlagId		near Shaded Castle Inner Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774329	Altus	Somber Smithing Stone [5]	1042537010	ItemLotParam_map.getItemFlagId		near Rampartside Path	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7772345	Altus	Somber Smithing Stone [6]	34147720	ItemLotParam_map.getItemFlagId		around Divine Tower of East Altus: Gate	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772776	Altus	Stimulating Boluses	1040547030	ItemLotParam_map.getItemFlagId		near Road of Iniquity Side Path	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772327	Altus	Stonesword Key	34127060	ItemLotParam_map.getItemFlagId		near Divine Tower of West Altus: Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772799	Altus	Stonesword Key	1041527090	ItemLotParam_map.getItemFlagId		near Rampartside Path	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -1580,6 +1577,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7772396	Leyndell	Golden Rune [8]	35007560	ItemLotParam_map.getItemFlagId		near Leyndell Catacombs	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7770998	Leyndell	Golden Rune [9]	11007710	ItemLotParam_map.getItemFlagId		near West Capital Rampart	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771008	Leyndell	Golden Rune [9]	11007830	ItemLotParam_map.getItemFlagId		near Leyndell, Capital of Ash	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7772346	Leyndell	Golden Rune [9]	34147800	ItemLotParam_map.getItemFlagId		near Divine Tower of East Altus: Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772391	Leyndell	Golden Rune [9]	35007500	ItemLotParam_map.getItemFlagId		around Underground Roadside	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772369	Leyndell	Grace Mimic	35007240	ItemLotParam_map.getItemFlagId		near Underground Roadside	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772402	Leyndell	Grace Mimic	35007650	ItemLotParam_map.getItemFlagId		near Cathedral of the Forsaken	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -1594,6 +1592,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7770946	Leyndell	Hero's Rune [2]	11007175	ItemLotParam_map.getItemFlagId		near West Capital Rampart	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7770943	Leyndell	Holy Grease	11007160	ItemLotParam_map.getItemFlagId		near Avenue Balcony	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771000	Leyndell	Holyproof Dried Liver	11007730	ItemLotParam_map.getItemFlagId		near Lower Capital Church	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
+7772342	Leyndell	Invigorating White Cured Meat	34147000	ItemLotParam_map.getItemFlagId		near Divine Tower of East Altus: Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7770957	Leyndell	Lightningproof Dried Liver	11007235	ItemLotParam_map.getItemFlagId		near West Capital Rampart	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7770977	Leyndell	Lightningproof Dried Liver	11007460	ItemLotParam_map.getItemFlagId		near East Capital Rampart	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771031	Leyndell	Lord's Rune	11007998	ItemLotParam_map.getItemFlagId		around East Capital Rampart	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
@@ -1636,6 +1635,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7770940	Leyndell	Somber Smithing Stone [6]	11007145	ItemLotParam_map.getItemFlagId		near Fortified Manor, First Floor	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7770975	Leyndell	Somber Smithing Stone [6]	11007440	ItemLotParam_map.getItemFlagId		near East Capital Rampart	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7770989	Leyndell	Somber Smithing Stone [6]	11007610	ItemLotParam_map.getItemFlagId		near Lower Capital Church	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7772345	Leyndell	Somber Smithing Stone [6]	34147720	ItemLotParam_map.getItemFlagId		around Divine Tower of East Altus: Gate	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772383	Leyndell	Somber Smithing Stone [6]	35007400	ItemLotParam_map.getItemFlagId		near Underground Roadside	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772418	Leyndell	Somber Smithing Stone [6]	35007970	ItemLotParam_map.getItemFlagId		around Underground Roadside	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772387	Leyndell	Somber Smithing Stone [7]	35007450	ItemLotParam_map.getItemFlagId		near Leyndell Catacombs	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item

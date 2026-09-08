@@ -21,8 +21,18 @@ risk either way. Nothing in this window yet asks you to update.
 
 ## What is in it so far
 
-Nothing yet. This window was opened AT THE TAG of v0.6.0.4 with ZERO commits past it, so this file exists before its first entry does,
-which is the point of it.
+The Divine Tower of East Altus is Leyndell now. Two players, a month apart, said the same thing
+about it -- boblerrr on the Nexus page in August, Sinon this morning: the tower's loot was counted
+as Altus, and the tower is not Altus. You reach its gate one way, over the greatbridge out of
+Leyndell's eastern ward that opens after Morgott, so an Altus-only seed was steering people at
+seven checks they could not walk to while a Leyndell seed walked them past all seven. The checks,
+the Fell Twins' sweep and the tower's own kick geometry all moved together, which is the part that
+matters: the region lock now ejects the player who has no business up there and lets in the one who
+does. Its two graces stay out of every warp bundle -- owning Leyndell buys you the walk, not a
+shortcut past Morgott.
+
+Altus loses seven checks and Leyndell gains them, so seeds roll differently. Nothing about the
+client, the contract or a save in progress changes.
 
 ## What carried over from v0.6.0.4
 

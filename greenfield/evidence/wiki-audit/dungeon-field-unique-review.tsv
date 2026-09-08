@@ -22,18 +22,15 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7772274	unique_dungeon_pickup	Altus	Arsenal Charm +1	32057030	m32_05	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772076	unique_dungeon_pickup	Altus	Ash of War: Holy Ground	30107100	m30_10	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772205	unique_dungeon_pickup	Altus	Black Hood	31197050	m31_19	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
-7772347	unique_dungeon_pickup	Altus	Blade of Calling	34147810	m34_14	remaining_unreviewed	0		first_independent_identity_region_source
 7772269	unique_dungeon_pickup	Altus	Boltdrake Talisman +1	32047040	m32_04	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772203	unique_dungeon_pickup	Altus	Candletree Wooden Shield	31197030	m31_19	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772052	unique_dungeon_pickup	Altus	Crimson Seed Talisman	30087010	m30_08	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772072	unique_dungeon_pickup	Altus	Crucible Feather Talisman	30107040	m30_10	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772054	unique_dungeon_pickup	Altus	Dragoncrest Shield Talisman +1	30087030	m30_08	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
-7772344	unique_dungeon_pickup	Altus	Flamedrake Talisman +1	34147020	m34_14	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
 7772073	unique_dungeon_pickup	Altus	Golden Epitaph	30107050	m30_10	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772210	unique_dungeon_pickup	Altus	Golden Great Arrow	31197110	m31_19	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
 7772053	unique_dungeon_pickup	Altus	Leyndell Soldier Ashes	30087020	m30_08	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772051	unique_dungeon_pickup	Altus	Lightning Scorpion Charm	30077600	m30_07	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
-7772343	unique_dungeon_pickup	Altus	Official's Attire	34147010	m34_14	remaining_unreviewed	0		first_independent_identity_region_source
 7770123	unique_dungeon_pickup	Altus	Perfumer's Cookbook [3]	67860	m30_13	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772081	unique_dungeon_pickup	Altus	"Prattling Pate ""Apologies"""	30127030	m30_12	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772056	unique_dungeon_pickup	Altus	"Prattling Pate ""Let's get to it"""	30087050	m30_08	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
@@ -205,6 +202,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7770769	unique_dungeon_pickup	Leyndell	Ash of War: Thunderbolt	540372	m11_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770768	unique_dungeon_pickup	Leyndell	Barrier of Gold	540370	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
 7770995	unique_dungeon_pickup	Leyndell	Black Bow	11007670	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
+7772347	unique_dungeon_pickup	Leyndell	Blade of Calling	34147810	m34_14	remaining_unreviewed	0		first_independent_identity_region_source
 7771028	unique_dungeon_pickup	Leyndell	Blessed Dew Talisman	11007994	m11_00	trusted	2	gameplay-guide:game8;gameplay-guide:powerpyx	none_identity_region_trusted
 7771025	unique_dungeon_pickup	Leyndell	Blessing of the Erdtree	11007991	m11_00	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7772353	unique_dungeon_pickup	Leyndell	Bloodsoaked Manchettes	35007050	m35_00	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
@@ -221,6 +219,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7770918	unique_dungeon_pickup	Leyndell	Erdtree Bow	11007015	m11_00	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
 7772406	unique_dungeon_pickup	Leyndell	Erdtree's Favor +1	35007700	m35_00	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
 7772408	unique_dungeon_pickup	Leyndell	Fingerprint Stone Shield	35007720	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7772344	unique_dungeon_pickup	Leyndell	Flamedrake Talisman +1	34147020	m34_14	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
 7770572	unique_dungeon_pickup	Leyndell	Frenzied Flame Seal	400089	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
 7770139	unique_dungeon_pickup	Leyndell	Frenzied's Cookbook [2]	68410	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
 7771023	unique_dungeon_pickup	Leyndell	Gargoyle's Halberd	11007987	m11_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
@@ -242,6 +241,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7900220	unique_dungeon_pickup	Leyndell	Nomadic Merchant's Finery	35007710	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
 7900221	unique_dungeon_pickup	Leyndell	Nomadic Merchant's Trousers	35007710	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
 7770190	unique_dungeon_pickup	Leyndell	Note: Miquella's Needle	69740	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
+7772343	unique_dungeon_pickup	Leyndell	Official's Attire	34147010	m34_14	remaining_unreviewed	0		first_independent_identity_region_source
 7900041	unique_dungeon_pickup	Leyndell	Omen Armor	400382	m35_00	remaining_unreviewed	0		first_independent_identity_region_source
 7772420	unique_dungeon_pickup	Leyndell	Omen Bairn	35007990	m35_00	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
 7900042	unique_dungeon_pickup	Leyndell	Omen Gauntlets	400382	m35_00	remaining_unreviewed	0		first_independent_identity_region_source

@@ -102,7 +102,10 @@ class TestTheGeometryIsItsOwn:
         # [11000] -> [11000, 35000] (2026-08-20): the Sewer merged into Leyndell; m35 is
         # capital-version-NEUTRAL ground (capital_partition classifies it neither Royal nor
         # Ashen), so it rides Leyndell's kick while never touching the reconciler.
-        assert REGION_PLAY_IDS.get(FINALE_KICK_OWNER) == [11000, 35000], (
+        # -> [11000, 34140, 35000] (2026-09-07, #324): the Divine Tower of East Altus joined
+        # Leyndell, and m34 is NEUTRAL for the same reason m35 is -- its own map, untouched by
+        # the 9116 map-version flag.
+        assert REGION_PLAY_IDS.get(FINALE_KICK_OWNER) == [11000, 34140, 35000], (
             "the finale's buckets must have LEFT Leyndell, or both regions claim them and the "
             "kick is decided by dict order")
 

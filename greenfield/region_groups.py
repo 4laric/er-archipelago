@@ -311,7 +311,13 @@ PLAY_REGION_GROUPS = {
     "Limgrave": (61000, 61010, 18000, 30020, 30040, 30110, 31000, 31030, 31150, 31170, 32010),
     "Weeping": (61020, 30000, 30010, 31010, 31020, 32000),
     "Liurnia": (62000, 62010, 62020, 39200, 30030, 30050, 30060, 31040, 31050, 31060, 32020, 34110),
-    "Altus": (63000, 63010, 30070, 30080, 30100, 30120, 30130, 31180, 31190, 32040, 32050, 34120, 34140),
+    # 34140 (Divine Tower of East Altus) MOVED to Leyndell 2026-09-07 (#324) -- same shape as the
+    # #202 ruling on 34100 above. The tower shares the East-Altus WARP group (63003) with the
+    # Forbidden Lands and the Grand Lift of Rold, so REGION_GROUPS is untouched; but its only
+    # ordinary entrance is the greatbridge out of Leyndell's eastern ward, opened after Morgott, so
+    # the runtime kick/scaling bucket belongs to the capital. Filed under Altus it kicked the
+    # players who could actually get there and admitted ones who could not.
+    "Altus": (63000, 63010, 30070, 30080, 30100, 30120, 30130, 31180, 31190, 32040, 32050, 34120),
     "Mt. Gelmir": (63020, 16000, 30090, 31070, 31090),
     "Caelid": (64000, 64010, 64020, 30140, 30150, 30160, 31100, 31110, 31200, 31210, 32070, 32080, 34130),
     # 65000: the derivation votes 'Altus' 2/2 -- OVERRIDDEN. It is the Mountaintops PRIMARY bucket and
@@ -326,7 +332,8 @@ PLAY_REGION_GROUPS = {
     "Stormveil": (10000, 10010, 34100),
     # 35000 joined with the 2026-08-20 Sewer merge: the Shunning-Grounds scale with the capital,
     # which matches vanilla pacing (the sewer is capital-tier ground).
-    "Leyndell": (11000, 35000),
+    # 34140 (m34_14, Divine Tower of East Altus) joined 2026-09-07 (#324) -- see the Altus note above.
+    "Leyndell": (11000, 35000, 34140),
     # SPEC-ashen-capital-lock: the finale maps' MEASURED kick buckets. Split out of Leyndell
     # 2026-08-06 so the kick enforces the Ashen Capital Lock in its own right instead of
     # borrowing the capital's (core._lockless_host is gone with it). features/capital.py
