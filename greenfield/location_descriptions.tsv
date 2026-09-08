@@ -215,3 +215,12 @@ flag	description
 400162	defeat Eleonora at the Second Church of Marika
 400295	defeat Recusant Bernahl in Crumbling Farum Azula
 400452	Diallos at Jarburg
+# 2026-09-08 (#1511, 255 notebook). f400221 moved Stormveil -> Limgrave on the ESD evidence in
+# FLAG_REGION_OVERRIDE, but its auto descriptor is the MACHINE LOCALE of the m10_00 talk container,
+# so the row rendered "Limgrave :: Erdsteel Dagger - around Castleward Tunnel" -- a Stormveil
+# landmark under a Limgrave region, which is worse than either half was alone. Named from the same
+# evidence that moved it: the open-world award machine t321006000 (m60_00 container) and the
+# DIALOGUE_STEP prerequisite f1045389220, whose id decodes to tile m60_45_38, the tile this NPC is
+# MSB-placed on for his other reward lot. NOT a nearest-grace repeat: the flag has no
+# nearest_grace.tsv row at all.
+400221	from Kenneth Haight at Lake-Facing Cliffs

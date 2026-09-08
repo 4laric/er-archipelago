@@ -620,7 +620,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773045	unique_field_pickup	Consecrated Snowfield	Black Knife Hood	1048577810	m60_48_57	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
 7774478	unique_field_pickup	Consecrated Snowfield	Fire Blossom	1049557320	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
 7770109	unique_field_pickup	Consecrated Snowfield	Glintstone Craftsman's Cookbook [8]	67440	m60_50_56	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7770804	unique_field_pickup	Consecrated Snowfield	Greathood	580330	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
 7900272	unique_field_pickup	Consecrated Snowfield	Hoslow's Armor	1050567700	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
 7900273	unique_field_pickup	Consecrated Snowfield	Hoslow's Gauntlets	1050567700	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
 7900274	unique_field_pickup	Consecrated Snowfield	Hoslow's Greaves	1050567700	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
@@ -848,6 +847,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773175	unique_field_pickup	Mountaintops of the Giants	Eclipse Shotel	1051577600	m60_51_57	trusted	3	gameplay-guide:powerpyx;gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7774537	unique_field_pickup	Mountaintops of the Giants	Founding Rain of Stars	1052577900	m60_53_56	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773195	unique_field_pickup	Mountaintops of the Giants	Giant's Prayerbook	1052557900	m60_53_56	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7770804	unique_field_pickup	Mountaintops of the Giants	Greathood	580330	m60_50_57	remaining_unreviewed	0		first_independent_identity_region_source
 7774525	unique_field_pickup	Mountaintops of the Giants	Helphen's Steeple	1051577720	m60_51_57	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773782	unique_field_pickup	Mountaintops of the Giants	Hermit Merchant's Bell Bearing [2]	400916	m60_50_57	remaining_unreviewed	0		first_independent_identity_region_source
 7773713	unique_field_pickup	Mountaintops of the Giants	Iron Kasa	400164	m60_49_52	remaining_unreviewed	0		first_independent_identity_region_source
@@ -950,7 +950,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773623	unique_field_pickup	Scadu Altus	Giant Golden Arc	2050467910	m61_49_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773634	unique_field_pickup	Scadu Altus	Glinting Nail	2051457000	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
 7773556	unique_field_pickup	Scadu Altus	Golden Arcs	2049447900	m61_49_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7773644	unique_field_pickup	Scadu Altus	Golden Braid	2051477510	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
 7773562	unique_field_pickup	Scadu Altus	Gravebird Anklets	2049467010	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
 7773638	unique_field_pickup	Scadu Altus	Greasemonger's Bell Bearing	2051467500	m61_51_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770152	unique_field_pickup	Scadu Altus	Greater Potentate's Cookbook [3]	68690	m61_47_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
@@ -969,7 +968,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773604	unique_field_pickup	Scadu Altus	Man-Fly Ashes	2050447710	m61_51_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7900097	unique_field_pickup	Scadu Altus	Maternal Staff	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
 7773524	unique_field_pickup	Scadu Altus	Messmer Soldier Ashes	2049437230	m61_49_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7773643	unique_field_pickup	Scadu Altus	Minor Erdtree	2051477500	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
 7773606	unique_field_pickup	Scadu Altus	Moldmonger's Bell Bearing	2050447730	m61_49_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773499	unique_field_pickup	Scadu Altus	Monk's Missive	2048457510	m61_49_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773641	unique_field_pickup	Scadu Altus	Pearlescent Scale	2051477020	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
@@ -990,12 +988,14 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773758	unique_field_pickup	Scadu Altus	Sword of Night	400671	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
 7773630	unique_field_pickup	Scadu Altus	Tooth Whip	2051447000	m61_51_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773755	unique_field_pickup	Scadu Altus	Ymir's Bell Bearing	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
-7771984	unique_field_pickup	Shadow Keep	Ash of War: Wall of Sparks	21027020	m61_49_48	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7771984	unique_field_pickup	Shadow Keep	Ash of War: Wall of Sparks	21027020	m61_50_47	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770174	unique_field_pickup	Shadow Keep	Battlefield Priest's Cookbook [4]	68930	m61_50_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773657	unique_field_pickup	Shadow Keep	Fingercreeper Ashes	2053487000	m61_52_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773577	unique_field_pickup	Shadow Keep	Gaius's Greaves	2049490900	m61_50_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773644	unique_field_pickup	Shadow Keep	Golden Braid	2051477510	m61_50_48	remaining_unreviewed	0		first_independent_identity_region_source
+7773643	unique_field_pickup	Shadow Keep	Minor Erdtree	2051477500	m61_50_48	remaining_unreviewed	0		first_independent_identity_region_source
 7900199	unique_field_pickup	Shadow Keep	Rain of Fire	21027991	m61_50_48	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
-7771995	unique_field_pickup	Shadow Keep	Salza's Hood	21027991	m61_50_48	remaining_unreviewed	0		first_independent_identity_region_source
+7771995	unique_field_pickup	Shadow Keep	Salza's Hood	21027991	m61_52_48	remaining_unreviewed	0		first_independent_identity_region_source
 7773578	unique_field_pickup	Shadow Keep	Sharpshot Talisman	2049497510	m61_50_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770727	unique_field_pickup	Weeping	Ash of War: Mighty Shot	540140	m60_44_32	remaining_unreviewed	0		first_independent_identity_region_source
 7772871	unique_field_pickup	Weeping	Claymore	1043317910	m60_43_30	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source

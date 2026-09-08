@@ -1,4 +1,5 @@
 check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	external_family_count	external_families	access_disposition	next_evidence
+7774559	glovewort	repeated_material_row	Abyssal	Great Grave Glovewort	2049427010		remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771135	glovewort	repeated_material_row	Ainsel River	Ghost Glovewort [9]	12017950	m12_01	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	unresolved	none_identity_region_trusted
 7771140	glovewort	unique_material_row	Ainsel River	Ghost-Glovewort Picker's Bell Bearing [2]	12017980	m12_04	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	unresolved	none_identity_region_trusted
 7771109	glovewort	repeated_material_row	Ainsel River	Great Ghost Glovewort	12017690	m12_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -61,7 +62,6 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7771565	glovewort	repeated_material_row	Haligtree	Ghost Glovewort [9]	15001340		remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771657	glovewort	unique_material_row	Haligtree	Ghost-Glovewort Picker's Bell Bearing [3]	15007910	m15_00	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7771655	glovewort	repeated_material_row	Haligtree	Great Grave Glovewort	15007890	m15_00	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
-7774559	glovewort	repeated_material_row	Jagged Peak	Great Grave Glovewort	2049427010	m61_49_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772413	glovewort	repeated_material_row	Leyndell	Ghost Glovewort [6]	35007900	m35_00	audited_one_family	1	gameplay-wiki:eldenpedia	unresolved	second_independent_exact_landmark_source
 7772422	glovewort	repeated_material_row	Leyndell	Ghost Glovewort [6]	35007995	m35_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773934	glovewort	unique_material_row	Limgrave	Grave Glovewort [1]	18007060	m18_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	unresolved	none_identity_region_trusted
@@ -413,6 +413,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7771438	smithing_stone	repeated_material_row	Farum Azula	Somber Smithing Stone [9]	13007390	m13_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771444	smithing_stone	repeated_material_row	Farum Azula	Somber Smithing Stone [9]	13007470	m13_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771477	smithing_stone	repeated_material_row	Farum Azula	Somber Smithing Stone [9]	13007870	m13_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7773476	smithing_stone	repeated_material_row	Gravesite	Ancient Dragon Smithing Stone	2048417800	m61_46_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773234	smithing_stone	repeated_material_row	Gravesite	Smithing Stone [5]	2045417040	m61_46_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773241	smithing_stone	repeated_material_row	Gravesite	Smithing Stone [5]	2045427000	m61_46_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774084	smithing_stone	repeated_material_row	Gravesite	Smithing Stone [5]	42007110	m61_46_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -457,7 +458,6 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7771611	smithing_stone	repeated_material_row	Haligtree	Somber Smithing Stone [9]	15007450	m15_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771628	smithing_stone	repeated_material_row	Haligtree	Somber Smithing Stone [9]	15007620	m15_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771642	smithing_stone	repeated_material_row	Haligtree	Somber Smithing Stone [9]	15007760	m15_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7773476	smithing_stone	repeated_material_row	Jagged Peak	Ancient Dragon Smithing Stone	2048417800	m61_49_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773649	smithing_stone	repeated_material_row	Jagged Peak	Ancient Dragon Smithing Stone	2053397000	m61_54_39	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774635	smithing_stone	repeated_material_row	Jagged Peak	Ancient Dragon Smithing Stone	530805	m61_54_39	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773650	smithing_stone	repeated_material_row	Jagged Peak	Somber Ancient Dragon Smithing Stone	2053397010	m61_54_39	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -725,14 +725,14 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7774092	smithing_stone	repeated_material_row	Scadu Altus	Somber Smithing Stone [8]	42027020	m21_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774094	smithing_stone	repeated_material_row	Scadu Altus	Somber Smithing Stone [8]	42027040	m25_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771915	smithing_stone	repeated_material_row	Scadu Altus	Somber Smithing Stone [9]	21007550	m21_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7771987	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21027200	m61_50_48	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7771987	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21027200	m61_52_48	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771990	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21027230	m61_50_48	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773941	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21017090	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773942	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21017400	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771938	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [8]	21017060	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771977	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [8]	21017760	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773943	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [8]	21017420	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7771993	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [6]	21027260	m61_50_47	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7771993	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [6]	21027260	m61_50_48	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771978	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [8]	21017770	m21_01	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7771968	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [9]	21017600	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771994	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [9]	21027270	m61_50_48	audited_one_family	1	gameplay-wiki:eldenpedia	unresolved	second_independent_exact_landmark_source

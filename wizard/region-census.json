@@ -47,7 +47,7 @@
  },
  "regions": {
   "Abyssal": {
-   "checks": 24,
+   "checks": 26,
    "combos": {
     "Boss|MajorBoss|Remembrance": 1,
     "Fragment": 2,
@@ -488,7 +488,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Consecrated Snowfield": {
-   "checks": 144,
+   "checks": 142,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|Legendary|MinorDungeonBoss": 1,
@@ -728,7 +728,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Gravesite": {
-   "checks": 202,
+   "checks": 203,
    "combos": {
     "Basin": 1,
     "Boss": 5,
@@ -827,7 +827,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Jagged Peak": {
-   "checks": 39,
+   "checks": 36,
    "combos": {
     "Boss|FieldBoss": 4,
     "Boss|FieldBoss|MajorBoss": 1,
@@ -856,17 +856,17 @@
     }
    },
    "sweep_slots_max": {
-    "all": 24,
-    "bosses": 24
+    "all": 23,
+    "bosses": 23
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 24,
-     "bosses": 24
+     "all": 23,
+     "bosses": 23
     },
     "SweepSlotMajor": {
-     "all": 8,
-     "bosses": 8
+     "all": 7,
+     "bosses": 7
     },
     "SweepSlotMinor": {
      "all": 16,
@@ -938,7 +938,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Limgrave": {
-   "checks": 303,
+   "checks": 304,
    "combos": {
     "Basin": 2,
     "Boss|FieldBoss": 5,
@@ -1112,7 +1112,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Mountaintops of the Giants": {
-   "checks": 202,
+   "checks": 205,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss|FieldBoss": 6,
@@ -1337,7 +1337,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Roundtable Hold": {
-   "checks": 182,
+   "checks": 181,
    "combos": {},
    "dlc": false,
    "parent": null,
@@ -1352,7 +1352,7 @@
    "tarnished_pack_shop_checks": 1
   },
   "Scadu Altus": {
-   "checks": 322,
+   "checks": 320,
    "combos": {
     "Boss|FieldBoss": 4,
     "Boss|Fragment|MajorBoss": 1,
@@ -1416,7 +1416,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Shadow Keep": {
-   "checks": 119,
+   "checks": 121,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 2,
@@ -1526,7 +1526,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Stormveil": {
-   "checks": 138,
+   "checks": 137,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|MajorBoss|Remembrance": 1,
@@ -1633,5 +1633,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "f425979b5a68ff8ad7a272e21bb0a46e5a3cdeaae692a77c20c460dd74767a24"
+ "source_sha256": "9e5e1acd4936bb2c4dd0f1ee02380daf1b1d1f09f857e946cb6aff982e7f677d"
 }

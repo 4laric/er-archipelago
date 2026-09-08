@@ -551,8 +551,21 @@ def test_the_sweep_corpus_did_not_shrink():
     # The live invasion flag400162 is intentionally not a Wormface sweep reward.
     assert all(7774254 not in members for members in DUNGEON_SWEEPS.values())
     # Native M4G dungeon admission adds only Silver Scarab to Stray Mimic Tear.
-    assert total == 4128, (
-        "sweep corpus is %d, expected 4128. If a sweep was legitimately added or removed, say WHY "
+    # 2026-09-08 (#1514/#1509/#1511, 255's notebook): 4128 -> 4127. THE WHY, by (trigger, ap):
+    # TWO checks lose every owner and ONE gains one, so the net is -1.
+    #   - f400221 (Erdsteel Dagger, ap 7773717) moves Stormveil -> Limgrave on the ESD award site
+    #     in the m60_00 container, and leaves Margit's Stormveil sweep (10000850) with no Limgrave
+    #     field boss eligible to host it. Same shape as the #1303 Stormhawk Deenh removal above.
+    #   - f2049427010 (Great Grave Glovewort, ap 7774559) moves Jagged Peak -> Abyssal on nearest
+    #     grace 76861, and leaves the Jagged Peak Drake (2049410800) with no Abyssal host in range.
+    #   + f1049557700 (Larval Tear, ap 7774480) leaves the HUB for Consecrated Snowfield, so it
+    #     becomes sweepable for the first time and joins Great Wyrm Theodorix (1050560800).
+    # Everything else in this batch is a RE-OWNERSHIP, not a change in the corpus: 2051477500/510
+    # to Shadow Keep hosts, 2052417000 from Bayle to Midra (28000800), 2048417800 to 2046410800,
+    # and the three Ancient Snow Valley Ruins rows off Theodorix onto Mountaintops bosses. Those,
+    # plus the round-robin re-deal they caused, are pinned by the OWNERSHIP digest below.
+    assert total == 4127, (
+        "sweep corpus is %d, expected 4127. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -849,6 +862,21 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # (2046450800, 540912), (2046450800, 540914), (2048440800, 540920),
     # (2048440800, 540922). Zero removals or re-ownership relative to the NPC base.
     # Exactly (30200800, 30207900) added; no removals or re-ownership.
-    assert (digest, n) == ("10e98be68f92e19f", 4128), (  # #1437: then remove exactly (1040520800, 1039527700), no new owner
-        "sweep OWNERSHIP changed: (%s, %d), expected (10e98be68f92e19f, 4128). The total alone will "
+    # 2026-09-08 (#1514/#1509/#1511, 255's notebook): 10e98be68f92e19f/4128 ->
+    # 3f907d6b126b42c6/4127. Measured pairwise against origin/main, not re-baselined blind.
+    # TWO checks lose every owner (f400221 -> Limgrave, f2049427010 -> Abyssal; see the corpus
+    # assertion above for why neither region has an eligible host), ONE gains its first
+    # (f1049557700 leaves the HUB and joins Theodorix 1050560800), and 34 are RE-OWNED.
+    # Of those 34, six are the region moves themselves: 2051477500/2051477510 leave the Scadu
+    # Altus trigger 2049450800 for Shadow Keep hosts, 2052417000 leaves Bayle (2054390800) for
+    # Midra (28000800), 2048417800 leaves the Jagged Peak Drake for 2046410800, and 580330 /
+    # 1051557310 / 1051557320 leave Theodorix for Mountaintops bosses (1050570800, 1051570800,
+    # 1053560800) -- which is the #1059 containment pin in gen_data._FIELD_SWEEP_REGION_CURATED
+    # doing its job, since Theodorix's arena is Consecrated Snowfield.
+    # The remaining 28 are ROUND-ROBIN COLLATERAL, not decisions: _fassign ties are split
+    # `_tied[_a % len(_tied)]`, so adding two members to the Shadow Keep pool rotates which of
+    # {Scadutree Avatar, Tree Sentinel, Commander Gaius, Fallingstar Beast} is NAMED on the West
+    # Rampart rows. No check gains or loses an owner there; only the label rotates.
+    assert (digest, n) == ("3f907d6b126b42c6", 4127), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (3f907d6b126b42c6, 4127). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

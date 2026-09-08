@@ -3591,6 +3591,62 @@ FLAG_REGION_OVERRIDE = {
     # corpus can actually witness; the two Limgrave placements have no play_region row at all, so
     # they are not evidence of reachability in either direction.
     400220: "Stormveil",   # Golden Seed -- MSB enemy lot 112200 on m10_00
+
+    # ---- 255's NOTEBOOK, 2026-09-08 (#1514 / #1509 / #1511) -----------------------------------
+    # Ten reported rows, each re-derived through the ladder in docs/MATT-ORACLE-ROADMAP.md item 4:
+    # the PlayArea point-in-volume scan (greenfield/item_play_regions.tsv) first, the nearest-grace
+    # join (greenfield/nearest_grace.tsv, #1074) where the scan is silent. Eleven further reported
+    # rows are NOT here because the instrument contradicted the reporter or had nothing to say --
+    # they are enumerated in the PR and in region_overrides.tsv, not moved. These are per-flag pins
+    # and not tile curations on purpose: every tile below STRADDLES (see #1054's five per-flag pins
+    # on exactly this reasoning), and two of them carry a boss verdict this must not overwrite.
+
+    # SHADOW KEEP BACK-TERRACE, tile m61_51_47 (#1514). Scan-EXACT: both stand inside PlayArea
+    # volume 69300, which is Shadow Keep in region_groups.PLAY_REGION_GROUPS, while their nearest
+    # graces (76905/76937) file 6900/6920. The tile's other three checks scan `none` and keep the
+    # grace answer Scadu Altus, so this is a per-flag pin, not a tile pin.
+    2051477500: "Shadow Keep",   # [Incantation] Minor Erdtree
+    2051477510: "Shadow Keep",   # Golden Braid
+
+    # ANCIENT SNOW VALLEY RUINS, tiles m60_51_55 / m60_50_56 (#1514), the same cluster #1054 moved.
+    # The scan is silent on these three, but on these two tiles nearest grace 76503 (Ancient Snow
+    # Valley Ruins) and the scan agree 5 times out of 5 -- 1050567500/510/520/620 and 1051557330 all
+    # scan volume 65010 = Mountaintops -- while nearest grace 73019/76551 agrees with scan 65030 =
+    # Consecrated Snowfield (1050567600). With zero counterexamples on the tiles in question the
+    # nearest-grace join is calibrated here, so it answers these three. EVIDENCE CLASS: nearest-grace
+    # join calibrated against 6 scan-exact rows on the same two tiles -- NOT scan-exact itself.
+    1051557310: "Mountaintops of the Giants",   # Drawstring Holy Grease
+    1051557320: "Mountaintops of the Giants",   # Rainbow Stone
+    580330: "Mountaintops of the Giants",       # Greathood (Sorcerer Painting reward)
+
+    # THE JAGGED PEAK BOSS-VERDICT TILES (#1509). m61_48_41 and m61_49_42 carry a human ruling in
+    # boss_verdict_tiles.tsv ("the Jagged Peak Drake is on the JAGGED PEAK"), which gen_data ranks
+    # above a nearest-neighbour guess and BELOW first-hand ground evidence -- and that verdict row's
+    # own note already says "Members ship as Gravesite". These three checks have first-hand evidence
+    # the verdict does not overrule, so they leave Jagged Peak while the verdict stands untouched
+    # for the tile's coordinate-less checks.
+    2048417800: "Gravesite",   # Ancient Dragon Smithing Stone; nearest grace 76811 (Pillar Path
+                               # Waypoint) files play_region 6800 = Gravesite, and all four other
+                               # checks on m61_48_41 scan 68000/68100 = Gravesite.
+    2049427010: "Abyssal",     # Great Grave Glovewort; nearest grace 76861 (Divided Falls) files
+                               # play_region 6860 = Abyssal in grace_region_map.tsv.
+    2052417000: "Abyssal",     # Shadow Realm Rune [7]; nearest grace 76864 (Church Ruins) files
+                               # 6860, and its on-tile twin 2052417010 shares that grace and scans
+                               # volume 68600 = Abyssal. Calibrated on the same tile.
+
+    # KENNETH HAIGHT'S ERDSTEEL DAGGER (#1511). NPC-relocation rows are the family the PlayArea scan
+    # excludes (#1054), and f400221 has no MSB row, no coordinates and no nearest grace, so the
+    # instrument here is the ESD corpus. greenfield/questline_conditions.tsv records lot 102200 as
+    # awarded by TWO ESD machines: t321001000_x3 (`AwardItemLot(102200)`) in the m10_00-only talk
+    # container, and t321006000_x3 in the m60_00-only container, whose MAP_ACCESS row is m60_00 --
+    # the open world, not Stormveil. Both paths share one DIALOGUE_STEP prerequisite, flag
+    # 1045389220, whose id decodes to overworld tile m60_45_38; that is the tile the same NPC's
+    # other reward lot (112200, the Golden Seed) is MSB-placed on in msb_flag_region.tsv, at
+    # coordinates that match WorldMapPointParam row 81453800 on map 60/45/38. Every other check on
+    # m60_45_38 and m60_46_36 ships Limgrave. So the reward has an open-world award site and needs
+    # no Stormveil access: 255 is right and the m10_00 machine was simply the one the derivation saw
+    # first. NB f400220 is the SAME NPC and does NOT move -- see the PR and region_overrides.tsv.
+    400221: "Limgrave",
 }
 
 # These per-flag pins settle WHICH SIDE of a measured region seam owns the reward, but they do not
@@ -3606,7 +3662,16 @@ FLAG_REGION_OVERRIDE = {
 # in-game witness, not a datamine -- and this is the check that softlocked
 # AP_55352390472076588352 (test_gf_defaulted_region_guard), so it is the last one to promote on a
 # derivation alone.
-_REGION_OVERRIDE_UNCONFIRMED_FLAGS = frozenset({65130, 65170, 400220})
+# f1049557700 (255's notebook, #1511, 2026-09-08) rides here for the SAME reason and was added with
+# its GLOBAL_RECOVER re-pin. It moves out of the HUB to Consecrated Snowfield on the flag/lot-id map
+# decode -- but that decode is the WEAKEST rung of the ladder: the flag has no coordinates, so the
+# PlayArea scan and the nearest-grace join both have nothing to say, and nobody has stood in front
+# of it. In the HUB it was ALREADY barred (region == HUB and not _region_is_derived), so listing it
+# here PRESERVES the bar the re-pin would otherwise have silently lifted; the pin settles where the
+# check is FILED and nothing else. Promoting it to a progression host is a separate step and wants
+# an in-game witness -- 255 reports it as the runebear-disguised noble, which is a lead, not a
+# measurement.
+_REGION_OVERRIDE_UNCONFIRMED_FLAGS = frozenset({65130, 65170, 400220, 1049557700})
 
 # ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------
 # The coarse REGION_MAP buckets every minor dungeon into one region ("Caves"->Limgrave,
@@ -3921,7 +3986,17 @@ GLOBAL_RECOVER = {
     # SINGLE Mimic Tear boss pickup in Nokstella -> Eternal Cities (the "Larval Tear/HUB" was a mislabel;
     # scan named the flag after the Larval Tear co-item). (Alaric 2026-07-10)
     510340: "Siofra River",   # (the 2026-07-10 note said Nokstella; the Mimic Tear boss arena is Night's Sacred Ground, NOKRON -- a Siofra-bucket map. Verify in-game.)
-    1049557700: HUB,
+    # 1049557700 is NOT scattered either, and the "shared flag" premise above never applied to it
+    # (255's notebook, #1511, 2026-09-08). greenfield/flag_lots.tsv gives it exactly ONE lot,
+    # map lot 1049550700 (goods 8185, Larval Tear x1), and that lot id decodes through the
+    # documented flag/lot -> map join (AGENTS.md "Datamined joins", 1_049_55_0700) to overworld tile
+    # m60_49_55 -- which is what greenfield/check_maps.tsv already records for it. All six other
+    # checks on m60_49_55 ship Consecrated Snowfield, and every one of the other 22 Larval Tears in
+    # the corpus is filed in a real region; this was the only one in the HUB. The HUB filing was
+    # therefore not a measurement, it was the shared-flag default applied to a flag that does not
+    # share. Kept in GLOBAL_RECOVER (rather than deleted) so _recover_row_ok still guarantees the
+    # row recovers as a check; only the region it recovers to changes.
+    1049557700: "Consecrated Snowfield",
     # Haligtree Secret Medallion (Right): physically the reward in Castle Sol (Mountaintops of the
     # Giants), obtained by defeating Commander Niall -- NOT the Village-of-the-Albinaurics pickup (that
     # is the LEFT half). Only the obtained flag (400130, method global) exists (no map_lot), and it is
@@ -11086,8 +11161,22 @@ if BOSS_HEALTHBARS:
     # Snowfield side. Curate the BOSS, not the tile: moving the whole tile would incorrectly drag
     # the Death Rite Bird and its Mountaintops checks across the seam. The local-member filter
     # below then gives the Avatar only Snowfield checks and leaves the other side to its own boss.
+    #
+    # Great Wyrm Theodorix (1050560800) is the SAME SHAPE, one seam over, and it became live on
+    # 2026-09-08 when three more Ancient Snow Valley Ruins checks moved to Mountaintops (#1514,
+    # 255's notebook: 1051557310, 1051557320, 580330 -- see FLAG_REGION_OVERRIDE). Its ring vote is
+    # taken over tiles m60_50_56 / m60_51_55, which STRADDLE the Grand Lift of Rold boundary; #1054
+    # had already moved five of their checks to Mountaintops, and three more tips the majority.
+    # Two independent measurements say the boss itself is on the Snowfield side and the vote is
+    # wrong: boss_arena_rulings.tsv files trigger 1050560800 as Consecrated Snowfield, and its own
+    # drop f530550 (Ancient Dragon Smithing Stone) is a Consecrated Snowfield check -- which is why
+    # the own-drop admission pass was already refusing it "fail closed" before this ruling existed.
+    # Curate the BOSS, not the tile, exactly as for the Avatar above: the local-member filter below
+    # then hands Theodorix only Snowfield checks and re-deals the Mountaintops ones to the boss that
+    # actually stands beside them, which is what the #1059 containment invariant is for.
     _FIELD_SWEEP_REGION_CURATED = {
         1050570850: "Consecrated Snowfield",
+        1050560800: "Consecrated Snowfield",
     }
     for _trig, _reg in _FIELD_SWEEP_REGION_CURATED.items():
         if _trig not in dict(_field_bosses):

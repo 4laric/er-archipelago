@@ -4962,7 +4962,7 @@
       "candidate_ids": [
         7773821
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Great Grave Glovewort x2",
         "Putrid Grave Warden Duelist",
@@ -5065,7 +5065,7 @@
       "candidate_ids": [
         7774194
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Rainbow Stone x4"
       ],
@@ -10498,7 +10498,7 @@
         7771593,
         7771612
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 5,
       "context_labels": [
         "Ancient Dragon Smithing Stone"
       ],
@@ -10561,7 +10561,7 @@
         7771593,
         7771612
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 5,
       "context_labels": [
         "Ancient Dragon Smithing Stone"
       ],
@@ -15601,14 +15601,15 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7770280,
         7772483,
         7772534
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Juvenile Scholar Set",
         "Larval Tear"
@@ -18847,7 +18848,7 @@
         7773104,
         7774444
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 6,
       "context_labels": [
         "Ancient Dragon Smithing Stone",
         "Rune Arc",
@@ -19713,7 +19714,7 @@
         7773104,
         7774444
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 6,
       "context_labels": [
         "Ancient Dragon Smithing Stone",
         "Night's Cavalries",
@@ -20259,7 +20260,7 @@
         7773104,
         7774444
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 6,
       "context_labels": [
         "Ancient Dragon Smithing Stone"
       ],
@@ -20415,14 +20416,15 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7770280,
         7772483,
         7772534
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Larval Tear"
       ],
@@ -20484,14 +20486,15 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7770280,
         7772483,
         7772534
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Larval Tear"
       ],
@@ -21425,7 +21428,8 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7773239,
@@ -21433,7 +21437,7 @@
         7773379,
         7773480
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Larval Tear"
       ],
@@ -21555,7 +21559,8 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7773239,
@@ -21563,7 +21568,7 @@
         7773379,
         7773480
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Larval Tear"
       ],
@@ -21700,7 +21705,8 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7773239,
@@ -21708,7 +21714,7 @@
         7773379,
         7773480
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Larval Tear"
       ],
@@ -21898,7 +21904,8 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7773239,
@@ -21906,7 +21913,7 @@
         7773379,
         7773480
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Larval Tear"
       ],
@@ -39990,7 +39997,7 @@
         7774324,
         7774365
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Rainbow Stone x5"
       ],
@@ -41022,7 +41029,7 @@
         7774324,
         7774365
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Golden Rune [2]",
         "Immunizing Cured Meat",
@@ -41233,74 +41240,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w28-73"
-    },
-    {
-      "all_candidate_ids": [
-        7770897,
-        7771368,
-        7772229,
-        7772912,
-        7773140,
-        7774194,
-        7774324,
-        7774365
-      ],
-      "candidate_ids": [
-        7770897,
-        7771368,
-        7772229,
-        7772912,
-        7773140,
-        7774194,
-        7774324,
-        7774365
-      ],
-      "competing_observation_count": 4,
-      "context_labels": [
-        "Drawstring Holy Grease x2",
-        "Golden Rune [7]",
-        "Rainbow Stone x4"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w38-28",
-      "item_name": "Rainbow Stone",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [
-        4
-      ],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770897,
-        7771368,
-        7772912,
-        7773140,
-        7774194,
-        7774324,
-        7774365
-      ],
-      "observation_id": "walkthrough:bf984a22ce2a43010d45",
-      "reason": "region_disagreement",
-      "regions": [
-        "Mountaintops of the Giants"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7771368,
-        7774194
-      ],
-      "section": "west-mountaintops",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w38-28"
     },
     {
       "all_candidate_ids": [
@@ -50627,79 +50566,7 @@
         7773821,
         7774559
       ],
-      "competing_observation_count": 8,
-      "context_labels": [
-        "Great Grave Glovewort"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-21",
-      "item_name": "Great Grave Glovewort",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771406,
-        7771408,
-        7771905,
-        7773301,
-        7773307,
-        7773457,
-        7773461,
-        7773462,
-        7773821,
-        7774559
-      ],
-      "observation_id": "walkthrough:c87456aa616a74ac43d5",
-      "reason": "region_disagreement",
-      "regions": [
-        "Abyssal"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7773821
-      ],
-      "section": "abyssal-woods",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d16-21"
-    },
-    {
-      "all_candidate_ids": [
-        7771406,
-        7771408,
-        7771655,
-        7771905,
-        7773301,
-        7773307,
-        7773457,
-        7773461,
-        7773462,
-        7773821,
-        7774559
-      ],
-      "candidate_ids": [
-        7771406,
-        7771408,
-        7771655,
-        7771905,
-        7773301,
-        7773307,
-        7773457,
-        7773461,
-        7773462,
-        7773821,
-        7774559
-      ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 7,
       "context_labels": [
         "Great Grave Glovewort"
       ],
@@ -51872,7 +51739,7 @@
         7773821,
         7774559
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 7,
       "context_labels": [
         "Giant's Seal",
         "Great Grave Glovewort"
@@ -64551,284 +64418,6 @@
     },
     {
       "all_candidate_ids": [
-        7770207,
-        7771445,
-        7771480,
-        7771487,
-        7771488,
-        7771593,
-        7771612,
-        7772297,
-        7772455,
-        7773104,
-        7773130,
-        7773476,
-        7773541,
-        7773649,
-        7773718,
-        7773737,
-        7774444,
-        7774635
-      ],
-      "candidate_ids": [
-        7770207,
-        7771445,
-        7771480,
-        7771487,
-        7771488,
-        7771593,
-        7771612,
-        7772297,
-        7772455,
-        7773104,
-        7773130,
-        7773476,
-        7773541,
-        7773649,
-        7773718,
-        7773737,
-        7774444,
-        7774635
-      ],
-      "competing_observation_count": 9,
-      "context_labels": [
-        "Ancient Dragon Smithing Stone",
-        "Anvil Hammer"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d2-43",
-      "item_name": "Ancient Dragon Smithing Stone",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771445,
-        7771480,
-        7771487,
-        7771488,
-        7771593,
-        7771612,
-        7772297,
-        7773104,
-        7773476,
-        7773541,
-        7773649,
-        7773718,
-        7773737,
-        7774444,
-        7774635
-      ],
-      "observation_id": "walkthrough:80eb394f818c15db0d0a",
-      "reason": "region_disagreement",
-      "regions": [
-        "Gravesite"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7771593,
-        7772297
-      ],
-      "section": "east-gravesite",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d2-43"
-    },
-    {
-      "all_candidate_ids": [
-        7770207,
-        7771445,
-        7771480,
-        7771487,
-        7771488,
-        7771593,
-        7771612,
-        7772297,
-        7772455,
-        7773104,
-        7773130,
-        7773476,
-        7773541,
-        7773649,
-        7773718,
-        7773737,
-        7774444,
-        7774635
-      ],
-      "candidate_ids": [
-        7770207,
-        7771445,
-        7771480,
-        7771487,
-        7771488,
-        7771593,
-        7771612,
-        7772297,
-        7772455,
-        7773104,
-        7773130,
-        7773476,
-        7773541,
-        7773649,
-        7773718,
-        7773737,
-        7774444,
-        7774635
-      ],
-      "competing_observation_count": 9,
-      "context_labels": [
-        "Ancient Dragon Smithing Stone"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d2-59",
-      "item_name": "Ancient Dragon Smithing Stone",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771445,
-        7771480,
-        7771487,
-        7771488,
-        7771593,
-        7771612,
-        7772297,
-        7773104,
-        7773476,
-        7773541,
-        7773649,
-        7773718,
-        7773737,
-        7774444,
-        7774635
-      ],
-      "observation_id": "walkthrough:430a56a3c6018816066c",
-      "reason": "region_disagreement",
-      "regions": [
-        "Gravesite"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7771593,
-        7772297
-      ],
-      "section": "east-gravesite",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d2-59"
-    },
-    {
-      "all_candidate_ids": [
-        7770207,
-        7771445,
-        7771480,
-        7771487,
-        7771488,
-        7771593,
-        7771612,
-        7772297,
-        7772455,
-        7773104,
-        7773130,
-        7773476,
-        7773541,
-        7773649,
-        7773718,
-        7773737,
-        7774444,
-        7774635
-      ],
-      "candidate_ids": [
-        7770207,
-        7771445,
-        7771480,
-        7771487,
-        7771488,
-        7771593,
-        7771612,
-        7772297,
-        7772455,
-        7773104,
-        7773130,
-        7773476,
-        7773541,
-        7773649,
-        7773718,
-        7773737,
-        7774444,
-        7774635
-      ],
-      "competing_observation_count": 9,
-      "context_labels": [
-        "Ancient Dragon Smithing Stone",
-        "Dragon Heart"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d2-67",
-      "item_name": "Ancient Dragon Smithing Stone",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771445,
-        7771480,
-        7771487,
-        7771488,
-        7771593,
-        7771612,
-        7772297,
-        7773104,
-        7773476,
-        7773541,
-        7773649,
-        7773718,
-        7773737,
-        7774444,
-        7774635
-      ],
-      "observation_id": "walkthrough:7e0e36e205098c3a13e9",
-      "reason": "region_disagreement",
-      "regions": [
-        "Gravesite"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7771593,
-        7772297
-      ],
-      "section": "east-gravesite",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d2-67"
-    },
-    {
-      "all_candidate_ids": [
         7770354,
         7770853,
         7770892,
@@ -64966,7 +64555,7 @@
         7774444,
         7774635
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 6,
       "context_labels": [
         "Ancient Dragon Smithing Stone"
       ],
@@ -65058,7 +64647,7 @@
         7774444,
         7774635
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 6,
       "context_labels": [
         "Ancient Dragon Smithing Stone"
       ],
@@ -65150,7 +64739,7 @@
         7774444,
         7774635
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 6,
       "context_labels": [
         "Ancient Dragon Smithing Stone"
       ],
@@ -69927,110 +69516,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w14-60"
-    },
-    {
-      "all_candidate_ids": [
-        7770280,
-        7770467,
-        7771137,
-        7771139,
-        7771141,
-        7771243,
-        7771397,
-        7771398,
-        7772483,
-        7772534,
-        7772600,
-        7772900,
-        7772922,
-        7772976,
-        7773229,
-        7773239,
-        7773326,
-        7773340,
-        7773379,
-        7773442,
-        7773480,
-        7773573,
-        7773621,
-        7773797
-      ],
-      "candidate_ids": [
-        7770280,
-        7770467,
-        7771137,
-        7771139,
-        7771141,
-        7771243,
-        7771397,
-        7771398,
-        7772483,
-        7772534,
-        7772600,
-        7772900,
-        7772922,
-        7772976,
-        7773229,
-        7773239,
-        7773326,
-        7773340,
-        7773379,
-        7773442,
-        7773480,
-        7773573,
-        7773621,
-        7773797
-      ],
-      "competing_observation_count": 5,
-      "context_labels": [
-        "Larval Tear"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w42-41",
-      "item_name": "Larval Tear",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771137,
-        7771139,
-        7771141,
-        7771243,
-        7771397,
-        7771398,
-        7772534,
-        7773239,
-        7773326,
-        7773340,
-        7773379,
-        7773442,
-        7773480,
-        7773573,
-        7773797
-      ],
-      "observation_id": "walkthrough:c811f84e949cbe2bd89f",
-      "reason": "region_disagreement",
-      "regions": [
-        "Consecrated Snowfield"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772534,
-        7773326
-      ],
-      "section": "snowfield",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w42-41"
     },
     {
       "all_candidate_ids": [
@@ -91314,7 +90799,7 @@
       "candidate_ids": [
         7774635
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 5,
       "context_labels": [
         "Ancient Dragon Senessax",
         "Ancient Dragon Smithing Stone",
@@ -91864,6 +91349,58 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d16-2"
+    },
+    {
+      "all_candidate_ids": [
+        7771406,
+        7771408,
+        7771655,
+        7771905,
+        7773301,
+        7773307,
+        7773457,
+        7773461,
+        7773462,
+        7773821,
+        7774559
+      ],
+      "candidate_ids": [
+        7774559
+      ],
+      "competing_observation_count": 3,
+      "context_labels": [
+        "Great Grave Glovewort"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-21",
+      "item_name": "Great Grave Glovewort",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7774559
+      ],
+      "observation_id": "walkthrough:c87456aa616a74ac43d5",
+      "reason": "area_only",
+      "regions": [
+        "Abyssal"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "abyssal-woods",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d16-21"
     },
     {
       "all_candidate_ids": [
@@ -94194,6 +93731,66 @@
     },
     {
       "all_candidate_ids": [
+        7770207,
+        7771445,
+        7771480,
+        7771487,
+        7771488,
+        7771593,
+        7771612,
+        7772297,
+        7772455,
+        7773104,
+        7773130,
+        7773476,
+        7773541,
+        7773649,
+        7773718,
+        7773737,
+        7774444,
+        7774635
+      ],
+      "candidate_ids": [
+        7773476
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Ancient Dragon Smithing Stone",
+        "Anvil Hammer"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d2-43",
+      "item_name": "Ancient Dragon Smithing Stone",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773476
+      ],
+      "observation_id": "walkthrough:80eb394f818c15db0d0a",
+      "reason": "area_only",
+      "regions": [
+        "Gravesite"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "east-gravesite",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d2-43"
+    },
+    {
+      "all_candidate_ids": [
         7770545,
         7773482
       ],
@@ -94236,6 +93833,125 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d2-45"
+    },
+    {
+      "all_candidate_ids": [
+        7770207,
+        7771445,
+        7771480,
+        7771487,
+        7771488,
+        7771593,
+        7771612,
+        7772297,
+        7772455,
+        7773104,
+        7773130,
+        7773476,
+        7773541,
+        7773649,
+        7773718,
+        7773737,
+        7774444,
+        7774635
+      ],
+      "candidate_ids": [
+        7773476
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Ancient Dragon Smithing Stone"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d2-59",
+      "item_name": "Ancient Dragon Smithing Stone",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773476
+      ],
+      "observation_id": "walkthrough:430a56a3c6018816066c",
+      "reason": "area_only",
+      "regions": [
+        "Gravesite"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "east-gravesite",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d2-59"
+    },
+    {
+      "all_candidate_ids": [
+        7770207,
+        7771445,
+        7771480,
+        7771487,
+        7771488,
+        7771593,
+        7771612,
+        7772297,
+        7772455,
+        7773104,
+        7773130,
+        7773476,
+        7773541,
+        7773649,
+        7773718,
+        7773737,
+        7774444,
+        7774635
+      ],
+      "candidate_ids": [
+        7773476
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Ancient Dragon Smithing Stone",
+        "Dragon Heart"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d2-67",
+      "item_name": "Ancient Dragon Smithing Stone",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773476
+      ],
+      "observation_id": "walkthrough:7e0e36e205098c3a13e9",
+      "reason": "area_only",
+      "regions": [
+        "Gravesite"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "east-gravesite",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d2-67"
     },
     {
       "all_candidate_ids": [
@@ -98782,7 +98498,7 @@
       "candidate_ids": [
         7773541
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 5,
       "context_labels": [
         "Ancient Dragon Smithing Stone",
         "Ancient Meteoric Ore Greatsword"
@@ -98979,7 +98695,7 @@
       "candidate_ids": [
         7773541
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 5,
       "context_labels": [
         "Ancient Dragon Smithing Stone"
       ],
@@ -99379,7 +99095,8 @@
       "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d14-4",
       "item_name": "Minor Erdtree",
       "matched_on": [
-        "item_name"
+        "item_name",
+        "guide_area"
       ],
       "mentioned_quantities": [],
       "missing_evidence": [
@@ -99391,7 +99108,7 @@
         7773643
       ],
       "observation_id": "walkthrough:f79bba10ad1a8fcda807",
-      "reason": "region_disagreement",
+      "reason": "area_only",
       "regions": [
         "Scaduview",
         "Shadow Keep"
@@ -99421,7 +99138,8 @@
       "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d14-5",
       "item_name": "Golden Braid",
       "matched_on": [
-        "item_name"
+        "item_name",
+        "guide_area"
       ],
       "mentioned_quantities": [],
       "missing_evidence": [
@@ -99433,7 +99151,7 @@
         7773644
       ],
       "observation_id": "walkthrough:4dd8353d6b505b607fbd",
-      "reason": "region_disagreement",
+      "reason": "area_only",
       "regions": [
         "Scaduview",
         "Shadow Keep"
@@ -101880,7 +101598,7 @@
       "candidate_ids": [
         7774324
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Golden Rune [4]",
         "Rainbow Stone x4"
@@ -102520,7 +102238,8 @@
       "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w39-26",
       "item_name": "Greathood",
       "matched_on": [
-        "item_name"
+        "item_name",
+        "guide_area"
       ],
       "mentioned_quantities": [],
       "missing_evidence": [
@@ -102532,7 +102251,7 @@
         7770804
       ],
       "observation_id": "walkthrough:4a9f7104fbf9af9ca7e7",
-      "reason": "region_disagreement",
+      "reason": "area_only",
       "regions": [
         "Mountaintops of the Giants"
       ],
@@ -104311,53 +104030,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w40-18"
-    },
-    {
-      "all_candidate_ids": [
-        7771114,
-        7773132,
-        7773139,
-        7774359
-      ],
-      "candidate_ids": [
-        7773132
-      ],
-      "competing_observation_count": 2,
-      "context_labels": [
-        "Drawstring Holy Grease x2"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w40-32",
-      "item_name": "Drawstring Holy Grease",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [
-        2
-      ],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7773132
-      ],
-      "observation_id": "walkthrough:1a7720dbbb079b5d25f9",
-      "reason": "area_only",
-      "regions": [
-        "Mountaintops of the Giants"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "east-mountaintops",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w40-32"
     },
     {
       "all_candidate_ids": [
@@ -109458,6 +109130,72 @@
     },
     {
       "all_candidate_ids": [
+        7770280,
+        7770467,
+        7771137,
+        7771139,
+        7771141,
+        7771243,
+        7771397,
+        7771398,
+        7772483,
+        7772534,
+        7772600,
+        7772900,
+        7772922,
+        7772976,
+        7773229,
+        7773239,
+        7773326,
+        7773340,
+        7773379,
+        7773442,
+        7773480,
+        7773573,
+        7773621,
+        7773797,
+        7774480
+      ],
+      "candidate_ids": [
+        7774480
+      ],
+      "competing_observation_count": 1,
+      "context_labels": [
+        "Larval Tear"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w42-41",
+      "item_name": "Larval Tear",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7774480
+      ],
+      "observation_id": "walkthrough:c811f84e949cbe2bd89f",
+      "reason": "area_only",
+      "regions": [
+        "Consecrated Snowfield"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "snowfield",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w42-41"
+    },
+    {
+      "all_candidate_ids": [
         7770354,
         7770853,
         7770892,
@@ -110290,7 +110028,7 @@
       "candidate_ids": [
         7770897
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Rainbow Stone x5"
       ],
@@ -111870,6 +111608,49 @@
     },
     {
       "all_candidate_ids": [
+        7770987,
+        7773717
+      ],
+      "candidate_ids": [
+        7773717
+      ],
+      "competing_observation_count": 1,
+      "context_labels": [
+        "Erdsteel Dagger"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w4-8",
+      "item_name": "Erdsteel Dagger",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773717
+      ],
+      "observation_id": "walkthrough:7aacdd23058c96f8aa87",
+      "reason": "area_only",
+      "regions": [
+        "Limgrave"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "west-limgrave",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w4-8"
+    },
+    {
+      "all_candidate_ids": [
         7772746,
         7772805,
         7774116
@@ -112064,15 +111845,19 @@
     },
     {
       "all_candidate_ids": [
-        7771114,
-        7773132,
-        7773139,
-        7774359
+        7770897,
+        7771368,
+        7772229,
+        7772912,
+        7773140,
+        7774194,
+        7774324,
+        7774365
       ],
       "candidate_ids": [
-        7773132
+        7773140
       ],
-      "competing_observation_count": 2,
+      "competing_observation_count": 3,
       "context_labels": [
         "Drawstring Holy Grease x2",
         "Golden Rune [7]",
@@ -112082,13 +111867,13 @@
       "file": "walkthrough.html",
       "game_version": "unknown",
       "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w38-28",
-      "item_name": "Drawstring Holy Grease",
+      "item_name": "Rainbow Stone",
       "matched_on": [
         "item_name",
         "guide_area"
       ],
       "mentioned_quantities": [
-        2
+        4
       ],
       "missing_evidence": [
         "exact_landmark",
@@ -112096,9 +111881,9 @@
         "quantity_or_position"
       ],
       "new_family_candidate_ids": [
-        7773132
+        7773140
       ],
-      "observation_id": "walkthrough:4d4f99079c7cba8ab5b1",
+      "observation_id": "walkthrough:bf984a22ce2a43010d45",
       "reason": "area_only",
       "regions": [
         "Mountaintops of the Giants"
@@ -112822,53 +112607,6 @@
     },
     {
       "all_candidate_ids": [
-        7772019,
-        7773253,
-        7773262,
-        7773629,
-        7773646
-      ],
-      "candidate_ids": [
-        7772019,
-        7773629
-      ],
-      "competing_observation_count": 3,
-      "context_labels": [
-        "Shadow Realm Rune [7]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-17",
-      "item_name": "Shadow Realm Rune [7]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7773629
-      ],
-      "observation_id": "walkthrough:20bdafebb453c6ec31c0",
-      "reason": "area_only",
-      "regions": [
-        "Abyssal"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "abyssal-woods",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d16-17"
-    },
-    {
-      "all_candidate_ids": [
         7770983,
         7771285,
         7771339,
@@ -112917,53 +112655,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d16-6"
-    },
-    {
-      "all_candidate_ids": [
-        7772019,
-        7773253,
-        7773262,
-        7773629,
-        7773646
-      ],
-      "candidate_ids": [
-        7772019,
-        7773629
-      ],
-      "competing_observation_count": 3,
-      "context_labels": [
-        "Shadow Realm Rune [7]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-7",
-      "item_name": "Shadow Realm Rune [7]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7773629
-      ],
-      "observation_id": "walkthrough:0b2af58d09bc9e096eb1",
-      "reason": "area_only",
-      "regions": [
-        "Abyssal"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "abyssal-woods",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d16-7"
     },
     {
       "all_candidate_ids": [
@@ -115598,6 +115289,67 @@
     },
     {
       "all_candidate_ids": [
+        7770207,
+        7771445,
+        7771480,
+        7771487,
+        7771488,
+        7771593,
+        7771612,
+        7772297,
+        7772455,
+        7773104,
+        7773130,
+        7773476,
+        7773541,
+        7773649,
+        7773718,
+        7773737,
+        7774444,
+        7774635
+      ],
+      "candidate_ids": [
+        7773649,
+        7774635
+      ],
+      "competing_observation_count": 5,
+      "context_labels": [
+        "Ancient Dragon Smithing Stone"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d18-12",
+      "item_name": "Ancient Dragon Smithing Stone",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773649,
+        7774635
+      ],
+      "observation_id": "walkthrough:968f74ab7ce12353b453",
+      "reason": "area_only",
+      "regions": [
+        "Jagged Peak"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "jagged-peak",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d18-12"
+    },
+    {
+      "all_candidate_ids": [
         7773516,
         7773652
       ],
@@ -115641,53 +115393,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d18-5"
-    },
-    {
-      "all_candidate_ids": [
-        7772019,
-        7773253,
-        7773262,
-        7773629,
-        7773646
-      ],
-      "candidate_ids": [
-        7772019,
-        7773629
-      ],
-      "competing_observation_count": 3,
-      "context_labels": [
-        "Shadow Realm Rune [7]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d17-12",
-      "item_name": "Shadow Realm Rune [7]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7773629
-      ],
-      "observation_id": "walkthrough:d9fc6747f46622f0deb6",
-      "reason": "area_only",
-      "regions": [
-        "Abyssal"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "midras-manse",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d17-12"
     },
     {
       "all_candidate_ids": [
@@ -116183,13 +115888,14 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7773229,
         7773340
       ],
-      "competing_observation_count": 3,
+      "competing_observation_count": 2,
       "context_labels": [
         "Larval Tear"
       ],
@@ -116723,13 +116429,14 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7773229,
         7773340
       ],
-      "competing_observation_count": 3,
+      "competing_observation_count": 2,
       "context_labels": [
         "Larval Tear"
       ],
@@ -124059,7 +123766,7 @@
         7773718,
         7773737
       ],
-      "competing_observation_count": 7,
+      "competing_observation_count": 4,
       "context_labels": [
         "Ancient Dragon Smithing Stone"
       ],
@@ -125048,6 +124755,55 @@
     },
     {
       "all_candidate_ids": [
+        7771114,
+        7773132,
+        7773139,
+        7774359
+      ],
+      "candidate_ids": [
+        7773132,
+        7773139
+      ],
+      "competing_observation_count": 2,
+      "context_labels": [
+        "Drawstring Holy Grease x2"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w40-32",
+      "item_name": "Drawstring Holy Grease",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [
+        2
+      ],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773132,
+        7773139
+      ],
+      "observation_id": "walkthrough:1a7720dbbb079b5d25f9",
+      "reason": "area_only",
+      "regions": [
+        "Mountaintops of the Giants"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "east-mountaintops",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w40-32"
+    },
+    {
+      "all_candidate_ids": [
         7770243,
         7770939,
         7771007,
@@ -125716,7 +125472,7 @@
         7771406,
         7771408
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Gravel Stone x3",
         "Great Grave Glovewort",
@@ -125872,7 +125628,7 @@
         7771406,
         7771408
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Great Grave Glovewort"
       ],
@@ -136742,7 +136498,7 @@
         7772912,
         7774365
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Rainbow Stone"
       ],
@@ -137698,49 +137454,6 @@
     },
     {
       "all_candidate_ids": [
-        7770987,
-        7773717
-      ],
-      "candidate_ids": [
-        7770987,
-        7773717
-      ],
-      "competing_observation_count": 1,
-      "context_labels": [
-        "Erdsteel Dagger"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w4-8",
-      "item_name": "Erdsteel Dagger",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7773717
-      ],
-      "observation_id": "walkthrough:7aacdd23058c96f8aa87",
-      "reason": "region_disagreement",
-      "regions": [
-        "Limgrave"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "west-limgrave",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w4-8"
-    },
-    {
-      "all_candidate_ids": [
         7771904,
         7772473,
         7772671,
@@ -138330,6 +138043,57 @@
     },
     {
       "all_candidate_ids": [
+        7771114,
+        7773132,
+        7773139,
+        7774359
+      ],
+      "candidate_ids": [
+        7773132,
+        7773139
+      ],
+      "competing_observation_count": 2,
+      "context_labels": [
+        "Drawstring Holy Grease x2",
+        "Golden Rune [7]",
+        "Rainbow Stone x4"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w38-28",
+      "item_name": "Drawstring Holy Grease",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [
+        2
+      ],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773132,
+        7773139
+      ],
+      "observation_id": "walkthrough:4d4f99079c7cba8ab5b1",
+      "reason": "area_only",
+      "regions": [
+        "Mountaintops of the Giants"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "west-mountaintops",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w38-28"
+    },
+    {
+      "all_candidate_ids": [
         7770367,
         7771094,
         7771734,
@@ -138432,6 +138196,104 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w38-73"
+    },
+    {
+      "all_candidate_ids": [
+        7772019,
+        7773253,
+        7773262,
+        7773629,
+        7773646
+      ],
+      "candidate_ids": [
+        7772019,
+        7773629,
+        7773646
+      ],
+      "competing_observation_count": 3,
+      "context_labels": [
+        "Shadow Realm Rune [7]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-17",
+      "item_name": "Shadow Realm Rune [7]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773629,
+        7773646
+      ],
+      "observation_id": "walkthrough:20bdafebb453c6ec31c0",
+      "reason": "area_only",
+      "regions": [
+        "Abyssal"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "abyssal-woods",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d16-17"
+    },
+    {
+      "all_candidate_ids": [
+        7772019,
+        7773253,
+        7773262,
+        7773629,
+        7773646
+      ],
+      "candidate_ids": [
+        7772019,
+        7773629,
+        7773646
+      ],
+      "competing_observation_count": 3,
+      "context_labels": [
+        "Shadow Realm Rune [7]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-7",
+      "item_name": "Shadow Realm Rune [7]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773629,
+        7773646
+      ],
+      "observation_id": "walkthrough:0b2af58d09bc9e096eb1",
+      "reason": "area_only",
+      "regions": [
+        "Abyssal"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "abyssal-woods",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d16-7"
     },
     {
       "all_candidate_ids": [
@@ -140182,39 +140044,26 @@
     },
     {
       "all_candidate_ids": [
-        7770207,
-        7771445,
-        7771480,
-        7771487,
-        7771488,
-        7771593,
-        7771612,
-        7772297,
-        7772455,
-        7773104,
-        7773130,
-        7773476,
-        7773541,
-        7773649,
-        7773718,
-        7773737,
-        7774444,
-        7774635
+        7772019,
+        7773253,
+        7773262,
+        7773629,
+        7773646
       ],
       "candidate_ids": [
-        7773476,
-        7773649,
-        7774635
+        7772019,
+        7773629,
+        7773646
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 3,
       "context_labels": [
-        "Ancient Dragon Smithing Stone"
+        "Shadow Realm Rune [7]"
       ],
       "family": "gameplay-guide:redmaw",
       "file": "dlc-walkthrough.html",
       "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d18-12",
-      "item_name": "Ancient Dragon Smithing Stone",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d17-12",
+      "item_name": "Shadow Realm Rune [7]",
       "matched_on": [
         "item_name",
         "guide_area"
@@ -140226,22 +140075,21 @@
         "quantity_or_position"
       ],
       "new_family_candidate_ids": [
-        7773476,
-        7773649,
-        7774635
+        7773629,
+        7773646
       ],
-      "observation_id": "walkthrough:968f74ab7ce12353b453",
+      "observation_id": "walkthrough:d9fc6747f46622f0deb6",
       "reason": "area_only",
       "regions": [
-        "Jagged Peak"
+        "Abyssal"
       ],
       "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
       "second_family_candidate_ids": [],
-      "section": "jagged-peak",
+      "section": "midras-manse",
       "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
-      "step": "d18-12"
+      "step": "d17-12"
     },
     {
       "all_candidate_ids": [
@@ -140818,14 +140666,15 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7773442,
         7773573,
         7773621
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Larval Tear"
       ],
@@ -140940,14 +140789,15 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7773442,
         7773573,
         7773621
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Larval Tear"
       ],
@@ -141008,14 +140858,15 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7773442,
         7773573,
         7773621
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Larval Tear"
       ],
@@ -151372,14 +151223,15 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7771137,
         7771139,
         7771141
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Golden Rune [10]",
         "Larval Tear"
@@ -151442,14 +151294,15 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7771137,
         7771139,
         7771141
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Great Ghost Glovewort",
         "Larval Tear"
@@ -151512,14 +151365,15 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7771137,
         7771139,
         7771141
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Larval Tear",
         "Somber Smithing Stone [7]"
@@ -165999,7 +165853,7 @@
         7771487,
         7771488
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 6,
       "context_labels": [
         "Ancient Dragon Smithing Stone"
       ],
@@ -166167,7 +166021,7 @@
         7771487,
         7771488
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 6,
       "context_labels": [
         "Ancient Dragon Smithing Stone"
       ],
@@ -166232,7 +166086,7 @@
         7771487,
         7771488
       ],
-      "competing_observation_count": 9,
+      "competing_observation_count": 6,
       "context_labels": [
         "Ancient Dragon Smithing Stone"
       ],
@@ -172503,7 +172357,7 @@
         7773461,
         7773462
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 7,
       "context_labels": [
         "Great Grave Glovewort"
       ],
@@ -172563,7 +172417,7 @@
         7773461,
         7773462
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 7,
       "context_labels": [
         "Great Grave Glovewort"
       ],
@@ -172623,7 +172477,7 @@
         7773461,
         7773462
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 7,
       "context_labels": [
         "Great Grave Glovewort"
       ],
@@ -172683,7 +172537,7 @@
         7773461,
         7773462
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 7,
       "context_labels": [
         "Great Grave Glovewort"
       ],
@@ -172743,7 +172597,7 @@
         7773461,
         7773462
       ],
-      "competing_observation_count": 8,
+      "competing_observation_count": 7,
       "context_labels": [
         "Great Grave Glovewort"
       ],
@@ -178052,7 +177906,8 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7770467,
@@ -178061,7 +177916,7 @@
         7771398,
         7773797
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Larval Tear"
       ],
@@ -178124,7 +177979,8 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7770467,
@@ -178133,7 +177989,7 @@
         7771398,
         7773797
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Ghost Glovewort [3]",
         "Golden Rune [7]",
@@ -178308,7 +178164,8 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7770467,
@@ -178317,7 +178174,7 @@
         7771398,
         7773797
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Larval Tear x2",
         "Mimic Tear",
@@ -178494,7 +178351,8 @@
         7773480,
         7773573,
         7773621,
-        7773797
+        7773797,
+        7774480
       ],
       "candidate_ids": [
         7770467,
@@ -178503,7 +178361,7 @@
         7771398,
         7773797
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Larval Tear"
       ],
@@ -224536,13 +224394,13 @@
   "schema_version": 1,
   "summary": {
     "by_reason": {
-      "area_only": 2213,
+      "area_only": 2223,
       "one_landmark_candidate": 9,
-      "region_disagreement": 548,
+      "region_disagreement": 538,
       "shared_landmark": 3,
       "source_area_unmapped": 76
     },
-    "held_checks_with_new_family_candidates": 2652,
+    "held_checks_with_new_family_candidates": 2655,
     "item_mentions": 4209,
     "limitations": "Suggestions only. Linked items can be mentions, not acquisitions. Guide area and catalog anchors are not independent proof of AP ownership. No quantity, position, mechanism or access is inferred.",
     "one_source_checks_with_second_family_candidates": 351,
