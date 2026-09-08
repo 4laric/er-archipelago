@@ -136,6 +136,17 @@ STEPS = [
              "could have noticed -- its own --check -- was wired into neither this file nor CI. "
              "Reads the param CSVs, so after INPUTS; before gen_data, which reads the tsv."),
 
+    Step(MODULES, "tools/datamine_enemy_drops.py",
+         emits=["greenfield/enemy_drops.tsv"],
+         why="the enemy DEATH-DROP table (MATT-ORACLE-ROADMAP item 7): NpcParam.itemLotId_enemy -> "
+             "the ItemLotParam_enemy lot group -> its item slots, with the one-time (getItemFlagId) "
+             "rows marked. NOT a gen_data input and NOT an AP location source -- it is evidence for "
+             "the product ruling on whether flagged enemy drops become checks, and the count basis "
+             "for matt_oracle's report-only class C. Listed HERE for the reason flag_lots is: a "
+             "datamine no entrypoint names is a table nothing re-derives when the param corpus "
+             "moves. Reads the param CSVs, so after INPUTS; order among the datamines is free "
+             "(nothing below reads it)."),
+
     Step(MODULES, "tools/datamine_shop_open_ranges.py",
          emits=["greenfield/shop_open_ranges.tsv"],
          why="shop-menu display scopes (issue #937): gen_data REFUSES to emit shop_data.py without "

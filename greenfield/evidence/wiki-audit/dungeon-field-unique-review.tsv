@@ -263,6 +263,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773936	unique_dungeon_pickup	Limgrave	Dragon Communion Seal	18007700	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7771728	unique_dungeon_pickup	Limgrave	Erdtree Greatbow	18007900	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7771727	unique_dungeon_pickup	Limgrave	Erdtree's Favor	18007050	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773934	unique_dungeon_pickup	Limgrave	Grave Glovewort [1]	18007060	m18_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773935	unique_dungeon_pickup	Limgrave	Haligdrake Talisman	18007070	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772842	unique_dungeon_pickup	Limgrave	Lance	1042397010	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772822	unique_dungeon_pickup	Limgrave	Lordsworn's Greatsword	1042377070	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source

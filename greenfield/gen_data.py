@@ -2579,6 +2579,80 @@ def _resolve_item(_raw):
     return (None, None)
 
 
+# ---- LOT RECONCILE: the check's OWN LOT is the authority on WHICH item it holds -----------------
+# region_map.csv's `item_name` is an upstream CAPTURE, not a verdict, and it went stale: 99 rows --
+# almost all of them DLC upgrade material -- name a different TIER of the same family than the lot
+# the flag actually fires (`Smithing Stone [1]` where lot 21000010 grants `Smithing Stone [7] x3`).
+# ItemLotParam itself -- the same rows `greenfield/flag_lots.tsv` captures, re-derived in PR #1480 --
+# is the live read, so where the capture and the param disagree the PARAM WINS.
+#
+# Two things went wrong per stale row, not one:
+#   * LOCATION_ITEM named the wrong item -- wrong tier feeds wrong filler weight, and for stones
+#     wrong logic on upgrade gating. tools/matt_oracle.py class A saw every one of these as an
+#     item-identity disagreement against an independently curated table (its `_A_OPEN_DLC_MATERIAL`).
+#   * LOCATION_UNITS silently paid x1. `_lot_units` joins ON FullID; a name that resolves to the
+#     wrong FullID matches no slot, so the stack quantity vanished with no error and no count.
+# Reconciling the NAME at the source fixes both, and fixes the location's display string with them
+# (the name loop far below reads this same `item_name`), so a tracker no longer labels a check with
+# an item it does not hold.
+#
+# DELIBERATELY NARROW. It fires only where the curated name resolves to an item the flag's own lot
+# family does not award, and only through TWO ARMS. Everything else is left exactly as it was:
+#   1. SINGLE-ITEM LOT. The flag's lot names exactly one item and the curated name is a different
+#      one. There is no ambiguity for the lot to resolve, so the lot simply wins.
+#   2. SAME FAMILY, DIFFERENT TIER, on a multi-item lot. `Somber Smithing Stone [4]` where the
+#      family of lots under flag 20007110 is {Silver Horn Tender, Golden Horn Tender, Somber
+#      Smithing Stone [7]}. The tier bracket is the only thing that moved and exactly one lot slot
+#      shares the curated name's family, so WHICH slot the row meant is not a guess.
+# A row whose name is already the lot's item, which resolves to nothing, or whose flag has no lot at
+# all (shop / EMEVD grant) is untouched -- and so is the true BUNDLE case, where a multi-item lot no
+# longer contains the curated name AND no single same-family slot stands in for it. Picking "the"
+# item there WOULD be a guess, so it stays an open oracle finding rather than a silent rewrite.
+_TIER_RE = re.compile(r"\s*\[\d+\]\s*$")
+
+
+def _item_family(_nm):
+    """An item name with its trailing tier bracket stripped: `Smithing Stone [7]` -> the family."""
+    return _norm(_TIER_RE.sub("", _nm or ""))
+
+
+def _lot_reconcile_name(_flag, _raw):
+    """The lot's own item name for `_flag`, or None to leave the curated name alone."""
+    try:
+        _fl = int(_flag)
+    except (TypeError, ValueError):
+        return None
+    _cands = set(_LOT_FULLS_BY_FLAG.get(_fl, ()))
+    if not _cands:
+        return None                                  # no lot: shop / EMEVD grant, not ours to judge
+    _cur_full, _cur_base = _resolve_item(_raw)
+    if _cur_full is None or _cur_full in _cands:
+        return None                                  # unresolvable, or already right
+    _named = [_FULL2NAME_ALL[_c] for _c in _cands
+              if _FULL2NAME_ALL.get(_c) and not _is_placeholder_name(_FULL2NAME_ALL[_c])]
+    if len(_cands) == 1:                                                       # ARM 1
+        _lot_name = _named[0] if _named else None
+    else:                                                                      # ARM 2
+        _fam = _item_family(_cur_base)
+        _kin = sorted({_n for _n in _named if _item_family(_n) == _fam})
+        _lot_name = _kin[0] if len(_kin) == 1 else None
+    if not _lot_name or _norm(_lot_name) == _norm(_cur_base or ""):
+        return None                                  # nothing to adopt, or #682's duplicate-name job
+    return _lot_name
+
+
+_LOT_RECONCILED = []           # (flag, curated name, lot name) -- reported at the regen, not hidden
+for _rrec in _ALLROWS:
+    _newnm = _lot_reconcile_name(_rrec.get("flag"), _rrec.get("item_name"))
+    if _newnm is not None:
+        _LOT_RECONCILED.append((_rrec.get("flag"), _rrec.get("item_name"), _newnm))
+        _rrec["item_name"] = _newnm
+print("lot reconcile: %d region_map row(s) renamed to the item their own lot grants "
+      "(ItemLotParam wins over the stale region_map capture)" % len(_LOT_RECONCILED))
+for _rf, _ro, _rn in sorted(_LOT_RECONCILED, key=lambda _t: int(_t[0])):
+    print("    flag %-12s %r -> %r" % (_rf, _ro, _rn))
+
+
 # ---- PHANTOM-FLAG GUARD: drop checks whose acquisition flag does not exist in the game ----------
 # region_map.csv carries `method=synthetic_areacode` rows whose flag was INVENTED by the upstream
 # pipeline. Event-flag ids are group-allocated: an unallocated id is a no-op, so the client can never
@@ -8094,7 +8168,21 @@ OUT_SHOP = os.path.join(HERE, "eldenring", "tables", "shop_data.py")
 with open(OUT_SHOP, "w", newline="\n", encoding="utf-8") as f:
     f.write('"""AUTO-GENERATED by greenfield/gen_data.py -- DO NOT EDIT (regenerate: python greenfield/gen_data.py; see gen-greenfield.ps1). Shop-purchase checks: greenfield ap-id -> ShopLineupParam\n')
     f.write('eventFlag_forStock (region_map shop rows, flag_source=="shop"). Matt-free; preview goods are\n')
-    f.write('vanilla equipIds. Empty if ShopLineupParam is absent (SPEC-PARITY.md 14.3)."""\n')
+    f.write('vanilla equipIds. Empty if ShopLineupParam is absent (SPEC-PARITY.md 14.3).\n')
+    f.write("\n")
+    f.write("SCOPE, decided 2026-09-08 (docs/MATT-ORACLE-ROADMAP.md item 6). A shop check here is a\n")
+    f.write("ShopLineupParam row that carries an eventFlag_forStock -- a flag that fires ONCE, which is\n")
+    f.write("what makes the purchase an observable, sendable check. Every FLAGLESS infinite-stock shop\n")
+    f.write("id (the merchant staples: arrows, throwing pots, crafting materials, restocking\n")
+    f.write("consumables) is OUT OF SCOPE BY DESIGN, not an omission. They have no flag to watch, they\n")
+    f.write("never exhaust, and a randomizer that models them as checks either invents a flag or sends\n")
+    f.write("the same location forever. tools/matt_oracle.py's ShopInfinite scope (LocationData scope 3)\n")
+    f.write("is the same set from the other side; its two gated checks read Event-scope rows only.\n")
+    f.write("\n")
+    f.write("Adjudicated with it: flags 400282, 400283, 400285 and 400390 are LOT rows, not shop rows.\n")
+    f.write("No ShopLineupParam row in the vanilla params names any of the four in eventFlag_forStock or\n")
+    f.write("eventFlag_forRelease; each is awarded by ItemLotParam_map (the first three by TWO lots\n")
+    f.write('apiece, which is why the oracle sees a BUNDLE disagreement on them)."""\n')
     f.write("SHOP_ROW_FLAGS = {\n")
     for _aid in sorted(SHOP_ROW_FLAGS, key=int):
         f.write(f"    {_aid!r}: {SHOP_ROW_FLAGS[_aid]},\n")

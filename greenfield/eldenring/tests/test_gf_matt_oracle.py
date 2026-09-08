@@ -264,12 +264,15 @@ class MattOracleLogic(unittest.TestCase):
     def test_E_class_sets_are_disjoint_and_land_in_their_table(self):
         # WITNESS FIRST: "these two sets do not overlap" is trivially true of two empty sets, so
         # assert they are populated before asserting they are disjoint.
-        self.assertGreater(len(self.M._A_OPEN_DLC_MATERIAL), 50)
+        # Class A no longer HAS a bulk set. `_A_OPEN_DLC_MATERIAL`'s 99 DLC upgrade-material flags
+        # were region_map.csv's stale `item_name` capture, closed by gen_data's lot-reconcile pass,
+        # and the set was DELETED rather than shrunk -- so nothing here may assert its existence.
+        # Class A's own invariants are covered by the reason-vocabulary test above, which walks
+        # ITEM_IDENTITY_KNOWN itself and so would also cover any future bulk set merged into it.
+        self.assertGreater(len(self.M.ITEM_IDENTITY_KNOWN), 0)
         self.assertGreater(len(self.M._B_SCOPE_MAP_FRAGMENT), 10)
         self.assertGreater(len(self.M._B_OPEN), 10)
         self.assertFalse(self.M._B_SCOPE_MAP_FRAGMENT & self.M._B_OPEN)
-        for f in self.M._A_OPEN_DLC_MATERIAL:
-            self.assertIn(f, self.M.ITEM_IDENTITY_KNOWN)
         for f in self.M._B_SCOPE_MAP_FRAGMENT | self.M._B_OPEN:
             self.assertIn(f, self.M.MISSING_SLOT_KNOWN)
 
