@@ -64,7 +64,11 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   Rold Medallion keeps Morgott as its only sweep granter. **Contract hash does not move** — it stays
   `613fb438` and no wire field changes, so a v0.6.0.3 client pairs with this apworld as before.
   **Seeds do change**: Altus loses 7 checks and Leyndell gains them, which moves both regions'
-  check counts, the fill, and the difficulty ramp for the tower's ground.
+  check counts, the fill, and the difficulty ramp for the tower's ground. The gitlink moves to
+  **clients #661**, which regenerates the client's baked `region_locks.rs` with the same move; that
+  table is only consulted for seeds shipping neither `regionOpenFlags` nor `areaLockFlags` (a
+  foreign apworld's), since slot data wins whenever it is present — so an Elden Ring player's
+  behaviour here comes from this apworld, not from the client bump.
 
 ## v0.6.0.4 — 2026-09-07
 
