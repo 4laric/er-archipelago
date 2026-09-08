@@ -74,5 +74,35 @@ class Emitted(unittest.TestCase):
         self.assertIn("No row here is an AP location", ed.PREAMBLE)
 
 
+class StaleDiff(unittest.TestCase):
+    """`--check`'s report has to name the COLUMN: CI's tree is gone by the time anyone reads the log."""
+
+    def _line(self, name):
+        return "\t".join(["1", "", "0", "2", "3", "1", "9", "9", name, "1", "1.0000", "", "", ""])
+
+    def test_names_the_column_that_moved(self):
+        a = "\n".join([ed.HEADER, self._line("Grave Glovewort [2]")])
+        b = "\n".join([ed.HEADER, self._line("")])
+        out = ed.stale_diff(a, b)
+        self.assertIn("columns that moved: item_name", out)
+        self.assertIn("1 differing line(s)", out)
+        self.assertIn("line 2:", out)
+        self.assertIn("Grave Glovewort [2]", out)
+
+    def test_reports_row_counts_and_missing_lines(self):
+        a = "\n".join([ed.HEADER, self._line("x"), self._line("y")])
+        b = "\n".join([ed.HEADER, self._line("x")])
+        out = ed.stale_diff(a, b)
+        self.assertIn("committed: 3 lines / fresh: 2 lines", out)
+        self.assertIn("<missing>", out)
+
+    def test_caps_how_much_it_prints(self):
+        a = "\n".join([ed.HEADER] + [self._line("a%d" % i) for i in range(50)])
+        b = "\n".join([ed.HEADER] + [self._line("b%d" % i) for i in range(50)])
+        out = ed.stale_diff(a, b, limit=5)
+        self.assertIn("50 differing line(s) (first 5 shown)", out)
+        self.assertEqual(out.count("    committed: "), 5)
+
+
 if __name__ == "__main__":
     unittest.main()
