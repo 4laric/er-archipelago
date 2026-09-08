@@ -151,6 +151,33 @@ STEPS = [
          why="prove the stamp on disk equals a fresh manifest -- catches the 'edited a source file "
              "AFTER regenerating' trap, which cost six CI rounds on world PR #481."),
 
+    Step(TABLES, "tools/build_v060_current_evidence.py",
+         emits=["greenfield/evidence/v060-current/claims.tsv",
+                "greenfield/evidence/v060-current/evidence.tsv",
+                "greenfield/evidence/v060-current/sources.tsv",
+                "greenfield/evidence/v060-current/summary.json"],
+         why="THE #699 HOLE, THIRD HAT (found 2026-09-08 by PRs #1485/#1490). Every claim and "
+             "evidence row EMBEDS the sha256 of its source file (data.py, legacy_key_gates.py, "
+             "start_grace.py ...), so ANY edit to those modules -- a comment included -- rewrites "
+             "the whole 20k-row bundle, and `test_gf_v060_current_evidence.py::test_checked_in_"
+             "bundle_validates_and_is_byte_deterministic` goes red. It was outside this "
+             "entrypoint, so #1490's merge resolution shipped main's hashes under moved sources "
+             "and the fix had to be applied by hand in 2cd6e8ea. AFTER gen_data (MODULES), which "
+             "writes the modules it hashes; FIRST in TABLES so the two artifacts that hang off "
+             "the bundle (the baseline below, and build_evidence_browser.py in PAGES, which "
+             "embeds the bundle digest -- f3141dd1) both see the fresh bytes. Costs ~1s."),
+    Step(TABLES, "tools/check_evidence_baseline.py",
+         ["--current", "greenfield/evidence/v060-current/summary.json",
+          "--baseline", "greenfield/evidence/v060-current-baseline.json", "--refresh"],
+         emits=["greenfield/evidence/v060-current-baseline.json"],
+         why="the second artifact hanging off the bundle (f3141dd1). `--refresh`, NOT `--update`: "
+             "it rewrites the baseline only when content_hash is the sole difference -- the "
+             "mechanical case, where the census did not move and no human is owed a look. If any "
+             "counted field moved, it still reports DRIFT and fails, which stops this entrypoint "
+             "and asks for the reviewed re-baseline the file's docstring describes. An "
+             "unconditional --update here would have quietly deleted that gate. Immediately "
+             "AFTER the builder, which writes the summary it reads."),
+
     Step(TABLES, "tools/gen_region_locks.py", needs_client=True,
          why="region_locks.rs -- the THIRD cross-repo table, baked from the region_groups spine."),
     Step(TABLES, "greenfield/gen_contract.py",
