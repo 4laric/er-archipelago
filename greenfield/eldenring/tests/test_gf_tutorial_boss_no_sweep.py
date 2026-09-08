@@ -551,8 +551,19 @@ def test_the_sweep_corpus_did_not_shrink():
     # The live invasion flag400162 is intentionally not a Wormface sweep reward.
     assert all(7774254 not in members for members in DUNGEON_SWEEPS.values())
     # Native M4G dungeon admission adds only Silver Scarab to Stray Mimic Tear.
-    assert total == 4128, (
-        "sweep corpus is %d, expected 4128. If a sweep was legitimately added or removed, say WHY "
+    # 2026-09-08 (#1513): 4128 -> 4121. SEVEN removals, zero additions, zero re-ownership --
+    # measured pairwise against the merge base, not inferred. The Ymir/Metyr questline rewards are
+    # now Hole-Laden-Necklace-gated (features/legacy_key_gates._YMIR_*), and neither Scadu Altus
+    # regional sweep trigger is behind the necklace, so both were a way past the new gate -- the
+    # #664 bypass exactly, through a different door, and the general property in
+    # test_no_sweep_grants_a_check_its_trigger_is_not_gated_behind is what caught it. Closed with
+    # two gen_data._SWEEP_EXCLUDED_FLAGS entries: 2049440800 (Dryleaf Dane) sheds f400666
+    # Cherishing Fingers, and 2051440800 (Rakshasa) sheds f400664 -- one flag, six co-check members
+    # (bell bearing, Maternal Staff, four High Priest pieces), hence 1 + 6 = 7. The exclusions are
+    # applied AFTER every construction and redistribution pass and the members deliberately do not
+    # re-home, so there is no round-robin collateral: nothing else moved.
+    assert total == 4121, (
+        "sweep corpus is %d, expected 4121. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -849,6 +860,12 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # (2046450800, 540912), (2046450800, 540914), (2048440800, 540920),
     # (2048440800, 540922). Zero removals or re-ownership relative to the NPC base.
     # Exactly (30200800, 30207900) added; no removals or re-ownership.
-    assert (digest, n) == ("10e98be68f92e19f", 4128), (  # #1437: then remove exactly (1040520800, 1039527700), no new owner
-        "sweep OWNERSHIP changed: (%s, %d), expected (10e98be68f92e19f, 4128). The total alone will "
+    # 2026-09-08 (#1513): 10e98be68f92e19f/4128 -> 439cf84750113f47/4121. Diffed in (trigger, flag)
+    # space against the merge base, as this docstring demands: removed exactly
+    # {(2049440800, 400666): 1, (2051440800, 400664): 6}, added {}, re-owned nothing, and ZERO
+    # crossed a region boundary (nothing moved at all). Both removals are the necklace-gate bypass
+    # closed in gen_data._SWEEP_EXCLUDED_FLAGS -- see the sibling total's note above. The seven is
+    # 1 + 6 because f400664 is one acquisition flag with six co-check members.
+    assert (digest, n) == ("439cf84750113f47", 4121), (  # #1437: then remove exactly (1040520800, 1039527700), no new owner
+        "sweep OWNERSHIP changed: (%s, %d), expected (439cf84750113f47, 4121). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

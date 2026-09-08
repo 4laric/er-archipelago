@@ -10781,6 +10781,19 @@ _SWEEP_EXCLUDED_FLAGS = {
     # move to Leyndell put them in the same divvy, and the medallion started being offered by the
     # tower's boss as well as by Morgott. Excluded so the gift keeps exactly one granter.
     34140850: {400001},
+    # #1513, and the SAME BYPASS #664 closed for the Rhia bell reward. Both Scadu Altus regional
+    # sweeps hand out Ymir-questline checks that are now Hole-Laden-Necklace-gated, while neither
+    # trigger is behind the necklace -- so killing the boss would pay a check the player never
+    # proved they could reach. test_gf_dungeon_sweep_rungs's general property caught both the
+    # moment the gates landed.
+    #   2049440800 Dryleaf Dane (m61_49_44) -> f400666 Cherishing Fingers. Its pickup asset is not
+    #     even spawned until f2051450800 (Ymir dead); common event 90005750 holds it closed.
+    #   2051440800 Rakshasa (m61_51_44) -> f400664, the six-lot family awarded by common $Event(4857)
+    #     on the same f2051450800.
+    # As with the other entries these members intentionally do not re-home: another sweep would be
+    # the same bypass through a different door.
+    2049440800: {400666},
+    2051440800: {400664},
 }
 # Vanilla gifts whose acquisition flag is itself post-boss world progression. These are not filler
 # and must never enter the region divvy: each row is attached only to the exact defeat condition
