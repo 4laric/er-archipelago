@@ -787,12 +787,20 @@ same game: a disagreement is evidence, and it is the only second opinion our gen
 It gates two classes and reports the rest:
 
 - **A. ITEM IDENTITY** — `item_ids.LOCATION_ITEM` vs the vanilla item his DebugText records for the
-  same flag. 3977/4084 agree; the 107 disagreements are allowlisted by cause in the tool.
+  same flag. 4076/4084 agree; the 8 disagreements are allowlisted by cause in the tool. (It was
+  3977/4084 when the gate landed: 99 of the 107 were `region_map.csv`'s stale `item_name` capture
+  naming the wrong DLC upgrade-material tier, closed by gen_data's lot-reconcile pass.)
 - **B. MISSING SLOTS** — his Event-scope flags `data.LOCATIONS` has no row for, after excluding his
   `norandom` / `ignore` / `tarnished` / `enemy*` vocabulary. 80 remain, allowlisted by cause --
   and since the roadmap-item-3 triage every one of the 80 carries a CLASSIFIED reason (KEYING or
   SCOPE, each naming the gen_data exclusion or the derivation refusal that explains it). There is
   no OPEN bin in class B any more: a new missing slot fails the gate rather than joining a list.
+- **C. ENEMY DROPS** -- **report-only, never a gate.** Our ONE-TIME (flagged) enemy-drop flags from
+  `greenfield/enemy_drops.tsv` (`tools/datamine_enemy_drops.py`, derived from NpcParam /
+  ItemLotParam_enemy) counted against his `enemy*`-tagged slots, with the flag-join overlap. His
+  slot is a randomiser placement and ours is a param row: neither is a subset of the other, so
+  equality would be noise and only the magnitudes are signal. Prints counts from his side and OUR
+  flag ids from ours.
 
 Region assignment, missable tagging, shop granularity and DLC membership are **report-only**
 (`--report`): the two models differ structurally there, so equality would be noise, not signal.
