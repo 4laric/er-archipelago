@@ -7,8 +7,9 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** Optional — nothing in this window yet changes the client; a v0.6.0.3 client keeps
-  playing every 0.6.0-line seed, and the contract hash has not moved since v0.6.0.3.
+- **Client:** **Recommended.** The client fix below (clients #659) stops a received key item
+  being reported as its own check. A v0.6.0.3 client still plays every 0.6.0-line seed, and the
+  contract hash has not moved since v0.6.0.3.
 - **APWorld:** Host-only — install v0.6.0.4 when generating a new room once it ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
@@ -49,6 +50,15 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   the shipped apworld never imports the tool or his data. It leaves 103 item rows and 45 missing
   slots on the record as OPEN findings to adjudicate later, chiefly a DLC upgrade-material tier
   disagreement across 99 flags.
+- **A received key item no longer pays its own check (clients #659).** Reported 2026-09-07: a
+  player killed Black Knight Garrew, the boss sweep sent its members, and `Leyndell :: Rold
+  Medallion` went out too, never checked. Flag 400001 is both that location's poll flag and the
+  "obtained" flag the client sets when the Rold Medallion **item** arrives, so the receive read
+  back as a pickup; the sweep merely returned the medallion as one of its items. The Spirit
+  Calling Bell, Whetstone Knife and Crafting Kit share the shape. The poll now suppresses a
+  detection only when the client itself wrote that flag this session, so a genuine acquisition
+  (Melina after Morgott, Kalé's shop) still pays exactly once. Client only: no contract, seed or
+  world-logic change. The gitlink moves to client main `e3d7e42` in this same commit.
 
 ## v0.6.0.3 — 2026-09-07
 
