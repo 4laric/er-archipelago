@@ -4266,8 +4266,42 @@ print("enabler_cross_region (StartDisabled treasure gated from ANOTHER region; a
 # Rya's Necklace (f400300): a genuine NPC handover you can hand back / trade away, and Rya's own
 # questline moves her out of Liurnia. Alaric's call 2026-08-04, alongside the region fix above.
 QUEST_GATED_FLAGS = QUEST_GATED_FLAGS | {400300}
+# ---- REASON CLASSES, captured BEFORE the union ------------------------------------------------
+# The union below decides WHICH checks are missable. It does NOT decide what we SAY about them, and
+# until 2026-09 it did: every member came out of _MISSABLE labelled "questline", including the
+# multi-site set, whose members are not questline-gated at all. Flag 60510 is the standing example --
+# it is set from BOTH m10_00 and m11_00, so the pickup exists at more than one site and which one is
+# still takeable is decided by the order you visit them. Nobody's quest is involved. This file's own
+# doctrine (see gesture_award / questline_item, and the "questline on a rock in the Cave of Knowledge
+# would be a lie" note below) is that the label is a CLAIM ABOUT WHY -- so a class whose mechanism is
+# not a questline must not borrow the questline label.
+#
+# Precedence is deliberate: a flag that a hand audit / NPC-state / boss-arena / esd_gift derivation
+# ALSO carries keeps "questline", because those are direct evidence about the mechanism while the
+# multi-site screen is a structural inference. Only flags whose ONLY derivation is the structural one
+# get the new label. This changes NO flag's missability -- it is a naming fix, not a scope one.
+_QG_QUESTLINE_EVIDENCE = (QUEST_GATED_FLAGS | _QUESTLINE_GATED | _NPC_STATE_GATED
+                          | _BOSS_ARENA_QUEST_GATED | _ESD_GIFT_GATED)
 QUEST_GATED_FLAGS |= (_QUESTLINE_GATED | _NPC_STATE_GATED | _MULTI_SITE | _BOSS_ARENA_QUEST_GATED
                       | _ESD_GIFT_GATED | _ENABLER_CROSS_REGION)
+
+
+def _quest_gated_reason(_fl):
+    """Reason for a QUEST_GATED_FLAGS member -- the real mechanism, not the union's name.
+
+    questline          -- an NPC / quest can destroy or skip the award (the original meaning).
+    multisite          -- the flag is set from SEVERAL MAPS, so the item may not be obtainable in
+                          all of them; which site still has it is decided by the order you visit.
+    cross_region_prereq -- a StartDisabled treasure whose enabler tests a flag ANOTHER region sets
+                          (580600 needs Messmer dead), a prerequisite the region graph cannot state.
+    """
+    if _fl in _QG_QUESTLINE_EVIDENCE:
+        return "questline"
+    if _fl in _MULTI_SITE:
+        return "multisite"
+    if _fl in _ENABLER_CROSS_REGION:
+        return "cross_region_prereq"
+    return "questline"
 
 
 # Interior region fallback for RECOVERED globals: an interior dungeon tile (mBB_SS) not curated in
@@ -5493,6 +5527,9 @@ print(f"gesture: of those, {len(_esd_gesture_flags)} are ESD-TAUGHT (AcquireGest
 # are folded in HERE rather than in _QUESTLINE_GATED: same reasoning, different derivation. (f40cc9a
 # deliberately left them out as "a judgement nobody has made"; Alaric made it the same day.)
 QUEST_GATED_FLAGS |= set(_esd_gesture_flags) | set(_npc_gesture_flags)
+# Gesture awards are NPC dialogue / questline awards, so they belong to the questline evidence
+# class too -- registered explicitly rather than relying on _quest_gated_reason's fallback.
+_QG_QUESTLINE_EVIDENCE |= set(_esd_gesture_flags) | set(_npc_gesture_flags)
 # ---- EVERY gesture check is barred from carrying progression (Alaric 2026-07-26) ---------------
 # "they're no progression surface. but belt and suspenders let's tag em all missable."
 #
@@ -8184,7 +8221,7 @@ for _i, _r in enumerate(rows):
         # rule today; "at most K from one currency" needs to know which currency.
         _MISSABLE[BASE_AP + _i] = _alt_currency_label(_mf)
     elif _mf in QUEST_GATED_FLAGS:
-        _MISSABLE[BASE_AP + _i] = "questline"
+        _MISSABLE[BASE_AP + _i] = _quest_gated_reason(_mf)
     elif _mf in GESTURE_AWARD_MISSABLE:
         _MISSABLE[BASE_AP + _i] = "gesture_award"
     elif _mf in QUESTLINE_ITEM_FLAGS:
@@ -8198,7 +8235,7 @@ for _ap9, (_cfl9, _tb9x, _lot9x, _fu9x, _nm9x) in CO_CHECK_EMITTED.items():
     elif _cfl9 in DRAGONHEART_FLAGS:
         _MISSABLE[_ap9] = _alt_currency_label(_cfl9)
     elif _cfl9 in QUEST_GATED_FLAGS:
-        _MISSABLE[_ap9] = "questline"
+        _MISSABLE[_ap9] = _quest_gated_reason(_cfl9)
     elif _cfl9 in GESTURE_AWARD_MISSABLE:
         _MISSABLE[_ap9] = "gesture_award"
     elif _cfl9 in QUESTLINE_ITEM_FLAGS:

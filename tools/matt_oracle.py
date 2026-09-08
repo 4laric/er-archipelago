@@ -14,7 +14,11 @@ six discrepancy classes surveyed in the 2026-09 oracle study are tight enough to
 
 Everything else (region assignment, missable tagging, shop granularity, DLC membership) is
 report-only and lives in `--report`, because the two models differ structurally there rather than
-factually.
+factually. `--report` prints one such survey outright:
+
+  C. MISSABLE -- our `MISSABLE_LOCATIONS` flags against his Event-scope slots tagged `missable`.
+     Never a gate: he tags a SLOT ("do not randomize into oblivion"), we tag a CHECK ("may not host
+     REQUIRED progression"), so a one-sided flag is a worklist entry, not a disagreement.
 
 🛑 LICENCE BOUNDARY -- NON-NEGOTIABLE. SoulsRandomizers is "mostly all rights reserved" (LICENSE.md,
 "SoulsRandomizers License, Version 1.0", Matthew Gruen). Clause 3 licenses viewing and reproducing
@@ -249,6 +253,51 @@ def _load_table(repo, name):
     return mod
 
 
+def load_missable_flags(repo=REPO, by_flag=None):
+    """(flags, n_rows) -- the FLAGS our missable_locations table tags, via data.LOCATIONS.
+
+    MISSABLE_LOCATIONS is keyed on ap_id; the join below is on the flag number space, so map each
+    tagged ap_id back to its flag. Rows whose ap_id has no LOCATIONS entry (there should be none)
+    are dropped rather than guessed at.
+    """
+    miss = _load_table(repo, "missable_locations")
+    data = _load_table(repo, "data")
+    ap_flag = {}
+    for entries in data.LOCATIONS.values():
+        for _name, ap_id, flag in entries:
+            ap_flag[ap_id] = flag
+    flags, n_rows = set(), 0
+    for ap_id in miss.MISSABLE_LOCATIONS:
+        n_rows += 1
+        if ap_id in ap_flag:
+            flags.add(ap_flag[ap_id])
+    return flags, n_rows
+
+
+# `missable` is used here as FILTER VOCABULARY ONLY -- the same way EXCLUDED_TAGS is. No tag string
+# of his is stored as expectation data, and nothing but bare flag integers is printed.
+MISSABLE_TAG = "missable"
+
+
+def check_missable(rows, by_flag, ours_flags):
+    """Report-only join: our missable flags vs his Event-scope slots tagged `missable`.
+
+    Structural, not factual: he tags a SLOT, we tag a CHECK, and the two curations were built for
+    different jobs (his for "don't randomize this into oblivion", ours for "this may not host
+    REQUIRED progression"). So this never gates -- it is a worklist, not an expectation.
+
+    Returns (joinable, agree, his_only, ours_only): joinable is his missable-tagged flags that
+    data.LOCATIONS carries a row for; agree is the intersection with ours; his_only / ours_only are
+    the two one-sided sets, as sorted flag ids.
+    """
+    his = {r["flag"] for r in rows
+           if r["stype"] == SCOPE_EVENT and r["flag"] and MISSABLE_TAG in r["tags"]}
+    joinable = his & set(by_flag)
+    agree = joinable & ours_flags
+    return (sorted(joinable), sorted(agree), sorted(joinable - ours_flags),
+            sorted(ours_flags - agree))
+
+
 def load_ours(repo=REPO):
     """(by_flag, location_item). by_flag: flag -> [(region, name, ap_id), ...]."""
     data = _load_table(repo, "data")
@@ -404,6 +453,23 @@ def main(argv=None):
         mark = "known(%s)" % m["known"].split(":", 1)[0] if m["known"] else "UNEXPLAINED"
         print("  [%s] flag %s  his tags [%s]" % (mark, m["flag"], " ".join(m["tags"]) or "-"))
     print()
+
+    if args.report:
+        ours_flags, n_miss_rows = load_missable_flags(args.repo, by_flag)
+        joinable, agree, his_only, ours_only = check_missable(rows, by_flag, ours_flags)
+        print("== C. MISSABLE (report-only, no gate) ==")
+        print("ours: %d MISSABLE_LOCATIONS row(s), %d distinct flag(s)" % (n_miss_rows, len(ours_flags)))
+        print("his `%s`-tagged Event flags that data.LOCATIONS carries a row for: %d joinable"
+              % (MISSABLE_TAG, len(joinable)))
+        print("  agree     %d" % len(agree))
+        print("  his-only  %d (he tags missable, we do not)" % len(his_only))
+        print("  ours-only %d (we tag missable, his slot is not tagged)" % len(ours_only))
+        print("  his-only flags:  %s" % " ".join(str(f) for f in his_only))
+        print("  ours-only flags: %s" % " ".join(str(f) for f in ours_only))
+        print("NOTE: the two curations answer different questions (his slot-level 'do not randomize'"
+              " vs our check-level 'must not host REQUIRED progression'), so a one-sided flag is a"
+              " worklist entry, not a defect. Report-only by design.")
+        print()
 
     stale = stale_entries({d_["flag"] for d_ in dis}, by_flag)
     for which, flag, reason in stale:

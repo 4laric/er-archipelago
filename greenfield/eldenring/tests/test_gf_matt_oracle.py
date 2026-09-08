@@ -12,6 +12,10 @@ verdict:
   B. ITEM IDENTITY -- agreement, disagreement, and the "not comparable" paths.
   C. MISSING SLOTS -- the tag-exclusion vocabulary, the allowlist, and the rule that an allowlisted
      flag stays visible even when a tag would also have hidden it.
+  F. MISSABLE JOIN -- the report-only survey of our MISSABLE_LOCATIONS flags against his slots
+     tagged `missable`: the joinable set, agreement, and both one-sided sets, on a second synthetic
+     fixture. `missable` is filter vocabulary here exactly as EXCLUDED_TAGS is; no row of his is
+     stored.
   D. SKIP -- a missing or empty checkout exits 0 and says SKIP. This is load-bearing: the tool is
      opt-in and a missing checkout must never read as a failure.
   E. ALLOWLIST HYGIENE -- both allowlists are bare ints with non-empty reasons in the documented
@@ -279,6 +283,118 @@ class MattOracleLogic(unittest.TestCase):
         self.assertTrue(self.M._excluded_by_tags(frozenset({"norandom"})))
         self.assertTrue(self.M._excluded_by_tags(frozenset({"enemygem"})))
         self.assertFalse(self.M._excluded_by_tags(frozenset({"missable", "chest"})))
+
+
+# A SECOND synthetic fixture, for the report-only missable join. Flags 90021-90025 and shop id 90102
+# are invented numbers in a range the game does not use; every DebugText line was written for this
+# test. PROVENANCE-OK, same declaration as the fixture above: grammar only, no foreign data.
+FIXTURE_MISSABLE = """# Synthetic fixture written for test_gf_matt_oracle. Not derived from any third-party table.
+Slots:
+- Key: '200000,0:0000090021::'
+  DebugText:
+  - Rune Arc - lot 90000021[treasure in m99_00_00_00] Rune Arc, 1x
+  Tags: missable npc
+- Key: '200001,0:0000090022::'
+  DebugText:
+  - Rune Arc - lot 90000022[treasure in m99_00_00_00] Rune Arc, 1x
+  Tags: missable
+- Key: '200002,0:0000090023::'
+  DebugText:
+  - Rune Arc - lot 90000023[treasure in m99_00_00_00] Rune Arc, 1x
+  Tags: missable
+- Key: '200003,0:0000090024::'
+  DebugText:
+  - Rune Arc - lot 90000024[treasure in m99_00_00_00] Rune Arc, 1x
+  Tags: chest
+- Key: '200004,3:0000000000:90102:'
+  DebugText:
+  - Rune Arc - shop 90102[merchant] 1x for 100 runes - flag 90201
+  Tags: missable shop
+"""
+
+# Our side. 90021/90022/90024 have rows; 90023 does NOT (so his missable tag is not joinable).
+MISS_BY_FLAG = {
+    90021: [("Limgrave", "Limgrave :: Agreed missable [f90021]", 7770021)],
+    90022: [("Limgrave", "Limgrave :: His only [f90022]", 7770022)],
+    90024: [("Limgrave", "Limgrave :: Ours only [f90024]", 7770024)],
+}
+MISS_OURS = {90021, 90024}          # what MISSABLE_LOCATIONS would resolve to, flag-side
+
+
+@unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
+@unittest.skipUnless(HAVE_YAML, "matt_oracle's parser needs PyYAML")
+class MattOracleMissableJoin(unittest.TestCase):
+    """F. The report-only missable survey.
+
+    It is REPORT-ONLY on purpose and this suite must not grow an expectation about the real counts:
+    he tags a SLOT ("do not randomize this into oblivion") and we tag a CHECK ("must not host
+    REQUIRED progression"), so the two sides answer different questions and a one-sided flag is a
+    worklist entry rather than a defect. What is testable is the JOIN's arithmetic, below.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.M = _load_tool()
+        cls.dir = tempfile.TemporaryDirectory()
+        base = os.path.join(cls.dir.name, "diste", "Base")
+        os.makedirs(base)
+        path = os.path.join(base, "itemslots.txt")
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(FIXTURE_MISSABLE)
+        cls.rows = cls.M.parse_itemslots(path)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.dir.cleanup()
+
+    def test_F_join_splits_agree_and_both_one_sided_sets(self):
+        joinable, agree, his_only, ours_only = self.M.check_missable(
+            self.rows, MISS_BY_FLAG, MISS_OURS)
+        # 90023 carries his tag but we have no row for it, so it is NOT joinable -- counting it
+        # would inflate "his-only" with slots the join cannot speak about at all.
+        self.assertEqual(joinable, [90021, 90022])
+        self.assertEqual(agree, [90021])
+        self.assertEqual(his_only, [90022])
+        self.assertEqual(ours_only, [90024])
+        # The arithmetic the report prints must close over the joinable set.
+        self.assertEqual(len(joinable), len(agree) + len(his_only))
+
+    def test_F_shop_only_slot_is_never_joined(self):
+        """ER's LocationScope zeroes the id on a shop-only slot. A missable tag on one must not
+        join onto flag 0, which is not a flag."""
+        by_flag = dict(MISS_BY_FLAG)
+        by_flag[0] = [("Nowhere", "flag zero is not a flag", 7770000)]
+        joinable, _agree, _his, _ours = self.M.check_missable(self.rows, by_flag, MISS_OURS)
+        self.assertNotIn(0, joinable)
+
+    def test_F_missable_tag_is_the_only_filter(self):
+        """An untagged slot we DO carry (90024) is never in his set, whatever else it is tagged."""
+        _joinable, _agree, his_only, ours_only = self.M.check_missable(
+            self.rows, MISS_BY_FLAG, MISS_OURS)
+        self.assertNotIn(90024, his_only)
+        self.assertIn(90024, ours_only)
+
+    def test_F_our_missable_flags_resolve_through_data_locations(self):
+        """load_missable_flags maps ap_ids back to flags; every flag it returns must be a real
+        LOCATIONS flag, and the row count must be the table's own length (nothing dropped silently
+        beyond ap_ids LOCATIONS has no row for -- there should be none)."""
+        flags, n_rows = self.M.load_missable_flags(REPO)
+        miss = self.M._load_table(REPO, "missable_locations").MISSABLE_LOCATIONS
+        data = self.M._load_table(REPO, "data")
+        all_flags = {f for entries in data.LOCATIONS.values() for (_n, _a, f) in entries}
+        self.assertEqual(n_rows, len(miss))
+        self.assertTrue(flags, "no missable flag resolved -- the ap_id -> flag join is broken")
+        self.assertTrue(flags <= all_flags)
+
+    def test_F_report_section_prints_under_report(self):
+        """The survey is emitted by --report and prints its own section. (It contributes nothing to
+        the exit code: main()'s return value reads only the two gated checks' unexplained lists,
+        which this section never touches.)"""
+        out = subprocess.run(
+            [sys.executable, TOOL, "--souls-rando-dir", self.dir.name, "--repo", REPO, "--report"],
+            capture_output=True, text=True)
+        self.assertIn("== C. MISSABLE (report-only, no gate) ==", out.stdout,
+                      out.stdout + out.stderr)
 
 
 if __name__ == "__main__":
