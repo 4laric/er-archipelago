@@ -1,11 +1,11 @@
 {
   "by_category": {
     "glovewort": {
-      "audited": 92,
+      "audited": 93,
       "audited_one_family": 19,
       "conflicted": 0,
-      "held": 85,
-      "remaining_unreviewed": 66,
+      "held": 86,
+      "remaining_unreviewed": 67,
       "repeated_material_rows": 85,
       "trusted": 7,
       "uniquely_anchored_collectibles": 0
@@ -51,12 +51,12 @@
       "uniquely_anchored_collectibles": 46
     },
     "smithing_stone": {
-      "audited": 578,
+      "audited": 577,
       "audited_one_family": 71,
       "conflicted": 0,
-      "held": 556,
-      "remaining_unreviewed": 485,
-      "repeated_material_rows": 577,
+      "held": 555,
+      "remaining_unreviewed": 484,
+      "repeated_material_rows": 576,
       "trusted": 22,
       "uniquely_anchored_collectibles": 0
     }
