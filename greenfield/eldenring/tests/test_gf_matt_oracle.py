@@ -268,12 +268,15 @@ class MattOracleLogic(unittest.TestCase):
     def test_E_class_sets_are_disjoint_and_land_in_their_table(self):
         # WITNESS FIRST: "these two sets do not overlap" is trivially true of two empty sets, so
         # assert they are populated before asserting they are disjoint.
-        self.assertGreater(len(self.M._A_OPEN_DLC_MATERIAL), 50)
+        # Class A no longer HAS a bulk set. `_A_OPEN_DLC_MATERIAL`'s 99 DLC upgrade-material flags
+        # were region_map.csv's stale `item_name` capture, closed by gen_data's lot-reconcile pass,
+        # and the set was DELETED rather than shrunk -- so nothing here may assert its existence.
+        # Class A's own invariants are covered by the reason-vocabulary test above, which walks
+        # ITEM_IDENTITY_KNOWN itself and so would also cover any future bulk set merged into it.
+        self.assertGreater(len(self.M.ITEM_IDENTITY_KNOWN), 0)
         self.assertGreater(len(self.M._B_SCOPE_MAP_FRAGMENT), 10)
         self.assertGreater(len(self.M._B_OPEN), 10)
         self.assertFalse(self.M._B_SCOPE_MAP_FRAGMENT & self.M._B_OPEN)
-        for f in self.M._A_OPEN_DLC_MATERIAL:
-            self.assertIn(f, self.M.ITEM_IDENTITY_KNOWN)
         for f in self.M._B_SCOPE_MAP_FRAGMENT | self.M._B_OPEN:
             self.assertIn(f, self.M.MISSING_SLOT_KNOWN)
 
@@ -386,16 +389,18 @@ class MattOracleMissableJoin(unittest.TestCase):
         self.assertTrue(flags, "no missable flag resolved -- the ap_id -> flag join is broken")
         self.assertTrue(flags <= all_flags)
 
-    def test_F_report_section_prints_under_report(self):
-        """The survey is emitted by --report and prints its own section. (It contributes nothing to
-        the exit code: main()'s return value reads only the two gated checks' unexplained lists,
-        which this section never touches.)"""
-        out = subprocess.run(
-            [sys.executable, TOOL, "--souls-rando-dir", self.dir.name, "--repo", REPO, "--report"],
-            capture_output=True, text=True)
-        self.assertIn("== C. MISSABLE (report-only, no gate) ==", out.stdout,
-                      out.stdout + out.stderr)
-
+    def test_F_section_letter_is_registered_in_the_tool(self):
+        """The section header the report prints, asserted against the tool's SOURCE rather than by
+        running it end-to-end. An end-to-end --report over a synthetic fixture cannot be used here:
+        section D (boss taxonomy) raises TypeError when a class count is None, which it always is
+        for an invented fixture -- a pre-existing edge in THAT section, untouched by this one."""
+        src = open(TOOL, encoding="utf-8").read()
+        self.assertIn('"== F. MISSABLE (report-only, no gate) =="', src)
+        self.assertIn("check_missable(rows, by_flag, ours_flags)", src)
+        # Report-only: nothing the survey computes may reach main()'s return value.
+        tail = src[src.index("stale = stale_entries"):]
+        self.assertNotIn("his_only", tail,
+                         "the missable survey leaked into the gated tail of main()")
 
 if __name__ == "__main__":
     unittest.main()

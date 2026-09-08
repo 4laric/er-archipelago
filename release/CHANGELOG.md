@@ -45,6 +45,24 @@ nothing in it touches Elden Ring.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **There is now a real `enemy_drops` table, derived from our own params.** The only enemy-drop
+  data in the tree was `tables/enemy_drops_data.py` (`REROLLABLE_ENEMY_SLOTS`) — the *inverse*
+  population, the unflagged farmable lots the reroll feature may touch — so nothing said which
+  enemy drops what, and `tools/matt_oracle.py` carried "our enemy_drops table is a stub" as the
+  reason his whole `enemy*` tag family is excluded from its missing-slots gate.
+  `tools/datamine_enemy_drops.py` emits `greenfield/enemy_drops.tsv`: one row per
+  (`NpcParam` id, `ItemLotParam_enemy` lot, slot) — 16,151 rows over 3,971 NPC param owners and
+  4,638 lots — with the item's FullID and catalogue name, quantity, per-row drop chance, the
+  `getItemFlagId` where the lot has one, and the map tile plus MSB part where the flag has exactly
+  one known enemy placement. **244 of those rows are ONE-TIME (flagged) drops over 174 distinct
+  flags**, of which **173 are already `LOCATIONS` flags** — so this changes no location and adds no
+  check; whether the one remaining flag becomes a check is a product ruling this deliberately does
+  not make. `matt_oracle.py --report` gains a report-only class C that counts our flagged drops
+  against his `enemy*`-tagged slots (169 flags in both, 5 ours-only, 244 his-only) and prints OUR
+  flag ids only. `regen_all.py` and the generators CI job run the new `--check` the same way they
+  run `datamine_flag_lots.py --check`, so the table cannot silently drift from the params again.
+  **Docs, tooling and data only: no seed, pool, logic or contract effect.**
+
 - **A missable check set from two maps was labelled "questline", and the oracle never checked the
   missable tagging at all.** Two independent defects on the same table. (1) `gen_data.py` unions
   six derivations into `QUEST_GATED_FLAGS` and then emitted the WHOLE union as the reason
@@ -167,6 +185,92 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   desynchronise them. **Contract hash does not move** -- it stays `613fb438`. **Seeds do change**:
   the bell is a KeyItem-shaped gate check, so region logic now requires Shadow Keep access for it
   and for Metyr's remembrance, not Jagged Peak.
+- **The check's own item lot now decides which item it holds — 99 checks were naming the wrong
+  thing, and 99 stack quantities had gone missing with them.** `region_map.csv`'s `item_name` is an
+  upstream CAPTURE, not a verdict, and it had gone stale against `ItemLotParam`: 99 rows — almost
+  all DLC upgrade material — named a different TIER of the same family than the lot their flag
+  actually fires (`Smithing Stone [1]` where lot 21000010 grants `Smithing Stone [7] x3`). Two
+  things broke per stale row, not one. `LOCATION_ITEM` named the wrong item, which feeds filler
+  weight and, for stones, upgrade gating. And `LOCATION_UNITS` **silently paid x1**, because its
+  join is on FullID and a name resolving to the wrong FullID matches no lot slot — no error, no
+  count, no gate, exactly the failure mode the `#616` note in `gen_data` warned about for a
+  different cause. `gen_data` now runs a **lot-reconcile pass** over `region_map.csv` before
+  anything reads it, so the fix lands once and the check's display name, its `LOCATION_ITEM` and
+  its `LOCATION_UNITS` can no longer disagree with each other. It is deliberately narrow, two arms
+  only: a single-item lot simply wins, and on a multi-item lot it adopts a same-family slot when
+  exactly one exists (`Somber Smithing Stone [4]` -> `[7]`, the tier bracket being the only thing
+  that moved). The genuine BUNDLE case — a multi-item lot the curated name is no longer in, with no
+  single same-family stand-in — is left alone, because picking "the" item there would be a guess.
+  **Count-neutral:** 4941 locations before and after, identical ap ids and flags. 105 location
+  display names change (the 99, plus six disambiguation suffixes that renumber around them) and
+  fifteen more units enter the pool across four checks, so **trackers and in-flight seed spoilers
+  will show the new names** — the apworld is host-only and the contract hash does not move
+  (`613fb438`). Five items leave `ITEM_CATALOG` with the stale names that invented them —
+  `Grave Glovewort [2]/[3]/[4]` and `Ghost Glovewort [1]/[3]`, which no check in the game actually
+  awards. The catalog is check-derived, so they had only ever been in the pool because five checks
+  were misnamed; `LOCATION_ITEM` still has exactly 4880 entries.
+- **`tools/matt_oracle.py` class A: 107 disagreements -> 8, agreement 97.4% -> 99.8%.** The 99 above
+  were its entire `_A_OPEN_DLC_MATERIAL` bulk class, whose allowlist reason said adjudicating them
+  "needs a fresh datamine". It did not; it needed the generator to stop trusting a stale capture
+  over the param beside it. That set is deleted rather than shrunk. The four remaining `OPEN` rows
+  were adjudicated against `ItemLotParam_map` directly: **400282/400283/400285 are not our rows
+  being wrong** — each flag fires TWO map lots, an incantation *and* one All-Knowing armour piece
+  (102820+102861, 102830+102862, 102850+102864) — so they are reclassified `OPEN` -> `BUNDLE`,
+  the same modelling difference as 400061/400209/400309. **400358** is corroborated on our side:
+  both of its lots (103500, 103580) award the sorcery we name, so it stays `OPEN` with the finding
+  inverted rather than closed, since "his table is wrong" is a claim about his data that this tool
+  is not entitled to make.
+- **Shop scope is written down where it is decided.** `shop_data.py`'s generated header now states
+  that a shop check is a `ShopLineupParam` row carrying an `eventFlag_forStock`, and that the
+  flagless infinite-stock ids (arrows, pots, crafting materials — no flag to watch, never exhaust)
+  are out of scope **by design, not by omission**; a randomizer modelling them either invents a
+  flag or sends the same location forever. Recorded with it: none of 400282, 400283, 400285 or
+  400390 is a shop row — no `ShopLineupParam` row in the vanilla params names any of the four in
+  `eventFlag_forStock` or `eventFlag_forRelease`. Closes items 1, 2 and 6 of
+  `docs/MATT-ORACLE-ROADMAP.md`.
+- **`enemy_drops.tsv` re-derived, and its `--check` now prints the diff.** The `generators` job
+  went red on `main` the moment #1495 (the new table) and #1497 (which re-derived every check's
+  vanilla item from its own lot, rewriting catalog entries) merged within a minute of each other:
+  each branch was green alone, and together the tsv's `item_name` column named 124 items the
+  rebuilt `ITEM_CATALOG` no longer spells the same way. Nothing environmental, nothing about the
+  params — a semantic merge conflict between two committed tables, of exactly the kind this
+  `--check` exists to catch. The table is regenerated against current `main`; `item_name` is the
+  only column that moves. `datamine_enemy_drops.py --check` now prints line counts on both sides,
+  the first 20 differing lines paired up, and **the set of columns that moved**, so the next
+  failure is diagnosable from the CI log instead of costing a local repro — the old message named
+  only the tool to re-run, which is useless on a runner that throws the tree away.
+
+- **Every boss we know now carries a CLASS, in a new generated table.** `boss_healthbars.py` has
+  always had a geography column, but it answers "which derivation found this boss", not "what kind
+  of fight is it": the whole DLC overworld was filed as `legacy`, five different mini-dungeon
+  families shared one bucket called `dungeon`, hero's graves were catacombs, and an evergaol looked
+  like any other field boss. So anything that wanted boss KIND re-derived it inline, differently
+  each time. `tools/gen_boss_taxonomy.py` (a new `tools/regen_all.py` step, after `gen_data.py`
+  because it reads `boss_sweeps`) derives it once into
+  `greenfield/eldenring/tables/boss_taxonomy.py`: 245 bosses across `remembrance_main` 40,
+  `overworld_field` 74, `legacy_dungeon` 34, `cave` 33, `catacomb` 24, `dragon` 15, `evergaol` 10,
+  `tunnel` 8, `heros_grave` 4, `gaol` 3. Evergaols are **derived, not listed** — the EMEVD family
+  that seals an evergaol arena (`90005880`–`90005885`) takes the boss's defeat flag as its first
+  argument, so the roster comes out of our own decompiled events instead of a hand-typed list of
+  twelve names that goes stale on a patch. `furnace_golem` is emitted **empty and explained**:
+  furnace golems display no boss healthbar, appear in no `NpcName` FMG, and the artifact bundle
+  carries no MSB, so there is no our-data roster to derive today, and `test_gf_boss_taxonomy.py`
+  fails the day someone derives one without dropping the gap note. **Nothing player-visible moves**
+  — no location, no logic, no tag, no contract-hash change; the table has exactly one consumer so
+  far, the report below.
+
+- **`tools/matt_oracle.py --report` gained two more count-only comparisons.** *D. BOSS TAXONOMY* prints
+  our per-class boss histogram beside the number of his slots carrying the equivalent tag name, and
+  says in the report itself that the two count different things (bosses vs item slots) so nobody
+  reads it as an equality gate; it is looking for a whole family missing on one side, which is how
+  the `furnace_golem` gap surfaces as a 16-slot shortfall. *E. REACHABILITY COVERAGE* prints one
+  line — `our graph reaches 30 regions / 56 grace-warp groups; his reaches 174 areas` — where our
+  two numbers come from `region_groups.REGION_GROUPS` and `region_graces.REGION_GRACE_LANDMARKS`
+  and his is `len(Areas)` computed from his checkout at run time. Both are **report-only and gate
+  nothing**, and the licence boundary is unchanged: his tag NAMES act as filter vocabulary exactly
+  as `EXCLUDED_TAGS` already did, and the area count is an integer — no `Req` expression, area name
+  or row of his is read, adapted, printed or committed. Closes the second and third bullets of
+  `docs/MATT-ORACLE-ROADMAP.md` item 7.
 
 
 ## v0.6.0.5 — 2026-09-07

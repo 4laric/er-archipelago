@@ -136,6 +136,17 @@ STEPS = [
              "could have noticed -- its own --check -- was wired into neither this file nor CI. "
              "Reads the param CSVs, so after INPUTS; before gen_data, which reads the tsv."),
 
+    Step(MODULES, "tools/datamine_enemy_drops.py",
+         emits=["greenfield/enemy_drops.tsv"],
+         why="the enemy DEATH-DROP table (MATT-ORACLE-ROADMAP item 7): NpcParam.itemLotId_enemy -> "
+             "the ItemLotParam_enemy lot group -> its item slots, with the one-time (getItemFlagId) "
+             "rows marked. NOT a gen_data input and NOT an AP location source -- it is evidence for "
+             "the product ruling on whether flagged enemy drops become checks, and the count basis "
+             "for matt_oracle's report-only class C. Listed HERE for the reason flag_lots is: a "
+             "datamine no entrypoint names is a table nothing re-derives when the param corpus "
+             "moves. Reads the param CSVs, so after INPUTS; order among the datamines is free "
+             "(nothing below reads it)."),
+
     Step(MODULES, "tools/datamine_shop_open_ranges.py",
          emits=["greenfield/shop_open_ranges.tsv"],
          why="shop-menu display scopes (issue #937): gen_data REFUSES to emit shop_data.py without "
@@ -150,6 +161,14 @@ STEPS = [
          ["--verify", "greenfield/eldenring/_gen_stamp.json"],
          why="prove the stamp on disk equals a fresh manifest -- catches the 'edited a source file "
              "AFTER regenerating' trap, which cost six CI rounds on world PR #481."),
+    Step(MODULES, "tools/gen_boss_taxonomy.py",
+         emits=["greenfield/eldenring/tables/boss_taxonomy.py"],
+         why="one CLASS per boss (overworld field / evergaol / cave / catacomb / hero's grave / "
+             "tunnel / gaol / legacy / dragon / remembrance), derived from our map tiles, our "
+             "major-boss roster and our decompiled EMEVD. AFTER gen_data, never before: its "
+             "inputs are boss_sweeps.MAJOR_SWEEP_TRIGGERS and SWEEP_ARENA_REGION, which gen_data "
+             "writes. It is NOT a gen_data input and carries no stamp, so nothing below re-stales "
+             "because of it. Report-only today (tools/matt_oracle.py --report)."),
 
     Step(TABLES, "tools/build_v060_current_evidence.py",
          emits=["greenfield/evidence/v060-current/claims.tsv",

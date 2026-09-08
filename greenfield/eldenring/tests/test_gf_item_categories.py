@@ -91,8 +91,19 @@ class TaxonomyIsAPartition(WorldTestBase):
         # ghost gloveworts and smithing stones are the same category; bell bearings are NOT --
         # boblerrr's "upgrade materials other than bell bearing can be local" is the clause, and
         # since 2026-08-12 the bells say so in their own name rather than by hiding in `key_items`.
-        self.assertEqual(ic.category_of("Ghost Glovewort [1]"), "upgrade_materials")
-        self.assertEqual(ic.category_of("Smithing Stone [1]"), "upgrade_materials")
+        # Assert over the tiers the CATALOG actually carries, not a pinned one. `Ghost Glovewort
+        # [1]` was pinned here and left the catalog when gen_data's lot-reconcile pass corrected
+        # the five checks whose stale `region_map.csv` name had invented it -- the catalog is
+        # check-derived, so a tier no check awards is not in it, and `category_of` on a name
+        # outside the catalog answers about the name, not about an item. Witness-first: assert the
+        # families are non-empty before asserting what category their members land in.
+        gloveworts = [n for n in ITEM_CATALOG
+                      if n.startswith(("Ghost Glovewort [", "Grave Glovewort ["))]
+        stones = [n for n in ITEM_CATALOG if n.startswith("Smithing Stone [")]
+        self.assertTrue(gloveworts)
+        self.assertTrue(stones)
+        for n in gloveworts + stones:
+            self.assertEqual(ic.category_of(n), "upgrade_materials", n)
         bells = [n for n in ITEM_CATALOG if n.endswith("Bell Bearing")]
         self.assertTrue(bells)
         for b in bells:
