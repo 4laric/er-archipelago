@@ -74,7 +74,7 @@ REQUIRED = [
 # the yaml because it is what you watch while you turn a knob, and "Generate & host" is last because
 # it is the one card you touch once, at the end (Alaric, 2026-08-12). Card order is the kind of thing
 # a later edit reshuffles without noticing, and nothing else in the tree records the reason.
-SIDE_ORDER = ["Your yaml", "Into the multiworld", "Seed size", "Checks", "Generate &amp; host"]
+SIDE_ORDER = ["Your run", "Into the multiworld", "Seed size", "Configuration checks", "Generate &amp; host"]
 
 NUMBERS_MOVE = ["filler_foreign_pct", "keep_local",
                 "confine_foreign_progression", "num_regions", "progression_surface",

@@ -60,7 +60,7 @@ from gamename import GAME  # noqa: E402
 # Every preset carries ONLY deviations from the option defaults.
 #
 # NOTE: enable_dlc defaults ON (the class is DefaultOnToggle), but base game is the
-# recommended/supported v0.2 config (DLC is experimental), so the base-game presets set
+# base-game presets deliberately exclude DLC regions, so they set
 # `enable_dlc: false` explicitly -- that is a real deviation and the intended footprint.
 # ---------------------------------------------------------------------------
 PRESETS = [
@@ -76,15 +76,15 @@ PRESETS = [
     {
         "id": "short_solo",
         "title": "Short Solo",
-        "tagline": "A tight ~evening run: four regions.",
-        "description": "Base game with only four regions kept -- a short, quick-to-finish "
+        "tagline": "A smaller run: four regions.",
+        "description": "Base game with only four regions kept -- a smaller "
                        "solo seed. Leyndell (the goal region) is always kept, so it stays "
                        "winnable.",
         "values": {"enable_dlc": False, "num_regions": 4},
     },
     {
         "id": "multiworld_sync",
-        "title": "Multiworld Sync",
+        "title": "Multiworld",
         "tagline": "A polite footprint for playing with friends.",
         "description": "Base game with six regions -- a moderate check pool that keeps your "
                        "slice of a shared multiworld reasonable while still being a real run.",
@@ -95,7 +95,7 @@ PRESETS = [
     {
         "id": "base_shattering",
         "title": "Base Shattering",
-        "tagline": "The whole base game: all 17 regions.",
+        "tagline": "The whole base game: every base-game region.",
         "description": "The full base-game Shattering -- every base region in play "
                        "(num_regions 0), DLC off. The balanced default marathon.",
         # MUST pin num_regions:0 -- the title promises all 17 base regions, and this preset used
@@ -104,37 +104,23 @@ PRESETS = [
         "values": {"enable_dlc": False, "num_regions": 0},
     },
     {
-        "id": "vanilla_deathlink",
-        "title": "Vanilla + Death Link",
-        "tagline": "The base game, untouched, with shared deaths.",
-        "description": "Nothing is randomized: every item is where the base game keeps it, and "
-                       "progression is gated the way the base game gates it. Checks still fire "
-                       "and Death Link still works, so this is the setting for playing vanilla "
-                       "Elden Ring alongside friends and sharing deaths. Nothing is sent to or "
-                       "received from other worlds. The start is vanilla too -- no lantern, no "
-                       "Torrent, no Spirit Calling Bell, no crafting pots, no revealed maps and no "
-                       "levelling until Melina. Combat quality-of-life is unchanged (weapons still "
-                       "upgrade automatically and ignore their requirements), so this is vanilla "
-                       "PLACEMENT and a vanilla START, not vanilla BALANCE. The base game's own "
-                       "missables are inherited as-is -- burning the Erdtree still strands "
-                       "Leyndell's checks.",
-        # death_link is the whole point of the preset, so it is stated even though a player could
-        # set it themselves; num_regions is NOT stated because the mode ignores it (a pinned value
-        # would read as though it did something).
-        "values": {"vanilla_placement": "all", "death_link": True},
-    },
-    {
         "id": "dlc_only",
         "title": "DLC Only (experimental)",
         "tagline": "Only the Shadow of the Erdtree regions.",
-        "description": "Every base-game region is sealed; only the 14 DLC regions are in "
-                       "play, and the goal becomes holding every kept DLC Lock. DLC is "
-                       "experimental in v0.2.",
+        "description": "Every base-game region is sealed; all DLC regions are eligible. "
+                       "The goal becomes holding every kept DLC Lock.",
         # Same reason as base_shattering: "every DLC region in play" needs num_regions:0 stated.
         "values": {"dlc_only": True, "num_regions": 0},
     },
 ]
 
+
+# Kept in metadata for old YAML imports, not offered as new player choices.
+COMPATIBILITY_ONLY = frozenset({
+    "flask_upgrades_on_progression_surface",
+    "global_scadutree_blessing",
+    "merchant_bell_logic",
+})
 
 # ---------------------------------------------------------------------------
 # Import the live GFOptions from a pinned, upstream Archipelago with the world installed.
@@ -178,6 +164,7 @@ def describe(key, cls):
     doc = (inspect.getdoc(cls) or "").strip()
     d = {
         "key": key, "class": cls.__name__,
+        "compatibility_only": key in COMPATIBILITY_ONLY,
         "display_name": getattr(cls, "display_name", cls.__name__),
         "description": doc, "kind": None, "base": cls.__mro__[1].__name__,
         "default": None, "choices": None, "range": None, "valid_keys": None,
@@ -375,6 +362,8 @@ def extract(ap_dir):
 def validate_presets(options):
     by_key = {o["key"]: o for o in options}
     for p in PRESETS:
+        if p["values"].get("vanilla_placement", "off") != "off":
+            sys.exit(f"[FAIL] preset {p['id']}: vanilla placement belongs in advanced customization")
         for k, v in p["values"].items():
             o = by_key.get(k)
             if o is None:
@@ -437,6 +426,10 @@ def preset_yaml(meta, preset):
 
 def write_presets(meta):
     os.makedirs(PRESETS_DIR, exist_ok=True)
+    # Remove the retired generated template, including in existing build folders.
+    retired = os.path.join(PRESETS_DIR, "vanilla-deathlink.yaml")
+    if os.path.isfile(retired):
+        os.remove(retired)
     for p in meta["presets"]:
         path = os.path.join(PRESETS_DIR, p["id"].replace("_", "-") + ".yaml")
         with open(path, "w", encoding="utf-8", newline="\n") as f:

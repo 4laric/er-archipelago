@@ -183,6 +183,11 @@ Invoke-CiStep "WIZARD-LINT (rules must name live options)" {
     if ($LASTEXITCODE -ne 0) { throw "WIZARD-LINT: a wizard conflict rule names an option or choice value that no longer exists" }
 }
 
+Invoke-CiStep "WIZARD-PROFILES (independent profile settings)" {
+    node (Join-Path $Repo "tools\check_wizard_profiles.js")
+    if ($LASTEXITCODE -ne 0) { throw "WIZARD-PROFILES: invalid or coupled profile settings" }
+}
+
 Invoke-CiStep "WIZARD-CENSUS-JS (seed-size math: JS vs Python)" {
     python (Join-Path $Repo "tools\check_wizard_census_js.py")
     if ($LASTEXITCODE -eq 4) { Write-Host "  SKIP: node not on PATH -- the wizard's JS math is ungated on this box." }

@@ -4,7 +4,7 @@ In v0.6 flask upgrades are members of ``progression_surface_if_space`` for every
 the selected surface after required items, then spill normally. The old boolean remains accepted so
 existing YAMLs keep generating, but no longer installs a hard item rule or widens the surface.
 """
-from Options import Toggle
+from Options import Toggle, Visibility
 
 from ..registry import Feature, register
 
@@ -16,6 +16,8 @@ class FlaskUpgradesOnProgressionSurface(Toggle):
     fill. They remain useful rather than required. This value is retained only so an older YAML
     containing it does not fail validation.
     """
+    # Importable and visible in detailed tools/spoilers, never suggested in a new YAML.
+    visibility = Visibility.all & ~Visibility.template
     display_name = "Flask Upgrades on Progression Surface (legacy; now automatic)"
     default = 0
 

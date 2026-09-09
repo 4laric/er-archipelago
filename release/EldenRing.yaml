@@ -223,25 +223,6 @@ Elden Ring:
   # will say so at connect rather than quietly ignore the setting.
   merchant_bells_on_talk: false
 
-  # SCADUTREE BLESSING AS A GAME-WIDE POWER CURVE.
-  #   off         -- vanilla (default). Blessing comes only from the Scadutree
-  #                  Fragments you hold, and only inside the DLC.
-  #   player_only -- the blessing works EVERYWHERE, Limgrave included. Enemies
-  #                  are untouched, so this is a straight power boost.
-  #   scaled      -- player_only PLUS the per-DLC-region blessing floor.
-  # Until 2026-07-31 this option did nothing outside the DLC no matter what you
-  # set: the game refuses to apply the blessing's effect outside the Land of
-  # Shadow, and the option only wrote the stored value. The client now applies
-  # the blessing itself, so the setting finally means what it says.
-  # Capped at blessing level 12 (~3.4x combat budget) rather than the full 20 --
-  # the last 8 levels cost half the fragment budget for +11% attack.
-  # v0.3 also puts the FRAGMENTS to reach that cap in the pool. Before, the cap
-  # bounded an injection that was never built, so on a base-game seed the supply
-  # arrived purely by luck of the DLC draw -- measured at the default 6 regions,
-  # 1 seed in 40 could reach it. Turning this on now gets you the fragments too.
-  # Left OFF by default: it is a real power boost, and the DLC combination has
-  # not been playtested yet. On a base-game seed it is safe to try.
-  global_scadutree_blessing: off
 
   # Whether the goal also requires Great Runes (independent of the region policy below).
   #   region_locks  -- compatibility spelling for no Great Rune requirement (default).
@@ -291,6 +272,10 @@ Elden Ring:
   # because base game only is the recommended default; the DLC path has had
   # far less play.
   enable_dlc: false
+
+  # Mix DLC weapons, armor, spells, talismans and other gear into the item pool
+  # even when DLC regions are disabled. Requires ownership of Shadow of the Erdtree.
+  enable_dlc_gear: false
 
   # Include equipment from the paid Tarnished Pack in the randomized item
   # pool. Off by default so a player who does not own it can never receive an
@@ -372,27 +357,6 @@ Elden Ring:
   # lower `juice` below instead.
   vanilla_pool: false
 
-  # WHERE THE ITEMS ARE. `off` (default) is the randomizer: every check's
-  # vanilla item is shuffled across the multiworld.
-  #
-  # `all` puts every item back exactly where the base game keeps it -- the
-  # Dectus halves in their forts, the Academy Glintstone Key on its corpse,
-  # every Golden Seed on its sapling. Checks still fire, the tracker still
-  # works, Death Link still works. Nothing is sent to or received from other
-  # worlds: the seed is self-contained by design. This is the setting for a
-  # group who want to play the base game together and share deaths.
-  #
-  # Progression is gated the way the base game gates it, so the region locks
-  # are not used and num_regions is ignored -- the whole map is in play from
-  # the start, and the Leyndell wall and Rold Medallion work as they always
-  # did. THE START IS VANILLA TOO: no lantern, no extra flasks, no Torrent, no
-  # Spirit Calling Bell, no revealed maps, no levelling until you meet Melina.
-  #
-  # 🛑 Vanilla PLACEMENT and a vanilla START, not vanilla BALANCE -- weapons
-  # still upgrade automatically and still ignore stat requirements. It also
-  # inherits the base game's own missables: burning the Erdtree still strands
-  # Leyndell's checks.
-  vanilla_placement: off
 
   # What may be placed at the 285 checks that can be lost behind a spent
   # currency, a killable NPC, or questline state.
@@ -520,10 +484,6 @@ Elden Ring:
   # arrive on a steady cadence instead of 13 silent flat pickups. Off: seeds
   # and tears stay discrete pickups at their shuffled locations.
   progressive_flasks: true
-  # Legacy v0.5 spelling, retained so old YAMLs still validate. In v0.6 Golden Seeds, Sacred Tears,
-  # and Progressive Flask Upgrades automatically prefer unused progression-surface checks, then
-  # spill into ordinary fill. They remain useful, not required for logic or victory.
-  flask_upgrades_on_progression_surface: false
 
   # Weapon and spirit-ash upgrades by SHOP TIER instead of by luck. On: the
   # Smithing-Stone, Somberstone, Glovewort, and Ghost-Glovewort Bell Bearings
@@ -778,10 +738,6 @@ Elden Ring:
   # No effect in a solo seed. Never blocks generation.
   confine_foreign_progression: 100
 
-  # RESERVED. The option exists but is INERT in v0.2 -- shop checks are assumed
-  # reachable regardless of what you set here. Left in place so seeds stay
-  # forward-compatible; see KNOWN-ISSUES.md. Leave it alone.
-  merchant_bell_logic: off
 
   # ---- Runtime rerolls ------------------------------------------------------
 

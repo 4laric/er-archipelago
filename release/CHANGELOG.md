@@ -45,6 +45,17 @@ nothing in it touches Elden Ring.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The options wizard offers independent run profiles.** Content, run size, Boss Rush,
+  rewards, travel and multiplayer can be chosen without resetting the other settings;
+  individual customization remains available and existing option names are unchanged.
+  Base-game regions can now include DLC gear with `enable_dlc_gear: true`, without adding
+  DLC regions, checks or locks. The option defaults off, preserving existing YAML behavior.
+  Useful-consumable rewards take inspiration from Nightreign using Elden Ring's own items.
+  Vanilla placement is absent from starting templates and remains an advanced special mode.
+  Compatibility-only settings are retained for old YAML imports rather than offered as new
+  choices. The landing page and setup instructions explain the profiles and correct stale
+  preset and item-sharing descriptions.
+
 - **Five sweep triggers were promising 29 checks behind bosses that do not exist.** A player on
   boss sweeps saw groups like `Divine Tower of Limgrave -- 0/7 checks -- unidentified boss --
   waiting on the boss` sit at zero for a whole seed, with nothing to kill and no way to tell that

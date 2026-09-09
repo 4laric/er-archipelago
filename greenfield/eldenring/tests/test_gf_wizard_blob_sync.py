@@ -54,6 +54,24 @@ def _read(*parts):
 @unittest.skipUnless(REPO, REPO_ONLY_REASON)
 class TestWizardBlobSync(unittest.TestCase):
 
+    def test_presets_never_enable_vanilla_placement(self):
+        """New-run templates must randomize items; vanilla remains an advanced opt-in."""
+        meta = json.loads(_read("wizard", "options-metadata.json"))
+        self.assertGreaterEqual(len(meta["presets"]), 4)
+        for preset in meta["presets"]:
+            self.assertEqual(preset["values"].get("vanilla_placement", "off"), "off", preset["id"])
+        sample = _read("greenfield", "players", "ER1.yaml")
+        self.assertNotRegex(sample, r'vanilla_placement:\s*["\']?all')
+
+    def test_retired_controls_remain_importable_but_marked_compatibility_only(self):
+        meta = json.loads(_read("wizard", "options-metadata.json"))
+        by_key = {o["key"]: o for o in meta["options"]}
+        for key in ("flask_upgrades_on_progression_surface", "global_scadutree_blessing",
+                    "merchant_bell_logic"):
+            self.assertIn(key, by_key, "old YAML imports still need their option types")
+            self.assertTrue(by_key[key].get("compatibility_only"), key)
+        self.assertFalse(by_key["enable_dlc"].get("compatibility_only"))
+
     def test_inlined_blob_equals_the_json_file(self):
         """wizard.html's inlined blob is byte-identical to wizard/options-metadata.json."""
         raw_json = _read("wizard", "options-metadata.json")

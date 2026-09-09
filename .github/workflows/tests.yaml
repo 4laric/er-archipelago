@@ -311,6 +311,9 @@ jobs:
       - name: Wizard metadata drift (--check against the pinned AP)
         run: python tools/dump_options_metadata.py --check --ap-dir _ap
 
+      - name: Wizard profile independence and valid settings
+        run: node tools/check_wizard_profiles.js
+
       # The seed-size census the wizard shows a player WHILE they choose (wizard/region-census.json,
       # tools/build_region_census.py). Its data is gated by test_gf_region_census, which runs in the
       # pytest step above -- but no Python test executes ERW.seedSize, and that JS is what the player
