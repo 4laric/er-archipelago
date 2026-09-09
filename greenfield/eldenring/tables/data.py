@@ -4334,8 +4334,8 @@ LOCATIONS = {
         ('Scadu Altus :: Hole-Laden Necklace [f400660]', 7773750, 400660),
         ('Scadu Altus :: Ruins Map (2nd) [f400661]', 7773751, 400661),
         ('Scadu Altus :: Ruins Map (3rd) [f400662]', 7773752, 400662),
-        ("Scadu Altus :: Ymir's Bell Bearing - around Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400664]", 7773753, 400664),
-        ("Scadu Altus :: [Sorcery] Cherishing Fingers - around Recluses' River Upstream, may be sweep-granted by Ralva the Great Red Bear (m61_49_45) [f400666]", 7773754, 400666),
+        ("Scadu Altus :: Ymir's Bell Bearing - around Cathedral of Manus Metyr [f400664]", 7773753, 400664),
+        ("Scadu Altus :: [Sorcery] Cherishing Fingers - around Recluses' River Upstream [f400666]", 7773754, 400666),
         ('Scadu Altus :: Swordhand of Night Jolán [f400670]', 7773755, 400670),
         ('Scadu Altus :: Sword of Night - near Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400671]', 7773756, 400671),
         ('Scadu Altus :: Claws of Night - near Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400672]', 7773757, 400672),
@@ -4393,11 +4393,11 @@ LOCATIONS = {
         ('Scadu Altus :: Scadutree Fragment - around Bridge Leading to the Village (2), may be sweep-granted by Rakshasa (m61_51_44) [f2051447510]', 7774564, 2051447510),
         ("Scadu Altus :: O Mother - around Recluses' River Upstream [f60864]", 7774592, 60864),
         ('Scadu Altus :: Beloved Stardust [f400661]', 7900096, 400661),
-        ('Scadu Altus :: Maternal Staff - around Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400664]', 7900097, 400664),
-        ('Scadu Altus :: High Priest Hat - around Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400664]', 7900098, 400664),
-        ('Scadu Altus :: High Priest Robe - around Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400664]', 7900099, 400664),
-        ('Scadu Altus :: High Priest Gloves - around Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400664]', 7900100, 400664),
-        ('Scadu Altus :: High Priest Undergarments - around Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400664]', 7900101, 400664),
+        ('Scadu Altus :: Maternal Staff - around Cathedral of Manus Metyr [f400664]', 7900097, 400664),
+        ('Scadu Altus :: High Priest Hat - around Cathedral of Manus Metyr [f400664]', 7900098, 400664),
+        ('Scadu Altus :: High Priest Robe - around Cathedral of Manus Metyr [f400664]', 7900099, 400664),
+        ('Scadu Altus :: High Priest Gloves - around Cathedral of Manus Metyr [f400664]', 7900100, 400664),
+        ('Scadu Altus :: High Priest Undergarments - around Cathedral of Manus Metyr [f400664]', 7900101, 400664),
         ('Scadu Altus :: Prayer Room Key - Kill Queelign in church of the crusade [f400696]', 7900000, 400696),
         ('Scadu Altus :: Scadutree Fragment - Hippo [f510440]', 7900001, 510440),
         ('Scadu Altus :: Rakshasa Helm - around Bridge Leading to the Village, may be sweep-granted by Rakshasa (m61_51_44) [f530830]', 7900163, 530830),
@@ -5572,4 +5572,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:6992c37e7182a810f5a87a721b58795af9cd27d68867566a5cfe4ebe709735e6', 'module': 'data.py', 'body_sha256': 'sha256:703038253cbb70d1a52a51abde2e6f22a1c11abe47f50ec2ea15b694a830e237'}
+_GEN_STAMP = {'inputs_hash': 'sha256:50b2798993bebb6e3b3d82667d707aa900a2c313ebf21cc898d7e1f6271ac6a7', 'module': 'data.py', 'body_sha256': 'sha256:9b08f768f02db76711730ecff6ef5a89e36bf94023209367c480f33730523247'}

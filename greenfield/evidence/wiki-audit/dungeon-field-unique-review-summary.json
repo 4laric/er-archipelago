@@ -11,15 +11,15 @@
     "unique_field_pickup": {
       "audited_one_family": 190,
       "conflicted": 0,
-      "held": 379,
-      "remaining_unreviewed": 189,
-      "total": 541,
+      "held": 372,
+      "remaining_unreviewed": 182,
+      "total": 534,
       "trusted": 162
     }
   },
   "excluded": {
     "boss": 67,
-    "no_map_anchor": 843,
+    "no_map_anchor": 850,
     "repeated_item_name": 2999
   },
   "policy": {

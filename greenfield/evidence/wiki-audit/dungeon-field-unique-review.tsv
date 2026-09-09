@@ -930,7 +930,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7772429	unique_field_pickup	Scadu Altus	Bigmouth Imp Ashes	40027220	m61_47_45	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773507	unique_field_pickup	Scadu Altus	Black Steel Twinblade	2048467710	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
 7773594	unique_field_pickup	Scadu Altus	Bonny Butchering Knife	2050447050	m61_51_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7773754	unique_field_pickup	Scadu Altus	Cherishing Fingers	400666	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
 7773757	unique_field_pickup	Scadu Altus	Claws of Night	400672	m61_51_44	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
 7773681	unique_field_pickup	Scadu Altus	Crimsonburst Dried Tear	65410	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
 7900225	unique_field_pickup	Scadu Altus	Death Knight Armor	40027130	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
@@ -956,17 +955,12 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7770143	unique_field_pickup	Scadu Altus	Greater Potentate's Cookbook [4]	68600	m61_51_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770155	unique_field_pickup	Scadu Altus	Greater Potentate's Cookbook [6]	68720	m61_52_43	remaining_unreviewed	0		first_independent_identity_region_source
 7773559	unique_field_pickup	Scadu Altus	Heal from Afar	2049457500	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
-7900100	unique_field_pickup	Scadu Altus	High Priest Gloves	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
-7900098	unique_field_pickup	Scadu Altus	High Priest Hat	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
-7900099	unique_field_pickup	Scadu Altus	High Priest Robe	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
-7900101	unique_field_pickup	Scadu Altus	High Priest Undergarments	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
 7900281	unique_field_pickup	Scadu Altus	Highland Attire	2049457200	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
 7773739	unique_field_pickup	Scadu Altus	Lacerating Crossed-Tree	400590	m61_49_44	remaining_unreviewed	0		first_independent_identity_region_source
 7773558	unique_field_pickup	Scadu Altus	Leather Crown	2049457200	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
 7770150	unique_field_pickup	Scadu Altus	Mad Craftsman's Cookbook [2]	68670	m61_49_43	remaining_unreviewed	0		first_independent_identity_region_source
 7773646	unique_field_pickup	Scadu Altus	Madding Hand	2052427500	m61_52_43	remaining_unreviewed	0		first_independent_identity_region_source
 7773602	unique_field_pickup	Scadu Altus	Man-Fly Ashes	2050447710	m61_49_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7900097	unique_field_pickup	Scadu Altus	Maternal Staff	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
 7773522	unique_field_pickup	Scadu Altus	Messmer Soldier Ashes	2049437230	m61_49_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773604	unique_field_pickup	Scadu Altus	Moldmonger's Bell Bearing	2050447730	m61_51_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773497	unique_field_pickup	Scadu Altus	Monk's Missive	2048457510	m61_49_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
@@ -987,7 +981,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773635	unique_field_pickup	Scadu Altus	Spellmachinist's Bell Bearing	2051467020	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
 7773756	unique_field_pickup	Scadu Altus	Sword of Night	400671	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
 7773628	unique_field_pickup	Scadu Altus	Tooth Whip	2051447000	m61_51_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7773753	unique_field_pickup	Scadu Altus	Ymir's Bell Bearing	400664	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
 7771983	unique_field_pickup	Shadow Keep	Ash of War: Wall of Sparks	21027020	m61_50_48	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770174	unique_field_pickup	Shadow Keep	Battlefield Priest's Cookbook [4]	68930	m61_50_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773655	unique_field_pickup	Shadow Keep	Fingercreeper Ashes	2053487000	m61_52_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source

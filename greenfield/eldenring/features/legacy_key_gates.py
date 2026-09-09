@@ -24,7 +24,11 @@ Currently gated:
   Carian Inverted Statue ->  inverted Study Hall, Tower Bridge and Divine Tower checks, Liurnia;
   Gaol U+L Level Keys      ->  Lamenter's Gaol (m41_02, Charo's) -- BOTH keys, check-level, incl.
                               the Lamenter boss reward (f520770). See _MULTI_KEY_GATES;
-  Hole-Laden Necklace     ->  both Finger Ruins bell checks and Metyr's remembrance check. NB: the
+  Hole-Laden Necklace     ->  both Finger Ruins bell checks, Metyr's remembrance check, and since
+                              #1513 the Ymir/Metyr QUESTLINE REWARDS (f400661/400662/330030/400664/
+                              400666 -- see the _YMIR_* blocks for the per-flag EMEVD/ESD/shop
+                              proof). Two of the reported rows, f400672 and f68580, are DELIBERATELY
+                              left ungated; _YMIR_DEFERRED says why. NB: the
                               Cathedral surface bucket 6920 (the old Scaduview, folded into Shadow
                               Keep 2026-07-19), but Metyr's ARENA is m25_00, whose own grace the game
                               buckets 6900 = Scadu Altus (MSB truth, measured 2026-07-12) -- so the
@@ -75,6 +79,75 @@ _LEGACY_KEYS = {
     "Carian Inverted Statue": ("Liurnia", (0, 0)),  # inverted route; exact flags below
     "Hole-Laden Necklace": ("Scadu Altus", (0, 0)),   # Metyr arena m25_00 -> bucket 6900 (see above)
 }
+
+# ---------------------------------------------------------------------------------------------
+# THE YMIR / METYR QUESTLINE REWARDS (#1513, design note #665).
+#
+# Until #1513 every reward below sat in logic on the Scadu Altus Lock alone, so fill could put a
+# region Lock or a required Great Rune on a check the player cannot reach without first holding the
+# necklace and ringing one or both Finger Ruins bells. Each flag here is bound to the exact vanilla
+# state that awards it, read out of v1.17 EMEVD / talk ESD / ShopLineupParam. Two facts do all the
+# work:
+#
+#   * BOTH bell ObjActs are gated on the necklace and nothing else. m61_50_40 $Event(2050402600)
+#     holds `DisableObjAct(2050401600, 52407)` until `PlayerHasItem(ItemType.Goods, 2008008)`, then
+#     `ObjActEventFlag(2050403600)` sets f2050400600 and awards lot 2050400000. Rhia's
+#     $Event(2053462600) is the same shape on f2053460600. So the necklace is necessary for any
+#     state downstream of a bell -- and NO gesture appears in either predicate (see the note on
+#     _YMIR_DEFERRED).
+#   * common.emevd $Event(9440) is exactly `WaitFor(EventFlag(2053460600) && EventFlag(2050400600))`
+#     -- BOTH bells. Anything gated on 9440, or on a state 9440 gates, needs both bell regions.
+#
+# ONE BELL (either) -- Ymir's talk ESD t420006100 dispatches on the two bell flags in x37:
+#   both -> x39, either -> x40, neither -> x41. x40 is the ONE-bell branch and its only award is
+#   `AwardItemLot(106610)`, whose ItemLotParam_map getItemFlagId is 400661. So f400661 needs the
+#   necklace, and needs no particular bell -- a disjunction our region model cannot express and
+#   does not have to: the necklace conjunct alone is sound and is not an over-gate.
+_YMIR_ONE_BELL = frozenset({
+    400661,   # Ruins Map (2nd) [7773751] + its co-check sibling Beloved Stardust [7900096]
+})
+
+# BOTH BELLS -- these additionally require the Lock of whichever region holds the Dheo bell check,
+# via _EXTRA_CHECK_LOCKS below (the same conjunct Metyr's remembrance already carries).
+#   400662  x39, the BOTH-bells branch of x37, `AwardItemLot(106620)` -> getItemFlagId 400662.
+#   330030  NOT a lot at all: ShopLineupParam block 1023 (Cathedral of Manus Metyr) row 102303,
+#           `release_flag = 9440` in the committed greenfield/shop_rows.tsv. Both bells, exactly.
+#   400664  common.emevd `$InitializeEvent(0, 4857, 2051450800, 106640, 0, 400664)`; $Event(4857) is
+#           `WaitFor(EventFlag(2051450800)) -> AwardItemsIncludingClients(106640)`, i.e. Ymir DEAD.
+#           common.emevd line 8008 makes Ymir hostile only on `EventFlag(4503) && EventFlag(25000800)
+#           && !EventFlag(2051450800)` -- 25000800 is Metyr defeated, and m61_51_45 $Event(2051452600)
+#           reaches Metyr only through `WaitFor(EventFlag(9440) && EventFlag(2051450180))`. So both
+#           bells are a necessary condition. This covers all SIX ap ids on the flag (the co-check
+#           family: bell bearing, Maternal Staff, four High Priest pieces) because _gated_location_ids
+#           matches on the FLAG, not the ap id.
+#   400666  m61_50_45 `$InitializeCommonEvent(0, 90005750, 2050451701, 4350, 106650, 400666, 400666,
+#           2051450800, 0)`; $Event(90005750) will not even spawn the pickup asset until its
+#           `eventFlagId3` -- 2051450800, Ymir dead -- is ON. Same antecedent as 400664.
+_YMIR_BOTH_BELLS = frozenset({
+    400662,   # Ruins Map (3rd)                    [7773752]
+    330030,   # [Sorcery] Fleeting Microcosm       [7770550]
+    400664,   # Ymir's Bell Bearing + 5 co-checks  [7773753, 7900097-7900101]
+    400666,   # [Sorcery] Cherishing Fingers       [7773754]
+})
+
+# 🛑 DELIBERATELY NOT GATED -- the evidence does not reach, and a plausible gate is still a guess.
+#
+#   400672  Claws of Night [7773757]. m61_51_45 `$InitializeCommonEvent(0, 90005774, 2051450180,
+#           106720, 400672)`: awarded on f2051450180. Its ONLY setter in the whole v1.17 corpus is
+#           m61_51_45 $Event(2051450722), `WaitFor(EventFlag(2051459721)) -> Set(2051450180)`, and
+#           f2051459721 is SET NOWHERE in any extracted EMEVD or talk ESD -- it is only READ, twice,
+#           in t409006100 (Jolan's ESD). f2051450180 sits BESIDE 9440 in the throne predicate rather
+#           than downstream of it, so "the bells gate it" does not follow. Jolan is #1505's batch;
+#           the missing setter is recorded there and this row stays on the region Lock until it is
+#           found. Absence of a proven edge is not an invitation to invent one.
+#
+#   68580   Finger-Weaver's Cookbook [2] [7770141]. 255 reads it as needing "the whole line". First-
+#           party data refutes that: ItemLotParam_map 2051460010 is a plain corpse, and the flag has
+#           NO row in any of the four gate corpora (lot_gates, treasure_enablers/msb_gated_treasures,
+#           esd_gifts, esd_gates). greenfield/msb_flag_region.tsv files it as m61_51_46 "宝死体001"
+#           (treasure corpse 001) -- an ordinary Finger Ruins of Miyr ground pickup. No gate.
+_YMIR_DEFERRED = frozenset({400672, 68580})
+
 _LEGACY_EXTRA = {
     # The repeatable Chapel of Anticipation route is the Four Belfries sending gate in Liurnia.
     # v1.17 m60_34_47 event 1034472611 requires Goods 8186, persists unlock 1034470611, removes
@@ -94,7 +167,11 @@ _LEGACY_EXTRA = {
     }),
     # Metyr's remembrance plus BOTH Finger Ruins bell rewards. Extras are looked up globally rather
     # than only in the key's parent region because Dheo does not live in Metyr's region (#665).
-    "Hole-Laden Necklace": frozenset({510550, 2050407000, 2053467600}),
+    # Since #1513 the necklace set also carries the Ymir/Metyr questline rewards: each is awarded in
+    # a vanilla state downstream of at least one bell, and both bell ObjActs are held closed until
+    # PlayerHasItem(Goods, 2008008). See the _YMIR_* blocks above for the per-flag proof.
+    "Hole-Laden Necklace": frozenset(
+        {510550, 2050407000, 2053467600} | _YMIR_ONE_BELL | _YMIR_BOTH_BELLS),
 }
 
 _METYR_REMEMBRANCE = 510550
@@ -110,8 +187,15 @@ _REGION_BY_FLAG = {int(flag): region for region, locations in LOCATIONS.items()
 # folded into the Keep 2026-07-19) since, and a typed name here would quietly demand the wrong Lock
 # after any such move. Empty when the Dheo check is absent (its region sealed) -- start_grace then
 # forces the bell flag, so no Lock conjunct is owed at all.
+#
+# #1513 widens this from Metyr's remembrance alone to every flag in _YMIR_BOTH_BELLS, which is the
+# set whose vanilla award condition is (transitively) common.emevd f9440 = both bells rung. The
+# remembrance is a member of that set by the same reasoning and stays listed explicitly so the
+# pre-#1513 behaviour is still readable here.
 _DHEO_REGION = _REGION_BY_FLAG.get(_DHEO_BELL_CHECK)
-_EXTRA_CHECK_LOCKS = ({_METYR_REMEMBRANCE: ("%s Lock" % _DHEO_REGION,)} if _DHEO_REGION else {})
+_BOTH_BELL_FLAGS = frozenset({_METYR_REMEMBRANCE}) | _YMIR_BOTH_BELLS
+_EXTRA_CHECK_LOCKS = ({flag: ("%s Lock" % _DHEO_REGION,) for flag in sorted(_BOTH_BELL_FLAGS)}
+                      if _DHEO_REGION else {})
 
 # MULTI-KEY gates: nested dungeon doors need a per-check tier, not one blanket conjunction. For
 # Lamenter's Gaol, v1.17 EMEVD m41_02 initializes one ObjAct using ObjActParam 449008 (goods 2008005,

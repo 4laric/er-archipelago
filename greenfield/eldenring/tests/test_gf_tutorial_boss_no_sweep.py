@@ -570,8 +570,23 @@ def test_the_sweep_corpus_did_not_shrink():
     #    and the three Ancient Snow Valley Ruins rows off Theodorix onto Mountaintops bosses.
     #    Those, plus the round-robin re-deal they caused, are pinned by the OWNERSHIP digest below.
     #    4123 -> 4122.
-    assert total == 4122, (
-        "sweep corpus is %d, expected 4122. If a sweep was legitimately added or removed, say WHY "
+    # 2026-09-09 (#1513, merged onto the above): 4122 -> 4115. SEVEN removals, zero additions,
+    # zero re-ownership -- measured pairwise against origin/main, not inferred. The Ymir/Metyr
+    # questline rewards are now Hole-Laden-Necklace-gated (features/legacy_key_gates._YMIR_*), and
+    # neither Scadu Altus regional sweep trigger is behind the necklace, so both were a way past
+    # the new gate -- the #664 bypass exactly, through a different door, and the general property
+    # in test_no_sweep_grants_a_check_its_trigger_is_not_gated_behind is what caught it. Closed
+    # with two gen_data._SWEEP_EXCLUDED_FLAGS entries: 2049450800 (Ralva the Great Red Bear) sheds
+    # f400666 Cherishing Fingers, and 2051440800 (Rakshasa) sheds f400664 -- one flag, six co-check
+    # members (bell bearing, Maternal Staff, four High Priest pieces), hence 1 + 6 = 7. The
+    # exclusions are applied AFTER every construction and redistribution pass and the members
+    # deliberately do not re-home, so there is no round-robin collateral: nothing else moved.
+    #   🛑 The first entry was written against 2049440800 (Dryleaf Dane) on this branch. Main's
+    #   #1515/#1518 removals re-phased the Scadu Altus round-robin and dealt f400666 to Ralva
+    #   instead, so the trigger was RE-DERIVED BY FLAG IDENTITY from the regenerated corpus at
+    #   merge time. Both owners are Scadu Altus regional sweeps, so the ruling is unchanged.
+    assert total == 4115, (
+        "sweep corpus is %d, expected 4115. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -883,6 +898,14 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     #    bosses (1050570800, 1051570800, 1053560800) -- the #1059 containment pin in
     #    gen_data._FIELD_SWEEP_REGION_CURATED doing its job, since Theodorix's arena is
     #    Consecrated Snowfield. The remaining 28 are ROUND-ROBIN COLLATERAL, not decisions.
-    assert (digest, n) == ("ee2392e1c3d8ebfd", 4122), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (ee2392e1c3d8ebfd, 4122). The total alone will "
+    # 2026-09-09 (#1513, merged onto the above): ee2392e1c3d8ebfd/4122 -> c6fba3bc346eb880/4115.
+    # Diffed in (trigger, flag) space against origin/main, as this docstring demands: removed
+    # exactly {(2049450800, 400666): 1, (2051440800, 400664): 6}, added {}, re-owned nothing, and
+    # ZERO crossed a region boundary (nothing moved at all). Both removals are the necklace-gate
+    # bypass closed in gen_data._SWEEP_EXCLUDED_FLAGS -- see the sibling total's note above,
+    # including why the first trigger is Ralva (2049450800) and not the Dryleaf Dane number this
+    # branch originally wrote. The seven is 1 + 6 because f400664 is one acquisition flag with six
+    # co-check members.
+    assert (digest, n) == ("c6fba3bc346eb880", 4115), (  # #1437: then remove exactly (1040520800, 1039527700), no new owner
+        "sweep OWNERSHIP changed: (%s, %d), expected (c6fba3bc346eb880, 4115). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
