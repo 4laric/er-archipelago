@@ -20,7 +20,7 @@
 # DUNGEON_REGION_CURATED, region_overrides.tsv only as a last resort). Never by editing data.py.
 flag	ap_id	our_region	basis	status	reviewer	note
 65420	7773682	Scadu Altus	second-source-region-disagrees	open		
-65460	7773686	Gravesite	second-source-region-disagrees	open		
+65460	7773686	Gravesite	second-source-region-disagrees	open		NO MSB WITNESS POSSIBLE (2026-09-09): lot 2046390061 is awarded by no EMEVD line and no NpcParam row in the corpus, and the witchy MSBs carry no c4900 (furnace golem) placement in any map -- MATT-ORACLE-ROADMAP item 7 gap. Rule from the reporter (#1514) and the wiki second opinion only.
 66730	7773693	Liurnia	second-source-region-disagrees	open		
 66740	7770072	Mt. Gelmir	second-source-region-disagrees	open		
 67650	7770118	Caelid	second-source-region-disagrees	open		
@@ -197,7 +197,7 @@ flag	ap_id	our_region	basis	status	reviewer	note
 2046477970	7773357	Ancient Ruins	second-source-region-disagrees	open		
 2047407010	7773373	Cerulean	second-source-region-disagrees	open		
 2047407020	7773374	Cerulean	second-source-region-disagrees	open		
-2047407980	7773378	Cerulean	second-source-region-disagrees	open		
+2047407980	7773378	Cerulean	second-source-region-disagrees	open		MSB WITNESS (2026-09-09, tools/datamine_msb_door_sides.py --entities): the award is common event 90005301 on character entity 2047400499 (Part/Enemy/c0000_9000) in m61_47_40_00, map-local (7.581, 292.768, -79.814). Our region column comes from the flag id; the placing character sits in tile m61_47_40. Rule by that tile and its nearest grace.
 2047417110	7773385	Cerulean	second-source-region-disagrees	open		
 2047447730	7773426	Gravesite	second-source-region-disagrees	open		
 2047447820	7773428	Gravesite	second-source-region-disagrees	open		
