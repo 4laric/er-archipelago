@@ -118,6 +118,8 @@ launch the game with both active.
    matt's launcher remembers the dll's full path -- if that path has `v0.4.10` in it, the
    launcher will still be loading the v0.4.10 client long after you have downloaded v0.4.11,
    and a mismatched client looks exactly like a broken mod.
+   If you have already unpacked into a versioned folder, see **Upgrading the client when you
+   launch through matt's** below.
 
    ![Selecting eldenring_archipelago.dll](screenshots/matt-04-select-client-dll.png)
 
@@ -141,6 +143,37 @@ memory on top of it. Connect to your Archipelago room as usual.
 > The **Dll mods** dialog will happily take more than one entry, and the obvious thing to add
 > next is `RandomizerHelper.dll`. Do not. It is the single most common way to end up with a
 > connected client that cannot give you anything.
+
+
+## Upgrading the client when you launch through matt's
+
+matt's launcher remembers the dll by its full path. So whether an upgrade needs any work at
+all depends on one thing: **did the path change?**
+
+**You overwrote the old `me3\` folder in place** (the habit from step 2 above): nothing else
+to do. The path the launcher remembers still points at a dll, and that dll is now the new
+one. Click **Randomize enemies** and **Launch Elden Ring** as before.
+
+**You unpacked the new release into a different folder**: the launcher is still loading the
+old client from the old folder, and it will keep doing so until you repoint it. One command,
+with matt's app **closed**, run from inside the new release's `me3\` folder:
+
+```powershell
+.\install-into-matts-rando.ps1 -Randomizer "<folder containing EldenRingRandomizer.exe>"
+```
+
+It rewrites the launcher's dll-mod list to the new dll's path, backs up the file it edits
+first, and refuses (with the reason) if the launcher is running, if the dll's two data tables
+are not beside it, or if the folder you named has no `EldenRingRandomizer.exe`. Re-running
+after every release is the intended use; it is a no-op when nothing needs changing. Add
+`-WithFlower` and it also installs the AP flower atlas into that folder, which is the fix the
+next section describes by hand.
+
+Doing it by hand instead is the same as the first install: **Add dll mod**, remove the old
+entry, **Add...**, pick `eldenring_archipelago.dll` from inside the new `me3\` folder.
+
+`ap.me3` is not part of this. Launching through matt's app never reads the me3 profile, so
+there is nothing to update there.
 
 
 ## Your AP items wear a Telescope: the flower icon does not load here either
