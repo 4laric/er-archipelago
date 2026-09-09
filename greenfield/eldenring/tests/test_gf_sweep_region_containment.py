@@ -53,7 +53,7 @@ JORI_ARENA_REGION = "Scadu Altus"
 # left the corpus, which renumbers every LATER ap id. That is this branch's change, NOT a
 # region move and NOT a renumbering bug. Every id here was RE-READ from the regenerated
 # data.py by flag, never by subtracting 100 from the old one.
-NOVAHDANGO_FIVE = {7773584, 7773629, 7773653, 7773654, 7773655}
+NOVAHDANGO_FIVE = {7773582, 7773627, 7773651, 7773652, 7773653}
 ABYSSAL = "Abyssal"
 
 LEDA = 580600

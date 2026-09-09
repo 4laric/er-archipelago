@@ -123,17 +123,17 @@ class TheScanMoversLanded(unittest.TestCase):
         """A region move re-sorts NAMES; it must never renumber an id (#952, #249)."""
         pinned = {
             68630: 7770146,
-            2047447620: 7773425,
+            2047447620: 7773423,
             # 2026-08-26 (#1013, Enia vanilla): these ids moved. NOT because the region moves
             # renumbered -- which is exactly what this test forbids and which still holds -- but
             # because Enia's hundred hub rows left the corpus in the SAME window, and removing a
             # check renumbers every later ap id. Each value below was RE-READ from the regenerated
             # data.py by flag; none was derived by subtracting 100 (1050567620 does not follow that
             # arithmetic at all, which is the reason the rule exists).
-            1050567500: 7773101, 1050567510: 7773102, 1050567520: 7773103,
-            1050567620: 7900270, 1051557330: 7773141, 1050567600: 7773104,
-            2045467050: 7773253, 2045477020: 7773263, 2046457000: 7773327,
-            2045457010: 7773248, 2046467800: 7773340, 2045477010: 7773262,
+            1050567500: 7773099, 1050567510: 7773100, 1050567520: 7773101,
+            1050567620: 7900270, 1051557330: 7773139, 1050567600: 7773102,
+            2045467050: 7773251, 2045477020: 7773261, 2046457000: 7773325,
+            2045457010: 7773246, 2046467800: 7773338, 2045477010: 7773260,
         }
         for flag, ap in pinned.items():
             rows = self.by_flag.get(flag) or []

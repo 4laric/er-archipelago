@@ -13,7 +13,7 @@ AUDIT = ROOT / "greenfield/evidence/wiki-audit"
 LEADS = AUDIT / "fextralife-redmaw-corroboration-check-leads.tsv"
 EXPECTED_IDS = {
     7770016, 7770521, 7770568, 7770569, 7770570, 7770581,
-    7770592, 7770616, 7770691, 7772048, 7772113,
+    7770592, 7770616, 7770691, 7772047, 7772112,
 }
 
 

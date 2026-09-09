@@ -252,7 +252,7 @@ def test_the_clause_never_nests_parentheses_around_the_tile():
 
 def test_a_reader_can_take_the_clause_back_off_by_the_opener_alone():
     # The inverse the check browser and the client both perform, spelled out: cut at the opener,
-    # keep the " [fNNNN]" tail. Colombius's Golden Seed, ap 7773183 (rule 11).
+    # keep the " [fNNNN]" tail. Colombius's Golden Seed, ap 7773181 (rule 11).
     name = ("Mountaintops of the Giants :: Golden Seed - near Foot of the Forge, by two snow "
             "trolls" + ds.SWEEP_CLAUSE_OPENER + "Fire Giant (m60_52_52) [f1052537800]")
     cut = name.index(ds.SWEEP_CLAUSE_OPENER)

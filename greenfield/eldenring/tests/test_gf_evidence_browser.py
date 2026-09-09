@@ -280,9 +280,9 @@ class OfflineArtifactTests(unittest.TestCase):
     def test_player_map_joins_recorded_positions_and_keeps_missing_locations(self):
         data = BUILDER.load_ledger()
         by_id = {c["check_id"]: c for c in data["checks"]}
-        self.assertTrue(by_id[7772822]["player"]["positions"])  # Gatefront carriage
+        self.assertTrue(by_id[7772820]["player"]["positions"])  # Gatefront carriage
         self.assertFalse(by_id[7770000]["player"]["positions"])  # interior Dark Moon Ring
-        self.assertEqual(len(by_id), 4941)
+        self.assertEqual(len(by_id), 4931)
         self.assertGreater(sum(bool(c["player"]["positions"]) for c in by_id.values()), 2000)
         self.assertEqual(set(data["player_maps"]), {"m60", "m61"})
         for check in by_id.values():
