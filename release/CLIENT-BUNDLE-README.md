@@ -15,8 +15,8 @@ of this file.
 1. Install **me3** (link above). It launches the retail exe; you do **not** need UXM or modified
    game files. If you have previously UXM-patched Elden Ring, restore vanilla files first.
 2. Unzip this folder anywhere.
-3. If using Matt's randomizer, generate its output normally. Skip Flower installation
-   for v0.6.0; see the fallback and upgrade notes below.
+3. If using Matt's randomizer, generate its output normally, then run the bundled AP Flower
+   installer over it; see the Flower notes below.
    Update Matt's randomizer to its patched release for Torrent support; no separate
    Torrent repair is bundled or required.
 4. (Optional) Put your server details in `apconfig.json`:
@@ -42,21 +42,20 @@ The profile's `savefile` line provides this separation without the Alt Saves DLL
 when you launch through `ap.me3`. Another loader, including matt's randomizer, puts the Archipelago
 character in your ordinary save unless you configure separate saves there.
 
-## AP icon fallback in v0.6.0
+## The AP Flower ships again, from v0.6.0.6
 
-The Flower atlas override is temporarily omitted because it caused incorrect weapon
-icons and missing starter-class previews. AP placeholders use the native Telescope
-icon for now; AP names, checks, receiving and M4G integration continue to work.
-No UXM extraction or Flower installation is needed. Do not use `--with-flower` for this release.
+The AP Flower atlas override is back in the stable bundle. It was rebuilt on 2026-09-09 from the
+Elden Ring 2.7.1.0 menu extract, so it replaces the pre-Tarnished atlases that caused incorrect
+Tarnished weapon icons and missing starter-class previews in v0.6.0
+([issue #1181](https://github.com/4laric/er-archipelago/issues/1181)). AP names, checks, receiving
+and M4G integration work as before; the Flower is what draws the AP placeholder icon.
 
-For an existing installation, exit the game and disable only the loader package entry
-that loads the old Flower atlas. Keep the AP/M4G DLLs and unrelated mod packages.
-If Flower was copied directly into Matt's output, disabling a separate package will
-not remove it: restore those two menu atlases from a verified pre-Flower backup or
-regenerate that randomizer output. Do not delete an entire shared mod package or
-restore a backup over subsequently modified files. The updater does not remove old
-atlas files automatically. Restart after changing the effective assets.
-
+If you disabled the old Flower package entry during the v0.6.0 fallback, re-enable or reinstall it
+with the installer in the bundle (`install-ap-flower.ps1`, or `install_ap_flower.py`). The updater
+never removes atlas files on its own, so if the old Flower was copied directly into another
+randomizer's output, replace those two menu atlases rather than leaving them: reinstall from this
+bundle, or restore them from a verified backup and reinstall. Do not delete an entire shared mod
+package. Restart the game after changing the effective assets.
 ## Map integration in the v0.6 release
 
 The release archive includes `MapForGoblins.dll`, `MapForGoblins.ini`,
@@ -97,7 +96,7 @@ the associated checks remain available in F6.
 | `shoplineup_flags.json` | **shop check detection.** See below. |
 | `install-ap-flower.ps1` | thin Windows launcher for the packaged-asset installer |
 | `install_ap_flower.py` | authenticated, transactional installer for Windows and Linux/Proton |
-| `flower-package/` | Not shipped in v0.6.0; native Telescope icons are used temporarily. |
+| `flower-package/` | the AP Flower menu atlases, shipped again from v0.6.0.6 and rebuilt from the 2.7.1.0 extract |
 
 **Both JSON tables are derived from the game's own params -- game data, not seed data.** That is why
 one static copy works for every apworld and every seed. Keep them next to the DLL.

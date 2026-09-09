@@ -45,6 +45,217 @@ nothing in it touches Elden Ring.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **The client gitlink advances to `4188b81`, and one of the four picks is player-visible.**
+  Clients **#663** bridges `apworld/0.5.7` and `apworld/0.5.8` onto the `ffc0f1b5` contract that
+  the 0.6.0..0.6.0.3 bridge already accepts, so a player mid-run on a v0.5.7 or v0.5.8 seed whose
+  Steam updated Elden Ring to 2.7.1.0 — refused by their own 0.5.7 client at the version gate, and
+  refused by a v0.6.0.5 client at the seed — can finish the run on this client instead of
+  abandoning it. The log says `VERSION: AUDITED COMPATIBLE` and notes once that the seed predates
+  the `profile` declaration; both are expected. 🛑 **The bridge is a rescue, not a pairing
+  promise:** this client carries the 0.6 check corpus, region-lock and sweep tables against a
+  0.5.7 server's location set, so a lock or a sweep that looks wrong on that pairing is the first
+  place to look, and the next seed should be rolled on a 0.6.0-line apworld. Clients **#669**
+  blocks untagged DirectInput devices under keyboard OR mouse: typing into the overlay's connect
+  modal leaked keystrokes into Elden Ring's own menu whenever the cursor drifted off the modal,
+  because a device our `CreateDevice` detour never tagged (a proxy `dinput8.dll` from another mod,
+  a device created before the hook, a second `IDirectInput8`) fell through to `Mouse`, which is
+  blocked only while the cursor hovers an imgui window. An unidentifiable device is now blocked
+  when either class is blocked, a typing surface claims the mouse regardless of hover (so stray
+  clicks stop landing on the game behind the modal), and the first untagged pointer is named once
+  in the log — its presence identifies an affected setup, its absence means the normal tagged path.
+  The settings-screen workaround is no longer needed. Clients **#666**/**#667** are Bloodborne only
+  (deathlink HP-detector wording and a guest-memory write fallback before `VirtualProtectEx`) and
+  **touch no Elden Ring code**. Clients **#670** is a generated-file catch-up only: `sweep_boss_names.rs`
+  regenerated against world main, so Dryleaf Dane is keyed by his defeat flag rather than his
+  entity id and Lansseax's row is present; the invented arena names it once carried were dropped
+  because #1530 removed those cut-content triggers. **No contract, seed or pool effect** — `CONTRACT_HASH` stays
+  `613fb438`, and neither `contract_gen.rs` nor `region_locks.rs` moves across the bump, so the
+  `generators` job regenerates the pinned checkout byte-identically.
+
+- **The AP Flower atlas override is back in the stable bundle, and the stale atlases can no longer
+  ship.** v0.6.0 pulled the Flower because the atlases it shipped predated the Tarnished pack and
+  produced **wrong Tarnished weapon icons and missing starter-class previews** (#1181); the
+  fallback was meant to last one release. It lasted three: the omission gate in
+  `tools/pack_release.py` matches the version string `"0.6.0"` **exactly**, so v0.6.0.4 and
+  v0.6.0.5 took the other branch and **re-shipped the stale atlases** rather than omitting them —
+  the fallback prose in `KNOWN-ISSUES.md`, `SETUP.md` and `CLIENT-BUNDLE-README.md` had been
+  describing a state those two bundles were not in. Both halves are fixed here. The override is
+  **rebuilt on 2026-09-09** by `tools/build_ap_icon.py` from the Elden Ring **2.7.1.0** menu
+  extract — hi `01_common.tpf.dcx` 70,470,149 bytes, sha256 `33873fb5…`; low 55,703,798 bytes,
+  sha256 `1eb5f4e3…` — so the AP placeholder is drawn against the Tarnished-era atlas the game
+  actually loads, and the two symptoms of #1181 are gone rather than hidden. And
+  `pack_release.flower_manifest` gains a **hard gate**: a `flower-package` whose hi atlas hashes
+  `80e84edb3aaaa2674c566a098465201816dc8a94fefe220c7b2c6dd63461a8af` or whose low atlas hashes
+  `ad6aede6be0e1090968308d0ed32d6ef1fa473cb66b0ea13c9ba1ed07b1f43ec` is **refused by sha256**, by
+  name, with #1181 and the 2.7.1.0 rebuild in the message — a stale package cannot be packed again
+  by a build that simply does not match a version literal. Covered by
+  `tools/test_pack_release_alpha.py::StaleFlowerAtlasGateTests`. The three "AP icon fallback in
+  v0.6.0" sections and the two "v0.6.0 omits Flower atlases" table cells are replaced with the
+  current state. **Players who disabled the old Flower package entry should re-enable or reinstall
+  it** with the bundled installer (`install-ap-flower.ps1` / `install_ap_flower.py`) — the updater
+  never removes atlas files, so a direct copy into another randomizer's output must still be
+  replaced rather than left. The `"0.6.0"` omission branch itself is untouched: it is history, and
+  the sha256 gate is what stops the class of failure. **Assets only: no seed, pool, logic or
+  contract effect.** Issue #1181.
+
+- **255's 2026-09-08 player notebook is preserved in the repo as the thing the issues point at
+  (#1519).** `docs/player-reports/255/er-player-notebook-2026-09-08.json` is the raw
+  `er-player-notebook-v1` export as sent — 124 entries of v0.4.10 observations, **not adjudicated**
+  — plus a README indexing it. Every entry was triaged out into issues #1512–#1518 or comments on
+  #1437, #1438, #1505, #1506 and #1508, so a reader following any of those lands on a stable file
+  instead of a Discord scrollback. **No corpus change: no seed, pool or contract effect.**
+
+- **Six access-rule and missable reports from that notebook, taken back to the corpus — three
+  proved and tagged, three refused (#1520).** Every one was re-derived against the committed
+  first-party v1.17 corpus (`gen_inputs.db`: 589 EMEVD blobs, 365 ESD, 365 talk, `vanilla_er`
+  params); nothing is encoded on the strength of a report. **Tagged missable:** Latenna's Somber
+  Ancient Dragon Smithing Stone (`400411`) — her shack init disables her outright once
+  `1051587800` is set, and the game's own ESD annotation names that flag the **Haligtree Secret
+  Medallion (Left)** pickup, so the killer is *receipt order* of two pooled medallions, which no
+  access rule could express and a missable tag expresses exactly; and the Chrysalids' Memento
+  (`10007450`) / Crimson Hood (`10007452`) pair, which `common.emevd` forces mutually exclusive off
+  `11109213`, set by **Hewg's** ESD on the "Would you watch over Roderika?" line — the identical
+  `_NPC_STATE_GATED` mechanism as the Patches/Murkwater pair, and **both** sides are tagged because
+  the data is symmetric even though only the Memento was reported. **Refused, with the evidence
+  written onto the issues:** the fourteen Belurat rows and the Mending Rune of the Fell Curse each
+  have a **proven door predicate** (`ObjActParam` 417007 → Well Depths Key; 1027019 → Sewer-Gaol
+  Key) but **no topology** — `gen_inputs.db` carries no MSB, so nothing binds those checks to those
+  doors, and `key_item_gates.tsv` refuses rows for items nothing gates on; Edgar's six rows are six
+  distinct lots and were **already** missable, with the Grafted Blade Greatsword hypothesis
+  positively refuted (his relocation steps on the Leonine Misbegotten kill, and no step tests a
+  weapon); Jolán's Iris exclusivity is proven and both flags were already tagged, while
+  `2051460700` is **refused as a check** — it is an EMEVD/character entity id with no
+  `ItemLotParam` row anywhere; and the Graven-Mass Talisman stays `unreachable_dead`, its flag
+  occurring in exactly one place in the whole corpus (its own lot row). **Seeds change**: three
+  more checks may no longer host required progression, so the fill differs — `CONTRACT_HASH` is
+  unmoved at `613fb438` and no client change is needed. Oracle: class A **4076 agree / 8
+  allowlisted**, class B **80 allowlisted**, **0 unexplained** on both — byte-identical before and
+  after; report-only class F moves 291→294 rows exactly as the three tags predict. Closes #1517;
+  refs #1512, #1516, #1511, #1505, #1507.
+
+- **Twenty-one region reports from the same notebook, re-derived one at a time; ten moved and
+  eleven did not (#1523).** The ladder in `docs/MATT-ORACLE-ROADMAP.md` item 4 ran in order — the
+  PlayArea point-in-volume scan first, the nearest-grace join next, first-hand corpus evidence only
+  where neither can speak — and **no row moved on the report alone**. Moved: the two Minor
+  Erdtree/Golden Braid rows stand inside PlayArea volume 69300 (Scadu Altus → **Shadow Keep**);
+  three Ancient Snow Valley rows join grace 76503 → play_region 65000 (Consecrated Snowfield →
+  **Mountaintops**), on tiles where the scan agrees with the grace 5/5 with zero counterexamples;
+  three Jagged Peak rows have ground evidence that outranks the tile-level boss verdict they were
+  filed on (→ **Gravesite**, **Abyssal**, **Abyssal**); Kenneth Haight's Erdsteel Dagger is awarded
+  by the **m60_00** open-world ESD machine, not the m10_00 one the derivation saw first (Stormveil
+  → **Limgrave**), and its description moved with it; and the Larval Tear's one map lot decodes to
+  tile m60_49_55 (Roundtable Hold → **Consecrated Snowfield**), added to
+  `_REGION_OVERRIDE_UNCONFIRMED_FLAGS` so leaving the HUB does not silently promote an unwitnessed
+  check to a progression host. **Eleven stayed, and that is the number worth reading**: five have
+  an instrument that answered and *contradicted* the reporter, three have no instrument at all, and
+  three are governed by a standing human ruling that a datamine does not outrank. Every one of the
+  twenty-one now carries a reasoned `region_overrides.tsv` row — the stayers as `NO-OP, RECORDED ON
+  PURPOSE` — so the next reader diffs against a written decision. The move tipped **Great Wyrm
+  Theodorix**'s neighbourhood vote and the #1059 containment invariant correctly refused the regen;
+  the fix curates the **boss** in `_FIELD_SWEEP_REGION_CURATED`, since two independent measurements
+  put him on the Snowfield side. **Seeds change**: ten checks change region, which moves region
+  check counts, the fill and the difficulty ramp. **`CONTRACT_HASH` unmoved at `613fb438`** — no
+  wire field changes, so clients from v0.6.0.3 on pair as before. Oracle class A 4076 agree / 8
+  allowlisted and class B 80 allowlisted are **unchanged with 0 unexplained**; report-only class G
+  moves 218 → 211. Refs #1514, #1509, #1511.
+
+- **The nine Ymir/Metyr questline rewards sat in logic behind the Scadu Altus Lock alone; they are
+  now bound to the state that actually awards them (#1524).** Each row was traced to first-party
+  v1.17 data. Both bell ObjActs are `DisableObjAct`'d until `PlayerHasItem(Goods, 2008008)` and
+  nothing else, so the **Hole-Laden Necklace** is a necessary condition for everything downstream
+  of a bell; `f9440` *is* both bells, so the **Dheo region Lock** (read off `data.LOCATIONS`, never
+  typed — that tile moved from Jagged Peak to Shadow Keep on 2026-09-07) joins it for the both-bell
+  set: the third Ruins Map, Fleeting Microcosm's shop release flag, Ymir's Bell Bearing and its
+  five-row High Priest family, and Cherishing Fingers. The second Ruins Map and its Beloved
+  Stardust co-check need *one* bell, either one — a disjunction the region model cannot express —
+  so they take the necklace conjunct alone, which is sound and not an over-gate. **Two rows are
+  deliberately left ungated**: Claws of Night's chain runs out at `f2051459721`, a flag set nowhere
+  in any extracted EMEVD or talk ESD, and the Finger-Weaver's Cookbook [2] is **refuted** — a plain
+  corpse lot with no row in any of the four gate corpora. **No gesture predicate exists anywhere in
+  v1.17**, so 255's Mother-gesture requirement is recorded as a negative result on #1438 rather
+  than encoded. The gates immediately exposed a #664-shaped bypass —
+  `test_no_sweep_grants_a_check_its_trigger_is_not_gated_behind` went red because Dryleaf Dane's
+  and Rakshasa's sweeps paid out necklace-gated checks while neither boss is behind the necklace —
+  closed with two `_SWEEP_EXCLUDED_FLAGS` entries; **seven checks lose their "may be sweep-granted
+  by …" name suffix**, which is the visible half. Both flag-sharing "defects" are adjudicated **not
+  defects**: `400661` is four lots on one flag (the Beloved Stardust is accessory `8190` and has no
+  flag of its own anywhere in the table), and `400664` is one six-lot family already presented as
+  the `High Priest Set` bundle on the item side. **Seeds change**: nine rewards gain real
+  requirements and seven lose a sweep grant, so logic and fill differ. **`CONTRACT_HASH` unmoved at
+  `613fb438`.** Oracle exit 0, output byte-identical: class A 4076 agree / 8 allowlisted, class B
+  80 allowlisted, 0 unexplained, no allowlist entry touched. Closes #1513.
+
+- **Ten rows that no world object holds are removed, and the tutorial-popup family is derived
+  instead of hand-listed (#1526). 🛑 AP location ids are RENUMBERED.** #1077 is the precedent — the
+  previous "unused" batch was a missing-MSB-placement defect, not empty lots — so every row went
+  through map/enemy lot, MSB placement, item-grace coordinate, EMEVD/ESD award route and the
+  independent oracle before anything was cut. Four map-lot flags have a real lot and **zero MSB
+  rows against a 90.2% base rate**, no coordinate and no award route; three of them had been
+  *released* from `_WORLDLESS_SINGLES` in August on an "observed" row whose source was the tile
+  **decoded from the flag id** — the flag restated, not a world object (#1522). Six more are
+  `About …` tutorial popups: grepping the property that *defines* the family found **six**
+  survivors, not the two #1097 hand-listed, so `_TUTORIAL_POPUP_FLAGS` is now derived from
+  `flag_lots` and `FATAL`s if the family ever comes back empty. **Seven reported rows were kept**,
+  each with a real placement or — for the enemy-table lot, where a missing MSB proves nothing — a
+  100% drop in `enemy_drops.tsv`. **The renumber, stated plainly:** ap ids are positional
+  (`BASE_AP` + index), so dropping ten checks moved **3848** ids; the corpus goes **4941 → 4931**
+  rows, the positional band 4652 → 4642, the co-check band untouched at 289. First affected
+  **7770795 → 7770794**, last **7774651 → 7774641**, deltas −1 through −10 and monotone. **Zero
+  reordering** — replaying `origin/main`'s positional rows minus the ten yields a flag sequence
+  identical to the regenerated table over all 4642 rows, so only the id column moved. Every id in
+  the ~88 hand-maintained pin files was re-read **from the regenerated `data.py` by flag**, never
+  by subtracting an offset (rule #1013), including the two that were live logic rather than
+  documentation — `features/cross_region_access.py` and `features/questline_check_gates.py`.
+  🛑 **What the renumber does and does not mean.** The client is **seed-driven** and `CONTRACT_HASH`
+  covers key *shapes* only, so `613fb438` is unmoved and **there is no client-pairing effect** — a
+  v0.6.0.3+ client plays a v0.6.0.6 seed exactly as before. **Seeds generated on v0.6.0.6 differ
+  from v0.6.0.5 seeds**, and an existing seed or save keeps playing on the apworld that generated
+  it. `APWORLD_VERSION` is deliberately not bumped here; the release does that. Oracle unchanged:
+  class A 4076 agree / 8 allowlisted, class B 80 allowlisted, 0 unexplained. Refs #1515, #1518.
+
+- **A door-side witness tool, so the two locked-door rulings can be made from geometry instead of
+  guessed (#1528, #1531).** #1512 (Belurat, asset `20001562`, Well Depths Key) and #1511
+  (Subterranean Shunning-Grounds, asset `35001564`, Sewer-Gaol Key) both stall on the same missing
+  datum: `gen_inputs.db` has EMEVD, ESD and params but **no MSB**, so nothing first-party binds a
+  door asset to the lots behind it. `tools/datamine_msb_door_sides.py` reports each candidate
+  pickup's signed distance along the door's local +Z axis, reusing the witchy readers and the
+  PlayArea column the grace and coordinate datamines already have. 🛑 **It RANKS; a human RULES** —
+  the plane is infinite and a pickup five metres past it can be reachable by another corridor, so
+  its rows are evidence for a player ruling and never a `key_item_gates.tsv` row. Which sign is the
+  locked side is not decidable from the MSB and must be anchored by a pickup whose side is known.
+  The first real run (2026-09-09) stopped one hop short in **both** issues and the refusals fired
+  as designed, which is what #1531 closes: a Treasure carrying no `TreasurePartName`, EMEVD awards
+  keyed on a character's death, and two Belurat flags with no `Event/Treasure` at all that the run
+  dropped **silently** (12 rows for 14 flags). `--award-parts` and `--entities` let the operator
+  anchor a candidate at a named part, the table records that ruling in its header, an unplaced
+  resolved lot is now NOTED rather than vanishing, and every new mode refuses an absent part, map
+  or flag and writes nothing. The run's findings are attached to the two open
+  `oracle-region-queue.tsv` rows **in our own words**, with `status` left `open`. No generated TSV
+  is committed and `gen_data.py` is untouched — **tooling and evidence only: no seed, pool or
+  contract effect.** Refs #1511, #1512, #1514.
+
+- **The five offline pages are built in CI instead of committed, and their stamps are narrowed
+  (#1532).** Two changes, one cause: the pages were repository content, so every data PR fought
+  every other over a multi-megabyte single line of JSON that three-way merge cannot touch. Over the
+  60 commits before the change the 30 MB evidence browser moved **37 times** and **26 of those 60
+  commits** were "merge origin/main" / "regenerate the pages" repair. Two things made it worse:
+  the stamp was **global**, computed over `gen_manifest.FILE_INPUTS` whose first entry is
+  `gen_data.py` itself — a *comment* edit restaled every page — and the `generators` job could
+  detect staleness but never repair it. Now each page embeds a hash over exactly the files ITS
+  builder reads (`gen_manifest.BUILDER_INPUTS`), proven both ways by
+  `test_gf_page_stamp_scope.py`, and the five pages are gitignored: `regen_all.py` still builds
+  them into a working tree, CI publishes them to the project's GitHub Pages site on
+  push, as the `offline-pages` artifact on a PR, and as release assets on a `v*` tag, which is
+  where `deploy_wizard.sh` takes them from. `wizard/wizard.html` and `region-census.json` stay
+  tracked — the wizard is the option surface, ships inside the release zip and is pinned to a tag.
+  **Nothing a player installs changes**: the pages reach them by the same URLs and the same release
+  assets. **Tooling and CI only: no seed, pool or contract effect.**
+
+- **The matt-oracle roadmap is written down (#1494).** `docs/MATT-ORACLE-ROADMAP.md` ranks the next
+  steps for turning the oracle's OPEN allowlists into table fixes, superseding the scratchpad-only
+  recommendations from #1478 — items 1, 2, 5, 6 and 7 above are worked against it by name. No code,
+  no data of thefifthmatt's. **Docs only: no seed, pool or contract effect.**
+
 - **The options wizard offers independent run profiles.** Content, run size, Boss Rush,
   rewards, travel and multiplayer can be chosen without resetting the other settings;
   individual customization remains available and existing option names are unchanged.
@@ -248,11 +459,19 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   designed. The crate's 107 addresses were generated with upstream's own `binary-mapper` against
   the real executable (five moved from 2.7.0.0, all by +0x70); the client's eight private
   addresses were re-located against it (seven unchanged, `fmg_search` +0x70). 2.6.2.0, 2.6.2.1,
-  2.7.0.0 and 2.7.0.1 keep working; no Japanese 2.7.1.x executable has been seen. 🛑 The
-  2.7.1.0 addresses are mapper-generated and prologue-checked, **not yet executed in a game**:
-  the live smoke test (gate silent, connect, one check, one item) is owed before `stable` moves.
-  The 2.7.1.0 `regulation.bin` is data-identical to the 1.17 dump across all 239 params, so no
-  seed, pool or contract change rides with this (#1486, #1487). **The gitlink moved to client main
+  2.7.0.0 and 2.7.0.1 keep working; no Japanese 2.7.1.x executable has been seen. 🛑 **Every
+  2.7.1.0 address in the client is SIGNATURE / BINARY-MAPPER DERIVED** — a pattern match against
+  the shipped executable, prologue-checked, and **not confirmed by a running game**. The live
+  smoke test (gate silent, connect, one check, one item) is **being done at this tag**; until a
+  log from it exists, treat 2.7.1.0 support as a build that should work rather than one that has,
+  and `stable` does not move to it before that log. The 2.7.1.0 `regulation.bin` was compared
+  against the 1.17 dump and is data-identical across all 239 params, so no seed, pool or contract
+  change rides with this (#1486, #1487). 🛑 **The world-side half of #1486 — re-exporting the
+  params from the 2.7.1.0 `regulation.bin` into `gen_inputs.db` — has NOT been done.** The
+  committed `gen_inputs.db` is still the **2026-08-29** export, so every table in this release is
+  derived from the 1.17 corpus. That is consistent with the comparison above rather than in
+  tension with it, but it means the re-export is an owed step and not a completed one, and nothing
+  in this release should be read as having been re-derived on 2.7.1.0 data. **The gitlink moved to client main
   `45b4c752` in #1489** (and advances again here with the v0.6.0.6 version stamp); that move also
   carried clients #661: the baked fallback
   region-lock table files the Divine Tower of East Altus under Leyndell. That table only serves
