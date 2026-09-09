@@ -58,11 +58,63 @@ def load_healthbars():
     return table
 
 
+# DISPLAY-ONLY fallbacks for the five entries whose DisplayBossHealthBar nameId has no NpcName FMG
+# row, so BOSS_HEALTHBARS carries a blank name for them. Without these the tracker draws each of
+# their sweep rows as `unidentified boss -- checks hidden until fired [flag 34110800]`.
+#
+# 🛑 THESE LIVE HERE AND NOT IN boss_healthbars.py, AND THE DISTINCTION IS LOAD-BEARING. A BLANK
+# NAME IN THAT TABLE IS A SEMANTIC MARKER, NOT A MISSING LABEL: `contract.sweep_slot_skips()`
+# DERIVES its skip set from it ("a trigger BOSS_HEALTHBARS cannot name ... we cannot vouch for one"),
+# which is the #672 fix for bobler's two stranded progression checks, and gen_data's
+# `_unspawned_candidate` reads it as one of the unspawned-boss tells. Filling the names at the
+# source was tried on 2026-09-09 and un-skipped 34100800 and 34110800 -- the exact regression #672
+# exists to prevent -- and turned 29 location NAMES red by growing a `may be sweep-granted by` tail
+# on triggers the world has ruled it cannot vouch for. So the world keeps its blank, and only the
+# CLIENT'S DISPLAY STRING is filled in, which is all the tracker ever wanted.
+#
+# 🛑 EVERY ONE IS THE ARENA, NOT A CHARACTER. Four of the five are exactly the entries
+# `greenfield/arena_graces.tsv` files under `# unresolved_bosses`, and 34150800 was falsified IN
+# GAME as EMEVD-only (2026-08-05, test_gf_unspawned_field_boss.py). There is no character to name:
+# an invented plausible one would put a name on a row the player will never see standing there,
+# which is worse than the flag number it replaces. That also fits what this table already IS -- see
+# the emitted doc comment below: a sweep row names WHICH FIGHT PAYS THIS OUT, not who is on screen.
+DISPLAY_NAME_FALLBACKS = {
+    # m30_13 = Auriza Side Tomb: every member of DUNGEON_SWEEPS[30130810] in tables/data.py reads
+    # "... Auriza Side Tomb". 30130800 in the same map is 'Grave Warden Duelist'; the 810 is that
+    # map's second healthbar entity and the corpus names no occupant for it.
+    30130810: "Auriza Side Tomb boss",
+    # m34_10 = Divine Tower of Limgrave -- named outright by
+    # greenfield/eldenring/tests/test_gf_sweep_slot_skips.py ("`34100800` is the Divine Tower of
+    # Limgrave: BOSS_HEALTHBARS records an EMPTY name"), and by its members' place names.
+    34100800: "Divine Tower of Limgrave boss",
+    # m34_11 = Divine Tower of Liurnia: m34_12/13/14 are the West Altus / Caelid / East Altus Divine
+    # Towers per data.py's location names, and this one's arena region is 'Liurnia'. Its five
+    # members all read "Study Hall Entrance", the tower's Carian Study Hall approach.
+    34110800: "Divine Tower of Liurnia boss",
+    # m34_15 = Isolated Divine Tower -- named outright by
+    # greenfield/eldenring/tests/test_gf_unspawned_field_boss.py.
+    34150800: "Isolated Divine Tower boss",
+    # m60_41_33 = Fourth Church of Marika, Weeping Peninsula -- named outright by boss_sweeps.py's
+    # own note on this flag, and by its members ("Sacred Tear - Fourth Church of Marika").
+    1041330800: "Fourth Church of Marika boss",
+}
+
+
 def load_rows():
     """(flag, name) sorted by flag. Non-ASCII names are a hard error, not a warning."""
     rows = []
-    for flag, entry in load_healthbars().items():
+    healthbars = load_healthbars()
+    for flag in DISPLAY_NAME_FALLBACKS:
+        if flag not in healthbars:
+            print(f"WARNING: DISPLAY_NAME_FALLBACKS has flag {flag}, which BOSS_HEALTHBARS does not "
+                  "key -- stale fallback, delete it.")
+        elif str(healthbars[flag][3] or "").strip():
+            print(f"WARNING: DISPLAY_NAME_FALLBACKS has flag {flag}, which BOSS_HEALTHBARS now NAMES "
+                  f"({healthbars[flag][3]!r}) -- the game's own name wins; delete the fallback.")
+    for flag, entry in healthbars.items():
         name = entry[3] if len(entry) > 3 else None
+        # The datamined name always wins; the fallback only speaks where the FMG had no row.
+        name = name or DISPLAY_NAME_FALLBACKS.get(int(flag))
         if not name:
             continue
         if not name.isascii():

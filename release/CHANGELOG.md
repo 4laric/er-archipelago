@@ -369,6 +369,31 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   boundary is untouched — the fix reads a count that is already ours to read and commits nothing
   of his.
 
+- **The five nameless sweep bosses get a tracker name, and the world's blank stays blank.**
+  `BOSS_HEALTHBARS` resolves 240 of its 245 names straight out of the game's `NpcName` FMG; five
+  `DisplayBossHealthBar` calls carry a nameId the FMG has no row for. `tools/gen_sweep_boss_names.py`
+  skips a blank, so the client's F6 tracker drew each of those sweep rows as
+  `unidentified boss -- checks hidden until fired [flag 34110800]`. The generator gains
+  `DISPLAY_NAME_FALLBACKS`: **30130810 = `Auriza Side Tomb boss`, 34100800 =
+  `Divine Tower of Limgrave boss`, 34110800 = `Divine Tower of Liurnia boss`, 34150800 =
+  `Isolated Divine Tower boss`, 1041330800 = `Fourth Church of Marika boss`**.
+  🛑 **The fallbacks live in the CLIENT generator and NOT in `boss_healthbars.py`, and that is the
+  whole ruling.** A blank name in that table is a SEMANTIC MARKER, not a missing label:
+  `contract.sweep_slot_skips()` DERIVES its skip set from it ("a trigger `BOSS_HEALTHBARS` cannot
+  name ... we cannot vouch for one") — the #672 fix for bobler's two stranded progression checks —
+  and gen_data's `_unspawned_candidate` reads it as an unspawned-boss tell. Naming them at the
+  source was tried first and measured: it un-skipped 34100800 and 34110800, the exact regression
+  #672 exists to prevent, and grew a `may be sweep-granted by` tail on 29 location NAMES for
+  triggers the world has ruled it cannot vouch for. So the world keeps its blank and only the
+  client's DISPLAY STRING is filled, which is all the tracker ever wanted. 🛑 **Every name is the
+  ARENA, not a character**: four of the five are exactly the entries `arena_graces.tsv` files under
+  `# unresolved_bosses`, 34150800 was falsified IN GAME as EMEVD-only, and an invented plausible
+  character would put a name on a row the player will never see standing there. **No data table,
+  ap-id, flag, location name, logic or `CONTRACT_HASH` change** — one generator and the .rs it
+  emits. The client half also catches up on drift that was already there: `SWEEP_BOSS_NAMES` goes
+  239 -> 245 because the committed table predated #987 (Dryleaf Dane keyed by ENTITY `2049440710` /
+  `2050430710` rather than by his defeat flags `2049440800` / `2050430800`) and was missing Ancient
+  Dragon Lansseax entirely. Client PR #670.
 
 ## v0.6.0.5 — 2026-09-07
 
