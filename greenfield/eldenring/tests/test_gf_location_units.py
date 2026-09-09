@@ -201,7 +201,7 @@ def test_the_hippo_co_check_pays_two_copies():
     assert len(row) == 1 and int(row[0]["num"]) == 2
     # Its PRIMARY, on the same flag, is a different item at x1 -- which is what an unbound
     # flag-level join would have smeared across both.
-    assert LOCATION_ITEM.get(7773926) != FRAGMENT and _units(7773926) == 1
+    assert LOCATION_ITEM.get(7773919) != FRAGMENT and _units(7773919) == 1
 
 
 # ---- what carries the second copy into the pool -------------------------------------------------

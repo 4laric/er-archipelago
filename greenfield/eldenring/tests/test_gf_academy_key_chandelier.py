@@ -32,7 +32,12 @@ class ChandelierDedup(WorldTestBase):
         # another seeded placement policy, leaving this pool-only assertion with zero witnesses.
         # Pin the draw whose premise this test owns: one key in the pool, never the chandelier's
         # duplicate.  This is about cardinality, not distribution across arbitrary seeds (#1065).
-        self.world_setup(seed=1)
+        # 2026-09-08 (world#1515/#1518): seed 1 -> 2. Ten rows left the corpus, which reshuffles
+        # every seeded draw, and seed 1 now places the one modelled key instead of leaving it in
+        # the pool -- zero witnesses, not two keys. Re-probed seeds 1-6 against the new corpus:
+        # 1 yields 0 copies and 2, 3, 4, 5 and 6 all yield exactly 1, so the SINGLETON property
+        # this test owns is intact and only the pinned draw had to move.
+        self.world_setup(seed=2)
         sd = self.world.fill_slot_data()
         blank = sd.get("checkLotBlankMap", {})
         # WITNESS the map is populated, then the specific neutralisation.

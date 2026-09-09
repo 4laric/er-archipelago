@@ -10,7 +10,17 @@ def test_hub_unattributed_census_is_nonempty_and_exact():
     hub = {ap for (_name, ap, _flag) in LOCATIONS[HUB]}
     expected = {ap for ap in hub if not LOCATION_TAGS.get(ap)}
     assert HUB_UNATTRIBUTED_APS == expected
-    assert len(expected) == 53, "re-measure the regenerated untagged-hub census"
+    # 53 -> 50 on 2026-09-08, two independent removals composed:
+    #  * world#1518: the derived tutorial-popup family took f550000 "About Sites of Grace" and
+    #    f550210 "About Summoning Other Players" out of the corpus; both were filed under the hub,
+    #    and no hub check gained or lost a tag.
+    #  * #1511 (255's notebook): f1049557700 (Larval Tear) left the HUB for Consecrated Snowfield --
+    #    its one map lot 1049550700 decodes to tile m60_49_55, so the "multiple scattered copies
+    #    share these flags" premise that filed every Larval Tear in the hub never applied to it.
+    #    Exactly one row left and none joined. The check is NOT unbarred by the move --
+    #    gen_data._REGION_OVERRIDE_UNCONFIRMED_FLAGS carries it now, so it keeps the same DEFAULTED
+    #    progression bar this census was giving it, by a different lever.
+    assert len(expected) == 50, "re-measure the regenerated untagged-hub census"
 
 
 def test_hub_unattributed_checks_are_permanently_barred():

@@ -1,0 +1,2370 @@
+{
+  "schema": "er-player-notebook-v1",
+  "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+  "observation_scope": "player_report_not_adjudicated",
+  "exported_at": "2026-09-08T18:36:22.146Z",
+  "defaults": {
+    "Reviewer": "255",
+    "Version": "0.4.10",
+    "Context": "Archipelago with randomized items"
+  },
+  "recovery_records": [],
+  "reviews": [
+    {
+      "check_id": 7770019,
+      "original_name": "Liurnia :: Memory Stone - near Converted Tower, may be sweep-granted by Omenkiller (m60_35_42) [f60410]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "Converted Tower, Liurnia",
+        "LockRegion": "",
+        "Route": "should logically require the Erudition gesture BUT can be gotten with just torrent, and its quite easy and intuitive to do, it might even be more correct to put it as requiring nothing but the sphere lock, go to converted tower and try it yourself",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7770141,
+      "original_name": "Scadu Altus :: Finger-Weaver's Cookbook [2] - near Cathedral of Manus Metyr, may be sweep-granted by Dryleaf Dane (m61_49_44) [f68580]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "On a corpse in the Finger Ruins of Miyr",
+        "LockRegion": "Hole-Laden Necklace, Cerulean, Shadow Keep, Scadu altus, O Mother Gesture",
+        "Route": "Requires the entire Ymir questline to be completed, requiring you to be at Scadu Altus for ymirs stuff, Cerulean, for the finger ruins of Rhia bell, shadow keep and the O, Mother gesture for the finger ruins of dheo bell",
+        "Evidence": "right now it is just under scadu altus with nothing else",
+        "Version": "",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7770550,
+      "original_name": "Scadu Altus :: [Sorcery] Fleeting Microcosm - from Count Ymir, High Priest [f330030]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Hole-Laden Necklace, Cerulean, Shadow Keep, Scadu Altus & O, Mother Gesture",
+        "Route": "blocked by ymir quest, needs all items above\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7770581,
+      "original_name": "Mt. Gelmir :: Letter to Patches - around Volcano Manor, may be sweep-granted by Rykard, Lord of Blasphemy (m16_00) [f400180]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "patches/tanith",
+        "Route": "i am not writing all this shit down bruh https://eldenring.wiki.fextralife.com/Patches",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7770619,
+      "original_name": "Liurnia :: Latenna the Albinauric - around Slumbering Wolf's Shack, may be sweep-granted by Deathbird (m60_37_42) [f400410]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "tracked and randomized, but quest item",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7770620,
+      "original_name": "Consecrated Snowfield :: Somber Ancient Dragon Smithing Stone - around Apostate Derelict, may be sweep-granted by Death Rite Bird (m60_48_57) [f400411]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "Apostate Derelict",
+        "LockRegion": "Consecrated Snowfield",
+        "Route": "this check requires completing the entire Latenna questline, which would mean getting the Haligtree Secret Medallion (Right), and then you have to deliver it to Latenna BEFORE acquiring the Haligtree Secret Medallion (Left), if you obtain both, latenna dies and the questline is uncompletable, this is enough of a reason to force the ancient dragon smithing stone to be collectable at all times, which would only require Consecrated Snowfield Region Lock",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7770623,
+      "original_name": "Liurnia :: Companion Jar - near Jarburg, may be sweep-granted by Tibia Mariner (m60_39_44) [f400460]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "quest item, alexander questline completion and killed",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7770639,
+      "original_name": "Cerulean :: St. Trina's Smile - near Garden of Deep Purple, may be sweep-granted by Putrescent Knight (m22_00) [f400632]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "Cerulean, dropped from hostile Thiollier",
+        "LockRegion": "Gravesite Plain, Cerulean",
+        "Route": "requires advancing thiolliers questline, needing you to have gravesite plain and cerulean locks",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7770652,
+      "original_name": "Cerulean :: St. Trina's Blossom - near Garden of Deep Purple, may be sweep-granted by Putrescent Knight (m22_00) [f400740]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "Cerulean",
+        "LockRegion": "Enir-Ilim, Cerulean",
+        "Route": "must defeat PCR in Enir-Ilim and then go back to Cerulean to find the helm at st. trinas body, requiring both locks",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7770742,
+      "original_name": "Altus :: Ash of War: Barbaric Roar - around Abandoned Coffin, may be sweep-granted by Demi-Human Queen Gilika (m60_38_51) [f540224]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Liurnia",
+        "Route": "liurnia, not altus",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7770794,
+      "original_name": "Weeping :: About Stakes of Marika - around Tombsward Catacombs, may be sweep-granted by Cemetery Shade (m30_00) [f550050]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unsure",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "this item should be granted at the end of the cave of knowledge, not sure why its in weeping, i think you should remove all of the \"About ...\" tutorial items, they seem strange",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7770804,
+      "original_name": "Consecrated Snowfield :: Greathood - near Ancient Snow Valley Ruins (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f580330]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "north west of star-gazer ruins, on the bridge",
+        "LockRegion": "Mountaintops of the Giants",
+        "Route": "Reward for the Sorcerer Painting, the painting and reward location are both in Mountaintops of the Giants, not Consecrated Snowfield",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771533,
+      "original_name": "Raya Lucaria Academy :: Imbued Sword Key - near Church of the Cuckoo, may be sweep-granted by Red Wolf of Radagon (m14_00) [f14007630]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "top of the four belfries",
+        "LockRegion": "Liurnia",
+        "Route": "this is unrandomized and untracked, should be randomized, aswell as having 4 Imbued Sword Keys in the pool, or perhaps 8 for excess, easier logic",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771750,
+      "original_name": "Belurat :: Smithing Stone [2] - near Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007210]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771751,
+      "original_name": "Belurat :: Thin Beast Bones - near Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007220]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771752,
+      "original_name": "Belurat :: Sliver of Meat - near Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007230]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": false
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771753,
+      "original_name": "Belurat :: Broken Rune - near Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007240]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771754,
+      "original_name": "Belurat :: Smithing Stone [3] - near Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007250]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771755,
+      "original_name": "Belurat :: Poisonbone Dart - near Small Private Altar, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007260]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771756,
+      "original_name": "Belurat :: Neutralizing Boluses - near Belurat, Tower Settlement (2), may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007270]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771757,
+      "original_name": "Belurat :: Serpent Arrow - near Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007280]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771758,
+      "original_name": "Belurat :: Beast Liver - near Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007290]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771759,
+      "original_name": "Belurat :: Poisoned Hand - near Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007300]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": false
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771760,
+      "original_name": "Belurat :: Knot Resin - near Belurat, Tower Settlement (2), may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007310]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771761,
+      "original_name": "Belurat :: Whiteflesh Mushroom - near Belurat, Tower Settlement (1), may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007320]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771813,
+      "original_name": "Belurat :: Immunizing Horn Charm +2 - around Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007991]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7771814,
+      "original_name": "Belurat :: Horned Warrior's Sword - around Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f20007993]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Belarut, Well-Depths Key/Enir-Ilim",
+        "Route": "These Checks should logically require the Well Depths Key, and Belarut, the items can be gotten out of logic if you have Enir-Ilim and take the path to euporia, you can drop down into the area\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7772133,
+      "original_name": "Liurnia :: Golden Rune [6] - around Stillwater Cave, may be sweep-granted by Cleanrot Knight (m31_04) [f31047990]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "Gives vanilla + archi",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7772423,
+      "original_name": "Liurnia :: Golden Rune [1] - near Ruin-Strewn Precipice Overlook, may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207000]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unsure",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "i cant seem to find this check, but int doesnt say its unused, maybe bugged? doesnt show up on map for goblins, most likely bugged",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7772424,
+      "original_name": "Liurnia :: Bull-Goat Helm - near Magma Wyrm Makar, may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207500]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "patches",
+        "Route": "i am not writing all this shit down bruh https://eldenring.wiki.fextralife.com/Patches",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7772448,
+      "original_name": "Cerulean :: Clarifying Horn Charm +2 - near Lamenter's Gaol, may be sweep-granted by Lamenter (m41_02) [f41027210]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Cerulean",
+        "Route": "Requires Gaol Upper Level Key aswell as cerulean",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7772449,
+      "original_name": "Cerulean :: Living Jar Shard - near Lamenter's Gaol, may be sweep-granted by Lamenter (m41_02) [f41027300]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Cerulean",
+        "Route": "Requires Gaol Upper Level Key aswell as cerulean",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7772450,
+      "original_name": "Cerulean :: Gaol Lower Level Key - In the Gaol, after you use the Upper Level Key to unlock, may be sweep-granted by Lamenter (m41_02) [f41027320]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Cerulean",
+        "Route": "Requires Gaol Upper Level Key aswell as cerulean",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7772472,
+      "original_name": "Liurnia :: Raw Meat Dumpling - near Revenger's Shack (1), may be sweep-granted by Erdtree Avatar (m60_33_43) [f1033447000]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Liurnia, Weeping, Irina's Letter, Grafted Blade Greatsword",
+        "Route": "Raw Meat Dumplings, Banished Knight's Halberd, and Shabriri Grape [flags 1033447000, 1033447010, 1033447020, 1033447030, 1033447040, 400061] are all unobtainable until you complete Edgar's questline, which requires Weeping and obviously Liurnia locks, is logically under liurnia but also needs special requirements for weeping lock aswell, also the Banished Knight's Halberd is not randomized, edgar should drop 3 items but only drops 2, one of which is the Rancorcall which makes no sense",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "test if edgar will move to irina's corpse after holding the grafted blade greatsword, or if its tied to the lionel misbegotten defeat",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7772551,
+      "original_name": "Liurnia :: Golden Rune [1] - around East Gate Bridge Trestle, may be sweep-granted by Night's Cavalry (m60_36_48) [f1035477000]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unused or unobtainable",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "unused, should be removed",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7772630,
+      "original_name": "Liurnia :: Neutralizing Boluses - near Ravine-Veiled Village (region unconfirmed), may be sweep-granted by Onyx Lord (m60_36_50) [f1037507000]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unused or unobtainable",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "unused, remove",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7772736,
+      "original_name": "Liurnia :: [Sorcery] Cannon of Haima - near Frenzied Flame Village Outskirts (region unconfirmed), may be sweep-granted by Erdtree Avatar (m60_38_48) [f1039487100]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Liurnia, Erudition Gesture, one appropriate Glintstone Crown",
+        "Route": "this check requires the Erudition Gesture to be performed while standing in front of a statue and wearing one of the Glintstone Crowns that give off light, these crowns are: Karolos Glintstone Crown, Lazuli Glintstone Crown, Olivinus Glintstone Crown, Twinsage Glintstone Crown, or the Witch's Glintstone Crown, unlike the Converted Tower, this one is necessary and can't be skipped",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7772802,
+      "original_name": "Weeping :: Composite Bow - treasure · m60_42_32 (region unconfirmed) [f1042327100]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unused or unobtainable",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "unused, remove",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7772867,
+      "original_name": "Weeping :: Ballista Bolt - around Castle Morne Lift, may be sweep-granted by Night's Cavalry (m60_44_32) [f1043317360]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unused or unobtainable",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "unused, remove.",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7772915,
+      "original_name": "Weeping :: Golden Rune [2] - around Castle Morne Rampart, may be sweep-granted by Night's Cavalry (m60_44_32) [f1044337070]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unused or unobtainable",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "Unused, remove",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773139,
+      "original_name": "Consecrated Snowfield :: Drawstring Holy Grease - near Ancient Snow Valley Ruins (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f1051557310]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Mountaintops of the Giants",
+        "Route": "",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773140,
+      "original_name": "Consecrated Snowfield :: Rainbow Stone - near Ancient Snow Valley Ruins (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f1051557320]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Mountaintops of the Giants",
+        "Route": "",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": false
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773305,
+      "original_name": "Cerulean :: Furnace Visage - around Cerulean Coast West, may be sweep-granted by Death Rite Bird (m61_47_39) [f2046397060]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": false
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773375,
+      "original_name": "Cerulean :: Black Pyrefly - near Ellac River Downstream, may be sweep-granted by Death Rite Bird (m61_47_39) [f2047407010]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "on the path to church of consolation",
+        "LockRegion": "Gravesite Plain",
+        "Route": "",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773376,
+      "original_name": "Cerulean :: Arrow - near Ellac River Downstream, may be sweep-granted by Demi-Human Queen Marigga (m61_46_40) [f2047407020]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "on the path to church of consolation",
+        "LockRegion": "Gravesite Plain",
+        "Route": "wrong region",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773380,
+      "original_name": "Cerulean :: Beast Claw with Ash of War: Savage Claws - m61_47_40, may be sweep-granted by Demi-Human Queen Marigga (m61_46_40) [f2047407980]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "dropped for Logur, the Beast Claw",
+        "LockRegion": "Gravesite Plain",
+        "Route": "southeast of the Gravesite Plain site of grace in the woods at nighttime, he spawns, drops from him, also doesnt show up on map for goblins dll",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773434,
+      "original_name": "Scadu Altus :: Black Pyrefly - near Scadu Altus, West, may be sweep-granted by Black Knight Garrew (m61_47_45) [f2047457000]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Gravesite Plain",
+        "Route": "should be Gravesite Plain, not Scadu Altus",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773435,
+      "original_name": "Scadu Altus :: Smithing Stone [3] - near Scadu Altus, West, may be sweep-granted by Black Knight Garrew (m61_47_45) [f2047457010]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Gravesite Plain",
+        "Route": "should be gravesite plain, not scadu altus",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773544,
+      "original_name": "Scadu Altus :: Broken Rune - around Moorth Highway, South (1), may be sweep-granted by Black Knight Edredd (m61_49_43) [f2049437900]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla + archi, enemy has multiple drops too, some arent randomized, only the broken rune",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773548,
+      "original_name": "Scadu Altus :: Iris of Occultation - around Moorth Highway, South, may be sweep-granted by Black Knight Edredd (m61_49_43) [f2049437940]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla + archi",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773637,
+      "original_name": "Scadu Altus :: Spellmachinist's Bell Bearing - near Church District Highroad, may be sweep-granted by Ralva the Great Red Bear (m61_49_45) [f2051467020]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Shadow Keep",
+        "Route": "should be Shadow Keep, not Scadu Altus",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773643,
+      "original_name": "Scadu Altus :: [Incantation] Minor Erdtree - near Hinterland Bridge, may be sweep-granted by Ralva the Great Red Bear (m61_49_45) [f2051477500]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Shadow Keep",
+        "Route": "should be Shadow Keep, not Scadu Altus",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773644,
+      "original_name": "Scadu Altus :: Golden Braid - near Church District Highroad, may be sweep-granted by Ralva the Great Red Bear (m61_49_45) [f2051477510]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Shadow Keep",
+        "Route": "should be Shadow Keep, not Scadu Altus",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773688,
+      "original_name": "Gravesite :: Glovewort Crystal Tear [f65460]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "from furnace golem southeast cerulean",
+        "LockRegion": "Cerulean",
+        "Route": "is an armored furnace golem so it requires hefty pots but i dont think we should adjust logic for it since theres so many hefty pots in the pool",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773699,
+      "original_name": "Cerulean :: Hefty Cracked Pot - near Lamenter's Gaol, may be sweep-granted by Lamenter (m41_02) [f66940]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "in lamenters gaol",
+        "LockRegion": "Cerulean",
+        "Route": "Requires Gaol Upper Level Key aswell as cerulean",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773752,
+      "original_name": "Scadu Altus :: Hole-Laden Necklace [f400660]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Correct",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Scadu Altus",
+        "Route": "Behaviour as expected, only blocked by scadu altus, no need for other items",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773753,
+      "original_name": "Scadu Altus :: Ruins Map (2nd) [f400661]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Scadu Altus, Cerulean, Hole-Laden Necklace",
+        "Route": "only blocked by the first bell, which should be only the items above",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773754,
+      "original_name": "Scadu Altus :: Ruins Map (3rd) [f400662]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Hole-Laden Necklace, Cerulean, Shadow Keep, Scadu Altus & O, Mother Gesture",
+        "Route": "blocked by ymir quest, needs all items above\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773755,
+      "original_name": "Scadu Altus :: Ymir's Bell Bearing - around Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400664]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Hole-Laden Necklace, Cerulean, Shadow Keep, Scadu Altus & O, Mother Gesture",
+        "Route": "blocked by ymir quest, needs all items above",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773756,
+      "original_name": "Scadu Altus :: [Sorcery] Cherishing Fingers - around Recluses' River Upstream, may be sweep-granted by Dryleaf Dane (m61_49_44) [f400666]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Hole-Laden Necklace, Cerulean, Shadow Keep, Scadu Altus & O, Mother Gesture",
+        "Route": "blocked by ymir quest, needs all items above\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773757,
+      "original_name": "Scadu Altus :: Swordhand of Night Jolán [f400670]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Iris of Grace, Scadu Altus, may require advancing ymir questline",
+        "Route": "",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "Jolan has choices that lock you out of other items in her questline, those being Sword of Night [flag 400671], which you can obtain by giving Jolan the Iris of Occultation, ending her questline, Swordhand of Night Jolan [flag 400670] can be obtained by giving Jolan the Iris of Grace instead, which locks you out of the other item, theres one more item Jolan and Anna [flag 2051460700] which would normally require completion of the quest in vanilla but can obtained simply by having Swordhand of Night Jolan in your inventory, making this a single check Lock, should be added to logic",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773758,
+      "original_name": "Scadu Altus :: Sword of Night - near Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400671]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Iris Of Occultation, Scadu Altus, may require advancing ymir quest",
+        "Route": "",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "Jolan has choices that lock you out of other items in her questline, those being Sword of Night [flag 400671], which you can obtain by giving Jolan the Iris of Occultation, ending her questline, Swordhand of Night Jolan [flag 400670] can be obtained by giving Jolan the Iris of Grace instead, which locks you out of the other item, theres one more item Jolan and Anna [flag 2051460700] which would normally require completion of the quest in vanilla but can obtained simply by having Swordhand of Night Jolan in your inventory, making this a single check Lock, should be added to logic",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773759,
+      "original_name": "Scadu Altus :: Claws of Night - near Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400672]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Hole-Laden Necklace, Cerulean, Shadow Keep, Scadu Altus & O, Mother Gesture",
+        "Route": "blocked by ymir quest, needs all items above\n",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773852,
+      "original_name": "Cerulean :: Lamenter's Mask - Lamenter, boss of Gaol [f520770]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Cerulean",
+        "Route": "Requires Gaol Lower Level Key aswell as cerulean and Upper level key",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773903,
+      "original_name": "Consecrated Snowfield :: About Cooperative Multiplayer - around Yelough Anix Tunnel [f550220]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unsure",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "Should be removed, is granted upon picking up any Tarnished's Furled Finger, probably tracked at multiple locations but have different flags, either merge all of them into one flag so they dont track in other region after acquiring the check or remove them all completely",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773940,
+      "original_name": "Scadu Altus :: Rada Fruit - near Church District Entrance, may be sweep-granted by Golden Hippopotamus (m21_00) [f21007670]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Shadow Keep",
+        "Route": "should be shadow keep not scadu altus",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7773979,
+      "original_name": "Consecrated Snowfield :: Golden Rune [1] - m30_19, may be sweep-granted by Putrid Grave Warden Duelist (m30_19) [f30197900]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unused or unobtainable",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "Unused item, Remove.",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774012,
+      "original_name": "Liurnia :: Sacred Tear - around Ruin-Strewn Precipice, may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207170]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unused or unobtainable",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "unused, remove",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774013,
+      "original_name": "Liurnia :: Golden Rune [6] - around Ruin-Strewn Precipice (1), may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207970]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla + archi",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774014,
+      "original_name": "Liurnia :: Golden Rune [6] - around Ruin-Strewn Precipice (2), may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207980]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla + archi",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774015,
+      "original_name": "Liurnia :: Golden Rune [6] - around Ruin-Strewn Precipice (3), may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207990]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla + archi",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774070,
+      "original_name": "Scadu Altus :: Living Jar Shard - around Bonny Gaol (1), may be sweep-granted by Curseblade Labirith (m41_01) [f41017975]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unused or unobtainable",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "Unused should be removed, there are a lot of living jar enemies in bonny gaol, but this item is unused",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774072,
+      "original_name": "Scadu Altus :: Living Jar Shard - around Bonny Gaol (3), may be sweep-granted by Curseblade Labirith (m41_01) [f41017985]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unused or unobtainable",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "Unused should be removed, there are a lot of living jar enemies in bonny gaol, but this item is unused",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774076,
+      "original_name": "Cerulean :: Chilling Perfume Bottle - near Lamenter's Gaol, may be sweep-granted by Lamenter (m41_02) [f41027100]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Cerulean",
+        "Route": "requires gaol upper level key aswell as cerulean",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774077,
+      "original_name": "Cerulean :: Call of Tibia - near Lamenter's Gaol, may be sweep-granted by Lamenter (m41_02) [f41027110]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Cerulean",
+        "Route": "requires gaol upper level key",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774078,
+      "original_name": "Cerulean :: Shadow Realm Rune [4] - near Lamenter's Gaol, may be sweep-granted by Lamenter (m41_02) [f41027120]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Cerulean",
+        "Route": "requires gaol upper level key and cerulean",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774079,
+      "original_name": "Cerulean :: Lamenting Visage - near Lamenter's Gaol, may be sweep-granted by Lamenter (m41_02) [f41027130]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Cerulean",
+        "Route": "requires gaol upper level key",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774080,
+      "original_name": "Cerulean :: Living Jar Shard - around Lamenter's Gaol (1), may be sweep-granted by Lamenter (m41_02) [f41027985]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "Requires Gaol Upper Level Key aswell as cerulean",
+        "LockRegion": "Cerulean",
+        "Route": "",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774081,
+      "original_name": "Cerulean :: Living Jar Shard - around Lamenter's Gaol (2), may be sweep-granted by Lamenter (m41_02) [f41027990]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "Requires Gaol Upper Level Key aswell as cerulean",
+        "LockRegion": "Cerulean",
+        "Route": "",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774082,
+      "original_name": "Cerulean :: Living Jar Shard - around Lamenter's Gaol (3), may be sweep-granted by Lamenter (m41_02) [f41027995]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Cerulean",
+        "Route": "Requires Gaol Upper Level Key aswell as cerulean",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774094,
+      "original_name": "Scadu Altus :: Somber Smithing Stone [8] - near Ruined Forge of Starfall Past, may be sweep-granted by Metyr, Mother of Fingers (m25_00) [f42027040]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "is not randomized, gives vanilla item",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774110,
+      "original_name": "Liurnia :: Raw Meat Dumpling - near Revenger's Shack (2), may be sweep-granted by Erdtree Avatar (m60_33_43) [f1033447010]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Liurnia, Weeping, Irina's Letter, Grafted Blade Greatsword",
+        "Route": "Raw Meat Dumplings, Banished Knight's Halberd, and Shabriri Grape [flags 1033447000, 1033447010, 1033447020, 1033447030, 1033447040, 400061] are all unobtainable until you complete Edgar's questline, which requires Weeping and obviously Liurnia locks, is logically under liurnia but also needs special requirements for weeping lock aswell, also the Banished Knight's Halberd is not randomized, edgar should drop 3 items but only drops 2, one of which is the Rancorcall which makes no sense",
+        "Evidence": "test if edgar moves to irinas corpse if you hold the grafted blade greatsword or if its tied to lionel misbegotten dying",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774111,
+      "original_name": "Liurnia :: Raw Meat Dumpling - near Revenger's Shack (3), may be sweep-granted by Bols, Carian Knight (m60_33_45) [f1033447020]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Liurnia, Weeping, Irina's Letter, Grafted Blade Greatsword",
+        "Route": "Raw Meat Dumplings, Banished Knight's Halberd, and Shabriri Grape [flags 1033447000, 1033447010, 1033447020, 1033447030, 1033447040, 400061] are all unobtainable until you complete Edgar's questline, which requires Weeping and obviously Liurnia locks, is logically under liurnia but also needs special requirements for weeping lock aswell, also the Banished Knight's Halberd is not randomized, edgar should drop 3 items but only drops 2, one of which is the Rancorcall which makes no sense",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "test if edgar moves to irinas corpse if you hold the grafted blade greatsword or if its tied to lionel misbegotten dying\n",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774112,
+      "original_name": "Liurnia :: Raw Meat Dumpling - near Revenger's Shack (4), may be sweep-granted by Glintstone Dragon Smarag (m60_34_45) [f1033447030]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Liurnia, Weeping, Irina's Letter, Grafted Blade Greatsword",
+        "Route": "Raw Meat Dumplings, Banished Knight's Halberd, and Shabriri Grape [flags 1033447000, 1033447010, 1033447020, 1033447030, 1033447040, 400061] are all unobtainable until you complete Edgar's questline, which requires Weeping and obviously Liurnia locks, is logically under liurnia but also needs special requirements for weeping lock aswell, also the Banished Knight's Halberd is not randomized, edgar should drop 3 items but only drops 2, one of which is the Rancorcall which makes no sense",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "test if edgar moves to irinas corpse if you hold the grafted blade greatsword or if its tied to lionel misbegotten dying\n",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774113,
+      "original_name": "Liurnia :: Raw Meat Dumpling - near Revenger's Shack (5), may be sweep-granted by Erdtree Avatar (m60_33_43) [f1033447040]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Liurnia, Weeping, Irina's Letter, Grafted Blade Greatsword",
+        "Route": "Raw Meat Dumplings, Banished Knight's Halberd, and Shabriri Grape [flags 1033447000, 1033447010, 1033447020, 1033447030, 1033447040, 400061] are all unobtainable until you complete Edgar's questline, which requires Weeping and obviously Liurnia locks, is logically under liurnia but also needs special requirements for weeping lock aswell, also the Banished Knight's Halberd is not randomized, edgar should drop 3 items but only drops 2, one of which is the Rancorcall which makes no sense",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "test if edgar moves to irinas corpse if you hold the grafted blade greatsword or if its tied to lionel misbegotten dying\n",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774114,
+      "original_name": "Liurnia :: Dragonscale Blade - m60_33_45 (region unconfirmed), may be sweep-granted by Bols, Carian Knight (m60_33_45) [f1033457100]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unused or unobtainable",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "unused, remove",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774115,
+      "original_name": "Liurnia :: Golden Rune [6] - near Foot of the Four Belfries (region unconfirmed), may be sweep-granted by Bols, Carian Knight (m60_33_45) [f1033457990]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla + archi",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774123,
+      "original_name": "Liurnia :: Ghost Glovewort [2] - m60_35_41 (region unconfirmed) (1), may be sweep-granted by Omenkiller (m60_35_42) [f1035417980]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "Gives vanilla + archi",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774124,
+      "original_name": "Liurnia :: Ghost Glovewort [2] - m60_35_41 (region unconfirmed) (2), may be sweep-granted by Glintstone Dragon Adula (m60_34_42) [f1035417990]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "",
+        "Evidence": "gives vanilla item and archi check",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774137,
+      "original_name": "Liurnia :: Smoldering Butterfly - m60_35_44 (region unconfirmed), may be sweep-granted by Death Rite Bird (m60_36_45) [f1035447990]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla item and archi check",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": false
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774147,
+      "original_name": "Liurnia :: Golden Rune [3] - near Manor Upper Level, may be sweep-granted by Royal Knight Loretta (m60_35_50) [f1035507060]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla + archi",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774165,
+      "original_name": "Liurnia :: Living Jar Shard - around Main Caria Manor Gate (1), may be sweep-granted by Royal Knight Loretta (m60_35_50) [f1035507610]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla + archi",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774166,
+      "original_name": "Liurnia :: Living Jar Shard - around Main Caria Manor Gate (2), may be sweep-granted by Royal Knight Loretta (m60_35_50) [f1035507620]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "",
+        "Evidence": "gives vanilla + archi",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774167,
+      "original_name": "Liurnia :: Living Jar Shard - around Main Caria Manor Gate (3), may be sweep-granted by Royal Knight Loretta (m60_35_50) [f1035507630]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "",
+        "Evidence": "gives vanilla + archi",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774185,
+      "original_name": "Liurnia :: Troll Knight's Sword - around Main Caria Manor Gate, may be sweep-granted by Royal Knight Loretta (m60_35_50) [f1035507990]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla + archi",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774192,
+      "original_name": "Liurnia :: Confessor Hood - around Boilprawn Shack, may be sweep-granted by Omenkiller (m60_35_42) [f1036437010]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unused or unobtainable",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "Unused, should be removed",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774213,
+      "original_name": "Liurnia :: Ghost Glovewort [2] - around Scenic Isle, may be sweep-granted by Deathbird (m60_37_42) [f1037427990]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla item and archi check",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774218,
+      "original_name": "Liurnia :: Dragon Cult Prayerbook - m60_38_44 (region unconfirmed) (1), may be sweep-granted by Night's Cavalry (m60_39_43) [f1038447100]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unused or unobtainable",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "Unused, should be removed",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774219,
+      "original_name": "Liurnia :: Dragon Cult Prayerbook - m60_38_44 (region unconfirmed) (2), may be sweep-granted by Tibia Mariner (m60_39_44) [f1038447500]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla + archi",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774220,
+      "original_name": "Liurnia :: Smoldering Butterfly - around Eastern Tableland, may be sweep-granted by Bell Bearing Hunter (m60_37_46) [f1038467990]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla item and archi check",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774343,
+      "original_name": "Weeping :: Golden Rune [6] - m60_43_32 (region unconfirmed), may be sweep-granted by Night's Cavalry (m60_44_32) [f1043327990]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla + archi",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774354,
+      "original_name": "Altus :: Golden Rune [13] - m60_43_52 (region unconfirmed) (1), may be sweep-granted by Bell Bearing Hunter (m60_43_53) [f1043527750]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla item and archi check",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774355,
+      "original_name": "Altus :: Golden Rune [13] - m60_43_52 (region unconfirmed) (2), may be sweep-granted by Deathbird (m60_44_53) [f1043527760]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla item and archi check",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774452,
+      "original_name": "Consecrated Snowfield :: Rotten Duelist Greaves - around Ordina, Liturgical Town, may be sweep-granted by Death Rite Bird (m60_48_57) [f1048577990]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "unrandomized and untracked",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774501,
+      "original_name": "Consecrated Snowfield :: Hoslow's Petal Whip - near Consecrated Snowfield Catacombs (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f1050567700]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Mountaintops of the Giants",
+        "Route": "Mountaintops of the Giants, not Consecrated Snowfield, Also is the final contract in the Volcano Manor Questline, My suggestion; make all of the volcano manor contracts' summon signs available to be completed at any given time, if you dont do this then you'd need Mt. Gelmir Lock, and every previous contract's Region Lock.",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774560,
+      "original_name": "Scadu Altus :: Scadutree Fragment - Moorth Ruins shadowpot [f2049440990]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "gives vanilla + archi",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": false
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774592,
+      "original_name": "Limgrave :: Grovel For Mercy [f60819]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "patches",
+        "Route": "i am not writing all this shit down bruh https://eldenring.wiki.fextralife.com/Patches",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7774606,
+      "original_name": "Roundtable Hold :: Calm Down! [f60816]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "patches ",
+        "Route": "i am not writing all this shit down bruh https://eldenring.wiki.fextralife.com/Patches",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": false
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900005,
+      "original_name": "Liurnia :: Rancorcall - around Revenger's Shack, may be sweep-granted by Erdtree Avatar (m60_33_43) [f400061]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Unused or unobtainable",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "Does not exist, remove, this flag is used for Edgar the Revenger's drops, which is a shabriri grape, a banished knights halberd, and 5 raw meat dumplings",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900096,
+      "original_name": "Scadu Altus :: Beloved Stardust [f400661]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Scadu Altus, Cerulean, Hole-Laden Necklace",
+        "Route": "only blocked by the first bell, which should be only the items above, also may not be randomized, i dont remembering seeing this item when clearing all of scadu, it has the same flag as Ruins Map (2nd) which is prob why it doesnt get randomized, test it",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900097,
+      "original_name": "Scadu Altus :: Maternal Staff - around Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400664]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Hole-Laden Necklace, Cerulean, Shadow Keep, Scadu Altus & O, Mother Gesture",
+        "Route": "blocked by ymir quest, needs all items above",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900098,
+      "original_name": "Scadu Altus :: High Priest Hat - around Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400664]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Hole-Laden Necklace, Cerulean, Shadow Keep, Scadu Altus & O, Mother Gesture",
+        "Route": "Blocked by Ymir questline, requires all items above",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900099,
+      "original_name": "Scadu Altus :: High Priest Robe - around Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400664]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Hole-Laden Necklace, Cerulean, Shadow Keep, Scadu Altus & O, Mother Gesture",
+        "Route": "blocked by ymir quest, needs all items above",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900100,
+      "original_name": "Scadu Altus :: High Priest Gloves - around Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400664]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Hole-Laden Necklace, Cerulean, Shadow Keep, Scadu Altus & O, Mother Gesture",
+        "Route": "Blocked by Ymir Questline, requires everything above",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900101,
+      "original_name": "Scadu Altus :: High Priest Undergarments - around Cathedral of Manus Metyr, may be sweep-granted by Rakshasa (m61_51_44) [f400664]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Hole-Laden Necklace, Cerulean, Shadow Keep, Scadu Altus & O, Mother Gesture",
+        "Route": "blocked by ymir quest, needs all items above",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900222,
+      "original_name": "Liurnia :: Bull-Goat Armor - near Magma Wyrm Makar, may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207500]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "patches requirements",
+        "Route": "i am not writing all this shit down bruh https://eldenring.wiki.fextralife.com/Patches",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900223,
+      "original_name": "Liurnia :: Bull-Goat Gauntlets - near Magma Wyrm Makar, may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207500]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "patches",
+        "Route": "i am not writing all this shit down bruh https://eldenring.wiki.fextralife.com/Patches",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900224,
+      "original_name": "Liurnia :: Bull-Goat Greaves - near Magma Wyrm Makar, may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207500]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "patches",
+        "Route": "i am not writing all this shit down bruh https://eldenring.wiki.fextralife.com/Patches",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900244,
+      "original_name": "Liurnia :: Gavel of Haima - near Frenzied Flame Village Outskirts (region unconfirmed), may be sweep-granted by Erdtree Avatar (m60_38_48) [f1039487100]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Liurnia, Erudition Gesture, one appropriate Glintstone Crown",
+        "Route": "this check requires the Erudition Gesture to be performed while standing in front of a statue and wearing one of the Glintstone Crowns that give off light, these crowns are: Karolos Glintstone Crown, Lazuli Glintstone Crown, Olivinus Glintstone Crown, Twinsage Glintstone Crown, or the Witch's Glintstone Crown, unlike the Converted Tower, this one is necessary and can't be skipped",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900267,
+      "original_name": "Consecrated Snowfield :: Rotten Greataxe - around Ordina, Liturgical Town, may be sweep-granted by Death Rite Bird (m60_48_57) [f1048577990]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "",
+        "Route": "unrandomized and untracked",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900271,
+      "original_name": "Consecrated Snowfield :: Hoslow's Helm - near Consecrated Snowfield Catacombs (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f1050567700]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Mountaintops of the Giants",
+        "Route": "Mountaintops of the Giants, not Consecrated Snowfield, Also is the final contract in the Volcano Manor Questline, My suggestion; make all of the volcano manor contracts' summon signs available to be completed at any given time, if you dont do this then you'd need Mt. Gelmir Lock, and every previous contract's Region Lock.",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900272,
+      "original_name": "Consecrated Snowfield :: Hoslow's Armor - near Consecrated Snowfield Catacombs (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f1050567700]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Mountaintops of the Giants",
+        "Route": "Mountaintops of the Giants, not Consecrated Snowfield, Also is the final contract in the Volcano Manor Questline, My suggestion; make all of the volcano manor contracts' summon signs available to be completed at any given time, if you dont do this then you'd need Mt. Gelmir Lock, and every previous contract's Region Lock.",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900273,
+      "original_name": "Consecrated Snowfield :: Hoslow's Gauntlets - near Consecrated Snowfield Catacombs (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f1050567700]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Mountaintops of the Giants",
+        "Route": "Mountaintops of the Giants, not Consecrated Snowfield, Also is the final contract in the Volcano Manor Questline, My suggestion; make all of the volcano manor contracts' summon signs available to be completed at any given time, if you dont do this then you'd need Mt. Gelmir Lock, and every previous contract's Region Lock.",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    },
+    {
+      "check_id": 7900274,
+      "original_name": "Consecrated Snowfield :: Hoslow's Greaves - near Consecrated Snowfield Catacombs (region unconfirmed), may be sweep-granted by Great Wyrm Theodorix (m60_50_56) [f1050567700]",
+      "catalog_hash": "sha256:4abde6ce69f3cbd720e50250c40720f11ae8f2e686e32ed8dc82962431fe0252",
+      "form": {
+        "Finding": "Needs correction",
+        "Item": "",
+        "Region": "",
+        "LockRegion": "Mountaintops of the Giants",
+        "Route": "Mountaintops of the Giants, not Consecrated Snowfield, Also is the final contract in the Volcano Manor Questline, My suggestion; make all of the volcano manor contracts' summon signs available to be completed at any given time, if you dont do this then you'd need Mt. Gelmir Lock, and every previous contract's Region Lock.",
+        "Evidence": "",
+        "Version": "0.4.10",
+        "Context": "Archipelago with randomized items",
+        "RawNotes": "",
+        "Reviewer": "255",
+        "Reviewed": true
+      },
+      "imported_from": []
+    }
+  ]
+}

@@ -104,7 +104,7 @@ _LEGACY_KEYS = {
 #   necklace, and needs no particular bell -- a disjunction our region model cannot express and
 #   does not have to: the necklace conjunct alone is sound and is not an over-gate.
 _YMIR_ONE_BELL = frozenset({
-    400661,   # Ruins Map (2nd) [7773753] + its co-check sibling Beloved Stardust [7900096]
+    400661,   # Ruins Map (2nd) [7773751] + its co-check sibling Beloved Stardust [7900096]
 })
 
 # BOTH BELLS -- these additionally require the Lock of whichever region holds the Dheo bell check,
@@ -124,15 +124,15 @@ _YMIR_ONE_BELL = frozenset({
 #           2051450800, 0)`; $Event(90005750) will not even spawn the pickup asset until its
 #           `eventFlagId3` -- 2051450800, Ymir dead -- is ON. Same antecedent as 400664.
 _YMIR_BOTH_BELLS = frozenset({
-    400662,   # Ruins Map (3rd)                    [7773754]
+    400662,   # Ruins Map (3rd)                    [7773752]
     330030,   # [Sorcery] Fleeting Microcosm       [7770550]
-    400664,   # Ymir's Bell Bearing + 5 co-checks  [7773755, 7900097-7900101]
-    400666,   # [Sorcery] Cherishing Fingers       [7773756]
+    400664,   # Ymir's Bell Bearing + 5 co-checks  [7773753, 7900097-7900101]
+    400666,   # [Sorcery] Cherishing Fingers       [7773754]
 })
 
 # 🛑 DELIBERATELY NOT GATED -- the evidence does not reach, and a plausible gate is still a guess.
 #
-#   400672  Claws of Night [7773759]. m61_51_45 `$InitializeCommonEvent(0, 90005774, 2051450180,
+#   400672  Claws of Night [7773757]. m61_51_45 `$InitializeCommonEvent(0, 90005774, 2051450180,
 #           106720, 400672)`: awarded on f2051450180. Its ONLY setter in the whole v1.17 corpus is
 #           m61_51_45 $Event(2051450722), `WaitFor(EventFlag(2051459721)) -> Set(2051450180)`, and
 #           f2051459721 is SET NOWHERE in any extracted EMEVD or talk ESD -- it is only READ, twice,

@@ -6,7 +6,7 @@ pytest.importorskip("worlds.eldenring")
 from worlds.eldenring.features import cross_region_access as cross_access  # noqa: E402
 
 
-STAGEFRONT_FRAGMENT_AP = 7771810
+STAGEFRONT_FRAGMENT_AP = 7771809
 
 
 def test_unavailable_when_neither_route_exists(monkeypatch):

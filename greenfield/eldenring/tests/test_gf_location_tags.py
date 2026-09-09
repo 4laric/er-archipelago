@@ -136,7 +136,7 @@ class TagDataTests(unittest.TestCase):
         # locations. Both inherit the same boss-drop attribution as the one physical kill.
         # Recovered Ghostflame Dragon stone is a distinct boss reward (#1442).
         self.assertEqual(TAG_COUNTS["Boss"], 270)
-        self.assertIn("Boss", LOCATION_TAGS[7774642])
+        self.assertIn("Boss", LOCATION_TAGS[7774632])
 
     def test_majorboss_is_a_subset_of_boss(self):
         """A major boss is a boss. Definitional, so this is a gate, not a preference (Alaric,
@@ -257,8 +257,8 @@ class TagDataTests(unittest.TestCase):
             7770665  KeyItem                Drawing-Room Key (Tanith)
             7770683  Seedtree               Golden Seed, Stormhill Shack (f400191, the original case)
             7770758  MajorBoss+Remembrance  Remembrance of the Lichdragon -- Fortissax
-            7773838  KeyItem                Pureblood Knight's Medal
-            7773839  KeyItem                Haligtree Secret Medallion (Right)
+            7773836  KeyItem                Pureblood Knight's Medal
+            7773837  KeyItem                Haligtree Secret Medallion (Right)
             7900000  KeyItem                Prayer Room Key (Queelign)
 
         FIVE OF THE SEVEN ARE KeyItem, which is why that class prices out at 47% eligible in
@@ -377,7 +377,7 @@ class TagDataTests(unittest.TestCase):
         # 110 -> 112 (#1296): the regular and somber Senessax stones are distinct checks at the
         # same Jagged Peak field boss.
         self.assertEqual(TAG_COUNTS["FieldBoss"], 113)
-        self.assertIn("FieldBoss", LOCATION_TAGS[7774642])
+        self.assertIn("FieldBoss", LOCATION_TAGS[7774632])
 
     def test_geography_tags_are_subsets_of_boss_and_disjoint(self):
         """Definitional, so these are gates, not preferences: a legacy/field boss IS a boss, and no

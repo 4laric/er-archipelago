@@ -1,14 +1,14 @@
 {
-  "promoted": [7771149, 7771799, 7771812, 7772023, 7773207, 7773236, 7773401, 7773603, 7774563],
+  "promoted": [7771148, 7771798, 7771811, 7772022, 7773205, 7773234, 7773399, 7773601, 7774553],
   "blocked": {
-    "known_access_bar": [7771808],
-    "source_conflict": [7771934, 7773495],
-    "no_independent_exact_identity_region_binding": [7770841, 7770901, 7770907, 7771028, 7771505, 7771810, 7771537, 7771715, 7772493, 7772549, 7773357, 7773939, 7774544, 7774551, 7774560, 7774571, 7900028, 7900191]
+    "known_access_bar": [7771807],
+    "source_conflict": [7771933, 7773493],
+    "no_independent_exact_identity_region_binding": [7770840, 7770900, 7770906, 7771027, 7771504, 7771809, 7771536, 7771714, 7772492, 7772548, 7773355, 7773932, 7774534, 7774541, 7774550, 7774561, 7900028, 7900191]
   },
   "notes": {
-    "7771808": "The second guide confirms the post-Dancing-Lion statue, but the committed host adjudication explicitly withholds this deeper internally gated check.",
-    "7771934": "Game8 binds the hanging Storehouse specimen landmark to AP check 7771962, not 7771934; no promotion under ambiguity.",
-    "7773495": "Push Square places Highroad Cross in Scadu Altus while the current AP check is bucketed as Ensis; no promotion across a region disagreement."
+    "7771807": "The second guide confirms the post-Dancing-Lion statue, but the committed host adjudication explicitly withholds this deeper internally gated check.",
+    "7771933": "Game8 binds the hanging Storehouse specimen landmark to AP check 7771961, not 7771933; no promotion under ambiguity.",
+    "7773493": "Push Square places Highroad Cross in Scadu Altus while the current AP check is bucketed as Ensis; no promotion across a region disagreement."
   },
   "tail_total": 30
 }

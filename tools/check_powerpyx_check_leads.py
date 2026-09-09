@@ -63,15 +63,15 @@ def main() -> int:
                  "wiki:powerpyx:scadutree-fragments:20260904"]
     assert len(scadutree) == 4
     assert {row["subject_id"] for row in scadutree} == {
-        "7771810", "7774544", "7774551", "7774560",
+        "7771809", "7774534", "7774541", "7774550",
     }
     revered = [row for row in rows if row["source_ids"] ==
                "wiki:powerpyx:revered-spirit-ash:20260904"]
     assert len(revered) == 2
-    assert {row["subject_id"] for row in revered} == {"7771808", "7773357"}
+    assert {row["subject_id"] for row in revered} == {"7771807", "7773355"}
     talismans = [row for row in rows if row["source_ids"] ==
                  "wiki:powerpyx:talismans:20260904"]
-    assert len(talismans) == 1 and talismans[0]["subject_id"] == "7771028"
+    assert len(talismans) == 1 and talismans[0]["subject_id"] == "7771027"
     dlc_bosses = [row for row in rows if row["source_ids"] ==
                   "wiki:powerpyx:dlc-bosses:20260904"]
     assert len(dlc_bosses) == 3

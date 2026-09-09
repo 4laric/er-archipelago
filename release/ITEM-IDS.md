@@ -59,7 +59,7 @@ each section.
 
 Key items, crafting materials, consumables, bell bearings, spells, notes.
 
-968 items, category nibble `0x4`.
+962 items, category nibble `0x4`.
 
 | Name | Hex | Decimal |
 | --- | --- | --- |
@@ -74,12 +74,6 @@ Key items, crafting materials, consumables, bell bearings, spells, notes.
 | "Sorcerer" Painting | `0x4000200B` | `1073750027` |
 | "The Sacred Tower" Painting | `0x401EA489` | `1075750025` |
 | Abandoned Merchant's Bell Bearing | `0x400022E9` | `1073750761` |
-| About Cooperative Multiplayer | `0x400023A2` | `1073750946` |
-| About Monument Icon | `0x400023A7` | `1073750951` |
-| About Requesting Help from Hunters | `0x400023A8` | `1073750952` |
-| About Sites of Grace | `0x4000238C` | `1073750924` |
-| About Stakes of Marika | `0x40002391` | `1073750929` |
-| About Summoning Other Players | `0x400023A1` | `1073750945` |
 | Academy Glintstone Key | `0x40001FAD` | `1073749933` |
 | Academy Scroll | `0x400022A2` | `1073750690` |
 | Acid Spraymist | `0x40000E1A` | `1073745434` |

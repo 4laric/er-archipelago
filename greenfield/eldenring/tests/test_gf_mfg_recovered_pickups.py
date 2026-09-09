@@ -36,12 +36,16 @@ class MfgRecoveredPickups(unittest.TestCase):
                     2046407003: "Gravesite", 2046407004: "Gravesite", 2047447901: "Ensis"}
         self.assertEqual({r["flag"] for r in evidence["rows"]}, set(expected))
         # Preserve the shipped identity hash, normalizing Eleonora's corrected flag.
-        original = sorted((1039527700 if (flag, aid) == (400162, 7774254) else flag, aid)
+        original = sorted((1039527700 if (flag, aid) == (400162, 7774244) else flag, aid)
                           for flag, values in by_flag.items() for _, _, aid in values
-                          if aid <= 7774635 or aid >= 7900000)
-        self.assertEqual(len(original), 4925)
+                          if aid <= 7774625 or aid >= 7900000)
+        self.assertEqual(len(original), 4915)
+        # 2026-09-08 (world#1515/#1518): 0c479eea.../4925 -> 17fbf2b3.../4915. The hash is over
+        # (flag, ap id) pairs, so it moves on any corpus change. Diffed as a FLAG multiset against
+        # main: exactly the ten removed rows leave (550000, 550050, 550210, 550220, 550270, 550280,
+        # 1033457100, 1035477000, 1036437010, 1038447100) and ZERO flags enter. Nothing else moved.
         self.assertEqual(hashlib.sha256(json.dumps(original, separators=(",", ":")).encode()).hexdigest(),
-                         "0c479eeae9fe422f2c1d4403cb68b856abe66a0052736484b5ad61f8bd2b9309")
+                         "17fbf2b3150b1a366145a46d0aab54d0663dbbfe8caf13af27af1cd5d148f3f4")
         for row in evidence["rows"]:
             flag, pin, item = row["flag"], row["pin"], row["item"]
             with self.subTest(flag=flag):

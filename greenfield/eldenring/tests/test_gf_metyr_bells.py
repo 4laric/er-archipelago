@@ -9,10 +9,10 @@ override hid the fact that the real prerequisite was never met.
 
 THE OTHER HALF of the case is why we do not simply force both bells. A preset bell flag makes its
 tile's event award the lot on load:
-    Rhia  2053460600 -> lot 2053460600 -> check flag 2053467600  (Cerulean Seed Talisman +1, 7773806)
-    Dheo  2050400600 -> lot 2050400000 -> check flag 2050407000  (Crimson Seed Talisman +1,  7773730)
+    Rhia  2053460600 -> lot 2053460600 -> check flag 2053467600  (Cerulean Seed Talisman +1, 7773654)
+    Dheo  2050400600 -> lot 2050400000 -> check flag 2050407000  (Crimson Seed Talisman +1,  7773579)
 so a forced bell SPENDS its check -- the same trap as 2051450180, whose forcing awards lot 106720
-and popped check 7773893 on the spot when it was set by hand in a playtest save (2026-08-13).
+and popped check 7773757 (f400672) on the spot when it was set by hand in a playtest save (2026-08-13).
 """
 import pytest
 
@@ -27,7 +27,11 @@ _DERIVED_9440 = 9440
 _FREE_CHECK_TRAP = 2051450180
 _RAKSHASA_SWEEP = 2051440800
 _RHIA_REWARD_FLAG = 2053467600
-_RHIA_REWARD_AP = 7773806
+# Every ap id in this file is a POSITIONAL id and was re-derived by FLAG IDENTITY from the
+# regenerated tables/data.py when this branch merged main's #1515/#1518/#1526 renumber
+# (2026-09-09): f2053467600 7773804 -> 7773654, f2050407000 7773728 -> 7773579, f400672
+# 7773891 -> 7773757, f400661 7773753 -> 7773751, f400664 7773755 -> 7773753.
+_RHIA_REWARD_AP = 7773654
 
 
 def test_only_a_sealed_regions_bell_is_forced():
@@ -168,8 +172,8 @@ def test_400661_is_two_lots_on_one_flag_and_both_are_checks():
 
     rows = {ap: name for locations in LOCATIONS.values()
             for (name, ap, flag) in locations if int(flag) == 400661}
-    assert set(rows) == {7773753, 7900096}, rows
-    assert "Ruins Map (2nd)" in rows[7773753]
+    assert set(rows) == {7773751, 7900096}, rows
+    assert "Ruins Map (2nd)" in rows[7773751]
     assert "Beloved Stardust" in rows[7900096]
 
 
@@ -185,7 +189,7 @@ def test_400664_is_one_lot_family_presented_as_a_bundle():
 
     aps = {ap for locations in LOCATIONS.values()
            for (_n, ap, flag) in locations if int(flag) == 400664}
-    assert aps == {7773755, 7900097, 7900098, 7900099, 7900100, 7900101}
+    assert aps == {7773753, 7900097, 7900098, 7900099, 7900100, 7900101}
     assert len(ARMOR_BUNDLES["High Priest Set"]) == 4
 
 

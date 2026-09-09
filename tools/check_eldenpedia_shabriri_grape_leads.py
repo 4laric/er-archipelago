@@ -12,8 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "greenfield" / "evidence" / "wiki-audit"
 MANIFEST = AUDIT / "eldenpedia-shabriri-grape-pages.tsv"
 LEADS = AUDIT / "eldenpedia-shabriri-grape-check-leads.tsv"
-EXPECTED = {"7770896": 10007850, "7772713": 1039417200, "7770562": 400061}
-SOURCE_AREAS = {"7770896": "Limgrave", "7772713": "Liurnia of the Lakes",
+EXPECTED = {"7770895": 10007850, "7772711": 1039417200, "7770562": 400061}
+SOURCE_AREAS = {"7770895": "Limgrave", "7772711": "Liurnia of the Lakes",
                 "7770562": "Liunia of the Lakes"}
 
 
@@ -56,7 +56,7 @@ def main() -> int:
         assert "does not prove v1.17" in row["limitations"]
     assert len({row["exact_citations"] for row in leads}) == 3
     assert json.loads(next(row["normalized_value"] for row in leads
-                           if row["subject_id"] == "7770896"))["project_region"] == "Stormveil"
+                           if row["subject_id"] == "7770895"))["project_region"] == "Stormveil"
     print("Eldenpedia Shabriri Grape leads: OK -- 1 immutable revision, 3 exact check bindings")
     return 0
 

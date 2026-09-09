@@ -1537,7 +1537,36 @@ _GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
 # mountless), leaving a check AP believes is reachable (its region is open) that can never fire -- fill
 # could strand a progression item on it. You always have Torrent now, so the check earns nothing.
 # Excluded as a start-grant non-check, same class as 60000 (Flask). (Alaric 2026-07-11.)
-_MISC_NON_CHECK = frozenset({60000, 60100, 60210, 590000, 550200, 550250})  # 60000 = Flask of Crimson Tears: the core healing flask (tutorial grant) whose flag fires in m10_00 Stormveil EMEVD -> mis-pinned to Stormveil AND surfaced as a phantom check (in-game 2026-07-10); same class as 60210 Wizened Finger. (The 60020 Flask of Wondrous Physick @ Third Church is a REAL treasure -> kept.) 590000 = empty-item Stormveil check; 60210 Wizened Finger; 550200/550250 = "About ..." tutorial-message popups (not loot, same class as 9100-9125)
+_MISC_NON_CHECK = frozenset({60000, 60100, 60210, 590000})  # 60000 = Flask of Crimson Tears: the core healing flask (tutorial grant) whose flag fires in m10_00 Stormveil EMEVD -> mis-pinned to Stormveil AND surfaced as a phantom check (in-game 2026-07-10); same class as 60210 Wizened Finger. (The 60020 Flask of Wondrous Physick @ Third Church is a REAL treasure -> kept.) 590000 = empty-item Stormveil check; 60210 Wizened Finger. (550200/550250 used to sit here as two hand-listed "About ..." popups; they are covered by the DERIVED _TUTORIAL_POPUP_FLAGS below -- hand-listing them is exactly what missed the other six. world#1518.)
+# ---- TUTORIAL-MESSAGE POPUPS -- DERIVED, NOT HAND-LISTED (world#1518, 2026-09-08) ----------------
+# The "About ..." rows are one contiguous ItemLotParam_map family: flag 550000 + 10*(item - 9100)
+# awards goods 9100..9129, thirty rows, and the "item" is the tutorial-message popup the game shows
+# once -- not loot. #1097 ruled this class out of the corpus ("tutorial grants are not world
+# locations") and the fix hand-listed exactly the two rows that report named, 550200 and 550250.
+# 255's notebook (2026-09-08) then found 550220 "About Cooperative Multiplayer" and 550050 "About
+# Stakes of Marika" still in the corpus, and grepping the whole family turns up SIX survivors:
+# 550000, 550050, 550210, 550220, 550270, 550280.
+#
+# THAT IS THE LESSON, AND IT IS WHY THIS SET IS DERIVED. A hand list of a family goes stale the
+# moment the family holds a member nobody typed. The membership rule is a property of the data --
+# every lot the flag awards is a 9100..9129 tutorial-message good -- so derive it from flag_lots.tsv
+# and the set cannot miss a row again. (gen_data already knew the range: _recover_tile has skipped
+# 9100 <= flag <= 9125 as "a real tile, but not loot" since long before #1097. The two curations now
+# agree by construction, and this one covers 9126-9129 as well.)
+#
+# Corroboration for all six, independent of the family shape: zero msb_flag_region rows, zero
+# item_grace_coords rows, and no reference to the flag or its lot id anywhere in the decompiled
+# EMEVD/ESD corpus. The independent oracle carries no slot for any of them either.
+_TUTORIAL_POPUP_ITEMS = range(9100, 9130)
+_TUTORIAL_POPUP_FLAGS = frozenset(
+    _fl for _fl, _fam in FLAG_LOTS.items()
+    if _fam and all(_t[0] == "map" and _t[4] in _TUTORIAL_POPUP_ITEMS for _t in _fam))
+if not _TUTORIAL_POPUP_FLAGS:
+    raise SystemExit("FATAL: the 9100-9129 tutorial-popup family came back EMPTY -- flag_lots.tsv "
+                     "changed shape. These rows are message popups, not loot; do not rebaseline "
+                     "this away by deleting the derivation (world#1518).")
+print("tutorial popups: %d 'About ...' flag(s) excluded (derived from goods %d-%d)"
+      % (len(_TUTORIAL_POPUP_FLAGS), _TUTORIAL_POPUP_ITEMS.start, _TUTORIAL_POPUP_ITEMS.stop - 1))
 # 400020 = Neutralizing Boluses, lot 100200. The only award site in the complete 2026-08-29
 # ESD/EMEVD corpus is t304001000_x43. Its caller x40 requires f10009335, but that flag has no
 # setter or default anywhere in the ESD, EMEVD, or parameter inputs (the x40 read is its sole
@@ -2049,6 +2078,29 @@ _WORLDLESS_SINGLES = frozenset({
 # five were labelled around Shaded Castle Ramparts and independently reported untakeable by 255.
 # Keep this explicit and tiny: the other short flags in that report have MSB placements and remain.
 _WORLDLESS_SHORT_LOTS = frozenset({540504, 540614, 540616, 540632, 540650})
+# FLAG-TILE-ONLY MAP LOTS -- the #1077 signature on LONG flags (world#1515, 2026-09-08).
+# Four Liurnia overworld rows 255's notebook reports as untakeable. Each has a real
+# ItemLotParam_map row, and each fails every placement instrument we have:
+#   * zero rows in msb_flag_region.tsv -- and for MAP-table flags that is the outlier value, not the
+#     normal one: 3960 of 4391 (90.2%) map-table flags carry at least one. (The enemy table is the
+#     opposite, 74/175 = 42%, which is why 41017975 -- the fifth row in the same report -- is NOT
+#     here: absence proves nothing there, and enemy_drops.tsv shows its lot 575090741 dropping at
+#     100% off enemy 5750849.)
+#   * zero rows in item_grace_coords.tsv;
+#   * no occurrence of the flag OR its lot id anywhere in the decompiled EMEVD/ESD corpus.
+#
+# THEIR ONE PIECE OF "PLACEMENT" EVIDENCE IS CIRCULAR, AND THAT IS THE WHOLE FINDING.
+# 1033457100, 1036437010 and 1038447100 were RELEASED from _WORLDLESS_SINGLES on 2026-08-19 because
+# unplaced_global_tiles.tsv called them `observed` ("an OBSERVED/audited tile IS a world reference").
+# Read the row it was observed from: check_maps.tsv gives all three `source=flag_tile`, detail
+# "decoded from the flag id". The tile was computed FROM THE FLAG, so it is the flag restated, not a
+# world object holding it -- datamine_unplaced_globals.resolve() unions check_maps into the same
+# `observed` bucket as msb_flag_region and cannot tell a real MSB row from a decode. No asset in the
+# game holds these four. (Fixing that mislabel is its own change: it re-emits a tier-2 tsv and would
+# move rows well outside this report, so it is filed, not folded in.)
+#
+# Same disposition as #1077's five: stay VANILLA rows rather than advertise a check nobody can take.
+_FLAG_TILE_ONLY_LOTS = frozenset({1033457100, 1035477000, 1036437010, 1038447100})
 # ---- ENIA IS VANILLA (Alaric, 2026-08-24, world#1013) ---------------------------------------------
 # Finger Reader Enia's shop is EXCLUDED FROM RANDOMIZATION -- none of her rows is a check. This
 # restores the rule 8c53e955 ("remove enia from big ticket") kept only half of: that took her rows
@@ -2095,8 +2147,10 @@ if not _ENIA_SHOP_FLAGS:
                      "this away (world#1013).")
 print(f"enia: {len(_ENIA_SHOP_FLAGS)} stock flag(s) excluded from randomization -- her shop is vanilla")
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
+                | _TUTORIAL_POPUP_FLAGS
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
                 | _SHEET_DROPS | _RADA_WORLDLESS | _WORLDLESS_SINGLES | _WORLDLESS_SHORT_LOTS
+                | _FLAG_TILE_ONLY_LOTS
                 | _ENIA_SHOP_FLAGS
                 | _UNUSED_ESD_AWARDS)
 # Per-flag progression_surface exclusion (Alaric, 2026-07-17): checks that CARRY a surface tag but must
@@ -3591,6 +3645,62 @@ FLAG_REGION_OVERRIDE = {
     # corpus can actually witness; the two Limgrave placements have no play_region row at all, so
     # they are not evidence of reachability in either direction.
     400220: "Stormveil",   # Golden Seed -- MSB enemy lot 112200 on m10_00
+
+    # ---- 255's NOTEBOOK, 2026-09-08 (#1514 / #1509 / #1511) -----------------------------------
+    # Ten reported rows, each re-derived through the ladder in docs/MATT-ORACLE-ROADMAP.md item 4:
+    # the PlayArea point-in-volume scan (greenfield/item_play_regions.tsv) first, the nearest-grace
+    # join (greenfield/nearest_grace.tsv, #1074) where the scan is silent. Eleven further reported
+    # rows are NOT here because the instrument contradicted the reporter or had nothing to say --
+    # they are enumerated in the PR and in region_overrides.tsv, not moved. These are per-flag pins
+    # and not tile curations on purpose: every tile below STRADDLES (see #1054's five per-flag pins
+    # on exactly this reasoning), and two of them carry a boss verdict this must not overwrite.
+
+    # SHADOW KEEP BACK-TERRACE, tile m61_51_47 (#1514). Scan-EXACT: both stand inside PlayArea
+    # volume 69300, which is Shadow Keep in region_groups.PLAY_REGION_GROUPS, while their nearest
+    # graces (76905/76937) file 6900/6920. The tile's other three checks scan `none` and keep the
+    # grace answer Scadu Altus, so this is a per-flag pin, not a tile pin.
+    2051477500: "Shadow Keep",   # [Incantation] Minor Erdtree
+    2051477510: "Shadow Keep",   # Golden Braid
+
+    # ANCIENT SNOW VALLEY RUINS, tiles m60_51_55 / m60_50_56 (#1514), the same cluster #1054 moved.
+    # The scan is silent on these three, but on these two tiles nearest grace 76503 (Ancient Snow
+    # Valley Ruins) and the scan agree 5 times out of 5 -- 1050567500/510/520/620 and 1051557330 all
+    # scan volume 65010 = Mountaintops -- while nearest grace 73019/76551 agrees with scan 65030 =
+    # Consecrated Snowfield (1050567600). With zero counterexamples on the tiles in question the
+    # nearest-grace join is calibrated here, so it answers these three. EVIDENCE CLASS: nearest-grace
+    # join calibrated against 6 scan-exact rows on the same two tiles -- NOT scan-exact itself.
+    1051557310: "Mountaintops of the Giants",   # Drawstring Holy Grease
+    1051557320: "Mountaintops of the Giants",   # Rainbow Stone
+    580330: "Mountaintops of the Giants",       # Greathood (Sorcerer Painting reward)
+
+    # THE JAGGED PEAK BOSS-VERDICT TILES (#1509). m61_48_41 and m61_49_42 carry a human ruling in
+    # boss_verdict_tiles.tsv ("the Jagged Peak Drake is on the JAGGED PEAK"), which gen_data ranks
+    # above a nearest-neighbour guess and BELOW first-hand ground evidence -- and that verdict row's
+    # own note already says "Members ship as Gravesite". These three checks have first-hand evidence
+    # the verdict does not overrule, so they leave Jagged Peak while the verdict stands untouched
+    # for the tile's coordinate-less checks.
+    2048417800: "Gravesite",   # Ancient Dragon Smithing Stone; nearest grace 76811 (Pillar Path
+                               # Waypoint) files play_region 6800 = Gravesite, and all four other
+                               # checks on m61_48_41 scan 68000/68100 = Gravesite.
+    2049427010: "Abyssal",     # Great Grave Glovewort; nearest grace 76861 (Divided Falls) files
+                               # play_region 6860 = Abyssal in grace_region_map.tsv.
+    2052417000: "Abyssal",     # Shadow Realm Rune [7]; nearest grace 76864 (Church Ruins) files
+                               # 6860, and its on-tile twin 2052417010 shares that grace and scans
+                               # volume 68600 = Abyssal. Calibrated on the same tile.
+
+    # KENNETH HAIGHT'S ERDSTEEL DAGGER (#1511). NPC-relocation rows are the family the PlayArea scan
+    # excludes (#1054), and f400221 has no MSB row, no coordinates and no nearest grace, so the
+    # instrument here is the ESD corpus. greenfield/questline_conditions.tsv records lot 102200 as
+    # awarded by TWO ESD machines: t321001000_x3 (`AwardItemLot(102200)`) in the m10_00-only talk
+    # container, and t321006000_x3 in the m60_00-only container, whose MAP_ACCESS row is m60_00 --
+    # the open world, not Stormveil. Both paths share one DIALOGUE_STEP prerequisite, flag
+    # 1045389220, whose id decodes to overworld tile m60_45_38; that is the tile the same NPC's
+    # other reward lot (112200, the Golden Seed) is MSB-placed on in msb_flag_region.tsv, at
+    # coordinates that match WorldMapPointParam row 81453800 on map 60/45/38. Every other check on
+    # m60_45_38 and m60_46_36 ships Limgrave. So the reward has an open-world award site and needs
+    # no Stormveil access: 255 is right and the m10_00 machine was simply the one the derivation saw
+    # first. NB f400220 is the SAME NPC and does NOT move -- see the PR and region_overrides.tsv.
+    400221: "Limgrave",
 }
 
 # These per-flag pins settle WHICH SIDE of a measured region seam owns the reward, but they do not
@@ -3606,7 +3716,16 @@ FLAG_REGION_OVERRIDE = {
 # in-game witness, not a datamine -- and this is the check that softlocked
 # AP_55352390472076588352 (test_gf_defaulted_region_guard), so it is the last one to promote on a
 # derivation alone.
-_REGION_OVERRIDE_UNCONFIRMED_FLAGS = frozenset({65130, 65170, 400220})
+# f1049557700 (255's notebook, #1511, 2026-09-08) rides here for the SAME reason and was added with
+# its GLOBAL_RECOVER re-pin. It moves out of the HUB to Consecrated Snowfield on the flag/lot-id map
+# decode -- but that decode is the WEAKEST rung of the ladder: the flag has no coordinates, so the
+# PlayArea scan and the nearest-grace join both have nothing to say, and nobody has stood in front
+# of it. In the HUB it was ALREADY barred (region == HUB and not _region_is_derived), so listing it
+# here PRESERVES the bar the re-pin would otherwise have silently lifted; the pin settles where the
+# check is FILED and nothing else. Promoting it to a progression host is a separate step and wants
+# an in-game witness -- 255 reports it as the runebear-disguised noble, which is a lead, not a
+# measurement.
+_REGION_OVERRIDE_UNCONFIRMED_FLAGS = frozenset({65130, 65170, 400220, 1049557700})
 
 # ---- Curated dungeon-region OVERRIDE (matt-free, hand/playtest-verified) ----------------------
 # The coarse REGION_MAP buckets every minor dungeon into one region ("Caves"->Limgrave,
@@ -3921,7 +4040,17 @@ GLOBAL_RECOVER = {
     # SINGLE Mimic Tear boss pickup in Nokstella -> Eternal Cities (the "Larval Tear/HUB" was a mislabel;
     # scan named the flag after the Larval Tear co-item). (Alaric 2026-07-10)
     510340: "Siofra River",   # (the 2026-07-10 note said Nokstella; the Mimic Tear boss arena is Night's Sacred Ground, NOKRON -- a Siofra-bucket map. Verify in-game.)
-    1049557700: HUB,
+    # 1049557700 is NOT scattered either, and the "shared flag" premise above never applied to it
+    # (255's notebook, #1511, 2026-09-08). greenfield/flag_lots.tsv gives it exactly ONE lot,
+    # map lot 1049550700 (goods 8185, Larval Tear x1), and that lot id decodes through the
+    # documented flag/lot -> map join (AGENTS.md "Datamined joins", 1_049_55_0700) to overworld tile
+    # m60_49_55 -- which is what greenfield/check_maps.tsv already records for it. All six other
+    # checks on m60_49_55 ship Consecrated Snowfield, and every one of the other 22 Larval Tears in
+    # the corpus is filed in a real region; this was the only one in the HUB. The HUB filing was
+    # therefore not a measurement, it was the shared-flag default applied to a flag that does not
+    # share. Kept in GLOBAL_RECOVER (rather than deleted) so _recover_row_ok still guarantees the
+    # row recovers as a check; only the region it recovers to changes.
+    1049557700: "Consecrated Snowfield",
     # Haligtree Secret Medallion (Right): physically the reward in Castle Sol (Mountaintops of the
     # Giants), obtained by defeating Commander Niall -- NOT the Village-of-the-Albinaurics pickup (that
     # is the LEFT half). Only the obtained flag (400130, method global) exists (no map_lot), and it is
@@ -6239,7 +6368,12 @@ _NR_RULES = (
      "check on its shardbearer boss (in-game double-grant 2026-07-08)"),
     (lambda _fl, _r: _fl in _MISC_NON_CHECK,
      "misc_non_check: tutorial/system grant or empty lot (Flask, Torrent's whistle, Wizened "
-     "Finger, 'About...' popups) -- not loot, never a check"),
+     "Finger) -- not loot, never a check"),
+    (lambda _fl, _r: _fl in _TUTORIAL_POPUP_FLAGS,
+     "tutorial_popup: 'About ...' tutorial-message row -- every lot it awards is a 9100-9129 "
+     "message good, and it has no MSB placement, no item-grace coordinate and no EMEVD/ESD award "
+     "route. Tutorial grants are not world locations (#1097); the set is DERIVED from the goods "
+     "range so the family cannot keep a member a hand list forgot (#1518)"),
     (lambda _fl, _r: _fl in _UNUSED_ESD_AWARDS,
      "unused_esd_award: award branch is unreachable in shipped game data -- Neutralizing Boluses "
      "lot 100200 requires f10009335, whose only corpus occurrence is that guard read; no ESD, "
@@ -6267,6 +6401,12 @@ _NR_RULES = (
      "worldless_short_lot: individually audited short-flag map lot with no MSB placement, no "
      "item-grace coordinate, and no scripted award route (#1077); stays vanilla rather than "
      "advertise an untakeable Shaded Castle check"),
+    (lambda _fl, _r: _fl in _FLAG_TILE_ONLY_LOTS,
+     "flag_tile_only_lot: map-table lot with zero MSB placement (the outlier value for map flags -- "
+     "90.2% carry one), zero item-grace coordinate and no EMEVD/ESD award route. Its only 'placed' "
+     "evidence is a check_maps row whose source is flag_tile: the tile DECODED FROM THE FLAG ID, "
+     "i.e. the flag restated, not a world object holding it (#1515, the #1077 signature on long "
+     "flags)"),
     (lambda _fl, _r: _fl in _SHEET_DROPS,
      "surface_sheet_drop: dropped on Alaric's 2026-07-17 progression_surface sheet review -- 14007930 "
      "is a phantom SECOND Academy Glintstone Key (the key is a singleton, the overworld pickup "
@@ -6294,6 +6434,7 @@ _nr_unexplained = EXCLUDE_FLAGS - (MAP_REVEAL_FLAGS | MINIBAKER_VENDOR_FLAGS | f
                                    | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD
                                    | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS | _RADA_WORLDLESS
                                    | _WORLDLESS_SINGLES | _WORLDLESS_SHORT_LOTS | _ENIA_SHOP_FLAGS
+                                   | _TUTORIAL_POPUP_FLAGS | _FLAG_TILE_ONLY_LOTS
                                    | _UNUSED_ESD_AWARDS)
 if _nr_unexplained:
     raise SystemExit("FATAL: EXCLUDE_FLAGS member(s) %r have no NOT_RANDOMIZED ledger rule -- add "
@@ -10786,13 +10927,19 @@ _SWEEP_EXCLUDED_FLAGS = {
     # trigger is behind the necklace -- so killing the boss would pay a check the player never
     # proved they could reach. test_gf_dungeon_sweep_rungs's general property caught both the
     # moment the gates landed.
-    #   2049440800 Dryleaf Dane (m61_49_44) -> f400666 Cherishing Fingers. Its pickup asset is not
-    #     even spawned until f2051450800 (Ymir dead); common event 90005750 holds it closed.
+    #   2049450800 Ralva the Great Red Bear (m61_49_45) -> f400666 Cherishing Fingers. Its pickup
+    #     asset is not even spawned until f2051450800 (Ymir dead); common event 90005750 holds it
+    #     closed. RE-KEYED 2026-09-09 on the merge with main: the branch wrote this entry against
+    #     2049440800 Dryleaf Dane, and main's #1515/#1518 removals re-phased the Scadu Altus
+    #     round-robin (`_ents[_j % len(_ents)]`) so the flag is now dealt to Ralva instead. The
+    #     RULING is unchanged and so is its scope -- both owners are Scadu Altus REGIONAL sweeps
+    #     and neither trigger sits behind the necklace. Re-derived by FLAG IDENTITY from the
+    #     regenerated corpus, never by keeping the old trigger number.
     #   2051440800 Rakshasa (m61_51_44) -> f400664, the six-lot family awarded by common $Event(4857)
-    #     on the same f2051450800.
+    #     on the same f2051450800. Unmoved by the re-phase.
     # As with the other entries these members intentionally do not re-home: another sweep would be
     # the same bypass through a different door.
-    2049440800: {400666},
+    2049450800: {400666},
     2051440800: {400664},
 }
 # Vanilla gifts whose acquisition flag is itself post-boss world progression. These are not filler
@@ -11099,8 +11246,22 @@ if BOSS_HEALTHBARS:
     # Snowfield side. Curate the BOSS, not the tile: moving the whole tile would incorrectly drag
     # the Death Rite Bird and its Mountaintops checks across the seam. The local-member filter
     # below then gives the Avatar only Snowfield checks and leaves the other side to its own boss.
+    #
+    # Great Wyrm Theodorix (1050560800) is the SAME SHAPE, one seam over, and it became live on
+    # 2026-09-08 when three more Ancient Snow Valley Ruins checks moved to Mountaintops (#1514,
+    # 255's notebook: 1051557310, 1051557320, 580330 -- see FLAG_REGION_OVERRIDE). Its ring vote is
+    # taken over tiles m60_50_56 / m60_51_55, which STRADDLE the Grand Lift of Rold boundary; #1054
+    # had already moved five of their checks to Mountaintops, and three more tips the majority.
+    # Two independent measurements say the boss itself is on the Snowfield side and the vote is
+    # wrong: boss_arena_rulings.tsv files trigger 1050560800 as Consecrated Snowfield, and its own
+    # drop f530550 (Ancient Dragon Smithing Stone) is a Consecrated Snowfield check -- which is why
+    # the own-drop admission pass was already refusing it "fail closed" before this ruling existed.
+    # Curate the BOSS, not the tile, exactly as for the Avatar above: the local-member filter below
+    # then hands Theodorix only Snowfield checks and re-deals the Mountaintops ones to the boss that
+    # actually stands beside them, which is what the #1059 containment invariant is for.
     _FIELD_SWEEP_REGION_CURATED = {
         1050570850: "Consecrated Snowfield",
+        1050560800: "Consecrated Snowfield",
     }
     for _trig, _reg in _FIELD_SWEEP_REGION_CURATED.items():
         if _trig not in dict(_field_bosses):
