@@ -4140,6 +4140,31 @@ QUEST_GATED_FLAGS = {
     400331, 400333, 400339, 400348, 400349, 400356, 400358, 400359, 400360,
     400361, 400362, 400370, 400381, 400382, 400391, 400392, 400393, 400394,
     400410, 400430, 400451, 400452, 400460, 400480, 400500, 400595, 400596, 400598,
+    # LATENNA, MEDALLION RECEIPT ORDER (#1517, 255's notebook 2026-09-08 -- proven below from
+    # v1.17 EMEVD/ESD, NOT from the report). f400411 "Somber Ancient Dragon Smithing Stone" is
+    # ItemLotParam_map lot 104110, awarded at the Apostate Derelict by m60_47_58's constructor call
+    # `$InitializeCommonEvent(0, 90005750, 1047581701, 4350, 104110, 400411, 400411, 1047589210, 0)`
+    # -- common_func 90005750's sixth parameter is the ENABLER, so the pickup exists only once
+    # 1047589210 is ON. That flag is set in exactly one place, m60_47_58 $Event(1047583703), which
+    # opens `EndIf(!EventFlag(4100)); EndIf(!EventFlag(4106))`. State 4106 is reached only by common
+    # $Event(4119) "NPC228 Wolf Rider_Character state transition", whose sole transition into it is
+    # `if (EventFlag(4100)) { if (EventFlag(1036419209)) { ... SetNetworkconnectedEventFlagID(4106,
+    # ON); } }`; and 1036419209 is set ONLY inside Latenna's Slumbering Wolf's Shack ESD
+    # (esd_py/m60_00_00_00-only/t228006000.py, _x42/_x45 -- the "Hear her request after all" branch).
+    # 🛑 THE OTHER MEDALLION HALF IS WHAT KILLS IT. Her shack NPC-init event m60_36_41
+    # $Event(1036413700) tests, BEFORE the state dispatch, `if (EventFlag(1051587800)) {
+    # DisableCharacter(1036410700); SetCharacterBackreadState(..., true); SetEventFlagID(1036419215,
+    # ON); }` -- so she is gone from the shack on every load once 1051587800 is set. 1051587800 is
+    # the acquisition flag of the Haligtree Secret Medallion (LEFT), named by the game's own ESD
+    # annotation `# eventflag:1051587800:lot:1051580800:Haligtree Secret Medallion (Left)`
+    # (esd_py/m11_10_00_00-only/t324001110.py:759). Acquire the Left half before the shack hand-in
+    # and 1036419209 can never be set, 4106 never follows, and lot 104110 is enabled by nothing.
+    # So the trigger is RECEIPT ORDER (Left acquired before the hand-in), not "holding both"; both
+    # medallions are pooled progression whose arrival order the player cannot choose, which is
+    # exactly why the disposition is MISSABLE and never an access rule. Her shack ash f400410 is
+    # NOT lost by the same branch -- it sets 1036419215, that pickup's own enabler -- and was
+    # already tagged one line above.
+    400411,
     400602, 400630, 400632, 400634, 400636, 400644, 400664, 400666, 400670,
     400671, 400672, 400692, 400700, 400702, 400704, 400710, 400711, 400732,
     400740, 510030, 510420, 520400,
@@ -4174,6 +4199,26 @@ QUEST_GATED_FLAGS = {
 #     1033447000/7010/7020/7030/7040  Liurnia :: Raw Meat Dumpling - near Revenger's Shack (1)..(5)
 #   ⭐ SAME shack, SAME questline, SAME gate as f400061 (Shabriri Grape) -- which is in
 #   _QUESTLINE_GATED above. These five were simply invisible to the screen that caught it.
+#   RELOCATION CHAIN READ OUT, 2026-09-08 (#1516; 255 asked whether the Grafted Blade Greatsword in
+#   inventory or the Leonine Misbegotten kill moves Edgar -- it is the KILL). common $Event(3419)
+#   walks 3405 -> 3406 on `EventFlag(1043319206)`, 3406 -> 3407 on `EventFlag(1043300800)`, 3407 ->
+#   3408 on `AnyBatchEventFlags(3386, 3397) && (EventFlag(1043319207) || EventFlag(1045342719))`,
+#   and 3408 -> 3409 on `EventFlag(1045349255)` (or, from any of 3405-3408, on `EventFlag(1039409206)`
+#   -- Irina's death). 1043300800 is LEONINE MISBEGOTTEN: achievement_bosses.tsv/arena_graces.tsv
+#   both key that flag to his m60_43_30 healthbar. No step in the chain tests a weapon or any goods
+#   row, so nothing here is a possession gate and no access rule is owed; MISSABLE remains the
+#   disposition for all six rows.
+#   f400061's LOT FAMILY, adjudicated against ItemLotParam the same day: four map lots carry
+#   getItemFlagId 400061 -- 100610 (Shabriri Grape x1), 100611 (Rancorcall), 100612 (Raw Meat
+#   Dumpling x5) and 110620 (Shabriri Grape x1) -- but only TWO are referenced by any instruction in
+#   the 589-file EMEVD corpus: 100610 (m60_33_44 `$InitializeCommonEvent(0, 90005792, ..., 100610,
+#   0)`) and 110620 (m60_43_31 and m60_45_34, both via 90005750). 100611/100612 appear in no EMEVD,
+#   ESD or talk blob. So the ITEM behind flag 400061 is the Shabriri Grape at every site the game
+#   actually awards it, and the five Raw Meat Dumpling rows above are five SEPARATE map lots
+#   (1033440000/010/020/030/040, one dumpling each) -- not one lot, as #1516 wondered. The Banished
+#   Knight's Halberd 255 misses is ItemLotParam_enemy 301000600/700/800, weapon 18030000, all three
+#   with getItemFlagId 0: a flagless enemy drop, which is the #1437 class and not randomisable by a
+#   flag-keyed model.
 #
 #   m31_00 $Event(31002875) "boss room treasure chest switch" (Murkwater Cave) swaps a PAIR on
 #   EventFlag(3691) -- a state in $Event(3699) "NPC309 Thief Head" = PATCHES (band 3685-3699,
@@ -4187,9 +4232,31 @@ QUEST_GATED_FLAGS = {
 # 🛑 Kept SEPARATE from _QUESTLINE_GATED on purpose: that set's provenance is "what the cross-region
 # lot_gates screen reports", and its keeper test re-derives exactly that. Folding a different
 # derivation into it would make the set unfalsifiable by its own test.
+#   RODERIKA / HEWG -- the same SWAPPED-PAIR shape as Patches, but read straight out of v1.17 and
+#   settled rather than tagged "for safety" (#1511, 255's v0.4.10 notes; added 2026-09-08).
+#     10007450  Stormveil       :: Chrysalids' Memento  (goods 8171)
+#     10007452  Roundtable Hold :: Crimson Hood
+#   ONE flag decides which of the two exists, and it is 11109213. The reset/init block in
+#   common.emevd runs `if (!EventFlag(11109213)) { SetEventFlagID(10007452, ON); } else {
+#   SetEventFlagID(10007450, ON); }` -- forcing the OTHER member's acquisition flag ON is how this
+#   engine says "that pickup is already taken", so before 11109213 only the Memento can be had and
+#   after it only the Hood. m11_10 $Event(11100704) "NPC320_Farnese_Replaced with hood item" says
+#   the same thing from the other side: `WaitFor(EventFlag(11109213)); SetEventFlagID(10007450, ON);
+#   SetEventFlagID(10007452, OFF);`.
+#   11109213 is set by HEWG's ESD -- esd_py/m11_10_00_00-only/t213001110.py:802 and its overworld
+#   twin t213006000.py:757 -- on the player choosing `action:22131000:"Would you watch over
+#   Roderika?"`. So it is an NPC dialogue step, i.e. this class exactly, and NOT (as 255 guessed)
+#   the Lake-Facing Cliffs route or possession of the Memento itself: no ObjAct, asset or lot in the
+#   corpus tests the Memento goods row for either pickup.
+#   ⚠️ 255 reported only the Memento side ("taking Lake-Facing Cliffs early advances Roderika and
+#   the Memento can no longer be picked up"). The data says the pair is symmetric, so BOTH members
+#   are tagged: a seed that puts required progression on the Hood strands a player who never talks
+#   to Hewg just as surely. f10007452 stays a LIVE check (see _WORLDLESS_SINGLES' ruled-live note);
+#   missable only bars REQUIRED progression from it.
 _NPC_STATE_GATED = frozenset({
     1033447000, 1033447010, 1033447020, 1033447030, 1033447040,   # Edgar / Revenger's Shack
     31007010, 31007030,                                            # Patches / Murkwater Cave pair
+    10007450, 10007452,                                            # Roderika-Hewg swapped pair
 })
 
 
