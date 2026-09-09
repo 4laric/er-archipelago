@@ -45,6 +45,9 @@ CENSUS = {
     "datamine_arena_graces":       (("AR", "EVENT"), False),
     "datamine_merchant_shops":     (("ART", "VV", "TALK"), False),
     "datamine_dungeon_regions":    (("ART", "MSBDIR"), False),
+    # Re-roots its OWN AR *and* the two modules it borrows readers from; only AR is named here
+    # because that is the input this module owns. --artifacts was never shipped on it, so no alias.
+    "datamine_msb_door_sides":     (("AR",), False),
 }
 # These two take --path but own no `_set_artifacts_root` seam: the root is one argparse default
 # away from the directory they walk, so the flag is asserted through --help + the resolved default
