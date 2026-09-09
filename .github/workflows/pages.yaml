@@ -1,0 +1,143 @@
+# pages.yaml -- build the offline reader pages in CI and publish them.
+#
+# WHY THIS FILE EXISTS (2026-09-09). The five offline pages used to be COMMITTED, and each one
+# carries its entire payload on a single line of JSON. Two PRs that both regenerate a page
+# therefore conflict on that one line, and the only resolution is "regenerate again after the
+# merge" -- there is nothing a three-way merge can do with it.
+#
+# MEASURED over the 60 commits before this change:
+#   * er-archipelago-evidence-browser.html (30 MB) changed 37 times
+#   * er-archipelago-check-browser.html is 3.2 MB
+#   * 26 of those 60 commits were "merge origin/main" / "regenerate the pages" repair commits
+#
+# The `generators` job in tests.yaml could SEE the problem -- it diffs the tree and says `apworld
+# generated output is STALE` -- but a byte diff can only detect staleness, never repair it, so
+# every detection cost a human a regen round-trip.
+#
+# So the pages stop being repository content and become a BUILD PRODUCT, the way a compiled
+# artifact is:
+#
+#   push to main   -> built here, deployed to GitHub Pages
+#                     https://4laric.github.io/er-archipelago/<page>.html
+#   pull_request   -> built here, uploaded as the `offline-pages` workflow artifact so a reviewer
+#                     can download and open the page this PR would produce
+#   push of a v*   -> release.yaml attaches them as release assets, which is what
+#                     tools/deploy_wizard.sh installs onto the public host at a pinned tag
+#
+# 🛑 THIS IS NOT THE STALENESS GATE, AND MUST NOT BECOME ONE. tests.yaml's `generators` job keeps
+# the byte-diff over everything that REMAINS committed (the generated tables, the tsvs, the
+# cross-repo Rust). The pages are gitignored, so they simply fall out of that diff -- there is no
+# staleness left to check on a file git does not store.
+#
+# 🛑 REPO SETTING REQUIRED, ONCE, BY THE OWNER: Settings -> Pages -> Source must be
+# "GitHub Actions". Until it is, the `deploy` job below fails with "Get Pages site failed" and
+# nothing is published. The PR-artifact half needs no setting and works immediately.
+name: pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Least privilege by default; the deploy job widens it for itself only.
+permissions:
+  contents: read
+
+# One deploy at a time, and do NOT cancel a running one: a cancelled deploy can leave the Pages
+# site mid-swap. In-progress PR builds are cheap to cancel, so they are grouped separately.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # The same two things `generators` and `regen-and-fill` do to materialise gen_data's inputs.
+      # `--ensure` is idempotent and the DEST matters: `--ensure .` scatters event/ msg/ talk/ into
+      # the repo root and the builders' inputs then read as missing.
+      - name: Materialise the generator inputs from the committed bundle
+        run: python tools/gen_inputs.py --ensure elden_ring_artifacts
+
+      # ONE ENTRYPOINT, NOT A LIST (issue #699). tools/regen_all.py holds the step list; naming the
+      # builders here would be the fourth copy of it, which is the defect that file exists to stop.
+      # `--phases pages` is the phase that owns every page builder plus the tables they read that
+      # are themselves page-phase outputs (questline_dag.tsv, questline_model.tsv).
+      - name: Build the offline pages
+        run: python tools/regen_all.py --phases pages
+
+      # A page that failed to build is not a job that failed: a builder can write a truncated file
+      # and exit 0. Assert each page exists and is plausibly sized before anything is published --
+      # a 200-response empty page on the public site is worse than no page.
+      - name: Every page was written, and is not a stub
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          for page in er-archipelago-check-browser.html \
+                      er-archipelago-desc-triage.html \
+                      er-archipelago-evidence-browser.html \
+                      er-archipelago-questline-dag.html \
+                      er-archipelago-region-second-opinion.html; do
+            test -f "$page" || { echo "::error::$page was not built"; exit 1; }
+            bytes=$(wc -c < "$page")
+            test "$bytes" -ge 20000 || { echo "::error::$page is only $bytes bytes -- a stub"; exit 1; }
+            echo "$page: $bytes bytes"
+            cp "$page" _site/
+          done
+
+      # An index, because https://4laric.github.io/er-archipelago/ with no index.html is a 404 and
+      # reads like a broken deploy. Written here rather than committed for the same reason the
+      # pages are: it is derived from the list above.
+      - name: Index page
+        run: |
+          {
+            echo '<!doctype html><meta charset="utf-8"><title>Elden Ring Archipelago -- offline pages</title>'
+            echo '<h1>Elden Ring Archipelago &mdash; generated reader pages</h1>'
+            echo "<p>Built from <code>${GITHUB_SHA}</code> by <code>tools/regen_all.py --phases pages</code>."
+            echo 'These pages are <b>not</b> committed to the repository; this site is where they live.</p><ul>'
+            for page in _site/*.html; do
+              name="$(basename "$page")"
+              [ "$name" = "index.html" ] && continue
+              echo "<li><a href=\"${name}\">${name}</a></li>"
+            done
+            echo '</ul>'
+          } > _site/index.html
+
+      # PR: hand the reviewer the pages. This is the half that replaces "open the committed file
+      # in the diff", and it needs no repository setting to work.
+      - name: Upload the pages for review (pull requests)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: offline-pages
+          path: _site/
+          retention-days: 14
+
+      - name: Package the pages for GitHub Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site/
+
+  # Separate job because the Pages deploy needs `pages: write` + `id-token: write`, and the build
+  # above -- which runs arbitrary repo code on a fork's pull_request -- must never hold those.
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

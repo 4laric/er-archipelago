@@ -42,6 +42,21 @@ run in `PHASES` order; do not reorder either without reading this paragraph.
 
 PHASES (`--phases`, default all, in this order):
 
+⭐ THE PAGES ARE NO LONGER COMMITTED (2026-09-09), AND THIS FILE STILL BUILDS THEM.
+`er-archipelago-{check,evidence}-browser.html`, `-desc-triage.html`, `-questline-dag.html` and
+`-region-second-opinion.html` are gitignored. They carry their whole payload on ONE line of JSON,
+so two PRs that both rebuilt one conflicted on that line and the only resolution was another
+regen: measured over the 60 commits before the change, the 30 MB evidence browser moved 37 times
+and 26 of those 60 commits were "merge origin/main" / "regenerate the pages" repair commits. CI's
+byte diff could DETECT that staleness and never repair it. So they are built and published
+instead -- `.github/workflows/pages.yaml` (GitHub Pages on main, a workflow artifact on a PR) and
+`.github/workflows/release.yaml` (release assets on a tag, which deploy_wizard.sh installs).
+
+Nothing about the PAGES phase changed: it still writes them into the working tree, developers
+still want them there, and the freshness/determinism suites still build and compare them. They are
+simply never a diff. The two stamp-order paragraphs above still hold, and the stamp each page
+embeds is now the NARROW one (`gen_manifest.BUILDER_INPUTS`) rather than the global `inputs_hash`.
+
   inputs   materialise gen_data's inputs from the committed bundle (idempotent)
   modules  the datamines -> gen_data.py -> the generated `eldenring/*.py` modules + `_GEN_STAMP`
   tables   the CROSS-REPO tables + repo-side contract and confidence tables

@@ -217,13 +217,16 @@ class DescTriageTest(unittest.TestCase):
             self.assertEqual(len(keys), len(set(keys)), f"f{c['f']} has duplicate positions")
 
     # -- freshness ----------------------------------------------------------
-    def test_committed_page_is_not_stale(self):
+    def test_page_in_the_working_tree_is_not_stale(self):
+        """The page is no longer committed (2026-09-09) -- see the same test in
+        test_gf_check_browser.py. This catches a local half-run regen, not repository staleness."""
         if not os.path.exists(SHIPPED):
-            self.skipTest("er-archipelago-desc-triage.html not present")
+            self.skipTest("er-archipelago-desc-triage.html not built in this tree "
+                          "(it is not committed; run tools/regen_all.py --phases pages)")
         with open(SHIPPED, encoding="utf-8", newline="") as fh:
             shipped = fh.read()
         self.assertEqual(shipped.replace("\r\n", "\n"), self.html,
-                         "committed er-archipelago-desc-triage.html is STALE -- "
+                         "the er-archipelago-desc-triage.html in this tree is STALE -- "
                          "run: python tools/build_desc_triage.py")
 
 

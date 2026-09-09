@@ -76,6 +76,30 @@ def _build(out_path):
         return fh.read()
 
 
+_PAGE_PATH = None
+
+
+def _page_path():
+    """A path to a REAL built page -- the one in the tree, or one built on demand.
+
+    🛑 THE PAGE IS NOT COMMITTED ANY MORE (2026-09-09): it is gitignored and built by
+    `tools/regen_all.py --phases pages` / `.github/workflows/pages.yaml`. Suites that assert
+    properties OF THE PAGE (the report link, the sweep clause's rendering) are not freshness
+    gates and must not turn into "file missing" errors on a clean checkout -- they build the
+    page themselves when it is absent. The one test that IS a freshness gate
+    (`test_page_in_the_working_tree_is_not_stale`) still reads SHIPPED directly and skips.
+    """
+    global _PAGE_PATH
+    if os.path.exists(SHIPPED):
+        return SHIPPED
+    if _PAGE_PATH is None:
+        tmp = tempfile.mkdtemp(prefix="check_browser_page_")
+        out = os.path.join(tmp, "er-archipelago-check-browser.html")
+        _build(out)
+        _PAGE_PATH = out
+    return _PAGE_PATH
+
+
 @unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class CheckBrowserTest(unittest.TestCase):
     @classmethod
@@ -131,10 +155,15 @@ class CheckBrowserTest(unittest.TestCase):
         got = {c["id"]: c["miss"] for c in self.checks if "miss" in c}
         self.assertEqual(got, dict(declared))
 
-    def test_stamp_is_the_data_inputs_hash_not_a_commit(self):
+    def test_stamp_is_the_narrow_builder_inputs_hash_not_a_commit(self):
+        """The stamp covers what THIS builder reads -- not the global gen-input hash.
+
+        It used to be data.py's `_GEN_STAMP.inputs_hash`, which covers `greenfield/gen_data.py`'s
+        own bytes and the whole artifact bundle, so a comment edit to gen_data.py moved it. That
+        is the narrowing; `test_gf_page_stamp_scope.py` proves the property directly."""
         stamp = self.data["meta"]["stamp"]
         self.assertTrue(stamp.startswith("sha256:"), f"stamp is not a content hash: {stamp!r}")
-        self.assertEqual(stamp, self.tool.data_stamp(os.path.join(GF_PKG, "tables/data.py")))
+        self.assertEqual(stamp, self.tool.page_stamp())
 
     # -- C. determinism ----------------------------------------------------
     def test_two_builds_are_byte_identical(self):
@@ -273,14 +302,23 @@ class CheckBrowserTest(unittest.TestCase):
         self.assertIn("not a gate", self.html)
 
     # -- D. freshness ------------------------------------------------------
-    def test_committed_page_is_not_stale(self):
+    def test_page_in_the_working_tree_is_not_stale(self):
+        """If a page has been built into this tree, it matches a fresh build.
+
+        🛑 IT IS NOT COMMITTED ANY MORE (2026-09-09) -- it is gitignored and built in CI
+        (.github/workflows/pages.yaml), so this is no longer a gate on repository content and the
+        skip below is now the NORMAL case on a clean checkout. What it still catches is the local
+        half-run: a developer who rebuilt the tables and not the pages, and the `generators` job,
+        which runs `regen_all.py --phases tables,pages` before this suite and therefore always has
+        a freshly built page here."""
         if not os.path.exists(SHIPPED):
-            self.skipTest("er-archipelago-check-browser.html not present")
+            self.skipTest("er-archipelago-check-browser.html not built in this tree "
+                          "(it is not committed; run tools/regen_all.py --phases pages)")
         with open(SHIPPED, encoding="utf-8", newline="") as fh:
             shipped = fh.read()
         self.assertEqual(
             shipped.replace("\r\n", "\n"), self.html,
-            "committed er-archipelago-check-browser.html is STALE -- "
+            "the er-archipelago-check-browser.html in this tree is STALE -- "
             "run: python tools/build_check_browser.py")
 
 
@@ -325,7 +363,7 @@ class ReportAProblemLink(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        with open(SHIPPED, encoding="utf-8") as fh:
+        with open(_page_path(), encoding="utf-8") as fh:
             cls.page = fh.read()
         with open(TEMPLATE, encoding="utf-8") as fh:
             cls.tpl = fh.read()
@@ -403,7 +441,7 @@ process.stdout.write(JSON.stringify({risky: n, rows: out}));
             hp = os.path.join(tmp, "h.js")
             with open(hp, "w", encoding="utf-8") as fh:
                 fh.write(harness)
-            res = subprocess.run([NODE, hp, SHIPPED], capture_output=True, text=True)
+            res = subprocess.run([NODE, hp, _page_path()], capture_output=True, text=True)
         self.assertEqual(0, res.returncode, res.stderr[-2000:])
         got = json.loads(res.stdout)
         self.assertGreater(got["risky"], 0,
@@ -559,8 +597,7 @@ class SweepClauseIsEligibilityNotAPromise(unittest.TestCase):
         self.assertFalse(invented, "sw invented for: %s" % invented[:5])
 
     def test_the_page_says_the_seed_decides_rather_than_hiding_the_hedge(self):
-        html = open(os.path.join(REPO, "er-archipelago-check-browser.html"),
-                    encoding="utf-8").read()
+        html = open(_page_path(), encoding="utf-8").read()
         self.assertIn("function sweepRow", html)
         self.assertIn("dungeon_sweep", html)
         self.assertIn("progression_surface", html)

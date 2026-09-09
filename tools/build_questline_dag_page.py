@@ -35,8 +35,14 @@ which mode it is in rather than silently rendering nothing.
 
 DETERMINISM. The CI `generators` job diffs the committed page, so the build must be
 byte-identical run to run: no timestamps, no git hash, sorted iteration throughout, LF
-endings. It is stamped with data.py's `inputs_hash`, like the check browser -- a content id
-that is stable across commits.
+endings. It is stamped with a NARROW inputs hash over exactly the two tables it reads
+(`gen_manifest.BUILDER_INPUTS["questline_dag_page"]`) -- a content id that is stable across
+commits. It used to carry data.py's GLOBAL `inputs_hash`, which covers gen_data.py's own bytes;
+that is the stamp whose one-line move turned PR #698 red on a page nothing had touched.
+
+🛑 THE PAGE IS NOT COMMITTED (2026-09-09): it is built in CI and published to
+https://4laric.github.io/er-archipelago/er-archipelago-questline-dag.html on every push to main,
+and uploaded as a PR workflow artifact. Build it locally whenever you like -- it is gitignored.
 
 INPUT:  greenfield/questline_dag.tsv (machine layer) + greenfield/questline_model.tsv (typed,
         revision-pinned CC-wiki evidence layer).
@@ -104,12 +110,15 @@ def _cc_panel():
 
 
 def _inputs_hash():
-    """data.py's _GEN_STAMP.inputs_hash -- a content id stable across commits, never the
-    commit sha (which would make every page rebuild a diff)."""
-    path = os.path.join(ROOT, "greenfield", "eldenring", "tables", "data.py")
-    text = open(path, encoding="utf-8").read()
-    m = re.search(r"_GEN_STAMP\s*=\s*(\{.*?\})", text, re.S)
-    return ast.literal_eval(m.group(1)).get("inputs_hash", "") if m else ""
+    """This page's NARROW inputs hash -- BUILDER_INPUTS["questline_dag_page"] only.
+
+    It was data.py's `_GEN_STAMP.inputs_hash`, the GLOBAL gen-input hash. This page does not read
+    data.py at all: it renders greenfield/questline_dag.tsv and greenfield/questline_model.tsv.
+    Carrying the global hash meant a comment edit to gen_data.py re-staled it -- which is the
+    single line that turned PR #698 red. Never the commit sha, which would make every rebuild a
+    diff. Same hashing function as the global stamp; see tools/gen_manifest.py."""
+    import gen_manifest
+    return gen_manifest.builder_hash(ROOT, "questline_dag_page")
 
 
 def _clusters(edges):

@@ -259,13 +259,18 @@ class OfflineArtifactTests(unittest.TestCase):
                 (Path(directory) / name).write_bytes(b"header\r\nvalue\r\n")
             self.assertEqual(before, BUILDER.ledger_hash(directory))
 
-    def test_build_is_byte_deterministic_and_committed_page_is_current(self):
+    def test_build_is_byte_deterministic(self):
+        """Two builds of the same tree are the same bytes.
+
+        This test used to ALSO assert that the file on disk equalled the build -- a staleness
+        gate over a COMMITTED page. The page is not committed any anymore (2026-09-09): it is
+        gitignored and built in CI (.github/workflows/pages.yaml), so there is no committed copy
+        that can be stale and nothing for that half of the assertion to mean. Determinism is the
+        part that still has teeth: it is what lets CI publish a page and a developer's local
+        rebuild agree, and it is what the narrowed stamp is hashed into."""
         first = BUILDER.build()
         second = BUILDER.build()
         self.assertEqual(first, second)
-        with open(BUILDER.OUT_HTML, "rb") as fh:
-            self.assertEqual(first, fh.read(),
-                             "evidence browser is stale; run tools/build_evidence_browser.py")
 
     def test_player_flags_are_source_backed_and_not_parsed_from_names(self):
         from player_check_review import player_check

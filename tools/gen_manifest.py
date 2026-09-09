@@ -121,6 +121,79 @@ GLOB_INPUTS = [
 # optional / not-yet-created). Everything else missing sets the `missing` flag.
 OPTIONAL = frozenset({"greenfield/region_overrides.tsv"})
 
+# ---------------------------------------------------------------------------------------------
+# PER-BUILDER INPUT DECLARATIONS -- the NARROW stamp.
+#
+# WHY (2026-09-09). Every offline page used to embed the GLOBAL `inputs_hash` above, read out of
+# `greenfield/eldenring/tables/data.py`'s `_GEN_STAMP`. That hash covers `gen_data.py` itself
+# (FILE_INPUTS[0]) and the whole artifact bundle, so a COMMENT edit to `gen_data.py` -- which
+# generates nothing -- moved the stamp on every page, and every page then had to be rebuilt and
+# recommitted. Measured over the 60 commits before this change: `er-archipelago-evidence-
+# browser.html` moved 37 times and 26 of those 60 commits were "merge origin/main" /
+# "regenerate the pages" repair commits. The payloads are single-line JSON, so two PRs that both
+# rebuild a page conflict on the WHOLE line and the only resolution is a re-regen.
+#
+# So a page's stamp now covers only what ITS builder reads. Same hashing function, same material
+# format, same newline normalisation as the global hash -- there is exactly one implementation
+# (`_hash_files`), because a second one would be a second answer to "did the inputs move".
+#
+# 🛑 DECLARE THE GENERATED MODULE, NOT ITS GENERATOR. A builder reads
+# `greenfield/eldenring/tables/data.py`; it does not read `greenfield/gen_data.py`. Hashing the
+# generator here would re-introduce exactly the coupling this table exists to remove, while
+# hashing the module still catches every gen_data change that actually reaches the page.
+#
+# An absent declared input hashes as "ABSENT", the same way the global manifest treats one, so a
+# partial checkout cannot collide with a complete one.
+#
+# Keyed by BUILDER NAME (the tools/build_<name>.py stem), not by output path: the builder is what
+# has the reading list. `greenfield/eldenring/tests/test_gf_page_stamp_scope.py` holds this table
+# to the files the builders actually open, and proves the narrowing itself -- a comment-only edit
+# to gen_data.py must NOT move a page stamp, while an edit to a declared input must.
+BUILDER_INPUTS = {
+    "check_browser": [
+        "greenfield/eldenring/tables/data.py",
+        "greenfield/eldenring/tables/location_tags.py",
+        "greenfield/eldenring/tables/missable_locations.py",
+        "greenfield/eldenring/contract.py",
+        "greenfield/check_maps.tsv",
+        "greenfield/check_region_second_opinion.tsv",
+        "greenfield/check_region_triage.tsv",
+        "greenfield/esd_gates.tsv",
+        "greenfield/esd_gifts.tsv",
+        "greenfield/flag_lots.tsv",
+        "greenfield/item_grace_coords.tsv",
+        "greenfield/location_descriptions.tsv",
+        "greenfield/lot_gates.tsv",
+        "greenfield/map_names.tsv",
+        "greenfield/msb_gated_treasures.tsv",
+        "greenfield/nearest_grace.tsv",
+        "greenfield/shop_rows.tsv",
+        "greenfield/synthetic_flag_recovery.tsv",
+        "greenfield/treasure_enablers.tsv",
+        "tools/check_browser_template.html",
+    ],
+    "desc_triage": [
+        "greenfield/eldenring/tables/data.py",
+        "greenfield/eldenring/tables/location_tags.py",
+        "greenfield/check_maps.tsv",
+        "greenfield/flag_lots.tsv",
+        "greenfield/item_grace_coords.tsv",
+        "greenfield/location_descriptions.tsv",
+        "greenfield/nearest_grace.tsv",
+        "tools/desc_triage_template.html",
+    ],
+    "questline_dag_page": [
+        "greenfield/questline_dag.tsv",
+        "greenfield/questline_model.tsv",
+    ],
+    "region_second_opinion_page": [
+        "greenfield/eldenring/tables/data.py",
+        "greenfield/check_region_second_opinion.tsv",
+        "greenfield/check_region_triage.tsv",
+        "tools/region_second_opinion_template.html",
+    ],
+}
+
 _TEXT_EXTS = {".csv", ".tsv", ".xml", ".py", ".js", ".md", ".json", ".txt", ".ps1", ".sh"}
 _ARTIFACT_PREFIX = "elden_ring_artifacts/"
 
@@ -192,6 +265,42 @@ def _matches_declared_glob(relpath, pattern):
     )
 
 
+def _hash_files(files):
+    """rel -> digest  ->  "sha256:...".  THE hashing step, shared by the global manifest and the
+    per-builder ones, so the two can never mean different things."""
+    material = "\n".join("%s\0%s" % (rel, files[rel]) for rel in sorted(files)).encode("utf-8")
+    return "sha256:" + hashlib.sha256(material).hexdigest()
+
+
+def compute_builder_manifest(repo_root, builder):
+    """Return {builder, inputs_hash, missing, files} over BUILDER_INPUTS[builder] only.
+
+    The narrow counterpart of compute_manifest(). Absent inputs hash as "ABSENT" and are also
+    reported in `missing`, exactly as the global manifest does -- a page built on a partial
+    checkout must not be able to claim the same identity as one built on a complete one."""
+    if builder not in BUILDER_INPUTS:
+        raise KeyError(
+            "gen_manifest: no input declaration for builder %r. Add one to BUILDER_INPUTS -- a "
+            "page whose stamp covers nothing is worse than one whose stamp covers too much."
+            % builder)
+    repo_root = _norm_repo(repo_root)
+    files, missing = {}, []
+    for rel in BUILDER_INPUTS[builder]:
+        ap = os.path.join(repo_root, *rel.split("/"))
+        if os.path.isfile(ap):
+            files[rel] = _file_digest(ap)
+        else:
+            files[rel] = "ABSENT"
+            missing.append(rel)
+    return {"builder": builder, "inputs_hash": _hash_files(files),
+            "missing": missing, "files": files}
+
+
+def builder_hash(repo_root, builder):
+    """Convenience: just the narrow inputs_hash string for one page builder."""
+    return compute_builder_manifest(repo_root, builder)["inputs_hash"]
+
+
 def compute_manifest(repo_root):
     """Return dict: {inputs_hash, gen_data_sha, n_files, missing:[...], files:{rel:digest}}."""
     repo_root = _norm_repo(repo_root)
@@ -232,8 +341,7 @@ def compute_manifest(repo_root):
     for rel in missing:
         files.setdefault(rel, "ABSENT")
 
-    material = "\n".join(f"{rel}\0{files[rel]}" for rel in sorted(files)).encode("utf-8")
-    inputs_hash = "sha256:" + hashlib.sha256(material).hexdigest()
+    inputs_hash = _hash_files(files)
     gd = os.path.join(repo_root, "greenfield/gen_data.py")
     gen_data_sha = "sha256:" + _file_digest(gd) if os.path.isfile(gd) else None
     return {

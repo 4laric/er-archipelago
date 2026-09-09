@@ -49,10 +49,21 @@ from collections import defaultdict
 
 # world_xz lives in build_check_browser so BOTH pages fold coordinates identically --
 # two copies of an inferred transform would drift and only one would be pinned by tests.
-from build_check_browser import load_module_consts, read_tsv, data_stamp, world_xz
+from build_check_browser import load_module_consts, read_tsv, data_stamp, world_xz  # noqa: F401
+
+# The NARROW page stamp -- see gen_manifest.BUILDER_INPUTS and build_check_browser.page_stamp.
+import gen_manifest
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_OUT = "er-archipelago-desc-triage.html"
+
+
+def page_stamp():
+    """This page's NARROW inputs hash -- gen_manifest.BUILDER_INPUTS["desc_triage"] only.
+
+    Not data.py's global `_GEN_STAMP.inputs_hash` any more: that covers gen_data.py's own bytes,
+    so a comment edit there re-staled this page although nothing it reads had moved."""
+    return gen_manifest.builder_hash(REPO, "desc_triage")
 
 NAME_RE = re.compile(r"^(?P<region>.*?) :: (?P<rest>.*?) \[f(?P<flag>\d+)\]$")
 ORD_RE = re.compile(r"\s\((\d+)\)$")
@@ -227,7 +238,7 @@ def main():
 
     meta = {
         "total": len(recs),
-        "stamp": data_stamp(os.path.join(er, "tables", "data.py")),
+        "stamp": page_stamp(),
         "have_override": sum(1 for r in recs if "have" in r),
         "ambiguous": sum(1 for r in recs if r["ord"]),
         "families": sum(1 for v in fam.values() if len(v) > 1),
