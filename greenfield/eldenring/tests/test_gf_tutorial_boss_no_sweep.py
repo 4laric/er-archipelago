@@ -551,12 +551,27 @@ def test_the_sweep_corpus_did_not_shrink():
     # The live invasion flag400162 is intentionally not a Wormface sweep reward.
     assert all(7774244 not in members for members in DUNGEON_SWEEPS.values())
     # Native M4G dungeon admission adds only Silver Scarab to Stray Mimic Tear.
-    # 2026-09-08 (world#1515/#1518): 4128 -> 4123. Exactly FIVE flags lose sweep coverage and
-    # none gains it -- 550050 (an "About ..." tutorial popup) and the four unplaceable map-lot
-    # rows 1033457100, 1035477000, 1036437010, 1038447100. All five left the CORPUS in this
-    # change, so they can no longer be swept by anything; no surviving check lost a host.
-    assert total == 4123, (
-        "sweep corpus is %d, expected 4123. If a sweep was legitimately added or removed, say WHY "
+    # 2026-09-08: 4128 -> 4122, two independent changes composed.
+    #  * world#1515/#1518 (main): FIVE flags lose sweep coverage and none gains -- 550050 (an
+    #    "About ..." tutorial popup) and the four unplaceable map-lot rows 1033457100, 1035477000,
+    #    1036437010, 1038447100. All five left the CORPUS, so nothing can sweep them; no surviving
+    #    check lost a host. 4128 -> 4123.
+    #  * #1514/#1509/#1511 (255's notebook, this branch): net -1. TWO checks lose every owner and
+    #    ONE gains one:
+    #      - f400221 (Erdsteel Dagger) moves Stormveil -> Limgrave on the ESD award site in the
+    #        m60_00 container, leaving Margit's Stormveil sweep (10000850) with no Limgrave field
+    #        boss eligible to host it. Same shape as the #1303 Stormhawk Deenh removal above.
+    #      - f2049427010 (Great Grave Glovewort) moves Jagged Peak -> Abyssal on nearest grace
+    #        76861, leaving the Jagged Peak Drake (2049410800) with no Abyssal host in range.
+    #      + f1049557700 (Larval Tear) leaves the HUB for Consecrated Snowfield, so it becomes
+    #        sweepable for the first time and joins Great Wyrm Theodorix (1050560800).
+    #    Everything else in that batch is a RE-OWNERSHIP, not a corpus change: 2051477500/510 to
+    #    Shadow Keep hosts, 2052417000 from Bayle to Midra (28000800), 2048417800 to 2046410800,
+    #    and the three Ancient Snow Valley Ruins rows off Theodorix onto Mountaintops bosses.
+    #    Those, plus the round-robin re-deal they caused, are pinned by the OWNERSHIP digest below.
+    #    4123 -> 4122.
+    assert total == 4122, (
+        "sweep corpus is %d, expected 4122. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -853,12 +868,21 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # (2046450800, 540912), (2046450800, 540914), (2048440800, 540920),
     # (2048440800, 540922). Zero removals or re-ownership relative to the NPC base.
     # Exactly (30200800, 30207900) added; no removals or re-ownership.
-    # 2026-09-08 (world#1515/#1518): 10e98be68f92e19f/4128 -> 7cac83ec5d462142/4123. Ten rows left
-    # the corpus, five of them sweep members, and the round-robin `_ents[_j % len(_ents)]` re-deal
-    # then reshuffled every pool that held them. Measured pairwise against main in (trigger, flag)
-    # space: 324 flags re-owned, ZERO region crossings, ZERO check-region changes, exactly five
-    # flags lost coverage (550050, 1033457100, 1035477000, 1036437010, 1038447100 -- the removed
-    # rows themselves) and ZERO gained. Collateral churn only; no check changed region or host tier.
-    assert (digest, n) == ("7cac83ec5d462142", 4123), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (7cac83ec5d462142, 4123). The total alone will "
+    # 2026-09-08: 10e98be68f92e19f/4128 -> ee2392e1c3d8ebfd/4122, two changes composed.
+    #  * world#1515/#1518 (main): ten rows left the corpus, five of them sweep members, and the
+    #    round-robin `_ents[_j % len(_ents)]` re-deal reshuffled every pool that held them.
+    #    Measured pairwise in (trigger, flag) space: 324 flags re-owned, ZERO region crossings,
+    #    ZERO check-region changes, exactly five flags lost coverage and ZERO gained.
+    #  * #1514/#1509/#1511 (this branch): TWO checks lose every owner (f400221 -> Limgrave,
+    #    f2049427010 -> Abyssal; see the corpus assertion for why neither region has an eligible
+    #    host), ONE gains its first (f1049557700 leaves the HUB and joins Theodorix 1050560800),
+    #    and 34 are RE-OWNED. Six of those 34 are the region moves themselves: 2051477500/
+    #    2051477510 leave the Scadu Altus trigger 2049450800 for Shadow Keep hosts, 2052417000
+    #    leaves Bayle (2054390800) for Midra (28000800), 2048417800 leaves the Jagged Peak Drake
+    #    for 2046410800, and 580330 / 1051557310 / 1051557320 leave Theodorix for Mountaintops
+    #    bosses (1050570800, 1051570800, 1053560800) -- the #1059 containment pin in
+    #    gen_data._FIELD_SWEEP_REGION_CURATED doing its job, since Theodorix's arena is
+    #    Consecrated Snowfield. The remaining 28 are ROUND-ROBIN COLLATERAL, not decisions.
+    assert (digest, n) == ("ee2392e1c3d8ebfd", 4122), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (ee2392e1c3d8ebfd, 4122). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

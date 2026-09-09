@@ -19,8 +19,8 @@
   },
   "excluded": {
     "boss": 67,
-    "no_map_anchor": 842,
-    "repeated_item_name": 3000
+    "no_map_anchor": 843,
+    "repeated_item_name": 2999
   },
   "policy": {
     "dungeon": "descriptor map family m10 through m59",

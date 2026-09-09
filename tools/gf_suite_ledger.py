@@ -439,6 +439,15 @@ TESTS_JOB = {
                              "never skip; the two that pin the MECHANISM read region_overrides.tsv "
                              "out of greenfield/ by the find_repo_root walk-up, which the tests "
                              "job's checkout guarantees (--ap-dir sits inside it)",
+    "notebook_255_region_moves": "#1514/#1509/#1511's acceptance test, same shape as "
+                                 "playarea_region_moves. The mover, stayer, ap-id and Theodorix "
+                                 "containment halves read only the installed data.py and "
+                                 "boss_sweeps.py and never skip; the four that pin the RECORD read "
+                                 "region_overrides.tsv out of greenfield/ by the find_repo_root "
+                                 "walk-up, which the tests job's checkout guarantees. It must not "
+                                 "be DEV_BOX_ONLY: the eleven STAYERS are the half that proves the "
+                                 "batch measured rather than agreed with the reporter, and a bulk "
+                                 "re-apply of the notebook has to trip on CI, not on one dev box",
 }
 
 # Suites where EVERY test skips in CI. The reason must name the missing input honestly -- these are
