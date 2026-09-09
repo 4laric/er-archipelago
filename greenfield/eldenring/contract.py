@@ -567,11 +567,57 @@ SWEEP_RUNGS = {
 # ENCOUNTER grants, not the sweep's defeat flag. The usual rule (a boss's identity is the check its
 # death grants) is exactly what comes apart here, so no join over the shipped tables can see it.
 # The non-lethal class needs enumerating rather than special-casing; this is the one confirmed member.
+#
+# SECOND CLASS, 2026-09-09 (#1529 -> this file): CUT CONTENT. Five defeat flags carry a healthbar
+# script and a BOSS_HEALTHBARS row with a BLANK name, and their boss chains (`...2800` defeat /
+# `...2810` appear / `...2849` activation) are *defined in the EMEVD and never `$InitializeEvent`'d
+# from the map constructor* -- `$Event(0, Default, ...)`. An event nobody initializes never runs, so
+# the `SetEventFlagID(<flag>, ON)` inside it is unreachable and the flag can never be set. This is
+# strictly stronger than "unnamed": unnamed says we cannot vouch for a boss, the missing init says
+# there is provably no fight. The comparison cases are m34_12 (Godskin Apostle) and m60_38_51
+# (Gilika), whose identical chains ARE initialized from their constructors.
+#
+# 🛑 The evidence is the CONSTRUCTOR, not the event body. Every one of these files defines the
+# defeat chain -- grepping for `SetEventFlagID(30130810, ON)` finds a writer and looks healthy. What
+# is missing is the one line in `$Event(0)` that arms it. Read the constructor's `$InitializeEvent`
+# list, and only that, before adding or removing a row here.
+#
+# Corroboration for all five, independently of the EMEVD: `arena_graces.tsv`'s own
+# `# unresolved_bosses` header lists them (not MSB Parts on tiles whose MSB *was* unpacked), none
+# has a GameAreaParam row, and `sweep_trigger_npcs.tsv` marks them UNRESOLVED.
 _RUNTIME_SWEEP_SKIP_REASONS = {
     31000800: "non-lethal trigger: Patches yields instead of dying, so his defeat flag is not "
               "reached in normal play -- the sweep cannot fire (bobler 2026-08-14, #672)",
     31000850: "non-lethal trigger: Patches yields instead of dying, so his defeat flag is not "
               "reached in normal play -- the sweep cannot fire (bobler 2026-08-14, #672)",
+    30130810: "cut content: Auriza Side Tomb's SECOND arena (the 'Nazgul 2' chain). "
+              "m30_13_00_00.emevd.dcx.js constructor $Event(0) at :11 initializes only the "
+              "Duelist chain -- 30132800/30132810/30132849/30132811 at :49-52 -- and never "
+              "30132802/30132812/30132850, which are defined at :210/:257/:282. The only writer "
+              "of 30130810 is SetEventFlagID at :217 inside the uninitialized $Event(30132802), "
+              "so the flag can never be set (2026-09-09, #1529)",
+    34100800: "cut content: Divine Tower of Limgrave has no boss. m34_10_00_00.emevd.dcx.js "
+              "constructor $Event(0) at :11 initializes exactly one event (34102510 at :15) and "
+              "no boss chain at all; 34102800/34102810/34102849 are defined at :55/:67/:92 and "
+              "never armed, so the SetEventFlagID at :63 is unreachable. This is bobler's "
+              "2026-08-14 report (#672) -- 19/19 Limgrave bosses cleared, this group still open "
+              "-- resolved at the source (2026-09-09, #1529)",
+    34110800: "cut content: Divine Tower of Liurnia has no boss. m34_11_00_00.emevd.dcx.js "
+              "constructor $Event(0) at :11 initializes 34112510/34112580/34112400.. (:19-46) but "
+              "never 34112800/34112810/34112849, which are defined at :1519/:1530/:1551, so the "
+              "SetEventFlagID at :1526 is unreachable (2026-09-09, #1529)",
+    34150800: "cut content: Isolated Divine Tower has no boss -- confirmed absent in game "
+              "2026-08-05 (CHANGELOG) and the EMEVD agrees: m34_15_00_00.emevd.dcx.js constructor "
+              "$Event(0) at :11 initializes only 34152500 (:13), while 34152800/34152810/34152849 "
+              "at :24/:35/:56 are never armed. Carries NO sweep group today; listed so the ruling "
+              "survives a future regen that gives it one (2026-09-09, #1529)",
+    1041330800: "cut content: the Fourth Church of Marika 'boss' does not exist. "
+                "m60_41_33_00.emevd.dcx.js constructor $Event(0) at :11 initializes no boss chain "
+                "(only 1041333700/1041333705 at :26/:29); 1041332800/1041332810/1041332849 at "
+                ":45/:57/:76 are never armed. Independently: its healthbar nameId 904133540 "
+                "(:71) has NO NpcName.fmg entry -- Gilika's 904130540 does -- and chr 4133 has no "
+                "ChrModelParam row. Also ruled 'unspawned' in gen_data._UNSPAWNED_VERDICTS, which "
+                "re-homes its 10 members (2026-09-09, #1529)",
 }
 
 

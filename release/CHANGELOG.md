@@ -45,6 +45,37 @@ nothing in it touches Elden Ring.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Five sweep triggers were promising 29 checks behind bosses that do not exist.** A player on
+  boss sweeps saw groups like `Divine Tower of Limgrave -- 0/7 checks -- unidentified boss --
+  waiting on the boss` sit at zero for a whole seed, with nothing to kill and no way to tell that
+  from a boss not yet found. bobler already reported the symptom in #672 (19/19 Limgrave bosses
+  cleared, the group still open) and the fix then was the right one for progression -- an unnamed
+  trigger may not HOST required progression -- but the group still shipped to the tracker. Reading
+  the EMEVD says why it never could fire: the boss chains (`...2800` defeat / `...2810` appear /
+  `...2849` activation) are DEFINED and never `$InitializeEvent`'d from the map constructor
+  `$Event(0, Default)`, so the `SetEventFlagID(the defeat flag, ON)` inside them is unreachable code. This
+  is cut content -- compare `m34_12` (Godskin Apostle) and `m60_38_51` (Gilika), whose identical
+  chains are initialized. Grepping for the flag hides this: every one of these maps contains a
+  healthy-looking writer; the missing line is in the constructor. All five are now declared in
+  `contract._RUNTIME_SWEEP_SKIP_REASONS` with their `file:line` evidence -- `30130810` (Auriza Side
+  Tomb 2nd arena, 7 members), `34100800` (Divine Tower of Limgrave, 7), `34110800` (Divine Tower of
+  Liurnia, 5), `34150800` (Isolated Divine Tower, 0 members, listed so a future regen cannot
+  silently re-arm it) and `1041330800` (Fourth Church of Marika, 10) -- so their groups leave
+  `dungeonSweepFlags` and the dead entries stop rendering. `1041330800` additionally closes the one
+  OPEN row in `gen_data._UNSPAWNED_VERDICTS`: its falsifier was "warp there and look, by day and at
+  night", and the data settles it harder -- no armed event, no `NpcName.fmg` entry for healthbar
+  nameId `904133540`, and no `ChrModelParam` row for chr `4133`, so there is no character to spawn
+  at any hour. Its **10 members re-home within Weeping**, 8 to `1042330800` (Ancient Hero of Zamor)
+  and 2 to `1043330800` (Erdtree Avatar), by the same neighbourhood pass that re-homed the
+  Fallingstar Beast's 23 in #540 -- no check is lost, they move to a boss that can be killed. New
+  regression gate `test_gf_runtime_sweep_fireability.test_no_blank_named_trigger_still_owns_a_live_group`:
+  after this, no blank-named trigger owns a live sweep group, so the next cut arena must be
+  adjudicated before it can ship. Sweep count 211 -> 210. **`CONTRACT_HASH` is unmoved at
+  `613fb438`** -- the contract covers shapes, and removing dead flags from a group changes no
+  shape, so clients from v0.6.0.3 on pair with this unchanged. Supersedes #1529, which proposed
+  giving these five display names -- moot now that the groups do not ship. Issues #540, #672,
+  #878, #1529.
+
 - **The matt oracle's 45 unexplained missing slots are triaged; the `_B_OPEN` bin is retired.** Roadmap item 3
   asked which of his Event-scope flags `data.LOCATIONS` has no row for are REAL GAPS. Answer, from
   `greenfield/region_map.csv`, `flag_lots.tsv`, `tools/datamine_unplaced_globals.py` and gen_data's

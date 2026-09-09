@@ -10924,13 +10924,22 @@ _UNSPAWNED_VERDICTS = {
                  "to First Mt. Gelmir Campsite (grace 76351) and THERE IS NO BEAST. EMEVD-only, "
                  "like 34150800. Its 23 members were 10.4% of Mt. Gelmir behind a flag that "
                  "cannot be set; they re-home to the region's other field bosses. Issue #540."),
-    1041330800: ("open",
-                 "unnamed m60_41_33 (Fourth Church of Marika, Weeping) -- the same shape and NOT "
-                 "yet falsified in game, so its 10 members keep their trigger. FALSIFIER: warp to "
-                 "the Fourth Church of Marika and look, by day and at night (the tile's other "
-                 "candidate reading is a night-conditional spawn). Absent -> move it to "
-                 "'unspawned' here and regen; present -> the datamine owes it a GameAreaParam "
-                 "binding and an MSB position. Issue #540."),
+    1041330800: ("unspawned",
+                 "unnamed m60_41_33 (Fourth Church of Marika, Weeping) -- FALSIFIED 2026-09-09 out "
+                 "of the game's own scripts, which settles what the 'open' verdict asked a warp "
+                 "to settle. (a) THE EVENT IS NEVER ARMED: m60_41_33_00.emevd.dcx.js defines the "
+                 "boss chain 1041332800/1041332810/1041332849 at :45/:57/:76, but the map "
+                 "constructor $Event(0, Default) at :11 initializes only 1041333700 and 1041333705 "
+                 "(:26, :29) -- no $InitializeEvent for any of the three -- so the "
+                 "SetEventFlagID(1041330800, ON) at :53 is unreachable and the flag CANNOT BE SET "
+                 "by any player, ever. Compare m60_38_51 (Gilika), whose identical chain IS "
+                 "initialized from its constructor. (b) THERE IS NO CHARACTER: DisplayBossHealthBar "
+                 "at :71 names 904133540, which has no entry in NpcName.fmg (Gilika's 904130540 "
+                 "does), and chr 4133 has no ChrModelParam row. That kills the night-conditional "
+                 "reading too: a night spawn still needs a character and an armed event. Its 10 "
+                 "members re-home to the region's other field bosses, exactly as 1038540800's 23 "
+                 "did. Also declared in contract._RUNTIME_SWEEP_SKIP_REASONS so the dead group "
+                 "leaves dungeonSweepFlags. Issues #540, #1529."),
 }
 _unspawned_shape = {_e for _e, _i in BOSS_HEALTHBARS.items() if _unspawned_candidate(_e, _i)}
 # A DETECTOR THAT MATCHES NOTHING IS A DETECTOR THAT IS BROKEN. Both inputs are committed tables;
