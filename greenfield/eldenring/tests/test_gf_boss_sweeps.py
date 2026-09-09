@@ -983,7 +983,7 @@ class BossSweepScoping(unittest.TestCase):
         """THE REGRESSION THE FIRST DRAFT SHIPPED. `defeat_flag != area_id` is NOT "secondary":
         m30_20's Stray Mimic Tear (30200800) is that map's ONLY healthbar entity and its row points
         at 30200810, a flag no entity carries. Suppressing on the mismatch alone deleted m30_20's
-        sweep outright and stranded aps 7772247/7772248.
+        sweep outright and stranded aps 7772246/7772248.
 
         The invariant that catches it without over-reaching: a dungeon map may never have ALL of its
         heads classified secondary. A secondary head means "another head on THIS map reports the

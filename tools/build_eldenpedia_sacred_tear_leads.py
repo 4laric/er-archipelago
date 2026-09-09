@@ -27,18 +27,18 @@ LEAD_FIELDS = ("lead_id", "subject_kind", "subject_id", "claim_kind", "normalize
 # AP id, flag, source area, exact linked church. The thirteenth AP Sacred Tear, at
 # Ruin-Strewn Precipice, is deliberately not bound because this revision does not list it.
 BINDINGS = (
-    (7772958, 1046387100, "Limgrave", "Third Church of Marika"),
-    (7772917, 1044337100, "Limgrave", "Callu Baptismal Church"),
-    (7772786, 1041337200, "Limgrave", "Fourth Church of Marika"),
-    (7772881, 1043357100, "Limgrave", "Church of Pilgrimage"),
-    (7772710, 1039397000, "Liurnia of the Lakes", "Church of Irith"),
-    (7772585, 1036497000, "Liurnia of the Lakes", "Bellum Church"),
-    (7772627, 1037497100, "Liurnia of the Lakes", "Church of Inhibition"),
-    (7773077, 1050387020, "Caelid", "Church of the Plague"),
-    (7772744, 1039527400, "Altus Plateau", "Second Church of Marika"),
-    (7772767, 1040517400, "Altus Plateau", "Stormcaller Church"),
-    (7773134, 1051537800, "Mountaintops of the Giants", "Church of Repose"),
-    (7773205, 1054557800, "Mountaintops of the Giants", "First Church of Marika"),
+    (7772956, 1046387100, "Limgrave", "Third Church of Marika"),
+    (7772915, 1044337100, "Limgrave", "Callu Baptismal Church"),
+    (7772784, 1041337200, "Limgrave", "Fourth Church of Marika"),
+    (7772879, 1043357100, "Limgrave", "Church of Pilgrimage"),
+    (7772708, 1039397000, "Liurnia of the Lakes", "Church of Irith"),
+    (7772583, 1036497000, "Liurnia of the Lakes", "Bellum Church"),
+    (7772625, 1037497100, "Liurnia of the Lakes", "Church of Inhibition"),
+    (7773075, 1050387020, "Caelid", "Church of the Plague"),
+    (7772742, 1039527400, "Altus Plateau", "Second Church of Marika"),
+    (7772765, 1040517400, "Altus Plateau", "Stormcaller Church"),
+    (7773132, 1051537800, "Mountaintops of the Giants", "Church of Repose"),
+    (7773203, 1054557800, "Mountaintops of the Giants", "First Church of Marika"),
 )
 
 

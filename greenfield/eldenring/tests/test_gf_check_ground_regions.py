@@ -61,7 +61,7 @@ REPO = find_repo_root(HERE)
 # so no tile fix can move them and only an in-game verdict can. See test_gf_tile_row_region.py.
 #
 # 🛑 KEYED ON THE EVENT FLAG, NOT THE ap-id. ap-ids are positional: the 2026-08-07 regen added 16
-# checks and renumbered every id above 7774000, so an ap-id pin would have gone on passing while
+# checks and renumbered every id above 7773993, so an ap-id pin would have gone on passing while
 # naming different checks. Flags are game data and do not move. (CONTRIBUTING: "whenever two
 # components exchange ids, name the SPACE in the type, the key, or the comment -- and assert it.")
 KNOWN_MISMATCHES = set()

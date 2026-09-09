@@ -1,22 +1,22 @@
 {
-  "ambiguous_or_conflicted": 794,
+  "ambiguous_or_conflicted": 793,
   "by_confidence": {
-    "hold": 2693,
+    "hold": 2690,
     "trusted_identity_region": 199
   },
   "by_external_family_count": {
-    "0": 2179,
+    "0": 2176,
     "1": 514,
     "2": 176,
     "3": 23
   },
   "by_partition": {
-    "ambiguous_map_lot": 794,
-    "exact_route_anchor": 1962,
-    "non_map_lot": 136
+    "ambiguous_map_lot": 793,
+    "exact_route_anchor": 1961,
+    "non_map_lot": 135
   },
   "category": "repeated_generic_field_pickups_and_consumables",
-  "checks_total": 2892,
+  "checks_total": 2889,
   "definition": "item name occurs at least twice after special acquisition tags are excluded",
   "excluded_tags": [
     "Basin",
@@ -32,7 +32,7 @@
     "Seedtree",
     "Shop"
   ],
-  "item_names": 282,
-  "remaining_held": 2693,
+  "item_names": 281,
+  "remaining_held": 2690,
   "schema_version": 1
 }

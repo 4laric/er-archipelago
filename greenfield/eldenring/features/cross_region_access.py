@@ -11,7 +11,7 @@ from ..registry import Feature, register
 ALTERNATE_ACCESS: Dict[int, str] = {
     # Listed under Belurat, but physically accessible only from Enir-Ilim. Divine Beast
     # Dancing Lion's sweep is the independent Belurat-side route.
-    7771810: "Enir Ilim",
+    7771809: "Enir Ilim",
     # The seven Divine Tower of East Altus checks lived here from 2026-08 until 2026-09-07 (#324):
     # they were filed under Altus and this table bolted a Leyndell requirement onto them. The tower
     # is now Leyndell's outright -- its checks, its Fell Twin sweep and its runtime bucket 34140 all
@@ -22,13 +22,13 @@ ALTERNATE_ACCESS: Dict[int, str] = {
 }
 
 # Only these checks have a boss-sweep route that genuinely avoids their physical route.
-SWEEP_INDEPENDENT = frozenset({7771810})
+SWEEP_INDEPENDENT = frozenset({7771809})
 
 # Static census ownership is separate from physical access. Keep it explicit so tests and future
 # generated summaries only subtract a conditionally omitted check when its owning region was part
 # of the seed's static count in the first place.
 OWNING_REGION: Dict[int, str] = {
-    7771810: "Belurat",
+    7771809: "Belurat",
 }
 
 

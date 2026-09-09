@@ -77,7 +77,8 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
         detections = [row for row in self.bundle["claims"]
                       if row["claim_kind"] == "detection"]
         self.assertTrue(detections)
-        self.assertEqual(len(detections), 4302)  # +5 physical and seven Somber map-lot recoveries (#1437)
+        # 4302 -> 4292 on 2026-09-08 (world#1515/#1518): the ten removed rows each carried a map lot.
+        self.assertEqual(len(detections), 4292)  # +5 physical and seven Somber map-lot recoveries (#1437)
         self.assertTrue(all(row["status"] == "single_source" for row in detections))
         evidence_by_id = {row["evidence_id"]: row for row in self.bundle["evidence"]}
         source_by_id = {row["source_id"]: row for row in self.bundle["sources"]}
@@ -117,7 +118,7 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
 
     def test_palace_key_access_is_the_narrow_miniature_ranni_rule(self):
         claim = next(row for row in self.bundle["claims"]
-                     if row["claim_id"] == "check:7773712/access")
+                     if row["claim_id"] == "check:7773710/access")
         self.assertEqual(json.loads(claim["value"]), {
             "type": "all",
             "conditions": [
@@ -149,7 +150,7 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
 
     def test_fingerslayer_access_is_region_only_because_chest_gate_is_force_set(self):
         claim = next(row for row in self.bundle["claims"]
-                     if row["claim_id"] == "check:7771152/access")
+                     if row["claim_id"] == "check:7771151/access")
         self.assertEqual(json.loads(claim["value"]), {
             "region": "Siofra River",
             "runtime_bypass": {"flag": 1034509410, "type": "start_flag"},

@@ -34,9 +34,9 @@ LEAD_FIELDS = ("lead_id", "subject_kind", "subject_id", "claim_kind", "normalize
 # Each selector is source-local and unique.  The expected flag is then checked against the current
 # AP corpus and against the committed ItemLot table before a binding is emitted.
 BINDINGS = (
-    (7770896, 10007850, "Limgrave", "room past Godrick's throne", "",
+    (7770895, 10007850, "Limgrave", "room past Godrick's throne", "",
      ("Limgrave", "Liurnia of the Lakes")),
-    (7772713, 1039417200, "Liurnia of the Lakes", "Purified Ruins", "",
+    (7772711, 1039417200, "Liurnia of the Lakes", "Purified Ruins", "",
      ("Purified Ruins", "Two Fingers Heirloom")),
     (7770562, 400061, "Liunia of the Lakes", "Revenger's Shack",
      "Edgar received Irina's Letter and witnessed her death at the Bridge of Sacrifice",

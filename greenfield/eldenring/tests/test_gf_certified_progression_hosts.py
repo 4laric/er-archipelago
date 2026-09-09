@@ -49,7 +49,7 @@ def test_collectathon_certifications_restore_only_the_remaining_generated_holds(
     restored = CERTIFIED_SEEDTREE_APS | CERTIFIED_CHURCH_APS
     independently_trusted = restored & TRUSTED_PROGRESSION_HOST_APS
     assert len(restored) == 34
-    assert independently_trusted == {7771149}
+    assert independently_trusted == {7771148}
     assert restored - independently_trusted <= HOLD_PROGRESSION_HOST_APS
     assert hold_aps(None, candidates=restored).isdisjoint(restored)
 
@@ -81,7 +81,7 @@ def test_revered_wave_preserves_region_dispute_hold():
     from ..tables.evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
     from ..tables.location_tags import SURFACE_EXCLUDE_APS
 
-    region_disputed = 7773212    # Ancient Ruins|Enir Ilim in region_dispute_worksheet.tsv
+    region_disputed = 7773210    # Ancient Ruins|Enir Ilim in region_dispute_worksheet.tsv
     assert region_disputed not in CERTIFIED_REVERED_APS
     assert region_disputed in HOLD_PROGRESSION_HOST_APS
     assert region_disputed not in SURFACE_EXCLUDE_APS
@@ -97,15 +97,15 @@ def test_revered_wave_is_exactly_the_other_effective_generated_holds():
         and ap not in SURFACE_EXCLUDE_APS
     }
     certified_still_held = CERTIFIED_REVERED_APS & HOLD_PROGRESSION_HOST_APS
-    assert certified_still_held == {7771934}
-    assert effective == certified_still_held | {7773212}
+    assert certified_still_held == {7771933}
+    assert effective == certified_still_held | {7773210}
 
 def test_major_boss_wave2_restores_three_and_preserves_seven_finale_rows():
     from ..tables.evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
     from ..features.evidence_progression_hosts import hold_aps
 
-    finale_rows = {7770655, 7770664, 7773787, 7900114, 7900115, 7900116, 7900117}
-    assert CERTIFIED_MAJOR_BOSS_WAVE2_APS == {7770716, 7773799, 7900120}
+    finale_rows = {7770655, 7770664, 7773785, 7900114, 7900115, 7900116, 7900117}
+    assert CERTIFIED_MAJOR_BOSS_WAVE2_APS == {7770716, 7773797, 7900120}
     assert CERTIFIED_MAJOR_BOSS_WAVE2_APS <= HOLD_PROGRESSION_HOST_APS
     assert hold_aps(None, candidates=CERTIFIED_MAJOR_BOSS_WAVE2_APS).isdisjoint(
         CERTIFIED_MAJOR_BOSS_WAVE2_APS)

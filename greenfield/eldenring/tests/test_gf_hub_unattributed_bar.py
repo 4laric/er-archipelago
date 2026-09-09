@@ -10,7 +10,10 @@ def test_hub_unattributed_census_is_nonempty_and_exact():
     hub = {ap for (_name, ap, _flag) in LOCATIONS[HUB]}
     expected = {ap for ap in hub if not LOCATION_TAGS.get(ap)}
     assert HUB_UNATTRIBUTED_APS == expected
-    assert len(expected) == 53, "re-measure the regenerated untagged-hub census"
+    assert len(expected) == 51, "re-measure the regenerated untagged-hub census"
+    # 53 -> 51 on 2026-09-08 (world#1518): the derived tutorial-popup family took
+    # f550000 "About Sites of Grace" and f550210 "About Summoning Other Players" out of
+    # the corpus, and both were filed under the hub. No hub check gained or lost a tag.
 
 
 def test_hub_unattributed_checks_are_permanently_barred():

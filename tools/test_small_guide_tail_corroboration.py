@@ -6,8 +6,8 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "greenfield" / "evidence" / "wiki-audit"
-PROMOTED = {7771149, 7771799, 7771812, 7772023, 7773207,
-            7773236, 7773401, 7773603, 7774563}
+PROMOTED = {7771148, 7771798, 7771811, 7772022, 7773205,
+            7773234, 7773399, 7773601, 7774553}
 
 
 class SmallGuideTailTests(unittest.TestCase):

@@ -34,8 +34,8 @@ from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION  # 
 #     corpus and never had a sweep to lose.
 GRAFTED_SCION = 10010800          # boss_healthbars: ('m10_01', 'm10_01', 'legacy', 'Grafted Scion')
 SCION_OWN_DROP_FLAG = 510030      # Ornamental Straight Sword, a normal check, must SURVIVE
-GOSTOC_BELL_AP = 7773705          # f400051; shifted -1 when dead f400020 left the pool (#1111)
-# (7773843 -> 7773808 on 2026-08-19, #330; 7773808 -> 7773821 same day, full-census regen: +10
+GOSTOC_BELL_AP = 7773703          # f400051; shifted -1 when dead f400020 left the pool (#1111)
+# (7773841 -> 7773806 on 2026-08-19, #330; 7773806 -> 7773819 same day, full-census regen: +10
 #  restored m21_02 Rada rows and +3 other insertions ahead of it. Flag-verified both times -- the
 #  stale pin was even OWNED by a Liurnia trigger, the exact wrong-check-same-id trap.)
 
@@ -98,7 +98,7 @@ def test_the_sweep_corpus_did_not_shrink():
     +3  THE FINALE MAPS. Gideon, Godfrey/Hoarah Loux and Radagon/Elden Beast live on m11_05 and
         m19_00, whose _mreg vote was a TIE -- {Leyndell 3, Ashen Capital 3, Limgrave 1} and
         {Leyndell 1, Liurnia 1} -- broken to Leyndell by Counter insertion order. Now pinned to Ashen
-        Capital, whose three checks (ap 7771132/7771133/7771134) previously belonged to NO sweep.
+        Capital, whose three checks (ap 7771131/7771132/7771133) previously belonged to NO sweep.
         Leyndell's pool is unchanged at 64; it re-divvies across 2 triggers instead of 6. That is the
         point: 42 of those 64 hung off post-burn bosses, and the burn warps you into m11_05
         PERMANENTLY, so they could never fire from base Leyndell.
@@ -128,7 +128,7 @@ def test_the_sweep_corpus_did_not_shrink():
       m60_45_39  Summonwater Village / Third Church of Marika   Caelid   -> Limgrave  (12 checks)
       m60_47_38  Fort Gael                                      Limgrave -> Caelid    (15 checks)
 
-    +2  ap 7774636 / 7774637 ("Smoldering Butterfly", m60_47_38) belonged to NO sweep, because the
+    +2  ap 7774626 / 7774627 ("Smoldering Butterfly", m60_47_38) belonged to NO sweep, because the
         nearest field boss inside Chebyshev 2 of them was regioned across the seam from them and the
         nearest-boss pass is same-region. With m60_47_38 in Caelid they join the Caelid sweep
         1048370800 (13 -> 26). Nothing else entered the corpus.
@@ -254,8 +254,8 @@ def test_the_sweep_corpus_did_not_shrink():
         (four Living Jar Shards around Auriza Side Tomb) and stays a 7/7 split.
 
         TWO were REFUSED, and this branch carries a filler cut the older ones do not because of them:
-        a Sacred Tear at Ruin-Strewn Precipice (7774260, Church) and [Incantation] Knight's Lightning
-        Spear at Scorpion River Catacombs (7774285, Legendary). The map path has never applied
+        a Sacred Tear at Ruin-Strewn Precipice (7774250, Church) and [Incantation] Knight's Lightning
+        Spear at Scorpion River Catacombs (7774275, Legendary). The map path has never applied
         `_filler_only` -- test_gf_dungeon_sweep_rungs ratchets six pre-existing important members and
         says fixing that wholesale needs its own balance argument. This change does not touch those
         six; it just refuses to grow them.
@@ -393,7 +393,7 @@ def test_the_sweep_corpus_did_not_shrink():
         id space, only a structural key answers "what actually changed"."""
     total = sum(len(v) for v in DUNGEON_SWEEPS.values())
     # 3057 -> 3056 (2026-08-04): ONE check left the corpus, and it left for a reason.
-    # ap 7771252, "Siofra River :: Fingerslayer Blade", was a member of sweep trigger 12020830. It is
+    # ap 7771251, "Siofra River :: Fingerslayer Blade", was a member of sweep trigger 12020830. It is
     # now MISSABLE (label `questline_item`: the item is handed to Ranni), and a missable check is not
     # sweep corpus. Verified as exactly one check, by set-difference against main -- not inferred
     # from the total moving by one.
@@ -421,7 +421,7 @@ def test_the_sweep_corpus_did_not_shrink():
     # The Gravesite -> Rauh Base thirteen did NOT churn: their trigger (2046450800) changed region
     # with them, so they keep the same owner and the group stops being one of #445's six.
     # -1 (2026-08-11, #556 -- m10_00 curated into DUNGEON_REGION_OVERRIDE) 3732 -> 3731.
-    # ONE member left: ap 7773843, "Stormveil :: Gostoc's Bell Bearing - near Gateside Chamber"
+    # ONE member left: ap 7773841, "Stormveil :: Gostoc's Bell Bearing - near Gateside Chamber"
     # (f400051). ADDED 0, REMOVED 1, RE-OWNED 3, and all three re-owned stayed inside Stormveil.
     # 🛑 IT IS NOT A REGION MOVE -- the check reads Stormveil before and after. It is region_of's
     # SIDE EFFECT going away. f400051 is MSB-placed in m10_00, so with m10_00 now resolvable the
@@ -470,7 +470,7 @@ def test_the_sweep_corpus_did_not_shrink():
     # Trigger 34110800 is reachable on the ordinary layout, before the Carian Inverted Statue changes
     # the map, so sweeping those checks from it bypassed the new key gate. The five ordinary-layout
     # checks stay on that trigger. ADDED 0, RE-OWNED 0; physical pickup remains their only award path.
-    # -1 (2026-08-17, #664): 4034 -> 4033. REMOVED only: flag 2053467600 / ap 7773806 is the
+    # -1 (2026-08-17, #664): 4034 -> 4033. REMOVED only: flag 2053467600 / ap 7773804 is the
     # Finger Ruins of Rhia bell reward, gated by the Hole-Laden Necklace. It shared the Scadu Altus
     # legacy pool with Rakshasa (trigger 2051440800), an unrelated fight reachable without the
     # necklace. The check stays obtainable at the bell; only the gate-bypassing convenience award
@@ -504,7 +504,7 @@ def test_the_sweep_corpus_did_not_shrink():
     # (trigger, flag): 387 removed (85 the cull itself, the rest the divvy re-phase it
     # triggered) / 300 added / 304 re-owned, and ZERO re-ownerships cross a region boundary.
     # 2026-08-21 (#940): 4100 -> 4101. The un-culled Four Belfries Imbued Sword Key
-    # (f1033477020, ap 7774225) joined the sweep of its nearest same-region field boss, the
+    # (f1033477020, ap 7774215) joined the sweep of its nearest same-region field boss, the
     # Royal Revenant (trigger 1034480800, m60_34_48 -- Chebyshev 2 from the chest's m60_33_47).
     # The nearest-boss tie-split round-robin re-dealt 148 distance-tied checks to their tied
     # partner triggers across 10 regions; measured by (trigger, flag): 148 removed / 149 added,
@@ -549,10 +549,14 @@ def test_the_sweep_corpus_did_not_shrink():
     # is represented across the applicable sweep rows, adding 12 (trigger, flag) pairs.
     # #1437: remove the unused Poleblade copy from Wormface (1040520800).
     # The live invasion flag400162 is intentionally not a Wormface sweep reward.
-    assert all(7774254 not in members for members in DUNGEON_SWEEPS.values())
+    assert all(7774244 not in members for members in DUNGEON_SWEEPS.values())
     # Native M4G dungeon admission adds only Silver Scarab to Stray Mimic Tear.
-    assert total == 4128, (
-        "sweep corpus is %d, expected 4128. If a sweep was legitimately added or removed, say WHY "
+    # 2026-09-08 (world#1515/#1518): 4128 -> 4123. Exactly FIVE flags lose sweep coverage and
+    # none gains it -- 550050 (an "About ..." tutorial popup) and the four unplaceable map-lot
+    # rows 1033457100, 1035477000, 1036437010, 1038447100. All five left the CORPUS in this
+    # change, so they can no longer be swept by anything; no surviving check lost a host.
+    assert total == 4123, (
+        "sweep corpus is %d, expected 4123. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -665,7 +669,7 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     2026-08-11 (#556, m10_00 -> Stormveil): digest ebbf592b -> 7ed70eb4, n 3732 -> 3731. ADDED 0,
     REMOVED 1, **3 RE-OWNED, ZERO region crossings**. The removal is explained in full on the total
     above (region_of's map side effect, not a region move). The three re-owned are the pacing shape
-    and nothing else: 7771014 and 7773854 went 10000800 -> 10000850 and 7774041 went the other way,
+    and nothing else: 7771013 and 7773852 went 10000800 -> 10000850 and 7774034 went the other way,
     all six endpoints SWEEP_REGION 'Stormveil'. Both triggers are Stormveil majors on m10_00, so
     losing one member from a 111-check pool re-phased the two-way round-robin by one -- the #363
     stable-modulus effect this docstring already records twice, at its smallest possible size.
@@ -786,8 +790,8 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # (trigger, flag) space against main: 195 removed / 195 added / 196 re-owned, and ZERO region
     # crossings, checked pair-by-pair against SWEEP_REGION on both sides.
     # 🛑 The same removal shifts every LATER ap id down by exactly 100, which is why GOSTOC_BELL_AP
-    # at the top of this file moves 7773806 -> 7773706. Re-read from the regenerated data.py, not
-    # arithmetic: f400051 is ap 7773706 there.
+    # at the top of this file moves 7773804 -> 7773706. Re-read from the regenerated data.py, not
+    # arithmetic: f400051 is ap 7773704 there.
     # 2026-08-26 (#1066): bd4c7e5d5b89c0f1/4100 -> b30cddc2f9d07205/4099. The #1059 shape a second
     # time, on the two triggers J reported: a HUMAN ARENA RULING now outranks the tile decode in the
     # sweep host derivation too, so Marigga hosts Cerulean's divvy and the Jagged Peak Drake hosts
@@ -849,6 +853,12 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # (2046450800, 540912), (2046450800, 540914), (2048440800, 540920),
     # (2048440800, 540922). Zero removals or re-ownership relative to the NPC base.
     # Exactly (30200800, 30207900) added; no removals or re-ownership.
-    assert (digest, n) == ("10e98be68f92e19f", 4128), (  # #1437: then remove exactly (1040520800, 1039527700), no new owner
-        "sweep OWNERSHIP changed: (%s, %d), expected (10e98be68f92e19f, 4128). The total alone will "
+    # 2026-09-08 (world#1515/#1518): 10e98be68f92e19f/4128 -> 7cac83ec5d462142/4123. Ten rows left
+    # the corpus, five of them sweep members, and the round-robin `_ents[_j % len(_ents)]` re-deal
+    # then reshuffled every pool that held them. Measured pairwise against main in (trigger, flag)
+    # space: 324 flags re-owned, ZERO region crossings, ZERO check-region changes, exactly five
+    # flags lost coverage (550050, 1033457100, 1035477000, 1036437010, 1038447100 -- the removed
+    # rows themselves) and ZERO gained. Collateral churn only; no check changed region or host tier.
+    assert (digest, n) == ("7cac83ec5d462142", 4123), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (7cac83ec5d462142, 4123). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

@@ -9,7 +9,7 @@ ordinary Ainsel region access, but does not reproduce the bypassed vanilla chain
 """
 from ..registry import Feature, register
 
-PALACE_KEY_AP_ID = 7773712
+PALACE_KEY_AP_ID = 7773710
 MINIATURE_RANNI = "Miniature Ranni"
 
 

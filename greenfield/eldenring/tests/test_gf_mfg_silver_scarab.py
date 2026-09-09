@@ -19,8 +19,8 @@ class SilverScarabRecovery(unittest.TestCase):
         self.assertEqual(evidence['pin']['param_fields']['textDisableFlagId1'], 30207900)
         checks = [(reg, aid) for reg, rows in assignments(world / 'tables/data.py')['LOCATIONS'].items()
                   for _, aid, flag in rows if flag == 30207900]
-        self.assertEqual(checks, [(region, 7774650)])
-        self.assertEqual(assignments(world / 'tables/item_ids.py')['LOCATION_ITEM'][7774650], 'Silver Scarab')
+        self.assertEqual(checks, [(region, 7774640)])
+        self.assertEqual(assignments(world / 'tables/item_ids.py')['LOCATION_ITEM'][7774640], 'Silver Scarab')
         self.assertEqual(assignments(world / 'tables/check_lots_data.py')['CHECK_LOT_ZERO_MAP'][30200900], [1])
         graces = assignments(world / 'tables/region_graces.py')
         self.assertIn(73020, graces['REGION_GRACE_POINTS'][region])
@@ -38,5 +38,5 @@ class SilverScarabRecovery(unittest.TestCase):
 
 def test_silver_scarab_uses_its_own_dungeon_sweep():
     from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION
-    assert [boss for boss, members in DUNGEON_SWEEPS.items() if 7774650 in members] == [30200800]
+    assert [boss for boss, members in DUNGEON_SWEEPS.items() if 7774640 in members] == [30200800]
     assert SWEEP_REGION[30200800] == "Consecrated Snowfield"
