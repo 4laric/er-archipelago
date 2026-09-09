@@ -85,8 +85,8 @@ version is the shipped tag's fixpack plus one; a minor or major bump is a dispat
 
 What stays human: the three prose sites (changelog intro, ledger row, channel note), which
 `check_release_notes` holds the draft on until they are written, and the two merges. It needs
-the `CLIENT_REPO_TOKEN` secret (a fine-grained PAT with Contents + Pull requests write on both
-repos) and the previous window's client PR merged, or `open_window.py`'s "sites agree before the
+the `ICON_REPO_TOKEN` secret (the fine-grained PAT `er-release.yaml` already uses; it has Contents +
+Pull requests write on both repos) and the previous window's client PR merged, or `open_window.py`'s "sites agree before the
 bump" precondition refuses and the job goes red naming the site.
 
 ## What we do NOT do

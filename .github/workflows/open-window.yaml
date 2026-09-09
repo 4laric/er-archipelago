@@ -13,7 +13,8 @@
 # the line, so it is always a safe window to open. A minor or major bump is a HUMAN decision --
 # pass `to` on a manual dispatch.
 #
-# WHAT IT NEEDS. `CLIENT_REPO_TOKEN`: a fine-grained PAT with Contents + Pull requests write on
+# WHAT IT NEEDS. `ICON_REPO_TOKEN`: the fine-grained PAT `er-release.yaml` already reads. It has
+# Contents + Pull requests write on
 # BOTH 4laric/er-archipelago and 4laric/from-software-archipelago-clients. GITHUB_TOKEN cannot
 # push to the client repo, and pull requests it creates do not trigger `tests` on this repo (the
 # documented GitHub rule against workflow recursion), so the world PR is pushed with the PAT too.
@@ -60,10 +61,10 @@ jobs:
     steps:
       - name: The PAT is present
         env:
-          TOKEN: ${{ secrets.CLIENT_REPO_TOKEN }}
+          TOKEN: ${{ secrets.ICON_REPO_TOKEN }}
         run: |
           if [ -z "$TOKEN" ]; then
-            echo "::error::CLIENT_REPO_TOKEN is not set. It needs Contents + Pull requests write on both repos; see the header of this file."
+            echo "::error::ICON_REPO_TOKEN is not set. It needs Contents + Pull requests write on both repos; see the header of this file."
             exit 1
           fi
 
@@ -76,7 +77,7 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
           submodules: true
-          token: ${{ secrets.CLIENT_REPO_TOKEN }}
+          token: ${{ secrets.ICON_REPO_TOKEN }}
 
       - uses: actions/setup-python@v5
         with:
@@ -164,7 +165,7 @@ jobs:
         id: client
         working-directory: from-software-archipelago-clients
         env:
-          GH_TOKEN: ${{ secrets.CLIENT_REPO_TOKEN }}
+          GH_TOKEN: ${{ secrets.ICON_REPO_TOKEN }}
         run: |
           branch="$(git branch --show-current)"
           case "$branch" in chore/open-v*-window-client) ;; *)
@@ -191,7 +192,7 @@ jobs:
 
       - name: Commit and open the draft world PR
         env:
-          GH_TOKEN: ${{ secrets.CLIENT_REPO_TOKEN }}
+          GH_TOKEN: ${{ secrets.ICON_REPO_TOKEN }}
         run: |
           to="${{ steps.v.outputs.to }}"
           from_tag="${{ steps.v.outputs.from_tag }}"
