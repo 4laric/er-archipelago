@@ -906,6 +906,17 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # including why the first trigger is Ralva (2049450800) and not the Dryleaf Dane number this
     # branch originally wrote. The seven is 1 + 6 because f400664 is one acquisition flag with six
     # co-check members.
-    assert (digest, n) == ("c6fba3bc346eb880", 4115), (  # #1437: then remove exactly (1040520800, 1039527700), no new owner
-        "sweep OWNERSHIP changed: (%s, %d), expected (c6fba3bc346eb880, 4115). The total alone will "
+    # 2026-09-09 (#1529, the cut-content sweep triggers): c6fba3bc346eb880 -> 5ff5eda14a9cc253,
+    # count UNCHANGED at 4115. 1041330800 (Fourth Church of Marika) is now an 'unspawned' verdict
+    # -- its EMEVD boss chain is never $InitializeEvent'd from the map constructor -- so gen_data
+    # drops its trigger and re-homes its members. Diffed in (trigger, flag) space against
+    # origin/main, as this docstring demands: 13 removed / 13 added / the same 13 flags re-owned,
+    # ZERO flags lost an owner, ZERO gained one, and ZERO crossed a region boundary. Ten of the 13
+    # are 1041330800's own members moving to the Weeping Peninsula's other field bosses (mostly
+    # 1042330800); the other three are the round-robin `_ents[_j % len(_ents)]` re-deal between
+    # 1042330800 and 1043330800 that inserting them causes -- collateral, not decisions.
+    # The other four cut triggers keep their groups in the BAKED table on purpose: they are
+    # filtered at RUNTIME by contract._RUNTIME_SWEEP_SKIP_REASONS, which leaves this digest alone.
+    assert (digest, n) == ("5ff5eda14a9cc253", 4115), (  # #1437: then remove exactly (1040520800, 1039527700), no new owner
+        "sweep OWNERSHIP changed: (%s, %d), expected (5ff5eda14a9cc253, 4115). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

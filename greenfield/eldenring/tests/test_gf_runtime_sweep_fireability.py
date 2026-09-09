@@ -26,7 +26,7 @@ pytest.importorskip("worlds.eldenring")
 
 from worlds.eldenring import contract  # noqa: E402
 from worlds.eldenring.tables.boss_healthbars import BOSS_HEALTHBARS  # noqa: E402
-from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS  # noqa: E402
+from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS, SWEEP_ARENA_REGION  # noqa: E402
 from worlds.eldenring.tables.data import LOCATIONS  # noqa: E402
 
 
@@ -76,7 +76,12 @@ class RuntimeSweepFireability(WorldTestBase):
 
     def test_one_ruling_drives_surface_and_runtime_without_conflating_them(self):
         runtime = contract.runtime_sweep_skips()
-        surface = contract.sweep_slot_skips()
+        # 🛑 PASS THE TABLES. The bare `sweep_slot_skips()` resolves BOSS_HEALTHBARS but leaves
+        # `arena_regions` at None, which switches the AUDIT class off entirely -- so the unaudited
+        # control below would be absent for a reason that has nothing to do with the ruling under
+        # test. `progression_surface.sweep_slot_aps` passes them explicitly for the same reason.
+        surface = contract.sweep_slot_skips(
+            healthbars=BOSS_HEALTHBARS, arena_regions=SWEEP_ARENA_REGION, triggers=DUNGEON_SWEEPS)
         self.assertIn(PATCHES, runtime)
         self.assertTrue(set(runtime) <= set(surface))
         self.assertIn(UNAUDITED_CONTROL, surface,
@@ -114,6 +119,15 @@ class RuntimeSweepFireability(WorldTestBase):
         contract._RUNTIME_SWEEP_SKIP_REASONS with its constructor evidence) before it ships.
         """
         runtime = contract.runtime_sweep_skips()
+        # WITNESS. Without this the gate passes identically if the datamine started naming every
+        # trigger, or if `_name_of` stopped resolving names at all -- i.e. for the same reason it
+        # passes when the ruling is correct. The population it scans must be non-empty.
+        blank_named = sorted(flag for flag, members in DUNGEON_SWEEPS.items()
+                             if members and not _name_of(flag).strip())
+        self.assertTrue(blank_named,
+                        "no blank-named trigger owns a group at all, so this gate is vacuous -- "
+                        "either the datamine now names every trigger (say so here) or _name_of "
+                        "stopped reading BOSS_HEALTHBARS")
         offenders = sorted(
             flag for flag, members in DUNGEON_SWEEPS.items()
             if members and not _name_of(flag).strip() and flag not in runtime)
