@@ -184,6 +184,12 @@ GENERATORS = [
     # as the suite above: these tools only ever RUN on Alaric's box, so "the flag parsed but the
     # root did not move" would otherwise be witnessed by nothing.
     "artifacts_path",
+    # The DOOR-SIDE WITNESS (#1512 / #1511): tools/datamine_msb_door_sides.py, on synthetic
+    # witchy-style MSB fixtures. Same reason as item_play_regions above -- the tool can only ever
+    # RUN on the box with the corpus, so its part/treasure parsing, its signed door normal and its
+    # four refusals would be witnessed by nothing. It needs tools/, but no corpus, no AP, no client
+    # and no network.
+    "msb_door_sides",
     "regen_all",
     # THE AP GAME NAME, typed once (#1465). Greps BOTH repos' source for the quoted literal
     # outside gamename.py and the generated mirrors, checks every shipped/preset/tester yaml's

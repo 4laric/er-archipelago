@@ -413,3 +413,69 @@ disagreement is a row where the worksheet's colour was wrong, and the interestin
 * It does not answer for the 14 event-payout checks, or for any check with no authored position.
   Those stay on the heuristic, and the heuristic keeps saying `NO-COORDS`. **Absence of a
   coordinate is not evidence about the region.**
+
+---
+
+## 6. Sibling runbook — the door-side witness (`tools/datamine_msb_door_sides.py`)
+
+Same box, same corpus, same `--path`, and its `--enemy-drops` mode feeds **step 1 above** — which
+is why it is documented here rather than in a doc of its own.
+
+**It RANKS; a human RULES.** The tool measures where candidate pickups sit relative to a locked
+door asset. That is geometry, not topology: a pickup five metres past the door plane can still be
+reachable by another corridor. Its rows are evidence to hand to a player ruling, never a row to
+write into `greenfield/key_item_gates.tsv` on their own. It is framed exactly as
+`tools/msb_region_vote.py` frames itself, for the same reason.
+
+`normal_dist_m` is the signed distance along the door's local +Z axis `(sin(yaw), 0, cos(yaw))` —
+the yaw convention `datamine_grace_ground.Vol.contains` already reads out of a witchy
+`<Rotation>/<Y>`. **Same sign = same side of the door plane. Which sign is the locked side is not
+decidable from the MSB**; anchor it with one pickup whose side is already known (for Belurat, the
+Well Depths Key's own vanilla check `f20007510` is outside the door by construction — it is not one
+of the fourteen). If the door part carries no `<Rotation>`, the column is `-` and the tool says so;
+no zero yaw is substituted.
+
+Run these **on the box with the extracted corpus** (CI has none; the geometry is witnessed by
+`greenfield/eldenring/tests/test_gf_msb_door_sides.py` on synthetic fixtures instead). The emitted
+tsv belongs to the run, **not to the repo** — do not commit it.
+
+### #1512 — Belurat, the Well Depths Key door (asset `20001562`, `ObjActParam` 417007)
+
+```
+python tools/datamine_msb_door_sides.py --path D:\er\elden_ring_artifacts --map m20_00 \
+    --door 20001562 \
+    --flags 20007210,20007220,20007230,20007240,20007250,20007260,20007270,20007280,20007290,20007300,20007310,20007320,20007991,20007993 \
+    --emit door_sides_m20_00.tsv
+```
+
+Those numbers are **flags**, not lot ids (flag `20007210`'s lot is `20000210`); `--flags` resolves
+them through the committed `greenfield/flag_lots.tsv`, then `greenfield/msb_flag_region.tsv`.
+Passing a flag to `--lots` is reported, never silently reinterpreted.
+
+### #1511 — Subterranean Shunning-Grounds, the Sewer-Gaol Key door (asset `35001564`, `ObjActParam` 1027019)
+
+```
+python tools/datamine_msb_door_sides.py --path D:\er\elden_ring_artifacts --map m35_00 \
+    --door 35001564 --flags 9504 --emit door_sides_m35_00.tsv
+```
+
+Flag 9504 is the Mending Rune of the Fell Curse (award asset `35001711`).
+
+### Enemy-drop flags with no treasure placement — coordinates for step 1
+
+```
+python tools/datamine_msb_door_sides.py --path D:\er\elden_ring_artifacts \
+    --enemy-drops 1049557700,2047407980,65460 --emit enemy_drop_coords.tsv
+```
+
+`1049557700` is the runebear-disguised noble's Larval Tear in the Consecrated Snowfield. These
+items are `NpcParam` drops, so there is no `Event/Treasure` to stand on; the tool walks the same
+`Part/Enemy <NPCParamID> → NpcParam.itemLotId_* → ItemLotParam getItemFlagId* → flag` chain
+`datamine_msb_item_regions` walks for `source=enemy` (through
+`datamine_item_grace_coords._enemy_item_rows`, which already carries the `<Position>`) and emits
+the placing enemy's map and position in `greenfield/item_grace_coords.tsv`'s exact
+`kind,key,map_id,x,y,z,name` shape, so the PlayArea scan can consume it directly.
+
+**Refusals.** No witchy MSBs under the root, an absent map, an unknown door part, or zero
+placements each exit non-zero and write **nothing**. An empty scan that writes a table is the
+failure mode this project has already paid for twice.
