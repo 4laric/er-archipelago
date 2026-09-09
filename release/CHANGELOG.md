@@ -45,7 +45,7 @@ nothing in it touches Elden Ring.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
-- **The client gitlink advances to `e31f1bb`, and one of the three picks is player-visible.**
+- **The client gitlink advances to `4188b81`, and one of the four picks is player-visible.**
   Clients **#663** bridges `apworld/0.5.7` and `apworld/0.5.8` onto the `ffc0f1b5` contract that
   the 0.6.0..0.6.0.3 bridge already accepts, so a player mid-run on a v0.5.7 or v0.5.8 seed whose
   Steam updated Elden Ring to 2.7.1.0 — refused by their own 0.5.7 client at the version gate, and
@@ -65,7 +65,10 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   in the log — its presence identifies an affected setup, its absence means the normal tagged path.
   The settings-screen workaround is no longer needed. Clients **#666**/**#667** are Bloodborne only
   (deathlink HP-detector wording and a guest-memory write fallback before `VirtualProtectEx`) and
-  **touch no Elden Ring code**. **No contract, seed or pool effect** — `CONTRACT_HASH` stays
+  **touch no Elden Ring code**. Clients **#670** is a generated-file catch-up only: `sweep_boss_names.rs`
+  regenerated against world main, so Dryleaf Dane is keyed by his defeat flag rather than his
+  entity id and Lansseax's row is present; the invented arena names it once carried were dropped
+  because #1530 removed those cut-content triggers. **No contract, seed or pool effect** — `CONTRACT_HASH` stays
   `613fb438`, and neither `contract_gen.rs` nor `region_locks.rs` moves across the bump, so the
   `generators` job regenerates the pinned checkout byte-identically.
 
