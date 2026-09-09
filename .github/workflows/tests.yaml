@@ -141,6 +141,16 @@ jobs:
       - name: Materialise gen_data's inputs from the committed bundle
         run: python tools/gen_inputs.py --ensure elden_ring_artifacts
 
+      # THE OFFLINE PAGES, BUILT (2026-09-09). They are gitignored now -- built in CI and
+      # published by .github/workflows/pages.yaml -- so a checkout no longer has them. Several
+      # suites in the pytest step below assert properties OF THE PAGE (freshness against a fresh
+      # build, the tab strip, the report link, the sweep clause's rendering); without this step
+      # every one of them would either error on a missing file or skip, which is exactly the
+      # "dark by accident" that the skip census exists to prevent. The `generators` job already
+      # runs this same entrypoint for the same reason. Eight seconds, pure joins over committed data.
+      - name: Build the offline pages the page suites read
+        run: python tools/regen_all.py --phases pages
+
       # THE CLIENT, AT THE GITLINK -- same three steps as the `generators` job, same reason to
       # keep them textually parallel. Three pytest gates in THIS job read the client checkout and
       # skipped silently without it, forever: test_gf_scadu_supply's rung-for-rung SCADU_CUM

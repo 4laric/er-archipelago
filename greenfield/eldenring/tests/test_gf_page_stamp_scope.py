@@ -182,6 +182,7 @@ class PageStampScope(unittest.TestCase):
         catches the cheap and most likely drift: a new tsv joined into a page and never declared,
         which would leave the page's identity unchanged when that tsv moves."""
         lit = re.compile(r'"([A-Za-z0-9_./-]+\.(?:tsv|csv|json))"')
+        witnessed = set()
         for script, key in sorted(BUILDERS.items()):
             with open(os.path.join(REPO, *script.split("/")), encoding="utf-8") as fh:
                 text = fh.read()
@@ -190,12 +191,25 @@ class PageStampScope(unittest.TestCase):
             # joined; they are covered by the template/determinism tests, not by identity.
             allowed = declared | {"map_calibration.json", "map_calibration_dlc.json",
                                   "oracle-missable-queue.tsv", "oracle-region-queue.tsv"}
-            undeclared = sorted(set(lit.findall(text)) - allowed)
+            found = set(lit.findall(text))
+            witnessed |= found & declared
+            undeclared = sorted(found - allowed)
             self.assertEqual(
                 [], undeclared,
                 "%s opens %s by name but BUILDER_INPUTS[%r] does not declare it, so a change to "
                 "that table would leave this page's stamp -- its identity -- unmoved."
                 % (script, ", ".join(undeclared), key))
+        # WITNESS LAST, over the whole sweep: "nothing undeclared" is also what a regex that matched
+        # NOTHING says, and a builder that moved to os.path.join would empty this scan silently.
+        # Per-builder it cannot be asserted -- build_questline_dag_page.py legitimately names no
+        # table literally, it renders the tsv paths its caller hands it -- so the population that
+        # has to stay non-empty is the union: some builder, somewhere, still names a DECLARED input
+        # by literal string, or this test is comparing two empty sets.
+        self.assertGreater(
+            len(witnessed), 10,
+            "the literal-path scan recognised only %d declared input(s) across %d builder(s); it "
+            "has stopped seeing the code and the emptiness assertion above is now vacuous: %s"
+            % (len(witnessed), len(BUILDERS), sorted(witnessed)))
 
 
 if __name__ == "__main__":

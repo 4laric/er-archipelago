@@ -390,8 +390,25 @@ class SiteTabs(unittest.TestCase):
         "wizard/landing.html": "",
     }
 
+    # 🛑 er-archipelago-check-browser.html IS NOT COMMITTED (2026-09-09, .gitignore): it is built
+    # by `tools/regen_all.py --phases pages` and published by .github/workflows/pages.yaml. This
+    # gate must survive that without weakening -- a skip here would silently drop the tab strip
+    # from a page the site actually serves -- so an absent page is BUILT rather than skipped. The
+    # builder is a pure join over committed data and takes well under a second.
+    BUILDERS = {"er-archipelago-check-browser.html": "tools/build_check_browser.py"}
+    _built = {}
+
     def _read(self, rel):
         path = os.path.join(REPO, rel)
+        if not os.path.isfile(path) and rel in self.BUILDERS:
+            if rel not in self._built:
+                import tempfile
+                out = os.path.join(tempfile.mkdtemp(prefix="site_tabs_"), os.path.basename(rel))
+                subprocess.run([sys.executable, os.path.join(REPO, self.BUILDERS[rel]),
+                                "--repo", REPO, "--out", out],
+                               check=True, stdout=subprocess.DEVNULL)
+                self._built[rel] = out
+            path = self._built[rel]
         self.assertTrue(os.path.isfile(path), f"{rel} is missing")
         return open(path, encoding="utf-8", errors="replace").read()
 

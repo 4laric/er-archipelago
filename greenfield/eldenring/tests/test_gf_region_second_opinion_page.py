@@ -275,7 +275,14 @@ class RegionSecondOpinionPageTest(unittest.TestCase):
         byte-diff and the gate would point in opposite directions.
 
         The WITNESS is the word it printed: a --check that exited 0 because it never compared
-        anything would pass a bare returncode assertion for the same reason a fresh page does."""
+        anything would pass a bare returncode assertion for the same reason a fresh page does.
+
+        Like the freshness test above, this needs a page IN THE TREE to compare against -- and the
+        page is not committed any more (2026-09-09), so on a checkout that has not been regenerated
+        `--check` correctly reports MISSING and there is no agreement to judge."""
+        if not os.path.exists(SHIPPED):
+            self.skipTest("er-archipelago-region-second-opinion.html not built in this tree "
+                          "(it is not committed; run tools/regen_all.py --phases pages)")
         run = subprocess.run([sys.executable, TOOL, "--repo", REPO, "--check"],
                              stdout=subprocess.PIPE, universal_newlines=True)
         self.assertIn("fresh:", run.stdout,

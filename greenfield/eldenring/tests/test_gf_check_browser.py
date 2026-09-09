@@ -76,6 +76,30 @@ def _build(out_path):
         return fh.read()
 
 
+_PAGE_PATH = None
+
+
+def _page_path():
+    """A path to a REAL built page -- the one in the tree, or one built on demand.
+
+    🛑 THE PAGE IS NOT COMMITTED ANY MORE (2026-09-09): it is gitignored and built by
+    `tools/regen_all.py --phases pages` / `.github/workflows/pages.yaml`. Suites that assert
+    properties OF THE PAGE (the report link, the sweep clause's rendering) are not freshness
+    gates and must not turn into "file missing" errors on a clean checkout -- they build the
+    page themselves when it is absent. The one test that IS a freshness gate
+    (`test_page_in_the_working_tree_is_not_stale`) still reads SHIPPED directly and skips.
+    """
+    global _PAGE_PATH
+    if os.path.exists(SHIPPED):
+        return SHIPPED
+    if _PAGE_PATH is None:
+        tmp = tempfile.mkdtemp(prefix="check_browser_page_")
+        out = os.path.join(tmp, "er-archipelago-check-browser.html")
+        _build(out)
+        _PAGE_PATH = out
+    return _PAGE_PATH
+
+
 @unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class CheckBrowserTest(unittest.TestCase):
     @classmethod
@@ -339,7 +363,7 @@ class ReportAProblemLink(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        with open(SHIPPED, encoding="utf-8") as fh:
+        with open(_page_path(), encoding="utf-8") as fh:
             cls.page = fh.read()
         with open(TEMPLATE, encoding="utf-8") as fh:
             cls.tpl = fh.read()
@@ -417,7 +441,7 @@ process.stdout.write(JSON.stringify({risky: n, rows: out}));
             hp = os.path.join(tmp, "h.js")
             with open(hp, "w", encoding="utf-8") as fh:
                 fh.write(harness)
-            res = subprocess.run([NODE, hp, SHIPPED], capture_output=True, text=True)
+            res = subprocess.run([NODE, hp, _page_path()], capture_output=True, text=True)
         self.assertEqual(0, res.returncode, res.stderr[-2000:])
         got = json.loads(res.stdout)
         self.assertGreater(got["risky"], 0,
@@ -573,8 +597,7 @@ class SweepClauseIsEligibilityNotAPromise(unittest.TestCase):
         self.assertFalse(invented, "sw invented for: %s" % invented[:5])
 
     def test_the_page_says_the_seed_decides_rather_than_hiding_the_hedge(self):
-        html = open(os.path.join(REPO, "er-archipelago-check-browser.html"),
-                    encoding="utf-8").read()
+        html = open(_page_path(), encoding="utf-8").read()
         self.assertIn("function sweepRow", html)
         self.assertIn("dungeon_sweep", html)
         self.assertIn("progression_surface", html)
