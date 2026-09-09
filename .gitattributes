@@ -1,9 +1,11 @@
 * text=auto
 
-# Generated, and CI fails on a non-empty diff of it -- pin LF so a Windows regen and the
-# Linux CI regen produce identical bytes. tools/build_check_browser.py also writes LF.
-er-archipelago-check-browser.html text eol=lf
-er-archipelago-desc-triage.html   text eol=lf
+# The eol=lf pins for er-archipelago-check-browser.html and er-archipelago-desc-triage.html were
+# removed on 2026-09-09: those pages (and the questline DAG, region second-opinion and evidence
+# browser beside them) are no longer tracked. They are built in CI and published to GitHub Pages
+# / release assets -- see .gitignore and .github/workflows/pages.yaml. A checkin attribute for a
+# path git never stores is a rule about nothing, and it would read as "this file is committed".
+# The builders still write LF unconditionally, which is what the determinism tests assert.
 
 *.dcx binary
 *.bin binary

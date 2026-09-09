@@ -21,6 +21,12 @@
 #     /er/landing.html       <- wizard/landing.html at the STABLE tag       (--landing only)
 #     /er/tabs.js            <- wizard/tabs.js at the STABLE tag
 #
+# !! THE THREE er-archipelago-*.html PAGES ARE NO LONGER IN THE REPOSITORY (2026-09-09). They are
+# built in CI and published; this script fetches them from that publication rather than from
+# raw.githubusercontent, and the pin is unchanged in meaning: the STABLE row's copy comes from that
+# TAG'S RELEASE ASSETS, and the beta row's copy comes from GitHub Pages, which is built from `main`
+# -- which is what the beta row points at. See src_url() below and .github/workflows/pages.yaml.
+#
 # !! THE LANDING PAGE GOES IN ER_STATIC_DIR, NOT AT THE FILESYSTEM ROOT, AND THAT WAS A BUG.
 # It first shipped writing ${ER_ROOT_DIR}/index.html on the assumption that peliarch served `/`
 # from a static directory. It does not: `/` is a Flask route (webgui/app.py), and Caddy does
@@ -89,6 +95,17 @@ set -euo pipefail
 
 REPO="${ER_REPO:-4laric/er-archipelago}"
 RAW="https://raw.githubusercontent.com/${REPO}"
+# The three generated pages are NOT in the repository any more (2026-09-09): they are single-line
+# JSON payloads that conflicted on every concurrent regen, so they are built in CI and published
+# instead. `${RAW}/<ref>/<page>` would now 404 for all of them, which at the beta ref (`main`) is a
+# FATAL "missing at a moving channel" -- i.e. this script would stop working entirely. Two
+# publication points replace raw, and the pin they give is the same pin as before:
+#   a v* TAG  -> that release's assets (.github/workflows/release.yaml attaches them at the tag)
+#   `main`    -> GitHub Pages, which is built from main and is therefore exactly the beta channel
+# Anything else (a beta ref that is neither `main` nor a tag, e.g. the old `v0.6` branch) has no
+# publication point and is SKIPPED loudly rather than silently installing the wrong corpus.
+PAGES_SITE="${ER_PAGES_SITE:-https://4laric.github.io/er-archipelago}"
+RELEASES="https://github.com/${REPO}/releases/download"
 DEST="${ER_STATIC_DIR:-/srv/er}"
 DRY=0
 STABLE_ONLY=0
@@ -145,6 +162,23 @@ fi
 # `curl -f` catches that, but a ref that exists and has no wizard, or a proxy that helpfully returns
 # a login page, both arrive as 200 with a body. "Did I just install a login page as the wizard" is
 # not a question you want answered by a player.
+# Where does one artifact live at one ref? Repo files come from raw; the CI-built pages come from
+# the tag's release assets or from Pages (see the PAGES_SITE comment above). Prints nothing and
+# returns 1 when the ref has no publication point for a built page -- the caller SKIPS.
+src_url() {  # ref, source name
+  local ref="$1" src="$2"
+  case "$src" in
+    er-archipelago-*.html)
+      case "$ref" in
+        v*)    printf '%s/%s/%s\n' "$RELEASES" "$ref" "$src" ;;
+        main)  printf '%s/%s\n' "$PAGES_SITE" "$src" ;;
+        *)     return 1 ;;
+      esac
+      ;;
+    *) printf '%s/%s/%s\n' "$RAW" "$ref" "$src" ;;
+  esac
+}
+
 install_one() {  # ref, source path in repo, destination path, sentinel, label
   local ref="$1" src="$2" dst="$3" sentinel="$4" label="$5" tmp
   # mkdir BEFORE mktemp: the temp file has to be a sibling of the destination (mv across filesystems
@@ -161,9 +195,26 @@ install_one() {  # ref, source path in repo, destination path, sentinel, label
   # "not in this release yet", not "the deploy is broken" and not a silently older copy.
   # Anything that is not a 404 -- network, DNS, a proxy, a ref that does not exist -- stays fatal
   # for every ref, because none of those mean what a 404 means.
-  local http
-  http="$(curl -sSL -w '%{http_code}' -o "$tmp" "${RAW}/${ref}/${src}")" || http="000"
+  local http url
+  if ! url="$(src_url "$ref" "$src")"; then
+    say "  SKIP ${label}: ${src} is built in CI and has no publication point at ref '${ref}'"
+    say "       (a v* tag serves it from that release's assets; 'main' serves it from ${PAGES_SITE})"
+    SKIPPED_ARTIFACTS=$((SKIPPED_ARTIFACTS + 1))
+    return 0
+  fi
+  http="$(curl -sSL -w '%{http_code}' -o "$tmp" "$url")" || http="000"
   if [ "$http" = "404" ]; then
+    # A CI-built page 404s for a reason the moving-channel rule does not describe: the Pages site
+    # has not been published yet (the repo's Pages source must be set to "GitHub Actions" once), or
+    # the tag predates release.yaml attaching these assets. Both are "not there yet", which is what
+    # the SKIP path already says -- so do not turn either into a fatal deploy failure that also
+    # stops the wizard and the report from being installed.
+    case "$src" in
+      er-archipelago-*.html)
+        say "  SKIP ${label}: ${src} is not published at ${ref} yet (${url})"
+        SKIPPED_ARTIFACTS=$((SKIPPED_ARTIFACTS + 1))
+        return 0 ;;
+    esac
     if [ "$ref" = "main" ] || [ "$ref" = "$beta_ref" ]; then
       die "${src} is MISSING at ${ref} -- that is a moving channel, so this is a bug, not a release gap"
     fi

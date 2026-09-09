@@ -541,13 +541,34 @@ are absent in CI). Know which tier your change is in:
   A change in `gen_data.py`, `region_groups.py`, a boss-drop/healthbar input, or any
   `eldenring/*.py` consumer → **`-All` covers it. Say it once.**
 
-  🛑 **THE PAGES ARE PART OF TIER 1, and this doc used to omit them** (issue #699, 2026-08-15).
-  `er-archipelago-check-browser.html`, `-desc-triage.html`, `-questline-dag.html` and
-  `-region-second-opinion.html` EMBED
-  `inputs_hash`, so **any** change that moves the stamp — including a comment edit to `gen_data.py`,
-  which is `FILE_INPUTS[0]` — re-stales all three, and the only thing that notices is CI's byte
-  diff (`apworld generated output is STALE`). PR #698 went red for exactly one such line. That is
-  why the recipe below is a single command and not a list.
+  ⭐ **THE PAGES ARE NOT COMMITTED ANY MORE, AND THEY ARE NOT YOUR PROBLEM (2026-09-09).**
+  `er-archipelago-check-browser.html`, `-evidence-browser.html`, `-desc-triage.html`,
+  `-questline-dag.html` and `-region-second-opinion.html` are **gitignored**. `regen_all.py` still
+  builds them into your working tree — build them, read them, that is what they are for — but they
+  are never a diff, never in a commit, and **cannot conflict**. CI builds and publishes them:
+
+  | when | where |
+  |---|---|
+  | push to `main` | <https://4laric.github.io/er-archipelago/> (`.github/workflows/pages.yaml`) |
+  | pull request | the `offline-pages` artifact on that PR's `pages` run — download it to review a page |
+  | a `v*` tag | release assets, which `tools/deploy_wizard.sh` installs on the public host |
+
+  🛑 **THIS IS WHY THE OLD RULE IS GONE.** It read: *the pages EMBED `inputs_hash`, so any change
+  that moves the stamp — including a comment edit to `gen_data.py`, which is `FILE_INPUTS[0]` —
+  re-stales all of them, and the only thing that notices is CI's byte diff.* Both halves have been
+  fixed rather than remembered:
+
+  * the **stamp is narrow** now. Each page embeds a hash over exactly the files ITS builder reads
+    (`gen_manifest.BUILDER_INPUTS`, same hashing function as the global one), so a comment edit to
+    `gen_data.py` moves nothing. `test_gf_page_stamp_scope.py` proves that, and proves the
+    converse — an edit to a declared input still moves that page's stamp;
+  * the **pages are untracked**, so even a real move is a rebuild and not a merge conflict. The
+    numbers that forced this: in the 60 commits before the change, the 30 MB evidence browser moved
+    **37 times** and **26 of those 60 commits** were "merge origin/main" / "regenerate the pages"
+    repair commits — every one of them a single-line JSON payload that three-way merge cannot touch.
+
+  The byte-diff staleness gate is untouched for everything that IS still committed (the generated
+  tables, the tsvs, the cross-repo Rust). It just has nothing to say about a file git does not store.
 
   🛑🛑🛑 **AGENTS: THE TIER-1 REGEN IS A PRECONDITION OF YOUR PR, NOT A HANDOFF.** §5 above says the
   regen runs in the sandbox off the committed `gen_inputs.db`; this is the rule that follows from it.
@@ -615,14 +636,17 @@ are absent in CI). Know which tier your change is in:
   (warp→play_region) → `REGION_ID_MAP.md` (play_region→region). Use this instead of MSBs —
   `soulstruct` is **Oodle-blocked** on packed `.msb.dcx` (the Oodle DLL is Windows-only).
 - Decompiled EMEVD is greppable text at `elden_ring_artifacts/event/*.emevd.dcx.js`.
-- **Reading the corpus by hand:** open `er-archipelago-check-browser.html` (root, no server, no
-  artifacts). One offline page over all checks — full-text search plus facets for region, tag,
+- **Reading the corpus by hand:** open
+  <https://4laric.github.io/er-archipelago/er-archipelago-check-browser.html>, or build your own
+  copy with `python3 tools/regen_all.py --phases pages` (root, no server, no artifacts). 🛑 **It is
+  NOT in git** — it is built in CI and published (§5a). One offline page over all checks —
+  full-text search plus facets for region, tag,
   map tile, and *property* (`missable`, `has lot gate`, `no map position`, `no nearest grace`,
-  `shop row`), with per-check item lots, shop rows, gates, maps and nearest grace. Regenerate with
+  `shop row`), with per-check item lots, shop rows, gates, maps and nearest grace. Rebuild with
   **`python3 tools/regen_all.py`** (§5a) after any `gen_data.py` run — not the builder alone, which
   is how three stamped pages ended up with three different owners; it is AP-free and joins only
-  committed greenfield data, so it can be rebuilt in the sandbox. CI regenerates it and fails on a
-  non-empty diff, and `tests/test_gf_check_browser.py` gates totality/agreement/determinism.
+  committed greenfield data, so it can be rebuilt in the sandbox.
+  `tests/test_gf_check_browser.py` gates totality/agreement/determinism.
   It is a **reader**, not an oracle: it shows what the world already declares, and any number it
   displays is a join over the same tsvs the generators use.
 - **Gate evidence is PLURAL.** The browser joins all four corpora that document gating and counts
@@ -664,7 +688,9 @@ emits `greenfield/questline_dag.tsv` (SPEC-questline-dag tier 1: *emit the graph
 and `tools/build_questline_dag_page.py` renders it as one mermaid graph per connected component —
 the unit of browsing is the CLUSTER, because the graph is 136 mostly-disjoint components, not one
 DAG. Mermaid is fetched from a CDN at VIEW time, so the build is offline-safe and byte-deterministic.
-Both ride `tools/regen_all.py`. `tests/test_gf_questline_dag.py` gates the **tsv** (corroboration,
+Both ride `tools/regen_all.py`; the **tsv** is committed and the **page** is not (§5a) — read it at
+<https://4laric.github.io/er-archipelago/er-archipelago-questline-dag.html> or build your own.
+`tests/test_gf_questline_dag.py` gates the **tsv** (corroboration,
 the SPEC §7 acceptance cases, freshness); `test_gf_regen_all.py` is what keeps the **page** from
 falling out of the chain. 🛑 An edge is co-occurrence plus a polarity rule, not proof;
 `sense=unknown` must not be reasoned with, and absence is not evidence of safety.
@@ -682,7 +708,8 @@ component — and says so in its banner with the count. See SPEC-questline-dag �
 
 ### REGION SECOND OPINION — adjudicating the `(region unconfirmed)` checks
 
-`er-archipelago-region-second-opinion.html` (root, rebuilt by `python3 tools/regen_all.py` — §5a)
+`er-archipelago-region-second-opinion.html` (built by `python3 tools/regen_all.py --phases pages`;
+NOT committed — published at <https://4laric.github.io/er-archipelago/> — §5a)
 is a **worksheet**, not a verdict. It renders `greenfield/check_region_second_opinion.tsv` — what
 Eldenpedia (CC BY-SA 4.0) and the Fandom wiki (CC BY-SA 3.0) appear to say about each of the 305
 checks whose region came from a nearest-neighbour hop — grouped DISAGREE → AMBIGUOUS → NO-DATA →
@@ -697,7 +724,8 @@ legitimately shares one hop. Nothing in generation reads this page or its export
 
 ### DESC-TRIAGE — authoring `location_descriptions.tsv`
 
-`er-archipelago-desc-triage.html` (root, rebuilt by `python3 tools/regen_all.py` — §5a) ranks checks by how
+`er-archipelago-desc-triage.html` (built by `python3 tools/regen_all.py --phases pages`; NOT
+committed — published at <https://4laric.github.io/er-archipelago/> — §5a) ranks checks by how
 badly they need a hand description and puts them **on the committed overworld maps**, because the
 question you have to answer when writing one is "which of these four is this?" — MEASURED, 986
 checks carry a `collision_ordinals()` "(N)" suffix across 306 families, meaning the waterfall could

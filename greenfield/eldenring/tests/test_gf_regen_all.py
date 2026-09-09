@@ -208,7 +208,12 @@ class RegenEntrypointIsComplete(unittest.TestCase):
                 continue
             declared = []
             for _var, basename in output_re.findall(text):
-                declared.extend(by_name.get(basename, ()))
+                # The offline pages are BUILT, NOT COMMITTED (2026-09-09, .gitignore), so on a
+                # clean checkout the walk above finds nothing for their basenames. That must not
+                # read as "this builder declares no output" -- which would put it in `undeclared`
+                # and go red for the opposite of the reason this test exists. They live at the
+                # repo root, so the basename IS the relpath; fall back to it.
+                declared.extend(by_name.get(basename) or [basename])
             declared = sorted(set(declared))
             if not declared:
                 undeclared.append(fn)

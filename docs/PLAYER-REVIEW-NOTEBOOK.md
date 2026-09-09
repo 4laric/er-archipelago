@@ -14,7 +14,7 @@ A disagreement is a question, not a mistake. Two tables can file the same pickup
 
 Choose an answer under **Region review queue verdict**, name the region under **Region-lock region** if you picked *belongs elsewhere*, and put your name in **Your name or handle** — two people work this queue, and an unnamed verdict cannot be recorded. Then download your notebook and send it as usual. Choosing *belongs elsewhere* does not move the location; a maintainer applies the change through the project's normal steps.
 
-The same 218 locations appear in the check browser under the **Oracle region review** facet, with the same evidence beside them.
+The same 218 locations appear in the [check browser](https://4laric.github.io/er-archipelago/er-archipelago-check-browser.html) under the **Oracle region review** facet, with the same evidence beside them. That page is built by CI and published there; it is not a file in the repository, so the link is always the current build from `main`.
 
 Notes save automatically in this browser on this device. Use one editing tab. Watch the save status; if storage fails, keep the tab open and download a backup before leaving. Clearing browser data can remove your notebook.
 

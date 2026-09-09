@@ -178,6 +178,29 @@ jobs:
       - name: Build the wizard asset
         run: cp wizard/wizard.html dist/er-options-wizard.html
 
+      # THE OFFLINE PAGES ARE TAG ASSETS NOW (2026-09-09). They used to be committed, so
+      # tools/deploy_wizard.sh could fetch them from raw.githubusercontent at the STABLE tag. They
+      # are built in CI instead (see .github/workflows/pages.yaml and .gitignore), and a tag has to
+      # keep carrying them or the public host loses /er/checks.html, /er/review.html and
+      # /er/questlines.html the first time stable moves past this change. Pinning matters here and
+      # is the whole point of that script: a page from a different ref describes a corpus the
+      # released apworld does not have.
+      - name: Materialise the generator inputs from the committed bundle
+        run: python tools/gen_inputs.py --ensure elden_ring_artifacts
+      - name: Build the offline pages
+        run: |
+          set -euo pipefail
+          python tools/regen_all.py --phases pages
+          for page in er-archipelago-check-browser.html \
+                      er-archipelago-evidence-browser.html \
+                      er-archipelago-questline-dag.html \
+                      er-archipelago-region-second-opinion.html \
+                      er-archipelago-desc-triage.html; do
+            test -s "$page" || { echo "::error::$page was not built"; exit 1; }
+            cp "$page" dist/
+          done
+          ls -l dist/
+
       - name: Attach to the release
         uses: softprops/action-gh-release@v2
         with:
@@ -187,4 +210,9 @@ jobs:
           files: |
             dist/eldenring.apworld
             dist/er-options-wizard.html
+            dist/er-archipelago-check-browser.html
+            dist/er-archipelago-evidence-browser.html
+            dist/er-archipelago-questline-dag.html
+            dist/er-archipelago-region-second-opinion.html
+            dist/er-archipelago-desc-triage.html
           fail_on_unmatched_files: true

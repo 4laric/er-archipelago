@@ -203,3 +203,26 @@ enemy_drop_entities.rows
 # The tool defaults its cache OUTSIDE the tree; this catches an in-tree --cache. Wiki prose must
 # never be committed -- only our verdicts, our region names and page titles as citations.
 .er-region-audit-cache/
+
+# --- THE OFFLINE PAGES ARE BUILT IN CI, NOT COMMITTED (2026-09-09).
+#
+# They are derived readers over committed generator output -- `python tools/regen_all.py --phases
+# pages` rebuilds all of them -- and every one of them carries its whole payload on a SINGLE line
+# of JSON. Two PRs that both regenerate a page therefore conflict on that one line, and the only
+# resolution is to regenerate again after the merge. MEASURED over the 60 commits before this
+# change: er-archipelago-evidence-browser.html (30 MB) moved 37 times, and 26 of those 60 commits
+# were "merge origin/main" / "regenerate the pages" repair commits. CI's byte-diff could DETECT
+# the staleness (`apworld generated output is STALE`) but never repair it.
+#
+# So they are untracked and published instead:
+#   push to main -> https://4laric.github.io/er-archipelago/<page>       (.github/workflows/pages.yaml)
+#   pull request -> the `offline-pages` artifact on the run              (.github/workflows/pages.yaml)
+#   a v* tag     -> release assets, which deploy_wizard.sh installs      (.github/workflows/release.yaml)
+#
+# 🛑 KEEP BUILDING THEM LOCALLY. `regen_all.py` still writes them into the working tree and the
+# test suites still build and assert them; they are just never a diff.
+er-archipelago-check-browser.html
+er-archipelago-desc-triage.html
+er-archipelago-evidence-browser.html
+er-archipelago-questline-dag.html
+er-archipelago-region-second-opinion.html

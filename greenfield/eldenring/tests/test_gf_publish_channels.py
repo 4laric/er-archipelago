@@ -497,6 +497,13 @@ class LandingNumbersAreCurrent(unittest.TestCase):
     def _derived_from_check_browser(self):
         import json
         path = os.path.join(REPO, "er-archipelago-check-browser.html")
+        # The page is built, not committed (2026-09-09) -- see .gitignore. The `generators` job
+        # runs `regen_all.py --phases tables,pages` before this suite, so it is always here in CI;
+        # on a clean local checkout that has not been regenerated it legitimately is not, and a
+        # skip says so rather than erroring with a FileNotFoundError that reads like corruption.
+        if not os.path.exists(path):
+            self.skipTest("er-archipelago-check-browser.html not built in this tree "
+                          "(run tools/regen_all.py --phases pages)")
         with open(path, encoding="utf-8") as fh:
             html = fh.read()
         m = re.search(r"^const DATA = (\{.*\});$", html, re.M)

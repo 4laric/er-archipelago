@@ -662,11 +662,17 @@ jobs:
           #     client-main-drift would NOT catch a stale one: that job only re-runs
           #     gen_region_locks and gen_contract. 🛑 This step was in THIS list and missing from
           #     build.ps1 -- the disagreement issue #699 found. regen_all.py keeps it.
-          #   * the three offline pages + greenfield/questline_dag.tsv -- pure joins over committed
-          #     greenfield data. Each page is stamped with data.py's inputs_hash (NOT the commit)
-          #     and written LF, so a regen here is byte-identical to a Windows one and the diff
-          #     below is meaningful. Mermaid is fetched from a CDN at VIEW time, never at build
-          #     time, so the questline page is offline-safe and byte-deterministic like the rest.
+          #   * greenfield/questline_dag.tsv and the other page-phase TABLES -- pure joins over
+          #     committed greenfield data, so the diff below is what holds them current.
+          #
+          # 🛑 THE PAGES THEMSELVES ARE NO LONGER IN THE DIFF'S SCOPE (2026-09-09), AND THAT IS NOT
+          # AN OVERSIGHT. `er-archipelago-*.html` are gitignored -- built here and published by
+          # .github/workflows/pages.yaml (GitHub Pages / a PR artifact) and by release.yaml (tag
+          # assets). git does not store them, so they simply do not appear in `git diff` and there
+          # is no staleness left to detect. They are still BUILT in this step, on purpose: the page
+          # builders are real code with real inputs, a crash here is still a red job, and the
+          # repo-only suites in the loop below compare the freshly built page against a rebuild.
+          # Everything that IS still committed keeps the byte-diff gate below, unchanged.
           #
           # gen_data.py is deliberately NOT re-run here (the `regen-and-fill` job owns that, with
           # Archipelago installed); this job holds the committed modules' READERS to them.
