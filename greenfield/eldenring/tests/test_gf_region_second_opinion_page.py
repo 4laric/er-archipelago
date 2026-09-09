@@ -235,10 +235,12 @@ class RegionSecondOpinionPageTest(unittest.TestCase):
                       "the triage caveat lost the line that stops it being read as a bug list")
 
     # -- stamp -------------------------------------------------------------
-    def test_stamp_is_the_data_inputs_hash_not_a_commit(self):
+    def test_stamp_is_the_narrow_builder_inputs_hash_not_a_commit(self):
+        """Narrowed 2026-09-09: the page's own declared inputs, not the global gen-input hash
+        (which covers gen_data.py's own bytes -- see test_gf_page_stamp_scope.py)."""
         stamp = self.data["meta"]["stamp"]
         self.assertTrue(stamp.startswith("sha256:"), "stamp is not a content hash: %r" % stamp)
-        self.assertEqual(stamp, self.tool.data_stamp(os.path.join(GF_PKG, "tables/data.py")))
+        self.assertEqual(stamp, self.tool.page_stamp())
 
     # -- E. offline --------------------------------------------------------
     def test_the_page_makes_no_external_request(self):
@@ -255,14 +257,17 @@ class RegionSecondOpinionPageTest(unittest.TestCase):
     def test_output_has_no_crlf(self):
         self.assertNotIn("\r\n", self.html, "build wrote CRLF; CI regen on Linux would diff")
 
-    def test_committed_page_is_not_stale(self):
+    def test_page_in_the_working_tree_is_not_stale(self):
+        """The page is no longer committed (2026-09-09) -- see the same test in
+        test_gf_check_browser.py. This catches a local half-run regen, not repository staleness."""
         if not os.path.exists(SHIPPED):
-            self.skipTest("er-archipelago-region-second-opinion.html not present")
+            self.skipTest("er-archipelago-region-second-opinion.html not built in this tree "
+                          "(it is not committed; run tools/regen_all.py --phases pages)")
         with open(SHIPPED, encoding="utf-8", newline="") as fh:
             shipped = fh.read()
         self.assertEqual(
             shipped.replace("\r\n", "\n"), self.html,
-            "committed er-archipelago-region-second-opinion.html is STALE -- "
+            "the er-archipelago-region-second-opinion.html in this tree is STALE -- "
             "run: python tools/build_region_second_opinion_page.py")
 
     def test_the_check_flag_agrees_with_the_freshness_assertion(self):

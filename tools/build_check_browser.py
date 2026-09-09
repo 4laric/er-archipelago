@@ -40,9 +40,16 @@ are NOT checks -- with the recorded reason where one exists and an honest blank 
 does. That population is where every wrong claim here has come from.
 
 DETERMINISM: the output is a pure function of those inputs -- every set is emitted sorted and
-the page is stamped with data.py's _GEN_STAMP.inputs_hash, NOT with the git commit. This is
-what lets CI regenerate and fail on a non-empty diff (see .github/workflows/tests.yaml
-`generators`); embedding a commit hash would make the committed file stale by construction.
+the page is stamped with a NARROW inputs hash over exactly the files this builder reads
+(`gen_manifest.BUILDER_INPUTS["check_browser"]`), NOT with the git commit and no longer with
+data.py's global `_GEN_STAMP.inputs_hash` -- that one covers gen_data.py's own bytes, so a
+comment edit there used to re-stale this page. Embedding a commit hash would make the output
+stale by construction.
+
+🛑 THE PAGE ITSELF IS NOT COMMITTED (2026-09-09). It is built in CI and published to
+https://4laric.github.io/er-archipelago/er-archipelago-check-browser.html on every push to main,
+and uploaded as a workflow artifact on every PR. Build it locally whenever you want it; it is
+gitignored, so a rebuild is never a diff and two branches can never conflict on its payload line.
 
 Run:  python tools/build_check_browser.py [--out PATH] [--repo ROOT]
 """
@@ -135,6 +142,22 @@ from overworld_fold import OW_RE, world_xz  # noqa: F401  (re-exported for build
 # the repo root's package dir, one level up from tools/.
 sys.path.insert(0, os.path.join(REPO, "greenfield"))
 from desc_sources import split_sweep_clause  # noqa: E402
+
+# The NARROW page stamp lives in tools/gen_manifest.py beside the GLOBAL one, so there is one
+# hashing implementation and one place that declares what a stamp covers.
+import gen_manifest  # noqa: E402
+
+
+def page_stamp():
+    """This page's NARROW inputs hash -- gen_manifest.BUILDER_INPUTS["check_browser"] only.
+
+    It used to be data.py's `_GEN_STAMP.inputs_hash`, the GLOBAL gen-input hash, which covers
+    `greenfield/gen_data.py` itself and the whole artifact bundle. A comment edit to gen_data.py
+    therefore moved this page's stamp although nothing the page reads had changed, and forced a
+    rebuild of every stamped page. The declaration in gen_manifest names what THIS builder opens;
+    the hashing function is the same one, so the two stamps still mean the same kind of thing.
+    Never the git commit -- that would make the output stale by construction."""
+    return gen_manifest.builder_hash(REPO, "check_browser")
 
 
 def data_stamp(path):
@@ -614,7 +637,7 @@ def main():
         "tile_regions": {t: sorted(rs) for t, rs in sorted(tile_regions.items())
                          if len({r for r in rs if r != "Roundtable Hold"}) > 1},
         # NOT the git commit -- see DETERMINISM in the module docstring.
-        "stamp": data_stamp(os.path.join(er, "tables", "data.py")),
+        "stamp": page_stamp(),
     }
 
     tpl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),

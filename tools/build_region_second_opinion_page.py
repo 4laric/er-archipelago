@@ -181,17 +181,15 @@ def read_tsv(path):
     return rows, comments
 
 
-def data_stamp(path):
-    """data.py's _GEN_STAMP.inputs_hash -- a content id that is stable across commits."""
-    try:
-        with open(path, encoding="utf-8") as fh:
-            m = re.search(r"^_GEN_STAMP = (\{.*\})\s*$", fh.read(), re.M)
-    except OSError:
-        return ""
-    if not m:
-        return ""
-    import ast
-    return ast.literal_eval(m.group(1)).get("inputs_hash", "")
+def page_stamp():
+    """This page's NARROW inputs hash -- BUILDER_INPUTS["region_second_opinion_page"] only.
+
+    Not data.py's global `_GEN_STAMP.inputs_hash` any more: that covers gen_data.py's own bytes,
+    so a comment edit there re-staled this page although nothing it reads had moved. Same hashing
+    function, declared in tools/gen_manifest.py beside the global one."""
+    sys.path.insert(0, os.path.join(REPO, "tools"))
+    import gen_manifest
+    return gen_manifest.builder_hash(REPO, "region_second_opinion_page")
 
 
 def strip_label(label):
@@ -378,7 +376,7 @@ def build(root):
     )
 
     meta = {
-        "stamp": data_stamp(os.path.join(er, "tables", "data.py")),
+        "stamp": page_stamp(),
         "vote_counts": vote_counts,
         "vote_sides": [list(p) for p in VOTE_SIDES],
         # Verbatim from the tool that computed the votes -- paraphrasing a calibration is how a

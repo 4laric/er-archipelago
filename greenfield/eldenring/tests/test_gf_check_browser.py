@@ -131,10 +131,15 @@ class CheckBrowserTest(unittest.TestCase):
         got = {c["id"]: c["miss"] for c in self.checks if "miss" in c}
         self.assertEqual(got, dict(declared))
 
-    def test_stamp_is_the_data_inputs_hash_not_a_commit(self):
+    def test_stamp_is_the_narrow_builder_inputs_hash_not_a_commit(self):
+        """The stamp covers what THIS builder reads -- not the global gen-input hash.
+
+        It used to be data.py's `_GEN_STAMP.inputs_hash`, which covers `greenfield/gen_data.py`'s
+        own bytes and the whole artifact bundle, so a comment edit to gen_data.py moved it. That
+        is the narrowing; `test_gf_page_stamp_scope.py` proves the property directly."""
         stamp = self.data["meta"]["stamp"]
         self.assertTrue(stamp.startswith("sha256:"), f"stamp is not a content hash: {stamp!r}")
-        self.assertEqual(stamp, self.tool.data_stamp(os.path.join(GF_PKG, "tables/data.py")))
+        self.assertEqual(stamp, self.tool.page_stamp())
 
     # -- C. determinism ----------------------------------------------------
     def test_two_builds_are_byte_identical(self):
@@ -273,14 +278,23 @@ class CheckBrowserTest(unittest.TestCase):
         self.assertIn("not a gate", self.html)
 
     # -- D. freshness ------------------------------------------------------
-    def test_committed_page_is_not_stale(self):
+    def test_page_in_the_working_tree_is_not_stale(self):
+        """If a page has been built into this tree, it matches a fresh build.
+
+        🛑 IT IS NOT COMMITTED ANY MORE (2026-09-09) -- it is gitignored and built in CI
+        (.github/workflows/pages.yaml), so this is no longer a gate on repository content and the
+        skip below is now the NORMAL case on a clean checkout. What it still catches is the local
+        half-run: a developer who rebuilt the tables and not the pages, and the `generators` job,
+        which runs `regen_all.py --phases tables,pages` before this suite and therefore always has
+        a freshly built page here."""
         if not os.path.exists(SHIPPED):
-            self.skipTest("er-archipelago-check-browser.html not present")
+            self.skipTest("er-archipelago-check-browser.html not built in this tree "
+                          "(it is not committed; run tools/regen_all.py --phases pages)")
         with open(SHIPPED, encoding="utf-8", newline="") as fh:
             shipped = fh.read()
         self.assertEqual(
             shipped.replace("\r\n", "\n"), self.html,
-            "committed er-archipelago-check-browser.html is STALE -- "
+            "the er-archipelago-check-browser.html in this tree is STALE -- "
             "run: python tools/build_check_browser.py")
 
 

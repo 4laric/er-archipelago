@@ -191,6 +191,12 @@ GENERATORS = [
     # and no network.
     "msb_door_sides",
     "regen_all",
+    # THE PAGE STAMPS ARE NARROW (2026-09-09). gen_manifest.BUILDER_INPUTS declares what each page
+    # builder reads, and this suite proves the property that declaration exists for: a COMMENT-only
+    # edit to greenfield/gen_data.py must not move a page's stamp, while an edit to a declared
+    # input must. It copies the repo into a temp dir and edits the copy, so it needs tools/ and the
+    # real tree -- no AP, no artifacts, no client.
+    "page_stamp_scope",
     # THE AP GAME NAME, typed once (#1465). Greps BOTH repos' source for the quoted literal
     # outside gamename.py and the generated mirrors, checks every shipped/preset/tester yaml's
     # `game:` and options key against the constant, and proves the client reads the generated
