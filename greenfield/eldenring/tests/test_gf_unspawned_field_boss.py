@@ -236,11 +236,22 @@ class UnspawnedDetector(unittest.TestCase):
     def test_an_unfalsified_candidate_keeps_its_sweep(self):
         """The asymmetry, stated as a test: deleting a REAL boss's reward is the worse error.
 
-        1041330800 (unnamed, m60_41_33 = Fourth Church of Marika) has the same shape and has NOT
-        been looked at in game, so it keeps its 10 members until someone stands on the tile."""
-        self.assertTrue(self.sweeps.SWEEP_UNSPAWNED_OPEN,
-                        "no candidate is OPEN, so this gate is vacuous -- if the last one was "
-                        "resolved in game, say so here rather than leaving an empty loop")
+        🛑 THE OPEN SET IS EMPTY SINCE 2026-09-09 (#1529), and that is an ANSWER, not a rot.
+        1041330800 (unnamed, m60_41_33 = Fourth Church of Marika) was the last OPEN candidate --
+        it kept its 10 members while nobody had stood on the tile. It was then falsified out of
+        the game's own scripts instead: its boss chain 1041332800/1041332810/1041332849 is defined
+        and never `$InitializeEvent`'d from the map constructor, and its healthbar nameId
+        904133540 has no NpcName.fmg entry, so the verdict is now 'unspawned'.
+
+        The loop below therefore iterates nothing today. It stays, because the rule it encodes --
+        only a verdict of 'unspawned' may drop a trigger -- is what the NEXT candidate needs, and
+        the witness now asserts the classifier still sees the shape at all. That is the difference
+        between "the question was answered" and "the detector stopped looking", which is the
+        failure an empty loop with no witness would hide."""
+        self.assertTrue(self.sweeps.SWEEP_UNSPAWNED,
+                        "gen_data classified NOBODY as unspawned either, so the detector has "
+                        "stopped seeing the shape -- a different and worse failure than an empty "
+                        "OPEN set")
         for ent in self.sweeps.SWEEP_UNSPAWNED_OPEN:
             self.assertIn(ent, self.sweeps.DUNGEON_SWEEPS,
                           "%d is only a CANDIDATE (no in-game falsification) yet its sweep is "

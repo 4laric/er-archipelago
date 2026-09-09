@@ -41,7 +41,12 @@ class TestShippedOptionTemplate(unittest.TestCase):
                          "wizard metadata must partition the live surface before it can serve as "
                          "the shipped-template coverage oracle")
 
-        missing = sorted(live - set(template))
+        # Explicit advanced opt-in and old-YAML compatibility are intentionally absent.
+        omitted = {"vanilla_placement"} | {o["key"] for o in metadata["options"]
+                                           if o.get("compatibility_only")}
+        self.assertTrue(omitted <= live, "retired omission rules must not outlive their options")
+        self.assertFalse(omitted & set(template), "advanced/compatibility controls leaked into template")
+        missing = sorted(live - omitted - set(template))
         self.assertFalse(
             missing,
             "live grouped option(s) absent from release/EldenRing.yaml: %s. A player editing the "

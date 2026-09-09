@@ -58,6 +58,12 @@ _TRIPLE = re.compile(r'\(\s*([\'"])(.*?)\1\s*,\s*(\d+)\s*,\s*(\d+)\s*\)')
 with open(os.path.join(GF_PKG, "tables/data.py"), encoding="utf-8", errors="replace") as fh:
     _AP_BY_FLAG = {t[3]: int(t[2]) for t in _TRIPLE.findall(fh.read())}
 
+# The DECLARED half of the skip set -- the two classes that cannot be derived from any shipped
+# table: non-lethal (Patches, #672) and cut content (an EMEVD boss chain the map constructor never
+# $InitializeEvent's, #1529). Written out rather than read back from contract, because the point of
+# the two degradation tests below is that the fallback is this SET and not "whatever the code says".
+DECLARED = {31000800, 31000850, 30130810, 34100800, 34110800, 34150800, 1041330800}
+
 MUSHROOM_AP = _AP_BY_FLAG["31007000"]      # Murkwater Cave, swept by Patches
 WARMING_STONE_AP = _AP_BY_FLAG["34107000"]  # Divine Tower of Limgrave, swept by nothing
 
@@ -77,7 +83,11 @@ class TestSweepSlotSkips(unittest.TestCase):
         # both triggers are AUDITED, so they leave this set and become eligible to nominate. That
         # is the census IMPROVING, which is the direction #671 wants; a rise means arena coverage
         # was lost and is to be diagnosed, not rebaselined.
-        self.assertEqual(len(unaudited), 24,
+        # 2026-09-09 (#1529): 24 -> 23. 1041330800 (Fourth Church of Marika) was ruled 'unspawned'
+        # in gen_data._UNSPAWNED_VERDICTS -- its EMEVD boss chain is never initialized from the map
+        # constructor -- so it no longer owns a sweep group and leaves SWEEPS entirely. That is the
+        # census improving for the same reason #1066's two did: a residue entry was ADJUDICATED.
+        self.assertEqual(len(unaudited), 23,
                          "the audited-arena census changed; review the issue #671 residue")
         skips = self._surface_skips()
         self.assertTrue(unaudited <= set(skips),
@@ -214,11 +224,19 @@ class TestSweepSlotSkips(unittest.TestCase):
         runtime = CONTRACT.runtime_sweep_skips()
         surface = CONTRACT.sweep_slot_skips(
             healthbars=HEALTHBARS, arena_regions=ARENA_REGIONS, triggers=SWEEPS)
-        self.assertEqual(set(runtime), {31000800, 31000850})
+        # Two classes, both HAND-DECLARED and neither derivable from the shipped tables:
+        # non-lethal (Patches, #672) and cut content -- an EMEVD boss chain the map constructor
+        # never $InitializeEvent's, so the defeat flag is unreachable (#1529, 2026-09-09).
+        self.assertEqual(set(runtime), {31000800, 31000850,
+                                        30130810, 34100800, 34110800, 34150800, 1041330800})
         self.assertTrue(set(runtime) < set(surface),
                         "runtime fireability was conflated with the wider progression-safety bar")
-        self.assertNotIn(34100800, runtime,
-                         "an unnamed trigger is unaudited, not positively known unfireable")
+        # The distinction the two sets encode is still real: an arena we have merely not ADJUDICATED
+        # is unsafe for required progression and perfectly fireable. Omenkiller is that case.
+        self.assertIn(1035420800, surface,
+                      "fixture check: expected an unaudited-arena trigger in the surface set")
+        self.assertNotIn(1035420800, runtime,
+                         "an unaudited arena is not positively known unfireable")
 
     def test_every_skip_carries_a_reason(self):
         """ShopSlot's SHOP_SLOT_SKIPS shape: keyed by what is excluded, valued by WHY. A silent
@@ -245,14 +263,14 @@ class TestSweepSlotSkips(unittest.TestCase):
         This is why `progression_surface.sweep_slot_aps` passes the table explicitly instead of
         trusting the default: silently dropping the derived half would put the unfireable triggers
         straight back on the surface with no error anywhere."""
-        self.assertEqual(set(CONTRACT.sweep_slot_skips()), {31000800, 31000850})
+        self.assertEqual(set(CONTRACT.sweep_slot_skips()), DECLARED)
 
     def test_missing_healthbars_does_not_empty_the_surface(self):
         """🛑 If the healthbar table were unavailable, skipping on absence would silently disable
         SweepSlot everywhere and the ladder would widen with nobody the wiser. Only the DECLARED
         set survives that case."""
         skips = CONTRACT.sweep_slot_skips(healthbars={})
-        self.assertEqual(set(skips), {31000800, 31000850})
+        self.assertEqual(set(skips), DECLARED)
         still = CONTRACT.nominate_sweep_slots(SWEEPS, skips=skips)
         self.assertGreater(len(still), len(SWEEPS) - 10)
 

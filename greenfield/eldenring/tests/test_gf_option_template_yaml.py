@@ -153,3 +153,20 @@ def test_the_generated_template_keeps_every_default_weighted():
         "%s: every value in the generated template is weighted 0, so the template does not express "
         "its own default. A `special_range_names` key that collides with the default's key (e.g. "
         "`on` landing on `true`) does exactly this, silently." % unweighted)
+
+
+def test_generated_template_omits_advanced_and_compatibility_only_controls():
+    block = Utils.parse_yaml(_generate_template_for_this_game())[GAME]
+    omitted = {"vanilla_placement", "flask_upgrades_on_progression_surface",
+               "global_scadutree_blessing", "merchant_bell_logic"}
+    classes = dict(_option_classes())
+    assert omitted <= classes.keys()
+    assert not omitted & block.keys()
+    assert "enable_dlc" in block, "normal content options must remain in generated templates"
+    for key in omitted:
+        cls = classes[key]
+        assert cls.visibility == Options.Visibility.all & ~Options.Visibility.template, key
+        # Template visibility must not retire the accepted values in existing YAML files.
+        assert cls.from_any(cls.default).value == cls.default, key
+    assert classes["vanilla_placement"].from_any("all").value == 1
+    assert classes["global_scadutree_blessing"].from_any("scaled").value == 2

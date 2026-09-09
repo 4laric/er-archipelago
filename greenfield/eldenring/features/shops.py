@@ -28,7 +28,7 @@ carries no shop-lineup id / bell column. So v1 emits the OPTION only (default of
 always open); the bell->merchant->shop-rows map is a v2 EMEVD enrichment (SPEC-PARITY 14.3). Empty
 dicts remain a valid no-op contract if shop_data.py is absent.
 """
-from Options import DefaultOnToggle, Choice
+from Options import DefaultOnToggle, Choice, Visibility
 from ..registry import Feature, register
 from .. import contract
 from ..tables.data import HUB
@@ -158,6 +158,8 @@ class MerchantBellLogic(Choice):
     bell->merchant->shop-rows mapping is not derivable matt-free from disk (bell-item flags do not
     appear in ShopLineupParam; the join lives in EMEVD bell-handover events), so v1 carries the
     option only and it is a no-op until a v2 EMEVD enrichment supplies that map (see module docstring)."""
+    # Importable and visible in detailed tools/spoilers, never suggested in a new YAML.
+    visibility = Visibility.all & ~Visibility.template
     display_name = "Merchant Bell Logic"
     option_off = 0
     option_logic_only = 1

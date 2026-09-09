@@ -38,7 +38,7 @@ raises on duplicate keys).
 """
 import random
 
-from Options import Range, Choice, Removed, OptionError, NamedRange, Toggle
+from Options import Range, Choice, Removed, OptionError, NamedRange, Toggle, Visibility
 from ..registry import Feature, register
 from ..region_spine import SPINE, DLC_REGIONS
 from ..tables.data import FINALE_REGION
@@ -734,6 +734,8 @@ class GlobalScadutreeBlessing(Choice):
     values that disagree is an OptionError rather than a silent winner -- see Scaling.generate_early.
 
     Prefer the replacements: they can also express (dlc_only, on), which this key cannot say."""
+    # Importable and visible in detailed tools/spoilers, never suggested in a new YAML.
+    visibility = Visibility.all & ~Visibility.template
     display_name = "Global Scadutree Blessing (deprecated)"
     option_off = 0
     option_player_only = 1

@@ -308,6 +308,15 @@ class EnableDLC(DefaultOnToggle):
     display_name = "Enable DLC"
 
 
+class EnableDLCGear(Toggle):
+    """Allow Shadow of the Erdtree equipment in the randomized pool even when Enable DLC is off.
+    Includes weapons, armor, talismans, Ashes of War, spells, spirit ashes, and crystal tears.
+    Does not enable DLC regions, checks, locks, quest items, or blessing fragments. Gear is selected
+    by the normal item-pool settings; this does not guarantee every DLC item will appear. Has no
+    additional effect when DLC regions are enabled. off (default) preserves the base-game pool."""
+    display_name = "Enable DLC Gear"
+
+
 class EnableTarnishedPack(Toggle):
     """Whether paid Tarnished Pack equipment may enter the randomized item pool. off (default):
     none of its weapons, shields, or armor can be placed. on: the verified equipment roster is
@@ -336,6 +345,7 @@ _CORE_OPTION_FIELDS = [("num_regions", NumRegions), ("num_regions_order", NumReg
                        ("ending_condition", EndingCondition),
                        ("goal_great_runes", GreatRunesRequired),
                        ("enable_dlc", EnableDLC),
+                       ("enable_dlc_gear", EnableDLCGear),
                        ("enable_tarnished_pack", EnableTarnishedPack),
                        ("dlc_only", DLCOnly)]
 # v0.2 option-matrix slim: FROZEN_OPTIONS are no longer yaml-settable -- they are the BEHAVIOUR
@@ -494,7 +504,7 @@ _OPTION_GROUPS = [
         "goal_great_runes", "leyndell_runes_required", "region_grace_unlock",
         "grace_attunement", "grace_attunement_anchor", "goal_region_unlock_policy"]),
     ("DLC & Blessings", [
-        "enable_dlc", "enable_tarnished_pack", "dlc_only", "scadutree_blessing_scope", "dlc_blessing_catchup",
+        "enable_dlc", "enable_dlc_gear", "enable_tarnished_pack", "dlc_only", "scadutree_blessing_scope", "dlc_blessing_catchup",
         "global_scadutree_blessing"]),
     ("Difficulty & Scaling", [
         "enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
@@ -590,7 +600,7 @@ _ESSENTIAL_OPTIONS = frozenset({
     # front-page yes/no whose regions_completed spelling is the deep cut)
     "num_regions", "goal", "ending_condition", "goal_great_runes", "goal_region_unlock_policy",
     # DLC & Blessings -- the ownership toggle alone; dlc_only is the More tier (Alaric 2026-08-20)
-    "enable_dlc", "enable_tarnished_pack",
+    "enable_dlc", "enable_dlc_gear", "enable_tarnished_pack",
     # Difficulty & Scaling -- the headline toggle and the flavor decision; the dials stay under
     # More behind the easy/standard/hard quick-picks the wizard draws
     "enemy_scaling", "traps",
@@ -867,8 +877,16 @@ class GreenfieldEldenRingWorld(World):
         self.gf_tarnished_pack_on = bool(
             getattr(self.options, "enable_tarnished_pack", None)
             and self.options.enable_tarnished_pack.value)
+        dlc_excluded = DLC_ITEM_NAMES
+        if getattr(getattr(self.options, "enable_dlc_gear", None), "value", False):
+            # Admit equipment only. In particular, DLC keys and blessing fragments must not
+            # become eligible simply because a base-game player wants the DLC weapon roster.
+            gear_categories = {"weapons", "armor", "talismans", "ashes", "spells",
+                               "spirit_ashes", "crystal_tears"}
+            dlc_excluded = {name for name in DLC_ITEM_NAMES
+                            if item_categories.category_of(name) not in gear_categories}
         self.gf_dlc_excluded = pool_excluded_names(
-            self.gf_dlc_on, DLC_ITEM_NAMES, ITEM_CATALOG, self.gf_tarnished_pack_on)
+            self.gf_dlc_on, dlc_excluded, ITEM_CATALOG, self.gf_tarnished_pack_on)
         # natural_progression is the INVERSE of num_regions (the whole eligible map is in play, gated
         # by real vanilla keys), so it forces the full eligible pool -- num_regions is ignored here.
         # vanilla_placement also forces the full eligible pool: it lets the BASE GAME's doors do

@@ -65,7 +65,7 @@ if (!P || !P.meta || !P.state || !P.buildYaml || !P.parseWizardYaml){
 P.state.name = 'A"#x';
 const valid = P.buildYaml(P.meta, P.state);
 const parsed = P.parseWizardYaml(valid, P.meta);
-const expectedKeys = P.meta.field_order.concat(P.meta.apCore.map(o => o.key)).filter(k => P.meta.byKey[k]);
+const expectedKeys = P.meta.field_order.concat(P.meta.apCore.map(o => o.key)).filter(k => P.meta.byKey[k] && !P.meta.byKey[k].compatibility_only);
 
 function optionLine(yaml, key){
   const re = new RegExp("^  " + key.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&") + ":.*$", "m");
@@ -77,6 +77,22 @@ function replaceOption(yaml, key, replacement){
   return yaml.replace(optionLine(yaml, key), replacement);
 }
 
+const legacy = P.meta.options.filter(o => o.compatibility_only);
+if (legacy.length !== 3) throw new Error("legacy witnesses disappeared");
+for (const option of legacy){
+  P.state.values[option.key] = option.default;
+}
+const legacyYaml = P.buildYaml(P.meta,P.state);
+const legacyParsed = P.parseWizardYaml(legacyYaml,P.meta);
+for (const option of legacy){
+  if (!(option.key in legacyParsed.values) || JSON.stringify(legacyParsed.values[option.key]) !== JSON.stringify(option.default))
+    throw new Error("legacy import lost " + option.key);
+}
+const oldComplete = replaceOption(legacyYaml,"enable_dlc_gear","");
+const oldParsed = P.parseWizardYaml(oldComplete,P.meta);
+if (oldParsed.values.enable_dlc_gear !== false) throw new Error("old complete YAML enabled DLC gear");
+const roundtrip = P.buildYaml(P.meta,{...P.state,values:oldParsed.values});
+for (const option of legacy) if (!roundtrip.includes("  " + option.key + ":")) throw new Error("roundtrip dropped " + option.key);
 const rejected = {};
 function mustReject(label, yaml){
   try {

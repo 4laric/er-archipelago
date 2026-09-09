@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.6.0.6",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "6df8c048166ff17d0a602b534a975859883e4e953362188971bc5ab57cc2aef7",
+ "source_sha256": "2294aa5c0fd486cb2d1267a77ee04f38327e3c1f4db173d71cb1b7608c23d438",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -11,6 +11,7 @@
   "ending_condition",
   "goal_great_runes",
   "enable_dlc",
+  "enable_dlc_gear",
   "enable_tarnished_pack",
   "dlc_only",
   "locked_abilities",
@@ -107,6 +108,7 @@
    "collapsed": false,
    "options": [
     "enable_dlc",
+    "enable_dlc_gear",
     "enable_tarnished_pack",
     "dlc_only",
     "scadutree_blessing_scope",
@@ -215,6 +217,7 @@
   {
    "key": "num_regions",
    "class": "NumRegions",
+   "compatibility_only": false,
    "display_name": "Number of Regions",
    "description": "How many regions are DRAWN for this seed. 0 = all regions (full Shattering). Only kept\nregions get locks and checks, for a shorter run.\n\nN IS A DRAW SIZE. Exactly ONE thing can still add to it: a kept region also keeps the region\nyou must pass THROUGH to reach it (Leyndell keeps Altus). Nothing else -- `goal: auto` forces\nnothing, and no named goal forces a base-game region any more. So `num_regions: 1` keeps one\nregion, or two if the one it drew sits behind another.\n\nIt did not, until v0.3.7. Burning the Erdtree required killing Maliketh in Crumbling Farum\nAzula, so an ending only existed on seeds that kept that region AND Leyndell -- and the goal\nforce-kept both, with Leyndell dragging Altus in behind it. Asking for one region handed you\nfour. The burn is an item now (see Goal), so it forces nothing. The generation log states the\nbreakdown for your seed either way. 0 keeps the whole map.\n\nDefault 6, not 0: a full 30-region Shattering is an enormous first run, and a six-region seed is\nthe length most players actually finish. Set 0 for the full map.",
    "kind": "range",
@@ -235,6 +238,7 @@
   {
    "key": "num_regions_order",
    "class": "NumRegionsOrder",
+   "compatibility_only": false,
    "display_name": "Region Selection",
    "description": "How the kept regions are chosen when num_regions > 0. This decides WHICH regions your seed\nkeeps. It does NOT decide where you start -- the opening region is always an independent draw\nweighted by region size, over whatever ends up kept.\n\nrolled (default): N regions drawn at random from the eligible pool. Every base region shows up\nin roughly a third of seeds.\n\nvanilla_order: the first N regions along the game's own progression path -- Limgrave, Weeping,\nStormveil, Liurnia, and so on. Fully deterministic, so the same num_regions always keeps the\nsame regions, and the later regions never appear at small N. Pick it if you want an early-game\nrun you can predict; leave it alone if you want variety.",
    "kind": "choice",
@@ -261,6 +265,7 @@
   {
    "key": "goal",
    "class": "Goal",
+   "compatibility_only": false,
    "display_name": "Goal",
    "description": "WHICH BOSS ENDS THE RUN. 'auto' (default) derives it: on ANY seed with the base game in\nplay, Godfrey/Hoarah Loux + the Elden Beast. Under DLC Only, the major bosses of the deepest\nkept region.\n\nHOW YOU GET THERE. The Erdtree burn is an ITEM. The Ashen Capital Lock is shuffled into the\npool like any other progression item, and when it reaches you the Erdtree burns and the Ashen\nCapital's graces light -- so you warp to the end of the game from wherever you are, and no\nparticular region has to be kept for the ending to exist. Before v0.3.7 the burn was the\ngame's own (Maliketh, in Farum Azula), which is why this option used to force two regions into\nevery draw. The Ashen Capital itself is never rolled, never counted by Number of Regions and\nnever where you start.\n\n'elden_beast' pins that pair explicitly and forces NO regions kept.\n'promised_consort' pins Enir Ilim -- Promised Consort Radahn, the DLC's final boss -- and\nFORCES Enir Ilim to be kept. 'malenia' pins Malenia alone, force-keeps the Haligtree, and opens\nthe route at Haligtree Canopy only: Loretta, Elphael and the full descent remain physical play.\nOn a full base+DLC seed 'auto' ends at the Elden Beast and the whole DLC is optional, so PCR or\nMalenia can never be the goal by luck.\n\nA choice its toggles make impossible is a GENERATION ERROR, never a silent fallback:\n'promised_consort' needs DLC content in play (fails with Enable DLC off); 'elden_beast' and\n'malenia' need base-game content (fail with DLC Only on). A goal that quietly evaporates is\nworse than a yaml that refuses to roll.",
    "kind": "choice",
@@ -295,6 +300,7 @@
   {
    "key": "ending_condition",
    "class": "EndingCondition",
+   "compatibility_only": false,
    "display_name": "Ending Condition",
    "description": "Whether the seed's goal also requires Great Runes. This is independent of Goal Region\nUnlock Policy, which separately chooses whether Region Locks, completed regions, or neither\nare required. ``region_locks`` is the compatibility spelling for no Great-Rune requirement;\n``great_runes`` requires the configured rune count.\n\nGreat Runes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off the\nrune requirement is inert. It is auto-clamped to the number of Great Runes actually reachable\nthis seed, so it can never make a seed unbeatable.\n\n'great_runes' means ANY N of the seven Great Runes. The full eligible set rides slot_data as\n`great_rune_items`, alongside `great_runes_required`; both the AP completion rule and client\ncount distinct held names from that set (#813).",
    "kind": "choice",
@@ -321,6 +327,7 @@
   {
    "key": "goal_great_runes",
    "class": "GreatRunesRequired",
+   "compatibility_only": false,
    "display_name": "Great Runes Required",
    "description": "How many Great Runes the 'great_runes' ending needs. INERT unless Ending Condition is\ngreat_runes -- core._resolve_required_runes returns before this value is ever read.\n\nRENAMED from `great_runes_required` (2026-07-14). It sat one line above `leyndell_runes_required`,\nwhich is a completely different thing (the Great Runes needed to ENTER Leyndell, live in every\nseed), and the pair read as two settings for one mechanic. One was a no-op in the default config\nand nothing said so.\n\nThe effective requirement is clamped down to the Great Runes reachable in the kept regions, so\nsealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.\n\nThe maximum is SEVEN. The Great Rune of the Unborn counts: Rennala drops it (flag 197, ap\n7900004 in Raya Lucaria Academy), the game counts it toward the Leyndell wall, and this world\ncan hand it to you like any other rune.\n\nA COUNT OF THE FULL SEVEN-RUNE SET. Any distinct runes count; no particular named rune is\nmandatory (#813).",
    "kind": "range",
@@ -341,6 +348,7 @@
   {
    "key": "enable_dlc",
    "class": "EnableDLC",
+   "compatibility_only": false,
    "display_name": "Enable DLC",
    "description": "Whether the Shadow of the Erdtree DLC regions (Land of Shadow, Belurat, Scadu Altus, Shadow\nKeep, Jagged Peak, Abyssal Woods) are in play. on (default): DLC regions are eligible and can be\nkept by num_regions alongside base-game regions. off: DLC regions are excluded from the region\npool entirely -- num_regions draws only from base-game regions, and every DLC lock/check/grace is\nsealed like any non-kept region. Ignored (forced on) when DLC Only is on.",
    "kind": "toggle",
@@ -356,8 +364,27 @@
    "essential": true
   },
   {
+   "key": "enable_dlc_gear",
+   "class": "EnableDLCGear",
+   "compatibility_only": false,
+   "display_name": "Enable DLC Gear",
+   "description": "Allow Shadow of the Erdtree equipment in the randomized pool even when Enable DLC is off.\nIncludes weapons, armor, talismans, Ashes of War, spells, spirit ashes, and crystal tears.\nDoes not enable DLC regions, checks, locks, quest items, or blessing fragments. Gear is selected\nby the normal item-pool settings; this does not guarantee every DLC item will appear. Has no\nadditional effect when DLC regions are enabled. off (default) preserves the base-game pool.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": true
+  },
+  {
    "key": "enable_tarnished_pack",
    "class": "EnableTarnishedPack",
+   "compatibility_only": false,
    "display_name": "Enable Tarnished Pack",
    "description": "Whether paid Tarnished Pack equipment may enter the randomized item pool. off (default):\nnone of its weapons, shields, or armor can be placed. on: the verified equipment roster is\navailable to the pool builder as honorary S-tier gear. This does not yet add the pack's field,\nmerchant, or invasion locations, nor its Spectral Steed attire unlocks.",
    "kind": "toggle",
@@ -375,6 +402,7 @@
   {
    "key": "dlc_only",
    "class": "DLCOnly",
+   "compatibility_only": false,
    "display_name": "DLC Only",
    "description": "off (default): normal -- base game (and DLC when Enable DLC is on) are all in play. on: ONLY\nthe Shadow of the Erdtree DLC regions are eligible; every base-game region is sealed. Implies\nEnable DLC (turning this on forces the DLC in even if Enable DLC is off). The goal becomes \"hold\nevery kept DLC lock\"; the base-game goal region (Leyndell) is sealed but is not required, so the\nseed stays winnable.\n\nA great_runes ending WORKS here (changed 2026-08-16, #764). It used to collapse to region_locks,\nbecause no Great Rune boss stands in the Land of Shadow and the requirement was clamped to the\nrunes the draw supplied -- under DLC Only that was zero. All seven Great Runes are now injected\ninto every seed's pool regardless of draw, so a DLC-only seed has seven runes to find; they come\nfrom the multiworld and from DLC checks rather than from demigods who are not in your run.",
    "kind": "toggle",
@@ -392,6 +420,7 @@
   {
    "key": "locked_abilities",
    "class": "LockedAbilities",
+   "compatibility_only": false,
    "display_name": "Locked Abilities",
    "description": "ABILITIES THE GAME DISABLES. Each named ability is turned off at the character's logical-action\nlayer, so the lock survives key/pad rebinds, covers keyboard and mouse, and never affects menus.\n\nValid names: jump, crouch, roll, r1, r2, l1, l2, heal. (r1/r2/l1/l2 are the attack inputs; locking\none also stops casting through it, since a staff or seal casts on the attack button. `heal` locks\nthe flask -- it heals nothing while locked -- via the No Flask SpEffect, not an action mask.)\nEmpty = nothing locked, the default.\n\n🛑 crouch is the one UNVERIFIED action: ER has no dedicated crouch action, so the client routes it\nto the stick-click (l3) as a first guess. If a playtest shows that is wrong, the fix is one line\nin er-logic, not here.\n\nLocking ALL FOUR attack inputs (r1, r2, l1, l2) in Progressive mode leaves you unable to damage\nanything, and a great many checks are kill-gated -- so that seed forces one attack unlock\n(\"Unlock: R1\") into an early sphere, wherever in the multiworld it lands. Spells do not count as\nan attack for this: a staff or seal casts on an attack button, so a caster with all four locked\nis just as weaponless. Locking three or fewer forces nothing -- you still have an attack.\n\nAbility Lock Mode decides whether these start off and are unlocked by items you find\n(Progressive, the default) or stay off for the whole seed (Static, the opt-out).\nEnv-overridable in test builds via ER_ABILITY_LOCK_TEST.",
    "kind": "set",
@@ -418,6 +447,7 @@
   {
    "key": "ability_lock_mode",
    "class": "AbilityLockMode",
+   "compatibility_only": false,
    "display_name": "Ability Lock Mode",
    "description": "HOW the Locked Abilities behave.\n\n``progressive`` (DEFAULT) -- they start off, and each locked ability becomes an \"Unlock: X\"\nitem shuffled into the multiworld. Find it (or receive it from another world) to get that\nability back. The items default to `progression` and are REQUIRED to finish (see Ability\nUnlocks Required) -- so a partner holding your \"Unlock: Roll\" genuinely blocks your goal, which\nis the whole point of a multiworld. Turn Ability Unlocks Required off to make them `useful` and\nnever gate completion. Needs a client that understands ability unlocks (declared via\nrequiresClientFeatures); older clients would leave the abilities locked, so they are told to\nupgrade rather than play it half-supported.\n\n``static`` (the opt-out) -- they are off for the entire seed. No item, no check; a pure client\nrestriction, and no client-feature demand.\n\nNo effect when Locked Abilities is empty (the default) -- this option only bites once you have\nnamed an ability to lock.",
    "kind": "choice",
@@ -444,6 +474,7 @@
   {
    "key": "ability_unlocks_required",
    "class": "AbilityUnlocksRequired",
+   "compatibility_only": false,
    "display_name": "Ability Unlocks Required for Goal",
    "description": "In PROGRESSIVE mode, must you HOLD your unlock items to finish the seed?\n\nOn (default): each pooled \"Unlock: X\" is `progression` and is added to the goal's held-item\nrequirement, exactly like a required Great Rune or Region Lock. Because progression items are\ndistributed across the whole multiworld, your abilities can land in a PARTNER's world -- and then\nyou cannot complete until they send them back. That mutual dependency is the point of playing in\nan Archipelago rather than solo.\n\nOff: the unlocks stay `useful` and never gate completion (a seed always finishes even with an\nability still out). Choose this if you want the ability item-hunt without your ending held hostage\nto another player's progress.\n\nNo effect outside progressive mode, or when Locked Abilities is empty.",
    "kind": "toggle",
@@ -461,6 +492,7 @@
   {
    "key": "vanilla_placement",
    "class": "VanillaPlacement",
+   "compatibility_only": false,
    "display_name": "Vanilla Placement",
    "description": "WHERE THE ITEMS ARE. 'off' (default) is the randomizer: every check's vanilla item is\nshuffled across the multiworld.\n\n'all' puts every item back exactly where the base game keeps it -- the Dectus halves in Fort\nHaight and Fort Faroth, the Academy Glintstone Key on its corpse, every Golden Seed on its\nsapling. Checks still fire, the tracker still works and Death Link still works, so this is the\nsetting for a group who want to play the base game together and share deaths rather than\nrandomize anything. Nothing is sent to or received from other worlds: the seed is self-contained\nby design.\n\nProgression is gated the way the base game gates it, so the region locks are not used at all and\nNumber of Regions is ignored -- the whole map is in play from the start, and the Leyndell wall,\nthe Rold Medallion and every other door work as they always did.\n\nThe start is vanilla too. You begin with what your class begins with -- no lantern, no extra\nflasks, no Torrent, no Spirit Calling Bell, no crafting pots, no revealed maps, and no levelling\nuntil you meet Melina. Everything this world normally hands you at the start is somewhere in the\nworld instead, where the base game keeps it. (Three of those gifts also used to tick off their\nown Roundtable checks the moment you connected, which is not how you want a vanilla run to open.)\n\nThe combat quality-of-life this world always applies is unchanged: weapons still upgrade\nautomatically and still ignore their stat requirements. So this is vanilla PLACEMENT and a\nvanilla START, not vanilla BALANCE. It also inherits the base game's own missables -- burning the\nErdtree still strands Leyndell's checks.",
    "kind": "choice",
@@ -487,6 +519,7 @@
   {
    "key": "capital_reconciler",
    "class": "CapitalReconciler",
+   "compatibility_only": false,
    "display_name": "Capital Version Reconciler",
    "description": "Keep the Leyndell map-version flag (9116) matched to where you actually are, so burning\nthe Erdtree never permanently strands the Royal Capital's checks: warp to a Royal grace (or\nwalk in from Altus) and the Royal Capital is back; warp to an Ashen grace and the finale is\nwhere you left it. Also lets Royal Capital checks carry progression. Default on.\n\nTurn OFF if the capital flag toggle misbehaves in-game (the toggle is assumed side-effect\nfree but not yet probe-verified): off restores vanilla one-way behavior AND re-bars the\nRoyal Capital from progression, so seeds stay winnable either way.",
    "kind": "toggle",
@@ -504,6 +537,7 @@
   {
    "key": "armor_bundles",
    "class": "ArmorBundles",
+   "compatibility_only": false,
    "display_name": "Armor Bundles",
    "description": "on (default): each complete armor set compacts into one '... Set' item that grants every\npiece on receipt -- one pool slot per set, and no orphaned second helmets. off: every armor\npiece is its own item, the pre-#849 pool.",
    "kind": "toggle",
@@ -521,6 +555,7 @@
   {
    "key": "auto_equip",
    "class": "AutoEquip",
+   "compatibility_only": false,
    "display_name": "Auto-Equip Received Gear",
    "description": "Wear whatever the multiworld sends you. A weapon or armour piece is put on the moment it\nlands in your bag, replacing whatever was in that slot -- including in the middle of a boss\nfight, and including a weapon your build cannot use. You do not choose your kit; the item order\ndoes. Off by default. A seed with this on requires a client that supports it and will say so\nrather than connect and quietly ignore the setting.",
    "kind": "toggle",
@@ -538,6 +573,7 @@
   {
    "key": "no_equip_load",
    "class": "NoEquipLoad",
+   "compatibility_only": false,
    "display_name": "Equipment Weight",
    "description": "What your equipment weighs, and therefore which roll you get.\n\noff (default) -- equipment weighs what it weighs. Your kit is a budget you spend.\nlight -- equipment weighs nothing, so you are always at light roll whatever you wear. Heavy\narmour and greatshields cost you nothing at all.\nmedium -- never worse than a medium roll. Your equip-load ceiling is raised far enough that no\nreal kit can push you into a fat roll, but the light-roll threshold still moves with what you\nput on, so what you wear is still a decision.\n\nThe game recomputes max equip load every frame from Endurance, so the client cannot write the\nnumber: it multiplies the WEIGHT side with a silent permanent SpEffect, and logs the equip load\nit actually got so the setting can be checked rather than taken on trust.\n\nThis is a generation-time choice recorded in the seed. It cannot be changed during an existing\nrun; change your YAML and generate a new seed to choose another mode.\n\n`medium` requires a client that supports it, and a seed using it refuses an older one rather\nthan connecting -- an old client reads it as \"on\" and gives you `light`, which is the stronger\nsetting you did not ask for. `off` and `light` connect to any client, as they always have.",
    "kind": "choice",
@@ -568,6 +604,7 @@
   {
    "key": "dungeon_sweep",
    "class": "DungeonSweep",
+   "compatibility_only": false,
    "display_name": "Dungeon Sweep",
    "description": "Which bosses hand you their area's loot in a sweep when you kill them.\n\nnone -- no sweeps; every check is picked up where it lies.\nminidungeons -- catacombs, caves, tunnels and minor dungeons only (~510 checks).\nall -- those plus legacy dungeons and castles (~2614).\nbosses (default) -- those plus FIELD bosses, i.e. everything (~3876).\n\nThose are the BAKED pools. What a seed grants is that minus its Progression Surface cut below;\nat the default surface, ~3782 at the widest rung.\n\n🛑 UNTIL 2026-07-29 THESE THREE WERE THE SAME THING. The emit gated on `value != 0` and never\nfiltered by class, so minidungeons/all/bosses each granted the full 3197 -- the ladder in this\ndocstring described behaviour that had never been implemented, and the player guide and the\nv0.2.15 release notes repeated it. The rungs are real now.\n\nThe DEFAULT moved 'all' -> 'bosses' at the same time, and that is not a behaviour change: the\nfull set is what every non-none value already granted, so 'bosses' IS what shipped. Leaving the\ndefault at 'all' would have quietly dropped field sweeps (1213 checks, 38%) from every seed\nunder the banner of a bug fix.\n\nA sweep never hands you another boss's reward, a Remembrance, a Great Rune, a key item or a\nmerchant's stock: those are cut when the sweep is built and no option restores them.\n\nEverything else in the area is yours, INCLUDING the good stuff -- Golden Seeds, Sacred Tears,\nScadutree Fragments, Revered Spirit Ashes, Crystal Tears and the legendaries (2026-08-13; it was\nfiller-only before, +145 checks corpus-wide). The exception is the classes YOU put on the\nProgression Surface: those are where this seed places its Locks, so they are taken back out of\nthe sweep, per seed. At the default surface that means Golden Seeds, Sacred Tears, Scadutree\nFragments and Revered Ashes stay where they lie and the legendaries and Crystal Tears sweep;\nuntick a collectathon line on the surface and the sweep picks it up instead.\n\n🛑 ONE SWEEP MEMBER PER TRIGGER CAN NOW HOLD PROGRESSION, in a default seed (2026-08-13). The\ndefault Progression Surface includes `SweepSlot`, which nominates a single member of every sweep\nyou run as somewhere a key item may be placed -- so killing a boss can hand you one. That is the\nonly class the surface does NOT take back out of the sweep, and deliberately: taking it back\nwould delete the check it just nominated. Drop `SweepSlot` from progression_surface if you would\nrather a sweep never pay out progression -- or see `full_area_sweeps` for the opposite ask,\nevery check in the area including the progression; the cost of dropping it is that at the default\n`confine_foreign_progression` another player's key items have only ~30 checks of yours to land\non, and most of them stop arriving (er-archipelago#631).\n\n🛑 With an EMPTY Progression Surface there is no confinement at all, so progression scatters\nwherever AP's fill puts it -- including onto ordinary sweep members, as it always could. The cut\ncan only act on a surface that says something.\n\nA group is only sent to a seed that can actually FIRE it (issue #445): the trigger boss's ARENA\nregion has to be kept too, not just the region its members live in. Six groups are fought\nsomewhere other than where their loot lies -- the Golden Hippopotamus hands over 104 Shadow Keep\nchecks from Scadu Altus ground -- and a seed that keeps one region without the other used to\nship a sweep whose boss the region lock would not let the player reach. Those groups are dropped\ninstead. The checks are unaffected: every member is an ordinary pickup in its own region, so what\nis lost is the convenience, not the loot.",
    "kind": "choice",
@@ -602,6 +639,7 @@
   {
    "key": "full_area_sweeps",
    "class": "FullAreaSweeps",
+   "compatibility_only": false,
    "display_name": "Full Area Sweeps",
    "description": "Should a boss kill hand you EVERYTHING in its area, including the good stuff this seed is\nusing for progression?\n\noff (default) -- a sweep pays out the area's ordinary loot. The classes you put on the\nProgression Surface are taken back out of it, because those are exactly where this seed places\nits key items: at the default surface that is Golden Seeds, Sacred Tears, Scadutree Fragments\nand Revered Spirit Ashes, and you still walk to those yourself.\n\non -- nothing is taken back out. Every check the sweep holds is granted the moment the boss\ndies, progression included, so killing a boss can hand you a region Lock (or, at the default\n`confine_foreign_progression`, another player's item). That is the point of the option, not a\nside effect: it is what \"killing the boss gives me the area\" actually means. It cannot strand\nyou -- a sweep only ever grants checks in a region you kept and behind a boss you could reach,\nso it makes a reachable check arrive earlier and never makes an unreachable one required.\n\nWHAT IT DOES NOT DO, in any seed. This widens WHICH checks a sweep pays; it does not widen\nwhich bosses sweep (that is `dungeon_sweep`) and it does not lift the permanent floor:\n\n* another boss's reward, remembrance or Great Rune -- handing those over would delete the fight;\n* gate and quest KEY ITEMS;\n* merchant stock, which is bought at a counter rather than picked up off the ground.\n\nNor can it reach a check whose position was never recovered from the game data: those belong to\nno boss's area, so no boss kill can grant them. Requested by siffrin and bobler (#1033).\n\nMissable checks are unaffected by this option in either direction -- they have always been\nordinary sweep members (170 of the 289 are swept today), so a sweep already rescues most of\nthem and this changes nothing about which. `protect_missable_locations` is the option for that.\n\nCorpus size of the change: +113 member links at the default Progression Surface (4101 -> 4214),\nup to +215 for a seed that puts all six of the collectathon/rarity classes on its surface, and\nexactly zero for a seed with an empty surface -- an empty surface makes no claim, so there was\nnothing being taken back out to restore.",
    "kind": "toggle",
@@ -619,6 +657,7 @@
   {
    "key": "reveal_sweep_boss_names",
    "class": "RevealSweepBossNames",
+   "compatibility_only": false,
    "display_name": "Reveal Hidden Sweep Boss Names",
    "description": "Show boss names for tracker sweep rows before their region has been opened.\n\nOff by default so the tracker does not turn the sweep convenience into a boss spoiler.  This\nis presentation-only: the emitted sweep groups, their members, and every logic rule are\nidentical either way; the client alone decides whether a locked row may reveal its label.",
    "kind": "toggle",
@@ -636,6 +675,7 @@
   {
    "key": "open_boss_doors",
    "class": "OpenBossDoors",
+   "compatibility_only": false,
    "display_name": "Open Catacomb Boss Doors",
    "description": "Open the catacombs' boss doors from the start, so you can walk in and fight instead of\nhunting the lever first. Off by default.\n\nAlso lights both ancestor altars in Siofra River, so the Ancestor Spirit and the Regal Ancestor\nSpirit are reachable without riding around lighting urns. Not a door; same promise.\n\nCovers the 18 minor dungeons whose boss door is a genuine LEVER puzzle. It deliberately does not\ntouch the four that are not: Sainted and Giant-Conquering Hero's Graves open when you kill the\nGladiator and the Shadow Troll respectively, and skipping a fight is not what this option is\nfor; Gelmir and Auriza Hero's Graves have no lever to skip.\n\nNothing is granted and no check is skipped -- the door is a prerequisite to REACHING the boss,\nand the boss and its dungeon sweep still have to be earned. Set at connect, so a dungeon you are\nalready standing in needs a reload before its door moves.",
    "kind": "toggle",
@@ -653,6 +693,7 @@
   {
    "key": "death_link",
    "class": "DeathLink",
+   "compatibility_only": false,
    "display_name": "Death Link",
    "description": "When you die, everyone who enabled death link dies. Of course, the reverse is true too.",
    "kind": "toggle",
@@ -670,6 +711,7 @@
   {
    "key": "death_link_amnesty_inbound",
    "class": "DeathLinkAmnestyInbound",
+   "compatibility_only": false,
    "display_name": "DeathLink Amnesty (Incoming)",
    "description": "Only every Nth DeathLink received from another player kills you. One preserves the normal\nDeathLink behavior. Incoming and outgoing deaths use separate counters, which restart when\nthe client reconnects.",
    "kind": "range",
@@ -690,6 +732,7 @@
   {
    "key": "death_link_amnesty_outbound",
    "class": "DeathLinkAmnestyOutbound",
+   "compatibility_only": false,
    "display_name": "DeathLink Amnesty (Outgoing)",
    "description": "Only every Nth local death is sent to the multiworld. One preserves the normal DeathLink\nbehavior. Incoming and outgoing deaths use separate counters, which restart when the client\nreconnects.",
    "kind": "range",
@@ -710,6 +753,7 @@
   {
    "key": "reroll_enemy_drops",
    "class": "RerollEnemyDrops",
+   "compatibility_only": false,
    "display_name": "Reroll Enemy Drops",
    "description": "Reroll what farmable enemies drop. Their one-time drops (the AP checks) are untouched -- only the\nrepeatable, unflagged drops change, and only the consumable slots, at exactly the vanilla rates.",
    "kind": "toggle",
@@ -727,6 +771,7 @@
   {
    "key": "curated_filler",
    "class": "CuratedFiller",
+   "compatibility_only": false,
    "display_name": "Curated Filler recipe (category -> weight)",
    "description": "Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the\ncategories in proportion to their weights -- they are relative, not percentages, and need not sum\nto anything. Categories: juice, junk_gear, stones, somber_stones, runes, throwables, pots,\nfirepots, greases, ammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to\nkeep that share as whatever the check already paid. Stacks: throwables x5, pots/firepots/perfumes\nx10, greases x2, ammunition x20.\nNOT off by default. The shipped recipe is juice 63 / stones 6 / somber_stones 6 / runes 10 /\nthrowables 6 / pots 4 / greases 3 / foods 2 / boluses 1 / perfumes 2. Perfumes take two points\nfrom juice, so adding them does not increase the filler budget.\nfiller tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --\nit warns loudly rather than silently reverting to vanilla junk.\n'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier\nfrom ~1013 qualifying items). Its opposite number is 'junk_gear': the ~368 equippables the game\nitself rates trivial, which juice will never hand you at any intensity because its floor starts\nabove them. Weight junk_gear if you want the low end of the armoury in your filler -- it is the\nonly path to the ~96 pieces (the Celebrant's weapons among them) that have no check at all,\nbecause their only source is a random enemy drop the game never flags. It competes on the same budget as everything else; raising it past\nwhat the catalog can supply spills the surplus to junk, with a warning naming the shortfall.\n'stones', 'somber_stones' and 'runes' are an upgrade-economy RESERVATION taken off the top\nproportionally. A tail too small for that reservation to buy a useful number of stones warns by\nname; it does not refuse to generate.\n'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace\nGolems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.\n'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed\nleveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.\nExample (a consumable-leaning run that still keeps its economy): {juice: 20, stones: 29,\nsomber_stones: 6, runes: 10, throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5,\nperfumes: 8, rare: 1}. Copying an example WITHOUT `juice` and the stone weights is what the\nempty-recipe warning is about.",
    "kind": "dict",
@@ -773,6 +818,7 @@
   {
    "key": "pool_builder_intensity",
    "class": "PoolBuilderIntensity",
+   "compatibility_only": false,
    "display_name": "Pool Builder Intensity",
    "description": "How good a piece of gear has to be before it counts as `juice`.\n\nnormal -- legendary only (~149 items).  high -- legendary + rare (~536).  max (default) -- also\nB-tier (~1013).\n\nA HIGHER FLOOR MEANS LESS GEAR, NOT BETTER GEAR. Each level is a strictly smaller catalog while\nthe `juice` weight in curated_filler is unchanged, so raising it asks for the same number of items\nout of a shorter list and the surplus spills to junk. Measured on one seed: max 1518 gear in the\npool, high 872, normal 230. It buys quality by paying quantity, which is the trade worth exposing.\n\n(Inert from the filler_budget refactor until 2026-07-28: it had become the constant JUICE_FLOOR\nbecause the option was frozen and could not move. filler_budget.juice_floor reads it again.)",
    "kind": "choice",
@@ -803,6 +849,7 @@
   {
    "key": "pool_builder_pct_weapons",
    "class": "PoolBuilderPctWeapons",
+   "compatibility_only": false,
    "display_name": "Pool Builder % Weapons",
    "description": "Relative weight for weapon gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk.",
    "kind": "range",
@@ -823,6 +870,7 @@
   {
    "key": "pool_builder_pct_armor",
    "class": "PoolBuilderPctArmor",
+   "compatibility_only": false,
    "display_name": "Pool Builder % Armor",
    "description": "Relative weight for armor gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk.",
    "kind": "range",
@@ -843,6 +891,7 @@
   {
    "key": "pool_builder_pct_spells",
    "class": "PoolBuilderPctSpells",
+   "compatibility_only": false,
    "display_name": "Pool Builder % Spells & Incantations",
    "description": "Relative weight for spell gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk. Spells have the SMALLEST catalog, so weighting them spills the most.",
    "kind": "range",
@@ -863,6 +912,7 @@
   {
    "key": "pool_builder_pct_talismans",
    "class": "PoolBuilderPctTalismans",
+   "compatibility_only": false,
    "display_name": "Pool Builder % Talismans",
    "description": "Relative weight for talisman gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk.",
    "kind": "range",
@@ -883,6 +933,7 @@
   {
    "key": "pool_builder_pct_ashes_of_war",
    "class": "PoolBuilderPctAshesOfWar",
+   "compatibility_only": false,
    "display_name": "Pool Builder % Ashes of War",
    "description": "Relative weight for Ash of War gear within the juice allocation -- steers the MIX, never the\namount. Drawn best-first by curated tier. 0 (default) across every category = fill best-\nfirst from all of them, which yields the MOST gear; concentrating spills the shortfall to\njunk.",
    "kind": "range",
@@ -903,6 +954,7 @@
   {
    "key": "filler_foreign_pct",
    "class": "FillerForeignPct",
+   "compatibility_only": false,
    "display_name": "Filler Open to Foreign (%)",
    "description": "Percent of THIS slot's filler COPIES that may travel to other players' worlds. 100\n(default) = fully open, no change. Lower keeps more of your filler home: at pct we hold back\n(100 - pct)% of your filler copies. 0 = keep all filler home.\n\nEvery category keeps something eligible. The share is spent WITHIN each category and never takes\na category's last item, so lowering this thins what you export rather than silently barring a\nwhole category -- `keep_local` is the knob for barring one, and it should stay the only one.\n(`pct: 0` is exempt: you asked for all of it home.)\n\nThe default (70) is the measured 1:1 useful:filler mix, WITH the shipped `keep_local` below.\nMeasured cross-game, one ER slot, pooled over seeds -- Hollow Knight 5 seeds: 100 -> 0.79:1,\n70 -> 1.00:1; Bumper Stickers 3 seeds: 100 -> 0.77:1, 70 -> 0.97:1. Raise it toward 100 to send\nmore of your junk out, lower it to send less. Exported USEFUL barely moves either way; what\nchanges is how much filler rides along.\n\n⚠️ THOSE NUMBERS ASSUME THE SHIPPED `keep_local`. The two levers compose, and hard: against\n`keep_local: []` the same sweep put 1:1 at pct 6-12 rather than 70 -- an order of magnitude\naway (100 -> 0.47:1, 50 -> 0.52:1, 25 -> 0.61:1, 12 -> 0.82:1). If you empty or extend\n`keep_local`, this number means something different and you should re-measure rather than\nreason about it.\n\nInert in a solo seed (no other worlds) and composes with keep_local.",
    "kind": "range",
@@ -923,6 +975,7 @@
   {
    "key": "natural_progression",
    "class": "NaturalProgression",
+   "compatibility_only": false,
    "display_name": "Natural Progression",
    "description": "Faithful-vanilla progression: play the whole map with regions gated by REAL vanilla keys +\nboss remembrances (shuffled), in vanilla's dependency SHAPE -- the inverse of The Shattering\n(num_regions). No synthetic region locks. Off (default): normal num_regions behaviour. On: every\nregion opens on its own real key off the start, minus the kept chokepoints (DLC behind Mohg, Gelmir\nbehind Liurnia+Academy, Rauh behind Shadow Keep, the capital behind Altus + 2 Great Runes); the\nwhole eligible map is in play (num_regions is ignored). SPEC-vanilla-progression-20260722.md.",
    "kind": "toggle",
@@ -940,6 +993,7 @@
   {
    "key": "flask_upgrades_on_progression_surface",
    "class": "FlaskUpgradesOnProgressionSurface",
+   "compatibility_only": true,
    "display_name": "Flask Upgrades on Progression Surface (legacy; now automatic)",
    "description": "Legacy v0.5 spelling; accepted but unnecessary in v0.6.\n\nFlask upgrades now always prefer unused progression-surface checks and safely spill into normal\nfill. They remain useful rather than required. This value is retained only so an older YAML\ncontaining it does not fail validation.",
    "kind": "toggle",
@@ -957,6 +1011,7 @@
   {
    "key": "region_grace_unlock",
    "class": "RegionGraceUnlock",
+   "compatibility_only": false,
    "display_name": "Region Grace Unlock",
    "description": "How many of a region's Sites of Grace a region unlock hands you.\n\nall (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.\nLiurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never\nwalked read as already-explored.\nlandmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to\nLake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across\nthe map. A middle setting: you can still cross a big region in a couple of hops.\nentrance -- only the region's front door; disconnected regions receive one entry per traversal\ncomponent, so every check AP considers open is physically reachable. You walk to and touch the\nrest yourself, the vanilla way.\n\nIt moves no item. Region Locks remain the only progression and every check stays exactly where\nit was, so nothing here changes what your seed contains or where any of it sits. A region whose\nbundle is WITHHELD (a gated child behind an armed wall) grants nothing at any value -- no\nsetting here is a way past a wall.\n\n🛑 THAT IS NOT THE SAME AS SAFE. The intent is that a grace you were not handed is still\nreachable on foot and still lights when you touch it. The bundles have not been walked region\nby region, though, so which ones can leave you somewhere you cannot get out of is genuinely not\nknown. `all` is the setting that has been played. Treat the other two as experimental, and\nplease report anything that strands you.",
    "kind": "choice",
@@ -987,6 +1042,7 @@
   {
    "key": "grace_attunement",
    "class": "GraceAttunement",
+   "compatibility_only": false,
    "display_name": "Grace Attunement",
    "description": "Warp points arrive by exploring, not all at once. Unlocking a region lights ONE of its Sites\nof Grace; touch this many more and the rest light. 0 (default) keeps the current behaviour --\na region Lock lights every grace it has.\n\nRegions with too few graces to reach the number are left alone entirely, so a two-grace region\nnever ends up with warps it can never open. Requires a client that supports grace attunement;\na seed using it refuses an older one rather than connecting and silently ignoring it.\n\n🛑 EXPERIMENTAL, and not for the reason a version number would tell you. Holding warps back\nmeans you walk more of the world on foot, and the grace bundles have not been walked region by\nregion -- so which regions can leave you somewhere you cannot get out of is not known. It moves\nno item and no check, so your seed still contains everything it did; what is untested is\nwhether you can always get to it. 0 is the setting that has been played. Please report anything\nthat strands you.",
    "kind": "range",
@@ -1007,6 +1063,7 @@
   {
    "key": "grace_attunement_anchor",
    "class": "GraceAttunementAnchor",
+   "compatibility_only": false,
    "display_name": "Grace Attunement Anchor",
    "description": "Which Site of Grace a region hands you when it unlocks. `front_door` (default) is the\nregion's own entrance, so you always arrive somewhere sensible. `random_grace` picks one of the\nregion's graces instead, which can drop you deeper in and cuts more traversal -- every\ncandidate is a real, physically-present warp point, so it can never strand you in a sealed\narena. Only used when Grace Attunement is on.",
    "kind": "choice",
@@ -1033,6 +1090,7 @@
   {
    "key": "progressive_flasks",
    "class": "ProgressiveFlasks",
+   "compatibility_only": false,
    "display_name": "Progressive Flasks",
    "description": "On (default): every Golden Seed and Sacred Tear check pays out a single \"Progressive Flask\nUpgrade\" item instead, one-for-one. Copies alternate deterministically: Charge, then +1 potency,\nthen Charge, then +1, continuing in that order. The first copy visibly raises total charges above\nthe vanilla starting allocation; +1 copies grant a Sacred Tear to spend at a grace. Off: seeds\nand tears stay discrete pickups at their shuffled locations. Flasks never gate logic, so either\nway the seed is always winnable.",
    "kind": "toggle",
@@ -1050,6 +1108,7 @@
   {
    "key": "progressive_stone_bells",
    "class": "ProgressiveStoneBells",
+   "compatibility_only": false,
    "display_name": "Progressive Upgrade Bell Bearings",
    "description": "Off (default). On: the vanilla smithing-stone and glovewort shop Bell Bearings are replaced\nby four progressive items, and each\ncopy you receive unlocks the next tier of the Twin Maidens' smithing-stone shop directly (no\nhand-over). One copy of each is forced to sphere 0, so the upgrade ramp opens at the start, and\nthere are exactly as many copies as there are shop tiers to unlock, so no copy is\nwasted and no single pickup skips you to the top. Never gates logic (Region Locks are the only\nprogression), so this is always winnable.",
    "kind": "toggle",
@@ -1067,6 +1126,7 @@
   {
    "key": "keep_out_of_shops",
    "class": "KeepOutOfShops",
+   "compatibility_only": false,
    "display_name": "Keep Out Of Shops",
    "description": "Categories of YOUR OWN item that your merchants may never stock, listed one per line. The\nitems still exist and are still shuffled -- they just land out in the world instead of behind a\npurchase menu, so finding them is a matter of going somewhere rather than of having enough\nrunes.\n\nCovers both halves of a merchant: the shop checks themselves (bell-bearing shops included) and\nthe rerolled unlimited shelves. Other players' items at your shops are unaffected.\n\nExample, and the one this was written for:\n    keep_out_of_shops: [weapons, armor]\n\nSame categories as Keep Local: weapons, armor, talismans, ashes (ashes of WAR), spells,\nspirit_ashes, consumables, crafting, cookbooks, upgrade_materials, upgrade_bells,\nmerchant_bells, runes, crystal_tears, key_items, other, progressive -- plus the umbrellas\n`goods`, `key_items` (the whole inventory tab: cookbooks and bell bearings included),\n`bell_bearings` (both kinds) and `everything`.\n\nEmpty (default) = merchants stock exactly what they would have. On a SMALL seed there may not be\nroom: the hub is 184 shop rows out of 224 locations, and if a category holds more items than\nthere are non-shop slots to move them to, that category is skipped and the generation log says\nwhich one and by how much. Larger seeds have room to spare.",
    "kind": "set",
@@ -1106,6 +1166,7 @@
   {
    "key": "leyndell_runes_required",
    "class": "LeyndellRunesRequired",
+   "compatibility_only": false,
    "display_name": "Leyndell Great Runes Required",
    "description": "Great Runes needed to access Leyndell (m11 Royal/Ashen + Fractured Marika), on top of the\nLeyndell Lock. 0 disables the gate.\n\nValues 1..2 all mean 2: the vanilla capital gate is a fixed two-rune wall, so a gate weaker than\nvanilla cannot be expressed -- asking for one arms at 2. If this seed's regions hold fewer than\ntwo Great Runes, the missing ones are added to the item pool rather than the gate being dropped:\nthe game's own two-rune wall does not go away when ours does, so dropping it would seal the\ncapital instead of opening it. Never clamped DOWN to an armed value below 2.",
    "kind": "range",
@@ -1126,6 +1187,7 @@
   {
    "key": "keep_local",
    "class": "KeepLocal",
+   "compatibility_only": false,
    "display_name": "Keep Local",
    "description": "Categories of item to hold in YOUR OWN world, listed one per line. Nothing else is affected,\nso this is the knob for \"keep my consumables and crafting mats, send the gear out\" without\nreaching for Local Items Only (which keeps everything) or Filler Open to Foreign (which picks\nwhich of your filler stays home at random and cannot be aimed at a category).\n\nSame categories as Exclude From Local Items Only, and they compose: this adds to whatever that\npair already localized, it never releases anything.\n\nExample, and the one this was written for:\n    keep_local: [consumables, crafting, upgrade_materials, runes]\n-- crafting materials, smithing stones and ghost gloveworts, every consumable and every rune\nstay yours; weapons, armour, talismans, spells, spirit ashes and ashes of war still travel.\nBell bearings are `key_items`, not `upgrade_materials`, so that example still sends them out.\n\n# Why the default is not empty (#703)\n\n🛑 THIS SHIPS NON-EMPTY, and it is the only locality option that does. The default is the `goods`\numbrella MINUS `runes`, `key_items`, `spells`, `spirit_ashes` and `scadutree_fragments` -- i.e. hold back the\nconsumables, crafting materials, smithing stones, cookbooks and bell bearings, and let every\nrune, key item, weapon, piece of armour, talisman, ash, spell and spirit ash travel.\n\n🛑 `key_items` IS EXCLUDED ON EVIDENCE, not taste. Holding it was the obvious call, but the\ncategory covers Great Runes -- which `great_runes_required` makes a GOAL condition -- both Dectus\nmedallions and every Remembrance -- so keeping it home took natural_progression's cross-world\nplacements from 12 to ZERO in tools/gf_multiworld_smoke.py. Those are the items a multiworld\nexists to trade. The smoke is the gate that catches this; re-run it before adding the line back.\n\nThe measurement it answers: at the shipped settings, upgrade_materials 23.7% and runes 24.0% of\na 312-item export -- two thirds of what we placed abroad was junk. The export budget is\nSLOT-limited, not willingness-limited, so those items were not extra: they were occupying\nforeign locations that YOUR OWN gear would otherwise have taken.\n\n🛑 THE COST IS NOT THAT THE PARTNER CANNOT USE THEM -- they were never theirs to use. An item\nElden Ring \"sends abroad\" is still YOUR item; what moves is the TRIGGER, into their world, so\nthat their progress is what hands it to you. That is the whole point of a multiworld and it is\nwhy bobler asked for gear to travel in the first place (\"you need to send your friends items to\nauto equip to int them\"). A foreign location holding your Smithing Stone [1] instead of your\nMoonveil is a worse trade for YOU, not a discourtesy to them.\n\n🛑 NAMING ONE CATEGORY DOES ALMOST NOTHING, and that is the finding that shaped this list.\nHolding `runes` alone moved exported filler by ZERO (202 -> 202): whichever large pool stays open\nexpands to fill every available slot, so filler must be closed close to as a CLASS before the mix\nmoves. Measured useful:filler across the lattice -- shipped 0.53:1, `runes` 0.54:1,\n`runes + upgrade_materials` 0.60:1, `goods` minus `consumables` 0.73:1, whole `goods` 2.69:1.\nThere is no category subset that lands near 1:1, which is why the rune cap below carries the\nfine adjustment rather than this list.\n\nAlaric's ruling, 2026-08-15: aim the composition at 1:1 useful:filler.",
    "kind": "set",
@@ -1174,6 +1236,7 @@
   {
    "key": "keep_local_rune_cap",
    "class": "KeepLocalRuneCap",
+   "compatibility_only": false,
    "display_name": "Keep Local: Rune Cap",
    "description": "Hold back rune items worth this many runes or fewer; larger ones may still travel.\n**Defaults to 12,500**, which holds 18 of the 31 rune items -- everything from Golden Rune [1]\nup to and including Numen's Rune. Set it to 0 to turn this off and send every rune you find.\n\n⚠️ CORRECTED 2026-08-16, and every corrected line was player-facing. This docstring opened\n\"0 (default) is OFF -- no rune is held back by this option\" while the default was 12,500 and it\nheld 18 items; it was headed \"Why the default is 6250\" and argued for 6250 in the body, while\nthe measurement paragraph below it bolded 12,500 and the code said 12,500; and its ladder was\noff by one from [4] up. The same text is in `release/EldenRing.yaml`, so a player reading their\nown options file was told the default was off. This is the #707 failure -- prose that stopped\ndescribing the code -- in the help text rather than in a guard, and the ladder below is now\npinned by test_the_documented_rune_ladder_matches_the_params so it cannot drift again.\n\n\"Small rune amounts should not be sent out\" is the ask this answers, and the payout is a number\nthe game publishes (EquipParamGoods.refId_default -> SpEffectParam.soul), so it does not have to\nbe guessed from the item name. The ladder, MEASURED:\n\n    Golden Rune [1]     200        Golden Rune [10]    5,000\n    Golden Rune [4]   1,200        Golden Rune [11]    6,250\n    Golden Rune [8]   3,000        Golden Rune [13]   10,000\n    Golden Rune [9]   3,800        Numen's Rune       12,500   <- the default cap\n                                   Hero's Rune [1]    15,000\n                                   Lord's Rune        50,000\n                                   Marika's Rune      80,000   <- the largest\n\nA cap of 3,000 keeps the small change (Golden Rune [1]-[8]) and lets the rest go.\n\nIndependent of Keep Local: setting `runes` there keeps every rune home whatever this says.\n\n# Why the default is 12,500 (#703)\n\nRunes are the only large filler category `keep_local` leaves open by default, which makes this\nthe FINE ADJUSTMENT on the export mix -- and unlike a percentage it is aimable, because the\nthreshold is a quantity the game publishes rather than a share of a pool nobody can picture.\n12,500 is Numen's Rune: Golden Rune [13] and everything cheaper stays home, Hero's, Leda's,\nLord's and Marika's Runes travel.\n\nMeasured on 1xER + 1xHK (the adverse config) over 4 seeds, with the shipped `keep_local` above\nand everything else identical: cap 0 -> 0.57:1, cap 6250 -> 0.68:1, **cap 12500 -> 0.72:1**,\ncap 80000 (every rune home) -> 0.73:1. Against the PRE-#703 defaults (`keep_local` empty, cap 0)\nthe pair moves 0.55:1 -> 0.72:1 -- and note what moved: exported useful is FLAT at 228 -> 231,\nwhile filler falls 412 -> 320. The partner does not receive less that they can use; they receive\n92 fewer Golden Runes and smithing stones. Foreign progression absorbed on-surface stays 100%\nthroughout. 12,500 is NUMEN'S RUNE (Golden Rune [13] is 10,000 -- see the ladder above); Hero's,\nLeda's, Lord's and Marika's Runes still travel.\n\n🛑 THE TARGET WAS 1:1 AND THIS DOES NOT REACH IT -- it gets from the old 0.53:1 to 0.72:1, and\nthe curve is flat past here (80000 buys 0.01 more). The binding constraint is `key_items`, which\nhas to stay released because it carries the Great Runes, the Dectus medallions and every\nRemembrance -- holding it took natural_progression's cross-world placements to zero. It also\ncarries 52 Stonesword Keys per 4 seeds, and at 32.3% of everything exported it is the largest\nsingle category. 1:1 needs that category split, the way `cookbooks` was peeled off it; until\nthen this is the honest ceiling.\n\nAlaric's ruling, 2026-08-15: aim the composition at 1:1 useful:filler.",
    "kind": "range",
@@ -1194,6 +1257,7 @@
   {
    "key": "merchant_bells_on_talk",
    "class": "MerchantBellsOnTalk",
+   "compatibility_only": false,
    "display_name": "Merchant Bells on Talk",
    "description": "Opening a merchant's shop hands their Bell Bearing to the Twin Maiden Husks for you, so\ntheir wares are on sale at the Roundtable Hold from then on. You are not given the bell itself\n-- it stays in the multiworld as a real item to find -- only the shop it would have unlocked.\nCovers the roving merchants and the named NPC vendors; the peddlers whose bells add stock to\nthe Maidens' own shelf are not covered, and neither are Ash-of-War, tailoring or upgrade\ncounters. Off by default. A seed with this on requires a client that supports it and will say\nso rather than connect and quietly ignore the setting.",
    "kind": "toggle",
@@ -1211,6 +1275,7 @@
   {
    "key": "reroll_mine_materials",
    "class": "RerollMineMaterials",
+   "compatibility_only": false,
    "display_name": "Reroll Mine Materials",
    "description": "Reroll repeatable mine-stone deposits to useful consumables, per seed.\n\nDeposits remain ordinary respawning world pickups, not Archipelago checks.  All deposits that\noriginally shared one stone tier also share one replacement for the seed.  Ancient Dragon and\nSomber Ancient Dragon capstones are never included.  Disable this option to keep vanilla mine\nrewards unchanged.",
    "kind": "toggle",
@@ -1228,6 +1293,7 @@
   {
    "key": "protect_missable_locations",
    "class": "ProtectMissableLocations",
+   "compatibility_only": false,
    "display_name": "Protect Missable Locations",
    "description": "What may be placed at checks that can be lost behind a limited consumable, a killable NPC,\nor NPC-questline progress. ``progression and useful`` (default) leaves only filler there;\n``progression`` protects winnability but may lose useful gear; ``off`` permits either and accepts\nthat a seed can require a missable questline step. Legacy ``true`` selects the new default and\n``false`` selects off.",
    "kind": "choice",
@@ -1258,6 +1324,7 @@
   {
    "key": "no_runes_in_shops",
    "class": "NoRunesInShops",
+   "compatibility_only": false,
    "display_name": "No Runes In Shops",
    "description": "Keep your own money runes (Golden/Hero's/Lord's/Numen's and the DLC runes) out of your\nmerchants' stock: no shop check's reward is ever one of your own runes, and the rerolled\ninfinite shelves never stock one. Escape hatch for rune shop rows failing to show in the\npurchase menu; the runes still exist, just never behind a merchant. Off = no change. Other\nplayers' items at your shops are unaffected (they display as AP placeholders, which the\nrendering issue cannot hide).",
    "kind": "toggle",
@@ -1275,6 +1342,7 @@
   {
    "key": "progression_surface",
    "class": "ProgressionSurface",
+   "compatibility_only": false,
    "display_name": "Progression Surface",
    "description": "WHICH LOCATIONS MAY HOLD PROGRESSION. The location classes allowed to host this world's own\nprogression (region Locks, any required/gate Great Runes, legacy keys) -- and, in a multiworld,\nthe classes where OTHER players' progression can land in your world.\n\nDefault: the major bosses and remembrances, the great runes, the key items, and the collectathon\nlines -- Sacred Tears (Church), Golden Seeds (Seedtree), Scadutree Fragments and Revered Spirit\nAshes for the DLC -- plus ShopSlot.\n\n🛑 NO COUNT HERE ON PURPOSE. This said \"193 locations\" until 2026-08-02, when the surface that\ncould actually HOST an item was 156. 193 was a TAG count: it never subtracted the checks barred\nfrom carrying progression (guessed region, missable, erdtree-burn, surface-excluded, hub\nmerchant). That is the same mistake missable_barred_aps was written to fix for the missable set,\nand it came back because the number lived in prose. It also MOVES -- every in-game region\nconfirmation changes it (re-anchoring two Liurnia Golden Seeds shifted the default 154 -> 156 in\na single commit). So the count lives in ONE place, regenerated and drift-gated:\n\n    greenfield/surface_confidence.tsv   (tools/build_surface_confidence.py)\n\nwhich prices every class: tagged, how many each bar costs it, and how many can host. Quote that\nfile, never a number typed into a docstring.\n\nShopSlot is AT MOST one slot per merchant, never every shop row: a merchant enters the pool once,\nso however large their stock they can hold at most one progression item and cannot dominate the\nsurface by breadth. The pinned slot is a ware that merchant ALONE sells (one stock flag game-wide,\nso the location is unambiguous), stocked from the start and with a resolved region; merchants with\nno such ware are skipped at regen (location_tags.SHOP_SLOT_SKIPS lists them with reasons). Use\n`Shop`/`ShopNonSpell` instead if you actually want a merchant-heavy seed -- be aware that is\nroughly three quarters of the surface (see surface_confidence.tsv) and the game becomes \"farm\nrunes, buy your progression\".\n\nNarrowing is safe: the feasibility ladder widens automatically rather than failing to generate, and\nan EMPTY set turns the confinement off entirely (progression scatters as vanilla AP fill decides).\nBasin = Crystal Tears; Boss = every boss-healthbar drop; Legendary = the param-rarity legendaries.",
    "kind": "set",
@@ -1555,6 +1623,7 @@
   {
    "key": "progression_bias",
    "class": "ProgressionBias",
+   "compatibility_only": false,
    "display_name": "Progression Bias",
    "description": "How hard your Region Locks are pulled toward YOUR OWN world. 0 (default) is no pull at all --\nevery Lock is an ordinary multiworld item and can end up in another player's game, so you may\nwell be waiting on somebody else to find your way into Liurnia. That is Archipelago working as\nintended, and it is the default on purpose. 100 pins every Lock at home.\n\nIt is a share, not a mood: at 40, about 40% of your Locks are reserved for your own Progression\nSurface and the other 60% go into the multiworld pool.\n\n🛑 A LOCK IN THE POOL IS STILL CURATED. It is held to the same Progression Surface every other\nplayer's progression is held to -- it just lands on SOMEBODY'S boss or remembrance rather than\nnecessarily yours. Lowering this trades away where your keys are, not whether they sit on\nchecks worth finding. The knob that trades the curation itself is Confine Foreign Progression,\nand it is deliberately a separate one.\n\nMEASURED at 0, over 740 generations: in a two-slot Elden Ring multiworld about 45% of Locks\nleave their own world and ~90% of all placed Locks sit on a surface check; four slots pushes\ntravel to 60-70%. That says how many leave, not WHICH other world receives them: ordinary fill\nfollows the available locations, so a smaller non-Elden-Ring partner may receive none at all.\n`cross_game_progression` is the separate share that deliberately sends travelling Locks to\nnon-Elden-Ring worlds.\n\nNo effect in a solo seed (there is nowhere else for a Lock to go), nor in the modes that mint no\nLock items at all (natural progression, vanilla placement).",
    "kind": "range",
@@ -1575,6 +1644,7 @@
   {
    "key": "confine_foreign_progression",
    "class": "ConfineForeignProgression",
+   "compatibility_only": false,
    "display_name": "Confine Foreign Progression",
    "description": "What share of OTHER players' progression is confined to your Progression Surface, the way\nyour own is. A percentage, not a switch.\n\n100 (`true`) confines all of it: another world's advancement may only be placed on your surface\nlocations -- the same high-confidence checks your own progression is curated onto -- never on\nyour filler checks. So a foreign key spell lands on a major-boss / remembrance / key-item check\nof yours, not on a random Smithing Stone pickup. 0 (`false`) confines none of it and foreign\nprogression scatters across any reachable location of yours, which is standard Archipelago\nbehaviour. In between, that share of the foreign advancement you see is held to the surface and\nthe rest is free.\n\nThis is purely about where INCOMING foreign keys may sit. It used to have a nasty side effect\n-- at 100 the displacement it causes starved non-Elden-Ring partners of your useful gear\nentirely (measured: 0 useful in 498 placements to Hollow Knight) -- but that is fixed at its\nown layer since v0.4.10: a dedicated export-reservation pass places your fair share of useful\nitems into partner worlds before the general fill, whatever this option is set to. Re-measured\nwith the pass: partners receive the pool's own mix (about 1:1 useful to filler) at every\nconfine value. Lower this only if you want foreign keys spread beyond your starred checks.\n\nIt is a propensity by ITEM NAME, not a per-copy coin flip: the decision for a given foreign item\nname is fixed for the whole seed, so a name is either surface-only or free, never both.\n\nNo effect in a solo seed, because there is no foreign progression to confine. It never blocks\ngeneration: your OWN progression keeps its feasibility-ladder + spill safety valve, and foreign\nprogression that will not fit your surface simply lands in its own world instead (only YOUR\nfiller checks are barred to it -- other worlds are untouched).",
    "kind": "range",
@@ -1612,6 +1682,7 @@
   {
    "key": "cross_game_progression",
    "class": "CrossGameProgression",
+   "compatibility_only": false,
    "display_name": "Cross Game Progression",
    "description": "How your progression is shared with the other games at the table.\n\n``auto`` (the default) balances it: every other game receives its own near **1 / number of\ngames** share of your travelling progression, and your world reserves the same share of every\npartner game's progression in return. Eleven items at a three-game table means roughly four to\neach partner and three staying home -- not one aggregate batch split however fill happens to\nland. Two slots of one game count as a single game, sampled fairly across their players, and\nitems a player keeps local are never taken.\n\n``aggregate`` is the older shape: one combined foreign batch sized at 1/N, divided between the\npartners by ordinary fill, with no incoming reservation. A number from 1 to 100 is that\naggregate share set by hand. ``never`` (0) keeps every travelling progression item inside\nElden Ring -- the escape hatch if a partner game will not tolerate being filled and a seed\nrefuses to generate.\n\nShares are capacity-aware: a partner game with fewer open locations than its share, or a world\nwithout room for the full incoming reservation, caps the share at what fits, and the\ngeneration log states requested-versus-reserved per game. Only a placement the rules refuse\noutright is a failure.\n\nNo effect in a solo seed, in an all-Elden-Ring multiworld, or in the modes that mint no Lock\nitems.",
    "kind": "range",
@@ -1645,6 +1716,7 @@
   {
    "key": "goal_region_unlock_policy",
    "class": "GoalRegionUnlockPolicy",
+   "compatibility_only": false,
    "display_name": "Goal Region Unlock Policy",
    "description": "When the synthetic final region opens.\n\n``items_held`` preserves the original rule: receiving every required Region Lock opens the\nfinal region. ``none`` imposes no region-side requirement. ``regions_completed`` waits until\nevery progression-surface check in every non-final region has been satisfied. A shop check is\nsatisfied when its merchant inventory is viewed; buying the ware is not required. Completion\nis reconstructed from the server's checked locations plus its per-slot viewed-shop ledger, so\nreconnecting cannot lose progress.\n\nThis is independent of Ending Condition: any of these three policies can be combined with or\nwithout the Great Rune threshold.",
    "kind": "choice",
@@ -1675,6 +1747,7 @@
   {
    "key": "region_sync",
    "class": "RegionSync",
+   "compatibility_only": false,
    "display_name": "Region Sync",
    "description": "Share region unlocks with the other Elden Ring players in this multiworld.\n\nFor seamless co-op. Everyone plays in ONE physical world (the co-op host's), but each player\nhas their own Archipelago slot -- so if one of you has unlocked Liurnia and the rest have not,\nthe rest get kicked out of it and cannot follow. With this on, the moment ANY Elden Ring player\nwho also turned it on unlocks a region, that region's door opens for all of you: the map gate\nlifts and its Sites of Grace light up.\n\nIt only opens the door. It does NOT give anyone else the region's key item -- that stays\nwherever the multiworld put it, and finding your own is still what counts for your items and\nyour goal. Nothing about how the seed is generated changes, so you can turn this on without\nmaking anyone's game easier to complete.\n\nTurn it on for every Elden Ring player in the co-op group; players who leave it off are not\naffected either way, and other games in the multiworld never see it.",
    "kind": "toggle",
@@ -1692,6 +1765,7 @@
   {
    "key": "enemy_scaling",
    "class": "EnemyScaling",
+   "compatibility_only": false,
    "display_name": "Enemy Scaling",
    "description": "Whether enemy difficulty follows your PROGRESSION instead of the map.\n\nOn (default), a region's enemies are re-tiered by how deep it sits in your unlock order, so a\nzone you reach late is dangerous even if it is early on the map, and one you open first is not a\nwalkover just because it is late. `minimum_enemy_difficulty`, `maximum_enemy_difficulty` and\n`difficulty_ramp_speed` shape that curve.\n\nOff = VANILLA. Every enemy keeps exactly the strength the base game gave it, everywhere. The\nclient does not touch a single enemy: no re-tiering, no floor, no ceiling, and the three sliders\nabove stop meaning anything. Worth choosing if you want the randomizer's item placement without\nits difficulty curve, or if you are playing a route where the vanilla curve already suits you.\n\n🛑 A seed rolled with this off is not \"easier\" -- it is the game's own difficulty, which in a\nrandomized world can mean meeting a late-game area's enemies at level 20.",
    "kind": "toggle",
@@ -1709,6 +1783,7 @@
   {
    "key": "minimum_enemy_difficulty",
    "class": "MinimumEnemyDifficulty",
+   "compatibility_only": false,
    "display_name": "Minimum Enemy Difficulty",
    "description": "How hard the EASIEST enemies in your run are. 0 (default) leaves the early game at its normal\nstrength; higher values lift the whole floor, so nowhere stays trivial once you have outgrown it.\n\n  0    normal -- your first region is as weak as vanilla-ish   (default)\n  25   nothing below about 2.3x enemy HP\n  50   nothing below about 4x\n  100  everything at maximum, everywhere, from your first region on\n\nUseful because progression here is not geography: a region you unlock late can be an \"early\"\none, and this stops it being a walkover. Enemy rune rewards are unchanged at every setting.\n\n🛑 THE DEFAULT WAS BRIEFLY 25 AND IS BACK TO 0 (2026-08-05, same day, unreleased). The case for\nraising it was that vanilla applies TWO scaling rows per enemy -- a ladder rung and a second row\nat the same index +400 -- so its effective HP floor was 3.56x against our 1.141x. **That was\narithmetic, not measurement, and per-enemy measurement disproved it.** Observed `max_hp` is\nvanilla base x the RUNG rate exactly, with the second row contributing nothing:\nbase 755 with `[7020, 7420]` measures 967, and 755 x 1.281 = 967. Six enemies, plus eleven\nreading residual 1.000 against a rung-only model.\n\nSo vanilla's HP floor IS 1.141x, 0 IS the vanilla-equivalent default, and it never needed\nchanging. Do not raise this default again without a measurement rather than a product.",
    "kind": "range",
@@ -1729,6 +1804,7 @@
   {
    "key": "maximum_enemy_difficulty",
    "class": "MaximumEnemyDifficulty",
+   "compatibility_only": false,
    "display_name": "Maximum Enemy Difficulty",
    "description": "How hard the TOUGHEST enemies get.\n\n  auto  base-game top (about 3.7x), or higher with the blessing  (default)\n   100  no cap -- the deepest region hits the game's maximum, about 7.4x enemy HP\n    75  nothing above about 5.5x enemy HP\n    50  nothing above about 4x\n    47  the base game's own top -- vanilla Haligtree\n    25  nothing above about 2x\n\n`auto` caps the run at the strongest thing the BASE GAME ever asks of you: about 3.7x enemy HP,\nvanilla Haligtree. Every rung above that is the DLC's own enemy ladder, tuned for a player who\nis also carrying a Scadutree Blessing, so `auto` lets a region climb into those rungs only\nwhere the blessing applies: DLC regions always, base-game regions only when the blessing is\nscoped everywhere (`scadutree_blessing_scope: anywhere`, the default) and the DLC is on so its\nfragments can enter the pool. Where it climbs, the cap grows with the length of the run --\nabout 3.7x at 5 regions, 5.5x at 10, 6.7x at 15, the full 7.4x on the whole map -- and the seed\ninjects the fragments that pay for it. Give a number instead to pick the cap yourself, for\nevery region; the yaml builder shows what either choice resolves to as you move the slider.\n\n⚠️ Above 3.7x the curve is extrapolation over rungs nobody has playtested at length. A\n13-region default run with the DLC on met Caelid at close to Haligtree strength (2026-09-06),\nwhich is what put the base-game gate here.\n\nMust be at least Minimum Enemy Difficulty; generation refuses the inverted pair rather than\nquietly picking one.\n\n⚠️ Needs a client that understands it. A seed setting this below 100 tells the client so at\nconnect, and an older client refuses with a message rather than ignoring the cap.",
    "kind": "range",
@@ -1754,6 +1830,7 @@
   {
    "key": "difficulty_ramp_speed",
    "class": "DifficultyRampSpeed",
+   "compatibility_only": false,
    "display_name": "Difficulty Ramp Speed",
    "description": "How quickly enemies get harder as you progress. 0 (default) spreads the climb evenly across\nthe whole run; higher values front-load it, so you hit the hardest enemies sooner and the rest of\nthe run stays there.\n\n  0    even across the run -- your last region is the first to reach maximum   (default)\n  50   maximum from about halfway; everything after that is equally hard\n  75   maximum about a quarter of the way in\n  100  maximum almost immediately\n\nThis does not change how hard the HARDEST enemies are -- that ceiling is fixed. It changes how\nmuch of your run is spent below it. Pairs with Minimum Enemy Difficulty, which raises the\nBOTTOM instead.",
    "kind": "range",
@@ -1774,6 +1851,7 @@
   {
    "key": "coop_difficulty",
    "class": "CoopDifficulty",
+   "compatibility_only": false,
    "display_name": "Co-op Difficulty",
    "description": "Extra enemy difficulty per co-op partner, for seamless co-op (#993). Solo play ignores it.\n\n  0    off -- co-op enemies scale exactly as they do today                (default)\n  1    +1 sphere tier per partner in your world (a little more HP and bite)\n  2    +2 tiers per partner (noticeably harder with a full party)\n  3+   steeper still, clamped to the top of the ladder\n\nSeamless co-op already raises enemy HP, but it leaves enemy DAMAGE at the host's default -- so a\nsecond player roughly halves the threat coming at each of you without the enemies hitting any\nharder, which is the \"it felt too easy in co-op\" report this addresses. Each extra tier moves an\nenemy UP the same sphere ladder normal scaling uses, and a higher rung carries both more HP and\nmore attack, so the missing bite comes back. Every player is on their own Archipelago slot reading\nthe one shared world, so each client counts the party and applies the same bump -- no host.\n\n🛑 A TIER CARRIES HP AS WELL AS ATTACK. If you leave Seamless's own enemy-HP scaling on, this\nstacks a little extra HP on top of the damage it is really there to restore. Pair a non-zero value\nwith Seamless's HP knob turned down, or accept spongier-and-harder. Needs enemy_scaling ON to do\nanything (vanilla-difficulty seeds apply no tier to bump).",
    "kind": "range",
@@ -1794,6 +1872,7 @@
   {
    "key": "scale_rune_rewards",
    "class": "ScaleRuneRewards",
+   "compatibility_only": false,
    "display_name": "Scale Rune Rewards",
    "description": "Scale direct enemy and boss rune payouts with sphere difficulty (#1091).\n\nOff by default. When enabled, ordinary `NpcParam.getSoul` and boss `GameAreaParam` payouts\nfollow the same region tier as combat, preserving the vanilla reward differences between\nenemies. Golden Rune inventory items are deliberately outside the feature.",
    "kind": "toggle",
@@ -1811,6 +1890,7 @@
   {
    "key": "scadutree_blessing_scope",
    "class": "ScadutreeBlessingScope",
+   "compatibility_only": false,
    "display_name": "Scadutree Blessing Scope",
    "description": "WHERE the Scadutree blessing applies. dlc_only = vanilla: the blessing is a Land of Shadow\nmechanic and does nothing in Limgrave, exactly as FromSoft shipped it. anywhere = the blessing\nbecomes a GAME-WIDE power curve driven by the fragments the multiworld has sent you, so it works\neverywhere. Enemies are untouched either way, so `anywhere` is explicitly a power fantasy.\n\nHOW `anywhere` IS POSSIBLE AT ALL. Every vanilla rung 20000100+level carries\neffectEndurance = 0.05 -- 50ms. It is not a persistent buff; a refresher loop that only runs in\nthe Land of Shadow re-applies it every tick. The client clones the rung onto a row of its own\nwith effectEndurance = -1 and applies that (see the client's `scadu_blessing` module and\ndocs/specs/SPEC-global-scadutree-blessing-20260729.md). Measured in-game 2026-07-29.",
    "kind": "choice",
@@ -1837,6 +1917,7 @@
   {
    "key": "dlc_blessing_catchup",
    "class": "DlcBlessingCatchup",
+   "compatibility_only": false,
    "display_name": "DLC Blessing Catch-up",
    "description": "Guarantee each DLC region's expected Scadutree Blessing while you are standing in it.\n\nWHY IT EXISTS, AND WHY IT IS NOT A DIFFICULTY KNOB. DLC enemies are tuned around a per-AREA\nblessing level. In this rando the fragments that raise blessing are scattered multiworld checks,\nso the fill can hand you Shadow Keep while your blessing is 0 -- through no decision of yours.\nThis lifts you to that area's floor (DLC_BLESSING_FLOORS, ~3-4 under vanilla expectation) so\ncollected fragments still buy visible power above it. Compose is MAX, never a replacement.\n\n🛑 IT IS SCOPED TO WHERE YOU STAND, NOT TO WHAT YOU UNLOCKED. The client re-reads your current\nplay_region every tick; leave the region and the floor goes with you. Nothing is granted.\n\nInert outside the DLC: base-game buckets have no floor, so a base-only seed emits no wire at all.",
    "kind": "toggle",
@@ -1854,6 +1935,7 @@
   {
    "key": "global_scadutree_blessing",
    "class": "GlobalScadutreeBlessing",
+   "compatibility_only": true,
    "display_name": "Global Scadutree Blessing (deprecated)",
    "description": "DEPRECATED 2026-08-06 -- split into `scadutree_blessing_scope` + `dlc_blessing_catchup`.\n\nStill honoured, so an existing yaml keeps generating the same seed: off -> (dlc_only, off),\nplayer_only -> (anywhere, off), scaled -> (anywhere, on). Setting this AND either replacement to\nvalues that disagree is an OptionError rather than a silent winner -- see Scaling.generate_early.\n\nPrefer the replacements: they can also express (dlc_only, on), which this key cannot say.",
    "kind": "choice",
@@ -1884,6 +1966,7 @@
   {
    "key": "reroll_infinite_shop_stock",
    "class": "RerollInfiniteShopStock",
+   "compatibility_only": false,
    "display_name": "Reroll Infinite Shop Stock",
    "description": "Reroll the merchants' unlimited consumable shelves to a random high-impact consumable.\n\nKale's Glass Shards, Iji's Somber Smithing Stones, the throwing-knife and poison-dart shelves --\n14 of them. Each is rerolled per seed and PRICED at what the new item is worth, so a shelf never\nbecomes an infinite cheap source of something economy-breaking.\n\nAmmo shelves (arrows, bolts) are untouched. These shelves are never AP checks, so nothing here\nmoves an item or a location.",
    "kind": "toggle",
@@ -1901,6 +1984,7 @@
   {
    "key": "infinite_hub_wares",
    "class": "InfiniteHubWares",
+   "compatibility_only": false,
    "display_name": "Infinite Hub Wares",
    "description": "Wares the hub merchant always stocks, unlimited, instead of leaving the shelf to the reroll.\n\nGive item names exactly as the randomiser knows them, e.g.\n\n    infinite_hub_wares: [\"Rune Arc\", \"Larval Tear\"]\n\nUp to FOUR: that is how many browsable unlimited shelves the hub has, and asking for more is\nrejected at generation with a message rather than silently dropping the extras. Each ware is sold\nat its own derived price, so a shelf never becomes a free dispenser.\n\nEmpty by default -- a fresh yaml generates exactly as it did before this option existed. Worth a\nthought before filling it: unlimited Larval Tears is unlimited respec, and unlimited Rune Arcs is\na permanent great-rune buff. Both are real changes to how a run plays.",
    "kind": "set",
@@ -1918,6 +2002,7 @@
   {
    "key": "merchant_bell_logic",
    "class": "MerchantBellLogic",
+   "compatibility_only": true,
    "display_name": "Merchant Bell Logic",
    "description": "Whether bell-bearing merchants' shop checks require their bell in logic. off = every shop\ncheck is always open; logic_only would gate them behind the merchant's Bell Bearing. The\nbell->merchant->shop-rows mapping is not derivable matt-free from disk (bell-item flags do not\nappear in ShopLineupParam; the join lives in EMEVD bell-handover events), so v1 carries the\noption only and it is a no-op until a v2 EMEVD enrichment supplies that map (see module docstring).",
    "kind": "choice",
@@ -1944,6 +2029,7 @@
   {
    "key": "shop_checks",
    "class": "ShopChecks",
+   "compatibility_only": false,
    "display_name": "Shop Checks",
    "description": "Whether merchant purchase slots are AP CHECKS. ON (default): buying from a merchant can pay\nout an AP item, as normal. OFF: no merchant slot is a check -- the ~562 shop rows (184 in the hub\nalone) stop being locations entirely, so no item -- yours OR another player's -- can be gated\nbehind a purchase menu, and there is no shop-grinding to collect checks.\n\nThis SHRINKS the seed (fewer checks, a correspondingly smaller item pool) and empties the\n`ShopSlot` progression surface (the feasibility ladder widens automatically). Merchants still\nexist and still sell their vanilla wares; their purchase slots simply hold nothing to collect.\n\nDistinct from `keep_out_of_shops`, which only relocates YOUR OWN items and leaves the slots as\nchecks a FOREIGN item can still land in -- this removes the slots outright, which is what \"an\nitem someone else really wants never ends up in a merchant\" requires.",
    "kind": "toggle",
@@ -1961,6 +2047,7 @@
   {
    "key": "start_regions",
    "class": "StartRegions",
+   "compatibility_only": false,
    "display_name": "Starting Regions",
    "description": "How many regions are OPEN at run start. 1 (default) is the classic single opening region;\nhigher values precollect that many Region Locks, so the run begins with more of the map\nreachable and fewer locks left to find.\n\nOnly consulted when Start With A Region Lock is on, and ignored under Natural Progression\n(which mints no Lock items at all). It must stay BELOW the number of regions the seed actually\nkept -- holding every kept Lock at connect would complete the goal before you play -- and\ngeneration fails loudly, naming both numbers, if it does not. Remember that Number of Regions\nis a DRAW SIZE: a seed can keep more regions than you asked for, but never fewer.\n\nThe first region is picked exactly as it always was (size-weighted over the kept base-game\nregions, MajorBoss-biased under a strict Progression Surface). The extras are drawn the same\nway from what is left, except that the goal region can never be one: a run that opens on the\nregion it ends in is over before it starts.",
    "kind": "range",
@@ -1981,6 +2068,7 @@
   {
    "key": "start_region_pool",
    "class": "StartRegionPool",
+   "compatibility_only": false,
    "display_name": "Starting Region Pool",
    "description": "WHICH regions the run may open in, by name. Empty (default) = any kept region, drawn the way\nit always was. Name one and the run opens there; name several and the opening region is drawn\nfrom just those.\n\nRegion names are the ones the spoiler and the client use: Limgrave, Liurnia, Caelid, Altus,\nStormveil, Raya Lucaria Academy, Leyndell, Mt. Gelmir, Mountaintops of the Giants, Weeping,\nDeeproot Depths, Siofra River, Ainsel River, Mohgwyn, Farum Azula, Sewer, and the DLC's\nGravesite, Belurat, Ensis, Scadu Altus, Shadow Keep, Rauh Base, Ancient Ruins, Cerulean,\nAbyssal, Jagged Peak, Enir Ilim.\n\n🛑 EVERY REGION YOU NAME IS FORCE-KEPT, so this can make a seed BIGGER than `num_regions` asked\nfor -- that number is a DRAW SIZE, and force-keeps are additive (the same seam a named `goal`\nuses). The generation log names the contribution. Naming three regions and asking for one is\ntherefore a three-region seed, not a one-region seed with a choice; if you want \"just play\nCaelid\", name one.\n\nThe alternative -- draw the opening region from your pool FIRST and force-keep only the winner --\nwas considered and rejected: it needs a second draw before the kept set exists, and two draws\nthat must agree about the same region is precisely the shape that has produced drift here before.\nOne mechanism, stated, beats two that have to be kept in step.\n\nIgnored when Start With A Region Lock is off and under Natural Progression / Vanilla Placement,\nwhich mint no Lock items -- exactly like Starting Regions above. Naming a region this seed\ncannot open in (sealed by your DLC toggles, needed by your goal, or a child region that is\nreached through its parent) fails generation and says which and why, rather than quietly\ndropping it.",
    "kind": "set",
@@ -2027,6 +2115,7 @@
   {
    "key": "start_with_whetblades",
    "class": "StartWithWhetblades",
+   "compatibility_only": false,
    "display_name": "Start With All Whetblades",
    "description": "Start with all five whetblades (Iron, Red-Hot, Sanctified, Glintstone, Black) so every Ash-of-War\naffinity is selectable at any grace from the opening, instead of hunting the vanilla pickups. OFF by\ndefault (opt-in). Grants the ITEMS only -- no event flag is set, because each whetblade's only\nvanilla flag is its randomized check flag; the grace affinity menu keys on possession. The whetblade\nCHECKS stay in the pool regardless.",
    "kind": "toggle",
@@ -2044,6 +2133,7 @@
   {
    "key": "trap_link",
    "class": "TrapLink",
+   "compatibility_only": false,
    "display_name": "TrapLink",
    "description": "Share trap items with other TrapLink players.\n\nA trap received through Archipelago is broadcast once when it enters your local trap queue.\nLinked traps use an exact compatible Elden Ring trap name; unknown foreign trap names are\nignored rather than converted into an arbitrary effect. Incoming linked traps never echo back.",
    "kind": "toggle",
@@ -2061,6 +2151,7 @@
   {
    "key": "traps",
    "class": "Traps",
+   "compatibility_only": false,
    "display_name": "Traps",
    "description": "Which traps may appear in your world. Empty (default) = no traps at all.\n\nA trap is an item that makes your run briefly worse. They are FILLER: a trap never holds\nprogression, and every trap in your pool replaces one junk item, so your seed does not grow.\n\n- **rune_thief** -- half your runes, gone.\n- **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does\n  nothing, and the charge is spent.\n- **blackout** -- the screen fades out, stays dark for 2 seconds, then fades back in.\n- **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the\n  runes.\n- **basilisk** -- THREE basilisks appear where you are standing. One is a joke; three is the\n  Death Blight mist, which kills outright. Killing you sends a DeathLink.\n\nTraps are sent to YOU by your own world like any other item, so in a multiworld somebody else\nmay be the one who finds them.\n\nTHIS OPTION TAKES THESE WORDS AND NOTHING ELSE. For any other enemy in the game -- by name or by\ncharacter model id -- use `spawn_traps`, which is the other list in this section.",
    "kind": "set",
@@ -2086,6 +2177,7 @@
   {
    "key": "trap_count",
    "class": "TrapCount",
+   "compatibility_only": false,
    "display_name": "Trap Count",
    "description": "How many trap items to put in your pool, shared out evenly between the traps you enabled.\n\nINERT unless `traps` names at least one trap. Each trap displaces one filler item, so raising\nthis does not change how many checks your seed has -- only how much of your junk bites back.",
    "kind": "range",
@@ -2106,6 +2198,7 @@
   {
    "key": "spawn_traps",
    "class": "SpawnTraps",
+   "compatibility_only": false,
    "display_name": "Spawn Traps",
    "description": "Extra enemies to drop on your own head. Takes an ENEMY NAME or a character model id.\n\nTHE ESCAPE HATCH. `traps` carries the enemies we curated and named; this takes any of the 390\nspawnable models in the game, for anyone who wants something specific standing on top of them.\nOne appears where you are; the curated ones may come in numbers.\n\nBoth spellings work and mean the same thing, so write whichever you have::\n\n    spawn_traps: [Basilisk, Runebear]     # a name -- case does not matter\n    spawn_traps: [\"4150\", \"4630\"]         # the same two models, by id\n\nTHE NAMED MODELS (35 of the 390):\n\nAging Untouchable, Alexander Warrior Jar, Asimi Silver Tear, Basilisk, Blaidd the Half-Wolf,\nBoc the Seamster, Demi-Human Boc, Finger Reader Crone, Finger Reader Enia, Gatekeeper Gostoc,\nGurranq Beast Clergyman, Hornsent Grandam, Jar-Bairn, Latenna the Albinauric,\nMalenia (Phase 1), Melina, Merchant Kale, Miriel Pastor of Vows, Pidia Carian Servant,\nPrimeval Sorcerer Azur, Primeval Sorcerer Lusat, Ranni the Witch,\nRennala Queen of the Full Moon, Runebear, Smithing Master Hewg, Smithing Master Iji,\nSorceress Sellen, St. Trina, Tanith's Knight, The Noble Goldmask, The Two Fingers,\nZorayas the Scout. (Six of these carry a comma in the game -- `Alexander,\nWarrior Jar`. A comma separates values in yaml flow style and in the wizard box, so the\noffered spelling drops it; both spellings resolve.)\n\nTHE OTHER 355 HAVE NO NAME TO TAKE, and that is the game's doing rather than an omission here:\nElden Ring never writes an enemy's name on screen, so outside `NpcName.fmg.xml` -- 31 of these\nmodels -- there is no name in the data to use, and this project will not invent one. Those\nmodels stay reachable by id, which is what they always were.\n\nEmpty by default, and inert unless `trap_count` is above zero. A name or id that is not\nspawnable is a yaml ERROR naming its nearest matches, rather than an item that silently never\nfires -- 26 models are excluded because they have no AI row or no body (props like the Walking\nMausoleum), and refusing them at generation is the point.\n\nNaming the same enemy here and in `traps` is harmless: it is one item either way.\n\n🛑 THE ITEM IS STILL NAMED AFTER THE MODEL, not after what you typed: `Runebear` here mints\n`Trap: c4630 x1`, because the item name is a cross-repo contract the client parses and writing a\nname into the yaml must not move it. What you write is resolved to the model at generation and\ngoes no further -- which is the whole reason this cost no client release.",
    "kind": "set",
@@ -2550,6 +2643,7 @@
   {
    "key": "auto_upgrade",
    "class": "AutoUpgrade",
+   "compatibility_only": false,
    "display_name": "Auto-Upgrade Received Weapons",
    "description": "Automatically raise any weapon that enters your bag -- an AP grant, a world pickup, or an\nitem you put down with Leave and took back -- to the highest reinforce level you already hold\non its smithing track (normal caps at +25, somber at +10). Raise-only and per-track: nothing\nis ever downgraded, and somber never feeds normal. The put-it-down-pick-it-up gesture is the\nintended catch-up for a weapon received before you found your stones. On by default, and the\nreceipt half has been every seed's behaviour since v0.2 -- turn it off to keep weapons at\ntheir found level and spend the stones yourself.",
    "kind": "toggle",
@@ -2567,6 +2661,7 @@
   {
    "key": "flatten_regular_upgrades",
    "class": "FlattenRegularUpgrades",
+   "compatibility_only": false,
    "display_name": "Flatten Regular Upgrades (stones/level)",
    "description": "Stones per +level for STANDARD weapon reinforcement -- the client flattens the vanilla 2/4/6\nladder to a uniform cost. 0 = off (vanilla 2/4/6); 1..4 = uniform N stones per level (lower =\nweapons upgrade faster). The upgrade-curve analyzer found 3 best matches the smoothstep difficulty\nscaling (0/vanilla undershoots the target, 1 overshoots it). The default is 2, preserving the\nfixed cost used by existing releases. Somber weapons\n(1 stone/level) and the +25 Ancient Dragon step are unaffected.",
    "kind": "range",
@@ -2587,6 +2682,7 @@
   {
    "key": "vanilla_pool",
    "class": "VanillaPool",
+   "compatibility_only": false,
    "display_name": "Vanilla Item Pool",
    "description": "Turn item-pool curation off: your checks pay what they pay in vanilla Elden Ring. Off by\ndefault, and it is the ONE switch you need -- it replaces the whole `curated_filler` recipe with\n\"keep what the check already paid\" AND stops the guaranteed physick-tear / bell-bearing set\nbeing added to the pool. Those are the two separate things that make a seed's item spread differ\nfrom vanilla's, which is why emptying `curated_filler` on its own is not enough: it does the\nfirst only, and such a seed still hands you up to 18 crystal tears vanilla never placed.\n\n(Items are still SHUFFLED between checks -- this decides which items exist, not where they sit.\n`vanilla_placement` is the option for that.)\n\nYou give up a lot: no gear injection, no smithing-stone economy, no rune economy, and no\nguarantee that a physick tear or a bell bearing exists at all in a seed that seals their home\nregions. That is what vanilla means here -- the curation is what was buying those. If what you\nwanted was less gear rather than none, weight `curated_filler` down instead of setting this.\n\nOverrides `curated_filler` rather than conflicting with it: the recipe has a real default, so a\nyaml that never mentions it still has one, and rejecting the combination would reject the\nshipped template. The generation log names the override when it happens.",
    "kind": "toggle",
@@ -2604,6 +2700,7 @@
   {
    "key": "no_weapon_requirements",
    "class": "NoWeaponRequirements",
+   "compatibility_only": false,
    "display_name": "No Weapon Requirements",
    "description": "Remove the stat requirements on weapons, shields, and catalysts (and spell requirements) so\nanything the multiworld hands you is usable regardless of your build.\n\nOn by default -- a randomizer hands you gear no build was made for, and this is what has always\nhappened. Turn it off if you want your stats to decide what you can hold; the seed is generated\nthe same either way, so nothing becomes unwinnable, it just becomes a fight you have to build for.\n\nThe client zeroes the live params at runtime and only ever LOWERS a requirement, so it is\nreconnect-safe.",
    "kind": "toggle",
@@ -2633,8 +2730,8 @@
   {
    "id": "short_solo",
    "title": "Short Solo",
-   "tagline": "A tight ~evening run: four regions.",
-   "description": "Base game with only four regions kept -- a short, quick-to-finish solo seed. Leyndell (the goal region) is always kept, so it stays winnable.",
+   "tagline": "A smaller run: four regions.",
+   "description": "Base game with only four regions kept -- a smaller solo seed. Leyndell (the goal region) is always kept, so it stays winnable.",
    "values": {
     "enable_dlc": false,
     "num_regions": 4
@@ -2642,7 +2739,7 @@
   },
   {
    "id": "multiworld_sync",
-   "title": "Multiworld Sync",
+   "title": "Multiworld",
    "tagline": "A polite footprint for playing with friends.",
    "description": "Base game with six regions -- a moderate check pool that keeps your slice of a shared multiworld reasonable while still being a real run.",
    "values": {
@@ -2652,7 +2749,7 @@
   {
    "id": "base_shattering",
    "title": "Base Shattering",
-   "tagline": "The whole base game: all 17 regions.",
+   "tagline": "The whole base game: every base-game region.",
    "description": "The full base-game Shattering -- every base region in play (num_regions 0), DLC off. The balanced default marathon.",
    "values": {
     "enable_dlc": false,
@@ -2660,20 +2757,10 @@
    }
   },
   {
-   "id": "vanilla_deathlink",
-   "title": "Vanilla + Death Link",
-   "tagline": "The base game, untouched, with shared deaths.",
-   "description": "Nothing is randomized: every item is where the base game keeps it, and progression is gated the way the base game gates it. Checks still fire and Death Link still works, so this is the setting for playing vanilla Elden Ring alongside friends and sharing deaths. Nothing is sent to or received from other worlds. The start is vanilla too -- no lantern, no Torrent, no Spirit Calling Bell, no crafting pots, no revealed maps and no levelling until Melina. Combat quality-of-life is unchanged (weapons still upgrade automatically and ignore their requirements), so this is vanilla PLACEMENT and a vanilla START, not vanilla BALANCE. The base game's own missables are inherited as-is -- burning the Erdtree still strands Leyndell's checks.",
-   "values": {
-    "vanilla_placement": "all",
-    "death_link": true
-   }
-  },
-  {
    "id": "dlc_only",
    "title": "DLC Only (experimental)",
    "tagline": "Only the Shadow of the Erdtree regions.",
-   "description": "Every base-game region is sealed; only the 14 DLC regions are in play, and the goal becomes holding every kept DLC Lock. DLC is experimental in v0.2.",
+   "description": "Every base-game region is sealed; all DLC regions are eligible. The goal becomes holding every kept DLC Lock.",
    "values": {
     "dlc_only": true,
     "num_regions": 0

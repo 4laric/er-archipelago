@@ -25,6 +25,14 @@ new game binary this update is the only client that runs.
 
 ## What is in it so far
 
+**The builder starts with the run you want.** Combine content, run size, difficulty,
+Boss Rush, rewards, travel and multiplayer profiles, then customize the individual settings.
+You can keep the run in base-game regions while mixing DLC gear into its pool. There is
+also a useful-consumables reward profile inspired by Nightreign. Existing option names stay
+the same, and vanilla placement is tucked away under advanced settings instead of appearing
+in starting templates. Existing YAMLs remain valid; the new DLC gear option is off unless
+you select it.
+
 **Elden Ring updated to 2.7.1.0 on September 8th, and this client follows it.** Older clients
 show the "unsupported game version" box and switch themselves off; your save is untouched
 either way. The new addresses come from the same generator upstream uses, run against the real

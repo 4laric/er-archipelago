@@ -22,7 +22,12 @@ WHAT IS PINNED, and why each case is here:
   * THE REFUSALS: an absent corpus, an absent map, an unknown door and a zero-placement scan each
     exit non-zero and write NOTHING. That is the failure mode this project has already paid for
     twice, and it is the one thing about this tool that must never regress quietly;
-  * `--enemy-drops` emits item_grace_coords.tsv's exact column shape for an NpcParam-only drop.
+  * `--enemy-drops` emits item_grace_coords.tsv's exact column shape for an NpcParam-only drop;
+  * `--award-parts` positions an EMEVD-awarded lot (Treasure with NO TreasurePartName -- #1511's
+    shape) at an operator-named part in ANY Part/* dir, marks the row `award-part:`, ADDS to
+    rather than replaces Treasure placements, and refuses an absent part or an unresolvable flag;
+  * `--entities` emits the coords shape for an operator-named MAP:ENTITY, keyed by the flag when
+    given, and refuses an absent part or map. The --enemy-drops refusal names --entities.
 
 Repo-only by construction (it drives a tools/ script over a temp artifacts tree), so it is
 ledgered in tools/gf_suite_ledger.py under GENERATORS.
@@ -57,6 +62,10 @@ NEAR = (20000210, 20007210, "Well Depths Key", "TreasureNear", (130.0, 10.0, 200
 FAR = (20000220, 20007220, "Somber Smithing Stone", "TreasureFar", (70.0, 10.0, 200.0))
 # A third, placed on a DummyAsset instead of an Asset, and 5 m off the plane on the FAR side.
 DUMMY = (20000230, 20007230, "Golden Rune", "TreasureDummy", (95.0, 10.0, 260.0))
+
+# An EMEVD-awarded lot: its Treasure record has NO <TreasurePartName> (the #1511 shape), so only
+# --award-parts can position it. Anchored, in the test, at the enemy part below.
+AWARD = (20000240, 20007240, "Mending Rune")
 
 ENEMY_FLAG = 1049557700
 ENEMY_LOT = 104955770
@@ -135,6 +144,10 @@ def build_artifacts(root, door_yaw=DOOR_YAW):
         _write(os.path.join(tre, "t%d.xml" % lot), _treasure_xml("宝箱%d" % lot, lot, part))
     # A treasure for a lot nobody asked about: it must not appear in the table.
     _write(os.path.join(tre, "tnoise.xml"), _treasure_xml("noise", 20009999, NEAR[3]))
+    # The EMEVD-award shape: an ItemLotID, InChest=2, and no TreasurePartName at all.
+    _write(os.path.join(tre, "taward.xml"),
+           '<?xml version="1.0" encoding="utf-8"?>\n<Event>\n  <Name>award</Name>\n'
+           "  <ItemLotID>%d</ItemLotID>\n  <InChest>2</InChest>\n</Event>\n" % AWARD[0])
 
     _write(os.path.join(md, "Part", "Enemy", "e1.xml"),
            _part_xml("c1000_9000", 20005000, ENEMY_POS,
@@ -149,6 +162,7 @@ def build_artifacts(root, door_yaw=DOOR_YAW):
     lot_rows = ["ID,getItemFlagId"]
     for lot, flag, _nm, _p, _pos in (NEAR, FAR, DUMMY):
         lot_rows.append("%d,%d" % (lot, flag))
+    lot_rows.append("%d,%d" % (AWARD[0], AWARD[1]))
     lot_rows.append("20009999,20009999")
     _write(os.path.join(vv, "ItemLotParam_map.csv"), "\n".join(lot_rows) + "\n")
     _write(os.path.join(vv, "ItemLotParam_enemy.csv"),
@@ -165,6 +179,7 @@ def build_gf(gf):
     rows = ["flag\ttable\tlot\tslot\tcategory\titem_id\tnum\tgoods_type\tname"]
     for lot, flag, nm, _p, _pos in (NEAR, FAR, DUMMY):
         rows.append("%d\tmap\t%d\t1\t1\t0\t1\t1\t%s" % (flag, lot, nm))
+    rows.append("%d\tmap\t%d\t1\t1\t0\t1\t1\t%s" % (AWARD[1], AWARD[0], AWARD[2]))
     _write(os.path.join(gf, "flag_lots.tsv"), "\n".join(rows) + "\n")
     _write(os.path.join(gf, "msb_flag_region.tsv"),
            "flag\tmap_id\titem_lot_id\ttreasure_name\tsource\n"
@@ -316,6 +331,82 @@ class DoorSidesTest(unittest.TestCase):
         self.assertEqual(["item", str(ENEMY_FLAG), MAP], cells[:3])
         self.assertEqual([str(v) for v in ENEMY_POS], cells[3:6])
         self.assertEqual("", cells[6])
+
+    # ---- operator-anchored parts (the 2026-09-09 real-run gap) --------------------------------
+    def test_award_parts_anchor_an_emevd_awarded_lot_at_a_named_part(self):
+        # AWARD's Treasure has no <TreasurePartName> (an EMEVD award, like #1511's lot 4920), so
+        # --flags alone finds ZERO placements. --award-parts anchors it at the enemy part BY
+        # ENTITY, across Part/Enemy (not just Asset/DummyAsset), and the row is marked as such.
+        rc, _out, err = self._cli("--map", "m20_00", "--door", str(DOOR_ENTITY),
+                                  "--flags", str(AWARD[1]))
+        self.assertNotEqual(0, rc)
+        self.assertIn("ZERO placements", err)
+        rc, out, err = self._cli("--map", "m20_00", "--door", str(DOOR_ENTITY),
+                                 "--award-parts", "%d=20005000" % AWARD[1])
+        self.assertEqual(0, rc, err[-800:])
+        rows = _table(out)
+        self.assertEqual(1, len(rows))
+        r = rows[0]
+        self.assertEqual((str(AWARD[0]), str(AWARD[1]), AWARD[2], "award-part:c1000_9000"),
+                         (r["lot_id"], r["flag"], r["item_name"], r["treasure_part"]))
+        self.assertEqual([str(v) for v in ENEMY_POS],
+                         ["%g" % float(r[k]) for k in ("tx", "ty", "tz")])
+        self.assertIn("anchored at Part/Enemy/c1000_9000", err)
+
+    def test_award_parts_add_to_treasure_placements_rather_than_replacing(self):
+        rc, out, err = self._cli("--map", "m20_00", "--door", str(DOOR_ENTITY),
+                                 "--flags", str(NEAR[1]),
+                                 "--award-parts", "%d=%s" % (NEAR[1], FAR[3]))
+        self.assertEqual(0, rc, err[-800:])
+        parts = sorted(r["treasure_part"] for r in _table(out))
+        self.assertEqual([NEAR[3], "award-part:" + FAR[3]], parts)
+
+    def test_an_award_part_missing_from_the_map_is_fatal(self):
+        with tempfile.TemporaryDirectory() as out_dir:
+            p = os.path.join(out_dir, "never.tsv")
+            rc, _out, err = self._cli("--map", "m20_00", "--door", str(DOOR_ENTITY),
+                                      "--award-parts", "%d=NoSuchPart" % AWARD[1], "--emit", p)
+            self.assertNotEqual(0, rc)
+            self.assertIn("FATAL", err)
+            self.assertIn("NoSuchPart", err)
+            self.assertFalse(os.path.exists(p))
+            rc, _out, err = self._cli("--map", "m20_00", "--door", str(DOOR_ENTITY),
+                                      "--award-parts", "20009000=20005000", "--emit", p)
+            self.assertNotEqual(0, rc, "an unresolvable award flag has no lot and must refuse")
+            self.assertIn("FATAL", err)
+            self.assertFalse(os.path.exists(p))
+
+    def test_entities_emit_the_item_grace_coords_shape_for_a_named_part(self):
+        rc, out, err = self._cli("--entities",
+                                 "m20_00:20005000=%d,m20_00:c1000_9000" % ENEMY_FLAG)
+        self.assertEqual(0, rc, err[-800:])
+        lines = [ln for ln in out.splitlines() if ln.strip() and not ln.startswith("#")]
+        self.assertEqual(list(self.mod.ENEMY_COLUMNS), lines[0].split("\t"))
+        rows = [ln.split("\t") for ln in lines[1:]]
+        self.assertEqual(2, len(rows))
+        keys = sorted(r[1] for r in rows)
+        self.assertEqual(sorted([str(ENEMY_FLAG), "c1000_9000"]), keys)
+        for r in rows:
+            self.assertEqual(["item", MAP], [r[0], r[2]])
+            self.assertEqual([str(v) for v in ENEMY_POS], r[3:6])
+            self.assertEqual("", r[6])
+        self.assertIn("operator-anchored", err)
+
+    def test_an_entity_missing_from_the_map_is_fatal_and_writes_nothing(self):
+        with tempfile.TemporaryDirectory() as out_dir:
+            p = os.path.join(out_dir, "never.tsv")
+            rc, _out, err = self._cli("--entities", "m20_00:20009998", "--emit", p)
+            self.assertNotEqual(0, rc)
+            self.assertIn("FATAL", err)
+            self.assertFalse(os.path.exists(p))
+            rc, _out, err = self._cli("--entities", "m99_00:20005000", "--emit", p)
+            self.assertNotEqual(0, rc)
+            self.assertFalse(os.path.exists(p))
+
+    def test_enemy_drops_failure_points_at_entities(self):
+        rc, _out, err = self._cli("--enemy-drops", "1049557799")
+        self.assertNotEqual(0, rc)
+        self.assertIn("--entities", err)
 
     # ---- THE REFUSALS -------------------------------------------------------------------------
     def test_an_absent_corpus_is_fatal_and_writes_nothing(self):

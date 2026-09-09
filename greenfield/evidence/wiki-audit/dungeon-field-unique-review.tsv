@@ -990,6 +990,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7900199	unique_field_pickup	Shadow Keep	Rain of Fire	21027991	m61_49_48	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
 7771994	unique_field_pickup	Shadow Keep	Salza's Hood	21027991	m61_50_47	remaining_unreviewed	0		first_independent_identity_region_source
 7773576	unique_field_pickup	Shadow Keep	Sharpshot Talisman	2049497510	m61_50_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7774283	unique_field_pickup	Weeping	Ambush Shard	1041337100	m60_42_33	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770727	unique_field_pickup	Weeping	Ash of War: Mighty Shot	540140	m60_44_32	remaining_unreviewed	0		first_independent_identity_region_source
 7772869	unique_field_pickup	Weeping	Claymore	1043317910	m60_44_32	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7900256	unique_field_pickup	Weeping	Crystal Burst	1043347400	m60_42_33	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source

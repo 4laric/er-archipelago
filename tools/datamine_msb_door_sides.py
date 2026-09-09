@@ -106,6 +106,49 @@ greenfield/eldenring/tests/test_gf_msb_door_sides.py on synthetic fixtures inste
   python tools/datamine_msb_door_sides.py --path D:\er\elden_ring_artifacts \
       --enemy-drops 1049557700,2047407980,65460 --emit enemy_drop_coords.tsv
 
+WHEN THE MSB CHAIN IS SILENT: OPERATOR-ANCHORED PARTS (2026-09-09, the first real run)
+--------------------------------------------------------------------------------------
+Both automatic chains above stop one hop short of the MSB for a whole class of awards, and the
+first run on the real corpus hit that class in BOTH issues:
+
+  * #1511's lot 4920 HAS an Event/Treasure in m35_00 (`アイテム光000 エルデンリングのかけら`) but the
+    record carries NO <TreasurePartName> at all (`InChest=2`): the rune is AWARDED by EMEVD, on
+    asset 35001711, not picked off a part. treasure_placements has nothing to position.
+  * 1049557700 (Larval Tear) and 2047407980 are `AwardItemsIncludingClients` in EMEVD keyed on a
+    CHARACTER's death (m60_49_55_00 event 1049552400 on entity 1049550400; common 90005301 on
+    entity 2047400499). No NpcParam row points at those lots, so `_enemy_item_rows` is silent.
+  * 65460 (Glovewort Crystal Tear) is a furnace-golem (c4900) drop and the corpus carries no
+    c4900 placement anywhere -- docs/MATT-ORACLE-ROADMAP.md item 7. NOTHING here can place it.
+  * #1512's 20007991/20007993 (lots 20001991/20001993) have no Event/Treasure in m20_00 at all;
+    the twelve by-tens flags do, and are the twelve rows the first run wrote.
+
+The part that DOES carry the position is known in every placeable case -- it is in the EMEVD line
+(`greenfield/questline_conditions.tsv` names it) -- it just is not reachable from the lot through
+the MSB. So the operator hands it over EXPLICITLY, and the table says so:
+
+  --award-parts FLAG=PART[,FLAG=PART...]   door mode: position candidate FLAG at PART (a <Name> or
+                                           <EntityID>, searched over EVERY Part/* dir) instead of
+                                           through Event/Treasure. lot/item_name still resolve
+                                           through the committed tables; treasure_part shows the
+                                           part with an `award-part:` prefix; the header note lists
+                                           every anchored row.
+  --entities MAP:ENTITY[=FLAG][,...]       coords mode: emit the position of ENTITY (name or id) in
+                                           MAP, in the same kind,key,map_id,x,y,z,name shape as
+                                           --enemy-drops. key is FLAG when given, else the entity.
+
+  # 1511 -- the rune is EMEVD-awarded on asset 35001711; anchor it there
+  python tools/datamine_msb_door_sides.py --path D:\er\elden_ring_artifacts --map m35_00 \
+      --door 35001564 --award-parts 9504=35001711 --emit door_sides_m35_00.tsv
+
+  # the two death-award flags, at the character the EMEVD watches
+  python tools/datamine_msb_door_sides.py --path D:\er\elden_ring_artifacts \
+      --entities m60_49_55_00:1049550400=1049557700,m61_47_40_00:2047400499=2047407980 \
+      --emit enemy_drop_coords.tsv
+
+Neither option guesses: a FLAG that resolves to no lot, or a PART/ENTITY that is not in the map,
+is FATAL, the same as every other refusal here. The anchoring is the operator's ruling -- exactly
+the human step the docstring above already reserves for the sign of the normal.
+
 `--emit` output is deterministic (rows sorted by lot, then part name) and belongs to the operator's
 run, NOT to the repo: there is no committed table here and there must not be one, because the tool
 answers a question about a specific door on a specific day.
@@ -258,6 +301,52 @@ def find_door(msb_dir, spec):
         % (spec, msb_dir, ", ".join("Part/%s (%d xml)" % c for c in counts)))
 
 
+def find_part_any(msb_dir, spec):
+    """(name, part_dir, (x, y, z)) for a part named or entitled `spec` in ANY Part/* dir, or None.
+
+    find_door is deliberately Asset/DummyAsset-only; an award part can be an Enemy (a death award)
+    as easily as an Asset, so this looks everywhere and reports which dir it was in.
+    """
+    want_ent = int(spec) if str(spec).lstrip("-").isdigit() else None
+    pd = os.path.join(msb_dir, "Part")
+    if not os.path.isdir(pd):
+        return None
+    for sub in sorted(os.listdir(pd)):
+        d = os.path.join(pd, sub)
+        if not os.path.isdir(d):
+            continue
+        for fn in sorted(f for f in os.listdir(d) if f.endswith(".xml")):
+            try:
+                with open(os.path.join(d, fn), encoding="utf-8-sig", errors="replace") as fh:
+                    txt = fh.read()
+            except OSError:
+                continue
+            nm = _NAME_RE.search(txt)
+            nm = nm.group(1).strip() if nm else fn[:-4]
+            ent = _ENT_RE.search(txt)
+            ent = int(ent.group(1)) if ent else None
+            if not (nm == str(spec) or (want_ent is not None and ent == want_ent)):
+                continue
+            pos = igc._POS_RE.search(txt)
+            if not pos:
+                raise SystemExit("FATAL: part %s (%s/%s) has no <Position>." % (nm, sub, fn))
+            return nm, sub, (float(pos.group(1)), float(pos.group(2)), float(pos.group(3)))
+    return None
+
+
+def _pairs(spec, what, sep="="):
+    """`A=B,C=D` -> [(A, B), ...]; a token without `sep` is FATAL."""
+    out = []
+    for tok in (spec or "").replace(" ", ",").split(","):
+        if not tok:
+            continue
+        if sep not in tok:
+            raise SystemExit("FATAL: %s value %r is not of the form X%sY" % (what, tok, sep))
+        a, b = tok.split(sep, 1)
+        out.append((a.strip(), b.strip()))
+    return out
+
+
 # ---------------------------------------------------------------- flag -> lot, via the committed tables
 
 def _read_tsv(path):
@@ -399,9 +488,17 @@ def _play_region(map_id, xyz, ctx):
     return (",".join(str(i) for i in ids) or "-"), src
 
 
-def door_rows(map_id, door, candidates, ctx):
-    """The table: one row per (lot, placement), deterministic, no side effects."""
+def door_rows(map_id, door, candidates, ctx, anchored=None):
+    """The table: one row per (lot, placement), deterministic, no side effects.
+
+    `anchored` is {lot: [(part_label, xyz), ...]} from --award-parts; those placements are ADDED
+    to the Event/Treasure ones, never substituted for them, so a lot that turns out to have both
+    shows both and the human sees the disagreement.
+    """
     placements = treasure_placements(map_id, set(candidates))
+    for lot, extra in (anchored or {}).items():
+        placements.setdefault(lot, []).extend(extra)
+        placements[lot].sort()
     n = door.normal()
     rows = []
     for lot in sorted(candidates):
@@ -462,6 +559,33 @@ def enemy_drop_rows(flags):
     return sorted(rows, key=lambda r: (int(r[1]), r[2], r[3], r[4], r[5]))
 
 
+def entity_rows(pairs):
+    """[(kind, key, map_id, x, y, z, name)] for operator-named `MAP:ENTITY[=FLAG]` parts.
+
+    The EMEVD-on-death awards (module docstring, "WHEN THE MSB CHAIN IS SILENT") have no NpcParam
+    hop for `enemy_drop_rows` to follow; the watched character IS known from the event line. The
+    operator names it; this only reads its <Position>. Same shape as enemy_drop_rows so the
+    PlayArea scan consumes either. A missing map or part is FATAL.
+    """
+    rows = []
+    for spec, flag in pairs:
+        if ":" not in spec:
+            raise SystemExit("FATAL: --entities value %r is not MAP:ENTITY[=FLAG]" % spec)
+        map_id, ent = spec.split(":", 1)
+        full = full_map_id(map_id)
+        msb = msb_dir_or_die(full)
+        hit = find_part_any(msb, ent)
+        if hit is None:
+            raise SystemExit("FATAL: no part named or entitled %r in %s (searched every Part/* "
+                             "dir). Nothing written." % (ent, msb))
+        nm, sub, (x, y, z) = hit
+        sys.stderr.write("NOTE: %s -> Part/%s/%s at (%.3f, %.3f, %.3f)\n"
+                         % (spec, sub, nm, x, y, z))
+        key = flag if flag else str(ent)
+        rows.append(("item", key, full, x, y, z, ""))
+    return sorted(rows, key=lambda r: (r[1], r[2], r[3], r[4], r[5]))
+
+
 # ---------------------------------------------------------------- output
 
 def write_tsv(path, columns, rows, header_note):
@@ -474,6 +598,10 @@ def write_tsv(path, columns, rows, header_note):
 
 
 def _print(columns, rows, stream=sys.stdout):
+    # Item names and witchy part names are not cp1252; a Windows console default must not turn a
+    # finished scan into a UnicodeEncodeError halfway through the table.
+    if hasattr(stream, "reconfigure"):
+        stream.reconfigure(encoding="utf-8", errors="replace")
     stream.write("\t".join(columns) + "\n")
     for r in rows:
         stream.write("\t".join(str(c) for c in r) + "\n")
@@ -504,6 +632,13 @@ def main(argv=None):
                     help="second mode: comma-separated enemy-drop flags with no Treasure "
                          "placement. Emits the PLACING ENEMY's map and position in "
                          "item_grace_coords.tsv's kind,key,map_id,x,y,z,name shape.")
+    ap.add_argument("--award-parts", default="", metavar="FLAG=PART,...",
+                    help="door mode: anchor candidate FLAG at PART (a part <Name> or <EntityID>, "
+                         "any Part/* dir) when its award has no Event/Treasure placement -- an "
+                         "EMEVD award. The operator's ruling; the row is marked `award-part:`.")
+    ap.add_argument("--entities", default="", metavar="MAP:ENTITY[=FLAG],...",
+                    help="third mode: emit the <Position> of named parts, in --enemy-drops' shape, "
+                         "for awards keyed on a character's death in EMEVD (no NpcParam hop).")
     ap.add_argument("--emit", metavar="TSV",
                     help="write the table here (deterministic). Without it the table goes to "
                          "stdout. Nothing is ever written into greenfield/ -- this answers a "
@@ -517,32 +652,47 @@ def main(argv=None):
     if root:
         _set_artifacts_root(root)
 
-    if args.enemy_drops:
-        flags = _ints(args.enemy_drops, "--enemy-drops")
+    if args.enemy_drops or args.entities:
         if not artifacts_root.msb_dirs(AR):
             raise SystemExit("FATAL: no witchy'd MSB dirs under %s. %s"
                              % (AR, artifacts_root.msb_search_report(AR)))
-        rows = enemy_drop_rows(flags)
-        if not rows:
-            raise SystemExit("FATAL: none of the %d enemy-drop flag(s) resolved to a placed "
-                             "Part/Enemy. An empty scan that writes a table is the failure mode "
-                             "this project has already paid for twice -- nothing written."
-                             % len(flags))
-        note = ["enemy-drop coordinates from tools/datamine_msb_door_sides.py --enemy-drops",
-                "chain: Part/Enemy <NPCParamID> -> NpcParam.itemLotId_* -> ItemLotParam "
-                "getItemFlagId* -> flag (datamine_item_grace_coords._enemy_item_rows)",
-                "shape matches greenfield/item_grace_coords.tsv; positions are MAP-LOCAL"]
+        rows, note = [], []
+        if args.enemy_drops:
+            flags = _ints(args.enemy_drops, "--enemy-drops")
+            rows += enemy_drop_rows(flags)
+            if not rows:
+                raise SystemExit("FATAL: none of the %d enemy-drop flag(s) resolved to a placed "
+                                 "Part/Enemy. An empty scan that writes a table is the failure "
+                                 "mode this project has already paid for twice -- nothing written."
+                                 "\n  If the award is EMEVD-on-death (AwardItemsIncludingClients "
+                                 "keyed on a character; see greenfield/questline_conditions.tsv), "
+                                 "there is no NpcParam hop to follow: name the character with "
+                                 "--entities MAP:ENTITY=FLAG instead." % len(flags))
+            note += ["enemy-drop coordinates from tools/datamine_msb_door_sides.py --enemy-drops",
+                     "chain: Part/Enemy <NPCParamID> -> NpcParam.itemLotId_* -> ItemLotParam "
+                     "getItemFlagId* -> flag (datamine_item_grace_coords._enemy_item_rows)"]
+        if args.entities:
+            pairs = [(t.split("=", 1) + [""])[:2] for t in
+                     args.entities.replace(" ", ",").split(",") if t]
+            rows += entity_rows(pairs)
+            note += ["operator-anchored coordinates from --entities (the part the EMEVD award "
+                     "watches; NOT an MSB-derived chain): " +
+                     "; ".join("%s -> flag %s" % (a, b or "(none)") for a, b in pairs)]
+        note += ["shape matches greenfield/item_grace_coords.tsv; positions are MAP-LOCAL"]
         if args.emit:
             write_tsv(args.emit, ENEMY_COLUMNS, rows, note)
             sys.stderr.write("wrote %d row(s) -> %s\n" % (len(rows), args.emit))
         else:
+            for ln in note:
+                sys.stderr.write("# %s\n" % ln)
             _print(ENEMY_COLUMNS, rows)
         return 0
 
     if not (args.map and args.door):
         raise SystemExit("FATAL: --map and --door are both required (or use --enemy-drops)")
-    if not (args.flags or args.lots):
-        raise SystemExit("FATAL: give at least one candidate with --flags or --lots")
+    if not (args.flags or args.lots or args.award_parts):
+        raise SystemExit("FATAL: give at least one candidate with --flags or --lots "
+                         "(or --award-parts)")
 
     msb = msb_dir_or_die(args.map)
     door = find_door(msb, args.door)
@@ -552,17 +702,55 @@ def main(argv=None):
             "      The witchy fields this family reads on a Part are <Name>, <EntityID>, "
             "<Position><X/Y/Z> and (here) <Rotation><X/Y/Z>; only Rotation/Y is a yaw, and it is "
             "absent on this record. No zero is substituted.\n" % door.name)
-    candidates, unresolved = resolve_candidates(_ints(args.flags, "--flags"),
+    award = _pairs(args.award_parts, "--award-parts")
+    award_flags = []
+    for f, _p in award:
+        if not f.isdigit():
+            raise SystemExit("FATAL: --award-parts flag %r is not a number" % f)
+        award_flags.append(int(f))
+    candidates, unresolved = resolve_candidates(_ints(args.flags, "--flags") + award_flags,
                                                 _ints(args.lots, "--lots"))
     for f in unresolved:
+        if f in award_flags:
+            raise SystemExit("FATAL: --award-parts flag %d has no row in flag_lots.tsv or "
+                             "msb_flag_region.tsv, so it has no lot to sit in a row. Nothing "
+                             "written." % f)
         sys.stderr.write("NOTE: flag %d has no row in flag_lots.tsv or msb_flag_region.tsv -- it "
                          "cannot be placed and is dropped.\n" % f)
     if not candidates:
         raise SystemExit("FATAL: no candidate lot ids resolved. Nothing written.")
 
+    # --award-parts: the operator's anchor for an EMEVD-awarded lot. Located now, over every
+    # Part/* dir, and FATAL if absent -- an anchor that is not in the map is not an anchor.
+    anchored, anchor_notes = {}, []
+    flag2lots = {}
+    for lot, (f, _nm) in candidates.items():
+        if f is not None:
+            flag2lots.setdefault(f, []).append(lot)
+    for f, part in award:
+        hit = find_part_any(msb, part)
+        if hit is None:
+            raise SystemExit("FATAL: --award-parts %s=%s: no part named or entitled %r in %s "
+                             "(searched every Part/* dir). Nothing written." % (f, part, part, msb))
+        nm, sub, xyz = hit
+        for lot in flag2lots.get(int(f), []):
+            anchored.setdefault(lot, []).append(("award-part:%s" % nm, xyz))
+        anchor_notes.append("flag %s anchored at Part/%s/%s (operator ruling, not an "
+                            "Event/Treasure placement)" % (f, sub, nm))
+
     tile_ids, interior_ids = gg.load_play_region_defaults()
     ctx = ([], tile_ids, interior_ids)     # overworld volumes are not needed for an interior map
-    rows = door_rows(args.map, door, candidates, ctx)
+    rows = door_rows(args.map, door, candidates, ctx, anchored)
+    placed = {int(r[0]) for r in rows}
+    for lot in sorted(candidates):
+        if lot not in placed:
+            f, nm = candidates[lot]
+            sys.stderr.write("NOTE: lot %d (flag %s%s) resolved but has NO placement in this map: "
+                             "no Event/Treasure names it with a TreasurePartName that is a part "
+                             "here. It is NOT in the table. If it is an EMEVD award, anchor it "
+                             "with --award-parts %s=PART.\n"
+                             % (lot, f if f is not None else "-", (", " + nm) if nm else "",
+                                f if f is not None else "FLAG"))
     if not rows:
         raise SystemExit(
             "FATAL: %d candidate lot(s) and ZERO placements found in %s. Either none of these lots "
@@ -581,6 +769,7 @@ def main(argv=None):
             "same yaw convention as datamine_grace_ground.Vol.contains. Same sign = same side of "
             "the door PLANE; which sign is the locked side is NOT decidable from the MSB.",
             "positions are MAP-LOCAL, the frame greenfield/item_grace_coords.tsv uses."]
+    note += anchor_notes
     if args.emit:
         write_tsv(args.emit, COLUMNS, rows, note)
         sys.stderr.write("wrote %d row(s) -> %s\n" % (len(rows), args.emit))
