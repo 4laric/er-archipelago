@@ -186,7 +186,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7771849	scadutree_fragment	uniquely_anchored_collectible	Enir Ilim	Scadutree Fragment	20017350	m20_01	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	unresolved	none_identity_region_trusted
 7771861	scadutree_fragment	uniquely_anchored_collectible	Enir Ilim	Scadutree Fragment	20017470	m20_01	trusted	2	gameplay-guide:game8;gameplay-guide:gamesradar	unresolved	none_identity_region_trusted
 7771869	scadutree_fragment	uniquely_anchored_collectible	Enir Ilim	Scadutree Fragment	20017550	m20_01	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	unresolved	none_identity_region_trusted
-7773493	scadutree_fragment	uniquely_anchored_collectible	Ensis	Scadutree Fragment	2048447500	m61_48_44	audited_one_family	1	gameplay-guide:gamesradar	unresolved	second_independent_exact_landmark_source
+7773493	scadutree_fragment	uniquely_anchored_collectible	Ensis	Scadutree Fragment	2048447500	m61_48_44	region_taxonomy_conflict	1	gameplay-guide:gamesradar	unresolved	adjudicate Highroad Cross boundary: PowerPyx Scadu Altus vs AP Ensis
 7774543	scadutree_fragment	uniquely_anchored_collectible	Ensis	Scadutree Fragment	2047447720		trusted	2	gameplay-guide:game8;gameplay-guide:pushsquare	unresolved	none_identity_region_trusted
 7773473	scadutree_fragment	uniquely_anchored_collectible	Gravesite	Scadutree Fragment	2048417700	m61_46_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773483	scadutree_fragment	uniquely_anchored_collectible	Gravesite	Scadutree Fragment	2048437700	m61_46_41	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	unresolved	none_identity_region_trusted
@@ -200,7 +200,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7773498	scadutree_fragment	uniquely_anchored_collectible	Scadu Altus	Scadutree Fragment	2048457520	m61_47_45	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	unresolved	none_identity_region_trusted
 7773506	scadutree_fragment	uniquely_anchored_collectible	Scadu Altus	Scadutree Fragment	2048467510	m61_47_45	trusted	2	gameplay-guide:game8;gameplay-guide:gamesradar	unresolved	none_identity_region_trusted
 7773587	scadutree_fragment	uniquely_anchored_collectible	Scadu Altus	Scadutree Fragment	2050437500	m61_50_43	trusted	2	gameplay-guide:gamesradar;gameplay-wiki:eldenpedia	unresolved	none_identity_region_trusted
-7773932	scadutree_fragment	uniquely_anchored_collectible	Scadu Altus	Scadutree Fragment	21007400	m21_00	audited_one_family	1	gameplay-guide:gamesradar	unresolved	second_independent_exact_landmark_source
+7773932	scadutree_fragment	uniquely_anchored_collectible	Scadu Altus	Scadutree Fragment	21007400	m21_00	region_taxonomy_conflict	1	gameplay-guide:gamesradar	unresolved	adjudicate Church District boundary: PowerPyx Shadow Keep vs AP Scadu Altus
 7774547	scadutree_fragment	uniquely_anchored_collectible	Scadu Altus	Scadutree Fragment	2047467500	m61_47_45	trusted	2	gameplay-guide:game8;gameplay-wiki:eldenpedia	unresolved	none_identity_region_trusted
 7774550	scadutree_fragment	uniquely_anchored_collectible	Scadu Altus	Scadutree Fragment	2049440990		trusted	2	gameplay-guide:gamesradar;gameplay-guide:powerpyx	unresolved	none_identity_region_trusted
 7774552	scadutree_fragment	uniquely_anchored_collectible	Scadu Altus	Scadutree Fragment	2049447530	m61_49_44	trusted	2	gameplay-guide:game8;gameplay-guide:gamesradar	unresolved	none_identity_region_trusted

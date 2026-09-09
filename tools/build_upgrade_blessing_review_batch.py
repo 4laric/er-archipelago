@@ -24,8 +24,8 @@ FIELDS = ("check_id", "category", "acquisition_class", "region", "item_name", "f
 # PowerPyx places these landmarks in a different broad area than the current AP filing.  The
 # identity is useful, but neither source taxonomy is allowed to silently decide the runtime region.
 REGION_TAXONOMY_CONFLICTS = {
-    7773495: "adjudicate Highroad Cross boundary: PowerPyx Scadu Altus vs AP Ensis",
-    7773939: "adjudicate Church District boundary: PowerPyx Shadow Keep vs AP Scadu Altus",
+    7773493: "adjudicate Highroad Cross boundary: PowerPyx Scadu Altus vs AP Ensis",
+    7773932: "adjudicate Church District boundary: PowerPyx Shadow Keep vs AP Scadu Altus",
 }
 
 

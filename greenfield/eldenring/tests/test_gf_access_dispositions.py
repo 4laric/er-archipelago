@@ -77,7 +77,7 @@ class AccessDispositionTests(unittest.TestCase):
         self.assertEqual(value["by_option_set"]["not(item_shuffle=true)"]["region_sufficient"], 1)
         self.assertEqual(value["release_blockers"], value["checks_total"] - 6)
         self.assertEqual(value["with_access_claim"], 47)
-        self.assertEqual(value["without_access_claim"], 4911)
+        self.assertEqual(value["without_access_claim"], 4901)
 
     def test_every_resolved_disposition_has_a_machine_checked_witness(self):
         rows = access.validate(LEDGER, DISPOSITIONS)

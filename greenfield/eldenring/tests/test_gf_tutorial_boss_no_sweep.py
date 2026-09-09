@@ -551,8 +551,12 @@ def test_the_sweep_corpus_did_not_shrink():
     # The live invasion flag400162 is intentionally not a Wormface sweep reward.
     assert all(7774244 not in members for members in DUNGEON_SWEEPS.values())
     # Native M4G dungeon admission adds only Silver Scarab to Stray Mimic Tear.
-    assert total == 4128, (
-        "sweep corpus is %d, expected 4128. If a sweep was legitimately added or removed, say WHY "
+    # 2026-09-08 (world#1515/#1518): 4128 -> 4123. Exactly FIVE flags lose sweep coverage and
+    # none gains it -- 550050 (an "About ..." tutorial popup) and the four unplaceable map-lot
+    # rows 1033457100, 1035477000, 1036437010, 1038447100. All five left the CORPUS in this
+    # change, so they can no longer be swept by anything; no surviving check lost a host.
+    assert total == 4123, (
+        "sweep corpus is %d, expected 4123. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -849,6 +853,12 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # (2046450800, 540912), (2046450800, 540914), (2048440800, 540920),
     # (2048440800, 540922). Zero removals or re-ownership relative to the NPC base.
     # Exactly (30200800, 30207900) added; no removals or re-ownership.
-    assert (digest, n) == ("10e98be68f92e19f", 4128), (  # #1437: then remove exactly (1040520800, 1039527700), no new owner
-        "sweep OWNERSHIP changed: (%s, %d), expected (10e98be68f92e19f, 4128). The total alone will "
+    # 2026-09-08 (world#1515/#1518): 10e98be68f92e19f/4128 -> 7cac83ec5d462142/4123. Ten rows left
+    # the corpus, five of them sweep members, and the round-robin `_ents[_j % len(_ents)]` re-deal
+    # then reshuffled every pool that held them. Measured pairwise against main in (trigger, flag)
+    # space: 324 flags re-owned, ZERO region crossings, ZERO check-region changes, exactly five
+    # flags lost coverage (550050, 1033457100, 1035477000, 1036437010, 1038447100 -- the removed
+    # rows themselves) and ZERO gained. Collateral churn only; no check changed region or host tier.
+    assert (digest, n) == ("7cac83ec5d462142", 4123), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (7cac83ec5d462142, 4123). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

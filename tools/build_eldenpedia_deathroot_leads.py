@@ -41,18 +41,18 @@ LEAD_FIELDS = ("lead_id", "subject_kind", "subject_id", "claim_kind", "normalize
 # current-Mt.-Gelmir disagreement at Wyndham Catacombs.
 BINDINGS = (
     (7770696, "Limgrave", "Summonwater Village", ("Tibia Mariner", "Summonwater Village"), ""),
-    (7772077, "Limgrave", "Deathtouched Catacombs",
+    (7772076, "Limgrave", "Deathtouched Catacombs",
      ("Deathtouched Catacombs", "Black Knife Assassin"), ""),
     (7770699, "Liurnia of the Lakes", "eastern Liurnia", ("Liurnia of the Lakes",),
      "eastern"),
-    (7772041, "Liurnia of the Lakes", "Black Knife Catacombs",
+    (7772040, "Liurnia of the Lakes", "Black Knife Catacombs",
      ("Black Knife Catacombs", "Cemetery Shade"), ""),
     (7770712, "Altus Plateau", "Wyndham Catacombs", ("Wyndham Catacombs",), ""),
-    (7772061, "Mt. Gelmir", "Gelmir Hero's Grave", ("Gelmir Hero's Grave", "Mt. Gelmir"), ""),
-    (7772104, "Mountaintops of the Giants", "Giants' Mountaintop Catacombs",
+    (7772060, "Mt. Gelmir", "Gelmir Hero's Grave", ("Gelmir Hero's Grave", "Mt. Gelmir"), ""),
+    (7772103, "Mountaintops of the Giants", "Giants' Mountaintop Catacombs",
      ("Giants' Mountaintop Catacombs", "Ulcerated Tree Spirit"), ""),
     (7900276, "Mountaintops of the Giants", "Castle Sol", ("Castle Sol",), ""),
-    (7772111, "Forbidden Lands", "Hidden Path to the Haligtree",
+    (7772110, "Forbidden Lands", "Hidden Path to the Haligtree",
      ("Hidden Path to the Haligtree", "Stray Mimic Tear"), ""),
 )
 

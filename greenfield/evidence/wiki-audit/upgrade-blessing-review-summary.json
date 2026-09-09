@@ -42,8 +42,8 @@
     },
     "scadutree_fragment": {
       "audited": 46,
-      "audited_one_family": 4,
-      "conflicted": 0,
+      "audited_one_family": 2,
+      "conflicted": 2,
       "held": 13,
       "remaining_unreviewed": 9,
       "repeated_material_rows": 0,
@@ -71,7 +71,7 @@
   "scope": "upgrade materials, flask upgrades, and DLC blessing collectibles",
   "totals": {
     "audited": 795,
-    "conflicted": 0,
+    "conflicted": 2,
     "held": 698,
     "remaining_unreviewed": 593,
     "trusted": 97
