@@ -168,7 +168,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7774005	sacred_tear	uniquely_anchored_collectible	Liurnia	Sacred Tear	39207170	m39_20	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773132	sacred_tear	uniquely_anchored_collectible	Mountaintops of the Giants	Sacred Tear	1051537800	m60_52_52	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	unresolved	none_identity_region_trusted
 7773203	sacred_tear	uniquely_anchored_collectible	Mountaintops of the Giants	Sacred Tear	1054557800	m60_54_56	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	unresolved	none_identity_region_trusted
-7772784	sacred_tear	uniquely_anchored_collectible	Weeping	Sacred Tear	1041337200		audited_one_family	1	gameplay-wiki:fextralife	unresolved	second_independent_exact_landmark_source
+7772784	sacred_tear	uniquely_anchored_collectible	Weeping	Sacred Tear	1041337200	m60_42_33	audited_one_family	1	gameplay-wiki:fextralife	unresolved	second_independent_exact_landmark_source
 7772879	sacred_tear	uniquely_anchored_collectible	Weeping	Sacred Tear	1043357100	m60_43_33	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772915	sacred_tear	uniquely_anchored_collectible	Weeping	Sacred Tear	1044337100	m60_44_32	audited_one_family	1	gameplay-wiki:fextralife	unresolved	second_independent_exact_landmark_source
 7773584	scadutree_fragment	uniquely_anchored_collectible	Abyssal	Scadutree Fragment	2050437010	m28_00	trusted	3	gameplay-guide:eip;gameplay-guide:redmaw;gameplay-wiki:eldenpedia	unresolved	none_identity_region_trusted

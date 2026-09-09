@@ -214,11 +214,19 @@ class TestSweepSlotSkips(unittest.TestCase):
         runtime = CONTRACT.runtime_sweep_skips()
         surface = CONTRACT.sweep_slot_skips(
             healthbars=HEALTHBARS, arena_regions=ARENA_REGIONS, triggers=SWEEPS)
-        self.assertEqual(set(runtime), {31000800, 31000850})
+        # Two classes, both HAND-DECLARED and neither derivable from the shipped tables:
+        # non-lethal (Patches, #672) and cut content -- an EMEVD boss chain the map constructor
+        # never $InitializeEvent's, so the defeat flag is unreachable (#1529, 2026-09-09).
+        self.assertEqual(set(runtime), {31000800, 31000850,
+                                        30130810, 34100800, 34110800, 34150800, 1041330800})
         self.assertTrue(set(runtime) < set(surface),
                         "runtime fireability was conflated with the wider progression-safety bar")
-        self.assertNotIn(34100800, runtime,
-                         "an unnamed trigger is unaudited, not positively known unfireable")
+        # The distinction the two sets encode is still real: an arena we have merely not ADJUDICATED
+        # is unsafe for required progression and perfectly fireable. Omenkiller is that case.
+        self.assertIn(1035420800, surface,
+                      "fixture check: expected an unaudited-arena trigger in the surface set")
+        self.assertNotIn(1035420800, runtime,
+                         "an unaudited arena is not positively known unfireable")
 
     def test_every_skip_carries_a_reason(self):
         """ShopSlot's SHOP_SLOT_SKIPS shape: keyed by what is excluded, valued by WHY. A silent
