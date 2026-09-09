@@ -3,6 +3,49 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.0.7 — 2026-09-09
+
+### What you need to update
+
+- **Client:** **Optional.** `CONTRACT_HASH` has not moved since v0.6.0.3, so a v0.6.0.3 through
+  v0.6.0.6 client plays every seed this window generates and a v0.6.0.7 client plays every seed
+  those apworlds generated. 🛑 The one standing exception is not new here: **on Elden Ring
+  2.7.1.0 you need at least a v0.6.0.6 client**, because every client built before that one refuses
+  the 2.7.1.0 executable at the version gate. That is a game-binary ruling, not a contract one.
+- **APWorld:** Host-only — install v0.6.0.7 when generating a new room once it ships. Players do
+  not need it.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — a fixpack never strands a running seed.
+- **Profile/assets:** No action at the open. If an entry below changes the bundled MapForGoblins
+  build or the AP Flower package, it will say so there.
+
+Window opened AT THE TAG of v0.6.0.6 with ZERO commits past it — the tidy shape, and worth
+naming because the last window did not have it: v0.6.0.6 opened two commits past v0.6.0.5 with
+two release notes filed under an already-tagged heading. Both v0.6.0.6 release workflows
+succeeded, nothing merged after `0b799779`, so this window starts with no note debt to move and
+the `## v0.6.0.6` section below is exactly what v0.6.0.6 shipped.
+
+`CONTRACT_HASH` is `613fb438`, read by loading `contract.py` after the bump rather than assumed
+from a literal: unmoved since v0.6.0.3. Versions are V.R.M.F, so this is the same 0.6.0 line —
+the handshake accepts a v0.6.0.7 apworld against a v0.6.0.3-or-later client and the reverse, in
+both directions, with no mismatch warning.
+
+The version moved, so a client half is needed: `contract_gen.rs` embeds the version string and
+the world's `generators` gate stays red until the gitlink follows it. That half is clients PR
+**#672**, "Stamp the paired client for the v0.6.0.7 window" — a version stamp only, moving the
+three client sites to `0.6.0+f7` / `0.6.0.7` — and **the gitlink rides in this same commit**
+(AGENTS §7). #672 branches from client `main` at `4188b81`, which is already the pinned commit,
+so the gitlink advances by the stamp alone and picks up nothing unrelated on the way.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.6.0.6 in this same commit, and
+`release/latest.json` is regenerated from the two ledgers to follow it.
+
+Opened BY HAND with `tools/open_window.py` for the **fourth consecutive window**:
+`.github/workflows/open-window.yaml` fails at its first step because the `CLIENT_REPO_TOKEN`
+secret is still absent. The workflow has now never opened a window on this line.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
 ## v0.6.0.6 — 2026-09-08
 
 ### What you need to update
