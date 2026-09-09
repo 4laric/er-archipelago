@@ -81,9 +81,11 @@ STAYERS = {
 # A region move re-sorts NAMES; it must never renumber an id (#952, #249). Read back from the
 # regenerated data.py by flag, never derived by arithmetic.
 PINNED_AP_IDS = {
-    2051477500: 7773643, 2051477510: 7773644, 1051557310: 7773139, 1051557320: 7773140,
-    580330: 7770804, 2048417800: 7773476, 2049427010: 7774559, 2052417000: 7773646,
-    400221: 7773717, 1049557700: 7774480,
+    # Re-read by FLAG from the regenerated data.py after #1526 removed 10 rows, which shifted
+    # every positional id from 7770795 on. Nothing here moved region as a result.
+    2051477500: 7773641, 2051477510: 7773642, 1051557310: 7773137, 1051557320: 7773138,
+    580330: 7770803, 2048417800: 7773474, 2049427010: 7774549, 2052417000: 7773644,
+    400221: 7773715, 1049557700: 7774470,
 }
 
 THEODORIX_TRIGGER = 1050560800

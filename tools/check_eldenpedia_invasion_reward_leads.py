@@ -18,11 +18,11 @@ HEADERS = (
 EXPECTED_FLAGS = {
     "7770017": 60300,
     "7770039": 65270,
-    "7771719": 16007940,
-    "7772824": 1042377700,
-    "7772844": 1042397700,
-    "7773759": 400672,
-    "7774254": 400162,  # #1437: live invasion award, not unused ground-lot copy
+    "7771718": 16007940,
+    "7772822": 1042377700,
+    "7772842": 1042397700,
+    "7773757": 400672,
+    "7774244": 400162,  # #1437: live invasion award, not unused ground-lot copy
 }
 
 
@@ -49,7 +49,7 @@ def main() -> int:
     assert len(leads) == 7
     assert len({row["lead_id"] for row in leads}) == len(leads)
     assert {row["subject_id"] for row in leads} == {
-        "7770017", "7770039", "7771719", "7772824", "7772844", "7773759", "7774254",
+        "7770017", "7770039", "7771718", "7772822", "7772842", "7773757", "7774244",
     }
 
     spec = importlib.util.spec_from_file_location(

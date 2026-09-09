@@ -27,31 +27,39 @@ REVIEW_DATE = "2026-08-31"
 GAME_VERSION = "1.17"
 RADAHN_ACCESS_AP_IDS = (7770002, 7770665)
 RADAHN_FESTIVAL_FLAG = 9410
-FINGERSLAYER_ACCESS_AP_ID = 7771152
+FINGERSLAYER_ACCESS_AP_ID = 7771151
 FINGERSLAYER_CHEST_GATE_FLAG = 1034509410
 CARIAN_STATUE_ACCESS_FLAGS = frozenset({
     34117100, 34117110, 34117120, 34117400, 34117401,
     34117402, 34117403, 34117500, 34117710,
 })
+# 🛑 AP IDS ARE POSITIONAL, AND EVERY PIN IN THIS BLOCK DEPENDS ON THAT. Ids are handed out in
+# corpus order, so removing ANY check that sorts before one of these renumbers it. The tripwires
+# below select their rows by FLAG and then assert the ap id, so a removal elsewhere in the corpus
+# surfaces as "<subject> changed" -- that is the guard working, not a defect and not a reason to
+# delete the guard. The fix is: confirm the FLAG set is unchanged, then re-bless the ids by
+# remapping old ap -> flag -> new ap against `git show origin/main:.../data.py`.
+# Re-blessed 2026-09-08 (world#1515/#1518): ten unplaceable/tutorial rows left the corpus (4941 ->
+# 4931), shifting the pins after them by -1 or -2. Every FLAG set here is unchanged.
 CARIAN_STATUE_ACCESS_AP_IDS = frozenset({
-    7772312, 7772313, 7772314, 7772316, 7772317,
-    7772318, 7772319, 7772320, 7772322, 7900218,
+    7772311, 7772312, 7772313, 7772315, 7772316,
+    7772317, 7772318, 7772319, 7772321, 7900218,
 })
-LAMENTERS_GAOL_ACCESS = {
-    7772446: (41027000, ()),
-    7772450: (41027320, ("Gaol Upper Level Key",)),
-    7773852: (520770, ("Gaol Upper Level Key", "Gaol Lower Level Key")),
+LAMENTERS_GAOL_ACCESS = {          # ids re-blessed 2026-09-08 (world#1515) -- see the note above
+    7772445: (41027000, ()),
+    7772449: (41027320, ("Gaol Upper Level Key",)),
+    7773850: (520770, ("Gaol Upper Level Key", "Gaol Lower Level Key")),
 }
 FINGER_RUINS_BELL_ACCESS = {
     # Dheo moved Jagged Peak -> Shadow Keep 2026-09-07: m61_50_40 is graceless, so the tile
     # derivation had nearest-neighboured it onto 6851 (Foot of the Jagged Peak). Alaric ruled it
     # Scaduview ground, and Scaduview folded into Shadow Keep 2026-07-19.
-    7773581: (2050407000, "Shadow Keep"),
-    7773656: (2053467600, "Scadu Altus"),
+    7773579: (2050407000, "Shadow Keep"),   # ids re-blessed 2026-09-08 (world#1515)
+    7773654: (2053467600, "Scadu Altus"),
 }
 METYR_ACCESS = (7770673, 510550, "Scadu Altus")
-STAGEFRONT_FRAGMENT_ACCESS = (7771810, 20007820, "Belurat")
-PALACE_KEY_ACCESS = (7773712, 400159, "Ainsel River")
+STAGEFRONT_FRAGMENT_ACCESS = (7771809, 20007820, "Belurat")
+PALACE_KEY_ACCESS = (7773710, 400159, "Ainsel River")
 
 
 def _json(value: object) -> str:

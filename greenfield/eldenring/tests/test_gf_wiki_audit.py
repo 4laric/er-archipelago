@@ -156,7 +156,7 @@ class WikiAuditTest(unittest.TestCase):
         # Base-game and DLC exemplars from the Eldenpedia-only queue must survive end to end.
         self.assertEqual(by_check["7770664"]["exact_citations"],
                          "redmaw:#ashen-leyndell:w47-21")
-        self.assertEqual(by_check["7773870"]["exact_citations"],
+        self.assertEqual(by_check["7773868"]["exact_citations"],
                          "redmaw:#charos-grave:d6-18")
         self.assertTrue(all(row["source_ids"] == "wiki:redmaw:walkthroughs:7281cb6f"
                             for row in rows))
@@ -360,7 +360,7 @@ class WikiAuditTest(unittest.TestCase):
             rows = list(csv.DictReader(handle, delimiter="\t"))
 
         self.assertEqual({int(row["subject_id"]) for row in rows},
-                         {7773749, 7773751, 7773762, 7773763})
+                         {7773747, 7773749, 7773760, 7773761})
         self.assertEqual({row["source_ids"] for row in rows}, {
             "wiki:powerpyx:igon-quest:20260904",
             "wiki:powerpyx:moore-quest:20260904",
@@ -408,7 +408,7 @@ class WikiAuditTest(unittest.TestCase):
         self.assertEqual(len(linked["carian-study-hall-standard-route"]["check_ids"]), 5)
         self.assertEqual(len(linked["carian-study-hall-inverted-route"]["check_ids"]), 10)
         self.assertEqual(linked["chapel-anticipation-return-route"]["check_ids"],
-                         ["7770913", "7770914", "7773786", "7900113"])
+                         ["7770912", "7770913", "7773784", "7900113"])
         self.assertIn("radahn-festival-altus-route", unbound)
         self.assertIn("radahn-festival-ranni-route", unbound)
 
@@ -456,7 +456,7 @@ class WikiAuditTest(unittest.TestCase):
         sellen = leads["sellen-ending-eccentrics-hood"]
         jerren = leads["jerren-ending-ancient-dragon-stone"]
         self.assertEqual((sellen["subject_id"], jerren["subject_id"]),
-                         ("7770618", "7773737"))
+                         ("7770618", "7773735"))
         self.assertIn('"choice":"aid_Sellen_against_Jerren"', sellen["normalized_value"])
         self.assertIn('"choice":"aid_Jerren_against_Sellen"', jerren["normalized_value"])
         self.assertIn("speak_to_Jerren_after_battle", jerren["normalized_value"])
@@ -567,7 +567,7 @@ class WikiAuditTest(unittest.TestCase):
         value = json.loads(lead["normalized_value"])
 
         self.assertEqual(value["type"], "all")
-        self.assertEqual(value["ap_ids"], [7770913, 7770914, 7773786, 7900113])
+        self.assertEqual(value["ap_ids"], [7770912, 7770913, 7773784, 7900113])
         self.assertIn({"name": "Liurnia", "type": "region"}, value["requirements"])
         self.assertIn({"name": "Imbued Sword Key", "type": "item"}, value["requirements"])
         self.assertIn("Precipice of Anticipation", lead["normalized_value"])

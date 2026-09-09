@@ -6,7 +6,7 @@
     "shared_landmark": 3,
     "source_area_unmapped": 76
   },
-  "held_checks_with_new_family_candidates": 2655,
+  "held_checks_with_new_family_candidates": 2653,
   "item_mentions": 4209,
   "limitations": "Suggestions only. Linked items can be mentions, not acquisitions. Guide area and catalog anchors are not independent proof of AP ownership. No quantity, position, mechanism or access is inferred.",
   "one_source_checks_with_second_family_candidates": 351,

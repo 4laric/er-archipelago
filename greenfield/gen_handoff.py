@@ -120,7 +120,7 @@ def main():
     A('  "regionOpenFlags": {"Caelid Lock": 73202},          // lock item -> region-open flag set on receipt')
     A('  "areaLockFlags":   [[62000, 62002, 73202]],         // [lo,hi,open_flag] play_region ranges, kicked while unset')
     A('  "startRegion":     "Limgrave",')
-    A('  "goalLocations":   [7770875, 7770876, 7770885]      // all-done => client sends Goal')
+    A('  "goalLocations":   [7770874, 7770875, 7770884]      // all-done => client sends Goal')
     A("}")
     A("```")
     A("")

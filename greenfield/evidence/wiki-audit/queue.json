@@ -14,15 +14,15 @@
   "exact_check_linked_leads": [
     {
       "check_ids": [
+        "7772311",
         "7772312",
         "7772313",
-        "7772314",
+        "7772315",
         "7772316",
         "7772317",
         "7772318",
         "7772319",
-        "7772320",
-        "7772322",
+        "7772321",
         "7900218"
       ],
       "claim_kind": "access_partition",
@@ -32,11 +32,11 @@
     },
     {
       "check_ids": [
+        "7772308",
         "7772309",
         "7772310",
-        "7772311",
-        "7772315",
-        "7772321"
+        "7772314",
+        "7772320"
       ],
       "claim_kind": "access_partition",
       "disposition": "lead_only",
@@ -45,9 +45,9 @@
     },
     {
       "check_ids": [
+        "7770912",
         "7770913",
-        "7770914",
-        "7773786",
+        "7773784",
         "7900113"
       ],
       "claim_kind": "access_partition",
@@ -57,7 +57,7 @@
     },
     {
       "check_ids": [
-        "7773737"
+        "7773735"
       ],
       "claim_kind": "alternate_acquisition",
       "disposition": "lead_only",
@@ -66,7 +66,7 @@
     },
     {
       "check_ids": [
-        "7773852"
+        "7773850"
       ],
       "claim_kind": "access",
       "disposition": "lead_only",
@@ -75,7 +75,7 @@
     },
     {
       "check_ids": [
-        "7772450"
+        "7772449"
       ],
       "claim_kind": "access",
       "disposition": "lead_only",
@@ -84,7 +84,7 @@
     },
     {
       "check_ids": [
-        "7772446"
+        "7772445"
       ],
       "claim_kind": "access",
       "disposition": "lead_only",
@@ -180,9 +180,9 @@
     {
       "coverage": "partial",
       "expected_check_ids": [
-        "7772446",
-        "7772450",
-        "7773852"
+        "7772445",
+        "7772449",
+        "7773850"
       ],
       "gap": {
         "kind": "check_partition",
@@ -239,7 +239,7 @@
       "coverage": "partial",
       "expected_check_ids": [
         "7770618",
-        "7773737"
+        "7773735"
       ],
       "gap": {
         "kind": "prerequisite_chain",
@@ -289,9 +289,9 @@
     {
       "coverage": "partial",
       "expected_check_ids": [
+        "7770912",
         "7770913",
-        "7770914",
-        "7773786",
+        "7773784",
         "7900113"
       ],
       "gap": {

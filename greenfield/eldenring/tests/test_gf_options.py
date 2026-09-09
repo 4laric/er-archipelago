@@ -740,13 +740,13 @@ def test_mfg_recovered_pickups_follow_dlc_scope(dlc, seed):
     t.world_setup(seed)
     try:
         locations = t.multiworld.get_locations(t.player)
-        recovered = {7774636, 7774637, 7774638, 7774639, 7774640}
+        recovered = {7774626, 7774627, 7774628, 7774629, 7774630}
         present = {loc.address for loc in locations} & recovered
         assert present == (recovered if dlc else set())
         # Both Caelid scarabs remain in base-game scope; the other five are DLC.
         addresses = {loc.address for loc in locations}
-        assert {7774643, 7774644, 7774650} <= addresses
-        dlc_stones = {7774642, 7774645, 7774646, 7774647, 7774648}
+        assert {7774633, 7774634, 7774640} <= addresses
+        dlc_stones = {7774632, 7774635, 7774636, 7774637, 7774638}
         assert addresses & dlc_stones == (dlc_stones if dlc else set())
         from ._util import world_pool_items
         assert len(world_pool_items(t)) == len(locations)

@@ -1537,7 +1537,36 @@ _GREAT_RUNE_TOWER_DUPES = frozenset({191, 192, 193, 194, 195, 196})
 # mountless), leaving a check AP believes is reachable (its region is open) that can never fire -- fill
 # could strand a progression item on it. You always have Torrent now, so the check earns nothing.
 # Excluded as a start-grant non-check, same class as 60000 (Flask). (Alaric 2026-07-11.)
-_MISC_NON_CHECK = frozenset({60000, 60100, 60210, 590000, 550200, 550250})  # 60000 = Flask of Crimson Tears: the core healing flask (tutorial grant) whose flag fires in m10_00 Stormveil EMEVD -> mis-pinned to Stormveil AND surfaced as a phantom check (in-game 2026-07-10); same class as 60210 Wizened Finger. (The 60020 Flask of Wondrous Physick @ Third Church is a REAL treasure -> kept.) 590000 = empty-item Stormveil check; 60210 Wizened Finger; 550200/550250 = "About ..." tutorial-message popups (not loot, same class as 9100-9125)
+_MISC_NON_CHECK = frozenset({60000, 60100, 60210, 590000})  # 60000 = Flask of Crimson Tears: the core healing flask (tutorial grant) whose flag fires in m10_00 Stormveil EMEVD -> mis-pinned to Stormveil AND surfaced as a phantom check (in-game 2026-07-10); same class as 60210 Wizened Finger. (The 60020 Flask of Wondrous Physick @ Third Church is a REAL treasure -> kept.) 590000 = empty-item Stormveil check; 60210 Wizened Finger. (550200/550250 used to sit here as two hand-listed "About ..." popups; they are covered by the DERIVED _TUTORIAL_POPUP_FLAGS below -- hand-listing them is exactly what missed the other six. world#1518.)
+# ---- TUTORIAL-MESSAGE POPUPS -- DERIVED, NOT HAND-LISTED (world#1518, 2026-09-08) ----------------
+# The "About ..." rows are one contiguous ItemLotParam_map family: flag 550000 + 10*(item - 9100)
+# awards goods 9100..9129, thirty rows, and the "item" is the tutorial-message popup the game shows
+# once -- not loot. #1097 ruled this class out of the corpus ("tutorial grants are not world
+# locations") and the fix hand-listed exactly the two rows that report named, 550200 and 550250.
+# 255's notebook (2026-09-08) then found 550220 "About Cooperative Multiplayer" and 550050 "About
+# Stakes of Marika" still in the corpus, and grepping the whole family turns up SIX survivors:
+# 550000, 550050, 550210, 550220, 550270, 550280.
+#
+# THAT IS THE LESSON, AND IT IS WHY THIS SET IS DERIVED. A hand list of a family goes stale the
+# moment the family holds a member nobody typed. The membership rule is a property of the data --
+# every lot the flag awards is a 9100..9129 tutorial-message good -- so derive it from flag_lots.tsv
+# and the set cannot miss a row again. (gen_data already knew the range: _recover_tile has skipped
+# 9100 <= flag <= 9125 as "a real tile, but not loot" since long before #1097. The two curations now
+# agree by construction, and this one covers 9126-9129 as well.)
+#
+# Corroboration for all six, independent of the family shape: zero msb_flag_region rows, zero
+# item_grace_coords rows, and no reference to the flag or its lot id anywhere in the decompiled
+# EMEVD/ESD corpus. The independent oracle carries no slot for any of them either.
+_TUTORIAL_POPUP_ITEMS = range(9100, 9130)
+_TUTORIAL_POPUP_FLAGS = frozenset(
+    _fl for _fl, _fam in FLAG_LOTS.items()
+    if _fam and all(_t[0] == "map" and _t[4] in _TUTORIAL_POPUP_ITEMS for _t in _fam))
+if not _TUTORIAL_POPUP_FLAGS:
+    raise SystemExit("FATAL: the 9100-9129 tutorial-popup family came back EMPTY -- flag_lots.tsv "
+                     "changed shape. These rows are message popups, not loot; do not rebaseline "
+                     "this away by deleting the derivation (world#1518).")
+print("tutorial popups: %d 'About ...' flag(s) excluded (derived from goods %d-%d)"
+      % (len(_TUTORIAL_POPUP_FLAGS), _TUTORIAL_POPUP_ITEMS.start, _TUTORIAL_POPUP_ITEMS.stop - 1))
 # 400020 = Neutralizing Boluses, lot 100200. The only award site in the complete 2026-08-29
 # ESD/EMEVD corpus is t304001000_x43. Its caller x40 requires f10009335, but that flag has no
 # setter or default anywhere in the ESD, EMEVD, or parameter inputs (the x40 read is its sole
@@ -2049,6 +2078,29 @@ _WORLDLESS_SINGLES = frozenset({
 # five were labelled around Shaded Castle Ramparts and independently reported untakeable by 255.
 # Keep this explicit and tiny: the other short flags in that report have MSB placements and remain.
 _WORLDLESS_SHORT_LOTS = frozenset({540504, 540614, 540616, 540632, 540650})
+# FLAG-TILE-ONLY MAP LOTS -- the #1077 signature on LONG flags (world#1515, 2026-09-08).
+# Four Liurnia overworld rows 255's notebook reports as untakeable. Each has a real
+# ItemLotParam_map row, and each fails every placement instrument we have:
+#   * zero rows in msb_flag_region.tsv -- and for MAP-table flags that is the outlier value, not the
+#     normal one: 3960 of 4391 (90.2%) map-table flags carry at least one. (The enemy table is the
+#     opposite, 74/175 = 42%, which is why 41017975 -- the fifth row in the same report -- is NOT
+#     here: absence proves nothing there, and enemy_drops.tsv shows its lot 575090741 dropping at
+#     100% off enemy 5750849.)
+#   * zero rows in item_grace_coords.tsv;
+#   * no occurrence of the flag OR its lot id anywhere in the decompiled EMEVD/ESD corpus.
+#
+# THEIR ONE PIECE OF "PLACEMENT" EVIDENCE IS CIRCULAR, AND THAT IS THE WHOLE FINDING.
+# 1033457100, 1036437010 and 1038447100 were RELEASED from _WORLDLESS_SINGLES on 2026-08-19 because
+# unplaced_global_tiles.tsv called them `observed` ("an OBSERVED/audited tile IS a world reference").
+# Read the row it was observed from: check_maps.tsv gives all three `source=flag_tile`, detail
+# "decoded from the flag id". The tile was computed FROM THE FLAG, so it is the flag restated, not a
+# world object holding it -- datamine_unplaced_globals.resolve() unions check_maps into the same
+# `observed` bucket as msb_flag_region and cannot tell a real MSB row from a decode. No asset in the
+# game holds these four. (Fixing that mislabel is its own change: it re-emits a tier-2 tsv and would
+# move rows well outside this report, so it is filed, not folded in.)
+#
+# Same disposition as #1077's five: stay VANILLA rows rather than advertise a check nobody can take.
+_FLAG_TILE_ONLY_LOTS = frozenset({1033457100, 1035477000, 1036437010, 1038447100})
 # ---- ENIA IS VANILLA (Alaric, 2026-08-24, world#1013) ---------------------------------------------
 # Finger Reader Enia's shop is EXCLUDED FROM RANDOMIZATION -- none of her rows is a check. This
 # restores the rule 8c53e955 ("remove enia from big ticket") kept only half of: that took her rows
@@ -2095,8 +2147,10 @@ if not _ENIA_SHOP_FLAGS:
                      "this away (world#1013).")
 print(f"enia: {len(_ENIA_SHOP_FLAGS)} stock flag(s) excluded from randomization -- her shop is vanilla")
 EXCLUDE_FLAGS = (frozenset({400280}) | _GREAT_RUNE_TOWER_DUPES | _MISC_NON_CHECK
+                | _TUTORIAL_POPUP_FLAGS
                 | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD | _UNPLACEABLE_DLC_COOKBOOKS
                 | _SHEET_DROPS | _RADA_WORLDLESS | _WORLDLESS_SINGLES | _WORLDLESS_SHORT_LOTS
+                | _FLAG_TILE_ONLY_LOTS
                 | _ENIA_SHOP_FLAGS
                 | _UNUSED_ESD_AWARDS)
 # Per-flag progression_surface exclusion (Alaric, 2026-07-17): checks that CARRY a surface tag but must
@@ -6314,7 +6368,12 @@ _NR_RULES = (
      "check on its shardbearer boss (in-game double-grant 2026-07-08)"),
     (lambda _fl, _r: _fl in _MISC_NON_CHECK,
      "misc_non_check: tutorial/system grant or empty lot (Flask, Torrent's whistle, Wizened "
-     "Finger, 'About...' popups) -- not loot, never a check"),
+     "Finger) -- not loot, never a check"),
+    (lambda _fl, _r: _fl in _TUTORIAL_POPUP_FLAGS,
+     "tutorial_popup: 'About ...' tutorial-message row -- every lot it awards is a 9100-9129 "
+     "message good, and it has no MSB placement, no item-grace coordinate and no EMEVD/ESD award "
+     "route. Tutorial grants are not world locations (#1097); the set is DERIVED from the goods "
+     "range so the family cannot keep a member a hand list forgot (#1518)"),
     (lambda _fl, _r: _fl in _UNUSED_ESD_AWARDS,
      "unused_esd_award: award branch is unreachable in shipped game data -- Neutralizing Boluses "
      "lot 100200 requires f10009335, whose only corpus occurrence is that guard read; no ESD, "
@@ -6342,6 +6401,12 @@ _NR_RULES = (
      "worldless_short_lot: individually audited short-flag map lot with no MSB placement, no "
      "item-grace coordinate, and no scripted award route (#1077); stays vanilla rather than "
      "advertise an untakeable Shaded Castle check"),
+    (lambda _fl, _r: _fl in _FLAG_TILE_ONLY_LOTS,
+     "flag_tile_only_lot: map-table lot with zero MSB placement (the outlier value for map flags -- "
+     "90.2% carry one), zero item-grace coordinate and no EMEVD/ESD award route. Its only 'placed' "
+     "evidence is a check_maps row whose source is flag_tile: the tile DECODED FROM THE FLAG ID, "
+     "i.e. the flag restated, not a world object holding it (#1515, the #1077 signature on long "
+     "flags)"),
     (lambda _fl, _r: _fl in _SHEET_DROPS,
      "surface_sheet_drop: dropped on Alaric's 2026-07-17 progression_surface sheet review -- 14007930 "
      "is a phantom SECOND Academy Glintstone Key (the key is a singleton, the overworld pickup "
@@ -6369,6 +6434,7 @@ _nr_unexplained = EXCLUDE_FLAGS - (MAP_REVEAL_FLAGS | MINIBAKER_VENDOR_FLAGS | f
                                    | _RECOVER_PHANTOM_DUPES | _UNREACHABLE_DEAD
                                    | _UNPLACEABLE_DLC_COOKBOOKS | _SHEET_DROPS | _RADA_WORLDLESS
                                    | _WORLDLESS_SINGLES | _WORLDLESS_SHORT_LOTS | _ENIA_SHOP_FLAGS
+                                   | _TUTORIAL_POPUP_FLAGS | _FLAG_TILE_ONLY_LOTS
                                    | _UNUSED_ESD_AWARDS)
 if _nr_unexplained:
     raise SystemExit("FATAL: EXCLUDE_FLAGS member(s) %r have no NOT_RANDOMIZED ledger rule -- add "

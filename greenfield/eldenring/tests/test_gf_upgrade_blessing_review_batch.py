@@ -42,7 +42,7 @@ def test_upgrade_blessing_review_is_partitioned_and_complete():
     assert summary["totals"]["conflicted"] == 2
     conflicts = {row["check_id"] for row in rows
                  if row["review_status"] == "region_taxonomy_conflict"}
-    assert conflicts == {"7773495", "7773939"}
+    assert conflicts == {"7773493", "7773932"}
 
 
 def test_upgrade_blessing_generated_files_are_current():

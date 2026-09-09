@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "greenfield" / "evidence" / "wiki-audit"
 MANIFEST = AUDIT / "eldenpedia-seedbed-curse-pages.tsv"
 LEADS = AUDIT / "eldenpedia-seedbed-curse-check-leads.tsv"
-EXPECTED = {"7770596": 400308, "7771716": 16007700}
+EXPECTED = {"7770596": 400308, "7771715": 16007700}
 
 
 def main() -> int:

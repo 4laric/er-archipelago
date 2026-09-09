@@ -10,11 +10,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LEADS = ROOT / "greenfield/evidence/wiki-audit/powerpyx-golden-rune-anchor-check-leads.tsv"
 EXPECTED = {
-    7770870: (10007580, "Golden Rune [5]", "Stormveil", "Gateside Chamber"),
-    7772815: (1042367030, "Golden Rune [2]", "Limgrave", "Church of Elleh"),
-    7772921: (1044357000, "Golden Rune [2]", "Limgrave", "Agheel Lake South"),
-    7773177: (1052417000, "Golden Rune [8]", "Caelid", "Lenne's Rise"),
-    7773178: (1052417010, "Golden Rune [6]", "Caelid", "Lenne's Rise"),
+    7770869: (10007580, "Golden Rune [5]", "Stormveil", "Gateside Chamber"),
+    7772813: (1042367030, "Golden Rune [2]", "Limgrave", "Church of Elleh"),
+    7772919: (1044357000, "Golden Rune [2]", "Limgrave", "Agheel Lake South"),
+    7773175: (1052417000, "Golden Rune [8]", "Caelid", "Lenne's Rise"),
+    7773176: (1052417010, "Golden Rune [6]", "Caelid", "Lenne's Rise"),
 }
 
 

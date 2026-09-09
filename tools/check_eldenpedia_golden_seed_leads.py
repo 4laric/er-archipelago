@@ -9,7 +9,7 @@ def main() -> int:
     coverage=json.loads((AUDIT / "eldenpedia-golden-seed-coverage.json").read_text())
     assert len(pages)==1 and len(leads)==28 and pages[0]["revision_sha1"]=="b3afda3a6fffbe96085e7a5be21d87427129fdc1"
     assert coverage["ap_checks"]==43 and coverage["prior_union_checks"]==10 and coverage["union_after"]==38 and coverage["remaining_unbound"]==5
-    assert set(coverage["refused_ap_checks"])=={"7772847","7772848","7772897","7772898","7773716"}
+    assert set(coverage["refused_ap_checks"])=={"7772845","7772846","7772895","7772896","7773714"}
     assert len({r["subject_id"] for r in leads})==28 and all(r["disposition"]=="lead_only" for r in leads)
     assert all(json.loads(r["normalized_value"])["item_name"]=="Golden Seed" for r in leads)
     print("Eldenpedia Golden Seed leads: OK -- 28 new exact bindings, union 38/43, 5 explicit refusals"); return 0

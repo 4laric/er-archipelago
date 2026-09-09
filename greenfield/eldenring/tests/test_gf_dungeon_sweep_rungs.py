@@ -85,8 +85,8 @@ _SWEEP_NEVER = {"Remembrance", "Boss", "GreatRune", "KeyItem", "Shop", "ShopNonS
 # map's checks unfiltered. So "a sweep respects the floor" is true of the legacy pool -- which is
 # what bounded the Grafted Scion bug to 36 harmless checks -- and NOT true in general.
 #
-# ⭐ IT SHRANK FROM SIX. The three Legendary rows (7772215 Uchigatana, 7772478 Godslayer's
-# Greatsword, 7772562 Bull-Goat Helm) were debt only while Legendary was cut corpus-wide; it is a
+# ⭐ IT SHRANK FROM SIX. The three Legendary rows (7772214 Uchigatana, 7772477 Godslayer's
+# Greatsword, 7772560 Bull-Goat Helm) were debt only while Legendary was cut corpus-wide; it is a
 # surface-cuttable class now, so a legendary SURFACE holding ordinary loot is the intended payout
 # and those rows are no longer a defect to ratchet. Deleted rather than re-justified, which is the
 # tightening this test's own `gone` branch asks for. The three below are floor classes and stay.
@@ -96,15 +96,15 @@ _KNOWN_IMPORTANT_IN_SWEEPS = {
     # verified identical) never moved. If this ledger drifts again for a corpus change, match by
     # flag before concluding the debt grew.
     # 2026-08-19 (the cull renumbered ap ids, twice -- the second time when the Crimson Hood
-    # ruling put one location back ahead of these): 7772549 -> 7772545 -> 7772546,
-    # 7772553 -> 7772549 -> 7772550, 7772568 -> 7772564 -> 7772565. Same three flags;
+    # ruling put one location back ahead of these): 7772548 -> 7772544 -> 7772545,
+    # 7772551 -> 7772548 -> 7772549, 7772566 -> 7772562 -> 7772565. Same three flags;
     # re-verified by flag identity each time.
     # 2026-08-24 (#1013): Enia's 100 rows left the pool ahead of all three -> -100 each
-    # (7772546 -> 7772446, 7772550 -> 7772450, 7772565 -> 7772465). Same three flags again;
+    # (7772545 -> 7772445, 7772549 -> 7772449, 7772563 -> 7772464). Same three flags again;
     # flag-verified.
-    7772446,   # KeyItem   -- Gaol Upper Level Key            (f41027000)
-    7772450,   # KeyItem   -- Gaol Lower Level Key            (f41027320)
-    7772465,   # Boss      -- Dragon Heart, around Dragon's Pit (f43017900)
+    7772445,   # KeyItem   -- Gaol Upper Level Key            (f41027000)
+    7772449,   # KeyItem   -- Gaol Lower Level Key            (f41027320)
+    7772464,   # Boss      -- Dragon Heart, around Dragon's Pit (f43017900)
 }
 
 

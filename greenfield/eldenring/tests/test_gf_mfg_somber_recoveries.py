@@ -28,8 +28,8 @@ class SomberRecoveries(unittest.TestCase):
         slots = runpy.run_path(str(PKG / "tables/check_lots_data.py"))["CHECK_LOT_SLOTS_MAP"]
         with (GF / "flag_lots.tsv").open() as fh:
             lots = list(csv.DictReader(fh, delimiter="\t"))
-        expected_ids = {530861: 7774642, 540424: 7774643, 540428: 7774644,
-                        540912: 7774645, 540914: 7774646, 540920: 7774647, 540922: 7774648}
+        expected_ids = {530861: 7774632, 540424: 7774633, 540428: 7774634,
+                        540912: 7774635, 540914: 7774636, 540920: 7774637, 540922: 7774638}
         self.assertEqual({r["flag"]: by_flag[r["flag"]][1] for r in records}, expected_ids)
         self.assertEqual(len(records), 7)
         self.assertEqual(len({r["lot"] for r in records}), 7)
