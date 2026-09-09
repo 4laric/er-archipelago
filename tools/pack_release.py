@@ -60,6 +60,21 @@ def die(m: str) -> "None":
     raise SystemExit(1)
 
 
+# -- the stale-atlas gate -------------------------------------------------------------------------
+# v0.6.0 pulled the Flower because these two atlases predate the Tarnished pack: they draw the wrong
+# Tarnished weapon icons and lose the starter-class previews (#1181). The omission branch in main()
+# matches the version literal "0.6.0" EXACTLY, so v0.6.0.4 and v0.6.0.5 took the other arm and
+# re-shipped them. A version literal was never the right gate -- the defect is in the BYTES, so the
+# bytes are what is refused. The atlases were rebuilt on 2026-09-09 by tools/build_ap_icon.py from
+# the Elden Ring 2.7.1.0 menu extract; a package still carrying these digests is the stale one.
+STALE_FLOWER_SHA256 = {
+    "menu/hi/01_common.tpf.dcx":
+        "80e84edb3aaaa2674c566a098465201816dc8a94fefe220c7b2c6dd63461a8af",
+    "menu/low/01_common.tpf.dcx":
+        "ad6aede6be0e1090968308d0ed32d6ef1fa473cb66b0ea13c9ba1ed07b1f43ec",
+}
+
+
 def flower_manifest(root: str, version: str) -> None:
     files = []
     for relative in ("menu/hi/01_common.tpf.dcx", "menu/low/01_common.tpf.dcx"):
@@ -70,6 +85,11 @@ def flower_manifest(root: str, version: str) -> None:
         with open(path, "rb") as stream:
             for chunk in iter(lambda: stream.read(1024 * 1024), b""):
                 digest.update(chunk)
+        if digest.hexdigest() == STALE_FLOWER_SHA256[relative]:
+            die(f"AP flower {relative} is the KNOWN-STALE pre-Tarnished atlas "
+                f"(sha256 {digest.hexdigest()}): it draws the wrong Tarnished weapon icons and "
+                f"loses the starter-class previews (#1181). Rebuild the package with "
+                f"tools/build_ap_icon.py from the Elden Ring 2.7.1.0 menu extract.")
         files.append({"path": relative, "size": os.path.getsize(path),
                       "sha256": digest.hexdigest()})
     with open(os.path.join(root, "manifest.json"), "w", encoding="utf-8", newline="\n") as stream:

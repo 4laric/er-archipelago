@@ -237,17 +237,18 @@ Progression rings can lag behind native pins while panning or zooming, despite s
 in the correct positions. This visual issue is non-blocking for v0.6 and is tracked in
 [issue #1432](https://github.com/4laric/er-archipelago/issues/1432).
 
-## AP icon fallback in v0.6.0
+## The AP Flower ships again, from v0.6.0.6
 
-The Flower atlas override is temporarily omitted because it caused incorrect weapon
-icons and missing starter-class previews. AP placeholders use the native Telescope
-icon for now; AP names, checks, receiving and M4G integration continue to work.
-No UXM extraction or Flower installation is needed. Do not use `--with-flower` for this release.
+The AP Flower atlas override is back in the stable bundle. It was rebuilt on 2026-09-09 from the
+Elden Ring 2.7.1.0 menu extract, so it replaces the pre-Tarnished atlases that caused incorrect
+Tarnished weapon icons and missing starter-class previews in v0.6.0
+([issue #1181](https://github.com/4laric/er-archipelago/issues/1181)). AP names, checks, receiving
+and M4G integration work as before; the Flower is what draws the AP placeholder icon.
 
-For an existing installation, exit the game and disable only the loader package entry
-that loads the old Flower atlas. Keep the AP/M4G DLLs and unrelated mod packages.
-If Flower was copied directly into Matt's output, disabling a separate package will
-not remove it: restore those two menu atlases from a verified pre-Flower backup or
-regenerate that randomizer output. Do not delete an entire shared mod package or
-restore a backup over subsequently modified files. The updater does not remove old
-atlas files automatically. Restart after changing the effective assets.
+If you disabled the old Flower package entry during the v0.6.0 fallback, re-enable or reinstall it
+with the installer in the bundle (`install-ap-flower.ps1`, or `install_ap_flower.py`). The updater
+never removes atlas files on its own, so if the old Flower was copied directly into another
+randomizer's output, replace those two menu atlases rather than leaving them: reinstall from this
+bundle, or restore them from a verified backup and reinstall. Do not delete an entire shared mod
+package. Restart the game after changing the effective assets.
+
