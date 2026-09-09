@@ -37,7 +37,7 @@ ROWS = (
     ("East Capital Rampart", "cracked ceiling", None, None, "Leyndell, Royal Capital"),
     ("West Capital Rampart", "Fortified Manor", None, None, "Leyndell, Royal Capital"),
     ("Capital Outskirts", "Big Boggart", 7770596, 400308, "Capital Outskirts"),
-    ("Mt. Gelmir", "Audience Pathway", 7771716, 16007700, "Mt. Gelmir"),
+    ("Mt. Gelmir", "Audience Pathway", 7771715, 16007700, "Mt. Gelmir"),
     ("Miquella's Haligtree", "balcony on the western wall", None, None, "Miquella's Haligtree"),
     ("Miquella's Haligtree", "dark room directly below", None, None, "Miquella's Haligtree"),
 )

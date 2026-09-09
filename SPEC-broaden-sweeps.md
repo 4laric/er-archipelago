@@ -290,8 +290,41 @@ met.
 |---|---|---|---|---|---|
 | `34150800` | `m34_15` (Isolated Divine Tower) | Ainsel River | 2026-08-05 | `DisplayBossHealthBar` nameId 0; the map holds zero checks; Alaric in-game: no boss | no sweep to lose (the map has no members) |
 | `1038540800` | `m60_38_54` (First Mt. Gelmir Campsite) | Mt. Gelmir | 2026-08-10, issue #540 | NAMED, 23 sweep members; no GameAreaParam arena anywhere on the tile; MSB unpacked and it is not a Part; Alaric warped to grace 76351 -- no beast | trigger DROPPED (`gen_data._UNSPAWNED_VERDICTS`); its 23 members re-home to Mt. Gelmir's other field bosses, 12 to `1037540810`, 11 to `1037530800` |
+| `1041330800` | `m60_41_33` (Fourth Church of Marika) | Weeping | 2026-09-09, issues #540 / #1529 | UNNAMED, 10 sweep members. Same shape as `1038540800`, and falsified without a warp: the map constructor `$Event(0, Default)` (`m60_41_33_00.emevd.dcx.js:11`) never `$InitializeEvent`s the boss chain `1041332800`/`1041332810`/`1041332849` (defined at `:45`/`:57`/`:76`), so `SetEventFlagID(1041330800, ON)` at `:53` is unreachable. Healthbar nameId `904133540` (`:71`) has no `NpcName.fmg` entry; chr `4133` has no `ChrModelParam` row | trigger DROPPED (`gen_data._UNSPAWNED_VERDICTS`) **and** declared in `contract._RUNTIME_SWEEP_SKIP_REASONS`; its 10 members re-home inside Weeping, 8 to `1042330800` (Ancient Hero of Zamor) and 2 to `1043330800` (Erdtree Avatar) |
 
-**The tells do not transfer between the two rows** -- `34150800` was nameId 0 on an empty map;
+### The fourth tell: an EMEVD event nobody initializes (2026-09-09, #1529)
+
+The three tells below are all *absence in a table*. There is a fourth, and it is the only positive
+one: **read the map constructor.** Elden Ring's boss chains only run because `$Event(0, Default)`
+calls `$InitializeEvent` on them. A chain that is defined but never initialized cannot run, so the
+`SetEventFlagID(<defeat flag>, ON)` inside it is dead code and no player can ever set that flag.
+
+🛑 **Grepping for the flag is what hides this.** Every one of these files contains a healthy-looking
+writer -- `SetEventFlagID(34100800, ON)` is right there. What is missing is the one line in the
+constructor that arms the event containing it. Compare `m34_12` (Godskin Apostle) or `m60_38_51`
+(Gilika), whose identical chains ARE initialized.
+
+Five triggers fail this test, and all five carry a BLANK name in `BOSS_HEALTHBARS`, sit under
+`arena_graces.tsv`'s `# unresolved_bosses`, have no `GameAreaParam` row, and read UNRESOLVED in
+`sweep_trigger_npcs.tsv`:
+
+| trigger | map | constructor | orphan chain | members |
+|---|---|---|---|---|
+| `30130810` | `m30_13` Auriza Side Tomb, 2nd arena ("Nazgul 2") | `:11`; inits only the Duelist chain `30132800`/`2810`/`2849`/`2811` at `:49-52` | `30132802`/`30132812`/`30132850` at `:210`/`:257`/`:282`; sole writer at `:217` | 7 |
+| `34100800` | `m34_10` Divine Tower of Limgrave | `:11`; inits exactly one event, `34102510` at `:15` | `34102800`/`34102810`/`34102849` at `:55`/`:67`/`:92` | 7 |
+| `34110800` | `m34_11` Divine Tower of Liurnia | `:11`; inits `34112510`/`34112580`/`34112400..` at `:19-46` | `34112800`/`34112810`/`34112849` at `:1519`/`:1530`/`:1551` | 5 |
+| `34150800` | `m34_15` Isolated Divine Tower | `:11`; inits only `34152500` at `:13` | `34152800`/`34152810`/`34152849` at `:24`/`:35`/`:56` | 0 |
+| `1041330800` | `m60_41_33` Fourth Church of Marika | `:11`; inits only `1041333700`/`1041333705` at `:26`/`:29` | `1041332800`/`1041332810`/`1041332849` at `:45`/`:57`/`:76` | 10 |
+
+All five are DECLARED in `contract._RUNTIME_SWEEP_SKIP_REASONS`, which removes their groups from
+`dungeonSweepFlags` -- so the tracker no longer shows 29 checks under an "unidentified boss --
+waiting on the boss" that can never resolve. `34150800` is listed although it owns no group today,
+so a regen that gives it one cannot silently re-arm it.
+`test_gf_runtime_sweep_fireability.test_no_blank_named_trigger_still_owns_a_live_group` is the
+regression gate: after this ruling, NO blank-named trigger owns a live group, and the next cut arena
+has to be adjudicated before it can ship.
+
+**The tells do not transfer between the rows** -- `34150800` was nameId 0 on an empty map;
 `1038540800` is named and carries 23 checks -- so the detector is a SHAPE, not a growing id list
 (`gen_data._unspawned_candidate`, gated by `test_gf_unspawned_field_boss.py`):
 
@@ -308,7 +341,13 @@ A shape match is a QUESTION, never a verdict: gen_data refuses to build if it ca
 `_UNSPAWNED_VERDICTS` has not judged, and only a judgement of `unspawned` may drop a trigger.
 Deleting a real boss's reward is the worse of the two errors.
 
-**OPEN, unfalsified:** `1041330800` (unnamed, `m60_41_33` = Fourth Church of Marika, Weeping) has
-the same shape and 10 sweep members, and **keeps them**. FALSIFIER: warp there and look, by day and
-at night -- the competing reading is a night-conditional spawn. Absent -> move it to `unspawned`
-and regen; present -> the datamine owes it a GameAreaParam binding and an MSB position.
+**CLOSED 2026-09-09 (#1529).** `1041330800` was the standing OPEN row: same shape, 10 members, and
+the falsifier on file was "warp to the Fourth Church of Marika and look, by day and at night --
+the competing reading is a night-conditional spawn." It was settled from the data instead, and
+more strongly than a warp could have: the boss event is never initialized (fourth tell, above), and
+there is no character to spawn at any hour -- healthbar nameId `904133540` has no `NpcName.fmg`
+entry and chr `4133` has no `ChrModelParam` row. A night spawn still needs a character and an armed
+event; it has neither. Its verdict is now `unspawned` and its 10 members re-home within Weeping.
+
+**No OPEN rows remain.** If the detector catches a sixth id, gen_data will refuse to build until
+it is judged -- and the constructor read above is the cheapest way to judge one.

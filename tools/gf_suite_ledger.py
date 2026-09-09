@@ -184,6 +184,12 @@ GENERATORS = [
     # as the suite above: these tools only ever RUN on Alaric's box, so "the flag parsed but the
     # root did not move" would otherwise be witnessed by nothing.
     "artifacts_path",
+    # The DOOR-SIDE WITNESS (#1512 / #1511): tools/datamine_msb_door_sides.py, on synthetic
+    # witchy-style MSB fixtures. Same reason as item_play_regions above -- the tool can only ever
+    # RUN on the box with the corpus, so its part/treasure parsing, its signed door normal and its
+    # four refusals would be witnessed by nothing. It needs tools/, but no corpus, no AP, no client
+    # and no network.
+    "msb_door_sides",
     "regen_all",
     # THE AP GAME NAME, typed once (#1465). Greps BOTH repos' source for the quoted literal
     # outside gamename.py and the generated mirrors, checks every shipped/preset/tester yaml's
@@ -439,6 +445,15 @@ TESTS_JOB = {
                              "never skip; the two that pin the MECHANISM read region_overrides.tsv "
                              "out of greenfield/ by the find_repo_root walk-up, which the tests "
                              "job's checkout guarantees (--ap-dir sits inside it)",
+    "notebook_255_region_moves": "#1514/#1509/#1511's acceptance test, same shape as "
+                                 "playarea_region_moves. The mover, stayer, ap-id and Theodorix "
+                                 "containment halves read only the installed data.py and "
+                                 "boss_sweeps.py and never skip; the four that pin the RECORD read "
+                                 "region_overrides.tsv out of greenfield/ by the find_repo_root "
+                                 "walk-up, which the tests job's checkout guarantees. It must not "
+                                 "be DEV_BOX_ONLY: the eleven STAYERS are the half that proves the "
+                                 "batch measured rather than agreed with the reporter, and a bulk "
+                                 "re-apply of the notebook has to trip on CI, not on one dev box",
 }
 
 # Suites where EVERY test skips in CI. The reason must name the missing input honestly -- these are

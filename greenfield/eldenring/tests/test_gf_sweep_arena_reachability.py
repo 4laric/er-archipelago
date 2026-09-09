@@ -463,8 +463,8 @@ class JsGravesiteSeed(unittest.TestCase):
         # The 15 Gravesite checks the two groups used to hold, by AP id, measured on the fix commit.
         # Named rather than recomputed: recomputing them from the post-fix tables would ask the fix
         # to confirm itself.
-        REHOMED = (7770142, 7770144, 7770153, 7770158, 7772451, 7773206, 7773230, 7773232,
-                   7773234, 7773236, 7773238, 7773240, 7773306, 7773310, 7773374)
+        REHOMED = (7770142, 7770144, 7770153, 7770158, 7772450, 7773204, 7773228, 7773230,
+                   7773232, 7773234, 7773236, 7773238, 7773304, 7773308, 7773372)
         for ap in REHOMED:
             if ap not in gravesite_aps:
                 continue   # 7770158 = f68750, moved to Abyssal by the same change on scan evidence

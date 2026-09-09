@@ -25,7 +25,7 @@ The independent guide families agree on two terminal routes outside the Raya Luc
 1. The gold sign aids Sellen against Jerren. Defeating Jerren awards his Eccentric set. This pilot
    represents that route with Eccentric's Hood (AP 7770618).
 2. The red sign aids Jerren against Sellen. After the battle, speaking to Jerren outside the library
-   awards an Ancient Dragon Smithing Stone (AP 7773737).
+   awards an Ancient Dragon Smithing Stone (AP 7773735).
 
 These are mutually exclusive alternatives, not requirements that can be combined. Each normalized
 lead includes Raya Lucaria Academy, the selected quest choice, and, for Jerren's reward, the final
@@ -38,7 +38,7 @@ Current generated data places Eccentric's Hood in Raya Lucaria Academy and allow
 to grant it. That region label agrees with the terminal scene but does not encode the required ending
 choice. The sweep is an Archipelago alternate and is outside the vanilla guides' scope.
 
-The Ancient Dragon Smithing Stone at AP 7773737 is currently labeled Caelid near Smoldering Church.
+The Ancient Dragon Smithing Stone at AP 7773735 is currently labeled Caelid near Smoldering Church.
 Committed questline provenance identifies it as flag f400400 from Jerren talk lot 104000, but the
 accepted world rule does not encode the red-sign choice or the post-battle conversation. The two
 guide families therefore identify a concrete modeling gap and a likely misleading location label,

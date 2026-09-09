@@ -154,7 +154,12 @@ class TestTheClampDoesNotEatDeliberateDuplicates(unittest.TestCase):
             # unique-ish goods the pool duplicates past a maxNum of 1
             "Cerulean Crystal Tear": (2, 1), "Crimson Crystal Tear": (2, 1),
             "Ruptured Crystal Tear": (2, 1), "Cursemark of Death": (2, 1),
-            "Dragon Cult Prayerbook": (2, 1), "Letter from Volcano Manor": (2, 1),
+            # Dragon Cult Prayerbook left this set on 2026-09-08 (world#1515): the SECOND pool copy
+            # came from f1038447100, one of the four unplaceable map-lot rows removed in that
+            # change (real lot, zero MSB placement, no award route). One copy remains, so the
+            # ceiling no longer bites it. This is a duplicate that stopped existing, not a clamp
+            # that stopped working.
+            "Letter from Volcano Manor": (2, 1),
             "Lord of Blood's Favor": (2, 1),
             "Unalloyed Gold Needle": (2, 1), "Whetstone Knife": (2, 1),
             "Memory Stone": (9, 8),

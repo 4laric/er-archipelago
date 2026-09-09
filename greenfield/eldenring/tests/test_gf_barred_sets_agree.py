@@ -130,7 +130,7 @@ class BarredSetsAgree(WorldTestBase):
         rulings, #252).
 
         ⚠️ ASSERTED ON THE SURFACE-EXCLUDE-ONLY MEMBERS, not on the whole set. Of the 18, two
-        (7773913, 7900113) ARE in the surface's bar set -- because they are independently MISSABLE,
+        (7773906, 7900113) ARE in the surface's bar set -- because they are independently MISSABLE,
         which is a different cause with its own lever. Asserting the whole set is disjoint fails on
         those two and says something false about why. The claim that actually holds, and the one
         worth pinning, is: surface-exclusion ALONE never bars."""
