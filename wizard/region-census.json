@@ -145,7 +145,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Altus": {
-   "checks": 346,
+   "checks": 350,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss|FieldBoss": 8,
@@ -996,7 +996,7 @@
    "tarnished_pack_shop_checks": 1
   },
   "Liurnia": {
-   "checks": 586,
+   "checks": 585,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -1041,13 +1041,13 @@
    },
    "sweep_slots_max": {
     "all": 53,
-    "bosses": 157,
+    "bosses": 156,
     "minidungeons": 53
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 53,
-     "bosses": 157,
+     "bosses": 156,
      "minidungeons": 53
     },
     "SweepSlotMajor": {
@@ -1057,7 +1057,7 @@
     },
     "SweepSlotMinor": {
      "all": 45,
-     "bosses": 141,
+     "bosses": 140,
      "minidungeons": 45
     }
    },
@@ -1174,7 +1174,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Mt. Gelmir": {
-   "checks": 257,
+   "checks": 253,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 4,
@@ -1291,7 +1291,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Raya Lucaria Academy": {
-   "checks": 110,
+   "checks": 111,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|MajorBoss": 1,
@@ -1633,5 +1633,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "64641f02493f9f4ee347765da4fff25a3a5c420fe23a4ab5f04fc3d213682e22"
+ "source_sha256": "dd6577ae4417a8fa9787d14e85fa367c0273917089d946beda516fbb337c699a"
 }

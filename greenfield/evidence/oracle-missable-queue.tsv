@@ -34,7 +34,6 @@ flag	ap_id	our_name	our_conditions	basis	status	reviewer	note
 400074	7770567	Mt. Gelmir :: Letter from Volcano Manor - around Volcano Manor (2), may be sweep-granted by Rykard, Lord of Blasphemy (m16_00) [f400074]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400075	7770568	Mt. Gelmir :: Red Letter - around Volcano Manor, may be sweep-granted by Godskin Noble (m16_00) [f400075]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400090	7773705	Mt. Gelmir :: Volcano Manor Invitation - around Volcano Manor, may be sweep-granted by Rykard, Lord of Blasphemy (m16_00) [f400090]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
-400101	7773706	Raya Lucaria Academy :: Glintstone Kris - around Church of the Cuckoo, may be sweep-granted by Red Wolf of Radagon (m14_00) [f400101]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400148	7770576	Liurnia :: Seluvis's Bell Bearing - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400148	7900008	Liurnia :: Preceptor's Big Hat - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400148	7900009	Liurnia :: Preceptor's Long Gown - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
@@ -47,9 +46,7 @@ flag	ap_id	our_name	our_conditions	basis	status	reviewer	note
 400285	7900022	Roundtable Hold :: All-Knowing Greaves - around Table of Lost Grace [f400285]	DIALOGUE_STEP	second-source-missable-disagrees	open		
 400290	7770592	Mt. Gelmir :: Letter to Bernahl - around Volcano Manor, may be sweep-granted by Godskin Noble (m16_00) [f400290]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400291	7770593	Mt. Gelmir :: [Sorcery] Gelmir's Fury - around Volcano Manor, may be sweep-granted by Abductor Virgin (Swinging Sickle) (m16_00) [f400291]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
-400320	7770598	Haligtree :: Prosthesis-Wearer Heirloom [f400320]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400380	7773732	Roundtable Hold :: Sewer-Gaol Key - around Table of Lost Grace (region unconfirmed) [f400380]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
-400600	7773742	Enir Ilim :: Golden Lion Shield - m60_49_40 (region unconfirmed) [f400600]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400620	7770634	Shadow Keep :: Letter for Freyja - around Storehouse, First Floor, may be sweep-granted by Base Serpent Messmer (m21_01) [f400620]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400661	7773751	Scadu Altus :: Ruins Map (2nd) [f400661]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400661	7900096	Scadu Altus :: Beloved Stardust [f400661]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
@@ -57,7 +54,6 @@ flag	ap_id	our_name	our_conditions	basis	status	reviewer	note
 400712	7773763	Jagged Peak :: Igon's Greatbow with Ash of War: Igon's Drake Hunt - near Foot of the Jagged Peak, may be sweep-granted by Ancient Dragon Senessax (m61_54_39) [f400712]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400720	7770647	Belurat :: Scorpion Stew - around Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f400720]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400721	7770648	Belurat :: [Sorcery] Watchful Spirit - around Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f400721]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
-400722	7770649	Gravesite :: Gourmet Scorpion Stew [f400722]	DIALOGUE_STEP	second-source-missable-disagrees	open		
 400723	7770650	Belurat :: Gourmet Scorpion Stew - near Theatre of the Divine Beast, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f400723]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 2050407000	7773579	Shadow Keep :: Ring the Finger Ruins of Dheo bell - m61_50_40 [f2050407000]	ITEM_POSSESSION	second-source-missable-disagrees	open		
 2053467600	7773654	Scadu Altus :: Ring the Finger Ruins of Rhia bell - m61_53_46 [f2053467600]	ITEM_POSSESSION	second-source-missable-disagrees	open		

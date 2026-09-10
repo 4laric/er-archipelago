@@ -1,8 +1,8 @@
 {
   "by_reason": {
-    "area_only": 2223,
+    "area_only": 2226,
     "one_landmark_candidate": 9,
-    "region_disagreement": 538,
+    "region_disagreement": 535,
     "shared_landmark": 3,
     "source_area_unmapped": 76
   },

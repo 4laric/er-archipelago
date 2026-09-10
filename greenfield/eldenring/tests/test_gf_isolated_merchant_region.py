@@ -188,6 +188,19 @@ def test_every_flag_this_merchant_sells_is_pinned_to_the_academy():
 
 
 @pytestmark_repo
+def test_the_merchants_death_drop_is_behind_the_same_door():
+    placements = [r for r in _tsv(os.path.join(_ROOT, "greenfield", "msb_flag_region.tsv"))
+                  if r["flag"] == "400907"]
+    assert len(placements) == 1
+    assert placements[0]["map_id"] == TILE
+    assert placements[0]["source"] == "enemy"
+    assert placements[0]["item_lot_id"] == "119030"
+    region, _, ap = _region_of_flag(_data_locations(), 400907)
+    assert region == ACADEMY
+    assert ap == 7773772
+
+
+@pytestmark_repo
 def test_the_surface_bar_is_retired_for_the_stock():
     """Region-gated AND surface-barred is double-booking: the bar reads as a second source of
     truth and hides which lever binds. The pocket's overworld checks keep the same rule
@@ -273,6 +286,7 @@ if _HAVE_AP:
         ANCHOR_SUFFIX = "[f14007990]"
         OLD_LIURNIA_NAME = "Liurnia :: Fevor's Cookbook [2] - from Isolated Merchant [f68220]"
         STOCK_SUFFIXES = tuple(f"from Isolated Merchant [f{f}]" for f in EXPECTED_APS)
+        BEARING_SUFFIX = "[f400907]"
 
         def _find(self, suffix):
             for loc in self.multiworld.get_locations(1):
@@ -282,7 +296,7 @@ if _HAVE_AP:
 
         def _stock(self):
             return [l for l in self.multiworld.get_locations(1)
-                    if l.name.endswith(self.STOCK_SUFFIXES)]
+                    if l.name.endswith(self.STOCK_SUFFIXES) or l.name.endswith(self.BEARING_SUFFIX)]
 
         def test_the_stock_demands_the_academy_lock(self):
             reported = self._find(self.REPORTED_SUFFIX)
@@ -296,7 +310,7 @@ if _HAVE_AP:
                 return
             self.assertIsNotNone(anchor, "stock kept but the academy anchor is missing")
             stock = self._stock()
-            self.assertEqual(len(stock), 16, sorted(l.name for l in stock))
+            self.assertEqual(len(stock), 17, sorted(l.name for l in stock))
             for loc in stock:
                 self.assertIs(loc.parent_region, anchor.parent_region,
                               f"{loc.name}: REGION equality, not membership -- the stock must live "

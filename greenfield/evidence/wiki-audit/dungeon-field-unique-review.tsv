@@ -526,6 +526,8 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7774227	unique_field_pickup	Altus	Troll's Golden Sword	1038517090	m60_38_51	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770036	unique_field_pickup	Altus	Twiggy Cracked Tear	65190	m60_44_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7774305	unique_field_pickup	Altus	Twinned Knight Swords	1041557000	m60_42_55	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772748	unique_field_pickup	Altus	Unseen Blade	1039537050	m60_39_54	remaining_unreviewed	0		first_independent_identity_region_source
+7900245	unique_field_pickup	Altus	Unseen Form	1039537050	m60_39_54	remaining_unreviewed	0		first_independent_identity_region_source
 7774267	unique_field_pickup	Altus	Valkyrie's Prosthesis	1039547300	m60_39_54	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772897	unique_field_pickup	Altus	Viridian Amber Medallion +1	1043527500	m60_44_53	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770033	unique_field_pickup	Altus	Winged Crystal Tear	65120	m60_44_53	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
@@ -798,7 +800,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7770585	unique_field_pickup	Liurnia	Iji's Bell Bearing	400240	m60_34_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770586	unique_field_pickup	Liurnia	Iji's Mirrorhelm	400241	m60_34_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773674	unique_field_pickup	Liurnia	Intelligence-knot Crystal Tear	65230	m60_36_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7773772	unique_field_pickup	Liurnia	Isolated Merchant's Bell Bearing [2]	400907	m60_34_45	remaining_unreviewed	0		first_independent_identity_region_source
 7774119	unique_field_pickup	Liurnia	Ivory Sickle	1035427040	m60_35_42	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7774109	unique_field_pickup	Liurnia	Jellyfish Shield	1033467040	m60_34_45	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770801	unique_field_pickup	Liurnia	Juvenile Scholar Cap	580310	m60_36_50	remaining_unreviewed	0		first_independent_identity_region_source
@@ -893,8 +894,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7772589	unique_field_pickup	Mt. Gelmir	Roiling Magma	1036527050	m60_37_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772707	unique_field_pickup	Mt. Gelmir	Sacred Butchering Knife	1038547700	m60_37_54	remaining_unreviewed	0		first_independent_identity_region_source
 7772661	unique_field_pickup	Mt. Gelmir	Scavenger's Curved Sword	1037547150	m60_37_54	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7772748	unique_field_pickup	Mt. Gelmir	Unseen Blade	1039537050	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
-7900245	unique_field_pickup	Mt. Gelmir	Unseen Form	1039537050	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
 7773897	unique_field_pickup	Rauh Base	Ash of War: Scattershot Throw	540910	m61_46_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773898	unique_field_pickup	Rauh Base	Ash of War: The Poison Flower Blooms Twice	540916	m61_44_47	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773262	unique_field_pickup	Rauh Base	Aspects of the Crucible: Bloom	2045477040	m61_44_47	remaining_unreviewed	0		first_independent_identity_region_source

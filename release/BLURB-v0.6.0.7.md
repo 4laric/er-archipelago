@@ -24,8 +24,10 @@ and that was already true before this window opened.
 
 ## What is in it so far
 
-Nothing yet. This window was opened AT THE TAG of v0.6.0.6 with ZERO commits past it, so this file
-exists before its first entry does, which is the point of it.
+Glintstone Kris, Prosthesis-Wearer Heirloom, Golden Lion Shield and Gourmet Scorpion Stew now respect **Protect Missable Locations**.
+The default leaves filler on these quest rewards; progression-only protection excludes required
+progression, and off still permits it. Their dialogue's collection checks had hidden the earlier
+quest prerequisites from our screening. This fixes placement in newly generated rooms.
 
 ## What carried over from v0.6.0.6
 
@@ -56,3 +58,5 @@ because this window has not changed anything yet:
 The v0.4.3 blurb is the model: lead with what changed at the table, not with the option
 name. Its opening line -- "You can get BK'ed now, and that is the point" -- says what a
 player will feel before it says what was built, and that is the right order.
+
+The Academy merchant's bell bearing now follows his stock behind the Academy lock. Three boundary pickups (including both Unseen spells) move from Mt. Gelmir to Altus, with matching sweep ownership. These placement changes apply to newly generated rooms.

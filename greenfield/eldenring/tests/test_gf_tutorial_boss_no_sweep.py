@@ -585,8 +585,12 @@ def test_the_sweep_corpus_did_not_shrink():
     #   #1515/#1518 removals re-phased the Scadu Altus round-robin and dealt f400666 to Ralva
     #   instead, so the trigger was RE-DERIVED BY FLAG IDENTITY from the regenerated corpus at
     #   merge time. Both owners are Scadu Altus regional sweeps, so the ruling is unchanged.
-    assert total == 4115, (
-        "sweep corpus is %d, expected 4115. If a sweep was legitimately added or removed, say WHY "
+    # #1537: 4115 -> 4114. Exactly f400907 loses Smarag1034450800 when the
+    # merchant death drop joins his stock behind the Academy lock. It is an overworld
+    # pocket with no eligible same-region field boss, so hand collection remains; the
+    # old Liurnia sweep must not bypass that door. No other check loses coverage.
+    assert total == 4114, (
+        "sweep corpus is %d, expected 4114. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -917,6 +921,12 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # 1042330800 and 1043330800 that inserting them causes -- collateral, not decisions.
     # The other four cut triggers keep their groups in the BAKED table on purpose: they are
     # filtered at RUNTIME by contract._RUNTIME_SWEEP_SKIP_REASONS, which leaves this digest alone.
-    assert (digest, n) == ("5ff5eda14a9cc253", 4115), (  # #1437: then remove exactly (1040520800, 1039527700), no new owner
-        "sweep OWNERSHIP changed: (%s, %d), expected (5ff5eda14a9cc253, 4115). The total alone will "
+    # #1537: measured against 67324bcc in (trigger, flag) space. Remove
+    # (1034450800,400907):1 with no replacement (Academy pocket; see total above).
+    # Re-home (1038520800,1039537040):1 -> (1040530800,1039537040):1;
+    # (1038520800,1039537050):2 -> (1039540800,1039537050):2;
+    # (1038520800,1039537060):1 -> (1040520800,1039537060):1.
+    # These are precisely the three measured Altus flags, four AP siblings. No collateral churn.
+    assert (digest, n) == ("b4c6eea5cd00df7a", 4114), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (b4c6eea5cd00df7a, 4114). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

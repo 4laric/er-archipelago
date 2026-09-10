@@ -36,8 +36,8 @@ duplicate carve-out, nothing to keep in sync with a boss roster.
 
 WHAT THIS FILE GATES, in three tiers:
   * the DETECTOR, re-derived here from the tsvs so a gen_data bug cannot hide behind shared code;
-  * the MOTIVATING CASE -- 1038540800 owns no group, and its 23 members are still swept, still in
-    Mt. Gelmir, by a boss that exists;
+  * the MOTIVATING CASE -- 1038540800 owns no group, and its 23 former members are still swept by real bosses in their measured regions
+    (20 Mt. Gelmir, three Altus after #1054);
   * REACHABILITY on the seed shape the report came from: num_regions 1, Mt. Gelmir kept.
 
 Run:  python greenfield/eldenring/tests/test_gf_unspawned_field_boss.py
@@ -144,6 +144,8 @@ def _shape():
 
 FALLINGSTAR = 1038540800    # boss_healthbars: ('m60_38', 'm60_38_54', 'field', 'Fallingstar Beast')
 GELMIR = "Mt. Gelmir"
+# Exact point-in-volume measurements place these three former members in Altus (#1054).
+ALTUS_MEMBER_FLAGS = frozenset({1039537040, 1039537050, 1039537060})
 
 # KEYED ON THE ACQUISITION FLAG, NEVER ON THE AP ID. A regen renumbers the positional ap id space,
 # so an ap-keyed fixture fires on every unrelated change and gets switched off inside a month (the
@@ -287,7 +289,7 @@ class TheBeastThatIsNotThere(unittest.TestCase):
         self.assertIn(FALLINGSTAR, self.sweeps.SWEEP_UNSPAWNED,
                       "the trigger is gone but nothing records WHY, so the next regen puts it back")
 
-    def test_the_23_checks_still_exist_and_are_still_mt_gelmir(self):
+    def test_the_23_checks_still_exist_in_their_measured_regions(self):
         """The fix removes a TRIGGER, not the checks. They were always obtainable by hand."""
         self.assertTrue(self.region_of,
                         "the location table read EMPTY -- every assertion below would pass for the "
@@ -300,17 +302,16 @@ class TheBeastThatIsNotThere(unittest.TestCase):
                          "check flag(s) %s left the location table with the sweep. A sweep is a "
                          "convenience auto-grant; removing one may not remove a check." % missing)
         elsewhere = {f: self.region_of[f] for f in FALLINGSTAR_MEMBER_FLAGS
-                     if self.region_of[f] != GELMIR}
-        self.assertFalse(elsewhere, "check(s) left Mt. Gelmir with the trigger: %s" % elsewhere)
+                     if self.region_of[f] != ("Altus" if f in ALTUS_MEMBER_FLAGS else GELMIR)}
+        self.assertFalse(elsewhere, "check(s) disagree with their measured region: %s" % elsewhere)
 
     def test_all_23_re_home_to_a_boss_that_exists_in_the_same_region(self):
         """The redistribution, and the reason no second mechanism was needed.
 
         Dropping the trigger hands its tile's filler back to the FIELD NEIGHBOURHOOD pass, which
         assigns every overworld filler check to the nearest SAME-REGION field boss. Measured on the
-        regen: all 23 stayed in Mt. Gelmir, 12 to 1037540810 (Ulcerated Tree Spirit, m60_37_54) and
-        11 to 1037530800 (Demi-Human Queen Maggie, m60_37_53). ADDED 0, REMOVED 0, 23 RE-OWNED,
-        zero region crossings."""
+        regen: the original repair kept all 23 in Mt. Gelmir. The #1054 exact ground
+        correction moves three to Altus; they must retain real owners in their corrected region."""
         owner = {ap: trig for trig, aps in self.sweeps.DUNGEON_SWEEPS.items() for ap in aps}
         self.assertGreater(len(owner), 3000,
                            "the sweep corpus read as %d member(s); an empty or truncated "
@@ -322,7 +323,7 @@ class TheBeastThatIsNotThere(unittest.TestCase):
             if trig is None:
                 orphans.append(flag)
                 continue
-            if self.sweeps.SWEEP_REGION.get(trig) != GELMIR:
+            if self.sweeps.SWEEP_REGION.get(trig) != self.region_of[flag]:
                 wrong_region[flag] = (trig, self.sweeps.SWEEP_REGION.get(trig))
             if trig in self.sweeps.SWEEP_UNSPAWNED:
                 unspawned_owner[flag] = trig
@@ -331,7 +332,7 @@ class TheBeastThatIsNotThere(unittest.TestCase):
                          "a check that lost its only trigger has traded a flag that never fires "
                          "for no flag at all." % (len(orphans), orphans))
         self.assertFalse(wrong_region,
-                         "check(s) re-homed to a trigger OUTSIDE Mt. Gelmir: %s. A sweep may only "
+                         "check(s) re-homed to a trigger outside their region: %s. A sweep may only "
                          "be paid by a boss that lives where the checks live (#445)." % wrong_region)
         self.assertFalse(unspawned_owner,
                          "check(s) re-homed onto ANOTHER boss that does not exist: %s"
@@ -352,7 +353,7 @@ except ImportError:                               # pragma: no cover - no AP che
 
 
 class _MtGelmirOnlySeed:
-    """num_regions 1 with Mt. Gelmir kept -- boblerrr's playtest shape -- must reach all 23.
+    """num_regions 1 with Mt. Gelmir kept -- boblerrr's playtest shape -- must reach all 20 remaining Gelmir members.
 
     SEEDS, not a pinned seed: which region a 1-region draw keeps is a property of the draw, and a
     data change that shifts the pool must move the SEARCH rather than red the test (the lesson
@@ -378,20 +379,20 @@ class _MtGelmirOnlySeed:
 
         seed = self._setup_a_gelmir_seed()
         ap_of = {int(f): int(a) for rows in LOCATIONS.values() for (_n, a, f) in rows}
-        want = {ap_of[f] for f in FALLINGSTAR_MEMBER_FLAGS}
-        self.assertEqual(len(want), len(FALLINGSTAR_MEMBER_FLAGS),
-                         "the 23 fixture flags did not resolve to 23 distinct ap ids -- the "
+        want = {ap_of[f] for f in FALLINGSTAR_MEMBER_FLAGS if f not in ALTUS_MEMBER_FLAGS}
+        self.assertEqual(len(want), len(FALLINGSTAR_MEMBER_FLAGS) - len(ALTUS_MEMBER_FLAGS),
+                         "the 20 retained fixture flags did not resolve to 20 distinct ap ids -- the "
                          "reachability claim below would be about the wrong checks")
         by_id = {loc.address: loc for loc in self.multiworld.get_locations(self.player)
                  if loc.address is not None}
         absent = sorted(want - set(by_id))
         self.assertFalse(absent,
-                         "seed %d keeps %s, yet %d of the beast's 23 former checks are not in the "
+                         "seed %d keeps %s, yet %d of the beast's 20 retained checks are not in the "
                          "seed at all: %s" % (seed, GELMIR, len(absent), absent))
         state = self.multiworld.get_all_state(False)
         unreachable = sorted(a for a in want if not by_id[a].can_reach(state))
         self.assertFalse(unreachable,
-                         "seed %d keeps %s but %d of the 23 are UNREACHABLE: %s"
+                         "seed %d keeps %s but %d of the 20 are UNREACHABLE: %s"
                          % (seed, GELMIR, len(unreachable), unreachable))
 
     def test_no_kept_sweep_on_a_gelmir_seed_is_paid_by_a_boss_that_does_not_exist(self):

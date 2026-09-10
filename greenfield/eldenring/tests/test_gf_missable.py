@@ -21,6 +21,22 @@ GAME = "Elden Ring"
 
 
 class MissableDataTests(unittest.TestCase):
+    def test_quest_dispatch_is_not_a_first_talk_gift(self):
+        """An award's collection latch says nothing about the caller's quest-state gate.
+
+        Sellen dispatches the Kris handover only at state 3468; Millicent dispatches the
+        Heirloom handover only at 4186. Both gift-table rows contain only a negative latch,
+        which previously let these quest rewards host required progression.
+        """
+        from worlds.eldenring.tables.data import LOCATIONS
+
+        for flag in (400101, 400320, 400600, 400722):
+            ids = [aid for rows in LOCATIONS.values() for _, aid, fl in rows if fl == flag]
+            self.assertTrue(ids, f"quest reward f{flag} disappeared instead of being protected")
+            for aid in ids:
+                self.assertEqual(MISSABLE_LOCATIONS.get(aid), "questline",
+                                 f"f{flag}: caller's quest gate lost behind an award latch")
+
     def test_count_and_split(self):
         vals = list(MISSABLE_LOCATIONS.values())
         self.assertEqual(vals.count("deathroot"), 10)

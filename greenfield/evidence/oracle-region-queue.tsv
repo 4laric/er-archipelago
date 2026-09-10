@@ -28,7 +28,7 @@ flag	ap_id	our_region	basis	status	reviewer	note
 68670	7770150	Scadu Altus	second-source-region-disagrees	open		
 68720	7770155	Scadu Altus	second-source-region-disagrees	open		
 68790	7770162	Gravesite	second-source-region-disagrees	open		
-68800	7770163	Shadow Keep	second-source-region-disagrees	open		
+68800	7770163	Shadow Keep	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
 68850	7770167	Jagged Peak	second-source-region-disagrees	open		
 400050	7770561	Limgrave	second-source-region-disagrees	open		
 400070	7770563	Altus	second-source-region-disagrees	open		
@@ -37,7 +37,6 @@ flag	ap_id	our_region	basis	status	reviewer	note
 400106	7770574	Raya Lucaria Academy	second-source-region-disagrees	open		
 400163	7770578	Altus	second-source-region-disagrees	open		
 400175	7770580	Farum Azula	second-source-region-disagrees	open		
-400221	7773715	Stormveil	second-source-region-disagrees	open		
 400260	7773726	Caelid	second-source-region-disagrees	open		
 400281	7770587	Leyndell	second-source-region-disagrees	open		
 400309	7770597	Caelid	second-source-region-disagrees	open		
@@ -55,40 +54,37 @@ flag	ap_id	our_region	basis	status	reviewer	note
 400645	7900094	Enir Ilim	second-source-region-disagrees	open		
 400645	7900095	Enir Ilim	second-source-region-disagrees	open		
 400722	7770649	Gravesite	second-source-region-disagrees	open		
-400907	7773772	Liurnia	second-source-region-disagrees	open		
 520800	7773851	Roundtable Hold	second-source-dlc-membership-disagrees	open		
-530385	7770712	Mt. Gelmir	second-source-region-disagrees	open		
-530385	7900148	Mt. Gelmir	second-source-region-disagrees	open		
+530385	7770712	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+530385	7900148	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
 530865	7773870	Gravesite	second-source-region-disagrees	open		
 530950	7773876	Roundtable Hold	second-source-dlc-membership-disagrees	open		
-530960	7773878	Shadow Keep	second-source-region-disagrees	open		
 540118	7770722	Caelid	second-source-region-disagrees	open		
 540512	7773889	Mountaintops of the Giants	second-source-region-disagrees	open		
 540902	7773894	Ensis	second-source-region-disagrees	open		
 540920	7774637	Ensis	second-source-region-disagrees	open		
 540922	7774638	Ensis	second-source-region-disagrees	open		
 580100	7773901	Belurat	second-source-region-disagrees	open		
-580330	7770803	Consecrated Snowfield	second-source-region-disagrees	open		
-580600	7770809	Belurat	second-source-region-disagrees	open		
+580600	7770809	Belurat	second-source-region-disagrees	confirmed-ours	Codex	Explicit #1059 Belurat/Dancing Lion alternate-grant ruling; moving to another NPC placement would erase the ruled route.
 10007452	7770858	Roundtable Hold	second-source-region-disagrees	open		
 11007195	7770949	Leyndell	second-source-region-disagrees	open		
 14007920	7771548	Raya Lucaria Academy	second-source-region-disagrees	open		
 35007030	7772350	Leyndell	second-source-region-disagrees	open		
-1035457000	7772547	Raya Lucaria Academy	second-source-region-disagrees	open		
-1035457030	7774130	Raya Lucaria Academy	second-source-region-disagrees	open		
-1035457100	7772548	Raya Lucaria Academy	second-source-region-disagrees	open		
+1035457000	7772547	Raya Lucaria Academy	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
+1035457030	7774130	Raya Lucaria Academy	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
+1035457100	7772548	Raya Lucaria Academy	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
 1035467700	7772549	Raya Lucaria Academy	second-source-region-disagrees	open		
 1036517000	7774198	Liurnia	second-source-region-disagrees	open		
 1036517700	7774199	Liurnia	second-source-region-disagrees	open		
 1036517700	7900234	Liurnia	second-source-region-disagrees	open		
 1036517700	7900235	Liurnia	second-source-region-disagrees	open		
-1036527000	7772584	Mt. Gelmir	second-source-region-disagrees	open		
+1036527000	7772584	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
 1036527010	7772585	Mt. Gelmir	second-source-region-disagrees	open		
 1036527020	7772586	Mt. Gelmir	second-source-region-disagrees	open		
 1036527030	7772587	Mt. Gelmir	second-source-region-disagrees	open		
-1036527040	7772588	Mt. Gelmir	second-source-region-disagrees	open		
+1036527040	7772588	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
 1036527050	7772589	Mt. Gelmir	second-source-region-disagrees	open		
-1036527060	7772590	Mt. Gelmir	second-source-region-disagrees	open		
+1036527060	7772590	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
 1037527020	7772633	Mt. Gelmir	second-source-region-disagrees	open		
 1037527030	7772634	Mt. Gelmir	second-source-region-disagrees	open		
 1037527040	7772635	Mt. Gelmir	second-source-region-disagrees	open		
@@ -99,24 +95,24 @@ flag	ap_id	our_region	basis	status	reviewer	note
 1037527100	7772641	Mt. Gelmir	second-source-region-disagrees	open		
 1037527100	7900240	Mt. Gelmir	second-source-region-disagrees	open		
 1037527100	7900241	Mt. Gelmir	second-source-region-disagrees	open		
-1038527000	7772687	Mt. Gelmir	second-source-region-disagrees	open		
-1038527010	7772688	Mt. Gelmir	second-source-region-disagrees	open		
-1038527020	7772689	Mt. Gelmir	second-source-region-disagrees	open		
-1038527040	7772691	Mt. Gelmir	second-source-region-disagrees	open		
-1038527060	7772693	Mt. Gelmir	second-source-region-disagrees	open		
-1038527070	7772694	Mt. Gelmir	second-source-region-disagrees	open		
-1038537000	7772695	Mt. Gelmir	second-source-region-disagrees	open		
-1038537010	7774228	Mt. Gelmir	second-source-region-disagrees	open		
-1038537020	7774229	Mt. Gelmir	second-source-region-disagrees	open		
-1038537030	7774230	Mt. Gelmir	second-source-region-disagrees	open		
-1038537040	7774231	Mt. Gelmir	second-source-region-disagrees	open		
-1038537050	7774232	Mt. Gelmir	second-source-region-disagrees	open		
+1038527000	7772687	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1038527010	7772688	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1038527020	7772689	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1038527040	7772691	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1038527060	7772693	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1038527070	7772694	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1038537000	7772695	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1038537010	7774228	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1038537020	7774229	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1038537030	7774230	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1038537040	7774231	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1038537050	7774232	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
 1038547000	7772696	Mt. Gelmir	second-source-region-disagrees	open		
 1038547010	7772697	Mt. Gelmir	second-source-region-disagrees	open		
 1038547020	7772698	Mt. Gelmir	second-source-region-disagrees	open		
 1038547030	7772699	Mt. Gelmir	second-source-region-disagrees	open		
 1038547050	7772700	Mt. Gelmir	second-source-region-disagrees	open		
-1038547060	7772701	Mt. Gelmir	second-source-region-disagrees	open		
+1038547060	7772701	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
 1038547070	7772702	Mt. Gelmir	second-source-region-disagrees	open		
 1038547080	7772703	Mt. Gelmir	second-source-region-disagrees	open		
 1038547090	7772704	Mt. Gelmir	second-source-region-disagrees	open		
@@ -129,10 +125,6 @@ flag	ap_id	our_region	basis	status	reviewer	note
 1039537010	7772744	Mt. Gelmir	second-source-region-disagrees	open		
 1039537020	7772745	Mt. Gelmir	second-source-region-disagrees	open		
 1039537030	7772746	Mt. Gelmir	second-source-region-disagrees	open		
-1039537040	7772747	Mt. Gelmir	second-source-region-disagrees	open		
-1039537050	7772748	Mt. Gelmir	second-source-region-disagrees	open		
-1039537050	7900245	Mt. Gelmir	second-source-region-disagrees	open		
-1039537060	7772749	Mt. Gelmir	second-source-region-disagrees	open		
 1039537070	7772750	Mt. Gelmir	second-source-region-disagrees	open		
 1039537080	7772751	Mt. Gelmir	second-source-region-disagrees	open		
 1039537700	7772752	Mt. Gelmir	second-source-region-disagrees	open		
@@ -159,18 +151,15 @@ flag	ap_id	our_region	basis	status	reviewer	note
 1046407040	7772963	Caelid	second-source-region-disagrees	open		
 1046407060	7772964	Caelid	second-source-region-disagrees	open		
 1046407700	7772965	Caelid	second-source-region-disagrees	open		
-1049557700	7774470	Roundtable Hold	second-source-region-disagrees	open		
 1050567300	7773098	Consecrated Snowfield	second-source-region-disagrees	open		
-1050567600	7773102	Consecrated Snowfield	second-source-region-disagrees	open		
-1050567700	7774491	Consecrated Snowfield	second-source-region-disagrees	open		
-1050567700	7900271	Consecrated Snowfield	second-source-region-disagrees	open		
-1050567700	7900272	Consecrated Snowfield	second-source-region-disagrees	open		
-1050567700	7900273	Consecrated Snowfield	second-source-region-disagrees	open		
-1050567700	7900274	Consecrated Snowfield	second-source-region-disagrees	open		
+1050567600	7773102	Consecrated Snowfield	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
+1050567700	7774491	Consecrated Snowfield	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1050567700	7900271	Consecrated Snowfield	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1050567700	7900272	Consecrated Snowfield	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1050567700	7900273	Consecrated Snowfield	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+1050567700	7900274	Consecrated Snowfield	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
 1050567800	7773104	Consecrated Snowfield	second-source-region-disagrees	open		
 1051557300	7773136	Consecrated Snowfield	second-source-region-disagrees	open		
-1051557310	7773137	Consecrated Snowfield	second-source-region-disagrees	open		
-1051557320	7773138	Consecrated Snowfield	second-source-region-disagrees	open		
 2044477050	7773226	Rauh Base	second-source-region-disagrees	open		
 2045467020	7773249	Rauh Base	second-source-region-disagrees	open		
 2045467040	7773250	Rauh Base	second-source-region-disagrees	open		
@@ -198,11 +187,11 @@ flag	ap_id	our_region	basis	status	reviewer	note
 2047407010	7773373	Cerulean	second-source-region-disagrees	open		
 2047407020	7773374	Cerulean	second-source-region-disagrees	open		
 2047407980	7773378	Cerulean	second-source-region-disagrees	open		MSB WITNESS (2026-09-09, tools/datamine_msb_door_sides.py --entities): the award is common event 90005301 on character entity 2047400499 (Part/Enemy/c0000_9000) in m61_47_40_00, map-local (7.581, 292.768, -79.814). Our region column comes from the flag id; the placing character sits in tile m61_47_40. Rule by that tile and its nearest grace.
-2047417110	7773385	Cerulean	second-source-region-disagrees	open		
+2047417110	7773385	Cerulean	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
 2047447730	7773426	Gravesite	second-source-region-disagrees	open		
 2047447820	7773428	Gravesite	second-source-region-disagrees	open		
-2047457000	7773432	Scadu Altus	second-source-region-disagrees	open		
-2047457010	7773433	Scadu Altus	second-source-region-disagrees	open		
+2047457000	7773432	Scadu Altus	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
+2047457010	7773433	Scadu Altus	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
 2047457180	7773438	Gravesite	second-source-region-disagrees	open		
 2047467010	7773443	Scadu Altus	second-source-region-disagrees	open		
 2047467030	7773444	Scadu Altus	second-source-region-disagrees	open		
@@ -213,16 +202,14 @@ flag	ap_id	our_region	basis	status	reviewer	note
 2047477900	7773451	Ancient Ruins	second-source-region-disagrees	open		
 2047477950	7773452	Ancient Ruins	second-source-region-disagrees	open		
 2047477995	7773453	Ancient Ruins	second-source-region-disagrees	open		
-2048407000	7773467	Cerulean	second-source-region-disagrees	open		
-2048407020	7773469	Cerulean	second-source-region-disagrees	open		
-2048417800	7773474	Jagged Peak	second-source-region-disagrees	open		
+2048407000	7773467	Cerulean	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
+2048407020	7773469	Cerulean	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
 2048417980	7773475	Jagged Peak	second-source-region-disagrees	open		
 2048447010	7773485	Ensis	second-source-region-disagrees	open		
 2048447020	7773486	Ensis	second-source-region-disagrees	open		
 2048447040	7773488	Ensis	second-source-region-disagrees	open		
 2048447080	7773492	Ensis	second-source-region-disagrees	open		
 2048447500	7773493	Ensis	second-source-region-disagrees	open		
-2049427010	7774549	Jagged Peak	second-source-region-disagrees	open		
 2049427700	7773516	Jagged Peak	second-source-region-disagrees	open		
 2049427720	7773517	Jagged Peak	second-source-region-disagrees	open		
 2050407000	7773579	Shadow Keep	second-source-region-disagrees	open		
@@ -233,7 +220,8 @@ flag	ap_id	our_region	basis	status	reviewer	note
 2051417000	7773624	Scadu Altus	second-source-region-disagrees	open		
 2051417700	7773625	Scadu Altus	second-source-region-disagrees	open		
 2051417710	7773626	Scadu Altus	second-source-region-disagrees	open		
-2052417000	7773644	Jagged Peak	second-source-region-disagrees	open		
+2051467020	7773635	Scadu Altus	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
+2051477010	7773638	Scadu Altus	second-source-region-disagrees	open		
+2051477020	7773639	Scadu Altus	second-source-region-disagrees	open		
+2051477030	7773640	Scadu Altus	second-source-region-disagrees	open		
 2052427500	7773646	Scadu Altus	second-source-region-disagrees	open		
-2053487000	7773655	Shadow Keep	second-source-region-disagrees	open		
-2053487010	7773656	Shadow Keep	second-source-region-disagrees	open		

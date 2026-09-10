@@ -936,6 +936,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7772049	Altus	Magic Grease	30077020	ItemLotParam_map.getItemFlagId		near Wyndham Catacombs	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
 7774243	Altus	Magic Grease	1039527020	ItemLotParam_map.getItemFlagId		near Old Altus Tunnel	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774353	Altus	Mushroom	1043537070	ItemLotParam_map.getItemFlagId		near Outer Wall Battleground	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7772747	Altus	Nascent Butterfly	1039537040	ItemLotParam_map.getItemFlagId		near Bridge of Iniquity	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772768	Altus	Nascent Butterfly	1040537020	ItemLotParam_map.getItemFlagId		near Bower of Bounty	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7774218	Altus	Nascent Butterfly	1038517000	ItemLotParam_map.getItemFlagId		near Erdtree-Gazing Hill	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774257	Altus	Neutralizing Boluses	1039547130	ItemLotParam_map.getItemFlagId		near Shaded Castle Inner Gate	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
@@ -956,6 +957,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7774330	Altus	Rune Arc	1042547100	ItemLotParam_map.getItemFlagId		near Windmill Village	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772737	Altus	Sacrificial Twig	1039517020	ItemLotParam_map.getItemFlagId		near Altus Highway Junction	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772788	Altus	Silver-Pickled Fowl Foot	1041517020	ItemLotParam_map.getItemFlagId		near Outer Wall Phantom Tree	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7772749	Altus	Slumbering Egg	1039537060	ItemLotParam_map.getItemFlagId		near Bower of Bounty	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774251	Altus	Smithing Stone [4]	1039547070	ItemLotParam_map.getItemFlagId		near Shaded Castle Ramparts	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774266	Altus	Smithing Stone [4]	1039547260	ItemLotParam_map.getItemFlagId		near Shaded Castle Inner Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772082	Altus	Smithing Stone [5]	30137030	ItemLotParam_map.getItemFlagId		near Auriza Side Tomb	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
@@ -2108,7 +2110,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7774178	Mt. Gelmir	Mushroom	1035537020	ItemLotParam_map.getItemFlagId		near Seethewater Terminus	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772587	Mt. Gelmir	Nascent Butterfly	1036527030	ItemLotParam_map.getItemFlagId		near Craftsman's Shack	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772653	Mt. Gelmir	Nascent Butterfly	1037547070	ItemLotParam_map.getItemFlagId		near Primeval Sorcerer Azur	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7772747	Mt. Gelmir	Nascent Butterfly	1039537040	ItemLotParam_map.getItemFlagId		near Bridge of Iniquity	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7770070	Mt. Gelmir	Perfume Bottle	66700	ItemLotParam_map.getItemFlagId		near Volcano Manor	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7770072	Mt. Gelmir	Perfume Bottle	66740	ItemLotParam_map.getItemFlagId		near Craftsman's Shack	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772144	Mt. Gelmir	Poison Grease	31077000	ItemLotParam_map.getItemFlagId		near Seethewater Cave	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
@@ -2120,7 +2121,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7771715	Mt. Gelmir	Seedbed Curse	16007700	ItemLotParam_map.getItemFlagId		near Prison Town Church	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772152	Mt. Gelmir	Sliver of Meat	31097010	ItemLotParam_map.getItemFlagId		near Volcano Cave	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7772575	Mt. Gelmir	Slumbering Egg	1035547070	ItemLotParam_map.getItemFlagId		near Seethewater Terminus	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7772749	Mt. Gelmir	Slumbering Egg	1039537060	ItemLotParam_map.getItemFlagId		near Bower of Bounty	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771686	Mt. Gelmir	Smithing Stone [4]	16007240	ItemLotParam_map.getItemFlagId		near Guest Hall	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771711	Mt. Gelmir	Smithing Stone [4]	16007560	ItemLotParam_map.getItemFlagId		near Subterranean Inquisition Chamber	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7771696	Mt. Gelmir	Smithing Stone [5]	16007380	ItemLotParam_map.getItemFlagId		near Prison Town Church	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
