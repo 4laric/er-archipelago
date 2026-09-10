@@ -5,6 +5,10 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.0.7 — 2026-09-09
 
+- **Quest reward placement:** Glintstone Kris and Prosthesis-Wearer Heirloom now respect
+  Protect Missable Locations. Their NPC quest prerequisites were hidden behind collection-latch
+  checks, allowing required progression on rewards that could be lost. Applies to newly generated rooms.
+
 ### What you need to update
 
 - **Client:** **Optional.** `CONTRACT_HASH` has not moved since v0.6.0.3, so a v0.6.0.3 through

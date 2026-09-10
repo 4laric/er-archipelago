@@ -24,8 +24,10 @@ and that was already true before this window opened.
 
 ## What is in it so far
 
-Nothing yet. This window was opened AT THE TAG of v0.6.0.6 with ZERO commits past it, so this file
-exists before its first entry does, which is the point of it.
+Glintstone Kris and Prosthesis-Wearer Heirloom now respect **Protect Missable Locations**.
+The default leaves filler on these quest rewards; progression-only protection excludes required
+progression, and off still permits it. Their dialogue's collection checks had hidden the earlier
+quest prerequisites from our screening. This fixes placement in newly generated rooms.
 
 ## What carried over from v0.6.0.6
 

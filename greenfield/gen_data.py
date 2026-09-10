@@ -4130,6 +4130,19 @@ QUESTLINE_ITEM_FLAGS = frozenset({
 # free-pickup items that merely also appear in a quest were EXCLUDED (e.g. Fingerslayer Blade). Extra/
 # absent flags are inert (only matched flags become missable).
 QUEST_GATED_FLAGS = {
+    # Caller-gated gifts missed by the local latch-only screen (oracle review, 2026-09-09).
+    # v1.17 t316211400_x37 dispatches x43 -> x47 only on state 3468; x47 awards map lot
+    # 101010 (f400101). The overworld copy t316206000_x37 -> x44 -> x48 has the same
+    # state gate. common event 3479 advances 3468 only while Sellen is alive (3460),
+    # after (3363 OR 7609) AND 9118 AND 1034509256. Her dead state is 3463.
+    # Both esd_gifts rows see only !14009266 at the award, NOT these caller predicates.
+    400101,   # Glintstone Kris -- Sellen's quest handover, not a first-talk gift.
+    # t348006000_x36 dispatches x44 -> x45 only on state 4186; the Haligtree copy
+    # t348001500_x36 -> x43 -> x44 is identical. Both award map lot 103200 (f400320)
+    # behind !1050389257. common event 4199 advances 4185 -> 4186 only while alive
+    # (4180) and after 1050389255, set by the needle handover in t348006000_x60.
+    # The dead-state guard (4183) in x9 prevents the talk path after killing Millicent.
+    400320,   # Prosthesis-Wearer Heirloom -- Millicent's post-needle handover.
     9500, 9502, 9504, 100560,
     400030, 400032, 400037, 400061, 400071, 400077, 400078, 400080, 400089,
     400091, 400100, 400105, 400158, 400162, 400173, 400174, 400182, 400189,
@@ -4440,8 +4453,9 @@ def _load_esd_gift_latch_only():
             if _fl is None:
                 continue
             _paths.setdefault(_fl, []).append((_r.get("gate_sense") or "").strip())
-    # A flag is latch-only when EVERY path it has is the acquisition latch. One quest-state path
-    # anywhere disqualifies it -- the union of paths is what the player has to satisfy.
+    # "Latch-only" describes the recorded award-site gates, not every caller or NPC state.
+    # A reviewed upstream prerequisite still belongs in QUEST_GATED_FLAGS (400101/400320).
+    # One recorded non-latch path disqualifies a flag from this local screen.
     return frozenset(_fl for _fl, _senses in _paths.items() if all(_s == "0" for _s in _senses))
 
 
