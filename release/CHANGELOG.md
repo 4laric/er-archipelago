@@ -5,6 +5,7 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.0.7 — 2026-09-09
 
+- **Uniform starting regions (#1547):** Set `start_region_selection: uniform` for equal odds across eligible kept base-game and DLC regions. Respects the starting-region pool and draws multiple starts without replacement. The default remains `weighted`; existing YAMLs keep their current behavior. New rooms only.
 - **Clearer release downloads (#1545):** The six optional HTML tools now share `Optional-Offline-Tools.zip`, with a README explaining each tool. Download the versioned client bundle to play, or `eldenring.apworld` to generate; the optional tools ZIP contains no DLL. Existing releases stay unchanged.
 
 - **ALttPR generation repair tool (#1541):** An optional, source-hash-checked helper repairs incorrect duplicate-item removal in the supplied ALttPR 1.5.0 package. This fixes the mixed-room pool assertion reported while generating with ER 0.6.0.6. Elden Ring placement logic is unchanged; use the helper only for the affected custom ALttPR package.
