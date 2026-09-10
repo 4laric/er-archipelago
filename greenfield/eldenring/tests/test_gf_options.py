@@ -802,3 +802,41 @@ def test_dlc_gear_can_be_mixed_without_enabling_dlc_regions(extra, seed):
     finally:
         del w, pool
         t.tearDown()
+
+
+@pytest.mark.parametrize("extra", [
+    {"enable_dlc": False},
+    {"enable_dlc": True},
+    {"dlc_only": True},
+    {"start_regions": 3},
+    {"start_region_pool": ["Caelid", "Ensis"]},
+    {"natural_progression": True},
+    {"vanilla_placement": "all"},
+])
+def test_uniform_start_region_combinations(extra):
+    from worlds.eldenring.region_spine import REGION_PARENT
+    from worlds.eldenring.features.start_grace import StartRegionSelection
+    assert StartRegionSelection.default == StartRegionSelection.option_weighted
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = dict(num_regions=6, start_region_selection="uniform", **extra)
+
+    t = _T()
+    try:
+        for seed in (1, 7, 22222):
+            t.world_setup(seed=seed)
+            starts = [i.name.removesuffix(" Lock") for i in t.multiworld.precollected_items[t.player]
+                      if i.name.endswith(" Lock")]
+            if extra.get("natural_progression") or extra.get("vanilla_placement"):
+                assert starts == []
+                continue
+            assert len(starts) == extra.get("start_regions", 1)
+            assert len(set(starts)) == len(starts)
+            assert set(starts) <= set(t.world._kept())
+            assert not set(starts) & set(REGION_PARENT)
+            assert not set(starts) & set(t.world.gf_goal_forced)
+            if "start_region_pool" in extra:
+                assert set(starts) <= set(extra["start_region_pool"])
+    finally:
+        t.tearDown()

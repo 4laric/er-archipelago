@@ -499,7 +499,7 @@ class GFLocation(Location):
 # one option at a time. tests/test_gf_option_groups.py fails on any ungrouped visible key.
 _OPTION_GROUPS = [
     ("Goal & Regions", [
-        "num_regions", "num_regions_order", "start_regions", "start_region_pool", "goal",
+        "num_regions", "num_regions_order", "start_regions", "start_region_pool", "start_region_selection", "goal",
         "ending_condition",
         "goal_great_runes", "leyndell_runes_required", "region_grace_unlock",
         "grace_attunement", "grace_attunement_anchor", "goal_region_unlock_policy"]),
@@ -1324,6 +1324,7 @@ class GreenfieldEldenRingWorld(World):
             # home -- a copy left behind here is the redundancy the repo treats as a failure.
             _regions, _rules, _pool_n = pick_anchor_regions(
                 kept, self.random, _counts, DLC_REGIONS, n=_n_start,
+                uniform=self.options.start_region_selection.value == 1,
                 # `barred` = the MISSABLE set only, not the whole surface bar. A region whose
                 # only MajorBoss check is questline-missable cannot host a Lock on the strength
                 # of it (Deeproot Depths: its sole MajorBoss is the Fortissax reward). The

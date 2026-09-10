@@ -86,6 +86,11 @@ Elden Ring:
   # starting regions are drawn).
   start_region_pool: []
 
+  # weighted (default): prefer base-game and larger regions, with a MajorBoss first-pick bias.
+  # uniform: equal odds for every eligible kept region, including DLC; respects the pool above.
+  # Multiple starting regions are drawn without replacement. Does not change the kept-region set.
+  start_region_selection: weighted
+
   # How the kept regions are CHOSEN when num_regions > 0. This picks WHICH
   # regions you keep; it does not pick where you start (that is always a
   # separate size-weighted draw over whatever ends up kept, unless
