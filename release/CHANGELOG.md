@@ -5,6 +5,8 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.0.7 — 2026-09-09
 
+- **ALttPR generation repair tool (#1541):** An optional, source-hash-checked helper repairs incorrect duplicate-item removal in the supplied ALttPR 1.5.0 package. This fixes the mixed-room pool assertion reported while generating with ER 0.6.0.6. Elden Ring placement logic is unchanged; use the helper only for the affected custom ALttPR package.
+
 - **Quest reward placement:** Glintstone Kris, Prosthesis-Wearer Heirloom, Golden Lion Shield and Gourmet Scorpion Stew now respect
   Protect Missable Locations. Their NPC quest prerequisites were hidden behind collection-latch
   checks, allowing required progression on rewards that could be lost. Applies to newly generated rooms.
