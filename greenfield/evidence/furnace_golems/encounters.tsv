@@ -1,0 +1,9 @@
+entity_id	npc_id	model	death_flag	award_base_lot	event_maps	placement_records	npc_enemy_lot	npc_getSoul_raw	event_sources	drops
+2045460200	51702094	c5170	2045460200	2045460500	m61_45_46_00;m61_45_46_10	2	517000200	14921	artifacts/event/m61_45_46_00.emevd.dcx.js:33;artifacts/event/m61_45_46_10.emevd.dcx.js:33	Furnace Visage x1; Crimson-Sapping Cracked Tear x1
+2050460300	51700091	c5170	2050460300	2050460500	m61_50_46_00	1	517000000	14060	artifacts/event/m61_50_46_00.emevd.dcx.js:32	Furnace Visage x1; Bloodsucking Cracked Tear x1
+2050460310	51700091	c5170	2050460310	2050460510	m61_50_46_00	1	517000000	14060	artifacts/event/m61_50_46_00.emevd.dcx.js:36	Furnace Visage x1; Oil-Soaked Tear x1
+2246390200	51701084	c5170	2046390200	2046390060	m61_46_39_00	1	517000100	10857	artifacts/event/m61_46_39_00.emevd.dcx.js:20	Furnace Visage x1; Glovewort Crystal Tear x1
+2246420300	51700080	c5170	2046420300	2046420980	m61_46_42_00	1	517000000	9524	artifacts/event/m61_46_42_00.emevd.dcx.js:30	Furnace Visage x1; Deflecting Hardtear x1
+2248400200	51700083	c5170	2048400200	2048400020	m61_48_40_00	1	517000000	10238	artifacts/event/m61_48_40_00.emevd.dcx.js:43	Furnace Visage x1; Viridian Hidden Tear x1
+2248460291	51700090	c5170	2248460291	2048460700	m61_48_46_00	1	517000000	10714	artifacts/event/m61_48_46_00.emevd.dcx.js:21	Crimsonburst Dried Tear x1; Furnace Visage x1
+2251450280	51701090	c5170	2251450280	2051450700	m61_51_45_00	1	517000100	10714	artifacts/event/m61_51_45_00.emevd.dcx.js:89	Furnace Visage x1; Cerulean-Sapping Cracked Tear x1
