@@ -24,6 +24,8 @@ and that was already true before this window opened.
 
 ## What is in it so far
 
+- **Uniform starting regions (#1547):** Set `start_region_selection: uniform` for equal odds across eligible kept base-game and DLC regions. Respects the starting-region pool and draws multiple starts without replacement. The default remains `weighted`; existing YAMLs keep their current behavior. New rooms only.
+
 Glintstone Kris, Prosthesis-Wearer Heirloom, Golden Lion Shield and Gourmet Scorpion Stew now respect **Protect Missable Locations**.
 The default leaves filler on these quest rewards; progression-only protection excludes required
 progression, and off still permits it. Their dialogue's collection checks had hidden the earlier

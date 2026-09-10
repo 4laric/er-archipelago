@@ -14,7 +14,7 @@ rides here: 4680 (Level Up enable) + 951 (Melina first-meeting done) -- the two 
 confirmed in-game (set both, rest, Level Up works, no cutscene). The first entry (a real grace) is the
 client's clobber read-back sentinel. All ids are from prior in-game-verified work; none invented.
 """
-from Options import DefaultOnToggle, OptionSet, Range, Toggle
+from Options import Choice, DefaultOnToggle, OptionSet, Range, Toggle
 from ..registry import Feature, register
 from . import catacomb_doors as _doors
 from .. import contract
@@ -144,7 +144,8 @@ class StartWithRegionLock(DefaultOnToggle):
     somewhere with room to play -- DLC region locks stay in the pool as normal finds and only anchor
     under dlc_only. ON by default (v0.2): a STRICT Progression Surface needs a sphere-0 anchor, and
     the pick then also intersects the regions that HOST a MajorBoss, so the strict lock-chain seeds
-    without the ladder widening. Turn off to start fully sealed -- still beatable (AP fill guarantees
+    without the ladder widening. Starting Region Selection can instead give all eligible
+    regions equal odds. Turn off to start fully sealed -- still beatable (AP fill guarantees
     a Roundtable-reachable first lock), but a strict surface then widens one rung to the Roundtable
     Golden Seeds to bootstrap."""
     display_name = "Start With A Region Lock"
@@ -161,7 +162,8 @@ class StartRegions(Range):
     generation fails loudly, naming both numbers, if it does not. Remember that Number of Regions
     is a DRAW SIZE: a seed can keep more regions than you asked for, but never fewer.
 
-    The first region is picked exactly as it always was (size-weighted over the kept base-game
+    Starting Region Selection controls the draw. By default the first region is picked
+    as it always was (size-weighted over the kept base-game
     regions, MajorBoss-biased under a strict Progression Surface). The extras are drawn the same
     way from what is left, except that the goal region can never be one: a run that opens on the
     region it ends in is over before it starts."""
@@ -169,6 +171,25 @@ class StartRegions(Range):
     range_start = 1
     range_end = 10
     default = 1
+
+
+class StartRegionSelection(Choice):
+    """How starting regions are drawn from the regions kept in this seed.
+
+    Weighted (default) preserves the current selection: prefer base-game regions, weight by
+    check count, and prefer a MajorBoss region for the first pick.
+    Uniform gives each eligible region equal odds, including DLC when enabled, without size
+    weighting or a MajorBoss preference. Small regions can therefore open the run.
+
+    Both modes respect Starting Region Pool and exclude inaccessible child regions and the
+    goal's forced regions. Multiple starting regions are drawn without replacement.
+    Ignored when Start With A Region Lock is off, or under Natural Progression or Vanilla
+    Placement, which create no region locks. This does not change which regions the seed keeps.
+    """
+    display_name = "Starting Region Selection"
+    option_weighted = 0
+    option_uniform = 1
+    default = 0
 
 
 class StartRegionPool(OptionSet):
@@ -203,8 +224,11 @@ class StartRegionPool(OptionSet):
 
 
 def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=frozenset(),
-                       never_anchor=frozenset()):
+                       never_anchor=frozenset(), uniform=False):
     """The run's opening region: which kept region's Lock core.create_items precollects.
+
+    With `uniform=True`, draw equally over all non-gated, non-goal kept regions with checks;
+    DLC and MajorBoss preferences do not apply. Otherwise preserve the legacy draw below.
 
     Size-weighted draw -- weight = the region's emitted check count, from `check_counts`, which the
     caller derives from the world's own LOCATIONS at gen time (never a frozen table: a re-tag that
@@ -244,6 +268,13 @@ def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=f
     Raises ValueError on an empty kept set or an all-zero weight sum: an empty eligible pool is a
     LOUD failure, not a silent shrug (CONTRIBUTING: an empty result is a failure, not a clean run).
     """
+    # Uniform is opt-in: the weighted path and its RNG consumption remain unchanged.
+    if uniform:
+        eligible = [r for r in kept if r not in gated and r not in never_anchor
+                    and int(check_counts.get(r, 0)) > 0]
+        if not eligible:
+            raise ValueError("start anchor: no eligible region with emitted checks for uniform selection")
+        return rng.choice(eligible), "uniform", len(eligible)
     kept = list(kept)
     if not kept:
         raise ValueError("start anchor: the kept region set is EMPTY -- nothing to anchor the run on")
@@ -292,8 +323,11 @@ def pick_anchor_region(kept, rng, check_counts, dlc_regions, major=None, gated=f
 
 def pick_anchor_regions(kept, rng, check_counts, dlc_regions, n=1, major=None,
                         gated=frozenset(), never_extra=frozenset(), never_anchor=frozenset(),
-                        only=frozenset()):
+                        only=frozenset(), uniform=False):
     """The run's opening regionS: which kept regions' Locks core.create_items precollects.
+
+    `uniform=True` applies equal odds to each draw without replacement, including DLC.
+    The default preserves the existing weighted behavior described below.
 
     ONE DRAW OR N, THE FIRST ONE IS THE SAME DRAW IT ALWAYS WAS. `n == 1` calls
     `pick_anchor_region` once and consumes the rng stream exactly as before, so every existing
@@ -345,7 +379,7 @@ def pick_anchor_regions(kept, rng, check_counts, dlc_regions, n=1, major=None,
                 "can open in" % ", ".join(sorted(only)))
     first, rule, pool_n = pick_anchor_region(kept, rng, check_counts, dlc_regions,
                                              major=major, gated=gated,
-                                             never_anchor=never_anchor)
+                                             never_anchor=never_anchor, uniform=uniform)
     picks, rules = [first], [rule]
     # The extras' pool, filtered ONCE up front so a shortfall is reported before anything is drawn:
     # a partial answer would be a silently shorter start than the yaml asked for.
@@ -368,7 +402,7 @@ def pick_anchor_regions(kept, rng, check_counts, dlc_regions, n=1, major=None,
             "region with zero emitted checks can never anchor) -- %s" % (n, len(pool) + 1, _fix))
     while len(picks) < n:
         r, rule_r, _ = pick_anchor_region(pool, rng, check_counts, dlc_regions, gated=gated,
-                                          never_anchor=never_anchor)
+                                          never_anchor=never_anchor, uniform=uniform)
         picks.append(r)
         rules.append("extra:" + rule_r)
         pool = [x for x in pool if x != r]
@@ -384,6 +418,7 @@ class StartGrace(Feature):
         "start_with_region_lock": StartWithRegionLock,
         "start_regions": StartRegions,
         "start_region_pool": StartRegionPool,
+        "start_region_selection": StartRegionSelection,
     }
 
     def slot_data(self, world):
