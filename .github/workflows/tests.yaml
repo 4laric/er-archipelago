@@ -53,6 +53,8 @@ jobs:
         run: python -m unittest discover -s tools -p "test_pack*py" -v
       - name: the updater replaces only payload, backs up, never touches user state
         run: python -m unittest -v tools/test_update_er_archipelago.py
+      - name: ALttPR repair preserves the package and removes exact item copies
+        run: python -m unittest -v tools.test_repair_alttpr_item_identity
 
   # ---------------------------------------------------------------------------------------------
   # 1. The apworld test suite, run inside a real Archipelago tree (the world is a package under
