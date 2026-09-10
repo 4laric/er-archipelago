@@ -3,12 +3,12 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.6.0.7 — 2026-09-09
+## v0.6.0.7 — 2026-09-10
 
-- **Uniform starting regions (#1547):** Set `start_region_selection: uniform` for equal odds across eligible kept base-game and DLC regions. Respects the starting-region pool and draws multiple starts without replacement. The default remains `weighted`; existing YAMLs keep their current behavior. New rooms only.
-- **Clearer release downloads (#1545):** The six optional HTML tools now share `Optional-Offline-Tools.zip`, with a README explaining each tool. Download the versioned client bundle to play, or `eldenring.apworld` to generate; the optional tools ZIP contains no DLL. Existing releases stay unchanged.
+- **Uniform starting regions (#1548):** Set `start_region_selection: uniform` for equal odds across eligible kept base-game and DLC regions. Respects the starting-region pool and draws multiple starts without replacement. The default remains `weighted`; existing YAMLs keep their current behavior. New rooms only.
+- **Clearer release downloads (#1546):** The six optional HTML tools now share `Optional-Offline-Tools.zip`, with a README explaining each tool. Download the versioned client bundle to play, or `eldenring.apworld` to generate; the optional tools ZIP contains no DLL. Existing releases stay unchanged.
 
-- **ALttPR generation repair tool (#1541):** An optional, source-hash-checked helper repairs incorrect duplicate-item removal in the supplied ALttPR 1.5.0 package. This fixes the mixed-room pool assertion reported while generating with ER 0.6.0.6. Elden Ring placement logic is unchanged; use the helper only for the affected custom ALttPR package.
+- **ALttPR generation repair tool (#1542):** An optional, source-hash-checked helper repairs incorrect duplicate-item removal in the supplied ALttPR 1.5.0 package. This fixes the mixed-room pool assertion reported while generating with ER 0.6.0.6. Elden Ring placement logic is unchanged; use the helper only for the affected custom ALttPR package.
 
 - **Quest reward placement:** Glintstone Kris, Prosthesis-Wearer Heirloom, Golden Lion Shield and Gourmet Scorpion Stew now respect
   Protect Missable Locations. Their NPC quest prerequisites were hidden behind collection-latch
@@ -18,11 +18,24 @@ The narrative — what this project is and what v0.2 brings — lives in
   Nascent Butterfly, Unseen Blade / Unseen Form and Slumbering Egg on the Bower of Bounty
   boundary now belong to Altus, with their sweep ownership corrected. New rooms only.
 
+- **Free respec, experimental (clients #673):** The AP overlay gains a **Respec (experimental)**
+  action, also reachable as `!respec` in its console. It opens the game's native rebirth screen from
+  wherever you stand, before Rennala and without spending a Larval Tear; the overlay hands input to
+  that screen and takes it back when it closes. Item delivery, traps, auto-equip, DeathLink and
+  warps wait while the screen is open. It is a prototype that got unusually broad playtest
+  coverage this week; the client's `docs/FREE_RESPEC.md` lists what is and is not yet verified,
+  and it never edits attributes, flags or consumables itself. Needs the v0.6.0.7 client; no seed,
+  YAML or world change.
+
+The client gitlink advances from `b984f62` to `060ca1b5`, client main at the cut, and the one
+commit range between them is clients #673 above.
+
 ### What you need to update
 
-- **Client:** **Optional.** `CONTRACT_HASH` has not moved since v0.6.0.3, so a v0.6.0.3 through
-  v0.6.0.6 client plays every seed this window generates and a v0.6.0.7 client plays every seed
-  those apworlds generated. 🛑 The one standing exception is not new here: **on Elden Ring
+- **Client:** **Optional for seeds, required for respec.** `CONTRACT_HASH` has not moved since
+  v0.6.0.3, so a v0.6.0.3 through v0.6.0.6 client plays every seed this window generates and a
+  v0.6.0.7 client plays every seed those apworlds generated. Only the Respec overlay action
+  needs the v0.6.0.7 client. 🛑 The one standing exception is not new here: **on Elden Ring
   2.7.1.0 you need at least a v0.6.0.6 client**, because every client built before that one refuses
   the 2.7.1.0 executable at the version gate. That is a game-binary ruling, not a contract one.
 - **APWorld:** Host-only — install v0.6.0.7 when generating a new room once it ships. Players do

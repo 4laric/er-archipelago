@@ -24,8 +24,9 @@ and that was already true before this window opened.
 
 ## What is in it so far
 
-- **Uniform starting regions (#1547):** Set `start_region_selection: uniform` for equal odds across eligible kept base-game and DLC regions. Respects the starting-region pool and draws multiple starts without replacement. The default remains `weighted`; existing YAMLs keep their current behavior. New rooms only.
-- **Clearer release downloads (#1545):** The six optional HTML tools now share `Optional-Offline-Tools.zip`, with a README explaining each tool. Download the versioned client bundle to play, or `eldenring.apworld` to generate; the optional tools ZIP contains no DLL. Existing releases stay unchanged.
+- **Free respec, experimental (clients #673):** A **Respec (experimental)** action in the AP overlay (or `!respec` in its console) opens the native rebirth screen anywhere, before Rennala, without spending a Larval Tear. Prototype, well playtested this week; needs the v0.6.0.7 client, nothing else changes.
+- **Uniform starting regions (#1548):** Set `start_region_selection: uniform` for equal odds across eligible kept base-game and DLC regions. Respects the starting-region pool and draws multiple starts without replacement. The default remains `weighted`; existing YAMLs keep their current behavior. New rooms only.
+- **Clearer release downloads (#1546):** The six optional HTML tools now share `Optional-Offline-Tools.zip`, with a README explaining each tool. Download the versioned client bundle to play, or `eldenring.apworld` to generate; the optional tools ZIP contains no DLL. Existing releases stay unchanged.
 
 Glintstone Kris, Prosthesis-Wearer Heirloom, Golden Lion Shield and Gourmet Scorpion Stew now respect **Protect Missable Locations**.
 The default leaves filler on these quest rewards; progression-only protection excludes required
