@@ -24,6 +24,8 @@ and that was already true before this window opened.
 
 ## What is in it so far
 
+- **Clearer release downloads (#1545):** The six optional HTML tools now share `Optional-Offline-Tools.zip`, with a README explaining each tool. Download the versioned client bundle to play, or `eldenring.apworld` to generate; the optional tools ZIP contains no DLL. Existing releases stay unchanged.
+
 Glintstone Kris, Prosthesis-Wearer Heirloom, Golden Lion Shield and Gourmet Scorpion Stew now respect **Protect Missable Locations**.
 The default leaves filler on these quest rewards; progression-only protection excludes required
 progression, and off still permits it. Their dialogue's collection checks had hidden the earlier
