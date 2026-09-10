@@ -14,7 +14,7 @@ used as coordinate frames. The version duplicate remains one encounter.
 
 | Reward pair | Region correction |
 |---|---|
-| Crimson-Sapping / Furnace Visage | Both to Ancient Ruins (previously Scadu Altus / Gravesite) |
+| Crimson-Sapping / Furnace Visage | Both to Ancient Ruins (previously Scadu Altus / Rauh Base) |
 | Viridian Hidden / Furnace Visage | Tear to Cerulean; visage already Cerulean |
 | Glovewort / Furnace Visage | Tear to Cerulean; visage already Cerulean |
 | Bloodsucking / Furnace Visage | Visage to Scadu Altus; tear already Scadu Altus |
@@ -36,3 +36,8 @@ The taxonomy uses eight death flags, never the sixteen separate acquisition flag
 This resolves placement and reward identity. It does not establish pot/crafting access
 predicates for armoured or inactive golems, or change missable protection. Those require the
 separate logic audit already recorded in the manual-review report. No live-game test was run.
+
+Validation: 82 focused tests (including coverage and access census) passed after the
+recovery, along with 33/33 fill-regression generations across 11 configurations and
+the Bumper Stickers multiworld smoke. All 4,931 existing checks retain their IDs;
+flag 2048467701 is appended as AP ID 7774642. Six existing checks change region.
