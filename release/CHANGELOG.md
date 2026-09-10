@@ -7,17 +7,33 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** **Optional.** `CONTRACT_HASH` has not moved since v0.6.0.3, so a v0.6.0.3 through
+  v0.6.0.7 client plays every seed this window generates and a v0.6.0.8 client plays every seed
+  those apworlds generated. Two standing exceptions, neither new here: **on Elden Ring 2.7.1.0 you
+  need at least a v0.6.0.6 client** (version gate, a game-binary ruling), and the **Respec overlay
+  action needs at least a v0.6.0.7 client**.
+- **APWorld:** Host-only — install v0.6.0.8 when generating a new room once it ships. Players do
+  not need it.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — a fixpack never strands a running seed.
+- **Profile/assets:** No action at the open. If an entry below changes the bundled MapForGoblins
+  build or the AP Flower package, it will say so there.
 
 Window opened AT THE TAG of v0.6.0.7 with ZERO commits past it.
 
-`CONTRACT_HASH` is `613fb438`. TODO(open): state whether that is unmoved and what it means for handshake compatibility — and say it after LOADING contract.py, not after assuming.
+`CONTRACT_HASH` is `613fb438`, read by loading `contract.py` at the open: unmoved since v0.6.0.3,
+so every 0.6.0-line client and apworld handshake with each other across this window.
 
-TODO(open): if the version moved, a client half is needed (`contract_gen.rs` embeds the version string). Name the client PR and confirm the gitlink rides in the same commit (AGENTS §7).
+The version moved, so the client half moved with it: clients PR #674 "Stamp the paired client for
+the v0.6.0.8 window" moves the three client sites to `0.6.0.8`, and the gitlink rides in this same
+commit (AGENTS §7). #674 branches from client main at `060ca1b5`, which is the pinned commit, so
+the gitlink advances by the stamp alone.
+
+Opened BY THE WORKFLOW for the first time: `.github/workflows/open-window.yaml` ran to completion
+on the v0.6.0.7 tag after #1535 pointed it at `ICON_REPO_TOKEN`, ending the four-window streak of
+opening by hand. It opened both halves (this PR and clients #674) and left the five rulings above
+as open-marker placeholders for a person to rule on; the tag push was delivered twice by GitHub, so a second run started
+and refused because the branch already existed, which is the intended guard.
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.7 in this same commit.
 

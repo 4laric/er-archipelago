@@ -5,15 +5,22 @@ only moment anyone remembers why it mattered._
 
 ## Can I update the client during a run?
 
-**TODO(open): No / Yes / Migration required.** Answer the literal question in the first word, before any version or contract detail. Say whether the player should keep their old client, whether their save is at risk, and exactly which older release(s) the ruling covers. Do not turn an unaudited general rule into a blanket No.
+**Yes.** Versions are V.R.M.F and this is still the 0.6.0 line: a v0.6.0.8 client plays every seed
+rolled by any 0.6.0-line apworld, your run included, and the contract hash has not moved since
+v0.6.0.3, so a v0.6.0.3 through v0.6.0.7 client also plays every v0.6.0.8 seed. Your save is not
+at risk in either direction. Two things that are not about the contract at all: on Elden Ring
+2.7.1.0 you need a v0.6.0.6 or newer client to attach, and the Respec overlay action needs
+v0.6.0.7 or newer. Both were already true before this window opened.
 
 ## What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** **Optional** — unless your game is on Elden Ring 2.7.1.0 (v0.6.0.6 or newer
+  required) or you want Respec (v0.6.0.7 or newer).
+- **APWorld:** Host-only — install v0.6.0.8 when generating a new room once it ships.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — a fixpack never strands a running seed.
+- **Profile/assets:** No action so far. If an entry below moves the MapForGoblins build or the AP
+  Flower package, this line changes with it.
 
 ## What is in it so far
 
@@ -22,8 +29,11 @@ which is the point of it.
 
 ## What carried over from v0.6.0.7
 
-TODO(open): what is owed, and what is not. If nothing is owed, say so and say why — a blurb that
-cannot tell the difference is the one that lets a debt roll into a third window.
+Nothing is owed. Both v0.6.0.7 release workflows succeeded on `4b2f4472`, the window opened at
+that tag with no commits past it, and every v0.6.0.7 entry sits under its own heading. The one
+loose end is not a note debt: the tag push was delivered twice, so the v0.6.0.7 release carries two
+client bundles that differ only in their build timestamp; one of them should be removed from the
+release page.
 
 ## For whoever writes the real one
 
