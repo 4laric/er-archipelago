@@ -39,7 +39,7 @@ class AccessDispositionTests(unittest.TestCase):
 
     def test_current_census_is_complete_with_encoded_key_gate_option_rows(self):
         value = access.summary(LEDGER, DISPOSITIONS)
-        self.assertEqual(value["checks_total"], 4931)  # -10: #1515/#1518 (was +13 #1437)
+        self.assertEqual(value["checks_total"], 4932)  # +1 furnace sibling #1543; previously -10 #1515/#1518
         self.assertEqual(value["dispositions_total"], value["checks_total"] + 17)
         self.assertEqual(value["by_disposition"]["region_sufficient"], 5)
         self.assertEqual(value["by_disposition"]["encoded"], 18)
@@ -217,7 +217,7 @@ class AccessDispositionTests(unittest.TestCase):
             path = Path(td) / "access_dispositions.tsv"
             access.bootstrap(LEDGER, path)
             rows = access.validate(LEDGER, path)
-            self.assertEqual(len(rows), 4931)
+            self.assertEqual(len(rows), 4932)
             self.assertEqual({row["disposition"] for row in rows}, {"unresolved"})
 
 
