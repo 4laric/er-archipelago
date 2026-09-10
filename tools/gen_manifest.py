@@ -47,6 +47,10 @@ FILE_INPUTS = [
                                         # THROUGH into spawn_trap_data.py rather than
                                         # re-deriving, so a stale or hand-edited tsv would
                                         # otherwise reach the apworld with a valid stamp.
+    "tools/furnace_golem_evidence.py",
+    "greenfield/evidence/furnace_golems/encounters.tsv",
+    "greenfield/evidence/furnace_golems/drops.tsv",
+    "greenfield/evidence/furnace_golems/regions.tsv",
     "greenfield/region_overrides.tsv",                 # optional (SPEC-provenance-oracle); ABSENT-ok
     "greenfield/eldenring/tables/boss_drops.py",
     "greenfield/eldenring/tables/boss_healthbars.py",

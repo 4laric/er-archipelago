@@ -28,7 +28,7 @@ a consumer that wants pure geography is not forced through the ladder:
 
   1. remembrance_main  -- flag in MAJOR_SWEEP_TRIGGERS. The game's own roster, already adjudicated.
   2. dragon            -- name matches DRAGON_WORDS (a curated word list, ours; see below).
-  3. furnace_golem     -- DECLARED AND EMPTY. See UNDERIVED, below: this is a real gap, not a zero.
+  3. furnace_golem     -- eight c5170 encounters from the MSB/event census (below).
   4. evergaol          -- trigger flag appears as arg1 of the EVERGAOL_EVENTS common-event family.
   5. site_class        -- from the map prefix (SITE_BY_PREFIX) refined by map_names.tsv.
 
@@ -45,14 +45,10 @@ DRAGONKIN_WORDS then subtracts the Dragonkin Soldiers and the Ancient Dragon-Man
 names for dragons but which are not dragon fights. This is the weakest rung on the ladder and it
 is deliberately the one with its evidence written next to it.
 
-🛑 UNDERIVED: FURNACE GOLEM. The class exists in the emitted table and is EMPTY, on purpose.
-Furnace golems display no boss healthbar (so `BOSS_HEALTHBARS` never sees them), are named in no
-NpcName FMG (only in a GoodsCaption), and the artifact bundle carries no MSB, so there is no
-placement to enumerate either. There is therefore NO our-data roster to derive today, and
-AGENTS.md's rule applies: absence is never an answer. The class is emitted with a reason string in
-UNDERIVED_CLASSES so the gap is VISIBLE -- in the table, in the test, and in the matt-oracle
-report, where it shows up as our largest per-class shortfall. Deriving it needs an MSB dump
-(c4900 placements) added to the artifact bundle.
+FURNACE GOLEMS. The independent c5170 MSB census in evidence/furnace_golems
+joins eight placed entities to common-event 90005301 death flags and sixteen reward rows.
+These encounters have no healthbar. They augment the healthbar roster; acquisition flags
+remain check IDs and are never substituted for the separate defeat flags.
 
 Run:
   python tools/gen_boss_taxonomy.py            # emit the module
@@ -123,12 +119,7 @@ DRAGONKIN_WORDS = ("Dragonkin", "Dragon-Man", "Dragon Communion")
 # The EMEVD common-event family that seals an evergaol arena. arg1 is the boss's defeat flag.
 EVERGAOL_EVENTS = (90005880, 90005881, 90005882, 90005883, 90005885)
 
-UNDERIVED_CLASSES = {
-    "furnace_golem": (
-        "no our-data roster: no boss healthbar, no NpcName entry, and no MSB in the artifact "
-        "bundle to enumerate c4900 placements. Emitted empty so the gap stays visible."
-    ),
-}
+UNDERIVED_CLASSES = {}
 
 # Every class the table can emit, in report order. A class with no members is still listed.
 BOSS_CLASSES = (
@@ -239,6 +230,11 @@ def classify():
         else:
             cls = site
         out[flag] = (cls, site, map_id, regions.get(flag, ""), name)
+    from furnace_golem_evidence import load
+    _rewards, furnaces = load()
+    if set(out) & set(furnaces):
+        raise ValueError("Furnace roster overlaps healthbars; re-audit taxonomy precedence")
+    out.update(furnaces)
     return out, unmapped, gaols
 
 
@@ -251,7 +247,7 @@ def _write(taxonomy, gaols):
         f.write("One CLASS per boss we know, derived from OUR map tiles, OUR major-boss roster and\n")
         f.write("OUR decompiled EMEVD. Matt-free: no third-party table is read, and the oracle uses\n")
         f.write("this only to print a histogram beside his tag counts. See the tool's docstring for\n")
-        f.write("the ladder, and for why `furnace_golem` is emitted EMPTY rather than omitted.\n\n")
+        f.write("the ladder and the independent furnace-golem MSB/event census.\n\n")
         f.write("BOSS_TAXONOMY: defeat flag -> (boss_class, site_class, map_id, arena region, name).\n")
         f.write('An empty region means no boss_area_regions.tsv row -- UNAUDITED, not global."""\n')
         f.write("BOSS_CLASSES = %r\n" % (tuple(BOSS_CLASSES),))

@@ -135,6 +135,8 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7774633	Caelid	Somber Smithing Stone [4]	540424	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773886	Caelid	Somber Smithing Stone [8]	540426	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	1	gameplay-guide:redmaw	same-name candidates survive the committed anchor/tile joins; player ruling needed
 7774634	Caelid	Somber Smithing Stone [9]	540428	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7773303	Cerulean	Furnace Visage	2046397060	ItemLotParam_map.getItemFlagId		defeat Furnace Golem	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7773469	Cerulean	Furnace Visage	2048407020	ItemLotParam_map.getItemFlagId		defeat Furnace Golem	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773458	Cerulean	Grave Cricket	2048387000	ItemLotParam_map.getItemFlagId		near Cerulean Coast	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773462	Cerulean	Grave Cricket	2048397010	ItemLotParam_map.getItemFlagId		near Cerulean Coast	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773365	Cerulean	Grave Glovewort [9]	2047387010	ItemLotParam_map.getItemFlagId		near Cerulean Coast	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
@@ -641,9 +643,13 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773570	Scadu Altus	Furnace Visage	2049467600	ItemLotParam_map.getItemFlagId		near Castle Watering Hole	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773573	Scadu Altus	Furnace Visage	2049477500	ItemLotParam_map.getItemFlagId		near Castle Watering Hole	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773574	Scadu Altus	Furnace Visage	2049477510	ItemLotParam_map.getItemFlagId		near Castle Watering Hole	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7773613	Scadu Altus	Furnace Visage	2050467500	ItemLotParam_map.getItemFlagId		defeat Furnace Golem	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7773614	Scadu Altus	Furnace Visage	2050467510	ItemLotParam_map.getItemFlagId		defeat Furnace Golem	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773616	Scadu Altus	Furnace Visage	2050467710	ItemLotParam_map.getItemFlagId		near Castle Watering Hole	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773617	Scadu Altus	Furnace Visage	2050467720	ItemLotParam_map.getItemFlagId		near Castle Watering Hole	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773618	Scadu Altus	Furnace Visage	2050467730	ItemLotParam_map.getItemFlagId		near Castle Watering Hole	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7773634	Scadu Altus	Furnace Visage	2051457700	ItemLotParam_map.getItemFlagId		defeat Furnace Golem	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7774642	Scadu Altus	Furnace Visage	2048467701	ItemLotParam_map.getItemFlagId		defeat Furnace Golem	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771888	Scadu Altus	Golden Vow	21007040	ItemLotParam_map.getItemFlagId		near Main Gate Plaza	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771892	Scadu Altus	Golden Vow	21007090	ItemLotParam_map.getItemFlagId		near Main Gate Plaza	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773591	Scadu Altus	Living Jar Shard	2050447020	ItemLotParam_map.getItemFlagId		near Bonny Village	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
@@ -677,8 +683,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7771964	Shadow Keep	Ember of Messmer	21017490	ItemLotParam_map.getItemFlagId		near Storehouse, Seventh Floor	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771935	Shadow Keep	Fire Coil	21017040	ItemLotParam_map.getItemFlagId		near Storehouse, Back Section	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771957	Shadow Keep	Fire Coil	21017410	ItemLotParam_map.getItemFlagId		near Storehouse, Back Section	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
-7773613	Shadow Keep	Furnace Visage	2050467500	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
-7773614	Shadow Keep	Furnace Visage	2050467510	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7770634	Shadow Keep	Letter for Freyja	400620	ItemLotParam_map.getItemFlagId		around Storehouse, First Floor	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7900080	Shadow Keep	Letter for Freyja	400625	ItemLotParam_map.getItemFlagId		around Storehouse, First Floor	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773937	Shadow Keep	Rada Fruit	21027000	ItemLotParam_map.getItemFlagId		near West Rampart	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
@@ -990,6 +994,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773261	Ancient Ruins	Flight Pinion	2045477020	ItemLotParam_map.getItemFlagId		near Rauh Ancient Ruins, East	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773217	Ancient Ruins	Fly Mold	2044467070	ItemLotParam_map.getItemFlagId		near Church of the Bud, Main Entrance	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773206	Ancient Ruins	Four-Toed Fowl Foot	2044457010	ItemLotParam_map.getItemFlagId		near Ancient Ruins, Grand Stairway	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7773256	Ancient Ruins	Furnace Visage	2045467500	ItemLotParam_map.getItemFlagId		defeat Furnace Golem	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773349	Ancient Ruins	Glass Shard	2046477140	ItemLotParam_map.getItemFlagId		near Rauh Ancient Ruins, East	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7773446	Ancient Ruins	Golden Horn Tender	2047477010	ItemLotParam_map.getItemFlagId		near Viaduct Minor Tower	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7773212	Ancient Ruins	Immunizing Cured Meat	2044467020	ItemLotParam_map.getItemFlagId		near Church of the Bud, Main Entrance	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -1168,8 +1173,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773295	Cerulean	Crab Eggs	2046387040	ItemLotParam_map.getItemFlagId		near Cerulean Coast West	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772007	Cerulean	Dewgem	22007230	ItemLotParam_map.getItemFlagId		near Fissure Waypoint	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773300	Cerulean	Fireproof Pickled Liver	2046397030	ItemLotParam_map.getItemFlagId		near Cerulean Coast West	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
-7773303	Cerulean	Furnace Visage	2046397060	ItemLotParam_map.getItemFlagId		around Cerulean Coast West	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7773469	Cerulean	Furnace Visage	2048407020	ItemLotParam_map.getItemFlagId		near Ellac River Downstream	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773306	Cerulean	Ghost Glovewort [8]	2046407050	ItemLotParam_map.getItemFlagId		near Gravesite Plain	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773307	Cerulean	Ghost Glovewort [9]	2046407060	ItemLotParam_map.getItemFlagId		near Gravesite Plain	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772003	Cerulean	Grave Glovewort [5]	22007170	ItemLotParam_map.getItemFlagId		near Fissure Cross	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -1405,7 +1408,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773317	Gravesite	Fly Mold	2046447020	ItemLotParam_map.getItemFlagId		near Greatbridge, North	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773320	Gravesite	Fly Mold	2046447060	ItemLotParam_map.getItemFlagId		near Castle Front	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773381	Gravesite	Furlcalling Finger Remedy	2047417020	ItemLotParam_map.getItemFlagId		near Scorched Ruins	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
-7773309	Gravesite	Furnace Visage	2046427980	ItemLotParam_map.getItemFlagId		around Three-Path Cross	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7773309	Gravesite	Furnace Visage	2046427980	ItemLotParam_map.getItemFlagId		defeat Furnace Golem	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773204	Gravesite	Ghost Glovewort [5]	2044417000	ItemLotParam_map.getItemFlagId		near Cliffroad Terminus	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774014	Gravesite	Ghost Glovewort [5]	40007080	ItemLotParam_map.getItemFlagId		near Fog Rift Catacombs	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774016	Gravesite	Ghost Glovewort [6]	40007100	ItemLotParam_map.getItemFlagId		near Fog Rift Catacombs	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
@@ -2157,7 +2160,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773263	Rauh Base	Broken Rune	2045477050	ItemLotParam_map.getItemFlagId		near Rauh Ancient Ruins, East	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774036	Rauh Base	Broken Rune	40017150	ItemLotParam_map.getItemFlagId		near Scorpion River Catacombs	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
 7773264	Rauh Base	Dewgem	2045477060	ItemLotParam_map.getItemFlagId		near Rauh Ancient Ruins, East	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
-7773256	Rauh Base	Furnace Visage	2045467500	ItemLotParam_map.getItemFlagId		around Temple Town Ruins	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773221	Rauh Base	Ghost Glovewort [6]	2044477000	ItemLotParam_map.getItemFlagId		near Ravine North	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774025	Rauh Base	Ghost Glovewort [6]	40017040	ItemLotParam_map.getItemFlagId		near Scorpion River Catacombs	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774024	Rauh Base	Ghost Glovewort [7]	40017030	ItemLotParam_map.getItemFlagId		near Scorpion River Catacombs	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -2236,7 +2238,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773608	Scadu Altus	Fly Mold	2050457060	ItemLotParam_map.getItemFlagId		near Recluses' River Upstream	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773630	Scadu Altus	Fly Mold	2051447030	ItemLotParam_map.getItemFlagId		near Bridge Leading to the Village	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773557	Scadu Altus	Four-Toed Fowl Foot	2049457050	ItemLotParam_map.getItemFlagId		near Moorth Ruins	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7773634	Scadu Altus	Furnace Visage	2051457700	ItemLotParam_map.getItemFlagId		around Cathedral of Manus Metyr	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773532	Scadu Altus	Ghost Glovewort [6]	2049437330	ItemLotParam_map.getItemFlagId		near Fort of Reprimand	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771917	Scadu Altus	Ghost Glovewort [7]	21007580	ItemLotParam_map.getItemFlagId		near Sunken Chapel	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774039	Scadu Altus	Ghost Glovewort [7]	40027100	ItemLotParam_map.getItemFlagId		near Darklight Catacombs	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item

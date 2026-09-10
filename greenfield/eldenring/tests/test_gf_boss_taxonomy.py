@@ -5,7 +5,7 @@ the evergaol EMEVD family into one CLASS per boss. This oracle re-derives the pa
 the OTHER tables rather than re-running the generator, so a generator bug cannot hide behind
 shared code:
 
-  * COVERAGE     every BOSS_HEALTHBARS defeat flag is classified, and nothing else is.
+  * COVERAGE     every healthbar defeat flag and the eight MSB furnace encounters are classified.
   * VOCABULARY   every emitted class is declared in BOSS_CLASSES, and the counts match the rows.
   * LADDER       remembrance_main is exactly MAJOR_SWEEP_TRIGGERS ∩ the healthbar roster; the
                  evergaol class is exactly EVERGAOL_TRIGGERS minus the majors that outrank it.
@@ -39,6 +39,9 @@ def _load(name):
 TAX = _load("boss_taxonomy")
 HB = _load("boss_healthbars").BOSS_HEALTHBARS
 SWEEPS = _load("boss_sweeps")
+# Death flags from the eight common-event 90005301 calls, not reward flags.
+FURNACE_DEATH_FLAGS = {2045460200, 2050460300, 2050460310, 2046390200,
+                       2046420300, 2048400200, 2248460291, 2251450280}
 
 # Map prefix -> the site class it must produce. Deliberately a SECOND copy of the generator's
 # table: if the two disagree, one of them was edited without the other being looked at, which is
@@ -57,11 +60,20 @@ M30_SPLIT = "heros_grave"
 class TestBossTaxonomy(unittest.TestCase):
     def test_covers_exactly_the_healthbar_roster(self):
         self.assertEqual(
-            set(TAX.BOSS_TAXONOMY), set(HB),
+            set(TAX.BOSS_TAXONOMY), set(HB) | FURNACE_DEATH_FLAGS,
             "boss_taxonomy must classify every DisplayBossHealthBar boss and no other flag; "
             "regenerate with python tools/gen_boss_taxonomy.py",
         )
         self.assertGreater(len(TAX.BOSS_TAXONOMY), 200)
+
+    def test_furnaces_use_death_flags_and_have_regions(self):
+        self.assertEqual({f for f, r in TAX.BOSS_TAXONOMY.items() if r[0] == "furnace_golem"}, FURNACE_DEATH_FLAGS)
+        self.assertNotIn("furnace_golem", TAX.UNDERIVED_CLASSES)
+        for flag in FURNACE_DEATH_FLAGS:
+            row = TAX.BOSS_TAXONOMY[flag]
+            self.assertEqual(row[1], "overworld")
+            self.assertTrue(row[3])
+            self.assertEqual(row[4], "Furnace Golem")
 
     def test_classes_are_declared_and_counts_agree(self):
         counted = Counter(v[0] for v in TAX.BOSS_TAXONOMY.values())
@@ -76,6 +88,8 @@ class TestBossTaxonomy(unittest.TestCase):
 
     def test_names_and_maps_come_from_the_healthbar_table(self):
         for flag, (_cls, _site, map_id, _region, name) in TAX.BOSS_TAXONOMY.items():
+            if flag in FURNACE_DEATH_FLAGS:
+                continue
             self.assertEqual(map_id, HB[flag][0], "map drifted for flag %d" % flag)
             self.assertEqual(name, HB[flag][3], "name drifted for flag %d" % flag)
 
@@ -137,6 +151,8 @@ class TestBossTaxonomy(unittest.TestCase):
 
     def test_arena_regions_agree_with_the_sweep_table(self):
         for flag, (_cls, _site, _map_id, region, _name) in TAX.BOSS_TAXONOMY.items():
+            if flag in FURNACE_DEATH_FLAGS:
+                continue
             expected = SWEEPS.SWEEP_ARENA_REGION.get(flag, "")
             self.assertEqual(region, expected, "arena region drifted for flag %d" % flag)
 

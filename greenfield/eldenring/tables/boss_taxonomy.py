@@ -4,7 +4,7 @@ python tools/gen_boss_taxonomy.py; it is a step of tools/regen_all.py).
 One CLASS per boss we know, derived from OUR map tiles, OUR major-boss roster and
 OUR decompiled EMEVD. Matt-free: no third-party table is read, and the oracle uses
 this only to print a histogram beside his tag counts. See the tool's docstring for
-the ladder, and for why `furnace_golem` is emitted EMPTY rather than omitted.
+the ladder and the independent furnace-golem MSB/event census.
 
 BOSS_TAXONOMY: defeat flag -> (boss_class, site_class, map_id, arena region, name).
 An empty region means no boss_area_regions.tsv row -- UNAUDITED, not global."""
@@ -12,7 +12,6 @@ BOSS_CLASSES = ('remembrance_main', 'dragon', 'furnace_golem', 'evergaol', 'over
 
 # class -> why it has no members yet. An empty class here is a KNOWN GAP.
 UNDERIVED_CLASSES = {
-    'furnace_golem': 'no our-data roster: no boss healthbar, no NpcName entry, and no MSB in the artifact bundle to enumerate c4900 placements. Emitted empty so the gap stays visible.',
 }
 
 # Defeat flags sealed by the evergaol common-event family (EMEVD-derived).
@@ -239,14 +238,18 @@ BOSS_TAXONOMY = {
     2044450800: ('remembrance_main', 'overworld', 'm61_44', 'Ancient Ruins', 'Romina, Saint of the Bud'),
     2044470800: ('overworld_field', 'overworld', 'm61_44', 'Rauh Base', 'Rugalea the Great Red Bear'),
     2045440800: ('dragon', 'overworld', 'm61_45', 'Gravesite', 'Ghostflame Dragon'),
+    2045460200: ('furnace_golem', 'overworld', 'm61_45_46_00', 'Ancient Ruins', 'Furnace Golem'),
     2046380800: ('overworld_field', 'overworld', 'm61_46', 'Cerulean', 'Dancer of Ranah'),
+    2046390200: ('furnace_golem', 'overworld', 'm61_46_39_00', 'Cerulean', 'Furnace Golem'),
     2046400800: ('overworld_field', 'overworld', 'm61_46', 'Cerulean', 'Demi-Human Queen Marigga'),
     2046410800: ('overworld_field', 'overworld', 'm61_46', 'Gravesite', 'Knight of the Solitary Gaol'),
+    2046420300: ('furnace_golem', 'overworld', 'm61_46_42_00', 'Gravesite', 'Furnace Golem'),
     2046450800: ('overworld_field', 'overworld', 'm61_46', 'Rauh Base', 'Red Bear'),
     2046460800: ('overworld_field', 'overworld', 'm61_46', 'Ancient Ruins', 'Divine Beast Dancing Lion'),
     2047390800: ('overworld_field', 'overworld', 'm61_47', 'Cerulean', 'Death Rite Bird'),
     2047450800: ('overworld_field', 'overworld', 'm61_47', 'Scadu Altus', 'Black Knight Garrew'),
     2048380850: ('dragon', 'overworld', 'm61_48', 'Cerulean', 'Ghostflame Dragon'),
+    2048400200: ('furnace_golem', 'overworld', 'm61_48_40_00', 'Cerulean', 'Furnace Golem'),
     2048440800: ('remembrance_main', 'overworld', 'm61_48', 'Ensis', 'Rellana, Twin Moon Knight'),
     2049410800: ('dragon', 'overworld', 'm61_49', 'Jagged Peak', 'Jagged Peak Drake'),
     2049430850: ('overworld_field', 'overworld', 'm61_49', '', 'Black Knight Edredd'),
@@ -254,6 +257,8 @@ BOSS_TAXONOMY = {
     2049450800: ('overworld_field', 'overworld', 'm61_49', 'Scadu Altus', 'Ralva the Great Red Bear'),
     2049480800: ('remembrance_main', 'overworld', 'm61_49', 'Shadow Keep', 'Commander Gaius'),
     2050430800: ('overworld_field', 'overworld', 'm61_50', '', 'Dryleaf Dane'),
+    2050460300: ('furnace_golem', 'overworld', 'm61_50_46_00', 'Scadu Altus', 'Furnace Golem'),
+    2050460310: ('furnace_golem', 'overworld', 'm61_50_46_00', 'Scadu Altus', 'Furnace Golem'),
     2050470800: ('overworld_field', 'overworld', 'm61_50', 'Shadow Keep', 'Tree Sentinel'),
     2050480810: ('overworld_field', 'overworld', 'm61_50', '', 'Scadutree Avatar'),
     2050480811: ('overworld_field', 'overworld', 'm61_50', 'Shadow Keep', 'Scadutree Avatar'),
@@ -264,13 +269,15 @@ BOSS_TAXONOMY = {
     2052480800: ('overworld_field', 'overworld', 'm61_52', 'Shadow Keep', 'Fallingstar Beast'),
     2054390800: ('remembrance_main', 'overworld', 'm61_54', 'Jagged Peak', 'Bayle the Dread'),
     2054390850: ('dragon', 'overworld', 'm61_54', 'Jagged Peak', 'Ancient Dragon Senessax'),
+    2248460291: ('furnace_golem', 'overworld', 'm61_48_46_00', 'Scadu Altus', 'Furnace Golem'),
+    2251450280: ('furnace_golem', 'overworld', 'm61_51_45_00', 'Scadu Altus', 'Furnace Golem'),
 }
 
 # Convenience histograms -- the same numbers the oracle report prints.
 BOSS_CLASS_COUNTS = {
     'remembrance_main': 40,
     'dragon': 15,
-    'furnace_golem': 0,
+    'furnace_golem': 8,
     'evergaol': 10,
     'overworld_field': 74,
     'legacy_dungeon': 34,
@@ -286,6 +293,6 @@ SITE_CLASS_COUNTS = {
     'gaol': 3,
     'heros_grave': 4,
     'legacy': 64,
-    'overworld': 108,
+    'overworld': 116,
     'tunnel': 9,
 }

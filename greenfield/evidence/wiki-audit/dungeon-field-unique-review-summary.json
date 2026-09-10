@@ -11,16 +11,16 @@
     "unique_field_pickup": {
       "audited_one_family": 191,
       "conflicted": 0,
-      "held": 372,
-      "remaining_unreviewed": 181,
-      "total": 534,
+      "held": 371,
+      "remaining_unreviewed": 180,
+      "total": 533,
       "trusted": 162
     }
   },
   "excluded": {
     "boss": 67,
-    "no_map_anchor": 841,
-    "repeated_item_name": 3008
+    "no_map_anchor": 842,
+    "repeated_item_name": 3009
   },
   "policy": {
     "dungeon": "descriptor map family m10 through m59",

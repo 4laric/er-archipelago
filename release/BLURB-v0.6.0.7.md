@@ -61,4 +61,5 @@ player will feel before it says what was built, and that is the right order.
 
 The Academy merchant's bell bearing now follows his stock behind the Academy lock. Three boundary pickups (including both Unseen spells) move from Mt. Gelmir to Altus, with matching sweep ownership. These placement changes apply to newly generated rooms.
 
-An optional [ALttPR repair helper](../docs/ALTTPR-FILL-IDENTITY-2026-09-10.md) addresses a mixed-room generation failure traced to duplicate-item removal in ALttPR 1.5.0. It verifies the affected source and writes a repaired package. Elden Ring itself needs no change for this failure.
+
+Furnace golem rewards now use the complete eight-encounter MSB census: all sixteen rewards are checks, including the previously missing Furnace Visage. Rauh, Cerulean and Castle Watering Hole rewards use their corrected regions. Existing check IDs are preserved; these changes apply to newly generated rooms (#1543).

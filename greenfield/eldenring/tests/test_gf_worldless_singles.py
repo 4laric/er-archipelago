@@ -62,6 +62,7 @@ def _gen_literal(name):
 
 # Map-shaped rows the derivation names but a RULING keeps live. Each entry carries its witness.
 RULED_LIVE_MAP_FLAGS = frozenset({
+    2048467701, # c5170 entity 2248460291; 90005301 awards 2048460700 + sibling 0701 (#1543).
     10007452,   # Crimson Hood, Roundtable Hold. Awarded by EMEVD event 11100704 in m11_10
                 # (flag_names.tsv: "NPC320_Farnese_Replaced with hood item") -- a FLAG-level EMEVD
                 # reference the lot-grepping safety screen cannot see. In-repo witness: culling it
@@ -163,8 +164,8 @@ class WorldlessSingles(unittest.TestCase):
         # 86 -> 78 (2026-08-19, same day): #898's audited unplaced_global_tiles.tsv placed 8 of
         # them -- the derivation below now subtracts that corpus, which is exactly the shrink
         # this message asks to be named.
-        self.assertEqual(len(self.frozen), 72,
-                         "the cull corpus moved (was 72 after five M4G recoveries, ruled 2026-08-19; EMEVD screen -40, audited tiles -8, "
+        self.assertEqual(len(self.frozen), 71,
+                         "the cull corpus moved (was 71 after five M4G recoveries and the furnace sibling, ruled 2026-08-19; EMEVD screen -40, audited tiles -8, "
                          "RULED_LIVE -1 off the original 126). A shrink after a "
                          "census improvement is the loop working -- name the released rows; a "
                          "growth needs its own ruling.")
