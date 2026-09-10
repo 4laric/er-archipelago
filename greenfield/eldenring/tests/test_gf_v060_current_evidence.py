@@ -78,7 +78,7 @@ class CurrentEvidenceAdapterTest(unittest.TestCase):
                       if row["claim_kind"] == "detection"]
         self.assertTrue(detections)
         # 4302 -> 4292 on 2026-09-08 (world#1515/#1518): the ten removed rows each carried a map lot.
-        self.assertEqual(len(detections), 4292)  # +5 physical and seven Somber map-lot recoveries (#1437)
+        self.assertEqual(len(detections), 4293)  # +1 Furnace Visage map-lot recovery (#1543)
         self.assertTrue(all(row["status"] == "single_source" for row in detections))
         evidence_by_id = {row["evidence_id"]: row for row in self.bundle["evidence"]}
         source_by_id = {row["source_id"]: row for row in self.bundle["sources"]}
