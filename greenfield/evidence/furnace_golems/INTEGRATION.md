@@ -41,3 +41,11 @@ Validation: 82 focused tests (including coverage and access census) passed after
 recovery, along with 33/33 fill-regression generations across 11 configurations and
 the Bumper Stickers multiworld smoke. All 4,931 existing checks retain their IDs;
 flag 2048467701 is appended as AP ID 7774642. Six existing checks change region.
+
+Sweep audit by (trigger, acquisition flag): one added member (the restored visage),
+zero lost, and 25 re-owned. Three visages follow their corrected regions; the other
+22 remain within Shadow Keep as its remainder allocation rebalances. Crimsonburst
+retains its existing map recovery and sweep owner. Total sweep links: 4,115.
+
+Final retest after preserving the short-flag recovery: 188 focused tests and all
+33 fill-regression generations pass. The remaining applicable generator suites pass locally.

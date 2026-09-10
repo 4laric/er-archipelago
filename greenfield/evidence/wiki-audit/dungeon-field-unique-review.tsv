@@ -930,6 +930,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773507	unique_field_pickup	Scadu Altus	Black Steel Twinblade	2048467710	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
 7773594	unique_field_pickup	Scadu Altus	Bonny Butchering Knife	2050447050	m61_51_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773757	unique_field_pickup	Scadu Altus	Claws of Night	400672	m61_51_44	audited_one_family	1	gameplay-wiki:eldenpedia	second_independent_identity_region_source
+7773681	unique_field_pickup	Scadu Altus	Crimsonburst Dried Tear	65410	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
 7900225	unique_field_pickup	Scadu Altus	Death Knight Armor	40027130	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
 7900226	unique_field_pickup	Scadu Altus	Death Knight Gauntlets	40027130	m61_49_43	remaining_unreviewed	0		first_independent_identity_region_source
 7774042	unique_field_pickup	Scadu Altus	Death Knight Helm	40027130	m61_50_43	remaining_unreviewed	0		first_independent_identity_region_source

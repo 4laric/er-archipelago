@@ -3709,7 +3709,9 @@ FLAG_REGION_OVERRIDE = {
 }
 
 # Both rewards belong to the placed golem, not the award flag prefix (#1543).
-FLAG_REGION_OVERRIDE.update({f: r for f, (r, _entity) in _FURNACE_REWARDS.items()})
+# Leave already-correct short-flag map recovery intact (notably f65410's EMEVD map).
+FLAG_REGION_OVERRIDE.update({f: r for f, (r, _entity) in _FURNACE_REWARDS.items()
+                             if f >= 1_000_000 or f in (65400, 65420, 65460)})
 
 # These per-flag pins settle WHICH SIDE of a measured region seam owns the reward, but they do not
 # turn a graceless MSB tile into directly reachable ground. Keep the Snowfield Avatar tears as live

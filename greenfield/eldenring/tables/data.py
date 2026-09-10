@@ -4326,7 +4326,7 @@ LOCATIONS = {
         ('Scadu Altus :: Fingerprint Nostrum - near Hinterland Bridge, may be sweep-granted by Ralva the Great Red Bear (m61_49_45) [f2051477030]', 7773640, 2051477030),
         ('Scadu Altus :: Madding Hand - m61_52_42, may be sweep-granted by Jori, Elder Inquisitor (m61_52_43) [f2052427500]', 7773646, 2052427500),
         ('Scadu Altus :: Ring the Finger Ruins of Rhia bell - m61_53_46 [f2053467600]', 7773654, 2053467600),
-        ('Scadu Altus :: Crimsonburst Dried Tear - defeat Furnace Golem [f65410]', 7773681, 65410),
+        ('Scadu Altus :: Crimsonburst Dried Tear - defeat Furnace Golem, may be sweep-granted by Ralva the Great Red Bear (m61_49_45) [f65410]', 7773681, 65410),
         ('Scadu Altus :: Cerulean-Sapping Cracked Tear - defeat Furnace Golem [f65430]', 7773683, 65430),
         ('Scadu Altus :: Oil-Soaked Tear - defeat Furnace Golem [f65440]', 7773684, 65440),
         ('Scadu Altus :: Bloodsucking Cracked Tear - defeat Furnace Golem [f65450]', 7773685, 65450),
@@ -5572,4 +5572,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:370c5b8bfb85315d0b1a1bd848ef5b342cd5e50fdaa57bb381e01885b0426a60', 'module': 'data.py', 'body_sha256': 'sha256:2847dfe2a93a4ed6a68e83e9a5313a5904bd067e460a83ef1cb4e8efd0a87314'}
+_GEN_STAMP = {'inputs_hash': 'sha256:504cb4f4d72621843f461393890f4676e67abdce8ccc576bb0dac35ebb31259f', 'module': 'data.py', 'body_sha256': 'sha256:767a7c68de1cc8b62d4167d8aebec5020c7b269e4b8dd4d2ae587c0e1c045b8c'}
