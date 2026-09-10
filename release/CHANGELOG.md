@@ -3,6 +3,26 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.0.8 — 2026-09-10
+
+### What you need to update
+
+- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
+- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
+- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
+- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
+- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+
+Window opened AT THE TAG of v0.6.0.7 with ZERO commits past it.
+
+`CONTRACT_HASH` is `613fb438`. TODO(open): state whether that is unmoved and what it means for handshake compatibility — and say it after LOADING contract.py, not after assuming.
+
+TODO(open): if the version moved, a client half is needed (`contract_gen.rs` embeds the version string). Name the client PR and confirm the gitlink rides in the same commit (AGENTS §7).
+
+`release/CHANNELS.tsv` promotes `stable` to v0.6.0.7 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
 ## v0.6.0.7 — 2026-09-10
 
 - **Uniform starting regions (#1548):** Set `start_region_selection: uniform` for equal odds across eligible kept base-game and DLC regions. Respects the starting-region pool and draws multiple starts without replacement. The default remains `weighted`; existing YAMLs keep their current behavior. New rooms only.
