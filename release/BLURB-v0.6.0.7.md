@@ -60,3 +60,5 @@ name. Its opening line -- "You can get BK'ed now, and that is the point" -- says
 player will feel before it says what was built, and that is the right order.
 
 The Academy merchant's bell bearing now follows his stock behind the Academy lock. Three boundary pickups (including both Unseen spells) move from Mt. Gelmir to Altus, with matching sweep ownership. These placement changes apply to newly generated rooms.
+
+Twelve more checks now use corrected regions in new rooms, backed by MapForGoblins placements and route evidence. These include Sacred Blade in Limgrave, the Church of Consolation greathammer in Gravesite, six Abyssal Woods rewards, Crimson-Sapping Cracked Tear in upper Rauh, Bloodfiend Hexer ashes in Gravesite and two Scadu Altus Furnace Visages. Their region locks and sweep owners follow those homes.

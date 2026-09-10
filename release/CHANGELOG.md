@@ -5,6 +5,8 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.0.7 — 2026-09-09
 
+- **Region evidence pass:** Corrected 12 checks using native MapForGoblins placements and route evidence, including Sacred Blade, Black Steel Greathammer, Abyssal Woods enemy rewards, Crimson-Sapping Cracked Tear, Bloodfiend Hexer ashes and two Furnace Visages. Region locks and sweep ownership follow the corrected homes in new rooms; AP IDs are unchanged.
+
 - **Quest reward placement:** Glintstone Kris, Prosthesis-Wearer Heirloom, Golden Lion Shield and Gourmet Scorpion Stew now respect
   Protect Missable Locations. Their NPC quest prerequisites were hidden behind collection-latch
   checks, allowing required progression on rewards that could be lost. Applies to newly generated rooms.

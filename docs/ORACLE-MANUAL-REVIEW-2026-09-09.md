@@ -1,5 +1,7 @@
 # Oracle review handoff — 2026-09-09
 
+**Historical snapshot:** [12 further corrections and the current remainder](ORACLE-MFG-REVIEW-2026-09-10.md).
+
 This is a bounded evidence pass, not a claim of full Matt parity. The oracle supplied disagreement flags only; every answer below comes from our placements, game scripts, generated tables or existing project rulings. No oracle area names, prose or graph rules are included.
 
 ## What changed

@@ -3,6 +3,10 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773652	Abyssal	Clarifying Boluses	2053417020	ItemLotParam_map.getItemFlagId		near Church Ruins	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7772011	Abyssal	Swollen Grape	28007000	ItemLotParam_map.getItemFlagId		near Manse Hall	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7772013	Abyssal	Swollen Grape	28007020	ItemLotParam_map.getItemFlagId		near Manse Hall	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7773516	Abyssal	Swollen Grape	2049427700	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7773517	Abyssal	Swollen Grape	2049427720	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7773581	Abyssal	Swollen Grape	2050417700	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7773626	Abyssal	Swollen Grape	2051417710	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771095	Ainsel River	Golden Rune [10]	12017560	ItemLotParam_map.getItemFlagId		near Nokstella, Eternal City	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771099	Ainsel River	Golden Rune [10]	12017600	ItemLotParam_map.getItemFlagId		near Dragonkin Soldier of Nokstella	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771103	Ainsel River	Golden Rune [10]	12017640	ItemLotParam_map.getItemFlagId		near Dragonkin Soldier of Nokstella	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
@@ -310,8 +314,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773509	Jagged Peak	Dragon Communion Harpoon	2049387000	ItemLotParam_map.getItemFlagId		near Grand Altar of Dragon Communion	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773510	Jagged Peak	Dragon Communion Harpoon	2049387010	ItemLotParam_map.getItemFlagId		near Grand Altar of Dragon Communion	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773512	Jagged Peak	Dragon Communion Harpoon	2049387030	ItemLotParam_map.getItemFlagId		near Grand Altar of Dragon Communion	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
-7773516	Jagged Peak	Swollen Grape	2049427700	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
-7773517	Jagged Peak	Swollen Grape	2049427720	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7772373	Leyndell	Glass Shard	35007300	ItemLotParam_map.getItemFlagId		near Leyndell Catacombs	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7772376	Leyndell	Glass Shard	35007330	ItemLotParam_map.getItemFlagId		near Leyndell Catacombs	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7772388	Leyndell	Glass Shard	35007470	ItemLotParam_map.getItemFlagId		near Leyndell Catacombs	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
@@ -641,6 +643,8 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773570	Scadu Altus	Furnace Visage	2049467600	ItemLotParam_map.getItemFlagId		near Castle Watering Hole	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773573	Scadu Altus	Furnace Visage	2049477500	ItemLotParam_map.getItemFlagId		near Castle Watering Hole	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773574	Scadu Altus	Furnace Visage	2049477510	ItemLotParam_map.getItemFlagId		near Castle Watering Hole	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7773613	Scadu Altus	Furnace Visage	2050467500	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7773614	Scadu Altus	Furnace Visage	2050467510	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773616	Scadu Altus	Furnace Visage	2050467710	ItemLotParam_map.getItemFlagId		near Castle Watering Hole	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773617	Scadu Altus	Furnace Visage	2050467720	ItemLotParam_map.getItemFlagId		near Castle Watering Hole	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773618	Scadu Altus	Furnace Visage	2050467730	ItemLotParam_map.getItemFlagId		near Castle Watering Hole	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
@@ -660,8 +664,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773930	Scadu Altus	Smithing Stone [8]	21007060	ItemLotParam_map.getItemFlagId		near Main Gate Plaza	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7774085	Scadu Altus	Somber Smithing Stone [8]	42027020	ItemLotParam_map.getItemFlagId		near Ruined Forge of Starfall Past	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7774087	Scadu Altus	Somber Smithing Stone [8]	42027040	ItemLotParam_map.getItemFlagId		near Ruined Forge of Starfall Past	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
-7773581	Scadu Altus	Swollen Grape	2050417700	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
-7773626	Scadu Altus	Swollen Grape	2051417710	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7900068	Shadow Keep	Ansbach's Attire	400622	ItemLotParam_map.getItemFlagId		around Storehouse, First Floor	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7900076	Shadow Keep	Ansbach's Attire	400625	ItemLotParam_map.getItemFlagId		around Storehouse, First Floor	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7900070	Shadow Keep	Ansbach's Boots	400622	ItemLotParam_map.getItemFlagId		around Storehouse, First Floor	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
@@ -677,8 +679,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7771964	Shadow Keep	Ember of Messmer	21017490	ItemLotParam_map.getItemFlagId		near Storehouse, Seventh Floor	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771935	Shadow Keep	Fire Coil	21017040	ItemLotParam_map.getItemFlagId		near Storehouse, Back Section	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771957	Shadow Keep	Fire Coil	21017410	ItemLotParam_map.getItemFlagId		near Storehouse, Back Section	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
-7773613	Shadow Keep	Furnace Visage	2050467500	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
-7773614	Shadow Keep	Furnace Visage	2050467510	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7770634	Shadow Keep	Letter for Freyja	400620	ItemLotParam_map.getItemFlagId		around Storehouse, First Floor	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7900080	Shadow Keep	Letter for Freyja	400625	ItemLotParam_map.getItemFlagId		around Storehouse, First Floor	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773937	Shadow Keep	Rada Fruit	21027000	ItemLotParam_map.getItemFlagId		near West Rampart	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed

@@ -3112,6 +3112,20 @@ else:
 # Keys are acquisition event flags (int); values are greenfield region names. Found via in-game
 # tracker report 2026-07-08 (Godfrey Icon talisman + Haligtree medallion mis-shown under Liurnia).
 FLAG_REGION_OVERRIDE = {
+    # 2026-09-10: native M4G lot pins plus independent traversal evidence.
+    # Per-check adjudications (not tile moves); evidence/mfg_oracle_regions.json
+    # records positions, exact lot identities and sources. Keeper: test_gf_mfg_oracle_regions.
+    520800: 'Gravesite',
+    540118: 'Limgrave',
+    2048417980: 'Gravesite',
+    2049427700: 'Abyssal',
+    2049427720: 'Abyssal',
+    2050417700: 'Abyssal',
+    2051417700: 'Abyssal',
+    2051417710: 'Abyssal',
+    2052427500: 'Abyssal',
+    2050467500: 'Scadu Altus',
+    2050467510: 'Scadu Altus',
     # ---- STRADDLE RESOLUTION after the boss-region verdicts (#532) -- SEE ISSUE #534 ----
     # Six in-game boss rulings moved 68 checks between regions and split NINE graces at the
     # boundaries: 53 straddling graces -> 59, against a pin of 55. test_gf_grace_straddle says
@@ -4031,7 +4045,7 @@ GLOBAL_RECOVER = {
     # DLC furnace-golem tears.
     65400: "Gravesite",          # Viridian Hidden Tear (Gravesite Plains)
     65410: "Scadu Altus",              # Crimsonburst Dried Tear
-    65420: "Scadu Altus",              # Crimson-Sapping Cracked Tear (Ancient Ruins of Rauh golem)
+    65420: "Ancient Ruins",            # M4G1200033 + upper Rauh bridge route; mfg_oracle_regions.json
     65430: "Scadu Altus",              # Cerulean-Sapping Cracked Tear
     65440: "Scadu Altus",              # Oil-Soaked Tear
     65450: "Scadu Altus",              # Bloodsucking Cracked Tear

@@ -725,8 +725,8 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7774085	smithing_stone	repeated_material_row	Scadu Altus	Somber Smithing Stone [8]	42027020	m21_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774087	smithing_stone	repeated_material_row	Scadu Altus	Somber Smithing Stone [8]	42027040	m25_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771914	smithing_stone	repeated_material_row	Scadu Altus	Somber Smithing Stone [9]	21007550	m21_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7771986	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21027200	m61_50_47	remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7771989	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21027230	m61_50_48	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7771986	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21027200	m61_49_48	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7771989	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21027230	m61_50_47	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773934	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21017090	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773935	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21017400	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771937	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [8]	21017060	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -735,7 +735,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7771992	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [6]	21027260	m61_50_48	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771977	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [8]	21017770	m21_01	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7771967	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [9]	21017600	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7771993	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [9]	21027270	m61_49_48	audited_one_family	1	gameplay-wiki:eldenpedia	unresolved	second_independent_exact_landmark_source
+7771993	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [9]	21027270	m61_50_48	audited_one_family	1	gameplay-wiki:eldenpedia	unresolved	second_independent_exact_landmark_source
 7771165	smithing_stone	repeated_material_row	Siofra River	Smithing Stone [2]	12027230	m12_02	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771183	smithing_stone	repeated_material_row	Siofra River	Smithing Stone [2]	12027410	m12_02	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771216	smithing_stone	repeated_material_row	Siofra River	Smithing Stone [2]	12027720	m12_02	remaining_unreviewed	0		unresolved	first_exact_landmark_source

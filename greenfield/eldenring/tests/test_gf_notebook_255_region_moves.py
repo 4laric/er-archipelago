@@ -59,7 +59,9 @@ MOVERS = {
     1049557700: ("Consecrated Snowfield", "lot-decode", "map lot 1049550700 -> tile m60_49_55"),
 }
 
-# The rows 255 reported that did NOT move, and why. Under-moving is the safe direction: a future
+# Three original deferrals (2048417980, 2049427700, 2049427720) were superseded
+# by exact MFG lots plus route evidence; test_gf_mfg_oracle_regions owns those rulings.
+# The remaining rows 255 reported that did NOT move, and why. Under-moving is the safe direction: a future
 # bulk apply of the notebook trips here rather than shipping the reporter's opinion as data.
 STAYERS = {
     # The instrument answered and DISAGREED with the reporter.
@@ -73,9 +75,6 @@ STAYERS = {
     65460: ("Gravesite", "furnace-golem drop; no c4900 placements exist in the bundle"),
     # A standing human ruling the instrument does not outrank.
     21007670: ("Scadu Altus", "#885 Hippo: m21_00 is curated Scadu Altus at MAP scope"),
-    2048417980: ("Jagged Peak", "no coordinates; only boss_verdict_tiles.tsv m61_48_41 speaks"),
-    2049427700: ("Jagged Peak", "no coordinates; only boss_verdict_tiles.tsv m61_49_42 speaks"),
-    2049427720: ("Jagged Peak", "no coordinates; only boss_verdict_tiles.tsv m61_49_42 speaks"),
 }
 
 # A region move re-sorts NAMES; it must never renumber an id (#952, #249). Read back from the
@@ -155,7 +154,7 @@ class TheMoversLanded(unittest.TestCase):
 
 
 class TheStayersDidNotMove(unittest.TestCase):
-    """Eleven reported rows the evidence did not support. This is the half that proves the batch
+    """Eight remaining reported rows the evidence did not support. This is the half that proves the batch
     measured rather than agreed."""
 
     @classmethod

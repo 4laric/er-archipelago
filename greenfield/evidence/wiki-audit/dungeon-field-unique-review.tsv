@@ -1,6 +1,8 @@
 check_id	category	region	item_name	flag	map_id	review_status	external_family_count	external_families	next_evidence
+7773625	unique_dungeon_pickup	Abyssal	Aged One's Exultation	2051417700	m28_00	remaining_unreviewed	0		first_independent_identity_region_source
 7773651	unique_dungeon_pickup	Abyssal	Frenzyflame Perfume Bottle	2053417000	m28_00	trusted	3	gameplay-guide:eip;gameplay-guide:gameofguides;gameplay-guide:redmaw	none_identity_region_trusted
 7770170	unique_dungeon_pickup	Abyssal	Mad Craftsman's Cookbook [3]	68880	m28_00	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
+7773646	unique_dungeon_pickup	Abyssal	Madding Hand	2052427500	m28_00	remaining_unreviewed	0		first_independent_identity_region_source
 7772020	unique_dungeon_pickup	Abyssal	Nanaya's Torch	28007100	m28_00	trusted	3	gameplay-guide:eip;gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
 7772016	unique_dungeon_pickup	Abyssal	Surging Frenzied Flame	28007050	m28_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772012	unique_dungeon_pickup	Abyssal	Torn Diary Page	28007010	m28_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
@@ -557,7 +559,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7772984	unique_field_pickup	Caelid	Ash of War: Lion's Claw	1047387700	m60_48_37	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770772	unique_field_pickup	Caelid	Ash of War: Poisonous Mist	540406	m60_48_37	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770806	unique_field_pickup	Caelid	Ash of War: Rain of Arrows	580360	m60_51_40	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7770722	unique_field_pickup	Caelid	Ash of War: Sacred Blade	540118	m60_47_40	remaining_unreviewed	0		first_independent_identity_region_source
 7773880	unique_field_pickup	Caelid	Ash of War: Sacred Ring of Light	540404	m60_49_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770774	unique_field_pickup	Caelid	Ash of War: Sky Shot	540412	m60_48_41	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773725	unique_field_pickup	Caelid	Beast Eye	400239	m60_51_43	remaining_unreviewed	0		first_independent_identity_region_source
@@ -655,6 +656,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7772450	unique_field_pickup	Gravesite	Anvil Hammer	42007000	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773241	unique_field_pickup	Gravesite	Ash of War: Savage Lion's Claw	2045437700	m61_45_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7773391	unique_field_pickup	Gravesite	Backhand Blade with Ash of War: Blind Spot	2047427700	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7773475	unique_field_pickup	Gravesite	Black Steel Greathammer	2048417980	m61_46_41	remaining_unreviewed	0		first_independent_identity_region_source
 7773387	unique_field_pickup	Gravesite	Blade of Mercy	2047417800	m61_46_41	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773308	unique_field_pickup	Gravesite	Blessed Blue Dew Talisman	2046407700	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773238	unique_field_pickup	Gravesite	Bloodfiend's Arm	2045417950	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
@@ -690,7 +692,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773396	unique_field_pickup	Gravesite	Swift Spear	2047437030	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773515	unique_field_pickup	Gravesite	Talisman of the Dread	2049427000	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773325	unique_field_pickup	Gravesite	Two-Headed Turtle Talisman	2046457000	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7773475	unique_field_pickup	Jagged Peak	Black Steel Greathammer	2048417980	m61_49_41	remaining_unreviewed	0		first_independent_identity_region_source
 7773511	unique_field_pickup	Jagged Peak	Dragon Communion Grease	2049387020	m61_49_41	remaining_unreviewed	0		first_independent_identity_region_source
 7900102	unique_field_pickup	Jagged Peak	Flowerstone Gavel	400704	m61_49_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770167	unique_field_pickup	Jagged Peak	Grave Keeper's Cookbook [2]	68850	m61_49_41	remaining_unreviewed	0		first_independent_identity_region_source
@@ -708,6 +709,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7774342	unique_field_pickup	Limgrave	Ash of War: Golden Vow	1043397500	m60_42_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7774335	unique_field_pickup	Limgrave	Ash of War: Gravitas	1043357500	m60_44_36	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770721	unique_field_pickup	Limgrave	Ash of War: Ground Slam	540116	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770722	unique_field_pickup	Limgrave	Ash of War: Sacred Blade	540118	m60_45_39	remaining_unreviewed	0		first_independent_identity_region_source
 7770723	unique_field_pickup	Limgrave	Ash of War: Stamp (Sweep)	540120	m60_42_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7774309	unique_field_pickup	Limgrave	Ash of War: Storm Stomp	1042377110	m60_42_37	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770717	unique_field_pickup	Limgrave	Ash of War: Storm Wall	540100	m60_42_37	remaining_unreviewed	0		first_independent_identity_region_source
@@ -917,7 +919,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7770807	unique_field_pickup	Rauh Base	Spiraltree Seal	580410	m61_46_45	remaining_unreviewed	0		first_independent_identity_region_source
 7772452	unique_field_pickup	Rauh Base	Taylew the Golem Smith	42037000	m61_46_45	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	none_identity_region_trusted
 7773333	unique_field_pickup	Rauh Base	Two-Handed Sword Talisman	2046457910	m61_46_45	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
-7773625	unique_field_pickup	Scadu Altus	Aged One's Exultation	2051417700	m61_50_43	remaining_unreviewed	0		first_independent_identity_region_source
 7772451	unique_field_pickup	Scadu Altus	Ancient Meteoric Ore Greatsword	42027000	m61_51_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773442	unique_field_pickup	Scadu Altus	Arrow's Soaring Sting Talisman	2047457910	m61_47_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773893	unique_field_pickup	Scadu Altus	Ash of War: Carian Sovereignty	540900	m61_51_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
@@ -958,7 +959,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773739	unique_field_pickup	Scadu Altus	Lacerating Crossed-Tree	400590	m61_49_44	remaining_unreviewed	0		first_independent_identity_region_source
 7773558	unique_field_pickup	Scadu Altus	Leather Crown	2049457200	m61_49_45	remaining_unreviewed	0		first_independent_identity_region_source
 7770150	unique_field_pickup	Scadu Altus	Mad Craftsman's Cookbook [2]	68670	m61_49_43	remaining_unreviewed	0		first_independent_identity_region_source
-7773646	unique_field_pickup	Scadu Altus	Madding Hand	2052427500	m61_52_43	remaining_unreviewed	0		first_independent_identity_region_source
 7773602	unique_field_pickup	Scadu Altus	Man-Fly Ashes	2050447710	m61_49_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773522	unique_field_pickup	Scadu Altus	Messmer Soldier Ashes	2049437230	m61_49_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773604	unique_field_pickup	Scadu Altus	Moldmonger's Bell Bearing	2050447730	m61_51_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
@@ -981,13 +981,13 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773756	unique_field_pickup	Scadu Altus	Sword of Night	400671	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
 7773628	unique_field_pickup	Scadu Altus	Tooth Whip	2051447000	m61_51_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7771983	unique_field_pickup	Shadow Keep	Ash of War: Wall of Sparks	21027020	m61_50_48	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
-7770174	unique_field_pickup	Shadow Keep	Battlefield Priest's Cookbook [4]	68930	m61_50_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770174	unique_field_pickup	Shadow Keep	Battlefield Priest's Cookbook [4]	68930	m61_50_47	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773655	unique_field_pickup	Shadow Keep	Fingercreeper Ashes	2053487000	m61_52_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773575	unique_field_pickup	Shadow Keep	Gaius's Greaves	2049490900	m61_49_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773642	unique_field_pickup	Shadow Keep	Golden Braid	2051477510	m61_50_47	remaining_unreviewed	0		first_independent_identity_region_source
 7773641	unique_field_pickup	Shadow Keep	Minor Erdtree	2051477500	m61_52_48	remaining_unreviewed	0		first_independent_identity_region_source
-7900199	unique_field_pickup	Shadow Keep	Rain of Fire	21027991	m61_49_48	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
-7771994	unique_field_pickup	Shadow Keep	Salza's Hood	21027991	m61_50_47	remaining_unreviewed	0		first_independent_identity_region_source
+7900199	unique_field_pickup	Shadow Keep	Rain of Fire	21027991	m61_50_48	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771994	unique_field_pickup	Shadow Keep	Salza's Hood	21027991	m61_49_48	remaining_unreviewed	0		first_independent_identity_region_source
 7773576	unique_field_pickup	Shadow Keep	Sharpshot Talisman	2049497510	m61_50_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7774283	unique_field_pickup	Weeping	Ambush Shard	1041337100	m60_42_33	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770727	unique_field_pickup	Weeping	Ash of War: Mighty Shot	540140	m60_44_32	remaining_unreviewed	0		first_independent_identity_region_source

@@ -927,6 +927,11 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # (1038520800,1039537050):2 -> (1039540800,1039537050):2;
     # (1038520800,1039537060):1 -> (1040520800,1039537060):1.
     # These are precisely the three measured Altus flags, four AP siblings. No collateral churn.
-    assert (digest, n) == ("b4c6eea5cd00df7a", 4114), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (b4c6eea5cd00df7a, 4114). The total alone will "
+    # 2026-09-10 MFG region pass, measured against c7371733: 32 removed / 32 added,
+    # no flags gain or lose coverage. Ten corrected checks change owners: six Abyssal
+    # rewards -> Midra 28000800, Sacred Blade -> 1045390800, Greathammer -> 2046410800,
+    # two Furnace Visages -> 2049450800. The other 22 reassignments stay in Shadow Keep
+    # as its round-robin pool shrinks. Crimson-Sapping and Bloodfiend Hexer remain unswept.
+    assert (digest, n) == ("a3ae7f11cb653387", 4114), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (a3ae7f11cb653387, 4114). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
