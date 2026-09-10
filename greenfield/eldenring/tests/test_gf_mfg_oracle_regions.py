@@ -37,6 +37,12 @@ class MfgOracleRegionEvidence(unittest.TestCase):
             self.assertEqual(flags, {row["flag"]})
             self.assertEqual(row["region"], EXPECTED[row["flag"]])
 
+    def test_bloodfiend_region_correction_keeps_existing_progression_bar(self):
+        from worlds.eldenring.tables.location_tags import DEFAULTED_REGION_APS
+        aps = {ap for rows in LOCATIONS.values() for _, ap, flag in rows if flag == 520800}
+        self.assertEqual(aps, {7773851})
+        self.assertTrue(aps <= DEFAULTED_REGION_APS)
+
     def test_region_and_sweep_ownership_agree_for_every_sibling(self):
         found = set()
         for region, locations in LOCATIONS.items():
