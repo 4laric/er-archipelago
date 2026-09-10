@@ -23,7 +23,7 @@ The accepted vanilla MFG bundle supplied 7,031 native pins; all 16 input hashes 
 
 All 4,931 AP IDs and their flag bindings stay unchanged. Exactly 12 checks change region. Ten cease disagreeing with the oracle; Crimson-Sapping and Bloodfiend Hexer retain partition/membership differences, now recorded as confirmed from our evidence. The refreshed queue has 196 rows: 159 open and 37 confirmed. No oracle area labels, prose or rules were copied.
 
-Sweep membership remains 4,114 entries: 32 old (trigger, flag) pairs are replaced by 32 new pairs. Ten corrected checks change owners, including all six Abyssal rewards moving to Midra. The remaining 22 reassignments stay within Shadow Keep as its allocation changes. No flag gains or loses sweep coverage. Crimson-Sapping and Bloodfiend Hexer remain unswept.
+Sweep membership remains 4,114 entries: 32 old (trigger, flag) pairs are replaced by 32 new pairs. Ten corrected checks change owners, including all six Abyssal rewards moving to Midra. The remaining 22 reassignments stay within Shadow Keep as its allocation changes. No flag gains or loses sweep coverage. Crimson-Sapping and Bloodfiend Hexer remain unswept. Bloodfiend Hexer also retains its existing progression-placement bar; this pass corrects its regional home without promoting it to a progression host.
 
 The executable witnesses check exact native lot identity, every sibling region, sweep containment, and reachability with the correct region lock absent versus present while all other requirements are held. Regeneration ran from gen_inputs.db after an unchanged-tree baseline produced no content diff. The focused regression suite and all 88 fill generations passed. Live collection has not been tested.
 
