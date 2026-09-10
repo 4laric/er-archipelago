@@ -650,6 +650,8 @@ jobs:
       # and artifact-free -- pure functions over synthetic rows.
       - name: The enemy-drop table's lot-group and drop-chance rules
         run: python -m unittest -v tools/test_datamine_enemy_drops.py
+      - name: Furnace golem placement and reward census (synthetic inputs)
+        run: python -m unittest -v tools/test_datamine_furnace_golems.py
 
       - name: The mine-material census preserves asset and capstone provenance (#1095)
         run: python -m unittest -v tools/test_datamine_mine_material_sources.py
