@@ -30,7 +30,7 @@ class MissableDataTests(unittest.TestCase):
         """
         from worlds.eldenring.tables.data import LOCATIONS
 
-        for flag in (400101, 400320):
+        for flag in (400101, 400320, 400600, 400722):
             ids = [aid for rows in LOCATIONS.values() for _, aid, fl in rows if fl == flag]
             self.assertTrue(ids, f"quest reward f{flag} disappeared instead of being protected")
             for aid in ids:

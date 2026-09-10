@@ -52,3 +52,7 @@ rules for default, progression-only and off settings.
    prevents a self-lock; it does not prove the check is reachable.
 
 This pass establishes two placement fixes, not full parity or live-game validation.
+
+## Follow-up pass
+
+The region and acquisition follow-up is recorded in [the manual-review handoff](ORACLE-MANUAL-REVIEW-2026-09-09.md). It accounts for all 211 baseline region rows and identifies the remaining acquisition and missing-check work without treating every discrepancy as an error.

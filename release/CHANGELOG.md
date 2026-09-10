@@ -5,9 +5,13 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.0.7 — 2026-09-09
 
-- **Quest reward placement:** Glintstone Kris and Prosthesis-Wearer Heirloom now respect
+- **Quest reward placement:** Glintstone Kris, Prosthesis-Wearer Heirloom, Golden Lion Shield and Gourmet Scorpion Stew now respect
   Protect Missable Locations. Their NPC quest prerequisites were hidden behind collection-latch
   checks, allowing required progression on rewards that could be lost. Applies to newly generated rooms.
+
+- **Region placement:** The Academy merchant's bell bearing now requires the Academy region.
+  Nascent Butterfly, Unseen Blade / Unseen Form and Slumbering Egg on the Bower of Bounty
+  boundary now belong to Altus, with their sweep ownership corrected. New rooms only.
 
 ### What you need to update
 

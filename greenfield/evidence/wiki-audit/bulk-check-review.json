@@ -2067,7 +2067,7 @@
       "candidate_ids": [
         7774412
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Slumbering Egg x2"
       ],
@@ -4752,7 +4752,7 @@
       "candidate_ids": [
         7773038
       ],
-      "competing_observation_count": 4,
+      "competing_observation_count": 3,
       "context_labels": [
         "Slumbering Egg x3"
       ],
@@ -47279,7 +47279,7 @@
         7774137,
         7774412
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Ember of Messmer x3",
         "Slumbering Egg"
@@ -48843,79 +48843,6 @@
     },
     {
       "all_candidate_ids": [
-        7770277,
-        7771240,
-        7771907,
-        7772575,
-        7772612,
-        7772749,
-        7772878,
-        7773038,
-        7774137,
-        7774412
-      ],
-      "candidate_ids": [
-        7770277,
-        7771240,
-        7771907,
-        7772575,
-        7772612,
-        7772749,
-        7772878,
-        7773038,
-        7774137,
-        7774412
-      ],
-      "competing_observation_count": 5,
-      "context_labels": [
-        "Slumbering Egg x5",
-        "Unseen Blade",
-        "Unseen Form"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w30-29",
-      "item_name": "Slumbering Egg",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [
-        5
-      ],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771240,
-        7771907,
-        7772575,
-        7772612,
-        7772749,
-        7773038,
-        7774137,
-        7774412
-      ],
-      "observation_id": "walkthrough:2968697c862792ad26ba",
-      "reason": "region_disagreement",
-      "regions": [
-        "Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7773038,
-        7774412
-      ],
-      "section": "central-altus",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w30-29"
-    },
-    {
-      "all_candidate_ids": [
         7770404,
         7770410,
         7770460,
@@ -50416,7 +50343,7 @@
         7774137,
         7774412
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Slumbering Egg x2"
       ],
@@ -102298,6 +102225,61 @@
     },
     {
       "all_candidate_ids": [
+        7770277,
+        7771240,
+        7771907,
+        7772575,
+        7772612,
+        7772749,
+        7772878,
+        7773038,
+        7774137,
+        7774412
+      ],
+      "candidate_ids": [
+        7772749
+      ],
+      "competing_observation_count": 3,
+      "context_labels": [
+        "Slumbering Egg x5",
+        "Unseen Blade",
+        "Unseen Form"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w30-29",
+      "item_name": "Slumbering Egg",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [
+        5
+      ],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772749
+      ],
+      "observation_id": "walkthrough:2968697c862792ad26ba",
+      "reason": "area_only",
+      "regions": [
+        "Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "central-altus",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w30-29"
+    },
+    {
+      "all_candidate_ids": [
         7900245
       ],
       "candidate_ids": [
@@ -102315,7 +102297,8 @@
       "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w30-29",
       "item_name": "Unseen Form",
       "matched_on": [
-        "item_name"
+        "item_name",
+        "guide_area"
       ],
       "mentioned_quantities": [],
       "missing_evidence": [
@@ -102327,7 +102310,7 @@
         7900245
       ],
       "observation_id": "walkthrough:bad2940aac59482f98ca",
-      "reason": "region_disagreement",
+      "reason": "area_only",
       "regions": [
         "Altus"
       ],
@@ -102358,7 +102341,8 @@
       "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w30-29",
       "item_name": "Unseen Blade",
       "matched_on": [
-        "item_name"
+        "item_name",
+        "guide_area"
       ],
       "mentioned_quantities": [],
       "missing_evidence": [
@@ -102370,7 +102354,7 @@
         7772748
       ],
       "observation_id": "walkthrough:e0456da4cab3977a5dcc",
-      "reason": "region_disagreement",
+      "reason": "area_only",
       "regions": [
         "Altus"
       ],
@@ -107429,6 +107413,60 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w32-31"
+    },
+    {
+      "all_candidate_ids": [
+        7770277,
+        7771240,
+        7771907,
+        7772575,
+        7772612,
+        7772749,
+        7772878,
+        7773038,
+        7774137,
+        7774412
+      ],
+      "candidate_ids": [
+        7772575
+      ],
+      "competing_observation_count": 3,
+      "context_labels": [
+        "Golden Rune [8]",
+        "Slumbering Egg x3"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w32-39",
+      "item_name": "Slumbering Egg",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [
+        3
+      ],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772575
+      ],
+      "observation_id": "walkthrough:a2053be2c58101f9028f",
+      "reason": "area_only",
+      "regions": [
+        "Mt. Gelmir"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "mt-gelmir",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w32-39"
     },
     {
       "all_candidate_ids": [
@@ -130661,6 +130699,74 @@
     },
     {
       "all_candidate_ids": [
+        7770470,
+        7770971,
+        7771004,
+        7771196,
+        7771266,
+        7771290,
+        7771325,
+        7771381,
+        7771450,
+        7771657,
+        7772100,
+        7772176,
+        7772205,
+        7772587,
+        7772653,
+        7772747,
+        7772768,
+        7772960,
+        7773154,
+        7773629,
+        7774218,
+        7774477
+      ],
+      "candidate_ids": [
+        7772587,
+        7772653
+      ],
+      "competing_observation_count": 2,
+      "context_labels": [
+        "Glass Shard",
+        "Hefty Beast Bone x2",
+        "Nascent Butterfly",
+        "Rejuvenating Boluses"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w32-20",
+      "item_name": "Nascent Butterfly",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772587,
+        7772653
+      ],
+      "observation_id": "walkthrough:a2b616efb9a26201a6de",
+      "reason": "area_only",
+      "regions": [
+        "Mt. Gelmir"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "mt-gelmir",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w32-20"
+    },
+    {
+      "all_candidate_ids": [
         7770839,
         7770879,
         7771504,
@@ -130770,62 +130876,6 @@
         7772698
       ],
       "observation_id": "walkthrough:55cfa3b4bdeda4f366cd",
-      "reason": "area_only",
-      "regions": [
-        "Mt. Gelmir"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "mt-gelmir",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w32-39"
-    },
-    {
-      "all_candidate_ids": [
-        7770277,
-        7771240,
-        7771907,
-        7772575,
-        7772612,
-        7772749,
-        7772878,
-        7773038,
-        7774137,
-        7774412
-      ],
-      "candidate_ids": [
-        7772575,
-        7772749
-      ],
-      "competing_observation_count": 4,
-      "context_labels": [
-        "Golden Rune [8]",
-        "Slumbering Egg x3"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w32-39",
-      "item_name": "Slumbering Egg",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [
-        3
-      ],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7772575,
-        7772749
-      ],
-      "observation_id": "walkthrough:a2053be2c58101f9028f",
       "reason": "area_only",
       "regions": [
         "Mt. Gelmir"
@@ -145301,7 +145351,7 @@
         7772612,
         7774137
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Slumbering Egg x3"
       ],
@@ -145404,71 +145454,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w30-1"
-    },
-    {
-      "all_candidate_ids": [
-        7770470,
-        7770971,
-        7771004,
-        7771196,
-        7771266,
-        7771290,
-        7771325,
-        7771381,
-        7771450,
-        7771657,
-        7772100,
-        7772176,
-        7772205,
-        7772587,
-        7772653,
-        7772747,
-        7772768,
-        7772960,
-        7773154,
-        7773629,
-        7774218,
-        7774477
-      ],
-      "candidate_ids": [
-        7772205,
-        7772768,
-        7774218
-      ],
-      "competing_observation_count": 6,
-      "context_labels": [
-        "Nascent Butterfly"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w30-28",
-      "item_name": "Nascent Butterfly",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7774218
-      ],
-      "observation_id": "walkthrough:59b6a7f7a8ab7847945c",
-      "reason": "area_only",
-      "regions": [
-        "Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "central-altus",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w30-28"
     },
     {
       "all_candidate_ids": [
@@ -146311,7 +146296,7 @@
         7772612,
         7774137
       ],
-      "competing_observation_count": 5,
+      "competing_observation_count": 4,
       "context_labels": [
         "Slumbering Egg x2"
       ],
@@ -150497,76 +150482,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w27-6"
-    },
-    {
-      "all_candidate_ids": [
-        7770470,
-        7770971,
-        7771004,
-        7771196,
-        7771266,
-        7771290,
-        7771325,
-        7771381,
-        7771450,
-        7771657,
-        7772100,
-        7772176,
-        7772205,
-        7772587,
-        7772653,
-        7772747,
-        7772768,
-        7772960,
-        7773154,
-        7773629,
-        7774218,
-        7774477
-      ],
-      "candidate_ids": [
-        7772587,
-        7772653,
-        7772747
-      ],
-      "competing_observation_count": 2,
-      "context_labels": [
-        "Glass Shard",
-        "Hefty Beast Bone x2",
-        "Nascent Butterfly",
-        "Rejuvenating Boluses"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w32-20",
-      "item_name": "Nascent Butterfly",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7772587,
-        7772653,
-        7772747
-      ],
-      "observation_id": "walkthrough:a2b616efb9a26201a6de",
-      "reason": "area_only",
-      "regions": [
-        "Mt. Gelmir"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "mt-gelmir",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w32-20"
     },
     {
       "all_candidate_ids": [
@@ -155832,139 +155747,6 @@
     },
     {
       "all_candidate_ids": [
-        7770470,
-        7770971,
-        7771004,
-        7771196,
-        7771266,
-        7771290,
-        7771325,
-        7771381,
-        7771450,
-        7771657,
-        7772100,
-        7772176,
-        7772205,
-        7772587,
-        7772653,
-        7772747,
-        7772768,
-        7772960,
-        7773154,
-        7773629,
-        7774218,
-        7774477
-      ],
-      "candidate_ids": [
-        7772205,
-        7772768,
-        7774218
-      ],
-      "competing_observation_count": 6,
-      "context_labels": [
-        "Black Hood",
-        "Candletree Wooden Shield",
-        "Nascent Butterfly",
-        "Silver-Pickled Fowl Foot x5"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w28-23",
-      "item_name": "Nascent Butterfly",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7774218
-      ],
-      "observation_id": "walkthrough:c163c527e6c3a51095cc",
-      "reason": "area_only",
-      "regions": [
-        "Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "west-altus",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w28-23"
-    },
-    {
-      "all_candidate_ids": [
-        7770470,
-        7770971,
-        7771004,
-        7771196,
-        7771266,
-        7771290,
-        7771325,
-        7771381,
-        7771450,
-        7771657,
-        7772100,
-        7772176,
-        7772205,
-        7772587,
-        7772653,
-        7772747,
-        7772768,
-        7772960,
-        7773154,
-        7773629,
-        7774218,
-        7774477
-      ],
-      "candidate_ids": [
-        7772205,
-        7772768,
-        7774218
-      ],
-      "competing_observation_count": 6,
-      "context_labels": [
-        "Nascent Butterfly"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w28-34",
-      "item_name": "Nascent Butterfly",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7774218
-      ],
-      "observation_id": "walkthrough:181b0c34d8501a5b5389",
-      "reason": "area_only",
-      "regions": [
-        "Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "west-altus",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w28-34"
-    },
-    {
-      "all_candidate_ids": [
         7771442,
         7772334,
         7773926,
@@ -156013,137 +155795,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w28-38"
-    },
-    {
-      "all_candidate_ids": [
-        7770470,
-        7770971,
-        7771004,
-        7771196,
-        7771266,
-        7771290,
-        7771325,
-        7771381,
-        7771450,
-        7771657,
-        7772100,
-        7772176,
-        7772205,
-        7772587,
-        7772653,
-        7772747,
-        7772768,
-        7772960,
-        7773154,
-        7773629,
-        7774218,
-        7774477
-      ],
-      "candidate_ids": [
-        7772205,
-        7772768,
-        7774218
-      ],
-      "competing_observation_count": 6,
-      "context_labels": [
-        "Nascent Butterfly",
-        "Perfume Bottle"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w28-7",
-      "item_name": "Nascent Butterfly",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7774218
-      ],
-      "observation_id": "walkthrough:a9fd8197b3fb86083b42",
-      "reason": "area_only",
-      "regions": [
-        "Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "west-altus",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w28-7"
-    },
-    {
-      "all_candidate_ids": [
-        7770470,
-        7770971,
-        7771004,
-        7771196,
-        7771266,
-        7771290,
-        7771325,
-        7771381,
-        7771450,
-        7771657,
-        7772100,
-        7772176,
-        7772205,
-        7772587,
-        7772653,
-        7772747,
-        7772768,
-        7772960,
-        7773154,
-        7773629,
-        7774218,
-        7774477
-      ],
-      "candidate_ids": [
-        7772205,
-        7772768,
-        7774218
-      ],
-      "competing_observation_count": 6,
-      "context_labels": [
-        "Nascent Butterfly"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w28-90",
-      "item_name": "Nascent Butterfly",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7774218
-      ],
-      "observation_id": "walkthrough:2d0fc7a84bdf6438180a",
-      "reason": "area_only",
-      "regions": [
-        "Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "west-altus",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w28-90"
     },
     {
       "all_candidate_ids": [
@@ -163417,6 +163068,73 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w30-24"
+    },
+    {
+      "all_candidate_ids": [
+        7770470,
+        7770971,
+        7771004,
+        7771196,
+        7771266,
+        7771290,
+        7771325,
+        7771381,
+        7771450,
+        7771657,
+        7772100,
+        7772176,
+        7772205,
+        7772587,
+        7772653,
+        7772747,
+        7772768,
+        7772960,
+        7773154,
+        7773629,
+        7774218,
+        7774477
+      ],
+      "candidate_ids": [
+        7772205,
+        7772747,
+        7772768,
+        7774218
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Nascent Butterfly"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w30-28",
+      "item_name": "Nascent Butterfly",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772747,
+        7774218
+      ],
+      "observation_id": "walkthrough:59b6a7f7a8ab7847945c",
+      "reason": "area_only",
+      "regions": [
+        "Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "central-altus",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w30-28"
     },
     {
       "all_candidate_ids": [
@@ -171449,6 +171167,143 @@
     },
     {
       "all_candidate_ids": [
+        7770470,
+        7770971,
+        7771004,
+        7771196,
+        7771266,
+        7771290,
+        7771325,
+        7771381,
+        7771450,
+        7771657,
+        7772100,
+        7772176,
+        7772205,
+        7772587,
+        7772653,
+        7772747,
+        7772768,
+        7772960,
+        7773154,
+        7773629,
+        7774218,
+        7774477
+      ],
+      "candidate_ids": [
+        7772205,
+        7772747,
+        7772768,
+        7774218
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Black Hood",
+        "Candletree Wooden Shield",
+        "Nascent Butterfly",
+        "Silver-Pickled Fowl Foot x5"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w28-23",
+      "item_name": "Nascent Butterfly",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772747,
+        7774218
+      ],
+      "observation_id": "walkthrough:c163c527e6c3a51095cc",
+      "reason": "area_only",
+      "regions": [
+        "Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "west-altus",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w28-23"
+    },
+    {
+      "all_candidate_ids": [
+        7770470,
+        7770971,
+        7771004,
+        7771196,
+        7771266,
+        7771290,
+        7771325,
+        7771381,
+        7771450,
+        7771657,
+        7772100,
+        7772176,
+        7772205,
+        7772587,
+        7772653,
+        7772747,
+        7772768,
+        7772960,
+        7773154,
+        7773629,
+        7774218,
+        7774477
+      ],
+      "candidate_ids": [
+        7772205,
+        7772747,
+        7772768,
+        7774218
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Nascent Butterfly"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w28-34",
+      "item_name": "Nascent Butterfly",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772747,
+        7774218
+      ],
+      "observation_id": "walkthrough:181b0c34d8501a5b5389",
+      "reason": "area_only",
+      "regions": [
+        "Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "west-altus",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w28-34"
+    },
+    {
+      "all_candidate_ids": [
         7770070,
         7770071,
         7770072,
@@ -171604,6 +171459,74 @@
     },
     {
       "all_candidate_ids": [
+        7770470,
+        7770971,
+        7771004,
+        7771196,
+        7771266,
+        7771290,
+        7771325,
+        7771381,
+        7771450,
+        7771657,
+        7772100,
+        7772176,
+        7772205,
+        7772587,
+        7772653,
+        7772747,
+        7772768,
+        7772960,
+        7773154,
+        7773629,
+        7774218,
+        7774477
+      ],
+      "candidate_ids": [
+        7772205,
+        7772747,
+        7772768,
+        7774218
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Nascent Butterfly",
+        "Perfume Bottle"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w28-7",
+      "item_name": "Nascent Butterfly",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772747,
+        7774218
+      ],
+      "observation_id": "walkthrough:a9fd8197b3fb86083b42",
+      "reason": "area_only",
+      "regions": [
+        "Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "west-altus",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w28-7"
+    },
+    {
+      "all_candidate_ids": [
         7770070,
         7770071,
         7770072,
@@ -171724,6 +171647,73 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w28-85"
+    },
+    {
+      "all_candidate_ids": [
+        7770470,
+        7770971,
+        7771004,
+        7771196,
+        7771266,
+        7771290,
+        7771325,
+        7771381,
+        7771450,
+        7771657,
+        7772100,
+        7772176,
+        7772205,
+        7772587,
+        7772653,
+        7772747,
+        7772768,
+        7772960,
+        7773154,
+        7773629,
+        7774218,
+        7774477
+      ],
+      "candidate_ids": [
+        7772205,
+        7772747,
+        7772768,
+        7774218
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Nascent Butterfly"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w28-90",
+      "item_name": "Nascent Butterfly",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772747,
+        7774218
+      ],
+      "observation_id": "walkthrough:2d0fc7a84bdf6438180a",
+      "reason": "area_only",
+      "regions": [
+        "Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "west-altus",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w28-90"
     },
     {
       "all_candidate_ids": [
@@ -224338,9 +224328,9 @@
   "schema_version": 1,
   "summary": {
     "by_reason": {
-      "area_only": 2223,
+      "area_only": 2226,
       "one_landmark_candidate": 9,
-      "region_disagreement": 538,
+      "region_disagreement": 535,
       "shared_landmark": 3,
       "source_area_unmapped": 76
     },

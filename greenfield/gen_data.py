@@ -3392,6 +3392,9 @@ FLAG_REGION_OVERRIDE = {
     # merchant_shops.tsv + shop_rows.tsv and fails if pins and tsv disagree either way). The
     # Twin-Maiden re-sell does NOT exonerate them: the Husks stock a merchant's inventory only
     # after his BELL BEARING, which drops from the merchant, behind the same door.
+    # Same merchant death lot: msb_flag_region f400907 / lot119030, sole enemy
+    # placement m60_35_45; item_play_regions volume1400011 -> Academy bucket14000.
+    400907: "Raya Lucaria Academy",
     68220: "Raya Lucaria Academy",
     69710: "Raya Lucaria Academy",
     69750: "Raya Lucaria Academy",
@@ -3599,15 +3602,13 @@ FLAG_REGION_OVERRIDE = {
     1035457000: "Raya Lucaria Academy",   # Celestial Dew -- volume: 14000
     1035457030: "Raya Lucaria Academy",   # Strip of White Flesh -- volume: 14000
     1035457100: "Raya Lucaria Academy",   # Meeting Place Map -- seam: 14000
-    # 🛑 Bower of Bounty / Bridge of Iniquity (1039537040 / 1039537050 / 1039537060) are WITHHELD,
-    # not refuted. The scan answers them exactly and they are ordinary ground pickups, so they meet
-    # this block's own admission rule: 1039537040 sits in bucket 6300001, the volume literally named
-    # "領域 マップ情報上書き用 (高山と火山の境界)" -- the Altus/Gelmir BOUNDARY override -- and the
-    # other two in 6300040 (高山 ... 魔術師の塔). But moving them out of Mt. Gelmir takes three of
-    # the twenty-three checks that test_gf_unspawned_field_boss pins to the region, and that gate is
-    # a deliberate #445 witness: on a Gelmir-only seed those three stop being in the seed at all.
-    # That is the CORRECT consequence of the move if the move is right, which is exactly why it
-    # needs a ruling rather than a merge resolution. Withheld pending #1054.
+    # #1054: single ground placements, exact point-in-volume evidence, not nearest-grace votes.
+    # item_play_regions: 7040 volume6300001 (Altus/Gelmir boundary override);
+    # 7050/7060 volume6300040 (tower). Both resolve to PLAY bucket63000 = Altus.
+    # The former unspawned-boss members retain real same-region sweeps after moving.
+    1039537040: "Altus",   # Nascent Butterfly
+    1039537050: "Altus",   # Unseen Blade / Unseen Form
+    1039537060: "Altus",   # Slumbering Egg
     # Cerulean Coast: four rows filed Gravesite stand in the Cerulean volume.
     2046407040: "Cerulean",   # Great Grave Glovewort
     2046407050: "Cerulean",   # Ghost Glovewort [7]
@@ -4143,6 +4144,17 @@ QUEST_GATED_FLAGS = {
     # (4180) and after 1050389255, set by the needle handover in t348006000_x60.
     # The dead-state guard (4183) in x9 prevents the talk path after killing Millicent.
     400320,   # Prosthesis-Wearer Heirloom -- Millicent's post-needle handover.
+    # Freyja: t417002101_x45 (and t417006100_x45) reaches x52's lot106000
+    # only after 21019371. x51 sets that flag when handing over Goods2008015,
+    # consumes the letter, and sets 4891. x9/x23 guards dead state4423.
+    # flag_lots has only map106000: no independent death-drop lot for this flag.
+    400600,   # Golden Lion Shield -- Letter for Freyja handover.
+    # Hornsent Grandam: t402002000_x39 reaches x48 only with 20009286 and
+    # 20009290; x48 awards map107220 only before refusal flag20009289.
+    # m20_00 event20000702 (constructor arguments) sets refusal if Messmer
+    # 21010800 is dead without 20009286. x23 also guards dead state4483.
+    # flag_lots has only map107220; this is not the separate repeatable stew lot.
+    400722,   # Gourmet Scorpion Stew -- losable Grandam dialogue reward.
     9500, 9502, 9504, 100560,
     400030, 400032, 400037, 400061, 400071, 400077, 400078, 400080, 400089,
     400091, 400100, 400105, 400158, 400162, 400173, 400174, 400182, 400189,

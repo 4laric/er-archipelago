@@ -518,6 +518,9 @@ LOCATIONS = {
         ("Altus :: Ash of War: Shared Order - Night's Cavalry, may be sweep-granted by Night's Cavalry (m60_39_51) [f1039517200]", 7772740, 1039517200),
         ("Altus :: Golden Seed - On a tree near the road, may be sweep-granted by Night's Cavalry (m60_39_51) [f1039517400]", 7772741, 1039517400),
         ('Altus :: Sacred Tear - Second Church of Marika, may be sweep-granted by Black Knife Assassin (m60_40_52) [f1039527400]', 7772742, 1039527400),
+        ('Altus :: Nascent Butterfly - near Bridge of Iniquity, may be sweep-granted by Sanguine Noble (m60_40_53) [f1039537040]', 7772747, 1039537040),
+        ('Altus :: [Sorcery] Unseen Blade - near Bower of Bounty, may be sweep-granted by Elemer of the Briar (m60_39_54) [f1039537050]', 7772748, 1039537050),
+        ('Altus :: Slumbering Egg - near Bower of Bounty, may be sweep-granted by Black Knife Assassin (m60_40_52) [f1039537060]', 7772749, 1039537060),
         ('Altus :: Glass Shard - near Shaded Castle Ramparts, may be sweep-granted by Elemer of the Briar (m60_39_54) [f1039547220]', 7772753, 1039547220),
         ('Altus :: Smithing Stone [5] - near Shaded Castle Inner Gate (2), may be sweep-granted by Elemer of the Briar (m60_39_54) [f1039547230]', 7772754, 1039547230),
         ('Altus :: Golden Rune [4] - near Shaded Castle Inner Gate, may be sweep-granted by Elemer of the Briar (m60_39_54) [f1039547250]', 7772755, 1039547250),
@@ -707,6 +710,7 @@ LOCATIONS = {
         ("Altus :: Tree Sentinel Gauntlets - around Auriza Hero's Grave, may be sweep-granted by Crucible Knight Ordovis (m30_10) [f30107100]", 7900208, 30107100),
         ("Altus :: Tree Sentinel Greaves - around Auriza Hero's Grave, may be sweep-granted by Crucible Knight Ordovis (m30_10) [f30107100]", 7900209, 30107100),
         ("Altus :: Ruler's Robe - near Abandoned Coffin, may be sweep-granted by Demi-Human Queen Gilika (m60_38_51) [f1037517020]", 7900239, 1037517020),
+        ('Altus :: Unseen Form - near Bower of Bounty, may be sweep-granted by Elemer of the Briar (m60_39_54) [f1039537050]', 7900245, 1039537050),
         ('Altus :: Battlemage Robe - m60_40_55 (region unconfirmed), may be sweep-granted by Elemer of the Briar (m60_39_54) [f1040557700]', 7900247, 1040557700),
         ('Altus :: Battlemage Manchettes - m60_40_55 (region unconfirmed), may be sweep-granted by Elemer of the Briar (m60_39_54) [f1040557700]', 7900248, 1040557700),
         ('Altus :: Battlemage Legwraps - m60_40_55 (region unconfirmed), may be sweep-granted by Elemer of the Briar (m60_39_54) [f1040557700]', 7900249, 1040557700),
@@ -3161,7 +3165,6 @@ LOCATIONS = {
         ('Liurnia :: Glowstone - around Church of Vows, may be sweep-granted by Bell Bearing Hunter (m60_37_46) [f400209]', 7773713, 400209),
         ("Liurnia :: Blue Silver Mail Hood - around Slumbering Wolf's Shack, may be sweep-granted by Omenkiller (m60_35_42) [f400412]", 7773736, 400412),
         ("Liurnia :: Nomadic Merchant's Bell Bearing [5] - around Laskyar Ruins, may be sweep-granted by Adan, Thief of Fire (m60_38_41) [f400905]", 7773770, 400905),
-        ("Liurnia :: Isolated Merchant's Bell Bearing [2] - around South Raya Lucaria Gate, may be sweep-granted by Glintstone Dragon Smarag (m60_34_45) [f400907]", 7773772, 400907),
         ("Liurnia :: Nomadic Merchant's Bell Bearing [6] - around Bellum Church, may be sweep-granted by Onyx Lord (m60_36_50) [f400908]", 7773773, 400908),
         ('Liurnia :: Ornamental Straight Sword - m10_01 [f510030]', 7773784, 510030),
         ("Liurnia :: Magma Wyrm's Scalesword - Makkar [f510260]", 7773791, 510260),
@@ -3830,9 +3833,6 @@ LOCATIONS = {
         ('Mt. Gelmir :: Blood Grease - near Bridge of Iniquity, may be sweep-granted by Tibia Mariner (m60_38_52) [f1039537010]', 7772744, 1039537010),
         ('Mt. Gelmir :: Golden Rune [3] - near Old Altus Tunnel, may be sweep-granted by Tibia Mariner (m60_38_52) [f1039537020]', 7772745, 1039537020),
         ("Mt. Gelmir :: Miquella's Lily - near Bridge of Iniquity, may be sweep-granted by Tibia Mariner (m60_38_52) [f1039537030]", 7772746, 1039537030),
-        ('Mt. Gelmir :: Nascent Butterfly - near Bridge of Iniquity, may be sweep-granted by Tibia Mariner (m60_38_52) [f1039537040]', 7772747, 1039537040),
-        ('Mt. Gelmir :: [Sorcery] Unseen Blade - near Bower of Bounty, may be sweep-granted by Tibia Mariner (m60_38_52) [f1039537050]', 7772748, 1039537050),
-        ('Mt. Gelmir :: Slumbering Egg - near Bower of Bounty, may be sweep-granted by Tibia Mariner (m60_38_52) [f1039537060]', 7772749, 1039537060),
         ('Mt. Gelmir :: Golden Rune [3] - near Bower of Bounty, may be sweep-granted by Tibia Mariner (m60_38_52) [f1039537070]', 7772750, 1039537070),
         ('Mt. Gelmir :: Mirage Riddle - around Bridge of Iniquity, may be sweep-granted by Tibia Mariner (m60_38_52) [f1039537080]', 7772751, 1039537080),
         ("Mt. Gelmir :: Crepus's Vial - around Bridge of Iniquity, may be sweep-granted by Tibia Mariner (m60_38_52) [f1039537700]", 7772752, 1039537700),
@@ -3885,7 +3885,6 @@ LOCATIONS = {
         ('Mt. Gelmir :: Errant Sorcerer Robe (Altered) - near Primeval Sorcerer Azur, may be sweep-granted by Tibia Mariner (m60_38_52) [f1037527100]', 7900241, 1037527100),
         ('Mt. Gelmir :: Marais Mask - around First Mt. Gelmir Campsite, may be sweep-granted by Demi-Human Queen Maggie (m60_37_53) [f1038547100]', 7900242, 1038547100),
         ('Mt. Gelmir :: Marais Robe - around First Mt. Gelmir Campsite, may be sweep-granted by Ulcerated Tree Spirit (m60_37_54) [f1038547100]', 7900243, 1038547100),
-        ('Mt. Gelmir :: Unseen Form - near Bower of Bounty, may be sweep-granted by Tibia Mariner (m60_38_52) [f1039537050]', 7900245, 1039537050),
         ('Mt. Gelmir :: Black-Key Bolt - around Bridge of Iniquity, may be sweep-granted by Tibia Mariner (m60_38_52) [f1039537700]', 7900246, 1039537700),
     ],
     'Rauh Base': [
@@ -4082,6 +4081,7 @@ LOCATIONS = {
         ('Raya Lucaria Academy :: Glintstone Kris - around Church of the Cuckoo, may be sweep-granted by Red Wolf of Radagon (m14_00) [f400101]', 7773706, 400101),
         ('Raya Lucaria Academy :: Starlight Shards - around Church of the Cuckoo, may be sweep-granted by Rennala, Queen of the Full Moon (m14_00) [f400103]', 7773707, 400103),
         ('Raya Lucaria Academy :: Academy Glintstone Staff [f400361]', 7773731, 400361),
+        ("Raya Lucaria Academy :: Isolated Merchant's Bell Bearing [2] - around South Raya Lucaria Gate [f400907]", 7773772, 400907),
         ('Raya Lucaria Academy :: Living Jar Shard - around Church of the Cuckoo, may be sweep-granted by Red Wolf of Radagon (m14_00) [f14007997]', 7773922, 14007997),
         ('Raya Lucaria Academy :: Strip of White Flesh - near South Raya Lucaria Gate [f1035457030]', 7774130, 1035457030),
         ('Raya Lucaria Academy :: Golden Seed - near Main Academy Gate [f1035467100]', 7774132, 1035467100),
@@ -5572,4 +5572,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:af75f243c2951c8866fabec70301e93853c7a4e8706088b658f399f61741a67b', 'module': 'data.py', 'body_sha256': 'sha256:d6cf6c15b4912d904ad802aa5987af95fd2d0eadeed4f74f2e8b3277d8a141ef'}
+_GEN_STAMP = {'inputs_hash': 'sha256:86c3f7a720787f600abbae3e2b1a2af44c33e8ba0482b8d6986707da57a03b33', 'module': 'data.py', 'body_sha256': 'sha256:0af5d2ef148d81707fd72e20393a18d659aac79b8395cf5c40750b5295cec9ea'}
