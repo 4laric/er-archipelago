@@ -19,8 +19,8 @@
 # Ruled rows are FIXED elsewhere: the normal derivation ladder (M61_TILE_CURATED,
 # DUNGEON_REGION_CURATED, region_overrides.tsv only as a last resort). Never by editing data.py.
 flag	ap_id	our_region	basis	status	reviewer	note
-65420	7773682	Scadu Altus	second-source-region-disagrees	open		
-65460	7773686	Gravesite	second-source-region-disagrees	open		NO MSB WITNESS POSSIBLE (2026-09-09): lot 2046390061 is awarded by no EMEVD line and no NpcParam row in the corpus, and the witchy MSBs carry no c4900 (furnace golem) placement in any map -- MATT-ORACLE-ROADMAP item 7 gap. Rule from the reporter (#1514) and the wiki second opinion only.
+65420	7773682	Ancient Ruins	second-source-region-disagrees	moved	codex	Resolved #1543: c5170 entity 2045460200 at y553.347 near Rauh Ancient Ruins West y556.09; event 90005301 awards 2045460500/0501.
+65460	7773686	Cerulean	second-source-region-disagrees	moved	codex	Resolved #1543: c5170 entity 2246390200; 90005301 awards base 2046390060 and sibling 2046390061. MSB census #1540 supersedes the incorrect c4900/no-witness claim.
 66730	7773693	Liurnia	second-source-region-disagrees	open		
 66740	7770072	Mt. Gelmir	second-source-region-disagrees	open		
 67650	7770118	Caelid	second-source-region-disagrees	open		

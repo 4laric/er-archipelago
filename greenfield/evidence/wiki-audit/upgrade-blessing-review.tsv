@@ -13,6 +13,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7772171	glovewort	repeated_material_row	Caelid	Ghost Glovewort [4]	31117990	m31_11	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7773306	glovewort	repeated_material_row	Cerulean	Ghost Glovewort [8]	2046407050	m61_46_40	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773307	glovewort	repeated_material_row	Cerulean	Ghost Glovewort [9]	2046407060	m61_46_40	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
+7773686	glovewort	unique_material_row	Cerulean	Glovewort Crystal Tear	65460		remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772003	glovewort	repeated_material_row	Cerulean	Grave Glovewort [5]	22007170	m22_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773298	glovewort	repeated_material_row	Cerulean	Grave Glovewort [6]	2046397000	m61_46_40	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772004	glovewort	repeated_material_row	Cerulean	Grave Glovewort [7]	22007200	m22_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -46,7 +47,6 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7773204	glovewort	repeated_material_row	Gravesite	Ghost Glovewort [5]	2044417000	m61_46_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774014	glovewort	repeated_material_row	Gravesite	Ghost Glovewort [5]	40007080	m40_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774016	glovewort	repeated_material_row	Gravesite	Ghost Glovewort [6]	40007100	m40_00	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
-7773686	glovewort	unique_material_row	Gravesite	Glovewort Crystal Tear	65460		remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772424	glovewort	repeated_material_row	Gravesite	Grave Glovewort [5]	40007000	m40_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773388	glovewort	repeated_material_row	Gravesite	Grave Glovewort [5]	2047427000	m61_46_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773393	glovewort	repeated_material_row	Gravesite	Grave Glovewort [5]	2047437000	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
@@ -725,8 +725,8 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7774085	smithing_stone	repeated_material_row	Scadu Altus	Somber Smithing Stone [8]	42027020	m21_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774087	smithing_stone	repeated_material_row	Scadu Altus	Somber Smithing Stone [8]	42027040	m25_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771914	smithing_stone	repeated_material_row	Scadu Altus	Somber Smithing Stone [9]	21007550	m21_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7771986	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21027200	m61_50_47	remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7771989	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21027230	m61_50_48	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7771986	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21027200	m61_49_48	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7771989	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21027230	m61_50_47	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773934	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21017090	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773935	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [7]	21017400	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771937	smithing_stone	repeated_material_row	Shadow Keep	Smithing Stone [8]	21017060	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -735,7 +735,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7771992	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [6]	21027260	m61_50_48	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771977	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [8]	21017770	m21_01	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7771967	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [9]	21017600	m21_01	remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7771993	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [9]	21027270	m61_49_48	audited_one_family	1	gameplay-wiki:eldenpedia	unresolved	second_independent_exact_landmark_source
+7771993	smithing_stone	repeated_material_row	Shadow Keep	Somber Smithing Stone [9]	21027270	m61_50_48	audited_one_family	1	gameplay-wiki:eldenpedia	unresolved	second_independent_exact_landmark_source
 7771165	smithing_stone	repeated_material_row	Siofra River	Smithing Stone [2]	12027230	m12_02	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771183	smithing_stone	repeated_material_row	Siofra River	Smithing Stone [2]	12027410	m12_02	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771216	smithing_stone	repeated_material_row	Siofra River	Smithing Stone [2]	12027720	m12_02	remaining_unreviewed	0		unresolved	first_exact_landmark_source

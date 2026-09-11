@@ -70,7 +70,6 @@ STAYERS = {
     400220: ("Stormveil", "of three MSB placements only m10_00 resolves, to 10000 = Stormveil"),
     # No instrument can speak at all.
     2047407980: ("Cerulean", "no scan row, no coordinates, no nearest grace"),
-    65460: ("Gravesite", "furnace-golem drop; no c4900 placements exist in the bundle"),
     # A standing human ruling the instrument does not outrank.
     21007670: ("Scadu Altus", "#885 Hippo: m21_00 is curated Scadu Altus at MAP scope"),
     2048417980: ("Jagged Peak", "no coordinates; only boss_verdict_tiles.tsv m61_48_41 speaks"),

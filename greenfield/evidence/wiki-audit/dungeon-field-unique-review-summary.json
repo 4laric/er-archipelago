@@ -20,7 +20,7 @@
   "excluded": {
     "boss": 67,
     "no_map_anchor": 841,
-    "repeated_item_name": 3008
+    "repeated_item_name": 3009
   },
   "policy": {
     "dungeon": "descriptor map family m10 through m59",

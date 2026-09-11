@@ -19,7 +19,7 @@ The separate **26 missing-check flags** still lack an admitted region. Re-runnin
 ## Start with these decisions / observations
 
 1. **Euporia route (#1321):** mark the exact checks to include. No contiguous flag band is an acceptable substitute. Preserve the existing Stagefront fragment alternative via Dancing Lion or Enir Ilim access.
-2. **Furnace golems:** capture the actual c4900 placement and player play-region bucket for f65420/f65430/f65450/f65460. The bundle lacks that placement family. In particular, f65460's Cerulean report cannot be settled by its current Gravesite pin.
+2. **Furnace golems — updated 2026-09-10:** #1540 captured all eight c5170 placements; #1543 joins all sixteen rewards and corrects their regions. See `greenfield/evidence/furnace_golems/INTEGRATION.md`. Limited-consumable access for the armoured/inactive encounters remains a separate logic audit; placement alone does not settle it.
 3. **Conflicting drop identity:** f2047407980 is reported both as Logur's Beast Claw and a key-gated pot. Record the exact obtained item, flag and bucket before moving it.
 4. **Jagged Peak boundary:** f2048417980 (Black Steel Greathammer) and f2049427700/f2049427720 (Swollen Grapes) lack coordinates. A nearby boss's tile ruling does not locate these pickups; one neighboring tile demonstrably straddles regions.
 5. **Shared-flag alternatives:** f400285 and f400309 have several item lots. Test whether either collection route completes all sibling AP checks before deciding the missability or region of the whole flag.
@@ -34,9 +34,9 @@ Existing gates are called out to avoid asking you to re-decide settled work. Scr
 | Flag | Check | What remains to establish |
 |---|---|---|
 | 60500 | Talisman Pouch | At least one AP sibling has no generated sweep fallback; prioritize complete hand-route and permanent-loss review. |
-| 65430 | Cerulean-Sapping Cracked Tear | Furnace-golem family lacks c4900 placement evidence in the bundle; needs targeted game-data extraction or live observation, not an invented boss prerequisite. |
-| 65450 | Bloodsucking Cracked Tear | Furnace-golem family lacks c4900 placement evidence in the bundle; needs targeted game-data extraction or live observation, not an invented boss prerequisite. |
-| 65460 | Glovewort Crystal Tear | Furnace-golem family lacks c4900 placement evidence in the bundle; needs targeted game-data extraction or live observation, not an invented boss prerequisite. |
+| 65430 | Cerulean-Sapping Cracked Tear | Placement and award group resolved by #1540/#1543 (c5170, Cerulean). Limited-consumable access still needs its own predicate audit. |
+| 65450 | Bloodsucking Cracked Tear | Placement and award group resolved by #1540/#1543 (c5170, Cerulean). Limited-consumable access still needs its own predicate audit. |
+| 65460 | Glovewort Crystal Tear | Placement and award group resolved by #1540/#1543 (c5170, Cerulean). Limited-consumable access still needs its own predicate audit. |
 | 400031 | Lord of Blood's Favor | At least one AP sibling has no generated sweep fallback; prioritize complete hand-route and permanent-loss review. |
 | 400159 | Discarded Palace Key | Existing questline_check_gates requires Miniature Ranni for the Baleful Shadow reward when item_shuffle is active; do not restore the bypassed mansion quest chain. Check permanent-loss semantics separately. |
 | 400220 | Golden Seed | At least one AP sibling has no generated sweep fallback; prioritize complete hand-route and permanent-loss review. |

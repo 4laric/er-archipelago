@@ -39,6 +39,8 @@ and refused because the branch already existed, which is the intended guard.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Furnace golem checks:** Restore the missing Furnace Visage reward, correct Rauh, Cerulean and Castle Watering Hole reward regions, and identify all sixteen rewards by their golem encounter. Existing check IDs remain stable; applies to new rooms (#1543).
+
 ## v0.6.0.7 — 2026-09-10
 
 - **Uniform starting regions (#1548):** Set `start_region_selection: uniform` for equal odds across eligible kept base-game and DLC regions. Respects the starting-region pool and draws multiple starts without replacement. The default remains `weighted`; existing YAMLs keep their current behavior. New rooms only.

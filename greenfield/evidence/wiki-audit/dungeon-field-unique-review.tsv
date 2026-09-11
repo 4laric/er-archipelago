@@ -981,13 +981,13 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773756	unique_field_pickup	Scadu Altus	Sword of Night	400671	m61_51_44	remaining_unreviewed	0		first_independent_identity_region_source
 7773628	unique_field_pickup	Scadu Altus	Tooth Whip	2051447000	m61_51_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7771983	unique_field_pickup	Shadow Keep	Ash of War: Wall of Sparks	21027020	m61_50_48	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
-7770174	unique_field_pickup	Shadow Keep	Battlefield Priest's Cookbook [4]	68930	m61_50_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7770174	unique_field_pickup	Shadow Keep	Battlefield Priest's Cookbook [4]	68930	m61_50_47	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773655	unique_field_pickup	Shadow Keep	Fingercreeper Ashes	2053487000	m61_52_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773575	unique_field_pickup	Shadow Keep	Gaius's Greaves	2049490900	m61_49_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773642	unique_field_pickup	Shadow Keep	Golden Braid	2051477510	m61_50_47	remaining_unreviewed	0		first_independent_identity_region_source
 7773641	unique_field_pickup	Shadow Keep	Minor Erdtree	2051477500	m61_52_48	remaining_unreviewed	0		first_independent_identity_region_source
-7900199	unique_field_pickup	Shadow Keep	Rain of Fire	21027991	m61_49_48	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
-7771994	unique_field_pickup	Shadow Keep	Salza's Hood	21027991	m61_50_47	remaining_unreviewed	0		first_independent_identity_region_source
+7900199	unique_field_pickup	Shadow Keep	Rain of Fire	21027991	m61_50_48	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7771994	unique_field_pickup	Shadow Keep	Salza's Hood	21027991	m61_49_48	remaining_unreviewed	0		first_independent_identity_region_source
 7773576	unique_field_pickup	Shadow Keep	Sharpshot Talisman	2049497510	m61_50_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7774283	unique_field_pickup	Weeping	Ambush Shard	1041337100	m60_42_33	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770727	unique_field_pickup	Weeping	Ash of War: Mighty Shot	540140	m60_44_32	remaining_unreviewed	0		first_independent_identity_region_source

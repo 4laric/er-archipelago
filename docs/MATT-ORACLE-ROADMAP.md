@@ -104,12 +104,11 @@ every step: read his checkout locally, commit only our own flags, names and reas
      — whether flagged enemy drops become checks is still the product ruling this item flagged.
    - ~~Boss taxonomy (overworld / minidungeon / cave / catacomb / dragon / furnace golem) from our own
      map data, histogram-checked against his tags.~~ **DONE**: `tools/gen_boss_taxonomy.py` ->
-     `tables/boss_taxonomy.py`, 245 bosses over 11 classes, printed as report class **D**.
+     `tables/boss_taxonomy.py`, 253 bosses over 11 classes, printed as report class **D**.
      Evergaols are EMEVD-derived (the arena-seal common-event family), not a hand-typed list.
-     ONE class is still open and is emitted empty on purpose: `furnace_golem`, because no boss
-     healthbar, no `NpcName` row and no MSB in the artifact bundle leaves nothing of ours to
-     enumerate. His `furnacegolem` tag carries 16 slots, so that is a real ~10-boss family we do
-     not model. Deriving it needs c4900 placements added to the artifact bundle.
+     Furnace golems are now derived too (#1540/#1543): eight c5170 encounters, sixteen rewards,
+     joined from MSB entities through common event 90005301 to the full item-lot group.
+     The taxonomy contains 253 encounters. The earlier c4900/no-roster claim was incorrect.
    - ~~Reachability: use his 174-area graph only as a coverage counter. Author the logic
      ourselves.~~ **DONE (counter only)**: report class **E** prints `our graph reaches 30 regions
      / 56 grace-warp groups; his reaches 174 areas`, his side computed at run time and never

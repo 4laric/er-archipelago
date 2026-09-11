@@ -24,8 +24,7 @@ v0.6.0.7 or newer. Both were already true before this window opened.
 
 ## What is in it so far
 
-Nothing yet. This window was opened AT THE TAG of v0.6.0.7 with ZERO commits past it, so this file exists before its first entry does,
-which is the point of it.
+- **Furnace golem checks (#1544):** Furnace golem rewards now use the complete eight-encounter MSB census: all sixteen rewards are checks, including the previously missing Furnace Visage. Rauh, Cerulean and Castle Watering Hole rewards use their corrected regions. Existing check IDs are preserved; these changes apply to newly generated rooms (#1543).
 
 ## What carried over from v0.6.0.7
 
