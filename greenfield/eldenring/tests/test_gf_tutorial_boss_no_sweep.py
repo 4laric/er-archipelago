@@ -932,6 +932,10 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # Three visage checks follow their corrected regions (f2045467500 Rauh Base -> Ancient Ruins;
     # f2050467500/7510 Shadow Keep -> Scadu Altus). The other 22 remain in Shadow Keep;
     # removing those two members re-phases its remainder divvy. f65410 retains its old owner.
-    assert (digest, n) == ("ee2f9b23ea29b76b", 4115), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (ee2f9b23ea29b76b, 4115). The total alone will "
+    # #1538 on top of that (2026-09-11 merge): the MFG region pass re-owns ten corrected checks
+    # (six Abyssal rewards -> Midra 28000800, Sacred Blade -> 1045390800, Greathammer ->
+    # 2046410800, two Furnace Visages already Scadu Altus via #1543) with no flag gaining or
+    # losing coverage; the count stays 4115.
+    assert (digest, n) == ("3373e1635827bd49", 4115), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (3373e1635827bd49, 4115). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

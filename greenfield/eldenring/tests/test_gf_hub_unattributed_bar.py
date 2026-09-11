@@ -20,7 +20,10 @@ def test_hub_unattributed_census_is_nonempty_and_exact():
     #    Exactly one row left and none joined. The check is NOT unbarred by the move --
     #    gen_data._REGION_OVERRIDE_UNCONFIRMED_FLAGS carries it now, so it keeps the same DEFAULTED
     #    progression bar this census was giving it, by a different lever.
-    assert len(expected) == 50, "re-measure the regenerated untagged-hub census"
+    # #1538: 50 -> 49. Exactly AP7773851 / f520800 (Bloodfiend Hexer ashes)
+    # leaves the hub for Rivermouth Cave / Gravesite on native lot and event evidence.
+    # It retains its DEFAULTED progression bar; no other member changes.
+    assert len(expected) == 49, "re-measure the regenerated untagged-hub census"
 
 
 def test_hub_unattributed_checks_are_permanently_barred():

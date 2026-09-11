@@ -91108,7 +91108,8 @@
       "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-11",
       "item_name": "Aged One's Exultation",
       "matched_on": [
-        "item_name"
+        "item_name",
+        "guide_area"
       ],
       "mentioned_quantities": [],
       "missing_evidence": [
@@ -91120,7 +91121,7 @@
         7773625
       ],
       "observation_id": "walkthrough:99813a21ab5ee56df4bc",
-      "reason": "region_disagreement",
+      "reason": "area_only",
       "regions": [
         "Abyssal"
       ],
@@ -91245,7 +91246,8 @@
       "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-2",
       "item_name": "Madding Hand",
       "matched_on": [
-        "item_name"
+        "item_name",
+        "guide_area"
       ],
       "mentioned_quantities": [],
       "missing_evidence": [
@@ -91257,7 +91259,7 @@
         7773646
       ],
       "observation_id": "walkthrough:fe430d9435fd73fa8dd4",
-      "reason": "region_disagreement",
+      "reason": "area_only",
       "regions": [
         "Abyssal"
       ],
@@ -93930,6 +93932,50 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d4-14"
+    },
+    {
+      "all_candidate_ids": [
+        7773851
+      ],
+      "candidate_ids": [
+        7773851
+      ],
+      "competing_observation_count": 1,
+      "context_labels": [
+        "Bloodfiend Hexer's Ashes",
+        "Chief Bloodfiend"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d4-18",
+      "item_name": "Bloodfiend Hexer's Ashes",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773851
+      ],
+      "observation_id": "walkthrough:790d825506f1e0b133ff",
+      "reason": "area_only",
+      "regions": [
+        "Cerulean",
+        "Gravesite"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "ellac-river",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d4-18"
     },
     {
       "all_candidate_ids": [
@@ -100329,7 +100375,8 @@
       "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d1-22",
       "item_name": "Black Steel Greathammer",
       "matched_on": [
-        "item_name"
+        "item_name",
+        "guide_area"
       ],
       "mentioned_quantities": [],
       "missing_evidence": [
@@ -100341,7 +100388,7 @@
         7773475
       ],
       "observation_id": "walkthrough:829f1600c178d79b296d",
-      "reason": "region_disagreement",
+      "reason": "area_only",
       "regions": [
         "Gravesite"
       ],
@@ -105504,7 +105551,8 @@
       "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w2-42",
       "item_name": "Ash of War: Sacred Blade",
       "matched_on": [
-        "item_name"
+        "item_name",
+        "guide_area"
       ],
       "mentioned_quantities": [],
       "missing_evidence": [
@@ -105516,7 +105564,7 @@
         7770722
       ],
       "observation_id": "walkthrough:ca5d6483afacfdf8d3d6",
-      "reason": "region_disagreement",
+      "reason": "area_only",
       "regions": [
         "Limgrave"
       ],
@@ -156529,168 +156577,6 @@
     },
     {
       "all_candidate_ids": [
-        7772011,
-        7772013,
-        7772019,
-        7773516,
-        7773517,
-        7773581,
-        7773582,
-        7773626
-      ],
-      "candidate_ids": [
-        7772011,
-        7772013,
-        7772019,
-        7773582
-      ],
-      "competing_observation_count": 6,
-      "context_labels": [
-        "Swollen Grape"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-13",
-      "item_name": "Swollen Grape",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7772011,
-        7772013,
-        7772019
-      ],
-      "observation_id": "walkthrough:8f2a578c1286d761fe5c",
-      "reason": "area_only",
-      "regions": [
-        "Abyssal"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "abyssal-woods",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d16-13"
-    },
-    {
-      "all_candidate_ids": [
-        7772011,
-        7772013,
-        7772019,
-        7773516,
-        7773517,
-        7773581,
-        7773582,
-        7773626
-      ],
-      "candidate_ids": [
-        7772011,
-        7772013,
-        7772019,
-        7773582
-      ],
-      "competing_observation_count": 6,
-      "context_labels": [
-        "Swollen Grape"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-14",
-      "item_name": "Swollen Grape",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7772011,
-        7772013,
-        7772019
-      ],
-      "observation_id": "walkthrough:76ce3e7ed7e6e67cd0c0",
-      "reason": "area_only",
-      "regions": [
-        "Abyssal"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "abyssal-woods",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d16-14"
-    },
-    {
-      "all_candidate_ids": [
-        7772011,
-        7772013,
-        7772019,
-        7773516,
-        7773517,
-        7773581,
-        7773582,
-        7773626
-      ],
-      "candidate_ids": [
-        7772011,
-        7772013,
-        7772019,
-        7773582
-      ],
-      "competing_observation_count": 6,
-      "context_labels": [
-        "Swollen Grape"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-19",
-      "item_name": "Swollen Grape",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7772011,
-        7772013,
-        7772019
-      ],
-      "observation_id": "walkthrough:57f4be6a21d2b9fe3f8b",
-      "reason": "area_only",
-      "regions": [
-        "Abyssal"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "abyssal-woods",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d16-19"
-    },
-    {
-      "all_candidate_ids": [
         7771750,
         7771773,
         7771789,
@@ -158339,172 +158225,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d11-9"
-    },
-    {
-      "all_candidate_ids": [
-        7772011,
-        7772013,
-        7772019,
-        7773516,
-        7773517,
-        7773581,
-        7773582,
-        7773626
-      ],
-      "candidate_ids": [
-        7772011,
-        7772013,
-        7772019,
-        7773582
-      ],
-      "competing_observation_count": 6,
-      "context_labels": [
-        "Swollen Grape"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d17-1",
-      "item_name": "Swollen Grape",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7772011,
-        7772013,
-        7772019
-      ],
-      "observation_id": "walkthrough:3d62b4a71813cf25d228",
-      "reason": "area_only",
-      "regions": [
-        "Abyssal"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "midras-manse",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d17-1"
-    },
-    {
-      "all_candidate_ids": [
-        7772011,
-        7772013,
-        7772019,
-        7773516,
-        7773517,
-        7773581,
-        7773582,
-        7773626
-      ],
-      "candidate_ids": [
-        7772011,
-        7772013,
-        7772019,
-        7773582
-      ],
-      "competing_observation_count": 6,
-      "context_labels": [
-        "Swollen Grape x2"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d17-13",
-      "item_name": "Swollen Grape",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [
-        2
-      ],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7772011,
-        7772013,
-        7772019
-      ],
-      "observation_id": "walkthrough:5be7b7a214c8dfafa925",
-      "reason": "area_only",
-      "regions": [
-        "Abyssal"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "midras-manse",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d17-13"
-    },
-    {
-      "all_candidate_ids": [
-        7772011,
-        7772013,
-        7772019,
-        7773516,
-        7773517,
-        7773581,
-        7773582,
-        7773626
-      ],
-      "candidate_ids": [
-        7772011,
-        7772013,
-        7772019,
-        7773582
-      ],
-      "competing_observation_count": 6,
-      "context_labels": [
-        "Swollen Grape x2"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d17-4",
-      "item_name": "Swollen Grape",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [
-        2
-      ],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7772011,
-        7772013,
-        7772019
-      ],
-      "observation_id": "walkthrough:43046a54e053a789e910",
-      "reason": "area_only",
-      "regions": [
-        "Abyssal"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "midras-manse",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d17-4"
     },
     {
       "all_candidate_ids": [
@@ -193529,6 +193249,192 @@
     },
     {
       "all_candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773582,
+        7773626
+      ],
+      "candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773582,
+        7773626
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Swollen Grape"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-13",
+      "item_name": "Swollen Grape",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773626
+      ],
+      "observation_id": "walkthrough:8f2a578c1286d761fe5c",
+      "reason": "area_only",
+      "regions": [
+        "Abyssal"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "abyssal-woods",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d16-13"
+    },
+    {
+      "all_candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773582,
+        7773626
+      ],
+      "candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773582,
+        7773626
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Swollen Grape"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-14",
+      "item_name": "Swollen Grape",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773626
+      ],
+      "observation_id": "walkthrough:76ce3e7ed7e6e67cd0c0",
+      "reason": "area_only",
+      "regions": [
+        "Abyssal"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "abyssal-woods",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d16-14"
+    },
+    {
+      "all_candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773582,
+        7773626
+      ],
+      "candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773582,
+        7773626
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Swollen Grape"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d16-19",
+      "item_name": "Swollen Grape",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773626
+      ],
+      "observation_id": "walkthrough:57f4be6a21d2b9fe3f8b",
+      "reason": "area_only",
+      "regions": [
+        "Abyssal"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "abyssal-woods",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d16-19"
+    },
+    {
+      "all_candidate_ids": [
         7770967,
         7770981,
         7770992,
@@ -193950,6 +193856,196 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d13-50"
+    },
+    {
+      "all_candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773582,
+        7773626
+      ],
+      "candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773582,
+        7773626
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Swollen Grape"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d17-1",
+      "item_name": "Swollen Grape",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773626
+      ],
+      "observation_id": "walkthrough:3d62b4a71813cf25d228",
+      "reason": "area_only",
+      "regions": [
+        "Abyssal"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "midras-manse",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d17-1"
+    },
+    {
+      "all_candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773582,
+        7773626
+      ],
+      "candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773582,
+        7773626
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Swollen Grape x2"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d17-13",
+      "item_name": "Swollen Grape",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [
+        2
+      ],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773626
+      ],
+      "observation_id": "walkthrough:5be7b7a214c8dfafa925",
+      "reason": "area_only",
+      "regions": [
+        "Abyssal"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "midras-manse",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d17-13"
+    },
+    {
+      "all_candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773582,
+        7773626
+      ],
+      "candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773582,
+        7773626
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Swollen Grape x2"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d17-4",
+      "item_name": "Swollen Grape",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [
+        2
+      ],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772011,
+        7772013,
+        7772019,
+        7773516,
+        7773517,
+        7773581,
+        7773626
+      ],
+      "observation_id": "walkthrough:43046a54e053a789e910",
+      "reason": "area_only",
+      "regions": [
+        "Abyssal"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "midras-manse",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d17-4"
     },
     {
       "all_candidate_ids": [
@@ -224321,17 +224417,17 @@
   "schema_version": 1,
   "summary": {
     "by_reason": {
-      "area_only": 2229,
+      "area_only": 2234,
       "one_landmark_candidate": 9,
-      "region_disagreement": 532,
+      "region_disagreement": 528,
       "shared_landmark": 3,
       "source_area_unmapped": 76
     },
-    "held_checks_with_new_family_candidates": 2654,
-    "item_mentions": 4209,
+    "held_checks_with_new_family_candidates": 2659,
+    "item_mentions": 4210,
     "limitations": "Suggestions only. Linked items can be mentions, not acquisitions. Guide area and catalog anchors are not independent proof of AP ownership. No quantity, position, mechanism or access is inferred.",
     "one_source_checks_with_second_family_candidates": 351,
-    "review_observations": 2849,
+    "review_observations": 2850,
     "schema_version": 1,
     "source_steps": 3928,
     "trusted_promotions": 0

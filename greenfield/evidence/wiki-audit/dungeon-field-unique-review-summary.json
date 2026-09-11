@@ -3,17 +3,17 @@
     "unique_dungeon_pickup": {
       "audited_one_family": 129,
       "conflicted": 0,
-      "held": 245,
-      "remaining_unreviewed": 116,
-      "total": 481,
+      "held": 247,
+      "remaining_unreviewed": 118,
+      "total": 483,
       "trusted": 236
     },
     "unique_field_pickup": {
       "audited_one_family": 191,
       "conflicted": 0,
-      "held": 372,
-      "remaining_unreviewed": 181,
-      "total": 534,
+      "held": 370,
+      "remaining_unreviewed": 179,
+      "total": 532,
       "trusted": 162
     }
   },

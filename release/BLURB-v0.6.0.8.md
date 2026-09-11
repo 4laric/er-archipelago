@@ -25,6 +25,7 @@ v0.6.0.7 or newer. Both were already true before this window opened.
 ## What is in it so far
 
 - **Furnace golem checks (#1544):** Furnace golem rewards now use the complete eight-encounter MSB census: all sixteen rewards are checks, including the previously missing Furnace Visage. Rauh, Cerulean and Castle Watering Hole rewards use their corrected regions. Existing check IDs are preserved; these changes apply to newly generated rooms (#1543).
+- **Region evidence pass (#1538):** Twelve more checks now use corrected regions in new rooms, backed by MapForGoblins placements and route evidence. These include Sacred Blade in Limgrave, the Church of Consolation greathammer in Gravesite, six Abyssal Woods rewards, Crimson-Sapping Cracked Tear in upper Rauh, Bloodfiend Hexer ashes in Gravesite and two Scadu Altus Furnace Visages. Their region locks and sweep owners follow those homes.
 
 ## What carried over from v0.6.0.7
 

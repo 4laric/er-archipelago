@@ -54,12 +54,11 @@ flag	ap_id	our_region	basis	status	reviewer	note
 400645	7900094	Enir Ilim	second-source-region-disagrees	open		
 400645	7900095	Enir Ilim	second-source-region-disagrees	open		
 400722	7770649	Gravesite	second-source-region-disagrees	open		
-520800	7773851	Roundtable Hold	second-source-dlc-membership-disagrees	open		
+520800	7773851	Gravesite	second-source-dlc-membership-disagrees	confirmed-ours	Codex MFG evidence pass	Corrected using exact native lot and independent route; see docs/ORACLE-MFG-REVIEW-2026-09-10.md.
 530385	7770712	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
 530385	7900148	Mt. Gelmir	second-source-region-disagrees	confirmed-ours	Codex	Retain the documented grace-ground/access ruling in gen_data.FLAG_REGION_OVERRIDE and region_overrides.tsv.
 530865	7773870	Gravesite	second-source-region-disagrees	open		
 530950	7773876	Roundtable Hold	second-source-dlc-membership-disagrees	open		
-540118	7770722	Caelid	second-source-region-disagrees	open		
 540512	7773889	Mountaintops of the Giants	second-source-region-disagrees	open		
 540902	7773894	Ensis	second-source-region-disagrees	open		
 540920	7774637	Ensis	second-source-region-disagrees	open		
@@ -204,24 +203,15 @@ flag	ap_id	our_region	basis	status	reviewer	note
 2047477995	7773453	Ancient Ruins	second-source-region-disagrees	open		
 2048407000	7773467	Cerulean	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
 2048407020	7773469	Cerulean	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
-2048417980	7773475	Jagged Peak	second-source-region-disagrees	open		
 2048447010	7773485	Ensis	second-source-region-disagrees	open		
 2048447020	7773486	Ensis	second-source-region-disagrees	open		
 2048447040	7773488	Ensis	second-source-region-disagrees	open		
 2048447080	7773492	Ensis	second-source-region-disagrees	open		
 2048447500	7773493	Ensis	second-source-region-disagrees	open		
-2049427700	7773516	Jagged Peak	second-source-region-disagrees	open		
-2049427720	7773517	Jagged Peak	second-source-region-disagrees	open		
 2050407000	7773579	Shadow Keep	second-source-region-disagrees	open		
 2050417010	7773580	Scadu Altus	second-source-region-disagrees	open		
-2050417700	7773581	Scadu Altus	second-source-region-disagrees	open		
-2050467500	7773613	Shadow Keep	second-source-region-disagrees	open		
-2050467510	7773614	Shadow Keep	second-source-region-disagrees	open		
 2051417000	7773624	Scadu Altus	second-source-region-disagrees	open		
-2051417700	7773625	Scadu Altus	second-source-region-disagrees	open		
-2051417710	7773626	Scadu Altus	second-source-region-disagrees	open		
 2051467020	7773635	Scadu Altus	second-source-region-disagrees	confirmed-ours	Codex	All available placement maps covered by exact point-in-volume rows agreeing with the current region.
 2051477010	7773638	Scadu Altus	second-source-region-disagrees	open		
 2051477020	7773639	Scadu Altus	second-source-region-disagrees	open		
 2051477030	7773640	Scadu Altus	second-source-region-disagrees	open		
-2052427500	7773646	Scadu Altus	second-source-region-disagrees	open		

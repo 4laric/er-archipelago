@@ -40,6 +40,7 @@ and refused because the branch already existed, which is the intended guard.
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
 - **Furnace golem checks:** Restore the missing Furnace Visage reward, correct Rauh, Cerulean and Castle Watering Hole reward regions, and identify all sixteen rewards by their golem encounter. Existing check IDs remain stable; applies to new rooms (#1543).
+- **Region evidence pass (#1538):** Corrected 12 checks using native MapForGoblins placements and route evidence, including Sacred Blade, Black Steel Greathammer, Abyssal Woods enemy rewards, Crimson-Sapping Cracked Tear, Bloodfiend Hexer ashes and two Furnace Visages. Region locks and sweep ownership follow the corrected homes in new rooms; AP IDs are unchanged.
 
 ## v0.6.0.7 — 2026-09-10
 
@@ -47,6 +48,7 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **Clearer release downloads (#1546):** The six optional HTML tools now share `Optional-Offline-Tools.zip`, with a README explaining each tool. Download the versioned client bundle to play, or `eldenring.apworld` to generate; the optional tools ZIP contains no DLL. Existing releases stay unchanged.
 
 - **ALttPR generation repair tool (#1542):** An optional, source-hash-checked helper repairs incorrect duplicate-item removal in the supplied ALttPR 1.5.0 package. This fixes the mixed-room pool assertion reported while generating with ER 0.6.0.6. Elden Ring placement logic is unchanged; use the helper only for the affected custom ALttPR package.
+
 
 - **Quest reward placement:** Glintstone Kris, Prosthesis-Wearer Heirloom, Golden Lion Shield and Gourmet Scorpion Stew now respect
   Protect Missable Locations. Their NPC quest prerequisites were hidden behind collection-latch
