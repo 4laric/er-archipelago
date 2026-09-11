@@ -16,8 +16,10 @@ The narrative — what this project is and what v0.2 brings — lives in
   not need it.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
-- **Profile/assets:** No action at the open. If an entry below changes the bundled MapForGoblins
-  build or the AP Flower package, it will say so there.
+- **Profile/assets:** Reinstall or replace the complete client bundle for the map speedup. Manual installs
+  replace `MapForGoblins.dll` and `MapForGoblins.ini`, and add `MapForGoblins.upstream.dll`
+  and `MapForGoblins.AP.ini` beside them. The launcher still loads only `MapForGoblins.dll`.
+  AP filters now live in `MapForGoblins.AP.ini`; defaults are checks-only and in-logic-only.
 
 Window opened AT THE TAG of v0.6.0.8 with ZERO commits past it.
 
@@ -34,7 +36,18 @@ Opened BY THE WORKFLOW for the second time running, on a single tag delivery thi
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.8 in this same commit.
 
-Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+### Map performance
+
+- MapForGoblins now uses the pinned upstream 2.1.3 native renderer through our AP adapter
+  (MFG #15), replacing the older fork renderer. The live test reported that map lag was gone;
+  no numeric FPS claim is made. AP check filtering, in-logic filtering, hover lookup and
+  expired-client fallback remain available. Map close/reopen and layer-switch tests passed.
+- The release builds the adapter and verifies the upstream archive and DLL hashes, then ships
+  both DLLs, both settings files and their license notices as one checked package. The updater
+  installs the companion DLL and preserves existing AP settings on subsequent updates.
+- AP filter controls move to `MapForGoblins.AP.ini` (reloaded while running); upstream map
+  settings remain in `MapForGoblins.ini`. The old fork's AP settings menu is no longer present.
+  Existing seeds and logic rules are unchanged; the reported map/logic discrepancy is separate.
 
 ## v0.6.0.8 — 2026-09-11
 
@@ -66,8 +79,10 @@ clients #675 through #678 above.
   not need it.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
-- **Profile/assets:** No action at the open. If an entry below changes the bundled MapForGoblins
-  build or the AP Flower package, it will say so there.
+- **Profile/assets:** Reinstall or replace the complete client bundle for the map speedup. Manual installs
+  replace `MapForGoblins.dll` and `MapForGoblins.ini`, and add `MapForGoblins.upstream.dll`
+  and `MapForGoblins.AP.ini` beside them. The launcher still loads only `MapForGoblins.dll`.
+  AP filters now live in `MapForGoblins.AP.ini`; defaults are checks-only and in-logic-only.
 
 Window opened AT THE TAG of v0.6.0.7 with ZERO commits past it.
 
@@ -132,8 +147,10 @@ commit range between them is clients #673 above.
   not need it.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
-- **Profile/assets:** No action at the open. If an entry below changes the bundled MapForGoblins
-  build or the AP Flower package, it will say so there.
+- **Profile/assets:** Reinstall or replace the complete client bundle for the map speedup. Manual installs
+  replace `MapForGoblins.dll` and `MapForGoblins.ini`, and add `MapForGoblins.upstream.dll`
+  and `MapForGoblins.AP.ini` beside them. The launcher still loads only `MapForGoblins.dll`.
+  AP filters now live in `MapForGoblins.AP.ini`; defaults are checks-only and in-logic-only.
 
 Window opened AT THE TAG of v0.6.0.6 with ZERO commits past it — the tidy shape, and worth
 naming because the last window did not have it: v0.6.0.6 opened two commits past v0.6.0.5 with

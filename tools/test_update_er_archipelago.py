@@ -111,6 +111,27 @@ class SwapTests(unittest.TestCase):
             self.assertNotIn("MapForGoblins.ini", backed)
             self.assertIn("MapForGoblins.dll", backed)
 
+    def test_adapter_pair_installed_and_ap_preferences_preserved(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            install, new = self._fixture(Path(tmp))
+            personal = b'[AP]\nchecks_only=0\n'
+            (install / 'MapForGoblins.AP.ini').write_bytes(personal)
+            for name in ('MapForGoblins.dll', 'MapForGoblins.ini', 'MapForGoblins.upstream.dll', 'MapForGoblins.AP.ini'):
+                (new / name).write_bytes(b'new ' + name.encode())
+            upd.swap_in(install, new, '0.6.0.9')
+            self.assertEqual((install / 'MapForGoblins.AP.ini').read_bytes(), personal)
+            for name in ('MapForGoblins.dll', 'MapForGoblins.upstream.dll'):
+                self.assertEqual((install / name).read_bytes(), (new / name).read_bytes())
+
+    def test_incomplete_adapter_pair_refused_before_swap(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            install, new = self._fixture(Path(tmp))
+            (new / 'MapForGoblins.AP.ini').write_bytes(b'[AP]')
+            with self.assertRaisesRegex(upd.UpdateError, 'incomplete MapForGoblins'):
+                upd.swap_in(install, new, '0.6.0.9')
+            self.assertEqual((install / upd.DLL_NAME).read_bytes(), b'old dll')
+            self.assertFalse(list(install.glob('.er-updater-backup-*')))
+
     def test_mfg_first_install_receives_supplied_preset(self):
         with tempfile.TemporaryDirectory() as tmp:
             install, new = self._fixture(Path(tmp))

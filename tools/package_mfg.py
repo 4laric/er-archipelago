@@ -20,6 +20,20 @@ PRESET = {'Loot': {'show_material_nodes': 'false', 'show_crafting_materials': 't
           'Archipelago': {'ap_checks_only': 'true', 'ap_progression_only': 'false',
                          'ap_in_logic_only': 'true'}}
 MANIFEST = 'MFG-PROVENANCE.json'
+ADAPTER_PRESET = {'AP': {'checks_only': '1', 'progression_only': '0', 'in_logic_only': '1'}}
+UPSTREAM_SHA256 = 'ed984d5bb3ee49e304ab02e5ac1bc1bfc3a6368c2bc8743f85edefe2a73f2ea3'
+ADAPTER_FILES = {'upstream_sha256': 'MapForGoblins.upstream.dll',
+                 'ap_ini_sha256': 'MapForGoblins.AP.ini',
+                 'adapter_license_sha256': 'licenses/adapter.txt',
+                 'minhook_license_sha256': 'licenses/minhook.txt'}
+
+
+def artifact_files(lock):
+    return FILES | (ADAPTER_FILES if lock['schema_version'] == 2 else {})
+
+
+def identity(lock):
+    return IDENTITY + (('upstream_version', 'upstream_sha256') if lock['schema_version'] == 2 else ())
 
 
 class MfgError(ValueError):
@@ -32,8 +46,11 @@ def digest(path: Path) -> str:
 
 def load_lock(path: Path) -> dict:
     lock = json.loads(path.read_text(encoding='utf-8-sig'))
-    if lock.get('schema_version') != 1 or lock.get('profile') != 'vanilla':
-        raise MfgError('MFG lock requires schema 1 and vanilla profile')
+    if lock.get('schema_version') not in (1, 2) or lock.get('profile') != 'vanilla':
+        raise MfgError('MFG lock requires schema 1 or 2 and vanilla profile')
+    if lock['schema_version'] == 2 and (lock.get('upstream_version') != '2.1.3' or
+            lock.get('upstream_sha256') != UPSTREAM_SHA256):
+        raise MfgError('Unsupported upstream renderer pin')
     if lock.get('source_repository') != 'https://github.com/4laric/ERR-MapForGoblins-DLL':
         raise MfgError('MFG source repository is not the approved fork')
     for key, size in [('source_commit', 40), ('input_sha256', 64)]:
@@ -53,11 +70,11 @@ def validate_dll(path: Path) -> None:
         raise MfgError('MFG binary must be an x64 DLL')
 
 
-def validate_ini(path: Path) -> None:
+def validate_ini(path: Path, preset=None) -> None:
     ini = configparser.ConfigParser(interpolation=None, inline_comment_prefixes=('#', ';'))
     try:
         ini.read_string(path.read_text(encoding='utf-8-sig'))
-        for section, fields in PRESET.items():
+        for section, fields in (PRESET if preset is None else preset).items():
             for key, value in fields.items():
                 if not ini.has_option(section, key) or ini[section][key].strip().lower() != value:
                     raise MfgError(f'MFG AP preset requires [{section}] {key}={value}')
@@ -65,13 +82,22 @@ def validate_ini(path: Path) -> None:
         raise MfgError('Invalid MFG INI: ' + str(exc)) from exc
 
 
-def validate_files(directory: Path, staged=False) -> None:
-    for name in ('MapForGoblins.dll', 'MapForGoblins.ini', 'MFG-LICENSE.txt' if staged else 'LICENSE.txt'):
+def validate_files(directory: Path, lock, staged=False) -> None:
+    for name in artifact_files(lock).values():
+        if staged and name == 'LICENSE.txt':
+            name = 'MFG-LICENSE.txt'
         path = directory / name
         if not path.is_file() or path.is_symlink():
             raise MfgError('Missing or linked MFG artifact: ' + name)
     validate_dll(directory / 'MapForGoblins.dll')
-    validate_ini(directory / 'MapForGoblins.ini')
+    if lock['schema_version'] == 2:
+        validate_ini(directory / 'MapForGoblins.ini', {})
+        validate_ini(directory / 'MapForGoblins.AP.ini', ADAPTER_PRESET)
+        validate_dll(directory / 'MapForGoblins.upstream.dll')
+        if digest(directory / 'MapForGoblins.upstream.dll') != lock['upstream_sha256']:
+            raise MfgError('Upstream renderer hash mismatch')
+    else:
+        validate_ini(directory / 'MapForGoblins.ini')
     license_text = (directory / ('MFG-LICENSE.txt' if staged else 'LICENSE.txt')).read_text(encoding='utf-8-sig')
     if 'VirusAlex' not in license_text or 'Permission is hereby granted' not in license_text:
         raise MfgError('MFG license notice missing')
@@ -80,21 +106,21 @@ def validate_files(directory: Path, staged=False) -> None:
 def record_artifact(directory: Path, lock_path: Path) -> dict:
     """Record trusted build output; build workflow must check out the lock commit."""
     lock = load_lock(lock_path)
-    validate_files(directory)
-    manifest = {key: lock[key] for key in IDENTITY}
-    manifest.update({key: digest(directory / name) for key, name in FILES.items()})
+    validate_files(directory, lock)
+    manifest = {key: lock[key] for key in identity(lock)}
+    manifest.update({key: digest(directory / name) for key, name in artifact_files(lock).items()})
     (directory / MANIFEST).write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
     return manifest
 
 
 def validate_artifact(directory: Path, lock_path: Path, staged=False) -> dict:
     lock = load_lock(lock_path)
-    validate_files(directory, staged)
+    validate_files(directory, lock, staged)
     manifest = json.loads((directory / MANIFEST).read_text(encoding='utf-8-sig'))
-    for key in IDENTITY:
+    for key in identity(lock):
         if manifest.get(key) != lock[key]:
             raise MfgError('MFG provenance does not match lock: ' + key)
-    for key, name in FILES.items():
+    for key, name in artifact_files(lock).items():
         if staged and name == 'LICENSE.txt':
             name = 'MFG-LICENSE.txt'
         if manifest.get(key) != digest(directory / name):
@@ -112,6 +138,8 @@ def configured_profile(text: str, require=False) -> str:
         path = native.get('path')
         if not isinstance(path, str):
             raise MfgError('Native path must be a string')
+        if PureWindowsPath(path).name.lower() == 'mapforgoblins.upstream.dll':
+            raise MfgError('Upstream renderer must be loaded only by the adapter')
         if PureWindowsPath(path).name.lower() == 'mapforgoblins.dll':
             found.append(native)
     if len(found) > 1:
@@ -131,8 +159,9 @@ def stage_mfg(artifact_dir: Path, me3_dir: Path, lock_path: Path) -> dict:
     profile = me3_dir / 'ap.me3'
     text = configured_profile(profile.read_text(encoding='utf-8-sig'))
     # Validate the complete inputs/profile before copying; exact allowlist only.
-    for source, target in [('MapForGoblins.dll', 'MapForGoblins.dll'), ('MapForGoblins.ini', 'MapForGoblins.ini'),
-                           ('LICENSE.txt', 'MFG-LICENSE.txt'), (MANIFEST, MANIFEST)]:
+    for source in (*artifact_files(load_lock(lock_path)).values(), MANIFEST):
+        target = 'MFG-LICENSE.txt' if source == 'LICENSE.txt' else source
+        (me3_dir / target).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(artifact_dir / source, me3_dir / target)
     profile.write_text(text, encoding='utf-8')
     validate_staged_mfg(me3_dir, lock_path)

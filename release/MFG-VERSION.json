@@ -1,12 +1,14 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "source_repository": "https://github.com/4laric/ERR-MapForGoblins-DLL",
-  "source_commit": "c015cb3fce6195dd39e489a6c1263b50ea55a75e",
+  "source_commit": "bcf2af45b40cb9070e7a3a48dae71d708920b884",
   "profile": "vanilla",
-  "input_sha256": "0a7b8fa931609fe0d778b356fff5259e150d667a0ee2c8daeed38c4285fddc39",
+  "input_sha256": "44ffc14fa56544d821841e40b96e582499043982abcab39efe3b1df6155e6229",
   "input_release": {
     "repository": "4laric/er-ap-icon-private",
-    "tag": "mfg-vanilla-transfer-20260905",
-    "asset": "mfg-vanilla-inputs-20260905.zip"
-  }
+    "tag": "mfg-upstream-2.1.3",
+    "asset": "Vanilla - MapForGoblins - DLL - v2.1.3.zip"
+  },
+  "upstream_version": "2.1.3",
+  "upstream_sha256": "ed984d5bb3ee49e304ab02e5ac1bc1bfc3a6368c2bc8743f85edefe2a73f2ea3"
 }

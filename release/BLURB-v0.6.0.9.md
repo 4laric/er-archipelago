@@ -1,7 +1,6 @@
-# v0.6.0.9 — release blurb (draft)
+# v0.6.0.9 — faster maps
 
-_Draft. Written as the window fills, not at tag time -- the moment a change lands is the
-only moment anyone remembers why it mattered._
+The map speedup is here: the bundle now runs MapForGoblins 2.1.3 with our AP filtering and hover adapter. The live test reported that the lag was gone.
 
 ## Can I update the client during a run?
 
@@ -14,27 +13,29 @@ and main-menu delivery fixes need v0.6.0.8 or newer.
 
 ## What you need to update
 
-- **Client:** **Optional** — unless your game is on Elden Ring 2.7.1.0 (v0.6.0.6 or newer
-  required) or you want Respec (v0.6.0.7+) or the v0.6.0.8 reconnect fixes.
+- **Client:** Optional — update the complete bundle to get the map speedup. Compatible with existing runs.
 - **APWorld:** Host-only — install v0.6.0.9 when generating a new room once it ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
-- **Profile/assets:** No action so far. If an entry below moves the MapForGoblins build or the AP
-  Flower package, this line changes with it.
+- **Profile/assets:** Reinstall or replace the map files. Keep the two MapForGoblins DLLs and two INI files together in `me3/`.
+  Manual swaps replace `MapForGoblins.dll` and `MapForGoblins.ini`, and add
+  `MapForGoblins.upstream.dll` and `MapForGoblins.AP.ini`. No launcher or Flower change is needed.
 
 ## What is in it so far
 
-Nothing yet. This window was opened AT THE TAG of v0.6.0.8 with ZERO commits past it, so this file exists before its first entry does,
-which is the point of it.
+The older fork renderer has been replaced with the pinned upstream 2.1.3 renderer. Our adapter
+preserves AP filtering and hover lookup. Filtering, client timeout fallback, repeated map
+close/reopen and underground transitions were exercised in game.
+
+AP filter settings now live in `MapForGoblins.AP.ini`, with checks-only and in-logic-only enabled
+by default. Edit that file to change them; it reloads while the game runs. The old AP map menu
+is gone. Normal upstream settings remain in `MapForGoblins.ini`.
+
+This release changes map rendering, not reachability rules. The reported checks that disagree
+with the map still need a separate logic investigation.
 
 ## What carried over from v0.6.0.8
 
 Nothing is owed. Both v0.6.0.8 release workflows succeeded on `f5257eb9`, the window opened at
 that tag with no commits past it, every v0.6.0.8 entry sits under its own heading, and this time
 the tag was delivered once, so the release page carries a single client bundle.
-
-## For whoever writes the real one
-
-The v0.4.3 blurb is the model: lead with what changed at the table, not with the option
-name. Its opening line -- "You can get BK'ed now, and that is the point" -- says what a
-player will feel before it says what was built, and that is the right order.
