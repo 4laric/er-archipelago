@@ -118,7 +118,7 @@ ME3_ALLOW = ("ap.me3", "eldenring_archipelago.dll", "check_lots_table.json",
              "shoplineup_flags.json")
 
 # The only binary we ship. Anything else matching *.dll/*.exe/*.asi in the stage is a hard failure.
-OUR_BINARIES = ("eldenring_archipelago.dll", "MapForGoblins.dll")
+OUR_BINARIES = ("eldenring_archipelago.dll", "MapForGoblins.dll", "MapForGoblins.upstream.dll")
 
 DOCS = [
     ("release/LICENSE", True),
@@ -376,7 +376,7 @@ def gate_stage(stage_dir: str, unofficial: bool, version: str = "") -> None:
             # case-sensitive and `Eldenring_Archipelago.dll` newly trips this gate.
             if low.endswith((".dll", ".exe", ".asi")) and (
                 low not in [b.lower() for b in OUR_BINARIES]
-                or (low == "mapforgoblins.dll" and Path(root).resolve() != Path(me3).resolve())
+                or (low in ("mapforgoblins.dll", "mapforgoblins.upstream.dll") and Path(root).resolve() != Path(me3).resolve())
             ):
                 foreign.append(os.path.relpath(os.path.join(root, f), stage_dir))
     if leaked:
