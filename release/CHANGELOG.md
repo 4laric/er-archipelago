@@ -3,11 +3,50 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.6.0.7 — 2026-09-09
+## v0.6.0.8 — 2026-09-10
+
+### What you need to update
+
+- **Client:** **Optional.** `CONTRACT_HASH` has not moved since v0.6.0.3, so a v0.6.0.3 through
+  v0.6.0.7 client plays every seed this window generates and a v0.6.0.8 client plays every seed
+  those apworlds generated. Two standing exceptions, neither new here: **on Elden Ring 2.7.1.0 you
+  need at least a v0.6.0.6 client** (version gate, a game-binary ruling), and the **Respec overlay
+  action needs at least a v0.6.0.7 client**.
+- **APWorld:** Host-only — install v0.6.0.8 when generating a new room once it ships. Players do
+  not need it.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — a fixpack never strands a running seed.
+- **Profile/assets:** No action at the open. If an entry below changes the bundled MapForGoblins
+  build or the AP Flower package, it will say so there.
+
+Window opened AT THE TAG of v0.6.0.7 with ZERO commits past it.
+
+`CONTRACT_HASH` is `613fb438`, read by loading `contract.py` at the open: unmoved since v0.6.0.3,
+so every 0.6.0-line client and apworld handshake with each other across this window.
+
+The version moved, so the client half moved with it: clients PR #674 "Stamp the paired client for
+the v0.6.0.8 window" moves the three client sites to `0.6.0.8`, and the gitlink rides in this same
+commit (AGENTS §7). #674 branches from client main at `060ca1b5`, which is the pinned commit, so
+the gitlink advances by the stamp alone.
+
+Opened BY THE WORKFLOW for the first time: `.github/workflows/open-window.yaml` ran to completion
+on the v0.6.0.7 tag after #1535 pointed it at `ICON_REPO_TOKEN`, ending the four-window streak of
+opening by hand. It opened both halves (this PR and clients #674) and left the five rulings above
+as open-marker placeholders for a person to rule on; the tag push was delivered twice by GitHub, so a second run started
+and refused because the branch already existed, which is the intended guard.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.6.0.7 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
 - **Furnace golem checks:** Restore the missing Furnace Visage reward, correct Rauh, Cerulean and Castle Watering Hole reward regions, and identify all sixteen rewards by their golem encounter. Existing check IDs remain stable; applies to new rooms (#1543).
 
-- **ALttPR generation repair tool (#1541):** An optional, source-hash-checked helper repairs incorrect duplicate-item removal in the supplied ALttPR 1.5.0 package. This fixes the mixed-room pool assertion reported while generating with ER 0.6.0.6. Elden Ring placement logic is unchanged; use the helper only for the affected custom ALttPR package.
+## v0.6.0.7 — 2026-09-10
+
+- **Uniform starting regions (#1548):** Set `start_region_selection: uniform` for equal odds across eligible kept base-game and DLC regions. Respects the starting-region pool and draws multiple starts without replacement. The default remains `weighted`; existing YAMLs keep their current behavior. New rooms only.
+- **Clearer release downloads (#1546):** The six optional HTML tools now share `Optional-Offline-Tools.zip`, with a README explaining each tool. Download the versioned client bundle to play, or `eldenring.apworld` to generate; the optional tools ZIP contains no DLL. Existing releases stay unchanged.
+
+- **ALttPR generation repair tool (#1542):** An optional, source-hash-checked helper repairs incorrect duplicate-item removal in the supplied ALttPR 1.5.0 package. This fixes the mixed-room pool assertion reported while generating with ER 0.6.0.6. Elden Ring placement logic is unchanged; use the helper only for the affected custom ALttPR package.
 
 - **Quest reward placement:** Glintstone Kris, Prosthesis-Wearer Heirloom, Golden Lion Shield and Gourmet Scorpion Stew now respect
   Protect Missable Locations. Their NPC quest prerequisites were hidden behind collection-latch
@@ -17,11 +56,24 @@ The narrative — what this project is and what v0.2 brings — lives in
   Nascent Butterfly, Unseen Blade / Unseen Form and Slumbering Egg on the Bower of Bounty
   boundary now belong to Altus, with their sweep ownership corrected. New rooms only.
 
+- **Free respec, experimental (clients #673):** The AP overlay gains a **Respec (experimental)**
+  action, also reachable as `!respec` in its console. It opens the game's native rebirth screen from
+  wherever you stand, before Rennala and without spending a Larval Tear; the overlay hands input to
+  that screen and takes it back when it closes. Item delivery, traps, auto-equip, DeathLink and
+  warps wait while the screen is open. It is a prototype that got unusually broad playtest
+  coverage this week; the client's `docs/FREE_RESPEC.md` lists what is and is not yet verified,
+  and it never edits attributes, flags or consumables itself. Needs the v0.6.0.7 client; no seed,
+  YAML or world change.
+
+The client gitlink advances from `b984f62` to `060ca1b5`, client main at the cut, and the one
+commit range between them is clients #673 above.
+
 ### What you need to update
 
-- **Client:** **Optional.** `CONTRACT_HASH` has not moved since v0.6.0.3, so a v0.6.0.3 through
-  v0.6.0.6 client plays every seed this window generates and a v0.6.0.7 client plays every seed
-  those apworlds generated. 🛑 The one standing exception is not new here: **on Elden Ring
+- **Client:** **Optional for seeds, required for respec.** `CONTRACT_HASH` has not moved since
+  v0.6.0.3, so a v0.6.0.3 through v0.6.0.6 client plays every seed this window generates and a
+  v0.6.0.7 client plays every seed those apworlds generated. Only the Respec overlay action
+  needs the v0.6.0.7 client. 🛑 The one standing exception is not new here: **on Elden Ring
   2.7.1.0 you need at least a v0.6.0.6 client**, because every client built before that one refuses
   the 2.7.1.0 executable at the version gate. That is a game-binary ruling, not a contract one.
 - **APWorld:** Host-only — install v0.6.0.7 when generating a new room once it ships. Players do
