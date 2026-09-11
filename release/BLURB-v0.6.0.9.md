@@ -24,7 +24,7 @@ and main-menu delivery fixes need v0.6.0.8 or newer.
 
 ## What is in it so far
 
-**Castle Ensis knows where it ends (#PRNUM).** A playtester walked the castle and said seven of
+**Castle Ensis knows where it ends (#1554).** A playtester walked the castle and said seven of
 its checks were filed in the wrong region -- some standing in the Scadu Altus lowland past Rellana,
 some standing inside the castle while filed out on the Gravesite plain. Measured one at a time
 against the game's own play-region geometry rather than taken on the report: seven moved, six
