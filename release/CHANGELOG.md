@@ -3,13 +3,30 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.6.0.8 — 2026-09-10
+## v0.6.0.8 — 2026-09-11
+
+- **Old traps no longer replay after a reconnect (clients #675):** Reconnecting, or recovering a
+  character binding, could rewind the item cursor and fire every trap you had already eaten,
+  and rebroadcast them over TrapLink. Traps now keep their own consumption frontier per room and
+  slot. Existing saves migrate from their highest recorded cursor; nothing to do.
+- **Main-menu save slot can no longer hijack delivery (clients #678):** The client could bind its
+  receive cursor while you were still on the main menu, where the game reports save slot -1, and
+  that phantom slot then kept the real character from ever being selected. Binding now waits for
+  an in-world player with a valid slot. Reported from Poppy's log.
+- **Every 0.5.x seed plays on this client (clients #676, #677):** Audited contract pairs for
+  0.5.0 through 0.5.8 are recognised through the legacy compatibility path, so an old async can
+  move to the current client for its Elden Ring 2.7.1.0 support without regenerating, updating the
+  apworld, or migrating the save. Unknown versions and wrong hashes still warn as before.
+
+The client gitlink advances from `70d6abe2` to `6402d763`, client main at the cut; the range is
+clients #675 through #678 above.
 
 ### What you need to update
 
-- **Client:** **Optional.** `CONTRACT_HASH` has not moved since v0.6.0.3, so a v0.6.0.3 through
-  v0.6.0.7 client plays every seed this window generates and a v0.6.0.8 client plays every seed
-  those apworlds generated. Two standing exceptions, neither new here: **on Elden Ring 2.7.1.0 you
+- **Client:** **Optional for seeds, recommended for the trap and delivery fixes.** `CONTRACT_HASH`
+  has not moved since v0.6.0.3, so a v0.6.0.3 through v0.6.0.7 client plays every seed this window
+  generates and a v0.6.0.8 client plays every seed those apworlds generated. Take this one if you
+  reconnect mid-run or run an old 0.5.x async. Two standing exceptions, neither new here: **on Elden Ring 2.7.1.0 you
   need at least a v0.6.0.6 client** (version gate, a game-binary ruling), and the **Respec overlay
   action needs at least a v0.6.0.7 client**.
 - **APWorld:** Host-only — install v0.6.0.8 when generating a new room once it ships. Players do
