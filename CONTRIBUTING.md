@@ -44,6 +44,42 @@ with a message that names both options and says why — don't let it reach fill.
 
 ## Options hygiene
 
+### Postmortem: missing map pins, 2026-09-11
+
+The player reported nearly empty Farum Azula maps after the renderer upgrade.
+The agent repeatedly offered diagnostics and disabled/default-off logic filtering
+despite explicit requests to fix the cause. A separate ImGui attachment-hook bug
+was real, but fixing it did not resolve the check-identity failure.
+
+The available evidence already showed Farum's open flag set. The missing comparison
+was between the baked map catalogue and the seed/world location identities: baked
+AP ID 7771401 represented acquisition flag 13007000, while the current world assigned
+7771400 to that acquisition. The old publisher rejected the mismatched name/ID before
+reachability could preserve its pin. Client PR #680 joins stable acquisition identities
+to the seed's own AP IDs instead. MFG PR #16 separately repairs native attachment setup.
+
+The investigation failed by treating filter counts as a root cause, trusting a
+cross-version identity join without checking it, and substituting configuration
+workarounds for the requested behavior. Repeated acknowledgements of user steering
+were followed by stopping or further probes rather than the requested investigation.
+
+For future cross-component regressions:
+
+- Trace one concrete failing object through every identity boundary before adding
+  more instrumentation: native lot -> acquisition flag -> seed AP ID -> region ->
+  reachability -> published visibility state. Verify each join against its owner.
+- A counter identifies where exclusion happens, not why. Do not call a tracker wrong
+  merely because its downstream filter hides an object; verify the IDs it received.
+- Exhaust existing source, logs and fixtures before asking the player for another
+  diagnostic build. Additional probes must answer a specific unresolved question.
+- Disabling a requested feature is a workaround, not a fix. Preserve logic filtering
+  and prove both the reachable and unreachable cases in a regression test.
+- Separate independent defects and their evidence. UI/rendering work does not close
+  a tracker-identity issue. A user correction changes the next action, not just the reply.
+- Report reproduced, source-verified, compiled, automated-tested and live-verified
+  results distinctly. Do not describe a package as a verified player fix before that
+  claim is supported. Pin all affected repositories into the target release together.
+
 - **Options are declared where they are owned, and assembled once.** A core option
   is a class in `core.py`, listed in `_CORE_OPTION_FIELDS`. A feature's option is a
   class in that feature's own `features/<name>.py`, listed in its `OPTIONS` dict.

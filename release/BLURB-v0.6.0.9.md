@@ -13,7 +13,7 @@ and main-menu delivery fixes need v0.6.0.8 or newer.
 
 ## What you need to update
 
-- **Client:** Optional — update the complete bundle to get the map speedup. Compatible with existing runs.
+- **Client:** Required for the missing-pin fix — update the complete bundle, including `eldenring_archipelago.dll`. Compatible with existing runs.
 - **APWorld:** Host-only — install v0.6.0.9 when generating a new room once it ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
@@ -27,12 +27,14 @@ The older fork renderer has been replaced with the pinned upstream 2.1.3 rendere
 preserves AP filtering and hover lookup. Filtering, client timeout fallback, repeated map
 close/reopen and underground transitions were exercised in game.
 
-AP filter settings now live in `MapForGoblins.AP.ini`, with checks-only and in-logic-only enabled
-by default. Edit that file to change them; it reloads while the game runs. The old AP map menu
-is gone. Normal upstream settings remain in `MapForGoblins.ini`.
+F10 combines AP filter controls with upstream settings. Checks-only and in-logic-only remain
+enabled by default. The two INI files still support manual configuration. The adapter also
+corrects upstream's ImGui initialization path so native marker attachment hooks are installed.
 
-This release changes map rendering, not reachability rules. The reported checks that disagree
-with the map still need a separate logic investigation.
+The AP client fixes missing pins when a seed's location IDs differ from the baked map catalogue.
+It joins map lots to the seed's acquisition flags before applying tracker reachability, so valid
+checks are no longer discarded because their AP IDs shifted. Logic filtering remains enabled;
+closed regions remain out of logic. Existing seeds need no regeneration.
 
 ## What carried over from v0.6.0.8
 

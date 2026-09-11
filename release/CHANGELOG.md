@@ -7,7 +7,8 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** **Optional.** `CONTRACT_HASH` has not moved since v0.6.0.3, so a v0.6.0.3 through
+- **Client:** **Required for the missing-pin fix; otherwise optional.** Update `eldenring_archipelago.dll`
+  together with the map files. `CONTRACT_HASH` has not moved since v0.6.0.3, so a v0.6.0.3 through
   v0.6.0.8 client plays every seed this window generates and a v0.6.0.9 client plays every seed
   those apworlds generated. Standing exceptions, none new here: **Elden Ring 2.7.1.0 needs at
   least a v0.6.0.6 client** (version gate), the Respec overlay action needs v0.6.0.7 or newer, and
@@ -45,9 +46,11 @@ Opened BY THE WORKFLOW for the second time running, on a single tag delivery thi
 - The release builds the adapter and verifies the upstream archive and DLL hashes, then ships
   both DLLs, both settings files and their license notices as one checked package. The updater
   installs the companion DLL and preserves existing AP settings on subsequent updates.
-- AP filter controls move to `MapForGoblins.AP.ini` (reloaded while running); upstream map
-  settings remain in `MapForGoblins.ini`. The old fork's AP settings menu is no longer present.
-  Existing seeds and logic rules are unchanged; the reported map/logic discrepancy is separate.
+- F10 combines AP filters and upstream settings (MFG #16). The adapter corrects the ImGui
+  initialization path that skipped shared native attachment hooks. Both INIs remain supported.
+- Missing seed-matched pins are fixed in clients #680: map lots join to current-seed acquisition
+  flags instead of stale baked AP IDs before applying reachability. Checks-only and in-logic-only
+  remain enabled. Existing seeds need no regeneration; closed regions remain out of logic.
 
 ## v0.6.0.8 — 2026-09-11
 
