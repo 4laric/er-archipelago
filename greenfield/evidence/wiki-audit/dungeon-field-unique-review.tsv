@@ -645,6 +645,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7772997	unique_field_pickup	Consecrated Snowfield	Unendurable Frenzy	1047557900	m60_48_55	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773894	unique_field_pickup	Ensis	Ash of War: Piercing Throw	540902	m61_48_44	remaining_unreviewed	0		first_independent_identity_region_source
 7773495	unique_field_pickup	Ensis	Ash of War: Wing Stance	2048447810	m61_48_44	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7773428	unique_field_pickup	Ensis	Carian Sorcery Sword	2047447820	m61_48_44	remaining_unreviewed	0		first_independent_identity_region_source
 7773425	unique_field_pickup	Ensis	Castle Cross Message	2047447710	m61_48_44	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7773419	unique_field_pickup	Ensis	Drawstring Royal Magic Grease	2047447200	m61_48_44	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
 7773409	unique_field_pickup	Ensis	Glintblade Trio	2047447090	m61_48_44	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
@@ -660,7 +661,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773387	unique_field_pickup	Gravesite	Blade of Mercy	2047417800	m61_46_41	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773308	unique_field_pickup	Gravesite	Blessed Blue Dew Talisman	2046407700	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773238	unique_field_pickup	Gravesite	Bloodfiend's Arm	2045417950	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7773428	unique_field_pickup	Gravesite	Carian Sorcery Sword	2047447820	m61_45_44	remaining_unreviewed	0		first_independent_identity_region_source
 7770172	unique_field_pickup	Gravesite	Fire Knight's Cookbook [2]	68900	m61_45_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773430	unique_field_pickup	Gravesite	Firespark Perfume Bottle	2047447840	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773244	unique_field_pickup	Gravesite	Gravebird Armor	2045447020	m61_45_44	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
@@ -675,8 +675,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7770146	unique_field_pickup	Gravesite	Greater Potentate's Cookbook [7]	68630	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773376	unique_field_pickup	Gravesite	Herbalist's Bell Bearing	2047407710	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773400	unique_field_pickup	Gravesite	Horned Bairn	2047437980	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7770162	unique_field_pickup	Gravesite	Loyal Knight's Cookbook	68790	m61_45_44	remaining_unreviewed	0		first_independent_identity_region_source
-7773870	unique_field_pickup	Gravesite	Moonrithyll's Knight Sword	530865	m61_45_44	remaining_unreviewed	0		first_independent_identity_region_source
 7773323	unique_field_pickup	Gravesite	Mushroom-Seller's Bell Bearing [1]	2046447710	m61_45_44	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7774627	unique_field_pickup	Gravesite	Oathseeker Knight Armor	2046407002	m61_46_41	remaining_unreviewed	0		first_independent_identity_region_source
 7774628	unique_field_pickup	Gravesite	Oathseeker Knight Gauntlets	2046407003	m61_46_41	remaining_unreviewed	0		first_independent_identity_region_source

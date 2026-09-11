@@ -242,6 +242,8 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773491	Ensis	Somber Smithing Stone [7]	2048447070	ItemLotParam_map.getItemFlagId		near Castle-Lord's Chamber	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7774637	Ensis	Somber Smithing Stone [8]	540920	ItemLotParam_map.getItemFlagId		around Castle-Lord's Chamber	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7774638	Ensis	Somber Smithing Stone [8]	540922	ItemLotParam_map.getItemFlagId		around Castle-Lord's Chamber	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7773422	Ensis	Starlight Shards	2047447610	ItemLotParam_map.getItemFlagId		near Castle Ensis Checkpoint	ambiguous_map_lot	hold	1	gameplay-guide:redmaw	same-name candidates survive the committed anchor/tile joins; player ruling needed
+7773426	Ensis	Starlight Shards	2047447730	ItemLotParam_map.getItemFlagId		near Castle Ensis Checkpoint	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771486	Farum Azula	Ancient Dragon Smithing Stone	13007991	ItemLotParam_map.getItemFlagId		around Crumbling Beast Grave	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771487	Farum Azula	Ancient Dragon Smithing Stone	13007993	ItemLotParam_map.getItemFlagId		around Crumbling Beast Grave	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771431	Farum Azula	Golden Rune [12]	13007310	ItemLotParam_map.getItemFlagId		near Dragon Temple	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
@@ -1327,10 +1329,10 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773401	Ensis	Black Pyrefly	2047447010	ItemLotParam_map.getItemFlagId		near Castle Front	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
 7773415	Ensis	Bolt	2047447150	ItemLotParam_map.getItemFlagId		near Castle Ensis Checkpoint	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
 7773405	Ensis	Flight Pinion	2047447050	ItemLotParam_map.getItemFlagId		near Castle Ensis Checkpoint	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7773492	Ensis	Ghost Glovewort [7]	2048447080	ItemLotParam_map.getItemFlagId		near Castle-Lord's Chamber	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773404	Ensis	Glintslab Firefly	2047447040	ItemLotParam_map.getItemFlagId		near Castle Ensis Checkpoint	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773411	Ensis	Glintslab Firefly	2047447110	ItemLotParam_map.getItemFlagId		near Castle Front	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773417	Ensis	Glintslab Firefly	2047447170	ItemLotParam_map.getItemFlagId		near Ensis Moongazing Grounds	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7773438	Ensis	Grave Glovewort [8]	2047457180	ItemLotParam_map.getItemFlagId		near Castle Ensis Checkpoint	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773486	Ensis	Hefty Beast Bone	2048447020	ItemLotParam_map.getItemFlagId		near Castle-Lord's Chamber	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773488	Ensis	Lump of Flesh	2048447040	ItemLotParam_map.getItemFlagId		near Castle-Lord's Chamber	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773416	Ensis	Shadow Realm Rune [2]	2047447160	ItemLotParam_map.getItemFlagId		near Castle Front	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -1342,7 +1344,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773408	Ensis	Somber Smithing Stone [7]	2047447080	ItemLotParam_map.getItemFlagId		near Ensis Moongazing Grounds	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773410	Ensis	Somber Smithing Stone [8]	2047447100	ItemLotParam_map.getItemFlagId		near Castle Front	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773431	Ensis	Somber Smithing Stone [9]	2047447900	ItemLotParam_map.getItemFlagId		around Castle Front	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
-7773422	Ensis	Starlight Shards	2047447610	ItemLotParam_map.getItemFlagId		near Castle Ensis Checkpoint	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7773487	Ensis	String	2048447030	ItemLotParam_map.getItemFlagId		near Castle Ensis Checkpoint	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
 7771444	Farum Azula	Ancient Dragon Smithing Stone	13007480	ItemLotParam_map.getItemFlagId		near Dragon Temple Lift	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771479	Farum Azula	Ancient Dragon Smithing Stone	13007900	ItemLotParam_map.getItemFlagId		near Maliketh, the Black Blade	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -1422,7 +1423,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773482	Gravesite	Grave Glovewort [6]	2048437030	ItemLotParam_map.getItemFlagId		near Pillar Path Cross	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7774011	Gravesite	Grave Glovewort [6]	40007050	ItemLotParam_map.getItemFlagId		near Fog Rift Catacombs	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774017	Gravesite	Grave Glovewort [7]	40007110	ItemLotParam_map.getItemFlagId		near Fog Rift Catacombs	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7773438	Gravesite	Grave Glovewort [8]	2047457180	ItemLotParam_map.getItemFlagId		near Castle Ensis Checkpoint	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773233	Gravesite	Great Arrow	2045417050	ItemLotParam_map.getItemFlagId		near Cliffroad Terminus	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772425	Gravesite	Great Ghost Glovewort	40007800	ItemLotParam_map.getItemFlagId		near Fog Rift Catacombs	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7774092	Gravesite	Hefty Beast Bone	43007010	ItemLotParam_map.getItemFlagId		near Rivermouth Cave	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
@@ -1472,7 +1472,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773231	Gravesite	Somber Smithing Stone [6]	2045417030	ItemLotParam_map.getItemFlagId		near Cliffroad Terminus	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773389	Gravesite	Somber Smithing Stone [6]	2047427030	ItemLotParam_map.getItemFlagId		near Ellac River Downstream	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774081	Gravesite	Somber Smithing Stone [7]	42007160	ItemLotParam_map.getItemFlagId		near Ruined Forge Lava Intake	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7773426	Gravesite	Starlight Shards	2047447730	ItemLotParam_map.getItemFlagId		near Castle Ensis Checkpoint	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773384	Gravesite	Thin Beast Bones	2047417100	ItemLotParam_map.getItemFlagId		near Ellac River Downstream	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773229	Gravesite	Whiteflesh Mushroom	2045417010	ItemLotParam_map.getItemFlagId		near Cliffroad Terminus	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773242	Gravesite	Whiteflesh Mushroom	2045447000	ItemLotParam_map.getItemFlagId		near Greatbridge, North	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -2240,6 +2239,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773557	Scadu Altus	Four-Toed Fowl Foot	2049457050	ItemLotParam_map.getItemFlagId		near Moorth Ruins	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773532	Scadu Altus	Ghost Glovewort [6]	2049437330	ItemLotParam_map.getItemFlagId		near Fort of Reprimand	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771917	Scadu Altus	Ghost Glovewort [7]	21007580	ItemLotParam_map.getItemFlagId		near Sunken Chapel	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7773492	Scadu Altus	Ghost Glovewort [7]	2048447080	ItemLotParam_map.getItemFlagId		near Castle-Lord's Chamber	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774039	Scadu Altus	Ghost Glovewort [7]	40027100	ItemLotParam_map.getItemFlagId		near Darklight Catacombs	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772428	Scadu Altus	Ghost Glovewort [8]	40027200	ItemLotParam_map.getItemFlagId		near Darklight Catacombs	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7773624	Scadu Altus	Ghost Glovewort [9]	2051417000	ItemLotParam_map.getItemFlagId		near Church Ruins	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item

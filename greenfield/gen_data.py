@@ -3337,7 +3337,32 @@ FLAG_REGION_OVERRIDE = {
     2047447170: "Ensis", 2047447200: "Ensis", 2047447210: "Ensis", 2047447600: "Ensis",
     2047447610: "Ensis", 2047447700: "Ensis", 2047447710: "Ensis", 2047447720: "Ensis",
     2047447800: "Ensis", 2047447830: "Ensis", 2047447900: "Ensis", 2047447901: "Ensis",
-    # ^ the complete 47,44 castle tile (6820 Ensis grace) -- the full set from tools/dev/check_vs_matt.py
+    # ^ was described as "the complete 47,44 castle tile" -- it was not. FIVE MORE, 2026-09-11
+    # (255 report on f530865, instrument adjudication). The tile's two graces answer the question
+    # directly and nothing softer is needed: BonfireWarpParam files 76821 Castle Ensis Checkpoint
+    # under play_region 6820 (Ensis) and 76813 Castle Front under 6800 (Gravesite)
+    # (greenfield/grace_region_map.tsv), so on this tile "which grace is nearer" IS the region
+    # question. Each row below is nearer the Checkpoint AND within 30 m of a check the block above
+    # already pins Ensis; the four that are NOT are left in Gravesite (see region_overrides.tsv).
+    68790: "Ensis",        # Loyal Knight's Cookbook -- 4.3 m from grace 76821 itself; nearest pinned
+                           #   neighbour 2047447130 at 8.5 m
+    2047447730: "Ensis",   # Starlight Shards -- 67.3 m to 76821 vs 113.3 m to 76813; 8.6 m from the
+                           #   pinned 2047447030
+    2047447820: "Ensis",   # Carian Sorcery Sword -- 48.8 m vs 157.1 m; 23.8 m from the pinned
+                           #   2047447210
+    2047457180: "Ensis",   # Grave Glovewort [8] -- label tile 47,45 but MSB-authored on 47_44;
+                           #   56.0 m vs 171.8 m; 13.0 m from the pinned 2047447040
+    # MOONRITHYLL, CARIAN KNIGHT (f530865, the one 255 actually reported). The award has NO item
+    # coordinate -- it is an EMEVD grant, `$Event(2047442360)` waiting on `CharacterDead(2047440360)`
+    # in m61_47_44_00/_10 -- so neither the PlayArea scan nor nearest_grace.tsv has a row, and the
+    # derivation fell through to the tile vote (Gravesite) with the name coming off its Ghostflame
+    # Dragon sweep anchor two tiles west. THE INVADER HIMSELF IS PLACED: the M4G MSB entity export
+    # puts character 2047440360 at m61_47_44_00 local (96.985, 380.200, -46.217), world
+    # (12129.0, 380.2, 11217.8) -- 5.9 m from 2047447830 and 21.0 m from 2047447090, both already
+    # pinned Ensis, and 75.9 m ABOVE the Castle Front grace he is currently named for. He stands on
+    # the castle, not in front of it. EVIDENCE CLASS: native MSB character pin joined to the award
+    # event, corroborated by the two graces' own play_region rows -- NOT a PlayArea scan claim.
+    530865: "Ensis",       # Moonrithyll's Knight Sword
     # Tile 48,39 pins (2048397030/40/50) and the 48,40 Spirit Glaive pin DELETED 2026-08-10: with
     # Charo's merged into Cerulean both of that tile's graces (6830, 6840) name the same region,
     # so the pins now agree with the derivation, and a redundant manual override is a failure.
@@ -3720,6 +3745,46 @@ FLAG_REGION_OVERRIDE = {
     # no Stormveil access: 255 is right and the m10_00 machine was simply the one the derivation saw
     # first. NB f400220 is the SAME NPC and does NOT move -- see the PR and region_overrides.tsv.
     400221: "Limgrave",
+
+    # ---- CASTLE ENSIS / SCADU ALTUS, tile m61_48_44, 2026-09-11 (255 report, instrument
+    # adjudication) ----------------------------------------------------------------------------
+    # 255 reported eight checks on this tile as physically standing in the Scadu Altus lowland east
+    # of Castle Ensis rather than in Ensis, which would strand a region-lock key placed on them.
+    # Alaric: "this is 255 testimonial, not mine, not a fact." All eight were re-derived through the
+    # ladder; TWO moved and six did not (enumerated in the PR and in region_overrides.tsv). This is a
+    # per-flag pin, never a tile pin: m61_48_44 demonstrably STRADDLES -- grace 76823 (Ensis
+    # Moongazing Grounds) scans volume `6820010 街道砦ボス戦領域` = 68200 while two of the tile's own
+    # checks read 69000, so a whole-tile curation would be wrong for whichever half it did not mean.
+    #
+    # THE SCADUTREE FRAGMENT NEAR HIGHROAD CROSS. item_play_regions.tsv reads
+    # `2048447500 m61_48_44_00 6900000 69000 tile-default`. The bucket differs from the tile's own
+    # 68200 row because derive_ground takes the PlayRegionParam default of the tile the FOLDED point
+    # actually STANDS on, not the tile it was authored in: the pickup's local z is +136.4, past the
+    # +128 tile edge, so it sits on m61_48_45 -- Scadu Altus in play_region_buckets.tsv. Two
+    # independent joins corroborate. Its nearest grace is 76900 Highroad Cross (Scadu Altus) at
+    # 7.3 m with 0.1 m of height difference, the closest item-to-grace pair on the whole tile; its
+    # nearest neighbour across the seam, 2048457510, is 10.0 m away and also measures 69000. Every
+    # other check on this tile is 55-210 m from an Ensis grace and >=100 m from Highroad Cross.
+    2048447500: "Scadu Altus",   # Scadutree Fragment -- tile-default 69000 on the FOLDED tile 48_45
+    #
+    # THE GHOST GLOVEWORT. item_play_regions.tsv reads
+    # `2048447080 m61_48_44_00 6900000 69000 seam:プレイ領域 6900000 {2}@4.8m` -- inside no volume, but
+    # 4.8 m from the FACE of a Scadu Altus 6900000 column, well inside SEAM_SLACK (8.0 m, the planar
+    # twin of the engine's vertical containment slack, calibrated at grace 72102 where the in-game
+    # kick REFUTED the fallback). derive_ground ranks a seam ABOVE the tile default, so this is the
+    # instrument's answer and not a tile guess. Same evidence class and same 6900000 column as
+    # 2045477020 (`seam:@2.7m 69400`, #1054) and as its neighbour 2047447620 one tile west, which
+    # #1066 already pinned Scadu Altus off `volume: 6900000` while keeping its Castle Ensis
+    # Checkpoint landmark in the name -- so a Scadu Altus row naming an Ensis grace is the SHIPPED
+    # precedent here, not a new inconsistency.
+    2048447080: "Scadu Altus",   # Ghost Glovewort [7] -- seam 4.8 m to 6900000
+    #
+    # 🛑 SIX REPORTED ROWS ARE DELIBERATELY ABSENT. 2048447010 / 020 / 040 all scan `tile-default`
+    # 68200 and sit 63-93 m from Castle-Lord's Chamber, 60 m BELOW it, inside the castle; the scan
+    # demonstrably discriminates on this exact tile (it answered 69000 twice above), so 68200 here is
+    # a measurement, not a silence. 540902 / 540920 / 540922 have no coordinates at all -- no
+    # item_grace_coords row, no item_play_regions row, only a sweep_arena anchor on Rellana's own
+    # arena -- so NO INSTRUMENT CAN SPEAK. All six are recorded in region_overrides.tsv as NO-OPs.
 }
 
 # Both rewards belong to the placed golem, not the award flag prefix (#1543).
