@@ -24,6 +24,9 @@ v0.6.0.7 or newer. Both were already true before this window opened.
 
 ## What is in it so far
 
+- **Old traps stay eaten (clients #675):** A reconnect or character recovery no longer replays traps you already took, nor rebroadcasts them over TrapLink. Saves migrate on their own.
+- **No more main-menu hijack (clients #678):** The client waits for an in-world character before binding item delivery, so the phantom slot -1 from the main menu can no longer block your real character.
+- **Old 0.5.x asyncs run here (clients #676, #677):** Every audited 0.5.0 through 0.5.8 seed plays on this client unchanged, which is how an old async gets Elden Ring 2.7.1.0 support.
 - **Furnace golem checks (#1544):** Furnace golem rewards now use the complete eight-encounter MSB census: all sixteen rewards are checks, including the previously missing Furnace Visage. Rauh, Cerulean and Castle Watering Hole rewards use their corrected regions. Existing check IDs are preserved; these changes apply to newly generated rooms (#1543).
 - **Region evidence pass (#1538):** Twelve more checks now use corrected regions in new rooms, backed by MapForGoblins placements and route evidence. These include Sacred Blade in Limgrave, the Church of Consolation greathammer in Gravesite, six Abyssal Woods rewards, Crimson-Sapping Cracked Tear in upper Rauh, Bloodfiend Hexer ashes in Gravesite and two Scadu Altus Furnace Visages. Their region locks and sweep owners follow those homes.
 
