@@ -178,7 +178,8 @@ jobs:
       - name: Build the wizard asset
         run: cp wizard/wizard.html dist/er-options-wizard.html
 
-      # THE OFFLINE PAGES ARE TAG ASSETS NOW (2026-09-09). They used to be committed, so
+      # Offline pages share one optional ZIP asset. deploy_wizard.sh supports both this archive
+      # and older individual assets, preserving the stable tag pin. They used to be committed, so
       # tools/deploy_wizard.sh could fetch them from raw.githubusercontent at the STABLE tag. They
       # are built in CI instead (see .github/workflows/pages.yaml and .gitignore), and a tag has to
       # keep carrying them or the public host loses /er/checks.html, /er/review.html and
@@ -201,6 +202,9 @@ jobs:
           done
           ls -l dist/
 
+      - name: Package optional offline tools
+        run: python tools/package_offline_tools.py --directory dist
+
       - name: Attach to the release
         uses: softprops/action-gh-release@v2
         with:
@@ -209,10 +213,5 @@ jobs:
           make_latest: ${{ contains(github.event.inputs.tag || github.ref_name, '-') && 'false' || ((github.event.inputs.tag || github.ref_name) == 'v0.6.0' && 'true' || 'legacy') }}
           files: |
             dist/eldenring.apworld
-            dist/er-options-wizard.html
-            dist/er-archipelago-check-browser.html
-            dist/er-archipelago-evidence-browser.html
-            dist/er-archipelago-questline-dag.html
-            dist/er-archipelago-region-second-opinion.html
-            dist/er-archipelago-desc-triage.html
+            dist/Optional-Offline-Tools.zip
           fail_on_unmatched_files: true

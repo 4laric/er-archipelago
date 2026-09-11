@@ -1,9 +1,9 @@
 {
  "schema": 1,
  "game": "Elden Ring",
- "apworld_version": "0.6.0.7",
+ "apworld_version": "0.6.0.8",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "2294aa5c0fd486cb2d1267a77ee04f38327e3c1f4db173d71cb1b7608c23d438",
+ "source_sha256": "8fd4aeb24455c7cf157f4a45a52e85b87e32bd5c47e9ecf71f8057c34377837e",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -74,6 +74,7 @@
   "shop_checks",
   "start_regions",
   "start_region_pool",
+  "start_region_selection",
   "start_with_whetblades",
   "trap_link",
   "traps",
@@ -93,6 +94,7 @@
     "num_regions_order",
     "start_regions",
     "start_region_pool",
+    "start_region_selection",
     "goal",
     "ending_condition",
     "goal_great_runes",
@@ -2049,7 +2051,7 @@
    "class": "StartRegions",
    "compatibility_only": false,
    "display_name": "Starting Regions",
-   "description": "How many regions are OPEN at run start. 1 (default) is the classic single opening region;\nhigher values precollect that many Region Locks, so the run begins with more of the map\nreachable and fewer locks left to find.\n\nOnly consulted when Start With A Region Lock is on, and ignored under Natural Progression\n(which mints no Lock items at all). It must stay BELOW the number of regions the seed actually\nkept -- holding every kept Lock at connect would complete the goal before you play -- and\ngeneration fails loudly, naming both numbers, if it does not. Remember that Number of Regions\nis a DRAW SIZE: a seed can keep more regions than you asked for, but never fewer.\n\nThe first region is picked exactly as it always was (size-weighted over the kept base-game\nregions, MajorBoss-biased under a strict Progression Surface). The extras are drawn the same\nway from what is left, except that the goal region can never be one: a run that opens on the\nregion it ends in is over before it starts.",
+   "description": "How many regions are OPEN at run start. 1 (default) is the classic single opening region;\nhigher values precollect that many Region Locks, so the run begins with more of the map\nreachable and fewer locks left to find.\n\nOnly consulted when Start With A Region Lock is on, and ignored under Natural Progression\n(which mints no Lock items at all). It must stay BELOW the number of regions the seed actually\nkept -- holding every kept Lock at connect would complete the goal before you play -- and\ngeneration fails loudly, naming both numbers, if it does not. Remember that Number of Regions\nis a DRAW SIZE: a seed can keep more regions than you asked for, but never fewer.\n\nStarting Region Selection controls the draw. By default the first region is picked\nas it always was (size-weighted over the kept base-game\nregions, MajorBoss-biased under a strict Progression Surface). The extras are drawn the same\nway from what is left, except that the goal region can never be one: a run that opens on the\nregion it ends in is over before it starts.",
    "kind": "range",
    "base": "Range",
    "default": 1,
@@ -2106,6 +2108,33 @@
     "Stormveil",
     "Weeping"
    ],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "start_region_selection",
+   "class": "StartRegionSelection",
+   "compatibility_only": false,
+   "display_name": "Starting Region Selection",
+   "description": "How starting regions are drawn from the regions kept in this seed.\n\nWeighted (default) preserves the current selection: prefer base-game regions, weight by\ncheck count, and prefer a MajorBoss region for the first pick.\nUniform gives each eligible region equal odds, including DLC when enabled, without size\nweighting or a MajorBoss preference. Small regions can therefore open the run.\n\nBoth modes respect Starting Region Pool and exclude inaccessible child regions and the\ngoal's forced regions. Multiple starting regions are drawn without replacement.\nIgnored when Start With A Region Lock is off, or under Natural Progression or Vanilla\nPlacement, which create no region locks. This does not change which regions the seed keeps.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "weighted",
+   "choices": [
+    {
+     "name": "weighted",
+     "value": 0
+    },
+    {
+     "name": "uniform",
+     "value": 1
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
    "casefold": false,
    "group": null,
    "group_collapsed": false,

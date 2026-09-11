@@ -4657,6 +4657,7 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7774639		unresolved	critical	all	Bernahl invasion reward; questline missability bars progression pending full access audit	#1437
 7774640		unresolved	critical	all
 7774641		unresolved	critical	all	Jarburg NPC reward; missability bars progression while quest access remains unresolved	#1437
+7774642		unresolved	critical	all	Recovered Furnace Visage from c5170 lot group; access predicate not independently audited.	#1543
 7900000		unresolved	critical	all
 7900001		unresolved	critical	all
 7900002		unresolved	critical	all

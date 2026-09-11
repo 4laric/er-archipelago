@@ -1,0 +1,11 @@
+# Uniform starting-region selection (#1547): mixed base/DLC pool, including a small DLC region.
+# The starting region must not need a MajorBoss host for the remaining lock chain to fill.
+name: fillreg14
+description: uniform starting region across Caelid and Castle Ensis
+game: Elden Ring
+
+Elden Ring:
+  num_regions: 6
+  enable_dlc: true
+  start_region_selection: uniform
+  start_region_pool: [Caelid, Ensis]

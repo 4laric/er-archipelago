@@ -589,8 +589,9 @@ def test_the_sweep_corpus_did_not_shrink():
     # merchant death drop joins his stock behind the Academy lock. It is an overworld
     # pocket with no eligible same-region field boss, so hand collection remains; the
     # old Liurnia sweep must not bypass that door. No other check loses coverage.
-    assert total == 4114, (
-        "sweep corpus is %d, expected 4114. If a sweep was legitimately added or removed, say WHY "
+    # #1543: +1 restored visage f2048467701; no existing member loses sweep eligibility.
+    assert total == 4115, (
+        "sweep corpus is %d, expected 4115. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -927,11 +928,14 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # (1038520800,1039537050):2 -> (1039540800,1039537050):2;
     # (1038520800,1039537060):1 -> (1040520800,1039537060):1.
     # These are precisely the three measured Altus flags, four AP siblings. No collateral churn.
-    # 2026-09-10 MFG region pass, measured against c7371733: 32 removed / 32 added,
-    # no flags gain or lose coverage. Ten corrected checks change owners: six Abyssal
-    # rewards -> Midra 28000800, Sacred Blade -> 1045390800, Greathammer -> 2046410800,
-    # two Furnace Visages -> 2049450800. The other 22 reassignments stay in Shadow Keep
-    # as its round-robin pool shrinks. Crimson-Sapping and Bloodfiend Hexer remain unswept.
-    assert (digest, n) == ("a3ae7f11cb653387", 4114), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (a3ae7f11cb653387, 4114). The total alone will "
+    # #1543, measured by (trigger, flag): +1 f2048467701, zero lost; 25 re-owned.
+    # Three visage checks follow their corrected regions (f2045467500 Rauh Base -> Ancient Ruins;
+    # f2050467500/7510 Shadow Keep -> Scadu Altus). The other 22 remain in Shadow Keep;
+    # removing those two members re-phases its remainder divvy. f65410 retains its old owner.
+    # #1538 on top of that (2026-09-11 merge): the MFG region pass re-owns ten corrected checks
+    # (six Abyssal rewards -> Midra 28000800, Sacred Blade -> 1045390800, Greathammer ->
+    # 2046410800, two Furnace Visages already Scadu Altus via #1543) with no flag gaining or
+    # losing coverage; the count stays 4115.
+    assert (digest, n) == ("3373e1635827bd49", 4115), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (3373e1635827bd49, 4115). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

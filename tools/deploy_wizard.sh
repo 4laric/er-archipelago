@@ -76,7 +76,7 @@
 # it, not by anything that would have told us afterwards. A file that only exists because of a build
 # step nobody remembers is one rebuild from gone.
 #
-# It FETCHES, it does not build: the box needs no checkout, no python, no node. Nothing here is
+# It FETCHES, it does not build: the box needs no checkout, no python, no node (unzip is needed for archived release pages). Nothing here is
 # specific to peliarch except the default target, so it also works for any other host.
 #
 #   ER_STATIC_DIR=/srv/er ./tools/deploy_wizard.sh
@@ -138,7 +138,10 @@ SKIPPED_ARTIFACTS=0
 # is a half-written page under a name nothing will ever clean up. Track the in-flight temp file
 # globally and clear it on EXIT as well, so an abort leaves the directory as it found it.
 CURRENT_TMP=""
-trap 'rm -f "$CURRENT_TMP"' EXIT
+OFFLINE_ZIP=""
+OFFLINE_REF=""
+OFFLINE_HTTP=""
+trap 'rm -f "$CURRENT_TMP" "$OFFLINE_ZIP"' EXIT
 die() { printf 'deploy_wizard: %s\n' "$*" >&2; exit 1; }
 
 # ---- which tag is stable? Read it from the ledger AT MAIN, so the answer comes from the same place
@@ -203,6 +206,27 @@ install_one() {  # ref, source path in repo, destination path, sentinel, label
     return 0
   fi
   http="$(curl -sSL -w '%{http_code}' -o "$tmp" "$url")" || http="000"
+  # New releases group optional HTML tools into one archive. Older releases keep
+  # their individual assets; only a genuine 404 tries the archive fallback.
+  if [ "$http" = "404" ] && [[ "$ref" == v* && "$src" == er-archipelago-*.html ]]; then
+    if [ "$OFFLINE_REF" != "$ref" ]; then
+      rm -f "$OFFLINE_ZIP"
+      OFFLINE_ZIP="$(mktemp)"
+      OFFLINE_REF="$ref"
+      OFFLINE_HTTP="$(curl -sSL -w '%{http_code}' -o "$OFFLINE_ZIP" \
+        "${RELEASES}/${ref}/Optional-Offline-Tools.zip")" || OFFLINE_HTTP="000"
+    fi
+    case "$OFFLINE_HTTP" in
+      200)
+        command -v unzip >/dev/null || die "install unzip to deploy the optional offline tools archive"
+        unzip -p "$OFFLINE_ZIP" "$src" > "$tmp" \
+          || die "offline tools archive is invalid or missing ${src} at ${ref}"
+        http="200"
+        ;;
+      404) ;; # This older release has neither publication form; report the normal skip below.
+      *) die "offline tools archive fetch failed at ${ref} -- HTTP ${OFFLINE_HTTP}" ;;
+    esac
+  fi
   if [ "$http" = "404" ]; then
     # A CI-built page 404s for a reason the moving-channel rule does not describe: the Pages site
     # has not been published yet (the repo's Pages source must be set to "GitHub Actions" once), or

@@ -53,6 +53,8 @@ jobs:
         run: python -m unittest discover -s tools -p "test_pack*py" -v
       - name: the updater replaces only payload, backs up, never touches user state
         run: python -m unittest -v tools/test_update_er_archipelago.py
+      - name: ALttPR repair preserves the package and removes exact item copies
+        run: python -m unittest -v tools.test_repair_alttpr_item_identity
 
   # ---------------------------------------------------------------------------------------------
   # 1. The apworld test suite, run inside a real Archipelago tree (the world is a package under
@@ -648,6 +650,8 @@ jobs:
       # and artifact-free -- pure functions over synthetic rows.
       - name: The enemy-drop table's lot-group and drop-chance rules
         run: python -m unittest -v tools/test_datamine_enemy_drops.py
+      - name: Furnace golem placement and reward census (synthetic inputs)
+        run: python -m unittest -v tools/test_datamine_furnace_golems.py
 
       - name: The mine-material census preserves asset and capstone provenance (#1095)
         run: python -m unittest -v tools/test_datamine_mine_material_sources.py

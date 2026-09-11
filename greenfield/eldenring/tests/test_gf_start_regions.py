@@ -493,3 +493,48 @@ class StartRegionPoolBigEnoughStillGenerates(WorldTestBase):
         above is the only case that survives, which is exactly the case nobody would file."""
         self.world_setup(seed=13)
         self.assertEqual(len(_precollected_locks(self)), 2)
+
+
+class UniformAnchorSelection(unittest.TestCase):
+    def test_every_eligible_region_has_one_equal_draw_slot(self):
+        # A 1-check DLC corridor and a 1000-check MajorBoss region get one slot each.
+        # Inspect the population passed to Random.choice, rather than a flaky frequency test.
+        from unittest.mock import Mock
+        rng = Mock()
+        rng.choice.side_effect = lambda population: population[-1]
+        picked, rule, count = pick_anchor_region(
+            ["base", "dlc", "child", "goal", "empty"], rng,
+            {"base": 1000, "dlc": 1, "child": 30, "goal": 40}, {"dlc"},
+            major={"base"}, gated={"child"}, never_anchor={"goal"}, uniform=True)
+        rng.choice.assert_called_once_with(["base", "dlc"])
+        rng.choices.assert_not_called()
+        self.assertEqual((picked, rule, count), ("dlc", "uniform", 2))
+
+    def test_pool_and_multiple_picks_are_uniform_without_replacement(self):
+        from unittest.mock import Mock
+        rng = Mock()
+        rng.choice.side_effect = lambda population: population[0]
+        picks, rules, count = pick_anchor_regions(
+            ["outside", "base", "dlc", "goal"], rng,
+            {"outside": 100, "base": 1000, "dlc": 1, "goal": 500}, {"dlc"}, n=2,
+            major={"base"}, only={"base", "dlc", "goal"}, never_anchor={"goal"}, uniform=True)
+        self.assertEqual(picks, ["base", "dlc"])
+        self.assertEqual(rules, ["uniform", "extra:uniform"])
+        self.assertEqual(count, 2)
+        self.assertEqual([call.args[0] for call in rng.choice.call_args_list],
+                         [["base", "dlc"], ["dlc"]])
+
+    def test_uniform_does_not_restore_a_forbidden_goal_or_empty_region(self):
+        with self.assertRaisesRegex(ValueError, "no eligible region"):
+            pick_anchor_region(["goal", "empty"], random.Random(1), {"goal": 10}, set(),
+                               never_anchor={"goal"}, uniform=True)
+
+    def test_uniform_is_seed_deterministic(self):
+        for seed in range(50):
+            a, b = random.Random(seed), random.Random(seed)
+            args = (REGIONS, a, COUNTS, DLC_REGIONS)
+            expected = pick_anchor_regions(*args, n=3, gated=REGION_PARENT, uniform=True)
+            actual = pick_anchor_regions(REGIONS, b, COUNTS, DLC_REGIONS,
+                                         n=3, gated=REGION_PARENT, uniform=True)
+            self.assertEqual(expected, actual)
+            self.assertEqual(a.getstate(), b.getstate())

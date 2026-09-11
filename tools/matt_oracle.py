@@ -125,9 +125,8 @@ _B_SCOPE_SCATTERED_FILLER = frozenset({400150, 400161, 400422})
 
 # --- SCOPE, RULED NOT-FINDABLE (2). Both already carry a named gen_data ruling with a keeper test:
 #   1050567820 Graven-Mass Talisman (Albinauric Rise) -- `_UNREACHABLE_DEAD`, excluded as dead.
-#   2048467701 Furnace Visage -- `_WORLDLESS_SINGLES`, the re-derived not-findable census
-#              (test_gf_worldless_singles.py rebuilds the class every run).
-_B_SCOPE_NOT_FINDABLE = frozenset({1050567820, 2048467701})
+#   2048467701 was recovered by the c5170 MSB/lot-group witness (#1543).
+_B_SCOPE_NOT_FINDABLE = frozenset({1050567820})
 
 
 ITEM_IDENTITY_KNOWN = {

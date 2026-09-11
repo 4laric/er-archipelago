@@ -208,7 +208,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Ancient Ruins": {
-   "checks": 61,
+   "checks": 62,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 1,
@@ -427,8 +427,9 @@
    "tarnished_pack_shop_checks": 0
   },
   "Cerulean": {
-   "checks": 105,
+   "checks": 107,
    "combos": {
+    "Basin": 1,
     "Boss": 4,
     "Boss|FieldBoss": 3,
     "Boss|Legendary": 1,
@@ -728,9 +729,8 @@
    "tarnished_pack_shop_checks": 0
   },
   "Gravesite": {
-   "checks": 205,
+   "checks": 203,
    "combos": {
-    "Basin": 1,
     "Boss": 5,
     "Boss|FieldBoss": 2,
     "Boss|Legendary|MajorBoss": 1,
@@ -1240,7 +1240,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Rauh Base": {
-   "checks": 92,
+   "checks": 91,
    "combos": {
     "Boss|FieldBoss|MajorBoss": 1,
     "Boss|MinorDungeonBoss": 1,
@@ -1352,7 +1352,7 @@
    "tarnished_pack_shop_checks": 1
   },
   "Scadu Altus": {
-   "checks": 317,
+   "checks": 318,
    "combos": {
     "Boss|FieldBoss": 4,
     "Boss|Fragment|MajorBoss": 1,
@@ -1633,5 +1633,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "1fdb6309e16e8a49941b0ad4d17e26919b80c57d52135f381858d7eecad2235b"
+ "source_sha256": "1f784e64ffb24e3505adede82b35e7e8bca4fa492078cb2fbb8128113bc1411d"
 }

@@ -7688,6 +7688,7 @@ LOCATION_ITEM = {
     7774639: "Gelmir's Fury",
     7774640: 'Silver Scarab',
     7774641: "Numen's Rune",
+    7774642: 'Furnace Visage',
     7900000: 'Prayer Room Key',
     7900001: 'Scadutree Fragment',
     7900002: "Messmer's Kindling",
@@ -12006,4 +12007,4 @@ JUNK_GEAR_NAMES = [
     'Zamor Mask',
 ]
 
-_GEN_STAMP = {'inputs_hash': 'sha256:d38f09965348b04ae96129d4bd7063a3e5c007beb32fed7a4c89f11170f6f993', 'module': 'item_ids.py', 'body_sha256': 'sha256:93e0cb24cde4027c97d5e75de76ddbe9fa36af5e66cbdde6b30990c8bb126862'}
+_GEN_STAMP = {'inputs_hash': 'sha256:c9de10454abe30fbf11dadca6b5b79344f70438be52cb069b18b1e56017011c8', 'module': 'item_ids.py', 'body_sha256': 'sha256:18970edaf5b2c7ea5154f8340541c4d56dd178d23e00139e8fc28f2b07450979'}

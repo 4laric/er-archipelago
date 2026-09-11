@@ -33,6 +33,8 @@ else:
 _TABLES_DIR = os.path.join(HERE, "eldenring", "tables")
 os.makedirs(_TABLES_DIR, exist_ok=True)
 OUT=os.path.join(_TABLES_DIR,"data.py")
+from tools.furnace_golem_evidence import load as _load_furnace_evidence
+_FURNACE_REWARDS, _FURNACE_TAXONOMY = _load_furnace_evidence()
 HUB="Roundtable Hold"
 # Boss-drop flags: boss-healthbar enemy DROPS, datamined from EMEVD common boss-handlers (matt-free).
 # Committed generated module eldenring/tables/boss_drops.py (tools/datamine_boss_drops.py, run before this
@@ -1094,6 +1096,8 @@ def _multi_merchant_shop_flags():
     return _out
 
 _MULTI_MERCHANT = _multi_merchant_shop_flags()
+# Non-spatial encounter identity from the MSB -> EMEVD -> lot join.
+_DESC_OVERRIDE.update({f: "defeat Furnace Golem" for f in _FURNACE_REWARDS})
 _bad_pins = sorted(set(_DESC_OVERRIDE) & set(_MULTI_MERCHANT))
 if _bad_pins:
     _lines = "\n".join(
@@ -2068,7 +2072,7 @@ _WORLDLESS_SINGLES = frozenset({
     # so the tsv is a corpus this rule must consult (the keeper test now subtracts it).
     39207200, 1036477100, 1036487100, 1037487100,
     1038467400, 1038477100, 1042337200, 1043317500,
-    1047557040, 1052557040, 2048467701,
+    1047557040, 1052557040,  # 2048467701 released by c5170 lot-group witness (#1543).
     2049437610, 2049437901, 2049437902, 2049437911, 2049437912, 2050457510,
 })
 # WORLDLESS SHORT-FLAG LOTS -- the short-ID counterpart to the class above (#1077). Short flags are
@@ -3718,6 +3722,11 @@ FLAG_REGION_OVERRIDE = {
     400221: "Limgrave",
 }
 
+# Both rewards belong to the placed golem, not the award flag prefix (#1543).
+# Leave already-correct short-flag map recovery intact (notably f65410's EMEVD map).
+FLAG_REGION_OVERRIDE.update({f: r for f, (r, _entity) in _FURNACE_REWARDS.items()
+                             if f >= 1_000_000 or f in (65400, 65420, 65460)})
+
 # These per-flag pins settle WHICH SIDE of a measured region seam owns the reward, but they do not
 # turn a graceless MSB tile into directly reachable ground. Keep the Snowfield Avatar tears as live
 # Snowfield checks while retaining the conservative DEFAULTED progression bar until their exact
@@ -3938,7 +3947,6 @@ GLOBAL_RECOVER = {
     510440: "Scadu Altus",           # Golden Hippopotamus (#885). Was "Shadow Keep" (the post-death-floor ruling, superseded 2026-08-19: the Hippo presents as Scadu Altus EVERYWHERE, members included -- see DUNGEON_REGION_CURATED["m21_00_00_00"]). Value matters again: with m21_00 curated to Scadu Altus the boss-arena branch's _bar == _bmd, so it FALLS THROUGH and a global-method row can reach this entry -- a stale "Shadow Keep" here would resurrect the exact inconsistency #885 removes.
     # === DLC (SotE) recovered checks + re-pins (Alaric 2026-07-10; DLC-CHECK-AUDIT.md §4/§5c) ===
     400660: 'Scadu Altus',
-    65460: 'Gravesite',
     400590: 'Scadu Altus',
     400592: 'Scadu Altus',
     400596: 'Shadow Keep',
@@ -4042,14 +4050,7 @@ GLOBAL_RECOVER = {
     65280: "Caelid",                   # Flame-Shrouding Cracked Tear (Caelid Erdtree Avatar)
     65300: "Liurnia",     # Lightning-Shrouding Cracked Tear (Liurnia Erdtree Avatar)
     65310: "Liurnia",     # Holy-Shrouding Cracked Tear (Liurnia Erdtree Avatar)
-    # DLC furnace-golem tears.
-    65400: "Gravesite",          # Viridian Hidden Tear (Gravesite Plains)
-    65410: "Scadu Altus",              # Crimsonburst Dried Tear
-    65420: "Ancient Ruins",            # M4G1200033 + upper Rauh bridge route; mfg_oracle_regions.json
-    65430: "Scadu Altus",              # Cerulean-Sapping Cracked Tear
-    65440: "Scadu Altus",              # Oil-Soaked Tear
-    65450: "Scadu Altus",              # Bloodsucking Cracked Tear
-    65470: "Gravesite",          # Deflecting Hardtear (Gravesite Plains golem)
+    # DLC furnace-golem rewards are joined from the c5170 census below.
     # Larval Tears: multiple scattered copies share these flags -> HUB (always reachable, never a false gate).
     # 510340 is NOT scattered: its two lots (10340 = Larval Tear x2, 10341 = Silver Tear Mask) are the
     # SINGLE Mimic Tear boss pickup in Nokstella -> Eternal Cities (the "Larval Tear/HUB" was a mislabel;
@@ -4113,6 +4114,9 @@ GLOBAL_RECOVER = {
     # Shared/unplaced common-event flag -> pin so it sits behind the Weeping lock, not always-free.
     510800: "Weeping",
 }
+
+# Both rewards belong to the placed golem, not the award flag prefix (#1543).
+GLOBAL_RECOVER.update({f: r for f, (r, _entity) in _FURNACE_REWARDS.items()})
 # Missable location flags (matt-free): checks gated behind a LIMITED consumable or a killable NPC, so
 # fill must not place required progression there (features/missable_locations.py enforces via item_rule).
 #   Deathroot: the 10 Gurranq reward flags above (delivering deathroots; Gurranq killable).
@@ -5989,6 +5993,12 @@ _numen_rows = [r for r in rows if int(r['flag']) == 400452]
 assert len(_numen_rows) == 1
 rows = [r for r in rows if int(r['flag']) != 400452] + _numen_rows
 
+
+# Restore the golem's second lot at the end, preserving every shipped AP ID.
+_furnace_restored = [r for r in rows if int(r['flag']) == 2048467701]
+if len(_furnace_restored) != 1:
+    raise ValueError("Furnace Visage sibling recovery must yield exactly one row")
+rows = [r for r in rows if int(r['flag']) != 2048467701] + _furnace_restored
 
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 # These checks ARE the two Finger Ruins bell interactions: the bell event awards the talisman lot and
