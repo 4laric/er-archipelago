@@ -3,6 +3,39 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.0.9 — 2026-09-11
+
+### What you need to update
+
+- **Client:** **Optional.** `CONTRACT_HASH` has not moved since v0.6.0.3, so a v0.6.0.3 through
+  v0.6.0.8 client plays every seed this window generates and a v0.6.0.9 client plays every seed
+  those apworlds generated. Standing exceptions, none new here: **Elden Ring 2.7.1.0 needs at
+  least a v0.6.0.6 client** (version gate), the Respec overlay action needs v0.6.0.7 or newer, and
+  the trap-replay and main-menu delivery fixes live in v0.6.0.8 or newer.
+- **APWorld:** Host-only — install v0.6.0.9 when generating a new room once it ships. Players do
+  not need it.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible — a fixpack never strands a running seed.
+- **Profile/assets:** No action at the open. If an entry below changes the bundled MapForGoblins
+  build or the AP Flower package, it will say so there.
+
+Window opened AT THE TAG of v0.6.0.8 with ZERO commits past it.
+
+`CONTRACT_HASH` is `613fb438`, read by loading `contract.py` at the open: unmoved since v0.6.0.3,
+so every 0.6.0-line client and apworld handshake with each other across this window.
+
+The version moved, so the client half moved with it: clients PR #679 "Stamp the paired client for
+the v0.6.0.9 window" moves the three client sites to `0.6.0.9`, and the gitlink rides in this same
+commit (AGENTS §7). #679 branches from client main at `6402d763`, which is the pinned commit, so
+the gitlink advances by the stamp alone.
+
+Opened BY THE WORKFLOW for the second time running, on a single tag delivery this time: one
+`release` run, one `er-release` run, one client bundle on the release page, one open-window run.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.6.0.8 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
 ## v0.6.0.8 — 2026-09-11
 
 - **Old traps no longer replay after a reconnect (clients #675):** Reconnecting, or recovering a
