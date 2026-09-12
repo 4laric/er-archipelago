@@ -53,9 +53,6 @@ def load_healthbars():
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     table = dict(mod.BOSS_HEALTHBARS)
-    # gen_data folds the Avatar's proxy groups after ownership allocation.
-    # Retain proxy names for old seeds and name the canonical final-defeat trigger too.
-    table[2050480800] = table[2050480810]
     if not table:
         raise SystemExit("FATAL: boss_healthbars.py has an empty BOSS_HEALTHBARS")
     return table

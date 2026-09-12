@@ -172,6 +172,9 @@ try:
     _hbspec = _ilu.spec_from_file_location("_boss_hb", os.path.join(HERE, "eldenring", "tables", "boss_healthbars.py"))
     _hbmod = _ilu.module_from_spec(_hbspec); _hbspec.loader.exec_module(_hbmod)
     BOSS_HEALTHBARS = dict(_hbmod.BOSS_HEALTHBARS)
+    # The final-defeat entry is metadata, not a fourth Avatar allocation host.
+    # Restore it when the three allocated proxy groups are folded below.
+    BOSS_HEALTHBARS.pop(2050480800, None)
 except Exception as _e:
     BOSS_HEALTHBARS = {}
     print(f"[gen_data] boss_healthbars.py unavailable ({_e!r}); sweeps fall back to region-wide banner scan -- run tools/datamine_boss_healthbars.py")

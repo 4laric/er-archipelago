@@ -681,4 +681,4 @@ SWEEP_UNSPAWNED = {
 SWEEP_UNSPAWNED_OPEN = {
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:1fb0382cfcfc91e5ffbe581975d90d47839fc373f4e4afcf6af3c8bd83935ef0', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:66e1d01e25c8adf4358c878c67f442e9412272e60e3cdc3ae986ca8408a3e170'}
+_GEN_STAMP = {'inputs_hash': 'sha256:cc6844ac2f89a7190c3101a8151120102b32275e6c28061ea57adf4c966f3d3f', 'module': 'boss_sweeps.py', 'body_sha256': 'sha256:66e1d01e25c8adf4358c878c67f442e9412272e60e3cdc3ae986ca8408a3e170'}

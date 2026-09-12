@@ -356,6 +356,10 @@ def datamine():
         out[fl] = b
     for ent, name in dropped:
         print(f"[boss_healthbars] DROPPED field boss {ent} ({name or '?'}): no derivable defeat flag")
+    # Publish final-defeat metadata as well as proxy metadata used by old seeds and
+    # the ownership allocator. gen_data excludes this alias until after allocation.
+    if 2050480810 in out:
+        out[2050480800] = dict(out[2050480810])
     return out
 
 

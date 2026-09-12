@@ -240,6 +240,7 @@ BOSS_HEALTHBARS = {
     2049480800: ('m61_49', 'm61_49_48', 'legacy', 'Commander Gaius'),
     2050430800: ('m61_50', 'm61_50_43', 'legacy', 'Dryleaf Dane'),
     2050470800: ('m61_50', 'm61_50_47', 'legacy', 'Tree Sentinel'),
+    2050480800: ('m61_50', 'm61_50_48', 'legacy', 'Scadutree Avatar'),
     2050480810: ('m61_50', 'm61_50_48', 'legacy', 'Scadutree Avatar'),
     2050480811: ('m61_50', 'm61_50_48', 'legacy', 'Scadutree Avatar'),
     2050480812: ('m61_50', 'm61_50_48', 'legacy', 'Scadutree Avatar'),
