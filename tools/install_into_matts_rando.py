@@ -49,7 +49,7 @@ import sys
 from pathlib import Path
 
 DLL_NAME = "eldenring_archipelago.dll"
-MFG_FILES = ("MapForGoblins.dll", "MapForGoblins.ini")
+MFG_FILES = ("MapForGoblins.dll", "MapForGoblins.ini", "MapForGoblins.upstream.dll", "MapForGoblins.AP.ini")
 TOML_NAME = "config_eldenringrandomizer_dll.toml"
 EXE_NAME = "EldenRingRandomizer.exe"
 # The dll is inert without these beside it (double-pay / dead shop checks).

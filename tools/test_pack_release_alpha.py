@@ -46,6 +46,14 @@ class MfgPackageTests(unittest.TestCase):
                 '[' + section + ']\n' + '\n'.join(k+'='+v for k, v in fields.items())
                 for section, fields in mfg.PRESET.items()))
             (artifact / 'LICENSE.txt').write_text('VirusAlex\nPermission is hereby granted\n')
+            (artifact / 'MapForGoblins.upstream.dll').write_bytes(dll)
+            (artifact / 'MapForGoblins.AP.ini').write_text('[AP]\nchecks_only=1\nprogression_only=0\nin_logic_only=1\n')
+            (artifact / 'licenses').mkdir()
+            for name in ('adapter', 'minhook'):
+                (artifact / 'licenses' / (name + '.txt')).write_text('fixture license')
+            lock = json.loads(Path(pack.REL, 'MFG-VERSION.json').read_text())
+            lock['upstream_sha256'] = hashlib.sha256(dll).hexdigest()
+            self.enterContext(patch.object(mfg, 'load_lock', return_value=lock))
             mfg.record_artifact(artifact, Path(pack.REL, 'MFG-VERSION.json'))
             apworld = root / 'eldenring.apworld'
             apworld.write_bytes(b'fixture')
@@ -75,7 +83,8 @@ class MfgPackageTests(unittest.TestCase):
                 self.assertEqual(profile.get('packages', []), [])
                 self.assertFalse(any('flower-package/' in n or n.endswith('.tpf.dcx') for n in names))
                 prefix = profile_name.removesuffix('ap.me3')
-                for name in ['MFG-PROVENANCE.json', 'MFG-LICENSE.txt', 'MapForGoblins.ini',
+                for name in ['MapForGoblins.upstream.dll', 'MapForGoblins.AP.ini',
+                             'licenses/adapter.txt', 'licenses/minhook.txt', 'MFG-PROVENANCE.json', 'MFG-LICENSE.txt', 'MapForGoblins.ini',
                              'check_lots_table.json', 'shoplineup_flags.json']:
                     self.assertIn(prefix + name, names)
                 self.assertFalse(any("torrent_rideparam_repair" in n.lower() or "tarnished-torrent" in n.lower() for n in names))

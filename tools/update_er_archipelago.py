@@ -143,7 +143,7 @@ def payload_files(extracted_me3: Path) -> list[Path]:
 
 def swap_in(install: Path, new_me3: Path, stamp_version: str) -> tuple[int, int, list[str]]:
     """Replace the payload, back up what it replaces, touch nothing else.
-    Existing MapForGoblins.ini settings are preserved; absent ones receive the preset.
+    Existing MapForGoblins INI settings are preserved; absent ones receive the preset.
     Returns (replaced, added, backed_up_names)."""
     files = payload_files(new_me3)
     # The bundle-intact rule, enforced BEFORE any write: a payload missing the dll or either
@@ -152,6 +152,12 @@ def swap_in(install: Path, new_me3: Path, stamp_version: str) -> tuple[int, int,
     for required in (DLL_NAME, "check_lots_table.json", "shoplineup_flags.json"):
         if required not in names:
             raise UpdateError("the downloaded bundle's me3/ is missing %s -- refusing" % required)
+    if names & {'MapForGoblins.upstream.dll', 'MapForGoblins.AP.ini'}:
+        required = {'MapForGoblins.dll', 'MapForGoblins.ini',
+                    'MapForGoblins.upstream.dll', 'MapForGoblins.AP.ini'}
+        missing = required - names
+        if missing:
+            raise UpdateError('incomplete MapForGoblins adapter pair: ' + ', '.join(sorted(missing)))
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     backup_root = install / (".er-updater-backup-" + stamp)
     replaced = added = 0
@@ -161,7 +167,7 @@ def swap_in(install: Path, new_me3: Path, stamp_version: str) -> tuple[int, int,
         dst = install / rel
         # The incoming package stays intact for integrity verification. Preserve
         # existing player settings only at installation; a new install gets the preset.
-        if len(rel.parts) == 1 and rel.name.lower() == "mapforgoblins.ini" and dst.is_file():
+        if len(rel.parts) == 1 and rel.name.lower() in ("mapforgoblins.ini", "mapforgoblins.ap.ini") and dst.is_file():
             continue
         if dst.exists():
             bak = backup_root / rel

@@ -7,7 +7,8 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** **Optional.** `CONTRACT_HASH` has not moved since v0.6.0.3, so a v0.6.0.3 through
+- **Client:** **Required for the missing-pin fix; otherwise optional.** Update `eldenring_archipelago.dll`
+  together with the map files. `CONTRACT_HASH` has not moved since v0.6.0.3, so a v0.6.0.3 through
   v0.6.0.8 client plays every seed this window generates and a v0.6.0.9 client plays every seed
   those apworlds generated. Standing exceptions, none new here: **Elden Ring 2.7.1.0 needs at
   least a v0.6.0.6 client** (version gate), the Respec overlay action needs v0.6.0.7 or newer, and
@@ -16,8 +17,10 @@ The narrative — what this project is and what v0.2 brings — lives in
   not need it.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
-- **Profile/assets:** No action at the open. If an entry below changes the bundled MapForGoblins
-  build or the AP Flower package, it will say so there.
+- **Profile/assets:** Reinstall or replace the complete client bundle for the map speedup. Manual installs
+  replace `MapForGoblins.dll` and `MapForGoblins.ini`, and add `MapForGoblins.upstream.dll`
+  and `MapForGoblins.AP.ini` beside them. The launcher still loads only `MapForGoblins.dll`.
+  AP filters now live in `MapForGoblins.AP.ini`; defaults are checks-only and in-logic-only.
 
 Window opened AT THE TAG of v0.6.0.8 with ZERO commits past it.
 
@@ -34,7 +37,20 @@ Opened BY THE WORKFLOW for the second time running, on a single tag delivery thi
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.8 in this same commit.
 
-Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+### Map performance
+
+- MapForGoblins now uses the pinned upstream 2.1.3 native renderer through our AP adapter
+  (MFG #15), replacing the older fork renderer. The live test reported that map lag was gone;
+  no numeric FPS claim is made. AP check filtering, in-logic filtering, hover lookup and
+  expired-client fallback remain available. Map close/reopen and layer-switch tests passed.
+- The release builds the adapter and verifies the upstream archive and DLL hashes, then ships
+  both DLLs, both settings files and their license notices as one checked package. The updater
+  installs the companion DLL and preserves existing AP settings on subsequent updates.
+- F10 combines AP filters and upstream settings (MFG #16). The adapter corrects the ImGui
+  initialization path that skipped shared native attachment hooks. Both INIs remain supported.
+- Missing seed-matched pins are fixed in clients #680: map lots join to current-seed acquisition
+  flags instead of stale baked AP IDs before applying reachability. Checks-only and in-logic-only
+  remain enabled. Existing seeds need no regeneration; closed regions remain out of logic.
 
 ## v0.6.0.8 — 2026-09-11
 
@@ -66,8 +82,10 @@ clients #675 through #678 above.
   not need it.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
-- **Profile/assets:** No action at the open. If an entry below changes the bundled MapForGoblins
-  build or the AP Flower package, it will say so there.
+- **Profile/assets:** Reinstall or replace the complete client bundle for the map speedup. Manual installs
+  replace `MapForGoblins.dll` and `MapForGoblins.ini`, and add `MapForGoblins.upstream.dll`
+  and `MapForGoblins.AP.ini` beside them. The launcher still loads only `MapForGoblins.dll`.
+  AP filters now live in `MapForGoblins.AP.ini`; defaults are checks-only and in-logic-only.
 
 Window opened AT THE TAG of v0.6.0.7 with ZERO commits past it.
 
@@ -133,8 +151,10 @@ commit range between them is clients #673 above.
   not need it.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible — a fixpack never strands a running seed.
-- **Profile/assets:** No action at the open. If an entry below changes the bundled MapForGoblins
-  build or the AP Flower package, it will say so there.
+- **Profile/assets:** Reinstall or replace the complete client bundle for the map speedup. Manual installs
+  replace `MapForGoblins.dll` and `MapForGoblins.ini`, and add `MapForGoblins.upstream.dll`
+  and `MapForGoblins.AP.ini` beside them. The launcher still loads only `MapForGoblins.dll`.
+  AP filters now live in `MapForGoblins.AP.ini`; defaults are checks-only and in-logic-only.
 
 Window opened AT THE TAG of v0.6.0.6 with ZERO commits past it — the tidy shape, and worth
 naming because the last window did not have it: v0.6.0.6 opened two commits past v0.6.0.5 with

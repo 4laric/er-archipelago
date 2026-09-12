@@ -24,6 +24,7 @@ Network: `git ls-remote` for the head, and one raw-file fetch for the fork's pre
 Archipelago, no client checkout, no secrets -- the fork is public.
 """
 import argparse
+import configparser
 import json
 import os
 import re
@@ -61,10 +62,15 @@ def raw_url(repo_url, sha, path):
     return "https://raw.githubusercontent.com/%s/%s/%s/%s" % (m.group(1), m.group(2), sha, path)
 
 
-def fork_preset(repo_url, sha):
+def fork_preset(repo_url, sha, adapter=False):
     """{section: {key: value}} from the fork's make_ap_ini.py SETTINGS at `sha`."""
-    with urllib.request.urlopen(raw_url(repo_url, sha, PRESET_SCRIPT), timeout=30) as resp:
+    path = 'adapter/MapForGoblins.AP.ini' if adapter else PRESET_SCRIPT
+    with urllib.request.urlopen(raw_url(repo_url, sha, path), timeout=30) as resp:
         src = resp.read().decode("utf-8")
+    if adapter:
+        ini = configparser.ConfigParser(interpolation=None)
+        ini.read_string(src)
+        return {section: dict(ini[section]) for section in ini.sections()}
     m = re.search(r"^SETTINGS\s*=\s*(\{.*?\n\})", src, re.S | re.M)
     if not m:
         raise RuntimeError("%s at %s has no SETTINGS table" % (PRESET_SCRIPT, sha[:12]))
@@ -106,7 +112,9 @@ def check(allow_behind=False):
         else:
             print("ERROR mfg_pin: " + msg, file=sys.stderr)
             rc = 1
-    errors, warnings = preset_drift(package_mfg.PRESET, fork_preset(lock["source_repository"], pinned))
+    adapter = lock.get('schema_version') == 2
+    preset = package_mfg.ADAPTER_PRESET if adapter else package_mfg.PRESET
+    errors, warnings = preset_drift(preset, fork_preset(lock["source_repository"], pinned, adapter))
     for w in warnings:
         print("WARN mfg_pin: " + w)
     for e in errors:

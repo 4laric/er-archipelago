@@ -1,4 +1,7 @@
 import json
+import hashlib
+from unittest.mock import patch
+import package_mfg
 from pathlib import Path
 import struct
 import tempfile
@@ -88,6 +91,50 @@ class MfgPackageTests(unittest.TestCase):
         (self.artifact / 'MapForGoblins.dll').write_bytes(b'x'*1024)
         with self.assertRaisesRegex(MfgError, 'Windows binary'):
             record_artifact(self.artifact, self.lock)
+
+
+class AdapterPackageTests(MfgPackageTests):
+    def setUp(self):
+        super().setUp()
+        raw = (self.artifact / 'MapForGoblins.dll').read_bytes()
+        upstream_hash = hashlib.sha256(raw).hexdigest()
+        self.enterContext(patch.object(package_mfg, 'UPSTREAM_SHA256', upstream_hash))
+        lock = json.loads(self.lock.read_text())
+        lock.update(schema_version=2, upstream_version='2.1.3', upstream_sha256=upstream_hash)
+        self.lock.write_text(json.dumps(lock))
+        (self.artifact / 'MapForGoblins.upstream.dll').write_bytes(raw)
+        (self.artifact / 'MapForGoblins.AP.ini').write_text('[AP]\nchecks_only=1\nprogression_only=0\nin_logic_only=1\n')
+        (self.artifact / 'licenses').mkdir()
+        for name in ('adapter', 'minhook'):
+            (self.artifact / 'licenses' / (name + '.txt')).write_text('fixture license')
+        record_artifact(self.artifact, self.lock)
+
+    def test_wrong_preset_cannot_be_blessed(self):
+        path = self.artifact / 'MapForGoblins.AP.ini'
+        path.write_text(path.read_text().replace('checks_only=1', 'checks_only=0'))
+        with self.assertRaisesRegex(MfgError, 'preset'):
+            record_artifact(self.artifact, self.lock)
+
+    def test_wrong_upstream_cannot_be_blessed(self):
+        path = self.artifact / 'MapForGoblins.upstream.dll'
+        path.write_bytes(path.read_bytes() + b'wrong release')
+        with self.assertRaisesRegex(MfgError, 'renderer hash'):
+            record_artifact(self.artifact, self.lock)
+
+    def test_each_dependency_required_before_any_stage_write(self):
+        for name in package_mfg.ADAPTER_FILES.values():
+            path = self.artifact / name
+            raw = path.read_bytes()
+            path.unlink()
+            with self.assertRaisesRegex(MfgError, 'Missing'):
+                stage_mfg(self.artifact, self.me3, self.lock)
+            self.assertFalse((self.me3 / 'MapForGoblins.dll').exists())
+            path.write_bytes(raw)
+
+    def test_direct_upstream_native_refused(self):
+        (self.me3 / 'ap.me3').write_text('[[natives]]\npath="MapForGoblins.upstream.dll"\n')
+        with self.assertRaisesRegex(MfgError, 'only by the adapter'):
+            stage_mfg(self.artifact, self.me3, self.lock)
 
 
 if __name__ == '__main__':
