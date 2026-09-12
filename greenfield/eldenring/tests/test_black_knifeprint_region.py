@@ -2,9 +2,14 @@
 from pathlib import Path
 import runpy
 
+# The world package dir (.../eldenring). RepoRootIsNeverDerivedPositionally bans the
+# positional pathlib-index idiom, so use .parent.parent -- the sibling convention already
+# used by the other tables-reading tests (test_gf_mfg_*).
+PKG = Path(__file__).resolve().parent.parent
+
 
 def test_knifeprint_return_is_not_locked_behind_leyndell():
-    data = runpy.run_path(str(Path(__file__).parents[1] / "tables" / "data.py"))
+    data = runpy.run_path(str(PKG / "tables" / "data.py"))
     by_flag = {
         flag: (region, ident)
         for region, rows in data["LOCATIONS"].items()
@@ -16,7 +21,7 @@ def test_knifeprint_return_is_not_locked_behind_leyndell():
 
 
 def test_relocating_npc_rewards_use_the_handover_region():
-    data = runpy.run_path(str(Path(__file__).parents[1] / "tables" / "data.py"))
+    data = runpy.run_path(str(PKG / "tables" / "data.py"))
     expected = {
         400320: ("Caelid", 7770598),
         400391: ("Liurnia", 7773733),
