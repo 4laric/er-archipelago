@@ -113,7 +113,21 @@ def _gate_region_resolver():
         m = re.match(r"(m6[01])_(\d\d)_(\d\d)", tile or "")
         if region and m:
             votes[(m.group(1), int(m.group(2)), int(m.group(3)))][region] += 1
-    tile_region = {k: c.most_common(1)[0][0] for k, c in votes.items()}
+    # A TIED TILE IS REFUSED, NOT BROKEN BY INSERTION ORDER (2026-09-11). `most_common` returns the
+    # first-inserted key on a tie, so a tile carrying one grace for each of two play-regions -- the
+    # STRADDLING tile, the whole reason gen_data curates m61_47_44 per check -- was silently given
+    # whichever region the grace table happened to list first. That is exactly the "confident wrong
+    # answer this whole screen exists to catch" that `from_map` below already refuses on, and it
+    # produced a false unprotected-gate accusation against f530865 (Moonrithyll, an Ensis check whose
+    # gate flag 2047440360 is the invader's OWN death flag on that same tile: m61_47_44 holds 76813
+    # Castle Front -> 6800 Gravesite and 76821 Castle Ensis Checkpoint -> 6820 Ensis, one vote each).
+    # A tie means the tile does not have A region; the pair drops to the setter-map handle below.
+    tile_region = {}
+    for k, c in votes.items():
+        top = c.most_common(2)
+        if len(top) > 1 and top[0][1] == top[1][1]:
+            continue
+        tile_region[k] = top[0][0]
     assert len(tile_region) > 100, "the grace->tile->region join has drifted; refusing to screen blind"
 
     def resolve(flag):

@@ -590,8 +590,16 @@ def test_the_sweep_corpus_did_not_shrink():
     # pocket with no eligible same-region field boss, so hand collection remains; the
     # old Liurnia sweep must not bypass that door. No other check loses coverage.
     # #1543: +1 restored visage f2048467701; no existing member loses sweep eligibility.
-    assert total == 4115, (
-        "sweep corpus is %d, expected 4115. If a sweep was legitimately added or removed, say WHY "
+    # 2026-09-11 (255 Castle Ensis report, instrument adjudication): 4115 -> 4113. Seven region
+    # moves, five of which simply change owner (see the digest note below); exactly TWO checks lose
+    # sweep coverage outright and both for the same structural reason. f68790 (Loyal Knight's
+    # Cookbook) and f530865 (Moonrithyll's Knight Sword) move Gravesite -> Ensis, leaving the
+    # Ghostflame Dragon field sweep 2045440800 two tiles west; Ensis's own regional divvy is
+    # Rellana 2048440800, and the round-robin deals these two no slot. Hand collection remains,
+    # which is the conservative direction: a sweep that granted them from a Gravesite boss was
+    # granting an Ensis check off a Gravesite kill, which is what #1059 forbids.
+    assert total == 4113, (
+        "sweep corpus is %d, expected 4113. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -936,6 +944,14 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # (six Abyssal rewards -> Midra 28000800, Sacred Blade -> 1045390800, Greathammer ->
     # 2046410800, two Furnace Visages already Scadu Altus via #1543) with no flag gaining or
     # losing coverage; the count stays 4115.
-    assert (digest, n) == ("3373e1635827bd49", 4115), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (3373e1635827bd49, 4115). The total alone will "
+    # 2026-09-11 (255 Castle Ensis report), measured by (trigger, flag): 7 removed, 5 added, net -2.
+    # ZERO crossed a region boundary -- every new owner is fought in its member's NEW region, which
+    # is the shape #1059 demands. Four checks leave the Ghostflame Dragon field sweep 2045440800
+    # (Gravesite) as they move to Ensis, and three of them are dealt to Rellana 2048440800:
+    # f2047447730 Starlight Shards, f2047447820 Carian Sorcery Sword, f2047457180 Grave Glovewort
+    # [8]. Two leave Rellana as they move to Scadu Altus: f2048447080 -> Black Knight Garrew
+    # 2047450800, f2048447500 -> Black Knight Edredd 2049430850. The remaining two (f68790,
+    # f530865) lose coverage and are accounted for at the corpus total above.
+    assert (digest, n) == ("5a1be8ceeb212f42", 4113), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (5a1be8ceeb212f42, 4113). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

@@ -184,11 +184,23 @@ def load_tables(repo):
                 parts = line.rstrip("\n").split("\t")
                 if len(parts) < 5 or not parts[0].isdigit():
                     continue
-                if int(parts[0]) not in _ruled_flags or not parts[4].startswith(_EXACT):
+                if int(parts[0]) not in _ruled_flags:
                     continue
-                for b in parts[3].split(";"):
-                    if b.strip().isdigit():
-                        exact_buckets[int(parts[0])].add(int(b))
+                _bks = {int(b) for b in parts[3].split(";") if b.strip().isdigit()}
+                if not parts[4].startswith(_EXACT):
+                    # THE FOLDED TILE (2026-09-11, f2048447500). `tile-default` is normally the
+                    # coarse instrument and is left to `tile_buckets` above -- but the scan takes
+                    # the PlayRegionParam row of the tile the FOLDED point actually STANDS on
+                    # (datamine_grace_ground.derive_ground -> fine_tile), not the tile the
+                    # placement was AUTHORED in, and the two differ for a pickup sitting past its
+                    # own tile's edge. When they differ the scan is measuring a point the authored
+                    # tile cannot see, which is the same "a tile default cannot see across a tile
+                    # boundary" argument as the volume branch, so it rules for the same reason.
+                    # When they AGREE this adds nothing and the row stays with the tile default.
+                    _authored = tile_buckets.get(_tile_of(parts[1]))
+                    if not _authored or _bks <= set(_authored):
+                        continue
+                exact_buckets[int(parts[0])] |= _bks
 
     coords = {}
     with open(os.path.join(gf, "item_grace_coords.tsv"), encoding="utf-8") as fh:

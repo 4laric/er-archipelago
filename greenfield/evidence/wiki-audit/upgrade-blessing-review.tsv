@@ -40,7 +40,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7774440	glovewort	repeated_material_row	Consecrated Snowfield	Ghost Glovewort [9]	1048577920	m60_48_57	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774441	glovewort	repeated_material_row	Consecrated Snowfield	Ghost Glovewort [9]	1048577930	m60_48_57	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773819	glovewort	repeated_material_row	Consecrated Snowfield	Great Grave Glovewort	520190		audited_one_family	1	gameplay-wiki:eldenpedia	unresolved	second_independent_exact_landmark_source
-7773492	glovewort	repeated_material_row	Ensis	Ghost Glovewort [7]	2048447080	m61_48_44	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7773438	glovewort	repeated_material_row	Ensis	Grave Glovewort [8]	2047457180	m61_48_44	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771480	glovewort	unique_material_row	Farum Azula	Glovewort Picker's Bell Bearing [3]	13007910	m13_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	unresolved	none_identity_region_trusted
 7771405	glovewort	repeated_material_row	Farum Azula	Great Grave Glovewort	13007025	m13_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771407	glovewort	repeated_material_row	Farum Azula	Great Grave Glovewort	13007035	m13_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -53,7 +53,6 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7773482	glovewort	repeated_material_row	Gravesite	Grave Glovewort [6]	2048437030	m61_46_41	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7774011	glovewort	repeated_material_row	Gravesite	Grave Glovewort [6]	40007050	m40_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774017	glovewort	repeated_material_row	Gravesite	Grave Glovewort [7]	40007110	m40_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7773438	glovewort	repeated_material_row	Gravesite	Grave Glovewort [8]	2047457180	m61_45_44	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772425	glovewort	repeated_material_row	Gravesite	Great Ghost Glovewort	40007800	m40_00	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7771560	glovewort	repeated_material_row	Haligtree	Ghost Glovewort [9]	15001300		remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771561	glovewort	repeated_material_row	Haligtree	Ghost Glovewort [9]	15001310		remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -80,6 +79,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7774033	glovewort	repeated_material_row	Rauh Base	Great Ghost Glovewort	40017120	m40_01	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7773532	glovewort	repeated_material_row	Scadu Altus	Ghost Glovewort [6]	2049437330	m61_49_43	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771917	glovewort	repeated_material_row	Scadu Altus	Ghost Glovewort [7]	21007580	m21_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7773492	glovewort	repeated_material_row	Scadu Altus	Ghost Glovewort [7]	2048447080	m61_47_45	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774039	glovewort	repeated_material_row	Scadu Altus	Ghost Glovewort [7]	40027100	m61_49_45	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772428	glovewort	repeated_material_row	Scadu Altus	Ghost Glovewort [8]	40027200	m61_49_44	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7773624	glovewort	repeated_material_row	Scadu Altus	Ghost Glovewort [9]	2051417000	m61_49_43	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
@@ -186,7 +186,6 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7771849	scadutree_fragment	uniquely_anchored_collectible	Enir Ilim	Scadutree Fragment	20017350	m20_01	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	unresolved	none_identity_region_trusted
 7771861	scadutree_fragment	uniquely_anchored_collectible	Enir Ilim	Scadutree Fragment	20017470	m20_01	trusted	2	gameplay-guide:game8;gameplay-guide:gamesradar	unresolved	none_identity_region_trusted
 7771869	scadutree_fragment	uniquely_anchored_collectible	Enir Ilim	Scadutree Fragment	20017550	m20_01	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	unresolved	none_identity_region_trusted
-7773493	scadutree_fragment	uniquely_anchored_collectible	Ensis	Scadutree Fragment	2048447500	m61_48_44	region_taxonomy_conflict	1	gameplay-guide:gamesradar	unresolved	adjudicate Highroad Cross boundary: PowerPyx Scadu Altus vs AP Ensis
 7774543	scadutree_fragment	uniquely_anchored_collectible	Ensis	Scadutree Fragment	2047447720		trusted	2	gameplay-guide:game8;gameplay-guide:pushsquare	unresolved	none_identity_region_trusted
 7773473	scadutree_fragment	uniquely_anchored_collectible	Gravesite	Scadutree Fragment	2048417700	m61_46_41	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773483	scadutree_fragment	uniquely_anchored_collectible	Gravesite	Scadutree Fragment	2048437700	m61_46_41	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	unresolved	none_identity_region_trusted
@@ -197,6 +196,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7774544	scadutree_fragment	uniquely_anchored_collectible	Gravesite	Scadutree Fragment	2047447750	m61_45_44	trusted	2	gameplay-guide:game8;gameplay-guide:gamesradar	unresolved	none_identity_region_trusted
 7773649	scadutree_fragment	uniquely_anchored_collectible	Jagged Peak	Scadutree Fragment	2053397020	m61_54_39	trusted	2	gameplay-guide:gamesradar;gameplay-guide:redmaw	unresolved	none_identity_region_trusted
 7773328	scadutree_fragment	uniquely_anchored_collectible	Rauh Base	Scadutree Fragment	2046457040	m61_46_45	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:eldenpedia	unresolved	none_identity_region_trusted
+7773493	scadutree_fragment	uniquely_anchored_collectible	Scadu Altus	Scadutree Fragment	2048447500	m61_49_43	region_taxonomy_conflict	1	gameplay-guide:gamesradar	unresolved	adjudicate Highroad Cross boundary: PowerPyx Scadu Altus vs AP Ensis
 7773498	scadutree_fragment	uniquely_anchored_collectible	Scadu Altus	Scadutree Fragment	2048457520	m61_47_45	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	unresolved	none_identity_region_trusted
 7773506	scadutree_fragment	uniquely_anchored_collectible	Scadu Altus	Scadutree Fragment	2048467510	m61_47_45	trusted	2	gameplay-guide:game8;gameplay-guide:gamesradar	unresolved	none_identity_region_trusted
 7773587	scadutree_fragment	uniquely_anchored_collectible	Scadu Altus	Scadutree Fragment	2050437500	m61_50_43	trusted	2	gameplay-guide:gamesradar;gameplay-wiki:eldenpedia	unresolved	none_identity_region_trusted

@@ -5866,97 +5866,6 @@
     },
     {
       "all_candidate_ids": [
-        7771790,
-        7771809,
-        7771849,
-        7771861,
-        7771869,
-        7771949,
-        7771965,
-        7771995,
-        7773205,
-        7773328,
-        7773354,
-        7773457,
-        7773473,
-        7773483,
-        7773493,
-        7773498,
-        7773506,
-        7773584,
-        7773587,
-        7773649,
-        7773653,
-        7773932,
-        7774534,
-        7774535,
-        7774536,
-        7774538,
-        7774539,
-        7774540,
-        7774541,
-        7774542,
-        7774543,
-        7774544,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774554,
-        7774555,
-        7774556,
-        7774557,
-        7774558,
-        7774559,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "candidate_ids": [
-        7773493,
-        7774543
-      ],
-      "competing_observation_count": 1,
-      "context_labels": [
-        "Castle Cross Message",
-        "Scadutree Fragment"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d7-13",
-      "item_name": "Scadutree Fragment",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7773493
-      ],
-      "observation_id": "walkthrough:186084e3e624c3e2e398",
-      "reason": "area_only",
-      "regions": [
-        "Ensis"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7773493
-      ],
-      "section": "castle-ensis",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d7-13"
-    },
-    {
-      "all_candidate_ids": [
         7773464,
         7774070
       ],
@@ -7022,6 +6931,98 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d10-32"
+    },
+    {
+      "all_candidate_ids": [
+        7771790,
+        7771809,
+        7771849,
+        7771861,
+        7771869,
+        7771949,
+        7771965,
+        7771995,
+        7773205,
+        7773328,
+        7773354,
+        7773457,
+        7773473,
+        7773483,
+        7773493,
+        7773498,
+        7773506,
+        7773584,
+        7773587,
+        7773649,
+        7773653,
+        7773932,
+        7774534,
+        7774535,
+        7774536,
+        7774538,
+        7774539,
+        7774540,
+        7774541,
+        7774542,
+        7774543,
+        7774544,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774554,
+        7774555,
+        7774556,
+        7774557,
+        7774558,
+        7774559,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "candidate_ids": [
+        7773493,
+        7773498
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Highroad Cross",
+        "Scadutree Fragment"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-1",
+      "item_name": "Scadutree Fragment",
+      "matched_on": [
+        "item_name",
+        "guide_area",
+        "linked_landmark"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773493
+      ],
+      "observation_id": "walkthrough:07173c7a00594ac67234",
+      "reason": "shared_landmark",
+      "regions": [
+        "Scadu Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7773493
+      ],
+      "section": "scadu-west",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d8-1"
     },
     {
       "all_candidate_ids": [
@@ -53222,635 +53223,6 @@
     },
     {
       "all_candidate_ids": [
-        7771790,
-        7771809,
-        7771849,
-        7771861,
-        7771869,
-        7771949,
-        7771965,
-        7771995,
-        7773205,
-        7773328,
-        7773354,
-        7773457,
-        7773473,
-        7773483,
-        7773493,
-        7773498,
-        7773506,
-        7773584,
-        7773587,
-        7773649,
-        7773653,
-        7773932,
-        7774534,
-        7774535,
-        7774536,
-        7774538,
-        7774539,
-        7774540,
-        7774541,
-        7774542,
-        7774543,
-        7774544,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774554,
-        7774555,
-        7774556,
-        7774557,
-        7774558,
-        7774559,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "candidate_ids": [
-        7773498,
-        7773506,
-        7773587,
-        7773932,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Rune Arc",
-        "Scadutree Fragment x2"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-28",
-      "item_name": "Scadutree Fragment",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [
-        2
-      ],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7773932,
-        7774561,
-        7774563,
-        7774564
-      ],
-      "observation_id": "walkthrough:56615ca8600b2ab7abcc",
-      "reason": "area_only",
-      "regions": [
-        "Scadu Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7773932,
-        7774561
-      ],
-      "section": "scadu-west",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d8-28"
-    },
-    {
-      "all_candidate_ids": [
-        7771790,
-        7771809,
-        7771849,
-        7771861,
-        7771869,
-        7771949,
-        7771965,
-        7771995,
-        7773205,
-        7773328,
-        7773354,
-        7773457,
-        7773473,
-        7773483,
-        7773493,
-        7773498,
-        7773506,
-        7773584,
-        7773587,
-        7773649,
-        7773653,
-        7773932,
-        7774534,
-        7774535,
-        7774536,
-        7774538,
-        7774539,
-        7774540,
-        7774541,
-        7774542,
-        7774543,
-        7774544,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774554,
-        7774555,
-        7774556,
-        7774557,
-        7774558,
-        7774559,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "candidate_ids": [
-        7773498,
-        7773506,
-        7773587,
-        7773932,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Scadutree Fragment"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-31",
-      "item_name": "Scadutree Fragment",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7773932,
-        7774561,
-        7774563,
-        7774564
-      ],
-      "observation_id": "walkthrough:eb29372574f4c67f79fd",
-      "reason": "area_only",
-      "regions": [
-        "Scadu Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7773932,
-        7774561
-      ],
-      "section": "scadu-west",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d8-31"
-    },
-    {
-      "all_candidate_ids": [
-        7771790,
-        7771809,
-        7771849,
-        7771861,
-        7771869,
-        7771949,
-        7771965,
-        7771995,
-        7773205,
-        7773328,
-        7773354,
-        7773457,
-        7773473,
-        7773483,
-        7773493,
-        7773498,
-        7773506,
-        7773584,
-        7773587,
-        7773649,
-        7773653,
-        7773932,
-        7774534,
-        7774535,
-        7774536,
-        7774538,
-        7774539,
-        7774540,
-        7774541,
-        7774542,
-        7774543,
-        7774544,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774554,
-        7774555,
-        7774556,
-        7774557,
-        7774558,
-        7774559,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "candidate_ids": [
-        7773498,
-        7773506,
-        7773587,
-        7773932,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Moorth Ruins",
-        "Scadutree Fragment"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-35",
-      "item_name": "Scadutree Fragment",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7773932,
-        7774561,
-        7774563,
-        7774564
-      ],
-      "observation_id": "walkthrough:c5187f8bbf7f0de252cf",
-      "reason": "area_only",
-      "regions": [
-        "Scadu Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7773932,
-        7774561
-      ],
-      "section": "scadu-west",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d8-35"
-    },
-    {
-      "all_candidate_ids": [
-        7771790,
-        7771809,
-        7771849,
-        7771861,
-        7771869,
-        7771949,
-        7771965,
-        7771995,
-        7773205,
-        7773328,
-        7773354,
-        7773457,
-        7773473,
-        7773483,
-        7773493,
-        7773498,
-        7773506,
-        7773584,
-        7773587,
-        7773649,
-        7773653,
-        7773932,
-        7774534,
-        7774535,
-        7774536,
-        7774538,
-        7774539,
-        7774540,
-        7774541,
-        7774542,
-        7774543,
-        7774544,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774554,
-        7774555,
-        7774556,
-        7774557,
-        7774558,
-        7774559,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "candidate_ids": [
-        7773498,
-        7773506,
-        7773587,
-        7773932,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Scadutree Fragment"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-38",
-      "item_name": "Scadutree Fragment",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7773932,
-        7774561,
-        7774563,
-        7774564
-      ],
-      "observation_id": "walkthrough:e774cd4367a6ef27618f",
-      "reason": "area_only",
-      "regions": [
-        "Scadu Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7773932,
-        7774561
-      ],
-      "section": "scadu-west",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d8-38"
-    },
-    {
-      "all_candidate_ids": [
-        7771790,
-        7771809,
-        7771849,
-        7771861,
-        7771869,
-        7771949,
-        7771965,
-        7771995,
-        7773205,
-        7773328,
-        7773354,
-        7773457,
-        7773473,
-        7773483,
-        7773493,
-        7773498,
-        7773506,
-        7773584,
-        7773587,
-        7773649,
-        7773653,
-        7773932,
-        7774534,
-        7774535,
-        7774536,
-        7774538,
-        7774539,
-        7774540,
-        7774541,
-        7774542,
-        7774543,
-        7774544,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774554,
-        7774555,
-        7774556,
-        7774557,
-        7774558,
-        7774559,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "candidate_ids": [
-        7773498,
-        7773506,
-        7773587,
-        7773932,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Scadutree Fragment"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-63",
-      "item_name": "Scadutree Fragment",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7773932,
-        7774561,
-        7774563,
-        7774564
-      ],
-      "observation_id": "walkthrough:b9ca19412869702375b6",
-      "reason": "area_only",
-      "regions": [
-        "Scadu Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7773932,
-        7774561
-      ],
-      "section": "scadu-west",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d8-63"
-    },
-    {
-      "all_candidate_ids": [
-        7771790,
-        7771809,
-        7771849,
-        7771861,
-        7771869,
-        7771949,
-        7771965,
-        7771995,
-        7773205,
-        7773328,
-        7773354,
-        7773457,
-        7773473,
-        7773483,
-        7773493,
-        7773498,
-        7773506,
-        7773584,
-        7773587,
-        7773649,
-        7773653,
-        7773932,
-        7774534,
-        7774535,
-        7774536,
-        7774538,
-        7774539,
-        7774540,
-        7774541,
-        7774542,
-        7774543,
-        7774544,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774554,
-        7774555,
-        7774556,
-        7774557,
-        7774558,
-        7774559,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "candidate_ids": [
-        7773498,
-        7773506,
-        7773587,
-        7773932,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Golden Horn Tender",
-        "Scadutree Fragment"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-65",
-      "item_name": "Scadutree Fragment",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7773932,
-        7774561,
-        7774563,
-        7774564
-      ],
-      "observation_id": "walkthrough:137d9b2561d8ed28b490",
-      "reason": "area_only",
-      "regions": [
-        "Scadu Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7773932,
-        7774561
-      ],
-      "section": "scadu-west",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d8-65"
-    },
-    {
-      "all_candidate_ids": [
         7770209,
         7770236,
         7770369,
@@ -55284,6 +54656,653 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d5-19"
+    },
+    {
+      "all_candidate_ids": [
+        7771790,
+        7771809,
+        7771849,
+        7771861,
+        7771869,
+        7771949,
+        7771965,
+        7771995,
+        7773205,
+        7773328,
+        7773354,
+        7773457,
+        7773473,
+        7773483,
+        7773493,
+        7773498,
+        7773506,
+        7773584,
+        7773587,
+        7773649,
+        7773653,
+        7773932,
+        7774534,
+        7774535,
+        7774536,
+        7774538,
+        7774539,
+        7774540,
+        7774541,
+        7774542,
+        7774543,
+        7774544,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774554,
+        7774555,
+        7774556,
+        7774557,
+        7774558,
+        7774559,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "candidate_ids": [
+        7773493,
+        7773498,
+        7773506,
+        7773587,
+        7773932,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Rune Arc",
+        "Scadutree Fragment x2"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-28",
+      "item_name": "Scadutree Fragment",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [
+        2
+      ],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561,
+        7774563,
+        7774564
+      ],
+      "observation_id": "walkthrough:56615ca8600b2ab7abcc",
+      "reason": "area_only",
+      "regions": [
+        "Scadu Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561
+      ],
+      "section": "scadu-west",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d8-28"
+    },
+    {
+      "all_candidate_ids": [
+        7771790,
+        7771809,
+        7771849,
+        7771861,
+        7771869,
+        7771949,
+        7771965,
+        7771995,
+        7773205,
+        7773328,
+        7773354,
+        7773457,
+        7773473,
+        7773483,
+        7773493,
+        7773498,
+        7773506,
+        7773584,
+        7773587,
+        7773649,
+        7773653,
+        7773932,
+        7774534,
+        7774535,
+        7774536,
+        7774538,
+        7774539,
+        7774540,
+        7774541,
+        7774542,
+        7774543,
+        7774544,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774554,
+        7774555,
+        7774556,
+        7774557,
+        7774558,
+        7774559,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "candidate_ids": [
+        7773493,
+        7773498,
+        7773506,
+        7773587,
+        7773932,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Scadutree Fragment"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-31",
+      "item_name": "Scadutree Fragment",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561,
+        7774563,
+        7774564
+      ],
+      "observation_id": "walkthrough:eb29372574f4c67f79fd",
+      "reason": "area_only",
+      "regions": [
+        "Scadu Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561
+      ],
+      "section": "scadu-west",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d8-31"
+    },
+    {
+      "all_candidate_ids": [
+        7771790,
+        7771809,
+        7771849,
+        7771861,
+        7771869,
+        7771949,
+        7771965,
+        7771995,
+        7773205,
+        7773328,
+        7773354,
+        7773457,
+        7773473,
+        7773483,
+        7773493,
+        7773498,
+        7773506,
+        7773584,
+        7773587,
+        7773649,
+        7773653,
+        7773932,
+        7774534,
+        7774535,
+        7774536,
+        7774538,
+        7774539,
+        7774540,
+        7774541,
+        7774542,
+        7774543,
+        7774544,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774554,
+        7774555,
+        7774556,
+        7774557,
+        7774558,
+        7774559,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "candidate_ids": [
+        7773493,
+        7773498,
+        7773506,
+        7773587,
+        7773932,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Moorth Ruins",
+        "Scadutree Fragment"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-35",
+      "item_name": "Scadutree Fragment",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561,
+        7774563,
+        7774564
+      ],
+      "observation_id": "walkthrough:c5187f8bbf7f0de252cf",
+      "reason": "area_only",
+      "regions": [
+        "Scadu Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561
+      ],
+      "section": "scadu-west",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d8-35"
+    },
+    {
+      "all_candidate_ids": [
+        7771790,
+        7771809,
+        7771849,
+        7771861,
+        7771869,
+        7771949,
+        7771965,
+        7771995,
+        7773205,
+        7773328,
+        7773354,
+        7773457,
+        7773473,
+        7773483,
+        7773493,
+        7773498,
+        7773506,
+        7773584,
+        7773587,
+        7773649,
+        7773653,
+        7773932,
+        7774534,
+        7774535,
+        7774536,
+        7774538,
+        7774539,
+        7774540,
+        7774541,
+        7774542,
+        7774543,
+        7774544,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774554,
+        7774555,
+        7774556,
+        7774557,
+        7774558,
+        7774559,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "candidate_ids": [
+        7773493,
+        7773498,
+        7773506,
+        7773587,
+        7773932,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Scadutree Fragment"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-38",
+      "item_name": "Scadutree Fragment",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561,
+        7774563,
+        7774564
+      ],
+      "observation_id": "walkthrough:e774cd4367a6ef27618f",
+      "reason": "area_only",
+      "regions": [
+        "Scadu Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561
+      ],
+      "section": "scadu-west",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d8-38"
+    },
+    {
+      "all_candidate_ids": [
+        7771790,
+        7771809,
+        7771849,
+        7771861,
+        7771869,
+        7771949,
+        7771965,
+        7771995,
+        7773205,
+        7773328,
+        7773354,
+        7773457,
+        7773473,
+        7773483,
+        7773493,
+        7773498,
+        7773506,
+        7773584,
+        7773587,
+        7773649,
+        7773653,
+        7773932,
+        7774534,
+        7774535,
+        7774536,
+        7774538,
+        7774539,
+        7774540,
+        7774541,
+        7774542,
+        7774543,
+        7774544,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774554,
+        7774555,
+        7774556,
+        7774557,
+        7774558,
+        7774559,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "candidate_ids": [
+        7773493,
+        7773498,
+        7773506,
+        7773587,
+        7773932,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Scadutree Fragment"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-63",
+      "item_name": "Scadutree Fragment",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561,
+        7774563,
+        7774564
+      ],
+      "observation_id": "walkthrough:b9ca19412869702375b6",
+      "reason": "area_only",
+      "regions": [
+        "Scadu Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561
+      ],
+      "section": "scadu-west",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d8-63"
+    },
+    {
+      "all_candidate_ids": [
+        7771790,
+        7771809,
+        7771849,
+        7771861,
+        7771869,
+        7771949,
+        7771965,
+        7771995,
+        7773205,
+        7773328,
+        7773354,
+        7773457,
+        7773473,
+        7773483,
+        7773493,
+        7773498,
+        7773506,
+        7773584,
+        7773587,
+        7773649,
+        7773653,
+        7773932,
+        7774534,
+        7774535,
+        7774536,
+        7774538,
+        7774539,
+        7774540,
+        7774541,
+        7774542,
+        7774543,
+        7774544,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774554,
+        7774555,
+        7774556,
+        7774557,
+        7774558,
+        7774559,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "candidate_ids": [
+        7773493,
+        7773498,
+        7773506,
+        7773587,
+        7773932,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Golden Horn Tender",
+        "Scadutree Fragment"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-65",
+      "item_name": "Scadutree Fragment",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561,
+        7774563,
+        7774564
+      ],
+      "observation_id": "walkthrough:137d9b2561d8ed28b490",
+      "reason": "area_only",
+      "regions": [
+        "Scadu Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561
+      ],
+      "section": "scadu-west",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d8-65"
     },
     {
       "all_candidate_ids": [
@@ -58322,114 +58341,6 @@
     },
     {
       "all_candidate_ids": [
-        7771790,
-        7771809,
-        7771849,
-        7771861,
-        7771869,
-        7771949,
-        7771965,
-        7771995,
-        7773205,
-        7773328,
-        7773354,
-        7773457,
-        7773473,
-        7773483,
-        7773493,
-        7773498,
-        7773506,
-        7773584,
-        7773587,
-        7773649,
-        7773653,
-        7773932,
-        7774534,
-        7774535,
-        7774536,
-        7774538,
-        7774539,
-        7774540,
-        7774541,
-        7774542,
-        7774543,
-        7774544,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774554,
-        7774555,
-        7774556,
-        7774557,
-        7774558,
-        7774559,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "candidate_ids": [
-        7773498,
-        7773506,
-        7773584,
-        7773587,
-        7773653,
-        7773932,
-        7774547,
-        7774550,
-        7774552,
-        7774553,
-        7774561,
-        7774563,
-        7774564,
-        7900001
-      ],
-      "competing_observation_count": 7,
-      "context_labels": [
-        "Scadutree Fragment",
-        "Somber Smithing Stone [7]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d15-24",
-      "item_name": "Scadutree Fragment",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7773932,
-        7774561,
-        7774563,
-        7774564
-      ],
-      "observation_id": "walkthrough:88e15c857740dd080cc3",
-      "reason": "area_only",
-      "regions": [
-        "Abyssal",
-        "Scadu Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7773932,
-        7774561
-      ],
-      "section": "recluses-river",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d15-24"
-    },
-    {
-      "all_candidate_ids": [
         7770404,
         7770410,
         7770460,
@@ -60126,6 +60037,117 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w11-25"
+    },
+    {
+      "all_candidate_ids": [
+        7771790,
+        7771809,
+        7771849,
+        7771861,
+        7771869,
+        7771949,
+        7771965,
+        7771995,
+        7773205,
+        7773328,
+        7773354,
+        7773457,
+        7773473,
+        7773483,
+        7773493,
+        7773498,
+        7773506,
+        7773584,
+        7773587,
+        7773649,
+        7773653,
+        7773932,
+        7774534,
+        7774535,
+        7774536,
+        7774538,
+        7774539,
+        7774540,
+        7774541,
+        7774542,
+        7774543,
+        7774544,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774554,
+        7774555,
+        7774556,
+        7774557,
+        7774558,
+        7774559,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "candidate_ids": [
+        7773493,
+        7773498,
+        7773506,
+        7773584,
+        7773587,
+        7773653,
+        7773932,
+        7774547,
+        7774550,
+        7774552,
+        7774553,
+        7774561,
+        7774563,
+        7774564,
+        7900001
+      ],
+      "competing_observation_count": 8,
+      "context_labels": [
+        "Scadutree Fragment",
+        "Somber Smithing Stone [7]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d15-24",
+      "item_name": "Scadutree Fragment",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561,
+        7774563,
+        7774564
+      ],
+      "observation_id": "walkthrough:88e15c857740dd080cc3",
+      "reason": "area_only",
+      "regions": [
+        "Abyssal",
+        "Scadu Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7773493,
+        7773932,
+        7774561
+      ],
+      "section": "recluses-river",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d15-24"
     },
     {
       "all_candidate_ids": [
@@ -92034,7 +92056,8 @@
       "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d7-24",
       "item_name": "Moonrithyll's Knight Sword",
       "matched_on": [
-        "item_name"
+        "item_name",
+        "guide_area"
       ],
       "mentioned_quantities": [],
       "missing_evidence": [
@@ -92046,7 +92069,7 @@
         7773870
       ],
       "observation_id": "walkthrough:2260a74d5b49fa3f561b",
-      "reason": "region_disagreement",
+      "reason": "area_only",
       "regions": [
         "Ensis"
       ],
@@ -92121,7 +92144,8 @@
       "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d7-9",
       "item_name": "Loyal Knight's Cookbook",
       "matched_on": [
-        "item_name"
+        "item_name",
+        "guide_area"
       ],
       "mentioned_quantities": [],
       "missing_evidence": [
@@ -92133,7 +92157,7 @@
         7770162
       ],
       "observation_id": "walkthrough:c2d7e161b46aadb37517",
-      "reason": "region_disagreement",
+      "reason": "area_only",
       "regions": [
         "Ensis"
       ],
@@ -113232,6 +113256,76 @@
     },
     {
       "all_candidate_ids": [
+        7772530,
+        7772531,
+        7772596,
+        7772639,
+        7772726,
+        7772756,
+        7772943,
+        7772973,
+        7773082,
+        7773106,
+        7773179,
+        7773185,
+        7773371,
+        7773422,
+        7773426,
+        7773633,
+        7773707,
+        7774120,
+        7774121,
+        7774122,
+        7774123,
+        7774124,
+        7774125,
+        7774126,
+        7774127,
+        7774128,
+        7774288,
+        7774367
+      ],
+      "candidate_ids": [
+        7773422,
+        7773426
+      ],
+      "competing_observation_count": 1,
+      "context_labels": [
+        "Starlight Shards"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d7-17",
+      "item_name": "Starlight Shards",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7773426
+      ],
+      "observation_id": "walkthrough:cc68003d934b7c5a7307",
+      "reason": "area_only",
+      "regions": [
+        "Ensis"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "castle-ensis",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d7-17"
+    },
+    {
+      "all_candidate_ids": [
         7770527,
         7771732,
         7771759,
@@ -117488,55 +117582,6 @@
     },
     {
       "all_candidate_ids": [
-        7771917,
-        7771971,
-        7773492,
-        7774024,
-        7774039
-      ],
-      "candidate_ids": [
-        7771917,
-        7774039
-      ],
-      "competing_observation_count": 12,
-      "context_labels": [
-        "Ghost Glovewort [7]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d15-46",
-      "item_name": "Ghost Glovewort [7]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771917,
-        7774039
-      ],
-      "observation_id": "walkthrough:5f9b96d758721449dee8",
-      "reason": "area_only",
-      "regions": [
-        "Abyssal",
-        "Scadu Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "recluses-river",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d15-46"
-    },
-    {
-      "all_candidate_ids": [
         7771108,
         7771130,
         7772425,
@@ -118344,54 +118389,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d8-30"
-    },
-    {
-      "all_candidate_ids": [
-        7771917,
-        7771971,
-        7773492,
-        7774024,
-        7774039
-      ],
-      "candidate_ids": [
-        7771917,
-        7774039
-      ],
-      "competing_observation_count": 12,
-      "context_labels": [
-        "Ghost Glovewort [7]"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "dlc-walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-45",
-      "item_name": "Ghost Glovewort [7]",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7771917,
-        7774039
-      ],
-      "observation_id": "walkthrough:12c8e62addff028e13f5",
-      "reason": "area_only",
-      "regions": [
-        "Scadu Altus"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "scadu-west",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
-      "status": "needs_review",
-      "step": "d8-45"
     },
     {
       "all_candidate_ids": [
@@ -140762,6 +140759,57 @@
     },
     {
       "all_candidate_ids": [
+        7771917,
+        7771971,
+        7773492,
+        7774024,
+        7774039
+      ],
+      "candidate_ids": [
+        7771917,
+        7773492,
+        7774039
+      ],
+      "competing_observation_count": 12,
+      "context_labels": [
+        "Ghost Glovewort [7]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d15-46",
+      "item_name": "Ghost Glovewort [7]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7771917,
+        7773492,
+        7774039
+      ],
+      "observation_id": "walkthrough:5f9b96d758721449dee8",
+      "reason": "area_only",
+      "regions": [
+        "Abyssal",
+        "Scadu Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "recluses-river",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d15-46"
+    },
+    {
+      "all_candidate_ids": [
         7770077,
         7770078,
         7770079,
@@ -141126,6 +141174,56 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
       "status": "needs_review",
       "step": "d8-32"
+    },
+    {
+      "all_candidate_ids": [
+        7771917,
+        7771971,
+        7773492,
+        7774024,
+        7774039
+      ],
+      "candidate_ids": [
+        7771917,
+        7773492,
+        7774039
+      ],
+      "competing_observation_count": 12,
+      "context_labels": [
+        "Ghost Glovewort [7]"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "dlc-walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/dlc-walkthrough#d8-45",
+      "item_name": "Ghost Glovewort [7]",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7771917,
+        7773492,
+        7774039
+      ],
+      "observation_id": "walkthrough:12c8e62addff028e13f5",
+      "reason": "area_only",
+      "regions": [
+        "Scadu Altus"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "scadu-west",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/dlc-walkthrough.html",
+      "status": "needs_review",
+      "step": "d8-45"
     },
     {
       "all_candidate_ids": [
@@ -224417,17 +224515,17 @@
   "schema_version": 1,
   "summary": {
     "by_reason": {
-      "area_only": 2234,
+      "area_only": 2236,
       "one_landmark_candidate": 9,
-      "region_disagreement": 528,
-      "shared_landmark": 3,
+      "region_disagreement": 526,
+      "shared_landmark": 4,
       "source_area_unmapped": 76
     },
-    "held_checks_with_new_family_candidates": 2659,
+    "held_checks_with_new_family_candidates": 2660,
     "item_mentions": 4210,
     "limitations": "Suggestions only. Linked items can be mentions, not acquisitions. Guide area and catalog anchors are not independent proof of AP ownership. No quantity, position, mechanism or access is inferred.",
     "one_source_checks_with_second_family_candidates": 351,
-    "review_observations": 2850,
+    "review_observations": 2851,
     "schema_version": 1,
     "source_steps": 3928,
     "trusted_promotions": 0

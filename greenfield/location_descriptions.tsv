@@ -224,3 +224,11 @@ flag	description
 # MSB-placed on for his other reward lot. NOT a nearest-grace repeat: the flag has no
 # nearest_grace.tsv row at all.
 400221	from Kenneth Haight at Lake-Facing Cliffs
+# 2026-09-11 (255 report, instrument adjudication). f530865 moved Gravesite -> Ensis on the M4G MSB
+# character pin for Moonrithyll (entity 2047440360, m61_47_44_00 local 96.985/380.200/-46.217), but
+# its auto descriptor came off grace 76813 Castle Front, which grace_region_map.tsv files under
+# play_region 6800 = GRAVESITE -- so the row rendered "Ensis :: Moonrithyll's Knight Sword - around
+# Castle Front", an Ensis check naming a Gravesite grace, the same defect f400221 had. The invader
+# stands 75.9 m ABOVE that grace and 5.9 m from f2047447830 inside the castle. Named from the same
+# evidence that moved it; NOT a nearest-grace repeat -- the flag has no nearest_grace.tsv row.
+530865	defeat Moonrithyll, Carian Knight at Castle Ensis
