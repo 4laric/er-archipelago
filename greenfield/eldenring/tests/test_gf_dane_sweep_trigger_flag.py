@@ -1,5 +1,13 @@
 """Dryleaf Dane's two sweeps must key on his DEFEAT FLAGS, not his entity ids (#987).
 
+2026-09-12 correction: a later player report shows all three Avatar proxy flags
+remaining clear after the boss kill. The historical log proves a proxy CAN fire,
+not that it reliably follows final defeat. gen_data now folds those three groups
+onto explicit final-defeat flag 2050480800 AFTER allocation, preserving all 16
+members and unrelated ownership. Proxy healthbar metadata remains for allocation
+and old-seed names. The older rationale below is historical, not a ban on this fix.
+
+
 MOTIVATING CASE (CONTRIBUTING rule 11), Spinks via #987: killing Dryleaf Dane paid his own drop and
 nothing else -- both of his sweeps sat armed forever. 41 checks (24 + 17, both Scadu Altus).
 
@@ -101,12 +109,23 @@ def test_danes_entity_ids_are_not_sweep_triggers(ent):
 
 
 @pytest.mark.parametrize("ent", NO_DERIVATION_ENTITY_KEYS)
-def test_m61_entries_without_a_derivation_keep_their_entity_key(ent):
+def test_avatar_proxy_metadata_survives_but_sweeps_use_final_defeat(ent):
     assert ent in BOSS_HEALTHBARS, (
         "m61 entry %d vanished. It has no derivable defeat flag, so the m61 re-key must KEEP its "
         "existing entity key -- never drop it: dropping deletes a live sweep (#987)." % ent)
     assert "Scadutree Avatar" in BOSS_HEALTHBARS[ent][3]
-    assert DUNGEON_SWEEPS.get(ent), "Scadutree Avatar sweep %d lost its members" % ent
+    assert ent not in DUNGEON_SWEEPS
+    assert DUNGEON_SWEEPS.get(2050480800)
+
+
+def test_avatar_final_defeat_preserves_all_three_groups():
+    # Exact union from the pre-fix corpus, not a newly allocated Shadow Keep divvy.
+    assert set(DUNGEON_SWEEPS[2050480800]) == {
+        7771985, 7771993, 7773576, 7773942, 7774556, 7900199,
+        7771982, 7771990, 7773939, 7773947, 7774557,
+        7771983, 7771991, 7773940, 7773948, 7774558,
+    }
+    assert SWEEP_REGION[2050480800] == "Shadow Keep"
 
 
 def test_every_m61_trigger_flag_is_a_flag_the_game_can_set():

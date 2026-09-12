@@ -11826,6 +11826,21 @@ else:
         for _fl in _flags:
             DUNGEON_SWEEPS[_fl] = sorted(set(_members)); SWEEP_REGION[_fl] = _mreg.get(_mp, HUB)
 
+# Scadutree Avatar's three health-bar proxies are not reliable defeat flags.
+# m61_50_48_00 event 2050480800 explicitly sets 2050480800 after the final death.
+# Fold AFTER ownership allocation: re-keying healthbars before the divvy would redistribute
+# unrelated Shadow Keep checks. Preserve the complete union of the three existing groups.
+_avatar_members = set(DUNGEON_SWEEPS.get(2050480800, ()))
+for _proxy in (2050480810, 2050480811, 2050480812):
+    _avatar_members.update(DUNGEON_SWEEPS.pop(_proxy, ()))
+    _proxy_region = SWEEP_REGION.pop(_proxy, None)
+    if _proxy_region is not None:
+        assert _proxy_region == "Shadow Keep", (_proxy, _proxy_region)
+if _avatar_members:
+    DUNGEON_SWEEPS[2050480800] = sorted(_avatar_members)
+    SWEEP_REGION[2050480800] = "Shadow Keep"
+    BOSS_HEALTHBARS[2050480800] = BOSS_HEALTHBARS[2050480810]
+
 # ---- ARENA REGION per sweep trigger (issue #445) ----------------------------------------------
 # A sweep group's members live in SWEEP_REGION. The TRIGGER is a boss you must stand somewhere to
 # kill, and that somewhere is BOSS_AREA_REGION (PlayRegionParam boss-area row -> bucket -> region).

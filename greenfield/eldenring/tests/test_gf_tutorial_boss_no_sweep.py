@@ -952,6 +952,8 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # [8]. Two leave Rellana as they move to Scadu Altus: f2048447080 -> Black Knight Garrew
     # 2047450800, f2048447500 -> Black Knight Edredd 2049430850. The remaining two (f68790,
     # f530865) lose coverage and are accounted for at the corpus total above.
-    assert (digest, n) == ("5a1be8ceeb212f42", 4113), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (5a1be8ceeb212f42, 4113). The total alone will "
+    # 2026-09-12: exactly 16 member links move from the three Avatar proxies to
+    # 2050480800. The owned acquisition flags and every unrelated owner are unchanged.
+    assert (digest, n) == ("132220155d8778d3", 4113), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (132220155d8778d3, 4113). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

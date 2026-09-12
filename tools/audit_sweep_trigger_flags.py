@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 r"""audit_sweep_trigger_flags.py -- #987: is every sweep trigger key ever SET by the EMEVD corpus?
 
+2026-09-12 correction: a later player report shows all three Avatar proxy flags
+remaining clear after the boss kill. The historical log proves a proxy CAN fire,
+not that it reliably follows final defeat. gen_data now folds those three groups
+onto explicit final-defeat flag 2050480800 AFTER allocation, preserving all 16
+members and unrelated ownership. Proxy healthbar metadata remains for allocation
+and old-seed names. The older rationale below is historical, not a ban on this fix.
+
+
 WHY THIS EXISTS. A sweep trigger is a flag the CLIENT POLLS (`sweep_watch`). #1015 fixed Dryleaf
 Dane, whose two triggers keyed on ENTITY ids the EMEVD sets as flags nowhere, and the natural next
 question was "how many more are there?". This is the re-runnable answer, and running it is the
@@ -156,7 +164,7 @@ def arena_flags():
 
 def _load(name):
     """A generated pure-data module WITHOUT the eldenring package (which needs Archipelago)."""
-    spec = importlib.util.spec_from_file_location("_a_" + name, os.path.join(GF, "eldenring", name + ".py"))
+    spec = importlib.util.spec_from_file_location("_a_" + name, os.path.join(GF, "eldenring", "tables", name + ".py"))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
