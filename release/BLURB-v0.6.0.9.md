@@ -23,14 +23,12 @@ and main-menu delivery fixes need v0.6.0.8 or newer.
 
 ## What is in it so far
 
-<<<<<<< HEAD
 **Castle Ensis knows where it ends (#1554).** A playtester walked the castle and said seven of
 its checks were filed in the wrong region -- some standing in the Scadu Altus lowland past Rellana,
 some standing inside the castle while filed out on the Gravesite plain. Measured one at a time
 against the game's own play-region geometry rather than taken on the report: seven moved, six
 stayed. If you play with region locks, that is seven fewer checks that could be created and then
 fenced off. New rooms only; check IDs are unchanged, so nothing in a running seed shifts.
-=======
 The older fork renderer has been replaced with the pinned upstream 2.1.3 renderer. Our adapter
 preserves AP filtering and hover lookup. Filtering, client timeout fallback, repeated map
 close/reopen and underground transitions were exercised in game.
@@ -43,7 +41,6 @@ The AP client fixes missing pins when a seed's location IDs differ from the bake
 It joins map lots to the seed's acquisition flags before applying tracker reachability, so valid
 checks are no longer discarded because their AP IDs shifted. Logic filtering remains enabled;
 closed regions remain out of logic. Existing seeds need no regeneration.
->>>>>>> origin/main
 
 ## What carried over from v0.6.0.8
 
