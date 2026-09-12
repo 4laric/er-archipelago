@@ -172,6 +172,9 @@ try:
     _hbspec = _ilu.spec_from_file_location("_boss_hb", os.path.join(HERE, "eldenring", "tables", "boss_healthbars.py"))
     _hbmod = _ilu.module_from_spec(_hbspec); _hbspec.loader.exec_module(_hbmod)
     BOSS_HEALTHBARS = dict(_hbmod.BOSS_HEALTHBARS)
+    # The final-defeat entry is metadata, not a fourth Avatar allocation host.
+    # Restore it when the three allocated proxy groups are folded below.
+    BOSS_HEALTHBARS.pop(2050480800, None)
 except Exception as _e:
     BOSS_HEALTHBARS = {}
     print(f"[gen_data] boss_healthbars.py unavailable ({_e!r}); sweeps fall back to region-wide banner scan -- run tools/datamine_boss_healthbars.py")
@@ -11847,6 +11850,21 @@ else:
             continue
         for _fl in _flags:
             DUNGEON_SWEEPS[_fl] = sorted(set(_members)); SWEEP_REGION[_fl] = _mreg.get(_mp, HUB)
+
+# Scadutree Avatar's three health-bar proxies are not reliable defeat flags.
+# m61_50_48_00 event 2050480800 explicitly sets 2050480800 after the final death.
+# Fold AFTER ownership allocation: re-keying healthbars before the divvy would redistribute
+# unrelated Shadow Keep checks. Preserve the complete union of the three existing groups.
+_avatar_members = set(DUNGEON_SWEEPS.get(2050480800, ()))
+for _proxy in (2050480810, 2050480811, 2050480812):
+    _avatar_members.update(DUNGEON_SWEEPS.pop(_proxy, ()))
+    _proxy_region = SWEEP_REGION.pop(_proxy, None)
+    if _proxy_region is not None:
+        assert _proxy_region == "Shadow Keep", (_proxy, _proxy_region)
+if _avatar_members:
+    DUNGEON_SWEEPS[2050480800] = sorted(_avatar_members)
+    SWEEP_REGION[2050480800] = "Shadow Keep"
+    BOSS_HEALTHBARS[2050480800] = BOSS_HEALTHBARS[2050480810]
 
 # ---- ARENA REGION per sweep trigger (issue #445) ----------------------------------------------
 # A sweep group's members live in SWEEP_REGION. The TRIGGER is a boss you must stand somewhere to

@@ -87,7 +87,11 @@ class TestSweepSlotSkips(unittest.TestCase):
         # in gen_data._UNSPAWNED_VERDICTS -- its EMEVD boss chain is never initialized from the map
         # constructor -- so it no longer owns a sweep group and leaves SWEEPS entirely. That is the
         # census improving for the same reason #1066's two did: a residue entry was ADJUDICATED.
-        self.assertEqual(len(unaudited), 23,
+        # Avatar proxies 0810 and 0812 leave the unaudited set when all three groups
+        # fold onto final-defeat 0800, whose arena is already measured. Nothing else moves.
+        self.assertTrue({2050480810, 2050480812}.isdisjoint(unaudited))
+        self.assertEqual(ARENA_REGIONS[2050480800], "Shadow Keep")
+        self.assertEqual(len(unaudited), 21,
                          "the audited-arena census changed; review the issue #671 residue")
         skips = self._surface_skips()
         self.assertTrue(unaudited <= set(skips),

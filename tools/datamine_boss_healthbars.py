@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 r"""datamine_boss_healthbars.py -- authoritative boss set = every entity that gets a boss HEALTHBAR.
 
+2026-09-12 correction: a later player report shows all three Avatar proxy flags
+remaining clear after the boss kill. The historical log proves a proxy CAN fire,
+not that it reliably follows final defeat. gen_data now folds those three groups
+onto explicit final-defeat flag 2050480800 AFTER allocation, preserving all 16
+members and unrelated ownership. Proxy healthbar metadata remains for allocation
+and old-seed names. The older rationale below is historical, not a ban on this fix.
+
+
 Matt-free, EMEVD + NpcName FMG only (no MSB needed). ER shows a boss healthbar via
     DisplayBossHealthBar(Enabled, <chrEntityId>, <slot>, <nameId>)
 either literally in a map's emevd or through a common template (auto-discovered from common_func).
@@ -348,6 +356,10 @@ def datamine():
         out[fl] = b
     for ent, name in dropped:
         print(f"[boss_healthbars] DROPPED field boss {ent} ({name or '?'}): no derivable defeat flag")
+    # Publish final-defeat metadata as well as proxy metadata used by old seeds and
+    # the ownership allocator. gen_data excludes this alias until after allocation.
+    if 2050480810 in out:
+        out[2050480800] = dict(out[2050480810])
     return out
 
 

@@ -140,11 +140,16 @@ def test_legacy_would_have_been_the_wrong_answer():
     # so they are exactly the rows that would change hands if the predicate were simplified to
     # `class == "legacy"`. (The Godskin Duo reads the other way and is deliberately absent: it IS on
     # the roster, which is a fact about MajorBoss, not about this split.)
-    for who in ("Tree Sentinel", "Scadutree Avatar"):
+    for who in ("Tree Sentinel",):
         trigs = _named(who)
         assert trigs and not any(t in MAJOR_SWEEP_TRIGGERS for t in trigs), (
             "%s is a legacy-class trigger and is NOT on the major roster -- if this flips, the "
             "predicate quietly became `legacy`" % who)
+
+    # Avatar now joins the achievement roster through its real final-defeat flag.
+    # The old proxy keys failed that join; classifying those as minor was incidental.
+    assert _named("Scadutree Avatar") == [2050480800]
+    assert 2050480800 in MAJOR_SWEEP_TRIGGERS
 
 
 # ---------------------------------------------------------------------------------------------

@@ -120,6 +120,7 @@ AUTHORITATIVE_REPIN = {
     400285: "Roundtable Hold",           # [Incantation] Law of Causality
     400349: "Roundtable Hold",           # D's Bell Bearing
     400356: "Roundtable Hold",           # Rogier's Letter
+    400357: "Roundtable Hold",           # Rogier's returned Black Knifeprint (examined) -- m11_10, #1555
     400358: "Roundtable Hold",           # [Sorcery] Explosive Ghostflame
     400359: "Roundtable Hold",           # Rogier's Bell Bearing
     400490: "Roundtable Hold",           # Royal Remains Helm (Ensha)

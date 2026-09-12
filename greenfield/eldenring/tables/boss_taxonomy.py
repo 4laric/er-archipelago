@@ -260,8 +260,9 @@ BOSS_TAXONOMY = {
     2050460300: ('furnace_golem', 'overworld', 'm61_50_46_00', 'Scadu Altus', 'Furnace Golem'),
     2050460310: ('furnace_golem', 'overworld', 'm61_50_46_00', 'Scadu Altus', 'Furnace Golem'),
     2050470800: ('overworld_field', 'overworld', 'm61_50', 'Shadow Keep', 'Tree Sentinel'),
+    2050480800: ('remembrance_main', 'overworld', 'm61_50', 'Shadow Keep', 'Scadutree Avatar'),
     2050480810: ('overworld_field', 'overworld', 'm61_50', '', 'Scadutree Avatar'),
-    2050480811: ('overworld_field', 'overworld', 'm61_50', 'Shadow Keep', 'Scadutree Avatar'),
+    2050480811: ('overworld_field', 'overworld', 'm61_50', '', 'Scadutree Avatar'),
     2050480812: ('overworld_field', 'overworld', 'm61_50', '', 'Scadutree Avatar'),
     2050480860: ('overworld_field', 'overworld', 'm61_50', '', 'Tree Sentinel'),
     2051440800: ('overworld_field', 'overworld', 'm61_51', 'Scadu Altus', 'Rakshasa'),
@@ -275,7 +276,7 @@ BOSS_TAXONOMY = {
 
 # Convenience histograms -- the same numbers the oracle report prints.
 BOSS_CLASS_COUNTS = {
-    'remembrance_main': 40,
+    'remembrance_main': 41,
     'dragon': 15,
     'furnace_golem': 8,
     'evergaol': 10,
@@ -293,6 +294,6 @@ SITE_CLASS_COUNTS = {
     'gaol': 3,
     'heros_grave': 4,
     'legacy': 64,
-    'overworld': 116,
+    'overworld': 117,
     'tunnel': 9,
 }

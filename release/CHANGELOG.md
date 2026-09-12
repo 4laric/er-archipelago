@@ -3,6 +3,33 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.0.10 — 2026-09-12
+
+### What you need to update
+
+- **Client:** Required for the Scadutree Avatar sweep fix on existing seeds; otherwise optional.
+- **APWorld:** Host-only, for newly generated rooms after this version ships.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible; no regeneration or save migration required.
+- **Profile/assets:** Reinstall or replace `eldenring_archipelago.dll` for this fix; no map asset changes.
+
+Scadutree Avatar sweeps now use the final-defeat flag, preserving all 16 checks.
+The client also fixes existing seeds without changing their per-group lock gates.
+World #1556 includes the source audit; client #682 supplies the compatible DLL.
+
+NPC-region corrections (#1555) put Rogier's returned Black Knifeprint in Roundtable
+Hold, Millicent's Prosthesis-Wearer Heirloom in Caelid, Ranni's Carian Inverted
+Statue in Liurnia, Freyja's Golden Lion Shield in Shadow Keep, and Grandam's
+Gourmet Scorpion Stew in Belurat. These region corrections apply to new seeds.
+
+`CONTRACT_HASH` remains `613fb438`, unchanged since v0.6.0.3. The client version
+sites move to 0.6.0.10 in #682, pinned by this change. Existing compatible seeds
+remain playable; prior game-version and feature minimums still apply.
+
+This opens the window two commits after v0.6.0.9: release-note delimiter cleanup
+and the Avatar fix. The fix is recorded here; no gameplay changes are moved out
+of the shipped v0.6.0.9 notes. Stable now points to the tagged v0.6.0.9 release.
+
 ## v0.6.0.9 — 2026-09-11
 
 ### What you need to update
