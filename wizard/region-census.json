@@ -1432,39 +1432,39 @@
    "rollable": true,
    "shop_checks": 0,
    "sweep_slots": {
-    "all": 5,
+    "all": 4,
     "bosses": 5
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
-     "all": 5,
+     "all": 4,
      "bosses": 5
     },
     "SweepSlotMajor": {
      "all": 2,
-     "bosses": 2
+     "bosses": 3
     },
     "SweepSlotMinor": {
-     "all": 3,
-     "bosses": 3
+     "all": 2,
+     "bosses": 2
     }
    },
    "sweep_slots_max": {
-    "all": 31,
-    "bosses": 31
+    "all": 26,
+    "bosses": 34
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 31,
-     "bosses": 31
+     "all": 26,
+     "bosses": 34
     },
     "SweepSlotMajor": {
      "all": 14,
-     "bosses": 14
+     "bosses": 22
     },
     "SweepSlotMinor": {
-     "all": 17,
-     "bosses": 17
+     "all": 12,
+     "bosses": 12
     }
    },
    "tarnished_pack_checks": 0,
@@ -1633,5 +1633,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "b825f4482d3dfd150b55fa0add1c0e0bced8da9138a8965039c02b64cbcca495"
+ "source_sha256": "8fa4c36d5b7845ae476021eff7e432bbe440ec601dfdbceb5e10ab7f365a6f12"
 }
