@@ -3116,6 +3116,13 @@ else:
 # Keys are acquisition event flags (int); values are greenfield region names. Found via in-game
 # tracker report 2026-07-08 (Godfrey Icon talisman + Haligtree medallion mis-shown under Liurnia).
 FLAG_REGION_OVERRIDE = {
+    # Rogier returns the examined knifeprint at Roundtable Hold. The shared
+    # t325001110_x70 dialogue awards lot 103510 after 11109529, says "Here's
+    # the knifeprint back", and sets 11109506. Its m11_10 script-container
+    # inheritance is not the reward's physical location (questline_dag.tsv
+    # already identifies Roundtable Hold). Keep separate from Liurnia's
+    # Black Knife Catacombs acquisition, flag 520210 / lot 20211.
+    400357: "Roundtable Hold",
     # 2026-09-10: native M4G lot pins plus independent traversal evidence.
     # Per-check adjudications (not tile moves); evidence/mfg_oracle_regions.json
     # records positions, exact lot identities and sources. Keeper: test_gf_mfg_oracle_regions.

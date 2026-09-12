@@ -162,6 +162,7 @@ LOCATIONS = {
         ('Roundtable Hold :: [Incantation] Law of Causality - around Table of Lost Grace [f400285]', 7770591, 400285),
         ("Roundtable Hold :: D's Bell Bearing - around Table of Lost Grace [f400349]", 7770605, 400349),
         ("Roundtable Hold :: Rogier's Letter - around Table of Lost Grace [f400356]", 7770606, 400356),
+        ('Roundtable Hold :: Black Knifeprint [f400357]', 7770607, 400357),
         ('Roundtable Hold :: [Sorcery] Explosive Ghostflame - around Table of Lost Grace [f400358]', 7770608, 400358),
         ("Roundtable Hold :: Rogier's Bell Bearing - around Table of Lost Grace [f400359]", 7770609, 400359),
         ('Roundtable Hold :: Royal Remains Helm - around Table of Lost Grace [f400490]', 7770626, 400490),
@@ -2222,7 +2223,6 @@ LOCATIONS = {
         ('Leyndell :: Frenzied Flame Seal - around Underground Roadside, may be sweep-granted by Mohg, the Omen (m35_00) [f400089]', 7770572, 400089),
         ('Leyndell :: Scepter of the All-Knowing [f400281]', 7770587, 400281),
         ('Leyndell :: All-Knowing Gauntlets [f400284]', 7770590, 400284),
-        ('Leyndell :: Black Knifeprint [f400357]', 7770607, 400357),
         ("Leyndell :: Corhyn's Bell Bearing - around Elden Throne, may be sweep-granted by Esgar, Priest of Blood (m35_00) [f400370]", 7770612, 400370),
         ('Leyndell :: Sword of Milos - around Underground Roadside, may be sweep-granted by Esgar, Priest of Blood (m35_00) [f400381]', 7770613, 400381),
         ('Leyndell :: Omen Helm - around Underground Roadside, may be sweep-granted by Mohg, the Omen (m35_00) [f400382]', 7770614, 400382),
@@ -5572,4 +5572,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:ade81cb35d9f33afc7e8eaab6f361cd86b05129af182b8c80f2a2bcd26a6e8e4', 'module': 'data.py', 'body_sha256': 'sha256:8810541368980e4024e1d0f86dfa8e5fd838b5b9b28146e32d126859245aefbc'}
+_GEN_STAMP = {'inputs_hash': 'sha256:a86923501762edc9146fb29e09dd62ec921f20e86a67fa6700206755244cdb2e', 'module': 'data.py', 'body_sha256': 'sha256:c8788ce61df7ce6f085da1e072c90888e57a495f908305ea84742ddd24994869'}
