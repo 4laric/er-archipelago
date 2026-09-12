@@ -1,16 +1,16 @@
 {
   "by_reason": {
-    "area_only": 2236,
+    "area_only": 2239,
     "one_landmark_candidate": 9,
-    "region_disagreement": 526,
+    "region_disagreement": 524,
     "shared_landmark": 4,
     "source_area_unmapped": 76
   },
-  "held_checks_with_new_family_candidates": 2660,
-  "item_mentions": 4210,
+  "held_checks_with_new_family_candidates": 2661,
+  "item_mentions": 4211,
   "limitations": "Suggestions only. Linked items can be mentions, not acquisitions. Guide area and catalog anchors are not independent proof of AP ownership. No quantity, position, mechanism or access is inferred.",
   "one_source_checks_with_second_family_candidates": 351,
-  "review_observations": 2851,
+  "review_observations": 2852,
   "schema_version": 1,
   "source_steps": 3928,
   "trusted_promotions": 0

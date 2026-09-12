@@ -17,6 +17,11 @@ Scadutree Avatar sweeps now use the final-defeat flag, preserving all 16 checks.
 The client also fixes existing seeds without changing their per-group lock gates.
 World #1556 includes the source audit; client #682 supplies the compatible DLL.
 
+NPC-region corrections (#1555) put Rogier's returned Black Knifeprint in Roundtable
+Hold, Millicent's Prosthesis-Wearer Heirloom in Caelid, Ranni's Carian Inverted
+Statue in Liurnia, Freyja's Golden Lion Shield in Shadow Keep, and Grandam's
+Gourmet Scorpion Stew in Belurat. These region corrections apply to new seeds.
+
 `CONTRACT_HASH` remains `613fb438`, unchanged since v0.6.0.3. The client version
 sites move to 0.6.0.10 in #682, pinned by this change. Existing compatible seeds
 remain playable; prior game-version and feature minimums still apply.

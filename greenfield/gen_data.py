@@ -3119,6 +3119,22 @@ else:
 # Keys are acquisition event flags (int); values are greenfield region names. Found via in-game
 # tracker report 2026-07-08 (Godfrey Icon talisman + Haligtree medallion mis-shown under Liurnia).
 FLAG_REGION_OVERRIDE = {
+    # Rogier returns the examined knifeprint at Roundtable Hold. The shared
+    # t325001110_x70 dialogue awards lot 103510 after 11109529, says "Here's
+    # the knifeprint back", and sets 11109506. Its m11_10 script-container
+    # inheritance is not the reward's physical location (questline_dag.tsv
+    # already identifies Roundtable Hold). Keep separate from Liurnia's
+    # Black Knife Catacombs acquisition, flag 520210 / lot 20211.
+    400357: "Roundtable Hold",
+    # Millicent's post-needle gift: t348006000_x45 awards lot103200 in
+    # state4186 after needle handover1050389255, before receipt1050389257.
+    # The same dialogue exists in her Haligtree script; that later residence
+    # must not override the Caelid handover (see QUEST_GATED_FLAGS below).
+    400320: "Caelid",
+    # Ranni's x28/x29 in t106016000 both award lot103910 and set the local
+    # handover latch1034509421 (m60_34_50, Liurnia). Global/unplaced fallback
+    # previously put this reward in Roundtable Hold.
+    400391: "Liurnia",
     # 2026-09-10: native M4G lot pins plus independent traversal evidence.
     # Per-check adjudications (not tile moves); evidence/mfg_oracle_regions.json
     # records positions, exact lot identities and sources. Keeper: test_gf_mfg_oracle_regions.
@@ -3392,7 +3408,10 @@ FLAG_REGION_OVERRIDE = {
                                                #   mis-tiled it to m13 Farum Azula. Sibling Rem. Omen King (510040) is Altus.
                                                #   MIS-REGION STRANDS PROGRESSION: lock here reads Farum-reachable but is behind Altus.
     # §5c re-pins whose method is NOT global (GLOBAL_RECOVER can't reach them) -> force here:
-    400722: "Gravesite",                 # Gourmet Scorpion Stew (flag_prefix, was Mohgwyn) -- DLC quest consumable
+    # Grandam's t402002000_x48 awards lot107220 in m20_00 (Belurat), gated
+    # by her 20009286/20009290 state. Neither its flag prefix nor the earlier
+    # broad DLC recovery pin identifies the acquisition region.
+    400722: "Belurat",
     520700: "Gravesite",                 # Death Knight's Twin Axes (emevd m30_13 mis-map, was Altus) -> Fog Rift Catacombs
     # (The m20 Revered Spirit Ash stragglers 20007900 / 20017900 were hand-pinned here until the
     # flag-prefix map recovery learned the "20" prefix; they now derive their region via the
@@ -4018,7 +4037,10 @@ GLOBAL_RECOVER = {
     400590: 'Scadu Altus',
     400592: 'Scadu Altus',
     400596: 'Shadow Keep',
-    400600: 'Enir Ilim',
+    # Freyja's letter handover: t417002101_x52, lot106000, receipt21019365;
+    # x51 consumes the letter and sets21019371 in the Storehouse (m21_01).
+    # Her later Enir Ilim appearance is not this reward's acquisition site.
+    400600: 'Shadow Keep',
     400611: 'Scadu Altus',
     400627: 'Enir Ilim',
     400630: 'Gravesite',

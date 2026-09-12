@@ -312,7 +312,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Belurat": {
-   "checks": 93,
+   "checks": 94,
    "combos": {
     "Boss|MajorBoss|Remembrance": 1,
     "Fragment": 1,
@@ -356,7 +356,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Caelid": {
-   "checks": 364,
+   "checks": 365,
    "combos": {
     "Basin": 1,
     "Basin|Boss|FieldBoss": 1,
@@ -590,7 +590,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Enir Ilim": {
-   "checks": 107,
+   "checks": 106,
    "combos": {
     "Boss|MajorBoss|Remembrance": 1,
     "Fragment": 3,
@@ -729,7 +729,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Gravesite": {
-   "checks": 198,
+   "checks": 197,
    "combos": {
     "Boss": 5,
     "Boss|FieldBoss": 2,
@@ -783,7 +783,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Haligtree": {
-   "checks": 123,
+   "checks": 122,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|MajorBoss": 2,
@@ -878,7 +878,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Leyndell": {
-   "checks": 258,
+   "checks": 257,
    "combos": {
     "Boss|GreatRune|MajorBoss": 1,
     "Boss|Legendary|MajorBoss": 1,
@@ -996,7 +996,7 @@
    "tarnished_pack_shop_checks": 1
   },
   "Liurnia": {
-   "checks": 585,
+   "checks": 586,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 15,
@@ -1416,7 +1416,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Shadow Keep": {
-   "checks": 119,
+   "checks": 120,
    "combos": {
     "Boss|FieldBoss": 1,
     "Boss|FieldBoss|MajorBoss|Remembrance": 2,
@@ -1633,5 +1633,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "ee3a68cb520fba02eac1b2400400799a227ae1447ce151d391ae0ee18b82484e"
+ "source_sha256": "565648b8f1b19bfb4c6f73eee0957fe61143bae8eef8087bc7fa41ce75696e21"
 }
